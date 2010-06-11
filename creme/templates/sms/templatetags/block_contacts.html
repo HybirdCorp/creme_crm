@@ -1,0 +1,48 @@
+{% load creme_block %}
+{% load sms_blocks %}
+
+<table class="table_detail_view ui-corner-all" id={{block_name}}>
+    {% get_block_header '%s Contact destinataire' '%s Contacts destinataires' %}
+    <tbody class="collapsable">
+        <tr>
+            <th colspan="4" class="block_header_line_dark" align="left">
+                {% comment %}<a class="button_link" onclick="creme.utils.showInnerPopup('/sms/sendlist/{{object.pk}}/contact/add')">{% endcomment %}
+                <a class="button_link" onclick="creme.utils.innerPopupNReload('/sms/sendlist/{{object.pk}}/contact/add', '{{update_url}}?base_url={{base_url}}');">
+                    <img src="{{MEDIA_URL}}images/add_22.png" border="0" title="Ajouter manuellement" alt="Ajouter" />Ajouter des contacts
+                </a>
+                {% comment %}<a class="button_link" onclick="creme.utils.showInnerPopup('/sms/sendlist/{{object.pk}}/contact/add_from_filter')">{% endcomment %}
+                <a class="button_link" onclick="creme.utils.innerPopupNReload('/sms/sendlist/{{object.pk}}/contact/add_from_filter', '{{update_url}}?base_url={{base_url}}')">
+                    <img src="{{MEDIA_URL}}images/add_22.png" border="0" title="Ajouter gràce à un filtre" alt="Ajouter" />Ajouter à partir d'un filtre
+                </a>
+            </th>
+        </tr>
+        {% if page.paginator.count %}
+            <tr>
+                <th class="block_header_line_dark">Numéro</th>
+                <th class="block_header_line_dark">Supprimer</th>
+            </tr>
+            {% for contact in page.object_list %}
+                <!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
+                <tr>
+                    <td class="{{row_color}}">
+                        <a href="{{contact.get_absolute_url}}">
+                            {% if contact.mobile %}
+                                {{contact.mobile|phonenumber|formatphone}}
+                            {% else %}
+                                {{contact}} : pas de numéro.
+                            {% endif %}
+                        </a>
+                    </td>
+                    <td class="{{row_color}}" align="center" valign="center" style="width:10%;">
+                        {% get_line_deletor '/sms/sendlist/{{object.pk}}/contact/delete/{{contact.pk}}' %}
+                    </td>
+                </tr>
+            {% endfor %}
+        {% else %}
+            <tr>
+                <td class="block_line_dark">Aucun contact destinataire pour le moment</td>
+            </tr>
+        {% endif %}
+    </tbody>
+    {% include 'creme_core/templatetags/widgets/block_footer.html' %}
+</table>

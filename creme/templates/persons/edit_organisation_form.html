@@ -1,0 +1,9 @@
+{% extends "persons/person_form.html" %}
+
+{% block content %}
+    {% with 'images/edit_64.png' as logo %}
+    {% with 'Éditer' as title %}
+        {% include "persons/frags/organisation_form_content.html" %}
+    {% endwith %}
+    {% endwith %}
+{% endblock %}

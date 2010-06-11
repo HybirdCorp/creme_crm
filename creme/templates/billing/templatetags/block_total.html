@@ -1,0 +1,18 @@
+{% load creme_core_tags %}
+{% load creme_block %}
+
+<table  class="table_detail_view ui-corner-all" id={{block_name}}>
+    <thead>
+        <tr><th colspan="2">Totaux</th></tr>
+    </thead>
+    <tbody class="collapsable">
+        <tr>
+             <th class="block_header_line_dark" align="center" valign="center"><h1>Total HT</h1></th>
+             <td class="block_line_dark" align="center" valign="center"><h1>{{total}}</h1></td>
+        </tr>
+        <tr>
+             <th class="block_header_line_light" align="center" valign="center"><h1>Total TTC</h1></th>
+             <td class="block_line_light" align="center" valign="center"><h1>{{total_with_tax}}</h1></td>
+        </tr>
+    </tbody>
+</table>

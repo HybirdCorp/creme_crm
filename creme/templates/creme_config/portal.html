@@ -1,0 +1,106 @@
+{% extends "creme_core/generics/portal.html" %}
+
+{% block logo %}<img src="{{MEDIA_URL}}images/config_64.png" alt=""/>{% endblock %}
+{% block title %}Portail de Configuration de Creme{% endblock %}
+{% block header_link %}{% endblock %}
+
+{% block before_statistics %}
+    <!--
+        {% cycle "block_line_light" "block_line_dark" as row_color %}
+    -->
+
+    <table class="table_detail_view ui-corner-all">
+        <thead>
+            <tr>
+                <th colspan="100">
+                    Général
+                </th>
+            </tr>
+        </thead>
+        <tbody class="collapsable">
+            <tr>
+                <td class="{% cycle row_color %}"> <a href="/creme_config/user/portal/">Gestion des utilisateurs</a> </td>
+            </tr>
+            <tr>
+                <td class="{% cycle row_color %}"> <a href="/creme_config/relation_type/portal/">Gestion des types de relation</a> </td>
+            </tr>
+            <tr>
+                <td class="{% cycle row_color %}"> <a href="/creme_config/property_type/portal/">Gestion des types de propriété</a> </td>
+            </tr>
+            <tr>
+                <td class="{% cycle row_color %}"> <a href="/creme_config/blocks/portal/">Gestion des blocs</a> </td>
+            </tr>
+            <tr>
+                <td class="{% cycle row_color %}"> <a href="/creme_config/prefered_menu/edit/">Gestion du menu rapide par défaut</a> </td>
+            </tr>
+            <tr>
+                <td class="{% cycle row_color %}"> <a href="/creme_config/button_menu/portal/">Gestion du menu bouton</a> </td>
+            </tr>
+        </tbody>
+    </table>
+
+    <table class="table_detail_view ui-corner-all">
+        <thead>
+            <tr>
+                <th colspan="100">
+                    Gestion des droits
+                </th>
+            </tr>
+        </thead>
+        <tbody class="collapsable">
+            <tr>
+                <td class="{% cycle row_color %}"> <a href="/creme_config/roles/portal/">Gestion des rôles</a> </td>
+            </tr>
+            <tr>
+                <td class="{% cycle row_color %}"> <a href="/creme_config/profile/portal/">Gestion des profils</a> </td>
+            </tr>
+            <tr>
+                <td class="{% cycle row_color %}"> <a href="/creme_config/roles/entity_credential/portal/">Gestion des droits d'entité</a> </td>
+            </tr>
+            <tr>
+                <td class="{% cycle row_color %}"> <a href="/creme_config/roles/app_credential/portal/">Gestion des droits d'application</a> </td>
+            </tr>
+        </tbody>
+    </table>
+
+    <table class="table_detail_view ui-corner-all">
+        <thead>
+            <tr>
+                <th colspan="100">
+                    À jarter
+                </th>
+            </tr>
+        </thead>
+        <tbody class="collapsable">
+            <tr>
+                <td class="{% cycle row_color %}"> <a href="/creme_config/mailsignature/portal/">Gestion des signatures d'email</a> </td>
+            </tr>
+        </tbody>
+    </table>
+
+    <table class="table_detail_view ui-corner-all">
+        <thead>
+            <tr>
+                <th colspan="100">
+                    Portails des applications
+                </th>
+            </tr>
+        </thead>
+        <tbody class="collapsable">
+            {% for app_conf in app_configs %}
+                <tr>
+                    <td class="{% cycle row_color %}">
+                        <a href="{{app_conf.portal_url}}">Portail configuration {{app_conf.verbose_name}}</a>
+                    </td>
+                </tr>
+            {% empty %}
+                <tr>
+                    <td class="{% cycle row_color %}">Aucune application ne nécessite de configuration</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}
+
+{% block statistics %}{% endblock %}
+{% block extra_infos %}{% endblock %}

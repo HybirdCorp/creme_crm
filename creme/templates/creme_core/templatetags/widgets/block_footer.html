@@ -1,0 +1,21 @@
+{% ifnotequal page.paginator.num_pages 1 %}
+    <tfooter class="collapsable">
+        <tr>
+            <td colspan="100" class="block_header_line_dark">
+                {% if page.has_previous %}
+                    <a class="button_link" onclick="creme.utils.loadBlock('{{update_url}}?{{block_name}}_page={{page.previous_page_number}}&base_url={{base_url}}')">
+                        Page précédente
+                    </a>
+                {% endif %}
+
+                Page {{page.number}} / {{page.paginator.num_pages}}
+
+                {% if page.has_next %}
+                    <a class="button_link" onclick="creme.utils.loadBlock('{{update_url}}?{{block_name}}_page={{page.next_page_number}}&base_url={{base_url}}')">
+                        Page suivante
+                    </a>
+                {% endif %}
+            </td>
+        </tr>
+    </tfooter>
+{% endifnotequal %}

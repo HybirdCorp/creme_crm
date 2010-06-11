@@ -1,0 +1,55 @@
+<select name="filter" id="list_filter" onchange="submitHandler(this);">
+    <option value="">Tout</option>
+    {% for filter in select_values %}
+        <option value="{{filter.value}}" {% ifequal selected_filter_id  filter.value %} selected {% endifequal %}>
+            {{filter.text}}
+        </option>
+    {% endfor %}
+</select>
+
+<!-- 
+<script type="text/javascript">
+    alert ( "blta") ;
+    function filterList(select, register)
+    {
+        try
+        {
+            var filter_id = $(select).val();
+            if(register)// && filter_id!="")
+            {
+                if(filter_id == "") filter_id=0;
+                $.ajax({
+                        url : '/creme_core/filter/register/'+filter_id+'/{{content_type_id}}',
+                        type : 'GET',
+                        data : {},
+                        dataType : "json"
+                 });
+             }
+             var url = $('#liste').getGridParam('url').split('?');
+             if (url.length == 1)
+                url = url[0] + "?filter=" + filter_id;
+             else
+                url = $('#liste').getGridParam('url') + "&filter=" + filter_id;
+            $('#liste').setGridParam({url:url,datatype:"json"}).trigger("reloadGrid");
+        }
+        catch(e){/*alert('Erreur:\n'+e);*/}
+
+    }
+
+
+    $(document).ready(function(){
+        $.ajax({
+                url : '/creme_core/filter/get_session_filter_id/{{content_type_id}}',
+                type : 'GET',
+                dataType : "text",
+                success:function(data, textStatus){
+                    $('#liste_filter').val(data);
+                },
+                complete:function(){
+                    $('#liste_filter').change();
+                }
+         });
+    });
+</script>
+
+-->

@@ -1,0 +1,15 @@
+{% extends "creme_core/base.html" %}
+
+{% load creme_core_tags %}
+
+{% block extrahead %}
+    {% comment %}  WTF !!???  (remove when billing form use True widgets)  {% endcomment %}
+    {% include "billing/form_script.html" %}
+{% endblock %}
+
+{% block content %}
+    {% templatize "Préparation d'un nouveau générateur : Étape {{step}} / {{step_count}}" as title %}
+    {% with 'images/add_64.png' as logo %}
+        {% include "recurrents/frags/wizard_form_content.html" %}
+    {% endwith %}
+{% endblock %}

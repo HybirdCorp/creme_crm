@@ -1,0 +1,60 @@
+{% load creme_core_tags %}
+{% load creme_block %}
+
+<table class="table_detail_view ui-corner-all" id={{block_name}}>
+    {% get_block_header '%s Mémo' '%s Mémos' 'memo_48.png' 'Mémo' %}
+    <tbody class="collapsable">
+        {% if object %}
+            <tr>
+                <th class="block_header_line_light" align="left" colspan="4">
+                    {% comment %}
+                    <a class="button_link" onclick="creme.utils.showInnerPopup('/assistants/memo/add/{{object.id}}/')">
+                        <img src="{{MEDIA_URL}}images/add_22.png" border="0" title="Ajouter" alt="Ajouter" />Nouveau
+                    </a>{% endcomment %}
+                    <a class="button_link" onclick="creme.utils.innerPopupNReload('/assistants/memo/add/{{object.id}}/', '{{update_url}}?base_url={{base_url}}');">
+                        <img src="{{MEDIA_URL}}images/add_22.png" border="0" title="Ajouter" alt="Ajouter" />Nouveau
+                    </a>
+                </th>
+            </tr>
+        {% endif %}
+
+        {% if page.paginator.count %}
+            <tr>
+                {% if not object %}
+                    <th class="block_header_line_dark">Fiche concernée</th>
+                {% endif %}
+                {% get_column_header "Utilisateur" 'user' %}
+                {% get_column_header 'Crée le' 'creation_date' %}
+                {% get_column_header 'Contenu' 'content' %}
+                <th class="block_header_line_dark">Actions</th>
+            </tr>
+
+            {% for memo in page.object_list %}
+                <!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
+                <tr>
+                    {% if not object %}
+                        <td class="{{row_color}}">
+                            <a href="{{memo.creme_entity.get_absolute_url}}">{{memo.creme_entity}}</a>
+                        </td>
+                    {% endif %}
+                    <td class="{{row_color}}">{{memo.user}}</td>
+                    <td class="{{row_color}}">{{memo.creation_date|date:"d/m/y"}}</td>
+                    <td class="{{row_color}}">{{memo|get_html_field_value:"content"}}</td>
+                    <td class="{{row_color}}" align="center" valign="center" style="width:10%;">
+                        {% comment %}<a onclick="creme.utils.showInnerPopup('/assistants/memo/edit/{{memo.id}}/')">{% endcomment %}
+                        <a onclick="creme.utils.innerPopupNReload('/assistants/memo/edit/{{memo.id}}/', '{{update_url}}?base_url={{base_url}}');">
+                            <img src="{{MEDIA_URL}}images/edit_22.png" border="0">
+                        </a>
+                        {# get_line_deletor '/assistants/memo/delete/{{memo.id}}/' #}
+                        {% get_line_deletor2 '/assistants/memo/delete' "{ 'id':{{memo.id}} }" %}
+                    </td>
+                </tr>
+            {% endfor %}
+        {% else %}
+            <tr>
+                <td class="block_line_dark">Aucun mémo enregistré pour le moment</td>
+            </tr>
+        {% endif %}
+    </tbody>
+    {% include 'creme_core/templatetags/widgets/block_footer.html' %}
+</table>

@@ -1,0 +1,6 @@
+<div id="last_viewed">
+    <strong>Dernières fiches consultées:&nbsp; &nbsp;</strong>
+    {% for item in items %}
+        <a href="{{item.url}}">{{item.name}}</a> &nbsp; &nbsp;
+    {% endfor %}
+</div>

@@ -1,0 +1,58 @@
+{% extends "creme_core/base.html" %}
+
+{% block content %}
+    <table class="table_header" cellpadding="0" cellspacing="0">
+        <tr>
+            <td width="5%">{% block logo %}{% endblock %}</td>
+            <td width="95%">
+                <h1> {% block title %}{% endblock %}</h1>
+            </td>
+        </tr>
+    </table>
+
+    <div id="editforms">
+        <form action="" method="POST" {% if form.is_multipart %}enctype="multipart/form-data"{% endif %}>
+            {% for hidden in form.hidden_fields %}
+                {{ hidden }}
+            {% endfor %}
+
+            <table class="table_detail_view ui-corner-all">
+                <thead>
+                    <tr>
+                        <th colspan="2" valign="middle">Formulaire</th>
+                    </tr>
+                </thead>
+                <tbody class="collapsable">
+                    {% for field in form.visible_fields %}
+                        {% if not field.is_hidden %}
+                            <tr>
+                                <th class="{% cycle "block_header_line_dark" "block_header_line_light" %}">{{field.label}}</th>
+                                <td class="{% cycle "block_line_dark" "block_line_light" %}">
+                                    {% if field.help_text %}
+                                        {{field.help_text}} <br />
+                                    {% endif %}
+                                    {{field.errors}} {{field}}
+                                </td>
+                            </tr>
+                        {% endif %}
+                    {% endfor %}
+                <tbody>
+            </table>
+            {% if form.non_field_errors %}
+                <table class="table_detail_view ui-corner-all">
+                    <thead>
+                        <tr>
+                            <th valign="middle">Erreurs globales</th>
+                        </tr>
+                    </thead>
+                    <tbody class="collapsable">
+                        <tr>
+                            <td>{{ form.non_field_errors }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            {% endif %}
+            <input type="submit" value="Envoyer" />
+        </form>
+    </div>
+{% endblock %}

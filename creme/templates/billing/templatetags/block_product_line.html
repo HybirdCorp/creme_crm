@@ -1,0 +1,58 @@
+{% extends 'billing/templatetags/line.html' %}
+
+{% load creme_block %}
+
+{% block header %}
+    <script type="text/javascript">
+        if(!creme.product_line) creme.product_line = {}
+        creme.product_line.auto_populate_selection = function(id, targetInputId, nodesToPopulate){
+            var $form = $('#'+targetInputId).parents('form');
+            var fields = nodesToPopulate.values;
+
+            creme.ajax.json.post(
+                '/creme_core/entity/json',
+                {
+                    pk:id[0],
+                    fields:fields
+                },
+                function(data){
+                    for(var i in fields)
+                    {
+                        var field = nodesToPopulate.values[i];
+                        var node = $form.find('['+nodesToPopulate.attr+'='+field+']');
+                        if(node.size() > 0)
+                        {
+                            node.val(data[0].fields[field]);
+                        }
+                    }
+                }
+            );
+        }
+    </script>
+    {% get_block_header '%s Produit relatif' '%s Produits relatifs' 'product_48.png' 'Produit' %}
+{% endblock %}
+
+{% block add_buttons %}
+    {% comment %}<a class="button_link" onclick="creme.utils.showInnerPopup('/billing/{{object.id}}/product_line/add');">{% endcomment %}
+    <a class="button_link" onclick="creme.utils.innerPopupNReload('/billing/{{object.id}}/product_line/add', '{{update_url}}?base_url={{base_url}}');">
+        <img src="{{MEDIA_URL}}images/add_22.png" border="0" title="Ajouter un Produit" alt="Ajouter" />
+        Ajouter un produit existant
+    </a>
+    {% comment %}<a class="button_link" onclick="creme.utils.showInnerPopup('/billing/{{object.id}}/product_line/add_on_the_fly');">{% endcomment %}
+    <a class="button_link" onclick="creme.utils.innerPopupNReload('/billing/{{object.id}}/product_line/add_on_the_fly', '{{update_url}}?base_url={{base_url}}');">
+        <img src="{{MEDIA_URL}}images/add_22.png" border="0" title="Ajouter un ligne" alt="Ajouter" />
+        Ajouter une ligne à la volée
+    </a>
+{% endblock %}
+
+{% block item_name %}Produit{% endblock %}
+
+{% block empty_msg %}Aucun produit dans cette facture{% endblock %}
+
+{% block line_actions %}
+    {% comment %}<a class="button_link" onclick="creme.utils.showInnerPopup('/billing/productline/{{line.id}}/edit');">{% endcomment %}
+    <a class="button_link" onclick="creme.utils.innerPopupNReload('/billing/productline/{{line.id}}/edit', '{{update_url}}?base_url={{base_url}}');">
+        <img src="{{MEDIA_URL}}images/edit_22.png" border="0">
+    </a>
+    {{block.super}}
+{% endblock %}

@@ -1,0 +1,28 @@
+<div>
+    <div id="inner_header" style="display: none;">
+        <input name="inner_header_from_url" value="{{from_url}}" type="hidden"/>
+        <script type="text/javascript">
+                {% if is_valid %}
+                    {% if callback_url %}
+                        creme.utils.closeDialog($('#{{whoami}}'), {{reload}}, undefined,'{{callback_url}}');
+                    {% else %}
+                        {% if delegate_reload %}
+                            {% comment %}
+                                Let you define your own beforeClose with default close callback
+                                OR (entire own) close callback think about set.
+                                Think to set delegate_reload to True in your view
+                            {% endcomment %}
+                            $('#{{whoami}}').dialog('close');
+                        {% else %}
+                            creme.utils.closeDialog($('#{{whoami}}'), {{reload}});
+                        {% endif %}
+                    {% endif %}
+                {% endif %}
+        </script>
+    </div>
+    <div name="inner_body">
+        <input type="hidden" name="whoami" value="{{whoami}}"/>
+        <input type="hidden" name="is_valid" value="{{is_valid}}"/>
+        {{html}}
+    </div>
+</div>

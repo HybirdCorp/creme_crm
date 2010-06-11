@@ -1,0 +1,9 @@
+{% extends "persons/person_form.html" %}
+
+{% block content %}
+    {% with 'images/add_64.png' as logo %}
+    {% with 'Nouveau' as title %}
+        {% include "persons/frags/contact_form_content.html"%}
+    {% endwith %}
+    {% endwith %}
+{% endblock %}

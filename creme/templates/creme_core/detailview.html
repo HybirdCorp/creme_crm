@@ -1,0 +1,119 @@
+{% extends "creme_core/base.html" %}
+{% load i18n %}
+{% load creme_core_tags %}
+{% load creme_block %}
+{% load creme_menu %}
+
+{% block extrahead %}
+    <script type="text/javascript">
+        $(document).ready(function(){
+            creme.utils.bindShowHideTbody();
+        });
+    </script>
+{% endblock %}
+
+{% block before_content_1 %}
+    <table class=table_button>
+        <tr>
+            {% if object.get_lv_absolute_url %}
+                <td class=td_for_table_button>
+                    <a class="a_button_with_border" href="{{object.get_lv_absolute_url}}">
+                        <img src="{{MEDIA_URL}}images/left_arrow_32.png" border="0" title="Liste" alt="Liste" />
+                        Retour à la liste
+                    </a>
+                </td>
+            {% endif %}
+
+            {% block add_new_button %}
+                {% if path %}
+                    <td class=td_for_table_button>
+                        <a class="a_button_with_border" href="{{path}}/add">
+                            <img src="{{MEDIA_URL}}images/add_32.png" border="0" title="Ajouter" alt="Ajouter" />
+                            Nouveau
+                        </a>
+                    </td>
+                {% endif %}
+            {% endblock %}
+        </tr>
+    </table>
+{% endblock %}
+
+{% block content %}
+
+    {% block view_title %}
+        <table class="table_header" cellpadding="0" cellspacing="0">
+            <tr>
+                <td width="5%">{% block logo %}{% endblock %}</td>
+                <td width="70%">
+                    <h1>
+                        {% block title %}
+                            {{object|get_meta_value:"verbose_name"|title}} : {{object|title}}
+                        {% endblock %}
+                    </h1>
+                </td>
+                <td width="25%" align="right">
+                    <span>
+                        {% block edit_delete_buttons %}
+                            {% if path %}
+                                <a href="{{path}}/edit/{{object.id}}">
+                                    <img src="{{MEDIA_URL}}images/edit_64.png" title="Editer '{{object}}'" alt="Editer"/>
+                                </a>&nbsp;
+                                <a href="{{path}}/delete/{{object.id}}" onclick="creme.utils.confirmDelete(event, this);">
+                                    <img src="{{MEDIA_URL}}images/delete_64.png" title="Supprimer '{{object}}'" alt="Supprimer" />
+                                </a>
+                            {% endif %}
+                        {% endblock %}
+                    </span>
+                </td>
+            </tr>
+        </table>
+    {% endblock %}
+
+    <div>
+        {% block button_tab %}
+            <table class=table_button>
+                {% get_button_menu %}
+            </table>
+            <table class=table_button>
+                <tr>
+                    {% comment %}{% block button_tab_extra_2 %}{% endblock %}{% endcomment %}
+                    {% block button_tab_extra_3 %}{% endblock %}
+                </tr>
+            </table>
+        {% endblock %}
+    </div>
+
+    {% block end_button_tab %}
+        <div class=zone_spacer_5px></div>
+    {% endblock %} 
+
+    {% block before_detail_view_1 %}
+    {% endblock %}
+
+    <div style="float:left;width:50%;margin-left:-5px;">
+        {% block detail_view_left_1 %}
+            {% include "creme_core/object_as_table.html" %}
+{% comment %}             {% get_properties %} {% endcomment %}
+{% comment %}             {% get_relations %} {% endcomment %}
+        {% endblock %}
+        {% block detail_view_left_2 %}
+        {% endblock %}
+        {% block detail_view_left_3 %}
+        {% endblock %}
+    </div>
+    <div style="float:right;width:50%;margin-right:0px;">
+        {% block detail_view_right_1 %}
+        {% endblock %}
+
+        {% block detail_view_right_2 %}
+            {% get_detailview_blocks %}
+        {% endblock %}
+
+        {% block detail_view_right_3 %}
+        {% endblock %}
+    </div>
+
+    {% block after_detail_view_1 %}
+    {% endblock %}
+
+{% endblock %} 

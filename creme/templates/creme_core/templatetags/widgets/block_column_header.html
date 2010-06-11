@@ -1,0 +1,19 @@
+<th class="block_header_line_dark">
+    {% ifequal field_name order %}
+        {% if asc %}
+            <img src="{{MEDIA_URL}}images/small_up_arrow_16.png" border="0" />
+            <a class="button_link" onclick="creme.utils.loadBlock('{{update_url}}?{{block_name}}_order=-{{field_name}}&base_url={{base_url}}')">
+                {{column_name}}
+            </a>
+        {% else %}
+            <img src="{{MEDIA_URL}}images/small_down_arrow_16.png" border="0" />
+            <a class="button_link" onclick="creme.utils.loadBlock('{{update_url}}?{{block_name}}_order={{field_name}}&base_url={{base_url}}')">
+                {{column_name}}
+            </a>
+        {% endif %}
+    {% else %}
+        <a class="button_link" onclick="creme.utils.loadBlock('{{update_url}}?{{block_name}}_order={{field_name}}&base_url={{base_url}}')">
+            {{column_name}}
+        </a>
+    {% endifequal %}
+</th>

@@ -1,0 +1,69 @@
+{% load creme_block %}
+
+<table class="table_detail_view ui-corner-all" id={{block_name}}>
+    {% get_block_header '%s Alerte' '%s Alertes' 'bell_48.png' 'Alerte' %}
+
+    <tbody class="collapsable">
+        {% if object %}
+            <tr>
+                <th colspan="6" class="block_header_line_dark" align="left">
+                    {% comment %}<a class="button_link" onclick="creme.utils.showInnerPopup('/assistants/alert/add/{{object.id}}/')">
+                        <img src="{{MEDIA_URL}}images/add_22.png" border="0" title="Ajouter" alt="Ajouter" />Nouvelle
+                    </a>{% endcomment %}
+                    <a class="button_link" onclick="creme.utils.innerPopupNReload('/assistants/alert/add/{{object.id}}/', '{{update_url}}?base_url={{base_url}}');">
+                        <img src="{{MEDIA_URL}}images/add_22.png" border="0" title="Ajouter" alt="Ajouter" />Nouvelle
+                    </a>
+                </th>
+            </tr>
+        {% endif %}
+
+        {% if page.paginator.count %}
+            <tr>
+                {% get_column_header 'Titre' 'title' %}
+                {% if not object %}
+                    <th class="block_header_line_dark">Fiche concernée</th>
+                {% endif %}
+                {% get_column_header "Utilisateur" 'for_user' %}
+                {% get_column_header "Début de l'alerte" 'trigger_date' %}
+                {% get_column_header "Détails" 'description' %}
+                <th class="block_header_line_dark">traitée ?</th>
+                <th class="block_header_line_dark">Actions</th>
+            </tr>
+
+            {% for alert in page.object_list %}
+                <!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
+                <tr>
+                    <td class="{{row_color}}"><strong>{{alert.title}}</strong></td>
+                    {% if not object %}
+                        <td class="{{row_color}}">
+                            <a href="{{alert.creme_entity.get_absolute_url}}">{{alert.creme_entity}}</a>
+                        </td>
+                    {% endif %}
+                    <td class="{{row_color}}">{{alert.for_user}}</td>
+                    <td class="{{row_color}}">{{alert.trigger_date}}</td>
+                    <td class="{{row_color}}"><em>{{alert.description}}</em></td>
+                    <td class="{{row_color}}">
+                        <form method="post" action="/assistants/alert/validate/{{alert.id}}/">
+                            <input type="checkbox" name="checked_alert{{alert.id}}" id="checked_alert{{alert.id}}" />
+                                <button type="button" onclick="creme.utils.validateEntity(this.form, 'checked_alert{{alert.id}}');" style="background:transparent; cursor:pointer;border:0px;">
+                                <img src="{{MEDIA_URL}}images/refresh_16.png" width="16" height="16" border="0">
+                            </button>
+                        </form>
+                    </td>
+                    <td class="{{row_color}}" align="center" valign="center" style="width:10%;">
+                        {% comment %}<a onclick="creme.utils.showInnerPopup('/assistants/alert/edit/{{alert.id}}/')">{% endcomment %}
+                        <a onclick="creme.utils.innerPopupNReload('/assistants/alert/edit/{{alert.id}}/', '{{update_url}}?base_url={{base_url}}');">
+                            <img src="{{MEDIA_URL}}images/edit_22.png" border="0">
+                        </a>
+                        {% get_line_deletor2 '/assistants/alert/delete' "{'id': {{alert.id}} }" %}
+                    </td>
+                </tr>
+            {% endfor %}
+        {% else %}
+            <tr>
+                <td class="block_line_dark">Aucune alerte enregistrée pour le moment</td>
+            </tr>
+        {% endif %}
+    </tbody>
+    {% include 'creme_core/templatetags/widgets/block_footer.html' %}
+</table>

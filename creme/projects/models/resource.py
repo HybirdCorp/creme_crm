@@ -1,0 +1,57 @@
+# -*- coding: utf-8 -*-
+
+################################################################################
+#    Creme is a free/open-source Customer Relationship Management software
+#    Copyright (C) 2009-2010  Hybird
+#
+#    This program is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU Affero General Public License as published by
+#    the Free Software Foundation, either version 3 of the License, or
+#    (at your option) any later version.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU Affero General Public License for more details.
+#
+#    You should have received a copy of the GNU Affero General Public License
+#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+################################################################################
+
+from django.db.models import ForeignKey, PositiveIntegerField
+from django.utils.translation import ugettext_lazy as _
+
+from creme_core.models import CremeEntity
+
+from persons.models import Contact
+from task import ProjectTask
+
+
+class Resource(CremeEntity):
+    linked_contact  = ForeignKey(Contact, verbose_name=_(u'Contact'))
+    hourly_cost     = PositiveIntegerField(_(u'Coût horaire (en €)'), blank=True, null=True)
+    task            = ForeignKey(ProjectTask, verbose_name=_(u'Tâche'), related_name='resources_set')
+
+    class Meta:
+        app_label = 'projects'
+        verbose_name = _(u'Resource')
+        verbose_name_plural = _(u'Resources')
+
+    def __unicode__(self):
+        return u'%s %s %s' % (self.linked_contact.civility, self.linked_contact.first_name, self.linked_contact.last_name)
+
+    def get_absolute_url(self):
+        return "/persons/contact/%s" % self.linked_contact.id #self.linked_contact.get_absolute_url() instead
+
+    def get_edit_absolute_url(self):
+        return "/projects/resource/edit/%s" % self.id
+
+    def get_delete_absolute_url(self):
+        return "/projects/resource/delete/%s" % self.id
+
+    def delete(self):
+        # delete first all working period related to this resource (functionnal constraint)
+        from workingperiod import WorkingPeriod
+        WorkingPeriod.objects.filter(task=self.task, resource=self).delete()
+        # then delete the resource
+        super(Resource, self).delete()

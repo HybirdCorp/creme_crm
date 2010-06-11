@@ -1,0 +1,8 @@
+{% for button in buttons %}
+    {% if forloop.counter0|divisibleby:"5" %}<tr>{% endif %}
+    <td class="td_for_table_button" >
+        {% comment %} {% include button.template_name %} {% endcomment %}
+        {{ button }}
+    </td>
+    {% if forloop.counter|divisibleby:"5" %}</tr>{% endif %}
+{% endfor %}

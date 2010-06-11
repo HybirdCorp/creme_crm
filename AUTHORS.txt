@@ -1,0 +1,23 @@
+Jean-Michel ARMAND:
+    Developper / Documentation writer
+    jmarmand AT hybird DOT org
+
+Raphaël BECK:
+    Developper
+    rbeck AT hybird DOT org
+
+Jonathan CARUANA
+    Developper
+    jcaruana AT hybird DOT org
+
+Guillaume ENGLERT
+    Developper / Artist
+    genglert AT hybird DOT org
+
+Florian FABRE
+    Developper
+    ffabre AT hybird DOT org
+
+Régis MONTOYA
+    Developper
+    r3gis AT r3gis DOT fr

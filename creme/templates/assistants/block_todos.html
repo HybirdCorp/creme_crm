@@ -1,0 +1,74 @@
+{% load creme_core_tags %}
+{% load creme_block %}
+
+<table class="table_detail_view ui-corner-all" id={{block_name}}>
+    {% get_block_header '%s Todo' '%s Todos' 'memo_48.png' 'Todo' %}
+    <tbody class="collapsable">
+        {% if object %}
+            <tr>
+                <th colspan="7" class="block_header_line_dark" align="left">
+                    {% comment %}<a class="button_link" onclick="creme.utils.showInnerPopup('/assistants/todo/add/{{object.id}}/')">{% endcomment %}
+                    <a class="button_link" onclick="creme.utils.innerPopupNReload('/assistants/todo/add/{{object.id}}/', '{{update_url}}?base_url={{base_url}}');">
+                        <img src="{{MEDIA_URL}}images/add_22.png" border="0" title="Ajouter un nouveau Todo" alt="Ajouter" />Nouveau
+                    </a>
+                </th>
+            </tr>
+        {% endif %}
+
+        {% if page.paginator.count %}
+            <tr>
+                {% if not object %}
+                    <th class="block_header_line_dark">Fiche concernée</th>
+                {% endif %}
+                {% get_column_header "Utilisateur" 'for_user' %}
+                {% get_column_header 'Crée le' 'creation_date' %}
+                {% get_column_header 'titre' 'title' %}
+                {% get_column_header 'Texte du Todo' 'description' %}
+                {% get_column_header 'Échéance le' 'deadline' %}
+                <th class="block_header_line_dark">Valider</th>
+                <th class="block_header_line_dark">Actions</th>
+            </tr>
+
+            {% for todo in page.object_list %}
+                <!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
+                <tr>
+                    {% if not object %}
+                        <td class="{{row_color}}">
+                            <a href="{{todo.creme_entity.get_absolute_url}}">{{todo.creme_entity}}</a>
+                        </td>
+                    {% endif %}
+                    <td class="{{row_color}}">{{todo.for_user}}</td>
+                    <td class="{{row_color}}">{{todo.creation_date|date:"d/m/y"}}</td>
+                    <td class="{{row_color}}">{{todo|get_html_field_value:"title"}}</td>
+                    <td class="{{row_color}}">{{todo|get_html_field_value:"description"}}</td>
+                    <td class="{{row_color}}">{{todo.deadline|date:"d/m/y"}}</td>
+                    <td class="{{row_color}}">
+                        {% if todo.is_ok %}
+                            Le Todo est validé.
+                        {% else %}
+                            <form method="post" action="/assistants/todo/validate/{{todo.id}}/">
+                                <input type="checkbox" name="checked_todo{{todo.id}}" id="checked_todo{{todo.id}}" />
+                                <button type="button" onclick="creme.utils.validateEntity(this.form, 'checked_todo{{todo.id}}');" style="background:transparent; cursor:pointer;border:0px;">
+                                    <img src="{{MEDIA_URL}}images/refresh_16.png" width="16" height="16" border="0">
+                                </button>
+                            </form>
+                        {% endif %}
+                    </td>
+                    <td class="{{row_color}}" align="center" valign="center" style="width:10%;">
+                        {% comment %}<a onclick="creme.utils.showInnerPopup('/assistants/todo/edit/{{todo.id}}/')">{% endcomment %}
+                        <a onclick="creme.utils.innerPopupNReload('/assistants/todo/edit/{{todo.id}}/', '{{update_url}}?base_url={{base_url}}');">
+                            <img src="{{MEDIA_URL}}images/edit_22.png" border="0">
+                        </a>
+                        {# get_line_deletor '/assistants/todo/delete/{{todo.id}}/' #}
+                        {% get_line_deletor2 '/assistants/todo/delete' "{'id' : {{todo.id}} }" %}
+                    </td>
+                </tr>
+            {% endfor %}
+        {% else %}
+            <tr>
+                <td colspan="4" class="block_line_dark">Aucun Todo enregistré pour le moment</td>
+            </tr>
+        {% endif %}
+    </tbody>
+    {% include 'creme_core/templatetags/widgets/block_footer.html' %}
+</table>

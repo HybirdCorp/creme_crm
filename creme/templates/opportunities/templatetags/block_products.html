@@ -1,0 +1,43 @@
+{% load creme_block %}
+
+<script type="text/javascript">
+    creme.include('{{MEDIA_URL}}js/models/relations.js','js');
+</script>
+
+<table  class="table_detail_view ui-corner-all" id={{block_name}}>
+    {% get_block_header '%s Produit concerné' '%s Produits concernés' 'product_48.png' 'Produit' %}
+
+    <tbody class="collapsable">
+        <tr>
+            <th colspan="4" class="block_header_line_dark" align="left">
+                <a class="button_link" onclick="creme.relations.handleAddFromPredicateEntity('/creme_core/relation/add/from/predicate/{{predicate_id}}/entity/{{object.id}}/{{ct_id}}','{{predicate_id}}','{{object.id}}', '{{update_url}}?base_url={{base_url}}');">
+                    <img src="{{MEDIA_URL}}images/add_22.png" border="0" title="Ajouter un Produit" alt="Ajouter" />
+                    Lier à un produit
+                </a>
+            </th>
+        </tr>
+
+        {% if page.paginator.count %}
+            <tr>
+                <th class="block_header_line_dark">Nom</th>
+                <th class="block_header_line_dark">Supprimer</th>
+            </tr>
+            {% for relation in page.object_list %}
+                {% with relation.subject_creme_entity as product %}
+                    <!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
+                    <tr>
+                        <td class="{{row_color}}"><a href="{{product.get_absolute_url}}">{{product}}</a></td>
+                        <td class="{{row_color}}" align="center" valign="center" style="width:10%;">
+                            {% get_line_deletor "/creme_core/relation/delete/{{relation.pk}}?pk_entity={{object.pk}}" %}
+                        </td>
+                    </tr>
+                {% endwith %}
+            {% endfor %}
+        {% else %}
+            <tr>
+                <td class="block_line_dark">Aucun produit concerné pour le moment</td>
+            </tr>
+        {% endif %}
+    </tbody>
+    {% include 'creme_core/templatetags/widgets/block_footer.html' %}
+</table>

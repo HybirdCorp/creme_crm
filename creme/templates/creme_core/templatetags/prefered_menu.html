@@ -1,0 +1,6 @@
+<div id="preferred_menu">
+    <strong>Menus rapides: </strong>
+    {% for item in items %}
+        <a href="{{item.url}}">{{item.label}}</a> &nbsp; &nbsp;
+    {% endfor %}
+</div>

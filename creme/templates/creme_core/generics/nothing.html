@@ -1,0 +1,16 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<meta http-equiv="Content-type" content="text/html; charset=utf-8" />
+<html xmlns="http://www.w3.org/1999/xhtml" lang="fr-FR" xml:lang="fr-FR" >
+  <head>
+    <script type="text/javascript" src="{{MEDIA_URL}}js/jquery/dev/jquery-1.3.2-dev.js"></script>
+    <script type="text/javascript" src="{{MEDIA_URL}}js/creme/creme.utils.js"></script>
+    <script type="text/javascript">
+    $(document).ready(
+        function(){
+            if(window.opener)
+                reload(window.opener);
+            window.close();
+        }
+    );
+    </script>
+  </head>

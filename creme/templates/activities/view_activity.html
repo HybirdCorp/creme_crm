@@ -1,0 +1,28 @@
+{% extends "creme_core/detailview.html" %}
+
+{% load creme_block %}
+{% load activities_blocks %}
+
+{% block add_new_button %}{% endblock %}
+
+{% block logo %}
+    {% ifequal object.type.name "Rendez-vous" %}
+        <img src="{{MEDIA_URL}}images/map_64.png" alt=""/>
+    {% else %}
+        {% ifequal object.type.name "Telephone" %}
+            <img src="{{MEDIA_URL}}images/phone_64.png" alt=""/>
+        {% else %}
+            <img src="{{MEDIA_URL}}images/calendar_64.png" alt=""/>
+        {% endifequal %}
+    {% endifequal %}
+{% endblock logo %}
+
+{% block detail_view_left_1 %}
+    {% include "creme_core/object_as_table.html" %}
+
+    {% get_participants %}
+    {% get_subjects %}
+
+    {% get_properties %}
+    {% get_relations %}
+{% endblock %}

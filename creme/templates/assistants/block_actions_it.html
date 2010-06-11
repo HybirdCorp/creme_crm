@@ -1,0 +1,74 @@
+{% load creme_block %}
+
+<table class="table_detail_view ui-corner-all" id={{block_name}}>
+    {% get_block_header '%s Action dans les délais' '%s Actions dans les délais' 'clock_48.png' 'Action' %}
+    <tbody class="collapsable">
+        {% if object %}
+            <tr>
+                <th class="block_header_line_light" style="font-size:14px;" align="left" colspan="8">
+                    {% comment %}<a class="button_link" onclick="creme.utils.showInnerPopup('/assistants/action/add/{{object.id}}/')">
+                            <img src="{{MEDIA_URL}}images/add_22.png" border="0" title="Ajouter" alt="Ajouter" />
+                            Nouvelle
+                    </a>{% endcomment %}
+                    <a class="button_link" onclick="creme.utils.innerPopupNReload('/assistants/action/add/{{object.id}}/', '{{update_url}}?base_url={{base_url}}');">
+                        <img src="{{MEDIA_URL}}images/add_22.png" border="0" title="Ajouter" alt="Ajouter" />
+                        Nouvelle
+                    </a>
+                </th>
+            </tr>
+        {% endif %}
+
+        {% if page.paginator.count %}
+            <tr>
+                {% get_column_header 'Titre' 'title' %}
+                {% if not object %}
+                    <th class="block_header_line_dark">Fiche concernée</th>
+                {% endif %}
+                {% get_column_header 'Description' 'description' %}
+                {% get_column_header "Utilisateur" 'for_user' %}
+                {% get_column_header 'Création' 'creation_date' %}
+                {% get_column_header 'Action attendue' 'expected_reaction' %}
+                {% get_column_header 'Échéance' 'deadline' %}
+                <th class="block_header_line_dark">OK ?</th>
+                <th class="block_header_line_dark">Actions</th>
+            </tr>
+            {% for action in page.object_list %}
+                <!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
+                <tr>
+                    <td class="{{row_color}}"><strong>{{action.title}}</strong></td>
+                    {% if not object %}
+                        <td class="{{row_color}}">
+                            <a href="{{action.creme_entity.get_absolute_url}}">{{action.creme_entity}}</a>
+                        </td>
+                    {% endif %}
+                    <td class="{{row_color}}">{{action.description}}</td>
+                    <td class="{{row_color}}">{{action.for_user}}</td>
+                    <td class="{{row_color}}">{{action.creation_date}}</td>
+                    <td class="{{row_color}}">{{action.expected_reaction}}</td>
+                    <td class="{{row_color}}">{{action.deadline}}</td>
+                    <td class="{{row_color}}">
+                        <form method="post" action="/assistants/action/validate/{{action.id}}/">
+                            <input type="checkbox" name="checked_action{{action.id}}" id="checked_action{{action.id}}" />
+                                <button type="button" onclick="creme.utils.validateEntity(this.form, 'checked_action{{action.id}}');" style="background:transparent; cursor:pointer;border:0px;">
+                                <img src="{{MEDIA_URL}}images/refresh_16.png" width="16" height="16" border="0" />
+                            </button>
+                        </form>
+                    </td>
+                    <td class="{{row_color}}" align="center" valign="center" style="width:10%;">
+                        {% comment %}<a onclick="creme.utils.showInnerPopup('/assistants/action/edit/{{action.id}}/')">{% endcomment %}
+                        <a onclick="creme.utils.innerPopupNReload('/assistants/action/edit/{{action.id}}/', '{{update_url}}?base_url={{base_url}}');">
+                            <img src="{{MEDIA_URL}}images/edit_22.png" border="0">
+                        </a>
+                        {# get_line_deletor '/assistants/action/delete/{{action.id}}/' #}
+                        {% get_line_deletor2 '/assistants/action/delete' "{ 'id':{{action.id}} }" %}
+                    </td>
+                </tr>
+            {% endfor %}
+        {% else %}
+            <tr>
+                <td class="block_line_dark">Aucune action dans les délais</td>
+            </tr>
+        {% endif %}
+    </tbody>
+    {% include 'creme_core/templatetags/widgets/block_footer.html' %}
+</table>

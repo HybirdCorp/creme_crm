@@ -1,0 +1,77 @@
+/* ruler for measuring item width should be invisible */
+	.jqxs span 
+	{
+		visibility:none;
+		position:absolute;
+	}
+	
+	.jqxs ul, 
+	.jqxs div
+	{
+		float:left;
+		margin:4px;
+		padding:0;
+		background:#ffffff;
+	}
+	
+	/* ie6 fix for float margin bug */
+	* html .jqxs ul, 
+	* html .jqxs div
+	{
+		margin:4px 2px;
+	}
+	
+	.jqxs ul
+	{
+		border-top:2px solid gray;
+		border-left:2px solid gray;
+		border-bottom:2px solid silver;
+		border-right:2px solid silver;
+		overflow: auto;
+	}
+	
+	.jqxs ul, 
+	.jqxs li 
+	{
+		padding:0;
+		list-style:none;
+		text-indent:0;
+	}
+	
+	.jqxs li 
+	{
+		padding: 0 2px;
+		color:black;
+		background:white;
+		margin:0;
+		cursor: pointer;
+		overflow:hidden;
+	}
+	
+	.jqxs li span 
+	{
+		display:none;
+	}
+	
+	.jqxs_optionsList li.jqxs_selected
+	{
+		display:none;
+	} 
+	
+	.jqxs li.jqxs_focused 
+	{
+		color:white; 
+		background:navy;
+	}
+	
+	.jqxs input 
+	{
+		width:90px;
+		display:block;
+	}
+	
+	/* not used in default style, but useful for applying custom button designs */
+	.jqxs input.jqxs_active
+	{
+	
+	}

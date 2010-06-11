@@ -1,0 +1,42 @@
+{% extends "creme_core/detailview.html" %}
+
+{% load creme_block %}
+{% load billing_blocks %}
+
+    {% block extrahead %}
+        {{block.super}}
+        <script type="text/javascript" src="{{MEDIA_URL}}js/export.js"></script>
+    {% endblock %}
+
+    {% block logo %}<img src="{{MEDIA_URL}}images/invoice_64.png" alt=""/>{% endblock %}
+
+    {% block edit_delete_buttons %}
+        <a href="/billing/%s/{{object.id}}" onclick="creme._export.select_one(event, this);">
+            <img src="{{MEDIA_URL}}images/download_64.png" title="Télécharger '{{object}}' au format voulu" alt="Télécharger '{{object}}' au format voulu" />
+        </a>
+        {{block.super}}
+    {% endblock %}
+
+    {% block before_detail_view_1 %}
+        {% get_product_lines %}
+        {% get_service_lines %}
+    {% endblock %}
+
+    {% block detail_view_left_1 %}
+        {% include "creme_core/object_as_table.html" %}
+
+<!-- MOVE THIS SCRIPT ??!! -->
+        <script type="text/javascript">
+            function update(id) {
+                document.getElementById("updateStatus" + id).submit();
+            }
+        </script>
+
+        {% get_properties %}
+        {% get_relations %}
+    {% endblock %}
+    
+
+        {% block detail_view_right_1 %}
+            {% get_total%}
+        {% endblock %}    

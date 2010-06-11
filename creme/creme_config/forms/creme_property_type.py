@@ -1,0 +1,65 @@
+# -*- coding: utf-8 -*-
+
+################################################################################
+#    Creme is a free/open-source Customer Relationship Management software
+#    Copyright (C) 2009-2010  Hybird
+#
+#    This program is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU Affero General Public License as published by
+#    the Free Software Foundation, either version 3 of the License, or
+#    (at your option) any later version.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU Affero General Public License for more details.
+#
+#    You should have received a copy of the GNU Affero General Public License
+#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+################################################################################
+
+from django.forms import CharField, ModelMultipleChoiceField, ValidationError
+from django.utils.translation import ugettext_lazy as _
+
+from creme_core.models.creme_property import CremePropertyType, create_property_type
+from creme_core.forms import CremeForm
+from creme_core.forms.widgets import OrderedMultipleChoiceWidget
+from creme_core.utils import Q_creme_entity_content_types
+
+
+class _CremePropertyTypeBaseForm(CremeForm):
+    text           = CharField(label=_(u'Intitulé'), help_text=_("Par exemple: 'est poilu'"))
+    subject_ctypes = ModelMultipleChoiceField(label=_(u"S'applique aux types d'entités"),
+                                              help_text=_(u'Aucun type séléctionné signifiera que tous les types sont acceptés'),
+                                              queryset=Q_creme_entity_content_types(),
+                                              widget=OrderedMultipleChoiceWidget,
+                                              required=False)
+
+
+class CremePropertyTypeAddForm(_CremePropertyTypeBaseForm):
+    def clean_text(self):
+        text = self.cleaned_data['text']
+
+        if CremePropertyType.objects.filter(text=text)[:1]: #TODO: exists() in Django 1.2
+            raise ValidationError(u"Une propriété avec ce nom existe déjà")
+
+        return text
+
+    def save(self):
+        get_data = self.cleaned_data.get
+        create_property_type('creme_config-userproperty', get_data('text'), get_data('subject_ctypes'), generate_pk=True)
+
+
+class CremePropertyTypeEditForm(_CremePropertyTypeBaseForm):
+    def __init__(self, instance, *args, **kwargs):
+        super(CremePropertyTypeEditForm, self).__init__(*args, **kwargs)
+
+        self.instance = instance
+        fields = self.fields
+
+        fields['text'].initial           = instance.text
+        fields['subject_ctypes'].initial = [ct.id for ct in instance.subject_ctypes.all()]
+
+    def save(self):
+        get_data = self.cleaned_data.get
+        create_property_type(self.instance.id, get_data('text'), get_data('subject_ctypes'))

@@ -1,0 +1,40 @@
+# -*- coding: utf-8 -*-
+
+from django.conf.urls.defaults import patterns
+
+urlpatterns = patterns('projects.views',
+    (r'^$', 'portal.portal'),
+
+    # TODO : Define what user could do or not if projet is 'close' (with the use of the buttom that sets an effective end date)
+    #Project : button for effective end date of project
+    (r'^projects$',                           'project.listview'),
+    (r'^project/add$',                        'project.add'),
+    (r'^project/edit/(?P<project_id>\d+)$',   'project.edit'),
+    (r'^project/(?P<project_id>\d+)$',        'project.detailview'),
+    (r'^project/(?P<project_id>\d+)/close$',  'project.close'),
+
+    #Project: Task block 
+    (r'^project/(?P<project_id>\d+)/tasks/reload/$',              'task.reload_block_tasks'),
+    (r'^project/(?P<project_id>\d+)/task/add',                    'task.add'),
+    (r'^task/delete/(?P<task_id>\d+)$',                           'task.delete'),
+    (r'^task/(?P<object_id>\d+)$',                                'task.detailview'),
+    (r'^task/edit/(?P<task_id>\d+)$',                             'task.edit'),
+    (r'^task/(?P<task_id>\d+)/parent/delete/(?P<parent_id>\d+)$', 'task.delete_parent'),
+
+    #Task: Resource block
+    (r'^task/(?P<task_id>\d+)/resources/reload/$', 'resource.reload_block_resources'),
+    (r'^task/(?P<task_id>\d+)/resource/add$',      'resource.add'),
+    (r'^resource/edit/(?P<resource_id>\d+)$',      'resource.edit'),
+    (r'^resource/delete/(?P<resource_id>\d+)$',    'resource.delete'),
+    
+    #Task: Working periods block
+    (r'^task/(?P<task_id>\d+)/periods/reload/$', 'workingperiod.reload_block_periods'), # only use for tasks pagination
+    (r'^task/(?P<task_id>\d+)/period/add$',      'workingperiod.add'),
+    (r'^period/edit/(?P<period_id>\d+)$',        'workingperiod.edit'),
+    (r'^period/delete/(?P<period_id>\d+)$',      'workingperiod.delete'),
+)
+
+urlpatterns += patterns('',
+    (r'^project/edit_js/$',                         'creme_core.views.ajax.edit_js'),
+    (r'^project/delete/(?P<object_id>\d+)$',        'creme_core.views.generic.delete_entity', {'callback_url': '/projects/projects'}),
+)

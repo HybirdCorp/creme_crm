@@ -1,0 +1,53 @@
+{% load creme_block %}
+
+<table class="table_detail_view ui-corner-all" id={{block_name}}>
+    {% get_block_header '%s Ressource affectée à la tâche' '%s Ressources affectées à la tâche' 'contacts_48.png' 'Ressource' %}
+
+    <tbody class="collapsable">
+        <tr>
+            <th colspan="11" class="block_header_line_dark" align="left">
+                {% if object.is_alive %}
+                    <a class="button_link" onclick="creme.utils.showInnerPopup('/projects/task/{{object.id}}/resource/add');">
+                        <img src="{{MEDIA_URL}}images/add_22.png" border="0" title="Ajouter une ressource" alt="Ajouter" />
+                        Ajouter une ressource à partir d'un contact
+                    </a>
+                {% else %}
+                    <em>Vous ne pouvez pas ajouter de ressources car cette tâche est {{object.status.name}}</em>
+                {% endif %}
+            </th>
+        </tr>
+        {% if page.paginator.count %}
+            <tr>
+                <th class="block_header_line_dark">Contact</th>
+                <th class="block_header_line_dark">Coût horaire</th>
+                <th class="block_header_line_dark">Actions</th>
+            </tr>
+
+            {% for resource in page.object_list %}
+                <!-- {% cycle "block_line_dark" "block_line_light" as row_color %} -->
+                <tr>
+                    <td class="{{row_color}}" align=center>
+                        <a href="/persons/contact/{{resource.linked_contact.id}}">{% comment %} TODO get_absolute_url {% endcomment %}
+                            {{resource.linked_contact.civility}} {{resource.linked_contact.first_name}} {{resource.linked_contact.last_name}}
+                        </a>
+                    </td>
+                    <td class="{{row_color}}" align="center">{{resource.hourly_cost}} € / heure</td>
+                    <td class="{{row_color}}" align="center" valign="center" style="width:10%;">
+                        <a class="button_link" onclick="creme.utils.showInnerPopup('{{resource.get_edit_absolute_url}}');">
+                            <img src="{{MEDIA_URL}}images/edit_22.png" border="0" title="Edition d'une ressource" alt="Editer" />
+                        </a>
+                        {% comment %}<a href="{{resource.get_delete_absolute_url}}">
+                            <img src="{{MEDIA_URL}}images/delete_22.png" border="0" alt="Supprimer" title="Supprimer"/>
+                        </a>{% endcomment %}
+                        {% get_line_deletor resource.get_delete_absolute_url %}
+                    </td>
+                </tr>
+            {% endfor %}
+        {% else %}
+            <tr>
+                <td class="block_line_dark">Aucune ressource n'est affecté à cette tâche</td>
+            </tr>
+        {% endif %}
+    </tbody>
+    {% include 'creme_core/templatetags/widgets/block_footer.html' %}
+</table>

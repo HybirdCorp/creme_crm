@@ -1,0 +1,37 @@
+{% load creme_block %}
+
+<table class="table_detail_view ui-corner-all" id={{block_name}}>
+    {% get_block_header '%s Sujet' '%s Sujets' %}
+
+    <tbody class="collapsable">
+        <tr>
+            <th class="block_header_line_light" align="left" colspan="2">
+                {% comment %}<a class="button_link" onclick="creme.utils.showInnerPopup('/activities/activity/{{object.id}}/subject/add')">{% endcomment %}
+                <a class="button_link" onclick="creme.utils.innerPopupNReload('/activities/activity/{{object.id}}/subject/add', '{{update_url}}?base_url={{base_url}}');">
+                    <img src="{{MEDIA_URL}}images/add_22.png" border="0" title="Ajouter un sujet" alt="Ajouter" />Nouveau
+                </a>
+            </th>
+        </tr>
+
+        {% if page.paginator.count %}
+            {% for relation in page.object_list %}
+                <!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
+                {% with relation.subject_creme_entity as subject %}
+                    <tr>
+                        <td class="{{row_color}}">
+                            <a href="{{subject.get_absolute_url}}">{{subject}}</a>
+                        </td>
+                        <td class="{{row_color}}" align="center" valign="center" style="width:10%;">
+                            {% get_line_deletor '/creme_core/relation/delete/{{relation.pk}}?pk_entity={{object.pk}}' %}
+                        </td>
+                    </tr>
+                {% endwith %}
+            {% endfor %}
+        {% else %}
+            <tr>
+                <td class="block_line_dark">Aucun sujet enregistré pour le moment</td>
+            </tr>
+        {% endif %}
+    </tbody>
+    {% include 'creme_core/templatetags/widgets/block_footer.html' %}
+</table>

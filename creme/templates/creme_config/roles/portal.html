@@ -1,0 +1,49 @@
+{% extends "creme_config/portal.html" %}
+
+{% load creme_core_tags %}
+
+{% block title %}
+    <a href="/creme_config/">Configuration > </a>Rôles
+{% endblock %}
+
+{% block before_statistics %}
+    <!--
+        {% cycle "block_line_light" "block_line_dark" as row_color %}
+    -->
+
+    <table class="table_detail_view ui-corner-all">
+        <thead>
+            <tr>
+                <th colspan="100">
+                    Rôle(s)
+                </th>
+            </tr>
+        </thead>
+        <tbody class="collapsable">
+            <tr>
+                <th class="block_header_line_light" style="font-size:14px;" align="left" colspan="100">
+                    <a class="button_link" href="/creme_config/roles/add/">
+                        <img src="{{MEDIA_URL}}images/add_22.png" border="0" alt="Ajouter rôle"/>
+                        Nouveau rôle
+                    </a>
+                </th>
+            </tr>
+
+            {% for role in top_roles %}
+                <!--{% cycle row_color %}-->
+                <tr>
+                    <td class="{{row_color}}">
+                        <ul>
+                            <li id="{{role.id}}" ><a href="/creme_config/roles/{{role.id}}">{{role}}</a></li>
+                            {% get_first_descendant role %}
+                        </ul>
+                    </td>
+                </tr>
+            {% empty %}
+                <tr>
+                    <td class="block_line_dark">Aucun rôle pour le moment</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}

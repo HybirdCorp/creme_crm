@@ -1,0 +1,91 @@
+{% extends "creme_config/portal.html" %}
+
+{% load creme_core_tags %}
+
+{% block title %}
+    <a href="/creme_config/">Configuration > </a>
+    Profils
+{% endblock %}
+
+{% block before_statistics %}
+<!--
+    {% cycle "block_line_light" "block_line_dark" as row_color %}
+-->
+
+    <form action="" method="POST">
+        <div>
+            Voir uniquement les rôles :&nbsp;
+            <select name="roles" onchange="this.form.submit();">
+                <option value="">Tout</option>
+                {% for role in roles %}
+                    <option value="{{role.id}}" {% ifequal role role_post %}selected{% endifequal %} >{{role}}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div id="profiles_list" class="configuration">
+            <table class="table_detail_view ui-corner-all">
+                <thead>
+                    <tr>
+                        <th colspan="100">
+                            {{profiles|length}} Profil{{profiles|pluralize:"s"}}
+                        </th>
+                    </tr>
+                </thead>
+                <tbody class="collapsable">
+                    <tr>
+                        <th class="block_header_line_light" style="font-size:14px;" align="left" colspan="6">
+                            <a class="button_link" href="/creme_config/profile/add/">
+                                <img src="{{MEDIA_URL}}images/add_22.png" border="0" alt="Ajouter"/>
+                                Nouveau profil
+                            </a>
+                        </th>
+                    </tr>
+
+                    {% if profiles %}
+                        <tr>
+                            <th class="block_header_line_light">Utilisateur</th>
+                            <th class="block_header_line_light">Rôle</th>
+                            <th class="block_header_line_light">Fiche contact de l'utilisateur</th>
+                            <th class="block_header_line_light">Éditer</th>
+                            <th class="block_header_line_light">Supprimer</th>
+                        </tr>
+
+                        {% for profile in profiles %}
+                            <!--{% cycle row_color %}-->
+                            <tr>
+                                <td class="{{row_color}}">
+                                    {{profile.user}}
+                                </td>
+                                <td class="{{row_color}}">
+                                    <a href="{{profile.creme_role.get_absolute_url}}">{{profile.creme_role}}</a>
+                                </td>
+                                <td class="{{row_color}}">
+                                    {% with profile.user.id as id_c %}
+                                        {% with contacts|get_value:id_c as contact %}
+                                            <a href="{{contact.get_absolute_url}}">{{contact}}</a>
+                                        {% endwith %}
+                                    {% endwith %}
+                                </td>
+                                <td class="{{row_color}}">
+                                    <a href="/creme_config/profile/edit/{{profile.id}}">
+                                        <img src="{{MEDIA_URL}}images/edit_22.png" border="0" title="Éditer" alt="Éditer">
+                                    </a>
+                                </td>
+                                <td class="{{row_color}}">
+                                    <a href="/creme_config/profile/delete/{{profile.id}}">
+                                        <img src="{{MEDIA_URL}}images/delete_22.png" border="0" title="Supprimer" alt="Supprimer">
+                                    </a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr>
+                            <td class="block_line_dark">Aucun profil enregistré pour le moment</td>
+                        </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </form>
+{% endblock %}

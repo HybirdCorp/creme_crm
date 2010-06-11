@@ -1,0 +1,46 @@
+{% load creme_core_tags %}
+{% load creme_block %}
+
+{% regroup page.object_list by type as predicate_list %}
+
+<table class="table_detail_view ui-corner-all" id={{block_name}}>
+    {% get_block_header '%s Relation' '%s Relations' 'relations_48.png' 'Relation' %}
+
+    <tbody class="collapsable">
+        <tr>
+            <th colspan="2" align="left" class="block_header_line_dark" style="font-size:14px;">
+                {% comment %} <a class="button_link" onclick="creme.utils.showInnerPopup('/creme_core/relation/add/{{object.id}}')">
+                    <img src="{{MEDIA_URL}}images/add_22.png" border="0" title="Ajouter" alt="Ajouter" />&nbsp;Nouvelle
+                </a> {% endcomment %}
+                <a class="button_link" onclick="creme.utils.innerPopupNReload('/creme_core/relation/add/{{object.id}}', '{{update_url}}?base_url={{base_url}}');">
+                    <img src="{{MEDIA_URL}}images/add_22.png" border="0" title="Ajouter" alt="Ajouter" />&nbsp;Nouvelle
+                </a>
+            </th>
+        </tr>
+
+        {% if page.paginator.count %}
+            {% for predicate in predicate_list %}
+                <tr>
+                    <th class="{% cycle "block_header_line_dark" "block_header_line_light" %}" colspan="2">{{predicate.grouper}}</th>
+                </tr>
+                {% for relation in predicate.list %}
+                    {% with relation.object_creme_entity as entity_obj %}
+                        <tr>
+                            <td class="{% cycle "block_line_dark" "block_line_light" %}">
+                                <a href="{{entity_obj.get_absolute_url}}">{{entity_obj}}</a>
+                            </td>
+                            <td class="{% cycle "block_line_dark" "block_line_light" %}" align="center" valign="center" style="width:10%;">
+                                {% get_line_deletor '/creme_core/relation/delete/{{relation.pk}}?pk_entity={{object.pk}}' %}
+                            </td>
+                        </tr>
+                    {% endwith %}
+                {% endfor %}
+            {% endfor %}
+        {% else %}
+            <tr>
+                <td class="block_line_dark">Aucune relation pour le moment</td>
+            </tr>
+        {% endif %}
+    </tbody>
+    {% include 'creme_core/templatetags/widgets/block_footer.html' %}
+</table>

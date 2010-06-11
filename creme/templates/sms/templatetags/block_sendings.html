@@ -1,0 +1,62 @@
+{% load creme_block %}
+
+<script type="text/javascript">
+    sms_sendings = {
+        _reload: function() {
+            creme.utils.loadBlock('{{update_url}}?base_url={{base_url}}');
+        },
+        sync: function(pk) {
+            creme.ajax.json.post('/sms/campaign/sending/' + pk + '/messages/sync/', {}, sms_sendings._reload, sms_sendings._reload);
+        }
+    };
+</script>
+
+<table class="table_detail_view ui-corner-all" id={{block_name}}>
+    {% get_block_header '%s Envoi' '%s Envois' 'sms_48.png' 'Envoi' %}
+    <tbody class="collapsable">
+        <tr>
+            <th colspan="6" class="block_header_line_dark" align="left">
+                {% comment %}<a class="button_link" onclick="creme.utils.showInnerPopup('/sms/campaign/{{object.pk}}/sending/add')">{% endcomment %}
+                <a class="button_link" onclick="creme.utils.innerPopupNReload('/sms/campaign/{{object.pk}}/sending/add', '{{update_url}}?base_url={{base_url}}');">
+                    <img src="{{MEDIA_URL}}images/add_22.png" border="0" title="Ajouter manuellement" alt="Ajouter" />Nouvel envoi
+                </a>
+            </th>
+        </tr>
+        {% if page.paginator.count %}
+            <tr>
+                <th class="block_header_line_dark">Date d'envoi</th>
+                <th class="block_header_line_dark">Nombre de mail(s)</th>
+                <th class="block_header_line_dark">Statuts</th>
+                <th class="block_header_line_dark">Détails</th>
+                <th class="block_header_line_dark">Synchroniser</th>
+                <th class="block_header_line_dark">Supprimer</th>
+            </tr>
+            {% for sending in page.object_list %}
+                <!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
+                <tr>
+                    <td class="{{row_color}}">{{sending.date}}</td>
+                    <td class="{{row_color}}">{{sending.messages.count}}</td>
+                    <td class="{{row_color}}">{{sending.formatstatus}}</td>
+                    <td class="{{row_color}}" align="center" valign="center" style="width:10%;">
+                        <a onclick="creme.utils.showInnerPopup('/sms/campaign/sending/{{sending.pk}}', {width:700})">
+                            <img src="{{MEDIA_URL}}images/view_22.png" border="0" title="Détails" alt="Détails" />
+                        </a>
+                    </td>
+                    <td class="{{row_color}}" align="center" valign="center" style="width:10%;">
+                        <a onclick="sms_sendings.sync({{sending.pk}});">
+                            <img src="{{MEDIA_URL}}images/refresh_22.png" border="0" title="Synchroniser" alt="Synchroniser" />
+                        </a>
+                    </td>
+                    <td class="{{row_color}}" align="center" valign="center" style="width:10%;">
+                        {% get_line_deletor '/sms/campaign/sending/delete/{{sending.pk}}' %}
+                    </td>
+                </tr>
+            {% endfor %}
+        {% else %}
+            <tr>
+                <td class="block_line_dark">Aucun envoi pour le moment</td>
+            </tr>
+        {% endif %}
+    </tbody>
+    {% include 'creme_core/templatetags/widgets/block_footer.html' %}
+</table>

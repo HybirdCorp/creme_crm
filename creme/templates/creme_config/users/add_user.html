@@ -1,0 +1,18 @@
+{% extends "creme_core/generics/blockform/add.html" %}
+
+{% block extrahead %}
+    <script type="text/javascript">
+        if (!config) //bof... --> in creme_config.js ???
+            var config = {};
+
+        config.handleShowContacts = function (checkbox, id_to_hide) {
+            var $select = $('#' + id_to_hide);
+            //if (checkbox.checked) {
+            if ($(checkbox).is(':checked')) {
+                $select.show('fast');
+            } else {
+                $select.hide('fast').val('');
+            }
+        }
+    </script>
+{% endblock %}

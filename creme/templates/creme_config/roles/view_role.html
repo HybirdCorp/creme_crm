@@ -1,0 +1,93 @@
+{% extends "creme_core/detailview.html" %}
+
+{% load creme_core_tags %}
+
+{% block before_content_1 %}{% endblock %}
+
+{% block title %}
+    <a href="/creme_config/">Configuration > </a>
+    <a href="/creme_config/roles/portal/">Rôles > </a>
+    {{object.name}}
+{% endblock %}
+
+{% block logo %}<img src="{{MEDIA_URL}}images/config_64.png" alt=""/>{% endblock %}
+
+{% block button_tab %}{% endblock%}
+
+{% block before_detail_view_1 %}
+    <!--{% cycle "block_header_line_light" "block_header_line_dark" as header_color %}
+        {% cycle "block_line_light" "block_line_dark" as row_color %}-->
+
+    <table class="table_detail_view ui-corner-all">
+        <thead>
+            <tr>
+                <th align="center" colspan="100">
+                    <img src="{{MEDIA_URL}}images/infos_48.png" alt="Infos" title="Infos">
+                    Informations {{object}}
+                </th>
+            </tr>
+        </thead>
+        <tbody class="collapsable">
+            <tr>
+                <th class="{% cycle header_color%}">Nom</th>
+                <td class="{% cycle row_color%}">{{object.name}}</td>
+            </tr>
+            <tr>
+                <th class="{% cycle header_color%}">Supérieurs</th>
+                <td class="{% cycle row_color%}">
+                    {% for sup in object.get_ascendants %}
+                        <a href="{{sup.get_absolute_url}}">{{sup}}</a>
+                    {% endfor %}
+                </td>
+            </tr>
+            <tr>
+                <th class="{% cycle header_color%}">Subordonnés</th>
+                <td class="{% cycle row_color%}">
+                    {% get_first_descendant object %}
+                </td>
+            </tr>
+            <tr>
+                <th class="{% cycle header_color%}">Droits propres</th>
+                <td class="{% cycle row_color%}">
+                    <ul>
+                        {% for right in object.droits_entity_type.all %}
+                            <li>{{right}}</li>
+                        {% endfor %}
+                    </ul>
+                </td>
+            </tr>
+            <tr>
+                <th class="{% cycle header_color%}">Droits hérités</th>
+                <td class="{% cycle row_color%}">
+                    <ul>
+                        {% for right in object.get_all_droits_entity_type %}
+                            <li>{{right}}</li>
+                        {% endfor %}
+                    </ul>
+                </td>
+            </tr>
+            <tr>
+                <th class="{% cycle header_color%}">Applications autorisées</th>
+                <td class="{% cycle row_color%}">
+                    <ul>
+                        {% for right in object.droits_app.all %}
+                            <li>{{right}}</li>
+                        {% endfor %}
+                    </ul>
+                </td>
+            </tr>
+            <tr>
+                <th class="{% cycle header_color%}">Applications autorisées héritées</th>
+                <td class="{% cycle row_color%}">
+                    <ul>
+                        {% for app in object.get_all_droits_app %}
+                            <li>{{app}}</li>
+                        {% endfor %}
+                    </ul>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+{% endblock %}
+
+{% block detail_view_right_2 %}{% endblock %}

@@ -1,0 +1,101 @@
+/* 
+    Document   : planning
+    Created on : 4 août 2009, 14:02:31
+    Author     : hybird
+    Description:
+        Purpose of the stylesheet follows.
+*/
+
+.planning
+{
+    border:1px solid #CCCCCC;
+    clear:both;
+    overflow-x:scroll;
+    overflow-y:hidden;
+    width:100%;
+}
+
+/*.planning ul
+{
+    margin:0;
+    padding:0;
+}
+
+.planning ul li
+{
+    list-style:none;
+    float:none;
+    display:block;
+    overflow-x:scroll;
+}
+
+.planning ul li.static
+{
+    float:left;
+    display:inline;
+    overflow:hidden;
+    height:100%;
+}*/
+
+.planning table
+{
+    border-collapse:collapse;
+    border-spacing:0;
+}
+
+.planning thead tr th, .planning tbody tr td, .planning tbody tr th
+{
+    /*border-top:0 none;*/
+	border-style: solid;       /* border style */
+	border-color: #ccc;        /* border color */
+	border-width: 1px 0 0 1px;
+    padding:0;
+    vertical-align:middle;
+    font-size:12px;
+    min-width:7em;
+}
+
+.planning tbody tr td.ui-droppable
+{
+    height:40px;
+}
+
+.planning thead tr th.dates
+{
+    min-width:5em;
+}
+
+.planning tbody tr.grey
+{
+    background-color:#F0F0F0;
+}
+
+
+.planning tbody tr td div.activity
+{
+    /*background:#987654 none repeat scroll 0 0;*/
+    /*height:1000px;
+    left:623px;
+    position:absolute;
+    top:215px;*/
+    z-index:3;
+}
+
+.over-day{
+    background: #ADDBFF;
+	opacity: .2;
+	filter: alpha(opacity=20);
+}
+
+.activity
+{
+    padding:8px;
+    text-align:justify;
+    cursor:pointer;
+}
+
+.activity div
+{
+    -moz-border-radius: 8px;
+    -webkit-border-radius: 8px;
+}

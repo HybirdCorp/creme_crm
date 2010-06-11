@@ -1,0 +1,129 @@
+{% extends "creme_core/detailview.html" %}
+
+{% load creme_core_tags %}
+{% load creme_block %}
+{% load persons_blocks %}
+
+{% block logo %}
+    {% if object.url_site %}
+        <a href="http://{{object.url_site}}" target="_blank" ><img src="{{object.image.get_image_url}}" alt="" style="max-height:64px;max-width:200px;"/></a>
+    {% else %}
+        <img src="{{object.image.get_image_url}}" alt="" title="Veuillez entrez l'adresse du site web" style="max-height:64px;max-width:200px;"/>
+    {% endif %}
+{% endblock %}
+
+{% block detail_view_left_1 %}
+    <table class="table_detail_view ui-corner-all">
+        {% get_basic_block_header "Informations sur l'organisation" 'infos_48.png' 'Infos' %}
+        <tbody class="collapsable">
+            <tr>
+                <th class="block_header_line_dark">Nom de l'organisation</th>
+                <td class="block_line_dark">{{object.name}}</td>
+            </tr>
+            <tr>
+                <th class="block_header_line_light">Effectif</th>
+                <td class="block_line_light">{{object.employees}}</td>
+            </tr>
+            <tr>
+                <th class="block_header_line_dark">Forme Juridique</th>
+                <td class="block_line_dark">{{object.legal_form }}</td>
+            </tr>
+            <tr>
+                <th class="block_header_line_dark">Secteur</th>
+                <td class="block_line_dark">{{object.sector }}</td>
+            </tr>            
+            <tr>
+                <th class="block_header_line_light">Capital</th>
+                <td class="block_line_light">{{object.capital}}</td>
+            </tr>
+            <tr>
+                <th class="block_header_line_dark">Siren</th>
+                <td class="block_line_dark">{{object.siren}}</td>
+            </tr>
+            <tr>
+                <th class="block_header_line_light">Naf</th>
+                <td class="block_line_light">{{object.naf}}</td>
+            </tr>
+            <tr>
+                <th class="block_header_line_dark">Siret</th>
+                <td class="block_line_dark">{{object.siret}}</td>
+            </tr>
+            <tr>
+                <th class="block_header_line_light">rcs</th>
+                <td class="block_line_light">{{object.rcs}}</td>
+            </tr>
+            <tr>
+                <th class="block_header_line_dark">TVA Intra</th>
+                <td class="block_line_dark">{{object.tvaintra}}</td>
+            </tr>
+            <tr>
+                <th class="block_header_line_light">Assujetti à la TVA</th>
+                <td class="block_line_light">{{object|get_html_field_value:"subject_to_vat" }}</td>
+            </tr>
+            <tr>
+                <th class="block_header_line_dark">Est assigné à</th>
+                <td class="block_line_dark">{{object.user}}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <table class="table_detail_view ui-corner-all">
+            <thead>
+                <tr>
+                    <th align="center" colspan="2">Coordonnées de l'{{object|get_meta_value:"verbose_name"}}</th>
+                </tr>
+            </thead>
+            <tbody class="collapsable">
+                <tr>
+                    <th class="block_header_line_dark">Addresse de facturation</th>
+                    <td class="block_line_dark">{{object.billing_adress}}</td>
+                </tr>
+                <tr>
+                    <th class="block_header_line_light">Addresse de livraison</th>
+                    <td class="block_line_light">{{object.shipping_adress}}</td>
+                </tr>
+                <tr>
+                    <th class="block_header_line_dark">Téléphone fixe</th>
+                    <td class="block_line_dark">{{object.phone}}</td>
+                </tr>
+                <tr>
+                    <th class="block_header_line_light">Fax</th>
+                    <td class="block_line_light">{{object.fax}}</td>
+                </tr>
+                <tr>
+                    <th class="block_header_line_dark">E-mail</th>
+                    <td class="block_line_dark">{{object.email}}</td>
+                </tr>
+                <tr>
+                    <th class="block_header_line_light">Site Web</th>
+                    <td class="block_line_light">{{object.url_site}}</td>
+                </tr>
+            </tbody>
+    </table>
+
+    <table class="table_detail_view ui-corner-all">
+            {% get_basic_block_header 'Autres Informations' 'infos_48.png' 'Infos' %}
+            <tbody class="collapsable">
+                <tr>
+                    <th class="block_header_line_dark">Description</th>
+                    <td class="block_line_dark">{{object.description}}</td>
+                </tr>
+                <tr>
+                    <th class="block_header_line_light">Date de création de l'entreprise</th>
+                    <td class="block_line_light">{{object|get_html_field_value:"creation_date"}}</td>
+                </tr>
+                <tr>
+                    <th class="block_header_line_dark">Logo</th>
+                    <td class="block_line_dark">{{object|get_html_field_value:"image"}}</td>
+                </tr>
+            </tbody>
+    </table>
+{% endblock %}
+
+{% block detail_view_left_2 %}
+    {% get_managers %}
+    {% get_employees %}
+
+    {% get_relations %}
+    {% get_properties %}
+{% endblock %}

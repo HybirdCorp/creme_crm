@@ -1,0 +1,39 @@
+<table class="table_detail_view ui-corner-all">
+    <thead>
+        <tr>
+            <th colspan="5">Informations Commerciales</th>
+        </tr>
+    </thead>
+    <tbody class="collapsable">
+        <tr>
+            <th class="block_header_line_dark">Actions</th>
+            <th class="block_header_line_light">Commercial qui a vendu</th>
+            <th class="block_header_line_dark">Commission Payé</th>
+            <th class="block_header_line_light">Commentaire</th>
+            <th class="block_header_line_dark">Date Paiement</th>
+        </tr>
+        {% for relation in relations %}
+            <tr class="{% cycle "block_line_dark" "block_line_light" %}">
+                <td >
+                    <a href="/persons/relsellby/edit/{{relation.id}}">Editer Info</a>
+                </td>
+                <td >
+                     <a href="{{relation.object_creme_entity.get_absolute_url}}">{{ relation.object_creme_entity}}</a>
+                </td>
+                <td >
+                    {% if relation.sellbyrelation.commission_paye %}
+                        Commission payée
+                    {% else %}
+                        Commission non payée
+                    {%endif %}
+                </td>
+                <td >
+                    {{ relation.sellbyrelation.char_value}}
+                </td>
+                <td >
+                     {{ relation.sellbyrelation.date_paiement}}
+                </td>
+            </tr>
+       {% endfor %}
+    </tbody>
+</table>

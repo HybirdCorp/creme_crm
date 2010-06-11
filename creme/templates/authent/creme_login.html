@@ -1,0 +1,50 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<meta http-equiv="Content-type" content="text/html; charset=utf-8" />
+<html class="central_panel" xmlns="http://www.w3.org/1999/xhtml" lang="{{ LANGUAGE_CODE }}" xml:lang="{{ LANGUAGE_CODE }}" {% if LANGUAGE_BIDI %}dir="rtl"{% endif %}>
+{% load i18n %}
+{% load creme_core_tags %}
+<head>
+    <title>Creme CRM</title>
+    <link rel="stylesheet" type="text/css" href="{{MEDIA_URL}}css/creme.css" />
+
+</head>
+
+<body  class="central_panel" >
+    <div id="container">
+        <div id="container-icon"><img src="{{MEDIA_URL}}images/creme_256.png"/></div>
+
+        <p class="errornote">{% if error_message %}{{error_message}}{% endif %}</p>
+
+        <div id="content-main">
+            <div id="branding">
+                <h1>{% trans 'Creme Login' %}</h1>
+            </div>
+
+            <form action="{{app_path}}" method="post" id="login-form">
+                <div class="form-row">
+                    <label for="id_username">{% trans 'Username:' %}</label>{{form.username}}
+                </div>
+
+                <div>{{form.errors.username}}</div>
+
+                <div class="form-row">
+                    <label for="id_password">{% trans 'Password:' %}</label> {{form.password}}
+                    <input type="hidden" name="this_is_the_login_form" value="1" />
+                </div>
+
+                <div>{{form.errors.password}}</div>
+
+                <div class="submit-row">
+                    <input type="submit" value="{% trans 'Log in' %}" />
+                </div>
+
+                <div>{{form.errors|get_value:"__all__"}}</div>
+            </form>
+
+            <script type="text/javascript">
+                document.getElementById('id_username').focus()
+            </script>
+        </div>
+    </div>
+</body>
+</html>

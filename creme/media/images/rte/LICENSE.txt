@@ -1,0 +1,7 @@
+Files: bold.gif  italic.gif  unordered.gif
+
+from jQuery RTE plugin 0.5.1 - create a rich text form for Mozilla, Opera, Safari and Internet Explorer
+
+Copyright (c) 2009 Batiste Bieler
+Distributed under the GPL Licenses.
+Distributed under the The MIT License.

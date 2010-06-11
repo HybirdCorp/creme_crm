@@ -1,0 +1,25 @@
+
+
+<table>
+<tr>
+{% for item in menu %}
+        <td>
+            <a href="{{ item.app_url }}">{{ item.app_name }}</a>
+        </td>
+{% endfor %}
+</tr>
+
+<tr>
+{% for item in menu %}
+
+        <td>       
+            <ul>
+            {% for item_menu in item.items_menu %}
+                <li class="Menu_Gauche"> <a href="{{ item_menu.menu_url }}">{{ item_menu.menu_name }}</a> </li>
+            {% endfor %}
+            </ul>
+        </td>    
+
+{% endfor %}
+</tr>
+</table>

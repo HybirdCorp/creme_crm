@@ -1,0 +1,47 @@
+{% load creme_block %}
+
+<table class="table_detail_view ui-corner-all" id={{block_name}}>
+    {% get_block_header '%s Envoi' '%s Envois' 'email_48.png' 'Envoi' %}
+    <tbody class="collapsable">
+        <tr>
+            <th colspan="6" class="block_header_line_dark" align="left">
+                {% comment %}<a class="button_link" onclick="creme.utils.showInnerPopup('/emails/campaign/{{object.pk}}/sending/add')">{% endcomment %}
+                <a class="button_link" onclick="creme.utils.innerPopupNReload('/emails/campaign/{{object.pk}}/sending/add', '{{update_url}}?base_url={{base_url}}');">
+                    <img src="{{MEDIA_URL}}images/add_22.png" border="0" title="Ajouter manuellement" alt="Ajouter" />Nouvel envoi
+                </a>
+            </th>
+        </tr>
+        {% if page.paginator.count %}
+            <tr>
+                <th class="block_header_line_dark">Date d'envoi</th>
+                <th class="block_header_line_dark">Type</th>
+                <th class="block_header_line_dark">État</th>
+                <th class="block_header_line_dark">Nombre de mail(s)</th>
+                <th class="block_header_line_dark">Détails</th>
+                <th class="block_header_line_dark">Supprimer</th>
+            </tr>
+            {% for sending in page.object_list %}
+                <!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
+                <tr>
+                    <td class="{{row_color}}">{{sending.sending_date}}</td>
+                    <td class="{{row_color}}">{{sending.get_type_str}}</td>
+                    <td class="{{row_color}}">{{sending.get_state_str}}</td>
+                    <td class="{{row_color}}">{{sending.get_mails.count}}</td>
+                    <td class="{{row_color}}" align="center" valign="center" style="width:10%;">
+                        <a class="button_link" onclick="creme.utils.showInnerPopup('/emails/campaign/sending/{{sending.pk}}')">
+                            <img src="{{MEDIA_URL}}images/view_22.png" border="0" title="Détails" alt="Détails" />
+                        </a>
+                    </td>
+                    <td class="{{row_color}}" align="center" valign="center" style="width:10%;">
+                        {% get_line_deletor '/emails/campaign/sending/delete/{{sending.pk}}' %}
+                    </td>
+                </tr>
+            {% endfor %}
+        {% else %}
+            <tr>
+                <td class="block_line_dark">Aucun envoi pour le moment</td>
+            </tr>
+        {% endif %}
+    </tbody>
+    {% include 'creme_core/templatetags/widgets/block_footer.html' %}
+</table>

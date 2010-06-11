@@ -1,0 +1,54 @@
+{% load creme_block %}
+
+<table class="table_detail_view ui-corner-all" id={{block_name}}>
+    {% get_block_header '%s Utilisateur' '%s Utilisateurs' %}
+    <tbody class="collapsable">
+        <tr>
+            <th class="block_header_line_light" style="font-size:14px;" align="left" colspan="100">
+                <a class="button_link" href="/creme_config/user/add/">
+                    <img src="{{MEDIA_URL}}images/add_22.png" border="0" alt="Ajouter utilisateur"/>
+                    Nouvel utilisateur
+                </a>
+            </th>
+        </tr>
+
+        <tr>
+             {% get_column_header "Nom d'utilisateur" 'username' %}
+            {% get_column_header 'Nom' 'last_name' %}
+            {% get_column_header 'Prénom' 'first_name' %}
+            {% get_column_header 'Adresse électronique' 'email' %}
+            {% get_column_header 'Super-utilisateur ?' 'is_superuser' %}
+            {% get_column_header 'Actif ?' 'is_active' %}
+            {% get_column_header 'Dernière connexion' 'last_login' %}
+            {% get_column_header "Date d'inscription" 'date_joined' %}
+            <th class="block_header_line_light">Actions</th>
+            <th class="block_header_line_light">Mot de passe</th>
+        </tr>
+
+        {% for user in page.object_list %}
+            <!--{% cycle "block_line_light" "block_line_dark" as row_color %}-->
+            <tr>
+                <td class="{{row_color}}">{{user.username}}</td>
+                <td class="{{row_color}}">{{user.last_name}}</td>
+                <td class="{{row_color}}">{{user.first_name}}</td>
+                <td class="{{row_color}}">{{user.email}}</td>
+                <td class="{{row_color}}">{{user.is_superuser|yesno:'Oui,Non'}}</td>
+                <td class="{{row_color}}">{{user.is_active|yesno:'Oui,Non'}}</td>
+                <td class="{{row_color}}">{{user.last_login}}</td>
+                <td class="{{row_color}}">{{user.date_joined}}</td>
+                <td class="{{row_color}}">
+                    <a href="/creme_config/user/edit/{{user.id}}">
+                        <img src="{{MEDIA_URL}}images/edit_22.png" border="0" alt="Éditer" title="Éditer">
+                    </a>
+                    {% get_line_deletor '/creme_config/user/delete/{{user.id}}' %}
+                </td>
+                <td class="{{row_color}}">
+                    <a href="/creme_config/user/edit/password/{{user.id}}">
+                        <img src="{{MEDIA_URL}}images/edit_22.png" border="0" alt="Changer le mot de passe" title="Changer le mot de passe">
+                    </a>
+                </td>
+            </tr>
+        {% endfor %}
+    </tbody>
+    {% include 'creme_core/templatetags/widgets/block_footer.html' %}
+</table>

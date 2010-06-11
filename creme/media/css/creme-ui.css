@@ -1,0 +1,36 @@
+/*----------------------------------*/
+.ui-creme-timepicker { margin:0; padding:0; }
+.ui-creme-timepicker li { float:left; }
+.ui-creme-timepicker li.last { float:none; }
+.ui-creme-timepicker li input { width:3em; border:1px solid #6eaac4; text-align:right;}
+
+/*----------------------------------*/
+.ui-creme-datetimepicker { margin:0; padding:0; }
+.ui-creme-datetimepicker li { float:left; }
+.ui-creme-datetimepicker li.last { float:none; }
+.ui-creme-datetimepicker li input { width:3em; border:1px solid #6eaac4;text-align: right;}
+.ui-creme-datetimepicker li.date input { width: 8em; }
+
+/*----------------------------------*/
+.ui-creme-rel-selector-list { margin:0;padding:0; }
+.ui-creme-rel-selector-list .ui-creme-rel-selector li { float:left; }
+.ui-creme-rel-selector-list .ui-creme-rel-selector li.last { float:none; }
+.ui-creme-rel-selector-list .add { cursor:pointer; }
+.ui-creme-rel-selector-list select { font-family:Verdana,Tahoma,Arial,Helvetica,sans-serif;font-size:13px; }
+.ui-creme-rel-selector-list button[type="button"] { font-family:Verdana,Tahoma,Arial,Helvetica,sans-serif; font-size:13px; }
+
+
+/*----------------------------------*/
+ul.ui-layout { margin:0; padding:0; list-style:none; }
+ul.ui-layout li { margin:0; padding:0; list-style:none; }
+
+ul.ui-layout.hbox { display:inline; }
+ul.ui-layout.hbox li { position:relative; display:inline; }
+
+ul.ui-layout.vbox li { position:relative; display:block; }
+
+/*----------------------------------*/
+.ui-creme-selectorlist > div.add { margin-top:0.2em; margin-bottom:0.2em; }
+.ui-creme-selectorlist > div.add:hover { cursor:pointer; }
+.ui-creme-selectorlist > div.add ul li { height:1em; vertical-align:middle; }
+.ui-creme-selectorlist > div.add ul li img { position:relative; top:0.2em; }

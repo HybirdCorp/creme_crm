@@ -1,0 +1,35 @@
+{% extends "creme_config/portal.html" %}
+
+{% block title %}
+    <a href="/creme_config/">Configuration > </a>Application: {{app_name|title}}
+{% endblock %}
+
+
+{% block before_statistics %}
+    <!--
+        {% cycle "block_line_light" "block_line_dark" as row_color %}
+    -->
+
+    <table class="table_detail_view ui-corner-all">
+        <thead>
+            <tr>
+                <th colspan="100">
+                    {{app_config|length}} Type{{app_config|pluralize:"s"}} configurable{{app_config|pluralize:"s"}}
+                </th>
+            </tr>
+        </thead>
+        <tbody class="collapsable">
+            {% for model_conf in app_config %}
+                <tr>
+                    <td class="{% cycle row_color %}">
+                        <a href="/creme_config/{{app_name}}/{{model_conf.name_in_url}}/portal/">{{model_conf.verbose_name}}</a>
+                    </td>
+                </tr>
+            {% empty %}
+                <tr>
+                    <td class="{% cycle row_color %}">Aucun type ne nécessite de configuration</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock before_statistics %}

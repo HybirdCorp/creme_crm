@@ -1,0 +1,32 @@
+{% load creme_block %}
+
+<table class="table_detail_view ui-corner-all" id={{block_name}}>
+    {% get_block_header '%s Propriété' '%s Propriétés' %}
+
+    <tbody class="collapsable">
+        <tr>
+            <th colspan="2" align="left" class="block_header_line_dark" style="font-size:14px;">
+                <a class="button_link" onclick="creme.properties.select_one({{object.id}});">
+                    <img src="{{MEDIA_URL}}images/add_22.png" border="0" title="Ajouter une propriété" alt="Ajouter" />&nbsp;Nouvelle
+                </a>
+            </th>
+        </tr>
+
+        {% if page.paginator.count %}
+            {% for property in page.object_list %}
+                <!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
+                <tr>
+                    <td class="{{row_color}}">{{property}}</td>
+                    <td class="{{row_color}}" align="center" valign="center" style="width:10%;">
+                        {% get_line_deletor '/creme_core/property/delete/{{object.pk}}/{{property.pk}}' %}
+                    </td>
+                </tr>
+            {% endfor %}
+        {% else %}
+            <tr>
+                <td class="block_line_dark">Aucune propriété pour le moment</td>
+            </tr>
+         {% endif %}
+    </tbody>
+    {% include 'creme_core/templatetags/widgets/block_footer.html' %}
+</table>

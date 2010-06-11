@@ -1,0 +1,77 @@
+{% load creme_core_tags %}
+{% load creme_block %}
+
+<table  class="table_detail_view ui-corner-all" id={{block_name}}>
+    {% block header %}HEADER{% endblock %}
+
+    <tbody class="collapsable">
+        <tr>
+            <th colspan="12" class="block_header_line_dark" align="left">
+                {% block add_buttons %}BUTTONS HERE{% endblock %}
+            </th>
+        </tr>
+
+        {% if page.paginator.count %}
+            <tr>
+                <th class="block_header_line_dark">Quantité</th>
+                <th class="block_header_line_dark">Remise globale</th>
+                <th class="block_header_line_dark">Remise</th>
+                <th class="block_header_line_dark">Avoir</th>
+                <th class="block_header_line_dark">Commentaire</th>
+                <th class="block_header_line_dark">Prix unitaire</th>
+                <th class="block_header_line_dark">{% block item_name %}ITEM NAME{% endblock %}</th>
+                <th class="block_header_line_dark">TVA</th>
+                <th class="block_header_line_dark">Total (HT)</th>
+                <th class="block_header_line_dark">Total (TTC)</th>
+                <th class="block_header_line_dark">Réglé ?</th>
+                <th class="block_header_line_dark">Actions</th>
+            </tr>
+
+            {% for line in page.object_list %}
+                <!-- {% cycle "block_line_dark" "block_line_light" as row_color %} -->
+
+                <tr>
+                    <td class="{{row_color}}">{{line.quantity}}</td>
+                    <td class="{{row_color}}">{{line|get_html_field_value:"total_discount"}}</td>
+                    <td class="{{row_color}}">{{line.discount}}</td>
+                    <td class="{{row_color}}">{{line.credit}}</td>
+                    <td class="{{row_color}}">{{line.comment}}</td>
+                    <td class="{{row_color}}">{{line.unit_price}}</td>
+                    <td class="{{row_color}}">
+                        {% if line.related_item %}
+                            <a href="{{line.related_item.get_absolute_url}}">{{line.related_item}}</a>
+                        {% else %}
+                            {{line.on_the_fly_item}}
+                        {% endif %}
+                    </td>
+                    <td class="{{row_color}}">{{line.vat}}</td>
+                    <td class="{{row_color}}">{{line.get_price_exclusive_of_tax}}</td>
+                    <td class="{{row_color}}">{{line.get_price_inclusive_of_tax}}</td>
+                    <td class="{{row_color}}">
+                        <form method="POST" action="/billing/line/{{line.id}}/update" id="updateStatus{{line.id}}">
+                            {% if line.is_paid %}
+                                <input type="checkbox" name="paid" checked>
+                            {% else %}
+                                <input type="checkbox" name="paid">
+                            {% endif %}
+                            <a onclick="update('{{line.id}}')">
+                                <img src="{{MEDIA_URL}}images/refresh_16.png" width="16" height="14" border="0">
+                            </a>
+                        </form>
+                    </td>
+
+                    <td class="{{row_color}}" align="center" valign="center" style="width:10%;">
+                        {% block line_actions %}
+                            {% get_line_deletor '/billing/line/{{line.id}}/delete' %}
+                        {% endblock %}
+                   </td>
+                </tr>
+            {% endfor %}
+        {% else %}
+            <tr>
+                <td class="block_line_dark">{% block empty_msg %}EMPTY{% endblock %}</td>
+            </tr>
+        {% endif %}
+    </tbody>
+    {% include 'creme_core/templatetags/widgets/block_footer.html' %}
+</table>

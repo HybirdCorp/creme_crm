@@ -1,0 +1,32 @@
+{% extends 'billing/templatetags/line.html' %}
+
+{% load creme_block %}
+
+{% block header %}
+    {% get_block_header '%s Service relatif' '%s Services relatifs' 'product_48.png' 'Service' %}
+{% endblock %}
+
+{% block add_buttons %}
+    {% comment %}<a class="button_link" onclick="creme.utils.showInnerPopup('/billing/{{object.id}}/service_line/add')">{% endcomment %}
+    <a class="button_link" onclick="creme.utils.innerPopupNReload('/billing/{{object.id}}/service_line/add', '{{update_url}}?base_url={{base_url}}');">
+        <img src="{{MEDIA_URL}}images/add_22.png" border="0" title="Ajouter un Service" alt="Ajouter" />
+        Ajouter un service existant
+    </a>
+    {% comment %}<a class="button_link" onclick="creme.utils.showInnerPopup('/billing/{{object.id}}/service_line/add_on_the_fly')">{% endcomment %}
+    <a class="button_link" onclick="creme.utils.innerPopupNReload('/billing/{{object.id}}/service_line/add_on_the_fly', '{{update_url}}?base_url={{base_url}}');">
+        <img src="{{MEDIA_URL}}images/add_22.png" border="0" title="Ajouter un Service" alt="Ajouter" />
+        Ajouter une ligne à la volée
+    </a>
+{% endblock %}
+
+{% block item_name %}Service{% endblock %}
+
+{% block empty_msg %}Aucun service dans cette facture{% endblock %}
+
+{% block line_actions %}
+    {% comment %}<a class="button_link" onclick="creme.utils.showInnerPopup('/billing/serviceline/{{line.id}}/edit');">{% endcomment %}
+    <a class="button_link" onclick="creme.utils.innerPopupNReload('/billing/serviceline/{{line.id}}/edit', '{{update_url}}?base_url={{base_url}}');">
+        <img src="{{MEDIA_URL}}images/edit_22.png" border="0">
+    </a>
+    {{block.super}}
+{% endblock %}

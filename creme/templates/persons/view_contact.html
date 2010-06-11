@@ -1,0 +1,101 @@
+{% extends "creme_core/detailview.html" %}
+
+{% load creme_core_tags %}
+{% load creme_block %}
+
+{% block logo %}<img src="{{MEDIA_URL}}images/contacts_64.png" alt=""/>{% endblock %}
+
+{% block detail_view_left_1 %}
+    <table class="table_detail_view ui-corner-all">
+        {% get_basic_block_header 'Informations sur le contact' 'infos_48.png' 'Infos' %}
+        <tbody class="collapsable">
+            <tr>
+                <th class="block_header_line_dark">Civilité</th>
+                <td class="block_line_dark">{{object.civility}}</td>
+            </tr>
+            <tr>
+                <th class="block_header_line_light">Prénom</th>
+                <td class="block_line_light">{{object.first_name}}</td>
+            </tr>
+            <tr>
+                <th class="block_header_line_dark">Nom</th>
+                <td class="block_line_dark">{{object.last_name}}</td>
+            </tr>
+            <tr>
+                <th class="block_header_line_light">Secteur</th>
+                <td class="block_line_light">{{object.sector}}</td>
+            </tr>
+            <tr>
+                <th class="block_header_line_dark">Fonction</th>
+                <td class="block_line_dark">{{object.function}}</td>
+            </tr>
+            <tr>
+                <th class="block_header_line_light">Est assigné à</th>
+                <td class="block_line_light">{{object.user}}</td>
+            </tr>
+            <tr>
+                <th class="block_header_line_dark">Utilisateur Creme associé</th>
+                <td class="block_line_dark">{{object.is_user|default:"Aucun" }}</td>
+            </tr>
+            <tr>
+                <th class="block_header_line_light">Anniversaire</th>
+                <td class="block_line_light">{{object|get_html_field_value:"birthday"}}</td>
+            </tr>
+            <tr>
+                <th class="block_header_line_dark">Photo</th>
+                <td class="block_line_dark">{{object.image.get_entity_summary}}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <table class="table_detail_view ui-corner-all">
+        <thead>
+            <tr>
+                <th align="center" colspan="2">Coordonnées du contact</th>
+            </tr>
+        </thead>
+        <tbody class="collapsable">
+            <tr>
+                <th class="block_header_line_dark">Téléphone fixe</th>
+                <td class="block_line_dark">{{object.landline}}</td>
+            </tr>
+            <tr>
+                <th class="block_header_line_light">Téléphone portable</th>
+                <td class="block_line_light">{{object.mobile}}</td>
+            </tr>
+            <tr>
+                <th class="block_header_line_dark">E-mail</th>
+                <td class="block_line_dark">{{object.email}}</td>
+            </tr>
+            <tr>
+                <th class="block_header_line_light">Site Web</th>
+                <td class="block_line_light">{{object.url_site}}</td>
+            </tr>
+            <tr>
+                <th class="block_header_line_dark">Skype</th>
+                <td class="block_line_dark">{{object.skype}}</td>
+            </tr>
+            <tr>
+                <th class="block_header_line_light">Addresse de facturation</th>
+                <td class="block_line_light">{{object.billing_adress}}</td>
+            </tr>
+            <tr>
+                <th class="block_header_line_dark">Addresse de livraison</th>
+                <td class="block_line_dark">{{object.shipping_adress}}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <table class="table_detail_view ui-corner-all">
+        {% get_basic_block_header 'Autres Informations' 'infos_48.png' 'Infos' %}
+        <tbody class="collapsable">
+            <tr>
+                <th class="block_header_line_dark">Description</th>
+                <td class="block_line_dark">{{object.description}}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    {% get_relations %}
+    {% get_properties %}
+{% endblock %}

@@ -1,0 +1,54 @@
+{% load creme_block %}
+
+<script type="text/javascript">
+    creme.include('{{MEDIA_URL}}/js/models/relations.js','js');
+</script>
+
+<table  class="table_detail_view ui-corner-all" id={{block_name}}>
+    {% block block_header %}
+        <thead><tr><th>PEOPLE BLOCK</th></tr></thead>
+    {% endblock %}
+
+    <tbody class="collapsable">
+        <tr>
+            <th colspan="5" class="block_header_line_dark" align="left">
+                <a class="button_link" onclick="creme.relations.handleAddFromPredicateEntity('/creme_core/relation/add/from/predicate/{{predicate_id}}/entity/{{object.id}}/{{ct_id}}','{{predicate_id}}','{{object.id}}', '{{update_url}}?base_url={{base_url}}');">
+                    <img src="{{MEDIA_URL}}images/add_22.png" border="0" title="Ajouter une personne" alt="Ajouter" />
+                    {% block add_title %}Ajouter une personne{% endblock %}
+                </a>
+            </th>
+        </tr>
+
+        {% if page.paginator.count %}
+            <tr>
+                <th class="block_header_line_dark">Nom</th>
+                <th class="block_header_line_dark">Tel fixe</th>
+                <th class="block_header_line_dark">Mobile</th>
+                <th class="block_header_line_dark">E-Mail</th>
+                <th class="block_header_line_dark">Actions</th>
+            </tr>
+            {% for relation in page.object_list %}
+                {% with relation.subject_creme_entity as people %}
+                    <!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
+                    <tr>
+                        <td class="{{row_color}}"><a href="{{people.get_absolute_url}}">{{people}}</a></td>
+                        <td class="{{row_color}}">{{people.landline}}</td>
+                        <td class="{{row_color}}">{{people.mobile}}</td>
+                        <td class="{{row_color}}">{{people.email}}</td>
+                        <td class="{{row_color}}" align="center" valign="center" style="width:10%;">
+                            <a href="{{people.get_edit_absolute_url}}">
+                                <img src="{{MEDIA_URL}}images/edit_22.png" border="0">
+                            </a>
+                            {% get_line_deletor "/creme_core/relation/delete/{{relation.pk}}?pk_entity={{object.pk}}" %}
+                        </td>
+                    </tr>
+                {% endwith %}
+            {% endfor %}
+        {% else %}
+            <tr>
+                <td class="block_line_dark">{% block empty_msg %}Aucune personne enregistrée pour le moment{% endblock %}</td>
+            </tr>
+        {% endif %}
+    </tbody>
+    {% include 'creme_core/templatetags/widgets/block_footer.html' %}
+</table>

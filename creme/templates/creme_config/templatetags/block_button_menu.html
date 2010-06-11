@@ -1,0 +1,57 @@
+{% load creme_block %}
+
+<table class="table_detail_view ui-corner-all" id={{block_name}}>
+    <!--{% cycle "block_line_light" "block_line_dark" as row_color %}-->
+
+    {% get_block_header '%s Type de resource configuré' '%s Types de resource configurés' %}
+
+    <tbody class="collapsable">
+        <tr>
+            <th class="block_header_line_light" style="font-size:14px;" align="left" colspan="100">
+                <a class="button_link" href="/creme_config/button_menu/add/">
+                    <img src="{{MEDIA_URL}}images/add_22.png" border="0" alt="Ajouter une configuration de boutons"/>
+                    Nouvelle configuration de boutons
+                </a>
+            </th>
+        </tr>
+
+        <tr>
+            <th class="block_header_line_light">Type</th>
+            <th class="block_header_line_light">Éditer</th>
+            <th class="block_header_line_light">Supprimer</th>
+        </tr>
+
+        {% comment %} ONLY IF PAGE==1 ?? {% endcomment %}
+        <tr>
+            <td class="{{row_color}}">
+                Configuration par défaut
+            </td>
+            <td class="{{row_color}}">
+                <a href="/creme_config/button_menu/edit/0">
+                    <img src="{{MEDIA_URL}}images/edit_22.png" border="0" alt="Éditer" title="Éditer">
+                </a>
+            </td>
+            <td class="{{row_color}}"></td>
+        </tr>
+
+        {% if page.paginator.count %}
+            {% for ct in page.object_list %}
+                <!--{% cycle row_color %}-->
+                <tr>
+                    <td class="{{row_color}}">
+                        {{ct}}
+                    </td>
+                    <td class="{{row_color}}">
+                        <a href="/creme_config/button_menu/edit/{{ct.id}}">
+                            <img src="{{MEDIA_URL}}images/edit_22.png" border="0" alt="Éditer" title="Éditer">
+                        </a>
+                    </td>
+                    <td class="{{row_color}}">
+                        {% get_line_deletor '/creme_config/button_menu/delete/{{ct.id}}' %}
+                    </td>
+                </tr>
+            {% endfor %}
+        {% endif %}
+    </tbody>
+    {% include 'creme_core/templatetags/widgets/block_footer.html' %}
+</table>

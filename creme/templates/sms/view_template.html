@@ -1,0 +1,13 @@
+{% extends "creme_core/detailview.html" %}
+
+{% load creme_block %}
+{% load sms_blocks %}
+
+{% block logo %}<img src="{{MEDIA_URL}}images/sms_64.png" alt=""/>{% endblock %}
+
+{% block detail_view_left_1 %}
+    {% include "creme_core/object_as_table.html" %}
+
+    {% get_properties %}
+    {% get_relations %}
+{% endblock %}

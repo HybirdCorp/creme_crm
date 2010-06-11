@@ -1,0 +1,20 @@
+<thead>
+    <tr>
+        <th colspan="100">
+            {% if icon %}
+                <center>
+                    <table class="block_header" cellspacing="0" cellpadding="0">
+                        <tbody>
+                            <tr>
+                                <td><img src="{{MEDIA_URL}}images/{{icon}}" alt="{{short_title}}" title="{{short_title}}" /></td>
+                                <td>&nbsp;{{title}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </center>
+            {% else %}
+                {{title}}
+            {% endif %}
+        </th>
+    </tr>
+</thead>

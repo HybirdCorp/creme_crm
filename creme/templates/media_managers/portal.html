@@ -1,0 +1,69 @@
+{% extends "creme_core/base.html" %}
+
+{% block extrahead %}
+    <script>
+        $(document).ready(function(){
+            creme.utils.bindShowHideTbody();
+        });
+    </script>
+{% endblock %}
+
+
+{% block content %}
+    <table class="table_header" cellpadding="0" cellspacing="0">
+        <tr>
+            <td width="5%">{% block logo %}{% endblock %}</td>
+            <td width="75%"><h1>{% block title %}Portail des medias{% endblock %}</h1></td>
+            <td width="20%" align="right">
+                {% block header_link %}
+                    <a href="{% block list_url %}images{% endblock %}">
+                        {% block list_msg %}Liste des images{% endblock %}
+                        <img src="{{MEDIA_URL}}images/right_arrow_64.png" title="Aller à la liste" alt="Aller à la liste"/>
+                    </a>
+                {% endblock %}
+            </td>
+        </tr>
+    </table>
+
+    <table class="table_detail_view ui-corner-all">
+        <thead>
+            <tr>
+                <th align="center" colspan="2">
+                    <img src="{{MEDIA_URL}}images/infos_48.png" alt="Infos" title="Infos">
+                    Statistiques
+                </th>
+            </tr>
+        </thead>
+        <tbody class="collapsable">
+            {% for statk, statv in stats %}
+                <tr>
+                    <th class="{% cycle "block_header_line_dark" "block_header_line_light" %}">{{statk}}</th>
+                    <td class="{% cycle "block_line_dark" "block_line_light" %}">{{statv}}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+
+    <table class="table_detail_view ui-corner-all">
+        <thead>
+            <tr>
+                <th align="center" colspan="{{objects_list|length}}">
+                    <img src="{{MEDIA_URL}}images/infos_48.png" alt="Infos" title="Infos">
+                    {{objects_list|length}} Dernières images ajoutées
+                </th>
+            </tr>
+        </thead>
+        <tbody class="collapsable">
+            <tr>
+                {% for object in objects_list %}
+                    <td align="center" class="{% cycle "block_line_dark" "block_line_light" %}">
+                    {{object.get_entity_summary}}
+                    <br/>
+                    <a href="{{object.get_absolute_url}}">Voir</a>
+                    </td>
+                {% endfor %}
+            </tr>
+        </tbody>
+    </table>
+{% endblock %}

@@ -1,0 +1,143 @@
+{% extends "creme_config/portal.html" %}
+
+{% load creme_core_tags %}
+
+{% block extrahead %}
+    {{block.super}}
+    <script type="text/javascript" src="{{MEDIA_URL}}js/models/creme_config.js"></script>
+{% endblock %}
+
+{% block title %}
+    <a href="/creme_config/">Configuration > </a>
+    {% with paths|get_value:"app_portal" as app_portal%}
+        {% if app_portal %}
+            <a href="{{app_portal}}">{{model|get_meta_value:'app_label'|title}} >
+        {% endif %}
+    {% endwith %}
+    </a>Type : {{model|get_meta_value:'verbose_name'|title}}
+{% endblock %}
+
+
+{% block before_statistics %}
+<!--
+    {% cycle "block_line_light" "block_line_dark" as row_color %}
+-->
+
+
+<form name="generic_form" action="" method="POST">
+    <div>
+        <input type="hidden" name="order" id="order" value="{{order}}" />
+        <input type="hidden" name="way" id="way" value="{{way}}" />
+    </div>
+
+    <div class="configuration">
+        <table class="table_detail_view ui-corner-all">
+            <thead>
+                <tr>
+                    <th colspan="100">
+                        {{model|get_meta_value:'verbose_name'|title}}
+                    </th>
+                </tr>
+            </thead>
+            <tbody class="collapsable">
+                {% if paths|get_value:"add" %}
+                    <tr>
+                        <th class="block_header_line_light" style="font-size:14px;" align="left" colspan="6">
+                            <a class="button_link" href="{{paths|get_value:'add'}}">
+                                <img src="{{MEDIA_URL}}images/add_22.png" border="0" alt="Ajouter"/>
+                                Nouvelle valeur
+                            </a>
+                        </th>
+                    </tr>
+                {% endif %}
+
+                {% if pagination.object_list %}
+                    {% with model|get_meta_value:'fields' as fields %}
+                    {% with model|get_meta_value:'many_to_many' as many_to_many %}
+                    {% with paths|get_value:'edit' as edit_path %}
+                    {% with paths|get_value:'delete' as delete_path %}
+                        <tr>
+                            {% for f in fields %}
+                                <th class="block_header_line_light">
+                                    <a onclick="config.handleSort('{{f.name}}','generic_form');">{{f.verbose_name}}</a>
+                                </th>
+                            {% endfor %}
+                            {% for f in many_to_many %}
+                                <th class="block_header_line_light"><a>{{f.verbose_name}}</a></th>
+                            {% endfor %}
+                            <th class="block_header_line_light">Editer</th>
+                            <th class="block_header_line_light">Supprimer</th>
+                        </tr>
+                        {% for object in pagination.object_list %}
+                            <!--{% cycle row_color %}-->
+                            <tr>
+                                {% for f in fields %}
+                                    <td class="{{row_color}}">{{object|get_html_field_value:f.name}}</td>
+                                {% endfor %}
+
+                                {% for f in many_to_many %}
+                                    <td class="{{row_color}}">{{object|get_html_field_value:f.name}}</td>
+                                {% endfor %}
+
+                                <td class="{{row_color}}">
+                                    {% if edit_path %}
+                                        <a href="{{edit_path|cut:'%s'}}{{object.id}}">
+                                            <img src="{{MEDIA_URL}}images/edit_16.png" border="0" alt="Éditer {{object}}" title="Éditer">
+                                        </a>
+                                    {% endif %}
+                                </td>
+                                <td class="{{row_color}}">
+                                    {% if delete_path %}
+                                        <a href="{{delete_path|cut:'%s'}}{{object.id}}">
+                                            <img src="{{MEDIA_URL}}images/delete_22.png" border="0" alt="Effacer  {{object}}" title="Effacer">
+                                        </a>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    {% endwith %}{% endwith %}{% endwith %}{% endwith %}
+                {% else %}
+                    <tr>
+                        <td class="block_line_dark">Aucune valeur enregistrée pour le moment</td>
+                    </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+    <div class="pagination">
+        <span class="step-links">
+            {% ifnotequal pagination.number 1 %}
+                <a href="?page=1" onclick="this.href+='&order='+$('#order').val()+'&way='+$('#way').val();">Première page</a>
+            {% endifnotequal %}
+
+            {% if pagination.has_previous %}
+                <a href="?page={{ pagination.previous_page_number }}" onclick="this.href+='&order='+$('#order').val()+'&way='+$('#way').val();">Page précédente</a>
+            {% endif %}
+
+            {% ifnotequal pagination.paginator.num_pages 1 %}
+                <span class="current">
+                    Page {{ pagination.number }} sur {{ pagination.paginator.num_pages }}.
+                </span>
+            {% endifnotequal %}
+
+            {% if pagination.has_next %}
+                <a href="?page={{ pagination.next_page_number }}" onclick="this.href+='&order='+$('#order').val()+'&way='+$('#way').val();">Page suivante</a>
+            {% endif %}
+
+            {% ifnotequal pagination.number pagination.paginator.num_pages %}
+                <a href="?page={{ pagination.paginator.num_pages }}" onclick="this.href+='&order='+$('#order').val()+'&way='+$('#way').val();">Dernière page</a>
+            {% endifnotequal %}
+        </span>
+    </div>
+    <div>
+        <span>
+            {% if pagination.paginator.num_pages|gt:25 %} Page :{% endif %}
+            {% for pages in pagination.paginator.num_pages|xrange %}
+                {% ifequal forloop.counter|mod:25 0 %}
+                  <a href="?page={{forloop.counter}}" onclick="this.href+='&order='+$('#order').val()+'&way='+$('#way').val();">{{forloop.counter}}</a>
+                {% endifequal %}
+            {% endfor %}
+        </span>
+    </div>
+</form>
+{% endblock %}

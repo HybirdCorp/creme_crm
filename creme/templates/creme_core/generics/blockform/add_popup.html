@@ -1,0 +1,31 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<meta http-equiv="Content-type" content="text/html; charset=utf-8" />
+<html xmlns="http://www.w3.org/1999/xhtml" lang="{{ LANGUAGE_CODE }}" xml:lang="{{ LANGUAGE_CODE }}" {% if LANGUAGE_BIDI %}dir="rtl"{% endif %}>
+{% load i18n %}
+{% load creme_menu %}
+{% load creme_core_tags %}
+<head>
+    <title>{{title}}</title>
+    <link rel='stylesheet' type='text/css' href='{{MEDIA_URL}}css/jquery-css/creme-theme/jquery-ui-1.7.2.custom.css' />
+    <link rel="stylesheet" type="text/css" href="{{MEDIA_URL}}css/creme.css" />
+    <link rel="stylesheet" type="text/css" href="{{MEDIA_URL}}css/creme-ui.css" />
+    {% include "creme_core/frags/header_js_minimum.html" %}
+    <script language="javascript">
+        function handleValidation(form)
+        {
+            if ({{form.is_valid|lower}}){
+                if (window.opener) reload(window.opener);
+                $(window).unload(function(){window.close();});
+                window.close();
+                return true;
+            }
+            return false;
+        }
+    </script>
+</head>
+<body >
+    {% with 'images/add_64.png' as logo %}
+        {% include "creme_core/generics/blockform/base.html" %}
+    {% endwith %}
+</body>
+</html>

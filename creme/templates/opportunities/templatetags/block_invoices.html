@@ -1,0 +1,51 @@
+{% load creme_block %}
+
+<script type="text/javascript">
+    creme.include('{{MEDIA_URL}}js/models/relations.js','js');
+</script>
+
+<table  class="table_detail_view ui-corner-all" id={{block_name}}>
+    {% get_block_header '%s Facture générée' '%s Factures générées' 'invoice_48.png' 'Invoices' %}
+
+    <tbody class="collapsable">
+        <tr>
+            <th colspan="4" class="block_header_line_dark" align="left">
+                <a class="button_link" onclick="creme.relations.handleAddFromPredicateEntity('/creme_core/relation/add/from/predicate/{{predicate_id}}/entity/{{object.id}}/{{ct_id}}','{{predicate_id}}','{{object.id}}', '{{update_url}}?base_url={{base_url}}');">
+                    <img src="{{MEDIA_URL}}images/add_22.png" border="0" title="Ajouter une Facture" alt="Ajouter" />
+                    Ajouter une facture existante
+                </a>
+                <a class="button_link" href="/opportunities/opportunity/generate_new_doc/{{object.id}}/{{ct_id}}">
+                    <img src="{{MEDIA_URL}}images/add_22.png" border="0" title="Générer une nouvelle facture" alt="Générer une nouvelle facture" />
+                    Générer une nouvelle facture
+                </a>
+            </th>
+        </tr>
+
+        {% if page.paginator.count %}
+            <tr>
+                <th class="block_header_line_dark">Numéro</th>
+                <th class="block_header_line_dark">Nom</th>
+                <th class="block_header_line_dark">Supprimer</th>
+            </tr>
+            {% for relation in page.object_list %}
+                {% with relation.subject_creme_entity as invoice %}
+                    <!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
+                    <tr>
+                        <td class="{{row_color}}">{{invoice.number}}</td>
+                        <td class="{{row_color}}">
+                            <a href="{{invoice.get_absolute_url}}">{{invoice.name}}</a>
+                        </td>
+                        <td class="{{row_color}}" align="center" valign="center" style="width:10%;">
+                            {% get_line_deletor "/creme_core/relation/delete/{{relation.pk}}?pk_entity={{object.pk}}" %}
+                        </td>
+                    </tr>
+                {% endwith %}
+            {% endfor %}
+        {% else %}
+            <tr>
+                <td class="block_line_dark">Aucune facture enregistrée pour le moment</td>
+            </tr>
+        {% endif %}
+    </tbody>
+    {% include 'creme_core/templatetags/widgets/block_footer.html' %}
+</table>

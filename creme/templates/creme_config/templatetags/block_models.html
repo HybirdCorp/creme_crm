@@ -1,0 +1,71 @@
+{% load creme_core_tags %}
+{% load creme_block %}
+
+<table class="table_detail_view ui-corner-all" id={{block_name}}>
+    <thead>
+        <tr>
+            <th colspan="100">
+                {% ifequal page.paginator.count 1 %}
+                    {{page.paginator.count}} {{model|get_meta_value:'verbose_name'|title}}
+                {% else %}
+                    {{page.paginator.count}} {{model|get_meta_value:'verbose_name_plural'|title}}
+                {% endifequal %}
+            </th>
+        </tr>
+    </thead>
+
+    <tbody class="collapsable">
+        <tr>
+            <th colspan="100" class="block_header_line_dark" align="left">
+                {% comment %}INNER POPUP ??{% endcomment %}
+                <a class="button_link" href="/creme_config/{{app_name}}/{{model_name}}/add/">
+                    <img src="{{MEDIA_URL}}images/add_22.png" border="0" alt="Ajouter"/>
+                    Nouvelle valeur
+                </a>
+            </th>
+        </tr>
+
+        {% if page.paginator.count %}
+            {% with model|get_meta_value:'fields' as fields %}
+            {% with model|get_meta_value:'many_to_many' as many_to_many %}
+                <tr>
+                    {% for f in fields %}
+                        {% get_column_header f.verbose_name f.name %}
+                    {% endfor %}
+                    {% for f in many_to_many %}
+                        <th class="block_header_line_light">{{f.verbose_name}}</th>
+                    {% endfor %}
+                    <th class="block_header_line_light">Éditer</th>
+                    <th class="block_header_line_light">Supprimer</th>
+                </tr>
+                {% for object in page.object_list %}
+                    <!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
+                    <tr>
+                        {% for f in fields %}
+                            <td class="{{row_color}}">{{object|get_html_field_value:f.name}}</td>
+                        {% endfor %}
+
+                        {% for f in many_to_many %}
+                            <td class="{{row_color}}">{{object|get_html_field_value:f.name}}</td>
+                        {% endfor %}
+
+                        <td class="{{row_color}}">
+                            <a href="/creme_config/{{app_name}}/{{model_name}}/edit/{{object.id}}">
+                                {% comment %} Inner popup ????  {% endcomment %}
+                                <img src="{{MEDIA_URL}}images/edit_16.png" border="0" alt="Éditer {{object}}" title="Éditer">
+                            </a>
+                        </td>
+                        <td class="{{row_color}}">
+                            {% get_line_deletor '/creme_config/{{app_name}}/{{model_name}}/delete/{{object.id}}' %}
+                        </td>
+                    </tr>
+                {% endfor %}
+            {% endwith %}{% endwith %}
+        {% else %}
+            <tr>
+                <td class="block_line_dark">Aucune valeur enregistrée pour le moment</td>
+            </tr>
+        {% endif %}
+    </tbody>
+    {% include 'creme_core/templatetags/widgets/block_footer.html' %}
+</table>

@@ -1,0 +1,7 @@
+{% extends "billing/view_billing.html" %}
+
+{% block button_tab_extra_3 %}
+    <td class=td_for_table_button >
+        <a class="a_button_with_border" href="/billing/{{object.id}}/convert/?type=invoice" >Convertir en Facture</a>
+    </td>
+{% endblock %}

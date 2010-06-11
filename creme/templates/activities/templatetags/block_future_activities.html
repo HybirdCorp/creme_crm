@@ -1,0 +1,67 @@
+{% load creme_block %}
+
+{% block relation_script %}
+    <script type="text/javascript">
+        creme.include('{{MEDIA_URL}}js/models/relations.js', 'js');
+    </script>
+{% endblock %}
+
+<table  class="table_detail_view ui-corner-all" id={{block_name}}>
+    {% block activities_header %}
+        {% get_block_header '%s Activité future liée' '%s Activités futures liées' 'calendar_48.png' 'Activités futures' %}
+    {% endblock %}
+
+    <tbody class="collapsable">
+        {% block activities_add %}
+            <tr>
+                <th colspan="5" class="block_header_line_dark" align="left">
+                    <a class="button_link" onclick="creme.relations.handleAddFromPredicateEntity('/creme_core/relation/add/from/predicate/{{predicate_id}}/entity/{{object.id}}/{{ct_id}}','{{predicate_id}}','{{object.id}}', '{{update_url}}?base_url={{base_url}}');">
+                        <img src="{{MEDIA_URL}}images/add_22.png" border="0" title="Ajouter une Activité" alt="Ajouter" />
+                        Lier à une activité
+                    </a>
+                </th>
+            </tr>
+        {% endblock %}
+
+        {% if page.paginator.count %}
+            <tr>
+                <th class="block_header_line_dark">Nom</th>
+                <th class="block_header_line_dark">Sujet(s)</th>
+                <th class="block_header_line_dark">Participant(s)</th>
+                <th class="block_header_line_dark">Relié(s)</th>
+                <th class="block_header_line_dark">Supprimer</th>
+            </tr>
+            {% for activity in page.object_list %}
+                <!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
+                <tr>
+                    <td class="{{row_color}}"><a href="{{activity.get_absolute_url}}">{{activity}}</a></td>
+                    <td class="{{row_color}}">
+                        {% with activity.get_subject_relations as relations %}
+                            {% include 'activities/templatetags/activity_relations_field.html' %}
+                        {% endwith %}
+                    </td>
+                    <td class="{{row_color}}">
+                        {% with activity.get_participant_relations as relations %}
+                            {% include 'activities/templatetags/activity_relations_field.html' %}
+                        {% endwith %}
+                    </td>
+                    <td class="{{row_color}}">
+                        {% with activity.get_linkedto_relations as relations %}
+                            {% include 'activities/templatetags/activity_relations_field.html' %}
+                        {% endwith %}
+                    </td>
+                    <td class="{{row_color}}" align="center" valign="center" style="width:10%;">
+                        {% get_line_deletor '/activities/linked_activity/{{activity.pk}}/unlink/{{object.pk}}' %}
+                    </td>
+                </tr>
+            {% endfor %}
+        {% else %}
+            <tr>
+                <td class="block_line_dark">
+                    {% block activities_empty %}Aucune activité liée pour le moment{% endblock %}
+                </td>
+            </tr>
+        {% endif %}
+    </tbody>
+    {% include 'creme_core/templatetags/widgets/block_footer.html' %}
+</table>

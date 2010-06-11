@@ -1,0 +1,21 @@
+Creme source code ('creme/' directory => *.py, *.js, *.html) is
+released under the GNU AFFERO GENERAL PUBLIC LICENSE version 3, except when another
+license is specified in the file (eg: JQuery library). You can see the complete
+license text in the 'AGPL-3.0.txt' file.
+
+In accordance with Section 7(b) of the GNU Affero General Public License version 3,
+these Appropriate Legal Notices must retain the display of the "Powered by
+Creme" logo. If the display of the logo is not reasonably feasible for
+technical reasons, the Appropriate Legal Notices must display the words
+"Powered by Creme".
+
+The documentation ('doc/' directory) is released under the GNU FREE DOCUMENTATION LICENSE version 1.3.
+
+The artworks (in the 'creme/media/images' directory), except those in the list below,
+are licensed under the Creative Commons Attribution-Share Alike 3.0 Unported License.
+To view a copy of this license, visit http://creativecommons.org/licenses/by-sa/3.0/ or send a
+letter to Creative Commons, 171 Second Street, Suite 300, San Francisco, California, 94105, USA.
+
+External assets:
+- icon_calendar.gif icon_clock.gif (Django)
+- magnify.cur (from jquery.magnifier, http://www.dynamicdrive.com/dynamicindex4/imagemagnify.htm)

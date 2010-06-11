@@ -1,0 +1,208 @@
+{% load i18n %}
+{% load creme_menu %}
+{% load creme_core_tags %}
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="{{ LANGUAGE_CODE }}" xml:lang="{{ LANGUAGE_CODE }}" {% if LANGUAGE_BIDI %}dir="rtl"{% endif %}>
+<head>
+    <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
+    <title>Creme CRM </title>
+    <link rel='stylesheet' type='text/css' href='{{MEDIA_URL}}css/jquery-css/creme-theme/jquery-ui-1.7.2.custom.css' />
+    <link rel="stylesheet" type="text/css" href="{{MEDIA_URL}}css{{CSS_THEME_NAME}}creme.css" />
+    <link rel="stylesheet" type="text/css" href="{{MEDIA_URL}}css/creme-ui.css" />
+    {% include "creme_core/frags/header_js_minimum.html" %}
+    <script type='text/javascript'>
+
+      $(document).ready(function () {
+            /*
+             *
+            $("#menu_gauche_collapse").css('height',$(document).height());
+            $("#menu_gauche_expanded").css('height',$(document).height());
+            */
+
+           var document_width_onload = $(document).width();
+
+           function activeEventsMenu()
+           {
+                $("#menu_gauche_collapse").mouseenter(function(e){
+                    $("#menu_gauche_expanded").show('fast');
+                    $("#menu_gauche_collapse").hide('fast');
+                });
+
+                $("#menu_gauche_expanded").mouseleave(function(e){
+                    $("#menu_gauche_expanded").hide('slow');
+                    $("#menu_gauche_collapse").show('fast');
+                });
+            }
+
+            function desactiveEventsMenu()
+            {
+                $("#menu_gauche_collapse").unbind('mouseenter');
+                $("#menu_gauche_expanded").unbind('mouseleave');
+            }
+            
+
+            function resizePageElements(menu_width)
+            {
+                var top = $('#top');
+                var content = $('#content');
+                var footer = $('#footer');
+
+                top.css('margin-left',menu_width+10+'px');
+                content.css('margin-left',menu_width+10+'px');
+                footer.css('margin-left',menu_width+10+'px');
+
+                top.width(document_width_onload - menu_width - 20);
+                content.width(document_width_onload - menu_width - 20);
+                footer.width(document_width_onload - menu_width - 20);
+            }
+            
+            $("#tree_menu").dynatree({
+              title : "Menu CREME",
+              //rootVisible: true,
+              imagePath : '{{MEDIA_URL}}images/dynatree/',
+              fx: { height: "toggle", duration: 200 },
+              autoCollapse: true,
+              onActivate : function(e){
+                  document.location.href = e.data.url;
+              },
+              onAfterExpand :function() {
+                  if($.cookie('menu_creme') == 'expanded')
+                  {
+                    resizePageElements($("#menu_gauche_expanded").width());
+                  }
+              }
+
+            });
+
+            $('#pinmenu').toggle(
+             //Pin / Fixer le menu
+             function(){
+                $(this).attr('src','{{MEDIA_URL}}images/unpin.png');
+                desactiveEventsMenu();
+                resizePageElements($("#menu_gauche_expanded").outerWidth());
+                $.cookie('menu_creme', 'expanded', {expires: 7, path: '/', domain: '', secure: false});
+             },
+             //Unpin / Rendre le menu flottant
+             function(){
+                $(this).attr('src','{{MEDIA_URL}}images/pin.png');
+                activeEventsMenu();
+                resizePageElements($("#menu_gauche_collapse").outerWidth());
+                $.cookie('menu_creme', 'collapse', {expires: 7, path: '/', domain: '', secure: false});
+             }
+            );
+
+           if($.cookie('menu_creme') == 'expanded')
+           {
+                $('#pinmenu').attr('src','{{MEDIA_URL}}images/unpin.png');
+                desactiveEventsMenu();
+                $("#menu_gauche_expanded").show('fast',resizePageElements($("#menu_gauche_expanded").outerWidth()));
+                $("#menu_gauche_collapse").hide('fast');
+                
+                //resizePageElements($("#menu_gauche_expanded").outerWidth());
+           }
+           else
+           {
+               $('#pinmenu').attr('src','{{MEDIA_URL}}images/pin.png');
+               activeEventsMenu();
+               $("#menu_gauche_expanded").hide('slow');
+               $("#menu_gauche_collapse").show('fast', resizePageElements($("#menu_gauche_collapse").outerWidth()));
+           }
+      });
+    </script>
+     {% block extrahead %}{% endblock %}
+     <script type='text/javascript'>
+      $(document).ready(function () {
+        $("#menu_gauche_collapse").css('height',$(document).height());
+        $("#menu_gauche_expanded").css('height',$(document).height());
+      });
+      </script>
+</head>
+<body {% block bodyclass %}{% endblock %}  >
+    {% block side_menu %}
+        <div id="menu_gauche_collapse" class="menu_collapse">
+            M<br/>
+            E<br/>
+            N<br/>
+            U<br/>
+            &nbsp;<br/>
+            C<br/>
+            R<br/>
+            E<br/>
+            M<br/>
+            E<br/>
+        </div>
+
+        <div id="menu_gauche_expanded" class="menu_expanded">
+            <div style="padding-left:0%;padding-bottom:10px;padding-top:10px;">
+                <center>
+                    <a href="/"><img style="cursor:pointer;" src="{{logo_url}}" alt="Logo"/></a>
+                </center>
+            </div>
+
+            <img src="{{MEDIA_URL}}images/pin.png" alt="{% trans 'Ouvrir' %}" id="pinmenu"/>
+
+            {% block sidebar %}
+                <div id="tree_menu" >
+                 {% generate_treecreme_menu request %} 
+
+                <!--<div class="bg_creme_menu">&nbsp;</div>-->
+                </div>
+            {% endblock %}
+        </div>
+    {% endblock %}
+
+    {% block top_bar %}
+        <div id="top" class="header">
+            <table height="50" width="100%" border="0" cellpadding="0" cellspacing="0">
+                <tr>
+                    <td align="left" valign="middle">
+                        {% trans 'Welcome,' %} <strong>{% if user.first_name %}{{ user.first_name|escape }}{% else %}{{ user.username }}{% endif %}</strong> -
+                        {% block userlinks %}
+                            <a href="/creme_config/user/edit/settings/">{% trans 'My settings' %}</a> -
+                            <a href="/creme_core/clean/">{% trans 'Log out' %}</a>
+                        {% endblock %}
+                    </td>
+                    <td align="right" valign="bottom">
+                        <a href="/"><img src="{{MEDIA_URL}}images/creme_header_50.png" alt="Crème" border="0" /></a>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    {% endblock %}
+
+    <div id="content" class="main_content">
+        {% block last_viewed_items %}
+            {% get_last_items_menu request %}
+        {% endblock %}
+
+        {% block prefered_menu %}
+            {% get_prefered_menu request %}
+        {% endblock %}
+
+        {% block before_content_1 %}
+        {% endblock %}
+
+        {% block before_content_2 %}
+        {% endblock %}
+
+        {% block before_content_3 %}
+        {% endblock %}
+
+        {% block content %}
+        {% endblock %}
+
+        {% block after_content_1 %}
+        {% endblock %}
+
+        {% block after_content_2 %}
+        {% endblock %}
+
+        {% block after_content_3 %}
+        {% endblock %}
+    </div>
+
+    <div id="footer">
+        <a href="http://hybird.org">A propos d'Hybird</a> -  2009 - 2010
+    </div>
+</body>
+</html> 

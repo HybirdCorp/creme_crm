@@ -1,0 +1,28 @@
+{% with form_block.1 as fields %}
+    <table class="table_detail_view ui-corner-all" {% block table_attrs %}{% endblock %}>
+        <thead>
+            <tr>
+                <th colspan="2" valign="middle">{{form_block.0}}</th>
+            </tr>
+        </thead>
+        <tbody class="collapsable">
+            {% block extra_buttons %}{% endblock %}
+            {% for field, is_required in fields %}
+                {% if not field.is_hidden %}
+                    <tr>
+                        <th class="{% cycle "block_header_line_dark" "block_header_line_light" %}">
+                            <label for="{{field.auto_id}}">{{field.label}} {% if is_required %}*{% endif %}</label>
+                        </th>
+                        <td class="{% cycle "block_line_dark" "block_line_light" %}">
+                            {% if field.help_text %}
+                                {{field.help_text}} <br />
+                            {% endif %}
+                            {{field.errors}} {{field}}
+                        </td>
+                    </tr>
+                {% endif %}
+            {% endfor %}
+        </tbody>
+    </table>
+    <br />
+{% endwith %}

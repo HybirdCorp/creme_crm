@@ -1,0 +1,73 @@
+{% extends "creme_core/base.html" %}
+
+{% load i18n %}
+{% load creme_core_tags %}
+{% load creme_block %}
+
+{% block content %}
+    <table class="table_header" cellpadding="0" cellspacing="0">
+        <tr>
+            <td width="5%"><img src="{{MEDIA_URL}}images/document_csv_64.png" title="CSV" alt="CSV"/></td>
+            <td width="95%">
+                <h1>
+                    Import CSV : bilan
+                </h1>
+            </td>
+        </tr>
+    </table>
+
+    <p>
+        {% blocktrans with form|get_meta_value:'model'|get_meta_value:'verbose_name' as verbose_name count form.imported_objects_count as counter %}
+            {{counter}} entité de type "{{verbose_name}}" a été importée avec succés.
+        {% plural %}
+            {{counter}} entités de type "{{verbose_name}}" ont été importées avec succés.
+        {% endblocktrans %}
+    </p>
+
+    {% with form.import_errors as errors %}
+        {% if errors %}
+            {% with errors|length as count %}
+                <table class="table_detail_view ui-corner-all">
+                    {% get_block_header '%s Erreur' '%s Erreurs' 'infos_48.png' 'Infos' count %}
+                    <tbody class="collapsable">
+                        <tr>
+                            <th class="block_header_line_dark">Ligne du CSV</th>
+                            <th class="block_header_line_dark">Erreur provoquée</th>
+                        </tr>
+                        {% for error in errors %}
+                            <!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
+                            <tr>
+                                <td class="{{row_color}}">{{error.0}}</td>
+                                <td class="{{row_color}}">{{error.1}}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                    {% if count|gt:errors.max_size %}
+                        <tfooter class="collapsable">
+                            <tr>
+                                <td colspan="2" class="block_header_line_dark">
+                                    Les autres erreurs ont été omises.
+                                </td>
+                            </tr>
+                        </tfooter>
+                    {% endif %}
+                </table>
+            {% endwith %}
+        {% else %}
+            <p>Aucune erreur lors de l'import.</p>
+        {% endif %}
+    {% endwith %}
+
+    <br/>
+    <table class=table_button>
+        <tr>
+            <td class=td_for_table_button>
+                <a class="a_button_with_border" href="{{back_url}}">
+                    <img src="{{MEDIA_URL}}images/left_arrow_32.png" border="0" title="Liste" alt="Liste" />
+                    Retour à la liste
+                </a>
+            </td>
+        </tr>
+    </table>
+    <br/>
+{% endblock %}

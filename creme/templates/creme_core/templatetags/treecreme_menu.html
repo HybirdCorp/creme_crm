@@ -1,0 +1,11 @@
+<ul>
+{% for item in menu %}
+        <li class="folder" data="url : '{{ item.app_url }}'">{{ item.app_name }}
+            <ul>
+                {% for item_menu in item.items_menu %}
+                    <li data="url : '{{ item_menu.menu_url }}'">{{ item_menu.menu_name }}</li>
+                {% endfor %}
+            </ul>
+        </li>
+{% endfor %}
+</ul>

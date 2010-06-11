@@ -1,0 +1,205 @@
+{% load creme_core_tags %}
+{% load creme_header_filter %}
+{% load creme_listview_filter %}
+<table id="list" class="list_view" cellpadding="0" cellspacing="0">
+    <thead>
+        <tr>
+            <th colspan="{% if o2m %}{{columns|length}}{% else %}{{columns|length|add:1}}{% endif %}">{{list_title}}</th>
+        </tr>
+        <tr>
+            <th colspan="{% if o2m %}{{columns|length}}{% else %}{{columns|length|add:1}}{% endif %}">
+                <table width="100%" border="0">
+                    <tbody>
+                        <tr>
+                            <th align="left" valign="baseline" width="50%">
+                                <fieldset title="Filtrer">
+                                     <legend> Filtrer </legend>
+                                     {% generate_listview_filters_select content_type_id filter_id %}
+                                    <a href="/creme_core/filter/add/{{content_type_id}}">
+                                        <img border="0" src="{{MEDIA_URL}}images/add_22.png" alt="Créer filtre" title="Créer filtre"/>
+                                    </a>
+                                    {% if filter_id %}
+                                        <a href="/creme_core/filter/edit/{{content_type_id}}/{{filter_id}}" id="filter_edit">
+                                            <img border="0" src="{{MEDIA_URL}}images/edit_22.png" alt="Éditer filtre" title="Éditer filtre"/>
+                                        </a>
+                                        <a href="/creme_core/filter/delete/{{filter_id}}" id="filter_delete" onclick="creme.utils.confirmDelete(event, this);">
+                                            <img border="0" src="{{MEDIA_URL}}images/delete_22.png" alt="Supprimer filtre" title="Supprimer filtre"/>
+                                        </a>
+                                    {% endif %}
+                                </fieldset>
+                            </th>
+                            <th align="right" valign="baseline" width="50%">
+                                <fieldset title="Filtrer">
+                                     <legend> Vues </legend>
+                                     {% generate_listview_header_filters_select content_type_id hfilter_id %}
+                                    <a href="/creme_core/header_filter/add/{{content_type_id}}">
+                                        <img border="0" src="{{MEDIA_URL}}images/add_22.png" alt="Créer vue personnalisée" title="Créer vue personnalisée"/>
+                                    </a>
+                                    <a href="/creme_core/header_filter/edit/{{hfilter_id}}" id="header_filter_edit">
+                                        <img border="0" src="{{MEDIA_URL}}images/edit_22.png" alt="Éditer vue personnalisée" title="Éditer vue personnalisée"/>
+                                    </a>
+                                    <a href="/creme_core/header_filter/delete/{{hfilter_id}}/" id="header_filter_delete">
+                                        <img border="0" src="{{MEDIA_URL}}images/delete_22.png" alt="Supprimer vue personnalisée" title="Supprimer vue personnalisée"/>
+                                    </a>
+                                </fieldset>
+                            </th>
+                        </tr>
+                    </tbody>
+                </table>
+            </th>
+        </tr>
+        <tr id="list_thead_toolbar" class="toolbar">
+            <th colspan="{% if o2m %}{{columns|length}}{% else %}{{columns|length|add:1}}{% endif %}">
+                {% if not is_popup_view %}
+                    {% if add_url %}
+                        <a href="{{add_url}}"><img border="0" src="{{MEDIA_URL}}images/add_22.png" alt="Nouveau" title="Nouveau"/>Nouveau</a>
+                    {% endif %}
+                    <a href="/creme_core/list_view/dl_csv/{{content_type_id}}?list_url={{request.path}}">
+                        <img border="0" src="{{MEDIA_URL}}images/document_csv_22.png" alt="Télécharger CSV" title="Télécharger CSV"/>Télécharger CSV
+                    </a>&nbsp;
+                    <a href="/creme_core/list_view/import_csv/{{content_type_id}}?list_url={{request.path}}">
+                        <img border="0" src="{{MEDIA_URL}}images/document_csv_22.png" alt="Importer CSV" title="Importer CSV"/>Importer CSV
+                    </a>&nbsp;
+                {% endif %}
+                <button  value="0" type="button" name="_search"{% if not search %} disabled {% else %} onclick="submitHandler(this);" {% endif %}>Effacer la recherche</button>
+                <button  value="1" type="button" name="_search" onclick="submitHandler(this);">Rechercher</button>
+                {% block extra_buttons %}{% endblock %}
+                {% if extra_bt_template %}
+                    {% include extra_bt_template %}
+                {% endif %}
+            </th>
+        </tr>
+        <tr style="display:none;">
+            <th colspan="{% if o2m %}{{columns|length}}{% else %}{{columns|length|add:1}}{% endif %}">
+                <input value="{{sort_field}}" id="sort_field"    type="hidden" name="sort_field"  />
+                <input value="{{sort_order}}" id="sort_order"    type="hidden" name="sort_order"  />
+                <input value=""               id="selected_rows" type="hidden"/>
+                <input value="{{o2m}}"        id="o2m"           type="hidden"/>
+                {% block extra_buttons_hidden %}{% endblock %}
+            </th>
+        </tr>
+        <tr class="columns_top">
+            {% if not o2m %}<th>&nbsp;</th>{% endif %}
+            {% for column in columns %}
+                {% if not column.is_hidden %}
+                    <th>
+                            {% comment %}<!--<a title="Trier par {{column.title}}" onclick="creme.utils.handleSort('#sort_field', '#sort_order', '{{column.name}}', document.forms['list_view_form']);">
+                                {{column.title}}
+                            </a>-->{% endcomment %}
+                            <button type="button" {% if column.sortable %}title="Trier par {{column.title}}" onclick="creme.utils.handleSort('#sort_field', '#sort_order', '{{column.name}}', this, submitHandler);"{% else %} disabled {% endif %}>
+                                {{column.title}}
+                            </button>
+                    </th>
+                {% endif %}
+            {% endfor %}
+        </tr>
+        <tr id="list_thead_search" class="columns_bottom">
+            {% if not o2m %}<th><center><input name="select_all" value="all" type="checkbox" title="Tout sélectionner"/></center></th>{% endif %}
+            {% for column in columns %}
+                {% if column.has_a_filter %}
+                    <th {% if column.is_hidden %}style="display:none;"{% endif %}>
+                        {% with columns_values|get_value:column.name as column_options %}
+                            {% with column_options|get_value:"type" as column_type %}
+                                {% ifequal column_type "select" %}
+                                    <select name="{{column.name}}" title="{{column.title}}">
+                                        <option value="">Sélectionnez</option>
+                                        {% for options in column_options|get_value:"values" %}
+                                            <option value="{{options|get_value:"text"}}" {% if search %}{{options|get_value:"selected"}}{% endif %}>
+                                                {{options|get_value:"text"}}
+                                            </option>
+                                        {% endfor %}
+                                    </select>
+                                {% endifequal %}
+                                {% ifequal column_type "checkbox" %}
+                                    {% comment %}<!--<input name="{{column.name}}" title="{{column.title}}" type="{{column_type}}" value="{{column_options|get_value:"value"}}"/>-->{% endcomment %}
+                                    <select name="{{column.name}}" title="{{column.title}}">
+                                        <option value="">Sélectionnez</option>
+                                        {% for options in column_options|get_value:"values" %}
+                                            <option value="{{options|get_value:"value"}}" {% if search %}{{options|get_value:"selected"}}{% endif %}>
+                                                {{options|get_value:"text"}}
+                                            </option>
+                                        {% endfor %}
+                                    </select>
+                                {% endifequal %}
+                                {% ifequal column_type "datefield" %}
+                                    <span>
+                                        Entre
+                                        <input name="{{column.name}}" id="id_{{column.name}}" title="{{column.title}}" type="{{column_type}}" style="width:80px" value="{% if search %}{{column_options|get_value:"values"|get_value:"start"}}{% endif %}"/>
+                                        &nbsp;et&nbsp;
+                                        <input name="{{column.name}}" id="id_{{column.name}}_2" title="{{column.title}}" type="{{column_type}}" style="width:80px" value="{% if search %}{{column_options|get_value:"values"|get_value:"end"}}{% endif %}"/>
+                                    </span>
+                                    <script type="text/javascript">
+                                        <!--{# $("#id_{{column.name}}, #id_{{column.name}}_2").datepicker({dateFormat: "yy-mm-dd", showOn: "button", buttonImage: "{{MEDIA_URL}}/images/icon_calendar.gif", buttonImageOnly: true }); #}-->
+                                        $("#id_{{column.name}}").datepicker({dateFormat: "yy-mm-dd", showOn: "button", buttonImage: "{{MEDIA_URL}}/images/icon_calendar.gif", buttonImageOnly: true, onSelect: function(dateText, inst){$('#id_{{column.name}}_2').val(dateText);}});
+                                        $("#id_{{column.name}}_2").datepicker({dateFormat: "yy-mm-dd", showOn: "button", buttonImage: "{{MEDIA_URL}}/images/icon_calendar.gif", buttonImageOnly: true });
+                                    </script>
+                                {% endifequal %}
+                                {% ifequal column_type "text" %}
+                                    <input name="{{column.name}}" title="{{column.title}}" type="{{column_type}}" value="{% if search %}{{column_options|get_value:"value"}}{% endif %}"/>
+                                {% endifequal %}
+                            {% endwith %}
+                        {% endwith %}
+                    </th>
+                {% else %}
+                    <th {% if column.is_hidden %}style="display:none;"{% endif %}></th>
+                {% endif %}
+            {% endfor %}
+        </tr>
+    </thead>
+    <tbody>
+        {% for entity in entities.object_list %}
+            <tr class="selectable">
+                {% if not o2m %}<td><input name="select_one" value="{{entity.pk}}" type="checkbox" /></td>{% endif %}
+                <td style="display:none;">
+                    <input type="hidden" name="entity_id" value="{{entity.pk}}" />
+                </td>
+                {% for column in columns %}
+                    {% ifequal column.name "entity_actions" %} {% comment %}Wait before http://docs.djangoproject.com/en/dev/ref/templates/builtins/#operator !!!!{% endcomment %}
+                        <td title="actions">{{entity.get_entity_actions|safe}}</td>
+                    {% else %}
+                        <td title="" name="{{column.name}}" {% if column.is_hidden %}style="display:none;"{% endif %}>{% if column.is_hidden %}{{column|hf_get_html_output:entity|safe}}{% else %}{{column|hf_get_html_output:entity|safe|linebreaks}}{% endif %}</td>
+                    {% endifequal %}
+                {% endfor %}
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="{% if o2m %}{{columns|length}}{% else %}{{columns|length|add:1}}{% endif %}">Aucun élément n'existe / ne correspond à votre recherche</td>
+            </tr>
+        {% endfor %}
+    </tbody>
+    <tfoot>
+        <tr>
+            <td colspan="{% if o2m %}{{columns|length}}{% else %}{{columns|length|add:1}}{% endif %}">
+                <table border="0" width="100%">
+                    <tbody>
+                        <tr>
+                            <td>
+                                <button name="page" value="1" {% if not entities.has_previous %} disabled {% else %} onclick="submitHandler(this);" {% endif %} type="button">|<</button>
+                                <button name="page" value="{{ entities.previous_page_number }}"{% if not entities.has_previous %} disabled {% else %} onclick="submitHandler(this);" {% endif %} type="button"><<</button>
+                            </td>
+                            <td>
+                                Page <input id="user_page" value="{{ entities.number }}" name="page" onkeydown="kd_submitHandler(event, this);" title="Touche Entrée pour valider"/> sur {{ entities.paginator.num_pages }}
+                            </td>
+                            <td>
+                                <button name="page" value="{{ entities.next_page_number }}"{% if not entities.has_next %} disabled {% else %} onclick="submitHandler(this);" {% endif %} type="button">>></button>
+                                <button name="page" value="{{ entities.paginator.num_pages }}"{% ifequal entities.number entities.paginator.num_pages %} disabled {% else %} onclick="submitHandler(this);" {% endifequal %} type="button">>|</button>
+                            </td>
+                            <td>
+                                Nb / Page :
+                                <!--<select name="rows" onchange="this.form.submit();">-->
+                                <select name="rows" onchange="submitHandler(this);">
+                                    <option value="10" {% ifequal rows 10 %}selected{% endifequal %}>10</option>
+                                    <option value="25" {% ifequal rows 25 %}selected{% endifequal %}>25</option>
+                                    <option value="50" {% ifequal rows 50 %}selected{% endifequal %}>50</option>
+                                    <option value="100" {% ifequal rows 100 %}selected{% endifequal %}>100</option>
+                                    <option value="200" {% ifequal rows 200 %}selected{% endifequal %}>200</option>
+                                </select>
+                            </td>
+                            <td>Enregistrements  {{ entities.start_index }} - {{ entities.end_index }} sur {{entities.paginator.count}}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </td>
+        </tr>
+    </tfoot>
+</table>

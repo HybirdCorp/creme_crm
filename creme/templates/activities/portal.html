@@ -1,0 +1,11 @@
+{% extends "creme_core/generics/portal.html" %}
+
+{% block logo %}<img src="{{MEDIA_URL}}images/calendar_64.png" alt=""/>{% endblock %}
+{% block title %}Portail Activités{% endblock %}
+
+{% block header_link %}
+    <a href="/activities/calendar/user">
+        Calendrier
+        <img src="{{MEDIA_URL}}images/right_arrow_64.png" title="Aller au calendrier" alt="Aller au calendrier"/>
+    </a>
+{% endblock %}

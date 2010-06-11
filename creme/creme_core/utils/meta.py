@@ -1,0 +1,130 @@
+# -*- coding: utf-8 -*-
+
+################################################################################
+#    Creme is a free/open-source Customer Relationship Management software
+#    Copyright (C) 2009-2010  Hybird
+#
+#    This program is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU Affero General Public License as published by
+#    the Free Software Foundation, either version 3 of the License, or
+#    (at your option) any later version.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU Affero General Public License for more details.
+#
+#    You should have received a copy of the GNU Affero General Public License
+#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+################################################################################
+
+from django.db.models.base import ModelBase
+from django.db.models import Field, FieldDoesNotExist
+
+
+class NotDjangoModel(Exception):
+    pass
+
+#TODO: rename to get_object_field_infos
+def get_field_infos(obj, field_name):
+    """ For a field_name 'att1__att2__att3', it searchs and returns the tuple
+        (obj.att1.att2.att3, obj.att1.att2._meta.att3
+        @return : (field_class, field_value)
+    """
+    subfield_names = field_name.split('__')
+
+    try:
+        for subfield_name in subfield_names[:-1]:
+            obj = getattr(obj, subfield_name)
+
+        subfield_name = subfield_names[-1]
+        return (obj._meta.get_field(subfield_name).__class__, getattr(obj, subfield_name))
+    except (AttributeError, FieldDoesNotExist), e:
+        return None, ''
+
+def get_model_field_infos(model, field_name):
+    """ For a field_name 'att1__att2__att3', it returns the list of dicts
+        [
+         {'field': django.db.models.fields.related.ForeignKey for model.att1, 'model': YourModelClass for model.att1},
+         {'field': django.db.models.fields.related.ForeignKey for model.att2, 'model': YourModelClass for model.att2},
+         {'field': django.db.models.fields.FieldClass for model.att3,         'model': None},
+        ]
+    """
+    subfield_names = field_name.split('__')
+    infos = []
+
+    try:
+        for subfield_name in subfield_names[:-1]:
+            field = model._meta.get_field(subfield_name)
+            model = field.rel.to
+            infos.append({'field': field, 'model': model})
+
+        field = model._meta.get_field(subfield_names[-1])
+        model = None if not field.get_internal_type() == 'ForeignKey' else field.rel.to
+        infos.append({'field': field, 'model': model})
+    except (AttributeError, FieldDoesNotExist), e:
+        pass
+
+    return infos
+
+#TODO: rename......
+def get_flds_with_fk_flds(model_klass, deep=1):
+    if not isinstance(model_klass, ModelBase):
+        raise NotDjangoModel('%s is not an instance of %s' % (model_klass, ModelBase))
+
+    flds = []
+
+    #TODO: exclude_fields = getattr(model_klass, 'extra_filter_exclude_fields', []) instead....
+    has_attr = hasattr(model_klass, 'extra_filter_exclude_fields')
+
+    for field in model_klass._meta.fields + model_klass._meta.many_to_many:
+        if has_attr and field.name in model_klass.extra_filter_exclude_fields:
+            continue
+
+        if deep and field.get_internal_type() == 'ForeignKey':
+            if deep == 1:
+                flds += field.rel.to._meta.fields
+            else: #deep > 1
+                flds += get_flds_with_fk_flds(field.rel.to, deep - 1)
+        else:
+            flds.append(field)
+
+    #TODO: use a getattr( , , []) + extend() + generator expression == one line :)
+    if hasattr(model_klass, 'extra_filter_fields'):
+        for field in model_klass.extra_filter_fields:
+            flds.append(Field(name=field['name'], verbose_name=field['verbose_name']))
+
+    return flds
+
+
+#TODO: factoriser avec get_flds_with_fk_flds ?? (visitor ??)
+#TODO: utilisation bizarre de unicode() ??? '%s' % unicode(foobar), unicode('%s' % foobar)
+def get_flds_with_fk_flds_str(model_klass, deep=1, prefix=None):
+    """
+        @Return a list of tuple which are ('field_name','field_verbose_name')
+            or ('field_name__subfield_name','field_verbose_name - subfield_verbose_name') for a ForeignKey
+    """
+    fields = []
+
+    for field in model_klass._meta.fields + model_klass._meta.many_to_many:
+        if field.name in model_klass.header_filter_exclude_fields:
+            continue
+
+        if deep and field.get_internal_type() == 'ForeignKey':
+            if deep == 1:
+                fields.extend((
+                                '%s__%s' % (unicode(field.name), unicode(sub_field.name)),
+                                '%s - %s' % (unicode(field.verbose_name).capitalize(), unicode(sub_field.verbose_name).capitalize())
+                              ) for sub_field in field.rel.to._meta.fields)
+            else: #deep > 1:
+                fields += get_flds_with_fk_flds_str(field.rel.to, deep - 1,
+                                                    prefix={'name': '%s' % unicode(field.name), 'verbose_name': '%s' % unicode(field.verbose_name).capitalize()})
+        elif prefix:
+            fields.append((
+                            '%s__%s' % (prefix['name'], unicode(field.name)),
+                            '%s - %s' % (prefix['verbose_name'], unicode(field.verbose_name).capitalize())
+                         ))
+        else:
+            fields.append((unicode(field.name), unicode('%s - %s' % (model_klass._meta.verbose_name.capitalize(), unicode(field.verbose_name).capitalize()))))
+
+    return fields

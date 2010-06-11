@@ -1,0 +1,48 @@
+{% load creme_widgets %}
+{% load creme_block %}
+
+<table class="table_detail_view ui-corner-all" id={{block_name}}>
+    {% get_block_header '%s Type de propriété' '%s Types de propriété' %}
+    <tbody class="collapsable">
+        <tr>
+            <th colspan="4" class="block_header_line_dark" align="left">
+                <a class="button_link" href="/creme_config/property_type/add/">
+                    <img src="{{MEDIA_URL}}images/add_22.png" border="0" alt="Ajouter type"/>
+                    Nouveau type de propriété
+                </a>
+            </th>
+        </tr>
+
+        {% if page.paginator.count %}
+            <tr>
+                {% get_column_header 'Intitulé' 'text' %}
+                <th class="block_header_line_light">S'applique aux entités de type</th>
+                <th class="block_header_line_light">Éditer</th>
+                <th class="block_header_line_light">Supprimer</th>
+            </tr>
+
+            {% for prop_type in page.object_list %}
+                <!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
+                <tr>
+                    <td class="{{row_color}}">{{prop_type.text}}</td>
+                    <td class="{{row_color}}">
+                        {% widget_select_or_msg prop_type.subject_ctypes.all 'Pas de type de resource associé' %}
+                    </td>
+                    <td class="{{row_color}}">
+                        <a href="/creme_config/property_type/edit/{{prop_type.id}}">
+                            <img src="{{MEDIA_URL}}images/edit_22.png" border="0" alt="Éditer" title="Éditer">
+                        </a>
+                    </td>
+                    <td class="{{row_color}}">
+                        {% get_line_deletor '/creme_config/property_type/delete/{{prop_type.id}}' %}
+                    </td>
+                </tr>
+            {% endfor %}
+        {% else %}
+            <tr>
+                <td colspan="4" class="block_line_dark">Aucun type de propriété enregistré pour le moment</td>
+            </tr>
+        {% endif %}
+    </tbody>
+    {% include 'creme_core/templatetags/widgets/block_footer.html' %}
+</table>

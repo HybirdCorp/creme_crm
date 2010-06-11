@@ -1,0 +1,50 @@
+{% load creme_core_tags %}
+{% load creme_block %}
+
+<script type="text/javascript">
+    creme.include('{{MEDIA_URL}}js/models/relations.js','js');
+</script>
+
+<table class="table_detail_view ui-corner-all" id={{block_name}}>
+    {% get_block_header '%s Document lié' '%s Documents liés' 'document_48.png' 'Document' %}
+
+    <tbody class="collapsable">
+        <tr>
+            <th colspan="2" class="block_header_line_dark" align="left">
+                <a class="button_link" href="/documents/document/add_from_detailview?callback_url={{object.get_absolute_url}}&entity_id={{object.id}}">
+                    <img src="{{MEDIA_URL}}images/add_22.png" border="0" title="Ajouter" alt="Ajouter" />
+                    Nouveau
+                </a> |
+                <a class="button_link" onclick="creme.relations.handleAddFromPredicateEntity('/creme_core/relation/add/from/predicate/{{predicate_id}}/entity/{{object.id}}/{{ct_id}}','{{predicate_id}}','{{object.id}}', '{{update_url}}?{{block_name}}_page={{page.number}}&base_url={{base_url}}');">
+                    Lier document
+                </a>
+            </th>
+        </tr>
+        {% if page.paginator.count %}
+            <tr>
+                <th class="block_header_line_dark">Nom</th>
+                <th class="block_header_line_dark">Supprimer</th>
+            </tr>
+            {% for relation in page.object_list %}
+                {% with relation.object_creme_entity as doc %}
+                    <!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
+                    <tr>
+                        <td class="{{row_color}}">
+                            <a href="{{doc.get_absolute_url}}" title="{{doc}}">{{doc}}</a>
+                        </td>
+                        <td class="{{row_color}}" align="center" valign="center" style="width:10%;">
+                            {% get_line_deletor "/creme_core/relation/delete/{{relation.pk}}?pk_entity={{object.pk}}" %}
+                        </td>
+                    </tr>
+                {% endwith %}
+            {% endfor %}
+        {% else %}
+            <tr>
+                <td class="block_line_dark">
+                    Aucun document lié
+                </td>
+            </tr>
+        {% endif %}
+    </tbody>
+    {% include 'creme_core/templatetags/widgets/block_footer.html' %}
+</table>

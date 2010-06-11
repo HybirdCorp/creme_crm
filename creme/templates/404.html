@@ -1,0 +1,35 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<meta http-equiv="Content-type" content="text/html; charset=utf-8" />
+<html class="central_panel" xmlns="http://www.w3.org/1999/xhtml" lang="{{ LANGUAGE_CODE }}" xml:lang="{{ LANGUAGE_CODE }}" {% if LANGUAGE_BIDI %}dir="rtl"{% endif %}>
+{% load i18n %}
+<head>
+    <title>{% trans 'Creme CRM - Erreur !' %}</title>
+    <link rel="stylesheet" type="text/css" href="{{MEDIA_URL}}css/creme.css" />
+    <style type="text/css">
+        #container-icon {
+            background-image: url({{MEDIA_URL}}images/404_256.png);
+            background-repeat: no-repeat;
+            float: left;
+            margin-top: -100px;
+            width: 256px;
+            height: 256px;
+        }
+    </style>
+</head>
+
+<body class="central_panel" >
+    <div id="container">
+        <div id="container-icon">&nbsp;</div>
+
+        <div id="content-main">
+            <div id="branding">
+                <h1>{% trans 'Creme Erreur 404' %}</h1>
+            </div>
+
+            <div>
+                <p>{% trans "La page que vous avez demandée est introuvable." %}</p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

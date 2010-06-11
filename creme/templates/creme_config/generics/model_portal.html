@@ -1,0 +1,14 @@
+{% extends "creme_config/portal.html" %}
+
+{% load creme_core_tags %}
+{% load creme_config_blocks %}
+
+{% block title %}
+    <a href="/creme_config/">Configuration > </a>
+    <a href="/creme_config/{{app_name}}/portal/">{{model|get_meta_value:'app_label'|title}} > </a>
+    Type : {{model|get_meta_value:'verbose_name'|title}}
+{% endblock %}
+
+{% block before_statistics %}
+    {% get_model_config %}
+{% endblock %}

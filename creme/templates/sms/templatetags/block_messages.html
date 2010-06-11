@@ -1,0 +1,80 @@
+{% load creme_block %}
+{% load sms_blocks %}
+
+<style>
+tr.creme-sms-message td.notsent {
+}
+
+tr.creme-sms-message td.wait {
+    background-color:#f7e895;
+}
+
+tr.creme-sms-message td.accept {
+    background-color:#F0E7D4;
+}
+
+tr.creme-sms-message td.sent {
+    background-color:#c8f795;
+}
+
+tr.creme-sms-message td.error {
+    background-color:#f7a590;
+}
+
+</style>
+
+<script type="text/javascript">
+    sms_messages = {
+        _reload: function() {
+            creme.utils.loadBlock('{{update_url}}?base_url={{base_url}}');
+        },
+        send: function() {
+		    creme.ajax.json.post('/sms/campaign/sending/{{object.pk}}/messages/send/', {}, sms_messages._reload, sms_messages._reload);
+		},
+		sync: function() {
+            creme.ajax.json.post('/sms/campaign/sending/{{object.pk}}/messages/sync/', {}, sms_messages._reload, sms_messages._reload);
+		}
+	};
+</script>
+
+<table class="table_detail_view ui-corner-all" id={{block_name}}>
+    {% get_block_header '%s Message' '%s Messages' 'sms_48.png' 'Messages' %}
+
+    <tbody class="collapsable">
+        <tr>
+            <th colspan="4" class="block_header_line_dark" align="left">
+                <a class="button_link" onclick="sms_messages.send();">
+                    <img src="{{MEDIA_URL}}images/add_22.png" border="0" title="Envoyer" alt="Envoyer" />Envoyer
+                </a>
+                <a class="button_link" onclick="sms_messages.sync();">
+                    <img src="{{MEDIA_URL}}images/refresh_22.png" border="0" title="Synchroniser" alt="Synchroniser" />Synchroniser
+                </a>
+            </th>
+        </tr>
+        {% if page.paginator.count %}
+            <tr>
+                <th class="block_header_line_dark">Numéro</th>
+                <th class="block_header_line_dark">Statut</th>
+                <th class="block_header_line_dark">Message de statut</th>
+                <th class="block_header_line_dark">Supprimer</th>
+            </tr>
+
+            {% for message in page.object_list %}
+                <!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
+                <tr class="creme-sms-message">
+                    <td class="{{row_color}}">{{message.phone|formatphone}}</td>
+                    <td class="{{row_color}} {{message.status}}">{{message.statusname}}</td>
+                    <td class="{{row_color}}">{{message.status_message}}</td>
+                    <td class="{{row_color}}" align="center" valign="center" style="width:10%;">
+                        {% get_line_deletor '/sms/campaign/sending/message/delete/{{message.pk}}' %}
+                    </td>
+                </tr>
+            {% endfor %}
+        {% else %}
+            <tr>
+                <td class="block_line_dark">Aucun message dans cet envoi pour le moment</td>
+            </tr>
+        {% endif %}
+    </tbody>
+    {% include 'creme_core/templatetags/widgets/block_footer.html' %}
+</table>

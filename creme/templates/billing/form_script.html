@@ -1,0 +1,32 @@
+<script type="text/javascript" src="{{MEDIA_URL}}js/models/persons.js"></script>
+<script type="text/javascript">
+    $(document).ready(function(){
+        //Delete this after implements the template
+
+        {% comment %} TODO: put in a widget that gets the id automatically {% endcomment %}
+
+        function createAdress_click()
+        {
+            var org_id = $('#id_target').val();
+            if(org_id && org_id != 0)
+                openWindow('/persons/address/add?popup=true&organisation_id='+org_id, 'creme_address');
+            else
+                creme.utils.showDialog("Veuillez d'abord selectionner une organisation");//TODO : i18n
+        }
+
+        $('#id_billing_address').wrap($('<span></span>')).parent().append(
+                $('<img />')
+                .attr('src', '{{MEDIA_URL}}images/add_22.png')
+                .attr('alt', 'Ajouter')
+                .bind('click', {}, function(e){createAdress_click(e);})
+        );
+
+        $('#id_shipping_address').wrap($('<span></span>')).parent().append(
+                $('<img />')
+                .attr('src', '{{MEDIA_URL}}images/add_22.png')
+                .attr('alt', 'Ajouter')
+                .bind('click', {}, function(e){createAdress_click(e);})
+        );
+
+    });
+</script>

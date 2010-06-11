@@ -1,0 +1,24 @@
+{% extends "creme_core/base.html" %}
+
+{% block extrahead %}
+    <link rel="stylesheet" type="text/css" href="{{MEDIA_URL}}css{{CSS_THEME_NAME}}list_view.css" />
+    <script type="text/javascript">
+        function submitHandler(input){
+
+            //var url = creme.utils.appendInUrl(window.location.href, '/ajax');
+            var url = creme.utils.appendInUrl(window.location.href,'?ajax=true');
+
+            var options = {
+                'action': url,
+                'success':function(data, status){
+                    $('form[name=list_view_form]').empty().html(data);
+                }
+            };
+            $('form[name=list_view_form]').list_view('handleSubmit', input.form,options,input);
+        }
+    </script>
+{% endblock %}
+
+{% block content %}
+    {% include list_view_template %}
+{% endblock %}

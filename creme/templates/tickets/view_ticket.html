@@ -1,0 +1,22 @@
+{% extends "creme_core/detailview.html" %}
+
+{% load creme_block %}
+
+{% block logo %}<img src="{{MEDIA_URL}}images/ticket_64.png" alt=""/>{% endblock %}
+
+{% block detail_view_left_1 %}
+    {% include "creme_core/object_as_table.html" %}
+
+    <table class="table_detail_view ui-corner-all">
+        {% get_basic_block_header 'Informations Supplémentaires' 'infos_48.png' 'Infos' %}
+        <tbody class="collapsable">
+            <tr>
+                <th class="block_header_line_dark">Temps de résolution</th>
+                <td class="block_line_dark">{{object.get_resolving_duration}}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    {% get_properties %}
+    {% get_relations %}
+{% endblock %}

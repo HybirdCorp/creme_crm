@@ -1,0 +1,54 @@
+{% load creme_widgets %}
+{% load creme_block %}
+
+<table class="table_detail_view ui-corner-all" id={{block_name}}>
+    {% get_block_header '%s Type de relation personnalisé' '%s Types de relation personnalisés' 'relations_48.png' 'Relations' %}
+
+    <tbody class="collapsable">
+        <tr>
+            <th class="block_header_line_dark" align="left" colspan="4">
+                <a class="button_link" href="/creme_config/relation_type/add/">
+                    <img src="{{MEDIA_URL}}images/add_22.png" border="0">
+                    Nouveau type personnalisé
+                </a>
+            </th>
+        </tr>
+
+        {% if page.paginator.count %}
+            <tr >
+                <th class="block_header_line_dark">Sujet(s)</th>
+                <th class="block_header_line_dark">Prédicat</th>
+                <th class="block_header_line_dark">Objet(s)</th>
+                <th class="block_header_line_dark">Actions</th>
+            </tr>
+
+            {% for relation_type in page.object_list %}
+                <!--{% cycle "block_line_light" "block_line_dark" as row_color %}-->
+                <tr>
+                    <td class="{{row_color}}">
+                        {% widget_select_or_msg relation_type.subject_ctypes.all 'Pas de type' %}
+                        ({% widget_select_or_msg relation_type.subject_properties.all 'Pas de propriété' %})
+                    </td>
+                    <td class="{{row_color}}">
+                        {{relation_type.predicate}} ({{relation_type.getCreateLang}}) / {{relation_type.symmetric_type.predicate}} ({{relation_type.symmetric_type.getCreateLang}})
+                    </td>
+                    <td class="{{row_color}}">
+                        {% widget_select_or_msg relation_type.object_ctypes.all 'Pas de type' %}
+                        ({% widget_select_or_msg relation_type.object_properties.all 'Pas de propriété' %})
+                    </td>
+                    <td class="{{row_color}}">
+                        <a href="/creme_config/relation_type/edit/{{relation_type.id}}">
+                            <img src="{{MEDIA_URL}}images/edit_22.png" border="0" title="Éditer" alt="Éditer">
+                        </a>
+                        {% get_line_deletor '/creme_config/relation_type/delete/{{relation_type.id}}' %}
+                    </td>
+                </tr>
+            {% endfor %}
+        {% else %}
+            <tr>
+                <td class="block_line_dark">Aucun type de relation personnalisé n'existe pour le moment</td>
+            </tr>
+        {% endif %}
+    </tbody>
+    {% include 'creme_core/templatetags/widgets/block_footer.html' %}
+</table>

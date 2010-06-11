@@ -1,0 +1,77 @@
+{% load creme_block %}
+{% load creme_core_tags %}
+
+<table class="table_detail_view ui-corner-all" id={{block_name}}>
+    {% get_block_header '%s Tâche associée au projet' '%s Tâches associées au projet' 'project_48.png' 'Tâches' %}
+
+    <tbody class="collapsable">
+        <tr>
+            <th colspan="11" class="block_header_line_dark" align="left">
+                <a href="/projects/project/{{object.id}}/task/add">
+                    <img src="{{MEDIA_URL}}images/add_22.png" border="0" title="Ajouter une tâche" alt="Ajouter" />
+                    Ajouter une nouvelle tâche
+                </a>
+            </th>
+        </tr>
+        {% if page.paginator.count %}
+            <tr>
+                <th class="block_header_line_dark">Ordre</th>
+                <th class="block_header_line_dark">Nom</th>
+                <th class="block_header_line_dark">Durée prévue (heures)</th>
+                <th class="block_header_line_dark">Durée effective (heures)</th>
+                <th class="block_header_line_dark">Statut</th>
+                <th class="block_header_line_dark">Tâche(s) parente(s)</th>
+                <th class="block_header_line_dark">Supprimer</th>
+                <th class="block_header_line_dark">Coût</th>
+            </tr>
+
+            {% for task in page.object_list %}
+                <!-- {% cycle "block_line_dark" "block_line_light" as row_color %} -->
+                <tr>
+                    <td class="{{row_color}}" align="center">{{task.order}}</td>
+                    <td class="{{row_color}}" align="center">
+                        <a href="/projects/task/{{task.id}}">{{task.title}}</a>
+                    </td>
+                    <td class="{{row_color}}" align="center">{{task.duration}}h</td>
+                    {% with task.get_delay as delay %}
+                        {% if delay|gt:0 %}
+                            <td class="td_error" align="center">
+                                <strong>{{task.get_effective_duration}}h : Hors délais {{delay}}h</strong>
+                            </td>
+                        {% else %}
+                            <td class="td_valid" align="center">
+                                <strong>{{task.get_effective_duration}}h : Temps restant {{delay|absolute}}h</strong>
+                            </td>
+                        {% endif %}
+                    {% endwith %}
+                    <td class="{{row_color}}" align="center">{{task.status}}</td>
+                    <td class="{{row_color}}">
+                        {% for parent in task.get_parents %}
+                            <a href="/projects/task/{{parent.id}}">
+                                {{parent.title}}
+                            </a>
+                            {% comment %}<a href="/projects/task/{{task.id}}/parent/delete/{{parent.id}}">
+                                <img src="{{MEDIA_URL}}images/delete_22.png" border="0" alt="Supprimer" title="Supprimer"/>
+                            </a>{% endcomment %}
+                            {% get_line_deletor '/projects/task/{{task.id}}/parent/delete/{{parent.id}}' %}
+                        {% empty %}
+                            Aucune tâche parente
+                        {% endfor %}
+                    </td>
+                    <td class="{{row_color}}" align="center" valign="center" style="width:10%;">
+                        {% comment %}<a href="{{task.get_delete_absolute_url}}">
+                            <img src="{{MEDIA_URL}}images/delete_22.png" border="0" alt="Supprimer" title="Supprimer"/>
+                        </a>{% endcomment %}
+                        {% get_line_deletor task.get_delete_absolute_url %}
+                    </td>
+                    <td class="{{row_color}}" align="right">{{task.get_task_cost}} €</td>
+                </tr>
+            {% endfor %}
+        {% else %}
+            <tr>
+                <td class="block_line_dark">Aucune tâche dans ce projet</td>
+            </tr>
+        {% endif %}
+    </tbody>
+    {% include 'creme_core/templatetags/widgets/block_footer.html' %}
+</table>

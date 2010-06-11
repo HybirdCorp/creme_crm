@@ -1,0 +1,23 @@
+Creme is a free/open-source Customer Relationship Management software developped by Hybird (www.hybird.org).
+
+Creme is coded in Python, and uses the Django web framework (http://www.djangoproject.com/) and
+the JQuery javascript library (http://jquery.com/).
+
+You can find more information on Creme on its official web site: http://cremecrm.com/
+
+
+DEPENDENCIES:
+- Python 2.5
+- Django 1.1
+- Django extensions
+- Relatorio (if you use the app creme.billing and want PDF export)
+- pygraphviz (if you use the app creme.reports and want graph export)
+
+
+INSTALL:
+You have to know how to install a Django application.
+See the creme/settings.py and set your parameters (or put them in a new file called creme/local_settings.py instead).
+When you have chosen the creme apps you want (by commenting the unwanted ones), and configured the DB parameters
+run the following command in the creme/ directory:
+>> python manage.py syncdb
+>> python manage.py creme_populate -v
