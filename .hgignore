@@ -1,0 +1,21 @@
+syntax: glob
+
+*~
+*.pyc
+.svn
+*.db
+local_settings*.py
+django.wsgi
+*.orig
+.pydev*
+.project*
+.settings*
+
+creme/media/upload/*/*
+
+\.orig\..*$
+\.orig$
+\.chg\..*$
+\.rej$
+\.conflict\~$
+
