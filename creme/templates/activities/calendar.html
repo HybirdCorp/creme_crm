@@ -155,13 +155,20 @@ $(document).ready(function() {
                 function(e){
                     $('#tbody-selectable').slideUp();
                     $(this).text('Montrer la liste des utilisateurs');
+                    $.cookie('creme-calendar-user-list-state', 'hide');
                 },
                 function(e){
                     $('#tbody-selectable').slideDown();
                     $(this).text('Cacher la liste des utilisateurs');
+                    $.cookie('creme-calendar-user-list-state', 'show');
                 }
             );
 
+            var userListState = $.cookie('creme-calendar-user-list-state');
+            if(userListState!=null && userListState == 'hide')
+            {
+                    $('#show-hide-users').click();
+            }
         }
     );
 </script>
@@ -171,7 +178,25 @@ $(document).ready(function() {
 <div class="full-calendar-header">
     <div class="full-calendar-buttons">
         <form action="" method="POST" name="user_choice">
-            Voir les calendriers de :<br/>
+            <table>
+                <tbody>
+                    <tr>
+                        <td>
+                            <a class="a_button_with_border" href="/activities/activity/add-meeting-without-relation" >
+                                <img src="{{MEDIA_URL}}images/map_32.png" border="0" title="Rendez-vous" alt="Rendez-vous" />
+                                Créer un rendez-vous
+                            </a>
+                        </td>
+                        <td>
+                            <a class="a_button_with_border" href="/activities/activity/add-phonecall-without-relation">
+                                <img src="{{MEDIA_URL}}images/phone_32.png" border="0" title="Appel téléphonique" alt="Appel téléphonique" />
+                                Créer un appel téléphonique
+                            </a>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <p>Voir les calendriers de :<br/></p>
             <table style="border:2px solid #D7E2E7;">
                 <thead>
                     <tr>
@@ -196,7 +221,7 @@ $(document).ready(function() {
             </table>
         </form>
     </div>
-    <h2>Calendrier de {{current_user}}</h2>
+    <h2>Calendrier de {{current_users|join:", "}}</h2>
 </div>
 <div id='loading' style='display:none'>Chargement...</div>
 <div id='calendar'></div>

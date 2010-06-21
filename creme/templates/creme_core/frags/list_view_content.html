@@ -62,10 +62,12 @@
                     </a>&nbsp;
                 {% endif %}
                 <button  value="0" type="button" name="_search"{% if not search %} disabled {% else %} onclick="submitHandler(this);" {% endif %}>Effacer la recherche</button>
-                <button  value="1" type="button" name="_search" onclick="submitHandler(this);">Rechercher</button>
+                <button  value="1" type="button" name="_search" onclick="submitHandler(this);"><img border="0" src="{{MEDIA_URL}}images/looking_glass_22.png" alt="Rechercher" title="Rechercher"/>Rechercher</button>
                 {% block extra_buttons %}{% endblock %}
-                {% if extra_bt_template %}
-                    {% include extra_bt_template %}
+                {% if extra_bt_templates|isiterable %}
+                    {% for templ in extra_bt_templates %}
+                        {% include templ %}
+                    {% endfor %}
                 {% endif %}
             </th>
         </tr>

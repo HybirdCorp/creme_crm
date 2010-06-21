@@ -267,7 +267,8 @@ class ActivityCreateForm(CremeModelForm):
 
         entity_getter = CremeEntity.objects.get
         ll = participants
-        ll.append(('',first_entity))
+        if first_entity:
+            ll.append(('',first_entity))
 
         for entity_pk in ll:
             try:
@@ -322,3 +323,84 @@ class ActivityEditForm(CremeModelForm):
     def save(self):
         self.instance.end = self.cleaned_data['end']
         super(ActivityEditForm, self).save()
+
+
+################################################################################
+class ActivityCreateWithoutRelationForm(CremeModelForm):
+    class Meta:
+        model = Activity
+        exclude = ['is_actived', 'is_deleted', 'end']
+
+    start = DateTimeField(label=_(u'Début'), widget=CalendarWidget())
+
+    is_comapp = BooleanField(required=False, label=_(u"Est une démarche commerciale ?"))
+    my_participation = BooleanField(required=False, label=_(u"Est-ce que je participe à ce rendez-vous ?"))
+
+    participants = RelatedEntitiesField(relations=[REL_SUB_ACTIVITY_SUBJECT, REL_SUB_PART_2_ACTIVITY, REL_SUB_LINKED_2_ACTIVITY],
+                                        label=_(u'Participants'),
+                                        widget=RelationListWidget(),
+                                        required=False)
+
+    informed_users = ModelMultipleChoiceField(queryset=User.objects.all(),
+                                             widget=CheckboxSelectMultiple(),
+                                             required=False,
+                                             label=_(u"Utilisateurs") )
+
+    start_time = TimeField(label=_(u'Heure de début'), widget=TimeWidget(), required=False)
+    end_time = TimeField(label=_(u'Heure de fin'), widget=TimeWidget(), required=False)
+
+    blocks = CremeModelForm.blocks.new(
+                ('datetime',       _(u'Quand'),  ['start', 'start_time', 'end_time', 'is_all_day']),
+                ('participants',   _(u'Participants'), ['my_participation', 'participants']),
+                ('informed_users', _(u'Les utilisateurs à tenir informés'), ['informed_users',]),
+            )
+
+    def __init__(self, *args, **kwargs):
+        super(ActivityCreateWithoutRelationForm, self).__init__(*args, **kwargs)
+        fields = self.fields
+
+        fields['start_time'].initial = datetime.time(9, 0)
+        fields['end_time'].initial = datetime.time(18, 0)
+
+    def clean(self):
+        if self._errors:
+            return self.cleaned_data
+
+        ActivityCreateForm.clean_interval(self.cleaned_data)
+        self.check_activities()
+        return self.cleaned_data
+
+    # TODO : check for activities in same range for participants
+    def check_activities(self):
+        cleaned_data = self.cleaned_data
+        participants = [pk for rtype, pk in cleaned_data.get('participants')]
+
+        if cleaned_data.get('my_participation'):
+            try:
+                participants.append(Contact.objects.filter(is_user=cleaned_data['user']).values_list('id', flat=True)[:1][0])
+            except Exception:
+                pass
+
+        ActivityCreateForm.check_activity_collisions(cleaned_data['start'], cleaned_data['end'], participants)
+
+    def save(self):
+        self.instance.end = self.cleaned_data['end']
+        super(ActivityCreateWithoutRelationForm, self).save()
+
+    def save_participants(self):
+        cleaned_data = self.cleaned_data
+        instance = self.instance
+
+        # Participant du créateur de l'event
+        try:
+            if cleaned_data['my_participation']:
+                instance.add_related_entity(Contact.objects.filter(is_user=cleaned_data['user'])[:1][0], REL_SUB_PART_2_ACTIVITY) #?? [:1] useful ???
+        except Exception, err:
+            pass
+
+        #Other participants
+        participants = cleaned_data.get('participants', [])
+        ActivityCreateForm.save_other_participants(participants, instance)
+
+        if cleaned_data.get('is_comapp', False):
+            ActivityCreateForm.create_commercial_approach(None, participants, instance)

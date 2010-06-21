@@ -334,3 +334,7 @@ class TemplatizeNode(template.Node):
     def render(self, context):
         context[self.var_name] = self.inner_template.render(context)
         return ''
+
+@register.filter(name="isiterable")
+def isiterable(iterable):
+    return hasattr(iterable, '__iter__')
