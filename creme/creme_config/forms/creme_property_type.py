@@ -21,7 +21,7 @@
 from django.forms import CharField, ModelMultipleChoiceField, ValidationError
 from django.utils.translation import ugettext_lazy as _
 
-from creme_core.models.creme_property import CremePropertyType, create_property_type
+from creme_core.models import CremePropertyType
 from creme_core.forms import CremeForm
 from creme_core.forms.widgets import OrderedMultipleChoiceWidget
 from creme_core.utils import Q_creme_entity_content_types
@@ -47,7 +47,7 @@ class CremePropertyTypeAddForm(_CremePropertyTypeBaseForm):
 
     def save(self):
         get_data = self.cleaned_data.get
-        create_property_type('creme_config-userproperty', get_data('text'), get_data('subject_ctypes'), generate_pk=True)
+        CremePropertyType.create('creme_config-userproperty', get_data('text'), get_data('subject_ctypes'), generate_pk=True)
 
 
 class CremePropertyTypeEditForm(_CremePropertyTypeBaseForm):
@@ -62,4 +62,4 @@ class CremePropertyTypeEditForm(_CremePropertyTypeBaseForm):
 
     def save(self):
         get_data = self.cleaned_data.get
-        create_property_type(self.instance.id, get_data('text'), get_data('subject_ctypes'))
+        CremePropertyType.create(self.instance.id, get_data('text'), get_data('subject_ctypes'))

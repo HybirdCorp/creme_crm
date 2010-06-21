@@ -20,8 +20,7 @@
 
 from django.contrib.contenttypes.models import ContentType
 
-from creme_core.models import BlockConfigItem
-from creme_core.models.creme_property import create_property_type
+from creme_core.models import BlockConfigItem, CremePropertyType
 from creme_core.models.relation import create_relation_type
 from creme_core.models.header_filter import HeaderFilterItem, HeaderFilter, HFI_FIELD
 from creme_core.utils import create_or_update_models_instance as create
@@ -40,7 +39,7 @@ class Populator(BasePopulator):
                             (REL_OBJ_SOLD_BY, u'a été vendu par'))
 
 
-        create_property_type(PROP_IS_A_SALESMAN, u'est un commercial')
+        CremePropertyType.create(PROP_IS_A_SALESMAN, u'est un commercial')
 
         create(BlockConfigItem, 'commercial-approaches_block', content_type=None, block_id=approaches_block.id_, order=10,  on_portal=False)
 

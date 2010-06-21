@@ -106,15 +106,4 @@ class Organisation (CremeEntity):
 
     @staticmethod
     def get_all_managed_by_creme():
-#        managed_by_creme = CremePropertyType.objects.get(pk=PROP_IS_MANAGED_BY_CREME)
-#        return Organisation.objects.filter(properties__type=managed_by_creme).
-        ct_orga = ContentType.objects.get_for_model(Organisation)
-        pk_list = CremeProperty.objects.filter(type__id=PROP_IS_MANAGED_BY_CREME, subject_ct=ct_orga).distinct().values_list('subject_id',flat=True)
-        return Organisation.objects.filter(pk__in=pk_list)
-
-
-
-
-
-
-
+        return Organisation.objects.filter(properties__type__id=PROP_IS_MANAGED_BY_CREME)

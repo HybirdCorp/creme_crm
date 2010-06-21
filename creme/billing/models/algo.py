@@ -19,11 +19,13 @@
 ################################################################################
 
 
-from django.db.models import Model, CharField, ForeignKey,IntegerField
+from django.db.models import Model, CharField, ForeignKey, IntegerField
+from django.db.models.signals import post_save
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.contenttypes.models import ContentType
 
-from creme_core.models import CremeModel
+from creme_core.models import CremeModel, CremeProperty
+from creme_core.constants import PROP_IS_MANAGED_BY_CREME
 
 from persons.models import Organisation
 
@@ -47,35 +49,25 @@ class SimpleBillingAlgo (Model):
         app_label = 'billing'
 
 
-from django.db.models.signals import post_save
-
-from creme_core.constants import PROP_IS_MANAGED_BY_CREME
-from creme_core.models.creme_property import CremeProperty
-
 
 def simple_conf_billing_for_org_managed_by_creme(sender, instance, created, **kwargs):
-    if created :
-        from quote import Quote
-        from sales_order import SalesOrder
-        from invoice import Invoice
+    if not created:
+        return
 
-        ct_orga = ContentType.objects.get_for_model(Organisation)
+    from quote import Quote
+    from sales_order import SalesOrder
+    from invoice import Invoice
 
-        if instance.subject_ct == ct_orga and instance.type.id == PROP_IS_MANAGED_BY_CREME:
-            org = Organisation.objects.get(pk=instance.subject_id) 
+    get_ct = ContentType.objects.get_for_model
 
-            if not ConfigBillingAlgo.objects.filter(organisation=org):
-                models = [(Quote, "DE"), (Invoice, "FA"), (SalesOrder, "BC")]
+    if instance.type_id == PROP_IS_MANAGED_BY_CREME and instance.creme_entity.entity_type == get_ct(Organisation):
+        org = instance.creme_entity.get_real_entity()
 
-                for model in models:
-                    config = ConfigBillingAlgo(organisation=org, name_algo="SIMPLE_ALGO",
-                                               ct=ContentType.objects.get_for_model(model[0]))
-                    config.save()
-
-                    simple_config = SimpleBillingAlgo(organisation=org, last_number=0,
-                                                      prefix=model[1],
-                                                      ct=ContentType.objects.get_for_model(model[0]))
-                    simple_config.save()
+        if not ConfigBillingAlgo.objects.filter(organisation=org):
+            for model, prefix in [(Quote, "DE"), (Invoice, "FA"), (SalesOrder, "BC")]: #TODO: prefixes in config....
+                ct = get_ct(model)
+                ConfigBillingAlgo(organisation=org, name_algo="SIMPLE_ALGO", ct=ct).save() #TODO: SIMPLE_ALGO -> SimpleBillingAlgo attr ??
+                SimpleBillingAlgo(organisation=org, last_number=0, prefix=prefix, ct=ct).save()
 
 
-post_save.connect (simple_conf_billing_for_org_managed_by_creme, sender=CremeProperty)
+post_save.connect(simple_conf_billing_for_org_managed_by_creme, sender=CremeProperty)
