@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, HttpResponse
 from django.shortcuts import get_object_or_404, render_to_response
 from django.template.context import RequestContext
 from django.contrib.auth.decorators import login_required
@@ -58,13 +58,13 @@ def portal(request):
 #TODO: PropertyLabel not deleted ???
 @login_required
 @get_view_or_die('creme_config', DROIT_MODULE_EST_ADMIN)
-def delete(request, property_type_id):
+def delete(request):
     """
         @Permissions : Admin to creme_config app
     """
-    property_type = get_object_or_404(CremePropertyType, pk=property_type_id)
+    property_type = get_object_or_404(CremePropertyType, pk=request.POST.get('id'))
     property_type.delete()
-    return HttpResponseRedirect(portal_url)
+    return HttpResponse()
 
 @login_required
 @get_view_or_die('creme_config')

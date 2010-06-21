@@ -94,8 +94,8 @@ def detailview(request, sending_id):
                               context_instance=RequestContext(request))
 
 @login_required
-def delete_mail(request, mail_id):
-    mail     = get_object_or_404(Email, pk=mail_id)
+def delete_mail(request):
+    mail     = get_object_or_404(Email, pk=request.POST.get('id'))
     campaign = mail.sending.campaign
 
     die_status = edit_object_or_die(request, campaign)
@@ -108,7 +108,8 @@ def delete_mail(request, mail_id):
         return HttpResponse("success", mimetype="text/javascript")
 
     #TODO: better with a named url.....
-    return HttpResponseRedirect('/emails/campaign/sending/%s' % mail.sending_id)
+#    return HttpResponseRedirect('/emails/campaign/sending/%s' % mail.sending_id)
+    return HttpResponse()
 
 @login_required
 def reload_block_mails(request, sending_id):

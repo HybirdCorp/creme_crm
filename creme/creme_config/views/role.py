@@ -76,7 +76,7 @@ def delete(request, role_id):
     """
     role = get_object_or_404(CremeRole, pk=role_id)
     role.delete()
-    return portal_roles(request)
+    return portal(request)#/!\ Url stay in browser's navigation bar
 
 @login_required
 @get_view_or_die('creme_config')

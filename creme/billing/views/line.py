@@ -21,7 +21,7 @@
 from decimal import Decimal
 from logging import debug
 
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, HttpResponse
 from django.shortcuts import get_object_or_404
 from django.template import RequestContext
 from django.contrib.auth.decorators import login_required
@@ -127,8 +127,8 @@ def edit_serviceline(request, line_id):
 
 @login_required
 @get_view_or_die('billing')
-def delete(request, line_id):
-    line      = get_object_or_404(Line, pk=line_id)
+def delete(request):
+    line      = get_object_or_404(Line, pk=request.POST.get('id'))
     document  = line.document
 
     die_status = edit_object_or_die(request, document, app_name='billing')
@@ -137,7 +137,8 @@ def delete(request, line_id):
 
     line.delete()
 
-    return HttpResponseRedirect(document.get_absolute_url())
+#    return HttpResponseRedirect(document.get_absolute_url())
+    return HttpResponse()
 
 @login_required
 @get_view_or_die('billing')

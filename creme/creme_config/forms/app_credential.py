@@ -31,7 +31,7 @@ class CremeAppDroitForm(ModelForm):
 
     def __init__(self, *args, **kwargs):
         super(CremeAppDroitForm, self).__init__(*args, **kwargs)
-        self.fields['name_app'].widget.choices = ((app, app) for app in creme_registry._apps) #beurk
+        self.fields['name_app'].widget.choices = ((app, app) for app in creme_registry._apps) #beurk #unsorted..
 
     def save(self):
         cleaned_data = self.cleaned_data

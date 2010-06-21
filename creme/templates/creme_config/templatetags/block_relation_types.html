@@ -40,7 +40,7 @@
                         <a href="/creme_config/relation_type/edit/{{relation_type.id}}">
                             <img src="{{MEDIA_URL}}images/edit_22.png" border="0" title="Éditer" alt="Éditer">
                         </a>
-                        {% get_line_deletor '/creme_config/relation_type/delete/{{relation_type.id}}' %}
+                        {% get_line_deletor2 '/creme_config/relation_type/delete' "{ 'id':'{{relation_type.pk}}' }" %}
                     </td>
                 </tr>
             {% endfor %}

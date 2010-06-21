@@ -57,7 +57,7 @@
                         </a>
                     </td>
                     <td class="{{row_color}}">
-                        {% get_line_deletor '/creme_config/blocks/delete/{{ct.id}}' %}
+                        {% get_line_deletor2 '/creme_config/blocks/delete' "{ 'id': '{{ct.id}}' }" %}
                     </td>
                 </tr>
             {% endfor %}

@@ -16,22 +16,23 @@ urlpatterns = patterns('projects.views',
     #Project: Task block 
     (r'^project/(?P<project_id>\d+)/tasks/reload/$',              'task.reload_block_tasks'),
     (r'^project/(?P<project_id>\d+)/task/add',                    'task.add'),
-    (r'^task/delete/(?P<task_id>\d+)$',                           'task.delete'),
+    (r'^task/delete/(?P<task_id>\d+)$',                           'task.delete'),#Keeps detailview delete compatibility
+    (r'^task/delete$',                                            'task.delete'),
     (r'^task/(?P<object_id>\d+)$',                                'task.detailview'),
     (r'^task/edit/(?P<task_id>\d+)$',                             'task.edit'),
-    (r'^task/(?P<task_id>\d+)/parent/delete/(?P<parent_id>\d+)$', 'task.delete_parent'),
+    (r'^task/parent/delete$',                                     'task.delete_parent'),
 
     #Task: Resource block
     (r'^task/(?P<task_id>\d+)/resources/reload/$', 'resource.reload_block_resources'),
     (r'^task/(?P<task_id>\d+)/resource/add$',      'resource.add'),
     (r'^resource/edit/(?P<resource_id>\d+)$',      'resource.edit'),
-    (r'^resource/delete/(?P<resource_id>\d+)$',    'resource.delete'),
+    (r'^resource/delete$',                          'resource.delete'),
     
     #Task: Working periods block
     (r'^task/(?P<task_id>\d+)/periods/reload/$', 'workingperiod.reload_block_periods'), # only use for tasks pagination
     (r'^task/(?P<task_id>\d+)/period/add$',      'workingperiod.add'),
     (r'^period/edit/(?P<period_id>\d+)$',        'workingperiod.edit'),
-    (r'^period/delete/(?P<period_id>\d+)$',      'workingperiod.delete'),
+    (r'^period/delete$',                         'workingperiod.delete'),
 )
 
 urlpatterns += patterns('',

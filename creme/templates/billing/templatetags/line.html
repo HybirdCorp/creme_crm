@@ -62,7 +62,8 @@
 
                     <td class="{{row_color}}" align="center" valign="center" style="width:10%;">
                         {% block line_actions %}
-                            {% get_line_deletor '/billing/line/{{line.id}}/delete' %}
+                            {# get_line_deletor '/billing/line/{{line.id}}/delete' #}
+                            {% get_line_deletor2 '/billing/line/delete' "{ 'id': '{{line.id}}' }" %}
                         {% endblock %}
                    </td>
                 </tr>

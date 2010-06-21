@@ -28,7 +28,8 @@
                     <tr>
                         <td class="{{row_color}}"><a href="{{product.get_absolute_url}}">{{product}}</a></td>
                         <td class="{{row_color}}" align="center" valign="center" style="width:10%;">
-                            {% get_line_deletor "/creme_core/relation/delete/{{relation.pk}}?pk_entity={{object.pk}}" %}
+                            {# Not tested #}
+                            {% get_line_deletor2 '/creme_core/relation/delete' "{ 'id':{{relation.pk}}, 'object_id':{{object.pk}} }" %}
                         </td>
                     </tr>
                 {% endwith %}

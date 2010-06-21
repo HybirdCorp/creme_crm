@@ -250,20 +250,21 @@ def add_relations(request, subject_id):
 # NOTE : filter_RUD_objects <= filter allowed entities for this user 
 
 @login_required
-def delete(request, relation_id):
+def delete(request):
     """
         @Permissions : Delete on new_relation subject object
     """
-    relation = get_object_or_404(Relation, pk=relation_id)
-    entity   = get_object_or_404(CremeEntity, pk=request.GET['pk_entity']).get_real_entity()
+    POST = request.POST
+    relation = get_object_or_404(Relation, pk=POST.get('id'))
+    entity   = get_object_or_404(CremeEntity, pk=POST.get('object_id')).get_real_entity()
 
     die_status = delete_object_or_die(request, entity) #delete credental on 'entity' ?? only one ???
     if die_status:
         return die_status
-
     relation.delete()
 
-    return HttpResponseRedirect(entity.get_absolute_url())
+#    return HttpResponseRedirect(entity.get_absolute_url())
+    return HttpResponse("")
 
 @login_required
 def add_relation_from_predicate_n_entity(request, predicate_id, subject_id, object_ct_id, o2m=False):

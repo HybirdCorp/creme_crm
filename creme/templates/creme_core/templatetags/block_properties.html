@@ -18,7 +18,7 @@
                 <tr>
                     <td class="{{row_color}}">{{property}}</td>
                     <td class="{{row_color}}" align="center" valign="center" style="width:10%;">
-                        {% get_line_deletor '/creme_core/property/delete/{{object.pk}}/{{property.pk}}' %}
+                        {% get_line_deletor2 '/creme_core/property/delete' "{ 'id':{{property.pk}}, 'object_id':{{object.pk}} }" %}
                     </td>
                 </tr>
             {% endfor %}

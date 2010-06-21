@@ -20,7 +20,7 @@
 
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, HttpResponse
 
 from creme_core.entities_access.functions_for_permissions import get_view_or_die, edit_object_or_die
 
@@ -48,15 +48,15 @@ def reload_block_periods(request, task_id):
     return working_periods_block.detailview_ajax(request, task_id)
 
 @login_required
-def delete(request, period_id):
-    period = get_object_or_404(WorkingPeriod, pk=period_id)
+def delete(request):
+    period = get_object_or_404(WorkingPeriod, pk=request.POST.get('id'))
     related_task = period.task
     
     die_status = edit_object_or_die(request, related_task)
-
     if die_status:
         return die_status
 
     period.delete()
 
-    return HttpResponseRedirect('/projects/task/%s' % related_task.id)
+    return HttpResponse("")
+#    return HttpResponseRedirect('/projects/task/%s' % related_task.id)

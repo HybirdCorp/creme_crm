@@ -2,7 +2,7 @@
 
 from logging import debug
 
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, HttpResponse
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404, render_to_response
 from django.template.context import RequestContext
@@ -39,14 +39,14 @@ def portal(request):
 
 @login_required
 @get_view_or_die('creme_config', DROIT_MODULE_EST_ADMIN)
-def delete(request, app_cred_id):
+def delete(request):
     """
         @Permissions : Admin to creme_config app
     """
-    app_cred = get_object_or_404(CremeAppDroit, pk=app_cred_id)
+    app_cred = get_object_or_404(CremeAppDroit, pk=request.POST.get('id'))
     app_cred.delete()
 
-    return HttpResponseRedirect(portal_url)
+    return HttpResponse()
 
 @login_required
 @get_view_or_die('creme_config', DROIT_MODULE_EST_ADMIN)

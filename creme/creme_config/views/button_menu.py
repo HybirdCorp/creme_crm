@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from django.http import HttpResponseRedirect, Http404
+from django.http import HttpResponseRedirect, Http404, HttpResponse
 from django.shortcuts import render_to_response
 from django.template.context import RequestContext
 from django.contrib.auth.decorators import login_required
@@ -64,12 +64,14 @@ def edit(request, ct_id):
 
 @login_required
 @get_view_or_die('creme_config', DROIT_MODULE_EST_ADMIN)
-def delete(request, ct_id):
+def delete(request):
+    ct_id = request.POST.get('id')
+    #Set a constant to recognize default config, because POST QueryDict can be empty ?
     if not ct_id: #default config can't be deleted
         raise Http404 #bof
 
     ButtonMenuItem.objects.filter(content_type__id=ct_id).delete()
-    return HttpResponseRedirect(portal_url)
+    return HttpResponse()
 
 @login_required
 @get_view_or_die('creme_config')

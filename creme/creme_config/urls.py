@@ -15,7 +15,8 @@ urlpatterns = patterns('creme_config.views',
     (r'^relation_type/portal/$',                             'relation_type.portal'),
     (r'^relation_type/add/$',                                'relation_type.add'),
     (r'^relation_type/edit/(?P<relation_type_id>[\w-]+)$',   'relation_type.edit'),
-    (r'^relation_type/delete/(?P<relation_type_id>[\w-]+)$', 'relation_type.delete'),
+#    (r'^relation_type/delete/(?P<relation_type_id>[\w-]+)$', 'relation_type.delete'),
+    (r'^relation_type/delete$',                              'relation_type.delete'),
     (r'^relation_types/reload/$',                            'relation_type.reload_block'),
 
     #Roles
@@ -28,13 +29,13 @@ urlpatterns = patterns('creme_config.views',
 
     (r'^roles/entity_credential/add/$',                           'entity_credential.add'),
     (r'^roles/entity_credential/portal/$',                        'entity_credential.portal'),
-    (r'^roles/entity_credential/delete/(?P<entity_cred_id>\d+)$', 'entity_credential.delete'),
+    (r'^roles/entity_credential/delete$',                         'entity_credential.delete'),
     (r'^roles/entity_credential/generate_all/$',                  'entity_credential.generate_all_possibilities'),
     (r'^roles/entity_credentials/reload/$',                       'entity_credential.reload_block'),
 
     (r'^roles/app_credential/portal/$',                     'app_credential.portal'),
     (r'^roles/app_credential/add/$',                        'app_credential.add'),
-    (r'^roles/app_credential/delete/(?P<app_cred_id>\d+)$', 'app_credential.delete'),
+    (r'^roles/app_credential/delete$',                      'app_credential.delete'),
     (r'^roles/app_credentials/reload/$',                    'app_credential.reload_block'),
 
     #Profiles
@@ -48,7 +49,7 @@ urlpatterns = patterns('creme_config.views',
     (r'^user/portal/$',                        'user.portal'),
     (r'^user/add/$',                           'user.add'),
     (r'^user/edit/(?P<user_id>\d*)$',          'user.edit'),
-    (r'^user/delete/(?P<user_id>\d*)$',        'user.delete'),
+    (r'^user/delete$',                         'user.delete'),
     (r'^user/edit/password/(?P<user_id>\d*)$', 'user.change_password'),
     (r'^user/edit/settings/$',                 'user.edit_own_settings'),
     (r'^users/reload/$',                       'user.reload_block'),
@@ -57,7 +58,7 @@ urlpatterns = patterns('creme_config.views',
     (r'^property_type/portal/$',                             'creme_property_type.portal'),
     (r'^property_type/add/$',                                'creme_property_type.add'),
     (r'^property_type/edit/(?P<property_type_id>[\w-]+)$',   'creme_property_type.edit'),
-    (r'^property_type/delete/(?P<property_type_id>[\w-]+)$', 'creme_property_type.delete'),
+    (r'^property_type/delete$',                              'creme_property_type.delete'),
     (r'^property_types/reload/$',                            'creme_property_type.reload_block'),
 
     #Blocks
@@ -65,7 +66,7 @@ urlpatterns = patterns('creme_config.views',
     (r'^blocks/add/$',                        'blocks.add'),
     (r'^blocks/edit/(?P<ct_id>\d+)$',         'blocks.edit'),
     (r'^blocks/edit/(?P<ct_id>\d+)/portal/$', 'blocks.edit_portal'),
-    (r'^blocks/delete/(?P<ct_id>\d+)$',       'blocks.delete'),
+    (r'^blocks/delete$',                      'blocks.delete'),
     (r'^blocks/reload/$',                     'blocks.reload_block'),
 
     #Prefered Menu
@@ -75,7 +76,7 @@ urlpatterns = patterns('creme_config.views',
     (r'^button_menu/portal/$',                'button_menu.portal'),
     (r'^button_menu/add/$',                   'button_menu.add'),
     (r'^button_menu/edit/(?P<ct_id>\d+)$',    'button_menu.edit'),
-    (r'^button_menu/delete/(?P<ct_id>\d+)$',  'button_menu.delete'),
+    (r'^button_menu/delete$',                 'button_menu.delete'),
     (r'^button_menu/reload/$',                'button_menu.reload_block'),
 
     #MailSignature
@@ -91,7 +92,8 @@ urlpatterns = patterns('creme_config.views',
     (r'^(?P<app_name>\w+)/(?P<model_name>\w+)/portal/$',                      'generics_views.portal_model'),
     (r'^(?P<app_name>\w+)/(?P<model_name>\w+)/add/$',                         'generics_views.add_model'),
     (r'^(?P<app_name>\w+)/(?P<model_name>\w+)/edit/(?P<object_id>[\w-]+)$',   'generics_views.edit_model'),
-    (r'^(?P<app_name>\w+)/(?P<model_name>\w+)/delete/(?P<object_id>[\w-]+)$', 'generics_views.delete_model'),
+#    (r'^(?P<app_name>\w+)/(?P<model_name>\w+)/delete/(?P<object_id>[\w-]+)$', 'generics_views.delete_model'),
+    (r'^(?P<app_name>\w+)/(?P<model_name>\w+)/delete$', 'generics_views.delete_model'),
 )
 
 

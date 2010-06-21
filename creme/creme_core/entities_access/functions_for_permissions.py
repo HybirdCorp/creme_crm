@@ -18,6 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from django.http import HttpResponse
 from django.contrib.contenttypes.models import ContentType
 from django.http import HttpResponseRedirect
 from creme_core.models.authent import CremeTypeEnsembleFiche
@@ -86,6 +87,8 @@ def edit_view_or_die(content_type, type_ensemble=None, app_name=None, id_fiche_r
 def _object_or_die(test_func,request, object, app_name=None):
     assert request.user.is_authenticated(),'User is not logged in'
     if not test_func(request, object, app_name):
+        if request.is_ajax():
+            return HttpResponse("Vous n'avez pas accès à cette page, veuillez contacter votre administrateur.")#Template ?
         return render_to_response('creme_core/forbidden.html', {} ,
                                       context_instance=RequestContext(request))
 

@@ -19,7 +19,7 @@
 ################################################################################
 
 from django.db.models import Q
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, HttpResponse
 from django.shortcuts import get_object_or_404, render_to_response
 from django.template.context import RequestContext
 from django.contrib.auth.decorators import login_required
@@ -74,20 +74,21 @@ def list_for_entity_ct(request, creme_entity_id):
                               context_instance=RequestContext(request))
 
 @login_required
-def delete(request, creme_entity_id, property_id):
+def delete(request):
     """
         @Permissions : Edit on property's linked object
     """
-    entity = get_object_or_404(CremeEntity, pk=creme_entity_id).get_real_entity()
+    POST = request.POST
+    entity = get_object_or_404(CremeEntity, pk=POST.get('object_id')).get_real_entity()
 
     die_status = edit_object_or_die(request, entity)
     if die_status:
         return die_status
 
-    property_ = get_object_or_404(CremeProperty, pk=property_id)
+    property_ = get_object_or_404(CremeProperty, pk=POST.get('id'))
     property_.delete()
 
-    return HttpResponseRedirect(entity.get_absolute_url())
+    return HttpResponse("")
 
 @login_required
 def reload_block(request, entity_id):

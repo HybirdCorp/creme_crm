@@ -50,19 +50,13 @@
                             <a href="/projects/task/{{parent.id}}">
                                 {{parent.title}}
                             </a>
-                            {% comment %}<a href="/projects/task/{{task.id}}/parent/delete/{{parent.id}}">
-                                <img src="{{MEDIA_URL}}images/delete_22.png" border="0" alt="Supprimer" title="Supprimer"/>
-                            </a>{% endcomment %}
-                            {% get_line_deletor '/projects/task/{{task.id}}/parent/delete/{{parent.id}}' %}
+                            {% get_line_deletor2 '/projects/task/parent/delete' "{ 'id':{{task.pk}}, 'parent_id': {{parent.id}} }" %}
                         {% empty %}
                             Aucune tâche parente
                         {% endfor %}
                     </td>
                     <td class="{{row_color}}" align="center" valign="center" style="width:10%;">
-                        {% comment %}<a href="{{task.get_delete_absolute_url}}">
-                            <img src="{{MEDIA_URL}}images/delete_22.png" border="0" alt="Supprimer" title="Supprimer"/>
-                        </a>{% endcomment %}
-                        {% get_line_deletor task.get_delete_absolute_url %}
+                        {% get_line_deletor2 '/projects/task/delete' "{ 'id':{{task.pk}} }" %}
                     </td>
                     <td class="{{row_color}}" align="right">{{task.get_task_cost}} €</td>
                 </tr>
