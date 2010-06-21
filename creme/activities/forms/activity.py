@@ -84,36 +84,26 @@ class SubjectCreateForm(CremeForm):
         subjects = self.cleaned_data.get('subjects', [])
         ActivityCreateForm.save_other_participants(subjects, self.activity)
 
-
-class ActivityCreateForm(CremeModelForm):
+class _ActivityCreateBaseForm(CremeModelForm):
     class Meta:
         model = Activity
         exclude = ['is_actived', 'is_deleted', 'end']
 
-    id_entity_for_relation = IntegerField(widget=HiddenInput())
-    ct_entity_for_relation = IntegerField(widget=HiddenInput())
-    entity_relation_type   = CharField(widget=HiddenInput())
-
-    start = DateTimeField(label=_(u'Début'), widget=CalendarWidget())
-
-    is_comapp = BooleanField(required=False, label=_(u"Est une démarche commerciale ?"))
-    my_participation = BooleanField(required=False, label=_(u"Est-ce que je participe à ce rendez-vous ?"))
-
-    entity_for_relation_preview = CharField(label=_(u'Qui / Quoi'), required=False)
-    entity_relation_type_preview = ModelChoiceField(empty_label=None, queryset=RelationType.objects.none(), label=_(u"Relation avec l'activité"), required=False)
-
-    participants = RelatedEntitiesField(relations=[REL_SUB_ACTIVITY_SUBJECT, REL_SUB_PART_2_ACTIVITY, REL_SUB_LINKED_2_ACTIVITY],
-                                        label=_(u'Autres participants'),
-                                        widget=RelationListWidget(),
-                                        required=False)
-
-    informed_users = ModelMultipleChoiceField(queryset=User.objects.all(),
-                                             widget=CheckboxSelectMultiple(),
-                                             required=False,
-                                             label=_(u"Utilisateurs") )
-
+    start      = DateTimeField(label=_(u'Début'), widget=CalendarWidget())
     start_time = TimeField(label=_(u'Heure de début'), widget=TimeWidget(), required=False)
-    end_time = TimeField(label=_(u'Heure de fin'), widget=TimeWidget(), required=False)
+    end_time   = TimeField(label=_(u'Heure de fin'), widget=TimeWidget(), required=False)
+    
+    is_comapp        = BooleanField(required=False, label=_(u"Est une démarche commerciale ?"))
+    my_participation = BooleanField(required=False, label=_(u"Est-ce que je participe à ce rendez-vous ?"))
+    participants     = RelatedEntitiesField(relations=[REL_SUB_ACTIVITY_SUBJECT, REL_SUB_PART_2_ACTIVITY, REL_SUB_LINKED_2_ACTIVITY],
+                                            label=_(u'Autres participants'),
+                                            widget=RelationListWidget(),
+                                            required=False)
+                                            
+    informed_users   = ModelMultipleChoiceField(queryset=User.objects.all(),
+                                                widget=CheckboxSelectMultiple(),
+                                                required=False,
+                                                label=_(u"Utilisateurs") )
 
     blocks = CremeModelForm.blocks.new(
                 ('datetime',       _(u'Quand'),  ['start', 'start_time', 'end_time', 'is_all_day']),
@@ -122,35 +112,20 @@ class ActivityCreateForm(CremeModelForm):
             )
 
     def __init__(self, *args, **kwargs):
-        super(ActivityCreateForm, self).__init__(*args, **kwargs)
-
+        super(_ActivityCreateBaseForm, self).__init__(*args, **kwargs)
         fields = self.fields
-        initial_get = self.initial.get
 
         fields['start_time'].initial = datetime.time(9, 0)
         fields['end_time'].initial = datetime.time(18, 0)
 
-        #TODO: use get_real_entity ????
-        id_entity_for_relation = initial_get('id_entity_for_relation')
-        c_entity = CremeEntity.objects.get(pk=id_entity_for_relation)
-        fields['entity_for_relation_preview'].widget.attrs.update({'disabled': 'disabled', 'value':c_entity.entity_type.model_class().objects.get(pk=id_entity_for_relation)})
-
-        initial_relation_type = RelationType.objects.filter(pk=initial_get('entity_relation_type'))
-        fields['entity_relation_type_preview'].initial = initial_relation_type
-        fields['entity_relation_type_preview'].queryset = initial_relation_type
-        fields['entity_relation_type_preview'].widget.attrs.update({'disabled':'disabled'})
-
-#        ActivityCreateForm.init_participants_widget(fields.get('participants'),
-#                                                    [REL_SUB_ACTIVITY_SUBJECT, REL_SUB_PART_2_ACTIVITY, REL_SUB_LINKED_2_ACTIVITY])
-
     @staticmethod
     def clean_interval(cleaned_data):
         if cleaned_data.get('is_all_day'):
-            cleaned_data['start_time'] = datetime.time(hour=0, minute=0)
-            cleaned_data['end_time'] = datetime.time(hour=23, minute=59)
+            cleaned_data['start_time'] = datetime.time(hour=0,  minute=0)
+            cleaned_data['end_time']   = datetime.time(hour=23, minute=59)
 
         start_time = cleaned_data.get('start_time', datetime.time())
-        end_time = cleaned_data.get('end_time', datetime.time())
+        end_time   = cleaned_data.get('end_time',   datetime.time())
 
         cleaned_data['start'] = cleaned_data['start'].replace(hour=start_time.hour, minute=start_time.minute)
 
@@ -166,14 +141,9 @@ class ActivityCreateForm(CremeModelForm):
         if self._errors:
             return self.cleaned_data
 
-        ActivityCreateForm.clean_interval(self.cleaned_data)
+        _ActivityCreateBaseForm.clean_interval(self.cleaned_data)
         self.check_activities()
         return self.cleaned_data
-
-#    @staticmethod
-#    def init_participants_widget(field, predicate_ids):
-#        predicates = RelationType.objects.filter(pk__in=predicate_ids).values_list('id', 'predicate')
-#        field.widget.set_predicates(predicates)
 
     # TODO : check for activities in same range for participants
     def check_activities(self):
@@ -186,7 +156,7 @@ class ActivityCreateForm(CremeModelForm):
             except Exception:
                 pass
 
-        ActivityCreateForm.check_activity_collisions(cleaned_data['start'], cleaned_data['end'], participants)
+        _ActivityCreateBaseForm.check_activity_collisions(cleaned_data['start'], cleaned_data['end'], participants)
 
     @staticmethod
     def check_activity_collisions(activity_start, activity_end, participants, exclude_activity_id=None):
@@ -222,31 +192,7 @@ class ActivityCreateForm(CremeModelForm):
 
     def save(self):
         self.instance.end = self.cleaned_data['end']
-        super(ActivityCreateForm, self).save()
-
-    def save_participants(self):
-        cleaned_data = self.cleaned_data
-        instance = self.instance
-
-        # Participant du créateur de l'event
-        try:
-            if cleaned_data['my_participation']:
-                #instance.add_related_entity(Contact.objects.filter(is_user=cleaned_data['user'])[:1][0], PREDICAT_RELATION['subject_activity_participates'])
-                instance.add_related_entity(Contact.objects.filter(is_user=cleaned_data['user'])[:1][0], REL_SUB_PART_2_ACTIVITY) #?? [:1] useful ???
-        except Exception, err:
-            pass
-
-        try:
-            instance.add_related_entity(CremeEntity.objects.get(pk=cleaned_data['id_entity_for_relation']).get_real_entity(), cleaned_data["entity_relation_type"])
-        except CremeEntity.DoesNotExist:
-            pass
-
-        #Other participants
-        participants = cleaned_data.get('participants', [])
-        ActivityCreateForm.save_other_participants(participants, instance)
-
-        if cleaned_data.get('is_comapp', False):
-            ActivityCreateForm.create_commercial_approach(cleaned_data['id_entity_for_relation'], participants, instance)
+        super(_ActivityCreateBaseForm, self).save()
 
     @staticmethod
     def save_other_participants(participants, instance):
@@ -283,6 +229,84 @@ class ActivityCreateForm(CremeModelForm):
                 comapp.save()
             except CremeEntity.DoesNotExist:
                 pass
+
+    def save_participants(self):
+        cleaned_data = self.cleaned_data
+        instance     = self.instance
+
+        # Participant du créateur de l'event
+        try:
+            if cleaned_data['my_participation']:
+                instance.add_related_entity(Contact.objects.filter(is_user=cleaned_data['user'])[:1][0], REL_SUB_PART_2_ACTIVITY) #?? [:1] useful ???
+        except Exception, err:
+            pass
+
+        #Other participants
+        participants = cleaned_data.get('participants', [])
+        _ActivityCreateBaseForm.save_other_participants(participants, instance)
+
+
+class ActivityCreateForm(_ActivityCreateBaseForm):
+    id_entity_for_relation = IntegerField(widget=HiddenInput())
+    ct_entity_for_relation = IntegerField(widget=HiddenInput())
+    entity_relation_type   = CharField(widget=HiddenInput())
+
+    entity_for_relation_preview = CharField(label=_(u'Qui / Quoi'), required=False)
+    entity_relation_type_preview = ModelChoiceField(empty_label=None, queryset=RelationType.objects.none(), label=_(u"Relation avec l'activité"), required=False)
+
+    def __init__(self, *args, **kwargs):
+        super(ActivityCreateForm, self).__init__(*args, **kwargs)
+
+        fields = self.fields
+        initial_get = self.initial.get
+
+        #TODO: use get_real_entity ????
+        id_entity_for_relation = initial_get('id_entity_for_relation')
+        c_entity = CremeEntity.objects.get(pk=id_entity_for_relation)
+        fields['entity_for_relation_preview'].widget.attrs.update({'disabled': 'disabled', 'value':c_entity.entity_type.model_class().objects.get(pk=id_entity_for_relation)})
+
+        initial_relation_type = RelationType.objects.filter(pk=initial_get('entity_relation_type'))
+        fields['entity_relation_type_preview'].initial = initial_relation_type
+        fields['entity_relation_type_preview'].queryset = initial_relation_type
+        fields['entity_relation_type_preview'].widget.attrs.update({'disabled':'disabled'})
+
+#        ActivityCreateForm.init_participants_widget(fields.get('participants'),
+#                                                    [REL_SUB_ACTIVITY_SUBJECT, REL_SUB_PART_2_ACTIVITY, REL_SUB_LINKED_2_ACTIVITY])
+
+#    @staticmethod
+#    def init_participants_widget(field, predicate_ids):
+#        predicates = RelationType.objects.filter(pk__in=predicate_ids).values_list('id', 'predicate')
+#        field.widget.set_predicates(predicates)
+
+    def save_participants(self):
+        super(ActivityCreateForm, self).save_participants()
+
+        cleaned_data = self.cleaned_data
+        instance     = self.instance
+
+        try:
+            instance.add_related_entity(CremeEntity.objects.get(pk=cleaned_data['id_entity_for_relation']).get_real_entity(), cleaned_data["entity_relation_type"])
+        except CremeEntity.DoesNotExist:
+            pass
+
+        if cleaned_data.get('is_comapp', False):
+            participants = cleaned_data.get('participants', [])
+            ActivityCreateForm.create_commercial_approach(cleaned_data['id_entity_for_relation'], participants, instance)
+
+
+class ActivityCreateWithoutRelationForm(_ActivityCreateBaseForm):
+    def __init__(self, *args, **kwargs):
+        super(ActivityCreateWithoutRelationForm, self).__init__(*args, **kwargs)
+        self.fields['is_comapp'].help_text = _(u"Ajoutez des participants pour qu'ils soient liés à une démarche commerciale")
+
+    def save_participants(self):
+        super(ActivityCreateWithoutRelationForm, self).save_participants()
+        cleaned_data = self.cleaned_data
+
+        if cleaned_data.get('is_comapp', False):
+            participants = cleaned_data.get('participants', [])
+            ActivityCreateWithoutRelationForm.create_commercial_approach(None, participants, self.instance)
+
 
 #TODO: factorise ?? (ex: CreateForm inherits from EditForm....)
 class ActivityEditForm(CremeModelForm):
@@ -324,83 +348,3 @@ class ActivityEditForm(CremeModelForm):
         self.instance.end = self.cleaned_data['end']
         super(ActivityEditForm, self).save()
 
-
-################################################################################
-class ActivityCreateWithoutRelationForm(CremeModelForm):
-    class Meta:
-        model = Activity
-        exclude = ['is_actived', 'is_deleted', 'end']
-
-    start = DateTimeField(label=_(u'Début'), widget=CalendarWidget())
-
-    is_comapp = BooleanField(required=False, label=_(u"Est une démarche commerciale ?"))
-    my_participation = BooleanField(required=False, label=_(u"Est-ce que je participe à ce rendez-vous ?"))
-
-    participants = RelatedEntitiesField(relations=[REL_SUB_ACTIVITY_SUBJECT, REL_SUB_PART_2_ACTIVITY, REL_SUB_LINKED_2_ACTIVITY],
-                                        label=_(u'Participants'),
-                                        widget=RelationListWidget(),
-                                        required=False)
-
-    informed_users = ModelMultipleChoiceField(queryset=User.objects.all(),
-                                             widget=CheckboxSelectMultiple(),
-                                             required=False,
-                                             label=_(u"Utilisateurs") )
-
-    start_time = TimeField(label=_(u'Heure de début'), widget=TimeWidget(), required=False)
-    end_time = TimeField(label=_(u'Heure de fin'), widget=TimeWidget(), required=False)
-
-    blocks = CremeModelForm.blocks.new(
-                ('datetime',       _(u'Quand'),  ['start', 'start_time', 'end_time', 'is_all_day']),
-                ('participants',   _(u'Participants'), ['my_participation', 'participants']),
-                ('informed_users', _(u'Les utilisateurs à tenir informés'), ['informed_users',]),
-            )
-
-    def __init__(self, *args, **kwargs):
-        super(ActivityCreateWithoutRelationForm, self).__init__(*args, **kwargs)
-        fields = self.fields
-
-        fields['start_time'].initial = datetime.time(9, 0)
-        fields['end_time'].initial = datetime.time(18, 0)
-
-    def clean(self):
-        if self._errors:
-            return self.cleaned_data
-
-        ActivityCreateForm.clean_interval(self.cleaned_data)
-        self.check_activities()
-        return self.cleaned_data
-
-    # TODO : check for activities in same range for participants
-    def check_activities(self):
-        cleaned_data = self.cleaned_data
-        participants = [pk for rtype, pk in cleaned_data.get('participants')]
-
-        if cleaned_data.get('my_participation'):
-            try:
-                participants.append(Contact.objects.filter(is_user=cleaned_data['user']).values_list('id', flat=True)[:1][0])
-            except Exception:
-                pass
-
-        ActivityCreateForm.check_activity_collisions(cleaned_data['start'], cleaned_data['end'], participants)
-
-    def save(self):
-        self.instance.end = self.cleaned_data['end']
-        super(ActivityCreateWithoutRelationForm, self).save()
-
-    def save_participants(self):
-        cleaned_data = self.cleaned_data
-        instance = self.instance
-
-        # Participant du créateur de l'event
-        try:
-            if cleaned_data['my_participation']:
-                instance.add_related_entity(Contact.objects.filter(is_user=cleaned_data['user'])[:1][0], REL_SUB_PART_2_ACTIVITY) #?? [:1] useful ???
-        except Exception, err:
-            pass
-
-        #Other participants
-        participants = cleaned_data.get('participants', [])
-        ActivityCreateForm.save_other_participants(participants, instance)
-
-        if cleaned_data.get('is_comapp', False):
-            ActivityCreateForm.create_commercial_approach(None, participants, instance)
