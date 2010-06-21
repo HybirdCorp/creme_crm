@@ -33,6 +33,7 @@ class PropertiesBlock(Block):
         return self._render(self.get_block_template_context(context, entity.properties.all(),
                                                             update_url='/creme_core/properties/reload/%s/' % entity.pk))
 
+
 class RelationsBlock(Block):
     id_           = Block.generate_id('creme_core', 'relations')
     order_by      = 'type'

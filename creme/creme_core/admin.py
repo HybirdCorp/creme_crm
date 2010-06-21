@@ -2,7 +2,7 @@
 
 from django.contrib import admin
 
-from creme_core.models import*
+from creme_core.models import *
 
 register = admin.site.register
 

@@ -30,7 +30,7 @@ from creme_core.entities_access.functions_for_permissions import edit_object_or_
 from creme_core.blocks import properties_block
 
 
-#login_required ???
+@login_required
 def add_to_creme_entity(request):
     """
         @Permissions : Edit on current creme entity
@@ -48,10 +48,8 @@ def add_to_creme_entity(request):
             return die_status
 
         property_type = get_object_or_404(CremePropertyType, pk=property_id)
-        entity_ct = entity.entity_type
 
-        property_ = CremeProperty(type=property_type, subject_ct=entity_ct, subject_id=entity.pk)
-        property_.save()
+        CremeProperty(type=property_type, creme_entity=entity).save()
 
     return HttpResponseRedirect(callback_url)
 
@@ -78,14 +76,14 @@ def delete(request):
     """
         @Permissions : Edit on property's linked object
     """
-    POST = request.POST
-    entity = get_object_or_404(CremeEntity, pk=POST.get('object_id')).get_real_entity()
+    post_get = request.POST.get
+    entity = get_object_or_404(CremeEntity, pk=post_get('object_id')).get_real_entity()
 
     die_status = edit_object_or_die(request, entity)
     if die_status:
         return die_status
 
-    property_ = get_object_or_404(CremeProperty, pk=POST.get('id'))
+    property_ = get_object_or_404(CremeProperty, pk=post_get('id'))
     property_.delete()
 
     return HttpResponse("")

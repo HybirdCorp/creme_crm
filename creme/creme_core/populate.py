@@ -21,7 +21,6 @@
 from django.utils.translation import ugettext as _
 
 from creme_core.models import *
-from creme_core.models.creme_property import create_property_type
 from creme_core.models.relation import create_relation_type
 from creme_core.utils import create_or_update_models_instance as create
 from creme_core.constants import PROP_IS_MANAGED_BY_CREME, REL_SUB_RELATED_TO, REL_OBJ_RELATED_TO, REL_SUB_HAS, REL_OBJ_HAS
@@ -77,7 +76,7 @@ class Populator(BasePopulator):
         create(Language, 1, name=_(u'Français'), code='FRA')
         create(Language, 2, name=_(u'Anglais'),  code='EN')
 
-        create_property_type(PROP_IS_MANAGED_BY_CREME, u'est géré par Creme')
+        CremePropertyType.create(PROP_IS_MANAGED_BY_CREME, u'est géré par Creme')
 
         create_relation_type((REL_SUB_RELATED_TO, u'est en relation avec'),
                              (REL_OBJ_RELATED_TO, u'est en relation avec'))

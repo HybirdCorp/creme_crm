@@ -72,32 +72,24 @@ class CremeEntityWithoutRelation(CremeModel, TimeStampedModel):
         ordering = ('id',)
 
 
-from creme_property import CremeProperty
 from relation import Relation
 
 
 class CremeEntity(CremeEntityWithoutRelation):
     new_relations = ManyToManyField(Relation, blank=True, null=True,
                                     related_name='%(class)s_CremeEntity_set', editable=False)
-    properties = ManyToManyField(CremeProperty, blank=True, null=True,
-                                    related_name='%(class)s_CremeEntity_set', editable=False)
 
     Gestion_Droit = ['Lire', 'Créer', 'Modifier', 'Supprimer', 'Mettre en relation avec']
-    #research_fields = CremeEntityWithoutRelation.research_fields + []
-    #users_allowed_func = CremeEntityWithoutRelation.users_allowed_func + []
-    header_filter_exclude_fields = CremeEntityWithoutRelation.header_filter_exclude_fields + ['id', 'new_relations', 'properties', 'cremeentity_ptr'] #TODO: use a set() ??
-    #extra_filter_fields = CremeEntityWithoutRelation.extra_filter_fields + []
-    extra_filter_exclude_fields = CremeEntityWithoutRelation.extra_filter_exclude_fields + ['id', 'new_relations', 'properties', 'cremeentity_ptr', 'header_filter_search_field']
+    header_filter_exclude_fields = CremeEntityWithoutRelation.header_filter_exclude_fields + ['id', 'new_relations', 'cremeentity_ptr'] #TODO: use a set() ??
+    extra_filter_exclude_fields  = CremeEntityWithoutRelation.extra_filter_exclude_fields + ['id', 'new_relations', 'cremeentity_ptr', 'header_filter_search_field']
+
+    class Meta:
+        app_label = 'creme_core'
+        ordering = ('id',)
 
     def __init__(self, *args, **kwargs):
         super(CremeEntity, self).__init__(*args, **kwargs)
 
-        #correction d'un bug dont il faut créer le ticket
-#        if self.pk is None and not kwargs.has_key ( 'entity_type') and not kwargs.has_key ( 'entity_type_id') :
-#            self.entity_type = ContentType.objects.get_for_model ( self )
-#            
-#        self.entity_type = ContentType.objects.get (pk=2)
-#            
         self.build_custom_fields()
 
     def build_custom_fields(self):
@@ -146,27 +138,23 @@ class CremeEntity(CremeEntityWithoutRelation):
             property.delete()
 
     def delete(self):
-        # TODO Penser à delete les custom fields
+        #TODO: don't forget to delete custom fields
         self.delete_relations_only()
         self.delete_properties_only()
 
         if settings.TRUE_DELETE :
-            super (CremeEntity, self).delete ()
+            super(CremeEntity, self).delete()
         else:
             self.is_deleted = True
-            self.save ()
-
-        #models.Model.delete(self)
+            self.save()
 
     def __unicode__(self):
         if self.entity_type == ContentType.objects.get_for_model(CremeEntity):
-            return "Creme entity: %s" % self.id
+            return u"Creme entity: %s" % self.id
         else:
-            entity = self.entity_type.get_object_for_this_type(id=self.id)
-            return entity.__unicode__()
-#        return "Creme entity: %s" % self.id
+            return unicode(self.entity_type.get_object_for_this_type(id=self.id))
 
-    def get_real_entity (self):
+    def get_real_entity(self):
         entity = self
         if self.entity_type != ContentType.objects.get_for_model(CremeEntity):
             entity = self.entity_type.get_object_for_this_type(id=self.id)
@@ -206,46 +194,42 @@ class CremeEntity(CremeEntityWithoutRelation):
         return mark_safe("%s%s%s" % (self.object_as_p(), self.relations_as_p(), self.properties_as_p()))
 
     def object_as_p(self):
-        debug('object_as_p: %s', self)
         from creme_core.templatetags.creme_core_tags import get_html_field_value
 
         html_output = ""
         exclude = set(self.excluded_fields_in_html_output)
 
         for field in self._meta.fields:
-            debug('entity.object_as_p(), field : %s', field)
             if field.name not in exclude:
                 try:
-                    value = get_html_field_value(self, field.name)#self.__getattribute__ (fieldname)
+                    value = get_html_field_value(self, field.name)
                 except Exception:
                     value = self.__getattribute__(field.name)
-                debug('entity.object_as_p(), field: %s, value: %s', field.name, value)
+
                 html_output += " <br /> %s : %s" % (force_unicode(field.name), force_unicode(value))
+
         return mark_safe(html_output)
 
     def relations_as_p(self):
         html_output = "<br /><br /><h2> Relations :</h2><br />"
-        debug('relations_as_p()')
         for relation in self.new_relations.all():
             if relation.type.display_with_other:
                 try:
                     #Url doesn't match anymore but relations_as_p and as_p still used ?
                     html_output += '%s  <a href="/creme_core/relation/delete/%s?pk_entity=%s">Supprimer</a><br />' % \
                                     (force_unicode(relation), relation.pk, self.pk)
-                except :
+                except:
                     html_output += "problème sur l'affichage d'une relation. <br />"
-                    debug(relation)
+
         return mark_safe(html_output)
 
     def properties_as_p(self):
-        html_output = " <br /><br /><h2> Proprietes : </h2><br />"
-        debug('properties_as_p()')
+        html_output = "<br /><br /><h2> Proprietes : </h2><br />"
+
         for property in self.properties.all():
-            debug('one property')
             html_output += ' %s  <a href="/creme_core/property/delete/%s/%s" >Supprimer</a> <br />' % \
                             (force_unicode(property), self.pk, property.pk)
 
-        debug(html_output)
         return mark_safe(html_output)
 
     def get_entity_summary(self):
@@ -254,7 +238,3 @@ class CremeEntity(CremeEntityWithoutRelation):
     def get_entity_actions(self):
         return u"""<a href="%s">Voir</a> | <a href="%s">Éditer</a> | <a href="%s" onclick="creme.utils.confirmDelete(event, this);">Effacer</a>""" \
                 % (self.get_absolute_url(), self.get_edit_absolute_url(), self.get_delete_absolute_url())
-
-    class Meta:
-        app_label = 'creme_core'
-        ordering = ('id',)
