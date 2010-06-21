@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, HttpResponse
 from django.shortcuts import get_object_or_404
 from django.contrib.auth.decorators import login_required
 
@@ -65,11 +65,11 @@ def edit(request, task_id):
 
 @login_required
 @get_view_or_die('projects')
-def delete(request, task_id):
+def delete(request, task_id=None):
     """
         @Permissions : Acces or Admin to project app & Delete on current task object (pass but notify if it hasn't permission)
     """
-    task = get_object_or_404(ProjectTask, pk=task_id)
+    task = get_object_or_404(ProjectTask, pk=request.POST.get('id', task_id))
     project = task.project
 
     die_status = edit_object_or_die(request, project)
@@ -82,12 +82,16 @@ def delete(request, task_id):
 
     task.delete()
 
+    if request.is_ajax():
+        return HttpResponse()
+
     return HttpResponseRedirect(project.get_absolute_url())
 
 @login_required
 @get_view_or_die('projects')
-def delete_parent(request, task_id, parent_id):
-    task = get_object_or_404(ProjectTask, pk=task_id)
+def delete_parent(request):
+    POST = request.POST
+    task = get_object_or_404(ProjectTask, pk=POST.get('id'))
     project = task.project
 
     die_status = edit_object_or_die(request, project)
@@ -98,9 +102,9 @@ def delete_parent(request, task_id, parent_id):
     if die_status:
         return die_status
 
-    task.parents_task.remove(parent_id)
+    task.parents_task.remove(POST.get('parent_id'))
 
-    return HttpResponseRedirect(request.META['HTTP_REFERER'])
+    return HttpResponse("")
 
 @login_required
 def reload_block_tasks(request, project_id):

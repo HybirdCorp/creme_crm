@@ -20,7 +20,7 @@
 
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404
-from django.http import HttpResponseRedirect
+from django.http import HttpResponse
 
 from creme_core.entities_access.functions_for_permissions import  delete_object_or_die
 
@@ -44,8 +44,8 @@ def reload_block_resources(request, task_id):
     return resources_block.detailview_ajax(request, task_id)
 
 @login_required
-def delete(request, resource_id):
-    resource = get_object_or_404(Resource, pk=resource_id)
+def delete(request):
+    resource = get_object_or_404(Resource, pk=request.POST.get('id'))
     related_task = resource.task
     die_status = delete_object_or_die(request, resource)
 
@@ -54,4 +54,4 @@ def delete(request, resource_id):
 
     resource.delete()
 
-    return HttpResponseRedirect(related_task.get_absolute_url())
+    return HttpResponse()

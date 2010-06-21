@@ -38,10 +38,7 @@
                         <a class="button_link" onclick="creme.utils.showInnerPopup('{{period.get_edit_absolute_url}}', {'width' : 950});">
                             <img src="{{MEDIA_URL}}images/edit_22.png" border="0" title="Edition d'une période travaillée" alt="Editer" />
                         </a>
-                        {% comment %}<a href="{{period.get_delete_absolute_url}}">
-                            <img src="{{MEDIA_URL}}images/delete_22.png" border="0" alt="Supprimer" title="Supprimer"/>
-                        </a>{% endcomment %}
-                        {% get_line_deletor period.get_delete_absolute_url %}
+                        {% get_line_deletor2 '/projects/period/delete' "{ 'id':{{period.pk}} }" %}
                     </td>
                 </tr>
             {% endfor %}

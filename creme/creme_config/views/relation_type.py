@@ -2,7 +2,7 @@
 
 from logging import debug #
 
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, HttpResponse
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext
 from django.contrib.contenttypes.models import ContentType
@@ -54,15 +54,15 @@ def edit(request, relation_type_id):
 
 @login_required
 @get_view_or_die('creme_config', DROIT_MODULE_EST_ADMIN)
-def delete(request, relation_type_id):
+def delete(request):
     """
         @Permissions : Admin to creme_config app
     """
-    relation_type = get_object_or_404(RelationType, pk=relation_type_id)
+    relation_type = get_object_or_404(RelationType, pk=request.POST.get('id'))
 
     relation_type.delete()
 
-    return HttpResponseRedirect(portal_url)
+    return HttpResponse()
 
 @login_required
 @get_view_or_die('creme_config')

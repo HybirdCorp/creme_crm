@@ -45,9 +45,10 @@ class Resource(CremeEntity):
 
     def get_edit_absolute_url(self):
         return "/projects/resource/edit/%s" % self.id
-
-    def get_delete_absolute_url(self):
-        return "/projects/resource/delete/%s" % self.id
+    
+#Commented on 15 june 2010
+#    def get_delete_absolute_url(self):
+#        return "/projects/resource/delete/%s" % self.id
 
     def delete(self):
         # delete first all working period related to this resource (functionnal constraint)

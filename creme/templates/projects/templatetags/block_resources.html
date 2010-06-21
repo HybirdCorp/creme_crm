@@ -36,10 +36,7 @@
                         <a class="button_link" onclick="creme.utils.showInnerPopup('{{resource.get_edit_absolute_url}}');">
                             <img src="{{MEDIA_URL}}images/edit_22.png" border="0" title="Edition d'une ressource" alt="Editer" />
                         </a>
-                        {% comment %}<a href="{{resource.get_delete_absolute_url}}">
-                            <img src="{{MEDIA_URL}}images/delete_22.png" border="0" alt="Supprimer" title="Supprimer"/>
-                        </a>{% endcomment %}
-                        {% get_line_deletor resource.get_delete_absolute_url %}
+                        {% get_line_deletor2 '/projects/resource/delete' "{ 'id':{{resource.pk}} }" %}
                     </td>
                 </tr>
             {% endfor %}

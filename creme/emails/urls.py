@@ -23,7 +23,8 @@ urlpatterns = patterns('emails.views',
 
     #Campaign: sending details block
     (r'^campaign/sending/(?P<sending_id>\d+)$',               'sending.detailview'),
-    (r'^campaign/sending/mail/delete/(?P<mail_id>\w+)$',      'sending.delete_mail'),
+#    (r'^campaign/sending/mail/delete/(?P<mail_id>\w+)$',      'sending.delete_mail'),
+    (r'^campaign/sending/mail/delete$',                       'sending.delete_mail'),
     (r'^campaign/sending/(?P<sending_id>\d+)/mails/reload/$', 'sending.reload_block_mails'),
 
     (r'^mailing_lists$',                    'mailing_list.listview'),

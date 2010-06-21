@@ -74,7 +74,8 @@ def add_subject(request, activity_id):
     return _add_link(request, activity_id, SubjectCreateForm, u"Ajout de sujets pour l'activité <%s>")
 
 @login_required
-def unlink_activity(request, activity_id, entity_id):
+#def unlink_activity(request, activity_id, entity_id):
+def unlink_activity(request):
     #TODO: use credentials ????
 
     #entity = get_object_or_404(CremeEntity, pk=entity_id) #.get_real_entity() ??????
@@ -86,13 +87,20 @@ def unlink_activity(request, activity_id, entity_id):
     #die_status = edit_object_or_die(request, activity)
     #if die_status:
         #return die_status
-
+    POST = request.POST
+    activity_id = POST.get('id')
+    entity_id = POST.get('object_id')
+    
+    if activity_id is None or entity_id is None:
+        return HttpResponse('', status=404)
+    
     types = (REL_SUB_PART_2_ACTIVITY, REL_SUB_ACTIVITY_SUBJECT, REL_SUB_LINKED_2_ACTIVITY)
     for relation in Relation.objects.filter(subject_id=entity_id, type__id__in=types, object_id=activity_id):
         relation.delete()
 
     #return HttpResponseRedirect(entity.get_absolute_url())
-    return HttpResponseRedirect('/')
+#    return HttpResponseRedirect('/')
+    return HttpResponse('')
 
 @login_required
 def reload_participants(request, activity_id):

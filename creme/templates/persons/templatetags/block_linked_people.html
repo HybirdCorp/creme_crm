@@ -39,7 +39,7 @@
                             <a href="{{people.get_edit_absolute_url}}">
                                 <img src="{{MEDIA_URL}}images/edit_22.png" border="0">
                             </a>
-                            {% get_line_deletor "/creme_core/relation/delete/{{relation.pk}}?pk_entity={{object.pk}}" %}
+                            {% get_line_deletor2 '/creme_core/relation/delete' "{ 'id':{{relation.pk}}, 'object_id':{{object.pk}} }" %}
                         </td>
                     </tr>
                 {% endwith %}

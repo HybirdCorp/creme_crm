@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from django.http import HttpResponseRedirect, Http404
+from django.http import HttpResponseRedirect, Http404, HttpResponse
 from django.shortcuts import get_object_or_404, render_to_response
 from django.template.context import RequestContext
 from django.contrib.auth.decorators import login_required
@@ -58,16 +58,19 @@ def portal_model(request, app_name, model_name):
 
 @login_required
 @get_view_or_die('creme_config', DROIT_MODULE_EST_ADMIN)
-def delete_model(request, app_name, model_name, object_id):
+#def delete_model(request, app_name, model_name, object_id):
+def delete_model(request, app_name, model_name):
     """
         @Permissions : Admin to creme_config app
     """
     model = _get_modelconf(app_name, model_name).model
 
-    object = get_object_or_404(model, pk=object_id)
+#    object = get_object_or_404(model, pk=object_id)
+    object = get_object_or_404(model, pk=request.POST.get('id'))
     object.delete()
 
-    return HttpResponseRedirect(_get_model_portal_url(app_name, model_name))
+#    return HttpResponseRedirect(_get_model_portal_url(app_name, model_name))
+    return HttpResponse()
 
 @login_required
 @get_view_or_die('creme_config', DROIT_MODULE_EST_ADMIN)

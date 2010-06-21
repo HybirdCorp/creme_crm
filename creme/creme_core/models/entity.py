@@ -229,6 +229,7 @@ class CremeEntity(CremeEntityWithoutRelation):
         for relation in self.new_relations.all():
             if relation.type.display_with_other:
                 try:
+                    #Url doesn't match anymore but relations_as_p and as_p still used ?
                     html_output += '%s  <a href="/creme_core/relation/delete/%s?pk_entity=%s">Supprimer</a><br />' % \
                                     (force_unicode(relation), relation.pk, self.pk)
                 except :
