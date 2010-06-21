@@ -1,0 +1,16 @@
+<script>
+    function download_ical()
+    {
+        if($('form[name="list_view_form"]').list_view('countEntities') <= 0)
+        {
+            creme.utils.showDialog("Veuillez sélectioner au moins une ligne pour pouvoir exporter.", {'title':'Erreur'});
+            return false;
+        }
+        document.location.href='/activities/activities/'+$('form[name="list_view_form"]').list_view("getSelectedEntities")+'/ical';
+        return false;
+    }
+</script>
+<a onclick="return download_ical();">
+    {% comment %} Make the ical_22.png image {% endcomment %}
+    <img border="0" src="{{MEDIA_URL}}images/ical_22.png" alt="Télécharger au format iCalendar" title="Télécharger au format iCalendar"/>Télécharger au format iCalendar
+</a>&nbsp;

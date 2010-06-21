@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.http import HttpResponseRedirect, Http404
+from django.http import HttpResponseRedirect, Http404, HttpResponse
 from django.shortcuts import get_object_or_404, render_to_response
 from django.template import RequestContext
 from django.contrib.auth.decorators import login_required
@@ -32,7 +32,7 @@ from creme_core.gui.last_viewed import change_page_for_last_viewed
 from activities.models import Activity
 from activities.forms import (MeetingEditForm, PhoneCallEditForm, IndisponibilityCreateForm, ActivityEditForm,
                               MeetingCreateForm, PhoneCallCreateForm)
-
+from activities.utils import get_ical
 
 __activity_ct = ContentType.objects.get_for_model(Activity)
 
@@ -153,4 +153,13 @@ def popupview(request, activity_id):
 @login_required
 @get_view_or_die('activities')
 def listview(request):
-    return list_view(request, Activity)
+    return list_view(request, Activity, extra_dict={'extra_bt_template': 'activities/frags/ical_list_view_button.html'})
+
+
+@login_required
+@get_view_or_die('activities')
+def download_ical(request, ids):
+    activities = Activity.objects.filter(pk__in=ids.split(','))
+    response = HttpResponse(get_ical(activities), mimetype="text/calendar")
+    response['Content-Disposition'] = "attachment; filename=Calendar.ics"
+    return response

@@ -19,6 +19,7 @@
 ################################################################################
 
 from logging import debug
+from datetime import datetime
 
 from django.db.models import CharField, IntegerField, TimeField, DateTimeField, TextField, ForeignKey, BooleanField, PositiveIntegerField
 from django.utils.translation import ugettext_lazy as _
@@ -26,7 +27,7 @@ from django.utils.translation import ugettext_lazy as _
 from creme_core.models import CremeEntity, CremeModel, Relation
 
 from activities.constants import REL_SUB_PART_2_ACTIVITY, REL_SUB_ACTIVITY_SUBJECT, REL_SUB_LINKED_2_ACTIVITY
-
+from activities.utils import get_ical_date
 
 class ActivityType(CremeModel):
     id                    = CharField(primary_key=True, max_length=100)
@@ -60,6 +61,31 @@ class Activity(CremeEntity):
         app_label = 'activities'
         verbose_name = _(u'Activité')
         verbose_name_plural = _(u'Activités')
+
+    def as_ical_event(self):
+        """Return a normalized iCalendar event string
+            /!\ Each parameter has to be separated by \n ONLY no spaces allowed!
+            Example : BEGIN:VEVENT\nUID:http://cremecrm.com"""
+        return u"""BEGIN:VEVENT
+UID:http://cremecrm.com
+DTSTAMP:%(dtstamp)s
+SUMMARY:%(summary)s
+DTSTART:%(dtstart)s
+DTEND:%(dtend)s
+LOCATION:%(location)s
+CATEGORIES:%(categories)s
+STATUS:%(status)s
+END:VEVENT
+""" % {
+                    'dtstamp'    : get_ical_date(datetime.now()),
+                    'summary'    : self.title,
+                    'dtstart'    : get_ical_date(self.start),
+                    'dtend'      : get_ical_date(self.end),
+                    'location'   : "",
+                    'categories' : self.type.name,
+                    'status'     : ""
+                }
+
 
     def get_title_for_calendar(self):
         type_name = self.type.name
