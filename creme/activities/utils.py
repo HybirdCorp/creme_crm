@@ -33,3 +33,23 @@ def get_last_day_of_a_month(date):
             except:
                 rdate = rdate + timedelta(days=28)
     return rdate
+
+def get_ical_date(dateTime):
+    return "%(year)s%(month)02d%(day)02dT%(hour)02d%(minute)02d%(second)02dZ" % {
+        'year' : dateTime.year,
+        'month': dateTime.month,
+        'day'  : dateTime.day,
+        'hour'  : dateTime.hour,
+        'minute'  : dateTime.minute,
+        'second'  : dateTime.second
+    }
+
+def get_ical(events):
+    """Return a normalized iCalendar string
+    /!\ Each parameter has to be separated by \n ONLY no spaces allowed!
+    Example : BEGIN:VCALENDAR\nVERSION:2.0"""
+    return """BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//CremeCRM//CremeCRM//EN
+%(events)s
+END:VCALENDAR"""  % {'events' : "".join([ev.as_ical_event() for ev in events])}
