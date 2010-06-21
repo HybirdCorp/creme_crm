@@ -17,6 +17,7 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
+import re
 
 from logging import debug
 
@@ -58,6 +59,15 @@ class UserAddForm(CremeModelForm):
     class Meta:
         model = User
         fields = ('username', 'first_name', 'last_name', 'email', 'is_superuser')
+
+    def clean_username(self):
+        username = self.data['username']
+        if not re.match("^(\w)[\w-]*$", username):
+            raise ValidationError(_(u"Le nom d'utilisateur doit uniquement comporter \
+                                    des caractères alphanumériques (a-z, A-Z, 0-9), \
+                                    les tirets sont admis (sauf comme premier caractère)\
+                                    ainsi que les underscore ( _ ). "))
+        return username
 
     def clean_password_2(self):
         data = self.data

@@ -22,7 +22,7 @@ from django.forms.models import ModelChoiceField
 
 from activities.models import ActivityType, Meeting
 from activities.constants import ACTIVITYTYPE_MEETING
-from activity import ActivityCreateForm, ActivityEditForm
+from activity import ActivityCreateForm, ActivityEditForm, ActivityCreateWithoutRelationForm
 
 
 class MeetingCreateForm(ActivityCreateForm):
@@ -40,6 +40,21 @@ class MeetingCreateForm(ActivityCreateForm):
         self.cleaned_data['type'] = ActivityType.objects.get(pk=ACTIVITYTYPE_MEETING)
         super(MeetingCreateForm, self).save()
 
+class MeetingCreateWithoutRelationForm(ActivityCreateWithoutRelationForm):
+    class Meta:
+        model = Meeting
+        exclude = ActivityCreateWithoutRelationForm.Meta.exclude
+
+    type = ModelChoiceField(empty_label=None, queryset=ActivityType.objects.filter(pk=ACTIVITYTYPE_MEETING))
+
+    def __init__(self, *args, **kwargs):
+        super(MeetingCreateWithoutRelationForm, self).__init__(*args, **kwargs)
+        self.fields['type'].initial = ActivityType.objects.get(pk=ACTIVITYTYPE_MEETING)
+
+    def save(self):
+        self.cleaned_data['type'] = ActivityType.objects.get(pk=ACTIVITYTYPE_MEETING)
+        super(MeetingCreateWithoutRelationForm, self).save()
+        
 
 class MeetingEditForm(ActivityEditForm):
     class Meta:

@@ -31,7 +31,8 @@ from creme_core.gui.last_viewed import change_page_for_last_viewed
 
 from activities.models import Activity
 from activities.forms import (MeetingEditForm, PhoneCallEditForm, IndisponibilityCreateForm, ActivityEditForm,
-                              MeetingCreateForm, PhoneCallCreateForm)
+                              MeetingCreateForm, PhoneCallCreateForm,
+                              MeetingCreateWithoutRelationForm, PhoneCallCreateWithoutRelationForm)
 from activities.utils import get_ical
 
 __activity_ct = ContentType.objects.get_for_model(Activity)
@@ -84,7 +85,12 @@ def add(request, type):
     elif type == "phonecall":
         class_form    = PhoneCallCreateForm
         extra_initial = {'call_type' : 2,} #TODO: use a constant.....
-
+    elif type == "meeting-without-relation":
+        class_form = MeetingCreateWithoutRelationForm
+    elif type == "phonecall-without-relation":
+        class_form    = PhoneCallCreateWithoutRelationForm
+        extra_initial = {'call_type' : 2,} #TODO: use a constant.....
+        
     if class_form is None:
         raise Http404('No activity type matches with: %s', type)
 
@@ -153,7 +159,13 @@ def popupview(request, activity_id):
 @login_required
 @get_view_or_die('activities')
 def listview(request):
-    return list_view(request, Activity, extra_dict={'extra_bt_template': 'activities/frags/ical_list_view_button.html'})
+    return list_view(request, Activity, 
+                     extra_dict={'extra_bt_templates':
+                                    ('activities/frags/ical_list_view_button.html',
+                                     'activities/frags/button_add_meeting_without_relation.html',
+                                     'activities/frags/button_add_phonecall_without_relation.html')
+                                }
+                    )
 
 
 @login_required
