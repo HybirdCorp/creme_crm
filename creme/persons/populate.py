@@ -23,8 +23,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.contrib.auth.models import User
 
 from creme_core.models.header_filter import HeaderFilterItem, HeaderFilter, HFI_FIELD, HFI_RELATION
-from creme_core.models import CremeProperty, CremePropertyType, ButtonMenuItem
-from creme_core.models.relation import create_relation_type
+from creme_core.models import RelationType, CremeProperty, CremePropertyType, ButtonMenuItem
 from creme_core.constants import PROP_IS_MANAGED_BY_CREME
 from creme_core.utils import create_or_update_models_instance as create
 from creme_core.management.commands.creme_populate import BasePopulator
@@ -39,22 +38,22 @@ class Populator(BasePopulator):
     dependencies = ['creme.core']
 
     def populate(self, *args, **kwargs):
-        create_relation_type((REL_SUB_EMPLOYED_BY, u'est salarié de',             [Contact]),
-                             (REL_OBJ_EMPLOYED_BY, u'a pour salarié',             [Organisation]))
-        create_relation_type((REL_SUB_CUSTOMER_OF, u'est client de',              [Contact, Organisation]),
-                             (REL_OBJ_CUSTOMER_OF, u'a pour client',              [Contact, Organisation]))
-        create_relation_type((REL_SUB_MANAGES,     u'est un des responsables de', [Contact]),
-                             (REL_OBJ_MANAGES,     u'a pour responsable',         [Organisation]))
-        create_relation_type((REL_SUB_PROSPECT,    u'est prospect de',            [Contact, Organisation]),
-                             (REL_OBJ_PROSPECT,    u'a pour prospect',            [Contact, Organisation]))
-        create_relation_type((REL_SUB_SUSPECT,     u'est suspect de',             [Contact, Organisation]),
-                             (REL_OBJ_SUSPECT,     u'a pour suspect',             [Contact, Organisation]))
-        create_relation_type((REL_SUB_PARTNER,     u'est partenaire de',          [Contact, Organisation]),
-                             (REL_OBJ_PARTNER,     u'a pour partenaire',          [Contact, Organisation]))
-        create_relation_type((REL_SUB_SUPPLIER,    u'est un fournisseur de',      [Contact, Organisation]),
-                             (REL_OBJ_SUPPLIER,    u'a pour fournisseur',         [Contact, Organisation]))
-        create_relation_type((REL_SUB_INACTIVE,    u'est un client inactif de',   [Contact, Organisation]),
-                             (REL_OBJ_INACTIVE,    u'a pour client inactif',      [Contact, Organisation]))
+        RelationType.create((REL_SUB_EMPLOYED_BY, u'est salarié de',             [Contact]),
+                            (REL_OBJ_EMPLOYED_BY, u'a pour salarié',             [Organisation]))
+        RelationType.create((REL_SUB_CUSTOMER_OF, u'est client de',              [Contact, Organisation]),
+                            (REL_OBJ_CUSTOMER_OF, u'a pour client',              [Contact, Organisation]))
+        RelationType.create((REL_SUB_MANAGES,     u'est un des responsables de', [Contact]),
+                            (REL_OBJ_MANAGES,     u'a pour responsable',         [Organisation]))
+        RelationType.create((REL_SUB_PROSPECT,    u'est prospect de',            [Contact, Organisation]),
+                            (REL_OBJ_PROSPECT,    u'a pour prospect',            [Contact, Organisation]))
+        RelationType.create((REL_SUB_SUSPECT,     u'est suspect de',             [Contact, Organisation]),
+                            (REL_OBJ_SUSPECT,     u'a pour suspect',             [Contact, Organisation]))
+        RelationType.create((REL_SUB_PARTNER,     u'est partenaire de',          [Contact, Organisation]),
+                            (REL_OBJ_PARTNER,     u'a pour partenaire',          [Contact, Organisation]))
+        RelationType.create((REL_SUB_SUPPLIER,    u'est un fournisseur de',      [Contact, Organisation]),
+                            (REL_OBJ_SUPPLIER,    u'a pour fournisseur',         [Contact, Organisation]))
+        RelationType.create((REL_SUB_INACTIVE,    u'est un client inactif de',   [Contact, Organisation]),
+                            (REL_OBJ_INACTIVE,    u'a pour client inactif',      [Contact, Organisation]))
 
         create(Civility, 1, civility_name=_(u"Madame"))
         create(Civility, 2, civility_name=_(u"Mademoiselle"))

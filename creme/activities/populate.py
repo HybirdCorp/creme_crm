@@ -22,8 +22,7 @@ from django.utils.translation import ugettext as _
 from django.contrib.contenttypes.models import ContentType
 
 from creme_core.models.header_filter import HeaderFilterItem, HeaderFilter, HFI_FIELD
-from creme_core.models.relation import create_relation_type
-from creme_core.models import BlockConfigItem, ButtonMenuItem
+from creme_core.models import RelationType, BlockConfigItem, ButtonMenuItem
 from creme_core.utils import create_or_update_models_instance as create
 from creme_core.management.commands.creme_populate import BasePopulator
 
@@ -37,16 +36,16 @@ class Populator(BasePopulator):
     dependencies = ['creme.core']
 
     def populate(self, *args, **kwargs):
-        create_relation_type((REL_SUB_LINKED_2_ACTIVITY, u"relié à l'activité"),
-                             (REL_OBJ_LINKED_2_ACTIVITY, u"relié à")) #[Activity and inherited klass ??]
-        #create_relation_type((REL_SUB_RDV,              u'prend part au rendez-vous'),
+        RelationType.create((REL_SUB_LINKED_2_ACTIVITY, u"relié à l'activité"),
+                            (REL_OBJ_LINKED_2_ACTIVITY, u"relié à")) #[Activity and inherited klass ??]
+        #RelationType.create((REL_SUB_RDV,              u'prend part au rendez-vous'),
                             #(REL_OBJ_RDV,              u'a pour participant'))
-        #create_relation_type((REL_SUB_CALL,             u"participe a l'appel"),
+        #RelationType.create((REL_SUB_CALL,             u"participe a l'appel"),
                             #(REL_OBJ_CALL,             u'concerne'))
-        create_relation_type((REL_SUB_ACTIVITY_SUBJECT, u"est sujet de l'activité"),
-                             (REL_OBJ_ACTIVITY_SUBJECT, u'a pour sujet'),            display_with_other=False)
-        create_relation_type((REL_SUB_PART_2_ACTIVITY,  u"participe à l'activité"),
-                             (REL_OBJ_PART_2_ACTIVITY,  u'a pour participant'),      display_with_other=False)
+        RelationType.create((REL_SUB_ACTIVITY_SUBJECT, u"est sujet de l'activité"),
+                            (REL_OBJ_ACTIVITY_SUBJECT, u'a pour sujet'),            display_with_other=False)
+        RelationType.create((REL_SUB_PART_2_ACTIVITY,  u"participe à l'activité"),
+                            (REL_OBJ_PART_2_ACTIVITY,  u'a pour participant'),      display_with_other=False)
 
 
         create(PhoneCallType, 1, name=_(u"Entrant"), description=_(u"Appel entrant"))

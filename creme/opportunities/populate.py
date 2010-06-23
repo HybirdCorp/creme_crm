@@ -22,8 +22,7 @@ from django.utils.translation import ugettext as _
 from django.contrib.contenttypes.models import ContentType
 
 from creme_core.models.header_filter import HeaderFilterItem, HeaderFilter, HFI_FIELD
-from creme_core.models.relation import create_relation_type
-from creme_core.models import ButtonMenuItem
+from creme_core.models import RelationType, ButtonMenuItem
 from creme_core.utils import create_or_update_models_instance as create
 from creme_core.management.commands.creme_populate import BasePopulator
 
@@ -44,24 +43,24 @@ class Populator(BasePopulator):
     dependencies = ['creme.core', 'creme.config', 'creme.persons', 'creme.products', 'creme.billing']
 
     def populate(self, *args, **kwargs):
-        create_relation_type((REL_SUB_TARGETS_ORGA,      u'cible la société',                [Opportunity]),
-                             (REL_OBJ_TARGETS_ORGA,      u"est ciblé par l'opportunité"),                    display_with_other=True)
-        create_relation_type((REL_SUB_LINKED_PRODUCT,    u"est lié à l'opportunité",         [Product]),
-                             (REL_OBJ_LINKED_PRODUCT,    u"concerne le produit",             [Opportunity]), display_with_other=False)
-        create_relation_type((REL_SUB_LINKED_SERVICE,    u"est lié à l'opportunité",         [Service]),
-                             (REL_OBJ_LINKED_SERVICE,    u"concerne le service",             [Opportunity]), display_with_other=False)
-        create_relation_type((REL_SUB_LINKED_CONTACT,    u"intervient dans l'opportunité",   [Contact]),
-                             (REL_OBJ_LINKED_CONTACT,    u"met en scène",                    [Opportunity]))
-        create_relation_type((REL_SUB_LINKED_SALESORDER, u"est associé a l'opportunité",     [SalesOrder]),
-                             (REL_OBJ_LINKED_SALESORDER, u"a généré le bon de commande",     [Opportunity]))
-        create_relation_type((REL_SUB_LINKED_INVOICE,    u"a été généré pour l'opportunité", [Invoice]),
-                             (REL_OBJ_LINKED_INVOICE,    u"a donné lieu à la facture",       [Opportunity]))
-        create_relation_type((REL_SUB_LINKED_QUOTE,      u"a été généré pour l'opportunité", [Quote]),
-                             (REL_OBJ_LINKED_QUOTE,      u"a donné lieu au devis",           [Opportunity]))
-        create_relation_type((REL_SUB_RESPONSIBLE,       u"est chargé de l'affaire",         [Contact]),
-                             (REL_OBJ_RESPONSIBLE,       u"a comme responsable d'affaire",   [Opportunity]), display_with_other=False)
-        create_relation_type((REL_SUB_EMIT_ORGA,         u"a généré l'opportunité",          [Organisation]),
-                             (REL_OBJ_EMIT_ORGA,         u"a été généré par",     [Opportunity]), display_with_other=True)
+        RelationType.create((REL_SUB_TARGETS_ORGA,      u'cible la société',                [Opportunity]),
+                            (REL_OBJ_TARGETS_ORGA,      u"est ciblé par l'opportunité"),                    display_with_other=True)
+        RelationType.create((REL_SUB_LINKED_PRODUCT,    u"est lié à l'opportunité",         [Product]),
+                            (REL_OBJ_LINKED_PRODUCT,    u"concerne le produit",             [Opportunity]), display_with_other=False)
+        RelationType.create((REL_SUB_LINKED_SERVICE,    u"est lié à l'opportunité",         [Service]),
+                            (REL_OBJ_LINKED_SERVICE,    u"concerne le service",             [Opportunity]), display_with_other=False)
+        RelationType.create((REL_SUB_LINKED_CONTACT,    u"intervient dans l'opportunité",   [Contact]),
+                            (REL_OBJ_LINKED_CONTACT,    u"met en scène",                    [Opportunity]))
+        RelationType.create((REL_SUB_LINKED_SALESORDER, u"est associé a l'opportunité",     [SalesOrder]),
+                            (REL_OBJ_LINKED_SALESORDER, u"a généré le bon de commande",     [Opportunity]))
+        RelationType.create((REL_SUB_LINKED_INVOICE,    u"a été généré pour l'opportunité", [Invoice]),
+                            (REL_OBJ_LINKED_INVOICE,    u"a donné lieu à la facture",       [Opportunity]))
+        RelationType.create((REL_SUB_LINKED_QUOTE,      u"a été généré pour l'opportunité", [Quote]),
+                            (REL_OBJ_LINKED_QUOTE,      u"a donné lieu au devis",           [Opportunity]))
+        RelationType.create((REL_SUB_RESPONSIBLE,       u"est chargé de l'affaire",         [Contact]),
+                            (REL_OBJ_RESPONSIBLE,       u"a comme responsable d'affaire",   [Opportunity]), display_with_other=False)
+        RelationType.create((REL_SUB_EMIT_ORGA,         u"a généré l'opportunité",          [Organisation]),
+                            (REL_OBJ_EMIT_ORGA,         u"a été généré par",                [Opportunity]), display_with_other=True)
 
 
         create(CremeKVConfig, "LINE_IN_OPPORTUNITIES",  value="0")

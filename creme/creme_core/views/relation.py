@@ -307,7 +307,7 @@ def handle_relation_from_predicate_n_entity(request):
     if entities and predicate_id:
         centity_get = CremeEntity.objects.get
         for entity_id in entities:
-            try: #TODO: grouper les requetes SQL ??? (grouper par classe)
+            try: #TODO: group SQL queries ??? (group by class)
                 entity = centity_get(pk=entity_id).get_real_entity()
                 if not user_has_read_permission_for_an_object(request, entity):
                     return_msg.append("permission d'accès à : %s refusée" % entity)
@@ -319,7 +319,8 @@ def handle_relation_from_predicate_n_entity(request):
                     is_there_already_err = True
                     status = 404
                 continue
-            Relation.create_relation_with_object(subject, predicate_id, entity)
+
+            Relation.create(subject, predicate_id, entity)
 
     if status == 200:
         return_msg.append("Opération déroulée avec succès")

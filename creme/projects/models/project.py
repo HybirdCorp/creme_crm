@@ -70,7 +70,7 @@ class Project(CremeEntity):
 
     def add_responsibles(self, responsibles_list):
         for responsible in responsibles_list:
-            Relation.create_relation_with_object(self, REL_OBJ_PROJECT_MANAGER, responsible)
+            Relation.create(self, REL_OBJ_PROJECT_MANAGER, responsible)
 
     def get_tasks(self):
         if self.tasks_list is None:

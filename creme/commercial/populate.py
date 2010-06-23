@@ -20,8 +20,7 @@
 
 from django.contrib.contenttypes.models import ContentType
 
-from creme_core.models import BlockConfigItem, CremePropertyType
-from creme_core.models.relation import create_relation_type
+from creme_core.models import RelationType, BlockConfigItem, CremePropertyType
 from creme_core.models.header_filter import HeaderFilterItem, HeaderFilter, HFI_FIELD
 from creme_core.utils import create_or_update_models_instance as create
 from creme_core.management.commands.creme_populate import BasePopulator
@@ -35,7 +34,7 @@ class Populator(BasePopulator):
     dependencies = ['creme.core']
 
     def populate(self, *args, **kwargs):
-        create_relation_type((REL_SUB_SOLD_BY, u'a vendu'),
+        RelationType.create((REL_SUB_SOLD_BY, u'a vendu'),
                             (REL_OBJ_SOLD_BY, u'a été vendu par'))
 
 

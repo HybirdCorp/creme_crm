@@ -182,7 +182,7 @@ class Opportunity(CremeEntity):
         return Relation.objects.filter(object_entity=self, type__id=REL_SUB_LINKED_INVOICE)
 
     def link_to_target_orga(self, orga):
-        Relation.create_relation_with_object(orga, REL_OBJ_TARGETS_ORGA, self)
+        Relation.create(orga, REL_OBJ_TARGETS_ORGA, self)
 
     def link_to_emit_orga(self, orga):
-        Relation.create_relation_with_object(orga, REL_SUB_EMIT_ORGA, self)
+        Relation.create(orga, REL_SUB_EMIT_ORGA, self)

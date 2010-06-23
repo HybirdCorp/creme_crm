@@ -124,7 +124,7 @@ class DocumentCreateViewForm(DocumentCreateForm):
 
         self.instance.folder = entity_folder
         super(DocumentCreateViewForm, self).save()
-        Relation.create_relation_with_object(real_entity, REL_SUB_RELATED_2_DOC, self.instance)
+        Relation.create(real_entity, REL_SUB_RELATED_2_DOC, self.instance)
 
     class Meta:
         model   = Document

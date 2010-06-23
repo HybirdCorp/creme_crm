@@ -20,13 +20,20 @@
 
 from logging import debug
 
-from django.db.models import Model
-
 from django.core.exceptions  import ObjectDoesNotExist
-from django.db.models.fields.related  import OneToOneRel
+from django.db.models import Model, ForeignKey, CharField, BooleanField
+from django.db.models.fields.related import OneToOneRel
+from django.utils.translation import ugettext_lazy as _
+from django.contrib.contenttypes.models import ContentType
+from django.contrib.auth.models import User
+
+from django_extensions.db.models import TimeStampedModel
 
 
 class CremeModel(Model):
+    class Meta:
+        abstract = True
+
     def _collect_sub_objects(self, seen_objs, parent=None, nullable=False):
         pk_val = self._get_pk_val()
         if seen_objs.add(self.__class__, pk_val, self, parent, nullable):
@@ -41,7 +48,7 @@ class CremeModel(Model):
                     pass
                 else:
                     sub_obj._collect_sub_objects(seen_objs, self.__class__, related.field.null)        
-    
+
         # Handle any ancestors (for the model-inheritance case). We do this by
         # traversing to the most remote parent classes -- those with no parents
         # themselves -- and then adding those instances to the collection. That
@@ -58,5 +65,60 @@ class CremeModel(Model):
             parent_obj._collect_sub_objects(seen_objs)
 
 
+class CremeAbstractEntity(CremeModel, TimeStampedModel):
+    entity_type = ForeignKey(ContentType, editable=False)
+    header_filter_search_field = CharField(max_length=200, editable=False)
+
+    is_deleted = BooleanField(blank=True, default=False)
+    is_actived = BooleanField(blank=True, default=False)
+    user       = ForeignKey(User, verbose_name=_(u'Utilisateur'))
+
+    _real_entity = None
+
+    research_fields = []
+    users_allowed_func = [] #=> Usage: [{'name':'', 'verbose_name':''},...]
+    excluded_fields_in_html_output = ['id', 'cremeentity_ptr' , 'entity_type', 'header_filter_search_field', 'is_deleted', 'is_actived'] #use a set
+    header_filter_exclude_fields = []
+    extra_filter_fields = [] #=> Usage: [{'name':'', 'verbose_name':''},...]
+    extra_filter_exclude_fields = ['id']
+
     class Meta:
+        app_label = 'creme_core'
         abstract = True
+        ordering = ('id',)
+
+    def __init__ (self, *args , **kwargs):
+        super(CremeAbstractEntity, self).__init__(*args , **kwargs)
+
+        #correction d'un bug dont il faut créer le ticket
+        if self.pk is None and not kwargs.has_key('entity_type') and not kwargs.has_key('entity_type_id'):
+            self.entity_type = ContentType.objects.get_for_model(self)
+
+    @classmethod
+    def get_users_func_verbose_name(cls, func_name):
+        func_name = str(func_name) #??
+        for dic in cls.users_allowed_func:
+            if str(dic['name']) == func_name:
+                return dic['verbose_name']
+        return ''
+
+    def _get_real_entity(self, base_model):
+        entity = self._real_entity
+
+        if entity is True:
+            return self
+
+        if entity is None:
+            ct = self.entity_type
+
+            if ct == ContentType.objects.get_for_model(base_model):
+                self._real_entity = True #avoid reference to 'self' (cyclic reference)
+                entity = self
+            else:
+                entity = self._real_entity = ct.get_object_for_this_type(id=self.id)
+
+        return entity
+
+    def get_real_entity(self):
+        """Overload in child classes"""
+        return self._get_real_entity(CremeAbstractEntity)
