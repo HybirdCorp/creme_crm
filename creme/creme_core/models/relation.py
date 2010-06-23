@@ -31,6 +31,7 @@ from django.db.models import Q
 
 from creme_property import CremePropertyType
 from creme_model import CremeModel
+from entity import CremeEntityWithoutRelation, CremeEntity
 
 
 class RelationType(CremeModel):
@@ -49,7 +50,7 @@ class RelationType(CremeModel):
     display_with_other       = BooleanField(default=True)
     is_custom                = BooleanField(default=False)
 
-    predicate = CharField(_(u'Prédicat'), max_length=100)
+    predicate      = CharField(_(u'Prédicat'), max_length=100)
     symmetric_type = ForeignKey('self', blank=True, null=True)
 
     class Meta:
@@ -93,144 +94,125 @@ class RelationPredicate_i18n(CremeModel):
         app_label = 'creme_core'
 
 
-from entity import CremeEntityWithoutRelation
-
-
 class Relation(CremeEntityWithoutRelation):
-    type = ForeignKey(RelationType, blank=True, null=True)
+    type               = ForeignKey(RelationType, blank=True, null=True)
     symmetric_relation = ForeignKey('self', blank=True, null=True)
+    subject_entity     = ForeignKey(CremeEntity, related_name='relations')
+    object_entity      = ForeignKey(CremeEntity, related_name='relations_where_is_object')
 
-    subject_content_type = ForeignKey(ContentType, related_name="relation_subjects_set")
-    subject_id = PositiveIntegerField()
-
-    object_content_type = ForeignKey(ContentType, related_name="relation_objects_set")
-    object_id = PositiveIntegerField()
-
-    subject_creme_entity = GenericForeignKey(ct_field="subject_content_type", fk_field="subject_id")
-    object_creme_entity  = GenericForeignKey(ct_field="object_content_type", fk_field="object_id")
+    _real_entity = None
 
     class Meta:
         app_label = 'creme_core'
         verbose_name = _(u'Relation')
         verbose_name_plural = _(u'Relations')
 
-    def __init__ (self , *args , **kwargs):
-        super(Relation, self).__init__(* args , ** kwargs)
-        self.Save_In_Init = kwargs.get('Save_In_Init', False)
+    #def __init__ (self , *args , **kwargs):
+        #super(Relation, self).__init__(*args, **kwargs)
+        ##self.build_custom_fields()
 
-        #self.build_custom_fields()
+    def __unicode__(self):
+        subject = self.subject_entity
+        object_ = self.object_entity
+        str_ = u'<a href="%s">%s</a> -- %s --> <a href="%s">%s</a>' % (
+                                subject.get_absolute_url(), escape(subject),
+                                escape(self.type),
+                                object_.get_absolute_url(), escape(object_)
+                            )
 
-        if not self.pk and self.Save_In_Init:
-            self.save()
+        return force_unicode(smart_str(str_)) #hum....
 
-    #def get_absolute_url(self):
-        #return "/creme_core/newrelation/%s" % self.id
+    def _build_symmetric_relation(self, update):
+        """Overload me in child classes.
+        @param update Boolean: True->updating object ; False->creating object.
+        """
+        if update:
+            sym_relation = self.symmetric_relation
+            assert sym_relation
+        else:
+            sym_relation = Relation(user=self.user,
+                                    type=self.type.symmetric_type,
+                                    symmetric_relation=self,
+                                    subject_entity=self.object_entity,
+                                    object_entity=self.subject_entity,
+                                   )
 
-    def save_relation(self):
-        #debug('on save_relation une newcremerelation')
-        #debug(self.pk)
-        if self.Save_In_Init:
-            if self.type.predicate is not None :
-                #debug('on save une newcremerelation, on l add a la subject creme entity')
-                self.subject_creme_entity.new_relations.add(self)
-
-            if self.type.symmetric_type is not None and self.symmetric_relation is None:
-                symmetric_relation = Relation(type=self.type.symmetric_type,
-                                              subject_content_type=self.object_content_type,
-                                              subject_id=self.object_id,
-                                              object_content_type=self.subject_content_type,
-                                              object_id=self.subject_id,
-                                              symmetric_relation=self,
-                                              user=self.user
-                                             )
-                symmetric_relation.save()
-                self.symmetric_relation = symmetric_relation
-                self.save()
+        return sym_relation
 
     def save(self):
-        self.Save_In_Init = not bool(self.pk)
+        update = bool(self.pk)
 
-        #if self.first_creme_entity is None :
-
-        #self.save_custom_fields ()
+        #self.save_custom_fields()
 
         super(Relation, self).save()
-        if self.entity_type == ContentType.objects.get_for_model(Relation):
-            self.save_relation()
 
-    def delete_relation(self):
-        debug(' relation : delete_relation %s ', self.id)
-        if self.symmetric_relation is not None :
-            self.symmetric_relation.symmetric_relation = None
-            try :
-                self.symmetric_relation.subject_creme_entity.new_relations.remove(self.symmetric_relation)
-            except :
-                pass
-            self.symmetric_relation.delete()
-        try:
-            self.subject_creme_entity.new_relations.remove(self)
-        except: 
-            pass
+        if self.symmetric_relation is None:
+            sym_relation = self._build_symmetric_relation(update)
+            sym_relation.save()
+            self.symmetric_relation = sym_relation
+            super(Relation, self).save() #update() instead ??
+
+    def delete(self):
+        sym_relation = self.symmetric_relation
+
+        if sym_relation is not None:
+            sym_relation = sym_relation.get_real_entity()
+            sym_relation.symmetric_relation = None
+            sym_relation.delete()
 
         super(Relation, self).delete()
 
-    def delete(self):
-        debug('relation : deleteeeeee %s ', self.id)
-        if self.entity_type == ContentType.objects.get_for_model(Relation):
-            self.delete_relation()
-        else:
-            ct_entity = self.entity_type
-            entity = ct_entity.get_object_for_this_type(id=self.id)
-            return entity.delete ()
-#            model = self.entity_type.model
-#            return self.__getattribute__(model).delete ()            
+    def get_real_entity(self):
+        entity = self._real_entity
 
-    def __unicode__(self):
-        if self.entity_type == ContentType.objects.get_for_model(Relation):
-            subject = self.subject_creme_entity
-            object_ = self.object_creme_entity
-            relation_str = '<a href="%s">%s</a> -- %s --> <a href="%s">%s</a>' % (
-                                    subject.get_absolute_url(), escape(subject),
-                                    escape(self.type),
-                                    object_.get_absolute_url(), escape(object_)
-                                )
+        if entity is True:
+            return self
 
-            return force_unicode(smart_str(relation_str)) #hum....
+        if entity is None:
+            ct = self.entity_type
 
-        entity = self.entity_type.get_object_for_this_type(id=self.id) #get_real_entity() ???
-        return entity.__unicode__()
+            if ct == ContentType.objects.get_for_model(Relation):
+                self._real_entity = True #avoid reference to 'self' (cyclic reference)
+                entity = self
+            else:
+                entity = self._real_entity = ct.get_object_for_this_type(id=self.id)
+
+        return entity
 
     @staticmethod
     def filter_in(model, filter_predicate, value_for_filter):
         ct_model = ContentType.objects.get_for_model(model)
 
         #TODO: use values_list()
-        relations = Relation.objects.filter(type=filter_predicate, subject_content_type=ct_model)
-        list_rel_pk = [r.object_id for r in relations]
+        #relations = Relation.objects.filter(type=filter_predicate, subject_content_type=ct_model)
+        relations = Relation.objects.filter(type=filter_predicate, subject_entity__entity_type=ct_model)
+        list_rel_pk = [r.object_entity_id for r in relations]
 
         from creme_core.models import CremeEntity
         #TODO: use values_list()
+        #TODO: merge with previous query
         list_entity = CremeEntity.objects.filter(pk__in=list_rel_pk,
                                                  header_filter_search_field__icontains=value_for_filter)
-        list_entity_pk = [e.id for e in list_entity]
+        #list_entity_pk = [e.id for e in list_entity]
 
         #TODO: use values_list()
-        list_entities = model.objects.filter(new_relations__type=filter_predicate,
-                                             new_relations__object_id__in=list_entity_pk)
+        #list_entities = model.objects.filter(new_relations__type=filter_predicate,
+                                             #new_relations__object_id__in=list_entity_pk)
+        list_entities = model.objects.filter(relations__type=filter_predicate,
+                                             relations__object_entity__in=list_entity)
 
         list_pk_f = [entity.id for entity in list_entities]
 
         return Q(id__in=list_pk_f)
 
     @staticmethod
-    def create_relation_with_object(subject, relation_type_id, object):
+    def create_relation_with_object(subject, relation_type_id, object_): #really useful ??? (only 'user' attr help)
         relation = Relation()
-        relation.subject_creme_entity = subject
-        relation.type = RelationType.objects.get(pk=relation_type_id) #relation.type_id = relation_type_id ????
-        relation.object_creme_entity = object
+        relation.subject_entity = subject
+        relation.type_id = relation_type_id
+        relation.object_entity = object_
         relation.user = User.objects.get(pk=1)
         relation.save()
-
 
 #    def build_custom_fields (self):
 #        pass

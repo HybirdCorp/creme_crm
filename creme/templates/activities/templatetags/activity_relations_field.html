@@ -3,7 +3,7 @@
         Aucun
     {% else %}
         {% ifequal count 1 %}
-            {% with relations.0.subject_creme_entity as subject %}
+            {% with relations.0.subject_entity.get_real_entity as subject %}
                 <a href="{{subject.get_absolute_url}}">{{subject}}</a>
             {% endwith %}
         {% else %}

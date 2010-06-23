@@ -54,43 +54,43 @@ class Base(CremeEntity):
     def __unicode__(self):
         return self.name
 
-    def get_source (self):
-        relations_getter = Relation.objects.get
+    #TODO: factorise with get_target()
+    #TODO: return an Organisation instead of a CremeEntity ??
+    def get_source(self):
         try:
-            return relations_getter(subject_id=self.id, type=REL_SUB_BILL_ISSUED).object_creme_entity if self.id else None
+            return Relation.objects.get(subject_entity=self, type=REL_SUB_BILL_ISSUED).object_entity if self.id else None
         except Relation.DoesNotExist:
             return None
 
-    def get_target (self):
-        relations_getter = Relation.objects.get
+    def get_target(self):
         try:
-            return relations_getter(subject_id=self.id, type=REL_SUB_BILL_RECEIVED).object_creme_entity if self.id else None
+            return Relation.objects.get(subject_entity=self, type=REL_SUB_BILL_RECEIVED).object_entity if self.id else None
         except Relation.DoesNotExist:
             return None
 
     def populate_with_organisation(self):
         relations_getter = Relation.objects.get
         try:
-            self.source = relations_getter(subject_id=self.id, type=REL_SUB_BILL_ISSUED).object_creme_entity if self.id else None
-            self.target = relations_getter(subject_id=self.id, type=REL_SUB_BILL_RECEIVED).object_creme_entity if self.id else None
+            self.source = relations_getter(subject_entity=self, type=REL_SUB_BILL_ISSUED).object_entity if self.id else None
+            self.target = relations_getter(subject_entity=self, type=REL_SUB_BILL_RECEIVED).object_entity if self.id else None
         except Relation.DoesNotExist:
             self.source = None
             self.target = None
 
     def generate_number(self):
-        source = self.get_source ()
-        real_content_type = self.entity_type
+        source = self.get_source()
         self.number = 0 
-        if source :
-            try : 
-                name_algo = ConfigBillingAlgo.objects.get ( organisation=source, ct=real_content_type).name_algo
-                print name_algo 
+
+        if source:
+            real_content_type = self.entity_type
+
+            try:
+                name_algo = ConfigBillingAlgo.objects.get(organisation=source, ct=real_content_type).name_algo
                 algo = algo_registry.get_algo(name_algo)
-                number = algo().generate_number (source, real_content_type)
-                self.number =  number 
-            except :
+                self.number = algo().generate_number(source, real_content_type)
+            except:
                 pass
-              
+
         self.save ()
 
     def get_product_lines(self):
@@ -167,8 +167,8 @@ class Base(CremeEntity):
         debug("=> Clone relations")
         # TODO : method clones only actors relations of the base object...should clone all others...
         get_relation = Relation.objects.get
-        source = get_relation(subject_id=template.id, type=REL_SUB_BILL_ISSUED).object_creme_entity
-        target = get_relation(subject_id=template.id, type=REL_SUB_BILL_RECEIVED).object_creme_entity
+        source = get_relation(subject_entity=template, type=REL_SUB_BILL_ISSUED).object_entity
+        target = get_relation(subject_entity=template, type=REL_SUB_BILL_RECEIVED).object_entity
 
         create_relation = Relation.create_relation_with_object
         create_relation(self, REL_SUB_BILL_ISSUED,   source)
@@ -177,4 +177,3 @@ class Base(CremeEntity):
     def _build_properties(self, template):
         debug("=> Clone properties")
         # TODO...
-        

@@ -42,7 +42,7 @@ class RelationsBlock(Block):
 
     def detailview_display(self, context):
         entity = context['object']
-        return self._render(self.get_block_template_context(context, entity.new_relations.filter(type__display_with_other=True),
+        return self._render(self.get_block_template_context(context, entity.relations.filter(type__display_with_other=True),
                                                             update_url='/creme_core/relations/reload/%s/' % entity.pk))
 
 properties_block = PropertiesBlock()

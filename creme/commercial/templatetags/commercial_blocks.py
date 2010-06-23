@@ -29,4 +29,4 @@ register = Library()
 #TODO: old code --> transform to a real creme block
 @register.inclusion_tag('commercial/templatetags/block_sell_by.html')
 def get_sellby_relations(object):
-    return {'relations': object.new_relations.filter(entity_type=ContentType.objects.get_for_model(SellByRelation))}
+    return {'relations': object.relations.filter(entity_type=ContentType.objects.get_for_model(SellByRelation))}

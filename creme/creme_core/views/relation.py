@@ -36,7 +36,7 @@ from creme_core.views.generic import inner_popup, list_view_popup_from_widget
 from creme_core.blocks import relations_block
 
 
-JSON_OPS = frozenset(('gt', 'lt', 'in'))
+#JSON_OPS = frozenset(('gt', 'lt', 'in'))
 
 class JSONSelectError(Exception):
     def __init__(self, message, status):
@@ -139,7 +139,7 @@ def __json_parse_select_request(request, allowed_fields):
 
     return (fields, range, sort, use_columns)
 
-JSON_ENTITY_FILTERS = frozenset(('id', 'entity_type'))
+#JSON_ENTITY_FILTERS = frozenset(('id', 'entity_type'))
 
 JSON_ENTITY_FIELDS = {'unicode':unicode, 
                       'id':lambda e:e.id,
@@ -252,16 +252,17 @@ def add_relations(request, subject_id):
 @login_required
 def delete(request):
     """
-        @Permissions : Delete on new_relation subject object
+        @Permissions : Delete on relation's subject entity
     """
-    POST = request.POST
-    relation = get_object_or_404(Relation, pk=POST.get('id'))
-    entity   = get_object_or_404(CremeEntity, pk=POST.get('object_id')).get_real_entity()
+    post_get = request.POST.get
+    relation = get_object_or_404(Relation, pk=post_get('id'))
+    entity   = get_object_or_404(CremeEntity, pk=post_get('object_id')).get_real_entity()
 
     die_status = delete_object_or_die(request, entity) #delete credental on 'entity' ?? only one ???
     if die_status:
         return die_status
-    relation.delete()
+
+    relation.get_real_entity().delete()
 
 #    return HttpResponseRedirect(entity.get_absolute_url())
     return HttpResponse("")
@@ -269,12 +270,13 @@ def delete(request):
 @login_required
 def add_relation_from_predicate_n_entity(request, predicate_id, subject_id, object_ct_id, o2m=False):
     template_dict = {
-        'predicate_id' : predicate_id,
-        'subject_id'   : subject_id,
-        'o2m'          : o2m
+        'predicate_id': predicate_id,
+        'subject_id':   subject_id,
+        'o2m':          o2m
     }
 
-    pklist = Relation.objects.filter(type__id=predicate_id, subject_id=subject_id).values_list('object_id')
+    #TODo: only one query ??
+    pklist = Relation.objects.filter(type__id=predicate_id, subject_entity__id=subject_id).values_list('object_entity_id')
     extra_q = ~Q(pk__in=pklist)
 
     return list_view_popup_from_widget(request, object_ct_id, o2m, extra_dict=template_dict, extra_q=extra_q)

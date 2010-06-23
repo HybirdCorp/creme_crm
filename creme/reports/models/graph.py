@@ -60,21 +60,24 @@ class Graph(CremeEntity):
 
         graph = pgv.AGraph(directed=True)
 
-        subjects_id = []
+        #subjects_id = []
+        subjects = self.subjects.all()
         add_node = graph.add_node
         add_edge = graph.add_edge
 
         #todo: entity cache ?? ....
 
-        for subject in self.subjects.all():
-            subjects_id.append(subject.id)
+        #for subject in self.subjects.all():
+        for subject in subjects:
+            #subjects_id.append(subject.id)
             add_node(unicode(subject.get_real_entity()), shape='box')
             #add_node('filled box',     shape='box',     style='filled',  color='#FF00FF')
             #add_node('filled box v2',  shape='box',     style='filled',  fillcolor='#FF0000', color='#0000FF', penwidth='2.0') #default pensize="1.0"
 
-        for relation in Relation.objects.filter(type__in=self.relation_types.all(), subject_id__in=subjects_id):
-            add_edge(unicode(relation.subject_creme_entity),
-                     unicode(relation.object_creme_entity),
+        #for relation in Relation.objects.filter(type__in=self.relation_types.all(), subject_id__in=subjects_id):
+        for relation in Relation.objects.filter(type__in=self.relation_types.all(), subject_entity__in=subjects):
+            add_edge(unicode(relation.subject_entity),
+                     unicode(relation.object_entity),
                      label=unicode(relation.type.predicate).encode('utf-8')) # beware: not unicode for label (pygraphviz use label as dict key)
             #add_edge('b', 'd', color='#FF0000', fontcolor='#00FF00', label='foobar', style='dashed')
 

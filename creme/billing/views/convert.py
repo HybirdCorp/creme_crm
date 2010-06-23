@@ -62,39 +62,4 @@ def convert(request, document_id):
     except KeyError:
         raise Http404
 
-
-#    get_relation = NewCremeRelation.objects.get
-#    #source = get_relation(subject_id=src.id, predicate=pred_issued).object_creme_entity
-#    source = get_relation(subject_id=src.id, predicate=REL_SUB_BILL_ISSUED).object_creme_entity
-#    #target = get_relation(subject_id=src.id, predicate=pred_received).object_creme_entity
-#    target = get_relation(subject_id=src.id, predicate=REL_SUB_BILL_RECEIVED).object_creme_entity
-#
-#    #creme entity
-#    dest.user = src.user
-#
-#    #billing base
-#    dest.name             = _(u'%(src)s (converti en %(dest)s)') % {'src': src.name, 'dest': dest._meta.verbose_name}
-#    dest.number           = src.number
-#    dest.issuing_date     = src.issuing_date
-#    dest.expiration_date  = src.expiration_date
-#    dest.discount         = src.discount
-#    dest.billing_address  = src.billing_address
-#    dest.shipping_address = src.shipping_address
-#    dest.comment          = src.comment
-#    dest.total            = src.total
-#
-#    #special fields
-#    dest.generate_number()
-#    dest.status_id = 1 #default status' pk is '1'. see populate.py :)
-#
-#    dest.save()
-#
-#    #lines
-#    clone_lines(src, dest, ProductLine)
-#    clone_lines(src, dest, ServiceLine)
-#
-#    create_relation = NewCremeRelation.create_relation_with_object
-#    create_relation(dest, REL_SUB_BILL_ISSUED,   source)
-#    create_relation(dest, REL_SUB_BILL_RECEIVED, target)
-
     return HttpResponseRedirect(dest.get_absolute_url())

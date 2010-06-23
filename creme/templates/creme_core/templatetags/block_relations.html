@@ -24,7 +24,7 @@
                     <th class="{% cycle "block_header_line_dark" "block_header_line_light" %}" colspan="2">{{predicate.grouper}}</th>
                 </tr>
                 {% for relation in predicate.list %}
-                    {% with relation.object_creme_entity as entity_obj %}
+                    {% with relation.object_entity.get_real_entity as entity_obj %}
                         <tr>
                             <td class="{% cycle "block_line_dark" "block_line_light" %}">
                                 <a href="{{entity_obj.get_absolute_url}}">{{entity_obj}}</a>

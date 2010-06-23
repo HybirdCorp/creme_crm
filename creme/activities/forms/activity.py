@@ -166,16 +166,18 @@ class _ActivityCreateBaseForm(CremeModelForm):
 
         for participant_id in participants:
             # find activities of participant
-            activity_req = Relation.objects.filter(subject_id=participant_id, type__id=REL_SUB_PART_2_ACTIVITY)
+            activity_req = Relation.objects.filter(subject_entity__id=participant_id, type__id=REL_SUB_PART_2_ACTIVITY)
 
             # exclude current activity if asked
             if exclude_activity_id is not None:
-                activity_req = activity_req.exclude(object_id=exclude_activity_id)
+                activity_req = activity_req.exclude(object_entity__id=exclude_activity_id)
 
             # get id of activities of participant
-            activity_ids = activity_req.values_list("object_id", flat=True)
+            activity_ids = activity_req.values_list("object_entity__id", flat=True)
 
             # do collision request
+            #TODO: can be done with less queries ?
+            #  eg:  Activity.objects.filter(relations__object_entity__id=participant_id, relations__object_entity__type__id=REL_OBJ_PART_2_ACTIVITY).filter(collision_test)
             activity_collisions = Activity.objects.filter(pk__in=activity_ids).filter(collision_test)[:1]
 
             if activity_collisions:
@@ -333,14 +335,14 @@ class ActivityEditForm(CremeModelForm):
         if self._errors:
             return cleaned_data
 
-        instance_id = self.instance.id
+        instance = self.instance
 
         ActivityCreateForm.clean_interval(cleaned_data)
 
         # check if activity period change cause collisions
-        participants = Relation.objects.filter(object_id=instance_id, type__id=REL_SUB_PART_2_ACTIVITY).values_list("subject_id", flat=True)
+        participants = Relation.objects.filter(object_entity=instance, type__id=REL_SUB_PART_2_ACTIVITY).values_list("subject_entity_id", flat=True)
 
-        ActivityCreateForm.check_activity_collisions(cleaned_data['start'], cleaned_data['end'], participants, instance_id)
+        ActivityCreateForm.check_activity_collisions(cleaned_data['start'], cleaned_data['end'], participants, instance.id)
 
         return cleaned_data
 

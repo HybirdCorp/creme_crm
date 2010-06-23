@@ -146,11 +146,11 @@ class Opportunity(CremeEntity):
     #TODO: factorise get_*_relations() ??
 
     def get_quotes_relations(self):
-        return Relation.objects.filter(object_id=self.id, type__id=REL_SUB_LINKED_QUOTE)
+        return Relation.objects.filter(object_entity=self, type__id=REL_SUB_LINKED_QUOTE)
 
     def get_current_quote_id(self):
         ct        = ContentType.objects.get_for_model(Quote)
-        quote_ids = Relation.objects.filter(object_id=self.id, type__id=REL_SUB_CURRENT_DOC, subject_content_type=ct).values_list('subject_id', flat=True)
+        quote_ids = Relation.objects.filter(object_entity=self, type__id=REL_SUB_CURRENT_DOC, subject_entity__entity_type=ct).values_list('subject_entity_id', flat=True)
 
         if len(quote_ids) > 1:
             error('Several current quotes for opportunity: %s', self)
@@ -158,28 +158,28 @@ class Opportunity(CremeEntity):
         return quote_ids[0] if quote_ids else None
 
     def get_target_orga(self):
-        return Relation.objects.get(subject_id=self.id, type__id=REL_SUB_TARGETS_ORGA).object_creme_entity
+        return Relation.objects.get(subject_entity=self, type__id=REL_SUB_TARGETS_ORGA).object_entity
 
     def get_emit_orga(self):
-        return Relation.objects.get(subject_id=self.id, type__id=REL_OBJ_EMIT_ORGA).object_creme_entity
+        return Relation.objects.get(subject_entity=self, type__id=REL_OBJ_EMIT_ORGA).object_entity
 
     def get_products_relations(self):
-        return Relation.objects.filter(object_id=self.id, type__id=REL_SUB_LINKED_PRODUCT)
+        return Relation.objects.filter(object_entity=self, type__id=REL_SUB_LINKED_PRODUCT)
 
     def get_services_relations(self):
-        return Relation.objects.filter(object_id=self.id, type__id=REL_SUB_LINKED_SERVICE)
+        return Relation.objects.filter(object_entity=self, type__id=REL_SUB_LINKED_SERVICE)
 
     def get_contacts_relations(self):
-        return Relation.objects.filter(object_id=self.id, type__id=REL_SUB_LINKED_CONTACT)
+        return Relation.objects.filter(object_entity=self, type__id=REL_SUB_LINKED_CONTACT)
 
     def get_responsibles_relations(self):
-        return Relation.objects.filter(object_id=self.id, type__id=REL_SUB_RESPONSIBLE)
+        return Relation.objects.filter(object_entity=self, type__id=REL_SUB_RESPONSIBLE)
 
     def get_salesorder_relations(self):
-        return Relation.objects.filter(object_id=self.id, type__id=REL_SUB_LINKED_SALESORDER)
+        return Relation.objects.filter(object_entity=self, type__id=REL_SUB_LINKED_SALESORDER)
 
     def get_invoices_relations(self):
-        return Relation.objects.filter(object_id=self.id, type__id=REL_SUB_LINKED_INVOICE)
+        return Relation.objects.filter(object_entity=self, type__id=REL_SUB_LINKED_INVOICE)
 
     def link_to_target_orga(self, orga):
         Relation.create_relation_with_object(orga, REL_OBJ_TARGETS_ORGA, self)

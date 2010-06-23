@@ -37,10 +37,11 @@ def edit(request, relation_id):
 
     if request.POST:
         relationform = SellByRelationEditForm(request.POST, instance=relation)
+
         if relationform.is_valid():
             relationform.save()
-            relation.subject_id
-            entity = CremeEntity.objects.get(id=relation.subject_id)
+            entity = relation.subject_entity.get_real_entity()
+
             return HttpResponseRedirect(entity.get_absolute_url())
     else:
         relationform = SellByRelationEditForm(instance=relation)
