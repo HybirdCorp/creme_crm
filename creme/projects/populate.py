@@ -22,7 +22,7 @@ from django.contrib.contenttypes.models import ContentType
 
 from creme_core.utils import create_or_update_models_instance as create
 from creme_core.models.header_filter import HeaderFilterItem, HeaderFilter, HFI_FIELD
-from creme_core.models.relation import create_relation_type
+from creme_core.models import RelationType
 from creme_core.management.commands.creme_populate import BasePopulator
 
 from persons.models import Contact
@@ -35,16 +35,16 @@ class Populator(BasePopulator):
     dependencies = ['creme.core','creme.persons']
 
     def populate(self, *args, **kwargs):
-        create_relation_type((REL_SUB_PROJECT_MANAGER, u'est un des responsables du projet', [Contact]),
-                             (REL_OBJ_PROJECT_MANAGER, u'a pour responsable',                [Project]))
+        RelationType.create((REL_SUB_PROJECT_MANAGER, u'est un des responsables du projet', [Contact]),
+                            (REL_OBJ_PROJECT_MANAGER, u'a pour responsable',                [Project]))
 
-        create(ProjectStatus, 1 , name=u"Appel d'offre",  description=u"Un appel d'offre a été lancé")
-        create(ProjectStatus, 2 , name=u"Initialisation", description=u"Le projet démarre")
-        create(ProjectStatus, 3 , name=u"Avant-phase",    description=u"Le projet est en phase d'analyse et de conception")
-        create(ProjectStatus, 4 , name=u"Réalisation",    description=u"Le projet est en phase de réalisation")
-        create(ProjectStatus, 5 , name=u"Tests",          description=u"Le projet est en phase de tests (unitaires / intégration / fonctionnels)")
-        create(ProjectStatus, 6 , name=u"Recette",        description=u"Le projet est en recette")
-        create(ProjectStatus, 7 , name=u"Terminé",        description=u"Le projet est terminé")
+        create(ProjectStatus, 1, name=u"Appel d'offre",  description=u"Un appel d'offre a été lancé")
+        create(ProjectStatus, 2, name=u"Initialisation", description=u"Le projet démarre")
+        create(ProjectStatus, 3, name=u"Avant-phase",    description=u"Le projet est en phase d'analyse et de conception")
+        create(ProjectStatus, 4, name=u"Réalisation",    description=u"Le projet est en phase de réalisation")
+        create(ProjectStatus, 5, name=u"Tests",          description=u"Le projet est en phase de tests (unitaires / intégration / fonctionnels)")
+        create(ProjectStatus, 6, name=u"Recette",        description=u"Le projet est en recette")
+        create(ProjectStatus, 7, name=u"Terminé",        description=u"Le projet est terminé")
 
         create(TaskStatus, 1, name=u"Non commencée", description=u"La tâche n'a pas encore démarrée")
         create(TaskStatus, 2, name=u"En cours",      description=u"La tâche est en cours")

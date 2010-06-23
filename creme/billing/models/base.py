@@ -170,7 +170,7 @@ class Base(CremeEntity):
         source = get_relation(subject_entity=template, type=REL_SUB_BILL_ISSUED).object_entity
         target = get_relation(subject_entity=template, type=REL_SUB_BILL_RECEIVED).object_entity
 
-        create_relation = Relation.create_relation_with_object
+        create_relation = Relation.create
         create_relation(self, REL_SUB_BILL_ISSUED,   source)
         create_relation(self, REL_SUB_BILL_RECEIVED, target)
 

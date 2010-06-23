@@ -22,7 +22,7 @@ from django.contrib.contenttypes.models import ContentType
 
 from creme_core.utils import create_or_update_models_instance as create
 from creme_core.models.header_filter import HeaderFilterItem, HeaderFilter, HFI_FIELD
-from creme_core.models.relation import create_relation_type
+from creme_core.models import RelationType
 from creme_core.management.commands.creme_populate import BasePopulator
 
 from persons.models import Organisation
@@ -35,10 +35,10 @@ class Populator(BasePopulator):
     dependencies = ['creme.creme_core', 'creme.persons']
 
     def populate(self, *args, **kwargs):
-        create_relation_type((REL_SUB_BILL_ISSUED,   u"a été émis(e) par"), #[Invoice, Quote, SalesOrder]
-                             (REL_OBJ_BILL_ISSUED,   u"a émis",             [Organisation]))
-        create_relation_type((REL_SUB_BILL_RECEIVED, u"a été reçu(e) par"), #[Invoice, Quote, SalesOrder]
-                             (REL_OBJ_BILL_RECEIVED, u"a reçu",             [Organisation]))
+        RelationType.create((REL_SUB_BILL_ISSUED,   u"a été émis(e) par"), #[Invoice, Quote, SalesOrder]
+                            (REL_OBJ_BILL_ISSUED,   u"a émis",             [Organisation]))
+        RelationType.create((REL_SUB_BILL_RECEIVED, u"a été reçu(e) par"), #[Invoice, Quote, SalesOrder]
+                            (REL_OBJ_BILL_RECEIVED, u"a reçu",             [Organisation]))
 
 
         #NB: pk=1 --> default status (used when a quote is converted in invoice for example)

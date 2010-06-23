@@ -164,4 +164,4 @@ class ContactWithRelationForm(ContactForm):
         super(ContactWithRelationForm, self).save()
 
         if self.linked_orga:
-            Relation.create_relation_with_object(self.instance, self.cleaned_data.get('relation').id, self.linked_orga)
+            Relation.create(self.instance, self.cleaned_data.get('relation').id, self.linked_orga)

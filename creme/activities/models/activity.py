@@ -118,7 +118,7 @@ END:VEVENT
         return "/activities/activities"
 
     def add_related_entity(self, entity, predicate):
-        Relation.create_relation_with_object(entity, predicate, self)
+        Relation.create(entity, predicate, self)
 
     def get_participant_relations(self):
         return Relation.objects.filter(object_entity=self, type__id=REL_SUB_PART_2_ACTIVITY)

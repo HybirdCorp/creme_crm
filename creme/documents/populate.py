@@ -22,8 +22,7 @@ from django.utils.translation import ugettext as _
 from django.contrib.contenttypes.models import ContentType
 
 from creme_core.models.header_filter import HeaderFilterItem, HeaderFilter, HFI_FIELD
-from creme_core.models.relation import create_relation_type
-from creme_core.models import BlockConfigItem
+from creme_core.models import RelationType, BlockConfigItem
 from creme_core.utils import create_or_update_models_instance as create
 from creme_core.management.commands.creme_populate import BasePopulator
 
@@ -36,10 +35,10 @@ class Populator(BasePopulator):
     dependencies = ['creme.core']
 
     def populate(self, *args, **kwargs):
-        create_relation_type((REL_SUB_RELATED_2_DOC, u'concerne le document'),
-                             (REL_OBJ_RELATED_2_DOC, u'document concerné par',       [Document]))
-        create_relation_type((REL_SUB_CURRENT_DOC,   u'est le document courant de'), #used for several types of document, not only documents.Document
-                             (REL_OBJ_CURRENT_DOC,   u'a comme document courant'))
+        RelationType.create((REL_SUB_RELATED_2_DOC, u'concerne le document'),
+                            (REL_OBJ_RELATED_2_DOC, u'document concerné par',       [Document]))
+        RelationType.create((REL_SUB_CURRENT_DOC,   u'est le document courant de'), #used for several types of document, not only documents.Document
+                            (REL_OBJ_CURRENT_DOC,   u'a comme document courant'))
 
         category = create(FolderCategory, name=_(u"Documents crées à partir des fiches"))
 

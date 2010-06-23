@@ -20,7 +20,7 @@
 
 from logging import debug
 
-from django.db.models import Model, CharField, ForeignKey, ManyToManyField, BooleanField, PositiveIntegerField
+from django.db.models import CharField, ForeignKey, ManyToManyField, BooleanField, PositiveIntegerField #Model
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.generic import GenericForeignKey
 from django.contrib.auth.models import User
@@ -30,8 +30,8 @@ from django.utils.translation import ugettext_lazy as _
 from django.db.models import Q
 
 from creme_property import CremePropertyType
-from creme_model import CremeModel
-from entity import CremeEntityWithoutRelation, CremeEntity
+from base import CremeModel, CremeAbstractEntity
+from entity import CremeEntity
 
 
 class RelationType(CremeModel):
@@ -84,6 +84,80 @@ class RelationType(CremeModel):
     def get_customs():
         return RelationType.objects.filter(is_custom=True)
 
+    @staticmethod
+    def create(subject_desc, object_desc, display_with_other=True, is_custom=False, generate_pk=False):
+        """
+        @param subject_desc Tuple (string_pk, predicate_string [, sequence_of_cremeEntityClasses [, sequence_of_propertyTypes]])
+        @param object_desc See subject_desc
+        @param generate_pk If True, 'string_pk' args are used as prefix to generate pks.
+        """
+        from creme_core.utils import create_or_update_models_instance as create
+
+        padding       = ((), ()) #in case sequence_of_cremeEntityClasses or sequence_of_propertyType not given
+        subject_desc += padding
+        object_desc  += padding
+
+        pk_subject   = subject_desc[0]
+        pk_object    = object_desc[0]
+        pred_subject = subject_desc[1]
+        pred_object  = object_desc[1]
+
+        if not generate_pk:
+            sub_relation_type = create(RelationType, pk_subject, predicate=pred_subject, display_with_other=display_with_other, is_custom=is_custom)
+            obj_relation_type = create(RelationType, pk_object,  predicate=pred_object,  display_with_other=display_with_other, is_custom=is_custom)
+        else:
+            from creme_core.utils.id_generator import generate_string_id_and_save
+
+            sub_relation_type = RelationType(predicate=pred_subject, display_with_other=display_with_other, is_custom=is_custom)
+            obj_relation_type = RelationType(predicate=pred_object,  display_with_other=display_with_other, is_custom=is_custom)
+
+            generate_string_id_and_save(RelationType, [sub_relation_type], pk_subject)
+            generate_string_id_and_save(RelationType, [obj_relation_type], pk_object)
+
+        #TODO: i18n.....
+        sub_relation_type.predicate_i18n_set.all().delete()
+        obj_relation_type.predicate_i18n_set.all().delete()
+        create(RelationPredicate_i18n, relation_type_id=pk_subject, language_code='FRA', text=pred_subject)
+        create(RelationPredicate_i18n, relation_type_id=pk_subject, language_code='FRA', text=pred_subject)
+
+
+        sub_relation_type.symmetric_type = obj_relation_type
+        obj_relation_type.symmetric_type = sub_relation_type
+
+
+        #Delete old m2m (TODO: just remove useless ???)
+        for rt in (sub_relation_type, obj_relation_type):
+            rt.subject_ctypes.clear()
+            rt.subject_properties.clear()
+            rt.object_ctypes.clear()
+            rt.object_properties.clear()
+
+
+        get_ct = ContentType.objects.get_for_model
+
+        for subject_ctype in subject_desc[2]:
+            ct = get_ct(subject_ctype)
+            sub_relation_type.subject_ctypes.add(ct)
+            obj_relation_type.object_ctypes.add(ct)
+
+        for object_ctype in object_desc[2]:
+            ct = get_ct(object_ctype)
+            sub_relation_type.object_ctypes.add(ct)
+            obj_relation_type.subject_ctypes.add(ct)
+
+        for subject_prop in subject_desc[3]:
+            sub_relation_type.subject_properties.add(subject_prop)
+            obj_relation_type.object_properties.add(subject_prop)
+
+        for object_prop in object_desc[3]:
+            sub_relation_type.object_properties.add(object_prop)
+            obj_relation_type.subject_properties.add(object_prop)
+
+        sub_relation_type.save()
+        obj_relation_type.save()
+
+        return (sub_relation_type, obj_relation_type)
+
 
 class RelationPredicate_i18n(CremeModel):
     relation_type = ForeignKey(RelationType, related_name='predicate_i18n_set')
@@ -94,13 +168,11 @@ class RelationPredicate_i18n(CremeModel):
         app_label = 'creme_core'
 
 
-class Relation(CremeEntityWithoutRelation):
+class Relation(CremeAbstractEntity):
     type               = ForeignKey(RelationType, blank=True, null=True)
     symmetric_relation = ForeignKey('self', blank=True, null=True)
     subject_entity     = ForeignKey(CremeEntity, related_name='relations')
     object_entity      = ForeignKey(CremeEntity, related_name='relations_where_is_object')
-
-    _real_entity = None
 
     class Meta:
         app_label = 'creme_core'
@@ -163,21 +235,7 @@ class Relation(CremeEntityWithoutRelation):
         super(Relation, self).delete()
 
     def get_real_entity(self):
-        entity = self._real_entity
-
-        if entity is True:
-            return self
-
-        if entity is None:
-            ct = self.entity_type
-
-            if ct == ContentType.objects.get_for_model(Relation):
-                self._real_entity = True #avoid reference to 'self' (cyclic reference)
-                entity = self
-            else:
-                entity = self._real_entity = ct.get_object_for_this_type(id=self.id)
-
-        return entity
+        return self._get_real_entity(Relation)
 
     @staticmethod
     def filter_in(model, filter_predicate, value_for_filter):
@@ -206,7 +264,7 @@ class Relation(CremeEntityWithoutRelation):
         return Q(id__in=list_pk_f)
 
     @staticmethod
-    def create_relation_with_object(subject, relation_type_id, object_): #really useful ??? (only 'user' attr help)
+    def create(subject, relation_type_id, object_): #really useful ??? (only 'user' attr help)
         relation = Relation()
         relation.subject_entity = subject
         relation.type_id = relation_type_id
@@ -301,77 +359,3 @@ class Relation(CremeEntityWithoutRelation):
 #
 #    class Meta:
 #        app_label = 'creme_core'
-
-
-def create_relation_type(subject_desc, object_desc, display_with_other=True, is_custom=False, generate_pk=False):
-    """
-    @param subject_desc Tuple (string_pk, predicate_string [, sequence_of_cremeEntityClasses [, sequence_of_propertyTypes]])
-    @param object_desc See subject_desc
-    @param generate_pk If True, 'string_pk' args are used as prefix to generate pks.
-    """
-    from creme_core.utils import create_or_update_models_instance as create
-
-    padding       = ((), ()) #in case sequence_of_cremeEntityClasses or sequence_of_propertyType not given
-    subject_desc += padding
-    object_desc  += padding
-
-    pk_subject   = subject_desc[0]
-    pk_object    = object_desc[0]
-    pred_subject = subject_desc[1]
-    pred_object  = object_desc[1]
-
-    if not generate_pk:
-        sub_relation_type = create(RelationType, pk_subject, predicate=pred_subject, display_with_other=display_with_other, is_custom=is_custom)
-        obj_relation_type = create(RelationType, pk_object,  predicate=pred_object,  display_with_other=display_with_other, is_custom=is_custom)
-    else:
-        from creme_core.utils.id_generator import generate_string_id_and_save
-
-        sub_relation_type = RelationType(predicate=pred_subject, display_with_other=display_with_other, is_custom=is_custom)
-        obj_relation_type = RelationType(predicate=pred_object,  display_with_other=display_with_other, is_custom=is_custom)
-
-        generate_string_id_and_save(RelationType, [sub_relation_type], pk_subject)
-        generate_string_id_and_save(RelationType, [obj_relation_type], pk_object)
-
-    #TODO: i18n.....
-    sub_relation_type.predicate_i18n_set.all().delete()
-    obj_relation_type.predicate_i18n_set.all().delete()
-    create(RelationPredicate_i18n, relation_type_id=pk_subject, language_code='FRA', text=pred_subject)
-    create(RelationPredicate_i18n, relation_type_id=pk_subject, language_code='FRA', text=pred_subject)
-
-
-    sub_relation_type.symmetric_type = obj_relation_type
-    obj_relation_type.symmetric_type = sub_relation_type
-
-
-    #Delete old m2m (TODO: just remove useless ???)
-    for rt in (sub_relation_type, obj_relation_type):
-        rt.subject_ctypes.clear()
-        rt.subject_properties.clear()
-        rt.object_ctypes.clear()
-        rt.object_properties.clear()
-
-
-    get_ct = ContentType.objects.get_for_model
-
-    for subject_ctype in subject_desc[2]:
-        ct = get_ct(subject_ctype)
-        sub_relation_type.subject_ctypes.add(ct)
-        obj_relation_type.object_ctypes.add(ct)
-
-    for object_ctype in object_desc[2]:
-        ct = get_ct(object_ctype)
-        sub_relation_type.object_ctypes.add(ct)
-        obj_relation_type.subject_ctypes.add(ct)
-
-    for subject_prop in subject_desc[3]:
-        sub_relation_type.subject_properties.add(subject_prop)
-        obj_relation_type.object_properties.add(subject_prop)
-
-    for object_prop in object_desc[3]:
-        sub_relation_type.object_properties.add(object_prop)
-        obj_relation_type.subject_properties.add(object_prop)
-
-    sub_relation_type.save()
-    obj_relation_type.save()
-
-    return (sub_relation_type, obj_relation_type)

@@ -20,65 +20,23 @@
 
 from logging import debug
 
-from django.db.models import ForeignKey, CharField, BooleanField, ManyToManyField
+#from django.db.models import CharField
 from django.utils.encoding import force_unicode
 from django.utils.html import escape
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.contenttypes.models import ContentType
-from django.contrib.auth.models import User
 from django.conf import settings
 
-from django_extensions.db.models import TimeStampedModel
-
-from creme_model import CremeModel
+from base import CremeAbstractEntity
 
 #from customfields  import *
 
 
-class CremeEntityWithoutRelation(CremeModel, TimeStampedModel):
-    entity_type = ForeignKey(ContentType, editable=False)
-    header_filter_search_field = CharField(max_length=200, editable=False)
-
-    is_deleted = BooleanField(blank=True, default=False)
-    user = ForeignKey(User, verbose_name=_(u'Utilisateur'))
-    is_actived = BooleanField(blank=True, default=False)
-
-    research_fields = []
-    users_allowed_func = [] #=> Use [{'name':'', 'verbose_name':''},...]
-    excluded_fields_in_html_output = ['id', 'cremeentity_ptr' , 'entity_type', 'header_filter_search_field', 'is_deleted', 'is_actived'] #use a set
-    header_filter_exclude_fields = []
-    extra_filter_fields = [] #=> Use [{'name':'', 'verbose_name':''},...]
-    extra_filter_exclude_fields = ['id']
-
-    def __init__ (self, *args , **kwargs):
-        super(CremeEntityWithoutRelation, self).__init__(*args , **kwargs)
-
-        #correction d'un bug dont il faut créer le ticket
-        if self.pk is None and not kwargs.has_key('entity_type') and not kwargs.has_key('entity_type_id'):
-            self.entity_type = ContentType.objects.get_for_model(self)
-
-    @classmethod
-    def get_users_func_verbose_name(cls, func_name):
-        func_name = str(func_name) #??
-        for dic in cls.users_allowed_func:
-            if str(dic['name']) == func_name:
-                return dic['verbose_name']
-        return ''
-
-    class Meta:
-        app_label = 'creme_core'
-        abstract = True
-        ordering = ('id',)
-
-
-#from relation import Relation
-
-
-class CremeEntity(CremeEntityWithoutRelation):
+class CremeEntity(CremeAbstractEntity):
     Gestion_Droit = ['Lire', 'Créer', 'Modifier', 'Supprimer', 'Mettre en relation avec'] #beuark....
-    header_filter_exclude_fields = CremeEntityWithoutRelation.header_filter_exclude_fields + ['id', 'cremeentity_ptr'] #TODO: use a set() ??
-    extra_filter_exclude_fields  = CremeEntityWithoutRelation.extra_filter_exclude_fields + ['id', 'cremeentity_ptr', 'header_filter_search_field']
+    header_filter_exclude_fields = CremeAbstractEntity.header_filter_exclude_fields + ['id', 'cremeentity_ptr'] #TODO: use a set() ??
+    extra_filter_exclude_fields  = CremeAbstractEntity.extra_filter_exclude_fields + ['id', 'cremeentity_ptr', 'header_filter_search_field']
 
     class Meta:
         app_label = 'creme_core'
@@ -141,23 +99,24 @@ class CremeEntity(CremeEntityWithoutRelation):
             self.save()
 
     def __unicode__(self):
-        if self.entity_type == ContentType.objects.get_for_model(CremeEntity):
+        real_entity = self.get_real_entity()
+
+        if self is real_entity:
             return u"Creme entity: %s" % self.id
-        else:
-            return unicode(self.entity_type.get_object_for_this_type(id=self.id))
+
+        return unicode(real_entity)
 
     def get_real_entity(self):
-        entity = self
-        if self.entity_type != ContentType.objects.get_for_model(CremeEntity):
-            entity = self.entity_type.get_object_for_this_type(id=self.id)
-        return entity
+        return self._get_real_entity(CremeEntity)
 
     def get_absolute_url(self):
         #TODO : /!\ If the derived class hasn't get_absolute_url error max recursion
-        if self.entity_type == ContentType.objects.get_for_model(CremeEntity):
+        real_entity = self.get_real_entity()
+
+        if self is real_entity:
             return "/creme_core/entity/%s" % self.id
 
-        return self.entity_type.get_object_for_this_type(id=self.id).get_absolute_url()
+        return real_entity.get_absolute_url()
 
     def get_edit_absolute_url(self):
         return "/creme_core/entity/edit/%s" % self.id

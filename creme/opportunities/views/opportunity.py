@@ -91,20 +91,20 @@ def generate_new_doc(request, opp_id, ct_id ):
     
     ct_doc = get_object_or_404 (ContentType,id=ct_id)
     opp = get_object_or_404 (Opportunity, id=opp_id)
-    create_relation = Relation.create_relation_with_object
+
     klass = ct_doc.model_class ()
     document = klass ()
     document.user = opp.user
     document.name=opp.name 
     document.status_id = 1
     document.save () 
-    
-    create_relation(document, REL_SUB_BILL_ISSUED, opp.get_emit_orga())
-    create_relation(document, REL_SUB_BILL_RECEIVED,opp.get_target_orga())
 
-    create_relation(opp,dict_linked_rel[klass],document)
-    
-    lines = opp.LineDocumentRelation_set.all ()
+    create_relation = Relation.create
+    create_relation(document, REL_SUB_BILL_ISSUED,   opp.get_emit_orga())
+    create_relation(document, REL_SUB_BILL_RECEIVED, opp.get_target_orga())
+    create_relation(opp, dict_linked_rel[klass], document)
+
+    lines = opp.LineDocumentRelation_set.all()
     for line in lines : 
         try :
             src_line = line.productline

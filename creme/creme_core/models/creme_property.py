@@ -23,7 +23,7 @@ from django.utils.encoding import force_unicode
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.contenttypes.models import ContentType
 
-from creme_core.models import CremeModel #, CremeEntity #TODO: can be imported after removing relation m2m ???
+from creme_core.models import CremeModel, CremeEntity
 
 
 class CremePropertyType(CremeModel):
@@ -77,7 +77,7 @@ class CremePropertyText_i18n(CremeModel):
 
 class CremeProperty(CremeModel):
     type         = ForeignKey(CremePropertyType)
-    creme_entity = ForeignKey('CremeEntity', related_name="properties") #related_name="creme_property_set" ??
+    creme_entity = ForeignKey(CremeEntity, related_name="properties") #related_name="creme_property_set" ??
 
     class Meta:
         app_label = 'creme_core'

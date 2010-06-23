@@ -22,7 +22,6 @@ from django.forms import CharField, ModelMultipleChoiceField
 from django.utils.translation import ugettext_lazy as _
 
 from creme_core.models import CremePropertyType, RelationType
-from creme_core.models.relation import create_relation_type
 from creme_core.forms import CremeForm, FieldBlockManager
 from creme_core.forms.widgets import OrderedMultipleChoiceWidget
 from creme_core.utils import Q_creme_entity_content_types
@@ -62,9 +61,9 @@ class RelationTypeCreateForm(_RelationTypeBaseForm):
         subject_ctypes = [ct.model_class() for ct in get_data('subject_ctypes')]
         object_ctypes  = [ct.model_class() for ct in get_data('object_ctypes')]
 
-        create_relation_type(('creme_config-subject_userrelationtype', get_data('subject_predicate'), subject_ctypes, get_data('subject_properties')),
-                             ('creme_config-object_userrelationtype',  get_data('object_predicate'),  object_ctypes,  get_data('object_properties')),
-                             is_custom=True, generate_pk=True)
+        RelationType.create(('creme_config-subject_userrelationtype', get_data('subject_predicate'), subject_ctypes, get_data('subject_properties')),
+                            ('creme_config-object_userrelationtype',  get_data('object_predicate'),  object_ctypes,  get_data('object_properties')),
+                            is_custom=True, generate_pk=True)
 
 
 class RelationTypeEditForm(_RelationTypeBaseForm):
@@ -92,7 +91,7 @@ class RelationTypeEditForm(_RelationTypeBaseForm):
         subject_ctypes = [ct.model_class() for ct in get_data('subject_ctypes')]
         object_ctypes  = [ct.model_class() for ct in get_data('object_ctypes')]
 
-        create_relation_type((instance.id,                get_data('subject_predicate'), subject_ctypes, get_data('subject_properties')),
-                             (instance.symmetric_type_id, get_data('object_predicate'),  object_ctypes,  get_data('object_properties')),
-                             is_custom=True
-                            )
+        RelationType.create((instance.id,                get_data('subject_predicate'), subject_ctypes, get_data('subject_properties')),
+                            (instance.symmetric_type_id, get_data('object_predicate'),  object_ctypes,  get_data('object_properties')),
+                            is_custom=True
+                           )

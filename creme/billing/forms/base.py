@@ -92,7 +92,7 @@ class BaseEditForm(CremeModelForm):
         instance = super(BaseEditForm, self).save()
 
         cleaned_data  = self.cleaned_data
-        create_relation = Relation.create_relation_with_object
+        create_relation = Relation.create
 
         Relation.objects.filter(subject_entity=instance, type__in=(REL_SUB_BILL_ISSUED, REL_SUB_BILL_RECEIVED)).delete()
         create_relation(instance, REL_SUB_BILL_ISSUED,   cleaned_data['source'])

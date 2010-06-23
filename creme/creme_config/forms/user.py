@@ -120,7 +120,7 @@ class UserAddForm(CremeModelForm):
             c.is_user = instance
             c.save()
 
-        Relation.create_relation_with_object(c, cleaned['relation'].id, cleaned['organisation'])
+        Relation.create(c, cleaned['relation'].id, cleaned['organisation'])
 
 
 class UserEditForm(CremeModelForm):

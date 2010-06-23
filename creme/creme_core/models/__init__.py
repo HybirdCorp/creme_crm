@@ -2,7 +2,7 @@
 
 from creme_exceptions import NotGoodInstance
 
-from creme_model import CremeModel
+from base import CremeModel, CremeAbstractEntity
 from entity import CremeEntity
 
 from relation import RelationType, RelationPredicate_i18n, Relation
