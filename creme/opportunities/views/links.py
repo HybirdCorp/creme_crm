@@ -48,7 +48,7 @@ def set_current_quote(request, opp_id, quote_id):
     ct = ContentType.objects.get_for_model(Quote)
 
     #TODO. delete() directly on the filter ????
-    for relation in Relation.objects.filter(object_id=opp_id, type=REL_SUB_CURRENT_DOC, subject_content_type=ct):
+    for relation in Relation.objects.filter(object_entity=opp, type=REL_SUB_CURRENT_DOC, subject_entity__entity_type=ct):
         relation.delete()
 
     Relation.create_relation_with_object(quote, REL_SUB_CURRENT_DOC, opp)

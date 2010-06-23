@@ -118,21 +118,21 @@ END:VEVENT
         return "/activities/activities"
 
     def add_related_entity(self, entity, predicate):
-        Relation.create_relation_with_object(entity, predicate , self)
+        Relation.create_relation_with_object(entity, predicate, self)
 
     def get_participant_relations(self):
-        return Relation.objects.filter(object_id=self.id, type__id=REL_SUB_PART_2_ACTIVITY)
+        return Relation.objects.filter(object_entity=self, type__id=REL_SUB_PART_2_ACTIVITY)
 
     def get_subject_relations(self):
-        return Relation.objects.filter(object_id=self.id, type__id=REL_SUB_ACTIVITY_SUBJECT)
+        return Relation.objects.filter(object_entity=self, type__id=REL_SUB_ACTIVITY_SUBJECT)
 
     def get_linkedto_relations(self):
-        return Relation.objects.filter(object_id=self.id, type__id=REL_SUB_LINKED_2_ACTIVITY)
+        return Relation.objects.filter(object_entity=self, type__id=REL_SUB_LINKED_2_ACTIVITY)
 
     @staticmethod
-    def _get_linked_aux(entity_id):
+    def _get_linked_aux(entity_id): #TODO: can be done in one query, no ?
         types = (REL_SUB_PART_2_ACTIVITY, REL_SUB_ACTIVITY_SUBJECT, REL_SUB_LINKED_2_ACTIVITY)
-        activities_pk = Relation.objects.filter(subject_id=entity_id, type__id__in=types).values_list('object_id', flat=True)
+        activities_pk = Relation.objects.filter(subject_entity__id=entity_id, type__id__in=types).values_list('object_entity_id', flat=True)
 
         return Activity.objects.filter(pk__in=activities_pk)
 

@@ -69,8 +69,8 @@ class Contact(CremeEntity):
 
     def get_employers(self):
         from organisation import Organisation
-        return Organisation.objects.filter(new_relations__type__id = REL_OBJ_EMPLOYED_BY,
-                                           new_relations__object_id = self.id)
+        return Organisation.objects.filter(relations__type__id=REL_OBJ_EMPLOYED_BY,
+                                           relations__object_entity=self)
 
     def __unicode__(self):
         try:

@@ -372,11 +372,8 @@ class CSVImportForm4CremeEntity(CSVImportForm):
             relation = Relation()
             relation.user_id = user_id
             relation.type_id = predicate_id
-
-            relation.subject_creme_entity = instance
-
-            relation.object_id = entity_id
-            relation.object_content_type_id = ctype
+            relation.subject_entity = instance
+            relation.object_entity_id = entity_id
             relation.save()
 
 

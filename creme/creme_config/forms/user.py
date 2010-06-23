@@ -114,7 +114,7 @@ class UserAddForm(CremeModelForm):
             c.save()
         else:
             c = Contact()
-            c.last_name = instance.last_name if instance.last_name else instance.username
+            c.last_name = instance.last_name if instance.last_name else instance.username #instance.last_name or instance.username ??
             c.first_name = instance.first_name if instance.first_name else instance.username
             c.user = instance
             c.is_user = instance

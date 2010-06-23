@@ -33,11 +33,10 @@ class SellByRelationEditForm(ModelForm):
     class Meta:
         model = SellByRelation
         #TODO: utiliser un exclude Common (is_deleted etc...) + champs specifiques ou 'fields ='
-        exclude = ['type', 'symmetric_relation',
-                   'subject_content_type', 'subject_id',
-                   'object_content_type', 'object_id', 'is_deleted', 'user',
-                   'entity_type', 'int_value',
-                   'is_actived', 'id']
+        exclude = ['id', 'user', 'entity_type', 'is_deleted', 'is_actived',
+                   'type', 'symmetric_relation', 'subject_entity', 'object_entity',
+                    'int_value',
+                  ]
 
     date_paiement = CharField(required=False, widget=CalendarWidget())
 

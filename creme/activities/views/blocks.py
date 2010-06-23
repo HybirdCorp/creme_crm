@@ -90,12 +90,12 @@ def unlink_activity(request):
     POST = request.POST
     activity_id = POST.get('id')
     entity_id = POST.get('object_id')
-    
+
     if activity_id is None or entity_id is None:
         return HttpResponse('', status=404)
-    
+
     types = (REL_SUB_PART_2_ACTIVITY, REL_SUB_ACTIVITY_SUBJECT, REL_SUB_LINKED_2_ACTIVITY)
-    for relation in Relation.objects.filter(subject_id=entity_id, type__id__in=types, object_id=activity_id):
+    for relation in Relation.objects.filter(subject_entity__id=entity_id, type__id__in=types, object_entity__id=activity_id):
         relation.delete()
 
     #return HttpResponseRedirect(entity.get_absolute_url())

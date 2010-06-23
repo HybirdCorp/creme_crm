@@ -26,7 +26,7 @@
                 <th class="block_header_line_dark">Supprimer</th>
             </tr>
             {% for relation in page.object_list %}
-                {% with relation.object_creme_entity as doc %}
+                {% with relation.object_entity.get_real_entity as doc %}
                     <!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
                     <tr>
                         <td class="{{row_color}}">

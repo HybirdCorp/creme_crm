@@ -28,7 +28,7 @@
                 <th class="block_header_line_dark">Actions</th>
             </tr>
             {% for relation in page.object_list %}
-                {% with relation.subject_creme_entity as people %}
+                {% with relation.subject_entity.get_real_entity as people %}
                     <!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
                     <tr>
                         <td class="{{row_color}}"><a href="{{people.get_absolute_url}}">{{people}}</a></td>

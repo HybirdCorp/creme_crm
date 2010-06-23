@@ -34,9 +34,10 @@ class ProfileAddForm(ModelForm):
     def __init__(self, *args, **kwargs):
         super(ProfileAddForm, self).__init__(*args, **kwargs)
 
-        contact_pks = Relation.objects.filter(subject_id__in=[org.id for org in Organisation.get_all_managed_by_creme()],
+        #TODO: can be done is one query only, no ??
+        contact_pks = Relation.objects.filter(subject_entity__in=Organisation.get_all_managed_by_creme(), #values_list ??
                                               type__id__in=(REL_OBJ_EMPLOYED_BY, REL_OBJ_MANAGES))\
-                                      .values_list('object_id', flat=True)
+                                      .values_list('object_entity_id', flat=True)
         users = Contact.objects.filter(pk__in=contact_pks, is_user__isnull=False).distinct().values_list('is_user_id', flat=True)
 
 #        self.fields['user'].queryset = User.objects.filter(Q(id__in=users)&~Q(is_user=None))

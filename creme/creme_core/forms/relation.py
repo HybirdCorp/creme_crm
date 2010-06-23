@@ -73,14 +73,17 @@ class RelationCreateForm(CremeForm):
         return cleaned_data
 
     def save(self):
+        #ctype useless (after a refactoring) ??? (maybe useful for credentials)
         for predicate_id, ctype, entity_id in self.cleaned_data.get('relations', ()):
             relation = Relation()
             relation.user_id = self.user_id
             relation.type_id = predicate_id
-            
-            relation.subject_id = self.subject.id
-            relation.subject_content_type_id = self.subject.entity_type_id
 
-            relation.object_id = entity_id
-            relation.object_content_type_id = ctype
+            #relation.subject_id = self.subject.id
+            #relation.subject_content_type_id = self.subject.entity_type_id
+            relation.subject_entity = self.subject
+
+            #relation.object_id = entity_id
+            #relation.object_content_type_id = ctype
+            relation.object_entity_id = entity_id
             relation.save()

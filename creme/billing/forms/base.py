@@ -62,13 +62,13 @@ class BaseEditForm(CremeModelForm):
 
         if pk is not None: #edit mode
             get_relation = Relation.objects.get
-            fields['source'].initial = get_relation(subject_id=pk, type__id=REL_SUB_BILL_ISSUED).object_id #value_list(object_id) ???
-            fields['target'].initial = get_relation(subject_id=pk, type__id=REL_SUB_BILL_RECEIVED).object_id
+            fields['source'].initial = get_relation(subject_entity__id=pk, type__id=REL_SUB_BILL_ISSUED).object_entity_id #value_list(object_entity_id) ???
+            fields['target'].initial = get_relation(subject_entity__id=pk, type__id=REL_SUB_BILL_RECEIVED).object_entity_id
 
             #TODO: move this JS in widgets ???
             if instance.billing_address:
                 billing_addr.initial  = instance.billing_address.id
-            if instance.shipping_address:    
+            if instance.shipping_address:
                 shipping_addr.initial = instance.shipping_address.id
 
         billing_addr.widget.attrs['onchange']  = "creme.utils.changeOtherNodes(%s,%s,%s);" % ("$(this).attr('id')","{'model':'Address','template':'persons/view_address.html'}",'creme.utils.renderEntity')
@@ -94,8 +94,8 @@ class BaseEditForm(CremeModelForm):
         cleaned_data  = self.cleaned_data
         create_relation = Relation.create_relation_with_object
 
-        Relation.objects.filter(subject_id=instance.id, type__in=(REL_SUB_BILL_ISSUED, REL_SUB_BILL_RECEIVED)).delete()
-        create_relation(instance, REL_SUB_BILL_ISSUED, cleaned_data['source'])
+        Relation.objects.filter(subject_entity=instance, type__in=(REL_SUB_BILL_ISSUED, REL_SUB_BILL_RECEIVED)).delete()
+        create_relation(instance, REL_SUB_BILL_ISSUED,   cleaned_data['source'])
         create_relation(instance, REL_SUB_BILL_RECEIVED, cleaned_data['target'])
 
         return instance
@@ -105,7 +105,7 @@ class BaseCreateForm(BaseEditForm):
         super(BaseCreateForm, self).__init__(*args, **kwargs)
 
         try:
-            self.fields['source'].initial = Organisation.get_all_managed_by_creme().values_list('id', flat=True)[0]
+            self.fields['source'].initial = Organisation.get_all_managed_by_creme().values_list('id', flat=True)[0] #[:1][0] ??
         except IndexError, e:
             debug('Exception in %s.__init__: %s', self.__class__, e)
 

@@ -30,7 +30,7 @@ class AddressWithOrganisationForm(CremeModelForm):
 
     class Meta:
         model = Address
-        exclude = ('content_type','object_id')
+        exclude = ('content_type', 'object_id')
 
     def __init__(self, *args, **kwargs):
         super(AddressWithOrganisationForm, self).__init__(*args, **kwargs)

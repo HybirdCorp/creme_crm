@@ -75,7 +75,7 @@ class ListViewFilterForm(forms.Form):
 #            fields['champs'].choices = [(f.name, f.verbose_name) for f in klass._meta.fields]
 #            fields['champs'].choices = champs
             fields['champs'].choices = [(f.name,'%s%s' % (f.verbose_name[0].upper(),f.verbose_name[1:])) for f in get_flds_with_fk_flds(klass, 0)]
-#            fields['champs'].choices.append(('new_relations','Relations'))
+#            fields['champs'].choices.append(('relations','Relations'))
             fields['champs'].choices.sort()
 
             fields['tests'].choices = [(f.id, f.name) for f in FilterType.objects.all()]
@@ -187,7 +187,7 @@ class ListViewFilterForm(forms.Form):
 #                    has_or_not=True
 
                 condition = FilterCondition()
-                condition.champ = 'new_relations__type__id'
+                condition.champ = 'relations__type__id'
                 condition.type = filter_type_getter(pattern_key='%s__exact',is_exclude=bool(int(data['has_predicate_%s' % id_rel])))
 #                condition.type = filter_type_getter(pattern_key='%s__exact',is_exclude=has_or_not)
                 condition.save()
@@ -198,7 +198,8 @@ class ListViewFilterForm(forms.Form):
                 target_entity_ct = data.get('content_types_%s' % id_rel)
                 if(target_entity is not None and target_entity != "" and target_entity_ct is not None and target_entity_ct != ""):
                     condition_entity_ct = FilterCondition()
-                    condition_entity_ct.champ = 'new_relations__object_content_type__id'
+                    #condition_entity_ct.champ = 'new_relations__object_content_type__id'
+                    condition_entity_ct.champ = 'relations__object_entity__entity_type__id'
                     condition_entity_ct.type = filter_type_getter(pattern_key='%s__exact',is_exclude=bool(int(data['has_predicate_%s' % id_rel])))
                     condition_entity_ct.child_type = condition_child_type_getter(type="content_type")[0]
                     condition_entity_ct.save()
@@ -206,7 +207,8 @@ class ListViewFilterForm(forms.Form):
                     condition_entity_ct.save()
 
                     condition_entity = FilterCondition()
-                    condition_entity.champ = 'new_relations__object_id'
+                    #condition_entity.champ = 'new_relations__object_id'
+                    condition_entity.champ = 'relations__object_entity__id'
                     condition_entity.type = filter_type_getter(pattern_key='%s__exact',is_exclude=bool(int(data['has_predicate_%s' % id_rel])))
                     condition_entity.child_type = condition_child_type_getter(type="object_id")[0]
                     condition_entity.save()

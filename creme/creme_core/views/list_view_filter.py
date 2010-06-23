@@ -101,7 +101,7 @@ def edit(request, ct_id, filter_id):
 
     model_klass_has_attr = hasattr(model_klass, 'extra_filter_fields')
 
-    for condition in current_filter.conditions.filter(~Q(champ__contains='new_relations') & ~Q(champ__contains='properties')):
+    for condition in current_filter.conditions.filter(~Q(champ__contains='relations') & ~Q(champ__contains='properties')):
         text_values = ",".join([value.value for value in condition.values.all()])
 
         if model_klass_has_attr and condition.champ in (f['name'] for f in model_klass.extra_filter_fields):
@@ -126,7 +126,7 @@ def edit(request, ct_id, filter_id):
                 }
 
     rel_conditions = []
-    for condition in current_filter.conditions.filter(Q(champ__contains='new_relations')):
+    for condition in current_filter.conditions.filter(Q(champ__contains='relations')):
         dict_conditions = {
             'predicate_id':  condition.values.all(),
             'has_predicate': int(condition.type.is_exclude),

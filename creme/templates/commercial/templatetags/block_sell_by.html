@@ -17,8 +17,10 @@
                 <td >
                     <a href="/persons/relsellby/edit/{{relation.id}}">Editer Info</a>
                 </td>
-                <td >
-                     <a href="{{relation.object_creme_entity.get_absolute_url}}">{{ relation.object_creme_entity}}</a>
+                <td>
+                    {% with relation.object_entity.get_real_entity as obj_entity %}
+                        <a href="{{obj_entity.get_absolute_url}}">{{obj_entity}}</a>
+                    {% endwith %}
                 </td>
                 <td >
                     {% if relation.sellbyrelation.commission_paye %}
@@ -28,10 +30,10 @@
                     {%endif %}
                 </td>
                 <td >
-                    {{ relation.sellbyrelation.char_value}}
+                    {{relation.sellbyrelation.char_value}}
                 </td>
-                <td >
-                     {{ relation.sellbyrelation.date_paiement}}
+                <td>
+                     {{relation.sellbyrelation.date_paiement}}
                 </td>
             </tr>
        {% endfor %}

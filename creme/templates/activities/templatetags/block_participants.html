@@ -16,7 +16,7 @@
         {% if page.paginator.count %}
             {% for relation in page.object_list %}
                 <!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
-                {% with relation.subject_creme_entity as participant %}
+                {% with relation.subject_entity.get_real_entity as participant %}
                     <tr>
                         <td class="{{row_color}}">
                             <a href="{{participant.get_absolute_url}}">{{participant}}</a>

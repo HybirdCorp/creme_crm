@@ -40,7 +40,7 @@ def portal(request):
 
     for managed_orga in Organisation.get_all_managed_by_creme():
         #TODO: le calcul est-il juste ?? (genre si un contact client fait parti d'une organisation cliente --> cumule ou pas ??)
-        customers_count = relations_qs.filter(object_id=managed_orga.id).count()
+        customers_count = relations_qs.filter(object_entity=managed_orga).count()
         stats.append((_(u'Nombre de client(s) de %s') % managed_orga, customers_count))
 
     return app_portal(request, 'persons', 'persons/portal.html', (Contact, Organisation),

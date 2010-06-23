@@ -93,10 +93,10 @@ class Organisation (CremeEntity):
         return "/persons/organisation/delete/%s" % self.id
 
     def get_managers_relations(self):
-        return Relation.objects.filter(object_id=self.id, type__id=REL_SUB_MANAGES)
+        return Relation.objects.filter(object_entity=self, type__id=REL_SUB_MANAGES)
 
     def get_employed_relations(self):
-        return Relation.objects.filter(object_id=self.id, type__id=REL_SUB_EMPLOYED_BY)
+        return Relation.objects.filter(object_entity=self, type__id=REL_SUB_EMPLOYED_BY)
 
     #TODO: used ???
     def zipcode(self):

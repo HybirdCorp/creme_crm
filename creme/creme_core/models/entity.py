@@ -72,16 +72,13 @@ class CremeEntityWithoutRelation(CremeModel, TimeStampedModel):
         ordering = ('id',)
 
 
-from relation import Relation
+#from relation import Relation
 
 
 class CremeEntity(CremeEntityWithoutRelation):
-    new_relations = ManyToManyField(Relation, blank=True, null=True,
-                                    related_name='%(class)s_CremeEntity_set', editable=False)
-
-    Gestion_Droit = ['Lire', 'Créer', 'Modifier', 'Supprimer', 'Mettre en relation avec']
-    header_filter_exclude_fields = CremeEntityWithoutRelation.header_filter_exclude_fields + ['id', 'new_relations', 'cremeentity_ptr'] #TODO: use a set() ??
-    extra_filter_exclude_fields  = CremeEntityWithoutRelation.extra_filter_exclude_fields + ['id', 'new_relations', 'cremeentity_ptr', 'header_filter_search_field']
+    Gestion_Droit = ['Lire', 'Créer', 'Modifier', 'Supprimer', 'Mettre en relation avec'] #beuark....
+    header_filter_exclude_fields = CremeEntityWithoutRelation.header_filter_exclude_fields + ['id', 'cremeentity_ptr'] #TODO: use a set() ??
+    extra_filter_exclude_fields  = CremeEntityWithoutRelation.extra_filter_exclude_fields + ['id', 'cremeentity_ptr', 'header_filter_search_field']
 
     class Meta:
         app_label = 'creme_core'
@@ -129,20 +126,15 @@ class CremeEntity(CremeEntityWithoutRelation):
 #                        CFV =  CustomFieldsValue ( custom_field= CustomFields.objects.get ( name=key , custom_field_of_model = self.content_type ) , creme_entity=self , value_field=self.__dict__[ key ] )
 #                        CFV.save ()
 
-    def delete_relations_only(self):
-        for new_relations in self.new_relations.all():
-            new_relations.delete()
-
-    def delete_properties_only(self):
-        for property in self.properties.all():
-            property.delete()
-
     def delete(self):
         #TODO: don't forget to delete custom fields
-        self.delete_relations_only()
-        self.delete_properties_only()
+        for relation in self.relations.all():
+            relation.delete()
 
-        if settings.TRUE_DELETE :
+        for prop in self.properties.all():
+            prop.delete()
+
+        if settings.TRUE_DELETE:
             super(CremeEntity, self).delete()
         else:
             self.is_deleted = True
@@ -164,9 +156,8 @@ class CremeEntity(CremeEntityWithoutRelation):
         #TODO : /!\ If the derived class hasn't get_absolute_url error max recursion
         if self.entity_type == ContentType.objects.get_for_model(CremeEntity):
             return "/creme_core/entity/%s" % self.id
-        else:
-            entity = self.entity_type.get_object_for_this_type(id=self.id)
-            return entity.get_absolute_url()
+
+        return self.entity_type.get_object_for_this_type(id=self.id).get_absolute_url()
 
     def get_edit_absolute_url(self):
         return "/creme_core/entity/edit/%s" % self.id
@@ -174,21 +165,11 @@ class CremeEntity(CremeEntityWithoutRelation):
     def get_delete_absolute_url(self):
         return "/creme_core/entity/delete/%s" % self.id
 
-    #def get_relations_with_predicat_id(self , predicat_id):
-        ##from relations import RelationType
-        ##rel_type = RelationType.get_predicat_type_with_id(predicat_id)
-        ##return self.new_relations.filter(type=rel_type)
-        #return self.new_relations.filter(type__id=predicat_id)
-
-    #def get_relations_with_predicat(self, predicat_name):
-        #from relations import RelationType
-        #rel_type = RelationType.get_predicat_type_with_name(predicat_name)
-        #return self.new_relations.filter(type=rel_type)
-
     #TODO: improve query (list is paginated later, so don't get all object, and return a queryset if possible)
     def get_list_object_of_specific_relations(self, relation_type_id):
         #TODO: regroup entities retrieveing by ct to reduce queries ???
-        return [rel.object_creme_entity for rel in self.new_relations.filter(type__id=relation_type_id)]
+        #return [rel.object_creme_entity for rel in self.relations.filter(type__id=relation_type_id)]
+        return [rel.object_entity for rel in self.relations.filter(type__id=relation_type_id)]
 
     def as_p(self):
         return mark_safe("%s%s%s" % (self.object_as_p(), self.relations_as_p(), self.properties_as_p()))
@@ -206,13 +187,13 @@ class CremeEntity(CremeEntityWithoutRelation):
                 except Exception:
                     value = self.__getattribute__(field.name)
 
-                html_output += " <br /> %s : %s" % (force_unicode(field.name), force_unicode(value))
+                html_output += " <br />%s: %s" % (force_unicode(field.name), force_unicode(value))
 
         return mark_safe(html_output)
 
     def relations_as_p(self):
-        html_output = "<br /><br /><h2> Relations :</h2><br />"
-        for relation in self.new_relations.all():
+        html_output = "<br /><br /><h2>Relations:</h2><br />"
+        for relation in self.relations.all():
             if relation.type.display_with_other:
                 try:
                     #Url doesn't match anymore but relations_as_p and as_p still used ?
@@ -224,16 +205,16 @@ class CremeEntity(CremeEntityWithoutRelation):
         return mark_safe(html_output)
 
     def properties_as_p(self):
-        html_output = "<br /><br /><h2> Proprietes : </h2><br />"
+        html_output = u"<br /><br /><h2>Propriétés: </h2><br />"
 
-        for property in self.properties.all():
-            html_output += ' %s  <a href="/creme_core/property/delete/%s/%s" >Supprimer</a> <br />' % \
-                            (force_unicode(property), self.pk, property.pk)
+        for prop in self.properties.all():
+            html_output += u' %s  <a href="/creme_core/property/delete/%s/%s" >Supprimer</a> <br />' % \
+                            (force_unicode(prop), self.pk, prop.pk)
 
         return mark_safe(html_output)
 
     def get_entity_summary(self):
-        return escape(self.__unicode__())
+        return escape(unicode(self))
 
     def get_entity_actions(self):
         return u"""<a href="%s">Voir</a> | <a href="%s">Éditer</a> | <a href="%s" onclick="creme.utils.confirmDelete(event, this);">Effacer</a>""" \

@@ -204,7 +204,7 @@ def has_permission_for_an_object(user, object, type_droit, app_name=None):
             except Contact.DoesNotExist:
                 return False
 
-            if obj_id in [rel.object_id for rel in owned_entity.new_relations.all()]:
+            if obj_id in [rel.object_id for rel in owned_entity.relations.all()]:
                 return True
 
         #Fiches equipes / Team entities

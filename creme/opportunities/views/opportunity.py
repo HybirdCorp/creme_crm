@@ -123,7 +123,7 @@ def generate_new_doc(request, opp_id, ct_id ):
         except :
             pass         
     
-    for relation in Relation.objects.filter(object_id=opp_id, type=REL_SUB_CURRENT_DOC, subject_content_type=ct_doc):
+    for relation in Relation.objects.filter(object_entity=opp, type=REL_SUB_CURRENT_DOC, subject_entity__entity_type=ct_doc):
         relation.delete()
     if dict_current_doc[klass]:
         create_relation(document, REL_SUB_CURRENT_DOC, opp)    
