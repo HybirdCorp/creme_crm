@@ -2,17 +2,16 @@
 
 {% load creme_core_tags %}
 {% load creme_block %}
-
 {% load opportunities_blocks %}
 
 {% block logo %}<img src="{{MEDIA_URL}}images/opportunity_64.png" alt=""/>{% endblock %}
 
 {% block before_detail_view_1 %}
     {% ifequal line_or_not "1" %}
-            {% get_opportproduct_lines %}
-            {% get_opportservice_lines %}
+        {% get_opportproduct_lines %}
+        {% get_opportservice_lines %}
     {% endifequal %}
-{% endblock %}    
+{% endblock %}
 
 {% block detail_view_left_1 %}
     <table class="table_detail_view ui-corner-all">
@@ -42,11 +41,12 @@
     </table>
 
     {% get_contacts %}
-{% ifnotequal line_or_not "0" %}
-    {% get_products %}
-    {% get_services %}
-{% endifnotequal %}
 
+    {% comment %}{% ifequal line_or_not "1" %} ??{% endcomment %}
+    {% ifnotequal line_or_not "0" %}
+        {% get_products %}
+        {% get_services %}
+    {% endifnotequal %}
 
     {% get_responsibles %}
     {% get_quotes %}
@@ -58,6 +58,6 @@
 {% endblock %}
 
 {% block detail_view_right_1 %}
-        {% load billing_blocks %}
-        {% get_total%}
-{% endblock %}    
+    {% load billing_blocks %}
+    {% get_total %}
+{% endblock %}

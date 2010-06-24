@@ -15,8 +15,8 @@
                     Lier à un devis
                 </a>
                 <a class="button_link" href="/opportunities/opportunity/generate_new_doc/{{object.id}}/{{ct_id}}">
-                <img src="{{MEDIA_URL}}images/add_22.png" border="0" title="Générer un nouveau Devis Courant" alt="Générer un nouveau Devis Courant" />
-                Générer un nouveau Devis Courant
+                    <img src="{{MEDIA_URL}}images/add_22.png" border="0" title="Générer un nouveau Devis Courant" alt="Générer un nouveau Devis Courant" />
+                    Générer un nouveau Devis Courant
                 </a>
             </th>
         </tr>
@@ -28,28 +28,26 @@
                 <th class="block_header_line_dark">Devis courant ?</th>
                 <th class="block_header_line_dark">Supprimer</th>
             </tr>
-            {% for relation in page.object_list %}
-                {% with relation.subject_entity.get_real_entity as quote %}
-                    <!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
-                    <tr>
-                        <td class="{{row_color}}">{{quote.number}}</td>
-                        <td class="{{row_color}}">
-                            <a href="{{quote.get_absolute_url}}">{{quote.name}}</a>
-                        </td>
-                        <td class="{{row_color}}">
-                            {% ifequal quote.pk current_quote_id %}
-                                <strong>Oui</strong>
-                            {% else %}
-                                <a href="/opportunities/opportunity/{{object.pk}}/linked/quote/{{quote.pk}}/set_current/">
-                                    Le devenir
-                                </a>
-                            {% endifequal %}
-                        </td>
-                        <td class="{{row_color}}" align="center" valign="center" style="width:10%;">
-                            {% get_line_deletor2 '/creme_core/relation/delete' "{ 'id':{{relation.pk}}, 'object_id':{{object.pk}} }" %}
-                        </td>
-                    </tr>
-                {% endwith %}
+            {% for quote in page.object_list %}
+                <!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
+                <tr>
+                    <td class="{{row_color}}">{{quote.number}}</td>
+                    <td class="{{row_color}}">
+                        <a href="{{quote.get_absolute_url}}">{{quote.name}}</a>
+                    </td>
+                    <td class="{{row_color}}">
+                        {% ifequal quote.pk current_quote_id %}
+                            <strong>Oui</strong>
+                        {% else %}
+                            <a href="/opportunities/opportunity/{{object.pk}}/linked/quote/{{quote.pk}}/set_current/">
+                                Le devenir
+                            </a>
+                        {% endifequal %}
+                    </td>
+                    <td class="{{row_color}}" align="center" valign="center" style="width:10%;">
+                        {% get_line_deletor2 '/creme_core/relation/delete/similar' "{ 'subject_id':{{object.pk}}, 'type':'{{predicate_id}}', 'object_id':{{quote.pk}} }" %}
+                    </td>
+                </tr>
             {% endfor %}
         {% else %}
             <tr>

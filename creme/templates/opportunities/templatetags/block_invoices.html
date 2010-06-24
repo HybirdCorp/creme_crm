@@ -6,7 +6,6 @@
 
 <table  class="table_detail_view ui-corner-all" id={{block_name}}>
     {% get_block_header '%s Facture générée' '%s Factures générées' 'invoice_48.png' 'Invoices' %}
-
     <tbody class="collapsable">
         <tr>
             <th colspan="4" class="block_header_line_dark" align="left">
@@ -20,26 +19,23 @@
                 </a>
             </th>
         </tr>
-
         {% if page.paginator.count %}
             <tr>
                 <th class="block_header_line_dark">Numéro</th>
                 <th class="block_header_line_dark">Nom</th>
                 <th class="block_header_line_dark">Supprimer</th>
             </tr>
-            {% for relation in page.object_list %}
-                {% with relation.subject_entity.get_real_entity as invoice %}
-                    <!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
-                    <tr>
-                        <td class="{{row_color}}">{{invoice.number}}</td>
-                        <td class="{{row_color}}">
-                            <a href="{{invoice.get_absolute_url}}">{{invoice.name}}</a>
-                        </td>
-                        <td class="{{row_color}}" align="center" valign="center" style="width:10%;">
-                            {% get_line_deletor2 '/creme_core/relation/delete' "{ 'id':{{relation.pk}}, 'object_id':{{object.pk}} }" %}
-                        </td>
-                    </tr>
-                {% endwith %}
+            {% for invoice in page.object_list %}
+                <!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
+                <tr>
+                    <td class="{{row_color}}">{{invoice.number}}</td>
+                    <td class="{{row_color}}">
+                        <a href="{{invoice.get_absolute_url}}">{{invoice.name}}</a>
+                    </td>
+                    <td class="{{row_color}}" align="center" valign="center" style="width:10%;">
+                        {% get_line_deletor2 '/creme_core/relation/delete/similar' "{ 'subject_id':{{object.pk}}, 'type':'{{predicate_id}}', 'object_id':{{invoice.pk}} }" %}
+                    </td>
+                </tr>
             {% endfor %}
         {% else %}
             <tr>

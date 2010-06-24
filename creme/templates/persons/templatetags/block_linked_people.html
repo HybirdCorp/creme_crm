@@ -27,22 +27,20 @@
                 <th class="block_header_line_dark">E-Mail</th>
                 <th class="block_header_line_dark">Actions</th>
             </tr>
-            {% for relation in page.object_list %}
-                {% with relation.subject_entity.get_real_entity as people %}
-                    <!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
-                    <tr>
-                        <td class="{{row_color}}"><a href="{{people.get_absolute_url}}">{{people}}</a></td>
-                        <td class="{{row_color}}">{{people.landline}}</td>
-                        <td class="{{row_color}}">{{people.mobile}}</td>
-                        <td class="{{row_color}}">{{people.email}}</td>
-                        <td class="{{row_color}}" align="center" valign="center" style="width:10%;">
-                            <a href="{{people.get_edit_absolute_url}}">
-                                <img src="{{MEDIA_URL}}images/edit_22.png" border="0">
-                            </a>
-                            {% get_line_deletor2 '/creme_core/relation/delete' "{ 'id':{{relation.pk}}, 'object_id':{{object.pk}} }" %}
-                        </td>
-                    </tr>
-                {% endwith %}
+            {% for people in page.object_list %}
+                <!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
+                <tr>
+                    <td class="{{row_color}}"><a href="{{people.get_absolute_url}}">{{people}}</a></td>
+                    <td class="{{row_color}}">{{people.landline}}</td>
+                    <td class="{{row_color}}">{{people.mobile}}</td>
+                    <td class="{{row_color}}">{{people.email}}</td>
+                    <td class="{{row_color}}" align="center" valign="center" style="width:10%;">
+                        <a href="{{people.get_edit_absolute_url}}">
+                            <img src="{{MEDIA_URL}}images/edit_22.png" border="0">
+                        </a>
+                        {% get_line_deletor2 '/creme_core/relation/delete/similar' "{ 'subject_id':{{object.pk}}, 'type':'{{predicate_id}}', 'object_id':{{people.pk}} }" %}
+                    </td>
+                </tr>
             {% endfor %}
         {% else %}
             <tr>

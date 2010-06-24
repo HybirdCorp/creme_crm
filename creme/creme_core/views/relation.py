@@ -238,14 +238,14 @@ def add_relations(request, subject_id):
         form = RelationCreateForm(subject=subject, user_id=request.user.id)
 
     return inner_popup(request, 'creme_core/generics/blockform/add_popup2.html',
-                          {
-                            'form':  form,
-                            'title': u'Relations pour <%s>' % subject,
-                          },
-                          is_valid=form.is_valid(),
-                          reload = False,
-                          delegate_reload = True,
-                          context_instance=RequestContext(request))
+                       {
+                        'form':  form,
+                        'title': u'Relations pour <%s>' % subject,
+                       },
+                       is_valid=form.is_valid(),
+                       reload = False,
+                       delegate_reload = True,
+                       context_instance=RequestContext(request))
 
 # NOTE : filter_RUD_objects <= filter allowed entities for this user 
 
@@ -265,6 +265,23 @@ def delete(request):
     relation.get_real_entity().delete()
 
 #    return HttpResponseRedirect(entity.get_absolute_url())
+    return HttpResponse("")
+
+@login_required
+def delete_similar(request):
+    """Delete relations with the same type between 2 entities
+        @Permissions : Delete on relation's subject entity
+    """
+    post_get = request.POST.get
+    subject = get_object_or_404(CremeEntity, pk=post_get('subject_id')).get_real_entity()
+
+    die_status = delete_object_or_die(request, subject) #delete credental on 'subject' ?? not relation's object ???
+    if die_status:
+        return die_status
+
+    for relation in Relation.objects.filter(subject_entity=subject, type=post_get('type'), object_entity__id=post_get('object_id')):
+        relation.get_real_entity().delete()
+
     return HttpResponse("")
 
 @login_required

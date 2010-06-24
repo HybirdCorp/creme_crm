@@ -43,7 +43,7 @@ class ManagersBlock(Block):
             _contact_ct_id = ContentType.objects.get_for_model(Contact).id
 
         return self._render(self.get_block_template_context(context,
-                                                            orga.get_managers_relations(),
+                                                            orga.get_managers(),
                                                             update_url='/persons/organisation/%s/managers/reload/' % orga.pk,
                                                             predicate_id=REL_OBJ_MANAGES,
                                                             ct_id=_contact_ct_id))
@@ -63,7 +63,7 @@ class EmployeesBlock(Block):
             _contact_ct_id = ContentType.objects.get_for_model(Contact).id
 
         return self._render(self.get_block_template_context(context,
-                                                            orga.get_employed_relations(),
+                                                            orga.get_employees(),
                                                             update_url='/persons/organisation/%s/employees/reload/' % orga.pk,
                                                             predicate_id=REL_OBJ_EMPLOYED_BY,
                                                             ct_id=_contact_ct_id))

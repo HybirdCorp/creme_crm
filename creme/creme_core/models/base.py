@@ -110,8 +110,9 @@ class CremeAbstractEntity(CremeModel, TimeStampedModel):
 
         if entity is None:
             ct = self.entity_type
+            get_ct = ContentType.objects.get_for_model
 
-            if ct == ContentType.objects.get_for_model(base_model):
+            if ct == get_ct(base_model) or ct == get_ct(self.__class__):
                 self._real_entity = True #avoid reference to 'self' (cyclic reference)
                 entity = self
             else:

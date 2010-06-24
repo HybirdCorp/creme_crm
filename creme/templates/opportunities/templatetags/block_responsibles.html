@@ -6,7 +6,6 @@
 
 <table  class="table_detail_view ui-corner-all" id={{block_name}}>
     {% get_block_header "%s Chargé d'affaire" "%s Chargés d'affaire" 'contacts_48.png' 'Responsibles' %}
-
     <tbody class="collapsable">
         <tr>
             <th colspan="4" class="block_header_line_dark" align="left">
@@ -16,22 +15,19 @@
                 </a>
             </th>
         </tr>
-
         {% if page.paginator.count %}
             <tr>
                 <th class="block_header_line_dark">Nom</th>
                 <th class="block_header_line_dark">Supprimer</th>
             </tr>
-            {% for relation in page.object_list %}
-                {% with relation.subject_entity.get_real_entity as resp %}
-                    <!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
-                    <tr>
-                        <td class="{{row_color}}"><a href="{{resp.get_absolute_url}}">{{resp}}</a></td>
-                        <td class="{{row_color}}" align="center" valign="center" style="width:10%;">
-                            {% get_line_deletor2 '/creme_core/relation/delete' "{ 'id':{{relation.pk}}, 'object_id':{{object.pk}} }" %}
-                        </td>
-                    </tr>
-                {% endwith %}
+            {% for resp in page.object_list %}
+                <!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
+                <tr>
+                    <td class="{{row_color}}"><a href="{{resp.get_absolute_url}}">{{resp}}</a></td>
+                    <td class="{{row_color}}" align="center" valign="center" style="width:10%;">
+                        {% get_line_deletor2 '/creme_core/relation/delete/similar' "{ 'subject_id':{{object.pk}}, 'type':'{{predicate_id}}', 'object_id':{{resp.pk}} }" %}
+                    </td>
+                </tr>
             {% endfor %}
         {% else %}
             <tr>

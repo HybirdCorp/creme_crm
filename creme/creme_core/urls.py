@@ -10,6 +10,7 @@ creme_core_patterns = patterns('creme_core.views',
     (r'^relation/add_from_predicate/save$',                                                                              'relation.handle_relation_from_predicate_n_entity'),
 #    (r'^relation/delete/(?P<relation_id>[\d]+)$',                                                                        'relation.delete'),
     (r'^relation/delete$',                                                                                               'relation.delete'),
+    (r'^relation/delete/similar$',                                                                                       'relation.delete_similar'),
     # TODO (refs 293) unused tool. remove it !
     #(r'^relation/entity/select/json$',                                                                                   'relation.json_entity_select'),
     (r'^relation/entity/(?P<id>\d+)/json$',                                                                              'relation.json_entity_get'),

@@ -125,7 +125,7 @@ class RelationType(CremeModel):
         obj_relation_type.symmetric_type = sub_relation_type
 
 
-        #Delete old m2m (TODO: just remove useless ???)
+        #Delete old m2m (TODO: just remove useless ones ???)
         for rt in (sub_relation_type, obj_relation_type):
             rt.subject_ctypes.clear()
             rt.subject_properties.clear()
@@ -211,6 +211,7 @@ class Relation(CremeAbstractEntity):
 
         return sym_relation
 
+    #TODO: there is a race condition no (at a moment there is a relation not complete) ???
     def save(self):
         update = bool(self.pk)
 
@@ -218,11 +219,12 @@ class Relation(CremeAbstractEntity):
 
         super(Relation, self).save()
 
+        sym_relation = self._build_symmetric_relation(update)
+        super(Relation, sym_relation).save()
+
         if self.symmetric_relation is None:
-            sym_relation = self._build_symmetric_relation(update)
-            sym_relation.save()
             self.symmetric_relation = sym_relation
-            super(Relation, self).save() #update() instead ??
+            super(Relation, self).save()
 
     def delete(self):
         sym_relation = self.symmetric_relation
@@ -269,7 +271,8 @@ class Relation(CremeAbstractEntity):
         relation.subject_entity = subject
         relation.type_id = relation_type_id
         relation.object_entity = object_
-        relation.user = User.objects.get(pk=1)
+        #relation.user = User.objects.get(pk=1)
+        relation.user_id = 1
         relation.save()
 
 #    def build_custom_fields (self):
