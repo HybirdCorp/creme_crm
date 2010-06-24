@@ -62,4 +62,5 @@ class Document(CremeEntity):
 
     @staticmethod
     def get_linkeddoc_relations(entity):
+        #TODO: return Document(relations__object_entity=entity, relations__type__id=REL_OBJ_RELATED_2_DOC) instead ????
         return Relation.objects.filter(subject_entity=entity, type__id=REL_SUB_RELATED_2_DOC)

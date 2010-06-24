@@ -27,7 +27,7 @@ from persons.models import Contact
 
 from products.models import Product, Service
 
-from billing.models import Quote, Invoice, SalesOrder
+from billing.models import Quote, Invoice, SalesOrder, ProductLine, ServiceLine
 
 from constants import (REL_OBJ_LINKED_CONTACT,
                        REL_OBJ_LINKED_PRODUCT, REL_OBJ_LINKED_SERVICE,
@@ -49,7 +49,7 @@ class LinkedContactsBlock(Block):
         if not _contact_ct_id:
             _contact_ct_id = ContentType.objects.get_for_model(Contact).id
 
-        return self._render(self.get_block_template_context(context, opp.get_contacts_relations(),
+        return self._render(self.get_block_template_context(context, opp.get_contacts(),
                                                             update_url='/opportunities/opportunity/%s/linked/contacts/reload/' % opp.pk,
                                                             predicate_id=REL_OBJ_LINKED_CONTACT,
                                                             ct_id=_contact_ct_id))
@@ -71,7 +71,7 @@ class LinkedProductsBlock(Block):
         if not self._product_ct_id:
             self._product_ct_id = ContentType.objects.get_for_model(Product).id
 
-        return self._render(self.get_block_template_context(context, opp.get_products_relations(),
+        return self._render(self.get_block_template_context(context, opp.get_products(),
                                                             update_url='/opportunities/opportunity/%s/linked/products/reload/' % opp.pk,
                                                             predicate_id=REL_OBJ_LINKED_PRODUCT,
                                                             ct_id=self._product_ct_id))
@@ -93,7 +93,7 @@ class LinkedServicesBlock(Block):
         if not self._service_ct_id:
             self._service_ct_id = ContentType.objects.get_for_model(Service).id
 
-        return self._render(self.get_block_template_context(context, opp.get_services_relations(),
+        return self._render(self.get_block_template_context(context, opp.get_services(),
                                                             update_url='/opportunities/opportunity/%s/linked/services/reload/' % opp.pk,
                                                             predicate_id=REL_OBJ_LINKED_SERVICE,
                                                             ct_id=self._service_ct_id))
@@ -113,7 +113,7 @@ class ResponsiblesBlock(Block):
             _contact_ct_id = ContentType.objects.get_for_model(Contact).id
 
         return self._render(self.get_block_template_context(context,
-                                                            opp.get_responsibles_relations(),
+                                                            opp.get_responsibles(),
                                                             update_url='/opportunities/opportunity/%s/responsibles/reload/' % opp.pk,
                                                             predicate_id=REL_OBJ_RESPONSIBLE,
                                                             ct_id=_contact_ct_id))
@@ -136,7 +136,7 @@ class QuotesBlock(Block):
             self._quote_ct_id = ContentType.objects.get_for_model(Quote).id
 
         return self._render(self.get_block_template_context(context,
-                                                            opp.get_quotes_relations(),
+                                                            opp.get_quotes(),
                                                             update_url='/opportunities/opportunity/%s/linked/quotes/reload/' % opp.pk,
                                                             predicate_id=REL_OBJ_LINKED_QUOTE,
                                                             ct_id=self._quote_ct_id,
@@ -159,7 +159,7 @@ class SalesOrdersBlock(Block):
         if not self._salesorder_ct_id:
             self._salesorder_ct_id = ContentType.objects.get_for_model(SalesOrder).id
 
-        block_context = self.get_block_template_context(context, opp.get_salesorder_relations(),
+        block_context = self.get_block_template_context(context, opp.get_salesorder(),
                                                         update_url='/opportunities/opportunity/%s/linked/sales_orders/reload/' % opp.pk,
                                                         predicate_id=REL_OBJ_LINKED_SALESORDER,
                                                         ct_id=self._salesorder_ct_id)
@@ -184,23 +184,19 @@ class InvoicesBlock(Block):
             self._invoice_ct_id = ContentType.objects.get_for_model(Invoice).id
 
         return self._render(self.get_block_template_context(context,
-                                                            opp.get_invoices_relations(),
+                                                            opp.get_invoices(),
                                                             update_url='/opportunities/opportunity/%s/linked/invoices/reload/' % opp.pk,
                                                             predicate_id=REL_OBJ_LINKED_INVOICE,
                                                             ct_id=self._invoice_ct_id))
 
-from django.contrib.contenttypes.models import ContentType
-from products.models import Product, Service
-from billing.models import ProductLine, ServiceLine
 
 class LinkedProductLinesBlock(Block):
     id_           = Block.generate_id('opportunities', 'linked_line_product_lines')
     verbose_name  = _(u'Produits liés')
     template_name = 'billing/templatetags/block_product_line.html'
 
-    def __init__(self, *args, **kwargs):
-        super(LinkedProductLinesBlock, self).__init__(*args, **kwargs)
-
+    #def __init__(self, *args, **kwargs):
+        #super(LinkedProductLinesBlock, self).__init__(*args, **kwargs)
 
     def detailview_display(self, context):
         pk = context['object'].pk
@@ -213,22 +209,13 @@ class LinkedServiceLinesBlock(Block):
     verbose_name  = _(u'Services liés')
     template_name = 'billing/templatetags/block_service_line.html'
 
-    def __init__(self, *args, **kwargs):
-        super(LinkedServiceLinesBlock, self).__init__(*args, **kwargs)
+    #def __init__(self, *args, **kwargs):
+        #super(LinkedServiceLinesBlock, self).__init__(*args, **kwargs)
 
     def detailview_display(self, context):
         pk = context['object'].pk
         return self._render(self.get_block_template_context(context, ServiceLine.objects.filter(document=pk),
                                                             update_url='/opportunities/%s/service_lines/reload/' % pk))
-
-
-
-linked_product_lines_block = LinkedProductLinesBlock()
-linked_service_lines_block = LinkedServiceLinesBlock()
-
-
-
-
 
 
 linked_contacts_block = LinkedContactsBlock()
@@ -238,3 +225,5 @@ responsibles_block    = ResponsiblesBlock()
 quotes_block          = QuotesBlock()
 sales_orders_block    = SalesOrdersBlock()
 invoices_block        = InvoicesBlock()
+linked_product_lines_block = LinkedProductLinesBlock()
+linked_service_lines_block = LinkedServiceLinesBlock()

@@ -26,19 +26,18 @@ from django.contrib.contenttypes.models import ContentType
 
 from creme_core.models import CremeEntity, CremeModel, Relation
 
-from creme_config.models import CremeKVConfig 
+from creme_config.models import CremeKVConfig
+
+from persons.models import Contact, Organisation
 
 from documents.constants import REL_SUB_CURRENT_DOC
 
-from billing.models import Quote
-from billing.utils import round_to_2
-from billing.models.product_line import ProductLine
-from billing.models.service_line import ServiceLine
+from products.models import Product, Service
 
-from opportunities.constants import (REL_SUB_LINKED_QUOTE, REL_SUB_LINKED_INVOICE, REL_SUB_LINKED_SALESORDER,
-                                     REL_SUB_LINKED_CONTACT, REL_SUB_RESPONSIBLE,
-                                     REL_SUB_TARGETS_ORGA, REL_OBJ_TARGETS_ORGA,
-                                     REL_SUB_LINKED_PRODUCT, REL_SUB_LINKED_SERVICE, REL_SUB_EMIT_ORGA, REL_OBJ_EMIT_ORGA)
+from billing.models import Invoice, SalesOrder, Quote, ProductLine, ServiceLine
+from billing.utils import round_to_2
+
+from opportunities.constants import *
 
 
 class SalesPhase(CremeModel):
@@ -108,45 +107,43 @@ class Opportunity(CremeEntity):
 
     def get_weighted_sales(self):
         return (self.estimated_sales or 0) * (self.chance_to_win or 0) / 100.0
-    
-    def get_total (self):
+
+    #TODO: 'cache' for ProductLines/ServiceLines ??
+    def get_total(self):
         line_or_not = CremeKVConfig.objects.get(id="LINE_IN_OPPORTUNITIES").value
         if line_or_not == "1" :
             total = 0
-            for s in ProductLine.objects.filter(document=self):
+            for s in ProductLine.objects.filter(document=self): #TODO: use sum()
                 total += s.get_price_exclusive_of_tax()
             for s in ServiceLine.objects.filter(document=self):
-                total += s.get_price_exclusive_of_tax()                
+                total += s.get_price_exclusive_of_tax()
             return round_to_2(total)
         else:
             if self.made_sales :
                 return self.made_sales
             else:
                 return (self.estimated_sales or 0)
-    
+
+    #TODO: factorise with get_total() ?
     def get_total_with_tax(self):
         line_or_not = CremeKVConfig.objects.get(id="LINE_IN_OPPORTUNITIES").value
-        if line_or_not == "1" :
+        if line_or_not == "1":
             total = 0
             for s in ProductLine.objects.filter(document=self):
                 total += s.get_price_inclusive_of_tax()
             for s in ServiceLine.objects.filter(document=self):
-                total += s.get_price_inclusive_of_tax()                
+                total += s.get_price_inclusive_of_tax()
             return round_to_2(total)
         else:
             tax = 1.196
-            print tax
-            if self.made_sales :
-                return self.made_sales*tax
+
+            if self.made_sales:
+                return self.made_sales * tax
             else:
-                return (self.estimated_sales or 0) *tax 
+                return (self.estimated_sales or 0) * tax
 
- 
-
-    #TODO: factorise get_*_relations() ??
-
-    def get_quotes_relations(self):
-        return Relation.objects.filter(object_entity=self, type__id=REL_SUB_LINKED_QUOTE)
+    def get_quotes(self):
+        return Quote.objects.filter(relations__object_entity=self, relations__type__id=REL_SUB_LINKED_QUOTE)
 
     def get_current_quote_id(self):
         ct        = ContentType.objects.get_for_model(Quote)
@@ -158,28 +155,29 @@ class Opportunity(CremeEntity):
         return quote_ids[0] if quote_ids else None
 
     def get_target_orga(self):
-        return Relation.objects.get(subject_entity=self, type__id=REL_SUB_TARGETS_ORGA).object_entity
+        return Organisation.objects.get(relations__object_entity=self, relations__type__id=REL_OBJ_TARGETS_ORGA)
 
     def get_emit_orga(self):
-        return Relation.objects.get(subject_entity=self, type__id=REL_OBJ_EMIT_ORGA).object_entity
+        #return Relation.objects.get(subject_entity=self, type__id=REL_OBJ_EMIT_ORGA).object_entity
+        return Organisation.objects.get(relations__object_entity=self, relations__type__id=REL_SUB_EMIT_ORGA)
 
-    def get_products_relations(self):
-        return Relation.objects.filter(object_entity=self, type__id=REL_SUB_LINKED_PRODUCT)
+    def get_products(self):
+        return Product.objects.filter(relations__object_entity=self, relations__type__id=REL_SUB_LINKED_PRODUCT)
 
-    def get_services_relations(self):
-        return Relation.objects.filter(object_entity=self, type__id=REL_SUB_LINKED_SERVICE)
+    def get_services(self):
+        return Service.objects.filter(relations__object_entity=self, relations__type__id=REL_SUB_LINKED_SERVICE)
 
-    def get_contacts_relations(self):
-        return Relation.objects.filter(object_entity=self, type__id=REL_SUB_LINKED_CONTACT)
+    def get_contacts(self):
+        return Contact.objects.filter(relations__object_entity=self, relations__type__id=REL_SUB_LINKED_CONTACT)
 
-    def get_responsibles_relations(self):
-        return Relation.objects.filter(object_entity=self, type__id=REL_SUB_RESPONSIBLE)
+    def get_responsibles(self):
+        return Contact.objects.filter(relations__object_entity=self, relations__type__id=REL_SUB_RESPONSIBLE)
 
-    def get_salesorder_relations(self):
-        return Relation.objects.filter(object_entity=self, type__id=REL_SUB_LINKED_SALESORDER)
+    def get_salesorder(self):
+        return SalesOrder.objects.filter(relations__object_entity=self, relations__type__id=REL_SUB_LINKED_SALESORDER)
 
-    def get_invoices_relations(self):
-        return Relation.objects.filter(object_entity=self, type__id=REL_SUB_LINKED_INVOICE)
+    def get_invoices(self):
+        return Invoice.objects.filter(relations__object_entity=self, relations__type__id=REL_SUB_LINKED_INVOICE)
 
     def link_to_target_orga(self, orga):
         Relation.create(orga, REL_OBJ_TARGETS_ORGA, self)

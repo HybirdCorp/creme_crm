@@ -22,17 +22,14 @@
                 <th class="block_header_line_dark">Nom</th>
                 <th class="block_header_line_dark">Supprimer</th>
             </tr>
-            {% for relation in page.object_list %}
-                {% with relation.subject_entity.get_real_entity as product %}
-                    <!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
-                    <tr>
-                        <td class="{{row_color}}"><a href="{{product.get_absolute_url}}">{{product}}</a></td>
-                        <td class="{{row_color}}" align="center" valign="center" style="width:10%;">
-                            {# Not tested #}
-                            {% get_line_deletor2 '/creme_core/relation/delete' "{ 'id':{{relation.pk}}, 'object_id':{{object.pk}} }" %}
-                        </td>
-                    </tr>
-                {% endwith %}
+            {% for product in page.object_list %}
+                <!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
+                <tr>
+                    <td class="{{row_color}}"><a href="{{product.get_absolute_url}}">{{product}}</a></td>
+                    <td class="{{row_color}}" align="center" valign="center" style="width:10%;">
+                        {% get_line_deletor2 '/creme_core/relation/delete/similar' "{ 'subject_id':{{object.pk}}, 'type':'{{predicate_id}}', 'object_id':{{product.pk}} }" %}
+                    </td>
+                </tr>
             {% endfor %}
         {% else %}
             <tr>
