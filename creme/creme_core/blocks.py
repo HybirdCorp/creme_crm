@@ -20,6 +20,7 @@
 
 from django.utils.translation import ugettext_lazy as _
 
+from creme_core.models import Relation
 from creme_core.gui.block import Block
 
 
@@ -42,8 +43,14 @@ class RelationsBlock(Block):
 
     def detailview_display(self, context):
         entity = context['object']
-        return self._render(self.get_block_template_context(context, entity.relations.filter(type__display_with_other=True),
-                                                            update_url='/creme_core/relations/reload/%s/' % entity.pk))
+        btc    = self.get_block_template_context(context,
+                                                 entity.relations.filter(type__display_with_other=True).select_related('type', 'object_entity'),
+                                                 update_url='/creme_core/relations/reload/%s/' % entity.pk)
+
+        #NB: DB optimisation
+        Relation.populate_real_object_entities(btc['page'].object_list)
+
+        return self._render(btc)
 
 properties_block = PropertiesBlock()
 relations_block  = RelationsBlock()

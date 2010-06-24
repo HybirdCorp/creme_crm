@@ -19,6 +19,7 @@
 ################################################################################
 
 from logging import debug
+from collections import defaultdict
 
 from django.core.exceptions  import ObjectDoesNotExist
 from django.db.models import Model, ForeignKey, CharField, BooleanField
@@ -90,7 +91,6 @@ class CremeAbstractEntity(CremeModel, TimeStampedModel):
     def __init__ (self, *args , **kwargs):
         super(CremeAbstractEntity, self).__init__(*args , **kwargs)
 
-        #correction d'un bug dont il faut créer le ticket
         if self.pk is None and not kwargs.has_key('entity_type') and not kwargs.has_key('entity_type_id'):
             self.entity_type = ContentType.objects.get_for_model(self)
 
@@ -123,3 +123,22 @@ class CremeAbstractEntity(CremeModel, TimeStampedModel):
     def get_real_entity(self):
         """Overload in child classes"""
         return self._get_real_entity(CremeAbstractEntity)
+
+    @staticmethod
+    def populate_real_entities(entities):
+        """Faster than call get_real_entity() of each CremeAbstractEntity object,
+        because it groups quries by ContentType.
+        @param entities Iterable containing CremeAbstractEntity objects.
+                        Beware it can be iterated twice (ie: can't be a generator)
+        """
+        entities_by_ct = defaultdict(list)
+
+        for entity in entities:
+            entities_by_ct[entity.entity_type_id].append(entity.id)
+
+        entities_map = {}
+        for ct_id, ct in ContentType.objects.in_bulk(entities_by_ct.keys()).iteritems():
+            entities_map.update(ct.model_class().objects.in_bulk(entities_by_ct[ct_id]))
+
+        for entity in entities:
+            entity._real_entity = entities_map[entity.id]

@@ -240,6 +240,15 @@ class Relation(CremeAbstractEntity):
         return self._get_real_entity(Relation)
 
     @staticmethod
+    def populate_real_object_entities(relations):
+        """Faster than call get_real_entity() on each relation.object_entity.
+        @param relations Iterable of Relation objects.
+        tips: better if object_entity attribute is already populated
+        -> (eg: use select_related('object_entity') on the queryset)
+        """
+        CremeAbstractEntity.populate_real_entities([relation.object_entity for relation in relations])
+
+    @staticmethod
     def filter_in(model, filter_predicate, value_for_filter):
         ct_model = ContentType.objects.get_for_model(model)
 
@@ -248,7 +257,6 @@ class Relation(CremeAbstractEntity):
         relations = Relation.objects.filter(type=filter_predicate, subject_entity__entity_type=ct_model)
         list_rel_pk = [r.object_entity_id for r in relations]
 
-        from creme_core.models import CremeEntity
         #TODO: use values_list()
         #TODO: merge with previous query
         list_entity = CremeEntity.objects.filter(pk__in=list_rel_pk,
@@ -256,8 +264,7 @@ class Relation(CremeAbstractEntity):
         #list_entity_pk = [e.id for e in list_entity]
 
         #TODO: use values_list()
-        #list_entities = model.objects.filter(new_relations__type=filter_predicate,
-                                             #new_relations__object_id__in=list_entity_pk)
+        #list_entities = model.objects.filter(new_relations__type=filter_predicate, new_relations__object_id__in=list_entity_pk)
         list_entities = model.objects.filter(relations__type=filter_predicate,
                                              relations__object_entity__in=list_entity)
 
