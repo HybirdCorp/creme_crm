@@ -10,7 +10,6 @@
     {% block activities_header %}
         {% get_block_header '%s Activité future liée' '%s Activités futures liées' 'calendar_48.png' 'Activités futures' %}
     {% endblock %}
-
     <tbody class="collapsable">
         {% block activities_add %}
             <tr>
@@ -22,7 +21,6 @@
                 </th>
             </tr>
         {% endblock %}
-
         {% if page.paginator.count %}
             <tr>
                 <th class="block_header_line_dark">Nom</th>
@@ -51,7 +49,6 @@
                         {% endwith %}
                     </td>
                     <td class="{{row_color}}" align="center" valign="center" style="width:10%;">
-                        {# get_line_deletor '/activities/linked_activity/{{activity.pk}}/unlink/{{object.pk}}' #}
                         {% get_line_deletor2 '/activities/linked_activity/unlink' "{ 'id':{{activity.pk}}, 'object_id':{{object.pk}} }" %}
                     </td>
                 </tr>

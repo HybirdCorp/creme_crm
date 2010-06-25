@@ -65,14 +65,13 @@ class FutureActivitiesBlock(Block):
 
     def detailview_display(self, context):
         entity = context['object']
-        entity_id = entity.id
-        activities = Activity.get_future_linked(entity_id, context['today'])
+        activities = Activity.get_future_linked(entity, context['today'])
 
         if not self._activity_ct_id:
             self._activity_ct_id = ContentType.objects.get_for_model(Activity).id
 
         return self._render(self.get_block_template_context(context, activities,
-                                                            _RELOAD_URL % entity_id,
+                                                            _RELOAD_URL % entity.id,
                                                             predicate_id=REL_SUB_LINKED_2_ACTIVITY,
                                                             ct_id=self._activity_ct_id))
 
@@ -84,11 +83,10 @@ class PastActivitiesBlock(Block):
 
     def detailview_display(self, context):
         entity = context['object']
-        entity_id = entity.id
-        activities = Activity.get_past_linked(entity_id, context['today'])
+        activities = Activity.get_past_linked(entity, context['today'])
 
         return self._render(self.get_block_template_context(context, activities,
-                                                            update_url=_RELOAD_URL % entity_id))
+                                                            update_url=_RELOAD_URL % entity.id))
 
 
 participants_block      = ParticipantsBlock()

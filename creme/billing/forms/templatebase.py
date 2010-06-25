@@ -26,6 +26,7 @@ from django.forms.widgets import HiddenInput
 from billing.forms.base import BaseEditForm
 from billing.models import TemplateBase, InvoiceStatus
 
+#TODO: factorise these 2 forms...
 
 class TemplateBaseEditForm(BaseEditForm):
     status = ModelChoiceField(queryset=InvoiceStatus.objects.none())
@@ -56,7 +57,7 @@ class TemplateBaseCreateForm(BaseEditForm):
     def __init__(self, *args, **kwargs):
         super(TemplateBaseCreateForm, self).__init__(*args, **kwargs)
         if kwargs['initial']:
-            ct = ContentType.objects.get(pk = kwargs['initial']['ct'])
+            ct = ContentType.objects.get(pk = kwargs['initial']['ct']) #TODO: use get_for_id()
             self.fields['status'].label = _(u'Statut %s' % ct.model_class()._meta.verbose_name)
             status_class = ct.model_class()._meta.get_field('status').rel.to
             self.fields['status'].queryset = status_class.objects.all()

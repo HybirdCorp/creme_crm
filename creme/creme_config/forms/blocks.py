@@ -44,7 +44,7 @@ class DetailviewBlocksForm(CremeForm):
         block_ids     = cleaned_data['block_ids']
         ct_id         = cleaned_data['ct_id']
         BCI_filter    = BlockConfigItem.objects.filter
-        ct            = ContentType.objects.get(pk=ct_id) if ct_id else None  #can't filter correctly with ct_id = 0/None -> use ContentType object
+        ct            = ContentType.objects.get_for_id(ct_id) if ct_id else None  #can't filter correctly with ct_id = 0/None -> use ContentType object
         blocks_2_save = []
 
         #No block for this content type -> fake block_id
