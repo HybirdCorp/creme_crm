@@ -18,26 +18,32 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from datetime import datetime
+from itertools import chain
+
+from django.http import HttpResponseRedirect, Http404
 from django.shortcuts import render_to_response, get_object_or_404
+from django.utils.translation import ugettext
 from django.contrib.auth.decorators import login_required
 from django.contrib.contenttypes.models import ContentType
-from django.http import HttpResponseRedirect
 
+from creme_core.models import Relation
 from creme_core.entities_access.functions_for_permissions import add_view_or_die, get_view_or_die
 from creme_core.views.generic import add_entity, edit_entity, view_entity_with_template, list_view
-from creme_core.models import Relation
+
+from creme_config.models import CremeKVConfig
 
 from persons.models import Organisation
 
+from documents.constants import REL_SUB_CURRENT_DOC
+
+from billing.models import Line, ProductLine , ServiceLine, Quote, Invoice, SalesOrder
+from billing.constants import REL_SUB_BILL_ISSUED, REL_SUB_BILL_RECEIVED
+
 from opportunities.models import Opportunity
 from opportunities.forms.opportunity import OpportunityCreateForm, OpportunityEditForm
-
-from billing.constants import REL_SUB_BILL_ISSUED, REL_SUB_BILL_RECEIVED
-from documents.constants import REL_SUB_CURRENT_DOC
 from opportunities.constants import REL_OBJ_LINKED_QUOTE, REL_OBJ_LINKED_INVOICE, REL_OBJ_LINKED_SALESORDER
-from billing.models import Line, ProductLine , ServiceLine, Quote, Invoice, SalesOrder
 
-from creme_config.models import CremeKVConfig 
 
 _ct = ContentType.objects.get_for_model(Opportunity)
 
@@ -62,69 +68,64 @@ def edit(request, opp_id):
 @login_required
 @get_view_or_die('opportunities')
 def detailview(request, opp_id):
-    line_or_not = CremeKVConfig.objects.get(id="LINE_IN_OPPORTUNITIES").value
-    return view_entity_with_template(request,
-                                     opp_id,
-                                     Opportunity,
+    return view_entity_with_template(request, opp_id, Opportunity,
                                      '/opportunities/opportunity',
                                      'opportunities/view_opportunity.html',
-                                     {"line_or_not" : line_or_not})
+                                     )
 
 @login_required
 @get_view_or_die('opportunities')
 def listview(request):
     return list_view(request, Opportunity, extra_dict={'add_url':'/opportunities/opportunity/add'})
 
+_RELATIONS_DICT = {
+            Quote:      REL_OBJ_LINKED_QUOTE,
+            Invoice:    REL_OBJ_LINKED_INVOICE,
+            SalesOrder: REL_OBJ_LINKED_SALESORDER,
+        }
+
+_CURRENT_DOC_DICT = {
+            Quote:      True,
+            Invoice:    False,
+            SalesOrder: False
+        }
+
 @login_required
 @get_view_or_die('opportunities')
-def generate_new_doc(request, opp_id, ct_id ):
-    
-    dict_linked_rel = { Quote : REL_OBJ_LINKED_QUOTE , 
-             Invoice : REL_OBJ_LINKED_INVOICE,
-             SalesOrder : REL_OBJ_LINKED_SALESORDER
-            }    
-    
-    dict_current_doc = { Quote : True , 
-             Invoice : False,
-             SalesOrder : False
-            }     
-    
-    ct_doc = get_object_or_404 (ContentType,id=ct_id)
+def generate_new_doc(request, opp_id, ct_id):
+    try:
+        ct_doc = ContentType.objects.get_for_id(ct_id)
+    except ContentType.DoesNotExist:
+        raise Http404('No ContentType matches the given query.')
+
     opp = get_object_or_404 (Opportunity, id=opp_id)
 
-    klass = ct_doc.model_class ()
-    document = klass ()
+    klass = ct_doc.model_class()
+    document = klass()
     document.user = opp.user
-    document.name=opp.name 
+    document.issuing_date = datetime.now()
+    document.comment = ugettext(u"Générée depuis l'opportunité «%s»") % opp
     document.status_id = 1
-    document.save () 
+    document.save()
 
     create_relation = Relation.create
-    create_relation(document, REL_SUB_BILL_ISSUED,   opp.get_emit_orga())
-    create_relation(document, REL_SUB_BILL_RECEIVED, opp.get_target_orga())
-    create_relation(opp, dict_linked_rel[klass], document)
+    create_relation(document, REL_SUB_BILL_ISSUED,    opp.get_emit_orga())
+    create_relation(document, REL_SUB_BILL_RECEIVED,  opp.get_target_orga())
+    create_relation(opp,      _RELATIONS_DICT[klass], document)
 
-    lines = opp.LineDocumentRelation_set.all()
-    for line in lines : 
-        try :
-            src_line = line.productline
-            new_line = src_line.clone ()
-            new_line.document = document 
-            new_line.save ()
-            continue
-        except :
-            pass 
-        try:
-            src_line = line.serviceline
-            new_line = src_line.clone ()
-            new_line.document = document 
-            new_line.save ()
+    document.generate_number() #Need the relation with emitter orga
+    document.name = u'%s(%s)' % (document.number, opp.name)
+    document.save()
 
-        except :
-            pass         
-    
+    for line in chain(opp.product_lines, opp.service_lines):
+        new_line = line.clone()
+        new_line.document = document
+        new_line.save()
+
     for relation in Relation.objects.filter(object_entity=opp, type=REL_SUB_CURRENT_DOC, subject_entity__entity_type=ct_doc):
         relation.delete()
-    if dict_current_doc[klass]:
-        create_relation(document, REL_SUB_CURRENT_DOC, opp)    
-    return HttpResponseRedirect(opp.get_absolute_url())   
+
+    if _CURRENT_DOC_DICT[klass]:
+        create_relation(document, REL_SUB_CURRENT_DOC, opp)
+
+    return HttpResponseRedirect(opp.get_absolute_url())

@@ -1,11 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from imp import find_module
-
 from django.conf.urls.defaults import patterns
-from django.conf import settings
-
-from billing.registry import algo_registry
 
 
 urlpatterns = patterns('billing.views',
@@ -64,15 +59,3 @@ urlpatterns += patterns('creme_core.views',
     (r'^sales_order/delete/(?P<object_id>\d+)$',               'generic.delete_entity'),
     (r'^sales_order/delete_js/(?P<entities_ids>([\d]+[,])+)$', 'generic.delete_entities_js'),
 )
-
-
-
-for app in settings.INSTALLED_APPS:
-    try:
-        find_module("billing_register", __import__(app, {}, {}, [app.split(".")[-1]]).__path__)
-    except ImportError, e:
-        # there is no app creme_config.py, skip it
-        continue
-
-    algos_import = __import__("%s.billing_register" % app , globals(), locals(), ['to_register'], -1)
-    algo_registry.register(*algos_import.to_register)

@@ -18,6 +18,11 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from imp import find_module
+from logging import debug
+
+from django.conf import settings
+
 
 class Algo(object):
     def generate_number(self, organisation, ct, *args, **kwargs):
@@ -52,3 +57,14 @@ class AlgoRegistry(object):
 
 
 algo_registry = AlgoRegistry()
+
+debug('Billing: algos registering')
+for app in settings.INSTALLED_APPS:
+    try:
+        find_module("billing_register", __import__(app, {}, {}, [app.split(".")[-1]]).__path__)
+    except ImportError, e:
+        # there is no app creme_config.py, skip it
+        continue
+
+    algos_import = __import__("%s.billing_register" % app , globals(), locals(), ['to_register'], -1)
+    algo_registry.register(*algos_import.to_register)
