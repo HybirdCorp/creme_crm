@@ -7,10 +7,10 @@
 {% block logo %}<img src="{{MEDIA_URL}}images/opportunity_64.png" alt=""/>{% endblock %}
 
 {% block before_detail_view_1 %}
-    {% ifequal line_or_not "1" %}
+    {% if object.use_lines %}
         {% get_opportproduct_lines %}
         {% get_opportservice_lines %}
-    {% endifequal %}
+    {% endif %}
 {% endblock %}
 
 {% block detail_view_left_1 %}
@@ -42,11 +42,10 @@
 
     {% get_contacts %}
 
-    {% comment %}{% ifequal line_or_not "1" %} ??{% endcomment %}
-    {% ifnotequal line_or_not "0" %}
+    {% if object.use_lines %}
         {% get_products %}
         {% get_services %}
-    {% endifnotequal %}
+    {% endif %}
 
     {% get_responsibles %}
     {% get_quotes %}

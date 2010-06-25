@@ -25,7 +25,6 @@ from billing.blocks import product_lines_block, service_lines_block, total_block
 
 register = Library()
 
-
 @register.inclusion_tag('creme_core/templatetags/registered_blocks.html', takes_context=True)
 def get_product_lines(context):
     return {'blocks': [product_lines_block.detailview_display(context)]}
@@ -33,7 +32,6 @@ def get_product_lines(context):
 @register.inclusion_tag('creme_core/templatetags/registered_blocks.html', takes_context=True)
 def get_service_lines(context):
     return {'blocks': [service_lines_block.detailview_display(context)]}
-
 
 @register.inclusion_tag('creme_core/templatetags/registered_blocks.html', takes_context=True)
 def get_total(context):

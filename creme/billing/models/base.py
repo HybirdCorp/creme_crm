@@ -32,7 +32,6 @@ from service_line import ServiceLine
 from algo import ConfigBillingAlgo
 from billing.constants import REL_SUB_BILL_ISSUED, REL_SUB_BILL_RECEIVED
 from billing.utils import round_to_2
-from billing.registry import algo_registry
 
 
 class Base(CremeEntity):
@@ -68,6 +67,7 @@ class Base(CremeEntity):
         except Relation.DoesNotExist:
             return None
 
+    #TODO: use get_source/get_target
     def populate_with_organisation(self):
         relations_getter = Relation.objects.get
         try:
@@ -78,8 +78,10 @@ class Base(CremeEntity):
             self.target = None
 
     def generate_number(self):
+        from billing.registry import algo_registry #lazy loading of number generators
+
         source = self.get_source()
-        self.number = 0 
+        self.number = 0
 
         if source:
             real_content_type = self.entity_type
@@ -88,10 +90,8 @@ class Base(CremeEntity):
                 name_algo = ConfigBillingAlgo.objects.get(organisation=source, ct=real_content_type).name_algo
                 algo = algo_registry.get_algo(name_algo)
                 self.number = algo().generate_number(source, real_content_type)
-            except:
-                pass
-
-        self.save ()
+            except Exception, e:
+                debug('Exception during billing.generate_number(): %s', e)
 
     def get_product_lines(self):
         return ProductLine.objects.filter(document=self)
@@ -116,7 +116,6 @@ class Base(CremeEntity):
             total += p.get_price_inclusive_of_tax()
         return round_to_2(total)
 
-
     def get_service_lines_total_price_exclusive_of_tax(self):
         total = 0
         for s in ServiceLine.objects.filter(document=self):
@@ -128,7 +127,7 @@ class Base(CremeEntity):
         for s in ServiceLine.objects.filter(document=self):
             total += s.get_price_inclusive_of_tax()
         return round_to_2(total)
-    
+
     def get_total (self):
         return self.get_service_lines_total_price_exclusive_of_tax () + self.get_product_lines_total_price_exclusive_of_tax()
 

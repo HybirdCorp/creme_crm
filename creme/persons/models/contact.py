@@ -54,8 +54,7 @@ class Contact(CremeEntity):
     birthday        = DateField(_(u"Date d'anniversaire"), blank=True, null=True)
     image           = ForeignKey(Image, verbose_name=_(u'Photo du contact'), blank=True, null=True)
 
-    research_fields    = CremeEntity.research_fields + ['last_name', 'first_name', 'email']
-    #users_allowed_func = CremeEntity.users_allowed_func + [{'name': 'getNowCA', 'verbose_name': "Chiffre d'affaire courant"}]
+    research_fields = CremeEntity.research_fields + ['last_name', 'first_name', 'email']
 
     class Meta:
         app_label = "persons"
@@ -69,8 +68,7 @@ class Contact(CremeEntity):
 
     def get_employers(self):
         from organisation import Organisation
-        return Organisation.objects.filter(relations__type__id=REL_OBJ_EMPLOYED_BY,
-                                           relations__object_entity=self)
+        return Organisation.objects.filter(relations__type=REL_OBJ_EMPLOYED_BY, relations__object_entity=self.id)
 
     def __unicode__(self):
         try:

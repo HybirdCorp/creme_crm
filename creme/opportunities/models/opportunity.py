@@ -18,6 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from itertools import chain
 from logging import error
 
 from django.db.models import CharField, TextField, ForeignKey, PositiveIntegerField, DateField
@@ -78,6 +79,10 @@ class Opportunity(CremeEntity):
 
     users_allowed_func = CremeEntity.users_allowed_func + [{'name': 'get_weighted_sales', 'verbose_name': u'CA pondéré'}] #_(u'CA pondéré')
 
+    _use_lines     = None
+    _product_lines = None
+    _service_lines = None
+
     class Meta:
         app_label = "opportunities"
         verbose_name = _(u'Opportunité')
@@ -108,34 +113,39 @@ class Opportunity(CremeEntity):
     def get_weighted_sales(self):
         return (self.estimated_sales or 0) * (self.chance_to_win or 0) / 100.0
 
-    #TODO: 'cache' for ProductLines/ServiceLines ??
+    @property
+    def use_lines(self):
+        if self._use_lines is None:
+            self._use_lines = (CremeKVConfig.objects.get(id="LINE_IN_OPPORTUNITIES").value == "1")
+        return self._use_lines
+
+    @property
+    def product_lines(self):
+        if self._product_lines is None:
+            self._product_lines = ProductLine.objects.filter(document=self)
+        return self._product_lines
+
+    @property
+    def service_lines(self):
+        if self._service_lines is None:
+            self._service_lines = ServiceLine.objects.filter(document=self)
+        return self._service_lines
+
     def get_total(self):
-        line_or_not = CremeKVConfig.objects.get(id="LINE_IN_OPPORTUNITIES").value
-        if line_or_not == "1" :
-            total = 0
-            for s in ProductLine.objects.filter(document=self): #TODO: use sum()
-                total += s.get_price_exclusive_of_tax()
-            for s in ServiceLine.objects.filter(document=self):
-                total += s.get_price_exclusive_of_tax()
-            return round_to_2(total)
+        if self.use_lines:
+            #TODO: can use aggregate functions instead ???
+            return round_to_2(sum(l.get_price_exclusive_of_tax() for l in chain(self.product_lines, self.service_lines)))
         else:
-            if self.made_sales :
+            if self.made_sales:
                 return self.made_sales
             else:
-                return (self.estimated_sales or 0)
+                return (self.estimated_sales or 0.0)
 
-    #TODO: factorise with get_total() ?
     def get_total_with_tax(self):
-        line_or_not = CremeKVConfig.objects.get(id="LINE_IN_OPPORTUNITIES").value
-        if line_or_not == "1":
-            total = 0
-            for s in ProductLine.objects.filter(document=self):
-                total += s.get_price_inclusive_of_tax()
-            for s in ServiceLine.objects.filter(document=self):
-                total += s.get_price_inclusive_of_tax()
-            return round_to_2(total)
+        if self.use_lines:
+            return round_to_2(sum(l.get_price_inclusive_of_tax() for l in chain(self.product_lines, self.service_lines)))
         else:
-            tax = 1.196
+            tax = 1.196 #TODO: use constant or setting ?
 
             if self.made_sales:
                 return self.made_sales * tax
@@ -143,7 +153,7 @@ class Opportunity(CremeEntity):
                 return (self.estimated_sales or 0) * tax
 
     def get_quotes(self):
-        return Quote.objects.filter(relations__object_entity=self, relations__type__id=REL_SUB_LINKED_QUOTE)
+        return Quote.objects.filter(relations__object_entity=self.id, relations__type=REL_SUB_LINKED_QUOTE)
 
     def get_current_quote_id(self):
         ct        = ContentType.objects.get_for_model(Quote)
@@ -155,29 +165,29 @@ class Opportunity(CremeEntity):
         return quote_ids[0] if quote_ids else None
 
     def get_target_orga(self):
-        return Organisation.objects.get(relations__object_entity=self, relations__type__id=REL_OBJ_TARGETS_ORGA)
+        #NB: this one generates 2 queries instead of one Organisation.objects.get(relations__object_entity=SELF, ...) !!
+        return Organisation.objects.get(relations__object_entity=self.id, relations__type=REL_OBJ_TARGETS_ORGA)
 
     def get_emit_orga(self):
-        #return Relation.objects.get(subject_entity=self, type__id=REL_OBJ_EMIT_ORGA).object_entity
-        return Organisation.objects.get(relations__object_entity=self, relations__type__id=REL_SUB_EMIT_ORGA)
+        return Organisation.objects.get(relations__object_entity=self.id, relations__type=REL_SUB_EMIT_ORGA)
 
     def get_products(self):
-        return Product.objects.filter(relations__object_entity=self, relations__type__id=REL_SUB_LINKED_PRODUCT)
+        return Product.objects.filter(relations__object_entity=self.id, relations__type=REL_SUB_LINKED_PRODUCT)
 
     def get_services(self):
-        return Service.objects.filter(relations__object_entity=self, relations__type__id=REL_SUB_LINKED_SERVICE)
+        return Service.objects.filter(relations__object_entity=self.id, relations__type=REL_SUB_LINKED_SERVICE)
 
     def get_contacts(self):
-        return Contact.objects.filter(relations__object_entity=self, relations__type__id=REL_SUB_LINKED_CONTACT)
+        return Contact.objects.filter(relations__object_entity=self.id, relations__type=REL_SUB_LINKED_CONTACT)
 
     def get_responsibles(self):
-        return Contact.objects.filter(relations__object_entity=self, relations__type__id=REL_SUB_RESPONSIBLE)
+        return Contact.objects.filter(relations__object_entity=self.id, relations__type=REL_SUB_RESPONSIBLE)
 
     def get_salesorder(self):
-        return SalesOrder.objects.filter(relations__object_entity=self, relations__type__id=REL_SUB_LINKED_SALESORDER)
+        return SalesOrder.objects.filter(relations__object_entity=self.id, relations__type=REL_SUB_LINKED_SALESORDER)
 
     def get_invoices(self):
-        return Invoice.objects.filter(relations__object_entity=self, relations__type__id=REL_SUB_LINKED_INVOICE)
+        return Invoice.objects.filter(relations__object_entity=self.id, relations__type=REL_SUB_LINKED_INVOICE)
 
     def link_to_target_orga(self, orga):
         Relation.create(orga, REL_OBJ_TARGETS_ORGA, self)

@@ -35,7 +35,7 @@ default_decimal = Decimal()
 class Line(CremeModel):
     on_the_fly_item = CharField(_(u'Ligne à la volée'), max_length=100, blank=False, null=True)
 
-    document        = ForeignKey(CremeEntity, verbose_name=_(u'Relatif à'), blank=False, null=False, related_name='LineDocumentRelation_set')
+    document        = ForeignKey(CremeEntity, verbose_name=_(u'Relatif à'), blank=False, null=False, related_name='billing_lines_set')
 
     comment         = TextField(_('Remarques'), blank=True, null=True)
     quantity        = IntegerField(_(u'Quantité'), blank=False, null=False, default=0)
@@ -79,4 +79,3 @@ class Line(CremeModel):
         clone.vat               = self.vat
         clone.is_paid           = self.is_paid
         return clone
-

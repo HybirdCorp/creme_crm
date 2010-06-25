@@ -100,6 +100,7 @@ class BaseEditForm(CremeModelForm):
 
         return instance
 
+
 class BaseCreateForm(BaseEditForm):
     def __init__(self, *args, **kwargs):
         super(BaseCreateForm, self).__init__(*args, **kwargs)

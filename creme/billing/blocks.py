@@ -54,19 +54,14 @@ class TotalBlock(Block):
     template_name = 'billing/templatetags/block_total.html'
 
     def detailview_display(self, context):
-        pk = context['object'].pk
-        #from billing.models.base import Base
-        document = CremeEntity.objects.get(pk=pk).get_real_entity()
-        total = document.get_total()
-        total_with_tax = document.get_total_with_tax()
-        q_none = CremeEntity.objects.none()
-        return self._render(self.get_block_template_context(context, q_none,
-                                                            update_url='/billing/%s/total/reload/' % pk, 
-                                                            total=total, total_with_tax=total_with_tax)
+        document = context['object']
+        return self._render(self.get_block_template_context(context, CremeEntity.objects.none(),
+                                                            update_url='/billing/%s/total/reload/' % document.pk, #useful ??
+                                                            total=document.get_total(),
+                                                            total_with_tax=document.get_total_with_tax())
                             )
-
 
 
 product_lines_block = ProductLinesBlock()
 service_lines_block = ServiceLinesBlock()
-total_block = TotalBlock()
+total_block         = TotalBlock()
