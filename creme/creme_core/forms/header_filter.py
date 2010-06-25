@@ -61,7 +61,7 @@ class HeaderFilterForm(CremeModelForm):
 
         fields['entity_type'].initial = ct_id
         fields['entity_type'].queryset = ContentType.objects.filter(pk=ct_id)
-        ct = ContentType.objects.get(pk=ct_id) if not instance.id else instance.entity_type
+        ct = ContentType.objects.get_for_id(ct_id) if not instance.id else instance.entity_type
         model_klass = ct.model_class()
 
         fields['fields'].choices    = get_flds_with_fk_flds_str(model_klass, 1)

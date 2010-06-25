@@ -49,7 +49,7 @@ def edit(request, ct_id):
     if not bmi:
         raise Http404 #bof bof
 
-    if request.POST:
+    if request.method == 'POST':
         buttons_form = ButtonMenuEditForm(bmi, ct_id, request.POST)
 
         if buttons_form.is_valid():

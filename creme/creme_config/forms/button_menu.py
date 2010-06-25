@@ -59,7 +59,7 @@ class ButtonMenuEditForm(CremeForm):
     def __init__(self, button_menu_items, ct_id, *args, **kwargs):
         super(ButtonMenuEditForm, self).__init__(*args, **kwargs)
 
-        self.ct = ContentType.objects.get(pk=ct_id) if ct_id else None
+        self.ct = ContentType.objects.get_for_id(ct_id) if ct_id else None
         self.set_buttons = button_menu_items
 
         choices = []

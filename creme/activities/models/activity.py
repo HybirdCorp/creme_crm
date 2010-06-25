@@ -26,8 +26,9 @@ from django.utils.translation import ugettext_lazy as _
 
 from creme_core.models import CremeEntity, CremeModel, Relation
 
-from activities.constants import REL_SUB_PART_2_ACTIVITY, REL_SUB_ACTIVITY_SUBJECT, REL_SUB_LINKED_2_ACTIVITY
+from activities.constants import *
 from activities.utils import get_ical_date
+
 
 class ActivityType(CremeModel):
     id                    = CharField(primary_key=True, max_length=100)
@@ -130,19 +131,17 @@ END:VEVENT
         return Relation.objects.filter(object_entity=self, type__id=REL_SUB_LINKED_2_ACTIVITY)
 
     @staticmethod
-    def _get_linked_aux(entity_id): #TODO: can be done in one query, no ?
-        types = (REL_SUB_PART_2_ACTIVITY, REL_SUB_ACTIVITY_SUBJECT, REL_SUB_LINKED_2_ACTIVITY)
-        activities_pk = Relation.objects.filter(subject_entity__id=entity_id, type__id__in=types).values_list('object_entity_id', flat=True)
-
-        return Activity.objects.filter(pk__in=activities_pk)
+    def _get_linked_aux(entity):
+        types = (REL_OBJ_PART_2_ACTIVITY, REL_OBJ_ACTIVITY_SUBJECT, REL_OBJ_LINKED_2_ACTIVITY)
+        return Activity.objects.filter(relations__object_entity=entity, relations__type__id__in=types)
 
     @staticmethod
-    def get_future_linked(entity_id, today):
-        return Activity._get_linked_aux(entity_id).filter(end__gt=today)
+    def get_future_linked(entity, today):
+        return Activity._get_linked_aux(entity).filter(end__gt=today)
 
     @staticmethod
-    def get_past_linked(entity_id, today):
-        return Activity._get_linked_aux(entity_id).filter(end__lte=today)
+    def get_past_linked(entity, today):
+        return Activity._get_linked_aux(entity).filter(end__lte=today)
 
     def handle_all_day(self):
         if self.is_all_day:

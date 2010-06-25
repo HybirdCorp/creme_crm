@@ -6,10 +6,10 @@
 {% block add_new_button %}{% endblock %}
 
 {% block logo %}
-    {% ifequal object.type.name "Rendez-vous" %}
+    {% ifequal object.type.id "activities-activitytype_meeting" %}
         <img src="{{MEDIA_URL}}images/map_64.png" alt=""/>
     {% else %}
-        {% ifequal object.type.name "Telephone" %}
+        {% ifequal object.type.id "activities-activitytype_phonecall" %}
             <img src="{{MEDIA_URL}}images/phone_64.png" alt=""/>
         {% else %}
             <img src="{{MEDIA_URL}}images/calendar_64.png" alt=""/>

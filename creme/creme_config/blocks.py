@@ -53,7 +53,7 @@ class GenericModelsBlock(Block):
 
     def detailview_ajax(self, request, ct_id):
         ct_id = int(ct_id)
-        model = ContentType.objects.get(pk=ct_id).model_class() #this query could be avoid with a better registry....
+        model = ContentType.objects.get_for_id(ct_id).model_class()
         app_name = model._meta.app_label
         model_name_in_url = config_registry.get_app(app_name).get_model_conf(ct_id).name_in_url
 

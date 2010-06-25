@@ -20,7 +20,7 @@ def add(request, ct_id):
         #beware: we doesn't test the form validity voluntarily
         filterform = ListViewFilterForm(request.POST, initial={'user': request.user.id, 'content_type_id': ct_id})
         filterform.save()
-        return HttpResponseRedirect(ContentType.objects.get(pk=ct_id).model_class().get_lv_absolute_url())
+        return HttpResponseRedirect(ContentType.objects.get_for_id(ct_id).model_class().get_lv_absolute_url())
 
     filterform = ListViewFilterForm(initial={'user': request.user.id, 'content_type_id': ct_id})
 
@@ -71,7 +71,7 @@ def delete(request, filter_id):
 
     filter_.delete()
 
-    return HttpResponseRedirect(ContentType.objects.get(pk=ct_id).model_class().get_lv_absolute_url())
+    return HttpResponseRedirect(ContentType.objects.get_for_id(ct_id).model_class().get_lv_absolute_url())
 
 #TODO: s/champ/field !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 @login_required
@@ -83,7 +83,7 @@ def edit(request, ct_id, filter_id):
         return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
     current_filter = get_object_or_404(Filter, pk=filter_id)
-    model_klass = ContentType.objects.get(pk=ct_id).model_class()
+    model_klass = ContentType.objects.get_for_id(ct_id).model_class()
 
     die_status = edit_object_or_die(request, current_filter)
     if die_status:

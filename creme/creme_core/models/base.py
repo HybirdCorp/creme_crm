@@ -91,8 +91,12 @@ class CremeAbstractEntity(CremeModel, TimeStampedModel):
     def __init__ (self, *args , **kwargs):
         super(CremeAbstractEntity, self).__init__(*args , **kwargs)
 
-        if self.pk is None and not kwargs.has_key('entity_type') and not kwargs.has_key('entity_type_id'):
-            self.entity_type = ContentType.objects.get_for_model(self)
+        if self.pk is None:
+            has_arg = kwargs.has_key
+            if not has_arg('entity_type') and not has_arg('entity_type_id'):
+                self.entity_type = ContentType.objects.get_for_model(self)
+        else:
+            self.entity_type = ContentType.objects.get_for_id(self.entity_type_id)
 
     @classmethod
     def get_users_func_verbose_name(cls, func_name):
@@ -137,8 +141,10 @@ class CremeAbstractEntity(CremeModel, TimeStampedModel):
             entities_by_ct[entity.entity_type_id].append(entity.id)
 
         entities_map = {}
-        for ct_id, ct in ContentType.objects.in_bulk(entities_by_ct.keys()).iteritems():
-            entities_map.update(ct.model_class().objects.in_bulk(entities_by_ct[ct_id]))
+        get_ct = ContentType.objects.get_for_id
+
+        for ct_id in entities_by_ct.iterkeys():
+            entities_map.update(get_ct(ct_id).model_class().objects.in_bulk(entities_by_ct[ct_id]))
 
         for entity in entities:
             entity._real_entity = entities_map[entity.id]

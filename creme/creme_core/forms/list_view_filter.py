@@ -59,8 +59,9 @@ class ListViewFilterForm(forms.Form):
                  
         ct_id = initial.get('content_type_id')
         if ct_id is not None :
-            klass = ContentType.objects.get(pk=ct_id).model_class()
-            self.ct = ContentType.objects.get(pk=ct_id)
+            #klass = ContentType.objects.get_for_id(pk=ct_id).model_class()
+            self.ct = ContentType.objects.get_for_id(ct_id)
+            klass = self.ct.model_class()
 
 #            champs = []
 #            for field in klass._meta.fields:
