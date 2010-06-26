@@ -31,7 +31,7 @@ from creme_core.models import CremeEntity
 class Act(CremeEntity):
     name          = CharField(_(u"Nom de l'action commerciale"), max_length=100, blank=False, null=False)
     ca_expected   = PositiveIntegerField(_(u'CA espéré'), blank=True, null=True)
-    cost          = PositiveIntegerField(_(u"Cout de l'action commerciale"), blank=True, null=True)
+    cost          = PositiveIntegerField(_(u"Coût de l'action commerciale"), blank=True, null=True)
     target        = TextField(_(u'Cible'), blank=True, null=True)
     goal          = TextField(_(u"But de l'action"), blank=True, null=True)
     aim           = TextField(_(u'Objectifs à réaliser'), blank=True, null=True)

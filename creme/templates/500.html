@@ -3,8 +3,9 @@
 <html class="central_panel" xmlns="http://www.w3.org/1999/xhtml" lang="{{ LANGUAGE_CODE }}" xml:lang="{{ LANGUAGE_CODE }}" {% if LANGUAGE_BIDI %}dir="rtl"{% endif %}>
 {% load i18n %}
 <head>
-    <title>{% trans 'Creme CRM - Erreur !' %}</title>
+    <title>Creme CRM - {% trans 'Erreur !' %}</title>
     <link rel="stylesheet" type="text/css" href="{{MEDIA_URL}}css/creme.css" />
+    <link rel="shortcut icon" href="{{MEDIA_URL}}images/favicon.ico" type="image/x-icon" />
     <style type="text/css">
         #container-icon {
             background-image: url({{MEDIA_URL}}images/500_256.png);

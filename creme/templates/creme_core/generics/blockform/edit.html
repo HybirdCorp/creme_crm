@@ -1,9 +1,12 @@
 {% extends "creme_core/base.html" %}
+{% load i18n %}
+{% load creme_core_tags %}
+
+{% block page_title %} - {% trans 'Modifier' %} {{object}}{% endblock %}
 
 {% block content %}
     {% with 'images/edit_64.png' as logo %}
-    {% with 'Éditer' as title %}
+    {% templatize "Éditer: {{object}}" as title %}
         {% include "creme_core/generics/blockform/base.html" %}
-    {% endwith %}
     {% endwith %}
 {% endblock %}

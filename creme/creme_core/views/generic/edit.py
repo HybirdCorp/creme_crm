@@ -54,5 +54,8 @@ def edit_entity(request, object_id, model, edit_form, app_name, template='creme_
         form = edit_form(instance=entity)
 
     return render_to_response(template,
-                              {'form': form},
+                              {
+                                'form':   form,
+                                'object': entity,
+                              },
                               context_instance=RequestContext(request))

@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from datetime import datetime
+#from datetime import datetime
 
 from django.forms import  DateTimeField
 
@@ -28,26 +28,12 @@ from creme_core.forms.widgets import CalendarWidget
 from commercial.models.act import Act
 
 
-#class ListViewForm(CremeModelForm):
-    #class Meta:
-        #model = Act
-
-
 class CreateForm(CremeModelForm):
-    due_date = DateTimeField( label=u"Date d'échéance", widget=CalendarWidget())
+    due_date = DateTimeField(label=u"Date d'échéance", widget=CalendarWidget())
 
-    class Meta:
+    class Meta(CremeModelForm.Meta):
         model = Act
 
-    #def save(self):
-        #super(CreateForm, self).save()
 
-
-class EditForm(CremeModelForm):
-    date_echeance = DateTimeField( label=u"Date d'échéance", widget=CalendarWidget())
-
-    class Meta:
-        model = Act
-
-    #def save(self):
-        #super(EditForm, self).save()
+class EditForm(CreateForm):
+    pass
