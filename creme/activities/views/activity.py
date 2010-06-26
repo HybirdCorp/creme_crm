@@ -128,7 +128,10 @@ def edit(request, activity_id):
         form = form_class(instance=activity)
 
     return render_to_response('creme_core/generics/blockform/edit.html',
-                              {'form': form},
+                              {
+                                'form':   form,
+                                'object': activity,
+                              },
                               context_instance=RequestContext(request))
 
 @login_required
