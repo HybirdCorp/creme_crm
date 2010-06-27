@@ -1,8 +1,6 @@
 {% load creme_block %}
-
 <table class="table_detail_view ui-corner-all" id={{block_name}}>
     {% get_block_header '%s Propriété' '%s Propriétés' %}
-
     <tbody class="collapsable">
         <tr>
             <th colspan="2" align="left" class="block_header_line_dark" style="font-size:14px;">
@@ -11,14 +9,13 @@
                 </a>
             </th>
         </tr>
-
         {% if page.paginator.count %}
             {% for property in page.object_list %}
                 <!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
                 <tr>
                     <td class="{{row_color}}">{{property}}</td>
                     <td class="{{row_color}}" align="center" valign="center" style="width:10%;">
-                        {% get_line_deletor2 '/creme_core/property/delete' "{ 'id':{{property.pk}}, 'object_id':{{object.pk}} }" %}
+                        {% get_line_deletor3 at_url '/creme_core/property/delete' with_args "{'id':{{property.pk}}, 'object_id':{{object.pk}} }" %}
                     </td>
                 </tr>
             {% endfor %}

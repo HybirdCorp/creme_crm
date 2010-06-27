@@ -1,8 +1,6 @@
 {% load creme_block %}
-
 <table class="table_detail_view ui-corner-all" id={{block_name}}>
     {% get_block_header '%s Période travaillée sur la tâche' '%s Périodes travaillées sur la tâche' 'project_48.png' 'Périodes' %}
-
     <tbody class="collapsable">
         <tr>
             <th colspan="11" class="block_header_line_dark" align="left">
@@ -24,7 +22,6 @@
                 <th class="block_header_line_dark">Ressource(s) concernée(s)</th>
                 <th class="block_header_line_dark">Actions</th>
             </tr>
-
             {% for period in page.object_list %}
                 <!-- {% cycle "block_line_dark" "block_line_light" as row_color %} -->
                 <tr>
@@ -38,7 +35,7 @@
                         <a class="button_link" onclick="creme.utils.showInnerPopup('{{period.get_edit_absolute_url}}', {'width' : 950});">
                             <img src="{{MEDIA_URL}}images/edit_22.png" border="0" title="Edition d'une période travaillée" alt="Editer" />
                         </a>
-                        {% get_line_deletor2 '/projects/period/delete' "{ 'id':{{period.pk}} }" %}
+                        {% get_line_deletor3 at_url '/projects/period/delete' with_args "{ 'id':{{period.pk}} }" %}
                     </td>
                 </tr>
             {% endfor %}

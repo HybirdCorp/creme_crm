@@ -1,8 +1,6 @@
 {% load creme_block %}
-
 <table class="table_detail_view ui-corner-all" id={{block_name}}>
     {% get_block_header '%s Mail' '%s Mails' 'email_48.png' 'Mails' %}
-
     <tbody class="collapsable">
         {% if page.paginator.count %}
             <tr>
@@ -10,14 +8,13 @@
                 <th class="block_header_line_dark">Statut</th>
                 <th class="block_header_line_dark">Supprimer</th>
             </tr>
-
             {% for mail in page.object_list %}
                 <!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
                 <tr>
                     <td class="{{row_color}}">{{mail.recipient}}</td>
                     <td class="{{row_color}}">{{mail.get_status_str}}</td>
                     <td class="{{row_color}}" align="center" valign="center" style="width:10%;">
-                        {% get_line_deletor2 '/emails/campaign/sending/mail/delete' "{ 'id': '{{mail.pk}}' }" %}
+                        {% get_line_deletor3 at_url '/emails/campaign/sending/mail/delete' with_args "{'id':'{{mail.pk}}'}" %}
                     </td>
                 </tr>
             {% endfor %}

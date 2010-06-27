@@ -38,7 +38,7 @@
                         <a href="{{people.get_edit_absolute_url}}">
                             <img src="{{MEDIA_URL}}images/edit_22.png" border="0">
                         </a>
-                        {% get_line_deletor2 '/creme_core/relation/delete/similar' "{ 'subject_id':{{object.pk}}, 'type':'{{predicate_id}}', 'object_id':{{people.pk}} }" %}
+                        {% get_line_deletor3 at_url '/creme_core/relation/delete/similar' with_args "{ 'subject_id':{{object.pk}}, 'type':'{{predicate_id}}', 'object_id':{{people.pk}} }" %}
                     </td>
                 </tr>
             {% endfor %}

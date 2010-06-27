@@ -45,7 +45,7 @@
                         {% endifequal %}
                     </td>
                     <td class="{{row_color}}" align="center" valign="center" style="width:10%;">
-                        {% get_line_deletor2 '/creme_core/relation/delete/similar' "{ 'subject_id':{{object.pk}}, 'type':'{{predicate_id}}', 'object_id':{{quote.pk}} }" %}
+                        {% get_line_deletor3 at_url '/creme_core/relation/delete/similar' with_args "{'subject_id':{{object.pk}}, 'type':'{{predicate_id}}', 'object_id':{{quote.pk}} }" %}
                     </td>
                 </tr>
             {% endfor %}

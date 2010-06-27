@@ -49,21 +49,15 @@
                     <td class="{{row_color}}">{{line.get_price_inclusive_of_tax}}</td>
                     <td class="{{row_color}}">
                         <form method="POST" action="/billing/line/{{line.id}}/update" id="updateStatus{{line.id}}">
-                            {% if line.is_paid %}
-                                <input type="checkbox" name="paid" checked>
-                            {% else %}
-                                <input type="checkbox" name="paid">
-                            {% endif %}
+                            <input type="checkbox" name="paid" {% if line.is_paid %}checked{% endif %}>
                             <a onclick="update('{{line.id}}')">
                                 <img src="{{MEDIA_URL}}images/refresh_16.png" width="16" height="14" border="0">
                             </a>
                         </form>
                     </td>
-
                     <td class="{{row_color}}" align="center" valign="center" style="width:10%;">
                         {% block line_actions %}
-                            {# get_line_deletor '/billing/line/{{line.id}}/delete' #}
-                            {% get_line_deletor2 '/billing/line/delete' "{ 'id': '{{line.id}}' }" %}
+                            {% get_line_deletor3 at_url '/billing/line/delete' with_args "{'id': '{{line.id}}' }" %}
                         {% endblock %}
                    </td>
                 </tr>

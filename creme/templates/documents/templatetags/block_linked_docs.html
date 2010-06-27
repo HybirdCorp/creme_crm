@@ -1,13 +1,10 @@
 {% load creme_core_tags %}
 {% load creme_block %}
-
 <script type="text/javascript">
     creme.include('{{MEDIA_URL}}js/models/relations.js','js');
 </script>
-
 <table class="table_detail_view ui-corner-all" id={{block_name}}>
     {% get_block_header '%s Document lié' '%s Documents liés' 'document_48.png' 'Document' %}
-
     <tbody class="collapsable">
         <tr>
             <th colspan="2" class="block_header_line_dark" align="left">
@@ -33,7 +30,7 @@
                             <a href="{{doc.get_absolute_url}}" title="{{doc}}">{{doc}}</a>
                         </td>
                         <td class="{{row_color}}" align="center" valign="center" style="width:10%;">
-                            {% get_line_deletor2 '/creme_core/relation/delete' "{ 'id':{{relation.pk}}, 'object_id':{{object.pk}} }" %}
+                            {% get_line_deletor3 at_url '/creme_core/relation/delete' with_args "{'id':{{relation.pk}}, 'object_id':{{object.pk}} }" %}
                         </td>
                     </tr>
                 {% endwith %}

@@ -24,6 +24,7 @@ from django.utils.translation import ugettext_lazy as _
 from creme_core.models import CremeEntity
 
 from persons.models import Contact
+
 from task import ProjectTask
 
 
@@ -38,10 +39,10 @@ class Resource(CremeEntity):
         verbose_name_plural = _(u'Resources')
 
     def __unicode__(self):
-        return u'%s %s %s' % (self.linked_contact.civility, self.linked_contact.first_name, self.linked_contact.last_name)
+        return unicode(self.linked_contact)
 
     def get_absolute_url(self):
-        return "/persons/contact/%s" % self.linked_contact.id #self.linked_contact.get_absolute_url() instead
+        return self.linked_contact.get_absolute_url()
 
     def get_edit_absolute_url(self):
         return "/projects/resource/edit/%s" % self.id

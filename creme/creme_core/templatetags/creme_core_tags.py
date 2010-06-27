@@ -142,7 +142,6 @@ classes = {
      fields.AutoSlugField:              simple_print,
 }
 
-#@register.filter(name="get_field_value")
 @register.filter(name="get_html_field_value")
 def get_html_field_value(obj, field_name):
     field_class, field_value = get_field_infos(obj, field_name)
@@ -150,15 +149,6 @@ def get_html_field_value(obj, field_name):
     if print_func is not None:
         return mark_safe(print_func(field_value))
     return field_value
-
-#@register.inclusion_tag('html/templatetags/tag_mails_history.html')
-#def get_mails_history(creme_entity):
-    #ce = CremeEntity.objects.get(pk=creme_entity.id)
-    #entity_type  = ce.entity_type
-    #ce_type      = entity_type.model_class().objects.get(pk=ce.id)
-    #ce_type_name = entity_type.name
-
-    #return {'creme_entity': ce, 'type': ce_type_name, 'c': ce_type}
 
 @register.filter(name="get_value")
 def get_value(dic, key, default=''):
@@ -173,11 +163,8 @@ def get_value(dic, key, default=''):
   {{ some_dict|get:"keyB"|get:"subKeyA" }}
   {% for key in keys %}{{ some_dict|get:key }}{% endfor %}
   """
-#  debug('get_value %s |', key)
   try:
-    val = dic.get(key, default)
-#    debug(' ==> val=%s', val)
-    return val
+    return dic.get(key, default)
   except Exception, e: ##USEFUL ???
     debug('Exception in get_value(): %s', e)
     return default
@@ -215,11 +202,6 @@ def in_day(date1, day_in):
 @register.filter(name="range_timestamp")
 def range_timestamp(date1, date2):
     return abs(mktime(date2.timetuple()) - mktime(date1.timetuple()))
-
-#Commente le 28/04/2010
-#@register.filter(name="what_type")
-#def what_type(object):
-#    return type(object)
 
 @register.filter(name="lt")
 def lt(object1, object2):
@@ -264,43 +246,14 @@ def mod(integer, integer2):
 def x_range(integer):
     return xrange(0, integer, 1)
 
-#from itertools import izip as zip
-#@register.filter(name="has_same_list_values")
-#def has_same_list_values(l1, l2):
-#    if len(l1) != len(l2):
-#        return False
-#    return all(o1 == o2 for (o1, o2) in zip(l1,l2))
-
-#commenté le 28/04/2010
-#@register.filter(name="iterables_has_same_values")
-#def iterables_has_same_values(l1, l2):
-#    """
-#        Duplicated values are ignored.
-#    """
-#    #TODO: odd code
-#    if l1 == l2:
-#        return True
-#    if len(l2) != len(l1):
-#        return False
-#    return all(i in frozenset(l2) for i in l1)
-
 #move to creme_config (template too) ??
 @register.inclusion_tag('creme_core/templatetags/role_descendant.html')
 def get_first_descendant(role):
     return {'role': role, 'sub_roles': CremeRole.objects.filter(superieur=role)}
 
-#not used any more (28/04/2010)
-#@register.filter(name="get_creme_entity_from_id")
-#def get_creme_entity_from_id(creme_entity_id):
-#    try :
-#        return CremeEntity.objects.get(pk=creme_entity_id).entity_type.model_class().objects.get(pk=creme_entity_id)
-#    except :
-#        pass
-
-#commenté le 28/04/2010
-#@register.filter(name="join")
-#def join(iterable, joiner):
-#    return str(joiner).join(str(it) for it in iterable)
+@register.filter(name="isiterable")
+def isiterable(iterable):
+    return hasattr(iterable, '__iter__')
 
 @register.filter(name="format")
 def format(ustring, format_str):
@@ -334,7 +287,3 @@ class TemplatizeNode(template.Node):
     def render(self, context):
         context[self.var_name] = self.inner_template.render(context)
         return ''
-
-@register.filter(name="isiterable")
-def isiterable(iterable):
-    return hasattr(iterable, '__iter__')

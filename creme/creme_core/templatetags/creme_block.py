@@ -18,6 +18,10 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from re import compile as compile_re
+
+from django import template
+from django.template.loader import get_template
 from django.template import Library, Template
 from django.utils.translation import ugettext, ungettext
 from django.contrib.contenttypes.models import ContentType
@@ -74,16 +78,57 @@ def get_column_header(context, column_name, field_name):
             'MEDIA_URL':   settings.MEDIA_URL
            }
 
+#DEPRECATED
 @register.inclusion_tag('creme_core/templatetags/widgets/block_line_deletor.html', takes_context=True)
 def get_line_deletor(context, delete_url):
     context['delete_url'] = Template(delete_url).render(context)
     return context
 
-@register.inclusion_tag('creme_core/templatetags/widgets/block_line_deletor2.html', takes_context=True)
-def get_line_deletor2(context, delete_url, data):
-    context['delete_url'] = Template(delete_url).render(context)
-    context['data']       = Template(data).render(context)
-    return context
+#COMMENTED 27 june 2010
+#@register.inclusion_tag('creme_core/templatetags/widgets/block_line_deletor2.html', takes_context=True)
+#def get_line_deletor2(context, delete_url, data):
+    #context['delete_url'] = Template(delete_url).render(context)
+    #context['post_args']  = Template(data).render(context)
+    #return context
+
+_line_deletor_re = compile_re(r'at_url (.*?) with_args (.*?)$')
+
+@register.tag(name="get_line_deletor3")
+def do_line_deletor(parser, token):
+    """Eg: {% get_line_deletor3 at_url '/app/model/delete' with_args "{'id' : {{object.id}} }" %}"""
+    try:
+        # Splitting by None == splitting by spaces.
+        tag_name, arg = token.contents.split(None, 1)
+    except ValueError:
+        raise template.TemplateSyntaxError, "%r tag requires arguments" % token.contents.split()[0]
+
+    match = _line_deletor_re.search(arg)
+    if not match:
+        raise template.TemplateSyntaxError, "%r tag had invalid arguments" % tag_name
+
+    groups = match.groups()
+
+    for group in groups:
+        first_char = group[0]
+        if not (first_char == group[-1] and first_char in ('"', "'")):
+            raise template.TemplateSyntaxError, "%r tag's argument should be in quotes" % tag_name
+
+    delete_url, post_args = groups
+
+    return LineDeletorNode(delete_url[1:-1], post_args[1:-1])
+
+
+class LineDeletorNode(template.Node):
+    def __init__(self, delete_url, post_args):
+        self.deletor_tpl = get_template('creme_core/templatetags/widgets/block_line_deletor2.html')
+        self.url_tpl     = Template(delete_url)
+        self.args_tpl    = Template(post_args)
+
+    def render(self, context):
+        context['delete_url'] = self.url_tpl.render(context)
+        context['post_args']  = self.args_tpl.render(context)
+        return self.deletor_tpl.render(context)
+
 
 @register.inclusion_tag('creme_core/templatetags/registered_blocks.html', takes_context=True)
 def get_properties(context):
