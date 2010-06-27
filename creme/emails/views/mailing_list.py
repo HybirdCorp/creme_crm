@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.http import HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext
 from django.contrib.auth.decorators import login_required
@@ -101,7 +101,8 @@ def add_children(request, ml_id):
 
 @login_required
 @get_view_or_die('emails')
-def _delete_aux(request, ml_id, subobject_id, deletor):
+def _delete_aux(request, ml_id, deletor):
+    subobject_id = request.POST.get('id')
     ml = get_object_or_404(MailingList, pk=ml_id)
 
     die_status = edit_object_or_die(request, ml)
@@ -110,16 +111,19 @@ def _delete_aux(request, ml_id, subobject_id, deletor):
 
     deletor(ml, subobject_id)
 
+    if request.is_ajax():
+        return HttpResponse("", mimetype="text/javascript")
+
     return HttpResponseRedirect(ml.get_absolute_url())
 
-def delete_contact(request, ml_id, contact_id):
-    return _delete_aux(request, ml_id, contact_id, lambda ml, contact_id: ml.contacts.remove(contact_id))
+def delete_contact(request, ml_id):
+    return _delete_aux(request, ml_id, lambda ml, contact_id: ml.contacts.remove(contact_id))
 
-def delete_organisation(request, ml_id, orga_id):
-    return _delete_aux(request, ml_id, orga_id, lambda ml, orga_id: ml.organisations.remove(orga_id))
+def delete_organisation(request, ml_id):
+    return _delete_aux(request, ml_id, lambda ml, orga_id: ml.organisations.remove(orga_id))
 
-def delete_child(request, ml_id, child_id):
-    return _delete_aux(request, ml_id, child_id, lambda ml, child_id: ml.children.remove(child_id))
+def delete_child(request, ml_id):
+    return _delete_aux(request, ml_id, lambda ml, child_id: ml.children.remove(child_id))
 
 @login_required
 def reload_block_contacts(request, ml_id):

@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.http import HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.template import RequestContext
 from django.contrib.auth.decorators import login_required
@@ -82,14 +82,17 @@ def add_ml(request, campaign_id):
 
 @login_required
 @get_view_or_die('emails')
-def delete_ml(request, campaign_id, ml_id):
+def delete_ml(request, campaign_id):
     campaign = get_object_or_404(EmailCampaign, pk=campaign_id)
 
     die_status = edit_object_or_die(request, campaign)
     if die_status:
         return die_status
 
-    campaign.mailing_lists.remove(ml_id)
+    campaign.mailing_lists.remove(request.POST.get('id'))
+
+    if request.is_ajax():
+        return HttpResponse("", mimetype="text/javascript")
 
     return HttpResponseRedirect(campaign.get_absolute_url())
 

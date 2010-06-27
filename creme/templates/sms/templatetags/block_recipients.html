@@ -31,7 +31,7 @@
                 <tr>
                     <td class="{{row_color}}">{{recipient.phone|formatphone}}</td>
                     <td class="{{row_color}}" align="center" valign="center" style="width:10%;">
-                        {% get_line_deletor '/sms/sendlist/recipient/delete/{{recipient.pk}}' %}
+                        {% get_line_deletor3 at_url '/sms/sendlist/recipient/delete' with_args "{'id':{{recipient.pk}} }" %}
                     </td>
                 </tr>
             {% endfor %}

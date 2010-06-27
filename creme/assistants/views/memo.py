@@ -23,7 +23,7 @@ from django.contrib.auth.decorators import login_required
 from assistants.models import Memo
 from assistants.forms.memo import MemoCreateForm, MemoEditForm
 from assistants.blocks import memos_block
-from utils import generic_add, generic_edit, generic_post_delete
+from utils import generic_add, generic_edit, generic_delete
 
 
 def add(request, entity_id):
@@ -32,10 +32,8 @@ def add(request, entity_id):
 def edit(request, memo_id):
     return generic_edit(request, memo_id, Memo, MemoEditForm, u"Mémo pour <%s>")
 
-#def delete(request, memo_id):
 def delete(request):
-#    return generic_delete(request, request.POST.get('id'), Memo)
-    return generic_post_delete(request, Memo)
+    return generic_delete(request, Memo)
 
 @login_required
 def reload_detailview(request, entity_id):

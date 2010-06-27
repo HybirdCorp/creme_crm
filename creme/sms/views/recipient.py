@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.http import HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext
 from django.contrib.auth.decorators import login_required
@@ -85,15 +85,18 @@ def add_from_csv(request, id):
 
 @login_required
 @get_view_or_die('sms')
-def delete(request, id):
-    recipient = get_object_or_404(Recipient , pk=id)
-    sendlist = recipient.sendlist
+def delete(request):
+    recipient = get_object_or_404(Recipient , pk=request.POST.get('id'))
+    sendlist  = recipient.sendlist
 
     die_status = edit_object_or_die(request, sendlist)
     if die_status:
         return die_status
 
     recipient.delete()
+
+    if request.is_ajax():
+        return HttpResponse("success", mimetype="text/javascript")
 
     return HttpResponseRedirect(sendlist.get_absolute_url())
 

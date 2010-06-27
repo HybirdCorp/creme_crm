@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.http import HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext
 from django.contrib.auth.decorators import login_required
@@ -101,7 +101,8 @@ def add_contacts_from_filter(request, id):
 
 @login_required
 @get_view_or_die('sms')
-def _delete_aux(request, sendlist_id, subobject_id, deletor):
+def _delete_aux(request, sendlist_id, deletor):
+    subobject_id = request.POST.get('id')
     sendlist = get_object_or_404(SendList, pk=sendlist_id)
 
     die_status = edit_object_or_die(request, sendlist)
@@ -110,16 +111,19 @@ def _delete_aux(request, sendlist_id, subobject_id, deletor):
 
     deletor(sendlist, subobject_id)
 
+    if request.is_ajax():
+        return HttpResponse("", mimetype="text/javascript")
+
     return HttpResponseRedirect(sendlist.get_absolute_url())
 
-def delete_contact(request, sendlist_id, id):
-    return _delete_aux(request, sendlist_id, id, lambda ml, contact_id: ml.contacts.remove(contact_id))
+def delete_contact(request, sendlist_id):
+    return _delete_aux(request, sendlist_id, lambda ml, contact_id: ml.contacts.remove(contact_id))
 
-#def delete_organisation(request, sendlist_id, orga_id):
-#    return _delete_aux(request, sendlist_id, orga_id, lambda ml, orga_id: ml.organisations.remove(orga_id))
+#def delete_organisation(request, sendlist_id):
+#    return _delete_aux(request, sendlist_id, lambda ml, orga_id: ml.organisations.remove(orga_id))
 #
-#def delete_child(request, sendlist_id, child_id):
-#    return _delete_aux(request, sendlist_id, child_id, lambda ml, child_id: ml.children.remove(child_id))
+#def delete_child(request, sendlist_id):
+#    return _delete_aux(request, sendlist_id, lambda ml, child_id: ml.children.remove(child_id))
 
 @login_required
 def reload_block_contacts(request, id):

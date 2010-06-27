@@ -78,11 +78,11 @@ def get_column_header(context, column_name, field_name):
             'MEDIA_URL':   settings.MEDIA_URL
            }
 
-#DEPRECATED
-@register.inclusion_tag('creme_core/templatetags/widgets/block_line_deletor.html', takes_context=True)
-def get_line_deletor(context, delete_url):
-    context['delete_url'] = Template(delete_url).render(context)
-    return context
+#COMMENTED 27 june 2010
+#@register.inclusion_tag('creme_core/templatetags/widgets/block_line_deletor.html', takes_context=True)
+#def get_line_deletor(context, delete_url):
+    #context['delete_url'] = Template(delete_url).render(context)
+    #return context
 
 #COMMENTED 27 june 2010
 #@register.inclusion_tag('creme_core/templatetags/widgets/block_line_deletor2.html', takes_context=True)

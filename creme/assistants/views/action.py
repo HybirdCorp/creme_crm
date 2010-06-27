@@ -34,7 +34,7 @@ from creme_core.gui.block import str2list
 from assistants.models import Action
 from assistants.forms.action import ActionCreateForm, ActionEditForm
 from assistants.blocks import actions_it_block, actions_nit_block
-from utils import generic_add, generic_edit, generic_post_delete
+from utils import generic_add, generic_edit, generic_delete
 
 
 def add(request, entity_id):
@@ -43,10 +43,8 @@ def add(request, entity_id):
 def edit(request, action_id):
     return generic_edit(request, action_id, Action, ActionEditForm, u"Action pour <%s>")
 
-#def delete(request, action_id):
 def delete(request):
-#    return generic_delete(request, request.POST.get('id'), Action)
-    return generic_post_delete(request, Action)
+    return generic_delete(request, Action)
 
 @login_required
 def validate(request, action_id):

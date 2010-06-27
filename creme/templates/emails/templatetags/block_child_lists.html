@@ -26,7 +26,7 @@
                         <a href="{{ml.get_absolute_url}}">{{ml.name}}</a>
                     </td>
                     <td class="{{row_color}}" align="center" valign="center" style="width:10%;">
-                        {% get_line_deletor '/emails/mailing_list/{{object.pk}}/child/delete/{{ml.pk}}' %}
+                        {% get_line_deletor3 at_url '/emails/mailing_list/{{object.pk}}/child/delete' with_args "{'id':{{ml.pk}} }" %}
                     </td>
                 </tr>
             {% endfor %}

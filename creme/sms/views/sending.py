@@ -18,19 +18,19 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext
+from django.contrib.auth.decorators import login_required
 
 from creme_core.entities_access.functions_for_permissions import get_view_or_die, edit_object_or_die, read_object_or_die
 from creme_core.views.generic import inner_popup
 
-from sms.blocks import sendings_block, messages_block
-from sms.forms.message import SendingCreateForm
 from sms.models import SMSCampaign, Sending, Message
-from sms.webservice.samoussa import SamoussaBackEnd
-from sms.webservice.backend import WSException
+from sms.forms.message import SendingCreateForm
+from sms.blocks import sendings_block, messages_block
+#from sms.webservice.samoussa import SamoussaBackEnd
+#from sms.webservice.backend import WSException
 
 
 @login_required
@@ -62,16 +62,18 @@ def add(request, id):
 
 @login_required
 @get_view_or_die('sms')
-def delete(request, id):
-    sending = get_object_or_404(Sending , pk=id)
+#def delete(request, id):
+def delete(request):
+    #sending = get_object_or_404(Sending , pk=id)
+    sending = get_object_or_404(Sending , pk=request.POST.get('id'))
     campaign_id = sending.campaign_id
-    
+
     die_status = edit_object_or_die(request, sending)
     if die_status:
         return die_status
-    
+
     sending.delete()
-    
+
     if request.is_ajax():
         return HttpResponse("success", mimetype="text/javascript")
 
@@ -80,35 +82,32 @@ def delete(request, id):
 @login_required
 def sync_messages(request, id):
     sending = get_object_or_404(Sending, pk=id)
-    
-    campaign = sending.campaign
 
-    die_status = read_object_or_die(request, campaign)
+    die_status = read_object_or_die(request, sending.campaign)
     if die_status:
         return die_status
 
     Message.sync(sending)
+
     return HttpResponse('', status=200)
 
 @login_required
 def send_messages(request, id):
     sending = get_object_or_404(Sending, pk=id)
-    
-    campaign = sending.campaign
 
-    die_status = read_object_or_die(request, campaign)
+    die_status = read_object_or_die(request, sending.campaign)
     if die_status:
         return die_status
 
     Message.send(sending)
+
     return HttpResponse('', status=200)
 
 @login_required
 def detailview(request, id):
     sending  = get_object_or_404(Sending, pk=id)
-    campaign = sending.campaign
 
-    die_status = read_object_or_die(request, campaign)
+    die_status = read_object_or_die(request, sending.campaign)
     if die_status:
         return die_status
 
@@ -119,7 +118,6 @@ def detailview(request, id):
 @login_required
 def reload_block_sendings(request, id):
     return sendings_block.detailview_ajax(request, id)
-
 
 @login_required
 def delete_message(request, id):
