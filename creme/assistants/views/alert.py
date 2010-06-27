@@ -25,7 +25,7 @@ from django.contrib.auth.decorators import login_required
 from assistants.models import Alert
 from assistants.forms.alert import AlertCreateForm, AlertEditForm
 from assistants.blocks import alerts_block
-from utils import generic_add, generic_edit, generic_post_delete
+from utils import generic_add, generic_edit, generic_delete
 
 
 def add(request, entity_id):
@@ -34,10 +34,8 @@ def add(request, entity_id):
 def edit(request, alert_id):
     return generic_edit(request, alert_id, Alert, AlertEditForm, u"Alerte pour <%s>")
 
-#def delete(request, alert_id):
 def delete(request):
-#    return generic_delete(request, request.POST.get('id'), Alert)
-    return generic_post_delete(request, Alert)
+    return generic_delete(request, Alert)
 
 @login_required
 def validate(request, alert_id):

@@ -1,6 +1,5 @@
 {% load creme_block %}
 {% load sms_blocks %}
-
 <style>
 tr.creme-sms-message td.notsent {
 }
@@ -20,26 +19,22 @@ tr.creme-sms-message td.sent {
 tr.creme-sms-message td.error {
     background-color:#f7a590;
 }
-
 </style>
-
 <script type="text/javascript">
     sms_messages = {
         _reload: function() {
             creme.utils.loadBlock('{{update_url}}?base_url={{base_url}}');
         },
         send: function() {
-		    creme.ajax.json.post('/sms/campaign/sending/{{object.pk}}/messages/send/', {}, sms_messages._reload, sms_messages._reload);
-		},
-		sync: function() {
+            creme.ajax.json.post('/sms/campaign/sending/{{object.pk}}/messages/send/', {}, sms_messages._reload, sms_messages._reload);
+        },
+        sync: function() {
             creme.ajax.json.post('/sms/campaign/sending/{{object.pk}}/messages/sync/', {}, sms_messages._reload, sms_messages._reload);
-		}
-	};
+        }
+    };
 </script>
-
 <table class="table_detail_view ui-corner-all" id={{block_name}}>
     {% get_block_header '%s Message' '%s Messages' 'sms_48.png' 'Messages' %}
-
     <tbody class="collapsable">
         <tr>
             <th colspan="4" class="block_header_line_dark" align="left">
@@ -58,7 +53,6 @@ tr.creme-sms-message td.error {
                 <th class="block_header_line_dark">Message de statut</th>
                 <th class="block_header_line_dark">Supprimer</th>
             </tr>
-
             {% for message in page.object_list %}
                 <!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
                 <tr class="creme-sms-message">
@@ -66,7 +60,8 @@ tr.creme-sms-message td.error {
                     <td class="{{row_color}} {{message.status}}">{{message.statusname}}</td>
                     <td class="{{row_color}}">{{message.status_message}}</td>
                     <td class="{{row_color}}" align="center" valign="center" style="width:10%;">
-                        {% get_line_deletor '/sms/campaign/sending/message/delete/{{message.pk}}' %}
+                        {% comment %}{% get_line_deletor '/sms/campaign/sending/message/delete/{{message.pk}}' %}{% endcomment %}
+                        {% get_line_deletor3 at_url '/sms/campaign/sending/message/delete' with_args "{'id':{{message.pk}} }" %}
                     </td>
                 </tr>
             {% endfor %}

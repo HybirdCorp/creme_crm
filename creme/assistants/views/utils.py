@@ -85,15 +85,7 @@ def generic_edit(request, assistant_id, assistant_model, assistant_form, title):
                        context_instance=RequestContext(request))
 
 @login_required
-def generic_delete(request, assistant_id, assistant_model):
-    assistant = get_object_or_404(assistant_model, pk=assistant_id)
-    entity = assistant.creme_entity
-    assistant.delete()
-
-    return HttpResponseRedirect(entity.get_absolute_url())
-
-@login_required
-def generic_post_delete(request, assistant_model, pk_key='id'):
+def generic_delete(request, assistant_model, pk_key='id'):
     assistant = get_object_or_404(assistant_model, pk=request.POST.get(pk_key))
     assistant.delete()
 

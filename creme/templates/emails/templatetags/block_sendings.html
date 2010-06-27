@@ -1,11 +1,9 @@
 {% load creme_block %}
-
 <table class="table_detail_view ui-corner-all" id={{block_name}}>
     {% get_block_header '%s Envoi' '%s Envois' 'email_48.png' 'Envoi' %}
     <tbody class="collapsable">
         <tr>
             <th colspan="6" class="block_header_line_dark" align="left">
-                {% comment %}<a class="button_link" onclick="creme.utils.showInnerPopup('/emails/campaign/{{object.pk}}/sending/add')">{% endcomment %}
                 <a class="button_link" onclick="creme.utils.innerPopupNReload('/emails/campaign/{{object.pk}}/sending/add', '{{update_url}}?base_url={{base_url}}');">
                     <img src="{{MEDIA_URL}}images/add_22.png" border="0" title="Ajouter manuellement" alt="Ajouter" />Nouvel envoi
                 </a>
@@ -33,7 +31,7 @@
                         </a>
                     </td>
                     <td class="{{row_color}}" align="center" valign="center" style="width:10%;">
-                        {% get_line_deletor '/emails/campaign/sending/delete/{{sending.pk}}' %}
+                        {% get_line_deletor3 at_url '/emails/campaign/sending/delete' with_args "{'id':{{sending.pk}} }" %}
                     </td>
                 </tr>
             {% endfor %}

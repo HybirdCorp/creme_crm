@@ -25,8 +25,8 @@
         {% if page.paginator.count %}
             <tr>
                 <th class="block_header_line_dark">Date d'envoi</th>
-                <th class="block_header_line_dark">Nombre de mail(s)</th>
-                <th class="block_header_line_dark">Statuts</th>
+                <th class="block_header_line_dark">Nombre de SMS</th>
+                <th class="block_header_line_dark">Statut</th>
                 <th class="block_header_line_dark">Détails</th>
                 <th class="block_header_line_dark">Synchroniser</th>
                 <th class="block_header_line_dark">Supprimer</th>
@@ -48,7 +48,8 @@
                         </a>
                     </td>
                     <td class="{{row_color}}" align="center" valign="center" style="width:10%;">
-                        {% get_line_deletor '/sms/campaign/sending/delete/{{sending.pk}}' %}
+                        {% comment %}{% get_line_deletor '/sms/campaign/sending/delete/{{sending.pk}}' %}{% endcomment %}
+                        {% get_line_deletor3 at_url '/sms/campaign/sending/delete' with_args "{'id':{{sending.pk}} }" %}
                     </td>
                 </tr>
             {% endfor %}

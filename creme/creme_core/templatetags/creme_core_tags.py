@@ -19,7 +19,7 @@
 ################################################################################
 
 from time import mktime
-from re import search as re_search
+from re import compile as compile_re
 from logging import debug
 
 from django.db import models
@@ -259,6 +259,8 @@ def isiterable(iterable):
 def format(ustring, format_str):
     return format_str % ustring
 
+_templatize_re = compile_re(r'(.*?) as (\w+)')
+
 @register.tag(name="templatize")
 def do_templatize(parser, token):
     try:
@@ -267,7 +269,7 @@ def do_templatize(parser, token):
     except ValueError:
         raise template.TemplateSyntaxError, "%r tag requires arguments" % token.contents.split()[0]
 
-    match = re_search(r'(.*?) as (\w+)', arg)
+    match = _templatize_re.search(arg)
     if not match:
         raise template.TemplateSyntaxError, "%r tag had invalid arguments" % tag_name
 

@@ -18,8 +18,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.http import HttpResponseRedirect
-from django.shortcuts import get_object_or_404 #render_to_response
+from django.http import HttpResponse, HttpResponseRedirect
+from django.shortcuts import get_object_or_404
 from django.template import RequestContext
 from django.contrib.auth.decorators import login_required
 from django.contrib.contenttypes.models import ContentType
@@ -82,14 +82,17 @@ def add_attachment(request, template_id):
 
 @login_required
 @get_view_or_die('emails')
-def delete_attachment(request, template_id, att_id):
+def delete_attachment(request, template_id):
     template = get_object_or_404(EmailTemplate, pk=template_id)
 
     die_status = edit_object_or_die(request, template)
     if die_status:
         return die_status
 
-    template.attachments.remove(att_id)
+    template.attachments.remove(request.POST.get('id'))
+
+    if request.is_ajax():
+        return HttpResponse("", mimetype="text/javascript")
 
     return HttpResponseRedirect(template.get_absolute_url())
 

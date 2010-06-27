@@ -51,19 +51,19 @@ MESSAGE_STATUS_TRADS = {MESSAGE_STATUS_NOTSENT:(_(u'Non envoyé'), _(u'Non envoy
 
 
 class Sending(CremeModel):
+    date     = DateField(_(u'Date'))
+    campaign = ForeignKey(SMSCampaign, verbose_name=_(u'Campagne'), related_name="sendings")
+    template = ForeignKey(MessageTemplate, verbose_name=_(u'Patron de message'))
+    content  = TextField(_(u'Message généré'), max_length=160)
+
     class Meta:
         app_label = "sms"
         verbose_name = _(u'Envoi')
         verbose_name_plural = _(u'Envois')
 
-    date = DateField()
-    campaign = ForeignKey(SMSCampaign, verbose_name=_(u'Campagne'), related_name="sendings")
-    template = ForeignKey(MessageTemplate, verbose_name=_(u'Patron de message'))
-    content = TextField(_(u'Message généré'), max_length=160)
-        
     def __unicode__(self):
         return self.date
-    
+
     def formatstatus(self):
         items = ((self.messages.filter(status=status).count(), status_name) for status, status_name in MESSAGE_STATUS_TRADS.iteritems())
         return ', '.join(('%s %s' % (count, label[1] if count > 1 else label[0]) for count, label in items if count > 0))
@@ -73,7 +73,7 @@ class Sending(CremeModel):
         ws.connect()
         ws.delete_messages(user_data=self.id)
         ws.close()
-        
+
         self.messages.all().delete()
         return super(Sending, self).delete()
 

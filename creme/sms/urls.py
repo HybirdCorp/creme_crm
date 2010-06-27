@@ -12,18 +12,20 @@ urlpatterns = patterns('sms.views',
     (r'^campaign/(?P<id>\d+)$',      'campaign.detailview'),
 
     #Campaign: mailing_list block
-    (r'^campaign/(?P<id>\d+)/sendlist/add$',                   'campaign.add_sendlist'),
-    (r'^campaign/(?P<campaign_id>\d+)/sendlist/delete/(?P<id>\d+)$',    'campaign.delete_sendlist'),
-    (r'^campaign/(?P<id>\d+)/sendlist/reload/$',               'campaign.reload_block_sendlist'),
+    (r'^campaign/(?P<id>\d+)/sendlist/add$',             'campaign.add_sendlist'),
+    (r'^campaign/(?P<campaign_id>\d+)/sendlist/delete$', 'campaign.delete_sendlist'),
+    (r'^campaign/(?P<id>\d+)/sendlist/reload/$',         'campaign.reload_block_sendlist'),
 
     #Campaign: sending block
     (r'^campaign/(?P<id>\d+)/sending/add$',      'sending.add'),
-    (r'^campaign/sending/delete/(?P<id>\d+)$',   'sending.delete'),
+    #(r'^campaign/sending/delete/(?P<id>\d+)$',   'sending.delete'),
+    (r'^campaign/sending/delete$',               'sending.delete'),
     (r'^campaign/(?P<id>\d+)/sendings/reload/$', 'sending.reload_block_sendings'),
 
     #Campaign: sending details block
     (r'^campaign/sending/(?P<id>\d+)$',                    'sending.detailview'),
-    (r'^campaign/sending/message/delete/(?P<id>\w+)$',     'sending.delete_message'),
+    #(r'^campaign/sending/message/delete/(?P<id>\w+)$',     'sending.delete_message'),
+    (r'^campaign/sending/message/delete$',                 'sending.delete_message'),
     (r'^campaign/sending/(?P<id>\d+)/messages/sync/$',     'sending.sync_messages'),
     (r'^campaign/sending/(?P<id>\d+)/messages/send/$',     'sending.send_messages'),
     (r'^campaign/sending/(?P<id>\d+)/messages/reload/$',   'sending.reload_block_messages'),
@@ -36,14 +38,14 @@ urlpatterns = patterns('sms.views',
     #Mailing list: recipients block
     (r'^sendlist/(?P<id>\d+)/recipient/add$',       'recipient.add'),
     (r'^sendlist/(?P<id>\d+)/recipient/add_csv$',   'recipient.add_from_csv'),
-    (r'^sendlist/recipient/delete/(?P<id>\d+)$',    'recipient.delete'),
+    (r'^sendlist/recipient/delete$',                'recipient.delete'),
     (r'^sendlist/(?P<id>\d+)/recipients/reload/$',  'recipient.reload_block_recipients'),
 
     #Mailing list: contacts block
-    (r'^sendlist/(?P<id>\d+)/contact/add$',                         'sendlist.add_contacts'),
-    (r'^sendlist/(?P<id>\d+)/contact/add_from_filter$',             'sendlist.add_contacts_from_filter'),
-    (r'^sendlist/(?P<sendlist_id>\d+)/contact/delete/(?P<id>\d+)$', 'sendlist.delete_contact'),
-    (r'^sendlist/(?P<id>\d+)/contacts/reload/$',                    'sendlist.reload_block_contacts'),
+    (r'^sendlist/(?P<id>\d+)/contact/add$',             'sendlist.add_contacts'),
+    (r'^sendlist/(?P<id>\d+)/contact/add_from_filter$', 'sendlist.add_contacts_from_filter'),
+    (r'^sendlist/(?P<sendlist_id>\d+)/contact/delete',  'sendlist.delete_contact'),
+    (r'^sendlist/(?P<id>\d+)/contacts/reload/$',        'sendlist.reload_block_contacts'),
 
     #Mailing list: organisations block
 #    (r'^mailing_list/(?P<ml_id>\d+)/organisation/add$',                     'mailing_list.add_organisations'),
@@ -63,11 +65,6 @@ urlpatterns = patterns('sms.views',
     (r'^template/add$',                       'template.add'),
     (r'^template/edit/(?P<template_id>\d+)$', 'template.edit'),
     (r'^template/(?P<template_id>\d+)$',      'template.detailview'),
-
-    #Template: attachment block
-#    (r'^template/(?P<template_id>\d+)/attachment/add$',                    'template.add_attachment'),
-#    (r'^template/(?P<template_id>\d+)/attachment/delete/(?P<att_id>\d+)$', 'template.delete_attachment'),
-#    (r'^template/(?P<template_id>\d+)/attachments/reload/$',               'template.reload_block_attachments'),
 
     #mails history block
 #    (r'^entity/(?P<entity_id>\d+)/mails_history/reload/$', 'mail.reload_block_mails_history'),

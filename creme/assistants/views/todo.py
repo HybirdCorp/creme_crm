@@ -25,7 +25,7 @@ from django.contrib.auth.decorators import login_required
 from assistants.models import ToDo
 from assistants.forms.todo import ToDoCreateForm, ToDoEditForm
 from assistants.blocks import todos_block
-from utils import generic_add, generic_edit, generic_post_delete
+from utils import generic_add, generic_edit, generic_delete
 
 
 def add(request, entity_id):
@@ -41,10 +41,8 @@ def validate(request, todo_id):
     todo.save()
     return HttpResponseRedirect(todo.creme_entity.get_absolute_url())
 
-#def delete(request, todo_id):
 def delete(request):
-#    return generic_delete(request, request.POST.get('id'), ToDo)
-    return generic_post_delete(request, ToDo)
+    return generic_delete(request, ToDo)
 
 @login_required
 def reload_detailview(request, entity_id):

@@ -62,17 +62,18 @@ def add(request, campaign_id):
 #TODO: use generic delete ?? (return url not really used)
 @login_required
 @get_view_or_die('emails')
-def delete(request, sending_id):
-    sending  = get_object_or_404(EmailSending, pk=sending_id)
+def delete(request):
+    sending  = get_object_or_404(EmailSending, pk=request.POST.get('id'))
     campaign = sending.campaign
 
     die_status = edit_object_or_die(request, campaign)
     if die_status:
         return die_status
 
-    #if sending.state == SENDING_STATE_PLANNED: #useful ??
-    sending.mails_set.all().delete() #use CremeModel delete() ??
     sending.delete()
+
+    if request.is_ajax():
+        return HttpResponse("", mimetype="text/javascript")
 
     return HttpResponseRedirect(campaign.get_absolute_url())
 

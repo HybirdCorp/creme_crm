@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.http import HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.template import RequestContext
 from django.contrib.auth.decorators import login_required
@@ -53,15 +53,14 @@ def delete(request, id):
     callback_url = campaign.get_lv_absolute_url()
 
     campaign.delete()
-    
+
     return HttpResponseRedirect(callback_url)
 
 @login_required
 @get_view_or_die('sms')
 def detailview(request, id):
     return view_entity_with_template(request, id, SMSCampaign,
-                                     '/sms/campaign',
-                                     'sms/view_campaign.html')
+                                     '/sms/campaign', 'sms/view_campaign.html')
 
 @login_required
 @get_view_or_die('sms')
@@ -97,14 +96,17 @@ def add_sendlist(request, id):
 
 @login_required
 @get_view_or_die('sms')
-def delete_sendlist(request, campaign_id, id):
+def delete_sendlist(request, campaign_id):
     campaign = get_object_or_404(SMSCampaign, pk=campaign_id)
 
     die_status = edit_object_or_die(request, campaign)
     if die_status:
         return die_status
 
-    campaign.sendlists.remove(id)
+    campaign.sendlists.remove(request.POST.get('id'))
+
+    if request.is_ajax():
+        return HttpResponse("", mimetype="text/javascript")
 
     return HttpResponseRedirect(campaign.get_absolute_url())
 

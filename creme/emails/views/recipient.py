@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.http import HttpResponseRedirect
+from django.http import HttpResponse #HttpResponseRedirect
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext
 from django.contrib.auth.decorators import login_required
@@ -85,8 +85,8 @@ def add_from_csv(request, ml_id):
 
 @login_required
 @get_view_or_die('emails')
-def delete(request, recip_id):
-    recipient = get_object_or_404(EmailRecipient , pk=recip_id)
+def delete(request):
+    recipient = get_object_or_404(EmailRecipient , pk=request.POST.get('id'))
     ml = recipient.ml
 
     die_status = edit_object_or_die(request, ml)
@@ -95,6 +95,10 @@ def delete(request, recip_id):
 
     recipient.delete()
 
+    if request.is_ajax():
+        return HttpResponse("success", mimetype="text/javascript")
+
+    #return HttpResponse()
     return HttpResponseRedirect(ml.get_absolute_url())
 
 @login_required
