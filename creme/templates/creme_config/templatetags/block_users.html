@@ -1,5 +1,4 @@
 {% load creme_block %}
-
 <table class="table_detail_view ui-corner-all" id={{block_name}}>
     {% get_block_header '%s Utilisateur' '%s Utilisateurs' %}
     <tbody class="collapsable">
@@ -11,9 +10,8 @@
                 </a>
             </th>
         </tr>
-
         <tr>
-             {% get_column_header "Nom d'utilisateur" 'username' %}
+            {% get_column_header "Nom d'utilisateur" 'username' %}
             {% get_column_header 'Nom' 'last_name' %}
             {% get_column_header 'Prénom' 'first_name' %}
             {% get_column_header 'Adresse électronique' 'email' %}
@@ -24,7 +22,6 @@
             <th class="block_header_line_light">Actions</th>
             <th class="block_header_line_light">Mot de passe</th>
         </tr>
-
         {% for user in page.object_list %}
             <!--{% cycle "block_line_light" "block_line_dark" as row_color %}-->
             <tr>
@@ -40,7 +37,7 @@
                     <a href="/creme_config/user/edit/{{user.id}}">
                         <img src="{{MEDIA_URL}}images/edit_22.png" border="0" alt="Éditer" title="Éditer">
                     </a>
-                    {% get_line_deletor2 '/creme_config/user/delete' "{ 'id': '{{user.id}}' }" %}
+                    {% get_line_deletor3 at_url '/creme_config/user/delete' with_args "{'id':'{{user.id}}'}" %}
                 </td>
                 <td class="{{row_color}}">
                     <a href="/creme_config/user/edit/password/{{user.id}}">

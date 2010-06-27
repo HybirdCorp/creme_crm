@@ -1,18 +1,14 @@
 {% load creme_block %}
-
 <table class="table_detail_view ui-corner-all" id={{block_name}}>
     {% get_block_header '%s Sujet' '%s Sujets' %}
-
     <tbody class="collapsable">
         <tr>
             <th class="block_header_line_light" align="left" colspan="2">
-                {% comment %}<a class="button_link" onclick="creme.utils.showInnerPopup('/activities/activity/{{object.id}}/subject/add')">{% endcomment %}
                 <a class="button_link" onclick="creme.utils.innerPopupNReload('/activities/activity/{{object.id}}/subject/add', '{{update_url}}?base_url={{base_url}}');">
                     <img src="{{MEDIA_URL}}images/add_22.png" border="0" title="Ajouter un sujet" alt="Ajouter" />Nouveau
                 </a>
             </th>
         </tr>
-
         {% if page.paginator.count %}
             {% for relation in page.object_list %}
                 <!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
@@ -22,7 +18,7 @@
                             <a href="{{subject.get_absolute_url}}">{{subject}}</a>
                         </td>
                         <td class="{{row_color}}" align="center" valign="center" style="width:10%;">
-                            {% get_line_deletor2 '/creme_core/relation/delete' "{ 'id':{{relation.pk}}, 'object_id':{{object.pk}} }" %}
+                            {% get_line_deletor3 at_url '/creme_core/relation/delete' with_args "{'id':{{relation.pk}}, 'object_id':{{object.pk}} }" %}
                         </td>
                     </tr>
                 {% endwith %}

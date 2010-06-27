@@ -51,11 +51,10 @@
                         </form>
                     </td>
                     <td class="{{row_color}}" align="center" valign="center" style="width:10%;">
-                        {% comment %}<a onclick="creme.utils.showInnerPopup('/assistants/alert/edit/{{alert.id}}/')">{% endcomment %}
                         <a onclick="creme.utils.innerPopupNReload('/assistants/alert/edit/{{alert.id}}/', '{{update_url}}?base_url={{base_url}}');">
                             <img src="{{MEDIA_URL}}images/edit_22.png" border="0">
                         </a>
-                        {% get_line_deletor2 '/assistants/alert/delete' "{'id': {{alert.id}} }" %}
+                        {% get_line_deletor3 at_url '/assistants/alert/delete' with_args "{'id' : {{alert.id}} }" %}
                     </td>
                 </tr>
             {% endfor %}

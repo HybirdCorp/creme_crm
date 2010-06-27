@@ -27,16 +27,14 @@
                 <!-- {% cycle "block_line_dark" "block_line_light" as row_color %} -->
                 <tr>
                     <td class="{{row_color}}" align=center>
-                        <a href="/persons/contact/{{resource.linked_contact.id}}">{% comment %} TODO get_absolute_url {% endcomment %}
-                            {{resource.linked_contact.civility}} {{resource.linked_contact.first_name}} {{resource.linked_contact.last_name}}
-                        </a>
+                        <a href="/persons/contact/{{resource.linked_contact.id}}">{{resource.linked_contact}}</a>
                     </td>
                     <td class="{{row_color}}" align="center">{{resource.hourly_cost}} € / heure</td>
                     <td class="{{row_color}}" align="center" valign="center" style="width:10%;">
                         <a class="button_link" onclick="creme.utils.showInnerPopup('{{resource.get_edit_absolute_url}}');">
                             <img src="{{MEDIA_URL}}images/edit_22.png" border="0" title="Edition d'une ressource" alt="Editer" />
                         </a>
-                        {% get_line_deletor2 '/projects/resource/delete' "{ 'id':{{resource.pk}} }" %}
+                        {% get_line_deletor3 at_url '/projects/resource/delete' with_args "{'id':{{resource.pk}} }" %}
                     </td>
                 </tr>
             {% endfor %}

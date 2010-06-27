@@ -37,6 +37,7 @@
                     <img src="{{MEDIA_URL}}images/edit_22.png" border="0" alt="Éditer portail" title="Éditer portail">
                 </a>
             </td>
+            <td class="{{row_color}}"></td>
         </tr>
 
         {% if page.paginator.count %}
@@ -57,7 +58,7 @@
                         </a>
                     </td>
                     <td class="{{row_color}}">
-                        {% get_line_deletor2 '/creme_config/blocks/delete' "{ 'id': '{{ct.id}}' }" %}
+                        {% get_line_deletor3 at_url '/creme_config/blocks/delete' with_args "{'id': '{{ct.id}}'}" %}
                     </td>
                 </tr>
             {% endfor %}

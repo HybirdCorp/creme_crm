@@ -6,10 +6,6 @@
         {% if object %}
             <tr>
                 <th class="block_header_line_light" style="font-size:14px;" align="left" colspan="8">
-                    {% comment %}<a class="button_link" onclick="creme.utils.showInnerPopup('/assistants/action/add/{{object.id}}/')">
-                            <img src="{{MEDIA_URL}}images/add_22.png" border="0" title="Ajouter" alt="Ajouter" />
-                            Nouvelle
-                    </a>{% endcomment %}
                     <a class="button_link" onclick="creme.utils.innerPopupNReload('/assistants/action/add/{{object.id}}/', '{{update_url}}?base_url={{base_url}}');">
                         <img src="{{MEDIA_URL}}images/add_22.png" border="0" title="Ajouter" alt="Ajouter" />
                         Nouvelle
@@ -17,7 +13,6 @@
                 </th>
             </tr>
         {% endif %}
-
         {% if page.paginator.count %}
             <tr>
                 {% get_column_header 'Titre' 'title' %}
@@ -49,18 +44,17 @@
                     <td class="{{row_color}}">
                         <form method="post" action="/assistants/action/validate/{{action.id}}/">
                             <input type="checkbox" name="checked_action{{action.id}}" id="checked_action{{action.id}}" />
+                                {# move validateEntity() to a 'assistants.js' file ?? #}
                                 <button type="button" onclick="creme.utils.validateEntity(this.form, 'checked_action{{action.id}}');" style="background:transparent; cursor:pointer;border:0px;">
                                 <img src="{{MEDIA_URL}}images/refresh_16.png" width="16" height="16" border="0" />
                             </button>
                         </form>
                     </td>
                     <td class="{{row_color}}" align="center" valign="center" style="width:10%;">
-                        {% comment %}<a onclick="creme.utils.showInnerPopup('/assistants/action/edit/{{action.id}}/')">{% endcomment %}
                         <a onclick="creme.utils.innerPopupNReload('/assistants/action/edit/{{action.id}}/', '{{update_url}}?base_url={{base_url}}');">
                             <img src="{{MEDIA_URL}}images/edit_22.png" border="0">
                         </a>
-                        {# get_line_deletor '/assistants/action/delete/{{action.id}}/' #}
-                        {% get_line_deletor2 '/assistants/action/delete' "{ 'id':{{action.id}} }" %}
+                        {% get_line_deletor3 at_url '/assistants/action/delete' with_args "{'id' : {{action.id}} }" %}
                     </td>
                 </tr>
             {% endfor %}

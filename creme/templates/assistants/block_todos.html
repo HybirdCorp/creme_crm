@@ -7,14 +7,13 @@
         {% if object %}
             <tr>
                 <th colspan="7" class="block_header_line_dark" align="left">
-                    {% comment %}<a class="button_link" onclick="creme.utils.showInnerPopup('/assistants/todo/add/{{object.id}}/')">{% endcomment %}
+                    {# creating a generic line_creator ? #}
                     <a class="button_link" onclick="creme.utils.innerPopupNReload('/assistants/todo/add/{{object.id}}/', '{{update_url}}?base_url={{base_url}}');">
                         <img src="{{MEDIA_URL}}images/add_22.png" border="0" title="Ajouter un nouveau Todo" alt="Ajouter" />Nouveau
                     </a>
                 </th>
             </tr>
         {% endif %}
-
         {% if page.paginator.count %}
             <tr>
                 {% if not object %}
@@ -28,7 +27,6 @@
                 <th class="block_header_line_dark">Valider</th>
                 <th class="block_header_line_dark">Actions</th>
             </tr>
-
             {% for todo in page.object_list %}
                 <!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
                 <tr>
@@ -55,12 +53,10 @@
                         {% endif %}
                     </td>
                     <td class="{{row_color}}" align="center" valign="center" style="width:10%;">
-                        {% comment %}<a onclick="creme.utils.showInnerPopup('/assistants/todo/edit/{{todo.id}}/')">{% endcomment %}
                         <a onclick="creme.utils.innerPopupNReload('/assistants/todo/edit/{{todo.id}}/', '{{update_url}}?base_url={{base_url}}');">
                             <img src="{{MEDIA_URL}}images/edit_22.png" border="0">
                         </a>
-                        {# get_line_deletor '/assistants/todo/delete/{{todo.id}}/' #}
-                        {% get_line_deletor2 '/assistants/todo/delete' "{'id' : {{todo.id}} }" %}
+                        {% get_line_deletor3 at_url '/assistants/todo/delete' with_args "{'id' : {{todo.id}} }" %}
                     </td>
                 </tr>
             {% endfor %}
