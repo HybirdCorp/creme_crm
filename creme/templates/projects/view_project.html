@@ -3,46 +3,46 @@
 {% load creme_block %}
 {% load projects_blocks %}
 
-    {% block button_tab_extra_3 %}
-        {% if not object.effective_end_date %}
-            <a class="a_button_with_border" href="/projects/project/{{object.id}}/close" >
-                <img src="{{MEDIA_URL}}images/cancel_32.png" border="0" title="Clôture" alt="Clôture" />
-                Clôturer le projet
-            </a>
-        {% endif %}
-    {% endblock %}
+{% block button_tab_extra_3 %}
+    {% if not object.effective_end_date %}
+        <a class="a_button_with_border" href="/projects/project/{{object.id}}/close" >
+            <img src="{{MEDIA_URL}}images/cancel_32.png" border="0" title="Clôture" alt="Clôture" />
+            Clôturer le projet
+        </a>
+    {% endif %}
+{% endblock %}
 
-    {% block logo %}<img src="{{MEDIA_URL}}images/project_64.png" alt=""/>{% endblock %}
+{% block logo %}<img src="{{MEDIA_URL}}images/project_64.png" alt=""/>{% endblock %}
 
-    {% block before_detail_view_1 %}
-        {% get_tasks %}
-    {% endblock %}
-    
-    {% block detail_view_left_1 %}
-        {% include "creme_core/object_as_table.html" %}
+{% block before_detail_view_1 %}
+    {% get_tasks %}
+{% endblock %}
 
-        <!-- ####################### EXTRA INFOS ########################### -->
-        <table  class="table_detail_view ui-corner-all">
-            {% get_basic_block_header 'Informations Supplémentaires' 'infos_48.png' 'Infos' %}
+{% block detail_view_left_1 %}
+    {% include "creme_core/object_as_table.html" %}
 
-            <tbody>
-                <tr>
-                    <th class="block_header_line_dark">Coût total du projet (euros)</th>
-                    <td class="block_line_dark" align="center"><strong>{{object.get_project_cost}} €</strong></td>
-                </tr>
-                <tr>
-                    <th class="block_header_line_dark">Heure(s) supplémentaire(s) totale(s)</th>
-                    <td class="block_line_dark" align="center">
-                    {% if object.get_delay %}
-                        <strong>{{object.get_delay}} h</strong>
-                    {% else %}
-                        --
-                    {% endif %}
-                    </td>
-                </tr>
-            </tbody>
-        </table>
+    <!-- ####################### EXTRA INFOS ########################### -->
+    <table  class="table_detail_view ui-corner-all">
+        {% get_basic_block_header 'Informations Supplémentaires' 'infos_48.png' 'Infos' %}
 
-        {% get_properties %}
-        {% get_relations %}
-    {% endblock %}
+        <tbody>
+            <tr>
+                <th class="block_header_line_dark">Coût total du projet (euros)</th>
+                <td class="block_line_dark" align="center"><strong>{{object.get_project_cost}} €</strong></td>
+            </tr>
+            <tr>
+                <th class="block_header_line_dark">Heure(s) supplémentaire(s) totale(s)</th>
+                <td class="block_line_dark" align="center">
+                {% if object.get_delay %}
+                    <strong>{{object.get_delay}} h</strong>
+                {% else %}
+                    --
+                {% endif %}
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+    {% get_properties %}
+    {% get_relations %}
+{% endblock %}

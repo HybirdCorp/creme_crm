@@ -1,13 +1,11 @@
 {% extends "creme_core/generics/view_entity.html" %}
 
-    {% block logo %}<img src="{{MEDIA_URL}}images/product_64.png" alt=""/>{% endblock %}
+{% block logo %}<img src="{{MEDIA_URL}}images/product_64.png" alt=""/>{% endblock %}
 
-    {% block before_detail_view_1 %}
-
-        {% for object in object.images.all %}
-            <a href="/download_file/{{ object.image }}" alt="{{ object.image }}">
-                <img src="{{MEDIA_URL}}{{ object.image }}" />
-            </a>
-        {% endfor %}
-
-    {% endblock %}
+{% block before_detail_view_1 %}
+    {% for object in object.images.all %}
+        <a href="/download_file/{{object.image}}" alt="{{object.image}}">
+            <img src="{{MEDIA_URL}}{{object.image}}" />
+        </a>
+    {% endfor %}
+{% endblock %}

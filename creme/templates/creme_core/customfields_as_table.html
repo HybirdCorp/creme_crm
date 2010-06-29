@@ -1,0 +1,16 @@
+{% load creme_block %}
+{% with object.get_custom_fields as custom_fields %}
+    {% if custom_fields %}
+        <table class="table_detail_view ui-corner-all">
+            {% get_basic_block_header 'Champs personnalisés' 'infos_48.png' 'Infos' %}
+            <tbody class="collapsable">
+                {% for field, value in custom_fields %}
+                    <tr>
+                        <th class="block_header_line_dark">{{field.name}}</th>
+                        <td class="block_line_dark">{{value}}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% endif %}
+{% endwith %}

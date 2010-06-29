@@ -23,7 +23,7 @@ from logging import debug
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models.query_utils import Q
-from django.http import HttpResponse
+from django.http import HttpResponse, Http404
 
 from django.utils.simplejson import JSONEncoder
 
@@ -36,6 +36,14 @@ def creme_entity_content_types():
 
 def Q_creme_entity_content_types():
     return ContentType.objects.filter(pk__in=[ct_model.pk for ct_model in creme_entity_content_types()])
+
+def get_ct_or_404(ct_id):
+    try:
+        ct = ContentType.objects.get_for_id(ct_id)
+    except ContentType.DoesNotExist:
+        raise Http404('No content type with this id: %s' % ct_id)
+
+    return ct
 
 def create_or_update_models_instance(model, pk=None, **kwargs):
     if pk is not None:

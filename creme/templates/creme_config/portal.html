@@ -5,44 +5,43 @@
 {% block header_link %}{% endblock %}
 
 {% block before_statistics %}
-    <!--
-        {% cycle "block_line_light" "block_line_dark" as row_color %}
-    -->
-
+    <!--{% cycle "block_line_light" "block_line_dark" as row_color %}-->
     <table class="table_detail_view ui-corner-all">
         <thead>
             <tr>
-                <th colspan="100">
+                <th colspan="1">
                     Général
                 </th>
             </tr>
         </thead>
         <tbody class="collapsable">
             <tr>
-                <td class="{% cycle row_color %}"> <a href="/creme_config/user/portal/">Gestion des utilisateurs</a> </td>
+                <td class="{% cycle row_color %}"><a href="/creme_config/user/portal/">Gestion des utilisateurs</a></td>
             </tr>
             <tr>
-                <td class="{% cycle row_color %}"> <a href="/creme_config/relation_type/portal/">Gestion des types de relation</a> </td>
+                <td class="{% cycle row_color %}"><a href="/creme_config/relation_type/portal/">Gestion des types de relation</a></td>
             </tr>
             <tr>
-                <td class="{% cycle row_color %}"> <a href="/creme_config/property_type/portal/">Gestion des types de propriété</a> </td>
+                <td class="{% cycle row_color %}"><a href="/creme_config/property_type/portal/">Gestion des types de propriété</a></td>
             </tr>
             <tr>
-                <td class="{% cycle row_color %}"> <a href="/creme_config/blocks/portal/">Gestion des blocs</a> </td>
+                <td class="{% cycle row_color %}"><a href="/creme_config/custom_fields/portal/">Gestion des champs personnalisés (custom fields)</a></td>
             </tr>
             <tr>
-                <td class="{% cycle row_color %}"> <a href="/creme_config/prefered_menu/edit/">Gestion du menu rapide par défaut</a> </td>
+                <td class="{% cycle row_color %}"><a href="/creme_config/blocks/portal/">Gestion des blocs</a></td>
             </tr>
             <tr>
-                <td class="{% cycle row_color %}"> <a href="/creme_config/button_menu/portal/">Gestion du menu bouton</a> </td>
+                <td class="{% cycle row_color %}"><a href="/creme_config/prefered_menu/edit/">Gestion du menu rapide par défaut</a></td>
+            </tr>
+            <tr>
+                <td class="{% cycle row_color %}"><a href="/creme_config/button_menu/portal/">Gestion du menu bouton</a></td>
             </tr>
         </tbody>
     </table>
-
     <table class="table_detail_view ui-corner-all">
         <thead>
             <tr>
-                <th colspan="100">
+                <th colspan="1">
                     Gestion des droits
                 </th>
             </tr>
@@ -62,11 +61,10 @@
             </tr>
         </tbody>
     </table>
-
     <table class="table_detail_view ui-corner-all">
         <thead>
             <tr>
-                <th colspan="100">
+                <th colspan="1">
                     À jarter
                 </th>
             </tr>
@@ -77,11 +75,10 @@
             </tr>
         </tbody>
     </table>
-
     <table class="table_detail_view ui-corner-all">
         <thead>
             <tr>
-                <th colspan="100">
+                <th colspan="1">
                     Portails des applications
                 </th>
             </tr>

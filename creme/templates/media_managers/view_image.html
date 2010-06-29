@@ -3,59 +3,58 @@
 {% load creme_core_tags %}
 {% load creme_block %}
 
+{% block logo %}<img src="{{MEDIA_URL}}images/.png" alt=""/>{% endblock %}
+
+{% block button_tab %}
+{% endblock %}
+
+{% block detail_view_left_1 %}
+    <a href="/download_file/{{ object.image }}" alt="{{ object.image }}"><img src="{{MEDIA_URL}}{{ object.image }}" width="100%" /></a>
+{% endblock %}
+
+{% block detail_view_right_1 %}
     <!--{% cycle "block_header_line_light" "block_header_line_dark" as header_row %}
         {% cycle "block_line_light" "block_line_dark" as row_color %}-->
+    <table class="table_detail_view ui-corner-all">
+        <thead>
+            <tr>
+                <th align="center" colspan="2">
+                    <img src="{{MEDIA_URL}}images/infos_48.png" alt="Infos" title="Infos">
+                    Informations sur l'image
+                </th>
+            </tr>
+        </thead>
+        <tbody class="collapsable">
+            <tr>
+                <th class="{% cycle header_row %}">Nom</th>
+                <td class="{% cycle row_color %}">{{object.name}}</td>
+            </tr>
+            <tr>
+                <th class="{% cycle header_row %}">Description</th>
+                <td class="{% cycle row_color %}">{{object.description}}</td>
+            </tr>
+            <tr>
+                <th class="{% cycle header_row %}">Hauteur</th>
+                <td class="{% cycle row_color %}">{{object.height}}px</td>
+            </tr>
+            <tr>
+                <th class="{% cycle header_row %}">Largeur</th>
+                <td class="{% cycle row_color %}">{{object.width}}px</td>
+            </tr>
+            <tr>
+                <th class="{% cycle header_row %}">Catégorie(s)</th>
+                <td class="{% cycle row_color %}">{{object|get_html_field_value:"categories"}}</td>
+            </tr>
+            <tr>
+                <th class="{% cycle header_row %}">&nbsp;</th>
+                <td class="{% cycle row_color %}"><a href="/download_file/{{ object.image }}" alt="{{ object.image }}">Télécharger l'image</a></td>
+            </tr>
+        </tbody>
+    </table>
+{% endblock %}
 
-    {% block logo %}<img src="{{MEDIA_URL}}images/.png" alt=""/>{% endblock %}
-
-    {% block button_tab %}
-    {% endblock %}
-
-    {% block detail_view_left_1 %}
-        <a href="/download_file/{{ object.image }}" alt="{{ object.image }}"><img src="{{MEDIA_URL}}{{ object.image }}" width="100%" /></a>
-    {% endblock %}
-
-    {% block detail_view_right_1 %}
-            <table class="table_detail_view ui-corner-all">
-            <thead>
-                <tr>
-                    <th align="center" colspan="2">
-                        <img src="{{MEDIA_URL}}images/infos_48.png" alt="Infos" title="Infos">
-                        Informations sur l'image
-                    </th>
-                </tr>
-            </thead>
-            <tbody class="collapsable">
-                <tr>
-                    <th class="{% cycle header_row %}">Nom</th>
-                    <td class="{% cycle row_color %}">{{object.name}}</td>
-                </tr>
-                <tr>
-                    <th class="{% cycle header_row %}">Description</th>
-                    <td class="{% cycle row_color %}">{{object.description}}</td>
-                </tr>
-                <tr>
-                    <th class="{% cycle header_row %}">Hauteur</th>
-                    <td class="{% cycle row_color %}">{{object.height}}px</td>
-                </tr>
-                <tr>
-                    <th class="{% cycle header_row %}">Largeur</th>
-                    <td class="{% cycle row_color %}">{{object.width}}px</td>
-                </tr>
-                <tr>
-                    <th class="{% cycle header_row %}">Catégorie(s)</th>
-                    <td class="{% cycle row_color %}">{{object|get_html_field_value:"categories"}}</td>
-                </tr>
-                <tr>
-                    <th class="{% cycle header_row %}">&nbsp;</th>
-                    <td class="{% cycle row_color %}"><a href="/download_file/{{ object.image }}" alt="{{ object.image }}">Télécharger l'image</a></td>
-                </tr>
-            </tbody>
-        </table>
-    {% endblock %}
-
-    {% block detail_view_right_2 %}
-        {% get_properties %}
-        {% get_relations %}
-    {% endblock %}
-
+{% block detail_view_right_2 %}
+    {% include "creme_core/customfields_as_table.html" %}
+    {% get_properties %}
+    {% get_relations %}
+{% endblock %}

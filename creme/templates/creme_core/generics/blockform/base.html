@@ -40,11 +40,12 @@
                 </thead>
                 <tbody class="collapsable">
                     <tr>
-                        <td>{{ form.non_field_errors }}</td>
+                        <td>{{form.non_field_errors}}</td>
                     </tr>
                 </tbody>
             </table>
         {% endif %}
+
         {% block submit_buttons %}
             {% if not hide_submit %}
                 <input type="submit" value="Envoyer" />

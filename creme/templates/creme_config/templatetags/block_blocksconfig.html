@@ -1,10 +1,7 @@
 {% load creme_block %}
-
 <table class="table_detail_view ui-corner-all" id={{block_name}}>
     <!--{% cycle "block_line_light" "block_line_dark" as row_color %}-->
-
     {% get_block_header '%s Type de resource configuré' '%s Types de resource configurés' %}
-
     <tbody class="collapsable">
         <tr>
             <th class="block_header_line_light" style="font-size:14px;" align="left" colspan="100">
@@ -14,14 +11,12 @@
                 </a>
             </th>
         </tr>
-
         <tr>
             <th class="block_header_line_light">Type</th>
             <th class="block_header_line_light">Éditer</th>
             <th class="block_header_line_light">Éditer le portail</th>
             <th class="block_header_line_light">Supprimer</th>
         </tr>
-
         {% comment %} ONLY IF PAGE==1 ?? {% endcomment %}
         <tr>
             <td class="{{row_color}}">
@@ -39,7 +34,6 @@
             </td>
             <td class="{{row_color}}"></td>
         </tr>
-
         {% if page.paginator.count %}
             {% for ct in page.object_list %}
                 <!--{% cycle row_color %}-->

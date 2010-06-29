@@ -1,13 +1,13 @@
 {% extends "creme_core/generics/view_entity.html" %}
 
-    {% block logo %}<img src="{{MEDIA_URL}}images/reporting_64.png" alt=""/>{% endblock %}
+{% block logo %}<img src="{{MEDIA_URL}}images/reporting_64.png" alt=""/>{% endblock %}
 
-    {% block edit_delete_buttons %}
-        <a href="/reports/report/{{object.id}}/odt">
-            <img src="{{MEDIA_URL}}images/document_odt_64.png" title="Télécharger '{{object}}' sous forme de fichier ODT" alt="Télécharger ODT"/>
-        </a>&nbsp;
-        <a href="/reports/report/{{object.id}}/csv">
-            <img src="{{MEDIA_URL}}images/document_csv_64.png" title="Télécharger '{{object}}' sous forme de fichier CSV" alt="Télécharger CSV"/>
-        </a>&nbsp;
-        {{block.super}}
-    {% endblock %}
+{% block edit_delete_buttons %}
+    <a href="/reports/report/{{object.id}}/odt">
+        <img src="{{MEDIA_URL}}images/document_odt_64.png" title="Télécharger '{{object}}' sous forme de fichier ODT" alt="Télécharger ODT"/>
+    </a>&nbsp;
+    <a href="/reports/report/{{object.id}}/csv">
+        <img src="{{MEDIA_URL}}images/document_csv_64.png" title="Télécharger '{{object}}' sous forme de fichier CSV" alt="Télécharger CSV"/>
+    </a>&nbsp;
+    {{block.super}}
+{% endblock %}

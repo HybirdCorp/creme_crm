@@ -3,9 +3,9 @@
 {% load creme_config_blocks %}
 
 {% block title %}
-    <a href="/creme_config/">Configuration > </a>Blocs
+    <a href="/creme_config/">Configuration > </a>Champs personnalisés
 {% endblock %}
 
 {% block before_statistics %}
-    {% get_blocksconfig %}
+    {% get_customfields_portal %}
 {% endblock %}
