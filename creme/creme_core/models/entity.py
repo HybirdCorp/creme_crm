@@ -20,7 +20,6 @@
 
 from logging import debug
 
-#from django.db.models import CharField
 from django.utils.encoding import force_unicode
 from django.utils.html import escape
 from django.utils.safestring import mark_safe
@@ -29,8 +28,6 @@ from django.contrib.contenttypes.models import ContentType
 from django.conf import settings
 
 from base import CremeAbstractEntity
-
-#from customfields  import *
 
 
 class CremeEntity(CremeAbstractEntity):
@@ -42,55 +39,15 @@ class CremeEntity(CremeAbstractEntity):
         app_label = 'creme_core'
         ordering = ('id',)
 
-    def __init__(self, *args, **kwargs):
-        super(CremeEntity, self).__init__(*args, **kwargs)
-
-        self.build_custom_fields()
-
-    def build_custom_fields(self):
-        pass
-#        self._meta.custom_fields = {}
-#        content_type = ContentType.objects.get_for_model ( self )
-#        self.content_type =  content_type
-#        List_Custom_Fields =  CustomFields.objects.all().filter ( custom_field_of_model = content_type.id )
-#        for CF in List_Custom_Fields:
-#            List_CFV =  CustomFieldsValue.objects.all().filter(custom_field= CF , creme_entity = self)
-#            
-#            if List_CFV.count() > 0:
-#                self.__dict__[ str(CF.name) ] = List_CFV[0].value_field
-#            else :
-#                 self.__dict__[ str(CF.name) ] = CF.default_value
-#            self._meta.custom_fields[ str(CF.name) ] = models.CharField(max_length=100, default = CF.default_value)
-
-    def save(self, *args, **kwargs):
-        super(CremeEntity, self).save(*args, **kwargs)
-
-#        if not self.pk : 
-#            for key, value in self._meta.custom_fields.iteritems():
-#                CFV =  CustomFieldsValue ( custom_field= CustomFields.objects.get ( name=key , custom_field_of_model = self.content_type ) , creme_entity=self , value_field=self.__dict__[ key ] )
-#                CFV.save ()
-#        else :
-#            for key, value in self._meta.custom_fields.iteritems():
-#                current_custom_field= CustomFields.objects.get ( name=key , custom_field_of_model = self.content_type )
-#                queryset_cfv =   CustomFieldsValue.objects.filter(creme_entity=self , custom_field=current_custom_field  )
-#                if  queryset_cfv.count () > 0 :
-#                    CFV = queryset_cfv[0]
-#                    CFV.value_field=self.__dict__[ key ]
-#                    CFV.save ()
-#                else : 
-#                    if value.default ==  self.__dict__[ key ]:
-#                        pass
-#                    else:
-#                        CFV =  CustomFieldsValue ( custom_field= CustomFields.objects.get ( name=key , custom_field_of_model = self.content_type ) , creme_entity=self , value_field=self.__dict__[ key ] )
-#                        CFV.save ()
-
     def delete(self):
-        #TODO: don't forget to delete custom fields
         for relation in self.relations.all():
             relation.delete()
 
         for prop in self.properties.all():
             prop.delete()
+
+        for cv in self.customvalues.all():
+            cv.delete()
 
         if settings.TRUE_DELETE:
             super(CremeEntity, self).delete()
@@ -178,3 +135,18 @@ class CremeEntity(CremeAbstractEntity):
     def get_entity_actions(self):
         return u"""<a href="%s">Voir</a> | <a href="%s">Éditer</a> | <a href="%s" onclick="creme.utils.confirmDelete(event, this);">Effacer</a>""" \
                 % (self.get_absolute_url(), self.get_edit_absolute_url(), self.get_delete_absolute_url())
+
+    #TODO: move to CustomField ???
+    #TODO: property + cache ???
+    def get_custom_fields(self):
+        cfields = CustomField.objects.filter(content_type=self.entity_type)
+
+        if not cfields:
+            return ()
+
+        values = dict((cfv.custom_field_id, cfv) for cfv in CustomFieldValue.objects.filter(custom_field__in=cfields, entity=self.id))
+
+        return [(cfield, values.get(cfield.id, '')) for cfield in cfields]
+
+
+from custom_field import CustomField, CustomFieldValue

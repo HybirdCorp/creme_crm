@@ -1,0 +1,40 @@
+{% load creme_block %}
+<table class="table_detail_view ui-corner-all" id={{block_name}}>
+    {% get_block_header '%s Type de resource configuré' '%s Types de resource configurés' %}
+    <tbody class="collapsable">
+        <tr>
+            <th class="block_header_line_light" style="font-size:14px;" align="left" colspan="3">
+                <a class="button_link" href="/creme_config/custom_fields/ct/add/">
+                    <img src="{{MEDIA_URL}}images/add_22.png" border="0" alt="Ajouter une configuration de champ personnalisé"/>
+                    Nouvelle configuration de champ personnalisé
+                </a>
+            </th>
+        </tr>
+        {% if page.paginator.count %}
+            <tr>
+                <th class="block_header_line_light">Type</th>
+                <th class="block_header_line_light">Détails</th>
+                <th class="block_header_line_light">Supprimer</th>
+            </tr>
+            {% for ct in page.object_list %}
+                <!--{% cycle "block_line_light" "block_line_dark" as row_color %}-->
+                <tr>
+                    <td class="{{row_color}}">{{ct}}</td>
+                    <td class="{{row_color}}">
+                        <a href="/creme_config/custom_fields/ct/{{ct.id}}">
+                            <img src="{{MEDIA_URL}}images/view_22.png" border="0" alt="Éditer" title="Éditer">
+                        </a>
+                    </td>
+                    <td class="{{row_color}}">
+                        {% get_line_deletor3 at_url '/creme_config/custom_fields/ct/delete' with_args "{'id': '{{ct.id}}'}" %}
+                    </td>
+                </tr>
+            {% endfor %}
+        {% else %}
+            <tr>
+                <td colspan="4" class="block_line_dark">Aucun type d'entité n'a de champ personnalisé pour le moment</td>
+            </tr>
+        {% endif %}
+    </tbody>
+    {% include 'creme_core/templatetags/widgets/block_footer.html' %}
+</table>

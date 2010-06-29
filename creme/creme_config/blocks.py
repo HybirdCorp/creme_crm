@@ -22,13 +22,21 @@ from django.utils.translation import ugettext_lazy as _
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 
-from creme_core.models import CremePropertyType, RelationType, BlockConfigItem, ButtonMenuItem, CremeAppDroit, CremeDroitEntityType
+from creme_core.models import (CremePropertyType, RelationType, CustomField,
+                               BlockConfigItem, ButtonMenuItem,
+                               CremeAppDroit, CremeDroitEntityType)
 from creme_core.gui.block import Block
 
 from creme_config.registry import config_registry
 
+__all__ = ('generic_models_block', 'property_types_block', 'relation_types_block',
+           'custom_fields_portal_block', 'custom_fields_block',
+           'blocks_config_block', 'button_menu_block',
+           'users_block', 'app_credentials_block', 'entity_credentials_block')
+
 
 _PAGE_SIZE = 12
+
 
 class GenericModelsBlock(Block):
     id_           = Block.generate_id('creme_config', 'model_config')
@@ -83,6 +91,38 @@ class RelationTypesBlock(Block):
                                                             update_url='/creme_config/relation_types/reload/'))
 
 
+class CustomFieldsPortalBlock(Block):
+    id_           = Block.generate_id('creme_config', 'custom_fields_portal')
+    page_size     = _PAGE_SIZE
+    verbose_name  = _(u'Configuration générale des champs personnalisés')
+    template_name = 'creme_config/templatetags/block_custom_fields_portal.html'
+
+    def detailview_display(self, context):
+        ct_ids = CustomField.objects.distinct().values_list('content_type_id', flat=True)
+
+        return self._render(self.get_block_template_context(context, ContentType.objects.filter(pk__in=ct_ids),
+                                                            update_url='/creme_config/custom_fields/portal/reload/'))
+
+
+class CustomFieldsBlock(Block):
+    id_           = Block.generate_id('creme_config', 'custom_fields')
+    page_size     = _PAGE_SIZE
+    verbose_name  = _(u'Configuration des champs personnalisés')
+    template_name = 'creme_config/templatetags/block_custom_fields.html'
+
+    def detailview_display(self, context):
+        ct = context['content_type'] #ct_id instead ??
+
+        return self._render(self.get_block_template_context(context, CustomField.objects.filter(content_type=ct),
+                                                            update_url='/creme_config/custom_fields/%s/reload/' % ct.id,
+                                                            ct=ct))
+
+    def detailview_ajax(self, request, ct_id):
+        ct = ContentType.objects.get_for_id(ct_id) #get_ct_or_404() ??
+
+        return super(CustomFieldsBlock, self).detailview_ajax(request, content_type=ct)
+
+
 class UsersBlock(Block):
     id_           = Block.generate_id('creme_config', 'user')
     order_by      = 'username'
@@ -106,6 +146,7 @@ class BlocksConfigBlock(Block):
 
         return self._render(self.get_block_template_context(context, ContentType.objects.filter(pk__in=ct_ids),
                                                             update_url='/creme_config/blocks/reload/'))
+
 
 class ButtonMenuBlock(Block):
     id_           = Block.generate_id('creme_config', 'button_menu')
@@ -144,11 +185,13 @@ class EntityCredentialsBlock(Block):
                                                             update_url='/creme_config/roles/entity_credentials/reload/'))
 
 
-generic_models_block     = GenericModelsBlock()
-property_types_block     = PropertyTypesBlock()
-relation_types_block     = RelationTypesBlock()
-users_block              = UsersBlock()
-blocks_config_block      = BlocksConfigBlock()
-button_menu_block        = ButtonMenuBlock()
-app_credentials_block    = AppCredentialsBlock()
-entity_credentials_block = EntityCredentialsBlock()
+generic_models_block       = GenericModelsBlock()
+property_types_block       = PropertyTypesBlock()
+relation_types_block       = RelationTypesBlock()
+custom_fields_portal_block = CustomFieldsPortalBlock()
+custom_fields_block        = CustomFieldsBlock()
+blocks_config_block        = BlocksConfigBlock()
+button_menu_block          = ButtonMenuBlock()
+users_block                = UsersBlock()
+app_credentials_block      = AppCredentialsBlock()
+entity_credentials_block   = EntityCredentialsBlock()

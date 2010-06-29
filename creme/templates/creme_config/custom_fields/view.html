@@ -1,0 +1,13 @@
+{% extends "creme_config/portal.html" %}
+
+{% load creme_config_blocks %}
+
+{% block title %}
+    <a href="/creme_config/">Configuration > </a>
+    <a href="/creme_config/custom_fields/portal/">Champs personnalisés > </a>
+    Resource: {{content_type}}
+{% endblock %}
+
+{% block before_statistics %}
+    {% get_customfields %}
+{% endblock %}

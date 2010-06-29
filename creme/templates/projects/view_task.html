@@ -4,55 +4,55 @@
 {% load projects_blocks %}
 {% load creme_core_tags %}
 
-    {% block logo %}<img src="{{MEDIA_URL}}images/project_64.png" alt=""/>{% endblock %}
+{% block logo %}<img src="{{MEDIA_URL}}images/project_64.png" alt=""/>{% endblock %}
 
-    {% block before_detail_view_1 %}
-        {% get_resources %}
-        {% get_working_periods %}
-    {% endblock %}
+{% block before_detail_view_1 %}
+    {% get_resources %}
+    {% get_working_periods %}
+{% endblock %}
 
-    {% block detail_view_left_1 %}
-        {% include "creme_core/object_as_table.html" %}
+{% block detail_view_left_1 %}
+    {% include "creme_core/object_as_table.html" %}
 
-        <!-- ####################### EXTRA INFOS ########################### -->
-        <table  class="table_detail_view ui-corner-all">
-            {% get_basic_block_header 'Informations Supplémentaires' 'infos_48.png' 'Infos' %}
+    <!-- ####################### EXTRA INFOS ########################### -->
+    <table  class="table_detail_view ui-corner-all">
+        {% get_basic_block_header 'Informations Supplémentaires' 'infos_48.png' 'Infos' %}
 
-            <tbody>
-                <tr>
-                    <th class="block_header_line_dark">Durée effective de la tâche (heures)</th>
-                    <td class="block_line_dark" align="center">{{object.get_effective_duration}} h</td>
-                </tr>
-                <tr>
-                    <th class="block_header_line_dark">Heure(s) supplémentaire(s) ou restante(s)</th>
-                    {% with object.get_delay as delay %}
-                        {% if delay|gt:0 %}
-                            <td class="td_error" align="center">
-                                <strong>{{object.get_effective_duration}}h : Hors délais {{delay}}h</strong>
-                            </td>
-                        {% else %}
-                            <td class="td_valid" align="center">
-                                <strong>{{object.get_effective_duration}}h : Temps restant {{delay|absolute}}h</strong>
-                            </td>
-                        {% endif %}
-                    {% endwith %}
-                </tr>
-                <tr>
-                    <th class="block_header_line_dark">Tâche(s) parente(s)</th>
-                    <td class="block_line_dark" align="center">
-                        {% for parent in object.get_parents %}
-                            <a href="{{parent.get_absolute_url}}">{{parent.subject}}</a>
-                            <a href="/projects/task/{{object.id}}/parent/delete/{{parent.id}}">
-                                <img src="{{MEDIA_URL}}images/delete_22.png" border="0" alt="Supprimer" title="Supprimer"/>
-                            </a>
-                        {% empty %}
-                            Cette tâche n'a aucun parent
-                        {% endfor %}
-                    </td>
-                </tr>
-            </tbody>
-        </table>
+        <tbody>
+            <tr>
+                <th class="block_header_line_dark">Durée effective de la tâche (heures)</th>
+                <td class="block_line_dark" align="center">{{object.get_effective_duration}} h</td>
+            </tr>
+            <tr>
+                <th class="block_header_line_dark">Heure(s) supplémentaire(s) ou restante(s)</th>
+                {% with object.get_delay as delay %}
+                    {% if delay|gt:0 %}
+                        <td class="td_error" align="center">
+                            <strong>{{object.get_effective_duration}}h : Hors délais {{delay}}h</strong>
+                        </td>
+                    {% else %}
+                        <td class="td_valid" align="center">
+                            <strong>{{object.get_effective_duration}}h : Temps restant {{delay|absolute}}h</strong>
+                        </td>
+                    {% endif %}
+                {% endwith %}
+            </tr>
+            <tr>
+                <th class="block_header_line_dark">Tâche(s) parente(s)</th>
+                <td class="block_line_dark" align="center">
+                    {% for parent in object.get_parents %}
+                        <a href="{{parent.get_absolute_url}}">{{parent.subject}}</a>
+                        <a href="/projects/task/{{object.id}}/parent/delete/{{parent.id}}">
+                            <img src="{{MEDIA_URL}}images/delete_22.png" border="0" alt="Supprimer" title="Supprimer"/>
+                        </a>
+                    {% empty %}
+                        Cette tâche n'a aucun parent
+                    {% endfor %}
+                </td>
+            </tr>
+        </tbody>
+    </table>
 
-        {% get_properties %}
-        {% get_relations %}
-    {% endblock %}
+    {% get_properties %}
+    {% get_relations %}
+{% endblock %}
