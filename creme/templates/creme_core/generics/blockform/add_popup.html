@@ -13,19 +13,22 @@
     <script language="javascript">
         function handleValidation(form)
         {
-            if ({{form.is_valid|lower}}){
+            {% if form.is_valid %}
                 if (window.opener) reload(window.opener);
                 $(window).unload(function(){window.close();});
                 window.close();
                 return true;
-            }
-            return false;
+            {% else %}
+                return false;
+            {% endif %}
         }
     </script>
 </head>
 <body >
     {% with 'images/add_64.png' as logo %}
+    {% with 'Ajouter' as title %}
         {% include "creme_core/generics/blockform/base.html" %}
+    {% endwith %}
     {% endwith %}
 </body>
 </html>
