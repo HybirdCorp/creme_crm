@@ -18,20 +18,43 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.forms import ChoiceField, ModelChoiceField
+from django.forms import TypedChoiceField, ModelChoiceField, CharField, ValidationError
+from django.forms.widgets import Textarea
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.contenttypes.models import ContentType
 
 from creme_core.forms import CremeModelForm
-from creme_core.models import CustomField
+from creme_core.models import CustomField, CustomFieldEnumValue
 from creme_core.utils import creme_entity_content_types
 
 
 class CustomFieldsBaseForm(CremeModelForm):
-    field_type = ChoiceField(label=_(u'Type du champ'), choices=CustomField.FIELD_TYPES.iteritems())
+    field_type  = TypedChoiceField(label=_(u'Type du champ'), choices=CustomField.FIELD_TYPES.iteritems(), coerce=int)
+    enum_values = CharField(widget=Textarea(), label=_(u'Contenu de la liste'), required=False,
+                            help_text=_(u'Mettez les choix possibles (un par ligne) si vous avez choisi le type "Liste de choix".'))
 
     class Meta(CremeModelForm.Meta):
         model = CustomField
+
+    def clean(self):
+        cdata = self.cleaned_data
+
+        if cdata['field_type'] == CustomField.ENUM and not cdata['enum_values'].strip():
+            raise ValidationError(_(u'La liste de choix ne doit pas etre vide si vous choisissez le type "Liste de choix"'))
+
+        return cdata
+
+    def save(self):
+        super(CustomFieldsBaseForm, self).save()
+
+        cleaned_data = self.cleaned_data
+
+        if cleaned_data['field_type'] == CustomField.ENUM:
+            create_enum_value = CustomFieldEnumValue.objects.create
+            cfield = self.instance
+
+            for enum_value in cleaned_data['enum_values'].splitlines():
+                create_enum_value(custom_field=cfield, value=enum_value)
 
 
 class CustomFieldsCTAddForm(CustomFieldsBaseForm):
@@ -42,10 +65,11 @@ class CustomFieldsCTAddForm(CustomFieldsBaseForm):
         super(CustomFieldsCTAddForm, self).__init__(*args, **kwargs)
 
         entity_ct_ids = set(ct.id for ct in creme_entity_content_types())
-        used_ct_ids   = set(CustomField.objects.values_list('content_type_id', flat=True)) #.distinct() ??
+        used_ct_ids   = set(CustomField.objects.values_list('content_type_id', flat=True))
         self.fields['content_type'].queryset = ContentType.objects.filter(pk__in=entity_ct_ids - used_ct_ids)
 
         #TODO: use 'ContentType.objects.get_for_id' in Button config (Block config too ?)
+
 
 class CustomFieldsAddForm(CustomFieldsBaseForm):
     class Meta(CustomFieldsBaseForm.Meta):
