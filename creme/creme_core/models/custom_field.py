@@ -33,11 +33,12 @@ class CustomField(CremeModel):
     #BOOL  = 3 ??
     STR   = 10
     #DATE  = 20 ??
-    #ENUM  = 100
+    ENUM  = 100
 
     FIELD_TYPES = OrderedDict([(INT,   _(u'Nombre entier')),
                                (FLOAT, _(u'Nombre à virgule')),
                                (STR,   _(u'Chaîne de caractère')),
+                               (ENUM,  _(u'Liste de choix')),
                               ])
 
     name          = CharField(_(u'Nom du champ'), max_length=100)
@@ -57,23 +58,44 @@ class CustomField(CremeModel):
     def __unicode__(self):
         return self.name
 
-   #def get_absolute_url(self):
-       #return "/creme_core/custom_fields/%s" % self.id
-
     def delete(self):
         self.customfieldvalue_set.all().delete()
+        self.customfieldenumvalue_set.all().delete()
         super(CustomField, self).delete()
 
     def type_verbose_name(self):
         return CustomField.FIELD_TYPES[self.field_type]
 
+    @staticmethod
+    def get_custom_fields_n_values(entity):
+        cfields = CustomField.objects.filter(content_type=entity.entity_type)
 
-#class ValueOfCustomFieldsList(Model):
-#    custom_field = models.ForeignKey( CustomFields )
-#    value_field  = models.CharField(max_length=100)
-#
-#    class Meta:
-#        app_label = 'creme_core'    
+        if not cfields:
+            return ()
+
+        #useful to avoid many lazy loading of CustomField object
+        # (with attribute 'custom_field' of CustomFieldValue objects)
+        # We do not use in_bulk() method in order to keep CustomField objects' order.
+        cfields_dict = dict((cfield.id, cfield) for cfield in cfields)
+
+        values = {} #key: custom_field.id  value: string value for this custom_field
+        enums  = [] #ids of CustomFieldEnumValue objects to retrieve
+
+        ENUM = CustomField.ENUM
+
+        for cfv in CustomFieldValue.objects.filter(custom_field__in=cfields, entity=entity.id):
+            cf_id = cfv.custom_field_id
+
+            if cfields_dict[cf_id].field_type == ENUM:
+                enums.append(cfv.value)
+            else:
+                values[cf_id] = cfv.value
+
+        if enums:
+            for cfev in CustomFieldEnumValue.objects.filter(pk__in=enums):
+                values[cfev.custom_field_id] = cfev.value
+
+        return [(cfield, values.get(cfield.id, '')) for cfield in cfields]
 
 
 class CustomFieldValue(CremeModel):
@@ -88,5 +110,13 @@ class CustomFieldValue(CremeModel):
    def __unicode__(self):
         return self.value
 
-   #def get_absolute_url(self):
-       #return "/creme_core/custom_fields_value/%s" % self.id
+
+class CustomFieldEnumValue(CremeModel):
+   custom_field = ForeignKey(CustomField, related_name='customfieldenumvalue_set')
+   value        = CharField(max_length=100)
+
+   class Meta:
+       app_label = 'creme_core'
+
+   def __unicode__(self):
+        return self.value

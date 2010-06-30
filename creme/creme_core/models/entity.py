@@ -94,17 +94,9 @@ class CremeEntity(CremeAbstractEntity):
         return u"""<a href="%s">Voir</a> | <a href="%s">Éditer</a> | <a href="%s" onclick="creme.utils.confirmDelete(event, this);">Effacer</a>""" \
                 % (self.get_absolute_url(), self.get_edit_absolute_url(), self.get_delete_absolute_url())
 
-    #TODO: move to CustomField ???
     #TODO: property + cache ???
     def get_custom_fields(self):
-        cfields = CustomField.objects.filter(content_type=self.entity_type)
-
-        if not cfields:
-            return ()
-
-        values = dict((cfv.custom_field_id, cfv) for cfv in CustomFieldValue.objects.filter(custom_field__in=cfields, entity=self.id))
-
-        return [(cfield, values.get(cfield.id, '')) for cfield in cfields]
+        return CustomField.get_custom_fields_n_values(self)
 
 
-from custom_field import CustomField, CustomFieldValue
+from custom_field import CustomField

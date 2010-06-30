@@ -6,8 +6,8 @@
             <tbody class="collapsable">
                 {% for field, value in custom_fields %}
                     <tr>
-                        <th class="block_header_line_dark">{{field.name}}</th>
-                        <td class="block_line_dark">{{value}}</td>
+                        <th class="{% cycle "block_header_line_dark" "block_header_line_light" %}">{{field.name}}</th>
+                        <td class="{% cycle "block_line_dark" "block_line_light" %}">{{value}}</td>
                     </tr>
                 {% endfor %}
             </tbody>

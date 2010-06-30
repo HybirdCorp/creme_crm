@@ -28,12 +28,14 @@ from django.utils.datastructures import SortedDict as OrderedDict #use python2.6
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 
-from creme_core.models import CremeEntity, CustomField, CustomFieldValue####
+from creme_core.models import CremeEntity, CustomField, CustomFieldValue, CustomFieldEnumValue
+
 
 _FIELD_TYPES = {
                 CustomField.INT:   forms.IntegerField,
                 CustomField.FLOAT: forms.DecimalField,
                 CustomField.STR:   forms.CharField,
+                CustomField.ENUM:  forms.ChoiceField,
                }
 
 _CUSTOM_NAME = 'custom_field_%s'
@@ -161,6 +163,11 @@ class CremeModelForm(ModelForm):
     def _build_formfield(self, custom_field):
         field =  _FIELD_TYPES[custom_field.field_type](label=custom_field.name, required=False)
 
+        if custom_field.field_type == CustomField.ENUM:
+            choices = [('', '-------')]
+            choices += CustomFieldEnumValue.objects.filter(custom_field=custom_field).values_list('id', 'value')
+            field.choices = choices
+
         customvalue = self._customvalues.get(custom_field.id, '')
 
         if customvalue:
@@ -209,9 +216,8 @@ class CremeModelForm(ModelForm):
             if customvalue:
                 if value:
                     customvalue.value = value
-                    customvalue.save()
+                    customvalue.save() #TODO: save only if there is a change ??
                 else:
                     customvalue.delete()
-            else:
-                if value:
-                    CustomFieldValue.objects.create(custom_field=cfield, entity=instance, value=value)
+            elif value:
+                CustomFieldValue.objects.create(custom_field=cfield, entity=instance, value=value)
