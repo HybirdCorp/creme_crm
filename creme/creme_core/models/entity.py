@@ -87,48 +87,6 @@ class CremeEntity(CremeAbstractEntity):
         #return [rel.object_creme_entity for rel in self.relations.filter(type__id=relation_type_id)]
         return [rel.object_entity for rel in self.relations.filter(type__id=relation_type_id)]
 
-    def as_p(self):
-        return mark_safe("%s%s%s" % (self.object_as_p(), self.relations_as_p(), self.properties_as_p()))
-
-    def object_as_p(self):
-        from creme_core.templatetags.creme_core_tags import get_html_field_value
-
-        html_output = ""
-        exclude = set(self.excluded_fields_in_html_output)
-
-        for field in self._meta.fields:
-            if field.name not in exclude:
-                try:
-                    value = get_html_field_value(self, field.name)
-                except Exception:
-                    value = self.__getattribute__(field.name)
-
-                html_output += " <br />%s: %s" % (force_unicode(field.name), force_unicode(value))
-
-        return mark_safe(html_output)
-
-    def relations_as_p(self):
-        html_output = "<br /><br /><h2>Relations:</h2><br />"
-        for relation in self.relations.all():
-            if relation.type.display_with_other:
-                try:
-                    #Url doesn't match anymore but relations_as_p and as_p still used ?
-                    html_output += '%s  <a href="/creme_core/relation/delete/%s?pk_entity=%s">Supprimer</a><br />' % \
-                                    (force_unicode(relation), relation.pk, self.pk)
-                except:
-                    html_output += "problème sur l'affichage d'une relation. <br />"
-
-        return mark_safe(html_output)
-
-    def properties_as_p(self):
-        html_output = u"<br /><br /><h2>Propriétés: </h2><br />"
-
-        for prop in self.properties.all():
-            html_output += u' %s  <a href="/creme_core/property/delete/%s/%s" >Supprimer</a> <br />' % \
-                            (force_unicode(prop), self.pk, prop.pk)
-
-        return mark_safe(html_output)
-
     def get_entity_summary(self):
         return escape(unicode(self))
 
