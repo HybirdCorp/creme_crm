@@ -180,7 +180,7 @@ class CremeModelForm(ModelForm):
         cfields = CustomField.objects.filter(content_type=ContentType.objects.get_for_model(self.instance))
 
         if not cfields:
-            self._customfields = None
+            self._customfields = ()
             self._customvalues = {}
             return
 
