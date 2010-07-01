@@ -80,7 +80,7 @@ class OrganisationForm(CremeModelForm):
         instance     = self.instance
         cleaned_data = self.cleaned_data
 
-        super(CremeModelForm, self).save()
+        super(OrganisationForm, self).save()
 
         if instance.billing_adress is not None:
             billing_adress = Address.objects.get(pk=instance.billing_adress.pk)

@@ -40,7 +40,7 @@ class CustomFieldsBaseForm(CremeModelForm):
         cdata = self.cleaned_data
 
         if cdata['field_type'] == CustomField.ENUM and not cdata['enum_values'].strip():
-            raise ValidationError(_(u'La liste de choix ne doit pas etre vide si vous choisissez le type "Liste de choix"'))
+            raise ValidationError(_(u'La liste de choix ne doit pas être vide si vous choisissez le type "Liste de choix"'))
 
         return cdata
 
@@ -85,6 +85,28 @@ class CustomFieldsAddForm(CustomFieldsBaseForm):
 
 
 class CustomFieldsEditForm(CremeModelForm):
-    class Meta(CustomFieldsBaseForm.Meta):
+    class Meta(CremeModelForm.Meta):
+        model = CustomField
         #exclude = CremeModelForm.Meta.exclude + ('content_type',)
         fields = ('name',)
+
+    def __init__(self, *args, **kwargs):
+        super(CustomFieldsEditForm, self).__init__(*args, **kwargs)
+
+        if self.instance.field_type == CustomField.ENUM:
+            fields = self.fields
+            fields['new_choices'] = CharField(widget=Textarea(), label=_(u'Nouveaux choix de la liste'), required=False,
+                                              help_text=_(u'Mettez les nouveaux choix possibles (un par ligne)".'))
+
+    def save(self):
+        super(CustomFieldsEditForm, self).save()
+
+        cfield = self.instance
+
+        if cfield.field_type == CustomField.ENUM:
+            cleaned_data = self.cleaned_data
+            create_enum_value = CustomFieldEnumValue.objects.create
+
+            for enum_value in cleaned_data['new_choices'].splitlines():
+                create_enum_value(custom_field=cfield, value=enum_value)
+
