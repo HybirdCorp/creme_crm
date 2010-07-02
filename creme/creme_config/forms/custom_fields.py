@@ -18,13 +18,16 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from itertools import izip
+
 from django.forms import TypedChoiceField, ModelChoiceField, CharField, ValidationError
 from django.forms.widgets import Textarea
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.contenttypes.models import ContentType
 
-from creme_core.forms import CremeModelForm
 from creme_core.models import CustomField, CustomFieldEnumValue
+from creme_core.forms import CremeModelForm
+from creme_core.forms.fields import ListEditionField
 from creme_core.utils import creme_entity_content_types
 
 
@@ -94,9 +97,15 @@ class CustomFieldsEditForm(CremeModelForm):
         super(CustomFieldsEditForm, self).__init__(*args, **kwargs)
 
         if self.instance.field_type == CustomField.ENUM:
+            self._enum_values = CustomFieldEnumValue.objects.filter(custom_field=self.instance)
+
             fields = self.fields
-            fields['new_choices'] = CharField(widget=Textarea(), label=_(u'Nouveaux choix de la liste'), required=False,
-                                              help_text=_(u'Mettez les nouveaux choix possibles (un par ligne)".'))
+            fields['old_choices'] = ListEditionField(content=[enum.value for enum in self._enum_values],
+                                                     label=_(u'Choix existants de la liste'),
+                                                     help_text=_(u'Décochez les choix que vous voulez supprimer.'))
+            fields['new_choices'] = CharField(widget=Textarea(), required=False,
+                                              label=_(u'Nouveaux choix de la liste'), 
+                                              help_text=_(u'Rentrez les nouveaux choix possibles (un par ligne).'))
 
     def save(self):
         super(CustomFieldsEditForm, self).save()
@@ -105,8 +114,14 @@ class CustomFieldsEditForm(CremeModelForm):
 
         if cfield.field_type == CustomField.ENUM:
             cleaned_data = self.cleaned_data
-            create_enum_value = CustomFieldEnumValue.objects.create
 
+            for cfev, new_value in izip(self._enum_values, cleaned_data['old_choices']):
+                if new_value is None:
+                    cfev.delete()
+                elif cfev.value != new_value:
+                    cfev.value = new_value
+                    cfev.save()
+
+            create_enum_value = CustomFieldEnumValue.objects.create
             for enum_value in cleaned_data['new_choices'].splitlines():
                 create_enum_value(custom_field=cfield, value=enum_value)
-

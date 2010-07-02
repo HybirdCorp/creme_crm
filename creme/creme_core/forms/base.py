@@ -214,10 +214,10 @@ class CremeModelForm(ModelForm):
             customvalue = self._customvalues.get(cfield.id)
 
             if customvalue:
-                if value:
-                    customvalue.value = value
-                    customvalue.save() #TODO: save only if there is a change ??
-                else:
+                if not value:
                     customvalue.delete()
+                elif customvalue.value != value:
+                    customvalue.value = value
+                    customvalue.save()
             elif value:
                 CustomFieldValue.objects.create(custom_field=cfield, entity=instance, value=value)

@@ -21,8 +21,7 @@
 import re
 from logging import debug
 
-#import settings #use from django.conf import settings....
-from django import forms
+from django.forms import Field, CharField
 from django.forms.util import ValidationError
 from django.core.files.uploadedfile import UploadedFile
 from django.utils.translation import ugettext_lazy as _
@@ -32,16 +31,14 @@ from django.contrib.contenttypes.models import ContentType
 
 from creme_core.models import RelationType, CremeEntity
 from creme_core.utils import creme_entity_content_types
+from creme_core.forms.widgets import CTEntitySelector, SelectorList, ListViewWidget, ListEditionWidget
 
-from creme_core.forms.widgets import CTEntitySelector, SelectorList, ListViewWidget
-
-#from creme_core.forms.widgets import AjaxFileInput
 
 def get_entity_ctypes_options(): #TODO: staticmethod ??
     return ((ctype.pk, ctype.__unicode__()) for ctype in creme_entity_content_types())
 
 
-class GenericEntitiesField(forms.CharField):
+class GenericEntitiesField(CharField):
     default_error_messages = {
         'invalidformat': _(u'Format invalide'),
     }
@@ -76,7 +73,7 @@ class GenericEntitiesField(forms.CharField):
         return CremeEntity.objects.filter(pk__in=[entry['entity'] for entry in data if entry['entity'] != 'null'])
 
 
-class RelatedEntitiesField(forms.CharField):
+class RelatedEntitiesField(CharField):
     default_error_messages = {
         'invalidformat': _(u'Format invalide'),
     }
@@ -107,7 +104,7 @@ class RelatedEntitiesField(forms.CharField):
         return [(entry[0], int(entry[2])) for entry in data if not self.relations or entry[0] in self.relations]
 
 
-class CommaMultiValueField(forms.CharField): #TODO: Charfield and not Field ??!!
+class CommaMultiValueField(CharField): #TODO: Charfield and not Field ??!!
     """
         An input with comma (or anything) separated values
     """
@@ -126,6 +123,7 @@ class CommaMultiValueField(forms.CharField): #TODO: Charfield and not Field ??!!
             return [val for val in value.split(self.separator) if val]
 
         return []
+
 
 class _EntityField(CommaMultiValueField):
     """
@@ -158,7 +156,7 @@ class _EntityField(CommaMultiValueField):
     def clean(self, value):
         if not value and self.required:
             raise ValidationError(self.error_messages['required'])
-        
+
         clean_ids = super(_EntityField, self).clean(value)
         try:
             clean_ids = map(int, clean_ids)
@@ -193,7 +191,7 @@ class CremeEntityField(_EntityField):#TODO : Refactor to derivate from charField
 
         if len(clean_id) > 1:
             raise ValidationError(self.error_messages['invalid_choice'] % {'value': value})
-        
+
         try:
             if self.q_filter is not None:
                 return self.model.objects.filter(**self.q_filter).get(pk=clean_id[0])
@@ -209,7 +207,6 @@ class MultiCremeEntityField(_EntityField):
          An input with comma (or anything) separated primary keys
          clean method return a list of real model instances
     """
-    
     o2m = 0
 
     def __init__(self, model, separator=',', q_filter=None, *args, **kwargs):
@@ -221,7 +218,7 @@ class MultiCremeEntityField(_EntityField):
 
     def clean(self, value):
         cleaned_ids = super(MultiCremeEntityField, self).clean(value)
-        
+
         if not cleaned_ids:
             return []
 
@@ -232,23 +229,28 @@ class MultiCremeEntityField(_EntityField):
 
         if len(entities) != len(cleaned_ids):
             raise ValidationError(self.error_messages['invalid_choice'] % {'value': value})
+
         return entities
 
-#class AjaxFileField(forms.Field):
-#    widget = AjaxFileInput
-#
-#    def clean(self, value):
-#        debug("\nAjaxFileField clean")
-#        debug("AjaxFileField value : %s", value)
-#        file_name = super(AjaxFileField, self).clean(value)
-#        debug("file_name : %s", file_name)
-#        try:
-#            path = os.path.join(settings.MEDIA_ROOT, os.path.normpath(file_name))
-#            f=open(path, 'rb')
-#            uf = UploadedFile(f, file_name)#os.path.basename ?
-#            os.remove(path)
-#            return uf
-#        except IOError:
-#            debug("IOError\n")
-#            return UploadedFile()
 
+class ListEditionField(Field):
+    """A field to allow the user to edit/delete a list of strings.
+    It returns a list with the same order:
+    * deleted elements are replaced by None.
+    * modified elements are replaced by the new value.
+    """
+    widget = ListEditionWidget
+    default_error_messages = {}
+
+    def __init__(self, content=(), *args, **kwargs):
+        """
+        @param content Sequence of strings
+        """
+        super(ListEditionField, self).__init__(*args, **kwargs)
+        self.content = content
+
+    def _set_content(self, content):
+        self._content = content
+        self.widget.content = content
+
+    content = property(lambda self: self._content, _set_content)

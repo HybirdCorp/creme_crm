@@ -44,7 +44,6 @@ class CustomField(CremeModel):
     name          = CharField(_(u'Nom du champ'), max_length=100)
     content_type  = ForeignKey(ContentType, verbose_name=_(u'Resource associée'))
     field_type    = PositiveSmallIntegerField(_(u'Type du champ')) #see INT, FLOAT etc...
-    #list_or_not   = BooleanField()
     #default_value = CharField(_(u'Valeur par defaut'), max_length=100, blank=True, null=True)
     #extra_args    = CharField(max_length=500, blank=True, null=True)
     #required      = BooleanField(defaut=False) ????
@@ -60,7 +59,7 @@ class CustomField(CremeModel):
 
     def delete(self):
         self.customfieldvalue_set.all().delete()
-        self.customfieldenumvalue_set.all().delete()
+        self.customfieldenumvalue_set.all().delete() #Beware: don't call the CustomFieldEnumValue.delete() to avoid loop
         super(CustomField, self).delete()
 
     def type_verbose_name(self):
@@ -99,24 +98,28 @@ class CustomField(CremeModel):
 
 
 class CustomFieldValue(CremeModel):
-   custom_field = ForeignKey(CustomField, related_name='customfieldvalue_set')
-   entity       = ForeignKey(CremeEntity, related_name='customvalues')
-   value        = CharField(max_length=100)
+    custom_field = ForeignKey(CustomField, related_name='customfieldvalue_set')
+    entity       = ForeignKey(CremeEntity, related_name='customvalues')
+    value        = CharField(max_length=100)
 
-   class Meta:
-       app_label = 'creme_core'
-       ordering = ('id',)
+    class Meta:
+        app_label = 'creme_core'
+        ordering = ('id',)
 
-   def __unicode__(self):
+    def __unicode__(self):
         return self.value
 
 
 class CustomFieldEnumValue(CremeModel):
-   custom_field = ForeignKey(CustomField, related_name='customfieldenumvalue_set')
-   value        = CharField(max_length=100)
+    custom_field = ForeignKey(CustomField, related_name='customfieldenumvalue_set')
+    value        = CharField(max_length=100)
 
-   class Meta:
-       app_label = 'creme_core'
+    class Meta:
+        app_label = 'creme_core'
 
-   def __unicode__(self):
+    def __unicode__(self):
         return self.value
+
+    def delete(self):
+        CustomFieldValue.objects.filter(custom_field=self.custom_field_id, value=str(self.id)).delete()
+        super(CustomFieldEnumValue, self).delete()
