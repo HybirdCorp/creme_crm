@@ -9,6 +9,7 @@
                 <th class="block_header_line_dark">Date d'envoi</th>
                 <th class="block_header_line_dark">Sujet</th>
                 <th class="block_header_line_dark">Statut</th>
+                <th class="block_header_line_dark">Détail</th>
 {% comment %}                 <th class="block_header_line_dark">Supprimer</th> {% endcomment %}
             </tr>
 
@@ -18,6 +19,11 @@
                     <td class="{{row_color}}">{{mail.sending_date}}</td>
                     <td class="{{row_color}}">{{mail.subject}}</td>
                     <td class="{{row_color}}">{{mail.get_status_str}}</td>
+                    <td class="{{row_color}}">
+                        <a class="button_link" onclick="creme.utils.showInnerPopup('/emails/mails_history/{{mail.pk}}')">
+                            <img src="{{MEDIA_URL}}images/view_22.png" border="0" title="Détails" alt="Détails" />
+                        </a>
+                    </td>
                     {% comment %}<td class="{{row_color}}" align="center" valign="center" style="width:10%;">
                         <a href="/emails/campaign/sending/mail/delete/{{mail.pk}}">
                             <img src="{{MEDIA_URL}}images/delete_22.png" border="0" alt="Supprimer" title="Supprimer"/>

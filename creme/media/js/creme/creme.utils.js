@@ -338,7 +338,7 @@ creme.utils.showInnerPopup = function(url, options, div_id){
                                                             }
                                                  },
                                        close: function(event, ui) {
-                                           if(options.beforeClose != undefined && $.isFunction(options.beforeClose))
+                                           if(options != undefined && options.beforeClose != undefined && $.isFunction(options.beforeClose))
                                            {
                                               options.beforeClose(event, ui, $(this));
                                            }

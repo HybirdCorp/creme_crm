@@ -18,9 +18,11 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from datetime import datetime
 from email.mime.image import MIMEImage
 from logging import error, debug
 from os.path import join, basename
+from pickle import loads
 
 from django.db.models import (PositiveIntegerField, PositiveSmallIntegerField, CharField,
                               TextField, DateTimeField, ForeignKey, ManyToManyField)
@@ -29,6 +31,7 @@ from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.generic import GenericForeignKey
 from django.core.mail import EmailMultiAlternatives
+from django.template import Template, Context
 
 from creme_core.models import CremeModel
 
@@ -92,6 +95,18 @@ class Email(CremeModel):
     def get_status_str(self):
         return MAIL_STATUS[self.status]
 
+    def get_body(self):
+        if self.sending is None:
+            return self.body
+
+        try:
+            body_template = Template(self.sending.body)
+            return body_template.render(Context(loads(self.body.encode('utf-8')) if self.body else {}))
+        except:#Pickle raise too much differents exceptions...Catch'em all ? 
+            return ""
+
+
+
     #TODO: factorise with EmailSending.send_mails()
     def send(self):
         mail = self
@@ -147,6 +162,7 @@ class Email(CremeModel):
             mail.status = MAIL_STATUS_SENDINGERROR
         else:
             mail.status = MAIL_STATUS_SENT
+            mail.sending_date = datetime.now()
 
         mail.save()
         debug("Mail sent to %s", mail.recipient)
