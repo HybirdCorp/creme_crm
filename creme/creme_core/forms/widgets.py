@@ -22,7 +22,7 @@ from logging import debug
 from datetime import datetime, time
 from itertools import chain
 
-from django.forms.widgets import Textarea, Select, SelectMultiple, FileInput, TextInput
+from django.forms.widgets import Widget, Textarea, Select, SelectMultiple, FileInput, TextInput
 from django.forms.util import flatatt
 from django.utils.simplejson.encoder import JSONEncoder
 from django.utils.safestring import mark_safe
@@ -35,59 +35,55 @@ from creme_core.models import CremeEntity
 def widget_render_context(klass, widget, name, value, attrs, css='', typename='', noinput=False, **kwargs):
     id = attrs.get('id')
     auto = attrs.pop('auto', True)
-    
     css = ' '.join((css, 'ui-creme-widget widget-auto' if auto else 'ui-creme-widget', typename))
-  
-    attrs['class'] = ' '.join([attrs.get('class', ''), 
-                               'ui-creme-input', typename])
-    
-    context= {'MEDIA_URL':  settings.MEDIA_URL,
-              'input':      super(klass, widget).render(name, value, attrs) if not noinput else '',
-              #'id':         id + '-' + typename if id else '',
-              'script':     '',
-              'style':      '',
-              'typename':   typename,
-              'css':        css}
-    
+    attrs['class'] = ' '.join([attrs.get('class', ''), 'ui-creme-input', typename])
+    context = {
+                'MEDIA_URL':  settings.MEDIA_URL,
+                'input':      super(klass, widget).render(name, value, attrs) if not noinput else '',
+                #'id':         id + '-' + typename if id else '',
+                'script':     '',
+                'style':      '',
+                'typename':   typename,
+                'css':        css
+             }
+
 #    if auto:
 #        context['script'] = """<script type="text/javascript">creme.widget.ready();</script>"""
-    
+
     context.update(kwargs)
-    
+
     return context
 
 def widget_render_context_addclass(context, *args):
     context['class'] = ' '.join([context.get('class', '')] + args)
 
+
 class DynamicSelect(Select):
     def __init__(self, attrs=None, options=None, url=''):
         super(DynamicSelect, self).__init__(attrs, options if options else ())
         self.url = url
-    
+
     def render(self, name, value, attrs=None):
         attrs = self.build_attrs(attrs, name=name)
         attrs['url'] = self.url
         typename='ui-creme-dselect'
-        
         context = widget_render_context(DynamicSelect, self, name, value, attrs, 
                                         typename=typename,
                                         noinput=True)
         attrs['class'] = context.get('css', '')
         attrs['widget'] = typename
-        
         context['input'] = super(DynamicSelect, self).render(name, value, attrs)
-        
-        output = """%(input)s %(script)s""" % context
-        return mark_safe(output)
+
+        return mark_safe("""%(input)s %(script)s""" % context)
+
 
 class ChainedInput(TextInput):
-    
     class Model(object):
         def __init__(self, widget=DynamicSelect, attrs=None, **kwargs):
             self.kwargs = kwargs
             self.attrs = attrs
             self.widget = widget
-    
+
     def __init__(self, attrs=None, **kwargs):
         super(ChainedInput, self).__init__(attrs)
         self.inputs = {}
@@ -114,18 +110,19 @@ class ChainedInput(TextInput):
     def set(self, **kwargs):
         for name, input in kwargs.iteritems():
             self.put(name, input.widget, input.attrs, **input.kwargs)
-        
+
     def put(self, name, widget=DynamicSelect, attrs=None, **kwargs):
         self.inputs[name] = widget(attrs=attrs, **kwargs)
 
     def _render_inputs(self):
         output = '<ul class="ui-layout hbox">'
-        
+
         for name, input in self.inputs.iteritems():
             output += '<li chained-name="' + name + '">' + input.render('', '') + '</li>'
-        
+
         output += '</ul>'
         return output
+
 
 class SelectorList(TextInput):
     def __init__(self, selector, attrs=None):
@@ -136,8 +133,6 @@ class SelectorList(TextInput):
     def render(self, name, value, attrs=None):
         value = self.from_python(value) if self.from_python is not None else value # TODO : wait for django 1.2 and new widget api to remove this hack
         attrs = self.build_attrs(attrs, name=name, type='hidden')
-        
-        print 'SelectorList > value', value
 
         context = widget_render_context(SelectorList, self, name, value, attrs,
                                         typename='ui-creme-selectorlist',
@@ -161,12 +156,13 @@ class SelectorList(TextInput):
 
         return mark_safe(html_output)
 
+
 class EntitySelector(TextInput):
     def __init__(self, content_type=None, attrs=None):
         super(EntitySelector, self).__init__(attrs)
         self.url = '/creme_core/lv_popup/' + content_type if content_type else '/creme_core/lv_popup/${ctype}'
         self.text_url = '/creme_core/relation/entity/${id}/json'
-    
+
     def render(self, name, value, attrs=None):
         attrs = self.build_attrs(attrs, name=name, type='hidden')
 
@@ -188,21 +184,23 @@ class EntitySelector(TextInput):
 
         return mark_safe(html_output)
 
+
 class CTEntitySelector(ChainedInput):
     def __init__(self, content_types, attrs=None):
         super(CTEntitySelector, self).__init__(attrs)
-        
+
         if content_types.__class__ == str:
             ctype = ChainedInput.Model(widget=DynamicSelect, attrs={'auto':False}, url=content_types)
         else:
             ctype = ChainedInput.Model(widget=DynamicSelect, attrs={'auto':False}, options=content_types)
-        
+
         self.set(ctype=ctype,
                  entity=ChainedInput.Model(widget=EntitySelector, attrs={'auto':False}));
 
     def render(self, name, value, attrs=None):
         return super(CTEntitySelector, self).render(name, value, attrs)
-    
+
+
 class EntitySelectorList(SelectorList):
     def __init__(self, attrs=None):
         super(EntitySelectorList, self).__init__(attrs)
@@ -237,7 +235,7 @@ class RelationListWidget(TextInput):
         super(RelationListWidget, self).__init__(attrs)
         self.predicates = predicates or []
         self.subject = subject
-        
+
     def render(self, name, value, attrs=None):
         attrs = self.build_attrs(attrs, name=name, type='hidden')
 
@@ -278,7 +276,6 @@ class RelationListWidget(TextInput):
 
     def set_predicates(self, predicates):
         self.predicates = predicates
-
 
 
 class DateTimeWidget(TextInput):
@@ -367,6 +364,7 @@ class CalendarWidget(TextInput):
         return mark_safe(html_output)
 
 
+#TODO: refactor
 class DependentSelect(Select):
     def __init__(self, target_id, target_url, attrs=None, choices=()):
         self.target_id = target_id
@@ -548,10 +546,8 @@ class ListViewWidget(TextInput):
     def __init__(self, attrs=None, q_filter=None):
         super(ListViewWidget, self).__init__(attrs)
         self.q_filter = q_filter
-        print "###--- __init__.q_filter :", self.q_filter," ---###"
 
     def render(self, name, value, attrs=None):
-        print "###--- q_filter :", self.q_filter," ---###"
         id_input = self.attrs.get('id')
         if not id_input:
             id_input = 'id_%s' % name
@@ -641,13 +637,53 @@ class OrderedMultipleChoiceWidget(SelectMultiple):
 
         return [val for order, val in selected]
 
+
 class Label(TextInput):
     def render(self, name, value, attrs=None):
-        html_output = u"""
-            %(input)s<span %(attrs)s>%(content)s</span>
-        """ % {
-            'input'  : super(Label, self).render(name, value, {'style':'display:none;'}),
-            'attrs'  : flatatt(self.build_attrs(attrs, name=name)),
-            'content': value
-        }
-        return mark_safe(html_output)
+        return mark_safe(u"""%(input)s<span %(attrs)s>%(content)s</span>""" % {
+                'input':   super(Label, self).render(name, value, {'style': 'display:none;'}),
+                'attrs':   flatatt(self.build_attrs(attrs, name=name)),
+                'content': value,
+            })
+
+
+class ListEditionWidget(Widget):
+    content = ()
+
+    def render(self, name, value, attrs=None, choices=()):
+        output = [u'<table %s><tbody>' % flatatt(self.build_attrs(attrs, name=name))]
+
+        for i, label in enumerate(self.content):
+            checked = 'checked'
+
+            if value:
+                new_label = value[i]
+
+                if new_label is None:
+                    checked = ''
+                else:
+                    label = new_label
+
+            output.append(u"""
+                <tr>
+                    <td><input type="checkbox" name="%(name)s_check_%(i)s" %(checked)s/></td>
+                    <td><input type="text" name="%(name)s_value_%(i)s" value="%(label)s"/></td>
+                </tr>""" % {
+                                'i':        i,
+                                'name':     name,
+                                'label':    label,
+                                'checked':  checked,
+                            })
+
+        output.append(u"""</tbody></table>""")
+
+        return mark_safe(u'\n'.join(output))
+
+    def value_from_datadict(self, data, files, name):
+        prefix_check = name + '_check_%i'
+        prefix_value = name + '_value_%i'
+        get     = data.get
+        has_key = data.has_key
+
+        return [get(prefix_value % i) if has_key(prefix_check % i) else None
+                    for i in xrange(len(self.content))]
