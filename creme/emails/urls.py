@@ -69,6 +69,7 @@ urlpatterns = patterns('emails.views',
 
     #mails history block
     (r'^entity/(?P<entity_id>\d+)/mails_history/reload/$', 'mail.reload_block_mails_history'),
+    (r'^mails_history/(?P<mail_id>\w+)$',                  'mail.view_mail'),
 )
 
 urlpatterns += patterns('creme_core.views.generic',

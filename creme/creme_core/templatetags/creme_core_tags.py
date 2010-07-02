@@ -57,10 +57,11 @@ def get_m2m_popup_str(x):
                       (a.__getattribute__(img_attr).url, esc_a, esc_a, image_size(a, 80, 80))
     else:
         for a in x.all():
-            result += '<li>%s</li>' % escape(a)
-
+            if hasattr(a, 'get_absolute_url'):
+                result += '<li><a target="_blank" href="%s">%s</li></a>' % (a.get_absolute_url(), escape(a))
+            else:
+                result += '<li>%s</li>' % escape(a)
     result += '</ul>'
-
     return result
 
 ####
@@ -97,7 +98,7 @@ def image_size(image, max_h=MAX_HEIGHT, max_w=MAX_WIDTH):
 ####
 
 def simple_print(x):
-    return '%s' % escape(x)
+    return '%s' % escape(x) if x is not None else ""
 
 def print_imagefield(x):
     url = x.url
