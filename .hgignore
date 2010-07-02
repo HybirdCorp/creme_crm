@@ -13,6 +13,9 @@ django.wsgi
 
 creme/media/upload/*/*
 
+#netbeans users
+nbproject/*
+
 \.orig\..*$
 \.orig$
 \.chg\..*$
