@@ -121,7 +121,7 @@ class SendingCreateForm(CremeModelForm):
                 for varname in varlist:
                     val = getattr(entity, varname, None)
                     if val:
-                        context[varname] = unicode(val)
+                        context[varname] = val.encode('utf-8')
 
                 if context:
                     mail.body = dumps(context)
