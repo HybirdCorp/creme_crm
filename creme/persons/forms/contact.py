@@ -26,7 +26,7 @@ from django.utils.translation import ugettext_lazy as _
 from django.contrib.contenttypes.models import ContentType
 
 from creme_core.models import CremeEntity, RelationType, Relation
-from creme_core.forms import CremeModelForm
+from creme_core.forms import CremeEntityForm
 from creme_core.forms.fields import  CremeEntityField
 from creme_core.forms.widgets import CalendarWidget
 
@@ -39,11 +39,11 @@ from persons.models import Organisation, Contact, Address
 #TODO: la gestion des adresses est a revoir ; pourrait on utiliser 2 formulaire
 #      sur le model Address dont on insererait le contenu ???
 
-class ContactCreateForm(CremeModelForm):
+class ContactCreateForm(CremeEntityForm):
     birthday = DateTimeField(label=_('Anniversaire'), widget=CalendarWidget(), required=False)
-    image = CremeEntityField(required=False, model=Image, widget=ImageM2MWidget())
+    image    = CremeEntityField(required=False, model=Image, widget=ImageM2MWidget())
 
-    blocks = CremeModelForm.blocks.new(
+    blocks = CremeEntityForm.blocks.new(
                 ('coordinates',      _(u'Coordonnées'),            ['skype', 'landline', 'mobile', 'email', 'url_site']),
                 ('billing_address',  _(u'Adresse de facturation'), ['name_billing', 'address_billing', 'po_box_billing',
                                                                    'city_billing', 'state_billing', 'zipcode_billing', 'country_billing']),
@@ -53,7 +53,7 @@ class ContactCreateForm(CremeModelForm):
 
     class Meta:
         model = Contact
-        exclude = CremeModelForm.exclude + ('billing_adress', 'shipping_adress','language','is_user')
+        exclude = CremeEntityForm.Meta.exclude + ('billing_adress', 'shipping_adress', 'language', 'is_user')
 
     def __init__(self, *args, **kwargs):
         super(ContactCreateForm, self).__init__(*args, **kwargs)

@@ -23,7 +23,7 @@ from django.forms.widgets import Textarea
 from django.template import Template, VariableNode
 from django.utils.translation import ugettext_lazy as _
 
-from creme_core.forms import CremeModelForm, CremeForm, FieldBlockManager
+from creme_core.forms import CremeEntityForm, CremeForm, FieldBlockManager
 from creme_core.forms.fields import MultiCremeEntityField
 from creme_core.forms.widgets import RTEWidget
 
@@ -38,16 +38,15 @@ def _get_vars_help():
     return u' '.join('{{%s}}' % var for var in _TEMPLATES_VARS)
 
 
-class TemplateEditForm(CremeModelForm):
+class TemplateEditForm(CremeEntityForm):
     body        = CharField(label=_(u'Corps'), widget=RTEWidget(),
                             help_text=_(u'Vous pouvez utiliser des variables: %s' % _get_vars_help()))
     attachments = MultiCremeEntityField(label=_(u'Fichiers attachés'),
                                         required=False, model=Document)
-                                        
 
-    class Meta:
+    class Meta(CremeEntityForm.Meta):
         model   = EmailTemplate
-        exclude = CremeModelForm.exclude + ('use_rte',)
+        exclude = CremeEntityForm.Meta.exclude + ('use_rte',)
 
     def __init__(self, *args, **kwargs):
         super(TemplateEditForm, self).__init__(*args, **kwargs)

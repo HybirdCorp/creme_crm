@@ -41,21 +41,24 @@ class PeriodEditForms(CremeModelForm):
 
 
 class PeriodCreateForms(PeriodEditForms):
-
     def __init__(self, *args, **kwargs):
         self.task = kwargs['initial'].pop('related_task')
         super(PeriodCreateForms, self).__init__(*args, **kwargs)
-        self.fields['resource'].widget.q_filter = {'task__id' : self.task.pk}
+        self.fields['resource'].widget.q_filter = {'task__id': self.task.pk}
 
     def clean_resource(self):
         resource = self.cleaned_data['resource']
+
         if resource not in self.task.get_resources():
-            raise ValidationError(u"Cette ressource n'a pas été affectée au projet")
+            raise ValidationError(_(u"Cette ressource n'a pas été affectée au projet"))
+
         return resource
 
     def save(self):
         self.instance.task = self.task
+
         if self.task.status.name == constants.TASK_STATUS[constants.NOT_STARTED_PK]:
             self.task.status = TaskStatus.objects.get(id=constants.CURRENT_PK)
             self.task.save()
-        super(PeriodCreateForms, self).save()
+
+        return super(PeriodCreateForms, self).save()

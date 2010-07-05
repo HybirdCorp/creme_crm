@@ -23,14 +23,14 @@ from django.forms import ChoiceField, ValidationError
 from django.contrib.contenttypes.models import ContentType
 
 from creme_core.models import Filter
-from creme_core.forms import CremeModelForm, CremeForm, FieldBlockManager
+from creme_core.forms import CremeEntityForm, CremeForm, FieldBlockManager
 from creme_core.forms.fields import MultiCremeEntityField, CremeEntityField
 
 from persons.models import Contact#, Organisation
 
 from sms.models.sendlist import SendList
 
-class SendListForm(CremeModelForm):
+class SendListForm(CremeEntityForm):
     class Meta:
         model  = SendList
         fields = ('user', 'name')

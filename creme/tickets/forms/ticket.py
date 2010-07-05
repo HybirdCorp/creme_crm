@@ -20,31 +20,26 @@
 
 from datetime import datetime
 
-from creme_core.forms import CremeModelForm
+from creme_core.forms import CremeEntityForm
 
 from tickets.models.ticket import Ticket
 from tickets.models.status import OPEN_PK, CLOSED_PK
 
 
-#class ListViewForm(CremeModelForm):
-    #class Meta:
-        #model = Ticket
-
-
-class CreateForm(CremeModelForm):
+class CreateForm(CremeEntityForm):
     class Meta:
         model = Ticket
-        exclude = CremeModelForm.exclude + ('status', 'closing_date')
+        exclude = CremeEntityForm.Meta.exclude + ('status', 'closing_date')
 
     def save(self):
         self.instance.status_id = OPEN_PK
         super(CreateForm, self).save()
 
 
-class EditForm(CremeModelForm):
+class EditForm(CremeEntityForm):
     class Meta:
         model = Ticket
-        exclude = CremeModelForm.exclude + ('closing_date', )
+        exclude = CremeEntityForm.Meta.exclude + ('closing_date', )
 
     def save(self):
         instance = self.instance

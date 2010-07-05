@@ -27,7 +27,7 @@ from activities.models import ActivityType
 class ActivityTypeForm(CremeModelForm):
     class Meta:
         model = ActivityType
-        exclude = CremeModelForm.Meta.exclude + ('id', )
+        exclude = ('id', )
 
     def save(self):
         if not self.instance.id:

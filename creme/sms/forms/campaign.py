@@ -23,26 +23,25 @@ from django.forms.fields import CharField
 from django.forms.widgets import Textarea
 from django.utils.translation import ugettext_lazy as _
 
-from creme_core.forms import CremeModelForm, CremeForm, FieldBlockManager
+from creme_core.forms import CremeEntityForm, CremeForm, FieldBlockManager
 from creme_core.forms.fields import MultiCremeEntityField
 
 from sms.models.campaign import SMSCampaign
 from sms.models.sendlist import SendList
 
 
-class CampaignCreateForm(CremeModelForm):
+class CampaignCreateForm(CremeEntityForm):
     sendlists = MultiCremeEntityField(label=_(u'Listes de diffusion associées'),
                                       required=False, model=SendList)
 
-    class Meta:
-        model   = SMSCampaign
-        exclude = CremeModelForm.exclude
+    class Meta(CremeEntityForm.Meta):
+        model = SMSCampaign
 
 
-class CampaignEditForm(CremeModelForm):
+class CampaignEditForm(CremeEntityForm):
     class Meta:
         model   = SMSCampaign
-        exclude = CremeModelForm.exclude + ('sendlists',)
+        exclude = CremeEntityForm.Meta.exclude + ('sendlists',)
 
 
 class CampaignAddSendListForm(CremeForm):
@@ -62,7 +61,7 @@ class CampaignAddSendListForm(CremeForm):
         duplicate     = [sendlist for sendlist in sendlists if sendlist.id in current_lists]
 
         if duplicate:
-            raise ValidationError(u"La(es) liste(s) suivante(s) est déja présente dans la campagne: "
+            raise ValidationError(u"La(es) liste(s) suivante(s) est déja présente dans la campagne: " #i8n....
                                   + u', '.join(sendlist.name for sendlist in duplicate))
 
         return sendlists

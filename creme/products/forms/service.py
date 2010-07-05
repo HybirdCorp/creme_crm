@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from creme_core.forms import CremeModelForm
+from creme_core.forms import CremeEntityForm
 from creme_core.forms.fields import MultiCremeEntityField
 
 from media_managers.models import Image
@@ -27,15 +27,8 @@ from media_managers.forms.widgets import ImageM2MWidget
 from products.models import Service
 
 
-#class ServiceListViewForm(CremeModelForm):
-    #class Meta:
-        #model = Service
-
-
-class ServiceCreateForm(CremeModelForm):
-    class Meta:
+class ServiceCreateForm(CremeEntityForm):
+    class Meta(CremeEntityForm.Meta):
         model = Service
-        exclude = CremeModelForm.exclude
 
-    images = MultiCremeEntityField(required=False, model=Image,
-                                   widget=ImageM2MWidget())
+    images = MultiCremeEntityField(required=False, model=Image, widget=ImageM2MWidget())

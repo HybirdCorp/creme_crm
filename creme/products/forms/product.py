@@ -21,7 +21,7 @@
 from django.forms import ModelChoiceField, Select
 from django.utils.translation import ugettext_lazy as _
 
-from creme_core.forms import CremeModelForm
+from creme_core.forms import CremeEntityForm
 from creme_core.forms.fields import MultiCremeEntityField
 from creme_core.forms.widgets import DependentSelect
 
@@ -31,16 +31,9 @@ from media_managers.forms.widgets import ImageM2MWidget
 from products.models import Product, Category, SubCategory
 
 
-#class ProductListViewForm(CremeModelForm):
-    #class Meta:
-        #model   = Product
-        #exclude = ('category', 'sub_category', 'images')
-
-
-class ProductCreateForm(CremeModelForm):
-    class Meta:
+class ProductCreateForm(CremeEntityForm):
+    class Meta(CremeEntityForm.Meta):
         model = Product
-        exclude = CremeModelForm.exclude
 
     category     = ModelChoiceField(queryset=Category.objects.all(), label=_(u'Catégorie'),
                                     widget=DependentSelect(target_id='id_sub_category', target_url='/products/sub_category/load'))
@@ -52,7 +45,7 @@ class ProductCreateForm(CremeModelForm):
                                    widget=ImageM2MWidget())
 
     def __init__(self, *args, **kwargs):
-        CremeModelForm.__init__(self, *args, **kwargs)
+        super(ProductCreateForm, self).__init__(*args, **kwargs)
 
         instance = self.instance
 

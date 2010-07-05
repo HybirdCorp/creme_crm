@@ -21,7 +21,7 @@
 from django.utils.translation import ugettext_lazy as _
 from django.forms import ValidationError
 
-from creme_core.forms import CremeModelForm
+from creme_core.forms import CremeEntityForm
 from creme_core.forms.fields import CremeEntityField
 
 from persons.models import Contact
@@ -29,25 +29,26 @@ from persons.models import Contact
 from projects.models import Resource
 
 
-class ResourceEditForm(CremeModelForm):
+class ResourceEditForm(CremeEntityForm):
     linked_contact = CremeEntityField(label=_(u'Contact Creme à affecter à cette tâche'),
                                       required=True, model=Contact)
 
     class Meta:
         model = Resource
-        exclude = CremeModelForm.exclude + ('task',)
+        exclude = CremeEntityForm.Meta.exclude + ('task',)
 
 
 class ResourceCreateForm(ResourceEditForm):
-
     def __init__(self, *args, **kwargs):
         self.related_task = kwargs['initial'].pop('related_task')
         super(ResourceCreateForm, self).__init__(*args, **kwargs)
 
     def clean_linked_contact(self):
         contact = self.cleaned_data['linked_contact']
+
         if self.related_task.resources_set.filter(linked_contact=contact):
-            raise ValidationError(u"Cette ressource est déjà affectée à la tâche")
+            raise ValidationError(_(u"Cette ressource est déjà affectée à la tâche"))
+
         return contact
 
     def save(self):
