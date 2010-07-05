@@ -29,7 +29,7 @@ from django.db.models import Q
 from django.contrib.auth.models import User
 
 from creme_core.models import CremeEntity, Relation, RelationType
-from creme_core.forms import CremeModelForm, CremeForm
+from creme_core.forms import CremeForm, CremeEntityForm
 from creme_core.forms.fields import RelatedEntitiesField
 from creme_core.forms.widgets import CalendarWidget, TimeWidget, RelationListWidget
 
@@ -84,28 +84,29 @@ class SubjectCreateForm(CremeForm):
         subjects = self.cleaned_data.get('subjects', [])
         ActivityCreateForm.save_other_participants(subjects, self.activity)
 
-class _ActivityCreateBaseForm(CremeModelForm):
-    class Meta:
+
+class _ActivityCreateBaseForm(CremeEntityForm):
+    class Meta(CremeEntityForm.Meta):
         model = Activity
-        exclude = ['is_actived', 'is_deleted', 'end']
+        exclude = CremeEntityForm.Meta.exclude + ('end',)
 
     start      = DateTimeField(label=_(u'Début'), widget=CalendarWidget())
     start_time = TimeField(label=_(u'Heure de début'), widget=TimeWidget(), required=False)
     end_time   = TimeField(label=_(u'Heure de fin'), widget=TimeWidget(), required=False)
-    
+
     is_comapp        = BooleanField(required=False, label=_(u"Est une démarche commerciale ?"))
     my_participation = BooleanField(required=False, label=_(u"Est-ce que je participe à ce rendez-vous ?"))
     participants     = RelatedEntitiesField(relations=[REL_SUB_ACTIVITY_SUBJECT, REL_SUB_PART_2_ACTIVITY, REL_SUB_LINKED_2_ACTIVITY],
                                             label=_(u'Autres participants'),
                                             widget=RelationListWidget(),
                                             required=False)
-                                            
+
     informed_users   = ModelMultipleChoiceField(queryset=User.objects.all(),
                                                 widget=CheckboxSelectMultiple(),
                                                 required=False,
                                                 label=_(u"Utilisateurs") )
 
-    blocks = CremeModelForm.blocks.new(
+    blocks = CremeEntityForm.blocks.new(
                 ('datetime',       _(u'Quand'),  ['start', 'start_time', 'end_time', 'is_all_day']),
                 ('participants',   _(u'Participants'), ['my_participation', 'participants']),
                 ('informed_users', _(u'Les utilisateurs à tenir informés'), ['informed_users',]),
@@ -311,10 +312,10 @@ class ActivityCreateWithoutRelationForm(_ActivityCreateBaseForm):
 
 
 #TODO: factorise ?? (ex: CreateForm inherits from EditForm....)
-class ActivityEditForm(CremeModelForm):
-    class Meta:
+class ActivityEditForm(CremeEntityForm):
+    class Meta(CremeEntityForm.Meta):
         model = Activity
-        exclude = ['is_actived', 'is_deleted', 'end', 'type']
+        exclude = CremeEntityForm.Meta.exclude + ('end', 'type')
 
     start      = DateTimeField(label=_(u'Début'), widget=CalendarWidget())
     start_time = TimeField(label=_(u'Heure de début'), widget=TimeWidget(), required=False)
@@ -349,4 +350,3 @@ class ActivityEditForm(CremeModelForm):
     def save(self):
         self.instance.end = self.cleaned_data['end']
         super(ActivityEditForm, self).save()
-

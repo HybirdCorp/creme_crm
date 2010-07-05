@@ -31,7 +31,7 @@ from sms.models.template import MessageTemplate
 class SendingCreateForm(CremeModelForm):
     class Meta:
         model   = Sending
-        exclude = CremeModelForm.exclude + ('campaign','date','content',)
+        exclude = ('campaign', 'date', 'content')
 
     template     = CremeEntityField(label=_(u'Patron de message'), model=MessageTemplate)
 
@@ -44,15 +44,14 @@ class SendingCreateForm(CremeModelForm):
         instance.campaign = self.campaign
         instance.date = datetime.now()
         super(SendingCreateForm, self).save()
-        
+
         template = instance.template
         instance.content = (template.subject + ' : ' + template.body) if template else ''
         instance.save()
-        
+
         for phone in instance.campaign.all_recipients():
             Message.objects.create(phone=phone,
                                    status=MESSAGE_STATUS_NOTSENT,
                                    sending=instance)
-        
+
         Message.send(instance)
-        

@@ -13,8 +13,12 @@
         <tr>
             <th colspan="5" class="block_header_line_dark" align="left">
                 <a class="button_link" onclick="creme.relations.handleAddFromPredicateEntity('/creme_core/relation/add/from/predicate/{{predicate_id}}/entity/{{object.id}}/{{ct_id}}','{{predicate_id}}','{{object.id}}', '{{update_url}}?base_url={{base_url}}');">
+                    <img src="{{MEDIA_URL}}images/relations_22.png" border="0" title="Ajouter une personne" alt="Ajouter" />
+                    Ajouter un contact existant
+                </a>
+                <a class="button_link" href="/persons/contact/add_with_relation/{{object.pk}}/{{predicate_id}}?callback_url=" onclick="this.href+=window.location.href">
                     <img src="{{MEDIA_URL}}images/add_22.png" border="0" title="Ajouter une personne" alt="Ajouter" />
-                    {% block add_title %}Ajouter une personne{% endblock %}
+                    {% block add_title %}Créer une personne{% endblock %}
                 </a>
             </th>
         </tr>

@@ -36,7 +36,7 @@ class CustomFieldsBaseForm(CremeModelForm):
     enum_values = CharField(widget=Textarea(), label=_(u'Contenu de la liste'), required=False,
                             help_text=_(u'Mettez les choix possibles (un par ligne) si vous avez choisi le type "Liste de choix".'))
 
-    class Meta(CremeModelForm.Meta):
+    class Meta:
         model = CustomField
 
     def clean(self):
@@ -76,7 +76,7 @@ class CustomFieldsCTAddForm(CustomFieldsBaseForm):
 
 class CustomFieldsAddForm(CustomFieldsBaseForm):
     class Meta(CustomFieldsBaseForm.Meta):
-        exclude = CremeModelForm.Meta.exclude + ('content_type',)
+        exclude = ('content_type',)
 
     def __init__(self, *args, **kwargs):
         super(CustomFieldsAddForm, self).__init__(*args, **kwargs)
@@ -88,9 +88,8 @@ class CustomFieldsAddForm(CustomFieldsBaseForm):
 
 
 class CustomFieldsEditForm(CremeModelForm):
-    class Meta(CremeModelForm.Meta):
+    class Meta:
         model = CustomField
-        #exclude = CremeModelForm.Meta.exclude + ('content_type',)
         fields = ('name',)
 
     def __init__(self, *args, **kwargs):

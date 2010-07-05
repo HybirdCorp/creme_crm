@@ -22,23 +22,18 @@ from django.forms import ModelChoiceField
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.contenttypes.models import ContentType
 
-#from creme_core.forms import CremeModelForm
-
 from billing.models import Quote, TemplateBase, QuoteStatus
 from base import BaseCreateForm, BaseEditForm
 from templatebase import TemplateBaseCreateForm
 
 
-#class QuoteListViewForm(CremeModelForm):
-    #class Meta:
-        #model = Quote
-
 class QuoteCreateForm(BaseCreateForm):
     class Meta:
         model = Quote
-        exclude = BaseCreateForm.exclude + ('number',)
+        exclude = BaseCreateForm.Meta.exclude + ('number',)
+
 
 class QuoteEditForm(BaseEditForm):
     class Meta:
         model = Quote
-        exclude = BaseEditForm.exclude + ('number',)
+        exclude = BaseEditForm.Meta.exclude + ('number',)

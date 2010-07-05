@@ -6,9 +6,9 @@
     <tbody class="collapsable">
         <tr>
             <th class="block_header_line_light" align="left" colspan="2">
-                {% comment %}<a class="button_link" onclick="creme.utils.showInnerPopup('/activities/activity/{{object.id}}/participant/add')">{% endcomment %}
                 <a class="button_link" onclick="creme.utils.innerPopupNReload('/activities/activity/{{object.id}}/participant/add', '{{update_url}}?base_url={{base_url}}');">
-                    <img src="{{MEDIA_URL}}images/add_22.png" border="0" title="Ajouter un participant" alt="Ajouter" />Nouveau
+                    <img src="{{MEDIA_URL}}images/relations_22.png" border="0" title="Ajouter un participant" alt="Ajouter" />
+                    Ajouter depuis des fiches existantes
                 </a>
             </th>
         </tr>

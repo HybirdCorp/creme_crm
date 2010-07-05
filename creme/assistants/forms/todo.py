@@ -22,18 +22,18 @@ from datetime import datetime
 
 from django.forms import DateTimeField
 
-from creme_core.forms import CremeModelForm
+from creme_core.forms import CremeModelWithUserForm
 from creme_core.forms.widgets import CalendarWidget
 
 from assistants.models import ToDo
 
 
-class ToDoEditForm(CremeModelForm):
+class ToDoEditForm(CremeModelWithUserForm):
     deadline  = DateTimeField(widget=CalendarWidget(), required=False)
 
     class Meta:
         model = ToDo
-        exclude = ('creation_date', 'entity_content_type', 'entity_id','for_user')
+        exclude = ('creation_date', 'entity_content_type', 'entity_id', 'for_user')
 
     def __init__(self, entity, *args, **kwargs):
         super(ToDoEditForm, self).__init__(*args, **kwargs)
@@ -45,10 +45,10 @@ class ToDoEditForm(CremeModelForm):
         instance = self.instance
         instance.entity_content_type = entity.entity_type
         instance.entity_id = entity.id
-        
         instance.for_user = self.cleaned_data['user']
 
         super(ToDoEditForm, self).save()
+
 
 class ToDoCreateForm(ToDoEditForm):
     def save (self):

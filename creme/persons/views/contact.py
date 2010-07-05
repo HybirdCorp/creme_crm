@@ -23,11 +23,12 @@ from logging import debug
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.auth.decorators import login_required
 
+from creme_core.models import RelationType
 from creme_core.views.generic import add_entity, edit_entity, view_entity_with_template, list_view
 from creme_core.gui.last_viewed import change_page_for_last_item_viewed
 from creme_core.entities_access.functions_for_permissions import add_view_or_die, get_view_or_die, read_object_or_die
 
-from persons.models import Contact
+from persons.models import Contact, Organisation
 from persons.forms.contact import ContactWithRelationForm, ContactCreateForm
 
 
@@ -40,12 +41,24 @@ def add(request):
 @login_required
 @get_view_or_die('persons')
 @add_view_or_die(ContentType.objects.get_for_model(Contact), None, 'persons')
-def add_with_relation(request, organisation_id):
-    return add_entity(request,
-                      ContactWithRelationForm,
+def add_with_relation(request, orga_id, predicate_id=None):
+    try:
+        linked_orga = Organisation.objects.get(pk=orga_id) #credential ??
+    except Organisation.DoesNotExist, e:
+        debug('Organisation.DoesNotExist: %s', e)
+        linked_orga = None
+
+    initial = {'linked_orga': linked_orga}
+
+    if predicate_id:
+        try:
+            initial.update(relation_type=RelationType.objects.get(symmetric_type=predicate_id))
+        except RelationType.DoesNotExist, e:
+            debug('RelationType.DoesNotExist: %s', e)
+
+    return add_entity(request, ContactWithRelationForm,
                       request.REQUEST.get('callback_url'),
-                      'persons/add_contact_form.html',
-                      extra_initial={'organisation_id': organisation_id})
+                      'persons/add_contact_form.html', extra_initial=initial)
 
 def edit(request, contact_id):
     return edit_entity(request, contact_id, Contact, ContactCreateForm, 'persons', template='persons/edit_contact_form.html')
@@ -67,4 +80,5 @@ def listview(request):
 @change_page_for_last_item_viewed #useful ????
 def list_my_leads_my_customers(request):
     #use a constant for 'persons-hf_leadcustomer' ??
-    return list_view(request, Contact, hf_pk='persons-hf_leadcustomer', extra_dict={'list_title': 'Liste de mes suspects / prospects / clients'})
+    return list_view(request, Contact, hf_pk='persons-hf_leadcustomer',
+                     extra_dict={'list_title': 'Liste de mes suspects / prospects / clients'})

@@ -20,12 +20,12 @@
 
 from datetime import datetime
 
-from creme_core.forms import CremeModelForm
+from creme_core.forms import CremeModelWithUserForm
 
 from assistants.models import Memo
 
 
-class MemoEditForm(CremeModelForm):
+class MemoEditForm(CremeModelWithUserForm):
     class Meta:
         model = Memo
         exclude = ('creation_date', 'entity_content_type', 'entity_id')

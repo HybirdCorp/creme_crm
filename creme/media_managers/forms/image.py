@@ -18,27 +18,17 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from creme_core.forms import CremeModelForm
+from creme_core.forms import CremeEntityForm
 from creme_core.forms.widgets import UploadedFileWidget
 from creme_core.views.file_handling import handle_uploaded_file
 
 from media_managers.models import Image
 
 
-__all__ = (
-    'ImageForm', #'ImageListViewForm', 
-)
-
-#class ImageListViewForm(CremeModelForm):
-    #class Meta:
-        #model   = Image
-        #exclude = CremeModelForm.exclude + ('image',)
-
-
-class ImageForm(CremeModelForm):
+class ImageForm(CremeEntityForm):
     class Meta:
         model = Image
-        exclude = CremeModelForm.exclude + ('height', 'width')
+        exclude = CremeEntityForm.Meta.exclude + ('height', 'width')
 
     def __init__(self, *args, **kwargs):
         super (ImageForm,self ).__init__(*args, **kwargs)
@@ -46,5 +36,4 @@ class ImageForm(CremeModelForm):
             self.fields['image'].__dict__['widget'] = UploadedFileWidget(url='%s' % (self.instance.image)) #TODO: why not str(self.instance.image) ??
 
     def clean_image(self):
-#        return str(handle_uploaded_file(self.cleaned_data['image'], path='upload/images'))
-        return str(handle_uploaded_file(self.cleaned_data['image'], path=['upload','images']))
+        return str(handle_uploaded_file(self.cleaned_data['image'], path=['upload', 'images']))
