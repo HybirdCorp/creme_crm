@@ -87,7 +87,7 @@ class ContactCreateForm(CremeModelForm):
     def save(self):
         instance     = self.instance
         cleaned_data = self.cleaned_data
-        
+
         super(ContactCreateForm, self).save()
 
         if instance.billing_adress is not None:
@@ -128,7 +128,6 @@ class ContactCreateForm(CremeModelForm):
             shipping_adress.owner = instance
             shipping_adress.save()
 
-#        super(CremeModelForm, self).save()
         instance.billing_adress = billing_adress
         instance.shipping_adress = shipping_adress
         instance.save()
@@ -144,24 +143,34 @@ class ContactForm(ContactCreateForm):
 
 
 class ContactWithRelationForm(ContactForm):
-    orga_overview = CharField(label=_(u'Société concernée'), widget=TextInput(attrs={'readonly': 'readonly'}))
-    relation      = ModelChoiceField(label=_(u"Statut dans la société"), queryset=RelationType.objects.none())
+    orga_overview = CharField(label=_(u'Société concernée'), widget=TextInput(attrs={'readonly': 'readonly'}), initial=_('Aucune'))
 
     def __init__(self, *args, **kwargs):
         super(ContactWithRelationForm, self).__init__(*args, **kwargs)
 
-        try:
-            self.linked_orga = Organisation.objects.get(pk=self.initial.get('organisation_id'))
-        except Organisation.DoesNotExist:
-            self.linked_orga = None
+        self.linked_orga = self.initial.get('linked_orga')
+
+        if not self.linked_orga:
+            return
+
+        self.fields['orga_overview'].initial = self.linked_orga
+
+        self.relation_type = self.initial.get('relation_type')
+
+        if self.relation_type:
+            relation_field = CharField(label=_(u'Type de relation'),
+                                        widget=TextInput(attrs={'readonly': 'readonly'}),
+                                        initial=self.relation_type)
         else:
             get_ct = ContentType.objects.get_for_model
-            self.fields['relation'].queryset = RelationType.objects.filter(subject_ctypes=get_ct(Contact), object_ctypes=get_ct(Organisation))
-
-        self.fields['orga_overview'].initial = self.linked_orga if self.linked_orga is not None else 'Aucune'
+            relation_field = ModelChoiceField(label=_(u"Statut dans la société"),
+                                                queryset=RelationType.objects.filter(subject_ctypes=get_ct(Contact),
+                                                                                    object_ctypes=get_ct(Organisation)))
+        self.fields['relation'] = relation_field
 
     def save(self):
         super(ContactWithRelationForm, self).save()
 
         if self.linked_orga:
-            Relation.create(self.instance, self.cleaned_data.get('relation').id, self.linked_orga)
+            relation_type = self.relation_type or self.cleaned_data.get('relation')
+            Relation.create(self.instance, relation_type.id, self.linked_orga)

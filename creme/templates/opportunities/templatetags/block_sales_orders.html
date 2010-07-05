@@ -1,21 +1,19 @@
 {% load creme_block %}
-
 <script type="text/javascript">
     creme.include('{{MEDIA_URL}}js/models/relations.js','js');
 </script>
-
 <table  class="table_detail_view ui-corner-all" id={{block_name}}>
     {% get_block_header '%s Bon de commande associé' '%s Bons de commande associés' 'invoice_48.png' 'Sales orders' %}
     <tbody class="collapsable">
         <tr>
             <th colspan="4" class="block_header_line_dark" align="left">
                 <a class="button_link" onclick="creme.relations.handleAddFromPredicateEntity('/creme_core/relation/add/from/predicate/{{predicate_id}}/entity/{{object.id}}/{{ct_id}}','{{predicate_id}}','{{object.id}}', '{{update_url}}?base_url={{base_url}}');">
-                    <img src="{{MEDIA_URL}}images/add_22.png" border="0" title="Ajouter un Bon" alt="Ajouter" />
-                    Ajouter un bon existant
+                    <img src="{{MEDIA_URL}}images/relations_22.png" border="0" title="Ajouter un Bon" alt="Ajouter" />
+                    Lier à un bon existant
                 </a>
                 <a class="button_link" href="/opportunities/opportunity/generate_new_doc/{{object.id}}/{{ct_id}}">
-                    <img src="{{MEDIA_URL}}images/add_22.png" border="0" title="Générer un nouveau Bon Courant" alt="Générer un nouveau Bon Courant" />
-                    Générer un nouveau Bon Courant
+                    <img src="{{MEDIA_URL}}images/add_22.png" border="0" title="Générer un nouveau Bon courant" alt="Générer un nouveau Bon courant" />
+                    Générer un nouveau Bon courant
                 </a>
             </th>
         </tr>

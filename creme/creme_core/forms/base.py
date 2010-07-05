@@ -130,7 +130,7 @@ class CremeForm(Form):
 class CremeModelForm(ModelForm):
     #user = ModelChoiceField(label=_('Utilisateur'), queryset=User.objects.all(), empty_label=None) #TODO: in a CremeEntityForm ??
 
-    callback_url = None
+    #callback_url = None #COMMENTED the 2 july 2010
     blocks       = FieldBlockManager(('general', _(u'Informations générales'), '*'))
     exclude      = ('is_deleted', 'is_actived') #remove ??
 
