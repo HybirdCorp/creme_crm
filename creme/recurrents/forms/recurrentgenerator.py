@@ -23,20 +23,20 @@ from django.utils.translation import ugettext_lazy as _
 from django.http import HttpResponseRedirect
 from django.contrib.formtools.wizard import FormWizard
 
-from creme_core.forms import CremeModelForm
+from creme_core.forms import CremeEntityForm
 from creme_core.forms.widgets import DateTimeWidget
 
 from recurrents.models import RecurrentGenerator
 from recurrents.registry import recurrent_registry
 
 
-class RecurrentGeneratorEditForm(CremeModelForm):
+class RecurrentGeneratorEditForm(CremeEntityForm):
     first_generation = DateTimeField(label=_(u'Date de la première récurrence'),
                                      required=True, widget=DateTimeWidget())
 
     class Meta:
         model = RecurrentGenerator
-        exclude = CremeModelForm.exclude + ('last_generation', 'ct', 'template', 'is_working')
+        exclude = CremeEntityForm.Meta.exclude + ('last_generation', 'ct', 'template', 'is_working')
 
 
 class RecurrentGeneratorCreateForm(RecurrentGeneratorEditForm):
@@ -45,7 +45,7 @@ class RecurrentGeneratorCreateForm(RecurrentGeneratorEditForm):
 
     class Meta:
         model = RecurrentGenerator
-        exclude = CremeModelForm.exclude + ('is_working', 'template', 'last_generation')
+        exclude = CremeEntityForm.Meta.exclude + ('is_working', 'template', 'last_generation')
 
     def save(self):
         instance = super(RecurrentGeneratorCreateForm, self).save()

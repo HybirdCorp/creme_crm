@@ -23,19 +23,19 @@ from datetime import datetime, time
 from django.forms.fields import DateTimeField, TimeField
 from django.utils.translation import ugettext_lazy as _
 
-from creme_core.forms import CremeModelForm
+from creme_core.forms import CremeModelWithUserForm
 from creme_core.forms.widgets import CalendarWidget, TimeWidget
 
 from assistants.models import Action
 
 
-class ActionEditForm(CremeModelForm):
+class ActionEditForm(CremeModelWithUserForm):
     deadline      = DateTimeField(label=_(u"Date d'échéance"), widget=CalendarWidget())
     deadline_time = TimeField(label=_(u'Heure'), widget=TimeWidget(), required=False)
 
     class Meta:
         model = Action
-        exclude = ('entity_content_type', 'creation_date', 'validation_date', 'entity_id','for_user')
+        exclude = ('entity_content_type', 'creation_date', 'validation_date', 'entity_id', 'for_user')
 
     def __init__(self, entity, *args, **kwargs):
         super(ActionEditForm, self).__init__(*args, **kwargs)
@@ -60,7 +60,7 @@ class ActionEditForm(CremeModelForm):
         instance = self.instance
         instance.entity_content_type = entity.entity_type
         instance.entity_id = entity.id
-        
+
         instance.for_user = self.cleaned_data['user']
 
         super(ActionEditForm, self).save()

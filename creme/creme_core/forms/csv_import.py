@@ -267,15 +267,6 @@ class CSVImportForm(CremeModelForm):
 
         return csv_document
 
-    #def clean(self):
-        #print data
-        #for line in data.split('\n'):
-            #for e in [word.strip('"') for word in line.split(',')]: print e, ',',
-            #print
-            #print u'-----------------------'
-
-        #raise ValidationError('pipo')
-
     def _post_instance_creation(self, instance): #overload me
         pass
 
@@ -346,6 +337,9 @@ class CSVImportForm4CremeEntity(CSVImportForm):
                                               widget=OrderedMultipleChoiceWidget)
     relations      = RelatedEntitiesField(label=_(u'Relations'), required=False,
                                           widget=RelationListWidget(), use_ctype=True)
+
+    class Meta:
+        exclude = ('is_deleted', 'is actived')
 
     def __init__(self, *args, **kwargs):
         super(CSVImportForm4CremeEntity, self).__init__(*args, **kwargs)

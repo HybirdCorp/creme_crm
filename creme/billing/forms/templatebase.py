@@ -31,6 +31,10 @@ from billing.models import TemplateBase, InvoiceStatus
 class TemplateBaseEditForm(BaseEditForm):
     status = ModelChoiceField(queryset=InvoiceStatus.objects.none())
 
+    class Meta:
+        model = TemplateBase
+        exclude = BaseEditForm.Meta.exclude + ('number', 'ct', 'status_id')
+
     def __init__(self, *args, **kwargs):
         super(TemplateBaseEditForm, self).__init__(*args, **kwargs)
 
@@ -41,10 +45,6 @@ class TemplateBaseEditForm(BaseEditForm):
         self.fields['status'].queryset = status_class.objects.all()
         self.fields['status'].initial = status_class.objects.get(pk = self.instance.status_id).id
 
-    class Meta:
-        model = TemplateBase
-        exclude = BaseEditForm.exclude + ('number', 'ct', 'status_id')
-
 
 class TemplateBaseCreateForm(BaseEditForm):
     status = ModelChoiceField(queryset=InvoiceStatus.objects.none())
@@ -52,7 +52,7 @@ class TemplateBaseCreateForm(BaseEditForm):
 
     class Meta:
         model = TemplateBase
-        exclude = BaseEditForm.exclude + ('number', 'status_id', 'ct')
+        exclude = BaseEditForm.Meta.exclude + ('number', 'status_id', 'ct')
 
     def __init__(self, *args, **kwargs):
         super(TemplateBaseCreateForm, self).__init__(*args, **kwargs)

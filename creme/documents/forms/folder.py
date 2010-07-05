@@ -19,22 +19,23 @@
 ################################################################################
 
 from django.forms import ValidationError
+from django.utils.translation import ugettext as _
 
-from creme_core.forms import CremeModelForm
+from creme_core.forms import CremeEntityForm
 
 from documents.models.folder import Folder
 
 
-class FolderForm(CremeModelForm):
-    class Meta:
+class FolderForm(CremeEntityForm):
+    class Meta(CremeEntityForm.Meta):
         model = Folder
-        exclude = CremeModelForm.exclude
 
     def clean_category(self):
-        parent_folder_data = self.cleaned_data['parent_folder']
-        category_data = self.cleaned_data['category']
-#        if parent_folder_data is not None and category_data is not None and parent_folder_data.category != category_data:
+        cleaned_data = self.cleaned_data
+        parent_folder_data = cleaned_data['parent_folder']
+        category_data      = cleaned_data['category']
+
         if parent_folder_data is not None and parent_folder_data.category != category_data:
-            raise ValidationError("La categorie du classeur doit être la même que celle du parent : %s" % parent_folder_data.category)
+            raise ValidationError(_(u"La catégorie du classeur doit être la même que celle du parent: %s") % parent_folder_data.category)
 
         return category_data

@@ -9,11 +9,12 @@
         <tr>
             <th colspan="2" class="block_header_line_dark" align="left">
                 <a class="button_link" href="/documents/document/add_from_detailview?callback_url={{object.get_absolute_url}}&entity_id={{object.id}}">
-                    <img src="{{MEDIA_URL}}images/add_22.png" border="0" title="Ajouter" alt="Ajouter" />
-                    Nouveau
-                </a> |
+                    <img src="{{MEDIA_URL}}images/add_22.png" border="0" title="Créer document" alt="Créer document" />
+                    Créer un document
+                </a>
                 <a class="button_link" onclick="creme.relations.handleAddFromPredicateEntity('/creme_core/relation/add/from/predicate/{{predicate_id}}/entity/{{object.id}}/{{ct_id}}','{{predicate_id}}','{{object.id}}', '{{update_url}}?{{block_name}}_page={{page.number}}&base_url={{base_url}}');">
-                    Lier document
+                    <img src="{{MEDIA_URL}}images/relations_22.png" border="0" title="Lier document" alt="Lier document" />
+                    Lier à un document existant
                 </a>
             </th>
         </tr>

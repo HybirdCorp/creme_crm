@@ -21,7 +21,7 @@
 from django.forms import DateTimeField, ModelChoiceField
 from django.utils.translation import ugettext_lazy as _
 
-from creme_core.forms import CremeModelForm
+from creme_core.forms import CremeEntityForm
 from creme_core.forms.fields import CremeEntityField
 from creme_core.forms.widgets import CalendarWidget
 
@@ -31,12 +31,12 @@ from opportunities.models import Opportunity
 
 from creme import form_post_save
 
-class OpportunityEditForm(CremeModelForm):
+
+class OpportunityEditForm(CremeEntityForm):
     expiration_date = DateTimeField(label=_(u'Écheance'), widget=CalendarWidget())
 
-    class Meta: #Meta(CremeModelForm.Meta) ??
+    class Meta(CremeEntityForm.Meta):
         model = Opportunity
-        exclude = CremeModelForm.exclude
 
 
 class OpportunityCreateForm(OpportunityEditForm):
@@ -52,4 +52,4 @@ class OpportunityCreateForm(OpportunityEditForm):
         super(OpportunityCreateForm, self).save()
         self.instance.link_to_target_orga(self.cleaned_data['target_orga'])
         self.instance.link_to_emit_orga(self.cleaned_data['emit_orga'])
-        form_post_save.send (sender=Opportunity, instance=self.instance, created=created)
+        form_post_save.send(sender=Opportunity, instance=self.instance, created=created)

@@ -21,24 +21,23 @@
 from django.forms import ValidationError
 from django.utils.translation import ugettext_lazy as _
 
-from creme_core.forms import CremeModelForm, CremeForm, FieldBlockManager
+from creme_core.forms import CremeEntityForm, CremeForm, FieldBlockManager
 from creme_core.forms.fields import MultiCremeEntityField
 
 from emails.models import EmailCampaign, MailingList
 
 
-class CampaignCreateForm(CremeModelForm):
+class CampaignCreateForm(CremeEntityForm):
     mailing_lists = MultiCremeEntityField(label=_(u'Listes de diffusion associées'), required=False, model=MailingList)
 
-    class Meta:
-        model   = EmailCampaign
-        exclude = CremeModelForm.exclude
+    class Meta(CremeEntityForm.Meta):
+        model = EmailCampaign
 
 
-class CampaignEditForm(CremeModelForm):
-    class Meta:
+class CampaignEditForm(CremeEntityForm):
+    class Meta(CremeEntityForm.Meta):
         model   = EmailCampaign
-        exclude = CremeModelForm.exclude + ('mailing_lists',)
+        exclude = CremeEntityForm.Meta.exclude + ('mailing_lists',)
 
 
 class CampaignAddMLForm(CremeForm):

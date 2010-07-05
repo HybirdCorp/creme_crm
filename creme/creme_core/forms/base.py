@@ -30,6 +30,8 @@ from django.contrib.contenttypes.models import ContentType
 
 from creme_core.models import CremeEntity, CustomField, CustomFieldValue, CustomFieldEnumValue
 
+__all__ = ('FieldBlockManager', 'CremeForm', 'CremeModelForm', 'CremeModelWithUserForm', 'CremeEntityForm')
+
 
 _FIELD_TYPES = {
                 CustomField.INT:   forms.IntegerField,
@@ -128,37 +130,24 @@ class CremeForm(Form):
 
 
 class CremeModelForm(ModelForm):
-    #user = ModelChoiceField(label=_('Utilisateur'), queryset=User.objects.all(), empty_label=None) #TODO: in a CremeEntityForm ??
-
-    callback_url = None
-    blocks       = FieldBlockManager(('general', _(u'Informations générales'), '*'))
-    exclude      = ('is_deleted', 'is_actived') #remove ??
-
-    class Meta:
-        exclude = ('is_deleted', 'is_actived') #TODO: in a CremeEntityForm ??
-
-    def __init__(self, *args, **kwargs):
-        super(CremeModelForm, self).__init__(*args, **kwargs)
-
-        if isinstance(self.instance, CremeEntity): #TODO: in a CremeEntityForm  instead ???
-            self._build_customfields()
+    blocks = FieldBlockManager(('general', _(u'Informations générales'), '*'))
 
     def get_blocks(self):
         return self.blocks.build(self)
 
-#COMMENTED 29 june 2010
-#    def get_value_for_field(self, field_name):
-#        """Return value for a field"""
-#        data = None
-#        if field_name in self.fields.keys():
-#            bf = BoundField(self, self.fields[field_name], field_name)
-#            if not self.is_bound:
-#                data = self.initial.get(field_name, bf.field.initial)
-#                if callable(data):
-#                    data = data()
-#            else:
-#                data = bf.data
-#        return data
+
+class CremeModelWithUserForm(CremeModelForm):
+    user = ModelChoiceField(label=_('Utilisateur'), queryset=User.objects.all(), empty_label=None)
+
+
+class CremeEntityForm(CremeModelWithUserForm):
+    class Meta:
+        exclude = ('is_deleted', 'is_actived')
+
+    def __init__(self, *args, **kwargs):
+        super(CremeModelForm, self).__init__(*args, **kwargs)
+        assert self.instance, CremeEntity
+        self._build_customfields()
 
     def _build_formfield(self, custom_field):
         field =  _FIELD_TYPES[custom_field.field_type](label=custom_field.name, required=False)
@@ -175,7 +164,7 @@ class CremeModelForm(ModelForm):
 
         return field
 
-    def _build_customfields(self): #TODO: in a CremeEntityForm ??
+    def _build_customfields(self):
         #move to CremeEntity ???
         cfields = CustomField.objects.filter(content_type=ContentType.objects.get_for_model(self.instance))
 
@@ -201,13 +190,8 @@ class CremeModelForm(ModelForm):
             fields[_CUSTOM_NAME % i] = self._build_formfield(cfield)
 
     def save(self, *args, **kwargs):
-        super(CremeModelForm, self).save(*args, **kwargs)
-
-        if not isinstance(self.instance, CremeEntity): ####
-            return
-
+        instance = super(CremeModelForm, self).save(*args, **kwargs)
         cleaned_data = self.cleaned_data
-        instance     = self.instance
 
         for i, cfield in enumerate(self._customfields):
             value = cleaned_data[_CUSTOM_NAME % i] #TODO: factorize with _build_customfields() ?
@@ -221,3 +205,5 @@ class CremeModelForm(ModelForm):
                     customvalue.save()
             elif value:
                 CustomFieldValue.objects.create(custom_field=cfield, entity=instance, value=value)
+
+        return instance

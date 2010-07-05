@@ -26,7 +26,7 @@ from django.utils.translation import ugettext_lazy as _
 from django.contrib.contenttypes.models import ContentType
 
 from creme_core.models import CremeEntity, RelationType, Relation
-from creme_core.forms import CremeModelForm
+from creme_core.forms import CremeEntityForm
 from creme_core.forms.fields import  CremeEntityField
 from creme_core.forms.widgets import CalendarWidget
 
@@ -39,11 +39,11 @@ from persons.models import Organisation, Contact, Address
 #TODO: la gestion des adresses est a revoir ; pourrait on utiliser 2 formulaire
 #      sur le model Address dont on insererait le contenu ???
 
-class ContactCreateForm(CremeModelForm):
+class ContactCreateForm(CremeEntityForm):
     birthday = DateTimeField(label=_('Anniversaire'), widget=CalendarWidget(), required=False)
-    image = CremeEntityField(required=False, model=Image, widget=ImageM2MWidget())
+    image    = CremeEntityField(required=False, model=Image, widget=ImageM2MWidget())
 
-    blocks = CremeModelForm.blocks.new(
+    blocks = CremeEntityForm.blocks.new(
                 ('coordinates',      _(u'Coordonnées'),            ['skype', 'landline', 'mobile', 'email', 'url_site']),
                 ('billing_address',  _(u'Adresse de facturation'), ['name_billing', 'address_billing', 'po_box_billing',
                                                                    'city_billing', 'state_billing', 'zipcode_billing', 'country_billing']),
@@ -53,7 +53,7 @@ class ContactCreateForm(CremeModelForm):
 
     class Meta:
         model = Contact
-        exclude = CremeModelForm.exclude + ('billing_adress', 'shipping_adress','language','is_user')
+        exclude = CremeEntityForm.Meta.exclude + ('billing_adress', 'shipping_adress', 'language', 'is_user')
 
     def __init__(self, *args, **kwargs):
         super(ContactCreateForm, self).__init__(*args, **kwargs)
@@ -87,7 +87,7 @@ class ContactCreateForm(CremeModelForm):
     def save(self):
         instance     = self.instance
         cleaned_data = self.cleaned_data
-        
+
         super(ContactCreateForm, self).save()
 
         if instance.billing_adress is not None:
@@ -128,7 +128,6 @@ class ContactCreateForm(CremeModelForm):
             shipping_adress.owner = instance
             shipping_adress.save()
 
-#        super(CremeModelForm, self).save()
         instance.billing_adress = billing_adress
         instance.shipping_adress = shipping_adress
         instance.save()
@@ -144,24 +143,34 @@ class ContactForm(ContactCreateForm):
 
 
 class ContactWithRelationForm(ContactForm):
-    orga_overview = CharField(label=_(u'Société concernée'), widget=TextInput(attrs={'readonly': 'readonly'}))
-    relation      = ModelChoiceField(label=_(u"Statut dans la société"), queryset=RelationType.objects.none())
+    orga_overview = CharField(label=_(u'Société concernée'), widget=TextInput(attrs={'readonly': 'readonly'}), initial=_('Aucune'))
 
     def __init__(self, *args, **kwargs):
         super(ContactWithRelationForm, self).__init__(*args, **kwargs)
 
-        try:
-            self.linked_orga = Organisation.objects.get(pk=self.initial.get('organisation_id'))
-        except Organisation.DoesNotExist:
-            self.linked_orga = None
+        self.linked_orga = self.initial.get('linked_orga')
+
+        if not self.linked_orga:
+            return
+
+        self.fields['orga_overview'].initial = self.linked_orga
+
+        self.relation_type = self.initial.get('relation_type')
+
+        if self.relation_type:
+            relation_field = CharField(label=_(u'Type de relation'),
+                                        widget=TextInput(attrs={'readonly': 'readonly'}),
+                                        initial=self.relation_type)
         else:
             get_ct = ContentType.objects.get_for_model
-            self.fields['relation'].queryset = RelationType.objects.filter(subject_ctypes=get_ct(Contact), object_ctypes=get_ct(Organisation))
-
-        self.fields['orga_overview'].initial = self.linked_orga if self.linked_orga is not None else 'Aucune'
+            relation_field = ModelChoiceField(label=_(u"Statut dans la société"),
+                                                queryset=RelationType.objects.filter(subject_ctypes=get_ct(Contact),
+                                                                                    object_ctypes=get_ct(Organisation)))
+        self.fields['relation'] = relation_field
 
     def save(self):
         super(ContactWithRelationForm, self).save()
 
         if self.linked_orga:
-            Relation.create(self.instance, self.cleaned_data.get('relation').id, self.linked_orga)
+            relation_type = self.relation_type or self.cleaned_data.get('relation')
+            Relation.create(self.instance, relation_type.id, self.linked_orga)

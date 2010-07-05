@@ -13,56 +13,58 @@
 {% endblock %}
 
 {% block detail_view_left_1 %}
+    <!--{% cycle "block_header_line_dark" "block_header_line_light" as header_color %}
+        {% cycle "block_line_dark" "block_line_light" as row_color %}-->
     <table class="table_detail_view ui-corner-all">
         {% get_basic_block_header "Informations sur l'organisation" 'infos_48.png' 'Infos' %}
         <tbody class="collapsable">
             <tr>
-                <th class="block_header_line_dark">Nom de l'organisation</th>
-                <td class="block_line_dark">{{object.name}}</td>
+                <th class="{% cycle header_color %}">Nom de l'organisation</th>
+                <td class="{% cycle row_color %}">{{object.name}}</td>
             </tr>
             <tr>
-                <th class="block_header_line_light">Effectif</th>
-                <td class="block_line_light">{{object.employees}}</td>
+                <th class="{% cycle header_color %}">Effectif</th>
+                <td class="{% cycle row_color %}">{{object.employees}}</td>
             </tr>
             <tr>
-                <th class="block_header_line_dark">Forme Juridique</th>
-                <td class="block_line_dark">{{object.legal_form }}</td>
+                <th class="{% cycle header_color %}">Forme Juridique</th>
+                <td class="{% cycle row_color %}">{{object.legal_form }}</td>
             </tr>
             <tr>
-                <th class="block_header_line_dark">Secteur</th>
-                <td class="block_line_dark">{{object.sector }}</td>
-            </tr>            
-            <tr>
-                <th class="block_header_line_light">Capital</th>
-                <td class="block_line_light">{{object.capital}}</td>
+                <th class="{% cycle header_color %}">Secteur</th>
+                <td class="{% cycle row_color %}">{{object.sector}}</td>
             </tr>
             <tr>
-                <th class="block_header_line_dark">Siren</th>
-                <td class="block_line_dark">{{object.siren}}</td>
+                <th class="{% cycle header_color %}">Capital</th>
+                <td class="{% cycle row_color %}">{{object.capital}}</td>
             </tr>
             <tr>
-                <th class="block_header_line_light">Naf</th>
-                <td class="block_line_light">{{object.naf}}</td>
+                <th class="{% cycle header_color %}">Siren</th>
+                <td class="{% cycle row_color %}">{{object.siren}}</td>
             </tr>
             <tr>
-                <th class="block_header_line_dark">Siret</th>
-                <td class="block_line_dark">{{object.siret}}</td>
+                <th class="{% cycle header_color %}">Naf</th>
+                <td class="{% cycle row_color %}">{{object.naf}}</td>
             </tr>
             <tr>
-                <th class="block_header_line_light">rcs</th>
-                <td class="block_line_light">{{object.rcs}}</td>
+                <th class="{% cycle header_color %}">Siret</th>
+                <td class="{% cycle row_color %}">{{object.siret}}</td>
             </tr>
             <tr>
-                <th class="block_header_line_dark">TVA Intra</th>
-                <td class="block_line_dark">{{object.tvaintra}}</td>
+                <th class="{% cycle header_color %}">rcs</th>
+                <td class="{% cycle row_color %}">{{object.rcs}}</td>
             </tr>
             <tr>
-                <th class="block_header_line_light">Assujetti à la TVA</th>
-                <td class="block_line_light">{{object|get_html_field_value:"subject_to_vat" }}</td>
+                <th class="{% cycle header_color %}">TVA Intra</th>
+                <td class="{% cycle row_color %}">{{object.tvaintra}}</td>
             </tr>
             <tr>
-                <th class="block_header_line_dark">Est assigné à</th>
-                <td class="block_line_dark">{{object.user}}</td>
+                <th class="{% cycle header_color %}">Assujetti à la TVA</th>
+                <td class="{% cycle row_color %}">{{object|get_html_field_value:"subject_to_vat" }}</td>
+            </tr>
+            <tr>
+                <th class="{% cycle header_color %}">Est assigné à</th>
+                <td class="{% cycle row_color %}">{{object.user}}</td>
             </tr>
         </tbody>
     </table>
@@ -75,28 +77,28 @@
             </thead>
             <tbody class="collapsable">
                 <tr>
-                    <th class="block_header_line_dark">Addresse de facturation</th>
-                    <td class="block_line_dark">{{object.billing_adress}}</td>
+                    <th class="{% cycle header_color %}">Addresse de facturation</th>
+                    <td class="{% cycle row_color %}">{{object.billing_adress}}</td>
                 </tr>
                 <tr>
-                    <th class="block_header_line_light">Addresse de livraison</th>
-                    <td class="block_line_light">{{object.shipping_adress}}</td>
+                    <th class="{% cycle header_color %}">Addresse de livraison</th>
+                    <td class="{% cycle row_color %}">{{object.shipping_adress}}</td>
                 </tr>
                 <tr>
-                    <th class="block_header_line_dark">Téléphone fixe</th>
-                    <td class="block_line_dark">{{object.phone}}</td>
+                    <th class="{% cycle header_color %}">Téléphone fixe</th>
+                    <td class="{% cycle row_color %}">{{object.phone}}</td>
                 </tr>
                 <tr>
-                    <th class="block_header_line_light">Fax</th>
-                    <td class="block_line_light">{{object.fax}}</td>
+                    <th class="{% cycle header_color %}">Fax</th>
+                    <td class="{% cycle row_color %}">{{object.fax}}</td>
                 </tr>
                 <tr>
-                    <th class="block_header_line_dark">E-mail</th>
-                    <td class="block_line_dark">{{object.email}}</td>
+                    <th class="{% cycle header_color %}">E-mail</th>
+                    <td class="{% cycle row_color %}">{{object.email}}</td>
                 </tr>
                 <tr>
-                    <th class="block_header_line_light">Site Web</th>
-                    <td class="block_line_light">{{object.url_site}}</td>
+                    <th class="{% cycle header_color %}">Site Web</th>
+                    <td class="{% cycle row_color %}">{{object.url_site}}</td>
                 </tr>
             </tbody>
     </table>
@@ -105,16 +107,16 @@
             {% get_basic_block_header 'Autres Informations' 'infos_48.png' 'Infos' %}
             <tbody class="collapsable">
                 <tr>
-                    <th class="block_header_line_dark">Description</th>
-                    <td class="block_line_dark">{{object.description}}</td>
+                    <th class="{% cycle header_color %}">Description</th>
+                    <td class="{% cycle row_color %}">{{object.description}}</td>
                 </tr>
                 <tr>
-                    <th class="block_header_line_light">Date de création de l'entreprise</th>
-                    <td class="block_line_light">{{object|get_html_field_value:"creation_date"}}</td>
+                    <th class="{% cycle header_color %}">Date de création de l'entreprise</th>
+                    <td class="{% cycle row_color %}">{{object|get_html_field_value:"creation_date"}}</td>
                 </tr>
                 <tr>
-                    <th class="block_header_line_dark">Logo</th>
-                    <td class="block_line_dark">{{object|get_html_field_value:"image"}}</td>
+                    <th class="{% cycle header_color %}">Logo</th>
+                    <td class="{% cycle row_color %}">{{object|get_html_field_value:"image"}}</td>
                 </tr>
             </tbody>
     </table>
