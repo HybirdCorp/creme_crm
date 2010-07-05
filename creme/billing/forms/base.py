@@ -26,7 +26,7 @@ from django.forms.widgets import Select
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.contenttypes.models import ContentType
 
-from creme_core.forms import CremeModelForm
+from creme_core.forms import CremeEntityForm
 from creme_core.forms.fields import CremeEntityField
 from creme_core.forms.widgets import CalendarWidget, ListViewWidget
 from creme_core.models import Relation
@@ -37,7 +37,7 @@ from persons.forms.address import clean_address
 from billing.constants import REL_SUB_BILL_ISSUED, REL_SUB_BILL_RECEIVED
 
 
-class BaseEditForm(CremeModelForm):
+class BaseEditForm(CremeEntityForm):
     source = CremeEntityField(label=_(u"Organisation émettrice"),  model=Organisation, widget=ListViewWidget(attrs={'id':'id_source'}))
     target = CremeEntityField(label=_(u"Organisation réceptrice"), model=Organisation, widget=ListViewWidget(attrs={'id':'id_target'}))
 
@@ -47,7 +47,7 @@ class BaseEditForm(CremeModelForm):
     billing_address  = CharField(label=_(u"Adresse de facturation"), help_text=_("Choisissez une organisation pour avoir son adresse de facturation"), widget=Select(attrs={'id':'id_billing_address'}))
     shipping_address = CharField(label=_(u"Adresse de livraison"),   help_text=_("Choisissez une organisation pour avoir son adresse de livraison"),   widget=Select(attrs={'id':'id_shipping_address'}))
 
-    blocks = CremeModelForm.blocks.new(
+    blocks = CremeEntityForm.blocks.new(
                 ('orga_n_address', _(u'Société et adresses'), ['source', 'target', 'billing_address', 'shipping_address']),
             )
 

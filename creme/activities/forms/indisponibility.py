@@ -24,7 +24,7 @@ from django.forms.util import ValidationError
 from django.forms import IntegerField, DateTimeField, TimeField
 from django.utils.translation import ugettext as _
 
-from creme_core.forms import CremeModelForm
+from creme_core.forms import CremeEntityForm
 from creme_core.forms.widgets import DateTimeWidget
 
 from activities.models import Activity, ActivityType
@@ -32,15 +32,15 @@ from activities.constants import ACTIVITYTYPE_INDISPO
 from activity import ActivityCreateForm
 
 
-class IndisponibilityCreateForm(CremeModelForm):
-    class Meta:
+class IndisponibilityCreateForm(CremeEntityForm):
+    class Meta(CremeEntityForm.Meta):
         model = Activity
-        exclude = CremeModelForm.Meta.exclude + ('type',)
+        exclude = CremeEntityForm.Meta.exclude + ('type',)
 
     start = DateTimeField(label=_(u'Début'), widget=DateTimeWidget())
     end   = DateTimeField(label=_(u'Fin'), widget=DateTimeWidget())
 
-    blocks = CremeModelForm.blocks.new(
+    blocks = CremeEntityForm.blocks.new(
                 ('datetime', _(u'Quand'), ['start', 'end', 'is_all_day']),
             )
 

@@ -23,7 +23,7 @@ from django.forms import ChoiceField, ValidationError
 from django.contrib.contenttypes.models import ContentType
 
 from creme_core.models import Filter
-from creme_core.forms import CremeModelForm, CremeForm, FieldBlockManager
+from creme_core.forms import CremeEntityForm, CremeForm, FieldBlockManager
 from creme_core.forms.fields import MultiCremeEntityField, CremeEntityField
 
 from persons.models import Contact, Organisation
@@ -31,7 +31,7 @@ from persons.models import Contact, Organisation
 from emails.models import MailingList
 
 
-class MailingListForm(CremeModelForm):
+class MailingListForm(CremeEntityForm):
     class Meta:
         model  = MailingList
         fields = ('user', 'name')

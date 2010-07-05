@@ -22,38 +22,18 @@ from django.forms import ModelChoiceField
 from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import ugettext_lazy as _
 
-#from creme_core.forms import CremeModelForm
-
 from billing.models import Invoice, InvoiceStatus, TemplateBase
 from base import BaseCreateForm, BaseEditForm
 from templatebase import TemplateBaseCreateForm
 
 
-#class InvoiceListViewForm(CremeModelForm):
-    #class Meta:
-        #model = Invoice
-
-
 class InvoiceCreateForm(BaseCreateForm):
     class Meta:
         model = Invoice
-        exclude = BaseCreateForm.exclude + ('number',)
+        exclude = BaseCreateForm.Meta.exclude + ('number',)
 
-    #def save(self):
-        #if self.is_valid() :
-            #instance = super(InvoiceCreateForm, self).save()
-
-            #organisation_source = instance.organisation_source
-
-            ##TODO: remove me !!!!!!!!!!!!!!!!!!!!!!!!!!!!
-            #exec("from creme_config.utils import %s as id_gen_func" % organisation_source.algo_factu.nom)
-            #instance.numero_facture = id_gen_func(organisation_source)
-
-            #instance.save()
-
-            #self.save_lines()
 
 class InvoiceEditForm(BaseEditForm):
     class Meta:
         model = Invoice
-        exclude = BaseEditForm.exclude + ('number',)
+        exclude = BaseEditForm.Meta.exclude + ('number',)

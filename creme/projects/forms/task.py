@@ -25,13 +25,13 @@ from django.forms.widgets import HiddenInput
 
 from creme_core.forms.fields import CremeEntityField
 from creme_core.forms.fields import MultiCremeEntityField
-from creme_core.forms import CremeModelForm
+from creme_core.forms import CremeEntityForm
 from creme_core.forms.widgets import DateTimeWidget
 
 from projects.models import ProjectTask, Project
 
 
-class TaskEditForm(CremeModelForm):
+class TaskEditForm(CremeEntityForm):
     start        = DateTimeField(label=_(u'Début'), widget=DateTimeWidget(), required = True)
     end          = DateTimeField(label=_(u'Fin'), widget=DateTimeWidget(), required = True)
     parents_task = MultiCremeEntityField(label=_(u'Tâche(s) parente(s)'),
@@ -39,14 +39,16 @@ class TaskEditForm(CremeModelForm):
 
     def clean_parents_task(self):
         parents = self.cleaned_data['parents_task']
+
         for parent in parents:
             if parent == self.instance:
-                raise ValidationError(u"Une tâche ne peut pas être parente d'elle même")
+                raise ValidationError(_(u"Une tâche ne peut pas être parente d'elle même"))
+
         return parents
 
     class Meta:
         model = ProjectTask
-        exclude = CremeModelForm.exclude + ('is_all_day', 'type', 'project', 'order' )
+        exclude = CremeEntityForm.Meta.exclude + ('is_all_day', 'type', 'project', 'order')
 
 
 class TaskCreateForm(TaskEditForm):
@@ -54,10 +56,9 @@ class TaskCreateForm(TaskEditForm):
 
     class Meta:
         model = ProjectTask
-        exclude = CremeModelForm.exclude + ('is_all_day', 'type', 'order')
+        exclude = CremeEntityForm.Meta.exclude + ('is_all_day', 'type', 'order')
 
     def save(self):
-        super(TaskCreateForm, self).save()
-        task = self.instance
+        task = super(TaskCreateForm, self).save()
         task.order = task.project.attribute_order_task()
         task.save()

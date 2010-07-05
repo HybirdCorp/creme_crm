@@ -21,17 +21,18 @@
 #from datetime import datetime
 
 from django.forms import  DateTimeField
+from django.utils.translation import ugettext as _
 
-from creme_core.forms import CremeModelForm
+from creme_core.forms import CremeEntityForm
 from creme_core.forms.widgets import CalendarWidget
 
 from commercial.models.act import Act
 
 
-class CreateForm(CremeModelForm):
-    due_date = DateTimeField(label=u"Date d'échéance", widget=CalendarWidget())
+class CreateForm(CremeEntityForm):
+    due_date = DateTimeField(label=u_("Date d'échéance"), widget=CalendarWidget())
 
-    class Meta(CremeModelForm.Meta):
+    class Meta(CremeEntityForm.Meta):
         model = Act
 
 

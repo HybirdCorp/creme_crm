@@ -22,8 +22,8 @@ from django.forms.widgets import HiddenInput
 from django.forms import DateTimeField
 from django.utils.translation import ugettext_lazy as _
 
+from creme_core.forms import CremeEntityForm
 from creme_core.forms.fields import MultiCremeEntityField
-from creme_core.forms import CremeModelForm
 from creme_core.forms.widgets import DateTimeWidget
 
 from persons.models import Contact
@@ -31,14 +31,14 @@ from persons.models import Contact
 from projects.models import Project
 
 
-class ProjectEditForm(CremeModelForm):
+class ProjectEditForm(CremeEntityForm):
     start_date          = DateTimeField(label=_(u'Début du projet'), required=True, widget=DateTimeWidget())
     end_date            = DateTimeField(label=_(u'Fin du projet'), required=True, widget=DateTimeWidget())
     effective_end_date  = DateTimeField(widget=HiddenInput(), required=False)
 
-    class Meta:
+    class Meta(CremeEntityForm.Meta):
         model = Project
-        exclude = CremeModelForm.exclude
+
 
 class ProjectCreateForm(ProjectEditForm):
     responsible = MultiCremeEntityField(label=_(u'Responsable(s) du projet'),
@@ -47,4 +47,3 @@ class ProjectCreateForm(ProjectEditForm):
     def save(self):
         super(ProjectCreateForm, self).save()
         self.instance.add_responsibles(self.cleaned_data['responsible'])
-

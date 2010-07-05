@@ -58,7 +58,7 @@ class SendingCreateForm(CremeModelForm):
 
     class Meta:
         model   = EmailSending
-        exclude = CremeModelForm.exclude + ('campaign', 'state','subject', 'body', 'signature', 'attachments')
+        exclude = ('campaign', 'state', 'subject', 'body', 'signature', 'attachments')
 
     def __init__(self, campaign, *args, **kwargs):
         super(SendingCreateForm, self).__init__(*args, **kwargs)

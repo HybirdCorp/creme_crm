@@ -24,7 +24,7 @@ from django.utils.translation import ugettext_lazy as _
 from django.forms import IntegerField, BooleanField, ModelChoiceField, Select, ValidationError
 from django.forms.widgets import HiddenInput
 
-from creme_core.forms import CremeModelForm, FieldBlockManager
+from creme_core.forms import CremeModelWithUserForm, FieldBlockManager
 from creme_core.forms.fields import CremeEntityField
 from creme_core.forms.widgets import ListViewWidget, DependentSelect
 
@@ -33,11 +33,12 @@ from products.models import Product, Service, Category, SubCategory, ServiceCate
 from billing.models import ProductLine, ServiceLine
 from billing.constants import DEFAULT_VAT
 
-from creme import form_post_save
+from creme import form_post_save #TODo: move in creme_core ??
 
 default_decimal = Decimal()
 
-class LineCreateForm(CremeModelForm):
+
+class LineCreateForm(CremeModelWithUserForm):
     document_id = IntegerField(widget=HiddenInput()) #TODO: it's possible to hack the form: document_id different from the one given is the url
 
     def save(self):
@@ -46,8 +47,9 @@ class LineCreateForm(CremeModelForm):
         instance.document_id = self.cleaned_data['document_id']
         instance.is_paid = False
         super(LineCreateForm, self).save()
-        
+
         form_post_save.send (sender=self.instance.__class__, instance=self.instance, created=created)
+
 
 bm = FieldBlockManager(('general', _(u'Informations sur la ligne'), ['related_item', 'comment', 'quantity', 'unit_price',
                                                                      'discount', 'credit', 'total_discount', 'vat', 'user'])
@@ -93,41 +95,41 @@ class ProductLineOnTheFlyCreateForm(LineCreateForm):
 
     def clean(self):
         cleaned_data = self.cleaned_data
+        get_data     = cleaned_data.get
 
-        has_to_register_as = cleaned_data.get('has_to_register_as')
-        category           = cleaned_data.get('category')
-        sub_category       = cleaned_data.get('sub_category')
+        #TODO: use has_key ??
+        if get_data('has_to_register_as'):
+            if get_data('category') is None:
+                raise ValidationError(_(u'Catégorie obligatoire si vous souhaitez enregistrer en tant que produit.'))
+            elif get_data('sub_category') is None:
+                raise ValidationError(_(u'Sous-catégorie obligatoire si vous souhaitez enregistrer en tant que produit.'))
 
-        if has_to_register_as and category is None:
-            raise ValidationError(_(u'Catégorie obligatoire si vous souhaitez enregistrer en tant que produit.'))
-        if has_to_register_as and category and sub_category is None:
-            raise ValidationError(_(u'Sous-catégorie obligatoire si vous souhaitez enregistrer en tant que produit.'))
         return cleaned_data
 
     def save(self):
-        cleaned_data = self.cleaned_data
-        
-        if cleaned_data.get('has_to_register_as'):
+        get_data = self.cleaned_data.get
+
+        if get_data('has_to_register_as'):
             p = Product()
-            p.name = cleaned_data.get('on_the_fly_item', '')
-            p.user = cleaned_data.get('user')
+            p.name = get_data('on_the_fly_item', '')
+            p.user = get_data('user')
             p.code = 0
-            p.unit_price = cleaned_data.get('unit_price', 0)
-            p.category = cleaned_data.get('category', 0)
-            p.sub_category = cleaned_data.get('sub_category', 0)
+            p.unit_price = get_data('unit_price', 0)
+            p.category = get_data('category', 0)
+            p.sub_category = get_data('sub_category', 0)
             p.save()
-            
+
             plcf = ProductLineCreateForm({
-                    'document_id':    cleaned_data.get('document_id'),
+                    'document_id':    get_data('document_id'),
                     'related_item':   '%s,' % p.pk,
-                    'quantity':       cleaned_data.get('quantity', 0),
-                    'unit_price':     cleaned_data.get('unit_price', default_decimal),
-                    'credit':         cleaned_data.get('credit', default_decimal),
-                    'discount':       cleaned_data.get('discount', default_decimal),
-                    'total_discount': cleaned_data.get('total_discount', False),
-                    'vat':            cleaned_data.get('vat', DEFAULT_VAT),
+                    'quantity':       get_data('quantity', 0),
+                    'unit_price':     get_data('unit_price', default_decimal),
+                    'credit':         get_data('credit', default_decimal),
+                    'discount':       get_data('discount', default_decimal),
+                    'total_discount': get_data('total_discount', False),
+                    'vat':            get_data('vat', DEFAULT_VAT),
                     'user':           p.user.pk,
-                    'comment':        cleaned_data.get('comment', '')
+                    'comment':        get_data('comment', '')
                    })
 
             if plcf.is_valid():
@@ -151,7 +153,7 @@ class ServiceLineOnTheFlyCreateForm(LineCreateForm):
     class Meta:
         model = ServiceLine
         exclude = ('related_item', 'document', 'is_paid')
-        
+
     blocks = FieldBlockManager(
         ('general', _(u'Informations sur la ligne'), ['on_the_fly_item', 'comment', 'quantity', 'unit_price',
                                                                      'discount', 'credit', 'total_discount', 'vat', 'user']),
@@ -159,7 +161,7 @@ class ServiceLineOnTheFlyCreateForm(LineCreateForm):
      )
 
     has_to_register_as = BooleanField(label=_(u"Enregistrer en tant que service ?"), required=False,
-                                      help_text=_(u"Ceci vous permer d'enregistrer un service à la volée en tant que service à par entière."))
+                                      help_text=_(u"Ceci vous permer d'enregistrer un service à la volée en tant que service à part entière."))
 
     category           = ModelChoiceField(queryset=ServiceCategory.objects.all(), label=_(u'Catégorie de service'),
                                           required=False)
@@ -172,41 +174,39 @@ class ServiceLineOnTheFlyCreateForm(LineCreateForm):
 
     def clean(self):
         cleaned_data = self.cleaned_data
+        get_data = cleaned_data.get
 
-        has_to_register_as = cleaned_data.get('has_to_register_as')
-        category           = cleaned_data.get('category')
-
-        if has_to_register_as and category is None:
+        if get_data('has_to_register_as') and get_data('category') is None:
             raise ValidationError(_(u'Catégorie obligatoire si vous souhaitez enregistrer en tant que service.'))
+
         return cleaned_data
 
     def save(self):
-        cleaned_data = self.cleaned_data
+        get_data = self.cleaned_data.get
 
-        if cleaned_data.get('has_to_register_as'):
+        if get_data('has_to_register_as'):
             s = Service()
-            s.name = cleaned_data.get('on_the_fly_item', '')
-            s.user = cleaned_data.get('user')
+            s.name = get_data('on_the_fly_item', '')
+            s.user = get_data('user')
             s.reference = ''
-            s.category = cleaned_data.get('category')
-            s.unit_price = cleaned_data.get('unit_price', 0)
+            s.category = get_data('category')
+            s.unit_price = get_data('unit_price', 0)
             s.save()
 
             slcf = ServiceLineCreateForm({
-                    'document_id':    cleaned_data.get('document_id'),
+                    'document_id':    get_data('document_id'),
                     'related_item':   '%s,' % s.pk,
-                    'quantity':       cleaned_data.get('quantity', 0),
-                    'unit_price':     cleaned_data.get('unit_price', default_decimal),
-                    'credit':         cleaned_data.get('credit', default_decimal),
-                    'discount':       cleaned_data.get('discount', default_decimal),
-                    'total_discount': cleaned_data.get('total_discount', False),
-                    'vat':            cleaned_data.get('vat', DEFAULT_VAT),
+                    'quantity':       get_data('quantity', 0),
+                    'unit_price':     get_data('unit_price', default_decimal),
+                    'credit':         get_data('credit', default_decimal),
+                    'discount':       get_data('discount', default_decimal),
+                    'total_discount': get_data('total_discount', False),
+                    'vat':            get_data('vat', DEFAULT_VAT),
                     'user':           s.user.pk,
-                    'comment':        cleaned_data.get('comment', '')
+                    'comment':        get_data('comment', '')
                    })
 
             if slcf.is_valid():
                 slcf.save()
         else:
             super(ServiceLineOnTheFlyCreateForm, self).save()
-
