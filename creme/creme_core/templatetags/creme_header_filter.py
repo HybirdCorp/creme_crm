@@ -27,27 +27,23 @@ from creme_core.templatetags.creme_core_tags import get_html_field_value
 
 register = template.Library()
 
-#TODO: use a big try/except ??
 @register.filter(name="hf_get_html_output")
-def get_html_output(hf, entity): #TODO: rename hf in hfi ???
-    if hf.type == HFI_FIELD:
-        try :
-            return get_html_field_value(entity, hf.name)
-        except AttributeError, ae:
-            return ""
+def get_html_output(hfi, entity):
+    hfi_type = hfi.type
 
-    if hf.type == HFI_FUNCTION:
-        try:
-            return entity.__getattribute__(hf.name).__call__() #entity.__getattribute__(hf.name)() ????
-        except AttributeError, ae:
-            return ""
+    try:
+        if hfi_type == HFI_FIELD:
+            return get_html_field_value(entity, hfi.name)
 
-    if hf.type == HFI_RELATION:
-        try :
-            objects_relation = entity.get_list_object_of_specific_relations(hf.relation_predicat.id)
-            string_relation = u"<ul>"
-            for object in objects_relation :
-                string_relation += u'<li><a href="%s">%s</a></li>' % (object.get_absolute_url(), escape(object)) #TODO: use join()....
-            return string_relation #no </ul> ?!
-        except AttributeError, ae:
-            return ""
+        if hfi_type == HFI_FUNCTION:
+            return getattr(entity, hfi.name)()
+
+        if hfi_type == HFI_RELATION:
+            relations_list = ["<ul>"]
+            relations_list.extend(u'<li><a href="%s">%s</a></li>' % (obj.get_absolute_url(), escape(obj))
+                                    for obj in entity.get_list_object_of_specific_relations(hfi.relation_predicat_id))
+            relations_list.append("</ul>")
+
+            return u''.join(relations_list)
+    except AttributeError, ae:
+        return ""

@@ -30,6 +30,7 @@ from relation import RelationType
 HFI_FIELD    = 1
 HFI_RELATION = 2
 HFI_FUNCTION = 3
+HFI_CUSTOM   = 4
 
 
 class HeaderFilter(Model): #CremeModel ???
@@ -57,7 +58,7 @@ class HeaderFilterItem(Model):  #CremeModel ???
     sortable              = BooleanField(blank=True, default=False)
     is_hidden             = BooleanField(blank=True, default=False)
     filter_string         = CharField(max_length=100, blank=True, null=True)
-    relation_predicat     = ForeignKey(RelationType, blank=True, null=True) #rename ???
+    relation_predicat     = ForeignKey(RelationType, blank=True, null=True) #rename to 'relation_type' ???
     relation_content_type = ForeignKey(ContentType, blank=True, null=True)
 
     def __unicode__(self):

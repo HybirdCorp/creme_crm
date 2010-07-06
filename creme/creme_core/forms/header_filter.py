@@ -104,9 +104,9 @@ class HeaderFilterForm(CremeModelForm):
                 field_obj   = field_infos[0]['field']
 
                 pattern = "%s__icontains"
-                if isinstance(field_obj, models.DateField) or isinstance(field_obj, models.DateTimeField):
+                if isinstance(field_obj, (models.DateField, models.DateTimeField)):
                     pattern = "%s__range"
-                if isinstance(field_obj, models.BooleanField):
+                elif isinstance(field_obj, models.BooleanField):
                     pattern = "%s__creme-boolean"
 
                 items_2_save.append(HeaderFilterItem(order=order,
