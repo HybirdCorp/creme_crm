@@ -1,7 +1,6 @@
-/* REMOVE ???? */
-.x-add-button {
+/*.x-add-button {
     background-image: url(/site_media/images/add_16.png) !important;
-}
+}*/
 
 html.central_panel {
     background-color: #e6f2f7;
@@ -21,7 +20,6 @@ body.central_panel {
     font-weight: bold;
     color: #488097;
 }
-
 
 .central_panel #container {
     margin-left: -128px;
@@ -75,7 +73,6 @@ body.central_panel {
     margin-right: auto;
     padding: 1em 0 1em 0;
 }
-
 
 
 html {
@@ -222,7 +219,7 @@ ul.button_list.vbox li {
     text-align: right;
     width: 150px;
     padding-right: 5px;
-}  
+}
 
 .td_view_item {
     text-align: left;
@@ -586,12 +583,7 @@ a img:hover {
     font-size:1.2em;
 }
 
-.ui-jqgrid-title {
-    font-size:1.5em;
-    padding-left:40%;
-}
-
-.ui-jqgrid .ui-paging-info, ui-icon ui-icon-newwin {
+.ui-paging-info, ui-icon ui-icon-newwin {
     font-weight: bold;
 }
 
