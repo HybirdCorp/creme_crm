@@ -62,7 +62,7 @@ def _edit(request, ct_id, form_class):
     else:
         bci = BlockConfigItem.objects.filter(content_type__id=ct_id)
 
-    bci.order_by('order')
+    bci = bci.order_by('order')
 
     if not bci:
         raise Http404 #bof bof
