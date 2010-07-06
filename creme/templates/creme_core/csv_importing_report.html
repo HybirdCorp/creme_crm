@@ -59,15 +59,15 @@
     {% endwith %}
 
     <br/>
-    <table class=table_button>
-        <tr>
-            <td class=td_for_table_button>
-                <a class="a_button_with_border" href="{{back_url}}">
+    <div>
+        <ul class="button_list hbox">
+            <li>
+                <a class="menu_button" href="{{back_url}}">
                     <img src="{{MEDIA_URL}}images/left_arrow_32.png" border="0" title="Liste" alt="Liste" />
                     Retour à la liste
                 </a>
-            </td>
-        </tr>
-    </table>
+            </li>
+        </ul>
+    </div>
     <br/>
 {% endblock %}

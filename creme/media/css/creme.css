@@ -152,17 +152,13 @@ td p {
 
     -moz-border-radius: 4px;
     -webkit-border-radius: 4px;
-}  
+}
 
-.table_button {
+/* .table_button {
     padding-left: 4px;
     padding-right: 4px;
     padding-bottom: 0px;
     padding-top: 0px;
-/*
-    padding-bottom : 20px ;
-    padding-top : 20px ;
-*/
 }
 
 .td_for_table_button {
@@ -171,23 +167,44 @@ td p {
      padding-top: 11px;
      padding-bottom: 11px;
     text-align: center;
-}
+}*/
 
-.a_button_with_border {
-    padding: 8px ;
+.menu_button {
+    white-space: nowrap;
+    padding: 5px ;
     border: 1px solid #d5e0e5;
     background-color: #d9e5ea;
     color:  #22439f;
     -moz-border-radius: 4px;
     -webkit-border-radius: 4px;
 }
-
-.a_button_with_border:hover {
+.menu_button:hover {
     color: #f46758;
-/*     padding : 10px ; */
     border: 1px solid #f7b5ad;
     background-color: #fdd5d1;
     text-decoration: none;
+}
+ul.button_list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+ul.button_list li {
+    margin: 2px;
+    padding: 0;
+    list-style: none;
+}
+ul.button_list.hbox {
+    display: inline;
+    line-height: 34px;
+}
+ul.button_list.hbox li {
+    position: relative;
+    display:inline;
+}
+ul.button_list.vbox li {
+    position: relative;
+    display: block;
 }
 
 .table_view {
@@ -635,7 +652,7 @@ textarea:disabled, textarea[readonly] {
     -webkit-border-radius: 4px;
 }
 
-/* OrderedMultiSelect (oms) */
+/* OrderedMultiSelect (oms) (move to creme-ui ??)*/
 .oms_div li.oms_focused {
     background: #f7b5ad none repeat scroll 0 0;
 }

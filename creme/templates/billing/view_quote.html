@@ -1,10 +1,5 @@
 {% extends "billing/view_billing.html" %}
-
-{% block button_tab_extra_3 %}
-    <td class=td_for_table_button >
-        <a class="a_button_with_border" href="/billing/{{object.id}}/convert/?type=sales_order" >Convertir en Bon de Commande</a>
-    </td>
-    <td class=td_for_table_button >
-        <a class="a_button_with_border" href="/billing/{{object.id}}/convert/?type=invoice" >Convertir en Facture</a>
-    </td>
+{% block extra_menu_buttons %}
+    <li><a class="menu_button" href="/billing/{{object.id}}/convert/?type=sales_order" >Convertir en Bon de Commande</a></li>
+    <li><a class="menu_button" href="/billing/{{object.id}}/convert/?type=invoice" >Convertir en Facture</a></li>
 {% endblock %}
