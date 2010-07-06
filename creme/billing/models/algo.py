@@ -31,8 +31,8 @@ from persons.models import Organisation
 
 
 class ConfigBillingAlgo(CremeModel):
-    organisation = ForeignKey (Organisation, verbose_name=_(u'Société'))
-    name_algo    = CharField(_(u'Nom de l"algo'), max_length=400)
+    organisation = ForeignKey(Organisation, verbose_name=_(u'Société'))
+    name_algo    = CharField(_(u"Nom de l'algo"), max_length=400)
     ct           = ForeignKey(ContentType)
 
     class Meta:
@@ -40,9 +40,9 @@ class ConfigBillingAlgo(CremeModel):
 
 
 class SimpleBillingAlgo (Model):
-    organisation = ForeignKey (Organisation, verbose_name=_(u'Société'))
-    last_number  = IntegerField ()
-    prefix       = CharField(_(u'Prefixe de la facture'), max_length=400)
+    organisation = ForeignKey(Organisation, verbose_name=_(u'Société'))
+    last_number  = IntegerField()
+    prefix       = CharField(_(u'Préfixe de la facture'), max_length=400)
     ct           = ForeignKey(ContentType)
 
     class Meta:

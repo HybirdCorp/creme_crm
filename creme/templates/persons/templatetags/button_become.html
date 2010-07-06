@@ -1,5 +1,5 @@
 {% if managed_orga|length_is:"1" %}
-<a class="a_button_with_border" href="{{become_url}}{{managed_orga.0.pk}}">{{verbose_name}}</a>
+    <a class="menu_button" href="{{become_url}}{{managed_orga.0.pk}}">{{verbose_name}}</a>
 {% else %}
     {% with today|date:"U" as today_timestamp %}
     <script type="text/javascript">
@@ -18,6 +18,6 @@
             );
         }
     </script>
-    <a class="a_button_with_border" onclick="become_{{what}}_{{today_timestamp}}();">{{verbose_name}}</a>
+    <a class="menu_button" onclick="become_{{what}}_{{today_timestamp}}();">{{verbose_name}}</a>
     {% endwith %}
 {% endif %}

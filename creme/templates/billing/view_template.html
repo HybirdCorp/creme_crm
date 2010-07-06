@@ -2,50 +2,44 @@
 
 {% load creme_block %}
 {% load billing_blocks %}
-    
-    {% block button_tab_extra_3 %}
-        {% ifequal object.ct.model 'quote' %}
-            <td class=td_for_table_button >
-                <a class="a_button_with_border" href="/billing/{{object.id}}/convert/?type=sales_order" >Convertir en Bon de Commande</a>
-            </td>
-            <td class=td_for_table_button >
-                <a class="a_button_with_border" href="/billing/{{object.id}}/convert/?type=invoice" >Convertir en Facture</a>
-            </td>
-        {% else %}
-            {% ifequal object.ct.model 'salesorder' %}
-                <td class=td_for_table_button >
-                    <a class="a_button_with_border" href="/billing/{{object.id}}/convert/?type=invoice" >Convertir en Facture</a>
-                </td>
-            {% endifequal %}
+
+{% block extra_menu_buttons %}
+    {% ifequal object.ct.model 'quote' %}
+        <li><a class="menu_button" href="/billing/{{object.id}}/convert/?type=sales_order" >Convertir en Bon de Commande</a></li>
+        <li><a class="menu_button" href="/billing/{{object.id}}/convert/?type=invoice" >Convertir en Facture</a></li>
+    {% else %}
+        {% ifequal object.ct.model 'salesorder' %}
+            <li><a class="menu_button" href="/billing/{{object.id}}/convert/?type=invoice" >Convertir en Facture</a></li>
         {% endifequal %}
-    {% endblock %}
+    {% endifequal %}
+{% endblock %}
 
-    {% block extrahead %}
-        {{block.super}}
-        <script type="text/javascript" src="{{MEDIA_URL}}js/export.js"></script>
-    {% endblock %}
+{% block extrahead %}
+    {{block.super}}
+    <script type="text/javascript" src="{{MEDIA_URL}}js/export.js"></script>
+{% endblock %}
 
-    {% block logo %}<img src="{{MEDIA_URL}}images/document_64.png" alt=""/>{% endblock %}
+{% block logo %}<img src="{{MEDIA_URL}}images/document_64.png" alt=""/>{% endblock %}
 
-    {% block edit_delete_buttons %}
-        {{block.super}}
-    {% endblock %}
+{% block edit_delete_buttons %}
+    {{block.super}}
+{% endblock %}
 
-    {% block before_detail_view_1 %}
-        {% get_product_lines %}
-        {% get_service_lines %}
-    {% endblock %}
+{% block before_detail_view_1 %}
+    {% get_product_lines %}
+    {% get_service_lines %}
+{% endblock %}
 
-    {% block detail_view_left_1 %}
-        {% include "creme_core/object_as_table.html" %}
+{% block detail_view_left_1 %}
+    {% include "creme_core/object_as_table.html" %}
 
-<!-- MOVE THIS SCRIPT ??!! -->
-        <script type="text/javascript">
-            function update(id) {
-                document.getElementById("updateStatus" + id).submit();
-            }
-        </script>
+    <!-- MOVE THIS SCRIPT ??!! -->
+    <script type="text/javascript">
+        function update(id) {
+            document.getElementById("updateStatus" + id).submit();
+        }
+    </script>
 
-        {% get_properties %}
-        {% get_relations %}
-    {% endblock %}
+    {% get_properties %}
+    {% get_relations %}
+{% endblock %}

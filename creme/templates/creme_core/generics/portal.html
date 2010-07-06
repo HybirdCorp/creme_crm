@@ -27,16 +27,16 @@
     </table>
 
     {% if config_url %}
-        <table class=table_button>
-            <tr>
-                <td class=td_for_table_button>
-                    <a class="a_button_with_border" href="{{config_url}}">
+        <div>
+            <ul class="button_list hbox">
+                <li>
+                    <a class="menu_button" href="{{config_url}}">
                         <img src="{{MEDIA_URL}}images/config_32.png" border="0" title="Configuration" alt="Configuration" />
                         Configurer
                     </a>
-                </td>
-            </tr>
-        </table>
+                </li>
+            </ul>
+        </div>
     {% endif %}
 
     {% block before_statistics %}{% endblock %}

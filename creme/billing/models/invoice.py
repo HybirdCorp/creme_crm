@@ -47,6 +47,7 @@ class Invoice(Base):
     def get_delete_absolute_url(self):
         return "/billing/invoice/delete/%s" % self.id
 
+    #TODO: use sum()....
     def get_products_price_inclusive_of_tax(self):
         total = 0
         for line in ProductLine.objects.filter(document=self):

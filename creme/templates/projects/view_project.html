@@ -3,12 +3,14 @@
 {% load creme_block %}
 {% load projects_blocks %}
 
-{% block button_tab_extra_3 %}
+{% block extra_menu_buttons %}
     {% if not object.effective_end_date %}
-        <a class="a_button_with_border" href="/projects/project/{{object.id}}/close" >
-            <img src="{{MEDIA_URL}}images/cancel_32.png" border="0" title="Clôture" alt="Clôture" />
-            Clôturer le projet
-        </a>
+        <li>
+            <a class="menu_button" href="/projects/project/{{object.id}}/close" >
+                <img src="{{MEDIA_URL}}images/cancel_32.png" border="0" title="Clôture" alt="Clôture" />
+                Clôturer le projet
+            </a>
+        </li>
     {% endif %}
 {% endblock %}
 

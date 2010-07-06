@@ -15,29 +15,28 @@
 {% endblock %}
 
 {% block before_content_1 %}
-    <table class=table_button>
-        <tr>
+    <div class=zone_spacer_5px>
+        <ul class="button_list hbox">
             {% if object.get_lv_absolute_url %}
-                <td class=td_for_table_button>
-                    <a class="a_button_with_border" href="{{object.get_lv_absolute_url}}">
+                <li>
+                    <a class="menu_button" href="{{object.get_lv_absolute_url}}">
                         <img src="{{MEDIA_URL}}images/left_arrow_32.png" border="0" title="Liste" alt="Liste" />
                         Retour à la liste
                     </a>
-                </td>
+                </li>
             {% endif %}
-
             {% block add_new_button %}
                 {% if path %}
-                    <td class=td_for_table_button>
-                        <a class="a_button_with_border" href="{{path}}/add">
+                    <li>
+                        <a class="menu_button" href="{{path}}/add">
                             <img src="{{MEDIA_URL}}images/add_32.png" border="0" title="Ajouter" alt="Ajouter" />
                             Nouveau
                         </a>
-                    </td>
+                    </li>
                 {% endif %}
             {% endblock %}
-        </tr>
-    </table>
+        </ul>
+    </div>
 {% endblock %}
 
 {% block content %}
@@ -70,17 +69,12 @@
         </table>
     {% endblock %}
 
-    <div>
+    <div class=zone_spacer_5px>
         {% block button_tab %}
-            <table class=table_button>
+            <ul class="button_list hbox">
                 {% get_button_menu %}
-            </table>
-            <table class=table_button>
-                <tr>
-                    {% comment %}{% block button_tab_extra_2 %}{% endblock %}{% endcomment %}
-                    {% block button_tab_extra_3 %}{% endblock %}
-                </tr>
-            </table>
+                {% block extra_menu_buttons %}{% endblock %}
+            </ul>
         {% endblock %}
     </div>
 
@@ -88,33 +82,24 @@
         <div class=zone_spacer_5px></div>
     {% endblock %} 
 
-    {% block before_detail_view_1 %}
-    {% endblock %}
+    {% block before_detail_view_1 %}{% endblock %}
 
     <div style="float:left;width:50%;margin-left:-5px;">
         {% block detail_view_left_1 %}
             {% include "creme_core/object_as_table.html" %}
-{% comment %}             {% get_properties %} {% endcomment %}
-{% comment %}             {% get_relations %} {% endcomment %}
         {% endblock %}
-        {% block detail_view_left_2 %}
-        {% endblock %}
-        {% block detail_view_left_3 %}
-        {% endblock %}
+        {% block detail_view_left_2 %}{% endblock %}
+        {% block detail_view_left_3 %}{% endblock %}
     </div>
     <div style="float:right;width:50%;margin-right:0px;">
-        {% block detail_view_right_1 %}
-        {% endblock %}
+        {% block detail_view_right_1 %}{% endblock %}
 
         {% block detail_view_right_2 %}
             {% get_detailview_blocks %}
         {% endblock %}
 
-        {% block detail_view_right_3 %}
-        {% endblock %}
+        {% block detail_view_right_3 %}{% endblock %}
     </div>
 
-    {% block after_detail_view_1 %}
-    {% endblock %}
-
-{% endblock %} 
+    {% block after_detail_view_1 %}{% endblock %}
+{% endblock %}
