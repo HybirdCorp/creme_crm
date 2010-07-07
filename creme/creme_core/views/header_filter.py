@@ -46,19 +46,20 @@ def add(request, content_type_id, extra_template_dict=None):
 
     return add_entity(request, HeaderFilterForm, callback_url,
                       template='creme_core/header_filters.html',
-                      extra_initial={'content_type_id': content_type_id},
+                      extra_initial={'content_type': ct_entity},
                       extra_template_dict=extra_template_dict or {})
 
 @login_required
 def edit(request, header_filter_id):
-    hf           = get_object_or_404(HeaderFilter, pk=header_filter_id)
-    callback_url = hf.entity_type.model_class().get_lv_absolute_url()
+    hf = get_object_or_404(HeaderFilter, pk=header_filter_id)
 
     if request.POST:
         hf_form = HeaderFilterForm(request.POST, instance=hf)
+
         if hf_form.is_valid():
             hf_form.save()
-            return HttpResponseRedirect(callback_url)
+
+            return HttpResponseRedirect(hf.entity_type.model_class().get_lv_absolute_url())
     else:
         hf_form = HeaderFilterForm(instance=hf)
 

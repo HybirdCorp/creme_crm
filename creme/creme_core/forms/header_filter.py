@@ -18,6 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from collections import defaultdict
 from logging import debug
 
 from django.db import models
@@ -39,7 +40,6 @@ from creme_core.utils.id_generator import generate_string_id_and_save
 #TODO: create and edit form ????
 
 class HeaderFilterForm(CremeModelForm):
-    entity_type   = ModelChoiceField(queryset=ContentType.objects.none(), widget=HiddenInput()) #TODO: store in a attribute instead....
     fields        = MultipleChoiceField(label=_(u'Champs normaux'),       required=False, choices=(), widget=OrderedMultipleChoiceWidget)
     custom_fields = MultipleChoiceField(label=_(u'Champs personnalisés'), required=False, choices=(), widget=OrderedMultipleChoiceWidget)
     relations     = MultipleChoiceField(label=_(u'Relations'),            required=False, choices=(), widget=OrderedMultipleChoiceWidget)
@@ -51,44 +51,59 @@ class HeaderFilterForm(CremeModelForm):
 
     def __init__(self, *args, **kwargs):
         super(HeaderFilterForm, self).__init__(*args, **kwargs)
-        initial  = self.initial
         instance = self.instance
         fields   = self.fields
 
         if instance.id:
-            ct_id = instance.entity_type.id
+            ct = ContentType.objects.get_for_id(instance.entity_type_id)
         else:
-            ct_id = initial.get('content_type_id')
+            ct = self.initial.get('content_type')
 
-        fields['entity_type'].initial = ct_id
-        fields['entity_type'].queryset = ContentType.objects.filter(pk=ct_id)
-        ct = ContentType.objects.get_for_id(ct_id) if not instance.id else instance.entity_type
-        model_klass = ct.model_class()
+        self._entity_type = ct
+        model = ct.model_class()
 
-        fields['fields'].choices = get_flds_with_fk_flds_str(model_klass, 1)
-        fields['custom_fields'].choices = CustomField.objects.filter(content_type=ct).values_list('id', 'name')
-        fields['relations'].choices = RelationType.objects.filter(Q(subject_ctypes=ct)|Q(subject_ctypes__isnull=True)).order_by('predicate').values_list('id', 'predicate')
-        fields['functions'].choices = ((f['name'], f['verbose_name']) for f in model_klass.users_allowed_func)
+        #caches
+        self._relation_types = RelationType.objects.filter(Q(subject_ctypes=ct)|Q(subject_ctypes__isnull=True)).order_by('predicate').values_list('id', 'predicate')
+        self._custom_fields  = CustomField.objects.filter(content_type=ct).values_list('id', 'name')
+
+        fields['fields'].choices = get_flds_with_fk_flds_str(model, 1)
+        fields['custom_fields'].choices = self._custom_fields
+        fields['relations'].choices = self._relation_types
+        fields['functions'].choices = ((f['name'], f['verbose_name']) for f in model.users_allowed_func)
 
         if instance.id:
-            #TODO: do 1 query instead of 3
-            HFI_filter = HeaderFilterItem.objects.filter(header_filter__id=instance.id).order_by('order').filter
+            initial_data = defaultdict(list)
 
-            fields['fields'].initial    = [fs.rpartition('__')[0] for fs in HFI_filter(type=HFI_FIELD).values_list('filter_string', flat=True)]
-            fields['custom_fields'].initial = [int(i) for i in HFI_filter(type=HFI_CUSTOM).values_list('name', flat=True)]
-            fields['relations'].initial = HFI_filter(type=HFI_RELATION).values_list('relation_predicat_id', flat=True)
-            fields['functions'].initial = HFI_filter(type=HFI_FUNCTION).values_list('name', flat=True)
+            for hfi in HeaderFilterItem.objects.filter(header_filter__id=instance.id).order_by('order'):
+                initial_data[hfi.type].append(hfi)
+
+            fields['fields'].initial = [hfi.filter_string.rpartition('__')[0] for hfi in initial_data[HFI_FIELD]]
+            fields['custom_fields'].initial = [int(hfi.name) for hfi in initial_data[HFI_CUSTOM]]
+            fields['relations'].initial = [hfi.relation_predicat_id for hfi in initial_data[HFI_RELATION]]
+            fields['functions'].initial = [hfi.name for hfi in initial_data[HFI_FUNCTION]]
+
+    #NB: _get_cfield_name() & _get_predicate() : we do linear searches because
+    #   there are very few searches => build a dict wouldn't be faster
+    def _get_cfield_name(self, cfield_id):
+        for id_, name in self._custom_fields:
+            if id_ == cfield_id:
+                return name
+
+    def _get_predicate(self, relation_type_id):
+        for id_, predicate in self._relation_types:
+            if id_ == relation_type_id:
+                return predicate
 
     def save(self):
         cleaned_data = self.cleaned_data
         instance = self.instance
-        ct = cleaned_data['entity_type']
+        ct = self._entity_type
 
         instance.is_custom = True
         instance.entity_type = ct
 
         if instance.id:
-            for hfi in HeaderFilterItem.objects.filter(header_filter__id=instance.id): #TODO: use related_name ??
+            for hfi in instance.header_filter_items.all():
                 hfi.delete()
 
             super(HeaderFilterForm, self).save()
@@ -121,28 +136,25 @@ class HeaderFilterForm(CremeModelForm):
             except (FieldDoesNotExist, AttributeError), e:
                 debug('Exception in HeaderFilterForm.save(): %s', e)
 
-        get_cfield = CustomField.objects.get
-        for cfield in cleaned_data['custom_fields']:
-            items_2_save.append(HeaderFilterItem(name=cfield,
-                                                 title=get_cfield(pk=cfield).name,
+        for cfield_id in cleaned_data['custom_fields']:
+            items_2_save.append(HeaderFilterItem(name=cfield_id,
+                                                 title=self._get_cfield_name(int(cfield_id)),
                                                  type=HFI_CUSTOM,
                                                  has_a_filter=False, #TODO
                                                  editable=False, #TODO: make it editable
                                                  sortable=False, #TODO: make it sortable
-                                                 filter_string=pattern % field))
+                                                 filter_string=''))
 
-        #TODO: regroup the retrieving with a filter + in_bulks ??  ==> No use a 'cache' instead
-        get_relationtype = RelationType.objects.get
-        for rel in cleaned_data['relations']:
-            rel_name = get_relationtype(pk=rel).predicate #TODO 18n
+        for relation_type_id in cleaned_data['relations']:
+            predicate = self._get_predicate(relation_type_id)
 
-            items_2_save.append(HeaderFilterItem(name=rel_name.replace(' ', '_').replace("'", "_"),
-                                                 title=rel_name,#.replace("'", " "),
+            items_2_save.append(HeaderFilterItem(name=predicate.replace(' ', '_').replace("'", "_"),
+                                                 title=predicate,#.replace("'", " "),
                                                  type=HFI_RELATION,
                                                  has_a_filter=False,
                                                  editable=False ,
                                                  filter_string="",
-                                                 relation_predicat_id=rel))
+                                                 relation_predicat_id=relation_type_id))
 
         get_funcname = model_klass.get_users_func_verbose_name
         for func in cleaned_data['functions']:

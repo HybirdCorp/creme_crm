@@ -51,14 +51,14 @@ class HeaderFilterItem(Model):  #CremeModel ???
     order                 = PositiveIntegerField()
     name                  = CharField(max_length=100)
     title                 = CharField(max_length=100)
-    type                  = PositiveSmallIntegerField() #see HFI_FIELD, HFI_RELATION, HFI_FUNCTION
-    header_filter         = ForeignKey(HeaderFilter)
+    type                  = PositiveSmallIntegerField() #==> {HFI_FIELD, HFI_RELATION, HFI_FUNCTION, HFI_CUSTOM}
+    header_filter         = ForeignKey(HeaderFilter, related_name='header_filter_items')
     has_a_filter          = BooleanField(blank=True, default=False)
     editable              = BooleanField(blank=True, default=True)
     sortable              = BooleanField(blank=True, default=False)
     is_hidden             = BooleanField(blank=True, default=False)
     filter_string         = CharField(max_length=100, blank=True, null=True)
-    relation_predicat     = ForeignKey(RelationType, blank=True, null=True) #rename to 'relation_type' ??? TODO: use name to store pk instead ????
+    relation_predicat     = ForeignKey(RelationType, blank=True, null=True) #TODO: rename to 'relation_type' ???  use 'name' to store pk instead ????
     relation_content_type = ForeignKey(ContentType, blank=True, null=True) #seems useless....
 
     def __unicode__(self):
