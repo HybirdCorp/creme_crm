@@ -61,7 +61,7 @@ from creme_core.models import Relation, CremePropertyType, CremeProperty
 
 def simple_value(value):
     if value:
-        if hasattr(value, '__iter__') and len(value)==1:
+        if hasattr(value, '__iter__') and len(value) == 1:
             return value[0]
         return value
     return ''#TODO : Verify same semantic than "null" sql
@@ -147,7 +147,7 @@ def _map_patterns(custom_pattern):
     }
     patterns = custom_pattern.split('__')
     i = 0
-    for pattern in patterns:
+    for pattern in patterns: #TODO: use enumerate().....
         patterns[i] = MAP_QUERY_PATTERNS.get(pattern, pattern)
         i += 1
     return "__".join(patterns)
@@ -214,8 +214,7 @@ class ListViewState(object):
 
 #                attribut_filtered = REQUEST[attribut].strip()
                 attribut_filtered = [smart_str(value.strip()) for value in REQUEST.getlist(attribut) or [REQUEST.get(attribut)] if value.strip()]
-#                debug("attribut_filtered : %s=|>%s<|", attribut, attribut_filtered)
-#                debug("type(attribut_filtered) : %s", type(attribut_filtered))
+
                 if attribut_filtered:
                     list_session.append((attribut, item.pk, item.type, item.filter_string, attribut_filtered)) #TODO: an object instead of a tuple ????
 #                    list_session.append((attribut, item.pk, item.type, item.filter_string, smart_str(attribut_filtered))) #TODO: an object instead of a tuple ????
@@ -229,25 +228,25 @@ class ListViewState(object):
         else:
             self.research = None
 
-#        debug("self.research : %s", self.research)
-
     def get_q_with_research(self, model):
         Q_list_total = Q()
         research = self.research
+
         if research:
             for item in research:
                 name_attribut, pk_hf, type_, pattern, value = item
                 Q_attribut = None
 
                 if type_ == HFI_FIELD:
-#                    Q_attribut = Q(**{str(pattern): value})
-#                    debug("Q final : %s : %s", str(_map_patterns(pattern)), _get_value_for_query(pattern, value))
                     Q_attribut = Q(**{str(_map_patterns(pattern)): _get_value_for_query(pattern, value)})
                 elif type_ == HFI_RELATION:
                     HF = get_object_or_404(HeaderFilterItem, pk=pk_hf)
-                    rct = HF.relation_content_type
+                    rct = HF.relation_content_type #TODO: remove ?? (see header_filter)
                     model_class = rct.model_class() if rct is not None else Relation
                     Q_attribut = model_class.filter_in(model, HF.relation_predicat, value)
+                #elif type_ == HFI_CUSTOM: #TODO
+
                 if Q_attribut:
                     Q_list_total &= Q_attribut
+
         return Q_list_total
