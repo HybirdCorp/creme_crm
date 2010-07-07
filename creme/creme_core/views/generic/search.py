@@ -21,7 +21,7 @@ from django.http import HttpResponse
 from django.contrib.auth.decorators import login_required
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import Q
-from django.shortcuts import render_to_response
+#from django.shortcuts import render_to_response
 from django.template.context import RequestContext
 from django.utils.translation import ugettext_lazy as _
 from django.template.loader import render_to_string
@@ -32,21 +32,52 @@ from creme_core.utils.meta import get_flds_with_fk_flds_str
 
 from creme_config.forms.search import EXCLUDED_FIELDS_TYPES
 
-
 BASE_Q = Q(is_deleted=False)
 
-
-def _build_research(model, research, is_or=True):
-    """Build a Q with all (non excluded in EXCLUDED_FIELDS) model's fields"""
+def _build_q_research(model, research, fields, is_or=True):
+    """Build a Q with all params fields"""
     q = Q()
-    fields = get_flds_with_fk_flds_str(model, 1, exclude_func=lambda f: f.get_internal_type() in EXCLUDED_FIELDS_TYPES or f.name in model.header_filter_exclude_fields)
-    for f_name, f_verb_name in fields:
-        _q = Q(**{'%s%s' % (f_name, DEFAULT_PATTERN):research})
+#    for f_name, f_verb_name in fields:
+    for f in fields:
+        _q = Q(**{'%s%s' % (f.field, DEFAULT_PATTERN):research})
         if is_or:
             q |= _q
         else:
             q &= _q
-    return {'q' : BASE_Q & q, 'fields' : fields}
+    return BASE_Q & q
+
+def _get_research_fields(model, user):
+    ct_get_for_model = ContentType.objects.get_for_model
+    SCI_get = SearchConfigItem.objects.get
+    
+    try:
+        #Trying to catch the user's research config for this model
+        sci = SCI_get(content_type=ct_get_for_model(model), user=user)
+        fields  = sci.get_fields()
+        
+        if fields:
+            return fields
+
+    except SearchConfigItem.DoesNotExist:
+        pass
+    
+    try:
+        #Trying to catch the model's research config
+        sci = SCI_get(content_type=ct_get_for_model(model))
+        fields  = sci.get_fields()
+
+        if fields:
+            return fields
+
+    except SearchConfigItem.DoesNotExist:
+        pass
+
+    #The research will be on all unexcluded fields
+    _fields = get_flds_with_fk_flds_str(model, 1, exclude_func=lambda f: f.get_internal_type() in EXCLUDED_FIELDS_TYPES or f.name in model.header_filter_exclude_fields)
+    #Needed to match the SearchField api in template
+    fields  = [SearchField(field=f_name, field_verbose_name=f_verbname, order=i) for i, (f_name, f_verbname) in enumerate(_fields)]
+    fields.sort(key=lambda k: k.order)
+    return fields
 
 @login_required
 def search(request):
@@ -66,50 +97,23 @@ def search(request):
     else:
         if not ct_id:
             scope = creme_registry.iter_entity_models()
+            scope = list(scope)#Beurk ?
+            scope.sort(key=lambda m: m._meta.verbose_name)
         else:
             scope.append(ContentType.objects.get_for_id(ct_id).model_class())
 
-        ct_get_for_model = ContentType.objects.get_for_model
-        SCI_get = SearchConfigItem.objects.get
         user = request.user
-        
+
         for model in scope:
-            res_dict = {'model':model}
             model_filter = model.objects.filter(BASE_Q).filter
-            try:
-                #Trying to catch the user's research config for this model
-                sci = SCI_get(content_type=ct_get_for_model(model), user=user)
-                res_dict['fields']  = sci.get_fields()
 
-                #No fields, the get_q will act as .all() so we try another search config
-                if not res_dict['fields']:
-                    raise SearchConfigItem.DoesNotExist
-
-                #TODO: Needs values_list?
-                res_dict['results'] = model_filter(sci.get_q(research))
-            except SearchConfigItem.DoesNotExist:
-                try:
-                    #Trying to catch the model's research config
-                    sci = SCI_get(content_type=ct_get_for_model(model))
-                    res_dict['fields']  = sci.get_fields()
-                    
-                    #No fields, the get_q will act as .all() so we try another search config
-                    if not res_dict['fields']:
-                        raise SearchConfigItem.DoesNotExist
-
-
-                    #TODO: Needs values_list?
-                    res_dict['results'] = model_filter(sci.get_q(research))
-                except SearchConfigItem.DoesNotExist:
-                    #The research will be on all unexcluded fields
-                    srch_infos = _build_research(model, research)
-#                    res_dict['fields']  = [{'field': f_name,'field_verbose_name': f_verb_name} for f_name, f_verb_name in search_infos['fields']]
-                    #Needed to match the SearchField api in template
-                    res_dict['fields']  = [SearchField(field=f_name, field_verbose_name=f_verbname, order=i) for i, (f_name, f_verbname) in enumerate(srch_infos['fields'])]
-                    res_dict['fields'].sort(key=lambda k: k.order)
-                    #TODO: Needs values_list?
-                    res_dict['results'] = model_filter(srch_infos['q'])
-            results.append(res_dict)
+            fields = _get_research_fields(model, user)
+            
+            results.append({
+                'model'   : model,
+                'fields'  : fields,
+                'results' : model_filter(_build_q_research(model, research, fields))
+            })
 
     t_ctx['results'] = results
     t_ctx['research'] = research

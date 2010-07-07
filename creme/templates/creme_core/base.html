@@ -178,28 +178,28 @@
             {% get_prefered_menu request %}
         {% endblock %}
 
-        {% block before_content_1 %}
-        {% endblock %}
-
-        {% block before_content_2 %}
-        {% endblock %}
-
-        {% block before_content_3 %}
-        {% endblock %}
-
         <div id="sub_content">
+            {% block before_content_1 %}
+            {% endblock %}
+
+            {% block before_content_2 %}
+            {% endblock %}
+
+            {% block before_content_3 %}
+            {% endblock %}
+
             {% block content %}
             {% endblock %}
+
+            {% block after_content_1 %}
+            {% endblock %}
+
+            {% block after_content_2 %}
+            {% endblock %}
+
+            {% block after_content_3 %}
+            {% endblock %}
         </div>
-
-        {% block after_content_1 %}
-        {% endblock %}
-
-        {% block after_content_2 %}
-        {% endblock %}
-
-        {% block after_content_3 %}
-        {% endblock %}
     </div>
 
     <div id="footer">
