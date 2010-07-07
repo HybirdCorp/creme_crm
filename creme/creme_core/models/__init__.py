@@ -25,3 +25,5 @@ from prefered_menu import PreferedMenuItem
 from button_menu import ButtonMenuItem
 
 from reminder import DateReminder
+
+from search import SearchField, SearchConfigItem

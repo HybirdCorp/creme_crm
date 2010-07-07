@@ -1,0 +1,91 @@
+{% comment %}{% extends "creme_core/base.html" %}{% endcomment %}
+{% load i18n %}
+{% load creme_core_tags %}
+
+{% comment %}{% block page_title %} - {% trans 'Resultats de recherche' %} : {{results|length}} résultat{{ results|pluralize }}{% endblock %}{% endcomment %}
+
+{% comment %}{% block content %}{% endcomment %}
+    <table class="table_header" cellpadding="0" cellspacing="0">
+        <tr>
+            <td width="5%"><img src="{{MEDIA_URL}}images/looking_glass_64.png" alt=""/></td>
+            <td width="95%">
+                <h1>{% trans 'Resultats de recherche' %} : {{results|length}} résultat{{ results|pluralize }}</h1>
+            </td>
+        </tr>
+    </table>
+    {% if research or models %}
+    <div class="help_box">
+        <table>
+            <tr>
+                <td><span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span></td>
+                <td>
+                    {% if research %}{% trans 'Votre recherche : ' %}{{research}}<br/>{% endif %}
+                    {% if models %}{% trans 'Types concernés : ' %}{{models|join:","}}<br/>{% endif %}
+                </td>
+            </tr>
+        </table>
+    </div>
+    {% endif %}
+    {% if error_message %}
+        <ul class="errorlist">
+            <li>{{error_message}}</li>
+        </ul>
+    {% endif %}
+
+    {% for result in results %}
+        {% with result.fields as fields %}
+        {% with result.results as entities %}
+
+        <table class="table_detail_view ui-corner-all">
+            <thead>
+                <tr>
+                    <th colspan="{{fields|length|add:1}}" valign="middle" align="left">
+                        {{entities|length}}
+                        {% ifequal entities|length 1 %}
+                            {{result.model|get_meta_value:"verbose_name"}}
+                        {% else %}
+                            {{result.model|get_meta_value:"verbose_name_plural"}}
+                        {% endifequal %}
+                    </th>
+                </tr>
+            </thead>
+            <tbody class="collapsable">
+                {% if entities %}
+                    <tr>
+                        <th class="{% cycle "block_header_line_dark" "block_header_line_light" %}">
+                            {% trans 'Action' %}
+                        </th>
+                    {% for field in fields %}
+                        <th class="{% cycle "block_header_line_dark" "block_header_line_light" %}">
+                            {{field.field_verbose_name}}
+                        </th>
+                    {% endfor %}
+                    </tr>
+                    
+                    {% for res in entities %}
+                        <tr class="{% cycle "block_line_dark" "block_line_light" %}">
+                            <td>
+                                <a href="{{res.get_absolute_url}}">{% trans 'Aller sur la fiche' %}</a>
+                            </td>
+                            {% for field in fields %}
+                                <td>
+                                    {{res|get_html_field_value:field.field}}
+                                </td>
+                            {% endfor %}
+                        </tr>
+                    {% endfor %}
+                {% else %}
+                <tr>
+                     <td class="{% cycle "block_line_dark" "block_line_light" %}">
+                        {% trans 'Aucune correspondance' %}
+                    </td>
+                </tr>
+                {% endif %}
+            </tbody>
+        </table>
+        <br />
+        {% endwith %}
+        {% endwith %}
+    {% endfor %}
+
+{% comment %}{% endblock %}{% endcomment %}

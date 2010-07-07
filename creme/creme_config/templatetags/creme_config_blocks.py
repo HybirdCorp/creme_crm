@@ -68,3 +68,7 @@ def get_entity_credentials(context):
 @register.inclusion_tag('creme_core/templatetags/registered_blocks.html', takes_context=True)
 def get_buttonmenu_config(context):
     return {'blocks': [button_menu_block.detailview_display(context)]}
+
+@register.inclusion_tag('creme_core/templatetags/registered_blocks.html', takes_context=True)
+def get_search_config(context):
+    return {'blocks': [search_block.detailview_display(context)]}

@@ -99,7 +99,7 @@ def get_flds_with_fk_flds(model_klass, deep=1):
 
 #TODO: factoriser avec get_flds_with_fk_flds ?? (visitor ??)
 #TODO: utilisation bizarre de unicode() ??? '%s' % unicode(foobar), unicode('%s' % foobar)
-def get_flds_with_fk_flds_str(model_klass, deep=1, prefix=None):
+def get_flds_with_fk_flds_str(model_klass, deep=1, prefix=None, exclude_func=None):
     """
         @Return a list of tuple which are ('field_name','field_verbose_name')
             or ('field_name__subfield_name','field_verbose_name - subfield_verbose_name') for a ForeignKey
@@ -110,15 +110,36 @@ def get_flds_with_fk_flds_str(model_klass, deep=1, prefix=None):
         if field.name in model_klass.header_filter_exclude_fields:
             continue
 
-        if deep and field.get_internal_type() == 'ForeignKey':
+        if exclude_func is not None and exclude_func(field):
+            continue
+
+        if deep and field.get_internal_type() in ('ForeignKey', 'ManyToManyField'):
             if deep == 1:
-                fields.extend((
-                                '%s__%s' % (unicode(field.name), unicode(sub_field.name)),
-                                '%s - %s' % (unicode(field.verbose_name).capitalize(), unicode(sub_field.verbose_name).capitalize())
-                              ) for sub_field in field.rel.to._meta.fields)
+#                fields.extend((
+#                                '%s__%s' % (unicode(field.name), unicode(sub_field.name)),
+#                                '%s - %s' % (unicode(field.verbose_name).capitalize(), unicode(sub_field.verbose_name).capitalize())
+#                              ) for sub_field in field.rel.to._meta.fields if exclude_func is not None and not exclude_func(sub_field) and not (sub_field.get_internal_type() == 'ForeignKey' or sub_field.get_internal_type() == 'ManyToManyField'))
+
+                fields_append = fields.append
+                for sub_field in field.rel.to._meta.fields:
+                    if exclude_func is not None and exclude_func(sub_field):
+                        continue
+                        
+                    if  sub_field.get_internal_type() in ('ForeignKey', 'ManyToManyField'):
+                        continue
+
+                    if hasattr(field.rel.to, 'header_filter_exclude_fields') and sub_field.name in field.rel.to.header_filter_exclude_fields:
+                        continue
+
+                    fields_append((
+                                    '%s__%s' % (unicode(field.name), unicode(sub_field.name)),
+                                    '%s - %s' % (unicode(field.verbose_name).capitalize(), unicode(sub_field.verbose_name).capitalize())
+                                  ))
+                                  
             else: #deep > 1:
                 fields += get_flds_with_fk_flds_str(field.rel.to, deep - 1,
-                                                    prefix={'name': '%s' % unicode(field.name), 'verbose_name': '%s' % unicode(field.verbose_name).capitalize()})
+                                                    prefix={'name': '%s' % unicode(field.name), 'verbose_name': '%s' % unicode(field.verbose_name).capitalize()},
+                                                    exclude_func=exclude_func)
         elif prefix:
             fields.append((
                             '%s__%s' % (prefix['name'], unicode(field.name)),
