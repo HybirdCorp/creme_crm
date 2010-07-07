@@ -58,8 +58,8 @@ class HeaderFilterItem(Model):  #CremeModel ???
     sortable              = BooleanField(blank=True, default=False)
     is_hidden             = BooleanField(blank=True, default=False)
     filter_string         = CharField(max_length=100, blank=True, null=True)
-    relation_predicat     = ForeignKey(RelationType, blank=True, null=True) #rename to 'relation_type' ???
-    relation_content_type = ForeignKey(ContentType, blank=True, null=True)
+    relation_predicat     = ForeignKey(RelationType, blank=True, null=True) #rename to 'relation_type' ??? TODO: use name to store pk instead ????
+    relation_content_type = ForeignKey(ContentType, blank=True, null=True) #seems useless....
 
     def __unicode__(self):
         return u" Order : %i , name : %s , Title : %s   " % (self.order, self.name, self.title)
