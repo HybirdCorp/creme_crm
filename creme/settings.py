@@ -87,7 +87,7 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.middleware.doc.XViewMiddleware',
-    #'creme.creme_core.middleware.sql_logger.SQLLogToConsoleMiddleware',
+#    'creme.creme_core.middleware.sql_logger.SQLLogToConsoleMiddleware',
     #'creme.creme_core.middleware.module_logger.LogImportedModulesMiddleware',
 )
 
@@ -191,6 +191,9 @@ USE_STRUCT_MENU = True
 
 DEFAULT_TIME_ALERT_REMIND = 10
 DEFAULT_TIME_TODO_REMIND = 120
+
+#Show or not help messages in all the application
+SHOW_HELP = True
 
 try:
     from local_settings import *

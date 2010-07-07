@@ -32,6 +32,7 @@ class Invoice(Base):
 
     research_fields = Base.research_fields + ['status__name']
     excluded_fields_in_html_output = Base.excluded_fields_in_html_output + ['base_ptr']
+    header_filter_exclude_fields = Base.header_filter_exclude_fields + ['base_ptr'] #TODO: use a set() ??
 
     def get_absolute_url(self):
         return "/billing/invoice/%s" % self.id

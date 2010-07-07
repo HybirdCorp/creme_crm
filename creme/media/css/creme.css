@@ -678,3 +678,16 @@ textarea:disabled, textarea[readonly] {
 .td_error {
     background-color: #f08080;
 }
+
+.research_box
+{
+    padding-top : 4px;
+    padding-bottom: 4px;
+
+    color : #2c596c;
+    background : #E6F2F7 none repeat scroll 0 0;
+    border : 2px solid #d7e2e7;
+
+    -moz-border-radius: 4px;
+    -webkit-border-radius: 4px;
+}

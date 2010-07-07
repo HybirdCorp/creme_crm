@@ -1,0 +1,27 @@
+{% extends "creme_config/portal.html" %}
+
+{% load creme_config_blocks %}
+{% load i18n %}
+
+{% block title %}
+    <a href="/creme_config/">Configuration > </a>Recherche dans creme
+{% endblock %}
+
+{% block before_statistics %}
+    {% if SHOW_HELP %}
+    <div class="help_box">
+        <table>
+            <tr>
+                <td><span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span></td>
+                <td>
+                    {% trans 'Créez des configurations de recherche afin de rendre la recherche globale plus rapide.' %}<br/>
+                    {% trans 'Limitez le nombre de champs par type pour de meilleurs performances et une meilleure visibilité des resultats.' %}<br/>
+                    {% trans 'Aucun champ sélectionné correspond à "Tout les champs", il en est de même pour les utilisateurs.' %}<br/>
+                    {% trans 'Éditez une configuration pour spécifier des champs de recherche' %}
+                </td>
+            </tr>
+        </table>
+    </div>
+    {% endif %}
+    {% get_search_config %}
+{% endblock %}

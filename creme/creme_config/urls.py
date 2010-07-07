@@ -94,6 +94,13 @@ urlpatterns = patterns('creme_config.views',
     (r'^mailsignature/edit/(?P<mailsignature_id>\d*)$',   'mail_signature.edit'),
     (r'^mailsignature/delete/(?P<mailsignature_id>\d*)$', 'mail_signature.delete'),
 
+    #Search
+    (r'^search/portal/$',                        'search.portal'),
+    (r'^search/add/$',                           'search.add'),
+    (r'^search/edit/(?P<search_config_id>\d+)$', 'search.edit'),
+    (r'^search/delete$',                         'search.delete'),
+    (r'^search/reload/$',                        'search.reload_search'),
+
     #Generic portal config
     (r'^models/(?P<ct_id>\d+)/reload/$',                                      'generics_views.reload_block'),
     (r'^(?P<app_name>\w+)/portal/$',                                          'generics_views.portal_app'),

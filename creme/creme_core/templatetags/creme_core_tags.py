@@ -173,7 +173,8 @@ def get_value(dic, key, default=''):
 @register.filter(name="get_meta_value")
 def get_meta_value(obj, key, default=''):
     try:
-        return obj._meta.__getattribute__(key)
+#        return obj._meta.__getattribute__(key)
+        return getattr(obj._meta, key)
     except:
         return default
 
