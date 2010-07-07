@@ -1,6 +1,7 @@
 {% load i18n %}
 {% load creme_menu %}
 {% load creme_core_tags %}
+{% load creme_search %}
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="{{ LANGUAGE_CODE }}" xml:lang="{{ LANGUAGE_CODE }}" {% if LANGUAGE_BIDI %}dir="rtl"{% endif %}>
 <head>
@@ -157,6 +158,9 @@
                             <a href="/creme_core/clean/">{% trans 'Log out' %}</a>
                         {% endblock %}
                     </td>
+                    <td align="center" valign="middle" style="width: 40%;" >
+                        {% get_search_panel %}
+                    </td>
                     <td align="right" valign="bottom">
                         <a href="/"><img src="{{MEDIA_URL}}images/creme_header_50.png" alt="Crème" border="0" /></a>
                     </td>
@@ -183,8 +187,10 @@
         {% block before_content_3 %}
         {% endblock %}
 
-        {% block content %}
-        {% endblock %}
+        <div id="sub_content">
+            {% block content %}
+            {% endblock %}
+        </div>
 
         {% block after_content_1 %}
         {% endblock %}

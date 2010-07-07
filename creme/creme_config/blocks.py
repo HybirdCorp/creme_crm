@@ -24,7 +24,7 @@ from django.contrib.contenttypes.models import ContentType
 
 from creme_core.models import (CremePropertyType, RelationType, CustomField,
                                BlockConfigItem, ButtonMenuItem,
-                               CremeAppDroit, CremeDroitEntityType)
+                               CremeAppDroit, CremeDroitEntityType, SearchConfigItem)
 from creme_core.gui.block import Block
 
 from creme_config.registry import config_registry
@@ -32,7 +32,8 @@ from creme_config.registry import config_registry
 __all__ = ('generic_models_block', 'property_types_block', 'relation_types_block',
            'custom_fields_portal_block', 'custom_fields_block',
            'blocks_config_block', 'button_menu_block',
-           'users_block', 'app_credentials_block', 'entity_credentials_block')
+           'users_block', 'app_credentials_block', 'entity_credentials_block',
+           'search_block')
 
 
 _PAGE_SIZE = 12
@@ -184,6 +185,25 @@ class EntityCredentialsBlock(Block):
         return self._render(self.get_block_template_context(context, CremeDroitEntityType.objects.all(),
                                                             update_url='/creme_config/roles/entity_credentials/reload/'))
 
+class SearchConfigBlock(Block):
+    id_           = Block.generate_id('creme_config', 'searchconfig')
+    page_size     = _PAGE_SIZE
+    verbose_name  = _(u'Configuration de la recherche')
+    template_name = 'creme_config/templatetags/block_searchconfig.html'
+    order_by      = 'content_type'
+
+    def detailview_display(self, context):
+        search_items = SearchConfigItem.objects.all()
+        scb = self.get_block_template_context(context, search_items,
+                                                            update_url='/creme_config/search/reload/')
+
+        #NB: DB optimisation
+        SearchConfigItem.populate_searchfields(scb['page'].object_list)
+
+        return self._render(scb)
+#        return self._render(self.get_block_template_context(context, SearchConfigItem.objects.select_related('searchfield_set'),
+#                                              update_url='/creme_config/blocks/reload/'))
+
 
 generic_models_block       = GenericModelsBlock()
 property_types_block       = PropertyTypesBlock()
@@ -195,3 +215,4 @@ button_menu_block          = ButtonMenuBlock()
 users_block                = UsersBlock()
 app_credentials_block      = AppCredentialsBlock()
 entity_credentials_block   = EntityCredentialsBlock()
+search_block               = SearchConfigBlock()

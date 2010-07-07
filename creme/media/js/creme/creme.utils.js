@@ -598,3 +598,23 @@ creme.utils.innerPopupNReload = function(url, reload_url)
                                                 }
                               });
 }
+
+creme.utils.handleResearch = function(url, target_node_id, scope)
+{
+    var _data = {};
+    $(scope.targets).each(function(){
+       _data[this] = $('[name='+this+']', scope.from).val();
+    });
+    
+    $.ajax({
+        url:url,
+        type: 'POST',
+        data:_data,
+        dataType:'html',
+        success: function(data, status, req){
+            $('#'+target_node_id).html(data);
+        },
+        error:function(req, status, errorThrown){
+        }
+    });
+}
