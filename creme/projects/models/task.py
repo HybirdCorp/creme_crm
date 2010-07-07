@@ -36,6 +36,8 @@ class ProjectTask(Activity):
     parents_task = ManyToManyField("self", blank=True, null=True, symmetrical=False)
     duration     = PositiveIntegerField(_(u'Durée prévue (en heures)'), blank=False, null=False)
     status       = ForeignKey(TaskStatus, verbose_name=_(u'Statut'))
+    
+    header_filter_exclude_fields = Activity.header_filter_exclude_fields + ['activity_ptr'] #TODO: use a set() ??
 
     effective_duration = None
     resources          = None

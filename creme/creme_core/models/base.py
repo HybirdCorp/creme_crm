@@ -79,7 +79,7 @@ class CremeAbstractEntity(CremeModel, TimeStampedModel):
     research_fields = []
     users_allowed_func = [] #=> Usage: [{'name':'', 'verbose_name':''},...]
     excluded_fields_in_html_output = ['id', 'cremeentity_ptr' , 'entity_type', 'header_filter_search_field', 'is_deleted', 'is_actived'] #use a set
-    header_filter_exclude_fields = []
+    header_filter_exclude_fields = ['password', 'is_superuser', 'is_active', 'is_staff']
     extra_filter_fields = [] #=> Usage: [{'name':'', 'verbose_name':''},...]
     extra_filter_exclude_fields = ['id']
 

@@ -54,6 +54,10 @@ creme_core_patterns += patterns('creme_core.views.generic',
     (r'^lv_popup/(?P<ct_id>\d*)/(?P<o2m>0|1)$', 'listview.list_view_popup_from_widget'),
 
     (r'^list_view/dl_csv/(?P<ct_id>\d+)$',     'listview.dl_listview_as_csv'),
+
+    #Research
+#    (r'^search/(?P<research>\w+)/(?P<ct_id>\d*)$', 'search.search')
+    (r'^search$', 'search.search')
 )
 
 urlpatterns = patterns('creme_core.views',
