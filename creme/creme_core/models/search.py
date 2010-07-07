@@ -48,12 +48,6 @@ class SearchConfigItem(CremeModel):
         
         return self._searchfields
 
-    def get_q(self, research):
-        q = Q()
-        for field in self.get_fields():
-            q |= Q(**{'%s%s' % (field.field, DEFAULT_PATTERN):research})
-        return q
-
     @staticmethod
     def populate_searchfields(search_config_items):
         #list(search_config_items) is needed because of mysql
