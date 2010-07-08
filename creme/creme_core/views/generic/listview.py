@@ -33,8 +33,8 @@ from django.utils.encoding import smart_str
 from django.contrib.auth.decorators import login_required
 from django.contrib.contenttypes.models import ContentType
 
-from creme_core.models import CremeEntity, Filter, ListViewState
-from creme_core.models.header_filter import HeaderFilterItem, HeaderFilter, HFI_FIELD, HFI_RELATION, HFI_FUNCTION
+from creme_core.models import CremeEntity, Filter, ListViewState, CustomFieldValue
+from creme_core.models.header_filter import HeaderFilterItem, HeaderFilter, HFI_FIELD, HFI_RELATION, HFI_FUNCTION, HFI_CUSTOM
 from creme_core.gui.last_viewed import change_page_for_last_item_viewed
 from creme_core.entities_access.permissions import user_has_create_permission
 from creme_core.entities_access.filter_allowed_objects import filter_RUD_objects
@@ -231,17 +231,16 @@ def list_view_popup(request, model, extra_dict=None, o2m=False, extra_q=None, *a
         popup_extra_dict.update(extra_dict)
 
     return list_view(request, model,
-                      template="creme_core/generics/list_entities_popup.html",
-                      show_actions=False,
-                      extra_dict=popup_extra_dict,
-                      o2m=o2m,
-                      extra_q=extra_q,
-                      *args,
-                      **kwargs)
+                     template="creme_core/generics/list_entities_popup.html",
+                     show_actions=False,
+                     extra_dict=popup_extra_dict,
+                     o2m=o2m,
+                     extra_q=extra_q,
+                     *args,
+                     **kwargs)
 
 @login_required
 def list_view_popup_from_widget(request, ct_id, o2m, *args, **kwargs):
-    #debug("###___list_view_popup2_from_widget(request, ct_id=%s, o2m=%s)___#" % (ct_id, o2m))
     req_get = request.REQUEST.get
     o2m = bool(int(o2m))
     extra_dict = {
@@ -269,6 +268,7 @@ def list_view_popup_from_widget(request, ct_id, o2m, *args, **kwargs):
     return inner_popup(request, '', {}, is_valid=False, html=response._get_content(), context_instance=RequestContext(request))
 
 
+#TODO: optimise queries (with caches)
 @login_required
 def dl_listview_as_csv(request, ct_id):
     ct    = get_object_or_404(ContentType, pk=ct_id)
@@ -324,10 +324,12 @@ def dl_listview_as_csv(request, ct_id):
                 if type_ == HFI_FIELD:
                     res = smart_str(get_field_infos(entity, column.name)[1])
                 elif type_ == HFI_FUNCTION:
-                    res = smart_str(entity.__getattribute__(column.name)())
+                    res = smart_str(getattr(entity, column.name)())
+                elif type_ == HFI_RELATION:
+                    res = smart_str(u'/'.join(unicode(o) for o in entity.get_list_object_of_specific_relations(column.relation_predicat_id)))
                 else:
-                    assert type_ == HFI_RELATION
-                    res = smart_str(u'/'.join(unicode(o) for o in entity.get_list_object_of_specific_relations(column.relation_predicat.id)))
+                    assert type_ == HFI_CUSTOM
+                    res = smart_str(CustomFieldValue.get_pretty_value(column.name, entity.id))
             except Exception, e:
                 debug('Exception in CSV export: %s', e)
                 res = ''

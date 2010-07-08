@@ -78,19 +78,6 @@ def get_column_header(context, column_name, field_name):
             'MEDIA_URL':   settings.MEDIA_URL
            }
 
-#COMMENTED 27 june 2010
-#@register.inclusion_tag('creme_core/templatetags/widgets/block_line_deletor.html', takes_context=True)
-#def get_line_deletor(context, delete_url):
-    #context['delete_url'] = Template(delete_url).render(context)
-    #return context
-
-#COMMENTED 27 june 2010
-#@register.inclusion_tag('creme_core/templatetags/widgets/block_line_deletor2.html', takes_context=True)
-#def get_line_deletor2(context, delete_url, data):
-    #context['delete_url'] = Template(delete_url).render(context)
-    #context['post_args']  = Template(data).render(context)
-    #return context
-
 _line_deletor_re = compile_re(r'at_url (.*?) with_args (.*?)$')
 
 @register.tag(name="get_line_deletor3")
@@ -120,7 +107,7 @@ def do_line_deletor(parser, token):
 
 class LineDeletorNode(template.Node):
     def __init__(self, delete_url, post_args):
-        self.deletor_tpl = get_template('creme_core/templatetags/widgets/block_line_deletor2.html')
+        self.deletor_tpl = get_template('creme_core/templatetags/widgets/block_line_deletor.html')
         self.url_tpl     = Template(delete_url)
         self.args_tpl    = Template(post_args)
 

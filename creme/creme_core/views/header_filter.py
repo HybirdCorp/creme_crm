@@ -30,6 +30,7 @@ from creme_core.forms.header_filter import HeaderFilterForm
 from creme_core.views.generic import add_entity
 from creme_core.models.header_filter import HeaderFilter
 from creme_core.entities_access.functions_for_permissions import delete_object_or_die
+from creme_core.utils import get_ct_or_404
 
 
 @login_required
@@ -37,7 +38,7 @@ def add(request, content_type_id, extra_template_dict=None):
     """
         @Permissions : to be set
     """
-    ct_entity = get_object_or_404(ContentType, pk=content_type_id)
+    ct_entity = get_ct_or_404(content_type_id)
 
     try:
         callback_url = ct_entity.model_class().get_lv_absolute_url()
@@ -46,19 +47,20 @@ def add(request, content_type_id, extra_template_dict=None):
 
     return add_entity(request, HeaderFilterForm, callback_url,
                       template='creme_core/header_filters.html',
-                      extra_initial={'content_type_id': content_type_id},
+                      extra_initial={'content_type': ct_entity},
                       extra_template_dict=extra_template_dict or {})
 
 @login_required
 def edit(request, header_filter_id):
-    hf           = get_object_or_404(HeaderFilter, pk=header_filter_id)
-    callback_url = hf.entity_type.model_class().get_lv_absolute_url()
+    hf = get_object_or_404(HeaderFilter, pk=header_filter_id)
 
     if request.POST:
         hf_form = HeaderFilterForm(request.POST, instance=hf)
+
         if hf_form.is_valid():
             hf_form.save()
-            return HttpResponseRedirect(callback_url)
+
+            return HttpResponseRedirect(hf.entity_type.model_class().get_lv_absolute_url())
     else:
         hf_form = HeaderFilterForm(instance=hf)
 

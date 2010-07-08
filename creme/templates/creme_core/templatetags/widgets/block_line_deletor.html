@@ -1,4 +1,3 @@
-{% comment %}<!--<a onclick="$.get('{{delete_url}}');creme.utils.loadBlock('{{update_url}}?{{block_name}}_page={{page.number}}&base_url={{base_url}}');">-->{% endcomment %}
-<a href="{{delete_url}}" onclick="creme.utils.confirmDelete(event, this, undefined, true, {complete:function(){creme.utils.loadBlock('{{update_url}}?base_url={{base_url}}');}});">
+<a onclick="creme.utils.ajaxDelete('{{delete_url}}', {{post_args}}, {complete:function(req, st){if(st!='error'){creme.utils.loadBlock('{{update_url}}?base_url={{base_url}}');}creme.utils.loading('loading', true);}});">
     <img src="{{MEDIA_URL}}images/delete_22.png" border="0">
 </a>
