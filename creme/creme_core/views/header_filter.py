@@ -30,6 +30,7 @@ from creme_core.forms.header_filter import HeaderFilterForm
 from creme_core.views.generic import add_entity
 from creme_core.models.header_filter import HeaderFilter
 from creme_core.entities_access.functions_for_permissions import delete_object_or_die
+from creme_core.utils import get_ct_or_404
 
 
 @login_required
@@ -37,7 +38,7 @@ def add(request, content_type_id, extra_template_dict=None):
     """
         @Permissions : to be set
     """
-    ct_entity = get_object_or_404(ContentType, pk=content_type_id)
+    ct_entity = get_ct_or_404(content_type_id)
 
     try:
         callback_url = ct_entity.model_class().get_lv_absolute_url()
