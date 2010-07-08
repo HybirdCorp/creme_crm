@@ -11,17 +11,17 @@
                 </a>
             </th>
         </tr>
-        <tr>
-            <th class="block_header_line_light">Type</th>
-            <th class="block_header_line_light">Champs concernés</th>
-            {% comment %}
-                <th class="block_header_line_light">Rôle</th>
-            {% endcomment %}
-            <th class="block_header_line_light">Utilisateur</th>
-            <th class="block_header_line_light">Éditer</th>
-            <th class="block_header_line_light">Supprimer</th>
-        </tr>
         {% if page.paginator.count %}
+            <tr>
+                <th class="block_header_line_light">Type</th>
+                <th class="block_header_line_light">Champs concernés</th>
+                {% comment %}
+                    <th class="block_header_line_light">Rôle</th>
+                {% endcomment %}
+                <th class="block_header_line_light">Utilisateur</th>
+                <th class="block_header_line_light">Éditer</th>
+                <th class="block_header_line_light">Supprimer</th>
+            </tr>
             {% for search_item in page.object_list %}
                 <!--{% cycle row_color %}-->
                 <tr>
@@ -53,6 +53,10 @@
                     </td>
                 </tr>
             {% endfor %}
+        {% else %}
+            <tr>
+                <td>Aucune configuration de recherche enregistrée pour le moment</td>
+            </tr>
         {% endif %}
     </tbody>
     {% include 'creme_core/templatetags/widgets/block_footer.html' %}

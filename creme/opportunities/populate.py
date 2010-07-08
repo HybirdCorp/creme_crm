@@ -22,8 +22,9 @@ from django.utils.translation import ugettext as _
 from django.contrib.contenttypes.models import ContentType
 
 from creme_core.models.header_filter import HeaderFilterItem, HeaderFilter, HFI_FIELD
-from creme_core.models import RelationType, ButtonMenuItem
+from creme_core.models import RelationType, BlockConfigItem, ButtonMenuItem, SearchConfigItem, SearchField
 from creme_core.utils import create_or_update_models_instance as create
+from creme_core.utils.meta import get_verbose_field_name
 from creme_core.management.commands.creme_populate import BasePopulator
 
 from creme_config.models import CremeKVConfig
@@ -92,3 +93,10 @@ class Populator(BasePopulator):
         create(HeaderFilterItem, pref + 'expdate', order=4, name='expiration_date', title=u'Échéance',       type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True, editable=True, sortable=True, filter_string="expiration_date__range")
 
         create(ButtonMenuItem, 'opportunities-linked_opp_button', content_type_id=get_ct(Organisation).id, button_id=linked_opportunity_button.id_, order=30)
+
+        model = Opportunity
+        sci = create(SearchConfigItem, content_type_id=ContentType.objects.get_for_model(model).id)
+        SCI_pk = sci.pk
+        sci_fields = ['name', 'made_sales', 'sales_phase__name', 'origin__name']
+        for i, field in enumerate(sci_fields):
+            create(SearchField, field=field, field_verbose_name=get_verbose_field_name(model, field), order=i, search_config_item_id=SCI_pk)

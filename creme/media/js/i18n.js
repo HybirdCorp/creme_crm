@@ -37,7 +37,8 @@ i18n = {
         NO:'Non',
         ARE_YOU_SURE:'Êtes-vous sûr?',
         MAKE_A_VALID_CHOICE:'Veuillez faire un choix valide',
-        CLOSE:'Fermer'
+        CLOSE:'Fermer',
+        SEARCH_RESULTS:'Résultats de recherche...'
     },
 
     en_US :
@@ -50,6 +51,7 @@ i18n = {
         NO:'No',
         ARE_YOU_SURE:'Are you sure?',
         MAKE_A_VALID_CHOICE:'Please make a valid choice',
-        CLOSE:'Close'
+        CLOSE:'Close',
+        SEARCH_RESULTS:'Search results...'
     }
 };

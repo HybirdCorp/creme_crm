@@ -20,8 +20,10 @@
 
 from django.contrib.contenttypes.models import ContentType
 
+from creme_core.models import SearchConfigItem, SearchField
 from creme_core.models.header_filter import HeaderFilterItem, HeaderFilter, HFI_FIELD
 from creme_core.utils import create_or_update_models_instance as create
+from creme_core.utils.meta import get_verbose_field_name
 from creme_core.management.commands.creme_populate import BasePopulator
 
 from media_managers.models import MediaCategory, Image
@@ -42,3 +44,10 @@ class Populator(BasePopulator):
         create(HeaderFilterItem, pref + 'descr', order=3, name='description', title=u'Description', type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True,  editable=True, filter_string="description__icontains")
         create(HeaderFilterItem, pref + 'user',  order=4, name='user',        title=u'Utilisateur', type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True,  editable=True, filter_string="user__username__icontains" )
         create(HeaderFilterItem, pref + 'cat',   order=5, name='categories',  title=u'Catégories',  type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=False, editable=False)
+
+        model = Image
+        sci = create(SearchConfigItem, content_type_id=ContentType.objects.get_for_model(model).id)
+        SCI_pk = sci.pk
+        sci_fields = ['name', 'description', 'categories__name']
+        for i, field in enumerate(sci_fields):
+            create(SearchField, field=field, field_verbose_name=get_verbose_field_name(model, field), order=i, search_config_item_id=SCI_pk)

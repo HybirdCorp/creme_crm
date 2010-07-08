@@ -48,6 +48,9 @@ creme_core_patterns = patterns('creme_core.views',
 
     # Popup helper
     (r'^nothing/$', 'nothing.get_nothing'),
+
+    #Research
+    (r'^search$', 'search.search')
 )
 
 creme_core_patterns += patterns('creme_core.views.generic',
@@ -55,9 +58,6 @@ creme_core_patterns += patterns('creme_core.views.generic',
 
     (r'^list_view/dl_csv/(?P<ct_id>\d+)$',     'listview.dl_listview_as_csv'),
 
-    #Research
-#    (r'^search/(?P<research>\w+)/(?P<ct_id>\d*)$', 'search.search')
-    (r'^search$', 'search.search')
 )
 
 urlpatterns = patterns('creme_core.views',

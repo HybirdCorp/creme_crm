@@ -67,6 +67,14 @@ def get_model_field_infos(model, field_name):
 
     return infos
 
+def get_verbose_field_name(model, field_name, separator=" - "):
+    """ For a field_name 'att1__att2__att3' it returns
+        att1_verbose_name - att2_verbose_name - att3_verbose_name
+        - is the default separator
+    """
+    fields = get_model_field_infos(model, field_name)
+    return separator.join([unicode(f['field'].verbose_name) for f in fields])
+
 #TODO: rename......
 def get_flds_with_fk_flds(model_klass, deep=1):
     if not isinstance(model_klass, ModelBase):

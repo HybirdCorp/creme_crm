@@ -20,9 +20,11 @@
 
 from django.contrib.contenttypes.models import ContentType
 
-from creme_core.models import RelationType, BlockConfigItem, CremePropertyType
+from creme_core.models import RelationType, BlockConfigItem, CremePropertyType, \
+                              SearchConfigItem, SearchField
 from creme_core.models.header_filter import HeaderFilterItem, HeaderFilter, HFI_FIELD
 from creme_core.utils import create_or_update_models_instance as create
+from creme_core.utils.meta import get_verbose_field_name
 from creme_core.management.commands.creme_populate import BasePopulator
 
 from commercial.models import Act
@@ -47,3 +49,10 @@ class Populator(BasePopulator):
         create(HeaderFilterItem, pref + 'name',        order=1, name='name',        title=u'Nom',       type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True, editable=True, sortable=True, filter_string="name__icontains")
         create(HeaderFilterItem, pref + 'ca_expected', order=2, name='ca_expected', title=u'CA espéré', type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True, editable=True, sortable=True, filter_string="ca_expected__icontains")
         create(HeaderFilterItem, pref + 'due_date',    order=3, name='due_date',    title=u'Échéance',  type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True, editable=True, sortable=True, filter_string="due_date__range")
+
+        model = Act
+        sci = create(SearchConfigItem, content_type_id=ContentType.objects.get_for_model(model).id)
+        SCI_pk = sci.pk
+        sci_fields = ['name', 'ca_expected', 'cost', 'target', 'goal', 'aim']
+        for i, field in enumerate(sci_fields):
+            create(SearchField, field=field, field_verbose_name=get_verbose_field_name(model, field), order=i, search_config_item_id=SCI_pk)

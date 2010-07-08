@@ -615,6 +615,9 @@ creme.utils.handleResearch = function(url, target_node_id, scope)
             $('#'+target_node_id).html(data);
         },
         error:function(req, status, errorThrown){
+        },
+        complete:function(){
+            document.title=i18n.get_current_language()['SEARCH_RESULTS'];
         }
     });
 }
