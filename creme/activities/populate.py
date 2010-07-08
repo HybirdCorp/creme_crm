@@ -22,8 +22,9 @@ from django.utils.translation import ugettext as _
 from django.contrib.contenttypes.models import ContentType
 
 from creme_core.models.header_filter import HeaderFilterItem, HeaderFilter, HFI_FIELD
-from creme_core.models import RelationType, BlockConfigItem, ButtonMenuItem
+from creme_core.models import RelationType, BlockConfigItem, ButtonMenuItem, SearchConfigItem, SearchField
 from creme_core.utils import create_or_update_models_instance as create
+from creme_core.utils.meta import get_verbose_field_name
 from creme_core.management.commands.creme_populate import BasePopulator
 
 from activities.models import Activity, ActivityType, PhoneCallType
@@ -72,3 +73,11 @@ class Populator(BasePopulator):
 
         create(ButtonMenuItem, 'activities-add_meeting_button',   content_type=None, button_id=add_meeting_button.id_,   order=10)
         create(ButtonMenuItem, 'activities-add_phonecall_button', content_type=None, button_id=add_phonecall_button.id_, order=11)
+
+        sci = create(SearchConfigItem, content_type_id=ContentType.objects.get_for_model(Activity).id)
+        SCI_pk = sci.pk
+        sci_fields = ['title', 'description', 'type__name']
+        for i, field in enumerate(sci_fields):
+            create(SearchField, field=field, field_verbose_name=get_verbose_field_name(Activity, field), order=i, search_config_item_id=SCI_pk)
+
+

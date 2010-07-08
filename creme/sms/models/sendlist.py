@@ -33,8 +33,8 @@ class SendList(CremeEntity):
 
     class Meta:
         app_label = "sms"
-        verbose_name = _(u'Liste de diffusion')
-        verbose_name_plural = _(u'Listes de diffusion')
+        verbose_name = _(u'Liste de diffusion sms')
+        verbose_name_plural = _(u'Listes de diffusion sms')
 
     def __unicode__(self) :
         return self.name

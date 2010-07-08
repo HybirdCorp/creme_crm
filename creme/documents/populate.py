@@ -22,8 +22,9 @@ from django.utils.translation import ugettext as _
 from django.contrib.contenttypes.models import ContentType
 
 from creme_core.models.header_filter import HeaderFilterItem, HeaderFilter, HFI_FIELD
-from creme_core.models import RelationType, BlockConfigItem
+from creme_core.models import RelationType, BlockConfigItem, SearchConfigItem, SearchField
 from creme_core.utils import create_or_update_models_instance as create
+from creme_core.utils.meta import get_verbose_field_name
 from creme_core.management.commands.creme_populate import BasePopulator
 
 from documents.models import Document, FolderCategory, Folder
@@ -50,3 +51,17 @@ class Populator(BasePopulator):
         create(HeaderFilterItem, pref + 'folder', order=2, name='folder', title=_(u'Classeur'), type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True, editable=True, sortable=True, filter_string="folder__title__icontains")
 
         create(BlockConfigItem, 'documents-linked_docs_block', content_type=None, block_id=linked_docs_block.id_, order=1000, on_portal=False)
+
+        model = Document
+        sci = create(SearchConfigItem, content_type_id=ContentType.objects.get_for_model(model).id)
+        SCI_pk = sci.pk
+        sci_fields = ['title', 'description', 'folder__title']
+        for i, field in enumerate(sci_fields):
+            create(SearchField, field=field, field_verbose_name=get_verbose_field_name(model, field), order=i, search_config_item_id=SCI_pk)
+
+        model = Folder
+        sci = create(SearchConfigItem, content_type_id=ContentType.objects.get_for_model(model).id)
+        SCI_pk = sci.pk
+        sci_fields = ['title', 'description', 'category__name']
+        for i, field in enumerate(sci_fields):
+            create(SearchField, field=field, field_verbose_name=get_verbose_field_name(model, field), order=i, search_config_item_id=SCI_pk)

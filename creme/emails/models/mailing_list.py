@@ -34,8 +34,8 @@ class MailingList(CremeEntity):
 
     class Meta:
         app_label = "emails"
-        verbose_name = _(u'Liste de diffusion')
-        verbose_name_plural = _(u'Listes de diffusion')
+        verbose_name = _(u'Liste de diffusion email')
+        verbose_name_plural = _(u'Listes de diffusion email')
 
     def __unicode__(self) :
         return self.name

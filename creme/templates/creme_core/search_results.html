@@ -9,7 +9,7 @@
         <tr>
             <td width="5%"><img src="{{MEDIA_URL}}images/looking_glass_64.png" alt=""/></td>
             <td width="95%">
-                <h1>{% trans 'Resultats de recherche' %} : {{results|length}} résultat{{ results|pluralize }}</h1>
+                <h1>{% trans 'Résultats de recherche' %} : {{total}} résultat{{ total|pluralize }}</h1>
             </td>
         </tr>
     </table>
@@ -34,8 +34,7 @@
 
     {% for result in results %}
         {% with result.fields as fields %}
-        {% with result.results as entities %}
-
+        {% with result.entities as entities %}
         <table class="table_detail_view ui-corner-all">
             <thead>
                 <tr>
