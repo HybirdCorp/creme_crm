@@ -45,23 +45,25 @@ class Populator(BasePopulator):
         create(HeaderFilterItem, 'emails-hf_template_name',    order=1, name='name',    title=u'Nom',   type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True, editable=True, filter_string="name__icontains")
         create(HeaderFilterItem, 'emails-hf_template_subject', order=2, name='subject', title=u'Sujet', type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True, editable=True, filter_string="subject__icontains")
 
+
+        #m2m fields excluded for the moment see creme_config/forms/search.py
         model = EmailCampaign
         sci = create(SearchConfigItem, content_type_id=ContentType.objects.get_for_model(model).id)
         SCI_pk = sci.pk
-        sci_fields = ['name', 'mailing_lists__name']
+        sci_fields = ['name', ]#'mailing_lists__name']
         for i, field in enumerate(sci_fields):
             create(SearchField, field=field, field_verbose_name=get_verbose_field_name(model, field), order=i, search_config_item_id=SCI_pk)
 
         model = MailingList
         sci = create(SearchConfigItem, content_type_id=ContentType.objects.get_for_model(model).id)
         SCI_pk = sci.pk
-        sci_fields = ['name', 'children__name', 'contacts__first_name', 'contacts__last_name', 'organisations__name']
+        sci_fields = ['name', ]#'children__name', 'contacts__first_name', 'contacts__last_name', 'organisations__name']
         for i, field in enumerate(sci_fields):
             create(SearchField, field=field, field_verbose_name=get_verbose_field_name(model, field), order=i, search_config_item_id=SCI_pk)
 
         model = EmailTemplate
         sci = create(SearchConfigItem, content_type_id=ContentType.objects.get_for_model(model).id)
         SCI_pk = sci.pk
-        sci_fields = ['name', 'subject', 'body', 'attachments__title']
+        sci_fields = ['name', 'subject', 'body',]# 'attachments__title']
         for i, field in enumerate(sci_fields):
             create(SearchField, field=field, field_verbose_name=get_verbose_field_name(model, field), order=i, search_config_item_id=SCI_pk)
