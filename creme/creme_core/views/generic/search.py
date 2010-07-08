@@ -39,6 +39,7 @@ def _build_q_research(model, research, fields, is_or=True):
     q = Q()
 #    for f_name, f_verb_name in fields:
     for f in fields:
+        print 'DIC', '%s%s' % (f.field, DEFAULT_PATTERN), type('%s%s' % (f.field, DEFAULT_PATTERN))
         _q = Q(**{'%s%s' % (f.field, DEFAULT_PATTERN):research})
         if is_or:
             q |= _q

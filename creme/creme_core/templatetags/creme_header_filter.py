@@ -24,7 +24,7 @@ from django import template
 from django.utils.html import escape
 
 from creme_core.models.header_filter import HFI_FIELD, HFI_RELATION, HFI_FUNCTION, HFI_CUSTOM
-from creme_core.models import CustomField, CustomFieldValue, CustomFieldEnumValue
+from creme_core.models import CustomFieldValue
 from creme_core.templatetags.creme_core_tags import get_html_field_value
 
 
@@ -51,18 +51,7 @@ def get_html_output(hfi, entity):
             return u''.join(relations_list)
 
         if hfi_type == HFI_CUSTOM:
-            cf_values = CustomFieldValue.objects.filter(custom_field=hfi.name, entity=entity)
-            output    = u''
-
-            if cf_values:
-                cf_value = cf_values[0]
-
-                if cf_value.custom_field.field_type == CustomField.ENUM:
-                    output = CustomFieldEnumValue.objects.get(pk=cf_value.value).value
-                else:
-                    output = cf_value.value
-
-            return output
+            return CustomFieldValue.get_pretty_value(hfi.name, entity.id)
     except AttributeError, e:
         debug('Templatetag "hf_get_html_output": %s', e)
         return u""
