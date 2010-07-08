@@ -107,7 +107,7 @@ def do_line_deletor(parser, token):
 
 class LineDeletorNode(template.Node):
     def __init__(self, delete_url, post_args):
-        self.deletor_tpl = get_template('creme_core/templatetags/widgets/block_line_deletor2.html')
+        self.deletor_tpl = get_template('creme_core/templatetags/widgets/block_line_deletor.html')
         self.url_tpl     = Template(delete_url)
         self.args_tpl    = Template(post_args)
 
