@@ -30,7 +30,7 @@ from commercial.models.act import Act
 
 
 class CreateForm(CremeEntityForm):
-    due_date = DateTimeField(label=u_("Date d'échéance"), widget=CalendarWidget())
+    due_date = DateTimeField(label=_(u"Date d'échéance"), widget=CalendarWidget())
 
     class Meta(CremeEntityForm.Meta):
         model = Act
