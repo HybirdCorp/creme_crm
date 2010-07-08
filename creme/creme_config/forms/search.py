@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.forms import ChoiceField, ModelChoiceField, CharField, MultipleChoiceField
+from django.forms import ChoiceField, ModelChoiceField, CharField, MultipleChoiceField, ValidationError
 from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.auth.models import User
@@ -42,6 +42,18 @@ class SearchAddForm(CremeForm):
         models = [(ct_get_for_model(model).id, model._meta.verbose_name) for model in creme_registry.iter_entity_models()]
         models.sort(key=lambda k: k[1])
         self.fields['ct_id'].choices = models
+
+    def clean(self):
+        cleaned_data = self.cleaned_data
+        get_data     = cleaned_data.get
+
+        ct_id = get_data('ct_id')
+        user  = get_data('user')
+
+        if SearchConfigItem.objects.filter(content_type__id=ct_id, user=user).count() > 0:
+            raise ValidationError(_(u'Le couple configuration de recherche/utilisateur(s) existe déjà !'))
+
+        return cleaned_data
 
     def save(self):
         cleaned_data  = self.cleaned_data
