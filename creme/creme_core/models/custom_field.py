@@ -109,6 +109,24 @@ class CustomFieldValue(CremeModel):
     def __unicode__(self):
         return self.value
 
+    @staticmethod
+    def get_pretty_value(custom_field_id, entity_id):
+        """Return unicode object containing the human readable value of a custom field for an entity
+        It manages CustomField which type is ENUM.
+        """
+        cf_values = CustomFieldValue.objects.filter(custom_field=custom_field_id, entity=entity_id)
+        output    = u''
+
+        if cf_values:
+            cf_value = cf_values[0]
+
+            if cf_value.custom_field.field_type == CustomField.ENUM:
+                output = CustomFieldEnumValue.objects.get(pk=cf_value.value).value
+            else:
+                output = cf_value.value
+
+        return output
+
 
 class CustomFieldEnumValue(CremeModel):
     custom_field = ForeignKey(CustomField, related_name='customfieldenumvalue_set')
