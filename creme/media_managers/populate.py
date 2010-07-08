@@ -48,6 +48,7 @@ class Populator(BasePopulator):
         model = Image
         sci = create(SearchConfigItem, content_type_id=ContentType.objects.get_for_model(model).id)
         SCI_pk = sci.pk
-        sci_fields = ['name', 'description', 'categories__name']
+        #m2m fields excluded for the moment see creme_config/forms/search.py
+        sci_fields = ['name', 'description']#, 'categories__name']
         for i, field in enumerate(sci_fields):
             create(SearchField, field=field, field_verbose_name=get_verbose_field_name(model, field), order=i, search_config_item_id=SCI_pk)
