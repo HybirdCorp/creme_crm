@@ -1,9 +1,0 @@
-<select name="hfilter" id="liste_hfilter" onchange="submitHandler(this);">
-    {% if select_values %}
-            {% for filter in select_values %}
-                <option value="{{filter.value}}" {% ifequal selected_hfilter_id  filter.value %} selected {% endifequal %}>
-                    {{filter.text}}
-                </option>
-            {% endfor %}
-    {% endif %}
-</select>

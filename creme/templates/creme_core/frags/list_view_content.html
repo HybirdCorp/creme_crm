@@ -1,6 +1,5 @@
 {% load creme_core_tags %}
-{% load creme_header_filter %}
-{% load creme_listview_filter %}
+{% load creme_listview %}
 
 {% if o2m %}
     {% templatize "{{columns|length}}" as colspan %}
@@ -18,36 +17,10 @@
                     <tbody>
                         <tr>
                             <th align="left" valign="baseline" width="50%">
-                                <fieldset title="Filtrer les lignes de la table">
-                                    <legend> Filtrer </legend>
-                                    {% generate_listview_filters_select content_type_id filter_id %}
-                                    <a href="/creme_core/filter/add/{{content_type_id}}">
-                                        <img border="0" src="{{MEDIA_URL}}images/add_22.png" alt="Créer filtre" title="Créer filtre"/>
-                                    </a>
-                                    {% if filter_id %}
-                                        <a href="/creme_core/filter/edit/{{content_type_id}}/{{filter_id}}" id="filter_edit">
-                                            <img border="0" src="{{MEDIA_URL}}images/edit_22.png" alt="Éditer filtre" title="Éditer filtre"/>
-                                        </a>
-                                        <a href="/creme_core/filter/delete/{{filter_id}}" id="filter_delete" onclick="creme.utils.confirmDelete(event, this);">
-                                            <img border="0" src="{{MEDIA_URL}}images/delete_22.png" alt="Supprimer filtre" title="Supprimer filtre"/>
-                                        </a>
-                                    {% endif %}
-                                </fieldset>
+                                {% get_listview_filters %}
                             </th>
                             <th align="right" valign="baseline" width="50%">
-                                <fieldset title="Afficher uniquement les colonnes désirées">
-                                    <legend> Vues </legend>
-                                    {% generate_listview_header_filters_select content_type_id hfilter_id %}
-                                    <a href="/creme_core/header_filter/add/{{content_type_id}}">
-                                        <img border="0" src="{{MEDIA_URL}}images/add_22.png" alt="Créer vue personnalisée" title="Créer vue personnalisée"/>
-                                    </a>
-                                    <a href="/creme_core/header_filter/edit/{{hfilter_id}}" id="header_filter_edit">
-                                        <img border="0" src="{{MEDIA_URL}}images/edit_22.png" alt="Éditer vue personnalisée" title="Éditer vue personnalisée"/>
-                                    </a>
-                                    <a href="/creme_core/header_filter/delete/{{hfilter_id}}/" id="header_filter_delete">
-                                        <img border="0" src="{{MEDIA_URL}}images/delete_22.png" alt="Supprimer vue personnalisée" title="Supprimer vue personnalisée"/>
-                                    </a>
-                                </fieldset>
+                                {% get_listview_headerfilters %}
                             </th>
                         </tr>
                     </tbody>
@@ -79,10 +52,10 @@
         </tr>
         <tr style="display:none;">
             <th colspan="{{colspan}}">
-                <input value="{{sort_field}}" id="sort_field"    type="hidden" name="sort_field"  />
-                <input value="{{sort_order}}" id="sort_order"    type="hidden" name="sort_order"  />
-                <input value=""               id="selected_rows" type="hidden"/>
-                <input value="{{o2m}}"        id="o2m"           type="hidden"/>
+                <input value="{{list_view_state.sort_field}}" id="sort_field"    type="hidden" name="sort_field"  />
+                <input value="{{list_view_state.sort_order}}" id="sort_order"    type="hidden" name="sort_order"  />
+                <input value=""                               id="selected_rows" type="hidden"/>
+                <input value="{{o2m}}"                        id="o2m"           type="hidden"/>
                 {% block extra_buttons_hidden %}{% endblock %}
             </th>
         </tr>
@@ -98,55 +71,7 @@
                 {% endif %}
             {% endfor %}
         </tr>
-        <tr id="list_thead_search" class="columns_bottom">
-            {% if not o2m %}<th><center><input name="select_all" value="all" type="checkbox" title="Tout sélectionner"/></center></th>{% endif %}
-            {% for column in columns %}
-                <th {% if column.is_hidden %}style="display:none;"{% endif %}>
-                    {% if column.has_a_filter %}
-                        {% with columns_values|get_value:column.name as column_options %}
-                            {% with column_options|get_value:"type" as column_type %}
-                                {% ifequal column_type "select" %}
-                                    <select name="{{column.name}}" title="{{column.title}}">
-                                        <option value="">Sélectionnez</option>
-                                        {% for options in column_options|get_value:"values" %}
-                                            <option value="{{options|get_value:"text"}}" {% if search %}{{options|get_value:"selected"}}{% endif %}>
-                                                {{options|get_value:"text"}}
-                                            </option>
-                                        {% endfor %}
-                                    </select>
-                                {% endifequal %}
-                                {% ifequal column_type "checkbox" %}
-                                    <select name="{{column.name}}" title="{{column.title}}">
-                                        <option value="">Sélectionnez</option>
-                                        {% for options in column_options|get_value:"values" %}
-                                            <option value="{{options|get_value:"value"}}" {% if search %}{{options|get_value:"selected"}}{% endif %}>
-                                                {{options|get_value:"text"}}
-                                            </option>
-                                        {% endfor %}
-                                    </select>
-                                {% endifequal %}
-                                {% ifequal column_type "datefield" %}
-                                    <span>
-                                        Entre
-                                        <input name="{{column.name}}" id="id_{{column.name}}" title="{{column.title}}" type="{{column_type}}" style="width:80px" value="{% if search %}{{column_options|get_value:"values"|get_value:"start"}}{% endif %}"/>
-                                        &nbsp;et&nbsp;
-                                        <input name="{{column.name}}" id="id_{{column.name}}_2" title="{{column.title}}" type="{{column_type}}" style="width:80px" value="{% if search %}{{column_options|get_value:"values"|get_value:"end"}}{% endif %}"/>
-                                    </span>
-                                    <script type="text/javascript">
-                                        {# $("#id_{{column.name}}, #id_{{column.name}}_2").datepicker({dateFormat: "yy-mm-dd", showOn: "button", buttonImage: "{{MEDIA_URL}}/images/icon_calendar.gif", buttonImageOnly: true }); #}
-                                        $("#id_{{column.name}}").datepicker({dateFormat: "yy-mm-dd", showOn: "button", buttonImage: "{{MEDIA_URL}}/images/icon_calendar.gif", buttonImageOnly: true, onSelect: function(dateText, inst){$('#id_{{column.name}}_2').val(dateText);}});
-                                        $("#id_{{column.name}}_2").datepicker({dateFormat: "yy-mm-dd", showOn: "button", buttonImage: "{{MEDIA_URL}}/images/icon_calendar.gif", buttonImageOnly: true });
-                                    </script>
-                                {% endifequal %}
-                                {% ifequal column_type "text" %}
-                                    <input name="{{column.name}}" title="{{column.title}}" type="{{column_type}}" value="{% if search %}{{column_options|get_value:"value"}}{% endif %}"/>
-                                {% endifequal %}
-                            {% endwith %}
-                        {% endwith %}
-                    {% endif %}
-                </th>
-            {% endfor %}
-        </tr>
+        {% get_listview_columns_header %}
     </thead>
     <tbody>
         {% for entity in entities.object_list %}
@@ -188,13 +113,14 @@
                             </td>
                             <td>
                                 Nb / Page :
-                                <!--<select name="rows" onchange="this.form.submit();">-->
                                 <select name="rows" onchange="submitHandler(this);">
-                                    <option value="10" {% ifequal rows 10 %}selected{% endifequal %}>10</option>
-                                    <option value="25" {% ifequal rows 25 %}selected{% endifequal %}>25</option>
-                                    <option value="50" {% ifequal rows 50 %}selected{% endifequal %}>50</option>
-                                    <option value="100" {% ifequal rows 100 %}selected{% endifequal %}>100</option>
-                                    <option value="200" {% ifequal rows 200 %}selected{% endifequal %}>200</option>
+                                    {% with entities.paginator.per_page as rows %}
+                                        <option value="10" {% ifequal rows 10 %}selected{% endifequal %}>10</option>
+                                        <option value="25" {% ifequal rows 25 %}selected{% endifequal %}>25</option>
+                                        <option value="50" {% ifequal rows 50 %}selected{% endifequal %}>50</option>
+                                        <option value="100" {% ifequal rows 100 %}selected{% endifequal %}>100</option>
+                                        <option value="200" {% ifequal rows 200 %}selected{% endifequal %}>200</option>
+                                    {% endwith %}
                                 </select>
                             </td>
                             <td>Enregistrements  {{ entities.start_index }} - {{ entities.end_index }} sur {{entities.paginator.count}}</td>

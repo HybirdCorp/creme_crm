@@ -1,0 +1,21 @@
+<fieldset title="Afficher uniquement les colonnes désirées">
+    <legend> Vues </legend>
+    <select name="hfilter" id="liste_hfilter" onchange="submitHandler(this);">
+        {% if select_values %}
+                {% for filter in select_values %}
+                    <option value="{{filter.value}}" {% ifequal selected_hfilter_id  filter.value %} selected {% endifequal %}>
+                        {{filter.text}}
+                    </option>
+                {% endfor %}
+        {% endif %}
+    </select>
+    <a href="/creme_core/header_filter/add/{{content_type_id}}">
+        <img border="0" src="{{MEDIA_URL}}images/add_22.png" alt="Créer vue personnalisée" title="Créer vue personnalisée"/>
+    </a>
+    <a href="/creme_core/header_filter/edit/{{hfilter_id}}" id="header_filter_edit">
+        <img border="0" src="{{MEDIA_URL}}images/edit_22.png" alt="Éditer vue personnalisée" title="Éditer vue personnalisée"/>
+    </a>
+    <a href="/creme_core/header_filter/delete/{{hfilter_id}}/" id="header_filter_delete">
+        <img border="0" src="{{MEDIA_URL}}images/delete_22.png" alt="Supprimer vue personnalisée" title="Supprimer vue personnalisée"/>
+    </a>
+</fieldset>
