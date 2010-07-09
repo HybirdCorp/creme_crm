@@ -1,20 +1,26 @@
 {% load creme_core_tags %}
 {% load creme_header_filter %}
 {% load creme_listview_filter %}
+
+{% if o2m %}
+    {% templatize "{{columns|length}}" as colspan %}
+{% else %}
+    {% templatize "{{columns|length|add:1}}" as colspan %}
+{% endif %}
 <table id="list" class="list_view" cellpadding="0" cellspacing="0">
     <thead>
         <tr>
-            <th colspan="{% if o2m %}{{columns|length}}{% else %}{{columns|length|add:1}}{% endif %}">{{list_title}}</th>
+            <th colspan="{{colspan}}">{{list_title}}</th>
         </tr>
         <tr>
-            <th colspan="{% if o2m %}{{columns|length}}{% else %}{{columns|length|add:1}}{% endif %}">
+            <th colspan="{{colspan}}">
                 <table width="100%" border="0">
                     <tbody>
                         <tr>
                             <th align="left" valign="baseline" width="50%">
-                                <fieldset title="Filtrer">
-                                     <legend> Filtrer </legend>
-                                     {% generate_listview_filters_select content_type_id filter_id %}
+                                <fieldset title="Filtrer les lignes de la table">
+                                    <legend> Filtrer </legend>
+                                    {% generate_listview_filters_select content_type_id filter_id %}
                                     <a href="/creme_core/filter/add/{{content_type_id}}">
                                         <img border="0" src="{{MEDIA_URL}}images/add_22.png" alt="Créer filtre" title="Créer filtre"/>
                                     </a>
@@ -29,9 +35,9 @@
                                 </fieldset>
                             </th>
                             <th align="right" valign="baseline" width="50%">
-                                <fieldset title="Filtrer">
-                                     <legend> Vues </legend>
-                                     {% generate_listview_header_filters_select content_type_id hfilter_id %}
+                                <fieldset title="Afficher uniquement les colonnes désirées">
+                                    <legend> Vues </legend>
+                                    {% generate_listview_header_filters_select content_type_id hfilter_id %}
                                     <a href="/creme_core/header_filter/add/{{content_type_id}}">
                                         <img border="0" src="{{MEDIA_URL}}images/add_22.png" alt="Créer vue personnalisée" title="Créer vue personnalisée"/>
                                     </a>
@@ -49,7 +55,7 @@
             </th>
         </tr>
         <tr id="list_thead_toolbar" class="toolbar">
-            <th colspan="{% if o2m %}{{columns|length}}{% else %}{{columns|length|add:1}}{% endif %}">
+            <th colspan="{{colspan}}">
                 {% if not is_popup_view %}
                     {% if add_url %}
                         <a href="{{add_url}}"><img border="0" src="{{MEDIA_URL}}images/add_22.png" alt="Nouveau" title="Nouveau"/>Nouveau</a>
@@ -72,7 +78,7 @@
             </th>
         </tr>
         <tr style="display:none;">
-            <th colspan="{% if o2m %}{{columns|length}}{% else %}{{columns|length|add:1}}{% endif %}">
+            <th colspan="{{colspan}}">
                 <input value="{{sort_field}}" id="sort_field"    type="hidden" name="sort_field"  />
                 <input value="{{sort_order}}" id="sort_order"    type="hidden" name="sort_order"  />
                 <input value=""               id="selected_rows" type="hidden"/>
@@ -85,12 +91,9 @@
             {% for column in columns %}
                 {% if not column.is_hidden %}
                     <th>
-                            {% comment %}<!--<a title="Trier par {{column.title}}" onclick="creme.utils.handleSort('#sort_field', '#sort_order', '{{column.name}}', document.forms['list_view_form']);">
-                                {{column.title}}
-                            </a>-->{% endcomment %}
-                            <button type="button" {% if column.sortable %}title="Trier par {{column.title}}" onclick="creme.utils.handleSort('#sort_field', '#sort_order', '{{column.name}}', this, submitHandler);"{% else %} disabled {% endif %}>
-                                {{column.title}}
-                            </button>
+                        <button type="button" {% if column.sortable %}title="Trier par {{column.title}}" onclick="creme.utils.handleSort('#sort_field', '#sort_order', '{{column.name}}', this, submitHandler);"{% else %} disabled {% endif %}>
+                            {{column.title}}
+                        </button>
                     </th>
                 {% endif %}
             {% endfor %}
@@ -98,8 +101,8 @@
         <tr id="list_thead_search" class="columns_bottom">
             {% if not o2m %}<th><center><input name="select_all" value="all" type="checkbox" title="Tout sélectionner"/></center></th>{% endif %}
             {% for column in columns %}
-                {% if column.has_a_filter %}
-                    <th {% if column.is_hidden %}style="display:none;"{% endif %}>
+                <th {% if column.is_hidden %}style="display:none;"{% endif %}>
+                    {% if column.has_a_filter %}
                         {% with columns_values|get_value:column.name as column_options %}
                             {% with column_options|get_value:"type" as column_type %}
                                 {% ifequal column_type "select" %}
@@ -113,7 +116,6 @@
                                     </select>
                                 {% endifequal %}
                                 {% ifequal column_type "checkbox" %}
-                                    {% comment %}<!--<input name="{{column.name}}" title="{{column.title}}" type="{{column_type}}" value="{{column_options|get_value:"value"}}"/>-->{% endcomment %}
                                     <select name="{{column.name}}" title="{{column.title}}">
                                         <option value="">Sélectionnez</option>
                                         {% for options in column_options|get_value:"values" %}
@@ -131,7 +133,7 @@
                                         <input name="{{column.name}}" id="id_{{column.name}}_2" title="{{column.title}}" type="{{column_type}}" style="width:80px" value="{% if search %}{{column_options|get_value:"values"|get_value:"end"}}{% endif %}"/>
                                     </span>
                                     <script type="text/javascript">
-                                        <!--{# $("#id_{{column.name}}, #id_{{column.name}}_2").datepicker({dateFormat: "yy-mm-dd", showOn: "button", buttonImage: "{{MEDIA_URL}}/images/icon_calendar.gif", buttonImageOnly: true }); #}-->
+                                        {# $("#id_{{column.name}}, #id_{{column.name}}_2").datepicker({dateFormat: "yy-mm-dd", showOn: "button", buttonImage: "{{MEDIA_URL}}/images/icon_calendar.gif", buttonImageOnly: true }); #}
                                         $("#id_{{column.name}}").datepicker({dateFormat: "yy-mm-dd", showOn: "button", buttonImage: "{{MEDIA_URL}}/images/icon_calendar.gif", buttonImageOnly: true, onSelect: function(dateText, inst){$('#id_{{column.name}}_2').val(dateText);}});
                                         $("#id_{{column.name}}_2").datepicker({dateFormat: "yy-mm-dd", showOn: "button", buttonImage: "{{MEDIA_URL}}/images/icon_calendar.gif", buttonImageOnly: true });
                                     </script>
@@ -141,10 +143,8 @@
                                 {% endifequal %}
                             {% endwith %}
                         {% endwith %}
-                    </th>
-                {% else %}
-                    <th {% if column.is_hidden %}style="display:none;"{% endif %}></th>
-                {% endif %}
+                    {% endif %}
+                </th>
             {% endfor %}
         </tr>
     </thead>
@@ -165,13 +165,13 @@
             </tr>
             {% empty %}
             <tr>
-                <td colspan="{% if o2m %}{{columns|length}}{% else %}{{columns|length|add:1}}{% endif %}">Aucun élément n'existe / ne correspond à votre recherche</td>
+                <td colspan="{{colspan}}">Aucun élément n'existe / ne correspond à votre recherche</td>
             </tr>
         {% endfor %}
     </tbody>
     <tfoot>
         <tr>
-            <td colspan="{% if o2m %}{{columns|length}}{% else %}{{columns|length|add:1}}{% endif %}">
+            <td colspan="{{colspan}}">
                 <table border="0" width="100%">
                     <tbody>
                         <tr>
