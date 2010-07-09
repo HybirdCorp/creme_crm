@@ -21,42 +21,13 @@
 from datetime import date, time, datetime
 from logging import debug
 
-from django.db import models
-from django.contrib.auth.models import User
-from django.db.models import Model, CharField, IntegerField, BooleanField, ForeignKey
 from django.db.models import Q
+from django.db.models.sql.constants import QUERY_TERMS
 from django.utils.encoding import smart_str
 from django.shortcuts import get_object_or_404
-from django.db.models.sql.constants import QUERY_TERMS
 
-from django_extensions.db import fields
-
-from header_filter import HeaderFilterItem, HFI_FIELD, HFI_RELATION
-from creme_core.models import Relation, CremePropertyType, CremeProperty
-
-#lter/Buyer?filtername=listview_Buyer&filter=&_search=false&nd=1253623028873&rows=100&page=2&sidx=id&sord=desc
-
-#class ListViewState(Model):
-#    filtername = CharField(max_length=100)
-#    filter     = IntegerField(default=0)
-#    model      = CharField(max_length=100)
-#    _search    = BooleanField(default=False)
-#    nd         = CharField(max_length=300)
-#    rows       = IntegerField(default=50)
-#    page       = IntegerField(default=1)
-#    sidx       = CharField(max_length=100, default='id')
-#    sord       = CharField(max_length=4, default='asc')
-#    user       = ForeignKey(User)
-#
-#    #def __init__(self, * args , ** kwargs):
-#        #models.Model.__init__ (self, * args , ** kwargs )
-#
-#    def __unicode__(self):
-#        return u''
-#
-#    class Meta:
-#        app_label = 'creme_core'
-
+from creme_core.models import Relation, CustomField, CustomFieldEnumValue
+from header_filter import HeaderFilterItem, HFI_FIELD, HFI_RELATION, HFI_CUSTOM
 
 
 def simple_value(value):
@@ -154,14 +125,15 @@ def _map_patterns(custom_pattern):
 
 class ListViewState(object):
     def __init__(self, **kwargs):
-        self.filter_id = kwargs.get('filter')
-        self.header_filter_id = kwargs.get('hfilter')
-        self.page = kwargs.get('page')
-        self.rows = kwargs.get('rows')
-        self._search = kwargs.get('_search')
-        self.sort_order = kwargs.get('sort_order')
-        self.sort_field = kwargs.get('sort_field')
-        self.url = kwargs.get('url')
+        get_arg = kwargs.get
+        self.filter_id = get_arg('filter')
+        self.header_filter_id = get_arg('hfilter')
+        self.page = get_arg('page')
+        self.rows = get_arg('rows')
+        self._search = get_arg('_search')
+        self.sort_order = get_arg('sort_order')
+        self.sort_field = get_arg('sort_field')
+        self.url = get_arg('url')
         self.research = None
         self.extra_q = None
 
@@ -228,25 +200,31 @@ class ListViewState(object):
         else:
             self.research = None
 
+    #TODO: avoid query with a cache (HeaderFilterItem/CustomField/etc retrieved to build listview....)
     def get_q_with_research(self, model):
-        Q_list_total = Q()
-        research = self.research
+        query = Q()
+        research = self.research or ()
 
-        if research:
-            for item in research:
-                name_attribut, pk_hf, type_, pattern, value = item
-                Q_attribut = None
+        for item in research:
+            name_attribut, pk_hf, type_, pattern, value = item
 
-                if type_ == HFI_FIELD:
-                    Q_attribut = Q(**{str(_map_patterns(pattern)): _get_value_for_query(pattern, value)})
-                elif type_ == HFI_RELATION:
-                    HF = get_object_or_404(HeaderFilterItem, pk=pk_hf)
-                    rct = HF.relation_content_type #TODO: remove ?? (see header_filter)
-                    model_class = rct.model_class() if rct is not None else Relation
-                    Q_attribut = model_class.filter_in(model, HF.relation_predicat, value)
-                #elif type_ == HFI_CUSTOM: #TODO
+            if type_ == HFI_FIELD:
+                query &= Q(**{str(_map_patterns(pattern)): _get_value_for_query(pattern, value)})
+            elif type_ == HFI_RELATION:
+                HF = get_object_or_404(HeaderFilterItem, pk=pk_hf)
+                rct = HF.relation_content_type #TODO: remove ?? (see header_filter)
+                model_class = rct.model_class() if rct is not None else Relation
 
-                if Q_attribut:
-                    Q_list_total &= Q_attribut
+                query &= model_class.filter_in(model, HF.relation_predicat, value)
+            elif type_ == HFI_CUSTOM:
+                #TODO: search with several CustomField constraints doesn't work !!! (need a JOIN for each constraint...)
+                cf = CustomField.objects.get(pk=name_attribut)
 
-        return Q_list_total
+                if cf.field_type == CustomField.ENUM:
+                    cfvalue = CustomFieldEnumValue.objects.get(custom_field=cf, value=value[0]).id
+                else:
+                    cfvalue = value[0]
+
+                query &= Q(customvalues__custom_field=name_attribut, customvalues__value=cfvalue)
+
+        return query

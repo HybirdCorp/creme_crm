@@ -33,7 +33,7 @@ from django.utils.encoding import smart_str
 from django.contrib.auth.decorators import login_required
 from django.contrib.contenttypes.models import ContentType
 
-from creme_core.models import CremeEntity, Filter, ListViewState, CustomFieldValue
+from creme_core.models import CremeEntity, Filter, ListViewState, CustomField, CustomFieldValue, CustomFieldEnumValue
 from creme_core.models.header_filter import HeaderFilterItem, HeaderFilter, HFI_FIELD, HFI_RELATION, HFI_FUNCTION, HFI_CUSTOM
 from creme_core.gui.last_viewed import change_page_for_last_item_viewed
 from creme_core.entities_access.permissions import user_has_create_permission
@@ -69,7 +69,6 @@ def list_view(request, model, hf_pk='', extra_dict=None, template='creme_core/ge
 
     try:
         ct = ContentType.objects.get_for_model(model)
-        get_model_field = model._meta.get_field
 
         try:
             _search = bool(int(POST_get('_search')))
@@ -104,14 +103,16 @@ def list_view(request, model, hf_pk='', extra_dict=None, template='creme_core/ge
 
         hfi = HeaderFilterItem.objects.filter(header_filter=hf).order_by('order')
         current_lvs.handle_research(request, hfi)
-        hf_research = dict((name_attribut, value) for (name_attribut , pk , type , pattern , value) in current_lvs.research) if current_lvs.research else {}
+        hf_research = dict((name_attribut, value) for (name_attribut, pk, type, pattern, value) in current_lvs.research) if current_lvs.research else {}
 
+        #TODO: move this loop in a templatetag
         hf_values = {}
+        get_model_field = model._meta.get_field
         for item in hfi:
             #TODO : Implement for other type of headers which has a filter ?
             item_value = hf_research.get(item.name, '')
             if item.has_a_filter:
-                item_dict = {'value':item_value, 'type':'text'}
+                item_dict = {'value': item_value, 'type': 'text'}
 
                 if item.type == HFI_FIELD:
                     try:
@@ -120,23 +121,53 @@ def list_view(request, model, hf_pk='', extra_dict=None, template='creme_core/ge
                         continue
 
                     if isinstance(field, models.ForeignKey):
-                        item_dict.update({
-                            'type':'select',
-                            'values':[{'value':o.id, 'text':unicode(o), 'selected': 'selected' if len(item_value) >= 1 and unicode(o) == item_value[0].decode('utf-8') else ''} for o in field.rel.to.objects.distinct().order_by(*field.rel.to._meta.ordering) if unicode(o) != ""]
-                         })
+                        selected_value = item_value[0].decode('utf-8') if len(item_value) >= 1 else None #bof bof
+
+                        item_dict.update(
+                                type='select',
+                                values=[{
+                                         'value':    o.id,
+                                         'text':     unicode(o),
+                                         'selected': 'selected' if selected_value == unicode(o) else ''
+                                        } for o in field.rel.to.objects.distinct().order_by(*field.rel.to._meta.ordering) if unicode(o) != ""
+                                    ]
+                            )
                     elif isinstance(field, models.BooleanField):
                         #TODO : Hack or not ? / Remember selected value ?
-                        item_dict.update({'type':'checkbox', 'values':[{'value':'1', 'text':"Oui", 'selected':'selected' if len(item_value) >= 1 and item_value[0]=='1' else '' }, {'value':'0', 'text':"Non", 'selected':'selected' if len(item_value) >= 1 and item_value[0]=='0' else ''}]})
+                        item_dict.update(
+                                type='checkbox',
+                                values=[{'value':    '1',
+                                         'text':     "Oui",
+                                         'selected': 'selected' if len(item_value) >= 1 and item_value[0]=='1' else '' },
+                                        {'value':    '0',
+                                         'text':     "Non",
+                                         'selected': 'selected' if len(item_value) >= 1 and item_value[0]=='0' else ''}
+                                    ]
+                            )
                     elif isinstance(field, models.DateField) or isinstance(field, models.DateTimeField):
                         item_dict['type'] = 'datefield'
                         try:
-                            item_dict['values'] = {'start':item_value[0],'end':item_value[1]}
+                            item_dict['values'] = {'start': item_value[0], 'end': item_value[1]}
                         except IndexError:
                             pass
                     elif hasattr(item_value, '__iter__') and len(item_value) >= 1:
                         item_dict['value'] = item_value[0]
+                elif item.type == HFI_CUSTOM:
+                    cf = CustomField.objects.get(pk=item.name)
 
-                hf_values.update({item.name : item_dict})
+                    if cf.field_type == CustomField.ENUM:
+                        selected_value = item_value[0].decode('utf-8') if item_value else None
+                        item_dict['type'] = 'select'
+                        item_dict['values'] = [{
+                                                'value':    id_,
+                                                'text':     unicode(cevalue),
+                                                'selected': 'selected' if selected_value == cevalue else ''
+                                                } for id_, cevalue in cf.customfieldenumvalue_set.values_list('id', 'value')
+                                              ]
+                    elif item_value:
+                        item_dict['value'] = item_value[0]
+
+                hf_values.update({item.name: item_dict})
 
         if show_actions:
             hfi = list(hfi)
@@ -211,8 +242,7 @@ def list_view(request, model, hf_pk='', extra_dict=None, template='creme_core/ge
         'list_view_template': 'creme_core/frags/list_view.html',
         'o2m':                o2m,
         'add_url':            None,
-#        'extra_bt_template':  None,
-        'extra_bt_templates':  None,
+        'extra_bt_templates':  None, # () instead ???
     }
 
     if extra_dict:
