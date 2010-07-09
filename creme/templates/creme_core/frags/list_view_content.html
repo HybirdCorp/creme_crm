@@ -116,7 +116,6 @@
                                     </select>
                                 {% endifequal %}
                                 {% ifequal column_type "checkbox" %}
-                                    {% comment %}<!--<input name="{{column.name}}" title="{{column.title}}" type="{{column_type}}" value="{{column_options|get_value:"value"}}"/>-->{% endcomment %}
                                     <select name="{{column.name}}" title="{{column.title}}">
                                         <option value="">Sélectionnez</option>
                                         {% for options in column_options|get_value:"values" %}
