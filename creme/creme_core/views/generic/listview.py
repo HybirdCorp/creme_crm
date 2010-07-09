@@ -44,6 +44,148 @@ from popup import inner_popup
 
 _hfi_action = HeaderFilterItem(order=0, name='entity_actions', title='Actions', has_a_filter=False, editable=False, is_hidden=False)
 
+def _get_header_filter(request, content_type, list_view_state, fallback_header_filter_id):
+    try:
+        #Try to retrieve header filter from session
+        hf = HeaderFilter.objects.get(pk=list_view_state.header_filter_id)
+    except HeaderFilter.DoesNotExist:
+        try:
+            #Try to retrieve header filter from filter name parameter
+            hf = HeaderFilter.objects.get(pk=fallback_header_filter_id, entity_type=content_type) #'entity_type=content_type' useful ???
+        except HeaderFilter.DoesNotExist:
+            try:
+                #Try to retrieve header filter from a list of header filters for this content type
+                hf = HeaderFilter.objects.filter(entity_type=content_type)[0]
+            except IndexError:
+                return None #No one is available
+
+    #Get the posted header filter which is the most recent
+    new_hf_id = request.POST.get('hfilter')
+
+    if new_hf_id and new_hf_id != hf.id:
+        try:
+            hf = HeaderFilter.objects.get(pk=new_hf_id)
+        except HeaderFilter.DoesNotExist:
+            pass
+
+    list_view_state.header_filter_id = hf.id
+
+    return hf
+
+#TODO: move this loop in a templatetag
+def _build_table_header_context(model, list_view_state, header_filter_items): #TODO: store header_filter_items in HeaderFilter object in cache ???
+    research = list_view_state.research
+
+    if research:
+        header_searches = dict((name_attribut, value) for (name_attribut, pk, type, pattern, value) in research)
+    else:
+        header_searches = {}
+
+    header_ctx = {}
+    get_model_field = model._meta.get_field
+
+    for item in header_filter_items:
+        #TODO : Implement for other type of headers which has a filter ?
+        item_value = header_searches.get(item.name, '')
+
+        if item.has_a_filter:
+            item_dict = {'value': item_value, 'type': 'text'}
+
+            if item.type == HFI_FIELD:
+                try:
+                    field = get_model_field(item.name)
+                except FieldDoesNotExist:
+                    continue
+
+                if isinstance(field, models.ForeignKey):
+                    selected_value = item_value[0].decode('utf-8') if len(item_value) >= 1 else None #bof bof
+
+                    item_dict.update(
+                            type='select',
+                            values=[{
+                                        'value':    o.id,
+                                        'text':     unicode(o),
+                                        'selected': 'selected' if selected_value == unicode(o) else ''
+                                    } for o in field.rel.to.objects.distinct().order_by(*field.rel.to._meta.ordering) if unicode(o) != ""
+                                ]
+                        )
+                elif isinstance(field, models.BooleanField):
+                    #TODO : Hack or not ? / Remember selected value ?
+                    item_dict.update(
+                            type='checkbox',
+                            values=[{'value':    '1',
+                                     'text':     "Oui",
+                                     'selected': 'selected' if len(item_value) >= 1 and item_value[0]=='1' else '' },
+                                    {'value':    '0',
+                                     'text':     "Non",
+                                     'selected': 'selected' if len(item_value) >= 1 and item_value[0]=='0' else ''}
+                                ]
+                        )
+                elif isinstance(field, models.DateField) or isinstance(field, models.DateTimeField):
+                    item_dict['type'] = 'datefield'
+                    try:
+                        item_dict['values'] = {'start': item_value[0], 'end': item_value[1]}
+                    except IndexError:
+                        pass
+                elif hasattr(item_value, '__iter__') and len(item_value) >= 1:
+                    item_dict['value'] = item_value[0]
+            elif item.type == HFI_CUSTOM:
+                cf = CustomField.objects.get(pk=item.name)
+
+                if cf.field_type == CustomField.ENUM:
+                    selected_value = item_value[0].decode('utf-8') if item_value else None
+                    item_dict['type'] = 'select'
+                    item_dict['values'] = [{
+                                            'value':    id_,
+                                            'text':     unicode(cevalue),
+                                            'selected': 'selected' if selected_value == cevalue else ''
+                                            } for id_, cevalue in cf.customfieldenumvalue_set.values_list('id', 'value')
+                                            ]
+                elif item_value:
+                    item_dict['value'] = item_value[0]
+
+            header_ctx.update({item.name: item_dict})
+
+    return header_ctx, header_searches
+
+def _build_entity_queryset(request, model, list_view_state, extra_q):
+    query = Q(is_deleted=False) | Q(is_deleted=None)
+
+    try:
+        filter_ = Filter.objects.get(pk=int(request.POST.get('filter', list_view_state.filter_id or '')))
+    except (Filter.DoesNotExist, ValueError), e:
+        list_view_state.filter_id = None
+    else:
+        list_view_state.filter_id = filter_.id
+        query &= filter_.get_q()
+
+    queryset = model.objects.filter(query)
+
+    if extra_q:
+        queryset = queryset.filter(extra_q)
+    list_view_state.extra_q = extra_q
+
+    queryset = queryset.filter(list_view_state.get_q_with_research(model))
+    queryset = filter_RUD_objects(request, queryset).distinct().order_by("%s%s" % (list_view_state.sort_order, list_view_state.sort_field))
+
+    return queryset
+
+def _build_entities_page(request, list_view_state, queryset, size):
+    paginator = Paginator(queryset, size)
+
+    try:
+        page = int(request.POST.get('page'))
+        list_view_state.page = page
+    except (ValueError, TypeError), error:
+        page = list_view_state.page or 1
+
+    try:
+        entities_page = paginator.page(page)
+    except (EmptyPage, InvalidPage), e:
+        entities_page = paginator.page(paginator.num_pages)
+
+    return entities_page
+
 @login_required
 @change_page_for_last_item_viewed
 def list_view(request, model, hf_pk='', extra_dict=None, template='creme_core/generics/list_entities.html', show_actions=True, extra_q=None, o2m=False):
@@ -54,12 +196,11 @@ def list_view(request, model, hf_pk='', extra_dict=None, template='creme_core/ge
     """
     assert issubclass(model, CremeEntity), '%s is not a subclass of CremeEntity' % model
 
-    POST = request.POST
-    POST_get = POST.get
+    POST_get = request.POST.get
 
     current_lvs = ListViewState.get_state(request)
     if current_lvs is None:
-        current_lvs = ListViewState.build_from_request(request)
+        current_lvs = ListViewState.build_from_request(request) #TODO: move to ListViewState.get_state() ???
 
     try:
         rows = int(POST_get('rows'))
@@ -68,160 +209,39 @@ def list_view(request, model, hf_pk='', extra_dict=None, template='creme_core/ge
         rows = current_lvs.rows or 25
 
     try:
-        ct = ContentType.objects.get_for_model(model)
+        _search = bool(int(POST_get('_search')))
+        current_lvs._search = _search
+    except (ValueError, TypeError), error:
+        _search = current_lvs._search or True
 
-        try:
-            _search = bool(int(POST_get('_search')))
-            current_lvs._search = _search
-        except (ValueError, TypeError), error:
-            _search = current_lvs._search or True
+    ct = ContentType.objects.get_for_model(model)
 
-        try:
-            #Try to retrieve header filter from session
-            hf = HeaderFilter.objects.get(pk=current_lvs.header_filter_id)
-        except HeaderFilter.DoesNotExist:
-            try:
-                #Try to retrieve header filter from filter name parameter
-                hf = HeaderFilter.objects.get(pk=hf_pk, entity_type=ct) #'entity_type=ct' useful ???
-            except HeaderFilter.DoesNotExist:
-                try:
-                    #Try to retrieve header filter from a list of header filters for this content type
-                    hf = HeaderFilter.objects.filter(entity_type=ct)[0]
-                except IndexError:
-                    #No one is available, redirect user to header filter creation
-                    raise HeaderFilter.DoesNotExist
-
-        #Get the posted header filter which is the most recent
-        new_hf_id = POST_get('hfilter')
-        if new_hf_id and new_hf_id != hf.id:
-            try:
-                hf = HeaderFilter.objects.get(pk=new_hf_id)
-            except HeaderFilter.DoesNotExist:
-                pass
-
-        current_lvs.header_filter_id = hf.id
-
-        hfi = HeaderFilterItem.objects.filter(header_filter=hf).order_by('order')
-        current_lvs.handle_research(request, hfi)
-        hf_research = dict((name_attribut, value) for (name_attribut, pk, type, pattern, value) in current_lvs.research) if current_lvs.research else {}
-
-        #TODO: move this loop in a templatetag
-        hf_values = {}
-        get_model_field = model._meta.get_field
-        for item in hfi:
-            #TODO : Implement for other type of headers which has a filter ?
-            item_value = hf_research.get(item.name, '')
-            if item.has_a_filter:
-                item_dict = {'value': item_value, 'type': 'text'}
-
-                if item.type == HFI_FIELD:
-                    try:
-                        field = get_model_field(item.name)
-                    except FieldDoesNotExist:
-                        continue
-
-                    if isinstance(field, models.ForeignKey):
-                        selected_value = item_value[0].decode('utf-8') if len(item_value) >= 1 else None #bof bof
-
-                        item_dict.update(
-                                type='select',
-                                values=[{
-                                         'value':    o.id,
-                                         'text':     unicode(o),
-                                         'selected': 'selected' if selected_value == unicode(o) else ''
-                                        } for o in field.rel.to.objects.distinct().order_by(*field.rel.to._meta.ordering) if unicode(o) != ""
-                                    ]
-                            )
-                    elif isinstance(field, models.BooleanField):
-                        #TODO : Hack or not ? / Remember selected value ?
-                        item_dict.update(
-                                type='checkbox',
-                                values=[{'value':    '1',
-                                         'text':     "Oui",
-                                         'selected': 'selected' if len(item_value) >= 1 and item_value[0]=='1' else '' },
-                                        {'value':    '0',
-                                         'text':     "Non",
-                                         'selected': 'selected' if len(item_value) >= 1 and item_value[0]=='0' else ''}
-                                    ]
-                            )
-                    elif isinstance(field, models.DateField) or isinstance(field, models.DateTimeField):
-                        item_dict['type'] = 'datefield'
-                        try:
-                            item_dict['values'] = {'start': item_value[0], 'end': item_value[1]}
-                        except IndexError:
-                            pass
-                    elif hasattr(item_value, '__iter__') and len(item_value) >= 1:
-                        item_dict['value'] = item_value[0]
-                elif item.type == HFI_CUSTOM:
-                    cf = CustomField.objects.get(pk=item.name)
-
-                    if cf.field_type == CustomField.ENUM:
-                        selected_value = item_value[0].decode('utf-8') if item_value else None
-                        item_dict['type'] = 'select'
-                        item_dict['values'] = [{
-                                                'value':    id_,
-                                                'text':     unicode(cevalue),
-                                                'selected': 'selected' if selected_value == cevalue else ''
-                                                } for id_, cevalue in cf.customfieldenumvalue_set.values_list('id', 'value')
-                                              ]
-                    elif item_value:
-                        item_dict['value'] = item_value[0]
-
-                hf_values.update({item.name: item_dict})
-
-        if show_actions:
-            hfi = list(hfi)
-            hfi.insert(0, _hfi_action)
-    except HeaderFilter.DoesNotExist, e:
-        debug('Error in list_view(): %s', e)
+    hf = _get_header_filter(request, ct, current_lvs, hf_pk)
+    if hf is None:
         from creme_core.views.header_filter import add as add_header_filter
         return add_header_filter(request, ct.id, {'help_message': u"La liste souhaitée n'a aucune vue, veuillez en créer au moins une."})
 
+    hfi = HeaderFilterItem.objects.filter(header_filter=hf).order_by('order')
+    current_lvs.handle_research(request, hfi)
+
+    #hf_values, hf_research = _build_table_header_context(model, current_lvs, hfi)
+
+    if show_actions:
+        hfi = list(hfi)
+        hfi.insert(0, _hfi_action)
+
+    hf_values, hf_research = _build_table_header_context(model, current_lvs, hfi) ##
+
+    #TODO: in a method ListViewState.init_sort_n_field() ???
     try:
         default_model_ordering = model._meta.ordering[0]
     except IndexError:
         default_model_ordering = 'id'
 
-    sort_field = POST_get('sort_field', current_lvs.sort_field or default_model_ordering)
-    sort_order = POST_get('sort_order', current_lvs.sort_order or '')
+    current_lvs.sort_field = POST_get('sort_field', current_lvs.sort_field or default_model_ordering)
+    current_lvs.sort_order = POST_get('sort_order', current_lvs.sort_order or '')
 
-    current_lvs.sort_field = sort_field
-    current_lvs.sort_order = sort_order
-
-    q_is_deleted = Q(is_deleted=False) | Q(is_deleted=None)
-
-    try:
-        filter = Filter.objects.get(pk=int(POST_get('filter', current_lvs.filter_id or '')))
-        filter_id = filter.id
-        current_lvs.filter_id = filter_id
-    except (Filter.DoesNotExist, ValueError), error:
-        filter = None
-        filter_id = ""
-
-    if filter:
-        entities_list = model.objects.filter(q_is_deleted & filter.get_q())
-    else:
-        entities_list = model.objects.filter(q_is_deleted)
-
-    if extra_q:
-        entities_list = entities_list.filter(extra_q)
-    current_lvs.extra_q = extra_q
-
-    entities_list = entities_list.filter(current_lvs.get_q_with_research(model))
-    entities_list = filter_RUD_objects(request, entities_list).distinct().order_by("%s%s" % (sort_order, sort_field))
-
-    paginator = Paginator(entities_list, rows)
-
-    try:
-        page = int(POST_get('page'))
-        current_lvs.page = page
-    except (ValueError, TypeError), error:
-        page = current_lvs.page or 1
-
-    try:
-        entities = paginator.page(page)
-    except (EmptyPage, InvalidPage), error:
-        entities = paginator.page(paginator.num_pages)
+    entities = _build_entities_page(request, current_lvs, _build_entity_queryset(request, model, current_lvs, extra_q), rows)
 
     current_lvs.register_in_session(request)
 
@@ -233,16 +253,16 @@ def list_view(request, model, hf_pk='', extra_dict=None, template='creme_core/ge
         'columns_values':     hf_values,
         'entities':           entities,
         'rows':               rows,
-        'sort_field':         sort_field,
-        'sort_order':         sort_order,
+        'sort_field':         current_lvs.sort_field, #pass directly 'current_lvs' to template ????
+        'sort_order':         current_lvs.sort_order,
         'content_type_id':    ct.id,
-        'filter_id' :         filter_id,
+        'filter_id' :         current_lvs.filter_id or '',
         'hfilter_id':         hf.id,
         'search':             _search,
         'list_view_template': 'creme_core/frags/list_view.html',
         'o2m':                o2m,
         'add_url':            None,
-        'extra_bt_templates':  None, # () instead ???
+        'extra_bt_templates': None, # () instead ???
     }
 
     if extra_dict:
