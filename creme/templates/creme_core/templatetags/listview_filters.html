@@ -1,0 +1,22 @@
+<fieldset title="Filtrer les lignes de la table">
+    <legend> Filtrer </legend>
+    <select name="filter" id="list_filter" onchange="submitHandler(this);">
+        <option value="">Tout</option>
+        {% for filter in select_values %}
+            <option value="{{filter.value}}" {% ifequal selected_filter_id filter.value %}selected{% endifequal %}>
+                {{filter.text}}
+            </option>
+        {% endfor %}
+    </select>
+    <a href="/creme_core/filter/add/{{content_type_id}}">
+        <img border="0" src="{{MEDIA_URL}}images/add_22.png" alt="Créer filtre" title="Créer filtre"/>
+    </a>
+    {% if filter_id %}
+        <a href="/creme_core/filter/edit/{{content_type_id}}/{{filter_id}}" id="filter_edit">
+            <img border="0" src="{{MEDIA_URL}}images/edit_22.png" alt="Éditer filtre" title="Éditer filtre"/>
+        </a>
+        <a href="/creme_core/filter/delete/{{filter_id}}" id="filter_delete" onclick="creme.utils.confirmDelete(event, this);">
+            <img border="0" src="{{MEDIA_URL}}images/delete_22.png" alt="Supprimer filtre" title="Supprimer filtre"/>
+        </a>
+    {% endif %}
+</fieldset>

@@ -33,7 +33,7 @@ from django.utils.encoding import smart_str
 from django.contrib.auth.decorators import login_required
 from django.contrib.contenttypes.models import ContentType
 
-from creme_core.models import CremeEntity, Filter, ListViewState, CustomField, CustomFieldValue, CustomFieldEnumValue
+from creme_core.models import CremeEntity, Filter, ListViewState, CustomFieldValue
 from creme_core.models.header_filter import HeaderFilterItem, HeaderFilter, HFI_FIELD, HFI_RELATION, HFI_FUNCTION, HFI_CUSTOM
 from creme_core.gui.last_viewed import change_page_for_last_item_viewed
 from creme_core.entities_access.permissions import user_has_create_permission
@@ -71,82 +71,6 @@ def _get_header_filter(request, content_type, list_view_state, fallback_header_f
     list_view_state.header_filter_id = hf.id
 
     return hf
-
-#TODO: move this loop in a templatetag
-def _build_table_header_context(model, list_view_state, header_filter_items): #TODO: store header_filter_items in HeaderFilter object in cache ???
-    research = list_view_state.research
-
-    if research:
-        header_searches = dict((name_attribut, value) for (name_attribut, pk, type, pattern, value) in research)
-    else:
-        header_searches = {}
-
-    header_ctx = {}
-    get_model_field = model._meta.get_field
-
-    for item in header_filter_items:
-        #TODO : Implement for other type of headers which has a filter ?
-        item_value = header_searches.get(item.name, '')
-
-        if item.has_a_filter:
-            item_dict = {'value': item_value, 'type': 'text'}
-
-            if item.type == HFI_FIELD:
-                try:
-                    field = get_model_field(item.name)
-                except FieldDoesNotExist:
-                    continue
-
-                if isinstance(field, models.ForeignKey):
-                    selected_value = item_value[0].decode('utf-8') if len(item_value) >= 1 else None #bof bof
-
-                    item_dict.update(
-                            type='select',
-                            values=[{
-                                        'value':    o.id,
-                                        'text':     unicode(o),
-                                        'selected': 'selected' if selected_value == unicode(o) else ''
-                                    } for o in field.rel.to.objects.distinct().order_by(*field.rel.to._meta.ordering) if unicode(o) != ""
-                                ]
-                        )
-                elif isinstance(field, models.BooleanField):
-                    #TODO : Hack or not ? / Remember selected value ?
-                    item_dict.update(
-                            type='checkbox',
-                            values=[{'value':    '1',
-                                     'text':     "Oui",
-                                     'selected': 'selected' if len(item_value) >= 1 and item_value[0]=='1' else '' },
-                                    {'value':    '0',
-                                     'text':     "Non",
-                                     'selected': 'selected' if len(item_value) >= 1 and item_value[0]=='0' else ''}
-                                ]
-                        )
-                elif isinstance(field, models.DateField) or isinstance(field, models.DateTimeField):
-                    item_dict['type'] = 'datefield'
-                    try:
-                        item_dict['values'] = {'start': item_value[0], 'end': item_value[1]}
-                    except IndexError:
-                        pass
-                elif hasattr(item_value, '__iter__') and len(item_value) >= 1:
-                    item_dict['value'] = item_value[0]
-            elif item.type == HFI_CUSTOM:
-                cf = CustomField.objects.get(pk=item.name)
-
-                if cf.field_type == CustomField.ENUM:
-                    selected_value = item_value[0].decode('utf-8') if item_value else None
-                    item_dict['type'] = 'select'
-                    item_dict['values'] = [{
-                                            'value':    id_,
-                                            'text':     unicode(cevalue),
-                                            'selected': 'selected' if selected_value == cevalue else ''
-                                            } for id_, cevalue in cf.customfieldenumvalue_set.values_list('id', 'value')
-                                            ]
-                elif item_value:
-                    item_dict['value'] = item_value[0]
-
-            header_ctx.update({item.name: item_dict})
-
-    return header_ctx, header_searches
 
 def _build_entity_queryset(request, model, list_view_state, extra_q):
     query = Q(is_deleted=False) | Q(is_deleted=None)
@@ -224,13 +148,9 @@ def list_view(request, model, hf_pk='', extra_dict=None, template='creme_core/ge
     hfi = HeaderFilterItem.objects.filter(header_filter=hf).order_by('order')
     current_lvs.handle_research(request, hfi)
 
-    #hf_values, hf_research = _build_table_header_context(model, current_lvs, hfi)
-
     if show_actions:
         hfi = list(hfi)
         hfi.insert(0, _hfi_action)
-
-    hf_values, hf_research = _build_table_header_context(model, current_lvs, hfi) ##
 
     #TODO: in a method ListViewState.init_sort_n_field() ???
     try:
@@ -249,12 +169,8 @@ def list_view(request, model, hf_pk='', extra_dict=None, template='creme_core/ge
         'model':              model,
         'list_title':         u"Liste des %s" % unicode(model._meta.verbose_name_plural),
         'columns':            hfi,
-        'columns_research':   hf_research,
-        'columns_values':     hf_values,
         'entities':           entities,
-        'rows':               rows,
-        'sort_field':         current_lvs.sort_field, #pass directly 'current_lvs' to template ????
-        'sort_order':         current_lvs.sort_order,
+        'list_view_state':    current_lvs,
         'content_type_id':    ct.id,
         'filter_id' :         current_lvs.filter_id or '',
         'hfilter_id':         hf.id,
