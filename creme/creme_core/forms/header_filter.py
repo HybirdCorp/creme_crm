@@ -140,7 +140,8 @@ class HeaderFilterForm(CremeModelForm):
             items_2_save.append(HeaderFilterItem(name=cfield_id,
                                                  title=self._get_cfield_name(int(cfield_id)),
                                                  type=HFI_CUSTOM,
-                                                 has_a_filter=True,
+                                                 #has_a_filter=True,
+                                                 has_a_filter=False,
                                                  editable=False, #TODO: make it editable
                                                  sortable=False, #TODO: make it sortable
                                                  filter_string=''))
