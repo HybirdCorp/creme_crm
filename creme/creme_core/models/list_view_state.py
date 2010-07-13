@@ -130,7 +130,7 @@ class ListViewState(object):
         self.header_filter_id = get_arg('hfilter')
         self.page = get_arg('page')
         self.rows = get_arg('rows')
-        self._search = get_arg('_search')
+        self._search = get_arg('_search') #TODO: rename to search ??
         self.sort_order = get_arg('sort_order')
         self.sort_field = get_arg('sort_field')
         self.url = get_arg('url')
@@ -226,6 +226,10 @@ class ListViewState(object):
                 else:
                     cfvalue = value[0]
 
-                query &= Q(customvalues__custom_field=name_attribut, customvalues__value=cfvalue)
+                related_name = cf.get_value_class().get_related_name()
+                query &= Q(**{
+                            '%s__custom_field' % related_name:  name_attribut,
+                            '%s__value' % related_name:         cfvalue,
+                        })
 
         return query
