@@ -225,6 +225,10 @@ def gte(object1, object2):
 def eq(object1, object2):
     return object1 == object2
 
+@register.filter(name="sub")
+def sub(object1, object2):
+    return object1 - object2
+
 # TODO : abs name gives a template syntax error
 @register.filter(name="absolute")
 def absolute(integer):
