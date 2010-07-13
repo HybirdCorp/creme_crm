@@ -25,14 +25,14 @@ from django.forms.widgets import Textarea
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.contenttypes.models import ContentType
 
-from creme_core.models import CustomField, CustomFieldEnumValue
+from creme_core.models.custom_field import CustomField, CustomFieldEnumValue, _TABLES
 from creme_core.forms import CremeModelForm
 from creme_core.forms.fields import ListEditionField
 from creme_core.utils import creme_entity_content_types
 
 
 class CustomFieldsBaseForm(CremeModelForm):
-    field_type  = TypedChoiceField(label=_(u'Type du champ'), choices=CustomField.FIELD_TYPES.iteritems(), coerce=int)
+    field_type  = TypedChoiceField(label=_(u'Type du champ'), choices=[(i, klass.verbose_name) for i, klass in _TABLES.iteritems()], coerce=int)
     enum_values = CharField(widget=Textarea(), label=_(u'Contenu de la liste'), required=False,
                             help_text=_(u'Mettez les choix possibles (un par ligne) si vous avez choisi le type "Liste de choix".'))
 
@@ -70,8 +70,6 @@ class CustomFieldsCTAddForm(CustomFieldsBaseForm):
         entity_ct_ids = set(ct.id for ct in creme_entity_content_types())
         used_ct_ids   = set(CustomField.objects.values_list('content_type_id', flat=True))
         self.fields['content_type'].queryset = ContentType.objects.filter(pk__in=entity_ct_ids - used_ct_ids)
-
-        #TODO: use 'ContentType.objects.get_for_id' in Button config (Block config too ?)
 
 
 class CustomFieldsAddForm(CustomFieldsBaseForm):

@@ -20,7 +20,7 @@
 
 #from logging import debug
 
-from django import forms
+#from django import forms
 from django.forms import Form, ModelForm, ModelChoiceField
 from django.forms.forms import BoundField
 from django.utils.translation import ugettext as _
@@ -33,12 +33,14 @@ from creme_core.models import CremeEntity, CustomField, CustomFieldValue, Custom
 __all__ = ('FieldBlockManager', 'CremeForm', 'CremeModelForm', 'CremeModelWithUserForm', 'CremeEntityForm')
 
 
-_FIELD_TYPES = {
-                CustomField.INT:   forms.IntegerField,
-                CustomField.FLOAT: forms.DecimalField,
-                CustomField.STR:   forms.CharField,
-                CustomField.ENUM:  forms.ChoiceField,
-               }
+#_FIELD_TYPES = {
+                #CustomField.INT:   forms.IntegerField,
+                #CustomField.FLOAT: forms.DecimalField,
+                #CustomField.BOOL:  forms.BooleanField,
+                #CustomField.STR:   forms.CharField,
+                #CustomField.DATE:  forms.DateTimeField,
+                #CustomField.ENUM:  forms.ChoiceField,
+               #}
 
 _CUSTOM_NAME = 'custom_field_%s'
 
@@ -149,61 +151,54 @@ class CremeEntityForm(CremeModelWithUserForm):
         assert self.instance, CremeEntity
         self._build_customfields()
 
-    def _build_formfield(self, custom_field):
-        field =  _FIELD_TYPES[custom_field.field_type](label=custom_field.name, required=False)
+    ##TODO: into a CustomField method ???
+    #def _build_formfield(self, custom_field, custom_value):
+        #field =  _FIELD_TYPES[custom_field.field_type](label=custom_field.name, required=False)
 
-        if custom_field.field_type == CustomField.ENUM:
-            choices = [('', '-------')]
-            choices += CustomFieldEnumValue.objects.filter(custom_field=custom_field).values_list('id', 'value')
-            field.choices = choices
+        #if custom_field.field_type == CustomField.ENUM:
+            #choices = [('', '-------')]
+            #choices += CustomFieldEnumValue.objects.filter(custom_field=custom_field).values_list('id', 'value')
+            #field.choices = choices
 
-        customvalue = self._customvalues.get(custom_field.id, '')
+            #if custom_value:
+                #field.initial = customvalue.value_id
+        #elif custom_value:
+            #field.initial = custom_value.value
 
-        if customvalue:
-            field.initial = customvalue.value
+        #return field
 
-        return field
+    #def _build_customfields(self):
+        #self._customs = CustomField.get_custom_fields_n_values(self.instance)
 
+        #fields = self.fields
+
+        #for i, (cfield, cvalue) in enumerate(self._customs):
+            #fields[_CUSTOM_NAME % i] = self._build_formfield(cfield, cvalue)
     def _build_customfields(self):
-        #move to CremeEntity ???
-        cfields = CustomField.objects.filter(content_type=ContentType.objects.get_for_model(self.instance))
-
-        if not cfields:
-            self._customfields = ()
-            self._customvalues = {}
-            return
-
-        self._customfields = cfields
-
-        entity = self.instance
-
-        if entity.id: #EDITION
-            #TODO: factorise with CremeEntity.get_custom_fields() ???
-             self._customvalues = dict((cfv.custom_field_id, cfv)
-                                            for cfv in CustomFieldValue.objects.filter(custom_field__in=cfields,
-                                                                                       entity=entity.id))
-        else: #CREATION
-            self._customvalues = {}
+        self._customs = CustomField.get_custom_fields_n_values(self.instance)
 
         fields = self.fields
-        for i, cfield in enumerate(cfields):
-            fields[_CUSTOM_NAME % i] = self._build_formfield(cfield)
+
+        for i, (cfield, cvalue) in enumerate(self._customs):
+            #fields[_CUSTOM_NAME % i] = self._build_formfield(cfield, cvalue)
+            fields[_CUSTOM_NAME % i] = cfield.get_formfield(cvalue)
 
     def save(self, *args, **kwargs):
         instance = super(CremeModelForm, self).save(*args, **kwargs)
         cleaned_data = self.cleaned_data
 
-        for i, cfield in enumerate(self._customfields):
+        for i, (custom_field, custom_value) in enumerate(self._customs):
             value = cleaned_data[_CUSTOM_NAME % i] #TODO: factorize with _build_customfields() ?
-            customvalue = self._customvalues.get(cfield.id)
 
-            if customvalue:
+            #TODO: in a CustomField method ???
+            if custom_value:
                 if not value:
-                    customvalue.delete()
-                elif customvalue.value != value:
-                    customvalue.value = value
-                    customvalue.save()
+                    custom_value.delete()
+                elif custom_value.set_value(value):
+                    custom_value.save()
             elif value:
-                CustomFieldValue.objects.create(custom_field=cfield, entity=instance, value=value)
+                custom_value = custom_field.get_value_class()(custom_field=custom_field, entity=instance)
+                custom_value.set_value(value)
+                custom_value.save()
 
         return instance
