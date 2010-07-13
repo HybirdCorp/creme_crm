@@ -3,7 +3,7 @@
     <select name="filter" id="list_filter" onchange="submitHandler(this);">
         <option value="">Tout</option>
         {% for filter in select_values %}
-            <option value="{{filter.value}}" {% ifequal selected_filter_id filter.value %}selected{% endifequal %}>
+            <option value="{{filter.value}}" {% ifequal filter_id filter.value %}selected{% endifequal %}>
                 {{filter.text}}
             </option>
         {% endfor %}
