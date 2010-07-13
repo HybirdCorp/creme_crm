@@ -174,6 +174,7 @@ class Block(object):
         block_name = self.id_ #rename ???
         block_context, modified = self._get_context(request, base_url, block_name)
 
+        #TODO: Nb if there are not order_by queryset can be a list => Differents blocks derivation ?
         order_by = self.order_by
         if order_by:
             request_order_by = request.GET.get('%s_order' % block_name)
