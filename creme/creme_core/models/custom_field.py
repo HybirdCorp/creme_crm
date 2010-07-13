@@ -123,26 +123,25 @@ class CustomFieldValue(CremeModel):
         """Return unicode object containing the human readable value of a custom field for an entity
         It manages CustomField which type is ENUM.
         """
-        output    = u''
+        output = u''
 
         cf = CustomField.objects.get(pk=custom_field_id) #TODO: don't retrieve each time !!!!!
         cf_values = cf.get_value_class().objects.filter(custom_field=custom_field_id, entity=entity_id)
 
         if cf_values:
-            cf_value = cf_values[0]
-
-            if cf_value.custom_field.field_type == CustomField.ENUM:
-                output = CustomFieldEnumValue.objects.get(pk=cf_value.value).value
-            else:
-                output = unicode(cf_value)
+            output = unicode(cf_values[0])
 
         return output
+
+    @classmethod
+    def get_related_name(cls):
+        return cls.__name__.lower()
 
 
 class CustomFieldString(CustomFieldValue):
     value = CharField(max_length=100)
 
-    verbose_name = _(u'Chaîne de caractère')
+    verbose_name = _(u'Chaîne de caractères')
     form_field   = forms.CharField
 
     class Meta:
@@ -176,7 +175,7 @@ class CustomFieldDateTime(CustomFieldValue):
     value = DateTimeField()
 
     verbose_name = _(u'Date')
-    form_field   = forms.DateTimeField
+    form_field   = forms.DateTimeField #TODO: better widget
 
     class Meta:
         app_label = 'creme_core'

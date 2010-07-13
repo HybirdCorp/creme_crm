@@ -23,6 +23,7 @@ from logging import debug
 from django import template
 from django.db import models
 from django.utils.html import escape
+from django.utils.translation import ugettext as _
 from django.contrib.contenttypes.models import ContentType
 
 from creme_core.models.header_filter import HeaderFilter, HFI_FIELD, HFI_RELATION, HFI_FUNCTION, HFI_CUSTOM
@@ -48,6 +49,37 @@ def get_listview_headerfilters(context):
 
     return context
 
+def _build_bool_search_widget(item_ctx, search_value):
+    #TODO : Hack or not ? / Remember selected value ?
+    selected_value = search_value[0] if search_value else None
+    item_ctx['type'] = 'checkbox'
+    item_ctx['values'] = [{
+                            'value':    '1',
+                            'text':     _("Oui"),
+                            'selected': 'selected' if selected_value == '1' else ''
+                           }, {
+                            'value':    '0',
+                            'text':     _("Non"),
+                            'selected': 'selected' if selected_value == '0' else ''
+                           }
+                ]
+
+def _build_date_search_widget(item_ctx, search_value):
+    item_ctx['type'] = 'datefield'
+
+    if search_value:
+        item_ctx['values'] = {'start': search_value[0], 'end': search_value[1]}
+
+def _build_select_search_widget(item_ctx, search_value, choices):
+    selected_value = search_value[0].decode('utf-8') if search_value else None #bof bof
+    item_ctx['type'] = 'select'
+    item_ctx['values'] = [{
+                            'value':    id_,
+                            'text':     unicode(val),
+                            'selected': 'selected' if selected_value == val else ''
+                          } for id_, val in choices
+                         ]
+
 @register.inclusion_tag('creme_core/templatetags/listview_columns_header.html', takes_context=True)
 def get_listview_columns_header(context):
     model               = context['model']
@@ -65,66 +97,42 @@ def get_listview_columns_header(context):
     get_model_field = model._meta.get_field
 
     for item in header_filter_items:
+        if not item.has_a_filter:
+            continue
+
         #TODO : Implement for other type of headers which has a filter ?
         item_value = header_searches.get(item.name, '')
+        item_dict = {'value': item_value, 'type': 'text'}
 
-        if item.has_a_filter:
-            item_dict = {'value': item_value, 'type': 'text'}
+        if item.type == HFI_FIELD:
+            try:
+                field = get_model_field(item.name)
+            except FieldDoesNotExist:
+                continue
 
-            if item.type == HFI_FIELD:
-                try:
-                    field = get_model_field(item.name)
-                except FieldDoesNotExist:
-                    continue
+            if isinstance(field, models.ForeignKey):
+                _build_select_search_widget(item_dict, item_value,
+                                            ((o.id, o) for o in field.rel.to.objects.distinct().order_by(*field.rel.to._meta.ordering) if unicode(o) != ""))
+            elif isinstance(field, models.BooleanField):
+                _build_bool_search_widget(item_dict, item_value)
+            elif isinstance(field, (models.DateField, models.DateTimeField)):
+                _build_date_search_widget(item_dict, item_value)
+            elif hasattr(item_value, '__iter__') and len(item_value) >= 1: #TODO: "elif item_value"
+                item_dict['value'] = item_value[0]
+        elif item.type == HFI_CUSTOM:
+            cf = CustomField.objects.get(pk=item.name)
+            field_type = cf.field_type
 
-                if isinstance(field, models.ForeignKey):
-                    selected_value = item_value[0].decode('utf-8') if len(item_value) >= 1 else None #bof bof
+            if field_type == CustomField.ENUM:
+                _build_select_search_widget(item_dict, item_value, cf.customfieldenumvalue_set.values_list('id', 'value'))
+            elif field_type == CustomField.DATE:
+                _build_date_search_widget(item_dict, item_value)
+            elif field_type == CustomField.BOOL:
+                _build_bool_search_widget(item_dict, item_value)
+            elif item_value:
+                item_dict['value'] = item_value[0]
 
-                    item_dict.update(
-                            type='select',
-                            values=[{
-                                        'value':    o.id,
-                                        'text':     unicode(o),
-                                        'selected': 'selected' if selected_value == unicode(o) else ''
-                                    } for o in field.rel.to.objects.distinct().order_by(*field.rel.to._meta.ordering) if unicode(o) != ""
-                                ]
-                        )
-                elif isinstance(field, models.BooleanField):
-                    #TODO : Hack or not ? / Remember selected value ?
-                    item_dict.update(
-                            type='checkbox',
-                            values=[{'value':    '1',
-                                     'text':     "Oui",
-                                     'selected': 'selected' if len(item_value) >= 1 and item_value[0]=='1' else '' },
-                                    {'value':    '0',
-                                     'text':     "Non",
-                                     'selected': 'selected' if len(item_value) >= 1 and item_value[0]=='0' else ''}
-                                ]
-                        )
-                elif isinstance(field, models.DateField) or isinstance(field, models.DateTimeField):
-                    item_dict['type'] = 'datefield'
-                    try:
-                        item_dict['values'] = {'start': item_value[0], 'end': item_value[1]}
-                    except IndexError:
-                        pass
-                elif hasattr(item_value, '__iter__') and len(item_value) >= 1:
-                    item_dict['value'] = item_value[0]
-            elif item.type == HFI_CUSTOM:
-                cf = CustomField.objects.get(pk=item.name)
-
-                if cf.field_type == CustomField.ENUM:
-                    selected_value = item_value[0].decode('utf-8') if item_value else None
-                    item_dict['type'] = 'select'
-                    item_dict['values'] = [{
-                                            'value':    id_,
-                                            'text':     unicode(cevalue),
-                                            'selected': 'selected' if selected_value == cevalue else ''
-                                            } for id_, cevalue in cf.customfieldenumvalue_set.values_list('id', 'value')
-                                          ]
-                elif item_value:
-                    item_dict['value'] = item_value[0]
-
-            header_ctx.update({item.name: item_dict})
+        header_ctx.update({item.name: item_dict})
 
     context['columns_values'] = header_ctx
 
