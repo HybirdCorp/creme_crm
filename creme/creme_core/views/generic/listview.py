@@ -222,7 +222,11 @@ def list_view_popup_from_widget(request, ct_id, o2m, *args, **kwargs):
         extra_dict.update(supplied_extra_dict)
 
     model = get_object_or_404(ContentType, pk=ct_id).model_class()
-    extra_q = Q(**JSONDecoder().decode(str(req_get('q_filter', {}))) or {})
+
+    ex_q_dict = JSONDecoder().decode(str(req_get('q_filter', {})))
+    ex_q_dict = dict((str(k), v) for k, v in ex_q_dict.items())
+
+    extra_q = Q(**(ex_q_dict or {}))
 
     #TODO: Can be improved ?
     supplied_extra_q = kwargs.pop('extra_q', None)
