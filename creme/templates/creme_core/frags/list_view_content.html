@@ -1,6 +1,8 @@
 {% load creme_core_tags %}
 {% load creme_listview %}
 
+{% with header_filter.items as columns %}
+
 {% if o2m %}
     {% templatize "{{columns|length}}" as colspan %}
 {% else %}
@@ -81,11 +83,11 @@
                     <input type="hidden" name="entity_id" value="{{entity.pk}}" />
                 </td>
                 {% for column in columns %}
-                    {% ifequal column.name "entity_actions" %} {% comment %}Wait before http://docs.djangoproject.com/en/dev/ref/templates/builtins/#operator !!!!{% endcomment %}
+                    {% if not column.type %}
                         <td title="actions">{{entity.get_entity_actions|safe}}</td>
                     {% else %}
                         <td title="" name="{{column.name}}" {% if column.is_hidden %}style="display:none;"{% endif %}>{% if column.is_hidden %}{{column|hf_get_html_output:entity|safe}}{% else %}{{column|hf_get_html_output:entity|safe|linebreaks}}{% endif %}</td>
-                    {% endifequal %}
+                    {% endif %}
                 {% endfor %}
             </tr>
             {% empty %}
@@ -115,6 +117,7 @@
                                 Nb / Page :
                                 <select name="rows" onchange="submitHandler(this);">
                                     {% with entities.paginator.per_page as rows %}
+                                       {% comment %}Wait before http://docs.djangoproject.com/en/dev/ref/templates/builtins/#operator !!!!{% endcomment %}
                                         <option value="10" {% ifequal rows 10 %}selected{% endifequal %}>10</option>
                                         <option value="25" {% ifequal rows 25 %}selected{% endifequal %}>25</option>
                                         <option value="50" {% ifequal rows 50 %}selected{% endifequal %}>50</option>
@@ -131,3 +134,4 @@
         </tr>
     </tfoot>
 </table>
+{% endwith %}

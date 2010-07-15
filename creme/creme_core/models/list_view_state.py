@@ -119,10 +119,11 @@ def _map_patterns(custom_pattern):
     }
     patterns = custom_pattern.split('__')
     i = 0
-    for pattern in patterns: #TODO: use enumerate().....
+    for pattern in patterns: #TODO: use enumerate().....  hum modify the list on which we iterate....
         patterns[i] = MAP_QUERY_PATTERNS.get(pattern, pattern)
         i += 1
     return "__".join(patterns)
+
 
 class ListViewState(object):
     def __init__(self, **kwargs):
@@ -135,7 +136,7 @@ class ListViewState(object):
         self.sort_order = get_arg('sort_order')
         self.sort_field = get_arg('sort_field')
         self.url = get_arg('url')
-        self.research = None
+        self.research = ()
         self.extra_q = None
 
     def register_in_session(self, request):
@@ -164,7 +165,7 @@ class ListViewState(object):
         kwargs['url'] = request.path
         return ListViewState(**kwargs)
 
-    def handle_research(self, request, queryset_header_filter_item):
+    def handle_research(self, request, header_filter_items):
         """
         Handle strings to use in order to filter
         (strings are in the request)
@@ -175,42 +176,33 @@ class ListViewState(object):
 
             REQUEST = request.REQUEST
             list_session = []
-            reset_filter = 0
 
-            for item in queryset_header_filter_item:
-                if not item.has_a_filter:
+            for hfi in header_filter_items:
+                if not hfi.has_a_filter:
                     continue
 
-                attribut = item.name
+                name = hfi.name
 
-                if not REQUEST.has_key(attribut):
+                if not REQUEST.has_key(name):
                     continue
 
-#                attribut_filtered = REQUEST[attribut].strip()
-                attribut_filtered = [smart_str(value.strip()) for value in REQUEST.getlist(attribut) or [REQUEST.get(attribut)] if value.strip()]
+                filtered_attr = [smart_str(value.strip()) for value in REQUEST.getlist(name) or [REQUEST.get(name)] if value.strip()]
 
-                if attribut_filtered:
-                    list_session.append((attribut, item.pk, item.type, item.filter_string, attribut_filtered)) #TODO: an object instead of a tuple ????
-#                    list_session.append((attribut, item.pk, item.type, item.filter_string, smart_str(attribut_filtered))) #TODO: an object instead of a tuple ????
-                else:
-                    reset_filter += 1
+                if filtered_attr:
+                    list_session.append((name, hfi.pk, hfi.type, hfi.filter_string, filtered_attr)) #TODO: an object instead of a tuple ????
 
-            if len(queryset_header_filter_item) == reset_filter:
-                self.research = None
-            else:
-                self.research = list_session
+            self.research = list_session
         else:
-            self.research = None
+            self.research = ()
 
     #TODO: move some parts of code to HeaderFilter ????
     #TODO: avoid query with a cache (HeaderFilterItem/CustomField/etc retrieved to build listview....)
     def get_q_with_research(self, model):
         query = Q()
-        research = self.research or ()
         cf_searches = defaultdict(list)
 
-        for item in research:
-            name_attribut, pk_hf, type_, pattern, value = item #TODO: rename 'name_attribut'.....
+        for item in self.research:
+            name, pk_hf, type_, pattern, value = item
 
             if type_ == HFI_FIELD:
                 query &= Q(**{str(_map_patterns(pattern)): _get_value_for_query(pattern, value)})
@@ -221,7 +213,7 @@ class ListViewState(object):
 
                 query &= model_class.filter_in(model, HF.relation_predicat, value)
             elif type_ == HFI_CUSTOM:
-                cf = CustomField.objects.get(pk=name_attribut)
+                cf = CustomField.objects.get(pk=name)
                 cf_searches[cf.field_type].append((cf, pattern, value))
 
         for field_type, searches in cf_searches.iteritems():

@@ -27,6 +27,7 @@ from django.contrib.contenttypes.models import ContentType
 from relation import RelationType
 
 
+HFI_ACTIONS  = 0
 HFI_FIELD    = 1
 HFI_RELATION = 2
 HFI_FUNCTION = 3
@@ -39,11 +40,28 @@ class HeaderFilter(Model): #CremeModel ???
     entity_type = ForeignKey(ContentType, editable=False)
     is_custom   = BooleanField(blank=False, default=True)
 
+    _items = None
+
     class Meta:
         app_label = 'creme_core'
 
     def __unicode__(self):
         return u'<HeaderFilter: name="%s">' % self.name
+
+    def build_items(self, show_actions=False):
+        items = self.header_filter_items.order_by('order')
+
+        if show_actions:
+            items = list(items)
+            items.insert(0, _hfi_action)
+
+        self._items = items
+
+    @property
+    def items(self):
+        if self._items is None:
+            self.build_items()
+        return self._items
 
 
 class HeaderFilterItem(Model):  #CremeModel ???
@@ -66,3 +84,6 @@ class HeaderFilterItem(Model):  #CremeModel ???
 
     class Meta:
         app_label = 'creme_core'
+
+
+_hfi_action = HeaderFilterItem(order=0, name='entity_actions', title='Actions', type=HFI_ACTIONS, has_a_filter=False, editable=False, is_hidden=False)
