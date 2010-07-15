@@ -46,8 +46,7 @@ class CremeEntity(CremeAbstractEntity):
         for prop in self.properties.all():
             prop.delete()
 
-        for cv in self.customvalues.all():
-            cv.delete()
+        CustomFieldValue.delete_all(self)
 
         if settings.TRUE_DELETE:
             super(CremeEntity, self).delete()
@@ -99,4 +98,4 @@ class CremeEntity(CremeAbstractEntity):
         return CustomField.get_custom_fields_n_values(self)
 
 
-from custom_field import CustomField
+from custom_field import CustomField, CustomFieldValue

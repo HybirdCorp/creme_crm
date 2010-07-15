@@ -137,6 +137,15 @@ class CustomFieldValue(CremeModel):
     def get_related_name(cls):
         return cls.__name__.lower()
 
+    @staticmethod
+    def delete_all(entity):
+        cf_types = set(CustomField.objects.filter(content_type=entity.entity_type_id)\
+                                          .values_list('field_type', flat=True))
+
+        for cf_type in cf_types:
+            for cvalue in _TABLES[cf_type].objects.filter(entity=entity):
+                cvalue.delete()
+
 
 class CustomFieldString(CustomFieldValue):
     value = CharField(max_length=100)
