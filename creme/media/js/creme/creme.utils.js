@@ -570,7 +570,14 @@ creme.utils.ajaxDelete = function(url, _data, ajax_params, msg)
                             creme.utils.showDialog("Suppression effectuée");
                         },
                         error : function(req, status, error){
-                            creme.utils.showDialog("Erreur");
+                            if(!req.responseText || req.responseText == "")
+                            {
+                                creme.utils.showDialog("Erreur");
+                            }
+                            else
+                            {
+                                creme.utils.showDialog(req.responseText);
+                            }
                         },
                         complete : function(request, textStatus){
                             creme.utils.loading('loading', true);

@@ -49,7 +49,7 @@ class CremeEntity(CremeAbstractEntity):
         for cv in self.customvalues.all():
             cv.delete()
 
-        if settings.TRUE_DELETE:
+        if settings.TRUE_DELETE and self.can_be_deleted():
             super(CremeEntity, self).delete()
         else:
             self.is_deleted = True

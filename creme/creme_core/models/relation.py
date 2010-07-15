@@ -226,6 +226,14 @@ class Relation(CremeAbstractEntity):
             self.symmetric_relation = sym_relation
             super(Relation, self).save()
 
+    def _collect_sub_objects(self, seen_objs, parent=None, nullable=False):
+        pk_val = self._get_pk_val()
+        
+        if self.symmetric_relation is not None:
+            seen_objs.add(self.symmetric_relation.__class__, self.symmetric_relation._get_pk_val(), self.symmetric_relation, parent, nullable)
+            
+        seen_objs.add(self.__class__, pk_val, self, parent, nullable)
+
     def delete(self):
         sym_relation = self.symmetric_relation
 

@@ -24,12 +24,77 @@ from collections import defaultdict
 from django.core.exceptions  import ObjectDoesNotExist
 from django.db.models import Model, ForeignKey, CharField, BooleanField
 from django.db.models.fields.related import OneToOneRel
+from django.db.models.query_utils import CollectedObjects
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.auth.models import User
 
 from django_extensions.db.models import TimeStampedModel
 
+class CantBeDeleted(Exception):
+    pass
+
+def _can_be_deleted(obj, seen_objs, parent=None, nullable=False):
+    pk_val = obj._get_pk_val()
+    if seen_objs.add(obj.__class__, pk_val, obj, parent, nullable):
+        return
+
+    for related in obj._meta.get_all_related_objects():
+        rel_opts_name = related.get_accessor_name()
+
+        if isinstance(related.field.rel, OneToOneRel):
+            try:
+                sub_obj = getattr(obj, rel_opts_name)
+            except ObjectDoesNotExist:
+                pass
+            else:
+                sub_obj._can_be_deleted(seen_objs, obj.__class__, related.field.null)
+        else:
+          # To make sure we can access all elements, we can't use the
+            # normal manager on the related object. So we work directly
+            # with the descriptor object.
+            for cls in obj.__class__.mro():
+                if rel_opts_name in cls.__dict__:
+                    rel_descriptor = cls.__dict__[rel_opts_name]
+                    break
+            else:
+                raise AssertionError("Should never get here.")
+
+            delete_qs = rel_descriptor.delete_manager(obj).all()
+
+            for sub_obj in delete_qs:
+                target_field = sub_obj._meta.get_field(related.field.name)
+                if isinstance(target_field, ForeignKey) and not target_field.null:
+                    raise CantBeDeleted("Not null ForeignKey field")
+
+                #sub_obj._collect_sub_objects(seen_objs, self.__class__, related.field.null)
+
+    # Handle any ancestors (for the model-inheritance case). We do this by
+    # traversing to the most remote parent classes -- those with no parents
+    # themselves -- and then adding those instances to the collection. That
+    # will include all the child instances down to "self".
+    parent_stack = [p for p in obj._meta.parents.values() if p is not None]
+    while parent_stack:
+        link = parent_stack.pop()
+        parent_obj = getattr(obj, link.name)
+        if parent_obj._meta.parents:
+            parent_stack.extend(parent_obj._meta.parents.values())
+            continue
+        # At this point, parent_obj is base class (no ancestor models). So
+        # delete it and all its descendents.
+        parent_obj._can_be_deleted(seen_objs)
+
+def can_be_deleted(obj):
+    try:
+        seen_objs = CollectedObjects()
+        obj._can_be_deleted(seen_objs)
+    except CantBeDeleted:
+        return False
+    else:
+        return True
+
+Model._can_be_deleted = _can_be_deleted
+Model.can_be_deleted  = can_be_deleted
 
 class CremeModel(Model):
     class Meta:
@@ -48,7 +113,31 @@ class CremeModel(Model):
                 except ObjectDoesNotExist:
                     pass
                 else:
-                    sub_obj._collect_sub_objects(seen_objs, self.__class__, related.field.null)        
+                    sub_obj._collect_sub_objects(seen_objs, self.__class__, related.field.null)
+
+            else:
+              # To make sure we can access all elements, we can't use the
+                # normal manager on the related object. So we work directly
+                # with the descriptor object.
+                for cls in self.__class__.mro():
+                    if rel_opts_name in cls.__dict__:
+                        rel_descriptor = cls.__dict__[rel_opts_name]
+                        break
+                else:
+                    raise AssertionError("Should never get here.")
+
+                delete_qs = rel_descriptor.delete_manager(self).all()
+
+                for sub_obj in delete_qs:
+
+                    target_field = sub_obj._meta.get_field(related.field.name)
+                    if isinstance(target_field, ForeignKey) and target_field.null:
+                        setattr(sub_obj, related.field.name, None)
+                        sub_obj.save()
+                        continue
+
+                    #For cascade deleting
+                    #sub_obj._collect_sub_objects(seen_objs, self.__class__, related.field.null)
 
         # Handle any ancestors (for the model-inheritance case). We do this by
         # traversing to the most remote parent classes -- those with no parents
