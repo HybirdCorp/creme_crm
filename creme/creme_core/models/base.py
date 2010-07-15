@@ -62,7 +62,12 @@ def _can_be_deleted(obj, seen_objs, parent=None, nullable=False):
 
             delete_qs = rel_descriptor.delete_manager(obj).all()
 
+            from creme_core.models.custom_field import _TABLES
+
             for sub_obj in delete_qs:
+                if isinstance(sub_obj, tuple(_TABLES.values())):
+                    continue
+
                 target_field = sub_obj._meta.get_field(related.field.name)
                 if isinstance(target_field, ForeignKey) and not target_field.null:
                     raise CantBeDeleted("Not null ForeignKey field")
