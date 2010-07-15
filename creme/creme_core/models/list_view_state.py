@@ -18,6 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from collections import defaultdict
 from datetime import date, time, datetime
 from logging import debug
 
@@ -206,6 +207,7 @@ class ListViewState(object):
     def get_q_with_research(self, model):
         query = Q()
         research = self.research or ()
+        cf_searches = defaultdict(list)
 
         for item in research:
             name_attribut, pk_hf, type_, pattern, value = item #TODO: rename 'name_attribut'.....
@@ -219,15 +221,26 @@ class ListViewState(object):
 
                 query &= model_class.filter_in(model, HF.relation_predicat, value)
             elif type_ == HFI_CUSTOM:
-                #TODO: search with several CustomField constraints doesn't work !!! (need a JOIN for each constraint...)
                 cf = CustomField.objects.get(pk=name_attribut)
+                cf_searches[cf.field_type].append((cf, pattern, value))
+
+        for field_type, searches in cf_searches.iteritems():
+            if len(searches) == 1:
+                cf, pattern, value = searches[0]
                 related_name = cf.get_value_class().get_related_name()
 
                 if cf.field_type == CustomField.ENUM:
                     value = CustomFieldEnumValue.objects.get(custom_field=cf, value=value[0]).id
 
                 query &= Q(**{
-                            '%s__custom_field' % related_name:  name_attribut, #s/name_attribut/cf ??
+                            '%s__custom_field' % related_name:  cf,
                             str(_map_patterns(pattern)):        _get_value_for_query(pattern, value),
                         })
+            else:
+                for cf, pattern, value in searches:
+                    pattern = pattern.partition('__')[2] #remove 'tableprefix__'
+                    kwargs = {str(_map_patterns(pattern)): _get_value_for_query(pattern, value)}
+                    pks = cf.get_value_class().objects.filter(custom_field=cf, **kwargs).values_list('entity_id', flat=True)
+                    query &= Q(pk__in=pks)
+
         return query
