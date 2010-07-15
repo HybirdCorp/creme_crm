@@ -1,4 +1,8 @@
 {% extends "creme_core/base.html" %}
     {% block content %}
+        {% if error_message %}
+            {{error_message}}
+        {% else %}
             Vous n'avez pas accès à cette page, veuillez contacter votre administrateur.
+        {% endif %}
     {% endblock %}

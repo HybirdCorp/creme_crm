@@ -93,4 +93,4 @@ def delete(request, profile_id):
     """
     profile = get_object_or_404(CremeProfile, pk=profile_id)
     profile.delete()
-    return portal_profiles(request)
+    return portal(request)
