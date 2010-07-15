@@ -20,12 +20,15 @@
 
 from logging import debug
 
+from django.utils.translation import ugettext_lazy as _
 from django.http import Http404, HttpResponse, HttpResponseRedirect
+from django.template.context import RequestContext
 from django.shortcuts import get_object_or_404
 from django.contrib.auth.decorators import login_required
 
 from creme_core.entities_access.functions_for_permissions import delete_object_or_die
 from creme_core.entities_access.permissions import user_has_delete_permission_for_an_object
+from django.shortcuts import render_to_response
 from creme_core.models.entity import CremeEntity
 
 #TODO: ajouter le test sur l'app facon @get_view_or_die('persons') (ticket 196)
@@ -103,6 +106,10 @@ def delete_entity(request, object_id, callback_url=None):
     if callback_url is None:
         callback_url = entity.get_lv_absolute_url()
 
-    entity.delete()
-
-    return HttpResponseRedirect(callback_url)
+    if entity.can_be_deleted():
+        entity.delete()
+        return HttpResponseRedirect(callback_url)
+    else:
+        return render_to_response("creme_core/forbidden.html", {
+                                    'error_message' : _(u'%s ne peut être effacé à cause des ses dépendances.' % entity)
+                                 }, context_instance=RequestContext(request))
