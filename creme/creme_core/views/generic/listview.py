@@ -42,8 +42,6 @@ from creme_core.utils.meta import get_field_infos
 from popup import inner_popup
 
 
-_hfi_action = HeaderFilterItem(order=0, name='entity_actions', title='Actions', has_a_filter=False, editable=False, is_hidden=False)
-
 def _get_header_filter(request, content_type, list_view_state, fallback_header_filter_id):
     try:
         #Try to retrieve header filter from session
@@ -145,12 +143,8 @@ def list_view(request, model, hf_pk='', extra_dict=None, template='creme_core/ge
         from creme_core.views.header_filter import add as add_header_filter
         return add_header_filter(request, ct.id, {'help_message': u"La liste souhaitée n'a aucune vue, veuillez en créer au moins une."})
 
-    hfi = HeaderFilterItem.objects.filter(header_filter=hf).order_by('order')
-    current_lvs.handle_research(request, hfi)
-
-    if show_actions:
-        hfi = list(hfi)
-        hfi.insert(0, _hfi_action)
+    hf.build_items(show_actions)
+    current_lvs.handle_research(request, hf.items)
 
     #TODO: in a method ListViewState.init_sort_n_field() ???
     try:
@@ -168,12 +162,11 @@ def list_view(request, model, hf_pk='', extra_dict=None, template='creme_core/ge
     template_dict = {
         'model':              model,
         'list_title':         u"Liste des %s" % unicode(model._meta.verbose_name_plural),
-        'columns':            hfi,
+        'header_filter':      hf,
         'entities':           entities,
         'list_view_state':    current_lvs,
         'content_type_id':    ct.id,
         'filter_id' :         current_lvs.filter_id or '',
-        'hfilter_id':         hf.id,
         'search':             _search,
         'list_view_template': 'creme_core/frags/list_view.html',
         'o2m':                o2m,
@@ -251,7 +244,7 @@ def dl_listview_as_csv(request, ct_id):
     current_lvs = ListViewState.get_state(request, url=request.GET['list_url'])
 
     #TODO: factorise (with list_view()) ?? in a ListViewState's method ???
-    columns = HeaderFilterItem.objects.filter(header_filter__id=current_lvs.header_filter_id).order_by('order')
+    columns = HeaderFilterItem.objects.filter(header_filter__id=current_lvs.header_filter_id).order_by('order') #TODO: use build_items()
     current_lvs.handle_research(request, columns)
 
     sort_order = current_lvs.sort_order or ''

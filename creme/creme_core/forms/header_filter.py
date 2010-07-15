@@ -165,7 +165,7 @@ class HeaderFilterForm(CremeModelForm):
                                                  has_a_filter=False,
                                                  editable=False ,
                                                  filter_string="",
-                                                 relation_predicat_id=relation_type_id))
+                                                 relation_predicat_id=relation_type_id)) #TODO: relation_type_id in 'name' attr...
 
         get_funcname = model_klass.get_users_func_verbose_name
         for func in cleaned_data['functions']:

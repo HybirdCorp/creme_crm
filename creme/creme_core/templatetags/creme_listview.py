@@ -46,6 +46,7 @@ def get_listview_headerfilters(context):
     hfilters = HeaderFilter.objects.filter(entity_type=context['content_type_id']).order_by('name') #TODO: retrieve in a cache...
 
     context['select_values'] = [{'value': hfilter.id, 'text': hfilter.name} for hfilter in hfilters]
+    context['hfilter_id']    = context['header_filter'].id
 
     return context
 
@@ -86,13 +87,7 @@ def get_listview_columns_header(context):
     list_view_state     = context['list_view_state']
     header_filter_items = context['columns']
 
-    research = list_view_state.research
-
-    if research:
-        header_searches = dict((name_attribut, value) for (name_attribut, pk, type, pattern, value) in research)
-    else:
-        header_searches = {}
-
+    header_searches = dict((name_attribut, value) for (name_attribut, pk, type, pattern, value) in list_view_state.research)
     header_ctx = {}
     get_model_field = model._meta.get_field
 
@@ -101,7 +96,7 @@ def get_listview_columns_header(context):
             continue
 
         #TODO : Implement for other type of headers which has a filter ?
-        item_value = header_searches.get(item.name, '')
+        item_value = header_searches.get(item.name, '') #TODO: rename....
         item_dict = {'value': item_value, 'type': 'text'}
 
         if item.type == HFI_FIELD:
