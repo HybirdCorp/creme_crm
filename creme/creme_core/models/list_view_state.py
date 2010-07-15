@@ -50,7 +50,7 @@ def range_value(value):
     """
     if hasattr(value, '__iter__'):
         if len(value) == 1 or len(value) == 2:
-            try:
+            try: #TODO: use value[-1] ???
                 return (datetime.strptime(value[0], "%Y-%m-%d %H:%M:%S"), datetime.strptime(value[len(value)-1], "%Y-%m-%d %H:%M:%S"))
             except ValueError:
                 try:
@@ -66,7 +66,7 @@ def int_value(value):
     except ValueError:
         return 0
 
-def string_value(value):
+def string_value(value): #TODO: rename to regex_value ???
     if value and isinstance(value, basestring):
         return value
     return '.*'
@@ -75,7 +75,7 @@ def bool_value(value):
     return bool(int_value(value))
 
 QUERY_TERMS_FUNC = {
-    'exact':       lambda x : x,
+    'exact':       lambda x: x,
 #    'iexact':      simple_value,
 #    'contains':    simple_value,
 #    'icontains':   simple_value,
@@ -101,9 +101,9 @@ QUERY_TERMS_FUNC = {
 }
 
 def _get_value_for_query(pattern, value):
-    query_terms_pattern = QUERY_TERMS.keys()
+    query_terms_pattern = QUERY_TERMS.keys() #TODO: query_terms_pattern = set(QUERY_TERMS.iterkeys()) ????? constant ???
     patterns = pattern.split('__')
-    patterns.reverse()#In general the pattern is at the end
+    patterns.reverse()#In general the pattern is at the end  #TODO: use reversed() instead
 
     qterm = None
     for p in patterns:
@@ -113,7 +113,7 @@ def _get_value_for_query(pattern, value):
     return QUERY_TERMS_FUNC.get(qterm, simple_value)(value)
 
 def _map_patterns(custom_pattern):
-    MAP_QUERY_PATTERNS = {
+    MAP_QUERY_PATTERNS = { #TODO: extract from function
         'creme-boolean': 'exact',
     }
     patterns = custom_pattern.split('__')
@@ -201,13 +201,14 @@ class ListViewState(object):
         else:
             self.research = None
 
+    #TODO: move some parts of code to HeaderFilter ????
     #TODO: avoid query with a cache (HeaderFilterItem/CustomField/etc retrieved to build listview....)
     def get_q_with_research(self, model):
         query = Q()
         research = self.research or ()
 
         for item in research:
-            name_attribut, pk_hf, type_, pattern, value = item
+            name_attribut, pk_hf, type_, pattern, value = item #TODO: rename 'name_attribut'.....
 
             if type_ == HFI_FIELD:
                 query &= Q(**{str(_map_patterns(pattern)): _get_value_for_query(pattern, value)})
@@ -220,16 +221,13 @@ class ListViewState(object):
             elif type_ == HFI_CUSTOM:
                 #TODO: search with several CustomField constraints doesn't work !!! (need a JOIN for each constraint...)
                 cf = CustomField.objects.get(pk=name_attribut)
+                related_name = cf.get_value_class().get_related_name()
 
                 if cf.field_type == CustomField.ENUM:
-                    cfvalue = CustomFieldEnumValue.objects.get(custom_field=cf, value=value[0]).id
-                else:
-                    cfvalue = value[0]
+                    value = CustomFieldEnumValue.objects.get(custom_field=cf, value=value[0]).id
 
-                related_name = cf.get_value_class().get_related_name()
                 query &= Q(**{
-                            '%s__custom_field' % related_name:  name_attribut,
-                            '%s__value' % related_name:         cfvalue,
+                            '%s__custom_field' % related_name:  name_attribut, #s/name_attribut/cf ??
+                            str(_map_patterns(pattern)):        _get_value_for_query(pattern, value),
                         })
-
         return query

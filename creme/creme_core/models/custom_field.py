@@ -94,7 +94,7 @@ class CustomField(CremeModel):
             field.choices = choices
 
             if custom_value:
-                field.initial = customvalue.value_id
+                field.initial = custom_value.value_id
         elif custom_value:
             field.initial = custom_value.value
 

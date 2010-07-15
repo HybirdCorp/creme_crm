@@ -64,10 +64,10 @@ class HeaderFilterForm(CremeModelForm):
 
         #caches
         self._relation_types = RelationType.objects.filter(Q(subject_ctypes=ct)|Q(subject_ctypes__isnull=True)).order_by('predicate').values_list('id', 'predicate')
-        self._custom_fields  = CustomField.objects.filter(content_type=ct).values_list('id', 'name')
+        self._custom_fields  = CustomField.objects.filter(content_type=ct)
 
         fields['fields'].choices = get_flds_with_fk_flds_str(model, 1)
-        fields['custom_fields'].choices = self._custom_fields
+        fields['custom_fields'].choices = [(cf.id, cf.name) for cf in self._custom_fields]
         fields['relations'].choices = self._relation_types
         fields['functions'].choices = ((f['name'], f['verbose_name']) for f in model.users_allowed_func)
 
@@ -84,10 +84,10 @@ class HeaderFilterForm(CremeModelForm):
 
     #NB: _get_cfield_name() & _get_predicate() : we do linear searches because
     #   there are very few searches => build a dict wouldn't be faster
-    def _get_cfield_name(self, cfield_id):
-        for id_, name in self._custom_fields:
-            if id_ == cfield_id:
-                return name
+    def _get_cfield(self, cfield_id):
+        for cfield in self._custom_fields:
+            if cfield.id == cfield_id:
+                return cfield
 
     def _get_predicate(self, relation_type_id):
         for id_, predicate in self._relation_types:
@@ -137,13 +137,24 @@ class HeaderFilterForm(CremeModelForm):
                 debug('Exception in HeaderFilterForm.save(): %s', e)
 
         for cfield_id in cleaned_data['custom_fields']:
+            cfield = self._get_cfield(int(cfield_id))
+
+            if cfield.field_type == CustomField.DATE:
+                pattern = "%s__value__range"
+            elif cfield.field_type == CustomField.BOOL:
+                pattern = "%s__value__creme-boolean"
+            elif cfield.field_type == CustomField.ENUM:
+                pattern = "%s__value__exact"
+            else:
+                pattern = "%s__value__icontains"
+
             items_2_save.append(HeaderFilterItem(name=cfield_id,
-                                                 title=self._get_cfield_name(int(cfield_id)),
+                                                 title=cfield.name,
                                                  type=HFI_CUSTOM,
                                                  has_a_filter=True,
                                                  editable=False, #TODO: make it editable
                                                  sortable=False, #TODO: make it sortable
-                                                 filter_string=''))
+                                                 filter_string=pattern % cfield.get_value_class().get_related_name()))
 
         for relation_type_id in cleaned_data['relations']:
             predicate = self._get_predicate(relation_type_id)
