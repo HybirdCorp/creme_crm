@@ -29,6 +29,8 @@ creme_core_patterns = patterns('creme_core.views',
 
     (r'^clean/$', 'clean.clean'),
 
+    (r'^property/add_to_entities$',                             'creme_property.add_to_entities'),
+    (r'^property/get_types$',                                   'creme_property.get_property_types_for_ct'),
     (r'^property/add/$',                                        'creme_property.add_to_creme_entity'),
     (r'^property/list_for_entity_ct/(?P<creme_entity_id>\d+)$', 'creme_property.list_for_entity_ct'),
     (r'^property/delete$',                                      'creme_property.delete'),
