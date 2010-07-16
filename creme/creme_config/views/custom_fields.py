@@ -34,7 +34,7 @@ from creme_config.forms.custom_fields import CustomFieldsCTAddForm, CustomFields
 from creme_config.blocks import custom_fields_portal_block, custom_fields_block
 
 
-ct_url     = '/creme_config/custom_fields/ct/%s'
+ct_url = '/creme_config/custom_fields/ct/%s'
 
 @login_required
 @get_view_or_die('creme_config', DROIT_MODULE_EST_ADMIN)

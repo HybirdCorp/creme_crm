@@ -156,7 +156,8 @@ def get_html_output(hfi, entity):
             return u''.join(relations_list)
 
         if hfi_type == HFI_CUSTOM:
-            return CustomFieldValue.get_pretty_value(hfi.name, entity.id)
+            #return CustomFieldValue.get_pretty_value(hfi.name, entity.id)
+            return entity.get_custom_value(hfi.get_customfield())
     except AttributeError, e:
         debug('Templatetag "hf_get_html_output": %s', e)
         return u""
