@@ -44,6 +44,9 @@
                     <a onclick="creme.utils.multiDeleteFromListView('form[name=list_view_form]', '/creme_core/delete_js');">
                         <img border="0" src="{{MEDIA_URL}}images/delete_22.png" alt="Effacer" title="Effacer"/>Suppression multiple
                     </a>&nbsp;
+                    <a onclick="creme.utils.multiAddPropertyFromListView('form[name=list_view_form]', '/creme_core/property/add_to_entities', '{{content_type_id}}');">
+                        Ajout de propriété multiple
+                    </a>&nbsp;
                 {% endif %}
                 <button  value="0" type="button" name="_search"{% if not search %} disabled {% else %} onclick="submitHandler(this);" {% endif %}>Effacer la recherche</button>
                 <button  value="1" type="button" name="_search" onclick="submitHandler(this);"><img border="0" src="{{MEDIA_URL}}images/looking_glass_22.png" alt="Rechercher" title="Rechercher"/>Rechercher</button>

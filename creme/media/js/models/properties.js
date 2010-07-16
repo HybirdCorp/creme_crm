@@ -64,3 +64,17 @@ creme.properties.select_one = function(creme_entity_id)
     });
 
 }
+
+creme.properties.get_types = function(ct_id)
+{
+    var types = [];
+    var success_cb = function(data, status){
+        for(var i in data)
+        {
+            var d = data[i];
+            types.push({pk : d.pk, text : d.fields['text']})
+        }
+    }
+    creme.ajax.json.post('/creme_core/property/get_types', {'ct_id' : ct_id}, success_cb, null, true);
+    return types;
+}

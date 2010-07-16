@@ -39,7 +39,8 @@ i18n = {
         MAKE_A_VALID_CHOICE:'Veuillez faire un choix valide',
         CLOSE:'Fermer',
         SEARCH_RESULTS:'Résultats de recherche...',
-        SELECT_AT_LEAST_ONE_ENTITY:'Veuillez sélectionner au moins une entité.'
+        SELECT_AT_LEAST_ONE_ENTITY:'Veuillez sélectionner au moins une entité.',
+        SELECT : 'Séléctionnez'
     },
 
     en_US :
@@ -54,6 +55,7 @@ i18n = {
         MAKE_A_VALID_CHOICE:'Please make a valid choice',
         CLOSE:'Close',
         SEARCH_RESULTS:'Search results...',
-        SELECT_AT_LEAST_ONE_ENTITY:'Please select at least one entity.'
+        SELECT_AT_LEAST_ONE_ENTITY:'Please select at least one entity.',
+        SELECT : 'Select'
     }
 };

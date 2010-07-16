@@ -645,8 +645,73 @@ creme.utils.multiDeleteFromListView = function(lv_selector, delete_url)
                             creme.utils.loading('loading', true);
                     }
     };
-
-
     creme.utils.ajaxDelete(delete_url, {'ids' : $(lv_selector).list_view('getSelectedEntities')}, ajax_opts, i18n.get_current_language()['ARE_YOU_SURE']);
+}
 
+creme.utils.multiAddPropertyFromListView = function(lv_selector, url, ct_id)
+{
+    if($(lv_selector).list_view('countEntities') == 0)
+    {
+        creme.utils.showDialog(i18n.get_current_language()['SELECT_AT_LEAST_ONE_ENTITY']);
+        return;
+    }
+
+    var types = creme.properties.get_types(ct_id);//TODO: Cache vs Integrity ?
+    
+    $(lv_selector).list_view('option', 'entity_separator', ',');
+
+    var content = '<p>'+i18n.get_current_language()['SELECT']+' : <select name="property">';
+    for(var i in types){
+        var type = types[i];
+        content+= '<option value="'+type.pk+'">'+type.text+'</option>';
+    }
+    content += '</select></p>';
+
+    creme.utils.showDialog(content,
+    {
+        buttons: {
+            "Ok": function() {
+                    var type_id = $('select[name=property]', this).val();
+
+                    if(!type_id || type_id == "")
+                    {
+                        creme.utils.showDialog(i18n.get_current_language()['SELECT_AT_LEAST_ONE_ENTITY']);
+                        return;
+                    }
+
+                    $.ajax({
+                        url : url,
+                        data : {
+                            'ids': $(lv_selector).list_view('getSelectedEntities'),
+                            'type_id' : type_id
+                        },
+                        beforeSend : function(req){
+                            creme.utils.loading('loading', false);
+                        },
+                        success : function(data, status, req){
+                            creme.utils.showDialog("Opération effectuée");
+                        },
+                        error : function(req, status, error){
+                            if(!req.responseText || req.responseText == "")
+                            {
+                                creme.utils.showDialog("Erreur");
+                            }
+                            else
+                            {
+                                creme.utils.showDialog(req.responseText);
+                            }
+                        },
+                        complete : function(request, textStatus){
+                            $(lv_selector).list_view('reload');
+                            creme.utils.loading('loading', true);
+                        },
+                        sync : false,
+                        type:"POST"
+                    });
+                    $(this).dialog("destroy");
+                    $(this).remove();
+            },
+            "Annuler": function() {$(this).dialog("destroy");$(this).remove();}
+        }
+    });
 }

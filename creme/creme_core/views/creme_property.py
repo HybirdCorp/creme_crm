@@ -28,7 +28,55 @@ from django.contrib.contenttypes.models import ContentType
 from creme_core.models import CremeEntity, CremePropertyType, CremeProperty
 from creme_core.entities_access.functions_for_permissions import edit_object_or_die
 from creme_core.blocks import properties_block
+from creme_core.entities_access.permissions import user_has_edit_permission_for_an_object
 
+@login_required
+def add_to_entities(request):
+    post_get = request.POST.get
+    ids      = post_get('ids')
+    property_type_id  = post_get('type_id')
+
+    property_type = get_object_or_404(CremePropertyType, pk=property_type_id)
+
+    return_str = ""
+    get = CremeEntity.objects.get
+    property_get = CremeProperty.objects.get
+    for id in ids.split(','):
+
+        try:
+            entity = get(pk=id)
+        except CremeEntity.DoesNotExist:
+            continue
+
+        if not id.isdigit():
+            debug('not digit ?!')
+            continue
+
+        if not user_has_edit_permission_for_an_object(request, entity):
+            return_str += '%s : <b>Permission refusée</b>,' % entity
+            continue
+
+        try:
+            property = property_get(type=property_type, creme_entity=entity)
+        except CremeProperty.DoesNotExist:
+            CremeProperty(type=property_type, creme_entity=entity).save()
+        else:
+            return_str += '%s à déjà la propriété %s,' % (entity, property)
+        
+
+    return_status = 200 if not return_str else 400
+    return_str    = "%s" % return_str
+
+    return HttpResponse(return_str, mimetype="text/javascript", status=return_status)
+
+@login_required
+def get_property_types_for_ct(request):
+    ct = get_object_or_404(ContentType, pk=request.POST.get('ct_id'))
+    property_types = CremePropertyType.objects.filter(Q(subject_ctypes=ct)|Q(subject_ctypes__isnull=True))
+
+    from django.core import serializers
+    data = serializers.serialize('json', property_types, fields=('text',))
+    return HttpResponse(data, mimetype='text/javascript')
 
 @login_required
 def add_to_creme_entity(request):
