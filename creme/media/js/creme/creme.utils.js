@@ -628,3 +628,25 @@ creme.utils.handleResearch = function(url, target_node_id, scope)
         }
     });
 }
+
+creme.utils.multiDeleteFromListView = function(lv_selector, delete_url)
+{
+    if($(lv_selector).list_view('countEntities') == 0)
+    {
+        creme.utils.showDialog(i18n.get_current_language()['SELECT_AT_LEAST_ONE_ENTITY']);
+        return;
+    }
+
+    $(lv_selector).list_view('option', 'entity_separator', ',');
+
+    var ajax_opts = {
+        complete : function(request, textStatus){
+                            $(lv_selector).list_view('reload');
+                            creme.utils.loading('loading', true);
+                    }
+    };
+
+
+    creme.utils.ajaxDelete(delete_url, {'ids' : $(lv_selector).list_view('getSelectedEntities')}, ajax_opts, i18n.get_current_language()['ARE_YOU_SURE']);
+
+}
