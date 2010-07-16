@@ -18,13 +18,16 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-import logging
+from collections import defaultdict
+from logging import debug
 
 from django.db.models import Model, CharField, ForeignKey, BooleanField, PositiveIntegerField, PositiveSmallIntegerField
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.contenttypes.models import ContentType
 
 from relation import RelationType
+from entity import CremeEntity
+from custom_field import CustomField
 
 
 HFI_ACTIONS  = 0
@@ -63,6 +66,26 @@ class HeaderFilter(Model): #CremeModel ???
             self.build_items()
         return self._items
 
+    #TODO: select_related() for fk attr ??
+    def populate_entities(self, entities):
+        hfi_groups = defaultdict(list) #useless if only relations optim.... wait & see
+
+        for hfi in self.items:
+            hfi_groups[hfi.type].append(hfi)
+
+        group = hfi_groups[HFI_RELATION]
+        if group:
+            CremeEntity.populate_relations(entities, [hfi.relation_predicat_id for hfi in group])
+
+        group = hfi_groups[HFI_CUSTOM]
+        if group:
+            cfields = CustomField.objects.in_bulk([int(hfi.name) for hfi in group])
+
+            for hfi in group:
+                hfi._customfield = cfields[int(hfi.name)]
+
+            CremeEntity.populate_custom_values(entities, cfields.values()) #NB: not itervalues() (iterated several times)
+
 
 class HeaderFilterItem(Model):  #CremeModel ???
     id                    = CharField(primary_key=True, max_length=100)
@@ -79,11 +102,26 @@ class HeaderFilterItem(Model):  #CremeModel ???
     relation_predicat     = ForeignKey(RelationType, blank=True, null=True) #TODO: rename to 'relation_type' ???  use 'name' to store pk instead ????
     relation_content_type = ForeignKey(ContentType, blank=True, null=True) #TODO: useful ??
 
+    def __init__(self, *args, **kwargs):
+        super(HeaderFilterItem, self).__init__(*args, **kwargs)
+        self._customfield = None
+
     def __unicode__(self):
         return u"<HeaderFilterItem: order: %i, name: %s, title: %s>" % (self.order, self.name, self.title)
 
     class Meta:
         app_label = 'creme_core'
+
+    def get_customfield(self):
+        assert self.type == HFI_CUSTOM
+
+        if self._customfield is None:
+            debug('HeaderFilterItem.get_customfield(): cache MISS for id=%s', self.id)
+            self._customfield = CustomField.objects.get(pk=self.name)
+        else:
+            debug('HeaderFilterItem.get_customfield(): cache HIT for id=%s', self.id)
+
+        return self._customfield
 
 
 _hfi_action = HeaderFilterItem(order=0, name='entity_actions', title='Actions', type=HFI_ACTIONS, has_a_filter=False, editable=False, is_hidden=False)

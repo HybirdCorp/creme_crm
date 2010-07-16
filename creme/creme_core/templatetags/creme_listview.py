@@ -147,14 +147,17 @@ def get_html_output(hfi, entity):
 
         if hfi_type == HFI_RELATION:
             relations_list = ["<ul>"]
+            #relations_list.extend(u'<li><a href="%s">%s</a></li>' % (obj.get_absolute_url(), escape(obj))
+                                    #for obj in entity.get_list_object_of_specific_relations(hfi.relation_predicat_id))
             relations_list.extend(u'<li><a href="%s">%s</a></li>' % (obj.get_absolute_url(), escape(obj))
-                                    for obj in entity.get_list_object_of_specific_relations(hfi.relation_predicat_id))
+                                    for obj in entity.get_related_entities(hfi.relation_predicat_id, True))
             relations_list.append("</ul>")
 
             return u''.join(relations_list)
 
         if hfi_type == HFI_CUSTOM:
-            return CustomFieldValue.get_pretty_value(hfi.name, entity.id)
+            #return CustomFieldValue.get_pretty_value(hfi.name, entity.id)
+            return entity.get_custom_value(hfi.get_customfield())
     except AttributeError, e:
         debug('Templatetag "hf_get_html_output": %s', e)
         return u""
