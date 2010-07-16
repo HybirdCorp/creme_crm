@@ -18,6 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from collections import defaultdict
 from logging import debug
 
 from django.utils.encoding import force_unicode
@@ -40,6 +41,11 @@ class CremeEntity(CremeAbstractEntity):
     class Meta:
         app_label = 'creme_core'
         ordering = ('id',)
+
+    def __init__(self, *args, **kwargs):
+        super(CremeEntity, self).__init__(*args, **kwargs)
+        self._relations_map = {}
+        self._cvalues_map = {}
 
     def delete(self):
         for relation in self.relations.all():
@@ -82,11 +88,68 @@ class CremeEntity(CremeAbstractEntity):
     def get_delete_absolute_url(self):
         return "/creme_core/entity/delete/%s" % self.id
 
-    #TODO: improve query (list is paginated later, so don't get all object, and return a queryset if possible)
-    def get_list_object_of_specific_relations(self, relation_type_id):
-        #TODO: regroup entities retrieveing by ct to reduce queries ???
-        #return [rel.object_creme_entity for rel in self.relations.filter(type__id=relation_type_id)]
-        return [rel.object_entity for rel in self.relations.filter(type__id=relation_type_id)]
+    ##TODO: improve query (list is paginated later, so don't get all object, and return a queryset if possible)
+    #def get_list_object_of_specific_relations(self, relation_type_id):
+        ##TODO: regroup entities retrieveing by ct to reduce queries ???
+        ##return [rel.object_creme_entity for rel in self.relations.filter(type__id=relation_type_id)]
+        #return [rel.object_entity for rel in self.relations.filter(type__id=relation_type_id)]
+    def get_related_entities(self, relation_type_id, real_entities=True):
+        return [relation.object_entity.get_real_entity()
+                    for relation in self.get_relations(relation_type_id, real_entities)]
+
+    def get_relations(self, relation_type_id, real_obj_entities=False):
+        relations = self._relations_map.get(relation_type_id)
+
+        if relations is None:
+            debug('CremeEntity.get_relations(): Cache MISS for id=%s type=%s', self.id, relation_type_id)
+            relations = self.relations.filter(type=relation_type_id)
+
+            if real_obj_entities:
+                relations = relations.select_related('object_entity')
+                Relation.populate_real_object_entities(relations)
+
+            self._relations_map[relation_type_id] = relations
+        else:
+            debug('CremeEntity.get_relations(): Cache HIT for id=%s type=%s', self.id, relation_type_id)
+
+        return relations
+
+    @staticmethod
+    def populate_relations(entities, relation_type_ids):
+        relations = Relation.objects.filter(subject_entity__in=[e.id for e in entities], type__in=relation_type_ids)\
+                                    .select_related('object_entity')
+        Relation.populate_real_object_entities(relations)
+
+        # { Subject_Entity -> { RelationType ->[Relation list] } }
+        relations_map = defaultdict(lambda: defaultdict(list))
+        for relation in relations:
+            relations_map[relation.subject_entity_id][relation.type_id].append(relation)
+
+        for entity in entities:
+            for relation_type_id in relation_type_ids:
+                entity._relations_map[relation_type_id] = relations_map[entity.id][relation_type_id]
+                debug(u'Fill relations cache id=%s type=%s', entity.id, relation_type_id)
+
+    def get_custom_value(self, custom_field): #TODO: factorise with get_custom_fields() ???
+        cvalue = self._cvalues_map.get(custom_field.id)
+
+        if cvalue is None:
+            debug('CremeEntity.get_custom_value(): Cache MISS for id=%s cf_id=%s', self.id, custom_field.id)
+            self._cvalues_map[custom_field.id] = cvalue = custom_field.get_pretty_value(self.id)
+        else:
+            debug('CremeEntity.get_custom_value(): Cache HIT for id=%s cf_id=%s', self.id, custom_field.id)
+
+        return cvalue
+
+    @staticmethod
+    def populate_custom_values(entities, custom_fields):
+        cvalues_map = CustomField.get_custom_values_map(custom_fields)
+
+        for entity in entities:
+            for custom_field in custom_fields:
+                cf_id = custom_field.id
+                entity._cvalues_map[cf_id] = cvalues_map[entity.id].get(cf_id, u'')
+                debug(u'Fill custom value cache entity_id=%s cfield_id=%s', entity.id, cf_id)
 
     def get_entity_summary(self):
         return escape(unicode(self))
@@ -109,3 +172,4 @@ class CremeEntity(CremeAbstractEntity):
 
 
 from custom_field import CustomField, CustomFieldValue
+from relation import Relation

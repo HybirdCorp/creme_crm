@@ -100,6 +100,31 @@ class CustomField(CremeModel):
 
         return field
 
+    def get_pretty_value(self, entity_id):
+        """Return unicode object containing the human readable value of this custom field for an entity
+        It manages CustomField which type is ENUM.
+        """
+        #TODO: select_related() for enum ???
+        cf_values = self.get_value_class().objects.filter(custom_field=self.id, entity=entity_id)
+
+        return unicode(cf_values[0]) if cf_values else u''
+
+    @staticmethod
+    def get_custom_values_map(custom_fields):
+        """
+        @return { Entity -> { CustomField's id -> CustomValue } }
+        """
+        cfield_map = defaultdict(list)
+        for cfield in custom_fields:
+            cfield_map[cfield.field_type].append(cfield)
+
+        cvalues_map = defaultdict(lambda: defaultdict(list))
+
+        for field_type, cfields_list in cfield_map.iteritems():
+            for cvalue in _TABLES[field_type].objects.filter(custom_field__in=cfields_list): #cfields_list_ids ?????
+                cvalues_map[cvalue.entity_id][cvalue.custom_field_id] = cvalue
+
+        return cvalues_map
 
 class CustomFieldValue(CremeModel):
     custom_field = ForeignKey(CustomField)
@@ -118,20 +143,20 @@ class CustomFieldValue(CremeModel):
 
         return False
 
-    @staticmethod
-    def get_pretty_value(custom_field_id, entity_id):
-        """Return unicode object containing the human readable value of a custom field for an entity
-        It manages CustomField which type is ENUM.
-        """
-        output = u''
+    #@staticmethod
+    #def get_pretty_value(custom_field_id, entity_id):
+        #"""Return unicode object containing the human readable value of a custom field for an entity
+        #It manages CustomField which type is ENUM.
+        #"""
+        #output = u''
 
-        cf = CustomField.objects.get(pk=custom_field_id) #TODO: don't retrieve each time !!!!!
-        cf_values = cf.get_value_class().objects.filter(custom_field=custom_field_id, entity=entity_id)
+        #cf = CustomField.objects.get(pk=custom_field_id) #TODO: don't retrieve each time !!!!!
+        #cf_values = cf.get_value_class().objects.filter(custom_field=custom_field_id, entity=entity_id)
 
-        if cf_values:
-            output = unicode(cf_values[0])
+        #if cf_values:
+            #output = unicode(cf_values[0])
 
-        return output
+        #return output
 
     @classmethod
     def get_related_name(cls):

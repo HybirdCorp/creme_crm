@@ -23,7 +23,8 @@ from django.utils.encoding import force_unicode
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.contenttypes.models import ContentType
 
-from creme_core.models import CremeModel, CremeEntity
+from base import CremeModel
+from entity import CremeEntity
 
 
 class CremePropertyType(CremeModel):
