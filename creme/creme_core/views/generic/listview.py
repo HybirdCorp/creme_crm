@@ -180,6 +180,9 @@ def list_view(request, model, hf_pk='', extra_dict=None, template='creme_core/ge
     if request.GET.get('ajax', False):
         template = 'creme_core/frags/list_view_content.html'
 
+    #optimisation time !!
+    hf.populate_entities(entities.object_list)
+
     return render_to_response(template, template_dict, context_instance=RequestContext(request))
 
 @login_required
@@ -289,7 +292,8 @@ def dl_listview_as_csv(request, ct_id):
                 elif type_ == HFI_FUNCTION:
                     res = smart_str(getattr(entity, column.name)())
                 elif type_ == HFI_RELATION:
-                    res = smart_str(u'/'.join(unicode(o) for o in entity.get_list_object_of_specific_relations(column.relation_predicat_id)))
+                    #res = smart_str(u'/'.join(unicode(o) for o in entity.get_list_object_of_specific_relations(column.relation_predicat_id)))
+                    res = smart_str(u'/'.join(unicode(o) for o in entity.get_related_entities(column.relation_predicat_id, True)))
                 else:
                     assert type_ == HFI_CUSTOM
                     res = smart_str(CustomFieldValue.get_pretty_value(column.name, entity.id))
