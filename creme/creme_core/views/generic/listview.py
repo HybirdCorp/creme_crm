@@ -296,7 +296,8 @@ def dl_listview_as_csv(request, ct_id):
                     res = smart_str(u'/'.join(unicode(o) for o in entity.get_related_entities(column.relation_predicat_id, True)))
                 else:
                     assert type_ == HFI_CUSTOM
-                    res = smart_str(CustomFieldValue.get_pretty_value(column.name, entity.id))
+                    #res = smart_str(CustomFieldValue.get_pretty_value(column.name, entity.id))
+                    res = smart_str(entity.get_custom_value(column.get_customfield()))
             except Exception, e:
                 debug('Exception in CSV export: %s', e)
                 res = ''

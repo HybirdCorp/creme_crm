@@ -43,6 +43,7 @@ class CremeEntity(CremeAbstractEntity):
     def __init__(self, *args, **kwargs):
         super(CremeEntity, self).__init__(*args, **kwargs)
         self._relations_map = {}
+        self._cvalues_map = {}
 
     def delete(self):
         for relation in self.relations.all():
@@ -126,6 +127,27 @@ class CremeEntity(CremeAbstractEntity):
             for relation_type_id in relation_type_ids:
                 entity._relations_map[relation_type_id] = relations_map[entity.id][relation_type_id]
                 debug(u'Fill relations cache id=%s type=%s', entity.id, relation_type_id)
+
+    def get_custom_value(self, custom_field): #TODO: factorise with get_custom_fields() ???
+        cvalue = self._cvalues_map.get(custom_field.id)
+
+        if cvalue is None:
+            debug('CremeEntity.get_custom_value(): Cache MISS for id=%s cf_id=%s', self.id, custom_field.id)
+            self._cvalues_map[custom_field.id] = cvalue = custom_field.get_pretty_value(self.id)
+        else:
+            debug('CremeEntity.get_custom_value(): Cache HIT for id=%s cf_id=%s', self.id, custom_field.id)
+
+        return cvalue
+
+    @staticmethod
+    def populate_custom_values(entities, custom_fields):
+        cvalues_map = CustomField.get_custom_values_map(custom_fields)
+
+        for entity in entities:
+            for custom_field in custom_fields:
+                cf_id = custom_field.id
+                entity._cvalues_map[cf_id] = cvalues_map[entity.id].get(cf_id, u'')
+                debug(u'Fill custom value cache entity_id=%s cfield_id=%s', entity.id, cf_id)
 
     def get_entity_summary(self):
         return escape(unicode(self))
