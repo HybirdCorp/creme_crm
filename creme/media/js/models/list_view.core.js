@@ -93,6 +93,18 @@ if(!window.console)
                         opts[key] = value;
                     }
                 }
+                /***************** Helpers ****************************/
+                this.reload = function(is_ajax){
+                    var submit_opts = {
+                        'action': creme.utils.appendInUrl(window.location.href,'?ajax='+is_ajax || true),
+                        'success':function(data, status){
+                            self.empty().html(data);
+                        }
+                    };
+
+//                    self.list_view('handleSubmit', null, submit_opts, null);
+                    this.handleSubmit(null, submit_opts, null);
+                }
 
                 /***************** Row selection part *****************/
                 this.enableRowSelection = function(){

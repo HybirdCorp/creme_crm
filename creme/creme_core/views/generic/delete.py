@@ -34,6 +34,13 @@ from creme_core.models.entity import CremeEntity
 #TODO: ajouter le test sur l'app facon @get_view_or_die('persons') (ticket 196)
 
 @login_required
+def delete_entities_js_post(request):
+    ids = request.POST.get('ids')
+    if not ids:
+        return HttpResponse(u"Aucune entitée séléctionnée", mimetype="text/javascript", status=400)
+    return delete_entities_js(request, ids)
+
+@login_required
 def delete_entities_js(request, entities_ids):
     """
         @Permissions : Delete on object (No warning if user hasn't permissions just pass)
@@ -52,12 +59,13 @@ def delete_entities_js(request, entities_ids):
             continue
 
         try:
-            model_klass = get(pk=id).entity_type.model_class()
+#            model_klass = get(pk=id).entity_type.model_class()
+            f = get(pk=id).get_real_entity()
         except CremeEntity.DoesNotExist:
             debug("entity doesn't exist")
             continue #no need to return an error, the element won't be in the list after the refreshing
 
-        f = model_klass.objects.get(pk=id) #can't fail (pk in CremeEntity.objects)
+#        f = model_klass.objects.get(pk=id) #can't fail (pk in CremeEntity.objects)
 
         if f.is_deleted:
             debug("already marked is_deleted")

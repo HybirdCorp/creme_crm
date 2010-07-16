@@ -72,12 +72,12 @@ def _build_date_search_widget(item_ctx, search_value):
         item_ctx['values'] = {'start': search_value[0], 'end': search_value[1]}
 
 def _build_select_search_widget(item_ctx, search_value, choices):
-    selected_value = search_value[0].decode('utf-8') if search_value else None #bof bof
+    selected_value = unicode(search_value[0].decode('utf-8')) if search_value else None #bof bof
     item_ctx['type'] = 'select'
     item_ctx['values'] = [{
                             'value':    id_,
                             'text':     unicode(val),
-                            'selected': 'selected' if selected_value == val else ''
+                            'selected': 'selected' if selected_value == unicode(val) else ''
                           } for id_, val in choices
                          ]
 
