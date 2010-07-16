@@ -178,10 +178,11 @@ def get_meta_value(obj, key, default=''):
     except:
         return default
 
-#deprecated ???
-@register.filter(name="get_list_object_of_specific_relations")
-def get_list_object_of_specific_relations(object, predicate):
-    return object.get_list_object_of_specific_relations(predicate)
+@register.filter(name="get_list_object_of_specific_relations") #TODO: rename tag ?
+#def get_list_object_of_specific_relations(object, predicate):
+    #return object.get_list_object_of_specific_relations(predicate)
+def get_related_entities(entity, relation_type_id):
+    return entity.get_related_entities(relation_type_id)
 
 @register.filter(name="get_extra_field_value")
 def get_extra_field_value(object, field_name):

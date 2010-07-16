@@ -18,13 +18,14 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-import logging
+from logging import debug
 
 from django.db.models import Model, CharField, ForeignKey, BooleanField, PositiveIntegerField, PositiveSmallIntegerField
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.contenttypes.models import ContentType
 
 from relation import RelationType
+from entity import CremeEntity
 
 
 HFI_ACTIONS  = 0
@@ -62,6 +63,21 @@ class HeaderFilter(Model): #CremeModel ???
         if self._items is None:
             self.build_items()
         return self._items
+
+    #TODO: select_related() for fk attr ??
+    def populate_entities(self, entities):
+        from collections import defaultdict
+
+        hfi_groups = defaultdict(list) #useless if only relations optim.... wait & see
+
+        for hfi in self.items:
+            hfi_groups[hfi.type].append(hfi)
+
+        #print 'CUSTOMS GROUP',   hfi_groups[HFI_CUSTOM]
+
+        relations_hfi = hfi_groups[HFI_RELATION]
+        if relations_hfi:
+            CremeEntity.populate_relations(entities, [hfi.relation_predicat_id for hfi in relations_hfi])
 
 
 class HeaderFilterItem(Model):  #CremeModel ???
