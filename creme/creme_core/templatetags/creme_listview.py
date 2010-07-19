@@ -27,7 +27,7 @@ from django.utils.translation import ugettext as _
 from django.contrib.contenttypes.models import ContentType
 
 from creme_core.models.header_filter import HeaderFilter, HFI_FIELD, HFI_RELATION, HFI_FUNCTION, HFI_CUSTOM
-from creme_core.models import Filter, CustomField, CustomFieldValue
+from creme_core.models import Filter, CustomField
 from creme_core.templatetags.creme_core_tags import get_html_field_value
 
 
@@ -115,7 +115,7 @@ def get_listview_columns_header(context):
             elif hasattr(item_value, '__iter__') and len(item_value) >= 1: #TODO: "elif item_value"
                 item_dict['value'] = item_value[0]
         elif item.type == HFI_CUSTOM:
-            cf = CustomField.objects.get(pk=item.name)
+            cf = item.get_customfield()
             field_type = cf.field_type
 
             if field_type == CustomField.ENUM:
@@ -156,7 +156,6 @@ def get_html_output(hfi, entity):
             return u''.join(relations_list)
 
         if hfi_type == HFI_CUSTOM:
-            #return CustomFieldValue.get_pretty_value(hfi.name, entity.id)
             return entity.get_custom_value(hfi.get_customfield())
     except AttributeError, e:
         debug('Templatetag "hf_get_html_output": %s', e)

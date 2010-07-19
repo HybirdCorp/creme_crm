@@ -121,7 +121,7 @@ class CustomField(CremeModel):
         cvalues_map = defaultdict(lambda: defaultdict(list))
 
         for field_type, cfields_list in cfield_map.iteritems():
-            for cvalue in _TABLES[field_type].objects.filter(custom_field__in=cfields_list): #cfields_list_ids ?????
+            for cvalue in _TABLES[field_type]._get_4_cfields(cfields_list):
                 cvalues_map[cvalue.entity_id][cvalue.custom_field_id] = cvalue
 
         return cvalues_map
@@ -142,6 +142,13 @@ class CustomFieldValue(CremeModel):
             return True
 
         return False
+
+    @classmethod
+    def _get_4_cfields(cls, cfields):
+        """Retrieve all custom values for a list of custom fields with the same type.
+        Trick: overload me to optimise the query (eg: use a select_related())
+        """
+        return cls.objects.filter(custom_field__in=cfields)
 
     #@staticmethod
     #def get_pretty_value(custom_field_id, entity_id):
@@ -251,6 +258,10 @@ class CustomFieldEnum(CustomFieldValue):
 
     class Meta:
         app_label = 'creme_core'
+
+    @classmethod
+    def _get_4_cfields(cls, cfields):
+        return cls.objects.filter(custom_field__in=cfields).select_related('value')
 
     def set_value(self, value):
         value = int(value)
