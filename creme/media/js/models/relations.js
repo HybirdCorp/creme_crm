@@ -80,3 +80,21 @@ creme.relations.handleAddFromPredicateEntity = function(url, predicate_id, subje
                 }
     creme.utils.showInnerPopup(url, options);
 }
+
+creme.relations.addFromListView = function(lv_selector, url)
+{
+
+    if($(lv_selector).list_view('ensureSelection'))
+    {
+            $(lv_selector).list_view('option', 'entity_separator', ',');
+
+            url += $(lv_selector).list_view('getSelectedEntities') + ',';
+
+            creme.utils.showInnerPopup(url,
+                          {
+                              beforeClose: function(event, ui, dial) {
+                                                $(lv_selector).list_view('reload');
+                                            }
+                          });
+    }
+}

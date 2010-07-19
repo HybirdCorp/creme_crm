@@ -49,7 +49,7 @@ if(!window.console)
 
         var getters = ["countEntities", "getSelectedEntities",
                                   "getSelectedEntitiesAsArray",
-                                  "option", "serializeMe"];
+                                  "option", "serializeMe", "ensureSelection"];
 
         if (isMethodCall && $.inArray(options, getters) > -1) {
 
@@ -104,6 +104,21 @@ if(!window.console)
 
 //                    self.list_view('handleSubmit', null, submit_opts, null);
                     this.handleSubmit(null, submit_opts, null);
+                }
+
+                this.hasSelection = function()
+                {
+                    return (this.countEntities() != 0);
+                }
+
+                this.ensureSelection = function()
+                {
+                    if(!this.hasSelection())
+                    {
+                        creme.utils.showDialog(i18n.get_current_language()['SELECT_AT_LEAST_ONE_ENTITY']);
+                        return false;
+                    }
+                    return true;
                 }
 
                 /***************** Row selection part *****************/
