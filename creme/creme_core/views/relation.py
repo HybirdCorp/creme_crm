@@ -22,11 +22,11 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.contenttypes.models import ContentType
 from django.db.models.query_utils import Q
 from django.http import Http404, HttpResponse, HttpResponseRedirect
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, get_list_or_404
 from django.template.context import RequestContext
 from django.utils.simplejson.encoder import JSONEncoder
 
-from creme_core.forms.relation import RelationCreateForm
+from creme_core.forms.relation import RelationCreateForm, MultiEntitiesRelationCreateForm
 from creme_core.models import Relation, RelationType, CremeEntity
 from creme_core.registry import creme_registry
 from creme_core.entities_access.permissions import user_has_read_permission_for_an_object
@@ -248,6 +248,41 @@ def add_relations(request, subject_id):
                        context_instance=RequestContext(request))
 
 # NOTE : filter_RUD_objects <= filter allowed entities for this user 
+
+@login_required
+def add_relations_bulk(request, model_ct_id, ids):
+    POST = request.POST
+
+    model    = get_object_or_404(ContentType, pk=model_ct_id).model_class()
+    entities = get_list_or_404(model, pk__in=ids.split(','))
+
+    die_statuses = set([edit_object_or_die(request, entity) for entity in entities])
+
+    if die_statuses ^ set([None]):
+        die_status = die_statuses.pop()
+        while die_status is None and die_statuses:
+            die_status = die_statuses.pop()
+        return die_status
+
+    if POST:
+        form = MultiEntitiesRelationCreateForm(entities, request.user.id, POST)
+
+        if form.is_valid():
+            form.save()
+    else:
+        form = MultiEntitiesRelationCreateForm(subjects=entities, user_id=request.user.id)
+
+    return inner_popup(request, 'creme_core/generics/blockform/add_popup2.html',
+                       {
+                        'form':  form,
+#                        'title': u'Relations pour <%s>' % subject,
+                        'title': u'Ajout multiple de relation(s)',
+                       },
+                       is_valid=form.is_valid(),
+                       reload = False,
+                       delegate_reload = True,
+                       context_instance=RequestContext(request))
+    
 
 @login_required
 def delete(request):

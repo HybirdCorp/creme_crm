@@ -16,6 +16,7 @@ creme_core_patterns = patterns('creme_core.views',
     (r'^relation/entity/(?P<id>\d+)/predicates/json$',                                                                   'relation.json_entity_predicates'),
     (r'^relation/predicate/(?P<id>[\w-]+)/content_types/json$',                                                          'relation.json_predicate_content_types'),
     (r'^relations/reload/(?P<entity_id>\d+)/$',                                                                          'relation.reload_block'),
+    (r'^relation/add_to_entities/(?P<model_ct_id>\d+)/(?P<ids>([\d]+[,])+)$',                                            'relation.add_relations_bulk'),
 
     (r'^filter/add/(?P<ct_id>\d+)$',                           'list_view_filter.add'),
     (r'^filter/edit/(?P<ct_id>\d+)/(?P<filter_id>\d+)$',       'list_view_filter.edit'), #ct_id useful ????
