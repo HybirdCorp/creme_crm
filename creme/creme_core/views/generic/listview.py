@@ -34,41 +34,13 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.contenttypes.models import ContentType
 
 from creme_core.models import CremeEntity, Filter, ListViewState, CustomFieldValue
-from creme_core.models.header_filter import HeaderFilterItem, HeaderFilter, HFI_FIELD, HFI_RELATION, HFI_FUNCTION, HFI_CUSTOM
+from creme_core.models.header_filter import HeaderFilterList, HeaderFilterItem, HeaderFilter, HFI_FIELD, HFI_RELATION, HFI_FUNCTION, HFI_CUSTOM
 from creme_core.gui.last_viewed import change_page_for_last_item_viewed
 from creme_core.entities_access.permissions import user_has_create_permission
 from creme_core.entities_access.filter_allowed_objects import filter_RUD_objects
 from creme_core.utils.meta import get_field_infos
 from popup import inner_popup
 
-
-def _get_header_filter(request, content_type, list_view_state, fallback_header_filter_id):
-    try:
-        #Try to retrieve header filter from session
-        hf = HeaderFilter.objects.get(pk=list_view_state.header_filter_id)
-    except HeaderFilter.DoesNotExist:
-        try:
-            #Try to retrieve header filter from filter name parameter
-            hf = HeaderFilter.objects.get(pk=fallback_header_filter_id, entity_type=content_type) #'entity_type=content_type' useful ???
-        except HeaderFilter.DoesNotExist:
-            try:
-                #Try to retrieve header filter from a list of header filters for this content type
-                hf = HeaderFilter.objects.filter(entity_type=content_type)[0]
-            except IndexError:
-                return None #No one is available
-
-    #Get the posted header filter which is the most recent
-    new_hf_id = request.POST.get('hfilter')
-
-    if new_hf_id and new_hf_id != hf.id:
-        try:
-            hf = HeaderFilter.objects.get(pk=new_hf_id)
-        except HeaderFilter.DoesNotExist:
-            pass
-
-    list_view_state.header_filter_id = hf.id
-
-    return hf
 
 def _build_entity_queryset(request, model, list_view_state, extra_q):
     query = Q(is_deleted=False) | Q(is_deleted=None)
@@ -137,11 +109,16 @@ def list_view(request, model, hf_pk='', extra_dict=None, template='creme_core/ge
         _search = current_lvs._search or True
 
     ct = ContentType.objects.get_for_model(model)
+    header_filters = HeaderFilterList(ct)
+    #Try first to get the posted header filter which is the most recent.
+    #Then try to retrieve the header filter from session, then fallback
+    hf = header_filters.select_by_id(POST_get('hfilter', -1), current_lvs.header_filter_id, hf_pk)
 
-    hf = _get_header_filter(request, ct, current_lvs, hf_pk)
     if hf is None:
         from creme_core.views.header_filter import add as add_header_filter
         return add_header_filter(request, ct.id, {'help_message': u"La liste souhaitée n'a aucune vue, veuillez en créer au moins une."})
+    else:
+        current_lvs.header_filter_id = hf.id
 
     hf.build_items(show_actions)
     current_lvs.handle_research(request, hf.items)
@@ -162,7 +139,7 @@ def list_view(request, model, hf_pk='', extra_dict=None, template='creme_core/ge
     template_dict = {
         'model':              model,
         'list_title':         u"Liste des %s" % unicode(model._meta.verbose_name_plural),
-        'header_filter':      hf,
+        'header_filters':     header_filters,
         'entities':           entities,
         'list_view_state':    current_lvs,
         'content_type_id':    ct.id,
@@ -279,6 +256,7 @@ def dl_listview_as_csv(request, ct_id):
 
     writerow([smart_str(column.title) for column in columns]) #doesn't accept generator expression... ;(
 
+    #TODO: iterate on entities by chunk + uses optimisation like in list_view (HeaderFilter.populate_entities) on these chunks
     for entity in entities:
         line = []
 
@@ -292,11 +270,9 @@ def dl_listview_as_csv(request, ct_id):
                 elif type_ == HFI_FUNCTION:
                     res = smart_str(getattr(entity, column.name)())
                 elif type_ == HFI_RELATION:
-                    #res = smart_str(u'/'.join(unicode(o) for o in entity.get_list_object_of_specific_relations(column.relation_predicat_id)))
                     res = smart_str(u'/'.join(unicode(o) for o in entity.get_related_entities(column.relation_predicat_id, True)))
                 else:
                     assert type_ == HFI_CUSTOM
-                    #res = smart_str(CustomFieldValue.get_pretty_value(column.name, entity.id))
                     res = smart_str(entity.get_custom_value(column.get_customfield()))
             except Exception, e:
                 debug('Exception in CSV export: %s', e)

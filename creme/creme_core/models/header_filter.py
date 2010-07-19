@@ -37,6 +37,35 @@ HFI_FUNCTION = 3
 HFI_CUSTOM   = 4
 
 
+class HeaderFilterList(list):
+    """Contains all the HeaderFilter objects corresponding to a CremeEntity's ContentType.
+    Indeed, it's as a cache.
+    """
+    def __init__(self, content_type):
+        super(HeaderFilterList, self).__init__(HeaderFilter.objects.filter(entity_type=content_type).order_by('name'))
+        self._selected = None
+
+    @property
+    def selected(self):
+        return self._selected
+
+    def select_by_id(self, *ids):
+        """Try several HeaderFilter ids"""
+        #linear search but with few items after all....
+        for hf_id in ids:
+            for hf in self:
+                if hf.id == hf_id:
+                    self._selected = hf
+                    return hf
+
+        if self:
+            self._selected = self[0]
+        else:
+            self._selected = None
+
+        return self._selected
+
+
 class HeaderFilter(Model): #CremeModel ???
     id          = CharField(primary_key=True, max_length=100)
     name        = CharField(max_length=100, verbose_name=_('Nom de la vue'))

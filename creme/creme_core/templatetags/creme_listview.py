@@ -43,10 +43,10 @@ def get_listview_filters(context):
 
 @register.inclusion_tag('creme_core/templatetags/listview_headerfilters.html', takes_context=True)
 def get_listview_headerfilters(context):
-    hfilters = HeaderFilter.objects.filter(entity_type=context['content_type_id']).order_by('name') #TODO: retrieve in a cache...
+    hfilters = context['header_filters']
 
     context['select_values'] = [{'value': hfilter.id, 'text': hfilter.name} for hfilter in hfilters]
-    context['hfilter_id']    = context['header_filter'].id
+    context['hfilter_id']    = hfilters.selected.id
 
     return context
 
@@ -133,7 +133,6 @@ def get_listview_columns_header(context):
 
     return context
 
-#TODO: relations and custom fields should be retrieved before for all lines and put in a cache...
 @register.filter(name="hf_get_html_output")
 def get_html_output(hfi, entity):
     hfi_type = hfi.type
@@ -147,8 +146,6 @@ def get_html_output(hfi, entity):
 
         if hfi_type == HFI_RELATION:
             relations_list = ["<ul>"]
-            #relations_list.extend(u'<li><a href="%s">%s</a></li>' % (obj.get_absolute_url(), escape(obj))
-                                    #for obj in entity.get_list_object_of_specific_relations(hfi.relation_predicat_id))
             relations_list.extend(u'<li><a href="%s">%s</a></li>' % (obj.get_absolute_url(), escape(obj))
                                     for obj in entity.get_related_entities(hfi.relation_predicat_id, True))
             relations_list.append("</ul>")
