@@ -18,6 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from django.forms import CharField
 from django.forms.util import ValidationError
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.contenttypes.models import ContentType
@@ -25,7 +26,7 @@ from django.contrib.contenttypes.models import ContentType
 from creme_core.models import CremeEntity, Relation, RelationType
 from creme_core.forms import CremeForm
 from creme_core.forms.fields import RelatedEntitiesField
-from creme_core.forms.widgets import RelationListWidget
+from creme_core.forms.widgets import RelationListWidget, Label
 
 
 class RelationCreateForm(CremeForm):
@@ -87,3 +88,41 @@ class RelationCreateForm(CremeForm):
             #relation.object_content_type_id = ctype
             relation.object_entity_id = entity_id
             relation.save()
+
+
+class MultiEntitiesRelationCreateForm(RelationCreateForm):
+    entities_lbl = CharField(label=_(u"Entités associées"),  widget=Label())
+
+    def __init__(self, subjects, user_id, *args, **kwargs):
+        super(MultiEntitiesRelationCreateForm, self).__init__(subjects[0], user_id,*args, **kwargs)
+        self.subjects = subjects
+        self.user_id = user_id
+
+        if subjects:
+            fields = self.fields
+            fields['entities_lbl'].initial = ",".join([u"%s" % subject for subject in subjects])
+
+    def save(self):
+        user_id = self.user_id
+        for subject in self.subjects:
+
+            rel_man = Relation.objects
+            rel_get = rel_man.get
+            rel_filter = rel_man.filter
+
+            def create_relation(user_id, predicate_id, subject, entity_id):
+                relation = Relation()
+                relation.user_id          = user_id
+                relation.type_id          = predicate_id
+                relation.subject_entity   = subject
+                relation.object_entity_id = entity_id
+                relation.save()
+
+            for predicate_id, ctype, entity_id in self.cleaned_data.get('relations', ()):
+                try:
+                    rel_get(user__id=user_id, type__id=predicate_id, subject_entity=subject, object_entity__id=entity_id)
+                except Relation.MultipleObjectsReturned:
+                    rel_filter(user__id=user_id, type__id=predicate_id, subject_entity=subject, object_entity__id=entity_id).delete()
+                    create_relation(user_id, predicate_id, subject, entity_id)
+                except Relation.DoesNotExist:
+                    create_relation(user_id, predicate_id, subject, entity_id)
