@@ -146,10 +146,11 @@ class CremeEntity(CremeAbstractEntity):
         cvalues_map = CustomField.get_custom_values_map(custom_fields)
 
         for entity in entities:
+            entity_id = entity.id
             for custom_field in custom_fields:
                 cf_id = custom_field.id
-                entity._cvalues_map[cf_id] = cvalues_map[entity.id].get(cf_id, u'')
-                debug(u'Fill custom value cache entity_id=%s cfield_id=%s', entity.id, cf_id)
+                entity._cvalues_map[cf_id] = cvalues_map[entity_id].get(cf_id, u'')
+                debug(u'Fill custom value cache entity_id=%s cfield_id=%s', entity_id, cf_id)
 
     def get_entity_summary(self):
         return escape(unicode(self))
