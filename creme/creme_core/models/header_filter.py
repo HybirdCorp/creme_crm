@@ -95,9 +95,30 @@ class HeaderFilter(Model): #CremeModel ???
             self.build_items()
         return self._items
 
-    #TODO: select_related() for fk attr ??
+    def improve_queryset(self, entities_qs):
+        """Add a select_related() call to the queryset in order to improve the
+        queries of a listview that uses this HeaderFilter.
+        """
+        assert entities_qs._result_cache is None #ensure optimisation of global optimisation level
+
+        fnames = [hfi.name for hfi in self.items if hfi.type == HFI_FIELD]
+
+        if fnames:
+            get_field = entities_qs.model._meta.get_field_by_name
+            fk_list   = [fname for fname in fnames if isinstance(get_field(fname)[0], ForeignKey)]
+
+            if fk_list:
+                debug("HeaderFilter.improve_queryset(): select_related() on %s", fk_list)
+                entities_qs = entities_qs.select_related(*fk_list) #queryset has not been retrieved yet
+
+        return entities_qs
+
     def populate_entities(self, entities):
-        hfi_groups = defaultdict(list) #useless if only relations optim.... wait & see
+        """Fill caches of CremeEntity objects, related to the columns that will
+        be displayed with this HeaderFilter.
+        @param entities QuerySet on CremeEntity (or subclass).
+        """
+        hfi_groups = defaultdict(list)
 
         for hfi in self.items:
             hfi_groups[hfi.type].append(hfi)
