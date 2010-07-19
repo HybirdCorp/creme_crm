@@ -1,6 +1,6 @@
 <fieldset title="Afficher uniquement les colonnes désirées">
     <legend> Vues </legend>
-    <select name="hfilter" id="liste_hfilter" onchange="submitHandler(this);">
+    <select name="hfilter" id="liste_hfilter" onchange="$(this.form).list_view('getSubmit')(this);">
         {% for filter in select_values %}
             <option value="{{filter.value}}" {% ifequal hfilter_id filter.value %} selected {% endifequal %}>
                 {{filter.text}}

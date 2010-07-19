@@ -1,6 +1,6 @@
 <fieldset title="Filtrer les lignes de la table">
     <legend> Filtrer </legend>
-    <select name="filter" id="list_filter" onchange="submitHandler(this);">
+    <select name="filter" id="list_filter" onchange="$(this.form).list_view('getSubmit')(this);">
         <option value="">Tout</option>
         {% for filter in select_values %}
             <option value="{{filter.value}}" {% ifequal filter_id filter.value %}selected{% endifequal %}>

@@ -44,15 +44,18 @@ if(!window.console)
             afterSubmit       : null,
             o2m               : false,
             entity_separator  : ',',
-            serializer : 'input[name!=][type!="submit"], select[name!=]'
+            serializer : 'input[name!=][type!="submit"], select[name!=]',
+            submitHandler     : null,//Use handleSubmit in it to easy list view's management
+            kd_submitHandler  : null//Same as submitHandler but for key down events
         };
 
-        var getters = ["countEntities", "getSelectedEntities",
-                                  "getSelectedEntitiesAsArray",
-                                  "option", "serializeMe"];
+        var publicMethods = ["countEntities", "getSelectedEntities",
+                             "getSelectedEntitiesAsArray",
+                             "option", "serializeMe", "ensureSelection",
+                             "getSubmit", "getKdSubmit", 
+                             "setSubmit", "setKdSubmit"];
 
-        if (isMethodCall && $.inArray(options, getters) > -1) {
-
+        if (isMethodCall && $.inArray(options, publicMethods) > -1) {
                 var instance = $.data(this[0], 'list_view');
                 return (instance ? instance[options].apply(instance, args)
                         : undefined);
@@ -66,11 +69,26 @@ if(!window.console)
                 var opts = $.extend($.fn.list_view.defaults, options);
                 var selected_ids = [];
                 var self = $(this);
+                var me = this;
 
                 $.data(this, 'list_view', this);
 
-                opts.beforeSubmit = ($.isFunction(opts.beforeSubmit)) ? opts.beforeSubmit : false;
-                opts.afterSubmit = ($.isFunction(opts.afterSubmit)) ? opts.afterSubmit : false;
+                me.beforeSubmit     = ($.isFunction(opts.beforeSubmit))     ? opts.beforeSubmit     : false;
+                me.afterSubmit      = ($.isFunction(opts.afterSubmit))      ? opts.afterSubmit      : false;
+                me.submitHandler    = ($.isFunction(opts.submitHandler))    ? opts.submitHandler    : false;
+                me.kd_submitHandler = ($.isFunction(opts.kd_submitHandler)) ? opts.kd_submitHandler : false;
+
+                /*me.user_page          = opts.user_page;
+                me.selected_rows      = opts.selected_rows;
+                me.selectable_class   = opts.selectable_class;
+                me.selected_class     = opts.selected_class;
+                me.id_container       = opts.id_container;
+                me.checkbox_selector  = opts.checkbox_selector;
+                me.all_boxes_selector = opts.all_boxes_selector;
+                me.o2m                = opts.o2m;
+                me.entity_separator   = opts.entity_separator;
+                me.serializer         = opts.serializer;*/
+
                 
                 /***************** Getters & Setters *****************/
                 this.getSelectedEntities = function(){
@@ -93,6 +111,29 @@ if(!window.console)
                         opts[key] = value;
                     }
                 }
+
+                this.setSubmit = function(fn)
+                {
+                    if($.isFunction(fn)) me.submitHandler = fn;
+                }
+
+                this.setKdSubmit = function(fn)
+                {
+                    if($.isFunction(fn)) me.kd_submitHandler = fn;
+                }
+
+                this.getSubmit = function()
+                {
+                    if(me.submitHandler) return me.submitHandler;
+                    return function(){};//Null handler
+                }
+
+                this.getKdSubmit = function()
+                {
+                    if(me.kd_submitHandler) return me.kd_submitHandler;
+                    return function(){};//Null handler
+                }
+
                 /***************** Helpers ****************************/
                 this.reload = function(is_ajax){
                     var submit_opts = {
@@ -104,6 +145,21 @@ if(!window.console)
 
 //                    self.list_view('handleSubmit', null, submit_opts, null);
                     this.handleSubmit(null, submit_opts, null);
+                }
+
+                this.hasSelection = function()
+                {
+                    return (this.countEntities() != 0);
+                }
+
+                this.ensureSelection = function()
+                {
+                    if(!this.hasSelection())
+                    {
+                        creme.utils.showDialog(i18n.get_current_language()['SELECT_AT_LEAST_ONE_ENTITY']);
+                        return false;
+                    }
+                    return true;
                 }
 
                 /***************** Row selection part *****************/
