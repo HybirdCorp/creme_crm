@@ -275,7 +275,6 @@ def add_relations_bulk(request, model_ct_id, ids):
     return inner_popup(request, 'creme_core/generics/blockform/add_popup2.html',
                        {
                         'form':  form,
-#                        'title': u'Relations pour <%s>' % subject,
                         'title': u'Ajout multiple de relation(s)',
                        },
                        is_valid=form.is_valid(),
