@@ -9,7 +9,7 @@ from relation import RelationType, RelationPredicate_i18n, Relation
 from creme_property import CremePropertyType, CremePropertyText_i18n, CremeProperty
 from custom_field import *
 
-from header_filter import HeaderFilterItem, HeaderFilter
+from header_filter import HeaderFilterItem, HeaderFilter, HeaderFilterList
 from list_view_filter import Filter, FilterCondition, FilterType, FilterValue, ConditionChildType
 from list_view_state import ListViewState
 

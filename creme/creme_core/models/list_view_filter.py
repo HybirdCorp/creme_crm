@@ -24,6 +24,7 @@ from django.db.models import Model, CharField, BooleanField, ForeignKey, ManyToM
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import Q
 
+#TODO: a FilterList class like the HeaderFilterList ???
 
 class ConditionChildType(Model):
     type = CharField(max_length=100)

@@ -1,7 +1,7 @@
 {% load creme_core_tags %}
 {% load creme_listview %}
 
-{% with header_filter.items as columns %}
+{% with header_filters.selected.items as columns %}
 
 {% if o2m %}
     {% templatize "{{columns|length}}" as colspan %}
