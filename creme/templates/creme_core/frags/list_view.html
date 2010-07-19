@@ -1,24 +1,31 @@
 <script type="text/javascript" src="{{MEDIA_URL}}js/models/list_view.core.js"></script>
 <script type="text/javascript" src="{{MEDIA_URL}}js/jquery/extensions/jquery.magnifier.js"></script>
 <script type="text/javascript">
-    function kd_submitHandler(e, input){
-         e = (window.event)?window.event:e;
-
-        var key=(window.event)?e.keyCode:e.which;
-
-        var target = (window.event)?e.srcElement:e.target;
-
-        if (key == 13){
-            submitHandler(input);
-        }
-        return true;
-    }
-
     $(document).ready(function (){
-        $('form[name="list_view_form"]').list_view({o2m: {{o2m|lower}} });
+        $('form[name="list_view_form"]').list_view({
+            o2m: {{o2m|lower}},
+            kd_submitHandler : function (e, input){
+                 e = (window.event)?window.event:e;
+
+                var key=(window.event)?e.keyCode:e.which;
+
+                if (key == 13){
+                    $(input.form).list_view('getSubmit')(input);
+                }
+                return true;
+            },
+            submitHandler : function (input){
+                var options = {
+                    'action': '?ajax=true',
+                    'success':function(data, status){
+                        $(input.form).empty().html(data);
+                    }
+                };
+                $(input.form).list_view('handleSubmit', input.form, options, input);
+            }
+        });
         $('.magnify').imageMagnifier();
     });
-
 </script>
 {% block extrahead %}{% endblock %}
 <form action="" method="POST" name="list_view_form">
