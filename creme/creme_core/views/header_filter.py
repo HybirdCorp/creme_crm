@@ -20,7 +20,7 @@
 
 #from logging import debug
 
-from django.contrib.contenttypes.models import ContentType
+from django.core import serializers
 from django.http import HttpResponse, HttpResponseRedirect
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404, render_to_response
@@ -28,7 +28,7 @@ from django.template.context import RequestContext
 
 from creme_core.forms.header_filter import HeaderFilterForm
 from creme_core.views.generic import add_entity
-from creme_core.models.header_filter import HeaderFilter
+from creme_core.models.header_filter import HeaderFilter, HeaderFilterList
 from creme_core.entities_access.functions_for_permissions import delete_object_or_die
 from creme_core.utils import get_ct_or_404
 
@@ -93,3 +93,19 @@ def delete(request, header_filter_id, js=0):
         return HttpResponse(return_msg, mimetype="text/javascript", status=status)
 
     return HttpResponseRedirect(callback_url)
+
+
+@login_required
+def get_hfs_4_ct(request, content_type_id):
+    """
+        @Returns header filters' json list
+    """
+    ct = get_ct_or_404(content_type_id)
+    hfl = HeaderFilterList(ct)
+    fields = request.GET.getlist('fields') or ('name', )
+    
+    data = serializers.serialize('json', hfl, fields=fields)
+    return HttpResponse(data, mimetype="text/javascript")
+    
+
+    
