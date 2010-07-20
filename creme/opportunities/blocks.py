@@ -21,7 +21,7 @@
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.contenttypes.models import ContentType
 
-from creme_core.gui.block import Block
+from creme_core.gui.block import QuerysetBlock
 
 from persons.models import Contact
 
@@ -36,8 +36,8 @@ from constants import (REL_OBJ_LINKED_CONTACT,
 
 _contact_ct_id = None
 
-class LinkedContactsBlock(Block):
-    id_           = Block.generate_id('opportunities', 'linked_contacts')
+class LinkedContactsBlock(QuerysetBlock):
+    id_           = QuerysetBlock.generate_id('opportunities', 'linked_contacts')
     verbose_name  = _(u'Contact liés')
     template_name = 'opportunities/templatetags/block_contacts.html'
 
@@ -55,8 +55,8 @@ class LinkedContactsBlock(Block):
                                                             ct_id=_contact_ct_id))
 
 
-class LinkedProductsBlock(Block):
-    id_           = Block.generate_id('opportunities', 'linked_products')
+class LinkedProductsBlock(QuerysetBlock):
+    id_           = QuerysetBlock.generate_id('opportunities', 'linked_products')
     verbose_name  = _(u'Produits liés')
     template_name = 'opportunities/templatetags/block_products.html'
 
@@ -77,8 +77,8 @@ class LinkedProductsBlock(Block):
                                                             ct_id=self._product_ct_id))
 
 
-class LinkedServicesBlock(Block):
-    id_           = Block.generate_id('opportunities', 'linked_services')
+class LinkedServicesBlock(QuerysetBlock):
+    id_           = QuerysetBlock.generate_id('opportunities', 'linked_services')
     verbose_name  = _(u'Services liés')
     template_name = 'opportunities/templatetags/block_services.html'
 
@@ -99,8 +99,8 @@ class LinkedServicesBlock(Block):
                                                             ct_id=self._service_ct_id))
 
 
-class ResponsiblesBlock(Block):
-    id_           = Block.generate_id('opportunities', 'responsibles')
+class ResponsiblesBlock(QuerysetBlock):
+    id_           = QuerysetBlock.generate_id('opportunities', 'responsibles')
     verbose_name  = _(u'Responsables')
     template_name = 'opportunities/templatetags/block_responsibles.html'
 
@@ -119,8 +119,8 @@ class ResponsiblesBlock(Block):
                                                             ct_id=_contact_ct_id))
 
 
-class QuotesBlock(Block):
-    id_           = Block.generate_id('opportunities', 'quotes')
+class QuotesBlock(QuerysetBlock):
+    id_           = QuerysetBlock.generate_id('opportunities', 'quotes')
     verbose_name  = _(u'Devis')
     template_name = 'opportunities/templatetags/block_quotes.html'
 
@@ -143,8 +143,8 @@ class QuotesBlock(Block):
                                                             current_quote_id=opp.get_current_quote_id()))
 
 
-class SalesOrdersBlock(Block):
-    id_           = Block.generate_id('opportunities', 'sales_orders')
+class SalesOrdersBlock(QuerysetBlock):
+    id_           = QuerysetBlock.generate_id('opportunities', 'sales_orders')
     verbose_name  = _(u'Bons de commande')
     template_name = 'opportunities/templatetags/block_sales_orders.html'
 
@@ -167,8 +167,8 @@ class SalesOrdersBlock(Block):
         return self._render(block_context)
 
 
-class InvoicesBlock(Block):
-    id_           = Block.generate_id('opportunities', 'invoices')
+class InvoicesBlock(QuerysetBlock):
+    id_           = QuerysetBlock.generate_id('opportunities', 'invoices')
     verbose_name  = _(u'Factures')
     template_name = 'opportunities/templatetags/block_invoices.html'
 
@@ -190,8 +190,8 @@ class InvoicesBlock(Block):
                                                             ct_id=self._invoice_ct_id))
 
 
-class LinkedProductLinesBlock(Block):
-    id_           = Block.generate_id('opportunities', 'linked_line_product_lines')
+class LinkedProductLinesBlock(QuerysetBlock):
+    id_           = QuerysetBlock.generate_id('opportunities', 'linked_line_product_lines')
     verbose_name  = _(u'Produits liés')
     template_name = 'billing/templatetags/block_product_line.html'
 
@@ -204,8 +204,8 @@ class LinkedProductLinesBlock(Block):
                                                             update_url='/opportunities/%s/product_lines/reload/' % pk))
 
 
-class LinkedServiceLinesBlock(Block):
-    id_           = Block.generate_id('opportunities', 'linked_service_lines')
+class LinkedServiceLinesBlock(QuerysetBlock):
+    id_           = QuerysetBlock.generate_id('opportunities', 'linked_service_lines')
     verbose_name  = _(u'Services liés')
     template_name = 'billing/templatetags/block_service_line.html'
 

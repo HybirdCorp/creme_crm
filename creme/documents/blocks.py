@@ -21,14 +21,14 @@
 from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import ugettext_lazy as _
 
-from creme_core.gui.block import Block
+from creme_core.gui.block import QuerysetBlock
 
 from models import Document
 from constants import REL_SUB_RELATED_2_DOC
 
 
-class LinkedDocsBlock(Block):
-    id_           = Block.generate_id('documents', 'linked_docs')
+class LinkedDocsBlock(QuerysetBlock):
+    id_           = QuerysetBlock.generate_id('documents', 'linked_docs')
     verbose_name  = _(u'Documents liés')
     template_name = 'documents/templatetags/block_linked_docs.html'
 

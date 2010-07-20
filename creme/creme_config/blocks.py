@@ -25,7 +25,7 @@ from django.contrib.contenttypes.models import ContentType
 from creme_core.models import (CremePropertyType, RelationType, CustomField,
                                BlockConfigItem, ButtonMenuItem,
                                CremeAppDroit, CremeDroitEntityType, SearchConfigItem)
-from creme_core.gui.block import Block
+from creme_core.gui.block import QuerysetBlock
 
 from creme_config.registry import config_registry
 
@@ -39,8 +39,8 @@ __all__ = ('generic_models_block', 'property_types_block', 'relation_types_block
 _PAGE_SIZE = 12
 
 
-class GenericModelsBlock(Block):
-    id_           = Block.generate_id('creme_config', 'model_config')
+class GenericModelsBlock(QuerysetBlock):
+    id_           = QuerysetBlock.generate_id('creme_config', 'model_config')
     order_by      = 'id'
     page_size     = _PAGE_SIZE
     verbose_name  = _(u'Configuration de modèle')
@@ -69,8 +69,8 @@ class GenericModelsBlock(Block):
         return super(GenericModelsBlock, self).detailview_ajax(request, model=model, model_name=model_name_in_url, app_name=app_name)
 
 
-class PropertyTypesBlock(Block):
-    id_           = Block.generate_id('creme_config', 'property_type')
+class PropertyTypesBlock(QuerysetBlock):
+    id_           = QuerysetBlock.generate_id('creme_config', 'property_type')
     order_by      = 'text'
     page_size     = _PAGE_SIZE
     verbose_name  = _(u'Configuration des types de propriété')
@@ -81,8 +81,8 @@ class PropertyTypesBlock(Block):
                                                             update_url='/creme_config/property_types/reload/'))
 
 
-class RelationTypesBlock(Block):
-    id_           = Block.generate_id('creme_config', 'relation_type')
+class RelationTypesBlock(QuerysetBlock):
+    id_           = QuerysetBlock.generate_id('creme_config', 'relation_type')
     page_size     = _PAGE_SIZE
     verbose_name  = _(u'Configuration des types de relation')
     template_name = 'creme_config/templatetags/block_relation_types.html'
@@ -92,8 +92,8 @@ class RelationTypesBlock(Block):
                                                             update_url='/creme_config/relation_types/reload/'))
 
 
-class CustomFieldsPortalBlock(Block):
-    id_           = Block.generate_id('creme_config', 'custom_fields_portal')
+class CustomFieldsPortalBlock(QuerysetBlock):
+    id_           = QuerysetBlock.generate_id('creme_config', 'custom_fields_portal')
     page_size     = _PAGE_SIZE
     verbose_name  = _(u'Configuration générale des champs personnalisés')
     template_name = 'creme_config/templatetags/block_custom_fields_portal.html'
@@ -105,8 +105,8 @@ class CustomFieldsPortalBlock(Block):
                                                             update_url='/creme_config/custom_fields/portal/reload/'))
 
 
-class CustomFieldsBlock(Block):
-    id_           = Block.generate_id('creme_config', 'custom_fields')
+class CustomFieldsBlock(QuerysetBlock):
+    id_           = QuerysetBlock.generate_id('creme_config', 'custom_fields')
     page_size     = _PAGE_SIZE
     verbose_name  = _(u'Configuration des champs personnalisés')
     template_name = 'creme_config/templatetags/block_custom_fields.html'
@@ -124,8 +124,8 @@ class CustomFieldsBlock(Block):
         return super(CustomFieldsBlock, self).detailview_ajax(request, content_type=ct)
 
 
-class UsersBlock(Block):
-    id_           = Block.generate_id('creme_config', 'user')
+class UsersBlock(QuerysetBlock):
+    id_           = QuerysetBlock.generate_id('creme_config', 'user')
     order_by      = 'username'
     page_size     = _PAGE_SIZE
     verbose_name  = _(u'Configuration des utilisateurs')
@@ -136,8 +136,8 @@ class UsersBlock(Block):
                                                             update_url='/creme_config/users/reload/'))
 
 
-class BlocksConfigBlock(Block):
-    id_           = Block.generate_id('creme_config', 'blocksconfig')
+class BlocksConfigBlock(QuerysetBlock):
+    id_           = QuerysetBlock.generate_id('creme_config', 'blocksconfig')
     page_size     = _PAGE_SIZE - 1 #'-1' because there is always the line for default config on each page
     verbose_name  = _(u'Configuration des blocs')
     template_name = 'creme_config/templatetags/block_blocksconfig.html'
@@ -149,8 +149,8 @@ class BlocksConfigBlock(Block):
                                                             update_url='/creme_config/blocks/reload/'))
 
 
-class ButtonMenuBlock(Block):
-    id_           = Block.generate_id('creme_config', 'button_menu')
+class ButtonMenuBlock(QuerysetBlock):
+    id_           = QuerysetBlock.generate_id('creme_config', 'button_menu')
     page_size     = _PAGE_SIZE - 1 #'-1' because there is always the line for default config on each page
     verbose_name  = _(u'Configuration du menu bouton')
     template_name = 'creme_config/templatetags/block_button_menu.html'
@@ -162,8 +162,8 @@ class ButtonMenuBlock(Block):
                                                             update_url='/creme_config/button_menu/reload/'))
 
 
-class AppCredentialsBlock(Block):
-    id_           = Block.generate_id('creme_config', 'app_credentials')
+class AppCredentialsBlock(QuerysetBlock):
+    id_           = QuerysetBlock.generate_id('creme_config', 'app_credentials')
     order_by      = 'name_app'
     page_size     = _PAGE_SIZE
     verbose_name  = _(u'Configuration des droits des applications')
@@ -174,8 +174,8 @@ class AppCredentialsBlock(Block):
                                                             update_url='/creme_config/roles/app_credentials/reload/'))
 
 
-class EntityCredentialsBlock(Block):
-    id_           = Block.generate_id('creme_config', 'entity_credentials')
+class EntityCredentialsBlock(QuerysetBlock):
+    id_           = QuerysetBlock.generate_id('creme_config', 'entity_credentials')
     order_by      = 'content_type'
     page_size     = _PAGE_SIZE
     verbose_name  = _(u'Configuration des droits des entités')
@@ -185,8 +185,8 @@ class EntityCredentialsBlock(Block):
         return self._render(self.get_block_template_context(context, CremeDroitEntityType.objects.all(),
                                                             update_url='/creme_config/roles/entity_credentials/reload/'))
 
-class SearchConfigBlock(Block):
-    id_           = Block.generate_id('creme_config', 'searchconfig')
+class SearchConfigBlock(QuerysetBlock):
+    id_           = QuerysetBlock.generate_id('creme_config', 'searchconfig')
     page_size     = _PAGE_SIZE
     verbose_name  = _(u'Configuration de la recherche')
     template_name = 'creme_config/templatetags/block_searchconfig.html'
@@ -195,7 +195,7 @@ class SearchConfigBlock(Block):
     def detailview_display(self, context):
         search_items = SearchConfigItem.objects.all()
         scb = self.get_block_template_context(context, search_items,
-                                                            update_url='/creme_config/search/reload/')
+                                              update_url='/creme_config/search/reload/')
 
         #NB: DB optimisation
         SearchConfigItem.populate_searchfields(scb['page'].object_list)

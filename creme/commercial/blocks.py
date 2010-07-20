@@ -20,13 +20,13 @@
 
 from django.utils.translation import ugettext_lazy as _
 
-from creme_core.gui.block import Block, list4url
+from creme_core.gui.block import QuerysetBlock, list4url
 
 from commercial.models import CommercialApproach
 
 
-class ApproachesBlock(Block):
-    id_           = Block.generate_id('commercial', 'approaches')
+class ApproachesBlock(QuerysetBlock):
+    id_           = QuerysetBlock.generate_id('commercial', 'approaches')
     order_by      = 'title'
     verbose_name  = _(u'Démarches commerciales')
     template_name = 'commercial/templatetags/block_approaches.html'
