@@ -25,6 +25,7 @@ creme_core_patterns = patterns('creme_core.views',
     (r'^filter/register/(?P<filter_id>\d*)/(?P<ct_id>\d+)$',   'list_view_filter.register_in_session'),
     (r'^filter/get_session_filter_id/(?P<ct_id>\d+)$',         'list_view_filter.get_session_filter_id'),
     (r'^filter/select_entity_popup/(?P<content_type_id>\d+)$', 'list_view_filter.get_list_view_popup_from_ct'),
+    (r'^filter/get_4_ct/(?P<content_type_id>\d+)$',            'list_view_filter.get_filters_4_ct'),
 
     (r'^edit_js$', 'ajax.edit_js'),
 
@@ -40,6 +41,7 @@ creme_core_patterns = patterns('creme_core.views',
     (r'^header_filter/add/(?P<content_type_id>\d+)$',                      'header_filter.add'),
     (r'^header_filter/delete/(?P<header_filter_id>[\w-]+)/(?P<js>[\d]?)$', 'header_filter.delete'),
     (r'^header_filter/edit/(?P<header_filter_id>[\w-]+)$',                 'header_filter.edit'),
+    (r'^header_filter/get_4_ct/(?P<content_type_id>\d+)$',                 'header_filter.get_hfs_4_ct'),
 
     #Entities representations
     (r'^entity/get_repr/$',                         'entity.get_entity_repr'),

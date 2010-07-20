@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+from django.core import serializers
 from django.db.models.query_utils import Q
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render_to_response
@@ -10,6 +11,7 @@ from django.contrib.contenttypes.models import ContentType
 from creme_core.models import Filter
 from creme_core.forms.list_view_filter import ListViewFilterForm
 from creme_core.entities_access.functions_for_permissions import add_view_or_die, edit_object_or_die, delete_object_or_die
+from creme_core.utils import get_ct_or_404
 from creme_core.views.generic import list_view_popup, list_view_popup_from_widget
 
 
@@ -158,3 +160,16 @@ def edit(request, ct_id, filter_id):
                                'properties_conditions': prop_conditions
                               },
                               context_instance=RequestContext(request))
+
+
+@login_required
+def get_filters_4_ct(request, content_type_id):
+    """
+        @Returns filters' json list
+    """
+    ct = get_ct_or_404(content_type_id)
+    filters = Filter.objects.filter(model_ct=ct)
+    fields = request.GET.getlist('fields') or ('name', )
+
+    data = serializers.serialize('json', filters, fields=fields)
+    return HttpResponse(data, mimetype="text/javascript")
