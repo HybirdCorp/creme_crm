@@ -258,7 +258,7 @@ def add_relations_bulk(request, model_ct_id, ids):
 
     die_statuses = set([edit_object_or_die(request, entity) for entity in entities])
 
-    if die_statuses ^ set([None]):
+    if die_statuses - set([None]):
         die_status = die_statuses.pop()
         while die_status is None and die_statuses:
             die_status = die_statuses.pop()
