@@ -20,13 +20,13 @@
 
 from django.utils.translation import ugettext_lazy as _
 
-from creme_core.gui.block import Block, list4url
+from creme_core.gui.block import QuerysetBlock, list4url
 
 from assistants.models import Action, Alert, Memo, ToDo
 
 
-class TodosBlock(Block):
-    id_           = Block.generate_id('assistants', 'todos')
+class TodosBlock(QuerysetBlock):
+    id_           = QuerysetBlock.generate_id('assistants', 'todos')
     order_by      = '-creation_date'
     verbose_name  = _(u'Todos')
     template_name = 'assistants/block_todos.html'
@@ -45,8 +45,8 @@ class TodosBlock(Block):
                                                             update_url='/assistants/todos/reload/home/'))
 
 
-class MemosBlock(Block):
-    id_           = Block.generate_id('assistants', 'memos')
+class MemosBlock(QuerysetBlock):
+    id_           = QuerysetBlock.generate_id('assistants', 'memos')
     order_by      = '-creation_date'
     verbose_name  = _(u'Mémos')
     template_name = 'assistants/block_memos.html'
@@ -65,8 +65,8 @@ class MemosBlock(Block):
                                                             update_url='/assistants/memos/reload/home/'))
 
 
-class AlertsBlock(Block):
-    id_           = Block.generate_id('assistants', 'alerts')
+class AlertsBlock(QuerysetBlock):
+    id_           = QuerysetBlock.generate_id('assistants', 'alerts')
     order_by      = '-trigger_date'
     verbose_name  = _(u'Alertes')
     template_name = 'assistants/block_alerts.html'
@@ -84,8 +84,8 @@ class AlertsBlock(Block):
         return self._render(self.get_block_template_context(context, Alert.get_alerts(),
                                                             update_url='/assistants/alerts/reload/home/'))
 
-class ActionsITBlock(Block):
-    id_           = Block.generate_id('assistants', 'actions_it')
+class ActionsITBlock(QuerysetBlock):
+    id_           = QuerysetBlock.generate_id('assistants', 'actions_it')
     order_by      = 'deadline'
     verbose_name  = _(u'Actions dans les délais')
     template_name = 'assistants/block_actions_it.html'
@@ -104,8 +104,8 @@ class ActionsITBlock(Block):
                                                             update_url='/assistants/actions/reload/home/'))
 
 
-class ActionsNITBlock(Block):
-    id_           = Block.generate_id('assistants', 'actions_nit')
+class ActionsNITBlock(QuerysetBlock):
+    id_           = QuerysetBlock.generate_id('assistants', 'actions_nit')
     order_by      = 'deadline'
     verbose_name  = _(u'Réactions hors délais')
     template_name = 'assistants/block_actions_nit.html'

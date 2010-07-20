@@ -41,34 +41,12 @@ def str2list(string):
     return [int(i) for i in string.split(',') if i.isdigit()]
 
 
-class _BlockContext(object):
-    __slots__ = ('page', '_order_by')
-
-    def __init__(self):
-        self.page = 1
-        self._order_by = ''
-
+class _BlockContext(object): #TODO: rename to Context ?? (so Context-> TemplateContext)
     def __repr__(self):
-        return '<BlockContext: page=%s>' % self.page
+        return '<BlockContext>'
 
-    def get_order_by(self, order_by):
-        _order_by = self._order_by
-
-        if _order_by:
-            return _order_by
-
-        return order_by
-
-    def set_attrs(self, page, order_by, modified):
-        if self.page != page:
-            modified = True
-            self.page = page
-
-        if self._order_by != order_by:
-            modified = True
-            self._order_by = order_by
-
-        return modified
+    def update(self, modified, template_context):
+        return False
 
 
 class Block(object):
@@ -77,9 +55,9 @@ class Block(object):
     but they can be optionnally be displayed on portals (related to an app's
     content types) and on the homepage (related to all the apps).
 
-    It's represented by a table, paginated, that can be ordered by one of its
-    column. Reloading after a change (page, order) can be made with ajax if
-    the correct view is set : for this, each block has a unique id in a page.
+    Reloading after a change (deleting, adding, updating, etc...) in the block
+    can be done with ajax if the correct view is set : for this, each block has
+    a unique id in a page.
 
     Optionnal methods (both must exist/not exist in the same time):
     def portal_display(self, context, ct_ids):
@@ -88,22 +66,29 @@ class Block(object):
     def home_display(self, context):
         return 'VOID BLOCK FOR HOME: %s' % self.verbose_name
     """
-    id_ = None       #overload with an unicode object ; use generate_id()
-    order_by = ''         #default order_by value ; '' means no order_by
-    page_size = settings.BLOCK_SIZE  #number of items in the page
-    verbose_name = 'BLOCK'    #used in the user configuration (see BlockConfigItem)
+    id_           = None               #overload with an unicode object ; use generate_id()
+    verbose_name  = 'BLOCK'            #used in the user configuration (see BlockConfigItem)
     template_name = 'OVERLOAD_ME.html' #used to render the block of course
-
-    def __init__(self):
-        self._template = None
+    context_class = _BlockContext      #store the context in the session.
 
     @staticmethod
     def generate_id(app_name, name): #### _generate_id ????
         return u'block_%s-%s' % (app_name, name)
 
+    def __init__(self):
+        self._template = None
+
+    def _render(self, dictionary):
+        if settings.DEBUG:
+            self._template = get_template(self.template_name)
+        else: #use a cache when debug is False
+            self._template = self._template or get_template(self.template_name)
+
+        return self._template.render(Context(dictionary))
+
     def detailview_display(self, context):
         """Overload this method to display a specific block (like Todo etc...) """
-        return u'VOID BLOCK FOR DETAILVIEW: %s, %s' % ( self.id_, self.verbose_name )
+        return u'VOID BLOCK FOR DETAILVIEW: %s, %s' % (self.id_, self.verbose_name)
 
     def detailview_ajax(self, request, entity_id=None, **kwargs):
         context = {'request': request}
@@ -126,7 +111,21 @@ class Block(object):
         rendered = [(self.id_, self.portal_display({'request': request}, ct_ids))]
         return HttpResponse(JSONEncoder().encode(rendered), mimetype="text/javascript")
 
-    def _get_context(self, request, base_url, block_name):
+    def __get_context(self, request, base_url, block_name):
+        """Retrieve block's context stored in the session.
+        In the session (request.session), blocks are stored like this (with "blockcontexts_manager" as key):
+            {
+                'base_url_for_element_1': {
+                    'id_for_block01': _BlockContext<>,
+                    'id_for_block02': _BlockContext<>,
+                    ...
+                },
+                'base_url_for_element_2': {...},
+                ...
+            }
+        Base url are opposite to ajax_url.
+        Eg: '/tickets/ticke/21' for base url, ajas url couild be '/creme_core/todo/reload/21/'.
+        """
         modified = False
         session = request.session
 
@@ -143,80 +142,148 @@ class Block(object):
         blockcontext = page_blockcontexts.get(block_name)
         if blockcontext is None:
             modified = True
-            page_blockcontexts[block_name] = blockcontext = _BlockContext()
+            page_blockcontexts[block_name] = blockcontext = self.context_class()
 
         return blockcontext, modified
 
-    def _render(self, dictionary):
-        self._template = self._template or get_template(self.template_name)
-        return self._template.render(Context(dictionary))
+    def _build_template_context(self, context, block_name, block_context, **extra_kwargs):
+        template_context = {
+                'block_name': block_name,
+                'object':     context.get('object'), #optionnal: only on detailview
+                'MEDIA_URL':  settings.MEDIA_URL,
+               }
+        template_context.update(extra_kwargs)
 
-    def get_block_template_context(self, context, queryset, update_url='', **extra_kwargs):
+        return template_context
+
+    def get_block_template_context(self, context, update_url='', **extra_kwargs):
         """ Build the block template context.
-        In the session (request.session), blocks are stored like this (with "blockcontexts_manager" as key):
-            {
-                'base_url_for_element_1': {
-                    'id_for_block01': _BlockContext<>,
-                    'id_for_block02': _BlockContext<>,
-                    ...
-                },
-                'base_url_for_element_2': {...},
-                ...
-            }
-        Base url are opposite to ajax_url.
-        Eg: '/tickets/ticke/21' for base url, ajas url couild be '/creme_core/todo/reload/21/'.
-
         @param context Template context (contains 'request' etc...).
-        @param queryset Set of objects to display in the block.
+        @param url String containing url to reload this block with ajax.
         """
         request = context['request']
         base_url = request.GET.get('base_url', request.path)
-        block_name = self.id_ #rename ???
-        block_context, modified = self._get_context(request, base_url, block_name)
+        block_name = self.id_
+        block_context, modified = self.__get_context(request, base_url, block_name)
 
-        #TODO: Nb if there are not order_by queryset can be a list => Differents blocks derivation ?
-        order_by = self.order_by
-        if order_by:
-            request_order_by = request.GET.get('%s_order' % block_name)
-            if request_order_by is not None:
-                order_by = request_order_by #TODO: test if order_by is valid (field name) ????
-            else:
-                order_by = block_context.get_order_by(order_by)
+        template_context = self._build_template_context(context, block_name, block_context, base_url=base_url, update_url=update_url, **extra_kwargs)
 
-            queryset = queryset.order_by(order_by)
+        if block_context.update(modified, template_context):
+            request.session.modified = True
+
+        return template_context
+
+
+class _PaginatedBlockContext(_BlockContext):
+    __slots__ = ('page',)
+
+    def __init__(self):
+        self.page = 1
+
+    def __repr__(self):
+        return '<PaginatedBlockContext: page=%s>' % self.page
+
+    def update(self, modified, template_context):
+        page = template_context['page'].number
+
+        if self.page != page:
+            modified = True
+            self.page = page
+
+        return modified
+
+
+class PaginatedBlock(Block):
+    """This king of Block is generally represented by a paginated table.
+    Ajax changes management is used to chnage page.
+    """
+    context_class = _PaginatedBlockContext
+    page_size     = settings.BLOCK_SIZE  #number of items in the page
+
+    def _build_template_context(self, context, block_name, block_context, **extra_kwargs):
+        request = context['request']
+        objects = extra_kwargs.pop('objects')
 
         page_index = request.GET.get('%s_page' % block_name)
         if page_index is not None:
             try:
                 page_index = int(page_index)
             except ValueError, e:
-                debug('Invalige page number for block %s: %s', block_name, page_index)
+                debug('Invalid page number for block %s: %s', block_name, page_index)
                 page_index = 1
         else:
             page_index = block_context.page
 
-        paginator = Paginator(queryset, self.page_size)
+        paginator = Paginator(objects, self.page_size)
 
         try:
             page = paginator.page(page_index)
         except (EmptyPage, InvalidPage):
             page = paginator.page(paginator.num_pages)
 
-        if block_context.set_attrs(page.number, order_by, modified):
-            request.session.modified = True
+        return super(PaginatedBlock, self)._build_template_context(context, block_name, block_context, page=page, **extra_kwargs)
 
-        template_context = {
-                'page':       page,
-                'block_name': block_name,
-                'order_by':   order_by,
-                'base_url':   base_url,
-                'object'  :   context.get('object'), #optionnal: only on detailview
-                'update_url': update_url,
-                'MEDIA_URL':  settings.MEDIA_URL,
-               }
-        template_context.update(extra_kwargs)
+    def get_block_template_context(self, context, objects, update_url='', **extra_kwargs):
+        """@param objects Set of objects to display in the block."""
+        return Block.get_block_template_context(self, context, update_url=update_url, objects=objects, **extra_kwargs)
 
-        return template_context
+
+class _QuerysetBlockContext(_PaginatedBlockContext):
+    __slots__ = ('page', '_order_by')
+
+    def __init__(self):
+        super(_QuerysetBlockContext, self).__init__() #*args **kwargs ??
+        self._order_by = ''
+
+    def __repr__(self):
+        return '<QuerysetBlockContext: page=%s order_by=%s>' % (self.page, self._order_by)
+
+    def get_order_by(self, order_by):
+        _order_by = self._order_by
+
+        if _order_by:
+            return _order_by
+
+        return order_by
+
+    def update(self, modified, template_context):
+        modified = super(_QuerysetBlockContext, self).update(modified, template_context)
+        order_by = template_context['order_by']
+
+        if self._order_by != order_by:
+            modified = True
+            self._order_by = order_by
+
+        return modified
+
+
+class QuerysetBlock(PaginatedBlock):
+    """In this block, displayed objects are stored in a queryset.
+    It allows to order objects by one of its columns (which can change): order
+    changes are done with ajax of course.
+    """
+    context_class = _QuerysetBlockContext
+    order_by      = '' #default order_by value ; '' means no order_by
+
+    def _build_template_context(self, context, block_name, block_context, **extra_kwargs):
+        request = context['request']
+        order_by = self.order_by
+
+        if order_by:
+            request_order_by = request.GET.get('%s_order' % block_name)
+
+            if request_order_by is not None:
+                order_by = request_order_by #TODO: test if order_by is valid (field name) ????
+            else:
+                order_by = block_context.get_order_by(order_by)
+
+            extra_kwargs['objects'] = extra_kwargs['objects'].order_by(order_by)
+
+        return super(QuerysetBlock, self)._build_template_context(context, block_name, block_context, order_by=order_by, **extra_kwargs)
+
+    def get_block_template_context(self, context, queryset, update_url='', **extra_kwargs):
+        """@param queryset Set of objects to display in the block."""
+        return PaginatedBlock.get_block_template_context(self, context, objects=queryset, update_url=update_url, **extra_kwargs)
 
 
 class _BlockRegistry(object):
