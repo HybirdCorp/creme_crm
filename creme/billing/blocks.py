@@ -56,7 +56,7 @@ class TotalBlock(Block):
     def detailview_display(self, context):
         document = context['object']
         return self._render(self.get_block_template_context(context,
-                                                            update_url='/billing/%s/total/reload/' % document.pk, #useful ??
+                                                            #update_url='/billing/%s/total/reload/' % document.pk, #useful ??
                                                             total=document.get_total(),
                                                             total_with_tax=document.get_total_with_tax())
                             )
