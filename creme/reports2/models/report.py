@@ -20,7 +20,7 @@
 
 from django.contrib.contenttypes.models import ContentType
 from django.db.models.fields.related import ManyToManyField, ForeignKey
-from django.db.models.fields import CharField, PositiveIntegerField, PositiveSmallIntegerField
+from django.db.models.fields import CharField, PositiveIntegerField, PositiveSmallIntegerField, IntegerField
 from django.utils.translation import ugettext_lazy as _
 
 from creme_core.models import CremeEntity, Filter, CremeModel
@@ -29,15 +29,32 @@ report_prefix_url   = '/reports2' #TODO : Remove me when remove reports app
 report_template_dir = 'reports2' #TODO : Remove me when remove reports app
 
 class Field(CremeModel):
-    name   = CharField(_(u'Nom de la colonne'), max_length=100)
-    title  = CharField(max_length=100)
-    order  = PositiveIntegerField()
-    type   = PositiveSmallIntegerField() #==> {HFI_FIELD, HFI_RELATION, HFI_FUNCTION, HFI_CUSTOM}#Add in choices ?
+    name      = CharField(_(u'Nom de la colonne'), max_length=100)
+    title     = CharField(max_length=100)
+    order     = PositiveIntegerField()
+    type      = PositiveSmallIntegerField() #==> {HFI_FIELD, HFI_RELATION, HFI_FUNCTION, HFI_CUSTOM}#Add in choices ?
+    report_id = IntegerField(blank=True, null=True)
+
+    _report = None
 
     class Meta:
         app_label = 'reports2'
         verbose_name = _(u'Colone de rapport')
         verbose_name_plural  = _(u'Colonnes de rapport')
+
+    def _get_report(self):
+        if self._report is not None:
+            return self._report
+
+        if self.report_id:
+            return Report2.objects.get(pk=self.report_id)#Let the exception be throwed?
+
+    def _set_report(self, report):
+        self._report = report
+        self.report_id = report.id
+
+    report = property(_get_report, _set_report)
+
 
 class Report2(CremeEntity):
     name    = CharField(_(u'Nom du rapport'), max_length=100)
