@@ -43,7 +43,7 @@ urlpatterns = patterns('billing.views',
     (r'^productline/(?P<line_id>\d+)/edit$',                'line.edit_productline'),
     (r'^serviceline/(?P<line_id>\d+)/edit$',                'line.edit_serviceline'),
 
-    (r'^(?P<document_id>\d+)/total/reload/$',       'base.reload_total'),
+    #(r'^(?P<document_id>\d+)/total/reload/$',       'base.reload_total'),
 )
 
 urlpatterns += patterns('creme_core.views',

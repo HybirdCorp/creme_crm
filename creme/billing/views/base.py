@@ -48,6 +48,5 @@ def view_billing_entity(request, object_id, object, path, template='billing/view
                               },
                               context_instance=RequestContext(request))
 
-
-def reload_total(request, document_id):
-    return total_block.detailview_ajax(request, document_id)    
+#def reload_total(request, document_id):
+    #return total_block.detailview_ajax(request, document_id)
