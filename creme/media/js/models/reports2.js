@@ -22,25 +22,46 @@
 
 if(!creme.reports) creme.reports = {};
 
-creme.reports.loadColumns = function(options)
+creme.reports.loading_options = {
+    beforeSend : function(request){
+          creme.utils.loading('loading', false, {});
+      },
+    complete:function (XMLHttpRequest, textStatus) {
+          creme.utils.loading('loading', true, {});
+      }
+};
+
+
+creme.reports.load = function(options)
 {
     if(!options || options == undefined) return;
 
-    $(options.show_after_ct).show();//Hide & flush values when empty label selected ?
-    
     var ct_id = $(options.ct).val();
+    if(!ct_id || ct_id =="")
+    {
+        $(options.show_after_ct).hide();
+        //flush values when empty label selected !
+        return;
+    }
+
     var $hf   = $(options.hf);
     this.loadHeaderFilters(ct_id, $hf);
 
     var $filter   = $(options.filter);
     this.loadFilters(ct_id, $filter);
 
+    this.loadColumns(ct_id, options);
+    this.loadCf(ct_id, options);
+    this.loadRelations(ct_id, options);
+    this.loadFunctions(ct_id, options);
+
+    $(options.show_after_ct).show();
 }
 
 //Could use creme.forms.Select.optionsFromData & creme.forms.Select.fill with a hack for default/error options?
 creme.reports.__loadFilters = function(url, ct_id, $target_select, parameters)
 {
-    if(!ct_id || ct_id == undefined || $target_select.size() != 1) return;
+    if($target_select.size() != 1) return;
 
     var params = $.extend({
         'err_label' : 'Aucun disponible',//TODO:i18n
@@ -83,30 +104,21 @@ creme.reports.__loadFilters = function(url, ct_id, $target_select, parameters)
         }
     };
 
-    var options = {
-        beforeSend : function(request){
-              creme.utils.loading('loading', false, {});
-          },
-        complete:function (XMLHttpRequest, textStatus) {
-              creme.utils.loading('loading', true, {});
-          }
-    };
-
-    creme.ajax.json.get(url+ct_id, {}, success_cb, error_cb, false, options);
+    creme.ajax.json.get(url, {}, success_cb, error_cb, false, this.loading_options);
 }
 
 creme.reports.loadHeaderFilters = function(ct_id, $target_select)
 {
-    var url = '/creme_core/header_filter/get_4_ct/';
+    var url = '/creme_core/header_filter/get_4_ct/'+ct_id;
     var params = {
-        'always_option': $('<option value="">Aucune vue sélectionnée</option>'),
+        'always_option': $('<option value="">Aucune vue sélectionnée</option>')
     };
     creme.reports.__loadFilters(url, ct_id, $target_select, params);
 }
 
 creme.reports.loadFilters = function(ct_id, $target_select)
 {
-    var url = '/creme_core/filter/get_4_ct/';
+    var url = '/creme_core/filter/get_4_ct/'+ct_id;
 
     var $all_opt = $('<option value="">Tout</option>');
 
@@ -117,4 +129,74 @@ creme.reports.loadFilters = function(ct_id, $target_select)
     };
 
     creme.reports.__loadFilters(url, ct_id, $target_select, params);
+}
+
+creme.reports.__loadOrderedMultiSelect = function(url, pdata, table_id, input_name)
+{
+
+    var $columns_table = $('#'+table_id);
+    if($columns_table.size() !=1) return;
+
+    var $tbody = $columns_table.find('tbody');
+
+    var success_cb = function(data, textStatus, req){
+        $tbody.empty();
+        $columns_table.parent('.oms_div').children().not($columns_table).remove();
+
+        for(var i in data)
+        {
+            var d = data[i];
+            var val = d[0];
+            var txt = d[1];
+
+            var $tr = $('<tr />').attr('name', 'oms_row_'+i);
+
+            var $td1 = $('<td><input class="oms_check" type="checkbox" name="'+input_name+'_check_'+i+'" /></td>');
+            var $td2 = $('<td class="oms_value">'+txt+'<input type="hidden" value="'+val+'" name="'+input_name+'_value_'+i+'"/></td>');
+            var $td3 = $('<td><input class="oms_order" type="text" name="'+input_name+'_order_'+i+'" value=""/></td>');
+
+            $tbody.append($tr.append($td1).append($td2).append($td3));
+        }
+        creme.forms.toOrderedMultiSelect(table_id);
+    };
+
+    var error_cb = function(req, textStatus, err){
+        $tbody.empty();
+        $columns_table.parent('.oms_div').children().not($columns_table).remove();
+    };
+
+    creme.ajax.json.post(url, pdata, success_cb, error_cb, false, this.loading_options);
+
+}
+
+creme.reports.loadColumns = function(ct_id, options)
+{
+    creme.reports.__loadOrderedMultiSelect('/creme_core/get_fields',
+                                           {'ct_id': ct_id},
+                                           options.columns.table_id,
+                                           options.columns.name);
+}
+
+creme.reports.loadCf = function(ct_id, options)
+{
+    creme.reports.__loadOrderedMultiSelect('/creme_core/get_custom_fields',
+                                       {'ct_id': ct_id},
+                                       options.cf.table_id,
+                                       options.cf.name);
+}
+
+creme.reports.loadRelations = function(ct_id, options)
+{
+    creme.reports.__loadOrderedMultiSelect('/creme_core/relation/get_predicates_choices_4_ct',
+                                       {'ct_id': ct_id},
+                                       options.relations.table_id,
+                                       options.relations.name);
+}
+
+creme.reports.loadFunctions = function(ct_id, options)
+{
+    creme.reports.__loadOrderedMultiSelect('/creme_core/get_user_functions',
+                                       {'ct_id': ct_id},
+                                       options.functions.table_id,
+                                       options.functions.name);
 }
