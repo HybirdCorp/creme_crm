@@ -18,40 +18,63 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.forms.fields import MultipleChoiceField
-from django.forms.widgets import Select
-from django.forms.fields import ChoiceField
+from django.contrib.contenttypes.models import ContentType
+from django.forms.fields import MultipleChoiceField, ChoiceField
+from django.forms import ValidationError
 from django.utils.translation import ugettext_lazy as _
 
+from creme_core.registry import creme_registry
 from creme_core.forms import CremeEntityForm
 from creme_core.forms.widgets import OrderedMultipleChoiceWidget
+from creme_core.forms.fields import AjaxChoiceField, AjaxMultipleChoiceField
 
 from reports2.models import Report2, Field
 
-
 class CreateForm(CremeEntityForm):
     
-    hf     = ChoiceField(required=False)
-    filter = ChoiceField(required=False)
+    hf     = AjaxChoiceField(required=False)
+    filter = AjaxChoiceField(required=False)
 
-    columns       = MultipleChoiceField(label=_(u'Champs normaux'),       required=False, choices=(), widget=OrderedMultipleChoiceWidget)
-    custom_fields = MultipleChoiceField(label=_(u'Champs personnalisés'), required=False, choices=(), widget=OrderedMultipleChoiceWidget)
-    relations     = MultipleChoiceField(label=_(u'Relations'),            required=False, choices=(), widget=OrderedMultipleChoiceWidget)
-    functions     = MultipleChoiceField(label=_(u'Fonctions'),            required=False, choices=(), widget=OrderedMultipleChoiceWidget)
+    columns       = AjaxMultipleChoiceField(label=_(u'Champs normaux'),       required=False, choices=(), widget=OrderedMultipleChoiceWidget)
+    custom_fields = AjaxMultipleChoiceField(label=_(u'Champs personnalisés'), required=False, choices=(), widget=OrderedMultipleChoiceWidget)
+    relations     = AjaxMultipleChoiceField(label=_(u'Relations'),            required=False, choices=(), widget=OrderedMultipleChoiceWidget)
+    functions     = AjaxMultipleChoiceField(label=_(u'Fonctions'),            required=False, choices=(), widget=OrderedMultipleChoiceWidget)
 
     class Meta:
         model = Report2
-        exclude = CremeEntityForm.Meta.exclude + ('columns',)
+        exclude = CremeEntityForm.Meta.exclude 
 
     def __init__(self, *args, **kwargs):
         super(CreateForm, self).__init__(*args, **kwargs)
         instance = self.instance
         fields   = self.fields
+        ct_get = ContentType.objects.get_for_model
+        cts = [ct_get(model) for model in creme_registry.iter_entity_models()]
+        cts.sort(key=lambda ct: ct.name)
+        fields['ct'].choices = [(ct.id, ct.name) for ct in cts]
+
+    def clean(self):
+        cleaned_data = self.cleaned_data
+        get_data     = cleaned_data.get
+        fields       = self.fields
+
+        hf            = get_data('hf')
+        columns       = get_data('columns')
+        custom_fields = get_data('custom_fields')
+        relations     = get_data('relations')
+        functions     = get_data('functions')
+
+        _fields_choices = [unicode(fields[f].label) for f in ['columns','custom_fields','relations', 'functions']]
+
+        if not hf and not (columns or custom_fields or relations or functions):
+            raise ValidationError(_(u"Vous devez sélectionner soit une vue existante, soit au moins un champs parmi : %s" % ", ".join(_fields_choices)))
+
+        return cleaned_data
 
     def save(self):
-        super(CreateForm, self).save()
+        #super(CreateForm, self).save()
+        cleaned_data = self.cleaned_data
 
-    #TODO : Clean between hf & columns one has to be set...
 
 class EditForm(CremeEntityForm):
     class Meta:
