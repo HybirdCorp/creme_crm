@@ -28,9 +28,11 @@ from django.db.models import Q
 from django.contrib.auth.models import ContentType
 
 from creme_core.models import CremeEntity
+from creme_core.models.custom_field import CustomField
 from creme_core.registry import creme_registry, NotRegistered
 from creme_core.entities_access.functions_for_permissions import edit_object_or_die
-from creme_core.utils.meta import get_flds_with_fk_flds
+from creme_core.utils.meta import get_flds_with_fk_flds, get_flds_with_fk_flds_str
+from creme_core.utils import get_ct_or_404
 #from creme.creme_utils.views import handle_uploaded_file
 
 
@@ -113,3 +115,45 @@ def fieldHasNGetFK(request):
             datas = []
         return HttpResponse(JSONEncoder().encode(datas), mimetype="text/javascript")
     return HttpResponse('', mimetype="text/javascript", status=400)
+
+@login_required
+def get_fields(request):
+    """
+        @Returns : Fields for a model [('field1', 'field1_verbose_name'),...]
+    """
+    POST = request.POST
+    ct = get_ct_or_404(POST.get('ct_id'))
+    model = ct.model_class()
+    try:
+        deep = int(POST.get('deep', 1))
+    except ValueError:
+        deep = 1
+
+    fields = get_flds_with_fk_flds_str(model, deep)
+
+    return HttpResponse(JSONEncoder().encode(fields), mimetype="text/javascript")
+
+@login_required
+def get_custom_fields(request):
+    """
+        @Returns : Custom fields for a model [('cfield1_name', 'cfield1_name'),...]
+    """
+    POST = request.POST
+    ct = get_ct_or_404(POST.get('ct_id'))
+
+    fields = [(cf.name, cf.name) for cf in CustomField.objects.filter(content_type=ct)]
+
+    return HttpResponse(JSONEncoder().encode(fields), mimetype="text/javascript")
+
+@login_required
+def get_user_functions(request):
+    """
+        @Returns : User allowed functions for a model [('func_name', 'func_name'),...]
+    """
+    POST = request.POST
+    ct = get_ct_or_404(POST.get('ct_id'))
+    users_allowed_func = ct.model_class().users_allowed_func
+
+    functions = [(f['name'], f['verbose_name']) for f in users_allowed_func]
+
+    return HttpResponse(JSONEncoder().encode(functions), mimetype="text/javascript")

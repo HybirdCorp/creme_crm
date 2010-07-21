@@ -11,10 +11,31 @@
                     'ct':this,
                     'hf':'#{{form.hf.auto_id}}',//'#hf',
                     'show_after_ct':'.show_after_ct',
-                    'filter':'#{{form.filter.auto_id}}'
+                    'filter':'#{{form.filter.auto_id}}',
+                    'columns':
+                        {
+                            'table_id':'{{form.columns.auto_id}}',
+                            'name' : '{{form.columns.name}}'
+                        },
+                    'cf' :
+                        {
+                            'table_id':'{{form.custom_fields.auto_id}}',
+                            'name' : '{{form.custom_fields.name}}'
+                        },
+                    'relations' :
+                        {
+                            'table_id':'{{form.relations.auto_id}}',
+                            'name' : '{{form.relations.name}}'
+                        },
+                    'functions' :
+                        {
+                            'table_id':'{{form.functions.auto_id}}',
+                            'name' : '{{form.functions.name}}'
+                        }
                 };
-                creme.reports.loadColumns(opts);
+                creme.reports.load(opts);
             });
+            $('#ct').change();
         });
     </script>
 {% endblock %}
@@ -47,8 +68,23 @@
     
     <p>Les champs suivis d'un * sont obligatoires.</p>
 
+    {% if form.non_field_errors %}
+        <table class="table_detail_view ui-corner-all">
+            <thead>
+                <tr>
+                    <th valign="middle">Erreurs globales</th>
+                </tr>
+            </thead>
+            <tbody class="collapsable">
+                <tr>
+                    <td>{{form.non_field_errors}}</td>
+                </tr>
+            </tbody>
+        </table>
+    {% endif %}
+
     <div id="editforms">
-        <form action="" method="POST" {% if form.is_multipart %}enctype="multipart/form-data"{% endif %}>
+        <form action="" method="POST">
             {% for hidden in form.hidden_fields %}
                 {% if hidden.errors %}
                     <p>{{hidden.label}}&nbsp;:&nbsp;{{hidden.errors}}{{hidden}}</p>
@@ -64,6 +100,17 @@
                     </tr>
                 </thead>
                 <tbody class="collapsable">
+                    <tr>
+                        <th class="{{header_row}}">
+                            <label for="{{form.user.auto_id}}">{{form.user.label}} *</label>
+                        </th>
+                        <td class="{{row_color}}">
+                            {% if form.user.help_text %}
+                                {{form.user.help_text}} <br />
+                            {% endif %}
+                            {{form.user.errors}} {{form.user}}
+                        </td>
+                    </tr>
                     <tr>
                         <th class="{{header_row}}">
                             <label for="{{form.name.auto_id}}">{{form.name.label}} *</label>
@@ -107,7 +154,7 @@
                                     </tr>
                                     <tr>
                                         <td class="{{row_color}}" colspan="2">
-                                            {{form.hf}}
+                                            {{form.hf.errors}} {{form.hf}}
                                         </td>
                                     </tr>
                                     <tr>
@@ -123,7 +170,7 @@
                                             {{form.columns.label}}
                                         </th>
                                         <td class="{{row_color}}">
-                                            {{form.columns}}
+                                            {{form.columns.errors}} {{form.columns}}
                                         </td>
                                     </tr>
                                     <tr>
@@ -131,7 +178,7 @@
                                             {{form.custom_fields.label}}
                                         </th>
                                         <td class="{{row_color}}">
-                                            {{form.custom_fields}}
+                                            {{form.custom_fields.errors}} {{form.custom_fields}}
                                         </td>
                                     </tr>
                                     <tr>
@@ -139,7 +186,7 @@
                                             {{form.relations.label}}
                                         </th>
                                         <td class="{{row_color}}">
-                                            {{form.relations}}
+                                           {{form.relations.errors}} {{form.relations}}
                                         </td>
                                     </tr>
                                     <tr>
@@ -147,7 +194,7 @@
                                             {{form.functions.label}}
                                         </th>
                                         <td class="{{row_color}}">
-                                            {{form.functions}}
+                                            {{form.functions.errors}} {{form.functions}}
                                         </td>
                                     </tr>
                                 </tbody>
@@ -159,28 +206,12 @@
                             <label for="">Filtre</label>
                         </th>
                         <td class="{{row_color}}">
-                            {{form.filter}}
+                            {{form.filter.errors}} {{form.filter}}
                         </td>
                      </tr>
                 </tbody>
             </table>
             <br />
-
-            {% if form.non_field_errors %}
-                <table class="table_detail_view ui-corner-all">
-                    <thead>
-                        <tr>
-                            <th valign="middle">Erreurs globales</th>
-                        </tr>
-                    </thead>
-                    <tbody class="collapsable">
-                        <tr>
-                            <td>{{form.non_field_errors}}</td>
-                        </tr>
-                    </tbody>
-                </table>
-            {% endif %}
-
             {% block submit_buttons %}
                 {% if not hide_submit %}
                     <input type="submit" value="Envoyer" />
