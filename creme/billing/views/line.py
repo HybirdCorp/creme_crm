@@ -161,10 +161,9 @@ def reload_product_lines(request, document_id):
     context = {'request': request, 'object': CremeEntity.objects.get(id=document_id).get_real_entity()}
     return [
             (product_lines_block.id_, product_lines_block.detailview_display(context)),
-            (total_block.id_, total_block.detailview_display(context)),
+            (total_block.id_,         total_block.detailview_display(context)),
            ]
-    
-        
+
     #return product_lines_block.detailview_ajax(request, document_id)
 
 @login_required

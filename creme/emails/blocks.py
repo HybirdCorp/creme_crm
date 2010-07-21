@@ -22,13 +22,13 @@ from django.http import HttpResponse
 from django.utils.simplejson import JSONEncoder
 from django.utils.translation import ugettext_lazy as _
 
-from creme_core.gui.block import Block
+from creme_core.gui.block import QuerysetBlock
 
 from emails.models import EmailRecipient, EmailSending, Email
 
 
-class MailingListsBlock(Block):
-    id_           = Block.generate_id('emails', 'mailing_lists')
+class MailingListsBlock(QuerysetBlock):
+    id_           = QuerysetBlock.generate_id('emails', 'mailing_lists')
     verbose_name  = _(u'Listes de diffusion')
     template_name = 'emails/templatetags/block_mailing_lists.html'
 
@@ -38,8 +38,8 @@ class MailingListsBlock(Block):
                                                             update_url='/emails/campaign/%s/mailing_lists/reload/' % campaign.pk))
 
 
-class EmailRecipientsBlock(Block):
-    id_           = Block.generate_id('emails', 'recipients')
+class EmailRecipientsBlock(QuerysetBlock):
+    id_           = QuerysetBlock.generate_id('emails', 'recipients')
     verbose_name  = _(u'Destinataires manuels')
     template_name = 'emails/templatetags/block_recipients.html'
 
@@ -49,8 +49,8 @@ class EmailRecipientsBlock(Block):
                                                             update_url='/emails/mailing_list/%s/recipients/reload/' % pk))
 
 
-class ContactsBlock(Block):
-    id_           = Block.generate_id('emails', 'contacts')
+class ContactsBlock(QuerysetBlock):
+    id_           = QuerysetBlock.generate_id('emails', 'contacts')
     verbose_name  = _(u'Contacts destinataires')
     template_name = 'emails/templatetags/block_contacts.html'
 
@@ -60,8 +60,8 @@ class ContactsBlock(Block):
                                                             update_url='/emails/mailing_list/%s/contacts/reload/' % mailing_list.pk))
 
 
-class OrganisationsBlock(Block):
-    id_           = Block.generate_id('emails', 'organisations')
+class OrganisationsBlock(QuerysetBlock):
+    id_           = QuerysetBlock.generate_id('emails', 'organisations')
     verbose_name  = _(u'Sociétés destinataires')
     template_name = 'emails/templatetags/block_organisations.html'
 
@@ -71,8 +71,8 @@ class OrganisationsBlock(Block):
                                                             update_url='/emails/mailing_list/%s/organisations/reload/' % mailing_list.pk))
 
 
-class ChildListsBlock(Block):
-    id_           = Block.generate_id('emails', 'child_lists')
+class ChildListsBlock(QuerysetBlock):
+    id_           = QuerysetBlock.generate_id('emails', 'child_lists')
     verbose_name  = _(u'Listes de diffusion filles')
     template_name = 'emails/templatetags/block_child_lists.html'
 
@@ -82,8 +82,8 @@ class ChildListsBlock(Block):
                                                             update_url='/emails/mailing_list/%s/children/reload/' % mailing_list.pk))
 
 
-class ParentListsBlock(Block):
-    id_           = Block.generate_id('emails', 'parent_lists')
+class ParentListsBlock(QuerysetBlock):
+    id_           = QuerysetBlock.generate_id('emails', 'parent_lists')
     verbose_name  = _(u'Listes de diffusion parentes')
     template_name = 'emails/templatetags/block_parent_lists.html'
 
@@ -93,8 +93,8 @@ class ParentListsBlock(Block):
                                                             update_url='/emails/mailing_list/%s/parents/reload/' % mailing_list.pk))
 
 
-class AttachmentsBlock(Block):
-    id_           = Block.generate_id('emails', 'attachments')
+class AttachmentsBlock(QuerysetBlock):
+    id_           = QuerysetBlock.generate_id('emails', 'attachments')
     verbose_name  = _(u'Fichiers attachés')
     template_name = 'emails/templatetags/block_attachments.html'
 
@@ -104,8 +104,8 @@ class AttachmentsBlock(Block):
                                                             update_url='/emails/template/%s/attachments/reload/' % template.pk))
 
 
-class SendingsBlock(Block):
-    id_           = Block.generate_id('emails', 'sendings')
+class SendingsBlock(QuerysetBlock):
+    id_           = QuerysetBlock.generate_id('emails', 'sendings')
     order_by      = '-sending_date'
     verbose_name  = _(u'Envois')
     template_name = 'emails/templatetags/block_sendings.html'
@@ -116,8 +116,8 @@ class SendingsBlock(Block):
                                                             update_url='/emails/campaign/%s/sendings/reload/' % campaign.pk))
 
 
-class MailsBlock(Block):
-    id_           = Block.generate_id('emails', 'mails')
+class MailsBlock(QuerysetBlock):
+    id_           = QuerysetBlock.generate_id('emails', 'mails')
     page_size     = 12
     verbose_name  = _(u"Mails d'un envoi")
     template_name = 'emails/templatetags/block_mails.html'
@@ -133,8 +133,8 @@ class MailsBlock(Block):
         return HttpResponse(JSONEncoder().encode([(self.id_, self.detailview_display(context))]), mimetype="text/javascript")
 
 
-class MailsHistoryBlock(Block):
-    id_           = Block.generate_id('emails', 'mails_history')
+class MailsHistoryBlock(QuerysetBlock):
+    id_           = QuerysetBlock.generate_id('emails', 'mails_history')
     order_by      = '-sending_date'
     verbose_name  = _(u"Historique des mails")
     template_name = 'emails/templatetags/block_mails_history.html'

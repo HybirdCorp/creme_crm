@@ -22,13 +22,13 @@ from django.http import HttpResponse
 from django.utils.simplejson import JSONEncoder
 from django.utils.translation import ugettext_lazy as _
 
-from creme_core.gui.block import Block
+from creme_core.gui.block import QuerysetBlock
 
 from sms.models import Recipient, Sending, Message
 
 
-class SendListsBlock(Block):
-    id_           = Block.generate_id('sms', 'sendlists')
+class SendListsBlock(QuerysetBlock):
+    id_           = QuerysetBlock.generate_id('sms', 'sendlists')
     verbose_name  = _(u'Listes de diffusion')
     template_name = 'sms/templatetags/block_sendlists.html'
 
@@ -38,8 +38,8 @@ class SendListsBlock(Block):
                                                             update_url='/sms/campaign/%s/sendlist/reload/' % campaign.pk))
 
 
-class RecipientsBlock(Block):
-    id_           = Block.generate_id('sms', 'recipients')
+class RecipientsBlock(QuerysetBlock):
+    id_           = QuerysetBlock.generate_id('sms', 'recipients')
     verbose_name  = _(u'Destinataires manuels')
     template_name = 'sms/templatetags/block_recipients.html'
 
@@ -49,8 +49,8 @@ class RecipientsBlock(Block):
                                                             update_url='/sms/sendlist/%s/recipients/reload/' % pk))
 
 
-class ContactsBlock(Block):
-    id_           = Block.generate_id('sms', 'contacts')
+class ContactsBlock(QuerysetBlock):
+    id_           = QuerysetBlock.generate_id('sms', 'contacts')
     verbose_name  = _(u'Contacts destinataires')
     template_name = 'sms/templatetags/block_contacts.html'
 
@@ -60,8 +60,8 @@ class ContactsBlock(Block):
                                                             update_url='/sms/sendlist/%s/contacts/reload/' % sendlist.pk))
 
 
-class MessagesBlock(Block):
-    id_           = Block.generate_id('sms', 'messages')
+class MessagesBlock(QuerysetBlock):
+    id_           = QuerysetBlock.generate_id('sms', 'messages')
     verbose_name  = _(u'Messages envoyés')
     template_name = 'sms/templatetags/block_messages.html'
 
@@ -86,8 +86,8 @@ class MessagesBlock(Block):
 #                                                            update_url='/sms/sendlist/%s/organisations/reload/' % sendlist.pk))
 #
 
-class SendingsBlock(Block):
-    id_           = Block.generate_id('sms', 'sendings')
+class SendingsBlock(QuerysetBlock):
+    id_           = QuerysetBlock.generate_id('sms', 'sendings')
     order_by      = '-date'
     verbose_name  = _(u'Envois')
     template_name = 'sms/templatetags/block_sendings.html'

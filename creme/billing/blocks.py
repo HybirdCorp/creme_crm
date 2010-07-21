@@ -20,15 +20,15 @@
 
 from django.utils.translation import ugettext_lazy as _
 
-from creme_core.gui.block import Block
+from creme_core.gui.block import Block, QuerysetBlock
 from creme_core.models import CremeEntity
 
 from billing.models import ProductLine, ServiceLine
 from django.db.models.query import QuerySet
 
 
-class ProductLinesBlock(Block):
-    id_           = Block.generate_id('billing', 'product_lines')
+class ProductLinesBlock(QuerysetBlock):
+    id_           = QuerysetBlock.generate_id('billing', 'product_lines')
     verbose_name  = _(u'Lignes produit')
     template_name = 'billing/templatetags/block_product_line.html'
 
@@ -37,8 +37,8 @@ class ProductLinesBlock(Block):
         return self._render(self.get_block_template_context(context, ProductLine.objects.filter(document=pk),
                                                             update_url='/billing/%s/product_lines/reload/' % pk))
 
-class  ServiceLinesBlock(Block):
-    id_           = Block.generate_id('billing', 'service_lines')
+class  ServiceLinesBlock(QuerysetBlock):
+    id_           = QuerysetBlock.generate_id('billing', 'service_lines')
     verbose_name  = _(u'Lignes service')
     template_name = 'billing/templatetags/block_service_line.html'
 
@@ -55,8 +55,8 @@ class TotalBlock(Block):
 
     def detailview_display(self, context):
         document = context['object']
-        return self._render(self.get_block_template_context(context, CremeEntity.objects.none(),
-                                                            update_url='/billing/%s/total/reload/' % document.pk, #useful ??
+        return self._render(self.get_block_template_context(context,
+                                                            #update_url='/billing/%s/total/reload/' % document.pk, #useful ??
                                                             total=document.get_total(),
                                                             total_with_tax=document.get_total_with_tax())
                             )

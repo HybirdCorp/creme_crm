@@ -21,7 +21,7 @@
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.contenttypes.models import ContentType
 
-from creme_core.gui.block import Block
+from creme_core.gui.block import QuerysetBlock
 
 from persons.models import Contact
 from persons.constants import REL_OBJ_MANAGES, REL_OBJ_EMPLOYED_BY
@@ -29,8 +29,8 @@ from persons.constants import REL_OBJ_MANAGES, REL_OBJ_EMPLOYED_BY
 _contact_ct_id = None
 
 
-class ManagersBlock(Block):
-    id_           = Block.generate_id('persons', 'managers')
+class ManagersBlock(QuerysetBlock):
+    id_           = QuerysetBlock.generate_id('persons', 'managers')
     verbose_name  = _(u"Responsables d'une société")
     template_name = 'persons/templatetags/block_managers.html'
 
@@ -49,8 +49,8 @@ class ManagersBlock(Block):
                                                             ct_id=_contact_ct_id))
 
 
-class EmployeesBlock(Block):
-    id_           = Block.generate_id('persons', 'employees')
+class EmployeesBlock(QuerysetBlock):
+    id_           = QuerysetBlock.generate_id('persons', 'employees')
     verbose_name  = _(u"Salariés d'une société")
     template_name = 'persons/templatetags/block_employees.html'
 
