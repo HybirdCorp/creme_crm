@@ -21,11 +21,11 @@
 from django.utils.translation import ugettext_lazy as _
 
 from creme_core.models import Relation
-from creme_core.gui.block import Block
+from creme_core.gui.block import QuerysetBlock
 
 
-class PropertiesBlock(Block):
-    id_           = Block.generate_id('creme_core', 'properties')
+class PropertiesBlock(QuerysetBlock):
+    id_           = QuerysetBlock.generate_id('creme_core', 'properties')
     verbose_name  = _(u'Properties')
     template_name = 'creme_core/templatetags/block_properties.html'
 
@@ -35,8 +35,8 @@ class PropertiesBlock(Block):
                                                             update_url='/creme_core/properties/reload/%s/' % entity.pk))
 
 
-class RelationsBlock(Block):
-    id_           = Block.generate_id('creme_core', 'relations')
+class RelationsBlock(QuerysetBlock):
+    id_           = QuerysetBlock.generate_id('creme_core', 'relations')
     order_by      = 'type'
     verbose_name  = _(u'Relations')
     template_name = 'creme_core/templatetags/block_relations.html'

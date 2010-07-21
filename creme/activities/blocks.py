@@ -22,14 +22,14 @@ from django.utils.translation import ugettext_lazy as _
 from django.contrib.contenttypes.models import ContentType
 
 from creme_core.models import Relation
-from creme_core.gui.block import Block
+from creme_core.gui.block import QuerysetBlock
 
 from models import Activity
 from constants import REL_SUB_PART_2_ACTIVITY, REL_SUB_ACTIVITY_SUBJECT, REL_SUB_LINKED_2_ACTIVITY
 
 
-class ParticipantsBlock(Block):
-    id_           = Block.generate_id('activities', 'participants')
+class ParticipantsBlock(QuerysetBlock):
+    id_           = QuerysetBlock.generate_id('activities', 'participants')
     verbose_name  = _(u'Participants')
     template_name = 'activities/templatetags/block_participants.html'
 
@@ -39,8 +39,8 @@ class ParticipantsBlock(Block):
                                                             update_url='/activities/activity/%s/participants/reload/' % activity.pk))
 
 
-class SubjectsBlock(Block):
-    id_           = Block.generate_id('activities', 'subjects')
+class SubjectsBlock(QuerysetBlock):
+    id_           = QuerysetBlock.generate_id('activities', 'subjects')
     verbose_name  = _(u'Sujets')
     template_name = 'activities/templatetags/block_subjects.html'
 
@@ -53,8 +53,8 @@ class SubjectsBlock(Block):
 _RELOAD_URL = '/activities/linked_activities/%s/reload/'
 
 
-class FutureActivitiesBlock(Block):
-    id_           = Block.generate_id('activities', 'future_activities')
+class FutureActivitiesBlock(QuerysetBlock):
+    id_           = QuerysetBlock.generate_id('activities', 'future_activities')
     verbose_name  = _(u'Activités futures')
     template_name = 'activities/templatetags/block_future_activities.html'
 
@@ -76,8 +76,8 @@ class FutureActivitiesBlock(Block):
                                                             ct_id=self._activity_ct_id))
 
 
-class PastActivitiesBlock(Block):
-    id_           = Block.generate_id('activities', 'past_activities')
+class PastActivitiesBlock(QuerysetBlock):
+    id_           = QuerysetBlock.generate_id('activities', 'past_activities')
     verbose_name  = _(u'Activités passées')
     template_name = 'activities/templatetags/block_past_activities.html'
 

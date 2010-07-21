@@ -20,11 +20,11 @@
 
 from django.utils.translation import ugettext_lazy as _
 
-from creme_core.gui.block import Block
+from creme_core.gui.block import QuerysetBlock
 
 
-class ProjectTaskBlock(Block):
-    id_           = Block.generate_id('projects', 'project_task')
+class ProjectTaskBlock(QuerysetBlock):
+    id_           = QuerysetBlock.generate_id('projects', 'project_task')
     verbose_name  = _(u'Liste des tâches du projet')
     template_name = 'projects/templatetags/block_tasks.html'
 
@@ -33,8 +33,8 @@ class ProjectTaskBlock(Block):
         return self._render(self.get_block_template_context(context, project.get_tasks(),
                                                             update_url='/projects/project/%s/tasks/reload/' % project.pk))
 
-class ResourceTaskBlock(Block):
-    id_           = Block.generate_id('projects', 'resource')
+class ResourceTaskBlock(QuerysetBlock):
+    id_           = QuerysetBlock.generate_id('projects', 'resource')
     verbose_name  = _(u'Ressource(s) affectée(s) à la tâche')
     template_name = 'projects/templatetags/block_resources.html'
 
@@ -44,8 +44,8 @@ class ResourceTaskBlock(Block):
                                                             update_url='/projects/task/%s/resources/reload/' % task.pk))
 
 
-class WorkingPeriodTaskBlock(Block):
-    id_           = Block.generate_id('projects', 'working_period')
+class WorkingPeriodTaskBlock(QuerysetBlock):
+    id_           = QuerysetBlock.generate_id('projects', 'working_period')
     verbose_name  = _(u'Période(s) travaillée(s) sur cette tâche')
     template_name = 'projects/templatetags/block_working_periods.html'
 

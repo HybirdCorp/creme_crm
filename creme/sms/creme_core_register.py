@@ -22,21 +22,21 @@ from django.utils.translation import ugettext_lazy as _
 
 from creme_core.registry import creme_registry
 from creme_core.gui.menu import creme_menu
-from creme_core.gui.block import block_registry
+#from creme_core.gui.block import block_registry
 
 from sms.models import SMSCampaign, SendList
 
 creme_registry.register_entity_models(SMSCampaign, SendList)
-creme_registry.register_app ('sms', _(u'SMS'), '/sms')
+creme_registry.register_app('sms', _(u'SMS'), '/sms')
 
 creme_menu.register_app ('sms', '/sms/', "SMS")
 reg_menu = creme_menu.register_menu
-reg_menu('sms', '/sms/campaigns' ,       'Lister les campagnes' )
-reg_menu('sms', '/sms/campaign/add',     'Ajouter une campagne')
+reg_menu('sms', '/sms/campaigns' ,   'Lister les campagnes' )
+reg_menu('sms', '/sms/campaign/add', 'Ajouter une campagne')
 reg_menu('sms', '/sms/sendlists',    'Lister les listes de diffusion')
 reg_menu('sms', '/sms/sendlist/add', 'Ajouter une liste de diffusion')
-reg_menu('sms', '/sms/templates',        'Lister les patrons de message')
-reg_menu('sms', '/sms/template/add',     'Ajouter un patron de message')
+reg_menu('sms', '/sms/templates',    'Lister les patrons de message')
+reg_menu('sms', '/sms/template/add', 'Ajouter un patron de message')
 
 #from sms.blocks import sms_history_block
 #
