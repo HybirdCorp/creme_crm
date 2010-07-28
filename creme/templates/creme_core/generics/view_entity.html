@@ -4,6 +4,7 @@
 
 {% block detail_view_left_1 %}
     {% include "creme_core/object_as_table.html" %}
+    {% block after_object_as_table_1 %}{% endblock %}
     {% get_properties %}
     {% get_relations %}
 {% endblock %}

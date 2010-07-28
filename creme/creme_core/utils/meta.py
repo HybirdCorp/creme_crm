@@ -21,6 +21,7 @@
 from django.db.models.base import ModelBase
 from django.db.models import Field, FieldDoesNotExist
 
+from creme_core.models.entity import CremeEntity
 
 class NotDjangoModel(Exception):
     pass
@@ -74,6 +75,18 @@ def get_verbose_field_name(model, field_name, separator=" - "):
     """
     fields = get_model_field_infos(model, field_name)
     return separator.join([unicode(f['field'].verbose_name) for f in fields])
+
+def get_verbose_function_name(model, function_name):
+    """
+        @Returns : User allowed function verbose name if found else None
+        /!\ Model has to be a subclass of CremeAbstractEntity
+    """
+    assert issubclass(model, CremeEntity)
+    functions = model.users_allowed_func
+    for f in functions:
+        if f['name'] == function_name:
+            return f['verbose_name']
+    return None
 
 #TODO: rename......
 def get_flds_with_fk_flds(model_klass, deep=1):

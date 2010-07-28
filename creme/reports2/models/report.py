@@ -42,6 +42,9 @@ class Field(CremeModel):
         verbose_name = _(u'Colone de rapport')
         verbose_name_plural  = _(u'Colonnes de rapport')
 
+    def __unicode__(self):
+        return self.title
+
     def _get_report(self):
         if self._report is not None:
             return self._report
@@ -51,9 +54,17 @@ class Field(CremeModel):
 
     def _set_report(self, report):
         self._report = report
-        self.report_id = report.id
+        self.report_id = report.id if report else None
 
     report = property(_get_report, _set_report)
+
+
+    @staticmethod
+    def get_instance_from_hf_item(hf_item):
+        """
+            @Returns : A Field instance (not saved !) built from an HeaderFilterItem instance
+        """
+        return Field(name=hf_item.name, title=hf_item.title, order=hf_item.order, type=hf_item.type)
 
 
 class Report2(CremeEntity):
