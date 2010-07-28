@@ -21,7 +21,7 @@
 import re
 from logging import debug
 
-from django.forms import Field, CharField, MultipleChoiceField, ChoiceField
+from django.forms import Field, CharField, MultipleChoiceField, ChoiceField, ModelChoiceField
 from django.forms.util import ValidationError
 from django.forms.fields import EMPTY_VALUES
 from django.core.files.uploadedfile import UploadedFile
@@ -289,3 +289,18 @@ class AjaxMultipleChoiceField(MultipleChoiceField):
             raise ValidationError(self.error_messages['invalid_list'])
         new_value = [smart_unicode(val) for val in value]
         return new_value
+
+class AjaxModelChoiceField(ModelChoiceField):
+    """
+        Same as ModelChoiceField but bypass the choices validation due to the ajax filling
+    """
+    def clean(self, value):
+        Field.clean(self, value)
+        if value in EMPTY_VALUES:
+            return None
+        try:
+            key = self.to_field_name or 'pk'
+            value = self.queryset.model._default_manager.get(**{key: value})
+        except self.queryset.model.DoesNotExist:
+            raise ValidationError(self.error_messages['invalid_choice'])
+        return value

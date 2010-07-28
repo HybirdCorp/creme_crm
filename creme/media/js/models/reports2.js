@@ -40,7 +40,6 @@ creme.reports.load = function(options)
     if(!ct_id || ct_id =="")
     {
         $(options.show_after_ct).hide();
-        //flush values when empty label selected !
         return;
     }
 
@@ -199,4 +198,80 @@ creme.reports.loadFunctions = function(ct_id, options)
                                        {'ct_id': ct_id},
                                        options.functions.table_id,
                                        options.functions.name);
+}
+
+creme.reports.unlink_report = function(field_id, block_url)
+{
+    var success_cb = function(data, textStatus, req)
+    {
+        if(block_url && block_url != undefined)
+        {
+            creme.utils.loadBlock(block_url);
+        }
+    };
+
+    var error_cb = function(req, textStatus, err)
+    {
+        
+    };
+    
+    creme.ajax.json.post('/reports2/report/field/unlink_report', {'field_id': field_id}, success_cb, success_cb, false, this.loading_options);
+}
+
+creme.reports.link_report = function(report_id, field_id, block_url)
+{
+    creme.utils.innerPopupNReload('/reports2/report/'+report_id+'/field/'+field_id+'/link_report', block_url);
+}
+
+creme.reports.link_relation_report = function(report_id, field_id, predicate, block_url)
+{
+    var success_cb = function(data, textStatus, req)
+    {
+        var $select = $('<select />');
+        creme.forms.Select.fill($select, [["","Sélectionnez un type"]].concat(data), "");
+        
+        creme.utils.showDialog($select, {
+            buttons : {
+                "Ok" : function(){
+                    if($select.val() == "")
+                    {
+                        creme.utils.showDialog("Veuillez sélectionner un type.");
+                        return;
+                    }
+
+                    creme.utils.innerPopupNReload('/reports2/report/'+report_id+'/field/'+field_id+'/link_relation_report/'+$select.val(), block_url);
+
+                    $(this).dialog("close");
+                }
+            }
+        });
+
+    }
+
+    var error_cb = function(req, textStatus, err)
+    {
+        
+    }
+
+    creme.forms.RelationSelector.contentTypeRequest(predicate, success_cb, error_cb);
+}
+
+creme.reports.changeOrder = function(report_id, field_id, direction, block_url)
+{
+    var success_cb = function(data, textStatus, req)
+    {
+        if(block_url && block_url != undefined)
+        {
+            creme.utils.loadBlock(block_url);
+        }
+    };
+
+    var error_cb = function(req, textStatus, err)
+    {
+        //creme.utils.showDialog("Erreur, actualisez la page");
+    };
+
+    var data = {'report_id': report_id, 'field_id': field_id, 'direction': direction};
+
+    creme.ajax.json.post('/reports2/report/field/change_order', data, success_cb, success_cb, false, this.loading_options);
 }
