@@ -23,6 +23,7 @@ from django.utils.simplejson import JSONEncoder
 from django.utils.translation import ugettext_lazy as _
 
 from creme_core.gui.block import QuerysetBlock
+from creme_core.utils import jsonify
 
 from persons.models import Contact
 
@@ -71,6 +72,7 @@ class ContactsBlock(QuerysetBlock):
 class MessagesBlock(QuerysetBlock):
     id_           = QuerysetBlock.generate_id('sms', 'messages')
     dependencies  = (Message,)
+    page_size     = 12
     verbose_name  = _(u'Messages envoyés')
     template_name = 'sms/templatetags/block_messages.html'
 
@@ -81,7 +83,7 @@ class MessagesBlock(QuerysetBlock):
                                                             ))
 
     #Useful method because EmailSending is not a CremeEntity (should be ?) --> generic view in creme_core (problems with credemtials ?) ??
-    #TODO: @jsonify ?
+    @jsonify
     def detailview_ajax(self, request, entity_id):
         from creme_core.gui.block import BlocksManager
         context = {
@@ -89,7 +91,8 @@ class MessagesBlock(QuerysetBlock):
                 'object':               Sending.objects.get(id=entity_id),
                 BlocksManager.var_name: BlocksManager(),
             }
-        return HttpResponse(JSONEncoder().encode([(self.id_, self.detailview_display(context))]), mimetype="text/javascript")
+
+        return [(self.id_, self.detailview_display(context))]
 
 
 class SendingsBlock(QuerysetBlock):

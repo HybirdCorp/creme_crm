@@ -33,7 +33,6 @@ class PropertiesBlock(QuerysetBlock):
     def detailview_display(self, context):
         entity = context['object']
         return self._render(self.get_block_template_context(context, entity.properties.all(),
-                                                            #update_url='/creme_core/properties/reload/%s/' % entity.pk,
                                                             update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, entity.pk),
                                                             ))
 
@@ -49,7 +48,6 @@ class RelationsBlock(QuerysetBlock):
         entity = context['object']
         btc    = self.get_block_template_context(context,
                                                  entity.relations.filter(type__display_with_other=True).select_related('type', 'object_entity'),
-                                                 #update_url='/creme_core/relations/reload/%s/' % entity.pk,
                                                  update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, entity.pk),
                                                  )
 

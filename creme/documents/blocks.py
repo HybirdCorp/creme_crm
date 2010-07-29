@@ -33,6 +33,7 @@ class LinkedDocsBlock(QuerysetBlock):
     dependencies  = (Relation,) #Document
     verbose_name  = _(u'Documents liés')
     template_name = 'documents/templatetags/block_linked_docs.html'
+    configurable  = True
 
     def __init__(self, *args, **kwargs):
         super(LinkedDocsBlock, self).__init__(*args, **kwargs)

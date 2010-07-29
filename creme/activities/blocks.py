@@ -59,6 +59,7 @@ class FutureActivitiesBlock(QuerysetBlock):
     dependencies  = (Relation,) #Activity
     verbose_name  = _(u'Activités futures')
     template_name = 'activities/templatetags/block_future_activities.html'
+    configurable  = True
 
     def __init__(self, *args, **kwargs):
         super(FutureActivitiesBlock, self).__init__(*args, **kwargs)
@@ -84,6 +85,7 @@ class PastActivitiesBlock(QuerysetBlock):
     dependencies  = (Relation,) #Activity
     verbose_name  = _(u'Activités passées')
     template_name = 'activities/templatetags/block_past_activities.html'
+    configurable  = True
 
     def detailview_display(self, context):
         entity = context['object']
