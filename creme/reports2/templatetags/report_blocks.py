@@ -24,7 +24,9 @@ from reports2.blocks import report_fields_block
 
 register = Library()
 
-@register.inclusion_tag('creme_core/templatetags/registered_blocks.html', takes_context=True)
-def get_report_fields(context):
-    return {'blocks': [report_fields_block.detailview_display(context)]}
+#TODO: delete this file !!!
+
+#@register.inclusion_tag('creme_core/templatetags/registered_blocks.html', takes_context=True)
+#def get_report_fields(context):
+    #return {'blocks': [report_fields_block.detailview_display(context)]}
 

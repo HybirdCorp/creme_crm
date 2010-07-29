@@ -21,20 +21,23 @@
 from django.utils.translation import ugettext_lazy as _
 
 from creme_core.gui.block import Block
-
 from creme_core.models.header_filter import HFI_FIELD, HFI_RELATION
 
-from reports2.models import report_template_dir, report_prefix_url
+#from reports2.models import report_template_dir, report_prefix_url
+from reports2.models import Field, report_template_dir
+
 
 class ReportFieldsBlock(Block):
     id_           = Block.generate_id('reports2', 'fields')
+    dependencies  = (Field,)
     verbose_name  = _(u"Colonnes du rapport")
     template_name = '%s/templatetags/block_report_fields.html' % report_template_dir
 
     def detailview_display(self, context):
         object = context['object']
         return self._render(self.get_block_template_context(context,
-                                                            update_url='%s/%s/fields_block/reload/' % (report_prefix_url, object.id),
+                                                            #update_url='%s/%s/fields_block/reload/' % (report_prefix_url, object.id),
+                                                            update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, object.pk),
                                                             HFI_FIELD=HFI_FIELD,
                                                             HFI_RELATION=HFI_RELATION)
                             )

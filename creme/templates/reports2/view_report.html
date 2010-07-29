@@ -1,14 +1,24 @@
 {% extends "creme_core/generics/view_entity.html" %}
 
 {% load i18n %}
-{% load report_blocks %}
+{% comment %}{% load report_blocks %}{% endcomment %}
+{% load creme_block %}
 
 {% block extrahead %}<script type="text/javascript" src="{{MEDIA_URL}}js/models/reports2.js"></script>{% endblock %}
 
 {% block logo %}<img src="{{MEDIA_URL}}images/reporting_64.png" alt=""/>{% endblock %}
 
+{% block creme_blocks_import %}
+    {{block.super}}
+
+{% comment %}     {% import_block from_app 'creme_core' named 'relations' as 'relations_block' %} {% endcomment %}
+{% comment %}     {% import_block from_app 'creme_core' named 'properties' as 'properties_block' %} {% endcomment %}
+    {% import_block from_app 'reports2' named 'fields' as 'fields_block' %}
+{% endblock %}
+
 {% block after_object_as_table_1 %}
-    {% get_report_fields %}
+    {% comment %}{% get_report_fields %}{% endcomment %}
+    {% display_block_detailview 'fields_block' %}
 {% endblock %}
 
 {% block edit_delete_buttons %}
