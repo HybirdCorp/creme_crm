@@ -339,14 +339,16 @@ class _BlockRegistry(object):
     def __init__(self):
         self._blocks = {}
 
-    def register(self, block):
-        blocks = self._blocks
-        block_id = block.id_
+    def register(self, *blocks):
+        _blocks = self._blocks
 
-        if blocks.has_key(block_id):
-            warning("Duplicate block's id or block registered twice : %s", block_id) #exception instead ???
+        for block in blocks:
+            block_id = block.id_
 
-        blocks[block_id] = block
+            if _blocks.has_key(block_id):
+                warning("Duplicate block's id or block registered twice : %s", block_id) #exception instead ???
+
+            _blocks[block_id] = block
 
     def get_block(self, block_id):
         block = self._blocks.get(block_id)

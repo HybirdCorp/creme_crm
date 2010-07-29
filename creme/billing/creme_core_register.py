@@ -40,7 +40,4 @@ reg_menu('billing', '/billing/sales_orders',    'Lister les bons de commande')
 reg_menu('billing', '/billing/quote/add',       'Ajouter un devis')
 reg_menu('billing', '/billing/quotes',          'Lister les devis')
 
-reg_block = block_registry.register
-reg_block(product_lines_block)
-reg_block(service_lines_block)
-reg_block(total_block)
+block_registry.register(product_lines_block, service_lines_block, total_block)

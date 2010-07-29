@@ -32,6 +32,10 @@ from documents.models import Document
 from emails.models import EmailRecipient, EmailSending, Email, MailingList
 
 
+__all__ = ['mailing_lists_block', 'recipients_block', 'contacts_block', 'organisations_block',
+           'child_lists_block', 'parent_lists_block', 'attachments_block', 'sendings_block',
+           'mails_block', 'mails_history_block']
+
 class MailingListsBlock(QuerysetBlock):
     id_           = QuerysetBlock.generate_id('emails', 'mailing_lists')
     dependencies  = (MailingList,)

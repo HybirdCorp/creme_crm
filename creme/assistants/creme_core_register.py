@@ -23,12 +23,7 @@ from creme_core.gui.block import block_registry
 from assistants.blocks import alerts_block, actions_it_block, actions_nit_block, memos_block, todos_block
 
 
-reg_block = block_registry.register
-reg_block(todos_block)
-reg_block(memos_block)
-reg_block(alerts_block)
-reg_block(actions_it_block)
-reg_block(actions_nit_block)
+block_registry.register(todos_block, memos_block, alerts_block, actions_it_block, actions_nit_block)
 
 #from creme_core.reminder import reminder_registry
 #from reminders import reminder_alert, reminder_todo

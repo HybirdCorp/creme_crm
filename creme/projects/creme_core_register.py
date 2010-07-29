@@ -36,7 +36,4 @@ reg_menu = creme_menu.register_menu
 reg_menu('projects', '/projects/projects',    'Lister les projets')
 reg_menu('projects', '/projects/project/add', 'Ajouter un projet')
 
-reg_block = block_registry.register
-reg_block(tasks_block)
-reg_block(resources_block)
-reg_block(working_periods_block)
+block_registry.register(tasks_block, resources_block, working_periods_block)

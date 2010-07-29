@@ -35,6 +35,10 @@ from constants import (REL_OBJ_LINKED_CONTACT,
                        REL_OBJ_RESPONSIBLE,
                        REL_OBJ_LINKED_QUOTE, REL_OBJ_LINKED_INVOICE, REL_OBJ_LINKED_SALESORDER)
 
+__all__ = ['linked_contacts_block', 'linked_products_block', 'linked_services_block',
+           'responsibles_block', 'quotes_block', 'sales_orders_block', 'invoices_block',
+           'linked_product_lines_block', 'linked_service_lines_block']
+
 _contact_ct_id = None
 
 class LinkedContactsBlock(QuerysetBlock):
