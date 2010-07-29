@@ -32,7 +32,6 @@ from creme_core.entities_access.functions_for_permissions import get_view_or_die
 from creme_core.constants import DROIT_MODULE_EST_ADMIN
 
 from creme_config.forms.relation_type import RelationTypeCreateForm, RelationTypeEditForm
-from creme_config.blocks import relation_types_block
 
 
 portal_url = '/creme_config/relation_type/portal/'
@@ -81,8 +80,3 @@ def delete(request):
     relation_type.delete()
 
     return HttpResponse()
-
-@login_required
-@get_view_or_die('creme_config')
-def reload_block(request):
-    return relation_types_block.detailview_ajax(request)

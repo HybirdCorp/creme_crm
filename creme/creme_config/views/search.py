@@ -18,19 +18,17 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-
 from django.http import HttpResponseRedirect, HttpResponse
 from django.template.context import RequestContext
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404, render_to_response
-
-import settings
+from django.conf import settings
 
 from creme_core.views.generic import add_entity
 from creme_core.entities_access.functions_for_permissions import get_view_or_die
 from creme_core.constants import DROIT_MODULE_EST_ADMIN
 from creme_core.models import SearchConfigItem, SearchField
-from creme_config.blocks import search_block
+
 from creme_config.forms.search import SearchEditForm, SearchAddForm
 
 
@@ -51,7 +49,7 @@ def portal(request):
         @Permissions : Access OR Admin to creme_config app
     """
     return render_to_response('creme_config/search_portal.html',
-                              {'SHOW_HELP':settings.SHOW_HELP},#TODO:Context processor ?
+                              {'SHOW_HELP': settings.SHOW_HELP},#TODO:Context processor ?
                               context_instance=RequestContext(request))
 
 @login_required
@@ -77,11 +75,8 @@ def edit(request, search_config_id):
 @get_view_or_die('creme_config', DROIT_MODULE_EST_ADMIN)
 def delete(request):
     search_cfg_id = request.POST.get('id')
+
     SearchConfigItem.objects.filter(id=search_cfg_id).delete()
     SearchField.objects.filter(search_config_item__id=search_cfg_id).delete()
-    return HttpResponse()
 
-@login_required
-@get_view_or_die('creme_config')
-def reload_search(request):
-    return search_block.detailview_ajax(request)
+    return HttpResponse()

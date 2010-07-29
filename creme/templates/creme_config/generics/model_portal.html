@@ -1,7 +1,7 @@
 {% extends "creme_config/portal.html" %}
 
 {% load creme_core_tags %}
-{% load creme_config_blocks %}
+{% load creme_block %}
 
 {% block title %}
     <a href="/creme_config/">Configuration > </a>
@@ -10,5 +10,6 @@
 {% endblock %}
 
 {% block before_statistics %}
-    {% get_model_config %}
+    {% import_block from_app 'creme_config' named 'model_config' as 'model_config_block' %}
+    {% display_block_detailview 'model_config_block' %}
 {% endblock %}

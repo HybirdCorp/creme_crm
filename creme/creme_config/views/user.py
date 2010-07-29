@@ -30,7 +30,6 @@ from creme_core.constants import DROIT_MODULE_EST_ADMIN
 
 from creme_config.forms.user_settings import UserSettingsConfigForm
 from creme_config.forms.user import  UserAddForm, UserChangePwForm, UserEditForm
-from creme_config.blocks import users_block
 
 
 portal_url = '/creme_config/user/portal/'
@@ -135,8 +134,3 @@ def edit_own_settings(request):
     return render_to_response('creme_core/generics/form/edit.html',
                               {'form': settings_form},
                               context_instance=RequestContext(request))
-
-@login_required
-@get_view_or_die('creme_config')
-def reload_block(request):
-    return users_block.detailview_ajax(request)

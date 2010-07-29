@@ -31,7 +31,7 @@ from creme_core.entities_access.functions_for_permissions import get_view_or_die
 from creme_core.constants import DROIT_MODULE_EST_ADMIN
 
 from creme_config.forms.custom_fields import CustomFieldsCTAddForm, CustomFieldsAddForm, CustomFieldsEditForm
-from creme_config.blocks import custom_fields_portal_block, custom_fields_block
+from creme_config.blocks import custom_fields_block
 
 
 ct_url = '/creme_config/custom_fields/ct/%s'
@@ -105,11 +105,6 @@ def delete(request):
         return HttpResponse("", mimetype="text/javascript")
 
     return HttpResponse()
-
-@login_required
-@get_view_or_die('creme_config')
-def reload_portal_block(request):
-    return custom_fields_portal_block.detailview_ajax(request)
 
 @login_required
 @get_view_or_die('creme_config')

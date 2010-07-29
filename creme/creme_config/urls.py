@@ -16,7 +16,6 @@ urlpatterns = patterns('creme_config.views',
     (r'^relation_type/add/$',                              'relation_type.add'),
     (r'^relation_type/edit/(?P<relation_type_id>[\w-]+)$', 'relation_type.edit'),
     (r'^relation_type/delete$',                            'relation_type.delete'),
-    (r'^relation_types/reload/$',                          'relation_type.reload_block'),
 
     #Roles
     (r'^roles/portal/$',                 'role.portal'),
@@ -26,16 +25,14 @@ urlpatterns = patterns('creme_config.views',
     (r'^roles/(?P<role_id>\d*)$',        'role.view'),
     (r'^roles/getDirectDescendant/$',    'role.ajax_get_direct_descendant'),
 
-    (r'^roles/entity_credential/add/$',                           'entity_credential.add'),
-    (r'^roles/entity_credential/portal/$',                        'entity_credential.portal'),
-    (r'^roles/entity_credential/delete$',                         'entity_credential.delete'),
-    (r'^roles/entity_credential/generate_all/$',                  'entity_credential.generate_all_possibilities'),
-    (r'^roles/entity_credentials/reload/$',                       'entity_credential.reload_block'),
+    (r'^roles/entity_credential/add/$',          'entity_credential.add'),
+    (r'^roles/entity_credential/portal/$',       'entity_credential.portal'),
+    (r'^roles/entity_credential/delete$',        'entity_credential.delete'),
+    (r'^roles/entity_credential/generate_all/$', 'entity_credential.generate_all_possibilities'),
 
-    (r'^roles/app_credential/portal/$',                     'app_credential.portal'),
-    (r'^roles/app_credential/add/$',                        'app_credential.add'),
-    (r'^roles/app_credential/delete$',                      'app_credential.delete'),
-    (r'^roles/app_credentials/reload/$',                    'app_credential.reload_block'),
+    (r'^roles/app_credential/portal/$',  'app_credential.portal'),
+    (r'^roles/app_credential/add/$',     'app_credential.add'),
+    (r'^roles/app_credential/delete$',   'app_credential.delete'),
 
     #Profiles
     (r'^profile/portal/$',                    'profile.portal'),
@@ -50,25 +47,22 @@ urlpatterns = patterns('creme_config.views',
     (r'^user/delete$',                         'user.delete'),
     (r'^user/edit/password/(?P<user_id>\d+)$', 'user.change_password'),
     (r'^user/edit/settings/$',                 'user.edit_own_settings'),
-    (r'^users/reload/$',                       'user.reload_block'),
 
     #Property Types
     (r'^property_type/portal/$',                           'creme_property_type.portal'),
     (r'^property_type/add/$',                              'creme_property_type.add'),
     (r'^property_type/edit/(?P<property_type_id>[\w-]+)$', 'creme_property_type.edit'),
     (r'^property_type/delete$',                            'creme_property_type.delete'),
-    (r'^property_types/reload/$',                          'creme_property_type.reload_block'),
 
     #Custom fields
-    (r'^custom_fields/portal/$',                  'custom_fields.portal'),
-    (r'^custom_fields/ct/add/$',                  'custom_fields.add_ct'),
-    (r'^custom_fields/ct/(?P<ct_id>\d+)$',        'custom_fields.view'),
-    (r'^custom_fields/ct/delete$',                'custom_fields.delete_ct'),
-    (r'^custom_fields/add/(?P<ct_id>\d+)$',       'custom_fields.add'),
-    (r'^custom_fields/edit/(?P<field_id>\d+)$',   'custom_fields.edit'),
-    (r'^custom_fields/delete$',                   'custom_fields.delete'),
-    (r'^custom_fields/portal/reload/$',           'custom_fields.reload_portal_block'),
-    (r'^custom_fields/(?P<ct_id>\d+)/reload/$',   'custom_fields.reload_block'),
+    (r'^custom_fields/portal/$',                'custom_fields.portal'),
+    (r'^custom_fields/ct/add/$',                'custom_fields.add_ct'),
+    (r'^custom_fields/ct/(?P<ct_id>\d+)$',      'custom_fields.view'),
+    (r'^custom_fields/ct/delete$',              'custom_fields.delete_ct'),
+    (r'^custom_fields/add/(?P<ct_id>\d+)$',     'custom_fields.add'),
+    (r'^custom_fields/edit/(?P<field_id>\d+)$', 'custom_fields.edit'),
+    (r'^custom_fields/delete$',                 'custom_fields.delete'),
+    (r'^custom_fields/(?P<ct_id>\d+)/reload/$', 'custom_fields.reload_block'),
 
     #Blocks
     (r'^blocks/portal/$',                     'blocks.portal'),
@@ -76,17 +70,15 @@ urlpatterns = patterns('creme_config.views',
     (r'^blocks/edit/(?P<ct_id>\d+)$',         'blocks.edit'),
     (r'^blocks/edit/(?P<ct_id>\d+)/portal/$', 'blocks.edit_portal'),
     (r'^blocks/delete$',                      'blocks.delete'),
-    (r'^blocks/reload/$',                     'blocks.reload_block'),
 
     #Prefered Menu
     (r'^prefered_menu/edit/$', 'prefered_menu.edit'),
 
     #Button Menu
-    (r'^button_menu/portal/$',                'button_menu.portal'),
-    (r'^button_menu/add/$',                   'button_menu.add'),
-    (r'^button_menu/edit/(?P<ct_id>\d+)$',    'button_menu.edit'),
-    (r'^button_menu/delete$',                 'button_menu.delete'),
-    (r'^button_menu/reload/$',                'button_menu.reload_block'),
+    (r'^button_menu/portal/$',             'button_menu.portal'),
+    (r'^button_menu/add/$',                'button_menu.add'),
+    (r'^button_menu/edit/(?P<ct_id>\d+)$', 'button_menu.edit'),
+    (r'^button_menu/delete$',              'button_menu.delete'),
 
     #MailSignature
     (r'^mailsignature/portal/$',                          'mail_signature.portal'),
@@ -99,7 +91,6 @@ urlpatterns = patterns('creme_config.views',
     (r'^search/add/$',                           'search.add'),
     (r'^search/edit/(?P<search_config_id>\d+)$', 'search.edit'),
     (r'^search/delete$',                         'search.delete'),
-    (r'^search/reload/$',                        'search.reload_search'),
 
     #Generic portal config
     (r'^models/(?P<ct_id>\d+)/reload/$',                                      'generics_views.reload_block'),

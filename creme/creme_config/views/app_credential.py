@@ -32,7 +32,6 @@ from creme_core.registry import creme_registry
 from creme_core.constants import DROIT_MODULE_EST_ADMIN
 
 from creme_config.forms.app_credential import CremeAppDroitForm
-from creme_config.blocks import app_credentials_block
 
 
 portal_url = '/creme_config/roles/app_credential/portal/'
@@ -83,8 +82,3 @@ def generate_all(request):
                 debug('Exception CremeAppDroit : %s', e)
 
     return HttpResponseRedirect(portal_url)
-
-@login_required
-@get_view_or_die('creme_config')
-def reload_block(request):
-    return app_credentials_block.detailview_ajax(request)

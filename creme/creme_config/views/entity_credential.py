@@ -33,7 +33,6 @@ from creme_core.entities_access.functions_for_permissions import get_view_or_die
 from creme_core.constants import DROIT_MODULE_EST_ADMIN
 
 from creme_config.forms.entity_type_credential import CremeDroitEntityTypeForm
-from creme_config.blocks import entity_credentials_block
 
 
 portal_url = '/creme_config/roles/entity_credential/portal/'
@@ -86,8 +85,3 @@ def generate_all_possibilities(request):
                     debug('Exception de creation CremeDroitEntityType : %s', e)
 
     return HttpResponseRedirect(portal_url)
-
-@login_required
-@get_view_or_die('creme_config')
-def reload_block(request):
-    return entity_credentials_block.detailview_ajax(request)

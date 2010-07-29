@@ -29,7 +29,6 @@ from creme_core.entities_access.functions_for_permissions import get_view_or_die
 from creme_core.constants import DROIT_MODULE_EST_ADMIN
 
 from creme_config.forms.blocks import BlocksAddForm, BlocksEditForm, BlocksPortalEditForm
-from creme_config.blocks import blocks_config_block
 
 
 portal_url = '/creme_config/blocks/portal/'
@@ -95,8 +94,3 @@ def delete(request):
 
     BlockConfigItem.objects.filter(content_type__id=ct_id).delete()
     return HttpResponse()
-
-@login_required
-@get_view_or_die('creme_config')
-def reload_block(request):
-    return blocks_config_block.detailview_ajax(request)
