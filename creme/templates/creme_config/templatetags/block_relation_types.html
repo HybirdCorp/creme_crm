@@ -36,7 +36,7 @@
                         <a href="/creme_config/relation_type/edit/{{relation_type.id}}">
                             <img src="{{MEDIA_URL}}images/edit_22.png" border="0" title="Éditer" alt="Éditer">
                         </a>
-                        {% get_line_deletor3 at_url '/creme_config/relation_type/delete' with_args "{'id':'{{relation_type.pk}}'}" %}
+                        {% get_line_deletor at_url '/creme_config/relation_type/delete' with_args "{'id':'{{relation_type.pk}}'}" %}
                     </td>
                 </tr>
             {% endfor %}

@@ -49,7 +49,7 @@
                     </td>
                     <td class="{{row_color}}" align="center" valign="center" style="width:10%;">
                         {% comment %}{% get_line_deletor '/sms/campaign/sending/delete/{{sending.pk}}' %}{% endcomment %}
-                        {% get_line_deletor3 at_url '/sms/campaign/sending/delete' with_args "{'id':{{sending.pk}} }" %}
+                        {% get_line_deletor at_url '/sms/campaign/sending/delete' with_args "{'id':{{sending.pk}} }" %}
                     </td>
                 </tr>
             {% endfor %}

@@ -52,7 +52,7 @@
                     </td>
                     <td class="{{row_color}}" align="center" valign="center" style="width:10%;">
                         {% block line_actions %}
-                            {% get_line_deletor3 at_url '/billing/line/delete' with_args "{'id': '{{line.id}}' }" %}
+                            {% get_line_deletor at_url '/billing/line/delete' with_args "{'id': '{{line.id}}' }" %}
                         {% endblock %}
                    </td>
                 </tr>

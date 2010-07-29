@@ -37,7 +37,7 @@
                     <a href="/creme_config/user/edit/{{user.id}}">
                         <img src="{{MEDIA_URL}}images/edit_22.png" border="0" alt="Éditer" title="Éditer">
                     </a>
-                    {% get_line_deletor3 at_url '/creme_config/user/delete' with_args "{'id':'{{user.id}}'}" %}
+                    {% get_line_deletor at_url '/creme_config/user/delete' with_args "{'id':'{{user.id}}'}" %}
                 </td>
                 <td class="{{row_color}}">
                     <a href="/creme_config/user/edit/password/{{user.id}}">

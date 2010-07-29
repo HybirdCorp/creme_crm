@@ -37,7 +37,7 @@
                         <a class="button_link" onclick="creme.utils.innerPopupNReload('{{period.get_edit_absolute_url}}', '{{update_url}}?base_url={{base_url}}&{{block_name}}_deps=' + creme.utils.getBlocksDeps('{{block_name}}'));">
                             <img src="{{MEDIA_URL}}images/edit_22.png" border="0" title="Edition d'une période travaillée" alt="Editer" />
                         </a>
-                        {% get_line_deletor3 at_url '/projects/period/delete' with_args "{ 'id':{{period.pk}} }" %}
+                        {% get_line_deletor at_url '/projects/period/delete' with_args "{ 'id':{{period.pk}} }" %}
                     </td>
                 </tr>
             {% endfor %}
