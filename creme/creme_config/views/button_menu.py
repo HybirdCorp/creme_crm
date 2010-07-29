@@ -29,7 +29,6 @@ from creme_core.entities_access.functions_for_permissions import get_view_or_die
 from creme_core.constants import DROIT_MODULE_EST_ADMIN
 
 from creme_config.forms.button_menu import ButtonMenuAddForm, ButtonMenuEditForm
-from creme_config.blocks import button_menu_block
 
 
 portal_url = '/creme_config/button_menu/portal/'
@@ -90,9 +89,3 @@ def delete(request):
 
     ButtonMenuItem.objects.filter(content_type__id=ct_id).delete()
     return HttpResponse()
-
-@login_required
-@get_view_or_die('creme_config')
-def reload_block(request):
-    return button_menu_block.detailview_ajax(request)
-

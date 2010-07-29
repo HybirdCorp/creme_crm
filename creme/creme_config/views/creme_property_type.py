@@ -29,7 +29,6 @@ from creme_core.constants import DROIT_MODULE_EST_ADMIN
 from creme_core.entities_access.functions_for_permissions import get_view_or_die
 
 from creme_config.forms.creme_property_type import CremePropertyTypeEditForm, CremePropertyTypeAddForm
-from creme_config.blocks import property_types_block
 
 
 portal_url = '/creme_config/property_type/portal/'
@@ -73,7 +72,6 @@ def portal(request):
                               {},
                               context_instance=RequestContext(request))
 
-#TODO: PropertyLabel not deleted ???
 @login_required
 @get_view_or_die('creme_config', DROIT_MODULE_EST_ADMIN)
 def delete(request):
@@ -83,8 +81,3 @@ def delete(request):
     property_type = get_object_or_404(CremePropertyType, pk=request.POST.get('id'))
     property_type.delete()
     return HttpResponse()
-
-@login_required
-@get_view_or_die('creme_config')
-def reload_block(request):
-    return property_types_block.detailview_ajax(request)

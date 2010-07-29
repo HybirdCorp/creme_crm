@@ -27,7 +27,7 @@ from creme_core.models import CremeEntity
 from creme_core.gui.block import block_registry, str2list, BlocksManager
 from creme_core.utils import jsonify
 
-#TODO: credentials.....
+#TODO: credentials..... (+ @get_view_or_die('app_name'))
 
 def _get_depblock_ids(request, block_id):
     ids = [block_id]
@@ -47,7 +47,7 @@ def _build_context(request, blocks_manager):
 
 @login_required
 @jsonify
-def reload_detailview(request, block_id, entity_id): #TODO: move into block methods ?????
+def reload_detailview(request, block_id, entity_id):
     blocks_manager = BlocksManager()
     context = _build_context(request, blocks_manager)
     depblock_ids = _get_depblock_ids(request, block_id)
@@ -93,5 +93,20 @@ def reload_portal(request, block_id, ct_ids):
         block = block_registry[block_id]
         blocks_manager.add_group(block_id, block)
         blocks.append((block_id, block.portal_display(context, ct_ids)))
+
+    return blocks
+
+@login_required
+@jsonify
+def reload_basic(request, block_id):
+    blocks_manager = BlocksManager()
+    context = _build_context(request, blocks_manager)
+    depblock_ids = _get_depblock_ids(request, block_id)
+    blocks = []
+
+    for block_id in depblock_ids:
+        block = block_registry[block_id]
+        blocks_manager.add_group(block_id, block)
+        blocks.append((block_id, block.detailview_display(context)))
 
     return blocks

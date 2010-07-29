@@ -22,6 +22,9 @@ from django.utils.translation import ugettext_lazy as _
 
 from creme_core.registry import creme_registry
 from creme_core.gui.menu import creme_menu
+from creme_core.gui.block import block_registry
+
+from creme_config.blocks import *
 
 
 creme_registry.register_app('creme_config', _(u'Configuration générale') , '/creme_config')
@@ -35,3 +38,16 @@ reg_menu('creme_config', '/creme_config/roles/app_credential/portal/',    "Gesti
 reg_menu('creme_config', '/creme_config/profile/portal/',                 'Gestion des profils')
 reg_menu('creme_config', '/creme_config/roles/portal/',                   'Gestion des rôles')
 reg_menu('creme_config', '/creme_config/user/portal/',                    'Gestion des utilisateurs')
+
+reg_block = block_registry.register
+reg_block(generic_models_block)
+reg_block(property_types_block)
+reg_block(relation_types_block)
+reg_block(custom_fields_portal_block)
+reg_block(custom_fields_block)
+reg_block(blocks_config_block)
+reg_block(button_menu_block)
+reg_block(users_block)
+reg_block(app_credentials_block)
+reg_block(entity_credentials_block)
+reg_block(search_block)

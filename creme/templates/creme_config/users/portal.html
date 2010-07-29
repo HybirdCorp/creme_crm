@@ -1,11 +1,12 @@
 {% extends "creme_config/portal.html" %}
 
-{% load creme_config_blocks %}
+{% load creme_block %}
 
 {% block title %}
     <a href="/creme_config/">Configuration > </a>Utilisateurs
 {% endblock %}
 
 {% block before_statistics %}
-    {% get_users %}
+    {% import_block from_app 'creme_config' named 'users' as 'users_block' %}
+    {% display_block_detailview 'users_block' %}
 {% endblock %}

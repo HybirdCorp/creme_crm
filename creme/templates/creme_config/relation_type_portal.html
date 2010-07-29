@@ -1,11 +1,12 @@
 {% extends "creme_config/portal.html" %}
 
-{% load creme_config_blocks %}
+{% load creme_block %}
 
 {% block title %}
     <a href="/creme_config/">Configuration > </a>Types de relation personnalisés
 {% endblock %}
 
 {% block before_statistics %}
-    {% get_relation_types %}
+    {% import_block from_app 'creme_config' named 'relation_types' as 'relation_types_block' %}
+    {% display_block_detailview 'relation_types_block' %}
 {% endblock %}
