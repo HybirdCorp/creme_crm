@@ -33,6 +33,7 @@ from creme_core.entities_access.permissions import user_has_read_permission_for_
 from creme_core.entities_access.filter_allowed_objects import filter_RUD_objects
 from creme_core.entities_access.functions_for_permissions import read_object_or_die, edit_object_or_die, delete_object_or_die
 from creme_core.views.generic import inner_popup, list_view_popup_from_widget
+from creme_core.utils import get_ct_or_404
 
 
 #JSON_OPS = frozenset(('gt', 'lt', 'in'))
@@ -376,3 +377,17 @@ def handle_relation_from_predicate_n_entity(request):
         return_msg.append("Opération déroulée avec succès")
 
     return HttpResponse(",".join(return_msg), status=status)
+
+
+
+@login_required
+def get_predicates_choices_4_ct(request):
+    POST = request.POST
+    ct = get_ct_or_404(POST.get('ct_id'))
+
+#    fields = POST.getlist('fields')
+
+    #Why this one is not JSON serializable ?
+#    predicates = RelationType.objects.filter(Q(subject_ctypes=ct)|Q(subject_ctypes__isnull=True)).order_by('predicate').values_list('id', 'predicate')
+    predicates = [(r.id, r.predicate) for r in RelationType.objects.filter(Q(subject_ctypes=ct)|Q(subject_ctypes__isnull=True)).order_by('predicate')]
+    return HttpResponse(JSONEncoder().encode(predicates), mimetype="text/javascript")
