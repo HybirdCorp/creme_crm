@@ -26,7 +26,7 @@
                 <tr>
                     <td class="{{row_color}}"><a href="{{service.get_absolute_url}}">{{service}}</a></td>
                     <td class="{{row_color}}" align="center" valign="center" style="width:10%;">
-                        {% get_line_deletor3 at_url '/creme_core/relation/delete/similar' with_args "{'subject_id':{{object.pk}}, 'type':'{{predicate_id}}', 'object_id':{{service.pk}} }" %}
+                        {% get_line_deletor at_url '/creme_core/relation/delete/similar' with_args "{'subject_id':{{object.pk}}, 'type':'{{predicate_id}}', 'object_id':{{service.pk}} }" %}
                     </td>
                 </tr>
             {% endfor %}

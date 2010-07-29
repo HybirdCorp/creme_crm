@@ -23,7 +23,7 @@
                         <a href="{{sendlist.get_absolute_url}}">{{sendlist.name}}</a>
                     </td>
                     <td class="{{row_color}}" align="center" valign="center" style="width:10%;">
-                        {% get_line_deletor3 at_url '/sms/campaign/{{object.pk}}/sendlist/delete' with_args "{'id':'{{sendlist.id}}' }" %}
+                        {% get_line_deletor at_url '/sms/campaign/{{object.pk}}/sendlist/delete' with_args "{'id':'{{sendlist.id}}' }" %}
                     </td>
                 </tr>
             {% endfor %}

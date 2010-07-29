@@ -49,7 +49,7 @@
                         {% endwith %}
                     </td>
                     <td class="{{row_color}}" align="center" valign="center" style="width:10%;">
-                        {% get_line_deletor3 at_url '/activities/linked_activity/unlink' with_args "{'id':{{activity.pk}}, 'object_id':{{object.pk}} }" %}
+                        {% get_line_deletor at_url '/activities/linked_activity/unlink' with_args "{'id':{{activity.pk}}, 'object_id':{{object.pk}} }" %}
                     </td>
                 </tr>
             {% endfor %}

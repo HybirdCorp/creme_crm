@@ -36,7 +36,7 @@
                         <a class="button_link" onclick="creme.utils.innerPopupNReload('{{resource.get_edit_absolute_url}}', '{{update_url}}?base_url={{base_url}}&{{block_name}}_deps=' + creme.utils.getBlocksDeps('{{block_name}}'));">
                             <img src="{{MEDIA_URL}}images/edit_22.png" border="0" title="Edition d'une ressource" alt="Editer" />
                         </a>
-                        {% get_line_deletor3 at_url '/projects/resource/delete' with_args "{'id':{{resource.pk}} }" %}
+                        {% get_line_deletor at_url '/projects/resource/delete' with_args "{'id':{{resource.pk}} }" %}
                     </td>
                 </tr>
             {% endfor %}

@@ -33,7 +33,7 @@
                         <a href="{{invoice.get_absolute_url}}">{{invoice.name}}</a>
                     </td>
                     <td class="{{row_color}}" align="center" valign="center" style="width:10%;">
-                        {% get_line_deletor3 at_url '/creme_core/relation/delete/similar' with_args "{'subject_id':{{object.pk}}, 'type':'{{predicate_id}}', 'object_id':{{invoice.pk}} }" %}
+                        {% get_line_deletor at_url '/creme_core/relation/delete/similar' with_args "{'subject_id':{{object.pk}}, 'type':'{{predicate_id}}', 'object_id':{{invoice.pk}} }" %}
                     </td>
                 </tr>
             {% endfor %}

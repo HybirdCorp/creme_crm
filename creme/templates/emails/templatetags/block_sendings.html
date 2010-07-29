@@ -31,7 +31,7 @@
                         </a>
                     </td>
                     <td class="{{row_color}}" align="center" valign="center" style="width:10%;">
-                        {% get_line_deletor3 at_url '/emails/campaign/sending/delete' with_args "{'id':{{sending.pk}} }" %}
+                        {% get_line_deletor at_url '/emails/campaign/sending/delete' with_args "{'id':{{sending.pk}} }" %}
                     </td>
                 </tr>
             {% endfor %}

@@ -60,8 +60,7 @@ tr.creme-sms-message td.error {
                     <td class="{{row_color}} {{message.status}}">{{message.statusname}}</td>
                     <td class="{{row_color}}">{{message.status_message}}</td>
                     <td class="{{row_color}}" align="center" valign="center" style="width:10%;">
-                        {% comment %}{% get_line_deletor '/sms/campaign/sending/message/delete/{{message.pk}}' %}{% endcomment %}
-                        {% get_line_deletor3 at_url '/sms/campaign/sending/message/delete' with_args "{'id':{{message.pk}} }" %}
+                        {% get_line_deletor at_url '/sms/campaign/sending/message/delete' with_args "{'id':{{message.pk}} }" %}
                     </td>
                 </tr>
             {% endfor %}

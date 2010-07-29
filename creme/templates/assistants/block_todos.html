@@ -56,7 +56,7 @@
                         <a onclick="creme.utils.innerPopupNReload('/assistants/todo/edit/{{todo.id}}/', '{{update_url}}?base_url={{base_url}}&{{block_name}}_deps=' + creme.utils.getBlocksDeps('{{block_name}}'));">
                             <img src="{{MEDIA_URL}}images/edit_22.png" border="0">
                         </a>
-                        {% get_line_deletor3 at_url '/assistants/todo/delete' with_args "{'id' : {{todo.id}} }" %}
+                        {% get_line_deletor at_url '/assistants/todo/delete' with_args "{'id' : {{todo.id}} }" %}
                     </td>
                 </tr>
             {% endfor %}

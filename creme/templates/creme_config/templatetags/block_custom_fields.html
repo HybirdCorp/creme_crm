@@ -28,7 +28,7 @@
                         </a>
                     </td>
                     <td class="{{row_color}}">
-                        {% get_line_deletor3 at_url '/creme_config/custom_fields/delete' with_args "{'id': '{{field.id}}'}" %}
+                        {% get_line_deletor at_url '/creme_config/custom_fields/delete' with_args "{'id': '{{field.id}}'}" %}
                     </td>
                 </tr>
             {% endfor %}

@@ -51,7 +51,7 @@
                             </a>
                         </td>
                         <td class="{{row_color}}">
-                            {% get_line_deletor3 at_url '/creme_config/{{app_name}}/{{model_name}}/delete' with_args "{'id':'{{object.pk}}'}" %}
+                            {% get_line_deletor at_url '/creme_config/{{app_name}}/{{model_name}}/delete' with_args "{'id':'{{object.pk}}'}" %}
                         </td>
                     </tr>
                 {% endfor %}

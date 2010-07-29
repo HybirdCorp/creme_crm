@@ -81,9 +81,9 @@ def get_column_header(context, column_name, field_name):
 
 _line_deletor_re = compile_re(r'at_url (.*?) with_args (.*?)$')
 
-@register.tag(name="get_line_deletor3")
+@register.tag(name="get_line_deletor")
 def do_line_deletor(parser, token):
-    """Eg: {% get_line_deletor3 at_url '/app/model/delete' with_args "{'id' : {{object.id}} }" %}"""
+    """Eg: {% get_line_deletor at_url '/app/model/delete' with_args "{'id' : {{object.id}} }" %}"""
     try:
         # Splitting by None == splitting by spaces.
         tag_name, arg = token.contents.split(None, 1)
@@ -211,12 +211,9 @@ class DetailviewBlocksImporterNode(TemplateNode):
 
 @register.tag(name="display_detailview_blocks")
 def do_detailview_blocks_displayer(parser, token):
-    return DetailviewBlocksDisplayerNode() #TODO: BlocksViewer + param instead ???
+    return DetailviewBlocksDisplayerNode()
 
 class DetailviewBlocksDisplayerNode(TemplateNode):
-    #def __init__(self, group_name):
-        #self.group_name = group_name
-
     def render(self, context):
         blocks = BlocksManager.get(context).pop_group('detailview_blocks')
 

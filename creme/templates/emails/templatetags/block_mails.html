@@ -14,7 +14,7 @@
                     <td class="{{row_color}}">{{mail.recipient}}</td>
                     <td class="{{row_color}}">{{mail.get_status_str}}</td>
                     <td class="{{row_color}}" align="center" valign="center" style="width:10%;">
-                        {% get_line_deletor3 at_url '/emails/campaign/sending/mail/delete' with_args "{'id':'{{mail.pk}}'}" %}
+                        {% get_line_deletor at_url '/emails/campaign/sending/mail/delete' with_args "{'id':'{{mail.pk}}'}" %}
                     </td>
                 </tr>
             {% endfor %}
