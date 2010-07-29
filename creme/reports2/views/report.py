@@ -22,7 +22,7 @@ from django.http import Http404
 from django.db.models.fields.related import ForeignKey
 from django.contrib.auth.decorators import login_required
 from django.contrib.contenttypes.models import ContentType
-from django.shortcuts import get_object_or_404, render_to_response
+from django.shortcuts import get_object_or_404
 from django.template import RequestContext
 from django.http import HttpResponse
 
@@ -30,8 +30,9 @@ from creme_core.entities_access.functions_for_permissions import add_view_or_die
 from creme_core.views.generic import add_entity, view_entity_with_template, list_view, inner_popup
 from creme_core.views.generic.edit import edit_entity
 from creme_core.utils.meta import get_model_field_infos
+from creme_core.utils import get_ct_or_404
 
-from creme.creme_core.utils import get_ct_or_404
+from django.shortcuts import render_to_response
 from reports2.blocks import report_fields_block
 from reports2.models import Report2 as Report, report_prefix_url, report_template_dir, Field
 from reports2.forms.report import CreateForm, EditForm, LinkFieldToReportForm, AddFieldToReportForm
@@ -66,17 +67,17 @@ def detailview(request, report_id):
                                      '%s/view_report.html' % report_template_dir)
 
 @login_required
-@get_view_or_die('reports')
+@get_view_or_die(report_app)
 def listview(request):
     return list_view(request, Report, extra_dict={'add_url':'%s/report/add' % report_prefix_url})
 
 @login_required
-@get_view_or_die('reports')
+@get_view_or_die(report_app)
 def reload_fields_block(request, report_id):
     return report_fields_block.detailview_ajax(request, report_id)
 
 @login_required
-@get_view_or_die('reports')
+@get_view_or_die(report_app)
 def unlink_report(request):
     field = get_object_or_404(Field, pk=request.POST.get('field_id'))
     field.report = None
@@ -105,9 +106,8 @@ def __link_report(request, report, field, ct):
                        context_instance=RequestContext(request))
 
 @login_required
-@get_view_or_die('reports')
+@get_view_or_die(report_app)
 def link_report(request, report_id, field_id):
-    POST = request.POST
     field  = get_object_or_404(Field,  pk=field_id)
     report = get_object_or_404(Report, pk=report_id)
 
@@ -130,26 +130,8 @@ def link_report(request, report_id, field_id):
 
     return __link_report(request, report, field, ct)
 
-#    if POST:
-#        link_form = LinkFieldToReportForm(field, ct, POST)
-#
-#        if link_form.is_valid():
-#            link_form.save()
-#    else:
-#        link_form = LinkFieldToReportForm(field=field, ct=ct)
-#
-#    return inner_popup(request, 'creme_core/generics/blockform/add_popup2.html',
-#                       {
-#                        'form':   link_form,
-#                        'title': 'Liaison de la colonne <%s>' % field,
-#                       },
-#                       is_valid=link_form.is_valid(),
-#                       reload=False,
-#                       delegate_reload=True,
-#                       context_instance=RequestContext(request))
-
 @login_required
-@get_view_or_die('reports')
+@get_view_or_die(report_app)
 def link_relation_report(request, report_id, field_id, ct_id):
     field  = get_object_or_404(Field,  pk=field_id)
     report = get_object_or_404(Report, pk=report_id)
@@ -158,7 +140,7 @@ def link_relation_report(request, report_id, field_id, ct_id):
     return __link_report(request, report, field, ct)
 
 @login_required
-@get_view_or_die('reports')
+@get_view_or_die(report_app)
 def add_field(request, report_id):
     report = get_object_or_404(Report, pk=report_id)
     POST = request.POST
@@ -186,26 +168,43 @@ _order_direction = {
     'down':1
 }
 @login_required
-@get_view_or_die('reports')
+@get_view_or_die(report_app)
 def change_field_order(request):
     POST = request.POST
     report = get_object_or_404(Report, pk=POST.get('report_id'))
     field  = get_object_or_404(Field,  pk=POST.get('field_id'))
     direction = POST.get('direction', 'up')
 
+    field.order =  field.order+_order_direction[direction]
     try:
-#        field_order = field.order+_order_direction[direction]
-
-        field.order =  field.order+_order_direction[direction]
-
         other_field = report.columns.get(order=field.order)
-        other_field.order = other_field.order-_order_direction[direction]
-
-        field.save()
-        other_field.save()
-
     except Field.DoesNotExist:
         return HttpResponse("", status=403, mimetype="text/javascript")
 
+    other_field.order = other_field.order-_order_direction[direction]
+
+    field.save()
+    other_field.save()
+
     return HttpResponse("", status=200, mimetype="text/javascript")
+
+@login_required
+@get_view_or_die(report_app)
+def preview(request, report_id):
+    report = get_object_or_404(Report, pk=report_id)
+    model = report.ct.model_class()
+
+    results = []
+#    for field in report.columns.all().order_by('order'):
+
+
+    return render_to_response("%s/preview_report.html" % report_template_dir,
+                              {
+                                'object'  : report,
+                                'results' : results,
+                                'entities' : model.objects.all(),
+                              },
+                              context_instance=RequestContext(request))
+
+
 

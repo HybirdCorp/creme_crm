@@ -29,8 +29,7 @@ from reports2.models import report_template_dir, report_prefix_url
 class ReportFieldsBlock(Block):
     id_           = Block.generate_id('reports2', 'fields')
     verbose_name  = _(u"Colonnes du rapport")
-#    template_name = '%s/templatetags/block_report_fields.html' % report_template_dir
-    template_name = 'reports2/templatetags/block_report_fields.html'
+    template_name = '%s/templatetags/block_report_fields.html' % report_template_dir
 
     def detailview_display(self, context):
         object = context['object']
