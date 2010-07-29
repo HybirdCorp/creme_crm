@@ -31,6 +31,7 @@ class ApproachesBlock(QuerysetBlock):
     order_by      = 'title'
     verbose_name  = _(u'Démarches commerciales')
     template_name = 'commercial/templatetags/block_approaches.html'
+    configurable  = True
 
     def detailview_display(self, context):
         pk = context['object'].pk

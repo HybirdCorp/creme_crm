@@ -31,6 +31,7 @@ class TodosBlock(QuerysetBlock):
     order_by      = '-creation_date'
     verbose_name  = _(u'Todos')
     template_name = 'assistants/block_todos.html'
+    configurable  = True
 
     def detailview_display(self, context):
         pk = context['object'].pk
@@ -55,6 +56,7 @@ class MemosBlock(QuerysetBlock):
     order_by      = '-creation_date'
     verbose_name  = _(u'Mémos')
     template_name = 'assistants/block_memos.html'
+    configurable  = True
 
     def detailview_display(self, context):
         pk = context['object'].pk
@@ -79,6 +81,7 @@ class AlertsBlock(QuerysetBlock):
     order_by      = '-trigger_date'
     verbose_name  = _(u'Alertes')
     template_name = 'assistants/block_alerts.html'
+    configurable  = True
 
     def detailview_display(self, context):
         pk = context['object'].pk
@@ -103,6 +106,7 @@ class ActionsITBlock(QuerysetBlock):
     order_by      = 'deadline'
     verbose_name  = _(u'Actions dans les délais')
     template_name = 'assistants/block_actions_it.html'
+    configurable  = True
 
     def detailview_display(self, context):
         entity = context['object']
@@ -127,6 +131,7 @@ class ActionsNITBlock(QuerysetBlock):
     order_by      = 'deadline'
     verbose_name  = _(u'Réactions hors délais')
     template_name = 'assistants/block_actions_nit.html'
+    configurable  = True
 
     def detailview_display(self, context):
         entity = context['object']

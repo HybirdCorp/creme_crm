@@ -36,7 +36,7 @@ from creme_core.utils.id_generator import generate_string_id_and_save
 class DetailviewBlocksForm(CremeForm):
     ct_id     = ChoiceField(label=_(u'Resource associée'), choices=(), required=True)
     block_ids = MultipleChoiceField(label=_(u'Blocs à afficher'), required=False,
-                                    choices=[(id_, block.verbose_name) for id_, block in block_registry],
+                                    choices=[(id_, block.verbose_name) for id_, block in block_registry if block.configurable],
                                     widget=OrderedMultipleChoiceWidget)
 
     def save(self):

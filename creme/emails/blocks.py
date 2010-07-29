@@ -23,6 +23,7 @@ from django.utils.simplejson import JSONEncoder
 from django.utils.translation import ugettext_lazy as _
 
 from creme_core.gui.block import QuerysetBlock
+from creme_core.utils import jsonify
 
 from persons.models import Contact, Organisation
 
@@ -150,7 +151,7 @@ class MailsBlock(QuerysetBlock):
                                                             ))
 
     #Useful method because EmailSending is not a CremeEntity (should be ?) --> generic view in creme_core (problems with credemtials ?) ??
-    #TODO: @jsonify ?
+    @jsonify
     def detailview_ajax(self, request, entity_id):
         from creme_core.gui.block import BlocksManager
         context = {
@@ -158,7 +159,8 @@ class MailsBlock(QuerysetBlock):
                 'object':               EmailSending.objects.get(id=entity_id),
                 BlocksManager.var_name: BlocksManager(),
             }
-        return HttpResponse(JSONEncoder().encode([(self.id_, self.detailview_display(context))]), mimetype="text/javascript")
+
+        return [(self.id_, self.detailview_display(context))]
 
 
 class MailsHistoryBlock(QuerysetBlock):
@@ -167,11 +169,11 @@ class MailsHistoryBlock(QuerysetBlock):
     order_by      = '-sending_date'
     verbose_name  = _(u"Historique des mails")
     template_name = 'emails/templatetags/block_mails_history.html'
+    configurable  = True
 
     def detailview_display(self, context):
         pk = context['object'].pk
         return self._render(self.get_block_template_context(context, Email.objects.filter(recipient_id=pk),
-                                                            #update_url='/emails/entity/%s/mails_history/reload/' % pk
                                                             update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, pk), #TODO: test me!!!
                                                             ))
 

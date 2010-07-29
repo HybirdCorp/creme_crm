@@ -72,6 +72,7 @@ class Block(object):
     verbose_name  = 'BLOCK'            #used in the user configuration (see BlockConfigItem)
     template_name = 'OVERLOAD_ME.html' #used to render the block of course
     context_class = _BlockContext      #store the context in the session.
+    configurable  = False              #True: the Block can be add/removed to detailview/portal by configuration (see creme_config)
 
     @staticmethod
     def generate_id(app_name, name): #### _generate_id ????
