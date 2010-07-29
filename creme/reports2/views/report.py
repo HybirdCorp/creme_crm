@@ -22,7 +22,7 @@ from django.http import Http404
 from django.db.models.fields.related import ForeignKey
 from django.contrib.auth.decorators import login_required
 from django.contrib.contenttypes.models import ContentType
-from django.shortcuts import get_object_or_404
+from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext
 from django.http import HttpResponse
 
@@ -32,10 +32,10 @@ from creme_core.views.generic.edit import edit_entity
 from creme_core.utils.meta import get_model_field_infos
 from creme_core.utils import get_ct_or_404
 
-from django.shortcuts import render_to_response
-from reports2.blocks import report_fields_block
+#from reports2.blocks import report_fields_block
 from reports2.models import Report2 as Report, report_prefix_url, report_template_dir, Field
 from reports2.forms.report import CreateForm, EditForm, LinkFieldToReportForm, AddFieldToReportForm
+
 
 report_app = Report._meta.app_label
 report_ct  = ContentType.objects.get_for_model(Report)
@@ -71,10 +71,10 @@ def detailview(request, report_id):
 def listview(request):
     return list_view(request, Report, extra_dict={'add_url':'%s/report/add' % report_prefix_url})
 
-@login_required
-@get_view_or_die(report_app)
-def reload_fields_block(request, report_id):
-    return report_fields_block.detailview_ajax(request, report_id)
+#@login_required
+#@get_view_or_die(report_app)
+#def reload_fields_block(request, report_id):
+    #return report_fields_block.detailview_ajax(request, report_id)
 
 @login_required
 @get_view_or_die(report_app)

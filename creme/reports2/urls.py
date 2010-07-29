@@ -30,7 +30,7 @@ urlpatterns = patterns('reports2.views',
     (r'^report/(?P<report_id>\d+)/preview$', 'report.preview'),
 
     #Fields block
-    (r'^(?P<report_id>\d+)/fields_block/reload/$',                                               'report.reload_fields_block'),
+    #(r'^(?P<report_id>\d+)/fields_block/reload/$',                                               'report.reload_fields_block'),
     (r'^report/field/unlink_report$',                                                            'report.unlink_report'),
     (r'^report/field/change_order$',                                                             'report.change_field_order'),
     (r'^report/(?P<report_id>\d+)/field/(?P<field_id>\d+)/link_report$',                         'report.link_report'),
