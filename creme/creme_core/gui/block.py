@@ -18,7 +18,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from logging import warning
+from logging import warning, debug
+from collections import defaultdict
 
 from django.core.paginator import Paginator, EmptyPage, InvalidPage
 from django.template.loader import get_template
@@ -67,6 +68,7 @@ class Block(object):
         return 'VOID BLOCK FOR HOME: %s' % self.verbose_name
     """
     id_           = None               #overload with an unicode object ; use generate_id()
+    dependencies  = ()                 #list of the models on which the block depends (ie: generally the block displays these models)
     verbose_name  = 'BLOCK'            #used in the user configuration (see BlockConfigItem)
     template_name = 'OVERLOAD_ME.html' #used to render the block of course
     context_class = _BlockContext      #store the context in the session.
@@ -89,27 +91,6 @@ class Block(object):
     def detailview_display(self, context):
         """Overload this method to display a specific block (like Todo etc...) """
         return u'VOID BLOCK FOR DETAILVIEW: %s, %s' % (self.id_, self.verbose_name)
-
-    def detailview_ajax(self, request, entity_id=None, **kwargs):
-        context = {'request': request}
-
-        if entity_id:
-            context['object'] = CremeEntity.objects.get(id=entity_id).get_real_entity()
-
-        context.update(kwargs)
-
-        return HttpResponse(JSONEncoder().encode([(self.id_, self.detailview_display(context))]), mimetype="text/javascript")
-
-    def home_ajax(self, request):
-        """Beware: home_display() must be implemented"""
-        rendered = [(self.id_, self.home_display({'request': request}))]
-        return HttpResponse(JSONEncoder().encode(rendered), mimetype="text/javascript")
-
-    def portal_ajax(self, request, ct_ids):
-        """Beware: portal_display() must be implemented"""
-        ct_ids = str2list(ct_ids)
-        rendered = [(self.id_, self.portal_display({'request': request}, ct_ids))]
-        return HttpResponse(JSONEncoder().encode(rendered), mimetype="text/javascript")
 
     def __get_context(self, request, base_url, block_name):
         """Retrieve block's context stored in the session.
@@ -156,7 +137,7 @@ class Block(object):
 
         return template_context
 
-    def get_block_template_context(self, context, update_url='', **extra_kwargs):
+    def get_block_template_context(self, context, update_url='', depblock_ids=(), **extra_kwargs):
         """ Build the block template context.
         @param context Template context (contains 'request' etc...).
         @param url String containing url to reload this block with ajax.
@@ -166,7 +147,14 @@ class Block(object):
         block_name = self.id_
         block_context, modified = self.__get_context(request, base_url, block_name)
 
-        template_context = self._build_template_context(context, block_name, block_context, base_url=base_url, update_url=update_url, **extra_kwargs)
+        template_context = self._build_template_context(context, block_name, block_context,
+                                                        base_url=base_url,
+                                                        update_url=update_url,
+                                                        **extra_kwargs)
+
+        #assert BlocksManager.get(context).block_is_registered(self) #!! problem with blocks in inner popups
+        if not BlocksManager.get(context).block_is_registered(self):
+            debug('Not registered block: %s', self.id_)
 
         if block_context.update(modified, template_context):
             request.session.modified = True
@@ -286,6 +274,66 @@ class QuerysetBlock(PaginatedBlock):
         return PaginatedBlock.get_block_template_context(self, context, objects=queryset, update_url=update_url, **extra_kwargs)
 
 
+class BlocksManager(object):
+    """Using to solve the blocks dependencies problem in a page.
+    Blocks can depends on the same model : updating one block involves to update
+    the blocks that depends on the same than it.
+    """
+    var_name = 'blocks_manager'
+
+    class Error(Exception):
+        pass
+
+    def __init__(self):
+        self._blocks = []
+        self._dependencies_map = defaultdict(list)
+        self._blocks_groups = defaultdict(list)
+        self._dep_solving_mode = False
+
+    def add_group(self, group_name, *blocks):
+        if self._dep_solving_mode:
+            raise BlocksManager.Error("Can't add block to manager after dependence resolution is done.")
+
+        self._blocks.extend(blocks)
+
+        group = self._blocks_groups[group_name]
+        if group:
+            raise BlocksManager.Error("This block's group name already exists: %s" % group_name)
+        group.extend(blocks)
+
+        dep_map = self._dependencies_map
+        for block in blocks:
+            for dep in block.dependencies:
+                dep_map[dep].append(block.id_)
+
+    def pop_group(self, group_name):
+        return self._blocks_groups.pop(group_name)
+
+    def get_remaining_groups(self):
+        return self._blocks_groups.keys()
+
+    def _get_dependencies_ids(self, block):
+        self._dep_solving_mode = True
+
+        dep_map = self._dependencies_map
+        depblocks_ids = set(block_id for dep in block.dependencies for block_id in dep_map[dep])
+        depblocks_ids.remove(block.id_)
+
+        return depblocks_ids
+
+    def get_dependencies_map(self):
+        get_dep = self._get_dependencies_ids
+        return dict((block.id_, get_dep(block)) for block in self._blocks)
+
+    def block_is_registered(self, block):
+        block_id = block.id_
+        return any(b.id_ == block_id for b in self._blocks)
+
+    @staticmethod
+    def get(context):
+        return context[BlocksManager.var_name] #will raise exception if not created: OK
+
+
 class _BlockRegistry(object):
     def __init__(self):
         self._blocks = {}
@@ -307,6 +355,9 @@ class _BlockRegistry(object):
             block = Block()
 
         return block
+
+    def __getitem__(self, block_id):
+        return self._blocks[block_id]
 
     def __iter__(self):
         return self._blocks.iteritems()

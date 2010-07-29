@@ -29,7 +29,6 @@ from creme_core.views.generic import add_entity, edit_entity, view_entity_with_t
 
 from emails.models import EmailTemplate
 from emails.forms.template import TemplateCreateForm, TemplateEditForm, TemplateAddAttachment
-from emails.blocks import attachments_block
 
 
 @login_required
@@ -95,7 +94,3 @@ def delete_attachment(request, template_id):
         return HttpResponse("", mimetype="text/javascript")
 
     return HttpResponseRedirect(template.get_absolute_url())
-
-@login_required
-def reload_block_attachments(request, template_id):
-    return attachments_block.detailview_ajax(request, template_id)

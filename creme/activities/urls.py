@@ -14,13 +14,9 @@ urlpatterns = patterns('activities.views',
     (r'^activity/(?P<activity_id>\d+)/popup$',  'activity.popupview'),
 
     #blocks
-    (r'^activity/(?P<activity_id>\d+)/participant/add$',                  'blocks.add_participant'),
-    (r'^activity/(?P<activity_id>\d+)/subject/add$',                      'blocks.add_subject'),
-    (r'^activity/(?P<activity_id>\d+)/participants/reload/$',             'blocks.reload_participants'),
-    (r'^activity/(?P<activity_id>\d+)/subjects/reload/$',                 'blocks.reload_subjects'),
-#    (r'^linked_activity/(?P<activity_id>\d+)/unlink/(?P<entity_id>\d+)$', 'blocks.unlink_activity'),
-    (r'^linked_activity/unlink$',                                         'blocks.unlink_activity'),
-    (r'^linked_activities/(?P<entity_id>\d+)/reload/$',                   'blocks.reload_linked_activities'),
+    (r'^activity/(?P<activity_id>\d+)/participant/add$', 'blocks.add_participant'),
+    (r'^activity/(?P<activity_id>\d+)/subject/add$',     'blocks.add_subject'),
+    (r'^linked_activity/unlink$',                        'blocks.unlink_activity'),
 
     #calendar
     (r'^calendar/my$',                                                  'calendar.user_calendar'),#for compatibility

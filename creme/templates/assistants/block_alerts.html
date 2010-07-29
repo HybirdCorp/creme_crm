@@ -7,10 +7,7 @@
         {% if object %}
             <tr>
                 <th colspan="6" class="block_header_line_dark" align="left">
-                    {% comment %}<a class="button_link" onclick="creme.utils.showInnerPopup('/assistants/alert/add/{{object.id}}/')">
-                        <img src="{{MEDIA_URL}}images/add_22.png" border="0" title="Ajouter" alt="Ajouter" />Nouvelle
-                    </a>{% endcomment %}
-                    <a class="button_link" onclick="creme.utils.innerPopupNReload('/assistants/alert/add/{{object.id}}/', '{{update_url}}?base_url={{base_url}}');">
+                    <a class="button_link" onclick="creme.utils.innerPopupNReload('/assistants/alert/add/{{object.id}}/', '{{update_url}}?base_url={{base_url}}&{{block_name}}_deps=' + creme.utils.getBlocksDeps('{{block_name}}'));">
                         <img src="{{MEDIA_URL}}images/add_22.png" border="0" title="Ajouter" alt="Ajouter" />Nouvelle
                     </a>
                 </th>
@@ -26,7 +23,7 @@
                 {% get_column_header "Utilisateur" 'for_user' %}
                 {% get_column_header "Début de l'alerte" 'trigger_date' %}
                 {% get_column_header "Détails" 'description' %}
-                <th class="block_header_line_dark">traitée ?</th>
+                <th class="block_header_line_dark">Traitée ?</th>
                 <th class="block_header_line_dark">Actions</th>
             </tr>
 
@@ -51,7 +48,7 @@
                         </form>
                     </td>
                     <td class="{{row_color}}" align="center" valign="center" style="width:10%;">
-                        <a onclick="creme.utils.innerPopupNReload('/assistants/alert/edit/{{alert.id}}/', '{{update_url}}?base_url={{base_url}}');">
+                        <a onclick="creme.utils.innerPopupNReload('/assistants/alert/edit/{{alert.id}}/', '{{update_url}}?base_url={{base_url}}&{{block_name}}_deps=' + creme.utils.getBlocksDeps('{{block_name}}'));">
                             <img src="{{MEDIA_URL}}images/edit_22.png" border="0">
                         </a>
                         {% get_line_deletor3 at_url '/assistants/alert/delete' with_args "{'id' : {{alert.id}} }" %}

@@ -22,37 +22,45 @@ from django.utils.translation import ugettext_lazy as _
 
 from creme_core.gui.block import QuerysetBlock
 
+from projects.models import ProjectTask, Resource, WorkingPeriod
+
 
 class ProjectTaskBlock(QuerysetBlock):
-    id_           = QuerysetBlock.generate_id('projects', 'project_task')
+    id_           = QuerysetBlock.generate_id('projects', 'project_tasks')
+    dependencies  = (ProjectTask,)
     verbose_name  = _(u'Liste des tâches du projet')
     template_name = 'projects/templatetags/block_tasks.html'
 
     def detailview_display(self, context):
         project = context['object']
         return self._render(self.get_block_template_context(context, project.get_tasks(),
-                                                            update_url='/projects/project/%s/tasks/reload/' % project.pk))
+                                                            update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, project.pk),
+                                                            ))
 
 class ResourceTaskBlock(QuerysetBlock):
-    id_           = QuerysetBlock.generate_id('projects', 'resource')
+    id_           = QuerysetBlock.generate_id('projects', 'resources')
+    dependencies  = (Resource,)
     verbose_name  = _(u'Ressource(s) affectée(s) à la tâche')
     template_name = 'projects/templatetags/block_resources.html'
 
     def detailview_display(self, context):
-        task    = context['object']
+        task = context['object']
         return self._render(self.get_block_template_context(context, task.get_resources(),
-                                                            update_url='/projects/task/%s/resources/reload/' % task.pk))
+                                                            update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, task.pk),
+                                                            ))
 
 
 class WorkingPeriodTaskBlock(QuerysetBlock):
-    id_           = QuerysetBlock.generate_id('projects', 'working_period')
+    id_           = QuerysetBlock.generate_id('projects', 'working_periods')
+    dependencies  = (WorkingPeriod,)
     verbose_name  = _(u'Période(s) travaillée(s) sur cette tâche')
     template_name = 'projects/templatetags/block_working_periods.html'
 
     def detailview_display(self, context):
-        task    = context['object']
+        task = context['object']
         return self._render(self.get_block_template_context(context, task.get_working_periods(),
-                                                            update_url='/projects/task/%s/periods/reload/' % task.pk))
+                                                            update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, task.pk),
+                                                            ))
 
 
 tasks_block           = ProjectTaskBlock()

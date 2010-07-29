@@ -1,0 +1,31 @@
+<script type='text/javascript'>
+    $(document).ready(function() {
+        //creme.blocks.deps ???
+        creme.utils.blocks_deps = {
+            {% for block_id, block_deps in deps_map.iteritems %}
+                "{{block_id}}": "{% for block_dep in block_deps %}{{block_dep}}{% if not forloop.last %},{% endif %}{% endfor %}"{% if not forloop.last %},{% endif %}
+            {% endfor %}
+        };
+
+        //TODO: in a .js file ??
+        creme.utils.getBlocksDeps = function(block_name) {
+            var deps = creme.utils.blocks_deps[block_name];
+
+            if (typeof(deps) == "undefined") {
+                deps = "";
+            }
+
+            return deps;
+        };
+    })
+</script>
+{% if remaining_groups %}
+    <div>
+        BEWARE ! There are some unused imported blocks
+        <ul>
+            {% for remaining_group in remaining_groups %}
+                <li>{{remaining_group}}</li>
+            {% endfor %}
+        </ul>
+    </div>
+{% endif %}

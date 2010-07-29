@@ -8,7 +8,7 @@
             <tr>
                 <th colspan="7" class="block_header_line_dark" align="left">
                     {# creating a generic line_creator ? #}
-                    <a class="button_link" onclick="creme.utils.innerPopupNReload('/assistants/todo/add/{{object.id}}/', '{{update_url}}?base_url={{base_url}}');">
+                    <a class="button_link" onclick="creme.utils.innerPopupNReload('/assistants/todo/add/{{object.id}}/', '{{update_url}}?base_url={{base_url}}&{{block_name}}_deps=' + creme.utils.getBlocksDeps('{{block_name}}'));">
                         <img src="{{MEDIA_URL}}images/add_22.png" border="0" title="Ajouter un nouveau Todo" alt="Ajouter" />Nouveau
                     </a>
                 </th>
@@ -21,7 +21,7 @@
                 {% endif %}
                 {% get_column_header "Utilisateur" 'for_user' %}
                 {% get_column_header 'Crée le' 'creation_date' %}
-                {% get_column_header 'titre' 'title' %}
+                {% get_column_header 'Titre' 'title' %}
                 {% get_column_header 'Texte du Todo' 'description' %}
                 {% get_column_header 'Échéance le' 'deadline' %}
                 <th class="block_header_line_dark">Valider</th>
@@ -53,7 +53,7 @@
                         {% endif %}
                     </td>
                     <td class="{{row_color}}" align="center" valign="center" style="width:10%;">
-                        <a onclick="creme.utils.innerPopupNReload('/assistants/todo/edit/{{todo.id}}/', '{{update_url}}?base_url={{base_url}}');">
+                        <a onclick="creme.utils.innerPopupNReload('/assistants/todo/edit/{{todo.id}}/', '{{update_url}}?base_url={{base_url}}&{{block_name}}_deps=' + creme.utils.getBlocksDeps('{{block_name}}'));">
                             <img src="{{MEDIA_URL}}images/edit_22.png" border="0">
                         </a>
                         {% get_line_deletor3 at_url '/assistants/todo/delete' with_args "{'id' : {{todo.id}} }" %}

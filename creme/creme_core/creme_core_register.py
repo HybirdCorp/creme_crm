@@ -23,6 +23,8 @@ from django.contrib.auth.models import User
 
 from creme_core.registry import creme_registry
 from creme_core.gui.menu import creme_menu
+from creme_core.gui.block import block_registry
+from creme_core.blocks import relations_block, properties_block
 
 
 User._meta.ordering = ('username',)
@@ -30,3 +32,7 @@ User._meta.ordering = ('username',)
 creme_registry.register_app('creme_core', _(u'Coeur'), '/')
 
 creme_menu.register_app('creme_core', '/', 'Accueil')
+
+reg_block = block_registry.register
+reg_block(relations_block)
+reg_block(properties_block)

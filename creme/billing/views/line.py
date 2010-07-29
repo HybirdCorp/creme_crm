@@ -26,8 +26,6 @@ from django.shortcuts import get_object_or_404
 from django.template import RequestContext
 from django.contrib.auth.decorators import login_required
 
-from creme_core.utils import jsonify
-
 from creme_core.models.entity import CremeEntity
 from creme_core.entities_access.functions_for_permissions import edit_object_or_die, get_view_or_die
 from creme_core.views.generic import add_entity, inner_popup
@@ -35,7 +33,6 @@ from creme_core.views.generic import add_entity, inner_popup
 from billing.models import Line, ProductLine, ServiceLine
 from billing.forms.line import ProductLineCreateForm, ProductLineOnTheFlyCreateForm, ServiceLineCreateForm, ServiceLineOnTheFlyCreateForm
 from billing.constants import DEFAULT_VAT
-from billing.blocks import product_lines_block, service_lines_block,total_block
 
 
 default_decimal = Decimal()
@@ -154,24 +151,3 @@ def update(request, line_id):
     line.save()
 
     return HttpResponseRedirect(document.get_absolute_url())
-
-@login_required
-@jsonify 
-def reload_product_lines(request, document_id):
-    context = {'request': request, 'object': CremeEntity.objects.get(id=document_id).get_real_entity()}
-    return [
-            (product_lines_block.id_, product_lines_block.detailview_display(context)),
-            (total_block.id_,         total_block.detailview_display(context)),
-           ]
-
-    #return product_lines_block.detailview_ajax(request, document_id)
-
-@login_required
-@jsonify 
-def reload_service_lines(request, document_id):
-    context = {'request': request, 'object': CremeEntity.objects.get(id=document_id).get_real_entity() }
-    return [
-            (service_lines_block.id_, service_lines_block.detailview_display(context)),
-            (total_block.id_, total_block.detailview_display(context)),
-           ]    
-#    return service_lines_block.detailview_ajax(request, document_id)

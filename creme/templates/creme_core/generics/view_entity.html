@@ -2,8 +2,15 @@
 
 {% load creme_block %}
 
+{% block creme_blocks_import %}
+    {{block.super}}
+
+    {% import_block from_app 'creme_core' named 'relations' as 'relations_block' %}
+    {% import_block from_app 'creme_core' named 'properties' as 'properties_block' %}
+{% endblock %}
+
 {% block detail_view_left_1 %}
     {% include "creme_core/object_as_table.html" %}
-    {% get_properties %}
-    {% get_relations %}
+    {% display_block_detailview 'properties_block' %}
+    {% display_block_detailview 'relations_block' %}
 {% endblock %}

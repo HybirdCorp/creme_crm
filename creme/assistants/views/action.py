@@ -21,19 +21,11 @@
 from datetime import datetime
 
 from django.http import HttpResponseRedirect
-from django.template import RequestContext
 from django.shortcuts import get_object_or_404
-
 from django.contrib.auth.decorators import login_required
-
-from creme_core.utils import jsonify
-
-from creme_core.models import CremeEntity
-from creme_core.gui.block import str2list
 
 from assistants.models import Action
 from assistants.forms.action import ActionCreateForm, ActionEditForm
-from assistants.blocks import actions_it_block, actions_nit_block
 from utils import generic_add, generic_edit, generic_delete
 
 
@@ -53,33 +45,3 @@ def validate(request, action_id):
     action.validation_date = datetime.today()
     action.save()
     return HttpResponseRedirect(action.creme_entity.get_absolute_url())
-
-
-
-@login_required
-@jsonify ##
-def reload_detailview(request, entity_id): #TODO: move into block methods ?????
-    context = {'request': request, 'object': CremeEntity.objects.get(id=entity_id), 'today': datetime.today()}
-    return [
-            (actions_it_block.id_, actions_it_block.detailview_display(context)),
-            (actions_nit_block.id_, actions_nit_block.detailview_display(context)),
-           ]
-
-@login_required
-@jsonify ##
-def reload_home(request):
-    context = {'request': request, 'today': datetime.today()}
-    return [
-            (actions_it_block.id_, actions_it_block.home_display(context)),
-            (actions_nit_block.id_, actions_nit_block.home_display(context)),
-           ]
-
-@login_required
-@jsonify ##
-def reload_portal(request, ct_ids):
-    context = {'request': request, 'today': datetime.today()}
-    ct_ids = str2list(ct_ids)
-    return [
-            (actions_it_block.id_, actions_it_block.portal_display(context, ct_ids)),
-            (actions_nit_block.id_, actions_nit_block.portal_display(context, ct_ids)),
-           ]

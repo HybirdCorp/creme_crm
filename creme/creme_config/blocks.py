@@ -38,6 +38,7 @@ __all__ = ('generic_models_block', 'property_types_block', 'relation_types_block
 
 _PAGE_SIZE = 12
 
+#NB: blocks' dependencies omitted here (always only one block per page)
 
 class GenericModelsBlock(QuerysetBlock):
     id_           = QuerysetBlock.generate_id('creme_config', 'model_config')

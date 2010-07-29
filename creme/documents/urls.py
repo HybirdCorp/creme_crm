@@ -19,8 +19,6 @@ urlpatterns = patterns('documents.views',
     (r'^document/add_from_detailview$',       'document.add_from_detailview'),
     (r'^document/edit/(?P<document_id>\d+)$', 'document.edit'),
     (r'^document/(?P<object_id>\d+)$',        'document.detailview'),
-
-    (r'^linked_docs/reload/(?P<entity_id>\d+)/$', 'ajax.reload_linked_docs'),
 )
 
 urlpatterns += patterns('creme_core.views',

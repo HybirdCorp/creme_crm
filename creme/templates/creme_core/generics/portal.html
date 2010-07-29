@@ -39,6 +39,10 @@
         </div>
     {% endif %}
 
+    {% block creme_blocks_import %}
+        {% import_portal_blocks ct_ids %}
+    {% endblock %}
+
     {% block before_statistics %}{% endblock %}
 
     {% block statistics %}
@@ -57,6 +61,8 @@
     {% endblock statistics %}
 
     {% block extra_infos %}
-        {% get_portal_blocks ct_ids %}
+        {% display_portal_blocks ct_ids %}
     {% endblock %}
+
+    {% get_blocks_dependencies %}
 {% endblock %}

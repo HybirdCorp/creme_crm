@@ -1,24 +1,19 @@
 {% load creme_block %}
-
 <table class="table_detail_view ui-corner-all" id={{block_name}}>
     {% get_block_header '%s Liste fille' '%s Listes filles' %}
-
     <tbody class="collapsable">
         <tr>
             <th colspan="4" class="block_header_line_dark" align="left">
-                {% comment %}<a class="button_link" onclick="creme.utils.showInnerPopup('/emails/mailing_list/{{object.pk}}/child/add')">{% endcomment %}
-                <a class="button_link" onclick="creme.utils.innerPopupNReload('/emails/mailing_list/{{object.pk}}/child/add', '{{update_url}}?base_url={{base_url}}');">
+                <a class="button_link" onclick="creme.utils.innerPopupNReload('/emails/mailing_list/{{object.pk}}/child/add', '{{update_url}}?base_url={{base_url}}&{{block_name}}_deps=' + creme.utils.getBlocksDeps('{{block_name}}'));">
                     <img src="{{MEDIA_URL}}images/add_22.png" border="0" title="Ajouter manuellement" alt="Ajouter" />Ajouter une liste fille
                 </a>
             </th>
         </tr>
-
         {% if page.paginator.count %}
             <tr>
                 <th class="block_header_line_dark">Nom de la liste</th>
                 <th class="block_header_line_dark">Supprimer</th>
             </tr>
-
             {% for ml in page.object_list %}
                 <!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
                 <tr>

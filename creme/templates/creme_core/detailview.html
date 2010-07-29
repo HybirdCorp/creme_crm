@@ -82,6 +82,10 @@
         <div class=zone_spacer_5px></div>
     {% endblock %} 
 
+    {% block creme_blocks_import %}
+         {% import_detailview_blocks %}
+    {% endblock %}
+
     {% block before_detail_view_1 %}{% endblock %}
 
     <div style="float:left;width:50%;margin-left:-5px;">
@@ -95,11 +99,13 @@
         {% block detail_view_right_1 %}{% endblock %}
 
         {% block detail_view_right_2 %}
-            {% get_detailview_blocks %}
+            {% display_detailview_blocks %}
         {% endblock %}
 
         {% block detail_view_right_3 %}{% endblock %}
     </div>
 
     {% block after_detail_view_1 %}{% endblock %}
+
+    {% get_blocks_dependencies %}
 {% endblock %}

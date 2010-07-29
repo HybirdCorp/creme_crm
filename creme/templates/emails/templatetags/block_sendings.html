@@ -4,7 +4,7 @@
     <tbody class="collapsable">
         <tr>
             <th colspan="6" class="block_header_line_dark" align="left">
-                <a class="button_link" onclick="creme.utils.innerPopupNReload('/emails/campaign/{{object.pk}}/sending/add', '{{update_url}}?base_url={{base_url}}');">
+                <a class="button_link" onclick="creme.utils.innerPopupNReload('/emails/campaign/{{object.pk}}/sending/add', '{{update_url}}?base_url={{base_url}}&{{block_name}}_deps=' + creme.utils.getBlocksDeps('{{block_name}}'));">
                     <img src="{{MEDIA_URL}}images/add_22.png" border="0" title="Ajouter manuellement" alt="Ajouter" />Nouvel envoi
                 </a>
             </th>

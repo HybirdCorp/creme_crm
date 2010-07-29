@@ -1,11 +1,3 @@
-{% extends "creme_core/detailview.html" %}
-{% comment %} TODO: extends view_entity.html ???? {% endcomment %}
-{% load creme_block %}
+{% extends "creme_core/generics/view_entity.html" %}
 
 {% block logo %}<img src="{{MEDIA_URL}}images/document_64.png" alt=""/>{% endblock %}
-
-{% block detail_view_left_1 %}
-    {% include "creme_core/object_as_table.html" %}
-    {% get_properties %}
-    {% get_relations %}
-{% endblock %}

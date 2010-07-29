@@ -29,7 +29,6 @@ from creme_core.views.generic import add_entity, edit_entity, view_entity_with_t
 
 from emails.models import EmailCampaign
 from emails.forms.campaign import CampaignCreateForm, CampaignEditForm, CampaignAddMLForm
-from emails.blocks import mailing_lists_block
 
 
 @login_required
@@ -95,7 +94,3 @@ def delete_ml(request, campaign_id):
         return HttpResponse("", mimetype="text/javascript")
 
     return HttpResponseRedirect(campaign.get_absolute_url())
-
-@login_required
-def reload_block_ml(request, campaign_id):
-    return mailing_lists_block.detailview_ajax(request, campaign_id)

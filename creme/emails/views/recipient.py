@@ -28,7 +28,6 @@ from creme_core.views.generic import inner_popup
 
 from emails.models import MailingList, EmailRecipient
 from emails.forms.recipient import MailingListAddRecipientsForm, MailingListAddCSVForm
-from emails.blocks import recipients_block
 
 
 @login_required
@@ -100,7 +99,3 @@ def delete(request):
 
     #return HttpResponse()
     return HttpResponseRedirect(ml.get_absolute_url())
-
-@login_required
-def reload_block_recipients(request, ml_id):
-    return recipients_block.detailview_ajax(request, ml_id)

@@ -21,13 +21,11 @@
 from django.contrib.auth.decorators import login_required
 from django.core.serializers import serialize
 from django.http import HttpResponse
-from django.utils.simplejson import JSONEncoder
 
 from creme_core.models import CremeEntity
 from creme_core.entities_access.filter_allowed_objects import filter_can_read_objects
 
 from documents.models import Folder, Document
-from documents.blocks import linked_docs_block
 
 
 @login_required
@@ -55,7 +53,3 @@ def get_child_documents(request):
         return HttpResponse(data, mimetype="text/javascript")
     else:
         return HttpResponse({}, mimetype="text/javascript")
-
-@login_required
-def reload_linked_docs(request, entity_id):
-    return linked_docs_block.detailview_ajax(request, entity_id)

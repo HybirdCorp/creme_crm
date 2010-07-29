@@ -1,21 +1,16 @@
 {% load creme_block %}
-
 <table class="table_detail_view ui-corner-all" id={{block_name}}>
     {% get_block_header '%s Démarche Commerciale' '%s Démarches Commerciales' 'bell_48.png' 'Demco' %}
     <tbody class="collapsable">
         {% if object %}
             <tr>
                 <th colspan="5" class="block_header_line_dark" align="left">
-                    {% comment %}<a class="button_link" onclick="creme.utils.showInnerPopup('/commercial/approach/add/{{object.id}}/')">
-                        <img src="{{MEDIA_URL}}images/add_22.png" border="0" title="Ajouter" alt="Ajouter" />Nouvelle
-                    </a>{% endcomment %}
-                    <a class="button_link" onclick="creme.utils.innerPopupNReload('/commercial/approach/add/{{object.id}}/', '{{update_url}}?base_url={{base_url}}');">
+                    <a class="button_link" onclick="creme.utils.innerPopupNReload('/commercial/approach/add/{{object.id}}/', '{{update_url}}?base_url={{base_url}}&{{block_name}}_deps=' + creme.utils.getBlocksDeps('{{block_name}}'));">
                         <img src="{{MEDIA_URL}}images/add_22.png" border="0" title="Ajouter" alt="Ajouter" />Nouvelle
                     </a>
                 </th>
             </tr>
         {% endif %}
-
         {% if page.paginator.count %}
             <tr>
                 {% get_column_header 'Titre' 'title' %}
@@ -25,7 +20,6 @@
                 {% get_column_header 'Détails' 'description' %}
                 <th class="block_header_line_dark">Générée à partir de</th>
             </tr>
-
             {% for approach in page.object_list %}
                 <!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
                 <tr>

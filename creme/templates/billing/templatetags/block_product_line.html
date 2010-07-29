@@ -3,6 +3,7 @@
 {% load creme_block %}
 
 {% block header %}
+{% comment %}   TODO: in a billing.js file ?  {% endcomment %}
     <script type="text/javascript">
         if(!creme.product_line) creme.product_line = {}
         creme.product_line.auto_populate_selection = function(id, targetInputId, nodesToPopulate){
@@ -33,13 +34,11 @@
 {% endblock %}
 
 {% block add_buttons %}
-    {% comment %}<a class="button_link" onclick="creme.utils.showInnerPopup('/billing/{{object.id}}/product_line/add');">{% endcomment %}
-    <a class="button_link" onclick="creme.utils.innerPopupNReload('/billing/{{object.id}}/product_line/add', '{{update_url}}?base_url={{base_url}}');">
+    <a class="button_link" onclick="creme.utils.innerPopupNReload('/billing/{{object.id}}/product_line/add', '{{update_url}}?base_url={{base_url}}&{{block_name}}_deps=' + creme.utils.getBlocksDeps('{{block_name}}'));">
         <img src="{{MEDIA_URL}}images/add_22.png" border="0" title="Ajouter un Produit" alt="Ajouter" />
         Ajouter un produit existant
     </a>
-    {% comment %}<a class="button_link" onclick="creme.utils.showInnerPopup('/billing/{{object.id}}/product_line/add_on_the_fly');">{% endcomment %}
-    <a class="button_link" onclick="creme.utils.innerPopupNReload('/billing/{{object.id}}/product_line/add_on_the_fly', '{{update_url}}?base_url={{base_url}}');">
+    <a class="button_link" onclick="creme.utils.innerPopupNReload('/billing/{{object.id}}/product_line/add_on_the_fly', '{{update_url}}?base_url={{base_url}}&{{block_name}}_deps=' + creme.utils.getBlocksDeps('{{block_name}}'));">
         <img src="{{MEDIA_URL}}images/add_22.png" border="0" title="Ajouter un ligne" alt="Ajouter" />
         Ajouter une ligne à la volée
     </a>
@@ -50,8 +49,7 @@
 {% block empty_msg %}Aucun produit dans cette facture{% endblock %}
 
 {% block line_actions %}
-    {% comment %}<a class="button_link" onclick="creme.utils.showInnerPopup('/billing/productline/{{line.id}}/edit');">{% endcomment %}
-    <a class="button_link" onclick="creme.utils.innerPopupNReload('/billing/productline/{{line.id}}/edit', '{{update_url}}?base_url={{base_url}}');">
+    <a class="button_link" onclick="creme.utils.innerPopupNReload('/billing/productline/{{line.id}}/edit', '{{update_url}}?base_url={{base_url}}&{{block_name}}_deps=' + creme.utils.getBlocksDeps('{{block_name}}'));">
         <img src="{{MEDIA_URL}}images/edit_22.png" border="0">
     </a>
     {{block.super}}

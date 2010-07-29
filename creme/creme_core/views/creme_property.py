@@ -27,8 +27,9 @@ from django.contrib.contenttypes.models import ContentType
 
 from creme_core.models import CremeEntity, CremePropertyType, CremeProperty
 from creme_core.entities_access.functions_for_permissions import edit_object_or_die
-from creme_core.blocks import properties_block
+#from creme_core.blocks import properties_block
 from creme_core.entities_access.permissions import user_has_edit_permission_for_an_object
+
 
 @login_required
 def add_to_entities(request):
@@ -136,6 +137,6 @@ def delete(request):
 
     return HttpResponse("")
 
-@login_required
-def reload_block(request, entity_id):
-    return properties_block.detailview_ajax(request, entity_id)
+#@login_required
+#def reload_block(request, entity_id):
+    #return properties_block.detailview_ajax(request, entity_id)

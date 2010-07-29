@@ -20,10 +20,9 @@
 
 from datetime import datetime
 
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse #, HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.template import RequestContext
-from django.utils.simplejson import JSONEncoder
 from django.contrib.auth.decorators import login_required
 from django.contrib.contenttypes.models import ContentType
 
@@ -34,7 +33,6 @@ from creme_core.entities_access.functions_for_permissions import get_view_or_die
 from activities.models import Activity
 from activities.forms import ParticipantCreateForm, SubjectCreateForm
 from activities.constants import REL_SUB_PART_2_ACTIVITY, REL_SUB_ACTIVITY_SUBJECT, REL_SUB_LINKED_2_ACTIVITY
-from activities.blocks import participants_block, subjects_block, future_activities_block, past_activities_block
 
 
 @login_required
@@ -102,22 +100,3 @@ def unlink_activity(request):
 #    return HttpResponseRedirect('/')
     return HttpResponse('')
 
-@login_required
-def reload_participants(request, activity_id):
-    return participants_block.detailview_ajax(request, activity_id)
-
-@login_required
-def reload_subjects(request, activity_id):
-    return subjects_block.detailview_ajax(request, activity_id)
-
-@login_required
-def reload_linked_activities(request, entity_id):
-    entity = CremeEntity.objects.get(id=entity_id).get_real_entity()
-    context = {'request': request, 'object': entity, 'today': datetime.today()}
-    rendered = [
-                (future_activities_block.id_, future_activities_block.detailview_display(context)),
-                (past_activities_block.id_,   past_activities_block.detailview_display(context)),
-                #(relations_block.id_,   relations_block.detailview_display(context)), #TODO: Reload relation block too ?
-               ]
-
-    return HttpResponse(JSONEncoder().encode(rendered), mimetype="text/javascript")

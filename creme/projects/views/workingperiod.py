@@ -24,10 +24,9 @@ from django.http import HttpResponseRedirect, HttpResponse
 
 from creme_core.entities_access.functions_for_permissions import get_view_or_die, edit_object_or_die
 
-from projects.forms.workingperiod import PeriodCreateForms, PeriodEditForms
-from projects.blocks import working_periods_block
-from projects.views.utils import _add_generic, _edit_generic
 from projects.models import WorkingPeriod
+from projects.forms.workingperiod import PeriodCreateForms, PeriodEditForms
+from projects.views.utils import _add_generic, _edit_generic
 
 
 @login_required
@@ -42,10 +41,6 @@ def edit(request, period_id):
         @Permissions : Acces or Admin to project & Edit on current object
     """
     return _edit_generic(request, PeriodEditForms, period_id, WorkingPeriod, u"Edition d'une période travaillée")
-
-@login_required
-def reload_block_periods(request, task_id):
-    return working_periods_block.detailview_ajax(request, task_id)
 
 @login_required
 def delete(request):

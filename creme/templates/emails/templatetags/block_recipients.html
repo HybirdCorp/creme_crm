@@ -4,7 +4,7 @@
     <tbody class="collapsable">
         <tr>
             <th colspan="4" class="block_header_line_dark" align="left">
-                <a class="button_link" onclick="creme.utils.innerPopupNReload('/emails/mailing_list/{{object.pk}}/recipient/add', '{{update_url}}?base_url={{base_url}}');">
+                <a class="button_link" onclick="creme.utils.innerPopupNReload('/emails/mailing_list/{{object.pk}}/recipient/add', '{{update_url}}?base_url={{base_url}}&{{block_name}}_deps=' + creme.utils.getBlocksDeps('{{block_name}}'));">
                     <img src="{{MEDIA_URL}}images/add_22.png" border="0" title="Ajouter manuellement" alt="Ajouter" />Ajouter à la main
                 </a>
                 <a class="button_link" onclick="creme.utils.iframe_inner_popup('/emails/mailing_list/{{object.pk}}/recipient/add_csv');">

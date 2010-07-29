@@ -31,7 +31,6 @@ from emails.models import MailingList
 from emails.forms.mailing_list import (MailingListForm,
                                        AddContactsForm, AddOrganisationsForm, AddChildForm,
                                        AddContactsFromFilterForm, AddOrganisationsFromFilterForm)
-from emails.blocks import contacts_block, organisations_block, child_lists_block, parent_lists_block
 
 
 @login_required
@@ -124,19 +123,3 @@ def delete_organisation(request, ml_id):
 
 def delete_child(request, ml_id):
     return _delete_aux(request, ml_id, lambda ml, child_id: ml.children.remove(child_id))
-
-@login_required
-def reload_block_contacts(request, ml_id):
-    return contacts_block.detailview_ajax(request, ml_id)
-
-@login_required
-def reload_block_organisations(request, ml_id):
-    return organisations_block.detailview_ajax(request, ml_id)
-
-@login_required
-def reload_block_child_lists(request, ml_id):
-    return child_lists_block.detailview_ajax(request, ml_id)
-
-@login_required
-def reload_block_parent_lists(request, ml_id):
-    return parent_lists_block.detailview_ajax(request, ml_id)

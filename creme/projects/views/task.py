@@ -27,7 +27,7 @@ from creme_core.entities_access.functions_for_permissions import get_view_or_die
 
 from projects.models import Project, ProjectTask
 from projects.forms.task import TaskCreateForm, TaskEditForm
-from projects.blocks import tasks_block
+
 
 #TODO: inner popup ???
 @login_required
@@ -105,7 +105,3 @@ def delete_parent(request):
     task.parents_task.remove(POST.get('parent_id'))
 
     return HttpResponse("")
-
-@login_required
-def reload_block_tasks(request, project_id):
-    return tasks_block.detailview_ajax(request, project_id)

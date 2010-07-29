@@ -25,7 +25,10 @@ from creme_core.gui.menu import creme_menu
 from creme_core.gui.block import block_registry
 
 from emails.models import EmailCampaign, MailingList, EmailTemplate
-from emails.blocks import mails_history_block
+from emails.blocks import (mailing_lists_block, recipients_block, contacts_block, organisations_block,
+                           child_lists_block, parent_lists_block, attachments_block, sendings_block,
+                           mails_block, mails_history_block)
+
 
 creme_registry.register_entity_models(EmailCampaign, MailingList, EmailTemplate)
 creme_registry.register_app ('emails', _(u'Courriels'), '/emails')
@@ -39,4 +42,14 @@ reg_menu('emails', '/emails/mailing_list/add', 'Ajouter une liste de diffusion')
 reg_menu('emails', '/emails/templates',        'Lister les patrons de courriel')
 reg_menu('emails', '/emails/template/add',     'Ajouter un patron de courriel')
 
-block_registry.register(mails_history_block)
+reg_block = block_registry.register
+reg_block(mailing_lists_block)
+reg_block(recipients_block)
+reg_block(contacts_block)
+reg_block(organisations_block)
+reg_block(child_lists_block)
+reg_block(parent_lists_block)
+reg_block(attachments_block)
+reg_block(sendings_block)
+reg_block(mails_block)
+reg_block(mails_history_block)

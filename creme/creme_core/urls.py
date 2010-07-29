@@ -15,8 +15,12 @@ creme_core_patterns = patterns('creme_core.views',
     (r'^relation/entity/(?P<id>\d+)/json$',                                                                              'relation.json_entity_get'),
     (r'^relation/entity/(?P<id>\d+)/predicates/json$',                                                                   'relation.json_entity_predicates'),
     (r'^relation/predicate/(?P<id>[\w-]+)/content_types/json$',                                                          'relation.json_predicate_content_types'),
-    (r'^relations/reload/(?P<entity_id>\d+)/$',                                                                          'relation.reload_block'),
     (r'^relation/add_to_entities/(?P<model_ct_id>\d+)/(?P<ids>([\d]+[,])+)$',                                            'relation.add_relations_bulk'),
+
+    (r'^blocks/reload/(?P<block_id>[\w-]+)/(?P<entity_id>\d+)/$',        'blocks.reload_detailview'),
+    (r'^blocks/reload/home/(?P<block_id>[\w-]+)/$',                      'blocks.reload_home'),
+    (r'^blocks/reload/portal/(?P<block_id>[\w-]+)/(?P<ct_ids>[\d,]+)/$', 'blocks.reload_portal'),
+    #(r'^blocks/reload/basic/(?P<block_id>[\w-]+)/$',                     'blocks.reload_basic'), #most of blocks in creme_config
 
     (r'^filter/add/(?P<ct_id>\d+)$',                           'list_view_filter.add'),
     (r'^filter/edit/(?P<ct_id>\d+)/(?P<filter_id>\d+)$',       'list_view_filter.edit'), #ct_id useful ????
@@ -36,7 +40,7 @@ creme_core_patterns = patterns('creme_core.views',
     (r'^property/add/$',                                        'creme_property.add_to_creme_entity'),
     (r'^property/list_for_entity_ct/(?P<creme_entity_id>\d+)$', 'creme_property.list_for_entity_ct'),
     (r'^property/delete$',                                      'creme_property.delete'),
-    (r'^properties/reload/(?P<entity_id>\d+)/$',                'creme_property.reload_block'),
+    #(r'^properties/reload/(?P<entity_id>\d+)/$',                'creme_property.reload_block'),
 
     (r'^header_filter/add/(?P<content_type_id>\d+)$',                      'header_filter.add'),
     (r'^header_filter/delete/(?P<header_filter_id>[\w-]+)/(?P<js>[\d]?)$', 'header_filter.delete'),
@@ -59,11 +63,10 @@ creme_core_patterns = patterns('creme_core.views',
 )
 
 creme_core_patterns += patterns('creme_core.views.generic',
-    (r'^lv_popup/(?P<ct_id>\d*)/(?P<o2m>0|1)$', 'listview.list_view_popup_from_widget'),
+    (r'^lv_popup/(?P<ct_id>\d+)/(?P<o2m>0|1)$', 'listview.list_view_popup_from_widget'),
     (r'^delete_js$',                            'delete.delete_entities_js_post'),
 
     (r'^list_view/dl_csv/(?P<ct_id>\d+)$',      'listview.dl_listview_as_csv'),
-
 )
 
 urlpatterns = patterns('creme_core.views',

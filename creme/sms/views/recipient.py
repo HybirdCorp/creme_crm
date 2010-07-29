@@ -28,7 +28,6 @@ from creme_core.views.generic import inner_popup
 
 from sms.models import SendList, Recipient
 from sms.forms.recipient import SendListAddRecipientsForm, SendListAddCSVForm
-from sms.blocks import recipients_block
 
 
 @login_required
@@ -99,7 +98,3 @@ def delete(request):
         return HttpResponse("success", mimetype="text/javascript")
 
     return HttpResponseRedirect(sendlist.get_absolute_url())
-
-@login_required
-def reload_block_recipients(request, id):
-    return recipients_block.detailview_ajax(request, id)

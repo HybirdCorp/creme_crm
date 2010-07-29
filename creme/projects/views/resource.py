@@ -25,7 +25,6 @@ from django.http import HttpResponse
 from creme_core.entities_access.functions_for_permissions import  delete_object_or_die
 
 from projects.forms.resource import ResourceCreateForm, ResourceEditForm
-from projects.blocks import resources_block
 from projects.views.utils import _add_generic, _edit_generic
 from projects.models import Resource
 
@@ -37,11 +36,7 @@ def edit(request, resource_id):
     """
         @Permissions : Acces or Admin to project & Edit on current object
     """
-    return _edit_generic(request, ResourceEditForm, resource_id, Resource, u"Edition d'une ressource")
-
-@login_required
-def reload_block_resources(request, task_id):
-    return resources_block.detailview_ajax(request, task_id)
+    return _edit_generic(request, ResourceEditForm, resource_id, Resource, u"Édition d'une ressource")
 
 @login_required
 def delete(request):

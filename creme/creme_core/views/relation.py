@@ -33,7 +33,6 @@ from creme_core.entities_access.permissions import user_has_read_permission_for_
 from creme_core.entities_access.filter_allowed_objects import filter_RUD_objects
 from creme_core.entities_access.functions_for_permissions import read_object_or_die, edit_object_or_die, delete_object_or_die
 from creme_core.views.generic import inner_popup, list_view_popup_from_widget
-from creme_core.blocks import relations_block
 
 
 #JSON_OPS = frozenset(('gt', 'lt', 'in'))
@@ -377,7 +376,3 @@ def handle_relation_from_predicate_n_entity(request):
         return_msg.append("Opération déroulée avec succès")
 
     return HttpResponse(",".join(return_msg), status=status)
-
-@login_required
-def reload_block(request, entity_id):
-    return relations_block.detailview_ajax(request, entity_id)

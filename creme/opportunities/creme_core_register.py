@@ -23,17 +23,31 @@ from django.utils.translation import ugettext_lazy as _
 from creme_core.registry import creme_registry
 from creme_core.gui.menu import creme_menu
 from creme_core.gui.button_menu import button_registry
+from creme_core.gui.block import block_registry
 
 from opportunities.models import Opportunity
 from opportunities.buttons import linked_opportunity_button
-
+from opportunities.blocks import (linked_contacts_block, linked_products_block, linked_services_block,
+                                  responsibles_block, quotes_block, sales_orders_block, invoices_block,
+                                  linked_product_lines_block, linked_service_lines_block)
 
 creme_registry.register_app('opportunities', _(u'Opportunité'), '/opportunities')
 creme_registry.register_entity_models(Opportunity)
 
 creme_menu.register_app ('opportunities', '/opportunities/', 'Opportunités de vente')
 reg_menu = creme_menu.register_menu
-reg_menu('opportunities', '/opportunities/opportunities', 'Lister les opportunités') ##unicode ????????
+reg_menu('opportunities', '/opportunities/opportunities',   'Lister les opportunités') ##unicode ????????
 reg_menu('opportunities', '/opportunities/opportunity/add', 'Ajouter une opportunité')
 
 button_registry.register(linked_opportunity_button)
+
+reg_block = block_registry.register
+reg_block(linked_contacts_block)
+reg_block(linked_products_block)
+reg_block(linked_services_block)
+reg_block(responsibles_block)
+reg_block(quotes_block)
+reg_block(sales_orders_block)
+reg_block(invoices_block)
+reg_block(linked_product_lines_block)
+reg_block(linked_service_lines_block)

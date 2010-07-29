@@ -7,7 +7,8 @@
         <tr>
             <th colspan="11" class="block_header_line_dark" align="left">
                 {% if object.is_alive %}
-                    <a class="button_link" onclick="creme.utils.showInnerPopup('/projects/task/{{object.id}}/resource/add');">
+                    {% comment %}<a class="button_link" onclick="creme.utils.showInnerPopup('/projects/task/{{object.id}}/resource/add');">{% endcomment %}
+                    <a class="button_link" onclick="creme.utils.innerPopupNReload('/projects/task/{{object.id}}/resource/add', '{{update_url}}?base_url={{base_url}}&{{block_name}}_deps=' + creme.utils.getBlocksDeps('{{block_name}}'));">
                         <img src="{{MEDIA_URL}}images/add_22.png" border="0" title="Ajouter une ressource" alt="Ajouter" />
                         Ajouter une ressource à partir d'un contact
                     </a>
@@ -31,7 +32,8 @@
                     </td>
                     <td class="{{row_color}}" align="center">{{resource.hourly_cost}} € / heure</td>
                     <td class="{{row_color}}" align="center" valign="center" style="width:10%;">
-                        <a class="button_link" onclick="creme.utils.showInnerPopup('{{resource.get_edit_absolute_url}}');">
+                        {% comment %}<a class="button_link" onclick="creme.utils.showInnerPopup('{{resource.get_edit_absolute_url}}');">{% endcomment %}
+                        <a class="button_link" onclick="creme.utils.innerPopupNReload('{{resource.get_edit_absolute_url}}', '{{update_url}}?base_url={{base_url}}&{{block_name}}_deps=' + creme.utils.getBlocksDeps('{{block_name}}'));">
                             <img src="{{MEDIA_URL}}images/edit_22.png" border="0" title="Edition d'une ressource" alt="Editer" />
                         </a>
                         {% get_line_deletor3 at_url '/projects/resource/delete' with_args "{'id':{{resource.pk}} }" %}

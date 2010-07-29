@@ -24,7 +24,6 @@ from django.contrib.auth.decorators import login_required
 
 from assistants.models import Alert
 from assistants.forms.alert import AlertCreateForm, AlertEditForm
-from assistants.blocks import alerts_block
 from utils import generic_add, generic_edit, generic_delete
 
 
@@ -43,15 +42,3 @@ def validate(request, alert_id):
     alert.is_validated = True
     alert.save()
     return HttpResponseRedirect(alert.creme_entity.get_absolute_url())
-
-@login_required
-def reload_detailview(request, entity_id):
-    return alerts_block.detailview_ajax(request, entity_id)
-
-@login_required
-def reload_home(request):
-    return alerts_block.home_ajax(request)
-
-@login_required
-def reload_portal(request, ct_ids):
-    return alerts_block.portal_ajax(request, ct_ids)

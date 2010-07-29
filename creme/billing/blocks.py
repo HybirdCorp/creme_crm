@@ -24,39 +24,43 @@ from creme_core.gui.block import Block, QuerysetBlock
 from creme_core.models import CremeEntity
 
 from billing.models import ProductLine, ServiceLine
-from django.db.models.query import QuerySet
 
 
 class ProductLinesBlock(QuerysetBlock):
     id_           = QuerysetBlock.generate_id('billing', 'product_lines')
+    dependencies  = (ProductLine,)
     verbose_name  = _(u'Lignes produit')
     template_name = 'billing/templatetags/block_product_line.html'
 
     def detailview_display(self, context):
         pk = context['object'].pk
         return self._render(self.get_block_template_context(context, ProductLine.objects.filter(document=pk),
-                                                            update_url='/billing/%s/product_lines/reload/' % pk))
+                                                            update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, pk),
+                                                            ))
+
 
 class  ServiceLinesBlock(QuerysetBlock):
     id_           = QuerysetBlock.generate_id('billing', 'service_lines')
+    dependencies  = (ServiceLine,)
     verbose_name  = _(u'Lignes service')
     template_name = 'billing/templatetags/block_service_line.html'
 
     def detailview_display(self, context):
         pk = context['object'].pk
         return self._render(self.get_block_template_context(context, ServiceLine.objects.filter(document=pk),
-                                                            update_url='/billing/%s/service_lines/reload/' % pk))
+                                                            update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, pk),
+                                                            ))
 
 
 class TotalBlock(Block):
     id_           = Block.generate_id('billing', 'total')
+    dependencies  = (ProductLine, ServiceLine)
     verbose_name  = _(u'Total')
     template_name = 'billing/templatetags/block_total.html'
 
     def detailview_display(self, context):
         document = context['object']
         return self._render(self.get_block_template_context(context,
-                                                            #update_url='/billing/%s/total/reload/' % document.pk, #useful ??
                                                             total=document.get_total(),
                                                             total_with_tax=document.get_total_with_tax())
                             )
