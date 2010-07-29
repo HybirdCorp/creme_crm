@@ -22,6 +22,8 @@ from datetime import datetime
 
 from django.conf import settings
 
+from creme_core.gui.block import BlocksManager
+
 
 def get_logo_url(request):
     return {'logo_url': settings.LOGO_URL}
@@ -31,3 +33,6 @@ def get_css_theme(request):
 
 def get_today(request):
     return {'today': datetime.today()}
+
+def get_blocks_manager(request):
+    return {BlocksManager.var_name: BlocksManager()}

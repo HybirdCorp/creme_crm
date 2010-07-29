@@ -29,7 +29,7 @@ from creme_core.views.generic import inner_popup
 from emails.models import EmailCampaign, EmailSending, Email
 from emails.models.sending import SENDING_STATE_PLANNED
 from emails.forms.sending import SendingCreateForm
-from emails.blocks import sendings_block, mails_block
+from emails.blocks import mails_block
 
 
 @login_required
@@ -76,10 +76,6 @@ def delete(request):
         return HttpResponse("", mimetype="text/javascript")
 
     return HttpResponseRedirect(campaign.get_absolute_url())
-
-@login_required
-def reload_block_sendings(request, campaign_id):
-    return sendings_block.detailview_ajax(request, campaign_id)
 
 @login_required
 def detailview(request, sending_id):

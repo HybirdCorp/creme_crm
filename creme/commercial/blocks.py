@@ -27,6 +27,7 @@ from commercial.models import CommercialApproach
 
 class ApproachesBlock(QuerysetBlock):
     id_           = QuerysetBlock.generate_id('commercial', 'approaches')
+    dependencies  = (CommercialApproach,)
     order_by      = 'title'
     verbose_name  = _(u'Démarches commerciales')
     template_name = 'commercial/templatetags/block_approaches.html'
@@ -34,16 +35,19 @@ class ApproachesBlock(QuerysetBlock):
     def detailview_display(self, context):
         pk = context['object'].pk
         return self._render(self.get_block_template_context(context, CommercialApproach.get_approaches(pk),
-                                                            update_url='/commercial/approaches/reload/%s/' % pk))
+                                                            update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, pk),
+                                                            ))
 
     def portal_display(self, context, ct_ids):
         #TODO: CommercialApproach.get_for_ct() ????
         return self._render(self.get_block_template_context(context,
                                                             CommercialApproach.objects.filter(entity_content_type__id__in=ct_ids, ok_or_in_futur=False),
-                                                            update_url='/commercial/approaches/reload/portal/%s/' % list4url(ct_ids)))
+                                                            update_url='/creme_core/blocks/reload/portal/%s/%s/' % (self.id_, list4url(ct_ids)),
+                                                            ))
 
     def home_display(self, context):
         return self._render(self.get_block_template_context(context, CommercialApproach.get_approaches(),
-                                                            update_url='/commercial/approaches/reload/home/'))
+                                                            update_url='/creme_core/blocks/reload/home/%s/' % self.id_,
+                                                            ))
 
 approaches_block = ApproachesBlock()

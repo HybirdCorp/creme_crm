@@ -144,6 +144,7 @@ TEMPLATE_CONTEXT_PROCESSORS += (
      'creme_core.context_processors.get_logo_url',
      'creme_core.context_processors.get_today',
      'creme_core.context_processors.get_css_theme',
+     'creme_core.context_processors.get_blocks_manager',
 )
 
 

@@ -22,8 +22,11 @@ from django.utils.translation import ugettext_lazy as _
 
 from creme_core.registry import creme_registry
 from creme_core.gui.menu import creme_menu
+from creme_core.gui.block import block_registry
 
 from billing.models import Invoice, Quote, SalesOrder
+from billing.blocks import product_lines_block, service_lines_block, total_block
+
 
 creme_registry.register_app('billing', _(u'Facturation'), '/billing')
 creme_registry.register_entity_models(Invoice, Quote, SalesOrder)
@@ -36,3 +39,8 @@ reg_menu('billing', '/billing/sales_order/add', 'Ajouter un bon de commande')
 reg_menu('billing', '/billing/sales_orders',    'Lister les bons de commande')
 reg_menu('billing', '/billing/quote/add',       'Ajouter un devis')
 reg_menu('billing', '/billing/quotes',          'Lister les devis')
+
+reg_block = block_registry.register
+reg_block(product_lines_block)
+reg_block(service_lines_block)
+reg_block(total_block)

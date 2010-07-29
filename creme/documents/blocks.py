@@ -21,6 +21,7 @@
 from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import ugettext_lazy as _
 
+from creme_core.models import Relation
 from creme_core.gui.block import QuerysetBlock
 
 from models import Document
@@ -29,6 +30,7 @@ from constants import REL_SUB_RELATED_2_DOC
 
 class LinkedDocsBlock(QuerysetBlock):
     id_           = QuerysetBlock.generate_id('documents', 'linked_docs')
+    dependencies  = (Relation,) #Document
     verbose_name  = _(u'Documents liés')
     template_name = 'documents/templatetags/block_linked_docs.html'
 
@@ -45,7 +47,7 @@ class LinkedDocsBlock(QuerysetBlock):
 
         return self._render(self.get_block_template_context(context,
                                                             Document.get_linkeddoc_relations(entity),
-                                                            update_url='/documents/linked_docs/reload/%s/' % entity.id,
+                                                            update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, entity.id),
                                                             predicate_id=REL_SUB_RELATED_2_DOC,
                                                             ct_id=self._doc_ct_id))
 

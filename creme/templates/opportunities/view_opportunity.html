@@ -2,14 +2,36 @@
 
 {% load creme_core_tags %}
 {% load creme_block %}
-{% load opportunities_blocks %}
 
 {% block logo %}<img src="{{MEDIA_URL}}images/opportunity_64.png" alt=""/>{% endblock %}
 
+{% block creme_blocks_import %}
+    {{block.super}}
+
+    {% import_block from_app 'creme_core' named 'relations' as 'relations_block' %}
+    {% import_block from_app 'creme_core' named 'properties' as 'properties_block' %}
+
+    {% import_block from_app 'billing' named 'total' as 'total_block' %}
+
+    {% import_block from_app 'opportunities' named 'linked_contacts' as 'contacts_block' %}
+
+    {% import_block from_app 'opportunities' named 'responsibles' as 'responsibles_block' %}
+    {% import_block from_app 'opportunities' named 'quotes' as 'quotes_block' %}
+    {% import_block from_app 'opportunities' named 'sales_orders' as 'sales_orders_block' %}
+    {% import_block from_app 'opportunities' named 'invoices' as 'invoices_block' %}
+
+    {% if object.use_lines %}
+        {% import_block from_app 'opportunities' named 'linked_products' as 'products_block' %}
+        {% import_block from_app 'opportunities' named 'linked_services' as 'services_block' %}
+        {% import_block from_app 'opportunities' named 'linked_product_lines' as 'product_lines_block' %}
+        {% import_block from_app 'opportunities' named 'linked_service_lines' as 'service_lines_block' %}
+    {% endif %}
+{% endblock %}
+
 {% block before_detail_view_1 %}
     {% if object.use_lines %}
-        {% get_opportproduct_lines %}
-        {% get_opportservice_lines %}
+        {% display_block_detailview 'product_lines_block' %}
+        {% display_block_detailview 'service_lines_block' %}
     {% endif %}
 {% endblock %}
 
@@ -41,23 +63,22 @@
     </table>
     {% include "creme_core/customfields_as_table.html" %}
 
-    {% get_contacts %}
+    {% display_block_detailview 'contacts_block' %}
 
     {% if object.use_lines %}
-        {% get_products %}
-        {% get_services %}
+        {% display_block_detailview 'products_block' %}
+        {% display_block_detailview 'services_block' %}
     {% endif %}
 
-    {% get_responsibles %}
-    {% get_quotes %}
-    {% get_sales_orders %}
-    {% get_invoices %}
+    {% display_block_detailview 'responsibles_block' %}
+    {% display_block_detailview 'quotes_block' %}
+    {% display_block_detailview 'sales_orders_block' %}
+    {% display_block_detailview 'invoices_block' %}
 
-    {% get_properties %}
-    {% get_relations %}
+    {% display_block_detailview 'properties_block' %}
+    {% display_block_detailview 'relations_block' %}
 {% endblock %}
 
 {% block detail_view_right_1 %}
-    {% load billing_blocks %}
-    {% get_total %}
+    {% display_block_detailview 'total_block' %}
 {% endblock %}

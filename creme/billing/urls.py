@@ -31,19 +31,14 @@ urlpatterns = patterns('billing.views',
 
     (r'^(?P<document_id>\d+)/convert/$', 'convert.convert'),
 
-    (r'^(?P<document_id>\d+)/product_lines/reload/$',       'line.reload_product_lines'),
     (r'^(?P<document_id>\d+)/product_line/add$',            'line.add_product_line'),
     (r'^(?P<document_id>\d+)/product_line/add_on_the_fly$', 'line.add_product_line_on_the_fly'),
-    (r'^(?P<document_id>\d+)/service_lines/reload/$',       'line.reload_service_lines'),
     (r'^(?P<document_id>\d+)/service_line/add$',            'line.add_service_line'),
     (r'^(?P<document_id>\d+)/service_line/add_on_the_fly$', 'line.add_service_line_on_the_fly'),
     (r'^line/(?P<line_id>\d+)/update$',                     'line.update'),
-#    (r'^line/(?P<line_id>\d+)/delete$',                     'line.delete'),
     (r'^line/delete$',                                      'line.delete'),
     (r'^productline/(?P<line_id>\d+)/edit$',                'line.edit_productline'),
     (r'^serviceline/(?P<line_id>\d+)/edit$',                'line.edit_serviceline'),
-
-    #(r'^(?P<document_id>\d+)/total/reload/$',       'base.reload_total'),
 )
 
 urlpatterns += patterns('creme_core.views',

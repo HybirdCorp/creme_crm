@@ -1,16 +1,13 @@
 {% load creme_core_tags %}
 {% load creme_block %}
-
 <table  class="table_detail_view ui-corner-all" id={{block_name}}>
     {% block header %}HEADER{% endblock %}
-
     <tbody class="collapsable">
         <tr>
             <th colspan="12" class="block_header_line_dark" align="left">
                 {% block add_buttons %}BUTTONS HERE{% endblock %}
             </th>
         </tr>
-
         {% if page.paginator.count %}
             <tr>
                 <th class="block_header_line_dark">Quantité</th>
@@ -26,10 +23,8 @@
                 <th class="block_header_line_dark">Réglé ?</th>
                 <th class="block_header_line_dark">Actions</th>
             </tr>
-
             {% for line in page.object_list %}
                 <!-- {% cycle "block_line_dark" "block_line_light" as row_color %} -->
-
                 <tr>
                     <td class="{{row_color}}">{{line.quantity}}</td>
                     <td class="{{row_color}}">{{line|get_html_field_value:"total_discount"}}</td>

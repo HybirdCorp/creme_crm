@@ -22,8 +22,11 @@ from django.utils.translation import ugettext_lazy as _
 
 from creme_core.registry import creme_registry
 from creme_core.gui.menu import creme_menu
+from creme_core.gui.block import block_registry
 
 from projects.models import Project, ProjectTask, Resource
+from projects.blocks import tasks_block, resources_block, working_periods_block
+
 
 creme_registry.register_app('projects', _(u'Projets'), '/projects')
 creme_registry.register_entity_models(Project, Resource, ProjectTask)
@@ -32,3 +35,8 @@ creme_menu.register_app('projects', '/projects/', 'Projets')
 reg_menu = creme_menu.register_menu
 reg_menu('projects', '/projects/projects',    'Lister les projets')
 reg_menu('projects', '/projects/project/add', 'Ajouter un projet')
+
+reg_block = block_registry.register
+reg_block(tasks_block)
+reg_block(resources_block)
+reg_block(working_periods_block)

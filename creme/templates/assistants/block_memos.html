@@ -7,7 +7,7 @@
         {% if object %}
             <tr>
                 <th class="block_header_line_light" align="left" colspan="4">
-                    <a class="button_link" onclick="creme.utils.innerPopupNReload('/assistants/memo/add/{{object.id}}/', '{{update_url}}?base_url={{base_url}}');">
+                    <a class="button_link" onclick="creme.utils.innerPopupNReload('/assistants/memo/add/{{object.id}}/', '{{update_url}}?base_url={{base_url}}&{{block_name}}_deps=' + creme.utils.getBlocksDeps('{{block_name}}'));">
                         <img src="{{MEDIA_URL}}images/add_22.png" border="0" title="Ajouter" alt="Ajouter" />Nouveau
                     </a>
                 </th>
@@ -35,7 +35,7 @@
                     <td class="{{row_color}}">{{memo.creation_date|date:"d/m/y"}}</td>
                     <td class="{{row_color}}">{{memo|get_html_field_value:"content"}}</td>
                     <td class="{{row_color}}" align="center" valign="center" style="width:10%;">
-                        <a onclick="creme.utils.innerPopupNReload('/assistants/memo/edit/{{memo.id}}/', '{{update_url}}?base_url={{base_url}}');">
+                        <a onclick="creme.utils.innerPopupNReload('/assistants/memo/edit/{{memo.id}}/', '{{update_url}}?base_url={{base_url}}&{{block_name}}_deps=' + creme.utils.getBlocksDeps('{{block_name}}'));">
                             <img src="{{MEDIA_URL}}images/edit_22.png" border="0">
                         </a>
                         {% get_line_deletor3 at_url '/assistants/memo/delete' with_args "{'id' : {{memo.id}} }" %}

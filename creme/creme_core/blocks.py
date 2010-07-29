@@ -20,23 +20,27 @@
 
 from django.utils.translation import ugettext_lazy as _
 
-from creme_core.models import Relation
+from creme_core.models import Relation, CremeProperty
 from creme_core.gui.block import QuerysetBlock
 
 
 class PropertiesBlock(QuerysetBlock):
     id_           = QuerysetBlock.generate_id('creme_core', 'properties')
+    dependencies  = (CremeProperty,)
     verbose_name  = _(u'Properties')
     template_name = 'creme_core/templatetags/block_properties.html'
 
     def detailview_display(self, context):
         entity = context['object']
         return self._render(self.get_block_template_context(context, entity.properties.all(),
-                                                            update_url='/creme_core/properties/reload/%s/' % entity.pk))
+                                                            #update_url='/creme_core/properties/reload/%s/' % entity.pk,
+                                                            update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, entity.pk),
+                                                            ))
 
 
 class RelationsBlock(QuerysetBlock):
     id_           = QuerysetBlock.generate_id('creme_core', 'relations')
+    dependencies  = (Relation,) #NB: (Relation, CremeEntity) but useless
     order_by      = 'type'
     verbose_name  = _(u'Relations')
     template_name = 'creme_core/templatetags/block_relations.html'
@@ -45,12 +49,15 @@ class RelationsBlock(QuerysetBlock):
         entity = context['object']
         btc    = self.get_block_template_context(context,
                                                  entity.relations.filter(type__display_with_other=True).select_related('type', 'object_entity'),
-                                                 update_url='/creme_core/relations/reload/%s/' % entity.pk)
+                                                 #update_url='/creme_core/relations/reload/%s/' % entity.pk,
+                                                 update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, entity.pk),
+                                                 )
 
         #NB: DB optimisation
         Relation.populate_real_object_entities(btc['page'].object_list)
 
         return self._render(btc)
+
 
 properties_block = PropertiesBlock()
 relations_block  = RelationsBlock()

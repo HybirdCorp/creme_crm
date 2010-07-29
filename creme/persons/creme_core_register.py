@@ -23,10 +23,12 @@ from django.utils.translation import ugettext_lazy as _
 from creme_core.registry import creme_registry
 from creme_core.gui.menu import creme_menu
 from creme_core.gui.button_menu import button_registry
+from creme_core.gui.block import block_registry
 
 from persons.models import Contact, Organisation
 from persons.buttons import (become_customer_button, become_prospect_button, become_suspect_button,
                              become_inactive_button, become_supplier_button, add_linked_contact_button)
+from persons.blocks import managers_block, employees_block
 
 
 creme_registry.register_entity_models(Contact, Organisation)
@@ -43,3 +45,7 @@ reg_menu('persons', '/persons/organisation/add', 'Ajouter une société')
 
 button_registry.register(become_customer_button, become_prospect_button, become_suspect_button,
                          become_inactive_button, become_supplier_button, add_linked_contact_button)
+
+reg_block = block_registry.register
+reg_block(managers_block)
+reg_block(employees_block)

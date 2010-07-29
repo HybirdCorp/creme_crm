@@ -5,12 +5,10 @@
     <tbody class="collapsable">
         <tr>
             <th colspan="4" class="block_header_line_dark" align="left">
-                {% comment %}<a class="button_link" onclick="creme.utils.showInnerPopup('/emails/mailing_list/{{object.pk}}/organisation/add')">{% endcomment %}
-                <a class="button_link" onclick="creme.utils.innerPopupNReload('/emails/mailing_list/{{object.pk}}/organisation/add', '{{update_url}}?base_url={{base_url}}');">
+                <a class="button_link" onclick="creme.utils.innerPopupNReload('/emails/mailing_list/{{object.pk}}/organisation/add', '{{update_url}}?base_url={{base_url}}&{{block_name}}_deps=' + creme.utils.getBlocksDeps('{{block_name}}'));">
                     <img src="{{MEDIA_URL}}images/add_22.png" border="0" title="Ajouter" alt="Ajouter" />Ajouter des organisations
                 </a>
-                {% comment %}<a class="button_link" onclick="creme.utils.showInnerPopup('/emails/mailing_list/{{object.pk}}/organisation/add_from_filter')">{% endcomment %}
-                <a class="button_link" onclick="creme.utils.innerPopupNReload('/emails/mailing_list/{{object.pk}}/organisation/add_from_filter', '{{update_url}}?base_url={{base_url}}');">
+                <a class="button_link" onclick="creme.utils.innerPopupNReload('/emails/mailing_list/{{object.pk}}/organisation/add_from_filter', '{{update_url}}?base_url={{base_url}}&{{block_name}}_deps=' + creme.utils.getBlocksDeps('{{block_name}}'));">
                     <img src="{{MEDIA_URL}}images/add_22.png" border="0" title="Ajouter gràce à un filtre" alt="Ajouter" />Ajouter à partir d'un filtre
                 </a>
             </th>

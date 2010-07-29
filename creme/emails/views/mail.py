@@ -25,14 +25,13 @@ from django.shortcuts import get_object_or_404, render_to_response
 from creme_core.entities_access.functions_for_permissions import read_object_or_die
 from creme_core.views.generic.popup import inner_popup
 
-from emails.blocks import mails_history_block
+#from emails.blocks import mails_history_block
 from emails.models.mail import Email
 
 
-
-@login_required
-def reload_block_mails_history(request, entity_id):
-    return mails_history_block.detailview_ajax(request, entity_id)
+#@login_required
+#def reload_block_mails_history(request, entity_id):
+    #return mails_history_block.detailview_ajax(request, entity_id)
 
 @login_required
 def view_mail(request, mail_id):
@@ -43,7 +42,8 @@ def view_mail(request, mail_id):
         return die_status
 
     template = "emails/view_email.html"
-    ctx_dict = {'mail': email, 'title':  'Détails du mail'}
+    ctx_dict = {'mail': email, 'title': 'Détails du mail'}
+
     if request.is_ajax():
         return inner_popup(request, template,
                            ctx_dict,

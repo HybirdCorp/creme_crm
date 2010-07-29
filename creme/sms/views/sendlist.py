@@ -28,10 +28,7 @@ from creme_core.entities_access.functions_for_permissions import get_view_or_die
 from creme_core.views.generic import add_entity, edit_entity, view_entity_with_template, list_view, inner_popup
 
 from sms.models import SendList
-from sms.forms.sendlist import (SendListForm,
-                                AddContactsForm,
-                                AddContactsFromFilterForm,)
-from sms.blocks import contacts_block
+from sms.forms.sendlist import SendListForm, AddContactsForm, AddContactsFromFilterForm
 
 
 @login_required
@@ -46,11 +43,8 @@ def edit(request, id):
 @login_required
 @get_view_or_die('sms')
 def detailview(request, id):
-    return view_entity_with_template(request,
-                                     id,
-                                     SendList,
-                                     '/sms/sendlist',
-                                     'sms/view_sendlist.html')
+    return view_entity_with_template(request, id, SendList,
+                                     '/sms/sendlist', 'sms/view_sendlist.html')
 
 @login_required
 @get_view_or_die('sms')
@@ -90,15 +84,6 @@ def add_contacts(request, id):
 def add_contacts_from_filter(request, id):
     return _add_aux(request, id, AddContactsFromFilterForm, 'Nouveaux contacts pour <%s>')
 
-#def add_organisations(request, ml_id):
-#    return _add_aux(request, ml_id, AddOrganisationsForm, 'Nouvelles organisations pour <%s>')
-#
-#def add_organisations_from_filter(request, ml_id):
-#    return _add_aux(request, ml_id, AddOrganisationsFromFilterForm, 'Nouvelles organisations pour <%s>')
-#
-#def add_children(request, ml_id):
-#    return _add_aux(request, ml_id, AddChildForm, 'Nouvelles listes filles pour <%s>')
-
 @login_required
 @get_view_or_die('sms')
 def _delete_aux(request, sendlist_id, deletor):
@@ -124,19 +109,3 @@ def delete_contact(request, sendlist_id):
 #
 #def delete_child(request, sendlist_id):
 #    return _delete_aux(request, sendlist_id, lambda ml, child_id: ml.children.remove(child_id))
-
-@login_required
-def reload_block_contacts(request, id):
-    return contacts_block.detailview_ajax(request, id)
-
-#@login_required
-#def reload_block_organisations(request, ml_id):
-#    return organisations_block.detailview_ajax(request, ml_id)
-#
-#@login_required
-#def reload_block_child_lists(request, ml_id):
-#    return child_lists_block.detailview_ajax(request, ml_id)
-#
-#@login_required
-#def reload_block_parent_lists(request, ml_id):
-#    return parent_lists_block.detailview_ajax(request, ml_id)

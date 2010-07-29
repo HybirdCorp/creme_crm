@@ -27,6 +27,7 @@ from assistants.models import Action, Alert, Memo, ToDo
 
 class TodosBlock(QuerysetBlock):
     id_           = QuerysetBlock.generate_id('assistants', 'todos')
+    dependencies  = (ToDo,)
     order_by      = '-creation_date'
     verbose_name  = _(u'Todos')
     template_name = 'assistants/block_todos.html'
@@ -34,19 +35,23 @@ class TodosBlock(QuerysetBlock):
     def detailview_display(self, context):
         pk = context['object'].pk
         return self._render(self.get_block_template_context(context, ToDo.get_todos(pk),
-                                                            update_url='/assistants/todos/reload/%s/' % pk))
+                                                            update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, pk),
+                                                            ))
 
     def portal_display(self, context, ct_ids):
         return self._render(self.get_block_template_context(context, ToDo.objects.filter(entity_content_type__id__in=ct_ids),
-                                                            update_url='/assistants/todos/reload/portal/%s/' % list4url(ct_ids)))
+                                                            update_url='/creme_core/blocks/reload/portal/%s/%s/' % (self.id_, list4url(ct_ids)),
+                                                            ))
 
     def home_display(self, context):
         return self._render(self.get_block_template_context(context, ToDo.objects.all(),
-                                                            update_url='/assistants/todos/reload/home/'))
+                                                            update_url='/creme_core/blocks/reload/home/%s/' % self.id_,
+                                                            ))
 
 
 class MemosBlock(QuerysetBlock):
     id_           = QuerysetBlock.generate_id('assistants', 'memos')
+    dependencies  = (Memo,)
     order_by      = '-creation_date'
     verbose_name  = _(u'Mémos')
     template_name = 'assistants/block_memos.html'
@@ -54,19 +59,23 @@ class MemosBlock(QuerysetBlock):
     def detailview_display(self, context):
         pk = context['object'].pk
         return self._render(self.get_block_template_context(context, Memo.get_memos(pk),
-                                                            update_url='/assistants/memos/reload/%s/' % pk))
+                                                            update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, pk),
+                                                            ))
 
     def portal_display(self, context, ct_ids):
         return self._render(self.get_block_template_context(context, Memo.objects.filter(entity_content_type__id__in=ct_ids),
-                                                            update_url='/assistants/memos/reload/portal/%s/' % list4url(ct_ids)))
+                                                            update_url='/creme_core/blocks/reload/portal/%s/%s/' % (self.id_, list4url(ct_ids)),
+                                                            ))
 
     def home_display(self, context):
         return self._render(self.get_block_template_context(context, Memo.objects.filter(on_homepage=True),
-                                                            update_url='/assistants/memos/reload/home/'))
+                                                            update_url='/creme_core/blocks/reload/home/%s/' % self.id_,
+                                                            ))
 
 
 class AlertsBlock(QuerysetBlock):
     id_           = QuerysetBlock.generate_id('assistants', 'alerts')
+    dependencies  = (Alert,)
     order_by      = '-trigger_date'
     verbose_name  = _(u'Alertes')
     template_name = 'assistants/block_alerts.html'
@@ -74,18 +83,23 @@ class AlertsBlock(QuerysetBlock):
     def detailview_display(self, context):
         pk = context['object'].pk
         return self._render(self.get_block_template_context(context, Alert.get_alerts(pk),
-                                                            update_url='/assistants/alerts/reload/%s/' % pk))
+                                                            update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, pk),
+                                                            ))
 
     def portal_display(self, context, ct_ids):
         return self._render(self.get_block_template_context(context, Alert.objects.filter(entity_content_type__id__in=ct_ids),
-                                                            update_url='/assistants/alerts/reload/portal/%s/' % list4url(ct_ids)))
+                                                            update_url='/creme_core/blocks/reload/portal/%s/%s/' % (self.id_, list4url(ct_ids)),
+                                                            ))
 
     def home_display(self, context):
         return self._render(self.get_block_template_context(context, Alert.get_alerts(),
-                                                            update_url='/assistants/alerts/reload/home/'))
+                                                            update_url='/creme_core/blocks/reload/home/%s/' % self.id_,
+                                                            ))
+
 
 class ActionsITBlock(QuerysetBlock):
     id_           = QuerysetBlock.generate_id('assistants', 'actions_it')
+    dependencies  = (Action,)
     order_by      = 'deadline'
     verbose_name  = _(u'Actions dans les délais')
     template_name = 'assistants/block_actions_it.html'
@@ -93,19 +107,23 @@ class ActionsITBlock(QuerysetBlock):
     def detailview_display(self, context):
         entity = context['object']
         return self._render(self.get_block_template_context(context, Action.get_actions_it(context['today'], entity),
-                                                            update_url='/assistants/actions/reload/%s/' % entity.pk))
+                                                            update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, entity.pk),
+                                                            ))
 
     def portal_display(self, context, ct_ids):
         return self._render(self.get_block_template_context(context, Action.get_actions_it_for_cts(ct_ids, context['today']),
-                                                            update_url='/assistants/actions/reload/portal/%s/' % list4url(ct_ids)))
+                                                            update_url='/creme_core/blocks/reload/portal/%s/%s/' % (self.id_, list4url(ct_ids)),
+                                                            ))
 
     def home_display(self, context):
         return self._render(self.get_block_template_context(context, Action.get_actions_it(context['today']),
-                                                            update_url='/assistants/actions/reload/home/'))
+                                                            update_url='/creme_core/blocks/reload/home/%s/' % self.id_,
+                                                            ))
 
 
 class ActionsNITBlock(QuerysetBlock):
     id_           = QuerysetBlock.generate_id('assistants', 'actions_nit')
+    dependencies  = (Action,)
     order_by      = 'deadline'
     verbose_name  = _(u'Réactions hors délais')
     template_name = 'assistants/block_actions_nit.html'
@@ -113,15 +131,18 @@ class ActionsNITBlock(QuerysetBlock):
     def detailview_display(self, context):
         entity = context['object']
         return self._render(self.get_block_template_context(context, Action.get_actions_nit(context['today'], entity),
-                                                            update_url='/assistants/actions/reload/%s/' % entity.pk))
+                                                            update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, entity.pk),
+                                                            ))
 
-    def portal_display(self, context, ct_id):
-        return self._render(self.get_block_template_context(context, Action.get_actions_nit_for_cts(ct_id, context['today']),
-                                                            update_url='/assistants/actions/reload/portal/%s/' % list4url(ct_id)))
+    def portal_display(self, context, ct_ids):
+        return self._render(self.get_block_template_context(context, Action.get_actions_nit_for_cts(ct_ids, context['today']),
+                                                            update_url='/creme_core/blocks/reload/portal/%s/%s/' % (self.id_, list4url(ct_ids)),
+                                                            ))
 
     def home_display(self, context):
         return self._render(self.get_block_template_context(context, Action.get_actions_nit(context['today']),
-                                                            update_url='/assistants/actions/reload/home/'))
+                                                            update_url='/creme_core/blocks/reload/home/%s/' % self.id_,
+                                                            ))
 
 
 alerts_block      = AlertsBlock()

@@ -29,7 +29,6 @@ from creme_core.views.generic import add_entity, edit_entity, view_entity_with_t
 
 from sms.models import SMSCampaign
 from sms.forms.campaign import CampaignCreateForm, CampaignEditForm, CampaignAddSendListForm
-from sms.blocks import sendlists_block
 
 
 @login_required
@@ -109,7 +108,3 @@ def delete_sendlist(request, campaign_id):
         return HttpResponse("", mimetype="text/javascript")
 
     return HttpResponseRedirect(campaign.get_absolute_url())
-
-@login_required
-def reload_block_sendlist(request, id):
-    return sendlists_block.detailview_ajax(request, id)

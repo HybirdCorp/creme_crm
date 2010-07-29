@@ -28,7 +28,6 @@ from creme_core.models import CremeEntity
 from creme_core.views.generic import inner_popup
 
 from commercial.forms.commercial_approach import ComAppCreateForm
-from commercial.blocks import approaches_block
 
 
 #TODO: use generic add_model ??
@@ -60,15 +59,3 @@ def add(request, entity_id):
                        reload=False,
                        delegate_reload=True,
                        context_instance=RequestContext(request))
-
-@login_required
-def reload_approaches(request, entity_id):
-    return approaches_block.detailview_ajax(request, entity_id)
-
-@login_required
-def reload_home_approaches(request):
-    return approaches_block.home_ajax(request)
-
-@login_required
-def reload_portal_approaches(request, ct_id):
-    return approaches_block.portal_ajax(request, ct_id)

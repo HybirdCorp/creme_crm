@@ -1,7 +1,6 @@
 {% extends "creme_core/detailview.html" %}
 
 {% load creme_block %}
-{% load billing_blocks %}
 
 {% block extrahead %}
     {{block.super}}
@@ -9,6 +8,17 @@
 {% endblock %}
 
 {% block logo %}<img src="{{MEDIA_URL}}images/invoice_64.png" alt=""/>{% endblock %}
+
+{% block creme_blocks_import %}
+    {{block.super}}
+
+    {% import_block from_app 'creme_core' named 'relations' as 'relations_block' %}
+    {% import_block from_app 'creme_core' named 'properties' as 'properties_block' %}
+
+    {% import_block from_app 'billing' named 'product_lines' as 'product_lines_block' %}
+    {% import_block from_app 'billing' named 'service_lines' as 'service_lines_block' %}
+    {% import_block from_app 'billing' named 'total' as 'total_block' %}
+{% endblock %}
 
 {% block edit_delete_buttons %}
     <a href="/billing/%s/{{object.id}}" onclick="creme._export.select_one(event, this);">
@@ -18,8 +28,8 @@
 {% endblock %}
 
 {% block before_detail_view_1 %}
-    {% get_product_lines %}
-    {% get_service_lines %}
+    {% display_block_detailview 'product_lines_block' %}
+    {% display_block_detailview 'service_lines_block' %}
 {% endblock %}
 
 {% block detail_view_left_1 %}
@@ -32,10 +42,10 @@
         }
     </script>
 
-    {% get_properties %}
-    {% get_relations %}
+    {% display_block_detailview 'properties_block' %}
+    {% display_block_detailview 'relations_block' %}
 {% endblock %}
 
 {% block detail_view_right_1 %}
-    {% get_total%}
+    {% display_block_detailview 'total_block' %}
 {% endblock %}

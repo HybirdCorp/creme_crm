@@ -24,7 +24,6 @@ from django.contrib.auth.decorators import login_required
 
 from assistants.models import ToDo
 from assistants.forms.todo import ToDoCreateForm, ToDoEditForm
-from assistants.blocks import todos_block
 from utils import generic_add, generic_edit, generic_delete
 
 
@@ -43,15 +42,3 @@ def validate(request, todo_id):
 
 def delete(request):
     return generic_delete(request, ToDo)
-
-@login_required
-def reload_detailview(request, entity_id):
-    return todos_block.detailview_ajax(request, entity_id)
-
-@login_required
-def reload_home(request):
-    return todos_block.home_ajax(request)
-
-@login_required
-def reload_portal(request, ct_ids):
-    return todos_block.portal_ajax(request, ct_ids)

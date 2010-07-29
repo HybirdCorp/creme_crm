@@ -24,70 +24,77 @@ from django.utils.translation import ugettext_lazy as _
 
 from creme_core.gui.block import QuerysetBlock
 
-from sms.models import Recipient, Sending, Message
+from persons.models import Contact
+
+from sms.models import Recipient, Sending, Message, SendList
 
 
 class SendListsBlock(QuerysetBlock):
     id_           = QuerysetBlock.generate_id('sms', 'sendlists')
+    dependencies  = (SendList,)
     verbose_name  = _(u'Listes de diffusion')
     template_name = 'sms/templatetags/block_sendlists.html'
 
     def detailview_display(self, context):
         campaign = context['object']
         return self._render(self.get_block_template_context(context, campaign.sendlists.all(),
-                                                            update_url='/sms/campaign/%s/sendlist/reload/' % campaign.pk))
+                                                            update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, campaign.pk),
+                                                            ))
 
 
 class RecipientsBlock(QuerysetBlock):
     id_           = QuerysetBlock.generate_id('sms', 'recipients')
+    dependencies  = (Recipient,)
     verbose_name  = _(u'Destinataires manuels')
     template_name = 'sms/templatetags/block_recipients.html'
 
     def detailview_display(self, context):
         pk = context['object'].pk
-        return self._render(self.get_block_template_context(context, Recipient.objects.filter(sendlist__id=pk), #get_recipients() ???
-                                                            update_url='/sms/sendlist/%s/recipients/reload/' % pk))
+        return self._render(self.get_block_template_context(context, Recipient.objects.filter(sendlist=pk), #get_recipients() ??? related_name()
+                                                            update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, pk),
+                                                            ))
 
 
 class ContactsBlock(QuerysetBlock):
     id_           = QuerysetBlock.generate_id('sms', 'contacts')
+    dependencies  = (Contact,)
     verbose_name  = _(u'Contacts destinataires')
     template_name = 'sms/templatetags/block_contacts.html'
 
     def detailview_display(self, context):
         sendlist = context['object']
         return self._render(self.get_block_template_context(context, sendlist.contacts.all(),
-                                                            update_url='/sms/sendlist/%s/contacts/reload/' % sendlist.pk))
+                                                            update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, sendlist.pk),
+                                                            ))
 
 
 class MessagesBlock(QuerysetBlock):
     id_           = QuerysetBlock.generate_id('sms', 'messages')
+    dependencies  = (Message,)
     verbose_name  = _(u'Messages envoyés')
     template_name = 'sms/templatetags/block_messages.html'
 
     def detailview_display(self, context):
         sending = context['object']
         return self._render(self.get_block_template_context(context, sending.messages.all(),
-                                                            update_url='/sms/campaign/sending/%s/messages/reload/' % sending.pk))
+                                                            update_url='/sms/campaign/sending/%s/messages/reload/' % sending.pk
+                                                            ))
 
+    #Useful method because EmailSending is not a CremeEntity (should be ?) --> generic view in creme_core (problems with credemtials ?) ??
+    #TODO: @jsonify ?
     def detailview_ajax(self, request, entity_id):
-        context = {'request': request, 'object': Sending.objects.get(id=entity_id)}
+        from creme_core.gui.block import BlocksManager
+        context = {
+                'request':              request,
+                'object':               Sending.objects.get(id=entity_id),
+                BlocksManager.var_name: BlocksManager(),
+            }
         return HttpResponse(JSONEncoder().encode([(self.id_, self.detailview_display(context))]), mimetype="text/javascript")
 
-#
-#class OrganisationsBlock(Block):
-#    id_           = Block.generate_id('emails', 'organisations')
-#    verbose_name  = _(u'Sociétés destinataires')
-#    template_name = 'emails/templatetags/block_organisations.html'
-#
-#    def detailview_display(self, context):
-#        sendlist = context['object']
-#        return self._render(self.get_block_template_context(context, sendlist.organisations.all(),
-#                                                            update_url='/sms/sendlist/%s/organisations/reload/' % sendlist.pk))
-#
 
 class SendingsBlock(QuerysetBlock):
     id_           = QuerysetBlock.generate_id('sms', 'sendings')
+    dependencies  = (Sending,)
     order_by      = '-date'
     verbose_name  = _(u'Envois')
     template_name = 'sms/templatetags/block_sendings.html'
@@ -95,44 +102,12 @@ class SendingsBlock(QuerysetBlock):
     def detailview_display(self, context):
         campaign = context['object']
         return self._render(self.get_block_template_context(context, Sending.objects.filter(campaign=campaign), #get_sendings() ??
-                                                            update_url='/sms/campaign/%s/sendings/reload/' % campaign.pk))
-
-#
-#class MailsBlock(Block):
-#    id_           = Block.generate_id('emails', 'mails')
-#    page_size     = 12
-#    verbose_name  = _(u"Mails d'un envoi")
-#    template_name = 'emails/templatetags/block_mails.html'
-#
-#    def detailview_display(self, context):
-#        sending = context['object']
-#        return self._render(self.get_block_template_context(context, sending.get_mails(),
-#                                                            update_url='/emails/campaign/sending/%s/mails/reload/' % sending.pk))
-#
-#    #overload this method because EmailSending is not a CremeEntity (should be ?)
-#    def detailview_ajax(self, request, entity_id):
-#        context = {'request': request, 'object': EmailSending.objects.get(id=entity_id)}
-#        return HttpResponse(JSONEncoder().encode([(self.id_, self.detailview_display(context))]), mimetype="text/javascript")
-
-#class MailsHistoryBlock(Block):
-#    id_           = Block.generate_id('emails', 'mails_history')
-#    order_by      = '-sending_date'
-#    verbose_name  = _(u"Historique des mails")
-#    template_name = 'emails/templatetags/block_mails_history.html'
-#
-#    def detailview_display(self, context):
-#        pk = context['object'].pk
-#        return self._render(self.get_block_template_context(context, Email.objects.filter(recipient_id=pk),
-#                                                            update_url='/emails/entity/%s/mails_history/reload/' % pk))
+                                                            update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, campaign.pk),
+                                                            ))
 
 
-sendlists_block     = SendListsBlock()
-recipients_block    = RecipientsBlock()
-contacts_block      = ContactsBlock()
-messages_block      = MessagesBlock()
-sendings_block      = SendingsBlock()
-
-#organisations_block = OrganisationsBlock()
-
-#mails_block         = MailsBlock()
-#mails_history_block = MailsHistoryBlock()
+sendlists_block  = SendListsBlock()
+recipients_block = RecipientsBlock()
+contacts_block   = ContactsBlock()
+messages_block   = MessagesBlock()
+sendings_block   = SendingsBlock()

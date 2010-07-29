@@ -4,7 +4,7 @@
     <tbody class="collapsable">
         <tr>
             <th class="block_header_line_light" align="left" colspan="2">
-                <a class="button_link" onclick="creme.utils.innerPopupNReload('/activities/activity/{{object.id}}/subject/add', '{{update_url}}?base_url={{base_url}}');">
+                <a class="button_link" onclick="creme.utils.innerPopupNReload('/activities/activity/{{object.id}}/subject/add', '{{update_url}}?base_url={{base_url}}&{{block_name}}_deps=' + creme.utils.getBlocksDeps('{{block_name}}'));">
                     <img src="{{MEDIA_URL}}images/relations_22.png" border="0" title="Ajouter un sujet" alt="Ajouter" />
                     Ajouter depuis des fiches existantes
                 </a>

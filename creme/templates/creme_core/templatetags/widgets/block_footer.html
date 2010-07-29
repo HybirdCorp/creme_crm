@@ -3,15 +3,15 @@
         <tr>
             <td colspan="100" class="block_header_line_dark">
                 {% if page.has_previous %}
-                    <a class="button_link" onclick="creme.utils.loadBlock('{{update_url}}?{{block_name}}_page={{page.previous_page_number}}&base_url={{base_url}}')">
+                    {% comment %}<a class="button_link" onclick="creme.utils.loadBlock('{{update_url}}?{{block_name}}_page={{page.previous_page_number}}&base_url={{base_url}}')">{% endcomment %}
+                    <a class="button_link" onclick="creme.utils.loadBlock('{{update_url}}?{{block_name}}_page={{page.previous_page_number}}&base_url={{base_url}}&{{block_name}}_deps=' + creme.utils.getBlocksDeps('{{block_name}}'))">
                         Page précédente
                     </a>
                 {% endif %}
-
                 Page {{page.number}} / {{page.paginator.num_pages}}
-
                 {% if page.has_next %}
-                    <a class="button_link" onclick="creme.utils.loadBlock('{{update_url}}?{{block_name}}_page={{page.next_page_number}}&base_url={{base_url}}')">
+                    {% comment %}<a class="button_link" onclick="creme.utils.loadBlock('{{update_url}}?{{block_name}}_page={{page.next_page_number}}&base_url={{base_url}}')">{% endcomment %}
+                    <a class="button_link" onclick="creme.utils.loadBlock('{{update_url}}?{{block_name}}_page={{page.next_page_number}}&base_url={{base_url}}&{{block_name}}_deps=' + creme.utils.getBlocksDeps('{{block_name}}'))">
                         Page suivante
                     </a>
                 {% endif %}

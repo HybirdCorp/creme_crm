@@ -16,19 +16,8 @@ urlpatterns = patterns('opportunities.views',
 
     (r'^opportunity/(?P<opp_id>\d+)/linked/quote/(?P<quote_id>\d+)/set_current/$', 'links.set_current_quote'),
 
-    (r'^opportunity/(?P<opp_id>\d+)/responsibles/reload/$',        'ajax.reload_responsibles'),
-    (r'^opportunity/(?P<opp_id>\d+)/linked/contacts/reload/$',     'ajax.reload_linked_contacts'),
-    (r'^opportunity/(?P<opp_id>\d+)/linked/invoices/reload/$',     'ajax.reload_linked_invoices'),
-    (r'^opportunity/(?P<opp_id>\d+)/linked/products/reload/$',     'ajax.reload_linked_products'),
-    (r'^opportunity/(?P<opp_id>\d+)/linked/services/reload/$',     'ajax.reload_linked_services'),
-    (r'^opportunity/(?P<opp_id>\d+)/linked/quotes/reload/$',       'ajax.reload_linked_quotes'),
-    (r'^opportunity/(?P<opp_id>\d+)/linked/sales_orders/reload/$', 'ajax.reload_linked_salesorders'),
-
     (r'^productline/(?P<line_id>\d*)/edit$', 'line.edit_productline'),
     (r'^serviceline/(?P<line_id>\d*)/edit$', 'line.edit_serviceline'),
-
-    (r'^(?P<opp_id>\d*)/product_lines/reload/$', 'line.reload_product_lines'),
-    (r'^(?P<opp_id>\d*)/service_lines/reload/$', 'line.reload_service_lines'),
 )
 
 urlpatterns += patterns('creme_core.views.generic',

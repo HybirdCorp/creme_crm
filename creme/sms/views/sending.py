@@ -28,7 +28,7 @@ from creme_core.views.generic import inner_popup
 
 from sms.models import SMSCampaign, Sending, Message
 from sms.forms.message import SendingCreateForm
-from sms.blocks import sendings_block, messages_block
+from sms.blocks import messages_block
 #from sms.webservice.samoussa import SamoussaBackEnd
 #from sms.webservice.backend import WSException
 
@@ -114,10 +114,6 @@ def detailview(request, id):
     return render_to_response('sms/popup_sending.html',
                               {'object': sending},
                               context_instance=RequestContext(request))
-
-@login_required
-def reload_block_sendings(request, id):
-    return sendings_block.detailview_ajax(request, id)
 
 @login_required
 def delete_message(request, id):

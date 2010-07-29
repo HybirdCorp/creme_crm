@@ -21,6 +21,7 @@
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.contenttypes.models import ContentType
 
+from creme_core.models import Relation
 from creme_core.gui.block import QuerysetBlock
 
 from persons.models import Contact
@@ -31,6 +32,7 @@ _contact_ct_id = None
 
 class ManagersBlock(QuerysetBlock):
     id_           = QuerysetBlock.generate_id('persons', 'managers')
+    dependencies  = (Relation,) #Contact
     verbose_name  = _(u"Responsables d'une société")
     template_name = 'persons/templatetags/block_managers.html'
 
@@ -44,13 +46,14 @@ class ManagersBlock(QuerysetBlock):
 
         return self._render(self.get_block_template_context(context,
                                                             orga.get_managers(),
-                                                            update_url='/persons/organisation/%s/managers/reload/' % orga.pk,
+                                                            update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, orga.pk),
                                                             predicate_id=REL_OBJ_MANAGES,
                                                             ct_id=_contact_ct_id))
 
 
 class EmployeesBlock(QuerysetBlock):
     id_           = QuerysetBlock.generate_id('persons', 'employees')
+    dependencies  = (Relation,) #Contact
     verbose_name  = _(u"Salariés d'une société")
     template_name = 'persons/templatetags/block_employees.html'
 
@@ -64,9 +67,10 @@ class EmployeesBlock(QuerysetBlock):
 
         return self._render(self.get_block_template_context(context,
                                                             orga.get_employees(),
-                                                            update_url='/persons/organisation/%s/employees/reload/' % orga.pk,
+                                                            update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, orga.pk),
                                                             predicate_id=REL_OBJ_EMPLOYED_BY,
                                                             ct_id=_contact_ct_id))
+
 
 managers_block  = ManagersBlock()
 employees_block = EmployeesBlock()
