@@ -46,3 +46,8 @@ def is_foreign_key(field, ct):
 @register.filter(name="get_verbose_type")
 def get_verbose_type(type_id):
     return HFI_TYPE_VERBOSE.get(type_id)
+
+#TODO: TEST PURPOSE WILL BE DELETED
+@register.inclusion_tag('reports2/templatetags/column_header.html')
+def get_column_header(column):
+    return {'data' : column.get_children_fields_with_hierarchy()}

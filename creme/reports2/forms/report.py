@@ -18,11 +18,9 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from creme.creme_core.models.relation import RelationType
-from django.db.models.query_utils import Q
-from creme.creme_core.models.custom_field import CustomField
 from collections import defaultdict
 
+from django.db.models.query_utils import Q
 from django.contrib.contenttypes.models import ContentType
 from django.forms.fields import MultipleChoiceField
 from django.forms import ValidationError
@@ -32,11 +30,11 @@ from creme_core.registry import creme_registry
 from creme_core.forms import CremeEntityForm, CremeForm
 from creme_core.forms.widgets import OrderedMultipleChoiceWidget, ListViewWidget
 from creme_core.forms.fields import AjaxMultipleChoiceField, AjaxModelChoiceField, CremeEntityField
-from creme_core.models.header_filter import HeaderFilter, HeaderFilterItem, HFI_FIELD, HFI_RELATION, HFI_CUSTOM, HFI_FUNCTION
 from creme_core.models import Filter
-from creme_core.utils.meta import get_verbose_field_name, get_verbose_function_name
-
-from creme.creme_core.utils.meta import get_flds_with_fk_flds_str
+from creme_core.models.custom_field import CustomField
+from creme_core.models.header_filter import HeaderFilter, HeaderFilterItem, HFI_FIELD, HFI_RELATION, HFI_CUSTOM, HFI_FUNCTION
+from creme_core.models.relation import RelationType
+from creme_core.utils.meta import get_verbose_field_name, get_verbose_function_name, get_flds_with_fk_flds_str
 from reports2.models import Report2 as Report, Field
 
 class CreateForm(CremeEntityForm):
@@ -112,40 +110,40 @@ class CreateForm(CremeEntityForm):
         if hf is not None:
             #Have to build from an existant header filter
             hf_items = HeaderFilterItem.objects.filter(header_filter=hf)
+            field_get_instance_from_hf_item = Field.get_instance_from_hf_item
             for hf_item in hf_items:
-#                f = Field(name=hf_item.name, title=hf_item.title, order=hf_item.order, type=hf_item.type)
-                f = Field.get_instance_from_hf_item(hf_item)
+                f = field_get_instance_from_hf_item(hf_item)
                 f.save()
                 report_fields.append(f)
-#                report.columns.add(f)
         else:
             i = 1
             for column in columns:
                 f = Field(name=column, title=get_verbose_field_name(model, column), order=i, type=HFI_FIELD)
                 f.save()
                 report_fields.append(f)
-#                report.columns.add(f)
                 i += 1
 
             for custom_field in custom_fields:
                 f = Field(name=custom_field, title=custom_field, order=i, type=HFI_CUSTOM)
                 f.save()
                 report_fields.append(f)
-#                report.columns.add(f)
                 i += 1
 
             for relation in relations:
-                f = Field(name=relation, title=relation, order=i, type=HFI_RELATION)
+                rel_type_get = RelationType.objects.get
+                try:
+                    predicate_verbose = rel_type_get(pk=relation)
+                except RelationType.DoesNotExist:
+                    predicate_verbose =  relation
+                f = Field(name=relation, title=predicate_verbose, order=i, type=HFI_RELATION)
                 f.save()
                 report_fields.append(f)
-#                report.columns.add(f)
                 i += 1
 
             for function in functions:
                 f = Field(name=function, title=get_verbose_function_name(model, function), order=i, type=HFI_FUNCTION)
                 f.save()
                 report_fields.append(f)
-#                report.columns.add(f)
                 i += 1
 
         report.columns = report_fields
@@ -163,7 +161,9 @@ class EditForm(CremeEntityForm):
         instance = self.instance
         fields = self.fields
 
-        fields['filter'].choices = Filter.objects.filter(model_ct=instance.ct).values_list('id','name')
+        base_filter = [('', 'Tout')]
+        base_filter.extend(Filter.objects.filter(model_ct=instance.ct).values_list('id','name'))
+        fields['filter'].choices = base_filter
         fields['filter'].initial = instance.ct.id
 
     def save(self):
@@ -176,7 +176,9 @@ class LinkFieldToReportForm(CremeForm):
         self.field = field
         self.ct = ct
         super(LinkFieldToReportForm, self).__init__(*args, **kwargs)
-        self.fields['report'].widget.q_filter = {'ct__id' : ct.id, '~id' : report.id}
+
+        #TODO: Set include report.id with report.get_ascendants_reports() ? chain ?
+        self.fields['report'].widget.q_filter = {'ct__id' : ct.id, '~id' : report.id, '~id__in' : [r.id for r in report.get_ascendants_reports()]}
 
     def save(self):
         self.field.report = self.cleaned_data['report']
