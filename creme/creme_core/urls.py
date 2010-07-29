@@ -16,6 +16,7 @@ creme_core_patterns = patterns('creme_core.views',
     (r'^relation/entity/(?P<id>\d+)/predicates/json$',                                                                   'relation.json_entity_predicates'),
     (r'^relation/predicate/(?P<id>[\w-]+)/content_types/json$',                                                          'relation.json_predicate_content_types'),
     (r'^relation/add_to_entities/(?P<model_ct_id>\d+)/(?P<ids>([\d]+[,])+)$',                                            'relation.add_relations_bulk'),
+    (r'^relation/get_predicates_choices_4_ct$',                                                                          'relation.get_predicates_choices_4_ct'),
 
     (r'^blocks/reload/(?P<block_id>[\w-]+)/(?P<entity_id>\d+)/$',        'blocks.reload_detailview'),
     (r'^blocks/reload/home/(?P<block_id>[\w-]+)/$',                      'blocks.reload_home'),
@@ -59,7 +60,13 @@ creme_core_patterns = patterns('creme_core.views',
     (r'^nothing/$', 'nothing.get_nothing'),
 
     #Research
-    (r'^search$', 'search.search')
+    (r'^search$', 'search.search'),
+
+    #Ajax helpers
+    (r'^get_fields$',        'ajax.get_fields'),
+    (r'^get_custom_fields$', 'ajax.get_custom_fields'),
+    (r'^get_user_functions$', 'ajax.get_user_functions'),
+
 )
 
 creme_core_patterns += patterns('creme_core.views.generic',

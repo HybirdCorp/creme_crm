@@ -20,22 +20,23 @@
 
 from django.utils.translation import ugettext_lazy as _
 
-from creme_core.registry import creme_registry
-from creme_core.gui.menu import creme_menu
-from creme_core.gui.block import block_registry
+from creme_core.gui.block import Block
 
-from reports2.models import Report2 as Report, report_prefix_url
-from reports2.blocks import report_fields_block
+from creme_core.models.header_filter import HFI_FIELD, HFI_RELATION
 
-report_app = Report._meta.app_label
+from reports2.models import report_template_dir, report_prefix_url
 
+class ReportFieldsBlock(Block):
+    id_           = Block.generate_id('reports2', 'fields')
+    verbose_name  = _(u"Colonnes du rapport")
+    template_name = '%s/templatetags/block_report_fields.html' % report_template_dir
 
-creme_registry.register_app(report_app, _(u'Rapports'), report_prefix_url)
-creme_registry.register_entity_models(Report)
+    def detailview_display(self, context):
+        object = context['object']
+        return self._render(self.get_block_template_context(context,
+                                                            update_url='%s/%s/fields_block/reload/' % (report_prefix_url, object.id),
+                                                            HFI_FIELD=HFI_FIELD,
+                                                            HFI_RELATION=HFI_RELATION)
+                            )
 
-creme_menu.register_app(report_app, '%s/' % report_prefix_url, 'Rapports')
-reg_menu = creme_menu.register_menu
-reg_menu(report_app, '%s/reports' % report_prefix_url,    'Liste des rapports générés')
-reg_menu(report_app, '%s/report/add' % report_prefix_url, 'Créer un rapport')
-
-block_registry.register(report_fields_block)
+report_fields_block = ReportFieldsBlock()

@@ -18,24 +18,13 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.utils.translation import ugettext_lazy as _
+from django.template import Library
 
-from creme_core.registry import creme_registry
-from creme_core.gui.menu import creme_menu
-from creme_core.gui.block import block_registry
-
-from reports2.models import Report2 as Report, report_prefix_url
 from reports2.blocks import report_fields_block
 
-report_app = Report._meta.app_label
+register = Library()
 
+@register.inclusion_tag('creme_core/templatetags/registered_blocks.html', takes_context=True)
+def get_report_fields(context):
+    return {'blocks': [report_fields_block.detailview_display(context)]}
 
-creme_registry.register_app(report_app, _(u'Rapports'), report_prefix_url)
-creme_registry.register_entity_models(Report)
-
-creme_menu.register_app(report_app, '%s/' % report_prefix_url, 'Rapports')
-reg_menu = creme_menu.register_menu
-reg_menu(report_app, '%s/reports' % report_prefix_url,    'Liste des rapports générés')
-reg_menu(report_app, '%s/report/add' % report_prefix_url, 'Créer un rapport')
-
-block_registry.register(report_fields_block)

@@ -18,6 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from creme.creme_core.utils.queries import get_q_from_dict
 from logging import debug
 import csv
 
@@ -199,9 +200,11 @@ def list_view_popup_from_widget(request, ct_id, o2m, *args, **kwargs):
     model = get_object_or_404(ContentType, pk=ct_id).model_class()
 
     extra_q_dict = JSONDecoder().decode(str(req_get('q_filter', {}))) or {}
-    ex_q_dict = dict((str(k), v) for k, v in extra_q_dict.items())
+#    ex_q_dict = dict((str(k), v) for k, v in extra_q_dict.items())
+#
+#    extra_q = Q(**(ex_q_dict or {}))
 
-    extra_q = Q(**(ex_q_dict or {}))
+    extra_q = get_q_from_dict(extra_q_dict)
 
     #TODO: Can be improved ?
     supplied_extra_q = kwargs.pop('extra_q', None)

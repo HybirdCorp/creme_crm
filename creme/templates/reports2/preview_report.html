@@ -1,0 +1,59 @@
+{% extends "creme_core/base.html" %}
+
+{% load creme_core_tags %}
+{% load queryset_tags %}
+{% load report_tags %}
+
+{% block page_title %} - {{object}}{% endblock %}
+
+{% block before_content_1 %}
+    <table class="table_header" cellpadding="0" cellspacing="0">
+        <tr>
+            <td width="5%"><img src="{{MEDIA_URL}}images/reporting_64.png" alt=""/></td>
+            <td width="70%">
+                <h1>
+                    Aperçu {{object|get_meta_value:"verbose_name"|title}} : {{object|title}}
+                </h1>
+            </td>
+            <td width="25%" align="right">
+                <span>
+                    <a href="{{object.get_absolute_url}}">
+                        <img src="{{MEDIA_URL}}images/left_arrow_64.png" title="Retour sur la fiche : '{{object}}'" alt="Retour"/>
+                    </a>&nbsp;
+                    <a href="/reports2/report/{{object.id}}/csv">
+                        <img src="{{MEDIA_URL}}images/document_csv_64.png" title="Télécharger '{{object}}' sous forme de fichier CSV" alt="Télécharger CSV"/>
+                    </a>&nbsp;
+                </span>
+            </td>
+        </tr>
+    </table>
+{% endblock %}
+
+
+{% block content %}
+    <div style="position:relative; width:100%; overflow-x: scroll;">
+        <table class="table_detail_view ui-corner-all" >
+            <thead>
+                <tr>
+                    <th colspan="{{object.columns.all|length}}">Aperçu</th>
+                </tr>
+            </thead>
+            <tbody class="collapsable">
+                <tr>
+                    {% for column in object.columns.all|order_by:"order" %}
+                        <th class="{% cycle "block_header_line_dark" "block_header_line_light" %}">{% get_column_header column %}</th>
+                    {% endfor %}
+                </tr>
+                {% for entity in entities %}
+                    <tr>
+                        {% for column in object.columns.all|order_by:"order" %}
+                            <td class="{% cycle "block_line_dark" "block_line_light" %}">
+                                {% comment %}{{column|get_entity_field_value:entity}} TEST PURPOSE WILL BE DELETED{% endcomment %}
+                            </td>
+                        {% endfor %}
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endblock %}
