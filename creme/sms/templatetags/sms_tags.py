@@ -20,31 +20,8 @@
 
 from django.template import Library
 
-#from sms.blocks import (sendlists_block, recipients_block, contacts_block, sendings_block, messages_block,)
-
-#TODO: rename this file to sms_tags.py
-
 register = Library()
 
-#@register.inclusion_tag('creme_core/templatetags/registered_blocks.html', takes_context=True)
-#def get_sendlists(context):
-    #return {'blocks': [sendlists_block.detailview_display(context)]}
-
-#@register.inclusion_tag('creme_core/templatetags/registered_blocks.html', takes_context=True)
-#def get_manual_recipients(context):
-    #return {'blocks': [recipients_block.detailview_display(context)]}
-
-#@register.inclusion_tag('creme_core/templatetags/registered_blocks.html', takes_context=True)
-#def get_recipient_contacts(context):
-    #return {'blocks': [contacts_block.detailview_display(context)]}
-
-#@register.inclusion_tag('creme_core/templatetags/registered_blocks.html', takes_context=True)
-#def get_sendings(context):
-    #return {'blocks': [sendings_block.detailview_display(context)]}
-
-#@register.inclusion_tag('creme_core/templatetags/registered_blocks.html', takes_context=True)
-#def get_messages(context):
-    #return {'blocks': [messages_block.detailview_display(context)]}
 
 @register.filter(name="phonenumber")
 def phonenumber(value):
@@ -54,13 +31,13 @@ def phonenumber(value):
 def formatphone(value):
     if not value:
         return ''
-    
+
     length = len(value)
-    
+
     if length < 6:
         return value
-    
-    if length%2 > 0:
+
+    if length % 2 > 0:
         return value[:3] + ' ' + ''.join(c if not i%2 else c + ' ' for i, c in enumerate(value[3:]))
-    
+
     return ''.join(c if not i%2 else c + ' ' for i, c in enumerate(value)) if value else ''
