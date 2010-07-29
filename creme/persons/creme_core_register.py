@@ -46,6 +46,4 @@ reg_menu('persons', '/persons/organisation/add', 'Ajouter une société')
 button_registry.register(become_customer_button, become_prospect_button, become_suspect_button,
                          become_inactive_button, become_supplier_button, add_linked_contact_button)
 
-reg_block = block_registry.register
-reg_block(managers_block)
-reg_block(employees_block)
+block_registry.register(managers_block, employees_block)

@@ -39,15 +39,7 @@ reg_menu('creme_config', '/creme_config/profile/portal/',                 'Gesti
 reg_menu('creme_config', '/creme_config/roles/portal/',                   'Gestion des rôles')
 reg_menu('creme_config', '/creme_config/user/portal/',                    'Gestion des utilisateurs')
 
-reg_block = block_registry.register
-reg_block(generic_models_block)
-reg_block(property_types_block)
-reg_block(relation_types_block)
-reg_block(custom_fields_portal_block)
-reg_block(custom_fields_block)
-reg_block(blocks_config_block)
-reg_block(button_menu_block)
-reg_block(users_block)
-reg_block(app_credentials_block)
-reg_block(entity_credentials_block)
-reg_block(search_block)
+block_registry.register(generic_models_block, property_types_block, relation_types_block,
+                        custom_fields_portal_block, custom_fields_block,
+                        blocks_config_block, button_menu_block, search_block,
+                        users_block, app_credentials_block, entity_credentials_block)

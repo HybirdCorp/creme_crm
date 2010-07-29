@@ -39,10 +39,6 @@ reg_menu('activities', '/activities/calendar/user',       'Calendrier')
 reg_menu('activities', '/activities/indisponibility/add', 'Ajouter une indisponibilité')
 reg_menu('activities', '/activities/activities',          'Lister les activités')
 
-reg_block = block_registry.register
-reg_block(participants_block)
-reg_block(subjects_block)
-reg_block(future_activities_block)
-reg_block(past_activities_block)
+block_registry.register(participants_block, subjects_block, future_activities_block, past_activities_block)
 
 button_registry.register(add_meeting_button, add_phonecall_button)

@@ -41,9 +41,4 @@ reg_menu('sms', '/sms/sendlist/add', 'Ajouter une liste de diffusion')
 reg_menu('sms', '/sms/templates',    'Lister les patrons de message')
 reg_menu('sms', '/sms/template/add', 'Ajouter un patron de message')
 
-reg_block = block_registry.register
-reg_block(sendlists_block)
-reg_block(recipients_block)
-reg_block(contacts_block)
-reg_block(messages_block)
-reg_block(sendings_block)
+block_registry.register(sendlists_block, recipients_block, contacts_block, messages_block, sendings_block)

@@ -33,6 +33,4 @@ creme_registry.register_app('creme_core', _(u'Coeur'), '/')
 
 creme_menu.register_app('creme_core', '/', 'Accueil')
 
-reg_block = block_registry.register
-reg_block(relations_block)
-reg_block(properties_block)
+block_registry.register(relations_block, properties_block)
