@@ -47,7 +47,7 @@ class RelationType(CremeModel):
     object_properties  = ManyToManyField(CremePropertyType, blank=True, null=True, related_name='relationtype_objects_set')
 
     can_be_create_with_popup = BooleanField(default=True)
-    display_with_other       = BooleanField(default=True)
+    #display_with_other       = BooleanField(default=True)
     is_custom                = BooleanField(default=False)
 
     predicate      = CharField(_(u'Prédicat'), max_length=100)
@@ -85,7 +85,7 @@ class RelationType(CremeModel):
         return RelationType.objects.filter(is_custom=True)
 
     @staticmethod
-    def create(subject_desc, object_desc, display_with_other=True, is_custom=False, generate_pk=False):
+    def create(subject_desc, object_desc, is_custom=False, generate_pk=False):
         """
         @param subject_desc Tuple (string_pk, predicate_string [, sequence_of_cremeEntityClasses [, sequence_of_propertyTypes]])
         @param object_desc See subject_desc
@@ -103,13 +103,13 @@ class RelationType(CremeModel):
         pred_object  = object_desc[1]
 
         if not generate_pk:
-            sub_relation_type = create(RelationType, pk_subject, predicate=pred_subject, display_with_other=display_with_other, is_custom=is_custom)
-            obj_relation_type = create(RelationType, pk_object,  predicate=pred_object,  display_with_other=display_with_other, is_custom=is_custom)
+            sub_relation_type = create(RelationType, pk_subject, predicate=pred_subject, is_custom=is_custom)
+            obj_relation_type = create(RelationType, pk_object,  predicate=pred_object,  is_custom=is_custom)
         else:
             from creme_core.utils.id_generator import generate_string_id_and_save
 
-            sub_relation_type = RelationType(predicate=pred_subject, display_with_other=display_with_other, is_custom=is_custom)
-            obj_relation_type = RelationType(predicate=pred_object,  display_with_other=display_with_other, is_custom=is_custom)
+            sub_relation_type = RelationType(predicate=pred_subject, is_custom=is_custom)
+            obj_relation_type = RelationType(predicate=pred_object,  is_custom=is_custom)
 
             generate_string_id_and_save(RelationType, [sub_relation_type], pk_subject)
             generate_string_id_and_save(RelationType, [obj_relation_type], pk_object)

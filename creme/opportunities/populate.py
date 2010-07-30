@@ -45,11 +45,11 @@ class Populator(BasePopulator):
 
     def populate(self, *args, **kwargs):
         RelationType.create((REL_SUB_TARGETS_ORGA,      u'cible la société',                [Opportunity]),
-                            (REL_OBJ_TARGETS_ORGA,      u"est ciblé par l'opportunité"),                    display_with_other=True)
+                            (REL_OBJ_TARGETS_ORGA,      u"est ciblé par l'opportunité"))
         RelationType.create((REL_SUB_LINKED_PRODUCT,    u"est lié à l'opportunité",         [Product]),
-                            (REL_OBJ_LINKED_PRODUCT,    u"concerne le produit",             [Opportunity]), display_with_other=False)
+                            (REL_OBJ_LINKED_PRODUCT,    u"concerne le produit",             [Opportunity]))
         RelationType.create((REL_SUB_LINKED_SERVICE,    u"est lié à l'opportunité",         [Service]),
-                            (REL_OBJ_LINKED_SERVICE,    u"concerne le service",             [Opportunity]), display_with_other=False)
+                            (REL_OBJ_LINKED_SERVICE,    u"concerne le service",             [Opportunity]))
         RelationType.create((REL_SUB_LINKED_CONTACT,    u"intervient dans l'opportunité",   [Contact]),
                             (REL_OBJ_LINKED_CONTACT,    u"met en scène",                    [Opportunity]))
         RelationType.create((REL_SUB_LINKED_SALESORDER, u"est associé a l'opportunité",     [SalesOrder]),
@@ -59,9 +59,9 @@ class Populator(BasePopulator):
         RelationType.create((REL_SUB_LINKED_QUOTE,      u"a été généré pour l'opportunité", [Quote]),
                             (REL_OBJ_LINKED_QUOTE,      u"a donné lieu au devis",           [Opportunity]))
         RelationType.create((REL_SUB_RESPONSIBLE,       u"est chargé de l'affaire",         [Contact]),
-                            (REL_OBJ_RESPONSIBLE,       u"a comme responsable d'affaire",   [Opportunity]), display_with_other=False)
+                            (REL_OBJ_RESPONSIBLE,       u"a comme responsable d'affaire",   [Opportunity]))
         RelationType.create((REL_SUB_EMIT_ORGA,         u"a généré l'opportunité",          [Organisation]),
-                            (REL_OBJ_EMIT_ORGA,         u"a été généré par",                [Opportunity]), display_with_other=True)
+                            (REL_OBJ_EMIT_ORGA,         u"a été généré par",                [Opportunity]))
 
 
         create(CremeKVConfig, "LINE_IN_OPPORTUNITIES",  value="0")
