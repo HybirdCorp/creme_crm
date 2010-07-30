@@ -1,4 +1,4 @@
-{% extends "creme_core/detailview.html" %}
+{% extends "creme_core/generics/view_entity.html" %}
 
 {% load creme_core_tags %}
 {% load creme_block %}
@@ -13,9 +13,6 @@
 
 {% block creme_blocks_import %}
     {{block.super}}
-
-    {% import_block from_app 'creme_core' named 'relations' as 'relations_block' %}
-    {% import_block from_app 'creme_core' named 'properties' as 'properties_block' %}
 
     {% import_block from_app 'persons' named 'employees' as 'employees_block' %}
     {% import_block from_app 'persons' named 'managers' as 'managers_block' %}
@@ -113,21 +110,21 @@
     </table>
 
     <table class="table_detail_view ui-corner-all">
-            {% get_basic_block_header 'Autres Informations' 'infos_48.png' 'Infos' %}
-            <tbody class="collapsable">
-                <tr>
-                    <th class="{% cycle header_color %}">Description</th>
-                    <td class="{% cycle row_color %}">{{object.description}}</td>
-                </tr>
-                <tr>
-                    <th class="{% cycle header_color %}">Date de création de l'entreprise</th>
-                    <td class="{% cycle row_color %}">{{object|get_html_field_value:"creation_date"}}</td>
-                </tr>
-                <tr>
-                    <th class="{% cycle header_color %}">Logo</th>
-                    <td class="{% cycle row_color %}">{{object|get_html_field_value:"image"}}</td>
-                </tr>
-            </tbody>
+        {% get_basic_block_header 'Autres Informations' 'infos_48.png' 'Infos' %}
+        <tbody class="collapsable">
+            <tr>
+                <th class="{% cycle header_color %}">Description</th>
+                <td class="{% cycle row_color %}">{{object.description}}</td>
+            </tr>
+            <tr>
+                <th class="{% cycle header_color %}">Date de création de l'entreprise</th>
+                <td class="{% cycle row_color %}">{{object|get_html_field_value:"creation_date"}}</td>
+            </tr>
+            <tr>
+                <th class="{% cycle header_color %}">Logo</th>
+                <td class="{% cycle row_color %}">{{object|get_html_field_value:"image"}}</td>
+            </tr>
+        </tbody>
     </table>
 
     {% include "creme_core/customfields_as_table.html" %}

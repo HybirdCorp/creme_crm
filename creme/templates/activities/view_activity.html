@@ -1,4 +1,4 @@
-{% extends "creme_core/detailview.html" %}
+{% extends "creme_core/generics/view_entity.html" %}
 
 {% load creme_block %}
 
@@ -18,9 +18,6 @@
 
 {% block creme_blocks_import %}
     {{block.super}}
-
-    {% import_block from_app 'creme_core' named 'relations' as 'relations_block' %}
-    {% import_block from_app 'creme_core' named 'properties' as 'properties_block' %}
 
     {% import_block from_app 'activities' named 'participants' as 'participants_block' %}
     {% import_block from_app 'activities' named 'subjects' as 'subjects_block' %}
