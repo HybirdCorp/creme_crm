@@ -130,14 +130,10 @@ class Block(object):
         return blockcontext, modified
 
     def _build_template_context(self, context, block_name, block_context, **extra_kwargs):
-        template_context = {
-                'block_name': block_name,
-                'object':     context.get('object'), #optionnal: only on detailview
-                'MEDIA_URL':  settings.MEDIA_URL,
-               }
-        template_context.update(extra_kwargs)
+        context['block_name'] = block_name
+        context.update(extra_kwargs)
 
-        return template_context
+        return context
 
     def get_block_template_context(self, context, update_url='', depblock_ids=(), **extra_kwargs):
         """ Build the block template context.

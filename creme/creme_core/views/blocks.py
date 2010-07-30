@@ -20,10 +20,12 @@
 
 from datetime import datetime
 
+from django.template import RequestContext
 from django.shortcuts import get_object_or_404
 from django.contrib.auth.decorators import login_required
 
 from creme_core.models import CremeEntity
+from creme_core.entities_access.functions_for_permissions import read_object_or_die
 from creme_core.gui.block import block_registry, str2list, BlocksManager
 from creme_core.utils import jsonify
 
@@ -38,38 +40,32 @@ def _get_depblock_ids(request, block_id):
 
     return ids
 
-def _build_context(request, blocks_manager):
-    return {
-            'request':               request,
-            'today':                 datetime.today(),
-            blocks_manager.var_name: blocks_manager,
-        }
-
 @login_required
 @jsonify
 def reload_detailview(request, block_id, entity_id):
-    blocks_manager = BlocksManager()
-    context = _build_context(request, blocks_manager)
-    depblock_ids = _get_depblock_ids(request, block_id)
+    entity = get_object_or_404(CremeEntity, pk=entity_id).get_real_entity() #get_real_entity() ??
+
+    die_status = read_object_or_die(request, entity)
+    if die_status:
+        return die_status
+
+    context = RequestContext(request)
+    context['object'] = entity
+    blocks_manager = BlocksManager.get(context)
     blocks = []
 
-    context['object'] = get_object_or_404(CremeEntity, pk=entity_id).get_real_entity() #get_real_entity() ??
-
-    #blocks_manager.add_relation_types(....) #TODOOOOOOOOOOOOOOOOOOOOOOOO
-
-    for block_id in depblock_ids:
+    for block_id in _get_depblock_ids(request, block_id):
         block = block_registry[block_id]
         blocks_manager.add_group(block_id, block)
         blocks.append((block_id, block.detailview_display(context)))
 
     return blocks
 
-
 @login_required
 @jsonify
 def reload_home(request, block_id):
-    blocks_manager = BlocksManager()
-    context = _build_context(request, blocks_manager)
+    context = RequestContext(request)
+    blocks_manager = BlocksManager.get(context)
     depblock_ids = _get_depblock_ids(request, block_id)
     blocks = []
 
@@ -83,8 +79,8 @@ def reload_home(request, block_id):
 @login_required
 @jsonify
 def reload_portal(request, block_id, ct_ids):
-    blocks_manager = BlocksManager()
-    context = _build_context(request, blocks_manager)
+    context = RequestContext(request)
+    blocks_manager = BlocksManager.get(context)
     ct_ids = str2list(ct_ids)
     depblock_ids = _get_depblock_ids(request, block_id)
     blocks = []
@@ -99,8 +95,8 @@ def reload_portal(request, block_id, ct_ids):
 @login_required
 @jsonify
 def reload_basic(request, block_id):
-    blocks_manager = BlocksManager()
-    context = _build_context(request, blocks_manager)
+    context = RequestContext(request)
+    blocks_manager = BlocksManager.get(context)
     depblock_ids = _get_depblock_ids(request, block_id)
     blocks = []
 
