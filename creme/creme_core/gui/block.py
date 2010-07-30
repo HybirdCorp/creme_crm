@@ -28,7 +28,7 @@ from django.conf import settings
 from django.http import HttpResponse
 from django.utils.simplejson import JSONEncoder
 
-from creme_core.models import CremeEntity
+from creme_core.models import CremeEntity, Relation
 
 
 def list4url(list_):
@@ -69,6 +69,7 @@ class Block(object):
     """
     id_           = None               #overload with an unicode object ; use generate_id()
     dependencies  = ()                 #list of the models on which the block depends (ie: generally the block displays these models)
+    relation_type_deps = ()            #list of id of RelationType objects on which the block depends ; only used for Blocks which have 'Relation' in their dependencies
     verbose_name  = 'BLOCK'            #used in the user configuration (see BlockConfigItem)
     template_name = 'OVERLOAD_ME.html' #used to render the block of course
     context_class = _BlockContext      #store the context in the session.
@@ -317,8 +318,19 @@ class BlocksManager(object):
         self._dep_solving_mode = True
 
         dep_map = self._dependencies_map
-        depblocks_ids = set(block_id for dep in block.dependencies for block_id in dep_map[dep])
-        depblocks_ids.remove(block.id_)
+        depblocks_ids = set()
+        id_ = block.id_
+
+        for dep in block.dependencies:
+            for block_id in dep_map[dep]:
+                if block_id == id_:
+                    continue
+
+                if dep == Relation:
+                    if not set(block.relation_type_deps) & set(block_registry[block_id].relation_type_deps):
+                        continue
+
+                depblocks_ids.add(block_id)
 
         return depblocks_ids
 
@@ -330,12 +342,20 @@ class BlocksManager(object):
         block_id = block.id_
         return any(b.id_ == block_id for b in self._blocks)
 
+    def get_used_relationtypes_ids(self):
+        relation_blocks = [block_registry[block_id] for block_id in self._dependencies_map[Relation]]
+
+        return set(rt_id for block in relation_blocks for rt_id in block.relation_type_deps)
+
     @staticmethod
     def get(context):
         return context[BlocksManager.var_name] #will raise exception if not created: OK
 
 
 class _BlockRegistry(object):
+    """Use to retrieve a Block by its id.
+    All Blocks should be registered in.
+    """
     def __init__(self):
         self._blocks = {}
 

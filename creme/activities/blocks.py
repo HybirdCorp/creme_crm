@@ -25,12 +25,13 @@ from creme_core.models import Relation
 from creme_core.gui.block import QuerysetBlock
 
 from models import Activity
-from constants import REL_SUB_PART_2_ACTIVITY, REL_SUB_ACTIVITY_SUBJECT, REL_SUB_LINKED_2_ACTIVITY
+from constants import *
 
 
 class ParticipantsBlock(QuerysetBlock):
     id_           = QuerysetBlock.generate_id('activities', 'participants')
     dependencies  = (Relation,)
+    relation_type_deps = (REL_OBJ_PART_2_ACTIVITY,)
     verbose_name  = _(u'Participants')
     template_name = 'activities/templatetags/block_participants.html'
 
@@ -44,6 +45,7 @@ class ParticipantsBlock(QuerysetBlock):
 class SubjectsBlock(QuerysetBlock):
     id_           = QuerysetBlock.generate_id('activities', 'subjects')
     dependencies  = (Relation,)
+    relation_type_deps = (REL_OBJ_ACTIVITY_SUBJECT,)
     verbose_name  = _(u'Sujets')
     template_name = 'activities/templatetags/block_subjects.html'
 
@@ -57,6 +59,7 @@ class SubjectsBlock(QuerysetBlock):
 class FutureActivitiesBlock(QuerysetBlock):
     id_           = QuerysetBlock.generate_id('activities', 'future_activities')
     dependencies  = (Relation,) #Activity
+    relation_type_deps = (REL_SUB_LINKED_2_ACTIVITY, REL_SUB_ACTIVITY_SUBJECT, REL_SUB_PART_2_ACTIVITY)
     verbose_name  = _(u'Activités futures')
     template_name = 'activities/templatetags/block_future_activities.html'
     configurable  = True
@@ -83,6 +86,7 @@ class FutureActivitiesBlock(QuerysetBlock):
 class PastActivitiesBlock(QuerysetBlock):
     id_           = QuerysetBlock.generate_id('activities', 'past_activities')
     dependencies  = (Relation,) #Activity
+    relation_type_deps = (REL_SUB_LINKED_2_ACTIVITY, REL_SUB_ACTIVITY_SUBJECT, REL_SUB_PART_2_ACTIVITY)
     verbose_name  = _(u'Activités passées')
     template_name = 'activities/templatetags/block_past_activities.html'
     configurable  = True

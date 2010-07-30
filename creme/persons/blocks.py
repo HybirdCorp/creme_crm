@@ -33,6 +33,7 @@ _contact_ct_id = None
 class ManagersBlock(QuerysetBlock):
     id_           = QuerysetBlock.generate_id('persons', 'managers')
     dependencies  = (Relation,) #Contact
+    relation_type_deps = (REL_OBJ_MANAGES, )
     verbose_name  = _(u"Responsables d'une société")
     template_name = 'persons/templatetags/block_managers.html'
 
@@ -54,6 +55,7 @@ class ManagersBlock(QuerysetBlock):
 class EmployeesBlock(QuerysetBlock):
     id_           = QuerysetBlock.generate_id('persons', 'employees')
     dependencies  = (Relation,) #Contact
+    relation_type_deps = (REL_OBJ_EMPLOYED_BY, )
     verbose_name  = _(u"Salariés d'une société")
     template_name = 'persons/templatetags/block_employees.html'
 
