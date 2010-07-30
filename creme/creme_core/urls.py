@@ -41,7 +41,6 @@ creme_core_patterns = patterns('creme_core.views',
     (r'^property/add/$',                                        'creme_property.add_to_creme_entity'),
     (r'^property/list_for_entity_ct/(?P<creme_entity_id>\d+)$', 'creme_property.list_for_entity_ct'),
     (r'^property/delete$',                                      'creme_property.delete'),
-    #(r'^properties/reload/(?P<entity_id>\d+)/$',                'creme_property.reload_block'),
 
     (r'^header_filter/add/(?P<content_type_id>\d+)$',                      'header_filter.add'),
     (r'^header_filter/delete/(?P<header_filter_id>[\w-]+)/(?P<js>[\d]?)$', 'header_filter.delete'),

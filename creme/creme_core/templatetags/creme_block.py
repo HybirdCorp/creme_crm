@@ -25,7 +25,7 @@ from django.template.loader import get_template
 from django.template import Library, Template
 from django.utils.translation import ugettext, ungettext
 from django.contrib.contenttypes.models import ContentType
-from django.conf import settings
+#from django.conf import settings
 
 from creme_core.models import BlockConfigItem
 from creme_core.gui.block import Block, block_registry, BlocksManager
@@ -39,23 +39,25 @@ def get_block_header(context, singular_title, plural_title, icon='', short_title
     if count is None:
         count = context['page'].paginator.count
 
-    return {
+    context.update({
             'title':       ungettext(singular_title, plural_title, count) % count,
             'icon':        icon,
             'short_title': short_title,
-            'MEDIA_URL':   settings.MEDIA_URL
-           }
+           })
 
-@register.inclusion_tag('creme_core/templatetags/widgets/block_header.html')
-def get_basic_block_header(title, icon='', short_title=''):
-    return {
+    return context
+
+@register.inclusion_tag('creme_core/templatetags/widgets/block_header.html', takes_context=True)
+def get_basic_block_header(context, title, icon='', short_title=''):
+    context.update({
             'title':       ugettext(title),
             'icon':        icon,
             'short_title': short_title,
-            'MEDIA_URL':   settings.MEDIA_URL
-           }
+           })
 
-#TODO: modify/copy context instead of creating a new dict ??
+    return context
+
+
 @register.inclusion_tag('creme_core/templatetags/widgets/block_column_header.html', takes_context=True)
 def get_column_header(context, column_name, field_name):
     order_by = context['order_by']
@@ -67,17 +69,15 @@ def get_column_header(context, column_name, field_name):
         order = order_by
         asc   = True
 
-    return {
-            'object':      context.get('object'), #portal has not object...
-            'block_name':  context['block_name'],
-            'update_url':  context['update_url'],
-            'base_url':    context['base_url'],
+    context.update({
             'order':       order,
             'asc':         asc,
             'field_name':  field_name,
             'column_name': column_name,
-            'MEDIA_URL':   settings.MEDIA_URL
-           }
+           })
+
+    return context
+
 
 _line_deletor_re = compile_re(r'at_url (.*?) with_args (.*?)$')
 
