@@ -1,4 +1,4 @@
-{% extends "creme_core/detailview.html" %}
+{% extends "creme_core/generics/view_entity.html" %}
 
 {% load creme_core_tags %}
 {% load creme_block %}
@@ -8,13 +8,9 @@
 {% block creme_blocks_import %}
     {{block.super}}
 
-    {% import_block from_app 'creme_core' named 'relations' as 'relations_block' %}
-    {% import_block from_app 'creme_core' named 'properties' as 'properties_block' %}
-
     {% import_block from_app 'billing' named 'total' as 'total_block' %}
 
     {% import_block from_app 'opportunities' named 'linked_contacts' as 'contacts_block' %}
-
     {% import_block from_app 'opportunities' named 'responsibles' as 'responsibles_block' %}
     {% import_block from_app 'opportunities' named 'quotes' as 'quotes_block' %}
     {% import_block from_app 'opportunities' named 'sales_orders' as 'sales_orders_block' %}
