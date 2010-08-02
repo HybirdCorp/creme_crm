@@ -23,10 +23,13 @@ from django.db.models.fields.related import ManyToManyField, ForeignKey
 from django.db.models.fields import CharField, PositiveIntegerField, PositiveSmallIntegerField, IntegerField
 from django.utils.translation import ugettext_lazy as _
 
-from creme_core.models import CremeEntity, Filter, CremeModel
+from creme_core.models import CremeAbstractEntity, CremeEntity, Filter, CremeModel
 from creme_core.models.custom_field import CustomField
-from creme_core.utils.meta import get_field_infos
+from creme_core.utils.meta import get_field_infos, get_model_field_infos
 from creme_core.models.header_filter import HFI_FUNCTION, HFI_RELATION, HFI_FIELD, HFI_CUSTOM
+
+#Debug
+from reports2.templatetags.report_tags import HFI_TYPE_VERBOSE
 
 report_prefix_url   = '/reports2' #TODO : Remove me when remove reports app
 report_template_dir = 'reports2' #TODO : Remove me when remove reports app
@@ -36,7 +39,7 @@ class Field(CremeModel):
     title     = CharField(max_length=100)
     order     = PositiveIntegerField()
     type      = PositiveSmallIntegerField() #==> {HFI_FIELD, HFI_RELATION, HFI_FUNCTION, HFI_CUSTOM}#Add in choices ?
-    report_id = IntegerField(blank=True, null=True)
+    report_id = IntegerField(blank=True, null=True)#TODO : Set a fk with class string
 
     _report = None
 
@@ -144,6 +147,10 @@ class Field(CremeModel):
             return entity.get_custom_value(cf)
 
         elif column_type == HFI_RELATION:
+            if self.report:
+                return filter(lambda entity: entity.entity_type==self.report.ct, entity.get_related_entities(column_name, True))
+            else:
+                return entity.get_related_entities(column_name, True)
             return entity.get_related_entities(column_name, True)
 
         elif column_type == HFI_FUNCTION:
@@ -197,77 +204,130 @@ class Report2(CremeEntity):
 
         return set(asc_reports)
 
-    def fetch(self):
+    def fetch(self, scope=None):
         res   = []
         ct    = self.ct
         model = ct.model_class()
         model_manager = model.objects
         columns = self.columns.all()
 
-        for entity in model_manager.all():#Pagination ?!
+        _cf_manager = CustomField.objects.filter(content_type=ct)
 
+        #Have to apply report filter here ?
+        if scope is not None:
+            entities = scope
+
+        else:
+            if self.filter is not None:
+                entities = model_manager.filter(self.filter.get_q())
+            else:
+                entities = model_manager.all()
+
+        for entity in entities:
             entity_dict = {'entity' : entity, 'values': {}}
+            entity_get_custom_value = entity.get_custom_value
 
             for column in columns:
-                column_name = column.name
+
+                column_name   = column.name
+                column_report = column.report
+                column_type   = column.type
 
                 entity_dict['values'][column_name] = ""
 
-                fields = column.get_children_fields_with_hierarchy()
+                if column_type == HFI_FIELD:
 
-                if fields['children']:
-                    pass#TODO: Implements me
-                else:
-                    entity_dict['values'][column_name] = column.get_value(entity)
-            res.append(entity_dict)
-        return res
+                    field_infos = get_model_field_infos(model, column_name)
+                    fields_through = [f['field'] for f in field_infos]
 
-#    def fetch(self):
-#        res   = []
-#        ct    = self.ct
-#        model = ct.model_class()
-#        model_manager = model.objects
-#        columns = self.columns.all()
-#
-##        _cf_manager = CustomField.objects.filter(content_type=ct)
-#
-#        for entity in model_manager.all():#Pagination ?!
-#
-#            entity_dict = {'entity' : entity, 'values': {}}
-##            entity_get_custom_value = entity.get_custom_value
-#
-#            for column in columns:
-#                column_name = column.name
-#
-#                entity_dict['values'][column_name] = ""
-#
-#                fields = column.get_children_fields_with_hierarchy()
-#
-#                if fields['children']:
-#                    pass
-#                else:
-#                    entity_dict['values'][column_name] = column.get_value(entity)
-##                    column_type = column.type
-##
-##                    if column_type == HFI_FIELD:
-##                        model_field, value = get_field_infos(entity, column_name)
-##                        entity_dict['values'][column_name] = value
-##
-##                    elif column_type == HFI_CUSTOM:
-##                        try:
-##                            cf = _cf_manager.get(name=column_name)
-##                        except CustomField.DoesNotExist:
-##                            continue
-##                        entity_dict['values'][column_name] = entity_get_custom_value(cf)
-##
-##                    elif column_type == HFI_RELATION:
-##                        entity_dict['values'][column_name] = entity.get_related_entities(column_name, True)
-##
-##                    elif column_type == HFI_FUNCTION:
-##                        entity_dict['values'][column_name] = getattr(entity, column.name)()
-#            res.append(entity_dict)
-#        return res
+                    if column_report:
+                        column_report_columns = column_report.columns.all()
+
+                        if ForeignKey in fields_through:
+                            
+                            field_names = []
+                            cols = column_name.split('__')
+                            for i, f_info in enumerate(field_infos):
+                                if issubclass(f_info['field'], ForeignKey):
+                                    break
+                                field_names.append(cols[i])
+                            target_field = field_names.join('__')
+                            fk_entity = getattr(entity, target_field)
+
+                            entity_dict['values'][column_name] = {'entity': fk_entity,
+                                                                  'values' : dict((c.name, c.report.fetch()) if c.report else (c.name, c.get_value(fk_entity)) for c in column_report_columns)
+                                                                 }
+                        elif ManyToManyField in fields_through:
+                            field_names = []
+                            cols = column_name.split('__')
+                            for i, f_info in enumerate(field_infos):
+                                if issubclass(f_info['field'], ManyToManyField):
+                                    break
+                                field_names.append(cols[i])
+                            target_field = field_names.join('__')
+                            m2m_entities = getattr(entity, target_field).all()
+                            
+                            entity_dict['values'][column_name] = [
+                                                                    {'entity' : m2m_entity,
+                                                                     'values': dict((c.name, c.report.fetch()) if c.report else (c.name,c.get_value(m2m_entity)) for c in column_report_columns)
+                                                                    } for m2m_entity in m2m_entities
+                                                                 ]
+                        else:
+                            entity_dict['values'][column_name] = {'entity': entity,
+                                                                  'values' : dict((c.name, c.report.fetch()) if c.report else (c.name, c.get_value(entity)) for c in column_report_columns)
+                                                                 }
+                    else:
+                        if ForeignKey in fields_through:
+                            field_names = []
+                            cols = column_name.split('__')
+                            for i, f_info in enumerate(field_infos):
+                                if issubclass(f_info['field'], ForeignKey):
+                                    break
+                                field_names.append(cols[i])
+                            target_field = field_names.join('__')
+                            fk_entity = getattr(entity, target_field)
+                            model_field, value = get_field_infos(fk_entity, column_name)
+                            entity_dict['values'][column_name] = value
+                            
+                        elif ManyToManyField in fields_through:
+                            field_names = []
+                            cols = column_name.split('__')
+                            for i, f_info in enumerate(field_infos):
+                                if issubclass(f_info['field'], ManyToManyField):
+                                    break
+                                field_names.append(cols[i])
+                            target_field = field_names.join('__')
+                            entity_dict['values'][column_name] = [getattr(m, cols[-1]) for m in getattr(entity, target_field).all()]
+                            
+                        else:
+                            model_field, value = get_field_infos(entity, column_name)
+                            entity_dict['values'][column_name] = value
+
+                elif column_type == HFI_CUSTOM:
+                    try:
+                        cf = _cf_manager.get(name=column_name)
+                    except CustomField.DoesNotExist:
+                        continue
+                    entity_dict['values'][column_name] = entity_get_custom_value(cf)
+
+                elif column_type == HFI_RELATION:
+                    relation_entities = entity.get_related_entities(column_name, True)
+                    if column_report:
+                        relation_entities = filter(lambda entity: entity.entity_type==column_report.ct, relation_entities)
                         
+                        #Filtrer relation_entities sur column_report.ct
+                        entity_dict['values'][column_name] = [{'entity' : relation_entity,
+#                                                               'values': dict((c.name, c.report.fetch(relation_entity.get_related_entities(c.name, True)) ) if c.report else (c.name, c.get_value(relation_entity)) for c in column_report.columns.all())
+                                                               'values': dict((c.name, c.report.fetch(filter(lambda entity: entity.entity_type==column_report.ct, relation_entity.get_related_entities(c.name, True))) ) if c.report else (c.name, c.get_value(relation_entity)) for c in column_report.columns.all())
+                                                              } for relation_entity in relation_entities]
+
+                    else:
+                        entity_dict['values'][column_name] = relation_entities
+
+                elif column_type == HFI_FUNCTION:
+                    entity_dict['values'][column_name] = getattr(entity, column.name)()
 
 
+            res.append(entity_dict)
 
+        return res
