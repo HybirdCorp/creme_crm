@@ -28,14 +28,13 @@ from persons.models import Contact
 
 from products.models import Product, Service
 
-from billing.models import Quote, Invoice, SalesOrder, ProductLine, ServiceLine
+from billing.models import Quote, Invoice, SalesOrder
 
 from constants import *
 
 
 __all__ = ['linked_contacts_block', 'linked_products_block', 'linked_services_block',
-           'responsibles_block', 'quotes_block', 'sales_orders_block', 'invoices_block',
-           'linked_product_lines_block', 'linked_service_lines_block']
+           'responsibles_block', 'quotes_block', 'sales_orders_block', 'invoices_block']
 
 _contact_ct_id = None
 
@@ -207,38 +206,10 @@ class InvoicesBlock(QuerysetBlock):
                                                             ct_id=self._invoice_ct_id))
 
 
-class LinkedProductLinesBlock(QuerysetBlock):
-    id_           = QuerysetBlock.generate_id('opportunities', 'linked_product_lines')
-    dependencies  = (ProductLine,)
-    verbose_name  = _(u'Produits liés')
-    template_name = 'billing/templatetags/block_product_line.html'
-
-    def detailview_display(self, context):
-        pk = context['object'].pk
-        return self._render(self.get_block_template_context(context, ProductLine.objects.filter(document=pk),
-                                                            update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, pk),
-                                                            ))
-
-
-class LinkedServiceLinesBlock(QuerysetBlock):
-    id_           = QuerysetBlock.generate_id('opportunities', 'linked_service_lines')
-    dependencies  = (ServiceLine,)
-    verbose_name  = _(u'Services liés')
-    template_name = 'billing/templatetags/block_service_line.html'
-
-    def detailview_display(self, context):
-        pk = context['object'].pk
-        return self._render(self.get_block_template_context(context, ServiceLine.objects.filter(document=pk),
-                                                            update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, pk),
-                                                            ))
-
-
-linked_contacts_block      = LinkedContactsBlock()
-linked_products_block      = LinkedProductsBlock()
-linked_services_block      = LinkedServicesBlock()
-responsibles_block         = ResponsiblesBlock()
-quotes_block               = QuotesBlock()
-sales_orders_block         = SalesOrdersBlock()
-invoices_block             = InvoicesBlock()
-linked_product_lines_block = LinkedProductLinesBlock()
-linked_service_lines_block = LinkedServiceLinesBlock()
+linked_contacts_block = LinkedContactsBlock()
+linked_products_block = LinkedProductsBlock()
+linked_services_block = LinkedServicesBlock()
+responsibles_block    = ResponsiblesBlock()
+quotes_block          = QuotesBlock()
+sales_orders_block    = SalesOrdersBlock()
+invoices_block        = InvoicesBlock()

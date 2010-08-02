@@ -15,9 +15,6 @@ urlpatterns = patterns('opportunities.views',
     (r'^opportunity/generate_new_doc/(?P<opp_id>\d+)/(?P<ct_id>\d+)$', 'opportunity.generate_new_doc'),
 
     (r'^opportunity/(?P<opp_id>\d+)/linked/quote/(?P<quote_id>\d+)/set_current/$', 'links.set_current_quote'),
-
-    (r'^productline/(?P<line_id>\d*)/edit$', 'line.edit_productline'),
-    (r'^serviceline/(?P<line_id>\d*)/edit$', 'line.edit_serviceline'),
 )
 
 urlpatterns += patterns('creme_core.views.generic',

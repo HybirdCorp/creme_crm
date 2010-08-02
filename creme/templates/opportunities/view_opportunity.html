@@ -17,10 +17,11 @@
     {% import_block from_app 'opportunities' named 'invoices' as 'invoices_block' %}
 
     {% if object.use_lines %}
+        {% import_block from_app 'billing' named 'product_lines' as 'product_lines_block' %}
+        {% import_block from_app 'billing' named 'service_lines' as 'service_lines_block' %}
+
         {% import_block from_app 'opportunities' named 'linked_products' as 'products_block' %}
         {% import_block from_app 'opportunities' named 'linked_services' as 'services_block' %}
-        {% import_block from_app 'opportunities' named 'linked_product_lines' as 'product_lines_block' %}
-        {% import_block from_app 'opportunities' named 'linked_service_lines' as 'service_lines_block' %}
     {% endif %}
 {% endblock %}
 

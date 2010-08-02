@@ -41,5 +41,4 @@ reg_menu('opportunities', '/opportunities/opportunity/add', 'Ajouter une opportu
 button_registry.register(linked_opportunity_button)
 
 block_registry.register(linked_contacts_block, linked_products_block, linked_services_block,
-                        responsibles_block, quotes_block, sales_orders_block, invoices_block,
-                        linked_product_lines_block, linked_service_lines_block)
+                        responsibles_block, quotes_block, sales_orders_block, invoices_block)
