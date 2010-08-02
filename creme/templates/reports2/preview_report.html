@@ -44,11 +44,16 @@
                         <th class="{% cycle "block_header_line_dark" "block_header_line_light" %}">{% get_column_header column %}</th>
                     {% endfor %}
                 </tr>
+                <tr>
+                    <td colspan="0">
+                        {{results}}
+                    </td>
+                </tr>
                 {% for entity in entities %}
                     <tr>
                         {% for column in object.columns.all|order_by:"order" %}
                             <td class="{% cycle "block_line_dark" "block_line_light" %}">
-                                {% comment %}{{column|get_entity_field_value:entity}} TEST PURPOSE WILL BE DELETED{% endcomment %}
+                                
                             </td>
                         {% endfor %}
                     </tr>

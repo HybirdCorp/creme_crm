@@ -20,6 +20,7 @@
 
 from django.db.models.base import ModelBase
 from django.db.models import Field, FieldDoesNotExist
+from django.db.models.fields.related import ManyToManyField
 
 from creme_core.models.entity import CremeEntity
 
@@ -39,7 +40,10 @@ def get_field_infos(obj, field_name):
             obj = getattr(obj, subfield_name)
 
         subfield_name = subfield_names[-1]
-        return (obj._meta.get_field(subfield_name).__class__, getattr(obj, subfield_name))
+        field_class = obj._meta.get_field(subfield_name).__class__
+        if issubclass(field_class, ManyToManyField):
+            return (field_class, getattr(obj, subfield_name).all())
+        return (field_class, getattr(obj, subfield_name))
     except (AttributeError, FieldDoesNotExist), e:
         return None, ''
 

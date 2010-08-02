@@ -50,9 +50,6 @@ def add(request):
     }
     return add_entity(request, CreateForm, template="%s/add_report.html" % report_template_dir, extra_template_dict=tpl_dict)
 
-@login_required
-@get_view_or_die(report_app)
-@edit_view_or_die(report_ct, None, report_app)
 def edit(request, report_id):
     return edit_entity(request, report_id, Report, EditForm, report_app)
 
@@ -194,7 +191,7 @@ def preview(request, report_id):
     report = get_object_or_404(Report, pk=report_id)
     model = report.ct.model_class()
 
-    results = []
+    results = report.fetch()
 #    for field in report.columns.all().order_by('order'):
 
 
