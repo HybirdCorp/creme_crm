@@ -6,7 +6,7 @@
             <th colspan="11" class="block_header_line_dark" align="left">
                 {% if object.is_alive %}
                     {% comment %}<a class="button_link" onclick="creme.utils.showInnerPopup('/projects/task/{{object.id}}/period/add', {'width' : 950});">{% endcomment %}
-                    <a class="button_link" onclick="creme.utils.innerPopupNReload('/projects/task/{{object.id}}/period/add', '{{update_url}}?base_url={{base_url}}&{{block_name}}_deps=' + creme.utils.getBlocksDeps('{{block_name}}'));">
+                    <a class="button_link" onclick="creme.utils.innerPopupNReload('/projects/task/{{object.id}}/period/add', {% get_block_reload_uri %});">
                         <img src="{{MEDIA_URL}}images/add_22.png" border="0" title="Ajouter une période travaillée" alt="Ajouter" />
                         Ajouter une nouvelle période travaillée
                     </a>
@@ -34,7 +34,7 @@
                     </td>
                     <td class="{{row_color}}" align="center" valign="center" style="width:10%;">
                         {% comment %}<a class="button_link" onclick="creme.utils.showInnerPopup('{{period.get_edit_absolute_url}}', {'width' : 950});">{% endcomment %}
-                        <a class="button_link" onclick="creme.utils.innerPopupNReload('{{period.get_edit_absolute_url}}', '{{update_url}}?base_url={{base_url}}&{{block_name}}_deps=' + creme.utils.getBlocksDeps('{{block_name}}'));">
+                        <a class="button_link" onclick="creme.utils.innerPopupNReload('{{period.get_edit_absolute_url}}', {% get_block_reload_uri %});">
                             <img src="{{MEDIA_URL}}images/edit_22.png" border="0" title="Edition d'une période travaillée" alt="Editer" />
                         </a>
                         {% get_line_deletor at_url '/projects/period/delete' with_args "{ 'id':{{period.pk}} }" %}
