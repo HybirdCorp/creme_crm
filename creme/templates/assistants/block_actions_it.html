@@ -5,7 +5,7 @@
         {% if object %}
             <tr>
                 <th class="block_header_line_light" style="font-size:14px;" align="left" colspan="8">
-                    <a class="button_link" onclick="creme.utils.innerPopupNReload('/assistants/action/add/{{object.id}}/', '{{update_url}}?base_url={{base_url}}&{{block_name}}_deps=' + creme.utils.getBlocksDeps('{{block_name}}'));">
+                    <a class="button_link" onclick="creme.utils.innerPopupNReload('/assistants/action/add/{{object.id}}/', {% get_block_reload_uri %});">
                         <img src="{{MEDIA_URL}}images/add_22.png" border="0" title="Ajouter" alt="Ajouter" />
                         Nouvelle
                     </a>
@@ -50,7 +50,7 @@
                         </form>
                     </td>
                     <td class="{{row_color}}" align="center" valign="center" style="width:10%;">
-                        <a onclick="creme.utils.innerPopupNReload('/assistants/action/edit/{{action.id}}/', '{{update_url}}?base_url={{base_url}}&{{block_name}}_deps=' + creme.utils.getBlocksDeps('{{block_name}}'));">
+                        <a onclick="creme.utils.innerPopupNReload('/assistants/action/edit/{{action.id}}/', {% get_block_reload_uri %});">
                             <img src="{{MEDIA_URL}}images/edit_22.png" border="0">
                         </a>
                         {% get_line_deletor at_url '/assistants/action/delete' with_args "{'id' : {{action.id}} }" %}

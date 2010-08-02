@@ -1,17 +1,16 @@
+{% load creme_block %}
 {% ifnotequal page.paginator.num_pages 1 %}
     <tfooter class="collapsable">
         <tr>
             <td colspan="100" class="block_header_line_dark">
                 {% if page.has_previous %}
-                    {% comment %}<a class="button_link" onclick="creme.utils.loadBlock('{{update_url}}?{{block_name}}_page={{page.previous_page_number}}&base_url={{base_url}}')">{% endcomment %}
-                    <a class="button_link" onclick="creme.utils.loadBlock('{{update_url}}?{{block_name}}_page={{page.previous_page_number}}&base_url={{base_url}}&{{block_name}}_deps=' + creme.utils.getBlocksDeps('{{block_name}}'))">
+                    <a class="button_link" onclick="creme.utils.loadBlock({% get_block_reload_uri %} + '&{{block_name}}_page={{page.previous_page_number}}')">
                         Page précédente
                     </a>
                 {% endif %}
                 Page {{page.number}} / {{page.paginator.num_pages}}
                 {% if page.has_next %}
-                    {% comment %}<a class="button_link" onclick="creme.utils.loadBlock('{{update_url}}?{{block_name}}_page={{page.next_page_number}}&base_url={{base_url}}')">{% endcomment %}
-                    <a class="button_link" onclick="creme.utils.loadBlock('{{update_url}}?{{block_name}}_page={{page.next_page_number}}&base_url={{base_url}}&{{block_name}}_deps=' + creme.utils.getBlocksDeps('{{block_name}}'))">
+                    <a class="button_link" onclick="creme.utils.loadBlock({% get_block_reload_uri %} + '&{{block_name}}_page={{page.next_page_number}}')">
                         Page suivante
                     </a>
                 {% endif %}

@@ -34,6 +34,10 @@ from creme_core.blocks import properties_block, relations_block
 
 register = Library()
 
+@register.inclusion_tag('creme_core/templatetags/widgets/block_reload_uri.html', takes_context=True)
+def get_block_reload_uri(context): #{% include 'creme_core/templatetags/widgets/block_reload_uri.html' %} instead ??
+    return context
+
 @register.inclusion_tag('creme_core/templatetags/widgets/block_header.html', takes_context=True)
 def get_block_header(context, singular_title, plural_title, icon='', short_title='', count=None):
     if count is None:
