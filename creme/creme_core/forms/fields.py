@@ -28,12 +28,13 @@ from django.core.files.uploadedfile import UploadedFile
 from django.utils.translation import ugettext_lazy as _
 from django.utils.simplejson import loads as jsonloads
 from django.utils.simplejson.encoder import JSONEncoder
+from django.utils.encoding import smart_unicode
 from django.contrib.contenttypes.models import ContentType
 
 from creme_core.models import RelationType, CremeEntity
 from creme_core.utils import creme_entity_content_types
-from django.utils.encoding import smart_unicode
-from creme_core.forms.widgets import CTEntitySelector, SelectorList, ListViewWidget, ListEditionWidget
+from creme_core.forms.widgets import CTEntitySelector, SelectorList, ListViewWidget, ListEditionWidget, RelationListWidget
+from creme_core.constants import REL_SUB_RELATED_TO, REL_SUB_HAS
 
 
 def get_entity_ctypes_options(): #TODO: staticmethod ??
@@ -50,7 +51,7 @@ class GenericEntitiesField(CharField):
         self.ctypes = ctypes
         self.widget = SelectorList(CTEntitySelector(get_entity_ctypes_options() if not ctypes else ctypes))
          # TODO : wait for django 1.2 and new widget api to remove this hack
-        self.widget.from_python = lambda v:self.from_python(v)
+        self.widget.from_python = lambda v: self.from_python(v)
 
     # TODO : wait for django 1.2 and new widget api to remove this hack
     def from_python(self, value):
@@ -79,17 +80,25 @@ class RelatedEntitiesField(CharField):
     default_error_messages = {
         'invalidformat': _(u'Format invalide'),
     }
+    widget = RelationListWidget
 
-    def __init__(self, relations=None, use_ctype=False, *args, **kwargs):
-        self.regex = re.compile('^(\([\w-]+,[\d]+,[\d]+\);)*$')
-        self.relations = relations if relations is not None else []
-        self.use_ctype = use_ctype
+    regex = re.compile('^(\([\w-]+,[\d]+,[\d]+\);)*$')
+
+    def __init__(self, relation_types=(REL_SUB_RELATED_TO, REL_SUB_HAS), use_ctype=False, *args, **kwargs):
+        """
+        @param relation_types Sequence of RelationTypes' id if you want to narrow to these RelationTypes.
+        """
         super(RelatedEntitiesField, self).__init__(*args, **kwargs)
 
-    def widget_attrs(self, widget):
-        predicates = RelationType.objects.filter(pk__in=self.relations).values_list('id', 'predicate')
-        widget.set_predicates(predicates)
-        return super(RelatedEntitiesField, self).widget_attrs(widget)
+        self.use_ctype = use_ctype
+        self.relation_types = relation_types
+
+    def _set_relation_types(self, relation_types):
+        rtypes = RelationType.objects.filter(pk__in=relation_types)
+        self._relation_types = rtypes
+        self.widget.relation_types = rtypes
+
+    relation_types = property(lambda self: self._relation_types, _set_relation_types)
 
     def clean(self, value):
         if not value and self.required:
@@ -99,11 +108,12 @@ class RelatedEntitiesField(CharField):
             raise ValidationError(self.error_messages['invalidformat'])
 
         data = (entry.strip('()').split(',') for entry in value.split(';')[:-1])
+        allowed_rtypes = set(rtype.id for rtype in self.relation_types)
 
         if self.use_ctype:
-            return [(relationtype_pk, int(content_type_pk), int(pk)) for relationtype_pk, content_type_pk, pk in data if not self.relations or relationtype_pk in self.relations]
+            return [(relationtype_pk, int(content_type_pk), int(pk)) for relationtype_pk, content_type_pk, pk in data if relationtype_pk in allowed_rtypes]
 
-        return [(entry[0], int(entry[2])) for entry in data if not self.relations or entry[0] in self.relations]
+        return [(entry[0], int(entry[2])) for entry in data if entry[0] in allowed_rtypes]
 
 
 class CommaMultiValueField(CharField): #TODO: Charfield and not Field ??!!
@@ -145,7 +155,7 @@ class _EntityField(CommaMultiValueField):
     def _set_model(self, model):
         self._model = self.widget.model = model
 
-    model = property(_get_model, _set_model)
+    model = property(_get_model, _set_model) #TODO: lambda isntead of '_get_model' ??
 
     def _get_q_filter(self):
         return self._q_filter
@@ -160,10 +170,12 @@ class _EntityField(CommaMultiValueField):
             raise ValidationError(self.error_messages['required'])
 
         clean_ids = super(_EntityField, self).clean(value)
+
         try:
             clean_ids = map(int, clean_ids)
         except ValueError:
             raise ValidationError(self.error_messages['invalid_choice'] % {'value': value})
+
         return clean_ids
 
     def widget_attrs(self, widget):
@@ -257,6 +269,7 @@ class ListEditionField(Field):
 
     content = property(lambda self: self._content, _set_content)
 
+
 class AjaxChoiceField(ChoiceField):
     """
         Same as ChoiceField but bypass the choices validation due to the ajax filling
@@ -266,12 +279,12 @@ class AjaxChoiceField(ChoiceField):
         Validates that the input is in self.choices.
         """
         value = super(ChoiceField, self).clean(value)
+
         if value in EMPTY_VALUES:
             value = u''
-        value = smart_unicode(value)
-        if value == u'':
-            return value
-        return value
+
+        return smart_unicode(value)
+
 
 class AjaxMultipleChoiceField(MultipleChoiceField):
     """
@@ -281,14 +294,17 @@ class AjaxMultipleChoiceField(MultipleChoiceField):
         """
         Validates that the input is a list or tuple.
         """
+        #TODO: factorise 'not value'
         if self.required and not value:
             raise ValidationError(self.error_messages['required'])
         elif not self.required and not value:
             return []
+
         if not isinstance(value, (list, tuple)):
             raise ValidationError(self.error_messages['invalid_list'])
-        new_value = [smart_unicode(val) for val in value]
-        return new_value
+
+        return [smart_unicode(val) for val in value]
+
 
 class AjaxModelChoiceField(ModelChoiceField):
     """
@@ -296,11 +312,14 @@ class AjaxModelChoiceField(ModelChoiceField):
     """
     def clean(self, value):
         Field.clean(self, value)
+
         if value in EMPTY_VALUES:
             return None
+
         try:
-            key = self.to_field_name or 'pk'
+            key   = self.to_field_name or 'pk'
             value = self.queryset.model._default_manager.get(**{key: value})
         except self.queryset.model.DoesNotExist:
             raise ValidationError(self.error_messages['invalid_choice'])
+
         return value

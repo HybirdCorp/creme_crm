@@ -35,7 +35,7 @@ from creme_core.models import CremePropertyType, CremeProperty, RelationType, Re
 from creme_core.entities_access.functions_for_permissions import read_object_or_die
 from base import CremeForm, CremeModelForm, FieldBlockManager
 from fields import RelatedEntitiesField, CremeEntityField
-from widgets import OrderedMultipleChoiceWidget, RelationListWidget
+from widgets import OrderedMultipleChoiceWidget
 
 from documents.models import Document
 
@@ -335,8 +335,7 @@ class CSVImportForm4CremeEntity(CSVImportForm):
     property_types = ModelMultipleChoiceField(label=_(u'Propriétés'), required=False,
                                               queryset=CremePropertyType.objects.none(),
                                               widget=OrderedMultipleChoiceWidget)
-    relations      = RelatedEntitiesField(label=_(u'Relations'), required=False,
-                                          widget=RelationListWidget(), use_ctype=True)
+    relations      = RelatedEntitiesField(label=_(u'Relations'), required=False, use_ctype=True)
 
     class Meta:
         exclude = ('is_deleted', 'is actived')
@@ -348,11 +347,7 @@ class CSVImportForm4CremeEntity(CSVImportForm):
         ct     = ContentType.objects.get_for_model(self._meta.model)
 
         fields['property_types'].queryset = CremePropertyType.objects.filter(Q(subject_ctypes=ct) | Q(subject_ctypes__isnull=True))
-
-        #TODO: factorise Q :)
-        #TODO: move to a RelationType method ???
-        rtypes = RelationType.objects.filter(Q(subject_ctypes=ct) | Q(subject_ctypes__isnull=True)).order_by('predicate').values_list('id', 'predicate')
-        fields['relations'].widget.set_predicates(rtypes)
+        fields['relations'].relation_types = RelationType.get_compatible_ones(ct)
 
     def _post_instance_creation(self, instance):
         cleaned_data = self.cleaned_data

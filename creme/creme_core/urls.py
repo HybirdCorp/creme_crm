@@ -4,7 +4,8 @@ from django.conf.urls.defaults import patterns, include
 
 
 creme_core_patterns = patterns('creme_core.views',
-    (r'^relation/add/(?P<subject_id>\d+)',                                                                               'relation.add_relations'),
+    (r'^relation/add/(?P<subject_id>\d+)$',                                                                              'relation.add_relations'),
+    (r'^relation/add/(?P<subject_id>\d+)/(?P<relation_type_id>[\w-]+)$',                                                 'relation.add_relations'),
     (r'^relation/add/from/predicate/(?P<predicate_id>[\w-]+)/entity/(?P<subject_id>\d+)/(?P<object_ct_id>\d+)$',         'relation.add_relation_from_predicate_n_entity'),
     (r'^relation/add/from/predicate/(?P<predicate_id>[\w-]+)/entity/(?P<subject_id>\d+)/(?P<object_ct_id>\d+)/simple$',  'relation.add_relation_from_predicate_n_entity', {'o2m':True}),
     (r'^relation/add_from_predicate/save$',                                                                              'relation.handle_relation_from_predicate_n_entity'),
