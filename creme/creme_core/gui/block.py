@@ -26,9 +26,10 @@ from django.template.loader import get_template
 from django.template import Context
 from django.conf import settings
 from django.http import HttpResponse
+from django.utils.translation import ugettext_lazy as _
 from django.utils.simplejson import JSONEncoder
 
-from creme_core.models import CremeEntity, Relation
+from creme_core.models import CremeEntity, Relation, RelationType
 
 
 def list4url(list_):
@@ -272,6 +273,40 @@ class QuerysetBlock(PaginatedBlock):
         return PaginatedBlock.get_block_template_context(self, context, objects=queryset, update_url=update_url, **extra_kwargs)
 
 
+class SpecificRelationsBlock(QuerysetBlock):
+    dependencies  = (Relation,) #NB: (Relation, CremeEntity) but useless
+    order_by      = 'type'
+    verbose_name  = _(u'Relations')
+    template_name = 'creme_core/templatetags/block_specific_relations.html'
+
+    def __init__(self, id_, relation_type_id):
+        self.id_ = id_
+        self.relation_type_deps = (relation_type_id,)
+
+    @staticmethod
+    def generate_id(app_name, name):
+        return u'specificblock_%s-%s' % (app_name, name)
+
+    @staticmethod
+    def id_is_specific(id_):
+        return id_.startswith(u'specificblock_')
+
+    def detailview_display(self, context):
+        entity = context['object']
+        relation_type = RelationType.objects.get(pk=self.relation_type_deps[0])
+
+        btc = self.get_block_template_context(context,
+                                              entity.relations.filter(type=relation_type).select_related('type', 'object_entity'),
+                                              update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, entity.pk),
+                                              relation_type=relation_type,
+                                             )
+
+        #NB: DB optimisation
+        Relation.populate_real_object_entities(btc['page'].object_list)
+
+        return self._render(btc)
+
+
 class BlocksManager(object):
     """Using to solve the blocks dependencies problem in a page.
     Blocks can depends on the same model : updating one block involves to update
@@ -302,7 +337,7 @@ class BlocksManager(object):
         dep_map = self._dependencies_map
         for block in blocks:
             for dep in block.dependencies:
-                dep_map[dep].append(block.id_)
+                dep_map[dep].append(block)
 
     def pop_group(self, group_name):
         return self._blocks_groups.pop(group_name)
@@ -318,15 +353,15 @@ class BlocksManager(object):
         id_ = block.id_
 
         for dep in block.dependencies:
-            for block_id in dep_map[dep]:
-                if block_id == id_:
+            for other_block in dep_map[dep]:
+                if other_block.id_ == id_:
                     continue
 
                 if dep == Relation:
-                    if not set(block.relation_type_deps) & set(block_registry[block_id].relation_type_deps):
+                    if not set(block.relation_type_deps) & set(other_block.relation_type_deps):
                         continue
 
-                depblocks_ids.add(block_id)
+                depblocks_ids.add(other_block.id_)
 
         return depblocks_ids
 
@@ -339,9 +374,7 @@ class BlocksManager(object):
         return any(b.id_ == block_id for b in self._blocks)
 
     def get_used_relationtypes_ids(self):
-        relation_blocks = [block_registry[block_id] for block_id in self._dependencies_map[Relation]]
-
-        return set(rt_id for block in relation_blocks for rt_id in block.relation_type_deps)
+        return set(rt_id for block in self._dependencies_map[Relation] for rt_id in block.relation_type_deps)
 
     @staticmethod
     def get(context):
@@ -380,6 +413,31 @@ class _BlockRegistry(object):
 
     def __iter__(self):
         return self._blocks.iteritems()
+
+    def get_blocks(self, block_ids):
+        """Blocks type can be SpecificRelationsBlock: in this case,they are not really
+        registered, but created on the fly"""
+        from creme_core.models import RelationBlockItem
+        #from creme_core.blocks import SpecificRelationsBlock
+
+        specific_ids = filter(SpecificRelationsBlock.id_is_specific, block_ids)
+
+        if specific_ids:
+            relation_blocks_items = dict((rbi.block_id, rbi) for rbi in RelationBlockItem.objects.filter(block_id__in=specific_ids))
+        else:
+            relation_blocks_items = {}
+
+        blocks = []
+
+        for id_ in block_ids:
+            rbi = relation_blocks_items.get(id_)
+
+            if rbi:
+                blocks.append(SpecificRelationsBlock(rbi.block_id, rbi.relation_type_id))
+            else:
+                blocks.append(self.get_block(id_))
+
+        return blocks
 
 
 block_registry = _BlockRegistry()

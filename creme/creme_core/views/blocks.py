@@ -51,11 +51,12 @@ def reload_detailview(request, block_id, entity_id):
 
     context = RequestContext(request)
     context['object'] = entity
+
     blocks_manager = BlocksManager.get(context)
     blocks = []
 
-    for block_id in _get_depblock_ids(request, block_id):
-        block = block_registry[block_id]
+    for block in block_registry.get_blocks(_get_depblock_ids(request, block_id)):
+        block_id = block.id_
         blocks_manager.add_group(block_id, block)
         blocks.append((block_id, block.detailview_display(context)))
 

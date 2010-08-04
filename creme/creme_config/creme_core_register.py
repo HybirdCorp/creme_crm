@@ -41,5 +41,5 @@ reg_menu('creme_config', '/creme_config/user/portal/',                    'Gesti
 
 block_registry.register(generic_models_block, property_types_block, relation_types_block,
                         custom_fields_portal_block, custom_fields_block,
-                        blocks_config_block, button_menu_block, search_block,
+                        blocks_config_block, relationblocks_config_block, button_menu_block, search_block,
                         users_block, app_credentials_block, entity_credentials_block)

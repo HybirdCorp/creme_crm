@@ -22,7 +22,7 @@ from django.db.models import CharField, ForeignKey, PositiveIntegerField, Boolea
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.contenttypes.models import ContentType
 
-from creme_core.models import CremeModel
+from creme_core.models import CremeModel, RelationType
 
 
 class BlockConfigItem(CremeModel):
@@ -36,3 +36,18 @@ class BlockConfigItem(CremeModel):
         app_label = 'creme_core'
         verbose_name = _(u'Bloc')
         verbose_name_plural = _(u'Blocs')
+
+
+class RelationBlockItem(CremeModel):
+    block_id      = CharField(_(u"Identifiant de bloc"), max_length=100) #really useful ?? (can be retrieved with type)
+    relation_type = ForeignKey(RelationType, verbose_name=_(u"Type de relation associé"), unique=True)
+
+    class Meta:
+        app_label = 'creme_core'
+        verbose_name = _(u'Bloc de relation spécifique')
+        verbose_name_plural = _(u'Blocs de relation spécifique')
+
+    def delete(self):
+        BlockConfigItem.objects.filter(block_id=self.block_id).delete()
+
+        super(RelationBlockItem, self).delete()

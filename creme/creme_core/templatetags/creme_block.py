@@ -205,13 +205,9 @@ class DetailviewBlocksImporterNode(TemplateNode):
         if not block_ids:
             block_ids = BCI_filter(content_type=None).order_by('order').values_list('block_id', flat=True)
 
-        get_block = block_registry.get_block
-        blocks    = [get_block(id_) for id_ in block_ids if id_]
-
-        blocks_manager.add_group('detailview_blocks', *blocks) #TODO: use CONSTANT
+        blocks_manager.add_group('detailview_blocks', *block_registry.get_blocks([id_ for id_ in block_ids if id_])) #TODO: use CONSTANT
 
         return ''
-
 
 @register.tag(name="display_detailview_blocks")
 def do_detailview_blocks_displayer(parser, token):
@@ -263,12 +259,10 @@ class PortalBlocksImporterNode(TemplateNode):
                     block_ids_set.add(block_id)
                     block_ids.append(block_id)
 
-        get_block = block_registry.get_block
-        blocks = [get_block(id_) for id_ in block_ids]
-
-        blocks_manager.add_group('portal_blocks', *blocks) #TODO: use CONSTANT
+        blocks_manager.add_group('portal_blocks', *block_registry.get_blocks([id_ for id_ in block_ids if id_])) #TODO: use CONSTANT
 
         return ''
+
 
 @register.tag(name="display_portal_blocks")
 def do_detailview_blocks_displayer(parser, token):
@@ -302,12 +296,8 @@ def do_home_blocks_importer(parser, token):
 class HomeBlocksImporterNode(TemplateNode):
     def render(self, context):
         blocks_manager = BlocksManager.get(context)
-
         block_ids = BlockConfigItem.objects.filter(content_type=None, on_portal=True).order_by('order').values_list('block_id', flat=True)
-        get_block = block_registry.get_block
-        blocks    = [get_block(id_) for id_ in block_ids if id_]
-
-        blocks_manager.add_group('home_blocks', *blocks) #TODO: use CONSTANT
+        blocks_manager.add_group('home_blocks', *block_registry.get_blocks([id_ for id_ in block_ids if id_])) #TODO: use CONSTANT
 
         return ''
 
