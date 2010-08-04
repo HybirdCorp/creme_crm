@@ -12,17 +12,9 @@
         </tr>
     </thead>
     <tbody class="collapsable">
-        {% comment %}<tr>
-            <th colspan="4" class="block_header_line_dark" align="left">
-                <a class="button_link" onclick="creme.relations.handleAddFromPredicateEntity('/creme_core/relation/add/from/predicate/{{relation_type.id}}/entity/{{object.id}}/{{ct_id}}', '{{relation_type.id}}', '{{object.id}}', {% get_block_reload_uri %});">
-                    <img src="{{MEDIA_URL}}images/relations_22.png" border="0" title="Ajouter une entité liée" alt="Ajouter" />
-                    Lier à une entité
-                </a>
-            </th>
-        </tr>{% endcomment %}
         <tr>
             <th colspan="2" align="left" class="block_header_line_dark" style="font-size:14px;">
-                <a class="button_link" onclick="creme.utils.innerPopupNReload('/creme_core/relation/add/{{object.id}}', {% get_block_reload_uri %});">
+                <a class="button_link" onclick="creme.utils.innerPopupNReload('/creme_core/relation/add/{{object.id}}/{{relation_type.id}}', {% get_block_reload_uri %});">
                     <img src="{{MEDIA_URL}}images/add_22.png" border="0" title="Ajouter" alt="Ajouter" />
                     Lier à de nouvelles entités
                 </a>

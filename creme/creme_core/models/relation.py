@@ -85,6 +85,10 @@ class RelationType(CremeModel):
         return RelationType.objects.filter(is_custom=True)
 
     @staticmethod
+    def get_compatible_ones(ct):
+        return RelationType.objects.filter(Q(subject_ctypes=ct) | Q(subject_ctypes__isnull=True))
+
+    @staticmethod
     def create(subject_desc, object_desc, is_custom=False, generate_pk=False):
         """
         @param subject_desc Tuple (string_pk, predicate_string [, sequence_of_cremeEntityClasses [, sequence_of_propertyTypes]])

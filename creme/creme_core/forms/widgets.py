@@ -230,11 +230,11 @@ class EntitySelectorList(SelectorList):
         return mark_safe(html_output)
 
 
+#TODO: deprecated -> rewrite this with Selector system....
 class RelationListWidget(TextInput):
-    def __init__(self, attrs=None, predicates=None, subject=None):
+    def __init__(self, attrs=None, relation_types=()):
         super(RelationListWidget, self).__init__(attrs)
-        self.predicates = predicates or []
-        self.subject = subject
+        self.relation_types = relation_types
 
     def render(self, name, value, attrs=None):
         attrs = self.build_attrs(attrs, name=name, type='hidden')
@@ -251,7 +251,7 @@ class RelationListWidget(TextInput):
             </div>
             <script type="text/javascript">
                 $('.ui-creme-rel-selector-list#%(id)s_list').each(function() {
-                    creme.forms.RelationList.init($(this)%(subject)s);
+                    creme.forms.RelationList.init($(this));
                 });
             </script>
         """ % {
@@ -259,20 +259,17 @@ class RelationListWidget(TextInput):
                 'input':      super(RelationListWidget, self).render(name, value, attrs),
                 'title':      'Ajouter',
                 'id':         attrs['id'],
-                'predicates': self.render_options(self.predicates, 'predicates'),
-                'subject':    ', %s' % self.subject if self.subject else '',
+                'predicates': self.render_options('predicates'),
               }
 
         return mark_safe(html_output)
 
-    def render_options(self, options, css):
-        output = '<select style="display:none;" class="%s">' % css
+    def render_options(self, css):
+        output = ['<select style="display:none;" class="%s">' % css]
+        output.extend(u'<option value="%s">%s</option>' % (rt.id, rt.predicate) for rt in self.relation_types)
+        output.append('</select>')
 
-        for predicate_id, predicate_label in options: #TODO: use join() ??
-            output += '<option value="%s">%s</option>' % (predicate_id, predicate_label)
-
-        output += '</select>'
-        return output
+        return u''.join(output)
 
     def set_predicates(self, predicates):
         self.predicates = predicates
