@@ -59,5 +59,6 @@ class RelationsBlock(QuerysetBlock):
 
         return self._render(btc)
 
+
 properties_block = PropertiesBlock()
 relations_block  = RelationsBlock()

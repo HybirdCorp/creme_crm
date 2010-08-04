@@ -7,6 +7,9 @@
 {% endblock %}
 
 {% block before_statistics %}
-    {% import_block from_app 'creme_config' named 'blocksconfig' as 'blocksconfig_block' %}
-    {% display_block_detailview 'blocksconfig_block' %}
+    {% import_block from_app 'creme_config' named 'blocks_config' as 'blocks_config_block' %}
+    {% import_block from_app 'creme_config' named 'relation_blocks_config' as 'rblocks_config_block' %}
+
+    {% display_block_detailview 'blocks_config_block' %}
+    {% display_block_detailview 'rblocks_config_block' %}
 {% endblock %}
