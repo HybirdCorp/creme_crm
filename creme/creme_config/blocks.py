@@ -18,13 +18,12 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from django.template import RequestContext
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 
-from creme_core.models import (CremeModel, CremePropertyType, RelationType, CustomField,
-                               BlockConfigItem, ButtonMenuItem,
-                               CremeAppDroit, CremeDroitEntityType, SearchConfigItem)
+from creme_core.models import *
 from creme_core.gui.block import QuerysetBlock, BlocksManager
 from creme_core.utils import jsonify
 
@@ -33,7 +32,7 @@ from creme_config.registry import config_registry
 
 __all__ = ('generic_models_block', 'property_types_block', 'relation_types_block',
            'custom_fields_portal_block', 'custom_fields_block',
-           'blocks_config_block', 'button_menu_block',
+           'blocks_config_block', 'relationblocks_config_block', 'button_menu_block',
            'users_block', 'app_credentials_block', 'entity_credentials_block',
            'search_block')
 
@@ -68,17 +67,16 @@ class GenericModelsBlock(QuerysetBlock):
         ct_id = int(ct_id)
         model = ContentType.objects.get_for_id(ct_id).model_class()
         app_name = model._meta.app_label
-        model_name_in_url = config_registry.get_app(app_name).get_model_conf(ct_id).name_in_url
 
-        context = {
-                'request':              request,
-                BlocksManager.var_name: BlocksManager(),
-                'model':                model,
-                'model_name':           model_name_in_url,
-                'app_name':             app_name,
-            }
+        context = RequestContext(request)
+        context.update({
+                'model':      model,
+                'model_name': config_registry.get_app(app_name).get_model_conf(ct_id).name_in_url,
+                'app_name':   app_name,
+            })
 
         return [(self.id_, self.detailview_display(context))]
+
 
 class PropertyTypesBlock(QuerysetBlock):
     id_           = QuerysetBlock.generate_id('creme_config', 'property_types')
@@ -136,18 +134,12 @@ class CustomFieldsBlock(QuerysetBlock):
                                                             update_url='/creme_config/custom_fields/%s/reload/' % ct.id,
                                                             ct=ct))
 
-    #def detailview_ajax(self, request, ct_id):
-        #ct = ContentType.objects.get_for_id(ct_id) #get_ct_or_404() ??
-        #return super(CustomFieldsBlock, self).detailview_ajax(request, content_type=ct)
 
-    #TODO: factorise ?? (see emails_block/sms_block) move code view
+    #TODO: factorise ?? (see emails_block/sms_block) move code to view ??
     @jsonify
     def detailview_ajax(self, request, ct_id):
-        context = {
-                'request':              request,
-                'content_type':         ContentType.objects.get_for_id(ct_id), #get_ct_or_404() ??,
-                BlocksManager.var_name: BlocksManager(),
-            }
+        context = RequestContext(request)
+        context['content_type'] = ContentType.objects.get_for_id(ct_id) #get_ct_or_404() ??
 
         return [(self.id_, self.detailview_display(context))]
 
@@ -167,7 +159,7 @@ class UsersBlock(QuerysetBlock):
 
 
 class BlocksConfigBlock(QuerysetBlock):
-    id_           = QuerysetBlock.generate_id('creme_config', 'blocksconfig')
+    id_           = QuerysetBlock.generate_id('creme_config', 'blocks_config')
     dependencies  = (BlockConfigItem,)
     page_size     = _PAGE_SIZE - 1 #'-1' because there is always the line for default config on each page
     verbose_name  = _(u'Configuration des blocs')
@@ -177,6 +169,21 @@ class BlocksConfigBlock(QuerysetBlock):
         ct_ids = BlockConfigItem.objects.exclude(content_type=None).distinct().values_list('content_type_id', flat=True)
 
         return self._render(self.get_block_template_context(context, ContentType.objects.filter(pk__in=ct_ids),
+                                                            update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
+                                                            ))
+
+
+class RelationBlocksConfigBlock(QuerysetBlock):
+    id_           = QuerysetBlock.generate_id('creme_config', 'relation_blocks_config')
+    dependencies  = (RelationBlockItem, BlockConfigItem) #BlockConfigItem because they can be deleted if we delete a RelationBlockItem
+    page_size     = _PAGE_SIZE
+    verbose_name  = _(u'Configuration des blocs de relation')
+    template_name = 'creme_config/templatetags/block_relationblocksconfig.html'
+
+    def detailview_display(self, context):
+        ct_ids = BlockConfigItem.objects.exclude(content_type=None).distinct().values_list('content_type_id', flat=True)
+
+        return self._render(self.get_block_template_context(context, RelationBlockItem.objects.all(),
                                                             update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
                                                             ))
 
@@ -245,14 +252,15 @@ class SearchConfigBlock(QuerysetBlock):
 #                                              update_url='/creme_config/blocks/reload/'))
 
 
-generic_models_block       = GenericModelsBlock()
-property_types_block       = PropertyTypesBlock()
-relation_types_block       = RelationTypesBlock()
-custom_fields_portal_block = CustomFieldsPortalBlock()
-custom_fields_block        = CustomFieldsBlock()
-blocks_config_block        = BlocksConfigBlock()
-button_menu_block          = ButtonMenuBlock()
-users_block                = UsersBlock()
-app_credentials_block      = AppCredentialsBlock()
-entity_credentials_block   = EntityCredentialsBlock()
-search_block               = SearchConfigBlock()
+generic_models_block        = GenericModelsBlock()
+property_types_block        = PropertyTypesBlock()
+relation_types_block        = RelationTypesBlock()
+custom_fields_portal_block  = CustomFieldsPortalBlock()
+custom_fields_block         = CustomFieldsBlock()
+blocks_config_block         = BlocksConfigBlock()
+relationblocks_config_block = RelationBlocksConfigBlock()
+button_menu_block           = ButtonMenuBlock()
+users_block                 = UsersBlock()
+app_credentials_block       = AppCredentialsBlock()
+entity_credentials_block    = EntityCredentialsBlock()
+search_block                = SearchConfigBlock()

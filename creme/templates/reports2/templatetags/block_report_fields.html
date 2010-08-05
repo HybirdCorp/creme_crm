@@ -1,4 +1,5 @@
 {% load i18n %}
+{% load creme_block %}
 {% load report_tags %}
 {% load queryset_tags %}
 
@@ -13,7 +14,7 @@
         <tr>
             <th align="left" colspan="{{colspan}}" class="{% cycle "block_header_line_dark" "block_header_line_light" %}">
                 {% comment %}<a class="button_link" onclick="creme.utils.innerPopupNReload('/reports2/report/{{object.id}}/field/add', '{{update_url}}?base_url={{base_url}}');">{% endcomment %}
-                <a class="button_link" onclick="creme.utils.innerPopupNReload('/reports2/report/{{object.id}}/field/add', '{{update_url}}?base_url={{base_url}}&{{block_name}}_deps=' + creme.utils.getBlocksDeps('{{block_name}}'));">
+                <a class="button_link" onclick="creme.utils.innerPopupNReload('/reports2/report/{{object.id}}/field/add', {% get_block_reload_uri %});">
                     <img src="{{MEDIA_URL}}images/add_22.png" border="0" title="Ajouter une colonne" alt="Ajouter" />
                     {% trans 'Ajouter' %} /
                     <img src="{{MEDIA_URL}}images/delete_22.png" border="0" title="Supprimer une colonne" alt="Supprimer" />
@@ -57,7 +58,9 @@
                                             {% else %}
                                                     {% if column|is_field_is_linkable:object.ct %}
                                                         {% comment %}<a onclick="creme.reports.link_report('{{object.id}}', '{{column.pk}}', '{{update_url}}?base_url={{base_url}}');">{% trans 'Lier un rapport' %}</a>{% endcomment %}
-                                                        <a onclick="creme.reports.link_report('{{object.id}}', '{{column.pk}}', '{{update_url}}?base_url={{base_url}}&{{block_name}}_deps=' + creme.utils.getBlocksDeps('{{block_name}}'));">{% trans 'Lier un rapport' %}</a>
+                                                        <a onclick="creme.reports.link_report('{{object.id}}', '{{column.pk}}', {% get_block_reload_uri %});">
+                                                            {% trans 'Lier un rapport' %}
+                                                        </a>
                                                     {% endif %}
 
                                             {% endif %}
@@ -65,12 +68,12 @@
                                         {% ifequal HFI_RELATION column.type %}
                                             {% if column.report %}
                                                 {% comment %}<a onclick="creme.reports.unlink_report('{{column.pk}}', '{{update_url}}');">{% trans 'Délier le rapport' %}</a>{% endcomment %}
-                                                <a onclick="creme.reports.unlink_report('{{column.pk}}', '{{update_url}}?base_url={{base_url}}&{{block_name}}_deps=' + creme.utils.getBlocksDeps('{{block_name}}'));">
+                                                <a onclick="creme.reports.unlink_report('{{column.pk}}', {% get_block_reload_uri %});">
                                                     {% trans 'Délier le rapport' %}
                                                 </a>
                                             {% else %}
                                                 {% comment %}<a onclick="creme.reports.link_relation_report('{{object.id}}', '{{column.pk}}', '{{column.name}}','{{update_url}}?base_url={{base_url}}');">{% trans 'Lier un rapport' %}</a>{% endcomment %}
-                                                <a onclick="creme.reports.link_relation_report('{{object.id}}', '{{column.pk}}', '{{column.name}}', '{{update_url}}?base_url={{base_url}}&{{block_name}}_deps=' + creme.utils.getBlocksDeps('{{block_name}}'));">
+                                                <a onclick="creme.reports.link_relation_report('{{object.id}}', '{{column.pk}}', '{{column.name}}', {% get_block_reload_uri %});">
                                                     {% trans 'Lier un rapport' %}
                                                 </a>
                                             {% endif %}
@@ -79,7 +82,7 @@
                                     <td style="width: 33%;">
                                         {% ifnotequal column.order 1 %}
                                             {% comment %}<a onclick="creme.reports.changeOrder('{{object.id}}', '{{column.pk}}', 'up','{{update_url}}?base_url={{base_url}}');">{% endcomment %}
-                                            <a onclick="creme.reports.changeOrder('{{object.id}}', '{{column.pk}}', 'up', '{{update_url}}?base_url={{base_url}}&{{block_name}}_deps=' + creme.utils.getBlocksDeps('{{block_name}}'));">
+                                            <a onclick="creme.reports.changeOrder('{{object.id}}', '{{column.pk}}', 'up', {% get_block_reload_uri %});">
                                                 <img src="{{MEDIA_URL}}images/small_up_arrow_16.png" border="0" title="Monter la colonne" alt="Monter" />
                                             </a>
                                         {% endifnotequal %}
@@ -87,7 +90,7 @@
                                     <td style="width: 33%;">
                                         {% ifnotequal column.order object.columns.count %}
                                             {% comment %}<a onclick="creme.reports.changeOrder('{{object.id}}', '{{column.pk}}', 'down','{{update_url}}?base_url={{base_url}}');">{% endcomment %}
-                                            <a onclick="creme.reports.changeOrder('{{object.id}}', '{{column.pk}}', 'down', '{{update_url}}?base_url={{base_url}}&{{block_name}}_deps=' + creme.utils.getBlocksDeps('{{block_name}}'));">
+                                            <a onclick="creme.reports.changeOrder('{{object.id}}', '{{column.pk}}', 'down', {% get_block_reload_uri %});">
                                                 <img src="{{MEDIA_URL}}images/small_down_arrow_16.png" border="0" title="Descendre la colonne" alt="Descendre" />
                                             </a>
                                         {% endifnotequal %}

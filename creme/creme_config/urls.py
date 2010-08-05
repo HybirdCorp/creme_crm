@@ -70,6 +70,8 @@ urlpatterns = patterns('creme_config.views',
     (r'^blocks/edit/(?P<ct_id>\d+)$',         'blocks.edit'),
     (r'^blocks/edit/(?P<ct_id>\d+)/portal/$', 'blocks.edit_portal'),
     (r'^blocks/delete$',                      'blocks.delete'),
+    (r'^relation_block/add/$',                'blocks.add_relation_block'),
+    (r'^relation_block/delete$',              'blocks.delete_relation_block'),
 
     #Prefered Menu
     (r'^prefered_menu/edit/$', 'prefered_menu.edit'),

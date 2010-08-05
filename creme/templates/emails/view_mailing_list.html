@@ -1,4 +1,4 @@
-{% extends "creme_core/detailview.html" %}
+{% extends "creme_core/generics/view_entity.html" %}
 
 {% load creme_block %}
 
@@ -7,9 +7,6 @@
 {% block creme_blocks_import %}
     {{block.super}}
 
-    {% import_block from_app 'creme_core' named 'relations' as 'relations_block' %}
-    {% import_block from_app 'creme_core' named 'properties' as 'properties_block' %}
-
     {% import_block from_app 'emails' named 'recipients' as 'recipients_block' %}
     {% import_block from_app 'emails' named 'contacts' as 'contacts_block' %}
     {% import_block from_app 'emails' named 'organisations' as 'organisations_block' %}
@@ -17,15 +14,10 @@
     {% import_block from_app 'emails' named 'parent_lists' as 'parent_lists_block' %}
 {% endblock %}
 
-{% block detail_view_left_1 %}
-    {% include "creme_core/object_as_table.html" %}
-
+{% block after_object_as_table_1 %}
     {% display_block_detailview 'recipients_block' %}
     {% display_block_detailview 'contacts_block' %}
     {% display_block_detailview 'organisations_block' %}
     {% display_block_detailview 'child_lists_block' %}
     {% display_block_detailview 'parent_lists_block' %}
-
-    {% display_block_detailview 'properties_block' %}
-    {% display_block_detailview 'relations_block' %}
 {% endblock %}

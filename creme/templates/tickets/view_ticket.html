@@ -1,19 +1,10 @@
-{% extends "creme_core/detailview.html" %}
+{% extends "creme_core/generics/view_entity.html" %}
 
 {% load creme_block %}
 
 {% block logo %}<img src="{{MEDIA_URL}}images/ticket_64.png" alt=""/>{% endblock %}
 
-{% block creme_blocks_import %}
-    {{block.super}}
-
-    {% import_block from_app 'creme_core' named 'relations' as 'relations_block' %}
-    {% import_block from_app 'creme_core' named 'properties' as 'properties_block' %}
-{% endblock %}
-
-{% block detail_view_left_1 %}
-    {% include "creme_core/object_as_table.html" %}
-
+{% block after_object_as_table_1 %}
     <table class="table_detail_view ui-corner-all">
         {% get_basic_block_header 'Informations Supplémentaires' 'infos_48.png' 'Infos' %}
         <tbody class="collapsable">
@@ -23,7 +14,4 @@
             </tr>
         </tbody>
     </table>
-
-    {% display_block_detailview 'properties_block' %}
-    {% display_block_detailview 'relations_block' %}
 {% endblock %}

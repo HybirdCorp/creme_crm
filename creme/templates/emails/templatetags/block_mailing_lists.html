@@ -4,7 +4,7 @@
     <tbody class="collapsable">
         <tr>
             <th colspan="4" class="block_header_line_dark" align="left">
-                <a class="button_link" onclick="creme.utils.innerPopupNReload('/emails/campaign/{{object.pk}}/mailing_list/add', '{{update_url}}?base_url={{base_url}}&{{block_name}}_deps=' + creme.utils.getBlocksDeps('{{block_name}}'));">
+                <a class="button_link" onclick="creme.utils.innerPopupNReload('/emails/campaign/{{object.pk}}/mailing_list/add', {% get_block_reload_uri %});">
                     <img src="{{MEDIA_URL}}images/add_22.png" border="0" title="Ajouter de nouvelles listes" alt="Ajouter" />Nouvelles
                 </a>
             </th>

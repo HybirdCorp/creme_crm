@@ -7,11 +7,11 @@
 {% endblock %}
 
 {% block add_buttons %}
-    <a class="button_link" onclick="creme.utils.innerPopupNReload('/billing/{{object.id}}/service_line/add', '{{update_url}}?base_url={{base_url}}&{{block_name}}_deps=' + creme.utils.getBlocksDeps('{{block_name}}'));">
+    <a class="button_link" onclick="creme.utils.innerPopupNReload('/billing/{{object.id}}/service_line/add', {% get_block_reload_uri %});">
         <img src="{{MEDIA_URL}}images/add_22.png" border="0" title="Ajouter un Service" alt="Ajouter" />
         Ajouter un service existant
     </a>
-    <a class="button_link" onclick="creme.utils.innerPopupNReload('/billing/{{object.id}}/service_line/add_on_the_fly', '{{update_url}}?base_url={{base_url}}&{{block_name}}_deps=' + creme.utils.getBlocksDeps('{{block_name}}'));">
+    <a class="button_link" onclick="creme.utils.innerPopupNReload('/billing/{{object.id}}/service_line/add_on_the_fly', {% get_block_reload_uri %});">
         <img src="{{MEDIA_URL}}images/add_22.png" border="0" title="Ajouter un Service" alt="Ajouter" />
         Ajouter une ligne à la volée
     </a>
@@ -22,7 +22,7 @@
 {% block empty_msg %}Aucun service dans cette facture{% endblock %}
 
 {% block line_actions %}
-    <a class="button_link" onclick="creme.utils.innerPopupNReload('/billing/serviceline/{{line.id}}/edit', '{{update_url}}?base_url={{base_url}}&{{block_name}}_deps=' + creme.utils.getBlocksDeps('{{block_name}}'));">
+    <a class="button_link" onclick="creme.utils.innerPopupNReload('/billing/serviceline/{{line.id}}/edit', {% get_block_reload_uri %});">
         <img src="{{MEDIA_URL}}images/edit_22.png" border="0">
     </a>
     {{block.super}}

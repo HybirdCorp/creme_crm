@@ -21,7 +21,7 @@
 from django.utils.translation import ugettext_lazy as _
 
 from creme_core.models import Relation, CremeProperty
-from creme_core.gui.block import QuerysetBlock
+from creme_core.gui.block import QuerysetBlock, BlocksManager
 
 
 class PropertiesBlock(QuerysetBlock):
@@ -40,16 +40,23 @@ class PropertiesBlock(QuerysetBlock):
 class RelationsBlock(QuerysetBlock):
     id_           = QuerysetBlock.generate_id('creme_core', 'relations')
     dependencies  = (Relation,) #NB: (Relation, CremeEntity) but useless
+    relation_type_deps = () #voluntarily void -> see detailview_display(): only types not present in another block are displayed
     order_by      = 'type'
     verbose_name  = _(u'Relations')
     template_name = 'creme_core/templatetags/block_relations.html'
 
     def detailview_display(self, context):
         entity = context['object']
-        btc    = self.get_block_template_context(context,
-                                                 entity.relations.filter(type__display_with_other=True).select_related('type', 'object_entity'),
-                                                 update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, entity.pk),
-                                                 )
+        relations = entity.relations.select_related('type', 'object_entity')
+        excluded_types = BlocksManager.get(context).get_used_relationtypes_ids()
+
+        if excluded_types:
+            update_url = '/creme_core/blocks/reload/relations_block/%s/%s/' % (entity.pk, ','.join(excluded_types))
+            relations  = relations.exclude(type__in=excluded_types)
+        else:
+            update_url = '/creme_core/blocks/reload/relations_block/%s/' % entity.pk
+
+        btc = self.get_block_template_context(context, relations, update_url=update_url)
 
         #NB: DB optimisation
         Relation.populate_real_object_entities(btc['page'].object_list)

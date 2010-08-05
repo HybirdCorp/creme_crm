@@ -4,7 +4,8 @@ from django.conf.urls.defaults import patterns, include
 
 
 creme_core_patterns = patterns('creme_core.views',
-    (r'^relation/add/(?P<subject_id>\d+)',                                                                               'relation.add_relations'),
+    (r'^relation/add/(?P<subject_id>\d+)$',                                                                              'relation.add_relations'),
+    (r'^relation/add/(?P<subject_id>\d+)/(?P<relation_type_id>[\w-]+)$',                                                 'relation.add_relations'),
     (r'^relation/add/from/predicate/(?P<predicate_id>[\w-]+)/entity/(?P<subject_id>\d+)/(?P<object_ct_id>\d+)$',         'relation.add_relation_from_predicate_n_entity'),
     (r'^relation/add/from/predicate/(?P<predicate_id>[\w-]+)/entity/(?P<subject_id>\d+)/(?P<object_ct_id>\d+)/simple$',  'relation.add_relation_from_predicate_n_entity', {'o2m':True}),
     (r'^relation/add_from_predicate/save$',                                                                              'relation.handle_relation_from_predicate_n_entity'),
@@ -18,10 +19,12 @@ creme_core_patterns = patterns('creme_core.views',
     (r'^relation/add_to_entities/(?P<model_ct_id>\d+)/(?P<ids>([\d]+[,])+)$',                                            'relation.add_relations_bulk'),
     (r'^relation/get_predicates_choices_4_ct$',                                                                          'relation.get_predicates_choices_4_ct'),
 
-    (r'^blocks/reload/(?P<block_id>[\w-]+)/(?P<entity_id>\d+)/$',        'blocks.reload_detailview'),
-    (r'^blocks/reload/home/(?P<block_id>[\w-]+)/$',                      'blocks.reload_home'),
-    (r'^blocks/reload/portal/(?P<block_id>[\w-]+)/(?P<ct_ids>[\d,]+)/$', 'blocks.reload_portal'),
-    (r'^blocks/reload/basic/(?P<block_id>[\w-]+)/$',                     'blocks.reload_basic'), #most of blocks in creme_config for example
+    (r'^blocks/reload/relations_block/(?P<entity_id>\d+)/$',                                'blocks.reload_relations_block'),
+    (r'^blocks/reload/relations_block/(?P<entity_id>\d+)/(?P<relation_type_ids>[\w,-]+)/$', 'blocks.reload_relations_block'),
+    (r'^blocks/reload/(?P<block_id>[\w-]+)/(?P<entity_id>\d+)/$',                           'blocks.reload_detailview'), #TODO: change url to blocks/reload/detailview/....
+    (r'^blocks/reload/home/(?P<block_id>[\w-]+)/$',                                         'blocks.reload_home'),
+    (r'^blocks/reload/portal/(?P<block_id>[\w-]+)/(?P<ct_ids>[\d,]+)/$',                    'blocks.reload_portal'),
+    (r'^blocks/reload/basic/(?P<block_id>[\w-]+)/$',                                        'blocks.reload_basic'), #most of blocks in creme_config for example
 
     (r'^filter/add/(?P<ct_id>\d+)$',                           'list_view_filter.add'),
     (r'^filter/edit/(?P<ct_id>\d+)/(?P<filter_id>\d+)$',       'list_view_filter.edit'), #ct_id useful ????
@@ -41,7 +44,6 @@ creme_core_patterns = patterns('creme_core.views',
     (r'^property/add/$',                                        'creme_property.add_to_creme_entity'),
     (r'^property/list_for_entity_ct/(?P<creme_entity_id>\d+)$', 'creme_property.list_for_entity_ct'),
     (r'^property/delete$',                                      'creme_property.delete'),
-    #(r'^properties/reload/(?P<entity_id>\d+)/$',                'creme_property.reload_block'),
 
     (r'^header_filter/add/(?P<content_type_id>\d+)$',                      'header_filter.add'),
     (r'^header_filter/delete/(?P<header_filter_id>[\w-]+)/(?P<js>[\d]?)$', 'header_filter.delete'),
