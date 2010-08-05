@@ -28,6 +28,7 @@ from creme_core.models import CremeEntity
 from creme_core.entities_access.functions_for_permissions import read_object_or_die
 from creme_core.gui.block import block_registry, str2list, BlocksManager
 from creme_core.utils import jsonify
+from creme_core.blocks import relations_block
 
 #TODO: credentials..... (+ @get_view_or_die('app_name'))
 
@@ -39,6 +40,16 @@ def _get_depblock_ids(request, block_id):
         ids.extend(posted_deps.split(','))
 
     return ids
+
+def _build_blocks_render(request, block_id, blocks_manager, block_render_function):
+    blocks = []
+
+    for block in block_registry.get_blocks(_get_depblock_ids(request, block_id)):
+        block_id = block.id_
+        blocks_manager.add_group(block_id, block)
+        blocks.append((block_id, block_render_function(block)))
+
+    return blocks
 
 @login_required
 @jsonify
@@ -52,58 +63,49 @@ def reload_detailview(request, block_id, entity_id):
     context = RequestContext(request)
     context['object'] = entity
 
-    blocks_manager = BlocksManager.get(context)
-    blocks = []
-
-    for block in block_registry.get_blocks(_get_depblock_ids(request, block_id)):
-        block_id = block.id_
-        blocks_manager.add_group(block_id, block)
-        blocks.append((block_id, block.detailview_display(context)))
-
-    return blocks
+    return _build_blocks_render(request, block_id, BlocksManager.get(context),
+                                lambda block: block.detailview_display(context))
 
 @login_required
 @jsonify
 def reload_home(request, block_id):
     context = RequestContext(request)
-    blocks_manager = BlocksManager.get(context)
-    depblock_ids = _get_depblock_ids(request, block_id)
-    blocks = []
 
-    for block_id in depblock_ids:
-        block = block_registry[block_id]
-        blocks_manager.add_group(block_id, block)
-        blocks.append((block_id, block.home_display(context)))
-
-    return blocks
+    return _build_blocks_render(request, block_id, BlocksManager.get(context),
+                                lambda block: block.home_display(context))
 
 @login_required
 @jsonify
 def reload_portal(request, block_id, ct_ids):
     context = RequestContext(request)
-    blocks_manager = BlocksManager.get(context)
     ct_ids = str2list(ct_ids)
-    depblock_ids = _get_depblock_ids(request, block_id)
-    blocks = []
 
-    for block_id in depblock_ids:
-        block = block_registry[block_id]
-        blocks_manager.add_group(block_id, block)
-        blocks.append((block_id, block.portal_display(context, ct_ids)))
-
-    return blocks
+    return _build_blocks_render(request, block_id, BlocksManager.get(context),
+                                lambda block: block.portal_display(context, ct_ids))
 
 @login_required
 @jsonify
 def reload_basic(request, block_id):
     context = RequestContext(request)
     blocks_manager = BlocksManager.get(context)
-    depblock_ids = _get_depblock_ids(request, block_id)
-    blocks = []
 
-    for block_id in depblock_ids:
-        block = block_registry[block_id]
-        blocks_manager.add_group(block_id, block)
-        blocks.append((block_id, block.detailview_display(context)))
+    return _build_blocks_render(request, block_id, blocks_manager,
+                                lambda block: block.detailview_display(context))
 
-    return blocks
+@login_required
+@jsonify
+def reload_relations_block(request, entity_id, relation_type_ids=''):
+    entity = get_object_or_404(CremeEntity, pk=entity_id).get_real_entity() #get_real_entity() ??
+
+    die_status = read_object_or_die(request, entity)
+    if die_status:
+        return die_status
+
+    context = RequestContext(request)
+    context['object'] = entity
+
+    blocks_manager = BlocksManager.get(context)
+    blocks_manager.set_used_relationtypes_ids(rtype_id for rtype_id in relation_type_ids.split(',') if rtype_id)
+
+    return _build_blocks_render(request, relations_block.id_, blocks_manager,
+                                lambda block: block.detailview_display(context))

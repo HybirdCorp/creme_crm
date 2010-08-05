@@ -47,12 +47,16 @@ class RelationsBlock(QuerysetBlock):
 
     def detailview_display(self, context):
         entity = context['object']
+        relations = entity.relations.select_related('type', 'object_entity')
         excluded_types = BlocksManager.get(context).get_used_relationtypes_ids()
 
-        btc = self.get_block_template_context(context,
-                                              entity.relations.exclude(type__in=excluded_types).select_related('type', 'object_entity'),
-                                              update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, entity.pk),
-                                             )
+        if excluded_types:
+            update_url = '/creme_core/blocks/reload/relations_block/%s/%s/' % (entity.pk, ','.join(excluded_types))
+            relations  = relations.exclude(type__in=excluded_types)
+        else:
+            update_url = '/creme_core/blocks/reload/relations_block/%s/' % entity.pk
+
+        btc = self.get_block_template_context(context, relations, update_url=update_url)
 
         #NB: DB optimisation
         Relation.populate_real_object_entities(btc['page'].object_list)

@@ -29,7 +29,7 @@ from django.http import HttpResponse
 from django.utils.translation import ugettext_lazy as _
 from django.utils.simplejson import JSONEncoder
 
-from creme_core.models import CremeEntity, Relation, RelationType
+from creme_core.models import CremeEntity, Relation, RelationType, RelationBlockItem
 
 
 def list4url(list_):
@@ -322,6 +322,7 @@ class BlocksManager(object):
         self._dependencies_map = defaultdict(list)
         self._blocks_groups = defaultdict(list)
         self._dep_solving_mode = False
+        self._used_relationtypes = None
 
     def add_group(self, group_name, *blocks):
         if self._dep_solving_mode:
@@ -374,7 +375,14 @@ class BlocksManager(object):
         return any(b.id_ == block_id for b in self._blocks)
 
     def get_used_relationtypes_ids(self):
-        return set(rt_id for block in self._dependencies_map[Relation] for rt_id in block.relation_type_deps)
+        if self._used_relationtypes is None:
+            self._used_relationtypes = set(rt_id for block in self._dependencies_map[Relation] for rt_id in block.relation_type_deps)
+
+        return self._used_relationtypes
+
+    def set_used_relationtypes_ids(self, relationtypes_ids):
+        """@param relation_type_deps Sequence of RelationType objects' ids"""
+        self._used_relationtypes = set(relationtypes_ids)
 
     @staticmethod
     def get(context):
@@ -417,9 +425,6 @@ class _BlockRegistry(object):
     def get_blocks(self, block_ids):
         """Blocks type can be SpecificRelationsBlock: in this case,they are not really
         registered, but created on the fly"""
-        from creme_core.models import RelationBlockItem
-        #from creme_core.blocks import SpecificRelationsBlock
-
         specific_ids = filter(SpecificRelationsBlock.id_is_specific, block_ids)
 
         if specific_ids:
