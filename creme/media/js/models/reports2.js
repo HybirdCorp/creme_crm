@@ -275,3 +275,24 @@ creme.reports.changeOrder = function(report_id, field_id, direction, block_url)
 
     creme.ajax.json.post('/reports2/report/field/change_order', data, success_cb, success_cb, false, this.loading_options);
 }
+
+creme.reports.setSelected = function(checkbox, report_id, field_id, block_url)
+{
+    var success_cb = function(data, textStatus, req)
+    {
+        if(block_url && block_url != undefined)
+        {
+            creme.utils.loadBlock(block_url);
+        }
+    };
+
+    var error_cb = function(req, textStatus, err)
+    {
+        //creme.utils.showDialog("Erreur, actualisez la page");
+    };
+
+    var data = {'report_id': report_id, 'field_id': field_id, 'checked': +$(checkbox).is(':checked')};
+
+    creme.ajax.json.post('/reports2/report/field/set_selected', data, success_cb, success_cb, false, this.loading_options);
+
+};

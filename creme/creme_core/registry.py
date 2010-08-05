@@ -37,6 +37,7 @@ class CremeRegistry(object):
     def __init__(self):
         self._entity_models = []
         self._apps = {}
+        self._generic_registry = {}
 
     def register_app(self, name, verbose_name, url=None):
         self._apps[name] = CremeApp(name, verbose_name, url)
@@ -56,5 +57,16 @@ class CremeRegistry(object):
     def iter_entity_models(self):
         return iter(self._entity_models)
 
+    def register(self, key, value):
+        """A generic registry map"""
+        self._generic_registry[key] = value
+
+    def get(self, key):
+        value = self._generic_registry.get(key)
+
+        if value is None:
+            raise NotRegistered("Nothing registered with this key: %s" % (key,))
+
+        return value
 
 creme_registry = CremeRegistry()
