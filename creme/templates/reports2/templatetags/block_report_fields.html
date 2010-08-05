@@ -2,7 +2,7 @@
 {% load report_tags %}
 {% load queryset_tags %}
 
-{% with 5 as colspan %}
+{% with 6 as colspan %}
 <table class="table_detail_view ui-corner-all" id={{block_name}}>
     <thead>
         <tr>
@@ -28,6 +28,7 @@
                 <th class="{% cycle "block_header_line_dark" "block_header_line_light" %}">{% trans 'Affiché dans le rapport' %}</th>
                 <th class="{% cycle "block_header_line_dark" "block_header_line_light" %}">{% trans 'Type' %}</th>
                 <th class="{% cycle "block_header_line_dark" "block_header_line_light" %}">{% trans 'Action(s)' %}</th>
+                <th class="{% cycle "block_header_line_dark" "block_header_line_light" %}">{% trans 'Développer ?' %}</th>
             </tr>
             <!--
                 {% cycle "block_header_line_light" "block_header_line_dark" as header_row %}
@@ -54,7 +55,7 @@
                                             {% if column.report %}
                                                 <a onclick="creme.reports.unlink_report('{{column.pk}}', '{{update_url}}');">{% trans 'Délier le rapport' %}</a>
                                             {% else %}
-                                                    {% if column|is_field_is_fk:object.ct %}
+                                                    {% if column|is_field_is_linkable:object.ct %}
                                                         {% comment %}<a onclick="creme.reports.link_report('{{object.id}}', '{{column.pk}}', '{{update_url}}?base_url={{base_url}}');">{% trans 'Lier un rapport' %}</a>{% endcomment %}
                                                         <a onclick="creme.reports.link_report('{{object.id}}', '{{column.pk}}', '{{update_url}}?base_url={{base_url}}&{{block_name}}_deps=' + creme.utils.getBlocksDeps('{{block_name}}'));">{% trans 'Lier un rapport' %}</a>
                                                     {% endif %}
@@ -94,6 +95,16 @@
                                 </tr>
                             </tbody>
                         </table>
+                    </td>
+                    <td class="{% cycle "block_line_dark" "block_line_light" %}">
+                        {% ifequal HFI_FIELD column.type %}
+                            {% if column|is_field_is_linkable:object.ct %}
+                                <input type="checkbox" name="selected" onclick="creme.reports.setSelected(this, '{{object.id}}', '{{column.pk}}', '{{update_url}}?base_url={{base_url}}');" {% if column.selected %} checked {% endif %}/>
+                           {% endif %}
+                        {% endifequal %}
+                        {% ifequal HFI_RELATION column.type %}
+                            <input type="checkbox" name="selected" onclick="creme.reports.setSelected(this, '{{object.id}}', '{{column.pk}}', '{{update_url}}?base_url={{base_url}}');" {% if column.selected %} checked {% endif %}/>
+                        {% endifequal %}
                     </td>
                 </tr>
             {% endfor %}

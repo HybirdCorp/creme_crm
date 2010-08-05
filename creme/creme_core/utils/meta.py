@@ -18,6 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from django.db.models.fields.related import ForeignKey
 from django.db.models.base import ModelBase
 from django.db.models import Field, FieldDoesNotExist
 from django.db.models.fields.related import ManyToManyField
@@ -174,3 +175,47 @@ def get_flds_with_fk_flds_str(model_klass, deep=1, prefix=None, exclude_func=Non
             fields.append((unicode(field.name), unicode('%s - %s' % (model_klass._meta.verbose_name.capitalize(), unicode(field.verbose_name).capitalize()))))
 
     return fields
+
+
+def _get_entity_column(entity, column_name, field_class):
+    field_infos = get_model_field_infos(entity.__class__, column_name)
+    fields_names = []
+    cols = column_name.split('__')
+
+    i = 1
+    for i, f_info in enumerate(field_infos):
+        fields_names.append(cols[i])
+
+        if issubclass(f_info['field'].__class__, field_class):
+            break
+
+    return ('__'.join(fields_names), cols[len(cols)-i-1:])
+
+def get_fk_entity(entity, column, get_value=False):
+    """Get the first foreign key entity found in the column_name path
+        entity=Contact(), column_name='photo__name' returns entity.photo
+        if get_value returns the value i.e : entity.photo.name
+    """
+    fk_column, rest = _get_entity_column(entity, column.name, ForeignKey)
+    if get_value:
+        return getattr(getattr(entity, fk_column), '__'.join(rest))
+    
+    return getattr(entity, fk_column)
+
+def get_m2m_entities(entity, column, get_value=False):
+    """Get the first many to many entity found in the column_name path
+        entity=Contact(), column_name='photos__name' returns entity.photos.all()
+        if get_value returns the values i.e : [e.name for e in entity.photos.all()]
+    """
+    m2m_column, rest = _get_entity_column(entity, column.name, ManyToManyField)
+    if get_value:
+        rest = '__'.join(rest)
+        return [getattr(m, rest) for m in getattr(entity, m2m_column).all()]
+    elif not column.selected:
+        return ', '.join(unicode(m) for m in getattr(entity, m2m_column).all())
+
+    return getattr(entity, m2m_column).all()
+
+def filter_entities_on_ct(entities, ct):
+    #ifilter ?
+    return filter(lambda entity: entity.entity_type==ct, entities)
