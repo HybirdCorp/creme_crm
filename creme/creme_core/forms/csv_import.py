@@ -23,13 +23,14 @@ from logging import info
 
 from django.db.models import Q, ManyToManyField
 from django.forms.models import modelform_factory
-from django.forms import Field, BooleanField, ModelMultipleChoiceField, ValidationError, IntegerField
+from django.forms import Field, BooleanField, ModelChoiceField, ModelMultipleChoiceField, ValidationError, IntegerField
 from django.forms.widgets import SelectMultiple, HiddenInput
 from django.forms.util import flatatt
 from django.utils.translation import ugettext_lazy as _, ugettext
 from django.utils.safestring import mark_safe
 from django.utils.encoding import smart_unicode
 from django.contrib.contenttypes.models import ContentType
+from django.contrib.auth.models import User
 
 from creme_core.models import CremePropertyType, CremeProperty, RelationType, Relation, CremeEntity
 from creme_core.entities_access.functions_for_permissions import read_object_or_die
@@ -327,6 +328,8 @@ class CSVImportForm(CremeModelForm):
 
 
 class CSVImportForm4CremeEntity(CSVImportForm):
+    user = ModelChoiceField(label=_('Utilisateur'), queryset=User.objects.all(), empty_label=None)
+
     blocks = FieldBlockManager(('general',    _(u'Infos génériques'),     '*'),
                                ('properties', _(u'Propriétés associées'), ('property_types',)),
                                ('relations',  _(u'Relations associées'),  ('relations',)),
@@ -338,7 +341,7 @@ class CSVImportForm4CremeEntity(CSVImportForm):
     relations      = RelatedEntitiesField(label=_(u'Relations'), required=False, use_ctype=True)
 
     class Meta:
-        exclude = ('is_deleted', 'is actived')
+        exclude = ('is_deleted', 'is_actived')
 
     def __init__(self, *args, **kwargs):
         super(CSVImportForm4CremeEntity, self).__init__(*args, **kwargs)
