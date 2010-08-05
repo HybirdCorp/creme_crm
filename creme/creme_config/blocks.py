@@ -18,6 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from django.template import RequestContext
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
@@ -66,16 +67,13 @@ class GenericModelsBlock(QuerysetBlock):
         ct_id = int(ct_id)
         model = ContentType.objects.get_for_id(ct_id).model_class()
         app_name = model._meta.app_label
-        model_name_in_url = config_registry.get_app(app_name).get_model_conf(ct_id).name_in_url
 
-        #TODO: use RequestContext
-        context = {
-                'request':              request,
-                BlocksManager.var_name: BlocksManager(),
-                'model':                model,
-                'model_name':           model_name_in_url,
-                'app_name':             app_name,
-            }
+        context = RequestContext(request)
+        context.update({
+                'model':      model,
+                'model_name': config_registry.get_app(app_name).get_model_conf(ct_id).name_in_url,
+                'app_name':   app_name,
+            })
 
         return [(self.id_, self.detailview_display(context))]
 
