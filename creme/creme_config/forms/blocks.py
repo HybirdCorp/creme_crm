@@ -23,12 +23,12 @@ from logging import debug
 from django.forms import IntegerField, MultipleChoiceField, ChoiceField
 from django.forms.widgets import HiddenInput
 from django.contrib.contenttypes.models import ContentType
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import ugettext_lazy as _, ugettext
 
-from creme_core.forms import CremeForm
+from creme_core.models import RelationType, BlockConfigItem, RelationBlockItem
+from creme_core.forms import CremeForm, CremeModelForm
 from creme_core.forms.widgets import OrderedMultipleChoiceWidget
-from creme_core.gui.block import block_registry
-from creme_core.models import BlockConfigItem
+from creme_core.gui.block import block_registry, SpecificRelationsBlock
 from creme_core.utils import creme_entity_content_types
 from creme_core.utils.id_generator import generate_string_id_and_save
 
@@ -36,8 +36,17 @@ from creme_core.utils.id_generator import generate_string_id_and_save
 class DetailviewBlocksForm(CremeForm):
     ct_id     = ChoiceField(label=_(u'Resource associée'), choices=(), required=True)
     block_ids = MultipleChoiceField(label=_(u'Blocs à afficher'), required=False,
-                                    choices=[(id_, block.verbose_name) for id_, block in block_registry if block.configurable],
+                                    choices=(),
                                     widget=OrderedMultipleChoiceWidget)
+
+    def __init__(self, *args, **kwargs):
+        super(DetailviewBlocksForm, self).__init__(*args, **kwargs)
+
+        choices = [(id_, block.verbose_name) for id_, block in block_registry if block.configurable]
+        choices.extend((rbi.block_id, ugettext(u'Bloc de relation: %s') % rbi.relation_type.predicate)
+                            for rbi in RelationBlockItem.objects.all()) #TODO: filter compatible relation types
+
+        self.fields['block_ids'].choices = choices
 
     def save(self):
         cleaned_data  = self.cleaned_data
@@ -124,3 +133,19 @@ class BlocksPortalEditForm(CremeForm):
             if bci.on_portal != on_portal:
                 bci.on_portal = on_portal
                 bci.save()
+
+
+class RelationBlockAddForm(CremeModelForm):
+    class Meta:
+        model = RelationBlockItem
+        exclude = ('block_id',)
+
+    def __init__(self, *args, **kwargs):
+        super(RelationBlockAddForm, self).__init__(*args, **kwargs)
+
+        existing_type_ids = RelationBlockItem.objects.values_list('relation_type_id', flat=True)
+        self.fields['relation_type'].queryset = RelationType.objects.exclude(pk__in=existing_type_ids)
+
+    def save(self):
+        self.instance.block_id = SpecificRelationsBlock.generate_id('creme_config', self.cleaned_data['relation_type'].id)
+        super(RelationBlockAddForm, self).save()

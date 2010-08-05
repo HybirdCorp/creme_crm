@@ -26,9 +26,10 @@ from django.template.loader import get_template
 from django.template import Context
 from django.conf import settings
 from django.http import HttpResponse
+from django.utils.translation import ugettext_lazy as _
 from django.utils.simplejson import JSONEncoder
 
-from creme_core.models import CremeEntity
+from creme_core.models import CremeEntity, Relation, RelationType, RelationBlockItem
 
 
 def list4url(list_):
@@ -69,6 +70,7 @@ class Block(object):
     """
     id_           = None               #overload with an unicode object ; use generate_id()
     dependencies  = ()                 #list of the models on which the block depends (ie: generally the block displays these models)
+    relation_type_deps = ()            #list of id of RelationType objects on which the block depends ; only used for Blocks which have 'Relation' in their dependencies
     verbose_name  = 'BLOCK'            #used in the user configuration (see BlockConfigItem)
     template_name = 'OVERLOAD_ME.html' #used to render the block of course
     context_class = _BlockContext      #store the context in the session.
@@ -129,14 +131,10 @@ class Block(object):
         return blockcontext, modified
 
     def _build_template_context(self, context, block_name, block_context, **extra_kwargs):
-        template_context = {
-                'block_name': block_name,
-                'object':     context.get('object'), #optionnal: only on detailview
-                'MEDIA_URL':  settings.MEDIA_URL,
-               }
-        template_context.update(extra_kwargs)
+        context['block_name'] = block_name
+        context.update(extra_kwargs)
 
-        return template_context
+        return context
 
     def get_block_template_context(self, context, update_url='', depblock_ids=(), **extra_kwargs):
         """ Build the block template context.
@@ -275,6 +273,40 @@ class QuerysetBlock(PaginatedBlock):
         return PaginatedBlock.get_block_template_context(self, context, objects=queryset, update_url=update_url, **extra_kwargs)
 
 
+class SpecificRelationsBlock(QuerysetBlock):
+    dependencies  = (Relation,) #NB: (Relation, CremeEntity) but useless
+    order_by      = 'type'
+    verbose_name  = _(u'Relations')
+    template_name = 'creme_core/templatetags/block_specific_relations.html'
+
+    def __init__(self, id_, relation_type_id):
+        self.id_ = id_
+        self.relation_type_deps = (relation_type_id,)
+
+    @staticmethod
+    def generate_id(app_name, name):
+        return u'specificblock_%s-%s' % (app_name, name)
+
+    @staticmethod
+    def id_is_specific(id_):
+        return id_.startswith(u'specificblock_')
+
+    def detailview_display(self, context):
+        entity = context['object']
+        relation_type = RelationType.objects.get(pk=self.relation_type_deps[0])
+
+        btc = self.get_block_template_context(context,
+                                              entity.relations.filter(type=relation_type).select_related('type', 'object_entity'),
+                                              update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, entity.pk),
+                                              relation_type=relation_type,
+                                             )
+
+        #NB: DB optimisation
+        Relation.populate_real_object_entities(btc['page'].object_list)
+
+        return self._render(btc)
+
+
 class BlocksManager(object):
     """Using to solve the blocks dependencies problem in a page.
     Blocks can depends on the same model : updating one block involves to update
@@ -290,6 +322,7 @@ class BlocksManager(object):
         self._dependencies_map = defaultdict(list)
         self._blocks_groups = defaultdict(list)
         self._dep_solving_mode = False
+        self._used_relationtypes = None
 
     def add_group(self, group_name, *blocks):
         if self._dep_solving_mode:
@@ -305,7 +338,7 @@ class BlocksManager(object):
         dep_map = self._dependencies_map
         for block in blocks:
             for dep in block.dependencies:
-                dep_map[dep].append(block.id_)
+                dep_map[dep].append(block)
 
     def pop_group(self, group_name):
         return self._blocks_groups.pop(group_name)
@@ -317,8 +350,19 @@ class BlocksManager(object):
         self._dep_solving_mode = True
 
         dep_map = self._dependencies_map
-        depblocks_ids = set(block_id for dep in block.dependencies for block_id in dep_map[dep])
-        depblocks_ids.remove(block.id_)
+        depblocks_ids = set()
+        id_ = block.id_
+
+        for dep in block.dependencies:
+            for other_block in dep_map[dep]:
+                if other_block.id_ == id_:
+                    continue
+
+                if dep == Relation:
+                    if not set(block.relation_type_deps) & set(other_block.relation_type_deps):
+                        continue
+
+                depblocks_ids.add(other_block.id_)
 
         return depblocks_ids
 
@@ -330,12 +374,25 @@ class BlocksManager(object):
         block_id = block.id_
         return any(b.id_ == block_id for b in self._blocks)
 
+    def get_used_relationtypes_ids(self):
+        if self._used_relationtypes is None:
+            self._used_relationtypes = set(rt_id for block in self._dependencies_map[Relation] for rt_id in block.relation_type_deps)
+
+        return self._used_relationtypes
+
+    def set_used_relationtypes_ids(self, relationtypes_ids):
+        """@param relation_type_deps Sequence of RelationType objects' ids"""
+        self._used_relationtypes = set(relationtypes_ids)
+
     @staticmethod
     def get(context):
         return context[BlocksManager.var_name] #will raise exception if not created: OK
 
 
 class _BlockRegistry(object):
+    """Use to retrieve a Block by its id.
+    All Blocks should be registered in.
+    """
     def __init__(self):
         self._blocks = {}
 
@@ -364,6 +421,28 @@ class _BlockRegistry(object):
 
     def __iter__(self):
         return self._blocks.iteritems()
+
+    def get_blocks(self, block_ids):
+        """Blocks type can be SpecificRelationsBlock: in this case,they are not really
+        registered, but created on the fly"""
+        specific_ids = filter(SpecificRelationsBlock.id_is_specific, block_ids)
+
+        if specific_ids:
+            relation_blocks_items = dict((rbi.block_id, rbi) for rbi in RelationBlockItem.objects.filter(block_id__in=specific_ids))
+        else:
+            relation_blocks_items = {}
+
+        blocks = []
+
+        for id_ in block_ids:
+            rbi = relation_blocks_items.get(id_)
+
+            if rbi:
+                blocks.append(SpecificRelationsBlock(rbi.block_id, rbi.relation_type_id))
+            else:
+                blocks.append(self.get_block(id_))
+
+        return blocks
 
 
 block_registry = _BlockRegistry()

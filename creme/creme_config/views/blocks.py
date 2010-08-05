@@ -23,12 +23,12 @@ from django.shortcuts import render_to_response
 from django.template.context import RequestContext
 from django.contrib.auth.decorators import login_required
 
-from creme_core.models import BlockConfigItem
+from creme_core.models import BlockConfigItem, RelationBlockItem
 from creme_core.views.generic import add_entity
 from creme_core.entities_access.functions_for_permissions import get_view_or_die
 from creme_core.constants import DROIT_MODULE_EST_ADMIN
 
-from creme_config.forms.blocks import BlocksAddForm, BlocksEditForm, BlocksPortalEditForm
+from creme_config.forms.blocks import BlocksAddForm, BlocksEditForm, BlocksPortalEditForm, RelationBlockAddForm
 
 
 portal_url = '/creme_config/blocks/portal/'
@@ -40,6 +40,14 @@ def add(request):
         @Permissions : Admin to creme_config app
     """
     return add_entity(request, BlocksAddForm, portal_url)
+
+@login_required
+@get_view_or_die('creme_config', DROIT_MODULE_EST_ADMIN)
+def add_relation_block(request):
+    """
+        @Permissions : Admin to creme_config app
+    """
+    return add_entity(request, RelationBlockAddForm, portal_url)
 
 @login_required
 @get_view_or_die('creme_config')
@@ -92,5 +100,15 @@ def delete(request):
     if not ct_id: #default config can't be deleted
         raise Http404 #bof
 
-    BlockConfigItem.objects.filter(content_type__id=ct_id).delete()
+    BlockConfigItem.objects.filter(content_type=ct_id).delete()
+
+    return HttpResponse()
+
+@login_required
+@get_view_or_die('creme_config', DROIT_MODULE_EST_ADMIN)
+def delete_relation_block(request):
+    rbi = RelationBlockItem.objects.get(pk=request.POST.get('id'))
+
+    rbi.delete()
+
     return HttpResponse()

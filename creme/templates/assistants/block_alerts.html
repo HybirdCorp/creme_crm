@@ -1,19 +1,16 @@
 {% load creme_block %}
-
 <table class="table_detail_view ui-corner-all" id={{block_name}}>
     {% get_block_header '%s Alerte' '%s Alertes' 'bell_48.png' 'Alerte' %}
-
     <tbody class="collapsable">
         {% if object %}
             <tr>
                 <th colspan="6" class="block_header_line_dark" align="left">
-                    <a class="button_link" onclick="creme.utils.innerPopupNReload('/assistants/alert/add/{{object.id}}/', '{{update_url}}?base_url={{base_url}}&{{block_name}}_deps=' + creme.utils.getBlocksDeps('{{block_name}}'));">
+                    <a class="button_link" onclick="creme.utils.innerPopupNReload('/assistants/alert/add/{{object.id}}/', {% get_block_reload_uri %});">
                         <img src="{{MEDIA_URL}}images/add_22.png" border="0" title="Ajouter" alt="Ajouter" />Nouvelle
                     </a>
                 </th>
             </tr>
         {% endif %}
-
         {% if page.paginator.count %}
             <tr>
                 {% get_column_header 'Titre' 'title' %}
@@ -48,7 +45,7 @@
                         </form>
                     </td>
                     <td class="{{row_color}}" align="center" valign="center" style="width:10%;">
-                        <a onclick="creme.utils.innerPopupNReload('/assistants/alert/edit/{{alert.id}}/', '{{update_url}}?base_url={{base_url}}&{{block_name}}_deps=' + creme.utils.getBlocksDeps('{{block_name}}'));">
+                        <a onclick="creme.utils.innerPopupNReload('/assistants/alert/edit/{{alert.id}}/', {% get_block_reload_uri %});">
                             <img src="{{MEDIA_URL}}images/edit_22.png" border="0">
                         </a>
                         {% get_line_deletor at_url '/assistants/alert/delete' with_args "{'id' : {{alert.id}} }" %}

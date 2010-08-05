@@ -7,7 +7,7 @@
     <tbody class="collapsable">
         <tr>
             <th colspan="4" class="block_header_line_dark" align="left">
-                <a class="button_link" onclick="creme.relations.handleAddFromPredicateEntity('/creme_core/relation/add/from/predicate/{{predicate_id}}/entity/{{object.id}}/{{ct_id}}','{{predicate_id}}','{{object.id}}', '{{update_url}}?base_url={{base_url}}&{{block_name}}_deps=' + creme.utils.getBlocksDeps('{{block_name}}'));">
+                <a class="button_link" onclick="creme.relations.handleAddFromPredicateEntity('/creme_core/relation/add/from/predicate/{{predicate_id}}/entity/{{object.id}}/{{ct_id}}', '{{predicate_id}}', '{{object.id}}', {% get_block_reload_uri %});">
                     <img src="{{MEDIA_URL}}images/relations_22.png" border="0" title="Ajouter un Bon" alt="Ajouter" />
                     Lier à un bon existant
                 </a>

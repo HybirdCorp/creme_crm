@@ -25,7 +25,7 @@ from django.template.loader import get_template
 from django.template import Library, Template
 from django.utils.translation import ugettext, ungettext
 from django.contrib.contenttypes.models import ContentType
-from django.conf import settings
+#from django.conf import settings
 
 from creme_core.models import BlockConfigItem
 from creme_core.gui.block import Block, block_registry, BlocksManager
@@ -34,28 +34,34 @@ from creme_core.blocks import properties_block, relations_block
 
 register = Library()
 
+@register.inclusion_tag('creme_core/templatetags/widgets/block_reload_uri.html', takes_context=True)
+def get_block_reload_uri(context): #{% include 'creme_core/templatetags/widgets/block_reload_uri.html' %} instead ??
+    return context
+
 @register.inclusion_tag('creme_core/templatetags/widgets/block_header.html', takes_context=True)
 def get_block_header(context, singular_title, plural_title, icon='', short_title='', count=None):
     if count is None:
         count = context['page'].paginator.count
 
-    return {
+    context.update({
             'title':       ungettext(singular_title, plural_title, count) % count,
             'icon':        icon,
             'short_title': short_title,
-            'MEDIA_URL':   settings.MEDIA_URL
-           }
+           })
 
-@register.inclusion_tag('creme_core/templatetags/widgets/block_header.html')
-def get_basic_block_header(title, icon='', short_title=''):
-    return {
+    return context
+
+@register.inclusion_tag('creme_core/templatetags/widgets/block_header.html', takes_context=True)
+def get_basic_block_header(context, title, icon='', short_title=''):
+    context.update({
             'title':       ugettext(title),
             'icon':        icon,
             'short_title': short_title,
-            'MEDIA_URL':   settings.MEDIA_URL
-           }
+           })
 
-#TODO: modify/copy context instead of creating a new dict ??
+    return context
+
+
 @register.inclusion_tag('creme_core/templatetags/widgets/block_column_header.html', takes_context=True)
 def get_column_header(context, column_name, field_name):
     order_by = context['order_by']
@@ -67,17 +73,15 @@ def get_column_header(context, column_name, field_name):
         order = order_by
         asc   = True
 
-    return {
-            'object':      context.get('object'), #portal has not object...
-            'block_name':  context['block_name'],
-            'update_url':  context['update_url'],
-            'base_url':    context['base_url'],
+    context.update({
             'order':       order,
             'asc':         asc,
             'field_name':  field_name,
             'column_name': column_name,
-            'MEDIA_URL':   settings.MEDIA_URL
-           }
+           })
+
+    return context
+
 
 _line_deletor_re = compile_re(r'at_url (.*?) with_args (.*?)$')
 
@@ -201,13 +205,9 @@ class DetailviewBlocksImporterNode(TemplateNode):
         if not block_ids:
             block_ids = BCI_filter(content_type=None).order_by('order').values_list('block_id', flat=True)
 
-        get_block = block_registry.get_block
-        blocks    = [get_block(id_) for id_ in block_ids if id_]
-
-        blocks_manager.add_group('detailview_blocks', *blocks) #TODO: use CONSTANT
+        blocks_manager.add_group('detailview_blocks', *block_registry.get_blocks([id_ for id_ in block_ids if id_])) #TODO: use CONSTANT
 
         return ''
-
 
 @register.tag(name="display_detailview_blocks")
 def do_detailview_blocks_displayer(parser, token):
@@ -259,12 +259,10 @@ class PortalBlocksImporterNode(TemplateNode):
                     block_ids_set.add(block_id)
                     block_ids.append(block_id)
 
-        get_block = block_registry.get_block
-        blocks = [get_block(id_) for id_ in block_ids]
-
-        blocks_manager.add_group('portal_blocks', *blocks) #TODO: use CONSTANT
+        blocks_manager.add_group('portal_blocks', *block_registry.get_blocks([id_ for id_ in block_ids if id_])) #TODO: use CONSTANT
 
         return ''
+
 
 @register.tag(name="display_portal_blocks")
 def do_detailview_blocks_displayer(parser, token):
@@ -298,12 +296,8 @@ def do_home_blocks_importer(parser, token):
 class HomeBlocksImporterNode(TemplateNode):
     def render(self, context):
         blocks_manager = BlocksManager.get(context)
-
         block_ids = BlockConfigItem.objects.filter(content_type=None, on_portal=True).order_by('order').values_list('block_id', flat=True)
-        get_block = block_registry.get_block
-        blocks    = [get_block(id_) for id_ in block_ids if id_]
-
-        blocks_manager.add_group('home_blocks', *blocks) #TODO: use CONSTANT
+        blocks_manager.add_group('home_blocks', *block_registry.get_blocks([id_ for id_ in block_ids if id_])) #TODO: use CONSTANT
 
         return ''
 

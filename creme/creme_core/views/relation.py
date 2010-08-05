@@ -46,24 +46,24 @@ class JSONSelectError(Exception):
 def __json_select(query, fields, range, sort_field=None, use_columns=False):
     try:
         start, end = range
-        
+
         if not use_columns:
             result = []
-            
+
             if sort_field:
                 sorted_result = [(sort_field(entity), [getter(entity) for getter in fields]) for entity in query]
-                sorted_result.sort(cmp=lambda a, b:cmp(a[0], b[0]))
+                sorted_result.sort(cmp=lambda a, b:cmp(a[0], b[0])) #TODO: use 'key' param instead
                 result = [e[1] for e in sorted_result[start:end]]
             else:
                 for entity in query[start:end]:
-                    result.append([getter(entity) for getter in fields])
+                    result.append([getter(entity) for getter in fields]) #TODO: use extend + genexpr ?
 
         else:
             query = query.order_by(sort_field) if sort_field else query
             flat = len(fields) == 1
             result = list(query.values_list(flat=flat, *fields)[start:end])
-        
-        return JSONEncoder().encode(result)
+
+        return JSONEncoder().encode(result) #TODO: move out tre 'try' block
     except Exception, err:
         raise JSONSelectError(unicode(err), 500)
 
@@ -141,9 +141,11 @@ def __json_parse_select_request(request, allowed_fields):
 
 #JSON_ENTITY_FILTERS = frozenset(('id', 'entity_type'))
 
-JSON_ENTITY_FIELDS = {'unicode':unicode, 
-                      'id':lambda e:e.id,
-                      'entity_type':lambda e:e.entity_type_id}
+JSON_ENTITY_FIELDS = {
+                        'unicode':     unicode,
+                        'id':          lambda e: e.id,
+                        'entity_type': lambda e: e.entity_type_id
+                     }
 
 # TODO (refs 293) : unused tool. remove it !
 #@login_required
@@ -160,12 +162,14 @@ def json_entity_get(request, id):
     try:
         fields, range, sort, use_columns = __json_parse_select_request(request.GET, JSON_ENTITY_FIELDS)
         query = filter_RUD_objects(request, CremeEntity.objects.filter(pk=id))
-        return HttpResponse(__json_select(query, fields, (0, 1), sort, use_columns), mimetype="text/javascript")
+        return HttpResponse(__json_select(query, fields, (0, 1), sort, use_columns), mimetype="text/javascript") #TODO: move out the 'try' block
     except JSONSelectError, err:
         return HttpResponse(err.message, mimetype="text/javascript", status=err.status)
 
-JSON_PREDICATE_FIELDS = {'unicode':unicode, 
-                         'id':lambda e:e.id}
+JSON_PREDICATE_FIELDS = {
+                            'unicode': unicode,
+                            'id':      lambda e: e.id
+                        }
 
 @login_required
 def json_entity_predicates(request, id):
@@ -180,9 +184,11 @@ def json_entity_predicates(request, id):
     except Exception, err:
         return HttpResponse(err, mimetype="text/javascript", status=500)
 
-JSON_CONTENT_TYPE_FIELDS = {'unicode':unicode,
-                            'name':lambda e:e.name, 
-                            'id':lambda e:e.id}
+JSON_CONTENT_TYPE_FIELDS = {
+                            'unicode':  unicode,
+                            'name':     lambda e: e.name, 
+                            'id':       lambda e: e.id
+                           }
 
 @login_required
 def json_predicate_content_types(request, id):
@@ -197,7 +203,7 @@ def json_predicate_content_types(request, id):
             content_type_from_model = ContentType.objects.get_for_model
             content_types = [content_type_from_model(model) for model in creme_registry.iter_entity_models()]
             return HttpResponse(__json_select(content_types, fields, range, sort))
-    
+
         #return HttpResponse(__json_select(ContentType.objects.filter(pk__in=content_type_ids), fields, range, sort, use_columns))
         return HttpResponse(__json_select(content_types, fields, range, sort, use_columns))
     except JSONSelectError, err:
@@ -206,36 +212,38 @@ def json_predicate_content_types(request, id):
         return HttpResponse(err, mimetype="text/javascript", status=404)
     except Exception, err:
         return HttpResponse(err, mimetype="text/javascript", status=500)
-        
+
 def __get_entity_predicates(request, id):
     entity = get_object_or_404(CremeEntity, pk=id).get_real_entity()
 
     # TODO : unable to test it !
     die_status = read_object_or_die(request, entity)
-    
+
     if die_status:
         return die_status
-    
+
     predicates = RelationType.objects.filter(can_be_create_with_popup=True).order_by('predicate')
     predicates = predicates.filter(Q(subject_ctypes=entity.entity_type)|Q(subject_ctypes__isnull=True)).distinct()
     return predicates
 
-def add_relations(request, subject_id):
+def add_relations(request, subject_id, relation_type_id=None):
     subject = get_object_or_404(CremeEntity, pk=subject_id)
 
     die_status = edit_object_or_die(request, subject)
     if die_status:
         return die_status
 
+    relations_types = [relation_type_id] if relation_type_id else None
+
     POST = request.POST
 
     if POST:
-        form = RelationCreateForm(subject, request.user.id, POST)
+        form = RelationCreateForm(subject, request.user.id, relations_types, POST)
 
         if form.is_valid():
             form.save()
     else:
-        form = RelationCreateForm(subject=subject, user_id=request.user.id)
+        form = RelationCreateForm(subject=subject, user_id=request.user.id, relations_types=relations_types)
 
     return inner_popup(request, 'creme_core/generics/blockform/add_popup2.html',
                        {
@@ -243,8 +251,8 @@ def add_relations(request, subject_id):
                         'title': u'Relations pour <%s>' % subject,
                        },
                        is_valid=form.is_valid(),
-                       reload = False,
-                       delegate_reload = True,
+                       reload=False,
+                       delegate_reload=True,
                        context_instance=RequestContext(request))
 
 # NOTE : filter_RUD_objects <= filter allowed entities for this user 
@@ -256,8 +264,9 @@ def add_relations_bulk(request, model_ct_id, ids):
     model    = get_object_or_404(ContentType, pk=model_ct_id).model_class()
     entities = get_list_or_404(model, pk__in=ids.split(','))
 
-    die_statuses = set([edit_object_or_die(request, entity) for entity in entities])
+    die_statuses = set([edit_object_or_die(request, entity) for entity in entities]) #TODO: use genexpr instead of list comprehension
 
+    #TODO: odd code...
     if die_statuses - set([None]):
         die_status = die_statuses.pop()
         while die_status is None and die_statuses:
@@ -278,10 +287,9 @@ def add_relations_bulk(request, model_ct_id, ids):
                         'title': u'Ajout multiple de relation(s)',
                        },
                        is_valid=form.is_valid(),
-                       reload = False,
-                       delegate_reload = True,
+                       reload=False,
+                       delegate_reload=True,
                        context_instance=RequestContext(request))
-    
 
 @login_required
 def delete(request):
@@ -327,7 +335,7 @@ def add_relation_from_predicate_n_entity(request, predicate_id, subject_id, obje
     }
 
     #TODo: only one query ??
-    pklist = Relation.objects.filter(type__id=predicate_id, subject_entity__id=subject_id).values_list('object_entity_id')
+    pklist = Relation.objects.filter(type__id=predicate_id, subject_entity__id=subject_id).values_list('object_entity_id') #TODO: can remove the '__id'
     extra_q = ~Q(pk__in=pklist)
 
     return list_view_popup_from_widget(request, object_ct_id, o2m, extra_dict=template_dict, extra_q=extra_q)
@@ -378,8 +386,7 @@ def handle_relation_from_predicate_n_entity(request):
 
     return HttpResponse(",".join(return_msg), status=status)
 
-
-
+#TODO: use jsonify
 @login_required
 def get_predicates_choices_4_ct(request):
     POST = request.POST

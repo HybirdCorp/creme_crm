@@ -28,22 +28,20 @@ from persons.models import Contact
 
 from products.models import Product, Service
 
-from billing.models import Quote, Invoice, SalesOrder, ProductLine, ServiceLine
+from billing.models import Quote, Invoice, SalesOrder
 
-from constants import (REL_OBJ_LINKED_CONTACT,
-                       REL_OBJ_LINKED_PRODUCT, REL_OBJ_LINKED_SERVICE,
-                       REL_OBJ_RESPONSIBLE,
-                       REL_OBJ_LINKED_QUOTE, REL_OBJ_LINKED_INVOICE, REL_OBJ_LINKED_SALESORDER)
+from constants import *
+
 
 __all__ = ['linked_contacts_block', 'linked_products_block', 'linked_services_block',
-           'responsibles_block', 'quotes_block', 'sales_orders_block', 'invoices_block',
-           'linked_product_lines_block', 'linked_service_lines_block']
+           'responsibles_block', 'quotes_block', 'sales_orders_block', 'invoices_block']
 
 _contact_ct_id = None
 
 class LinkedContactsBlock(QuerysetBlock):
     id_           = QuerysetBlock.generate_id('opportunities', 'linked_contacts')
     dependencies  = (Relation,) #Contact
+    relation_type_deps = (REL_OBJ_LINKED_CONTACT, )
     verbose_name  = _(u'Contact liés')
     template_name = 'opportunities/templatetags/block_contacts.html'
 
@@ -64,6 +62,7 @@ class LinkedContactsBlock(QuerysetBlock):
 class LinkedProductsBlock(QuerysetBlock):
     id_           = QuerysetBlock.generate_id('opportunities', 'linked_products')
     dependencies  = (Relation,)
+    relation_type_deps = (REL_OBJ_LINKED_PRODUCT, )
     verbose_name  = _(u'Produits liés')
     template_name = 'opportunities/templatetags/block_products.html'
 
@@ -87,6 +86,7 @@ class LinkedProductsBlock(QuerysetBlock):
 class LinkedServicesBlock(QuerysetBlock):
     id_           = QuerysetBlock.generate_id('opportunities', 'linked_services')
     dependencies  = (Relation,)
+    relation_type_deps = (REL_OBJ_LINKED_SERVICE, )
     verbose_name  = _(u'Services liés')
     template_name = 'opportunities/templatetags/block_services.html'
 
@@ -110,6 +110,7 @@ class LinkedServicesBlock(QuerysetBlock):
 class ResponsiblesBlock(QuerysetBlock):
     id_           = QuerysetBlock.generate_id('opportunities', 'responsibles')
     dependencies  = (Relation,)
+    relation_type_deps = (REL_OBJ_RESPONSIBLE, )
     verbose_name  = _(u'Responsables')
     template_name = 'opportunities/templatetags/block_responsibles.html'
 
@@ -131,7 +132,8 @@ class ResponsiblesBlock(QuerysetBlock):
 class QuotesBlock(QuerysetBlock):
     id_           = QuerysetBlock.generate_id('opportunities', 'quotes')
     dependencies  = (Relation,)
-    verbose_name  = _(u'Devis')
+    relation_type_deps = (REL_OBJ_LINKED_QUOTE, )
+    verbose_name  = _(u"Devis liés à l'opportunité")
     template_name = 'opportunities/templatetags/block_quotes.html'
 
     def __init__(self, *args, **kwargs):
@@ -156,7 +158,8 @@ class QuotesBlock(QuerysetBlock):
 class SalesOrdersBlock(QuerysetBlock):
     id_           = QuerysetBlock.generate_id('opportunities', 'sales_orders')
     dependencies  = (Relation,)
-    verbose_name  = _(u'Bons de commande')
+    relation_type_deps = (REL_OBJ_LINKED_SALESORDER, )
+    verbose_name  = _(u"Bons de commande liés à l'opportunité")
     template_name = 'opportunities/templatetags/block_sales_orders.html'
 
     def __init__(self, *args, **kwargs):
@@ -181,7 +184,8 @@ class SalesOrdersBlock(QuerysetBlock):
 class InvoicesBlock(QuerysetBlock):
     id_           = QuerysetBlock.generate_id('opportunities', 'invoices')
     dependencies  = (Relation,)
-    verbose_name  = _(u'Factures')
+    relation_type_deps = (REL_OBJ_LINKED_INVOICE, )
+    verbose_name  = _(u"Factures liées à l'opportunité")
     template_name = 'opportunities/templatetags/block_invoices.html'
 
     def __init__(self, *args, **kwargs):
@@ -202,38 +206,10 @@ class InvoicesBlock(QuerysetBlock):
                                                             ct_id=self._invoice_ct_id))
 
 
-class LinkedProductLinesBlock(QuerysetBlock):
-    id_           = QuerysetBlock.generate_id('opportunities', 'linked_product_lines')
-    dependencies  = (ProductLine,)
-    verbose_name  = _(u'Produits liés')
-    template_name = 'billing/templatetags/block_product_line.html'
-
-    def detailview_display(self, context):
-        pk = context['object'].pk
-        return self._render(self.get_block_template_context(context, ProductLine.objects.filter(document=pk),
-                                                            update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, pk),
-                                                            ))
-
-
-class LinkedServiceLinesBlock(QuerysetBlock):
-    id_           = QuerysetBlock.generate_id('opportunities', 'linked_service_lines')
-    dependencies  = (ServiceLine,)
-    verbose_name  = _(u'Services liés')
-    template_name = 'billing/templatetags/block_service_line.html'
-
-    def detailview_display(self, context):
-        pk = context['object'].pk
-        return self._render(self.get_block_template_context(context, ServiceLine.objects.filter(document=pk),
-                                                            update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, pk),
-                                                            ))
-
-
-linked_contacts_block      = LinkedContactsBlock()
-linked_products_block      = LinkedProductsBlock()
-linked_services_block      = LinkedServicesBlock()
-responsibles_block         = ResponsiblesBlock()
-quotes_block               = QuotesBlock()
-sales_orders_block         = SalesOrdersBlock()
-invoices_block             = InvoicesBlock()
-linked_product_lines_block = LinkedProductLinesBlock()
-linked_service_lines_block = LinkedServiceLinesBlock()
+linked_contacts_block = LinkedContactsBlock()
+linked_products_block = LinkedProductsBlock()
+linked_services_block = LinkedServicesBlock()
+responsibles_block    = ResponsiblesBlock()
+quotes_block          = QuotesBlock()
+sales_orders_block    = SalesOrdersBlock()
+invoices_block        = InvoicesBlock()
