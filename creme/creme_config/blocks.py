@@ -134,19 +134,12 @@ class CustomFieldsBlock(QuerysetBlock):
                                                             update_url='/creme_config/custom_fields/%s/reload/' % ct.id,
                                                             ct=ct))
 
-    #def detailview_ajax(self, request, ct_id):
-        #ct = ContentType.objects.get_for_id(ct_id) #get_ct_or_404() ??
-        #return super(CustomFieldsBlock, self).detailview_ajax(request, content_type=ct)
 
     #TODO: factorise ?? (see emails_block/sms_block) move code to view ??
     @jsonify
     def detailview_ajax(self, request, ct_id):
-        #TODO: use RequestContext
-        context = {
-                'request':              request,
-                'content_type':         ContentType.objects.get_for_id(ct_id), #get_ct_or_404() ??,
-                BlocksManager.var_name: BlocksManager(),
-            }
+        context = RequestContext(request)
+        context['content_type'] = ContentType.objects.get_for_id(ct_id) #get_ct_or_404() ??
 
         return [(self.id_, self.detailview_display(context))]
 
