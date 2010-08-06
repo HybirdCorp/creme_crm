@@ -18,28 +18,18 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.utils.translation import ugettext_lazy as _
+from django.template.loader import render_to_string
+from base import ReportBackend
 
-from creme_core.registry import creme_registry
-from creme_core.gui.menu import creme_menu
-from creme_core.gui.block import block_registry
+class HtmlReportBackend(ReportBackend):
 
-from reports2.backends import HtmlReportBackend
-from reports2.models import Report2 as Report, report_prefix_url
-from reports2.blocks import report_fields_block
+    def __init__(self, report, context_instance, template="reports2/backends/html_report.html" ):
+        super(HtmlReportBackend, self).__init__(report, template)
+        self.context_instance = context_instance
 
-report_app = Report._meta.app_label
+    def render(self):
+        return render_to_string(self.template, {'data' : self.report.fetch_all_lines()}, context_instance=self.context_instance)
 
+    def render_to_response(self):
+        pass
 
-creme_registry.register_app(report_app, _(u'Rapports'), report_prefix_url)
-creme_registry.register_entity_models(Report)
-
-#creme_registry.register('reports2-backends', {'html' : HtmlReportBackend})
-creme_registry.register('reports2-backend-html', HtmlReportBackend)
-
-creme_menu.register_app(report_app, '%s/' % report_prefix_url, 'Rapports')
-reg_menu = creme_menu.register_menu
-reg_menu(report_app, '%s/reports' % report_prefix_url,    'Liste des rapports générés')
-reg_menu(report_app, '%s/report/add' % report_prefix_url, 'Créer un rapport')
-
-block_registry.register(report_fields_block)
