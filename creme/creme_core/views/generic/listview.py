@@ -34,7 +34,7 @@ from django.utils.encoding import smart_str
 from django.contrib.auth.decorators import login_required
 from django.contrib.contenttypes.models import ContentType
 
-from creme_core.models import CremeEntity, Filter, ListViewState, CustomFieldValue
+from creme_core.models import CremeEntity, Filter, ListViewState
 from creme_core.models.header_filter import HeaderFilterList, HeaderFilterItem, HeaderFilter, HFI_FIELD, HFI_RELATION, HFI_FUNCTION, HFI_CUSTOM
 from creme_core.gui.last_viewed import change_page_for_last_item_viewed
 from creme_core.entities_access.permissions import user_has_create_permission

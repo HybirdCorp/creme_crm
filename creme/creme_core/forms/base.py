@@ -27,7 +27,8 @@ from django.utils.datastructures import SortedDict as OrderedDict #use python2.6
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 
-from creme_core.models import CremeEntity, CustomField, CustomFieldValue, CustomFieldEnumValue
+from creme_core.models import CremeEntity, CustomField
+
 
 __all__ = ('FieldBlockManager', 'CremeForm', 'CremeModelForm', 'CremeModelWithUserForm', 'CremeEntityForm')
 
@@ -160,11 +161,10 @@ class CremeEntityForm(CremeModelWithUserForm):
             if custom_value:
                 if not value:
                     custom_value.delete()
-                elif custom_value.set_value(value):
-                    custom_value.save()
+                else:
+                    custom_value.set_value_n_save(value)
             elif value:
                 custom_value = custom_field.get_value_class()(custom_field=custom_field, entity=instance)
-                custom_value.set_value(value)
-                custom_value.save()
+                custom_value.set_value_n_save(value)
 
         return instance

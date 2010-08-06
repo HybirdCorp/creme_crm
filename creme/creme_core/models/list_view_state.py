@@ -221,7 +221,7 @@ class ListViewState(object):
                 cf, pattern, value = searches[0]
                 related_name = cf.get_value_class().get_related_name()
 
-                if cf.field_type == CustomField.ENUM:
+                if cf.field_type in (CustomField.ENUM, CustomField.MULTI_ENUM):
                     value = CustomFieldEnumValue.objects.get(custom_field=cf, value=value[0]).id
 
                 query &= Q(**{
@@ -231,8 +231,12 @@ class ListViewState(object):
             else:
                 for cf, pattern, value in searches:
                     pattern = pattern.partition('__')[2] #remove 'tableprefix__'
+
+                    if field_type in (CustomField.ENUM, CustomField.MULTI_ENUM):
+                        value = CustomFieldEnumValue.objects.get(custom_field=cf, value=value[0]).id #TODO: group the queries on CustomFieldEnumValue
+
                     kwargs = {str(_map_patterns(pattern)): _get_value_for_query(pattern, value)}
-                    pks = cf.get_value_class().objects.filter(custom_field=cf, **kwargs).values_list('entity_id', flat=True)
-                    query &= Q(pk__in=pks)
+
+                    query &= Q(pk__in=cf.get_value_class().objects.filter(custom_field=cf, **kwargs).values_list('entity_id', flat=True))
 
         return query
