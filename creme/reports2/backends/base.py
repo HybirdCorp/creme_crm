@@ -18,15 +18,15 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.template import Library
+class ReportBackend(object):
 
-from reports2.blocks import report_fields_block
+    def __init__(self, report, template):
+        self.report   = report
+        self.template = template
 
-register = Library()
+    def render(self):
+        raise NotImplementedError("Define it in your subclass")
 
-#TODO: delete this file !!!
-
-#@register.inclusion_tag('creme_core/templatetags/registered_blocks.html', takes_context=True)
-#def get_report_fields(context):
-    #return {'blocks': [report_fields_block.detailview_display(context)]}
+    def render_to_response(self):
+        raise NotImplementedError("Define it in your subclass")
 

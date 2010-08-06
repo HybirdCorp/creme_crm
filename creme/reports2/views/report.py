@@ -31,6 +31,7 @@ from creme_core.views.generic import add_entity, view_entity_with_template, list
 from creme_core.views.generic.edit import edit_entity
 from creme_core.utils.meta import get_model_field_infos
 from creme_core.utils import get_ct_or_404
+from creme_core.registry import creme_registry
 
 #from reports2.blocks import report_fields_block
 from reports2.models import Report2 as Report, report_prefix_url, report_template_dir, Field
@@ -50,9 +51,6 @@ def add(request):
     }
     return add_entity(request, CreateForm, template="%s/add_report.html" % report_template_dir, extra_template_dict=tpl_dict)
 
-@login_required
-@get_view_or_die(report_app)
-@edit_view_or_die(report_ct, None, report_app)
 def edit(request, report_id):
     return edit_entity(request, report_id, Report, EditForm, report_app)
 
@@ -194,9 +192,14 @@ def preview(request, report_id):
     report = get_object_or_404(Report, pk=report_id)
     model = report.ct.model_class()
 
-    results = []
+#    results = report.fetch()
 #    for field in report.columns.all().order_by('order'):
 
+    html_backend = creme_registry.get('reports2-backend-html')
+
+    req_ctx = RequestContext(request)
+
+    results = html_backend(report, context_instance=req_ctx)
 
     return render_to_response("%s/preview_report.html" % report_template_dir,
                               {
@@ -204,7 +207,28 @@ def preview(request, report_id):
                                 'results' : results,
                                 'entities' : model.objects.all(),
                               },
-                              context_instance=RequestContext(request))
+                              context_instance=req_ctx)
 
+@login_required
+@get_view_or_die(report_app)
+def set_selected(request):
+    POST = request.POST
+    report   = get_object_or_404(Report, pk=POST.get('report_id'))
+    field    = get_object_or_404(Field,  pk=POST.get('field_id'))
 
+    try:
+        checked  = int(POST.get('checked', 0))
+    except ValueError:
+        checked  = 0
+    checked  = bool(checked)
 
+    #Ensure all other fields are un-selected
+    for column in report.columns.all():
+        column.selected = False
+        column.save()
+
+    if checked:
+        field.selected = True
+        field.save()
+
+    return HttpResponse("", status=200, mimetype="text/javascript")
