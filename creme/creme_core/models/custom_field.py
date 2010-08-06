@@ -20,7 +20,7 @@
 
 from collections import defaultdict
 
-from django.db.models import ForeignKey, CharField, PositiveSmallIntegerField, IntegerField, DecimalField, DateTimeField, BooleanField
+from django.db.models import ForeignKey, CharField, PositiveSmallIntegerField, IntegerField, DecimalField, DateTimeField, BooleanField, ManyToManyField
 from django import forms
 from django.utils.translation import ugettext, ugettext_lazy as _
 from django.utils.datastructures import SortedDict as OrderedDict #use python2.6 OrderedDict later.....
@@ -30,17 +30,20 @@ from base import CremeModel
 from entity import CremeEntity
 
 
-__all__ = ('CustomField', 'CustomFieldValue', 'CustomFieldString', 'CustomFieldInteger',
-           'CustomFieldFloat', 'CustomFieldDateTime', 'CustomFieldBoolean',  'CustomFieldEnumValue')
+__all__ = ('CustomField', 'CustomFieldValue',
+           'CustomFieldInteger', 'CustomFieldFloat', 'CustomFieldBoolean',
+           'CustomFieldString', 'CustomFieldDateTime',
+           'CustomFieldEnumValue', 'CustomFieldEnum', 'CustomFieldMultiEnum')
 
 
 class CustomField(CremeModel):
-    INT   = 1
-    FLOAT = 2
-    BOOL  = 3
-    STR   = 10
-    DATE  = 20
-    ENUM  = 100
+    INT         = 1
+    FLOAT       = 2
+    BOOL        = 3
+    STR         = 10
+    DATE        = 20
+    ENUM        = 100
+    MULTI_ENUM  = 101
 
     name          = CharField(_(u'Nom du champ'), max_length=100)
     content_type  = ForeignKey(ContentType, verbose_name=_(u'Resource associée'))
@@ -86,19 +89,7 @@ class CustomField(CremeModel):
         return _TABLES[self.field_type]
 
     def get_formfield(self, custom_value):
-        field =  self.get_value_class().form_field(label=self.name, required=False)
-
-        if self.field_type == CustomField.ENUM: #TODO: move into a CustomFieldEnum method ???
-            choices = [('', '-------')]
-            choices += CustomFieldEnumValue.objects.filter(custom_field=self).values_list('id', 'value')
-            field.choices = choices
-
-            if custom_value:
-                field.initial = custom_value.value_id
-        elif custom_value:
-            field.initial = custom_value.value
-
-        return field
+        return self.get_value_class().get_formfield(self, custom_value)
 
     def get_pretty_value(self, entity_id):
         """Return unicode object containing the human readable value of this custom field for an entity
@@ -126,9 +117,13 @@ class CustomField(CremeModel):
 
         return cvalues_map
 
+
 class CustomFieldValue(CremeModel):
     custom_field = ForeignKey(CustomField)
     entity       = ForeignKey(CremeEntity)
+    #value       = FoobarField()  --> implement in inherited classes
+
+    form_field = forms.Field #overload meeee
 
     class Meta:
         abstract = True
@@ -136,34 +131,12 @@ class CustomFieldValue(CremeModel):
     def __unicode__(self):
         return unicode(self.value)
 
-    def set_value(self, value):
-        if self.value != value:
-            self.value = value
-            return True
-
-        return False
-
     @classmethod
     def _get_4_cfields(cls, cfields):
         """Retrieve all custom values for a list of custom fields with the same type.
         Trick: overload me to optimise the query (eg: use a select_related())
         """
         return cls.objects.filter(custom_field__in=cfields)
-
-    #@staticmethod
-    #def get_pretty_value(custom_field_id, entity_id):
-        #"""Return unicode object containing the human readable value of a custom field for an entity
-        #It manages CustomField which type is ENUM.
-        #"""
-        #output = u''
-
-        #cf = CustomField.objects.get(pk=custom_field_id) #TODO: don't retrieve each time !!!!!
-        #cf_values = cf.get_value_class().objects.filter(custom_field=custom_field_id, entity=entity_id)
-
-        #if cf_values:
-            #output = unicode(cf_values[0])
-
-        #return output
 
     @classmethod
     def get_related_name(cls):
@@ -177,6 +150,28 @@ class CustomFieldValue(CremeModel):
         for cf_type in cf_types:
             for cvalue in _TABLES[cf_type].objects.filter(entity=entity):
                 cvalue.delete()
+
+    @staticmethod
+    def _build_formfield(custom_field, formfield):
+        pass
+
+    def _set_formfield_value(self, field):
+        field.initial = self.value
+
+    @classmethod
+    def get_formfield(cls, custom_field, custom_value):
+        field = cls.form_field(label=custom_field.name, required=False)
+        cls._build_formfield(custom_field, field)
+
+        if custom_value:
+            custom_value._set_formfield_value(field)
+
+        return field
+
+    def set_value_n_save(self, value):
+        if self.value != value:
+            self.value = value
+            self.save()
 
 
 class CustomFieldString(CustomFieldValue):
@@ -263,20 +258,63 @@ class CustomFieldEnum(CustomFieldValue):
     def _get_4_cfields(cls, cfields):
         return cls.objects.filter(custom_field__in=cfields).select_related('value')
 
-    def set_value(self, value):
+    @staticmethod
+    def _build_formfield(custom_field, formfield):
+        choices = [('', '-------')]
+        choices += CustomFieldEnumValue.objects.filter(custom_field=custom_field).values_list('id', 'value')
+        formfield.choices = choices
+
+    def _set_formfield_value(self, field):
+        field.initial = self.value_id
+
+    def set_value_n_save(self, value):
         value = int(value)
         if self.value_id != value:
             self.value_id = value
-            return True
+            self.save()
 
-        return False
+
+class CustomFieldMultiEnum(CustomFieldValue):
+    value = ManyToManyField(CustomFieldEnumValue)
+
+    verbose_name = _(u'Liste de choix (multi sélection)')
+    form_field   = forms.MultipleChoiceField
+
+    class Meta:
+        app_label = 'creme_core'
+
+    def __unicode__(self):
+        #output = ['<ul>']
+        #output.extend(u'<li>%s</li>' % val for val in self.value.all())
+        #output.append('</ul>')
+        #return u''.join(output)
+        return u' / '.join(unicode(val) for val in self.value.all())
+
+    @classmethod
+    def _get_4_cfields(cls, cfields):
+        #return cls.objects.filter(custom_field__in=cfields).select_related('value')
+        return cls.objects.filter(custom_field__in=cfields) #select_related('value') useless no ?
+
+    @staticmethod
+    def _build_formfield(custom_field, formfield):
+        formfield.choices = CustomFieldEnumValue.objects.filter(custom_field=custom_field).values_list('id', 'value')
+
+    def _set_formfield_value(self, field):
+        field.initial = self.value.all().values_list('id', flat=True)
+
+    def set_value_n_save(self, value):
+        if not self.pk:
+            self.save() #M2M field need a pk
+
+        self.value = value
 
 
 _TABLES = OrderedDict([
-    (CustomField.INT,    CustomFieldInteger),
-    (CustomField.FLOAT,  CustomFieldFloat),
-    (CustomField.BOOL,   CustomFieldBoolean),
-    (CustomField.STR,    CustomFieldString),
-    (CustomField.DATE,   CustomFieldDateTime),
-    (CustomField.ENUM,   CustomFieldEnum),
+    (CustomField.INT,        CustomFieldInteger),
+    (CustomField.FLOAT,      CustomFieldFloat),
+    (CustomField.BOOL,       CustomFieldBoolean),
+    (CustomField.STR,        CustomFieldString),
+    (CustomField.DATE,       CustomFieldDateTime),
+    (CustomField.ENUM,       CustomFieldEnum),
+    (CustomField.MULTI_ENUM, CustomFieldMultiEnum),
 ])

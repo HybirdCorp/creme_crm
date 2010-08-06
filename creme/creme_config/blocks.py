@@ -134,7 +134,6 @@ class CustomFieldsBlock(QuerysetBlock):
                                                             update_url='/creme_config/custom_fields/%s/reload/' % ct.id,
                                                             ct=ct))
 
-
     #TODO: factorise ?? (see emails_block/sms_block) move code to view ??
     @jsonify
     def detailview_ajax(self, request, ct_id):

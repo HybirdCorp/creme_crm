@@ -42,8 +42,8 @@ class CustomFieldsBaseForm(CremeModelForm):
     def clean(self):
         cdata = self.cleaned_data
 
-        if cdata['field_type'] == CustomField.ENUM and not cdata['enum_values'].strip():
-            raise ValidationError(_(u'La liste de choix ne doit pas être vide si vous choisissez le type "Liste de choix"'))
+        if cdata['field_type'] in (CustomField.ENUM, CustomField.MULTI_ENUM) and not cdata['enum_values'].strip():
+            raise ValidationError(_(u'La liste de choix ne doit pas être vide si vous choisissez un type "Liste de choix"'))
 
         return cdata
 
@@ -52,7 +52,7 @@ class CustomFieldsBaseForm(CremeModelForm):
 
         cleaned_data = self.cleaned_data
 
-        if cleaned_data['field_type'] == CustomField.ENUM:
+        if cleaned_data['field_type'] in (CustomField.ENUM, CustomField.MULTI_ENUM):
             create_enum_value = CustomFieldEnumValue.objects.create
             cfield = self.instance
 
@@ -93,7 +93,7 @@ class CustomFieldsEditForm(CremeModelForm):
     def __init__(self, *args, **kwargs):
         super(CustomFieldsEditForm, self).__init__(*args, **kwargs)
 
-        if self.instance.field_type == CustomField.ENUM:
+        if self.instance.field_type in (CustomField.ENUM, CustomField.MULTI_ENUM):
             self._enum_values = CustomFieldEnumValue.objects.filter(custom_field=self.instance)
 
             fields = self.fields
@@ -109,7 +109,7 @@ class CustomFieldsEditForm(CremeModelForm):
 
         cfield = self.instance
 
-        if cfield.field_type == CustomField.ENUM:
+        if cfield.field_type in (CustomField.ENUM, CustomField.MULTI_ENUM):
             cleaned_data = self.cleaned_data
 
             for cfev, new_value in izip(self._enum_values, cleaned_data['old_choices']):

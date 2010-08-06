@@ -161,7 +161,7 @@ class CremeEntity(CremeAbstractEntity):
 
     #TODO: property + cache ???
     def get_custom_fields(self):
-        return CustomField.get_custom_fields_n_values(self)
+        return CustomField.get_custom_fields_n_values(self) #TODO: use instead other function cache aware (to factorise code)
 
     #TODO: Improve ?
     def get_properties(self):

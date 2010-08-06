@@ -143,7 +143,7 @@ class HeaderFilterForm(CremeModelForm):
                 pattern = "%s__value__range"
             elif cfield.field_type == CustomField.BOOL:
                 pattern = "%s__value__creme-boolean"
-            elif cfield.field_type == CustomField.ENUM:
+            elif cfield.field_type in (CustomField.ENUM, CustomField.MULTI_ENUM):
                 pattern = "%s__value__exact"
             else:
                 pattern = "%s__value__icontains"
