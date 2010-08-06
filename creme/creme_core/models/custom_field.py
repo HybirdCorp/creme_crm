@@ -101,7 +101,7 @@ class CustomField(CremeModel):
         return unicode(cf_values[0]) if cf_values else u''
 
     @staticmethod
-    def get_custom_values_map(custom_fields):
+    def get_custom_values_map(entities, custom_fields):
         """
         @return { Entity -> { CustomField's id -> CustomValue } }
         """
@@ -110,9 +110,10 @@ class CustomField(CremeModel):
             cfield_map[cfield.field_type].append(cfield)
 
         cvalues_map = defaultdict(lambda: defaultdict(list))
+        entities = [e.id for e in entities] #NB: 'list(entities)' ==> made strangely a query for every entity ;(
 
         for field_type, cfields_list in cfield_map.iteritems():
-            for cvalue in _TABLES[field_type]._get_4_cfields(cfields_list):
+            for cvalue in _TABLES[field_type]._get_4_entities(entities, cfields_list):
                 cvalues_map[cvalue.entity_id][cvalue.custom_field_id] = cvalue
 
         return cvalues_map
@@ -132,11 +133,11 @@ class CustomFieldValue(CremeModel):
         return unicode(self.value)
 
     @classmethod
-    def _get_4_cfields(cls, cfields):
+    def _get_4_entities(cls, entities, cfields):
         """Retrieve all custom values for a list of custom fields with the same type.
         Trick: overload me to optimise the query (eg: use a select_related())
         """
-        return cls.objects.filter(custom_field__in=cfields)
+        return cls.objects.filter(custom_field__in=cfields, entity__in=entities)
 
     @classmethod
     def get_related_name(cls):
@@ -255,8 +256,8 @@ class CustomFieldEnum(CustomFieldValue):
         app_label = 'creme_core'
 
     @classmethod
-    def _get_4_cfields(cls, cfields):
-        return cls.objects.filter(custom_field__in=cfields).select_related('value')
+    def _get_4_entities(cls, entities, cfields):
+        return cls.objects.filter(custom_field__in=cfields, entity__in=entities).select_related('value')
 
     @staticmethod
     def _build_formfield(custom_field, formfield):
@@ -280,6 +281,8 @@ class CustomFieldMultiEnum(CustomFieldValue):
     verbose_name = _(u'Liste de choix (multi sélection)')
     form_field   = forms.MultipleChoiceField
 
+    _enumvalues = None
+
     class Meta:
         app_label = 'creme_core'
 
@@ -288,16 +291,22 @@ class CustomFieldMultiEnum(CustomFieldValue):
         #output.extend(u'<li>%s</li>' % val for val in self.value.all())
         #output.append('</ul>')
         #return u''.join(output)
-        return u' / '.join(unicode(val) for val in self.value.all())
+        return u' / '.join(unicode(val) for val in self.get_enumvalues())
 
     @classmethod
-    def _get_4_cfields(cls, cfields):
-        #return cls.objects.filter(custom_field__in=cfields).select_related('value')
-        return cls.objects.filter(custom_field__in=cfields) #select_related('value') useless no ?
+    def _get_4_entities(cls, entities, cfields):
+        #TODO: for a m2m select_related() doesn't work -> can fill the enumvalues cache easily (must use BaseQuery.join in query.py ....)
+        return cls.objects.filter(custom_field__in=cfields, entity__in=entities)
 
     @staticmethod
     def _build_formfield(custom_field, formfield):
         formfield.choices = CustomFieldEnumValue.objects.filter(custom_field=custom_field).values_list('id', 'value')
+
+    def get_enumvalues(self):
+        if self._enumvalues is None:
+            self._enumvalues = self.value.all()
+
+        return self._enumvalues
 
     def _set_formfield_value(self, field):
         field.initial = self.value.all().values_list('id', flat=True)

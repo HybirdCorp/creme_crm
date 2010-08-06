@@ -143,7 +143,7 @@ class CremeEntity(CremeAbstractEntity):
 
     @staticmethod
     def populate_custom_values(entities, custom_fields):
-        cvalues_map = CustomField.get_custom_values_map(custom_fields)
+        cvalues_map = CustomField.get_custom_values_map(entities, custom_fields)
 
         for entity in entities:
             entity_id = entity.id
