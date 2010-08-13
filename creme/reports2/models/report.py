@@ -152,7 +152,7 @@ class Field(CremeModel):
             except AttributeError:
                 pass
             
-        return ""
+        return u""
 
 class Report2(CremeEntity):
     name    = CharField(_(u'Nom du rapport'), max_length=100)
@@ -200,8 +200,9 @@ class Report2(CremeEntity):
     @staticmethod
     def get_sub_dict(columns, entity, report_entities):
         dict = OrderedDict
-        
-        entity_dict = dict({'entity' : entity, 'values': dict()})
+
+#        entity_dict = dict({'entity' : entity, 'values': dict()})
+        entity_dict = dict([('entity', entity), ('values', dict())])
 
         for c in columns:
             if c.report:
@@ -209,8 +210,12 @@ class Report2(CremeEntity):
                     entity_dict['values'][c.name] = c.report.fetch(filter_entities_on_ct(entity.get_related_entities(c.name, True), c.report.ct))
                 elif c.type == HFI_RELATION  and not c.selected:
                     entity_dict['values'][c.name] = ', '.join(unicode(s) for s in c.report.fetch(filter_entities_on_ct(entity.get_related_entities(c.name, True), c.report.ct)))
-                else:
+#                else:
+#                    entity_dict['values'][c.name] = c.report.fetch(report_entities)
+                elif c.selected:
                     entity_dict['values'][c.name] = c.report.fetch(report_entities)
+                else:
+                    entity_dict['values'][c.name] = c.get_value(entity)
             else:
                 entity_dict['values'][c.name] = c.get_value(entity)
 
@@ -224,7 +229,7 @@ class Report2(CremeEntity):
         columns = self.columns.all()
 
         dict = OrderedDict
-
+        
         _cf_manager = CustomField.objects.filter(content_type=ct)
 
         #Have to apply report filter on scope here ?
@@ -237,7 +242,8 @@ class Report2(CremeEntity):
                 entities = model_manager.all()
 
         for entity in entities:
-            entity_dict = dict({'entity': entity, 'values': dict()})
+#            entity_dict = dict({'entity': entity, 'values': dict()})
+            entity_dict = dict([('entity', entity), ('values', dict())])
             entity_get_custom_value = entity.get_custom_value
 
             for column in columns:
@@ -262,7 +268,8 @@ class Report2(CremeEntity):
                             fk_entity = get_fk_entity(entity, column)
                             entity_dict['values'][column_name] = Report2.get_sub_dict(column_report_columns, fk_entity, [fk_entity])
 
-                            d = dict({'entity': fk_entity, 'values': {}})
+#                            d = dict({'entity': fk_entity, 'values': {}})
+                            d = dict([('entity', fk_entity), ('values', dict())])
                             
                             for c in column_report_columns:
                                 if c.report and c.selected:
@@ -277,7 +284,7 @@ class Report2(CremeEntity):
                             entity_dict['values'][column_name] = Report2.get_sub_dict(column_report_columns, entity, None)
                     else:
                         if ManyToManyField in fields_through:
-                            entity_dict['values'][column_name] = get_m2m_entities(entity, column, True)
+                            entity_dict['values'][column_name] = get_m2m_entities(entity, column)
                         else:
                             model_field, value = get_field_infos(entity, column_name)
                             entity_dict['values'][column_name] = unicode(value)#Maybe format map (i.e : datetime...)
@@ -303,15 +310,20 @@ class Report2(CremeEntity):
                         entity_dict['values'][column_name] = []
 
                         for relation_entity in relation_entities:
-                            d = dict({'entity' : relation_entity, 'values':{}})
+#                            d = dict({'entity' : relation_entity, 'values':{}})
+                            d = dict([('entity', relation_entity), ('values', dict())])
                             for c in column_report.columns.all():
                                 if c.report:
                                     if c.type == HFI_RELATION and c.selected:
                                         d['values'][c.name] = c.report.fetch(filter_entities_on_ct(relation_entity.get_related_entities(c.name, True), c.report.ct) )
                                     elif c.type == HFI_RELATION and not c.selected:
                                         d['values'][c.name] = ", ".join(unicode(s) for s in c.report.fetch(filter_entities_on_ct(relation_entity.get_related_entities(c.name, True), c.report.ct) ))
+#                                    else:
+#                                        d['values'][c.name] = c.report.fetch()
+                                    elif c.selected:
+                                        d['values'][c.name] = c.report.fetch([relation_entity])
                                     else:
-                                        d['values'][c.name] = c.report.fetch()
+                                        d['values'][c.name] = c.get_value(relation_entity)
                                 else:
                                     d['values'][c.name] = c.get_value(relation_entity)
                             entity_dict['values'][column_name].append(d)
@@ -328,7 +340,7 @@ class Report2(CremeEntity):
             res.append(entity_dict)
         return res
 
-    def fetch_all_lines(self):
+    def fetch_all_lines(self, set_keys=False):
         tree = self.fetch()
 
         lines = []
@@ -337,46 +349,56 @@ class Report2(CremeEntity):
             def __init__(self, tree):
                 self.entity = tree['entity']
                 self.values = tree['values']
+                
+                self.has_to_build = False
+                self.values_to_build = None
 
-            @staticmethod
-            def build_sub_line(lines, value, current_line, set_keys=False):
-                idx = current_line.index(None)
+            def set_simple_values(self, current_line, set_keys=False, iter_value=None):
 
-
-            def visit(self, lines, current_line, set_keys=False):
-
-                have_to_build = False
-                value_to_build = None
-
-                for i, (column, value) in enumerate(self.values.iteritems()):
-                    if issubclass(value.__class__, dict):
-                        ReportTree(value).visit(lines, current_line, set_keys=set_keys)
-
-                    elif isinstance(value, (list, tuple)):
-                        current_line.append(None)
-                        have_to_build = True
-                        value_to_build = value
-
+                for col_name, col_value in self.values.iteritems():
+                    if not col_value:
+                        val = {col_name: u''} if set_keys else u''
+                        current_line.append(val)
+                    elif issubclass(col_value.__class__, dict):#isinstance better ?
+                        for col, val in col_value['values'].iteritems():
+                            sub_val = {col: val} if set_keys else val
+                            current_line.append(sub_val)
+                    elif isinstance(col_value, (list, tuple)):
+#                        val = {col_name: iter_value} if set_keys else iter_value
+#                        current_line.append(val)
+                        self.has_to_build = True
+                        self.values_to_build = col_value
                     else:
-                        val = {column:value} if set_keys else value
+                        val = {col_name: col_value} if set_keys else col_value
                         current_line.append(val)
 
-                if have_to_build:
-                    for v in value_to_build:
-                        ReportTree.build_sub_line(lines, v, list(current_line), set_keys=False)
+            def set_iter_values(self, lines, current_line, set_keys):
+                for future_node in self.values_to_build:
+                    node = ReportTree(future_node)
+                    duplicate_line = list(current_line)
+                    node.visit(lines, duplicate_line, set_keys)
+
+            def visit(self, lines, current_line, set_keys=False):
+                self.set_simple_values(current_line, set_keys)
+
+                if self.has_to_build:
+                    self.set_iter_values(lines, current_line, set_keys)
                 else:
                     lines.append(current_line)
+                
 
-
-            def get_lines(self):
+            def get_lines(self, set_keys):
                 lines = []
-                self.visit(lines, [], set_keys=True)
+                self.visit(lines, [], set_keys=set_keys)
                 return lines
 
             def __repr__(self):
                 return "self.entity : %s, self.values : %s" % (self.entity, self.values)
 
         for node in tree:
-            lines.extend(ReportTree(node).get_lines())
+            lines.extend(ReportTree(node).get_lines(set_keys=set_keys))
 
         return lines
+
+    def get_children_fields_with_hierarchy(self):
+        return [c.get_children_fields_with_hierarchy() for c in self.columns.all()]

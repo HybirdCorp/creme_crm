@@ -50,3 +50,15 @@ def get_verbose_type(type_id):
 @register.inclusion_tag('reports2/templatetags/column_header.html')
 def get_column_header(column):
     return {'data' : column.get_children_fields_with_hierarchy()}
+
+@register.inclusion_tag('reports2/backends/html_column_value.html')
+def get_html_column_value(column, line, index, add_index=0):
+    return {'line' : line, 'column': column, 'index': index+add_index}
+
+#Here because of try except, but when this will be fixed in reports2, remove try except and move to creme_core_tags
+@register.filter(name="get_value_at")
+def get_value_at(iterable, index):
+    try:
+        return iterable[index]
+    except IndexError:
+        return u''
