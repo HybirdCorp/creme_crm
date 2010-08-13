@@ -205,7 +205,6 @@ def preview(request, report_id):
                               {
                                 'object'  : report,
                                 'results' : results,
-                                'entities' : model.objects.all(),
                               },
                               context_instance=req_ctx)
 

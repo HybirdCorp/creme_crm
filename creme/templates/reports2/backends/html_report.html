@@ -1,9 +1,39 @@
+{% load creme_core_tags %}
+{% load report_tags %}
+{% comment %}
 
-
-{% for d in data %}
+{% for line in lines %}
+<tr>
+    {% for val in line %}
+    <td>{{val}}</td>
+{% endfor %}
+</tr>
+{% endfor %}
+{% endcomment %}
+{# for line in backend.report.fetch_all_lines #}
+{% for line in lines %}
     <tr>
-        {% for val in d.values %}
-            <td></td>
+        {% for column in backend.report.get_children_fields_with_hierarchy %}
+            <td class="{% cycle "block_line_dark" "block_line_light" %}">
+                {% with forloop.counter0 as idx %}
+                {% with line|get_value_at:idx as value %}
+                    <table {% if column.children and column.field.selected %}style="border:1px solid #548295"{% endif %}>
+                        <tbody>
+                            <tr>
+                                {% if column.children and column.field.selected %}
+                                    {% for sub_column in column.children %}
+                                        <td class="{% cycle "block_line_dark" "block_line_light" %}">{% get_html_column_value sub_column line idx forloop.counter0 %}</td>
+                                    {% endfor %}
+                                {% else %}
+                                    {#line|get_value:column.field.name#}
+                                    <td class="{% cycle "block_line_dark" "block_line_light" %}">{{value}}</td>
+                                {% endif %}
+                            </tr>
+                        </tbody>
+                    </table>
+                {% endwith %}
+                {% endwith %}
+            </td>
         {% endfor %}
     </tr>
 {% endfor %}
