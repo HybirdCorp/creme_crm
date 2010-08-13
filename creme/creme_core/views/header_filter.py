@@ -21,7 +21,7 @@
 #from logging import debug
 
 from django.core import serializers
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect, Http404
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404, render_to_response
 from django.template.context import RequestContext
@@ -53,6 +53,9 @@ def add(request, content_type_id, extra_template_dict=None):
 @login_required
 def edit(request, header_filter_id):
     hf = get_object_or_404(HeaderFilter, pk=header_filter_id)
+
+    if not hf.is_custom:
+        raise Http404("Non editable HeaderFilter")  #TODO: 403 instead
 
     if request.POST:
         hf_form = HeaderFilterForm(request.POST, instance=hf)
@@ -93,7 +96,6 @@ def delete(request, header_filter_id, js=0):
         return HttpResponse(return_msg, mimetype="text/javascript", status=status)
 
     return HttpResponseRedirect(callback_url)
-
 
 @login_required
 def get_hfs_4_ct(request, content_type_id):

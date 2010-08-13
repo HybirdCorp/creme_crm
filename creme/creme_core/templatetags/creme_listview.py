@@ -46,7 +46,7 @@ def get_listview_headerfilters(context):
     hfilters = context['header_filters']
 
     context['select_values'] = [{'value': hfilter.id, 'text': hfilter.name} for hfilter in hfilters]
-    context['hfilter_id']    = hfilters.selected.id
+    context['hfilter']       = hfilters.selected
 
     return context
 

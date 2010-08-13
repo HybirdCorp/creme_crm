@@ -152,9 +152,7 @@ class HeaderFilterItem(Model):  #CremeModel ???
     relation_predicat     = ForeignKey(RelationType, blank=True, null=True) #TODO: rename to 'relation_type' ???  use 'name' to store pk instead ????
     relation_content_type = ForeignKey(ContentType, blank=True, null=True) #TODO: useful ??
 
-    def __init__(self, *args, **kwargs):
-        super(HeaderFilterItem, self).__init__(*args, **kwargs)
-        self._customfield = None
+    _customfield = None
 
     def __unicode__(self):
         return u"<HeaderFilterItem: order: %i, name: %s, title: %s>" % (self.order, self.name, self.title)
