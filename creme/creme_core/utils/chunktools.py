@@ -69,7 +69,7 @@ def iter_splitchunks(chunks, sep, filter):
 def iter_as_chunk(iterable, step):
     """Iterator that returns chunks from an iterable.
     @param chunks: iterator
-    @param step: chunks size     
+    @param step: chunks size
     """
     chunk = []
 
@@ -91,8 +91,8 @@ def iter_as_slices(iterable, step):
     index = 0;
 
     while index != -1:
-        chunk = iterable[index:index+step]
-        chunk_length = len(chunk) 
+        chunk = iterable[index:index + step]
+        chunk_length = len(chunk)
 
         index = index + step if chunk_length == step else -1
 
