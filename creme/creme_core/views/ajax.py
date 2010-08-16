@@ -116,16 +116,17 @@ def fieldHasNGetFK(request):
         return HttpResponse(JSONEncoder().encode(datas), mimetype="text/javascript")
     return HttpResponse('', mimetype="text/javascript", status=400)
 
+#TODO: use utils.jsonify ???
 @login_required
 def get_fields(request):
     """
         @Returns : Fields for a model [('field1', 'field1_verbose_name'),...]
     """
-    POST = request.POST
-    ct = get_ct_or_404(POST.get('ct_id'))
-    model = ct.model_class()
+    post_get = request.POST.get
+    model    = get_ct_or_404(post_get('ct_id')).model_class()
+
     try:
-        deep = int(POST.get('deep', 1))
+        deep = int(post_get('deep', 1))
     except ValueError:
         deep = 1
 
@@ -133,27 +134,24 @@ def get_fields(request):
 
     return HttpResponse(JSONEncoder().encode(fields), mimetype="text/javascript")
 
+#TODO: use utils.jsonify ???
 @login_required
 def get_custom_fields(request):
     """
         @Returns : Custom fields for a model [('cfield1_name', 'cfield1_name'),...]
     """
-    POST = request.POST
-    ct = get_ct_or_404(POST.get('ct_id'))
-
+    ct = get_ct_or_404(request.POST.get('ct_id'))
     fields = [(cf.name, cf.name) for cf in CustomField.objects.filter(content_type=ct)]
 
     return HttpResponse(JSONEncoder().encode(fields), mimetype="text/javascript")
 
+#TODO: use utils.jsonify ???
 @login_required
 def get_user_functions(request):
     """
         @Returns : User allowed functions for a model [('func_name', 'func_name'),...]
     """
-    POST = request.POST
-    ct = get_ct_or_404(POST.get('ct_id'))
-    users_allowed_func = ct.model_class().users_allowed_func
-
-    functions = [(f['name'], f['verbose_name']) for f in users_allowed_func]
+    ct = get_ct_or_404(request.POST.get('ct_id'))
+    functions = [(f['name'], f['verbose_name']) for f in ct.model_class().users_allowed_func]
 
     return HttpResponse(JSONEncoder().encode(functions), mimetype="text/javascript")

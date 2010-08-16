@@ -143,7 +143,7 @@ class CremeEntityForm(CremeModelWithUserForm):
         self._build_customfields()
 
     def _build_customfields(self):
-        self._customs = CustomField.get_custom_fields_n_values(self.instance)
+        self._customs = self.instance.get_custom_fields_n_values()
 
         fields = self.fields
 
