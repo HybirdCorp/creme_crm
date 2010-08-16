@@ -31,21 +31,29 @@
 
 
 {% block content %}
-    <div style="position:relative; width:100%; overflow-x: scroll;">
-        <table class="table_detail_view ui-corner-all" >
-            <thead>
-                <tr>
-                    <th colspan="{{object.columns.all|length}}">Aperçu</th>
-                </tr>
-            </thead>
-            <tbody class="collapsable">
-                <tr>
-                    {% for column in object.columns.all|order_by:"order" %}
-                        <th class="{% cycle "block_header_line_dark" "block_header_line_light" %}">{% get_column_header column %}</th>
-                    {% endfor %}
-                </tr>
-                {{results.render}}
-            </tbody>
-        </table>
-    </div>
+    {% with object.get_children_fields_flat as flat_columns %}
+        <div style="position:relative; width:100%; overflow-x: scroll;">
+            <table class="table_detail_view ui-corner-all" >
+                <thead>
+                    <tr>
+                        <th colspan="{{flat_columns|length}}">Aperçu</th>
+                    </tr>
+                </thead>
+                <tbody class="collapsable">
+                    <tr>
+                        {% comment %}
+                            <!--{% for column in object.columns.all|order_by:"order" %}
+                                <th class="{% cycle "block_header_line_dark" "block_header_line_light" %}">{% get_column_header column %}</th>
+                            {% endfor %}-->
+                        {% endcomment %}
+
+                        {% for column in flat_columns %}
+                            <th class="{% cycle "block_header_line_dark" "block_header_line_light" %}">{{column}}</th>
+                        {% endfor %}
+                    </tr>
+                    {{html_backend.render}}
+                </tbody>
+            </table>
+        </div>
+    {% endwith %}
 {% endblock %}

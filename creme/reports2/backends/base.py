@@ -20,9 +20,8 @@
 
 class ReportBackend(object):
 
-    def __init__(self, report, template):
+    def __init__(self, report):
         self.report   = report
-        self.template = template
 
     def render(self):
         raise NotImplementedError("Define it in your subclass")

@@ -266,6 +266,10 @@ def isiterable(iterable):
 def format(ustring, format_str):
     return format_str % ustring
 
+@register.filter(name="enumerate")
+def enumerate_iterable(iterable):
+    return enumerate(iterable)
+
 _templatize_re = compile_re(r'(.*?) as (\w+)')
 
 @register.tag(name="templatize")
