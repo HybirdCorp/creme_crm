@@ -134,7 +134,7 @@ class CremeEntity(CremeAbstractEntity):
                 entity._relations_map[relation_type_id] = relations_map[entity.id][relation_type_id]
                 debug(u'Fill relations cache id=%s type=%s', entity.id, relation_type_id)
 
-    def get_custom_value(self, custom_field): #TODO: factorise with get_custom_fields() ???
+    def get_custom_value(self, custom_field):
         cvalue = self._cvalues_map.get(custom_field.id)
 
         if cvalue is None:
@@ -163,9 +163,11 @@ class CremeEntity(CremeAbstractEntity):
         return u"""<a href="%s">Voir</a> | <a href="%s">Éditer</a> | <a href="%s" onclick="creme.utils.confirmDelete(event, this);">Effacer</a>""" \
                 % (self.get_absolute_url(), self.get_edit_absolute_url(), self.get_delete_absolute_url())
 
-    #TODO: property + cache ???
-    def get_custom_fields(self):
-        return CustomField.get_custom_fields_n_values(self) #TODO: use instead other function cache aware (to factorise code)
+    def get_custom_fields_n_values(self):
+        cfields = CustomField.objects.filter(content_type=self.entity_type_id) #TODO: in a staticmethod of CustomField ??
+        CremeEntity.populate_custom_values([self], cfields)
+
+        return [(cfield, self.get_custom_value(cfield)) for cfield in cfields]
 
     #TODO: Improve ?
     def get_properties(self):

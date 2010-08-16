@@ -70,21 +70,6 @@ class CustomField(CremeModel):
     def type_verbose_name(self):
         return _TABLES[self.field_type].verbose_name
 
-    @staticmethod
-    def get_custom_fields_n_values(entity):
-        cfields = CustomField.objects.filter(content_type=entity.entity_type)
-        cvalues = {} #key: custom_field.id  value: corresponding CustomFieldValue object
-        cfields_groups = defaultdict(list)
-
-        for cfield in cfields:
-            cfields_groups[cfield.field_type].append(cfield.id)
-
-        for field_type, cf_id_list in cfields_groups.iteritems():
-            for cfv in _TABLES[field_type].objects.filter(custom_field__in=cf_id_list, entity=entity.id):
-                cvalues[cfv.custom_field_id] = cfv
-
-        return [(cfield, cvalues.get(cfield.id, '')) for cfield in cfields]
-
     def get_value_class(self):
         return _TABLES[self.field_type]
 
