@@ -209,10 +209,10 @@ def get_m2m_entities(entity, column, get_value=False):
     """
     m2m_column, rest = _get_entity_column(entity, column.name, ManyToManyField)
     if get_value:
-        rest = '__'.join(rest)
+        rest = u'__'.join(rest)
         return [getattr(m, rest) for m in getattr(entity, m2m_column).all()]
     elif not column.selected:
-        return ', '.join(unicode(m) for m in getattr(entity, m2m_column).all())
+        return u', '.join(unicode(m) for m in getattr(entity, m2m_column).all())
 
     return getattr(entity, m2m_column).all()
 
