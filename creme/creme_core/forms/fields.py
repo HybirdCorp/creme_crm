@@ -18,6 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from collections import defaultdict
 import re
 from logging import debug
 
@@ -84,13 +85,11 @@ class RelatedEntitiesField(CharField):
 
     regex = re.compile('^(\([\w-]+,[\d]+,[\d]+\);)*$')
 
-    def __init__(self, relation_types=(REL_SUB_RELATED_TO, REL_SUB_HAS), use_ctype=False, *args, **kwargs):
+    def __init__(self, relation_types=(REL_SUB_RELATED_TO, REL_SUB_HAS), *args, **kwargs):
         """
         @param relation_types Sequence of RelationTypes' id if you want to narrow to these RelationTypes.
         """
         super(RelatedEntitiesField, self).__init__(*args, **kwargs)
-
-        self.use_ctype = use_ctype
         self.relation_types = relation_types
 
     def _set_relation_types(self, relation_types):
@@ -107,13 +106,23 @@ class RelatedEntitiesField(CharField):
         if not self.regex.match(value):
             raise ValidationError(self.error_messages['invalidformat'])
 
-        data = (entry.strip('()').split(',') for entry in value.split(';')[:-1])
         allowed_rtypes = set(rtype.id for rtype in self.relation_types)
 
-        if self.use_ctype:
-            return [(relationtype_pk, int(content_type_pk), int(pk)) for relationtype_pk, content_type_pk, pk in data if relationtype_pk in allowed_rtypes]
+        rawdata = [(relationtype_pk, int(content_type_pk), int(pk))
+                        for relationtype_pk, content_type_pk, pk in (entry.strip('()').split(',') for entry in value.split(';')[:-1])
+                            if relationtype_pk in allowed_rtypes]
 
-        return [(entry[0], int(entry[2])) for entry in data if entry[0] in allowed_rtypes]
+        ct_map = defaultdict(list)
+        for relationtype_id, ct_id, entity_id in rawdata:
+            ct_map[ct_id].append(entity_id)
+
+        entities = {}
+        get_ct   = ContentType.objects.get_for_id
+
+        for ct_id, entity_ids in ct_map.iteritems():
+            entities.update(get_ct(ct_id).model_class().objects.in_bulk(entity_ids))
+
+        return [(relationtype_id, entities[entity_id]) for relationtype_id, ct_id, entity_id in rawdata]
 
 
 class CommaMultiValueField(CharField): #TODO: Charfield and not Field ??!!
@@ -178,6 +187,7 @@ class _EntityField(CommaMultiValueField):
 
         return clean_ids
 
+    #TODO: attrs are better for html related properties ==> use setter on the widget directly (as 'choices' for ChoiceField)
     def widget_attrs(self, widget):
         if isinstance(widget, (ListViewWidget,)):
             return {'o2m': self.o2m, 'ct_id': ContentType.objects.get_for_model(self.model).id}
@@ -226,7 +236,6 @@ class MultiCremeEntityField(_EntityField):
     def __init__(self, model, separator=',', q_filter=None, *args, **kwargs):
         self.separator = separator
         self.model = model
-        #super(CommaMultiValueField, self).__init__(*args, **kwargs) #super(MultiCremeEntityField, self) ???
         super(MultiCremeEntityField, self).__init__(*args, **kwargs)
         self.q_filter = q_filter
 
