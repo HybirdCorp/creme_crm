@@ -18,28 +18,21 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from creme.creme_core.utils.queries import get_q_from_dict
 from logging import debug
-import csv
 
-from django.http import HttpResponse
-from django.db import models
-from django.db.models.fields import FieldDoesNotExist
 from django.db.models import Q
 from django.core.paginator import Paginator, InvalidPage, EmptyPage
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template.context import RequestContext
 from django.utils.simplejson import JSONDecoder
-from django.utils.encoding import smart_str
 from django.contrib.auth.decorators import login_required
 from django.contrib.contenttypes.models import ContentType
 
 from creme_core.models import CremeEntity, Filter, ListViewState
-from creme_core.models.header_filter import HeaderFilterList, HeaderFilterItem, HeaderFilter, HFI_FIELD, HFI_RELATION, HFI_FUNCTION, HFI_CUSTOM
+from creme_core.models.header_filter import HeaderFilterList
 from creme_core.gui.last_viewed import change_page_for_last_item_viewed
-from creme_core.entities_access.permissions import user_has_create_permission
 from creme_core.entities_access.filter_allowed_objects import filter_RUD_objects
-from creme_core.utils.meta import get_field_infos
+from creme_core.utils.queries import get_q_from_dict
 from popup import inner_popup
 
 
@@ -214,77 +207,3 @@ def list_view_popup_from_widget(request, ct_id, o2m, *args, **kwargs):
     response = list_view_popup(request, model, extra_dict=extra_dict, o2m=o2m, extra_q=extra_q, *args, **kwargs)
 
     return inner_popup(request, '', {}, is_valid=False, html=response._get_content(), context_instance=RequestContext(request))
-
-
-#TODO: optimise queries (with caches)
-@login_required
-def dl_listview_as_csv(request, ct_id):
-    ct    = get_object_or_404(ContentType, pk=ct_id)
-    model = ct.model_class()
-
-    response = HttpResponse(mimetype='text/csv')
-    response['Content-Disposition'] = 'attachment; filename="%s.csv"' % ct.model
-
-    #TODO: is it possible that session doesn't content the state (eg: url linked and open directly) ????
-    current_lvs = ListViewState.get_state(request, url=request.GET['list_url'])
-
-    #TODO: factorise (with list_view()) ?? in a ListViewState's method ???
-    columns = HeaderFilterItem.objects.filter(header_filter__id=current_lvs.header_filter_id).order_by('order') #TODO: use build_items()
-    current_lvs.handle_research(request, columns)
-
-    sort_order = current_lvs.sort_order or ''
-    sort_field = current_lvs.sort_field
-
-    if not sort_field:
-        try:  #'if model._meta.ordering' instead ????
-            sort_field = model._meta.ordering[0]
-        except IndexError:
-            sort_field = 'id'
-
-    q_is_deleted = Q(is_deleted=False) | Q(is_deleted=None)
-
-    if current_lvs.filter_id:
-        filter_ = Filter.objects.get(pk=current_lvs.filter_id)
-        entities = model.objects.filter(q_is_deleted & filter_.get_q())
-    else:
-        entities = model.objects.filter(q_is_deleted)
-
-    if current_lvs.extra_q:
-        entities = entities.filter(current_lvs.extra_q)
-
-    entities = entities.filter(current_lvs.get_q_with_research(model))
-    entities = filter_RUD_objects(request, entities).distinct().order_by("%s%s" % (sort_order, sort_field))
-
-    #TODO: move to a template ???
-    writer = csv.writer(response, delimiter=";")
-    writerow = writer.writerow
-
-    writerow([smart_str(column.title) for column in columns]) #doesn't accept generator expression... ;(
-
-    #TODO: iterate on entities by chunk + uses optimisation like in list_view (HeaderFilter.populate_entities) on these chunks
-    for entity in entities:
-        line = []
-
-        for column in columns:
-            #move to a HeaderFilterItem method ?????? (problen with relation --> several objects returned)
-            try:
-                type_ = column.type
-
-                if type_ == HFI_FIELD:
-                    res = smart_str(get_field_infos(entity, column.name)[1])
-                elif type_ == HFI_FUNCTION:
-                    res = smart_str(getattr(entity, column.name)())
-                elif type_ == HFI_RELATION:
-                    res = smart_str(u'/'.join(unicode(o) for o in entity.get_related_entities(column.relation_predicat_id, True)))
-                else:
-                    assert type_ == HFI_CUSTOM
-                    res = smart_str(entity.get_custom_value(column.get_customfield()))
-            except Exception, e:
-                debug('Exception in CSV export: %s', e)
-                res = ''
-
-            line.append(res)
-
-        writerow(line)
-
-    return response
