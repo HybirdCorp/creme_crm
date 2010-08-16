@@ -57,6 +57,7 @@ creme_core_patterns = patterns('creme_core.views',
     (r'^entity/json$',                              'entity.get_creme_entity_as_json'),
 
     (r'^list_view/import_csv/(?P<ct_id>\d+)$', 'csv_import.csv_import'),
+    (r'^list_view/dl_csv/(?P<ct_id>\d+)$',     'csv_export.dl_listview_as_csv'),
 
     # Popup helper
     (r'^nothing/$', 'nothing.get_nothing'),
@@ -75,8 +76,6 @@ creme_core_patterns = patterns('creme_core.views',
 creme_core_patterns += patterns('creme_core.views.generic',
     (r'^lv_popup/(?P<ct_id>\d+)/(?P<o2m>0|1)$', 'listview.list_view_popup_from_widget'),
     (r'^delete_js$',                            'delete.delete_entities_js_post'),
-
-    (r'^list_view/dl_csv/(?P<ct_id>\d+)$',      'listview.dl_listview_as_csv'),
 )
 
 urlpatterns = patterns('creme_core.views',
