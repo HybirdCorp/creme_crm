@@ -1,5 +1,8 @@
 <fieldset title="Filtrer les lignes de la table">
-    <legend> Filtrer </legend>
+    <legend>
+        <img border="0" src="{{MEDIA_URL}}images/filter_32.png" alt="Créer vue personnalisée" title="Créer vue personnalisée"/>
+        Filtres
+    </legend>
     <select name="filter" id="list_filter" onchange="$(this.form).list_view('getSubmit')(this);">
         <option value="">Tout</option>
         {% for filter in select_values %}
