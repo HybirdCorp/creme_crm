@@ -1,6 +1,9 @@
 {% with hfilter.id as hfilter_id %}
     <fieldset title="Afficher uniquement les colonnes désirées">
-        <legend> Vues </legend>
+        <legend>
+            <img border="0" src="{{MEDIA_URL}}images/telescope_32.png" alt="Créer vue personnalisée" title="Créer vue personnalisée"/>
+            Vues
+        </legend>
         <select name="hfilter" id="hfilter_list" onchange="$(this.form).list_view('getSubmit')(this);">
             {% for filter in select_values %}
                 <option value="{{filter.value}}" {% ifequal hfilter_id filter.value %} selected {% endifequal %}>
