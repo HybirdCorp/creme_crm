@@ -28,7 +28,14 @@ class HtmlReportBackend(ReportBackend):
         self.context_instance = context_instance
 
     def render(self):
-        return render_to_string(self.template, {'data' : self.report.fetch_all_lines()}, context_instance=self.context_instance)
+#        lines = []
+#        for line in self.report.fetch_all_lines(True):
+#            d = {}
+#            for val in line:
+#                d.update(val.items())
+#            lines.append(d)
+#        return render_to_string(self.template, {'backend': self, 'lines':lines}, context_instance=self.context_instance)
+        return render_to_string(self.template, {'backend': self, 'lines':self.report.fetch_all_lines()}, context_instance=self.context_instance)
 
     def render_to_response(self):
         pass

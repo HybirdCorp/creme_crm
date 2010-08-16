@@ -1,8 +1,8 @@
 {% load report_tags %}
-<table {% if data.children %}style="border:1px solid #548295"{% endif %}>
+<table {% if data.children and data.field.selected %}style="border:1px solid #548295"{% endif %}>
     <tbody>
-        <tr><th class="{% cycle "block_header_line_dark" "block_header_line_light" %}" colspan="{{data.children|length}}" align="center" >{{data.field}} {% if data.children %}(hérité de {{data.report}}){% endif %}</th></tr>
-        {% if data.children %}
+        <tr><th class="{% cycle "block_header_line_dark" "block_header_line_light" %}" colspan="{{data.children|length}}" align="center" >{{data.field}} {% if data.children and data.field.selected %}(hérité de {{data.report}}){% endif %}</th></tr>
+        {% if data.children and data.field.selected %}
             <tr>
             {% for sub_data in data.children %}
                 <th class="{% cycle "block_header_line_dark" "block_header_line_light" %}">{% get_column_header sub_data.field %}</th>
