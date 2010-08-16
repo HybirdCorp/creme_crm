@@ -1,23 +1,29 @@
 {% load creme_core_tags %}
 {% load report_tags %}
-{% comment %}
 
 {% for line in lines %}
-<tr>
-    {% for val in line %}
-    <td>{{val}}</td>
+    <tr>
+        {% for i, val in line|enumerate %}
+            {% ifequal i|mod:2 0 %}
+                <td class="block_line_dark">{{val}}&nbsp;</td>
+            {% endifequal %}
+            {% ifequal i|mod:2 1 %}
+                <td class="block_line_light">{{val}}&nbsp;</td>
+            {% endifequal %}
+        {% endfor %}
+    </tr>
 {% endfor %}
-</tr>
-{% endfor %}
-{% endcomment %}
-{# for line in backend.report.fetch_all_lines #}
+
+
+{% comment %}
+
 {% for line in lines %}
     <tr>
         {% for column in backend.report.get_children_fields_with_hierarchy %}
             <td class="{% cycle "block_line_dark" "block_line_light" %}">
                 {% with forloop.counter0 as idx %}
                 {% with line|get_value_at:idx as value %}
-                    <table {% if column.children and column.field.selected %}style="border:1px solid #548295"{% endif %}>
+                    <table {% if column.children and column.field.selected %}style="border:1px solid #548295; width:100%;"{% endif %}>
                         <tbody>
                             <tr>
                                 {% if column.children and column.field.selected %}
@@ -25,7 +31,6 @@
                                         <td class="{% cycle "block_line_dark" "block_line_light" %}">{% get_html_column_value sub_column line idx forloop.counter0 %}</td>
                                     {% endfor %}
                                 {% else %}
-                                    {#line|get_value:column.field.name#}
                                     <td class="{% cycle "block_line_dark" "block_line_light" %}">{{value}}</td>
                                 {% endif %}
                             </tr>
@@ -37,3 +42,7 @@
         {% endfor %}
     </tr>
 {% endfor %}
+
+{% endcomment %}
+
+
