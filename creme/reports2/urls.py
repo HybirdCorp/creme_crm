@@ -28,6 +28,7 @@ urlpatterns = patterns('reports2.views',
     (r'^report/edit/(?P<report_id>\d+)$',    'report.edit'),
     (r'^report/(?P<report_id>\d+)$',         'report.detailview'),
     (r'^report/(?P<report_id>\d+)/preview$', 'report.preview'),
+    (r'^report/(?P<report_id>\d+)/csv$',     'report.csv'),
 
     #Fields block
     #(r'^(?P<report_id>\d+)/fields_block/reload/$',                                               'report.reload_fields_block'),

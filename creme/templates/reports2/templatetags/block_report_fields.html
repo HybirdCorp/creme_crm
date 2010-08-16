@@ -101,12 +101,14 @@
                     </td>
                     <td class="{% cycle "block_line_dark" "block_line_light" %}">
                         {% ifequal HFI_FIELD column.type %}
-                            {% if column|is_field_is_linkable:object.ct %}
+                            {% if column|is_field_is_linkable:object.ct and column.report %}
                                 <input type="checkbox" name="selected" onclick="creme.reports.setSelected(this, '{{object.id}}', '{{column.pk}}', '{{update_url}}?base_url={{base_url}}');" {% if column.selected %} checked {% endif %}/>
                            {% endif %}
                         {% endifequal %}
                         {% ifequal HFI_RELATION column.type %}
-                            <input type="checkbox" name="selected" onclick="creme.reports.setSelected(this, '{{object.id}}', '{{column.pk}}', '{{update_url}}?base_url={{base_url}}');" {% if column.selected %} checked {% endif %}/>
+                            {% if column.report %}
+                                <input type="checkbox" name="selected" onclick="creme.reports.setSelected(this, '{{object.id}}', '{{column.pk}}', '{{update_url}}?base_url={{base_url}}');" {% if column.selected %} checked {% endif %}/>
+                            {% endif %}
                         {% endifequal %}
                     </td>
                 </tr>
