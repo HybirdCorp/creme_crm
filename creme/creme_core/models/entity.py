@@ -70,6 +70,10 @@ class CremeEntity(CremeAbstractEntity):
 
         return unicode(real_entity)
 
+    @staticmethod
+    def get_real_entity_by_id(pk):
+        return CremeEntity.objects.get(pk=pk).get_real_entity()
+
     def get_real_entity(self):
         return self._get_real_entity(CremeEntity)
 

@@ -29,14 +29,8 @@ from creme_core.forms.widgets import Label
 
 
 class RelationCreateForm(CremeForm):
-    relations = RelatedEntitiesField(label=_(u'Relations'), required=True, use_ctype=True)
+    relations = RelatedEntitiesField(label=_(u'Relations'))
 
-    #def __init__(self, subject, user_id, *args, **kwargs):
-        #super(RelationCreateForm, self).__init__(*args, **kwargs)
-        #self.subject = subject
-        #self.user_id = user_id
-
-        #self.fields['relations'].relation_types = RelationType.get_compatible_ones(subject.entity_type).values_list('id', flat=True)
     def __init__(self, subject, user_id, relations_types=None, *args, **kwargs):
         """
         @param relations_types Sequence of RelationTypes ids to narrow to these types ; or None that means all types compatible with the subject.
@@ -55,39 +49,29 @@ class RelationCreateForm(CremeForm):
             return self.cleaned_data
 
         cleaned_data = self.cleaned_data
-
-        # check existence of all selected predicates and entities
-        relations = set(cleaned_data.get('relations', []))
+        relations    = cleaned_data['relations']
 
         if not relations:
             raise ValidationError(_(u'Aucune relation'))
 
-        predicate_ids    = set(entry[0] for entry in relations)
-        content_type_ids = set(entry[1] for entry in relations)
-        entity_ids       = set(entry[2] for entry in relations)
+        if len(set(((relation_type_id, entity.id) for relation_type_id, entity in relations))) != len(relations):
+            raise ValidationError(_(u'Il y a des doublons'))
 
-        if RelationType.objects.filter(pk__in=predicate_ids).count() < len(predicate_ids):
+        relation_type_ids = set(entry[0] for entry in relations)
+
+        if RelationType.objects.filter(pk__in=relation_type_ids).count() < len(relation_type_ids):
             raise ValidationError(_(u"Certains prédicats n'existent pas"))
-
-        if ContentType.objects.filter(pk__in=content_type_ids).count() < len(content_type_ids):
-            raise ValidationError(_(u"Certains types d'entité n'existent pas"))
-
-        if CremeEntity.objects.filter(pk__in=entity_ids).count() < len(entity_ids):
-            raise ValidationError(_(u"Certaines entités n'existent pas"))
-
-        cleaned_data['relations'] = relations
 
         # TODO : add validation for relations (check doubles, and existence)
         return cleaned_data
 
     def save(self):
-        #ctype useless (after a refactoring) ??? (maybe useful for credentials)
-        for predicate_id, ctype, entity_id in self.cleaned_data.get('relations', ()):
+        for relation_type_id, entity in self.cleaned_data['relations']:
             relation = Relation()
             relation.user_id = self.user_id
-            relation.type_id = predicate_id
+            relation.type_id = relation_type_id
             relation.subject_entity = self.subject
-            relation.object_entity_id = entity_id
+            relation.object_entity_id = entity.id
             relation.save()
 
 

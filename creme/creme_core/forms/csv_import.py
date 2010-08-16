@@ -338,7 +338,7 @@ class CSVImportForm4CremeEntity(CSVImportForm):
     property_types = ModelMultipleChoiceField(label=_(u'Propriétés'), required=False,
                                               queryset=CremePropertyType.objects.none(),
                                               widget=OrderedMultipleChoiceWidget)
-    relations      = RelatedEntitiesField(label=_(u'Relations'), required=False, use_ctype=True)
+    relations      = RelatedEntitiesField(label=_(u'Relations'), required=False)
 
     class Meta:
         exclude = ('is_deleted', 'is_actived')
@@ -360,12 +360,12 @@ class CSVImportForm4CremeEntity(CSVImportForm):
 
         user_id = instance.user.id
 
-        for predicate_id, ctype, entity_id in cleaned_data.get('relations', ()):
+        for relationtype_id, entity in cleaned_data['relations']:
             relation = Relation()
             relation.user_id = user_id
-            relation.type_id = predicate_id
+            relation.type_id = relationtype_id
             relation.subject_entity = instance
-            relation.object_entity_id = entity_id
+            relation.object_entity_id = entity.id
             relation.save()
 
 
