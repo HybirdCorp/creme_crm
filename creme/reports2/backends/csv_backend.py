@@ -18,16 +18,34 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.template.loader import render_to_string
+import csv
+
+from django.http import HttpResponse
+from django.utils.encoding import smart_str
+
 from base import ReportBackend
 
-class HtmlReportBackend(ReportBackend):
+class CsvReportBackend(ReportBackend):
+    def __init__(self, report):
+        super(CsvReportBackend, self).__init__(report)
 
-    def __init__(self, report, context_instance, template="reports2/backends/html_report.html" ):
-        super(HtmlReportBackend, self).__init__(report)
-        self.context_instance = context_instance
-        self.template = template
+    def render_to_response(self):
 
-    def render(self):
-        return render_to_string(self.template, {'backend': self, 'lines':self.report.fetch_all_lines()}, context_instance=self.context_instance)
+        report = self.report
+
+        response = HttpResponse(mimetype='text/csv')
+        response['Content-Disposition'] = 'attachment; filename="%s.csv"' % smart_str(report.name)
+
+        writer   = csv.writer(response, delimiter=";")
+        
+        writerow = writer.writerow
+
+        writerow([smart_str(column.title) for column in report.get_children_fields_flat()])
+
+        for line in report.fetch_all_lines():
+            writerow([smart_str(value) for value in line])
+
+        return response
+
+
 
