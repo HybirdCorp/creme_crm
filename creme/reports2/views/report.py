@@ -78,7 +78,8 @@ def listview(request):
 @get_view_or_die(report_app)
 def unlink_report(request):
     field = get_object_or_404(Field, pk=request.POST.get('field_id'))
-    field.report = None
+    field.report   = None
+    field.selected = False
     field.save()
 
     return HttpResponse("", mimetype="text/javascript")
