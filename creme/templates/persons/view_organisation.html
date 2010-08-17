@@ -6,9 +6,11 @@
 {% block logo %}
     {% if object.url_site %}
         <a href="http://{{object.url_site}}" target="_blank" ><img src="{{object.image.get_image_url}}" alt="" style="max-height:64px;max-width:200px;"/></a>
-    {% else %}
+    {% else %} {% if object.image.get_image_url %}
         <img src="{{object.image.get_image_url}}" alt="" title="Veuillez entrez l'adresse du site web" style="max-height:64px;max-width:200px;"/>
-    {% endif %}
+    {% else %}
+        <img src="{{MEDIA_URL}}images/organisation_64.png" alt="Organisation"/>
+    {% endif %}{% endif %}
 {% endblock %}
 
 {% block creme_blocks_import %}
