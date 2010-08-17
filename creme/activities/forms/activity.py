@@ -39,6 +39,62 @@ from activities.models import Activity
 from activities.constants import *
 
 
+def _clean_interval(cleaned_data):
+    if cleaned_data.get('is_all_day'):
+        cleaned_data['start_time'] = datetime.time(hour=0,  minute=0)
+        cleaned_data['end_time']   = datetime.time(hour=23, minute=59)
+
+    start_time = cleaned_data.get('start_time', datetime.time())
+    end_time   = cleaned_data.get('end_time',   datetime.time())
+
+    cleaned_data['start'] = cleaned_data['start'].replace(hour=start_time.hour, minute=start_time.minute)
+
+    if not cleaned_data.get('end'):
+        cleaned_data['end'] = cleaned_data['start']
+
+    cleaned_data['end'] = cleaned_data['end'].replace(hour=end_time.hour, minute=end_time.minute)
+
+    if cleaned_data['start'] > cleaned_data['end']:
+        raise ValidationError(u"L'heure de fin est avant le début")
+
+def _check_activity_collisions(activity_start, activity_end, participants, exclude_activity_id=None):
+    collision_test = ~(Q(end__lte=activity_start) | Q(start__gte=activity_end))
+    collisions     = []
+
+    for participant in participants:
+        # find activities of participant
+        activity_req = Relation.objects.filter(subject_entity=participant.id, type=REL_SUB_PART_2_ACTIVITY)
+
+        # exclude current activity if asked
+        if exclude_activity_id is not None:
+            activity_req = activity_req.exclude(object_entity=exclude_activity_id)
+
+        # get id of activities of participant
+        activity_ids = activity_req.values_list("object_entity__id", flat=True)
+
+        # do collision request
+        #TODO: can be done with less queries ?
+        #  eg:  Activity.objects.filter(relations__object_entity=participant.id, relations__object_entity__type=REL_OBJ_PART_2_ACTIVITY).filter(collision_test)
+        activity_collisions = Activity.objects.filter(pk__in=activity_ids).filter(collision_test)[:1]
+
+        if activity_collisions:
+            collision = activity_collisions[0]
+            collision_start = max(activity_start.time(), collision.start.time())
+            collision_end   = min(activity_end.time(),   collision.end.time())
+
+            collisions.append(u"%s participe déjà à l'activité «%s» entre %s et %s." % (participant, collision, collision_start, collision_end))
+
+    if collisions:
+        raise ValidationError(collisions)
+
+def _save_participants(participants, instance):
+    """
+    @param participants sequence of tuple relationtype_id, entity (see RelatedEntitiesField)
+    """
+    for relationtype_id, entity in participants:
+        instance.add_related_entity(entity, relationtype_id)
+
+
 class ParticipantCreateForm(CremeForm):
     participants = RelatedEntitiesField(relation_types=[REL_SUB_PART_2_ACTIVITY], label=_(u'Participants'), required=False)
 
@@ -52,14 +108,14 @@ class ParticipantCreateForm(CremeForm):
         if self._errors:
             return cleaned_data
 
-        participants = [entity for rtype, entity in cleaned_data['participants']]
         activity = self.activity
-        ActivityCreateForm.check_activity_collisions(activity.start, activity.end, participants)
+        _check_activity_collisions(activity.start, activity.end,
+                                   [entity for rtype, entity in cleaned_data['participants']])
 
         return cleaned_data
 
     def save (self):
-        ActivityCreateForm.save_other_participants(self.cleaned_data['participants'], self.activity) #TODO: extract method....
+        _save_participants(self.cleaned_data['participants'], self.activity)
 
 
 class SubjectCreateForm(CremeForm):
@@ -70,7 +126,7 @@ class SubjectCreateForm(CremeForm):
         self.activity = activity
 
     def save (self):
-        ActivityCreateForm.save_other_participants(self.cleaned_data['subjects'], self.activity)
+        _save_participants(self.cleaned_data['subjects'], self.activity)
 
 
 class _ActivityCreateBaseForm(CremeEntityForm):
@@ -105,30 +161,11 @@ class _ActivityCreateBaseForm(CremeEntityForm):
         fields['start_time'].initial = datetime.time(9, 0)
         fields['end_time'].initial   = datetime.time(18, 0)
 
-    @staticmethod
-    def clean_interval(cleaned_data):
-        if cleaned_data.get('is_all_day'):
-            cleaned_data['start_time'] = datetime.time(hour=0,  minute=0)
-            cleaned_data['end_time']   = datetime.time(hour=23, minute=59)
-
-        start_time = cleaned_data.get('start_time', datetime.time())
-        end_time   = cleaned_data.get('end_time',   datetime.time())
-
-        cleaned_data['start'] = cleaned_data['start'].replace(hour=start_time.hour, minute=start_time.minute)
-
-        if not cleaned_data.get('end'):
-            cleaned_data['end'] = cleaned_data['start']
-
-        cleaned_data['end'] = cleaned_data['end'].replace(hour=end_time.hour, minute=end_time.minute)
-
-        if cleaned_data['start'] > cleaned_data['end']:
-            raise ValidationError(u"L'heure de fin est avant le début")
-
     def clean(self):
         if self._errors:
             return self.cleaned_data
 
-        _ActivityCreateBaseForm.clean_interval(self.cleaned_data)
+        _clean_interval(self.cleaned_data)
         self.check_activities()
 
         return self.cleaned_data
@@ -144,48 +181,11 @@ class _ActivityCreateBaseForm(CremeEntityForm):
             except IndexError:
                 pass
 
-        _ActivityCreateBaseForm.check_activity_collisions(cleaned_data['start'], cleaned_data['end'], participants)
-
-    @staticmethod
-    def check_activity_collisions(activity_start, activity_end, participants, exclude_activity_id=None):
-        collision_test = ~(Q(end__lte=activity_start) | Q(start__gte=activity_end))
-        collisions     = []
-
-        for participant in participants:
-            # find activities of participant
-            activity_req = Relation.objects.filter(subject_entity=participant.id, type=REL_SUB_PART_2_ACTIVITY)
-
-            # exclude current activity if asked
-            if exclude_activity_id is not None:
-                activity_req = activity_req.exclude(object_entity=exclude_activity_id)
-
-            # get id of activities of participant
-            activity_ids = activity_req.values_list("object_entity__id", flat=True)
-
-            # do collision request
-            #TODO: can be done with less queries ?
-            #  eg:  Activity.objects.filter(relations__object_entity__id=participant_id, relations__object_entity__type__id=REL_OBJ_PART_2_ACTIVITY).filter(collision_test)
-            activity_collisions = Activity.objects.filter(pk__in=activity_ids).filter(collision_test)[:1]
-
-            if activity_collisions:
-                collision = activity_collisions[0]
-                #TODO: use min() and max()
-                collision_start = activity_start.time() if activity_start.time() > collision.start.time() else collision.start.time()
-                collision_end = activity_end.time() if activity_end.time() < collision.end.time() else collision.end.time()
-
-                collisions.append(u"%s participe déjà à l'activité «%s» entre %s et %s." % (participant, collision, collision_start, collision_end))
-
-        if collisions:
-            raise ValidationError(collisions)
+        _check_activity_collisions(cleaned_data['start'], cleaned_data['end'], participants)
 
     def save(self):
         self.instance.end = self.cleaned_data['end']
         super(_ActivityCreateBaseForm, self).save()
-
-    @staticmethod
-    def save_other_participants(participants, instance):
-        for relationtype_id, entity in participants:
-            instance.add_related_entity(entity, relationtype_id)
 
     def create_commercial_approach(self, extra_entity=None):
         from datetime import datetime
@@ -221,7 +221,7 @@ class _ActivityCreateBaseForm(CremeEntityForm):
             else:
                 instance.add_related_entity(me, REL_SUB_PART_2_ACTIVITY)
 
-        self.save_other_participants(cleaned_data['participants'], instance)
+        _save_participants(cleaned_data['participants'], instance)
 
 
 class ActivityCreateForm(_ActivityCreateBaseForm):
@@ -247,7 +247,7 @@ class ActivityCreateForm(_ActivityCreateBaseForm):
 
         initial_relation_type = RelationType.objects.filter(pk=initial_get('entity_relation_type'))
         rtype_preview = fields['entity_relation_type_preview']
-        rtype_preview.initial = initial_relation_type
+        rtype_preview.initial  = initial_relation_type
         rtype_preview.queryset = initial_relation_type
         rtype_preview.widget.attrs.update({'disabled': 'disabled'})
 
@@ -303,12 +303,12 @@ class ActivityEditForm(CremeEntityForm):
 
         instance = self.instance
 
-        ActivityCreateForm.clean_interval(cleaned_data)
+        _clean_interval(cleaned_data)
 
         # check if activity period change cause collisions
-        ActivityCreateForm.check_activity_collisions(cleaned_data['start'], cleaned_data['end'],
-                                                     instance.get_related_entities(REL_OBJ_PART_2_ACTIVITY),
-                                                     instance.id)
+        _check_activity_collisions(cleaned_data['start'], cleaned_data['end'],
+                                   instance.get_related_entities(REL_OBJ_PART_2_ACTIVITY),
+                                   instance.id)
 
         return cleaned_data
 
