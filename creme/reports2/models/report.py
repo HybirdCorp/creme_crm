@@ -46,6 +46,11 @@ class FkClass(object):
     def __repr__(self):
         return u"<FkClassObject : %s>" % self.values
 
+    def __iter__(self):
+        return iter(self.values)
+#        for val in self.values:
+#            yield val
+
 class Field(CremeModel):
     name      = CharField(_(u'Nom de la colonne'), max_length=100)
     title     = CharField(max_length=100)
@@ -146,7 +151,12 @@ class Field(CremeModel):
                 
                 res = []
                 for column in report.columns.all():
-                    res.append(column.get_value(fk_entity, selected=False))
+                    val = column.get_value(fk_entity, selected=None)
+#                    val = column.get_value(fk_entity, selected=False)
+                    if isinstance(val, (FkClass,)):
+                        res.extend(val)
+                    else:
+                        res.append(val)
 
                 return FkClass(res)
 
@@ -173,11 +183,23 @@ class Field(CremeModel):
                 for rel_entity in scope:
                     rel_entity_res = []
                     for column in report.columns.all():
-                        rel_entity_res.append(column.get_value(rel_entity))
+                        val = column.get_value(rel_entity)
+#                        if isinstance(val, (tuple,)):
+                        if isinstance(val, (FkClass,)):
+                            rel_entity_res.extend(val)
+                        else:
+                            rel_entity_res.append(val)
                     res.append(rel_entity_res)
 
                 if not scope:#We have to keep columns' consistance and pad with blank values
-                    res.append([c.get_value() for c in report.columns.all()])
+#                    res.append([c.get_value() for c in report.columns.all()])
+                    for c in report.columns.all():
+                        sub_val = c.get_value()
+                        if isinstance(sub_val, (FkClass, )):
+                            res.extend(sub_val)
+                        else:
+                            res.append(sub_val)
+                    res = [res]
 
                 return res
 
@@ -271,18 +293,31 @@ class Report2(CremeEntity):
                 self.tree = tree
 
                 self.has_to_build = False
-                self.values_to_build = None
+                self.values_to_build = []
+
+
+            def process_fk(self):
+                new_tree = []
+                for col_value in self.tree:
+                    if isinstance(col_value, (FkClass,)):
+                        new_tree.extend(col_value.values)
+                    else:
+                        new_tree.append(col_value)
+                        
+                self.tree = new_tree
+
 
             def set_simple_values(self, current_line):
-
                 values = []
+
                 for col_value in self.tree:
                     if not col_value:
                         values.append(u"")
                         
-                    elif isinstance(col_value, (FkClass,)):
-                        for value in col_value.values:
-                            values.append(value)
+#                    elif isinstance(col_value, (FkClass,)):
+#                        values.extend(col_value.values)
+##                        for value in col_value.values:
+##                            values.append(value)
 
                     elif isinstance(col_value, (list, tuple)):
                         values.append(None)
@@ -301,6 +336,7 @@ class Report2(CremeEntity):
                 else:
                     current_line.extend(values)
 
+
             def set_iter_values(self, lines, current_line):
                 for future_node in self.values_to_build:
                     node = ReportTree(future_node)
@@ -308,6 +344,7 @@ class Report2(CremeEntity):
                     node.visit(lines, duplicate_line)
 
             def visit(self, lines, current_line):
+                self.process_fk()
                 self.set_simple_values(current_line)
 
                 if self.has_to_build:

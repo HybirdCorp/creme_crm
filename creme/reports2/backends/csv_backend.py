@@ -34,7 +34,7 @@ class CsvReportBackend(ReportBackend):
         report = self.report
 
         response = HttpResponse(mimetype='text/csv')
-        response['Content-Disposition'] = 'attachment; filename="%s.csv"' % report.name
+        response['Content-Disposition'] = 'attachment; filename="%s.csv"' % smart_str(report.name)
 
         writer   = csv.writer(response, delimiter=";")
         
