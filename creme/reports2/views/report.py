@@ -78,7 +78,8 @@ def listview(request):
 @get_view_or_die(report_app)
 def unlink_report(request):
     field = get_object_or_404(Field, pk=request.POST.get('field_id'))
-    field.report = None
+    field.report   = None
+    field.selected = False
     field.save()
 
     return HttpResponse("", mimetype="text/javascript")
@@ -190,21 +191,17 @@ def change_field_order(request):
 @get_view_or_die(report_app)
 def preview(request, report_id):
     report = get_object_or_404(Report, pk=report_id)
-    model = report.ct.model_class()
-
-#    results = report.fetch()
-#    for field in report.columns.all().order_by('order'):
 
     html_backend = creme_registry.get('reports2-backend-html')
 
     req_ctx = RequestContext(request)
 
-    results = html_backend(report, context_instance=req_ctx)
+    html_backend = html_backend(report, context_instance=req_ctx)
 
     return render_to_response("%s/preview_report.html" % report_template_dir,
                               {
                                 'object'  : report,
-                                'results' : results,
+                                'html_backend' : html_backend,
                               },
                               context_instance=req_ctx)
 
@@ -231,3 +228,10 @@ def set_selected(request):
         field.save()
 
     return HttpResponse("", status=200, mimetype="text/javascript")
+
+@login_required
+@get_view_or_die(report_app)
+def csv(request, report_id):
+    report = get_object_or_404(Report, pk=report_id)
+    csv_backend = creme_registry.get('reports2-backend-csv')
+    return csv_backend(report).render_to_response()

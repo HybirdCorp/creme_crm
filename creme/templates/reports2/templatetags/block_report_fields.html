@@ -24,7 +24,7 @@
         </tr>
         {% if object.columns.all %}
             <tr>
-                <th class="{% cycle "block_header_line_dark" "block_header_line_light" %}">{% trans 'Ordre' %}</th>
+                <th class="{% cycle "block_header_line_dark" "block_header_line_light" %}">{% trans '#' %}</th>
                 <th class="{% cycle "block_header_line_dark" "block_header_line_light" %}">{% trans 'Colonne' %}</th>
                 <th class="{% cycle "block_header_line_dark" "block_header_line_light" %}">{% trans 'Affiché dans le rapport' %}</th>
                 <th class="{% cycle "block_header_line_dark" "block_header_line_light" %}">{% trans 'Type' %}</th>
@@ -51,7 +51,7 @@
                         <table style="width: 100%;">
                             <tbody>
                                 <tr>
-                                    <td style="width: 33%;">
+                                    <td style="width: 66%;">
                                         {% ifequal HFI_FIELD column.type %}
                                             {% if column.report %}
                                                 <a onclick="creme.reports.unlink_report('{{column.pk}}', '{{update_url}}');">{% trans 'Délier le rapport' %}</a>
@@ -79,15 +79,15 @@
                                             {% endif %}
                                         {% endifequal %}
                                     </td>
-                                    <td style="width: 33%;">
+                                    <td style="width: 33%;" align="center" valign="middle">
                                         {% ifnotequal column.order 1 %}
                                             {% comment %}<a onclick="creme.reports.changeOrder('{{object.id}}', '{{column.pk}}', 'up','{{update_url}}?base_url={{base_url}}');">{% endcomment %}
                                             <a onclick="creme.reports.changeOrder('{{object.id}}', '{{column.pk}}', 'up', {% get_block_reload_uri %});">
                                                 <img src="{{MEDIA_URL}}images/small_up_arrow_16.png" border="0" title="Monter la colonne" alt="Monter" />
                                             </a>
-                                        {% endifnotequal %}
-                                    </td>
-                                    <td style="width: 33%;">
+                                        {% endifnotequal %}<br/>
+                                    <!--</td>
+                                    <td style="width: 33%;">-->
                                         {% ifnotequal column.order object.columns.count %}
                                             {% comment %}<a onclick="creme.reports.changeOrder('{{object.id}}', '{{column.pk}}', 'down','{{update_url}}?base_url={{base_url}}');">{% endcomment %}
                                             <a onclick="creme.reports.changeOrder('{{object.id}}', '{{column.pk}}', 'down', {% get_block_reload_uri %});">
@@ -101,12 +101,14 @@
                     </td>
                     <td class="{% cycle "block_line_dark" "block_line_light" %}">
                         {% ifequal HFI_FIELD column.type %}
-                            {% if column|is_field_is_linkable:object.ct %}
+                            {% if column|is_field_is_linkable:object.ct and column.report %}
                                 <input type="checkbox" name="selected" onclick="creme.reports.setSelected(this, '{{object.id}}', '{{column.pk}}', '{{update_url}}?base_url={{base_url}}');" {% if column.selected %} checked {% endif %}/>
                            {% endif %}
                         {% endifequal %}
                         {% ifequal HFI_RELATION column.type %}
-                            <input type="checkbox" name="selected" onclick="creme.reports.setSelected(this, '{{object.id}}', '{{column.pk}}', '{{update_url}}?base_url={{base_url}}');" {% if column.selected %} checked {% endif %}/>
+                            {% if column.report %}
+                                <input type="checkbox" name="selected" onclick="creme.reports.setSelected(this, '{{object.id}}', '{{column.pk}}', '{{update_url}}?base_url={{base_url}}');" {% if column.selected %} checked {% endif %}/>
+                            {% endif %}
                         {% endifequal %}
                     </td>
                 </tr>
