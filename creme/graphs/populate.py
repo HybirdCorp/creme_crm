@@ -35,8 +35,8 @@ class Populator(BasePopulator):
     def populate(self, *args, **kwargs):
         get_ct = ContentType.objects.get_for_model
 
-        hf_id = create(HeaderFilter, 'reports-hf', name=u'Vue de Graphe', entity_type_id=get_ct(Graph).id, is_custom=False).id
-        pref  = 'reports-hfi_graph_'
+        hf_id = create(HeaderFilter, 'graphs-hf', name=u'Vue de Graphe', entity_type_id=get_ct(Graph).id, is_custom=False).id
+        pref  = 'graphs-hfi_graph_'
         create(HeaderFilterItem, pref + 'name', order=1, name='name', title=_(u'Nom'), type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True, editable=True, sortable=True, filter_string="name__icontains")
 
         model = Graph

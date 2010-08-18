@@ -2,7 +2,7 @@
 
 from django.conf.urls.defaults import patterns
 
-urlpatterns = patterns('reports.views',
+urlpatterns = patterns('graphs.views',
     (r'^$', 'portal.portal'),
 
     (r'^graphs$',                       'graph.listview'),

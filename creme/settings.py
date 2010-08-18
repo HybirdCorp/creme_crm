@@ -122,7 +122,7 @@ INSTALLED_APPS = (
     'creme.persons',
 
     #CREME OPTIONNAL APPS (can be safely commented)
-    'creme.reports',
+    'creme.graphs',
     'creme.products',
     'creme.recurrents',
     'creme.billing',       #need 'creme.products'

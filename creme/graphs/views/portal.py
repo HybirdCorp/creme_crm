@@ -22,7 +22,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from creme_core.views.generic import app_portal
 
-from reports.models import Graph
+from graphs.models import Graph
 
 def portal(request):
     """
@@ -32,4 +32,4 @@ def portal(request):
                 (_('Nombre de graphe(s)'),  Graph.objects.all().count()),
             )
 
-    return app_portal(request, 'reports', 'reports/portal.html', Graph, stats)
+    return app_portal(request, 'graphs', 'graphs/portal.html', Graph, stats)
