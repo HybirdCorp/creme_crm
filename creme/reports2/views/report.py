@@ -19,14 +19,14 @@
 ################################################################################
 
 from django.http import Http404
-from django.db.models.fields.related import ForeignKey
+from django.db.models.fields.related import ForeignKey, ManyToManyField
 from django.contrib.auth.decorators import login_required
 from django.contrib.contenttypes.models import ContentType
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext
 from django.http import HttpResponse
 
-from creme_core.entities_access.functions_for_permissions import add_view_or_die, get_view_or_die, edit_view_or_die
+from creme_core.entities_access.functions_for_permissions import add_view_or_die, get_view_or_die
 from creme_core.views.generic import add_entity, view_entity_with_template, list_view, inner_popup
 from creme_core.views.generic.edit import edit_entity
 from creme_core.utils.meta import get_model_field_infos
@@ -114,7 +114,7 @@ def link_report(request, report_id, field_id):
 
     model = None
     for f in fields:
-        if(isinstance(f.get('field'), ForeignKey)):
+        if(isinstance(f.get('field'), (ForeignKey, ManyToManyField))):
             model = f.get('model')
 
     if model is None:
@@ -192,16 +192,19 @@ def change_field_order(request):
 def preview(request, report_id):
     report = get_object_or_404(Report, pk=report_id)
 
+    LIMIT_TO = 25
+
     html_backend = creme_registry.get('reports2-backend-html')
 
     req_ctx = RequestContext(request)
 
-    html_backend = html_backend(report, context_instance=req_ctx)
+    html_backend = html_backend(report, context_instance=req_ctx, limit_to=LIMIT_TO)
 
     return render_to_response("%s/preview_report.html" % report_template_dir,
                               {
                                 'object'  : report,
                                 'html_backend' : html_backend,
+                                'limit_to': LIMIT_TO,
                               },
                               context_instance=req_ctx)
 
