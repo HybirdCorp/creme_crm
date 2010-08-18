@@ -156,14 +156,16 @@ class Field(CremeModel):
 
                         for m2m_entity in m2m_entities:
                             sub_res = []
-                            for sub_col in report.columns.all():
-                                sub_res.append(sub_col.get_value(m2m_entity))
+                            self._handle_report_values(sub_res, m2m_entity)
                             res.append(sub_res)
+
+                        if not m2m_entities:
+                            self._handle_report_values(res)
+                            res = [res]
+
                         return res
                     else:
                         return get_m2m_entities(entity, self.name, True)
-
-                    return u""
 
                 elif ForeignKey in fields_through and report and selected:
                     fk_entity = get_fk_entity(entity, self.name)
@@ -173,12 +175,7 @@ class Field(CremeModel):
                             raise DropLine
 
                     res = []
-                    for column in report.columns.all():
-                        val = column.get_value(fk_entity, selected=None)
-                        if isinstance(val, FkClass):
-                            res.extend(val)
-                        else:
-                            res.append(val)
+                    self._handle_report_values(res, fk_entity)
 
                     return FkClass(res)
 
@@ -209,23 +206,11 @@ class Field(CremeModel):
                 res = []
                 for rel_entity in scope:
                     rel_entity_res = []
-                    for column in report.columns.all():
-                        val = column.get_value(rel_entity)
-#                        if isinstance(val, (tuple,)):
-                        if isinstance(val, FkClass):
-                            rel_entity_res.extend(val)
-                        else:
-                            rel_entity_res.append(val)
+                    self._handle_report_values(rel_entity_res, rel_entity)
                     res.append(rel_entity_res)
 
                 if not scope:#We have to keep columns' consistance and pad with blank values
-#                    res.append([c.get_value() for c in report.columns.all()])
-                    for c in report.columns.all():
-                        sub_val = c.get_value()
-                        if isinstance(sub_val, FkClass):
-                            res.extend(sub_val)
-                        else:
-                            res.append(sub_val)
+                    self._handle_report_values(res)
                     res = [res]
 
                 return res
@@ -242,6 +227,14 @@ class Field(CremeModel):
                 pass
 
         return empty_value
+
+    def _handle_report_values(self, container, entity=None):
+        for c in self.report.columns.all():
+            sub_val = c.get_value(entity)
+            if isinstance(sub_val, FkClass):
+                container.extend(sub_val)
+            else:
+                container.append(sub_val)
 
 
 class Report2(CremeEntity):
@@ -342,11 +335,6 @@ class Report2(CremeEntity):
                     if not col_value:
                         values.append(u"")
                         
-#                    elif isinstance(col_value, (FkClass,)):
-#                        values.extend(col_value.values)
-##                        for value in col_value.values:
-##                            values.append(value)
-
                     elif isinstance(col_value, (list, tuple)):
                         values.append(None)
                         self.has_to_build = True

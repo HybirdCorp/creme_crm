@@ -69,11 +69,6 @@ def detailview(request, report_id):
 def listview(request):
     return list_view(request, Report, extra_dict={'add_url':'%s/report/add' % report_prefix_url})
 
-#@login_required
-#@get_view_or_die(report_app)
-#def reload_fields_block(request, report_id):
-    #return report_fields_block.detailview_ajax(request, report_id)
-
 @login_required
 @get_view_or_die(report_app)
 def unlink_report(request):
