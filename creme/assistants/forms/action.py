@@ -20,18 +20,16 @@
 
 from datetime import datetime, time
 
-from django.forms.fields import DateTimeField, TimeField
 from django.utils.translation import ugettext_lazy as _
 
-from creme_core.forms import CremeModelWithUserForm
-from creme_core.forms.widgets import CalendarWidget, TimeWidget
+from creme_core.forms import CremeModelWithUserForm, CremeDateTimeField, CremeTimeField
 
 from assistants.models import Action
 
 
 class ActionEditForm(CremeModelWithUserForm):
-    deadline      = DateTimeField(label=_(u"Date d'échéance"), widget=CalendarWidget())
-    deadline_time = TimeField(label=_(u'Heure'), widget=TimeWidget(), required=False)
+    deadline      = CremeDateTimeField(label=_(u"Date d'échéance"))
+    deadline_time = CremeTimeField(label=_(u'Heure'), required=False)
 
     class Meta:
         model = Action

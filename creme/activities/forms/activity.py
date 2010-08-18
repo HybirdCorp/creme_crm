@@ -22,16 +22,14 @@ from logging import debug
 import datetime
 
 from django.forms.util import ValidationError
-from django.forms import IntegerField, CharField, DateTimeField, BooleanField, ModelChoiceField, DateField, TimeField, ModelMultipleChoiceField
+from django.forms import IntegerField, CharField, BooleanField, ModelChoiceField, ModelMultipleChoiceField
 from django.forms.widgets import HiddenInput, CheckboxSelectMultiple, TextInput
 from django.utils.translation import ugettext as _
 from django.db.models import Q
 from django.contrib.auth.models import User
 
 from creme_core.models import CremeEntity, Relation, RelationType
-from creme_core.forms import CremeForm, CremeEntityForm
-from creme_core.forms.fields import RelatedEntitiesField
-from creme_core.forms.widgets import CalendarWidget, TimeWidget
+from creme_core.forms import CremeForm, CremeEntityForm, RelatedEntitiesField, CremeDateTimeField, CremeTimeField
 
 from persons.models.contact import Contact
 
@@ -134,9 +132,9 @@ class _ActivityCreateBaseForm(CremeEntityForm):
         model = Activity
         exclude = CremeEntityForm.Meta.exclude + ('end',)
 
-    start      = DateTimeField(label=_(u'Début'), widget=CalendarWidget())
-    start_time = TimeField(label=_(u'Heure de début'), widget=TimeWidget(), required=False)
-    end_time   = TimeField(label=_(u'Heure de fin'), widget=TimeWidget(), required=False)
+    start      = CremeDateTimeField(label=_(u'Début'))
+    start_time = CremeTimeField(label=_(u'Heure de début'), required=False)
+    end_time   = CremeTimeField(label=_(u'Heure de fin'), required=False)
 
     is_comapp        = BooleanField(required=False, label=_(u"Est une démarche commerciale ?"))
     my_participation = BooleanField(required=False, label=_(u"Est-ce que je participe à ce rendez-vous ?"))
@@ -278,9 +276,9 @@ class ActivityCreateWithoutRelationForm(_ActivityCreateBaseForm):
 
 #TODO: factorise ?? (ex: CreateForm inherits from EditForm....)
 class ActivityEditForm(CremeEntityForm):
-    start      = DateTimeField(label=_(u'Début'), widget=CalendarWidget())
-    start_time = TimeField(label=_(u'Heure de début'), widget=TimeWidget(), required=False)
-    end_time   = TimeField(label=_(u'Heure de fin'), widget=TimeWidget(), required=False)
+    start      = CremeDateTimeField(label=_(u'Début'))
+    start_time = CremeTimeField(label=_(u'Heure de début'), required=False)
+    end_time   = CremeTimeField(label=_(u'Heure de fin'), required=False)
 
     class Meta(CremeEntityForm.Meta):
         model = Activity

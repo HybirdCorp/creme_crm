@@ -26,10 +26,9 @@ from django.forms.widgets import Select
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.contenttypes.models import ContentType
 
-from creme_core.forms import CremeEntityForm
-from creme_core.forms.fields import CremeEntityField
-from creme_core.forms.widgets import CalendarWidget, ListViewWidget
 from creme_core.models import Relation
+from creme_core.forms import CremeEntityForm, CremeEntityField, CremeDateField
+from creme_core.forms.widgets import ListViewWidget
 
 from persons.models.organisation import Organisation
 from persons.forms.address import clean_address
@@ -41,8 +40,8 @@ class BaseEditForm(CremeEntityForm):
     source = CremeEntityField(label=_(u"Organisation émettrice"),  model=Organisation, widget=ListViewWidget(attrs={'id':'id_source'}))
     target = CremeEntityField(label=_(u"Organisation réceptrice"), model=Organisation, widget=ListViewWidget(attrs={'id':'id_target'}))
 
-    issuing_date    = DateField(label=_(u"Date d'émission"), widget=CalendarWidget())
-    expiration_date = DateField(label=_(u"Échéance"),        widget=CalendarWidget())
+    issuing_date    = CremeDateField(label=_(u"Date d'émission"))
+    expiration_date = CremeDateField(label=_(u"Échéance"))
 
     billing_address  = CharField(label=_(u"Adresse de facturation"), help_text=_("Choisissez une organisation pour avoir son adresse de facturation"), widget=Select(attrs={'id':'id_billing_address'}))
     shipping_address = CharField(label=_(u"Adresse de livraison"),   help_text=_("Choisissez une organisation pour avoir son adresse de livraison"),   widget=Select(attrs={'id':'id_shipping_address'}))
