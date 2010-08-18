@@ -222,8 +222,7 @@ def get_m2m_entities(entity, column_name, get_value=False, q_filter=None):
             attr = getattr(m, rest, u"")
             if attr is None:
                 attr = u""
-            values.append(attr)
-
+            values.append(u"%s" % attr)
         return ", ".join(values)
 #            return ",".join([getattr(m, rest, u"") for m in getattr(entity, m2m_column).all()])
 

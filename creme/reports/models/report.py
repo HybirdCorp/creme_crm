@@ -138,49 +138,49 @@ class Field(CremeModel):
         empty_value = u""
 
         if column_type == HFI_FIELD:
-                if entity is None and report and selected:
-                    return FkClass([empty_value for c in report.columns.all()])#Only fk requires a multi-padding
-                elif entity is None:
-                    return empty_value
+            if entity is None and report and selected:
+                return FkClass([empty_value for c in report.columns.all()])#Only fk requires a multi-padding
+            elif entity is None:
+                return empty_value
 
-                fields_through = [f['field'].__class__ for f in get_model_field_infos(entity.__class__, column_name)]
-                if ManyToManyField in fields_through:
-                    if report and selected:
-                        res = []
-                        
-                        if report.filter is not None:
-                            m2m_entities = get_m2m_entities(entity, self.name, False, report.filter.get_q())
-                        else:
-                            m2m_entities = get_m2m_entities(entity, self.name, False)
-
-                        for m2m_entity in m2m_entities:
-                            sub_res = []
-                            self._handle_report_values(sub_res, m2m_entity)
-                            res.append(sub_res)
-
-                        if not m2m_entities:
-                            self._handle_report_values(res)
-                            res = [res]
-
-                        return res
-                    else:
-                        return get_m2m_entities(entity, self.name, True)
-
-                elif ForeignKey in fields_through and report and selected:
-                    fk_entity = get_fk_entity(entity, self.name)
-
-                    if (report.filter is not None and
-                        fk_entity not in report.ct.model_class().objects.filter(report.filter.get_q())):
-                            raise DropLine
-
+            fields_through = [f['field'].__class__ for f in get_model_field_infos(entity.__class__, column_name)]
+            if ManyToManyField in fields_through:
+                if report and selected:
                     res = []
-                    self._handle_report_values(res, fk_entity)
 
-                    return FkClass(res)
+                    if report.filter is not None:
+                        m2m_entities = get_m2m_entities(entity, self.name, False, report.filter.get_q())
+                    else:
+                        m2m_entities = get_m2m_entities(entity, self.name, False)
 
-                model_field, value = get_field_infos(entity, column_name)
-                return unicode(value or empty_value)#Maybe format map (i.e : datetime...)
+                    for m2m_entity in m2m_entities:
+                        sub_res = []
+                        self._handle_report_values(sub_res, m2m_entity)
+                        res.append(sub_res)
 
+                    if not m2m_entities:
+                        self._handle_report_values(res)
+                        res = [res]
+
+                    return res
+                else:
+                    return get_m2m_entities(entity, self.name, True)
+
+            elif ForeignKey in fields_through and report and selected:
+                fk_entity = get_fk_entity(entity, self.name)
+
+                if (report.filter is not None and
+                    fk_entity not in report.ct.model_class().objects.filter(report.filter.get_q())):
+                        raise DropLine
+
+                res = []
+                self._handle_report_values(res, fk_entity)
+
+                return FkClass(res)
+
+            model_field, value = get_field_infos(entity, column_name)
+            return unicode(value or empty_value)#Maybe format map (i.e : datetime...)
+        
         elif column_type == HFI_CUSTOM:
             if entity is None:
                 return empty_value
