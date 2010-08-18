@@ -40,7 +40,7 @@ def edit(request, service_id):
 @login_required
 @get_view_or_die('products')
 def detailview(request, service_id):
-    return view_entity_with_template(request, service_id, Service, '/products/service')
+    return view_entity_with_template(request, service_id, Service, '/products/service', 'products/view_service.html')
 
 @login_required
 @get_view_or_die('products')
