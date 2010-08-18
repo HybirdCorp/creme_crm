@@ -18,8 +18,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from itertools import ifilter
-
 from django.db.models.fields.related import ForeignKey
 from django.db.models.base import ModelBase
 from django.db.models import Field, FieldDoesNotExist
@@ -232,4 +230,4 @@ def get_m2m_entities(entity, column_name, get_value=False, q_filter=None):
     return m2m_entities
 
 def filter_entities_on_ct(entities, ct):
-    return ifilter(lambda entity: entity.entity_type==ct, entities)
+    return filter(lambda entity: entity.entity_type==ct, entities)
