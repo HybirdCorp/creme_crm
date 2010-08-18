@@ -18,4 +18,4 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from report import Field, Report2, report_prefix_url, report_template_dir
+from report import Field, Report, report_prefix_url, report_template_dir

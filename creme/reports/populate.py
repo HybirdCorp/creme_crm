@@ -27,7 +27,7 @@ from creme_core.utils import create_or_update_models_instance as create
 from creme_core.utils.meta import get_verbose_field_name
 from creme_core.management.commands.creme_populate import BasePopulator
 
-from models import Report2 as Report
+from models import Report
 
 
 class Populator(BasePopulator):
@@ -37,8 +37,8 @@ class Populator(BasePopulator):
 
         get_ct = ContentType.objects.get_for_model
 
-        hf_id = create(HeaderFilter, 'reports2-hf', name=u'Vue de Rapport', entity_type_id=get_ct(Report).id, is_custom=False).id
-        pref  = 'reports2-hfi_report2_' 
+        hf_id = create(HeaderFilter, 'reports-hf', name=u'Vue de Rapport', entity_type_id=get_ct(Report).id, is_custom=False).id
+        pref  = 'reports-hfi_report_' 
         create(HeaderFilterItem, pref + 'name', order=1, name='name', title=_(u'Nom'),      type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True, editable=True, sortable=True, filter_string="name__icontains")
         create(HeaderFilterItem, pref + 'ct',   order=2, name='ct',   title=_(u"Type d'entité"), type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True, editable=True, sortable=True, filter_string="ct__name__icontains")
 

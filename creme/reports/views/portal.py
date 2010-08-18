@@ -18,19 +18,19 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.template.loader import render_to_string
-from base import ReportBackend
+from django.utils.translation import ugettext_lazy as _
 
-LIMIT_TO = 25
+from creme_core.views.generic import app_portal
 
-class HtmlReportBackend(ReportBackend):
+from reports.models import Report, report_template_dir
 
-    def __init__(self, report, context_instance, template="reports2/backends/html_report.html", limit_to=None ):
-        super(HtmlReportBackend, self).__init__(report)
-        self.context_instance = context_instance
-        self.template = template
-        self.limit_to = limit_to
 
-    def render(self):
-        return render_to_string(self.template, {'backend': self, 'lines':self.report.fetch_all_lines(limit_to=self.limit_to)}, context_instance=self.context_instance)
+def portal(request):
+    """
+        @Permissions : Acces or Admin to rapport app
+    """
+    stats = (
+                (_('Nombre de rapport(s)'), Report.objects.all().count()),
+            )
 
+    return app_portal(request, Report._meta.app_label, '%s/portal.html' % report_template_dir, Report, stats)

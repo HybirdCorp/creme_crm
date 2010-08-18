@@ -35,7 +35,7 @@ from creme_core.models.custom_field import CustomField
 from creme_core.models.header_filter import HeaderFilter, HeaderFilterItem, HFI_FIELD, HFI_RELATION, HFI_CUSTOM, HFI_FUNCTION
 from creme_core.models.relation import RelationType
 from creme_core.utils.meta import get_verbose_field_name, get_verbose_function_name, get_flds_with_fk_flds_str
-from reports2.models import Report2 as Report, Field
+from reports.models import Report, Field
 
 class CreateForm(CremeEntityForm):
     hf     = AjaxModelChoiceField(queryset=HeaderFilter.objects.none(), required=False)

@@ -132,7 +132,7 @@ INSTALLED_APPS = (
     'creme.sms',
     'creme.projects',
     'creme.tickets',
-    'creme.reports2',
+    'creme.reports',
 )
 
 
