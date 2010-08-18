@@ -18,12 +18,9 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.forms import DateTimeField
 from django.utils.translation import ugettext_lazy as _
 
-from creme_core.forms import CremeEntityForm
-from creme_core.forms.fields import CremeEntityField
-from creme_core.forms.widgets import CalendarWidget
+from creme_core.forms import CremeEntityForm, CremeEntityField, CremeDateTimeField
 
 from media_managers.models import Image
 from media_managers.forms.widgets import ImageM2MWidget
@@ -33,7 +30,7 @@ from persons.models.organisation import Organisation, Address
 #TODO: factorise address related code with Contact form ???
 
 class OrganisationForm(CremeEntityForm):
-    creation_date = DateTimeField(label=_(u"Date de création"), widget=CalendarWidget(), required=False)
+    creation_date = CremeDateTimeField(label=_(u"Date de création"), required=False)
     image         = CremeEntityField(label=_(u"Logo"), required=False, model=Image, widget=ImageM2MWidget())
 
     blocks = CremeEntityForm.blocks.new(

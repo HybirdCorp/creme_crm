@@ -20,15 +20,13 @@
 
 from logging import debug
 
-from django.forms import CharField, ModelChoiceField, DateTimeField
+from django.forms import CharField, ModelChoiceField
 from django.forms.widgets import TextInput
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.contenttypes.models import ContentType
 
 from creme_core.models import CremeEntity, RelationType, Relation
-from creme_core.forms import CremeEntityForm
-from creme_core.forms.fields import  CremeEntityField
-from creme_core.forms.widgets import CalendarWidget
+from creme_core.forms import CremeEntityForm, CremeEntityField, CremeDateTimeField
 
 from media_managers.models import Image
 from media_managers.forms.widgets import ImageM2MWidget
@@ -40,7 +38,7 @@ from persons.models import Organisation, Contact, Address
 #      sur le model Address dont on insererait le contenu ???
 
 class ContactCreateForm(CremeEntityForm):
-    birthday = DateTimeField(label=_('Anniversaire'), widget=CalendarWidget(), required=False)
+    birthday = CremeDateTimeField(label=_('Anniversaire'), required=False)
     image    = CremeEntityField(required=False, model=Image, widget=ImageM2MWidget())
 
     blocks = CremeEntityForm.blocks.new(

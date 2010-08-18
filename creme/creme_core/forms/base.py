@@ -27,7 +27,7 @@ from django.utils.datastructures import SortedDict as OrderedDict #use python2.6
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 
-from creme_core.models import CremeEntity, CustomField
+from creme_core.models import CremeEntity
 
 
 __all__ = ('FieldBlockManager', 'CremeForm', 'CremeModelForm', 'CremeModelWithUserForm', 'CremeEntityForm')

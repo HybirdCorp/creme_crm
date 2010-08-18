@@ -22,10 +22,10 @@ from django.utils.translation import ugettext as _
 
 from datetime import datetime, timedelta, time 
 
-from django.forms.models import ModelChoiceField
-from django.forms import BooleanField, DateTimeField, TimeField
+from django.forms.models import ModelChoiceField ##
+from django.forms import BooleanField
 
-from creme_core.forms.widgets import CalendarWidget, TimeWidget
+from creme_core.forms import CremeDateTimeField, CremeTimeField
 
 from assistants.models.alert import Alert
 
@@ -38,10 +38,10 @@ class PhoneCallCreateForm(ActivityCreateForm):
     class Meta(ActivityCreateForm.Meta):
         model = PhoneCall
 
-    type           = ModelChoiceField(empty_label=None, queryset=ActivityType.objects.filter(pk=ACTIVITYTYPE_PHONECALL))
+    type           = ModelChoiceField(empty_label=None, queryset=ActivityType.objects.filter(pk=ACTIVITYTYPE_PHONECALL)) #TODO: exclude....
     generate_alert = BooleanField(label=_(u"Voulez vous générer une alerte ou un rappel ?"), required=False)
-    alert_day      = DateTimeField(label=_(u"Jour de l'alerte"), widget=CalendarWidget(), required=False)
-    start_time     = TimeField(label=_(u"Heure de l'alerte"), widget=TimeWidget(), required=False)
+    alert_day      = CremeDateTimeField(label=_(u"Jour de l'alerte"), required=False)
+    start_time     = CremeTimeField(label=_(u"Heure de l'alerte"), required=False)
 
     blocks = ActivityCreateForm.blocks.new(
                 ('alert_datetime', _(u'Générer une alerte ou un rappel'), ['generate_alert', 'alert_day', 'start_time']),
@@ -60,7 +60,7 @@ class PhoneCallCreateForm(ActivityCreateForm):
             now = datetime.now().replace(microsecond=0, second=0)
             fields['start_time'].initial = now.time()
             fields['end_time'].initial = (now + timedelta(minutes=5)).time()
- 
+
     def save(self):
         cleaned_data = self.cleaned_data
 
@@ -77,19 +77,20 @@ class PhoneCallCreateForm(ActivityCreateForm):
             alert.description ='Alerte en rapport avec appel téléphonique'
             alert.save()
 
+
+#TODO: use multiple inheritage to factorise alert code ???
 class PhoneCallCreateWithoutRelationForm(ActivityCreateWithoutRelationForm):
     class Meta(ActivityCreateWithoutRelationForm.Meta):
         model = PhoneCall
 
     type           = ModelChoiceField(empty_label=None, queryset=ActivityType.objects.filter(pk=ACTIVITYTYPE_PHONECALL))
     generate_alert = BooleanField(label=_(u"Voulez vous générer une alerte ou un rappel ?"), required=False)
-    alert_day      = DateTimeField(label=_(u"Jour de l'alerte"), widget=CalendarWidget(), required=False)
-    start_time     = TimeField(label=_(u"Heure de l'alerte"), widget=TimeWidget(), required=False)
+    alert_day      = CremeDateTimeField(label=_(u"Jour de l'alerte"), required=False)
+    start_time     = CremeTimeField(label=_(u"Heure de l'alerte"), required=False)
 
     blocks = ActivityCreateWithoutRelationForm.blocks.new(
                 ('alert_datetime', _(u'Générer une alerte ou un rappel'), ['generate_alert', 'alert_day', 'start_time']),
                 )
-
 
     def __init__(self, *args, **kwargs):
         super(PhoneCallCreateWithoutRelationForm, self).__init__(*args, **kwargs)
@@ -104,6 +105,7 @@ class PhoneCallCreateWithoutRelationForm(ActivityCreateWithoutRelationForm):
             fields['start_time'].initial = now.time()
             fields['end_time'].initial = (now + timedelta(minutes=5)).time()
 
+    #TODO: factorise......
     def save(self):
         cleaned_data = self.cleaned_data
 
@@ -111,14 +113,15 @@ class PhoneCallCreateWithoutRelationForm(ActivityCreateWithoutRelationForm):
         super(PhoneCallCreateWithoutRelationForm, self).save()
 
         if cleaned_data['generate_alert']:
-            alert_time = cleaned_data.get('start_time', time())
+            alert_time = cleaned_data.get('start_time', time()) #TODO: cleaned_data.get('start_time') or time() instead
 
             trigger_date = cleaned_data['alert_day'].replace(hour=alert_time.hour, minute=alert_time.minute)
             alert = Alert(for_user=self.instance.user, trigger_date=trigger_date)
             alert.creme_entity = self.instance
-            alert.title ='Alerte en rapport avec appel téléphonique'
-            alert.description ='Alerte en rapport avec appel téléphonique'
+            alert.title = 'Alerte en rapport avec appel téléphonique'
+            alert.description = 'Alerte en rapport avec appel téléphonique'
             alert.save()
+
 
 class PhoneCallEditForm(ActivityEditForm):
     class Meta(ActivityEditForm.Meta):

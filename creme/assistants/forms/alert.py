@@ -20,19 +20,16 @@
 
 from datetime import datetime, time
 
-from django.forms import DateTimeField, TimeField
 from django.utils.translation import ugettext_lazy as _
 
-
-from creme_core.forms import CremeModelWithUserForm
-from creme_core.forms.widgets import CalendarWidget, TimeWidget
+from creme_core.forms import CremeModelWithUserForm, CremeDateTimeField, CremeTimeField
 
 from assistants.models import Alert
 
 
 class AlertEditForm(CremeModelWithUserForm):
-    trigger_date = DateTimeField(label=_(u"Date d'échéance"), widget=CalendarWidget())
-    trigger_time = TimeField(label=_(u'Heure'), widget=TimeWidget(), required=False)
+    trigger_date = CremeDateTimeField(label=_(u"Date d'échéance"))
+    trigger_time = CremeTimeField(label=_(u'Heure'), required=False)
 
     class Meta:
         model = Alert
