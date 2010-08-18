@@ -22,16 +22,14 @@ from django.utils.translation import ugettext_lazy as _
 
 from creme_core.views.generic import app_portal
 
-from reports.models import Report, Graph
-
+from reports.models import Graph
 
 def portal(request):
     """
         @Permissions : Acces or Admin to rapport app
     """
     stats = (
-                (_('Nombre de rapport(s)'), Report.objects.all().count()),
                 (_('Nombre de graphe(s)'),  Graph.objects.all().count()),
             )
 
-    return app_portal(request, 'reports', 'reports/portal.html', Report, stats)
+    return app_portal(request, 'reports', 'reports/portal.html', Graph, stats)
