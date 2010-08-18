@@ -40,13 +40,9 @@ def edit(request, product_id):
 @login_required
 @get_view_or_die('products')
 def detailview(request, product_id):
-    return view_entity_with_template(request,
-                                     product_id,
-                                     Product,
-                                     '/products/product',
-                                     'products/view_products.html')
+    return view_entity_with_template(request, product_id, Product, '/products/product', 'products/view_product.html')
 
 login_required
 @get_view_or_die('products')
 def listview(request):
-    return list_view(request, Product, extra_dict={'add_url':'/products/product/add'})
+    return list_view(request, Product, extra_dict={'add_url': '/products/product/add'})
