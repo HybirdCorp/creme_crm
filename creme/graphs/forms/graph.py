@@ -22,7 +22,7 @@ from creme_core.forms import CremeEntityForm
 from creme_core.forms.fields import GenericEntitiesField
 
 from django.utils.translation import ugettext_lazy as _
-from reports.models import Graph
+from graphs.models import Graph
 
 
 class GraphForm(CremeEntityForm):

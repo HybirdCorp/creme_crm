@@ -11,7 +11,7 @@ DEPENDENCIES:
 - Django 1.1
 - Django extensions
 - Relatorio (if you use the app creme.billing and want PDF export)
-- pygraphviz (if you use the app creme.reports and want graph export)
+- pygraphviz (if you use the app creme.graphs and want graph export)
 
 
 INSTALL:

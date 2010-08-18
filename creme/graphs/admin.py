@@ -2,7 +2,7 @@
 
 from django.contrib import admin
 
-from reports.models import *
+from graphs.models import *
 
 
 admin.site.register(Graph)

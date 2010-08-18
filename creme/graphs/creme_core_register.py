@@ -23,13 +23,13 @@ from django.utils.translation import ugettext_lazy as _
 from creme_core.registry import creme_registry
 from creme_core.gui.menu import creme_menu
 
-from reports.models import Graph
+from graphs.models import Graph
 
 
-creme_registry.register_app('reports', _(u'Rapports'), '/reports')
+creme_registry.register_app('graphs', _(u'Graphes'), '/graphs')
 creme_registry.register_entity_models(Graph)
 
-creme_menu.register_app('reports', '/reports/', 'Graphes')
+creme_menu.register_app('graphs', '/graphs/', 'Graphes')
 reg_menu = creme_menu.register_menu
-reg_menu('reports', '/reports/graphs',     'Liste des graphes générés')
-reg_menu('reports', '/reports/graph/add',  'Créer un graphe')
+reg_menu('graphs', '/graphs/graphs',     'Liste des graphes générés')
+reg_menu('graphs', '/graphs/graph/add',  'Créer un graphe')

@@ -32,7 +32,7 @@ class Graph(CremeEntity):
     relation_types = ManyToManyField(RelationType, verbose_name=_(u'Types de relation'))
 
     class Meta:
-        app_label = 'reports'
+        app_label = 'graphs'
         verbose_name = _(u'Graphe')
         verbose_name_plural = _(u'Graphes')
 
@@ -40,17 +40,17 @@ class Graph(CremeEntity):
         return self.name
 
     def get_absolute_url(self):
-        return "/reports/graph/%s" % self.id
+        return "/graphs/graph/%s" % self.id
 
     def get_edit_absolute_url(self):
-        return "/reports/graph/edit/%s" % self.id
+        return "/graphs/graph/edit/%s" % self.id
 
     @staticmethod
     def get_lv_absolute_url():
-        return "/reports/graphs"
+        return "/graphs/graphs"
 
     def get_delete_absolute_url(self):
-        return "/reports/graph/delete/%s" % self.id
+        return "/graphs/graph/delete/%s" % self.id
 
     def generate_png(self):
         from os.path import join, exists
@@ -86,7 +86,7 @@ class Graph(CremeEntity):
         graph.layout(prog='dot') #algo: neato dot twopi circo fdp nop
 
         #TODO: use a true tmp file ???? or in populate ???
-        dir_path = join(settings.MEDIA_ROOT, 'upload', 'reports')
+        dir_path = join(settings.MEDIA_ROOT, 'upload', 'graphs')
         if not exists(dir_path):
             makedirs(dir_path)
 
@@ -95,4 +95,4 @@ class Graph(CremeEntity):
         #TODO: delete old files ???
         graph.draw(join(dir_path, filename), format='png') #format: pdf svg
 
-        return HttpResponseRedirect('/download_file/upload/reports/' + filename)
+        return HttpResponseRedirect('/download_file/upload/graphs/' + filename)

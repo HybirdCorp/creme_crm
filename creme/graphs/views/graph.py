@@ -25,18 +25,18 @@ from django.contrib.contenttypes.models import ContentType
 from creme_core.entities_access.functions_for_permissions import add_view_or_die, get_view_or_die, read_object_or_die
 from creme_core.views.generic import add_entity, view_entity_with_template, edit_entity, list_view
 
-from reports.models import Graph
-from reports.forms.graph import GraphForm
+from graphs.models import Graph
+from graphs.forms.graph import GraphForm
 
 
 @login_required
-@get_view_or_die('reports')
-@add_view_or_die(ContentType.objects.get_for_model(Graph), None, 'reports')
+@get_view_or_die('graphs')
+@add_view_or_die(ContentType.objects.get_for_model(Graph), None, 'graphs')
 def add(request):
     return add_entity(request, GraphForm)
 
 @login_required
-@get_view_or_die('reports')
+@get_view_or_die('graphs')
 def dl_png(request, graph_id):
     graph = get_object_or_404(Graph, pk=graph_id)
 
@@ -47,14 +47,14 @@ def dl_png(request, graph_id):
     return graph.generate_png()
 
 def edit(request, graph_id):
-    return edit_entity(request, graph_id, Graph, GraphForm, 'reports')
+    return edit_entity(request, graph_id, Graph, GraphForm, 'graphs')
 
 @login_required
-@get_view_or_die('reports')
+@get_view_or_die('graphs')
 def detailview(request, graph_id):
-    return view_entity_with_template(request, graph_id, Graph, '/reports/graph', 'reports/view_graph.html')
+    return view_entity_with_template(request, graph_id, Graph, '/graphs/graph', 'graphs/view_graph.html')
 
 @login_required
-@get_view_or_die('reports')
+@get_view_or_die('graphs')
 def listview(request):
-    return list_view(request, Graph, extra_dict={'add_url':'/reports/graph/add'})
+    return list_view(request, Graph, extra_dict={'add_url':'/graphs/graph/add'})
