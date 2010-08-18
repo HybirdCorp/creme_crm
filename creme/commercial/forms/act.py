@@ -18,19 +18,15 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-#from datetime import datetime
-
-from django.forms import  DateTimeField
 from django.utils.translation import ugettext as _
 
-from creme_core.forms import CremeEntityForm
-from creme_core.forms.widgets import CalendarWidget
+from creme_core.forms import CremeEntityForm, CremeDateTimeField
 
 from commercial.models.act import Act
 
 
 class CreateForm(CremeEntityForm):
-    due_date = DateTimeField(label=_(u"Date d'échéance"), widget=CalendarWidget())
+    due_date = CremeDateTimeField(label=_(u"Date d'échéance"))
 
     class Meta(CremeEntityForm.Meta):
         model = Act

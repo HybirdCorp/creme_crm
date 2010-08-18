@@ -19,13 +19,12 @@
 ################################################################################
 
 from collections import defaultdict
-import re
+from re import compile as re_compile
 from logging import debug
 
-from django.forms import Field, CharField, MultipleChoiceField, ChoiceField, ModelChoiceField
+from django.forms import Field, CharField, MultipleChoiceField, ChoiceField, ModelChoiceField, DateField, TimeField, DateTimeField
 from django.forms.util import ValidationError
 from django.forms.fields import EMPTY_VALUES
-from django.core.files.uploadedfile import UploadedFile
 from django.utils.translation import ugettext_lazy as _
 from django.utils.simplejson import loads as jsonloads
 from django.utils.simplejson.encoder import JSONEncoder
@@ -34,9 +33,14 @@ from django.contrib.contenttypes.models import ContentType
 
 from creme_core.models import RelationType, CremeEntity
 from creme_core.utils import creme_entity_content_types
-from creme_core.forms.widgets import CTEntitySelector, SelectorList, ListViewWidget, ListEditionWidget, RelationListWidget
+from creme_core.forms.widgets import CTEntitySelector, SelectorList, ListViewWidget, ListEditionWidget, RelationListWidget, CalendarWidget, TimeWidget
 from creme_core.constants import REL_SUB_RELATED_TO, REL_SUB_HAS
 
+
+__all__ = ('GenericEntitiesField', 'RelatedEntitiesField', 'CremeEntityField', 'MultiCremeEntityField',
+           'ListEditionField',
+           'AjaxChoiceField', 'AjaxMultipleChoiceField', 'AjaxModelChoiceField',
+           'CremeTimeField', 'CremeDateField', 'CremeDateTimeField')
 
 def get_entity_ctypes_options(): #TODO: staticmethod ??
     return ((ctype.pk, ctype.__unicode__()) for ctype in creme_entity_content_types())
@@ -83,7 +87,7 @@ class RelatedEntitiesField(CharField):
     }
     widget = RelationListWidget
 
-    regex = re.compile('^(\([\w-]+,[\d]+,[\d]+\);)*$')
+    regex = re_compile('^(\([\w-]+,[\d]+,[\d]+\);)*$')
 
     def __init__(self, relation_types=(REL_SUB_RELATED_TO, REL_SUB_HAS), *args, **kwargs):
         """
@@ -125,7 +129,7 @@ class RelatedEntitiesField(CharField):
         return [(relationtype_id, entities[entity_id]) for relationtype_id, ct_id, entity_id in rawdata]
 
 
-class CommaMultiValueField(CharField): #TODO: Charfield and not Field ??!!
+class _CommaMultiValueField(CharField): #TODO: Charfield and not Field ??!!
     """
         An input with comma (or anything) separated values
     """
@@ -134,7 +138,7 @@ class CommaMultiValueField(CharField): #TODO: Charfield and not Field ??!!
 
     def __init__(self, separator=',', *args, **kwargs):
         self.separator = separator
-        super(CommaMultiValueField, self).__init__(*args, **kwargs)
+        super(_CommaMultiValueField, self).__init__(*args, **kwargs)
 
     def clean(self, value):
         if not value and self.required:
@@ -146,7 +150,7 @@ class CommaMultiValueField(CharField): #TODO: Charfield and not Field ??!!
         return []
 
 
-class _EntityField(CommaMultiValueField):
+class _EntityField(_CommaMultiValueField):
     """
         Base class for CremeEntityField and MultiCremeEntityField,
         not really usable elsewhere avoid using it
@@ -193,8 +197,7 @@ class _EntityField(CommaMultiValueField):
             return {'o2m': self.o2m, 'ct_id': ContentType.objects.get_for_model(self.model).id}
 
 
-class CremeEntityField(_EntityField):#TODO : Refactor to derivate from charField ? / Improve me ?
-#class CremeEntityField(forms.CharField):
+class CremeEntityField(_EntityField):
     """
          An input with comma (or anything) separated primary keys
          clean method return a model instance
@@ -332,3 +335,15 @@ class AjaxModelChoiceField(ModelChoiceField):
             raise ValidationError(self.error_messages['invalid_choice'])
 
         return value
+
+
+class CremeTimeField(TimeField):
+    widget = TimeWidget
+
+
+class CremeDateField(DateField):
+    widget = CalendarWidget
+
+
+class CremeDateTimeField(DateTimeField):
+    widget = CalendarWidget

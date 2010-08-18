@@ -30,7 +30,7 @@ class MeetingCreateForm(ActivityCreateForm):
         model = Meeting
         exclude = ActivityCreateForm.Meta.exclude
 
-    type = ModelChoiceField(empty_label=None, queryset=ActivityType.objects.filter(pk=ACTIVITYTYPE_MEETING))
+    type = ModelChoiceField(empty_label=None, queryset=ActivityType.objects.filter(pk=ACTIVITYTYPE_MEETING)) #TODO: exclude....
 
     def __init__(self, *args, **kwargs):
         super(MeetingCreateForm, self).__init__(*args, **kwargs)
@@ -39,6 +39,7 @@ class MeetingCreateForm(ActivityCreateForm):
     def save(self):
         self.cleaned_data['type'] = ActivityType.objects.get(pk=ACTIVITYTYPE_MEETING)
         super(MeetingCreateForm, self).save()
+
 
 class MeetingCreateWithoutRelationForm(ActivityCreateWithoutRelationForm):
     class Meta:
@@ -52,9 +53,9 @@ class MeetingCreateWithoutRelationForm(ActivityCreateWithoutRelationForm):
         self.fields['type'].initial = ActivityType.objects.get(pk=ACTIVITYTYPE_MEETING)
 
     def save(self):
-        self.cleaned_data['type'] = ActivityType.objects.get(pk=ACTIVITYTYPE_MEETING)
+        self.cleaned_data['type'] = ActivityType.objects.get(pk=ACTIVITYTYPE_MEETING) #TODO: self.instance.type_id = ACTIVITYTYPE_MEETING instead
         super(MeetingCreateWithoutRelationForm, self).save()
-        
+
 
 class MeetingEditForm(ActivityEditForm):
     class Meta:

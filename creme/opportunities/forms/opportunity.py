@@ -18,12 +18,10 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.forms import DateTimeField, ModelChoiceField
+from django.forms import ModelChoiceField
 from django.utils.translation import ugettext_lazy as _
 
-from creme_core.forms import CremeEntityForm
-from creme_core.forms.fields import CremeEntityField
-from creme_core.forms.widgets import CalendarWidget
+from creme_core.forms import CremeEntityForm, CremeEntityField, CremeDateTimeField
 
 from persons.models import Organisation
 
@@ -33,7 +31,7 @@ from creme import form_post_save
 
 
 class OpportunityEditForm(CremeEntityForm):
-    expiration_date = DateTimeField(label=_(u'Écheance'), widget=CalendarWidget())
+    expiration_date = CremeDateTimeField(label=_(u'Écheance'))
 
     class Meta(CremeEntityForm.Meta):
         model = Opportunity
