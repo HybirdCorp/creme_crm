@@ -79,8 +79,12 @@ $(document).ready(function() {
             events: "{{events_url}}",
             editable:true,
             loading: function(bool, view) {
-                if (bool) $('#loading').show("slow");
-                else $('#loading').hide("slow");
+                //console.log(arguments);
+                /*if (bool) $('#loading').show("slow");
+                else $('#loading').hide("slow");*/
+                if (bool) creme.utils.loading('loading', false, {});
+                else creme.utils.loading('loading', true, {});
+                
             },
             dayClick : function( date, allDay, jsEvent, view ) {
                 if(view.name=="month")
@@ -206,7 +210,7 @@ $(document).ready(function() {
                         </td>
                     </tr>
                 </thead>
-                <tbody id="tbody-selectable" style="height:250px; overflow: scroll;">
+                <tbody id="tbody-selectable" style="overflow: scroll;">
                     {% for user in users %}
                         {% if forloop.counter0|mod:16|eq:0 %}<tr>{% endif %}
                             <td class="selectable {% if user|in:current_users %} selected {% endif %}" style="padding:3px;cursor: pointer;" >
