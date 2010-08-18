@@ -13,8 +13,7 @@
     <tbody class="collapsable">
         <tr>
             <th align="left" colspan="{{colspan}}" class="{% cycle "block_header_line_dark" "block_header_line_light" %}">
-                {% comment %}<a class="button_link" onclick="creme.utils.innerPopupNReload('/reports2/report/{{object.id}}/field/add', '{{update_url}}?base_url={{base_url}}');">{% endcomment %}
-                <a class="button_link" onclick="creme.utils.innerPopupNReload('/reports2/report/{{object.id}}/field/add', {% get_block_reload_uri %});">
+                <a class="button_link" onclick="creme.utils.innerPopupNReload('/reports/report/{{object.id}}/field/add', {% get_block_reload_uri %});">
                     <img src="{{MEDIA_URL}}images/add_22.png" border="0" title="Ajouter une colonne" alt="Ajouter" />
                     {% trans 'Ajouter' %} /
                     <img src="{{MEDIA_URL}}images/delete_22.png" border="0" title="Supprimer une colonne" alt="Supprimer" />

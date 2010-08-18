@@ -24,9 +24,9 @@ from creme_core.registry import creme_registry
 from creme_core.gui.menu import creme_menu
 from creme_core.gui.block import block_registry
 
-from reports2.backends import HtmlReportBackend, CsvReportBackend
-from reports2.models import Report2 as Report, report_prefix_url
-from reports2.blocks import report_fields_block
+from reports.backends import HtmlReportBackend, CsvReportBackend
+from reports.models import Report, report_prefix_url
+from reports.blocks import report_fields_block
 
 report_app = Report._meta.app_label
 
@@ -34,9 +34,8 @@ report_app = Report._meta.app_label
 creme_registry.register_app(report_app, _(u'Rapports'), report_prefix_url)
 creme_registry.register_entity_models(Report)
 
-#creme_registry.register('reports2-backends', {'html' : HtmlReportBackend})
-creme_registry.register('reports2-backend-html', HtmlReportBackend)
-creme_registry.register('reports2-backend-csv',  CsvReportBackend)
+creme_registry.register('reports-backend-html', HtmlReportBackend)
+creme_registry.register('reports-backend-csv',  CsvReportBackend)
 
 creme_menu.register_app(report_app, '%s/' % report_prefix_url, 'Rapports')
 reg_menu = creme_menu.register_menu

@@ -29,9 +29,8 @@ from creme_core.utils.meta import (get_field_infos, get_model_field_infos,
                                    filter_entities_on_ct, get_fk_entity, get_m2m_entities)
 from creme_core.models.header_filter import HFI_FUNCTION, HFI_RELATION, HFI_FIELD, HFI_CUSTOM
 
-
-report_prefix_url   = '/reports2' #TODO : Remove me when remove reports app
-report_template_dir = 'reports2' #TODO : Remove me when remove reports app
+report_prefix_url   = '/reports'
+report_template_dir = 'reports'
 
 class DropLine(Exception):
     pass
@@ -59,10 +58,10 @@ class Field(CremeModel):
     order     = PositiveIntegerField()
     type      = PositiveSmallIntegerField() #==> {HFI_FIELD, HFI_RELATION, HFI_FUNCTION, HFI_CUSTOM}#Add in choices ?
     selected  = BooleanField(default=False)
-    report    = ForeignKey("Report2", blank=True, null=True)
+    report    = ForeignKey("Report", blank=True, null=True)
 
     class Meta:
-        app_label = 'reports2'
+        app_label = 'reports'
         verbose_name = _(u'Colone de rapport')
         verbose_name_plural  = _(u'Colonnes de rapport')
         ordering = ['order']
@@ -116,11 +115,11 @@ class Field(CremeModel):
                                                        'field': <Field: est en relation avec / est en relation avec>,
                                                        'report': None}],
                                          'field': <Field: est en relation avec / est en relation avec>,
-                                         'report': <Report2: Rapport 4>}],
+                                         'report': <Report: Rapport 4>}],
                            'field': <Field: est en relation avec / est en relation avec>,
-                           'report': <Report2: Rapport 3>}],
+                           'report': <Report: Rapport 3>}],
              'field': <Field: self>,
-             'report': <Report2: self.report>}
+             'report': <Report: self.report>}
         """
         field_dict = {'field' : self, 'children' : [], 'report' : None}
         report = self.report
@@ -237,14 +236,14 @@ class Field(CremeModel):
                 container.append(sub_val)
 
 
-class Report2(CremeEntity):
+class Report(CremeEntity):
     name    = CharField(_(u'Nom du rapport'), max_length=100)
     ct      = ForeignKey(ContentType, verbose_name=_(u"Type d'entité"))
-    columns = ManyToManyField(Field, verbose_name=_(u"Colonnes affichées"))
+    columns = ManyToManyField(Field, verbose_name=_(u"Colonnes affichées"), related_name='report_columns_set')
     filter  = ForeignKey(Filter, verbose_name=_(u'Filtre'), blank=True, null=True)
 
     class Meta:
-        app_label = 'reports2'
+        app_label = 'reports'
         verbose_name = _(u'Rapport')
         verbose_name_plural  = _(u'Rapports')
         ordering = ['name']
@@ -273,7 +272,7 @@ class Report2(CremeEntity):
         asc_reports = []
 
         for field in fields:
-            asc_reports.extend(Report2.objects.filter(columns__id=field.id))
+            asc_reports.extend(Report.objects.filter(columns__id=field.id))
 
         for report in asc_reports:
             asc_reports.extend(report.get_ascendants_reports())
@@ -306,7 +305,7 @@ class Report2(CremeEntity):
             
         return lines
 
-    def fetch_all_lines(self, limit_to):
+    def fetch_all_lines(self, limit_to=None):
         tree = self.fetch(limit_to=limit_to)
 
         lines = []

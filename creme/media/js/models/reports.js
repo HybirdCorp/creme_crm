@@ -215,12 +215,12 @@ creme.reports.unlink_report = function(field_id, block_url)
         
     };
     
-    creme.ajax.json.post('/reports2/report/field/unlink_report', {'field_id': field_id}, success_cb, success_cb, false, this.loading_options);
+    creme.ajax.json.post('/reports/report/field/unlink_report', {'field_id': field_id}, success_cb, success_cb, false, this.loading_options);
 }
 
 creme.reports.link_report = function(report_id, field_id, block_url)
 {
-    creme.utils.innerPopupNReload('/reports2/report/'+report_id+'/field/'+field_id+'/link_report', block_url);
+    creme.utils.innerPopupNReload('/reports/report/'+report_id+'/field/'+field_id+'/link_report', block_url);
 }
 
 creme.reports.link_relation_report = function(report_id, field_id, predicate, block_url)
@@ -239,7 +239,7 @@ creme.reports.link_relation_report = function(report_id, field_id, predicate, bl
                         return;
                     }
 
-                    creme.utils.innerPopupNReload('/reports2/report/'+report_id+'/field/'+field_id+'/link_relation_report/'+$select.val(), block_url);
+                    creme.utils.innerPopupNReload('/reports/report/'+report_id+'/field/'+field_id+'/link_relation_report/'+$select.val(), block_url);
 
                     $(this).dialog("close");
                 }
@@ -273,7 +273,7 @@ creme.reports.changeOrder = function(report_id, field_id, direction, block_url)
 
     var data = {'report_id': report_id, 'field_id': field_id, 'direction': direction};
 
-    creme.ajax.json.post('/reports2/report/field/change_order', data, success_cb, success_cb, false, this.loading_options);
+    creme.ajax.json.post('/reports/report/field/change_order', data, success_cb, success_cb, false, this.loading_options);
 }
 
 creme.reports.setSelected = function(checkbox, report_id, field_id, block_url)
@@ -293,6 +293,6 @@ creme.reports.setSelected = function(checkbox, report_id, field_id, block_url)
 
     var data = {'report_id': report_id, 'field_id': field_id, 'checked': +$(checkbox).is(':checked')};
 
-    creme.ajax.json.post('/reports2/report/field/set_selected', data, success_cb, success_cb, false, this.loading_options);
+    creme.ajax.json.post('/reports/report/field/set_selected', data, success_cb, success_cb, false, this.loading_options);
 
 };
