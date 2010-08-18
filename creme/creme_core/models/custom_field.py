@@ -109,8 +109,6 @@ class CustomFieldValue(CremeModel):
     entity       = ForeignKey(CremeEntity)
     #value       = FoobarField()  --> implement in inherited classes
 
-    form_field = forms.Field #overload meeee
-
     class Meta:
         abstract = True
 
@@ -144,9 +142,13 @@ class CustomFieldValue(CremeModel):
     def _set_formfield_value(self, field):
         field.initial = self.value
 
+    @staticmethod
+    def get_formfield_class(): #overload meeee
+        return forms.Field
+
     @classmethod
     def get_formfield(cls, custom_field, custom_value):
-        field = cls.form_field(label=custom_field.name, required=False)
+        field = cls.get_formfield_class()(label=custom_field.name, required=False)
         cls._build_formfield(custom_field, field)
 
         if custom_value:
@@ -164,7 +166,6 @@ class CustomFieldString(CustomFieldValue):
     value = CharField(max_length=100)
 
     verbose_name = _(u'Chaîne de caractères')
-    form_field   = forms.CharField
 
     class Meta:
         app_label = 'creme_core'
@@ -172,48 +173,65 @@ class CustomFieldString(CustomFieldValue):
     def __unicode__(self):
         return self.value
 
+    @staticmethod
+    def get_formfield_class():
+        return forms.CharField
+
 
 class CustomFieldInteger(CustomFieldValue):
     value = IntegerField()
 
     verbose_name = _(u'Nombre entier')
-    form_field   = forms.IntegerField
 
     class Meta:
         app_label = 'creme_core'
+
+    @staticmethod
+    def get_formfield_class():
+        return forms.IntegerField
 
 
 class CustomFieldFloat(CustomFieldValue):
     value = DecimalField(max_digits=4, decimal_places=2)
 
     verbose_name = _(u'Nombre à virgule')
-    form_field   = forms.DecimalField
 
     class Meta:
         app_label = 'creme_core'
+
+    @staticmethod
+    def get_formfield_class():
+        return forms.DecimalField
 
 
 class CustomFieldDateTime(CustomFieldValue):
     value = DateTimeField()
 
     verbose_name = _(u'Date')
-    form_field   = forms.DateTimeField #TODO: better widget
 
     class Meta:
         app_label = 'creme_core'
+
+    @staticmethod
+    def get_formfield_class():
+        from creme_core.forms.fields import CremeDateTimeField #avoid cyclic import
+        return CremeDateTimeField
 
 
 class CustomFieldBoolean(CustomFieldValue):
     value = BooleanField()
 
     verbose_name = _(u'Booléen (2 valeurs: Oui/Non)')
-    form_field   = forms.BooleanField
 
     class Meta:
         app_label = 'creme_core'
 
     def __unicode__(self):
         return ugettext(u'Oui') if self.value else ugettext(u'Non')
+
+    @staticmethod
+    def get_formfield_class():
+        return forms.BooleanField
 
 
 class CustomFieldEnumValue(CremeModel):
@@ -235,10 +253,13 @@ class CustomFieldEnum(CustomFieldValue):
     value = ForeignKey(CustomFieldEnumValue)
 
     verbose_name = _(u'Liste de choix')
-    form_field   = forms.ChoiceField
 
     class Meta:
         app_label = 'creme_core'
+
+    @staticmethod
+    def get_formfield_class():
+        return forms.ChoiceField
 
     @classmethod
     def _get_4_entities(cls, entities, cfields):
@@ -264,7 +285,6 @@ class CustomFieldMultiEnum(CustomFieldValue):
     value = ManyToManyField(CustomFieldEnumValue)
 
     verbose_name = _(u'Liste de choix (multi sélection)')
-    form_field   = forms.MultipleChoiceField
 
     _enumvalues = None
 
@@ -277,6 +297,10 @@ class CustomFieldMultiEnum(CustomFieldValue):
         #output.append('</ul>')
         #return u''.join(output)
         return u' / '.join(unicode(val) for val in self.get_enumvalues())
+
+    @staticmethod
+    def get_formfield_class():
+        return forms.MultipleChoiceField
 
     @classmethod
     def _get_4_entities(cls, entities, cfields):
