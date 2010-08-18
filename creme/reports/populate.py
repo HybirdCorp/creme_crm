@@ -27,35 +27,17 @@ from creme_core.utils import create_or_update_models_instance as create
 from creme_core.utils.meta import get_verbose_field_name
 from creme_core.management.commands.creme_populate import BasePopulator
 
-from models import Report, Operation, Graph
-
+from models import Graph
 
 class Populator(BasePopulator):
     dependencies = ['creme.core']
 
     def populate(self, *args, **kwargs):
-        create(Operation, 1, name=_(u"Somme"),   operator="Sum", operator_pattern='%s__sum')
-        create(Operation, 2, name=_(u"Minimum"), operator="Min", operator_pattern='%s__min')
-        create(Operation, 3, name=_(u"Maximum"), operator="Max", operator_pattern='%s__max')
-        create(Operation, 4, name=_(u"Moyenne"), operator="Avg", operator_pattern='%s__avg')
-
         get_ct = ContentType.objects.get_for_model
-
-        hf_id = create(HeaderFilter, 'reports-hf', name=u'Vue de Rapport', entity_type_id=get_ct(Report).id, is_custom=False).id
-        pref  = 'reports-hfi_' #'reports-hfi_report_' instead...
-        create(HeaderFilterItem, pref + 'name', order=1, name='name', title=_(u'Nom'),      type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True, editable=True, sortable=True, filter_string="name__icontains")
-        create(HeaderFilterItem, pref + 'ct',   order=2, name='ct',   title=_(u'Resource'), type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True, editable=True, sortable=True, filter_string="ct__name__icontains")
 
         hf_id = create(HeaderFilter, 'reports-hf', name=u'Vue de Graphe', entity_type_id=get_ct(Graph).id, is_custom=False).id
         pref  = 'reports-hfi_graph_'
         create(HeaderFilterItem, pref + 'name', order=1, name='name', title=_(u'Nom'), type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True, editable=True, sortable=True, filter_string="name__icontains")
-
-        model = Report
-        sci = create(SearchConfigItem, content_type_id=ContentType.objects.get_for_model(model).id)
-        SCI_pk = sci.pk
-        sci_fields = ['name']
-        for i, field in enumerate(sci_fields):
-            create(SearchField, field=field, field_verbose_name=get_verbose_field_name(model, field), order=i, search_config_item_id=SCI_pk)
 
         model = Graph
         sci = create(SearchConfigItem, content_type_id=ContentType.objects.get_for_model(model).id)
