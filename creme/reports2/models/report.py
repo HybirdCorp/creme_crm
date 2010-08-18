@@ -20,11 +20,10 @@
 
 from django.contrib.contenttypes.models import ContentType
 from django.db.models.fields.related import ManyToManyField, ForeignKey
-from django.db.models.fields import CharField, PositiveIntegerField, PositiveSmallIntegerField, IntegerField, BooleanField
+from django.db.models.fields import CharField, PositiveIntegerField, PositiveSmallIntegerField, BooleanField
 from django.utils.translation import ugettext_lazy as _
-from django.utils.datastructures import SortedDict as OrderedDict #use python2.6 OrderedDict later.....
 
-from creme_core.models import CremeAbstractEntity, CremeEntity, Filter, CremeModel
+from creme_core.models import CremeEntity, Filter, CremeModel
 from creme_core.models.custom_field import CustomField
 from creme_core.utils.meta import (get_field_infos, get_model_field_infos,
                                    filter_entities_on_ct, get_fk_entity, get_m2m_entities)
@@ -33,6 +32,9 @@ from creme_core.models.header_filter import HFI_FUNCTION, HFI_RELATION, HFI_FIEL
 
 report_prefix_url   = '/reports2' #TODO : Remove me when remove reports app
 report_template_dir = 'reports2' #TODO : Remove me when remove reports app
+
+class DropLine(Exception):
+    pass
 
 class FkClass(object):
     """A simple container to handle values for a foreign key which requires particular
@@ -133,38 +135,57 @@ class Field(CremeModel):
         column_type = self.type
         column_name = self.name
         report = self.report
-        selected = selected if selected is not None else self.selected
+        selected = selected or self.selected
         empty_value = u""
 
         if column_type == HFI_FIELD:
-            if entity is None and report and selected:
-                return FkClass([empty_value for c in report.columns.all()])#Only fk requires a multi-padding
-            elif entity is None:
-                return empty_value
+                if entity is None and report and selected:
+                    return FkClass([empty_value for c in report.columns.all()])#Only fk requires a multi-padding
+                elif entity is None:
+                    return empty_value
 
-            fields_through = [f['field'].__class__ for f in get_model_field_infos(entity.__class__, column_name)]
-            if ManyToManyField in fields_through:
-                return get_m2m_entities(entity, self)
+                fields_through = [f['field'].__class__ for f in get_model_field_infos(entity.__class__, column_name)]
+                if ManyToManyField in fields_through:
+                    if report and selected:
+                        res = []
+                        
+                        if report.filter is not None:
+                            m2m_entities = get_m2m_entities(entity, self.name, False, report.filter.get_q())
+                        else:
+                            m2m_entities = get_m2m_entities(entity, self.name, False)
 
-            elif ForeignKey in fields_through and report and selected:
-                fk_entity = get_fk_entity(entity, self)
-                
-                res = []
-                for column in report.columns.all():
-                    val = column.get_value(fk_entity, selected=None)
-#                    val = column.get_value(fk_entity, selected=False)
-                    if isinstance(val, (FkClass,)):
-                        res.extend(val)
+                        for m2m_entity in m2m_entities:
+                            sub_res = []
+                            for sub_col in report.columns.all():
+                                sub_res.append(sub_col.get_value(m2m_entity))
+                            res.append(sub_res)
+                        return res
                     else:
-                        res.append(val)
+                        return get_m2m_entities(entity, self.name, True)
 
-                return FkClass(res)
+                    return u""
 
-            model_field, value = get_field_infos(entity, column_name)
-            return unicode(value or empty_value)#Maybe format map (i.e : datetime...)
+                elif ForeignKey in fields_through and report and selected:
+                    fk_entity = get_fk_entity(entity, self.name)
+
+                    if (report.filter is not None and
+                        fk_entity not in report.ct.model_class().objects.filter(report.filter.get_q())):
+                            raise DropLine
+
+                    res = []
+                    for column in report.columns.all():
+                        val = column.get_value(fk_entity, selected=None)
+                        if isinstance(val, FkClass):
+                            res.extend(val)
+                        else:
+                            res.append(val)
+
+                    return FkClass(res)
+
+                model_field, value = get_field_infos(entity, column_name)
+                return unicode(value or empty_value)#Maybe format map (i.e : datetime...)
 
         elif column_type == HFI_CUSTOM:
-
             if entity is None:
                 return empty_value
 
@@ -178,14 +199,20 @@ class Field(CremeModel):
             related_entities = entity.get_related_entities(column_name, True) if entity is not None else []
 
             if report and selected:#TODO: Apply self.report filter AND/OR filter_entities_on_ct(related_entities, ct) ?
-                scope = related_entities
+#                scope = related_entities
+                scope = filter_entities_on_ct(related_entities, report.ct)
+
+                if report.filter is not None:
+                    scope = report.ct.model_class().objects.filter(pk__in=[e.id for e in scope])
+                    scope = scope.filter(report.filter.get_q())
+
                 res = []
                 for rel_entity in scope:
                     rel_entity_res = []
                     for column in report.columns.all():
                         val = column.get_value(rel_entity)
 #                        if isinstance(val, (tuple,)):
-                        if isinstance(val, (FkClass,)):
+                        if isinstance(val, FkClass):
                             rel_entity_res.extend(val)
                         else:
                             rel_entity_res.append(val)
@@ -195,7 +222,7 @@ class Field(CremeModel):
 #                    res.append([c.get_value() for c in report.columns.all()])
                     for c in report.columns.all():
                         sub_val = c.get_value()
-                        if isinstance(sub_val, (FkClass, )):
+                        if isinstance(sub_val, FkClass):
                             res.extend(sub_val)
                         else:
                             res.append(sub_val)
@@ -260,7 +287,7 @@ class Report2(CremeEntity):
 
         return set(asc_reports)
 
-    def fetch(self):
+    def fetch(self, limit_to=None):
         lines   = []
         ct    = self.ct
         model = ct.model_class()
@@ -272,19 +299,22 @@ class Report2(CremeEntity):
         else:
             entities = model_manager.all()
 
-        for entity in entities:
+        for entity in entities[:limit_to]:
             entity_line = []
 
-            for column in columns:
-                report, field, children = column.get('report'), column.get('field'), column.get('children')
-                entity_line.append(field.get_value(entity))
-                
-            lines.append(entity_line)
+            try:
+                for column in columns:
+                    report, field, children = column.get('report'), column.get('field'), column.get('children')
+                    entity_line.append(field.get_value(entity))
+
+                lines.append(entity_line)
+            except DropLine:
+                pass
             
         return lines
 
-    def fetch_all_lines(self):
-        tree = self.fetch()
+    def fetch_all_lines(self, limit_to):
+        tree = self.fetch(limit_to=limit_to)
 
         lines = []
 
@@ -295,17 +325,15 @@ class Report2(CremeEntity):
                 self.has_to_build = False
                 self.values_to_build = []
 
-
             def process_fk(self):
                 new_tree = []
                 for col_value in self.tree:
-                    if isinstance(col_value, (FkClass,)):
+                    if isinstance(col_value, FkClass):
                         new_tree.extend(col_value.values)
                     else:
                         new_tree.append(col_value)
                         
                 self.tree = new_tree
-
 
             def set_simple_values(self, current_line):
                 values = []
@@ -336,7 +364,6 @@ class Report2(CremeEntity):
                 else:
                     current_line.extend(values)
 
-
             def set_iter_values(self, lines, current_line):
                 for future_node in self.values_to_build:
                     node = ReportTree(future_node)
@@ -362,6 +389,9 @@ class Report2(CremeEntity):
 
         for node in tree:
             lines.extend(ReportTree(node).get_lines())
+            
+            if limit_to is not None and len(lines) >= limit_to:#Bof
+                break
 
         return lines
 
