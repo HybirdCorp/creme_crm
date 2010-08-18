@@ -264,26 +264,14 @@ class Relation(CremeAbstractEntity):
     def filter_in(model, filter_predicate, value_for_filter):
         ct_model = ContentType.objects.get_for_model(model)
 
-        #TODO: use values_list()
-        #relations = Relation.objects.filter(type=filter_predicate, subject_content_type=ct_model)
-        relations = Relation.objects.filter(type=filter_predicate, subject_entity__entity_type=ct_model)
-        list_rel_pk = [r.object_entity_id for r in relations]
-
-        #TODO: use values_list()
-        #TODO: merge with previous query
+        list_rel_pk = Relation.objects.filter(type=filter_predicate).values_list('object_entity',flat=True)
         list_entity = CremeEntity.objects.filter(pk__in=list_rel_pk,
                                                  header_filter_search_field__icontains=value_for_filter)
-        #list_entity_pk = [e.id for e in list_entity]
-
-        #TODO: use values_list()
-        #list_entities = model.objects.filter(new_relations__type=filter_predicate, new_relations__object_id__in=list_entity_pk)
-        list_entities = model.objects.filter(relations__type=filter_predicate,
-                                             relations__object_entity__in=list_entity)
-
-        list_pk_f = [entity.id for entity in list_entities]
-
+        list_pk_f = model.objects.filter(relations__type=filter_predicate,
+                                             relations__object_entity__in=list_entity).values_list('id',flat=True)
         return Q(id__in=list_pk_f)
-
+    
+    
     @staticmethod
     def create(subject, relation_type_id, object_): #really useful ??? (only 'user' attr help)
         relation = Relation()
