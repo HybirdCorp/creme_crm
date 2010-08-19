@@ -24,7 +24,7 @@ from creme_core.registry import creme_registry
 from creme_core.gui.menu import creme_menu
 from creme_core.gui.block import block_registry
 
-from creme_config.blocks import *
+from creme_config.blocks import blocks_list
 
 
 creme_registry.register_app('creme_config', _(u'Configuration générale') , '/creme_config')
@@ -39,7 +39,4 @@ reg_menu('creme_config', '/creme_config/profile/portal/',                 'Gesti
 reg_menu('creme_config', '/creme_config/roles/portal/',                   'Gestion des rôles')
 reg_menu('creme_config', '/creme_config/user/portal/',                    'Gestion des utilisateurs')
 
-block_registry.register(generic_models_block, property_types_block, relation_types_block,
-                        custom_fields_portal_block, custom_fields_block,
-                        blocks_config_block, relationblocks_config_block, button_menu_block, search_block,
-                        users_block, app_credentials_block, entity_credentials_block)
+block_registry.register(*blocks_list)

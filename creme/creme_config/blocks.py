@@ -29,14 +29,6 @@ from creme_core.utils import jsonify
 
 from creme_config.registry import config_registry
 
-
-__all__ = ('generic_models_block', 'property_types_block', 'relation_types_block',
-           'custom_fields_portal_block', 'custom_fields_block',
-           'blocks_config_block', 'relationblocks_config_block', 'button_menu_block',
-           'users_block', 'app_credentials_block', 'entity_credentials_block',
-           'search_block')
-
-
 _PAGE_SIZE = 12
 
 
@@ -96,14 +88,27 @@ class RelationTypesBlock(QuerysetBlock):
     id_           = QuerysetBlock.generate_id('creme_config', 'relation_types')
     dependencies  = (RelationType,)
     page_size     = _PAGE_SIZE
-    verbose_name  = _(u'Configuration des types de relation')
+    verbose_name  = _(u'Liste des types de relation standard')
     template_name = 'creme_config/templatetags/block_relation_types.html'
 
     def detailview_display(self, context):
-        return self._render(self.get_block_template_context(context, RelationType.get_customs().filter(pk__contains='-subject_'),
+        return self._render(self.get_block_template_context(context, RelationType.objects.filter(is_custom=False, pk__contains='-subject_'),
                                                             update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
+                                                            custom=False,
                                                             ))
 
+class CustomRelationTypesBlock(QuerysetBlock):
+    id_           = QuerysetBlock.generate_id('creme_config', 'custom_relation_types')
+    dependencies  = (RelationType,)
+    page_size     = _PAGE_SIZE
+    verbose_name  = _(u'Configuration des types de relation personnalisés')
+    template_name = 'creme_config/templatetags/block_relation_types.html'
+
+    def detailview_display(self, context):
+        return self._render(self.get_block_template_context(context, RelationType.objects.filter(is_custom=True, pk__contains='-subject_'),
+                                                            update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
+                                                            custom=True,
+                                                            ))
 
 class CustomFieldsPortalBlock(QuerysetBlock):
     id_           = QuerysetBlock.generate_id('creme_config', 'custom_fields_portal')
@@ -251,15 +256,18 @@ class SearchConfigBlock(QuerysetBlock):
 #                                              update_url='/creme_config/blocks/reload/'))
 
 
-generic_models_block        = GenericModelsBlock()
-property_types_block        = PropertyTypesBlock()
-relation_types_block        = RelationTypesBlock()
-custom_fields_portal_block  = CustomFieldsPortalBlock()
-custom_fields_block         = CustomFieldsBlock()
-blocks_config_block         = BlocksConfigBlock()
-relationblocks_config_block = RelationBlocksConfigBlock()
-button_menu_block           = ButtonMenuBlock()
-users_block                 = UsersBlock()
-app_credentials_block       = AppCredentialsBlock()
-entity_credentials_block    = EntityCredentialsBlock()
-search_block                = SearchConfigBlock()
+blocks_list = (
+        GenericModelsBlock(),
+        PropertyTypesBlock(),
+        RelationTypesBlock(),
+        CustomRelationTypesBlock(),
+        CustomFieldsPortalBlock(),
+        CustomFieldsBlock(),
+        BlocksConfigBlock(),
+        RelationBlocksConfigBlock(),
+        ButtonMenuBlock(),
+        UsersBlock(),
+        AppCredentialsBlock(),
+        EntityCredentialsBlock(),
+        SearchConfigBlock(),
+    )
