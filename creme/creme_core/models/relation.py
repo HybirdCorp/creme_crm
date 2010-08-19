@@ -20,14 +20,13 @@
 
 from logging import debug
 
-from django.db.models import CharField, ForeignKey, ManyToManyField, BooleanField, PositiveIntegerField #Model
-from django.contrib.contenttypes.models import ContentType
-from django.contrib.contenttypes.generic import GenericForeignKey
-from django.contrib.auth.models import User
+from django.db.models import Q, CharField, ForeignKey, ManyToManyField, BooleanField
+from django.db import transaction
 from django.utils.encoding import force_unicode, smart_str
 from django.utils.html import escape
 from django.utils.translation import ugettext_lazy as _
-from django.db.models import Q
+from django.contrib.contenttypes.models import ContentType
+from django.contrib.auth.models import User
 
 from creme_property import CremePropertyType
 from base import CremeModel, CremeAbstractEntity
@@ -46,8 +45,7 @@ class RelationType(CremeModel):
     subject_properties = ManyToManyField(CremePropertyType, blank=True, null=True, related_name='relationtype_subjects_set')
     object_properties  = ManyToManyField(CremePropertyType, blank=True, null=True, related_name='relationtype_objects_set')
 
-    can_be_create_with_popup = BooleanField(default=True)
-    #display_with_other       = BooleanField(default=True)
+    can_be_create_with_popup = BooleanField(default=True) #still useful ????
     is_custom                = BooleanField(default=False)
 
     predicate      = CharField(_(u'Prédicat'), max_length=100)
@@ -89,6 +87,7 @@ class RelationType(CremeModel):
         return RelationType.objects.filter(Q(subject_ctypes=ct) | Q(subject_ctypes__isnull=True))
 
     @staticmethod
+    @transaction.commit_manually
     def create(subject_desc, object_desc, is_custom=False, generate_pk=False):
         """
         @param subject_desc Tuple (string_pk, predicate_string [, sequence_of_cremeEntityClasses [, sequence_of_propertyTypes]])
@@ -160,6 +159,8 @@ class RelationType(CremeModel):
         sub_relation_type.save()
         obj_relation_type.save()
 
+        transaction.commit()
+
         return (sub_relation_type, obj_relation_type)
 
 
@@ -182,10 +183,6 @@ class Relation(CremeAbstractEntity):
         app_label = 'creme_core'
         verbose_name = _(u'Relation')
         verbose_name_plural = _(u'Relations')
-
-    #def __init__ (self , *args , **kwargs):
-        #super(Relation, self).__init__(*args, **kwargs)
-        ##self.build_custom_fields()
 
     def __unicode__(self):
         subject = self.subject_entity
@@ -215,11 +212,9 @@ class Relation(CremeAbstractEntity):
 
         return sym_relation
 
-    #TODO: there is a race condition no (at a moment there is a relation not complete) ???
+    @transaction.commit_manually
     def save(self):
         update = bool(self.pk)
-
-        #self.save_custom_fields()
 
         super(Relation, self).save()
 
@@ -230,12 +225,14 @@ class Relation(CremeAbstractEntity):
             self.symmetric_relation = sym_relation
             super(Relation, self).save()
 
+        transaction.commit()
+
     def _collect_sub_objects(self, seen_objs, parent=None, nullable=False):
         pk_val = self._get_pk_val()
-        
+
         if self.symmetric_relation is not None:
             seen_objs.add(self.symmetric_relation.__class__, self.symmetric_relation._get_pk_val(), self.symmetric_relation, parent, nullable)
-            
+
         seen_objs.add(self.__class__, pk_val, self, parent, nullable)
 
     def delete(self):
@@ -262,16 +259,13 @@ class Relation(CremeAbstractEntity):
 
     @staticmethod
     def filter_in(model, filter_predicate, value_for_filter):
-        ct_model = ContentType.objects.get_for_model(model)
-
-        list_rel_pk = Relation.objects.filter(type=filter_predicate).values_list('object_entity',flat=True)
+        list_rel_pk = Relation.objects.filter(type=filter_predicate).values_list('object_entity', flat=True)
         list_entity = CremeEntity.objects.filter(pk__in=list_rel_pk,
                                                  header_filter_search_field__icontains=value_for_filter)
         list_pk_f = model.objects.filter(relations__type=filter_predicate,
-                                             relations__object_entity__in=list_entity).values_list('id',flat=True)
+                                             relations__object_entity__in=list_entity).values_list('id', flat=True)
         return Q(id__in=list_pk_f)
-    
-    
+
     @staticmethod
     def create(subject, relation_type_id, object_): #really useful ??? (only 'user' attr help)
         relation = Relation()
@@ -281,91 +275,3 @@ class Relation(CremeAbstractEntity):
         #relation.user = User.objects.get(pk=1)
         relation.user_id = 1
         relation.save()
-
-#    def build_custom_fields (self):
-#        pass
-
-#        self._meta.custom_fields = {}
-#        debug ( self)
-#        debug ( self.predicate )
-#
-#        Q1 = Q (for_relation1=self.predicate )
-#        Q2 = Q (for_relation2=self.predicate )
-#        QTotal = Q1 | Q2
-#        List_Custom_Fields =  RelationCustomFields.objects.filter ( QTotal  )
-#        debug ( List_Custom_Fields)
-#        for CF in List_Custom_Fields:
-#            List_CFV =  RelationCustomFieldsValue.objects.filter(custom_field= CF , creme_relation = self)
-#
-#            if List_CFV.count() > 0:
-#                self.__dict__[ str(CF.name) ] = List_CFV[0].value_field
-#            else :
-#                 self.__dict__[ str(CF.name) ] = CF.default_value
-#            self._meta.custom_fields[ str(CF.name) ] = CharField(max_length=100, default = CF.default_value)
-
-#    def save_custom_fields (self ):
-#
-#        List_Recherche = [self.predicate, self.relation_symetrique.predicate]
-#        List_Recherche = [self.predicate ]
-#        if not self.pk :
-#            for key, value in self._meta.custom_fields.iteritems():
-#                CFV =  RelationCustomFieldsValue ( custom_field= RelationCustomFields.objects.get ( name=key ,
-#                                                                                                    for_relation__in = List_Recherche ) ,
-#                                                   creme_relation=self ,
-#                                                   value_field=self.__dict__[ key ] )
-#                CFV.save ()
-#        else :
-#            for key, value in self._meta.custom_fields.iteritems():
-#                current_custom_field= RelationCustomFields.objects.get ( name=key , for_relation__in = List_Recherche )
-#                queryset_cfv =   RelationCustomFieldsValue.objects.filter(creme_relation=self , custom_field=current_custom_field  )
-#                if  queryset_cfv.count () > 0 :
-#                    CFV = queryset_cfv[0]
-#                    CFV.value_field=self.__dict__[ key ]
-#                    CFV.save ()
-#                else :
-#                    if value.default ==  self.__dict__[ key ]:
-#                        pass
-#                    else:
-#                        CFV =  RelationCustomFieldsValue ( custom_field= RelationCustomFields.objects.get ( name=key , for_relation__in = List_Recherche ) ,
-#                                                           creme_relation=self ,
-#                                                           value_field=self.__dict__[ key ] )
-#                        CFV.save ()
-#
-#
-#
-
-
-#class RelationCustomFields(Model):
-#    name = CharField(max_length=100)
-#    for_relation1 = ForeignKey(RelationType, related_name="customfiels_relation1_set")
-#    for_relation2 = ForeignKey(RelationType, related_name="customfiels_relation2_set")
-#    type_champ = CharField(max_length=100)
-#    list_or_not = BooleanField()
-#    default_value = CharField(max_length=100, blank=True, null=True)
-#    extra_args = CharField(max_length=500, blank=True, null=True)
-#
-#    def __unicode__(self):
-#        return self.name
-#
-#    class Meta:
-#        app_label = 'creme_core'
-#
-#
-#class ValueOfRelationCustomFieldsList (Model):
-#    custom_field = ForeignKey(RelationCustomFields)
-#    value_field = CharField(max_length=100)
-#
-#    class Meta:
-#        app_label = 'creme_core'
-#
-#
-#class RelationCustomFieldsValue(Model):
-#    custom_field = ForeignKey(RelationCustomFields)
-#    creme_relation = ForeignKey(Relation)
-#    value_field = CharField(max_length=100)
-#
-#    def __unicode__(self):
-#        return force_unicode(self.id)
-#
-#    class Meta:
-#        app_label = 'creme_core'

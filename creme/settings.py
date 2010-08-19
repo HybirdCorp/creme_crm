@@ -15,10 +15,11 @@ CREME_ROOT = dirname(abspath(__file__))
 
 MANAGERS = ADMINS
 
-DATABASE_ENGINE = 'mysql'           # 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
-DATABASE_NAME = 'cremecrm'             # Or path to database file if using sqlite3.
-DATABASE_USER = 'creme'             # Not used with sqlite3.
-DATABASE_PASSWORD = 'creme'         # Not used with sqlite3.
+# NB: it's recommended to use a database engine that supports transactions.
+DATABASE_ENGINE = 'mysql'      # 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
+DATABASE_NAME = 'cremecrm'     # Or path to database file if using sqlite3.
+DATABASE_USER = 'creme'        # Not used with sqlite3.
+DATABASE_PASSWORD = 'creme'    # Not used with sqlite3.
 DATABASE_HOST = ''             # Set to empty string for localhost. Not used with sqlite3.
 DATABASE_PORT = ''             # Set to empty string for default. Not used with sqlite3.
 
