@@ -13,6 +13,8 @@ DEPENDENCIES:
 - Relatorio (if you use the app creme.billing and want PDF export)
 - pygraphviz (if you use the app creme.graphs and want graph export)
 
+RECOMMENDATIONS
+It's recommended to use a database engine that supports transactions.
 
 INSTALL:
 You have to know how to install a Django application.
