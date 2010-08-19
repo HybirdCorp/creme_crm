@@ -79,10 +79,6 @@ class RelationType(CremeModel):
         return 'FRA'
 
     @staticmethod
-    def get_customs():
-        return RelationType.objects.filter(is_custom=True)
-
-    @staticmethod
     def get_compatible_ones(ct):
         return RelationType.objects.filter(Q(subject_ctypes=ct) | Q(subject_ctypes__isnull=True))
 
