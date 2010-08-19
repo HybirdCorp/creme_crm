@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.http import HttpResponseRedirect, HttpResponse
+from django.http import HttpResponseRedirect, HttpResponse, Http404
 from django.shortcuts import get_object_or_404, render_to_response
 from django.template.context import RequestContext
 from django.contrib.auth.decorators import login_required
@@ -48,6 +48,9 @@ def edit(request, property_type_id):
         @Permissions : Admin to creme_config app
     """
     property_type = get_object_or_404(CremePropertyType, pk=property_type_id)
+
+    if not property_type.is_custom:
+        raise Http404("Can't edit a standard PropertyType") #TODO: 403 instead ?
 
     if request.POST :
         property_type_form = CremePropertyTypeEditForm(property_type, request.POST)
@@ -79,5 +82,10 @@ def delete(request):
         @Permissions : Admin to creme_config app
     """
     property_type = get_object_or_404(CremePropertyType, pk=request.POST.get('id'))
+
+    if not property_type.is_custom:
+        raise Http404("Can't delete a standard PropertyType") #TODO: 403 instead ?
+
     property_type.delete()
+
     return HttpResponse()

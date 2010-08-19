@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.db.models import CharField, ForeignKey, PositiveIntegerField, ManyToManyField
+from django.db.models import CharField, ForeignKey, ManyToManyField, BooleanField
 from django.utils.encoding import force_unicode
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.contenttypes.models import ContentType
@@ -31,6 +31,7 @@ class CremePropertyType(CremeModel):
     id             = CharField(primary_key=True, max_length=100)
     text           = CharField(max_length=200, unique=True)
     subject_ctypes = ManyToManyField(ContentType, blank=True, null=True, related_name='subject_ctypes_creme_property_set')
+    is_custom      = BooleanField(default=False)
 
     def __unicode__(self):
         return self.text
@@ -45,17 +46,17 @@ class CremePropertyType(CremeModel):
         super(CremePropertyType, self).delete()
 
     @staticmethod
-    def create(str_pk, text, subject_ctypes=(), generate_pk=False):
+    def create(str_pk, text, subject_ctypes=(), is_custom=False, generate_pk=False):
         """Helps the creation of new CremePropertyType.
         @param subject_ctypes Sequence of CremeEntity classes/ContentType objects.
         @param generate_pk If True, str_pk is used as prefix to generate pk.
         """
         if not generate_pk:
             from creme_core.utils import create_or_update_models_instance as create
-            property_type = create(CremePropertyType, str_pk, text=text)
+            property_type = create(CremePropertyType, str_pk, text=text, is_custom=is_custom)
         else:
             from creme_core.utils.id_generator import generate_string_id_and_save
-            property_type = CremePropertyType(text=text)
+            property_type = CremePropertyType(text=text, is_custom=is_custom)
             generate_string_id_and_save(CremePropertyType, [property_type], str_pk)
 
         property_type.property_i18n_set.all().delete()
