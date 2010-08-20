@@ -376,7 +376,7 @@ def form_factory(ct, header):
     if header:
         for i, col_name in enumerate(header):
             i += 1
-            choices.append((i, _(u'Colonne %i - %s') % (i, col_name)))
+            choices.append((i, _(u'Colonne %(index)s - %(name)s') % {'index': i, 'name': col_name}))
             header_dict[col_name.lower()] = i
     else:
         choices.extend((i, _(u'Colonne %i') % i) for i in xrange(1, 21))

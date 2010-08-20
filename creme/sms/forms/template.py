@@ -48,7 +48,7 @@ class TemplateCreateForm(CremeEntityForm):
         encoded_length = len(gsm_encoded_content(content))
 
         if encoded_length > SMS_MAX_LENGTH:
-            raise ValidationError(_('Message trop long (%d > %d)') % (encoded_length, SMS_MAX_LENGTH))
+            raise ValidationError(_('Message trop long (%(length)s > %(max_length)s)') % {'length': encoded_length, 'max_length': SMS_MAX_LENGTH})
 
         return cleaned_data
 
