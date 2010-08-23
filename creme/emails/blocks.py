@@ -19,11 +19,14 @@
 ################################################################################
 
 from django.http import HttpResponse
+from django.template.context import RequestContext
 from django.utils.simplejson import JSONEncoder
 from django.utils.translation import ugettext_lazy as _
 
 from creme_core.gui.block import QuerysetBlock
 from creme_core.utils import jsonify
+
+from emails.models.mail import MAIL_STATUS_SYNCHRONIZED_SPAM, MAIL_STATUS_SYNCHRONIZED_WAITING, MAIL_STATUS
 
 from persons.models import Contact, Organisation
 
@@ -34,7 +37,7 @@ from emails.models import EmailRecipient, EmailSending, Email, MailingList
 
 __all__ = ['mailing_lists_block', 'recipients_block', 'contacts_block', 'organisations_block',
            'child_lists_block', 'parent_lists_block', 'attachments_block', 'sendings_block',
-           'mails_block', 'mails_history_block']
+           'mails_block', 'mails_history_block', 'mail_waiting_sync_block', 'mail_spam_sync_block']
 
 class MailingListsBlock(QuerysetBlock):
     id_           = QuerysetBlock.generate_id('emails', 'mailing_lists')
@@ -183,13 +186,52 @@ class MailsHistoryBlock(QuerysetBlock):
                                                             ))
 
 
-mailing_lists_block = MailingListsBlock()
-recipients_block    = EmailRecipientsBlock()
-contacts_block      = ContactsBlock()
-organisations_block = OrganisationsBlock()
-child_lists_block   = ChildListsBlock()
-parent_lists_block  = ParentListsBlock()
-attachments_block   = AttachmentsBlock()
-sendings_block      = SendingsBlock()
-mails_block         = MailsBlock()
-mails_history_block = MailsHistoryBlock()
+class _SynchronizationMailsBlock(QuerysetBlock):
+    dependencies  = (Email,)
+
+    @jsonify
+    def detailview_ajax(self, request):
+        context = RequestContext(request)
+        context.update({
+            'MAIL_STATUS': MAIL_STATUS
+        })
+
+        return [(self.id_, self.detailview_display(context))]
+
+
+class WaitingSynchronizationMailsBlock(_SynchronizationMailsBlock):
+    id_           = QuerysetBlock.generate_id('emails', 'waiting_synchronisation')
+    verbose_name  = _(u'E-mails entrants à traiter')
+    template_name = 'emails/templatetags/block_synchronization.html'
+
+    def detailview_display(self, context):
+        context.update({'MAIL_STATUS': MAIL_STATUS})
+        return self._render(self.get_block_template_context(context, Email.objects.filter(status=MAIL_STATUS_SYNCHRONIZED_WAITING),
+                                                            update_url='/creme_core/blocks/reload/basic/%s/' % self.id_
+                                                            ))
+
+
+class SynchronizatMailsBlock(_SynchronizationMailsBlock):
+    id_           = QuerysetBlock.generate_id('emails', 'synchronised_as_spam')
+    verbose_name  = _(u'E-mails entrants marqués comme spam')
+    template_name = 'emails/templatetags/block_synchronization_spam.html'
+    
+    def detailview_display(self, context):
+        context.update({'MAIL_STATUS': MAIL_STATUS})
+        return self._render(self.get_block_template_context(context, Email.objects.filter(status=MAIL_STATUS_SYNCHRONIZED_SPAM),
+                                                            update_url='/creme_core/blocks/reload/basic/%s/' % self.id_
+                                                            ))
+
+
+mailing_lists_block     = MailingListsBlock()
+recipients_block        = EmailRecipientsBlock()
+contacts_block          = ContactsBlock()
+organisations_block     = OrganisationsBlock()
+child_lists_block       = ChildListsBlock()
+parent_lists_block      = ParentListsBlock()
+attachments_block       = AttachmentsBlock()
+sendings_block          = SendingsBlock()
+mails_block             = MailsBlock()
+mails_history_block     = MailsHistoryBlock()
+mail_waiting_sync_block = WaitingSynchronizationMailsBlock()
+mail_spam_sync_block    = SynchronizatMailsBlock()
