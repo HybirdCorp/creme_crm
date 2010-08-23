@@ -28,7 +28,7 @@ from django.utils.encoding import smart_str
 from django.shortcuts import get_object_or_404
 
 from creme_core.models import Relation, CustomField, CustomFieldEnumValue
-from header_filter import HeaderFilterItem, HFI_FIELD, HFI_RELATION, HFI_CUSTOM
+from header_filter import HeaderFilterItem, HFI_FIELD, HFI_RELATION, HFI_CUSTOM, HFI_FUNCTION
 
 
 def simple_value(value):
@@ -211,7 +211,11 @@ class ListViewState(object):
                 rct = HF.relation_content_type #TODO: remove ?? (see header_filter)
                 model_class = rct.model_class() if rct is not None else Relation
 
-                query &= model_class.filter_in(model, HF.relation_predicat, value)
+                query &= model_class.filter_in(model, HF.relation_predicat, value[0])
+            elif type_ == HFI_FUNCTION:
+                HF = get_object_or_404(HeaderFilterItem, pk=pk_hf)
+                if HF.has_a_filter:
+                    query &= model.filter_users_func (name, value[0] )               
             elif type_ == HFI_CUSTOM:
                 cf = CustomField.objects.get(pk=name)
                 cf_searches[cf.field_type].append((cf, pattern, value))

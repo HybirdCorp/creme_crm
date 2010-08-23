@@ -88,9 +88,9 @@ def get_verbose_function_name(model, function_name):
     """
     assert issubclass(model, CremeEntity)
     functions = model.users_allowed_func
-    for f in functions:
-        if f['name'] == function_name:
-            return f['verbose_name']
+    for f in functions.itervalues():
+        if f.name == function_name:
+            return f.verbose_name
     return None
 
 #TODO: rename......
