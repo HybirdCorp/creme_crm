@@ -26,8 +26,7 @@ from django.contrib.auth.decorators import login_required
 from creme_core.entities_access.functions_for_permissions import get_view_or_die, edit_object_or_die, read_object_or_die
 from creme_core.views.generic import inner_popup
 
-from emails.models import EmailCampaign, EmailSending, Email
-from emails.models.sending import SENDING_STATE_PLANNED
+from emails.models import EmailCampaign, EmailSending, LightWeightEmail
 from emails.forms.sending import SendingCreateForm
 from emails.blocks import mails_block
 
@@ -92,7 +91,7 @@ def detailview(request, sending_id):
 
 @login_required
 def delete_mail(request):
-    mail     = get_object_or_404(Email, pk=request.POST.get('id'))
+    mail     = get_object_or_404(LightWeightEmail, pk=request.POST.get('id'))
     campaign = mail.sending.campaign
 
     die_status = edit_object_or_die(request, campaign)

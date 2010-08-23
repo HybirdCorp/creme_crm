@@ -24,14 +24,20 @@ from email.mime.image import MIMEImage
 from os.path import join, basename
 from pickle import loads
 
+from django.contrib.contenttypes.generic import GenericForeignKey
+from django.db import IntegrityError
 from django.db.models import (ForeignKey, DateTimeField, PositiveSmallIntegerField,
-                              EmailField, CharField, TextField, ManyToManyField)
+                              EmailField, CharField, TextField, ManyToManyField, PositiveIntegerField)
 from django.core.mail import EmailMultiAlternatives
 from django.template import Template, Context
 from django.conf import settings
+from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import ugettext_lazy as _
 
 from creme_core.models import CremeModel
+
+from emails.models.mail import _Email, ID_LENGTH, MAIL_STATUS_SENT
+from emails.utils import generate_id
 
 from persons.models import MailSignature
 
@@ -85,7 +91,7 @@ class EmailSending(CremeModel):
         super(EmailSending, self).delete()
 
     def get_mails(self):
-        return Email.objects.filter(sending=self)
+        return LightWeightEmail.objects.filter(sending=self)
 
     def get_state_str(self):
         return SENDING_STATES[self.state]
@@ -97,7 +103,8 @@ class EmailSending(CremeModel):
         return self.campaign.get_absolute_url()
 
     def send_mails(self):
-        mails = Email.objects.filter(sending=self)
+#        mails = Email.objects.filter(sending=self)
+        mails = LightWeightEmail.objects.filter(sending=self)
 
         mails_count  = 0
         SENDING_SIZE = getattr(settings, 'SENDING_SIZE', 40)
@@ -167,4 +174,39 @@ class EmailSending(CremeModel):
                 sleep(SLEEP_TIME) #avoiding the mail to be classed as spam
 
 
-from mail import Email, MAIL_STATUS_SENT, MAIL_STATUS_SENDINGERROR
+class LightWeightEmail(_Email):
+    """Used by campaigns"""
+    id           = CharField(_(u'Identifiant du mail'), primary_key=True, max_length=ID_LENGTH)
+    sending      = ForeignKey(EmailSending, null=True, verbose_name=_(u"Envoi associé"), related_name='mails_set')
+
+    recipient_ct = ForeignKey(ContentType, null=True) #useful ?????
+    recipient_id = PositiveIntegerField(null=True)
+
+    recipient_entity = GenericForeignKey(ct_field="recipient_ct", fk_field="recipient_id")
+
+    class Meta:
+        app_label = "emails"
+        verbose_name = _(u'Courriel de campagne')
+        verbose_name_plural = _(u'Courriels  de campagne')
+
+    def get_body(self):
+        if self.sending is None:
+            return self.body
+
+        try:
+            body_template = Template(self.sending.body)
+            return body_template.render(Context(loads(self.body.encode('utf-8')) if self.body else {}))
+        except:#Pickle raise too much differents exceptions...Catch'em all ?
+            return ""
+
+    def genid_n_save(self):
+        #BEWARE: manage manually
+        while True:
+            try:
+                self.id = generate_id()
+                self.save(force_insert=True)
+            except IntegrityError:  #a mail with this id already exists
+                debug('Mail id already exists: %s', self.id)
+                self.pk = None
+            else:
+                break

@@ -32,7 +32,7 @@ from persons.models import Contact, Organisation
 
 from documents.models import Document
 
-from emails.models import EmailRecipient, EmailSending, Email, MailingList
+from emails.models import EmailRecipient, EmailSending, LightWeightEmail, MailingList, EntityEmail
 
 
 __all__ = ['mailing_lists_block', 'recipients_block', 'contacts_block', 'organisations_block',
@@ -146,7 +146,7 @@ class SendingsBlock(QuerysetBlock):
 
 class MailsBlock(QuerysetBlock):
     id_           = QuerysetBlock.generate_id('emails', 'mails')
-    dependencies  = (Email,)
+    dependencies  = (LightWeightEmail,)
     page_size     = 12
     verbose_name  = _(u"Mails d'un envoi")
     template_name = 'emails/templatetags/block_mails.html'
@@ -173,7 +173,7 @@ class MailsBlock(QuerysetBlock):
 
 class MailsHistoryBlock(QuerysetBlock):
     id_           = QuerysetBlock.generate_id('emails', 'mails_history')
-    dependencies  = (Email,)
+    dependencies  = (LightWeightEmail,)
     order_by      = '-sending_date'
     verbose_name  = _(u"Historique des mails")
     template_name = 'emails/templatetags/block_mails_history.html'
@@ -181,13 +181,13 @@ class MailsHistoryBlock(QuerysetBlock):
 
     def detailview_display(self, context):
         pk = context['object'].pk
-        return self._render(self.get_block_template_context(context, Email.objects.filter(recipient_id=pk),
+        return self._render(self.get_block_template_context(context, LightWeightEmail.objects.filter(recipient_id=pk),
                                                             update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, pk), #TODO: test me!!!
                                                             ))
 
 
 class _SynchronizationMailsBlock(QuerysetBlock):
-    dependencies  = (Email,)
+    dependencies  = (EntityEmail,)
 
     @jsonify
     def detailview_ajax(self, request):
@@ -206,7 +206,7 @@ class WaitingSynchronizationMailsBlock(_SynchronizationMailsBlock):
 
     def detailview_display(self, context):
         context.update({'MAIL_STATUS': MAIL_STATUS})
-        return self._render(self.get_block_template_context(context, Email.objects.filter(status=MAIL_STATUS_SYNCHRONIZED_WAITING),
+        return self._render(self.get_block_template_context(context, EntityEmail.objects.filter(status=MAIL_STATUS_SYNCHRONIZED_WAITING),
                                                             update_url='/creme_core/blocks/reload/basic/%s/' % self.id_
                                                             ))
 
@@ -218,7 +218,7 @@ class SynchronizatMailsBlock(_SynchronizationMailsBlock):
     
     def detailview_display(self, context):
         context.update({'MAIL_STATUS': MAIL_STATUS})
-        return self._render(self.get_block_template_context(context, Email.objects.filter(status=MAIL_STATUS_SYNCHRONIZED_SPAM),
+        return self._render(self.get_block_template_context(context, EntityEmail.objects.filter(status=MAIL_STATUS_SYNCHRONIZED_SPAM),
                                                             update_url='/creme_core/blocks/reload/basic/%s/' % self.id_
                                                             ))
 
