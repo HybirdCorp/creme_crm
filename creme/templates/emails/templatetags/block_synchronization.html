@@ -9,8 +9,8 @@
 {% block toolbar %}
     <tr>
         <th colspan="{{colspan}}" class="block_header_line_dark" align="left">
-            <a class="button_link" onclick="creme.utils.innerPopupNReload('', {% get_block_reload_uri %});">
-                <img src="{{MEDIA_URL}}images/add_22.png" border="0" title="Ajouter de nouvelles listes" alt="Ajouter" />Relier à
+            <a class="button_link" onclick="creme.emails.mass_relation('/creme_core/relation/add_to_entities/{{entityemail_ct_id}}/', '[name=select_one]:checked', {% get_block_reload_uri %});">
+                <img src="{{MEDIA_URL}}images/add_22.png" border="0" title="Relier à" alt="Relier à" />Relier à
             </a>
             <a class="button_link" onclick="creme.emails.mass_action('/emails/mail/spam', '[name=select_one]:checked', {% get_block_reload_uri %});">
                 <img src="{{MEDIA_URL}}images/spam_22.png" border="0" title="Marquer comme spam" alt="Spam" />Marquer comme spam

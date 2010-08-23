@@ -184,8 +184,27 @@ class EntityEmail(_Email, CremeEntity):
             else:
                 break
 
+    def __unicode__(self):
+        return u"Mail <de: %s> <à: %s><status: %s>" % (self.sender, self.recipient, self.get_status_str())
+
+    def get_absolute_url(self):
+        return u"/emails/mail/%s" % self.pk
+
+    @staticmethod
+    def get_lv_absolute_url():
+        return "/emails/mails"
+
+    def get_delete_absolute_url(self):
+        return u"/emails/entitymail/delete/%s" % self.id
+
+    def get_entity_actions(self):
+        return u"""<a href="%s">Voir</a> | <a href="%s" onclick="creme.utils.confirmDelete(event, this);">Effacer</a>""" \
+                % (self.get_absolute_url(), self.get_delete_absolute_url())
+
+
     @staticmethod
     def fetch_mails(user_id):
+        
         client = None
         try:
             if CREME_GET_EMAIL_SSL:
@@ -206,7 +225,7 @@ class EntityEmail(_Email, CremeEntity):
         response, messages, total_size = client.list()
 
         getaddresses = email.utils.getaddresses
-#        parsedate    = email.utils.parsedate
+        parsedate    = email.utils.parsedate
 
         for msg_infos in messages:
             mail = EntityEmail()
@@ -227,10 +246,10 @@ class EntityEmail(_Email, CremeEntity):
 
             subjects    = get_all('subject', [])
 
-#            dates = []
-#            for d in get_all('date', []):
-#                if d is not None:
-#                    dates.append(datetime(*parsedate(d)[:-3]))
+            dates = []
+            for d in get_all('date', []):
+                if d is not None:
+                    dates.append(datetime(*parsedate(d)[:-3]))
 
             body_html = u''
             body = u''
@@ -264,11 +283,13 @@ class EntityEmail(_Email, CremeEntity):
             mail.recipient = u', '.join(to_emails)
             mail.subject   = u', '.join(subjects)
             mail.user_id   = user_id
+            if dates:
+                mail.reception_date = dates[0]
             mail.genid_n_save()
 #            result_list.append(mail)
 
             # We delete the mail from the server when treated
-#            client.dele(message_number)#TODO: Don't forget to uncomment
+            client.dele(message_number)#TODO: Don't forget to uncomment
 
         client.quit()
 

@@ -64,10 +64,13 @@ urlpatterns = patterns('emails.views',
     (r'^mail/spam$',                                       'mail.spam'),
     (r'^mail/validated$',                                  'mail.validated'),
     (r'^mail/waiting$',                                    'mail.waiting'),
+    (r'^mail/(?P<mail_id>\w+)$',                           'mail.detailview'),
+    (r'^mails$',                                           'mail.listview'),
     (r'^synchronization$',                                 'mail.synchronisation'),
 )
 
 urlpatterns += patterns('creme_core.views.generic',
+    (r'^entitymail/delete/(?P<object_id>\d+)$',   'delete_entity'),
     (r'^campaign/delete/(?P<object_id>\d+)$',     'delete_entity'),
     (r'^mailing_list/delete/(?P<object_id>\d+)$', 'delete_entity'),
     (r'^template/delete/(?P<object_id>\d+)$',     'delete_entity'),
