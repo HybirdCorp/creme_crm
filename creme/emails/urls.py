@@ -59,10 +59,18 @@ urlpatterns = patterns('emails.views',
 
     #mails history block
     #(r'^entity/(?P<entity_id>\d+)/mails_history/reload/$', 'mail.reload_block_mails_history'),
-    (r'^mails_history/(?P<mail_id>\w+)$',                  'mail.view_mail'),
+    (r'^mails_history/(?P<mail_id>\w+)$',                  'mail.view_lightweight_mail'),
+    (r'^mail/delete$',                                     'mail.delete'),
+    (r'^mail/spam$',                                       'mail.spam'),
+    (r'^mail/validated$',                                  'mail.validated'),
+    (r'^mail/waiting$',                                    'mail.waiting'),
+    (r'^mail/(?P<mail_id>\w+)$',                           'mail.detailview'),
+    (r'^mails$',                                           'mail.listview'),
+    (r'^synchronization$',                                 'mail.synchronisation'),
 )
 
 urlpatterns += patterns('creme_core.views.generic',
+    (r'^entitymail/delete/(?P<object_id>\d+)$',   'delete_entity'),
     (r'^campaign/delete/(?P<object_id>\d+)$',     'delete_entity'),
     (r'^mailing_list/delete/(?P<object_id>\d+)$', 'delete_entity'),
     (r'^template/delete/(?P<object_id>\d+)$',     'delete_entity'),

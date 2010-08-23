@@ -21,7 +21,6 @@
 from datetime import datetime
 from logging import debug
 from random import choice
-from string import ascii_letters, digits
 from pickle import dumps, HIGHEST_PROTOCOL
 
 from django.db import IntegrityError
@@ -33,14 +32,8 @@ from django.utils.translation import ugettext_lazy as _
 from creme_core.forms import CremeModelForm, CremeEntityField, CremeDateTimeField
 
 from emails.models import EmailTemplate
-from emails.models.sending import EmailSending, SENDING_TYPES, SENDING_TYPE_DEFERRED, SENDING_STATE_PLANNED
-from emails.models.mail import Email, MAIL_STATUS_NOTSENT, ID_LENGTH
-
-
-ALLOWED_CHARS = ascii_letters + digits
-
-def generate_id():
-    return ''.join(choice(ALLOWED_CHARS) for i in xrange(ID_LENGTH))
+from emails.models.sending import EmailSending, LightWeightEmail, SENDING_TYPES, SENDING_TYPE_DEFERRED, SENDING_STATE_PLANNED
+from emails.models.mail import MAIL_STATUS_NOTSENT
 
 
 class SendingCreateForm(CremeModelForm):
@@ -102,7 +95,7 @@ class SendingCreateForm(CremeModelForm):
         varlist = [varnode.filter_expression.var.var for varnode in Template(template.body).nodelist.get_nodes_by_type(VariableNode)]
 
         for address, recipient_entity in instance.campaign.all_recipients():
-            mail = Email()
+            mail = LightWeightEmail()
             mail.sending = instance
             mail.reads = 0
             mail.status = MAIL_STATUS_NOTSENT
@@ -127,13 +120,4 @@ class SendingCreateForm(CremeModelForm):
                 mail.recipient_ct = None
                 mail.recipient_id = None
 
-            #BEWARE: manage manually 
-            while True:
-                try:
-                    mail.id = generate_id()
-                    mail.save(force_insert=True)
-                except IntegrityError:  #a mail with this id already exists
-                    debug('Mail id already exists: %s', mail.id)
-                    mail.pk = None
-                else:
-                    break
+            mail.genid_n_save()

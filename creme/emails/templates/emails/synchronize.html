@@ -1,0 +1,40 @@
+{% extends "creme_core/base.html" %}
+
+{% load creme_core_tags %}
+{% load creme_block %}
+
+{% block page_title %} - Synchronisation des mails externes dans Creme{% endblock %}
+
+{% block extrahead %}
+    <script type="text/javascript" src="{{MEDIA_URL}}js/models/emails.js"></script>
+{% endblock %}
+
+{% block before_content_1 %}
+    <table class="table_header" cellpadding="0" cellspacing="0">
+        <tr>
+            <td width="5%"><img src="{{MEDIA_URL}}images/email_64.png" alt=""/></td>
+            <td width="70%">
+                <h1>
+                    Synchronisation des mails externes dans Creme
+                </h1>
+            </td>
+            <td width="25%" align="right">
+                <span>
+                    <a>
+                        <img src="{{MEDIA_URL}}images/refresh_64.png" title="Rafraîchir" alt="Rafraîchir"/>
+                    </a>&nbsp;
+                </span>
+            </td>
+        </tr>
+    </table>
+{% endblock %}
+
+{% block content %}
+    {% import_block from_app 'emails' named 'waiting_synchronisation' as 'waiting_synchronisation_block' %}
+    {% import_block from_app 'emails' named 'synchronised_as_spam' as 'synchronised_as_spam_block' %}
+
+    {% display_block_detailview 'waiting_synchronisation_block' %}
+    {% display_block_detailview 'synchronised_as_spam_block' %}
+
+    {% get_blocks_dependencies %}
+{% endblock %}

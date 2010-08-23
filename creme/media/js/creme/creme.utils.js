@@ -714,4 +714,43 @@ creme.utils.multiAddPropertyFromListView = function(lv_selector, url, ct_id)
             "Annuler": function() {$(this).dialog("destroy");$(this).remove();}
         }
     });
-}
+};
+
+
+creme.utils.autoCheckallState = function(from, select_all_selector, checkboxes_selector){
+    var $select_all = $(select_all_selector);
+
+    if(!$(from).is(':checked'))
+    {
+        $select_all.uncheck();
+        return;
+    }
+
+    var all_checked = true;
+    $(checkboxes_selector).each(function(){
+        all_checked = all_checked & $(this).is(':checked');
+    });
+
+    if(all_checked)
+    {
+        $select_all.check();
+    }
+    else
+    {
+        $select_all.uncheck();
+    }
+
+};
+
+creme.utils.toggleCheckallState = function(select_all, checkboxes_selector)
+{
+    if($(select_all).is(':checked'))
+    {
+        $(checkboxes_selector).check();
+    }
+    else
+    {
+        $(checkboxes_selector).uncheck();
+    }
+
+};

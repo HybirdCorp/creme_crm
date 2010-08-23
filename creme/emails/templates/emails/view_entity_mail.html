@@ -1,0 +1,119 @@
+{% extends "creme_core/base.html" %}
+{% load i18n %}
+{% load creme_core_tags %}
+{% load creme_block %}
+{% load creme_menu %}
+{% load email_tags %}
+
+{% block page_title %} - {{object}}{% endblock %}
+
+{% block extrahead %}
+    <script type="text/javascript">
+        $(document).ready(function() {
+            creme.utils.bindShowHideTbody();
+        });
+    </script>
+{% endblock %}
+
+{% comment %}
+{% block before_content_1 %}
+    <div class=zone_spacer_5px>
+        <ul class="button_list hbox">
+            {% if object.get_lv_absolute_url %}
+                <li>
+                    <a class="menu_button" href="{{object.get_lv_absolute_url}}">
+                        <img src="{{MEDIA_URL}}images/left_arrow_32.png" border="0" title="Liste" alt="Liste" />
+                        Retour à la liste
+                    </a>
+                </li>
+            {% endif %}
+            {% block add_new_button %}
+                {% if path %}
+                    <li>
+                        <a class="menu_button" href="{{path}}/add">
+                            <img src="{{MEDIA_URL}}images/add_32.png" border="0" title="Ajouter" alt="Ajouter" />
+                            Nouveau
+                        </a>
+                    </li>
+                {% endif %}
+            {% endblock %}
+        </ul>
+    </div>
+{% endblock %}
+{% endcomment %}
+
+{% block content %}
+    <table class="table_header" cellpadding="0" cellspacing="0">
+        <tr>
+            <td width="5%"><img src="{{MEDIA_URL}}images/email_64.png" title="Email" alt="Email"/></td>
+            <td width="70%">
+                <h1>
+                    {% block title %}
+                        {{object|get_meta_value:"verbose_name"|title}} : {{object|title}}
+                    {% endblock %}
+                </h1>
+            </td>
+            <td width="25%" align="right">
+                <span>
+                    <a href="/emails/entitymail/delete/{{object.id}}" onclick="creme.utils.confirmDelete(event, this);">
+                        <img src="{{MEDIA_URL}}images/delete_64.png" title="Supprimer '{{object}}'" alt="Supprimer" />
+                    </a>
+                </span>
+            </td>
+        </tr>
+    </table>
+
+    {% import_block from_app 'creme_core' named 'relations' as 'relations_block' %}
+    {% import_block from_app 'creme_core' named 'properties' as 'properties_block' %}
+
+    <div style="float:left;width:50%;margin-left:-5px;">
+        <table class="table_detail_view ui-corner-all">
+            {% with object|get_meta_value:"verbose_name" as tmp %} {% with tmp|format:"Informations %s" as title %}
+                {% get_basic_block_header title 'infos_48.png' 'Infos' %}
+            {% endwith %} {% endwith %}
+            <tbody class="collapsable">
+                <tr>
+                    <th class="{% cycle "block_header_line_dark" "block_header_line_light" %}">Utilisateur</th>
+                    <td class="{% cycle "block_line_dark" "block_line_light" %}">{{object|get_html_field_value:"user"}}</td>
+                </tr>
+                <tr>
+                    <th class="{% cycle "block_header_line_dark" "block_header_line_light" %}">Nombre De Lecture(S)</th>
+                    <td class="{% cycle "block_line_dark" "block_line_light" %}">{{object|get_html_field_value:"reads"}}</td>
+                </tr>
+                <tr>
+                    <th class="{% cycle "block_header_line_dark" "block_header_line_light" %}">Statut</th>
+                    <td class="{% cycle "block_line_dark" "block_line_light" %}">{{object.get_status_str}}</td>
+                </tr>
+                <tr>
+                    <th class="{% cycle "block_header_line_dark" "block_header_line_light" %}">Émetteur</th>
+                    <td class="{% cycle "block_line_dark" "block_line_light" %}">{{object|get_html_field_value:"sender"}}</td>
+                </tr>
+                <tr>
+                    <th class="{% cycle "block_header_line_dark" "block_header_line_light" %}">Destinataire</th>
+                    <td class="{% cycle "block_line_dark" "block_line_light" %}">{{object|get_html_field_value:"recipient"}}</td>
+                </tr>
+                <tr>
+                    <th class="{% cycle "block_header_line_dark" "block_header_line_light" %}">Sujet</th>
+                    <td class="{% cycle "block_line_dark" "block_line_light" %}">{{object|get_html_field_value:"subject"}}</td>
+                </tr>
+                <tr>
+                    <th class="{% cycle "block_header_line_dark" "block_header_line_light" %}">Date De Reception</th>
+                    <td class="{% cycle "block_line_dark" "block_line_light" %}">{{object|get_html_field_value:"reception_date"}}</td>
+                </tr>
+                <tr>
+                    <th class="{% cycle "block_header_line_dark" "block_header_line_light" %}">Corps du mail</th>
+                    <td class="{% cycle "block_line_dark" "block_line_light" %}">
+                        {{object|get_email_body}}
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        {% include "creme_core/customfields_as_table.html" %}
+    </div>
+    <div style="float:right;width:50%;margin-right:0px;">
+        {% display_block_detailview 'properties_block' %}
+        {% display_block_detailview 'relations_block' %}
+    </div>
+
+    {% get_blocks_dependencies %}
+{% endblock %}

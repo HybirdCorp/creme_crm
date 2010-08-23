@@ -13,7 +13,7 @@ class MailingListAdmin(admin.ModelAdmin):
     list_display = ('name',)
 
 
-class EmailAdmin(admin.ModelAdmin):
+class LightWeightEmailAdmin(admin.ModelAdmin):
     list_display = ('id', 'sending', 'reads', 'status', 'sender', 'recipient',
                     'subject', 'body', 'sending_date', 'signature')
 
@@ -37,4 +37,4 @@ register(MailingList, MailingListAdmin)
 register(EmailRecipient, RecipientAdmin)
 register(EmailCampaign, EmailCampaignAdmin)
 register(EmailSending, EmailSendingAdmin)
-register(Email, EmailAdmin)
+register(LightWeightEmail, LightWeightEmailAdmin)
