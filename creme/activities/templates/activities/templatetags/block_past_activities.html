@@ -1,0 +1,14 @@
+{% extends "activities/templatetags/block_future_activities.html" %}
+
+{% load creme_block %}
+{% load i18n %}
+
+{% block relation_script %}{% endblock %}
+
+{% block activities_header %}
+    {% get_block_header _('%s Past related activity') _('%s Past related activities') 'calendar_48.png' _('Past activities') %}
+{% endblock %}
+
+{% block activities_add %}{% endblock %}
+
+{% block activities_empty %}{% trans "No past related activity for the moment" %}{% endblock %}

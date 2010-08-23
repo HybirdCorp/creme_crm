@@ -37,35 +37,35 @@ class Populator(BasePopulator):
     dependencies = ['creme.core']
 
     def populate(self, *args, **kwargs):
-        RelationType.create((REL_SUB_LINKED_2_ACTIVITY, u"relié à l'activité"),
-                            (REL_OBJ_LINKED_2_ACTIVITY, u"relié à")) #[Activity and inherited klass ??]
+        RelationType.create((REL_SUB_LINKED_2_ACTIVITY, _(u"related to the activity")),
+                            (REL_OBJ_LINKED_2_ACTIVITY, _(u"related to"))) #[Activity and inherited klass ??]
         #RelationType.create((REL_SUB_RDV,              u'prend part au rendez-vous'),
                             #(REL_OBJ_RDV,              u'a pour participant'))
         #RelationType.create((REL_SUB_CALL,             u"participe a l'appel"),
                             #(REL_OBJ_CALL,             u'concerne'))
-        RelationType.create((REL_SUB_ACTIVITY_SUBJECT, u"est sujet de l'activité"),
-                            (REL_OBJ_ACTIVITY_SUBJECT, u'a pour sujet'))
-        RelationType.create((REL_SUB_PART_2_ACTIVITY,  u"participe à l'activité"),
-                            (REL_OBJ_PART_2_ACTIVITY,  u'a pour participant'))
+        RelationType.create((REL_SUB_ACTIVITY_SUBJECT, _(u"is subject of the activity")),
+                            (REL_OBJ_ACTIVITY_SUBJECT, _(u'is to subject')))
+        RelationType.create((REL_SUB_PART_2_ACTIVITY,  _(u"participates to the activity")),
+                            (REL_OBJ_PART_2_ACTIVITY,  _(u'has as participant')))
 
 
-        create(PhoneCallType, 1, name=_(u"Entrant"), description=_(u"Appel entrant"))
-        create(PhoneCallType, 2, name=_(u"Sortant"), description=_(u"Appel sortant"))
-        create(PhoneCallType, 3, name=_(u"Autre"),   description=_(u"Exemple: une conférence"))
+        create(PhoneCallType, 1, name=_(u"Incoming"), description=_(u"Incoming call"))
+        create(PhoneCallType, 2, name=_(u"Outgoing"), description=_(u"Outgoing call"))
+        create(PhoneCallType, 3, name=_(u"Other"),    description=_(u"Example: a conference"))
 
-        create(ActivityType, ACTIVITYTYPE_TASK,      name=_(u"Tâche"),              color="987654", default_day_duration=0, default_hour_duration="00:15:00")
-        create(ActivityType, ACTIVITYTYPE_MEETING,   name=_(u"Rendez-vous"),        color="456FFF", default_day_duration=0, default_hour_duration="00:15:00")
-        create(ActivityType, ACTIVITYTYPE_PHONECALL, name=_(u"Appel Téléphonique"), color="A24BBB", default_day_duration=0, default_hour_duration="00:15:00")
-        create(ActivityType, ACTIVITYTYPE_GATHERING, name=_(u"Réunion"),            color="F23C39", default_day_duration=0, default_hour_duration="00:15:00")
-        create(ActivityType, ACTIVITYTYPE_SHOW,      name=_(u"Salon"),              color="8DE501", default_day_duration=1, default_hour_duration="00:00:00")
-        create(ActivityType, ACTIVITYTYPE_DEMO,      name=_(u"Démonstration"),      color="4EEF65", default_day_duration=0, default_hour_duration="01:00:00")
-        create(ActivityType, ACTIVITYTYPE_INDISPO,   name=_(u"Indisponible"),       color="CC0000", default_day_duration=1, default_hour_duration="00:00:00")
+        create(ActivityType, ACTIVITYTYPE_TASK,      name=_(u"Task"),            color="987654", default_day_duration=0, default_hour_duration="00:15:00")
+        create(ActivityType, ACTIVITYTYPE_MEETING,   name=_(u"Meeting"),         color="456FFF", default_day_duration=0, default_hour_duration="00:15:00")
+        create(ActivityType, ACTIVITYTYPE_PHONECALL, name=_(u"Phone call"),      color="A24BBB", default_day_duration=0, default_hour_duration="00:15:00")
+        create(ActivityType, ACTIVITYTYPE_GATHERING, name=_(u"Gathering"),       color="F23C39", default_day_duration=0, default_hour_duration="00:15:00")
+        create(ActivityType, ACTIVITYTYPE_SHOW,      name=_(u"Show"),            color="8DE501", default_day_duration=1, default_hour_duration="00:00:00")
+        create(ActivityType, ACTIVITYTYPE_DEMO,      name=_(u"Demonstration"),   color="4EEF65", default_day_duration=0, default_hour_duration="01:00:00")
+        create(ActivityType, ACTIVITYTYPE_INDISPO,   name=_(u"Indisponibility"), color="CC0000", default_day_duration=1, default_hour_duration="00:00:00")
 
-        hf_id = create(HeaderFilter, 'activities-hf', name=u"Vue d'Activité", entity_type_id=ContentType.objects.get_for_model(Activity).id, is_custom=False).id
+        hf_id = create(HeaderFilter, 'activities-hf', name=_(u"Activity view"), entity_type_id=ContentType.objects.get_for_model(Activity).id, is_custom=False).id
         pref = 'activities-hfi_'
-        create(HeaderFilterItem, pref + 'title', order=1, name='title', title=_(u'Nom'),   type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True, editable=True, sortable=True, filter_string="title__icontains")
-        create(HeaderFilterItem, pref + 'start', order=2, name='start', title=_(u'Début'), type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True, editable=True, sortable=True, filter_string="start__range")
-        create(HeaderFilterItem, pref + 'end',   order=3, name='end',   title=_(u'Fin'),   type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True, editable=True, sortable=True, filter_string="end__range")
+        create(HeaderFilterItem, pref + 'title', order=1, name='title', title=_(u'Name'),   type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True, editable=True, sortable=True, filter_string="title__icontains")
+        create(HeaderFilterItem, pref + 'start', order=2, name='start', title=_(u'Start'), type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True, editable=True, sortable=True, filter_string="start__range")
+        create(HeaderFilterItem, pref + 'end',   order=3, name='end',   title=_(u'End'),   type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True, editable=True, sortable=True, filter_string="end__range")
         create(HeaderFilterItem, pref + 'type',  order=4, name='type',  title=_(u'Type'),  type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True, editable=True, sortable=True, filter_string="type__name__icontains")
 
         create(BlockConfigItem, 'activities-future_activities_block', content_type=None, block_id=future_activities_block.id_, order=20, on_portal=False)

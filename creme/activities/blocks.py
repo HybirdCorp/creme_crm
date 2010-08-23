@@ -46,7 +46,7 @@ class SubjectsBlock(QuerysetBlock):
     id_           = QuerysetBlock.generate_id('activities', 'subjects')
     dependencies  = (Relation,)
     relation_type_deps = (REL_OBJ_ACTIVITY_SUBJECT,)
-    verbose_name  = _(u'Sujets')
+    verbose_name  = _(u'Subjects')
     template_name = 'activities/templatetags/block_subjects.html'
 
     def detailview_display(self, context):
@@ -60,7 +60,7 @@ class FutureActivitiesBlock(QuerysetBlock):
     id_           = QuerysetBlock.generate_id('activities', 'future_activities')
     dependencies  = (Relation,) #Activity
     relation_type_deps = (REL_SUB_LINKED_2_ACTIVITY, REL_SUB_ACTIVITY_SUBJECT, REL_SUB_PART_2_ACTIVITY)
-    verbose_name  = _(u'Activités futures')
+    verbose_name  = _(u'Future activities')
     template_name = 'activities/templatetags/block_future_activities.html'
     configurable  = True
 
@@ -87,7 +87,7 @@ class PastActivitiesBlock(QuerysetBlock):
     id_           = QuerysetBlock.generate_id('activities', 'past_activities')
     dependencies  = (Relation,) #Activity
     relation_type_deps = (REL_SUB_LINKED_2_ACTIVITY, REL_SUB_ACTIVITY_SUBJECT, REL_SUB_PART_2_ACTIVITY)
-    verbose_name  = _(u'Activités passées')
+    verbose_name  = _(u'Past activities')
     template_name = 'activities/templatetags/block_past_activities.html'
     configurable  = True
 

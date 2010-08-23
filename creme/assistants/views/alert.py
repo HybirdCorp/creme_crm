@@ -20,6 +20,7 @@
 
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404
+from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required
 
 from assistants.models import Alert
@@ -28,14 +29,15 @@ from utils import generic_add, generic_edit, generic_delete
 
 
 def add(request, entity_id):
-    return generic_add(request, entity_id, AlertCreateForm, u'Nouvelle alerte pour <%s>')
+    return generic_add(request, entity_id, AlertCreateForm, _(u'New alert for <%s>'))
 
 def edit(request, alert_id):
-    return generic_edit(request, alert_id, Alert, AlertEditForm, u"Alerte pour <%s>")
+    return generic_edit(request, alert_id, Alert, AlertEditForm, _(u"Alert for <%s>"))
 
 def delete(request):
     return generic_delete(request, Alert)
 
+#TODO: credentials ???
 @login_required
 def validate(request, alert_id):
     alert = get_object_or_404(Alert, pk=alert_id)
