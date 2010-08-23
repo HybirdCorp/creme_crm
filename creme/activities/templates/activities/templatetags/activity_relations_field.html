@@ -1,6 +1,7 @@
+{% load i18n %}
 {% with relations.count as count %}
     {% ifequal count 0 %}
-        Aucun
+        {% trans "No one" %}
     {% else %}
         {% ifequal count 1 %}
             {% with relations.0.subject_entity.get_real_entity as subject %}

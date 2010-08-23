@@ -1,30 +1,31 @@
+{% load i18n %}
 {% load creme_block %}
 <table class="table_detail_view ui-corner-all" id={{block_name}}>
-    {% get_block_header '%s Action dans les délais' '%s Actions dans les délais' 'clock_48.png' 'Action' %}
+    {% get_block_header _('%s Action in time') _('%s Actions in time') 'clock_48.png' _('Action') %}
     <tbody class="collapsable">
         {% if object %}
             <tr>
                 <th class="block_header_line_light" style="font-size:14px;" align="left" colspan="8">
                     <a class="button_link" onclick="creme.utils.innerPopupNReload('/assistants/action/add/{{object.id}}/', {% get_block_reload_uri %});">
-                        <img src="{{MEDIA_URL}}images/add_22.png" border="0" title="Ajouter" alt="Ajouter" />
-                        Nouvelle
+                        <img src="{{MEDIA_URL}}images/add_22.png" border="0" title="{% trans "Add" %}" alt="{% trans "Add" %}" />
+                        {% trans "New action" %}
                     </a>
                 </th>
             </tr>
         {% endif %}
         {% if page.paginator.count %}
             <tr>
-                {% get_column_header 'Titre' 'title' %}
+                {% get_column_header _('Title') 'title' %}
                 {% if not object %}
-                    <th class="block_header_line_dark">Fiche concernée</th>
+                    <th class="block_header_line_dark">{% trans "Concerned entity" %}</th>
                 {% endif %}
-                {% get_column_header 'Description' 'description' %}
-                {% get_column_header "Utilisateur" 'for_user' %}
-                {% get_column_header 'Création' 'creation_date' %}
-                {% get_column_header 'Action attendue' 'expected_reaction' %}
-                {% get_column_header 'Échéance' 'deadline' %}
-                <th class="block_header_line_dark">OK ?</th>
-                <th class="block_header_line_dark">Actions</th>
+                {% get_column_header _('Description') 'description' %}
+                {% get_column_header _('User') 'for_user' %}
+                {% get_column_header _('Creation') 'creation_date' %}
+                {% get_column_header _('Expected action') 'expected_reaction' %}
+                {% get_column_header _('Deadline') 'deadline' %}
+                <th class="block_header_line_dark">{% trans "OK ?" %}</th>
+                <th class="block_header_line_dark">{% trans "Actions" %}</th>
             </tr>
             {% for action in page.object_list %}
                 <!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
@@ -59,7 +60,7 @@
             {% endfor %}
         {% else %}
             <tr>
-                <td class="block_line_dark">Aucune action dans les délais</td>
+                <td class="block_line_dark">{% trans "No action in time" %}</td>
             </tr>
         {% endif %}
     </tbody>

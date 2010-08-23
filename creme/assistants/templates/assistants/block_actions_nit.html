@@ -1,20 +1,21 @@
+{% load i18n %}
 {% load creme_block %}
 <table class="table_detail_view ui-corner-all" id={{block_name}}>
-    {% get_block_header '%s Réaction en retard' '%s Réactions en retard' 'action_48.png' 'Réaction' %}
+    {% get_block_header _('%s Reaction not in time') _('%s Reactions not in time') 'action_48.png' _('Reaction') %}
     <tbody class="collapsable">
         {% if page.paginator.count %}
             <tr>
-                {% get_column_header 'Titre' 'title' %}
+                {% get_column_header _('Title') 'title' %}
                 {% if not object %}
-                    <th class="block_header_line_dark">Fiche concernée</th>
+                    <th class="block_header_line_dark">{% trans "Concerned entity" %}</th>
                 {% endif %}
-                {% get_column_header 'Description' 'description' %}
-                {% get_column_header "Utilisateur" 'for_user' %}
-                {% get_column_header 'Création' 'creation_date' %}
-                {% get_column_header 'Action attendue' 'expected_reaction' %}
-                {% get_column_header 'Échéance' 'deadline' %}
-                <th class="block_header_line_dark">OK ?</th>
-                <th class="block_header_line_dark">Actions</th>
+                {% get_column_header _('Description') 'description' %}
+                {% get_column_header _('User') 'for_user' %}
+                {% get_column_header _('Creation') 'creation_date' %}
+                {% get_column_header _('Expected action') 'expected_reaction' %}
+                {% get_column_header _('Deadline') 'deadline' %}
+                <th class="block_header_line_dark">{% trans "OK ?" %}</th>
+                <th class="block_header_line_dark">{% trans "Actions" %}</th>
             </tr>
             {% for action in page.object_list %}
                 <tr>
@@ -48,7 +49,7 @@
             {% endfor %}
         {% else %}
             <tr>
-                <td class="block_line_dark">Aucune réaction hors délais</td>
+                <td class="block_line_dark">{% trans "No reaction not in time" %}</td>
             </tr>
         {% endif %}
     </tbody>

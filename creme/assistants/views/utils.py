@@ -84,6 +84,7 @@ def generic_edit(request, assistant_id, assistant_model, assistant_form, title):
                        delegate_reload=True,
                        context_instance=RequestContext(request))
 
+#TODO: credentials ????
 @login_required
 def generic_delete(request, assistant_model, pk_key='id'):
     assistant = get_object_or_404(assistant_model, pk=request.POST.get(pk_key))

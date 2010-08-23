@@ -28,10 +28,10 @@ from creme_core.models import CremeModel
 
 
 class Memo(CremeModel):
-    content       = TextField(_(u'Contenu'), blank=True, null=True)
-    on_homepage   = BooleanField(_(u"Affiché en page d'accueil"), blank=True, default=False)
-    creation_date = DateTimeField(_(u'Date de création'), blank=True, null=True)
-    user          = ForeignKey(User, verbose_name=_(u'assigné à'), blank=True, null=True, related_name='user_memo_assigned_set')
+    content       = TextField(_(u'Content'), blank=True, null=True)
+    on_homepage   = BooleanField(_(u"Displayed on homepage"), blank=True, default=False)
+    creation_date = DateTimeField(_(u'Creation date'), blank=True, null=True)
+    user          = ForeignKey(User, verbose_name=_(u'Assigned to'), blank=True, null=True, related_name='user_memo_assigned_set')
 
     entity_content_type = ForeignKey(ContentType, related_name="memo_entity_set")
     entity_id           = PositiveIntegerField()
@@ -43,5 +43,5 @@ class Memo(CremeModel):
 
     class Meta:
         app_label = 'assistants'
-        verbose_name = _(u'Mémo')
-        verbose_name_plural = _(u'Mémos')
+        verbose_name = _(u'Memo')
+        verbose_name_plural = _(u'Memos')

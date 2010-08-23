@@ -1,12 +1,13 @@
+{% load i18n %}
 {% load creme_block %}
 <table class="table_detail_view ui-corner-all" id={{block_name}}>
-    {% get_block_header '%s Participant' '%s Participants' %}
+    {% get_block_header _('%s Participant') _('%s Participants') %}
     <tbody class="collapsable">
         <tr>
             <th class="block_header_line_light" align="left" colspan="2">
                 <a class="button_link" onclick="creme.utils.innerPopupNReload('/activities/activity/{{object.id}}/participant/add', {% get_block_reload_uri %});">
-                    <img src="{{MEDIA_URL}}images/relations_22.png" border="0" title="Ajouter un participant" alt="Ajouter" />
-                    Ajouter depuis des fiches existantes
+                    <img src="{{MEDIA_URL}}images/relations_22.png" border="0" title="{% trans "Add a participant" %}" alt="{% trans "Add a participant" %}" />
+                    {% trans "Add from existing entities" %}
                 </a>
             </th>
         </tr>
@@ -26,7 +27,7 @@
             {% endfor %}
         {% else %}
             <tr>
-                <td class="block_line_dark">Aucun participant enregistré pour le moment</td>
+                <td class="block_line_dark">{% trans "No participant for the moment" %}</td>
             </tr>
         {% endif %}
     </tbody>

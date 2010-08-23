@@ -20,6 +20,7 @@
 
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404
+from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required
 
 from assistants.models import ToDo
@@ -28,11 +29,12 @@ from utils import generic_add, generic_edit, generic_delete
 
 
 def add(request, entity_id):
-    return generic_add(request, entity_id, ToDoCreateForm, u'Nouveau Todo pour <%s>')
+    return generic_add(request, entity_id, ToDoCreateForm, _(u'New Todo for <%s>'))
 
 def edit(request, todo_id):
-    return generic_edit(request, todo_id, ToDo, ToDoEditForm, u"Todo pour <%s>")
+    return generic_edit(request, todo_id, ToDo, ToDoEditForm, _(u"Todo for <%s>"))
 
+#TODO: crendentials ??
 @login_required
 def validate(request, todo_id):
     todo = get_object_or_404(ToDo, pk=todo_id)

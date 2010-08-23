@@ -32,36 +32,36 @@ from activities.utils import get_ical_date
 
 class ActivityType(CremeModel):
     id                    = CharField(primary_key=True, max_length=100)
-    name                  = CharField(_(u'Nom'), max_length=100)
-    color                 = CharField(_(u'Couleur'), max_length=100, blank=True , null=True)
-    default_day_duration  = IntegerField(_(u'Durée en jours par défaut'))
-    default_hour_duration = TimeField(_(u'Durée en heures/minutes/secondes par défaut'))
+    name                  = CharField(_(u'Name'), max_length=100)
+    color                 = CharField(_(u'Color'), max_length=100, blank=True , null=True)
+    default_day_duration  = IntegerField(_(u'Default day duration'))
+    default_hour_duration = TimeField(_(u'Default hour duration'))
 
     def __unicode__(self):
         return self.name
 
     class Meta:
         app_label = 'activities'
-        verbose_name = _(u"Type d'activité")
-        verbose_name_plural = _(u"Types d'activité")
+        verbose_name = _(u"Activity type")
+        verbose_name_plural = _(u"Activity types")
 
 
 class Activity(CremeEntity):
     """Activity : event or task"""
-    title       = CharField(_(u'Titre'), max_length=100)
-    start       = DateTimeField(_(u'Début'), blank=True, null=True)
-    end         = DateTimeField(_(u'Fin'), blank=True, null=True)
+    title       = CharField(_(u'Title'), max_length=100)
+    start       = DateTimeField(_(u'Start'), blank=True, null=True)
+    end         = DateTimeField(_(u'End'), blank=True, null=True)
     description = TextField(_(u'Description'), blank=True, null=True)
-    type        = ForeignKey(ActivityType, verbose_name=_(u"Type d'activité"))
-    is_all_day  = BooleanField(_(u'Jour entier ?'), blank=True, default=False)
+    type        = ForeignKey(ActivityType, verbose_name=_(u"Activity type"))
+    is_all_day  = BooleanField(_(u'All day ?'), blank=True, default=False)
 
     research_fields = CremeEntity.research_fields + ['title', 'type__name']
     excluded_fields_in_html_output = CremeEntity.excluded_fields_in_html_output + ['type', 'activity_ptr']
 
     class Meta:
         app_label = 'activities'
-        verbose_name = _(u'Activité')
-        verbose_name_plural = _(u'Activités')
+        verbose_name = _(u'Activity')
+        verbose_name_plural = _(u'Activities')
 
     def as_ical_event(self):
         """Return a normalized iCalendar event string
@@ -150,16 +150,16 @@ END:VEVENT
 
 
 class Meeting(Activity):
-    place = CharField(_(u'Lieu de rendez-vous'), max_length=100, blank=True, null=True)
+    place = CharField(_(u'Meeting place'), max_length=100, blank=True, null=True)
 
     class Meta:
         app_label = 'activities'
-        verbose_name = _('Rendez-vous')
-        verbose_name_plural = _(u'Rendez-vous')
+        verbose_name = _('Meeting')
+        verbose_name_plural = _(u'Meetings')
 
 
 class TaskStatus(CremeModel):
-    name        = CharField(_(u'Nom'), max_length=100)
+    name        = CharField(_(u'Name'), max_length=100)
     description = TextField(_(u'Description'))
 
     def __unicode__(self):
@@ -167,13 +167,13 @@ class TaskStatus(CremeModel):
 
     class Meta:
         app_label = 'activities'
-        verbose_name = _(u'Statut de tâche')
-        verbose_name_plural = _(u'Statuts de tâche')
+        verbose_name = _(u'Task status')
+        verbose_name_plural = _(u'Task status') #arf plural....
 
 
 class Task(Activity):
-    duration = PositiveIntegerField(_(u'Durée (en heures)'), blank=True, null=True)
-    status   = ForeignKey(TaskStatus, verbose_name=_(u'Statut'))
+    duration = PositiveIntegerField(_(u'Duration (in hour)'), blank=True, null=True)
+    status   = ForeignKey(TaskStatus, verbose_name=_(u'Status'))
 
     def __init__ (self, *args , **kwargs):
         super(Task, self).__init__(*args, **kwargs)
@@ -181,12 +181,12 @@ class Task(Activity):
 
     class Meta:
         app_label = 'activities'
-        verbose_name = _(u'Tâche')
-        verbose_name_plural = _(u'Tâches')
+        verbose_name = _(u'Task')
+        verbose_name_plural = _(u'Tasks')
 
 
 class PhoneCallType(CremeModel):
-    name        = CharField(_(u"Type d'appel"), max_length=100, blank=True, null=True)
+    name        = CharField(_(u"Call type"), max_length=100, blank=True, null=True)
     description = TextField(_(u'Description'))
 
     def __unicode__(self):
@@ -194,14 +194,14 @@ class PhoneCallType(CremeModel):
 
     class Meta:
         app_label = 'activities'
-        verbose_name = _("Type d'appel")
-        verbose_name_plural = _(u"Types d'appel")
+        verbose_name = _("Phonecall type")
+        verbose_name_plural = _(u"Phonecall types")
 
 
 class PhoneCall(Activity):
-    call_type = ForeignKey(PhoneCallType, verbose_name=_(u"Type d'appel"), blank=True, null=True)
+    call_type = ForeignKey(PhoneCallType, verbose_name=_(u"Phonecall type"), blank=True, null=True)
 
     class Meta:
         app_label = 'activities'
-        verbose_name = _(u'Appel Téléphonique')
-        verbose_name_plural = _(u'Appels Téléphoniques')
+        verbose_name = _(u'Phone call')
+        verbose_name_plural = _(u'Phone calls')

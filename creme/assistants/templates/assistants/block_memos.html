@@ -1,13 +1,15 @@
+{% load i18n %}
 {% load creme_core_tags %}
 {% load creme_block %}
 <table class="table_detail_view ui-corner-all" id={{block_name}}>
-    {% get_block_header '%s Mémo' '%s Mémos' 'memo_48.png' 'Mémo' %}
+    {% get_block_header _('%s Memo') _('%s Memos') 'memo_48.png' _('Memo') %}
     <tbody class="collapsable">
         {% if object %}
             <tr>
                 <th class="block_header_line_light" align="left" colspan="4">
                     <a class="button_link" onclick="creme.utils.innerPopupNReload('/assistants/memo/add/{{object.id}}/', {% get_block_reload_uri %});">
-                        <img src="{{MEDIA_URL}}images/add_22.png" border="0" title="Ajouter" alt="Ajouter" />Nouveau
+                        <img src="{{MEDIA_URL}}images/add_22.png" border="0" title="{% trans "Add" %}" alt="{% trans "Add" %}" />
+                        {% trans "New memo" %}
                     </a>
                 </th>
             </tr>
@@ -15,12 +17,12 @@
         {% if page.paginator.count %}
             <tr>
                 {% if not object %}
-                    <th class="block_header_line_dark">Fiche concernée</th>
+                    <th class="block_header_line_dark">{% trans "Concerned entity" %}</th>
                 {% endif %}
-                {% get_column_header "Utilisateur" 'user' %}
-                {% get_column_header 'Crée le' 'creation_date' %}
-                {% get_column_header 'Contenu' 'content' %}
-                <th class="block_header_line_dark">Actions</th>
+                {% get_column_header _('User') 'user' %}
+                {% get_column_header _('Created') 'creation_date' %}
+                {% get_column_header _('Content') 'content' %}
+                <th class="block_header_line_dark">{% trans "Actions" %}</th>
             </tr>
             {% for memo in page.object_list %}
                 <!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
@@ -43,7 +45,7 @@
             {% endfor %}
         {% else %}
             <tr>
-                <td class="block_line_dark">Aucun mémo enregistré pour le moment</td>
+                <td class="block_line_dark">{% trans "No memo for the moment" %}</td>
             </tr>
         {% endif %}
     </tbody>

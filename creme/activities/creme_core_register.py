@@ -30,7 +30,7 @@ from activities.blocks import participants_block, subjects_block, future_activit
 from activities.buttons import add_meeting_button, add_phonecall_button
 
 
-creme_registry.register_app('activities', _(u'Activités'), '/activities')
+creme_registry.register_app('activities', _(u'Activities'), '/activities')
 creme_registry.register_entity_models(Activity)
 
 creme_menu.register_app('activities', '/activities/', 'Activités')

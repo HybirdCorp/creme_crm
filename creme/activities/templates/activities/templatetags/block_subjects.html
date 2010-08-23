@@ -1,12 +1,13 @@
 {% load creme_block %}
+{% load i18n %}
 <table class="table_detail_view ui-corner-all" id={{block_name}}>
-    {% get_block_header '%s Sujet' '%s Sujets' %}
+    {% get_block_header _("%s Subject") _("%s Subjects") %}
     <tbody class="collapsable">
         <tr>
             <th class="block_header_line_light" align="left" colspan="2">
                 <a class="button_link" onclick="creme.utils.innerPopupNReload('/activities/activity/{{object.id}}/subject/add', {% get_block_reload_uri %});">
-                    <img src="{{MEDIA_URL}}images/relations_22.png" border="0" title="Ajouter un sujet" alt="Ajouter" />
-                    Ajouter depuis des fiches existantes
+                    <img src="{{MEDIA_URL}}images/relations_22.png" border="0" title="{% trans "Add a subject" %}" alt="{% trans "Add a subject" %}" />
+                    {% trans "Add from existing entities" %}
                 </a>
             </th>
         </tr>
@@ -26,7 +27,7 @@
             {% endfor %}
         {% else %}
             <tr>
-                <td class="block_line_dark">Aucun sujet enregistré pour le moment</td>
+                <td class="block_line_dark">{% trans "No subject for the moment" %}</td>
             </tr>
         {% endif %}
     </tbody>

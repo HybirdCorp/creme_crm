@@ -1,5 +1,7 @@
 {% extends "activities/view_activity.html" %}
 
+{% load i18n %}
+
 {% block extrahead %}
 <script type="text/javascript">
     //TODO : Remove me when implement the template
@@ -15,7 +17,7 @@
 </script>
 {% endblock %}
 
-{% block view_title %}{{block.super}}<a id="full_file" href="{{object.get_absolute_url}}">Fiche complète</a>{% endblock %}
+{% block view_title %}{{block.super}}<a id="full_file" href="{{object.get_absolute_url}}">{% trans "Full detailview" %}</a>{% endblock %}
 {% block side_menu %}{% endblock %}
 
 {% block top_bar %}{% endblock %}

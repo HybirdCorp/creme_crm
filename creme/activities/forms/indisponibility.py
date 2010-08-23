@@ -21,11 +21,9 @@
 import datetime
 
 from django.forms.util import ValidationError
-from django.forms import IntegerField, DateTimeField, TimeField
-from django.utils.translation import ugettext as _
+from django.utils.translation import ugettext_lazy as _
 
-from creme_core.forms import CremeEntityForm
-from creme_core.forms.widgets import DateTimeWidget
+from creme_core.forms import CremeEntityForm, CremeDateTimeField
 
 from activities.models import Activity, ActivityType
 from activities.constants import ACTIVITYTYPE_INDISPO
@@ -37,11 +35,11 @@ class IndisponibilityCreateForm(CremeEntityForm):
         model = Activity
         exclude = CremeEntityForm.Meta.exclude + ('type',)
 
-    start = DateTimeField(label=_(u'Début'), widget=DateTimeWidget())
-    end   = DateTimeField(label=_(u'Fin'), widget=DateTimeWidget())
+    start = CremeDateTimeField(label=_(u'Start'))
+    end   = CremeDateTimeField(label=_(u'End'))
 
     blocks = CremeEntityForm.blocks.new(
-                ('datetime', _(u'Quand'), ['start', 'end', 'is_all_day']),
+                ('datetime', _(u'When'), ['start', 'end', 'is_all_day']),
             )
 
     def __init__(self, *args, **kwargs):
@@ -59,7 +57,7 @@ class IndisponibilityCreateForm(CremeEntityForm):
             return cleaned_data
 
         if cleaned_data.get('start') > cleaned_data.get('end'):
-            raise ValidationError(_(u"L'heure de fin est avant le début"))
+            raise ValidationError(_(u"End time is before start time"))
 
         return cleaned_data
 
