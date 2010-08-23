@@ -1,0 +1,20 @@
+{% extends "emails/templatetags/_block_synchronization.html" %}
+{% load creme_block %}
+{% load creme_core_tags %}
+
+{% block top_header %}
+    {% get_block_header '%s E-mail entrant marqué comme spam' '%s E-mails entrants marqués comme spam' 'spam_48.png' 'Email' %}
+{% endblock %}
+
+{% block toolbar %}
+    <tr>
+        <th colspan="{{colspan}}" class="block_header_line_dark" align="left">
+            <a class="button_link" onclick="creme.emails.mass_action('/emails/mail/waiting', '[name=select_one]:checked', {% get_block_reload_uri %});">
+                <img src="{{MEDIA_URL}}images/email_22.png" border="0" title="Marquer comme à traiter" alt="À Traiter" />Marquer comme à traiter
+            </a>
+            <a class="button_link" onclick="creme.emails.mass_action('/emails/mail/delete', '[name=select_one]:checked', {% get_block_reload_uri %});">
+                <img src="{{MEDIA_URL}}images/delete_22.png" border="0" title="Supprimer emails" alt="Supprimer" />Supprimer
+            </a>
+        </th>
+    </tr>
+{% endblock %}

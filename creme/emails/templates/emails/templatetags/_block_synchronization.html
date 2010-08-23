@@ -1,0 +1,52 @@
+{% load creme_block %}
+{% load creme_core_tags %}
+
+{% with 7 as colspan %}
+    <table class="table_detail_view ui-corner-all" id={{block_name}}>
+        {% block top_header %}
+        
+        {% endblock %}
+        <tbody class="collapsable">
+            {% block toolbar %}
+            {% endblock %}
+            
+            {% if page.paginator.count %}
+                <tr>
+                    <th class="{% cycle "block_header_line_dark" "block_header_line_light" %}">
+                        <center><input name="select_all" value="all" type="checkbox" title="Tout sélectionner" onclick="creme.utils.toggleCheckallState(this, '#{{block_name}} [name=select_one]');"/></center>
+                    </th>
+                    <th class="{% cycle "block_header_line_dark" "block_header_line_light" %}">Status</th>
+                    <th class="{% cycle "block_header_line_dark" "block_header_line_light" %}">Émetteur(s)</th>
+                    <th class="{% cycle "block_header_line_dark" "block_header_line_light" %}">Destinataire(s)</th>
+                    <th class="{% cycle "block_header_line_dark" "block_header_line_light" %}">Sujet</th>
+                    <th class="{% cycle "block_header_line_dark" "block_header_line_light" %}">Reçu le</th>
+                    <th class="{% cycle "block_header_line_dark" "block_header_line_light" %}">Action</th>
+                </tr>
+                {% for mail in page.object_list %}
+                    <!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
+                    <tr>
+                        <td class="{{row_color}}">
+                            <center><input name="select_one" value="{{mail.pk}}" type="checkbox" onclick="creme.utils.autoCheckallState (this, '#{{block_name}} [name=select_all]', '#{{block_name}} [name=select_one]');"/></center>
+                        </td>
+                        <td class="{{row_color}}">{{MAIL_STATUS|get_value:mail.status}}</td>
+                        <td class="{{row_color}}">{{mail.sender}}</td>
+                        <td class="{{row_color}}">{{mail.recipient}}</td>
+                        <td class="{{row_color}}">{{mail.subject}}</td>
+                        <td class="{{row_color}}">{{mail.reception_date}}</td>
+                        <td class="{{row_color}}" align="center" valign="center" style="width:10%;">
+                            <a href="{{mail.get_absolute_url}}">
+                                <img src="{{MEDIA_URL}}images/view_22.png" border="0" title="Voir la fiche" alt="Voir la fiche" />
+                            </a>
+                            {% get_line_deletor at_url '/emails/mail/delete' with_args "{'ids': ['{{mail.pk}}'] }" %}
+                        </td>
+                    </tr>
+                {% endfor %}
+            {% else %}
+                <tr>
+                    <td class="block_line_dark">Aucun mail reçu à synchronisé</td>
+                </tr>
+            {% endif %}
+        </tbody>
+        {% include 'creme_core/templatetags/widgets/block_footer.html' %}
+    </table>
+{% endwith %}
