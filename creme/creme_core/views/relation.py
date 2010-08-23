@@ -239,7 +239,7 @@ def add_relations(request, subject_id, relation_type_id=None):
 
     if POST:
         form = RelationCreateForm(subject, request.user.id, relations_types, POST)
-
+        
         if form.is_valid():
             form.save()
     else:
@@ -266,15 +266,11 @@ def add_relations_bulk(request, model_ct_id, ids):
 
     die_statuses = set([edit_object_or_die(request, entity) for entity in entities]) #TODO: use genexpr instead of list comprehension
 
-    #TODO: odd code...
     if die_statuses - set([None]):
-        die_status = die_statuses.pop()
-        while die_status is None and die_statuses:
-            die_status = die_statuses.pop()
-        return die_status
+        return die_statuses.pop()
 
     if POST:
-        form = MultiEntitiesRelationCreateForm(entities, request.user.id, POST)
+        form = MultiEntitiesRelationCreateForm(entities, request.user.id, None, POST)
 
         if form.is_valid():
             form.save()
