@@ -18,6 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from django.http import HttpResponse
 from django.template.context import RequestContext
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404, render_to_response
@@ -26,8 +27,11 @@ from creme_core.entities_access.functions_for_permissions import read_object_or_
 from creme_core.views.generic.popup import inner_popup
 
 #from emails.blocks import mails_history_block
-from emails.models.mail import Email
-
+from emails.blocks import mail_waiting_sync_block, mail_spam_sync_block
+from emails.models.mail import (Email, MAIL_STATUS,
+                                MAIL_STATUS_SYNCHRONIZED_SPAM,
+                                MAIL_STATUS_SYNCHRONIZED,
+                                MAIL_STATUS_SYNCHRONIZED_WAITING)
 
 #@login_required
 #def reload_block_mails_history(request, entity_id):
@@ -53,3 +57,56 @@ def view_mail(request, mail_id):
 
     return render_to_response(template, ctx_dict,
                               context_instance=RequestContext(request))
+
+## SYNCHRO PART ##
+@login_required
+def synchronisation(request):
+    #TODO: Apply permissions? 
+
+    Email.fetch_mails()
+
+    return render_to_response("emails/synchronize.html",
+                              {},
+                              context_instance=RequestContext(request))
+
+def _retrieve_emails_ids(request):
+    return request.POST.getlist('ids')
+
+def _set_email_status(id, status):
+    email = get_object_or_404(Email, pk=id)
+    email.status = status
+    email.save()
+
+def _set_emails_status(request, status):
+    for id in _retrieve_emails_ids(request):
+        _set_email_status(id, status)
+        
+def set_emails_status(request, status):
+    _set_emails_status(request, status)
+    return HttpResponse()
+
+@login_required
+def delete(request):
+    #TODO: There no verifications because email is not a CremeEntity!!!
+    for id in _retrieve_emails_ids(request):
+        email = get_object_or_404(Email, pk=id)
+        email.delete()
+        
+    return HttpResponse()
+
+@login_required
+def spam(request):
+    #TODO: There no verifications because email is not a CremeEntity!!!
+    return set_emails_status(request, MAIL_STATUS_SYNCHRONIZED_SPAM)
+
+@login_required
+def validated(request):
+    #TODO: There no verifications because email is not a CremeEntity!!!
+    return set_emails_status(request, MAIL_STATUS_SYNCHRONIZED)
+
+@login_required
+def waiting(request):
+    #TODO: There no verifications because email is not a CremeEntity!!!
+    return set_emails_status(request, MAIL_STATUS_SYNCHRONIZED_WAITING)
+
+## END SYNCHRO PART ##

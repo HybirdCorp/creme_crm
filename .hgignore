@@ -5,6 +5,7 @@ syntax: glob
 .svn
 *.db
 local_settings*.py
+local_creme_settings*.py
 django.wsgi
 *.orig
 .pydev*
