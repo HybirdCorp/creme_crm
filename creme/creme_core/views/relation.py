@@ -264,9 +264,9 @@ def add_relations_bulk(request, model_ct_id, ids):
     model    = get_object_or_404(ContentType, pk=model_ct_id).model_class()
     entities = get_list_or_404(model, pk__in=ids.split(','))
 
-    die_statuses = set([edit_object_or_die(request, entity) for entity in entities]) #TODO: use genexpr instead of list comprehension
+    die_statuses = set([edit_object_or_die(request, entity) for entity in entities]) - set([None])
 
-    if die_statuses - set([None]):
+    if die_statuses:
         return die_statuses.pop()
 
     if POST:
