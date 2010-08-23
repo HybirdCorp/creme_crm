@@ -263,11 +263,11 @@ class Relation(CremeAbstractEntity):
         return Q(id__in=list_pk_f)
 
     @staticmethod
-    def create(subject, relation_type_id, object_): #really useful ??? (only 'user' attr help)
+    def create(subject, relation_type_id, object_, user_id=1): #really useful ??? (only 'user' attr help)
         relation = Relation()
         relation.subject_entity = subject
         relation.type_id = relation_type_id
         relation.object_entity = object_
         #relation.user = User.objects.get(pk=1)
-        relation.user_id = 1
+        relation.user_id = user_id
         relation.save()

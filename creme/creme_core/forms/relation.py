@@ -85,7 +85,7 @@ class MultiEntitiesRelationCreateForm(RelationCreateForm):
 
         if subjects:
             fields = self.fields
-            fields['entities_lbl'].initial = ",".join([u"%s" % subject for subject in subjects]) #TODO: use genexpr ; use unicode()
+            fields['entities_lbl'].initial = ",".join((unicode(subject) for subject in subjects))
 
     def save(self):
         user_id = self.user_id
@@ -96,19 +96,11 @@ class MultiEntitiesRelationCreateForm(RelationCreateForm):
 
         #TODO: odd code
         for subject in self.subjects:
-            def create_relation(user_id, predicate_id, subject, entity_id):
-                relation = Relation()
-                relation.user_id          = user_id
-                relation.type_id          = predicate_id
-                relation.subject_entity   = subject
-                relation.object_entity_id = entity_id
-                relation.save()
-
-            for predicate_id, ctype, entity_id in self.cleaned_data.get('relations', ()):
+            for predicate_id, entity in self.cleaned_data['relations']:
                 try:
-                    rel_get(user__id=user_id, type__id=predicate_id, subject_entity=subject, object_entity__id=entity_id) #TODO: can remove '__id'
+                    rel_get(user=user_id, type=predicate_id, subject_entity=subject, object_entity=entity) 
                 except Relation.MultipleObjectsReturned:
-                    rel_filter(user__id=user_id, type__id=predicate_id, subject_entity=subject, object_entity__id=entity_id).delete() #TODO: can remove '__id'
-                    create_relation(user_id, predicate_id, subject, entity_id)
+                    rel_filter(user=user_id, type=predicate_id, subject_entity=subject, object_entity=entity).delete()
+                    Relation.create(subject, predicate_id, entity, user_id)
                 except Relation.DoesNotExist:
-                    create_relation(user_id, predicate_id, subject, entity_id)
+                    Relation.create(subject, predicate_id, entity, user_id)
