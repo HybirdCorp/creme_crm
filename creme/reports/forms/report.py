@@ -201,7 +201,8 @@ class AddFieldToReportForm(CremeForm):
         fields['columns'].choices = get_flds_with_fk_flds_str(model, 1)
         fields['custom_fields'].choices = [(cf.name, cf.name) for cf in CustomField.objects.filter(content_type=ct)]
         fields['relations'].choices = [(r.id, r.predicate) for r in RelationType.objects.filter(Q(subject_ctypes=ct)|Q(subject_ctypes__isnull=True)).order_by('predicate')]
-        fields['functions'].choices = ((f['name'], f['verbose_name']) for f in model.users_allowed_func)
+        #fields['functions'].choices = ((f['name'], f['verbose_name']) for f in model.users_allowed_func)
+        fields['functions'].choices = ((f.name, f.verbose_name) for f in model.users_allowed_func.itervalues() )
 
         initial_data = defaultdict(list)
 

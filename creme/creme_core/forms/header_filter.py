@@ -69,7 +69,8 @@ class HeaderFilterForm(CremeModelForm):
         fields['fields'].choices = get_flds_with_fk_flds_str(model, 1)
         fields['custom_fields'].choices = [(cf.id, cf.name) for cf in self._custom_fields]
         fields['relations'].choices = self._relation_types
-        fields['functions'].choices = ((f['name'], f['verbose_name']) for f in model.users_allowed_func)
+        #fields['functions'].choices = ((f['name'], f['verbose_name']) for f in model.users_allowed_func)
+        fields['functions'].choices = ((f.name, f.verbose_name) for f in model.users_allowed_func.itervalues())
 
         if instance.id:
             initial_data = defaultdict(list)
@@ -162,17 +163,20 @@ class HeaderFilterForm(CremeModelForm):
             items_2_save.append(HeaderFilterItem(name=predicate.replace(' ', '_').replace("'", "_"),
                                                  title=predicate,#.replace("'", " "),
                                                  type=HFI_RELATION,
-                                                 has_a_filter=False,
+                                                 #has_a_filter=False,
+                                                 has_a_filter=True,
                                                  editable=False ,
                                                  filter_string="",
                                                  relation_predicat_id=relation_type_id)) #TODO: relation_type_id in 'name' attr...
 
-        get_funcname = model_klass.get_users_func_verbose_name
+        #get_funcname = model_klass.get_users_func_verbose_name
         for func in cleaned_data['functions']:
+            user_func = model_klass.get_users_func(func)
             items_2_save.append(HeaderFilterItem(name=func,
-                                                 title=get_funcname(func),
+                                                 title=user_func.verbose_name,
                                                  type=HFI_FUNCTION,
-                                                 has_a_filter=False,
+                                                 #has_a_filter=False,
+                                                 has_a_filter=user_func.has_filter (),
                                                  editable=False,
                                                  filter_string=""))
 

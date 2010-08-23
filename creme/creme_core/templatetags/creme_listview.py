@@ -114,6 +114,16 @@ def get_listview_columns_header(context):
                 _build_date_search_widget(item_dict, item_value)
             elif hasattr(item_value, '__iter__') and len(item_value) >= 1: #TODO: "elif item_value"
                 item_dict['value'] = item_value[0]
+    
+        elif item.type == HFI_FUNCTION:
+            if hasattr(item_value, '__iter__') and len(item_value) >= 1:
+                item_dict['value'] = item_value[0]                    
+        elif item.type == HFI_RELATION:
+            if hasattr(item_value, '__iter__') and len(item_value) >= 1:
+                item_dict['value'] = item_value[0]                    
+                
+                
+                
         elif item.type == HFI_CUSTOM:
             cf = item.get_customfield()
             field_type = cf.field_type

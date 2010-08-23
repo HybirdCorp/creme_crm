@@ -171,7 +171,9 @@ class CremeAbstractEntity(CremeModel, TimeStampedModel):
     _real_entity = None
 
     research_fields = []
-    users_allowed_func = [] #=> Usage: [{'name':'', 'verbose_name':''},...]
+    #users_allowed_func = [] #=> Usage: [{'name':'', 'verbose_name':''},...]
+    users_allowed_func = {}  #=> Usage: {'name': Class,}
+    
     excluded_fields_in_html_output = ['id', 'cremeentity_ptr' , 'entity_type', 'header_filter_search_field', 'is_deleted', 'is_actived'] #use a set
     header_filter_exclude_fields = ['password', 'is_superuser', 'is_active', 'is_staff']
     extra_filter_fields = [] #=> Usage: [{'name':'', 'verbose_name':''},...]
@@ -193,12 +195,38 @@ class CremeAbstractEntity(CremeModel, TimeStampedModel):
             self.entity_type = ContentType.objects.get_for_id(self.entity_type_id)
 
     @classmethod
+#    def get_users_func_verbose_name(cls, func_name):
+#        func_name = str(func_name) #??
+#        for dic in cls.users_allowed_func:
+#            if str(dic['name']) == func_name:
+#                return dic['verbose_name']
+#        return ''
     def get_users_func_verbose_name(cls, func_name):
+        func_name = str(func_name) #??    
+        if func_name in cls.users_allowed_func :
+            return cls.users_allowed_func[func_name].verbose_name
+        return ''  
+    
+    @classmethod
+    def get_users_func(cls, func_name):
         func_name = str(func_name) #??
-        for dic in cls.users_allowed_func:
-            if str(dic['name']) == func_name:
-                return dic['verbose_name']
-        return ''
+        if func_name in cls.users_allowed_func :
+            return cls.users_allowed_func[func_name]
+        return None
+
+    
+    @classmethod
+    def users_func_has_filter(cls, func_name):
+        func_name = str(func_name) #??
+        if func_name in cls.users_allowed_func :
+            return cls.users_allowed_func[func_name].has_filter ()
+        
+    @classmethod
+    def filter_users_func(cls, func_name, string_filter):
+        func_name = str(func_name) #??
+        if func_name in cls.users_allowed_func :
+            return cls.users_allowed_func[func_name].filter_in_user_allowed_func (string_filter)
+        return Q()                  
 
     def _get_real_entity(self, base_model):
         entity = self._real_entity
