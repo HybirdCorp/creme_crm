@@ -22,6 +22,7 @@ from datetime import datetime
 
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404
+from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required
 
 from assistants.models import Action
@@ -30,14 +31,15 @@ from utils import generic_add, generic_edit, generic_delete
 
 
 def add(request, entity_id):
-    return generic_add(request, entity_id, ActionCreateForm, u'Nouvelle action pour <%s>')
+    return generic_add(request, entity_id, ActionCreateForm, _(u'New action for <%s>'))
 
 def edit(request, action_id):
-    return generic_edit(request, action_id, Action, ActionEditForm, u"Action pour <%s>")
+    return generic_edit(request, action_id, Action, ActionEditForm, _(u"Action for <%s>"))
 
 def delete(request):
     return generic_delete(request, Action)
 
+#TODO: credentials ?????
 @login_required
 def validate(request, action_id):
     action = get_object_or_404(Action, pk=action_id)

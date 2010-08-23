@@ -28,8 +28,8 @@ from assistants.models import Alert
 
 
 class AlertEditForm(CremeModelWithUserForm):
-    trigger_date = CremeDateTimeField(label=_(u"Date d'échéance"))
-    trigger_time = CremeTimeField(label=_(u'Heure'), required=False)
+    trigger_date = CremeDateTimeField(label=_(u"Trigger date")) #Date d'échéance
+    trigger_time = CremeTimeField(label=_(u'Hour'), required=False)
 
     class Meta:
         model = Alert

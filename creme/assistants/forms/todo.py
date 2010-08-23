@@ -28,7 +28,7 @@ from assistants.models import ToDo
 
 
 class ToDoEditForm(CremeModelWithUserForm):
-    deadline = CremeDateTimeField(label=_(u"Date d'échéance"), required=False)
+    deadline = CremeDateTimeField(label=_(u"Deadline"), required=False)
 
     class Meta:
         model = ToDo

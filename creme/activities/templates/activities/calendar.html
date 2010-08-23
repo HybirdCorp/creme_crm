@@ -1,0 +1,229 @@
+{% extends "creme_core/base.html" %}
+{% load i18n %}
+{% load creme_core_tags %}
+{% block extrahead %}
+<link rel='stylesheet' type='text/css' href='{{MEDIA_URL}}css/fullcalendar-1.4.5/fullcalendar.css' />
+<script type='text/javascript' src='{{MEDIA_URL}}js/datejs/date-fr-FR.js'></script>
+<script type='text/javascript' src='{{MEDIA_URL}}js/jquery/extensions/fullcalendar-1.4.5/prod/fullcalendar.js'></script>
+<script type='text/javascript'>
+$(document).ready(function() {
+    function updater(event, dayDelta, minuteDelta, allDay, revertFunc, jsEvent, ui, view){
+        $.ajax({
+                  type: "POST",
+                  url: "/activities/calendar/activity/update",
+                  data: {start:event.start.getTime(), end : event.end.getTime(),id:event.id, allDay: allDay},
+                  error : function(request, textStatus, errorThrown){
+                      if(request.status == 403){
+                        alert("{% trans "You do not have permission, the change will not be saved." %}");
+                        revertFunc();
+                      }
+                      if(request.status >= 300 || request.status == 0){
+                          alert("{% trans "Error, please reload the page." %}");
+                          revertFunc();
+                      }
+                  },
+                  beforeSend: function(request) {
+                        //$('#add_operation').attr('disabled', 'disabled');
+                        creme.utils.loading('loading', false, {});
+                  },
+                  complete : function(request, txtStatus) {
+                    creme.utils.loading('loading', true, {});
+                  }
+        });
+    }
+
+    $('#calendar').fullCalendar({
+            weekends: true,
+            header : {
+                left:   'title, prevYear, nextYear',
+                center: 'today, prev,next',
+                right:  'agendaDay, agendaWeek, month'
+            },
+            theme : false,
+            firstDay : 1,
+            weekMode : 'fixed',
+            aspectRatio: 2,
+            defaultView : 'month',//'agendaWeek',
+            allDaySlot: true,
+            allDayText: "{% trans "All day" %}",
+            axisFormat : "H'h'mm",
+            slotMinutes:15,
+            defaultEventMinutes:120,
+            firstHour : new Date().toString("HH"),
+            minTime : 0,
+            maxTime : 24,
+            timeFormat : "H'h'mm", //TODO: use l110n time format
+            columnFormat:{
+                "month":"dddd",
+                "agendaWeek":"dddd d MMMM",
+                "agendaDay":"dddd d MMMM"
+            },
+            titleFormat:{
+                month: 'MMMM yyyy',
+                week: "d[ yyyy]{ '&#8212;' d MMMM yyyy}",
+                day: 'dddd d MMMM yyyy'
+            },
+            buttonText :{
+                prev:     '&nbsp;&#9668;&nbsp;',  // left triangle
+                next:     '&nbsp;&#9658;&nbsp;',  // right triangle
+                prevYear: '&nbsp;&lt;&lt;&nbsp;', // <<
+                nextYear: '&nbsp;&gt;&gt;&nbsp;', // >>
+                today:    "{%trans "Today" %}",
+                month:    "{%trans "Month" %}",
+                week:     "{%trans "Week" %}",
+                day:      "{%trans "Day" %}"
+            },
+            monthNames : ["{%trans "January" %}", "{%trans "February" %}", "{%trans "March" %}",
+                          "{%trans "April" %}", "{%trans "May" %}", "{%trans "June" %}",
+                          "{%trans "July" %}", "{%trans "August" %}", "{%trans "September" %}",
+                          "{%trans "October" %}", "{%trans "November" %}", "{%trans "December" %}"],
+            dayNames : ["{%trans "Sunday" %}", "{%trans "Monday" %}", "{%trans "Tuesday" %}",
+                        "{%trans "Wesnesday" %}", "{%trans "Thursday" %}", "{%trans "Friday" %}",
+                        "{%trans "Saturday" %}"],
+            events: "{{events_url}}",
+            editable:true,
+            loading: function(bool, view) {
+                //console.log(arguments);
+                /*if (bool) $('#loading').show("slow");
+                else $('#loading').hide("slow");*/
+                if (bool) creme.utils.loading('loading', false, {});
+                else creme.utils.loading('loading', true, {});
+                //TODO creme.utils.loading('loading', bool, {}); ???
+            },
+            dayClick : function( date, allDay, jsEvent, view) {
+                if(view.name=="month") {
+                    $("#calendar").fullCalendar('changeView', "agendaWeek");
+                    $("#calendar").fullCalendar('gotoDate', date);
+                } else if(view.name=="agendaWeek") {
+                    $("#calendar").fullCalendar('changeView', "agendaDay");
+                    $("#calendar").fullCalendar('gotoDate', date);
+                } else if(view.name=="agendaDay") {
+                    $("#calendar").fullCalendar('changeView', "agendaWeek");
+                    $("#calendar").fullCalendar('gotoDate', date);
+                }
+            },
+            eventAfterRender : function(event, element, view) {
+                $(element).find('a').css('background-color', event.entity_color);
+                $(element).find('.fc-event-time').css('background-color', event.entity_color);
+            },
+            eventDragStart : function(calEvent, domEvent, ui, view)
+            {
+                /*ui.helper.attr('old_top', ui.helper.css('top'));
+                ui.helper.attr('old_left', ui.helper.css('left'));*/
+            },
+            eventDrop : function( event, dayDelta, minuteDelta, allDay, revertFunc, jsEvent, ui, view ) {
+                updater(event, dayDelta, minuteDelta, allDay, revertFunc, jsEvent, ui, view);
+            },
+            eventClick: function(event) {
+                window.open(event.url, 'gcalevent', 'width=700,height=600,scrollbars=yes');
+                //creme.utils.showInnerPopup(event.url);
+                return false;
+            },
+            eventResize: function( event, dayDelta, minuteDelta, revertFunc, jsEvent, ui, view ) {
+                updater(event, dayDelta, minuteDelta, null, revertFunc, jsEvent, ui, view);
+            }
+        });
+    });
+</script>
+<style type='text/css'>
+    #loading {
+            background : #142424 none repeat scroll 0 0;
+            opacity: 0.8;
+            filter: alpha(opacity=80);
+            color : #FFFFFF;
+            height:25px;
+            width:100px;
+        }
+    #calendar {
+        width: auto;
+        margin: 0 auto;
+        }
+</style>
+<script type="text/javascript">
+    $(document).ready(
+        function() {
+            $( "#tbody-selectable" ).selectable({
+                filter:'td',
+                stop: function(event, ui)
+                {
+                    $("td.ui-selected", this).each(function() {
+                        $(this).find('input[type=checkbox]').toggleCheck();
+                        $(this).toggleClass('selected');
+                    });
+                }
+            });
+
+            $('#show-hide-users').toggle(
+                function(e) {
+                    $('#tbody-selectable').slideUp();
+                    $(this).text('Montrer la liste des utilisateurs');
+                    $.cookie('creme-calendar-user-list-state', 'hide');
+                },
+                function(e) {
+                    $('#tbody-selectable').slideDown();
+                    $(this).text('Cacher la liste des utilisateurs');
+                    $.cookie('creme-calendar-user-list-state', 'show');
+                }
+            );
+
+            var userListState = $.cookie('creme-calendar-user-list-state');
+            if (userListState!=null && userListState == 'hide') {
+                    $('#show-hide-users').click();
+            }
+        }
+    );
+</script>
+{% endblock %}
+
+{% block content %}
+<div class="full-calendar-header">
+    <div class="full-calendar-buttons">
+        <form action="" method="POST" name="user_choice">
+            <table>
+                <tbody>
+                    <tr>
+                        <td>
+                            <a class="menu_button" href="/activities/activity/add-meeting-without-relation" >
+                                <img src="{{MEDIA_URL}}images/map_32.png" border="0" title="{% trans "Meeting" %}" alt="{% trans "Meeting" %}" />
+                                {% trans "Create a meeting" %}
+                            </a>
+                        </td>
+                        <td>
+                            <a class="menu_button" href="/activities/activity/add-phonecall-without-relation">
+                                <img src="{{MEDIA_URL}}images/phone_32.png" border="0" title="{% trans "Phone call" %}" alt="{% trans "Phone call" %}" />
+                                {% trans "Create a phone call" %}
+                            </a>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <p>{% trans "See calendars of :" %}<br/></p>
+            <table style="border:2px solid #D7E2E7;">
+                <thead>
+                    <tr>
+                        <td colspan="16">
+                            <button type="button" id="show-hide-users">{% trans "Hide the list of users" %}</button>
+                            <input type="submit" value={% trans "See the calendar of selected users" %} />
+                        </td>
+                    </tr>
+                </thead>
+                <tbody id="tbody-selectable" style="overflow: scroll;">
+                    {% for user in users %}
+                        {% if forloop.counter0|mod:16|eq:0 %}<tr>{% endif %}
+                            <td class="selectable {% if user|in:current_users %} selected {% endif %}" style="padding:3px;cursor: pointer;" >
+                                <span>
+                                    <input type="checkbox" value="{{user.username}}" id="id_{{user.username}}" name="user_selected" {% if user|in:current_users %} checked {% endif %} />
+                                   <label for="id_{{user.username}}" >{{user}}</label>
+                                </span>
+                            </td>
+                        {% if forloop.counter0|mod:16|eq:15 %}</tr>{% endif %}
+                    {% endfor %}
+                </tbody>
+            </table>
+        </form>
+    </div>
+    <h2>{% trans "Calendar of :" %} {{current_users|join:", "}}</h2>
+</div>
+<div id='loading' style='display:none'>{% trans "Loading..." %}</div>
+<div id='calendar'></div>
+{% endblock %}

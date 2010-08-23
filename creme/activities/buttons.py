@@ -25,13 +25,13 @@ from creme_core.gui.button_menu import Button
 
 class AddMeetingButton(Button):
     id_           = Button.generate_id('activities', 'add_meeting')
-    verbose_name  = _(u'Ajouter un rendez-vous')
+    verbose_name  = _(u'Add a meeting')
     template_name = 'activities/templatetags/button_add_meeting.html'
 
 
 class AddPhoneCallButton(Button):
     id_           = Button.generate_id('activities', 'add_phonecall')
-    verbose_name  = _(u'Ajouter un appel téléphonique')
+    verbose_name  = _(u'Add a phone call')
     template_name = 'activities/templatetags/button_add_phonecall.html'
 
 

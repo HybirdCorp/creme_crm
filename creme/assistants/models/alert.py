@@ -33,15 +33,15 @@ from creme_core.models import CremeModel
 class Alert(CremeModel):
     title               = CharField(max_length=200)
     description         = TextField(_(u'Description'), blank=True, null=True)
-    is_validated        = BooleanField(_('Validée'))
-    trigger_date        = DateTimeField(_(u"Date de déclenchement de l'alerte"), blank=True, null=True)
+    is_validated        = BooleanField(_('Validated'))
+    trigger_date        = DateTimeField(_(u"Trigger date"), blank=True, null=True)
 
     entity_content_type = ForeignKey(ContentType, related_name="alert_entity_set")
     entity_id           = PositiveIntegerField()
 
     creme_entity        = GenericForeignKey(ct_field="entity_content_type", fk_field="entity_id")
 
-    for_user            = ForeignKey(User, verbose_name=_(u'assigné à'), blank=True, null=True, related_name='user_alert_assigned_set')
+    for_user            = ForeignKey(User, verbose_name=_(u'Assigned to'), blank=True, null=True, related_name='user_alert_assigned_set')
 
     @staticmethod
     def get_alerts(entity_pk=None):
@@ -52,5 +52,5 @@ class Alert(CremeModel):
 
     class Meta:
         app_label = 'assistants'
-        verbose_name = _('Alerte')
-        verbose_name_plural = _(u'Alertes')
+        verbose_name = _('Alert')
+        verbose_name_plural = _(u'Alerts')

@@ -54,7 +54,7 @@ class MemosBlock(QuerysetBlock):
     id_           = QuerysetBlock.generate_id('assistants', 'memos')
     dependencies  = (Memo,)
     order_by      = '-creation_date'
-    verbose_name  = _(u'Mémos')
+    verbose_name  = _(u'Memos')
     template_name = 'assistants/block_memos.html'
     configurable  = True
 
@@ -79,7 +79,7 @@ class AlertsBlock(QuerysetBlock):
     id_           = QuerysetBlock.generate_id('assistants', 'alerts')
     dependencies  = (Alert,)
     order_by      = '-trigger_date'
-    verbose_name  = _(u'Alertes')
+    verbose_name  = _(u'Alerts')
     template_name = 'assistants/block_alerts.html'
     configurable  = True
 
@@ -104,7 +104,7 @@ class ActionsITBlock(QuerysetBlock):
     id_           = QuerysetBlock.generate_id('assistants', 'actions_it')
     dependencies  = (Action,)
     order_by      = 'deadline'
-    verbose_name  = _(u'Actions dans les délais')
+    verbose_name  = _(u'Actions in time')
     template_name = 'assistants/block_actions_it.html'
     configurable  = True
 
@@ -129,7 +129,7 @@ class ActionsNITBlock(QuerysetBlock):
     id_           = QuerysetBlock.generate_id('assistants', 'actions_nit')
     dependencies  = (Action,)
     order_by      = 'deadline'
-    verbose_name  = _(u'Réactions hors délais')
+    verbose_name  = _(u'Reactions not in time')
     template_name = 'assistants/block_actions_nit.html'
     configurable  = True
 

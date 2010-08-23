@@ -1,0 +1,57 @@
+{% load i18n %}
+{% load creme_block %}
+<table class="table_detail_view ui-corner-all" id={{block_name}}>
+    {% get_block_header _('%s Reaction not in time') _('%s Reactions not in time') 'action_48.png' _('Reaction') %}
+    <tbody class="collapsable">
+        {% if page.paginator.count %}
+            <tr>
+                {% get_column_header _('Title') 'title' %}
+                {% if not object %}
+                    <th class="block_header_line_dark">{% trans "Concerned entity" %}</th>
+                {% endif %}
+                {% get_column_header _('Description') 'description' %}
+                {% get_column_header _('User') 'for_user' %}
+                {% get_column_header _('Creation') 'creation_date' %}
+                {% get_column_header _('Expected action') 'expected_reaction' %}
+                {% get_column_header _('Deadline') 'deadline' %}
+                <th class="block_header_line_dark">{% trans "OK ?" %}</th>
+                <th class="block_header_line_dark">{% trans "Actions" %}</th>
+            </tr>
+            {% for action in page.object_list %}
+                <tr>
+                    <!--{% cycle "block_line_dark" "block_line_light" as row_color%}-->
+                    <td class="{{row_color}}"><strong>{{action.title}}</strong></td>
+                    {% if not object %}
+                        <td class="{{row_color}}">
+                            <a href="{{action.creme_entity.get_absolute_url}}">{{action.creme_entity}}</a>
+                        </td>
+                    {% endif %}
+                    <td class="{{row_color}}">{{action.description}}</td>
+                    <td class="{{row_color}}">{{action.for_user}}</td>
+                    <td class="{{row_color}}">{{action.creation_date}}</td>
+                    <td class="{{row_color}}">{{action.expected_reaction}}</td>
+                    <td class="{{row_color}}">{{action.deadline}}</td>
+                    <td class="{{row_color}}">
+                        <form method="post" action="/assistants/action/validate/{{action.id}}/">
+                            <input type="checkbox" name="checked_action{{action.id}}" id="checked_action{{action.id}}" />
+                                <button type="button" onclick="creme.utils.validateEntity(this.form, 'checked_action{{action.id}}');" style="background:transparent; cursor:pointer;border:0px;">
+                                <img src="{{MEDIA_URL}}images/refresh_16.png" width="16" height="16" border="0" />
+                            </button>
+                        </form>
+                    </td>
+                    <td class="{{row_color}}" align="center" valign="center" style="width:10%;">
+                        <a onclick="creme.utils.innerPopupNReload('/assistants/action/edit/{{action.id}}/', {% get_block_reload_uri %});">
+                            <img src="{{MEDIA_URL}}images/edit_22.png" border="0">
+                        </a>
+                        {% get_line_deletor at_url '/assistants/action/delete' with_args "{'id' : {{action.id}} }" %}
+                    </td>
+                </tr>
+            {% endfor %}
+        {% else %}
+            <tr>
+                <td class="block_line_dark">{% trans "No reaction not in time" %}</td>
+            </tr>
+        {% endif %}
+    </tbody>
+    {% include 'creme_core/templatetags/widgets/block_footer.html' %}
+</table>
