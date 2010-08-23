@@ -21,7 +21,6 @@
 from datetime import datetime
 from logging import debug
 from random import choice
-from string import ascii_letters, digits
 from pickle import dumps, HIGHEST_PROTOCOL
 
 from django.db import IntegrityError
@@ -34,13 +33,8 @@ from creme_core.forms import CremeModelForm, CremeEntityField, CremeDateTimeFiel
 
 from emails.models import EmailTemplate
 from emails.models.sending import EmailSending, SENDING_TYPES, SENDING_TYPE_DEFERRED, SENDING_STATE_PLANNED
-from emails.models.mail import Email, MAIL_STATUS_NOTSENT, ID_LENGTH
-
-
-ALLOWED_CHARS = ascii_letters + digits
-
-def generate_id():
-    return ''.join(choice(ALLOWED_CHARS) for i in xrange(ID_LENGTH))
+from emails.models.mail import Email, MAIL_STATUS_NOTSENT
+from emails.utils import generate_id
 
 
 class SendingCreateForm(CremeModelForm):
