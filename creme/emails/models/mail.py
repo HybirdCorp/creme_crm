@@ -27,28 +27,21 @@ from email.mime.image import MIMEImage
 from itertools import chain
 from logging import error, debug
 from os.path import join, basename
-from pickle import loads
 
 from django.db.models import (PositiveIntegerField, PositiveSmallIntegerField, CharField,
                               TextField, DateTimeField, ForeignKey, ManyToManyField)
 from django.utils.translation import ugettext_lazy as _
 from django.conf import settings
-from django.contrib.contenttypes.models import ContentType
-from django.contrib.contenttypes.generic import GenericForeignKey
 from django.core.mail import EmailMultiAlternatives
 from django.db import IntegrityError
-from django.db.models import Q
-from django.template import Template, Context
 
-from creme_core.models import CremeModel
+from creme_core.models import CremeModel, CremeEntity
 
 from emails.utils import generate_id, get_unicode_decoded_str
 
 from persons.models import MailSignature
 
 from documents.models import Document
-
-from sending import EmailSending
 
 from creme_settings import (CREME_GET_EMAIL_SERVER,
                             CREME_GET_EMAIL_USERNAME,
@@ -76,38 +69,30 @@ MAIL_STATUS = {
 
 ID_LENGTH = 32
 
-class Email(CremeModel):
+class _Email(CremeModel):
     """
     id is a unique generated string in order to avoid stats hacking.
     """
-    id           = CharField(_(u'Identifiant du mail'), primary_key=True, max_length=ID_LENGTH)
-    sending      = ForeignKey(EmailSending, null=True, verbose_name=_(u"Envoi associé"), related_name='mails_set')
+#    id             = CharField(_(u'Identifiant du mail'), primary_key=True, max_length=ID_LENGTH)
+#    sending        = ForeignKey(EmailSending, null=True, verbose_name=_(u"Envoi associé"), related_name='mails_set')
 
-    reads        = PositiveIntegerField(_(u'Nombre de lecture(s)'), blank=True, null=True, default=0)
-    status       = PositiveSmallIntegerField(_(u'Statut'))
+    reads          = PositiveIntegerField(_(u'Nombre de lecture(s)'), blank=True, null=True, default=0)
+    status         = PositiveSmallIntegerField(_(u'Statut'))
 
-    sender       = CharField(_(u'Émetteur'), max_length=100)
-    recipient    = CharField(_(u'Destinataire'), max_length=100)
-    #cc           = CharField(_(u'cc'), max_length=100)
-    subject      = CharField(_(u'Sujet'), max_length=100, blank=True, null=True)
-    body_html    = TextField()
-    body         = TextField()
-    #validated    = BooleanField()
-    #spam         = BooleanField()
-    #assign       = ManyToManyField(CremeEntity, blank=True, null=True , symmetrical=False, related_name='MailCremeAssign_set' )
-    sending_date = DateTimeField(_(u"Date d'envoi"), blank=True, null=True)
-    signature    = ForeignKey(MailSignature, verbose_name=_(u'Signature'), blank=True, null=True) ##merge with body ????
-    attachments  = ManyToManyField(Document, verbose_name=_(u'Fichiers attachés'))
-
-    recipient_ct = ForeignKey(ContentType, null=True) #useful ?????
-    recipient_id = PositiveIntegerField(null=True)
-
-    recipient_entity = GenericForeignKey(ct_field="recipient_ct", fk_field="recipient_id")
+    sender         = CharField(_(u'Émetteur'), max_length=100)
+    recipient      = CharField(_(u'Destinataire'), max_length=100)
+    #cc             = CharField(_(u'cc'), max_length=100)
+    subject        = CharField(_(u'Sujet'), max_length=100, blank=True, null=True)
+    body_html      = TextField()
+    body           = TextField()
+    sending_date   = DateTimeField(_(u"Date d'envoi"), blank=True, null=True)
+    reception_date = DateTimeField(_(u"Date de reception"), blank=True, null=True)
+    signature      = ForeignKey(MailSignature, verbose_name=_(u'Signature'), blank=True, null=True) ##merge with body ????
+    attachments    = ManyToManyField(Document, verbose_name=_(u'Fichiers attachés'))
 
     class Meta:
+        abstract = True
         app_label = "emails"
-        verbose_name = _(u'Courriel')
-        verbose_name_plural = _(u'Courriels')
 
     def __unicode__(self):
         return u"Mail<from: %s> <to: %s> <sent: %s> <id: %s>" % (self.sender, self.recipient, self.sending_date, self.id)
@@ -116,16 +101,7 @@ class Email(CremeModel):
         return MAIL_STATUS[self.status]
 
     def get_body(self):
-        if self.sending is None:
-            return self.body
-
-        try:
-            body_template = Template(self.sending.body)
-            return body_template.render(Context(loads(self.body.encode('utf-8')) if self.body else {}))
-        except:#Pickle raise too much differents exceptions...Catch'em all ? 
-            return ""
-
-
+        return self.body
 
     #TODO: factorise with EmailSending.send_mails()
     def send(self):
@@ -187,22 +163,29 @@ class Email(CremeModel):
         mail.save()
         debug("Mail sent to %s", mail.recipient)
 
-    def genid_n_save(self):
-#        from emails.forms.sending import generate_id
 
+class EntityEmail(_Email, CremeEntity):
+    identifier = CharField(_(u'Identifiant du mail'), unique=True, max_length=ID_LENGTH, null=False, blank=False, default=generate_id)
+
+    class Meta:
+        app_label = "emails"
+        verbose_name = _(u'Courriel')
+        verbose_name_plural = _(u'Courriels')
+
+    def genid_n_save(self):
         #BEWARE: manage manually
         while True:
             try:
-                self.id = generate_id()
+                self.identifier = generate_id()
                 self.save(force_insert=True)
             except IntegrityError:  #a mail with this id already exists
-                debug('Mail id already exists: %s', self.id)
+                debug('Mail id already exists: %s', self.identifier)
                 self.pk = None
             else:
                 break
 
     @staticmethod
-    def fetch_mails():
+    def fetch_mails(user_id):
         client = None
         try:
             if CREME_GET_EMAIL_SSL:
@@ -226,9 +209,9 @@ class Email(CremeModel):
 #        parsedate    = email.utils.parsedate
 
         for msg_infos in messages:
-            mail = Email()
+            mail = EntityEmail()
             mail.status = MAIL_STATUS_SYNCHRONIZED_WAITING
-            
+
             message_number, message_size = msg_infos.split(' ')
             r, raw_message_lines, message_size = client.retr(message_number)
 
@@ -280,6 +263,7 @@ class Email(CremeModel):
             mail.sender    = u', '.join(chain(from_emails, cc_emails))
             mail.recipient = u', '.join(to_emails)
             mail.subject   = u', '.join(subjects)
+            mail.user_id   = user_id
             mail.genid_n_save()
 #            result_list.append(mail)
 
@@ -287,7 +271,7 @@ class Email(CremeModel):
 #            client.dele(message_number)#TODO: Don't forget to uncomment
 
         client.quit()
-        
+
 #        for mail in Email.objects.filter(Q(status=MAIL_STATUS_SYNCHRONISED_SPAM) | Q(status=MAIL_STATUS_SYNCHRONISED_WAITING)):
 ##            if mail not in result_list:
 ##                result_list.append(mail)

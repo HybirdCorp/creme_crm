@@ -29,7 +29,6 @@ from persons.models import Contact, Organisation
 from mailing_list import MailingList
 from recipient import EmailRecipient
 
-
 class EmailCampaign(CremeEntity):
     name          = CharField(_(u'Nom de la campagne'), max_length=100, blank=False, null=False)
     mailing_lists = ManyToManyField(MailingList, verbose_name=_(u'Listes de diffusion associées'))

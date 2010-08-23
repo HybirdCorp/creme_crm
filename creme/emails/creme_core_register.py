@@ -39,6 +39,7 @@ reg_menu('emails', '/emails/mailing_lists',    'Lister les listes de diffusion')
 reg_menu('emails', '/emails/mailing_list/add', 'Ajouter une liste de diffusion')
 reg_menu('emails', '/emails/templates',        'Lister les patrons de courriel')
 reg_menu('emails', '/emails/template/add',     'Ajouter un patron de courriel')
+reg_menu('emails', '/emails/synchronization',  'Synchronisation des emails externes')
 
 block_registry.register(mailing_lists_block, recipients_block, contacts_block, organisations_block,
                         child_lists_block, parent_lists_block, attachments_block, sendings_block,

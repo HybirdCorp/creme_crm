@@ -27,19 +27,20 @@ from creme_core.entities_access.functions_for_permissions import read_object_or_
 from creme_core.views.generic.popup import inner_popup
 
 #from emails.blocks import mails_history_block
-from emails.blocks import mail_waiting_sync_block, mail_spam_sync_block
-from emails.models.mail import (Email, MAIL_STATUS,
+from emails.models.mail import (EntityEmail, 
                                 MAIL_STATUS_SYNCHRONIZED_SPAM,
                                 MAIL_STATUS_SYNCHRONIZED,
                                 MAIL_STATUS_SYNCHRONIZED_WAITING)
+                                
+from emails.models.sending import LightWeightEmail
 
 #@login_required
 #def reload_block_mails_history(request, entity_id):
     #return mails_history_block.detailview_ajax(request, entity_id)
 
 @login_required
-def view_mail(request, mail_id):
-    email = get_object_or_404(Email, pk=mail_id)
+def view_lightweight_mail(request, mail_id):
+    email = get_object_or_404(LightWeightEmail, pk=mail_id)
     die_status = read_object_or_die(request, email)
 
     if die_status:
@@ -58,12 +59,13 @@ def view_mail(request, mail_id):
     return render_to_response(template, ctx_dict,
                               context_instance=RequestContext(request))
 
+
 ## SYNCHRO PART ##
 @login_required
 def synchronisation(request):
     #TODO: Apply permissions? 
 
-    Email.fetch_mails()
+    EntityEmail.fetch_mails(user_id=request.user.id)
 
     return render_to_response("emails/synchronize.html",
                               {},
@@ -73,7 +75,7 @@ def _retrieve_emails_ids(request):
     return request.POST.getlist('ids')
 
 def _set_email_status(id, status):
-    email = get_object_or_404(Email, pk=id)
+    email = get_object_or_404(EntityEmail, pk=id)
     email.status = status
     email.save()
 
@@ -89,7 +91,7 @@ def set_emails_status(request, status):
 def delete(request):
     #TODO: There no verifications because email is not a CremeEntity!!!
     for id in _retrieve_emails_ids(request):
-        email = get_object_or_404(Email, pk=id)
+        email = get_object_or_404(EntityEmail, pk=id)
         email.delete()
         
     return HttpResponse()
