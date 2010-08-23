@@ -18,6 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from django.contrib.contenttypes.models import ContentType
 from django.http import HttpResponse
 from django.template.context import RequestContext
 from django.utils.simplejson import JSONEncoder
@@ -193,9 +194,10 @@ class _SynchronizationMailsBlock(QuerysetBlock):
     def detailview_ajax(self, request):
         context = RequestContext(request)
         context.update({
-            'MAIL_STATUS': MAIL_STATUS
+            'MAIL_STATUS': MAIL_STATUS,
+            'entityemail_ct_id': ContentType.objects.get_for_model(EntityEmail).id,
         })
-
+        
         return [(self.id_, self.detailview_display(context))]
 
 

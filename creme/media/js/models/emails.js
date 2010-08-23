@@ -36,4 +36,20 @@ creme.emails.mass_action = function(url, selector, block_url)
                                    creme.utils.loading('loading', true);}
                            });
     
-}
+};
+
+
+
+creme.emails.mass_relation = function(url, selector, block_url)
+{
+    var values = $(selector).getValues();
+    if(values.length == 0)
+    {
+        creme.utils.showDialog(i18n.get_current_language()['SELECT_AT_LEAST_ONE_ENTITY']);
+        return false;
+    }
+
+    url += values.join(',')+',';
+
+    creme.utils.innerPopupNReload(url, block_url);
+};

@@ -32,6 +32,9 @@ from emails.models.mail import (EntityEmail,
                                 MAIL_STATUS_SYNCHRONIZED,
                                 MAIL_STATUS_SYNCHRONIZED_WAITING)
                                 
+from creme.creme_core.entities_access.functions_for_permissions import get_view_or_die
+from creme.creme_core.views.generic.detailview import view_entity_with_template
+from creme.creme_core.views.generic.listview import list_view
 from emails.models.sending import LightWeightEmail
 
 #@login_required
@@ -66,9 +69,9 @@ def synchronisation(request):
     #TODO: Apply permissions? 
 
     EntityEmail.fetch_mails(user_id=request.user.id)
-
+    from django.contrib.contenttypes.models import ContentType
     return render_to_response("emails/synchronize.html",
-                              {},
+                              {'entityemail_ct_id': ContentType.objects.get_for_model(EntityEmail).id,},
                               context_instance=RequestContext(request))
 
 def _retrieve_emails_ids(request):
@@ -112,3 +115,14 @@ def waiting(request):
     return set_emails_status(request, MAIL_STATUS_SYNCHRONIZED_WAITING)
 
 ## END SYNCHRO PART ##
+
+@login_required
+@get_view_or_die('emails')
+def detailview(request, mail_id):
+    return view_entity_with_template(request, mail_id, EntityEmail,
+                                     '/emails/mail', 'emails/view_entity_mail.html')
+
+@login_required
+@get_view_or_die('emails')
+def listview(request):
+    return list_view(request, EntityEmail)

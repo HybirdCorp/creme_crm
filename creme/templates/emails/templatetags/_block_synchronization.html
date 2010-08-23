@@ -1,7 +1,7 @@
 {% load creme_block %}
 {% load creme_core_tags %}
 
-{% with 6 as colspan %}
+{% with 7 as colspan %}
     <table class="table_detail_view ui-corner-all" id={{block_name}}>
         {% block top_header %}
         
@@ -19,7 +19,7 @@
                     <th class="{% cycle "block_header_line_dark" "block_header_line_light" %}">Émetteur(s)</th>
                     <th class="{% cycle "block_header_line_dark" "block_header_line_light" %}">Destinataire(s)</th>
                     <th class="{% cycle "block_header_line_dark" "block_header_line_light" %}">Sujet</th>
-                    {#<th class="{% cycle "block_header_line_dark" "block_header_line_light" %}">Corps du mail</th>#}
+                    <th class="{% cycle "block_header_line_dark" "block_header_line_light" %}">Reçu le</th>
                     <th class="{% cycle "block_header_line_dark" "block_header_line_light" %}">Action</th>
                 </tr>
                 {% for mail in page.object_list %}
@@ -32,8 +32,11 @@
                         <td class="{{row_color}}">{{mail.sender}}</td>
                         <td class="{{row_color}}">{{mail.recipient}}</td>
                         <td class="{{row_color}}">{{mail.subject}}</td>
-                        {#<td class="{{row_color}}">{% if mail.body_html %}{{mail.body_html}}{% else %}{{mail.body}}{%endif%}</td>#}
+                        <td class="{{row_color}}">{{mail.reception_date}}</td>
                         <td class="{{row_color}}" align="center" valign="center" style="width:10%;">
+                            <a href="{{mail.get_absolute_url}}">
+                                <img src="{{MEDIA_URL}}images/view_22.png" border="0" title="Voir la fiche" alt="Voir la fiche" />
+                            </a>
                             {% get_line_deletor at_url '/emails/mail/delete' with_args "{'ids': ['{{mail.pk}}'] }" %}
                         </td>
                     </tr>
