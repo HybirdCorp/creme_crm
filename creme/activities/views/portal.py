@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import ugettext as _
 
 from creme_core.views.generic.portal import app_portal
 
@@ -29,7 +29,7 @@ from activities.models import Activity
 
 def portal(request):
     stats = (
-                (_(u"Nombre d'activité(s)"), Activity.objects.all().count()),
+                (_(u"Activities' count"), Activity.objects.all().count()),
             )
 
     return app_portal(request, 'activity', 'activities/portal.html', Activity,

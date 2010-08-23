@@ -39,12 +39,12 @@ class PhoneCallCreateForm(ActivityCreateForm):
         model = PhoneCall
 
     type           = ModelChoiceField(empty_label=None, queryset=ActivityType.objects.filter(pk=ACTIVITYTYPE_PHONECALL)) #TODO: exclude....
-    generate_alert = BooleanField(label=_(u"Voulez vous générer une alerte ou un rappel ?"), required=False)
-    alert_day      = CremeDateTimeField(label=_(u"Jour de l'alerte"), required=False)
-    alert_start_time     = CremeTimeField(label=_(u"Heure de l'alerte"), required=False)
+    generate_alert = BooleanField(label=_(u"Do you want to generate an alert or a reminder ?"), required=False)
+    alert_day      = CremeDateTimeField(label=_(u"Alerte day"), required=False)
+    alert_start_time     = CremeTimeField(label=_(u"Alert time"), required=False)
 
     blocks = ActivityCreateForm.blocks.new(
-                ('alert_datetime', _(u'Générer une alerte ou un rappel'), ['generate_alert', 'alert_day', 'alert_start_time']),
+                ('alert_datetime', _(u'Generate an alert or a reminder'), ['generate_alert', 'alert_day', 'alert_start_time']),
                 )
 
 
@@ -84,12 +84,12 @@ class PhoneCallCreateWithoutRelationForm(ActivityCreateWithoutRelationForm):
         model = PhoneCall
 
     type           = ModelChoiceField(empty_label=None, queryset=ActivityType.objects.filter(pk=ACTIVITYTYPE_PHONECALL))
-    generate_alert = BooleanField(label=_(u"Voulez vous générer une alerte ou un rappel ?"), required=False)
-    alert_day      = CremeDateTimeField(label=_(u"Jour de l'alerte"), required=False)
-    alert_start_time     = CremeTimeField(label=_(u"Heure de l'alerte"), required=False)
+    generate_alert = BooleanField(label=_(u"Do you want to generate an alert or a reminder ?"), required=False)
+    alert_day      = CremeDateTimeField(label=_(u"Alerte day"), required=False)
+    alert_start_time     = CremeTimeField(label=_(u"Alert time"), required=False)
 
     blocks = ActivityCreateWithoutRelationForm.blocks.new(
-                ('alert_datetime', _(u'Générer une alerte ou un rappel'), ['generate_alert', 'alert_day', 'alert_start_time']),
+                ('alert_datetime', _(u'Generate an alert or a reminder'), ['generate_alert', 'alert_day', 'alert_start_time']),
                 )
 
     def __init__(self, *args, **kwargs):

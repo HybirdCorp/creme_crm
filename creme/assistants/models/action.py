@@ -29,20 +29,20 @@ from creme_core.models import CremeModel
 
 
 class Action(CremeModel):
-    title               = CharField(_(u'Titre'), max_length=200)
-    is_ok               = BooleanField(_('La réaction attendue a été faite'), editable=False)
-    description         = TextField(_(u'Action source'), blank=True, null=True)
-    creation_date       = DateTimeField(_(u'Date de création'), blank=False, null=False)
-    expected_reaction   = TextField(_(u'Action cible'), blank=True, null=True)
-    deadline            = DateTimeField(_(u"Date d'écheance"), blank=False, null=False)
-    validation_date     = DateTimeField(_(u'Date de validation'), blank=True, null=True)
+    title               = CharField(_(u'Title'), max_length=200)
+    is_ok               = BooleanField(_('Expected reaction has been done'), editable=False)
+    description         = TextField(_(u'Source action'), blank=True, null=True)
+    creation_date       = DateTimeField(_(u'Creation date'), blank=False, null=False)
+    expected_reaction   = TextField(_(u'Target action'), blank=True, null=True)
+    deadline            = DateTimeField(_(u"Deadline"), blank=False, null=False)
+    validation_date     = DateTimeField(_(u'Validation date'), blank=True, null=True)
 
     entity_content_type = ForeignKey(ContentType, related_name="action_entity_set")
     entity_id           = PositiveIntegerField()
 
     creme_entity        = GenericForeignKey(ct_field="entity_content_type", fk_field="entity_id")
 
-    for_user            = ForeignKey(User, verbose_name=_(u'assigné à'), blank=True, null=True, related_name='user_action_assigned_set')
+    for_user            = ForeignKey(User, verbose_name=_(u'Assigned to'), blank=True, null=True, related_name='user_action_assigned_set')
 
     class Meta:
         app_label = 'assistants'

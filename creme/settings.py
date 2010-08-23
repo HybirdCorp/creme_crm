@@ -35,6 +35,11 @@ TIME_ZONE = 'Europe/Paris'
 # http://www.i18nguy.com/unicode/language-identifiers.html
 LANGUAGE_CODE = 'fr-FR'
 
+#LANGUAGES = (
+  #('en', 'English'), #_('English')
+  #('fr', 'French'),  #_('French')
+#)
+
 SITE_ID = 1
 SITE_DOMAIN = 'http://mydomain' #No end slash!
 

@@ -1,29 +1,30 @@
+{% load i18n %}
 {% load creme_block %}
 <table class="table_detail_view ui-corner-all" id={{block_name}}>
-    {% get_block_header '%s Alerte' '%s Alertes' 'bell_48.png' 'Alerte' %}
+    {% get_block_header _('%s Alert') _('%s Alerts') 'bell_48.png' _('Alert') %}
     <tbody class="collapsable">
         {% if object %}
             <tr>
                 <th colspan="6" class="block_header_line_dark" align="left">
                     <a class="button_link" onclick="creme.utils.innerPopupNReload('/assistants/alert/add/{{object.id}}/', {% get_block_reload_uri %});">
-                        <img src="{{MEDIA_URL}}images/add_22.png" border="0" title="Ajouter" alt="Ajouter" />Nouvelle
+                        <img src="{{MEDIA_URL}}images/add_22.png" border="0" title="{% trans "Add" %}" alt="{% trans "Add" %}" />
+                        {% trans "New alert" %}
                     </a>
                 </th>
             </tr>
         {% endif %}
         {% if page.paginator.count %}
             <tr>
-                {% get_column_header 'Titre' 'title' %}
+                {% get_column_header _('Title') 'title' %}
                 {% if not object %}
-                    <th class="block_header_line_dark">Fiche concernée</th>
+                    <th class="block_header_line_dark">{% trans "Concerned entity" %}</th>
                 {% endif %}
-                {% get_column_header "Utilisateur" 'for_user' %}
-                {% get_column_header "Début de l'alerte" 'trigger_date' %}
-                {% get_column_header "Détails" 'description' %}
-                <th class="block_header_line_dark">Traitée ?</th>
-                <th class="block_header_line_dark">Actions</th>
+                {% get_column_header _('User') 'for_user' %}
+                {% get_column_header _("Triggering") 'trigger_date' %}
+                {% get_column_header _('Details') 'description' %}
+                <th class="block_header_line_dark">{% trans "Treated ?" %}</th>
+                <th class="block_header_line_dark">{% trans "Actions" %}</th>
             </tr>
-
             {% for alert in page.object_list %}
                 <!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
                 <tr>
@@ -54,7 +55,7 @@
             {% endfor %}
         {% else %}
             <tr>
-                <td class="block_line_dark">Aucune alerte enregistrée pour le moment</td>
+                <td class="block_line_dark">{% trans "No alert for the moment" %}</td>
             </tr>
         {% endif %}
     </tbody>

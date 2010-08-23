@@ -24,7 +24,7 @@ import datetime
 from django.forms.util import ValidationError
 from django.forms import IntegerField, CharField, BooleanField, ModelChoiceField, ModelMultipleChoiceField
 from django.forms.widgets import HiddenInput, CheckboxSelectMultiple, TextInput
-from django.utils.translation import ugettext as _
+from django.utils.translation import ugettext as _, ugettext
 from django.db.models import Q
 from django.contrib.auth.models import User
 
@@ -53,7 +53,7 @@ def _clean_interval(cleaned_data):
     cleaned_data['end'] = cleaned_data['end'].replace(hour=end_time.hour, minute=end_time.minute)
 
     if cleaned_data['start'] > cleaned_data['end']:
-        raise ValidationError(u"L'heure de fin est avant le début")
+        raise ValidationError(ugettext(u"End time is before start time")) #L'heure de fin est avant le début
 
 def _check_activity_collisions(activity_start, activity_end, participants, exclude_activity_id=None):
     collision_test = ~(Q(end__lte=activity_start) | Q(start__gte=activity_end))
@@ -80,7 +80,12 @@ def _check_activity_collisions(activity_start, activity_end, participants, exclu
             collision_start = max(activity_start.time(), collision.start.time())
             collision_end   = min(activity_end.time(),   collision.end.time())
 
-            collisions.append(u"%s participe déjà à l'activité «%s» entre %s et %s." % (participant, collision, collision_start, collision_end))
+            collisions.append(ugettext(u"%(participant)s already participates to the activity «%(activity)s» between %(start)s and %(end)s.") % {
+                        'participant': participant,
+                        'activity':    collision,
+                        'start':       collision_start,
+                        'end':         collision_end,
+                    })
 
     if collisions:
         raise ValidationError(collisions)
@@ -117,7 +122,7 @@ class ParticipantCreateForm(CremeForm):
 
 
 class SubjectCreateForm(CremeForm):
-    subjects = RelatedEntitiesField(relation_types=[REL_SUB_ACTIVITY_SUBJECT], label=_(u'Sujets'), required=False)
+    subjects = RelatedEntitiesField(relation_types=[REL_SUB_ACTIVITY_SUBJECT], label=_(u'Subjects'), required=False)
 
     def __init__(self, activity, *args, **kwargs):
         super(SubjectCreateForm, self).__init__(*args, **kwargs)
@@ -132,24 +137,23 @@ class _ActivityCreateBaseForm(CremeEntityForm):
         model = Activity
         exclude = CremeEntityForm.Meta.exclude + ('end',)
 
-    start      = CremeDateTimeField(label=_(u'Début'))
-    start_time = CremeTimeField(label=_(u'Heure de début'), required=False)
-    end_time   = CremeTimeField(label=_(u'Heure de fin'), required=False)
+    start      = CremeDateTimeField(label=_(u'Start'))
+    start_time = CremeTimeField(label=_(u'Start time'), required=False)
+    end_time   = CremeTimeField(label=_(u'End time'), required=False)
 
-    is_comapp        = BooleanField(required=False, label=_(u"Est une démarche commerciale ?"))
-    my_participation = BooleanField(required=False, label=_(u"Est-ce que je participe à ce rendez-vous ?"))
+    is_comapp        = BooleanField(required=False, label=_(u"Is a commercial approach ?"))
+    my_participation = BooleanField(required=False, label=_(u"Do I participate to this meeting ?"))
     participants     = RelatedEntitiesField(relation_types=[REL_SUB_ACTIVITY_SUBJECT, REL_SUB_PART_2_ACTIVITY, REL_SUB_LINKED_2_ACTIVITY],
-                                            label=_(u'Autres participants'), required=False)
+                                            label=_(u'Other participants'), required=False)
 
-    informed_users   = ModelMultipleChoiceField(queryset=User.objects.all(),
-                                                widget=CheckboxSelectMultiple(),
-                                                required=False,
-                                                label=_(u"Utilisateurs") )
+    informed_users = ModelMultipleChoiceField(queryset=User.objects.all(),
+                                              widget=CheckboxSelectMultiple(),
+                                              required=False, label=_(u"Users"))
 
     blocks = CremeEntityForm.blocks.new(
-                ('datetime',       _(u'Quand'),  ['start', 'start_time', 'end_time', 'is_all_day']),
-                ('participants',   _(u'Participants'), ['my_participation', 'participants']),
-                ('informed_users', _(u'Les utilisateurs à tenir informés'), ['informed_users']),
+                ('datetime',       _(u'When'),                   ['start', 'start_time', 'end_time', 'is_all_day']),
+                ('participants',   _(u'Participants'),           ['my_participation', 'participants']),
+                ('informed_users', _(u'Users to keep informed'), ['informed_users']),
             )
 
     def __init__(self, *args, **kwargs):
@@ -227,8 +231,9 @@ class ActivityCreateForm(_ActivityCreateBaseForm):
     ct_entity_for_relation = IntegerField(widget=HiddenInput())
     entity_relation_type   = CharField(widget=HiddenInput())
 
-    entity_for_relation_preview  = CharField(label=_(u'Qui / Quoi'), required=False)
-    entity_relation_type_preview = ModelChoiceField(empty_label=None, queryset=RelationType.objects.none(), label=_(u"Relation avec l'activité"), required=False)
+    entity_for_relation_preview  = CharField(label=_(u'Who / What'), required=False)
+    entity_relation_type_preview = ModelChoiceField(empty_label=None, queryset=RelationType.objects.none(),
+                                                    label=_(u"Relation with the activity"), required=False)
 
     _entity_for_relation = None
 
@@ -264,7 +269,7 @@ class ActivityCreateForm(_ActivityCreateBaseForm):
 class ActivityCreateWithoutRelationForm(_ActivityCreateBaseForm):
     def __init__(self, *args, **kwargs):
         super(ActivityCreateWithoutRelationForm, self).__init__(*args, **kwargs)
-        self.fields['is_comapp'].help_text = _(u"Ajoutez des participants pour qu'ils soient liés à une démarche commerciale")
+        self.fields['is_comapp'].help_text = ugettext(u"Add participants to them be linked to a commercial approach.")
 
     def save_participants(self):
         super(ActivityCreateWithoutRelationForm, self).save_participants()
@@ -276,9 +281,9 @@ class ActivityCreateWithoutRelationForm(_ActivityCreateBaseForm):
 
 #TODO: factorise ?? (ex: CreateForm inherits from EditForm....)
 class ActivityEditForm(CremeEntityForm):
-    start      = CremeDateTimeField(label=_(u'Début'))
-    start_time = CremeTimeField(label=_(u'Heure de début'), required=False)
-    end_time   = CremeTimeField(label=_(u'Heure de fin'), required=False)
+    start      = CremeDateTimeField(label=_(u'Start'))
+    start_time = CremeTimeField(label=_(u'Start time'), required=False)
+    end_time   = CremeTimeField(label=_(u'End time'), required=False)
 
     class Meta(CremeEntityForm.Meta):
         model = Activity

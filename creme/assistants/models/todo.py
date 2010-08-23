@@ -31,13 +31,13 @@ from creme_core.models import CremeEntity, CremeModel
 
 
 class ToDo(CremeModel):
-    title         = CharField(_(u'Titre'), max_length=200)
-    is_ok         = BooleanField(_("Faite ?"), editable=False)
+    title         = CharField(_(u'Title'), max_length=200)
+    is_ok         = BooleanField(_("Done ?"), editable=False)
     has_deadline  = BooleanField(editable=False) #useful ??? (deadline can be NULL)
     description   = TextField(_(u'Description'), blank=True, null=True)
-    creation_date = DateTimeField(_(u'Date de création'), blank=False, null=False)
-    deadline      = DateTimeField(_(u"Date d'écheance"), blank=True, null=True)
-    for_user      = ForeignKey(User, verbose_name=_(u'assigné à'), blank=True, null=True, related_name='user_todo_assigned_set')
+    creation_date = DateTimeField(_(u'Creation date'), blank=False, null=False)
+    deadline      = DateTimeField(_(u"Deadline"), blank=True, null=True)
+    for_user      = ForeignKey(User, verbose_name=_(u'Assigned to'), blank=True, null=True, related_name='user_todo_assigned_set')
 
     entity_content_type = ForeignKey(ContentType, related_name="todo_entity_set")
     entity_id           = PositiveIntegerField()
@@ -59,8 +59,8 @@ class ToDo(CremeModel):
 
     class Meta:
         app_label = 'assistants'
-        verbose_name = _(u'To Do')
-        verbose_name_plural = _(u'To Do')
+        verbose_name = _(u'Todo')
+        verbose_name_plural = _(u'Todos')
 
 
 #def creme_entity_pre_delete_for_todo(sender, instance, **kwargs):

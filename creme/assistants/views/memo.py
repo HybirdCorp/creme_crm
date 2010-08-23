@@ -19,6 +19,7 @@
 ################################################################################
 
 from django.contrib.auth.decorators import login_required
+from django.utils.translation import ugettext as _
 
 from assistants.models import Memo
 from assistants.forms.memo import MemoCreateForm, MemoEditForm
@@ -26,10 +27,10 @@ from utils import generic_add, generic_edit, generic_delete
 
 
 def add(request, entity_id):
-    return generic_add(request, entity_id, MemoCreateForm, u'Nouveau Mémo pour <%s>')
+    return generic_add(request, entity_id, MemoCreateForm, _(u'New Memo for <%s>'))
 
 def edit(request, memo_id):
-    return generic_edit(request, memo_id, Memo, MemoEditForm, u"Mémo pour <%s>")
+    return generic_edit(request, memo_id, Memo, MemoEditForm, _(u"Memo for <%s>"))
 
 def delete(request):
     return generic_delete(request, Memo)
