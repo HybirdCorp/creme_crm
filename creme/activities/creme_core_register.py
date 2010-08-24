@@ -29,14 +29,15 @@ from activities.models import Activity
 from activities.blocks import participants_block, subjects_block, future_activities_block, past_activities_block
 from activities.buttons import add_meeting_button, add_phonecall_button, add_task_button
 
+
 creme_registry.register_app('activities', _(u'Activities'), '/activities')
 creme_registry.register_entity_models(Activity)
 
 creme_menu.register_app('activities', '/activities/', 'Activités')
 reg_menu = creme_menu.register_menu
-reg_menu('activities', '/activities/calendar/user',       'Calendrier')
-reg_menu('activities', '/activities/indisponibility/add', 'Ajouter une indisponibilité')
-reg_menu('activities', '/activities/activities',          'Lister les activités')
+reg_menu('activities', '/activities/calendar/user',       _(u'Calendar'))
+reg_menu('activities', '/activities/indisponibility/add', _(u'Add an indisponibility'))
+reg_menu('activities', '/activities/activities',          _(u'All activities'))
 
 block_registry.register(participants_block, subjects_block, future_activities_block, past_activities_block)
 

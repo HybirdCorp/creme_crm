@@ -18,54 +18,48 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-
-
-from django.forms.models import ModelChoiceField, IntegerField
-from django.forms import TimeField
-
-from activities.models import ActivityType, Task, TaskStatus
-from activities.constants import ACTIVITYTYPE_TASK
+from django.utils.translation import ugettext
+from django.forms import TimeField, ModelChoiceField
 from django.forms.widgets import HiddenInput
-from activity import ActivityCreateForm, ActivityEditForm, ActivityCreateWithoutRelationForm
 
-from creme_core.forms.widgets import CalendarWidget, TimeWidget, RelationListWidget
+from activities.models import ActivityType, Task
+from activities.constants import ACTIVITYTYPE_TASK
+from activity import ActivityCreateForm, ActivityEditForm, ActivityCreateWithoutRelationForm
 
 
 class TaskCreateForm(ActivityCreateForm):
-    class Meta:
+    class Meta(ActivityCreateForm.Meta):
         model = Task
-        exclude = ActivityCreateForm.Meta.exclude
 
-    end_time = TimeField(widget=HiddenInput(),required=False)
-    type = ModelChoiceField(empty_label=None, queryset=ActivityType.objects.filter(pk=ACTIVITYTYPE_TASK))
+    end_time = TimeField(widget=HiddenInput(), required=False)
+    type     = ModelChoiceField(empty_label=None, queryset=ActivityType.objects.filter(pk=ACTIVITYTYPE_TASK)) #beurk
 
     def __init__(self, *args, **kwargs):
         super(TaskCreateForm, self).__init__(*args, **kwargs)
-        self.fields['type'].initial = ActivityType.objects.get(pk=ACTIVITYTYPE_TASK)
-        self.fields['my_participation'].label = 'Est ce que je participe à cette tâche'
-        
+        self.fields['type'].initial = ActivityType.objects.get(pk=ACTIVITYTYPE_TASK) #beurk
+        self.fields['my_participation'].label = ugettext(u'Do I participate to this task')
+
     def save(self):
-        self.cleaned_data['type'] = ActivityType.objects.get(pk=ACTIVITYTYPE_TASK)
+        self.cleaned_data['type'] = ActivityType.objects.get(pk=ACTIVITYTYPE_TASK) #beurk
         super(TaskCreateForm, self).save()
 
+
 class TaskCreateWithoutRelationForm(ActivityCreateWithoutRelationForm):
-    class Meta:
+    class Meta(ActivityCreateWithoutRelationForm.Meta):
         model = Task
-        exclude = ActivityCreateWithoutRelationForm.Meta.exclude
 
     type = ModelChoiceField(empty_label=None, queryset=ActivityType.objects.filter(pk=ACTIVITYTYPE_TASK))
 
     def __init__(self, *args, **kwargs):
         super(TaskCreateWithoutRelationForm, self).__init__(*args, **kwargs)
         self.fields['type'].initial = ActivityType.objects.get(pk=ACTIVITYTYPE_TASK)
-        self.fields['my_participation'].label = 'Est ce que je participe à cette tâche'
+        self.fields['my_participation'].label = ugettext(u'Do I participate to this task')
 
     def save(self):
         self.cleaned_data['type'] = ActivityType.objects.get(pk=ACTIVITYTYPE_TASK)
         super(MeetingCreateWithoutRelationForm, self).save()
-        
+
 
 class TaskEditForm(ActivityEditForm):
-    class Meta:
+    class Meta(ActivityEditForm.Meta):
         model = Task
-        exclude = ActivityEditForm.Meta.exclude

@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-08-23 14:34+0200\n"
+"POT-Creation-Date: 2010-08-24 15:15+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -39,9 +39,25 @@ msgstr "Ajouter un rendez-vous"
 msgid "Add a phone call"
 msgstr "Ajouter un appel téléphonique"
 
+#: buttons.py:40
+msgid "Add a task"
+msgstr "Ajouter une tâche"
+
 #: creme_core_register.py:33 models/activity.py:64
 msgid "Activities"
 msgstr "Activités"
+
+#: creme_core_register.py:38 templates/activities/portal.html:10
+msgid "Calendar"
+msgstr "Calendrier"
+
+#: creme_core_register.py:39
+msgid "Add an indisponibility"
+msgstr "Ajouter une indisponibilité"
+
+#: creme_core_register.py:40
+msgid "All activities"
+msgstr "Lister les activités"
 
 #: populate.py:40
 msgid "related to the activity"
@@ -67,83 +83,99 @@ msgstr "participe à l'activité"
 msgid "has as participant"
 msgstr "has as participant"
 
-#: populate.py:52
+#: populate.py:51
 msgid "Incoming"
 msgstr "Entrant"
 
-#: populate.py:52
+#: populate.py:51
 msgid "Incoming call"
 msgstr "Appel entrant"
 
-#: populate.py:53
+#: populate.py:52
 msgid "Outgoing"
 msgstr "Sortant"
 
-#: populate.py:53
+#: populate.py:52
 msgid "Outgoing call"
 msgstr "Appel sortant"
 
-#: populate.py:54
+#: populate.py:53
 msgid "Other"
 msgstr "Autre"
 
-#: populate.py:54
+#: populate.py:53
 msgid "Example: a conference"
 msgstr "Exemple: une conférence"
 
-#: populate.py:56 models/activity.py:184
+#: populate.py:55
+msgid "Planned"
+msgstr "Prévue"
+
+#: populate.py:56
+msgid "In progress"
+msgstr "En cours"
+
+#: populate.py:57
+msgid "Done"
+msgstr "Finie"
+
+#: populate.py:58
+msgid "Delayed"
+msgstr "En retard"
+
+#: populate.py:60 models/activity.py:184
 msgid "Task"
 msgstr "Tâche"
 
-#: populate.py:57 models/activity.py:157
+#: populate.py:61 models/activity.py:157
 #: templates/activities/calendar.html:187
 #: templates/activities/frags/button_add_meeting_without_relation.html:3
 #: templates/activities/templatetags/button_add_meeting.html:3
 msgid "Meeting"
 msgstr "Rendez-vous"
 
-#: populate.py:58 models/activity.py:206
+#: populate.py:62 models/activity.py:206
 #: templates/activities/calendar.html:193
 #: templates/activities/frags/button_add_phonecall_without_relation.html:3
 #: templates/activities/templatetags/button_add_phonecall.html:3
 msgid "Phone call"
 msgstr "Appel téléphonique"
 
-#: populate.py:59
+#: populate.py:63
 msgid "Gathering"
 msgstr "Réunion"
 
-#: populate.py:60
+#: populate.py:64
 msgid "Show"
 msgstr "Salon"
 
-#: populate.py:61
+#: populate.py:65
 msgid "Demonstration"
 msgstr "Démonstration"
 
-#: populate.py:62
+#: populate.py:66
 msgid "Indisponibility"
 msgstr "Indisponibilité"
 
-#: populate.py:64
+#: populate.py:68
 msgid "Activity view"
 msgstr "Vue d'Activité"
 
-#: populate.py:66 models/activity.py:35 models/activity.py:162
+#: populate.py:70 models/activity.py:35 models/activity.py:162
 #: templates/activities/templatetags/block_future_activities.html:25
 msgid "Name"
 msgstr "Nom"
 
-#: populate.py:67 forms/activity.py:140 forms/activity.py:284
+#: populate.py:71 forms/activity.py:140 forms/activity.py:284
 #: forms/indisponibility.py:38 models/activity.py:52
 msgid "Start"
 msgstr "Début"
 
-#: populate.py:68 forms/indisponibility.py:39 models/activity.py:53
+#: populate.py:72 forms/indisponibility.py:39 models/activity.py:53
 msgid "End"
 msgstr "Fin"
 
-#: populate.py:69
+#: populate.py:73
 msgid "Type"
 msgstr "Type"
 
@@ -220,6 +252,10 @@ msgstr "Heure de l'alerte"
 #: forms/phone_call.py:47 forms/phone_call.py:92
 msgid "Generate an alert or a reminder"
 msgstr "Générer une alerte ou un rappel"
+
+#: forms/task.py:40 forms/task.py:56
+msgid "Do I participate to this task"
+msgstr "Est-ce que je participe à cette tâche"
 
 #: models/activity.py:36
 msgid "Color"
@@ -434,10 +470,6 @@ msgstr "Calendrier de :"
 msgid "Loading..."
 msgstr "Chargement..."
 
-#: templates/activities/portal.html:10
-msgid "Calendar"
-msgstr "Calendrier"
-
 #: templates/activities/portal.html:11
 msgid "Go to the calendar"
 msgstr "Aller au calendrier"
@@ -494,14 +526,14 @@ msgid "No future related activity for the moment"
 msgstr "Aucune activité future liée pour le moment"
 
 #: templates/activities/templatetags/block_participants.html:4
-#, fuzzy, python-format
+#, python-format
 msgid "%s Participant"
 msgstr "%s Participant"
 
 #: templates/activities/templatetags/block_participants.html:4
-#, fuzzy, python-format
+#, python-format
 msgid "%s Participants"
-msgstr "% Participants"
+msgstr "%s Participants"
 
 #: templates/activities/templatetags/block_participants.html:9
 msgid "Add a participant"

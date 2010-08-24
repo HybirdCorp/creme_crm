@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-08-24 12:35+0200\n"
+"POT-Creation-Date: 2010-08-24 14:50+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -55,6 +55,14 @@ msgstr "Ajouter un devis"
 msgid "All quotes"
 msgstr "Lister les devis"
 
+#: creme_core_register.py:42
+msgid "Add a credit note"
+msgstr "Ajouter un avoir"
+
+#: creme_core_register.py:43
+msgid "All credit notes"
+msgstr "Lister les avoirs"
+
 #: populate.py:40
 msgid "issued by"
 msgstr "a été émis(e) par"
@@ -87,71 +95,79 @@ msgstr "Rejeté"
 msgid "Created"
 msgstr "Créé"
 
-#: populate.py:53
+#: populate.py:53 populate.py:68
 msgid "Issued"
 msgstr "Émis"
 
-#: populate.py:58
+#: populate.py:58 populate.py:67
 msgid "Draft"
 msgstr "Brouillon"
 
 #: populate.py:59
+msgid "To be sent"
+msgstr "À envoyer"
+
+#: populate.py:60
 msgid "Sent"
 msgstr "Envoyée"
 
-#: populate.py:60
+#: populate.py:61
 msgid "Resulted"
 msgstr "Soldée"
 
-#: populate.py:61
+#: populate.py:62
 msgid "Partly resulted"
 msgstr "Partiellement soldée"
 
-#: populate.py:62
+#: populate.py:63
 msgid "Collection"
 msgstr "Recouvrement"
 
-#: populate.py:63
+#: populate.py:64
 msgid "Resulted collection"
 msgstr "Recouvrement soldé"
 
-#: populate.py:64
+#: populate.py:65
 msgid "Canceled"
 msgstr "Annulée"
 
-#: populate.py:70 models/base.py:38
+#: populate.py:74 models/base.py:38
 msgid "Name"
 msgstr "Nom"
 
-#: populate.py:71 models/base.py:39
+#: populate.py:75 models/base.py:39
 msgid "Number"
 msgstr "Numéro"
 
-#: populate.py:72 forms/base.py:43 models/base.py:40
+#: populate.py:76 forms/base.py:43 models/base.py:40
 msgid "Issuing date"
 msgstr "Date d'émission"
 
-#: populate.py:73 forms/base.py:44 models/base.py:41
+#: populate.py:77 forms/base.py:44 models/base.py:41
 msgid "Expiration date"
 msgstr "Échéance"
 
-#: populate.py:74 forms/templatebase.py:32 forms/templatebase.py:51
+#: populate.py:78 forms/templatebase.py:32 forms/templatebase.py:51
 #: models/other_models.py:31 models/other_models.py:43
-#: models/other_models.py:55
+#: models/other_models.py:55 models/other_models.py:66
 msgid "Status"
 msgstr "Statut"
 
-#: populate.py:76
+#: populate.py:80
 msgid "Invoice view"
 msgstr "Vue de Facture"
 
-#: populate.py:77
+#: populate.py:81
 msgid "Quote view"
 msgstr "Vue de Devis"
 
-#: populate.py:78
+#: populate.py:82
 msgid "Sales order view"
 msgstr "Vue de Bon de Commande"
+
+#: populate.py:83
+msgid "Credit note view"
+msgstr "Vue des Avoirs"
 
 #: forms/base.py:40
 msgid "Source organisation"
@@ -279,6 +295,18 @@ msgstr "Remise"
 msgid "Comment"
 msgstr "Remarques"
 
+#: models/credit_note.py:29
+msgid "Status of credit note"
+msgstr "Statut de l'avoir"
+
+#: models/credit_note.py:56
+msgid "Credit note"
+msgstr "Avoir"
+
+#: models/credit_note.py:57
+msgid "Credit notes"
+msgstr "Avoirs"
+
 #: models/invoice.py:31
 msgid "Status of invoice"
 msgstr "Statut de la facture"
@@ -340,8 +368,12 @@ msgid "Quote status"
 msgstr "Statut(s) de devis"
 
 #: models/other_models.py:62 models/other_models.py:63
-msgid "Salesorder status"
+msgid "Sales order status"
 msgstr "Statut(s) de bon de commande"
+
+#: models/other_models.py:72 models/other_models.py:73
+msgid "Credit note status"
+msgstr "Status d'avoir"
 
 #: models/product_line.py:30
 msgid "Related to product"

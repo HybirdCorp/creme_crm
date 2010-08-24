@@ -54,7 +54,7 @@ class Populator(BasePopulator):
         create(SalesOrderStatus, 2, name=_(u"Accepted"))
         create(SalesOrderStatus, 3, name=_(u"Rejected"))
         create(SalesOrderStatus, 4, name=_(u"Created"))
-        
+
         create(InvoiceStatus, 1, name=_(u"Draft")) #default status
         create(InvoiceStatus, 2, name=_(u"To be sent"))
         create(InvoiceStatus, 3, name=_(u"Sent"))
@@ -66,7 +66,7 @@ class Populator(BasePopulator):
 
         create(CreditNoteStatus, 1, name=_(u"Draft"))
         create(CreditNoteStatus, 2, name=_(u"Issued"))
-        
+
         get_ct = ContentType.objects.get_for_model
 
         def create_hf(hf_pk, hfi_pref, name, model):
@@ -80,7 +80,7 @@ class Populator(BasePopulator):
         create_hf('billing-hf_invoice',    'billing-hfi_invoice_',    _(u'Invoice view'),     Invoice)
         create_hf('billing-hf_quote',      'billing-hfi_quote_',      _(u'Quote view'),       Quote)
         create_hf('billing-hf_salesorder', 'billing-hfi_salesorder_', _(u'Sales order view'), SalesOrder)
-        create_hf('billing-hf_creditnote',    'billing-hfi_creditnote_',    'Vue des Avoirs',         CreditNote)
+        create_hf('billing-hf_creditnote', 'billing-hfi_creditnote_', _(u'Credit note view'),   CreditNote)
 
         #TODO: factorise (create an helper static method in SearchField ???)
         model = Invoice

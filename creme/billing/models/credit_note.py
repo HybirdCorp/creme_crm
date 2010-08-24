@@ -26,7 +26,7 @@ from other_models import CreditNoteStatus
 
 
 class CreditNote(Base):
-    status = ForeignKey(CreditNoteStatus, verbose_name=_(u"Status de l'avoir"), blank=False, null=False)
+    status = ForeignKey(CreditNoteStatus, verbose_name=_(u"Status of credit note"), blank=False, null=False)
 
     research_fields = Base.research_fields + ['status__name']
     excluded_fields_in_html_output = Base.excluded_fields_in_html_output + ['base_ptr']
@@ -53,5 +53,5 @@ class CreditNote(Base):
 
     class Meta:
         app_label = 'billing'
-        verbose_name = _(u'avoir')
-        verbose_name_plural = _(u'avoir')
+        verbose_name = _(u'Credit note')
+        verbose_name_plural = _(u'Credit notes')
