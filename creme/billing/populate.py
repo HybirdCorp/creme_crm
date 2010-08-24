@@ -53,14 +53,19 @@ class Populator(BasePopulator):
         create(SalesOrderStatus, 2, name=u"Accepté")
         create(SalesOrderStatus, 3, name=u"Rejeté")
         create(SalesOrderStatus, 4, name=u"Créé")
-
+        
+        
+        create(CreditNoteStatus, 1, name=u"Brouillon")
+        create(CreditNoteStatus, 2, name=u"Émis")
+        
         create(InvoiceStatus, 1, name=u"Brouillon") #default status
-        create(InvoiceStatus, 2, name=u"Envoyée")
-        create(InvoiceStatus, 3, name=u"Soldée")
-        create(InvoiceStatus, 4, name=u"Partiellement soldée")
-        create(InvoiceStatus, 5, name=u"Recouvrement")
-        create(InvoiceStatus, 6, name=u"Recouvrement soldé")
-        create(InvoiceStatus, 7, name=u"Annulée")
+        create(InvoiceStatus, 2, name=u"A envoyer")        
+        create(InvoiceStatus, 3, name=u"Envoyée")
+        create(InvoiceStatus, 4, name=u"Soldée")
+        create(InvoiceStatus, 5, name=u"Partiellement soldée")
+        create(InvoiceStatus, 6, name=u"Recouvrement")
+        create(InvoiceStatus, 7, name=u"Recouvrement soldé")
+        create(InvoiceStatus, 8, name=u"Annulée")
 
         get_ct = ContentType.objects.get_for_model
 
@@ -75,8 +80,16 @@ class Populator(BasePopulator):
         create_hf('billing-hf_invoice',    'billing-hfi_invoice_',    'Vue de Facture',         Invoice)
         create_hf('billing-hf_quote',      'billing-hfi_quote_',      'Vue de Devis',           Quote)
         create_hf('billing-hf_salesorder', 'billing-hfi_salesorder_', 'Vue de Bon de Commande', SalesOrder)
+        create_hf('billing-hf_creditnote',    'billing-hfi_creditnote_',    'Vue des Avoirs',         CreditNote)
 
         model = Invoice
+        sci = create(SearchConfigItem, content_type_id=ContentType.objects.get_for_model(model).id)
+        SCI_pk = sci.pk
+        sci_fields = ['name', 'number', 'total', 'status__name']
+        for i, field in enumerate(sci_fields):
+            create(SearchField, field=field, field_verbose_name=get_verbose_field_name(model, field), order=i, search_config_item_id=SCI_pk)
+
+        model = CreditNote
         sci = create(SearchConfigItem, content_type_id=ContentType.objects.get_for_model(model).id)
         SCI_pk = sci.pk
         sci_fields = ['name', 'number', 'total', 'status__name']
