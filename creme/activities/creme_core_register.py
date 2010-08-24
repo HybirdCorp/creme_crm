@@ -27,8 +27,7 @@ from creme_core.gui.button_menu import button_registry
 
 from activities.models import Activity
 from activities.blocks import participants_block, subjects_block, future_activities_block, past_activities_block
-from activities.buttons import add_meeting_button, add_phonecall_button
-
+from activities.buttons import add_meeting_button, add_phonecall_button, add_task_button
 
 creme_registry.register_app('activities', _(u'Activities'), '/activities')
 creme_registry.register_entity_models(Activity)
@@ -41,4 +40,4 @@ reg_menu('activities', '/activities/activities',          'Lister les activités
 
 block_registry.register(participants_block, subjects_block, future_activities_block, past_activities_block)
 
-button_registry.register(add_meeting_button, add_phonecall_button)
+button_registry.register(add_meeting_button, add_phonecall_button, add_task_button)
