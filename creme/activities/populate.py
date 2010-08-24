@@ -29,7 +29,7 @@ from creme_core.management.commands.creme_populate import BasePopulator
 
 from activities.models import Activity, ActivityType, PhoneCallType, TaskStatus
 from activities.blocks import future_activities_block, past_activities_block
-from activities.buttons import add_meeting_button, add_phonecall_button
+from activities.buttons import add_meeting_button, add_phonecall_button, add_task_button
 from activities.constants import *
 
 
@@ -79,6 +79,7 @@ class Populator(BasePopulator):
 
         create(ButtonMenuItem, 'activities-add_meeting_button',   content_type=None, button_id=add_meeting_button.id_,   order=10)
         create(ButtonMenuItem, 'activities-add_phonecall_button', content_type=None, button_id=add_phonecall_button.id_, order=11)
+        create(ButtonMenuItem, 'activities-add_task_button', content_type=None, button_id=add_task_button.id_, order=12)
 
         sci = create(SearchConfigItem, content_type_id=ContentType.objects.get_for_model(Activity).id)
         SCI_pk = sci.pk
