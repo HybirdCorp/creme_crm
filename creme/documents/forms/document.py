@@ -30,7 +30,7 @@ from creme_core.forms.widgets import UploadedFileWidget
 from creme_core.views.file_handling import handle_uploaded_file
 
 from documents.models import FolderCategory, Folder, Document
-from documents.constants import REL_SUB_RELATED_2_DOC
+from documents.constants import REL_SUB_RELATED_2_DOC, DOCUMENTS_FROM_ENTITIES
 
 
 class DocumentCreateForm(CremeEntityForm):
@@ -92,8 +92,8 @@ class DocumentCreateViewForm(DocumentCreateForm):
             debug('Error: %s', e)
 
         try:
-            creme_folder = Folder.objects.get(title='Creme')#Ce titre est unique et dans les initial_datas
-            creme_folder_category = FolderCategory.objects.get(name=u"Documents crées à partir des fiches") #beuarkkkk
+            creme_folder = Folder.objects.get(title='Creme')#Unique title (created in populate.py)
+            creme_folder_category = FolderCategory.objects.get(pk=DOCUMENTS_FROM_ENTITIES)
             model_folder_kwargs = {'title': real_entity.entity_type, 'parent_folder': creme_folder, 'category': creme_folder_category}
 
             try:

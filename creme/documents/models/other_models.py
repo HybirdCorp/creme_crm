@@ -26,7 +26,7 @@ from creme_core.models import CremeModel
 
 class FolderCategory(CremeModel):
     """Category for the folders"""
-    name = CharField(_(u'Nom de la catégorie'), max_length=100, blank=False, null=False, unique=True)
+    name = CharField(_(u'Category name'), max_length=100, blank=False, null=False, unique=True)
 
     #research_fields = CremeEntity.research_fields + ['name']
 
@@ -40,5 +40,5 @@ class FolderCategory(CremeModel):
 
     class Meta:
         app_label = 'documents'
-        verbose_name = _(u'Catégorie de classeur')
-        verbose_name_plural = _(u'Catégories de classeur')
+        verbose_name = _(u'Folder category')
+        verbose_name_plural = _(u'Folder categories')

@@ -30,10 +30,10 @@ from documents.constants import REL_SUB_RELATED_2_DOC
 
 
 class Document(CremeEntity):
-    title       = CharField(_(u'Titre'), max_length=100, blank=True , null=True, unique=True)
+    title       = CharField(_(u'Title'), max_length=100, blank=True , null=True, unique=True)
     description = TextField(_(u'Description'))
-    filedata    = FileField(_(u'Fichier'), max_length=500, upload_to='upload/documents')
-    folder      = ForeignKey(Folder, verbose_name=_(u'Classeur'), blank=False, null=False)
+    filedata    = FileField(_(u'File'), max_length=500, upload_to='upload/documents')
+    folder      = ForeignKey(Folder, verbose_name=_(u'Folder'), blank=False, null=False)
 
     research_fields = CremeEntity.research_fields + ['title', 'description', 'folder__title']
     #users_allowed_func = CremeEntity.users_allowed_func + []

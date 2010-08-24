@@ -36,6 +36,6 @@ class FolderForm(CremeEntityForm):
         category_data      = cleaned_data['category']
 
         if parent_folder_data is not None and parent_folder_data.category != category_data:
-            raise ValidationError(_(u"La catégorie du classeur doit être la même que celle du parent: %s") % parent_folder_data.category)
+            raise ValidationError(_(u"Folder's category must be the same than its parent's one: %s") % parent_folder_data.category)
 
         return category_data
