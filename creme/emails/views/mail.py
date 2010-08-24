@@ -35,6 +35,7 @@ from emails.models.mail import (EntityEmail,
 from creme.creme_core.entities_access.functions_for_permissions import get_view_or_die
 from creme.creme_core.views.generic.detailview import view_entity_with_template
 from creme.creme_core.views.generic.listview import list_view
+from django.template.loader import render_to_string
 from emails.models.sending import LightWeightEmail
 
 #@login_required
@@ -67,12 +68,20 @@ def view_lightweight_mail(request, mail_id):
 @login_required
 def synchronisation(request):
     #TODO: Apply permissions? 
-
-    EntityEmail.fetch_mails(user_id=request.user.id)
+    new_messages_count = EntityEmail.fetch_mails(request.user.id)
     from django.contrib.contenttypes.models import ContentType
+
+    context_dict = {'entityemail_ct_id': ContentType.objects.get_for_model(EntityEmail).id,
+                    'new_messages_count': new_messages_count}
+
+    context_instance =  RequestContext(request)
+
+    if request.is_ajax():
+        return HttpResponse(render_to_string("emails/frags/ajax/synchronize.html", context_dict, context_instance=context_instance))
+                               
     return render_to_response("emails/synchronize.html",
-                              {'entityemail_ct_id': ContentType.objects.get_for_model(EntityEmail).id,},
-                              context_instance=RequestContext(request))
+                              context_dict,
+                              context_instance=context_instance)
 
 def _retrieve_emails_ids(request):
     return request.POST.getlist('ids')

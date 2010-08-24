@@ -53,3 +53,12 @@ creme.emails.mass_relation = function(url, selector, block_url)
 
     creme.utils.innerPopupNReload(url, block_url);
 };
+
+creme.reload_synchronisation = function($target, target_url){
+    creme.ajax.get({
+        url : target_url,
+        success : function(data){
+            $target.empty().html(data);
+        }
+    });
+};

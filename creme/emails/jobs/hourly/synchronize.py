@@ -18,15 +18,32 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.utils.safestring import mark_safe
-from django.template.defaultfilters import removetags
-from django import template
+from django_extensions.management.jobs import HourlyJob
 
-register = template.Library()
+from creme_settings import CREME_GET_EMAIL_JOB_USER_ID
+from creme_core.models import Lock
+from creme.emails.models.mail import EntityEmail
 
-@register.filter(name="get_email_body")
-def get_email_body(email):
-    if email.body_html:
-        return mark_safe(removetags(email.body_html, 'script'))
-    else:
-        return mark_safe(removetags(email.body.replace('\n', '</br>'), 'script'))
+
+
+LOCK_NAME = "synchronizing_emails"
+
+#NB: python manage.py runjob synchronize
+
+class Job(HourlyJob):
+    help = "Synchronize all externals mails sent to Creme into Creme."
+
+    def execute(self):
+        lock = Lock.objects.filter(name=LOCK_NAME)
+
+        if not lock:
+            try:
+                lock = Lock(name=LOCK_NAME)
+                lock.save()
+
+                EntityEmail.fetch_mails(CREME_GET_EMAIL_JOB_USER_ID)
+
+            finally:
+                lock.delete()
+        else:
+            print 'A process is already running'

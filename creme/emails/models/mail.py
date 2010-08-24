@@ -18,6 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+import os
 import poplib
 import email
 import re
@@ -28,6 +29,8 @@ from itertools import chain
 from logging import error, debug
 from os.path import join, basename
 
+from django.contrib.auth.models import User
+from django.core.files.uploadedfile import SimpleUploadedFile
 from django.db.models import (PositiveIntegerField, PositiveSmallIntegerField, CharField,
                               TextField, DateTimeField, ForeignKey, ManyToManyField)
 from django.utils.translation import ugettext_lazy as _
@@ -35,13 +38,15 @@ from django.conf import settings
 from django.core.mail import EmailMultiAlternatives
 from django.db import IntegrityError
 
-from creme_core.models import CremeModel, CremeEntity
+from creme_core.models import CremeModel, CremeEntity, Relation
+from creme_core.views.file_handling import handle_uploaded_file
 
 from emails.utils import generate_id, get_unicode_decoded_str
 
 from persons.models import MailSignature
 
-from documents.models import Document
+from documents.models import Document, Folder, FolderCategory
+from documents.constants import REL_OBJ_RELATED_2_DOC
 
 from creme_settings import (CREME_GET_EMAIL_SERVER,
                             CREME_GET_EMAIL_USERNAME,
@@ -203,9 +208,12 @@ class EntityEmail(_Email, CremeEntity):
 
 
     @staticmethod
-    def fetch_mails(user_id):
+    def fetch_mails(user_id_to_assign):
         
         client = None
+        message_count = mailbox_size = 0
+        response = messages = total_size = ""
+        
         try:
             if CREME_GET_EMAIL_SSL:
                 client = poplib.POP3_SSL(CREME_GET_EMAIL_SERVER, CREME_GET_EMAIL_PORT, CREME_GET_EMAIL_SSL_KEYFILE, CREME_GET_EMAIL_SSL_CERTFILE)
@@ -213,19 +221,27 @@ class EntityEmail(_Email, CremeEntity):
                 client = poplib.POP3(CREME_GET_EMAIL_SERVER, CREME_GET_EMAIL_PORT)
             client.user(CREME_GET_EMAIL_USERNAME)
             client.pass_(CREME_GET_EMAIL_PASSWORD)
+
+            message_count, mailbox_size = client.stat()
+            response, messages, total_size = client.list()
+            
         except Exception, e:#TODO: Define better exception
             debug("Pop connection error : %s", e)
             if client is not None:
                 client.quit()
-            return []
-
-        message_count, mailbox_size = client.stat()
-
-#        result_list = []
-        response, messages, total_size = client.list()
+            return -1
 
         getaddresses = email.utils.getaddresses
         parsedate    = email.utils.parsedate
+
+        attachment_paths = []
+
+        current_user = User.objects.get(pk=user_id_to_assign)
+        folder_cat, is_cat_created  = FolderCategory.objects.get_or_create(name=u"Fichiers reçus par mail")
+        
+        folder, is_fold_created = Folder.objects.get_or_create(title=u'Fichiers de %s reçus par mail' % current_user.username,
+                                                               user=current_user,
+                                                               category=folder_cat)
 
         for msg_infos in messages:
             mail = EntityEmail()
@@ -257,47 +273,57 @@ class EntityEmail(_Email, CremeEntity):
             if email_message.is_multipart():
                 for part in email_message.walk():
                     encodings = set(part.get_charsets()) - set([None])
+                    payload   = part.get_payload(decode=True)
 
                     mct = part.get_content_maintype()
-                    if mct != 'text':
-                        #TODO: Gerer les fichiers attachés
+                    if mct == 'multipart':
                         continue
-                    cst = part.get_content_subtype()
-                    if cst == 'html':
-                        body_html = get_unicode_decoded_str(part.get_payload(decode=True), encodings)
-                    elif cst == 'plain':
-                        body = get_unicode_decoded_str(part.get_payload(decode=True), encodings)
+                        
+                    if mct != 'text':
+                        filename = part.get_filename()
+                        f=SimpleUploadedFile(filename, payload, content_type=part.get_content_type())
+                        attachment_paths.append(handle_uploaded_file(f, path=['upload','emails','attachments'], name=filename))
+                    
+                    else:
+                        cst = part.get_content_subtype()
+                        content = get_unicode_decoded_str(payload, encodings)
+                        if cst == 'html':
+                            body_html = content
+                        elif cst == 'plain':
+                            body = content
             else:
-                #print 'Payload : ', message.get_payload(decode=True)
                 encodings = set(email_message.get_charsets()) - set([None])
 
                 cst = email_message.get_content_subtype()
+                content = get_unicode_decoded_str(email_message.get_payload(decode=True), encodings)
                 if cst == 'plain':
-                    body = get_unicode_decoded_str(email_message.get_payload(decode=True), encodings)
+                    body = content
                 elif cst == 'html':
-                    body_html = body = get_unicode_decoded_str(email_message.get_payload(decode=True), encodings)
+                    body_html = body = content
 
             mail.body      = body.encode('utf-8')
             mail.body_html = body_html.encode('utf-8')
-            mail.sender    = u', '.join(chain(from_emails, cc_emails))
-            mail.recipient = u', '.join(to_emails)
+            mail.sender    = u', '.join(set(from_emails))
+            mail.recipient = u', '.join(set(chain(to_emails, cc_emails)))
             mail.subject   = u', '.join(subjects)
-            mail.user_id   = user_id
+            mail.user_id   = user_id_to_assign
             if dates:
                 mail.reception_date = dates[0]
             mail.genid_n_save()
-#            result_list.append(mail)
+
+            for attachment_path in attachment_paths:
+                doc = Document()
+                doc.title= u"%s (mail %s)" % (attachment_path.rpartition(os.sep)[2], mail.id)
+                doc.description=u"Reçu avec le mail %s" % (mail, )
+                doc.filedata=attachment_path
+                doc.user_id=user_id_to_assign
+                doc.folder = folder
+                doc.save()
+                Relation.create(doc, REL_OBJ_RELATED_2_DOC, mail)
 
             # We delete the mail from the server when treated
-            client.dele(message_number)#TODO: Don't forget to uncomment
+            client.dele(message_number)
 
         client.quit()
 
-#        for mail in Email.objects.filter(Q(status=MAIL_STATUS_SYNCHRONISED_SPAM) | Q(status=MAIL_STATUS_SYNCHRONISED_WAITING)):
-##            if mail not in result_list:
-##                result_list.append(mail)
-#            result_list.append(mail)
-#
-##        return result_list
-#        return set(result_list)
         return message_count

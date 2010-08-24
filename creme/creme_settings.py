@@ -19,6 +19,7 @@ CREME_GET_EMAIL_PORT = 110
 CREME_GET_EMAIL_SSL = False #True or False #Not used for the moment
 CREME_GET_EMAIL_SSL_KEYFILE = "" #Not used for the moment
 CREME_GET_EMAIL_SSL_CERTFILE = "" #Not used for the moment
+CREME_GET_EMAIL_JOB_USER_ID = None #Only for job. Default user id which will handle the synchronization
 
 try:
     from local_creme_settings import *
