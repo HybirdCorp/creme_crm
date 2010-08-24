@@ -63,7 +63,7 @@ class Populator(BasePopulator):
 
         hf_id = create(HeaderFilter, 'activities-hf', name=_(u"Activity view"), entity_type_id=ContentType.objects.get_for_model(Activity).id, is_custom=False).id
         pref = 'activities-hfi_'
-        create(HeaderFilterItem, pref + 'title', order=1, name='title', title=_(u'Name'),   type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True, editable=True, sortable=True, filter_string="title__icontains")
+        create(HeaderFilterItem, pref + 'title', order=1, name='title', title=_(u'Name'),  type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True, editable=True, sortable=True, filter_string="title__icontains")
         create(HeaderFilterItem, pref + 'start', order=2, name='start', title=_(u'Start'), type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True, editable=True, sortable=True, filter_string="start__range")
         create(HeaderFilterItem, pref + 'end',   order=3, name='end',   title=_(u'End'),   type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True, editable=True, sortable=True, filter_string="end__range")
         create(HeaderFilterItem, pref + 'type',  order=4, name='type',  title=_(u'Type'),  type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True, editable=True, sortable=True, filter_string="type__name__icontains")
