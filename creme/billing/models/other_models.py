@@ -18,10 +18,13 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.db.models import Model, CharField, ForeignKey
+from django.db.models import CharField
 from django.utils.translation import ugettext_lazy as _
 
 from creme_core.models import CremeModel
+
+
+#TODO: use a base abstract class ??
 
 
 class InvoiceStatus(CremeModel):
@@ -32,8 +35,8 @@ class InvoiceStatus(CremeModel):
 
     class Meta:
         app_label = 'billing'
-        verbose_name = _(u'Status de facture')
-        verbose_name_plural = _(u'Status de facture')
+        verbose_name = _(u'Invoice status')
+        verbose_name_plural = _(u'Invoice status')
 
 
 class QuoteStatus(CremeModel):
@@ -44,8 +47,8 @@ class QuoteStatus(CremeModel):
 
     class Meta:
         app_label = 'billing'
-        verbose_name = _(u'Status de devis')
-        verbose_name_plural = _(u'Status de devis')
+        verbose_name = _(u'Quote status')
+        verbose_name_plural = _(u'Quote status')
 
 
 class SalesOrderStatus(CremeModel):
@@ -56,7 +59,5 @@ class SalesOrderStatus(CremeModel):
 
     class Meta:
         app_label = 'billing'
-        verbose_name = _(u'Status de bon de commande')
-        verbose_name_plural = _(u'Status de bon de commande')
-
-
+        verbose_name = _(u'Salesorder status')
+        verbose_name_plural = _(u'Salesorder status')

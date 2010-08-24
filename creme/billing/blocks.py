@@ -29,7 +29,7 @@ from billing.models import ProductLine, ServiceLine
 class ProductLinesBlock(QuerysetBlock):
     id_           = QuerysetBlock.generate_id('billing', 'product_lines')
     dependencies  = (ProductLine,)
-    verbose_name  = _(u'Lignes produit')
+    verbose_name  = _(u'Product lines')
     template_name = 'billing/templatetags/block_product_line.html'
 
     def detailview_display(self, context):
@@ -42,7 +42,7 @@ class ProductLinesBlock(QuerysetBlock):
 class  ServiceLinesBlock(QuerysetBlock):
     id_           = QuerysetBlock.generate_id('billing', 'service_lines')
     dependencies  = (ServiceLine,)
-    verbose_name  = _(u'Lignes service')
+    verbose_name  = _(u'Service lines')
     template_name = 'billing/templatetags/block_service_line.html'
 
     def detailview_display(self, context):

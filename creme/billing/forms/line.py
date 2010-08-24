@@ -20,7 +20,7 @@
 
 from decimal import Decimal
 
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import ugettext_lazy as _, ugettext
 from django.forms import IntegerField, BooleanField, ModelChoiceField, Select, ValidationError
 from django.forms.widgets import HiddenInput
 
@@ -48,16 +48,16 @@ class LineCreateForm(CremeModelWithUserForm):
         instance.is_paid = False
         super(LineCreateForm, self).save()
 
-        form_post_save.send (sender=self.instance.__class__, instance=self.instance, created=created)
+        form_post_save.send(sender=self.instance.__class__, instance=self.instance, created=created)
 
 
-bm = FieldBlockManager(('general', _(u'Informations sur la ligne'), ['related_item', 'comment', 'quantity', 'unit_price',
-                                                                     'discount', 'credit', 'total_discount', 'vat', 'user'])
+bm = FieldBlockManager(('general', _(u'Line information'), ['related_item', 'comment', 'quantity', 'unit_price',
+                                                            'discount', 'credit', 'total_discount', 'vat', 'user'])
      )
 
 
 class ProductLineCreateForm(LineCreateForm):
-    related_item = CremeEntityField(label=_("Produit"), model=Product, widget=ListViewWidget(attrs={'selection_cb':'creme.product_line.auto_populate_selection','selection_cb_args':{'attr':'name','values':['unit_price']}}))
+    related_item = CremeEntityField(label=_("Product"), model=Product, widget=ListViewWidget(attrs={'selection_cb':'creme.product_line.auto_populate_selection','selection_cb_args':{'attr':'name','values':['unit_price']}}))
 
     blocks = bm
 
@@ -68,18 +68,18 @@ class ProductLineCreateForm(LineCreateForm):
 
 class ProductLineOnTheFlyCreateForm(LineCreateForm):
     blocks = FieldBlockManager(
-        ('general', _(u'Informations sur la ligne'), ['on_the_fly_item', 'comment', 'quantity', 'unit_price',
-                                                                     'discount', 'credit', 'total_discount', 'vat', 'user']),
-        ('additionnal', _(u'Fonctionnalités supplémentaires'), ['has_to_register_as','category','sub_category'])
+        ('general',     _(u'Line information'),    ['on_the_fly_item', 'comment', 'quantity', 'unit_price',
+                                                    'discount', 'credit', 'total_discount', 'vat', 'user']),
+        ('additionnal', _(u'Additional features'), ['has_to_register_as', 'category', 'sub_category'])
      )
 
-    has_to_register_as = BooleanField(label=_(u"Enregistrer en tant que produit ?"), required=False,
-                                      help_text=_(u"Ceci vous permer d'enregistrer un produit à la volée en tant que produit à par entière, dans ce cas là, la catégorie et sous-catégorie est obligatoire."))
-    category           = ModelChoiceField(queryset=Category.objects.all(), label=_(u'Catégorie'),
+    has_to_register_as = BooleanField(label=_(u"Save as product ?"), required=False,
+                                      help_text=_(u"Here you can save a on-the-fly Product as a true Product ; in this case, category and sub-category are required."))
+    category           = ModelChoiceField(queryset=Category.objects.all(), label=_(u'Category'),
                                           widget=DependentSelect(target_id='id_sub_category', target_url='/products/sub_category/load'),
                                           required=False)
     sub_category       = ModelChoiceField(queryset=SubCategory.objects.all(),
-                                          label=_(u'Sous-catégorie'),
+                                          label=_(u'Sub-category'),
                                           widget=Select(attrs={'id': 'id_sub_category'}),
                                           required=False)
 
@@ -90,8 +90,10 @@ class ProductLineOnTheFlyCreateForm(LineCreateForm):
     def __init__(self, *args, **kwargs):
         super(ProductLineOnTheFlyCreateForm, self).__init__(*args, **kwargs)
         if self.instance.pk is not None:
-            self.blocks = FieldBlockManager(('general', _(u'Informations sur la ligne'), ['on_the_fly_item', 'comment', 'quantity', 'unit_price',
-                                                                     'discount', 'credit', 'total_discount', 'vat', 'user']),)
+            self.blocks = FieldBlockManager(
+                    ('general', ugettext(u'Line information'), ['on_the_fly_item', 'comment', 'quantity', 'unit_price',
+                                                                'discount', 'credit', 'total_discount', 'vat', 'user']),
+                )
 
     def clean(self):
         cleaned_data = self.cleaned_data
@@ -100,9 +102,9 @@ class ProductLineOnTheFlyCreateForm(LineCreateForm):
         #TODO: use has_key ??
         if get_data('has_to_register_as'):
             if get_data('category') is None:
-                raise ValidationError(_(u'Catégorie obligatoire si vous souhaitez enregistrer en tant que produit.'))
+                raise ValidationError(ugettext(u'Category is required if you want to save as a true product.'))
             elif get_data('sub_category') is None:
-                raise ValidationError(_(u'Sous-catégorie obligatoire si vous souhaitez enregistrer en tant que produit.'))
+                raise ValidationError(ugettext(u'Sub-category is required if you want to save as a true product.'))
 
         return cleaned_data
 
@@ -155,29 +157,30 @@ class ServiceLineOnTheFlyCreateForm(LineCreateForm):
         exclude = ('related_item', 'document', 'is_paid')
 
     blocks = FieldBlockManager(
-        ('general', _(u'Informations sur la ligne'), ['on_the_fly_item', 'comment', 'quantity', 'unit_price',
-                                                                     'discount', 'credit', 'total_discount', 'vat', 'user']),
-        ('additionnal', _(u'Fonctionnalités supplémentaires'), ['has_to_register_as','category'])
+        ('general',     _(u'Line information'),    ['on_the_fly_item', 'comment', 'quantity', 'unit_price',
+                                                    'discount', 'credit', 'total_discount', 'vat', 'user']),
+        ('additionnal', _(u'Additional features'), ['has_to_register_as','category'])
      )
 
-    has_to_register_as = BooleanField(label=_(u"Enregistrer en tant que service ?"), required=False,
-                                      help_text=_(u"Ceci vous permer d'enregistrer un service à la volée en tant que service à part entière."))
-
-    category           = ModelChoiceField(queryset=ServiceCategory.objects.all(), label=_(u'Catégorie de service'),
+    has_to_register_as = BooleanField(label=_(u"Save as service ?"), required=False,
+                                      help_text=_(u"Here you can save a on-the-fly Service as a true Service ; in this case, category is required."))
+    category           = ModelChoiceField(queryset=ServiceCategory.objects.all(), label=_(u'Service category'),
                                           required=False)
 
     def __init__(self, *args, **kwargs):
         super(ServiceLineOnTheFlyCreateForm, self).__init__(*args, **kwargs)
         if self.instance.pk is not None:
-            self.blocks = FieldBlockManager(('general', _(u'Informations sur la ligne'), ['on_the_fly_item', 'comment', 'quantity', 'unit_price',
-                                                                     'discount', 'credit', 'total_discount', 'vat', 'user']),)
+            self.blocks = FieldBlockManager(
+                    ('general', _(u'Line information'), ['on_the_fly_item', 'comment', 'quantity', 'unit_price',
+                                                         'discount', 'credit', 'total_discount', 'vat', 'user']),
+                )
 
     def clean(self):
         cleaned_data = self.cleaned_data
         get_data = cleaned_data.get
 
         if get_data('has_to_register_as') and get_data('category') is None:
-            raise ValidationError(_(u'Catégorie obligatoire si vous souhaitez enregistrer en tant que service.'))
+            raise ValidationError(_(u'Category is required if you want to save as a true service.'))
 
         return cleaned_data
 

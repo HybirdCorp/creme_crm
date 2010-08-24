@@ -28,8 +28,7 @@ from django.contrib.contenttypes.models import ContentType
 
 from creme_core.models import CremeEntity
 
-from billing.models import SalesOrder, Invoice, ProductLine , ServiceLine, TemplateBase
-#from billing.constants import REL_SUB_BILL_ISSUED, REL_SUB_BILL_RECEIVED
+from billing.models import SalesOrder, Invoice, TemplateBase
 
 
 class_map = {'sales_order': SalesOrder, 'invoice': Invoice}
@@ -47,7 +46,7 @@ def convert(request, document_id):
             new_ct = class_map[request.GET['type']]
             debug("Convert template to template !!!!!!")
             dest.build(src, ContentType.objects.get_for_model(new_ct))
-            dest.name = _(u'%(src)s (converti en template de <%(dest)s>)') % {'src': src.name, 'dest': dest.ct.name}
+            dest.name = _(u'%(src)s (converted into template of <%(dest)s>)') % {'src': src.name, 'dest': dest.ct.name}
             dest.save()
             # Generator of template src now works with converted template
             generator = src.get_generator()
@@ -56,7 +55,7 @@ def convert(request, document_id):
         else:
             dest = class_map[request.GET['type']]()
             dest.build(src)
-            dest.name = _(u'%(src)s (converti en %(dest)s)') % {'src': src.name, 'dest': dest._meta.verbose_name}
+            dest.name = _(u'%(src)s (converted into  %(dest)s)') % {'src': src.name, 'dest': dest._meta.verbose_name}
             dest.generate_number()
             dest.save()
     except KeyError:

@@ -1,5 +1,5 @@
 {% extends 'billing/templatetags/line.html' %}
-
+{% load i18n %}
 {% load creme_block %}
 
 {% block header %}
@@ -30,23 +30,23 @@
             );
         }
     </script>
-    {% get_block_header '%s Produit relatif' '%s Produits relatifs' 'product_48.png' 'Produit' %}
+    {% get_block_header _('%s related Product') _('%s related Products') 'product_48.png' _('Product') %}
 {% endblock %}
 
 {% block add_buttons %}
     <a class="button_link" onclick="creme.utils.innerPopupNReload('/billing/{{object.id}}/product_line/add', {% get_block_reload_uri %});">
-        <img src="{{MEDIA_URL}}images/add_22.png" border="0" title="Ajouter un Produit" alt="Ajouter" />
-        Ajouter un produit existant
+        <img src="{{MEDIA_URL}}images/add_22.png" border="0" title="{% trans "Add a product" %}" alt="{% trans "Add a product" %}" />
+        {% trans "Add from an existing Product" %}
     </a>
     <a class="button_link" onclick="creme.utils.innerPopupNReload('/billing/{{object.id}}/product_line/add_on_the_fly', {% get_block_reload_uri %});">
-        <img src="{{MEDIA_URL}}images/add_22.png" border="0" title="Ajouter un ligne" alt="Ajouter" />
-        Ajouter une ligne à la volée
+        <img src="{{MEDIA_URL}}images/add_22.png" border="0" title="{% trans "Add a product" %}" alt="{% trans "Add a product" %}" />
+        {% trans "Add a line on the fly" %}
     </a>
 {% endblock %}
 
-{% block item_name %}Produit{% endblock %}
+{% block item_name %}{% trans "Product" %}{% endblock %}
 
-{% block empty_msg %}Aucun produit dans cette facture{% endblock %}
+{% block empty_msg %}{% trans "No product in this document" %}{% endblock %}
 
 {% block line_actions %}
     <a class="button_link" onclick="creme.utils.innerPopupNReload('/billing/productline/{{line.id}}/edit', {% get_block_reload_uri %});">
