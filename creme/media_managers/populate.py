@@ -18,6 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from django.utils.translation import ugettext as _
 from django.contrib.contenttypes.models import ContentType
 
 from creme_core.models import SearchConfigItem, SearchField
@@ -33,17 +34,18 @@ class Populator(BasePopulator):
     dependencies = ['creme.core']
 
     def populate(self, *args, **kwargs):
-        create(MediaCategory, name=u"Image de produit",    is_custom=False)
-        create(MediaCategory, name=u"Logo d'organisation", is_custom=False)
-        create(MediaCategory, name=u"Photo de contact",    is_custom=False)
+        #TODO: created by 'products' & 'persons' app ?? (pk_string)
+        create(MediaCategory, name=_(u"Product image"),      is_custom=False)
+        create(MediaCategory, name=_(u"Organisation logo"),  is_custom=False)
+        create(MediaCategory, name=_(u"Contact photograph"), is_custom=False)
 
-        hf_id = create(HeaderFilter, 'media_managers-hf_image', name=u"Vue d'Image", entity_type_id=ContentType.objects.get_for_model(Image).id, is_custom=False).id
+        hf_id = create(HeaderFilter, 'media_managers-hf_image', name=_(u"Image view"), entity_type_id=ContentType.objects.get_for_model(Image).id, is_custom=False).id
         pref  = 'media_managers-hfi_image_'
-        create(HeaderFilterItem, pref + 'name',  order=1, name='name',        title=u'Nom',         type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True,  editable=True, filter_string="name__icontains" )
-        create(HeaderFilterItem, pref + 'image', order=2, name='image',       title=u'Image',       type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=False, editable=False)
-        create(HeaderFilterItem, pref + 'descr', order=3, name='description', title=u'Description', type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True,  editable=True, filter_string="description__icontains")
-        create(HeaderFilterItem, pref + 'user',  order=4, name='user',        title=u'Utilisateur', type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True,  editable=True, filter_string="user__username__icontains" )
-        create(HeaderFilterItem, pref + 'cat',   order=5, name='categories',  title=u'Catégories',  type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=False, editable=False)
+        create(HeaderFilterItem, pref + 'name',  order=1, name='name',        title=_(u'Name'),         type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True,  editable=True, filter_string="name__icontains" )
+        create(HeaderFilterItem, pref + 'image', order=2, name='image',       title=_(u'Image'),       type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=False, editable=False)
+        create(HeaderFilterItem, pref + 'descr', order=3, name='description', title=_(u'Description'), type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True,  editable=True, filter_string="description__icontains")
+        create(HeaderFilterItem, pref + 'user',  order=4, name='user',        title=_(u'User'),        type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True,  editable=True, filter_string="user__username__icontains" )
+        create(HeaderFilterItem, pref + 'cat',   order=5, name='categories',  title=_(u'Categories'),  type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=False, editable=False)
 
         model = Image
         sci = create(SearchConfigItem, content_type_id=ContentType.objects.get_for_model(model).id)

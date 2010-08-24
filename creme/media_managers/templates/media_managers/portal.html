@@ -1,5 +1,8 @@
 {% extends "creme_core/base.html" %}
 
+{% load i18n %}
+{% load creme_block %}
+
 {% block extrahead %}
     <script>
         $(document).ready(function(){
@@ -8,17 +11,18 @@
     </script>
 {% endblock %}
 
+{% comment %} FACTORISE WITH creme_core/generics/portal.py ?? {% endcomment %}
 
 {% block content %}
     <table class="table_header" cellpadding="0" cellspacing="0">
         <tr>
             <td width="5%">{% block logo %}{% endblock %}</td>
-            <td width="75%"><h1>{% block title %}Portail des medias{% endblock %}</h1></td>
+            <td width="75%"><h1>{% block title %}{% trans "Media portal" %}{% endblock %}</h1></td>
             <td width="20%" align="right">
                 {% block header_link %}
                     <a href="{% block list_url %}images{% endblock %}">
-                        {% block list_msg %}Liste des images{% endblock %}
-                        <img src="{{MEDIA_URL}}images/right_arrow_64.png" title="Aller à la liste" alt="Aller à la liste"/>
+                        {% block list_msg %}{% trans "List of images" %}{% endblock %}
+                        <img src="{{MEDIA_URL}}images/right_arrow_64.png" title="{% trans "Go to the list" %}" alt="{% trans "Go to the list" %}"/>
                     </a>
                 {% endblock %}
             </td>
@@ -26,14 +30,15 @@
     </table>
 
     <table class="table_detail_view ui-corner-all">
-        <thead>
+        {% comment %}<thead>
             <tr>
                 <th align="center" colspan="2">
-                    <img src="{{MEDIA_URL}}images/infos_48.png" alt="Infos" title="Infos">
-                    Statistiques
+                    <img src="{{MEDIA_URL}}images/infos_48.png" alt="{% trans "Media portal" %}Infos" title="Infos">
+                    {% trans "Statistics" %}
                 </th>
             </tr>
-        </thead>
+        </thead>{% endcomment %}
+        {% get_basic_block_header _('Statistics') 'infos_48.png' _('Statistics') %}
         <tbody class="collapsable">
             {% for statk, statv in stats %}
                 <tr>
@@ -44,23 +49,15 @@
         </tbody>
     </table>
 
-
     <table class="table_detail_view ui-corner-all">
-        <thead>
-            <tr>
-                <th align="center" colspan="{{objects_list|length}}">
-                    <img src="{{MEDIA_URL}}images/infos_48.png" alt="Infos" title="Infos">
-                    {{objects_list|length}} Dernières images ajoutées
-                </th>
-            </tr>
-        </thead>
+        {% get_basic_block_header _('Last added Images') 'image_48.png' _('Image') %}
         <tbody class="collapsable">
             <tr>
                 {% for object in objects_list %}
                     <td align="center" class="{% cycle "block_line_dark" "block_line_light" %}">
-                    {{object.get_entity_summary}}
-                    <br/>
-                    <a href="{{object.get_absolute_url}}">Voir</a>
+                        {{object.get_entity_summary}}
+                        <br/>
+                        <a href="{{object.get_absolute_url}}">{% trans "See" %}</a>
                     </td>
                 {% endfor %}
             </tr>
