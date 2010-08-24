@@ -1,5 +1,7 @@
 {% extends "creme_core/base.html" %}
 
+{% load i18n %}
+
 {% block extrahead %}
     <script type="text/javascript" src="{{MEDIA_URL}}js/models/folders.js" />
 {% endblock %}
@@ -7,7 +9,7 @@
 {% block content %}
     {% regroup list_objects.object_list|dictsort:"category" by category as list_object %}
     {% for object in list_object %}
-        <div>{{object.grouper|default:"Aucune catégorie"}}</div>
+        <div>{{object.grouper|default:_("No category")}}</div>
         <ul class="expandlist" id="parent_folder_A000_id">
         {% for obj in object.list %}
                 <!--<li style="list-style-type:none;"><input type="hidden" id="classeur_{{obj.id}}_id_hidden" value=""/></li>-->
