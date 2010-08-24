@@ -24,11 +24,11 @@ from creme_core.registry import creme_registry
 from creme_core.gui.menu import creme_menu
 from creme_core.gui.block import block_registry
 
-from emails.models import EmailCampaign, MailingList, EmailTemplate
+from emails.models import EmailCampaign, MailingList, EmailTemplate, EntityEmail
 from emails.blocks import *
 
 
-creme_registry.register_entity_models(EmailCampaign, MailingList, EmailTemplate)
+creme_registry.register_entity_models(EmailCampaign, MailingList, EmailTemplate, EntityEmail)
 creme_registry.register_app ('emails', _(u'Courriels'), '/emails')
 
 creme_menu.register_app ('emails', '/emails/', "Courriels et Campagnes")
