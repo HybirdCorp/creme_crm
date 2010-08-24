@@ -1,3 +1,4 @@
+{% load i18n %}
 <script type="text/javascript" src="{{MEDIA_URL}}js/models/persons.js"></script>
 <script type="text/javascript">
     $(document).ready(function(){
@@ -11,22 +12,21 @@
             if(org_id && org_id != 0)
                 openWindow('/persons/address/add?popup=true&organisation_id='+org_id, 'creme_address');
             else
-                creme.utils.showDialog("Veuillez d'abord selectionner une organisation");//TODO : i18n
+                creme.utils.showDialog("{% trans "Please first select an organisation" %}");
         }
 
         $('#id_billing_address').wrap($('<span></span>')).parent().append(
                 $('<img />')
                 .attr('src', '{{MEDIA_URL}}images/add_22.png')
-                .attr('alt', 'Ajouter')
+                .attr('alt', "{% trans "Add" %}")
                 .bind('click', {}, function(e){createAdress_click(e);})
         );
 
         $('#id_shipping_address').wrap($('<span></span>')).parent().append(
                 $('<img />')
                 .attr('src', '{{MEDIA_URL}}images/add_22.png')
-                .attr('alt', 'Ajouter')
+                .attr('alt', "{% trans "Add" %}")
                 .bind('click', {}, function(e){createAdress_click(e);})
         );
-
     });
 </script>

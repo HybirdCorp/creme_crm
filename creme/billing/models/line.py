@@ -33,23 +33,23 @@ from billing.utils import round_to_2
 default_decimal = Decimal()
 
 class Line(CremeModel):
-    on_the_fly_item = CharField(_(u'Ligne à la volée'), max_length=100, blank=False, null=True)
+    on_the_fly_item = CharField(_(u'On-the-fly line'), max_length=100, blank=False, null=True)
 
-    document        = ForeignKey(CremeEntity, verbose_name=_(u'Relatif à'), blank=False, null=False, related_name='billing_lines_set')
+    document        = ForeignKey(CremeEntity, verbose_name=_(u'Related to'), blank=False, null=False, related_name='billing_lines_set')
 
-    comment         = TextField(_('Remarques'), blank=True, null=True)
-    quantity        = IntegerField(_(u'Quantité'), blank=False, null=False, default=0)
-    unit_price      = DecimalField(_(u'Prix Unitaire'), max_digits=10, decimal_places=2, blank=True, default=default_decimal)
-    discount        = DecimalField(_(u'Remise'), max_digits=10, decimal_places=2, blank=True, default=default_decimal)
-    credit          = DecimalField(_(u'Avoir'), max_digits=10, decimal_places=2, blank=True, default=default_decimal)
-    total_discount  = BooleanField(_('Remise globale ?'))
-    vat             = DecimalField(_(u'TVA'), max_digits=4, decimal_places=2, blank=True, default=DEFAULT_VAT)
-    is_paid         = BooleanField(_(u'Réglé ?'))
+    comment         = TextField(_('Comment'), blank=True, null=True)
+    quantity        = IntegerField(_(u'Quantity'), blank=False, null=False, default=0)
+    unit_price      = DecimalField(_(u'Unit price'), max_digits=10, decimal_places=2, blank=True, default=default_decimal)
+    discount        = DecimalField(_(u'Discount'), max_digits=10, decimal_places=2, blank=True, default=default_decimal)
+    credit          = DecimalField(_(u'Credit'), max_digits=10, decimal_places=2, blank=True, default=default_decimal)
+    total_discount  = BooleanField(_('Total discount ?'))
+    vat             = DecimalField(_(u'VAT'), max_digits=4, decimal_places=2, blank=True, default=DEFAULT_VAT)
+    is_paid         = BooleanField(_(u'Paid ?'))
 
     class Meta:
         app_label = 'billing'
-        verbose_name = _(u'Ligne')
-        verbose_name_plural = _(u'Lignes')
+        verbose_name = _(u'Line')
+        verbose_name_plural = _(u'Lines')
 
     def get_price_inclusive_of_tax(self):
         if self.total_discount:

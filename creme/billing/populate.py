@@ -18,6 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from django.utils.translation import ugettext as _
 from django.contrib.contenttypes.models import ContentType
 
 from creme_core.utils import create_or_update_models_instance as create
@@ -36,46 +37,47 @@ class Populator(BasePopulator):
     dependencies = ['creme.creme_core', 'creme.persons']
 
     def populate(self, *args, **kwargs):
-        RelationType.create((REL_SUB_BILL_ISSUED,   u"a été émis(e) par"), #[Invoice, Quote, SalesOrder]
-                            (REL_OBJ_BILL_ISSUED,   u"a émis",             [Organisation]))
-        RelationType.create((REL_SUB_BILL_RECEIVED, u"a été reçu(e) par"), #[Invoice, Quote, SalesOrder]
-                            (REL_OBJ_BILL_RECEIVED, u"a reçu",             [Organisation]))
+        RelationType.create((REL_SUB_BILL_ISSUED,   _(u"issued by")),   #[Invoice, Quote, SalesOrder]
+                            (REL_OBJ_BILL_ISSUED,   _(u"has issued"),   [Organisation]))
+        RelationType.create((REL_SUB_BILL_RECEIVED, _(u"received by")), #[Invoice, Quote, SalesOrder]
+                            (REL_OBJ_BILL_RECEIVED, _(u"has received"), [Organisation]))
 
 
         #NB: pk=1 --> default status (used when a quote is converted in invoice for example)
 
-        create(QuoteStatus, 1, name=u"En attente") #default status
-        create(QuoteStatus, 2, name=u"Accepté")
-        create(QuoteStatus, 3, name=u"Rejeté")
-        create(QuoteStatus, 4, name=u"Créé")
+        create(QuoteStatus, 1, name=_(u"Pending")) #default status
+        create(QuoteStatus, 2, name=_(u"Accepted"))
+        create(QuoteStatus, 3, name=_(u"Rejected"))
+        create(QuoteStatus, 4, name=_(u"Created"))
 
-        create(SalesOrderStatus, 1, name=u"Émis") #default status
-        create(SalesOrderStatus, 2, name=u"Accepté")
-        create(SalesOrderStatus, 3, name=u"Rejeté")
-        create(SalesOrderStatus, 4, name=u"Créé")
+        create(SalesOrderStatus, 1, name=_(u"Issued")) #default status
+        create(SalesOrderStatus, 2, name=_(u"Accepted"))
+        create(SalesOrderStatus, 3, name=_(u"Rejected"))
+        create(SalesOrderStatus, 4, name=_(u"Created"))
 
-        create(InvoiceStatus, 1, name=u"Brouillon") #default status
-        create(InvoiceStatus, 2, name=u"Envoyée")
-        create(InvoiceStatus, 3, name=u"Soldée")
-        create(InvoiceStatus, 4, name=u"Partiellement soldée")
-        create(InvoiceStatus, 5, name=u"Recouvrement")
-        create(InvoiceStatus, 6, name=u"Recouvrement soldé")
-        create(InvoiceStatus, 7, name=u"Annulée")
+        create(InvoiceStatus, 1, name=_(u"Draft")) #default status
+        create(InvoiceStatus, 2, name=_(u"Sent"))
+        create(InvoiceStatus, 3, name=_(u"Resulted"))
+        create(InvoiceStatus, 4, name=_(u"Partly resulted"))
+        create(InvoiceStatus, 5, name=_(u"Collection"))
+        create(InvoiceStatus, 6, name=_(u"Resulted collection"))
+        create(InvoiceStatus, 7, name=_(u"Canceled"))
 
         get_ct = ContentType.objects.get_for_model
 
         def create_hf(hf_pk, hfi_pref, name, model):
             hf_id = create(HeaderFilter, hf_pk, name=name, entity_type_id=get_ct(model).id, is_custom=False).id
-            create(HeaderFilterItem, hfi_pref + 'name',    order=1, name='name',            title=u'Nom',             type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True, editable=True, sortable=True, filter_string="name__icontains")
-            create(HeaderFilterItem, hfi_pref + 'number',  order=2, name='number',          title=u'Numéro',          type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True, editable=True, sortable=True, filter_string="number__icontains")
-            create(HeaderFilterItem, hfi_pref + 'issdate', order=3, name='issuing_date',    title=u"Date d'émission", type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True, editable=True, sortable=True, filter_string="issuing_date__range")
-            create(HeaderFilterItem, hfi_pref + 'expdate', order=4, name='expiration_date', title=u"Date d'échéance", type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True, editable=True, sortable=True, filter_string="expiration_date__range")
-            create(HeaderFilterItem, hfi_pref + 'status',  order=5, name='status',          title=u'Statut',          type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True, editable=True, sortable=True, filter_string="status__name__icontains")
+            create(HeaderFilterItem, hfi_pref + 'name',    order=1, name='name',            title=_(u'Name'),            type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True, editable=True, sortable=True, filter_string="name__icontains")
+            create(HeaderFilterItem, hfi_pref + 'number',  order=2, name='number',          title=_(u'Number'),          type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True, editable=True, sortable=True, filter_string="number__icontains")
+            create(HeaderFilterItem, hfi_pref + 'issdate', order=3, name='issuing_date',    title=_(u"Issuing date"), type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True, editable=True, sortable=True, filter_string="issuing_date__range")
+            create(HeaderFilterItem, hfi_pref + 'expdate', order=4, name='expiration_date', title=_(u"Expiration date"), type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True, editable=True, sortable=True, filter_string="expiration_date__range")
+            create(HeaderFilterItem, hfi_pref + 'status',  order=5, name='status',          title=_(u'Status'),          type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True, editable=True, sortable=True, filter_string="status__name__icontains")
 
-        create_hf('billing-hf_invoice',    'billing-hfi_invoice_',    'Vue de Facture',         Invoice)
-        create_hf('billing-hf_quote',      'billing-hfi_quote_',      'Vue de Devis',           Quote)
-        create_hf('billing-hf_salesorder', 'billing-hfi_salesorder_', 'Vue de Bon de Commande', SalesOrder)
+        create_hf('billing-hf_invoice',    'billing-hfi_invoice_',    _(u'Invoice view'),     Invoice)
+        create_hf('billing-hf_quote',      'billing-hfi_quote_',      _(u'Quote view'),       Quote)
+        create_hf('billing-hf_salesorder', 'billing-hfi_salesorder_', _(u'Sales order view'), SalesOrder)
 
+        #TODO: factorise (create an helper static method in SearchField ???)
         model = Invoice
         sci = create(SearchConfigItem, content_type_id=ContentType.objects.get_for_model(model).id)
         SCI_pk = sci.pk

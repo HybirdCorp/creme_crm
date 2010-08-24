@@ -28,11 +28,16 @@ from service_line import ServiceLine
 
 
 class Invoice(Base):
-    status = ForeignKey(InvoiceStatus, verbose_name=_(u'Status de la facture'), blank=False, null=False)
+    status = ForeignKey(InvoiceStatus, verbose_name=_(u'Status of invoice'), blank=False, null=False)
 
     research_fields = Base.research_fields + ['status__name']
     excluded_fields_in_html_output = Base.excluded_fields_in_html_output + ['base_ptr']
     header_filter_exclude_fields = Base.header_filter_exclude_fields + ['base_ptr'] #TODO: use a set() ??
+
+    class Meta:
+        app_label = "billing"
+        verbose_name = _(u'Invoice')
+        verbose_name_plural = _(u'Invoices')
 
     def get_absolute_url(self):
         return "/billing/invoice/%s" % self.id
@@ -49,40 +54,40 @@ class Invoice(Base):
         return "/billing/invoice/delete/%s" % self.id
 
     #TODO: use sum()....
-    def get_products_price_inclusive_of_tax(self):
+    def get_products_price_inclusive_of_tax(self): #TODO: useless ??
         total = 0
         for line in ProductLine.objects.filter(document=self):
             total += line.get_price_inclusive_of_tax()
         return total
 
-    def get_services_price_inclusive_of_tax(self):
+    def get_services_price_inclusive_of_tax(self): #TODO: useless ??
         #debug("GET TOTAL SERVICE TTC")
         total = 0
         for line in ServiceLine.objects.filter(document=self):
             total += line.get_price_inclusive_of_tax()
         return total
 
-    def get_products_price_exclusive_of_tax(self):
+    def get_products_price_exclusive_of_tax(self): #TODO: useless ??
         total = 0
         for line in ProductLine.objects.filter(document=self):
             total += line.get_price_exclusive_of_tax()
         return total
 
-    def get_services_price_exclusive_of_tax(self):
+    def get_services_price_exclusive_of_tax(self): #TODO: useless ??
         #debug("GET TOTAL SERVICE HT")
         total = 0
         for line in ServiceLine.objects.filter(document=self):
             total += line.get_price_exclusive_of_tax()
         return total
 
-    def remaining_payment_for_products(self):
+    def remaining_payment_for_products(self): #TODO: useless ??
         total = 0
         for line in ProductLine.objects.filter(document=self):
             if not line.is_paid:
                 total += line.get_price_inclusive_of_tax()
         return total
 
-    def remaining_payment_for_services(self):
+    def remaining_payment_for_services(self): #TODO: useless ??
         total = 0
         for line in ServiceLine.objects.filter(document=self):
             if not line.is_paid:
@@ -91,10 +96,5 @@ class Invoice(Base):
 
     def build(self, template):
         # Specific recurrent generation rules
-        self.status = InvoiceStatus.objects.get(pk = template.status_id)
+        self.status = InvoiceStatus.objects.get(pk=template.status_id) #TODO: "self.status_id = template.status_id" instead ???
         return super(Invoice, self).build(template)
-
-    class Meta:
-        app_label = "billing"
-        verbose_name = _(u'Facture')
-        verbose_name_plural = _(u'Factures')

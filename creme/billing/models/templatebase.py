@@ -33,7 +33,7 @@ class TemplateBase(Base):
     status_id   = PositiveIntegerField()
 
     research_fields = Base.research_fields + ['name']
-    excluded_fields_in_html_output = Base.excluded_fields_in_html_output + ['base_ptr','ct','status_id','number']
+    excluded_fields_in_html_output = Base.excluded_fields_in_html_output + ['base_ptr', 'ct', 'status_id', 'number']
 
     class Meta:
         app_label = 'billing'
@@ -56,7 +56,7 @@ class TemplateBase(Base):
     def get_generator(self):
         from recurrents.models import RecurrentGenerator
         try:
-            return RecurrentGenerator.objects.get(template = self)
+            return RecurrentGenerator.objects.get(template=self)
         except ObjectDoesNotExist:
             return None
 
@@ -69,7 +69,7 @@ class TemplateBase(Base):
         # Common rules for the recurrent generation of a "base" object for billing app. See base's child for specific rules
         instance.generate_number()
         instance.issuing_date = date.today()
-        instance.expiration_date = date.today() + timedelta(days = 30) # TODO : 30 days after the issuing date, user configurable rules ???
+        instance.expiration_date = date.today() + timedelta(days=30) # TODO : 30 days after the issuing date, user configurable rules ???
 
         instance.save()
 

@@ -1,16 +1,17 @@
 {% extends "creme_core/detailview.html" %}
 
+{% load i18n %}
 {% load creme_block %}
 
 {% comment %} INHRHIT FROM 'view_billing.html' ??? {% endcomment %}
 
 {% block extra_menu_buttons %}
     {% ifequal object.ct.model 'quote' %}
-        <li><a class="menu_button" href="/billing/{{object.id}}/convert/?type=sales_order" >Convertir en Bon de Commande</a></li>
-        <li><a class="menu_button" href="/billing/{{object.id}}/convert/?type=invoice" >Convertir en Facture</a></li>
+        <li><a class="menu_button" href="/billing/{{object.id}}/convert/?type=sales_order" >{% trans "Convert to Salesorder" %}</a></li>
+        <li><a class="menu_button" href="/billing/{{object.id}}/convert/?type=invoice" >{% trans "Convert to Invoice" %}</a></li>
     {% else %}
         {% ifequal object.ct.model 'salesorder' %}
-            <li><a class="menu_button" href="/billing/{{object.id}}/convert/?type=invoice" >Convertir en Facture</a></li>
+            <li><a class="menu_button" href="/billing/{{object.id}}/convert/?type=invoice" >{% trans "Convert to Invoice" %}</a></li>
         {% endifequal %}
     {% endifequal %}
 {% endblock %}

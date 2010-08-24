@@ -26,11 +26,16 @@ from other_models import SalesOrderStatus
 
 
 class SalesOrder(Base):
-    status = ForeignKey(SalesOrderStatus, verbose_name=_(u'Status du bon de commande'), blank=False, null=False)
+    status = ForeignKey(SalesOrderStatus, verbose_name=_(u'Status of salesorder'), blank=False, null=False)
 
     research_fields = Base.research_fields + ['status__name']
     excluded_fields_in_html_output = Base.excluded_fields_in_html_output + ['base_ptr']
     header_filter_exclude_fields = Base.header_filter_exclude_fields + ['base_ptr'] #TODO: use a set() ??
+
+    class Meta:
+        app_label = 'billing'
+        verbose_name = _(u'Salesorder')
+        verbose_name_plural = _(u'Salesorders')
 
     def get_absolute_url(self):
         return "/billing/sales_order/%s" % self.id
@@ -48,10 +53,5 @@ class SalesOrder(Base):
 
     def build(self, template):
         # Specific recurrent generation rules
-        self.status = SalesOrderStatus.objects.get(pk = template.status_id)
+        self.status = SalesOrderStatus.objects.get(pk=template.status_id) #TODO: self.status_id = template.status_id
         return super(SalesOrder, self).build(template)
-
-    class Meta:
-        app_label = 'billing'
-        verbose_name = _(u'Bon de commande')
-        verbose_name_plural = _(u'Bons de commande')

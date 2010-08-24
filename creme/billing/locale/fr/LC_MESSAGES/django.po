@@ -1,0 +1,523 @@
+# FR LOCALISATION OF 'BILLING' APP
+# Copyright (C) 2010 Hybird
+# This file is distributed under the same license as the Creme package.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2010-08-24 12:35+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: blocks.py:32 models/product_line.py:35
+msgid "Product lines"
+msgstr "Lignes produit"
+
+#: blocks.py:45 models/service_line.py:35
+msgid "Service lines"
+msgstr "Lignes service"
+
+#: blocks.py:58 models/base.py:46
+msgid "Total"
+msgstr "Total"
+
+#: creme_core_register.py:31
+msgid "Billing"
+msgstr "Facturation"
+
+#: creme_core_register.py:36
+msgid "Add an invoice"
+msgstr "Ajouter une facture"
+
+#: creme_core_register.py:37
+msgid "All invoices"
+msgstr "Lister les factures"
+
+#: creme_core_register.py:38
+msgid "Add a sales order"
+msgstr "Ajouter un bon de commande"
+
+#: creme_core_register.py:39
+msgid "All sales orders"
+msgstr "Lister les bons de commande"
+
+#: creme_core_register.py:40
+msgid "Add a quote"
+msgstr "Ajouter un devis"
+
+#: creme_core_register.py:41
+msgid "All quotes"
+msgstr "Lister les devis"
+
+#: populate.py:40
+msgid "issued by"
+msgstr "a été émis(e) par"
+
+#: populate.py:41
+msgid "has issued"
+msgstr "a émis"
+
+#: populate.py:42
+msgid "received by"
+msgstr "a été reçu(e) par"
+
+#: populate.py:43
+msgid "has received"
+msgstr "a reçu"
+
+#: populate.py:48
+msgid "Pending"
+msgstr "En attente"
+
+#: populate.py:49 populate.py:54
+msgid "Accepted"
+msgstr "Accepté"
+
+#: populate.py:50 populate.py:55
+msgid "Rejected"
+msgstr "Rejeté"
+
+#: populate.py:51 populate.py:56
+msgid "Created"
+msgstr "Créé"
+
+#: populate.py:53
+msgid "Issued"
+msgstr "Émis"
+
+#: populate.py:58
+msgid "Draft"
+msgstr "Brouillon"
+
+#: populate.py:59
+msgid "Sent"
+msgstr "Envoyée"
+
+#: populate.py:60
+msgid "Resulted"
+msgstr "Soldée"
+
+#: populate.py:61
+msgid "Partly resulted"
+msgstr "Partiellement soldée"
+
+#: populate.py:62
+msgid "Collection"
+msgstr "Recouvrement"
+
+#: populate.py:63
+msgid "Resulted collection"
+msgstr "Recouvrement soldé"
+
+#: populate.py:64
+msgid "Canceled"
+msgstr "Annulée"
+
+#: populate.py:70 models/base.py:38
+msgid "Name"
+msgstr "Nom"
+
+#: populate.py:71 models/base.py:39
+msgid "Number"
+msgstr "Numéro"
+
+#: populate.py:72 forms/base.py:43 models/base.py:40
+msgid "Issuing date"
+msgstr "Date d'émission"
+
+#: populate.py:73 forms/base.py:44 models/base.py:41
+msgid "Expiration date"
+msgstr "Échéance"
+
+#: populate.py:74 forms/templatebase.py:32 forms/templatebase.py:51
+#: models/other_models.py:31 models/other_models.py:43
+#: models/other_models.py:55
+msgid "Status"
+msgstr "Statut"
+
+#: populate.py:76
+msgid "Invoice view"
+msgstr "Vue de Facture"
+
+#: populate.py:77
+msgid "Quote view"
+msgstr "Vue de Devis"
+
+#: populate.py:78
+msgid "Sales order view"
+msgstr "Vue de Bon de Commande"
+
+#: forms/base.py:40
+msgid "Source organisation"
+msgstr "Société émettrice"
+
+#: forms/base.py:41
+msgid "Target organisation"
+msgstr "Société réceptrice"
+
+#: forms/base.py:46 models/base.py:43
+msgid "Billing address"
+msgstr "Adresse de facturation"
+
+#: forms/base.py:46
+msgid "Choose an organisation to get this billing address"
+msgstr "Choisissez une société pour avoir son adresse de facturation"
+
+#: forms/base.py:47 models/base.py:44
+msgid "Shipping address"
+msgstr "Adresse de livraison"
+
+#: forms/base.py:47
+msgid "Choose une organisation to get its shipping address"
+msgstr "Choisissez une société pour avoir son adresse de livraison"
+
+#: forms/base.py:50
+msgid "Organisation and addresses"
+msgstr "Société et adresses"
+
+#: forms/line.py:54 forms/line.py:71 forms/line.py:94 forms/line.py:160
+#: forms/line.py:174
+msgid "Line information"
+msgstr "Informations sur la ligne"
+
+#: forms/line.py:60 templates/billing/templatetags/block_product_line.html:33
+#: templates/billing/templatetags/block_product_line.html:47
+msgid "Product"
+msgstr "Produit"
+
+#: forms/line.py:73 forms/line.py:162
+msgid "Additional features"
+msgstr "Fonctionnalités supplémentaires"
+
+#: forms/line.py:76
+msgid "Save as product ?"
+msgstr "Enregistrer en tant que produit ?"
+
+#: forms/line.py:77
+msgid ""
+"Here you can save a on-the-fly Product as a true Product ; in this case, "
+"category and sub-category are required."
+msgstr ""
+"Ceci vous permet d'enregistrer un produit à la volée en tant que produit à "
+"part entière, dans ce cas là, la catégorie et sous-catégorie sont "
+"obligatoires."
+
+#: forms/line.py:78
+msgid "Category"
+msgstr "Catégorie"
+
+#: forms/line.py:82
+msgid "Sub-category"
+msgstr "Sous-catégorie"
+
+#: forms/line.py:105
+msgid "Category is required if you want to save as a true product."
+msgstr ""
+"Catégorie obligatoire si vous souhaitez enregistrer en tant que produit."
+
+#: forms/line.py:107
+msgid "Sub-category is required if you want to save as a true product."
+msgstr ""
+"Sous-catégorie obligatoire si vous souhaitez enregistrer en tant que produit."
+
+#: forms/line.py:144 templates/billing/templatetags/block_service_line.html:6
+#: templates/billing/templatetags/block_service_line.html:20
+msgid "Service"
+msgstr "Service"
+
+#: forms/line.py:165
+msgid "Save as service ?"
+msgstr "Enregistrer en tant que service ?"
+
+#: forms/line.py:166
+msgid ""
+"Here you can save a on-the-fly Service as a true Service ; in this case, "
+"category is required."
+msgstr ""
+"Ceci vous permer d'enregistrer un service à la volée en tant que service à "
+"part entière (dans ce cas la cégorie est obligatoire)."
+
+#: forms/line.py:167
+msgid "Service category"
+msgstr "Catégorie de service"
+
+#: forms/line.py:183
+msgid "Category is required if you want to save as a true service."
+msgstr ""
+"Catégorie obligatoire si vous souhaitez enregistrer en tant que service."
+
+#: forms/templatebase.py:44 forms/templatebase.py:62
+#, python-format
+msgid "Status of %s"
+msgstr "Statut de %s"
+
+#: models/algo.py:34 models/algo.py:43
+msgid "Organisation"
+msgstr "Société"
+
+#: models/algo.py:35
+msgid "Algo name"
+msgstr "Nom de l'algo"
+
+#: models/algo.py:45
+msgid "Invoice prefix"
+msgstr "Préfixe de la facture"
+
+#: models/base.py:42 models/line.py:43
+#: templates/billing/templatetags/line.html:16
+msgid "Discount"
+msgstr "Remise"
+
+#: models/base.py:45 models/line.py:40
+#: templates/billing/templatetags/line.html:18
+msgid "Comment"
+msgstr "Remarques"
+
+#: models/invoice.py:31
+msgid "Status of invoice"
+msgstr "Statut de la facture"
+
+#: models/invoice.py:39
+msgid "Invoice"
+msgstr "Facture"
+
+#: models/invoice.py:40
+msgid "Invoices"
+msgstr "Factures"
+
+#: models/line.py:36
+msgid "On-the-fly line"
+msgstr "Ligne à la volée"
+
+#: models/line.py:38
+msgid "Related to"
+msgstr "Relatif à"
+
+#: models/line.py:41 templates/billing/templatetags/line.html:14
+msgid "Quantity"
+msgstr "Quantité"
+
+#: models/line.py:42 templates/billing/templatetags/line.html:19
+msgid "Unit price"
+msgstr "Prix Unitaire"
+
+#: models/line.py:44 templates/billing/templatetags/line.html:17
+msgid "Credit"
+msgstr "Avoir"
+
+#: models/line.py:45
+msgid "Total discount ?"
+msgstr "Remise globale ?"
+
+#: models/line.py:46 templates/billing/templatetags/line.html:21
+msgid "VAT"
+msgstr "TVA"
+
+#: models/line.py:47 templates/billing/templatetags/line.html:24
+msgid "Paid ?"
+msgstr "Réglé ?"
+
+#: models/line.py:51
+msgid "Line"
+msgstr "Ligne"
+
+#: models/line.py:52
+msgid "Lines"
+msgstr "Lignes"
+
+#: models/other_models.py:38 models/other_models.py:39
+msgid "Invoice status"
+msgstr "Statut(s) de facture"
+
+#: models/other_models.py:50 models/other_models.py:51
+msgid "Quote status"
+msgstr "Statut(s) de devis"
+
+#: models/other_models.py:62 models/other_models.py:63
+msgid "Salesorder status"
+msgstr "Statut(s) de bon de commande"
+
+#: models/product_line.py:30
+msgid "Related to product"
+msgstr "Relatif au produit"
+
+#: models/product_line.py:34
+msgid "Product line"
+msgstr "Ligne produit"
+
+#: models/quote.py:29
+msgid "Status of quote"
+msgstr "Statut du devis"
+
+#: models/quote.py:56
+msgid "Quote"
+msgstr "Devis"
+
+#: models/quote.py:57
+msgid "Quotes"
+msgstr "Devis"
+
+#: models/sales_order.py:29
+msgid "Status of salesorder"
+msgstr "Statut du bon de commande"
+
+#: models/sales_order.py:37
+msgid "Salesorder"
+msgstr "Bon de commande"
+
+#: models/sales_order.py:38
+msgid "Salesorders"
+msgstr "Bons de commande"
+
+#: models/service_line.py:30
+msgid "Related to service"
+msgstr "Relatif au service"
+
+#: models/service_line.py:34
+msgid "Service line"
+msgstr "Ligne service"
+
+#: models/templatebase.py:40
+msgid "Template"
+msgstr "Patron de document"
+
+#: models/templatebase.py:41
+msgid "Templates"
+msgstr "Patrons de document"
+
+#: templates/billing/form_script.html:15
+msgid "Please first select an organisation"
+msgstr "Veuillez d'abord sélectionner une société"
+
+#: templates/billing/form_script.html:21 templates/billing/form_script.html:28
+msgid "Add"
+msgstr "Ajouter"
+
+#: templates/billing/portal.html:4
+msgid "Billing portal"
+msgstr "Portail Facturation"
+
+#: templates/billing/portal.html:6
+msgid "List of invoices"
+msgstr "Liste des factures"
+
+#: templates/billing/view_billing.html:23
+#, python-format
+msgid "Download '%(object)s' to the desired format"
+msgstr "Télécharger '%(object)s' au format voulu"
+
+#: templates/billing/view_quote.html:4 templates/billing/view_template.html:10
+msgid "Convert to Salesorder"
+msgstr "Convertir en Bon de Commande"
+
+#: templates/billing/view_quote.html:5
+#: templates/billing/view_sales_order.html:4
+#: templates/billing/view_template.html:11
+#: templates/billing/view_template.html:14
+msgid "Convert to Invoice"
+msgstr "Convertir en Facture"
+
+#: templates/billing/templatetags/block_product_line.html:33
+#, python-format
+msgid "%s related Product"
+msgstr "%s Produit relatif"
+
+#: templates/billing/templatetags/block_product_line.html:33
+#, python-format
+msgid "%s related Products"
+msgstr "%s Produits relatifs"
+
+#: templates/billing/templatetags/block_product_line.html:38
+#: templates/billing/templatetags/block_product_line.html:42
+msgid "Add a product"
+msgstr "Ajouter un produit"
+
+#: templates/billing/templatetags/block_product_line.html:39
+msgid "Add from an existing Product"
+msgstr "Ajouter depuis un Produit existant"
+
+#: templates/billing/templatetags/block_product_line.html:43
+#: templates/billing/templatetags/block_service_line.html:16
+msgid "Add a line on the fly"
+msgstr "Ajouter une ligne à la volée"
+
+#: templates/billing/templatetags/block_product_line.html:49
+msgid "No product in this document"
+msgstr "Aucun produit dans ce document"
+
+#: templates/billing/templatetags/block_service_line.html:6
+#, python-format
+msgid "%s related Service"
+msgstr "%s Service relatif"
+
+#: templates/billing/templatetags/block_service_line.html:6
+#, python-format
+msgid "%s related Services"
+msgstr "%s Services relatifs"
+
+#: templates/billing/templatetags/block_service_line.html:11
+#: templates/billing/templatetags/block_service_line.html:15
+msgid "Add a Service"
+msgstr "Ajouter un Service"
+
+#: templates/billing/templatetags/block_service_line.html:12
+msgid "Add from an existing Service"
+msgstr "Ajouter depuis un Service existant"
+
+#: templates/billing/templatetags/block_service_line.html:22
+msgid "No service in this document"
+msgstr "Aucun service dans ce document"
+
+#: templates/billing/templatetags/block_total.html:6
+msgid "Totals"
+msgstr "Totaux"
+
+#: templates/billing/templatetags/block_total.html:10
+#: templates/billing/templatetags/line.html:22
+msgid "Total (exclusive of tax)"
+msgstr "Total HT"
+
+#: templates/billing/templatetags/block_total.html:14
+#: templates/billing/templatetags/line.html:23
+msgid "Total (inclusive of tax)"
+msgstr "Total TTC"
+
+#: templates/billing/templatetags/line.html:15
+msgid "Total discount"
+msgstr "Remise globale"
+
+#: templates/billing/templatetags/line.html:25
+msgid "Actions"
+msgstr "Actions"
+
+#: views/convert.py:49
+#, python-format
+msgid "%(src)s (converted into template of <%(dest)s>)"
+msgstr "%(src)s (converti en patron de <%(dest)s>)"
+
+#: views/convert.py:58
+#, python-format
+msgid "%(src)s (converted into  %(dest)s)"
+msgstr "%(src)s (converti en %(dest)s)"
+
+#: views/portal.py:35
+msgid "Total number of documents"
+msgstr "Nombre total de document(s)"
+
+#: views/portal.py:36
+msgid "Number of invoices"
+msgstr "Nombre de facture(s)"
+
+#: views/portal.py:37
+msgid "Number of quotes"
+msgstr "Nombre de devis"
+
+#: views/portal.py:38
+msgid "Number of salesorders"
+msgstr "Nombre de bon(s) de commande"
