@@ -18,13 +18,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.forms import ModelChoiceField
-from django.utils.translation import ugettext_lazy as _
-from django.contrib.contenttypes.models import ContentType
-
-from billing.models import Quote, TemplateBase, QuoteStatus
+from billing.models import Quote
 from base import BaseCreateForm, BaseEditForm
-from templatebase import TemplateBaseCreateForm
 
 
 class QuoteCreateForm(BaseCreateForm):

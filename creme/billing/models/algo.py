@@ -31,23 +31,22 @@ from persons.models import Organisation
 
 
 class ConfigBillingAlgo(CremeModel):
-    organisation = ForeignKey(Organisation, verbose_name=_(u'Société'))
-    name_algo    = CharField(_(u"Nom de l'algo"), max_length=400)
+    organisation = ForeignKey(Organisation, verbose_name=_(u'Organisation'))
+    name_algo    = CharField(_(u"Algo name"), max_length=400)
     ct           = ForeignKey(ContentType)
 
     class Meta:
         app_label = 'billing'
 
 
-class SimpleBillingAlgo (Model):
-    organisation = ForeignKey(Organisation, verbose_name=_(u'Société'))
+class SimpleBillingAlgo(Model):
+    organisation = ForeignKey(Organisation, verbose_name=_(u'Organisation'))
     last_number  = IntegerField()
-    prefix       = CharField(_(u'Préfixe de la facture'), max_length=400)
+    prefix       = CharField(_(u'Invoice prefix'), max_length=400)
     ct           = ForeignKey(ContentType)
 
     class Meta:
         app_label = 'billing'
-
 
 
 def simple_conf_billing_for_org_managed_by_creme(sender, instance, created, **kwargs):

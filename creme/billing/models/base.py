@@ -35,14 +35,14 @@ from billing.utils import round_to_2
 
 
 class Base(CremeEntity):
-    name             = CharField(_(u'Nom'), max_length=100, blank=False, null=False)
-    number           = CharField(_(u'Numéro'), max_length=100, blank=True, null=True)
-    issuing_date     = DateField(_(u"Date d'émission"), blank=True, null=True)
-    expiration_date  = DateField(_(u"Date d'échéance"), blank=True, null=True)
-    discount         = DecimalField(_(u'Remise'), max_digits=4, decimal_places=2, blank=True, null=True)
-    billing_address  = ForeignKey(Address, verbose_name=_(u'Adresse de facturation'), related_name='BillingAddress_set',blank=True, null=True)
-    shipping_address = ForeignKey(Address, verbose_name=_(u'Adresse de livraison'), related_name='ShippingAddress_set',blank=True, null=True)
-    comment          = CharField(_(u'Remarques'), max_length=500, blank=True, null=True)
+    name             = CharField(_(u'Name'), max_length=100, blank=False, null=False)
+    number           = CharField(_(u'Number'), max_length=100, blank=True, null=True)
+    issuing_date     = DateField(_(u"Issuing date"), blank=True, null=True)
+    expiration_date  = DateField(_(u"Expiration date"), blank=True, null=True)
+    discount         = DecimalField(_(u'Discount'), max_digits=4, decimal_places=2, blank=True, null=True)
+    billing_address  = ForeignKey(Address, verbose_name=_(u'Billing address'), related_name='BillingAddress_set', blank=True, null=True)
+    shipping_address = ForeignKey(Address, verbose_name=_(u'Shipping address'), related_name='ShippingAddress_set', blank=True, null=True)
+    comment          = CharField(_(u'Comment'), max_length=500, blank=True, null=True)
     total            = DecimalField(_(u'Total'), max_digits=14, decimal_places=2, blank=True, null=True)
 
     research_fields = CremeEntity.research_fields + ['name']

@@ -26,7 +26,7 @@ from other_models import QuoteStatus
 
 
 class Quote(Base):
-    status = ForeignKey(QuoteStatus, verbose_name=_(u'Status du devis'), blank=False, null=False)
+    status = ForeignKey(QuoteStatus, verbose_name=_(u'Status of quote'), blank=False, null=False)
 
     research_fields = Base.research_fields + ['status__name']
     excluded_fields_in_html_output = Base.excluded_fields_in_html_output + ['base_ptr']
@@ -45,13 +45,13 @@ class Quote(Base):
 
     def get_delete_absolute_url(self):
         return "/billing/quote/delete/%s" % self.id
-    
+
     def build(self, template):
         # Specific recurrent generation rules
-        self.status = QuoteStatus.objects.get(pk = template.status_id)
+        self.status = QuoteStatus.objects.get(pk = template.status_id) #TODO: self.status_id = template.status_id ??
         return super(Quote, self).build(template)
 
     class Meta:
         app_label = 'billing'
-        verbose_name = _(u'Devis')
-        verbose_name_plural = _(u'Devis')
+        verbose_name = _(u'Quote')
+        verbose_name_plural = _(u'Quotes')

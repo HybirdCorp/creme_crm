@@ -19,7 +19,7 @@
 ################################################################################
 
 from django.forms import ModelChoiceField, IntegerField
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import ugettext_lazy as _, ugettext
 from django.contrib.contenttypes.models import ContentType
 from django.forms.widgets import HiddenInput
 
@@ -29,7 +29,7 @@ from billing.models import TemplateBase, InvoiceStatus
 #TODO: factorise these 2 forms...
 
 class TemplateBaseEditForm(BaseEditForm):
-    status = ModelChoiceField(queryset=InvoiceStatus.objects.none())
+    status = ModelChoiceField(label=_(u'Status'), queryset=InvoiceStatus.objects.none())
 
     class Meta:
         model = TemplateBase
@@ -39,16 +39,17 @@ class TemplateBaseEditForm(BaseEditForm):
         super(TemplateBaseEditForm, self).__init__(*args, **kwargs)
 
         # Edit status
-        ct = self.instance.ct
-        self.fields['status'].label = _(u'Statut %s' % ct.model_class()._meta.verbose_name)
+        #TODO: factorise "self.fields['status']"
+        ct = self.instance.ct #TODO: factorise 'ct.model_class()'
+        self.fields['status'].label = ugettext(u'Status of %s') % ct.model_class()._meta.verbose_name
         status_class = ct.model_class()._meta.get_field('status').rel.to
         self.fields['status'].queryset = status_class.objects.all()
-        self.fields['status'].initial = status_class.objects.get(pk = self.instance.status_id).id
+        self.fields['status'].initial = status_class.objects.get(pk=self.instance.status_id).id #WTF ?!!!
 
 
 class TemplateBaseCreateForm(BaseEditForm):
-    status = ModelChoiceField(queryset=InvoiceStatus.objects.none())
-    ct     = IntegerField(widget = HiddenInput())
+    status = ModelChoiceField(label=_(u'Status'), queryset=InvoiceStatus.objects.none())
+    ct     = IntegerField(widget=HiddenInput())
 
     class Meta:
         model = TemplateBase
@@ -57,8 +58,8 @@ class TemplateBaseCreateForm(BaseEditForm):
     def __init__(self, *args, **kwargs):
         super(TemplateBaseCreateForm, self).__init__(*args, **kwargs)
         if kwargs['initial']:
-            ct = ContentType.objects.get(pk = kwargs['initial']['ct']) #TODO: use get_for_id()
-            self.fields['status'].label = _(u'Statut %s' % ct.model_class()._meta.verbose_name)
+            ct = ContentType.objects.get(pk=kwargs['initial']['ct']) #TODO: use get_for_id()
+            self.fields['status'].label = ugettext(u'Status of %s') % ct.model_class()._meta.verbose_name
             status_class = ct.model_class()._meta.get_field('status').rel.to
             self.fields['status'].queryset = status_class.objects.all()
 
