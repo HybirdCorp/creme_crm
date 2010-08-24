@@ -184,7 +184,7 @@ DATE_FORMAT = 'j-m-Y'
 
 ALLOWED_EXTENSIONS = [
                       'pdf', 'rtf', 'xps', 'eml'
-                      'gif', 'png', 'jpeg', 'jpg', 'bmp', 'psd', 'tif', 'tiff', 'tga',
+                      'gif', 'png', 'jpeg', 'jpg', 'jpe', 'bmp', 'psd', 'tif', 'tiff', 'tga',
                       'gtar', 'gz', 'tar', 'zip', 'rar', 'ace', 'torrent', 'tgz', 'bz2',
                       '7z', 'txt', 'c', 'cpp', 'hpp', 'diz', 'csv', 'ini', 'log', 'js',
                       'xml', 'xls', 'xlsx', 'xlsm', 'xlsb', 'doc', 'docx', 'docm', 'dot',

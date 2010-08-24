@@ -18,15 +18,5 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.utils.safestring import mark_safe
-from django.template.defaultfilters import removetags
-from django import template
-
-register = template.Library()
-
-@register.filter(name="get_email_body")
-def get_email_body(email):
-    if email.body_html:
-        return mark_safe(removetags(email.body_html, 'script'))
-    else:
-        return mark_safe(removetags(email.body.replace('\n', '</br>'), 'script'))
+REL_SUB_MAIL_RECEIVED = 'email-subject_mail_received'
+REL_OBJ_MAIL_RECEIVED = 'email-object_mail_received'

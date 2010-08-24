@@ -7,10 +7,9 @@
         
         {% endblock %}
         <tbody class="collapsable">
+            {% if page.paginator.count %}
             {% block toolbar %}
             {% endblock %}
-            
-            {% if page.paginator.count %}
                 <tr>
                     <th class="{% cycle "block_header_line_dark" "block_header_line_light" %}">
                         <center><input name="select_all" value="all" type="checkbox" title="Tout sélectionner" onclick="creme.utils.toggleCheckallState(this, '#{{block_name}} [name=select_one]');"/></center>
