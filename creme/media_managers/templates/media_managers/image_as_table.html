@@ -1,3 +1,4 @@
+{% load i18n %}
 {% load creme_core_tags %}
 <!--{% cycle "block_header_line_light" "block_header_line_dark" as header_row %}
     {% cycle "block_line_light" "block_line_dark" as row_color %}-->
@@ -5,35 +6,35 @@
     <thead>
         <tr>
             <th align="center" colspan="2">
-                <img src="{{MEDIA_URL}}images/infos_48.png" alt="Infos" title="Infos">
-                Informations sur l'image
+                <img src="{{MEDIA_URL}}images/infos_48.png" alt="{% trans "Image information" %}" title="{% trans "Image information" %}">
+                {% trans "Image information" %}
             </th>
         </tr>
     </thead>
     <tbody class="collapsable">
         <tr>
-            <th class="{% cycle header_row %}">Nom</th>
+            <th class="{% cycle header_row %}">{% trans "Name" %}</th>
             <td class="{% cycle row_color %}">{{object.name}}</td>
         </tr>
         <tr>
-            <th class="{% cycle header_row %}">Description</th>
+            <th class="{% cycle header_row %}">{% trans "Description" %}</th>
             <td class="{% cycle row_color %}">{{object.description}}</td>
         </tr>
         <tr>
-            <th class="{% cycle header_row %}">Hauteur</th>
+            <th class="{% cycle header_row %}">{% trans "Height" %}</th>
             <td class="{% cycle row_color %}">{{object.height}}px</td>
         </tr>
         <tr>
-            <th class="{% cycle header_row %}">Largeur</th>
+            <th class="{% cycle header_row %}">{% trans "Width" %}</th>
             <td class="{% cycle row_color %}">{{object.width}}px</td>
         </tr>
         <tr>
-            <th class="{% cycle header_row %}">Catégorie(s)</th>
+            <th class="{% cycle header_row %}">{% trans "Categories" %}</th>
             <td class="{% cycle row_color %}">{{object|get_html_field_value:"categories"}}</td>
         </tr>
         <tr>
             <th class="{% cycle header_row %}">&nbsp;</th>
-            <td class="{% cycle row_color %}"><a href="/download_file/{{object.image}}" alt="{{object.image}}">Télécharger l'image</a></td>
+            <td class="{% cycle row_color %}"><a href="/download_file/{{object.image}}" alt="{{object.image}}">{% trans "Download image" %}</a></td>
         </tr>
     </tbody>
 </table>

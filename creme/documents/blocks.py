@@ -32,7 +32,7 @@ class LinkedDocsBlock(QuerysetBlock):
     id_           = QuerysetBlock.generate_id('documents', 'linked_docs')
     dependencies  = (Relation,) #Document
     relation_type_deps = (REL_SUB_RELATED_2_DOC, )
-    verbose_name  = _(u'Documents liés')
+    verbose_name  = _(u'Linked documents')
     template_name = 'documents/templatetags/block_linked_docs.html'
     configurable  = True
 

@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import ugettext as _
 
 from creme_core.views.generic import app_portal
 
@@ -30,7 +30,7 @@ def portal_media_managers(request):
         @Permissions : Acces or Admin to produits app
     """
     stats = (
-                (_("Nombre d'image(s)"),  Image.objects.all().count()),
+                (_("Number of images"),  Image.objects.all().count()),
             )
 
     return app_portal(request, 'media_managers/', 'media_managers/portal.html',

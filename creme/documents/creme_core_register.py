@@ -33,9 +33,9 @@ creme_registry.register_app('documents', _(u'Documents'), '/documents')
 
 creme_menu.register_app('documents', '/documents/', 'Documents')
 reg_menu = creme_menu.register_menu
-reg_menu('documents', '/documents/documents',    'Lister les documents')
-reg_menu('documents', '/documents/folders',      'Lister les classeurs')
-reg_menu('documents', '/documents/document/add', 'Ajouter un document')
-reg_menu('documents', '/documents/folder/add',   'Ajouter un classeur')
+reg_menu('documents', '/documents/documents',    _(u'All documents'))
+reg_menu('documents', '/documents/document/add', _('Add a document'))
+reg_menu('documents', '/documents/folders',      _(u'All folders'))
+reg_menu('documents', '/documents/folder/add',   _('Add a folder'))
 
 block_registry.register(linked_docs_block)
