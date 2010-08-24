@@ -33,17 +33,21 @@ from settings import MEDIA_URL
 
 
 class Image(CremeEntity):
-    name = CharField(_(u'Nom'), max_length=100, blank=True, null=True)
+    name        = CharField(_(u'Name'), max_length=100, blank=True, null=True)
     description = TextField(_(u'Description'), max_length=500, blank=True, null=True)
-    height = CharField(_(u'Hauteur'), max_length=50, blank=True, null=True)
-    width = CharField(_(u'Largueur'), max_length=50, blank=True, null=True)
-    image = ImageField(_('Image'), height_field='height', width_field='width',
+    height      = CharField(_(u'Height'), max_length=50, blank=True, null=True)
+    width       = CharField(_(u'Width'), max_length=50, blank=True, null=True)
+    image       = ImageField(_('Image'), height_field='height', width_field='width',
                              upload_to='upload/images', max_length=500)
-
-    categories = ManyToManyField(MediaCategory, verbose_name=_(u'Catégorie'),
-                                  related_name="Image_media_category_set", blank=True, null=True)
+    categories = ManyToManyField(MediaCategory, verbose_name=_(u'Categories'),
+                                 related_name="Image_media_category_set", blank=True, null=True)
 
     research_fields = CremeEntity.research_fields + ['description', 'name', 'image']
+
+    class Meta:
+        app_label = 'media_managers'
+        verbose_name = _(u'Image')
+        verbose_name_plural = _(u'Images')
 
     def get_absolute_url(self):
         return "/media_managers/image/%s" % self.id
@@ -85,8 +89,3 @@ class Image(CremeEntity):
         return (self.image.file, mimetypes.guess_type(self.image.path)[0])
 
 #    image_file = property(get_image_file)
-
-    class Meta:
-        app_label = 'media_managers'
-        verbose_name = _(u'Image')
-        verbose_name_plural = _(u'Images')
