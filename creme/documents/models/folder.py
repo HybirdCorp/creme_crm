@@ -28,11 +28,11 @@ from other_models import FolderCategory
 
 class Folder(CremeEntity):
     """Folder: contains Documents"""
-    title         = CharField(_(u'Titre'), max_length=100, blank=False, null=False, unique=True)
-    description   = TextField()
+    title         = CharField(_(u'Title'), max_length=100, blank=False, null=False, unique=True)
+    description   = TextField(_(u'Description'))
 
-    parent_folder = ForeignKey('self', verbose_name=_(u'Classeur parent'), blank=True, null=True, related_name='parent_folder_set')
-    category      = ForeignKey(FolderCategory, verbose_name=_(u'Catégorie'), blank=True, null=True, related_name='folder_category_set')
+    parent_folder = ForeignKey('self', verbose_name=_(u'Parent folder'), blank=True, null=True, related_name='parent_folder_set')
+    category      = ForeignKey(FolderCategory, verbose_name=_(u'Category'), blank=True, null=True, related_name='folder_category_set')
 
     research_fields = CremeEntity.research_fields + ['title', 'description', 'parent_folder__title', 'category__name']
     #users_allowed_func = CremeEntity.users_allowed_func + []
@@ -53,5 +53,5 @@ class Folder(CremeEntity):
 
     class Meta:
         app_label = 'documents'
-        verbose_name = _('Classeur')
-        verbose_name_plural = _(u'Classeurs')
+        verbose_name = _(u'Folder')
+        verbose_name_plural = _(u'Folders')

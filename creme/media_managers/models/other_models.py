@@ -30,7 +30,7 @@ __all__ = (
 
 
 class MediaCategory(CremeModel):
-    name      = models.CharField(_(u'Catégorie du media'), max_length=100)
+    name      = models.CharField(_(u'Name of media category'), max_length=100)
     is_custom = models.BooleanField(default=True)
 
     def __unicode__(self):
@@ -38,5 +38,5 @@ class MediaCategory(CremeModel):
 
     class Meta:
         app_label = "media_managers"
-        verbose_name = _(u'Catégorie de média')
-        verbose_name_plural = _(u'Catégories de média')
+        verbose_name = _(u'Media category')
+        verbose_name_plural = _(u'Media categories')

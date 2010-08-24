@@ -36,19 +36,19 @@ class Populator(BasePopulator):
     dependencies = ['creme.core']
 
     def populate(self, *args, **kwargs):
-        RelationType.create((REL_SUB_RELATED_2_DOC, u'concerne le document'),
-                            (REL_OBJ_RELATED_2_DOC, u'document concerné par',       [Document]))
-        RelationType.create((REL_SUB_CURRENT_DOC,   u'est le document courant de'), #used for several types of document, not only documents.Document
-                            (REL_OBJ_CURRENT_DOC,   u'a comme document courant'))
+        RelationType.create((REL_SUB_RELATED_2_DOC, _(u'related to the document')),
+                            (REL_OBJ_RELATED_2_DOC, _(u'document related to'),       [Document]))
+        RelationType.create((REL_SUB_CURRENT_DOC,   _(u'is the current document of')), #used for several types of document, not only documents.Document
+                            (REL_OBJ_CURRENT_DOC,   _(u'has as current document')))
 
-        category = create(FolderCategory, name=_(u"Documents crées à partir des fiches"))
+        category = create(FolderCategory, DOCUMENTS_FROM_ENTITIES, name=_(u"Documents related to entities"))
 
-        create(Folder, title="Creme", description=_(u"Classeur contenant tous les documents créés à partir des fiches"), category_id=category.pk, user_id=1)
+        create(Folder, title="Creme", description=_(u"Folder containing all the documents related to entities"), category_id=category.pk, user_id=1)
 
-        hf_id = create(HeaderFilter, 'documents-hf', name=u'Vue de Document', entity_type_id=ContentType.objects.get_for_model(Document).id, is_custom=False).id
+        hf_id = create(HeaderFilter, 'documents-hf', name=_(u'Document view'), entity_type_id=ContentType.objects.get_for_model(Document).id, is_custom=False).id
         pref  = 'documents-hfi_'
-        create(HeaderFilterItem, pref + 'title',  order=1, name='title',  title=_(u'Titre'),    type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True, editable=True, sortable=True, filter_string="title__icontains")
-        create(HeaderFilterItem, pref + 'folder', order=2, name='folder', title=_(u'Classeur'), type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True, editable=True, sortable=True, filter_string="folder__title__icontains")
+        create(HeaderFilterItem, pref + 'title',  order=1, name='title',  title=_(u'Title'),  type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True, editable=True, sortable=True, filter_string="title__icontains")
+        create(HeaderFilterItem, pref + 'folder', order=2, name='folder', title=_(u'Folder'), type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True, editable=True, sortable=True, filter_string="folder__title__icontains")
 
         create(BlockConfigItem, 'documents-linked_docs_block', content_type=None, block_id=linked_docs_block.id_, order=1000, on_portal=False)
 

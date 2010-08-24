@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import ugettext as _
 
 from creme_core.views.generic import app_portal
 
@@ -29,8 +29,8 @@ from documents.models import Folder, Document
 
 def portal(request):
     stats = (
-                (_('Nombre de document(s)'),    Document.objects.all().count()),
-                (_('Nombre de classeur(s)'),    Folder.objects.all().count()),
+                (_(u'Number of documents'), Document.objects.all().count()),
+                (_(u'Number of folders'),   Folder.objects.all().count()),
             )
 
     return app_portal(request, 'documents', 'documents/portal.html', Document,
