@@ -59,4 +59,13 @@ class SalesOrderStatus(CremeModel):
         verbose_name = _(u'Status de bon de commande')
         verbose_name_plural = _(u'Status de bon de commande')
 
+class CreditNoteStatus(CremeModel):
+    name = CharField(_(u'Status'), max_length=100)
 
+    def __unicode__(self):
+        return self.name
+
+    class Meta:
+        app_label = 'billing'
+        verbose_name = _(u"Status d'un avoir")
+        verbose_name_plural = _(u"Status d'un l'avoir")

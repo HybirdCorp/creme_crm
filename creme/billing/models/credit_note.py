@@ -1,0 +1,57 @@
+# -*- coding: utf-8 -*-
+
+################################################################################
+#    Creme is a free/open-source Customer Relationship Management software
+#    Copyright (C) 2009-2010  Hybird
+#
+#    This program is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU Affero General Public License as published by
+#    the Free Software Foundation, either version 3 of the License, or
+#    (at your option) any later version.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU Affero General Public License for more details.
+#
+#    You should have received a copy of the GNU Affero General Public License
+#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+################################################################################
+
+from django.db.models import ForeignKey
+from django.utils.translation import ugettext_lazy as _
+
+from base import Base
+from other_models import CreditNoteStatus
+
+
+class CreditNote(Base):
+    status = ForeignKey(CreditNoteStatus, verbose_name=_(u"Status de l'avoir"), blank=False, null=False)
+
+    research_fields = Base.research_fields + ['status__name']
+    excluded_fields_in_html_output = Base.excluded_fields_in_html_output + ['base_ptr']
+    header_filter_exclude_fields = Base.header_filter_exclude_fields + ['base_ptr'] #TODO: use a set() ??
+
+    def get_absolute_url(self):
+        return "/billing/credit_note/%s" % self.id
+
+    def get_edit_absolute_url(self):
+        return "/billing/credit_note/edit/%s" % self.id
+
+    @staticmethod
+    def get_lv_absolute_url():
+        """url for list_view """
+        return "/billing/credit_note"
+
+    def get_delete_absolute_url(self):
+        return "/billing/credit_note/delete/%s" % self.id
+
+    def build(self, template):
+        # Specific recurrent generation rules
+        self.status = CreditNoteStatus.objects.get(pk = template.status_id)
+        return super(CreditNote, self).build(template)
+
+    class Meta:
+        app_label = 'billing'
+        verbose_name = _(u'avoir')
+        verbose_name_plural = _(u'avoir')

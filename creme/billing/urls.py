@@ -23,6 +23,13 @@ urlpatterns = patterns('billing.views',
     (r'^quote/add$',                    'quote.add'),
     (r'^quote/edit/(?P<quote_id>\d+)$', 'quote.edit'),
     (r'^quote/(?P<quote_id>\d+)$',      'quote.detailview'),
+    
+
+    (r'^credit_note$',                       'credit_note.listview'),
+    (r'^credit_note/add$',                    'credit_note.add'),
+    (r'^credit_note/edit/(?P<credit_note_id>\d+)$', 'credit_note.edit'),
+    (r'^credit_note/(?P<credit_note_id>\d+)$',      'credit_note.detailview'),
+    
 
     (r'^invoices$',                         'invoice.listview'),
     (r'^invoice/add$',                      'invoice.add'),
