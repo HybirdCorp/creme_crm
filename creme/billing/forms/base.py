@@ -37,17 +37,17 @@ from billing.constants import REL_SUB_BILL_ISSUED, REL_SUB_BILL_RECEIVED
 
 
 class BaseEditForm(CremeEntityForm):
-    source = CremeEntityField(label=_(u"Organisation émettrice"),  model=Organisation, widget=ListViewWidget(attrs={'id':'id_source'}))
-    target = CremeEntityField(label=_(u"Organisation réceptrice"), model=Organisation, widget=ListViewWidget(attrs={'id':'id_target'}))
+    source = CremeEntityField(label=_(u"Source organisation"),  model=Organisation, widget=ListViewWidget(attrs={'id':'id_source'}))
+    target = CremeEntityField(label=_(u"Target organisation"), model=Organisation, widget=ListViewWidget(attrs={'id':'id_target'}))
 
-    issuing_date    = CremeDateField(label=_(u"Date d'émission"))
-    expiration_date = CremeDateField(label=_(u"Échéance"))
+    issuing_date    = CremeDateField(label=_(u"Issuing date"))
+    expiration_date = CremeDateField(label=_(u"Expiration date"))
 
-    billing_address  = CharField(label=_(u"Adresse de facturation"), help_text=_("Choisissez une organisation pour avoir son adresse de facturation"), widget=Select(attrs={'id':'id_billing_address'}))
-    shipping_address = CharField(label=_(u"Adresse de livraison"),   help_text=_("Choisissez une organisation pour avoir son adresse de livraison"),   widget=Select(attrs={'id':'id_shipping_address'}))
+    billing_address  = CharField(label=_(u"Billing address"),  help_text=_("Choose an organisation to get this billing address"),  widget=Select(attrs={'id':'id_billing_address'}))
+    shipping_address = CharField(label=_(u"Shipping address"), help_text=_("Choose une organisation to get its shipping address"), widget=Select(attrs={'id':'id_shipping_address'}))
 
     blocks = CremeEntityForm.blocks.new(
-                ('orga_n_address', _(u'Société et adresses'), ['source', 'target', 'billing_address', 'shipping_address']),
+                ('orga_n_address', _(u'Organisation and addresses'), ['source', 'target', 'billing_address', 'shipping_address']),
             )
 
     def __init__(self, *args, **kwargs):

@@ -27,7 +27,12 @@ from line import Line
 
 
 class ProductLine(Line):
-    related_item = ForeignKey(Product, verbose_name=_(u'Relatif au produit'), blank=True, null=True) #related_name='product_line_set'
+    related_item = ForeignKey(Product, verbose_name=_(u'Related to product'), blank=True, null=True) #related_name='product_line_set'
+
+    class Meta:
+        app_label = 'billing'
+        verbose_name = _(u'Product line')
+        verbose_name_plural = _(u'Product lines')
 
     def __unicode__(self):
         if self.related_item:
@@ -46,8 +51,3 @@ class ProductLine(Line):
         pl = super(ProductLine, self).clone()
         pl.related_item = self.related_item
         return pl
-
-    class Meta:
-        app_label = 'billing'
-        verbose_name = _(u'Ligne produit')
-        verbose_name_plural = _(u'Lignes produit')

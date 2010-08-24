@@ -1,5 +1,6 @@
 {% extends "creme_core/generics/view_entity.html" %}
 
+{% load i18n %}
 {% load creme_block %}
 
 {% block extrahead %}
@@ -19,7 +20,7 @@
 
 {% block edit_delete_buttons %}
     <a href="/billing/%s/{{object.id}}" onclick="creme._export.select_one(event, this);">
-        <img src="{{MEDIA_URL}}images/download_64.png" title="Télécharger '{{object}}' au format voulu" alt="Télécharger '{{object}}' au format voulu" />
+        <img src="{{MEDIA_URL}}images/download_64.png" title="{% blocktrans %}Download '{{object}}' to the desired format{% endblocktrans %}" alt="{% blocktrans %}Download '{{object}}' to the desired format{% endblocktrans %}" />
     </a>
     {{block.super}}
 {% endblock %}

@@ -28,17 +28,17 @@ from billing.models import Invoice, Quote, SalesOrder, CreditNote
 from billing.blocks import product_lines_block, service_lines_block, total_block
 
 
-creme_registry.register_app('billing', _(u'Facturation'), '/billing')
+creme_registry.register_app('billing', _(u'Billing'), '/billing')
 creme_registry.register_entity_models(Invoice, Quote, SalesOrder, CreditNote)
 
-creme_menu.register_app ('billing', '/billing/', 'Facturation')
+creme_menu.register_app('billing', '/billing/', 'Facturation') #TODO: i18n
 reg_menu = creme_menu.register_menu
-reg_menu('billing', '/billing/invoice/add',     'Ajouter une facture')
-reg_menu('billing', '/billing/invoices',        'Lister les factures')
-reg_menu('billing', '/billing/sales_order/add', 'Ajouter un bon de commande')
-reg_menu('billing', '/billing/sales_orders',    'Lister les bons de commande')
-reg_menu('billing', '/billing/quote/add',       'Ajouter un devis')
-reg_menu('billing', '/billing/quotes',          'Lister les devis')
+reg_menu('billing', '/billing/invoice/add',     _(u'Add an invoice'))
+reg_menu('billing', '/billing/invoices',        _(u'All invoices'))
+reg_menu('billing', '/billing/sales_order/add', _(u'Add a sales order'))
+reg_menu('billing', '/billing/sales_orders',    _(u'All sales orders'))
+reg_menu('billing', '/billing/quote/add',       _(u'Add a quote'))
+reg_menu('billing', '/billing/quotes',          _(u'All quotes'))
 reg_menu('billing', '/billing/credit_note/add',       'Ajouter un avoir')
 reg_menu('billing', '/billing/credit_note',          'Lister les avoirs')
 

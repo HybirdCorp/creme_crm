@@ -1,25 +1,25 @@
 {% extends 'billing/templatetags/line.html' %}
-
+{% load i18n %}
 {% load creme_block %}
 
 {% block header %}
-    {% get_block_header '%s Service relatif' '%s Services relatifs' 'service_48.png' 'Service' %}
+    {% get_block_header _('%s related Service') _('%s related Services') 'service_48.png' _('Service') %}
 {% endblock %}
 
 {% block add_buttons %}
     <a class="button_link" onclick="creme.utils.innerPopupNReload('/billing/{{object.id}}/service_line/add', {% get_block_reload_uri %});">
-        <img src="{{MEDIA_URL}}images/add_22.png" border="0" title="Ajouter un Service" alt="Ajouter" />
-        Ajouter un service existant
+        <img src="{{MEDIA_URL}}images/add_22.png" border="0" title="{% trans "Add a Service" %}" alt="{% trans "Add a Service" %}" />
+        {% trans "Add from an existing Service" %}
     </a>
     <a class="button_link" onclick="creme.utils.innerPopupNReload('/billing/{{object.id}}/service_line/add_on_the_fly', {% get_block_reload_uri %});">
-        <img src="{{MEDIA_URL}}images/add_22.png" border="0" title="Ajouter un Service" alt="Ajouter" />
-        Ajouter une ligne à la volée
+        <img src="{{MEDIA_URL}}images/add_22.png" border="0" title="{% trans "Add a Service" %}" alt="{% trans "Add a Service" %}" />
+        {% trans "Add a line on the fly" %}
     </a>
 {% endblock %}
 
-{% block item_name %}Service{% endblock %}
+{% block item_name %}{% trans "Service" %}{% endblock %}
 
-{% block empty_msg %}Aucun service dans cette facture{% endblock %}
+{% block empty_msg %}{% trans "No service in this document" %}{% endblock %}
 
 {% block line_actions %}
     <a class="button_link" onclick="creme.utils.innerPopupNReload('/billing/serviceline/{{line.id}}/edit', {% get_block_reload_uri %});">

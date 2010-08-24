@@ -27,7 +27,12 @@ from line import Line
 
 
 class ServiceLine(Line):
-    related_item = ForeignKey(Service, verbose_name=_(u'Relatif au service'), blank=True, null=True) #related_name='service_line_set'
+    related_item = ForeignKey(Service, verbose_name=_(u'Related to service'), blank=True, null=True)
+
+    class Meta:
+        app_label = 'billing'
+        verbose_name = _(u'Service line')
+        verbose_name_plural = _(u'Service lines')
 
     def __unicode__(self):
         if self.related_item:
@@ -46,8 +51,3 @@ class ServiceLine(Line):
         sl = super(ServiceLine, self).clone()
         sl.related_item = self.related_item
         return sl
-
-    class Meta:
-        app_label = 'billing'
-        verbose_name = _(u'Ligne service')
-        verbose_name_plural = _(u'Lignes service')
