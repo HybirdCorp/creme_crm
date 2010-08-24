@@ -24,6 +24,7 @@ from optparse import make_option, OptionParser
 from imp import find_module
 
 from django.core.management.base import BaseCommand
+from django.utils import translation
 from django.conf import settings
 
 
@@ -65,11 +66,11 @@ class Command(BaseCommand):
                             conflict_handler="resolve")
 
     def handle(self, *args, **options):
-        action = options.get('action')
-        action = action or 'populate'
+        action = options.get('action') or 'populate'
         is_verbose = bool(options.get('verbose'))
         app = options.get('application')
 
+        translation.activate(settings.LANGUAGE_CODE)
         self._do_populate_action(action, is_verbose, app, *args, **options)
 
     def _depencies_sort(self, a, b):
