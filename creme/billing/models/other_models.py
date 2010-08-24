@@ -59,8 +59,8 @@ class SalesOrderStatus(CremeModel):
 
     class Meta:
         app_label = 'billing'
-        verbose_name = _(u'Salesorder status')
-        verbose_name_plural = _(u'Salesorder status')
+        verbose_name = _(u'Sales order status')
+        verbose_name_plural = _(u'Sales order status')
 
 class CreditNoteStatus(CremeModel):
     name = CharField(_(u'Status'), max_length=100)
@@ -69,5 +69,5 @@ class CreditNoteStatus(CremeModel):
         return self.name
     class Meta:
         app_label = 'billing'
-        verbose_name = _(u"Status d'un avoir")
-        verbose_name_plural = _(u"Status d'un l'avoir")
+        verbose_name = _(u"Credit note status")
+        verbose_name_plural = _(u"Credit note status")

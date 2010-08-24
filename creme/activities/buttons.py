@@ -37,9 +37,8 @@ class AddPhoneCallButton(Button):
 
 class AddTaskButton(Button):
     id_           = Button.generate_id('activities', 'add_task')
-    verbose_name  = _(u'Ajouter une tâche')
+    verbose_name  = _(u'Add a task')
     template_name = 'activities/templatetags/button_add_task.html'
-    
 
 
 add_meeting_button   = AddMeetingButton()
