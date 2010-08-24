@@ -71,7 +71,67 @@ creme.ajax.submit = function(form, data, options) {
                   if(opts.complete) opts.complete(request, status);
               }
         });
-}
+};
+
+creme.ajax.ajax = function(options)
+{
+        options = $.extend({
+            type   : "GET",
+            url : "",
+            async  : true,
+            data   : {},
+            dataType : "html",
+            cache  : true,
+            beforeSend : null,
+            success : null,
+            beforeError : null,
+            beforeComplete : null,
+            error : function(){
+                creme.utils.showDialog("<p><b>Erreur !</b></p><p>La page va être rechargée!</p>",{'title':'Erreur'});
+                creme.utils.sleep("reload(window)");
+            },
+            afterError : null,
+            complete : null
+        }, options);
+
+        $.ajax({
+              url: options.url,
+              type: options.type,
+              data : options.data,
+              async : options.async,
+              dataType: options.dataType,
+              
+              beforeSend : function(request){
+                  creme.utils.loading('loading', false, {});
+                  if(options.beforeSend && $.isFunction(options.beforeSend)) options.beforeSend(request);
+              },
+              success: function(returnedData, status)
+              {
+                if(options.success && $.isFunction(options.success)) options.success(returnedData, status);
+              },
+              error: function(request, status, error)
+              {
+                  if(options.beforeError && $.isFunction(options.beforeError)) options.beforeError(request, status, error);
+                  if(options.error && $.isFunction(options.error)) options.error(request, status, error);
+                  if(options.afterError && $.isFunction(options.afterError)) options.afterError(request, status, error);
+              },
+              complete:function (request, status) {
+                  if(options.beforeComplete) options.beforeComplete(request, status);
+                  creme.utils.loading('loading', true, {});
+                  if(options.complete) options.complete(request, status);
+              }
+        });
+};
+
+creme.ajax.get = function(options)
+{
+    creme.ajax.ajax($.extend({type:"GET"}, options));
+};
+
+creme.ajax.post = function(options)
+{
+    creme.ajax.ajax($.extend({type:"POST"}, options));
+};
 
 /*
  * creme.ajax.iframe_submit($('#myform'), function(data) {
@@ -93,7 +153,7 @@ creme.ajax.iframe_submit = function(form, success_cb, pop_options)
     		iframe.remove();
     	});
 	}, delay);
-}
+};
 
 creme.ajax.iframe_populate = function(iframe, form, options)
 {
@@ -116,9 +176,9 @@ creme.ajax.iframe_populate = function(iframe, form, options)
 	iframe.contents().find('body').append(iform);
 	
 	return $('<input type="submit" name="submit" value="1" id="submit"/>').appendTo(iform);
-}
+};
 
-creme.ajax.json = {}
+creme.ajax.json = {};
 creme.ajax.json._handleSendError = function(req, textStatus, errorThrown) {
 	switch(textStatus) {
 		case "parsererror":
@@ -127,7 +187,7 @@ creme.ajax.json._handleSendError = function(req, textStatus, errorThrown) {
 		default:
 			return {type:"request", status:req.status, message:"" + req.status + " " + req.statusText, request:req}
 	}
-}
+};
 
 creme.ajax.json.send = function(url, data, success_cb, error_cb, sync, method, parameters)
 {
@@ -154,15 +214,15 @@ creme.ajax.json.send = function(url, data, success_cb, error_cb, sync, method, p
 	}
 	
 	$.ajax(ajax_parameters);
-}
+};
 
 creme.ajax.json.post = function(url, data, success_cb, error_cb, sync, parameters) {
 	creme.ajax.json.send(url, data, success_cb, error_cb, sync, "POST", parameters);
-}
+};
 
 creme.ajax.json.get = function(url, data, success_cb, error_cb, sync, parameters) {
 	creme.ajax.json.send(url, data, success_cb, error_cb, sync, "GET", parameters);
-}
+};
 
 // Code copied from JQuery 1.4.*
 creme.ajax.json.parse = function(data) {
@@ -193,4 +253,4 @@ creme.ajax.json.parse = function(data) {
 		console.log( "Invalid JSON: " + data );
 		return null;
 	}
-}
+};

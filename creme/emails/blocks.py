@@ -189,6 +189,7 @@ class MailsHistoryBlock(QuerysetBlock):
 
 class _SynchronizationMailsBlock(QuerysetBlock):
     dependencies  = (EntityEmail,)
+    order_by      = '-reception_date'
 
     @jsonify
     def detailview_ajax(self, request):

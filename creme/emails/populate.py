@@ -20,13 +20,14 @@
 
 from django.contrib.contenttypes.models import ContentType
 
-from creme_core.models import SearchConfigItem, SearchField
+from creme_core.models import SearchConfigItem, SearchField, RelationType
 from creme_core.models.header_filter import HeaderFilterItem, HeaderFilter, HFI_FIELD
 from creme_core.utils import create_or_update_models_instance as create
 from creme_core.utils.meta import get_verbose_field_name
 from creme_core.management.commands.creme_populate import BasePopulator
 
-from emails.models import MailingList, EmailCampaign, EmailTemplate
+from emails.models import MailingList, EmailCampaign, EmailTemplate, EntityEmail
+from emails.constants import REL_SUB_MAIL_RECEIVED, REL_OBJ_MAIL_RECEIVED
 
 
 class Populator(BasePopulator):
@@ -34,6 +35,9 @@ class Populator(BasePopulator):
 
     def populate(self, *args, **kwargs):
         get_ct = ContentType.objects.get_for_model
+
+        RelationType.create((REL_SUB_MAIL_RECEIVED, u"l'email a été reçu(e) par", [EntityEmail]),
+                            (REL_OBJ_MAIL_RECEIVED, u"a reçu l'email"))
 
         hf_id = create(HeaderFilter, 'emails-hf_mailinglist', name=u'Vue de Liste de Diffusion', entity_type_id=get_ct(MailingList).id, is_custom=False).id
         create(HeaderFilterItem, 'emails-hf_mailinglist_name', order=1, name='name', title=u'Nom', type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True, editable=True, filter_string="name__icontains")

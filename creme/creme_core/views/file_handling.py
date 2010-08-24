@@ -44,7 +44,7 @@ def handle_uploaded_file(f, path=None, name=None):
         else :
             name = 'file_%08x' % randint(0, MAXINT)
 
-        if exists:
+        if exists or not name:
             name = "%08x%s" % (randint(0, MAXINT), name)
 
         if name.rpartition('.')[2] not in settings.ALLOWED_EXTENSIONS:
@@ -61,7 +61,7 @@ def handle_uploaded_file(f, path=None, name=None):
 
     if not os.path.exists(path):
         os.makedirs(path, 0755)
-
+    
     if not name:
         name = get_name(f)
     
