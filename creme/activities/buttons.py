@@ -35,5 +35,14 @@ class AddPhoneCallButton(Button):
     template_name = 'activities/templatetags/button_add_phonecall.html'
 
 
+class AddTaskButton(Button):
+    id_           = Button.generate_id('activities', 'add_task')
+    verbose_name  = _(u'Ajouter une tâche')
+    template_name = 'activities/templatetags/button_add_task.html'
+    
+
+
 add_meeting_button   = AddMeetingButton()
 add_phonecall_button = AddPhoneCallButton()
+add_task_button = AddTaskButton()
+

@@ -32,7 +32,8 @@ from creme_core.gui.last_viewed import change_page_for_last_viewed
 from activities.models import Activity
 from activities.forms import (MeetingEditForm, PhoneCallEditForm, IndisponibilityCreateForm, ActivityEditForm,
                               MeetingCreateForm, PhoneCallCreateForm,
-                              MeetingCreateWithoutRelationForm, PhoneCallCreateWithoutRelationForm)
+                              MeetingCreateWithoutRelationForm, PhoneCallCreateWithoutRelationForm, 
+                              TaskCreateForm)
 from activities.utils import get_ical
 
 __activity_ct = ContentType.objects.get_for_model(Activity)
@@ -82,6 +83,8 @@ def add(request, type):
 
     if type == "meeting":
         class_form = MeetingCreateForm
+    elif type == "task":
+        class_form = TaskCreateForm        
     elif type == "phonecall":
         class_form    = PhoneCallCreateForm
         extra_initial = {'call_type' : 2,} #TODO: use a constant.....

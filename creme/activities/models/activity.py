@@ -177,7 +177,7 @@ class Task(Activity):
 
     def __init__ (self, *args , **kwargs):
         super(Task, self).__init__(*args, **kwargs)
-        self.type = ActivityType.objects.get(name="Tache")
+        self.type = ActivityType.objects.get(id=ACTIVITYTYPE_TASK)
 
     class Meta:
         app_label = 'activities'
