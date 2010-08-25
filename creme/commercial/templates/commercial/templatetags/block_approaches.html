@@ -1,24 +1,26 @@
+{% load i18n %}
 {% load creme_block %}
 <table class="table_detail_view ui-corner-all" id={{block_name}}>
-    {% get_block_header '%s Démarche Commerciale' '%s Démarches Commerciales' 'bell_48.png' 'Demco' %}
+    {% get_block_header _('%s Commercial approach') _('%s Commercial approaches') 'bell_48.png' _('Comapp') %}
     <tbody class="collapsable">
         {% if object %}
             <tr>
                 <th colspan="5" class="block_header_line_dark" align="left">
                     <a class="button_link" onclick="creme.utils.innerPopupNReload('/commercial/approach/add/{{object.id}}/', {% get_block_reload_uri %});">
-                        <img src="{{MEDIA_URL}}images/add_22.png" border="0" title="Ajouter" alt="Ajouter" />Nouvelle
+                        <img src="{{MEDIA_URL}}images/add_22.png" border="0" title="{% trans "Add" %}" alt="{% trans "Add" %}" />
+                        {% trans "New commercial approach" %}
                     </a>
                 </th>
             </tr>
         {% endif %}
         {% if page.paginator.count %}
             <tr>
-                {% get_column_header 'Titre' 'title' %}
+                {% get_column_header _('Title') 'title' %}
                 {% if not object %}
-                    <th class="block_header_line_dark">Fiche concernée</th>
+                    <th class="block_header_line_dark">{% trans "Related entity" %}</th>
                 {% endif %}
-                {% get_column_header 'Détails' 'description' %}
-                <th class="block_header_line_dark">Générée à partir de</th>
+                {% get_column_header _('Details') 'description' %}
+                <th class="block_header_line_dark">{% trans "Generate from" %}</th>
             </tr>
             {% for approach in page.object_list %}
                 <!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
@@ -36,7 +38,7 @@
                                 {% if activity %}
                                     {{activity}}
                                 {% else %}
-                                    Rien
+                                    {% trans "Nothing" %}
                                 {% endif %}
                             {% endwith %}
                         </em>
@@ -45,7 +47,7 @@
             {% endfor %}
         {% else %}
             <tr>
-                <td class="block_line_dark">Aucune démarche commerciale enregistrée pour le moment</td>
+                <td class="block_line_dark">{% trans "No commercial approach for the moment" %}</td>
             </tr>
         {% endif %}
     </tbody>

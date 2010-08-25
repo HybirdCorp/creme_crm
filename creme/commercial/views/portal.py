@@ -27,7 +27,7 @@ from commercial.models import Act
 
 def portal(request):
     stats = (
-                (_("Nombre d'actions commerciales"), Act.objects.all().count()),
+                (_("Number of commercial actions"), Act.objects.all().count()),
             )
 
     return app_portal(request, 'commercial', 'commercial/portal.html', Act, stats)

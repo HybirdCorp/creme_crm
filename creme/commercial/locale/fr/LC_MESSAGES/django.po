@@ -1,0 +1,225 @@
+# FR LOCALISATION OF 'COMMERCIAL' APP
+# Copyright (C) 2010 Hybird
+# This file is distributed under the same license as the Creme package.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2010-08-25 17:11+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: blocks.py:32
+msgid "Commercial Approaches"
+msgstr "Démarches commerciales"
+
+#: creme_core_register.py:31
+msgid "Commercial strategy"
+msgstr "Plan Commercial"
+
+#: creme_core_register.py:37
+msgid "All commercial actions"
+msgstr "Lister les actions commerciales"
+
+#: creme_core_register.py:38
+msgid "Add a commercial action"
+msgstr "Add a commercial action"
+
+#: creme_core_register.py:39
+msgid "All salesmen"
+msgstr "Lister les commerciaux"
+
+#: creme_core_register.py:40
+msgid "Add a salesman"
+msgstr "Ajouter un commercial"
+
+#: populate.py:40
+msgid "has sold"
+msgstr "a vendu"
+
+#: populate.py:41
+msgid "has been sold by"
+msgstr "a été vendu par"
+
+#: populate.py:44
+msgid "is a salesman"
+msgstr "est un commercial"
+
+#: populate.py:48
+msgid "Com Action view"
+msgstr "Vue d'Action Com"
+
+#: populate.py:50
+msgid "Name"
+msgstr "Nom"
+
+#: populate.py:51 models/act.py:33
+msgid "Expected sales"
+msgstr "CA espéré"
+
+#: populate.py:52 forms/act.py:29 models/act.py:38
+msgid "Due date"
+msgstr "Échéance"
+
+#: models/act.py:32
+msgid "Name of the commercial action"
+msgstr "Nom de l'action commerciale"
+
+#: models/act.py:34
+msgid "Cost of the commercial action"
+msgstr "Coût de l'action commerciale"
+
+#: models/act.py:35
+msgid "Target"
+msgstr "Cible"
+
+#: models/act.py:36
+msgid "Goal of the action"
+msgstr "But de l'action"
+
+#: models/act.py:37
+msgid "Objectives to achieve"
+msgstr "Objectifs à réaliser"
+
+#: models/act.py:57
+msgid "Commercial Action"
+msgstr "Action Commerciale"
+
+#: models/act.py:58
+msgid "Commercial Actions"
+msgstr "Actions Commerciales"
+
+#: models/commercial_approach.py:32
+#: templates/commercial/templatetags/block_approaches.html:18
+msgid "Title"
+msgstr "Titre"
+
+#: models/commercial_approach.py:33
+msgid "Done ?"
+msgstr "Faite ?"
+
+#: models/commercial_approach.py:34
+msgid "Description"
+msgstr "Description"
+
+#: models/commercial_approach.py:35
+msgid "Creation date"
+msgstr "Date de création"
+
+#: models/commercial_approach.py:46
+msgid "Commercial approach"
+msgstr "Démarche Commerciale"
+
+#: models/commercial_approach.py:47
+msgid "Commercial approaches"
+msgstr "Démarches Commerciales"
+
+#: models/sell_by_relation.py:37
+msgid "Commission paid ?"
+msgstr "Commission payée ?"
+
+#: models/sell_by_relation.py:40
+#: templates/commercial/templatetags/block_sell_by.html:14
+msgid "Date of payment"
+msgstr "Date de paiement"
+
+#: templates/commercial/portal.html:4
+msgid "Commercial portal"
+msgstr "Portail Commercial"
+
+#: templates/commercial/portal.html:6
+msgid "List of commercial actions"
+msgstr "Liste des actions commerciales"
+
+#: templates/commercial/templatetags/block_approaches.html:4
+#, python-format
+msgid "%s Commercial approach"
+msgstr "%s Démarche commerciale"
+
+#: templates/commercial/templatetags/block_approaches.html:4
+#, python-format
+msgid "%s Commercial approaches"
+msgstr "%s Démarches Commerciales"
+
+#: templates/commercial/templatetags/block_approaches.html:4
+msgid "Comapp"
+msgstr "Demco"
+
+#: templates/commercial/templatetags/block_approaches.html:10
+msgid "Add"
+msgstr "Ajouter"
+
+#: templates/commercial/templatetags/block_approaches.html:11
+msgid "New commercial approach"
+msgstr "Nouvelle démarche commerciale"
+
+#: templates/commercial/templatetags/block_approaches.html:20
+msgid "Related entity"
+msgstr "Fiche concernée"
+
+#: templates/commercial/templatetags/block_approaches.html:22
+msgid "Details"
+msgstr "Détails"
+
+#: templates/commercial/templatetags/block_approaches.html:23
+msgid "Generate from"
+msgstr "Générée à partir de"
+
+#: templates/commercial/templatetags/block_approaches.html:41
+msgid "Nothing"
+msgstr "Rien"
+
+#: templates/commercial/templatetags/block_approaches.html:50
+msgid "No commercial approach for the moment"
+msgstr "Aucune démarche commerciale enregistrée pour le moment"
+
+#: templates/commercial/templatetags/block_sell_by.html:5
+msgid "Commercial Information"
+msgstr "Informations Commerciales"
+
+#: templates/commercial/templatetags/block_sell_by.html:10
+msgid "Actions"
+msgstr "Actions"
+
+#: templates/commercial/templatetags/block_sell_by.html:11
+msgid "Salesman who sold"
+msgstr "Commercial qui a vendu"
+
+#: templates/commercial/templatetags/block_sell_by.html:12
+msgid "Commission paid"
+msgstr "Commission payée"
+
+#: templates/commercial/templatetags/block_sell_by.html:13
+msgid "Comment"
+msgstr "Commentaire"
+
+#: templates/commercial/templatetags/block_sell_by.html:19
+msgid "Edit"
+msgstr "Éditer"
+
+#: templates/commercial/templatetags/block_sell_by.html:29
+msgid "Paid"
+msgstr "Payée"
+
+#: templates/commercial/templatetags/block_sell_by.html:31
+msgid "Non paid"
+msgstr "Non payée"
+
+#: views/commercial_approach.py:57
+#, python-format
+msgid "New commercial approach for <%s>"
+msgstr "Nouvelle démarche commerciale pour <%s>"
+
+#: views/portal.py:30
+msgid "Number of commercial actions"
+msgstr "Nombre d'actions commerciales"
+
+#: views/salesman.py:52
+msgid "List of salesmen"
+msgstr "Liste des commerciaux"
