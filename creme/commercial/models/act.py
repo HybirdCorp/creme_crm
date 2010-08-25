@@ -29,13 +29,13 @@ from creme_core.models import CremeEntity
 
 
 class Act(CremeEntity):
-    name          = CharField(_(u"Nom de l'action commerciale"), max_length=100, blank=False, null=False)
-    ca_expected   = PositiveIntegerField(_(u'CA espéré'), blank=True, null=True)
-    cost          = PositiveIntegerField(_(u"Coût de l'action commerciale"), blank=True, null=True)
-    target        = TextField(_(u'Cible'), blank=True, null=True)
-    goal          = TextField(_(u"But de l'action"), blank=True, null=True)
-    aim           = TextField(_(u'Objectifs à réaliser'), blank=True, null=True)
-    due_date      = DateField(_(u'Échéance'), blank=False, null=False)
+    name          = CharField(_(u"Name of the commercial action"), max_length=100, blank=False, null=False)
+    ca_expected   = PositiveIntegerField(_(u'Expected sales'), blank=True, null=True)
+    cost          = PositiveIntegerField(_(u"Cost of the commercial action"), blank=True, null=True)
+    target        = TextField(_(u'Target'), blank=True, null=True)
+    goal          = TextField(_(u"Goal of the action"), blank=True, null=True)
+    aim           = TextField(_(u'Objectives to achieve'), blank=True, null=True)
+    due_date      = DateField(_(u'Due date'), blank=False, null=False)
 
 
     def __unicode__(self):
@@ -54,5 +54,5 @@ class Act(CremeEntity):
 
     class Meta:
         app_label = "commercial"
-        verbose_name = _(u'Action Commerciale')
-        verbose_name_plural = _(u'Actions Commerciales')
+        verbose_name = _(u'Commercial Action')
+        verbose_name_plural = _(u'Commercial Actions')

@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.utils.translation import ugettext as _
+from django.utils.translation import ugettext_lazy as _
 
 from creme_core.forms import CremeEntityForm, CremeDateTimeField
 
@@ -26,7 +26,7 @@ from commercial.models.act import Act
 
 
 class CreateForm(CremeEntityForm):
-    due_date = CremeDateTimeField(label=_(u"Date d'échéance"))
+    due_date = CremeDateTimeField(label=_(u"Due date"))
 
     class Meta(CremeEntityForm.Meta):
         model = Act

@@ -18,6 +18,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from django.utils.translation import ugettext_lazy as _
+
 from creme_core.forms import CremeEntityForm
 from creme_core.forms.fields import MultiCremeEntityField
 
@@ -28,7 +30,7 @@ from products.models import Service
 
 
 class ServiceCreateForm(CremeEntityForm):
+    images = MultiCremeEntityField(label=_(u'Images'), required=False, model=Image, widget=ImageM2MWidget())
+
     class Meta(CremeEntityForm.Meta):
         model = Service
-
-    images = MultiCremeEntityField(required=False, model=Image, widget=ImageM2MWidget())

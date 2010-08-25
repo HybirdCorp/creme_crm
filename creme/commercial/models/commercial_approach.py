@@ -29,10 +29,10 @@ from creme_core.models import CremeModel
 
 
 class CommercialApproach(CremeModel):
-    title               = CharField(_(u'Titre'), max_length=200)
-    ok_or_in_futur      = BooleanField(_("Faite ?"), editable=False)
+    title               = CharField(_(u'Title'), max_length=200)
+    ok_or_in_futur      = BooleanField(_("Done ?"), editable=False)
     description         = TextField(_(u'Description'), blank=True, null=True)
-    creation_date       = DateTimeField(_(u'Date de création'), blank=False, null=False)
+    creation_date       = DateTimeField(_(u'Creation date'), blank=False, null=False)
 
     related_activity_id = PositiveIntegerField(null=True)
 
@@ -43,8 +43,8 @@ class CommercialApproach(CremeModel):
 
     class Meta:
         app_label = 'commercial'
-        verbose_name = _(u'Démarche Commerciale')
-        verbose_name_plural = _(u'Démarches Commerciales')
+        verbose_name = _(u'Commercial approach')
+        verbose_name_plural = _(u'Commercial approaches')
 
     def get_related_activity(self):
         from activities.models import Activity

@@ -1,8 +1,9 @@
 {% extends "persons/person_form.html" %}
+{% load i18n %}
 
 {% block content %}
     {% with 'images/add_64.png' as logo %}
-    {% with 'Nouveau' as title %}
+    {% with _('New') as title %}
         {% include "persons/frags/organisation_form_content.html" %}
     {% endwith %}
     {% endwith %}

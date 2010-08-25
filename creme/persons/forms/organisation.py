@@ -30,14 +30,14 @@ from persons.models.organisation import Organisation, Address
 #TODO: factorise address related code with Contact form ???
 
 class OrganisationForm(CremeEntityForm):
-    creation_date = CremeDateTimeField(label=_(u"Date de création"), required=False)
+    creation_date = CremeDateTimeField(label=_(u"Creation date"), required=False)
     image         = CremeEntityField(label=_(u"Logo"), required=False, model=Image, widget=ImageM2MWidget())
 
     blocks = CremeEntityForm.blocks.new(
-                ('billing_address',  _(u'Adresse de facturation'), ['name_billing', 'address_billing', 'po_box_billing',
-                                                                    'city_billing', 'state_billing', 'zipcode_billing', 'country_billing']),
-                ('shipping_address', _(u'Adresse de livraison'),   ['name_shipping', 'address_shipping', 'po_box_shipping',
-                                                                    'city_shipping', 'state_shipping', 'zipcode_shipping', 'country_shipping'])
+                ('billing_address',  _(u'Billing address'),  ['name_billing', 'address_billing', 'po_box_billing',
+                                                              'city_billing', 'state_billing', 'zipcode_billing', 'country_billing']),
+                ('shipping_address', _(u'Shipping address'), ['name_shipping', 'address_shipping', 'po_box_shipping',
+                                                              'city_shipping', 'state_shipping', 'zipcode_shipping', 'country_shipping'])
             )
 
     class Meta:

@@ -18,6 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from django.utils.translation import ugettext as _
 from django.forms.util import ValidationError
 
 from creme_core.forms import CremeModelForm, CremeEntityField
@@ -48,5 +49,5 @@ def clean_address(address_id):
     try:
         address = Address.objects.get(pk=address_id)
     except Address.DoesNotExist:
-        raise ValidationError("Cette adresse n'existe pas ou plus")
+        raise ValidationError(_(u"This address doesn't exist or doesn't exist any more"))
     return address

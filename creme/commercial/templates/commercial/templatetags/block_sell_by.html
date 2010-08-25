@@ -1,21 +1,22 @@
+{% load i18n %}
 <table class="table_detail_view ui-corner-all">
     <thead>
         <tr>
-            <th colspan="5">Informations Commerciales</th>
+            <th colspan="5">{% trans "Commercial Information" %}</th>
         </tr>
     </thead>
     <tbody class="collapsable">
         <tr>
-            <th class="block_header_line_dark">Actions</th>
-            <th class="block_header_line_light">Commercial qui a vendu</th>
-            <th class="block_header_line_dark">Commission Payé</th>
-            <th class="block_header_line_light">Commentaire</th>
-            <th class="block_header_line_dark">Date Paiement</th>
+            <th class="block_header_line_dark">{% trans "Actions" %}</th>
+            <th class="block_header_line_light">{% trans "Salesman who sold" %}</th>
+            <th class="block_header_line_dark">{% trans "Commission paid" %}</th>
+            <th class="block_header_line_light">{% trans "Comment" %}</th>
+            <th class="block_header_line_dark">{% trans "Date of payment" %}</th>
         </tr>
         {% for relation in relations %}
             <tr class="{% cycle "block_line_dark" "block_line_light" %}">
                 <td >
-                    <a href="/persons/relsellby/edit/{{relation.id}}">Editer Info</a>
+                    <a href="/persons/relsellby/edit/{{relation.id}}">{% trans "Edit" %}</a>
                 </td>
                 <td>
                     {% with relation.object_entity.get_real_entity as obj_entity %}
@@ -23,10 +24,11 @@
                     {% endwith %}
                 </td>
                 <td >
+                    {% comment %}     USE yesno filter             {% endcomment %}
                     {% if relation.sellbyrelation.commission_paye %}
-                        Commission payée
+                        {% trans "Paid" %}
                     {% else %}
-                        Commission non payée
+                        {% trans "Non paid" %}
                     {%endif %}
                 </td>
                 <td >

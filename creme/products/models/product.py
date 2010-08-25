@@ -32,16 +32,16 @@ from other_models import Category, SubCategory
 
 
 class Product(CremeEntity):
-    name              = CharField(_(u'Nom'), max_length=100)
+    name              = CharField(_(u'Name'), max_length=100)
     code              = IntegerField(_(u'Code'))
     description       = CharField(_(u'Description'), max_length=200)
-    quantity_per_unit = IntegerField(_(u'Quantité/Unité'), blank=True, null=True)
-    unit_price        = DecimalField(_(u'Prix Unitaire'), max_digits=8, decimal_places=2)
-    weight            = DecimalField(_(u'Poids'), max_digits=8, decimal_places=2, blank=True, null=True)
-    stock             = IntegerField(_(u'Quantité/Stock'), blank=True, null=True)
-    web_site          = CharField(_(u'Site web'), max_length=100, blank=True, null=True)
-    category          = ForeignKey(Category, verbose_name=_(u'Catégorie'))
-    sub_category      = ForeignKey(SubCategory, verbose_name=_(u'Sous catégorie'))
+    quantity_per_unit = IntegerField(_(u'Quantity/Unit'), blank=True, null=True)
+    unit_price        = DecimalField(_(u'Unit price'), max_digits=8, decimal_places=2)
+    weight            = DecimalField(_(u'Weight'), max_digits=8, decimal_places=2, blank=True, null=True)
+    stock             = IntegerField(_(u'Quantity/Stock'), blank=True, null=True)
+    web_site          = CharField(_(u'Web Site'), max_length=100, blank=True, null=True)
+    category          = ForeignKey(Category, verbose_name=_(u'Category'))
+    sub_category      = ForeignKey(SubCategory, verbose_name=_(u'Sub-category'))
     images            = ManyToManyField(Image, blank=True, null=True, verbose_name=_(u'Images'), related_name='ProductImages_set')
 
     research_fields = CremeEntity.research_fields + ['name', 'code', 'description', 'sub_category__name', 'category__name', 'images']
@@ -73,5 +73,5 @@ class Product(CremeEntity):
 
     class Meta:
         app_label    = 'products'
-        verbose_name = _(u'Produit')
-        verbose_name_plural = _(u'Produits')
+        verbose_name = _(u'Product')
+        verbose_name_plural = _(u'Products')

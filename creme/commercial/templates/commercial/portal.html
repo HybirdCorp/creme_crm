@@ -1,6 +1,6 @@
 {% extends "creme_core/generics/portal.html" %}
-
+{% load i18n %}
 {% comment %}{% block logo %}<img src="{{MEDIA_URL}}images/ticket_64.png" alt=""/>{% endblock %}{% endcomment %}
-{% block title %}Portail Commercial{% endblock %}
+{% block title %}{% trans "Commercial portal" %}{% endblock %}
 {% block list_url %}/commercial/acts{% endblock %}
-{% block list_msg %}Liste des actions commerciales{% endblock %}
+{% block list_msg %}{% trans "List of commercial actions" %}{% endblock %}

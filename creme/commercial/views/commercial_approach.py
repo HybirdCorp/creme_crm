@@ -21,6 +21,7 @@
 from django.http import HttpResponseRedirect
 from django.template import RequestContext
 from django.shortcuts import render_to_response, get_object_or_404
+from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required
 
 from creme_core.entities_access.functions_for_permissions import edit_object_or_die
@@ -53,7 +54,7 @@ def add(request, entity_id):
     return inner_popup(request, 'creme_core/generics/blockform/add_popup2.html',
                        {
                         'form':   comapp_form,
-                        'title':  u"Nouvelle démarche commerciale pour <%s>" % entity,
+                        'title':  _(u"New commercial approach for <%s>") % entity,
                        },
                        is_valid=comapp_form.is_valid(),
                        reload=False,

@@ -1,5 +1,7 @@
 {% extends "creme_core/generics/blockform/content.html" %}
 
+{% load i18n %}
+
 {% block table_attrs %}
     id="billing_table"
 {% endblock table_attrs %}
@@ -7,7 +9,7 @@
 {% block extra_buttons %}
     <tr>
         <td class="{% cycle "block_line_dark" "block_line_light" %}" colspan="2" align="right">
-            <button type="button" onclick="creme.persons.copyTo('billing_table', 'shipping_table');">Copier addresse à droite</button>
+            <button type="button" onclick="creme.persons.copyTo('billing_table', 'shipping_table');">{% trans "Copy the address to right side" %}</button>
         </td>
     </tr>
 {% endblock extra_buttons %}

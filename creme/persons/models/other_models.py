@@ -27,70 +27,70 @@ from media_managers.models import Image
 
 
 class Civility(CremeModel):
-    civility_name = CharField(_(u'Intitulé'), max_length=100)
+    civility_name = CharField(_(u'Title'), max_length=100)
 
     def __unicode__(self):
         return self.civility_name
 
     class Meta:
         app_label = "persons"
-        verbose_name = _(u'Civilité')
-        verbose_name_plural = _(u'Civilités')
+        verbose_name = _(u'Civility')
+        verbose_name_plural = _(u'Civilities')
 
 
 class PeopleFunction(CremeModel):
-    function_name = CharField(_(u'Intitulé'), max_length=100)
+    function_name = CharField(_(u'Title'), max_length=100)
 
     def __unicode__(self):
         return self.function_name
 
     class Meta:
         app_label = "persons"
-        verbose_name = _(u'Fonction de personne')
-        verbose_name_plural = _(u'Fonctions des personnes')
+        verbose_name = _(u'People position')
+        verbose_name_plural = _(u'People positions')
 
 
 class Sector(CremeModel):
-    sector_name = CharField(_(u'Intitulé'), max_length=100)
+    sector_name = CharField(_(u'Title'), max_length=100)
 
     def __unicode__(self):
         return self.sector_name
 
     class Meta:
         app_label = "persons"
-        verbose_name = _(u"Secteur d'activités")
-        verbose_name_plural = _(u"Secteurs d'activités")
+        verbose_name = _(u"Line of business")
+        verbose_name_plural = _(u"Lines of business")
 
 
 class LegalForm(CremeModel):
-    legal_form_name = CharField(_(u'Intitulé'), max_length=100)
+    legal_form_name = CharField(_(u'Title'), max_length=100)
 
     def __unicode__(self):
         return self.legal_form_name
 
     class Meta:
         app_label = "persons"
-        verbose_name = _(u'Forme juridique')
-        verbose_name_plural = _(u'Formes juridiques')
+        verbose_name = _(u'Legal form')
+        verbose_name_plural = _(u'Legal forms')
 
 
 class StaffSize(CremeModel):
-    employees = CharField(_(u'Intitulé'), max_length=100)
+    employees = CharField(_(u'Title'), max_length=100)
 
     def __unicode__(self):
         return self.employees
 
     class Meta:
         app_label = "persons"
-        verbose_name = _(u"Effectif d'organisation")
-        verbose_name_plural = _(u"Effectifs d'organisations")
+        verbose_name = _(u"Organisation staff size")
+        verbose_name_plural = _(u"Organisation staff sizes")
 
 
 class MailSignature(CremeModel):
-    sign_name = CharField(_(u'Nom de la signature'), max_length=100)
-    corpse    = TextField(_(u'Corps'))
-    images    = ManyToManyField(Image, verbose_name=_(u'Images de la signature'),
-                           help_text=_(u'Les images incorporées aux mails et non pas en pièce jointe.'),
+    sign_name = CharField(_(u'Signature name'), max_length=100)
+    corpse    = TextField(_(u'Body'))
+    images    = ManyToManyField(Image, verbose_name=_(u'Images'),
+                           help_text=_(u'Images embedded in emails (but not as attached).'),
                            blank=True, null=True, related_name='MailSignatureImages_set')
 
     def __unicode__(self):
@@ -98,6 +98,6 @@ class MailSignature(CremeModel):
 
     class Meta:
         app_label = "persons"
-        verbose_name = _(u"Signature de mail")
-        verbose_name_plural = _(u"Signatures de mail")
+        verbose_name = _(u"Email signature")
+        verbose_name_plural = _(u"Email signatures")
         ordering = ('sign_name',)

@@ -28,15 +28,15 @@ from commercial.models.act import Act
 from commercial.blocks import approaches_block
 
 
-creme_registry.register_app('commercial', _(u'Plan Commercial'), '/commercial')
+creme_registry.register_app('commercial', _(u'Commercial strategy'), '/commercial')
 creme_registry.register_entity_models(Act)
 
 #TODO: i18n
 creme_menu.register_app('commercial', '/commercial/', 'Commercial')
 reg_menu = creme_menu.register_menu
-reg_menu('commercial', '/commercial/acts',         'Lister les actions commerciales')
-reg_menu('commercial', '/commercial/act/add',      'Ajouter une action commerciale')
-reg_menu('persons',    '/commercial/salesmen',     'Lister les commerciaux')
-reg_menu('persons',    '/commercial/salesman/add', 'Ajouter un commercial')
+reg_menu('commercial', '/commercial/acts',         _(u'All commercial actions'))
+reg_menu('commercial', '/commercial/act/add',      _(u'Add a commercial action'))
+reg_menu('persons',    '/commercial/salesmen',     _(u'All salesmen'))
+reg_menu('persons',    '/commercial/salesman/add', _(u'Add a salesman'))
 
 block_registry.register(approaches_block)

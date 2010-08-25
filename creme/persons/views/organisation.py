@@ -26,7 +26,6 @@ from creme_core.views.generic import add_entity, edit_entity, view_entity_with_t
 
 from persons.models import Organisation
 from persons.forms.organisation import OrganisationForm
-from persons.blocks import managers_block, employees_block
 
 
 @login_required
@@ -47,11 +46,3 @@ def detailview(request, organisation_id):
 @get_view_or_die('persons')
 def listview(request):
     return list_view(request, Organisation, extra_dict={'add_url': '/persons/organisation/add'})
-
-@login_required
-def reload_managers(request, organisation_id):
-    return managers_block.detailview_ajax(request, organisation_id)
-
-@login_required
-def reload_employees(request, organisation_id):
-    return employees_block.detailview_ajax(request, organisation_id)

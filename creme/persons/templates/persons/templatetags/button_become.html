@@ -2,22 +2,21 @@
     <a class="menu_button" href="{{become_url}}{{managed_orga.0.pk}}">{{verbose_name}}</a>
 {% else %}
     {% with today|date:"U" as today_timestamp %}
-    <script type="text/javascript">
-        function become_{{what}}_{{today_timestamp}}()
-        {
-            creme.utils.showDialog(
-                "<select>{% for m_orga in managed_orga %}<option value='{{m_orga.pk}}'>{{m_orga}}</option>{% endfor %}</select>",
-                {
-                    buttons:{
-                        "Ok":function(){
-                            window.location.href='{{become_url}}'+$('select', this).val();
-                            $(this).dialog("close");
+        <script type="text/javascript">
+            function become_{{what}}_{{today_timestamp}}() {
+                creme.utils.showDialog(
+                    "<select>{% for m_orga in managed_orga %}<option value='{{m_orga.pk}}'>{{m_orga}}</option>{% endfor %}</select>",
+                    {
+                        buttons:{
+                            "Ok": function() {
+                                window.location.href = '{{become_url}}' + $('select', this).val();
+                                $(this).dialog("close");
+                            }
                         }
                     }
-                }
-            );
-        }
-    </script>
-    <a class="menu_button" onclick="become_{{what}}_{{today_timestamp}}();">{{verbose_name}}</a>
+                );
+            }
+        </script>
+        <a class="menu_button" onclick="become_{{what}}_{{today_timestamp}}();">{{verbose_name}}</a>
     {% endwith %}
 {% endif %}

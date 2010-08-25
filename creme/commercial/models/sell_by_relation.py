@@ -34,10 +34,10 @@ from commercial.constants import REL_SUB_SOLD_BY
 
 class SellByRelation(Relation):
     """Relation 'has sold / has been sold' between a salesman and an entity."""
-    commission_paye = BooleanField (blank=True, default=False)
-    int_value =       PositiveIntegerField( default=0)
+    commission_paye = BooleanField(_(u'Commission paid ?'), blank=True, default=False)
+    int_value =       PositiveIntegerField(default=0)
     char_value =      CharField(max_length=100, blank=True)
-    date_paiement =   DateTimeField(_(u'Date de paiement'), blank=True, null=True,)
+    date_paiement =   DateTimeField(_(u'Date of payment'), blank=True, null=True,)
 
     class Meta:
         app_label = "commercial"
