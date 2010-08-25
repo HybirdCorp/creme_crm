@@ -1,11 +1,12 @@
 {% extends "persons/templatetags/block_linked_people.html" %}
 
+{% load i18n %}
 {% load creme_block %}
 
 {% block block_header %}
-    {% get_block_header "%s Responsable" "%s Responsables" 'contacts_48.png' 'Managers' %}
+    {% get_block_header _("%s Manager") _("%s Managers") 'contacts_48.png' _('Managers') %}
 {% endblock %}
 
-{% block add_title %}Créer un responsable{% endblock %}
+{% block add_title %}{% trans "Create a manager" %}{% endblock %}
 
-{% block empty_msg %}Aucun responsable enregistré pour le moment{% endblock %}
+{% block empty_msg %}{% trans "No manager for the moment" %}{% endblock %}

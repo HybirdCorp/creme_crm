@@ -21,7 +21,7 @@
 from logging import debug
 
 from django.db.models import ForeignKey, CharField, TextField, ManyToManyField, DateField
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import ugettext_lazy as _, ugettext
 from django.utils.encoding import force_unicode
 from django.contrib.auth.models import User
 
@@ -36,23 +36,23 @@ from persons.constants import REL_OBJ_EMPLOYED_BY
 
 
 class Contact(CremeEntity):
-    civility        = ForeignKey(Civility, verbose_name=_(u'Civilité'), blank=True, null=True)
-    first_name      = CharField(_(u'Prénom'), max_length=100)
-    last_name       = CharField(_(u'Nom'), max_length=100)
+    civility        = ForeignKey(Civility, verbose_name=_(u'Civility'), blank=True, null=True)
+    first_name      = CharField(_(u'First name'), max_length=100)
+    last_name       = CharField(_(u'Last name'), max_length=100)
     description     = TextField(_(u'Description'), blank=True, null=True)
-    skype           = CharField(_(u'Skype'), max_length=100, blank=True, null=True)
-    landline        = CharField(_(u'Tel Fixe'), max_length=100, blank=True, null=True)
+    skype           = CharField('Skype', max_length=100, blank=True, null=True)
+    landline        = CharField(_(u'Landline'), max_length=100, blank=True, null=True)
     mobile          = CharField(_(u'Mobile'), max_length=100, blank=True, null=True)
-    function        = ForeignKey(PeopleFunction, verbose_name=_(u'Fonction'), blank=True, null=True)
-    sector          = ForeignKey(Sector, verbose_name=_(u'Secteur'), blank=True, null=True)
-    email           = CharField(_(u'E-mail'), max_length=100, blank=True, null=True)
-    url_site        = CharField(_(u'URL Site'), max_length=100, blank=True, null=True)
-    language        = ManyToManyField(Language, verbose_name=_(u'Langue(s) parlée(s)'), blank=True, null=True, related_name='ContactLanguages_set')
-    billing_adress  = ForeignKey(Address, verbose_name=_(u'Adresse de facturation'), blank=True, null=True, related_name='AdressefactuContact_set')
-    shipping_adress = ForeignKey(Address, verbose_name=_(u'Adresse de livraison'), blank=True, null=True, related_name='AdresselivraisonContact_set')
-    is_user         = ForeignKey(User, verbose_name=_(u'Est un utilisateur'), blank=True, null=True, related_name='contact_est_user_set')
-    birthday        = DateField(_(u"Date d'anniversaire"), blank=True, null=True)
-    image           = ForeignKey(Image, verbose_name=_(u'Photo du contact'), blank=True, null=True)
+    function        = ForeignKey(PeopleFunction, verbose_name=_(u'Position'), blank=True, null=True)
+    sector          = ForeignKey(Sector, verbose_name=_(u'Line of business'), blank=True, null=True)
+    email           = CharField(_(u'Email'), max_length=100, blank=True, null=True)
+    url_site        = CharField(_(u'Web Site'), max_length=100, blank=True, null=True)
+    language        = ManyToManyField(Language, verbose_name=_(u'Spoken language(s)'), blank=True, null=True, related_name='ContactLanguages_set')
+    billing_adress  = ForeignKey(Address, verbose_name=_(u'Billing address'), blank=True, null=True, related_name='AdressefactuContact_set')
+    shipping_adress = ForeignKey(Address, verbose_name=_(u'Shipping address'), blank=True, null=True, related_name='AdresselivraisonContact_set')
+    is_user         = ForeignKey(User, verbose_name=_(u'Is an user'), blank=True, null=True, related_name='contact_est_user_set')
+    birthday        = DateField(_(u"Birthday"), blank=True, null=True)
+    image           = ForeignKey(Image, verbose_name=_(u'Photograph'), blank=True, null=True)
 
     research_fields = CremeEntity.research_fields + ['last_name', 'first_name', 'email']
 
@@ -62,9 +62,9 @@ class Contact(CremeEntity):
         verbose_name = _(u'Contact')
         verbose_name_plural = _(u'Contacts')
 
-    def get_entity_actions(self):
-            return """<a href="%s">Voir</a> | <a href="%s">Éditer</a> | <a href="%s" onclick="creme.utils.confirmDelete(event, this);">Effacer</a>""" \
-                % (self.get_absolute_url(), self.get_edit_absolute_url(), self.get_delete_absolute_url())
+    #def get_entity_actions(self):
+        #return """<a href="%s">Voir</a> | <a href="%s">Éditer</a> | <a href="%s" onclick="creme.utils.confirmDelete(event, this);">Effacer</a>""" \
+                #% (self.get_absolute_url(), self.get_edit_absolute_url(), self.get_delete_absolute_url())
 
     def get_employers(self):
         from organisation import Organisation
@@ -73,7 +73,7 @@ class Contact(CremeEntity):
     def __unicode__(self):
         try:
             return force_unicode(u'%s %s %s' % (self.civility or "" , self.first_name, self.last_name))
-        except Exception, e:
+        except Exception, e: #TODO: useful ??
             debug('Exception in Contact.__unicode__: %s', e)
 
     def get_absolute_url(self):

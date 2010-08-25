@@ -1,41 +1,42 @@
+{% load i18n %}
 {% load creme_core_tags %}
-    <table class="table_detail_view ui-corner-all">
-        <thead>
-            <tr>
-                <th align="center" colspan="2">
-                    <img src="{{MEDIA_URL}}images/infos_48.png" alt="Infos" title="Infos">
-                    Informations sur la {{object|get_meta_value:"verbose_name"}}
-                </th>
-            </tr>
-        </thead>
-        <tbody class="collapsable">
-            <tr>
-                <th class="block_header_line_dark">Nom de l'adresse</th>
-                <td class="block_line_dark">{{ object|get_html_field_value:"name" }}</td>
-            </tr>
-            <tr>
-                <th class="block_header_line_light">Adresse</th>
-                <td class="block_line_light">{{ object|get_html_field_value:"address" }}</td>
-            </tr>
-            <tr>
-                <th class="block_header_line_dark">Boite postale</th>
-                <td class="block_line_dark">{{ object|get_html_field_value:"po_box" }}</td>
-            </tr>
-            <tr>
-                <th class="block_header_line_light">Ville</th>
-                <td class="block_line_light">{{ object|get_html_field_value:"city" }}</td>
-            </tr>
-            <tr>
-                <th class="block_header_line_dark">Departement</th>
-                <td class="block_line_dark">{{ object|get_html_field_value:"state" }}</td>
-            </tr>
-            <tr>
-                <th class="block_header_line_light">Code Postal</th>
-                <td class="block_line_light">{{ object|get_html_field_value:"zipcode" }}</td>
-            </tr>
-            <tr>
-                <th class="block_header_line_dark">Pays</th>
-                <td class="block_line_dark">{{ object|get_html_field_value:"country" }}</td>
-            </tr>
-        </tbody>
-    </table>
+<table class="table_detail_view ui-corner-all">
+    <thead>
+        <tr>
+            <th align="center" colspan="2">
+                <img src="{{MEDIA_URL}}images/infos_48.png" alt="{% trans "Information" %}" title="{% trans "Information" %}">
+                {% trans "Address information" %}
+            </th>
+        </tr>
+    </thead>
+    <tbody class="collapsable">
+        <tr>
+            <th class="block_header_line_dark">{% trans "Address name" %}</th>
+            <td class="block_line_dark">{{ object|get_html_field_value:"name" }}</td>
+        </tr>
+        <tr>
+            <th class="block_header_line_light">{% trans "Address" %}</th>
+            <td class="block_line_light">{{ object|get_html_field_value:"address" }}</td>
+        </tr>
+        <tr>
+            <th class="block_header_line_dark">{% trans "PO box" %}</th>
+            <td class="block_line_dark">{{ object|get_html_field_value:"po_box" }}</td>
+        </tr>
+        <tr>
+            <th class="block_header_line_light">{% trans "City" %}</th>
+            <td class="block_line_light">{{ object|get_html_field_value:"city" }}</td>
+        </tr>
+        <tr>
+            <th class="block_header_line_dark">{% trans "State" %}</th>
+            <td class="block_line_dark">{{ object|get_html_field_value:"state" }}</td>
+        </tr>
+        <tr>
+            <th class="block_header_line_light">{% trans "Zip code" %}</th>
+            <td class="block_line_light">{{ object|get_html_field_value:"zipcode" }}</td>
+        </tr>
+        <tr>
+            <th class="block_header_line_dark">{% trans "Country" %}</th>
+            <td class="block_line_dark">{{ object|get_html_field_value:"country" }}</td>
+        </tr>
+    </tbody>
+</table>

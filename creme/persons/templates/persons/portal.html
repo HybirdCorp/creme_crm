@@ -1,6 +1,6 @@
 {% extends "creme_core/generics/portal.html" %}
-
-{% block logo %}<img src="{{MEDIA_URL}}images/contacts_64.png" alt=""/>{% endblock %}
-{% block title %}Portail contacts & organisations{% endblock %}
+{% load i18n %}
+{% block logo %}<img src="{{MEDIA_URL}}images/contacts_64.png" alt="{% trans "Contact" %}"/>{% endblock %}
+{% block title %}{% trans "Account & contacts portal" %}{% endblock %}
 {% block list_url %}/persons/contacts{% endblock %}
-{% block list_msg %}Liste des contacts{% endblock %}
+{% block list_msg %}{% trans "List of contacts" %}{% endblock %}

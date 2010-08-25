@@ -1,5 +1,6 @@
 {% extends "creme_core/generics/view_entity.html" %}
 
+{% load i18n %}
 {% load creme_core_tags %}
 {% load creme_block %}
 
@@ -7,9 +8,9 @@
     {% if object.url_site %}
         <a href="http://{{object.url_site}}" target="_blank" ><img src="{{object.image.get_image_url}}" alt="" style="max-height:64px;max-width:200px;"/></a>
     {% else %} {% if object.image.get_image_url %}
-        <img src="{{object.image.get_image_url}}" alt="" title="Veuillez entrez l'adresse du site web" style="max-height:64px;max-width:200px;"/>
+        <img src="{{object.image.get_image_url}}" alt="" title="{% trans "Please enter the web site address" %}" style="max-height:64px;max-width:200px;"/>
     {% else %}
-        <img src="{{MEDIA_URL}}images/organisation_64.png" alt="Organisation"/>
+        <img src="{{MEDIA_URL}}images/organisation_64.png" alt="{% trans "Organisation" %}"/>
     {% endif %}{% endif %}
 {% endblock %}
 
@@ -24,54 +25,54 @@
     <!--{% cycle "block_header_line_dark" "block_header_line_light" as header_color %}
         {% cycle "block_line_dark" "block_line_light" as row_color %}-->
     <table class="table_detail_view ui-corner-all">
-        {% get_basic_block_header "Informations sur l'organisation" 'infos_48.png' 'Infos' %}
+        {% get_basic_block_header _("Organisation information") 'infos_48.png' _('Information') %}
         <tbody class="collapsable">
             <tr>
-                <th class="{% cycle header_color %}">Nom de l'organisation</th>
+                <th class="{% cycle header_color %}">{% trans "Name of the organisation" %}</th>
                 <td class="{% cycle row_color %}">{{object.name}}</td>
             </tr>
             <tr>
-                <th class="{% cycle header_color %}">Effectif</th>
+                <th class="{% cycle header_color %}">{% trans "Staff size" %}</th>
                 <td class="{% cycle row_color %}">{{object.employees}}</td>
             </tr>
             <tr>
-                <th class="{% cycle header_color %}">Forme Juridique</th>
+                <th class="{% cycle header_color %}">{% trans "Legal form" %}</th>
                 <td class="{% cycle row_color %}">{{object.legal_form }}</td>
             </tr>
             <tr>
-                <th class="{% cycle header_color %}">Secteur</th>
+                <th class="{% cycle header_color %}">{% trans "Line of business" %}</th>
                 <td class="{% cycle row_color %}">{{object.sector}}</td>
             </tr>
             <tr>
-                <th class="{% cycle header_color %}">Capital</th>
+                <th class="{% cycle header_color %}">{% trans "Capital" %}</th>
                 <td class="{% cycle row_color %}">{{object.capital}}</td>
             </tr>
             <tr>
-                <th class="{% cycle header_color %}">Siren</th>
+                <th class="{% cycle header_color %}">{% trans "SIREN" %}</th>
                 <td class="{% cycle row_color %}">{{object.siren}}</td>
             </tr>
             <tr>
-                <th class="{% cycle header_color %}">Naf</th>
+                <th class="{% cycle header_color %}">{% trans "NAF code" %}</th>
                 <td class="{% cycle row_color %}">{{object.naf}}</td>
             </tr>
             <tr>
-                <th class="{% cycle header_color %}">Siret</th>
+                <th class="{% cycle header_color %}">{% trans "SIRET" %}</th>
                 <td class="{% cycle row_color %}">{{object.siret}}</td>
             </tr>
             <tr>
-                <th class="{% cycle header_color %}">rcs</th>
+                <th class="{% cycle header_color %}">{% trans "RCS/RM" %}</th>
                 <td class="{% cycle row_color %}">{{object.rcs}}</td>
             </tr>
             <tr>
-                <th class="{% cycle header_color %}">TVA Intra</th>
+                <th class="{% cycle header_color %}">{% trans "Intra VAT" %}</th>
                 <td class="{% cycle row_color %}">{{object.tvaintra}}</td>
             </tr>
             <tr>
-                <th class="{% cycle header_color %}">Assujetti à la TVA</th>
+                <th class="{% cycle header_color %}">{% trans "Subject to VAT" %}</th>
                 <td class="{% cycle row_color %}">{{object|get_html_field_value:"subject_to_vat" }}</td>
             </tr>
             <tr>
-                <th class="{% cycle header_color %}">Est assigné à</th>
+                <th class="{% cycle header_color %}">{% trans "Assigned to" %}</th>
                 <td class="{% cycle row_color %}">{{object.user}}</td>
             </tr>
         </tbody>
@@ -80,50 +81,50 @@
     <table class="table_detail_view ui-corner-all">
         <thead>
             <tr>
-                <th align="center" colspan="2">Coordonnées</th>
+                <th align="center" colspan="2">{% trans "Coordinates" %}</th>
             </tr>
         </thead>
         <tbody class="collapsable">
             <tr>
-                <th class="{% cycle header_color %}">Addresse de facturation</th>
+                <th class="{% cycle header_color %}">{% trans "Billing address" %}</th>
                 <td class="{% cycle row_color %}">{{object.billing_adress}}</td>
             </tr>
             <tr>
-                <th class="{% cycle header_color %}">Addresse de livraison</th>
+                <th class="{% cycle header_color %}">{% trans "Shipping address" %}</th>
                 <td class="{% cycle row_color %}">{{object.shipping_adress}}</td>
             </tr>
             <tr>
-                <th class="{% cycle header_color %}">Téléphone fixe</th>
+                <th class="{% cycle header_color %}">{% trans "Landline" %}</th>
                 <td class="{% cycle row_color %}">{{object.phone}}</td>
             </tr>
             <tr>
-                <th class="{% cycle header_color %}">Fax</th>
+                <th class="{% cycle header_color %}">{% trans "Fax" %}</th>
                 <td class="{% cycle row_color %}">{{object.fax}}</td>
             </tr>
             <tr>
-                <th class="{% cycle header_color %}">E-mail</th>
+                <th class="{% cycle header_color %}">{% trans "E-mail" %}</th>
                 <td class="{% cycle row_color %}">{{object.email}}</td>
             </tr>
             <tr>
-                <th class="{% cycle header_color %}">Site Web</th>
+                <th class="{% cycle header_color %}">{% trans "Web Site" %}</th>
                 <td class="{% cycle row_color %}">{{object.url_site}}</td>
             </tr>
         </tbody>
     </table>
 
     <table class="table_detail_view ui-corner-all">
-        {% get_basic_block_header 'Autres Informations' 'infos_48.png' 'Infos' %}
+        {% get_basic_block_header _('Other Information') 'infos_48.png' _('Information') %}
         <tbody class="collapsable">
             <tr>
-                <th class="{% cycle header_color %}">Description</th>
+                <th class="{% cycle header_color %}">{% trans "Description" %}</th>
                 <td class="{% cycle row_color %}">{{object.description}}</td>
             </tr>
             <tr>
-                <th class="{% cycle header_color %}">Date de création de l'entreprise</th>
+                <th class="{% cycle header_color %}">{% trans "Date of creation of the organisation" %}</th>
                 <td class="{% cycle row_color %}">{{object|get_html_field_value:"creation_date"}}</td>
             </tr>
             <tr>
-                <th class="{% cycle header_color %}">Logo</th>
+                <th class="{% cycle header_color %}">{% trans "Logo" %}</th>
                 <td class="{% cycle row_color %}">{{object|get_html_field_value:"image"}}</td>
             </tr>
         </tbody>

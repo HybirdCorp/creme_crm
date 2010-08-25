@@ -20,6 +20,7 @@
 
 from logging import debug
 
+from django.utils.translation import ugettext as _
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.auth.decorators import login_required
 
@@ -81,4 +82,4 @@ def listview(request):
 def list_my_leads_my_customers(request):
     #use a constant for 'persons-hf_leadcustomer' ??
     return list_view(request, Contact, hf_pk='persons-hf_leadcustomer',
-                     extra_dict={'list_title': 'Liste de mes suspects / prospects / clients'})
+                     extra_dict={'list_title': _(u'List of my suspects / prospects / customers')})
