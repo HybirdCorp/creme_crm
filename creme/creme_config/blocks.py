@@ -255,14 +255,16 @@ class SearchConfigBlock(QuerysetBlock):
 #        return self._render(self.get_block_template_context(context, SearchConfigItem.objects.select_related('searchfield_set'),
 #                                              update_url='/creme_config/blocks/reload/'))
 
+generic_models_block = GenericModelsBlock()
+custom_fields_block  = CustomFieldsBlock()
 
 blocks_list = (
-        GenericModelsBlock(),
+        generic_models_block,
         PropertyTypesBlock(),
         RelationTypesBlock(),
         CustomRelationTypesBlock(),
         CustomFieldsPortalBlock(),
-        CustomFieldsBlock(),
+        custom_fields_block,
         BlocksConfigBlock(),
         RelationBlocksConfigBlock(),
         ButtonMenuBlock(),
