@@ -16,9 +16,9 @@ def portal(request):
     closed_percentage = '%s %%' % (100.0 * tickets.filter(status__id=CLOSED_PK).count() / count) if count else ''
 
     stats = (
-                (_('Nombre de ticket(s)'),            count),
-                (_('Nombre de ticket(s) ouvert(s)'),  tickets.filter(status__id=OPEN_PK).count()),
-                (_(u'Pourcentage de tickets fermés'), closed_percentage),
+                (_('Number of tickets'),             count),
+                (_('Number of open tickets'),        tickets.filter(status__id=OPEN_PK).count()),
+                (_(u'Percentage of closed tickets'), closed_percentage),
             )
 
     return app_portal(request, 'tickets', 'tickets/portal.html', Ticket,

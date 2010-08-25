@@ -1,15 +1,16 @@
 {% extends "creme_core/generics/view_entity.html" %}
 
+{% load i18n %}
 {% load creme_block %}
 
-{% block logo %}<img src="{{MEDIA_URL}}images/ticket_64.png" alt=""/>{% endblock %}
+{% block logo %}<img src="{{MEDIA_URL}}images/ticket_64.png" alt="{% trans "Ticket" %}"/>{% endblock %}
 
 {% block after_object_as_table_1 %}
     <table class="table_detail_view ui-corner-all">
-        {% get_basic_block_header 'Informations Supplémentaires' 'infos_48.png' 'Infos' %}
+        {% get_basic_block_header _('Other information') 'infos_48.png' _('Information') %}
         <tbody class="collapsable">
             <tr>
-                <th class="block_header_line_dark">Temps de résolution</th>
+                <th class="block_header_line_dark">{% trans "Resolving duration" %}</th>
                 <td class="block_line_dark">{{object.get_resolving_duration}}</td>
             </tr>
         </tbody>

@@ -13,5 +13,5 @@ creme_registry.register_entity_models(Ticket)
 #TODO: i18n
 creme_menu.register_app('tickets', '/tickets/', 'Tickets')
 reg_menu = creme_menu.register_menu
-reg_menu('tickets', '/tickets/tickets',    'Lister les tickets')
-reg_menu('tickets', '/tickets/ticket/add', 'Ajouter un ticket')
+reg_menu('tickets', '/tickets/tickets',    _(u'All tickets'))
+reg_menu('tickets', '/tickets/ticket/add', _(u'Add a ticket'))

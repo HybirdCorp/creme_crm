@@ -26,13 +26,13 @@ from creme_core.models import CremeModel
 
 class Criticity(CremeModel):
     """Criticity of a ticket: critical, not important etc..."""
-    name = CharField(_(u'Nom'), max_length=100, blank=False, null=False, unique=True)
+    name = CharField(_(u'Name'), max_length=100, blank=False, null=False, unique=True)
 
     def __unicode__(self):
         return self.name
 
     class Meta:
         app_label = 'tickets'
-        verbose_name = _(u'Criticité de ticket')
-        verbose_name_plural  = _(u'Criticités de ticket')
+        verbose_name = _(u'Ticket criticity')
+        verbose_name_plural  = _(u'Ticket criticities')
         ordering = ('name',)
