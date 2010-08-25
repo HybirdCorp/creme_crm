@@ -22,7 +22,7 @@ from logging import debug
 
 from django.forms import CharField, ModelChoiceField
 from django.forms.widgets import TextInput
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import ugettext_lazy as _, ugettext
 from django.contrib.contenttypes.models import ContentType
 
 from creme_core.models import CremeEntity, RelationType, Relation
@@ -38,15 +38,15 @@ from persons.models import Organisation, Contact, Address
 #      sur le model Address dont on insererait le contenu ???
 
 class ContactCreateForm(CremeEntityForm):
-    birthday = CremeDateTimeField(label=_('Anniversaire'), required=False)
-    image    = CremeEntityField(required=False, model=Image, widget=ImageM2MWidget())
+    birthday = CremeDateTimeField(label=_('Birthday'), required=False)
+    image    = CremeEntityField(label=_('Image'), required=False, model=Image, widget=ImageM2MWidget())
 
     blocks = CremeEntityForm.blocks.new(
-                ('coordinates',      _(u'Coordonnées'),            ['skype', 'landline', 'mobile', 'email', 'url_site']),
-                ('billing_address',  _(u'Adresse de facturation'), ['name_billing', 'address_billing', 'po_box_billing',
-                                                                   'city_billing', 'state_billing', 'zipcode_billing', 'country_billing']),
-                ('shipping_address', _(u'Adresse de livraison'),   ['name_shipping', 'address_shipping', 'po_box_shipping',
-                                                                   'city_shipping', 'state_shipping', 'zipcode_shipping', 'country_shipping'])
+                ('coordinates',      _(u'Coordinates'),      ['skype', 'landline', 'mobile', 'email', 'url_site']),
+                ('billing_address',  _(u'Billing address'),  ['name_billing', 'address_billing', 'po_box_billing',
+                                                              'city_billing', 'state_billing', 'zipcode_billing', 'country_billing']),
+                ('shipping_address', _(u'Shipping address'), ['name_shipping', 'address_shipping', 'po_box_shipping',
+                                                              'city_shipping', 'state_shipping', 'zipcode_shipping', 'country_shipping'])
             )
 
     class Meta:
@@ -141,7 +141,7 @@ class ContactForm(ContactCreateForm):
 
 
 class ContactWithRelationForm(ContactForm):
-    orga_overview = CharField(label=_(u'Société concernée'), widget=TextInput(attrs={'readonly': 'readonly'}), initial=_('Aucune'))
+    orga_overview = CharField(label=_(u'Concerned organisation'), widget=TextInput(attrs={'readonly': 'readonly'}), initial=_('No one'))
 
     def __init__(self, *args, **kwargs):
         super(ContactWithRelationForm, self).__init__(*args, **kwargs)
@@ -156,14 +156,14 @@ class ContactWithRelationForm(ContactForm):
         self.relation_type = self.initial.get('relation_type')
 
         if self.relation_type:
-            relation_field = CharField(label=_(u'Type de relation'),
+            relation_field = CharField(label=ugettext(u'Relation type'),
                                         widget=TextInput(attrs={'readonly': 'readonly'}),
                                         initial=self.relation_type)
         else:
             get_ct = ContentType.objects.get_for_model
-            relation_field = ModelChoiceField(label=_(u"Statut dans la société"),
-                                                queryset=RelationType.objects.filter(subject_ctypes=get_ct(Contact),
-                                                                                    object_ctypes=get_ct(Organisation)))
+            relation_field = ModelChoiceField(label=ugettext(u"Status in the organisation"),
+                                              queryset=RelationType.objects.filter(subject_ctypes=get_ct(Contact),
+                                                                                   object_ctypes=get_ct(Organisation)))
         self.fields['relation'] = relation_field
 
     def save(self):

@@ -34,7 +34,7 @@ class ManagersBlock(QuerysetBlock):
     id_           = QuerysetBlock.generate_id('persons', 'managers')
     dependencies  = (Relation,) #Contact
     relation_type_deps = (REL_OBJ_MANAGES, )
-    verbose_name  = _(u"Responsables d'une société")
+    verbose_name  = _(u"Organisation managers")
     template_name = 'persons/templatetags/block_managers.html'
 
     def detailview_display(self, context):
@@ -56,7 +56,7 @@ class EmployeesBlock(QuerysetBlock):
     id_           = QuerysetBlock.generate_id('persons', 'employees')
     dependencies  = (Relation,) #Contact
     relation_type_deps = (REL_OBJ_EMPLOYED_BY, )
-    verbose_name  = _(u"Salariés d'une société")
+    verbose_name  = _(u"Organisation employees")
     template_name = 'persons/templatetags/block_employees.html'
 
     def detailview_display(self, context):

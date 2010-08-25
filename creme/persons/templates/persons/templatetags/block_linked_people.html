@@ -1,3 +1,4 @@
+{% load i18n %}
 {% load creme_block %}
 
 <script type="text/javascript">
@@ -8,28 +9,26 @@
     {% block block_header %}
         <thead><tr><th>PEOPLE BLOCK</th></tr></thead>
     {% endblock %}
-
     <tbody class="collapsable">
         <tr>
             <th colspan="5" class="block_header_line_dark" align="left">
                 <a class="button_link" onclick="creme.relations.handleAddFromPredicateEntity('/creme_core/relation/add/from/predicate/{{predicate_id}}/entity/{{object.id}}/{{ct_id}}', '{{predicate_id}}', '{{object.id}}', {% get_block_reload_uri %});">
-                    <img src="{{MEDIA_URL}}images/relations_22.png" border="0" title="Ajouter une personne" alt="Ajouter" />
-                    Ajouter un contact existant
+                    <img src="{{MEDIA_URL}}images/relations_22.png" border="0" title="{% trans "Link to an existing contact" %}" alt="{% trans "Link to an existing contact" %}" />
+                    {% trans "Link to an existing contact" %}
                 </a>
                 <a class="button_link" href="/persons/contact/add_with_relation/{{object.pk}}/{{predicate_id}}?callback_url=" onclick="this.href+=window.location.href">
-                    <img src="{{MEDIA_URL}}images/add_22.png" border="0" title="Ajouter une personne" alt="Ajouter" />
-                    {% block add_title %}Créer une personne{% endblock %}
+                    <img src="{{MEDIA_URL}}images/add_22.png" border="0" title="{% trans "Create a contact" %}" alt="{% trans "Create a contact" %}" />
+                    {% block add_title %}{% trans "Create a contact" %}{% endblock %}
                 </a>
             </th>
         </tr>
-
         {% if page.paginator.count %}
             <tr>
-                <th class="block_header_line_dark">Nom</th>
-                <th class="block_header_line_dark">Tel fixe</th>
-                <th class="block_header_line_dark">Mobile</th>
-                <th class="block_header_line_dark">E-Mail</th>
-                <th class="block_header_line_dark">Actions</th>
+                <th class="block_header_line_dark">{% trans "Name" %}</th>
+                <th class="block_header_line_dark">{% trans "Landline" %}</th>
+                <th class="block_header_line_dark">{% trans "Mobile" %}</th>
+                <th class="block_header_line_dark">{% trans "Email" %}</th>
+                <th class="block_header_line_dark">{% trans "Actions" %}</th>
             </tr>
             {% for people in page.object_list %}
                 <!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
@@ -48,7 +47,9 @@
             {% endfor %}
         {% else %}
             <tr>
-                <td class="block_line_dark">{% block empty_msg %}Aucune personne enregistrée pour le moment{% endblock %}</td>
+                <td class="block_line_dark">
+                    {% block empty_msg %}{% trans "No related contact for the moment" %}{% endblock %}
+                </td>
             </tr>
         {% endif %}
     </tbody>
