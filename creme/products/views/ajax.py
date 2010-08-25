@@ -22,6 +22,7 @@ import logging
 
 from django.http import HttpResponse
 from django.core.serializers.json import DjangoJSONEncoder
+from django.utils.translation import ugettext as _
 
 from products.models import Category, SubCategory
 
@@ -32,6 +33,7 @@ def _is_valid(category):
 
     return bool(Category.objects.filter(id=category).count())
 
+#TODO: use @jsonify ??
 def get_sub_cat_on_cat_change(request):
     logging.debug("GET_SUB_CAT_ON_CAT_CHANGE")
 
@@ -41,6 +43,6 @@ def get_sub_cat_on_cat_change(request):
         #TODO: if it was {'id':..., 'name':..}, we could use values('id', 'name') directly....
         result = [{'id': id, 'text': name} for id, name in SubCategory.objects.filter(category=category).values_list('id', 'name')]
     else:
-        result = [{'id': '', 'text': u'Choisissez une catégorie'}]
+        result = [{'id': '', 'text': _(u'Choose a category')}]
 
     return HttpResponse(DjangoJSONEncoder().encode({'result': result}), mimetype='application/javascript')

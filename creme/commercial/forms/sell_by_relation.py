@@ -27,7 +27,8 @@ from creme_core.forms.widgets import CalendarWidget
 
 from commercial.models import SellByRelation
 
-#TOD: beuark....
+#TODO: beuark....
+#TODO: 118n
 
 class SellByRelationEditForm(ModelForm):
     class Meta:

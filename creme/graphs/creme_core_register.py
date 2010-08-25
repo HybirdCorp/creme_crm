@@ -26,10 +26,10 @@ from creme_core.gui.menu import creme_menu
 from graphs.models import Graph
 
 
-creme_registry.register_app('graphs', _(u'Graphes'), '/graphs')
+creme_registry.register_app('graphs', _(u'Graphs'), '/graphs')
 creme_registry.register_entity_models(Graph)
 
 creme_menu.register_app('graphs', '/graphs/', 'Graphes')
 reg_menu = creme_menu.register_menu
-reg_menu('graphs', '/graphs/graphs',     'Liste des graphes générés')
-reg_menu('graphs', '/graphs/graph/add',  'Créer un graphe')
+reg_menu('graphs', '/graphs/graphs',     _(u'All graphs'))
+reg_menu('graphs', '/graphs/graph/add',  _(u'Add a graphe'))

@@ -56,7 +56,7 @@ class CrmButton(Button):
 
 class BecomeCustomerButton(CrmButton):
     id_              = Button.generate_id('persons', 'become_customer')
-    verbose_name     = _(u'Transfomer en client')
+    verbose_name     = _(u'Transform into a customer')
     relation_type_id = REL_SUB_CUSTOMER_OF
     what = "customer"
     become_url = "/persons/%s/become_customer/"
@@ -64,7 +64,7 @@ class BecomeCustomerButton(CrmButton):
 
 class BecomeProspectButton(CrmButton):
     id_              = Button.generate_id('persons', 'become_prospect')
-    verbose_name     = _(u'Transfomer en prospect')
+    verbose_name     = _(u'Transform into a prospect')
     relation_type_id = REL_SUB_PROSPECT
     what = "prospect"
     become_url = "/persons/%s/become_prospect/"
@@ -72,7 +72,7 @@ class BecomeProspectButton(CrmButton):
 
 class BecomeSuspectButton(CrmButton):
     id_              = Button.generate_id('persons', 'become_suspect')
-    verbose_name     = _(u'Transfomer en suspect')
+    verbose_name     = _(u'Transform into a suspect')
     relation_type_id = REL_SUB_SUSPECT
     what = "suspect"
     become_url = "/persons/%s/become_suspect/"
@@ -80,7 +80,7 @@ class BecomeSuspectButton(CrmButton):
 
 class BecomeInactiveButton(CrmButton):
     id_              = Button.generate_id('persons', 'become_inactive')
-    verbose_name     = _(u'Transfomer en client inactif')
+    verbose_name     = _(u'Transform into an inactive customer')
     relation_type_id = REL_SUB_INACTIVE
     what = "inactive_customer"
     become_url = "/persons/%s/become_inactive_customer/"
@@ -88,7 +88,7 @@ class BecomeInactiveButton(CrmButton):
 
 class BecomeSupplierButton(CrmButton):
     id_              = Button.generate_id('persons', 'become_supplier')
-    verbose_name     = _(u'Transfomer en fournisseur')
+    verbose_name     = _(u'Transform into a supplier')
     relation_type_id = REL_SUB_SUPPLIER
     what = "supplier"
     become_url = "/persons/%s/become_supplier/"
@@ -99,7 +99,7 @@ class BecomeSupplierButton(CrmButton):
 
 class AddLinkedContactButton(Button):
     id_              = Button.generate_id('persons', 'add_linked_contact')
-    verbose_name     = _(u'Ajouter un contact lié')
+    verbose_name     = _(u'Add a related contact')
     template_name    = 'persons/templatetags/button_add_linked_contact.html'
 
     def get_ctypes(self):

@@ -1,6 +1,8 @@
 {% extends "creme_core/generics/view_entity.html" %}
 
-{% block logo %}<img src="{{MEDIA_URL}}images/product_64.png" alt=""/>{% endblock %}
+{% load i18n %}
+
+{% block logo %}<img src="{{MEDIA_URL}}images/product_64.png" alt="{% trans "Product" %}"/>{% endblock %}
 
 {% block before_detail_view_1 %}
     {% for object in object.images.all %}

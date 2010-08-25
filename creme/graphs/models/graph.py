@@ -27,14 +27,14 @@ from creme_core.models import CremeEntity, RelationType, Relation
 
 
 class Graph(CremeEntity):
-    name           = CharField(_(u'Nom du graphe'), max_length=100)
-    subjects       = ManyToManyField(CremeEntity, verbose_name=_(u'Sujets'), related_name='graphs_set')
-    relation_types = ManyToManyField(RelationType, verbose_name=_(u'Types de relation'))
+    name           = CharField(_(u'Name of the graph'), max_length=100)
+    subjects       = ManyToManyField(CremeEntity, verbose_name=_(u'Subjects'), related_name='graphs_set')
+    relation_types = ManyToManyField(RelationType, verbose_name=_(u'Types of relation'))
 
     class Meta:
         app_label = 'graphs'
-        verbose_name = _(u'Graphe')
-        verbose_name_plural = _(u'Graphes')
+        verbose_name = _(u'Graph')
+        verbose_name_plural = _(u'Graphs')
 
     def __unicode__(self):
         return self.name

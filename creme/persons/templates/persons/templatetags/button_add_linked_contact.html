@@ -1,4 +1,5 @@
+{% load i18n %}
 <a class="menu_button" href="/persons/contact/add_with_relation/{{object.pk}}?callback_url=" onclick="this.href+=window.location.href">
-    <img src="{{MEDIA_URL}}images/contacts_32.png" border="0" title="Contact lié" alt="Contact lié" />
-    Créer contact lié
+    <img src="{{MEDIA_URL}}images/contacts_32.png" border="0" title="{% trans "Linked contact" %}" alt="{% trans "Linked contact" %}" />
+    {% trans "Create a linked contact" %}
 </a>

@@ -36,36 +36,36 @@ class Populator(BasePopulator):
     def populate(self, *args, **kwargs):
         get_ct = ContentType.objects.get_for_model
 
-        hf_id = create(HeaderFilter, 'products-hf_product', name=u'Vue de Produit', entity_type_id=get_ct(Product).id, is_custom=False).id
+        hf_id = create(HeaderFilter, 'products-hf_product', name=_(u'Product view'), entity_type_id=get_ct(Product).id, is_custom=False).id
         pref = 'products-hfi_product_'
-        create(HeaderFilterItem, pref + 'images', order=1, name='images', title=_(u'Images'),      type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True, editable=False, sortable=False, filter_string="images__name__icontains")
-        create(HeaderFilterItem, pref + 'name',   order=2, name='name',   title=_(u'Nom'),         type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True, editable=True,  sortable=True,  filter_string="name__icontains")
-        create(HeaderFilterItem, pref + 'code',   order=3, name='code',   title=_(u'Code'),        type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True, editable=True,  sortable=True,  filter_string="code__icontains")
-        create(HeaderFilterItem, pref + 'user',   order=4, name='user',   title=_(u'Utilisateur'), type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True, editable=True,  sortable=True,  filter_string="user__username__icontains")
+        create(HeaderFilterItem, pref + 'images', order=1, name='images', title=_(u'Images'), type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True, editable=False, sortable=False, filter_string="images__name__icontains")
+        create(HeaderFilterItem, pref + 'name',   order=2, name='name',   title=_(u'Name'),   type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True, editable=True,  sortable=True,  filter_string="name__icontains")
+        create(HeaderFilterItem, pref + 'code',   order=3, name='code',   title=_(u'Code'),   type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True, editable=True,  sortable=True,  filter_string="code__icontains")
+        create(HeaderFilterItem, pref + 'user',   order=4, name='user',   title=_(u'User'),   type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True, editable=True,  sortable=True,  filter_string="user__username__icontains")
 
-        hf_id = create(HeaderFilter, 'products-hf_service', name='Vue de Service', entity_type_id=get_ct(Service).id, is_custom=False).id
+        hf_id = create(HeaderFilter, 'products-hf_service', name=_(u'Service view'), entity_type_id=get_ct(Service).id, is_custom=False).id
         pref  = 'products-hfi_service_'
-        create(HeaderFilterItem, pref + 'images', order=1, name='images',    title=_(u'Images'),      type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True, editable=False, sortable=False, filter_string="images__name__icontains")
-        create(HeaderFilterItem, pref + 'name',   order=2, name='name',      title=_(u'Nom'),         type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True, editable=True,  sortable=True,  filter_string="name__icontains")
-        create(HeaderFilterItem, pref + 'ref',    order=3, name='reference', title=_(u'Référence'),   type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True, editable=True,  sortable=True,  filter_string="reference__icontains")
-        create(HeaderFilterItem, pref + 'user',   order=4, name='user',      title=_(u'Utilisateur'), type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True, editable=True,  sortable=True,  filter_string="user__username__icontains")
+        create(HeaderFilterItem, pref + 'images', order=1, name='images',    title=_(u'Images'),    type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True, editable=False, sortable=False, filter_string="images__name__icontains")
+        create(HeaderFilterItem, pref + 'name',   order=2, name='name',      title=_(u'Name'),      type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True, editable=True,  sortable=True,  filter_string="name__icontains")
+        create(HeaderFilterItem, pref + 'ref',    order=3, name='reference', title=_(u'Reference'), type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True, editable=True,  sortable=True,  filter_string="reference__icontains")
+        create(HeaderFilterItem, pref + 'user',   order=4, name='user',      title=_(u'User'),      type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True, editable=True,  sortable=True,  filter_string="user__username__icontains")
 
 
         #TODO: move to client's populate.py ??
-        create(ServiceCategory, 1, name=_(u"Catégorie 1"), description=_(u"Description catégorie 1"))
-        create(ServiceCategory, 2, name=_(u"Catégorie 2"), description=_(u"Description catégorie 2"))
+        create(ServiceCategory, 1, name=_(u"Category 1"), description=_(u"Description of 'category 1'"))
+        create(ServiceCategory, 2, name=_(u"Category 2"), description=_(u"Description of 'category 2'"))
 
-        cooking             = create(Category, 1, name=_(u"Cuisine"),      description=_(u"Articles pour la cuisine"))
-        fruits_n_vegetables = create(Category, 2, name=_(u"Primeurs"),     description=_(u"Fruits, légumes, ..."))
-        computer            = create(Category, 3, name=_(u"Informatique"), description=_(u"La gamme des geeks"))
+        cooking             = create(Category, 1, name=_(u"Cooking"),          description=_(u"Items for the kitchen"))
+        fruits_n_vegetables = create(Category, 2, name=_(u"Fruit/vegetables"), description=_(u"Early fruit and vegetables"))
+        computer            = create(Category, 3, name=_(u"Informatic"),       description=_(u"Geeks' sideline"))
 
-        create(SubCategory, 1, name=_(u"Four à vide"), description=_(u"Four à vide"),                         category_id=cooking.pk)
-        create(SubCategory, 2, name=_(u"Casseroles"),  description=_(u"Pour faire la cuisine"),               category_id=cooking.pk)
-        create(SubCategory, 3, name=_(u"Portables"),   description=_(u"Les PC portables"),                    category_id=computer.pk)
-        create(SubCategory, 4, name=_(u"Bureau"),      description=_(u"les PC de salon"),                     category_id=computer.pk)
-        create(SubCategory, 5, name=_(u"Accessoires"), description=_(u"Accessoires pour PC fixes/portables"), category_id=computer.pk)
-        create(SubCategory, 6, name=_(u"Fruits"),      description=_(u"Des fruits: bananes, ..."),            category_id=fruits_n_vegetables.pk)
-        create(SubCategory, 7, name=_(u"Légumes"),     description=_(u"Des légumes : carottes, ..."),         category_id=fruits_n_vegetables.pk)
+        create(SubCategory, 1, name=_(u"Oven"),        description=_(u"Gas oven"),                         category_id=cooking.pk)
+        create(SubCategory, 2, name=_(u"Pans"),        description=_(u"To cook"),                          category_id=cooking.pk)
+        create(SubCategory, 3, name=_(u"Laptops"),     description=_(u"Laptops, netbooks"),                category_id=computer.pk)
+        create(SubCategory, 4, name=_(u"Desktops"),    description=_(u"Home computers"),                   category_id=computer.pk)
+        create(SubCategory, 5, name=_(u"Accessories"), description=_(u"Accessories for desktops/laptops"), category_id=computer.pk)
+        create(SubCategory, 6, name=_(u"Fruits"),      description=_(u"Bananas, apples..."),               category_id=fruits_n_vegetables.pk)
+        create(SubCategory, 7, name=_(u"Vegetables"),  description=_(u"Carrots, potatoes..."),             category_id=fruits_n_vegetables.pk)
 
         model = Product
         sci = create(SearchConfigItem, content_type_id=ContentType.objects.get_for_model(model).id)

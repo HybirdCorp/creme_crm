@@ -32,15 +32,15 @@ from persons.blocks import managers_block, employees_block
 
 
 creme_registry.register_entity_models(Contact, Organisation)
-creme_registry.register_app('persons', _(u'Comptes et contacts'), '/persons')
+creme_registry.register_app('persons', _(u'Accounts and Contact'), '/persons')
 
 creme_menu.register_app('persons', '/persons/', 'Comptes et contacts')
 reg_menu = creme_menu.register_menu
-reg_menu('persons', '/persons/contacts',         'Lister les contacts')
-reg_menu('persons', '/persons/leads_customers',  'Mes clients / prospects / suspects')
-reg_menu('persons', '/persons/contact/add',      'Ajouter un contact')
-reg_menu('persons', '/persons/organisations',    'Lister les sociétés')
-reg_menu('persons', '/persons/organisation/add', 'Ajouter une société')
+reg_menu('persons', '/persons/contacts',         _(u'All contacts'))
+reg_menu('persons', '/persons/leads_customers',  _(u'My customers / prospects / suspects'))
+reg_menu('persons', '/persons/contact/add',      _(u'Add a contact'))
+reg_menu('persons', '/persons/organisations',    _(u'All organisations'))
+reg_menu('persons', '/persons/organisation/add', _(u'Add an organisation'))
 
 
 button_registry.register(become_customer_button, become_prospect_button, become_suspect_button,

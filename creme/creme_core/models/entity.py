@@ -21,8 +21,6 @@
 from collections import defaultdict
 from logging import debug
 
-
-
 from django.utils.encoding import force_unicode
 from django.utils.html import escape
 from django.utils.safestring import mark_safe
@@ -33,6 +31,7 @@ from django.conf import settings
 from base import CremeAbstractEntity
 
 from creme_core.models.utils_for_hf import UserAllowedFuncHF
+
 
 class FPrettyProperties(UserAllowedFuncHF):
     name ="get_pretty_properties"
@@ -176,6 +175,14 @@ class CremeEntity(CremeAbstractEntity):
     def get_entity_actions(self):
         return u"""<a href="%s">Voir</a> | <a href="%s">Éditer</a> | <a href="%s" onclick="creme.utils.confirmDelete(event, this);">Effacer</a>""" \
                 % (self.get_absolute_url(), self.get_edit_absolute_url(), self.get_delete_absolute_url())
+        #return u"""<a href="%(url)s">%(see)s</a> | <a href="%(edit_url)s">%(edit)s</a> | <a href="%(del_url)s" onclick="creme.utils.confirmDelete(event, this);">%(delete)s</a>""" % {
+                #'url' :     self.get_absolute_url(),
+                #'edit_url': self.get_edit_absolute_url(),
+                #'del_url':  self.get_delete_absolute_url(),
+                #'see':      ugettext(u'Voir'),
+                #'edit':     ugettext(u'Éditer'),
+                #'delete':   ugettext(u'Effacer'),
+            #}
 
     def get_custom_fields_n_values(self):
         cfields = CustomField.objects.filter(content_type=self.entity_type_id) #TODO: in a staticmethod of CustomField ??

@@ -28,16 +28,18 @@ from media_managers.models import Image
 from other_models import ServiceCategory
 
 
+#TODO: use an abstract base class for Service and Products ??
+
 class Service(CremeEntity):
-    name              = CharField(_(u'Nom'), max_length=100)
+    name              = CharField(_(u'Name'), max_length=100)
     description       = CharField(_(u'Description'), max_length=200)
-    reference         = CharField(_(u'Référence'), max_length=100)
-    category          = ForeignKey(ServiceCategory, verbose_name=_(u'Catégorie'))
-    countable         = BooleanField(_(u'Dénombrable'))
-    unit              = CharField(_(u'Unité'), max_length=100)
-    quantity_per_unit = IntegerField(_(u'Quantité/Unité'), blank=True, null=True)
-    unit_price        = DecimalField(_(u'Prix Unitaire'), max_digits=8, decimal_places=2)
-    web_site          = CharField(_(u'Site web'), max_length=100, blank=True, null=True)
+    reference         = CharField(_(u'Reference'), max_length=100)
+    category          = ForeignKey(ServiceCategory, verbose_name=_(u'Category'))
+    countable         = BooleanField(_(u'Countable'))
+    unit              = CharField(_(u'Unit'), max_length=100)
+    quantity_per_unit = IntegerField(_(u'Quantity/Unit'), blank=True, null=True)
+    unit_price        = DecimalField(_(u'Unit price'), max_digits=8, decimal_places=2)
+    web_site          = CharField(_(u'Web Site'), max_length=100, blank=True, null=True)
     images            = ManyToManyField(Image, blank=True, null=True, verbose_name=_(u'Images'), related_name='ServiceImages_set' )
 
     research_fields = CremeEntity.research_fields + ['name', 'reference', 'description']

@@ -29,7 +29,7 @@ class ApproachesBlock(QuerysetBlock):
     id_           = QuerysetBlock.generate_id('commercial', 'approaches')
     dependencies  = (CommercialApproach,)
     order_by      = 'title'
-    verbose_name  = _(u'Démarches commerciales')
+    verbose_name  = _(u'Commercial Approaches')
     template_name = 'commercial/templatetags/block_approaches.html'
     configurable  = True
 

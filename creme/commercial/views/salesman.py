@@ -21,6 +21,7 @@
 from logging import debug
 
 from django.db.models import Q
+from django.utils.translation import ugettext as _
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.auth.decorators import login_required
 
@@ -48,7 +49,7 @@ def add(request):
 def listview(request):
     return list_view(request, Contact,
                      extra_dict={
-                                    'list_title': 'Liste des commerciaux',
+                                    'list_title': _(u'List of salesmen'),
                                     'add_url':    '/commercial/salesman/add',
                                  },
-                     extra_q=Q(properties__type__id=PROP_IS_A_SALESMAN))
+                     extra_q=Q(properties__type=PROP_IS_A_SALESMAN))
