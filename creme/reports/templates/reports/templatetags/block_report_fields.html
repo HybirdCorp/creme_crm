@@ -105,9 +105,9 @@
                            {% endif %}
                         {% endifequal %}
                         {% ifequal HFI_RELATION column.type %}
-                            {% if column.report %}
+                            {# if column.report #}
                                 <input type="checkbox" name="selected" onclick="creme.reports.setSelected(this, '{{object.id}}', '{{column.pk}}', '{{update_url}}?base_url={{base_url}}');" {% if column.selected %} checked {% endif %}/>
-                            {% endif %}
+                            {# endif #}
                         {% endifequal %}
                     </td>
                 </tr>

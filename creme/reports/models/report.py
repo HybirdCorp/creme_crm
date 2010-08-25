@@ -214,8 +214,9 @@ class Field(CremeModel):
 
                 return res
 
-            if selected:#Used ?
-                return related_entities
+            if selected:
+#                return related_entities
+                return [[unicode(related_entity)] for related_entity in related_entities]
 
             return u", ".join(unicode(related_entity) for related_entity in related_entities) or empty_value
 
