@@ -18,15 +18,16 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from django.utils.translation import ugettext_lazy as _
+
 from creme_core.forms import CremeEntityForm
 from creme_core.forms.fields import GenericEntitiesField
 
-from django.utils.translation import ugettext_lazy as _
 from graphs.models import Graph
 
 
 class GraphForm(CremeEntityForm):
-    subjects = GenericEntitiesField(label=_(u'Sujets'))
+    subjects = GenericEntitiesField(label=_(u'Subjects'))
 
     class Meta(CremeEntityForm.Meta):
         model = Graph

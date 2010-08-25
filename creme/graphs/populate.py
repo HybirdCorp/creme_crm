@@ -29,15 +29,16 @@ from creme_core.management.commands.creme_populate import BasePopulator
 
 from models import Graph
 
+
 class Populator(BasePopulator):
     dependencies = ['creme.core']
 
     def populate(self, *args, **kwargs):
         get_ct = ContentType.objects.get_for_model
 
-        hf_id = create(HeaderFilter, 'graphs-hf', name=u'Vue de Graphe', entity_type_id=get_ct(Graph).id, is_custom=False).id
+        hf_id = create(HeaderFilter, 'graphs-hf', name=_(u'Graph view'), entity_type_id=get_ct(Graph).id, is_custom=False).id
         pref  = 'graphs-hfi_graph_'
-        create(HeaderFilterItem, pref + 'name', order=1, name='name', title=_(u'Nom'), type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True, editable=True, sortable=True, filter_string="name__icontains")
+        create(HeaderFilterItem, pref + 'name', order=1, name='name', title=_(u'Name'), type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True, editable=True, sortable=True, filter_string="name__icontains")
 
         model = Graph
         sci = create(SearchConfigItem, content_type_id=ContentType.objects.get_for_model(model).id)
