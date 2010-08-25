@@ -1,0 +1,189 @@
+# FR LOCALISATION OF 'TICKETS' APP
+# Copyright (C) 2010 Hybird
+# This file is distributed under the same license as the Creme package.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2010-08-25 18:29+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: creme_core_register.py:10 models/ticket.py:62
+msgid "Tickets"
+msgstr "Tickets"
+
+#: creme_core_register.py:16
+msgid "All tickets"
+msgstr "Lister les tickets"
+
+#: creme_core_register.py:17
+msgid "Add a ticket"
+msgstr "Ajouter un ticket"
+
+#: populate.py:26
+msgid "Low"
+msgstr "Basse"
+
+#: populate.py:26
+msgid "Normal"
+msgstr "Normale"
+
+#: populate.py:26
+msgid "High"
+msgstr "Haute"
+
+#: populate.py:26
+msgid "Urgent"
+msgstr "Urgente"
+
+#: populate.py:26
+msgid "Blocking"
+msgstr "Bloquante"
+
+#: populate.py:29
+msgid "Minor"
+msgstr "Mineure"
+
+#: populate.py:29
+msgid "Major"
+msgstr "Majeure"
+
+#: populate.py:29
+msgid "Feature"
+msgstr "Fonctionnalité"
+
+#: populate.py:29
+msgid "Critical"
+msgstr "Critique"
+
+#: populate.py:29
+msgid "Enhancement"
+msgstr "Amélioration"
+
+#: populate.py:29
+msgid "Error"
+msgstr "Erreur"
+
+#: populate.py:32
+msgid "Ticket view"
+msgstr "Vue de Ticket"
+
+#: populate.py:34 models/ticket.py:47
+msgid "Title"
+msgstr "Titre"
+
+#: populate.py:35 models/ticket.py:49
+msgid "Status"
+msgstr "Statut"
+
+#: populate.py:36 models/ticket.py:51
+msgid "Priority"
+msgstr "Priorité"
+
+#: populate.py:37 models/ticket.py:52
+msgid "Criticity"
+msgstr "Criticité"
+
+#: populate.py:38 models/ticket.py:50
+msgid "Closing date"
+msgstr "Date de clôture"
+
+#: models/criticity.py:29 models/priority.py:29 models/status.py:42
+msgid "Name"
+msgstr "Nom"
+
+#: models/criticity.py:36
+msgid "Ticket criticity"
+msgstr "Criticité de ticket"
+
+#: models/criticity.py:37
+msgid "Ticket criticities"
+msgstr "Criticités de ticket"
+
+#: models/priority.py:36
+msgid "Ticket priority"
+msgstr "Priorité de ticket"
+
+#: models/priority.py:37
+msgid "Ticket priorities"
+msgstr "Priorités de ticket"
+
+#: models/status.py:33
+msgid "Open"
+msgstr "Ouvert"
+
+#: models/status.py:34
+msgid "Closed"
+msgstr "Fermé"
+
+#: models/status.py:35
+msgid "Invalid"
+msgstr "Invalide"
+
+#: models/status.py:36
+msgid "Duplicated"
+msgstr "Dupliqué"
+
+#: models/status.py:37
+msgid "Won't fix"
+msgstr "Ne sera pas corrigé"
+
+#: models/status.py:43
+msgid "Deletable"
+msgstr "Supprimable"
+
+#: models/status.py:50 models/status.py:51
+msgid "Ticket status"
+msgstr "Statut(s) de ticket"
+
+#: models/ticket.py:37 templates/tickets/view_ticket.html:13
+msgid "Resolving duration"
+msgstr "Temps de résolution"
+
+#: models/ticket.py:48
+msgid "Description"
+msgstr "Description"
+
+#: models/ticket.py:53
+msgid "Solution"
+msgstr "Solution"
+
+#: models/ticket.py:61 templates/tickets/portal.html:3
+#: templates/tickets/view_ticket.html:6
+msgid "Ticket"
+msgstr "Ticket"
+
+#: templates/tickets/portal.html:4
+msgid "Ticket portal"
+msgstr "Portail Ticket"
+
+#: templates/tickets/portal.html:6
+msgid "List of tickets"
+msgstr "Liste des tickets"
+
+#: templates/tickets/view_ticket.html:10
+msgid "Other information"
+msgstr "Informations Supplémentaires"
+
+#: templates/tickets/view_ticket.html:10
+msgid "Information"
+msgstr "Informations"
+
+#: views/portal.py:19
+msgid "Number of tickets"
+msgstr "Nombre de ticket(s)"
+
+#: views/portal.py:20
+msgid "Number of open tickets"
+msgstr "Nombre de ticket(s) ouvert(s)"
+
+#: views/portal.py:21
+msgid "Percentage of closed tickets"
+msgstr "Pourcentage de tickets fermés"

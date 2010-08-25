@@ -33,31 +33,33 @@ from criticity import Criticity
 
 
 class FResolvingDuration(UserAllowedFuncHF):
-    name ="get_resolving_duration"
-    verbose_name =u'Temps de résolution'
-    
-    
+    name         = "get_resolving_duration"
+    verbose_name = _(u'Resolving duration')
+
     @classmethod
     def has_filter(cls):
         return False
 
 
-
-
 #relié à une ou plusieurs fiches (une relation spéciale 'en rapport à' ? ) ??
 
 class Ticket(CremeEntity):
-    title        = CharField(_(u'Titre'), max_length=100, blank=True, null=False, unique=True)
-    description  = TextField(blank=False, null=False)
-    status       = ForeignKey(Status, verbose_name=_(u'Statut'), blank=False, null=False)
-    closing_date = DateTimeField(_(u'Date de clôture'), blank=True, null=True)
-    priority     = ForeignKey(Priority, verbose_name=_(u'Priorité'), blank=False, null=False)
-    criticity    = ForeignKey(Criticity, verbose_name=_(u'Criticité'), blank=False, null=False)
-    solution     = TextField(blank=True, null=False)
+    title        = CharField(_(u'Title'), max_length=100, blank=True, null=False, unique=True)
+    description  = TextField(_(u'Description'), blank=False, null=False)
+    status       = ForeignKey(Status, verbose_name=_(u'Status'), blank=False, null=False)
+    closing_date = DateTimeField(_(u'Closing date'), blank=True, null=True)
+    priority     = ForeignKey(Priority, verbose_name=_(u'Priority'), blank=False, null=False)
+    criticity    = ForeignKey(Criticity, verbose_name=_(u'Criticity'), blank=False, null=False)
+    solution     = TextField(_(u'Solution'), blank=True, null=False)
 
 #    users_allowed_func = CremeEntity.users_allowed_func + [{'name': 'get_resolving_duration', 'verbose_name':u'Temps de résolution'}] #_(u'Temps de résolution')
-    users_allowed_func = CremeEntity.users_allowed_func.copy()  
+    users_allowed_func = CremeEntity.users_allowed_func.copy()
     users_allowed_func.update ({ FResolvingDuration.name : FResolvingDuration })
+
+    class Meta:
+        app_label = 'tickets'
+        verbose_name = _(u'Ticket')
+        verbose_name_plural = _(u'Tickets')
 
     def __unicode__(self):
         return force_unicode(self.title)
@@ -81,8 +83,3 @@ class Ticket(CremeEntity):
             return  timedelta_pprint(self.closing_date - self.created)
 
         return ''
-
-    class Meta:
-        app_label = 'tickets'
-        verbose_name = _(u'Ticket')
-        verbose_name_plural = _(u'Tickets')

@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+from django.utils.translation import ugettext as _
 from django.contrib.contenttypes.models import ContentType
 
 from creme_core.models import SearchConfigItem, SearchField
@@ -22,19 +23,19 @@ class Populator(BasePopulator):
             create(Status, pk, name=name, deletable=False)
 
         #TODO: use 'start' arg with python 2.6.....
-        for i, name in enumerate(('Low', 'Normal', 'High', 'Urgent', 'Blocking')):
+        for i, name in enumerate((_('Low'), _('Normal'), _('High'), _('Urgent'), _('Blocking'))):
             create(Priority, i + 1, name=name)
 
-        for i, name in enumerate(('Minor', 'Major', 'Feature', 'Critical', 'Enhancement', 'Error')):
+        for i, name in enumerate((_('Minor'), _('Major'), _('Feature'), _('Critical'), _('Enhancement'), _('Error'))):
             create(Criticity, i + 1, name=name)
 
-        hf_id = create(HeaderFilter, 'tickets-hf', name=u'Vue de Ticket', entity_type_id=ContentType.objects.get_for_model(Ticket).id, is_custom=False).id
+        hf_id = create(HeaderFilter, 'tickets-hf', name=_(u'Ticket view'), entity_type_id=ContentType.objects.get_for_model(Ticket).id, is_custom=False).id
         pref = 'tickets-hfi_'
-        create(HeaderFilterItem, pref + 'title',     order=1, name='title',        title=u'Titre',           type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True, editable=True, sortable=True, filter_string="title__icontains")
-        create(HeaderFilterItem, pref + 'status',    order=2, name='status',       title=u'Statut',          type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True, editable=True, sortable=True, filter_string="status__name__icontains")
-        create(HeaderFilterItem, pref + 'priority',  order=3, name='priority',     title=u'Priorité',        type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True, editable=True, sortable=True, filter_string="priority__name__icontains")
-        create(HeaderFilterItem, pref + 'criticity', order=4, name='criticity',    title=u'Criticité',       type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True, editable=True, sortable=True, filter_string="criticity__name__icontains")
-        create(HeaderFilterItem, pref + 'cdate',     order=5, name='closing_date', title=u'Date de clôture', type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True, editable=True, sortable=True, filter_string="closing_date__icontains")
+        create(HeaderFilterItem, pref + 'title',     order=1, name='title',        title=_(u'Title'),        type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True, editable=True, sortable=True, filter_string="title__icontains")
+        create(HeaderFilterItem, pref + 'status',    order=2, name='status',       title=_(u'Status'),       type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True, editable=True, sortable=True, filter_string="status__name__icontains")
+        create(HeaderFilterItem, pref + 'priority',  order=3, name='priority',     title=_(u'Priority'),     type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True, editable=True, sortable=True, filter_string="priority__name__icontains")
+        create(HeaderFilterItem, pref + 'criticity', order=4, name='criticity',    title=_(u'Criticity'),    type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True, editable=True, sortable=True, filter_string="criticity__name__icontains")
+        create(HeaderFilterItem, pref + 'cdate',     order=5, name='closing_date', title=_(u'Closing date'), type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True, editable=True, sortable=True, filter_string="closing_date__icontains")
 
         model = Ticket
         sci = create(SearchConfigItem, content_type_id=ContentType.objects.get_for_model(model).id)

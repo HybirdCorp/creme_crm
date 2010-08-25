@@ -26,12 +26,12 @@ from creme_core.models import CremeModel
 
 class Priority(CremeModel):
     """Priority of a ticket: urgent etc..."""
-    name = CharField(_(u'Nom'), max_length=100, blank=False , null=False, unique=True)
+    name = CharField(_(u'Name'), max_length=100, blank=False , null=False, unique=True)
 
     def __unicode__(self):
         return self.name
 
     class Meta:
         app_label = 'tickets'
-        verbose_name = _(u'Priorité de ticket')
-        verbose_name_plural = _(u'Priorités de ticket')
+        verbose_name = _(u'Ticket priority')
+        verbose_name_plural = _(u'Ticket priorities')

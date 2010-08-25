@@ -19,7 +19,7 @@
 ################################################################################
 
 from django.db.models import Model, CharField, BooleanField
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import ugettext_lazy as _, ugettext
 
 from creme_core.models import CremeModel
 
@@ -30,22 +30,22 @@ INVALID_PK    = 3
 DUPLICATED_PK = 4
 WONTFIX_PK    = 5
 
-BASE_STATUS = ((OPEN_PK,        'Open'),
-               (CLOSED_PK,      'Closed'),
-               (INVALID_PK,     'Invalid'),
-               (DUPLICATED_PK,  'Duplicated'),
-               (WONTFIX_PK,     "Won't fix"),
+BASE_STATUS = ((OPEN_PK,        ugettext('Open')),
+               (CLOSED_PK,      ugettext('Closed')),
+               (INVALID_PK,     ugettext('Invalid')),
+               (DUPLICATED_PK,  ugettext('Duplicated')),
+               (WONTFIX_PK,     ugettext("Won't fix")),
               )
 
 class Status(CremeModel):
     """Status of a ticket: open, closed, invalid... """
-    name      = CharField(_(u'Nom'), max_length=100, blank=False, null=False, unique=True)
-    deletable = BooleanField(_(u'Supprimable'))
+    name      = CharField(_(u'Name'), max_length=100, blank=False, null=False, unique=True)
+    deletable = BooleanField(_(u'Deletable'))
 
     def __unicode__(self):
         return self.name
 
     class Meta:
         app_label = 'tickets'
-        verbose_name = _(u'Statut de ticket')
-        verbose_name_plural  = _(u'Statuts de ticket')
+        verbose_name = _(u'Ticket status')
+        verbose_name_plural  = _(u'Ticket status')
