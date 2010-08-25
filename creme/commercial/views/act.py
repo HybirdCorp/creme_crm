@@ -41,10 +41,7 @@ def edit(request, act_id):
 @login_required
 @get_view_or_die('commercial')
 def detailview(request, object_id):
-    return view_entity_with_template(request,
-                                     object_id,
-                                     Act,
-                                     '/commercial/act',
+    return view_entity_with_template(request, object_id, Act, '/commercial/act',
                                      'creme_core/generics/view_entity.html')
 
 @login_required
