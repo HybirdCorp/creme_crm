@@ -18,14 +18,14 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.db.models import Model, CharField, ForeignKey
+from django.db.models import CharField, ForeignKey
 from django.utils.translation import ugettext_lazy as _
 
 from creme_core.models import CremeModel
 
 
 class Category(CremeModel):
-    name        = CharField(_(u'Nom de la catégorie'), max_length=100)
+    name        = CharField(_(u'Name of the category'), max_length=100)
     description = CharField(_(u'Description'), max_length=100)
 
     def __unicode__(self):
@@ -36,26 +36,26 @@ class Category(CremeModel):
 
     class Meta:
         app_label = 'products'
-        verbose_name = _(u'Catégorie')
-        verbose_name_plural = _(u'Catégories')
+        verbose_name = _(u'Category of product')
+        verbose_name_plural = _(u'Categories of product')
 
 
 class SubCategory(CremeModel):
-    name        = CharField(_(u'Nom de la sous-catégorie'), max_length=100)
+    name        = CharField(_(u'Name of the sub-category'), max_length=100)
     description = CharField(_(u'Description'), max_length=100)
-    category    = ForeignKey(Category, verbose_name=_(u'Catégorie parente'))
+    category    = ForeignKey(Category, verbose_name=_(u'Parent category'))
 
     def __unicode__(self):
         return self.name
 
     class Meta:
         app_label = 'products'
-        verbose_name = _(u'Sous-catégorie')
-        verbose_name_plural = _(u'Sous-catégories')
+        verbose_name = _(u'Sub-category of product')
+        verbose_name_plural = _(u'Sub-categories of product')
 
 
 class ServiceCategory(CremeModel):
-    name        = CharField(_(u'Nom de la catégorie'), max_length=100)
+    name        = CharField(_(u'Name of the category'), max_length=100)
     description = CharField(_(u'Description'), max_length=100)
 
     def __unicode__(self):
@@ -63,5 +63,5 @@ class ServiceCategory(CremeModel):
 
     class Meta:
         app_label = 'products'
-        verbose_name = _(u'Catégorie')
-        verbose_name_plural = _(u'Catégories')
+        verbose_name = _(u'Category of service')
+        verbose_name_plural = _(u'Categories of service')

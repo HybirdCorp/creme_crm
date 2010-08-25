@@ -1,0 +1,274 @@
+# FR LOCALISATION OF 'PRODUCTS' APP
+# Copyright (C) 2010 Hybird
+# This file is distributed under the same license as the Creme package.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2010-08-25 15:55+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: creme_core_register.py:29
+msgid "Products et services"
+msgstr "Produits et services"
+
+#: creme_core_register.py:34
+msgid "All products"
+msgstr "Lister les produits"
+
+#: creme_core_register.py:35
+msgid "Add a product"
+msgstr "Ajouter un produit"
+
+#: creme_core_register.py:36
+msgid "All services"
+msgstr "Lister les services"
+
+#: creme_core_register.py:37
+msgid "Add a service"
+msgstr "Ajouter un service"
+
+#: populate.py:39
+msgid "Product view"
+msgstr "Vue de Produit"
+
+#: populate.py:41 populate.py:48 forms/product.py:40 forms/service.py:33
+#: models/product.py:45 models/service.py:43
+msgid "Images"
+msgstr "Images"
+
+#: populate.py:42 populate.py:49 models/product.py:35 models/service.py:34
+msgid "Name"
+msgstr "Nom"
+
+#: populate.py:43 models/product.py:36
+msgid "Code"
+msgstr "Code"
+
+#: populate.py:44 populate.py:51
+msgid "User"
+msgstr "Utilisateur"
+
+#: populate.py:46
+msgid "Service view"
+msgstr "Vue de Service"
+
+#: populate.py:50 models/service.py:36
+msgid "Reference"
+msgstr "Référence"
+
+#: populate.py:55
+msgid "Category 1"
+msgstr "Catégorie 1"
+
+#: populate.py:55
+msgid "Description of 'category 1'"
+msgstr "Description de 'catégorie 1'"
+
+#: populate.py:56
+msgid "Category 2"
+msgstr "Catégorie 2"
+
+#: populate.py:56
+msgid "Description of 'category 2'"
+msgstr "Description de 'catégorie 2'"
+
+#: populate.py:58
+msgid "Cooking"
+msgstr "Cuisine"
+
+#: populate.py:58
+msgid "Items for the kitchen"
+msgstr "Articles pour la cuisine"
+
+#: populate.py:59
+msgid "Fruit/vegetables"
+msgstr "Primeurs"
+
+#: populate.py:59
+msgid "Early fruit and vegetables"
+msgstr "Fruits, légumes, ..."
+
+#: populate.py:60
+msgid "Informatic"
+msgstr "Informatique"
+
+#: populate.py:60
+msgid "Geeks' sideline"
+msgstr "La gamme des geeks"
+
+#: populate.py:62
+msgid "Oven"
+msgstr "Four"
+
+#: populate.py:62
+msgid "Gas oven"
+msgstr "Four à gaz"
+
+#: populate.py:63
+msgid "Pans"
+msgstr "Casseroles"
+
+#: populate.py:63
+msgid "To cook"
+msgstr "Pour faire la cuisine"
+
+#: populate.py:64
+msgid "Laptops"
+msgstr "Portables"
+
+#: populate.py:64
+msgid "Laptops, netbooks"
+msgstr "Les PC portables"
+
+#: populate.py:65
+msgid "Desktops"
+msgstr "Bureau"
+
+#: populate.py:65
+msgid "Home computers"
+msgstr "Les PC de salon"
+
+#: populate.py:66
+msgid "Accessories"
+msgstr "Accessoires"
+
+#: populate.py:66
+msgid "Accessories for desktops/laptops"
+msgstr "Accessoires pour PC fixes/portables"
+
+#: populate.py:67
+msgid "Fruits"
+msgstr "Fruits"
+
+#: populate.py:67
+msgid "Bananas, apples..."
+msgstr "Bananes, pommes..."
+
+#: populate.py:68
+msgid "Vegetables"
+msgstr "Légumes"
+
+#: populate.py:68
+msgid "Carrots, potatoes..."
+msgstr "Carottes, patates..."
+
+#: forms/product.py:35 models/product.py:43 models/service.py:37
+msgid "Category"
+msgstr "Catégorie"
+
+#: forms/product.py:38 models/product.py:44
+msgid "Sub-category"
+msgstr "Sous-catégorie"
+
+#: models/other_models.py:28 models/other_models.py:58
+msgid "Name of the category"
+msgstr "Nom de la catégorie"
+
+#: models/other_models.py:29 models/other_models.py:45
+#: models/other_models.py:59 models/product.py:37 models/service.py:35
+msgid "Description"
+msgstr "Description"
+
+#: models/other_models.py:39
+msgid "Category of product"
+msgstr "Catégorie de produit"
+
+#: models/other_models.py:40
+msgid "Categories of product"
+msgstr "Catégories de produit"
+
+#: models/other_models.py:44
+msgid "Name of the sub-category"
+msgstr "Nom de la sous-catégorie"
+
+#: models/other_models.py:46
+msgid "Parent category"
+msgstr "Catégorie parente"
+
+#: models/other_models.py:53
+msgid "Sub-category of product"
+msgstr "Sous-catégorie de produit"
+
+#: models/other_models.py:54
+msgid "Sub-categories of product"
+msgstr "Sous-catégories de produit"
+
+#: models/other_models.py:66
+msgid "Category of service"
+msgstr "Catégorie de service"
+
+#: models/other_models.py:67
+msgid "Categories of service"
+msgstr "Catégories de service"
+
+#: models/product.py:38 models/service.py:40
+msgid "Quantity/Unit"
+msgstr "Quantité/Unité"
+
+#: models/product.py:39 models/service.py:41
+msgid "Unit price"
+msgstr "Prix Unitaire"
+
+#: models/product.py:40
+msgid "Weight"
+msgstr "Poids"
+
+#: models/product.py:41
+msgid "Quantity/Stock"
+msgstr "Quantité/Stock"
+
+#: models/product.py:42 models/service.py:42
+msgid "Web Site"
+msgstr "Site Web"
+
+#: models/product.py:76 templates/products/view_product.html:5
+msgid "Product"
+msgstr "Produit"
+
+#: models/product.py:77
+msgid "Products"
+msgstr "Produits"
+
+#: models/service.py:38
+msgid "Countable"
+msgstr "Dénombrable"
+
+#: models/service.py:39
+msgid "Unit"
+msgstr "Unité"
+
+#: models/service.py:66 templates/products/view_service.html:3
+msgid "Service"
+msgstr "Service"
+
+#: models/service.py:67
+msgid "Services"
+msgstr "Services"
+
+#: templates/products/portal.html:4
+msgid "Products & Services portal"
+msgstr "Portail Produits & Services"
+
+#: templates/products/portal.html:6
+msgid "List of products"
+msgstr "Liste des produits"
+
+#: views/ajax.py:46
+msgid "Choose a category"
+msgstr "Choisissez une catégorie"
+
+#: views/portal.py:35
+msgid "Number of products"
+msgstr "Nombre de produit(s)"
+
+#: views/portal.py:36
+msgid "Number of services"
+msgstr "Nombre de service(s)"
