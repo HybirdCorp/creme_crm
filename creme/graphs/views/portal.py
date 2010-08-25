@@ -18,18 +18,19 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import ugettext as _
 
 from creme_core.views.generic import app_portal
 
 from graphs.models import Graph
+
 
 def portal(request):
     """
         @Permissions : Acces or Admin to rapport app
     """
     stats = (
-                (_('Nombre de graphe(s)'),  Graph.objects.all().count()),
+                (_('Number of graphs'),  Graph.objects.all().count()),
             )
 
     return app_portal(request, 'graphs', 'graphs/portal.html', Graph, stats)
