@@ -42,7 +42,7 @@ class LinkedContactsBlock(QuerysetBlock):
     id_           = QuerysetBlock.generate_id('opportunities', 'linked_contacts')
     dependencies  = (Relation,) #Contact
     relation_type_deps = (REL_OBJ_LINKED_CONTACT, )
-    verbose_name  = _(u'Contact liés')
+    verbose_name  = _(u'Linked Contacts')
     template_name = 'opportunities/templatetags/block_contacts.html'
 
     def detailview_display(self, context):
@@ -63,7 +63,7 @@ class LinkedProductsBlock(QuerysetBlock):
     id_           = QuerysetBlock.generate_id('opportunities', 'linked_products')
     dependencies  = (Relation,)
     relation_type_deps = (REL_OBJ_LINKED_PRODUCT, )
-    verbose_name  = _(u'Produits liés')
+    verbose_name  = _(u'Linked Products')
     template_name = 'opportunities/templatetags/block_products.html'
 
     def __init__(self, *args, **kwargs):
@@ -87,7 +87,7 @@ class LinkedServicesBlock(QuerysetBlock):
     id_           = QuerysetBlock.generate_id('opportunities', 'linked_services')
     dependencies  = (Relation,)
     relation_type_deps = (REL_OBJ_LINKED_SERVICE, )
-    verbose_name  = _(u'Services liés')
+    verbose_name  = _(u'Linked Services')
     template_name = 'opportunities/templatetags/block_services.html'
 
     def __init__(self, *args, **kwargs):
@@ -111,7 +111,7 @@ class ResponsiblesBlock(QuerysetBlock):
     id_           = QuerysetBlock.generate_id('opportunities', 'responsibles')
     dependencies  = (Relation,)
     relation_type_deps = (REL_OBJ_RESPONSIBLE, )
-    verbose_name  = _(u'Responsables')
+    verbose_name  = _(u'Responsibles')
     template_name = 'opportunities/templatetags/block_responsibles.html'
 
     def detailview_display(self, context):
@@ -133,7 +133,7 @@ class QuotesBlock(QuerysetBlock):
     id_           = QuerysetBlock.generate_id('opportunities', 'quotes')
     dependencies  = (Relation,)
     relation_type_deps = (REL_OBJ_LINKED_QUOTE, )
-    verbose_name  = _(u"Devis liés à l'opportunité")
+    verbose_name  = _(u"Quotes linked to the opportunity")
     template_name = 'opportunities/templatetags/block_quotes.html'
 
     def __init__(self, *args, **kwargs):
@@ -159,7 +159,7 @@ class SalesOrdersBlock(QuerysetBlock):
     id_           = QuerysetBlock.generate_id('opportunities', 'sales_orders')
     dependencies  = (Relation,)
     relation_type_deps = (REL_OBJ_LINKED_SALESORDER, )
-    verbose_name  = _(u"Bons de commande liés à l'opportunité")
+    verbose_name  = _(u"Salesorders linked to the opportunity")
     template_name = 'opportunities/templatetags/block_sales_orders.html'
 
     def __init__(self, *args, **kwargs):
@@ -185,7 +185,7 @@ class InvoicesBlock(QuerysetBlock):
     id_           = QuerysetBlock.generate_id('opportunities', 'invoices')
     dependencies  = (Relation,)
     relation_type_deps = (REL_OBJ_LINKED_INVOICE, )
-    verbose_name  = _(u"Factures liées à l'opportunité")
+    verbose_name  = _(u"Invoices linked to the opportunity")
     template_name = 'opportunities/templatetags/block_invoices.html'
 
     def __init__(self, *args, **kwargs):

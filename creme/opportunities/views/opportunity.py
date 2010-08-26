@@ -104,7 +104,7 @@ def generate_new_doc(request, opp_id, ct_id):
     document = klass()
     document.user = opp.user
     document.issuing_date = datetime.now()
-    document.comment = ugettext(u"Générée depuis l'opportunité «%s»") % opp
+    document.comment = ugettext(u"Generated from the opportunity «%s»") % opp
     document.status_id = 1
     document.save()
 
