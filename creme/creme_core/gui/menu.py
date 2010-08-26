@@ -96,9 +96,9 @@ class FolderMenu(object):
 
     def render (self):
         if self.folder_url:
-            html = """<li class="folder" data="url :'%s'">%s<ul>""" % (self.folder_url, self.folder_menu_name)
+            html = """<li><a href="%s">%s</a><ul>""" % (self.folder_url, self.folder_menu_name)
         else:
-            html = """<li class="folder" data="url :'.'">%s<ul>""" % (self.folder_menu_name,)
+            html = """<li><a>%s</a><ul>""" % (self.folder_menu_name,)
         for item in self.items:
             html += item.render()
         html += """</ul></li>"""
@@ -121,9 +121,9 @@ class LeafMenu (object):
 
     def render (self):
         if self.menu_name :
-            return """<li data="url :'%s'">%s</li>""" % (self.menu_url, self.menu_name)
+            return """<li><a href="%s">%s</a></li>""" % (self.menu_url, self.menu_name)
 
-        return """<li data="url :'/'">Sans Nom</li>"""
+        return """<li><a href="%s">Sans Nom</a></li>"""
 
     def __repr__ (self):
         return smart_str(u"LeafMenu : %s" % (self.menu_name,))
