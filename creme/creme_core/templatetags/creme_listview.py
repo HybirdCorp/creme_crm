@@ -95,11 +95,11 @@ def get_listview_columns_header(context):
         if not item.has_a_filter:
             continue
 
-        #TODO : Implement for other type of headers which has a filter ?
         item_value = header_searches.get(item.name, '') #TODO: rename....
         item_dict = {'value': item_value, 'type': 'text'}
+        item_type = item.type
 
-        if item.type == HFI_FIELD:
+        if item_type == HFI_FIELD:
             try:
                 field = get_model_field(item.name)
             except FieldDoesNotExist:
@@ -112,19 +112,18 @@ def get_listview_columns_header(context):
                 _build_bool_search_widget(item_dict, item_value)
             elif isinstance(field, (models.DateField, models.DateTimeField)):
                 _build_date_search_widget(item_dict, item_value)
-            elif hasattr(item_value, '__iter__') and len(item_value) >= 1: #TODO: "elif item_value"
+            #elif hasattr(item_value, '__iter__') and len(item_value) >= 1: #TODO: "elif item_value"
+            elif item_value:
                 item_dict['value'] = item_value[0]
-    
-        elif item.type == HFI_FUNCTION:
-            if hasattr(item_value, '__iter__') and len(item_value) >= 1:
-                item_dict['value'] = item_value[0]                    
-        elif item.type == HFI_RELATION:
-            if hasattr(item_value, '__iter__') and len(item_value) >= 1:
-                item_dict['value'] = item_value[0]                    
-                
-                
-                
-        elif item.type == HFI_CUSTOM:
+        elif item_type == HFI_FUNCTION:
+            #if hasattr(item_value, '__iter__') and len(item_value) >= 1:
+            if item_value:
+                item_dict['value'] = item_value[0]
+        elif item_type == HFI_RELATION:
+            #if hasattr(item_value, '__iter__') and len(item_value) >= 1:
+            if item_value:
+                item_dict['value'] = item_value[0]
+        elif item_type == HFI_CUSTOM:
             cf = item.get_customfield()
             field_type = cf.field_type
 

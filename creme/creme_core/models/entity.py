@@ -29,17 +29,12 @@ from django.contrib.contenttypes.models import ContentType
 from django.conf import settings
 
 from base import CremeAbstractEntity
+from function_field import FunctionField
 
-from creme_core.models.utils_for_hf import UserAllowedFuncHF
 
-
-class FPrettyProperties(UserAllowedFuncHF):
-    name ="get_pretty_properties"
-    verbose_name =u'Propriétés'
-        
-    @classmethod
-    def has_filter(cls):
-        return False
+class _PrettyPropertiesField(FunctionField):
+    name         = "get_pretty_properties"
+    verbose_name = _(u'Propriétés')
 
 
 class CremeEntity(CremeAbstractEntity):
@@ -47,9 +42,7 @@ class CremeEntity(CremeAbstractEntity):
     header_filter_exclude_fields = CremeAbstractEntity.header_filter_exclude_fields + ['id', 'cremeentity_ptr', 'entity_type', 'is_deleted', 'is_actived', 'header_filter_search_field'] #TODO: use a set() ??
     extra_filter_exclude_fields  = CremeAbstractEntity.extra_filter_exclude_fields + ['id', 'cremeentity_ptr', 'header_filter_search_field']
 
-#    users_allowed_func = CremeAbstractEntity.users_allowed_func + [{'name':'get_pretty_properties', 'verbose_name': u'Propriétés'}]
-    users_allowed_func = CremeAbstractEntity.users_allowed_func.copy()  
-    users_allowed_func.update ({ FPrettyProperties.name : FPrettyProperties })
+    function_fields = CremeAbstractEntity.function_fields.new(_PrettyPropertiesField)
 
     class Meta:
         app_label = 'creme_core'

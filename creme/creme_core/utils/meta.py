@@ -23,7 +23,6 @@ from django.db.models.base import ModelBase
 from django.db.models import Field, FieldDoesNotExist
 from django.db.models.fields.related import ManyToManyField
 
-from creme_core.models.entity import CremeEntity
 
 class NotDjangoModel(Exception):
     pass
@@ -73,6 +72,7 @@ def get_model_field_infos(model, field_name):
 
     return infos
 
+#TODO: rename to 'get_field_verbose_name'
 def get_verbose_field_name(model, field_name, separator=" - "):
     """ For a field_name 'att1__att2__att3' it returns
         att1_verbose_name - att2_verbose_name - att3_verbose_name
@@ -81,17 +81,15 @@ def get_verbose_field_name(model, field_name, separator=" - "):
     fields = get_model_field_infos(model, field_name)
     return separator.join([unicode(f['field'].verbose_name) for f in fields])
 
-def get_verbose_function_name(model, function_name):
+def get_function_field_verbose_name(model, function_name):
     """
-        @Returns : User allowed function verbose name if found else None
+        @Returns : function field's verbose name if found else None
         /!\ Model has to be a subclass of CremeAbstractEntity
     """
-    assert issubclass(model, CremeEntity)
-    functions = model.users_allowed_func
-    for f in functions.itervalues():
-        if f.name == function_name:
-            return f.verbose_name
-    return None
+    f_field = model.function_fields.get(function_name)
+
+    if f_field:
+        return unicode(f_field.verbose_name)
 
 #TODO: rename......
 def get_flds_with_fk_flds(model_klass, deep=1):

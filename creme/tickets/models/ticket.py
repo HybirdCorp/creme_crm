@@ -23,22 +23,17 @@ from django.utils.translation import ugettext_lazy as _
 from django.utils.encoding import force_unicode
 from django.template.loader import render_to_string
 
-from creme_core.models import CremeEntity
+from creme_core.models import CremeEntity, FunctionField
 from creme_core.templatetags.creme_date import timedelta_pprint
-from creme_core.models.utils_for_hf import UserAllowedFuncHF
 
 from status import Status, CLOSED_PK
 from priority import Priority
 from criticity import Criticity
 
 
-class FResolvingDuration(UserAllowedFuncHF):
+class _ResolvingDurationField(FunctionField):
     name         = "get_resolving_duration"
     verbose_name = _(u'Resolving duration')
-
-    @classmethod
-    def has_filter(cls):
-        return False
 
 
 #relié à une ou plusieurs fiches (une relation spéciale 'en rapport à' ? ) ??
@@ -52,9 +47,7 @@ class Ticket(CremeEntity):
     criticity    = ForeignKey(Criticity, verbose_name=_(u'Criticity'), blank=False, null=False)
     solution     = TextField(_(u'Solution'), blank=True, null=False)
 
-#    users_allowed_func = CremeEntity.users_allowed_func + [{'name': 'get_resolving_duration', 'verbose_name':u'Temps de résolution'}] #_(u'Temps de résolution')
-    users_allowed_func = CremeEntity.users_allowed_func.copy()
-    users_allowed_func.update ({ FResolvingDuration.name : FResolvingDuration })
+    function_fields = CremeEntity.function_fields.new(_ResolvingDurationField)
 
     class Meta:
         app_label = 'tickets'

@@ -69,8 +69,7 @@ class HeaderFilterForm(CremeModelForm):
         fields['fields'].choices = get_flds_with_fk_flds_str(model, 1)
         fields['custom_fields'].choices = [(cf.id, cf.name) for cf in self._custom_fields]
         fields['relations'].choices = self._relation_types
-        #fields['functions'].choices = ((f['name'], f['verbose_name']) for f in model.users_allowed_func)
-        fields['functions'].choices = ((f.name, f.verbose_name) for f in model.users_allowed_func.itervalues())
+        fields['functions'].choices = [(f.name, f.verbose_name) for f in model.function_fields]
 
         if instance.id:
             initial_data = defaultdict(list)
@@ -169,14 +168,13 @@ class HeaderFilterForm(CremeModelForm):
                                                  filter_string="",
                                                  relation_predicat_id=relation_type_id)) #TODO: relation_type_id in 'name' attr...
 
-        #get_funcname = model_klass.get_users_func_verbose_name
-        for func in cleaned_data['functions']:
-            user_func = model_klass.get_users_func(func)
-            items_2_save.append(HeaderFilterItem(name=func,
-                                                 title=user_func.verbose_name,
+        get_function_field = model_klass.function_fields.get
+        for func_name in cleaned_data['functions']:
+            func_field = get_function_field(func_name)
+            items_2_save.append(HeaderFilterItem(name=func_name,
+                                                 title=unicode(func_field.verbose_name),
                                                  type=HFI_FUNCTION,
-                                                 #has_a_filter=False,
-                                                 has_a_filter=user_func.has_filter (),
+                                                 has_a_filter=func_field.has_filter,
                                                  editable=False,
                                                  filter_string=""))
 

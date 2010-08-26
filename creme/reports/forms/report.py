@@ -21,21 +21,21 @@
 from collections import defaultdict
 
 from django.db.models.query_utils import Q
-from django.contrib.contenttypes.models import ContentType
 from django.forms.fields import MultipleChoiceField
 from django.forms import ValidationError
 from django.utils.translation import ugettext_lazy as _
+from django.contrib.contenttypes.models import ContentType
 
 from creme_core.registry import creme_registry
 from creme_core.forms import CremeEntityForm, CremeForm
 from creme_core.forms.widgets import OrderedMultipleChoiceWidget, ListViewWidget
 from creme_core.forms.fields import AjaxMultipleChoiceField, AjaxModelChoiceField, CremeEntityField
-from creme_core.models import Filter
-from creme_core.models.custom_field import CustomField
+from creme_core.models import Filter, RelationType, CustomField
 from creme_core.models.header_filter import HeaderFilter, HeaderFilterItem, HFI_FIELD, HFI_RELATION, HFI_CUSTOM, HFI_FUNCTION
-from creme_core.models.relation import RelationType
-from creme_core.utils.meta import get_verbose_field_name, get_verbose_function_name, get_flds_with_fk_flds_str
+from creme_core.utils.meta import get_verbose_field_name, get_function_field_verbose_name, get_flds_with_fk_flds_str
+
 from reports.models import Report, Field
+
 
 class CreateForm(CremeEntityForm):
     hf     = AjaxModelChoiceField(queryset=HeaderFilter.objects.none(), required=False)
@@ -141,14 +141,13 @@ class CreateForm(CremeEntityForm):
                 i += 1
 
             for function in functions:
-                f = Field(name=function, title=get_verbose_function_name(model, function), order=i, type=HFI_FUNCTION)
+                f = Field(name=function, title=get_function_field_verbose_name(model, function), order=i, type=HFI_FUNCTION)
                 f.save()
                 report_fields.append(f)
                 i += 1
 
         report.columns = report_fields
         report.save()
-        
 
 
 class EditForm(CremeEntityForm):
@@ -201,8 +200,7 @@ class AddFieldToReportForm(CremeForm):
         fields['columns'].choices = get_flds_with_fk_flds_str(model, 1)
         fields['custom_fields'].choices = [(cf.name, cf.name) for cf in CustomField.objects.filter(content_type=ct)]
         fields['relations'].choices = [(r.id, r.predicate) for r in RelationType.objects.filter(Q(subject_ctypes=ct)|Q(subject_ctypes__isnull=True)).order_by('predicate')]
-        #fields['functions'].choices = ((f['name'], f['verbose_name']) for f in model.users_allowed_func)
-        fields['functions'].choices = ((f.name, f.verbose_name) for f in model.users_allowed_func.itervalues() )
+        fields['functions'].choices = [(f.name, f.verbose_name) for f in model.function_fields]
 
         initial_data = defaultdict(list)
 
@@ -250,7 +248,7 @@ class AddFieldToReportForm(CremeForm):
                 f.order = i
             except Field.DoesNotExist:
                 f = Field(name=custom_field, title=custom_field, order=i, type=HFI_CUSTOM)
-                
+
             f.save()
             fields_to_keep.append(f)
             i += 1
@@ -267,7 +265,7 @@ class AddFieldToReportForm(CremeForm):
                 f.order = i
             except Field.DoesNotExist:
                 f = Field(name=relation, title=predicate_verbose, order=i, type=HFI_RELATION)
-                
+
             f.save()
             fields_to_keep.append(f)
             i += 1
@@ -277,12 +275,12 @@ class AddFieldToReportForm(CremeForm):
                 f = columns_get(name=function, type=HFI_FUNCTION)
                 f.order = i
             except Field.DoesNotExist:
-                f = Field(name=function, title=get_verbose_function_name(model, function), order=i, type=HFI_FUNCTION)
-                
+                f = Field(name=function, title=get_function_field_verbose_name(model, function), order=i, type=HFI_FUNCTION)
+
             f.save()
             fields_to_keep.append(f)
             i += 1
-        
+
         for col in set(report_columns) - set(fields_to_keep):
             col.delete()
 

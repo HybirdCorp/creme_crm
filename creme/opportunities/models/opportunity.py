@@ -25,8 +25,7 @@ from django.db.models import CharField, TextField, ForeignKey, PositiveIntegerFi
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.contenttypes.models import ContentType
 
-from creme_core.models import CremeEntity, CremeModel, Relation
-from creme_core.models.utils_for_hf import UserAllowedFuncHF
+from creme_core.models import CremeEntity, CremeModel, Relation, FunctionField
 
 from creme_config.models import CremeKVConfig
 
@@ -41,14 +40,10 @@ from billing.utils import round_to_2
 
 from opportunities.constants import *
 
-class FTurnover(UserAllowedFuncHF):
-    name ="get_weighted_sales"
-    verbose_name =u"CA pondéré"
-         
-    @classmethod
-    def has_filter(cls):
-        return False
 
+class _TurnoverField(FunctionField):
+    name         = "get_weighted_sales"
+    verbose_name = _(u"CA pondéré")
 
 
 class SalesPhase(CremeModel):
@@ -87,9 +82,7 @@ class Opportunity(CremeEntity):
     expiration_date = DateField(_(u'Échéance'), blank=False, null=False)
     origin          = ForeignKey(Origin, verbose_name=_(u'Origine'))
 
-#    users_allowed_func = CremeEntity.users_allowed_func + [{'name': 'get_weighted_sales', 'verbose_name': u'CA pondéré'}] #_(u'CA pondéré')
-    users_allowed_func = CremeEntity.users_allowed_func.copy()  
-    users_allowed_func.update ({ FTurnover.name : FTurnover })
+    function_fields = CremeEntity.function_fields.new(_TurnoverField)
 
     _use_lines     = None
     _product_lines = None
