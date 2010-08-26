@@ -30,13 +30,13 @@ from opportunities.buttons import linked_opportunity_button
 from opportunities.blocks import *
 
 
-creme_registry.register_app('opportunities', _(u'Opportunité'), '/opportunities')
+creme_registry.register_app('opportunities', _(u'Opportunities'), '/opportunities')
 creme_registry.register_entity_models(Opportunity)
 
 creme_menu.register_app('opportunities', '/opportunities/', 'Opportunités de vente')
 reg_menu = creme_menu.register_menu
-reg_menu('opportunities', '/opportunities/opportunities',   'Lister les opportunités') ##unicode ????????
-reg_menu('opportunities', '/opportunities/opportunity/add', 'Ajouter une opportunité')
+reg_menu('opportunities', '/opportunities/opportunities',   _(u'All opportunities'))
+reg_menu('opportunities', '/opportunities/opportunity/add', _(u'Add an opportunity'))
 
 button_registry.register(linked_opportunity_button)
 
