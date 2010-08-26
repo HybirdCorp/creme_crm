@@ -18,6 +18,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from django.conf import settings
+from django.template.context import RequestContext
 from django.template import Library
 from django.db.models import Q
 
@@ -64,7 +66,10 @@ if settings.USE_STRUCT_MENU:
                 ]
         items.sort()
 
-        return {'menu':items}
+        ctx = RequestContext(request)
+        ctx.update({'menu':items})
+        return ctx
+#        return {'menu':items}
 
 else:
     from django.utils.html import escape

@@ -143,7 +143,9 @@ INSTALLED_APPS = (
 )
 
 
-LOGO_URL = '/site_media/images/creme_256.png'
+#LOGO_URL = '/site_media/images/creme_256.png'
+LOGO_URL = '/site_media/images/creme_256_cropped.png'
+#LOGO_URL = '/site_media/images/logos/hybird.png'
 
 from django.conf.global_settings import TEMPLATE_CONTEXT_PROCESSORS
 TEMPLATE_CONTEXT_PROCESSORS += (
