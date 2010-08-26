@@ -67,9 +67,9 @@ creme_core_patterns = patterns('creme_core.views',
 
     #Ajax helpers
     #TODO: move to entity.py ??
-    (r'^get_fields$',        'ajax.get_fields'),
-    (r'^get_custom_fields$', 'ajax.get_custom_fields'),
-    (r'^get_user_functions$', 'ajax.get_user_functions'),
+    (r'^get_fields$',         'ajax.get_fields'),
+    (r'^get_custom_fields$',  'ajax.get_custom_fields'),
+    (r'^get_function_fields', 'ajax.get_function_fields'),
 
 )
 

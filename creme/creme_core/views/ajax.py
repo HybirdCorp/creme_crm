@@ -147,11 +147,11 @@ def get_custom_fields(request):
 
 #TODO: use utils.jsonify ???
 @login_required
-def get_user_functions(request):
+def get_function_fields(request):
     """
-        @Returns : User allowed functions for a model [('func_name', 'func_name'),...]
+        @Returns : functions fields for a model [('func_name', 'func_verbose_name'), ...]
     """
     ct = get_ct_or_404(request.POST.get('ct_id'))
-    functions = [(f['name'], f['verbose_name']) for f in ct.model_class().users_allowed_func]
+    functions = [(f_field.name, unicode(f_field.verbose_name)) for f_field in ct.model_class().function_fields]
 
     return HttpResponse(JSONEncoder().encode(functions), mimetype="text/javascript")

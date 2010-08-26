@@ -30,12 +30,10 @@ class Folder(CremeEntity):
     """Folder: contains Documents"""
     title         = CharField(_(u'Title'), max_length=100, blank=False, null=False, unique=True)
     description   = TextField(_(u'Description'))
-
     parent_folder = ForeignKey('self', verbose_name=_(u'Parent folder'), blank=True, null=True, related_name='parent_folder_set')
     category      = ForeignKey(FolderCategory, verbose_name=_(u'Category'), blank=True, null=True, related_name='folder_category_set')
 
     research_fields = CremeEntity.research_fields + ['title', 'description', 'parent_folder__title', 'category__name']
-    #users_allowed_func = CremeEntity.users_allowed_func + []
 
     def __unicode__(self):
         return self.title

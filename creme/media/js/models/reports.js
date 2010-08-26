@@ -194,7 +194,7 @@ creme.reports.loadRelations = function(ct_id, options)
 
 creme.reports.loadFunctions = function(ct_id, options)
 {
-    creme.reports.__loadOrderedMultiSelect('/creme_core/get_user_functions',
+    creme.reports.__loadOrderedMultiSelect('/creme_core/get_function_fields',
                                        {'ct_id': ct_id},
                                        options.functions.table_id,
                                        options.functions.name);

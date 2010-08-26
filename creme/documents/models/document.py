@@ -36,7 +36,6 @@ class Document(CremeEntity):
     folder      = ForeignKey(Folder, verbose_name=_(u'Folder'), blank=False, null=False)
 
     research_fields = CremeEntity.research_fields + ['title', 'description', 'folder__title']
-    #users_allowed_func = CremeEntity.users_allowed_func + []
 
     class Meta:
         app_label = 'documents'

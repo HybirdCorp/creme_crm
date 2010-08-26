@@ -215,7 +215,8 @@ class ListViewState(object):
             elif type_ == HFI_FUNCTION:
                 HF = get_object_or_404(HeaderFilterItem, pk=pk_hf)
                 if HF.has_a_filter:
-                    query &= model.filter_users_func (name, value[0] )               
+                    #query &= model.filter_in_funcfield(name, value[0])
+                    query &= model.function_fields.get(name).filter_in_result(value[0])
             elif type_ == HFI_CUSTOM:
                 cf = CustomField.objects.get(pk=name)
                 cf_searches[cf.field_type].append((cf, pattern, value))
