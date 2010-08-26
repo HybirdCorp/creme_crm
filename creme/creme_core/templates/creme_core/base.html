@@ -12,33 +12,32 @@
     <link rel="stylesheet" type="text/css" href="{{MEDIA_URL}}css/creme-ui.css" />
     <link rel="shortcut icon" href="{{MEDIA_URL}}images/favicon.ico" type="image/x-icon" />
     {% include "creme_core/frags/header_js_minimum.html" %}
+    <style type="text/css">
+        .fg-menu-container { z-index: 100; }</style>
     <script type='text/javascript'>
 
       $(document).ready(function() {
-            /*
-            $("#menu_gauche_collapse").css('height',$(document).height());
-            $("#menu_gauche_expanded").css('height',$(document).height());
-            */
-
-           var document_width_onload = $(document).width();
+           var document_width_onload  = $(document).width();
+           var document_height_onload = $(document).height();
 
            function activeEventsMenu()
            {
-                $("#menu_gauche_collapse").mouseenter(function(e) {
-                    $("#menu_gauche_expanded").show('fast');
-                    $("#menu_gauche_collapse").hide('fast');
+                //'fast' transition makes bugs in chrome < 6.1
+                $("#menu_collapse").mouseenter(function(e) {
+                    $("#menu_expanded").show('fast');
+                    $("#menu_collapse").hide('fast');
                 });
 
-                $("#menu_gauche_expanded").mouseleave(function(e) {
-                    $("#menu_gauche_expanded").hide('slow');
-                    $("#menu_gauche_collapse").show('fast');
+                $("#menu_expanded").mouseleave(function(e) {
+                    $("#menu_expanded").hide('fast');
+                    $("#menu_collapse").show('fast');
                 });
             }
 
             function desactiveEventsMenu()
             {
-                $("#menu_gauche_collapse").unbind('mouseenter');
-                $("#menu_gauche_expanded").unbind('mouseleave');
+                $("#menu_collapse").unbind('mouseenter');
+                $("#menu_expanded").unbind('mouseleave');
             }
 
             function resizePageElements(menu_width)
@@ -58,64 +57,82 @@
                 footer.width(new_width);
             }
 
-            $("#tree_menu").dynatree({
-              title : "Menu CREME",
-              //rootVisible: true,
-              imagePath : '{{MEDIA_URL}}images/dynatree/',
-              fx: { height: "toggle", duration: 200 },
-              autoCollapse: true,
-              onActivate : function(e) {
-                  document.location.href = e.data.url;
-              },
-              onAfterExpand :function() {
-                  if($.cookie('menu_creme') == 'expanded') {
-                    resizePageElements($("#menu_gauche_expanded").width());
-                  }
-              }
+            var content_height = $("#content").height()+$("#footer").height()+$("#top").height();//$('#footer').offset().top;//
+            var logo_container_height = $('#logo_container').outerHeight();
+            var max_menu_height = content_height - logo_container_height;
+
+            $('#menu').menu({
+                content: $('#tree_menu2').html(),
+                flyOut: false,
+                backLink: false,
+                alwaysOpen:true,
+                //maxHeight: max_menu_height * 0.9,
+                crumbDefaultText : 'Menu',
+                topLinkText : 'Revenir au début'
             });
 
-            $('#pinmenu').toggle(
+            
+            $('#menu').hide();
+            $('.fg-menu-container')
+                .appendTo('#menu_expanded')
+                .css({'top': logo_container_height, 'height':max_menu_height, 'bottom':'auto'});
+
+            $("#menu_expanded").width($('.fg-menu-container').outerWidth());
+
+            $('.pinmenu').toggle(
              //Pin / Fixer le menu
              function() {
                 $(this).attr('src','{{MEDIA_URL}}images/unpin.png');
                 desactiveEventsMenu();
-                resizePageElements($("#menu_gauche_expanded").outerWidth());
+                resizePageElements($("#menu_expanded").outerWidth());
                 $.cookie('menu_creme', 'expanded', {expires: 7, path: '/', domain: '', secure: false});
              },
              //Unpin / Rendre le menu flottant
              function() {
                 $(this).attr('src','{{MEDIA_URL}}images/pin.png');
                 activeEventsMenu();
-                resizePageElements($("#menu_gauche_collapse").outerWidth());
+                resizePageElements($("#menu_collapse").outerWidth());
                 $.cookie('menu_creme', 'collapse', {expires: 7, path: '/', domain: '', secure: false});
              }
             );
 
            if($.cookie('menu_creme') == 'expanded') {
-                $('#pinmenu').attr('src','{{MEDIA_URL}}images/unpin.png');
+                $('.pinmenu').attr('src','{{MEDIA_URL}}images/unpin.png');
                 desactiveEventsMenu();
-                $("#menu_gauche_expanded").show('fast',resizePageElements($("#menu_gauche_expanded").outerWidth()));
-                $("#menu_gauche_collapse").hide('fast');
-                //resizePageElements($("#menu_gauche_expanded").outerWidth());
+                $("#menu_expanded").show('fast',resizePageElements($("#menu_expanded").outerWidth()));
+                $("#menu_collapse").hide('fast');
            } else {
-               $('#pinmenu').attr('src','{{MEDIA_URL}}images/pin.png');
+               $('.pinmenu').attr('src','{{MEDIA_URL}}images/pin.png');
                activeEventsMenu();
-               $("#menu_gauche_expanded").hide('slow');
-               $("#menu_gauche_collapse").show('fast', resizePageElements($("#menu_gauche_collapse").outerWidth()));
+               $("#menu_expanded").hide('slow');
+               $("#menu_collapse").show('fast', resizePageElements($("#menu_collapse").outerWidth()));
            }
       });
     </script>
      {% block extrahead %}{% endblock %}
      <script type='text/javascript'>
       $(document).ready(function() {
-        $("#menu_gauche_collapse").css('height',$(document).height());
-        $("#menu_gauche_expanded").css('height',$(document).height());
+        $("#menu_collapse").css('height',$(document).height());
+        $("#menu_expanded").css('height',$(document).height());
       });
+
+      window.onload = function(){
+        //var content_height = $("#content").height()+$("#footer").height()+$("#top").height();//Is better but detailviews has float div so we have a very small height size
+        var content_height = $(document).height();
+        var logo_container_height = $('#logo_container').outerHeight();
+        var max_menu_height = content_height - logo_container_height;
+       
+        $('.fg-menu-container').css({'top': logo_container_height, 'height':max_menu_height, 'bottom':'auto'});
+        $('.fg-menu').css('height', max_menu_height*0.9);
+        allUIMenus[0].setMaxHeight(max_menu_height*0.9);
+        $('#menu_collapse').height(content_height*0.9);
+      };
       </script>
 </head>
 <body {% block bodyclass %}{% endblock %}>
     {% block side_menu %}
-        <div id="menu_gauche_collapse" class="menu_collapse">
+        <div id="menu_collapse" class="ui-corner-all menu_collapse">
+            <img src="{{MEDIA_URL}}images/favicon.ico"/>
             M<br/>
             E<br/>
             N<br/>
@@ -127,21 +144,18 @@
             M<br/>
             E<br/>
         </div>
-
-        <div id="menu_gauche_expanded" class="menu_expanded">
-            <div style="padding-left:0%;padding-bottom:10px;padding-top:10px;">
+        <div id="menu_expanded" class="menu_expanded">
+            <div style="padding-left:0%;padding-bottom:10px;padding-top:10px;" id="logo_container">
                 <center>
-                    <a href="/"><img style="cursor:pointer;" src="{{logo_url}}" alt="Logo"/></a>
+                    <a href="/"><img style="cursor:pointer;" src="{{logo_url}}" alt="Logo" class="logo"/></a>
                 </center>
             </div>
-
-            <img src="{{MEDIA_URL}}images/pin.png" alt="{% trans 'Ouvrir' %}" id="pinmenu"/>
-
             {% block sidebar %}
-                <div id="tree_menu" >
+                <a tabindex="0" href="#tree_menu2" class="fg-button fg-button-icon-right ui-widget ui-state-default ui-corner-all" id="menu">
+                    Menu
+                </a>
+                <div id="tree_menu2" style="display:none;">
                  {% generate_treecreme_menu request %} 
-
-                <!--<div class="bg_creme_menu">&nbsp;</div>-->
                 </div>
             {% endblock %}
         </div>
