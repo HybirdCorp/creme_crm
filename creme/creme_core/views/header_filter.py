@@ -35,7 +35,6 @@ from creme_core.utils import get_ct_or_404
 
 
 def _set_current_hf(request, path, hf_instance):
-    print "request.path :", path
     lvs = ListViewState.get_state(request, path)
     if lvs:
         lvs.header_filter_id = hf_instance.id

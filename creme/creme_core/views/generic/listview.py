@@ -144,7 +144,8 @@ def list_view(request, model, hf_pk='', extra_dict=None, template='creme_core/ge
         'list_view_template': 'creme_core/frags/list_view.html',
         'o2m':                o2m,
         'add_url':            None,
-        'extra_bt_templates': None, # () instead ???
+        'extra_bt_templates': None, # () instead ???,
+        'show_actions': show_actions,
     }
 
     if extra_dict:

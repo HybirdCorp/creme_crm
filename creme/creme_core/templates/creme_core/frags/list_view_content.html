@@ -8,6 +8,16 @@
 {% else %}
     {% templatize "{{columns|length|add:1}}" as colspan %}
 {% endif %}
+{% if show_actions %}
+<script type="text/javascript">
+    $(document).ready(function (){
+        $('.default-action').hover(
+                function(){ $(this).addClass('ui-state-hover'); },
+                function(){ $(this).removeClass('ui-state-hover'); }
+        );
+    });
+</script>
+{% endif %}
 <table id="list" class="list_view" cellpadding="0" cellspacing="0">
     <thead>
         <tr>
