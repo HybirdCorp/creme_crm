@@ -36,6 +36,7 @@ creme_registry.register_app('persons', _(u'Accounts and Contact'), '/persons')
 
 creme_menu.register_app('persons', '/persons/', 'Comptes et contacts')
 reg_menu = creme_menu.register_menu
+reg_menu('persons', '/persons/',                 _(u'Portal'))
 reg_menu('persons', '/persons/contacts',         _(u'All contacts'))
 reg_menu('persons', '/persons/leads_customers',  _(u'My customers / prospects / suspects'))
 reg_menu('persons', '/persons/contact/add',      _(u'Add a contact'))

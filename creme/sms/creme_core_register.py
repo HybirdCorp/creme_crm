@@ -34,6 +34,7 @@ creme_registry.register_app('sms', _(u'SMS'), '/sms')
 creme_menu.register_app('sms', '/sms/', "SMS")
 
 reg_menu = creme_menu.register_menu
+reg_menu('sms', '/sms/',             'Portail' )
 reg_menu('sms', '/sms/campaigns' ,   'Lister les campagnes' )
 reg_menu('sms', '/sms/campaign/add', 'Ajouter une campagne')
 reg_menu('sms', '/sms/sendlists',    'Lister les listes de diffusion')

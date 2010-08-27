@@ -33,6 +33,7 @@ creme_registry.register_app('documents', _(u'Documents'), '/documents')
 
 creme_menu.register_app('documents', '/documents/', 'Documents')
 reg_menu = creme_menu.register_menu
+reg_menu('documents', '/documents/',             _(u'Portal'))
 reg_menu('documents', '/documents/documents',    _(u'All documents'))
 reg_menu('documents', '/documents/document/add', _('Add a document'))
 reg_menu('documents', '/documents/folders',      _(u'All folders'))

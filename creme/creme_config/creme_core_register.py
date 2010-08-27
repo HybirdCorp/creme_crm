@@ -31,6 +31,7 @@ creme_registry.register_app('creme_config', _(u'Configuration générale') , '/c
 
 creme_menu.register_app('creme_config', '/creme_config/', 'Configuration générale')
 reg_menu = creme_menu.register_menu
+reg_menu('creme_config', '/creme_config/',                                "Portail")
 reg_menu('creme_config', '/creme_config/relation_type/portal/',           "Gestion des types de relations")
 reg_menu('creme_config', '/creme_config/property_type/portal/',           "Gestion des types de propriétés")
 reg_menu('creme_config', '/creme_config/roles/entity_credential/portal/', "Gestion des droits d'entité")

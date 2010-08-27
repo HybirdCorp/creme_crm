@@ -34,6 +34,7 @@ creme_registry.register_entity_models(Act)
 #TODO: i18n
 creme_menu.register_app('commercial', '/commercial/', 'Commercial')
 reg_menu = creme_menu.register_menu
+reg_menu('commercial', '/commercial/',             _(u'Portal'))
 reg_menu('commercial', '/commercial/acts',         _(u'All commercial actions'))
 reg_menu('commercial', '/commercial/act/add',      _(u'Add a commercial action'))
 reg_menu('persons',    '/commercial/salesmen',     _(u'All salesmen'))

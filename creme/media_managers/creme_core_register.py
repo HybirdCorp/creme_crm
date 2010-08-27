@@ -31,5 +31,6 @@ creme_registry.register_entity_models(Image)
 
 creme_menu.register_app('media_managers', '/media_managers/', 'Gestionnaire des media')
 reg_menu = creme_menu.register_menu
+reg_menu('media_managers', '/media_managers/',          _(u'Portal'))
 reg_menu('media_managers', '/media_managers/image/add', _(u'Add an image'))
 reg_menu('media_managers', '/media_managers/images',    _(u'All images'))

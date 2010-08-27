@@ -31,5 +31,6 @@ creme_registry.register_entity_models(Graph)
 
 creme_menu.register_app('graphs', '/graphs/', 'Graphes')
 reg_menu = creme_menu.register_menu
+reg_menu('graphs', '/graphs/',           _(u'Portal'))
 reg_menu('graphs', '/graphs/graphs',     _(u'All graphs'))
 reg_menu('graphs', '/graphs/graph/add',  _(u'Add a graphe'))

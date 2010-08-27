@@ -35,6 +35,7 @@ creme_registry.register_entity_models(Opportunity)
 
 creme_menu.register_app('opportunities', '/opportunities/', 'Opportunités de vente')
 reg_menu = creme_menu.register_menu
+reg_menu('opportunities', '/opportunities/',                _(u'Portal'))
 reg_menu('opportunities', '/opportunities/opportunities',   _(u'All opportunities'))
 reg_menu('opportunities', '/opportunities/opportunity/add', _(u'Add an opportunity'))
 
