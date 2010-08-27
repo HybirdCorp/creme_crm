@@ -137,7 +137,8 @@ function Menu(caller, options){
 			var menuType = ($(event.target).parents('div').is('.fg-menu-flyout')) ? 'flyout' : 'ipod' ;
 			
 			switch(e) {
-				case 37: // left arrow 
+                            /*
+                                  case 37: // left arrow
 					if (menuType == 'flyout') {
 						$(event.target).trigger('mouseout');
 						if ($('.'+options.flyOutOnState).size() > 0) {$('.'+options.flyOutOnState).trigger('mouseover');};
@@ -192,14 +193,14 @@ function Menu(caller, options){
 					else {container.find('a:eq(0)').trigger('mouseover');}		
 					return false;						
 					break;
-					
+                            */
 				case 27: // escape
                                         if(!options.alwaysOpen)
 					{
                                             killAllMenus();
                                         }
 					break;
-					
+                            /*
 				case 13: // enter
 					if ($(event.target).is('.fg-menu-indicator') && menuType == 'ipod') {							
 						$(event.target).trigger('click');						
@@ -208,6 +209,7 @@ function Menu(caller, options){
 						}, options.crossSpeed);					
 					}; 
 					break;
+                             */
 			};			
 		});
 	};
