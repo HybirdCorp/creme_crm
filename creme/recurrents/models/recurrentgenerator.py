@@ -28,19 +28,19 @@ from recurrents.models import Periodicity
 
 
 class RecurrentGenerator(CremeEntity):
-    name             = CharField(_(u'Nom du générateur'), max_length=100, blank=True, null=True)
-    description      = TextField(_(u'Description du générateur'), blank=True, null=True)
-    first_generation = DateTimeField(_(u'Date de première génération récurrente'), blank=True, null=True)
-    last_generation  = DateTimeField(_(u'Date de la dernière génération récurrente'), blank=True, null=True)
-    periodicity      = ForeignKey(Periodicity, verbose_name=_(u'Périodicité de la génération'))
-    ct               = ForeignKey(ContentType, verbose_name=_(u'Type de ressource recurrente'))
-    template         = ForeignKey(CremeEntity, verbose_name=_(u'Modèle utilisé'), related_name='template_set')
-    is_working       = BooleanField(_(u'Actif ?'), default=True)
+    name             = CharField(_(u'Name of the generator'), max_length=100, blank=True, null=True)
+    description      = TextField(_(u'Description'), blank=True, null=True)
+    first_generation = DateTimeField(_(u'Date of the first recurrent generation'), blank=True, null=True)
+    last_generation  = DateTimeField(_(u'Date of the last recurrent generation'), blank=True, null=True)
+    periodicity      = ForeignKey(Periodicity, verbose_name=_(u'Periodicity of the generation'))
+    ct               = ForeignKey(ContentType, verbose_name=_(u'Type of the recurrent resource'))
+    template         = ForeignKey(CremeEntity, verbose_name=_(u'Related model'), related_name='template_set')
+    is_working       = BooleanField(_(u'Active ?'), default=True)
 
     class Meta:
         app_label = 'recurrents'
-        verbose_name = _(u'Générateur récurrent')
-        verbose_name_plural = _(u'Générateurs récurrents')
+        verbose_name = _(u'Recurrent generator')
+        verbose_name_plural = _(u'Recurrent generators')
 
     def __unicode__(self):
         return self.name

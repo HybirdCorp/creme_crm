@@ -18,6 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from django.utils.translation import ugettext as _
 from django.contrib.contenttypes.models import ContentType
 
 from creme_core.utils import create_or_update_models_instance as create
@@ -34,16 +35,16 @@ class Populator(BasePopulator):
 
     def populate(self, *args, **kwargs):
         #TODO: i18n
-        create(Periodicity, 1, name=u'Quotidienne',   value_in_days=1,   description=u'Tous les jours')
-        create(Periodicity, 2, name=u'Hebdomadaire',  value_in_days=7,   description=u'Toutes les semaines')
-        create(Periodicity, 3, name=u'Mensuelle',     value_in_days=30,  description=u'Tous les mois')
-        create(Periodicity, 4, name=u'Trimestrielle', value_in_days=90,  description=u'Tous les trimestres')
-        create(Periodicity, 5, name=u'Semestrielle',  value_in_days=180, description=u'Tous les semestres')
-        create(Periodicity, 6, name=u'Annuelle',      value_in_days=365, description=u'Tous les ans')
+        create(Periodicity, 1, name=_(u'Daily'),     value_in_days=1,   description=_(u'Every day'))
+        create(Periodicity, 2, name=_(u'Weekly'),    value_in_days=7,   description=_(u'Every week'))
+        create(Periodicity, 3, name=_(u'Monthly'),   value_in_days=30,  description=_(u'Every month'))
+        create(Periodicity, 4, name=_(u'Quarterly'), value_in_days=90,  description=_(u'Every trimester'))
+        create(Periodicity, 5, name=_(u'Biannual'),  value_in_days=180, description=_(u'Every semester'))
+        create(Periodicity, 6, name=_(u'Annual'),    value_in_days=365, description=_(u'Every year'))
 
-        hf_id = create(HeaderFilter, 'recurrents-hf', name=u'Vue des générateurs', entity_type_id=ContentType.objects.get_for_model(RecurrentGenerator).id, is_custom=False).id
+        hf_id = create(HeaderFilter, 'recurrents-hf', name=_(u'Generator view'), entity_type_id=ContentType.objects.get_for_model(RecurrentGenerator).id, is_custom=False).id
         pref = 'recurrents-hfi_'
-        create(HeaderFilterItem, pref + 'name', order=1, name='name', title=u'Nom', type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True, editable=True, sortable=True, filter_string="name__icontains")
+        create(HeaderFilterItem, pref + 'name', order=1, name='name', title=_(u'Name'), type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True, editable=True, sortable=True, filter_string="name__icontains")
 
         model = RecurrentGenerator
         sci = create(SearchConfigItem, content_type_id=ContentType.objects.get_for_model(model).id)

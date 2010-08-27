@@ -25,14 +25,14 @@ from creme_core.models import CremeModel
 
 
 class Periodicity(CremeModel):
-    name            = CharField(_(u"Nom de la fréquence"), max_length=100, blank=True, null=True)
-    value_in_days   = PositiveIntegerField(_(u'Valeur de la fréquence en jour'), blank=True, null=True)
-    description     = TextField(_(u"Description de l'unité de temps"), blank=True, null=True)
+    name            = CharField(_(u"Name of the periodicity"), max_length=100, blank=True, null=True)
+    value_in_days   = PositiveIntegerField(_(u'Duration of the period (in days)'), blank=True, null=True) #TODO: rename to 'period' ???
+    description     = TextField(_(u"Description of the time unit"), blank=True, null=True)
 
     class Meta:
         app_label = 'recurrents'
-        verbose_name = _(u'Périodicité de la récurrence des générateurs')
-        verbose_name_plural = _(u'Périodicités de la récurrence des générateurs')
+        verbose_name = _(u'Periodicity of generator recurennce')
+        verbose_name_plural = _(u'Periodicities of generator recurennce')
 
     def __unicode__(self):
         return self.name
