@@ -33,10 +33,13 @@ from django.contrib.auth.models import User
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.db.models import (PositiveIntegerField, PositiveSmallIntegerField, CharField,
                               TextField, DateTimeField, ForeignKey, ManyToManyField)
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import ugettext_lazy as _, ugettext
 from django.conf import settings
 from django.core.mail import EmailMultiAlternatives
 from django.db import IntegrityError
+from django.utils.safestring import mark_safe
+from django.forms.util import flatatt
+from django.template.loader import render_to_string
 
 from creme_core.models import CremeModel, CremeEntity, Relation
 from creme_core.views.file_handling import handle_uploaded_file
@@ -203,8 +206,16 @@ class EntityEmail(_Email, CremeEntity):
         return u"/emails/entitymail/delete/%s" % self.id
 
     def get_entity_actions(self):
-        return u"""<a href="%s">Voir</a> | <a href="%s" onclick="creme.utils.confirmDelete(event, this);">Effacer</a>""" \
-                % (self.get_absolute_url(), self.get_delete_absolute_url())
+        ctx = {
+            'actions' : [
+                    (self.get_absolute_url(),        ugettext(u"Voir"),    mark_safe(flatatt({})), "%s/images/view_16.png" % settings.MEDIA_URL),
+                    (self.get_delete_absolute_url(), ugettext(u"Effacer"), mark_safe(flatatt({'class': 'confirm_delete'})), "%s/images/delete_16.png"  % settings.MEDIA_URL)
+            ],
+            'id': self.id,
+        }
+        return render_to_string("creme_core/frags/actions.html", ctx)
+#        return u"""<a href="%s">Voir</a> | <a href="%s" onclick="creme.utils.confirmDelete(event, this);">Effacer</a>""" \
+#                % (self.get_absolute_url(), self.get_delete_absolute_url())
 
 
     @staticmethod
