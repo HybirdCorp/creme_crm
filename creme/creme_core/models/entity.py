@@ -18,6 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+import os
 from collections import defaultdict
 from logging import debug
 
@@ -34,6 +35,13 @@ from base import CremeAbstractEntity
 from django.template.loader import render_to_string
 from function_field import FunctionField
 
+class EntityAction(object):
+    def __init__(self, url, text, is_default=False, attrs={}, icon=None):
+        self.url = url
+        self.text = ugettext(text)
+        self.is_default = is_default
+        self.attrs = mark_safe(flatatt(attrs))
+        self.icon = os.path.join(settings.MEDIA_URL, *icon) if icon and hasattr(icon, "__iter__") else None
 
 class _PrettyPropertiesField(FunctionField):
     name         = "get_pretty_properties"
@@ -170,15 +178,15 @@ class CremeEntity(CremeAbstractEntity):
 
     def get_entity_actions(self):
         ctx = {
+            'default_action': EntityAction(self.get_absolute_url(), u"Voir", True, icon=["images","view_16.png"]),
             'actions' : [
-                    (self.get_absolute_url(),        ugettext(u"Voir"),    mark_safe(flatatt({})), "%s/images/view_16.png" % settings.MEDIA_URL),
-                    (self.get_edit_absolute_url(),   ugettext(u"Éditer"),  mark_safe(flatatt({})), "%s/images/edit_16.png" % settings.MEDIA_URL),
-                    (self.get_delete_absolute_url(), ugettext(u"Effacer"), mark_safe(flatatt({'class': 'confirm_delete'})), "%s/images/delete_16.png"  % settings.MEDIA_URL)
+                    EntityAction(self.get_edit_absolute_url(), u"Éditer", icon=["images","edit_16.png"]),
+                    EntityAction(self.get_delete_absolute_url(), u"Effacer", icon=["images","delete_16.png"], attrs={'class': 'confirm_delete'}),
             ],
             'id': self.id,
+            'MEDIA_URL': settings.MEDIA_URL,
         }
         return render_to_string("creme_core/frags/actions.html", ctx)
-
 
 #        return u"""<ul><li><a href="%s">Voir</a></li><li><a href="%s">Éditer</a></li><li><a href="%s" onclick="creme.utils.confirmDelete(event, this);">Effacer</a></li></ul>""" \
 #                % (self.get_absolute_url(), self.get_edit_absolute_url(), self.get_delete_absolute_url())

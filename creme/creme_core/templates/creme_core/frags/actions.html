@@ -3,21 +3,36 @@ $(function(){
     creme.menu.actions.flatMenu('#actions_button_{{id}}', '#actions_div_{{id}}');
 });
 </script>
-<a href="#actions_div_{{id}}"
-   class="fg-button fg-button-icon-right ui-widget ui-corner-all ui-state-default"
-   id="actions_button_{{id}}"
-   >
-    Actions
-</a>
+
+<span class="fg-button fg-button-icon-right ui-widget ui-corner-all ui-state-default">
+    <a href="#actions_div_{{id}}"
+       
+       id="actions_button_{{id}}"
+       >
+    {% if default_action %}
+        <img src="{{MEDIA_URL}}/images/small_down_arrow_16.png"/>
+        </a>|
+        <a href="{{default_action.url}}" class="default-action">
+            {% if default_action.icon %}
+                <img src="{{default_action.icon}}" />
+            {% endif %}
+            {{default_action.text}}
+        </a>
+    {% else %}
+        Actions
+    </a>
+    {% endif %}
+    
+</span>
 <div id="actions_div_{{id}}" style="display: none;">
     <ul>
-        {% for url, verbose, attrs, icon in actions %}
+        {% for action in actions %}
             <li>
-                <a href="{{url}}" {{attrs}}>
-                   {% if icon %}
-                        <img src="{{icon}}" />
+                <a href="{{action.url}}" {{action.attrs}}>
+                   {% if action.icon %}
+                        <img src="{{action.icon}}" />
                     {% endif %}
-                    {{verbose}}
+                    {{action.text}}
                 </a>
             </li>
         {% endfor %}
