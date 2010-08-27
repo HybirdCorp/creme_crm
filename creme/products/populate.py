@@ -21,10 +21,9 @@
 from django.utils.translation import ugettext as _
 from django.contrib.contenttypes.models import ContentType
 
-from creme_core.models import SearchConfigItem, SearchField
+from creme_core.models import SearchConfigItem
 from creme_core.models.header_filter import HeaderFilterItem, HeaderFilter, HFI_FIELD
 from creme_core.utils import create_or_update_models_instance as create
-from creme_core.utils.meta import get_verbose_field_name
 from creme_core.management.commands.creme_populate import BasePopulator
 
 from products.models import Product, Service, ServiceCategory, Category, SubCategory
@@ -67,16 +66,5 @@ class Populator(BasePopulator):
         create(SubCategory, 6, name=_(u"Fruits"),      description=_(u"Bananas, apples..."),               category_id=fruits_n_vegetables.pk)
         create(SubCategory, 7, name=_(u"Vegetables"),  description=_(u"Carrots, potatoes..."),             category_id=fruits_n_vegetables.pk)
 
-        model = Product
-        sci = create(SearchConfigItem, content_type_id=ContentType.objects.get_for_model(model).id)
-        SCI_pk = sci.pk
-        sci_fields = ['name', 'description', 'category__name', 'sub_category__name']
-        for i, field in enumerate(sci_fields):
-            create(SearchField, field=field, field_verbose_name=get_verbose_field_name(model, field), order=i, search_config_item_id=SCI_pk)
-
-        model = Service
-        sci = create(SearchConfigItem, content_type_id=ContentType.objects.get_for_model(model).id)
-        SCI_pk = sci.pk
-        sci_fields = ['name', 'description', 'category__name']
-        for i, field in enumerate(sci_fields):
-            create(SearchField, field=field, field_verbose_name=get_verbose_field_name(model, field), order=i, search_config_item_id=SCI_pk)
+        SearchConfigItem.create(Product, ['name', 'description', 'category__name', 'sub_category__name'])
+        SearchConfigItem.create(Service, ['name', 'description', 'category__name'])

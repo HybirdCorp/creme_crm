@@ -3,9 +3,8 @@
 from django.utils.translation import ugettext as _
 from django.contrib.contenttypes.models import ContentType
 
-from creme_core.models import SearchConfigItem, SearchField
+from creme_core.models import SearchConfigItem
 from creme_core.models.header_filter import HeaderFilterItem, HeaderFilter, HFI_FIELD
-from creme_core.utils.meta import get_verbose_field_name
 from creme_core.utils import create_or_update_models_instance as create
 from creme_core.management.commands.creme_populate import BasePopulator
 
@@ -37,9 +36,5 @@ class Populator(BasePopulator):
         create(HeaderFilterItem, pref + 'criticity', order=4, name='criticity',    title=_(u'Criticity'),    type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True, editable=True, sortable=True, filter_string="criticity__name__icontains")
         create(HeaderFilterItem, pref + 'cdate',     order=5, name='closing_date', title=_(u'Closing date'), type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True, editable=True, sortable=True, filter_string="closing_date__icontains")
 
-        model = Ticket
-        sci = create(SearchConfigItem, content_type_id=ContentType.objects.get_for_model(model).id)
-        SCI_pk = sci.pk
-        sci_fields = ['title', 'description', 'status__name', 'priority__name', 'criticity__name']
-        for i, field in enumerate(sci_fields):
-            create(SearchField, field=field, field_verbose_name=get_verbose_field_name(model, field), order=i, search_config_item_id=SCI_pk)
+        SearchConfigItem.create(Ticket, ['title', 'description', 'status__name', 'priority__name', 'criticity__name'])
+

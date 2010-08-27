@@ -23,9 +23,8 @@ from django.contrib.contenttypes.models import ContentType
 
 from creme_core.utils import create_or_update_models_instance as create
 from creme_core.models.header_filter import HeaderFilterItem, HeaderFilter, HFI_FIELD
-from creme_core.models import RelationType, SearchConfigItem, SearchField
+from creme_core.models import RelationType, SearchConfigItem
 from creme_core.management.commands.creme_populate import BasePopulator
-from creme_core.utils.meta import get_verbose_field_name
 
 from persons.models import Organisation
 
@@ -82,31 +81,7 @@ class Populator(BasePopulator):
         create_hf('billing-hf_salesorder', 'billing-hfi_salesorder_', _(u'Sales order view'), SalesOrder)
         create_hf('billing-hf_creditnote', 'billing-hfi_creditnote_', _(u'Credit note view'),   CreditNote)
 
-        #TODO: factorise (create an helper static method in SearchField ???)
-        model = Invoice
-        sci = create(SearchConfigItem, content_type_id=ContentType.objects.get_for_model(model).id)
-        SCI_pk = sci.pk
-        sci_fields = ['name', 'number', 'total', 'status__name']
-        for i, field in enumerate(sci_fields):
-            create(SearchField, field=field, field_verbose_name=get_verbose_field_name(model, field), order=i, search_config_item_id=SCI_pk)
-
-        model = CreditNote
-        sci = create(SearchConfigItem, content_type_id=ContentType.objects.get_for_model(model).id)
-        SCI_pk = sci.pk
-        sci_fields = ['name', 'number', 'total', 'status__name']
-        for i, field in enumerate(sci_fields):
-            create(SearchField, field=field, field_verbose_name=get_verbose_field_name(model, field), order=i, search_config_item_id=SCI_pk)
-
-        model = Quote
-        sci = create(SearchConfigItem, content_type_id=ContentType.objects.get_for_model(model).id)
-        SCI_pk = sci.pk
-        sci_fields = ['name', 'number', 'total', 'status__name']
-        for i, field in enumerate(sci_fields):
-            create(SearchField, field=field, field_verbose_name=get_verbose_field_name(model, field), order=i, search_config_item_id=SCI_pk)
-
-        model = SalesOrder
-        sci = create(SearchConfigItem, content_type_id=ContentType.objects.get_for_model(model).id)
-        SCI_pk = sci.pk
-        sci_fields = ['name', 'number', 'total', 'status__name']
-        for i, field in enumerate(sci_fields):
-            create(SearchField, field=field, field_verbose_name=get_verbose_field_name(model, field), order=i, search_config_item_id=SCI_pk)
+        SearchConfigItem.create(Invoice,    ['name', 'number', 'total', 'status__name'])
+        SearchConfigItem.create(CreditNote, ['name', 'number', 'total', 'status__name'])
+        SearchConfigItem.create(Quote,      ['name', 'number', 'total', 'status__name'])
+        SearchConfigItem.create(SalesOrder, ['name', 'number', 'total', 'status__name'])
