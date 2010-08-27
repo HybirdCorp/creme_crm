@@ -52,7 +52,7 @@ class Populator(BasePopulator):
         #create(TaskStatus, 3, name=_(u"Annulée"),       description=_(u"La tâche a été annulée"))
         #create(TaskStatus, 4, name=_(u"Redémarrée"),    description=_(u"La tâche a été redémarrée"))
         #create(TaskStatus, 5, name=_(u"Terminée"),      description=_(u"La tâche est terminée"))
-        for pk, statusdesc in TASK_STATUS:
+        for pk, statusdesc in TASK_STATUS.iteritems():
             create(TaskStatus, pk, name=statusdesc.name, description=statusdesc.verbose_name)
 
         get_ct = ContentType.objects.get_for_model

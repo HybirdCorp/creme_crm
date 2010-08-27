@@ -35,6 +35,7 @@ creme_registry.register_entity_models(Activity)
 
 creme_menu.register_app('activities', '/activities/', 'Activités')
 reg_menu = creme_menu.register_menu
+reg_menu('activities', '/activities/',                    _(u'Portal'))
 reg_menu('activities', '/activities/calendar/user',       _(u'Calendar'))
 reg_menu('activities', '/activities/indisponibility/add', _(u'Add an indisponibility'))
 reg_menu('activities', '/activities/activities',          _(u'All activities'))

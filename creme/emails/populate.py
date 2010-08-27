@@ -48,9 +48,15 @@ class Populator(BasePopulator):
         create(HeaderFilterItem, 'emails-hf_template_name',    order=1, name='name',    title=u'Nom',   type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True, editable=True, filter_string="name__icontains")
         create(HeaderFilterItem, 'emails-hf_template_subject', order=2, name='subject', title=u'Sujet', type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True, editable=True, filter_string="subject__icontains")
 
+        hf_id = create(HeaderFilter, 'emails-hf_email', name='Vue des mail', entity_type_id=get_ct(EntityEmail).id, is_custom=False).id
+        create(HeaderFilterItem, 'emails-hf_email_sender',    order=1, name='sender',    title=u'Expediteur',   type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True, editable=True, filter_string="sender__icontains")
+        create(HeaderFilterItem, 'emails-hf_email_recipient', order=2, name='recipient', title=u'Destinataire', type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True, editable=True, filter_string="recipient__icontains")
+        create(HeaderFilterItem, 'emails-hf_email_subject',   order=3, name='subject',   title=u'Sujet',        type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True, editable=True, filter_string="subject__icontains")
+
 
         #m2m fields excluded for the moment see creme_config/forms/search.py
         SearchConfigItem.create(EmailCampaign, ['name', ])#'mailing_lists__name']
         SearchConfigItem.create(MailingList,   ['name', ])#'children__name', 'contacts__first_name', 'contacts__last_name', 'organisations__name']
         SearchConfigItem.create(EmailTemplate, ['name', 'subject', 'body',])# 'attachments__title']
+        SearchConfigItem.create(EntityEmail,   ['sender', 'recipient', 'subject',])
 

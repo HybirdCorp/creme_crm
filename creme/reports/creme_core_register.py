@@ -39,6 +39,7 @@ creme_registry.register('reports-backend-csv',  CsvReportBackend)
 
 creme_menu.register_app(report_app, '%s/' % report_prefix_url, 'Rapports')
 reg_menu = creme_menu.register_menu
+reg_menu(report_app, '%s/' % report_prefix_url,           'Portail')
 reg_menu(report_app, '%s/reports' % report_prefix_url,    'Liste des rapports générés')
 reg_menu(report_app, '%s/report/add' % report_prefix_url, 'Créer un rapport')
 
