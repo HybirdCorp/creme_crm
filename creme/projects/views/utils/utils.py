@@ -18,6 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from django.utils.translation import ugettext as _
 from django.shortcuts import get_object_or_404
 from django.template import RequestContext
 from django.contrib.auth.decorators import login_required
@@ -48,10 +49,10 @@ def _add_generic(request, form, task_id, title):
         return die_status
 
     current_status_id = task.get_real_entity().status_id
-    if current_status_id == constants.TERMINATED_PK or current_status_id == constants.CANCELED_PK:
+    if current_status_id == constants.COMPLETED_PK or current_status_id == constants.CANCELED_PK:
         state = task.get_real_entity().status.name
-        return error_popup( request,
-                            u"Vous ne pouvez pas ajouter de ressources ou de périodes travaillées à une tâche en statut <%s>" % state)
+        return error_popup(request,
+                           _(u"You can't add a resources or a working period to a task which has status <%s>") % state)
 
     if request.POST :
         form_obj = form(request.POST, initial={'related_task': task.get_real_entity()})

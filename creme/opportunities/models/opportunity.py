@@ -43,11 +43,11 @@ from opportunities.constants import *
 
 class _TurnoverField(FunctionField):
     name         = "get_weighted_sales"
-    verbose_name = _(u"CA pondéré")
+    verbose_name = _(u"Weighted sales")
 
 
 class SalesPhase(CremeModel):
-    name        = CharField(_(u"Nom"), max_length=100, blank=False, null=False)
+    name        = CharField(_(u"Name"), max_length=100, blank=False, null=False)
     description = TextField(_(u"Description"))
 
     def __unicode__(self):
@@ -55,12 +55,12 @@ class SalesPhase(CremeModel):
 
     class Meta:
         app_label = "opportunities"
-        verbose_name = _(u"Phase de vente")
-        verbose_name_plural = _(u'Phases de vente')
+        verbose_name = _(u"Sale phase")
+        verbose_name_plural = _(u'Sale phases')
 
 
 class Origin(CremeModel):
-    name        = CharField(_(u'Origine'), max_length=100, blank=False, null=False)
+    name        = CharField(_(u'Origin'), max_length=100, blank=False, null=False)
     description = TextField(_(u"Description"))
 
     def __unicode__(self):
@@ -68,19 +68,19 @@ class Origin(CremeModel):
 
     class Meta:
         app_label = "opportunities"
-        verbose_name = _(u'Origine')
-        verbose_name_plural = _(u'Origines')
+        verbose_name = _(u"Origin of opportunity")
+        verbose_name_plural = _(u"Origins of opportunity")
 
 
 class Opportunity(CremeEntity):
-    name            = CharField(_(u"Nom de l'opportunité"), max_length=100, blank=False, null=False)
-    reference       = CharField(_(u"Référence"), max_length=100, blank=True, null=True)
-    estimated_sales = PositiveIntegerField(_(u'CA estimé'), blank=True, null=True)
-    made_sales      = PositiveIntegerField(_(u'CA final'), blank=True, null=True)
-    sales_phase     = ForeignKey(SalesPhase, verbose_name=_(u'Phase de vente'))
-    chance_to_win   = PositiveIntegerField(_(u"% de chance d'obtention"), blank=True, null=True)
-    expiration_date = DateField(_(u'Échéance'), blank=False, null=False)
-    origin          = ForeignKey(Origin, verbose_name=_(u'Origine'))
+    name            = CharField(_(u"Name of the opportunity"), max_length=100, blank=False, null=False)
+    reference       = CharField(_(u"Reference"), max_length=100, blank=True, null=True)
+    estimated_sales = PositiveIntegerField(_(u'Estimated sales'), blank=True, null=True)
+    made_sales      = PositiveIntegerField(_(u'Made sales'), blank=True, null=True)
+    sales_phase     = ForeignKey(SalesPhase, verbose_name=_(u'Sales phase'))
+    chance_to_win   = PositiveIntegerField(_(ur"% of chance to win"), blank=True, null=True)
+    expiration_date = DateField(_(u'Expiration date'), blank=False, null=False)
+    origin          = ForeignKey(Origin, verbose_name=_(u'Origin'))
 
     function_fields = CremeEntity.function_fields.new(_TurnoverField)
 
@@ -90,8 +90,8 @@ class Opportunity(CremeEntity):
 
     class Meta:
         app_label = "opportunities"
-        verbose_name = _(u'Opportunité')
-        verbose_name_plural = _(u'Opportunités')
+        verbose_name = _(u'Opportunity')
+        verbose_name_plural = _(u'Opportunities')
 
     def __init__(self, *args, **kwargs):
         super(Opportunity, self).__init__(*args, **kwargs)

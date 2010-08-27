@@ -62,6 +62,6 @@ class PreferedMenuForm(CremeForm):
         offset = 100 if user else 1
 
         for i, menu_url in enumerate(self.cleaned_data['menu_entries']):
-            menu_name = get_item_name(menu_url)
+            menu_name = unicode(get_item_name(menu_url))
 
             create_item(user=user, name=menu_name, label=menu_name, url=menu_url, order=i + offset)

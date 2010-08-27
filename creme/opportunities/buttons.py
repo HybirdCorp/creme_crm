@@ -25,7 +25,7 @@ from creme_core.gui.button_menu import Button
 
 class LinkedOpportunityButton(Button):
     id_           = Button.generate_id('opportunities', 'linked_opportunity')
-    verbose_name  = _(u'Ajouter une opportunité liée à une société')
+    verbose_name  = _(u'Add an opportunity linked to an organisation')
     template_name = 'opportunities/templatetags/button_linked_opp.html'
 
     def get_ctypes(self):
