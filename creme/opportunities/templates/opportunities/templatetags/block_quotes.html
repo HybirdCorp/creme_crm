@@ -1,28 +1,29 @@
+{% load i18n %}
 {% load creme_block %}
 <script type="text/javascript">
-    creme.include('{{MEDIA_URL}}js/models/relations.js','js');
+    creme.include('{{MEDIA_URL}}js/models/relations.js', 'js');
 </script>
 <table  class="table_detail_view ui-corner-all" id={{block_name}}>
-    {% get_block_header '%s Devis proposé' '%s Devis proposés' 'invoice_48.png' 'Quotes' %}
+    {% get_block_header _('%s Proposed Quote') _('%s Proposed Quotes') 'invoice_48.png' _('Quotes') %}
     <tbody class="collapsable">
         <tr>
             <th colspan="4" class="block_header_line_dark" align="left">
                 <a class="button_link" onclick="creme.relations.handleAddFromPredicateEntity('/creme_core/relation/add/from/predicate/{{predicate_id}}/entity/{{object.id}}/{{ct_id}}', '{{predicate_id}}', '{{object.id}}', {% get_block_reload_uri %});">
-                    <img src="{{MEDIA_URL}}images/relations_22.png" border="0" title="Lier à un Devis" alt="Ajouter" />
-                    Lier à un devis existant
+                    <img src="{{MEDIA_URL}}images/relations_22.png" border="0" title="{% trans "Link to an existing quote" %}" alt="{% trans "Link to an existing quote" %}" />
+                    {% trans "Link to an existing quote" %}
                 </a>
                 <a class="button_link" href="/opportunities/opportunity/generate_new_doc/{{object.id}}/{{ct_id}}">
-                    <img src="{{MEDIA_URL}}images/add_22.png" border="0" title="Générer un nouveau Devis courant" alt="Générer un nouveau Devis courant" />
-                    Générer un nouveau Devis courant
+                    <img src="{{MEDIA_URL}}images/add_22.png" border="0" title="{% trans "Generate a new current quote" %}" alt="{% trans "Generate a new current quote" %}" />
+                    {% trans "Generate a new current quote" %}
                 </a>
             </th>
         </tr>
         {% if page.paginator.count %}
             <tr>
-                <th class="block_header_line_dark">Numéro</th>
-                <th class="block_header_line_dark">Nom</th>
-                <th class="block_header_line_dark">Devis courant ?</th>
-                <th class="block_header_line_dark">Supprimer</th>
+                <th class="block_header_line_dark">{% trans "Number" %}</th>
+                <th class="block_header_line_dark">{% trans "Name" %}</th>
+                <th class="block_header_line_dark">{% trans "Current quote ?" %}</th>
+                <th class="block_header_line_dark">{% trans "Delete" %}</th>
             </tr>
             {% for quote in page.object_list %}
                 <!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
@@ -36,7 +37,7 @@
                             <strong>Oui</strong>
                         {% else %}
                             <a href="/opportunities/opportunity/{{object.pk}}/linked/quote/{{quote.pk}}/set_current/">
-                                Le devenir
+                                {% trans "Become" %}
                             </a>
                         {% endifequal %}
                     </td>
@@ -47,7 +48,7 @@
             {% endfor %}
         {% else %}
             <tr>
-                <td class="block_line_dark">Aucun devis enregistré pour le moment</td>
+                <td class="block_line_dark">{% trans "No quote for the moment" %}</td>
             </tr>
         {% endif %}
     </tbody>
