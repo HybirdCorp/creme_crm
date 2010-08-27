@@ -94,9 +94,4 @@ class Populator(BasePopulator):
 
         create(ButtonMenuItem, 'opportunities-linked_opp_button', content_type_id=get_ct(Organisation).id, button_id=linked_opportunity_button.id_, order=30)
 
-        model = Opportunity
-        sci = create(SearchConfigItem, content_type_id=ContentType.objects.get_for_model(model).id)
-        SCI_pk = sci.pk
-        sci_fields = ['name', 'made_sales', 'sales_phase__name', 'origin__name']
-        for i, field in enumerate(sci_fields):
-            create(SearchField, field=field, field_verbose_name=get_verbose_field_name(model, field), order=i, search_config_item_id=SCI_pk)
+        SearchConfigItem.create(Opportunity, ['name', 'made_sales', 'sales_phase__name', 'origin__name'])

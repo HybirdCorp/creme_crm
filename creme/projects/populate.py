@@ -21,9 +21,8 @@
 from django.contrib.contenttypes.models import ContentType
 
 from creme_core.utils import create_or_update_models_instance as create
-from creme_core.utils.meta import get_verbose_field_name
 from creme_core.models.header_filter import HeaderFilterItem, HeaderFilter, HFI_FIELD
-from creme_core.models import RelationType, SearchConfigItem, SearchField
+from creme_core.models import RelationType, SearchConfigItem
 from creme_core.management.commands.creme_populate import BasePopulator
 
 from persons.models import Contact
@@ -72,23 +71,8 @@ class Populator(BasePopulator):
         create(HeaderFilterItem, pref + 'contact', order=1, name='linked_contact', title=u'Nom de la ressource', type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True, editable=True, sortable=True, filter_string="linked_contact__icontains")
         create(HeaderFilterItem, pref + 'cost',    order=2, name='hourly_cost',    title=u'Coût horaire',        type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True, editable=True, sortable=True, filter_string="hourly_cost__icontains")
 
-        model = Project
-        sci = create(SearchConfigItem, content_type_id=ContentType.objects.get_for_model(model).id)
-        SCI_pk = sci.pk
-        sci_fields = ['name', 'description', 'status__name']
-        for i, field in enumerate(sci_fields):
-            create(SearchField, field=field, field_verbose_name=get_verbose_field_name(model, field), order=i, search_config_item_id=SCI_pk)
 
-        model = Resource
-        sci = create(SearchConfigItem, content_type_id=ContentType.objects.get_for_model(model).id)
-        SCI_pk = sci.pk
-        sci_fields = ['linked_contact__first_name', 'linked_contact__last_name', 'hourly_cost']
-        for i, field in enumerate(sci_fields):
-            create(SearchField, field=field, field_verbose_name=get_verbose_field_name(model, field), order=i, search_config_item_id=SCI_pk)
-
-        model = ProjectTask
-        sci = create(SearchConfigItem, content_type_id=ContentType.objects.get_for_model(model).id)
-        SCI_pk = sci.pk
-        sci_fields = ['project__name', 'duration', 'status__name']
-        for i, field in enumerate(sci_fields):
-            create(SearchField, field=field, field_verbose_name=get_verbose_field_name(model, field), order=i, search_config_item_id=SCI_pk)
+        SearchConfigItem.create(Project,     ['name', 'description', 'status__name'])
+        SearchConfigItem.create(Resource,    ['linked_contact__first_name', 'linked_contact__last_name', 'hourly_cost'])
+        SearchConfigItem.create(ProjectTask, ['project__name', 'duration', 'status__name'])
+        

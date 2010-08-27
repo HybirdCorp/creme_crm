@@ -20,10 +20,9 @@
 
 from django.contrib.contenttypes.models import ContentType
 
-from creme_core.models import SearchConfigItem, SearchField
+from creme_core.models import SearchConfigItem
 from creme_core.models.header_filter import HeaderFilterItem, HeaderFilter, HFI_FIELD
 from creme_core.utils import create_or_update_models_instance as create
-from creme_core.utils.meta import get_verbose_field_name
 from creme_core.management.commands.creme_populate import BasePopulator
 
 from sms.models import SendList, SMSCampaign, MessageTemplate
@@ -48,19 +47,6 @@ class Populator(BasePopulator):
         #create(HeaderFilterItem, 'sms-hf_template_name',    order=1, name='name',    title=u'Nom',   type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True, editable=True, filter_string="name__icontains")
         #create(HeaderFilterItem, 'sms-hf_template_subject', order=2, name='subject', title=u'Sujet', type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True, editable=True, filter_string="subject__icontains")
 
-        model = SMSCampaign
-        sci = create(SearchConfigItem, content_type_id=ContentType.objects.get_for_model(model).id)
-        SCI_pk = sci.pk
-        #m2m fields excluded for the moment see creme_config/forms/search.py
-        sci_fields = ['name', ]#'sendlists__name']
-        for i, field in enumerate(sci_fields):
-            create(SearchField, field=field, field_verbose_name=get_verbose_field_name(model, field), order=i, search_config_item_id=SCI_pk)
-
-        model = SendList
-        sci = create(SearchConfigItem, content_type_id=ContentType.objects.get_for_model(model).id)
-        SCI_pk = sci.pk
-        #m2m fields excluded for the moment see creme_config/forms/search.py
-        sci_fields = ['name',]# 'contacts__first_name', 'contacts__last_name']
-        for i, field in enumerate(sci_fields):
-            create(SearchField, field=field, field_verbose_name=get_verbose_field_name(model, field), order=i, search_config_item_id=SCI_pk)
+        SearchConfigItem.create(SMSCampaign, ['name', ])
+        SearchConfigItem.create(SendList,    ['name', ])
 

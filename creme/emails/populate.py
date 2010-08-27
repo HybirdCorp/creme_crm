@@ -20,10 +20,9 @@
 
 from django.contrib.contenttypes.models import ContentType
 
-from creme_core.models import SearchConfigItem, SearchField, RelationType
+from creme_core.models import SearchConfigItem, RelationType
 from creme_core.models.header_filter import HeaderFilterItem, HeaderFilter, HFI_FIELD
 from creme_core.utils import create_or_update_models_instance as create
-from creme_core.utils.meta import get_verbose_field_name
 from creme_core.management.commands.creme_populate import BasePopulator
 
 from emails.models import MailingList, EmailCampaign, EmailTemplate, EntityEmail
@@ -51,23 +50,7 @@ class Populator(BasePopulator):
 
 
         #m2m fields excluded for the moment see creme_config/forms/search.py
-        model = EmailCampaign
-        sci = create(SearchConfigItem, content_type_id=ContentType.objects.get_for_model(model).id)
-        SCI_pk = sci.pk
-        sci_fields = ['name', ]#'mailing_lists__name']
-        for i, field in enumerate(sci_fields):
-            create(SearchField, field=field, field_verbose_name=get_verbose_field_name(model, field), order=i, search_config_item_id=SCI_pk)
+        SearchConfigItem.create(EmailCampaign, ['name', ])#'mailing_lists__name']
+        SearchConfigItem.create(MailingList,   ['name', ])#'children__name', 'contacts__first_name', 'contacts__last_name', 'organisations__name']
+        SearchConfigItem.create(EmailTemplate, ['name', 'subject', 'body',])# 'attachments__title']
 
-        model = MailingList
-        sci = create(SearchConfigItem, content_type_id=ContentType.objects.get_for_model(model).id)
-        SCI_pk = sci.pk
-        sci_fields = ['name', ]#'children__name', 'contacts__first_name', 'contacts__last_name', 'organisations__name']
-        for i, field in enumerate(sci_fields):
-            create(SearchField, field=field, field_verbose_name=get_verbose_field_name(model, field), order=i, search_config_item_id=SCI_pk)
-
-        model = EmailTemplate
-        sci = create(SearchConfigItem, content_type_id=ContentType.objects.get_for_model(model).id)
-        SCI_pk = sci.pk
-        sci_fields = ['name', 'subject', 'body',]# 'attachments__title']
-        for i, field in enumerate(sci_fields):
-            create(SearchField, field=field, field_verbose_name=get_verbose_field_name(model, field), order=i, search_config_item_id=SCI_pk)

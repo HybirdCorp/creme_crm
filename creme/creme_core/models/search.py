@@ -27,6 +27,9 @@ from django.utils.encoding import force_unicode
 
 from creme_core.models import CremeModel
 
+from creme_core.utils import create_or_update_models_instance
+from creme_core.utils.meta import get_verbose_field_name
+
 DEFAULT_PATTERN = '__icontains'
 
 class SearchConfigItem(CremeModel):
@@ -61,6 +64,16 @@ class SearchConfigItem(CremeModel):
 
         for sfci in search_config_items:
             sfci._searchfields = sfci_dict[sfci.id]
+
+    @staticmethod
+    def create(model, fields):
+        """Create a config item & his fields
+        SearchConfigItem.create(SomeDjangoModel, ['SomeDjangoModel_field1', 'SomeDjangoModel_field2', ..])
+        """
+        sci = create_or_update_models_instance(SearchConfigItem, content_type_id=ContentType.objects.get_for_model(model).id)
+        SCI_pk = sci.pk
+        for i, field in enumerate(fields):
+            create_or_update_models_instance(SearchField, field=field, field_verbose_name=get_verbose_field_name(model, field), order=i, search_config_item_id=SCI_pk)
 
 
 class SearchField(CremeModel):
