@@ -28,12 +28,12 @@ from projects.models import Project, ProjectTask, Resource
 from projects.blocks import tasks_block, resources_block, working_periods_block
 
 
-creme_registry.register_app('projects', _(u'Projets'), '/projects')
+creme_registry.register_app('projects', _(u'Projects'), '/projects')
 creme_registry.register_entity_models(Project, Resource, ProjectTask)
 
 creme_menu.register_app('projects', '/projects/', 'Projets')
 reg_menu = creme_menu.register_menu
-reg_menu('projects', '/projects/projects',    'Lister les projets')
-reg_menu('projects', '/projects/project/add', 'Ajouter un projet')
+reg_menu('projects', '/projects/projects',    _('All projects'))
+reg_menu('projects', '/projects/project/add', _('Add a project'))
 
 block_registry.register(tasks_block, resources_block, working_periods_block)

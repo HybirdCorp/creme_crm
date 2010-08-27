@@ -28,16 +28,16 @@ from task import ProjectTask
 
 
 class WorkingPeriod(CremeModel):
-    start_date = DateTimeField(_(u'Entre'), blank=True, null=True)
-    end_date   = DateTimeField(_(u'Et'), blank=True, null=True)
-    duration   = PositiveIntegerField(_(u"Durée (en heures) de l'intervention"), blank=True, null=True)
-    task       = ForeignKey(ProjectTask, verbose_name=_(u'Tâche'), related_name='tasks_set')
-    resource   = ForeignKey(Resource, verbose_name=_(u'Ressource'))
+    start_date = DateTimeField(_(u'Between'), blank=True, null=True)
+    end_date   = DateTimeField(_(u'And'), blank=True, null=True)
+    duration   = PositiveIntegerField(_(u"Duration (in hours)"), blank=True, null=True)
+    task       = ForeignKey(ProjectTask, verbose_name=_(u'Task'), related_name='tasks_set')
+    resource   = ForeignKey(Resource, verbose_name=_(u'Resource'))
 
     class Meta:
         app_label = 'projects'
-        verbose_name = _(u'Période de travail')
-        verbose_name_plural = _(u'Périodes de travail')
+        verbose_name = _(u'Working period')
+        verbose_name_plural = _(u'Working periods')
 
     def __unicode__(self):
         return u'%s %s' % (self.start_date, self.end_date)

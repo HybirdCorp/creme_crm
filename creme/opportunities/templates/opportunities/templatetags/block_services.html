@@ -1,25 +1,25 @@
+{% load i18n %}
 {% load creme_block %}
 <script type="text/javascript">
-    creme.include('{{MEDIA_URL}}js/models/relations.js','js');
+    creme.include('{{MEDIA_URL}}js/models/relations.js', 'js');
 </script>
 {% comment %} FACTORISE BLOCK CODE {% endcomment %}
 
 <table  class="table_detail_view ui-corner-all" id={{block_name}}>
-    {% get_block_header '%s Service concerné' '%s Services concernés' 'service_48.png' 'Service' %}
+    {% get_block_header _('%s Related Service') _('%s Related Services') 'service_48.png' _('Service') %}
     <tbody class="collapsable">
         <tr>
             <th colspan="4" class="block_header_line_dark" align="left">
                 <a class="button_link" onclick="creme.relations.handleAddFromPredicateEntity('/creme_core/relation/add/from/predicate/{{predicate_id}}/entity/{{object.id}}/{{ct_id}}', '{{predicate_id}}', '{{object.id}}', {% get_block_reload_uri %});">
-                    <img src="{{MEDIA_URL}}images/relations_22.png" border="0" title="Ajouter un Service" alt="Ajouter" />
-                    Lier à un service
+                    <img src="{{MEDIA_URL}}images/relations_22.png" border="0" title="{% trans "Link to an existing service" %}" alt="{% trans "Link to an existing service" %}" />
+                    {% trans "Link to an existing service" %}
                 </a>
             </th>
         </tr>
-
         {% if page.paginator.count %}
             <tr>
-                <th class="block_header_line_dark">Nom</th>
-                <th class="block_header_line_dark">Supprimer</th>
+                <th class="block_header_line_dark">{% trans "Name" %}</th>
+                <th class="block_header_line_dark">{% trans "Delete" %}</th>
             </tr>
             {% for service in page.object_list %}
                 <!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
@@ -32,7 +32,7 @@
             {% endfor %}
         {% else %}
             <tr>
-                <td class="block_line_dark">Aucun service concerné pour le moment</td>
+                <td class="block_line_dark">{% trans "No related service for the moment" %}</td>
             </tr>
         {% endif %}
     </tbody>

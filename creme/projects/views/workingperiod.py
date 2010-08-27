@@ -18,21 +18,22 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.contrib.auth.decorators import login_required
+from django.utils.translation import ugettext as _
 from django.shortcuts import get_object_or_404
 from django.http import HttpResponseRedirect, HttpResponse
+from django.contrib.auth.decorators import login_required
 
 from creme_core.entities_access.functions_for_permissions import get_view_or_die, edit_object_or_die
 
 from projects.models import WorkingPeriod
-from projects.forms.workingperiod import PeriodCreateForms, PeriodEditForms
+from projects.forms.workingperiod import PeriodCreateForm, PeriodEditForm
 from projects.views.utils import _add_generic, _edit_generic
 
 
 @login_required
 @get_view_or_die('projects')
 def add(request, task_id):
-    return _add_generic(request, PeriodCreateForms, task_id, u"Ajout d'une nouvelle période travaillée")
+    return _add_generic(request, PeriodCreateForm, task_id, _(u"New working period"))
 
 @login_required
 @get_view_or_die('projects')
@@ -40,13 +41,13 @@ def edit(request, period_id):
     """
         @Permissions : Acces or Admin to project & Edit on current object
     """
-    return _edit_generic(request, PeriodEditForms, period_id, WorkingPeriod, u"Edition d'une période travaillée")
+    return _edit_generic(request, PeriodEditForm, period_id, WorkingPeriod, _(u"Edition of a working period"))
 
 @login_required
 def delete(request):
     period = get_object_or_404(WorkingPeriod, pk=request.POST.get('id'))
     related_task = period.task
-    
+
     die_status = edit_object_or_die(request, related_task)
     if die_status:
         return die_status

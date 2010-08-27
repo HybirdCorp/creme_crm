@@ -32,8 +32,8 @@ from projects.models import Project
 
 
 class ProjectEditForm(CremeEntityForm):
-    start_date          = DateTimeField(label=_(u'Début du projet'), required=True, widget=DateTimeWidget())
-    end_date            = DateTimeField(label=_(u'Fin du projet'), required=True, widget=DateTimeWidget())
+    start_date          = DateTimeField(label=_(u'Start date'), required=True, widget=DateTimeWidget())
+    end_date            = DateTimeField(label=_(u'End date'), required=True, widget=DateTimeWidget())
     effective_end_date  = DateTimeField(widget=HiddenInput(), required=False)
 
     class Meta(CremeEntityForm.Meta):
@@ -41,9 +41,9 @@ class ProjectEditForm(CremeEntityForm):
 
 
 class ProjectCreateForm(ProjectEditForm):
-    responsible = MultiCremeEntityField(label=_(u'Responsable(s) du projet'),
+    responsibles = MultiCremeEntityField(label=_(u'Project leaders'),
                                         required=True, model=Contact)
 
     def save(self):
         super(ProjectCreateForm, self).save()
-        self.instance.add_responsibles(self.cleaned_data['responsible'])
+        self.instance.add_responsibles(self.cleaned_data['responsibles'])

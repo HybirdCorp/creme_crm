@@ -25,8 +25,8 @@ from creme_core.models import CremeModel
 
 
 class ProjectStatus(CremeModel):
-    name        = CharField(_("Nom"), max_length=100)
-    color_code  = CharField(_("Couleur"), max_length=100, blank=True, null=True)
+    name        = CharField(_("Name"), max_length=100)
+    color_code  = CharField(_("Color"), max_length=100, blank=True, null=True)
     description = TextField(_("Description"))
 
     def __unicode__(self):
@@ -34,5 +34,5 @@ class ProjectStatus(CremeModel):
 
     class Meta:
         app_label = 'projects'
-        verbose_name = _(u'Statut de projet')
-        verbose_name_plural = _(u'Statuts de projet')
+        verbose_name = _(u'Status of project')
+        verbose_name_plural = _(u'Status of project')
