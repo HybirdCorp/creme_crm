@@ -227,4 +227,5 @@ def get_m2m_entities(entity, column_name, get_value=False, q_filter=None):
     return m2m_entities
 
 def filter_entities_on_ct(entities, ct):
-    return filter(lambda entity: entity.entity_type==ct, entities)
+    ct_model_class = ct.model_class()
+    return [entity for entity in entities if isinstance(entity, ct_model_class)]
