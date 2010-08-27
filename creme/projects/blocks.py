@@ -28,7 +28,7 @@ from projects.models import ProjectTask, Resource, WorkingPeriod
 class ProjectTaskBlock(QuerysetBlock):
     id_           = QuerysetBlock.generate_id('projects', 'project_tasks')
     dependencies  = (ProjectTask,)
-    verbose_name  = _(u'Liste des tâches du projet')
+    verbose_name  = _(u'Tasks of a project')
     template_name = 'projects/templatetags/block_tasks.html'
 
     def detailview_display(self, context):
@@ -40,7 +40,7 @@ class ProjectTaskBlock(QuerysetBlock):
 class ResourceTaskBlock(QuerysetBlock):
     id_           = QuerysetBlock.generate_id('projects', 'resources')
     dependencies  = (Resource,)
-    verbose_name  = _(u'Ressource(s) affectée(s) à la tâche')
+    verbose_name  = _(u'Resources assigned to a task')
     template_name = 'projects/templatetags/block_resources.html'
 
     def detailview_display(self, context):
@@ -53,7 +53,7 @@ class ResourceTaskBlock(QuerysetBlock):
 class WorkingPeriodTaskBlock(QuerysetBlock):
     id_           = QuerysetBlock.generate_id('projects', 'working_periods')
     dependencies  = (WorkingPeriod,)
-    verbose_name  = _(u'Période(s) travaillée(s) sur cette tâche')
+    verbose_name  = _(u'Working periods for this task')
     template_name = 'projects/templatetags/block_working_periods.html'
 
     def detailview_display(self, context):

@@ -31,22 +31,22 @@ from creme import form_post_save
 
 
 class OpportunityEditForm(CremeEntityForm):
-    expiration_date = CremeDateTimeField(label=_(u'Écheance'))
+    expiration_date = CremeDateTimeField(label=_(u'Expiration date'))
 
     class Meta(CremeEntityForm.Meta):
         model = Opportunity
 
 
 class OpportunityCreateForm(OpportunityEditForm):
-    target_orga = CremeEntityField(label=_(u"Organisation cible"), model=Organisation)
-    emit_orga   = ModelChoiceField(label=_(u"Organisation concernée"), queryset=Organisation.objects.none())
+    target_orga = CremeEntityField(label=_(u"Target organisation"), model=Organisation)
+    emit_orga   = ModelChoiceField(label=_(u"Concerned organisation"), queryset=Organisation.objects.none())
 
     def __init__(self, *args, **kwargs):
         super(OpportunityCreateForm, self).__init__(*args, **kwargs)
         self.fields['emit_orga'].queryset = Organisation.get_all_managed_by_creme()
 
     def save(self):
-        created = False if self.instance.pk else True
+        created = False if self.instance.pk else True #TODO: not bool(self.instance.pk)
         super(OpportunityCreateForm, self).save()
         self.instance.link_to_target_orga(self.cleaned_data['target_orga'])
         self.instance.link_to_emit_orga(self.cleaned_data['emit_orga'])

@@ -18,6 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404
 from django.http import HttpResponse
@@ -30,13 +31,13 @@ from projects.models import Resource
 
 
 def add(request, task_id):
-    return _add_generic(request, ResourceCreateForm, task_id, "Affectation d'une nouvelle ressource")
+    return _add_generic(request, ResourceCreateForm, task_id, _(u"Allocation of a new resource"))
 
 def edit(request, resource_id):
     """
         @Permissions : Acces or Admin to project & Edit on current object
     """
-    return _edit_generic(request, ResourceEditForm, resource_id, Resource, u"Édition d'une ressource")
+    return _edit_generic(request, ResourceEditForm, resource_id, Resource, _(u"Edition of a resource"))
 
 @login_required
 def delete(request):

@@ -1,9 +1,9 @@
 {% extends "creme_core/generics/view_entity.html" %}
 
+{% load i18n %}
 {% load creme_block %}
-{% load creme_core_tags %}
 
-{% block logo %}<img src="{{MEDIA_URL}}images/task_64.png" alt=""/>{% endblock %}
+{% block logo %}<img src="{{MEDIA_URL}}images/task_64.png" alt="{% trans "Task" %}"/>{% endblock %}
 
 {% block creme_blocks_import %}
     {{block.super}}
@@ -19,36 +19,28 @@
 
 {% block after_object_as_table_1 %}
     <table  class="table_detail_view ui-corner-all">
-        {% get_basic_block_header 'Informations Supplémentaires' 'infos_48.png' 'Infos' %}
+        {% get_basic_block_header _('Other information') 'infos_48.png' _('Information') %}
         <tbody>
             <tr>
-                <th class="block_header_line_dark">Durée effective de la tâche (heures)</th>
+                <th class="block_header_line_dark">{% trans "Effective duration (in hours)" %}</th>
                 <td class="block_line_dark" align="center">{{object.get_effective_duration}} h</td>
             </tr>
             <tr>
-                <th class="block_header_line_dark">Heure(s) supplémentaire(s) ou restante(s)</th>
-                {% with object.get_delay as delay %}
-                    {% if delay|gt:0 %}
-                        <td class="td_error" align="center">
-                            <strong>{{object.get_effective_duration}}h : Hors délais {{delay}}h</strong>
-                        </td>
-                    {% else %}
-                        <td class="td_valid" align="center">
-                            <strong>{{object.get_effective_duration}}h : Temps restant {{delay|absolute}}h</strong>
-                        </td>
-                    {% endif %}
+                <th class="block_header_line_dark">{% trans "Additional or remaining hours" %}</th>
+                {% with object as task %}
+                    {% include 'projects/frag_task_delay_td.html' %}
                 {% endwith %}
             </tr>
             <tr>
-                <th class="block_header_line_dark">Tâche(s) parente(s)</th>
+                <th class="block_header_line_dark">{% trans "Parent task(s)" %}</th>
                 <td class="block_line_dark" align="center">
                     {% for parent in object.get_parents %}
                         <a href="{{parent.get_absolute_url}}">{{parent.subject}}</a>
                         <a href="/projects/task/{{object.id}}/parent/delete/{{parent.id}}">
-                            <img src="{{MEDIA_URL}}images/delete_22.png" border="0" alt="Supprimer" title="Supprimer"/>
+                            <img src="{{MEDIA_URL}}images/delete_22.png" border="0" alt="{% trans "Delete" %}" title="{% trans "Delete" %}"/>
                         </a>
                     {% empty %}
-                        Cette tâche n'a aucun parent
+                        {% trans "This task has no parent" %}
                     {% endfor %}
                 </td>
             </tr>

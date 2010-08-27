@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import ugettext_lazy as _, ugettext
 from django.forms import ValidationError
 
 from creme_core.forms import CremeEntityForm
@@ -30,7 +30,7 @@ from projects.models import Resource
 
 
 class ResourceEditForm(CremeEntityForm):
-    linked_contact = CremeEntityField(label=_(u'Contact Creme à affecter à cette tâche'),
+    linked_contact = CremeEntityField(label=_(u'Contact to be assigned to this task'),
                                       required=True, model=Contact)
 
     class Meta:
@@ -47,7 +47,7 @@ class ResourceCreateForm(ResourceEditForm):
         contact = self.cleaned_data['linked_contact']
 
         if self.related_task.resources_set.filter(linked_contact=contact):
-            raise ValidationError(_(u"Cette ressource est déjà affectée à la tâche"))
+            raise ValidationError(ugettext(u"This resource is already assigned to thsi task"))
 
         return contact
 

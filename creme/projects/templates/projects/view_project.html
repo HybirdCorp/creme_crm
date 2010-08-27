@@ -1,19 +1,20 @@
 {% extends "creme_core/generics/view_entity.html" %}
 
+{% load i18n %}
 {% load creme_block %}
 
 {% block extra_menu_buttons %}
     {% if not object.effective_end_date %}
         <li>
             <a class="menu_button" href="/projects/project/{{object.id}}/close" >
-                <img src="{{MEDIA_URL}}images/cancel_32.png" border="0" title="Clôture" alt="Clôture" />
-                Clôturer le projet
+                <img src="{{MEDIA_URL}}images/cancel_32.png" border="0" title="{% trans "Close project" %}" alt="{% trans "Close project" %}" />
+                {% trans "Close project" %}
             </a>
         </li>
     {% endif %}
 {% endblock %}
 
-{% block logo %}<img src="{{MEDIA_URL}}images/project_64.png" alt=""/>{% endblock %}
+{% block logo %}<img src="{{MEDIA_URL}}images/project_64.png" alt="{% trans "Project" %}"/>{% endblock %}
 
 {% block creme_blocks_import %}
     {{block.super}}
@@ -27,15 +28,14 @@
 
 {% block after_object_as_table_1 %}
     <table  class="table_detail_view ui-corner-all">
-        {% get_basic_block_header 'Informations Supplémentaires' 'infos_48.png' 'Infos' %}
-
+        {% get_basic_block_header _('Other information') 'infos_48.png' _('Information') %}
         <tbody>
             <tr>
-                <th class="block_header_line_dark">Coût total du projet (euros)</th>
+                <th class="block_header_line_dark">{% trans "Total cost of the projet (€)" %}</th>
                 <td class="block_line_dark" align="center"><strong>{{object.get_project_cost}} €</strong></td>
             </tr>
             <tr>
-                <th class="block_header_line_dark">Heure(s) supplémentaire(s) totale(s)</th>
+                <th class="block_header_line_dark">{% trans "Total overtime (in hours)" %}</th>
                 <td class="block_line_dark" align="center">
                 {% if object.get_delay %}
                     <strong>{{object.get_delay}} h</strong>
