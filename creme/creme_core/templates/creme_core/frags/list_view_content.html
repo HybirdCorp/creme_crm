@@ -93,7 +93,7 @@
                 </td>
                 {% for column in columns %}
                     {% if not column.type %}
-                        <td title="actions">{{entity.get_entity_actions|safe}}</td>
+                        <td title="actions" class="list_view_actions">{{entity.get_entity_actions|safe}}</td>
                     {% else %}
                         <td title="" name="{{column.name}}" {% if column.is_hidden %}style="display:none;"{% endif %}>{% if column.is_hidden %}{{column|hf_get_html_output:entity|safe}}{% else %}{{column|hf_get_html_output:entity|safe|linebreaks}}{% endif %}</td>
                     {% endif %}

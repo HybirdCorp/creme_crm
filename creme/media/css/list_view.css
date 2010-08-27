@@ -158,6 +158,11 @@
 	background-color: #D7E2E7;
 }
 
+.list_view_actions
+{
+    max-width: 1%;
+    width: 1%;
+}
 /*
 .list_view select {
     color:#376e86;
