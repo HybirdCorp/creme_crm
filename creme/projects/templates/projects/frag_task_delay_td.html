@@ -1,0 +1,17 @@
+{% load i18n %}
+{% load creme_core_tags %}
+{% with task.get_delay as delay %}
+    {% if delay|gt:0 %}
+        <td class="td_error" align="center">
+            <strong>
+                {% blocktrans with task.get_effective_duration as duration %}{{duration}}h: overtime of {{delay}}h{% endblocktrans %}
+            </strong>
+        </td>
+    {% else %}
+        <td class="td_valid" align="center">
+            <strong>
+                {% blocktrans with task.get_effective_duration as duration and delay|absolute as abs_delay %}{{duration}}h: remaining time of {{abs_delay}}h{% endblocktrans %}
+            </strong>
+        </td>
+    {% endif %}
+{% endwith %}
