@@ -29,36 +29,39 @@ from projects.models import WorkingPeriod, Resource, TaskStatus
 from projects import constants
 
 
-class PeriodEditForms(CremeModelForm):
-    resource   = CremeEntityField(label=_(u'Ressource(s) affectée(s) à cette tâche'), required=True, model=Resource)
-    start_date = DateTimeField(label=_(u'Entre'), widget=DateTimeWidget(), required=False)
-    end_date   = DateTimeField(label=_(u'Et'), widget=DateTimeWidget(), required=False)
-    duration   = IntegerField(label=_(u'Durée de la période'), required=True)
+class PeriodEditForm(CremeModelForm):
+    resource   = CremeEntityField(label=_(u'Resources allocated to this task'), required=True, model=Resource)
+    start_date = DateTimeField(label=_(u'Between'), widget=DateTimeWidget(), required=False)
+    end_date   = DateTimeField(label=_(u'And'), widget=DateTimeWidget(), required=False)
+    duration   = IntegerField(label=_(u'Period duration'), required=True)
 
     class Meta:
         model = WorkingPeriod
         exclude = ['task']
 
 
-class PeriodCreateForms(PeriodEditForms):
+class PeriodCreateForm(PeriodEditForm):
     def __init__(self, *args, **kwargs):
         self.task = kwargs['initial'].pop('related_task')
-        super(PeriodCreateForms, self).__init__(*args, **kwargs)
+        super(PeriodCreateForm, self).__init__(*args, **kwargs)
         self.fields['resource'].widget.q_filter = {'task__id': self.task.pk}
 
     def clean_resource(self):
         resource = self.cleaned_data['resource']
 
         if resource not in self.task.get_resources():
-            raise ValidationError(_(u"Cette ressource n'a pas été affectée au projet"))
+            raise ValidationError(_(u"This resource has not been allocated to this task"))
 
         return resource
 
     def save(self):
-        self.instance.task = self.task
+        task = self.task
+        self.instance.task = task
 
-        if self.task.status.name == constants.TASK_STATUS[constants.NOT_STARTED_PK]:
-            self.task.status = TaskStatus.objects.get(id=constants.CURRENT_PK)
-            self.task.save()
+        #if self.task.status.name == constants.TASK_STATUS[constants.NOT_STARTED_PK]:
+        if task.status_id == constants.NOT_STARTED_PK:
+            #self.task.status = TaskStatus.objects.get(id=constants.IN_PROGRESS_PK)
+            task.status_id = constants.IN_PROGRESS_PK
+            task.save()
 
-        return super(PeriodCreateForms, self).save()
+        return super(PeriodCreateForm, self).save()

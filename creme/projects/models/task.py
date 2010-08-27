@@ -31,12 +31,12 @@ from taskstatus import TaskStatus
 
 
 class ProjectTask(Activity):
-    project      = ForeignKey(Project, verbose_name=_(u'Projet'), related_name='tasks_set')
-    order        = PositiveIntegerField(_(u'Ordonnacement'), blank=True, null=True)
+    project      = ForeignKey(Project, verbose_name=_(u'Project'), related_name='tasks_set')
+    order        = PositiveIntegerField(_(u'Order'), blank=True, null=True)
     parents_task = ManyToManyField("self", blank=True, null=True, symmetrical=False)
-    duration     = PositiveIntegerField(_(u'Durée prévue (en heures)'), blank=False, null=False)
-    status       = ForeignKey(TaskStatus, verbose_name=_(u'Statut'))
-    
+    duration     = PositiveIntegerField(_(u'Estimated duration (in hours)'), blank=False, null=False)
+    status       = ForeignKey(TaskStatus, verbose_name=_(u'Status'))
+
     header_filter_exclude_fields = Activity.header_filter_exclude_fields + ['activity_ptr'] #TODO: use a set() ??
 
     effective_duration = None
@@ -46,12 +46,13 @@ class ProjectTask(Activity):
 
     class Meta:
         app_label = 'projects'
-        verbose_name = _(u'Tâche')
-        verbose_name_plural = _(u'Tâches')
+        verbose_name = _(u'Task')
+        verbose_name_plural = _(u'Tasks')
 
     def __init__ (self, *args , **kwargs):
         super(ProjectTask, self).__init__(*args, **kwargs)
-        self.type = ActivityType.objects.get(pk=ACTIVITYTYPE_TASK) #self.type_id = ACTIVITYTYPE_TASK ???
+        #self.type = ActivityType.objects.get(pk=ACTIVITYTYPE_TASK)
+        self.type_id = ACTIVITYTYPE_TASK
 
     def get_absolute_url(self):
         return "/projects/task/%s" % self.id
@@ -106,4 +107,4 @@ class ProjectTask(Activity):
         return self.get_effective_duration() - self.duration
 
     def is_alive(self):
-        return self.status_id != constants.TERMINATED_PK and self.status_id != constants.CANCELED_PK
+        return self.status_id not in (constants.COMPLETED_PK, constants.CANCELED_PK)

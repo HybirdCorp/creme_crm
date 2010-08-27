@@ -1,27 +1,30 @@
+{% load i18n %}
 {% load creme_block %}
 <table class="table_detail_view ui-corner-all" id={{block_name}}>
-    {% get_block_header '%s Période travaillée sur la tâche' '%s Périodes travaillées sur la tâche' 'project_48.png' 'Périodes' %}
+    {% get_block_header _('%s Working period') _('%s Working periods') 'project_48.png' _('Periods') %}
     <tbody class="collapsable">
         <tr>
             <th colspan="11" class="block_header_line_dark" align="left">
                 {% if object.is_alive %}
                     {% comment %}<a class="button_link" onclick="creme.utils.showInnerPopup('/projects/task/{{object.id}}/period/add', {'width' : 950});">{% endcomment %}
                     <a class="button_link" onclick="creme.utils.innerPopupNReload('/projects/task/{{object.id}}/period/add', {% get_block_reload_uri %});">
-                        <img src="{{MEDIA_URL}}images/add_22.png" border="0" title="Ajouter une période travaillée" alt="Ajouter" />
-                        Ajouter une nouvelle période travaillée
+                        <img src="{{MEDIA_URL}}images/add_22.png" border="0" title="{% trans "New working period" %}" alt="{% trans "New working period" %}" />
+                        {% trans "New working period" %}
                     </a>
                 {% else %}
-                    <em>Vous ne pouvez pas ajouter de périodes travaillées car cette tâche est {{object.status.name}}</em>
+                    <em>
+                        {% blocktrans with object.status.name as status %}You can't add a working périod because this task is {{status}}{% endblocktrans %}
+                    </em>
                 {% endif %}
             </th>
         </tr>
         {% if page.paginator.count %}
             <tr>
-                <th class="block_header_line_dark">Entre le</th>
-                <th class="block_header_line_dark">et</th>
-                <th class="block_header_line_dark">Durée (heures)</th>
-                <th class="block_header_line_dark">Ressource(s) concernée(s)</th>
-                <th class="block_header_line_dark">Actions</th>
+                <th class="block_header_line_dark">{% trans "Between" %}</th>
+                <th class="block_header_line_dark">{% trans "And" %}</th>
+                <th class="block_header_line_dark">{% trans "Duration (hours)" %}</th>
+                <th class="block_header_line_dark">{% trans "Concerned resource(s)" %}</th>
+                <th class="block_header_line_dark">{% trans "Actions" %}</th>
             </tr>
             {% for period in page.object_list %}
                 <!-- {% cycle "block_line_dark" "block_line_light" as row_color %} -->
@@ -35,7 +38,7 @@
                     <td class="{{row_color}}" align="center" valign="center" style="width:10%;">
                         {% comment %}<a class="button_link" onclick="creme.utils.showInnerPopup('{{period.get_edit_absolute_url}}', {'width' : 950});">{% endcomment %}
                         <a class="button_link" onclick="creme.utils.innerPopupNReload('{{period.get_edit_absolute_url}}', {% get_block_reload_uri %});">
-                            <img src="{{MEDIA_URL}}images/edit_22.png" border="0" title="Edition d'une période travaillée" alt="Editer" />
+                            <img src="{{MEDIA_URL}}images/edit_22.png" border="0" title="{% trans "Editer period" %}" alt="{% trans "Editer period" %}" />
                         </a>
                         {% get_line_deletor at_url '/projects/period/delete' with_args "{ 'id':{{period.pk}} }" %}
                     </td>
@@ -43,7 +46,7 @@
             {% endfor %}
         {% else %}
             <tr>
-                <td class="block_line_dark">Aucune période travaillée n'a été saisie concernant cette tâche</td>
+                <td class="block_line_dark">{% trans "No working period record for this task" %}</td>
             </tr>
         {% endif %}
     </tbody>

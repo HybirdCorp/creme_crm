@@ -29,19 +29,19 @@ from projects.constants import REL_OBJ_PROJECT_MANAGER
 
 
 class Project(CremeEntity):
-    name                = CharField(_(u'Nom du projet'), max_length=100, blank=True, null=True)
-    description         = TextField(_(u'Description du projet'), blank=True, null=True)
-    status              = ForeignKey(ProjectStatus, verbose_name=_(u'Statut'))
-    start_date          = DateTimeField(_(u'Début prévisionnel'), blank=True, null=True)
-    end_date            = DateTimeField(_(u'Fin prévisionnel'), blank=True, null=True)
-    effective_end_date  = DateTimeField(_(u'Fin effective'), blank=True, null=True)
+    name                = CharField(_(u'Name of the project'), max_length=100, blank=True, null=True)
+    description         = TextField(_(u'Description'), blank=True, null=True)
+    status              = ForeignKey(ProjectStatus, verbose_name=_(u'Status'))
+    start_date          = DateTimeField(_(u'Estimated start'), blank=True, null=True)
+    end_date            = DateTimeField(_(u'Estimated end'), blank=True, null=True)
+    effective_end_date  = DateTimeField(_(u'Effective end date'), blank=True, null=True)
 
     tasks_list          = None
 
     class Meta:
         app_label = 'projects'
-        verbose_name = _(u'Projet')
-        verbose_name_plural = _(u'Projets')
+        verbose_name = _(u'Project')
+        verbose_name_plural = _(u'Projects')
 
     def __unicode__(self) :
         return self.name
