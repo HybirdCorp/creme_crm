@@ -218,6 +218,45 @@ creme.utils.confirmDelete = function(evt, a, msg, ajax, ajax_options) {
 
 }
 
+creme.utils.confirmDelete2 = function(url, msg, ajax, ajax_options) {
+    
+    creme.utils.showDialog(msg || "Êtes-vous sûr ?",
+    {
+        buttons: {
+            "Ok": function() {
+                if(typeof(ajax)!="undefined" && ajax==true)
+                {
+                    //$.get(href);
+                    var defOpts = jQuery.extend({
+                        url : url,
+                        data : {},
+                        success : function(data, status, req){
+                            creme.utils.showDialog("Suppression effectuée");
+                        },
+                        error : function(req, status, error){
+                            creme.utils.showDialog("Erreur");
+                        },
+                        complete : function(request, textStatus){},
+                        sync : false,
+                        method:"GET",
+                        parameters : undefined
+                    }, ajax_options);
+
+                    $.ajax(defOpts);
+                    $(this).dialog("destroy");
+                    $(this).remove();
+                }
+                else
+                {
+                    window.location.href=url;
+                }
+            },
+            "Annuler": function() {$(this).dialog("destroy");$(this).remove();}
+        }
+    });
+
+}
+
 creme.utils.changeOtherNodes = function (from_id, arrayNodesIds, callback) {
     var $from_node = $('#'+from_id);
 
@@ -754,3 +793,22 @@ creme.utils.toggleCheckallState = function(select_all, checkboxes_selector)
     }
 
 };
+
+creme.utils.go_to = function(url, ajax, ajax_options)
+{
+    if(typeof(ajax) != "undefined" && ajax)
+    {
+        if(typeof(ajax_options) != "undefined" && ajax_options)
+        {
+            $(ajax_options.target).load(url, ajax_options.data, ajax_options.complete);
+        }
+        else
+        {
+            $("#sub_content").load(url, {}, null);
+        }
+    }
+    else
+    {
+        window.location.href = url;
+    }
+}

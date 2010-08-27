@@ -114,6 +114,12 @@
       $(document).ready(function() {
         $("#menu_collapse").css('height',$(document).height());
         $("#menu_expanded").css('height',$(document).height());
+
+        $('[role=menuitem]', '#menu_expanded').bind('menu-item-selected', function(e, menu){
+            e.stopImmediatePropagation();
+            creme.utils.go_to($('a:first',this).attr('href'), false);
+        });
+
       });
 
       window.onload = function(){

@@ -51,3 +51,4 @@ include('/site_media/js/creme/creme.utils.js','js');
 creme.include('/site_media/js/models/properties.js','js');
 creme.include('/site_media/js/models/activities.js','js'); //TODO: improve the js system to remove this file from here.....
 creme.include('/site_media/js/creme/creme.ajax.js','js');
+creme.include('/site_media/js/creme/creme.menu.js','js');

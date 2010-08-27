@@ -27,11 +27,11 @@ $.fn.menu = function(options){
         {
             $(this)
             .mousedown(function(){
-                    if (!m.menuOpen) { m.showLoading(); };
+                    if (!m.menuOpen) {m.showLoading();};
             })
             .click(function(){
-                    if (m.menuOpen == false) { m.showMenu(); }
-                    else { m.kill(); };
+                    if (m.menuOpen == false) {m.showMenu();}
+                    else {m.kill();};
                     return false;
             });
         }
@@ -44,7 +44,7 @@ function Menu(caller, options){
 	
 	this.menuOpen = false;
 	this.menuExists = false;
-	
+
 	var options = jQuery.extend({
 		content: null,
 		width: 180, // width of menu container, must be set or passed in to calculate widths of child menus
@@ -78,6 +78,8 @@ function Menu(caller, options){
                 alwaysOpen : false
 	}, options);
 
+        this.alwaysOpen = options.alwaysOpen;
+
         this.setMaxHeight = function(maxHeight)
         {
             options.maxHeight = maxHeight;
@@ -85,7 +87,7 @@ function Menu(caller, options){
 
 	var killAllMenus = function(){
 		$.each(allUIMenus, function(i){
-			if (allUIMenus[i].menuOpen) { allUIMenus[i].kill(); };	
+			if (!allUIMenus[i].alwaysOpen && allUIMenus[i].menuOpen) {allUIMenus[i].kill();};
 		});
 	};
 	
@@ -95,10 +97,10 @@ function Menu(caller, options){
 			.removeClass('fg-menu-open')
 			.removeClass(options.callerOnState);	
 		container.find('li').removeClass(options.linkHoverSecondary).find('a').removeClass(options.linkHover);		
-		if (options.flyOutOnState) { container.find('li a').removeClass(options.flyOutOnState); };	
-		if (options.callerOnState) { 	caller.removeClass(options.callerOnState); };			
-		if (container.is('.fg-menu-ipod')) { menu.resetDrilldownMenu(); };
-		if (container.is('.fg-menu-flyout')) { menu.resetFlyoutMenu(); };	
+		if (options.flyOutOnState) {container.find('li a').removeClass(options.flyOutOnState);};	
+		if (options.callerOnState) {caller.removeClass(options.callerOnState);};			
+		if (container.is('.fg-menu-ipod')) {menu.resetDrilldownMenu();};
+		if (container.is('.fg-menu-flyout')) {menu.resetFlyoutMenu();};	
 		container.parent().hide();	
 		menu.menuOpen = false;
 		$(document).unbind('click', killAllMenus);
@@ -111,11 +113,11 @@ function Menu(caller, options){
 
 	this.showMenu = function(){
 		if(!options.alwaysOpen) killAllMenus();
-		if (!menu.menuExists) { menu.create() };
+		if (!menu.menuExists) {menu.create()};
 		caller
 			.addClass('fg-menu-open')
 			.addClass(options.callerOnState);
-		container.parent().show().click(function(){ if(!options.alwaysOpen) {menu.kill();} return false; });
+		container.parent().show().click(function(){if(!options.alwaysOpen) {menu.kill();}return false;});
 		container.hide().slideDown(options.showSpeed).find('.fg-menu:eq(0)');
 		menu.menuOpen = true;
 		caller.removeClass(options.loadingState);
@@ -128,9 +130,9 @@ function Menu(caller, options){
 		// assign key events
 		$(document).keydown(function(event){
 			var e;
-			if (event.which !="") { e = event.which; }
-			else if (event.charCode != "") { e = event.charCode; }
-			else if (event.keyCode != "") { e = event.keyCode; }
+			if (event.which !="") {e = event.which;}
+			else if (event.charCode != "") {e = event.charCode;}
+			else if (event.keyCode != "") {e = event.keyCode;}
 			
 			var menuType = ($(event.target).parents('div').is('.fg-menu-flyout')) ? 'flyout' : 'ipod' ;
 			
@@ -138,13 +140,13 @@ function Menu(caller, options){
 				case 37: // left arrow 
 					if (menuType == 'flyout') {
 						$(event.target).trigger('mouseout');
-						if ($('.'+options.flyOutOnState).size() > 0) { $('.'+options.flyOutOnState).trigger('mouseover'); };
+						if ($('.'+options.flyOutOnState).size() > 0) {$('.'+options.flyOutOnState).trigger('mouseover');};
 					};
 					
 					if (menuType == 'ipod') {
 						$(event.target).trigger('mouseout');
-						if ($('.fg-menu-footer').find('a').size() > 0) { $('.fg-menu-footer').find('a').trigger('click'); };
-						if ($('.fg-menu-header').find('a').size() > 0) { $('.fg-menu-current-crumb').prev().find('a').trigger('click'); };
+						if ($('.fg-menu-footer').find('a').size() > 0) {$('.fg-menu-footer').find('a').trigger('click');};
+						if ($('.fg-menu-header').find('a').size() > 0) {$('.fg-menu-current-crumb').prev().find('a').trigger('click');};
 						if ($('.fg-menu-current').prev().is('.fg-menu-indicator')) {
 							$('.fg-menu-current').prev().trigger('mouseover');							
 						};						
@@ -160,7 +162,7 @@ function Menu(caller, options){
 							prevLink.trigger('mouseover');
 						};						
 					}
-					else { container.find('a:eq(0)').trigger('mouseover'); }
+					else {container.find('a:eq(0)').trigger('mouseover');}
 					return false;
 					break;
 					
@@ -187,7 +189,7 @@ function Menu(caller, options){
 							nextLink.trigger('mouseover');
 						};				
 					}
-					else { container.find('a:eq(0)').trigger('mouseover'); }		
+					else {container.find('a:eq(0)').trigger('mouseover');}		
 					return false;						
 					break;
 					
@@ -211,7 +213,7 @@ function Menu(caller, options){
 	};
 	
 	this.create = function(){	
-		container.css({ width: options.width }).appendTo('body').find('ul:first').not('.fg-menu-breadcrumb').addClass('fg-menu');
+		container.css({width: options.width}).appendTo('body').find('ul:first').not('.fg-menu-breadcrumb').addClass('fg-menu');
 		container.find('ul, li a').addClass('ui-corner-all');
 		
 		// aria roles & attributes
@@ -222,8 +224,8 @@ function Menu(caller, options){
 		
 		// when there are multiple levels of hierarchy, create flyout or drilldown menu
 		if (container.find('ul').size() > 1) {
-			if (options.flyOut) { menu.flyout(container, options); }
-			else { menu.drilldown(container, options); }	
+			if (options.flyOut) {menu.flyout(container, options);}
+			else {menu.drilldown(container, options);}	
 		}
 		else {
 			container.find('a').click(function(){
@@ -250,10 +252,10 @@ function Menu(caller, options){
 			container.find('.fg-menu li').hover(
 				function(){
 					$(this).siblings('li').removeClass(options.linkHoverSecondary);
-					if (options.flyOutOnState) { $(this).siblings('li').find('a').removeClass(options.flyOutOnState); }
+					if (options.flyOutOnState) {$(this).siblings('li').find('a').removeClass(options.flyOutOnState);}
 					$(this).addClass(options.linkHoverSecondary);
 				},
-				function(){ $(this).removeClass(options.linkHoverSecondary); }
+				function(){$(this).removeClass(options.linkHoverSecondary);}
 			);
 		};	
 		
@@ -265,10 +267,7 @@ function Menu(caller, options){
 		if(!options.alwaysOpen) {
                     menu.kill();
                 }
-		// edit this for your own custom function/callback:
-                $(item).trigger('click');
-		//$('#menuSelection').text($(item).text());
-		// location.href = $(item).attr('href');
+                $(item).trigger('menu-item-selected', [menu]);
 	};
 };
 
@@ -285,14 +284,14 @@ Menu.prototype.flyout = function(container, options) {
 		var showTimer, hideTimer;
 		var allSubLists = $(this).find('ul');		
 		
-		allSubLists.css({ left: linkWidth, width: linkWidth }).hide();
+		allSubLists.css({left: linkWidth, width: linkWidth}).hide();
 			
 		$(this).find('a:eq(0)').addClass('fg-menu-indicator').html('<span>' + $(this).find('a:eq(0)').text() + '</span><span class="ui-icon '+options.nextMenuLink+'"></span>').hover(
 			function(){
 				clearTimeout(hideTimer);
 				var subList = $(this).next();
-				if (!fitVertical(subList, $(this).offset().top)) { subList.css({ top: 'auto', bottom: 0 }); };
-				if (!fitHorizontal(subList, $(this).offset().left + 100)) { subList.css({ left: 'auto', right: linkWidth, 'z-index': 999 }); };
+				if (!fitVertical(subList, $(this).offset().top)) {subList.css({top: 'auto', bottom: 0});};
+				if (!fitHorizontal(subList, $(this).offset().left + 100)) {subList.css({left: 'auto', right: linkWidth, 'z-index': 999});};
 				showTimer = setTimeout(function(){
 					subList.addClass('ui-widget-content').show(options.showSpeed).attr('aria-expanded', 'true');	
 				}, 300);	
@@ -342,20 +341,20 @@ Menu.prototype.drilldown = function(container, options) {
 	
 	container.addClass('fg-menu-ipod');
 	
-	if (options.backLink) { breadcrumb.addClass('fg-menu-footer').appendTo(container).hide(); }
-	else { breadcrumb.addClass('fg-menu-header').prependTo(container); };
+	if (options.backLink) {breadcrumb.addClass('fg-menu-footer').appendTo(container).hide();}
+	else {breadcrumb.addClass('fg-menu-header').prependTo(container);};
 	breadcrumb.append(crumbDefaultHeader);
 	
 	var checkMenuHeight = function(el){
-		if (el.height() > options.maxHeight) { el.addClass('fg-menu-scroll') };	
-		el.css({ height: options.maxHeight });
+		if (el.height() > options.maxHeight) {el.addClass('fg-menu-scroll')};	
+		el.css({height: options.maxHeight});
 	};
 	
-	var resetChildMenu = function(el){ el.removeClass('fg-menu-scroll').removeClass('fg-menu-current').height('auto'); };
+	var resetChildMenu = function(el){el.removeClass('fg-menu-scroll').removeClass('fg-menu-current').height('auto');};
 	
 	this.resetDrilldownMenu = function(){
 		$('.fg-menu-current').removeClass('fg-menu-current');
-		topList.animate({ left: 0 }, options.crossSpeed, function(){
+		topList.animate({left: 0}, options.crossSpeed, function(){
 			$(this).find('ul').each(function(){
 				$(this).hide();
 				resetChildMenu($(this));				
@@ -370,9 +369,9 @@ Menu.prototype.drilldown = function(container, options) {
 	
 	topList
 		.addClass('fg-menu-content fg-menu-current ui-widget-content ui-helper-clearfix')
-		.css({ width: container.width() })
+		.css({width: container.width()})
 		.find('ul')
-			.css({ width: container.width(), left: container.width() })
+			.css({width: container.width(), left: container.width()})
 			.addClass('ui-widget-content')
 			.hide();		
 	checkMenuHeight(topList);	
@@ -382,7 +381,7 @@ Menu.prototype.drilldown = function(container, options) {
 		if ($(this).next().is('ul')) {
 			$(this)
 				.addClass('fg-menu-indicator')
-				.each(function(){ $(this).html('<span>' + $(this).text() + '</span><span class="ui-icon '+options.nextMenuLink+'"></span>'); })
+				.each(function(){$(this).html('<span>' + $(this).text() + '</span><span class="ui-icon '+options.nextMenuLink+'"></span>');})
 				.click(function(){ // ----- show the next menu			
 					var nextList = $(this).next();
 		    		var parentUl = $(this).parents('ul:eq(0)');   		
@@ -393,7 +392,7 @@ Menu.prototype.drilldown = function(container, options) {
 		    		// show next menu   		
 		    		resetChildMenu(parentUl);
 		    		checkMenuHeight(nextList);
-					topList.animate({ left: nextLeftVal }, options.crossSpeed);						
+					topList.animate({left: nextLeftVal}, options.crossSpeed);						
 		    		nextList.show().addClass('fg-menu-current').attr('aria-expanded', 'true');    
 		    		
 		    		var setPrevMenu = function(backlink){
@@ -404,7 +403,7 @@ Menu.prototype.drilldown = function(container, options) {
 		    			resetChildMenu(c);
 		    			checkMenuHeight(prevList);
 			    		prevList.addClass('fg-menu-current').attr('aria-expanded', 'true');
-			    		if (prevList.hasClass('fg-menu-content')) { b.remove(); footer.hide(); };
+			    		if (prevList.hasClass('fg-menu-content')) {b.remove();footer.hide();};
 		    		};		
 		
 					// initialize "back" link
@@ -416,7 +415,7 @@ Menu.prototype.drilldown = function(container, options) {
 								.click(function(){ // ----- show the previous menu
 									var b = $(this);
 						    		var prevLeftVal = parseFloat(topList.css('left')) + container.width();		    						    		
-						    		topList.animate({ left: prevLeftVal },  options.crossSpeed, function(){
+						    		topList.animate({left: prevLeftVal},  options.crossSpeed, function(){
 						    			setPrevMenu(b);
 						    		});			
 									return false;
@@ -443,7 +442,7 @@ Menu.prototype.drilldown = function(container, options) {
 								}
 								else {
 									var newLeftVal = - ($('.fg-menu-current').parents('ul').size() - 1) * 180;
-									topList.animate({ left: newLeftVal }, options.crossSpeed, function(){
+									topList.animate({left: newLeftVal}, options.crossSpeed, function(){
 										setPrevMenu();
 									});
 								
@@ -495,26 +494,26 @@ Menu.prototype.setPosition = function(widget, caller, options) {
 	var xVal, yVal;
 	
 	var helper = $('<div class="positionHelper"></div>');
-	helper.css({ position: 'absolute', left: dims.refX, top: dims.refY, width: dims.refW, height: dims.refH });
+	helper.css({position: 'absolute', left: dims.refX, top: dims.refY, width: dims.refW, height: dims.refH});
 	el.wrap(helper);
 	
 	// get X pos
 	switch(options.positionOpts.posX) {
-		case 'left': 	xVal = 0; 
+		case 'left':xVal = 0; 
 			break;				
-		case 'center': xVal = dims.refW / 2;
+		case 'center':xVal = dims.refW / 2;
 			break;				
-		case 'right': xVal = dims.refW;
+		case 'right':xVal = dims.refW;
 			break;
 	};
 	
 	// get Y pos
 	switch(options.positionOpts.posY) {
-		case 'top': 	yVal = 0;
+		case 'top':yVal = 0;
 			break;				
-		case 'center': yVal = dims.refH / 2;
+		case 'center':yVal = dims.refH / 2;
 			break;				
-		case 'bottom': yVal = dims.refH;
+		case 'bottom':yVal = dims.refH;
 			break;
 	};
 	
@@ -524,29 +523,29 @@ Menu.prototype.setPosition = function(widget, caller, options) {
 	
 	// position the object vertically
 	if (options.positionOpts.directionV == 'up') {
-		el.css({ top: 'auto', bottom: yVal });
+		el.css({top: 'auto', bottom: yVal});
 		if (options.positionOpts.detectV && !fitVertical(el)) {
-			el.css({ bottom: 'auto', top: yVal });
+			el.css({bottom: 'auto', top: yVal});
 		}
 	} 
 	else {
-		el.css({ bottom: 'auto', top: yVal });
+		el.css({bottom: 'auto', top: yVal});
 		if (options.positionOpts.detectV && !fitVertical(el)) {
-			el.css({ top: 'auto', bottom: yVal });
+			el.css({top: 'auto', bottom: yVal});
 		}
 	};
 	
 	// and horizontally
 	if (options.positionOpts.directionH == 'left') {
-		el.css({ left: 'auto', right: xVal });
+		el.css({left: 'auto', right: xVal});
 		if (options.positionOpts.detectH && !fitHorizontal(el)) {
-			el.css({ right: 'auto', left: xVal });
+			el.css({right: 'auto', left: xVal});
 		}
 	} 
 	else {
-		el.css({ right: 'auto', left: xVal });
+		el.css({right: 'auto', left: xVal});
 		if (options.positionOpts.detectH && !fitHorizontal(el)) {
-			el.css({ left: 'auto', right: xVal });
+			el.css({left: 'auto', right: xVal});
 		}
 	};
 	
@@ -567,7 +566,7 @@ Menu.prototype.setPosition = function(widget, caller, options) {
 
 /* Utilities to sort and find viewport dimensions */
 
-function sortBigToSmall(a, b) { return b - a; };
+function sortBigToSmall(a, b) {return b - a;};
 
 jQuery.fn.getTotalWidth = function(){
 	return $(this).width() + parseInt($(this).css('paddingRight')) + parseInt($(this).css('paddingLeft')) + parseInt($(this).css('borderRightWidth')) + parseInt($(this).css('borderLeftWidth'));
@@ -661,7 +660,7 @@ Number.prototype.pxToEm = String.prototype.pxToEm = function(settings){
 		};
 		scopeVal = calcFontSize();
 	}
-	else { scopeVal = parseFloat(jQuery(settings.scope).css("font-size")); };
+	else {scopeVal = parseFloat(jQuery(settings.scope).css("font-size"));};
 			
 	var result = (settings.reverse == true) ? (pxVal * scopeVal).toFixed(2) + 'px' : (pxVal / scopeVal).toFixed(2) + 'em';
 	return result;

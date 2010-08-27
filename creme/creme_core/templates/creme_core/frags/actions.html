@@ -1,0 +1,25 @@
+<script type="text/javascript">
+$(function(){
+    creme.menu.actions.flatMenu('#actions_button_{{id}}', '#actions_div_{{id}}');
+});
+</script>
+<a href="#actions_div_{{id}}"
+   class="fg-button fg-button-icon-right ui-widget ui-corner-all ui-state-default"
+   id="actions_button_{{id}}"
+   >
+    Actions
+</a>
+<div id="actions_div_{{id}}" style="display: none;">
+    <ul>
+        {% for url, verbose, attrs, icon in actions %}
+            <li>
+                <a href="{{url}}" {{attrs}}>
+                   {% if icon %}
+                        <img src="{{icon}}" />
+                    {% endif %}
+                    {{verbose}}
+                </a>
+            </li>
+        {% endfor %}
+    </ul>
+</div>

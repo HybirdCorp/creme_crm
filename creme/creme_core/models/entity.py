@@ -24,11 +24,14 @@ from logging import debug
 from django.utils.encoding import force_unicode
 from django.utils.html import escape
 from django.utils.safestring import mark_safe
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import ugettext_lazy as _, ugettext
 from django.contrib.contenttypes.models import ContentType
 from django.conf import settings
 
+from django.forms.util import flatatt
+
 from base import CremeAbstractEntity
+from django.template.loader import render_to_string
 from function_field import FunctionField
 
 
@@ -166,8 +169,19 @@ class CremeEntity(CremeAbstractEntity):
         return escape(unicode(self))
 
     def get_entity_actions(self):
-        return u"""<a href="%s">Voir</a> | <a href="%s">Éditer</a> | <a href="%s" onclick="creme.utils.confirmDelete(event, this);">Effacer</a>""" \
-                % (self.get_absolute_url(), self.get_edit_absolute_url(), self.get_delete_absolute_url())
+        ctx = {
+            'actions' : [
+                    (self.get_absolute_url(),        ugettext(u"Voir"),    mark_safe(flatatt({})), "%s/images/view_16.png" % settings.MEDIA_URL),
+                    (self.get_edit_absolute_url(),   ugettext(u"Éditer"),  mark_safe(flatatt({})), "%s/images/edit_16.png" % settings.MEDIA_URL),
+                    (self.get_delete_absolute_url(), ugettext(u"Effacer"), mark_safe(flatatt({'class': 'confirm_delete'})), "%s/images/delete_16.png"  % settings.MEDIA_URL)
+            ],
+            'id': self.id,
+        }
+        return render_to_string("creme_core/frags/actions.html", ctx)
+
+
+#        return u"""<ul><li><a href="%s">Voir</a></li><li><a href="%s">Éditer</a></li><li><a href="%s" onclick="creme.utils.confirmDelete(event, this);">Effacer</a></li></ul>""" \
+#                % (self.get_absolute_url(), self.get_edit_absolute_url(), self.get_delete_absolute_url())
         #return u"""<a href="%(url)s">%(see)s</a> | <a href="%(edit_url)s">%(edit)s</a> | <a href="%(del_url)s" onclick="creme.utils.confirmDelete(event, this);">%(delete)s</a>""" % {
                 #'url' :     self.get_absolute_url(),
                 #'edit_url': self.get_edit_absolute_url(),
