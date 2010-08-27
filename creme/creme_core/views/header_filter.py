@@ -20,6 +20,7 @@
 
 #from logging import debug
 
+from creme_core.models.list_view_state import ListViewState
 from django.core import serializers
 from django.http import HttpResponse, HttpResponseRedirect, Http404
 from django.contrib.auth.decorators import login_required
@@ -32,6 +33,13 @@ from creme_core.models.header_filter import HeaderFilter, HeaderFilterList
 from creme_core.entities_access.functions_for_permissions import delete_object_or_die
 from creme_core.utils import get_ct_or_404
 
+
+def _set_current_hf(request, path, hf_instance):
+    print "request.path :", path
+    lvs = ListViewState.get_state(request, path)
+    if lvs:
+        lvs.header_filter_id = hf_instance.id
+        lvs.register_in_session(request)
 
 @login_required
 def add(request, content_type_id, extra_template_dict=None):
@@ -48,7 +56,8 @@ def add(request, content_type_id, extra_template_dict=None):
     return add_entity(request, HeaderFilterForm, callback_url,
                       template='creme_core/header_filters.html',
                       extra_initial={'content_type': ct_entity},
-                      extra_template_dict=extra_template_dict or {})
+                      extra_template_dict=extra_template_dict or {},
+                      function_post_save=lambda r, i: _set_current_hf(r, callback_url, i))
 
 @login_required
 def edit(request, header_filter_id):
