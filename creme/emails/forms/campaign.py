@@ -19,7 +19,7 @@
 ################################################################################
 
 from django.forms import ValidationError
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import ugettext_lazy as _, ugettext
 
 from creme_core.forms import CremeEntityForm, CremeForm, FieldBlockManager
 from creme_core.forms.fields import MultiCremeEntityField
@@ -28,7 +28,7 @@ from emails.models import EmailCampaign, MailingList
 
 
 class CampaignCreateForm(CremeEntityForm):
-    mailing_lists = MultiCremeEntityField(label=_(u'Listes de diffusion associées'), required=False, model=MailingList)
+    mailing_lists = MultiCremeEntityField(label=_(u'Related mailing lists'), required=False, model=MailingList)
 
     class Meta(CremeEntityForm.Meta):
         model = EmailCampaign
@@ -41,9 +41,9 @@ class CampaignEditForm(CremeEntityForm):
 
 
 class CampaignAddMLForm(CremeForm):
-    mailing_lists = MultiCremeEntityField(label=_(u'Listes'), required=False, model=MailingList)
+    mailing_lists = MultiCremeEntityField(label=_(u'Lists'), required=False, model=MailingList)
 
-    blocks = FieldBlockManager(('general', _(u'Listes de diffusion'), '*'))
+    blocks = FieldBlockManager(('general', _(u'Mailing lists'), '*'))
 
     def __init__(self, campaign, *args, **kwargs):
         super(CampaignAddMLForm, self).__init__(*args, **kwargs)
@@ -56,8 +56,8 @@ class CampaignAddMLForm(CremeForm):
         duplicate     = [ml for ml in mailing_lists if ml.id in current_mls]
 
         if duplicate:
-            raise ValidationError(u"La(es) liste(s) suivante(s) est déja présente dans la campagne: "
-                                  + u', '.join(ml.name for ml in duplicate))
+            raise ValidationError(ugettext(u"Following mailing lists are already related to this campaign: %s")
+                                  % u', '.join(ml.name for ml in duplicate))
 
         return mailing_lists
 

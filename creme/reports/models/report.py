@@ -29,11 +29,14 @@ from creme_core.utils.meta import (get_field_infos, get_model_field_infos,
                                    filter_entities_on_ct, get_fk_entity, get_m2m_entities)
 from creme_core.models.header_filter import HFI_FUNCTION, HFI_RELATION, HFI_FIELD, HFI_CUSTOM
 
+
 report_prefix_url   = '/reports'
 report_template_dir = 'reports'
 
+
 class DropLine(Exception):
     pass
+
 
 class FkClass(object):
     """A simple container to handle values for a foreign key which requires particular
@@ -53,7 +56,7 @@ class FkClass(object):
 #            yield val
 
 class Field(CremeModel):
-    name      = CharField(_(u'Nom de la colonne'), max_length=100)
+    name      = CharField(_(u'Name of the column'), max_length=100)
     title     = CharField(max_length=100)
     order     = PositiveIntegerField()
     type      = PositiveSmallIntegerField() #==> {HFI_FIELD, HFI_RELATION, HFI_FUNCTION, HFI_CUSTOM}#Add in choices ?
@@ -62,8 +65,8 @@ class Field(CremeModel):
 
     class Meta:
         app_label = 'reports'
-        verbose_name = _(u'Colone de rapport')
-        verbose_name_plural  = _(u'Colonnes de rapport')
+        verbose_name = _(u'Column of report')
+        verbose_name_plural  = _(u'Columns of report')
         ordering = ['order']
 
     def __unicode__(self):
@@ -127,7 +130,7 @@ class Field(CremeModel):
             fields = report.columns.all().order_by('order')
             field_dict['children'] = [field.get_children_fields_with_hierarchy() for field in fields]
             field_dict['report'] = report
-            
+
         return field_dict
 
     def get_value(self, entity=None, selected=None):
@@ -180,7 +183,7 @@ class Field(CremeModel):
 
             model_field, value = get_field_infos(entity, column_name)
             return unicode(value or empty_value)#Maybe format map (i.e : datetime...)
-        
+
         elif column_type == HFI_CUSTOM:
             if entity is None:
                 return empty_value
@@ -238,15 +241,15 @@ class Field(CremeModel):
 
 
 class Report(CremeEntity):
-    name    = CharField(_(u'Nom du rapport'), max_length=100)
-    ct      = ForeignKey(ContentType, verbose_name=_(u"Type d'entité"))
-    columns = ManyToManyField(Field, verbose_name=_(u"Colonnes affichées"), related_name='report_columns_set')
-    filter  = ForeignKey(Filter, verbose_name=_(u'Filtre'), blank=True, null=True)
+    name    = CharField(_(u'Name of the report'), max_length=100)
+    ct      = ForeignKey(ContentType, verbose_name=_(u"Entity type"))
+    columns = ManyToManyField(Field, verbose_name=_(u"Displayed columns"), related_name='report_columns_set')
+    filter  = ForeignKey(Filter, verbose_name=_(u'Filter'), blank=True, null=True)
 
     class Meta:
         app_label = 'reports'
-        verbose_name = _(u'Rapport')
-        verbose_name_plural  = _(u'Rapports')
+        verbose_name = _(u'Report')
+        verbose_name_plural  = _(u'Reports')
         ordering = ['name']
 
     def __unicode__(self):
@@ -267,9 +270,7 @@ class Report(CremeEntity):
         return "%s/report/delete/%s" % (report_prefix_url, self.id)
 
     def get_ascendants_reports(self):
-
-        fields = Field.objects.filter(report__id=self.id)
-
+        fields = Field.objects.filter(report__id=self.id) #TODO: use related name ?
         asc_reports = []
 
         for field in fields:
@@ -297,18 +298,17 @@ class Report(CremeEntity):
 
             try:
                 for column in columns:
-                    report, field, children = column.get('report'), column.get('field'), column.get('children')
+                    report, field, children = column.get('report'), column.get('field'), column.get('children') #TODO: useless 'report' and 'children' ??
                     entity_line.append(field.get_value(entity))
 
                 lines.append(entity_line)
             except DropLine:
                 pass
-            
+
         return lines
 
     def fetch_all_lines(self, limit_to=None):
         tree = self.fetch(limit_to=limit_to)
-
         lines = []
 
         class ReportTree(object):
@@ -325,7 +325,7 @@ class Report(CremeEntity):
                         new_tree.extend(col_value.values)
                     else:
                         new_tree.append(col_value)
-                        
+
                 self.tree = new_tree
 
             def set_simple_values(self, current_line):
@@ -334,12 +334,10 @@ class Report(CremeEntity):
                 for col_value in self.tree:
                     if not col_value:
                         values.append(u"")
-                        
                     elif isinstance(col_value, (list, tuple)):
                         values.append(None)
                         self.has_to_build = True
                         self.values_to_build = col_value
-                        
                     else:
                         values.append(col_value)
 
@@ -377,7 +375,7 @@ class Report(CremeEntity):
 
         for node in tree:
             lines.extend(ReportTree(node).get_lines())
-            
+
             if limit_to is not None and len(lines) >= limit_to:#Bof
                 break
 
@@ -388,6 +386,8 @@ class Report(CremeEntity):
 
     def get_children_fields_flat(self):
         children = []
+
         for c in self.columns.all():
             children.extend(c.get_children_fields_flat())
+
         return children

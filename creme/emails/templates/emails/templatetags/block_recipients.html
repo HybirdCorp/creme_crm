@@ -1,21 +1,24 @@
+{% load i18n %}
 {% load creme_block %}
 <table class="table_detail_view ui-corner-all" id={{block_name}}>
-    {% get_block_header '%s Destinataire manuel' '%s Destinataires manuels' %}
+    {% get_block_header _('%s Unlinked recipient') _('%s Unlinked recipients') %}
     <tbody class="collapsable">
         <tr>
             <th colspan="4" class="block_header_line_dark" align="left">
                 <a class="button_link" onclick="creme.utils.innerPopupNReload('/emails/mailing_list/{{object.pk}}/recipient/add', {% get_block_reload_uri %});">
-                    <img src="{{MEDIA_URL}}images/add_22.png" border="0" title="Ajouter manuellement" alt="Ajouter" />Ajouter à la main
+                    <img src="{{MEDIA_URL}}images/add_22.png" border="0" title="{% trans "Add manually" %}" alt="{% trans "Add manually" %}" />
+                    {% trans "Add manually" %}
                 </a>
                 <a class="button_link" onclick="creme.utils.iframe_inner_popup('/emails/mailing_list/{{object.pk}}/recipient/add_csv');">
-                    <img src="{{MEDIA_URL}}images/add_22.png" border="0" title="Ajouter CSV" alt="Ajouter" />Ajouter à partir d'un CSV
+                    <img src="{{MEDIA_URL}}images/add_22.png" border="0" title="{% trans "Add froma CSV file" %}" alt="{% trans "Add froma CSV file" %}" />
+                    {% trans "Add froma CSV file" %}
                 </a>
             </th>
         </tr>
         {% if page.paginator.count %}
             <tr>
-                <th class="block_header_line_dark">Adresse</th>
-                <th class="block_header_line_dark">Supprimer</th>
+                <th class="block_header_line_dark">{% trans "Address" %}</th>
+                <th class="block_header_line_dark">{% trans "Delete" %}</th>
             </tr>
             {% for recipient in page.object_list %}
                 <!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
@@ -28,7 +31,7 @@
             {% endfor %}
         {% else %}
             <tr>
-                <td class="block_line_dark">Aucun destinataire pour le moment</td>
+                <td class="block_line_dark">{% trans "No unlinked recipient for the moment" %}</td>
             </tr>
         {% endif %}
     </tbody>

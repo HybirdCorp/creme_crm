@@ -31,16 +31,16 @@ from reports.blocks import report_fields_block
 report_app = Report._meta.app_label
 
 
-creme_registry.register_app(report_app, _(u'Rapports'), report_prefix_url)
+creme_registry.register_app(report_app, _(u'Reports'), report_prefix_url)
 creme_registry.register_entity_models(Report)
 
-creme_registry.register('reports-backend-html', HtmlReportBackend)
+creme_registry.register('reports-backend-html', HtmlReportBackend) #TODO: remove from here -> true registry
 creme_registry.register('reports-backend-csv',  CsvReportBackend)
 
 creme_menu.register_app(report_app, '%s/' % report_prefix_url, 'Rapports')
 reg_menu = creme_menu.register_menu
-reg_menu(report_app, '%s/' % report_prefix_url,           'Portail')
-reg_menu(report_app, '%s/reports' % report_prefix_url,    'Liste des rapports générés')
-reg_menu(report_app, '%s/report/add' % report_prefix_url, 'Créer un rapport')
+reg_menu(report_app, '%s/' % report_prefix_url,           _(u'Portal'))
+reg_menu(report_app, '%s/reports' % report_prefix_url,    _(u'All reports'))
+reg_menu(report_app, '%s/report/add' % report_prefix_url, _(u'Add a report'))
 
 block_registry.register(report_fields_block)

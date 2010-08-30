@@ -8,8 +8,5 @@
 {% endblock %}
 
 {% block content %}
-    {% templatize "Préparation d'un nouveau générateur : Étape {{step}} / {{step_count}}" as title %}
-    {% with 'images/add_64.png' as logo %}
-        {% include "recurrents/frags/wizard_form_content.html" %}
-    {% endwith %}
+    {% include "recurrents/frags/wizard_form_content.html" %}
 {% endblock %}

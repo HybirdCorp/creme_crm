@@ -1,3 +1,4 @@
+{% load i18n %}
 {% load creme_core_tags %}
 <table class="table_detail_view ui-corner-all">
     <thead>
@@ -17,56 +18,55 @@
         </tr>
     </thead>
     <tbody class="collapsable">
-            <tr>
-                <!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
-                <th class="block_header_line_dark">Destinataire</th>
-                <td class="{{row_color}}">{{mail|get_html_field_value:"recipient"}}</td>
-            </tr>
-            <tr>
-                <th class="block_header_line_dark">Émetteur</th>
-                <td class="{{row_color}}">{{mail|get_html_field_value:"sender"}}</td>
-            </tr>
-            <tr>
-                <th class="block_header_line_dark">Statut</th>
-                <td class="{{row_color}}">{{mail|get_html_field_value:"get_status_str"}}</td>
-            </tr>
-            <tr>
-                <th class="block_header_line_dark">Envoi associé</th>
-                <td class="{{row_color}}">{{mail|get_html_field_value:"sending"}}</td>
-            </tr>
-            <tr>
-                <th class="block_header_line_dark">Nombre De Lecture(S)</th>
-                <td class="{{row_color}}">{{mail|get_html_field_value:"reads"}}</td>
-            </tr>
-            <tr>
-                <th class="block_header_line_dark">Sujet</th>
-                <td class="{{row_color}}">{{mail|get_html_field_value:"subject"}}</td>
-            </tr>
-            <tr>
-                <th class="block_header_line_dark">Body</th>
-                <td class="{{row_color}}">{{mail.get_body}}</td>
-            </tr>
-            <tr>
-                <th class="block_header_line_dark">Date D'Envoi</th>
-                <td class="{{row_color}}">{{mail|get_html_field_value:"sending_date"}}</td>
-            </tr>
-            <tr>
-                <th class="block_header_line_dark">Signature</th>
-                <td class="{{row_color}}">{{mail|get_html_field_value:"signature"}}</td>
-                
-            </tr>
-            <tr>
-                <th class="block_header_line_dark">Fichiers attachés</th>
-                <td class="{{row_color}}">{{mail|get_html_field_value:"attachments"}}</td>
-                {% comment %}
-                <td class="{{row_color}}">
-                    <ul>
-                    {% for att in mail.attachments.all %}
-                        <li><a target="_blank" href="{{att.get_absolute_url}}">{{att}}</a></li>
-                    {% endfor %}
-                    </ul>
-                </td>
-                {% endcomment %}
-            </tr>
+        <!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
+        <tr>
+            <th class="block_header_line_dark">{% trans "Recipient" %}</th>
+            <td class="{{row_color}}">{{mail|get_html_field_value:"recipient"}}</td>
+        </tr>
+        <tr>
+            <th class="block_header_line_dark">{% trans "Sender" %}</th>
+            <td class="{{row_color}}">{{mail|get_html_field_value:"sender"}}</td>
+        </tr>
+        <tr>
+            <th class="block_header_line_dark">{% trans "Status" %}</th>
+            <td class="{{row_color}}">{{mail|get_html_fieStatutld_value:"get_status_str"}}</td>
+        </tr>
+        <tr>
+            <th class="block_header_line_dark">{% trans "Related sending" %}</th>
+            <td class="{{row_color}}">{{mail|get_html_field_value:"sending"}}</td>
+        </tr>
+        <tr>
+            <th class="block_header_line_dark">{% trans "Number of reads" %}</th>
+            <td class="{{row_color}}">{{mail|get_html_field_value:"reads"}}</td>
+        </tr>
+        <tr>
+            <th class="block_header_line_dark">{% trans "Subject" %}</th>
+            <td class="{{row_color}}">{{mail|get_html_field_value:"subject"}}</td>
+        </tr>
+        <tr>
+            <th class="block_header_line_dark">{% trans "Body" %}</th>
+            <td class="{{row_color}}">{{mail.get_body}}</td>
+        </tr>
+        <tr>
+            <th class="block_header_line_dark">{% trans "Sending date" %}</th>
+            <td class="{{row_color}}">{{mail|get_html_field_value:"sending_date"}}</td>
+        </tr>
+        <tr>
+            <th class="block_header_line_dark">{% trans "Signature" %}</th>
+            <td class="{{row_color}}">{{mail|get_html_field_value:"signature"}}</td>
+        </tr>
+        <tr>
+            <th class="block_header_line_dark">{% trans "Attachments" %}</th>
+            <td class="{{row_color}}">{{mail|get_html_field_value:"attachments"}}</td>
+            {% comment %}
+            <td class="{{row_color}}">
+                <ul>
+                {% for att in mail.attachments.all %}
+                    <li><a target="_blank" href="{{att.get_absolute_url}}">{{att}}</a></li>
+                {% endfor %}
+                </ul>
+            </td>
+            {% endcomment %}
+        </tr>
     </tbody>
 </table>
