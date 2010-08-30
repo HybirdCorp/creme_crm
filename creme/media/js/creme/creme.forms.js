@@ -382,7 +382,7 @@ creme.forms.RelationSelector.updateTargetButtonText = function(self, result)
 	
 	creme.ajax.json.get('/creme_core/relation/entity/' + result + '/json', 
 		{
-			fields:['unicode'],
+			fields:['unicode']
 		},
 		function(data) {
 			value = data.join('');
