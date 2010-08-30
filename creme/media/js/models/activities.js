@@ -20,17 +20,14 @@ creme.activities = {};
 
 creme.activities.ajax = {};
 
-creme.activities.select_one = function(evt, a) {
-    evt.preventDefault();
-    var current_href = $(a).attr('href');
-
+creme.activities.select_one = function(url) {
     var me = this;
 
     this.okDialogHandler = function(ui){
-        current_href+='&entity_relation_type='+$(ui).find('select').val();
+        url+='&entity_relation_type='+$(ui).find('select').val();
         $(ui).dialog("destroy");
         $(ui).remove();
-        window.location.href=current_href;
+        window.location.href=url;
     }
 
     creme.ajax.json.get('/activities/get_entity_relation_choices_for_activity', {},
