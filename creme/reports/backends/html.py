@@ -23,8 +23,8 @@ from base import ReportBackend
 
 LIMIT_TO = 25
 
-class HtmlReportBackend(ReportBackend):
 
+class HtmlReportBackend(ReportBackend):
     def __init__(self, report, context_instance, template="reports/backends/html_report.html", limit_to=None ):
         super(HtmlReportBackend, self).__init__(report)
         self.context_instance = context_instance

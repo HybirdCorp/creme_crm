@@ -7,28 +7,28 @@
 <table class="table_detail_view ui-corner-all" id={{block_name}}>
     <thead>
         <tr>
-            <th valign="middle" colspan="{{colspan}}">{% trans 'Colonnes du rapport' %}</th>
+            <th valign="middle" colspan="{{colspan}}">{% trans 'Columns of the report' %}</th>
         </tr>
     </thead>
     <tbody class="collapsable">
         <tr>
             <th align="left" colspan="{{colspan}}" class="{% cycle "block_header_line_dark" "block_header_line_light" %}">
                 <a class="button_link" onclick="creme.utils.innerPopupNReload('/reports/report/{{object.id}}/field/add', {% get_block_reload_uri %});">
-                    <img src="{{MEDIA_URL}}images/add_22.png" border="0" title="Ajouter une colonne" alt="Ajouter" />
-                    {% trans 'Ajouter' %} /
-                    <img src="{{MEDIA_URL}}images/delete_22.png" border="0" title="Supprimer une colonne" alt="Supprimer" />
-                    {% trans 'Supprimer une colonne' %}
+                    <img src="{{MEDIA_URL}}images/add_22.png" border="0" title="{% trans "Add a column" %}" alt="{% trans "Add a column" %}" />
+                    {% trans "Add" %} /
+                    <img src="{{MEDIA_URL}}images/delete_22.png" border="0" title="{% trans "Delete a column" %}" alt="{% trans "Delete a column" %}" />
+                    {% trans "Delete a column" %}
                 </a>
             </th>
         </tr>
         {% if object.columns.all %}
             <tr>
-                <th class="{% cycle "block_header_line_dark" "block_header_line_light" %}">{% trans '#' %}</th>
-                <th class="{% cycle "block_header_line_dark" "block_header_line_light" %}">{% trans 'Colonne' %}</th>
-                <th class="{% cycle "block_header_line_dark" "block_header_line_light" %}">{% trans 'Affiché dans le rapport' %}</th>
-                <th class="{% cycle "block_header_line_dark" "block_header_line_light" %}">{% trans 'Type' %}</th>
-                <th class="{% cycle "block_header_line_dark" "block_header_line_light" %}">{% trans 'Action(s)' %}</th>
-                <th class="{% cycle "block_header_line_dark" "block_header_line_light" %}">{% trans 'Développer ?' %}</th>
+                <th class="{% cycle "block_header_line_dark" "block_header_line_light" %}">{% trans "#" %}</th>
+                <th class="{% cycle "block_header_line_dark" "block_header_line_light" %}">{% trans "Column" %}</th>
+                <th class="{% cycle "block_header_line_dark" "block_header_line_light" %}">{% trans "Displayed in the report" %}</th>
+                <th class="{% cycle "block_header_line_dark" "block_header_line_light" %}">{% trans "Type" %}</th>
+                <th class="{% cycle "block_header_line_dark" "block_header_line_light" %}">{% trans "Action(s)" %}</th>
+                <th class="{% cycle "block_header_line_dark" "block_header_line_light" %}">{% trans "Expand ?" %}</th>
             </tr>
             <!--
                 {% cycle "block_header_line_light" "block_header_line_dark" as header_row %}
@@ -40,9 +40,9 @@
                     <td class="{% cycle "block_line_dark" "block_line_light" %}">{{column}}</td>
                     <td class="{% cycle "block_line_dark" "block_line_light" %}">
                     {% if column.report %}
-                        {% trans 'Colonnes de' %} : <a href="{{column.report.get_absolute_url}}">{{column.report}}</a> ({{column.report.columns.all|order_by:"order"|join:", "}})
+                        {% trans "Columns of" %} : <a href="{{column.report.get_absolute_url}}">{{column.report}}</a> ({{column.report.columns.all|order_by:"order"|join:", "}})
                     {% else %}
-                        {% trans 'Valeur' %}
+                        {% trans "Value" %}
                     {% endif %}
                     </td>
                     <td class="{% cycle "block_line_dark" "block_line_light" %}">{{column.type|get_verbose_type}}</td>
@@ -53,12 +53,12 @@
                                     <td style="width: 66%;">
                                         {% ifequal HFI_FIELD column.type %}
                                             {% if column.report %}
-                                                <a onclick="creme.reports.unlink_report('{{column.pk}}', '{{update_url}}');">{% trans 'Délier le rapport' %}</a>
+                                                <a onclick="creme.reports.unlink_report('{{column.pk}}', '{{update_url}}');">{% trans 'Unlink the report' %}</a>
                                             {% else %}
                                                     {% if column|is_field_is_linkable:object.ct %}
-                                                        {% comment %}<a onclick="creme.reports.link_report('{{object.id}}', '{{column.pk}}', '{{update_url}}?base_url={{base_url}}');">{% trans 'Lier un rapport' %}</a>{% endcomment %}
+                                                        {% comment %}<a onclick="creme.reports.link_report('{{object.id}}', '{{column.pk}}', '{{update_url}}?base_url={{base_url}}');">{% trans 'Link a report' %}</a>{% endcomment %}
                                                         <a onclick="creme.reports.link_report('{{object.id}}', '{{column.pk}}', {% get_block_reload_uri %});">
-                                                            {% trans 'Lier un rapport' %}
+                                                            {% trans 'Link a report' %}
                                                         </a>
                                                     {% endif %}
 
@@ -66,14 +66,14 @@
                                         {% endifequal %}
                                         {% ifequal HFI_RELATION column.type %}
                                             {% if column.report %}
-                                                {% comment %}<a onclick="creme.reports.unlink_report('{{column.pk}}', '{{update_url}}');">{% trans 'Délier le rapport' %}</a>{% endcomment %}
+                                                {% comment %}<a onclick="creme.reports.unlink_report('{{column.pk}}', '{{update_url}}');">{% trans 'Unlink the report' %}</a>{% endcomment %}
                                                 <a onclick="creme.reports.unlink_report('{{column.pk}}', {% get_block_reload_uri %});">
-                                                    {% trans 'Délier le rapport' %}
+                                                    {% trans 'Unlink the report' %}
                                                 </a>
                                             {% else %}
-                                                {% comment %}<a onclick="creme.reports.link_relation_report('{{object.id}}', '{{column.pk}}', '{{column.name}}','{{update_url}}?base_url={{base_url}}');">{% trans 'Lier un rapport' %}</a>{% endcomment %}
+                                                {% comment %}<a onclick="creme.reports.link_relation_report('{{object.id}}', '{{column.pk}}', '{{column.name}}','{{update_url}}?base_url={{base_url}}');">{% trans 'Link a report' %}</a>{% endcomment %}
                                                 <a onclick="creme.reports.link_relation_report('{{object.id}}', '{{column.pk}}', '{{column.name}}', {% get_block_reload_uri %});">
-                                                    {% trans 'Lier un rapport' %}
+                                                    {% trans 'Link a report' %}
                                                 </a>
                                             {% endif %}
                                         {% endifequal %}
@@ -82,7 +82,7 @@
                                         {% ifnotequal column.order 1 %}
                                             {% comment %}<a onclick="creme.reports.changeOrder('{{object.id}}', '{{column.pk}}', 'up','{{update_url}}?base_url={{base_url}}');">{% endcomment %}
                                             <a onclick="creme.reports.changeOrder('{{object.id}}', '{{column.pk}}', 'up', {% get_block_reload_uri %});">
-                                                <img src="{{MEDIA_URL}}images/small_up_arrow_16.png" border="0" title="Monter la colonne" alt="Monter" />
+                                                <img src="{{MEDIA_URL}}images/small_up_arrow_16.png" border="0" title="{% trans "Column up" %}" alt="{% trans "Column up" %}" />
                                             </a>
                                         {% endifnotequal %}<br/>
                                     <!--</td>
@@ -90,7 +90,7 @@
                                         {% ifnotequal column.order object.columns.count %}
                                             {% comment %}<a onclick="creme.reports.changeOrder('{{object.id}}', '{{column.pk}}', 'down','{{update_url}}?base_url={{base_url}}');">{% endcomment %}
                                             <a onclick="creme.reports.changeOrder('{{object.id}}', '{{column.pk}}', 'down', {% get_block_reload_uri %});">
-                                                <img src="{{MEDIA_URL}}images/small_down_arrow_16.png" border="0" title="Descendre la colonne" alt="Descendre" />
+                                                <img src="{{MEDIA_URL}}images/small_down_arrow_16.png" border="0" title="{% trans "Column down" %}" alt="{% trans "Column down" %}" />
                                             </a>
                                         {% endifnotequal %}
                                     </td>
@@ -114,7 +114,7 @@
             {% endfor %}
         {% else %}
             <tr>
-                <td class="{% cycle "block_line_dark" "block_line_light" %}">{% trans 'Aucune colonne définie pour le moment' %}</td>
+                <td class="{% cycle "block_line_dark" "block_line_light" %}">{% trans 'No column set for the moment' %}</td>
             </tr>
         {% endif %}
     </tbody>

@@ -25,19 +25,19 @@ from django.utils.encoding import smart_str
 
 from base import ReportBackend
 
+
 class CsvReportBackend(ReportBackend):
     def __init__(self, report):
         super(CsvReportBackend, self).__init__(report)
 
     def render_to_response(self):
-
         report = self.report
 
         response = HttpResponse(mimetype='text/csv')
         response['Content-Disposition'] = 'attachment; filename="%s.csv"' % smart_str(report.name)
 
         writer   = csv.writer(response, delimiter=";")
-        
+
         writerow = writer.writerow
 
         writerow([smart_str(column.title) for column in report.get_children_fields_flat()])

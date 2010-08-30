@@ -5,7 +5,7 @@
 
 {% block extrahead %}<script type="text/javascript" src="{{MEDIA_URL}}js/models/reports.js"></script>{% endblock %}
 
-{% block logo %}<img src="{{MEDIA_URL}}images/reporting_64.png" alt=""/>{% endblock %}
+{% block logo %}<img src="{{MEDIA_URL}}images/reporting_64.png" alt="{% trans "Report" %}"/>{% endblock %}
 
 {% block creme_blocks_import %}
     {{block.super}}
@@ -19,10 +19,10 @@
 
 {% block edit_delete_buttons %}
     <a href="/reports/report/{{object.id}}/preview">
-        <img src="{{MEDIA_URL}}images/view_64.png" title="Aperçu du rapport : '{{object}}'" alt="Aperçu"/>
+        <img src="{{MEDIA_URL}}images/view_64.png" title="{% blocktrans %}Preview of the report : '{{object}}'{% endblocktrans %}" alt="{% trans "Preview" %}"/>
     </a>&nbsp;
     <a href="/reports/report/{{object.id}}/csv">
-        <img src="{{MEDIA_URL}}images/document_csv_64.png" title="Télécharger '{{object}}' sous forme de fichier CSV" alt="Télécharger CSV"/>
+        <img src="{{MEDIA_URL}}images/document_csv_64.png" title="{% blocktrans %}Download '{{object}}' as CSV file{% endblocktrans %}" alt="{% trans "Download CSV" %}"/>
     </a>&nbsp;
     {{block.super}}
 {% endblock %}
