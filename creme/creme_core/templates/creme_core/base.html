@@ -6,6 +6,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="{{ LANGUAGE_CODE }}" xml:lang="{{ LANGUAGE_CODE }}" {% if LANGUAGE_BIDI %}dir="rtl"{% endif %}>
 <head>
     <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=8" />
     <title>Creme CRM{% block page_title %}{% endblock %}</title>
     <link rel='stylesheet' type='text/css' href='{{MEDIA_URL}}css/jquery-css/creme-theme/jquery-ui-1.7.2.custom.css' />
     <link rel="stylesheet" type="text/css" href="{{MEDIA_URL}}css{{CSS_THEME_NAME}}creme.css" />
@@ -40,18 +41,20 @@
                 $("#menu_expanded").unbind('mouseleave');
             }
 
-            function resizePageElements(menu_width)
+            function resizePageElements(menu_width, expanded)
             {
                 var top = $('#top');
                 var content = $('#content');
                 var footer = $('#footer');
 
-                var margin_left = menu_width + 10 + 'px';
+                var margin_left = (expanded) ? menu_width + 5 + 'px' : menu_width;
+                
                 top.css('margin-left', margin_left);
                 content.css('margin-left', margin_left);
                 footer.css('margin-left', margin_left);
 
-                var new_width = document_width_onload - menu_width - 20
+                var new_width = document_width_onload - menu_width;
+                if(expanded) new_width -=10;
                 top.width(new_width);
                 content.width(new_width);
                 footer.width(new_width);
@@ -84,14 +87,14 @@
              function() {
                 $(this).attr('src','{{MEDIA_URL}}images/unpin.png');
                 desactiveEventsMenu();
-                resizePageElements($("#menu_expanded").outerWidth());
+                resizePageElements($("#menu_expanded").outerWidth(), true);
                 $.cookie('menu_creme', 'expanded', {expires: 7, path: '/', domain: '', secure: false});
              },
              //Unpin / Rendre le menu flottant
              function() {
                 $(this).attr('src','{{MEDIA_URL}}images/pin.png');
                 activeEventsMenu();
-                resizePageElements($("#menu_collapse").outerWidth());
+                resizePageElements($("#menu_collapse").outerWidth(), false);
                 $.cookie('menu_creme', 'collapse', {expires: 7, path: '/', domain: '', secure: false});
              }
             );
@@ -99,13 +102,13 @@
            if($.cookie('menu_creme') == 'expanded') {
                 $('.pinmenu').attr('src','{{MEDIA_URL}}images/unpin.png');
                 desactiveEventsMenu();
-                $("#menu_expanded").show('fast',resizePageElements($("#menu_expanded").outerWidth()));
+                $("#menu_expanded").show('fast',resizePageElements($("#menu_expanded").outerWidth(), true));
                 $("#menu_collapse").hide('fast');
            } else {
                $('.pinmenu').attr('src','{{MEDIA_URL}}images/pin.png');
                activeEventsMenu();
                $("#menu_expanded").hide('slow');
-               $("#menu_collapse").show('fast', resizePageElements($("#menu_collapse").outerWidth()));
+               $("#menu_collapse").show('fast', resizePageElements($("#menu_collapse").outerWidth(), false));
            }
       });
     </script>
