@@ -1,18 +1,20 @@
+{% load i18n %}
 {% load creme_block %}
 <table class="table_detail_view ui-corner-all" id={{block_name}}>
-    {% get_block_header '%s Fichier attaché' '%s Fichiers attachés' %}
+    {% get_block_header _('%s Attachment') _('%s Attachments') %}
     <tbody class="collapsable">
         <tr>
             <th colspan="4" class="block_header_line_dark" align="left">
                 <a class="button_link" onclick="creme.utils.innerPopupNReload('/emails/template/{{object.pk}}/attachment/add', {% get_block_reload_uri %});">
-                    <img src="{{MEDIA_URL}}images/add_22.png" border="0" title="Ajouter un fichier attaché" alt="Ajouter" />Ajouter des documents existants
+                    <img src="{{MEDIA_URL}}images/add_22.png" border="0" title="{% trans "Add an attachment" %}" alt="{% trans "Add an attachment" %}" />
+                    {% trans "Add existing documents" %}
                 </a>
             </th>
         </tr>
         {% if page.paginator.count %}
             <tr>
-                <th class="block_header_line_dark">Nom</th>
-                <th class="block_header_line_dark">Supprimer</th>
+                <th class="block_header_line_dark">{% trans "Name" %}</th>
+                <th class="block_header_line_dark">{% trans "Delete" %}</th>
             </tr>
             {% for attachment in page.object_list %}
                 <!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
@@ -27,7 +29,7 @@
             {% endfor %}
         {% else %}
             <tr>
-                <td class="block_line_dark">Aucune pièce jointe pour le moment</td>
+                <td class="block_line_dark">{% trans "No attachment for the moment" %}</td>
             </tr>
         {% endif %}
     </tbody>

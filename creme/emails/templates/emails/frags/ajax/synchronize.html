@@ -1,24 +1,25 @@
+{% load i18n %}
 {% load creme_core_tags %}
 {% load creme_block %}
 <table class="table_header" cellpadding="0" cellspacing="0">
     <tr>
-        <td width="5%"><img src="{{MEDIA_URL}}images/email_64.png" alt=""/></td>
+        <td width="5%"><img src="{{MEDIA_URL}}images/email_64.png" alt="{% trans "Emails" %}"/></td>
         <td width="70%">
             <h1>
-                Synchronisation des mails externes dans Creme
+                {% trans "Synchronization of incoming emails with Creme" %}
             </h1>
         </td>
 
         <td width="25%" align="right">
             <span>
                 <a onclick="creme.reload_synchronisation($('#sub_content'), '/emails/synchronization');">
-                    <img src="{{MEDIA_URL}}images/refresh_64.png" title="Rafraîchir" alt="Rafraîchir"/>
+                    <img src="{{MEDIA_URL}}images/refresh_64.png" title="{% trans "Refresh" %}" alt="{% trans "Refresh" %}"/>
                 </a>&nbsp;
             </span>
         </td>
     </tr>
 </table>
-<div class="help_box">{{new_messages_count}}{% ifnotequal new_messages_count 1 %} nouveaux messages{% else %} nouveau message{% endifnotequal %}<br/></div>
+<div class="help_box">{% blocktrans count new_messages_count as msg_count %}{{msg_count}} new message{% plural %}{{msg_count}} new messages{% endblocktrans %}<br/></div>
 
 {% import_block from_app 'emails' named 'waiting_synchronisation' as 'waiting_synchronisation_block' %}
 {% import_block from_app 'emails' named 'synchronised_as_spam' as 'synchronised_as_spam_block' %}

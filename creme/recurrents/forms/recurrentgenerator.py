@@ -31,7 +31,7 @@ from recurrents.registry import recurrent_registry
 
 
 class RecurrentGeneratorEditForm(CremeEntityForm):
-    first_generation = DateTimeField(label=_(u'Date de la première récurrence'),
+    first_generation = DateTimeField(label=_(u'Date of the first generation'),
                                      required=True, widget=DateTimeWidget())
 
     class Meta:
@@ -41,7 +41,7 @@ class RecurrentGeneratorEditForm(CremeEntityForm):
 
 class RecurrentGeneratorCreateForm(RecurrentGeneratorEditForm):
     ct = ModelChoiceField(queryset=recurrent_registry.get_all_templates(),
-                          label=_(u'Liste des types de ressources utilisables en tant que modèle'))
+                          label=_(u'Type of resource used as template'))
 
     class Meta:
         model = RecurrentGenerator

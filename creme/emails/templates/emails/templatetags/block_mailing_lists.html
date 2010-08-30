@@ -1,18 +1,20 @@
+{% load i18n %}
 {% load creme_block %}
 <table class="table_detail_view ui-corner-all" id={{block_name}}>
-    {% get_block_header '%s Liste de diffusion associée' '%s Listes de diffusion associées' 'email_48.png' 'Mailing list' %}
+    {% get_block_header _('%s Related mailing list') _('%s Related mailing lists') 'email_48.png' _('Mailing lists') %}
     <tbody class="collapsable">
         <tr>
             <th colspan="4" class="block_header_line_dark" align="left">
                 <a class="button_link" onclick="creme.utils.innerPopupNReload('/emails/campaign/{{object.pk}}/mailing_list/add', {% get_block_reload_uri %});">
-                    <img src="{{MEDIA_URL}}images/add_22.png" border="0" title="Ajouter de nouvelles listes" alt="Ajouter" />Nouvelles
+                    <img src="{{MEDIA_URL}}images/add_22.png" border="0" title="{% trans "Add lists" %}" alt="{% trans "Add lists" %}" />
+                    {% trans "Add existing mailing lists" %}
                 </a>
             </th>
         </tr>
         {% if page.paginator.count %}
             <tr>
-                <th class="block_header_line_dark">Nom de la liste</th>
-                <th class="block_header_line_dark">Supprimer</th>
+                <th class="block_header_line_dark">{% trans "Name of the list" %}</th>
+                <th class="block_header_line_dark">{% trans "Delete" %}</th>
             </tr>
             {% for ml in page.object_list %}
                 <!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
@@ -27,7 +29,7 @@
             {% endfor %}
         {% else %}
             <tr>
-                <td class="block_line_dark">Aucune liste de diffusion associée pour le moment</td>
+                <td class="block_line_dark">{% trans "No related mailing list for the moment" %}</td>
             </tr>
         {% endif %}
     </tbody>

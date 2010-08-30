@@ -29,19 +29,19 @@ from emails.blocks import *
 
 
 creme_registry.register_entity_models(EmailCampaign, MailingList, EmailTemplate, EntityEmail)
-creme_registry.register_app ('emails', _(u'Courriels'), '/emails')
+creme_registry.register_app('emails', _(u'Emails'), '/emails')
 
 creme_menu.register_app ('emails', '/emails/', "Courriels et Campagnes")
 reg_menu = creme_menu.register_menu
-reg_menu('emails', '/emails/',                 'Portail' )
-reg_menu('emails', '/emails/campaigns' ,       'Lister les campagnes' )
-reg_menu('emails', '/emails/campaign/add',     'Ajouter une campagne')
-reg_menu('emails', '/emails/mailing_lists',    'Lister les listes de diffusion')
-reg_menu('emails', '/emails/mailing_list/add', 'Ajouter une liste de diffusion')
-reg_menu('emails', '/emails/templates',        'Lister les patrons de courriel')
-reg_menu('emails', '/emails/template/add',     'Ajouter un patron de courriel')
-reg_menu('emails', '/emails/mails',            'Liste des courriels')
-reg_menu('emails', '/emails/synchronization',  'Synchronisation des emails externes')
+reg_menu('emails', '/emails/',                 _(u'Portal'))
+reg_menu('emails', '/emails/campaigns' ,       _(u'All campaigns'))
+reg_menu('emails', '/emails/campaign/add',     _(u'Add a campaign'))
+reg_menu('emails', '/emails/mailing_lists',    _(u'All mailing lists'))
+reg_menu('emails', '/emails/mailing_list/add', _(u'Add a mailing list'))
+reg_menu('emails', '/emails/templates',        _(u'All email templates'))
+reg_menu('emails', '/emails/template/add',     _(u'Add an email template'))
+reg_menu('emails', '/emails/mails',            _('Liste des courriels'))
+reg_menu('emails', '/emails/synchronization',  _(u'Synchronization of incoming emails'))
 
 block_registry.register(mailing_lists_block, recipients_block, contacts_block, organisations_block,
                         child_lists_block, parent_lists_block, attachments_block, sendings_block,

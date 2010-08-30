@@ -288,7 +288,7 @@ def do_templatize(parser, token):
 
     match = _templatize_re.search(arg)
     if not match:
-        raise template.TemplateSyntaxError, "%r tag had invalid arguments" % tag_name
+        raise template.TemplateSyntaxError, "%r tag had invalid arguments: %r" % (tag_name, arg)
 
     template_string, var_name = match.groups()
 

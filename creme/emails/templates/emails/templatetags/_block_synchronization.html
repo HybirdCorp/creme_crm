@@ -1,25 +1,23 @@
+{% load i18n %}
 {% load creme_block %}
 {% load creme_core_tags %}
 
 {% with 7 as colspan %}
     <table class="table_detail_view ui-corner-all" id={{block_name}}>
-        {% block top_header %}
-        
-        {% endblock %}
+        {% block top_header %}{% endblock %}
         <tbody class="collapsable">
             {% if page.paginator.count %}
-            {% block toolbar %}
-            {% endblock %}
+                {% block toolbar %}{% endblock %}
                 <tr>
                     <th class="{% cycle "block_header_line_dark" "block_header_line_light" %}">
-                        <center><input name="select_all" value="all" type="checkbox" title="Tout sélectionner" onclick="creme.utils.toggleCheckallState(this, '#{{block_name}} [name=select_one]');"/></center>
+                        <center><input name="select_all" value="all" type="checkbox" title="{% trans "Select all" %}" onclick="creme.utils.toggleCheckallState(this, '#{{block_name}} [name=select_one]');"/></center>
                     </th>
-                    <th class="{% cycle "block_header_line_dark" "block_header_line_light" %}">Status</th>
-                    <th class="{% cycle "block_header_line_dark" "block_header_line_light" %}">Émetteur(s)</th>
-                    <th class="{% cycle "block_header_line_dark" "block_header_line_light" %}">Destinataire(s)</th>
-                    <th class="{% cycle "block_header_line_dark" "block_header_line_light" %}">Sujet</th>
-                    <th class="{% cycle "block_header_line_dark" "block_header_line_light" %}">Reçu le</th>
-                    <th class="{% cycle "block_header_line_dark" "block_header_line_light" %}">Action</th>
+                    <th class="{% cycle "block_header_line_dark" "block_header_line_light" %}">{% trans "Status" %}</th>
+                    <th class="{% cycle "block_header_line_dark" "block_header_line_light" %}">{% trans "Sender(s)" %}</th>
+                    <th class="{% cycle "block_header_line_dark" "block_header_line_light" %}">{% trans "Recipient(s)" %}</th>
+                    <th class="{% cycle "block_header_line_dark" "block_header_line_light" %}">{% trans "Subject" %}</th>
+                    <th class="{% cycle "block_header_line_dark" "block_header_line_light" %}">{% trans "Received on" %}</th>
+                    <th class="{% cycle "block_header_line_dark" "block_header_line_light" %}">{% trans "Actions" %}</th>
                 </tr>
                 {% for mail in page.object_list %}
                     <!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
@@ -34,7 +32,7 @@
                         <td class="{{row_color}}">{{mail.reception_date}}</td>
                         <td class="{{row_color}}" align="center" valign="center" style="width:10%;">
                             <a href="{{mail.get_absolute_url}}">
-                                <img src="{{MEDIA_URL}}images/view_22.png" border="0" title="Voir la fiche" alt="Voir la fiche" />
+                                <img src="{{MEDIA_URL}}images/view_22.png" border="0" title="{% trans "See the entity" %}" alt="{% trans "See the entity" %}" />
                             </a>
                             {% get_line_deletor at_url '/emails/mail/delete' with_args "{'ids': ['{{mail.pk}}'] }" %}
                         </td>
@@ -42,7 +40,7 @@
                 {% endfor %}
             {% else %}
                 <tr>
-                    <td class="block_line_dark">Aucun mail reçu à synchronisé</td>
+                    <td class="block_line_dark">{% trans "No received email to synchronize" %}</td>
                 </tr>
             {% endif %}
         </tbody>

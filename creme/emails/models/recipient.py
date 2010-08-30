@@ -28,13 +28,13 @@ from mailing_list import MailingList
 
 class EmailRecipient(CremeModel):
     """ A model that stores an e-mail address not linked to a Contact/Organisation"""
-    ml      = ForeignKey(MailingList, verbose_name=_(u'Liste de diffusion associée'))
-    address = CharField(_(u'Adresse email'), max_length=100, blank=True, null=True)
+    ml      = ForeignKey(MailingList, verbose_name=_(u'Related mailing list'))
+    address = CharField(_(u'Email address'), max_length=100, blank=True, null=True)
 
     def __unicode__(self):
         return self.address
 
     class Meta:
         app_label = "emails"
-        verbose_name = _(u'Destinataire')
-        verbose_name_plural = _(u'Destinataires')
+        verbose_name = _(u'Recipient')
+        verbose_name_plural = _(u'Recipients')
