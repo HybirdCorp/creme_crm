@@ -131,8 +131,7 @@
     color: #2C596C;
 }
 */
-.list_view button[disabled=""], .list_view button[disabled=""]:hover, .list_view button[disabled=""]:active{
-
+.list_view button[disabled="true"], .list_view button[disabled="true"]:hover, .list_view button[disabled="true"]:active{
     background-color: #CCCCCC;
     color : #919191;
     cursor:auto;
