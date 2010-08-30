@@ -39,10 +39,9 @@ def _get_vars_help():
 
 
 class TemplateEditForm(CremeEntityForm):
-    body        = CharField(label=_(u'Corps'), widget=RTEWidget(),
-                            help_text=_(u'Vous pouvez utiliser des variables: %s' % _get_vars_help()))
-    attachments = MultiCremeEntityField(label=_(u'Fichiers attachés'),
-                                        required=False, model=Document)
+    body        = CharField(label=_(u'Body'), widget=RTEWidget(),
+                            help_text=_(u'You can use variables: %s' % _get_vars_help()))
+    attachments = MultiCremeEntityField(label=_(u'Attachments'), required=False, model=Document)
 
     class Meta(CremeEntityForm.Meta):
         model   = EmailTemplate
@@ -78,10 +77,9 @@ class TemplateCreateForm(TemplateEditForm):
 
 
 class TemplateAddAttachment(CremeForm):
-    attachments = MultiCremeEntityField(label=_(u'Fichiers attachés'),
-                                        required=False, model=Document)
+    attachments = MultiCremeEntityField(label=_(u'Attachments'), required=False, model=Document)
 
-    blocks = FieldBlockManager(('general', _(u'Pièces jointes'), '*'))
+    blocks = FieldBlockManager(('general', _(u'Attachments'), '*'))
 
     def __init__(self, template, *args, **kwargs):
         super(TemplateAddAttachment, self).__init__(*args, **kwargs)

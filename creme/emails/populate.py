@@ -18,6 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from django.utils.translation import ugettext as _
 from django.contrib.contenttypes.models import ContentType
 
 from creme_core.models import SearchConfigItem, SearchField, RelationType
@@ -36,18 +37,18 @@ class Populator(BasePopulator):
     def populate(self, *args, **kwargs):
         get_ct = ContentType.objects.get_for_model
 
-        RelationType.create((REL_SUB_MAIL_RECEIVED, u"l'email a été reçu(e) par", [EntityEmail]),
-                            (REL_OBJ_MAIL_RECEIVED, u"a reçu l'email"))
+        RelationType.create((REL_SUB_MAIL_RECEIVED, _(u"(email) received by"), [EntityEmail]),
+                            (REL_OBJ_MAIL_RECEIVED, _(u"received the email")))
 
-        hf_id = create(HeaderFilter, 'emails-hf_mailinglist', name=u'Vue de Liste de Diffusion', entity_type_id=get_ct(MailingList).id, is_custom=False).id
-        create(HeaderFilterItem, 'emails-hf_mailinglist_name', order=1, name='name', title=u'Nom', type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True, editable=True, filter_string="name__icontains")
+        hf_id = create(HeaderFilter, 'emails-hf_mailinglist', name=_(u'Mailing list view'), entity_type_id=get_ct(MailingList).id, is_custom=False).id
+        create(HeaderFilterItem, 'emails-hf_mailinglist_name', order=1, name='name', title=_(u'Name'), type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True, editable=True, filter_string="name__icontains")
 
-        hf_id = create(HeaderFilter, 'emails-hf_campaign', name=u'Vue de Campagne', entity_type_id=get_ct(EmailCampaign).id, is_custom=False).id
-        create(HeaderFilterItem, 'emails-hf_campaign_name', order=1, name='name', title=u'Nom', type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True, editable=True, filter_string="name__icontains")
+        hf_id = create(HeaderFilter, 'emails-hf_campaign', name=_(u'Campaign view'), entity_type_id=get_ct(EmailCampaign).id, is_custom=False).id
+        create(HeaderFilterItem, 'emails-hf_campaign_name', order=1, name='name', title=_(u'Name'), type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True, editable=True, filter_string="name__icontains")
 
-        hf_id = create(HeaderFilter, 'emails-hf_template', name='Vue de patron de mail', entity_type_id=get_ct(EmailTemplate).id, is_custom=False).id
-        create(HeaderFilterItem, 'emails-hf_template_name',    order=1, name='name',    title=u'Nom',   type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True, editable=True, filter_string="name__icontains")
-        create(HeaderFilterItem, 'emails-hf_template_subject', order=2, name='subject', title=u'Sujet', type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True, editable=True, filter_string="subject__icontains")
+        hf_id = create(HeaderFilter, 'emails-hf_template', name=_(u'Email template view'), entity_type_id=get_ct(EmailTemplate).id, is_custom=False).id
+        create(HeaderFilterItem, 'emails-hf_template_name',    order=1, name='name',    title=_(u'Name'),    type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True, editable=True, filter_string="name__icontains")
+        create(HeaderFilterItem, 'emails-hf_template_subject', order=2, name='subject', title=_(u'Subject'), type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True, editable=True, filter_string="subject__icontains")
 
 
         #m2m fields excluded for the moment see creme_config/forms/search.py

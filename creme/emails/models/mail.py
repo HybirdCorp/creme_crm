@@ -59,20 +59,20 @@ from creme_settings import (CREME_GET_EMAIL_SERVER,
                             CREME_GET_EMAIL_SSL_KEYFILE,
                             CREME_GET_EMAIL_SSL_CERTFILE)
 
-MAIL_STATUS_SENT         = 1
-MAIL_STATUS_NOTSENT      = 2
-MAIL_STATUS_SENDINGERROR = 3
-MAIL_STATUS_SYNCHRONIZED = 4
-MAIL_STATUS_SYNCHRONIZED_SPAM = 5
-MAIL_STATUS_SYNCHRONIZED_WAITING = 6
+MAIL_STATUS_SENT                    = 1
+MAIL_STATUS_NOTSENT                 = 2
+MAIL_STATUS_SENDINGERROR            = 3
+MAIL_STATUS_SYNCHRONIZED            = 4
+MAIL_STATUS_SYNCHRONIZED_SPAM       = 5
+MAIL_STATUS_SYNCHRONIZED_WAITING    = 6
 
 MAIL_STATUS = {
-                MAIL_STATUS_SENT:                 _(u"Envoyé"),
-                MAIL_STATUS_NOTSENT:              _(u"Non envoyé"),
-                MAIL_STATUS_SENDINGERROR:         _(u"Erreur d'envoi"),
-                MAIL_STATUS_SYNCHRONIZED:         _(u"Synchronisé"),
-                MAIL_STATUS_SYNCHRONIZED_SPAM:    _(u"Synchronisé - Marqué comme SPAM"),
-                MAIL_STATUS_SYNCHRONIZED_WAITING: _(u"Synchronisé - Non traité"),
+                MAIL_STATUS_SENT:                 _(u"Sent"),
+                MAIL_STATUS_NOTSENT:              _(u"Not sent"),
+                MAIL_STATUS_SENDINGERROR:         _(u"Sending error"),
+                MAIL_STATUS_SYNCHRONIZED:         _(u"Synchronized"),
+                MAIL_STATUS_SYNCHRONIZED_SPAM:    _(u"Synchronized - Marked as SPAM"),
+                MAIL_STATUS_SYNCHRONIZED_WAITING: _(u"Synchronized - Untreated"),
               }
 
 ID_LENGTH = 32
@@ -84,19 +84,19 @@ class _Email(CremeModel):
 #    id             = CharField(_(u'Identifiant du mail'), primary_key=True, max_length=ID_LENGTH)
 #    sending        = ForeignKey(EmailSending, null=True, verbose_name=_(u"Envoi associé"), related_name='mails_set')
 
-    reads          = PositiveIntegerField(_(u'Nombre de lecture(s)'), blank=True, null=True, default=0)
-    status         = PositiveSmallIntegerField(_(u'Statut'))
+    reads          = PositiveIntegerField(_(u'Number of reads'), blank=True, null=True, default=0)
+    status         = PositiveSmallIntegerField(_(u'Status'))
 
-    sender         = CharField(_(u'Émetteur'), max_length=100)
-    recipient      = CharField(_(u'Destinataire'), max_length=100)
+    sender         = CharField(_(u'Sender'), max_length=100)
+    recipient      = CharField(_(u'Recipient'), max_length=100)
     #cc             = CharField(_(u'cc'), max_length=100)
-    subject        = CharField(_(u'Sujet'), max_length=100, blank=True, null=True)
+    subject        = CharField(_(u'Subject'), max_length=100, blank=True, null=True)
     body_html      = TextField()
     body           = TextField()
-    sending_date   = DateTimeField(_(u"Date d'envoi"), blank=True, null=True)
-    reception_date = DateTimeField(_(u"Date de reception"), blank=True, null=True)
+    sending_date   = DateTimeField(_(u"Sending date"), blank=True, null=True)
+    reception_date = DateTimeField(_(u"Reception date"), blank=True, null=True)
     signature      = ForeignKey(MailSignature, verbose_name=_(u'Signature'), blank=True, null=True) ##merge with body ????
-    attachments    = ManyToManyField(Document, verbose_name=_(u'Fichiers attachés'))
+    attachments    = ManyToManyField(Document, verbose_name=_(u'Attachments'))
 
     class Meta:
         abstract = True
@@ -173,12 +173,12 @@ class _Email(CremeModel):
 
 
 class EntityEmail(_Email, CremeEntity):
-    identifier = CharField(_(u'Identifiant du mail'), unique=True, max_length=ID_LENGTH, null=False, blank=False, default=generate_id)
+    identifier = CharField(_(u'Email ID'), unique=True, max_length=ID_LENGTH, null=False, blank=False, default=generate_id)
 
     class Meta:
         app_label = "emails"
-        verbose_name = _(u'Courriel')
-        verbose_name_plural = _(u'Courriels')
+        verbose_name = _(u'Email')
+        verbose_name_plural = _(u'Emails')
 
     def genid_n_save(self):
         #BEWARE: manage manually
@@ -208,8 +208,8 @@ class EntityEmail(_Email, CremeEntity):
     def get_entity_actions(self):
         ctx = {
             'actions' : [
-                    (self.get_absolute_url(),        ugettext(u"Voir"),    mark_safe(flatatt({})), "%s/images/view_16.png" % settings.MEDIA_URL),
-                    (self.get_delete_absolute_url(), ugettext(u"Effacer"), mark_safe(flatatt({'class': 'confirm_delete'})), "%s/images/delete_16.png"  % settings.MEDIA_URL)
+                    (self.get_absolute_url(),        ugettext(u"See"),    mark_safe(flatatt({})), "%s/images/view_16.png" % settings.MEDIA_URL),
+                    (self.get_delete_absolute_url(), ugettext(u"Delete"), mark_safe(flatatt({'class': 'confirm_delete'})), "%s/images/delete_16.png"  % settings.MEDIA_URL)
             ],
             'id': self.id,
         }
@@ -220,11 +220,10 @@ class EntityEmail(_Email, CremeEntity):
 
     @staticmethod
     def fetch_mails(user_id_to_assign):
-        
         client = None
         message_count = mailbox_size = 0
         response = messages = total_size = ""
-        
+
         try:
             if CREME_GET_EMAIL_SSL:
                 client = poplib.POP3_SSL(CREME_GET_EMAIL_SERVER, CREME_GET_EMAIL_PORT, CREME_GET_EMAIL_SSL_KEYFILE, CREME_GET_EMAIL_SSL_CERTFILE)
@@ -235,7 +234,6 @@ class EntityEmail(_Email, CremeEntity):
 
             message_count, mailbox_size = client.stat()
             response, messages, total_size = client.list()
-            
         except Exception, e:#TODO: Define better exception
             debug("Pop connection error : %s", e)
             if client is not None:
@@ -248,9 +246,10 @@ class EntityEmail(_Email, CremeEntity):
         attachment_paths = []
 
         current_user = User.objects.get(pk=user_id_to_assign)
-        folder_cat, is_cat_created  = FolderCategory.objects.get_or_create(name=u"Fichiers reçus par mail")
-        
-        folder, is_fold_created = Folder.objects.get_or_create(title=u'Fichiers de %s reçus par mail' % current_user.username,
+        #TODO: create category in the populate ?? refactor
+        folder_cat, is_cat_created  = FolderCategory.objects.get_or_create(name=u"Fichiers reçus par mail") #TODO: i18n
+
+        folder, is_fold_created = Folder.objects.get_or_create(title=u'Fichiers de %s reçus par mail' % current_user.username, #TODO: i18n
                                                                user=current_user,
                                                                category=folder_cat)
 
@@ -289,12 +288,12 @@ class EntityEmail(_Email, CremeEntity):
                     mct = part.get_content_maintype()
                     if mct == 'multipart':
                         continue
-                        
+
                     if mct != 'text':
                         filename = part.get_filename()
-                        f=SimpleUploadedFile(filename, payload, content_type=part.get_content_type())
+                        f = SimpleUploadedFile(filename, payload, content_type=part.get_content_type())
                         attachment_paths.append(handle_uploaded_file(f, path=['upload','emails','attachments'], name=filename))
-                    
+
                     else:
                         cst = part.get_content_subtype()
                         content = get_unicode_decoded_str(payload, encodings)
@@ -324,10 +323,10 @@ class EntityEmail(_Email, CremeEntity):
 
             for attachment_path in attachment_paths:
                 doc = Document()
-                doc.title= u"%s (mail %s)" % (attachment_path.rpartition(os.sep)[2], mail.id)
-                doc.description=u"Reçu avec le mail %s" % (mail, )
-                doc.filedata=attachment_path
-                doc.user_id=user_id_to_assign
+                doc.title = u"%s (mail %s)" % (attachment_path.rpartition(os.sep)[2], mail.id)
+                doc.description = ugettext(u"Received with the mail %s") % (mail, )
+                doc.filedata = attachment_path
+                doc.user_id = user_id_to_assign
                 doc.folder = folder
                 doc.save()
                 Relation.create(doc, REL_OBJ_RELATED_2_DOC, mail)

@@ -1,39 +1,22 @@
+{% load i18n %}
 {% load creme_block %}
-
 <table class="table_detail_view ui-corner-all" id={{block_name}}>
     {% get_block_header '%s Liste parente' '%s Listes parentes' %}
-
     <tbody class="collapsable">
-        {% comment %}<tr>
-            <th colspan="4" class="block_header_line_dark" align="left">
-                <a class="button_link" onclick="window.open('/emails/mailing_list/{{object.pk}}/child/add','add_link','menubar=no, status=no, scrollbars=no, menubar=no, width=600, height=400')">
-                    <img src="{{MEDIA_URL}}images/add_22.png" border="0" title="Ajouter manuellement" alt="Ajouter" />Ajouter une liste fille
-                </a>
-            </th>
-        </tr>{% endcomment %}
-
         {% if page.paginator.count %}
             <tr>
-                <th class="block_header_line_dark">Nom de la liste</th>
-{% comment %}                 <th class="block_header_line_dark">Supprimer</th> {% endcomment %}
+                <th class="block_header_line_dark">{% trans "Name of the list" %}</th>
             </tr>
-
             {% for ml in page.object_list %}
-                <!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
                 <tr>
-                    <td class="{{row_color}}">
+                    <td class="{% cycle "block_line_dark" "block_line_light" as row_color %}">
                         <a href="{{ml.get_absolute_url}}">{{ml.name}}</a>
                     </td>
-                    {% comment %}<td class="{{row_color}}" align="center" valign="center" style="width:10%;">
-                        <a href="/emails/mailing_list/{{object.pk}}/child/delete/{{ml.pk}}">
-                            <img src="{{MEDIA_URL}}images/delete_22.png" border="0" alt="Supprimer" title="Supprimer"/>
-                        </a>
-                    </td>{% endcomment %}
                 </tr>
             {% endfor %}
         {% else %}
             <tr>
-                <td class="block_line_dark">Aucune liste parente pour le moment</td>
+                <td class="block_line_dark">{% trans "No parent list for the moment" %}</td>
             </tr>
         {% endif %}
     </tbody>
