@@ -61,7 +61,7 @@
                         <img border="0" src="{{MEDIA_URL}}images/relations_22.png" alt="Relation" title="Relation"/>Ajout de relation multiple
                     </a>&nbsp;
                 {% endif %}
-                <button  value="0" type="button" name="_search"{% if not search %} disabled {% else %} onclick="$(this.form).list_view('getSubmit')(this);" {% endif %}>Effacer la recherche</button>
+                <button  value="0" type="button" name="_search"{% if not search %} disabled="true" {% else %} onclick="$(this.form).list_view('getSubmit')(this);" {% endif %}>Effacer la recherche</button>
                 <button  value="1" type="button" name="_search" onclick="$(this.form).list_view('getSubmit')(this);"><img border="0" src="{{MEDIA_URL}}images/looking_glass_22.png" alt="Rechercher" title="Rechercher"/>Rechercher</button>
                 {% block extra_buttons %}{% endblock %}
                 {% if extra_bt_templates|isiterable %}
@@ -85,7 +85,7 @@
             {% for column in columns %}
                 {% if not column.is_hidden %}
                     <th>
-                        <button type="button" {% if column.sortable %}title="Trier par {{column.title}}" onclick="creme.utils.handleSort('#sort_field', '#sort_order', '{{column.name}}', this, $(this.form).list_view('getSubmit'));"{% else %} disabled {% endif %}>
+                        <button type="button" {% if column.sortable %}title="Trier par {{column.title}}" onclick="creme.utils.handleSort('#sort_field', '#sort_order', '{{column.name}}', this, $(this.form).list_view('getSubmit'));"{% else %} disabled="true" {% endif %}>
                             {{column.title}}
                         </button>
                     </th>
@@ -122,15 +122,15 @@
                     <tbody>
                         <tr>
                             <td>
-                                <button name="page" value="1" {% if not entities.has_previous %} disabled {% else %} onclick="$(this.form).list_view('getSubmit')(this);" {% endif %} type="button">|<</button>
-                                <button name="page" value="{{ entities.previous_page_number }}"{% if not entities.has_previous %} disabled {% else %} onclick="$(this.form).list_view('getSubmit')(this);" {% endif %} type="button"><<</button>
+                                <button name="page" value="1" {% if not entities.has_previous %} disabled="true" {% else %} onclick="$(this.form).list_view('getSubmit')(this);" {% endif %} type="button">|<</button>
+                                <button name="page" value="{{ entities.previous_page_number }}"{% if not entities.has_previous %} disabled="true" {% else %} onclick="$(this.form).list_view('getSubmit')(this);" {% endif %} type="button"><<</button>
                             </td>
                             <td>
                                 Page <input id="user_page" value="{{ entities.number }}" name="page" onkeydown="$(this.form).list_view('getKdSubmit')(event, this);" title="Touche Entrée pour valider"/> sur {{ entities.paginator.num_pages }}
                             </td>
                             <td>
-                                <button name="page" value="{{ entities.next_page_number }}"{% if not entities.has_next %} disabled {% else %} onclick="$(this.form).list_view('getSubmit')(this);" {% endif %} type="button">>></button>
-                                <button name="page" value="{{ entities.paginator.num_pages }}"{% ifequal entities.number entities.paginator.num_pages %} disabled {% else %} onclick="$(this.form).list_view('getSubmit')(this);" {% endifequal %} type="button">>|</button>
+                                <button name="page" value="{{ entities.next_page_number }}"{% if not entities.has_next %} disabled="true" {% else %} onclick="$(this.form).list_view('getSubmit')(this);" {% endif %} type="button">>></button>
+                                <button name="page" value="{{ entities.paginator.num_pages }}"{% ifequal entities.number entities.paginator.num_pages %} disabled="true" {% else %} onclick="$(this.form).list_view('getSubmit')(this);" {% endifequal %} type="button">>|</button>
                             </td>
                             <td>
                                 Nb / Page :
