@@ -28,10 +28,10 @@ from creme_core.registry import creme_registry
 register = Library()
 
 HFI_TYPE_VERBOSE = {
-    HFI_FIELD    : _(u"Champ normal"),
+    HFI_FIELD    : _(u"Regular field"),
     HFI_RELATION : _(u"Relation"),
-    HFI_FUNCTION : _(u"Fonction"),
-    HFI_CUSTOM   : _(u"Champ personalisé"),
+    HFI_FUNCTION : _(u"Function"),
+    HFI_CUSTOM   : _(u"Custom field"),
 }
 
 @register.filter(name="is_field_is_linkable")

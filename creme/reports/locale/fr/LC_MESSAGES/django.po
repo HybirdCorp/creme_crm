@@ -1,0 +1,282 @@
+# FR LOCALISATION OF 'REPORTS' APP
+# Copyright (C) 2010 Hybird
+# This file is distributed under the same license as the Creme package.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2010-08-30 16:47+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: blocks.py:32 templates/reports/templatetags/block_report_fields.html:10
+msgid "Columns of the report"
+msgstr "Colonnes du rapport"
+
+#: creme_core_register.py:34 models/report.py:252
+msgid "Reports"
+msgstr "Rapports"
+
+#: creme_core_register.py:42
+msgid "Portal"
+msgstr "Portail"
+
+#: creme_core_register.py:43
+msgid "All reports"
+msgstr "Liste des rapports"
+
+#: creme_core_register.py:44
+msgid "Add a report"
+msgstr "Ajouter un rapport"
+
+#: populate.py:39
+msgid "Report view"
+msgstr "Vue de Rapport"
+
+#: populate.py:41
+msgid "Name"
+msgstr "Nom"
+
+#: populate.py:42 models/report.py:245
+msgid "Entity type"
+msgstr "Type d'entité"
+
+#: forms/report.py:44 forms/report.py:188
+msgid "Regular fields"
+msgstr "Champs normaux"
+
+#: forms/report.py:45 forms/report.py:189
+msgid "Custom fields"
+msgstr "Champs personnalisés"
+
+#: forms/report.py:46 forms/report.py:190
+msgid "Relations"
+msgstr "Relations"
+
+#: forms/report.py:47 forms/report.py:191
+msgid "Functions"
+msgstr "Fonctions"
+
+#: forms/report.py:77
+#, python-format
+msgid "You must select an existing view, or at least one field from : %s"
+msgstr ""
+"Vous devez sélectionner soit une vue existante, soit au moins un champs "
+"parmi : %s"
+
+#: forms/report.py:161
+msgid "All"
+msgstr "Tout"
+
+#: forms/report.py:171
+msgid "Sub-report linked to the column"
+msgstr "Sous-rapport lié à la colonne"
+
+#: models/report.py:59
+msgid "Name of the column"
+msgstr "Nom de la colonne"
+
+#: models/report.py:68
+msgid "Column of report"
+msgstr "Colonne de rapport"
+
+#: models/report.py:69
+msgid "Columns of report"
+msgstr "Colonnes de rapport"
+
+#: models/report.py:244
+msgid "Name of the report"
+msgstr "Nom du rapport"
+
+#: models/report.py:246
+msgid "Displayed columns"
+msgstr "Colonnes affichées"
+
+#: models/report.py:247
+msgid "Filter"
+msgstr "Filtre"
+
+#: models/report.py:251 templates/reports/preview_report.html:13
+#: templates/reports/view_report.html:8
+msgid "Report"
+msgstr "Rapport"
+
+#: templates/reports/add_report.html:48
+#: templates/reports/templatetags/block_report_fields.html:18
+msgid "Add"
+msgstr "Ajouter"
+
+#: templates/reports/add_report.html:57 templates/reports/add_report.html:59
+msgid "New report"
+msgstr "Nouveau rapport"
+
+#: templates/reports/add_report.html:74
+msgid "Fields marked with * are required."
+msgstr "Les champs suivis d'un * sont obligatoires."
+
+#: templates/reports/add_report.html:80
+msgid "Global errors"
+msgstr "Erreurs globales"
+
+#: templates/reports/add_report.html:157
+msgid "Select from a existing view : "
+msgstr "Sélectionnez à partir d'une vue de liste existante : "
+
+#: templates/reports/add_report.html:170
+msgid "Choose your columns : "
+msgstr "Choisissez vos colonnes : "
+
+#: templates/reports/add_report.html:222
+msgid "Submit"
+msgstr "Envoyer"
+
+#: templates/reports/preview_report.html:8
+#, python-format
+msgid "Preview %(object)s"
+msgstr "Aperçu %(object)s"
+
+#: templates/reports/preview_report.html:16
+#, python-format
+msgid "Preview %(verbose_name)s : %(title)s"
+msgstr "Aperçu %(verbose_name)s : %(title)s"
+
+#: templates/reports/preview_report.html:22
+#, python-format
+msgid "Back to the detailview : '%(object)s'"
+msgstr "Retour sur la fiche : '%(object)s'"
+
+#: templates/reports/preview_report.html:22
+msgid "Back"
+msgstr "Retour"
+
+#: templates/reports/preview_report.html:25
+#: templates/reports/view_report.html:25
+#, python-format
+msgid "Download '%(object)s' as CSV file"
+msgstr "Télécharger '%(object)s' sous forme de fichier CSV"
+
+#: templates/reports/preview_report.html:25
+#: templates/reports/view_report.html:25
+msgid "Download CSV"
+msgstr "Télécharger CSV"
+
+#: templates/reports/preview_report.html:39
+#, python-format
+msgid "Preview of %(limit_to)s first entities"
+msgstr "Aperçu des %(limit_to)s premières entités"
+
+#: templates/reports/view_report.html:22
+#, python-format
+msgid "Preview of the report : '%(object)s'"
+msgstr "Aperçu du rapport : '%(object)s'"
+
+#: templates/reports/view_report.html:22
+msgid "Preview"
+msgstr "Aperçu"
+
+#: templates/reports/templatetags/block_report_fields.html:17
+msgid "Add a column"
+msgstr "Ajouter une colonne"
+
+#: templates/reports/templatetags/block_report_fields.html:19
+#: templates/reports/templatetags/block_report_fields.html:20
+msgid "Delete a column"
+msgstr "Supprimer une colonne"
+
+#: templates/reports/templatetags/block_report_fields.html:26
+msgid "#"
+msgstr "#"
+
+#: templates/reports/templatetags/block_report_fields.html:27
+msgid "Column"
+msgstr "Colonne"
+
+#: templates/reports/templatetags/block_report_fields.html:28
+msgid "Displayed in the report"
+msgstr "Affiché dans le rapport"
+
+#: templates/reports/templatetags/block_report_fields.html:29
+msgid "Type"
+msgstr "Type"
+
+#: templates/reports/templatetags/block_report_fields.html:30
+msgid "Action(s)"
+msgstr "Action(s)"
+
+#: templates/reports/templatetags/block_report_fields.html:31
+msgid "Expand ?"
+msgstr "Développer ?"
+
+#: templates/reports/templatetags/block_report_fields.html:43
+msgid "Columns of"
+msgstr "Colonnes de"
+
+#: templates/reports/templatetags/block_report_fields.html:45
+msgid "Value"
+msgstr "Valeur"
+
+#: templates/reports/templatetags/block_report_fields.html:56
+#: templates/reports/templatetags/block_report_fields.html:69
+#: templates/reports/templatetags/block_report_fields.html:71
+msgid "Unlink the report"
+msgstr "Délier le rapport"
+
+#: templates/reports/templatetags/block_report_fields.html:59
+#: templates/reports/templatetags/block_report_fields.html:61
+#: templates/reports/templatetags/block_report_fields.html:74
+#: templates/reports/templatetags/block_report_fields.html:76
+msgid "Link a report"
+msgstr "Lier un rapport"
+
+#: templates/reports/templatetags/block_report_fields.html:85
+msgid "Column up"
+msgstr "Monter la colonne"
+
+#: templates/reports/templatetags/block_report_fields.html:93
+msgid "Column down"
+msgstr "Descendre la colonne"
+
+#: templates/reports/templatetags/block_report_fields.html:117
+msgid "No column set for the moment"
+msgstr "Aucune colonne définie pour le moment"
+
+#: templates/reports/templatetags/column_header.html:7
+#, python-format
+msgid "(inherited de %(report)s)"
+msgstr "(hérité de %(report)s)"
+
+#: templatetags/report_tags.py:31
+msgid "Regular field"
+msgstr "Champ normal"
+
+#: templatetags/report_tags.py:32
+msgid "Relation"
+msgstr "Relation"
+
+#: templatetags/report_tags.py:33
+msgid "Function"
+msgstr "Fonction"
+
+#: templatetags/report_tags.py:34
+msgid "Custom field"
+msgstr "Champ personalisé"
+
+#: views/portal.py:33
+msgid "Number of reports"
+msgstr "Nombre de rapport(s)"
+
+#: views/report.py:93
+#, python-format
+msgid "Link of the column <%s>"
+msgstr "Liaison de la colonne <%s>"
+
+#: views/report.py:151
+#, python-format
+msgid "Adding column to <%s>"
+msgstr "Ajout de colonne à <%s>"

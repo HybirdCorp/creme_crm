@@ -39,14 +39,13 @@
             {% if ct_posted %}
                 $('#ct').val('{{ct_posted}}');
             {% endif %}
-            
-            $('#ct').change();
 
+            $('#ct').change();
         });
     </script>
 {% endblock %}
 
-{% block page_title %} - {% trans 'Ajouter' %}: {{form|get_meta_value:'model'|get_meta_value:'verbose_name'}}{% endblock %}
+{% block page_title %} - {% trans 'Add' %}: {{form|get_meta_value:'model'|get_meta_value:'verbose_name'}}{% endblock %}
 
 {% block content %}
     <!--
@@ -55,9 +54,9 @@
     -->
     <table class="table_header" cellpadding="0" cellspacing="0">
         <tr>
-            <td width="5%"><img src="{{MEDIA_URL}}images/add_64.png" alt=""/></td>
+            <td width="5%"><img src="{{MEDIA_URL}}images/add_64.png" alt="{% trans 'New report' %}"/></td>
             <td width="95%">
-                <h1>{% trans 'Nouveau' %}</h1>
+                <h1>{% trans 'New report' %}</h1>
             </td>
         </tr>
     </table>
@@ -71,14 +70,14 @@
             </ul>
         </div>
     {% endif%}
-    
-    <p>Les champs suivis d'un * sont obligatoires.</p>
+
+    <p>{% trans "Fields marked with * are required." %}</p>
 
     {% if form.non_field_errors %}
         <table class="table_detail_view ui-corner-all">
             <thead>
                 <tr>
-                    <th valign="middle">Erreurs globales</th>
+                    <th valign="middle">{% trans "Global errors" %}</th>
                 </tr>
             </thead>
             <tbody class="collapsable">
@@ -155,7 +154,7 @@
                                 <tbody class="collapsable">
                                     <tr>
                                         <th class="{{header_row}}" colspan="2">
-                                            {% trans "Sélectionnez à partir d'une vue de liste existante : " %}
+                                            {% trans "Select from a existing view : " %}
                                         </th>
                                     </tr>
                                     <tr>
@@ -168,7 +167,7 @@
                                     </tr>
                                     <tr>
                                         <th class="{{header_row}}" colspan="2">
-                                            {% trans "Choisissez vos colonnes : " %}
+                                            {% trans "Choose your columns : " %}
                                         </th>
                                     </tr>
                                     <tr>
@@ -220,7 +219,7 @@
             <br />
             {% block submit_buttons %}
                 {% if not hide_submit %}
-                    <input type="submit" value="Envoyer" />
+                    <input type="submit" value="{% trans "Submit" %}" />
                 {% endif %}
             {% endblock %}
         </form>
