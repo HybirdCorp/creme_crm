@@ -40,7 +40,7 @@ reg_menu('emails', '/emails/mailing_lists',    _(u'All mailing lists'))
 reg_menu('emails', '/emails/mailing_list/add', _(u'Add a mailing list'))
 reg_menu('emails', '/emails/templates',        _(u'All email templates'))
 reg_menu('emails', '/emails/template/add',     _(u'Add an email template'))
-reg_menu('emails', '/emails/mails',            _('Liste des courriels'))
+reg_menu('emails', '/emails/mails',            _(u'All emails'))
 reg_menu('emails', '/emails/synchronization',  _(u'Synchronization of incoming emails'))
 
 block_registry.register(mailing_lists_block, recipients_block, contacts_block, organisations_block,
