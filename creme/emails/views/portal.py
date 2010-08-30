@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import ugettext as _
 
 from creme_core.views.generic import app_portal
 
@@ -27,9 +27,9 @@ from emails.models import EmailCampaign, MailingList #, Sending
 
 def portal(request):
     stats = (
-                (_('Nombre de campagne(s)'),            EmailCampaign.objects.all().count()),
-                (_('Nombre de liste(s) de diffusion'),  MailingList.objects.all().count()),
-                #(_("Nombre d'envoi(s)"),                Sending.objects.all().count()),
+                (_('Number of campaigns'),      EmailCampaign.objects.all().count()),
+                (_('Number of mailing lists'),  MailingList.objects.all().count()),
+                #(_("Nombre d'envoi(s)"),       Sending.objects.all().count()),
             )
 
     return app_portal(request, 'emails', 'emails/portal.html', (EmailCampaign, MailingList), stats)

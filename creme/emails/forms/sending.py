@@ -27,7 +27,7 @@ from django.db import IntegrityError
 from django.forms import TypedChoiceField, IntegerField
 from django.forms.util import ErrorList
 from django.template import Template, VariableNode
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import ugettext_lazy as _, ugettext
 
 from creme_core.forms import CremeModelForm, CremeEntityField, CremeDateTimeField
 
@@ -37,15 +37,15 @@ from emails.models.mail import MAIL_STATUS_NOTSENT
 
 
 class SendingCreateForm(CremeModelForm):
-    type         = TypedChoiceField(label=_(u"Type d'envoi"), choices=SENDING_TYPES.iteritems(), coerce=int)
-    template     = CremeEntityField(label=_(u'Patron de couriel'), model=EmailTemplate)
+    type     = TypedChoiceField(label=_(u"Sending type"), choices=SENDING_TYPES.iteritems(), coerce=int)
+    template = CremeEntityField(label=_(u'Email template'), model=EmailTemplate)
 
-    sending_date = CremeDateTimeField(label=_(u"Date d'envoi"), required=False,
-                                      help_text=_(u"Obligatoire si l'envoi est différé seulement."))
-    hour         = IntegerField(label=_("Heure d'envoi"), required=False, min_value=0, max_value=23)
-    minute       = IntegerField(label=_("Minute d'envoi"), required=False, min_value=0, max_value=59)
+    sending_date = CremeDateTimeField(label=_(u"Sending date"), required=False,
+                                      help_text=_(u"Required only of the sending is deferred."))
+    hour         = IntegerField(label=_("Sending hour"), required=False, min_value=0, max_value=23)
+    minute       = IntegerField(label=_("Sending minute"), required=False, min_value=0, max_value=59)
 
-    blocks = CremeModelForm.blocks.new(('sending_date', _(u"Date de l'envoi"), ['type', 'sending_date', 'hour', 'minute']))
+    blocks = CremeModelForm.blocks.new(('sending_date', _(u"Sending date"), ['type', 'sending_date', 'hour', 'minute']))
 
     class Meta:
         model   = EmailSending
@@ -62,9 +62,9 @@ class SendingCreateForm(CremeModelForm):
 
         if cleaned_data['type'] == SENDING_TYPE_DEFERRED:
             if sending_date is None:
-                self._errors["sending_date"] = ErrorList([u"Date d'envoi obligatoire pour un envoi différé"])
+                self._errors["sending_date"] = ErrorList([ugettext(u"Sending date required for a deferred sending")])
             elif sending_date < now:
-                self._errors["sending_date"] = ErrorList([u"La date d'envoi doit être dans le futur"])
+                self._errors["sending_date"] = ErrorList([ugettext(u"Sending date must be is the future")])
             else:
                 cleaned_data['sending_date'] = sending_date.replace(hour=int(cleaned_data.get('hour') or 0),
                                                                     minute=int(cleaned_data.get('minute') or 0))

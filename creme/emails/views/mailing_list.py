@@ -21,6 +21,7 @@
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext
+from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required
 from django.contrib.contenttypes.models import ContentType
 
@@ -45,9 +46,7 @@ def edit(request, ml_id):
 @login_required
 @get_view_or_die('emails')
 def detailview(request, ml_id):
-    return view_entity_with_template(request,
-                                     ml_id,
-                                     MailingList,
+    return view_entity_with_template(request, ml_id, MailingList,
                                      '/emails/mailing_list',
                                      'emails/view_mailing_list.html')
 
@@ -84,19 +83,19 @@ def _add_aux(request, ml_id, form_class, title):
                        context_instance=RequestContext(request))
 
 def add_contacts(request, ml_id):
-    return _add_aux(request, ml_id, AddContactsForm, 'Nouveaux contacts pour <%s>')
+    return _add_aux(request, ml_id, AddContactsForm, _('New contacts for <%s>'))
 
 def add_contacts_from_filter(request, ml_id):
-    return _add_aux(request, ml_id, AddContactsFromFilterForm, 'Nouveaux contacts pour <%s>')
+    return _add_aux(request, ml_id, AddContactsFromFilterForm, _('New contacts for <%s>'))
 
 def add_organisations(request, ml_id):
-    return _add_aux(request, ml_id, AddOrganisationsForm, 'Nouvelles organisations pour <%s>')
+    return _add_aux(request, ml_id, AddOrganisationsForm, _('New organisations for <%s>'))
 
 def add_organisations_from_filter(request, ml_id):
-    return _add_aux(request, ml_id, AddOrganisationsFromFilterForm, 'Nouvelles organisations pour <%s>')
+    return _add_aux(request, ml_id, AddOrganisationsFromFilterForm, _('New organisations for <%s>'))
 
 def add_children(request, ml_id):
-    return _add_aux(request, ml_id, AddChildForm, 'Nouvelles listes filles pour <%s>')
+    return _add_aux(request, ml_id, AddChildForm, _('New child lists for <%s>'))
 
 @login_required
 @get_view_or_die('emails')

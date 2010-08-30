@@ -1,21 +1,24 @@
+{% load i18n %}
 {% load creme_block %}
 <table class="table_detail_view ui-corner-all" id={{block_name}}>
-    {% get_block_header '%s Organisation destinataire' '%s Organisations destinataires' 'organisation_48.png' 'Email from organisation' %}
+    {% get_block_header _('%s Organisation recipient') _('%s Organisations recipients') 'organisation_48.png' _('Organisations') %}
     <tbody class="collapsable">
         <tr>
             <th colspan="4" class="block_header_line_dark" align="left">
                 <a class="button_link" onclick="creme.utils.innerPopupNReload('/emails/mailing_list/{{object.pk}}/organisation/add', {% get_block_reload_uri %});">
-                    <img src="{{MEDIA_URL}}images/add_22.png" border="0" title="Ajouter" alt="Ajouter" />Ajouter des organisations
+                    <img src="{{MEDIA_URL}}images/add_22.png" border="0" title="{% trans "Add from existing organisations" %}" alt="{% trans "Add from existing organisations" %}" />
+                    {% trans "Add from existing organisations" %}
                 </a>
                 <a class="button_link" onclick="creme.utils.innerPopupNReload('/emails/mailing_list/{{object.pk}}/organisation/add_from_filter', {% get_block_reload_uri %});">
-                    <img src="{{MEDIA_URL}}images/add_22.png" border="0" title="Ajouter gràce à un filtre" alt="Ajouter" />Ajouter à partir d'un filtre
+                    <img src="{{MEDIA_URL}}images/add_22.png" border="0" title="{% trans "Add from a filter" %}" alt="{% trans "Add from a filter" %}" />
+                    {% trans "Add from a filter" %}
                 </a>
             </th>
         </tr>
         {% if page.paginator.count %}
             <tr>
-                <th class="block_header_line_dark">Adresse</th>
-                <th class="block_header_line_dark">Supprimer</th>
+                <th class="block_header_line_dark">{% trans "Address" %}</th>
+                <th class="block_header_line_dark">{% trans "Delete" %}</th>
             </tr>
             {% for orga in page.object_list %}
                 <!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
@@ -25,7 +28,7 @@
                             {% if orga.email %}
                                 {{orga.email}}
                             {% else %}
-                                {{orga}} : pas de mail.
+                                {% blocktrans %}{{orga}} : no email address.{% endblocktrans %}
                             {% endif %}
                         </a>
                     </td>
@@ -36,7 +39,7 @@
             {% endfor %}
         {% else %}
             <tr>
-                <td class="block_line_dark">Aucune organisation destinataire pour le moment</td>
+                <td class="block_line_dark">{% trans "No organisation recipient for the moment" %}</td>
             </tr>
         {% endif %}
     </tbody>
