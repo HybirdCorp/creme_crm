@@ -1,0 +1,174 @@
+# FR LOCALISATION OF 'RECURRENTS' APP
+# Copyright (C) 2010 Hybird
+# This file is distributed under the same license as the Creme package.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2010-08-27 16:10+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: creme_core_register.py:11
+msgid "Recurrent document"
+msgstr "Documents récurrents"
+
+#: creme_core_register.py:16
+msgid "All recurrent generators"
+msgstr "Lister les générateurs récurrents"
+
+#: creme_core_register.py:17
+msgid "Add a generator"
+msgstr "Ajouter un générateur"
+
+#: populate.py:38
+msgid "Daily"
+msgstr "Quotidienne"
+
+#: populate.py:38
+msgid "Every day"
+msgstr "Tous les jours"
+
+#: populate.py:39
+msgid "Weekly"
+msgstr "Hebdomadaire"
+
+#: populate.py:39
+msgid "Every week"
+msgstr "Toutes les semaines"
+
+#: populate.py:40
+msgid "Monthly"
+msgstr "Mensuelle"
+
+#: populate.py:40
+msgid "Every month"
+msgstr "Tous les mois"
+
+#: populate.py:41
+msgid "Quarterly"
+msgstr "Trimestrielle"
+
+#: populate.py:41
+msgid "Every trimester"
+msgstr "Tous les trimestres"
+
+#: populate.py:42
+msgid "Biannual"
+msgstr "Semestrielle"
+
+#: populate.py:42
+msgid "Every semester"
+msgstr "Tous les semestres"
+
+#: populate.py:43
+msgid "Annual"
+msgstr "Annuelle"
+
+#: populate.py:43
+msgid "Every year"
+msgstr "Tous les ans"
+
+#: populate.py:45
+msgid "Generator view"
+msgstr "Vue des générateurs"
+
+#: populate.py:47
+msgid "Name"
+msgstr "Nom"
+
+#: forms/recurrentgenerator.py:34
+msgid "Date of the first generation"
+msgstr "Date de la première récurrence"
+
+#: forms/recurrentgenerator.py:44
+msgid "Type of resource used as template"
+msgstr "Type de ressource utilisé en tant que modèle"
+
+#: models/periodicity.py:28
+msgid "Name of the periodicity"
+msgstr "Nom de la fréquence"
+
+#: models/periodicity.py:29
+msgid "Duration of the period (in days)"
+msgstr "Durée de la période (en jours)"
+
+#: models/periodicity.py:30
+msgid "Description of the time unit"
+msgstr "Description de l'unité de temps"
+
+#: models/periodicity.py:34
+msgid "Periodicity of generator recurennce"
+msgstr "Périodicité de récurrence des générateurs"
+
+#: models/periodicity.py:35
+msgid "Periodicities of generator recurennce"
+msgstr "Périodicités de récurrence des générateurs"
+
+#: models/recurrentgenerator.py:31
+msgid "Name of the generator"
+msgstr "Nom du générateur"
+
+#: models/recurrentgenerator.py:32
+msgid "Description"
+msgstr "Description"
+
+#: models/recurrentgenerator.py:33
+msgid "Date of the first recurrent generation"
+msgstr "Date de première génération récurrente"
+
+#: models/recurrentgenerator.py:34
+msgid "Date of the last recurrent generation"
+msgstr "Date de la dernière génération récurrente"
+
+#: models/recurrentgenerator.py:35
+msgid "Periodicity of the generation"
+msgstr "Périodicité de la génération"
+
+#: models/recurrentgenerator.py:36
+msgid "Type of the recurrent resource"
+msgstr "Type de ressource recurrente"
+
+#: models/recurrentgenerator.py:37
+msgid "Related model"
+msgstr "Modèle utilisé"
+
+#: models/recurrentgenerator.py:38
+msgid "Active ?"
+msgstr "Actif ?"
+
+#: models/recurrentgenerator.py:42
+msgid "Recurrent generator"
+msgstr "Générateur récurrent"
+
+#: models/recurrentgenerator.py:43
+msgid "Recurrent generators"
+msgstr "Générateurs récurrents"
+
+#: templates/recurrents/portal.html:3
+#: templates/recurrents/view_generator.html:3
+msgid "Recurrent doc"
+msgstr "Doc récurrent"
+
+#: templates/recurrents/portal.html:4
+msgid "Recurrent documents portal"
+msgstr "Portail Documents Récurrents"
+
+#: templates/recurrents/portal.html:6
+msgid "List of recurrent generators"
+msgstr "Liste des générateurs récurrents"
+
+#: templates/recurrents/frags/wizard_form_content.html:10
+#, python-format
+msgid "Preparation of a new generator : Step %(step)s / %(step_count)s"
+msgstr "Préparation d'un nouveau générateur : Étape %(step)s / %(step_count)s"
+
+#: views/portal.py:33
+msgid "Number of generators"
+msgstr "Nombre de générateur(s)"

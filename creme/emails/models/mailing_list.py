@@ -27,15 +27,15 @@ from persons.models import Contact, Organisation
 
 
 class MailingList(CremeEntity):
-    name          = CharField(_(u'Nom de la liste de diffusion'), max_length=80)
+    name          = CharField(_(u'Name of the mailing list'), max_length=80)
     children      = ManyToManyField('self', verbose_name=u'Listes filles', symmetrical=False, related_name='parents_set')
     contacts      = ManyToManyField(Contact, verbose_name=u'Contacts destinataires')
     organisations = ManyToManyField(Organisation, verbose_name=u'Sociétés destinataires')
 
     class Meta:
         app_label = "emails"
-        verbose_name = _(u'Liste de diffusion email')
-        verbose_name_plural = _(u'Listes de diffusion email')
+        verbose_name = _(u'Mailing list')
+        verbose_name_plural = _(u'Mailing lists')
 
     def __unicode__(self) :
         return self.name

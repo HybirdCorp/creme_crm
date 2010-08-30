@@ -1,18 +1,15 @@
+{% load i18n %}
 {% load creme_block %}
-
 <table class="table_detail_view ui-corner-all" id={{block_name}}>
-    {% get_block_header "%s Mail dans l'historique" "%s Mails dans l'historique" 'email_48.png' 'Mails' %}
-
+    {% get_block_header _("%s Email in the history") _("%s Emails in the history") 'email_48.png' _('Emails') %}
     <tbody class="collapsable">
         {% if page.paginator.count %}
             <tr>
-                <th class="block_header_line_dark">Date d'envoi</th>
-                <th class="block_header_line_dark">Sujet</th>
-                <th class="block_header_line_dark">Statut</th>
-                <th class="block_header_line_dark">Détail</th>
-{% comment %}                 <th class="block_header_line_dark">Supprimer</th> {% endcomment %}
+                <th class="block_header_line_dark">{% trans "Sending date" %}</th>
+                <th class="block_header_line_dark">{% trans "Subject" %}</th>
+                <th class="block_header_line_dark">{% trans "Status" %}</th>
+                <th class="block_header_line_dark">{% trans "Detail" %}</th>
             </tr>
-
             {% for mail in page.object_list %}
                 <!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
                 <tr>
@@ -21,19 +18,14 @@
                     <td class="{{row_color}}">{{mail.get_status_str}}</td>
                     <td class="{{row_color}}">
                         <a class="button_link" onclick="creme.utils.showInnerPopup('/emails/mails_history/{{mail.pk}}')">
-                            <img src="{{MEDIA_URL}}images/view_22.png" border="0" title="Détails" alt="Détails" />
+                            <img src="{{MEDIA_URL}}images/view_22.png" border="0" title="{% trans "Details" %}" alt="{% trans "Details" %}" />
                         </a>
                     </td>
-                    {% comment %}<td class="{{row_color}}" align="center" valign="center" style="width:10%;">
-                        <a href="/emails/campaign/sending/mail/delete/{{mail.pk}}">
-                            <img src="{{MEDIA_URL}}images/delete_22.png" border="0" alt="Supprimer" title="Supprimer"/>
-                        </a>
-                    </td>{% endcomment %}
                 </tr>
             {% endfor %}
         {% else %}
             <tr>
-                <td class="block_line_dark">Aucun mail dans l'historique pour le moment</td>
+                <td class="block_line_dark">{% trans "No email in the history for the moment" %}</td>
             </tr>
         {% endif %}
     </tbody>

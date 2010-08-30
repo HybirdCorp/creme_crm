@@ -32,7 +32,7 @@ from django.core.mail import EmailMultiAlternatives
 from django.template import Template, Context
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import ugettext_lazy as _, ugettext
 
 from creme_core.models import CremeModel
 
@@ -50,8 +50,8 @@ SENDING_TYPE_IMMEDIATE = 1
 SENDING_TYPE_DEFERRED  = 2
 
 SENDING_TYPES = {
-                    SENDING_TYPE_IMMEDIATE: _(u"Immédiat"),
-                    SENDING_TYPE_DEFERRED:  _(u"Différé"),
+                    SENDING_TYPE_IMMEDIATE: _(u"Immediate"),
+                    SENDING_TYPE_DEFERRED:  _(u"Deferred"),
                 }
 
 SENDING_STATE_DONE       = 1
@@ -59,32 +59,32 @@ SENDING_STATE_INPROGRESS = 2
 SENDING_STATE_PLANNED    = 3
 
 SENDING_STATES = {
-                    SENDING_STATE_DONE:       _(u"Effectué"),
-                    SENDING_STATE_INPROGRESS: _(u"En cours"),
-                    SENDING_STATE_PLANNED:    _(u"Prévu"),
+                    SENDING_STATE_DONE:       _(u"Done"),
+                    SENDING_STATE_INPROGRESS: _(u"In progress"),
+                    SENDING_STATE_PLANNED:    _(u"Planned"),
                  }
 
 
 class EmailSending(CremeModel):
-    sender        = EmailField(_(u"Adresse email de l'expéditeur"), max_length=100)
-    campaign      = ForeignKey(EmailCampaign, verbose_name=_(u'Campagne associée'), related_name='sendings_set')
-    type          = PositiveSmallIntegerField(verbose_name=_(u"Type d'envoi"))
+    sender        = EmailField(_(u"Sender address"), max_length=100)
+    campaign      = ForeignKey(EmailCampaign, verbose_name=_(u'Related campaign'), related_name='sendings_set')
+    type          = PositiveSmallIntegerField(verbose_name=_(u"Sending type"))
     #creation_date = DateField(_(u"Date de création")) #, blank=True, null=True
-    sending_date  = DateTimeField(_(u"Date d'envoi des mails"))
-    state         = PositiveSmallIntegerField(verbose_name=_(u"État de l'envoi"))
+    sending_date  = DateTimeField(_(u"Sending date of emails"))
+    state         = PositiveSmallIntegerField(verbose_name=_(u"Sending state"))
 
-    subject     = CharField(_(u'Sujet'), max_length=100)
-    body        = TextField(_(u"Corps"))
+    subject     = CharField(_(u'Subject'), max_length=100)
+    body        = TextField(_(u"Body"))
     signature   = ForeignKey(MailSignature, verbose_name=_(u'Signature'), blank=True, null=True)
-    attachments = ManyToManyField(Document, verbose_name=_(u'Fichiers attachés'))
+    attachments = ManyToManyField(Document, verbose_name=_(u'Attachments'))
 
     class Meta:
         app_label = "emails"
-        verbose_name = _(u'Envoi de campagne')
-        verbose_name_plural = _(u'Envois de campagne')
+        verbose_name = _(u'Email campaign sending')
+        verbose_name_plural = _(u'Email campaign sendings')
 
     def __unicode__(self):
-        return u"Envoi de <%s> du %s" % (self.campaign, self.sending_date)
+        return ugettext(u"Sending of <%(campaign)s> on %(date)s") % {'campaign': self.campaign, 'date': self.sending_date}
 
     def delete(self):
         self.mails_set.all().delete() #use CremeModel delete() ??
@@ -176,8 +176,8 @@ class EmailSending(CremeModel):
 
 class LightWeightEmail(_Email):
     """Used by campaigns"""
-    id           = CharField(_(u'Identifiant du mail'), primary_key=True, max_length=ID_LENGTH)
-    sending      = ForeignKey(EmailSending, null=True, verbose_name=_(u"Envoi associé"), related_name='mails_set')
+    id           = CharField(_(u'Email ID'), primary_key=True, max_length=ID_LENGTH)
+    sending      = ForeignKey(EmailSending, null=True, verbose_name=_(u"Related sending"), related_name='mails_set')
 
     recipient_ct = ForeignKey(ContentType, null=True) #useful ?????
     recipient_id = PositiveIntegerField(null=True)
@@ -186,8 +186,8 @@ class LightWeightEmail(_Email):
 
     class Meta:
         app_label = "emails"
-        verbose_name = _(u'Courriel de campagne')
-        verbose_name_plural = _(u'Courriels  de campagne')
+        verbose_name = _(u'Email of campaign')
+        verbose_name_plural = _(u'Emails of campaign')
 
     def get_body(self):
         if self.sending is None:

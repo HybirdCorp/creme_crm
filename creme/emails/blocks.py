@@ -27,13 +27,12 @@ from django.utils.translation import ugettext_lazy as _
 from creme_core.gui.block import QuerysetBlock
 from creme_core.utils import jsonify
 
-from emails.models.mail import MAIL_STATUS_SYNCHRONIZED_SPAM, MAIL_STATUS_SYNCHRONIZED_WAITING, MAIL_STATUS
-
 from persons.models import Contact, Organisation
 
 from documents.models import Document
 
 from emails.models import EmailRecipient, EmailSending, LightWeightEmail, MailingList, EntityEmail
+from emails.models.mail import MAIL_STATUS_SYNCHRONIZED_SPAM, MAIL_STATUS_SYNCHRONIZED_WAITING, MAIL_STATUS
 
 
 __all__ = ['mailing_lists_block', 'recipients_block', 'contacts_block', 'organisations_block',
@@ -43,7 +42,7 @@ __all__ = ['mailing_lists_block', 'recipients_block', 'contacts_block', 'organis
 class MailingListsBlock(QuerysetBlock):
     id_           = QuerysetBlock.generate_id('emails', 'mailing_lists')
     dependencies  = (MailingList,)
-    verbose_name  = _(u'Listes de diffusion')
+    verbose_name  = _(u'Mailing lists')
     template_name = 'emails/templatetags/block_mailing_lists.html'
 
     def detailview_display(self, context):
@@ -56,7 +55,7 @@ class MailingListsBlock(QuerysetBlock):
 class EmailRecipientsBlock(QuerysetBlock):
     id_           = QuerysetBlock.generate_id('emails', 'recipients')
     dependencies  = (EmailRecipient,)
-    verbose_name  = _(u'Destinataires manuels')
+    verbose_name  = _(u'Unlinked recipients')
     template_name = 'emails/templatetags/block_recipients.html'
 
     def detailview_display(self, context):
@@ -69,7 +68,7 @@ class EmailRecipientsBlock(QuerysetBlock):
 class ContactsBlock(QuerysetBlock):
     id_           = QuerysetBlock.generate_id('emails', 'contacts')
     dependencies  = (Contact,)
-    verbose_name  = _(u'Contacts destinataires')
+    verbose_name  = _(u'Contacts recipients')
     template_name = 'emails/templatetags/block_contacts.html'
 
     def detailview_display(self, context):
@@ -82,7 +81,7 @@ class ContactsBlock(QuerysetBlock):
 class OrganisationsBlock(QuerysetBlock):
     id_           = QuerysetBlock.generate_id('emails', 'organisations')
     dependencies  = (Organisation,)
-    verbose_name  = _(u'Sociétés destinataires')
+    verbose_name  = _(u'Organisations recipients')
     template_name = 'emails/templatetags/block_organisations.html'
 
     def detailview_display(self, context):
@@ -95,7 +94,7 @@ class OrganisationsBlock(QuerysetBlock):
 class ChildListsBlock(QuerysetBlock):
     id_           = QuerysetBlock.generate_id('emails', 'child_lists')
     dependencies  = (MailingList,)
-    verbose_name  = _(u'Listes de diffusion filles')
+    verbose_name  = _(u'Child mailing lists')
     template_name = 'emails/templatetags/block_child_lists.html'
 
     def detailview_display(self, context):
@@ -108,7 +107,7 @@ class ChildListsBlock(QuerysetBlock):
 class ParentListsBlock(QuerysetBlock):
     id_           = QuerysetBlock.generate_id('emails', 'parent_lists')
     dependencies  = (MailingList,)
-    verbose_name  = _(u'Listes de diffusion parentes')
+    verbose_name  = _(u'Parent mailing lists')
     template_name = 'emails/templatetags/block_parent_lists.html'
 
     def detailview_display(self, context):
@@ -121,7 +120,7 @@ class ParentListsBlock(QuerysetBlock):
 class AttachmentsBlock(QuerysetBlock):
     id_           = QuerysetBlock.generate_id('emails', 'attachments')
     dependencies  = (Document,)
-    verbose_name  = _(u'Fichiers attachés')
+    verbose_name  = _(u'Attachments')
     template_name = 'emails/templatetags/block_attachments.html'
 
     def detailview_display(self, context):
@@ -135,7 +134,7 @@ class SendingsBlock(QuerysetBlock):
     id_           = QuerysetBlock.generate_id('emails', 'sendings')
     dependencies  = (EmailSending,)
     order_by      = '-sending_date'
-    verbose_name  = _(u'Envois')
+    verbose_name  = _(u'Sendings')
     template_name = 'emails/templatetags/block_sendings.html'
 
     def detailview_display(self, context):
@@ -149,7 +148,7 @@ class MailsBlock(QuerysetBlock):
     id_           = QuerysetBlock.generate_id('emails', 'mails')
     dependencies  = (LightWeightEmail,)
     page_size     = 12
-    verbose_name  = _(u"Mails d'un envoi")
+    verbose_name  = _(u"Emails of a sending")
     template_name = 'emails/templatetags/block_mails.html'
 
     def detailview_display(self, context):
@@ -176,7 +175,7 @@ class MailsHistoryBlock(QuerysetBlock):
     id_           = QuerysetBlock.generate_id('emails', 'mails_history')
     dependencies  = (LightWeightEmail,)
     order_by      = '-sending_date'
-    verbose_name  = _(u"Historique des mails")
+    verbose_name  = _(u"Emails history")
     template_name = 'emails/templatetags/block_mails_history.html'
     configurable  = True
 
@@ -198,13 +197,13 @@ class _SynchronizationMailsBlock(QuerysetBlock):
             'MAIL_STATUS': MAIL_STATUS,
             'entityemail_ct_id': ContentType.objects.get_for_model(EntityEmail).id,
         })
-        
+
         return [(self.id_, self.detailview_display(context))]
 
 
 class WaitingSynchronizationMailsBlock(_SynchronizationMailsBlock):
     id_           = QuerysetBlock.generate_id('emails', 'waiting_synchronisation')
-    verbose_name  = _(u'E-mails entrants à traiter')
+    verbose_name  = _(u'Incoming Emails to sync')
     template_name = 'emails/templatetags/block_synchronization.html'
 
     def detailview_display(self, context):
@@ -216,9 +215,9 @@ class WaitingSynchronizationMailsBlock(_SynchronizationMailsBlock):
 
 class SynchronizatMailsBlock(_SynchronizationMailsBlock):
     id_           = QuerysetBlock.generate_id('emails', 'synchronised_as_spam')
-    verbose_name  = _(u'E-mails entrants marqués comme spam')
+    verbose_name  = _(u'Spam emails')
     template_name = 'emails/templatetags/block_synchronization_spam.html'
-    
+
     def detailview_display(self, context):
         context.update({'MAIL_STATUS': MAIL_STATUS})
         return self._render(self.get_block_template_context(context, EntityEmail.objects.filter(status=MAIL_STATUS_SYNCHRONIZED_SPAM),

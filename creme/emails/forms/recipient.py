@@ -22,7 +22,7 @@ import re
 
 from django.forms import CharField, ValidationError, FileField
 from django.forms.widgets import Textarea
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import ugettext_lazy as _, ugettext
 from django.utils.encoding import smart_unicode
 
 from creme_core.utils import chunktools
@@ -43,7 +43,7 @@ email_re = re.compile(
 
 def validate_email(value):
     if not email_re.search(smart_unicode(value)):
-        raise ValidationError(_(u"N'est pas une addresse e-mail valide: %s") % value)
+        raise ValidationError(ugettext(u"Not a valid email address : %s") % value)
 
 def validate_emailv2(value):
     return email_re.search(smart_unicode(value)) is not None
@@ -51,9 +51,9 @@ def validate_emailv2(value):
 
 class MailingListAddRecipientsForm(CremeForm):
     #TODO: true multi-emailfield ???
-    recipients = CharField(widget=Textarea(), label=_(u'Destinataires'), help_text=_(u'Mettez une addresse e-mail par ligne.'))
+    recipients = CharField(widget=Textarea(), label=_(u'Recipients'), help_text=_(u'Write a validd e-mail address per line.'))
 
-    blocks = FieldBlockManager(('general', _(u'Destinataires'), '*'))
+    blocks = FieldBlockManager(('general', _(u'Recipients'), '*'))
 
     def __init__(self, ml, *args, **kwargs):
         super(MailingListAddRecipientsForm, self).__init__(*args, **kwargs)
@@ -78,16 +78,17 @@ class MailingListAddRecipientsForm(CremeForm):
             if address not in existing:
                 create(ml=ml, address=address)
 
+
 def filter_mail_chunk(value):
     return value if validate_emailv2(value) else None
 
 class MailingListAddCSVForm(CremeForm):
-    recipients = FileField(label=_(u'Destinataires'),
-                           help_text=_(u'Un fichier contenant une addresse e-mail par ligne (ex:creme@crm.com sans guillemets).'))
+    recipients = FileField(label=_(u'Recipients'),
+                           help_text=_(u'A file containing one e-mail addresse per line (eg:creme@crm.com without quotation marks).'))
 #    recipients = AjaxFileField(label=_(u'Destinataires'),
 #                           help_text=_(u'Un fichier contenant une addresse e-mail par ligne (ex:creme@crm.com sans guillemets).'),)
 
-    blocks = FieldBlockManager(('general', _(u'Fichier CSV'), '*'))
+    blocks = FieldBlockManager(('general', _(u'CSV file'), '*'))
 
     def __init__(self, ml, *args, **kwargs):
         super(MailingListAddCSVForm, self).__init__(*args, **kwargs)
@@ -103,7 +104,7 @@ class MailingListAddCSVForm(CremeForm):
         for recipients in chunktools.iter_as_chunk(addresses, 256):
             recipients = frozenset(recipients)
             existing   = frozenset(filter_(ml=ml, address__in=recipients).values_list('address', flat=True))
-            
+
             for address in recipients:
                 if not address in existing:
                     create(ml=ml, address=address)

@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import ugettext as _
 
 from creme_core.views.generic import app_portal
 
@@ -30,7 +30,7 @@ def portal(request):
         @Permissions : Acces or Admin to recurrent app
     """
     stats = (
-                (_(u'Nombre de générateur(s)'),  RecurrentGenerator.objects.all().count()),
+                (_(u'Number of generators'),  RecurrentGenerator.objects.all().count()),
             )
 
     return app_portal(request, 'recurrents', 'recurrents/portal.html', RecurrentGenerator, stats)
