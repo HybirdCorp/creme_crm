@@ -1,8 +1,8 @@
 {% extends "creme_core/generics/view_entity.html" %}
-
+{% load i18n %}
 {% load creme_block %}
 
-{% block logo %}<img src="{{MEDIA_URL}}images/email_64.png" alt=""/>{% endblock %}
+{% block logo %}<img src="{{MEDIA_URL}}images/email_64.png" alt="{% trans "Campaign" %}"/>{% endblock %}
 
 {% block creme_blocks_import %}
     {{block.super}}

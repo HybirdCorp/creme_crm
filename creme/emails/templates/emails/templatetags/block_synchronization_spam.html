@@ -1,19 +1,22 @@
 {% extends "emails/templatetags/_block_synchronization.html" %}
 {% load creme_block %}
+{% load i18n %}
 {% load creme_core_tags %}
 
 {% block top_header %}
-    {% get_block_header '%s E-mail entrant marqué comme spam' '%s E-mails entrants marqués comme spam' 'spam_48.png' 'Email' %}
+    {% get_block_header _('%s Incoming email marked as spam') _('%s Incoming emails marked as spam') 'spam_48.png' _('Spam') %}
 {% endblock %}
 
 {% block toolbar %}
     <tr>
         <th colspan="{{colspan}}" class="block_header_line_dark" align="left">
             <a class="button_link" onclick="creme.emails.mass_action('/emails/mail/waiting', '[name=select_one]:checked', {% get_block_reload_uri %});">
-                <img src="{{MEDIA_URL}}images/email_22.png" border="0" title="Marquer comme à traiter" alt="À Traiter" />Marquer comme à traiter
+                <img src="{{MEDIA_URL}}images/email_22.png" border="0" title="{% trans "Marked as 'to be treated'" %}" alt="{% trans "Marked as 'to be treated'" %}" />
+                {% trans "Marked as 'to be treated'" %}
             </a>
             <a class="button_link" onclick="creme.emails.mass_action('/emails/mail/delete', '[name=select_one]:checked', {% get_block_reload_uri %});">
-                <img src="{{MEDIA_URL}}images/delete_22.png" border="0" title="Supprimer emails" alt="Supprimer" />Supprimer
+                <img src="{{MEDIA_URL}}images/delete_22.png" border="0" title="{% trans "Delete" %}" alt="{% trans "Delete" %}" />
+                {% trans "Delete" %}
             </a>
         </th>
     </tr>

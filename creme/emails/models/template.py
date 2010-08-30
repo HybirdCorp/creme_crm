@@ -29,19 +29,19 @@ from documents.models import Document
 
 
 class EmailTemplate(CremeEntity):
-    name        = CharField(_(u'Nom'), max_length=100)
-    subject     = CharField(_(u'Sujet'), max_length=100)
-    body        = TextField(_(u"Corps"))
-    use_rte     = BooleanField(_(u"Utilise l'éditeur de texte riche"))
+    name        = CharField(_(u'Name'), max_length=100)
+    subject     = CharField(_(u'Subject'), max_length=100)
+    body        = TextField(_(u"Body"))
+    use_rte     = BooleanField(_(u"Use rich text editor"))
     signature   = ForeignKey(MailSignature, verbose_name=_(u'Signature'), blank=True, null=True)
-    attachments = ManyToManyField(Document, verbose_name=_(u'Fichiers attachés'))
+    attachments = ManyToManyField(Document, verbose_name=_(u'Attachments'))
 
     excluded_fields_in_html_output = CremeEntity.excluded_fields_in_html_output + ['use_rte'] #body too ???
 
     class Meta:
         app_label = "emails"
-        verbose_name = _(u"Patron de courriel")
-        verbose_name_plural = _(u"Patrons de courriel")
+        verbose_name = _(u"Email template")
+        verbose_name_plural = _(u"Email templates")
 
     def __unicode__(self):
         return self.name

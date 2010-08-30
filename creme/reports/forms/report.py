@@ -23,7 +23,7 @@ from collections import defaultdict
 from django.db.models.query_utils import Q
 from django.forms.fields import MultipleChoiceField
 from django.forms import ValidationError
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import ugettext_lazy as _, ugettext
 from django.contrib.contenttypes.models import ContentType
 
 from creme_core.registry import creme_registry
@@ -41,10 +41,10 @@ class CreateForm(CremeEntityForm):
     hf     = AjaxModelChoiceField(queryset=HeaderFilter.objects.none(), required=False)
     filter = AjaxModelChoiceField(queryset=Filter.objects.none(), required=False)
 
-    columns       = AjaxMultipleChoiceField(label=_(u'Champs normaux'),       required=False, choices=(), widget=OrderedMultipleChoiceWidget)
-    custom_fields = AjaxMultipleChoiceField(label=_(u'Champs personnalisés'), required=False, choices=(), widget=OrderedMultipleChoiceWidget)
+    columns       = AjaxMultipleChoiceField(label=_(u'Regular fields'),       required=False, choices=(), widget=OrderedMultipleChoiceWidget)
+    custom_fields = AjaxMultipleChoiceField(label=_(u'Custom fields'), required=False, choices=(), widget=OrderedMultipleChoiceWidget)
     relations     = AjaxMultipleChoiceField(label=_(u'Relations'),            required=False, choices=(), widget=OrderedMultipleChoiceWidget)
-    functions     = AjaxMultipleChoiceField(label=_(u'Fonctions'),            required=False, choices=(), widget=OrderedMultipleChoiceWidget)
+    functions     = AjaxMultipleChoiceField(label=_(u'Functions'),            required=False, choices=(), widget=OrderedMultipleChoiceWidget)
 
     class Meta:
         model = Report
@@ -74,15 +74,13 @@ class CreateForm(CremeEntityForm):
         _fields_choices = [unicode(fields[f].label) for f in ['columns','custom_fields','relations', 'functions']]
 
         if not hf and not (columns or custom_fields or relations or functions):
-            raise ValidationError(_(u"Vous devez sélectionner soit une vue existante, soit au moins un champs parmi : %s" % ", ".join(_fields_choices)))
+            raise ValidationError(ugettext(u"You must select an existing view, or at least one field from : %s" % ", ".join(_fields_choices)))
 
         return cleaned_data
 
     def save(self):
 #        super(CreateForm, self).save()
-        cleaned_data = self.cleaned_data
-        
-        get_data     = cleaned_data.get
+        get_data = self.cleaned_data.get
 
         user          = get_data('user')
         name          = get_data('name')
@@ -160,7 +158,7 @@ class EditForm(CremeEntityForm):
         instance = self.instance
         fields = self.fields
 
-        base_filter = [('', 'Tout')]
+        base_filter = [('', ugettext(u'All'))]
         base_filter.extend(Filter.objects.filter(model_ct=instance.ct).values_list('id','name'))
         fields['filter'].choices = base_filter
         fields['filter'].initial = instance.ct.id
@@ -168,8 +166,9 @@ class EditForm(CremeEntityForm):
     def save(self):
         super(EditForm, self).save()
 
+
 class LinkFieldToReportForm(CremeForm):
-    report = CremeEntityField(label=_(u"Sous-rapport lié à la colonne"),  model=Report, widget=ListViewWidget)
+    report = CremeEntityField(label=_(u"Sub-report linked to the column"), model=Report, widget=ListViewWidget)
 
     def __init__(self, report, field, ct, *args, **kwargs):
         self.field = field
@@ -183,11 +182,13 @@ class LinkFieldToReportForm(CremeForm):
         self.field.report = self.cleaned_data['report']
         self.field.save()
 
+
+#TODO: can be factorised with CreateForm ???
 class AddFieldToReportForm(CremeForm):
-    columns       = MultipleChoiceField(label=_(u'Champs normaux'), required=False, choices=(), widget=OrderedMultipleChoiceWidget)
-    custom_fields = MultipleChoiceField(label=_(u'Champs personnalisés'), required=False, choices=(), widget=OrderedMultipleChoiceWidget)
+    columns       = MultipleChoiceField(label=_(u'Regular fields'), required=False, choices=(), widget=OrderedMultipleChoiceWidget)
+    custom_fields = MultipleChoiceField(label=_(u'Custom fields'),  required=False, choices=(), widget=OrderedMultipleChoiceWidget)
     relations     = MultipleChoiceField(label=_(u'Relations'), required=False, choices=(), widget=OrderedMultipleChoiceWidget)
-    functions     = MultipleChoiceField(label=_(u'Fonctions'), required=False, choices=(), widget=OrderedMultipleChoiceWidget)
+    functions     = MultipleChoiceField(label=_(u'Functions'), required=False, choices=(), widget=OrderedMultipleChoiceWidget)
 
     def __init__(self, report, *args, **kwargs):
         self.report = report
@@ -214,13 +215,12 @@ class AddFieldToReportForm(CremeForm):
 
 
     def save(self):
-        cleaned_data = self.cleaned_data
-        get_data = cleaned_data.get
+        get_data = self.cleaned_data.get
         report = self.report
         ct = report.ct
         model = ct.model_class()
         report_columns = report.columns.all()
-        
+
         columns       = get_data('columns')
         custom_fields = get_data('custom_fields')
         relations     = get_data('relations')

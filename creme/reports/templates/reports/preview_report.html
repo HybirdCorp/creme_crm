@@ -1,27 +1,28 @@
 {% extends "creme_core/base.html" %}
 
+{% load i18n %}
 {% load creme_core_tags %}
 {% load queryset_tags %}
 {% load report_tags %}
 
-{% block page_title %} - Aperçu {{object}}{% endblock %}
+{% block page_title %} - {% blocktrans %}Preview {{object}}{% endblocktrans %}{% endblock %}
 
 {% block before_content_1 %}
     <table class="table_header" cellpadding="0" cellspacing="0">
         <tr>
-            <td width="5%"><img src="{{MEDIA_URL}}images/reporting_64.png" alt=""/></td>
+            <td width="5%"><img src="{{MEDIA_URL}}images/reporting_64.png" alt="{% trans "Report" %}"/></td>
             <td width="70%">
                 <h1>
-                    Aperçu {{object|get_meta_value:"verbose_name"|title}} : {{object|title}}
+                    {% blocktrans with object|get_meta_value:"verbose_name"|title as verbose_name and object|title as title %}Preview {{verbose_name}} : {{title}}{% endblocktrans %}
                 </h1>
             </td>
             <td width="25%" align="right">
                 <span>
                     <a href="{{object.get_absolute_url}}">
-                        <img src="{{MEDIA_URL}}images/left_arrow_64.png" title="Retour sur la fiche : '{{object}}'" alt="Retour"/>
+                        <img src="{{MEDIA_URL}}images/left_arrow_64.png" title="{% blocktrans %}Back to the detailview : '{{object}}'{% endblocktrans %}" alt="{% trans "Back" %}"/>
                     </a>&nbsp;
                     <a href="/reports/report/{{object.id}}/csv">
-                        <img src="{{MEDIA_URL}}images/document_csv_64.png" title="Télécharger '{{object}}' sous forme de fichier CSV" alt="Télécharger CSV"/>
+                        <img src="{{MEDIA_URL}}images/document_csv_64.png" title="{% blocktrans %}Download '{{object}}' as CSV file{% endblocktrans %}" alt="{% trans "Download CSV" %}"/>
                     </a>&nbsp;
                 </span>
             </td>
@@ -29,14 +30,13 @@
     </table>
 {% endblock %}
 
-
 {% block content %}
     {% with object.get_children_fields_flat as flat_columns %}
         <div style="position:relative; width:100%; overflow-x: scroll;">
             <table class="table_detail_view ui-corner-all" >
                 <thead>
                     <tr>
-                        <th colspan="{{flat_columns|length}}">Aperçu des {{limit_to}} premières entités</th>
+                        <th colspan="{{flat_columns|length}}">{% blocktrans %}Preview of {{limit_to}} first entities{% endblocktrans %}</th>
                     </tr>
                 </thead>
                 <tbody class="collapsable">
@@ -46,7 +46,6 @@
                                 <th class="{% cycle "block_header_line_dark" "block_header_line_light" %}">{% get_column_header column %}</th>
                             {% endfor %}-->
                         {% endcomment %}
-
                         {% for column in flat_columns %}
                             <th class="{% cycle "block_header_line_dark" "block_header_line_light" %}">{{column}}</th>
                         {% endfor %}

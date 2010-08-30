@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import ugettext as _
 
 from creme_core.views.generic import app_portal
 
@@ -30,7 +30,7 @@ def portal(request):
         @Permissions : Acces or Admin to rapport app
     """
     stats = (
-                (_('Nombre de rapport(s)'), Report.objects.all().count()),
+                (_('Number of reports'), Report.objects.all().count()),
             )
 
     return app_portal(request, Report._meta.app_label, '%s/portal.html' % report_template_dir, Report, stats)

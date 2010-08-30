@@ -1,12 +1,13 @@
+{% load i18n %}
 {% load creme_block %}
 <table class="table_detail_view ui-corner-all" id={{block_name}}>
-    {% get_block_header '%s Mail' '%s Mails' 'email_48.png' 'Mails' %}
+    {% get_block_header _('%s Email') _('%s Emails') 'email_48.png' _('Emails') %}
     <tbody class="collapsable">
         {% if page.paginator.count %}
             <tr>
-                <th class="block_header_line_dark">Destinataire</th>
-                <th class="block_header_line_dark">Statut</th>
-                <th class="block_header_line_dark">Supprimer</th>
+                <th class="block_header_line_dark">{% trans "Recipient" %}</th>
+                <th class="block_header_line_dark">{% trans "Status" %}</th>
+                <th class="block_header_line_dark">{% trans "Delete" %}</th>
             </tr>
             {% for mail in page.object_list %}
                 <!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
@@ -20,7 +21,7 @@
             {% endfor %}
         {% else %}
             <tr>
-                <td class="block_line_dark">Aucun mail dans cet envoi pour le moment</td>
+                <td class="block_line_dark">{% trans "No email in this sending" %}</td>
             </tr>
         {% endif %}
     </tbody>

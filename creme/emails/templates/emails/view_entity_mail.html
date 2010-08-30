@@ -15,37 +15,10 @@
     </script>
 {% endblock %}
 
-{% comment %}
-{% block before_content_1 %}
-    <div class=zone_spacer_5px>
-        <ul class="button_list hbox">
-            {% if object.get_lv_absolute_url %}
-                <li>
-                    <a class="menu_button" href="{{object.get_lv_absolute_url}}">
-                        <img src="{{MEDIA_URL}}images/left_arrow_32.png" border="0" title="Liste" alt="Liste" />
-                        Retour à la liste
-                    </a>
-                </li>
-            {% endif %}
-            {% block add_new_button %}
-                {% if path %}
-                    <li>
-                        <a class="menu_button" href="{{path}}/add">
-                            <img src="{{MEDIA_URL}}images/add_32.png" border="0" title="Ajouter" alt="Ajouter" />
-                            Nouveau
-                        </a>
-                    </li>
-                {% endif %}
-            {% endblock %}
-        </ul>
-    </div>
-{% endblock %}
-{% endcomment %}
-
 {% block content %}
     <table class="table_header" cellpadding="0" cellspacing="0">
         <tr>
-            <td width="5%"><img src="{{MEDIA_URL}}images/email_64.png" title="Email" alt="Email"/></td>
+            <td width="5%"><img src="{{MEDIA_URL}}images/email_64.png" title="{% trans "Email" %}" alt="{% trans "Email" %}"/></td>
             <td width="70%">
                 <h1>
                     {% block title %}
@@ -56,7 +29,7 @@
             <td width="25%" align="right">
                 <span>
                     <a href="/emails/entitymail/delete/{{object.id}}" onclick="creme.utils.confirmDelete(event, this);">
-                        <img src="{{MEDIA_URL}}images/delete_64.png" title="Supprimer '{{object}}'" alt="Supprimer" />
+                        <img src="{{MEDIA_URL}}images/delete_64.png" title="{% blocktrans %}Delete '{{object}}'{% endblocktrans %}" alt="{% trans "Delete" %}" />
                     </a>
                 </span>
             </td>
@@ -68,40 +41,40 @@
 
     <div style="float:left;width:50%;margin-left:-5px;">
         <table class="table_detail_view ui-corner-all">
-            {% with object|get_meta_value:"verbose_name" as tmp %} {% with tmp|format:"Informations %s" as title %}
-                {% get_basic_block_header title 'infos_48.png' 'Infos' %}
+            {% with object|get_meta_value:"verbose_name" as tmp %} {% with tmp|format:_("Information %s") as title %}
+                {% get_basic_block_header title 'infos_48.png' _('Information') %}
             {% endwith %} {% endwith %}
             <tbody class="collapsable">
                 <tr>
-                    <th class="{% cycle "block_header_line_dark" "block_header_line_light" %}">Utilisateur</th>
+                    <th class="{% cycle "block_header_line_dark" "block_header_line_light" %}">{% trans "User" %}</th>
                     <td class="{% cycle "block_line_dark" "block_line_light" %}">{{object|get_html_field_value:"user"}}</td>
                 </tr>
                 <tr>
-                    <th class="{% cycle "block_header_line_dark" "block_header_line_light" %}">Nombre De Lecture(S)</th>
+                    <th class="{% cycle "block_header_line_dark" "block_header_line_light" %}">{% trans "Number of reads" %}</th>
                     <td class="{% cycle "block_line_dark" "block_line_light" %}">{{object|get_html_field_value:"reads"}}</td>
                 </tr>
                 <tr>
-                    <th class="{% cycle "block_header_line_dark" "block_header_line_light" %}">Statut</th>
+                    <th class="{% cycle "block_header_line_dark" "block_header_line_light" %}">{% trans "Status" %}</th>
                     <td class="{% cycle "block_line_dark" "block_line_light" %}">{{object.get_status_str}}</td>
                 </tr>
                 <tr>
-                    <th class="{% cycle "block_header_line_dark" "block_header_line_light" %}">Émetteur</th>
+                    <th class="{% cycle "block_header_line_dark" "block_header_line_light" %}">{% trans "Sender" %}</th>
                     <td class="{% cycle "block_line_dark" "block_line_light" %}">{{object|get_html_field_value:"sender"}}</td>
                 </tr>
                 <tr>
-                    <th class="{% cycle "block_header_line_dark" "block_header_line_light" %}">Destinataire</th>
+                    <th class="{% cycle "block_header_line_dark" "block_header_line_light" %}">{% trans "Recipient" %}</th>
                     <td class="{% cycle "block_line_dark" "block_line_light" %}">{{object|get_html_field_value:"recipient"}}</td>
                 </tr>
                 <tr>
-                    <th class="{% cycle "block_header_line_dark" "block_header_line_light" %}">Sujet</th>
+                    <th class="{% cycle "block_header_line_dark" "block_header_line_light" %}">{% trans "Subject" %}</th>
                     <td class="{% cycle "block_line_dark" "block_line_light" %}">{{object|get_html_field_value:"subject"}}</td>
                 </tr>
                 <tr>
-                    <th class="{% cycle "block_header_line_dark" "block_header_line_light" %}">Date De Reception</th>
+                    <th class="{% cycle "block_header_line_dark" "block_header_line_light" %}">{% trans "Reception date" %}</th>
                     <td class="{% cycle "block_line_dark" "block_line_light" %}">{{object|get_html_field_value:"reception_date"}}</td>
                 </tr>
                 <tr>
-                    <th class="{% cycle "block_header_line_dark" "block_header_line_light" %}">Corps du mail</th>
+                    <th class="{% cycle "block_header_line_dark" "block_header_line_light" %}">{% trans "Email body" %}</th>
                     <td>
                         {{object|get_email_body}}
                     </td>

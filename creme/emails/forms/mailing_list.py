@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import ugettext_lazy as _, ugettext
 from django.forms import ChoiceField, ValidationError
 from django.contrib.contenttypes.models import ContentType
 
@@ -41,7 +41,7 @@ class AddContactsForm(CremeForm):
     recipients = MultiCremeEntityField(label=_(u'Contacts'),
                                        required=False, model=Contact)# other filter (name + email)??
 
-    blocks = FieldBlockManager(('general', _(u'Contacts destinataires'), '*'))
+    blocks = FieldBlockManager(('general', _(u'Contacts recipients'), '*'))
 
     def __init__(self, ml, *args, **kwargs):
         super(AddContactsForm, self).__init__(*args, **kwargs)
@@ -56,10 +56,9 @@ class AddContactsForm(CremeForm):
 
 
 class AddOrganisationsForm(CremeForm):
-    recipients = MultiCremeEntityField(label=_(u'Sociétés'),
-                                       required=False, model=Organisation) # other filter (name + email)??
+    recipients = MultiCremeEntityField(label=_(u'Organisations'), required=False, model=Organisation) # other filter (name + email)??
 
-    blocks = FieldBlockManager(('general', _(u'Sociétés destinataires'), '*'))
+    blocks = FieldBlockManager(('general', _(u'Organisations recipients'), '*'))
 
     def __init__(self, ml, *args, **kwargs):
         super(AddOrganisationsForm, self).__init__(*args, **kwargs)
@@ -75,8 +74,8 @@ class AddOrganisationsForm(CremeForm):
 
 class AddPersonsFromFilterForm(CremeForm): #private class ???
     #filter_ = ModelChoiceField(label=_(u'Filtres'), queryset=Filter.objects.filter(model_ct=ContentType.objects.get_for_model(Contact)))
-    #NB: itseems empty_value can not be set to 'All' with a ModelChoiceField --> ChoiceField
-    filters = ChoiceField(label=_(u'Filtres'), choices=())
+    #NB: it seems empty_value can not be set to 'All' with a ModelChoiceField --> ChoiceField
+    filters = ChoiceField(label=_(u'Filters'), choices=())
 
     person_model = None #Contact/Organisation
 
@@ -84,7 +83,7 @@ class AddPersonsFromFilterForm(CremeForm): #private class ???
         super(AddPersonsFromFilterForm, self).__init__(*args, **kwargs)
         self.ml = ml
 
-        choices = [(0, _(u'Tout'))]
+        choices = [(0, _(u'All'))]
 
         ct = ContentType.objects.get_for_model(self.person_model)
         choices.extend(Filter.objects.filter(model_ct=ct).values_list('id', 'name'))
@@ -110,7 +109,7 @@ class AddPersonsFromFilterForm(CremeForm): #private class ???
 
 
 class AddContactsFromFilterForm(AddPersonsFromFilterForm):
-    blocks = FieldBlockManager(('general', _(u'Contacts destinataires'), '*'))
+    blocks = FieldBlockManager(('general', _(u'Contacts recipients'), '*'))
 
     person_model = Contact
 
@@ -119,7 +118,7 @@ class AddContactsFromFilterForm(AddPersonsFromFilterForm):
 
 
 class AddOrganisationsFromFilterForm(AddPersonsFromFilterForm):
-    blocks = FieldBlockManager(('general', _(u'Organisations destinataires'), '*'))
+    blocks = FieldBlockManager(('general', _(u'Organisations recipients'), '*'))
 
     person_model = Organisation
 
@@ -128,10 +127,10 @@ class AddOrganisationsFromFilterForm(AddPersonsFromFilterForm):
 
 
 class AddChildForm(CremeForm):
-    child = CremeEntityField(label=_(u'Liste'),
+    child = CremeEntityField(label=_(u'List'),
                              required=True, model=MailingList)
 
-    blocks = FieldBlockManager(('general', _(u'Liste de diffusion fille'), '*'))
+    blocks = FieldBlockManager(('general', _(u'Child mailing list'), '*'))
 
     def __init__(self, ml, *args, **kwargs):
         super(AddChildForm, self).__init__(*args, **kwargs)
@@ -142,13 +141,13 @@ class AddChildForm(CremeForm):
         ml    = self.ml
 
         if ml.id == child.id:
-            raise ValidationError(u"Une liste ne peut pas être fille d'elle même")
+            raise ValidationError(ugettext(u"A list can't be its own child"))
 
         if ml.already_in_parents(child.id):
-            raise ValidationError(u'Liste déjà dans les parents')
+            raise ValidationError(ugettext(u'List already in the parents'))
 
         if ml.already_in_children(child.id):
-            raise ValidationError(u'Liste déjà dans les filles')
+            raise ValidationError(ugettext(u'List already in the children'))
 
         return child
 

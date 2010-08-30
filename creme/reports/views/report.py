@@ -18,17 +18,16 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.http import Http404
+from django.http import Http404, HttpResponse
 from django.db.models.fields.related import ForeignKey, ManyToManyField
-from django.contrib.auth.decorators import login_required
-from django.contrib.contenttypes.models import ContentType
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext
-from django.http import HttpResponse
+from django.utils.translation import ugettext as _
+from django.contrib.auth.decorators import login_required
+from django.contrib.contenttypes.models import ContentType
 
 from creme_core.entities_access.functions_for_permissions import add_view_or_die, get_view_or_die
-from creme_core.views.generic import add_entity, view_entity_with_template, list_view, inner_popup
-from creme_core.views.generic.edit import edit_entity
+from creme_core.views.generic import add_entity, edit_entity, view_entity_with_template, list_view, inner_popup
 from creme_core.utils.meta import get_model_field_infos
 from creme_core.utils import get_ct_or_404
 from creme_core.registry import creme_registry
@@ -91,7 +90,7 @@ def __link_report(request, report, field, ct):
     return inner_popup(request, 'creme_core/generics/blockform/add_popup2.html',
                        {
                         'form':   link_form,
-                        'title': 'Liaison de la colonne <%s>' % field,
+                        'title': ugettext(u'Link of the column <%s>') % field,
                        },
                        is_valid=link_form.is_valid(),
                        reload=False,
@@ -108,8 +107,8 @@ def link_report(request, report_id, field_id):
 
     model = None
     for f in fields:
-        if(isinstance(f.get('field'), (ForeignKey, ManyToManyField))):
-            model = f.get('model')
+        if isinstance(f.get('field'), (ForeignKey, ManyToManyField)):
+            model = f.get('model') #TODO: break ??
 
     if model is None:
         raise Http404
@@ -149,7 +148,7 @@ def add_field(request, report_id):
     return inner_popup(request, 'creme_core/generics/blockform/add_popup2.html',
                        {
                         'form':   add_field_form,
-                        'title': 'Ajout de colonne à <%s>' % report,
+                        'title': ugettext(u'Adding column to <%s>') % report,
                        },
                        is_valid=add_field_form.is_valid(),
                        reload=False,
@@ -231,4 +230,5 @@ def set_selected(request):
 def csv(request, report_id):
     report = get_object_or_404(Report, pk=report_id)
     csv_backend = creme_registry.get('reports-backend-csv')
+
     return csv_backend(report).render_to_response()
