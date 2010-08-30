@@ -2,8 +2,8 @@
 
 {% load i18n %}
 
-{% block logo %}<img src="{{MEDIA_URL}}images/calendar_64.png" alt=""/>{% endblock %}
-{% block title %}Portail Activités{% endblock %}
+{% block logo %}<img src="{{MEDIA_URL}}images/calendar_64.png" alt="{% trans "Activities" %}"/>{% endblock %}
+{% block title %}{% trans "Activities portal" %}{% endblock %}
 
 {% block header_link %}
     <a href="/activities/calendar/user">

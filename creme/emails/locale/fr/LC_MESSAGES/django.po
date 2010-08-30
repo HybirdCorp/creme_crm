@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-08-30 14:12+0200\n"
+"POT-Creation-Date: 2010-08-30 14:26+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -103,35 +103,39 @@ msgid "Add an email template"
 msgstr "Ajouter un patron de courriel"
 
 #: creme_core_register.py:43
+msgid "All emails"
+msgstr "Liste des courriels"
+
+#: creme_core_register.py:44
 msgid "Synchronization of incoming emails"
 msgstr "Synchronisation des courriels externes"
 
-#: populate.py:40
+#: populate.py:39
 msgid "(email) received by"
 msgstr "(courriel) a été reçu par"
 
-#: populate.py:41
+#: populate.py:40
 msgid "received the email"
 msgstr "a reçu le courriel"
 
-#: populate.py:43
+#: populate.py:42
 msgid "Mailing list view"
 msgstr "Vue de Liste de Diffusion"
 
-#: populate.py:44 populate.py:47 populate.py:50 models/template.py:32
+#: populate.py:43 populate.py:46 populate.py:49 models/template.py:32
 #: templates/emails/templatetags/block_attachments.html:16
 msgid "Name"
 msgstr "Nom"
 
-#: populate.py:46
+#: populate.py:45
 msgid "Campaign view"
 msgstr "Vue de Campagne"
 
-#: populate.py:49
+#: populate.py:48
 msgid "Email template view"
 msgstr "Vue de patron de courriel"
 
-#: populate.py:51 models/mail.py:93 models/sending.py:76 models/template.py:33
+#: populate.py:50 models/mail.py:93 models/sending.py:76 models/template.py:33
 #: templates/emails/view_email.html:43
 #: templates/emails/view_entity_mail.html:69
 #: templates/emails/templatetags/_block_synchronization.html:18
@@ -139,7 +143,7 @@ msgstr "Vue de patron de courriel"
 msgid "Subject"
 msgstr "Sujet"
 
-#: forms/campaign.py:31 models/campaign.py:34
+#: forms/campaign.py:31 models/campaign.py:35
 msgid "Related mailing lists"
 msgstr "Listes de diffusion associées"
 
@@ -262,15 +266,15 @@ msgstr "Corps"
 msgid "You can use variables: %s"
 msgstr "Vous pouvez utiliser des variables: %s"
 
-#: models/campaign.py:33
+#: models/campaign.py:34
 msgid "Name of the campaign"
 msgstr "Nom de la campagne"
 
-#: models/campaign.py:38
+#: models/campaign.py:39
 msgid "Emailing campaign"
 msgstr "Campagne d'envois de courriels"
 
-#: models/campaign.py:39
+#: models/campaign.py:40
 msgid "Emailing campaigns"
 msgstr "Campagnes d'envois de courriels"
 

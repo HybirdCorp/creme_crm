@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-08-27 16:10+0200\n"
+"POT-Creation-Date: 2010-08-30 14:27+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -20,66 +20,70 @@ msgid "Recurrent document"
 msgstr "Documents récurrents"
 
 #: creme_core_register.py:16
+msgid "Portal"
+msgstr "Portail"
+
+#: creme_core_register.py:17
 msgid "All recurrent generators"
 msgstr "Lister les générateurs récurrents"
 
-#: creme_core_register.py:17
+#: creme_core_register.py:18
 msgid "Add a generator"
 msgstr "Ajouter un générateur"
 
-#: populate.py:38
+#: populate.py:37
 msgid "Daily"
 msgstr "Quotidienne"
 
-#: populate.py:38
+#: populate.py:37
 msgid "Every day"
 msgstr "Tous les jours"
 
-#: populate.py:39
+#: populate.py:38
 msgid "Weekly"
 msgstr "Hebdomadaire"
 
-#: populate.py:39
+#: populate.py:38
 msgid "Every week"
 msgstr "Toutes les semaines"
 
-#: populate.py:40
+#: populate.py:39
 msgid "Monthly"
 msgstr "Mensuelle"
 
-#: populate.py:40
+#: populate.py:39
 msgid "Every month"
 msgstr "Tous les mois"
 
-#: populate.py:41
+#: populate.py:40
 msgid "Quarterly"
 msgstr "Trimestrielle"
 
-#: populate.py:41
+#: populate.py:40
 msgid "Every trimester"
 msgstr "Tous les trimestres"
 
-#: populate.py:42
+#: populate.py:41
 msgid "Biannual"
 msgstr "Semestrielle"
 
-#: populate.py:42
+#: populate.py:41
 msgid "Every semester"
 msgstr "Tous les semestres"
 
-#: populate.py:43
+#: populate.py:42
 msgid "Annual"
 msgstr "Annuelle"
 
-#: populate.py:43
+#: populate.py:42
 msgid "Every year"
 msgstr "Tous les ans"
 
-#: populate.py:45
+#: populate.py:44
 msgid "Generator view"
 msgstr "Vue des générateurs"
 
-#: populate.py:47
+#: populate.py:46
 msgid "Name"
 msgstr "Nom"
 
