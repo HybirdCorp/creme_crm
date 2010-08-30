@@ -29,9 +29,7 @@ from creme_core.registry import creme_registry
 from creme_core.utils.meta import get_flds_with_fk_flds_str
 from creme_core.models import SearchConfigItem, SearchField
 
-#EXCLUDED_FIELDS_TYPES = frozenset(['AutoField','DateTimeField','DateField', 'FileField', 'ImageField', 'OneToOneField'])
-#ManyToManyFields are excluded for the moment waiting for correct research's results display
-EXCLUDED_FIELDS_TYPES = frozenset(['AutoField','DateTimeField','DateField', 'FileField', 'ImageField', 'OneToOneField','ManyToManyField'])
+EXCLUDED_FIELDS_TYPES = frozenset(['AutoField','DateTimeField','DateField', 'FileField', 'ImageField', 'OneToOneField'])
 
 class SearchAddForm(CremeForm):
     ct_id  = ChoiceField(label=_(u'Resource associée'), choices=(), required=True)

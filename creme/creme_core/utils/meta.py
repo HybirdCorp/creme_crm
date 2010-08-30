@@ -200,7 +200,7 @@ def get_fk_entity(entity, column_name, get_value=False):
     
     return getattr(entity, fk_column)
 
-def get_m2m_entities(entity, column_name, get_value=False, q_filter=None):
+def get_m2m_entities(entity, column_name, get_value=False, q_filter=None, get_value_func=lambda values:", ".join(values)):
     """Get the first many to many entity found in the column_name path
         entity=Contact(), column_name='photos__name' returns entity.photos.all()
         if get_value returns the values i.e : [e.name for e in entity.photos.all()]
@@ -221,7 +221,8 @@ def get_m2m_entities(entity, column_name, get_value=False, q_filter=None):
             if attr is None:
                 attr = u""
             values.append(u"%s" % attr)
-        return ", ".join(values)
+        return get_value_func(values)
+#        return ", ".join(values)
 #            return ",".join([getattr(m, rest, u"") for m in getattr(entity, m2m_column).all()])
 
     return m2m_entities
