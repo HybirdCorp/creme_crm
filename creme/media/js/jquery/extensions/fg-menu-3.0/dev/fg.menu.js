@@ -491,7 +491,7 @@ Menu.prototype.setPosition = function(widget, caller, options) {
 		refY: referrer.offset().top,
 		refW: referrer.getTotalWidth(),
 		refH: referrer.getTotalHeight()
-	};	
+	};
 	var options = options;
 	var xVal, yVal;
 	
@@ -570,12 +570,16 @@ Menu.prototype.setPosition = function(widget, caller, options) {
 
 function sortBigToSmall(a, b) {return b - a;};
 
+//rbeck : Fix NaN error in IE with adding 0 as default value when NaN
 jQuery.fn.getTotalWidth = function(){
-	return $(this).width() + parseInt($(this).css('paddingRight')) + parseInt($(this).css('paddingLeft')) + parseInt($(this).css('borderRightWidth')) + parseInt($(this).css('borderLeftWidth'));
+	return $(this).width() + (parseInt($(this).css('paddingRight'))|| 0) + (parseInt($(this).css('paddingLeft')) || 0) + (parseInt($(this).css('borderRightWidth')) || 0) + (parseInt($(this).css('borderLeftWidth')) || 0);
+//	return $(this).width() + parseInt($(this).css('paddingRight')) + parseInt($(this).css('paddingLeft')) + parseInt($(this).css('borderRightWidth')) + parseInt($(this).css('borderLeftWidth'));
 };
 
+//rbeck : Fix NaN error in IE with adding 0 as default value when NaN
 jQuery.fn.getTotalHeight = function(){
-	return $(this).height() + parseInt($(this).css('paddingTop')) + parseInt($(this).css('paddingBottom')) + parseInt($(this).css('borderTopWidth')) + parseInt($(this).css('borderBottomWidth'));
+	return $(this).height() + (parseInt($(this).css('paddingTop')) || 0) + (parseInt($(this).css('paddingBottom')) || 0) + (parseInt($(this).css('borderTopWidth')) || 0) + (parseInt($(this).css('borderBottomWidth')) || 0);
+//	return $(this).height() + parseInt($(this).css('paddingTop')) + parseInt($(this).css('paddingBottom')) + parseInt($(this).css('borderTopWidth')) + parseInt($(this).css('borderBottomWidth'));
 };
 
 function getScrollTop(){
