@@ -46,5 +46,5 @@ class Populator(BasePopulator):
         create(HeaderFilterItem, pref + 'user',  order=4, name='user',        title=_(u'User'),        type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True,  editable=True, filter_string="user__username__icontains" )
         create(HeaderFilterItem, pref + 'cat',   order=5, name='categories',  title=_(u'Categories'),  type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=False, editable=False)
 
-        SearchConfigItem.create(Image, ['name', 'description'])#, 'categories__name']
+        SearchConfigItem.create(Image, ['name', 'description', 'categories__name'])
 

@@ -30,7 +30,7 @@ from django_extensions.db import fields
 
 from creme_core.models import CremeEntity
 from creme_core.models.authent_role import CremeRole
-from creme_core.utils.meta import get_field_infos
+from creme_core.utils.meta import get_field_infos, get_model_field_infos, get_m2m_entities
 
 from media_managers.models import Image
 
@@ -146,6 +146,12 @@ classes = {
 @register.filter(name="get_html_field_value")
 def get_html_field_value(obj, field_name):
     field_class, field_value = get_field_infos(obj, field_name)
+
+    if field_class is None:
+        fields_through = [f['field'].__class__ for f in get_model_field_infos(obj.__class__, field_name)]
+        if models.ManyToManyField in fields_through:
+            return get_m2m_entities(obj, field_name, get_value=True, get_value_func=lambda values: ", ".join([val for val in values if val]))
+
     print_func = classes.get(field_class)
     if print_func is not None:
         return mark_safe(print_func(field_value))

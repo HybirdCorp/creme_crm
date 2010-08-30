@@ -52,5 +52,5 @@ class Populator(BasePopulator):
         create(BlockConfigItem, 'documents-linked_docs_block', content_type=None, block_id=linked_docs_block.id_, order=1000, on_portal=False)
 
         SearchConfigItem.create(Document, ['title', 'description', 'folder__title'])
-        SearchConfigItem.create(Folder, ['title', 'description', 'category__name'])
+        SearchConfigItem.create(Folder,   ['title', 'description', 'category__name'])
 
