@@ -574,7 +574,9 @@ img {
 
 a img:hover {
     opacity: 0.8;
-    filter: Alpha(Opacity=80);
+    -ms-filter: "alpha(opacity=80)"; /* IE 8 */
+    filter : alpha(opacity=80); /* IE < 8 */
+    zoom: 1;
 }
 
 #tree_menu {
