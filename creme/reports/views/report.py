@@ -90,7 +90,7 @@ def __link_report(request, report, field, ct):
     return inner_popup(request, 'creme_core/generics/blockform/add_popup2.html',
                        {
                         'form':   link_form,
-                        'title': ugettext(u'Link of the column <%s>') % field,
+                        'title': _(u'Link of the column <%s>') % field,
                        },
                        is_valid=link_form.is_valid(),
                        reload=False,
@@ -148,7 +148,7 @@ def add_field(request, report_id):
     return inner_popup(request, 'creme_core/generics/blockform/add_popup2.html',
                        {
                         'form':   add_field_form,
-                        'title': ugettext(u'Adding column to <%s>') % report,
+                        'title': _(u'Adding column to <%s>') % report,
                        },
                        is_valid=add_field_form.is_valid(),
                        reload=False,
