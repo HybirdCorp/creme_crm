@@ -421,13 +421,14 @@ div.sidebar1separator2 {
 /*    -moz-outline: #000000 solid 3px;
     -moz-outline-radius:10px 200px 200px 10px;*/
     /*background: #94c6db url(/site_media/css/jquery-css/creme-theme/images/ui-bg_diagonals-thick_15_94c6db_40x40.png) 50% 50% repeat;*/
+    position: absolute;
     background-color: #94C6DB;
     /*background-color: #F6FCFF;*/
     border: 1px solid #6EAAC4;
     display: block;
     height: 100%;
-    margin-left : 0;
-    position: absolute;
+    /*margin-left : 0px;*/
+    margin : 0;
     /*top:32px;
     left:5px;*/
     width: 1%;
@@ -499,6 +500,17 @@ div.sidebar1separator2 {
 .table_detail_view th, .table_detail_view td, .table_detail_view tr, .table_detail_view thead {
     -moz-border-radius: 4px;
     -webkit-border-radius: 4px;
+}
+
+.table_detail_view tbody.collapsable tr th {
+    max-width: 30%;
+    width: 30%;
+
+}
+
+.table_detail_view tbody.collapsable tr td {
+    max-width: 70%;
+    width: 70%;
 }
 
 .table_detail_view thead {
@@ -574,7 +586,10 @@ img {
 
 a img:hover {
     opacity: 0.8;
-    filter: Alpha(Opacity=80);
+    /* Less pretty but IE doesn't handle correctly opacity so...*/
+    /*-ms-filter: "alpha(opacity=80)";*/ /* IE 8 */
+    /*filter : alpha(opacity=80);*/ /* IE < 8 */
+    /*zoom: 1;*/
 }
 
 #tree_menu {

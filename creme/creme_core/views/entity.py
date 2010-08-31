@@ -24,6 +24,7 @@ from django.utils.simplejson import JSONEncoder
 from django.contrib.auth.models import ContentType
 from django.contrib.auth.admin import get_object_or_404
 from django.template.loader import render_to_string
+from django.template.context import RequestContext
 from django.core import serializers
 
 from creme_core.models.entity import CremeEntity
@@ -51,7 +52,7 @@ def render_entity(request):
     pk = POST.get('pk')
     template = POST.get('template')
     entity = get_object_or_404(get_object_or_404(ContentType, model=model).model_class(), pk=pk)
-    datas = render_to_string(template, {'object':entity})
+    datas = render_to_string(template, RequestContext(request, {'object':entity}))
     return HttpResponse(JSONEncoder().encode(datas), mimetype="text/javascript")
 
 
