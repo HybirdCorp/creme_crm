@@ -29,7 +29,7 @@ msgstr "Lister les actions commerciales"
 
 #: creme_core_register.py:38
 msgid "Add a commercial action"
-msgstr "Add a commercial action"
+msgstr "Ajouter une action commerciale"
 
 #: creme_core_register.py:39
 msgid "All salesmen"
