@@ -34,7 +34,7 @@ from creme_core.registry import creme_registry
 
 from reports.models import Report, report_prefix_url, report_template_dir, Field
 from reports.forms.report import CreateForm, EditForm, LinkFieldToReportForm, AddFieldToReportForm
-
+from reports.registry import report_backend_registry
 
 report_app = Report._meta.app_label
 report_ct  = ContentType.objects.get_for_model(Report)
@@ -187,7 +187,7 @@ def preview(request, report_id):
 
     LIMIT_TO = 25
 
-    html_backend = creme_registry.get('reports-backend-html')
+    html_backend = report_backend_registry.get_backend('HTML')
 
     req_ctx = RequestContext(request)
 
@@ -229,6 +229,6 @@ def set_selected(request):
 @get_view_or_die(report_app)
 def csv(request, report_id):
     report = get_object_or_404(Report, pk=report_id)
-    csv_backend = creme_registry.get('reports-backend-csv')
+    csv_backend = report_backend_registry.get_backend('CSV')
 
     return csv_backend(report).render_to_response()

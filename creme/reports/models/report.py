@@ -77,7 +77,10 @@ class Field(CremeModel):
         """
             @Returns : A Field instance (not saved !) built from an HeaderFilterItem instance
         """
-        return Field(name=hf_item.name, title=hf_item.title, order=hf_item.order, type=hf_item.type)
+        if hf_item.type == HFI_RELATION:
+            return Field(name=hf_item.relation_predicat_id, title=hf_item.title, order=hf_item.order, type=hf_item.type)
+        else:
+            return Field(name=hf_item.name, title=hf_item.title, order=hf_item.order, type=hf_item.type)
 
     def get_children_fields_flat(self):
         cols = []
