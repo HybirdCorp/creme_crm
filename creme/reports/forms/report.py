@@ -19,7 +19,7 @@
 ################################################################################
 
 from collections import defaultdict
-
+from itertools import chain
 from django.db.models.query_utils import Q
 from django.forms.fields import MultipleChoiceField
 from django.forms import ValidationError
@@ -175,8 +175,7 @@ class LinkFieldToReportForm(CremeForm):
         self.ct = ct
         super(LinkFieldToReportForm, self).__init__(*args, **kwargs)
 
-        #TODO: Set include report.id with report.get_ascendants_reports() ? chain ?
-        self.fields['report'].widget.q_filter = {'ct__id' : ct.id, '~id' : report.id, '~id__in' : [r.id for r in report.get_ascendants_reports()]}
+        self.fields['report'].widget.q_filter = {'ct__id' : ct.id, '~id__in' : [r.id for r in chain(report.get_ascendants_reports(),[report])]}
 
     def save(self):
         self.field.report = self.cleaned_data['report']

@@ -18,25 +18,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.utils.translation import ugettext_lazy as _
+from reports.backends import HtmlReportBackend, CsvReportBackend
 
-from creme_core.registry import creme_registry
-from creme_core.gui.menu import creme_menu
-from creme_core.gui.block import block_registry
-
-from reports.models import Report, report_prefix_url
-from reports.blocks import report_fields_block
-
-report_app = Report._meta.app_label
-
-
-creme_registry.register_app(report_app, _(u'Reports'), report_prefix_url)
-creme_registry.register_entity_models(Report)
-
-creme_menu.register_app(report_app, '%s/' % report_prefix_url, 'Rapports')
-reg_menu = creme_menu.register_menu
-reg_menu(report_app, '%s/' % report_prefix_url,           _(u'Portal'))
-reg_menu(report_app, '%s/reports' % report_prefix_url,    _(u'All reports'))
-reg_menu(report_app, '%s/report/add' % report_prefix_url, _(u'Add a report'))
-
-block_registry.register(report_fields_block)
+to_register = (('HTML', HtmlReportBackend), ('CSV', CsvReportBackend),)
