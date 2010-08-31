@@ -28,12 +28,13 @@ from creme_core.forms.fields import CremeEntityField
 from sms.models.message import Sending, Message, MESSAGE_STATUS_NOTSENT
 from sms.models.template import MessageTemplate
 
+
 class SendingCreateForm(CremeModelForm):
+    template = CremeEntityField(label=_(u'Message template'), model=MessageTemplate)
+
     class Meta:
         model   = Sending
         exclude = ('campaign', 'date', 'content')
-
-    template     = CremeEntityField(label=_(u'Patron de message'), model=MessageTemplate)
 
     def __init__(self, campaign, *args, **kwargs):
             super(SendingCreateForm, self).__init__(*args, **kwargs)

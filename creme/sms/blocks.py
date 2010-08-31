@@ -33,7 +33,7 @@ from sms.models import Recipient, Sending, Message, SendList
 class SendListsBlock(QuerysetBlock):
     id_           = QuerysetBlock.generate_id('sms', 'sendlists')
     dependencies  = (SendList,)
-    verbose_name  = _(u'Listes de diffusion')
+    verbose_name  = _(u'Messaging lists')
     template_name = 'sms/templatetags/block_sendlists.html'
 
     def detailview_display(self, context):
@@ -46,7 +46,7 @@ class SendListsBlock(QuerysetBlock):
 class RecipientsBlock(QuerysetBlock):
     id_           = QuerysetBlock.generate_id('sms', 'recipients')
     dependencies  = (Recipient,)
-    verbose_name  = _(u'Destinataires manuels')
+    verbose_name  = _(u'Unlinked recipients')
     template_name = 'sms/templatetags/block_recipients.html'
 
     def detailview_display(self, context):
@@ -59,7 +59,7 @@ class RecipientsBlock(QuerysetBlock):
 class ContactsBlock(QuerysetBlock):
     id_           = QuerysetBlock.generate_id('sms', 'contacts')
     dependencies  = (Contact,)
-    verbose_name  = _(u'Contacts destinataires')
+    verbose_name  = _(u'Contacts recipients')
     template_name = 'sms/templatetags/block_contacts.html'
 
     def detailview_display(self, context):
@@ -73,7 +73,7 @@ class MessagesBlock(QuerysetBlock):
     id_           = QuerysetBlock.generate_id('sms', 'messages')
     dependencies  = (Message,)
     page_size     = 12
-    verbose_name  = _(u'Messages envoyés')
+    verbose_name  = _(u'Sent messages')
     template_name = 'sms/templatetags/block_messages.html'
 
     def detailview_display(self, context):
@@ -99,7 +99,7 @@ class SendingsBlock(QuerysetBlock):
     id_           = QuerysetBlock.generate_id('sms', 'sendings')
     dependencies  = (Sending,)
     order_by      = '-date'
-    verbose_name  = _(u'Envois')
+    verbose_name  = _(u'Sendings')
     template_name = 'sms/templatetags/block_sendings.html'
 
     def detailview_display(self, context):

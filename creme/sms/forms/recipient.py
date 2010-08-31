@@ -30,11 +30,12 @@ from creme_core.forms import CremeForm, FieldBlockManager
 from sms.models.recipient import Recipient
 from sms.forms.fields import PhoneListField, PhoneField
 
+
 class SendListAddRecipientsForm(CremeForm):
     # TODO : see for phonelist widget
-    recipients = PhoneListField(widget=Textarea(), label=_(u'Destinataires'), help_text=_(u'Un Numéro de téléphone par ligne'))
+    recipients = PhoneListField(widget=Textarea(), label=_(u'Recipients'), help_text=_(u'One phone number per line'))
 
-    blocks = FieldBlockManager(('general', _(u'Destinataires'), '*'))
+    blocks = FieldBlockManager(('general', _(u'Recipients'), '*'))
 
     def __init__(self, sendlist, *args, **kwargs):
         super(SendListAddRecipientsForm, self).__init__(*args, **kwargs)
@@ -51,10 +52,13 @@ class SendListAddRecipientsForm(CremeForm):
             if number not in existing:
                 create(sendlist=sendlist, phone=number)
 
+_HELP = _(u"A text file where each line contains digits (which can be separated by space characters).\n"
+"Only digits are used and empty lines are ignored.\n"
+"Examples: '00 56 87 56 45' => '0056875645'; 'abc56def' => '56'")
+
 class SendListAddCSVForm(CremeForm):
-    recipients = FileField(label=_(u'Destinataires'),
-                           help_text=_(u"Fournir un fichier texte dont chaque ligne contient des chiffres separés ou non par des espaces.\nSeul les chiffres seront pris en compte et les lignes vides ignorées.\nExamples: '00 56 87 56 45' => '0056875645'; 'abc56def' => '56'"))
-    
+    recipients = FileField(label=_(u'Recipients'), help_text=_HELP)
+
     def __init__(self, sendlist, *args, **kwargs):
         super(SendListAddCSVForm, self).__init__(*args, **kwargs)
         self.sendlist = sendlist
@@ -68,11 +72,11 @@ class SendListAddCSVForm(CremeForm):
     def _save_numbers(self, numbers):
         if not numbers:
             return
-        
+
         sendlist = self.sendlist
         create  = Recipient.objects.create
         duplicates = frozenset(Recipient.objects.filter(phone__in=numbers, sendlist=sendlist).values_list('phone', flat=True))
-    
+
         for number in numbers:
             if number not in duplicates and number:
                 create(sendlist=sendlist, phone=number)

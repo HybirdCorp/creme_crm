@@ -27,14 +27,14 @@ from sms.models.sendlist import SendList
 
 
 class Recipient(CremeModel):
-    """ A model that stores a phone number not linked to a Contact/Organisation"""
-    sendlist = ForeignKey(SendList, verbose_name=_(u'Liste de diffusion associée'))
-    phone  = CharField(_(u'Phone'), max_length=100, blank=True, null=True)
+    """ A model that stores a phone number not linked to a Contact"""
+    sendlist = ForeignKey(SendList, verbose_name=_(u'Related messaging list'))
+    phone  = CharField(_(u'Number'), max_length=100, blank=True, null=True)
 
     def __unicode__(self):
         return self.address
 
     class Meta:
         app_label = "sms"
-        verbose_name = _(u'Destinataire')
-        verbose_name_plural = _(u'Destinataires')
+        verbose_name = _(u'Recipient')
+        verbose_name_plural = _(u'Recipients')

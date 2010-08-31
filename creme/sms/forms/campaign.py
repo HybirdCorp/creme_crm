@@ -21,7 +21,7 @@
 from django.forms import ValidationError
 from django.forms.fields import CharField
 from django.forms.widgets import Textarea
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import ugettext_lazy as _, ugettext
 
 from creme_core.forms import CremeEntityForm, CremeForm, FieldBlockManager
 from creme_core.forms.fields import MultiCremeEntityField
@@ -31,8 +31,7 @@ from sms.models.sendlist import SendList
 
 
 class CampaignCreateForm(CremeEntityForm):
-    sendlists = MultiCremeEntityField(label=_(u'Listes de diffusion associées'),
-                                      required=False, model=SendList)
+    sendlists = MultiCremeEntityField(label=_(u'Related messaging lists'), required=False, model=SendList)
 
     class Meta(CremeEntityForm.Meta):
         model = SMSCampaign
@@ -45,10 +44,9 @@ class CampaignEditForm(CremeEntityForm):
 
 
 class CampaignAddSendListForm(CremeForm):
-    sendlists = MultiCremeEntityField(label=_(u'Listes'),
-                                      required=False, model=SendList)
+    sendlists = MultiCremeEntityField(label=_(u'Lists'), required=False, model=SendList)
 
-    blocks = FieldBlockManager(('general', _(u'Listes de diffusion'), '*'))
+    blocks = FieldBlockManager(('general', _(u'Messaging lists'), '*'))
 
     def __init__(self, campaign, *args, **kwargs):
         super(CampaignAddSendListForm, self).__init__(*args, **kwargs)
@@ -61,8 +59,8 @@ class CampaignAddSendListForm(CremeForm):
         duplicate     = [sendlist for sendlist in sendlists if sendlist.id in current_lists]
 
         if duplicate:
-            raise ValidationError(u"La(es) liste(s) suivante(s) est déja présente dans la campagne: " #i8n....
-                                  + u', '.join(sendlist.name for sendlist in duplicate))
+            raise ValidationError(ugettext(u"Following lists are already related to this campaign: %s") %
+                                  u', '.join(sendlist.name for sendlist in duplicate))
 
         return sendlists
 

@@ -27,14 +27,14 @@ from persons.models import Contact #, Organisation
 
 
 class SendList(CremeEntity):
-    name          = CharField(_(u'Nom de la liste de diffusion'), max_length=80)
+    name          = CharField(_(u'Name of the messaging list'), max_length=80)
     contacts      = ManyToManyField(Contact, verbose_name=u'Contacts destinataires')
 #    organisations = ManyToManyField(Organisation, verbose_name=u'Sociétés destinataires')
 
     class Meta:
         app_label = "sms"
-        verbose_name = _(u'Liste de diffusion sms')
-        verbose_name_plural = _(u'Listes de diffusion sms')
+        verbose_name = _(u'SMS messaging list')
+        verbose_name_plural = _(u'SMS messaging lists')
 
     def __unicode__(self) :
         return self.name
