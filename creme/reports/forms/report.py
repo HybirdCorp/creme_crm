@@ -36,15 +36,71 @@ from creme_core.utils.meta import get_verbose_field_name, get_function_field_ver
 
 from reports.models import Report, Field
 
+def _save_field(name, title, order, type):
+    f = Field(name=name, title=title, order=order, type=type)
+    f.save()
+    return f
+
+def save_hfi_field(model, column, order):
+    return _save_field(column, get_verbose_field_name(model, column), order, HFI_FIELD)
+
+def save_hfi_cf(name, title, order):
+    return _save_field(name, title, order, HFI_CUSTOM)
+
+def save_hfi_relation(relation, order):
+    rel_type_get = RelationType.objects.get
+    try:
+        predicate_verbose = rel_type_get(pk=relation)
+    except RelationType.DoesNotExist:
+        predicate_verbose =  relation
+    return _save_field(relation, predicate_verbose, order, HFI_RELATION)
+
+def save_hfi_function(model, function_name, order):
+    return _save_field(function_name, get_function_field_verbose_name(model, function_name), order, HFI_FUNCTION)
+
+def _get_field(columns_get, column, type, order):
+    f = columns_get(name=column, type=type)
+    f.order = order
+    f.save()
+    return f
+
+def get_hfi_field_or_save(columns_get, model, column, order):
+    try:
+        f = _get_field(columns_get, column, HFI_FIELD, order)
+    except Field.DoesNotExist:
+        f = save_hfi_field(model, column, order)
+    return f
+
+def get_hfi_cf_or_save(columns_get, column, order):
+    try:
+        f = _get_field(columns_get, column, HFI_CUSTOM, order)
+    except Field.DoesNotExist:
+        f = save_hfi_cf(column, column, order)
+    return f
+
+def get_hfi_relation_or_save(columns_get, relation, order):
+    try:
+        f = _get_field(columns_get, relation, HFI_RELATION, order)
+    except Field.DoesNotExist:
+        f = save_hfi_relation(relation, order)
+    return f
+
+def get_hfi_function_or_save(columns_get, model, function, order):
+    try:
+        f = _get_field(columns_get, function, HFI_FUNCTION, order)
+    except Field.DoesNotExist:
+        f = save_hfi_function(model, function, order)
+    return f
+
 
 class CreateForm(CremeEntityForm):
     hf     = AjaxModelChoiceField(queryset=HeaderFilter.objects.none(), required=False)
     filter = AjaxModelChoiceField(queryset=Filter.objects.none(), required=False)
 
-    columns       = AjaxMultipleChoiceField(label=_(u'Regular fields'),       required=False, choices=(), widget=OrderedMultipleChoiceWidget)
+    columns       = AjaxMultipleChoiceField(label=_(u'Regular fields'),required=False, choices=(), widget=OrderedMultipleChoiceWidget)
     custom_fields = AjaxMultipleChoiceField(label=_(u'Custom fields'), required=False, choices=(), widget=OrderedMultipleChoiceWidget)
-    relations     = AjaxMultipleChoiceField(label=_(u'Relations'),            required=False, choices=(), widget=OrderedMultipleChoiceWidget)
-    functions     = AjaxMultipleChoiceField(label=_(u'Functions'),            required=False, choices=(), widget=OrderedMultipleChoiceWidget)
+    relations     = AjaxMultipleChoiceField(label=_(u'Relations'),     required=False, choices=(), widget=OrderedMultipleChoiceWidget)
+    functions     = AjaxMultipleChoiceField(label=_(u'Functions'),     required=False, choices=(), widget=OrderedMultipleChoiceWidget)
 
     class Meta:
         model = Report
@@ -79,7 +135,6 @@ class CreateForm(CremeEntityForm):
         return cleaned_data
 
     def save(self):
-#        super(CreateForm, self).save()
         get_data = self.cleaned_data.get
 
         user          = get_data('user')
@@ -101,7 +156,6 @@ class CreateForm(CremeEntityForm):
         report.filter = filter
         report.save()
         self.instance = report
-#        report = self.instance
 
         report_fields = []
 
@@ -116,32 +170,19 @@ class CreateForm(CremeEntityForm):
         else:
             i = 1
             for column in columns:
-                f = Field(name=column, title=get_verbose_field_name(model, column), order=i, type=HFI_FIELD)
-                f.save()
-                report_fields.append(f)
+                report_fields.append(save_hfi_field(model, column, i))
                 i += 1
 
             for custom_field in custom_fields:
-                f = Field(name=custom_field, title=custom_field, order=i, type=HFI_CUSTOM)
-                f.save()
-                report_fields.append(f)
+                report_fields.append(save_hfi_cf(custom_field, custom_field, i))
                 i += 1
 
             for relation in relations:
-                rel_type_get = RelationType.objects.get
-                try:
-                    predicate_verbose = rel_type_get(pk=relation)
-                except RelationType.DoesNotExist:
-                    predicate_verbose =  relation
-                f = Field(name=relation, title=predicate_verbose, order=i, type=HFI_RELATION)
-                f.save()
-                report_fields.append(f)
+                report_fields.append(save_hfi_relation(relation, i))
                 i += 1
 
             for function in functions:
-                f = Field(name=function, title=get_function_field_verbose_name(model, function), order=i, type=HFI_FUNCTION)
-                f.save()
-                report_fields.append(f)
+                report_fields.append(save_hfi_function(model, function, i))
                 i += 1
 
         report.columns = report_fields
@@ -182,7 +223,6 @@ class LinkFieldToReportForm(CremeForm):
         self.field.save()
 
 
-#TODO: can be factorised with CreateForm ???
 class AddFieldToReportForm(CremeForm):
     columns       = MultipleChoiceField(label=_(u'Regular fields'), required=False, choices=(), widget=OrderedMultipleChoiceWidget)
     custom_fields = MultipleChoiceField(label=_(u'Custom fields'),  required=False, choices=(), widget=OrderedMultipleChoiceWidget)
@@ -231,53 +271,19 @@ class AddFieldToReportForm(CremeForm):
 
         i = 1
         for column in columns:
-            try:
-                f = columns_get(name=column, type=HFI_FIELD)
-                f.order = i
-            except Field.DoesNotExist:
-                f = Field(name=column, title=get_verbose_field_name(model, column), order=i, type=HFI_FIELD)
-
-            f.save()
-            fields_to_keep.append(f)
+            fields_to_keep.append(get_hfi_field_or_save(columns_get, model, column, i))
             i += 1
 
         for custom_field in custom_fields:
-            try:
-                f = columns_get(name=custom_field, type=HFI_CUSTOM)
-                f.order = i
-            except Field.DoesNotExist:
-                f = Field(name=custom_field, title=custom_field, order=i, type=HFI_CUSTOM)
-
-            f.save()
-            fields_to_keep.append(f)
+            fields_to_keep.append(get_hfi_cf_or_save(columns_get, custom_field, i))
             i += 1
 
-        rel_type_get = RelationType.objects.get
-
         for relation in relations:
-            try:
-                predicate_verbose = rel_type_get(pk=relation)
-            except RelationType.DoesNotExist:
-                predicate_verbose =  relation
-            try:
-                f = columns_get(name=relation, type=HFI_RELATION)
-                f.order = i
-            except Field.DoesNotExist:
-                f = Field(name=relation, title=predicate_verbose, order=i, type=HFI_RELATION)
-
-            f.save()
-            fields_to_keep.append(f)
+            fields_to_keep.append(get_hfi_relation_or_save(columns_get, relation, i))
             i += 1
 
         for function in functions:
-            try:
-                f = columns_get(name=function, type=HFI_FUNCTION)
-                f.order = i
-            except Field.DoesNotExist:
-                f = Field(name=function, title=get_function_field_verbose_name(model, function), order=i, type=HFI_FUNCTION)
-
-            f.save()
-            fields_to_keep.append(f)
+            fields_to_keep.append(get_hfi_function_or_save(columns_get, model, function, i))
             i += 1
 
         for col in set(report_columns) - set(fields_to_keep):
