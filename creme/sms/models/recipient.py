@@ -23,13 +23,13 @@ from django.utils.translation import ugettext_lazy as _
 
 from creme_core.models import CremeModel
 
-from sms.models.sendlist import SendList
+from sms.models.messaging_list import MessagingList
 
 
 class Recipient(CremeModel):
     """ A model that stores a phone number not linked to a Contact"""
-    sendlist = ForeignKey(SendList, verbose_name=_(u'Related messaging list'))
-    phone  = CharField(_(u'Number'), max_length=100, blank=True, null=True)
+    messaging_list = ForeignKey(MessagingList, verbose_name=_(u'Related messaging list'))
+    phone          = CharField(_(u'Number'), max_length=100, blank=True, null=True)
 
     def __unicode__(self):
         return self.address

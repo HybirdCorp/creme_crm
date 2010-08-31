@@ -22,18 +22,18 @@ from django.utils.translation import ugettext as _
 
 from creme_core.views.generic import app_portal
 
-from sms.models import SMSCampaign, SendList, Sending, SMSAccount
+from sms.models import SMSCampaign, MessagingList, Sending, SMSAccount
 
 
 def portal(request):
     stats = (
                 (_('Number of campaigns'),       SMSCampaign.objects.all().count()),
-                (_('Number of messaging lists'), SendList.objects.all().count()),
+                (_('Number of messaging lists'), MessagingList.objects.all().count()),
                 (_("Number of sendings"),        Sending.objects.all().count()),
             )
 
     account, created =  SMSAccount.objects.get_or_create(pk=1)
     account.sync()
 
-    return app_portal(request, 'sms', 'sms/portal.html', (SMSCampaign, SendList), stats, 
+    return app_portal(request, 'sms', 'sms/portal.html', (SMSCampaign, MessagingList), stats, 
                       extra_template_dict={'account':account})

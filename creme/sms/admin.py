@@ -10,7 +10,7 @@ class SMSCampaignAdmin(admin.ModelAdmin):
 
 register = admin.site.register
 
-register(SendList)
+register(MessagingList)
 register(Recipient)
 register(SMSCampaign, SMSCampaignAdmin)
 register(MessageTemplate)

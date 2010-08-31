@@ -6,13 +6,13 @@
     <tbody class="collapsable">
         <tr>
             <th colspan="4" class="block_header_line_dark" align="left">
-                {% comment %}<a class="button_link" onclick="creme.utils.showInnerPopup('/sms/sendlist/{{object.pk}}/contact/add')">{% endcomment %}
-                <a class="button_link" onclick="creme.utils.innerPopupNReload('/sms/sendlist/{{object.pk}}/contact/add', '{{update_url}}?base_url={{base_url}}');">
+                {% comment %}<a class="button_link" onclick="creme.utils.showInnerPopup('/sms/messaging_list/{{object.pk}}/contact/add')">{% endcomment %}
+                <a class="button_link" onclick="creme.utils.innerPopupNReload('/sms/messaging_list/{{object.pk}}/contact/add', '{{update_url}}?base_url={{base_url}}');">
                     <img src="{{MEDIA_URL}}images/add_22.png" border="0" title="Add from existing contacts" alt="Add from existing contacts" />
                     {% trans "Add from existing contacts" %}
                 </a>
-                {% comment %}<a class="button_link" onclick="creme.utils.showInnerPopup('/sms/sendlist/{{object.pk}}/contact/add_from_filter')">{% endcomment %}
-                <a class="button_link" onclick="creme.utils.innerPopupNReload('/sms/sendlist/{{object.pk}}/contact/add_from_filter', '{{update_url}}?base_url={{base_url}}')">
+                {% comment %}<a class="button_link" onclick="creme.utils.showInnerPopup('/sms/messaging_list/{{object.pk}}/contact/add_from_filter')">{% endcomment %}
+                <a class="button_link" onclick="creme.utils.innerPopupNReload('/sms/messaging_list/{{object.pk}}/contact/add_from_filter', '{{update_url}}?base_url={{base_url}}')">
                     <img src="{{MEDIA_URL}}images/add_22.png" border="0" title="{% trans "Add from a filter" %}" alt="{% trans "Add from a filter" %}" />
                     {% trans "Add from a filter" %}
                 </a>
@@ -36,7 +36,7 @@
                         </a>
                     </td>
                     <td class="{{row_color}}" align="center" valign="center" style="width:10%;">
-                        {% get_line_deletor at_url '/sms/sendlist/{{object.pk}}/contact/delete' with_args "{'id':{{contact.pk}} }" %}
+                        {% get_line_deletor at_url '/sms/messaging_list/{{object.pk}}/contact/delete' with_args "{'id':{{contact.pk}} }" %}
                     </td>
                 </tr>
             {% endfor %}

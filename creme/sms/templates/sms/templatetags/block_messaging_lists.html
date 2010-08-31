@@ -5,8 +5,8 @@
     <tbody class="collapsable">
         <tr>
             <th colspan="4" class="block_header_line_dark" align="left">
-                {% comment %}<a class="button_link" onclick="creme.utils.showInnerPopup('/sms/campaign/{{object.pk}}/sendlist/add')">{% endcomment %}
-                <a class="button_link" onclick="creme.utils.innerPopupNReload('/sms/campaign/{{object.pk}}/sendlist/add', '{{update_url}}?base_url={{base_url}}');">
+                {% comment %}<a class="button_link" onclick="creme.utils.showInnerPopup('/sms/campaign/{{object.pk}}/messaging_list/add')">{% endcomment %}
+                <a class="button_link" onclick="creme.utils.innerPopupNReload('/sms/campaign/{{object.pk}}/messaging_list/add', '{{update_url}}?base_url={{base_url}}');">
                     <img src="{{MEDIA_URL}}images/add_22.png" border="0" title="{% trans "Add lists" %}" alt="{% trans "Add lists" %}" />
                     {% trans "Add existing messaging lists" %}
                 </a>
@@ -17,14 +17,14 @@
                 <th class="block_header_line_dark">{% trans "Name of the list" %}</th>
                 <th class="block_header_line_dark">{% trans "Delete" %}</th>
             </tr>
-            {% for sendlist in page.object_list %}
+            {% for mlist in page.object_list %}
                 <!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
                 <tr>
                     <td class="{{row_color}}">
-                        <a href="{{sendlist.get_absolute_url}}">{{sendlist.name}}</a>
+                        <a href="{{mlist.get_absolute_url}}">{{mlist.name}}</a>
                     </td>
                     <td class="{{row_color}}" align="center" valign="center" style="width:10%;">
-                        {% get_line_deletor at_url '/sms/campaign/{{object.pk}}/sendlist/delete' with_args "{'id':'{{sendlist.id}}' }" %}
+                        {% get_line_deletor at_url '/sms/campaign/{{object.pk}}/messaging_list/delete' with_args "{'id':'{{mlist.id}}' }" %}
                     </td>
                 </tr>
             {% endfor %}

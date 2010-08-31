@@ -26,9 +26,9 @@ from creme_core.models import CremeEntity
 from persons.models import Contact #, Organisation
 
 
-class SendList(CremeEntity):
+class MessagingList(CremeEntity):
     name          = CharField(_(u'Name of the messaging list'), max_length=80)
-    contacts      = ManyToManyField(Contact, verbose_name=u'Contacts destinataires')
+    contacts      = ManyToManyField(Contact, verbose_name=_(u'Contacts recipients'))
 #    organisations = ManyToManyField(Organisation, verbose_name=u'Sociétés destinataires')
 
     class Meta:
@@ -40,14 +40,14 @@ class SendList(CremeEntity):
         return self.name
 
     def get_absolute_url(self):
-        return "/sms/sendlist/%s" % self.id
+        return "/sms/messaging_list/%s" % self.id
 
     def get_edit_absolute_url(self):
-        return "/sms/sendlist/edit/%s" % self.id
+        return "/sms/messaging_list/edit/%s" % self.id
 
     @staticmethod
     def get_lv_absolute_url():
-        return "/sms/sendlists"
+        return "/sms/messaging_lists"
 
 #    def already_in_parents(self, other_ml_id):
 #        parents = self.parents_set.all()
