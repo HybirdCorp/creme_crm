@@ -27,6 +27,7 @@ from creme_core.views.generic import add_entity, edit_entity, view_entity_with_t
 from sms.models import MessageTemplate
 from sms.forms.template import TemplateCreateForm, TemplateEditForm
 
+
 @login_required
 @get_view_or_die('sms')
 @add_view_or_die(ContentType.objects.get_for_model(MessageTemplate), None, 'sms')

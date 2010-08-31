@@ -21,6 +21,7 @@
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext
+from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required
 from django.contrib.contenttypes.models import ContentType
 
@@ -79,10 +80,10 @@ def _add_aux(request, id, form_class, title):
                        context_instance=RequestContext(request))
 
 def add_contacts(request, id):
-    return _add_aux(request, id, AddContactsForm, 'Nouveaux contacts pour <%s>')
+    return _add_aux(request, id, AddContactsForm, _('New contacts for <%s>'))
 
 def add_contacts_from_filter(request, id):
-    return _add_aux(request, id, AddContactsFromFilterForm, 'Nouveaux contacts pour <%s>')
+    return _add_aux(request, id, AddContactsFromFilterForm, _('New contacts for <%s>'))
 
 @login_required
 @get_view_or_die('sms')

@@ -28,13 +28,13 @@ from sms.models.recipient import Recipient
 
 
 class SMSCampaign(CremeEntity):
-    name      = CharField(_(u'Nom de la campagne'), max_length=100, blank=False, null=False)
-    sendlists = ManyToManyField(SendList, verbose_name=_(u'Listes de diffusion associées'))
+    name      = CharField(_(u'Name of the campaign'), max_length=100, blank=False, null=False)
+    sendlists = ManyToManyField(SendList, verbose_name=_(u'Related messaging lists'))
 
     class Meta:
         app_label = "sms"
-        verbose_name = _(u"Campagne de SMS")
-        verbose_name_plural = _(u"Campagnes de SMS")
+        verbose_name = _(u"SMS campaign")
+        verbose_name_plural = _(u"SMS campaigns")
 
     def __unicode__(self):
         return self.name
@@ -54,16 +54,17 @@ class SMSCampaign(CremeEntity):
 
     def delete(self):
         self.sendlists.clear()
-        
+
         for sending in self.sendings.all():
             sending.delete()
-            
+
         super(SMSCampaign, self).delete()
 
     def all_recipients(self):
         lists = self.sendlists.all()
 
         #manual recipients
+        #TODO: remove '__id'
         recipients = list(number for number in Recipient.objects.filter(sendlist__id__in=(sendlist.id for sendlist in lists)).values_list('phone', flat=True))
 
         #contacts recipients

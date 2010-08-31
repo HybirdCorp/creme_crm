@@ -21,6 +21,7 @@
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext
+from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required
 
 from creme_core.entities_access.functions_for_permissions import get_view_or_die, edit_object_or_die
@@ -50,7 +51,7 @@ def add(request, id):
     return inner_popup(request, 'creme_core/generics/blockform/add_popup2.html',
                        {
                         'form':   recip_add_form,
-                        'title': 'Nouveaux destinataires pour <%s>' % sendlist,
+                        'title': _(u'New recipients for <%s>') % sendlist,
                        },
                        is_valid=recip_add_form.is_valid(),
                        reload=False,
@@ -77,7 +78,7 @@ def add_from_csv(request, id):
     return inner_popup(request, 'creme_core/generics/blockform/add_popup2.html',
                        {
                         'form':   recip_add_form,
-                        'title': 'Nouveaux destinataires pour <%s>' % sendlist,
+                        'title': _(u'New recipients for <%s>') % sendlist,
                        },
                        is_valid=recip_add_form.is_valid(),
                        context_instance=RequestContext(request))

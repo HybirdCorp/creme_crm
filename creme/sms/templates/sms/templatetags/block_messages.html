@@ -1,3 +1,4 @@
+{% load i18n %}
 {% load creme_block %}
 {% load sms_tags %}
 <style>
@@ -34,24 +35,26 @@ tr.creme-sms-message td.error {
     };
 </script>
 <table class="table_detail_view ui-corner-all" id={{block_name}}>
-    {% get_block_header '%s Message' '%s Messages' 'sms_48.png' 'Messages' %}
+    {% get_block_header _('%s Message') _('%s Messages') 'sms_48.png' _('Messages') %}
     <tbody class="collapsable">
         <tr>
             <th colspan="4" class="block_header_line_dark" align="left">
                 <a class="button_link" onclick="sms_messages.send();">
-                    <img src="{{MEDIA_URL}}images/add_22.png" border="0" title="Envoyer" alt="Envoyer" />Envoyer
+                    <img src="{{MEDIA_URL}}images/add_22.png" border="0" title="{% trans "Send" %}" alt="{% trans "Send" %}" />
+                    {% trans "Send" %}
                 </a>
                 <a class="button_link" onclick="sms_messages.sync();">
-                    <img src="{{MEDIA_URL}}images/refresh_22.png" border="0" title="Synchroniser" alt="Synchroniser" />Synchroniser
+                    <img src="{{MEDIA_URL}}images/refresh_22.png" border="0" title="{% trans "Synchronize" %}" alt="{% trans "Synchronize" %}" />
+                    {% trans "Synchronize" %}
                 </a>
             </th>
         </tr>
         {% if page.paginator.count %}
             <tr>
-                <th class="block_header_line_dark">Numéro</th>
-                <th class="block_header_line_dark">Statut</th>
-                <th class="block_header_line_dark">Message de statut</th>
-                <th class="block_header_line_dark">Supprimer</th>
+                <th class="block_header_line_dark">{% trans "Number" %}</th>
+                <th class="block_header_line_dark">{% trans "Status" %}</th>
+                <th class="block_header_line_dark">{% trans "Status message" %}</th>
+                <th class="block_header_line_dark">{% trans "Delete" %}</th>
             </tr>
             {% for message in page.object_list %}
                 <!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
@@ -66,7 +69,7 @@ tr.creme-sms-message td.error {
             {% endfor %}
         {% else %}
             <tr>
-                <td class="block_line_dark">Aucun message dans cet envoi pour le moment</td>
+                <td class="block_line_dark">{% trans "No message in this sending" %}</td>
             </tr>
         {% endif %}
     </tbody>

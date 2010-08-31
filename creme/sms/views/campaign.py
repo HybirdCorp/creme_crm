@@ -21,6 +21,7 @@
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.template import RequestContext
+from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required
 from django.contrib.contenttypes.models import ContentType
 
@@ -86,7 +87,7 @@ def add_sendlist(request, id):
     return inner_popup(request, 'creme_core/generics/blockform/add_popup2.html',
                        {
                         'form':   ml_add_form,
-                        'title': 'Nouvelles listes de diffusion pour <%s>' % campaign,
+                        'title': _(u'New messaging lists for <%s>') % campaign,
                        },
                        is_valid=ml_add_form.is_valid(),
                        reload=False,

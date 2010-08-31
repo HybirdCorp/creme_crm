@@ -1,24 +1,27 @@
+{% load i18n %}
 {% load creme_block %}
 {% load sms_tags %}
 <table class="table_detail_view ui-corner-all" id={{block_name}}>
-    {% get_block_header '%s Contact destinataire' '%s Contacts destinataires' %}
+    {% get_block_header _('%s Contact recipient') _('%s Contacts recipients') 'contacts_48.png' _('Contacts') %}
     <tbody class="collapsable">
         <tr>
             <th colspan="4" class="block_header_line_dark" align="left">
                 {% comment %}<a class="button_link" onclick="creme.utils.showInnerPopup('/sms/sendlist/{{object.pk}}/contact/add')">{% endcomment %}
                 <a class="button_link" onclick="creme.utils.innerPopupNReload('/sms/sendlist/{{object.pk}}/contact/add', '{{update_url}}?base_url={{base_url}}');">
-                    <img src="{{MEDIA_URL}}images/add_22.png" border="0" title="Ajouter manuellement" alt="Ajouter" />Ajouter des contacts
+                    <img src="{{MEDIA_URL}}images/add_22.png" border="0" title="Add from existing contacts" alt="Add from existing contacts" />
+                    {% trans "Add from existing contacts" %}
                 </a>
                 {% comment %}<a class="button_link" onclick="creme.utils.showInnerPopup('/sms/sendlist/{{object.pk}}/contact/add_from_filter')">{% endcomment %}
                 <a class="button_link" onclick="creme.utils.innerPopupNReload('/sms/sendlist/{{object.pk}}/contact/add_from_filter', '{{update_url}}?base_url={{base_url}}')">
-                    <img src="{{MEDIA_URL}}images/add_22.png" border="0" title="Ajouter gràce à un filtre" alt="Ajouter" />Ajouter à partir d'un filtre
+                    <img src="{{MEDIA_URL}}images/add_22.png" border="0" title="{% trans "Add from a filter" %}" alt="{% trans "Add from a filter" %}" />
+                    {% trans "Add from a filter" %}
                 </a>
             </th>
         </tr>
         {% if page.paginator.count %}
             <tr>
-                <th class="block_header_line_dark">Numéro</th>
-                <th class="block_header_line_dark">Supprimer</th>
+                <th class="block_header_line_dark">{% trans "Number" %}</th>
+                <th class="block_header_line_dark">{% trans "Delete" %}</th>
             </tr>
             {% for contact in page.object_list %}
                 <!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
@@ -28,7 +31,7 @@
                             {% if contact.mobile %}
                                 {{contact.mobile|phonenumber|formatphone}}
                             {% else %}
-                                {{contact}} : pas de numéro.
+                                {% blocktrans %}{{contact}} : no number.{% endblocktrans %}
                             {% endif %}
                         </a>
                     </td>
@@ -39,7 +42,7 @@
             {% endfor %}
         {% else %}
             <tr>
-                <td class="block_line_dark">Aucun contact destinataire pour le moment</td>
+                <td class="block_line_dark">{% trans "No contact recipient for the moment" %}</td>
             </tr>
         {% endif %}
     </tbody>

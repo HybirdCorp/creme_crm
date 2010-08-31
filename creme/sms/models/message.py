@@ -20,7 +20,7 @@
 
 from django.db.models import ForeignKey, CharField, DateField, TextField
 from django.db.models.aggregates import Count
-from django.utils.translation import ugettext as _
+from django.utils.translation import ugettext_lazy as _, ugettext
 
 from creme_core.models import CremeModel
 from creme_core.utils import chunktools
@@ -43,30 +43,32 @@ MESSAGE_STATUS_ACCEPT = SAMOUSSA_STATUS_ACCEPT
 MESSAGE_STATUS_SENT = SAMOUSSA_STATUS_SENT
 MESSAGE_STATUS_ERROR = SAMOUSSA_STATUS_ERROR
 
-MESSAGE_STATUS_TRADS = {MESSAGE_STATUS_NOTSENT:(_(u'Non envoyé'), _(u'Non envoyés')),
-                        MESSAGE_STATUS_WAITING:(_(u'En attente'), _(u'En attente')),
-                        MESSAGE_STATUS_ACCEPT:(_(u'Accepté'), _(u'Acceptés')),
-                        MESSAGE_STATUS_SENT:(_(u'Envoyé'), _(u'Envoyés')),
-                        MESSAGE_STATUS_ERROR:(_(u'Erreur'), _(u'Erreurs'))}
+MESSAGE_STATUS = {
+    MESSAGE_STATUS_NOTSENT: (_(u'Not sent'), _(u'Not sent')),
+    MESSAGE_STATUS_WAITING: (_(u'Waiting'),  _(u'Waiting')),
+    MESSAGE_STATUS_ACCEPT:  (_(u'Accepted'), _(u'Accepted')),
+    MESSAGE_STATUS_SENT:    (_(u'Sent'),     _(u'Sent')),
+    MESSAGE_STATUS_ERROR:   (_(u'Error'),    _(u'Errors'))
+}
 
 
 class Sending(CremeModel):
     date     = DateField(_(u'Date'))
-    campaign = ForeignKey(SMSCampaign, verbose_name=_(u'Campagne'), related_name="sendings")
-    template = ForeignKey(MessageTemplate, verbose_name=_(u'Patron de message'))
-    content  = TextField(_(u'Message généré'), max_length=160)
+    campaign = ForeignKey(SMSCampaign, verbose_name=_(u'Related campaign'), related_name="sendings")
+    template = ForeignKey(MessageTemplate, verbose_name=_(u'Message template'))
+    content  = TextField(_(u'Generated message'), max_length=160)
 
     class Meta:
         app_label = "sms"
-        verbose_name = _(u'Envoi')
-        verbose_name_plural = _(u'Envois')
+        verbose_name = _(u'Sending')
+        verbose_name_plural = _(u'Sendings')
 
     def __unicode__(self):
         return self.date
 
     def formatstatus(self):
-        items = ((self.messages.filter(status=status).count(), status_name) for status, status_name in MESSAGE_STATUS_TRADS.iteritems())
-        return ', '.join(('%s %s' % (count, label[1] if count > 1 else label[0]) for count, label in items if count > 0))
+        items = ((self.messages.filter(status=status).count(), status_name) for status, status_name in MESSAGE_STATUS.iteritems())
+        return ', '.join((u'%s %s' % (count, label[1] if count > 1 else label[0]) for count, label in items if count > 0))
 
     def delete(self):
         ws = SamoussaBackEnd()
@@ -79,10 +81,10 @@ class Sending(CremeModel):
 
 
 class Message(CremeModel):
-    sending = ForeignKey(Sending, verbose_name=_(u'Envoi'), related_name='messages')
-    phone  = CharField(_(u'Numéro'), max_length=100)
-    status = CharField(_(u'État'), max_length=10)
-    status_message = CharField(_(u'État détaillé'), max_length=100, blank=True, null=True)
+    sending = ForeignKey(Sending, verbose_name=_(u'Sending'), related_name='messages')
+    phone  = CharField(_(u'Number'), max_length=100)
+    status = CharField(_(u'State'), max_length=10)
+    status_message = CharField(_(u'Full state'), max_length=100, blank=True, null=True)
 
     def __unicode__(self):
         return self.phone
@@ -93,20 +95,21 @@ class Message(CremeModel):
         verbose_name_plural = _(u'Messages')
 
     def statusname(self):
-        return MESSAGE_STATUS_TRADS.get(self.status, _(u'Inconnu'))[0]
+        status_desc = MESSAGE_STATUS.get(self.status)
+        return status_desc[0] if status_desc else ugettext(u'Unknown')
 
     @staticmethod
     def _connect(sending):
         ws = SamoussaBackEnd()
-        
+
         try:
             ws.connect()
         except WSException, err:
             sending.messages.filter(status=MESSAGE_STATUS_NOTSENT).update(status_message=unicode(err))
             return None
-        
+
         return ws
-    
+
     @staticmethod
     def _disconnect(ws):
         try:
@@ -117,28 +120,28 @@ class Message(CremeModel):
     @staticmethod
     def _do_action(sending, request, action, step):
         ws = Message._connect(sending)
-        
+
         if not ws:
             return
-        
+
         for chunk in chunktools.iter_as_slices(request, 256):
             action(ws, sending, chunk)
-        
+
         Message._disconnect(ws)
-        
+
     @staticmethod
     def send(sending):
         content = sending.content
         sending_id = sending.id
         messages = sending.messages.filter(status=MESSAGE_STATUS_NOTSENT).values_list('pk', 'phone')
-        
+
         def action(ws, sending, chunk):
             pks = (m[0] for m in chunk)
             numbers = (m[1] for m in chunk)
             not_accepted = []
-            
+
             #print 'send action', chunk
-            
+
             try:
                 res = ws.send_messages(content, list(numbers), sending_id)
                 not_accepted = res.get('not_accepted', [])
@@ -148,20 +151,20 @@ class Message(CremeModel):
             for phone, status, status_message in not_accepted:
                 Message.objects.filter(phone=phone, sending__id=sending_id).update(status=status, 
                                                                                    status_message=status_message)
-            
+
             Message.objects.filter(status=MESSAGE_STATUS_NOTSENT).update(status=MESSAGE_STATUS_ACCEPT, status_message='')
-        
+
         Message._do_action(sending, messages, action, 256)
 
     @staticmethod
     def sync(sending):
         sending_id = sending.id
         messages = sending.messages.values_list('pk', 'phone')
-        
+
         def action(ws, sending, chunk):
             numbers = (m[1] for m in chunk)
             res = []
-            
+
             try:
                 res = ws.list_messages(phone=list(numbers), user_data=sending_id, aslist=True, fields=['phone', 'status', 'message'])
             except WSException:
@@ -174,17 +177,17 @@ class Message(CremeModel):
                                                                                    status_message=status_message)
 
         Message._do_action(sending, messages, action, 256)
-        
+
     def sync_delete(self):
         ws = SamoussaBackEnd()
-        
+
         try:
             ws.connect()
             ws.delete_message(self)
-            
+
             self.status = MESSAGE_STATUS_NOTSENT
             self.save(force_update=True)
-            
+
             ws.close()
         except WSException:
             pass
