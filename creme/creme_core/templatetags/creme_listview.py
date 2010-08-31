@@ -66,10 +66,13 @@ def _build_bool_search_widget(item_ctx, search_value):
                 ]
 
 def _build_date_search_widget(item_ctx, search_value):
+    #TODO: Needs datetime validation
     item_ctx['type'] = 'datefield'
-
     if search_value:
-        item_ctx['values'] = {'start': search_value[0], 'end': search_value[1]}
+        if len(search_value) > 1:
+            item_ctx['values'] = {'start': search_value[0], 'end': search_value[1]}
+        elif len(search_value) == 1:
+            item_ctx['values'] = {'start': search_value[0], 'end': search_value[0]}
 
 def _build_select_search_widget(item_ctx, search_value, choices):
     selected_value = unicode(search_value[0].decode('utf-8')) if search_value else None #bof bof
