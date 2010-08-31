@@ -289,8 +289,8 @@ class DateTimeWidget(TextInput):
                 <li>&nbsp;%(hour_label)s&nbsp;</li>
                 <li class="minute"><input class="ui-corner-all" type="text" maxlength="2"/></li>
                 <li>&nbsp;%(minute_label)s</li>
-                <li class="clear"><button type="button">%(clear_label)s<button/></li>
-                <li class="now last"><button type="button">%(now_label)s<button/></li>
+                <li class="clear"><button type="button">%(clear_label)s</button></li>
+                <li class="now last"><button type="button">%(now_label)s</button></li>
             </ul>
             <script type="text/javascript">
                 $('.ui-creme-datetimepicker#%(id)s_datetimepicker').each(function() {creme.forms.DateTimePicker.init($(this));});
@@ -320,7 +320,7 @@ class TimeWidget(TextInput):
                 <li>&nbsp;%(hour_label)s&nbsp;</li>
                 <li class="minute"><input class="ui-corner-all" type="text" maxlength="2"/></li>
                 <li>&nbsp;%(minute_label)s</li>
-                <li class="last"><button type="button">%(now_label)s<button/></li>
+                <li class="last"><button type="button">%(now_label)s</button></li>
             </ul>
             <script type="text/javascript">
                 $('.ui-creme-timepicker#%(id)s_timepicker').each(function() {creme.forms.TimePicker.init($(this));});
