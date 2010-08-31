@@ -130,7 +130,7 @@ class CreateForm(CremeEntityForm):
         _fields_choices = [unicode(fields[f].label) for f in ['columns','custom_fields','relations', 'functions']]
 
         if not hf and not (columns or custom_fields or relations or functions):
-            raise ValidationError(ugettext(u"You must select an existing view, or at least one field from : %s" % ", ".join(_fields_choices)))
+            raise ValidationError(ugettext(u"You must select an existing view, or at least one field from : %s") % ", ".join(_fields_choices))
 
         return cleaned_data
 
