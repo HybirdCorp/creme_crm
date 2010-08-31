@@ -27,18 +27,18 @@ from creme_core.utils import jsonify
 
 from persons.models import Contact
 
-from sms.models import Recipient, Sending, Message, SendList
+from sms.models import Recipient, Sending, Message, MessagingList
 
 
-class SendListsBlock(QuerysetBlock):
-    id_           = QuerysetBlock.generate_id('sms', 'sendlists')
-    dependencies  = (SendList,)
+class MessagingListsBlock(QuerysetBlock):
+    id_           = QuerysetBlock.generate_id('sms', 'messaging_lists')
+    dependencies  = (MessagingList,)
     verbose_name  = _(u'Messaging lists')
-    template_name = 'sms/templatetags/block_sendlists.html'
+    template_name = 'sms/templatetags/block_messaging_lists.html'
 
     def detailview_display(self, context):
         campaign = context['object']
-        return self._render(self.get_block_template_context(context, campaign.sendlists.all(),
+        return self._render(self.get_block_template_context(context, campaign.lists.all(),
                                                             update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, campaign.pk),
                                                             ))
 
@@ -51,7 +51,7 @@ class RecipientsBlock(QuerysetBlock):
 
     def detailview_display(self, context):
         pk = context['object'].pk
-        return self._render(self.get_block_template_context(context, Recipient.objects.filter(sendlist=pk), #get_recipients() ??? related_name()
+        return self._render(self.get_block_template_context(context, Recipient.objects.filter(messaging_list=pk), #get_recipients() ??? related_name()
                                                             update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, pk),
                                                             ))
 
@@ -63,9 +63,9 @@ class ContactsBlock(QuerysetBlock):
     template_name = 'sms/templatetags/block_contacts.html'
 
     def detailview_display(self, context):
-        sendlist = context['object']
-        return self._render(self.get_block_template_context(context, sendlist.contacts.all(),
-                                                            update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, sendlist.pk),
+        mlist = context['object']
+        return self._render(self.get_block_template_context(context, mlist.contacts.all(),
+                                                            update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, mlist.pk),
                                                             ))
 
 
@@ -109,8 +109,8 @@ class SendingsBlock(QuerysetBlock):
                                                             ))
 
 
-sendlists_block  = SendListsBlock()
-recipients_block = RecipientsBlock()
-contacts_block   = ContactsBlock()
-messages_block   = MessagesBlock()
-sendings_block   = SendingsBlock()
+messaging_lists_block = MessagingListsBlock()
+recipients_block      = RecipientsBlock()
+contacts_block        = ContactsBlock()
+messages_block        = MessagesBlock()
+sendings_block        = SendingsBlock()

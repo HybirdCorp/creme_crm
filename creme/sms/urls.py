@@ -6,14 +6,14 @@ from django.conf.urls.defaults import patterns
 urlpatterns = patterns('sms.views',
     (r'^$', 'portal.portal'),
 
-    (r'^campaigns$',                 'campaign.listview'),
-    (r'^campaign/add$',              'campaign.add'),
-    (r'^campaign/edit/(?P<id>\d+)$', 'campaign.edit'),
-    (r'^campaign/(?P<id>\d+)$',      'campaign.detailview'),
+    (r'^campaigns$',                          'campaign.listview'),
+    (r'^campaign/add$',                       'campaign.add'),
+    (r'^campaign/edit/(?P<campaign_id>\d+)$', 'campaign.edit'),
+    (r'^campaign/(?P<campaign_id>\d+)$',      'campaign.detailview'),
 
     #Campaign: mailing_list block
-    (r'^campaign/(?P<id>\d+)/sendlist/add$',             'campaign.add_sendlist'),
-    (r'^campaign/(?P<campaign_id>\d+)/sendlist/delete$', 'campaign.delete_sendlist'),
+    (r'^campaign/(?P<id>\d+)/messaging_list/add$',             'campaign.add_messaging_list'),
+    (r'^campaign/(?P<campaign_id>\d+)/messaging_list/delete$', 'campaign.delete_messaging_list'),
 
     #Campaign: sending block
     (r'^campaign/(?P<id>\d+)/sending/add$',      'sending.add'),
@@ -28,20 +28,20 @@ urlpatterns = patterns('sms.views',
     (r'^campaign/sending/(?P<id>\d+)/messages/send/$',   'sending.send_messages'),
     (r'^campaign/sending/(?P<id>\d+)/messages/reload/$', 'sending.reload_block_messages'),
 
-    (r'^sendlists$',                 'sendlist.listview'),
-    (r'^sendlist/add$',              'sendlist.add'),
-    (r'^sendlist/edit/(?P<id>\d+)$', 'sendlist.edit'),
-    (r'^sendlist/(?P<id>\d+)$',      'sendlist.detailview'),
+    (r'^messaging_lists$',                       'messaging_list.listview'),
+    (r'^messaging_list/add$',                    'messaging_list.add'),
+    (r'^messaging_list/edit/(?P<mlist_id>\d+)$', 'messaging_list.edit'),
+    (r'^messaging_list/(?P<mlist_id>\d+)$',      'messaging_list.detailview'),
 
     #Mailing list: recipients block
-    (r'^sendlist/(?P<id>\d+)/recipient/add$',     'recipient.add'),
-    (r'^sendlist/(?P<id>\d+)/recipient/add_csv$', 'recipient.add_from_csv'),
-    (r'^sendlist/recipient/delete$',              'recipient.delete'),
+    (r'^messaging_list/(?P<mlist_id>\d+)/recipient/add$',     'recipient.add'),
+    (r'^messaging_list/(?P<mlist_id>\d+)/recipient/add_csv$', 'recipient.add_from_csv'),
+    (r'^messaging_list/recipient/delete$',                    'recipient.delete'),
 
     #Mailing list: contacts block
-    (r'^sendlist/(?P<id>\d+)/contact/add$',             'sendlist.add_contacts'),
-    (r'^sendlist/(?P<id>\d+)/contact/add_from_filter$', 'sendlist.add_contacts_from_filter'),
-    (r'^sendlist/(?P<sendlist_id>\d+)/contact/delete',  'sendlist.delete_contact'),
+    (r'^messaging_list/(?P<mlist_id>\d+)/contact/add$',             'messaging_list.add_contacts'),
+    (r'^messaging_list/(?P<mlist_id>\d+)/contact/add_from_filter$', 'messaging_list.add_contacts_from_filter'),
+    (r'^messaging_list/(?P<mlist_id>\d+)/contact/delete',           'messaging_list.delete_contact'),
 
     (r'^templates$',                          'template.listview'),
     (r'^template/add$',                       'template.add'),
@@ -50,7 +50,7 @@ urlpatterns = patterns('sms.views',
 )
 
 urlpatterns += patterns('creme_core.views.generic',
-    (r'^campaign/delete/(?P<object_id>\d+)$', 'delete_entity'),
-    (r'^sendlist/delete/(?P<object_id>\d+)$', 'delete_entity'),
-    (r'^template/delete/(?P<object_id>\d+)$', 'delete_entity'),
+    (r'^campaign/delete/(?P<object_id>\d+)$',       'delete_entity'),
+    (r'^messaging_list/delete/(?P<object_id>\d+)$', 'delete_entity'),
+    (r'^template/delete/(?P<object_id>\d+)$',       'delete_entity'),
 )

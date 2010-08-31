@@ -28,12 +28,12 @@ from creme_core.forms.fields import MultiCremeEntityField, CremeEntityField
 
 from persons.models import Contact
 
-from sms.models import SendList
+from sms.models import MessagingList
 
 
-class SendListForm(CremeEntityForm):
+class MessagingListForm(CremeEntityForm):
     class Meta:
-        model  = SendList
+        model = MessagingList
         fields = ('user', 'name')
 
 
@@ -43,12 +43,12 @@ class AddContactsForm(CremeForm):
 
     blocks = FieldBlockManager(('general', _(u'Contacts recipients'), '*'))
 
-    def __init__(self, sendlist, *args, **kwargs):
+    def __init__(self, messaging_list, *args, **kwargs):
         super(AddContactsForm, self).__init__(*args, **kwargs)
-        self.sendlist = sendlist
+        self.messaging_list = messaging_list
 
     def save(self):
-        contacts = self.sendlist.contacts
+        contacts = self.messaging_list.contacts
 
         #TODO: check if email if ok ????
         for contact in self.cleaned_data['recipients']:
@@ -61,9 +61,9 @@ class AddPersonsFromFilterForm(CremeForm): #private class ???
 
     person_model = None #Contact/Organisation
 
-    def __init__(self, sendlist, *args, **kwargs):
+    def __init__(self, messaging_list, *args, **kwargs):
         super(AddPersonsFromFilterForm, self).__init__(*args, **kwargs)
-        self.sendlist = sendlist
+        self.messaging_list = messaging_list
 
         choices = [(0, _(u'All'))]
 
@@ -96,4 +96,4 @@ class AddContactsFromFilterForm(AddPersonsFromFilterForm):
     person_model = Contact
 
     def get_persons_m2m(self):
-        return self.sendlist.contacts
+        return self.messaging_list.contacts

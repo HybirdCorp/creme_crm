@@ -31,37 +31,37 @@ from sms.models.recipient import Recipient
 from sms.forms.fields import PhoneListField, PhoneField
 
 
-class SendListAddRecipientsForm(CremeForm):
+class MessagingListAddRecipientsForm(CremeForm):
     # TODO : see for phonelist widget
     recipients = PhoneListField(widget=Textarea(), label=_(u'Recipients'), help_text=_(u'One phone number per line'))
 
     blocks = FieldBlockManager(('general', _(u'Recipients'), '*'))
 
-    def __init__(self, sendlist, *args, **kwargs):
-        super(SendListAddRecipientsForm, self).__init__(*args, **kwargs)
-        self.sendlist = sendlist
+    def __init__(self, messaging_list, *args, **kwargs):
+        super(MessagingListAddRecipientsForm, self).__init__(*args, **kwargs)
+        self.messaging_list = messaging_list
 
     def save(self):
-        sendlist = self.sendlist
+        messaging_list = self.messaging_list
         recipients = self.cleaned_data['recipients']
-        existing   = frozenset(Recipient.objects.filter(sendlist=sendlist, phone__in=recipients).values_list('phone', flat=True))
+        existing   = frozenset(Recipient.objects.filter(messaging_list=messaging_list, phone__in=recipients).values_list('phone', flat=True))
 
         create = Recipient.objects.create
 
         for number in recipients:
             if number not in existing:
-                create(sendlist=sendlist, phone=number)
+                create(messaging_list=messaging_list, phone=number)
 
 _HELP = _(u"A text file where each line contains digits (which can be separated by space characters).\n"
 "Only digits are used and empty lines are ignored.\n"
 "Examples: '00 56 87 56 45' => '0056875645'; 'abc56def' => '56'")
 
-class SendListAddCSVForm(CremeForm):
+class MessagingListAddCSVForm(CremeForm):
     recipients = FileField(label=_(u'Recipients'), help_text=_HELP)
 
-    def __init__(self, sendlist, *args, **kwargs):
-        super(SendListAddCSVForm, self).__init__(*args, **kwargs)
-        self.sendlist = sendlist
+    def __init__(self, messaging_list, *args, **kwargs):
+        super(MessagingListAddCSVForm, self).__init__(*args, **kwargs)
+        self.messaging_list = messaging_list
 
     def save(self):
         targets = chunktools.iter_splitchunks(self.cleaned_data['recipients'].chunks(), '\n', PhoneField.filternumbers)
@@ -73,10 +73,10 @@ class SendListAddCSVForm(CremeForm):
         if not numbers:
             return
 
-        sendlist = self.sendlist
+        messaging_list = self.messaging_list
         create  = Recipient.objects.create
-        duplicates = frozenset(Recipient.objects.filter(phone__in=numbers, sendlist=sendlist).values_list('phone', flat=True))
+        duplicates = frozenset(Recipient.objects.filter(phone__in=numbers, messaging_list=messaging_list).values_list('phone', flat=True))
 
         for number in numbers:
             if number not in duplicates and number:
-                create(sendlist=sendlist, phone=number)
+                create(messaging_list=messaging_list, phone=number)

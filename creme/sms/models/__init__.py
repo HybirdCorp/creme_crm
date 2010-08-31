@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from sendlist import SendList
+from messaging_list import MessagingList
 from recipient import Recipient
 from campaign import SMSCampaign
 from template import MessageTemplate

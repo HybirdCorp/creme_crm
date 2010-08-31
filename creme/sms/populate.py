@@ -26,7 +26,7 @@ from creme_core.models.header_filter import HeaderFilterItem, HeaderFilter, HFI_
 from creme_core.utils import create_or_update_models_instance as create
 from creme_core.management.commands.creme_populate import BasePopulator
 
-from sms.models import SendList, SMSCampaign, MessageTemplate
+from sms.models import MessagingList, SMSCampaign, MessageTemplate
 
 
 class Populator(BasePopulator):
@@ -35,7 +35,7 @@ class Populator(BasePopulator):
     def populate(self, *args, **kwargs):
         get_ct = ContentType.objects.get_for_model
 
-        hf_id = create(HeaderFilter, 'sms-hf_sendlist', name=_(u'Messaging list view'), entity_type_id=get_ct(SendList).id, is_custom=False).id
+        hf_id = create(HeaderFilter, 'sms-hf_mlist', name=_(u'Messaging list view'), entity_type_id=get_ct(MessagingList).id, is_custom=False).id
         create(HeaderFilterItem, 'sms-hf_sendlist_name', order=1, name='name', title=_(u'Name'), type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True, editable=True, filter_string="name__icontains")
 
         hf_id = create(HeaderFilter, 'sms-hf_campaign', name=_(u'Campaign view'), entity_type_id=get_ct(SMSCampaign).id, is_custom=False).id
@@ -45,5 +45,5 @@ class Populator(BasePopulator):
         create(HeaderFilterItem, 'sms-hf_template_name', order=1, name='name', title=_(u'Name'), type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True, editable=True, filter_string="name__icontains")
 
         SearchConfigItem.create(SMSCampaign, ['name'])
-        SearchConfigItem.create(SendList,    ['name'])
+        SearchConfigItem.create(MessagingList, ['name'])
 
