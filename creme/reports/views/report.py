@@ -28,13 +28,14 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.contenttypes.models import ContentType
 
 from creme_core.entities_access.functions_for_permissions import add_view_or_die, get_view_or_die
+from creme_core.models.custom_field import CustomField
 from creme_core.views.generic import add_entity, edit_entity, view_entity_with_template, list_view, inner_popup
 from creme_core.utils.meta import get_model_field_infos
 from creme_core.utils import get_ct_or_404
 from creme_core.utils.meta import get_flds_with_fk_flds
 
 from reports.models import Report, report_prefix_url, report_template_dir, Field
-from reports.forms.report import CreateForm, EditForm, LinkFieldToReportForm, AddFieldToReportForm
+from reports.forms.report import CreateForm, EditForm, LinkFieldToReportForm, AddFieldToReportForm, get_aggregate_custom_fields
 from reports.registry import report_backend_registry
 from reports.report_aggregation_registry import field_aggregation_registry
 
@@ -248,5 +249,6 @@ def get_aggregate_fields(request):
         aggregate = field_aggregation_registry.get(aggregate_name)
         aggregate_pattern = aggregate.pattern
         choices = [(u"%s" % (aggregate_pattern % f.name), unicode(f.verbose_name)) for f in get_flds_with_fk_flds(model, deep=0) if f.__class__ in authorized_fields]
+        choices.extend(get_aggregate_custom_fields(model, aggregate_pattern))
 
     return HttpResponse(JSONEncoder().encode(choices), mimetype="text/javascript")

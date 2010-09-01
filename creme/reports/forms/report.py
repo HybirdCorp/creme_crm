@@ -98,6 +98,16 @@ def get_hfi_function_or_save(columns_get, model, function, order):
 
 def _get_hfi_calculated_title(aggregate, calculated_column, model):
     field_name, sep, aggregate_name = calculated_column.rpartition('__')
+    
+    cfs_info = field_name.split('__')
+    if cfs_info[0] == 'cf':
+        cf_id   = cfs_info[1]
+        try:
+            cf_name = CustomField.objects.get(pk=cf_id).name
+        except CustomField.DoesNotExist:
+            cf_name = ""
+        return u"%s - %s" % (unicode(aggregate.title), cf_name)
+
     return u"%s - %s" % (unicode(aggregate.title), get_verbose_field_name(model, field_name))
 
 
@@ -109,6 +119,14 @@ def get_hfi_calculated(columns_get, calculated_column, aggregate, model, order):
         f = save_hfi_calculated(calculated_column, title, order)
     return f
 
+def get_aggregate_custom_fields(model, aggregate_pattern):
+    cfs = CustomField.objects.filter(content_type=ContentType.objects.get_for_model(model), field_type__in=[CustomField.INT,CustomField.FLOAT])
+    choices = []
+    for cf in cfs:
+        choices = [(u"cf__%s__%s" % (cf.field_type, aggregate_pattern % cf.id), cf.name)]
+    return choices
+
+
 def get_aggregate_fields(fields, model, initial_data=None):
     authorized_fields = field_aggregation_registry.authorized_fields
 
@@ -117,6 +135,12 @@ def get_aggregate_fields(fields, model, initial_data=None):
         aggregate_pattern = aggregate.pattern
 
         choices = [(u"%s" % (aggregate_pattern % f.name), unicode(f.verbose_name)) for f in get_flds_with_fk_flds(model, deep=0) if f.__class__ in authorized_fields]
+
+#        cfs = CustomField.objects.filter(content_type=ContentType.objects.get_for_model(model), field_type__in=[CustomField.INT,CustomField.FLOAT])
+#        for cf in cfs:
+#            choices.extend([(u"cf__%s__%s" % (cf.field_type, aggregate_pattern % cf.id), cf.name)])
+        choices.extend(get_aggregate_custom_fields(model, aggregate_pattern))
+
         fields[aggregate.name] = MultipleChoiceField(label=_(aggregate_title), required=False, choices=choices, widget=OrderedMultipleChoiceWidget)
         if initial_data is not None:
             fields[aggregate.name].initial = initial_data

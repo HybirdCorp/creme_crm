@@ -24,7 +24,7 @@ from django.db.models.fields import CharField, PositiveIntegerField, PositiveSma
 from django.utils.translation import ugettext_lazy as _
 
 from creme_core.models import CremeEntity, Filter, CremeModel
-from creme_core.models.custom_field import CustomField
+from creme_core.models.custom_field import CustomField, _TABLES
 from creme_core.utils.meta import (get_field_infos, get_model_field_infos,
                                    filter_entities_on_ct, get_fk_entity, get_m2m_entities)
 from creme_core.models.header_filter import HFI_FUNCTION, HFI_RELATION, HFI_FIELD, HFI_CUSTOM, HFI_CALCULATED
@@ -236,8 +236,17 @@ class Field(CremeModel):
         elif column_type == HFI_CALCULATED and query is not None:
             field_name, sep, aggregate = column_name.rpartition('__')
             aggregation = field_aggregation_registry.get(aggregate)
+
+            cfs_info = field_name.split('__')
+
             if aggregation is not None:
-                return query.aggregate(aggregation.func(field_name)).get(column_name)
+                if cfs_info[0] == 'cf':
+                    cf_id   = cfs_info[1]
+                    cf_type = cfs_info[2]
+                    cfs = _TABLES[int(cf_type)].objects.filter(custom_field__id=cf_id, entity__id__in=query.values_list('id', flat=True))
+                    return cfs.aggregate(aggregation.func('value')).get('value__%s' % aggregate)
+                else:
+                    return query.aggregate(aggregation.func(field_name)).get(column_name)
 
         return empty_value
 
