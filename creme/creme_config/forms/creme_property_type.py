@@ -19,7 +19,7 @@
 ################################################################################
 
 from django.forms import CharField, ModelMultipleChoiceField, ValidationError
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import ugettext_lazy as _, ugettext
 
 from creme_core.models import CremePropertyType
 from creme_core.forms import CremeForm
@@ -28,9 +28,9 @@ from creme_core.utils import Q_creme_entity_content_types
 
 
 class _CremePropertyTypeBaseForm(CremeForm):
-    text           = CharField(label=_(u'Intitulé'), help_text=_("Par exemple: 'est poilu'"))
-    subject_ctypes = ModelMultipleChoiceField(label=_(u"S'applique aux types d'entités"),
-                                              help_text=_(u'Aucun type séléctionné signifiera que tous les types sont acceptés'),
+    text           = CharField(label=_(u'Title'), help_text=_("For example: 'is hairy'"))
+    subject_ctypes = ModelMultipleChoiceField(label=_(u"Related to types of entities"),
+                                              help_text=_(u'No selected type means that all types are accepted'),
                                               queryset=Q_creme_entity_content_types(),
                                               widget=OrderedMultipleChoiceWidget,
                                               required=False)
@@ -41,7 +41,7 @@ class CremePropertyTypeAddForm(_CremePropertyTypeBaseForm):
         text = self.cleaned_data['text']
 
         if CremePropertyType.objects.filter(text=text)[:1]: #TODO: exists() in Django 1.2
-            raise ValidationError(u"Une propriété avec ce nom existe déjà")
+            raise ValidationError(ugettext(u"A property type with this anme already exists"))
 
         return text
 

@@ -1,26 +1,27 @@
+{% load i18n %}
 {% load creme_block %}
 <table class="table_detail_view ui-corner-all" id={{block_name}}>
     <!--{% cycle "block_line_light" "block_line_dark" as row_color %}-->
-    {% get_block_header '%s Type de resource configuré' '%s Types de resource configurés' %}
+    {% get_block_header _('%s Configured type of resource') _('%s Configured types of resource') %}
     <tbody class="collapsable">
         <tr>
             <th class="block_header_line_light" style="font-size:14px;" align="left" colspan="100">
                 <a class="button_link" href="/creme_config/search/add/">
-                    <img src="{{MEDIA_URL}}images/add_22.png" border="0" alt="Ajouter une configuration de recherche"/>
-                    Nouvelle configuration de recherche
+                    <img src="{{MEDIA_URL}}images/add_22.png" border="0" alt="{% trans "New search configuration" %}"/>
+                    {% trans "New search configuration" %}
                 </a>
             </th>
         </tr>
         {% if page.paginator.count %}
             <tr>
-                <th class="block_header_line_light">Type</th>
-                <th class="block_header_line_light">Champs concernés</th>
+                <th class="block_header_line_light">{% trans "Type" %}</th>
+                <th class="block_header_line_light">{% trans "Concerned fields" %}</th>
                 {% comment %}
                     <th class="block_header_line_light">Rôle</th>
                 {% endcomment %}
-                <th class="block_header_line_light">Utilisateur</th>
-                <th class="block_header_line_light">Éditer</th>
-                <th class="block_header_line_light">Supprimer</th>
+                <th class="block_header_line_light">{% trans "User" %}</th>
+                <th class="block_header_line_light">{% trans "Edit" %}</th>
+                <th class="block_header_line_light">{% trans "Delete" %}</th>
             </tr>
             {% for search_item in page.object_list %}
                 <!--{% cycle row_color %}-->
@@ -29,7 +30,7 @@
                         {{search_item.content_type}}
                     </td>
                     <td class="{{row_color}}">
-                        {{search_item.get_fields|join:","|default:"Tous"}}
+                        {{search_item.get_fields|join:","|default:_("All")}}
                         {% comment %}
                         {{search_item.searchfield_set.all|join:","|default:"Tous"}}
                         {{search_item.searchfield_set.get_query_set|join:","|default:"Tous"}}
@@ -41,11 +42,11 @@
                     </td>
                     {% endcomment %}
                     <td class="{{row_color}}">
-                        {{search_item.user|default:"Tous les utilisateurs"}}
+                        {{search_item.user|default:_("All users")}}
                     </td>
                     <td class="{{row_color}}">
                         <a href="/creme_config/search/edit/{{search_item.id}}">
-                            <img src="{{MEDIA_URL}}images/edit_22.png" border="0" alt="Éditer" title="Éditer">
+                            <img src="{{MEDIA_URL}}images/edit_22.png" border="0" alt="{% trans "Edit" %}" title="{% trans "Edit" %}">
                         </a>
                     </td>
                     <td class="{{row_color}}">
@@ -55,7 +56,7 @@
             {% endfor %}
         {% else %}
             <tr>
-                <td>Aucune configuration de recherche enregistrée pour le moment</td>
+                <td>{% trans "No search configuration for the moment" %}</td>
             </tr>
         {% endif %}
     </tbody>

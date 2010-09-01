@@ -1,21 +1,22 @@
+{% load i18n %}
 {% load creme_block %}
 <table class="table_detail_view ui-corner-all" id={{block_name}}>
     <!--{% cycle "block_line_light" "block_line_dark" as row_color %}-->
-    {% get_block_header '%s Type de resource configuré' '%s Types de resource configurés' %}
+    {% get_block_header _('%s Configured type of resource') _('%s Configured types of resource') %}
     <tbody class="collapsable">
         <tr>
             <th class="block_header_line_light" style="font-size:14px;" align="left" colspan="100">
                 <a class="button_link" href="/creme_config/blocks/add/">
-                    <img src="{{MEDIA_URL}}images/add_22.png" border="0" alt="Ajouter une configuration de blocs"/>
-                    Nouvelle configuration de blocs
+                    <img src="{{MEDIA_URL}}images/add_22.png" border="0" alt="{% trans "New blocks configuration" %}"/>
+                    {% trans "New blocks configuration" %}
                 </a>
             </th>
         </tr>
         <tr>
-            <th class="block_header_line_light">Type</th>
-            <th class="block_header_line_light">Éditer</th>
-            <th class="block_header_line_light">Éditer le portail</th>
-            <th class="block_header_line_light">Supprimer</th>
+            <th class="block_header_line_light">{% trans "Type" %}</th>
+            <th class="block_header_line_light">{% trans "Edit" %}</th>
+            <th class="block_header_line_light">{% trans "Edit portal" %}</th>
+            <th class="block_header_line_light">{% trans "Delete" %}</th>
         </tr>
         {% comment %} ONLY IF PAGE==1 ?? {% endcomment %}
         <tr>
@@ -24,12 +25,12 @@
             </td>
             <td class="{{row_color}}">
                 <a href="/creme_config/blocks/edit/0">
-                    <img src="{{MEDIA_URL}}images/edit_22.png" border="0" alt="Éditer" title="Éditer">
+                    <img src="{{MEDIA_URL}}images/edit_22.png" border="0" alt="{% trans "Edit" %}" title="{% trans "Edit" %}">
                 </a>
             </td>
             <td class="{{row_color}}">
                 <a href="/creme_config/blocks/edit/0/portal/">
-                    <img src="{{MEDIA_URL}}images/edit_22.png" border="0" alt="Éditer portail" title="Éditer portail">
+                    <img src="{{MEDIA_URL}}images/edit_22.png" border="0" alt="{% trans "Edit portal" %}" title="{% trans "Edit portal" %}">
                 </a>
             </td>
             <td class="{{row_color}}"></td>
@@ -43,12 +44,12 @@
                     </td>
                     <td class="{{row_color}}">
                         <a href="/creme_config/blocks/edit/{{ct.id}}">
-                            <img src="{{MEDIA_URL}}images/edit_22.png" border="0" alt="Éditer" title="Éditer">
+                            <img src="{{MEDIA_URL}}images/edit_22.png" border="0" alt="{% trans "Edit" %}" title="{% trans "Edit" %}">
                         </a>
                     </td>
                     <td class="{{row_color}}">
                         <a href="/creme_config/blocks/edit/{{ct.id}}/portal/">
-                            <img src="{{MEDIA_URL}}images/edit_22.png" border="0" alt="Éditer portail" title="Éditer portail">
+                            <img src="{{MEDIA_URL}}images/edit_22.png" border="0" alt="{% trans "Edit portal" %}" title="{% trans "Edit portal" %}">
                         </a>
                     </td>
                     <td class="{{row_color}}">

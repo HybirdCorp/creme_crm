@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import ugettext as _
 from django.http import HttpResponseRedirect, HttpResponse
 from django.shortcuts import get_object_or_404, render_to_response
 from django.template.context import RequestContext
@@ -88,12 +88,14 @@ def delete(request):
     """
         @Permissions : Admin to creme_config app
     """
-    user =  get_object_or_404(User, pk=request.POST.get('id'))
-    if user.can_be_deleted():
-        user.delete()
-        return HttpResponse()
-    else:
-        return HttpResponse(unicode(_(u'%s ne peut être effacé à cause des ses dépendances.' % user)),status=403)
+    user = get_object_or_404(User, pk=request.POST.get('id'))
+
+    if not user.can_be_deleted():
+        return HttpResponse(_(u'%s can be deleted because of his dependencies.') % user, status=403)
+
+    user.delete()
+
+    return HttpResponse()
 
 @login_required
 @get_view_or_die('creme_config', DROIT_MODULE_EST_ADMIN)

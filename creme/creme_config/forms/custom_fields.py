@@ -22,7 +22,7 @@ from itertools import izip
 
 from django.forms import TypedChoiceField, ModelChoiceField, CharField, ValidationError
 from django.forms.widgets import Textarea
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import ugettext_lazy as _, ugettext
 from django.contrib.contenttypes.models import ContentType
 
 from creme_core.models.custom_field import CustomField, CustomFieldEnumValue, _TABLES
@@ -32,9 +32,9 @@ from creme_core.utils import creme_entity_content_types
 
 
 class CustomFieldsBaseForm(CremeModelForm):
-    field_type  = TypedChoiceField(label=_(u'Type du champ'), choices=[(i, klass.verbose_name) for i, klass in _TABLES.iteritems()], coerce=int)
-    enum_values = CharField(widget=Textarea(), label=_(u'Contenu de la liste'), required=False,
-                            help_text=_(u'Mettez les choix possibles (un par ligne) si vous avez choisi le type "Liste de choix".'))
+    field_type  = TypedChoiceField(label=_(u'Type of field'), choices=[(i, klass.verbose_name) for i, klass in _TABLES.iteritems()], coerce=int)
+    enum_values = CharField(widget=Textarea(), label=_(u'List content'), required=False,
+                            help_text=_(u'Give the possible  choices (one per line) if you choose the type "Choices list".'))
 
     class Meta:
         model = CustomField
@@ -43,7 +43,7 @@ class CustomFieldsBaseForm(CremeModelForm):
         cdata = self.cleaned_data
 
         if cdata['field_type'] in (CustomField.ENUM, CustomField.MULTI_ENUM) and not cdata['enum_values'].strip():
-            raise ValidationError(_(u'La liste de choix ne doit pas être vide si vous choisissez un type "Liste de choix"'))
+            raise ValidationError(ugettext(u'The choices list must not be empty if you choose the type "Choices list".'))
 
         return cdata
 
@@ -61,8 +61,8 @@ class CustomFieldsBaseForm(CremeModelForm):
 
 
 class CustomFieldsCTAddForm(CustomFieldsBaseForm):
-    content_type = ModelChoiceField(label=_(u'Resource associée'), queryset=ContentType.objects.none(),
-                                    help_text=_(u'Les autres champs personnalisés de ce type de ressource seront choisis en éditant la configuration'))
+    content_type = ModelChoiceField(label=_(u'Related resource'), queryset=ContentType.objects.none(),
+                                    help_text=_(u'The other custom fields for this type of resource will be chosen by editing the configuration'))
 
     def __init__(self, *args, **kwargs):
         super(CustomFieldsCTAddForm, self).__init__(*args, **kwargs)
@@ -98,11 +98,11 @@ class CustomFieldsEditForm(CremeModelForm):
 
             fields = self.fields
             fields['old_choices'] = ListEditionField(content=[enum.value for enum in self._enum_values],
-                                                     label=_(u'Choix existants de la liste'),
-                                                     help_text=_(u'Décochez les choix que vous voulez supprimer.'))
+                                                     label=ugettext(u'Existing choices of the list'),
+                                                     help_text=ugettext(u'Uncheck the choices you want to delete.'))
             fields['new_choices'] = CharField(widget=Textarea(), required=False,
-                                              label=_(u'Nouveaux choix de la liste'), 
-                                              help_text=_(u'Rentrez les nouveaux choix possibles (un par ligne).'))
+                                              label=ugettext(u'New choices of the list'),
+                                              help_text=ugettext(u'Give the new possible choices (one per line).'))
 
     def save(self):
         super(CustomFieldsEditForm, self).save()

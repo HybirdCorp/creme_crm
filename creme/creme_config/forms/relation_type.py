@@ -28,11 +28,11 @@ from creme_core.utils import Q_creme_entity_content_types
 
 
 _entities_ct = Q_creme_entity_content_types()
-_ct_helptext = _(u'Aucune contrainte signifiera que tous les types sont acceptés')
-_ct_label    = _(u'Contrainte sur le type')
+_ct_helptext = _(u'No constraint means that all types are accepted')
+_ct_label    = _(u'Type constraint')
 
 _all_props   = CremePropertyType.objects.all()
-_prop_label  = _(u'Contrainte sur les propriétés')
+_prop_label  = _(u'Properties constraint')
 
 
 class _RelationTypeBaseForm(CremeForm):
@@ -42,17 +42,18 @@ class _RelationTypeBaseForm(CremeForm):
                                                   widget=OrderedMultipleChoiceWidget, required=False)
 
     #TODO: language....
-    subject_predicate  = CharField(label=_(u'Sujet => objet'))
-    object_predicate   = CharField(label=_(u'Objet => sujet'))
+    subject_predicate  = CharField(label=_(u'Subject => object'))
+    object_predicate   = CharField(label=_(u'Object => subject'))
 
     object_ctypes      = ModelMultipleChoiceField(label=_ct_label, queryset=_entities_ct, help_text=_ct_helptext,
                                                   widget=OrderedMultipleChoiceWidget, required=False)
     object_properties  = ModelMultipleChoiceField(label=_prop_label, queryset=_all_props,
                                                   widget=OrderedMultipleChoiceWidget, required=False)
 
-    blocks = FieldBlockManager(('subject',   _(u'Sujet'),          ('subject_ctypes', 'subject_properties')),
-                               ('predicate', _(u'Verbe/Prédicat'), ('subject_predicate', 'object_predicate')),
-                               ('object',    _(u'Objet'),          ('object_ctypes', 'object_properties')))
+    blocks = FieldBlockManager(('subject',   _(u'Subject'),        ('subject_ctypes', 'subject_properties')),
+                               ('predicate', _(u'Verb/Predicate'), ('subject_predicate', 'object_predicate')),
+                               ('object',    _(u'Object'),         ('object_ctypes', 'object_properties')))
+
 
 class RelationTypeCreateForm(_RelationTypeBaseForm):
     def save(self):

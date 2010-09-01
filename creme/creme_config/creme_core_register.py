@@ -27,17 +27,17 @@ from creme_core.gui.block import block_registry
 from creme_config.blocks import blocks_list
 
 
-creme_registry.register_app('creme_config', _(u'Configuration générale') , '/creme_config')
+creme_registry.register_app('creme_config', _(u'General configuration') , '/creme_config')
 
 creme_menu.register_app('creme_config', '/creme_config/', 'Configuration générale')
 reg_menu = creme_menu.register_menu
-reg_menu('creme_config', '/creme_config/',                                "Portail")
-reg_menu('creme_config', '/creme_config/relation_type/portal/',           "Gestion des types de relations")
-reg_menu('creme_config', '/creme_config/property_type/portal/',           "Gestion des types de propriétés")
-reg_menu('creme_config', '/creme_config/roles/entity_credential/portal/', "Gestion des droits d'entité")
-reg_menu('creme_config', '/creme_config/roles/app_credential/portal/',    "Gestion des droits d'application")
-reg_menu('creme_config', '/creme_config/profile/portal/',                 'Gestion des profils')
-reg_menu('creme_config', '/creme_config/roles/portal/',                   'Gestion des rôles')
-reg_menu('creme_config', '/creme_config/user/portal/',                    'Gestion des utilisateurs')
+reg_menu('creme_config', '/creme_config/',                                _(u"Portal"))
+reg_menu('creme_config', '/creme_config/relation_type/portal/',           _(u"Relation types settings"))
+reg_menu('creme_config', '/creme_config/property_type/portal/',           _(u"Property types settings"))
+reg_menu('creme_config', '/creme_config/roles/entity_credential/portal/', _(u"Entities credentials settings"))
+reg_menu('creme_config', '/creme_config/roles/app_credential/portal/',    _(u"Applications credentials settings"))
+reg_menu('creme_config', '/creme_config/profile/portal/',                 _(u'Profiles settings'))
+reg_menu('creme_config', '/creme_config/roles/portal/',                   _(u'Roles settings'))
+reg_menu('creme_config', '/creme_config/user/portal/',                    _(u'Users settings'))
 
 block_registry.register(*blocks_list)
