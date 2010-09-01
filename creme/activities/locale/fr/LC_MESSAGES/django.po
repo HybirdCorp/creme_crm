@@ -2,6 +2,7 @@
 # Copyright (C) 2010 Hybird
 # This file is distributed under the same license as the Creme package.
 #
+#, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
@@ -86,7 +87,7 @@ msgstr "participe à l'activité"
 
 #: populate.py:48
 msgid "has as participant"
-msgstr "has as participant"
+msgstr "a comme participant"
 
 #: populate.py:50
 msgid "Incoming"
