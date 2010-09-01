@@ -1,9 +1,9 @@
 {% extends "creme_config/portal.html" %}
-
+{% load i18n %}
 {% load creme_block %}
 
 {% block title %}
-    <a href="/creme_config/">Configuration > </a>Type de propriété
+    <a href="/creme_config/">{% trans "Configuration" %} > </a>{% trans "Types of property" %}
 {% endblock %}
 
 {% block before_statistics %}

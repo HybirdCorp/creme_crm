@@ -30,7 +30,7 @@ from creme_core.gui.menu import creme_menu
 
 
 class PreferedMenuForm(CremeForm):
-    menu_entries = MultipleChoiceField(label=_(u'Menus rapides'), required=False, widget=OrderedMultipleChoiceWidget)
+    menu_entries = MultipleChoiceField(label=_(u'Menu entries'), required=False, widget=OrderedMultipleChoiceWidget)
 
     def __init__(self, user, *args, **kwargs):
         super(PreferedMenuForm, self).__init__(*args, **kwargs)

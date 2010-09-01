@@ -20,7 +20,7 @@
 
 from django.forms import ChoiceField, ModelChoiceField, CharField, MultipleChoiceField, ValidationError
 from django.contrib.contenttypes.models import ContentType
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import ugettext_lazy as _, ugettext
 from django.contrib.auth.models import User
 
 from creme_core.forms import CremeForm
@@ -29,15 +29,16 @@ from creme_core.registry import creme_registry
 from creme_core.utils.meta import get_flds_with_fk_flds_str
 from creme_core.models import SearchConfigItem, SearchField
 
+
 EXCLUDED_FIELDS_TYPES = frozenset(['AutoField','DateTimeField','DateField', 'FileField', 'ImageField', 'OneToOneField'])
 
 class SearchAddForm(CremeForm):
-    ct_id  = ChoiceField(label=_(u'Resource associée'), choices=(), required=True)
-    user   = ModelChoiceField(label=_(u'Utilisateur'), queryset=User.objects.all(), empty_label=_(u"Tous les utilisateurs"), required=False)
+    ct_id  = ChoiceField(label=_(u'Related resource'), choices=(), required=True)
+    user   = ModelChoiceField(label=_(u'User'), queryset=User.objects.all(), empty_label=_(u"All users"), required=False)
 
     def __init__(self, *args, **kwargs):
         super(SearchAddForm, self).__init__(*args, **kwargs)
-        
+
         ct_get_for_model = ContentType.objects.get_for_model
         models = [(ct_get_for_model(model).id, model._meta.verbose_name) for model in creme_registry.iter_entity_models()]
         models.sort(key=lambda k: k[1])
@@ -51,7 +52,7 @@ class SearchAddForm(CremeForm):
         user  = get_data('user')
 
         if SearchConfigItem.objects.filter(content_type__id=ct_id, user=user).count() > 0:
-            raise ValidationError(_(u'Le couple configuration de recherche/utilisateur(s) existe déjà !'))
+            raise ValidationError(ugettext(u'The pair search configuration/user(s) already exists !'))
 
         return cleaned_data
 
@@ -62,12 +63,13 @@ class SearchAddForm(CremeForm):
         sfi = SearchConfigItem(content_type_id=ct_id, user=user)
         sfi.save()
 
+
 class SearchEditForm(CremeForm):
-    ct     = CharField(label=_(u"Resource associée"),  widget=Label())
-    fields = MultipleChoiceField(label=_(u'Blocs à afficher'), required=False,
-                                    choices=(),
-                                    widget=OrderedMultipleChoiceWidget)
-    user   = ModelChoiceField(label=_(u'Utilisateur'), queryset=User.objects.all(), empty_label=_(u"Tous les utilisateurs"), required=False)
+    ct     = CharField(label=_(u"Related resource"),  widget=Label())
+    fields = MultipleChoiceField(label=_(u'Concerned fields'), required=False,
+                                 choices=(), widget=OrderedMultipleChoiceWidget)
+    user   = ModelChoiceField(label=_(u'User'), queryset=User.objects.all(),
+                              empty_label=_(u"All users"), required=False)
 
     def __init__(self, search_cfg_itm, *args, **kwargs):
         super(SearchEditForm, self).__init__(*args, **kwargs)
@@ -103,7 +105,7 @@ class SearchEditForm(CremeForm):
 
         search_cfg_itm.user = user
         search_cfg_itm.save()
-        
+
         if not fields:
             SF_filter(search_config_item__id=search_cfg_itm.id).delete()
         else:
@@ -123,6 +125,3 @@ class SearchEditForm(CremeForm):
                     if sf.order != i:
                         sf.order = i
                         sf.save()
-
-
-

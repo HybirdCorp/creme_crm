@@ -17,6 +17,7 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
+
 import re
 
 from logging import debug
@@ -39,12 +40,12 @@ from persons.models import Contact, Organisation
 _get_ct = ContentType.objects.get_for_model
 
 class UserAddForm(CremeModelForm):
-    password_1 = CharField(label=_(u"Mot de passe"), min_length=6, widget=PasswordInput(), required=True)
-    password_2 = CharField(label=_(u"Confirmation du mot de passe"), min_length=6, widget=PasswordInput(), required=True)
+    password_1 = CharField(label=_(u"Password"), min_length=6, widget=PasswordInput(), required=True)
+    password_2 = CharField(label=_(u"Confirm password"), min_length=6, widget=PasswordInput(), required=True)
     role       = ModelChoiceField(label=u"Rôle", queryset=CremeRole.objects.all())
-    is_already_contact = BooleanField(label=_(u"Sa fiche contact existe déjà ?"),
-                                      help_text=_(u"Décochez la case si vous voulez que la fiche contact de l'utilsateur soit crée automatiquement."),
-                                      widget=CheckboxInput(attrs={'onclick': 'config.handleShowContacts(this,"id_contacts_div");'}),
+    is_already_contact = BooleanField(label=_(u"His related contact already exists ?"),
+                                      help_text=_(u"Uncheck if you want the related contact to be automatically created."),
+                                      widget=CheckboxInput(attrs={'onclick': 'config.handleShowContacts(this, "id_contacts_div");'}),
                                       required=False)
     contacts = CremeEntityField(label=_(u"Contacts"),
                                 model=Contact,
@@ -52,8 +53,8 @@ class UserAddForm(CremeModelForm):
                                 widget=ListViewWidget(attrs={'style':'display:none;'}),
                                 required=False)
 
-    organisation = ModelChoiceField(label=_(u"Organisation de l'utilisateur"), queryset=Organisation.get_all_managed_by_creme())
-    relation     = ModelChoiceField(label=_(u"Statut dans l'organisation"),
+    organisation = ModelChoiceField(label=_(u"User organisation"), queryset=Organisation.get_all_managed_by_creme())
+    relation     = ModelChoiceField(label=_(u"Position in the organisation"),
                                             queryset=RelationType.objects.filter(subject_ctypes=_get_ct(Contact), object_ctypes=_get_ct(Organisation)))
 
     class Meta:
@@ -63,10 +64,8 @@ class UserAddForm(CremeModelForm):
     def clean_username(self):
         username = self.data['username']
         if not re.match("^(\w)[\w-]*$", username):
-            raise ValidationError(_(u"Le nom d'utilisateur doit uniquement comporter \
-                                    des caractères alphanumériques (a-z, A-Z, 0-9), \
-                                    les tirets sont admis (sauf comme premier caractère)\
-                                    ainsi que les underscore ( _ ). "))
+            raise ValidationError(ugettext(u"The username must only contain alphanumeric (a-z, A-Z, 0-9), "
+                                            "hyphen and underscores are allowed (but not as first character)."))
         return username
 
     def clean_password_2(self):
@@ -74,7 +73,7 @@ class UserAddForm(CremeModelForm):
         pw2  = data['password_2']
 
         if data['password_1'] != pw2:
-            raise ValidationError(u"Les mots de passe sont différents")
+            raise ValidationError(ugettext(u"Passwords are different"))
 
         return pw2
 
@@ -87,7 +86,7 @@ class UserAddForm(CremeModelForm):
             self.fields['contacts'].widget.attrs['style'] = "display:block;"
 
             if not contacts:
-                raise ValidationError(u"Sélectionnez un contact si sa fiche existe déjà")
+                raise ValidationError(ugettext(u"Select a Contact if he already exists"))
 
         return contacts
 
@@ -130,15 +129,15 @@ class UserEditForm(CremeModelForm):
 
 
 class UserChangePwForm(CremeForm):
-    password_1 = CharField(label=_(u"Mot de passe"), min_length=6, widget=PasswordInput())
-    password_2 = CharField(label=_(u"Confirmation du mot de passe"), min_length=6, widget=PasswordInput())
+    password_1 = CharField(label=_(u"Password"), min_length=6, widget=PasswordInput())
+    password_2 = CharField(label=_(u"Confirm password"), min_length=6, widget=PasswordInput())
 
     def clean_password_2(self):
         data = self.data
         pw2  = data['password_2']
 
         if data['password_1'] != pw2:
-            raise ValidationError("Les mots de passe sont différents")
+            raise ValidationError(ugettext(u"Passwords are different"))
 
         return pw2
 

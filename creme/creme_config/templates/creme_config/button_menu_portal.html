@@ -1,9 +1,9 @@
 {% extends "creme_config/portal.html" %}
-
+{% load i18n %}
 {% load creme_block %}
 
 {% block title %}
-    <a href="/creme_config/">Configuration > </a>Menu bouton
+    <a href="/creme_config/">{% trans "Configuration" %} > </a>{% trans "Button menu" %}
 {% endblock %}
 
 {% block before_statistics %}
