@@ -31,10 +31,11 @@ from creme_core.forms import CremeEntityForm, CremeForm
 from creme_core.forms.widgets import OrderedMultipleChoiceWidget, ListViewWidget
 from creme_core.forms.fields import AjaxMultipleChoiceField, AjaxModelChoiceField, CremeEntityField
 from creme_core.models import Filter, RelationType, CustomField
-from creme_core.models.header_filter import HeaderFilter, HeaderFilterItem, HFI_FIELD, HFI_RELATION, HFI_CUSTOM, HFI_FUNCTION
-from creme_core.utils.meta import get_verbose_field_name, get_function_field_verbose_name, get_flds_with_fk_flds_str
+from creme_core.models.header_filter import HeaderFilter, HeaderFilterItem, HFI_FIELD, HFI_RELATION, HFI_CUSTOM, HFI_FUNCTION, HFI_CALCULATED
+from creme_core.utils.meta import get_verbose_field_name, get_function_field_verbose_name, get_flds_with_fk_flds_str, get_flds_with_fk_flds
 
 from reports.models import Report, Field
+from reports.report_aggregation_registry import field_aggregation_registry
 
 def _save_field(name, title, order, type):
     f = Field(name=name, title=title, order=order, type=type)
@@ -57,6 +58,9 @@ def save_hfi_relation(relation, order):
 
 def save_hfi_function(model, function_name, order):
     return _save_field(function_name, get_function_field_verbose_name(model, function_name), order, HFI_FUNCTION)
+
+def save_hfi_calculated(calculated, title, order):
+    return _save_field(calculated, title, order, HFI_CALCULATED)
 
 def _get_field(columns_get, column, type, order):
     f = columns_get(name=column, type=type)
@@ -92,6 +96,31 @@ def get_hfi_function_or_save(columns_get, model, function, order):
         f = save_hfi_function(model, function, order)
     return f
 
+def _get_hfi_calculated_title(aggregate, calculated_column, model):
+    field_name, sep, aggregate_name = calculated_column.rpartition('__')
+    return u"%s - %s" % (unicode(aggregate.title), get_verbose_field_name(model, field_name))
+
+
+def get_hfi_calculated(columns_get, calculated_column, aggregate, model, order):
+    try:
+        f = _get_field(columns_get, calculated_column, HFI_CALCULATED, order)
+    except Field.DoesNotExist:
+        title = _get_hfi_calculated_title(aggregate, calculated_column, model)
+        f = save_hfi_calculated(calculated_column, title, order)
+    return f
+
+def get_aggregate_fields(fields, model, initial_data=None):
+    authorized_fields = field_aggregation_registry.authorized_fields
+
+    for aggregate in field_aggregation_registry.itervalues():
+        aggregate_title = aggregate.title
+        aggregate_pattern = aggregate.pattern
+
+        choices = [(u"%s" % (aggregate_pattern % f.name), unicode(f.verbose_name)) for f in get_flds_with_fk_flds(model, deep=0) if f.__class__ in authorized_fields]
+        fields[aggregate.name] = MultipleChoiceField(label=_(aggregate_title), required=False, choices=choices, widget=OrderedMultipleChoiceWidget)
+        if initial_data is not None:
+            fields[aggregate.name].initial = initial_data
+
 
 class CreateForm(CremeEntityForm):
     hf     = AjaxModelChoiceField(queryset=HeaderFilter.objects.none(), required=False)
@@ -113,7 +142,11 @@ class CreateForm(CremeEntityForm):
         cts = [ct_get(model) for model in creme_registry.iter_entity_models()]
         cts.sort(key=lambda ct: ct.name)
         fields['ct'].choices = [(ct.id, ct.name) for ct in cts]
+        self.aggregates = list(field_aggregation_registry.itervalues())#Convert to list to reuse it in template
 
+        for aggregate in self.aggregates:
+            fields[aggregate.name] = AjaxMultipleChoiceField(label=_(aggregate.title), required=False, choices=(), widget=OrderedMultipleChoiceWidget)
+            
         #To hande a validation error get ct_id data to rebuild all ?
 
     def clean(self):
@@ -127,9 +160,19 @@ class CreateForm(CremeEntityForm):
         relations     = get_data('relations')
         functions     = get_data('functions')
 
-        _fields_choices = [unicode(fields[f].label) for f in ['columns','custom_fields','relations', 'functions']]
+        aggregates = self.aggregates
 
-        if not hf and not (columns or custom_fields or relations or functions):
+        _fields = ['columns','custom_fields','relations', 'functions']
+        _fields.extend([aggregate.name for aggregate in aggregates])
+        _fields_choices = [unicode(fields[f].label) for f in _fields]
+
+        is_one_aggregate_selected = False
+        for aggregate in aggregates:
+            for data in get_data(aggregate.name):
+                print "data :", data
+                is_one_aggregate_selected |= bool(data)
+
+        if not hf and not (columns or custom_fields or relations or functions or is_one_aggregate_selected):
             raise ValidationError(ugettext(u"You must select an existing view, or at least one field from : %s") % ", ".join(_fields_choices))
 
         return cleaned_data
@@ -184,6 +227,12 @@ class CreateForm(CremeEntityForm):
             for function in functions:
                 report_fields.append(save_hfi_function(model, function, i))
                 i += 1
+
+            for aggregate in self.aggregates:
+                for calculated_column in get_data(aggregate.name):
+                    title = _get_hfi_calculated_title(aggregate, calculated_column, model)
+                    report_fields.append(save_hfi_calculated(calculated_column, title, i))
+                    i += 1
 
         report.columns = report_fields
         report.save()
@@ -252,6 +301,7 @@ class AddFieldToReportForm(CremeForm):
         fields['relations'].initial     = [f.name for f in initial_data[HFI_RELATION]]
         fields['functions'].initial     = [f.name for f in initial_data[HFI_FUNCTION]]
 
+        get_aggregate_fields(fields, model, initial_data=[f.name for f in initial_data[HFI_CALCULATED]])
 
     def save(self):
         get_data = self.cleaned_data.get
@@ -285,6 +335,11 @@ class AddFieldToReportForm(CremeForm):
         for function in functions:
             fields_to_keep.append(get_hfi_function_or_save(columns_get, model, function, i))
             i += 1
+
+        for aggregate in field_aggregation_registry.itervalues():
+            for calculated_column in get_data(aggregate.name):
+                fields_to_keep.append(get_hfi_calculated(columns_get, calculated_column, aggregate, model, i))
+                i += 1
 
         for col in set(report_columns) - set(fields_to_keep):
             col.delete()

@@ -27,8 +27,9 @@ from creme_core.models import CremeEntity, Filter, CremeModel
 from creme_core.models.custom_field import CustomField
 from creme_core.utils.meta import (get_field_infos, get_model_field_infos,
                                    filter_entities_on_ct, get_fk_entity, get_m2m_entities)
-from creme_core.models.header_filter import HFI_FUNCTION, HFI_RELATION, HFI_FIELD, HFI_CUSTOM
+from creme_core.models.header_filter import HFI_FUNCTION, HFI_RELATION, HFI_FIELD, HFI_CUSTOM, HFI_CALCULATED
 
+from reports.report_aggregation_registry import field_aggregation_registry
 
 report_prefix_url   = '/reports'
 report_template_dir = 'reports'
@@ -59,7 +60,7 @@ class Field(CremeModel):
     name      = CharField(_(u'Name of the column'), max_length=100)
     title     = CharField(max_length=100)
     order     = PositiveIntegerField()
-    type      = PositiveSmallIntegerField() #==> {HFI_FIELD, HFI_RELATION, HFI_FUNCTION, HFI_CUSTOM}#Add in choices ?
+    type      = PositiveSmallIntegerField() #==> {HFI_FIELD, HFI_RELATION, HFI_FUNCTION, HFI_CUSTOM, HFI_CALCULATED}#Add in choices ?
     selected  = BooleanField(default=False)
     report    = ForeignKey("Report", blank=True, null=True)
 
@@ -136,7 +137,7 @@ class Field(CremeModel):
 
         return field_dict
 
-    def get_value(self, entity=None, selected=None):
+    def get_value(self, entity=None, selected=None, query=None):
         column_type = self.type
         column_name = self.name
         report = self.report
@@ -232,6 +233,12 @@ class Field(CremeModel):
             except AttributeError:
                 pass
 
+        elif column_type == HFI_CALCULATED and query is not None:
+            field_name, sep, aggregate = column_name.rpartition('__')
+            aggregation = field_aggregation_registry.get(aggregate)
+            if aggregation is not None:
+                return query.aggregate(aggregation.func(field_name)).get(column_name)
+
         return empty_value
 
     def _handle_report_values(self, container, entity=None):
@@ -301,8 +308,8 @@ class Report(CremeEntity):
 
             try:
                 for column in columns:
-                    report, field, children = column.get('report'), column.get('field'), column.get('children') #TODO: useless 'report' and 'children' ??
-                    entity_line.append(field.get_value(entity))
+                    field = column.get('field')
+                    entity_line.append(field.get_value(entity, query=entities))
 
                 lines.append(entity_line)
             except DropLine:

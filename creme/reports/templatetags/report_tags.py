@@ -22,16 +22,17 @@ from django.db.models.fields.related import ForeignKey, ManyToManyField
 from django.utils.translation import ugettext_lazy as _
 
 from creme_core.utils.meta import get_model_field_infos
-from creme_core.models.header_filter import HFI_FIELD, HFI_RELATION, HFI_FUNCTION, HFI_CUSTOM
+from creme_core.models.header_filter import HFI_FIELD, HFI_RELATION, HFI_FUNCTION, HFI_CUSTOM, HFI_CALCULATED
 from creme_core.registry import creme_registry
 
 register = Library()
 
 HFI_TYPE_VERBOSE = {
-    HFI_FIELD    : _(u"Regular field"),
-    HFI_RELATION : _(u"Relation"),
-    HFI_FUNCTION : _(u"Function"),
-    HFI_CUSTOM   : _(u"Custom field"),
+    HFI_FIELD      : _(u"Regular field"),
+    HFI_RELATION   : _(u"Relation"),
+    HFI_FUNCTION   : _(u"Function"),
+    HFI_CUSTOM     : _(u"Custom field"),
+    HFI_CALCULATED : _(u"Calculated value"),
 }
 
 @register.filter(name="is_field_is_linkable")
