@@ -21,36 +21,37 @@
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext
+from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required
 
 from creme_core.entities_access.functions_for_permissions import get_view_or_die, edit_object_or_die
 from creme_core.views.generic import inner_popup
 
-from sms.models import SendList, Recipient
-from sms.forms.recipient import SendListAddRecipientsForm, SendListAddCSVForm
+from sms.models import MessagingList, Recipient
+from sms.forms.recipient import MessagingListAddRecipientsForm, MessagingListAddCSVForm
 
 
 @login_required
 @get_view_or_die('sms')
-def add(request, id):
-    sendlist = get_object_or_404(SendList, pk=id)
+def add(request, mlist_id):
+    messaging_list = get_object_or_404(MessagingList, pk=mlist_id)
 
-    die_status = edit_object_or_die(request, sendlist)
+    die_status = edit_object_or_die(request, messaging_list)
     if die_status:
         return die_status
 
     if request.POST:
-        recip_add_form = SendListAddRecipientsForm(sendlist, request.POST)
+        recip_add_form = MessagingListAddRecipientsForm(messaging_list, request.POST)
 
         if recip_add_form.is_valid():
             recip_add_form.save()
     else:
-        recip_add_form = SendListAddRecipientsForm(sendlist=sendlist)
+        recip_add_form = MessagingListAddRecipientsForm(messaging_list=messaging_list)
 
     return inner_popup(request, 'creme_core/generics/blockform/add_popup2.html',
                        {
                         'form':   recip_add_form,
-                        'title': 'Nouveaux destinataires pour <%s>' % sendlist,
+                        'title': _(u'New recipients for <%s>') % messaging_list,
                        },
                        is_valid=recip_add_form.is_valid(),
                        reload=False,
@@ -59,25 +60,25 @@ def add(request, id):
 
 @login_required
 @get_view_or_die('sms')
-def add_from_csv(request, id):
-    sendlist = get_object_or_404(SendList, pk=id)
+def add_from_csv(request, mlist_id):
+    messaging_list = get_object_or_404(MessagingList, pk=mlist_id)
 
-    die_status = edit_object_or_die(request, sendlist)
+    die_status = edit_object_or_die(request, messaging_list)
     if die_status:
         return die_status
 
     if request.method == 'POST':
-        recip_add_form = SendListAddCSVForm(sendlist, request.POST, request.FILES)
+        recip_add_form = MessagingListAddCSVForm(messaging_list, request.POST, request.FILES)
 
         if recip_add_form.is_valid():
             recip_add_form.save()
     else:
-        recip_add_form = SendListAddCSVForm(sendlist=sendlist)
+        recip_add_form = MessagingListAddCSVForm(messaging_list=messaging_list)
 
     return inner_popup(request, 'creme_core/generics/blockform/add_popup2.html',
                        {
                         'form':   recip_add_form,
-                        'title': 'Nouveaux destinataires pour <%s>' % sendlist,
+                        'title': _(u'New recipients for <%s>') % messaging_list,
                        },
                        is_valid=recip_add_form.is_valid(),
                        context_instance=RequestContext(request))
@@ -85,10 +86,10 @@ def add_from_csv(request, id):
 @login_required
 @get_view_or_die('sms')
 def delete(request):
-    recipient = get_object_or_404(Recipient , pk=request.POST.get('id'))
-    sendlist  = recipient.sendlist
+    recipient      = get_object_or_404(Recipient , pk=request.POST.get('id'))
+    messaging_list = recipient.messaging_list
 
-    die_status = edit_object_or_die(request, sendlist)
+    die_status = edit_object_or_die(request, messaging_list)
     if die_status:
         return die_status
 
@@ -97,4 +98,4 @@ def delete(request):
     if request.is_ajax():
         return HttpResponse("success", mimetype="text/javascript")
 
-    return HttpResponseRedirect(sendlist.get_absolute_url())
+    return HttpResponseRedirect(messaging_list.get_absolute_url())

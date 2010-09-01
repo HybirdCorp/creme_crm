@@ -1,28 +1,30 @@
+{% load i18n %}
 {% load creme_block %}
 {% load sms_tags %}
 <table class="table_detail_view ui-corner-all" id={{block_name}}>
-    {% get_block_header '%s Destinataire manuel' '%s Destinataires manuels' %}
+    {% get_block_header _('%s Unlinked recipient') _('%s Unlinked recipients') %}
 
     <tbody class="collapsable">
         <tr>
             <th colspan="4" class="block_header_line_dark" align="left">
-                {% comment %}<a class="button_link" onclick="creme.utils.showInnerPopup('/sms/sendlist/{{object.pk}}/recipient/add')">{% endcomment %}
-                <a class="button_link" onclick="creme.utils.innerPopupNReload('/sms/sendlist/{{object.pk}}/recipient/add', '{{update_url}}?base_url={{base_url}}');">
-                    <img src="{{MEDIA_URL}}images/add_22.png" border="0" title="Ajouter manuellement" alt="Ajouter" />Ajouter à la main
+                {% comment %}<a class="button_link" onclick="creme.utils.showInnerPopup('/sms/messaging_list/{{object.pk}}/recipient/add')">{% endcomment %}
+                <a class="button_link" onclick="creme.utils.innerPopupNReload('/sms/messaging_list/{{object.pk}}/recipient/add', '{{update_url}}?base_url={{base_url}}');">
+                    <img src="{{MEDIA_URL}}images/add_22.png" border="0" title="{% trans "Add manually" %}" alt="{% trans "Add manually" %}" />
+                    {% trans "Add manually" %}
                 </a>
-                {% comment %}<a class="button_link" onclick="window.open('/sms/sendlist/{{object.pk}}/recipient/add_csv','add_link','menubar=no, status=no, scrollbars=no, menubar=no, width=600, height=400')">
+                {% comment %}<a class="button_link" onclick="window.open('/sms/messaging_list/{{object.pk}}/recipient/add_csv','add_link','menubar=no, status=no, scrollbars=no, menubar=no, width=600, height=400')">
                     <img src="{{MEDIA_URL}}images/add_22.png" border="0" title="Ajouter CSV" alt="Ajouter" />Ajouter à partir d'un CSV
                 </a>{% endcomment %}
-                <a class="button_link" onclick="creme.utils.iframe_inner_popup('/sms/sendlist/{{object.pk}}/recipient/add_csv');">
-                    <img src="{{MEDIA_URL}}images/add_22.png" border="0" title="Ajouter CSV" alt="Ajouter" />Ajouter à partir d'un CSV
+                <a class="button_link" onclick="creme.utils.iframe_inner_popup('/sms/messaging_list/{{object.pk}}/recipient/add_csv');">
+                    <img src="{{MEDIA_URL}}images/add_22.png" border="0" title="{% trans "Add from a CSV file" %}" alt="{% trans "Add from a CSV file" %}" />
+                    {% trans "Add from a CSV file" %}
                 </a>
             </th>
         </tr>
-
         {% if page.paginator.count %}
             <tr>
-                <th class="block_header_line_dark">Numéro</th>
-                <th class="block_header_line_dark">Supprimer</th>
+                <th class="block_header_line_dark">{% trans "Number" %}</th>
+                <th class="block_header_line_dark">{% trans "Delete" %}</th>
             </tr>
 
             {% for recipient in page.object_list %}
@@ -30,13 +32,13 @@
                 <tr>
                     <td class="{{row_color}}">{{recipient.phone|formatphone}}</td>
                     <td class="{{row_color}}" align="center" valign="center" style="width:10%;">
-                        {% get_line_deletor at_url '/sms/sendlist/recipient/delete' with_args "{'id':{{recipient.pk}} }" %}
+                        {% get_line_deletor at_url '/sms/messaging_list/recipient/delete' with_args "{'id':{{recipient.pk}} }" %}
                     </td>
                 </tr>
             {% endfor %}
         {% else %}
             <tr>
-                <td class="block_line_dark">Aucun destinataire pour le moment</td>
+                <td class="block_line_dark">{% trans "No unlinked recipient for the moment" %}</td>
             </tr>
         {% endif %}
     </tbody>

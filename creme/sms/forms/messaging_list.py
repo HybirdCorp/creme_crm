@@ -26,13 +26,14 @@ from creme_core.models import Filter
 from creme_core.forms import CremeEntityForm, CremeForm, FieldBlockManager
 from creme_core.forms.fields import MultiCremeEntityField, CremeEntityField
 
-from persons.models import Contact#, Organisation
+from persons.models import Contact
 
-from sms.models.sendlist import SendList
+from sms.models import MessagingList
 
-class SendListForm(CremeEntityForm):
+
+class MessagingListForm(CremeEntityForm):
     class Meta:
-        model  = SendList
+        model = MessagingList
         fields = ('user', 'name')
 
 
@@ -40,51 +41,31 @@ class AddContactsForm(CremeForm):
     recipients = MultiCremeEntityField(label=_(u'Contacts'),
                                        required=False, model=Contact) # other filter (name + email)??
 
-    blocks = FieldBlockManager(('general', _(u'Contacts destinataires'), '*'))
+    blocks = FieldBlockManager(('general', _(u'Contacts recipients'), '*'))
 
-    def __init__(self, sendlist, *args, **kwargs):
+    def __init__(self, messaging_list, *args, **kwargs):
         super(AddContactsForm, self).__init__(*args, **kwargs)
-        self.sendlist = sendlist
+        self.messaging_list = messaging_list
 
     def save(self):
-        contacts = self.sendlist.contacts
+        contacts = self.messaging_list.contacts
 
         #TODO: check if email if ok ????
         for contact in self.cleaned_data['recipients']:
             contacts.add(contact)
 
 
-#class AddOrganisationsForm(CremeForm):
-#    recipients = MultiCremeEntityField(label=_(u'Sociétés'),
-#                                       required=False, model=Organisation,
-#                                       widget=ListViewWidget(model=Organisation, attrs={'o2m': False})) # other filter (name + email)??
-#
-#    blocks = FieldBlockManager(('general', _(u'Sociétés destinataires'), '*'))
-#
-#    def __init__(self, sendlist, *args, **kwargs):
-#        super(AddOrganisationsForm, self).__init__(*args, **kwargs)
-#        self.sendlist = sendlist
-#
-#    def save(self):
-#        organisations = self.sendlist.organisations
-#
-#        #TODO: check if email if ok ????
-#        for organisation in self.cleaned_data['recipients']:
-#            organisations.add(organisation)
-
-
 class AddPersonsFromFilterForm(CremeForm): #private class ???
-    #filter_ = ModelChoiceField(label=_(u'Filtres'), queryset=Filter.objects.filter(model_ct=ContentType.objects.get_for_model(Contact)))
     #NB: itseems empty_value can not be set to 'All' with a ModelChoiceField --> ChoiceField
-    filters = ChoiceField(label=_(u'Filtres'), choices=())
+    filters = ChoiceField(label=_(u'Filters'), choices=())
 
     person_model = None #Contact/Organisation
 
-    def __init__(self, sendlist, *args, **kwargs):
+    def __init__(self, messaging_list, *args, **kwargs):
         super(AddPersonsFromFilterForm, self).__init__(*args, **kwargs)
-        self.sendlist = sendlist
+        self.messaging_list = messaging_list
 
-        choices = [(0, _(u'Tout'))]
+        choices = [(0, _(u'All'))]
 
         ct = ContentType.objects.get_for_model(self.person_model)
         choices.extend(Filter.objects.filter(model_ct=ct).values_list('id', 'name'))
@@ -104,24 +85,15 @@ class AddPersonsFromFilterForm(CremeForm): #private class ???
         else:
             new_persons = self.person_model.objects.all()
 
-        #TODO: check if email if ok ????
+        #TODO: check if phone number is ok ????
         for person in new_persons:
             persons.add(person)
 
 
 class AddContactsFromFilterForm(AddPersonsFromFilterForm):
-    blocks = FieldBlockManager(('general', _(u'Contacts destinataires'), '*'))
+    blocks = FieldBlockManager(('general', _(u'Contacts recipients'), '*'))
 
     person_model = Contact
 
     def get_persons_m2m(self):
-        return self.sendlist.contacts
-
-
-#class AddOrganisationsFromFilterForm(AddPersonsFromFilterForm):
-#    blocks = FieldBlockManager(('general', _(u'Organisations destinataires'), '*'))
-#
-#    person_model = Organisation
-#
-#    def get_persons_m2m(self):
-#        return self.sendlist.organisations
+        return self.messaging_list.contacts

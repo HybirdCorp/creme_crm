@@ -21,6 +21,7 @@
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.template import RequestContext
+from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required
 from django.contrib.contenttypes.models import ContentType
 
@@ -28,7 +29,7 @@ from creme_core.entities_access.functions_for_permissions import get_view_or_die
 from creme_core.views.generic import add_entity, edit_entity, view_entity_with_template, list_view, inner_popup
 
 from sms.models import SMSCampaign
-from sms.forms.campaign import CampaignCreateForm, CampaignEditForm, CampaignAddSendListForm
+from sms.forms.campaign import CampaignCreateForm, CampaignEditForm, CampaignAddListForm
 
 
 @login_required
@@ -37,8 +38,8 @@ from sms.forms.campaign import CampaignCreateForm, CampaignEditForm, CampaignAdd
 def add(request):
     return add_entity(request, CampaignCreateForm)
 
-def edit(request, id):
-    return edit_entity(request, id, SMSCampaign, CampaignEditForm, 'sms')
+def edit(request, campaign_id):
+    return edit_entity(request, campaign_id, SMSCampaign, CampaignEditForm, 'sms')
 
 # TODO : perhaps more reliable to forbid delete for campaigns with sendings.
 @login_required
@@ -57,8 +58,8 @@ def delete(request, id):
 
 @login_required
 @get_view_or_die('sms')
-def detailview(request, id):
-    return view_entity_with_template(request, id, SMSCampaign,
+def detailview(request, campaign_id):
+    return view_entity_with_template(request, campaign_id, SMSCampaign,
                                      '/sms/campaign', 'sms/view_campaign.html')
 
 @login_required
@@ -68,7 +69,7 @@ def listview(request):
 
 @login_required
 @get_view_or_die('sms')
-def add_sendlist(request, id):
+def add_messaging_list(request, id):
     campaign = get_object_or_404(SMSCampaign, pk=id)
 
     die_status = edit_object_or_die(request, campaign)
@@ -76,17 +77,17 @@ def add_sendlist(request, id):
         return die_status
 
     if request.POST:
-        ml_add_form = CampaignAddSendListForm(campaign, request.POST)
+        ml_add_form = CampaignAddListForm(campaign, request.POST)
 
         if ml_add_form.is_valid():
             ml_add_form.save()
     else:
-        ml_add_form = CampaignAddSendListForm(campaign=campaign)
+        ml_add_form = CampaignAddListForm(campaign=campaign)
 
     return inner_popup(request, 'creme_core/generics/blockform/add_popup2.html',
                        {
                         'form':   ml_add_form,
-                        'title': 'Nouvelles listes de diffusion pour <%s>' % campaign,
+                        'title': _(u'New messaging lists for <%s>') % campaign,
                        },
                        is_valid=ml_add_form.is_valid(),
                        reload=False,
@@ -95,14 +96,14 @@ def add_sendlist(request, id):
 
 @login_required
 @get_view_or_die('sms')
-def delete_sendlist(request, campaign_id):
+def delete_messaging_list(request, campaign_id):
     campaign = get_object_or_404(SMSCampaign, pk=campaign_id)
 
     die_status = edit_object_or_die(request, campaign)
     if die_status:
         return die_status
 
-    campaign.sendlists.remove(request.POST.get('id'))
+    campaign.lists.remove(request.POST.get('id'))
 
     if request.is_ajax():
         return HttpResponse("", mimetype="text/javascript")

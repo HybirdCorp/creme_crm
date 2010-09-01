@@ -718,7 +718,7 @@ msgstr "Ajouter à la main"
 
 #: templates/emails/templatetags/block_recipients.html:13
 #: templates/emails/templatetags/block_recipients.html:14
-msgid "Add froma CSV file"
+msgid "Add from a CSV file"
 msgstr "Ajouter à partir d'un fichier CSV"
 
 #: templates/emails/templatetags/block_recipients.html:34

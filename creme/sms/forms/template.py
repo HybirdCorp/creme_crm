@@ -21,23 +21,21 @@
 from django.forms import CharField
 from django.forms.util import ValidationError
 from django.forms.widgets import Textarea
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import ugettext_lazy as _, ugettext
 
 from creme_core.forms import CremeEntityForm
 
 from sms.encoding import gsm_encoded_content, SMS_MAX_LENGTH
 from sms.models import MessageTemplate
 
+_HELP = _(u"Message with a maximum of 160 characters."
+" Beware, the header matters (+ 3 characters) et the following characters count double: ^ { } \\ [ ~ ] | €")
 
 class TemplateCreateForm(CremeEntityForm):
-    body   = CharField(label=_(u'Message'), widget=Textarea(),
-                       help_text=_(u"Message de 160 caractères maximums. Attention, l'en-tête compte (+ 3 caractères) et les caractères suivant comptent double: ^ { } \\ [ ~ ] | €"))
+    body   = CharField(label=_(u'Message'), widget=Textarea(), help_text=_HELP)
 
     class Meta(CremeEntityForm.Meta):
         model = MessageTemplate
-
-    #def __init__(self, *args, **kwargs):
-        #super(TemplateCreateForm, self).__init__(*args, **kwargs)
 
     def clean(self):
         cleaned_data = self.cleaned_data
@@ -48,7 +46,8 @@ class TemplateCreateForm(CremeEntityForm):
         encoded_length = len(gsm_encoded_content(content))
 
         if encoded_length > SMS_MAX_LENGTH:
-            raise ValidationError(_('Message trop long (%(length)s > %(max_length)s)') % {'length': encoded_length, 'max_length': SMS_MAX_LENGTH})
+            raise ValidationError(ugettext('Message is too long (%(length)s > %(max_length)s)') % {
+                                    'length': encoded_length, 'max_length': SMS_MAX_LENGTH})
 
         return cleaned_data
 
