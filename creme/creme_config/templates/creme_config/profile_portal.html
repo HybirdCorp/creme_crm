@@ -1,17 +1,13 @@
 {% extends "creme_config/portal.html" %}
-
+{% load i18n %}
 {% load creme_core_tags %}
 
 {% block title %}
-    <a href="/creme_config/">Configuration > </a>
-    Profils
+    <a href="/creme_config/">{% trans "Configuration" %} > </a>{% trans "Profiles" %}
 {% endblock %}
 
 {% block before_statistics %}
-<!--
-    {% cycle "block_line_light" "block_line_dark" as row_color %}
--->
-
+    <!--{% cycle "block_line_light" "block_line_dark" as row_color %}-->
     <form action="" method="POST">
         <div>
             Voir uniquement les rôles :&nbsp;
@@ -22,7 +18,6 @@
                 {% endfor %}
             </select>
         </div>
-
         <div id="profiles_list" class="configuration">
             <table class="table_detail_view ui-corner-all">
                 <thead>
@@ -36,21 +31,19 @@
                     <tr>
                         <th class="block_header_line_light" style="font-size:14px;" align="left" colspan="6">
                             <a class="button_link" href="/creme_config/profile/add/">
-                                <img src="{{MEDIA_URL}}images/add_22.png" border="0" alt="Ajouter"/>
-                                Nouveau profil
+                                <img src="{{MEDIA_URL}}images/add_22.png" border="0" alt="{% trans "New profile" %}"/>
+                                {% trans "New profile" %}
                             </a>
                         </th>
                     </tr>
-
                     {% if profiles %}
                         <tr>
-                            <th class="block_header_line_light">Utilisateur</th>
-                            <th class="block_header_line_light">Rôle</th>
-                            <th class="block_header_line_light">Fiche contact de l'utilisateur</th>
-                            <th class="block_header_line_light">Éditer</th>
-                            <th class="block_header_line_light">Supprimer</th>
+                            <th class="block_header_line_light">{% trans "User" %}</th>
+                            <th class="block_header_line_light">{% trans "Role" %}</th>
+                            <th class="block_header_line_light">{% trans "Contact page of the user" %}</th>
+                            <th class="block_header_line_light">{% trans "Edit" %}</th>
+                            <th class="block_header_line_light">{% trans "Delete" %}</th>
                         </tr>
-
                         {% for profile in profiles %}
                             <!--{% cycle row_color %}-->
                             <tr>
@@ -69,19 +62,19 @@
                                 </td>
                                 <td class="{{row_color}}">
                                     <a href="/creme_config/profile/edit/{{profile.id}}">
-                                        <img src="{{MEDIA_URL}}images/edit_22.png" border="0" title="Éditer" alt="Éditer">
+                                        <img src="{{MEDIA_URL}}images/edit_22.png" border="0" title="{% trans "Edit" %}" alt="{% trans "Edit" %}">
                                     </a>
                                 </td>
                                 <td class="{{row_color}}">
                                     <a href="/creme_config/profile/delete/{{profile.id}}">
-                                        <img src="{{MEDIA_URL}}images/delete_22.png" border="0" title="Supprimer" alt="Supprimer">
+                                        <img src="{{MEDIA_URL}}images/delete_22.png" border="0" title="{% trans "Delete" %}" alt="{% trans "Delete" %}">
                                     </a>
                                 </td>
                             </tr>
                         {% endfor %}
                     {% else %}
                         <tr>
-                            <td class="block_line_dark">Aucun profil enregistré pour le moment</td>
+                            <td class="block_line_dark">{% trans "No profile for the moment" %}</td>
                         </tr>
                     {% endif %}
                 </tbody>

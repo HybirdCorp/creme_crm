@@ -1,20 +1,17 @@
 {% extends "creme_config/portal.html" %}
+{% load i18n %}
 
 {% block title %}
-    <a href="/creme_config/">Configuration > </a>Application: {{app_name|title}}
+    <a href="/creme_config/">{% trans "Configuration" %} > </a>{% trans "Application" %}: {{app_name|title}}
 {% endblock %}
 
-
 {% block before_statistics %}
-    <!--
-        {% cycle "block_line_light" "block_line_dark" as row_color %}
-    -->
-
+    <!--{% cycle "block_line_light" "block_line_dark" as row_color %}-->
     <table class="table_detail_view ui-corner-all">
         <thead>
             <tr>
                 <th colspan="100">
-                    {{app_config|length}} Type{{app_config|pluralize:"s"}} configurable{{app_config|pluralize:"s"}}
+                    {% blocktrans count app_config|length as app_count %}{{app_count}} Configurable type{% plural %}{{app_count}} Configurable types{% endblocktrans %}
                 </th>
             </tr>
         </thead>
@@ -27,7 +24,7 @@
                 </tr>
             {% empty %}
                 <tr>
-                    <td class="{% cycle row_color %}">Aucun type ne nécessite de configuration</td>
+                    <td class="{% cycle row_color %}">{% trans "No type requires configuration" %}</td>
                 </tr>
             {% endfor %}
         </tbody>

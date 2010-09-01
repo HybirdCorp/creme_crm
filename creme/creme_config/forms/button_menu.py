@@ -37,8 +37,8 @@ _PREFIX = 'creme_config-userbmi'
 
 
 class ButtonMenuAddForm(CremeForm):
-    ct_id = ChoiceField(label=_(u'Resource associée'), choices=(), required=True,
-                        help_text=_(u'Les boutons associés à ce type de ressource seront choisis en éditant la configuration'))
+    ct_id = ChoiceField(label=_(u'Related resource'), choices=(), required=True,
+                        help_text=_(u'The buttons related to this type of resource will be chosen by editing the configuration'))
 
     def __init__(self, *args, **kwargs):
         super(ButtonMenuAddForm, self).__init__(*args, **kwargs)
@@ -53,7 +53,7 @@ class ButtonMenuAddForm(CremeForm):
 
 
 class ButtonMenuEditForm(CremeForm):
-    button_ids = MultipleChoiceField(label=_(u'Boutons à afficher'), required=False,
+    button_ids = MultipleChoiceField(label=_(u'Buttons to display'), required=False,
                                     choices=(), widget=OrderedMultipleChoiceWidget)
 
     def __init__(self, button_menu_items, ct_id, *args, **kwargs):

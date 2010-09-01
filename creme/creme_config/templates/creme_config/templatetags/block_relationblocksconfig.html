@@ -1,20 +1,21 @@
+{% load i18n %}
 {% load creme_block %}
 <table class="table_detail_view ui-corner-all" id={{block_name}}>
     <!--{% cycle "block_line_light" "block_line_dark" as row_color %}-->
-    {% get_block_header '%s Type de bloc de relation crée' '%s Types de bloc de relation crées' %}
+    {% get_block_header _('%s Type of relation block created') _('%s Types of relation block created') %}
     <tbody class="collapsable">
         <tr>
             <th class="block_header_line_light" style="font-size:14px;" align="left" colspan="100">
                 <a class="button_link" href="/creme_config/relation_block/add/">
-                    <img src="{{MEDIA_URL}}images/add_22.png" border="0" alt="Ajouter un type de bloc de relation"/>
-                    Nouveau type de bloc
+                    <img src="{{MEDIA_URL}}images/add_22.png" border="0" alt="{% trans "New type of block" %}"/>
+                    {% trans "New type of block" %}
                 </a>
             </th>
         </tr>
         {% if page.paginator.count %}
             <tr>
-                <th class="block_header_line_light">Type de relation associée</th>
-                <th class="block_header_line_light">Supprimer</th>
+                <th class="block_header_line_light">{% trans "Related type of relation" %}</th>
+                <th class="block_header_line_light">{% trans "Delete" %}</th>
             </tr>
             {% for block_type in page.object_list %}
                 <!--{% cycle row_color %}-->
@@ -29,7 +30,7 @@
             {% endfor %}
         {% else %}
             <tr>
-                <td colspan="2" class="block_line_dark">Aucun type de bloc de relation créé pour le moment</td>
+                <td colspan="2" class="block_line_dark">{% trans "No type of relation block created for the moment" %}</td>
             </tr>
         {% endif %}
     </tbody>
