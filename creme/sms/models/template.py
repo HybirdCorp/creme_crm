@@ -25,14 +25,14 @@ from creme_core.models import CremeEntity
 
 
 class MessageTemplate(CremeEntity):
-    name    = CharField(_(u'Nom'), max_length=100)
-    subject = CharField(_(u'Sujet'), max_length=100)
-    body    = TextField(_(u"Corps"))
+    name    = CharField(_(u'Name'), max_length=100)
+    subject = CharField(_(u'Subject'), max_length=100)
+    body    = TextField(_(u"Body"))
 
     class Meta:
         app_label = "sms"
-        verbose_name = _(u"Patron de message")
-        verbose_name_plural = _(u"Patrons de message")
+        verbose_name = _(u"Message template")
+        verbose_name_plural = _(u"Messages templates")
 
     def __unicode__(self):
         return self.name

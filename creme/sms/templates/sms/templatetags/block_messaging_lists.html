@@ -1,0 +1,38 @@
+{% load i18n %}
+{% load creme_block %}
+<table class="table_detail_view ui-corner-all" id={{block_name}}>
+    {% get_block_header _('%s Related messaging list') _('%s Related messaging lists') 'sms_48.png' _('Messaging list') %}
+    <tbody class="collapsable">
+        <tr>
+            <th colspan="4" class="block_header_line_dark" align="left">
+                {% comment %}<a class="button_link" onclick="creme.utils.showInnerPopup('/sms/campaign/{{object.pk}}/messaging_list/add')">{% endcomment %}
+                <a class="button_link" onclick="creme.utils.innerPopupNReload('/sms/campaign/{{object.pk}}/messaging_list/add', '{{update_url}}?base_url={{base_url}}');">
+                    <img src="{{MEDIA_URL}}images/add_22.png" border="0" title="{% trans "Add lists" %}" alt="{% trans "Add lists" %}" />
+                    {% trans "Add existing messaging lists" %}
+                </a>
+            </th>
+        </tr>
+        {% if page.paginator.count %}
+            <tr>
+                <th class="block_header_line_dark">{% trans "Name of the list" %}</th>
+                <th class="block_header_line_dark">{% trans "Delete" %}</th>
+            </tr>
+            {% for mlist in page.object_list %}
+                <!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
+                <tr>
+                    <td class="{{row_color}}">
+                        <a href="{{mlist.get_absolute_url}}">{{mlist.name}}</a>
+                    </td>
+                    <td class="{{row_color}}" align="center" valign="center" style="width:10%;">
+                        {% get_line_deletor at_url '/sms/campaign/{{object.pk}}/messaging_list/delete' with_args "{'id':'{{mlist.id}}' }" %}
+                    </td>
+                </tr>
+            {% endfor %}
+        {% else %}
+            <tr>
+                <td class="block_line_dark">{% trans "No related messaging list for the moment" %}</td>
+            </tr>
+        {% endif %}
+    </tbody>
+    {% include 'creme_core/templatetags/widgets/block_footer.html' %}
+</table>

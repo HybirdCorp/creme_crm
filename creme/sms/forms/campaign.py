@@ -21,18 +21,16 @@
 from django.forms import ValidationError
 from django.forms.fields import CharField
 from django.forms.widgets import Textarea
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import ugettext_lazy as _, ugettext
 
 from creme_core.forms import CremeEntityForm, CremeForm, FieldBlockManager
 from creme_core.forms.fields import MultiCremeEntityField
 
-from sms.models.campaign import SMSCampaign
-from sms.models.sendlist import SendList
+from sms.models import SMSCampaign, MessagingList
 
 
 class CampaignCreateForm(CremeEntityForm):
-    sendlists = MultiCremeEntityField(label=_(u'Listes de diffusion associées'),
-                                      required=False, model=SendList)
+    messaging_lists = MultiCremeEntityField(label=_(u'Related messaging lists'), required=False, model=MessagingList)
 
     class Meta(CremeEntityForm.Meta):
         model = SMSCampaign
@@ -41,32 +39,31 @@ class CampaignCreateForm(CremeEntityForm):
 class CampaignEditForm(CremeEntityForm):
     class Meta:
         model   = SMSCampaign
-        exclude = CremeEntityForm.Meta.exclude + ('sendlists',)
+        exclude = CremeEntityForm.Meta.exclude + ('messaging_lists',)
 
 
-class CampaignAddSendListForm(CremeForm):
-    sendlists = MultiCremeEntityField(label=_(u'Listes'),
-                                      required=False, model=SendList)
+class CampaignAddListForm(CremeForm):
+    messaging_lists = MultiCremeEntityField(label=_(u'Lists'), required=False, model=MessagingList)
 
-    blocks = FieldBlockManager(('general', _(u'Listes de diffusion'), '*'))
+    blocks = FieldBlockManager(('general', _(u'Messaging lists'), '*'))
 
     def __init__(self, campaign, *args, **kwargs):
-        super(CampaignAddSendListForm, self).__init__(*args, **kwargs)
+        super(CampaignAddListForm, self).__init__(*args, **kwargs)
         self.campaign = campaign
 
     #in fact duplicate is not a problem with django's m2m
     def clean_lists(self):
-        sendlists = self.cleaned_data['sendlists']
-        current_lists   = frozenset(self.campaign.sendlists.values_list('pk', flat=True))
-        duplicate     = [sendlist for sendlist in sendlists if sendlist.id in current_lists]
+        messaging_lists = self.cleaned_data['messaging_lists']
+        current_lists   = frozenset(self.campaign.lists.values_list('pk', flat=True))
+        duplicate       = [mlist for mlist in messaging_lists if mlist.id in current_lists]
 
         if duplicate:
-            raise ValidationError(u"La(es) liste(s) suivante(s) est déja présente dans la campagne: " #i8n....
-                                  + u', '.join(sendlist.name for sendlist in duplicate))
+            raise ValidationError(ugettext(u"Following lists are already related to this campaign: %s") %
+                                  u', '.join(mlist.name for mlist in duplicate))
 
-        return sendlists
+        return messaging_lists
 
     def save(self):
-        add_sendlist = self.campaign.sendlists.add
-        for sendlist in self.cleaned_data['sendlists']:
-            add_sendlist(sendlist)
+        add_mlist = self.campaign.lists.add
+        for mlist in self.cleaned_data['messaging_lists']:
+            add_mlist(mlist)

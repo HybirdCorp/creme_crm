@@ -29,13 +29,13 @@ PHONE_LIST_REGEX = '^[\s]*[\+]{0,1}([\d]+[\s\.\-,]*)+[\s]*([%s]{0,1}[\s]*[\+]{0,
 class PhoneField(RegexField):
     def __init__(self, max_length=None, min_length=None, error_message=None, *args, **kwargs):
         super(PhoneField, self).__init__(PHONE_REGEX, max_length, min_length, error_message, *args, **kwargs)
-        
+
     def clean(self, value):
         value = super(RegexField, self).clean(value)
-        
+
         if value and not self.regex.search(value):
             raise ValidationError(self.error_messages['invalid'])
-        
+
         return PhoneField.filternumbers(value)
 
     @staticmethod

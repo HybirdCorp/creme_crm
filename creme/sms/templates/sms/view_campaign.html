@@ -1,14 +1,14 @@
 {% extends "creme_core/generics/view_entity.html" %}
-
+{% load i18n %}
 {% load creme_block %}
 
-{% block logo %}<img src="{{MEDIA_URL}}images/sms_64.png" alt=""/>{% endblock %}
+{% block logo %}<img src="{{MEDIA_URL}}images/sms_64.png" alt="{% trans "Campaign" %}"/>{% endblock %}
 
 {% block creme_blocks_import %}
     {{block.super}}
 
     {% import_block from_app 'sms' named 'sendings' as 'sendings_block' %}
-    {% import_block from_app 'sms' named 'sendlists' as 'sendlists_block' %}
+    {% import_block from_app 'sms' named 'messaging_lists' as 'messaging_lists_block' %}
 {% endblock %}
 
 {% block before_detail_view_1 %}
@@ -16,5 +16,5 @@
 {% endblock %}
 
 {% block after_object_as_table_1 %}
-    {% display_block_detailview 'sendlists_block' %}
+    {% display_block_detailview 'messaging_lists_block' %}
 {% endblock %}
