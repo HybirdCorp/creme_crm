@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-08-30 16:47+0200\n"
+"POT-Creation-Date: 2010-09-01 11:52+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -19,19 +19,19 @@ msgstr ""
 msgid "Columns of the report"
 msgstr "Colonnes du rapport"
 
-#: creme_core_register.py:34 models/report.py:252
+#: creme_core_register.py:33 models/report.py:262
 msgid "Reports"
 msgstr "Rapports"
 
-#: creme_core_register.py:42
+#: creme_core_register.py:38
 msgid "Portal"
 msgstr "Portail"
 
-#: creme_core_register.py:43
+#: creme_core_register.py:39
 msgid "All reports"
 msgstr "Liste des rapports"
 
-#: creme_core_register.py:44
+#: creme_core_register.py:40
 msgid "Add a report"
 msgstr "Ajouter un rapport"
 
@@ -43,98 +43,101 @@ msgstr "Vue de Rapport"
 msgid "Name"
 msgstr "Nom"
 
-#: populate.py:42 models/report.py:245
+#: populate.py:42 models/report.py:255
 msgid "Entity type"
 msgstr "Type d'entité"
 
-#: forms/report.py:44 forms/report.py:188
+#: report_aggregation_registry.py:54
+msgid "Average"
+msgstr "Moyenne"
+
+#: report_aggregation_registry.py:55
+msgid "Minimum"
+msgstr "Minimum"
+
+#: report_aggregation_registry.py:56
+msgid "Maximum"
+msgstr "Maximum"
+
+#: report_aggregation_registry.py:57
+msgid "Sum"
+msgstr "Somme"
+
+#: forms/report.py:126
+msgid " "
+msgstr " "
+
+#: forms/report.py:127 models/report.py:257
+msgid "Filter"
+msgstr "Filtre"
+
+#: forms/report.py:129 forms/report.py:282
 msgid "Regular fields"
 msgstr "Champs normaux"
 
-#: forms/report.py:45 forms/report.py:189
+#: forms/report.py:130 forms/report.py:283
 msgid "Custom fields"
 msgstr "Champs personnalisés"
 
-#: forms/report.py:46 forms/report.py:190
+#: forms/report.py:131 forms/report.py:284
 msgid "Relations"
 msgstr "Relations"
 
-#: forms/report.py:47 forms/report.py:191
+#: forms/report.py:132 forms/report.py:285
 msgid "Functions"
 msgstr "Fonctions"
 
-#: forms/report.py:77
+#: forms/report.py:135
+msgid "Select from a existing view : "
+msgstr "Sélectionnez à partir d'une vue de liste existante : "
+
+#: forms/report.py:136
+msgid "Or"
+msgstr "Ou"
+
+#: forms/report.py:137
+msgid "Calculated values"
+msgstr "Valeurs calculées"
+
+#: forms/report.py:182
 #, python-format
 msgid "You must select an existing view, or at least one field from : %s"
 msgstr ""
 "Vous devez sélectionner soit une vue existante, soit au moins un champs "
 "parmi : %s"
 
-#: forms/report.py:161
+#: forms/report.py:257
 msgid "All"
 msgstr "Tout"
 
-#: forms/report.py:171
+#: forms/report.py:267
 msgid "Sub-report linked to the column"
 msgstr "Sous-rapport lié à la colonne"
 
-#: models/report.py:59
+#: models/report.py:60
 msgid "Name of the column"
 msgstr "Nom de la colonne"
 
-#: models/report.py:68
+#: models/report.py:69
 msgid "Column of report"
 msgstr "Colonne de rapport"
 
-#: models/report.py:69
+#: models/report.py:70
 msgid "Columns of report"
 msgstr "Colonnes de rapport"
 
-#: models/report.py:244
+#: models/report.py:254
 msgid "Name of the report"
 msgstr "Nom du rapport"
 
-#: models/report.py:246
+#: models/report.py:256
 msgid "Displayed columns"
 msgstr "Colonnes affichées"
 
-#: models/report.py:247
-msgid "Filter"
-msgstr "Filtre"
-
-#: models/report.py:251 templates/reports/preview_report.html:13
+#: models/report.py:261 templates/reports/preview_report.html:13
 #: templates/reports/view_report.html:8
 msgid "Report"
 msgstr "Rapport"
-
-#: templates/reports/add_report.html:48
-#: templates/reports/templatetags/block_report_fields.html:18
-msgid "Add"
-msgstr "Ajouter"
-
-#: templates/reports/add_report.html:57 templates/reports/add_report.html:59
-msgid "New report"
-msgstr "Nouveau rapport"
-
-#: templates/reports/add_report.html:74
-msgid "Fields marked with * are required."
-msgstr "Les champs suivis d'un * sont obligatoires."
-
-#: templates/reports/add_report.html:80
-msgid "Global errors"
-msgstr "Erreurs globales"
-
-#: templates/reports/add_report.html:157
-msgid "Select from a existing view : "
-msgstr "Sélectionnez à partir d'une vue de liste existante : "
-
-#: templates/reports/add_report.html:170
-msgid "Choose your columns : "
-msgstr "Choisissez vos colonnes : "
-
-#: templates/reports/add_report.html:222
-msgid "Submit"
-msgstr "Envoyer"
 
 #: templates/reports/preview_report.html:8
 #, python-format
@@ -183,6 +186,10 @@ msgstr "Aperçu"
 #: templates/reports/templatetags/block_report_fields.html:17
 msgid "Add a column"
 msgstr "Ajouter une colonne"
+
+#: templates/reports/templatetags/block_report_fields.html:18
+msgid "Add"
+msgstr "Ajouter"
 
 #: templates/reports/templatetags/block_report_fields.html:19
 #: templates/reports/templatetags/block_report_fields.html:20
@@ -267,16 +274,20 @@ msgstr "Fonction"
 msgid "Custom field"
 msgstr "Champ personalisé"
 
+#: templatetags/report_tags.py:35
+msgid "Calculated value"
+msgstr "Valeur calculée"
+
 #: views/portal.py:33
 msgid "Number of reports"
 msgstr "Nombre de rapport(s)"
 
-#: views/report.py:93
+#: views/report.py:95
 #, python-format
 msgid "Link of the column <%s>"
 msgstr "Liaison de la colonne <%s>"
 
-#: views/report.py:151
+#: views/report.py:153
 #, python-format
 msgid "Adding column to <%s>"
 msgstr "Ajout de colonne à <%s>"

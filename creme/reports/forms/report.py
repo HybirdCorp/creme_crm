@@ -123,13 +123,19 @@ def get_aggregate_fields(fields, model, initial_data=None):
 
 
 class CreateForm(CremeEntityForm):
-    hf     = AjaxModelChoiceField(queryset=HeaderFilter.objects.none(), required=False)
-    filter = AjaxModelChoiceField(queryset=Filter.objects.none(), required=False)
+    hf     = AjaxModelChoiceField(label=_(u" "), queryset=HeaderFilter.objects.none(), required=False)
+    filter = AjaxModelChoiceField(label=_(u"Filter"), queryset=Filter.objects.none(), required=False)
 
     columns       = AjaxMultipleChoiceField(label=_(u'Regular fields'),required=False, choices=(), widget=OrderedMultipleChoiceWidget)
     custom_fields = AjaxMultipleChoiceField(label=_(u'Custom fields'), required=False, choices=(), widget=OrderedMultipleChoiceWidget)
     relations     = AjaxMultipleChoiceField(label=_(u'Relations'),     required=False, choices=(), widget=OrderedMultipleChoiceWidget)
     functions     = AjaxMultipleChoiceField(label=_(u'Functions'),     required=False, choices=(), widget=OrderedMultipleChoiceWidget)
+
+    blocks = CremeEntityForm.blocks.new(
+        ('hf_block',         _(u'Select from a existing view : '), ['hf']),
+        ('fields_block',     _(u'Or'), ['columns','custom_fields','relations', 'functions']),
+        ('aggregates_block', _(u'Calculated values'), [aggregate.name for aggregate in field_aggregation_registry.itervalues()]),
+    )
 
     class Meta:
         model = Report
@@ -277,6 +283,10 @@ class AddFieldToReportForm(CremeForm):
     custom_fields = MultipleChoiceField(label=_(u'Custom fields'),  required=False, choices=(), widget=OrderedMultipleChoiceWidget)
     relations     = MultipleChoiceField(label=_(u'Relations'), required=False, choices=(), widget=OrderedMultipleChoiceWidget)
     functions     = MultipleChoiceField(label=_(u'Functions'), required=False, choices=(), widget=OrderedMultipleChoiceWidget)
+
+    blocks = CremeEntityForm.blocks.new(
+        ('aggregates_block', _(u'Calculated values'), [aggregate.name for aggregate in field_aggregation_registry.itervalues()]),
+    )
 
     def __init__(self, report, *args, **kwargs):
         self.report = report
