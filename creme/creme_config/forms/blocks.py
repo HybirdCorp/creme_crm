@@ -34,8 +34,8 @@ from creme_core.utils.id_generator import generate_string_id_and_save
 
 
 class DetailviewBlocksForm(CremeForm):
-    ct_id     = ChoiceField(label=_(u'Resource associée'), choices=(), required=True)
-    block_ids = MultipleChoiceField(label=_(u'Blocs à afficher'), required=False,
+    ct_id     = ChoiceField(label=_(u'Related resource'), choices=(), required=True)
+    block_ids = MultipleChoiceField(label=_(u'Block to display'), required=False,
                                     choices=(),
                                     widget=OrderedMultipleChoiceWidget)
 
@@ -43,7 +43,7 @@ class DetailviewBlocksForm(CremeForm):
         super(DetailviewBlocksForm, self).__init__(*args, **kwargs)
 
         choices = [(id_, block.verbose_name) for id_, block in block_registry if block.configurable]
-        choices.extend((rbi.block_id, ugettext(u'Bloc de relation: %s') % rbi.relation_type.predicate)
+        choices.extend((rbi.block_id, ugettext(u'Relation block: %s') % rbi.relation_type.predicate)
                             for rbi in RelationBlockItem.objects.all()) #TODO: filter compatible relation types
 
         self.fields['block_ids'].choices = choices
@@ -103,7 +103,7 @@ class BlocksAddForm(DetailviewBlocksForm):
 
 class BlocksPortalEditForm(CremeForm):
     ct_id     = IntegerField(widget=HiddenInput())
-    block_ids = MultipleChoiceField(label=_(u'Blocs à afficher sur le portail'), required=False,
+    block_ids = MultipleChoiceField(label=_(u'Blocks to display on the portal'), required=False,
                                     choices=(), widget=OrderedMultipleChoiceWidget)
 
     def __init__(self, block_config_items, *args, **kwargs):

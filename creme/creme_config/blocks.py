@@ -37,7 +37,7 @@ class GenericModelsBlock(QuerysetBlock):
     dependencies  = (CremeModel,)
     order_by      = 'id'
     page_size     = _PAGE_SIZE
-    verbose_name  = _(u'Configuration de modèle')
+    verbose_name  = _(u'Model configuration')
     template_name = 'creme_config/templatetags/block_models.html'
 
     def detailview_display(self, context):
@@ -75,7 +75,7 @@ class PropertyTypesBlock(QuerysetBlock):
     dependencies  = (CremePropertyType,)
     order_by      = 'text'
     page_size     = _PAGE_SIZE
-    verbose_name  = _(u'Configuration des types de propriété')
+    verbose_name  = _(u'Property types configuration')
     template_name = 'creme_config/templatetags/block_property_types.html'
 
     def detailview_display(self, context):
@@ -88,7 +88,7 @@ class RelationTypesBlock(QuerysetBlock):
     id_           = QuerysetBlock.generate_id('creme_config', 'relation_types')
     dependencies  = (RelationType,)
     page_size     = _PAGE_SIZE
-    verbose_name  = _(u'Liste des types de relation standard')
+    verbose_name  = _(u'List of standard relation types')
     template_name = 'creme_config/templatetags/block_relation_types.html'
 
     def detailview_display(self, context):
@@ -101,7 +101,7 @@ class CustomRelationTypesBlock(QuerysetBlock):
     id_           = QuerysetBlock.generate_id('creme_config', 'custom_relation_types')
     dependencies  = (RelationType,)
     page_size     = _PAGE_SIZE
-    verbose_name  = _(u'Configuration des types de relation personnalisés')
+    verbose_name  = _(u'Custom relation types configuration')
     template_name = 'creme_config/templatetags/block_relation_types.html'
 
     def detailview_display(self, context):
@@ -114,7 +114,7 @@ class CustomFieldsPortalBlock(QuerysetBlock):
     id_           = QuerysetBlock.generate_id('creme_config', 'custom_fields_portal')
     dependencies  = (CustomField,)
     page_size     = _PAGE_SIZE
-    verbose_name  = _(u'Configuration générale des champs personnalisés')
+    verbose_name  = _(u'General configuration of custom fields')
     template_name = 'creme_config/templatetags/block_custom_fields_portal.html'
 
     def detailview_display(self, context):
@@ -129,7 +129,7 @@ class CustomFieldsBlock(QuerysetBlock):
     id_           = QuerysetBlock.generate_id('creme_config', 'custom_fields')
     dependencies  = (CustomField,)
     page_size     = _PAGE_SIZE
-    verbose_name  = _(u'Configuration des champs personnalisés')
+    verbose_name  = _(u'Custom fields configuration')
     template_name = 'creme_config/templatetags/block_custom_fields.html'
 
     def detailview_display(self, context):
@@ -153,7 +153,7 @@ class UsersBlock(QuerysetBlock):
     dependencies  = (User,)
     order_by      = 'username'
     page_size     = _PAGE_SIZE
-    verbose_name  = _(u'Configuration des utilisateurs')
+    verbose_name  = _(u'Users configuration')
     template_name = 'creme_config/templatetags/block_users.html'
 
     def detailview_display(self, context):
@@ -166,7 +166,7 @@ class BlocksConfigBlock(QuerysetBlock):
     id_           = QuerysetBlock.generate_id('creme_config', 'blocks_config')
     dependencies  = (BlockConfigItem,)
     page_size     = _PAGE_SIZE - 1 #'-1' because there is always the line for default config on each page
-    verbose_name  = _(u'Configuration des blocs')
+    verbose_name  = _(u'Blocks configuration')
     template_name = 'creme_config/templatetags/block_blocksconfig.html'
 
     def detailview_display(self, context):
@@ -181,7 +181,7 @@ class RelationBlocksConfigBlock(QuerysetBlock):
     id_           = QuerysetBlock.generate_id('creme_config', 'relation_blocks_config')
     dependencies  = (RelationBlockItem, BlockConfigItem) #BlockConfigItem because they can be deleted if we delete a RelationBlockItem
     page_size     = _PAGE_SIZE
-    verbose_name  = _(u'Configuration des blocs de relation')
+    verbose_name  = _(u'Relation blocks configuration')
     template_name = 'creme_config/templatetags/block_relationblocksconfig.html'
 
     def detailview_display(self, context):
@@ -196,7 +196,7 @@ class ButtonMenuBlock(QuerysetBlock):
     id_           = QuerysetBlock.generate_id('creme_config', 'button_menu')
     dependencies  = (ButtonMenuItem,)
     page_size     = _PAGE_SIZE - 1 #'-1' because there is always the line for default config on each page
-    verbose_name  = _(u'Configuration du menu bouton')
+    verbose_name  = _(u'Button menu configuration')
     template_name = 'creme_config/templatetags/block_button_menu.html'
 
     def detailview_display(self, context):
@@ -212,7 +212,7 @@ class AppCredentialsBlock(QuerysetBlock):
     dependencies  = (CremeAppDroit,)
     order_by      = 'name_app'
     page_size     = _PAGE_SIZE
-    verbose_name  = _(u'Configuration des droits des applications')
+    verbose_name  = _(u'Applications credentials configuration')
     template_name = 'creme_config/templatetags/block_app_credentials.html'
 
     def detailview_display(self, context):
@@ -226,7 +226,7 @@ class EntityCredentialsBlock(QuerysetBlock):
     dependencies  = (CremeDroitEntityType,)
     order_by      = 'content_type'
     page_size     = _PAGE_SIZE
-    verbose_name  = _(u'Configuration des droits des entités')
+    verbose_name  = _(u'Entities credentials configuration')
     template_name = 'creme_config/templatetags/block_entity_credentials.html'
 
     def detailview_display(self, context):
@@ -239,7 +239,7 @@ class SearchConfigBlock(QuerysetBlock):
     id_           = QuerysetBlock.generate_id('creme_config', 'searchconfig')
     dependencies  = (SearchConfigItem,)
     page_size     = _PAGE_SIZE
-    verbose_name  = _(u'Configuration de la recherche')
+    verbose_name  = _(u'Search configuration')
     template_name = 'creme_config/templatetags/block_searchconfig.html'
     order_by      = 'content_type'
 

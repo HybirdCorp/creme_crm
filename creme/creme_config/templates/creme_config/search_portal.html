@@ -1,10 +1,9 @@
 {% extends "creme_config/portal.html" %}
-
 {% load i18n %}
 {% load creme_block %}
 
 {% block title %}
-    <a href="/creme_config/">Configuration > </a>Recherche dans creme
+    <a href="/creme_config/">{% trans "Configuration" %} > </a>{% trans "Search in Creme" %}
 {% endblock %}
 
 {% block before_statistics %}
@@ -14,10 +13,10 @@
                 <tr>
                     <td><span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span></td>
                     <td>
-                        {% trans 'Créez des configurations de recherche afin de rendre la recherche globale plus rapide.' %}<br/>
-                        {% trans 'Limitez le nombre de champs par type pour de meilleurs performances et une meilleure visibilité des résultats.' %}<br/>
-                        {% trans 'Aucun champ sélectionné correspond à "Tous les champs", il en est de même pour les utilisateurs.' %}<br/>
-                        {% trans 'Éditez une configuration pour spécifier des champs de recherche' %}
+                        {% trans 'Create search settings in order to make the gloabl search faster.' %}<br/>
+                        {% trans 'Limit the number of fields per type for better performance and better results visibility.' %}<br/>
+                        {% trans 'No selected field means "All fields", and it is the same for users.' %}<br/>
+                        {% trans 'Edit a configuration to specify the search fields.' %}
                     </td>
                 </tr>
             </table>
