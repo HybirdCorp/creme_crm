@@ -51,8 +51,9 @@ creme.reports.load = function(options)
 
     this.loadColumns(ct_id, options);
     this.loadCf(ct_id, options);
-    this.loadRelations(ct_id, options);
-    this.loadFunctions(ct_id, options);
+    this.loadRelations(ct_id,  options);
+    this.loadFunctions(ct_id,  options);
+    this.loadAggregates(ct_id, options);
 
     $(options.show_after_ct).show();
 }
@@ -199,6 +200,22 @@ creme.reports.loadFunctions = function(ct_id, options)
                                        options.functions.table_id,
                                        options.functions.name);
 }
+
+creme.reports.loadAggregates = function(ct_id, options)
+{
+    for(var i = 0; i < options.aggregates.length; i++)
+    {
+        var current_aggregate = options.aggregates[i];
+        creme.reports.__loadOrderedMultiSelect('/reports/get_aggregate_fields',
+                                           {
+                                            'aggregate_name': current_aggregate.name,
+                                            'ct_id': ct_id
+                                           },
+                                           current_aggregate.target_node,
+                                           current_aggregate.input_name);
+    }
+}
+
 
 creme.reports.unlink_report = function(field_id, block_url)
 {

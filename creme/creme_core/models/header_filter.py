@@ -30,11 +30,12 @@ from entity import CremeEntity
 from custom_field import CustomField
 
 
-HFI_ACTIONS  = 0
-HFI_FIELD    = 1
-HFI_RELATION = 2
-HFI_FUNCTION = 3
-HFI_CUSTOM   = 4
+HFI_ACTIONS    = 0
+HFI_FIELD      = 1
+HFI_RELATION   = 2
+HFI_FUNCTION   = 3
+HFI_CUSTOM     = 4
+HFI_CALCULATED = 5 #TODO: Used only in reports for the moment, integrate into HF?
 
 
 class HeaderFilterList(list):

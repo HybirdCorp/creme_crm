@@ -1,12 +1,10 @@
-{% extends "creme_core/base.html" %}
-{% load i18n %}
-{% load creme_core_tags %}
+{% extends "creme_core/generics/blockform/add.html" %}
 
 {% block extrahead %}
     <script type="text/javascript" src="{{MEDIA_URL}}js/models/reports.js"></script>
     <script type="text/javascript">
         $(document).ready(function(){
-            $('#ct').change(function(){
+            $('#{{form.ct.auto_id}}').change(function(){
                 var opts = {
                     'ct':this,
                     'hf':'#{{form.hf.auto_id}}',//'#hf',
@@ -31,197 +29,27 @@
                         {
                             'table_id':'{{form.functions.auto_id}}',
                             'name' : '{{form.functions.name}}'
-                        }
+                        },
+                    'aggregates' : [
+                        {% for aggregate in form.aggregates %}
+                        {
+                            'target_node': 'id_{{aggregate.name}}',
+                            'input_name' : '{{aggregate.name}}',
+                            'name': '{{aggregate.name}}'
+                        }{% ifnotequal forloop.counter form.aggregates|length %},{% endifnotequal %}{# Prevent trailing comma incompatible with IE #}
+                        {% endfor %}
+                    ]
                 };
                 creme.reports.load(opts);
             });
 
             {% if ct_posted %}
-                $('#ct').val('{{ct_posted}}');
+                $('#{{form.ct.auto_id}}').val('{{ct_posted}}');
             {% endif %}
 
-            $('#ct').change();
+            $('#{{form.ct.auto_id}}').change();
+
+            
         });
     </script>
-{% endblock %}
-
-{% block page_title %} - {% trans 'Add' %}: {{form|get_meta_value:'model'|get_meta_value:'verbose_name'}}{% endblock %}
-
-{% block content %}
-    <!--
-        {% cycle "block_header_line_light" "block_header_line_dark" as header_row %}
-        {% cycle "block_line_light" "block_line_dark" as row_color %}
-    -->
-    <table class="table_header" cellpadding="0" cellspacing="0">
-        <tr>
-            <td width="5%"><img src="{{MEDIA_URL}}images/add_64.png" alt="{% trans 'New report' %}"/></td>
-            <td width="95%">
-                <h1>{% trans 'New report' %}</h1>
-            </td>
-        </tr>
-    </table>
-
-    {% if help_messages %}
-        <div class="help_box">
-            <ul>
-                {% for help_message in help_messages %}
-                    <li>{{help_message}}</li>
-                {% endfor %}
-            </ul>
-        </div>
-    {% endif%}
-
-    <p>{% trans "Fields marked with * are required." %}</p>
-
-    {% if form.non_field_errors %}
-        <table class="table_detail_view ui-corner-all">
-            <thead>
-                <tr>
-                    <th valign="middle">{% trans "Global errors" %}</th>
-                </tr>
-            </thead>
-            <tbody class="collapsable">
-                <tr>
-                    <td>{{form.non_field_errors}}</td>
-                </tr>
-            </tbody>
-        </table>
-    {% endif %}
-
-    <div id="editforms">
-        <form action="" method="POST">
-            {% for hidden in form.hidden_fields %}
-                {% if hidden.errors %}
-                    <p>{{hidden.label}}&nbsp;:&nbsp;{{hidden.errors}}{{hidden}}</p>
-                {% else %}
-                    {{hidden}}
-                {% endif %}
-            {% endfor %}
-
-            <table class="table_detail_view ui-corner-all">
-                <thead>
-                    <tr>
-                        <th colspan="2" valign="middle">{{form.get_blocks.0.0}}</th>
-                    </tr>
-                </thead>
-                <tbody class="collapsable">
-                    <tr>
-                        <th class="{{header_row}}">
-                            <label for="{{form.user.auto_id}}">{{form.user.label}} *</label>
-                        </th>
-                        <td class="{{row_color}}">
-                            {% if form.user.help_text %}
-                                {{form.user.help_text}} <br />
-                            {% endif %}
-                            {{form.user.errors}} {{form.user}}
-                        </td>
-                    </tr>
-                    <tr>
-                        <th class="{{header_row}}">
-                            <label for="{{form.name.auto_id}}">{{form.name.label}} *</label>
-                        </th>
-                        <td class="{{row_color}}">
-                            {% if form.name.help_text %}
-                                {{form.name.help_text}} <br />
-                            {% endif %}
-                            {{form.name.errors}} {{form.name}}
-                        </td>
-                    </tr>
-                    <tr>
-                        <th class="{{header_row}}">
-                            <label for="{{form.ct.auto_id}}">{{form.ct.label}} *</label>
-                        </th>
-                        <td class="{{row_color}}">
-                            {% if form.ct.help_text %}
-                                {{form.ct.help_text}} <br />
-                            {% endif %}
-                            {{form.ct.errors}}
-                            {% with form.fields|get_value:"ct" as ct %}
-                                <select name="ct" id="ct">
-                                        {% for val, text in ct.choices %}
-                                            <option value="{{val}}">{{text}}</option>
-                                        {% endfor %}
-                                </select>
-                            {% endwith %}
-                        </td>
-                    </tr>
-                    <tr class="show_after_ct" style="display:none;">
-                        <th class="{{header_row}}">
-                            <label for="">Colonnes *</label>
-                        </th>
-                        <td class="{{row_color}}">
-                            <table class="table_detail_view ui-corner-all">
-                                <tbody class="collapsable">
-                                    <tr>
-                                        <th class="{{header_row}}" colspan="2">
-                                            {% trans "Select from a existing view : " %}
-                                        </th>
-                                    </tr>
-                                    <tr>
-                                        <td class="{{row_color}}" colspan="2">
-                                            {{form.hf.errors}} {{form.hf}}
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <th class="{{header_row}}" colspan="2">OU</th>
-                                    </tr>
-                                    <tr>
-                                        <th class="{{header_row}}" colspan="2">
-                                            {% trans "Choose your columns : " %}
-                                        </th>
-                                    </tr>
-                                    <tr>
-                                        <th class="{{header_row}}">
-                                            {{form.columns.label}}
-                                        </th>
-                                        <td class="{{row_color}}">
-                                            {{form.columns.errors}} {{form.columns}}
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <th class="{{header_row}}">
-                                            {{form.custom_fields.label}}
-                                        </th>
-                                        <td class="{{row_color}}">
-                                            {{form.custom_fields.errors}} {{form.custom_fields}}
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <th class="{{header_row}}">
-                                            {{form.relations.label}}
-                                        </th>
-                                        <td class="{{row_color}}">
-                                           {{form.relations.errors}} {{form.relations}}
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <th class="{{header_row}}">
-                                            {{form.functions.label}}
-                                        </th>
-                                        <td class="{{row_color}}">
-                                            {{form.functions.errors}} {{form.functions}}
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </td>
-                    </tr>
-                     <tr class="show_after_ct" style="display:none;">
-                        <th class="{{header_row}}">
-                            <label for="">Filtre</label>
-                        </th>
-                        <td class="{{row_color}}">
-                            {{form.filter.errors}} {{form.filter}}
-                        </td>
-                     </tr>
-                </tbody>
-            </table>
-            <br />
-            {% block submit_buttons %}
-                {% if not hide_submit %}
-                    <input type="submit" value="{% trans "Submit" %}" />
-                {% endif %}
-            {% endblock %}
-        </form>
-    </div>
 {% endblock %}

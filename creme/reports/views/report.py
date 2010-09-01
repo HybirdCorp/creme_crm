@@ -23,6 +23,7 @@ from django.db.models.fields.related import ForeignKey, ManyToManyField
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext
 from django.utils.translation import ugettext as _
+from django.utils.simplejson import JSONEncoder
 from django.contrib.auth.decorators import login_required
 from django.contrib.contenttypes.models import ContentType
 
@@ -30,11 +31,12 @@ from creme_core.entities_access.functions_for_permissions import add_view_or_die
 from creme_core.views.generic import add_entity, edit_entity, view_entity_with_template, list_view, inner_popup
 from creme_core.utils.meta import get_model_field_infos
 from creme_core.utils import get_ct_or_404
-from creme_core.registry import creme_registry
+from creme_core.utils.meta import get_flds_with_fk_flds
 
 from reports.models import Report, report_prefix_url, report_template_dir, Field
 from reports.forms.report import CreateForm, EditForm, LinkFieldToReportForm, AddFieldToReportForm
 from reports.registry import report_backend_registry
+from reports.report_aggregation_registry import field_aggregation_registry
 
 report_app = Report._meta.app_label
 report_ct  = ContentType.objects.get_for_model(Report)
@@ -45,7 +47,7 @@ report_ct  = ContentType.objects.get_for_model(Report)
 def add(request):
     tpl_dict = {
         'help_messages' : [],
-        'ct_posted' : request.POST.get('ct'),
+        'ct_posted'  : request.POST.get('ct'),
     }
     return add_entity(request, CreateForm, template="%s/add_report.html" % report_template_dir, extra_template_dict=tpl_dict)
 
@@ -232,3 +234,19 @@ def csv(request, report_id):
     csv_backend = report_backend_registry.get_backend('CSV')
 
     return csv_backend(report).render_to_response()
+
+@login_required
+def get_aggregate_fields(request):
+    POST_get = request.POST.get
+    aggregate_name = POST_get('aggregate_name')
+    ct = get_ct_or_404(POST_get('ct_id'))
+    model = ct.model_class()
+    authorized_fields = field_aggregation_registry.authorized_fields
+    choices = []
+
+    if aggregate_name:
+        aggregate = field_aggregation_registry.get(aggregate_name)
+        aggregate_pattern = aggregate.pattern
+        choices = [(u"%s" % (aggregate_pattern % f.name), unicode(f.verbose_name)) for f in get_flds_with_fk_flds(model, deep=0) if f.__class__ in authorized_fields]
+
+    return HttpResponse(JSONEncoder().encode(choices), mimetype="text/javascript")
