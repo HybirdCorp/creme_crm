@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-09-01 14:17+0200\n"
+"POT-Creation-Date: 2010-09-02 17:19+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -63,56 +63,108 @@ msgstr "Maximum"
 msgid "Sum"
 msgstr "Somme"
 
-#: forms/report.py:150
+#: report_filters_register.py:118
+msgid "Customized"
+msgstr "Personalisé"
+
+#: report_filters_register.py:120
+msgid "Last year"
+msgstr "Année dernière"
+
+#: report_filters_register.py:121
+msgid "Current year"
+msgstr "Année courante"
+
+#: report_filters_register.py:122
+msgid "Next year"
+msgstr "Année suivante"
+
+#: report_filters_register.py:124
+msgid "Last month"
+msgstr "Mois dernier"
+
+#: report_filters_register.py:125
+msgid "Current month"
+msgstr "Mois courant"
+
+#: report_filters_register.py:126
+msgid "Next month"
+msgstr "Mois suivant"
+
+#: report_filters_register.py:128
+msgid "Last quarter"
+msgstr "Trimestre dernier"
+
+#: report_filters_register.py:129
+msgid "Current quarter"
+msgstr "Trimestre courant"
+
+#: report_filters_register.py:130
+msgid "Next quarter"
+msgstr "Trimestre suivant"
+
+#: forms/report.py:153
 msgid " "
 msgstr " "
 
-#: forms/report.py:151 models/report.py:266
+#: forms/report.py:154 forms/report.py:388 models/report.py:266
 msgid "Filter"
 msgstr "Filtre"
 
-#: forms/report.py:153 forms/report.py:306
+#: forms/report.py:156 forms/report.py:308
 msgid "Regular fields"
 msgstr "Champs normaux"
 
-#: forms/report.py:154 forms/report.py:307
+#: forms/report.py:157 forms/report.py:309
 msgid "Custom fields"
 msgstr "Champs personnalisés"
 
-#: forms/report.py:155 forms/report.py:308
+#: forms/report.py:158 forms/report.py:310
 msgid "Relations"
 msgstr "Relations"
 
-#: forms/report.py:156 forms/report.py:309
+#: forms/report.py:159 forms/report.py:311
 msgid "Functions"
 msgstr "Fonctions"
 
-#: forms/report.py:159
+#: forms/report.py:162
 msgid "Select from a existing view : "
 msgstr "Sélectionnez à partir d'une vue de liste existante : "
 
-#: forms/report.py:160
+#: forms/report.py:163
 msgid "Or"
 msgstr "Ou"
 
-#: forms/report.py:161 forms/report.py:312
+#: forms/report.py:164 forms/report.py:314
 msgid "Calculated values"
 msgstr "Valeurs calculées"
 
-#: forms/report.py:206
+#: forms/report.py:208
 #, python-format
 msgid "You must select an existing view, or at least one field from : %s"
 msgstr ""
 "Vous devez sélectionner soit une vue existante, soit au moins un champs "
 "parmi : %s"
 
-#: forms/report.py:281
+#: forms/report.py:283
 msgid "All"
 msgstr "Tout"
 
-#: forms/report.py:291
+#: forms/report.py:293
 msgid "Sub-report linked to the column"
 msgstr "Sous-rapport lié à la colonne"
+
+#: forms/report.py:387
+msgid "Fields"
+msgstr "Champs"
+
+#: forms/report.py:389
+msgid "Begin date"
+msgstr "Date de début"
+
+#: forms/report.py:390
+msgid "End date"
+msgstr "Date de fin"
 
 #: models/report.py:60
 msgid "Name of the column"
@@ -158,18 +210,18 @@ msgstr "Retour sur la fiche : '%(object)s'"
 msgid "Back"
 msgstr "Retour"
 
-#: templates/reports/preview_report.html:25
+#: templates/reports/preview_report.html:30
 #: templates/reports/view_report.html:25
 #, python-format
 msgid "Download '%(object)s' as CSV file"
 msgstr "Télécharger '%(object)s' sous forme de fichier CSV"
 
-#: templates/reports/preview_report.html:25
+#: templates/reports/preview_report.html:30
 #: templates/reports/view_report.html:25
 msgid "Download CSV"
 msgstr "Télécharger CSV"
 
-#: templates/reports/preview_report.html:39
+#: templates/reports/preview_report.html:49
 #, python-format
 msgid "Preview of %(limit_to)s first entities"
 msgstr "Aperçu des %(limit_to)s premières entités"
@@ -182,6 +234,14 @@ msgstr "Aperçu du rapport : '%(object)s'"
 #: templates/reports/view_report.html:22
 msgid "Preview"
 msgstr "Aperçu"
+
+#: templates/reports/frags/date_filter_form.html:17
+msgid "Temporal filters"
+msgstr "Filtres temporels"
+
+#: templates/reports/frags/date_filter_form.html:36
+msgid "Generate"
+msgstr "Générer"
 
 #: templates/reports/templatetags/block_report_fields.html:17
 msgid "Add a column"
@@ -282,12 +342,17 @@ msgstr "Valeur calculée"
 msgid "Number of reports"
 msgstr "Nombre de rapport(s)"
 
-#: views/report.py:96
+#: views/report.py:98
 #, python-format
 msgid "Link of the column <%s>"
 msgstr "Liaison de la colonne <%s>"
 
-#: views/report.py:154
+#: views/report.py:156
 #, python-format
 msgid "Adding column to <%s>"
 msgstr "Ajout de colonne à <%s>"
+
+#: views/report.py:308
+#, python-format
+msgid "Temporal filters for <%s>"
+msgstr "Filtres temporels pour <%s>"
