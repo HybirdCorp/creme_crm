@@ -56,11 +56,11 @@ def _build_bool_search_widget(item_ctx, search_value):
     item_ctx['type'] = 'checkbox'
     item_ctx['values'] = [{
                             'value':    '1',
-                            'text':     _("Oui"),
+                            'text':     _("Yes"),
                             'selected': 'selected' if selected_value == '1' else ''
                            }, {
                             'value':    '0',
-                            'text':     _("Non"),
+                            'text':     _("No"),
                             'selected': 'selected' if selected_value == '0' else ''
                            }
                 ]

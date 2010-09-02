@@ -18,20 +18,21 @@
 ################################################################################
 
 from django.http import HttpResponse
-from django.contrib.auth.decorators import login_required
-from django.contrib.contenttypes.models import ContentType
 from django.db.models import Q
 #from django.shortcuts import render_to_response
 from django.template.context import RequestContext
-from django.utils.translation import ugettext_lazy as _
 from django.template.loader import render_to_string
+from django.utils.translation import ugettext as _
+from django.contrib.auth.decorators import login_required
+from django.contrib.contenttypes.models import ContentType
 
 from creme_core.models.search import SearchConfigItem, SearchField, DEFAULT_PATTERN
 from creme_core.registry import creme_registry
 from creme_core.utils.meta import get_flds_with_fk_flds_str
 from creme_core.utils import get_ct_or_404
 
-from creme_config.forms.search import EXCLUDED_FIELDS_TYPES
+from creme_config.forms.search import EXCLUDED_FIELDS_TYPES #humm...
+
 
 BASE_Q = Q(is_deleted=False)
 
@@ -40,17 +41,18 @@ def _build_q_research(model, research, fields, is_or=True):
     q = Q()
 #    for f_name, f_verb_name in fields:
     for f in fields:
-        _q = Q(**{'%s%s' % (str(f.field), DEFAULT_PATTERN):research})
+        _q = Q(**{'%s%s' % (str(f.field), DEFAULT_PATTERN): research})
         if is_or:
             q |= _q
         else:
             q &= _q
+
     return BASE_Q & q
 
 def _get_research_fields(model, user):
     ct_get_for_model = ContentType.objects.get_for_model
     SCI_get = SearchConfigItem.objects.get
-    
+
     try:
         #Trying to catch the user's research config for this model
         sci = SCI_get(content_type=ct_get_for_model(model), user=user)
@@ -91,9 +93,9 @@ def search(request):
     total   = 0
 
     if not research:
-        t_ctx['error_message'] = _(u"Recherche vide...")
+        t_ctx['error_message'] = _(u"Empty search...")
     elif len(research) < 3:
-        t_ctx['error_message'] = _(u"Veuillez entrer au moins 3 caractères")
+        t_ctx['error_message'] = _(u"Please enter at least 3 characters")
     else:
         if not ct_id:
             scope = creme_registry.iter_entity_models()
@@ -111,13 +113,12 @@ def search(request):
             fields   = _get_research_fields(model, user)
             entities = model_filter(_build_q_research(model, research, fields)).distinct()
             total   += len(entities)
-            
+
             results.append({
                 'model'   : model,
                 'fields'  : fields,
                 'entities' : entities
             })
-
 
     t_ctx['total'] = total
     t_ctx['results'] = results

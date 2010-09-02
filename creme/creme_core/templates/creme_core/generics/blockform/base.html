@@ -1,3 +1,5 @@
+{% load i18n %}
+
 {% block title %}
     <table class="table_header" cellpadding="0" cellspacing="0">
         <tr>
@@ -13,7 +15,7 @@
     <div class="help_box">{{help_message}}</div>
 {% endif%}
 
-<p>Les champs suivis d'un * sont obligatoires.</p>
+<p>{% trans "Fields marked with * are required."%} </p>
 
 <div id="editforms">
     <form action="" method="POST" {% if form.is_multipart %}enctype="multipart/form-data"{% endif %}>
@@ -35,7 +37,7 @@
             <table class="table_detail_view ui-corner-all">
                 <thead>
                     <tr>
-                        <th valign="middle">Erreurs globales</th>
+                        <th valign="middle">{% trans "Global errors"%}</th>
                     </tr>
                 </thead>
                 <tbody class="collapsable">
@@ -48,7 +50,7 @@
 
         {% block submit_buttons %}
             {% if not hide_submit %}
-                <input type="submit" value="Envoyer" />
+                <input type="submit" value="{% trans "Submit"%}" />
             {% endif %}
         {% endblock %}
     </form>

@@ -24,11 +24,11 @@ from django.contrib.auth.models import User
 
 
 class PreferedMenuItem(Model):
-    user  = ForeignKey(User, verbose_name=_(u'Utilisateur'), null=True)
-    name  = CharField(_(u'Nom'), max_length=100, blank=True, null=True)
+    user  = ForeignKey(User, verbose_name=_(u'User'), null=True)
+    name  = CharField(_(u'Name'), max_length=100, blank=True, null=True)
     label = CharField(_(u'Label'), max_length=100, blank=True, null=True)
     url   = CharField(_(u'Url'), max_length=100,  blank=True, null=True)
-    order = PositiveIntegerField(_(u'Ordre'), blank=True, null=True)
+    order = PositiveIntegerField(_(u'Order'), blank=True, null=True)
 
     class Meta:
         app_label = 'creme_core'

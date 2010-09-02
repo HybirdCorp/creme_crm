@@ -27,25 +27,25 @@ from creme_core.models import CremeModel, RelationType
 
 class BlockConfigItem(CremeModel):
     id           = CharField(primary_key=True, max_length=100)
-    content_type = ForeignKey(ContentType, verbose_name=_(u"Type associé"), null=True)
-    block_id     = CharField(_(u"Identifiant de bloc"), max_length=100, blank=False, null=False)
-    order        = PositiveIntegerField(_(u"Priorité"))
-    on_portal    = BooleanField(_(u"Affiché sur la page d'accueil ?"))
+    content_type = ForeignKey(ContentType, verbose_name=_(u"Related type"), null=True)
+    block_id     = CharField(_(u"Block ID"), max_length=100, blank=False, null=False)
+    order        = PositiveIntegerField(_(u"Priority"))
+    on_portal    = BooleanField(_(u"Displayed on portal ?"))
 
     class Meta:
         app_label = 'creme_core'
-        verbose_name = _(u'Bloc')
-        verbose_name_plural = _(u'Blocs')
+        verbose_name = _(u'Block to display')
+        verbose_name_plural = _(u'Blocks to display')
 
 
 class RelationBlockItem(CremeModel):
-    block_id      = CharField(_(u"Identifiant de bloc"), max_length=100) #really useful ?? (can be retrieved with type)
-    relation_type = ForeignKey(RelationType, verbose_name=_(u"Type de relation associé"), unique=True)
+    block_id      = CharField(_(u"Block ID"), max_length=100) #really useful ?? (can be retrieved with type)
+    relation_type = ForeignKey(RelationType, verbose_name=_(u"Related type of relation"), unique=True)
 
     class Meta:
         app_label = 'creme_core'
-        verbose_name = _(u'Bloc de relation spécifique')
-        verbose_name_plural = _(u'Blocs de relation spécifique')
+        verbose_name = _(u'Specific relation block')
+        verbose_name_plural = _(u'Specific relation blocks')
 
     def delete(self):
         BlockConfigItem.objects.filter(block_id=self.block_id).delete()

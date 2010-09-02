@@ -22,7 +22,7 @@
 
 from django.forms import Form, ModelForm, ModelChoiceField
 from django.forms.forms import BoundField
-from django.utils.translation import ugettext as _
+from django.utils.translation import ugettext_lazy as _
 from django.utils.datastructures import SortedDict as OrderedDict #use python2.6 OrderedDict later.....
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
@@ -116,21 +116,21 @@ class FieldBlockManager(object):
 
 
 class CremeForm(Form):
-    blocks = FieldBlockManager(('general', _(u'Informations générales'), '*'))
+    blocks = FieldBlockManager(('general', _(u'General information'), '*'))
 
     def get_blocks(self):
         return self.blocks.build(self)
 
 
 class CremeModelForm(ModelForm):
-    blocks = FieldBlockManager(('general', _(u'Informations générales'), '*'))
+    blocks = FieldBlockManager(('general', _(u'General information'), '*'))
 
     def get_blocks(self):
         return self.blocks.build(self)
 
 
 class CremeModelWithUserForm(CremeModelForm):
-    user = ModelChoiceField(label=_('Utilisateur'), queryset=User.objects.all(), empty_label=None)
+    user = ModelChoiceField(label=_('User'), queryset=User.objects.all(), empty_label=None)
 
 
 class CremeEntityForm(CremeModelWithUserForm):

@@ -2,11 +2,13 @@
 {% load i18n %}
 {% load creme_core_tags %}
 
-{% block page_title %} - {% trans 'Modifier' %} {{object}}{% endblock %}
+{% block page_title %} - {% trans 'Modify' %} {{object}}{% endblock %}
 
 {% block content %}
     {% with 'images/edit_64.png' as logo %}
-    {% templatize "Éditer: {{object}}" as title %}
+    {% comment %}{% templatize "Éditer: {{object}}" as title %} TODO {% endcomment %}
+    {% with _("Edit") as title %}
         {% include "creme_core/generics/blockform/base.html" %}
+    {% endwith %}
     {% endwith %}
 {% endblock %}

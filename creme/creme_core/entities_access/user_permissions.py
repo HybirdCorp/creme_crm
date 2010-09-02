@@ -18,10 +18,11 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from creme_core.models.authent_role import CremeProfile
-from creme_core.models.authent_role import CremeRole
 from django.db.models.query_utils import Q
+
+from creme_core.models import CremeProfile, CremeRole
 from creme_core import constants
+
 
 def allow_superuser(fn):
     def _allow_superuser(user, *args, **kwargs):
@@ -341,6 +342,3 @@ def has_all_permissions_for_an_object(user, object, app_name=None):
            has_edit_permission_for_an_object(user, object, app_name) & \
            has_delete_permission_for_an_object(user, object, app_name) & \
            has_link_permission_for_an_object(user, object, app_name)
-
-################################################################################
-################################################################################

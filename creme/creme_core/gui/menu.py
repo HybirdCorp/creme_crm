@@ -123,7 +123,7 @@ class LeafMenu (object):
         if self.menu_name :
             return """<li><a href="%s">%s</a></li>""" % (self.menu_url, self.menu_name)
 
-        return """<li><a href="%s">Sans Nom</a></li>"""
+        return """<li><a href="%s">No Name</a></li>"""
 
     def __repr__ (self):
         return smart_str(u"LeafMenu : %s" % (self.menu_name,))

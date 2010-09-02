@@ -1,8 +1,9 @@
+{% load i18n %}
 {% with hfilter.id as hfilter_id %}
-    <fieldset title="Afficher uniquement les colonnes désirées">
+    <fieldset title="{% trans "Show only the desired columns" %}">
         <legend>
-            <img border="0" src="{{MEDIA_URL}}images/telescope_32.png" alt="Créer vue personnalisée" title="Créer vue personnalisée"/>
-            Vues
+            <img border="0" src="{{MEDIA_URL}}images/telescope_32.png" alt="{% trans "View of list" %}" title="{% trans "View of list" %}"/>
+            {% trans "View of list" %}
         </legend>
         <select name="hfilter" id="hfilter_list" onchange="$(this.form).list_view('getSubmit')(this);">
             {% for filter in select_values %}
@@ -12,14 +13,14 @@
             {% endfor %}
         </select>
         <a href="/creme_core/header_filter/add/{{content_type_id}}">
-            <img border="0" src="{{MEDIA_URL}}images/add_22.png" alt="Créer vue personnalisée" title="Créer vue personnalisée"/>
+            <img border="0" src="{{MEDIA_URL}}images/add_22.png" alt="{% trans "Create a custom view" %}" title="{% trans "Create a custom view" %}"/>
         </a>
         {% if hfilter.is_custom %}
             <a href="/creme_core/header_filter/edit/{{hfilter_id}}" id="header_filter_edit">
-                <img border="0" src="{{MEDIA_URL}}images/edit_22.png" alt="Éditer vue personnalisée" title="Éditer vue personnalisée"/>
+                <img border="0" src="{{MEDIA_URL}}images/edit_22.png" alt="{% trans "Edit custom view" %}" title="{% trans "Edit custom view" %}"/>
             </a>
             <a href="/creme_core/header_filter/delete/{{hfilter_id}}/" id="header_filter_delete">
-                <img border="0" src="{{MEDIA_URL}}images/delete_22.png" alt="Supprimer vue personnalisée" title="Supprimer vue personnalisée"/>
+                <img border="0" src="{{MEDIA_URL}}images/delete_22.png" alt="{% trans "Delete custom view" %}" title="{% trans "Delete custom view" %}"/>
             </a>
         {% endif %}
     </fieldset>

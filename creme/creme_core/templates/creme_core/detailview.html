@@ -20,8 +20,8 @@
             {% if object.get_lv_absolute_url %}
                 <li>
                     <a class="menu_button" href="{{object.get_lv_absolute_url}}">
-                        <img src="{{MEDIA_URL}}images/left_arrow_32.png" border="0" title="Liste" alt="Liste" />
-                        Retour à la liste
+                        <img src="{{MEDIA_URL}}images/left_arrow_32.png" border="0" title="{% trans "Back to the list" %}" alt="{% trans "Back to the list" %}" />
+                        {% trans "Back to the list" %}
                     </a>
                 </li>
             {% endif %}
@@ -29,8 +29,8 @@
                 {% if path %}
                     <li>
                         <a class="menu_button" href="{{path}}/add">
-                            <img src="{{MEDIA_URL}}images/add_32.png" border="0" title="Ajouter" alt="Ajouter" />
-                            Nouveau
+                            <img src="{{MEDIA_URL}}images/add_32.png" border="0" title="{% trans "Add" %}" alt="{% trans "Add" %}" />
+                            {% trans "New" %}
                         </a>
                     </li>
                 {% endif %}
@@ -56,10 +56,10 @@
                         {% block edit_delete_buttons %}
                             {% if path %}
                                 <a href="{{path}}/edit/{{object.id}}">
-                                    <img src="{{MEDIA_URL}}images/edit_64.png" title="Éditer '{{object}}'" alt="Éditer"/>
+                                    <img src="{{MEDIA_URL}}images/edit_64.png" title="{% blocktrans %}Edit '{{object}}'{% endblocktrans %}" alt="{% trans "Edit" %}"/>
                                 </a>&nbsp;
                                 <a href="{{path}}/delete/{{object.id}}" onclick="creme.utils.confirmDelete(event, this);">
-                                    <img src="{{MEDIA_URL}}images/delete_64.png" title="Supprimer '{{object}}'" alt="Supprimer" />
+                                    <img src="{{MEDIA_URL}}images/delete_64.png" title="{% blocktrans %}Delete '{{object}}'{% endblocktrans %}" alt="{% trans "Delete" %}" />
                                 </a>
                             {% endif %}
                         {% endblock %}

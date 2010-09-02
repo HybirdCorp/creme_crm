@@ -25,6 +25,7 @@ from django.core.paginator import Paginator, InvalidPage, EmptyPage
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template.context import RequestContext
 from django.utils.simplejson import JSONDecoder
+from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required
 from django.contrib.contenttypes.models import ContentType
 
@@ -110,7 +111,7 @@ def list_view(request, model, hf_pk='', extra_dict=None, template='creme_core/ge
 
     if hf is None:
         from creme_core.views.header_filter import add as add_header_filter
-        return add_header_filter(request, ct.id, {'help_message': u"La liste souhaitée n'a aucune vue, veuillez en créer au moins une."})
+        return add_header_filter(request, ct.id, {'help_message': _(u"The desired list does not have any view, please create one.")})
     else:
         current_lvs.header_filter_id = hf.id
 
@@ -145,7 +146,7 @@ def list_view(request, model, hf_pk='', extra_dict=None, template='creme_core/ge
         'o2m':                o2m,
         'add_url':            None,
         'extra_bt_templates': None, # () instead ???,
-        'show_actions': show_actions,
+        'show_actions':       show_actions,
     }
 
     if extra_dict:

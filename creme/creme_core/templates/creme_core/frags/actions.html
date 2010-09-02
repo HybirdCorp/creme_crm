@@ -1,14 +1,12 @@
+{% load i18n %}
 <script type="text/javascript">
-$(function(){
+$(function() {
     creme.menu.actions.flatMenu('#actions_button_{{id}}', '#actions_div_{{id}}');
 });
 </script>
 
 <span class="fg-button fg-button-icon-right ui-widget ui-corner-all ui-state-default">
-    <a href="#actions_div_{{id}}"
-       
-       id="actions_button_{{id}}"
-       >
+    <a href="#actions_div_{{id}}" id="actions_button_{{id}}">
     {% if default_action %}
         <img src="{{MEDIA_URL}}/images/small_down_arrow_16.png"/>
         </a>|
@@ -19,10 +17,9 @@ $(function(){
             {{default_action.text}}
         </a>
     {% else %}
-        Actions
-    </a>
+        {% trans "Actions" %}
+        </a>
     {% endif %}
-    
 </span>
 <div id="actions_div_{{id}}" style="display: none;">
     <ul>

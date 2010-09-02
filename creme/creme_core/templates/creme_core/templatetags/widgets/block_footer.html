@@ -1,3 +1,4 @@
+{% load i18n %}
 {% load creme_block %}
 {% ifnotequal page.paginator.num_pages 1 %}
     <tfooter class="collapsable">
@@ -5,13 +6,13 @@
             <td colspan="100" class="block_header_line_dark">
                 {% if page.has_previous %}
                     <a class="button_link" onclick="creme.utils.loadBlock({% get_block_reload_uri %} + '&{{block_name}}_page={{page.previous_page_number}}')">
-                        Page précédente
+                        {% trans "Previous page" %}
                     </a>
                 {% endif %}
-                Page {{page.number}} / {{page.paginator.num_pages}}
+                {% blocktrans with page.number as page_number and page.paginator.num_pages as num_pages %}Page {{page_number}} / {{num_pages}}{% endblocktrans %}
                 {% if page.has_next %}
                     <a class="button_link" onclick="creme.utils.loadBlock({% get_block_reload_uri %} + '&{{block_name}}_page={{page.next_page_number}}')">
-                        Page suivante
+                        {% trans "Next page" %}
                     </a>
                 {% endif %}
             </td>

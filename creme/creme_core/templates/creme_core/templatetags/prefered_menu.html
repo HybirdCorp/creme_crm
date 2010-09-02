@@ -1,5 +1,6 @@
+{% load i18n %}
 <div id="preferred_menu">
-    <strong>Menus rapides: </strong>
+    <strong>{% trans "Prefered menu:" %} </strong>
     {% for item in items %}
         <a href="{{item.url}}">{{item.label}}</a> &nbsp; &nbsp;
     {% endfor %}

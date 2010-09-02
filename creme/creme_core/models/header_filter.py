@@ -69,7 +69,7 @@ class HeaderFilterList(list):
 
 class HeaderFilter(Model): #CremeModel ???
     id          = CharField(primary_key=True, max_length=100)
-    name        = CharField(max_length=100, verbose_name=_('Nom de la vue'))
+    name        = CharField(max_length=100, verbose_name=_('Name of the view'))
     entity_type = ForeignKey(ContentType, editable=False)
     is_custom   = BooleanField(blank=False, default=True)
 
@@ -173,4 +173,4 @@ class HeaderFilterItem(Model):  #CremeModel ???
         return self._customfield
 
 
-_hfi_action = HeaderFilterItem(order=0, name='entity_actions', title='Actions', type=HFI_ACTIONS, has_a_filter=False, editable=False, is_hidden=False)
+_hfi_action = HeaderFilterItem(order=0, name='entity_actions', title=_(u'Actions'), type=HFI_ACTIONS, has_a_filter=False, editable=False, is_hidden=False)

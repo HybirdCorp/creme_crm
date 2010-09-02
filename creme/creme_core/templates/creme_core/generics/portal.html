@@ -1,5 +1,5 @@
 {% extends "creme_core/base.html" %}
-
+{% load i18n %}
 {% load creme_block %}
 
 {% block extrahead %}
@@ -19,7 +19,7 @@
                 {% block header_link %}
                     <a href="{% block list_url %}{% endblock %}">
                         {% block list_msg %}{% endblock %}
-                        <img src="{{MEDIA_URL}}images/right_arrow_64.png" title="Aller à la liste" alt="Aller à la liste"/>
+                        <img src="{{MEDIA_URL}}images/right_arrow_64.png" title="{% trans "Go to the list" %}" alt="{% trans "Go to the list" %}"/>
                     </a>
                 {% endblock %}
             </td>
@@ -31,8 +31,8 @@
             <ul class="button_list hbox">
                 <li>
                     <a class="menu_button" href="{{config_url}}">
-                        <img src="{{MEDIA_URL}}images/config_32.png" border="0" title="Configuration" alt="Configuration" />
-                        Configurer
+                        <img src="{{MEDIA_URL}}images/config_32.png" border="0" title="{% trans "Configure" %}" alt="{% trans "Configure" %}" />
+                        {% trans "Configure" %}
                     </a>
                 </li>
             </ul>
@@ -47,8 +47,7 @@
 
     {% block statistics %}
         <table class="table_detail_view ui-corner-all">
-            {% get_basic_block_header 'Statistiques' 'infos_48.png' 'Infos' %}
-
+            {% get_basic_block_header _('Statistics') 'infos_48.png' _('Information') %}
             <tbody class="collapsable">
                 {% for statk, statv in stats %}
                     <tr>

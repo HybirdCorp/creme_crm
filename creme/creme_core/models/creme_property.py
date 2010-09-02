@@ -38,8 +38,8 @@ class CremePropertyType(CremeModel):
 
     class Meta:
         app_label = 'creme_core'
-        verbose_name = _(u'Type de propriété')
-        verbose_name_plural = _(u'Types de propriété')
+        verbose_name = _(u'Type of property')
+        verbose_name_plural = _(u'Types of property')
 
     def delete(self):
         self.property_i18n_set.all().delete()
@@ -83,8 +83,8 @@ class CremeProperty(CremeModel):
 
     class Meta:
         app_label = 'creme_core'
-        verbose_name = _(u'Propriété')
-        verbose_name_plural = _(u'Propriétés')
+        verbose_name = _(u'Property')
+        verbose_name_plural = _(u'Properties')
 
     def __unicode__(self):
         #return force_unicode(u"%s a la propriété: %s" % (self.creme_entity, self.type)) #causes too much  queries...

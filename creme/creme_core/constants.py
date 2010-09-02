@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-
 DROIT_MODULE_A_ACCES   = "A Acces"
 DROIT_MODULE_EST_ADMIN = "Est Admin"
 
@@ -15,8 +14,6 @@ DROIT_TEF_FICHES_D_UN_ROLE_ET_SUBORDONNES = "fiche_d_un_role_et_subordonnees"
 DROIT_TEF_FICHES_DE_SES_SUBORDONNES = "les_fiches_de_ses_subordonnes"
 DROIT_TEF_LES_AUTRES_FICHES = "les_autres_fiches"
 DROIT_TEF_EN_REL_AVC_SA_FICHE = "fiche_en_rel_avec_sa_fiche"
-
-
 
 DROIT_TYPE_DROIT_LIRE = "Lire"
 DROIT_TYPE_DROIT_CREER = "Creer"
