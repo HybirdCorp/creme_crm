@@ -18,35 +18,24 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-import csv
+from datetime import date
 
-from django.http import HttpResponse
-from django.utils.encoding import smart_str
+from django.utils.translation import ugettext as _
 
-from base import ReportBackend
+from reports.registry import ReportDatetimeFilter
+
+def last_year_beg(filter, now):
+    return date(year=now.year-1, month=1, day=1)
+
+def last_year_end(filter, now):
+    return date(year=now.year-1, month=12, day=31)
 
 
-class CsvReportBackend(ReportBackend):
-    def __init__(self, report, extra_q_filter):
-        super(CsvReportBackend, self).__init__(report)
-        self.extra_q_filter = extra_q_filter
 
-    def render_to_response(self):
-        report = self.report
+to_register = (
+    ('customized', ReportDatetimeFilter('customized', _(u"Customized"), lambda x,y: "", lambda x,y: "")),
+    ('last_year', ReportDatetimeFilter('last_year', _(u"Last year"), last_year_beg, last_year_end)),
 
-        response = HttpResponse(mimetype='text/csv')
-        response['Content-Disposition'] = 'attachment; filename="%s.csv"' % smart_str(report.name)
-
-        writer   = csv.writer(response, delimiter=";")
-
-        writerow = writer.writerow
-
-        writerow([smart_str(column.title) for column in report.get_children_fields_flat()])
-
-        for line in report.fetch_all_lines(extra_q=self.extra_q_filter):
-            writerow([smart_str(value) for value in line])
-
-        return response
-
+)
 
 

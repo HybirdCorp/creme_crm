@@ -25,12 +25,14 @@ LIMIT_TO = 25
 
 
 class HtmlReportBackend(ReportBackend):
-    def __init__(self, report, context_instance, template="reports/backends/html_report.html", limit_to=None ):
+    def __init__(self, report, context_instance, template="reports/backends/html_report.html", limit_to=None, extra_fetch_q=None ):
         super(HtmlReportBackend, self).__init__(report)
         self.context_instance = context_instance
         self.template = template
         self.limit_to = limit_to
+        self.extra_fetch_q = extra_fetch_q
 
     def render(self):
-        return render_to_string(self.template, {'backend': self, 'lines':self.report.fetch_all_lines(limit_to=self.limit_to)}, context_instance=self.context_instance)
+#        return render_to_string(self.template, {'backend': self, 'lines':self.report.fetch_all_lines(limit_to=self.limit_to)}, context_instance=self.context_instance)
+        return render_to_string(self.template, {'backend': self, 'lines':self.report.fetch_all_lines(limit_to=self.limit_to, extra_q=self.extra_fetch_q)}, context_instance=self.context_instance)
 

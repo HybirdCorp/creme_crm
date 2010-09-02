@@ -276,6 +276,10 @@ def format(ustring, format_str):
 def enumerate_iterable(iterable):
     return enumerate(iterable)
 
+@register.filter(name="to_timestamp")
+def to_timestamp(date):
+    return date.strftime('%s')
+
 _templatize_re = compile_re(r'(.*?) as (\w+)')
 
 @register.tag(name="templatize")

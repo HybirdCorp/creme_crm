@@ -18,7 +18,10 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from datetime import datetime
+
 from django.http import Http404, HttpResponse
+from django.db.models.query_utils import Q
 from django.db.models.fields.related import ForeignKey, ManyToManyField
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext
@@ -28,15 +31,14 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.contenttypes.models import ContentType
 
 from creme_core.entities_access.functions_for_permissions import add_view_or_die, get_view_or_die
-from creme_core.models.custom_field import CustomField
 from creme_core.views.generic import add_entity, edit_entity, view_entity_with_template, list_view, inner_popup
 from creme_core.utils.meta import get_model_field_infos
 from creme_core.utils import get_ct_or_404
-from creme_core.utils.meta import get_flds_with_fk_flds
+from creme_core.utils.meta import get_flds_with_fk_flds, get_date_fields
 
 from reports.models import Report, report_prefix_url, report_template_dir, Field
-from reports.forms.report import CreateForm, EditForm, LinkFieldToReportForm, AddFieldToReportForm, get_aggregate_custom_fields
-from reports.registry import report_backend_registry
+from reports.forms.report import CreateForm, EditForm, LinkFieldToReportForm, AddFieldToReportForm, get_aggregate_custom_fields, DateReportFilterForm
+from reports.registry import report_backend_registry, report_filters_registry
 from reports.report_aggregation_registry import field_aggregation_registry
 
 report_app = Report._meta.app_label
@@ -187,6 +189,15 @@ def change_field_order(request):
 @get_view_or_die(report_app)
 def preview(request, report_id):
     report = get_object_or_404(Report, pk=report_id)
+    
+    extra_q_filter = Q()
+
+    if request.POST:
+        filter_form = DateReportFilterForm(report, request.POST)
+        if filter_form.is_valid():
+            extra_q_filter = filter_form.get_q()
+    else:
+        filter_form = DateReportFilterForm(report)
 
     LIMIT_TO = 25
 
@@ -194,13 +205,16 @@ def preview(request, report_id):
 
     req_ctx = RequestContext(request)
 
-    html_backend = html_backend(report, context_instance=req_ctx, limit_to=LIMIT_TO)
+    html_backend = html_backend(report, context_instance=req_ctx, limit_to=LIMIT_TO, extra_fetch_q=extra_q_filter)
 
     return render_to_response("%s/preview_report.html" % report_template_dir,
                               {
                                 'object'  : report,
                                 'html_backend' : html_backend,
                                 'limit_to': LIMIT_TO,
+                                'date_filters': report_filters_registry.itervalues(),
+                                'date_fields' : [(field.name, field.verbose_name) for field in get_date_fields(report.ct.model_class())],
+                                'form': filter_form
                               },
                               context_instance=req_ctx)
 
@@ -234,7 +248,25 @@ def csv(request, report_id):
     report = get_object_or_404(Report, pk=report_id)
     csv_backend = report_backend_registry.get_backend('CSV')
 
-    return csv_backend(report).render_to_response()
+    extra_q_filter = Q()
+
+    GET = request.GET
+    if GET:
+        GET_get = GET.get
+
+        field = GET_get('field')
+        start_date = None
+        end_date = None
+        try:
+            start_date = datetime.fromtimestamp(float(GET_get('start')))
+            end_date = datetime.fromtimestamp(float(GET_get('end')))
+        except ValueError, TypeError:
+            pass
+
+        if field and start_date and end_date:
+            extra_q_filter = Q(**{str("%s__range" % field):(start_date, end_date)})
+
+    return csv_backend(report, extra_q_filter).render_to_response()
 
 @login_required
 def get_aggregate_fields(request):
@@ -252,3 +284,34 @@ def get_aggregate_fields(request):
         choices.extend(get_aggregate_custom_fields(model, aggregate_pattern))
 
     return HttpResponse(JSONEncoder().encode(choices), mimetype="text/javascript")
+
+@login_required
+def date_filter_form(request, report_id):
+    report = get_object_or_404(Report, pk=report_id)
+    
+    redirect = False
+    simple_redirect = False
+    valid = False
+    
+    if request.POST:
+        form = DateReportFilterForm(report, request.POST)
+        redirect = True
+        valid = True
+        if not form.is_valid():
+           simple_redirect = True
+    else:
+        form = DateReportFilterForm(report)
+
+    return inner_popup(request, "%s/frags/date_filter_form.html" % report_template_dir,
+                       {
+                        'form':  form,
+                        'title': _(u'Temporal filters for <%s>' % report),
+                        'inner_popup': True,
+                        'report_id': report_id,
+                        'redirect':redirect,
+                        'simple_redirect': simple_redirect,
+                       },
+                       is_valid=valid,
+                       reload=False,
+                       delegate_reload=True,
+                       context_instance=RequestContext(request))
