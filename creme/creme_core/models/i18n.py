@@ -23,7 +23,7 @@ from django.utils.translation import ugettext_lazy as _
 
 
 class Language(Model):
-    name = CharField(_('Nom'), max_length=100)
+    name = CharField(_('Name'), max_length=100)
     code = CharField(_('Code'), max_length=5)
 
     def __unicode__(self):
@@ -31,5 +31,5 @@ class Language(Model):
 
     class Meta:
         app_label = 'creme_core'
-        verbose_name = _(u'Langue des contacts')
-        verbose_name_plural = _(u'Langues des contacts')
+        verbose_name = _(u'Language')
+        verbose_name_plural = _(u'Languages')

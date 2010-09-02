@@ -20,7 +20,7 @@
 
 from logging import debug
 
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import ugettext as _
 from django.http import Http404, HttpResponse, HttpResponseRedirect
 from django.template.context import RequestContext
 from django.shortcuts import get_object_or_404
@@ -37,7 +37,7 @@ from creme_core.models.entity import CremeEntity
 def delete_entities_js_post(request):
     ids = request.POST.get('ids')
     if not ids:
-        return HttpResponse(u"Aucune entitée séléctionnée", mimetype="text/javascript", status=400)
+        return HttpResponse(_(u"No selected entities"), mimetype="text/javascript", status=400)
     return delete_entities_js(request, ids)
 
 @login_required
@@ -73,7 +73,7 @@ def delete_entities_js(request, entities_ids):
             continue
 
         if not user_has_delete_permission_for_an_object(request, f):
-            return_str += '%s : <b>Permission refusée</b>,' % f
+            return_str += _(u'%s : <b>Permission denied</b>,') % f
             continue
 
         try:
@@ -119,5 +119,5 @@ def delete_entity(request, object_id, callback_url=None):
         return HttpResponseRedirect(callback_url)
     else:
         return render_to_response("creme_core/forbidden.html", {
-                                    'error_message' : _(u'%s ne peut être effacé à cause des ses dépendances.' % entity)
+                                    'error_message' : _(u'%s can not be deleted because of its dependencies.' % entity)
                                  }, context_instance=RequestContext(request))

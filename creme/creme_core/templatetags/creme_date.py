@@ -21,7 +21,7 @@
 #import logging
 
 from django import template
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import ugettext as _
 
 register = template.Library()
 
@@ -30,16 +30,16 @@ def timedelta_pprint(timedelta_):
     days = timedelta_.days
 
     if days > 0:
-        return _('%s jour(s)') % days
+        return _('%s day(s)') % days
 
     hours, hour_remain = divmod(timedelta_.seconds, 3600)
 
     if hours > 0:
-        return _('%s heure(s)') % hours
+        return _('%s hour(s)') % hours
 
     minutes, seconds = divmod(hour_remain, 60)
 
     if minutes > 0:
         return _('%s minute(s)') % minutes
 
-    return _('%s seconde(s)') % seconds
+    return _('%s second(s)') % seconds

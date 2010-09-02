@@ -1,13 +1,13 @@
+{% load i18n %}
 {% load creme_block %}
 <script type="text/javascript">
     creme.include('{{MEDIA_URL}}js/models/relations.js','js');
 </script>
 <table  class="table_detail_view ui-corner-all" id={{block_name}}>
-    {% comment %}{% get_block_header '%s Contact lié à cette opportunité' '%s Contacts liés à cette opportunité' 'contacts_48.png' 'Contacts' %}{% endcomment %}
     <thead>
         <tr>
             <th colspan="2">
-                Entités relatives à: {{relation_type.predicate}}
+                {% blocktrans with relation_type.predicate as predicate %}Entities related to: {{predicate}}{% endblocktrans %}
             </th>
         </tr>
     </thead>
@@ -15,15 +15,15 @@
         <tr>
             <th colspan="2" align="left" class="block_header_line_dark" style="font-size:14px;">
                 <a class="button_link" onclick="creme.utils.innerPopupNReload('/creme_core/relation/add/{{object.id}}/{{relation_type.id}}', {% get_block_reload_uri %});">
-                    <img src="{{MEDIA_URL}}images/add_22.png" border="0" title="Ajouter" alt="Ajouter" />
-                    Lier à de nouvelles entités
+                    <img src="{{MEDIA_URL}}images/add_22.png" border="0" title="{% trans "Link to existing entities" %}" alt="{% trans "Link to existing entities" %}" />
+                    {% trans "Link to existing entities" %}
                 </a>
             </th>
         </tr>
         {% if page.paginator.count %}
             <tr>
-                <th class="block_header_line_dark">Nom</th>
-                <th class="block_header_line_dark">Supprimer</th>
+                <th class="block_header_line_dark">{% trans "Name" %}</th>
+                <th class="block_header_line_dark">{% trans "Delete" %}</th>
             </tr>
             {% for relation in page.object_list %}
                 {% with relation.object_entity.get_real_entity as entity_obj %}
@@ -38,7 +38,7 @@
             {% endfor %}
         {% else %}
             <tr>
-                <td class="block_line_dark">Aucune entité liée pour le moment</td>
+                <td class="block_line_dark">{% trans "No related entity for the moment" %}</td>
             </tr>
         {% endif %}
     </tbody>

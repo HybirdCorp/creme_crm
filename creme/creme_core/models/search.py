@@ -17,37 +17,35 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from django.db.models import CharField, ForeignKey, PositiveIntegerField
+from django.utils.translation import ugettext_lazy as _
+#from django.utils.encoding import force_unicode
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
-from django.db.models import CharField
-from django.db.models import ForeignKey
-from django.db.models import PositiveIntegerField
-from django.utils.translation import ugettext_lazy as _
-from django.utils.encoding import force_unicode
 
 from creme_core.models import CremeModel
-
 from creme_core.utils import create_or_update_models_instance
 from creme_core.utils.meta import get_verbose_field_name
+
 
 DEFAULT_PATTERN = '__icontains'
 
 class SearchConfigItem(CremeModel):
-    content_type = ForeignKey(ContentType, verbose_name=_(u"Type associé"))
+    content_type = ForeignKey(ContentType, verbose_name=_(u"Related type"))
 #    role         = ForeignKey(CremeRole,   verbose_name=_(u"Rôle associé"),        null=True)#TODO:To be done ?
-    user         = ForeignKey(User,        verbose_name=_(u"Utilisateur associé"), null=True)
+    user         = ForeignKey(User, verbose_name=_(u"Related user"), null=True)
 
     _searchfields = None
 
     class Meta:
         app_label = 'creme_core'
-        verbose_name = _(u'Recherche')
-        verbose_name_plural = _(u'Recherches')
+        verbose_name = _(u'Search')
+        verbose_name_plural = _(u'Searches')
 
     def get_fields(self):
         if self._searchfields is None:
             self._searchfields = SearchField.objects.filter(search_config_item=self).order_by('order')
-        
+
         return self._searchfields
 
     @staticmethod
@@ -77,15 +75,16 @@ class SearchConfigItem(CremeModel):
 
 
 class SearchField(CremeModel):
-    field              = CharField(_(u"Champ"), max_length=100)
-    field_verbose_name = CharField(_(u"Champ"), max_length=100)
-    search_config_item = ForeignKey(SearchConfigItem, verbose_name=_(u"Configuration de recherche associée"))
-    order              = PositiveIntegerField(_(u"Priorité"))
+    field              = CharField(_(u"Field"), max_length=100)
+    field_verbose_name = CharField(_(u"Field (long name)"), max_length=100)
+    search_config_item = ForeignKey(SearchConfigItem, verbose_name=_(u"Associated configuration"))
+    order              = PositiveIntegerField(_(u"Priority"))
 
     class Meta:
         app_label = 'creme_core'
-        verbose_name = _(u'Champ de recherche')
-        verbose_name_plural = _(u'Champs de recherche')
+        verbose_name = _(u'Search field')
+        verbose_name_plural = _(u'Search fields')
 
     def __unicode__(self):
-        return force_unicode(self.field_verbose_name)
+        #return force_unicode(self.field_verbose_name)
+        return self.field_verbose_name

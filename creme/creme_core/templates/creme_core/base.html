@@ -48,7 +48,7 @@
                 var footer = $('#footer');
 
                 var margin_left = (expanded) ? menu_width + 5 + 'px' : menu_width;
-                
+
                 top.css('margin-left', margin_left);
                 content.css('margin-left', margin_left);
                 footer.css('margin-left', margin_left);
@@ -70,11 +70,10 @@
                 backLink: false,
                 alwaysOpen:true,
                 //maxHeight: max_menu_height * 0.9,
-                crumbDefaultText : 'Menu',
-                topLinkText : 'Revenir au début'
+                crumbDefaultText : '{% trans "Menu" %}',
+                topLinkText : '{% trans "Back to Top" %}'
             });
 
-            
             $('#menu').hide();
             $('.fg-menu-container')
                 .appendTo('#menu_expanded')
@@ -130,7 +129,7 @@
         var content_height = $(document).height();
         var logo_container_height = $('#logo_container').outerHeight();
         var max_menu_height = content_height - logo_container_height;
-       
+
         $('.fg-menu-container').css({'top': logo_container_height, 'height':max_menu_height, 'bottom':'auto'});
         $('.fg-menu').css('height', max_menu_height*0.9);
         allUIMenus[0].setMaxHeight(max_menu_height*0.9);
@@ -226,7 +225,7 @@
     </div>
 
     <div id="footer">
-        <a href="http://hybird.org">À propos d'Hybird</a> -  2009 - 2010
+        <a href="http://hybird.org">{% trans "About Hybird" %}</a> -  2009 - 2010
     </div>
 </body>
 </html> 

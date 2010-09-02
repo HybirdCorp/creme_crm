@@ -37,7 +37,7 @@ from creme_core.models import CremeModel
 
 class CremeTypeDroit(CremeModel):
     """ pour modeliser les type de droits ( dont le CRUD) sur les CremeEntity """
-    name = CharField(_(u'Nom'), max_length=100)
+    name = CharField(_(u'Name'), max_length=100)
 
     class Meta:
         app_label = 'creme_core'
@@ -60,7 +60,7 @@ class CremeTypeEnsembleFiche(CremeModel):
     Fiche Unique fiche_unique
     fiche en relation avec sa fiche fiche_en_rel_avec_sa_fiche
     """
-    name = CharField(_(u'Nom'), max_length=100)
+    name = CharField(_(u'Name'), max_length=100)
 
     class Meta:
         app_label = 'creme_core'
@@ -95,7 +95,7 @@ class CremeDroitEntityType(CremeModel):
 
 class CremeAppTypeDroit(CremeModel):
     """ pour modeliser les type de droits (Est Admin et A Acces) sur les App """
-    name = CharField(_(u'Nom'), max_length=100)
+    name = CharField(_(u'Name'), max_length=100)
 
     research_fields = ['name']
 

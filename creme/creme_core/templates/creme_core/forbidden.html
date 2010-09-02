@@ -1,8 +1,9 @@
 {% extends "creme_core/base.html" %}
-    {% block content %}
-        {% if error_message %}
-            {{error_message}}
-        {% else %}
-            Vous n'avez pas accès à cette page, veuillez contacter votre administrateur.
-        {% endif %}
-    {% endblock %}
+{% load i18n %}
+{% block content %}
+    {% if error_message %}
+        {{error_message}}
+    {% else %}
+        {% trans "You do not have access to this page, please contact your administrator." %}
+    {% endif %}
+{% endblock %}
