@@ -1,6 +1,7 @@
+{% load i18n %}
 {% load creme_core_tags %}
 <tr id="list_thead_search" class="columns_bottom">
-    {% if not o2m %}<th><center><input name="select_all" value="all" type="checkbox" title="Tout sélectionner"/></center></th>{% endif %}
+    {% if not o2m %}<th><center><input name="select_all" value="all" type="checkbox" title="{% trans "Select all" %}"/></center></th>{% endif %}
     {% for column in columns %}
         <th {% if column.is_hidden %}style="display:none;"{% endif %}>
             {% if column.has_a_filter %}
@@ -8,7 +9,7 @@
                     {% with column_options.type as column_type %}
                         {% ifequal column_type "select" %}
                             <select name="{{column.name}}" title="{{column.title}}">
-                                <option value="">Sélectionnez</option>
+                                <option value="">{% trans "Select" %}</option>
                                 {% for options in column_options.values %}
                                     <option value="{{options.text}}" {% if search %}{{options.selected}}{% endif %}>
                                         {{options.text}}
@@ -17,7 +18,7 @@
                             </select>
                         {% else %}{% ifequal column_type "checkbox" %}
                             <select name="{{column.name}}" title="{{column.title}}">
-                                <option value="">Sélectionnez</option>
+                                <option value="">{% trans "Select" %}</option>
                                 {% for options in column_options.values %}
                                     <option value="{{options.value}}" {% if search %}{{options.selected}}{% endif %}>
                                         {{options.text}}
@@ -26,10 +27,10 @@
                             </select>
                         {% else %}{% ifequal column_type "datefield" %}
                             <span>
-                                Entre
+                                {% trans "Between" %}
                                 <input name="{{column.name}}" id="id_{{column.name}}" title="{{column.title}}" type="{{column_type}}"
                                        style="width:80px" value="{% if search %}{{column_options.values.start}}{% endif %}"/>
-                                &nbsp;et&nbsp;
+                                &nbsp;{% trans "and" %}&nbsp;
                                 <input name="{{column.name}}" id="id_{{column.name}}_2" title="{{column.title}}" type="{{column_type}}"
                                        style="width:80px" value="{% if search %}{{column_options.values.end}}{% endif %}"/>
                             </span>

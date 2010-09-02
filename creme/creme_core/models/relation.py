@@ -24,7 +24,7 @@ from django.db.models import Q, CharField, ForeignKey, ManyToManyField, BooleanF
 from django.db import transaction
 from django.utils.encoding import force_unicode, smart_str
 from django.utils.html import escape
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import ugettext_lazy as _, ugettext
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.auth.models import User
 
@@ -48,18 +48,18 @@ class RelationType(CremeModel):
     can_be_create_with_popup = BooleanField(default=True) #still useful ????
     is_custom                = BooleanField(default=False)
 
-    predicate      = CharField(_(u'Prédicat'), max_length=100)
+    predicate      = CharField(_(u'Predicate'), max_length=100)
     symmetric_type = ForeignKey('self', blank=True, null=True)
 
     class Meta:
         app_label = 'creme_core'
-        verbose_name = _(u'Type de relation')
-        verbose_name_plural = _(u'Types de relation')
+        verbose_name = _(u'Type of relation')
+        verbose_name_plural = _(u'Types of relation')
 
     def __unicode__(self):
         #from creme_core.i18n import translate_predicate
         sym_type = self.symmetric_type
-        symmetric_pred = u'Pas de relation' if sym_type is None else sym_type.predicate
+        symmetric_pred = ugettext(u'No relation') if sym_type is None else sym_type.predicate
 
         return force_unicode(u'%s / %s' % (self.predicate, symmetric_pred))
 

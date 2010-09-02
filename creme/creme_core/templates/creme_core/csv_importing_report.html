@@ -1,5 +1,4 @@
 {% extends "creme_core/base.html" %}
-
 {% load i18n %}
 {% load creme_core_tags %}
 {% load creme_block %}
@@ -10,18 +9,18 @@
             <td width="5%"><img src="{{MEDIA_URL}}images/document_csv_64.png" title="CSV" alt="CSV"/></td>
             <td width="95%">
                 <h1>
-                    Import CSV : bilan
+                    {% trans "CSV importing : results" %}
                 </h1>
             </td>
         </tr>
     </table>
 
     <p>
-        {% blocktrans with form|get_meta_value:'model'|get_meta_value:'verbose_name' as verbose_name count form.imported_objects_count as counter %}
-            {{counter}} entité de type "{{verbose_name}}" a été importée avec succés.
-        {% plural %}
-            {{counter}} entités de type "{{verbose_name}}" ont été importées avec succés.
-        {% endblocktrans %}
+        {% with with form|get_meta_value:'model'|get_meta_value:'verbose_name' as verbose_name %}
+        {% with form.imported_objects_count as counter %}
+            {% blocktrans count counter %}{{counter}} entity with type "{{verbose_name}}" has been sucessfully imported.{% plural %}{{counter}} entities with type "{{verbose_name}}" have been sucessfully imported.{% endblocktrans %}
+        {% endwith %}
+        {% endwith %}
     </p>
 
     {% with form.import_errors as errors %}
@@ -31,8 +30,8 @@
                     {% get_block_header '%s Erreur' '%s Erreurs' 'infos_48.png' 'Infos' count %}
                     <tbody class="collapsable">
                         <tr>
-                            <th class="block_header_line_dark">Ligne du CSV</th>
-                            <th class="block_header_line_dark">Erreur provoquée</th>
+                            <th class="block_header_line_dark">{% trans "Line of the CSV file" %}</th>
+                            <th class="block_header_line_dark">{% trans "Induced error" %}</th>
                         </tr>
                         {% for error in errors %}
                             <!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
@@ -46,7 +45,7 @@
                         <tfooter class="collapsable">
                             <tr>
                                 <td colspan="2" class="block_header_line_dark">
-                                    Les autres erreurs ont été omises.
+                                    {% trans "Other errors have been omitted." %}
                                 </td>
                             </tr>
                         </tfooter>
@@ -54,7 +53,7 @@
                 </table>
             {% endwith %}
         {% else %}
-            <p>Aucune erreur lors de l'import.</p>
+            <p>{% trans "No error when importing." %}</p>
         {% endif %}
     {% endwith %}
 
@@ -63,8 +62,8 @@
         <ul class="button_list hbox">
             <li>
                 <a class="menu_button" href="{{back_url}}">
-                    <img src="{{MEDIA_URL}}images/left_arrow_32.png" border="0" title="Liste" alt="Liste" />
-                    Retour à la liste
+                    <img src="{{MEDIA_URL}}images/left_arrow_32.png" border="0" title="{% trans "Back to the list" %}" alt="{% trans "Back to the list" %}" />
+                    {% trans "Back to the list" %}
                 </a>
             </li>
         </ul>

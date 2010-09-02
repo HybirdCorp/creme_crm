@@ -169,7 +169,7 @@ class CremeAbstractEntity(CremeModel, TimeStampedModel):
 
     is_deleted = BooleanField(blank=True, default=False)
     is_actived = BooleanField(blank=True, default=False)
-    user       = ForeignKey(User, verbose_name=_(u'Utilisateur'))
+    user       = ForeignKey(User, verbose_name=_(u'User'))
 
     _real_entity = None
 
