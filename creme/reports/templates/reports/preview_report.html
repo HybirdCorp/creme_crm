@@ -21,7 +21,12 @@
                     <a href="{{object.get_absolute_url}}">
                         <img src="{{MEDIA_URL}}images/left_arrow_64.png" title="{% blocktrans %}Back to the detailview : '{{object}}'{% endblocktrans %}" alt="{% trans "Back" %}"/>
                     </a>&nbsp;
-                    <a href="/reports/report/{{object.id}}/csv">
+
+                    {% if form.cleaned_data %}
+                        <a href="/reports/report/{{object.id}}/csv?field={{form.cleaned_data.date_fields}}&start={{form.cleaned_data.begin_date|to_timestamp}}&end={{form.cleaned_data.end_date|to_timestamp}}">
+                    {% else %}
+                        <a href="/reports/report/{{object.id}}/csv">
+                    {% endif %}
                         <img src="{{MEDIA_URL}}images/document_csv_64.png" title="{% blocktrans %}Download '{{object}}' as CSV file{% endblocktrans %}" alt="{% trans "Download CSV" %}"/>
                     </a>&nbsp;
                 </span>
@@ -31,6 +36,11 @@
 {% endblock %}
 
 {% block content %}
+
+    <div style="position:relative; width:100%; overflow-x: scroll;">
+        {% include "reports/frags/date_filter_form.html" %}
+    </div>
+
     {% with object.get_children_fields_flat as flat_columns %}
         <div style="position:relative; width:100%; overflow-x: scroll;">
             <table class="table_detail_view ui-corner-all" >

@@ -21,7 +21,7 @@
     <a href="/reports/report/{{object.id}}/preview">
         <img src="{{MEDIA_URL}}images/view_64.png" title="{% blocktrans %}Preview of the report : '{{object}}'{% endblocktrans %}" alt="{% trans "Preview" %}"/>
     </a>&nbsp;
-    <a href="/reports/report/{{object.id}}/csv">
+    <a onclick="creme.utils.showInnerPopup('/reports/date_filter_form/{{object.id}}');">
         <img src="{{MEDIA_URL}}images/document_csv_64.png" title="{% blocktrans %}Download '{{object}}' as CSV file{% endblocktrans %}" alt="{% trans "Download CSV" %}"/>
     </a>&nbsp;
     {{block.super}}
