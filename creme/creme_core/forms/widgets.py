@@ -18,19 +18,18 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from logging import debug
-from datetime import datetime, time
+from datetime import datetime
 from itertools import chain
 
 from django.forms.widgets import Widget, Textarea, Select, SelectMultiple, FileInput, TextInput
 from django.forms.util import flatatt
+from django.utils.html import conditional_escape, escape
+from django.utils.encoding import force_unicode
 from django.utils.simplejson.encoder import JSONEncoder
 from django.utils.safestring import mark_safe
-from django.contrib.contenttypes.models import ContentType
 from django.conf import settings
 #from django.template.loader import render_to_string
 
-from creme_core.models import CremeEntity
 
 def widget_render_context(klass, widget, name, value, attrs, css='', typename='', noinput=False, **kwargs):
     id = attrs.get('id')
@@ -343,7 +342,7 @@ class CalendarWidget(TextInput):
             value = value.date()
 
         attrs = self.build_attrs(attrs, name=name)
-
+        
         html_output = """
             %(input)s
             <button type="button" onclick="d=new Date();$('#%(id)s').val(d.getFullYear() + '-' + (d.getMonth()+1) + '-' + d.getDate());">
@@ -684,3 +683,40 @@ class ListEditionWidget(Widget):
 
         return [get(prefix_value % i) if has_key(prefix_check % i) else None
                     for i in xrange(len(self.content))]
+
+class DateFilterWidget(Select):
+    def render(self, name, value, attrs=None, choices=()):
+        rendered = super(DateFilterWidget, self).render(name, value, attrs=None, choices=())
+        self_id = self.attrs.get('id')
+        if self_id:
+            rendered += """
+            <script type="text/javascript">
+                $(document).ready(function(){
+                    $('#%(self_id)s').change(function(){
+                        var $me = $(this);
+                        var $selected = $(this).find(':selected');
+                        $("#"+$me.attr('start_date_id')).val($selected.attr('begin'));
+                        $("#"+$me.attr('end_date_id')).val($selected.attr('end'));
+                    });
+                });
+            </script>
+            """ % {
+                'self_id' : self_id,
+            }
+        return mark_safe(rendered)
+        
+    def render_options(self, choices, selected_choices):
+        def render_option(report_date_filter):
+            option_value = force_unicode(report_date_filter.name)
+            selected_html = (option_value in selected_choices) and u' selected="selected"' or ''
+            return u'<option value="%s"%s begin="%s" end="%s">%s</option>' % (
+                escape(option_value), selected_html,
+                report_date_filter.get_begin(),
+                report_date_filter.get_end(),
+                conditional_escape(force_unicode(report_date_filter.verbose_name)))
+        # Normalize to strings.
+        selected_choices = set([force_unicode(v) for v in selected_choices])
+        output = []
+        for report_date_filter in chain(self.choices, choices):
+            output.append(render_option(report_date_filter))
+        return u'\n'.join(output)
