@@ -1,5 +1,4 @@
 {% load creme_core_tags %}
-
 <ul>
     {% for sub_role in sub_roles %}
         <li id="{{sub_role.id}}"><a href="{{sub_role.get_absolute_url}}">{{sub_role}}</a></li>

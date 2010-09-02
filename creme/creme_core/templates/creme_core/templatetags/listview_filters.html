@@ -1,10 +1,11 @@
-<fieldset title="Filtrer les lignes de la table">
+{% load i18n %}
+<fieldset title="{% trans "Filter the lines of the table" %}">
     <legend>
-        <img border="0" src="{{MEDIA_URL}}images/filter_32.png" alt="Créer vue personnalisée" title="Créer vue personnalisée"/>
-        Filtres
+        <img border="0" src="{{MEDIA_URL}}images/filter_32.png" alt="{% trans "Filter" %}" title="{% trans "Filter" %}"/>
+        {% trans "Filters" %}
     </legend>
     <select name="filter" id="list_filter" onchange="$(this.form).list_view('getSubmit')(this);">
-        <option value="">Tout</option>
+        <option value="">{% trans "All" %}</option>
         {% for filter in select_values %}
             <option value="{{filter.value}}" {% ifequal filter_id filter.value %}selected{% endifequal %}>
                 {{filter.text}}
@@ -12,14 +13,14 @@
         {% endfor %}
     </select>
     <a href="/creme_core/filter/add/{{content_type_id}}">
-        <img border="0" src="{{MEDIA_URL}}images/add_22.png" alt="Créer filtre" title="Créer filtre"/>
+        <img border="0" src="{{MEDIA_URL}}images/add_22.png" alt="{% trans "Create a custom filter" %}" title="{% trans "Create a custom filter" %}"/>
     </a>
     {% if filter_id %}
         <a href="/creme_core/filter/edit/{{content_type_id}}/{{filter_id}}" id="filter_edit">
-            <img border="0" src="{{MEDIA_URL}}images/edit_22.png" alt="Éditer filtre" title="Éditer filtre"/>
+            <img border="0" src="{{MEDIA_URL}}images/edit_22.png" alt="{% trans "Edit filter" %}" title="{% trans "Edit filter" %}"/>
         </a>
         <a href="/creme_core/filter/delete/{{filter_id}}" id="filter_delete" onclick="creme.utils.confirmDelete(event, this);">
-            <img border="0" src="{{MEDIA_URL}}images/delete_22.png" alt="Supprimer filtre" title="Supprimer filtre"/>
+            <img border="0" src="{{MEDIA_URL}}images/delete_22.png" alt="{% trans "Delete filter" %}" title="{% trans "Delete filter" %}"/>
         </a>
     {% endif %}
 </fieldset>

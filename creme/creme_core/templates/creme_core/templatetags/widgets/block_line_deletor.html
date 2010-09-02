@@ -1,4 +1,5 @@
+{% load i18n %}
 {% load creme_block %}
 <a onclick="creme.utils.ajaxDelete('{{delete_url}}', {{post_args}}, {complete:function(req, st){if(st!='error'){creme.utils.loadBlock({% get_block_reload_uri %});}creme.utils.loading('loading', true);}});">
-    <img src="{{MEDIA_URL}}images/delete_22.png" border="0">
+    <img src="{{MEDIA_URL}}images/delete_22.png" border="0" title="{% trans "Delete" %}" alt="{% trans "Delete" %}">
 </a>

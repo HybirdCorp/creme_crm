@@ -47,11 +47,10 @@ def _csv_to_list(line_str):
 
 class CSVUploadForm(CremeForm):
     csv_step       = IntegerField(widget=HiddenInput)
-    csv_document   = CremeEntityField(label=_(u'Fichier CSV'), model=Document,
-                                      help_text=_(u"""Un fichier contenant les valeurs des champs d'une fiche, séparées par des virgules et chacune entourée par des guillemets "."""))
-    csv_has_header = BooleanField(label=_(u'Entête présent ?'), required=False,
-                                  help_text=_(u"""La 1ère ligne du fichier contient-il l'entête des colonnes de valeurs (ex: "Nom","Prénom") ?"""))
-
+    csv_document   = CremeEntityField(label=_(u'CSV file'), model=Document,
+                                      help_text=_(u"""A file that contains the fields values of an entity on each line, separated by commas and each surrounded by quotation marks "."""))
+    csv_has_header = BooleanField(label=_(u'Header present ?'), required=False,
+                                  help_text=_(u"""Does the first line of the line contain the header of teh columns (eg: "Last name","First name") ?"""))
 
     def __init__(self, request, *args, **kwargs):
         super(CSVUploadForm, self).__init__(*args, **kwargs)
@@ -68,7 +67,7 @@ class CSVUploadForm(CremeForm):
 
         die_status = read_object_or_die(self._request, csv_document)
         if die_status:
-            raise ValidationError(_("Vous n'avez pas les droits pour lire ce document.")) #TODO: constant
+            raise ValidationError(ugettext("You have not the credentials to read this document."))
 
         if cleaned_data['csv_has_header']:
             try:
@@ -76,7 +75,7 @@ class CSVUploadForm(CremeForm):
                 filedata.open()
                 self._csv_header = _csv_to_list(filedata.readline())
             except Exception, e:
-                raise ValidationError(_("Erreur lors de la lecture du document: %s.") % e)
+                raise ValidationError(ugettext("Error reading document: %s.") % e)
             finally:
                 filedata.close()
 
@@ -181,14 +180,14 @@ class CSVExtractorWidget(SelectMultiple):
                                     creme.forms.toCSVImportField('%(id)s');
                                 });
                             </script>""" % {
-                          'label':  ugettext(u'Chercher selon:'),
+                          'label':  ugettext(u'Search by:'),
                           'select': rselect("%s_subfield" % name, choices=self.subfield_select, sel_idx=None),
                           'id':     attrs['id'],
                         })
 
 
         out_append(u"""</td><td>&nbsp;%s:%s</td></tr></tbody></table>""" %
-                        (_(u"Valeur par défaut"), self.default_value_widget.render("%s_defval" % name, value.get('default_value'))))
+                        (ugettext(u"Default value"), self.default_value_widget.render("%s_defval" % name, value.get('default_value'))))
 
         return mark_safe(u'\n'.join(output))
 
@@ -246,7 +245,7 @@ class CSVImportForm(CremeModelForm):
     csv_document   = IntegerField(widget=HiddenInput)
     csv_has_header = BooleanField(widget=HiddenInput, required=False)
 
-    blocks = FieldBlockManager(('general', _(u'Import depuis un fichier CSV'), '*'))
+    blocks = FieldBlockManager(('general', _(u'Importing from a CSV file'), '*'))
 
     def __init__(self, request, *args, **kwargs):
         super(CSVImportForm, self).__init__(*args, **kwargs)
@@ -260,11 +259,11 @@ class CSVImportForm(CremeModelForm):
         try:
             csv_document = Document.objects.get(pk=document_id)
         except Document.DoesNotExist:
-            raise ValidationError(_("Ce document n'existe pas/plus."))
+            raise ValidationError(ugettext("This document doesn't exist or doesn't exist any more."))
 
         die_status = read_object_or_die(self._request, csv_document)
         if die_status:
-            raise ValidationError(_("Vous n'avez pas les droits pour lire ce document."))
+            raise ValidationError(ugettext("You have not the credentials to read this document."))
 
         return csv_document
 
@@ -328,14 +327,14 @@ class CSVImportForm(CremeModelForm):
 
 
 class CSVImportForm4CremeEntity(CSVImportForm):
-    user = ModelChoiceField(label=_('Utilisateur'), queryset=User.objects.all(), empty_label=None)
+    user = ModelChoiceField(label=_('User'), queryset=User.objects.all(), empty_label=None)
 
-    blocks = FieldBlockManager(('general',    _(u'Infos génériques'),     '*'),
-                               ('properties', _(u'Propriétés associées'), ('property_types',)),
-                               ('relations',  _(u'Relations associées'),  ('relations',)),
+    blocks = FieldBlockManager(('general',    _(u'Generic information'),  '*'),
+                               ('properties', _(u'Related properties'),   ('property_types',)),
+                               ('relations',  _(u'Associated relations'), ('relations',)),
                               )
 
-    property_types = ModelMultipleChoiceField(label=_(u'Propriétés'), required=False,
+    property_types = ModelMultipleChoiceField(label=_(u'Properties'), required=False,
                                               queryset=CremePropertyType.objects.none(),
                                               widget=OrderedMultipleChoiceWidget)
     relations      = RelatedEntitiesField(label=_(u'Relations'), required=False)
@@ -370,16 +369,19 @@ class CSVImportForm4CremeEntity(CSVImportForm):
 
 
 def form_factory(ct, header):
-    choices = [(0, _('Pas dans le CSV'))]
+    choices = [(0, _('Not in the CSV file'))]
     header_dict = {}
 
     if header:
+        fstring = ugettext(u'Column %(index)s - %(name)s')
+
         for i, col_name in enumerate(header):
             i += 1
-            choices.append((i, _(u'Colonne %(index)s - %(name)s') % {'index': i, 'name': col_name}))
+            choices.append((i, fstring % {'index': i, 'name': col_name}))
             header_dict[col_name.lower()] = i
     else:
-        choices.extend((i, _(u'Colonne %i') % i) for i in xrange(1, 21))
+        fstring = ugettext(u'Column %i')
+        choices.extend((i, fstring % i) for i in xrange(1, 21))
 
     def formfield_factory(modelfield):
         formfield = modelfield.formfield()

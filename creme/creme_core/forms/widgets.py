@@ -24,6 +24,7 @@ from itertools import chain
 
 from django.forms.widgets import Widget, Textarea, Select, SelectMultiple, FileInput, TextInput
 from django.forms.util import flatatt
+from django.utils.translation import ugettext as _
 from django.utils.simplejson.encoder import JSONEncoder
 from django.utils.safestring import mark_safe
 from django.contrib.contenttypes.models import ContentType
@@ -136,7 +137,7 @@ class SelectorList(TextInput):
 
         context = widget_render_context(SelectorList, self, name, value, attrs,
                                         typename='ui-creme-selectorlist',
-                                        add='Ajouter',
+                                        add=_(u'Add'),
                                         selector=self.selector.render('', '', {'auto':False,}))
 
         html_output = """
@@ -172,7 +173,7 @@ class EntitySelector(TextInput):
                                         text_url=self.text_url,
                                         multiple='1' if attrs.pop('multiple', False) else '0',
                                         style=attrs.pop('style', ''),
-                                        label='Selectionner...')
+                                        label=_(u'Select...'))
 
         html_output = """
             <span class="%(css)s" style="%(style)s" widget="%(typename)s" url="%(url)s" multiple="%(multiple)s">
@@ -257,7 +258,7 @@ class RelationListWidget(TextInput):
         """ % {
                 'MEDIA_URL':  settings.MEDIA_URL,
                 'input':      super(RelationListWidget, self).render(name, value, attrs),
-                'title':      'Ajouter',
+                'title':      _(u'Add'),
                 'id':         attrs['id'],
                 'predicates': self.render_options('predicates'),
               }
@@ -297,13 +298,13 @@ class DateTimeWidget(TextInput):
             </script>
         """ % {
                 'input':        super(DateTimeWidget, self).render(name, value, attrs),
-                'date_label':   'Le',
-                'time_label':   u'à',
-                'hour_label':   'h',
-                'minute_label': '',
+                'date_label':   _(u'On'),
+                'time_label':   _(u'at'),
+                'hour_label':   _(u'h'), #TODO: improve i18n
+                'minute_label': '',      #TODO: improve i18n
                 'id':           attrs['id'],
-                'clear_label':  'Effacer',
-                'now_label':    'Maintenant',
+                'clear_label':  _(u'Clean'),
+                'now_label':    _(u'Now'),
               }
 
         return mark_safe(html_output)
@@ -327,10 +328,10 @@ class TimeWidget(TextInput):
             </script>
         """ % {
                 'input':        super(TimeWidget, self).render(name, value, attrs),
-                'hour_label':   'h',
+                'hour_label':   _(u'h'),
                 'minute_label': '',
                 'id':           attrs['id'],
-                'now_label':    'Maintenant',
+                'now_label':    _(u'Now'),
               }
 
         return mark_safe(html_output)
@@ -347,15 +348,16 @@ class CalendarWidget(TextInput):
         html_output = """
             %(input)s
             <button type="button" onclick="d=new Date();$('#%(id)s').val(d.getFullYear() + '-' + (d.getMonth()+1) + '-' + d.getDate());">
-                Aujourd'hui
+                %(today_label)s
             </button>
             <script type="text/javascript">
                 $("#%(id)s").datepicker({dateFormat: "yy-mm-dd", showOn: "button", buttonImage: "%(MEDIA_URL)s/images/icon_calendar.gif", buttonImageOnly: true });
             </script>
             """ % {
-                    'input':     super(CalendarWidget, self).render(name, value, attrs),
-                    'id':        attrs['id'],
-                    'MEDIA_URL': settings.MEDIA_URL,
+                    'input':        super(CalendarWidget, self).render(name, value, attrs),
+                    'id':           attrs['id'],
+                    'MEDIA_URL':    settings.MEDIA_URL,
+                    'today_label':  _(u"Today"),
                   }
 
         return mark_safe(html_output)
