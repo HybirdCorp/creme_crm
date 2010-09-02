@@ -19,7 +19,7 @@
 ################################################################################
 
 from django.forms import CharField, ValidationError
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import ugettext_lazy as _, ugettext
 from django.contrib.contenttypes.models import ContentType
 
 from creme_core.models import CremeEntity, Relation, RelationType
@@ -52,15 +52,15 @@ class RelationCreateForm(CremeForm):
         relations    = cleaned_data['relations']
 
         if not relations:
-            raise ValidationError(_(u'Aucune relation'))
+            raise ValidationError(ugettext(u'No relation'))
 
         if len(set(((relation_type_id, entity.id) for relation_type_id, entity in relations))) != len(relations):
-            raise ValidationError(_(u'Il y a des doublons'))
+            raise ValidationError(ugettext(u'There are duplicates'))
 
         relation_type_ids = set(entry[0] for entry in relations)
 
         if RelationType.objects.filter(pk__in=relation_type_ids).count() < len(relation_type_ids):
-            raise ValidationError(_(u"Certains prédicats n'existent pas"))
+            raise ValidationError(ugettext(u"Some predicates doesn't not exist"))
 
         # TODO : add validation for relations (check doubles, and existence)
         return cleaned_data
@@ -76,7 +76,7 @@ class RelationCreateForm(CremeForm):
 
 
 class MultiEntitiesRelationCreateForm(RelationCreateForm):
-    entities_lbl = CharField(label=_(u"Entités associées"), widget=Label())
+    entities_lbl = CharField(label=_(u"Related entities"), widget=Label())
 
     def __init__(self, subjects, user_id, *args, **kwargs):
         super(MultiEntitiesRelationCreateForm, self).__init__(subjects[0], user_id, *args, **kwargs)

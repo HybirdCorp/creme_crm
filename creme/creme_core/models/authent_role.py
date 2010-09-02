@@ -37,10 +37,10 @@ from creme_core.models import CremeModel
 
 
 class CremeRole(CremeModel,TimeStampedModel):
-    name               = CharField(_(u"Nom"), max_length=100)
-    superieur          = ForeignKey('self', verbose_name=_(u"Supérieur"), blank=True, null=True, related_name='subordonne_set')
-    droits_entity_type = ManyToManyField(CremeDroitEntityType, verbose_name=_(u"Droits sur les resources"), blank=True, null=True)
-    droits_app         = ManyToManyField(CremeAppDroit, verbose_name=_(u"Droits d'application"), blank=True , null=True )
+    name               = CharField(_(u"Name"), max_length=100)
+    superieur          = ForeignKey('self', verbose_name=_(u"Superior"), blank=True, null=True, related_name='subordonne_set')
+    droits_entity_type = ManyToManyField(CremeDroitEntityType, verbose_name=_(u"Credentials on resources"), blank=True, null=True)
+    droits_app         = ManyToManyField(CremeAppDroit, verbose_name=_(u"Application credentials"), blank=True , null=True )
 
     class Meta:
         app_label = 'creme_core'

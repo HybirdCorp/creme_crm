@@ -19,8 +19,10 @@
 ################################################################################
 
 from django.http import HttpResponse
-from django.contrib.contenttypes.models import ContentType
 from django.http import HttpResponseRedirect
+from django.utils.translation import ugettext as _
+from django.contrib.contenttypes.models import ContentType
+
 from creme_core.models.authent import CremeTypeEnsembleFiche
 from creme_core.models.authent_role import CremeProfile
 
@@ -88,9 +90,9 @@ def _object_or_die(test_func,request, object, app_name=None):
     assert request.user.is_authenticated(),'User is not logged in'
     if not test_func(request, object, app_name):
         if request.is_ajax():
-            return HttpResponse("Vous n'avez pas accès à cette page, veuillez contacter votre administrateur.")#Template ?
-        return render_to_response('creme_core/forbidden.html', {} ,
-                                      context_instance=RequestContext(request))
+            return HttpResponse(_(u"You do not have access to this page, please contact your administrator."))#Template ?
+
+        return render_to_response('creme_core/forbidden.html', {} , context_instance=RequestContext(request))
 
 def read_object_or_die(request, object, app_name=None):
     from creme_core.entities_access.permissions import user_has_read_permission_for_an_object

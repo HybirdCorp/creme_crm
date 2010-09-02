@@ -109,6 +109,7 @@ def print_urlfield(x):
     esc_x = escape(x)
     return '<a href="%s" target="_blank">%s</a>' % (esc_x, esc_x)
 
+#TODO: remove all avlue with simple_print => classes.get(KEY, simple_print) ??
 classes = {
      models.AutoField:                  simple_print,
      models.BooleanField:               lambda x: '<input type="checkbox" value="%s" %s disabled/>' % (escape(x), 'checked' if x else ''),

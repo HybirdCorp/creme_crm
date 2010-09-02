@@ -2,29 +2,29 @@
 {% load i18n %}
 {% load creme_core_tags %}
 
-{% comment %}{% block page_title %} - {% trans 'Resultats de recherche' %} : {{results|length}} résultat{{ results|pluralize }}{% endblock %}{% endcomment %}
+{% comment %}{% block page_title %} - {% trans 'Search results' %} : {{results|length}} résultat{{ results|pluralize }}{% endblock %}{% endcomment %}
 
 {% comment %}{% block content %}{% endcomment %}
     <table class="table_header" cellpadding="0" cellspacing="0">
         <tr>
-            <td width="5%"><img src="{{MEDIA_URL}}images/looking_glass_64.png" alt=""/></td>
+            <td width="5%"><img src="{{MEDIA_URL}}images/looking_glass_64.png" alt="{% trans "Search" %}"/></td>
             <td width="95%">
-                <h1>{% trans 'Résultats de recherche' %} : {{total}} résultat{{ total|pluralize }}</h1>
+                <h1>{% blocktrans %}Search results : {{total}} result{% plural %}Search results : {{total}} results{% endblocktrans %}</h1>
             </td>
         </tr>
     </table>
     {% if research or models %}
-    <div class="help_box">
-        <table>
-            <tr>
-                <td><span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span></td>
-                <td>
-                    {% if research %}{% trans 'Votre recherche : ' %}{{research}}<br/>{% endif %}
-                    {% if models %}{% trans 'Types concernés : ' %}{{models|join:","}}<br/>{% endif %}
-                </td>
-            </tr>
-        </table>
-    </div>
+        <div class="help_box">
+            <table>
+                <tr>
+                    <td><span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span></td>
+                    <td>
+                        {% if research %}{% trans 'Your search : ' %}{{research}}<br/>{% endif %}
+                        {% if models %}{% trans 'Concerned types : ' %}{{models|join:","}}<br/>{% endif %}
+                    </td>
+                </tr>
+            </table>
+        </div>
     {% endif %}
     {% if error_message %}
         <ul class="errorlist">
@@ -60,11 +60,10 @@
                         </th>
                     {% endfor %}
                     </tr>
-                    
                     {% for res in entities %}
                         <tr class="{% cycle "block_line_dark" "block_line_light" %}">
                             <td>
-                                <a href="{{res.get_absolute_url}}">{% trans 'Aller sur la fiche' %}</a>
+                                <a href="{{res.get_absolute_url}}">{% trans 'Go to the page' %}</a>
                             </td>
                             {% for field in fields %}
                                 <td>
@@ -75,9 +74,7 @@
                     {% endfor %}
                 {% else %}
                 <tr>
-                     <td class="{% cycle "block_line_dark" "block_line_light" %}">
-                        {% trans 'Aucune correspondance' %}
-                    </td>
+                     <td class="{% cycle "block_line_dark" "block_line_light" %}">{% trans 'No match' %}</td>
                 </tr>
                 {% endif %}
             </tbody>

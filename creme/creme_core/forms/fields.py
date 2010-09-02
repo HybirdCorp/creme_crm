@@ -48,7 +48,7 @@ def get_entity_ctypes_options(): #TODO: staticmethod ??
 
 class GenericEntitiesField(CharField):
     default_error_messages = {
-        'invalidformat': _(u'Format invalide'),
+        'invalidformat': _(u'Invalid format'),
     }
 
     def __init__(self, ctypes=None, *args, **kwargs):
@@ -83,7 +83,7 @@ class GenericEntitiesField(CharField):
 
 class RelatedEntitiesField(CharField):
     default_error_messages = {
-        'invalidformat': _(u'Format invalide'),
+        'invalidformat': _(u'Invalid format'),
     }
     widget = RelationListWidget
 
@@ -157,7 +157,7 @@ class _EntityField(_CommaMultiValueField):
     """
     widget = ListViewWidget
     default_error_messages = {
-        'invalid_choice': _(u"Selectionnez un choix valide. %(value)s n'est pas un des choix disponibles."),
+        'invalid_choice': _(u"Select a valid choice. %(value)s is not an available choice."),
     }
 
     o2m = 1
@@ -203,7 +203,7 @@ class CremeEntityField(_EntityField):
          clean method return a model instance
     """
     default_error_messages = {
-        'doesnotexist' : _(u"Cette entité n'existe pas"),
+        'doesnotexist' : _(u"This entity doesn't exist."),
     }
 
     def __init__(self, model, q_filter=None, *args, **kwargs):

@@ -22,6 +22,7 @@ from django.db.models import Q
 from django.http import HttpResponseRedirect, HttpResponse
 from django.shortcuts import get_object_or_404, render_to_response
 from django.template.context import RequestContext
+from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required
 from django.contrib.contenttypes.models import ContentType
 
@@ -53,7 +54,7 @@ def add_to_entities(request):
             continue
 
         if not user_has_edit_permission_for_an_object(request, entity):
-            return_str += '%s : <b>Permission refusée</b>,' % entity
+            return_str += _(u'%s : <b>Permission denied</b>,') % entity
             continue
 
         try:
@@ -61,8 +62,7 @@ def add_to_entities(request):
         except CremeProperty.DoesNotExist:
             CremeProperty(type=property_type, creme_entity=entity).save()
         else:
-            return_str += '%s à déjà la propriété %s,' % (entity, property)
-        
+            return_str += _(u'%(entity)s has already the property %(property)s,') % {'entity': entity, 'property': property}
 
     return_status = 200 if not return_str else 400
     return_str    = "%s" % return_str

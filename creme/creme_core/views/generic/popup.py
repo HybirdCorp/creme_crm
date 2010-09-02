@@ -25,6 +25,7 @@ from django.utils.safestring import mark_safe
 from django.template.loader import render_to_string
 from django.utils.simplejson.encoder import JSONEncoder
 
+
 def inner_popup(request, template, template_dict, context_instance, is_valid=True, html=None, callback_url='', reload=True, delegate_reload=False, *args, **kwargs):
     debug("###___ inner_popup ___###")
 

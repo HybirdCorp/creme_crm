@@ -1,4 +1,4 @@
 {% extends "creme_core/generics/form/base.html" %}
-
-{% block logo %}<img src="{{MEDIA_URL}}images/add_64.png" alt=""/>{% endblock %}
-{% block title %}Nouveau{% endblock %}
+{% load i18n %}
+{% block logo %}<img src="{{MEDIA_URL}}images/add_64.png" alt="{% trans "Add" %}"/>{% endblock %}
+{% block title %}{% trans "New" %}{% endblock %}

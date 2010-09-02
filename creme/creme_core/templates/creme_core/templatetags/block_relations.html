@@ -1,15 +1,17 @@
+{% load i18n %}
 {% load creme_core_tags %}
 {% load creme_block %}
 
 {% regroup page.object_list by type as predicate_list %}
 
 <table class="table_detail_view ui-corner-all" id={{block_name}}>
-    {% get_block_header '%s Relation' '%s Relations' 'relations_48.png' 'Relation' %}
+    {% get_block_header _('%s Relation') _('%s Relations') 'relations_48.png' _('Relation') %}
     <tbody class="collapsable">
         <tr>
             <th colspan="2" align="left" class="block_header_line_dark" style="font-size:14px;">
                 <a class="button_link" onclick="creme.utils.innerPopupNReload('/creme_core/relation/add/{{object.id}}', {% get_block_reload_uri %});">
-                    <img src="{{MEDIA_URL}}images/add_22.png" border="0" title="Ajouter" alt="Ajouter" />&nbsp;Nouvelle
+                    <img src="{{MEDIA_URL}}images/add_22.png" border="0" title="{% trans "New relations" %}" alt="{% trans "New relations" %}" />
+                    {% trans "New relations" %}
                 </a>
             </th>
         </tr>
@@ -33,7 +35,7 @@
             {% endfor %}
         {% else %}
             <tr>
-                <td class="block_line_dark">Aucune relation pour le moment</td>
+                <td class="block_line_dark">{% trans "No relation for the moment" %}</td>
             </tr>
         {% endif %}
     </tbody>

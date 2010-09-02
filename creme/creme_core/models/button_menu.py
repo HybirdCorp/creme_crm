@@ -27,11 +27,11 @@ from creme_core.models import CremeModel
 
 class ButtonMenuItem(CremeModel):
     id           = CharField(primary_key=True, max_length=100)
-    content_type = ForeignKey(ContentType, verbose_name=_(u"Type associé"), null=True)
-    button_id    = CharField(_(u"Identifiant de bouton"), max_length=100, blank=False, null=False)
-    order        = PositiveIntegerField(_(u"Priorité"))
+    content_type = ForeignKey(ContentType, verbose_name=_(u"Related type"), null=True)
+    button_id    = CharField(_(u"Button ID"), max_length=100, blank=False, null=False)
+    order        = PositiveIntegerField(_(u"Priority"))
 
     class Meta:
         app_label = 'creme_core'
-        verbose_name = _(u'Bloc')
-        verbose_name_plural = _(u'Blocs')
+        verbose_name = _(u'Button to display')
+        verbose_name_plural = _(u'Buttons to display')

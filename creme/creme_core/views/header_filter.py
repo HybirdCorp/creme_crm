@@ -20,16 +20,17 @@
 
 #from logging import debug
 
-from creme_core.models.list_view_state import ListViewState
 from django.core import serializers
 from django.http import HttpResponse, HttpResponseRedirect, Http404
-from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404, render_to_response
 from django.template.context import RequestContext
+from django.utils.translation import ugettext as _
+from django.contrib.auth.decorators import login_required
 
+from creme_core.models.list_view_state import ListViewState
+from creme_core.models.header_filter import HeaderFilter, HeaderFilterList
 from creme_core.forms.header_filter import HeaderFilterForm
 from creme_core.views.generic import add_entity
-from creme_core.models.header_filter import HeaderFilter, HeaderFilterList
 from creme_core.entities_access.functions_for_permissions import delete_object_or_die
 from creme_core.utils import get_ct_or_404
 
@@ -83,7 +84,7 @@ def edit(request, header_filter_id):
 def delete(request, header_filter_id, js=0):
     hf           = get_object_or_404(HeaderFilter, pk=header_filter_id)
     callback_url = hf.entity_type.model_class().get_lv_absolute_url()
-    return_msg   = u'Vue supprimée avec succès'
+    return_msg   = _(u'View sucessfully deleted')
     status       = 200
 
     if hf.is_custom:
@@ -92,12 +93,12 @@ def delete(request, header_filter_id, js=0):
             if not js:
                 return die_status
             else:
-                return_msg = u'Permission refusée'
+                return_msg = _(u'Permission denied')
                 status = 400
         else:
             hf.delete()
     else:
-        return_msg = u'Cette vue ne peut être effacée'
+        return_msg = _(u"This view can't be deleted")
         status = 400
 
     if js:
@@ -113,9 +114,6 @@ def get_hfs_4_ct(request, content_type_id):
     ct = get_ct_or_404(content_type_id)
     hfl = HeaderFilterList(ct)
     fields = request.GET.getlist('fields') or ('name', )
-    
+
     data = serializers.serialize('json', hfl, fields=fields)
     return HttpResponse(data, mimetype="text/javascript")
-    
-
-    

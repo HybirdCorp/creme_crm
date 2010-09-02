@@ -45,17 +45,17 @@ class CustomField(CremeModel):
     ENUM        = 100
     MULTI_ENUM  = 101
 
-    name          = CharField(_(u'Nom du champ'), max_length=100)
-    content_type  = ForeignKey(ContentType, verbose_name=_(u'Resource associée'))
-    field_type    = PositiveSmallIntegerField(_(u'Type du champ')) #see INT, FLOAT etc...
+    name          = CharField(_(u'Field name'), max_length=100)
+    content_type  = ForeignKey(ContentType, verbose_name=_(u'Related type'))
+    field_type    = PositiveSmallIntegerField(_(u'Field type')) #see INT, FLOAT etc...
     #default_value = CharField(_(u'Valeur par defaut'), max_length=100, blank=True, null=True)
     #extra_args    = CharField(max_length=500, blank=True, null=True)
     #required      = BooleanField(defaut=False) ????
 
     class Meta:
        app_label = 'creme_core'
-       verbose_name = _(u'Champ personnalisé')
-       verbose_name_plural = _(u'Champs personnalisés')
+       verbose_name = _(u'Custom field')
+       verbose_name_plural = _(u'Custom fields')
        ordering = ('id',)
 
     def __unicode__(self):
@@ -165,7 +165,7 @@ class CustomFieldValue(CremeModel):
 class CustomFieldString(CustomFieldValue):
     value = CharField(max_length=100)
 
-    verbose_name = _(u'Chaîne de caractères')
+    verbose_name = _(u'String')
 
     class Meta:
         app_label = 'creme_core'
@@ -181,7 +181,7 @@ class CustomFieldString(CustomFieldValue):
 class CustomFieldInteger(CustomFieldValue):
     value = IntegerField()
 
-    verbose_name = _(u'Nombre entier')
+    verbose_name = _(u'Integer')
 
     class Meta:
         app_label = 'creme_core'
@@ -194,7 +194,7 @@ class CustomFieldInteger(CustomFieldValue):
 class CustomFieldFloat(CustomFieldValue):
     value = DecimalField(max_digits=4, decimal_places=2)
 
-    verbose_name = _(u'Nombre à virgule')
+    verbose_name = _(u'Decimal')
 
     class Meta:
         app_label = 'creme_core'
@@ -221,13 +221,13 @@ class CustomFieldDateTime(CustomFieldValue):
 class CustomFieldBoolean(CustomFieldValue):
     value = BooleanField()
 
-    verbose_name = _(u'Booléen (2 valeurs: Oui/Non)')
+    verbose_name = _(u'Boolean (2 values: Yes/No)')
 
     class Meta:
         app_label = 'creme_core'
 
     def __unicode__(self):
-        return ugettext(u'Oui') if self.value else ugettext(u'Non')
+        return ugettext(u'Yes') if self.value else ugettext(u'No')
 
     @staticmethod
     def get_formfield_class():
@@ -252,7 +252,7 @@ class CustomFieldEnumValue(CremeModel):
 class CustomFieldEnum(CustomFieldValue):
     value = ForeignKey(CustomFieldEnumValue)
 
-    verbose_name = _(u'Liste de choix')
+    verbose_name = _(u'List of choices')
 
     class Meta:
         app_label = 'creme_core'
@@ -284,7 +284,7 @@ class CustomFieldEnum(CustomFieldValue):
 class CustomFieldMultiEnum(CustomFieldValue):
     value = ManyToManyField(CustomFieldEnumValue)
 
-    verbose_name = _(u'Liste de choix (multi sélection)')
+    verbose_name = _(u'List of choices (multi sélection)')
 
     _enumvalues = None
 
