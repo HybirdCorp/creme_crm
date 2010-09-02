@@ -19,9 +19,23 @@
 ################################################################################
 
 from imp import find_module
-from logging import debug
+from logging import warning
+from datetime import datetime
 
 from django.conf import settings
+
+def find_n_import(filename, imports):
+    results = []
+    for app in settings.INSTALLED_APPS:
+        try:
+            find_module(filename, __import__(app, {}, {}, [app.split(".")[-1]]).__path__)
+        except ImportError, e:
+            # there is no app report_backend_register.py, skip it
+            continue
+
+        results.append(__import__("%s.%s" % (app, filename) , globals(), locals(), imports, -1))
+    return results
+
 
 class ReportBackendRegistry(object):
     def __init__(self):
@@ -52,13 +66,62 @@ class ReportBackendRegistry(object):
 
 report_backend_registry = ReportBackendRegistry()
 
-debug('Report: backend registering')
-for app in settings.INSTALLED_APPS:
-    try:
-        find_module("report_backend_register", __import__(app, {}, {}, [app.split(".")[-1]]).__path__)
-    except ImportError, e:
-        # there is no app report_backend_register.py, skip it
-        continue
+backends_imports = find_n_import("report_backend_register", ['to_register'])
+for backend_import in backends_imports:
+    report_backend_registry.register(*backend_import.to_register)
 
-    backends_import = __import__("%s.report_backend_register" % app , globals(), locals(), ['to_register'], -1)
-    report_backend_registry.register(*backends_import.to_register)
+class ReportDatetimeFilter(object):
+    def __init__(self, name, verbose_name, func_beg, func_end):
+        self.name = name
+        self.verbose_name = verbose_name
+        self.func_beg = func_beg
+        self.func_end = func_end
+
+    def get_begin(self):
+        return self.func_beg(self, datetime.now())
+
+    def get_end(self):
+        return self.func_end(self, datetime.now())
+
+class ReportDatetimeFilterRegistry(object):
+    def __init__(self):
+        self._filters = {}
+
+    def register(self, *to_register):
+        filters = self._filters
+
+        for name, filter in to_register:
+            if filters.has_key(name):
+                warning("Duplicate filter's id or filter registered twice : %s", name) #exception instead ???
+
+            filters[name] = filter
+
+    def get_filter(self, name):
+        filters = self._filters
+        if filters.has_key(name):
+            return filters[name]
+
+        return None
+
+    def __iter__(self):
+        return self._filters.iteritems()
+
+    def itervalues(self):
+        return self._filters.itervalues()
+
+report_filters_registry = ReportDatetimeFilterRegistry()
+
+filters_imports = find_n_import("report_filters_register", ['to_register'])
+for filter_import in filters_imports:
+    report_filters_registry.register(*filter_import.to_register)
+
+#debug('Report: backend registering')
+#for app in settings.INSTALLED_APPS:
+#    try:
+#        find_module("report_backend_register", __import__(app, {}, {}, [app.split(".")[-1]]).__path__)
+#    except ImportError, e:
+#        # there is no app report_backend_register.py, skip it
+#        continue
+#
+#    backends_import = __import__("%s.report_backend_register" % app , globals(), locals(), ['to_register'], -1)
+#    report_backend_registry.register(*backends_import.to_register)

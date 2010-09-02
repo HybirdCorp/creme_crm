@@ -300,7 +300,7 @@ class Report(CremeEntity):
 
         return set(asc_reports)
 
-    def fetch(self, limit_to=None):
+    def fetch(self, limit_to=None, extra_q=None):
         lines   = []
         ct    = self.ct
         model = ct.model_class()
@@ -311,6 +311,9 @@ class Report(CremeEntity):
             entities = model_manager.filter(self.filter.get_q())
         else:
             entities = model_manager.all()
+
+        if extra_q is not None:
+            entities = entities.filter(extra_q)
 
         for entity in entities[:limit_to]:
             entity_line = []
@@ -326,8 +329,8 @@ class Report(CremeEntity):
 
         return lines
 
-    def fetch_all_lines(self, limit_to=None):
-        tree = self.fetch(limit_to=limit_to)
+    def fetch_all_lines(self, limit_to=None, extra_q=None):
+        tree = self.fetch(limit_to=limit_to, extra_q=extra_q)
         lines = []
 
         class ReportTree(object):

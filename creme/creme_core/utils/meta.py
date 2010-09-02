@@ -18,6 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from django.db import models
 from django.db.models.fields.related import ForeignKey
 from django.db.models.base import ModelBase
 from django.db.models import Field, FieldDoesNotExist
@@ -230,3 +231,10 @@ def get_m2m_entities(entity, column_name, get_value=False, q_filter=None, get_va
 def filter_entities_on_ct(entities, ct):
     ct_model_class = ct.model_class()
     return [entity for entity in entities if isinstance(entity, ct_model_class)]
+
+def get_date_fields(model, exclude_func=lambda f: False):
+    fields = []
+    for field in model._meta.fields:
+        if isinstance(field, (models.DateTimeField, models.DateField)) and not exclude_func(field):
+            fields.append(field)
+    return fields

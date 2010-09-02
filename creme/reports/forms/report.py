@@ -21,19 +21,22 @@
 from collections import defaultdict
 from itertools import chain
 from django.db.models.query_utils import Q
-from django.forms.fields import MultipleChoiceField
+from django.forms import DateField
+from django.forms.fields import MultipleChoiceField, ChoiceField
 from django.forms import ValidationError
 from django.utils.translation import ugettext_lazy as _, ugettext
 from django.contrib.contenttypes.models import ContentType
 
 from creme_core.registry import creme_registry
 from creme_core.forms import CremeEntityForm, CremeForm
-from creme_core.forms.widgets import OrderedMultipleChoiceWidget, ListViewWidget
-from creme_core.forms.fields import AjaxMultipleChoiceField, AjaxModelChoiceField, CremeEntityField
+from creme_core.forms.widgets import OrderedMultipleChoiceWidget, ListViewWidget, CalendarWidget, DateFilterWidget
+from creme_core.forms.fields import AjaxMultipleChoiceField, AjaxModelChoiceField, CremeEntityField, AjaxChoiceField
 from creme_core.models import Filter, RelationType, CustomField
 from creme_core.models.header_filter import HeaderFilter, HeaderFilterItem, HFI_FIELD, HFI_RELATION, HFI_CUSTOM, HFI_FUNCTION, HFI_CALCULATED
-from creme_core.utils.meta import get_verbose_field_name, get_function_field_verbose_name, get_flds_with_fk_flds_str, get_flds_with_fk_flds
+from creme_core.utils.meta import (get_verbose_field_name, get_function_field_verbose_name, get_flds_with_fk_flds_str, get_flds_with_fk_flds,
+                                   get_date_fields)
 
+from reports.registry import report_filters_registry
 from reports.models import Report, Field
 from reports.report_aggregation_registry import field_aggregation_registry
 
@@ -199,7 +202,6 @@ class CreateForm(CremeEntityForm):
         is_one_aggregate_selected = False
         for aggregate in aggregates:
             for data in get_data(aggregate.name):
-                print "data :", data
                 is_one_aggregate_selected |= bool(data)
 
         if not hf and not (columns or custom_fields or relations or functions or is_one_aggregate_selected):
@@ -381,3 +383,26 @@ class AddFieldToReportForm(CremeForm):
         report.columns = fields_to_keep
         report.save()
 
+class DateReportFilterForm(CremeForm):
+    date_fields  = ChoiceField(label=_(u'Fields'), required=True, choices=())
+    filters      = AjaxChoiceField(label=_(u'Filter'), required=False, choices=(), widget=DateFilterWidget)
+    begin_date   = DateField(label=_(u'Begin date'), required=True, widget=CalendarWidget())
+    end_date     = DateField(label=_(u'End date'), required=True, widget=CalendarWidget())
+
+    def __init__(self, report, *args, **kwargs):
+        super(DateReportFilterForm, self).__init__(*args, **kwargs)
+        self.report = report
+        fields = self.fields
+        fields['date_fields'].choices = [(field.name, field.verbose_name) for field in get_date_fields(report.ct.model_class())]
+        fields['filters'].choices = report_filters_registry.itervalues()
+        fields['filters'].widget.attrs.update({'id': 'id_filters','start_date_id': 'id_begin_date','end_date_id': 'id_end_date'})
+
+    def save(self):
+        return self.cleaned_data
+
+    def get_q(self):
+        cleaned_data = self.cleaned_data
+        q = Q()
+        if cleaned_data:
+            q = Q(**{str("%s__range" % cleaned_data.get('date_fields')):(cleaned_data.get('begin_date'), cleaned_data.get('end_date'))})
+        return q
