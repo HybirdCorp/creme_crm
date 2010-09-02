@@ -18,13 +18,14 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.contrib.auth.decorators import login_required
-from django.contrib.contenttypes.models import ContentType
 from django.db.models.query_utils import Q
 from django.http import Http404, HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, get_list_or_404
 from django.template.context import RequestContext
 from django.utils.simplejson.encoder import JSONEncoder
+from django.utils.translation import ugettext as _
+from django.contrib.auth.decorators import login_required
+from django.contrib.contenttypes.models import ContentType
 
 from creme_core.forms.relation import RelationCreateForm, MultiEntitiesRelationCreateForm
 from creme_core.models import Relation, RelationType, CremeEntity
@@ -248,7 +249,7 @@ def add_relations(request, subject_id, relation_type_id=None):
     return inner_popup(request, 'creme_core/generics/blockform/add_popup2.html',
                        {
                         'form':  form,
-                        'title': u'Relations pour <%s>' % subject,
+                        'title': _(u'Relations for <%s>') % subject,
                        },
                        is_valid=form.is_valid(),
                        reload=False,
@@ -280,7 +281,7 @@ def add_relations_bulk(request, model_ct_id, ids):
     return inner_popup(request, 'creme_core/generics/blockform/add_popup2.html',
                        {
                         'form':  form,
-                        'title': u'Ajout multiple de relation(s)',
+                        'title': _(u'Multiple adding of relations'),
                        },
                        is_valid=form.is_valid(),
                        reload=False,
@@ -365,12 +366,12 @@ def handle_relation_from_predicate_n_entity(request):
             try: #TODO: group SQL queries ??? (group by class)
                 entity = centity_get(pk=entity_id).get_real_entity()
                 if not user_has_read_permission_for_an_object(request, entity):
-                    return_msg.append("permission d'accès à : %s refusée" % entity)
+                    return_msg.append(_(u"access permission denied : %s denied") % entity)
                     status = 403
                     continue
             except CremeEntity.DoesNotExist:
                 if not is_there_already_err:
-                    return_msg.append("Certaines des entités n'existent pas ou plus")
+                    return_msg.append(_(u"Some entities doesn't exist / doesn't exist any more"))
                     is_there_already_err = True
                     status = 404
                 continue
@@ -378,7 +379,7 @@ def handle_relation_from_predicate_n_entity(request):
             Relation.create(subject, predicate_id, entity)
 
     if status == 200:
-        return_msg.append("Opération déroulée avec succès")
+        return_msg.append(_(u"Operation successfully completed"))
 
     return HttpResponse(",".join(return_msg), status=status)
 

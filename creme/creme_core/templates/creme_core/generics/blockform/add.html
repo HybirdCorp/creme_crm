@@ -2,7 +2,7 @@
 {% load i18n %}
 {% load creme_core_tags %}
 
-{% block page_title %} - {% trans 'Ajouter' %}: {{form|get_meta_value:'model'|get_meta_value:'verbose_name'}}{% endblock %}
+{% block page_title %} - {% trans 'Add' %}: {{form|get_meta_value:'model'|get_meta_value:'verbose_name'}}{% endblock %}
 
 {% block content %}
     {% with 'images/add_64.png' as logo %}

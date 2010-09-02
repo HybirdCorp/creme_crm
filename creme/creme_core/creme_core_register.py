@@ -29,7 +29,7 @@ from creme_core.blocks import relations_block, properties_block
 
 User._meta.ordering = ('username',)
 
-creme_registry.register_app('creme_core', _(u'Coeur'), '/')
+creme_registry.register_app('creme_core', _(u'Core'), '/')
 
 creme_menu.register_app('creme_core', '/', 'Accueil')
 

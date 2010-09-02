@@ -1,4 +1,5 @@
 {% extends "creme_core/base.html" %}
+{% load i18n %}
 
 {% block extrahead %}
 <script type="text/javascript" src="{{MEDIA_URL}}js/models/filters.js"></script>
@@ -495,10 +496,10 @@
 {% block content %}
     <table class="table_header" cellpadding="0" cellspacing="0">
         <tr>
-            <td width="5%"><img src="{{MEDIA_URL}}images/filter_64.png" title="Filtre" alt="Filtre"/></td>
+            <td width="5%"><img src="{{MEDIA_URL}}images/filter_64.png" title="{% trans "Filter" %}" alt="{% trans "Filter" %}"/></td>
             <td width="95%">
                 <h1>
-                    Filtre : {% ifequal mode 'edit' %} édition {% else %} création {% endifequal %}
+                    {% trans "Filter" %} : {% ifequal mode 'edit' %} {% trans "edition" %} {% else %} {% trans "creation" %} {% endifequal %}
                 </h1>
             </td>
         </tr>
@@ -506,15 +507,15 @@
 
     <div id="editforms">
         <form id="filterform" action="" method="POST" {% if form.is_multipart %}enctype="multipart/form-data"{% endif %}>
-            <p>Nom du filtre : {{form.nom}}</p>
+            <p>{% trans "Name of the filter" %}  : {{form.nom}}</p>
 
             <table width="100%">
                 <tbody>
                     <tr>
-                        <td><button type="button" id="add"><img src="{{MEDIA_URL}}images/add_22.png" alt="Ajouter"/> Ajouter une condition</button></td>
-                        <td><button type="button" id="add_filter"><img src="{{MEDIA_URL}}images/add_22.png" alt="Ajouter"/> Ajouter un filtre existant en tant que condition</button></td>
-                        <td><button type="button" id="add_relation"><img src="{{MEDIA_URL}}images/add_22.png" alt="Ajouter"/> Ajouter un filtre sur une relation</button></td>
-                        <td><button type="button" id="add_property"><img src="{{MEDIA_URL}}images/add_22.png" alt="Ajouter"/> Ajouter un filtre sur une propriété</button></td>
+                        <td><button type="button" id="add"><img src="{{MEDIA_URL}}images/add_22.png" alt="{% trans "Add" %}"/>{% trans "Add a condition" %}</button></td>
+                        <td><button type="button" id="add_filter"><img src="{{MEDIA_URL}}images/add_22.png" alt="{% trans "Add" %}"/>{% trans "Add an existing filter as condition" %}</button></td>
+                        <td><button type="button" id="add_relation"><img src="{{MEDIA_URL}}images/add_22.png" alt="{% trans "Add" %}"/>{% trans "Add a filter on a relation" %}</button></td>
+                        <td><button type="button" id="add_property"><img src="{{MEDIA_URL}}images/add_22.png" alt="{% trans "Add" %}"/>{% trans "Add a filter on a property" %}</button></td>
                     </tr>
                 </tbody>
             </table>
@@ -522,10 +523,10 @@
             <table id="table_filter" width="100%">
                 <thead>
                     <tr>
-                        <th>Test global</th>
-                        <th>Champs</th>
-                        <th>Test</th>
-                        <th>Valeurs (séparées par des virgules)</th>
+                        <th>{% trans "Global test" %}</th>
+                        <th>{% trans "Fields" %}</th>
+                        <th>{% trans "Test" %}</th>
+                        <th>{% trans "Values (comma-separated)" %}</th>
                         <th style="display:none;"><input name="line_count" id="line_count" type="hidden" value="0" /></th>
                         <th style="display:none;"><input name="filter_count" id="filter_count" type="hidden" value="0" /></th>
                         <th style="display:none;"><input name="relation_count" id="relation_count" type="hidden" value="0" /></th>
@@ -545,17 +546,17 @@
                         <td>&nbsp;</td>
                         <td>{{form.champs}} - {{form.champsfk}}</td>
                         <td>{{form.tests}}</td>
-                        <td>&nbsp;{{form.value}}&nbsp;<img src="{{MEDIA_URL}}images/delete_22.png" alt="Supprimer" id="model" onclick="removeLine(this.id);"/></td>
+                        <td>&nbsp;{{form.value}}&nbsp;<img src="{{MEDIA_URL}}images/delete_22.png" alt="{% trans "Delete" %}" id="model" onclick="removeLine(this.id);"/></td>
                     </tr>
                     <tr id="filter_model" style="display:none;">
                         <td>&nbsp;</td>
                         <td>Filtre : </td>
                         <td>{{form.parent_filters}}</td>
-                        <td><img src="{{MEDIA_URL}}images/delete_22.png" alt="Supprimer" id="model" onclick="removeFilterLine(this.id);"/></td>
+                        <td><img src="{{MEDIA_URL}}images/delete_22.png" alt="{% trans "Delete" %}" id="model" onclick="removeFilterLine(this.id);"/></td>
                     </tr>
                     <tr id="relation_model" style="display:none;">
                         <td>&nbsp;</td>
-                        <td>{{form.has_predicate}} la relation </td>
+                        <td>{{form.has_predicate}} la relation </td> {% comment %}I18N{% endcomment %}
                         <td>{{form.predicates}}</td>
                         <td class="ui-state-highlight ui-corner-all">
                             {{form.content_types}}
@@ -564,16 +565,16 @@
                             <input type="text"   id="relation_entity_model"     name="relation_entity" value="" readonly="true" />
                             <span  style="padding:3px;">
                                 <span class="ui-icon ui-icon-info" ></span>
-                                Laissez les valeurs vides pour filtrer toutes les entités ayant la relation sélectionnée.
+                                {% trans "Leave empty values to filter all entities having the selected relation." %}
                             </span>
                         </td>
-                        <td><img src="{{MEDIA_URL}}images/delete_22.png" alt="Supprimer" id="model" onclick="deleteLine(this.id,'relation_'+this.id, 'ids_relations');"/></td>
+                        <td><img src="{{MEDIA_URL}}images/delete_22.png" alt="{% trans "Delete" %}" id="model" onclick="deleteLine(this.id,'relation_'+this.id, 'ids_relations');"/></td>
                     </tr>
                     <tr id="properties_model" style="display:none;">
                         <td>&nbsp;</td>
-                        <td>{{form.has_property}} la propriété </td>
+                        <td>{{form.has_property}} la propriété </td> {% comment %}I18N{% endcomment %}
                         <td>{{form.properties}}</td>
-                        <td><img src="{{MEDIA_URL}}images/delete_22.png" alt="Supprimer" id="model" onclick="deleteLine(this.id,'properties_'+this.id, 'ids_properties');"/></td>
+                        <td><img src="{{MEDIA_URL}}images/delete_22.png" alt="{% trans "Delete" %}" id="model" onclick="deleteLine(this.id,'properties_'+this.id, 'ids_properties');"/></td>
                     </tr>
                 </thead>
                 <tbody>
@@ -583,7 +584,7 @@
                 </tbody>
                 <tfoot>
                     <tr>
-                        <td colspan="4"><input type="submit" value="Envoyer" /></td>
+                        <td colspan="4"><input type="submit" value="{% trans "Submit" %}" /></td>
                     </tr>
                 </tfoot>
             </table>

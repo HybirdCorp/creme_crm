@@ -3,8 +3,8 @@
 {% load creme_block %}
 <table class="table_detail_view ui-corner-all">
     {% comment %}{% with object|get_meta_value:"verbose_name"|format:"Informations %s" as title %} DOESN'T WORK ?! {% endcomment %}
-    {% with object|get_meta_value:"verbose_name" as tmp %} {% with tmp|format:"Informations %s" as title %}
-        {% get_basic_block_header title 'infos_48.png' 'Infos' %}
+    {% with object|get_meta_value:"verbose_name" as tmp %} {% with tmp|format:_("Information %s") as title %}
+        {% get_basic_block_header title 'infos_48.png' _('Information') %}
     {% endwith %} {% endwith %}
     <tbody class="collapsable">
         {% for field in object|get_meta_value:"fields" %}

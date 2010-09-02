@@ -1,5 +1,6 @@
+{% load i18n %}
 <div id="last_viewed">
-    <strong>Dernières fiches consultées:&nbsp; &nbsp;</strong>
+    <strong>{% trans "Last viewed pages:" %}&nbsp; &nbsp;</strong>
     {% for item in items %}
         <a href="{{item.url}}">{{item.name}}</a> &nbsp; &nbsp;
     {% endfor %}

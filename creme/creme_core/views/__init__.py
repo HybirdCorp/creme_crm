@@ -1,3 +1,3 @@
 # -*- coding: utf-8 -*-
 
-from search import search
+from search import search #TODO: lazy instead ??
