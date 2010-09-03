@@ -46,13 +46,13 @@
                             <input type="checkbox" name="checked_action{{action.id}}" id="checked_action{{action.id}}" />
                                 {# move validateEntity() to a 'assistants.js' file ?? #}
                                 <button type="button" onclick="creme.utils.validateEntity(this.form, 'checked_action{{action.id}}');" style="background:transparent; cursor:pointer;border:0px;">
-                                <img src="{{MEDIA_URL}}images/refresh_16.png" width="16" height="16" border="0" />
+                                <img src="{{MEDIA_URL}}images/refresh_16.png" width="16" height="16" border="0"  alt="{% trans "Edit" %}" />
                             </button>
                         </form>
                     </td>
                     <td class="{{row_color}}" align="center" valign="center" style="width:10%;">
                         <a onclick="creme.utils.innerPopupNReload('/assistants/action/edit/{{action.id}}/', {% get_block_reload_uri %});">
-                            <img src="{{MEDIA_URL}}images/edit_22.png" border="0">
+                            <img src="{{MEDIA_URL}}images/edit_22.png" border="0" title="{% trans "Edit" %}" alt="{% trans "Edit" %}" />
                         </a>
                         {% get_line_deletor at_url '/assistants/action/delete' with_args "{'id' : {{action.id}} }" %}
                     </td>
