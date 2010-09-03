@@ -22,9 +22,10 @@ from django.utils.translation import ugettext_lazy as _
 
 from creme_core.gui.block import Block
 from creme_core.models.header_filter import HFI_FIELD, HFI_RELATION
+from creme_core.gui.block import QuerysetBlock
 
 from reports.models import Field, report_template_dir
-
+from reports.models.graph import ReportGraph, verbose_report_graph_types
 
 class ReportFieldsBlock(Block):
     id_           = Block.generate_id('reports', 'fields')
@@ -41,4 +42,22 @@ class ReportFieldsBlock(Block):
                                                             HFI_RELATION=HFI_RELATION)
                             )
 
+class ReportGraphBlock(QuerysetBlock):
+    id_           = QuerysetBlock.generate_id('reports', 'graphs')
+    dependencies  = (ReportGraph,)
+    verbose_name  = _(u"Report's graphs")
+    template_name = '%s/templatetags/block_report_graphs.html' % report_template_dir
+    order_by      = 'name'
+
+    def detailview_display(self, context):
+        report = context['object']
+
+        return self._render(self.get_block_template_context(context, ReportGraph.objects.filter(report=report),
+                                                            update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, report.pk),
+                                                            verbose_report_graph_types=verbose_report_graph_types
+                                                            )
+                            )
+
+
 report_fields_block = ReportFieldsBlock()
+report_graphs_block = ReportGraphBlock()
