@@ -19,3 +19,4 @@
 ################################################################################
 
 from report import Field, Report, report_prefix_url, report_template_dir
+from graph import ReportGraph#, ReportGraphType
