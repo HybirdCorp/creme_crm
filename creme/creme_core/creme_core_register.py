@@ -18,8 +18,9 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import ugettext_lazy as _, ugettext
 from django.contrib.auth.models import User
+from django.contrib.contenttypes.models import ContentType
 
 from creme_core.registry import creme_registry
 from creme_core.gui.menu import creme_menu
@@ -28,6 +29,9 @@ from creme_core.blocks import relations_block, properties_block
 
 
 User._meta.ordering = ('username',)
+
+ContentType.__unicode__ = lambda self: ugettext(self.name)
+
 
 creme_registry.register_app('creme_core', _(u'Core'), '/')
 
