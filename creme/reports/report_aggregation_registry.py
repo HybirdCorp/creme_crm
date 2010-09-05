@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.db.models import Avg, Min, Max, Sum
+from django.db.models import Avg, Min, Max, Sum, Count
 from django.utils.translation import ugettext_lazy as _
 from django.db import models
 
@@ -51,7 +51,8 @@ class FieldAggregationRegistry(object):
         return self._aggregations.itervalues()
 
 field_aggregation_registry = FieldAggregationRegistry()
-field_aggregation_registry.register('avg', FieldAggregation('avg', Avg, '%s__avg', _(u'Average')))
-field_aggregation_registry.register('min', FieldAggregation('min', Min, '%s__min', _(u'Minimum')))
-field_aggregation_registry.register('max', FieldAggregation('max', Max, '%s__max', _(u'Maximum')))
-field_aggregation_registry.register('sum', FieldAggregation('sum', Sum, '%s__sum', _(u'Sum')))
+field_aggregation_registry.register('avg',   FieldAggregation('avg',   Avg,   '%s__avg',   _(u'Average')))
+field_aggregation_registry.register('min',   FieldAggregation('min',   Min,   '%s__min',   _(u'Minimum')))
+field_aggregation_registry.register('max',   FieldAggregation('max',   Max,   '%s__max',   _(u'Maximum')))
+field_aggregation_registry.register('sum',   FieldAggregation('sum',   Sum,   '%s__sum',   _(u'Sum')))
+#field_aggregation_registry.register('count', FieldAggregation('count', Count, '%s__count', _(u'Count')))#No sense !

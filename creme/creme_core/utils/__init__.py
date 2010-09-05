@@ -61,6 +61,7 @@ def create_or_update_models_instance(model, pk=None, **kwargs):
 
     return instance
 
+#TODO: Use DjangoJSONEncoder ?
 def jsonify(func): ##
     def _aux(*args, **kwargs):
         rendered = func(*args, **kwargs)
