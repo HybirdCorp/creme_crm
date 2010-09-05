@@ -11,10 +11,12 @@
     {{block.super}}
 
     {% import_block from_app 'reports' named 'fields' as 'fields_block' %}
+    {% import_block from_app 'reports' named 'graphs' as 'graphs_block' %}
 {% endblock %}
 
 {% block after_object_as_table_1 %}
     {% display_block_detailview 'fields_block' %}
+    {% display_block_detailview 'graphs_block' %}
 {% endblock %}
 
 {% block edit_delete_buttons %}

@@ -25,7 +25,7 @@ from creme_core.gui.menu import creme_menu
 from creme_core.gui.block import block_registry
 
 from reports.models import Report, report_prefix_url
-from reports.blocks import report_fields_block
+from reports.blocks import report_fields_block, report_graphs_block
 
 report_app = Report._meta.app_label
 
@@ -40,3 +40,4 @@ reg_menu(report_app, '%s/reports' % report_prefix_url,    _(u'All reports'))
 reg_menu(report_app, '%s/report/add' % report_prefix_url, _(u'Add a report'))
 
 block_registry.register(report_fields_block)
+block_registry.register(report_graphs_block)

@@ -1,0 +1,46 @@
+{% load i18n %}
+{% load creme_core_tags %}
+{% load creme_block %}
+<table class="table_detail_view ui-corner-all" id={{block_name}}>
+    {% get_block_header _('%s Graph') _('%s Graphs') 'graph_48.png' 'Graph' %}
+    <tbody class="collapsable">
+        <tr>
+            <th colspan="6" class="block_header_line_dark" align="left">
+                <a class="button_link" onclick="creme.utils.innerPopupNReload('/reports/graph/{{object.id}}/add', {% get_block_reload_uri %});">
+                    <img src="{{MEDIA_URL}}images/add_22.png" border="0" title="{% trans 'Add new graph' %}" alt="{% trans 'Add' %}" />{% trans 'New' %}
+                </a>
+            </th>
+        </tr>
+        {% if page.paginator.count %}
+            <tr>
+                <th class="block_header_line_dark" style="width:20px;">&nbsp;</th>
+                {% get_column_header _('Name') 'name' %}
+                {% get_column_header _('Column abscissa') 'abscissa' %}
+                {% get_column_header _('Column ordinate') 'ordinate' %}
+                {% get_column_header _('Type') 'type' %}
+                <th class="block_header_line_dark">{% trans 'Actions' %}</th>
+            </tr>
+            {% for graph in page.object_list %}
+                <!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
+                <tr>
+                    <td class="{{row_color}}" style="width:20px;"><img src="{{MEDIA_URL}}/images/expandme.gif" alt="{% trans 'Expand' %}"/></td>
+                    <td class="{{row_color}}"><a href="{{graph.get_absolute_url}}">{{graph.name}}</a></td>
+                    <td class="{{row_color}}">{{graph.abscissa}}</td>
+                    <td class="{{row_color}}">{{graph.ordinate}}</td>
+                    <td class="{{row_color}}">{{verbose_report_graph_types|get_value:graph.type}}</td>
+                    <td class="{{row_color}}" align="center" valign="center" style="width:10%;">
+                        <a onclick="creme.utils.innerPopupNReload('/reports/graph/edit/{{graph.id}}/', {% get_block_reload_uri %});">
+                            <img src="{{MEDIA_URL}}images/edit_22.png" border="0">
+                        </a>
+                        {% get_line_deletor at_url '/creme_core/delete_js' with_args "{'ids' : '{{graph.id}}' }" %}
+                    </td>
+                </tr>
+            {% endfor %}
+        {% else %}
+            <tr>
+                <td colspan="4" class="block_line_dark">{% trans 'No graphs registered for the moment' %}</td>
+            </tr>
+        {% endif %}
+    </tbody>
+    {% include 'creme_core/templatetags/widgets/block_footer.html' %}
+</table>
