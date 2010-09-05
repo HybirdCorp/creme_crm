@@ -1,0 +1,46 @@
+{% load i18n %}
+{% load creme_block %}
+{% load creme_widgets %}
+<table class="table_detail_view ui-corner-all" id={{block_name}}>
+    {% get_block_header _('%s Root node') _('%s Root nodes') 'graph_48.png' _('Root nodes') %}
+    <tbody class="collapsable">
+        <tr>
+            <th colspan="3" class="block_header_line_dark" align="left">
+                {% comment %}<a class="button_link" onclick="creme.utils.innerPopupNReload('/graphs/graph/{{object.pk}}/roots/add', {% get_block_reload_uri %});">{% endcomment %}
+                <a href="/graphs/graph/{{object.pk}}/roots/add">
+                    <img src="{{MEDIA_URL}}images/add_22.png" border="0" title="{% trans "Add root nodes" %}" alt="{% trans "Add root nodes" %}" />
+                    {% trans "Add root nodes from existing entities" %}
+                </a>
+            </th>
+        </tr>
+        {% if page.paginator.count %}
+            <tr>
+                <th class="block_header_line_dark">{% trans "Entity" %}</th>
+                <th class="block_header_line_dark">{% trans "Types of relation" %}</th>
+                <th class="block_header_line_dark">{% trans "Actions" %}</th>
+            </tr>
+            {% for rnode in page.object_list %}
+                <!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
+                <tr>
+                    <td class="{{row_color}}">
+                        <a href="{{rnode.entity.get_absolute_url}}">{{rnode.entity}}</a>
+                    </td>
+                    <td class="{{row_color}}">
+                        {% widget_select_or_msg rnode.relation_types.all _('No type of relation') %}
+                    </td>
+                    <td class="{{row_color}}" align="center" valign="center" style="width:10%;">
+                        <a onclick="creme.utils.innerPopupNReload('/graphs/root/edit/{{rnode.id}}/', {% get_block_reload_uri %});">
+                            <img src="{{MEDIA_URL}}images/edit_22.png" border="0" title="{% trans "Edit" %}" alt="{% trans "Edit" %}">
+                        </a>
+                        {% get_line_deletor at_url '/graphs/root/delete' with_args "{'id':{{rnode.pk}} }" %}
+                    </td>
+                </tr>
+            {% endfor %}
+        {% else %}
+            <tr>
+                <td class="block_line_dark">{% trans "No root node for the moment" %}</td>
+            </tr>
+        {% endif %}
+    </tbody>
+    {% include 'creme_core/templatetags/widgets/block_footer.html' %}
+</table>

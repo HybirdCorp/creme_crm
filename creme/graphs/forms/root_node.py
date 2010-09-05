@@ -22,27 +22,40 @@ from django.forms import ModelMultipleChoiceField
 from django.utils.translation import ugettext_lazy as _
 
 from creme_core.models import RelationType
-from creme_core.forms import CremeForm, CremeEntityForm
+from creme_core.forms import CremeForm, CremeModelForm
+from creme_core.forms.fields import GenericEntitiesField
 from creme_core.forms.widgets import OrderedMultipleChoiceWidget
 
-from graphs.models import Graph
+from graphs.models import RootNode
 
 
-class GraphForm(CremeEntityForm):
-    class Meta(CremeEntityForm.Meta):
-        model = Graph
-        exclude = CremeEntityForm.Meta.exclude + ('orbital_relation_types', )
-
-
-class AddRelationTypesForm(CremeForm):
-    relation_types = ModelMultipleChoiceField(label=_('Types of the peripheral relations'),
+class AddRootNodesForm(CremeForm):
+    entities       = GenericEntitiesField(label=_(u'Root entities'))
+    relation_types = ModelMultipleChoiceField(label=_('Related types of relations'),
                                               queryset=RelationType.objects.all(),
                                               widget=OrderedMultipleChoiceWidget)
 
     def __init__(self, graph, *args, **kwargs):
-        super(AddRelationTypesForm, self).__init__(*args, **kwargs)
+        super(AddRootNodesForm, self).__init__(*args, **kwargs)
         self.graph = graph
 
     def save(self):
-        self.graph.orbital_relation_types = self.cleaned_data['relation_types']
+        graph = self.graph
+        cleaned_data = self.cleaned_data
+        entities = cleaned_data['entities']
+        rtypes = cleaned_data['relation_types']
+        create_node = RootNode.objects.create
 
+        for entity in entities:
+            root_node = create_node(entity=entity, graph=graph)
+            root_node.relation_types = rtypes
+
+
+class EditRootNodeForm(CremeModelForm):
+    relation_types = ModelMultipleChoiceField(label=_('Related types of relations'),
+                                              queryset=RelationType.objects.all(),
+                                              widget=OrderedMultipleChoiceWidget)
+
+    class Meta:
+        model = RootNode
+        exclude = ('graph', 'entity')
