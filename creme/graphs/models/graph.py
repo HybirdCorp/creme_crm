@@ -57,6 +57,10 @@ class Graph(CremeEntity):
 
         import pygraphviz as pgv
 
+        #NB: to work with utf8 label in node: all node must be added explicitly with
+        #    unicode label, and when edges are a created, nodes identified by their
+        #    labels encoded as string
+
         graph = pgv.AGraph(directed=True)
 
         #NB: "self.roots.all()" causes a strange additional query (retrieving of the base CremeEntity !)....
@@ -77,19 +81,25 @@ class Graph(CremeEntity):
         orbital_nodes = {} #cache
 
         for root in roots:
-            subject = root.entity
-            relations = subject.relations.filter(type__in=root.relation_types.all()).select_related('object_entity', 'type')
+            subject     = root.entity
+            str_subject = unicode(subject).encode('utf-8')
+            relations   = subject.relations.filter(type__in=root.relation_types.all()).select_related('object_entity', 'type')
+
             Relation.populate_real_object_entities(relations) #small optimisation
 
             for relation in relations:
-                obj     = relation.object_entity
-                uni_obj = unicode(obj)
+                object_    = relation.object_entity
+                uni_object = unicode(object_)
+                str_object = uni_object.encode('utf-8')
 
-                add_edge(unicode(subject), uni_obj,
+                orbital_node = orbital_nodes.get(object_.id)
+                if not orbital_node:
+                    add_node(uni_object)
+                    orbital_nodes[object_.id] = str_object
+
+                add_edge(str_subject, str_object,
                          label=unicode(relation.type.predicate).encode('utf-8')) # beware: not unicode for label (pygraphviz use label as dict key)
                 #add_edge('b', 'd', color='#FF0000', fontcolor='#00FF00', label='foobar', style='dashed')
-
-                orbital_nodes[obj.id] = uni_obj
 
         orbital_rtypes = self.orbital_relation_types.all()
 
