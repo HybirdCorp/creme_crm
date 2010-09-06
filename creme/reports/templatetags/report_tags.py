@@ -21,7 +21,7 @@ from django.template import Library
 from django.db.models.fields.related import ForeignKey, ManyToManyField
 from django.utils.translation import ugettext_lazy as _
 
-from creme_core.utils.meta import get_model_field_infos
+from creme_core.utils.meta import get_model_field_infos, get_verbose_field_name
 from creme_core.models.header_filter import HFI_FIELD, HFI_RELATION, HFI_FUNCTION, HFI_CUSTOM, HFI_CALCULATED
 from creme_core.registry import creme_registry
 
