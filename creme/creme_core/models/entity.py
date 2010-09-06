@@ -36,17 +36,21 @@ from function_field import FunctionField
 
 
 class EntityAction(object):
-    def __init__(self, url, text, is_default=False, attrs={}, icon=None):
+    def __init__(self, url, text, is_default=False, attrs=None, icon=None):
         self.url = url
         self.text = text
         self.is_default = is_default
-        self.attrs = mark_safe(flatatt(attrs))
+        self.attrs = mark_safe(flatatt(attrs or {}))
         self.icon = os.path.join(settings.MEDIA_URL, *icon) if icon and hasattr(icon, "__iter__") else None
 
 
 class _PrettyPropertiesField(FunctionField):
     name         = "get_pretty_properties"
     verbose_name = _(u'Properties')
+
+    @classmethod
+    def populate_entities(cls, entities):
+        CremeEntity.populate_properties(entities)
 
 
 class CremeEntity(CremeAbstractEntity):
@@ -63,6 +67,7 @@ class CremeEntity(CremeAbstractEntity):
     def __init__(self, *args, **kwargs):
         super(CremeEntity, self).__init__(*args, **kwargs)
         self._relations_map = {}
+        self._properties = None
         self._cvalues_map = {}
 
     def delete(self):
@@ -189,30 +194,41 @@ class CremeEntity(CremeAbstractEntity):
         }
         return render_to_string("creme_core/frags/actions.html", ctx)
 
-#        return u"""<ul><li><a href="%s">Voir</a></li><li><a href="%s">Éditer</a></li><li><a href="%s" onclick="creme.utils.confirmDelete(event, this);">Effacer</a></li></ul>""" \
-#                % (self.get_absolute_url(), self.get_edit_absolute_url(), self.get_delete_absolute_url())
-        #return u"""<a href="%(url)s">%(see)s</a> | <a href="%(edit_url)s">%(edit)s</a> | <a href="%(del_url)s" onclick="creme.utils.confirmDelete(event, this);">%(delete)s</a>""" % {
-                #'url' :     self.get_absolute_url(),
-                #'edit_url': self.get_edit_absolute_url(),
-                #'del_url':  self.get_delete_absolute_url(),
-                #'see':      ugettext(u'Voir'),
-                #'edit':     ugettext(u'Éditer'),
-                #'delete':   ugettext(u'Effacer'),
-            #}
-
     def get_custom_fields_n_values(self):
         cfields = CustomField.objects.filter(content_type=self.entity_type_id) #TODO: in a staticmethod of CustomField ??
         CremeEntity.populate_custom_values([self], cfields)
 
         return [(cfield, self.get_custom_value(cfield)) for cfield in cfields]
 
-    #TODO: Improve ?
     def get_properties(self):
-        return self.properties.all()
+        if self._properties is None:
+            debug('CremeEntity.get_properties(): Cache MISS for id=%s', self.id)
+            self._properties = self.properties.all().select_related('type')
+        else:
+            debug('CremeEntity.get_properties(): Cache HIT for id=%s', self.id)
+
+        return self._properties
 
     def get_pretty_properties(self):
         return u"""<ul>%s</ul>""" % "".join([u"<li>%s</li>" % p for p in self.get_properties()])
 
+    @staticmethod
+    def populate_properties(entities):
+        properties_map = defaultdict(list)
 
-from custom_field import CustomField, CustomFieldValue
+        #NB1: listify entities in order to avoid subquery (that is not supported by some DB backends)
+        #NB2: list of id in order to avoid strange queries that retrieve base CremeEntities (ORM problem ?)
+        entities_ids = [entity.id for entity in entities]
+
+        for prop in CremeProperty.objects.filter(creme_entity__in=entities_ids).select_related('type'):
+            properties_map[prop.creme_entity_id].append(prop)
+
+        for entity in entities:
+            entity_id = entity.id
+            debug(u'Fill properties cache entity_id=%s', entity_id)
+            entity._properties = properties_map[entity_id]
+
+
 from relation import Relation
+from creme_property import CremeProperty
+from custom_field import CustomField, CustomFieldValue
