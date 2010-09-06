@@ -23,13 +23,14 @@ from django.contrib.contenttypes.models import ContentType
 
 from creme_core.utils import create_or_update_models_instance as create
 from creme_core.models.header_filter import HeaderFilterItem, HeaderFilter, HFI_FIELD
-from creme_core.models import RelationType, SearchConfigItem
+from creme_core.models import RelationType, SearchConfigItem, ButtonMenuItem
 from creme_core.management.commands.creme_populate import BasePopulator
 
 from persons.models import Organisation
 
 from billing.models import *
 from billing.constants import *
+from billing.buttons import generate_invoice_number_button
 
 
 class Populator(BasePopulator):
@@ -67,6 +68,10 @@ class Populator(BasePopulator):
         create(CreditNoteStatus, 2, name=_(u"Issued"))
 
         get_ct = ContentType.objects.get_for_model
+        invoice_ct_id = get_ct(Invoice).id
+        create(ButtonMenuItem, 'billing-generate_invoice_number',
+                                content_type_id=invoice_ct_id, button_id=generate_invoice_number_button.id_,
+                                order=0)
 
         def create_hf(hf_pk, hfi_pref, name, model):
             hf_id = create(HeaderFilter, hf_pk, name=name, entity_type_id=get_ct(model).id, is_custom=False).id

@@ -22,10 +22,12 @@ from django.utils.translation import ugettext_lazy as _
 
 from creme_core.registry import creme_registry
 from creme_core.gui.menu import creme_menu
+from creme_core.gui.button_menu import button_registry
 from creme_core.gui.block import block_registry
 
 from billing.models import Invoice, Quote, SalesOrder, CreditNote
 from billing.blocks import product_lines_block, service_lines_block, total_block
+from billing.buttons import generate_invoice_number_button
 
 
 creme_registry.register_app('billing', _(u'Billing'), '/billing')
@@ -44,3 +46,4 @@ reg_menu('billing', '/billing/credit_note/add', _(u'Add a credit note'))
 reg_menu('billing', '/billing/credit_note',     _(u'All credit notes'))
 
 block_registry.register(product_lines_block, service_lines_block, total_block)
+button_registry.register(generate_invoice_number_button)

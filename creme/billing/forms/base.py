@@ -112,5 +112,5 @@ class BaseCreateForm(BaseEditForm):
     def save(self):
         instance = super(BaseCreateForm, self).save()
 
-        instance.generate_number()
+        #instance.generate_number()
         instance.save()

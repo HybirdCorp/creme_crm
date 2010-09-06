@@ -34,6 +34,7 @@ urlpatterns = patterns('billing.views',
     (r'^invoices$',                         'invoice.listview'),
     (r'^invoice/add$',                      'invoice.add'),
     (r'^invoice/edit/(?P<invoice_id>\d+)$', 'invoice.edit'),
+    (r'^invoice/generate_number/(?P<invoice_id>\d+)$', 'invoice.generate_number'),
     (r'^invoice/(?P<invoice_id>\d+)$',      'invoice.detailview'),
 
     (r'^(?P<document_id>\d+)/convert/$', 'convert.convert'),
