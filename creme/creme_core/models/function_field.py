@@ -38,6 +38,11 @@ class FunctionField(object):
     #def execute(cls, obj):
         #return getattr(obj, cls.name)()
 
+    @classmethod
+    def populate_entities(cls, entities):
+        """Optimisation used for listviews ; see HeaderFilter"""
+        pass
+
 
 class FunctionFieldsManager(object):
     def __init__(self, *function_fields):

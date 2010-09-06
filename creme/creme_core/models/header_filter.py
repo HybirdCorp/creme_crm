@@ -137,6 +137,10 @@ class HeaderFilter(Model): #CremeModel ???
 
             CremeEntity.populate_custom_values(entities, cfields.values()) #NB: not itervalues() (iterated several times)
 
+        for hfi in hfi_groups[HFI_FUNCTION]:
+            func_field = self.entity_type.model_class().function_fields.get(hfi.name)
+            func_field.populate_entities(entities)
+
 
 class HeaderFilterItem(Model):  #CremeModel ???
     id                    = CharField(primary_key=True, max_length=100)
