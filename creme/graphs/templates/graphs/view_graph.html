@@ -1,12 +1,25 @@
 {% extends "creme_core/generics/view_entity.html" %}
 
 {% load i18n %}
+{% load creme_block %}
 
 {% block logo %}<img src="{{MEDIA_URL}}images/graph_64.png" alt="{% trans "Graph" %}"/>{% endblock %}
+
+{% block creme_blocks_import %}
+    {{block.super}}
+
+    {% import_block from_app 'graphs' named 'root_nodes' as 'rootnodes_block' %}
+    {% import_block from_app 'graphs' named 'orbital_rtypes' as 'orbital_rtypes_block' %}
+{% endblock %}
 
 {% block edit_delete_buttons %}
     <a href="/graphs/graph/{{object.id}}/png">
         <img src="{{MEDIA_URL}}images/download_64.png" title="{% blocktrans %}Download '{{object}}' as PNG file{% endblocktrans %}" alt="{% trans "Download PNG" %}"/>
     </a>&nbsp;
     {{block.super}}
+{% endblock %}
+
+{% block after_object_as_table_1 %}
+    {% display_block_detailview 'rootnodes_block' %}
+    {% display_block_detailview 'orbital_rtypes_block' %}
 {% endblock %}

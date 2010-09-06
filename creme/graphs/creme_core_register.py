@@ -22,8 +22,10 @@ from django.utils.translation import ugettext_lazy as _
 
 from creme_core.registry import creme_registry
 from creme_core.gui.menu import creme_menu
+from creme_core.gui.block import block_registry
 
 from graphs.models import Graph
+from graphs.blocks import root_nodes_block, orbital_rtypes_block
 
 
 creme_registry.register_app('graphs', _(u'Graphs'), '/graphs')
@@ -33,4 +35,6 @@ creme_menu.register_app('graphs', '/graphs/', 'Graphes')
 reg_menu = creme_menu.register_menu
 reg_menu('graphs', '/graphs/',           _(u'Portal'))
 reg_menu('graphs', '/graphs/graphs',     _(u'All graphs'))
-reg_menu('graphs', '/graphs/graph/add',  _(u'Add a graphe'))
+reg_menu('graphs', '/graphs/graph/add',  _(u'Add a graph'))
+
+block_registry.register(root_nodes_block, orbital_rtypes_block)

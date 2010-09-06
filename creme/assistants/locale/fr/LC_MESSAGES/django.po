@@ -2,11 +2,12 @@
 # Copyright (C) 2010 Hybird
 # This file is distributed under the same license as the Creme package.
 #
+#, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-08-23 16:06+0200\n"
+"POT-Creation-Date: 2010-09-03 17:08+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -37,6 +38,7 @@ msgstr "Réactions hors délais"
 #: forms/action.py:31 forms/todo.py:31 models/action.py:37 models/todo.py:39
 #: templates/assistants/block_actions_it.html:26
 #: templates/assistants/block_actions_nit.html:16
+#: templates/assistants/block_todos.html:27
 msgid "Deadline"
 msgstr "Échéance"
 
@@ -52,6 +54,7 @@ msgstr "Date de déclenchement de l'alerte"
 #: templates/assistants/block_actions_it.html:18
 #: templates/assistants/block_actions_nit.html:8
 #: templates/assistants/block_alerts.html:18
+#: templates/assistants/block_todos.html:25
 msgid "Title"
 msgstr "Titre"
 
@@ -87,6 +90,7 @@ msgstr "Action"
 #: templates/assistants/block_actions_nit.html:18
 #: templates/assistants/block_alerts.html:26
 #: templates/assistants/block_memos.html:25
+#: templates/assistants/block_todos.html:29
 msgid "Actions"
 msgstr "Actions"
 
@@ -120,9 +124,9 @@ msgstr "Mémo"
 msgid "Done ?"
 msgstr "Faite ?"
 
-#: models/todo.py:62
+#: models/todo.py:62 templates/assistants/block_todos.html:5
 msgid "Todo"
-msgstr "Todos"
+msgstr "Todo"
 
 #: templates/assistants/block_actions_it.html:4
 #, python-format
@@ -148,6 +152,7 @@ msgstr "Nouvelle action"
 #: templates/assistants/block_actions_nit.html:10
 #: templates/assistants/block_alerts.html:20
 #: templates/assistants/block_memos.html:20
+#: templates/assistants/block_todos.html:21
 msgid "Concerned entity"
 msgstr "Fiche concernée"
 
@@ -155,6 +160,7 @@ msgstr "Fiche concernée"
 #: templates/assistants/block_actions_nit.html:13
 #: templates/assistants/block_alerts.html:22
 #: templates/assistants/block_memos.html:22
+#: templates/assistants/block_todos.html:23
 msgid "User"
 msgstr "Utilisateur"
 
@@ -172,6 +178,15 @@ msgstr "Action attendue"
 #: templates/assistants/block_actions_nit.html:17
 msgid "OK ?"
 msgstr "OK ?"
+
+#: templates/assistants/block_actions_it.html:49
+#: templates/assistants/block_actions_it.html:55
+#: templates/assistants/block_actions_nit.html:44
+#: templates/assistants/block_alerts.html:50
+#: templates/assistants/block_memos.html:40
+#: templates/assistants/block_todos.html:58
+msgid "Edit"
+msgstr "Éditer"
 
 #: templates/assistants/block_actions_it.html:63
 msgid "No action in time"
@@ -240,12 +255,48 @@ msgid "New memo"
 msgstr "Nouveau mémo"
 
 #: templates/assistants/block_memos.html:23
+#: templates/assistants/block_todos.html:24
 msgid "Created"
 msgstr "Crée le"
 
 #: templates/assistants/block_memos.html:48
 msgid "No memo for the moment"
 msgstr "Aucun mémo enregistré pour le moment"
+
+#: templates/assistants/block_todos.html:5
+#, python-format
+msgid "%s Todo"
+msgstr "%s Todo"
+
+#: templates/assistants/block_todos.html:5
+#, python-format
+msgid "%s Todos"
+msgstr "%s Todos"
+
+#: templates/assistants/block_todos.html:12
+#: templates/assistants/block_todos.html:13
+msgid "New todo"
+msgstr "Nouveau todo"
+
+#: templates/assistants/block_todos.html:26
+msgid "Todo text"
+msgstr "Texte du Todo"
+
+#: templates/assistants/block_todos.html:28
+msgid "Validate"
+msgstr "Valider"
+
+#: templates/assistants/block_todos.html:46
+msgid "The Todo is validated."
+msgstr "Le Todo est validé."
+
+#: templates/assistants/block_todos.html:51
+msgid "Submit"
+msgstr "Envoyer"
+
+#: templates/assistants/block_todos.html:66
+msgid "No Todo for the moment"
+msgstr "Aucun Todo enregistré pour le moment"
 
 #: views/action.py:34
 #, python-format
