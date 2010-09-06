@@ -1,6 +1,7 @@
 {% load i18n %}
 {% load creme_core_tags %}
 {% load creme_block %}
+{% load graph_tags %}
 <table class="table_detail_view ui-corner-all" id={{block_name}}>
     {% get_block_header _('%s Graph') _('%s Graphs') 'graph_48.png' 'Graph' %}
     <tbody class="collapsable">
@@ -25,8 +26,8 @@
                 <tr>
                     <td class="{{row_color}}" style="width:20px;"><img src="{{MEDIA_URL}}/images/expandme.gif" alt="{% trans 'Expand' %}"/></td>
                     <td class="{{row_color}}"><a href="{{graph.get_absolute_url}}">{{graph.name}}</a></td>
-                    <td class="{{row_color}}">{{graph.abscissa}}</td>
-                    <td class="{{row_color}}">{{graph.ordinate}}</td>
+                    <td class="{{row_color}}">{{graph|verbose_abscissa:graph.abscissa}}</td>
+                    <td class="{{row_color}}">{{graph|verbose_ordinate:graph.ordinate}}</td>
                     <td class="{{row_color}}">{{verbose_report_graph_types|get_value:graph.type}}</td>
                     <td class="{{row_color}}" align="center" valign="center" style="width:10%;">
                         <a onclick="creme.utils.innerPopupNReload('/reports/graph/edit/{{graph.id}}/', {% get_block_reload_uri %});">
