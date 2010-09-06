@@ -72,14 +72,14 @@ class Populator(BasePopulator):
             hf_id = create(HeaderFilter, hf_pk, name=name, entity_type_id=get_ct(model).id, is_custom=False).id
             create(HeaderFilterItem, hfi_pref + 'name',    order=1, name='name',            title=_(u'Name'),            type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True, editable=True, sortable=True, filter_string="name__icontains")
             create(HeaderFilterItem, hfi_pref + 'number',  order=2, name='number',          title=_(u'Number'),          type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True, editable=True, sortable=True, filter_string="number__icontains")
-            create(HeaderFilterItem, hfi_pref + 'issdate', order=3, name='issuing_date',    title=_(u"Issuing date"), type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True, editable=True, sortable=True, filter_string="issuing_date__range")
+            create(HeaderFilterItem, hfi_pref + 'issdate', order=3, name='issuing_date',    title=_(u"Issuing date"),    type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True, editable=True, sortable=True, filter_string="issuing_date__range")
             create(HeaderFilterItem, hfi_pref + 'expdate', order=4, name='expiration_date', title=_(u"Expiration date"), type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True, editable=True, sortable=True, filter_string="expiration_date__range")
             create(HeaderFilterItem, hfi_pref + 'status',  order=5, name='status',          title=_(u'Status'),          type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True, editable=True, sortable=True, filter_string="status__name__icontains")
 
         create_hf('billing-hf_invoice',    'billing-hfi_invoice_',    _(u'Invoice view'),     Invoice)
         create_hf('billing-hf_quote',      'billing-hfi_quote_',      _(u'Quote view'),       Quote)
         create_hf('billing-hf_salesorder', 'billing-hfi_salesorder_', _(u'Sales order view'), SalesOrder)
-        create_hf('billing-hf_creditnote', 'billing-hfi_creditnote_', _(u'Credit note view'),   CreditNote)
+        create_hf('billing-hf_creditnote', 'billing-hfi_creditnote_', _(u'Credit note view'), CreditNote)
 
         SearchConfigItem.create(Invoice,    ['name', 'number', 'total', 'status__name'])
         SearchConfigItem.create(CreditNote, ['name', 'number', 'total', 'status__name'])

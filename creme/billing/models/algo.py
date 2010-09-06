@@ -47,6 +47,7 @@ class SimpleBillingAlgo(Model):
 
     class Meta:
         app_label = 'billing'
+        unique_together = ("organisation", "last_number", "ct")
 
 
 def simple_conf_billing_for_org_managed_by_creme(sender, instance, created, **kwargs):
