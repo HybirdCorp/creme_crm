@@ -1,14 +1,16 @@
+{% load i18n %}
 {% load creme_core_tags %}
 {% load creme_block %}
 <table class="table_detail_view ui-corner-all" id={{block_name}}>
-    {% get_block_header '%s Todo' '%s Todos' 'memo_48.png' 'Todo' %}
+    {% get_block_header _('%s Todo') _('%s Todos') 'memo_48.png' _('Todo') %}
     <tbody class="collapsable">
         {% if object %}
             <tr>
                 <th colspan="7" class="block_header_line_dark" align="left">
                     {# creating a generic line_creator ? #}
                     <a class="button_link" onclick="creme.utils.innerPopupNReload('/assistants/todo/add/{{object.id}}/', {% get_block_reload_uri %});">
-                        <img src="{{MEDIA_URL}}images/add_22.png" border="0" title="Ajouter un nouveau Todo" alt="Ajouter" />Nouveau
+                        <img src="{{MEDIA_URL}}images/add_22.png" border="0" title="{% trans "New todo" %}" alt="{% trans "New todo" %}" />
+                        {% trans "New todo" %}
                     </a>
                 </th>
             </tr>
@@ -16,15 +18,15 @@
         {% if page.paginator.count %}
             <tr>
                 {% if not object %}
-                    <th class="block_header_line_dark">Fiche concernée</th>
+                    <th class="block_header_line_dark">{% trans "Concerned entity" %}</th>
                 {% endif %}
-                {% get_column_header "Utilisateur" 'for_user' %}
-                {% get_column_header 'Crée le' 'creation_date' %}
-                {% get_column_header 'Titre' 'title' %}
-                {% get_column_header 'Texte du Todo' 'description' %}
-                {% get_column_header 'Échéance le' 'deadline' %}
-                <th class="block_header_line_dark">Valider</th>
-                <th class="block_header_line_dark">Actions</th>
+                {% get_column_header _('User') 'for_user' %}
+                {% get_column_header _('Created') 'creation_date' %}
+                {% get_column_header _('Title') 'title' %}
+                {% get_column_header _('Todo text') 'description' %}
+                {% get_column_header _('Deadline') 'deadline' %}
+                <th class="block_header_line_dark">{% trans "Validate" %}</th>
+                <th class="block_header_line_dark">{% trans "Actions" %}</th>
             </tr>
             {% for todo in page.object_list %}
                 <!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
@@ -41,19 +43,19 @@
                     <td class="{{row_color}}">{{todo.deadline|date:"d/m/y"}}</td>
                     <td class="{{row_color}}">
                         {% if todo.is_ok %}
-                            Le Todo est validé.
+                            {% trans "The Todo is validated." %}
                         {% else %}
                             <form method="post" action="/assistants/todo/validate/{{todo.id}}/">
                                 <input type="checkbox" name="checked_todo{{todo.id}}" id="checked_todo{{todo.id}}" />
                                 <button type="button" onclick="creme.utils.validateEntity(this.form, 'checked_todo{{todo.id}}');" style="background:transparent; cursor:pointer;border:0px;">
-                                    <img src="{{MEDIA_URL}}images/refresh_16.png" width="16" height="16" border="0">
+                                    <img src="{{MEDIA_URL}}images/refresh_16.png" width="16" height="16" border="0" alt="{% trans "Submit" %}">
                                 </button>
                             </form>
                         {% endif %}
                     </td>
                     <td class="{{row_color}}" align="center" valign="center" style="width:10%;">
                         <a onclick="creme.utils.innerPopupNReload('/assistants/todo/edit/{{todo.id}}/', {% get_block_reload_uri %});">
-                            <img src="{{MEDIA_URL}}images/edit_22.png" border="0">
+                            <img src="{{MEDIA_URL}}images/edit_22.png" border="0" title="{% trans "Edit" %}" alt="{% trans "Edit" %}" />
                         </a>
                         {% get_line_deletor at_url '/assistants/todo/delete' with_args "{'id' : {{todo.id}} }" %}
                     </td>
@@ -61,7 +63,7 @@
             {% endfor %}
         {% else %}
             <tr>
-                <td colspan="4" class="block_line_dark">Aucun Todo enregistré pour le moment</td>
+                <td colspan="4" class="block_line_dark">{% trans "No Todo for the moment" %}</td>
             </tr>
         {% endif %}
     </tbody>

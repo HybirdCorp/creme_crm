@@ -1,0 +1,35 @@
+{% load i18n %}
+{% load creme_block %}
+<table class="table_detail_view ui-corner-all" id={{block_name}}>
+    {% get_block_header _('%s Periperal type of relation') _('%s Periperal types of relation') 'graph_48.png' _('Periperal relation types') %}
+    <tbody class="collapsable">
+        <tr>
+            <th colspan="2" class="block_header_line_dark" align="left">
+                <a class="button_link" onclick="creme.utils.innerPopupNReload('/graphs/graph/{{object.pk}}/relation_types/add', {% get_block_reload_uri %});">
+                    <img src="{{MEDIA_URL}}images/add_22.png" border="0" title="{% trans "Add types of relation" %}" alt="{% trans "Add types of relation" %}" />
+                    {% trans "Add some existing types of relation" %}
+                </a>
+            </th>
+        </tr>
+        {% if page.paginator.count %}
+            <tr>
+                <th class="block_header_line_dark">{% trans "Type of relation" %}</th>
+                <th class="block_header_line_dark">{% trans "Delete" %}</th>
+            </tr>
+            {% for rtype in page.object_list %}
+                <!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
+                <tr>
+                    <td class="{{row_color}}">{{rtype}}</td>
+                    <td class="{{row_color}}" align="center" valign="center" style="width:10%;">
+                        {% get_line_deletor at_url '/graphs/graph/{{object.pk}}/relation_type/delete' with_args "{'id':'{{rtype.pk}}' }" %}
+                    </td>
+                </tr>
+            {% endfor %}
+        {% else %}
+            <tr>
+                <td class="block_line_dark">{% trans "No type of relation for the moment" %}</td>
+            </tr>
+        {% endif %}
+    </tbody>
+    {% include 'creme_core/templatetags/widgets/block_footer.html' %}
+</table>
