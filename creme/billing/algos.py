@@ -18,24 +18,38 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from logging import debug
+
+from django.db import IntegrityError
+
 from billing.models import SimpleBillingAlgo
 from billing.registry import Algo
 
 
 class SimpleAlgo(Algo):
     def generate_number(self, organisation, ct, *args, **kwargs):
-        config_algo = SimpleBillingAlgo.objects.filter(organisation=organisation, ct=ct)[:1]
+        while True:
+            old_conf = max(SimpleBillingAlgo.objects.filter(organisation=organisation, ct=ct),
+                        key=lambda algo: algo.last_number)
+            conf     = SimpleBillingAlgo(organisation=old_conf.organisation,
+                                         ct=old_conf.ct,
+                                         prefix=old_conf.prefix,
+                                         last_number=old_conf.last_number + 1)
 
-        if config_algo:
-            conf = config_algo[0]
-            conf.last_number += 1
-        else:
-            conf = SimpleBillingAlgo()
-            conf.organisation = organisation
-            conf.ct = ct
-            conf.last_number = 1
+            try:
+                # remember the <unique_together = ("organisation", "last_number", "ct")> in SimpleBillingAlgo.Meta
+                conf.save(force_insert=True)
+            except IntegrityError, e: #problen with the 'unique_together' constraint
+                debug('SimpleAlgo.generate_number() (save new conf): %s', e)
+                continue
 
-        last_number = conf.prefix + str(conf.last_number)
-        conf.save()
+            try:
+                # protect against case that must never happen
+                # (eg: this loop is preempted on a server during a long time - yes it's a wacky idea! :) )
+                SimpleBillingAlgo.objects.get(pk=old_conf.id).delete()
+            except SimpleBillingAlgo.DoesNotExist:
+                debug('SimpleAlgo.generate_number() (delete old conf): %s', e)
+                conf.delete()
+                continue
 
-        return last_number
+            return conf.prefix + str(conf.last_number)
