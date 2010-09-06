@@ -18,17 +18,33 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from billing.constants import DEFAULT_DRAFT_INVOICE_STATUS
+
 from billing.models import Invoice
 from base import BaseCreateForm, BaseEditForm
 
-
+from billing.models import InvoiceStatus
 class InvoiceCreateForm(BaseCreateForm):
     class Meta:
         model = Invoice
         exclude = BaseCreateForm.Meta.exclude + ('number',)
 
+    def __init__(self, *args, **kwargs):
+        super(InvoiceCreateForm, self).__init__(*args, **kwargs)
+
+        fields = self.fields
+        fields['status'].queryset = InvoiceStatus.objects.filter(pk=DEFAULT_DRAFT_INVOICE_STATUS)
 
 class InvoiceEditForm(BaseEditForm):
     class Meta:
         model = Invoice
         exclude = BaseEditForm.Meta.exclude + ('number',)
+        
+    def __init__(self, *args, **kwargs):
+        super(InvoiceEditForm, self).__init__(*args, **kwargs)
+
+        fields = self.fields
+        if not self.instance.number :
+            fields['status'].queryset = InvoiceStatus.objects.filter(pk=DEFAULT_DRAFT_INVOICE_STATUS)
+        else:
+            fields['status'].queryset = InvoiceStatus.objects.exclude(pk=DEFAULT_DRAFT_INVOICE_STATUS)

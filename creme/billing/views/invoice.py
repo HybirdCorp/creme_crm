@@ -19,13 +19,15 @@
 ################################################################################
 
 from django.shortcuts import get_object_or_404
+from django.http import HttpResponseRedirect, Http404
 from django.contrib.auth.decorators import login_required
 from django.contrib.contenttypes.models import ContentType
 
 from creme_core.entities_access.functions_for_permissions import add_view_or_die, get_view_or_die
 from creme_core.views.generic import add_entity, edit_entity, list_view
 
-from billing.models import Invoice
+from billing.constants import DEFAULT_INVOICE_STATUS
+from billing.models import Invoice, InvoiceStatus
 from billing.forms.invoice import InvoiceCreateForm, InvoiceEditForm
 from billing.views.base import view_billing_entity
 
@@ -48,3 +50,17 @@ def detailview(request, invoice_id):
 @get_view_or_die('billing')
 def listview(request):
     return list_view(request, Invoice, extra_dict={'add_url':'/billing/invoice/add'})
+
+
+
+@login_required
+def generate_number(request, invoice_id):
+    invoice = get_object_or_404(Invoice, pk=invoice_id)
+    if not invoice.number:
+        status = get_object_or_404(InvoiceStatus, pk=DEFAULT_INVOICE_STATUS)
+        invoice.generate_number()
+        invoice.status = status
+        invoice.save ()
+        
+    return HttpResponseRedirect(invoice.get_absolute_url())
+
