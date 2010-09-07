@@ -546,6 +546,7 @@ class ListViewWidget(TextInput):
         self.q_filter = q_filter
 
     def render(self, name, value, attrs=None):
+        #TODO: use build_attrs()
         id_input = self.attrs.get('id')
         if not id_input:
             id_input = 'id_%s' % name
@@ -557,9 +558,12 @@ class ListViewWidget(TextInput):
         encode = JSONEncoder().encode
 
         #TODO : Improve me
+        #TODO: factorise 'if value' ; what happens if 'value' is not string neither integer ??
+        #TODO: isinstance(basestring, value) instead
         if(value and (type(value)==type("") or type(value)==type(u""))):#type(value)!=type([])):
             value = [v for v in value.split(',') if v]
 
+        #TODO: isinstance(value, (int, long)) instead
         if(value and (type(value)==type(1) or type(value)==type(1L))):
             value = [value]
 
@@ -686,6 +690,7 @@ class ListEditionWidget(Widget):
         return [get(prefix_value % i) if has_key(prefix_check % i) else None
                     for i in xrange(len(self.content))]
 
+
 class DateFilterWidget(Select):
     def render(self, name, value, attrs=None, choices=()):
         rendered = super(DateFilterWidget, self).render(name, value, attrs=None, choices=())
@@ -706,19 +711,21 @@ class DateFilterWidget(Select):
                 'self_id' : self_id,
             }
         return mark_safe(rendered)
-        
+
     def render_options(self, choices, selected_choices):
-        def render_option(report_date_filter):
+        def render_option(report_date_filter): #TODO: protected static method instead
             option_value = force_unicode(report_date_filter.name)
-            selected_html = (option_value in selected_choices) and u' selected="selected"' or ''
-            return u'<option value="%s"%s begin="%s" end="%s">%s</option>' % (
+            selected_html = (option_value in selected_choices) and u' selected="selected"' or '' #TODO: conditional experession instead
+            return u'<option value="%s"%s begin="%s" end="%s">%s</option>' % ( #TODO: dict instead tuple ??
                 escape(option_value), selected_html,
                 report_date_filter.get_begin(),
                 report_date_filter.get_end(),
                 conditional_escape(force_unicode(report_date_filter.verbose_name)))
+
         # Normalize to strings.
-        selected_choices = set([force_unicode(v) for v in selected_choices])
+        selected_choices = set([force_unicode(v) for v in selected_choices])#TODO: genexpr
         output = []
         for report_date_filter in chain(self.choices, choices):
             output.append(render_option(report_date_filter))
-        return u'\n'.join(output)
+
+        return u'\n'.join(output) #TODO: genexpr
