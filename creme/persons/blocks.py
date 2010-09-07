@@ -22,9 +22,9 @@ from django.utils.translation import ugettext_lazy as _
 from django.contrib.contenttypes.models import ContentType
 
 from creme_core.models import Relation
-from creme_core.gui.block import QuerysetBlock
+from creme_core.gui.block import Block, QuerysetBlock
 
-from persons.models import Contact
+from persons.models import Contact, Address 
 from persons.constants import REL_OBJ_MANAGES, REL_OBJ_EMPLOYED_BY
 
 _contact_ct_id = None
@@ -74,5 +74,38 @@ class EmployeesBlock(QuerysetBlock):
                                                             ct_id=_contact_ct_id))
 
 
+class AddressBlock(Block):
+    id_           = Block.generate_id('persons', 'address')
+    dependencies  = (Address,)
+    verbose_name  = _(u'Address')
+    template_name = 'persons/templatetags/block_address.html'
+
+    def detailview_display(self, context):
+        print 'AddressBlock'
+        object = context['object']
+        return self._render(self.get_block_template_context(context ,
+                            update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, object.pk)))
+
+class OtherAddressBlock(QuerysetBlock):
+    id_           = QuerysetBlock.generate_id('persons', 'other_address')
+    dependencies  = (Address,)
+    verbose_name  = _(u'Other Address')
+    template_name = 'persons/templatetags/block_other_address.html'
+    page_size = 1
+
+    def detailview_display(self, context):
+        object = context['object']
+        print 'other adresses'
+        q_address =  Address.objects.filter(object_id=object.id).exclude(
+                                                   pk__in=[object.billing_adress.pk,object.shipping_adress.pk])
+        print q_address
+        return self._render(self.get_block_template_context(context, q_address,
+                                                            update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, object.pk)
+                                                             ))
+
+
+
+address_block = AddressBlock ()
+other_address_block = OtherAddressBlock ()
 managers_block  = ManagersBlock()
 employees_block = EmployeesBlock()

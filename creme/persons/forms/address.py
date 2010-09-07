@@ -23,26 +23,26 @@ from django.forms.util import ValidationError
 
 from creme_core.forms import CremeModelForm, CremeEntityField
 
+from creme_core.models import CremeEntity
 from persons.models.organisation import Organisation, Address
 
 
-class AddressWithOrganisationForm(CremeModelForm):
-    organisation = CremeEntityField(required=True, model=Organisation)
+class AddressWithEntityForm(CremeModelForm):
 
     class Meta:
         model = Address
         exclude = ('content_type', 'object_id')
 
     def __init__(self, *args, **kwargs):
-        super(AddressWithOrganisationForm, self).__init__(*args, **kwargs)
-        self.fields['organisation'].initial = self.initial['organisation_id']
+        super(AddressWithEntityForm, self).__init__(*args, **kwargs)
+        self.creme_entity = CremeEntity.objects.get(pk=self.initial['entity_id'])
 
     def save(self):
         cleaned_data = self.cleaned_data
         instance     = self.instance
-        instance.content_type = cleaned_data['organisation'].entity_type
-        instance.object_id    = cleaned_data['organisation'].id
-        super(AddressWithOrganisationForm, self).save()
+        instance.content_type = self.creme_entity.entity_type
+        instance.object_id    = self.creme_entity.id
+        super(AddressWithEntityForm, self).save()
 
 
 def clean_address(address_id):

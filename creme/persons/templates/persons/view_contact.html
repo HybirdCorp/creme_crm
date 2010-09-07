@@ -4,49 +4,57 @@
 {% load creme_core_tags %}
 {% load creme_block %}
 
+{% block creme_blocks_import %}
+    {{block.super}}
+    {% import_block from_app 'persons' named 'address' as 'address_block' %}
+    {% import_block from_app 'persons' named 'other_address' as 'other_address_block' %}
+{% endblock %}
+
+
 {% block logo %}<img src="{{MEDIA_URL}}images/contacts_64.png" alt=""/>{% endblock %}
 
 {% block detail_view_left_1 %}
     <!--{% cycle "block_header_line_dark" "block_header_line_light" as header_color %}
-        {% cycle "block_line_dark" "block_line_light" as row_color %}-->
+        {% cycle "block_line_dark" "block_line_light" as row_color %}
+        {% cycle "td_info" "th_info" as position_class %}-->
     <table class="table_detail_view ui-corner-all">
         {% get_basic_block_header _('Contact information') 'infos_48.png' _('Information') %}
         <tbody class="collapsable">
             <tr>
-                <th class="{% cycle header_color %}">{% trans "Civility" %}</th>
-                <td class="{% cycle row_color %}">{{object.civility}}</td>
+                <th class="{% cycle header_color %} {% cycle position_class %}">{% trans "Civility" %}</th>
+                <td class="{% cycle row_color %} {% cycle position_class %}">{{object.civility}}</td>
             </tr>
             <tr>
-                <th class="{% cycle header_color %}">{% trans "First name" %}</th>
-                <td class="{% cycle row_color %}">{{object.first_name}}</td>
+                <th class="{% cycle header_color %} {% cycle position_class %}">{% trans "First name" %}</th>
+                <td class="{% cycle row_color %} {% cycle position_class %}">{{object.first_name}}</td>
             </tr>
             <tr>
-                <th class="{% cycle header_color %}">{% trans "Last name" %}</th>
-                <td class="{% cycle row_color %}">{{object.last_name}}</td>
+                <th class="{% cycle header_color %} {% cycle position_class %}">{% trans "Last name" %}</th>
+                <td class="{% cycle row_color %} {% cycle position_class %}">{{object.last_name}}</td>
             </tr>
             <tr>
-                <th class="{% cycle header_color %}">{% trans "Sector" %}</th>
-                <td class="{% cycle row_color %}">{{object.sector}}</td>
+                <th class="{% cycle header_color %} {% cycle position_class %}">{% trans "Sector" %}</th>
+                <td class="{% cycle row_color %} {% cycle position_class %}">{{object.sector}}</td>
             </tr>
             <tr>
-                <th class="{% cycle header_color %}">{% trans "Position" %}</th>
-                <td class="{% cycle row_color %}">{{object.function}}</td>
+                <th class="{% cycle header_color %} {% cycle position_class %}">{% trans "Position" %}</th>
+                <td class="{% cycle row_color %} {% cycle position_class %}">{{object.function}}</td>
             </tr>
             <tr>
-                <th class="{% cycle header_color %}">{% trans "Assigned to" %}</th>
-                <td class="{% cycle row_color %}">{{object.user}}</td>
+                <th class="{% cycle header_color %} {% cycle position_class %}">{% trans "Assigned to" %}</th>
+                <td class="{% cycle row_color %} {% cycle position_class %}">{{object.user}}</td>
             </tr>
             <tr>
-                <th class="{% cycle header_color %}">{% trans "Linked Creme user" %}</th>
-                <td class="{% cycle row_color %}">{{object.is_user|default:_('None') }}</td>
+                <th class="{% cycle header_color %} {% cycle position_class %}">{% trans "Linked Creme user" %}</th>
+                <td class="{% cycle row_color %} {% cycle position_class %}">{{object.is_user|default:_('None') }}</td>
             </tr>
             <tr>
-                <th class="{% cycle header_color %}">{% trans "Birthday" %}</th>
-                <td class="{% cycle row_color %}">{{object|get_html_field_value:"birthday"}}</td>
+                <th class="{% cycle header_color %} {% cycle position_class %}">{% trans "Birthday" %}</th>
+                <td class="{% cycle row_color %} {% cycle position_class %}">{{object|get_html_field_value:"birthday"}}</td>
             </tr>
             <tr>
-                <th class="{% cycle header_color %}">{% trans "Photo" %}</th>
-                <td class="{% cycle row_color %}">{{object.image.get_entity_summary}}</td>
+                <th class="{% cycle header_color %} {% cycle position_class %}">{% trans "Photo" %}</th>
+                <td class="{% cycle row_color %} {% cycle position_class %}">{{object.image.get_entity_summary}}</td>
             </tr>
         </tbody>
     </table>
@@ -59,32 +67,32 @@
         </thead>
         <tbody class="collapsable">
             <tr>
-                <th class="{% cycle header_color %}">{% trans "Landline" %}</th>
-                <td class="{% cycle row_color %}">{{object.landline}}</td>
+                <th class="{% cycle header_color %} {% cycle position_class %}">{% trans "Landline" %}</th>
+                <td class="{% cycle row_color %} {% cycle position_class %}">{{object.landline}}</td>
             </tr>
             <tr>
-                <th class="{% cycle header_color %}">{% trans "Mobile" %}</th>
-                <td class="{% cycle row_color %}">{{object.mobile}}</td>
+                <th class="{% cycle header_color %} {% cycle position_class %}">{% trans "Mobile" %}</th>
+                <td class="{% cycle row_color %} {% cycle position_class %}">{{object.mobile}}</td>
             </tr>
             <tr>
-                <th class="{% cycle header_color %}">{% trans "E-mail" %}</th>
-                <td class="{% cycle row_color %}">{{object.email}}</td>
+                <th class="{% cycle header_color %} {% cycle position_class %}">{% trans "E-mail" %}</th>
+                <td class="{% cycle row_color %} {% cycle position_class %}">{{object.email}}</td>
             </tr>
             <tr>
-                <th class="{% cycle header_color %}">{% trans "Web Site" %}</th>
-                <td class="{% cycle row_color %}">{{object.url_site}}</td>
+                <th class="{% cycle header_color %} {% cycle position_class %}">{% trans "Web Site" %}</th>
+                <td class="{% cycle row_color %} {% cycle position_class %}">{{object.url_site}}</td>
             </tr>
             <tr>
-                <th class="{% cycle header_color %}">Skype</th>
-                <td class="{% cycle row_color %}">{{object.skype}}</td>
+                <th class="{% cycle header_color %} {% cycle position_class %}">Skype</th>
+                <td class="{% cycle row_color %} {% cycle position_class %}">{{object.skype}}</td>
             </tr>
             <tr>
-                <th class="{% cycle header_color %}">{% trans "Billing address" %}</th>
-                <td class="{% cycle row_color %}">{{object.billing_adress}}</td>
+                <th class="{% cycle header_color %} {% cycle position_class %}">{% trans "Billing address" %}</th>
+                <td class="{% cycle row_color %} {% cycle position_class %}">{{object.billing_adress}}</td>
             </tr>
             <tr>
-                <th class="{% cycle header_color %}">{% trans "Shipping address" %}</th>
-                <td class="{% cycle row_color %}">{{object.shipping_adress}}</td>
+                <th class="{% cycle header_color %} {% cycle position_class %}">{% trans "Shipping address" %}</th>
+                <td class="{% cycle row_color %} {% cycle position_class %}">{{object.shipping_adress}}</td>
             </tr>
         </tbody>
     </table>
@@ -93,14 +101,17 @@
         {% get_basic_block_header _('Other Information') 'infos_48.png' _('Information') %}
         <tbody class="collapsable">
             <tr>
-                <th class="{% cycle header_color %}">{% trans "Description" %}</th>
-                <td class="{% cycle row_color %}">{{object.description}}</td>
+                <th class="{% cycle header_color %} {% cycle position_class %}">{% trans "Description" %}</th>
+                <td class="{% cycle row_color %} {% cycle position_class %}">{{object.description}}</td>
             </tr>
         </tbody>
     </table>
 
     {% include "creme_core/customfields_as_table.html" %}
-
+  
+    
+    {% display_block_detailview 'address_block' %}
+    {% display_block_detailview 'other_address_block' %}
     {% display_block_detailview 'properties_block' %}
     {% display_block_detailview 'relations_block' %}
 {% endblock %}
