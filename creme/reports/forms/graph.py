@@ -67,6 +67,15 @@ class ReportGraphAddForm(CremeEntityForm):
             fields['abscissa_fields'].widget.set_source(data.get('abscissa_fields'))
             fields['abscissa_fields'].widget.set_target(data.get('abscissa_group_by'))
 
+        instance = self.instance
+        if instance.pk is not None and data is None:
+            ordinate, sep, aggregate = instance.ordinate.rpartition('__')
+            fields['aggregates'].initial        = aggregate
+            fields['aggregates_fields'].initial = ordinate
+            fields['abscissa_fields'].initial = instance.abscissa
+            fields['abscissa_fields'].widget.set_source(instance.abscissa)
+            fields['abscissa_fields'].widget.set_target(instance.type)
+
     def clean(self):
         cleaned_data = self.cleaned_data
         get_data     = cleaned_data.get
@@ -100,7 +109,7 @@ class ReportGraphAddForm(CremeEntityForm):
     def save(self):
         get_data = self.cleaned_data.get
 
-        graph = ReportGraph()
+        graph =  self.instance# or ReportGraph()
         graph.user     = get_data('user')
         graph.name     = get_data('name')
         graph.report   = self.report

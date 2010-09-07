@@ -708,3 +708,8 @@ textarea:disabled, textarea[readonly] {
     -moz-border-radius: 4px;
     -webkit-border-radius: 4px;
 }
+
+.pointer
+{
+    cursor : pointer;
+}
