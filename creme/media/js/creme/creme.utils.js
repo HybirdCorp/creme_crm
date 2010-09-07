@@ -812,3 +812,13 @@ creme.utils.go_to = function(url, ajax, ajax_options)
         window.location.href = url;
     }
 }
+
+creme.utils.range = function(start, end)
+{
+    var tab = [];
+    for(var i=start||0; i < end; i++)
+    {
+        tab.push(i);
+    }
+    return tab;
+};
