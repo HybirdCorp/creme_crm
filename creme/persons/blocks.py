@@ -96,8 +96,11 @@ class OtherAddressBlock(QuerysetBlock):
     def detailview_display(self, context):
         object = context['object']
         print 'other adresses'
+            
+        l_pk = [ address.pk for address in (object.billing_adress, object.shipping_adress) if address ]    
+            
         q_address =  Address.objects.filter(object_id=object.id).exclude(
-                                                   pk__in=[object.billing_adress.pk,object.shipping_adress.pk])
+                                                   pk__in=l_pk)
         print q_address
         return self._render(self.get_block_template_context(context, q_address,
                                                             update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, object.pk)
