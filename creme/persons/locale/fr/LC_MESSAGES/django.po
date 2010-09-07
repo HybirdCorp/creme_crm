@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-08-25 13:53+0200\n"
+"POT-Creation-Date: 2010-09-07 18:08+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -22,6 +22,17 @@ msgstr "Responsables d'une société"
 #: blocks.py:59
 msgid "Organisation employees"
 msgstr "Salariés d'une société"
+
+#: blocks.py:80 models/address.py:36 models/address.py:51 models/address.py:70
+#: templates/persons/view_address.html:18
+#: templates/persons/templatetags/block_address.html:33
+#: templates/persons/templatetags/block_other_address.html:26
+msgid "Address"
+msgstr "Adresse"
+
+#: blocks.py:92 templates/persons/templatetags/block_other_address.html:6
+msgid "Other Address"
+msgstr "Adresse Supplémentaire"
 
 #: buttons.py:59
 msgid "Transform into a customer"
@@ -52,22 +63,26 @@ msgid "Accounts and Contact"
 msgstr "Comptes et contacts"
 
 #: creme_core_register.py:39
+msgid "Portal"
+msgstr ""
+
+#: creme_core_register.py:40
 msgid "All contacts"
 msgstr "Lister les contacts"
 
-#: creme_core_register.py:40
+#: creme_core_register.py:41
 msgid "My customers / prospects / suspects"
 msgstr "Mes clients / prospects / suspects"
 
-#: creme_core_register.py:41
+#: creme_core_register.py:42
 msgid "Add a contact"
 msgstr "Ajouter un contact"
 
-#: creme_core_register.py:42
+#: creme_core_register.py:43
 msgid "All organisations"
 msgstr "Lister les sociétés"
 
-#: creme_core_register.py:43
+#: creme_core_register.py:44
 msgid "Add an organisation"
 msgstr "Ajouter une société"
 
@@ -188,24 +203,24 @@ msgid "Contact view"
 msgstr "Vue de Contact"
 
 #: populate.py:93 populate.py:102 models/contact.py:41
-#: templates/persons/view_contact.html:24
+#: templates/persons/view_contact.html:32
 msgid "Last name"
 msgstr "Nom"
 
 #: populate.py:94 populate.py:103 models/contact.py:40
-#: templates/persons/view_contact.html:20
+#: templates/persons/view_contact.html:28
 msgid "First name"
 msgstr "Prénom"
 
 #: populate.py:95 populate.py:104 populate.py:117 models/contact.py:44
-#: templates/persons/view_contact.html:62
-#: templates/persons/view_organisation.html:97
+#: templates/persons/view_contact.html:70
+#: templates/persons/view_organisation.html:100
 #: templates/persons/templatetags/block_linked_people.html:28
 msgid "Landline"
 msgstr "Tél fixe"
 
-#: populate.py:96 populate.py:105 templates/persons/view_contact.html:70
-#: templates/persons/view_organisation.html:105
+#: populate.py:96 populate.py:105 templates/persons/view_contact.html:78
+#: templates/persons/view_organisation.html:108
 msgid "E-mail"
 msgstr "Courriel"
 
@@ -255,7 +270,7 @@ msgid "This address doesn't exist or doesn't exist any more"
 msgstr "Cette adresse n'existe pas ou plus"
 
 #: forms/contact.py:41 models/contact.py:54
-#: templates/persons/view_contact.html:44
+#: templates/persons/view_contact.html:52
 msgid "Birthday"
 msgstr "Anniversaire"
 
@@ -263,19 +278,21 @@ msgstr "Anniversaire"
 msgid "Image"
 msgstr "Image"
 
-#: forms/contact.py:45 templates/persons/view_organisation.html:84
+#: forms/contact.py:45 templates/persons/view_organisation.html:87
 msgid "Coordinates"
 msgstr "Coordonnées"
 
 #: forms/contact.py:46 forms/organisation.py:37 models/contact.py:51
-#: models/organisation.py:57 templates/persons/view_contact.html:82
-#: templates/persons/view_organisation.html:89
+#: models/organisation.py:57 templates/persons/view_contact.html:90
+#: templates/persons/view_organisation.html:92
+#: templates/persons/templatetags/block_address.html:32
 msgid "Billing address"
 msgstr "Adresse de facturation"
 
 #: forms/contact.py:48 forms/organisation.py:39 models/contact.py:52
-#: models/organisation.py:58 templates/persons/view_contact.html:86
-#: templates/persons/view_organisation.html:93
+#: models/organisation.py:58 templates/persons/view_contact.html:94
+#: templates/persons/view_organisation.html:96
+#: templates/persons/templatetags/block_address.html:32
 msgid "Shipping address"
 msgstr "Adresse de livraison"
 
@@ -300,41 +317,46 @@ msgid "Creation date"
 msgstr "Date de création"
 
 #: forms/organisation.py:34 models/organisation.py:62
-#: templates/persons/view_organisation.html:127
+#: templates/persons/view_organisation.html:130
 msgid "Logo"
 msgstr "Logo"
 
-#: models/address.py:36 models/address.py:51 models/address.py:70
-#: templates/persons/view_address.html:18
-msgid "Address"
-msgstr "Adresse"
-
 #: models/address.py:37 models/address.py:71
 #: templates/persons/view_address.html:22
+#: templates/persons/templatetags/block_address.html:34
+#: templates/persons/templatetags/block_other_address.html:36
 msgid "PO box"
 msgstr "Boite postale"
 
 #: models/address.py:38 models/address.py:72
 #: templates/persons/view_address.html:26
+#: templates/persons/templatetags/block_address.html:35
+#: templates/persons/templatetags/block_other_address.html:37
 msgid "City"
 msgstr "Ville"
 
 #: models/address.py:39 models/address.py:73
 #: templates/persons/view_address.html:30
+#: templates/persons/templatetags/block_address.html:36
+#: templates/persons/templatetags/block_other_address.html:38
 msgid "State"
 msgstr "Département"
 
 #: models/address.py:40 models/address.py:74
 #: templates/persons/view_address.html:34
+#: templates/persons/templatetags/block_address.html:37
+#: templates/persons/templatetags/block_other_address.html:39
 msgid "Zip code"
 msgstr "Code postal"
 
 #: models/address.py:41 models/address.py:75
 #: templates/persons/view_address.html:38
+#: templates/persons/templatetags/block_address.html:38
+#: templates/persons/templatetags/block_other_address.html:40
 msgid "Country"
 msgstr "Pays"
 
-#: models/address.py:52
+#: models/address.py:52 templates/persons/templatetags/block_address.html:16
 msgid "Addresses"
 msgstr "Adresses"
 
@@ -343,27 +365,27 @@ msgid "Address name"
 msgstr "Nom de l'adresse"
 
 #: models/contact.py:39 models/other_models.py:37
-#: templates/persons/view_contact.html:16
+#: templates/persons/view_contact.html:24
 msgid "Civility"
 msgstr "Civilité"
 
 #: models/contact.py:42 models/organisation.py:60
-#: templates/persons/view_contact.html:96
-#: templates/persons/view_organisation.html:119
+#: templates/persons/view_contact.html:104
+#: templates/persons/view_organisation.html:122
 msgid "Description"
 msgstr "Description"
 
-#: models/contact.py:45 templates/persons/view_contact.html:66
+#: models/contact.py:45 templates/persons/view_contact.html:74
 #: templates/persons/templatetags/block_linked_people.html:29
 msgid "Mobile"
 msgstr "Mobile"
 
-#: models/contact.py:46 templates/persons/view_contact.html:32
+#: models/contact.py:46 templates/persons/view_contact.html:40
 msgid "Position"
 msgstr "Fonction"
 
 #: models/contact.py:47 models/other_models.py:61
-#: templates/persons/view_organisation.html:43
+#: templates/persons/view_organisation.html:46
 msgid "Line of business"
 msgstr "Secteur d'activités"
 
@@ -373,8 +395,8 @@ msgid "Email"
 msgstr "Courriel"
 
 #: models/contact.py:49 models/organisation.py:46
-#: templates/persons/view_contact.html:74
-#: templates/persons/view_organisation.html:109
+#: templates/persons/view_contact.html:82
+#: templates/persons/view_organisation.html:112
 msgid "Web Site"
 msgstr "Site Web"
 
@@ -402,31 +424,31 @@ msgstr "Contacts"
 msgid "Phone number"
 msgstr "Numéro de téléphone"
 
-#: models/organisation.py:44 templates/persons/view_organisation.html:101
+#: models/organisation.py:44 templates/persons/view_organisation.html:104
 msgid "Fax"
 msgstr "Fax"
 
-#: models/organisation.py:47 templates/persons/view_contact.html:28
+#: models/organisation.py:47 templates/persons/view_contact.html:36
 msgid "Sector"
 msgstr "Secteur"
 
-#: models/organisation.py:48 templates/persons/view_organisation.html:47
+#: models/organisation.py:48 templates/persons/view_organisation.html:50
 msgid "Capital"
 msgstr "Capital"
 
-#: models/organisation.py:49 templates/persons/view_organisation.html:51
+#: models/organisation.py:49 templates/persons/view_organisation.html:54
 msgid "SIREN"
 msgstr "SIREN"
 
-#: models/organisation.py:50 templates/persons/view_organisation.html:55
+#: models/organisation.py:50 templates/persons/view_organisation.html:58
 msgid "NAF code"
 msgstr "Code NAF"
 
-#: models/organisation.py:51 templates/persons/view_organisation.html:59
+#: models/organisation.py:51 templates/persons/view_organisation.html:62
 msgid "SIRET"
 msgstr "SIRET"
 
-#: models/organisation.py:52 templates/persons/view_organisation.html:63
+#: models/organisation.py:52 templates/persons/view_organisation.html:66
 msgid "RCS/RM"
 msgstr "RCS/RM"
 
@@ -434,16 +456,16 @@ msgstr "RCS/RM"
 msgid "VAT number"
 msgstr "Numéro TVA"
 
-#: models/organisation.py:54 templates/persons/view_organisation.html:71
+#: models/organisation.py:54 templates/persons/view_organisation.html:74
 msgid "Subject to VAT"
 msgstr "Assujetti à la TVA"
 
 #: models/organisation.py:55 models/other_models.py:73
-#: templates/persons/view_organisation.html:39
+#: templates/persons/view_organisation.html:42
 msgid "Legal form"
 msgstr "Forme juridique"
 
-#: models/organisation.py:56 templates/persons/view_organisation.html:35
+#: models/organisation.py:56 templates/persons/view_organisation.html:38
 msgid "Staff size"
 msgstr "Effectif"
 
@@ -451,11 +473,11 @@ msgstr "Effectif"
 msgid "Annual revenue"
 msgstr "Revenu annuel"
 
-#: models/organisation.py:61 templates/persons/view_organisation.html:123
+#: models/organisation.py:61 templates/persons/view_organisation.html:126
 msgid "Date of creation of the organisation"
 msgstr "Date de création de la société"
 
-#: models/organisation.py:71 templates/persons/view_organisation.html:13
+#: models/organisation.py:71 templates/persons/view_organisation.html:14
 msgid "Organisation"
 msgstr "Société"
 
@@ -540,10 +562,10 @@ msgid "List of contacts"
 msgstr "Liste des contacts"
 
 #: templates/persons/view_address.html:7
-#: templates/persons/view_contact.html:13
-#: templates/persons/view_contact.html:93
-#: templates/persons/view_organisation.html:28
-#: templates/persons/view_organisation.html:116
+#: templates/persons/view_contact.html:21
+#: templates/persons/view_contact.html:101
+#: templates/persons/view_organisation.html:31
+#: templates/persons/view_organisation.html:119
 msgid "Information"
 msgstr "Informations"
 
@@ -551,49 +573,49 @@ msgstr "Informations"
 msgid "Address information"
 msgstr "Informations sur l'adresse"
 
-#: templates/persons/view_contact.html:13
+#: templates/persons/view_contact.html:21
 msgid "Contact information"
 msgstr "Informations sur le contact"
 
-#: templates/persons/view_contact.html:36
-#: templates/persons/view_organisation.html:75
+#: templates/persons/view_contact.html:44
+#: templates/persons/view_organisation.html:78
 msgid "Assigned to"
 msgstr "Est assigné à"
 
-#: templates/persons/view_contact.html:40
+#: templates/persons/view_contact.html:48
 msgid "Linked Creme user"
 msgstr "Utilisateur Creme associé"
 
-#: templates/persons/view_contact.html:41
+#: templates/persons/view_contact.html:49
 msgid "None"
 msgstr "Aucun"
 
-#: templates/persons/view_contact.html:48
+#: templates/persons/view_contact.html:56
 msgid "Photo"
 msgstr "Photo"
 
-#: templates/persons/view_contact.html:57
+#: templates/persons/view_contact.html:65
 msgid "Coordinates of the contact"
 msgstr "Coordonnées du contact"
 
-#: templates/persons/view_contact.html:93
-#: templates/persons/view_organisation.html:116
+#: templates/persons/view_contact.html:101
+#: templates/persons/view_organisation.html:119
 msgid "Other Information"
 msgstr "Autres Informations"
 
-#: templates/persons/view_organisation.html:11
+#: templates/persons/view_organisation.html:12
 msgid "Please enter the web site address"
 msgstr "Veuillez entrez l'adresse du site web"
 
-#: templates/persons/view_organisation.html:28
+#: templates/persons/view_organisation.html:31
 msgid "Organisation information"
 msgstr "Informations sur la société"
 
-#: templates/persons/view_organisation.html:31
+#: templates/persons/view_organisation.html:34
 msgid "Name of the organisation"
 msgstr "Nom de la société"
 
-#: templates/persons/view_organisation.html:67
+#: templates/persons/view_organisation.html:70
 msgid "Intra VAT"
 msgstr "TVA Intra"
 
@@ -604,6 +626,13 @@ msgstr "Copier l'adresse à droite"
 #: templates/persons/frags/shipping_block.html:12
 msgid "Copy the address to left side"
 msgstr "Copier l'adresse à gauche"
+
+#: templates/persons/templatetags/block_address.html:23
+#: templates/persons/templatetags/block_address.html:24
+#: templates/persons/templatetags/block_other_address.html:12
+#: templates/persons/templatetags/block_other_address.html:13
+msgid "Add an Address"
+msgstr "Ajouter une Adresse"
 
 #: templates/persons/templatetags/block_employees.html:7
 #, python-format
@@ -638,6 +667,7 @@ msgid "Create a contact"
 msgstr "Créer un contact"
 
 #: templates/persons/templatetags/block_linked_people.html:31
+#: templates/persons/templatetags/block_other_address.html:23
 msgid "Actions"
 msgstr "Actions"
 
@@ -667,6 +697,20 @@ msgstr "Créer un responsable"
 msgid "No manager for the moment"
 msgstr "Aucun responsable enregistré pour le moment"
 
+#: templates/persons/templatetags/block_other_address.html:6
+#, python-format
+msgid "%s Other Address"
+msgstr "%s Adresse Supplémentaire"
+
+#: templates/persons/templatetags/block_other_address.html:6
+#, python-format
+msgid "%s Others Addresses"
+msgstr "%s Adresses Supplémentaires"
+
+#: templates/persons/templatetags/block_other_address.html:44
+msgid "No other address set for the moment"
+msgstr "Aucune addresses supplémentaires enregistrées pour le moment"
+
 #: templates/persons/templatetags/button_add_linked_contact.html:3
 msgid "Linked contact"
 msgstr "Contact lié"
@@ -674,6 +718,16 @@ msgstr "Contact lié"
 #: templates/persons/templatetags/button_add_linked_contact.html:4
 msgid "Create a linked contact"
 msgstr "Créer un contact lié"
+
+#: views/address.py:81
+#, python-format
+msgid "Address for <%s>"
+msgstr "Adresses for <%s>"
+
+#: views/address.py:121
+#, python-format
+msgid "Adding Address to <%s>"
+msgstr "Ajouter une addresse à <%s>"
 
 #: views/contact.py:85
 msgid "List of my suspects / prospects / customers"
