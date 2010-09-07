@@ -313,3 +313,43 @@ creme.reports.setSelected = function(checkbox, report_id, field_id, block_url)
     creme.ajax.json.post('/reports/report/field/set_selected', data, success_cb, success_cb, false, this.loading_options);
 
 };
+
+if(!creme.reports.graphs) creme.reports.graphs = {};
+
+creme.reports.graphs.bind_toggle_graph = function(selectors, show_cb)
+{
+    $.each(selectors, function(idx, obj){
+        var $shower    = $(obj.shower);
+        var $hider     = $(obj.hider);
+        var $wrapper   = $(obj.wrapper);
+        var $container = $(obj.container);
+
+        $shower.bind('click', function(){
+            
+            var $s = $(this);
+            var $p = $s.parent();
+            $p.attr('rowspan', 2);
+
+            $wrapper.show();
+            $hider.show();
+            $s.hide();
+
+            if(show_cb != undefined && $.isFunction(show_cb))
+            {
+                show_cb(obj);
+            }
+
+        });
+
+        $hider.bind('click', function(){
+            var $h = $(this);
+            var $p = $h.parent();
+            $p.removeAttr('rowspan');
+
+            $wrapper.hide();
+            $shower.show();
+            $h.hide();
+        });
+    });
+};
+

@@ -1,6 +1,17 @@
 {% load i18n %}
 {% load creme_core_tags %}
 {% load creme_block %}
+{% load graph_tags %}
+<!--<script type="text/javascript" src="{{MEDIA_URL}}js/libs/graphael/prod/raphael-min.js"></script>-->
+<script type="text/javascript" src="{{MEDIA_URL}}js/libs/graphael/prod/raphael-1.5.2.min.js"></script>
+<script type="text/javascript" src="{{MEDIA_URL}}js/libs/graphael/prod/g.raphael-min.js"></script>
+<script type="text/javascript" src="{{MEDIA_URL}}js/libs/graphael/prod/g.line-min.js"></script>
+<script type="text/javascript" src="{{MEDIA_URL}}js/libs/graphael/prod/g.pie-min.js"></script>
+<script type="text/javascript" src="{{MEDIA_URL}}js/libs/graphael/prod/g.dot-min.js"></script>
+<!--<script type="text/javascript" src="{{MEDIA_URL}}js/libs/graphael/prod/g.bar-min.js"></script>-->
+<script type="text/javascript" src="{{MEDIA_URL}}js/libs/graphael/dev/g.bar.js"></script>
+<script type="text/javascript" src="{{MEDIA_URL}}js/creme/creme.graphael.js"></script>
+<script type='text/javascript' src='{{MEDIA_URL}}js/datejs/date-fr-FR.js'></script>{# TODO: i18n  datejs has 150 availables languages#}
 <table class="table_detail_view ui-corner-all" id={{block_name}}>
     {% get_block_header _('%s Graph') _('%s Graphs') 'graph_48.png' 'Graph' %}
     <tbody class="collapsable">
@@ -23,16 +34,49 @@
             {% for graph in page.object_list %}
                 <!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
                 <tr>
-                    <td class="{{row_color}}" style="width:20px;"><img src="{{MEDIA_URL}}/images/expandme.gif" alt="{% trans 'Expand' %}"/></td>
+                    <td class="{{row_color}}" style="width:20px;">
+                        <img class="pointer" src="{{MEDIA_URL}}/images/expandme.gif" alt="{% trans 'Expand' %}" title="{% trans 'Expand' %}" id="report_graph_{{graph.id}}"/>
+                        <img class="pointer" src="{{MEDIA_URL}}/images/expanded.gif" alt="{% trans 'Reduce' %}" title="{% trans 'Reduce' %}" id="report_graph_{{graph.id}}_expanded" style="display:none;"/>
+                    </td>
                     <td class="{{row_color}}"><a href="{{graph.get_absolute_url}}">{{graph.name}}</a></td>
-                    <td class="{{row_color}}">{{graph.abscissa}}</td>
-                    <td class="{{row_color}}">{{graph.ordinate}}</td>
-                    <td class="{{row_color}}">{{verbose_report_graph_types|get_value:graph.type}}</td>
+                    <td class="{{row_color}}">{{graph|verbose_abscissa:graph.abscissa}}</td>
+                    <td class="{{row_color}}">{{graph|verbose_ordinate:graph.ordinate}}</td>
+                    <td class="{{row_color}}">{{verbose_report_graph_types|get_value:graph.type}}{% if graph.days %} ({{graph.days}}){% endif %}</td>
                     <td class="{{row_color}}" align="center" valign="center" style="width:10%;">
-                        <a onclick="creme.utils.innerPopupNReload('/reports/graph/edit/{{graph.id}}/', {% get_block_reload_uri %});">
-                            <img src="{{MEDIA_URL}}images/edit_22.png" border="0">
+                        <a onclick="creme.utils.innerPopupNReload('/reports/graph/edit/{{graph.id}}', {% get_block_reload_uri %});">
+                            <img src="{{MEDIA_URL}}images/edit_22.png" alt="{% trans 'Edit' %}" title="{% trans 'Edit' %}" border="0">
                         </a>
                         {% get_line_deletor at_url '/creme_core/delete_js' with_args "{'ids' : '{{graph.id}}' }" %}
+                    </td>
+                </tr>
+                <tr>
+                    <td class="{{row_color}}" colspan="5" id="graph_global_container_{{graph.id}}" style="display: none;">
+                        <div>
+                            <table width="100%">
+                                <tbody>
+                                    <tr>
+                                        <td>{% trans 'Generation date' %} : <span id="graph_gen_date_{{graph.id}}"></span></td>
+                                        <td>
+                                            <select><!-- mettre le change -->
+                                                <option value="histogram">{% trans 'Histogram' %}</option>
+                                                <option value="curve">{% trans 'Curve' %}</option>
+                                            </select>
+                                        </td>
+                                        <td nowrap>
+                                            {% trans 'Sorting' %}:
+                                            <select><!-- mettre le change -->
+                                                <option value="ASC">{% trans 'Ascending' %}</option>
+                                                <option value="DESC">{% trans 'Descending' %}</option>
+                                            </select>
+                                        </td>
+                                        <td>
+                                            <a><img src="{{MEDIA_URL}}/images/refresh_22.png" alt="{% trans 'Regenerate' %}" title="{% trans 'Regenerate' %}" /></a>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div id="graph_container_{{graph.id}}"></div>
                     </td>
                 </tr>
             {% endfor %}
@@ -44,3 +88,61 @@
     </tbody>
     {% include 'creme_core/templatetags/widgets/block_footer.html' %}
 </table>
+<script type="text/javascript">
+    {% with today|to_timestamp as now %}
+    
+        var selector_{{now}} = [];
+
+        {% for graph in page.object_list %}
+
+            var x = [];
+            var y = [];
+
+            {% with graph.fetch as graph_fetch %}
+            
+                {% with graph_fetch.0 as x %}
+                    {% for v in x %}
+                        x.push("{{v|default:""}}");
+                    {% endfor %}
+                {% endwith %}
+                
+                {% with graph_fetch.1 as y %}
+                    {% for v in y %}
+                        y.push("{{v|default:0}}");
+                    {% endfor %}
+                {% endwith %}
+
+            {% endwith %}
+
+            selector_{{now}}.push({
+                'shower':   '#report_graph_{{graph.id}}',
+                'hider':    '#report_graph_{{graph.id}}_expanded',
+                'wrapper':  '#graph_global_container_{{graph.id}}',
+                'container':'#graph_container_{{graph.id}}',
+                'x': x,
+                'y': y,
+                'graph_id': '{{graph.id}}',
+                'gen_date_selector': '#graph_gen_date_{{graph.id}}',
+                'ordinate_lbl': "{{graph|verbose_ordinate:graph.ordinate}}",
+                'abscissa_lbl': "{{graph|verbose_abscissa:graph.abscissa}}  - {{verbose_report_graph_types|get_value:graph.type}}"
+            });
+        {% endfor %}
+
+        creme.reports.graphs.bind_toggle_graph(selector_{{now}}, function(obj){
+            var now = +new Date;
+            var loading_id = 'loading_'+now;
+            creme.utils.loading(loading_id, false);
+            var node = creme.graphael.init(obj.container);
+            var date_node = $('#graph_gen_date_'+obj.graph_id);
+            creme.graphael.simple_barchart({
+               'instance': node.data('graphael'),
+               'x': obj.x,
+               'y': obj.y,
+               'gen_date_selector': obj.gen_date_selector,
+               'abscissa_lbl':obj.abscissa_lbl,
+               'ordinate_lbl':obj.ordinate_lbl
+            });
+            creme.utils.loading(loading_id, true);
+        });
+    {% endwith %}
+</script>
