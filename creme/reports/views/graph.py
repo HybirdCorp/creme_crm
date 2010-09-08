@@ -122,3 +122,11 @@ def get_available_report_graph_types(request, ct_id):
         result = [{'id': RGT_FK, 'text': unicode(verbose_report_graph_types.get(RGT_FK))}]
 
     return {'result': result}
+
+@jsonify
+def fetch_graph(graph_id, order):
+    graph = get_object_or_404(ReportGraph, pk=graph_id)
+
+    x, y = graph.ftech(order=order)
+
+    return {'x': x, 'y': y, 'graph_id': graph_id}

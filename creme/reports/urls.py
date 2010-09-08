@@ -41,10 +41,11 @@ urlpatterns = patterns('reports.views',
     (r'^get_aggregate_fields$',                                                                  'report.get_aggregate_fields'),
     (r'date_filter_form/(?P<report_id>\d+)$',                                                    'report.date_filter_form'),
 
-    (r'^graph/(?P<report_id>\d+)/add$', 'graph.add'),
-    (r'^graph/edit/(?P<graph_id>\d+)$', 'graph.edit'),
-    (r'^graph/(?P<graph_id>\d+)$',      'graph.detailview'),
-    (r'^graph/get_available_types/(?P<ct_id>\d+)$',    'graph.get_available_report_graph_types'),
+    (r'^graph/(?P<report_id>\d+)/add$',                       'graph.add'),
+    (r'^graph/edit/(?P<graph_id>\d+)$',                       'graph.edit'),
+    (r'^graph/(?P<graph_id>\d+)$',                            'graph.detailview'),
+    (r'^graph/get_available_types/(?P<ct_id>\d+)$',           'graph.get_available_report_graph_types'),
+    (r'^graph/fetch_graph/(?P<graph_id>\d+)/(?P<order>\w+)$', 'graph.fetch_graph'),
 )
 
 urlpatterns += patterns('creme_core.views.generic',
