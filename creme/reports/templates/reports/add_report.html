@@ -36,7 +36,8 @@
                             'target_node': 'id_{{aggregate.name}}',
                             'input_name' : '{{aggregate.name}}',
                             'name': '{{aggregate.name}}'
-                        }{% ifnotequal forloop.counter form.aggregates|length %},{% endifnotequal %}{# Prevent trailing comma incompatible with IE #}
+                        }{% if forloop.counter != form.aggregates|length %},{% endif %}{# Prevent trailing comma incompatible with IE #}
+                        {% comment %}TODO: use 'forloop.last' ??{% endcomment %}
                         {% endfor %}
                     ]
                 };

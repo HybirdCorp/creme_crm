@@ -86,7 +86,7 @@ SECRET_KEY = '1&7rbnl7u#+j-2#@5=7@Z0^9v@y_Q!*y^krWS)r)39^M)9(+6('
 
 # List of loaders that know how to import templates from various sources.
 TEMPLATE_LOADERS = (
-    ('django.template.loaders.cached.Loader', (
+    ('django.template.loaders.cached.Loader', ( #Don't use cached loader when developping (in your local_settings.py)
         'django.template.loaders.filesystem.Loader',
         'django.template.loaders.app_directories.Loader',
         #'django.template.loaders.eggs.Loader',
