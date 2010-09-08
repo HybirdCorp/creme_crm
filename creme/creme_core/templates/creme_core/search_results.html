@@ -9,7 +9,7 @@
         <tr>
             <td width="5%"><img src="{{MEDIA_URL}}images/looking_glass_64.png" alt="{% trans "Search" %}"/></td>
             <td width="95%">
-                <h1>{% blocktrans %}Search results : {{total}} result{% plural %}Search results : {{total}} results{% endblocktrans %}</h1>
+                <h1>{% blocktrans count total as result_count %}Search results : {{result_count}} result{% plural %}Search results : {{result_count}} results{% endblocktrans %}</h1>
             </td>
         </tr>
     </table>
