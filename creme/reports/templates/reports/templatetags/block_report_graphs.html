@@ -3,13 +3,14 @@
 {% load creme_block %}
 {% load graph_tags %}
 <!--<script type="text/javascript" src="{{MEDIA_URL}}js/libs/graphael/prod/raphael-min.js"></script>-->
-<script type="text/javascript" src="{{MEDIA_URL}}js/libs/graphael/prod/raphael-1.5.2.min.js"></script>
+<script type="text/javascript" src="{{MEDIA_URL}}js/libs/graphael/dev/raphael-1.5.2.js"></script>
+<!--<script type="text/javascript" src="{{MEDIA_URL}}js/libs/graphael/prod/raphael-1.5.2.min.js"></script>-->
 <script type="text/javascript" src="{{MEDIA_URL}}js/libs/graphael/prod/g.raphael-min.js"></script>
 <script type="text/javascript" src="{{MEDIA_URL}}js/libs/graphael/prod/g.line-min.js"></script>
 <script type="text/javascript" src="{{MEDIA_URL}}js/libs/graphael/prod/g.pie-min.js"></script>
 <script type="text/javascript" src="{{MEDIA_URL}}js/libs/graphael/prod/g.dot-min.js"></script>
-<script type="text/javascript" src="{{MEDIA_URL}}js/libs/graphael/prod/g.bar-min.js"></script>
-<!--<script type="text/javascript" src="{{MEDIA_URL}}js/libs/graphael/dev/g.bar.js"></script>-->
+<!--<script type="text/javascript" src="{{MEDIA_URL}}js/libs/graphael/prod/g.bar-min.js"></script>-->
+<script type="text/javascript" src="{{MEDIA_URL}}js/libs/graphael/dev/g.bar.js"></script>
 <script type="text/javascript" src="{{MEDIA_URL}}js/creme/creme.graphael.js"></script>
 <script type='text/javascript' src='{{MEDIA_URL}}js/datejs/date-fr-FR.js'></script>{# TODO: i18n  datejs has 150 availables languages#}
 <table class="table_detail_view ui-corner-all" id={{block_name}}>
@@ -64,19 +65,19 @@
                                         </td>
                                         <td nowrap>
                                             {% trans 'Sorting' %}:
-                                            <select><!-- mettre le change -->
+                                            <select id="graph_ordering_{{graph.id}}" onchange="creme.graphael.simple_barchart.refetch('/reports/graph/fetch_graph/{{graph.id}}/'+$(this).val(), '#graph_container_{{graph.id}}');"><!-- change simple barchart -->
                                                 <option value="ASC">{% trans 'Ascending' %}</option>
                                                 <option value="DESC">{% trans 'Descending' %}</option>
                                             </select>
                                         </td>
                                         <td>
-                                            <a><img src="{{MEDIA_URL}}/images/refresh_22.png" alt="{% trans 'Regenerate' %}" title="{% trans 'Regenerate' %}" /></a>
+                                            <a onclick="creme.graphael.simple_barchart.refetch('/reports/graph/fetch_graph/{{graph.id}}/'+$('#graph_ordering_{{graph.id}}').val(), '#graph_container_{{graph.id}}');"><img src="{{MEDIA_URL}}/images/refresh_22.png" alt="{% trans 'Regenerate' %}" title="{% trans 'Regenerate' %}" /></a>
                                         </td>
                                     </tr>
                                 </tbody>
                             </table>
                         </div>
-                        <div id="graph_container_{{graph.id}}"></div>
+                        <div id="graph_container_{{graph.id}}" style="overflow-x:scroll;"></div>
                     </td>
                 </tr>
             {% endfor %}

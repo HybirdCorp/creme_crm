@@ -131,7 +131,7 @@ class ReportGraph(CremeEntity):
                 
         elif type == RGT_FK:
             
-            fk_ids = entities.values_list(abscissa, flat=True).distinct()
+            fk_ids = set(entities.values_list(abscissa, flat=True))#.distinct()
             _fks = entities.model._meta.get_field(abscissa).rel.to.objects.filter(pk__in=fk_ids)
             if order == 'DESC':
                 _fks.reverse()#Seems useless on models which haven't ordering

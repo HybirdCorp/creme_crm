@@ -23,7 +23,7 @@
 //        var old_set = raphael.set;
 //        raphael.set = function() {
 //            var set = old_set.apply(this, arguments);
-//            set.toString = function () { return 'Object'; };
+//            set.toString = function () {return 'Object';};
 //            return set;
 //        };
 //        return raphael;
@@ -70,7 +70,7 @@ creme.graphael.paddings = {
     'R_PAD': 15,//right padding
     'H_PAD': 15,//top padding
     'B_PAD': 15,//bottom padding
-    'I_PAD': 4,//Inter elements padding not an apple thing ;)
+    'I_PAD': 5,//Inter elements padding not an apple thing ;)
     'CUR_Y': 10
 }
 
@@ -100,6 +100,9 @@ creme.graphael.simple_barchart = function(options)
     var barchart = graphael.g.barchart(lpad, hpad/2, graphael.width-lpad, graphael.height-hpad, [y])
                     .hover(function(e){creme.graphael.barchart.fin(graphael, this)}, creme.graphael.barchart.fout);
 
+    var lbl_ordinate = graphael.g.text(barchart.getBBox().x/2+lpad , graphael.height/2, options.ordinate_lbl || "").rotate(270);
+    var lbl_abscissa = graphael.g.text(graphael.width/2, graphael.height - ipad, options.abscissa_lbl || "");
+
     var show_legend = false ? (options.show_legend == undefined || options.show_legend == false) : true;
     if(!show_legend ||  x.length <=5)
     {
@@ -107,16 +110,49 @@ creme.graphael.simple_barchart = function(options)
     }
     else
     {
-        barchart.label([creme.utils.range(1, x.length+1)], true);
-    }
+        var range = creme.utils.range(1, x.length+1)
+        barchart.label([range], true);
 
-    var lbl_ordinate = graphael.g.text(barchart.getBBox().x/2+lpad , graphael.height/2, options.ordinate_lbl || "").rotate(270);
-    var lbl_abscissa = graphael.g.text(graphael.width/2, graphael.height - ipad, options.abscissa_lbl || "");
+        var previous_height = ipad;
+        var init_lbl_x = graphael.width*0.15;
+
+        for(var i=0; i < range.length; i++)
+        {
+            var lgd = range[i];
+            var label = graphael.g.text(init_lbl_x, graphael.height + previous_height, lgd+" : "+x[i]);
+            label.attr({
+               x : label.getBBox().x+label.getBBox().width
+            });
+            previous_height += label.getBBox().height
+        }
+        
+        graphael.setSize(graphael.width,graphael.height+previous_height);
+    }
 
     if(options.gen_date_selector)
     {
         $(options.gen_date_selector).text(new Date().toString("dd-MM-yyyy HH:mm"));//Needs Datejs but doesn't bug when not
     }
+};
+
+creme.graphael.simple_barchart.refetch = function(url, container_selector)
+{
+    creme.ajax.json.get(url, {}, function(d){
+        var x = d.x;
+        var y = d.y;
+        var graph_id = d.graph_id;
+
+        $(container_selector).empty();
+        //Finish here
+        creme.graphael.simple_barchart({
+               'instance': node.data('graphael'),
+               'x': obj.x,
+               'y': obj.y,
+               'gen_date_selector': obj.gen_date_selector,
+               'abscissa_lbl':obj.abscissa_lbl,
+               'ordinate_lbl':obj.ordinate_lbl
+            });
+    });
 };
 
 //TODO: Do me more generic ? Permit more than 2 curves ? Why a json option object doesn't work ???
