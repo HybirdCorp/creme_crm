@@ -131,7 +131,9 @@ Raphael.fn.g.barchart = function (x, y, width, height, values, opts) {
                     tot += multi ? values[j][i] : values[i];
                     if (j == multi - 1) {
                         var label = paper.g.labelise(labels[i], tot, total);
-                        L = paper.g.text(bars[i * (multi || 1) + j].x, y + height - barvgutter / 2, label).insertBefore(covers[i * (multi || 1) + j]);
+                        //L = paper.g.text(bars[i * (multi || 1) + j].x, y + height - barvgutter / 2, label).insertBefore(covers[i * (multi || 1) + j]);
+                        //http://github.com/DmitryBaranovskiy/g.raphael/issues#issue/11
+                        L = paper.g.text(bars[j][i].x, y + height - barvgutter / 2, label).insertBefore(covers[i * (multi || 1) + j]);
                         var bb = L.getBBox();
                         if (bb.x - 7 < l) {
                             L.remove();
@@ -147,7 +149,9 @@ Raphael.fn.g.barchart = function (x, y, width, height, values, opts) {
                 for (var j = 0; j < (multi || 1); j++) {
                     var label = paper.g.labelise(multi ? labels[j] && labels[j][i] : labels[i], multi ? values[j][i] : values[i], total);
 //                    L = paper.g.text(bars[i * (multi || 1) + j].x, isBottom ? y + height - barvgutter / 2 : bars[i * (multi || 1) + j].y - 10, label).insertBefore(covers[i * (multi || 1) + j]);
-                    L = paper.g.text(bars[0][i * (multi || 1) + j].x, isBottom ? y + height - barvgutter / 2 : bars[0][i * (multi || 1) + j].y - 10, label).insertBefore(covers[i * (multi || 1) + j]);
+//                    L = paper.g.text(bars[0][i * (multi || 1) + j].x, isBottom ? y + height - barvgutter / 2 : bars[0][i * (multi || 1) + j].y - 10, label).insertBefore(covers[i * (multi || 1) + j]);
+                    //http://github.com/DmitryBaranovskiy/g.raphael/issues#issue/11
+                    L = paper.g.text(bars[j][i].x, isBottom ? y + height - barvgutter / 2 : bars[j][i].y - 10, label).insertBefore(covers[i * (multi || 1) + j]);
                     var bb = L.getBBox();
                     if (bb.x - 7 < l) {
                         L.remove();
