@@ -1,1 +1,1 @@
-{% if items %}{% ifequal items|length 1 %}{{items.0}}{% else %}<select>{% for item in items %}<option value="{{item.id}}">{{item}}</option>{% endfor %}</select> {% endifequal %}{% else %}{{void_msg}}{% endif %}
+{% if items %}{% if items|length == 1 %}{{items.0}}{% else %}<select>{% for item in items %}<option value="{{item.id}}">{{item}}</option>{% endfor %}</select> {% endif %}{% else %}{{void_msg}}{% endif %}

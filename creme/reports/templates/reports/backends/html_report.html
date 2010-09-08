@@ -1,15 +1,15 @@
 {% load creme_core_tags %}
-{% load report_tags %}
+{% comment %}{% load report_tags %}{% endcomment %}
 
 {% for line in lines %}
     <tr>
-        {% for i, val in line|enumerate %}
-            {% ifequal i|mod:2 0 %}
+        {% for i, val in line|enumerate %} {% comment %}TODO: use 'cycle' templatetag ??{% endcomment %}
+            {% if i|mod:2 == 0 %}
                 <td class="block_line_dark">{{val}}&nbsp;</td>
-            {% endifequal %}
-            {% ifequal i|mod:2 1 %}
+            {% endif %}
+            {% if i|mod:2 == 1 %} {% comment %}TODO: Why not 'else' ??{% endcomment %}
                 <td class="block_line_light">{{val}}&nbsp;</td>
-            {% endifequal %}
+            {% endif %}
         {% endfor %}
     </tr>
 {% endfor %}

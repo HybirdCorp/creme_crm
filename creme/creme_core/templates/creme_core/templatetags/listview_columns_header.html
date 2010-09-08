@@ -7,7 +7,7 @@
             {% if column.has_a_filter %}
                 {% with columns_values|get_value:column.name as column_options %}
                     {% with column_options.type as column_type %}
-                        {% ifequal column_type "select" %}
+                        {% if column_type == "select" %}
                             <select name="{{column.name}}" title="{{column.title}}">
                                 <option value="">{% trans "Select" %}</option>
                                 {% for options in column_options.values %}
@@ -16,7 +16,7 @@
                                     </option>
                                 {% endfor %}
                             </select>
-                        {% else %}{% ifequal column_type "checkbox" %}
+                        {% else %}{% if column_type == "checkbox" %}
                             <select name="{{column.name}}" title="{{column.title}}">
                                 <option value="">{% trans "Select" %}</option>
                                 {% for options in column_options.values %}
@@ -25,7 +25,7 @@
                                     </option>
                                 {% endfor %}
                             </select>
-                        {% else %}{% ifequal column_type "datefield" %}
+                        {% else %}{% if column_type == "datefield" %}
                             <span>
                                 {% trans "Between" %}
                                 <input name="{{column.name}}" id="id_{{column.name}}" title="{{column.title}}" type="{{column_type}}"
@@ -38,9 +38,9 @@
                                 $("#id_{{column.name}}").datepicker({dateFormat:   "yy-mm-dd", showOn: "button", buttonImage: "{{MEDIA_URL}}/images/icon_calendar.gif", buttonImageOnly: true, onSelect: function(dateText, inst){$('#id_{{column.name}}_2').val(dateText);}});
                                 $("#id_{{column.name}}_2").datepicker({dateFormat: "yy-mm-dd", showOn: "button", buttonImage: "{{MEDIA_URL}}/images/icon_calendar.gif", buttonImageOnly: true });
                             </script>
-                        {% else %}{% ifequal column_type "text" %}
+                        {% else %}{% if column_type == "text" %}
                             <input name="{{column.name}}" title="{{column.title}}" type="{{column_type}}" value="{% if search %}{{column_options.value}}{% endif %}"/>
-                        {% endifequal %}{% endifequal %}{% endifequal %}{% endifequal %}
+                        {% endif %}{% endif %}{% endif %}{% endif %}
                     {% endwith %}
                 {% endwith %}
             {% endif %}

@@ -1,14 +1,14 @@
 {% load i18n %}
 {% with relations.count as count %}
-    {% ifequal count 0 %}
+    {% if not count %}
         {% trans "No one" %}
     {% else %}
-        {% ifequal count 1 %}
+        {% if count == 1 %}
             {% with relations.0.subject_entity.get_real_entity as subject %}
                 <a href="{{subject.get_absolute_url}}">{{subject}}</a>
             {% endwith %}
         {% else %}
             ({{count}})
-        {% endifequal%}
-    {% endifequal%}
+        {% endif %}
+    {% endif %}
 {% endwith %}

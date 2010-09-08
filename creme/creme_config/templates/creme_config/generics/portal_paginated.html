@@ -104,15 +104,15 @@
     </div>
     <div class="pagination">
         <span class="step-links">
-            {% ifnotequal pagination.number 1 %}
+            {% if pagination.number != 1 %}
                 <a href="?page=1" onclick="this.href+='&order='+$('#order').val()+'&way='+$('#way').val();">Première page</a>
-            {% endifnotequal %}
+            {% endif %}
 
             {% if pagination.has_previous %}
                 <a href="?page={{ pagination.previous_page_number }}" onclick="this.href+='&order='+$('#order').val()+'&way='+$('#way').val();">Page précédente</a>
             {% endif %}
 
-            {% ifnotequal pagination.paginator.num_pages 1 %}
+            {% if pagination.paginator.num_pages != 1 %}
                 <span class="current">
                     Page {{ pagination.number }} sur {{ pagination.paginator.num_pages }}.
                 </span>
@@ -122,18 +122,18 @@
                 <a href="?page={{ pagination.next_page_number }}" onclick="this.href+='&order='+$('#order').val()+'&way='+$('#way').val();">Page suivante</a>
             {% endif %}
 
-            {% ifnotequal pagination.number pagination.paginator.num_pages %}
+            {% if pagination.number != pagination.paginator.num_pages %}
                 <a href="?page={{ pagination.paginator.num_pages }}" onclick="this.href+='&order='+$('#order').val()+'&way='+$('#way').val();">Dernière page</a>
-            {% endifnotequal %}
+            {% endif %}
         </span>
     </div>
     <div>
         <span>
             {% if pagination.paginator.num_pages|gt:25 %} Page :{% endif %}
             {% for pages in pagination.paginator.num_pages|xrange %}
-                {% ifequal forloop.counter|mod:25 0 %}
+                {% if forloop.counter|mod:25 == 0 %}
                   <a href="?page={{forloop.counter}}" onclick="this.href+='&order='+$('#order').val()+'&way='+$('#way').val();">{{forloop.counter}}</a>
-                {% endifequal %}
+                {% endif %}
             {% endfor %}
         </span>
     </div>

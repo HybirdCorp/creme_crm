@@ -41,7 +41,8 @@
                             </tr>
                         {% endfor %}
                     </tbody>
-                    {% if count|gt:errors.max_size %}
+                    {% comment %}{% if count|gt:errors.max_size %}{% endcomment %}
+                    {% if count > errors.max_size %}
                         <tfooter class="collapsable">
                             <tr>
                                 <td colspan="2" class="block_header_line_dark">
