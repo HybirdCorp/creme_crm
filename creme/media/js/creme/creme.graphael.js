@@ -112,8 +112,9 @@ creme.graphael.simple_barchart = function(options)
         $.each(barchart.bars[0], function(i){//We don't stack bars so [0]...
             this.attr({fill: Raphael.getColor(i)});
         });
-
-        var lbl_ordinate = gtext(barchart.getBBox().x/2+lpad , graphael_height/2, options.ordinate_lbl || "").rotate(270);
+        
+        var lbl_ordinate = gtext(barchart.getBBox().x/2+lpad, graphael_height/2, options.ordinate_lbl || "").rotate(270);
+//        var lbl_ordinate = graphael.g.text(lpad, graphael_height/2, options.ordinate_lbl || "").rotate(270, true);
         var lbl_abscissa = gtext(graphael_width/2, graphael_height - ipad, options.abscissa_lbl || "");
 
         var show_legend = false ? (options.show_legend == undefined || options.show_legend == false) : true;
@@ -243,6 +244,13 @@ creme.graphael.simple_refetch = function(url, type, container_selector, o_lbl, a
                    'abscissa_lbl':a_lbl,
                    'ordinate_lbl':o_lbl
                 });
+        }, null, true, {
+              beforeSend : function(request){
+                  creme.utils.loading('loading', false, {});
+              },
+              complete:function (request, status) {
+                  creme.utils.loading('loading', true, {});
+              }
         });
     }
 };

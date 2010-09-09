@@ -326,14 +326,14 @@ creme.reports.graphs.bind_toggle_graph = function(selectors, show_cb)
 
         $shower.bind('click', function(){
             
-            var $s = $(this);
+            var $s = $(obj.shower);
             var $p = $s.parent();
             $p.attr('rowspan', 2);
 
             $wrapper.show();
             $hider.show();
             $s.hide();
-
+            
             if(show_cb != undefined && $.isFunction(show_cb))
             {
                 show_cb(obj);
