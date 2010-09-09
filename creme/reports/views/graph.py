@@ -98,7 +98,8 @@ def detailview(request, graph_id):
     """
     return view_entity_with_template(request, graph_id, ReportGraph,
                                      '%s/report' % report_prefix_url,
-                                     '%s/view_graph.html' % report_template_dir)
+                                     '%s/view_graph.html' % report_template_dir,
+                                     extra_template_dict={'verbose_report_graph_types': verbose_report_graph_types})
 
 @jsonify
 def get_available_report_graph_types(request, ct_id):
