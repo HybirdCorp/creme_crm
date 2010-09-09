@@ -54,7 +54,7 @@ def _add_generic(request, form, task_id, title):
         return error_popup(request,
                            _(u"You can't add a resources or a working period to a task which has status <%s>") % state)
 
-    if request.POST :
+    if request.POST:
         form_obj = form(request.POST, initial={'related_task': task.get_real_entity()})
 
         if form_obj.is_valid():
@@ -65,10 +65,11 @@ def _add_generic(request, form, task_id, title):
     return inner_popup(request, 'creme_core/generics/blockform/add_popup2.html',
                        {
                          'form':   form_obj,
-                         'object': task,
                          'title':  title,
                        },
                        is_valid=form_obj.is_valid(),
+                       reload=False,
+                       delegate_reload=True,
                        context_instance=RequestContext(request))
 
 @login_required

@@ -20,16 +20,17 @@
 
 from django.http import HttpResponseRedirect, HttpResponse
 from django.shortcuts import get_object_or_404
+from django.template import RequestContext
+from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required
 
-from creme_core.views.generic import add_entity, view_entity_with_template, edit_entity
+from creme_core.views.generic import view_entity_with_template, edit_entity, inner_popup
 from creme_core.entities_access.functions_for_permissions import get_view_or_die, edit_object_or_die, delete_object_or_die
 
 from projects.models import Project, ProjectTask
 from projects.forms.task import TaskCreateForm, TaskEditForm
 
 
-#TODO: inner popup ???
 @login_required
 @get_view_or_die('projects')
 def add(request, project_id):
@@ -42,8 +43,23 @@ def add(request, project_id):
     if die_status:
         return die_status
 
-    return add_entity(request, TaskCreateForm, project.get_absolute_url(),
-                      extra_initial={'project': project.id})
+    if request.POST :
+        task_form = TaskCreateForm(request.POST, initial={'project': project_id})
+
+        if task_form.is_valid():
+            task_form.save()
+    else:
+        task_form = TaskCreateForm(initial={'project': project_id})
+
+    return inner_popup(request, 'creme_core/generics/blockform/add_popup2.html',
+                       {
+                         'form':   task_form,
+                         'title':  _(u'Add a task to <%s>') % project, #####xgettext
+                       },
+                       is_valid=task_form.is_valid(),
+                       reload=False,
+                       delegate_reload=True,
+                       context_instance=RequestContext(request))
 
 @login_required
 @get_view_or_die('projects')
