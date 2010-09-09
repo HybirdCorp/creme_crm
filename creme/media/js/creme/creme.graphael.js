@@ -77,7 +77,6 @@ creme.graphael.paddings = {
 creme.graphael.barchart = {};
 
 creme.graphael.barchart.fin = function (r, chart){
-    //var dims = chart.bar.getBBox();
     chart.flag = r.g.popup(chart.bar.x, chart.bar.y + creme.graphael.paddings.I_PAD, chart.bar.value || "0").insertBefore(chart);
 };
 
@@ -106,15 +105,15 @@ creme.graphael.simple_barchart = function(options)
 
         graphael.g.txtattr.font = "12px 'Fontin Sans', Fontin-Sans, sans-serif";
 
-        var barchart = graphael.g.barchart(lpad, hpad/2, graphael_width-lpad, graphael_height-hpad, [y], {vgutter:40, gutter:"40%"})
-                        .hover(function(e){creme.graphael.barchart.fin(graphael, this)}, creme.graphael.barchart.fout);
+        var barchart = graphael.g.barchart(lpad, hpad/2, graphael_width-lpad, graphael_height-hpad, [y], {vgutter:40, gutter:"40%"});
+                        //.hover(function(e){creme.graphael.barchart.fin(graphael, this)}, creme.graphael.barchart.fout);//add this to activate the hover
 
         $.each(barchart.bars[0], function(i){//We don't stack bars so [0]...
             this.attr({fill: Raphael.getColor(i)});
+            graphael.g.popup(this.x, this.y + creme.graphael.paddings.I_PAD, this.value || "0").toFront();//remove this to activate the hover
         });
-        
+
         var lbl_ordinate = gtext(barchart.getBBox().x/2+lpad, graphael_height/2, options.ordinate_lbl || "").rotate(270);
-//        var lbl_ordinate = graphael.g.text(lpad, graphael_height/2, options.ordinate_lbl || "").rotate(270, true);
         var lbl_abscissa = gtext(graphael_width/2, graphael_height - ipad, options.abscissa_lbl || "");
 
         var show_legend = false ? (options.show_legend == undefined || options.show_legend == false) : true;
@@ -181,7 +180,7 @@ creme.graphael.simple_pie = function(options)
         }
 
         var pie_width = graphael_width/5;
-        var pie = graphael.g.piechart(pie_width+lpad, graphael_height/2, pie_width, parsed_y,
+        var pie = graphael.g.piechart(pie_width*1.5+lpad, graphael_height/2, pie_width, parsed_y,
                                       {
                                         legend: x,
                                         legendpos: "east"
@@ -258,7 +257,13 @@ creme.graphael.simple_refetch = function(url, type, container_selector, o_lbl, a
 creme.graphael.simple_refetch.types = {
     histogram: {
                 'css_class':'graphael-barchart-drawn',
-                'func': creme.graphael.simple_barchart
+                'func': function(options){
+                    var $container = $(options.container);
+                    $container.empty().removeClass('initialized').data('graphael', null);
+                    creme.graphael.init(options.container);
+                    options.instance = $(options.container).data('graphael');
+                    creme.graphael.simple_barchart(options)
+                }
     },
     pie: {
         'css_class':'graphael-pie-drawn',

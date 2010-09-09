@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-09-02 17:19+0200\n"
+"POT-Creation-Date: 2010-09-09 17:11+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -15,9 +15,13 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: blocks.py:32 templates/reports/templatetags/block_report_fields.html:10
+#: blocks.py:33 templates/reports/templatetags/block_report_fields.html:10
 msgid "Columns of the report"
 msgstr "Colonnes du rapport"
+
+#: blocks.py:48
+msgid "Report's graphs"
+msgstr "Graphe de rapport"
 
 #: creme_core_register.py:33 models/report.py:271
 msgid "Reports"
@@ -39,7 +43,7 @@ msgstr "Ajouter un rapport"
 msgid "Report view"
 msgstr "Vue de Rapport"
 
-#: populate.py:41
+#: populate.py:41 templates/reports/templatetags/block_report_graphs.html:32
 msgid "Name"
 msgstr "Nom"
 
@@ -102,6 +106,27 @@ msgstr "Trimestre courant"
 #: report_filters_register.py:130
 msgid "Next quarter"
 msgstr "Trimestre suivant"
+
+#: forms/graph.py:42
+msgid "Ordinate aggregate"
+msgstr "Valeur calculée (Ordonnée)"
+
+#: forms/graph.py:43
+msgid "Ordinate aggregate field"
+msgstr "Champ de valeur calculée (Ordonnée)"
+
+#: forms/graph.py:45
+msgid "Abscissa field"
+msgstr "Champ d'abscisse"
+
+#: forms/graph.py:46
+msgid "Abscissa : Group by"
+msgstr "Abscisse : Grouper par"
+
+#: forms/graph.py:105
+msgid "You have to specify a day range if you use 'by X days'"
+msgstr ""
+"Vous devez spécifier une échelle de jours si vous utilisez 'par X jours'"
 
 #: forms/report.py:153
 msgid " "
@@ -166,6 +191,56 @@ msgstr "Date de début"
 msgid "End date"
 msgstr "Date de fin"
 
+#: models/graph.py:44
+msgid "By days"
+msgstr "Par jours"
+
+#: models/graph.py:45
+msgid "By months"
+msgstr "Par mois"
+
+#: models/graph.py:46
+msgid "By years"
+msgstr "Par années"
+
+#: models/graph.py:47
+msgid "By X days"
+msgstr "Par X jours"
+
+#: models/graph.py:48
+msgid "By values"
+msgstr "Par valeurs"
+
+#: models/graph.py:53
+msgid "Name of the graph"
+msgstr "Nom du graphique"
+
+#: models/graph.py:55
+msgid "Abscissa axis"
+msgstr "Axe des abscisses"
+
+#: models/graph.py:56
+msgid "Ordinate axis"
+msgstr "Axe des ordonnées"
+
+#: models/graph.py:57
+#: templates/reports/templatetags/block_report_fields.html:29
+#: templates/reports/templatetags/block_report_graphs.html:35
+msgid "Type"
+msgstr "Type"
+
+#: models/graph.py:58
+msgid "Days"
+msgstr "Jours"
+
+#: models/graph.py:62
+msgid "Report's graph"
+msgstr "Graphe de rapport"
+
+#: models/graph.py:63
+msgid "Reports' graphs"
+msgstr "Graphes de rapport"
+
 #: models/report.py:60
 msgid "Name of the column"
 msgstr "Nom de la colonne"
@@ -202,22 +277,24 @@ msgid "Preview %(verbose_name)s : %(title)s"
 msgstr "Aperçu %(verbose_name)s : %(title)s"
 
 #: templates/reports/preview_report.html:22
+#: templates/reports/view_graph.html:35
 #, python-format
 msgid "Back to the detailview : '%(object)s'"
 msgstr "Retour sur la fiche : '%(object)s'"
 
 #: templates/reports/preview_report.html:22
+#: templates/reports/view_graph.html:35
 msgid "Back"
 msgstr "Retour"
 
 #: templates/reports/preview_report.html:30
-#: templates/reports/view_report.html:25
+#: templates/reports/view_report.html:27
 #, python-format
 msgid "Download '%(object)s' as CSV file"
 msgstr "Télécharger '%(object)s' sous forme de fichier CSV"
 
 #: templates/reports/preview_report.html:30
-#: templates/reports/view_report.html:25
+#: templates/reports/view_report.html:27
 msgid "Download CSV"
 msgstr "Télécharger CSV"
 
@@ -226,12 +303,61 @@ msgstr "Télécharger CSV"
 msgid "Preview of %(limit_to)s first entities"
 msgstr "Aperçu des %(limit_to)s premières entités"
 
-#: templates/reports/view_report.html:22
+#: templates/reports/view_graph.html:9
+#, python-format
+msgid "Rendered %(object)s"
+msgstr "Aperçu %(object)s"
+
+#: templates/reports/view_graph.html:26
+msgid "Graph"
+msgstr "Graphique"
+
+#: templates/reports/view_graph.html:29
+#, python-format
+msgid "Rendered %(verbose_name)s : %(title)s"
+msgstr "Aperçu %(verbose_name)s : %(title)s"
+
+#: templates/reports/view_graph.html:54
+#: templates/reports/templatetags/block_report_graphs.html:62
+msgid "Generation date"
+msgstr "Date de génération"
+
+#: templates/reports/view_graph.html:57
+#: templates/reports/templatetags/block_report_graphs.html:65
+msgid "Histogram"
+msgstr "Histogramme"
+
+#: templates/reports/view_graph.html:58
+#: templates/reports/templatetags/block_report_graphs.html:66
+msgid "Pie"
+msgstr "Camembert"
+
+#: templates/reports/view_graph.html:62
+#: templates/reports/templatetags/block_report_graphs.html:70
+msgid "Sorting"
+msgstr "Tri"
+
+#: templates/reports/view_graph.html:64
+#: templates/reports/templatetags/block_report_graphs.html:72
+msgid "Ascending"
+msgstr "Ascendant"
+
+#: templates/reports/view_graph.html:65
+#: templates/reports/templatetags/block_report_graphs.html:73
+msgid "Descending"
+msgstr "Descendant"
+
+#: templates/reports/view_graph.html:70
+#: templates/reports/templatetags/block_report_graphs.html:78
+msgid "Regenerate"
+msgstr "Générer à nouveau"
+
+#: templates/reports/view_report.html:24
 #, python-format
 msgid "Preview of the report : '%(object)s'"
 msgstr "Aperçu du rapport : '%(object)s'"
 
-#: templates/reports/view_report.html:22
+#: templates/reports/view_report.html:24
 msgid "Preview"
 msgstr "Aperçu"
 
@@ -248,6 +374,7 @@ msgid "Add a column"
 msgstr "Ajouter une colonne"
 
 #: templates/reports/templatetags/block_report_fields.html:18
+#: templates/reports/templatetags/block_report_graphs.html:25
 msgid "Add"
 msgstr "Ajouter"
 
@@ -267,10 +394,6 @@ msgstr "Colonne"
 #: templates/reports/templatetags/block_report_fields.html:28
 msgid "Displayed in the report"
 msgstr "Affiché dans le rapport"
-
-#: templates/reports/templatetags/block_report_fields.html:29
-msgid "Type"
-msgstr "Type"
 
 #: templates/reports/templatetags/block_report_fields.html:30
 msgid "Action(s)"
@@ -313,6 +436,52 @@ msgstr "Descendre la colonne"
 msgid "No column set for the moment"
 msgstr "Aucune colonne définie pour le moment"
 
+#: templates/reports/templatetags/block_report_graphs.html:20
+#, python-format
+msgid "%s Graph"
+msgstr "%s Graphique"
+
+#: templates/reports/templatetags/block_report_graphs.html:20
+#, python-format
+msgid "%s Graphs"
+msgstr "%s Graphiques"
+
+#: templates/reports/templatetags/block_report_graphs.html:25
+msgid "Add new graph"
+msgstr "Ajouter un nouveau graphique"
+
+#: templates/reports/templatetags/block_report_graphs.html:25
+msgid "New"
+msgstr "Nouveau"
+
+#: templates/reports/templatetags/block_report_graphs.html:33
+msgid "Column abscissa"
+msgstr "Colonne abscisse"
+
+#: templates/reports/templatetags/block_report_graphs.html:34
+msgid "Column ordinate"
+msgstr "Colonne ordonnée"
+
+#: templates/reports/templatetags/block_report_graphs.html:36
+msgid "Actions"
+msgstr "Actions"
+
+#: templates/reports/templatetags/block_report_graphs.html:42
+msgid "Expand"
+msgstr "Agrandir"
+
+#: templates/reports/templatetags/block_report_graphs.html:43
+msgid "Reduce"
+msgstr "Réduire"
+
+#: templates/reports/templatetags/block_report_graphs.html:51
+msgid "Edit"
+msgstr "Éditer"
+
+#: templates/reports/templatetags/block_report_graphs.html:92
+msgid "No graphs registered for the moment"
+msgstr "Aucun graphique enregistré pour le moment"
+
 #: templates/reports/templatetags/column_header.html:7
 #, python-format
 msgid "(inherited de %(report)s)"
@@ -337,6 +506,20 @@ msgstr "Champ personalisé"
 #: templatetags/report_tags.py:35
 msgid "Calculated value"
 msgstr "Valeur calculée"
+
+#: views/graph.py:61
+#, python-format
+msgid "Add a graph for <%s>"
+msgstr "Ajouter un graphique pour <%s>"
+
+#: views/graph.py:85
+#, python-format
+msgid "Edit a graph for <%s>"
+msgstr "Éditer un graphique pour <%s>"
+
+#: views/graph.py:112
+msgid "Choose an abscissa field"
+msgstr "Choisir un champ d'abscisse"
 
 #: views/portal.py:33
 msgid "Number of reports"

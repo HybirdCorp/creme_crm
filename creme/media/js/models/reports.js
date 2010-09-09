@@ -344,7 +344,8 @@ creme.reports.graphs.bind_toggle_graph = function(selectors, show_cb)
         $hider.bind('click', function(){
             var $h = $(this);
             var $p = $h.parent();
-            $p.removeAttr('rowspan');
+            //$p.removeAttr('rowspan');//Bug in IE
+            $p.attr('rowspan', 1);
 
             $wrapper.hide();
             $shower.show();

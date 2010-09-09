@@ -36,5 +36,5 @@ def get_verbose_ordinate(report_graph, graph_ordinate):
     field_aggregate = field_aggregation_registry.get(aggregate)
     field_aggregate = field_aggregate.title if field_aggregate else u''
 
-    return u"%s - %s" % (verbose_field_name, field_aggregate)
+    return u"%s - %s" % (verbose_field_name, unicode(field_aggregate))
 

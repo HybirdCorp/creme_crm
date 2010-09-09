@@ -4,15 +4,14 @@
 {% load graph_tags %}
 
 {% if not is_ajax %}
-<!--<script type="text/javascript" src="{{MEDIA_URL}}js/libs/graphael/prod/raphael-min.js"></script>-->
-<script type="text/javascript" src="{{MEDIA_URL}}js/libs/graphael/dev/raphael-1.5.2.js"></script>
-<!--<script type="text/javascript" src="{{MEDIA_URL}}js/libs/graphael/prod/raphael-1.5.2.min.js"></script>-->
+<!--<script type="text/javascript" src="{{MEDIA_URL}}js/libs/graphael/dev/raphael-1.5.2.js"></script>-->
+<script type="text/javascript" src="{{MEDIA_URL}}js/libs/graphael/prod/raphael-1.5.2.min.js"></script>
 <script type="text/javascript" src="{{MEDIA_URL}}js/libs/graphael/prod/g.raphael-min.js"></script>
 <script type="text/javascript" src="{{MEDIA_URL}}js/libs/graphael/prod/g.line-min.js"></script>
 <script type="text/javascript" src="{{MEDIA_URL}}js/libs/graphael/prod/g.pie-min.js"></script>
 <script type="text/javascript" src="{{MEDIA_URL}}js/libs/graphael/prod/g.dot-min.js"></script>
-<!--<script type="text/javascript" src="{{MEDIA_URL}}js/libs/graphael/prod/g.bar-min.js"></script>-->
-<script type="text/javascript" src="{{MEDIA_URL}}js/libs/graphael/dev/g.bar.js"></script>
+<script type="text/javascript" src="{{MEDIA_URL}}js/libs/graphael/prod/g.bar-min.js"></script>
+<!--<script type="text/javascript" src="{{MEDIA_URL}}js/libs/graphael/dev/g.bar.js"></script>-->
 <script type="text/javascript" src="{{MEDIA_URL}}js/creme/creme.graphael.js"></script>
 <script type='text/javascript' src='{{MEDIA_URL}}js/datejs/date-fr-FR.js'></script>{# TODO: i18n  datejs has 150 availables languages#}
 {% endif %}
@@ -40,10 +39,8 @@
                 <!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
                 <tr>
                     <td class="{{row_color}}" style="width:20px;">
-                        <!--<img class="pointer" src="{{MEDIA_URL}}/images/expandme.gif" alt="{% trans 'Expand' %}" title="{% trans 'Expand' %}" id="report_graph_{{graph.id}}"/>-->
                         <img class="pointer report_graph_{{graph.id}}" src="{{MEDIA_URL}}/images/expandme.gif" alt="{% trans 'Expand' %}" title="{% trans 'Expand' %}"/>
                         <img class="pointer report_graph_{{graph.id}}_expanded" src="{{MEDIA_URL}}/images/expanded.gif" alt="{% trans 'Reduce' %}" title="{% trans 'Reduce' %}" style="display:none;"/>
-                        <!--<img class="pointer" src="{{MEDIA_URL}}/images/expanded.gif" alt="{% trans 'Reduce' %}" title="{% trans 'Reduce' %}" id="report_graph_{{graph.id}}_expanded" style="display:none;"/>-->
                     </td>
                     <td class="{{row_color}}"><a href="{{graph.get_absolute_url}}">{{graph.name}}</a></td>
                     <td class="{{row_color}}">{{graph|verbose_abscissa:graph.abscissa}}</td>
@@ -57,7 +54,6 @@
                     </td>
                 </tr>
                 <tr>
-                    <!--<td class="{{row_color}}" colspan="5" id="graph_global_container_{{graph.id}}" style="display: none;">-->
                     <td class="{{row_color}} graph_global_container_{{graph.id}}" colspan="5" style="display: none;">
                         <div>
                             <table width="100%">
@@ -65,7 +61,6 @@
                                     <tr>
                                         <td>{% trans 'Generation date' %} : <span id="graph_gen_date_{{graph.id}}"></span></td>
                                         <td>
-                                            <!--<select id="graph_type_{{graph.id}}" onchange="creme.graphael.simple_refetch('/reports/graph/fetch_graph/{{graph.id}}/'+$('#graph_ordering_{{graph.id}}').val(), $(this).val(), '#graph_container_{{graph.id}}', '{{graph|verbose_ordinate:graph.ordinate}}', '{{graph|verbose_abscissa:graph.abscissa}}  - {{verbose_report_graph_types|get_value:graph.type}}', '#graph_gen_date_{{graph.id}}');">-->
                                             <select id="graph_type_{{graph.id}}" onchange="creme.graphael.simple_refetch('/reports/graph/fetch_graph/{{graph.id}}/'+$('#graph_ordering_{{graph.id}}').val(), $(this).val(), '.graph_container_{{graph.id}}', '{{graph|verbose_ordinate:graph.ordinate}}', '{{graph|verbose_abscissa:graph.abscissa}}  - {{verbose_report_graph_types|get_value:graph.type}}', '#graph_gen_date_{{graph.id}}');">
                                                 <option value="histogram">{% trans 'Histogram' %}</option>
                                                 <option value="pie">{% trans 'Pie' %}</option>
@@ -73,14 +68,12 @@
                                         </td>
                                         <td nowrap>
                                             {% trans 'Sorting' %}:
-                                            <!--<select id="graph_ordering_{{graph.id}}" onchange="creme.graphael.simple_refetch('/reports/graph/fetch_graph/{{graph.id}}/'+$(this).val(), $('#graph_type_{{graph.id}}').val(),'#graph_container_{{graph.id}}', '{{graph|verbose_ordinate:graph.ordinate}}', '{{graph|verbose_abscissa:graph.abscissa}}  - {{verbose_report_graph_types|get_value:graph.type}}', '#graph_gen_date_{{graph.id}}');">-->
                                             <select id="graph_ordering_{{graph.id}}" onchange="creme.graphael.simple_refetch('/reports/graph/fetch_graph/{{graph.id}}/'+$(this).val(), $('#graph_type_{{graph.id}}').val(),'.graph_container_{{graph.id}}', '{{graph|verbose_ordinate:graph.ordinate}}', '{{graph|verbose_abscissa:graph.abscissa}}  - {{verbose_report_graph_types|get_value:graph.type}}', '#graph_gen_date_{{graph.id}}');">
                                                 <option value="ASC">{% trans 'Ascending' %}</option>
                                                 <option value="DESC">{% trans 'Descending' %}</option>
                                             </select>
                                         </td>
                                         <td>
-                                            <!--<a onclick="creme.graphael.simple_refetch('/reports/graph/fetch_graph/{{graph.id}}/'+$('#graph_ordering_{{graph.id}}').val(), $('#graph_type_{{graph.id}}').val(), '#graph_container_{{graph.id}}', '{{graph|verbose_ordinate:graph.ordinate}}', '{{graph|verbose_abscissa:graph.abscissa}}  - {{verbose_report_graph_types|get_value:graph.type}}', '#graph_gen_date_{{graph.id}}');">-->
                                             <a onclick="creme.graphael.simple_refetch('/reports/graph/fetch_graph/{{graph.id}}/'+$('#graph_ordering_{{graph.id}}').val(), $('#graph_type_{{graph.id}}').val(), '.graph_container_{{graph.id}}', '{{graph|verbose_ordinate:graph.ordinate}}', '{{graph|verbose_abscissa:graph.abscissa}}  - {{verbose_report_graph_types|get_value:graph.type}}', '#graph_gen_date_{{graph.id}}');">
                                                 <img src="{{MEDIA_URL}}/images/refresh_22.png" alt="{% trans 'Regenerate' %}" title="{% trans 'Regenerate' %}" />
                                             </a>
@@ -89,8 +82,8 @@
                                 </tbody>
                             </table>
                         </div>
-                        <!--<div id="graph_container_{{graph.id}}" style="overflow-x:scroll;"></div>-->
-                        <div class="graph_container_{{graph.id}}" style="overflow-x:scroll;"></div>
+                        <!--<div class="graph_container_{{graph.id}}" style="overflow-x:scroll;"></div>-->
+                        <div class="graph_container_{{graph.id}}" style="overflow-x:scroll;postion:relative;"></div>
                     </td>
                 </tr>
             {% endfor %}
