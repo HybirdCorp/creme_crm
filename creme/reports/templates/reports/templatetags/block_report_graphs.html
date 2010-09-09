@@ -60,18 +60,20 @@
                                         <td>
                                             <select><!-- mettre le change -->
                                                 <option value="histogram">{% trans 'Histogram' %}</option>
-                                                <option value="curve">{% trans 'Curve' %}</option>
+                                                <option value="pie">{% trans 'Pie' %}</option>
                                             </select>
                                         </td>
                                         <td nowrap>
                                             {% trans 'Sorting' %}:
-                                            <select id="graph_ordering_{{graph.id}}" onchange="creme.graphael.simple_barchart.refetch('/reports/graph/fetch_graph/{{graph.id}}/'+$(this).val(), '#graph_container_{{graph.id}}');"><!-- change simple barchart -->
+                                            <select id="graph_ordering_{{graph.id}}" onchange="creme.graphael.simple_barchart.refetch('/reports/graph/fetch_graph/{{graph.id}}/'+$(this).val(), '#graph_container_{{graph.id}}', '{{graph|verbose_ordinate:graph.ordinate}}', '{{graph|verbose_abscissa:graph.abscissa}}  - {{verbose_report_graph_types|get_value:graph.type}}', '#graph_gen_date_{{graph.id}}');"><!-- change simple barchart -->
                                                 <option value="ASC">{% trans 'Ascending' %}</option>
                                                 <option value="DESC">{% trans 'Descending' %}</option>
                                             </select>
                                         </td>
                                         <td>
-                                            <a onclick="creme.graphael.simple_barchart.refetch('/reports/graph/fetch_graph/{{graph.id}}/'+$('#graph_ordering_{{graph.id}}').val(), '#graph_container_{{graph.id}}');"><img src="{{MEDIA_URL}}/images/refresh_22.png" alt="{% trans 'Regenerate' %}" title="{% trans 'Regenerate' %}" /></a>
+                                            <a onclick="creme.graphael.simple_barchart.refetch('/reports/graph/fetch_graph/{{graph.id}}/'+$('#graph_ordering_{{graph.id}}').val(), '#graph_container_{{graph.id}}', '{{graph|verbose_ordinate:graph.ordinate}}', '{{graph|verbose_abscissa:graph.abscissa}}  - {{verbose_report_graph_types|get_value:graph.type}}', '#graph_gen_date_{{graph.id}}');">
+                                                <img src="{{MEDIA_URL}}/images/refresh_22.png" alt="{% trans 'Regenerate' %}" title="{% trans 'Regenerate' %}" />
+                                            </a>
                                         </td>
                                     </tr>
                                 </tbody>
@@ -137,6 +139,7 @@
             var date_node = $('#graph_gen_date_'+obj.graph_id);
             creme.graphael.simple_barchart({
                'instance': node.data('graphael'),
+               'container':node,
                'x': obj.x,
                'y': obj.y,
                'gen_date_selector': obj.gen_date_selector,

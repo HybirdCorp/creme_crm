@@ -126,7 +126,7 @@ class ReportGraph(CremeEntity):
                     begin = max_date
                     end   = max_date - days
                     x.append("%s-%s" % (begin.strftime("%d/%m/%Y"), end.strftime("%d/%m/%Y")))
-                    y.append(entities_filter(Q(**{'%s__range' % abscissa: (begin, end)})).aggregate(aggregate_col).get(ordinate))
+                    y.append(entities_filter(Q(**{'%s__range' % abscissa: (end, begin)})).aggregate(aggregate_col).get(ordinate))
                     max_date = end
                 
         elif type == RGT_FK:
@@ -140,6 +140,10 @@ class ReportGraph(CremeEntity):
             for fk_id in fk_ids:
                 x.append(fks.get(fk_id, ''))
                 y.append(entities_filter(Q(**{'%s' % abscissa: fk_id})).aggregate(aggregate_col).get(ordinate))
+
+        for i, item in enumerate(y):
+            if item is None:
+                y[i] = 0
 
         return (x, y)
 

@@ -89,68 +89,86 @@ creme.graphael.simple_barchart = function(options)
 {
     if(!options || options == undefined || options.instance==undefined) return;//Need at least a Raphael's instance
     var graphael = options.instance;
-    var paddings = $.extend(creme.graphael.paddings, options.paddings);
-    var x = options.x || [], y = options.y || [];
+    var container = options.container;
 
-    var lpad = paddings.L_PAD;
-    var hpad = paddings.H_PAD;
-    var ipad = paddings.I_PAD;
-
-
-    var barchart = graphael.g.barchart(lpad, hpad/2, graphael.width-lpad, graphael.height-hpad, [y])
-                    .hover(function(e){creme.graphael.barchart.fin(graphael, this)}, creme.graphael.barchart.fout);
-
-    var lbl_ordinate = graphael.g.text(barchart.getBBox().x/2+lpad , graphael.height/2, options.ordinate_lbl || "").rotate(270);
-    var lbl_abscissa = graphael.g.text(graphael.width/2, graphael.height - ipad, options.abscissa_lbl || "");
-
-    var show_legend = false ? (options.show_legend == undefined || options.show_legend == false) : true;
-    if(!show_legend ||  x.length <=5)
+    if(!container.hasClass('graphael-barchart-drawn'))
     {
-        barchart.label([x], true);
-    }
-    else
-    {
-        var range = creme.utils.range(1, x.length+1)
-        barchart.label([range], true);
+        var paddings = $.extend(creme.graphael.paddings, options.paddings);
+        var x = options.x || [], y = options.y || [];
 
-        var previous_height = ipad;
-        var init_lbl_x = graphael.width*0.15;
+        var lpad = paddings.L_PAD;
+        var hpad = paddings.H_PAD;
+        var ipad = paddings.I_PAD;
 
-        for(var i=0; i < range.length; i++)
+        var graphael_width = graphael.width;
+        var graphael_height = graphael.height;
+        var gtext = graphael.g.text;
+
+        graphael.g.txtattr.font = "12px 'Fontin Sans', Fontin-Sans, sans-serif";
+
+        var barchart = graphael.g.barchart(lpad, hpad/2, graphael_width-lpad, graphael_height-hpad, [y], {vgutter:40, gutter:"40%"})
+                        .hover(function(e){creme.graphael.barchart.fin(graphael, this)}, creme.graphael.barchart.fout);
+
+        $.each(barchart.bars[0], function(i){//We don't stack bars so [0]...
+            this.attr({fill: Raphael.getColor(i)});
+        });
+
+        var lbl_ordinate = gtext(barchart.getBBox().x/2+lpad , graphael_height/2, options.ordinate_lbl || "").rotate(270);
+        var lbl_abscissa = gtext(graphael_width/2, graphael_height - ipad, options.abscissa_lbl || "");
+
+        var show_legend = false ? (options.show_legend == undefined || options.show_legend == false) : true;
+        if(!show_legend ||  x.length <=5)
         {
-            var lgd = range[i];
-            var label = graphael.g.text(init_lbl_x, graphael.height + previous_height, lgd+" : "+x[i]);
-            label.attr({
-               x : label.getBBox().x+label.getBBox().width
-            });
-            previous_height += label.getBBox().height
+            barchart.label([x], true);
         }
-        
-        graphael.setSize(graphael.width,graphael.height+previous_height);
-    }
+        else
+        {
+            var range = creme.utils.range(1, x.length+1)
+            barchart.label([range], true);
 
-    if(options.gen_date_selector)
-    {
-        $(options.gen_date_selector).text(new Date().toString("dd-MM-yyyy HH:mm"));//Needs Datejs but doesn't bug when not
+            var previous_height = ipad;
+            var init_lbl_x = graphael_width*0.15;
+
+            for(var i=0; i < range.length; i++)
+            {
+                var lgd = range[i];
+                var label = gtext(init_lbl_x, graphael_height + previous_height, lgd+" : "+x[i]);
+                label.attr({
+                   x : label.getBBox().x+label.getBBox().width
+                });
+                previous_height += label.getBBox().height
+            }
+            graphael.setSize(graphael_width,graphael_height+previous_height);
+        }
+
+        if(options.gen_date_selector)
+        {
+            $(options.gen_date_selector).text(new Date().toString("dd-MM-yyyy HH:mm:ss"));//Needs Datejs but doesn't bug when not
+        }
+        container.addClass('graphael-barchart-drawn');
     }
 };
 
-creme.graphael.simple_barchart.refetch = function(url, container_selector)
+creme.graphael.simple_barchart.refetch = function(url, container_selector, o_lbl, a_lbl, date_selector)
 {
     creme.ajax.json.get(url, {}, function(d){
         var x = d.x;
         var y = d.y;
         var graph_id = d.graph_id;
 
-        $(container_selector).empty();
-        //Finish here
+        var $container = $(container_selector);
+        var instance = $container.data('graphael');
+        instance.clear();
+        $container.removeClass('graphael-barchart-drawn');
+
         creme.graphael.simple_barchart({
-               'instance': node.data('graphael'),
-               'x': obj.x,
-               'y': obj.y,
-               'gen_date_selector': obj.gen_date_selector,
-               'abscissa_lbl':obj.abscissa_lbl,
-               'ordinate_lbl':obj.ordinate_lbl
+               'instance': instance,
+               'container':$container,
+               'x': x,
+               'y': y,
+               'gen_date_selector': date_selector,
+               'abscissa_lbl':a_lbl,
+               'ordinate_lbl':o_lbl
             });
     });
 };
