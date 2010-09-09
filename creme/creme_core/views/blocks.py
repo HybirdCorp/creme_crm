@@ -35,7 +35,7 @@ from creme_core.blocks import relations_block
 def _get_depblock_ids(request, block_id):
     ids = [block_id]
 
-    posted_deps  = request.GET.get(block_id + '_deps')
+    posted_deps = request.GET.get(block_id + '_deps')
     if posted_deps:
         ids.extend(posted_deps.split(','))
 
