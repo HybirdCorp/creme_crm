@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 
-from django.utils.translation import ugettext as _
+from django.utils.translation import ugettext_lazy as _
 
-NOT_STARTED_PK      = 1
-IN_PROGRESS_PK      = 2
-CANCELED_PK         = 3
-RESTARTED_PK        = 4
-COMPLETED_PK        = 5
+NOT_STARTED_PK  = 1
+IN_PROGRESS_PK  = 2
+CANCELED_PK     = 3
+RESTARTED_PK    = 4
+COMPLETED_PK    = 5
 
 
 class TaskStatusDesc(object):

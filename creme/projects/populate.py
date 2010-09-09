@@ -45,15 +45,10 @@ class Populator(BasePopulator):
         create(ProjectStatus, 4, name=_(u"Achievement"),           description=_(u"The project is being implemented"))
         create(ProjectStatus, 5, name=_(u"Tests"),                 description=_(u"The project is in the testing process (unit / integration / functional)"))
         create(ProjectStatus, 6, name=_(u"User acceptance tests"), description=_(u"The project is in the user acceptance testing process"))
-        create(ProjectStatus, 7, name=_(u"Finished"),               description=_(u"The project is finished"))
+        create(ProjectStatus, 7, name=_(u"Finished"),              description=_(u"The project is finished"))
 
-        #create(TaskStatus, 1, name=_(u"Non commencée"), description=_(u"La tâche n'a pas encore démarrée"))
-        #create(TaskStatus, 2, name=_(u"En cours"),      description=_(u"La tâche est en cours"))
-        #create(TaskStatus, 3, name=_(u"Annulée"),       description=_(u"La tâche a été annulée"))
-        #create(TaskStatus, 4, name=_(u"Redémarrée"),    description=_(u"La tâche a été redémarrée"))
-        #create(TaskStatus, 5, name=_(u"Terminée"),      description=_(u"La tâche est terminée"))
         for pk, statusdesc in TASK_STATUS.iteritems():
-            create(TaskStatus, pk, name=statusdesc.name, description=statusdesc.verbose_name)
+            create(TaskStatus, pk, name=unicode(statusdesc.name), description=unicode(statusdesc.verbose_name))
 
         get_ct = ContentType.objects.get_for_model
 
@@ -68,14 +63,6 @@ class Populator(BasePopulator):
         #create(HeaderFilterItem, pref + 'title', order=1, name='title',       title=u'Nom de la tâche',         type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True, editable=True, sortable=True, filter_string="title__icontains")
         #create(HeaderFilterItem, pref + 'desc',  order=2, name='description', title=u'Description de la tâche', type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True, editable=True, sortable=True, filter_string="description__icontains")
 
-        ##useless no ?? (no listview for resources)
-        #hf_id = create(HeaderFilter, 'projects-hf_resource', name='Vue de Resource', entity_type_id=get_ct(Resource).id, is_custom=False).id
-        #pref  = 'projects-hfi_resource_'
-        #create(HeaderFilterItem, pref + 'contact', order=1, name='linked_contact', title=u'Nom de la ressource', type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True, editable=True, sortable=True, filter_string="linked_contact__icontains")
-        #create(HeaderFilterItem, pref + 'cost',    order=2, name='hourly_cost',    title=u'Coût horaire',        type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True, editable=True, sortable=True, filter_string="hourly_cost__icontains")
-
-
         SearchConfigItem.create(Project,     ['name', 'description', 'status__name'])
         SearchConfigItem.create(Resource,    ['linked_contact__first_name', 'linked_contact__last_name', 'hourly_cost'])
         SearchConfigItem.create(ProjectTask, ['project__name', 'duration', 'status__name'])
-        

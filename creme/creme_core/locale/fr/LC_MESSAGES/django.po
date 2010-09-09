@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-09-02 16:07+0200\n"
+"POT-Creation-Date: 2010-09-09 12:02+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -25,7 +25,7 @@ msgstr "Propriétés"
 msgid "Relations"
 msgstr "Relations"
 
-#: creme_core_register.py:32
+#: creme_core_register.py:36
 msgid "Core"
 msgstr "Cœur"
 
@@ -129,7 +129,7 @@ msgstr "Créer"
 msgid "Modify"
 msgstr "Modifier"
 
-#: populate.py:58 models/entity.py:185 templates/creme_core/detailview.html:62
+#: populate.py:58 models/entity.py:190 templates/creme_core/detailview.html:62
 #: templates/creme_core/filters.html:549 templates/creme_core/filters.html:555
 #: templates/creme_core/filters.html:571 templates/creme_core/filters.html:577
 #: templates/creme_core/templatetags/block_specific_relations.html:26
@@ -346,7 +346,7 @@ msgstr "Certains prédicats n'existent pas"
 msgid "Related entities"
 msgstr "Entités associées"
 
-#: forms/widgets.py:140 forms/widgets.py:261
+#: forms/widgets.py:139 forms/widgets.py:260
 #: templates/creme_core/detailview.html:32
 #: templates/creme_core/filters.html:515 templates/creme_core/filters.html:516
 #: templates/creme_core/filters.html:517 templates/creme_core/filters.html:518
@@ -356,31 +356,31 @@ msgstr "Entités associées"
 msgid "Add"
 msgstr "Ajouter"
 
-#: forms/widgets.py:176
+#: forms/widgets.py:175
 msgid "Select..."
 msgstr "Sélectionner..."
 
-#: forms/widgets.py:301
+#: forms/widgets.py:300
 msgid "On"
 msgstr "Le"
 
-#: forms/widgets.py:302
+#: forms/widgets.py:301
 msgid "at"
 msgstr "à"
 
-#: forms/widgets.py:303 forms/widgets.py:331
+#: forms/widgets.py:302 forms/widgets.py:330
 msgid "h"
 msgstr "h"
 
-#: forms/widgets.py:306
+#: forms/widgets.py:305
 msgid "Clean"
 msgstr "Effacer"
 
-#: forms/widgets.py:307 forms/widgets.py:334
+#: forms/widgets.py:306 forms/widgets.py:333
 msgid "Now"
 msgstr "Maintenant"
 
-#: forms/widgets.py:360
+#: forms/widgets.py:359
 msgid "Today"
 msgstr "Aujourd'hui"
 
@@ -512,11 +512,11 @@ msgstr "Liste de choix"
 msgid "List of choices (multi sélection)"
 msgstr "Liste de choix (multi sélection)"
 
-#: models/entity.py:182
+#: models/entity.py:187
 msgid "See"
 msgstr "Voir"
 
-#: models/entity.py:184 templates/creme_core/detailview.html:59
+#: models/entity.py:189 templates/creme_core/detailview.html:59
 #: templates/creme_core/generics/blockform/edit.html:10
 #: templates/creme_core/generics/form/edit.html:3
 #: templates/creme_core/generics/form/edit.html:4
@@ -527,7 +527,7 @@ msgstr "Éditer"
 msgid "Name of the view"
 msgstr "Nom de la vue"
 
-#: models/header_filter.py:176 templates/creme_core/frags/actions.html:20
+#: models/header_filter.py:180 templates/creme_core/frags/actions.html:20
 msgid "Actions"
 msgstr "Actions"
 
@@ -663,16 +663,16 @@ msgstr "Ligne du fichier CSV"
 msgid "Induced error"
 msgstr "Erreur provoquée"
 
-#: templates/creme_core/csv_importing_report.html:48
+#: templates/creme_core/csv_importing_report.html:49
 msgid "Other errors have been omitted."
 msgstr "Les autres erreurs ont été omises."
 
-#: templates/creme_core/csv_importing_report.html:56
+#: templates/creme_core/csv_importing_report.html:57
 msgid "No error when importing."
 msgstr "Aucune erreur lors de l'import."
 
-#: templates/creme_core/csv_importing_report.html:65
 #: templates/creme_core/csv_importing_report.html:66
+#: templates/creme_core/csv_importing_report.html:67
 #: templates/creme_core/detailview.html:23
 #: templates/creme_core/detailview.html:24
 msgid "Back to the list"
@@ -762,6 +762,8 @@ msgid "Submit"
 msgstr "Envoyer"
 
 #: templates/creme_core/header_filters.html:5
+#: templates/creme_core/templatetags/listview_headerfilters.html:5
+#: templates/creme_core/templatetags/listview_headerfilters.html:6
 msgid "View of list"
 msgstr "Vue de liste"
 
@@ -780,10 +782,10 @@ msgstr "Resultats de recherche"
 
 #: templates/creme_core/search_results.html:12
 #, python-format
-msgid "Search results : %(total)s result"
-msgid_plural "Search results : %(total)s results"
-msgstr[0] "Résultats de recherche : %(total)s résultat"
-msgstr[1] "Résultats de recherche : %(total)s résultats"
+msgid "Search results : %(result_count)s result"
+msgid_plural "Search results : %(result_count)s results"
+msgstr[0] "Résultats de recherche : %(result_count)s résultat"
+msgstr[1] "Résultats de recherche : %(result_count)s résultats"
 
 #: templates/creme_core/search_results.html:22
 msgid "Your search : "
