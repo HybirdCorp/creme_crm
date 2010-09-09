@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-08-30 14:26+0200\n"
+"POT-Creation-Date: 2010-09-09 10:31+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -194,21 +194,16 @@ msgstr "Liste déjà dans les parents"
 msgid "List already in the children"
 msgstr "Liste déjà dans les filles"
 
-#: forms/recipient.py:46
-#, python-format
-msgid "Not a valid email address : %s"
-msgstr "N'est pas une adresse e-mail valide: %s"
-
-#: forms/recipient.py:54 forms/recipient.py:56 forms/recipient.py:86
+#: forms/recipient.py:34 forms/recipient.py:36 forms/recipient.py:63
 #: models/recipient.py:40
 msgid "Recipients"
 msgstr "Destinataires"
 
-#: forms/recipient.py:54
-msgid "Write a validd e-mail address per line."
+#: forms/recipient.py:34
+msgid "Write a valid e-mail address per line."
 msgstr "Mettez une adresse e-mail par ligne."
 
-#: forms/recipient.py:87
+#: forms/recipient.py:64
 msgid ""
 "A file containing one e-mail addresse per line (eg:creme@crm.com without "
 "quotation marks)."
@@ -216,7 +211,7 @@ msgstr ""
 "Un fichier contenant une adresse e-mail par ligne (ex:creme@crm.com sans "
 "guillemets)."
 
-#: forms/recipient.py:91
+#: forms/recipient.py:66
 msgid "CSV file"
 msgstr "Fichier CSV"
 
