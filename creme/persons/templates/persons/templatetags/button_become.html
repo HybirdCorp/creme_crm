@@ -1,4 +1,4 @@
-{% if managed_orga|length_is:"1" %}
+{% if managed_orga|length == 1 %}
     <a class="menu_button" href="{{become_url}}{{managed_orga.0.pk}}">{{verbose_name}}</a>
 {% else %}
     {% with today|date:"U" as today_timestamp %}

@@ -6,10 +6,9 @@
         <tr>
             <th colspan="11" class="block_header_line_dark" align="left">
                 {% if object.is_alive %}
-                    {% comment %}<a class="button_link" onclick="creme.utils.showInnerPopup('/projects/task/{{object.id}}/resource/add');">{% endcomment %}
                     <a class="button_link" onclick="creme.utils.innerPopupNReload('/projects/task/{{object.id}}/resource/add', {% get_block_reload_uri %});">
                         <img src="{{MEDIA_URL}}images/add_22.png" border="0" title="{% trans "Add a resource" %}" alt="{% trans "Add a resource" %}" />
-                        {% trans "Add a resource from a contact" %}
+                        {% trans "Add a resource from an existing contact" %}
                     </a>
                 {% else %}
                     <em>

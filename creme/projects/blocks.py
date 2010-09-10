@@ -20,9 +20,31 @@
 
 from django.utils.translation import ugettext_lazy as _
 
-from creme_core.gui.block import QuerysetBlock
+from creme_core.gui.block import Block, QuerysetBlock
 
 from projects.models import ProjectTask, Resource, WorkingPeriod
+
+
+__all__ = ('project_extra_info', 'task_extra_info', 'tasks_block', 'resources_block', 'working_periods_block')
+
+class ProjectExtraInfo(Block):
+    id_           = Block.generate_id('projects', 'project_extra_info')
+    dependencies  = (ProjectTask,)
+    verbose_name  = _(u'Extra project information')
+    template_name = 'projects/templatetags/block_project_extra_info.html'
+
+    def detailview_display(self, context):
+        return self._render(self.get_block_template_context(context)) #TODO: move to Block.detailview_display() ??
+
+
+class TaskExtraInfo(Block):
+    id_           = Block.generate_id('projects', 'task_extra_info')
+    dependencies  = (WorkingPeriod,)
+    verbose_name  = _(u'Extra project task information')
+    template_name = 'projects/templatetags/block_task_extra_info.html'
+
+    def detailview_display(self, context):
+        return self._render(self.get_block_template_context(context)) #TODO: move to Block.detailview_display() ??
 
 
 class ProjectTaskBlock(QuerysetBlock):
@@ -39,7 +61,7 @@ class ProjectTaskBlock(QuerysetBlock):
 
 class ResourceTaskBlock(QuerysetBlock):
     id_           = QuerysetBlock.generate_id('projects', 'resources')
-    dependencies  = (Resource,)
+    dependencies  = (Resource, WorkingPeriod) #NB: deleting a Resource -> delete all related WorkingPeriods
     verbose_name  = _(u'Resources assigned to a task')
     template_name = 'projects/templatetags/block_resources.html'
 
@@ -62,7 +84,8 @@ class WorkingPeriodTaskBlock(QuerysetBlock):
                                                             update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, task.pk),
                                                             ))
 
-
+project_extra_info    = ProjectExtraInfo()
+task_extra_info       = TaskExtraInfo()
 tasks_block           = ProjectTaskBlock()
 resources_block       = ResourceTaskBlock()
 working_periods_block = WorkingPeriodTaskBlock()

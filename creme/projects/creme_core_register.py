@@ -25,7 +25,7 @@ from creme_core.gui.menu import creme_menu
 from creme_core.gui.block import block_registry
 
 from projects.models import Project, ProjectTask, Resource
-from projects.blocks import tasks_block, resources_block, working_periods_block
+from projects.blocks import *
 
 
 creme_registry.register_app('projects', _(u'Projects'), '/projects')
@@ -37,4 +37,4 @@ reg_menu('projects', '/projects/',            _('Portal'))
 reg_menu('projects', '/projects/projects',    _('All projects'))
 reg_menu('projects', '/projects/project/add', _('Add a project'))
 
-block_registry.register(tasks_block, resources_block, working_periods_block)
+block_registry.register(project_extra_info, task_extra_info, tasks_block, resources_block, working_periods_block)

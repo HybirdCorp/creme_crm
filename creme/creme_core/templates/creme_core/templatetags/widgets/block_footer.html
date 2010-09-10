@@ -1,6 +1,6 @@
 {% load i18n %}
 {% load creme_block %}
-{% ifnotequal page.paginator.num_pages 1 %}
+{% if page.paginator.num_pages != 1 %}
     <tfooter class="collapsable">
         <tr>
             <td colspan="100" class="block_header_line_dark">
@@ -18,4 +18,4 @@
             </td>
         </tr>
     </tfooter>
-{% endifnotequal %}
+{% endif %}

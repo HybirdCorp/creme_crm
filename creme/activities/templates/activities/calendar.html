@@ -156,12 +156,12 @@ $(document).ready(function() {
             $('#show-hide-users').toggle(
                 function(e) {
                     $('#tbody-selectable').slideUp();
-                    $(this).text('Montrer la liste des utilisateurs');
+                    $(this).text('{%trans "Show the users list" %}');
                     $.cookie('creme-calendar-user-list-state', 'hide');
                 },
                 function(e) {
                     $('#tbody-selectable').slideDown();
-                    $(this).text('Cacher la liste des utilisateurs');
+                    $(this).text('{%trans "Hide the users list" %}');
                     $.cookie('creme-calendar-user-list-state', 'show');
                 }
             );
@@ -178,25 +178,27 @@ $(document).ready(function() {
 {% block content %}
 <div class="full-calendar-header">
     <div class="full-calendar-buttons">
+        <ul class="button_list hbox">
+            <li>
+                <a class="menu_button" href="/activities/activity/add-meeting-without-relation" >
+                    <img src="{{MEDIA_URL}}images/map_32.png" border="0" title="{% trans "Meeting" %}" alt="{% trans "Meeting" %}" />
+                    {% trans "Create a meeting" %}
+                </a>
+            </li>
+            <li>
+                <a class="menu_button" href="/activities/activity/add-phonecall-without-relation">
+                    <img src="{{MEDIA_URL}}images/phone_32.png" border="0" title="{% trans "Phone call" %}" alt="{% trans "Phone call" %}" />
+                    {% trans "Create a phone call" %}
+                </a>
+            </li>
+            <li>
+                <a class="menu_button" href="/activities/activity/add-task-without-relation">
+                    <img src="{{MEDIA_URL}}images/task_32.png" border="0" title="{% trans "Task" %}" alt="{% trans "Task" %}" />
+                    {% trans "Create a task" %}
+                </a>
+            </li>
+        </ul>
         <form action="" method="POST" name="user_choice">
-            <table>
-                <tbody>
-                    <tr>
-                        <td>
-                            <a class="menu_button" href="/activities/activity/add-meeting-without-relation" >
-                                <img src="{{MEDIA_URL}}images/map_32.png" border="0" title="{% trans "Meeting" %}" alt="{% trans "Meeting" %}" />
-                                {% trans "Create a meeting" %}
-                            </a>
-                        </td>
-                        <td>
-                            <a class="menu_button" href="/activities/activity/add-phonecall-without-relation">
-                                <img src="{{MEDIA_URL}}images/phone_32.png" border="0" title="{% trans "Phone call" %}" alt="{% trans "Phone call" %}" />
-                                {% trans "Create a phone call" %}
-                            </a>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
             <p>{% trans "See calendars of :" %}<br/></p>
             <table style="border:2px solid #D7E2E7;">
                 <thead>
@@ -209,14 +211,14 @@ $(document).ready(function() {
                 </thead>
                 <tbody id="tbody-selectable" style="overflow: scroll;">
                     {% for user in users %}
-                        {% if forloop.counter0|mod:16|eq:0 %}<tr>{% endif %}
-                            <td class="selectable {% if user|in:current_users %} selected {% endif %}" style="padding:3px;cursor: pointer;" >
+                        {% if forloop.counter0|mod:16 == 0 %}<tr>{% endif %}
+                            <td class="selectable {% if user in current_users %} selected {% endif %}" style="padding:3px;cursor: pointer;" >
                                 <span>
-                                    <input type="checkbox" value="{{user.username}}" id="id_{{user.username}}" name="user_selected" {% if user|in:current_users %} checked {% endif %} />
+                                    <input type="checkbox" value="{{user.username}}" id="id_{{user.username}}" name="user_selected" {% if user in current_users %} checked {% endif %} />
                                    <label for="id_{{user.username}}" >{{user}}</label>
                                 </span>
                             </td>
-                        {% if forloop.counter0|mod:16|eq:15 %}</tr>{% endif %}
+                        {% if forloop.counter0|mod:16 == 15 %}</tr>{% endif %}
                     {% endfor %}
                 </tbody>
             </table>

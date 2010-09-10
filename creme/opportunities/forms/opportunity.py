@@ -46,7 +46,7 @@ class OpportunityCreateForm(OpportunityEditForm):
         self.fields['emit_orga'].queryset = Organisation.get_all_managed_by_creme()
 
     def save(self):
-        created = False if self.instance.pk else True #TODO: not bool(self.instance.pk)
+        created = False if self.instance.pk else True #TODO: not bool(self.instance.pk) #TODO: CreateForm -> always true no ?!
         super(OpportunityCreateForm, self).save()
         self.instance.link_to_target_orga(self.cleaned_data['target_orga'])
         self.instance.link_to_emit_orga(self.cleaned_data['emit_orga'])

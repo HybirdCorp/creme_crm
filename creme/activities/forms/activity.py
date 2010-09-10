@@ -187,7 +187,7 @@ class _ActivityCreateBaseForm(CremeEntityForm):
 
     def save(self):
         self.instance.end = self.cleaned_data['end']
-        super(_ActivityCreateBaseForm, self).save()
+        return super(_ActivityCreateBaseForm, self).save()
 
     def create_commercial_approach(self, extra_entity=None):
         from datetime import datetime

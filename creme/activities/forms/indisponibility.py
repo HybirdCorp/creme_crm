@@ -57,10 +57,10 @@ class IndisponibilityCreateForm(CremeEntityForm):
             return cleaned_data
 
         if cleaned_data.get('start') > cleaned_data.get('end'):
-            raise ValidationError(_(u"End time is before start time"))
+            raise ValidationError(_(u"End time is before start time")) #TODO: ugettext()
 
         return cleaned_data
 
     def save(self):
-        self.instance.type = ActivityType.objects.get(pk=ACTIVITYTYPE_INDISPO)
+        self.instance.type = ActivityType.objects.get(pk=ACTIVITYTYPE_INDISPO) #TODO: self.instance.type_id = ACTIVITYTYPE_INDISPO
         super(IndisponibilityCreateForm, self).save()

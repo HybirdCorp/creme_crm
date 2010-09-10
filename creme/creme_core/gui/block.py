@@ -94,6 +94,7 @@ class Block(object):
     def detailview_display(self, context):
         """Overload this method to display a specific block (like Todo etc...) """
         return u'VOID BLOCK FOR DETAILVIEW: %s, %s' % (self.id_, self.verbose_name)
+        #return self._render(self.get_block_template_context(context))
 
     def __get_context(self, request, base_url, block_name):
         """Retrieve block's context stored in the session.
@@ -136,7 +137,7 @@ class Block(object):
 
         return context
 
-    def get_block_template_context(self, context, update_url='', depblock_ids=(), **extra_kwargs):
+    def get_block_template_context(self, context, update_url='', **extra_kwargs):
         """ Build the block template context.
         @param context Template context (contains 'request' etc...).
         @param url String containing url to reload this block with ajax.

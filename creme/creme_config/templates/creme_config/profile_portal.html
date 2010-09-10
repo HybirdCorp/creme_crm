@@ -14,7 +14,7 @@
             <select name="roles" onchange="this.form.submit();">
                 <option value="">Tout</option>
                 {% for role in roles %}
-                    <option value="{{role.id}}" {% ifequal role role_post %}selected{% endifequal %} >{{role}}</option>
+                    <option value="{{role.id}}" {% if role == role_post %}selected{% endif %} >{{role}}</option>
                 {% endfor %}
             </select>
         </div>

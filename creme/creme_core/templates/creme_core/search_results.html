@@ -40,11 +40,11 @@
                 <tr>
                     <th colspan="{{fields|length|add:1}}" valign="middle" align="left">
                         {{entities|length}}
-                        {% ifequal entities|length 1 %}
+                        {% if entities|length == 1 %}
                             {{result.model|get_meta_value:"verbose_name"}}
                         {% else %}
                             {{result.model|get_meta_value:"verbose_name_plural"}}
-                        {% endifequal %}
+                        {% endif %}
                     </th>
                 </tr>
             </thead>
