@@ -108,8 +108,12 @@ creme.graphael.simple_barchart = function(options)
         var barchart = graphael.g.barchart(lpad, hpad/2, graphael_width-lpad, graphael_height-hpad, [y], {vgutter:40, gutter:"40%"});
                         //.hover(function(e){creme.graphael.barchart.fin(graphael, this)}, creme.graphael.barchart.fout);//add this to activate the hover
 
+        var colors = [];
+
         $.each(barchart.bars[0], function(i){//We don't stack bars so [0]...
-            this.attr({fill: Raphael.getColor(i)});
+            var c = Raphael.getColor(i);
+            this.attr({fill: c});
+            colors.push(c);
             graphael.g.popup(this.x, this.y + creme.graphael.paddings.I_PAD, this.value || "0").toFront();//remove this to activate the hover
         });
 
@@ -128,17 +132,54 @@ creme.graphael.simple_barchart = function(options)
 
             var previous_height = ipad;
             var init_lbl_x = graphael_width*0.15;
+            var circles = [];
+            var labels  = [];
 
             for(var i=0; i < range.length; i++)
             {
                 var lgd = range[i];
                 var label = gtext(init_lbl_x, graphael_height + previous_height, lgd+" : "+x[i]);
+                
                 label.attr({
-                   x : label.getBBox().x+label.getBBox().width
+                   x : label.getBBox().x+label.getBBox().width,
                 });
-                previous_height += label.getBBox().height
+
+                var lbl_dims = label.getBBox();
+
+                label._order = i;
+
+                var circle = graphael.circle(lbl_dims.x-2*ipad, lbl_dims.y+lbl_dims.height/2, 5).attr({
+                   fill: colors[i]
+                });
+
+                circle._order = i;
+
+                barchart.bars[0][i]._order = i;
+
+                circles.push(circle);
+                labels.push(label);
+
+                previous_height += lbl_dims.height
             }
             graphael.setSize(graphael_width,graphael_height+previous_height);
+
+            barchart.hover(function(e){
+                var bar = this.bar;
+                var order = bar._order;
+                var circle = circles[order];
+                var label = labels[order];
+                circle.scale(1.2, 1.2);
+                label.attr({"font-weight": 800});
+            },
+            function(){
+                var bar = this.bar;
+                var order = bar._order;
+                var circle = circles[order];
+                var label = labels[order];
+                circle.animate({scale: 1}, 600, "bounce");
+                label.attr({"font-weight": 400});
+
+            });
         }
 
         if(options.gen_date_selector)
