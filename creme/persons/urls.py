@@ -27,6 +27,9 @@ urlpatterns = patterns('persons.views',
 
     (r'^address/from_organisation$', 'address.get_org_addresses'),
     (r'^address/add$',               'address.add'),
+    (r'^address/delete$',                             'address.delete'),
+    (r'^address/edit/(?P<address_id>\d+)',               'address.edit'),
+    (r'^address/ip_add/(?P<entity_id>\d+)$',               'address.ipopup_add_adress'),
 )
 
 urlpatterns += patterns('creme_core.views',

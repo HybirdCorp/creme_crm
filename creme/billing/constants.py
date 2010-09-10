@@ -12,3 +12,6 @@ REL_OBJ_BILL_ISSUED = 'billing-object_bill_issued'
 
 REL_SUB_BILL_RECEIVED = 'billing-subject_bill_received'
 REL_OBJ_BILL_RECEIVED = 'billing-object_bill_received'
+
+DEFAULT_DRAFT_INVOICE_STATUS = 1
+DEFAULT_INVOICE_STATUS = 2

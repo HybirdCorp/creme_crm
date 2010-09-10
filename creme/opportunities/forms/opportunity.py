@@ -31,7 +31,7 @@ from creme import form_post_save
 
 
 class OpportunityEditForm(CremeEntityForm):
-    expiration_date = CremeDateTimeField(label=_(u'Expiration date'))
+    closing_date = CremeDateTimeField(label=_(u'Closing date'))
 
     class Meta(CremeEntityForm.Meta):
         model = Opportunity

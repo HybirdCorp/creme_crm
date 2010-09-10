@@ -1,0 +1,50 @@
+{% load i18n %}
+{% load creme_block %}
+
+<table  class="table_detail_view ui-corner-all" id={{block_name}}>
+    {% block block_header %}
+    {% get_block_header _("%s Other Address") _("%s Others Addresses") 'infos_48.png' _('Other Address') %}
+    {% endblock %}
+    <tbody class="collapsable">
+        <tr>
+            <th colspan="5" class="block_header_line_dark" align="left">
+                <a class="button_link" onclick="createAdress_click();">
+                    
+                    {% trans "Add an Address" %}
+                </a>
+            </th>
+        </tr>
+        {% if page.paginator.count %}
+            {% for address in page.object_list %}
+                    <!--
+        {% cycle "block_header_line_dark" "block_header_line_light" as header_color %} 
+                  {% cycle "block_line_dark" "block_line_light" as row_color %}-->
+                
+        <tr ><th colspan="2" class="block_header_line_dark" >{{ address.name }}</th><th class="block_header_line_dark">{% trans "Actions" %}</th>            
+        </tr>
+
+        <tr ><th class="{% cycle header_color %} th_info">{% trans "Address" %}</td><td class="{% cycle row_color %} td_info" >{{address.address}}</td>          
+              <td class="{{row_color}}" align="center" valign="center" rowspan="7">
+                        <a onclick="creme.utils.innerPopupNReload('/persons/address/edit/{{address.id}}/', {% get_block_reload_uri %});">
+                            <img src="{{MEDIA_URL}}images/edit_22.png" border="0">
+                        </a>                    
+                    
+                    
+                    {% get_line_deletor at_url '/persons/address/delete' with_args "{'id' : {{address.id}} }" %}
+              </td>   
+         </tr>
+        <tr ><th class="{% cycle header_color %} th_info">{% trans "PO box" %}</td><td class="{% cycle row_color %} td_info">{{address.po_box}}</td>   </tr> 
+        <tr ><th class="{% cycle header_color %} th_info">{% trans "City" %}</td><td class="{% cycle row_color %} td_info">{{address.city}}</td>    </tr>  
+        <tr ><th class="{% cycle header_color %} th_info">{% trans "State" %}</td><td class="{% cycle row_color %} td_info">{{address.state}}</td>  </tr>
+        <tr ><th class="{% cycle header_color %} th_info">{% trans "Zip code" %}</td><td class="{% cycle row_color %} td_info">{{address.zipcode}}</td> </tr>
+        <tr ><th class="{% cycle header_color %} th_info">{% trans "Country" %}</td><td class="{% cycle row_color %} td_info">{{address.country}}</td>  </tr>
+            {% endfor %}
+             {% else %} 
+                      <tr>
+                <td class="{% cycle "block_line_dark" "block_line_light" %}">{% trans 'No other address set for the moment' %}</td>
+            </tr>
+            {% endif %}
+
+    </tbody>
+    {% include 'creme_core/templatetags/widgets/block_footer.html' %}
+</table>

@@ -502,6 +502,7 @@ div.sidebar1separator2 {
     -webkit-border-radius: 4px;
 }
 
+/*
 .table_detail_view tbody.collapsable tr th {
     max-width: 30%;
     width: 30%;
@@ -512,6 +513,33 @@ div.sidebar1separator2 {
     max-width: 70%;
     width: 70%;
 }
+*/
+
+.th_info{
+    max-width: 30%;
+    width: 30%;
+  
+}
+
+.td_info{
+    max-width: 70%;
+    width: 70%;
+    text-align: right;
+}
+
+.th_info_4_columns{
+    max-width: 15%;
+    width: 15%;
+  
+}
+
+.td_info_4_columns{
+    max-width: 35%;
+    width: 35%;
+    text-align: right;
+}
+
+
 
 .table_detail_view thead {
     cursor: pointer;
