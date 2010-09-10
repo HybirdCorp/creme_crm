@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-08-26 16:38+0200\n"
+"POT-Creation-Date: 2010-09-07 18:28+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -48,15 +48,19 @@ msgstr "Factures liées à l'opportunité"
 msgid "Add an opportunity linked to an organisation"
 msgstr "Ajouter une opportunité liée à une société"
 
-#: creme_core_register.py:33 models/opportunity.py:94
+#: creme_core_register.py:33 models/opportunity.py:95
 msgid "Opportunities"
 msgstr "Opportunités"
 
 #: creme_core_register.py:38
+msgid "Portal"
+msgstr ""
+
+#: creme_core_register.py:39
 msgid "All opportunities"
 msgstr "Lister les opportunités"
 
-#: creme_core_register.py:39
+#: creme_core_register.py:40
 msgid "Add an opportunity"
 msgstr "Ajouter une opportunité"
 
@@ -208,8 +212,8 @@ msgid "Sales phase"
 msgstr "Phase de vente"
 
 #: populate.py:93 forms/opportunity.py:34 models/opportunity.py:82
-msgid "Expiration date"
-msgstr "Échéance"
+msgid "Closing date"
+msgstr "Date de signature"
 
 #: forms/opportunity.py:41 templates/opportunities/view_opportunity.html:53
 msgid "Target organisation"
@@ -223,7 +227,7 @@ msgstr "Société concernée"
 msgid "Weighted sales"
 msgstr "CA pondéré"
 
-#: models/opportunity.py:51 models/opportunity.py:64
+#: models/opportunity.py:51 models/opportunity.py:64 models/opportunity.py:84
 msgid "Description"
 msgstr "Description"
 
@@ -260,10 +264,11 @@ msgid "Made sales"
 msgstr "CA final"
 
 #: models/opportunity.py:81
+#, python-format
 msgid "% of chance to win"
 msgstr "% de chance d'obtention"
 
-#: models/opportunity.py:93 templates/opportunities/portal.html:3
+#: models/opportunity.py:94 templates/opportunities/portal.html:3
 #: templates/opportunities/templatetags/button_linked_opp.html:3
 msgid "Opportunity"
 msgstr "Opportunité"

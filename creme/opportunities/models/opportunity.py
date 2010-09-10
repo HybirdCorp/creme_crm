@@ -79,8 +79,9 @@ class Opportunity(CremeEntity):
     made_sales      = PositiveIntegerField(_(u'Made sales'), blank=True, null=True)
     sales_phase     = ForeignKey(SalesPhase, verbose_name=_(u'Sales phase'))
     chance_to_win   = PositiveIntegerField(_(ur"% of chance to win"), blank=True, null=True)
-    expiration_date = DateField(_(u'Expiration date'), blank=False, null=False)
+    closing_date = DateField(_(u'Closing date'), blank=False, null=False)
     origin          = ForeignKey(Origin, verbose_name=_(u'Origin'))
+    description     = TextField(_(u'Description'), blank=True, null=True)
 
     function_fields = CremeEntity.function_fields.new(_TurnoverField)
 
