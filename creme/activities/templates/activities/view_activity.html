@@ -5,19 +5,19 @@
 {% block add_new_button %}{% endblock %}
 
 {% block logo %}
-    {% ifequal object.type.id "activities-activitytype_meeting" %}
+    {% if object.type.id == "activities-activitytype_meeting" %}
         <img src="{{MEDIA_URL}}images/map_64.png" alt=""/>
     {% else %}
-        {% ifequal object.type.id "activities-activitytype_phonecall" %}
+        {% if object.type.id == "activities-activitytype_phonecall" %}
             <img src="{{MEDIA_URL}}images/phone_64.png" alt=""/>
        {% else %}
-              {% ifequal object.type.id "activities-activitytype_task" %}
+              {% if object.type.id == "activities-activitytype_task" %}
                   <img src="{{MEDIA_URL}}images/task_64.png" alt=""/>
               {% else %}
                   <img src="{{MEDIA_URL}}images/calendar_64.png" alt=""/>
-              {% endifequal %}
-        {% endifequal %}
-    {% endifequal %}
+              {% endif %}
+        {% endif %}
+    {% endif %}
 {% endblock logo %}
 
 {% block creme_blocks_import %}

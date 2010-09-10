@@ -253,6 +253,10 @@ class CSVImportForm(CremeModelForm):
         self.import_errors = LimitedList(50)
         self.imported_objects_count = 0
 
+    #NB: hack to bypass the model validation (see form_factory() comment)
+    def _post_clean(self):
+        pass
+
     def clean_csv_document(self):
         document_id = self.cleaned_data['csv_document']
 
@@ -368,6 +372,9 @@ class CSVImportForm4CremeEntity(CSVImportForm):
             relation.save()
 
 
+#NB: we use ModelForm to get the all the django machinery to build a form from a model
+#    bit we need to avoid the model validation, because we are are not building a true
+#    'self.instance', but a set of instances ; we just use the regular form validation.
 def form_factory(ct, header):
     choices = [(0, _('Not in the CSV file'))]
     header_dict = {}

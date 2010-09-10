@@ -61,7 +61,7 @@ class DocumentEditForm(CremeEntityForm):
 
 
 class DocumentCreateViewForm(DocumentCreateForm):
-    entity = ModelChoiceField(queryset=CremeEntity.objects.all(), widget=HiddenInput())
+    entity = ModelChoiceField(queryset=CremeEntity.objects.all(), widget=HiddenInput()) #TODO: pass entity_id to __init__ instead ??
 
     class Meta(CremeEntityForm.Meta):
         model   = Document

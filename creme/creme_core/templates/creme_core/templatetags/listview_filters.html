@@ -7,7 +7,7 @@
     <select name="filter" id="list_filter" onchange="$(this.form).list_view('getSubmit')(this);">
         <option value="">{% trans "All" %}</option>
         {% for filter in select_values %}
-            <option value="{{filter.value}}" {% ifequal filter_id filter.value %}selected{% endifequal %}>
+            <option value="{{filter.value}}" {% if filter_id == filter.value %}selected{% endif %}>
                 {{filter.text}}
             </option>
         {% endfor %}

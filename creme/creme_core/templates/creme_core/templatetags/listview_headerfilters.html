@@ -7,7 +7,7 @@
         </legend>
         <select name="hfilter" id="hfilter_list" onchange="$(this.form).list_view('getSubmit')(this);">
             {% for filter in select_values %}
-                <option value="{{filter.value}}" {% ifequal hfilter_id filter.value %} selected {% endifequal %}>
+                <option value="{{filter.value}}" {% if hfilter_id == filter.value %} selected {% endif %}>
                     {{filter.text}}
                 </option>
             {% endfor %}

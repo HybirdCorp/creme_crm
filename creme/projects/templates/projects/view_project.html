@@ -20,6 +20,7 @@
     {{block.super}}
 
     {% import_block from_app 'projects' named 'project_tasks' as 'project_tasks_block' %}
+    {% import_block from_app 'projects' named 'project_extra_info' as 'project_xtra_block' %}
 {% endblock %}
 
 {% block before_detail_view_1 %}
@@ -27,23 +28,5 @@
 {% endblock %}
 
 {% block after_object_as_table_1 %}
-    <table  class="table_detail_view ui-corner-all">
-        {% get_basic_block_header _('Other information') 'infos_48.png' _('Information') %}
-        <tbody>
-            <tr>
-                <th class="block_header_line_dark">{% trans "Total cost of the projet (€)" %}</th>
-                <td class="block_line_dark" align="center"><strong>{{object.get_project_cost}} €</strong></td>
-            </tr>
-            <tr>
-                <th class="block_header_line_dark">{% trans "Total overtime (in hours)" %}</th>
-                <td class="block_line_dark" align="center">
-                {% if object.get_delay %}
-                    <strong>{{object.get_delay}} h</strong>
-                {% else %}
-                    --
-                {% endif %}
-                </td>
-            </tr>
-        </tbody>
-    </table>
+    {% display_block_detailview 'project_xtra_block' %}
 {% endblock %}

@@ -33,13 +33,13 @@
                         <a href="{{quote.get_absolute_url}}">{{quote.name}}</a>
                     </td>
                     <td class="{{row_color}}">
-                        {% ifequal quote.pk current_quote_id %}
+                        {% if quote.pk == current_quote_id %}
                             <strong>Oui</strong>
                         {% else %}
                             <a href="/opportunities/opportunity/{{object.pk}}/linked/quote/{{quote.pk}}/set_current/">
                                 {% trans "Become" %}
                             </a>
-                        {% endifequal %}
+                        {% endif %}
                     </td>
                     <td class="{{row_color}}" align="center" valign="center" style="width:10%;">
                         {% get_line_deletor at_url '/creme_core/relation/delete/similar' with_args "{'subject_id':{{object.pk}}, 'type':'{{predicate_id}}', 'object_id':{{quote.pk}} }" %}

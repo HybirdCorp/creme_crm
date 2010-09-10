@@ -213,25 +213,25 @@ def in_day(date1, day_in):
 def range_timestamp(date1, date2):
     return abs(mktime(date2.timetuple()) - mktime(date1.timetuple()))
 
-@register.filter(name="lt")
-def lt(object1, object2):
-    return object1 < object2
+#@register.filter(name="lt")
+#def lt(object1, object2):
+    #return object1 < object2
 
-@register.filter(name="gt")
-def gt(object1, object2):
-    return object1 > object2
+#@register.filter(name="gt")
+#def gt(object1, object2):
+    #return object1 > object2
 
-@register.filter(name="lte")
-def lte(object1, object2):
-    return object1 <= object2
+#@register.filter(name="lte")
+#def lte(object1, object2):
+    #return object1 <= object2
 
-@register.filter(name="gte")
-def gte(object1, object2):
-    return object1 >= object2
+#@register.filter(name="gte")
+#def gte(object1, object2):
+    #return object1 >= object2
 
-@register.filter(name="eq")
-def eq(object1, object2):
-    return object1 == object2
+#@register.filter(name="eq")
+#def eq(object1, object2):
+    #return object1 == object2
 
 @register.filter(name="sub")
 def sub(object1, object2):
@@ -242,9 +242,9 @@ def sub(object1, object2):
 def absolute(integer):
     return abs(integer)
 
-@register.filter(name="in")
-def in_list(obj, list):
-   return obj in list
+#@register.filter(name="in")
+#def in_list(obj, list):
+   #return obj in list
 
 @register.filter(name="idiv")
 def idiv(integer, integer2):

@@ -16,13 +16,17 @@ CREME_ROOT = dirname(abspath(__file__))
 MANAGERS = ADMINS
 
 # NB: it's recommended to use a database engine that supports transactions.
-DATABASE_ENGINE = 'mysql'      # 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
-DATABASE_NAME = 'cremecrm'     # Or path to database file if using sqlite3.
-DATABASE_USER = 'creme'        # Not used with sqlite3.
-DATABASE_PASSWORD = 'creme'    # Not used with sqlite3.
-DATABASE_HOST = ''             # Set to empty string for localhost. Not used with sqlite3.
-DATABASE_PORT = ''             # Set to empty string for default. Not used with sqlite3.
-
+DATABASES = {
+    'default': {
+        'ENGINE':   'django.db.backends.mysql', # 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
+        'NAME':     'cremecrm',                 # Or path to database file if using sqlite3.
+        'USER':     'creme',                    # Not used with sqlite3.
+        'PASSWORD': 'creme',                    # Not used with sqlite3.
+        'HOST':     '',                         # Set to empty string for localhost. Not used with sqlite3.
+        'PORT':     '',                         # Set to empty string for default. Not used with sqlite3.
+        'OPTIONS':  {},                         # Extra parameters for database connection. Consult backend module's document for available keywords.
+    },
+}
 
 # Local time zone for this installation. Choices can be found here:
 # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
@@ -80,12 +84,13 @@ ADMIN_MEDIA_PREFIX = '/media/'
 # Make this unique, and don't share it with anybody.
 SECRET_KEY = '1&7rbnl7u#+j-2#@5=7@Z0^9v@y_Q!*y^krWS)r)39^M)9(+6('
 
-# List of callables that know how to import templates from various sources.
+# List of loaders that know how to import templates from various sources.
 TEMPLATE_LOADERS = (
-    'django.template.loaders.filesystem.load_template_source',
-    'django.template.loaders.app_directories.load_template_source',
-    
-#     'django.template.loaders.eggs.load_template_source',
+    ('django.template.loaders.cached.Loader', ( #Don't use cached loader when developping (in your local_settings.py)
+        'django.template.loaders.filesystem.Loader',
+        'django.template.loaders.app_directories.Loader',
+        #'django.template.loaders.eggs.Loader',
+    )),
 )
 
 MIDDLEWARE_CLASSES = (
@@ -93,7 +98,8 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.middleware.doc.XViewMiddleware',
-#    'creme.creme_core.middleware.sql_logger.SQLLogToConsoleMiddleware',
+
+    #'creme.creme_core.middleware.sql_logger.SQLLogToConsoleMiddleware',
     #'creme.creme_core.middleware.module_logger.LogImportedModulesMiddleware',
 )
 
@@ -150,6 +156,7 @@ LOGO_URL = '/site_media/images/creme_256_cropped.png'
 from django.conf.global_settings import TEMPLATE_CONTEXT_PROCESSORS
 TEMPLATE_CONTEXT_PROCESSORS += (
      'django.core.context_processors.request',
+
      'creme_core.context_processors.get_logo_url',
      'creme_core.context_processors.get_today',
      'creme_core.context_processors.get_css_theme',

@@ -51,7 +51,6 @@ class ProjectTask(Activity):
 
     def __init__ (self, *args , **kwargs):
         super(ProjectTask, self).__init__(*args, **kwargs)
-        #self.type = ActivityType.objects.get(pk=ACTIVITYTYPE_TASK)
         self.type_id = ACTIVITYTYPE_TASK
 
     def get_absolute_url(self):

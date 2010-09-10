@@ -41,12 +41,14 @@ class EditForm(CremeEntityForm):
         model = Ticket
         exclude = CremeEntityForm.Meta.exclude + ('closing_date', )
 
+    def __init__(self, *args, **kwargs):
+        super(EditForm, self).__init__(*args, **kwargs)
+        self.old_status_id = self.instance.status_id
+
     def save(self):
         instance = self.instance
-        new_status_pk = self.cleaned_data['status'].pk
-        old_status_pk = instance.status_id
 
-        if (new_status_pk == CLOSED_PK) and (old_status_pk != CLOSED_PK):
+        if (instance.status_id == CLOSED_PK) and (self.old_status_id != CLOSED_PK):
             instance.closing_date = datetime.now()
 
         super(EditForm, self).save()
