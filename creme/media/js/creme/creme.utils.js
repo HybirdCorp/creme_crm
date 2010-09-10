@@ -324,11 +324,11 @@ creme.utils.handleSort = function(sort_field, sort_order, new_sort_field, input,
 creme.utils.loadBlock = function(url) {
     $.ajax({
         url:      url,
-        async:    true,
+        async:    false,
         type:     "GET",
         dataType: "json",
         cache:    false, // ??
-//      beforeSend: loading(false), //UNCOMMENT ???
+      beforeSend: this.loading('loading',false),
         success:  function(data) {
                         for (var i = 0; i < data.length; ++i) {
                             var block_data = data[i];          //tuple: (block_name, block_html)
@@ -337,8 +337,8 @@ creme.utils.loadBlock = function(url) {
                             $('#' + block_data[0]).replaceWith(block);
                             $('thead', block).each(function() {creme.utils.bindToggle($(this));});
                         }
-                  }//,
-//      complete: loading(true) //UNCOMMENT ???
+                  },
+      complete: this.loading('loading',true)
     });
 }
 
@@ -812,3 +812,13 @@ creme.utils.go_to = function(url, ajax, ajax_options)
         window.location.href = url;
     }
 }
+
+creme.utils.range = function(start, end)
+{
+    var tab = [];
+    for(var i=start||0; i < end; i++)
+    {
+        tab.push(i);
+    }
+    return tab;
+};

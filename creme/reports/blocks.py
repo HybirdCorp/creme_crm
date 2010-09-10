@@ -51,10 +51,12 @@ class ReportGraphBlock(QuerysetBlock):
 
     def detailview_display(self, context):
         report = context['object']
+        request = context['request']
 
         return self._render(self.get_block_template_context(context, ReportGraph.objects.filter(report=report),
                                                             update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, report.pk),
-                                                            verbose_report_graph_types=verbose_report_graph_types
+                                                            verbose_report_graph_types=verbose_report_graph_types,
+                                                            is_ajax=request.is_ajax()
                                                             )
                             )
 

@@ -29,12 +29,12 @@ from django.utils.translation import ugettext_lazy as _
 
 from creme_core.entities_access.functions_for_permissions import add_view_or_die, get_view_or_die
 from creme_core.views.generic.popup import inner_popup
+from creme_core.views.generic.detailview import view_entity_with_template
 from creme_core.utils import jsonify, get_ct_or_404
 
-from reports.models.report import Report
+from reports.models.report import Report, report_prefix_url, report_template_dir
 from reports.models.graph import (ReportGraph, verbose_report_graph_types,
                                   RGT_FK, RGT_RANGE, RGT_YEAR, RGT_MONTH, RGT_DAY)
-                                  
 from reports.forms.graph import ReportGraphAddForm
 
 
@@ -65,6 +65,42 @@ def add(request, report_id):
                        delegate_reload=True,
                        context_instance=RequestContext(request))
 
+@login_required
+@get_view_or_die(report_graph_app)
+@add_view_or_die(report_graph_ct, None, report_graph_app)
+def edit(request, graph_id):
+    graph = get_object_or_404(ReportGraph, pk=graph_id)
+    POST = request.POST
+    if POST:
+        graph_form = ReportGraphAddForm(graph.report, POST, instance=graph)
+
+        if graph_form.is_valid():
+            graph_form.save()
+    else:
+        graph_form = ReportGraphAddForm(report=graph.report, instance=graph)
+
+    return inner_popup(request, 'creme_core/generics/blockform/add_popup2.html',
+                       {
+                        'form':   graph_form,
+                        'title': _(u'Edit a graph for <%s>') % graph.report,
+                       },
+                       is_valid=graph_form.is_valid(),
+                       reload=False,
+                       delegate_reload=True,
+                       context_instance=RequestContext(request))
+
+
+@login_required
+@get_view_or_die(report_graph_app)
+def detailview(request, graph_id):
+    """
+        @Permissions : Acces or Admin to document app & Read on current ReportGraph object
+    """
+    return view_entity_with_template(request, graph_id, ReportGraph,
+                                     '%s/report' % report_prefix_url,
+                                     '%s/view_graph.html' % report_template_dir,
+                                     extra_template_dict={'verbose_report_graph_types': verbose_report_graph_types})
+
 @jsonify
 def get_available_report_graph_types(request, ct_id):
     ct = get_ct_or_404(ct_id)
@@ -87,3 +123,11 @@ def get_available_report_graph_types(request, ct_id):
         result = [{'id': RGT_FK, 'text': unicode(verbose_report_graph_types.get(RGT_FK))}]
 
     return {'result': result}
+
+@jsonify
+def fetch_graph(request, graph_id, order):
+    graph = get_object_or_404(ReportGraph, pk=graph_id)
+
+    x, y = graph.fetch(order=order)
+
+    return {'x': x, 'y': y, 'graph_id': graph_id}
