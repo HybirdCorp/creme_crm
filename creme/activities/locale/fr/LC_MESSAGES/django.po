@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-08-30 14:34+0200\n"
+"POT-Creation-Date: 2010-09-10 17:43+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -129,18 +129,20 @@ msgstr "Finie"
 msgid "Delayed"
 msgstr "En retard"
 
-#: populate.py:59 models/activity.py:184
+#: populate.py:59 models/activity.py:189
+#: templates/activities/calendar.html:199
+#: templates/activities/templatetags/button_add_task.html:3
 msgid "Task"
 msgstr "Tâche"
 
-#: populate.py:60 models/activity.py:157
+#: populate.py:60 models/activity.py:161
 #: templates/activities/calendar.html:187
 #: templates/activities/frags/button_add_meeting_without_relation.html:3
 #: templates/activities/templatetags/button_add_meeting.html:3
 msgid "Meeting"
 msgstr "Rendez-vous"
 
-#: populate.py:61 models/activity.py:206
+#: populate.py:61 models/activity.py:215
 #: templates/activities/calendar.html:193
 #: templates/activities/frags/button_add_phonecall_without_relation.html:3
 #: templates/activities/templatetags/button_add_phonecall.html:3
@@ -167,7 +169,7 @@ msgstr "Indisponibilité"
 msgid "Activity view"
 msgstr "Vue d'Activité"
 
-#: populate.py:69 models/activity.py:35 models/activity.py:162
+#: populate.py:69 models/activity.py:35 models/activity.py:166
 #: templates/activities/templatetags/block_future_activities.html:25
 msgid "Name"
 msgstr "Nom"
@@ -243,23 +245,31 @@ msgid "Add participants to them be linked to a commercial approach."
 msgstr ""
 "Ajoutez des participants pour qu'ils soient liés à une démarche commerciale"
 
-#: forms/phone_call.py:42 forms/phone_call.py:87
+#: forms/phone_call.py:50
+msgid "Alert of phone call"
+msgstr "Alerte d'appel téléphonique"
+
+#: forms/phone_call.py:51
+msgid "Alert related to a phone call"
+msgstr "Alerte en rapport avec un appel téléphonique"
+
+#: forms/phone_call.py:56 forms/phone_call.py:84
 msgid "Do you want to generate an alert or a reminder ?"
 msgstr "Voulez vous générer une alerte ou un rappel ?"
 
-#: forms/phone_call.py:43 forms/phone_call.py:88
-msgid "Alerte day"
+#: forms/phone_call.py:57 forms/phone_call.py:85
+msgid "Alert day"
 msgstr "Jour de l'alerte"
 
-#: forms/phone_call.py:44 forms/phone_call.py:89
+#: forms/phone_call.py:58 forms/phone_call.py:86
 msgid "Alert time"
 msgstr "Heure de l'alerte"
 
-#: forms/phone_call.py:47 forms/phone_call.py:92
+#: forms/phone_call.py:65 forms/phone_call.py:93
 msgid "Generate an alert or a reminder"
 msgstr "Générer une alerte ou un rappel"
 
-#: forms/task.py:40 forms/task.py:56
+#: forms/task.py:38 forms/task.py:48
 msgid "Do I participate to this task"
 msgstr "Est-ce que je participe à cette tâche"
 
@@ -287,7 +297,7 @@ msgstr "Types d'activité"
 msgid "Title"
 msgstr "Titre"
 
-#: models/activity.py:54 models/activity.py:163 models/activity.py:190
+#: models/activity.py:54 models/activity.py:167 models/activity.py:195
 msgid "Description"
 msgstr "Description"
 
@@ -303,39 +313,39 @@ msgstr "Activité"
 msgid "Meeting place"
 msgstr "Lieu de rendez-vous"
 
-#: models/activity.py:158
+#: models/activity.py:162
 msgid "Meetings"
 msgstr "Rendez-vous"
 
-#: models/activity.py:170 models/activity.py:171
+#: models/activity.py:174 models/activity.py:175
 msgid "Task status"
 msgstr "Statut de tâche"
 
-#: models/activity.py:175
+#: models/activity.py:179
 msgid "Duration (in hour)"
 msgstr "Durée (en heures)"
 
-#: models/activity.py:176
+#: models/activity.py:180
 msgid "Status"
 msgstr "Statut"
 
-#: models/activity.py:185
+#: models/activity.py:190
 msgid "Tasks"
 msgstr "Tâches"
 
-#: models/activity.py:189
+#: models/activity.py:194
 msgid "Call type"
 msgstr "Type d'appel"
 
-#: models/activity.py:197 models/activity.py:202
+#: models/activity.py:202 models/activity.py:207
 msgid "Phonecall type"
 msgstr "Type d'appel"
 
-#: models/activity.py:198
+#: models/activity.py:203
 msgid "Phonecall types"
 msgstr "Types d'appel"
 
-#: models/activity.py:207
+#: models/activity.py:216
 msgid "Phone calls"
 msgstr "Appels Téléphoniques"
 
@@ -444,6 +454,14 @@ msgstr "Vendredi"
 msgid "Saturday"
 msgstr "Samedi"
 
+#: templates/activities/calendar.html:159
+msgid "Show the users list"
+msgstr "Montrer la liste des utilisateurs"
+
+#: templates/activities/calendar.html:164
+msgid "Hide the users list"
+msgstr "Cacher la liste des utilisateurs"
+
 #: templates/activities/calendar.html:188
 #: templates/activities/frags/button_add_meeting_without_relation.html:4
 #: templates/activities/templatetags/button_add_meeting.html:4
@@ -457,22 +475,27 @@ msgid "Create a phone call"
 msgstr "Créer un appel téléphonique"
 
 #: templates/activities/calendar.html:200
+#: templates/activities/templatetags/button_add_task.html:4
+msgid "Create a task"
+msgstr "Créer une tâche"
+
+#: templates/activities/calendar.html:206
 msgid "See calendars of :"
 msgstr "Voir les calendriers de :"
 
-#: templates/activities/calendar.html:205
+#: templates/activities/calendar.html:211
 msgid "Hide the list of users"
 msgstr "Cacher la liste des utilisateurs"
 
-#: templates/activities/calendar.html:206
+#: templates/activities/calendar.html:212
 msgid "See the calendar of selected users"
 msgstr "Voir le calendrier des utilisateurs séléctionnés"
 
-#: templates/activities/calendar.html:225
+#: templates/activities/calendar.html:231
 msgid "Calendar of :"
 msgstr "Calendrier de :"
 
-#: templates/activities/calendar.html:227
+#: templates/activities/calendar.html:233
 msgid "Loading..."
 msgstr "Chargement..."
 
