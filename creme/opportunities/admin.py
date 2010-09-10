@@ -7,7 +7,7 @@ from opportunities.models import *
 
 class OpportunityAdmin(admin.ModelAdmin):
     list_display = ('name', 'reference', 'estimated_sales', 'made_sales',
-                    'sales_phase', 'chance_to_win', 'expiration_date', 'origin')
+                    'sales_phase', 'chance_to_win', 'closing_date', 'origin')
 
 
 register = admin.site.register
