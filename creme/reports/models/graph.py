@@ -19,6 +19,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from django.db.models.fields import BooleanField
 from datetime import timedelta
 
 from django.db.models import Min, Max
@@ -56,6 +57,7 @@ class ReportGraph(CremeEntity):
     ordinate = CharField(_(u'Ordinate axis'), max_length=100)
     type     = PositiveIntegerField(_(u'Type'))
     days     = PositiveIntegerField(_(u'Days'), blank=True, null=True)
+    is_count = BooleanField(_(u'Make a count instead of aggregate ?'))
 
     class Meta:
         app_label = 'reports'
@@ -84,6 +86,7 @@ class ReportGraph(CremeEntity):
         type          = self.type
         abscissa      = self.abscissa
         ordinate      = self.ordinate
+        is_count      = self.is_count
         ordinate_col, sep, aggregate = ordinate.rpartition('__')
         aggregate_field = field_aggregation_registry.get(aggregate)
         aggregate_func  = aggregate_field.func
@@ -102,13 +105,13 @@ class ReportGraph(CremeEntity):
         x, y = [], []
 
         if type == RGT_DAY:
-            x, y = _get_dates_values(entities, abscissa, ordinate, ordinate_col, aggregate_func, entities_filter, 'day', q_func=lambda date: Q(**{'%s__year' % abscissa: date.year}) & Q(**{'%s__month' % abscissa: date.month})  & Q(**{'%s__day' % abscissa: date.day}), date_format="%d/%m/%Y", order=order)
+            x, y = _get_dates_values(entities, abscissa, ordinate, ordinate_col, aggregate_func, entities_filter, 'day', q_func=lambda date: Q(**{'%s__year' % abscissa: date.year}) & Q(**{'%s__month' % abscissa: date.month})  & Q(**{'%s__day' % abscissa: date.day}), date_format="%d/%m/%Y", order=order, is_count=is_count)
 
         elif type == RGT_MONTH:
-            x, y = _get_dates_values(entities, abscissa, ordinate, ordinate_col, aggregate_func, entities_filter, 'month', q_func=lambda date: Q(**{'%s__year' % abscissa: date.year}) & Q(**{'%s__month' % abscissa: date.month}), date_format="%m/%Y", order=order)
+            x, y = _get_dates_values(entities, abscissa, ordinate, ordinate_col, aggregate_func, entities_filter, 'month', q_func=lambda date: Q(**{'%s__year' % abscissa: date.year}) & Q(**{'%s__month' % abscissa: date.month}), date_format="%m/%Y", order=order, is_count=is_count)
 
         elif type == RGT_YEAR:
-            x, y = _get_dates_values(entities, abscissa, ordinate, ordinate_col, aggregate_func, entities_filter, 'year', q_func=lambda date: Q(**{'%s__year' % abscissa: date.year}), date_format="%Y", order=order)
+            x, y = _get_dates_values(entities, abscissa, ordinate, ordinate_col, aggregate_func, entities_filter, 'year', q_func=lambda date: Q(**{'%s__year' % abscissa: date.year}), date_format="%Y", order=order, is_count=is_count)
 
         elif type == RGT_RANGE:
             min_date = entities.aggregate(min_date=Min(abscissa)).get('min_date')
@@ -119,14 +122,24 @@ class ReportGraph(CremeEntity):
                     begin = min_date
                     end   = min_date + days
                     x.append("%s-%s" % (begin.strftime("%d/%m/%Y"), end.strftime("%d/%m/%Y")))
-                    y.append(entities_filter(Q(**{'%s__range' % abscissa: (begin, end)})).aggregate(aggregate_col).get(ordinate))
+                    
+                    sub_entities = entities_filter(Q(**{'%s__range' % abscissa: (begin, end)}))
+                    if is_count:
+                        y.append(sub_entities.count())
+                    else:
+                        y.append(sub_entities.aggregate(aggregate_col).get(ordinate))
                     min_date = end
             else:
                 while(max_date >= min_date):
                     begin = max_date
                     end   = max_date - days
                     x.append("%s-%s" % (begin.strftime("%d/%m/%Y"), end.strftime("%d/%m/%Y")))
-                    y.append(entities_filter(Q(**{'%s__range' % abscissa: (end, begin)})).aggregate(aggregate_col).get(ordinate))
+
+                    sub_entities = entities_filter(Q(**{'%s__range' % abscissa: (end, begin)}))
+                    if is_count:
+                        y.append(sub_entities.count())
+                    else:
+                        y.append(sub_entities.aggregate(aggregate_col).get(ordinate))
                     max_date = end
                 
         elif type == RGT_FK:
@@ -139,7 +152,11 @@ class ReportGraph(CremeEntity):
 
             for fk_id in fk_ids:
                 x.append(fks.get(fk_id, ''))
-                y.append(entities_filter(Q(**{'%s' % abscissa: fk_id})).aggregate(aggregate_col).get(ordinate))
+                sub_entities = entities_filter(Q(**{'%s' % abscissa: fk_id}))
+                if is_count:
+                    y.append(sub_entities.count())
+                else:
+                    y.append(sub_entities.aggregate(aggregate_col).get(ordinate))
 
         for i, item in enumerate(y):
             if item is None:
@@ -148,12 +165,15 @@ class ReportGraph(CremeEntity):
         return (x, y)
 
 
-def _get_dates_values(entities, abscissa, ordinate, ordinate_col, aggregate_func, qfilter, range, q_func=None, date_format=None, order='ASC'):
+def _get_dates_values(entities, abscissa, ordinate, ordinate_col, aggregate_func, qfilter, range, q_func=None, date_format=None, order='ASC', is_count=False):
     distinct_dates = entities.dates(abscissa, range, order)
     x, y = [], []
     for date in distinct_dates:
         sub_entities = qfilter(q_func(date))
         x.append(date.strftime(date_format))
-        y.append(sub_entities.aggregate(aggregate_func(ordinate_col)).get(ordinate))
+        if is_count:
+            y.append(sub_entities.count())
+        else:
+            y.append(sub_entities.aggregate(aggregate_func(ordinate_col)).get(ordinate))
 
     return x, y

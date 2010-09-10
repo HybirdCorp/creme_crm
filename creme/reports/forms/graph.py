@@ -108,7 +108,7 @@ class ReportGraphAddForm(CremeEntityForm):
 
     def save(self):
         get_data = self.cleaned_data.get
-
+        
         graph =  self.instance# or ReportGraph()
         graph.user     = get_data('user')
         graph.name     = get_data('name')
@@ -116,6 +116,7 @@ class ReportGraphAddForm(CremeEntityForm):
         graph.abscissa = get_data('abscissa_fields')
         graph.ordinate = '%s__%s' % (get_data('aggregates_fields'), get_data('aggregates'))
         graph.type     = get_data('abscissa_group_by')
+        graph.is_count = get_data('is_count')
         graph.days     = get_data('days')
         graph.save()
 
