@@ -152,6 +152,10 @@ END:VEVENT
 class Meeting(Activity):
     place = CharField(_(u'Meeting place'), max_length=100, blank=True, null=True)
 
+    def __init__(self, *args, **kwargs):
+        super(Meeting, self).__init__(*args, **kwargs)
+        self.type_id = ACTIVITYTYPE_MEETING
+
     class Meta:
         app_label = 'activities'
         verbose_name = _('Meeting')
@@ -177,7 +181,8 @@ class Task(Activity):
 
     def __init__ (self, *args , **kwargs):
         super(Task, self).__init__(*args, **kwargs)
-        self.type = ActivityType.objects.get(id=ACTIVITYTYPE_TASK)
+        #self.type = ActivityType.objects.get(id=ACTIVITYTYPE_TASK)
+        self.type_id = ACTIVITYTYPE_TASK
 
     class Meta:
         app_label = 'activities'
@@ -200,6 +205,10 @@ class PhoneCallType(CremeModel):
 
 class PhoneCall(Activity):
     call_type = ForeignKey(PhoneCallType, verbose_name=_(u"Phonecall type"), blank=True, null=True)
+
+    def __init__(self, *args, **kwargs):
+        super(PhoneCall, self).__init__(*args, **kwargs)
+        self.type_id = ACTIVITYTYPE_PHONECALL
 
     class Meta:
         app_label = 'activities'

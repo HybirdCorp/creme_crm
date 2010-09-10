@@ -33,7 +33,7 @@ from activities.models import Activity
 from activities.forms import (MeetingEditForm, PhoneCallEditForm, IndisponibilityCreateForm, ActivityEditForm,
                               MeetingCreateForm, PhoneCallCreateForm,
                               MeetingCreateWithoutRelationForm, PhoneCallCreateWithoutRelationForm, 
-                              TaskCreateForm)
+                              TaskCreateForm, TaskCreateWithoutRelationForm)
 from activities.utils import get_ical
 
 __activity_ct = ContentType.objects.get_for_model(Activity)
@@ -79,23 +79,24 @@ def add(request, type):
     change_page_for_last_viewed(request) #TODO: works ???
 
     class_form = None
-    extra_initial = None
+    extra_initial = None #TODO: useless now
 
+    #TODO: improve this ugly part
     if type == "meeting":
         class_form = MeetingCreateForm
     elif type == "task":
-        class_form = TaskCreateForm        
+        class_form = TaskCreateForm
     elif type == "phonecall":
-        class_form    = PhoneCallCreateForm
-        extra_initial = {'call_type' : 2,} #TODO: use a constant.....
+        class_form = PhoneCallCreateForm
     elif type == "meeting-without-relation":
         class_form = MeetingCreateWithoutRelationForm
     elif type == "phonecall-without-relation":
-        class_form    = PhoneCallCreateWithoutRelationForm
-        extra_initial = {'call_type' : 2,} #TODO: use a constant.....
-        
+        class_form = PhoneCallCreateWithoutRelationForm
+    elif type == "task-without-relation":
+        class_form = TaskCreateWithoutRelationForm
+
     if class_form is None:
-        raise Http404('No activity type matches with: %s', type)
+        raise Http404('No activity type matches with: %s' % type)
 
     return _add_activity(request, class_form, extra_initial)
 
@@ -169,10 +170,9 @@ def listview(request):
                      extra_dict={'extra_bt_templates':
                                     ('activities/frags/ical_list_view_button.html',
                                      'activities/frags/button_add_meeting_without_relation.html',
-                                     'activities/frags/button_add_phonecall_without_relation.html')
+                                     'activities/frags/button_add_phonecall_without_relation.html') #TODO: add Task too ??
                                 }
                     )
-
 
 @login_required
 @get_view_or_die('activities')

@@ -18,46 +18,34 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.utils.translation import ugettext
-from django.forms import TimeField, ModelChoiceField
+from django.utils.translation import ugettext as _
+from django.forms import TimeField
 from django.forms.widgets import HiddenInput
 
-from activities.models import ActivityType, Task
-from activities.constants import ACTIVITYTYPE_TASK
+from activities.models import Task
 from activity import ActivityCreateForm, ActivityEditForm, ActivityCreateWithoutRelationForm
 
 
 class TaskCreateForm(ActivityCreateForm):
+    end_time = TimeField(widget=HiddenInput(), required=False)
+
     class Meta(ActivityCreateForm.Meta):
         model = Task
-
-    end_time = TimeField(widget=HiddenInput(), required=False)
-    type     = ModelChoiceField(empty_label=None, queryset=ActivityType.objects.filter(pk=ACTIVITYTYPE_TASK)) #beurk
+        exclude = ActivityCreateForm.Meta.exclude + ('type',)
 
     def __init__(self, *args, **kwargs):
         super(TaskCreateForm, self).__init__(*args, **kwargs)
-        self.fields['type'].initial = ActivityType.objects.get(pk=ACTIVITYTYPE_TASK) #beurk
-        self.fields['my_participation'].label = ugettext(u'Do I participate to this task')
-
-    def save(self):
-        self.cleaned_data['type'] = ActivityType.objects.get(pk=ACTIVITYTYPE_TASK) #beurk
-        super(TaskCreateForm, self).save()
+        self.fields['my_participation'].label = _(u'Do I participate to this task')
 
 
 class TaskCreateWithoutRelationForm(ActivityCreateWithoutRelationForm):
     class Meta(ActivityCreateWithoutRelationForm.Meta):
         model = Task
-
-    type = ModelChoiceField(empty_label=None, queryset=ActivityType.objects.filter(pk=ACTIVITYTYPE_TASK))
+        exclude = ActivityCreateWithoutRelationForm.Meta.exclude + ('type',)
 
     def __init__(self, *args, **kwargs):
         super(TaskCreateWithoutRelationForm, self).__init__(*args, **kwargs)
-        self.fields['type'].initial = ActivityType.objects.get(pk=ACTIVITYTYPE_TASK)
-        self.fields['my_participation'].label = ugettext(u'Do I participate to this task')
-
-    def save(self):
-        self.cleaned_data['type'] = ActivityType.objects.get(pk=ACTIVITYTYPE_TASK)
-        super(MeetingCreateWithoutRelationForm, self).save()
+        self.fields['my_participation'].label = _(u'Do I participate to this task')
 
 
 class TaskEditForm(ActivityEditForm):

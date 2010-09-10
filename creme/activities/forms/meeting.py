@@ -18,43 +18,21 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.forms.models import ModelChoiceField
 
-from activities.models import ActivityType, Meeting
-from activities.constants import ACTIVITYTYPE_MEETING
+from activities.models import Meeting
 from activity import ActivityCreateForm, ActivityEditForm, ActivityCreateWithoutRelationForm
 
 
 class MeetingCreateForm(ActivityCreateForm):
     class Meta:
         model = Meeting
-        exclude = ActivityCreateForm.Meta.exclude
-
-    type = ModelChoiceField(empty_label=None, queryset=ActivityType.objects.filter(pk=ACTIVITYTYPE_MEETING)) #TODO: exclude....
-
-    def __init__(self, *args, **kwargs):
-        super(MeetingCreateForm, self).__init__(*args, **kwargs)
-        self.fields['type'].initial = ActivityType.objects.get(pk=ACTIVITYTYPE_MEETING)
-
-    def save(self):
-        self.cleaned_data['type'] = ActivityType.objects.get(pk=ACTIVITYTYPE_MEETING)
-        super(MeetingCreateForm, self).save()
+        exclude = ActivityCreateForm.Meta.exclude + ('type',)
 
 
 class MeetingCreateWithoutRelationForm(ActivityCreateWithoutRelationForm):
     class Meta:
         model = Meeting
-        exclude = ActivityCreateWithoutRelationForm.Meta.exclude
-
-    type = ModelChoiceField(empty_label=None, queryset=ActivityType.objects.filter(pk=ACTIVITYTYPE_MEETING))
-
-    def __init__(self, *args, **kwargs):
-        super(MeetingCreateWithoutRelationForm, self).__init__(*args, **kwargs)
-        self.fields['type'].initial = ActivityType.objects.get(pk=ACTIVITYTYPE_MEETING)
-
-    def save(self):
-        self.cleaned_data['type'] = ActivityType.objects.get(pk=ACTIVITYTYPE_MEETING) #TODO: self.instance.type_id = ACTIVITYTYPE_MEETING instead
-        super(MeetingCreateWithoutRelationForm, self).save()
+        exclude = ActivityCreateWithoutRelationForm.Meta.exclude + ('type',)
 
 
 class MeetingEditForm(ActivityEditForm):
