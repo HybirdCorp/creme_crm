@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-09-09 17:11+0200\n"
+"POT-Creation-Date: 2010-09-10 10:51+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -191,53 +191,57 @@ msgstr "Date de début"
 msgid "End date"
 msgstr "Date de fin"
 
-#: models/graph.py:44
+#: models/graph.py:45
 msgid "By days"
 msgstr "Par jours"
 
-#: models/graph.py:45
+#: models/graph.py:46
 msgid "By months"
 msgstr "Par mois"
 
-#: models/graph.py:46
+#: models/graph.py:47
 msgid "By years"
 msgstr "Par années"
 
-#: models/graph.py:47
+#: models/graph.py:48
 msgid "By X days"
 msgstr "Par X jours"
 
-#: models/graph.py:48
+#: models/graph.py:49
 msgid "By values"
 msgstr "Par valeurs"
 
-#: models/graph.py:53
+#: models/graph.py:54
 msgid "Name of the graph"
 msgstr "Nom du graphique"
 
-#: models/graph.py:55
+#: models/graph.py:56
 msgid "Abscissa axis"
 msgstr "Axe des abscisses"
 
-#: models/graph.py:56
+#: models/graph.py:57
 msgid "Ordinate axis"
 msgstr "Axe des ordonnées"
 
-#: models/graph.py:57
+#: models/graph.py:58
 #: templates/reports/templatetags/block_report_fields.html:29
 #: templates/reports/templatetags/block_report_graphs.html:35
 msgid "Type"
 msgstr "Type"
 
-#: models/graph.py:58
+#: models/graph.py:59
 msgid "Days"
 msgstr "Jours"
 
-#: models/graph.py:62
+#: models/graph.py:60
+msgid "Make a count instead of aggregate ?"
+msgstr "Effectuer un comptage à la place des valeurs calculées ?"
+
+#: models/graph.py:64
 msgid "Report's graph"
 msgstr "Graphe de rapport"
 
-#: models/graph.py:63
+#: models/graph.py:65
 msgid "Reports' graphs"
 msgstr "Graphes de rapport"
 
@@ -486,6 +490,10 @@ msgstr "Aucun graphique enregistré pour le moment"
 #, python-format
 msgid "(inherited de %(report)s)"
 msgstr "(hérité de %(report)s)"
+
+#: templatetags/graph_tags.py:37
+msgid "Count"
+msgstr "Comptage"
 
 #: templatetags/report_tags.py:31
 msgid "Regular field"

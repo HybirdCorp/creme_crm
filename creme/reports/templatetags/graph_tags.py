@@ -19,9 +19,11 @@
 ################################################################################
 
 from django.template import Library
+from django.utils.translation import ugettext_lazy as _
 
 from reports.report_aggregation_registry import field_aggregation_registry
 from creme_core.utils.meta import get_verbose_field_name
+
 
 register = Library()
 
@@ -31,7 +33,11 @@ def get_verbose_abscissa(report_graph, graph_abscissa):
 
 @register.filter(name="verbose_ordinate")
 def get_verbose_ordinate(report_graph, graph_ordinate):
+    if report_graph.is_count:
+        return _(u"Count")
+
     ordinate, sep, aggregate = graph_ordinate.rpartition('__')
+
     verbose_field_name = get_verbose_field_name(report_graph.report.ct.model_class(), ordinate)
     field_aggregate = field_aggregation_registry.get(aggregate)
     field_aggregate = field_aggregate.title if field_aggregate else u''
