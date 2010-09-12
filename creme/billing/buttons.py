@@ -32,8 +32,6 @@ class GenerateInvoiceNumberyButton(Button):
         from billing.models import Invoice
         return (Invoice,)
     def ok_4_display(self, entity):
-        print 'dans le bouton invoice'
-        print bool (entity.number)
         return not bool (entity.number)
 
 
