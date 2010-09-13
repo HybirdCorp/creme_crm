@@ -24,17 +24,17 @@ from django.template import RequestContext
 from django.contrib.auth.decorators import login_required
 from django.contrib.contenttypes.models import ContentType
 
+from creme_core.models import RelationType
 from creme_core.views.generic import (view_real_entity_with_template, #view_real_entity,
                                       add_entity, inner_popup, list_view)
 from creme_core.entities_access.functions_for_permissions import get_view_or_die, edit_object_or_die, add_view_or_die, edit_view_or_die
-from creme_core.gui.last_viewed import change_page_for_last_viewed
+from creme_core.utils import get_ct_or_404
+#from creme_core.gui.last_viewed import change_page_for_last_viewed
 
 from activities.models import Activity
-from activities.forms import (MeetingEditForm, PhoneCallEditForm, IndisponibilityCreateForm, ActivityEditForm,
-                              MeetingCreateForm, PhoneCallCreateForm,
-                              MeetingCreateWithoutRelationForm, PhoneCallCreateWithoutRelationForm, 
-                              TaskCreateForm, TaskCreateWithoutRelationForm)
+from activities.forms import*
 from activities.utils import get_ical
+from activities.constants import ACTIVITYTYPE_INDISPO
 
 __activity_ct = ContentType.objects.get_for_model(Activity)
 
@@ -45,60 +45,59 @@ __activity_ct = ContentType.objects.get_for_model(Activity)
 def add_indisponibility(request):
     return add_entity(request, IndisponibilityCreateForm, '/activities/calendar/user')
 
-def _add_activity(request, class_form, extra_initial=None):
-    GET_get = request.GET.get
-    POST    = request.POST
-
-    initial_dict = {
-                    'id_entity_for_relation': GET_get('id_entity_for_relation'),
-                    'ct_entity_for_relation': GET_get('ct_entity_for_relation'),
-                    'entity_relation_type':   GET_get('entity_relation_type'),
-                    'user':                   request.user.id,
-                   }
-    if extra_initial:
-        initial_dict.update(extra_initial)
+def _add_activity(request, class_form, **form_args):
+    POST = request.POST
 
     if POST:
-        activity_form = class_form(POST, initial=initial_dict)
+        activity_form = class_form(data=POST, **form_args)
+
         if activity_form.is_valid():
             activity_form.save()
-            activity_form.save_participants() #TODO: move in activity_form.save() ??
 
             return  HttpResponseRedirect('/activities/calendar/my')
     else:
-        activity_form = class_form(initial=initial_dict)
+        activity_form = class_form(**form_args)
 
     return render_to_response('creme_core/generics/blockform/add.html',
-                              { 'form': activity_form},
+                              {'form': activity_form},
                               context_instance=RequestContext(request))
+
+_forms_map = {
+        "meeting":   (MeetingCreateForm,   MeetingCreateWithoutRelationForm),
+        "task":      (TaskCreateForm,      TaskCreateWithoutRelationForm),
+        "phonecall": (PhoneCallCreateForm, PhoneCallCreateWithoutRelationForm),
+    }
 
 @login_required
 @add_view_or_die(__activity_ct, None, 'activities')
 @get_view_or_die('activities')
-def add(request, type):
-    change_page_for_last_viewed(request) #TODO: works ???
+def add_with_relation(request, act_type):
+    #change_page_for_last_viewed(request) #TODO: works ???
 
-    class_form = None
-    extra_initial = None #TODO: useless now
+    GET = request.GET
+    model_class   = get_ct_or_404(GET['ct_entity_for_relation']).model_class()
+    entity        = get_object_or_404(model_class, pk=GET['id_entity_for_relation'])
+    relation_type = get_object_or_404(RelationType, pk=GET['entity_relation_type'])
 
-    #TODO: improve this ugly part
-    if type == "meeting":
-        class_form = MeetingCreateForm
-    elif type == "task":
-        class_form = TaskCreateForm
-    elif type == "phonecall":
-        class_form = PhoneCallCreateForm
-    elif type == "meeting-without-relation":
-        class_form = MeetingCreateWithoutRelationForm
-    elif type == "phonecall-without-relation":
-        class_form = PhoneCallCreateWithoutRelationForm
-    elif type == "task-without-relation":
-        class_form = TaskCreateWithoutRelationForm
+    #TODO: credentials ??
 
-    if class_form is None:
-        raise Http404('No activity type matches with: %s' % type)
+    form_class = _forms_map.get(act_type)
 
-    return _add_activity(request, class_form, extra_initial)
+    if not form_class:
+        raise Http404('No activity type matches with: %s' % act_type)
+
+    return _add_activity(request, form_class[0], entity_for_relation=entity, relation_type=relation_type)
+
+@login_required
+@add_view_or_die(__activity_ct, None, 'activities')
+@get_view_or_die('activities')
+def add_without_relation(request, act_type):
+    form_class = _forms_map.get(act_type)
+
+    if not form_class:
+        raise Http404('No activity type matches with: %s' % act_type)
+
+    return _add_activity(request, form_class[1])
 
 @login_required
 @get_view_or_die('activities')
@@ -113,18 +112,11 @@ def edit(request, activity_id):
     if die_status:
         return die_status
 
-    #TODO: improve this ugly part
-    if activity.type.name == "Rendez-vous":
-        form_class = MeetingEditForm
-    elif activity.type.name == "Telephone":
-        form_class = PhoneCallEditForm
-    elif activity.type.name == "Indisponible":
-        form_class = IndisponibilityCreateForm
-    else:
-        form_class = ActivityEditForm
+    form_class = ActivityEditForm if activity.type_id != ACTIVITYTYPE_INDISPO else IndisponibilityCreateForm
 
     if request.POST:
         form = form_class(request.POST, instance=activity)
+
         if form.is_valid():
             form.save()
             return HttpResponseRedirect('/activities/activity/%s' % activity_id)
