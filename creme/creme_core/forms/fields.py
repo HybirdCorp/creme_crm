@@ -290,7 +290,7 @@ class AjaxChoiceField(ChoiceField):
         """
         Validates that the input is in self.choices.
         """
-        value = super(ChoiceField, self).clean(value)
+#        value = super(ChoiceField, self).clean(value)
 
         if value in EMPTY_VALUES:
             value = u''
@@ -306,10 +306,10 @@ class AjaxMultipleChoiceField(MultipleChoiceField):
         """
         Validates that the input is a list or tuple.
         """
-        #TODO: factorise 'not value'
-        if self.required and not value:
+        not_value = not value
+        if self.required and not_value:
             raise ValidationError(self.error_messages['required'])
-        elif not self.required and not value:
+        elif not self.required and not_value:
             return []
 
         if not isinstance(value, (list, tuple)):
@@ -323,7 +323,7 @@ class AjaxModelChoiceField(ModelChoiceField):
         Same as ModelChoiceField but bypass the choices validation due to the ajax filling
     """
     def clean(self, value):
-        Field.clean(self, value)
+#        Field.clean(self, value)
 
         if value in EMPTY_VALUES:
             return None
