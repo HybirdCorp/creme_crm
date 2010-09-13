@@ -35,7 +35,7 @@ class MeetingCreateWithoutRelationForm(ActivityCreateWithoutRelationForm):
         exclude = ActivityCreateWithoutRelationForm.Meta.exclude + ('type',)
 
 
-class MeetingEditForm(ActivityEditForm):
-    class Meta:
-        model = Meeting
-        exclude = ActivityEditForm.Meta.exclude
+#class MeetingEditForm(ActivityEditForm):
+    #class Meta:
+        #model = Meeting
+        #exclude = ActivityEditForm.Meta.exclude

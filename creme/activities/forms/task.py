@@ -47,7 +47,6 @@ class TaskCreateWithoutRelationForm(ActivityCreateWithoutRelationForm):
         super(TaskCreateWithoutRelationForm, self).__init__(*args, **kwargs)
         self.fields['my_participation'].label = _(u'Do I participate to this task')
 
-
-class TaskEditForm(ActivityEditForm):
-    class Meta(ActivityEditForm.Meta):
-        model = Task
+#class TaskEditForm(ActivityEditForm):
+    #class Meta(ActivityEditForm.Meta):
+        #model = Task
