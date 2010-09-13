@@ -22,14 +22,15 @@ from logging import debug
 import datetime
 
 from django.forms.util import ValidationError
-from django.forms import IntegerField, CharField, BooleanField, ModelChoiceField, ModelMultipleChoiceField
-from django.forms.widgets import HiddenInput, CheckboxSelectMultiple, TextInput
+from django.forms import IntegerField, CharField, BooleanField, ModelMultipleChoiceField
+from django.forms.widgets import CheckboxSelectMultiple
 from django.utils.translation import ugettext as _, ugettext
 from django.db.models import Q
 from django.contrib.auth.models import User
 
 from creme_core.models import CremeEntity, Relation, RelationType
 from creme_core.forms import CremeForm, CremeEntityForm, RelatedEntitiesField, CremeDateTimeField, CremeTimeField
+from creme_core.forms.widgets import Label
 
 from persons.models.contact import Contact
 
@@ -94,9 +95,10 @@ def _save_participants(participants, instance):
     """
     @param participants sequence of tuple relationtype_id, entity (see RelatedEntitiesField)
     """
-    for relationtype_id, entity in participants:
-        instance.add_related_entity(entity, relationtype_id)
+    create_relation = Relation.create
 
+    for relationtype_id, entity in participants:
+        create_relation(entity, relationtype_id, instance)
 
 class ParticipantCreateForm(CremeForm):
     participants = RelatedEntitiesField(relation_types=[REL_SUB_PART_2_ACTIVITY], label=_(u'Participants'), required=False)
@@ -186,10 +188,26 @@ class _ActivityCreateBaseForm(CremeEntityForm):
         _check_activity_collisions(cleaned_data['start'], cleaned_data['end'], participants)
 
     def save(self):
-        self.instance.end = self.cleaned_data['end']
-        return super(_ActivityCreateBaseForm, self).save()
+        instance     = self.instance
+        cleaned_data = self.cleaned_data
 
-    def create_commercial_approach(self, extra_entity=None):
+        instance.end = cleaned_data['end']
+        super(_ActivityCreateBaseForm, self).save()
+
+        # Participation of event's creator
+        if cleaned_data['my_participation']:
+            try:
+                me = Contact.objects.filter(is_user=cleaned_data['user'])[0] #get() instead ???
+            except IndexError:
+                pass
+            else:
+                Relation.create(me, REL_SUB_PART_2_ACTIVITY, instance)
+
+        _save_participants(cleaned_data['participants'], instance)
+
+        return instance
+
+    def _create_commercial_approach(self, extra_entity=None):
         from datetime import datetime
         from commercial.models import CommercialApproach
 
@@ -210,60 +228,28 @@ class _ActivityCreateBaseForm(CremeEntityForm):
             comapp.related_activity_id = instance.id
             comapp.save()
 
-    def save_participants(self):
-        cleaned_data = self.cleaned_data
-        instance     = self.instance
-
-        # Participation of event's creator
-        if cleaned_data['my_participation']:
-            try:
-                me = Contact.objects.filter(is_user=cleaned_data['user'])[0] #get() instead ???
-            except IndexError:
-                pass
-            else:
-                instance.add_related_entity(me, REL_SUB_PART_2_ACTIVITY)
-
-        _save_participants(cleaned_data['participants'], instance)
-
 
 class ActivityCreateForm(_ActivityCreateBaseForm):
-    id_entity_for_relation = IntegerField(widget=HiddenInput())
-    ct_entity_for_relation = IntegerField(widget=HiddenInput())
-    entity_relation_type   = CharField(widget=HiddenInput())
+    entity_preview        = CharField(label=_(u'Who / What'), required=False, widget=Label)
+    relation_type_preview = CharField(label=_(u'Relation with the activity'), required=False, widget=Label)
 
-    entity_for_relation_preview  = CharField(label=_(u'Who / What'), required=False)
-    entity_relation_type_preview = ModelChoiceField(empty_label=None, queryset=RelationType.objects.none(),
-                                                    label=_(u"Relation with the activity"), required=False)
-
-    _entity_for_relation = None
-
-    def __init__(self, *args, **kwargs):
+    def __init__(self, entity_for_relation, relation_type, *args, **kwargs):
         super(ActivityCreateForm, self).__init__(*args, **kwargs)
 
+        self._entity_for_relation = entity_for_relation
+        self._relation_type = relation_type
+
         fields = self.fields
-        initial_get = self.initial.get
+        fields['entity_preview'].initial =  entity_for_relation
+        fields['relation_type_preview'].initial = relation_type.predicate
 
-        self._entity_for_relation = CremeEntity.get_real_entity_by_id(initial_get('id_entity_for_relation'))
+    def save(self):
+        super(ActivityCreateForm, self).save()
 
-        fields['entity_for_relation_preview'].widget.attrs.update({'disabled': 'disabled',
-                                                                   'value':    self._entity_for_relation})
+        Relation.create(self._entity_for_relation, self._relation_type.id, self.instance)
 
-        initial_relation_type = RelationType.objects.filter(pk=initial_get('entity_relation_type'))
-        rtype_preview = fields['entity_relation_type_preview']
-        rtype_preview.initial  = initial_relation_type
-        rtype_preview.queryset = initial_relation_type
-        rtype_preview.widget.attrs.update({'disabled': 'disabled'})
-
-    def save_participants(self):
-        super(ActivityCreateForm, self).save_participants()
-
-        cleaned_data = self.cleaned_data
-        instance     = self.instance
-
-        instance.add_related_entity(self._entity_for_relation, cleaned_data["entity_relation_type"])
-
-        if cleaned_data.get('is_comapp', False):
-            self.create_commercial_approach(self._entity_for_relation)
+        if self.cleaned_data.get('is_comapp', False):
+            self._create_commercial_approach(self._entity_for_relation)
 
 
 class ActivityCreateWithoutRelationForm(_ActivityCreateBaseForm):
@@ -271,12 +257,11 @@ class ActivityCreateWithoutRelationForm(_ActivityCreateBaseForm):
         super(ActivityCreateWithoutRelationForm, self).__init__(*args, **kwargs)
         self.fields['is_comapp'].help_text = ugettext(u"Add participants to them be linked to a commercial approach.")
 
-    def save_participants(self):
-        super(ActivityCreateWithoutRelationForm, self).save_participants()
-        cleaned_data = self.cleaned_data
+    def save(self):
+        super(ActivityCreateWithoutRelationForm, self).save()
 
-        if cleaned_data.get('is_comapp', False):
-            self.create_commercial_approach() #TODO: 'my_participation' not used ??!!
+        if self.cleaned_data.get('is_comapp', False):
+            self._create_commercial_approach()
 
 
 #TODO: factorise ?? (ex: CreateForm inherits from EditForm....)

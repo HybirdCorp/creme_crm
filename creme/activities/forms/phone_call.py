@@ -105,6 +105,6 @@ class PhoneCallCreateWithoutRelationForm(ActivityCreateWithoutRelationForm):
         return instance
 
 
-class PhoneCallEditForm(ActivityEditForm):
-    class Meta(ActivityEditForm.Meta):
-        model = PhoneCall
+#class PhoneCallEditForm(ActivityEditForm):
+    #class Meta(ActivityEditForm.Meta):
+        #model = PhoneCall
