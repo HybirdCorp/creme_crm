@@ -48,16 +48,16 @@ class CustomFieldsBaseForm(CremeModelForm):
         return cdata
 
     def save(self):
-        super(CustomFieldsBaseForm, self).save()
-
+        instance     = super(CustomFieldsBaseForm, self).save()
         cleaned_data = self.cleaned_data
 
         if cleaned_data['field_type'] in (CustomField.ENUM, CustomField.MULTI_ENUM):
             create_enum_value = CustomFieldEnumValue.objects.create
-            cfield = self.instance
 
             for enum_value in cleaned_data['enum_values'].splitlines():
-                create_enum_value(custom_field=cfield, value=enum_value)
+                create_enum_value(custom_field=instance, value=enum_value)
+
+        return instance
 
 
 class CustomFieldsCTAddForm(CustomFieldsBaseForm):
@@ -82,7 +82,7 @@ class CustomFieldsAddForm(CustomFieldsBaseForm):
 
     def save(self):
         self.instance.content_type = self.ct
-        super(CustomFieldsAddForm, self).save()
+        return super(CustomFieldsAddForm, self).save()
 
 
 class CustomFieldsEditForm(CremeModelForm):
@@ -105,9 +105,7 @@ class CustomFieldsEditForm(CremeModelForm):
                                               help_text=ugettext(u'Give the new possible choices (one per line).'))
 
     def save(self):
-        super(CustomFieldsEditForm, self).save()
-
-        cfield = self.instance
+        cfield = super(CustomFieldsEditForm, self).save()
 
         if cfield.field_type in (CustomField.ENUM, CustomField.MULTI_ENUM):
             cleaned_data = self.cleaned_data
@@ -122,3 +120,5 @@ class CustomFieldsEditForm(CremeModelForm):
             create_enum_value = CustomFieldEnumValue.objects.create
             for enum_value in cleaned_data['new_choices'].splitlines():
                 create_enum_value(custom_field=cfield, value=enum_value)
+
+        return cfield

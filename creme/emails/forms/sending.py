@@ -21,7 +21,7 @@
 from datetime import datetime
 from logging import debug
 from random import choice
-from pickle import dumps, HIGHEST_PROTOCOL
+from pickle import dumps
 
 from django.db import IntegrityError
 from django.forms import TypedChoiceField, IntegerField
@@ -75,12 +75,11 @@ class SendingCreateForm(CremeModelForm):
 
     def save(self):
         instance = self.instance
-        cleaned_data = self.cleaned_data
 
         instance.campaign = self.campaign
         instance.state = SENDING_STATE_PLANNED
 
-        template = cleaned_data['template']
+        template = self.cleaned_data['template']
         instance.subject   = template.subject
         instance.body      = template.body
         instance.signature = template.signature
@@ -121,3 +120,5 @@ class SendingCreateForm(CremeModelForm):
                 mail.recipient_id = None
 
             mail.genid_n_save()
+
+        return instance

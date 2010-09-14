@@ -23,21 +23,23 @@ from datetime import datetime
 from django.forms import IntegerField
 from django.forms.widgets import HiddenInput
 
-from creme_core.models import CremeEntity
 from creme_core.forms import CremeModelForm
 
 from commercial.models import CommercialApproach
 
 
 class ComAppCreateForm(CremeModelForm):
-    entity_id = IntegerField(widget=HiddenInput())
-
     class Meta:
         model = CommercialApproach
-        exclude = ['related_activity_id', 'ok_or_in_futur', 'is_validated', 'creation_date', 'entity_content_type', 'activity_related']
+        fields = ('title', 'description')
+
+    def __init__(self, entity, *args, **kwargs):
+        super(ComAppCreateForm, self).__init__(*args, **kwargs)
+        self._entity = entity
 
     def save(self):
-        self.instance.creation_date = datetime.today()
-        entity = CremeEntity.objects.get(pk=self.cleaned_data['entity_id'])
-        self.instance.entity_content_type = entity.entity_type
-        super(ComAppCreateForm, self).save()
+        instance = self.instance
+        instance.creation_date = datetime.today()
+        instance.creme_entity = self._entity
+
+        return super(ComAppCreateForm, self).save()

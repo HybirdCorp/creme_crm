@@ -44,7 +44,7 @@ class PeriodCreateForm(PeriodEditForm):
     def __init__(self, *args, **kwargs):
         self.task = kwargs['initial'].pop('related_task')
         super(PeriodCreateForm, self).__init__(*args, **kwargs)
-        self.fields['resource'].widget.q_filter = {'task__id': self.task.pk}
+        self.fields['resource'].widget.q_filter = {'task__id': self.task.pk} #TODO: to the field and not the widget
 
     def clean_resource(self):
         resource = self.cleaned_data['resource']
@@ -58,9 +58,7 @@ class PeriodCreateForm(PeriodEditForm):
         task = self.task
         self.instance.task = task
 
-        #if self.task.status.name == constants.TASK_STATUS[constants.NOT_STARTED_PK]:
         if task.status_id == constants.NOT_STARTED_PK:
-            #self.task.status = TaskStatus.objects.get(id=constants.IN_PROGRESS_PK)
             task.status_id = constants.IN_PROGRESS_PK
             task.save()
 
