@@ -10,6 +10,7 @@
 
     {% import_block from_app 'projects' named 'resources' as 'resources_block' %}
     {% import_block from_app 'projects' named 'working_periods' as 'working_periods_block' %}
+    {% import_block from_app 'projects' named 'task_extra_info' as 'task_xtra_block' %}
 {% endblock %}
 
 {% block before_detail_view_1 %}
@@ -18,32 +19,5 @@
 {% endblock %}
 
 {% block after_object_as_table_1 %}
-    <table  class="table_detail_view ui-corner-all">
-        {% get_basic_block_header _('Other information') 'infos_48.png' _('Information') %}
-        <tbody>
-            <tr>
-                <th class="block_header_line_dark">{% trans "Effective duration (in hours)" %}</th>
-                <td class="block_line_dark" align="center">{{object.get_effective_duration}} h</td>
-            </tr>
-            <tr>
-                <th class="block_header_line_dark">{% trans "Additional or remaining hours" %}</th>
-                {% with object as task %}
-                    {% include 'projects/frag_task_delay_td.html' %}
-                {% endwith %}
-            </tr>
-            <tr>
-                <th class="block_header_line_dark">{% trans "Parent task(s)" %}</th>
-                <td class="block_line_dark" align="center">
-                    {% for parent in object.get_parents %}
-                        <a href="{{parent.get_absolute_url}}">{{parent.subject}}</a>
-                        <a href="/projects/task/{{object.id}}/parent/delete/{{parent.id}}">
-                            <img src="{{MEDIA_URL}}images/delete_22.png" border="0" alt="{% trans "Delete" %}" title="{% trans "Delete" %}"/>
-                        </a>
-                    {% empty %}
-                        {% trans "This task has no parent" %}
-                    {% endfor %}
-                </td>
-            </tr>
-        </tbody>
-    </table>
+    {% display_block_detailview 'task_xtra_block' %}
 {% endblock %}

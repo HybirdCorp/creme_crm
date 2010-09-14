@@ -83,6 +83,9 @@ class ReportDatetimeFilter(object):
     def get_end(self):
         return self.func_end(self, datetime.now())
 
+    def __iter__(self):
+        return iter((self.name, self.verbose_name))
+
 class ReportDatetimeFilterRegistry(object):
     def __init__(self):
         self._filters = {}

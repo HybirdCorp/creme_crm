@@ -21,22 +21,21 @@
 import datetime
 
 from django.forms.util import ValidationError
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import ugettext_lazy as _, ugettext
 
 from creme_core.forms import CremeEntityForm, CremeDateTimeField
 
-from activities.models import Activity, ActivityType
+from activities.models import Activity
 from activities.constants import ACTIVITYTYPE_INDISPO
-from activity import ActivityCreateForm
 
 
 class IndisponibilityCreateForm(CremeEntityForm):
+    start = CremeDateTimeField(label=_(u'Start'))
+    end   = CremeDateTimeField(label=_(u'End'))
+
     class Meta(CremeEntityForm.Meta):
         model = Activity
         exclude = CremeEntityForm.Meta.exclude + ('type',)
-
-    start = CremeDateTimeField(label=_(u'Start'))
-    end   = CremeDateTimeField(label=_(u'End'))
 
     blocks = CremeEntityForm.blocks.new(
                 ('datetime', _(u'When'), ['start', 'end', 'is_all_day']),
@@ -57,10 +56,10 @@ class IndisponibilityCreateForm(CremeEntityForm):
             return cleaned_data
 
         if cleaned_data.get('start') > cleaned_data.get('end'):
-            raise ValidationError(_(u"End time is before start time"))
+            raise ValidationError(ugettext(u"End time is before start time"))
 
         return cleaned_data
 
     def save(self):
-        self.instance.type = ActivityType.objects.get(pk=ACTIVITYTYPE_INDISPO)
+        self.instance.type_id = ACTIVITYTYPE_INDISPO
         super(IndisponibilityCreateForm, self).save()

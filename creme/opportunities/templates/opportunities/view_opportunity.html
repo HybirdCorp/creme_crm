@@ -42,7 +42,7 @@
                 {% cycle "block_line_dark" "block_line_light" as row_color %}-->
 
             {% for field in object|get_meta_value:"fields" %}
-                {% if not field.name|in:object.excluded_fields_in_html_output %}
+                {% if not field.name in object.excluded_fields_in_html_output %}
                     <tr>
                         <th class="{% cycle header_color %}">{{ field.verbose_name|title }}</th>
                         <td class="{% cycle row_color %}">{{ object|get_html_field_value:field.name }}</td>

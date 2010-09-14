@@ -5,8 +5,8 @@
     {% get_block_header _('%s Related Task') _('%s Related Tasks') 'task_48.png' _('Tasks') %}
     <tbody class="collapsable">
         <tr>
-            <th colspan="11" class="block_header_line_dark" align="left">
-                <a href="/projects/project/{{object.id}}/task/add">
+            <th colspan="8" class="block_header_line_dark" align="left">
+                <a class="button_link" onclick="creme.utils.innerPopupNReload('/projects/project/{{object.id}}/task/add', {% get_block_reload_uri %});">
                     <img src="{{MEDIA_URL}}images/add_22.png" border="0" title="{% trans "New task" %}" alt="{% trans "New task" %}" />
                     {% trans "New task" %}
                 </a>
@@ -20,7 +20,7 @@
                 <th class="block_header_line_dark">{% trans "Effective duration (hours)" %}</th>
                 <th class="block_header_line_dark">{% trans "Status" %}</th>
                 <th class="block_header_line_dark">{% trans "Parent tasks" %}</th>
-                <th class="block_header_line_dark">{% trans "Supprimer" %}</th>
+                <th class="block_header_line_dark">{% trans "Delete" %}</th>
                 <th class="block_header_line_dark">{% trans "Cost" %}</th>
             </tr>
             {% for task in page.object_list %}

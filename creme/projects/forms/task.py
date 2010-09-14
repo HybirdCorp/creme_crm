@@ -53,7 +53,7 @@ class TaskEditForm(CremeEntityForm):
 
 
 class TaskCreateForm(TaskEditForm):
-    project = CremeEntityField(model=Project, required=True, widget=HiddenInput())
+    project = CremeEntityField(model=Project, required=True, widget=HiddenInput()) #TODO: pass to the __init__ ?? (test if one query is deleted)
 
     class Meta:
         model = ProjectTask

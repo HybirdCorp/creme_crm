@@ -57,11 +57,11 @@ def csv_import(request, ct_id):
             if form.is_valid():
                 form.save()
                 return render_to_response('creme_core/csv_importing_report.html',
-                                        {
+                                          {
                                             'form':     form,
                                             'back_url': request.GET['list_url'],
-                                        },
-                                        context_instance=RequestContext(request))
+                                          },
+                                          context_instance=RequestContext(request))
     else:
         form = CSVUploadForm(request, initial={'csv_step': 0})
 

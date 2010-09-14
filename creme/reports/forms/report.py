@@ -394,6 +394,7 @@ class DateReportFilterForm(CremeForm):
         self.report = report
         fields = self.fields
         fields['date_fields'].choices = [(field.name, field.verbose_name) for field in get_date_fields(report.ct.model_class())]
+#        fields['filters'].choices = [(r.name, r.verbose_name) for r in report_filters_registry.itervalues()]
         fields['filters'].choices = report_filters_registry.itervalues()
         fields['filters'].widget.attrs.update({'id': 'id_filters','start_date_id': 'id_begin_date','end_date_id': 'id_end_date'})
 

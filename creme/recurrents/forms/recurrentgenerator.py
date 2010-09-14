@@ -50,7 +50,7 @@ class RecurrentGeneratorCreateForm(RecurrentGeneratorEditForm):
     def save(self):
         instance = super(RecurrentGeneratorCreateForm, self).save()
         instance.last_generation = instance.first_generation
-        instance.save()
+        instance.save() #TODO: save only once....
 
 
 class RecurrentGeneratorWizard(FormWizard):

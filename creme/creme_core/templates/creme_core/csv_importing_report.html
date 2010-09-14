@@ -16,10 +16,8 @@
     </table>
 
     <p>
-        {% with with form|get_meta_value:'model'|get_meta_value:'verbose_name' as verbose_name %}
-        {% with form.imported_objects_count as counter %}
-            {% blocktrans count counter %}{{counter}} entity with type "{{verbose_name}}" has been sucessfully imported.{% plural %}{{counter}} entities with type "{{verbose_name}}" have been sucessfully imported.{% endblocktrans %}
-        {% endwith %}
+        {% with form|get_meta_value:'model'|get_meta_value:'verbose_name' as verbose_name %}
+            {% blocktrans count form.imported_objects_count as counter %}{{counter}} entity with type "{{verbose_name}}" has been sucessfully imported.{% plural %}{{counter}} entities with type "{{verbose_name}}" have been sucessfully imported.{% endblocktrans %}
         {% endwith %}
     </p>
 
@@ -41,7 +39,8 @@
                             </tr>
                         {% endfor %}
                     </tbody>
-                    {% if count|gt:errors.max_size %}
+                    {% comment %}{% if count|gt:errors.max_size %}{% endcomment %}
+                    {% if count > errors.max_size %}
                         <tfooter class="collapsable">
                             <tr>
                                 <td colspan="2" class="block_header_line_dark">

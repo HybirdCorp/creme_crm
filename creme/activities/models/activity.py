@@ -118,22 +118,19 @@ END:VEVENT
         """url for list_view """
         return "/activities/activities"
 
-    def add_related_entity(self, entity, predicate):
-        Relation.create(entity, predicate, self)
-
     def get_participant_relations(self):
-        return Relation.objects.filter(object_entity=self, type__id=REL_SUB_PART_2_ACTIVITY)
+        return Relation.objects.filter(object_entity=self, type=REL_SUB_PART_2_ACTIVITY)
 
     def get_subject_relations(self):
-        return Relation.objects.filter(object_entity=self, type__id=REL_SUB_ACTIVITY_SUBJECT)
+        return Relation.objects.filter(object_entity=self, type=REL_SUB_ACTIVITY_SUBJECT)
 
     def get_linkedto_relations(self):
-        return Relation.objects.filter(object_entity=self, type__id=REL_SUB_LINKED_2_ACTIVITY)
+        return Relation.objects.filter(object_entity=self, type=REL_SUB_LINKED_2_ACTIVITY)
 
     @staticmethod
     def _get_linked_aux(entity):
         types = (REL_OBJ_PART_2_ACTIVITY, REL_OBJ_ACTIVITY_SUBJECT, REL_OBJ_LINKED_2_ACTIVITY)
-        return Activity.objects.filter(relations__object_entity=entity, relations__type__id__in=types)
+        return Activity.objects.filter(relations__object_entity=entity, relations__type__in=types)
 
     @staticmethod
     def get_future_linked(entity, today):
@@ -151,6 +148,10 @@ END:VEVENT
 
 class Meeting(Activity):
     place = CharField(_(u'Meeting place'), max_length=100, blank=True, null=True)
+
+    def __init__(self, *args, **kwargs):
+        super(Meeting, self).__init__(*args, **kwargs)
+        self.type_id = ACTIVITYTYPE_MEETING
 
     class Meta:
         app_label = 'activities'
@@ -177,7 +178,7 @@ class Task(Activity):
 
     def __init__ (self, *args , **kwargs):
         super(Task, self).__init__(*args, **kwargs)
-        self.type = ActivityType.objects.get(id=ACTIVITYTYPE_TASK)
+        self.type_id = ACTIVITYTYPE_TASK
 
     class Meta:
         app_label = 'activities'
@@ -200,6 +201,10 @@ class PhoneCallType(CremeModel):
 
 class PhoneCall(Activity):
     call_type = ForeignKey(PhoneCallType, verbose_name=_(u"Phonecall type"), blank=True, null=True)
+
+    def __init__(self, *args, **kwargs):
+        super(PhoneCall, self).__init__(*args, **kwargs)
+        self.type_id = ACTIVITYTYPE_PHONECALL
 
     class Meta:
         app_label = 'activities'

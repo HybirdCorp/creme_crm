@@ -51,7 +51,7 @@
                             <tbody>
                                 <tr>
                                     <td style="width: 66%;">
-                                        {% ifequal HFI_FIELD column.type %}
+                                        {% if HFI_FIELD == column.type %}
                                             {% if column.report %}
                                                 <a onclick="creme.reports.unlink_report('{{column.pk}}', '{{update_url}}');">{% trans 'Unlink the report' %}</a>
                                             {% else %}
@@ -63,8 +63,8 @@
                                                     {% endif %}
 
                                             {% endif %}
-                                        {% endifequal %}
-                                        {% ifequal HFI_RELATION column.type %}
+                                        {% endif %}
+                                        {% if HFI_RELATION == column.type %}{% comment %}TODO use "else"{% endcomment %}
                                             {% if column.report %}
                                                 {% comment %}<a onclick="creme.reports.unlink_report('{{column.pk}}', '{{update_url}}');">{% trans 'Unlink the report' %}</a>{% endcomment %}
                                                 <a onclick="creme.reports.unlink_report('{{column.pk}}', {% get_block_reload_uri %});">
@@ -76,39 +76,39 @@
                                                     {% trans 'Link a report' %}
                                                 </a>
                                             {% endif %}
-                                        {% endifequal %}
+                                        {% endif %}
                                     </td>
                                     <td style="width: 33%;" align="center" valign="middle">
-                                        {% ifnotequal column.order 1 %}
+                                        {% if column.order != 1 %}
                                             {% comment %}<a onclick="creme.reports.changeOrder('{{object.id}}', '{{column.pk}}', 'up','{{update_url}}?base_url={{base_url}}');">{% endcomment %}
                                             <a onclick="creme.reports.changeOrder('{{object.id}}', '{{column.pk}}', 'up', {% get_block_reload_uri %});">
                                                 <img src="{{MEDIA_URL}}images/small_up_arrow_16.png" border="0" title="{% trans "Column up" %}" alt="{% trans "Column up" %}" />
                                             </a>
-                                        {% endifnotequal %}<br/>
+                                        {% endif %}<br/>
                                     <!--</td>
                                     <td style="width: 33%;">-->
-                                        {% ifnotequal column.order object.columns.count %}
+                                        {% if column.order != object.columns.count %}
                                             {% comment %}<a onclick="creme.reports.changeOrder('{{object.id}}', '{{column.pk}}', 'down','{{update_url}}?base_url={{base_url}}');">{% endcomment %}
                                             <a onclick="creme.reports.changeOrder('{{object.id}}', '{{column.pk}}', 'down', {% get_block_reload_uri %});">
                                                 <img src="{{MEDIA_URL}}images/small_down_arrow_16.png" border="0" title="{% trans "Column down" %}" alt="{% trans "Column down" %}" />
                                             </a>
-                                        {% endifnotequal %}
+                                        {% endif %}
                                     </td>
                                 </tr>
                             </tbody>
                         </table>
                     </td>
                     <td class="{% cycle "block_line_dark" "block_line_light" %}">
-                        {% ifequal HFI_FIELD column.type %}
+                        {% if HFI_FIELD == column.type %}
                             {% if column|is_field_is_linkable:object.ct and column.report %}
                                 <input type="checkbox" name="selected" onclick="creme.reports.setSelected(this, '{{object.id}}', '{{column.pk}}', '{{update_url}}?base_url={{base_url}}');" {% if column.selected %} checked {% endif %}/>
                            {% endif %}
-                        {% endifequal %}
-                        {% ifequal HFI_RELATION column.type %}
+                        {% endif %}
+                        {% if HFI_RELATION == column.type %}{% comment %}TODO: use 'else'{% endcomment %}
                             {# if column.report #}
                                 <input type="checkbox" name="selected" onclick="creme.reports.setSelected(this, '{{object.id}}', '{{column.pk}}', '{{update_url}}?base_url={{base_url}}');" {% if column.selected %} checked {% endif %}/>
                             {# endif #}
-                        {% endifequal %}
+                        {% endif %}
                     </td>
                 </tr>
             {% endfor %}
