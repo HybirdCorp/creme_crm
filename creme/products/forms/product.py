@@ -34,8 +34,7 @@ from products.models import Product, Category, SubCategory
 class ProductCreateForm(CremeEntityForm):
     category     = ModelChoiceField(queryset=Category.objects.all(), label=_(u'Category'),
                                     widget=DependentSelect(target_id='id_sub_category', target_url='/products/sub_category/load'))
-    sub_category = ModelChoiceField(queryset=SubCategory.objects.all(),
-                                    label=_(u'Sub-category'),
+    sub_category = ModelChoiceField(queryset=SubCategory.objects.all(), label=_(u'Sub-category'),
                                     widget=Select(attrs={'id': 'id_sub_category'}))
     images       = MultiCremeEntityField(label=_(u'Images'), model=Image, widget=ImageM2MWidget(), required=False)
 

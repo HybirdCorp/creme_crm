@@ -87,10 +87,10 @@ class Populator(BasePopulator):
 
         hf_id = create(HeaderFilter, 'opportunities-hf', name=_(u"Opportunity view"), entity_type_id=get_ct(Opportunity).id, is_custom=False).id
         pref  = 'opportunities-hfi_'
-        create(HeaderFilterItem, pref + 'name',    order=1, name='name',            title=_(u'Name'),            type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True, editable=True, sortable=True, filter_string="name__icontains")
-        create(HeaderFilterItem, pref + 'ref',     order=2, name='reference',       title=_(u'Reference'),      type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True, editable=True, sortable=True, filter_string="reference__icontains")
-        create(HeaderFilterItem, pref + 'phase',   order=3, name='sales_phase',     title=_(u'Sales phase'), type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True, editable=True, sortable=True, filter_string="sales_phase__name__icontains")
-        create(HeaderFilterItem, pref + 'expdate', order=4, name='closing_date', title=_(u'Closing date'),       type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True, editable=True, sortable=True, filter_string="closing_date__range")
+        create(HeaderFilterItem, pref + 'name',    order=1, name='name',         title=_(u'Name'),         type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True, editable=True, sortable=True, filter_string="name__icontains")
+        create(HeaderFilterItem, pref + 'ref',     order=2, name='reference',    title=_(u'Reference'),    type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True, editable=True, sortable=True, filter_string="reference__icontains")
+        create(HeaderFilterItem, pref + 'phase',   order=3, name='sales_phase',  title=_(u'Sales phase'),  type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True, editable=True, sortable=True, filter_string="sales_phase__name__icontains")
+        create(HeaderFilterItem, pref + 'expdate', order=4, name='closing_date', title=_(u'Closing date'), type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True, editable=True, sortable=True, filter_string="closing_date__range")
 
         create(ButtonMenuItem, 'opportunities-linked_opp_button', content_type_id=get_ct(Organisation).id, button_id=linked_opportunity_button.id_, order=30)
 

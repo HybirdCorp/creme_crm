@@ -285,7 +285,7 @@ class EditForm(CremeEntityForm):
         fields['filter'].choices = base_filter
         fields['filter'].initial = instance.ct.id
 
-    def save(self):
+    def save(self): #TODO useless
         super(EditForm, self).save()
 
 
