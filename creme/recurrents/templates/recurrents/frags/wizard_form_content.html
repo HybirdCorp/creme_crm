@@ -14,7 +14,8 @@
 {% endblock %}
 
 {% block submit_buttons %}
-    <input type="hidden" name="{{ step_field }}" value="{{ step0 }}" />
+    {% csrf_token %}
+    <input type="hidden" name="{{step_field}}" value="{{step0}}" />
     {{ previous_fields|safe }}
-    <input type="submit" value="Valider" />
+    <input type="submit" value="{% trans "Validate" %}" />
 {% endblock %}

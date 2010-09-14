@@ -35,8 +35,8 @@ class Resource(CremeEntity):
 
     class Meta:
         app_label = 'projects'
-        verbose_name = _(u'Resource')
-        verbose_name_plural = _(u'Resources')
+        verbose_name = _(u'Resource of project')
+        verbose_name_plural = _(u'Resources of project')
 
     def __unicode__(self):
         return unicode(self.linked_contact)
@@ -46,14 +46,15 @@ class Resource(CremeEntity):
 
     def get_edit_absolute_url(self):
         return "/projects/resource/edit/%s" % self.id
-    
+
 #Commented on 15 june 2010
 #    def get_delete_absolute_url(self):
 #        return "/projects/resource/delete/%s" % self.id
 
     def delete(self):
         # delete first all working period related to this resource (functionnal constraint)
-        from workingperiod import WorkingPeriod
         WorkingPeriod.objects.filter(task=self.task, resource=self).delete()
-        # then delete the resource
         super(Resource, self).delete()
+
+
+from workingperiod import WorkingPeriod

@@ -61,8 +61,8 @@ class TotalBlock(Block):
     def detailview_display(self, context):
         document = context['object']
         return self._render(self.get_block_template_context(context,
-                                                            total=document.get_total(),
-                                                            total_with_tax=document.get_total_with_tax())
+                                                            total=document.get_total(), #TODO: Why not in the template ??
+                                                            total_with_tax=document.get_total_with_tax()) #TODO: Why not in the template ??
                             )
 
 

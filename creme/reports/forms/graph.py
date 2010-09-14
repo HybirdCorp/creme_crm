@@ -31,14 +31,15 @@ from creme_core.forms.base import CremeEntityForm
 from creme_core.forms.widgets import DependentSelect
 from creme_core.forms.fields import AjaxChoiceField
 from creme_core.utils.meta import get_flds_with_fk_flds
+
 from reports.report_aggregation_registry import field_aggregation_registry
 from reports.models.graph import ReportGraph, RGT_FK, RGT_RANGE
 
 authorized_aggregate_fields = field_aggregation_registry.authorized_fields
 authorized_abscissa_types = [models.DateField, models.DateTimeField, models.ForeignKey]
 
-class ReportGraphAddForm(CremeEntityForm):
 
+class ReportGraphAddForm(CremeEntityForm):
     aggregates        = ChoiceField(label=_(u'Ordinate aggregate'), choices=[(aggregate.name, aggregate.title) for aggregate in field_aggregation_registry.itervalues()])
     aggregates_fields = ChoiceField(label=_(u'Ordinate aggregate field'), choices=())
 
@@ -83,12 +84,13 @@ class ReportGraphAddForm(CremeEntityForm):
 
         try:
             abscissa_group_by = int(get_data('abscissa_group_by'))
-        except:
+        except: #TODO: better exception
             abscissa_group_by = None
 
-        abscissa_fields   = get_data('abscissa_fields')
-        abscissa_field = None
+        abscissa_fields = get_data('abscissa_fields')
+        abscissa_field  = None
 
+        #TODO: method instead ?
         val_err = ValidationError(self.fields['abscissa_group_by'].error_messages['invalid_choice'] % {'value': abscissa_fields})
 
         try:
@@ -102,7 +104,7 @@ class ReportGraphAddForm(CremeEntityForm):
             raise val_err
 
         if abscissa_group_by == RGT_RANGE and not cleaned_data.get('days'):
-            raise  ValidationError(_(u"You have to specify a day range if you use 'by X days'"))
+            raise ValidationError(_(u"You have to specify a day range if you use 'by X days'")) #TODO: ugettext instead of ugettext_lazy
 
         return cleaned_data
 
@@ -119,4 +121,3 @@ class ReportGraphAddForm(CremeEntityForm):
         graph.is_count = get_data('is_count')
         graph.days     = get_data('days')
         graph.save()
-

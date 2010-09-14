@@ -1,42 +1,37 @@
 {% load i18n %}
 {% load creme_block %}
-
-
 <table  class="table_detail_view ui-corner-all" id={{block_name}}>
-{% block block_header %}
-<script type="text/javascript" src="{{MEDIA_URL}}js/models/persons.js"></script>
-<script type="text/javascript">
-           function createAdress_click()
-        {
-                creme.utils.innerPopupNReload('/persons/address/ip_add/{{object.id}}', {% get_block_reload_uri %});
-        }
-</script>
-
-    <thead>
-        {% get_basic_block_header _("Addresses") 'infos_48.png' _('Addresses') %}
-    </thead>
-{% endblock %}
+    {% get_basic_block_header _("Addresses") 'infos_48.png' _('Addresses') %}
     <tbody class="collapsable">
+        <!-- {% cycle "block_line_dark"  "block_line_light" as row_color_b %}
+             {% cycle "block_line_light" "block_line_dark"  as row_color_s %}-->
         <tr>
-            <th colspan="5" class="block_header_line_dark" align="left">
-                <a class="button_link" onclick="createAdress_click();">
-                    
-                    {% trans "Add an Address" %}
-                </a>
-            </th>
+            <th colspan="2" class="block_header_line_dark" >{% trans "Billing address" %}</th>
+            <th colspan="2" class="block_header_line_light">{% trans "Shipping address" %}</th>
         </tr>
-    <!--
-        {% cycle "block_header_line_dark" "block_header_line_light" as header_color %} 
-        {% cycle "block_line_dark" "block_line_light"  as row_color %}-->        
-        
-        <tr ><th colspan="2" class="block_header_line_dark" >{% trans "Billing address" %}</td><th colspan="2" class="block_header_line_light">{% trans "Shipping address" %}</td></tr>
-        <tr ><th class="{% cycle header_color %} th_info_4_columns">{% trans "Address" %}</td><td class="{% cycle row_color %} td_info_4_columns" >{{object.billing_adress.address}}</td>    <th class="{% cycle header_color %} th_info_4_columns">{% trans "Address" %} </td> <td class="{% cycle row_color %} td_info_4_columns">{{object.shipping_adress.address}}</td></tr>
-        <tr ><th class="{% cycle header_color %} th_info_4_columns">{% trans "PO box" %}</td><td class="{% cycle row_color %} td_info_4_columns">{{object.billing_adress.po_box}}</td>     <th class="{% cycle header_color %} th_info_4_columns">{% trans "PO box" %} </td> <td class="{% cycle row_color %} td_info_4_columns">{{object.shipping_adress.po_box}}</td></tr> 
-        <tr ><th class="{% cycle header_color %} th_info_4_columns">{% trans "City" %}</td><td class="{% cycle row_color %} td_info_4_columns">{{object.billing_adress.city}}</td>     <th class="{% cycle header_color %} th_info_4_columns">{% trans "City" %} </td> <td class="{% cycle row_color %} td_info_4_columns">{{object.shipping_adress.city}}</td></tr>  
-        <tr ><th class="{% cycle header_color %} th_info_4_columns">{% trans "State" %}</td><td class="{% cycle row_color %} td_info_4_columns">{{object.billing_adress.state}}</td>     <th class="{% cycle header_color %} th_info_4_columns">{% trans "State" %} </td> <td class="{% cycle row_color %} td_info_4_columns">{{object.shipping_adress.state}}</td></tr>
-        <tr ><th class="{% cycle header_color %} th_info_4_columns">{% trans "Zip code" %}</td><td class="{% cycle row_color %} td_info_4_columns">{{object.billing_adress.zipcode}}</td>     <th class="{% cycle header_color %} th_info_4_columns">{% trans "Zip code" %} </td> <td class="{% cycle row_color %} td_info_4_columns" >{{object.shipping_adress.zipcode}}</td></tr>
-        <tr ><th class="{% cycle header_color %} th_info_4_columns">{% trans "Country" %}</td><td class="{% cycle row_color %} td_info_4_columns">{{object.billing_adress.country}}</td>     <th class="{% cycle header_color %} th_info_4_columns">{% trans "Country" %} </td> <td class="{% cycle row_color %} td_info_4_columns">{{object.shipping_adress.country}}</td></tr>
-        
+        <tr>
+            <th class="block_header_line_dark  th_info_4_columns">{% trans "Address" %}</th><td class="{% cycle row_color_b %} td_info_4_columns" >{{object.billing_adress.address}}</td>
+            <th class="block_header_line_light th_info_4_columns">{% trans "Address" %}</th><td class="{% cycle row_color_s %} td_info_4_columns">{{object.shipping_adress.address}}</td>
+        </tr>
+        <tr>
+            <th class="block_header_line_dark  th_info_4_columns">{% trans "PO box" %}</th><td class="{% cycle row_color_b %} td_info_4_columns">{{object.billing_adress.po_box}}</td>
+            <th class="block_header_line_light th_info_4_columns">{% trans "PO box" %}</th><td class="{% cycle row_color_s %} td_info_4_columns">{{object.shipping_adress.po_box}}</td>
+        </tr>
+        <tr>
+            <th class="block_header_line_dark  th_info_4_columns">{% trans "City" %}</th><td class="{% cycle row_color_b %} td_info_4_columns">{{object.billing_adress.city}}</td>
+            <th class="block_header_line_light th_info_4_columns">{% trans "City" %}</th><td class="{% cycle row_color_s %} td_info_4_columns">{{object.shipping_adress.city}}</td>
+        </tr>
+        <tr>
+            <th class="block_header_line_dark  th_info_4_columns">{% trans "State" %}</th><td class="{% cycle row_color_b %} td_info_4_columns">{{object.billing_adress.state}}</td>
+            <th class="block_header_line_light th_info_4_columns">{% trans "State" %}</th><td class="{% cycle row_color_s %} td_info_4_columns">{{object.shipping_adress.state}}</td>
+        </tr>
+        <tr>
+            <th class="block_header_line_dark  th_info_4_columns">{% trans "Zip code" %}</th><td class="{% cycle row_color_b %} td_info_4_columns">{{object.billing_adress.zipcode}}</td>
+            <th class="block_header_line_light th_info_4_columns">{% trans "Zip code" %}</th><td class="{% cycle row_color_s %} td_info_4_columns" >{{object.shipping_adress.zipcode}}</td>
+        </tr>
+        <tr>
+            <th class="block_header_line_dark  th_info_4_columns">{% trans "Country" %}</th><td class="{% cycle row_color_b %} td_info_4_columns">{{object.billing_adress.country}}</td>
+            <th class="block_header_line_light th_info_4_columns">{% trans "Country" %}</th><td class="{% cycle row_color_s %} td_info_4_columns">{{object.shipping_adress.country}}</td>
+        </tr>
     </tbody>
 </table>
-

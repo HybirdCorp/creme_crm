@@ -470,7 +470,7 @@
         });
 
         {% if edit_dict %}
-            {% ifequal mode 'edit' %}
+            {% if mode == 'edit' %}
                 {% for acondition in edit_dict.condition %}
                     addLine('{{acondition.champ}}','{{acondition.test}}','{{acondition.value}}', '{{edit_dict.is_or_for_all}}');
                     $('#id_champs_'+$('#line_count').val()).change();
@@ -487,7 +487,7 @@
                 {% for property in properties_conditions %}
                     addPropertyLine('{{property.property_id.0}}', {{property.has_property}} ,'{{edit_dict.is_or_for_all}}');
                 {% endfor %}
-            {% endifequal %}
+            {% endif %}
         {% endif %}
     });
 </script>
@@ -499,7 +499,7 @@
             <td width="5%"><img src="{{MEDIA_URL}}images/filter_64.png" title="{% trans "Filter" %}" alt="{% trans "Filter" %}"/></td>
             <td width="95%">
                 <h1>
-                    {% trans "Filter" %} : {% ifequal mode 'edit' %} {% trans "edition" %} {% else %} {% trans "creation" %} {% endifequal %}
+                    {% trans "Filter" %} : {% if mode == 'edit' %} {% trans "edition" %} {% else %} {% trans "creation" %} {% endif %}
                 </h1>
             </td>
         </tr>
