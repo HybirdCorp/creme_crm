@@ -10,9 +10,9 @@
     <!--{% cycle "block_line_light" "block_line_dark" as row_color %}-->
     <div>
         <form action="" method="POST">{% csrf_token %}
-            Voir uniquement les rôles :&nbsp;
+            {% trans "See only the roles :" %}&nbsp;
             <select name="roles" onchange="this.form.submit();">
-                <option value="">Tout</option>
+                <option value="">{% trans "All" %}</option>
                 {% for role in roles %}
                     <option value="{{role.id}}" {% if role == role_post %}selected{% endif %} >{{role}}</option>
                 {% endfor %}
@@ -24,7 +24,7 @@
             <thead>
                 <tr>
                     <th colspan="100">
-                        {{profiles|length}} Profil{{profiles|pluralize:"s"}}
+                        {% blocktrans count profiles|length as counter %}{{counter}} Profile{% plural %}{{counter}} Profiles{% endblocktrans %}
                     </th>
                 </tr>
             </thead>
