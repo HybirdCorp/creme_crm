@@ -506,7 +506,7 @@
     </table>
 
     <div id="editforms">
-        <form id="filterform" action="" method="POST" {% if form.is_multipart %}enctype="multipart/form-data"{% endif %}>
+        <form id="filterform" action="" method="POST" {% if form.is_multipart %}enctype="multipart/form-data"{% endif %}>{% csrf_token %}
             <p>{% trans "Name of the filter" %}  : {{form.nom}}</p>
 
             <table width="100%">
