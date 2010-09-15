@@ -28,11 +28,14 @@ from creme_core.forms import CremeEntityForm
 from sms.encoding import gsm_encoded_content, SMS_MAX_LENGTH
 from sms.models import MessageTemplate
 
-_HELP = _(u"Message with a maximum of 160 characters."
-" Beware, the header matters (+ 3 characters) et the following characters count double: ^ { } \\ [ ~ ] | €")
+
+_FORBIDEN = u"^ { } \\ [ ~ ] | €" #TODO: given by the backend ??
+_HELP = _(u"""Message with a maximum of 160 characters.
+ Beware, the header matters (+ 3 characters) and the following characters count double: %s""") % _FORBIDEN
+
 
 class TemplateCreateForm(CremeEntityForm):
-    body   = CharField(label=_(u'Message'), widget=Textarea(), help_text=_HELP)
+    body = CharField(label=_(u'Message'), widget=Textarea(), help_text=_HELP)
 
     class Meta(CremeEntityForm.Meta):
         model = MessageTemplate
