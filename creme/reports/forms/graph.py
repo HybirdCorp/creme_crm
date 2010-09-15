@@ -98,6 +98,7 @@ class ReportGraphAddForm(CremeEntityForm):
         except FieldDoesNotExist:
             raise val_err
 
+        #TODO: factorise abscissa_group_by == RGT_FK ?
         if isinstance(abscissa_field, ForeignKey) and abscissa_group_by != RGT_FK:
             raise val_err
         if isinstance(abscissa_field, (DateField, DateTimeField)) and abscissa_group_by == RGT_FK:

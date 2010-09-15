@@ -18,9 +18,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.http import HttpResponseRedirect
 from django.template import RequestContext
-from django.shortcuts import render_to_response, get_object_or_404
+from django.shortcuts import get_object_or_404
 from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required
 
@@ -44,12 +43,12 @@ def add(request, entity_id):
         return die_status
 
     if request.POST:
-        comapp_form = ComAppCreateForm(request.POST)
+        comapp_form = ComAppCreateForm(entity, request.POST)
 
         if comapp_form.is_valid():
             comapp_form.save()
     else:
-        comapp_form = ComAppCreateForm(initial={'entity_id': entity_id})
+        comapp_form = ComAppCreateForm(entity)
 
     return inner_popup(request, 'creme_core/generics/blockform/add_popup2.html',
                        {

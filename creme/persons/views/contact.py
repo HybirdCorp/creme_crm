@@ -30,14 +30,14 @@ from creme_core.gui.last_viewed import change_page_for_last_item_viewed
 from creme_core.entities_access.functions_for_permissions import add_view_or_die, get_view_or_die, read_object_or_die
 
 from persons.models import Contact, Organisation
-from persons.forms.contact import ContactWithRelationForm, ContactCreateForm
+from persons.forms.contact import ContactWithRelationForm, ContactForm
 
 
 @login_required
 @get_view_or_die('persons')
 @add_view_or_die(ContentType.objects.get_for_model(Contact), None, 'persons')
 def add(request):
-    return add_entity(request, ContactCreateForm, template="persons/add_contact_form.html")
+    return add_entity(request, ContactForm, template="persons/add_contact_form.html")
 
 @login_required
 @get_view_or_die('persons')
@@ -62,7 +62,7 @@ def add_with_relation(request, orga_id, predicate_id=None):
                       'persons/add_contact_form.html', extra_initial=initial)
 
 def edit(request, contact_id):
-    return edit_entity(request, contact_id, Contact, ContactCreateForm, 'persons', template='persons/edit_contact_form.html')
+    return edit_entity(request, contact_id, Contact, ContactForm, 'persons', template='persons/edit_contact_form.html')
 
 @login_required
 @get_view_or_die('persons')

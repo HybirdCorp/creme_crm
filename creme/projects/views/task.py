@@ -43,13 +43,13 @@ def add(request, project_id):
     if die_status:
         return die_status
 
-    if request.POST :
-        task_form = TaskCreateForm(request.POST, initial={'project': project_id})
+    if request.POST:
+        task_form = TaskCreateForm(project, request.POST)
 
         if task_form.is_valid():
             task_form.save()
     else:
-        task_form = TaskCreateForm(initial={'project': project_id})
+        task_form = TaskCreateForm(project)
 
     return inner_popup(request, 'creme_core/generics/blockform/add_popup2.html',
                        {

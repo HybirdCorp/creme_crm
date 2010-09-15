@@ -18,54 +18,54 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.forms import ModelChoiceField, IntegerField
+from django.forms import ChoiceField, IntegerField
 from django.utils.translation import ugettext_lazy as _, ugettext
 from django.contrib.contenttypes.models import ContentType
 from django.forms.widgets import HiddenInput
 
 from billing.forms.base import BaseEditForm
-from billing.models import TemplateBase, InvoiceStatus
+from billing.models import TemplateBase
 
-#TODO: factorise these 2 forms...
 
-class TemplateBaseEditForm(BaseEditForm):
-    status = ModelChoiceField(label=_(u'Status'), queryset=InvoiceStatus.objects.none())
+class _TemplateBaseForm(BaseEditForm):
+    status = ChoiceField(label=_(u'Status'), choices=())
 
     class Meta:
         model = TemplateBase
         exclude = BaseEditForm.Meta.exclude + ('number', 'ct', 'status_id')
 
+    def _build_status_field(self, billing_ct):
+        meta = billing_ct.model_class()._meta
+        status_field = self.fields['status']
+
+        status_field.label    = ugettext(u'Status of %s') % meta.verbose_name
+        status_field.choices = [(status.id, unicode(status)) for status in meta.get_field('status').rel.to.objects.all()]
+
+        return status_field
+
+    def save(self):
+        self.instance.status_id = self.cleaned_data['status']
+        return super(_TemplateBaseForm, self).save()
+
+
+class TemplateBaseEditForm(_TemplateBaseForm):
     def __init__(self, *args, **kwargs):
         super(TemplateBaseEditForm, self).__init__(*args, **kwargs)
 
-        # Edit status
-        #TODO: factorise "self.fields['status']"
-        ct = self.instance.ct #TODO: factorise 'ct.model_class()'
-        self.fields['status'].label = ugettext(u'Status of %s') % ct.model_class()._meta.verbose_name
-        status_class = ct.model_class()._meta.get_field('status').rel.to
-        self.fields['status'].queryset = status_class.objects.all()
-        self.fields['status'].initial = status_class.objects.get(pk=self.instance.status_id).id #WTF ?!!!
+        instance = self.instance
+
+        status_field = self._build_status_field(instance.ct)
+        status_field.initial = instance.status_id
 
 
-class TemplateBaseCreateForm(BaseEditForm):
-    status = ModelChoiceField(label=_(u'Status'), queryset=InvoiceStatus.objects.none())
-    ct     = IntegerField(widget=HiddenInput())
-
-    class Meta:
-        model = TemplateBase
-        exclude = BaseEditForm.Meta.exclude + ('number', 'status_id', 'ct')
+class TemplateBaseCreateForm(_TemplateBaseForm):
+    ct = IntegerField(widget=HiddenInput())
 
     def __init__(self, *args, **kwargs):
         super(TemplateBaseCreateForm, self).__init__(*args, **kwargs)
-        if kwargs['initial']:
-            ct = ContentType.objects.get(pk=kwargs['initial']['ct']) #TODO: use get_for_id()
-            self.fields['status'].label = ugettext(u'Status of %s') % ct.model_class()._meta.verbose_name
-            status_class = ct.model_class()._meta.get_field('status').rel.to
-            self.fields['status'].queryset = status_class.objects.all()
+        self._build_status_field(ContentType.objects.get_for_id(kwargs['initial']['ct']))
 
     def save(self):
-        cleaned = self.cleaned_data
-        self.instance.ct = ContentType.objects.get(pk = cleaned['ct'])
-        self.instance.status_id = cleaned['status'].id
-        super(TemplateBaseCreateForm, self).save()
+        self.instance.ct = ContentType.objects.get_for_id(self.cleaned_data['ct'])
 
+        return super(TemplateBaseCreateForm, self).save()

@@ -19,29 +19,32 @@
 ################################################################################
 
 from logging import debug
+
 from django.utils.translation import ugettext as _
 from django.http import HttpResponse, HttpResponseRedirect
 from django.core import serializers
-from django.contrib.contenttypes.models import ContentType
-from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404
 from django.template import RequestContext
+from django.contrib.contenttypes.models import ContentType
+from django.contrib.auth.decorators import login_required
 
-from creme_core.entities_access.functions_for_permissions import (add_view_or_die, 
+from creme_core.models import CremeEntity
+from creme_core.entities_access.functions_for_permissions import (add_view_or_die,
                                                     edit_view_or_die, edit_object_or_die, delete_object_or_die)
 from creme_core.views.generic import add_entity, inner_popup
-from creme_core.models import CremeEntity
 
-
-from persons.models import Address
+from persons.models import Address, Organisation
 from persons.forms.address import AddressWithEntityForm
-from persons.models.organisation import Organisation
 
+__ct_address = ContentType.objects.get_for_model(Address)
 
 @login_required
-@add_view_or_die(ContentType.objects.get_for_model(Address), app_name="all_creme_apps")
+@add_view_or_die(__ct_address, app_name="all_creme_apps")
 def add(request):
     req_get = request.GET.get
+    orga    = get_object_or_404(Organisation, pk=req_get('organisation_id'))
+
+    #TODO: credentials ?
 
     if req_get('popup') == "true":
         template = "creme_core/generics/blockform/add_popup.html"
@@ -54,11 +57,12 @@ def add(request):
                       AddressWithEntityForm,
                       callback_url,
                       template,
-                      extra_initial={'organisation_id': req_get('organisation_id')})
+                      #extra_initial={'organisation_id': req_get('organisation_id')})
+                      extra_initial={'entity': orga})
 
 
 @login_required
-@edit_view_or_die(ContentType.objects.get_for_model(Address), app_name="all_creme_apps")
+@edit_view_or_die(__ct_address, app_name="all_creme_apps")
 def edit(request, address_id):
     address = get_object_or_404(Address, pk=address_id)
     entity = address.owner
@@ -67,13 +71,15 @@ def edit(request, address_id):
     if die_status:
         return die_status
 
+    initial = {'entity': entity}
+
     if request.POST:
-        edit_form = AddressWithEntityForm( request.POST,  initial={'entity_id': entity.id}, instance=address)
+        edit_form = AddressWithEntityForm( request.POST,  initial=initial, instance=address)
 
         if edit_form.is_valid():
             edit_form.save()
-    else: # return page on GET request
-        edit_form = AddressWithEntityForm(initial={'entity_id': entity.id}, instance=address)
+    else:
+        edit_form = AddressWithEntityForm(initial=initial, instance=address)
 
     return inner_popup(request, 'creme_core/generics/blockform/edit_popup.html',
                        {
@@ -86,14 +92,16 @@ def edit(request, address_id):
                        context_instance=RequestContext(request))
 
 @login_required
-@edit_view_or_die(ContentType.objects.get_for_model(Address), app_name="all_creme_apps")
+@edit_view_or_die(__ct_address, app_name="all_creme_apps")
 def delete(request, pk_key='id'):
     address = get_object_or_404(Address, pk=request.POST.get(pk_key))
-    address.delete()
-    
+
+    #TODO: edit on related entity instead ??
     die_status = delete_object_or_die(request, address)
     if die_status:
         return die_status
+
+    address.delete()
 
     if request.is_ajax():
         return HttpResponse("", mimetype="text/javascript")
@@ -102,18 +110,20 @@ def delete(request, pk_key='id'):
 
 
 @login_required
-@add_view_or_die(ContentType.objects.get_for_model(Address), app_name="all_creme_apps")
+@add_view_or_die(__ct_address, app_name="all_creme_apps")
 def ipopup_add_adress(request, entity_id):
-    entity = get_object_or_404(CremeEntity, pk=entity_id)
+    entity = get_object_or_404(CremeEntity, pk=entity_id) #TODO: credentials ??
     POST = request.POST
-    
+
+    initial = {'entity': entity}
+
     if POST:
-        add_address_form = AddressWithEntityForm(POST, initial={'entity_id': entity.id})
+        add_address_form = AddressWithEntityForm(POST, initial=initial)
 
         if add_address_form.is_valid():
             add_address_form.save()
     else:
-        add_address_form = AddressWithEntityForm(initial={'entity_id': entity.id})
+        add_address_form = AddressWithEntityForm(initial=initial)
 
     return inner_popup(request, 'creme_core/generics/blockform/add_popup2.html',
                        {
@@ -125,11 +135,11 @@ def ipopup_add_adress(request, entity_id):
                        delegate_reload=True,
                        context_instance=RequestContext(request))
 
-
+#TODO: credentials ??
 @login_required
 def get_org_addresses(request):
-    POST_get = request.POST.get
+    POST_get = request.POST.get #TODO: '[]' to raise exception instead ??
     verbose_field = POST_get('verbose_field', '')
-    addresses = Address.objects.filter(content_type__id=POST_get('ct_id'), object_id=POST_get('entity_id'))
+    addresses = Address.objects.filter(content_type=POST_get('ct_id'), object_id=POST_get('entity_id'))
 
     return HttpResponse(serializers.serialize('json', addresses, fields=(verbose_field)), mimetype="text/javascript")
