@@ -32,16 +32,33 @@
 
 creme.graphael = {};
 
-creme.graphael._init = function(selector)
+creme.graphael._init = function(selector, options)
 {
+    options = $.extend({
+        ratio: 0.5
+    }, options)
+
+    var ratio = options.ratio;
+
     var nodes = $(selector);
     for(var i=-1, l=nodes.length; ++i < l;)
     {
         var node = nodes[i];
         var $node = $(node);
-        
+
         var n_width  = $node.width();
-        var n_height = n_width * 0.5;
+
+        if(ratio > 1)
+        {
+            var n_height = n_width / ratio;
+        }
+        else
+        {
+            var n_height = n_width * ratio;
+        }
+        
+//        var n_width  = $node.width();
+//        var n_height = n_width * 0.5;
 
         var r = Raphael(node, n_width, n_height);
         $node.data('graphael', r);
@@ -49,7 +66,7 @@ creme.graphael._init = function(selector)
     return nodes;
 };
 
-creme.graphael.init = function(selector)
+creme.graphael.init = function(selector, options)
 {
     var initial_nodes = $(selector);
     var nodes = initial_nodes.not('.initialized');
@@ -59,7 +76,7 @@ creme.graphael.init = function(selector)
         var node = nodes[i];
         var $node = $(node);
         //Not really optimized because _init takes a selector and not a node
-        creme.graphael._init(node);
+        creme.graphael._init(node, options);
         $node.addClass('initialized');
     }
     return initial_nodes;
@@ -105,7 +122,13 @@ creme.graphael.simple_barchart = function(options)
 
         graphael.g.txtattr.font = "12px 'Fontin Sans', Fontin-Sans, sans-serif";
 
-        var barchart = graphael.g.barchart(lpad, hpad/2, graphael_width-lpad, graphael_height-hpad, [y], {vgutter:40, gutter:"40%"});
+        if(x.length==0 || y.length==0)
+        {
+            gtext(graphael_width/2, graphael_height/2, "No data");//TODO: i18n
+            return;
+        }
+
+        var barchart = graphael.g.barchart(lpad, hpad/2, graphael_width-lpad, graphael_height-hpad, [y], {vgutter:40, gutter:"50%"});
                         //.hover(function(e){creme.graphael.barchart.fin(graphael, this)}, creme.graphael.barchart.fout);//add this to activate the hover
 
         var colors = [];
@@ -117,7 +140,7 @@ creme.graphael.simple_barchart = function(options)
             graphael.g.popup(this.x, this.y + creme.graphael.paddings.I_PAD, this.value || "0").toFront();//remove this to activate the hover
         });
 
-        var lbl_ordinate = gtext(barchart.getBBox().x/2+lpad, graphael_height/2, options.ordinate_lbl || "").rotate(270);
+        var lbl_ordinate = gtext(barchart.getBBox().x/2+2*lpad, graphael_height/2, options.ordinate_lbl || "").rotate(270);
         var lbl_abscissa = gtext(graphael_width/2, graphael_height - ipad, options.abscissa_lbl || "");
 
         var show_legend = false ? (options.show_legend == undefined || options.show_legend == false) : true;
@@ -208,6 +231,12 @@ creme.graphael.simple_pie = function(options)
         var graphael_width = graphael.width;
         var graphael_height = graphael.height;
         var gtext = graphael.g.text;
+
+        if(x.length==0 || y.length==0)
+        {
+            gtext(graphael_width/2, graphael_height/2, "No data");//TODO: i18n
+            return;
+        }
 
         graphael.g.txtattr.font = "12px 'Fontin Sans', Fontin-Sans, sans-serif";
 

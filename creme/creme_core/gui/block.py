@@ -29,8 +29,8 @@ from django.http import HttpResponse
 from django.utils.translation import ugettext_lazy as _
 from django.utils.simplejson import JSONEncoder
 
-from creme_core.models import CremeEntity, Relation, RelationType, RelationBlockItem
-
+from creme_core.models import (CremeEntity, Relation, RelationType,
+                               RelationBlockItem, InstanceBlockConfigItem)
 
 def list4url(list_):
     """Special url list-to-string function"""
@@ -412,8 +412,24 @@ class _BlockRegistry(object):
         block = self._blocks.get(block_id)
 
         if block is None:
-            warning('Block seems deprecated: %s', block_id)
-            block = Block()
+            if InstanceBlockConfigItem.id_is_specific(block_id):
+                try:
+                    ibi = InstanceBlockConfigItem.objects.get(block_id=block_id)
+                except InstanceBlockConfigItem.DoesNotExist:
+                    return Block()
+                path, klass = InstanceBlockConfigItem.get_import_path(block_id)
+
+                try:
+                    block_import = __import__(path, globals(), locals(), [klass], -1)
+                except ImportError:
+                    return Block()
+
+                block_class = getattr(block_import, klass)
+                block = block_class(block_id, ibi)
+
+            else:
+                warning('Block seems deprecated: %s', block_id)
+                block = Block()
 
         return block
 
@@ -424,22 +440,39 @@ class _BlockRegistry(object):
         return self._blocks.iteritems()
 
     def get_blocks(self, block_ids):
-        """Blocks type can be SpecificRelationsBlock: in this case,they are not really
+        """Blocks type can be SpecificRelationsBlock/InstanceBlockConfigItem: in this case,they are not really
         registered, but created on the fly"""
         specific_ids = filter(SpecificRelationsBlock.id_is_specific, block_ids)
+        instance_ids = filter(InstanceBlockConfigItem.id_is_specific, block_ids)
 
         if specific_ids:
             relation_blocks_items = dict((rbi.block_id, rbi) for rbi in RelationBlockItem.objects.filter(block_id__in=specific_ids))
         else:
             relation_blocks_items = {}
 
+        if instance_ids:
+            instance_blocks_items = dict((ibi.block_id, ibi) for ibi in InstanceBlockConfigItem.objects.filter(block_id__in=instance_ids))
+        else:
+            instance_blocks_items = {}
+
         blocks = []
 
         for id_ in block_ids:
             rbi = relation_blocks_items.get(id_)
+            ibi = instance_blocks_items.get(id_)
 
             if rbi:
                 blocks.append(SpecificRelationsBlock(rbi.block_id, rbi.relation_type_id))
+            elif ibi:
+                path, klass = InstanceBlockConfigItem.get_import_path(id_)
+
+                try:
+                    block_import = __import__(path, globals(), locals(), [klass], -1)
+                except ImportError:
+                    continue
+
+                block_class = getattr(block_import, klass)
+                blocks.append(block_class(id_, ibi))
             else:
                 blocks.append(self.get_block(id_))
 

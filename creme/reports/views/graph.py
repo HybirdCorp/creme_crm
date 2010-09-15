@@ -18,9 +18,9 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+
 from django.db.models.fields import (FieldDoesNotExist, DateField, DateTimeField)
 from django.db.models.fields.related import ForeignKey
-
 from django.contrib.auth.decorators import login_required
 from django.contrib.contenttypes.models import ContentType
 from django.shortcuts import get_object_or_404
@@ -31,10 +31,14 @@ from creme_core.entities_access.functions_for_permissions import add_view_or_die
 from creme_core.views.generic.popup import inner_popup
 from creme_core.views.generic.detailview import view_entity_with_template
 from creme_core.utils import jsonify, get_ct_or_404
+from creme_core.models.entity import CremeEntity
+from creme_core.models.block import InstanceBlockConfigItem
+from creme.creme_core.utils import jsonify
 
 from reports.models.report import Report, report_prefix_url, report_template_dir
 from reports.models.graph import (ReportGraph, verbose_report_graph_types,
-                                  RGT_FK, RGT_RANGE, RGT_YEAR, RGT_MONTH, RGT_DAY)
+                                  RGT_FK, RGT_RANGE, RGT_YEAR, RGT_MONTH, RGT_DAY,
+                                  fetch_graph_from_instance_block)
 from reports.forms.graph import ReportGraphAddForm
 
 
@@ -131,3 +135,12 @@ def fetch_graph(request, graph_id, order):
     x, y = graph.fetch(order=order)
 
     return {'x': x, 'y': y, 'graph_id': graph_id}
+
+@jsonify
+def fetch_graph_from_instanceblock(request, instance_block_id, entity_id, order):
+    instance_block = get_object_or_404(InstanceBlockConfigItem, pk=instance_block_id)
+    entity = get_object_or_404(CremeEntity, pk=entity_id).get_real_entity()
+    
+    x, y = fetch_graph_from_instance_block(instance_block, entity, order=order)
+
+    return {'x': x, 'y': y}
