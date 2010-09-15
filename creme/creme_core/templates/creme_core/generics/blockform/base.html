@@ -18,7 +18,7 @@
 <p>{% trans "Fields marked with * are required."%} </p>
 
 <div id="editforms">
-    <form action="" method="POST" {% if form.is_multipart %}enctype="multipart/form-data"{% endif %}>
+    <form action="" method="POST" {% if form.is_multipart %}enctype="multipart/form-data"{% endif %}>{% csrf_token %}
         {% for hidden in form.hidden_fields %}
             {% if hidden.errors %}
                 <p>{{hidden.label}}&nbsp;:&nbsp;{{hidden.errors}}{{hidden}}</p>

@@ -98,6 +98,7 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.middleware.doc.XViewMiddleware',
+    'django.middleware.csrf.CsrfViewMiddleware',
 
     #'creme.creme_core.middleware.sql_logger.SQLLogToConsoleMiddleware',
     #'creme.creme_core.middleware.module_logger.LogImportedModulesMiddleware',

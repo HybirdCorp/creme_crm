@@ -21,8 +21,8 @@ def edit(request, ticket_id):
 
 @login_required
 @get_view_or_die('tickets')
-def detailview(request, object_id):
-    return view_entity_with_template(request, object_id, Ticket,
+def detailview(request, ticket_id):
+    return view_entity_with_template(request, ticket_id, Ticket,
                                      '/tickets/ticket',
                                      'tickets/view_ticket.html')
 

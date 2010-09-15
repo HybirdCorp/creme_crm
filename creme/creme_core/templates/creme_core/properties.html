@@ -1,5 +1,5 @@
 <p>
-    <form action="/creme_core/property/add/" method="POST">
+    <form action="/creme_core/property/add/" method="POST">{% csrf_token %}
         <input type="hidden" value="{{entity.pk}}" name="entity"/>
         <input type="hidden" value="{{callback_url}}" name="callback_url"/>
         <select name="property">

@@ -8,8 +8,8 @@
 
 {% block before_statistics %}
     <!--{% cycle "block_line_light" "block_line_dark" as row_color %}-->
-    <form action="" method="POST">
-        <div>
+    <div>
+        <form action="" method="POST">{% csrf_token %}
             Voir uniquement les rôles :&nbsp;
             <select name="roles" onchange="this.form.submit();">
                 <option value="">Tout</option>
@@ -17,68 +17,68 @@
                     <option value="{{role.id}}" {% if role == role_post %}selected{% endif %} >{{role}}</option>
                 {% endfor %}
             </select>
-        </div>
-        <div id="profiles_list" class="configuration">
-            <table class="table_detail_view ui-corner-all">
-                <thead>
+        </form>
+    </div>
+    <div id="profiles_list" class="configuration">
+        <table class="table_detail_view ui-corner-all">
+            <thead>
+                <tr>
+                    <th colspan="100">
+                        {{profiles|length}} Profil{{profiles|pluralize:"s"}}
+                    </th>
+                </tr>
+            </thead>
+            <tbody class="collapsable">
+                <tr>
+                    <th class="block_header_line_light" style="font-size:14px;" align="left" colspan="6">
+                        <a class="button_link" href="/creme_config/profile/add/">
+                            <img src="{{MEDIA_URL}}images/add_22.png" border="0" alt="{% trans "New profile" %}"/>
+                            {% trans "New profile" %}
+                        </a>
+                    </th>
+                </tr>
+                {% if profiles %}
                     <tr>
-                        <th colspan="100">
-                            {{profiles|length}} Profil{{profiles|pluralize:"s"}}
-                        </th>
+                        <th class="block_header_line_light">{% trans "User" %}</th>
+                        <th class="block_header_line_light">{% trans "Role" %}</th>
+                        <th class="block_header_line_light">{% trans "Contact page of the user" %}</th>
+                        <th class="block_header_line_light">{% trans "Edit" %}</th>
+                        <th class="block_header_line_light">{% trans "Delete" %}</th>
                     </tr>
-                </thead>
-                <tbody class="collapsable">
-                    <tr>
-                        <th class="block_header_line_light" style="font-size:14px;" align="left" colspan="6">
-                            <a class="button_link" href="/creme_config/profile/add/">
-                                <img src="{{MEDIA_URL}}images/add_22.png" border="0" alt="{% trans "New profile" %}"/>
-                                {% trans "New profile" %}
-                            </a>
-                        </th>
-                    </tr>
-                    {% if profiles %}
+                    {% for profile in profiles %}
+                        <!--{% cycle row_color %}-->
                         <tr>
-                            <th class="block_header_line_light">{% trans "User" %}</th>
-                            <th class="block_header_line_light">{% trans "Role" %}</th>
-                            <th class="block_header_line_light">{% trans "Contact page of the user" %}</th>
-                            <th class="block_header_line_light">{% trans "Edit" %}</th>
-                            <th class="block_header_line_light">{% trans "Delete" %}</th>
-                        </tr>
-                        {% for profile in profiles %}
-                            <!--{% cycle row_color %}-->
-                            <tr>
-                                <td class="{{row_color}}">
-                                    {{profile.user}}
-                                </td>
-                                <td class="{{row_color}}">
-                                    <a href="{{profile.creme_role.get_absolute_url}}">{{profile.creme_role}}</a>
-                                </td>
-                                <td class="{{row_color}}">
-                                    {% with profile.user.id as id_c %}
-                                        {% with contacts|get_value:id_c as contact %}
-                                            <a href="{{contact.get_absolute_url}}">{{contact}}</a>
-                                        {% endwith %}
+                            <td class="{{row_color}}">
+                                {{profile.user}}
+                            </td>
+                            <td class="{{row_color}}">
+                                <a href="{{profile.creme_role.get_absolute_url}}">{{profile.creme_role}}</a>
+                            </td>
+                            <td class="{{row_color}}">
+                                {% with profile.user.id as id_c %}
+                                    {% with contacts|get_value:id_c as contact %}
+                                        <a href="{{contact.get_absolute_url}}">{{contact}}</a>
                                     {% endwith %}
-                                </td>
-                                <td class="{{row_color}}">
-                                    <a href="/creme_config/profile/edit/{{profile.id}}">
-                                        <img src="{{MEDIA_URL}}images/edit_22.png" border="0" title="{% trans "Edit" %}" alt="{% trans "Edit" %}">
-                                    </a>
-                                </td>
-                                <td class="{{row_color}}">
-                                    <a href="/creme_config/profile/delete/{{profile.id}}">
-                                        <img src="{{MEDIA_URL}}images/delete_22.png" border="0" title="{% trans "Delete" %}" alt="{% trans "Delete" %}">
-                                    </a>
-                                </td>
-                            </tr>
-                        {% endfor %}
-                    {% else %}
-                        <tr>
-                            <td class="block_line_dark">{% trans "No profile for the moment" %}</td>
+                                {% endwith %}
+                            </td>
+                            <td class="{{row_color}}">
+                                <a href="/creme_config/profile/edit/{{profile.id}}">
+                                    <img src="{{MEDIA_URL}}images/edit_22.png" border="0" title="{% trans "Edit" %}" alt="{% trans "Edit" %}">
+                                </a>
+                            </td>
+                            <td class="{{row_color}}">
+                                <a href="/creme_config/profile/delete/{{profile.id}}">
+                                    <img src="{{MEDIA_URL}}images/delete_22.png" border="0" title="{% trans "Delete" %}" alt="{% trans "Delete" %}">
+                                </a>
+                            </td>
                         </tr>
-                    {% endif %}
-                </tbody>
-            </table>
-        </div>
-    </form>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td class="block_line_dark">{% trans "No profile for the moment" %}</td>
+                    </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
 {% endblock %}

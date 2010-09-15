@@ -343,8 +343,8 @@ creme.utils.loadBlock = function(url) {
 }
 
 if(typeof(creme.utils.stackedPopups)=="undefined") creme.utils.stackedPopups = [];//Avoid the re-declaration in case of reload of creme_utils.js
-creme.utils.showInnerPopup = function(url, options, div_id){
-    
+
+creme.utils.showInnerPopup = function(url, options, div_id) {
 //    console.log("creme.utils.showInnerPopup("+url+","+options+","+div_id+")");
 
     var $div = $('#'+div_id);
@@ -371,14 +371,13 @@ creme.utils.showInnerPopup = function(url, options, div_id){
             
             creme.utils.showDialog(data,
                                    jQuery.extend({
-                                       buttons: {"Fermer":function() {
+                                       buttons: {"Fermer": function() {
                                                                         //$(this).dialog('close');
                                                                         creme.utils.closeDialog($(this), false);
                                                             }
                                                  },
                                        close: function(event, ui) {
-                                           if(options != undefined && options.beforeClose != undefined && $.isFunction(options.beforeClose))
-                                           {
+                                           if(options != undefined && options.beforeClose != undefined && $.isFunction(options.beforeClose)) {
                                               options.beforeClose(event, ui, $(this));
                                            }
                                            creme.utils.closeDialog($(this), false);
@@ -387,8 +386,7 @@ creme.utils.showInnerPopup = function(url, options, div_id){
                                             var $me = $(event.target);
                                             var $form = $('[name=inner_body]', $me).find('form');
                                             
-                                            if($form.size() > 0 && (typeof(options)=="undefined"||typeof(options['send_button'])=="undefined"||options['send_button']==true))
-                                            {
+                                            if($form.size() > 0 && (typeof(options)=="undefined"||typeof(options['send_button'])=="undefined"||options['send_button']==true)) {
                                                 var buttons = $me.dialog('option', 'buttons');
                                                 buttons['Envoyer'] = function(){creme.utils.handleDialogSubmit($me);}
                                                 $form.live('submit',function(){creme.utils.handleDialogSubmit($me);});
@@ -446,8 +444,7 @@ creme.utils.showInnerPopup = function(url, options, div_id){
     return div_id;
 }
 
-creme.utils.handleDialogSubmit = function(dialog){
-    
+creme.utils.handleDialogSubmit = function(dialog) {
     var div_id = dialog.attr('id');
     var $form = $('[name=inner_body]', dialog).find('form');
 
@@ -468,13 +465,11 @@ creme.utils.handleDialogSubmit = function(dialog){
           beforeSend : function(request){
               creme.utils.loading('loading', false, {});
           },
-          success: function(data, status)
-          {
+          success: function(data, status) {
               data += '<input type="hidden" name="whoami" value="'+div_id+'"/>'
               $('[name=inner_body]','#'+div_id).html(data);
           },
-          error: function(request, status, error)
-          {
+          error: function(request, status, error) {
                 creme.utils.showDialog("<p><b>Erreur !</b></p><p>La page va être rechargée!</p>",{'title':'Erreur'});
                 creme.utils.sleep("reload(window)");
           },
@@ -485,20 +480,18 @@ creme.utils.handleDialogSubmit = function(dialog){
     return false;
 }
 
-creme.utils.iframe_inner_popup = function(url){
+creme.utils.iframeInnerPopup = function(url) {
     creme.utils.showInnerPopup(url,
                                {
-                                   'send_button': function($dialog){
-                                        creme.ajax.iframe_submit
-                                        (
+                                   'send_button': function($dialog) {
+                                        creme.ajax.iframeSubmit(
                                             $('[name=inner_body]', $dialog).find('form'),
                                             function(data) {
                                                 var div_id = $dialog.attr('id');
                                                 data += '<input type="hidden" name="whoami" value="'+div_id+'"/>';
                                                 $('[name=inner_body]','#'+div_id).html(data);
-                                                
-                                                if($('[name=is_valid]','#'+div_id).val().toLowerCase() === "true")
-                                                {
+
+                                                if($('[name=is_valid]','#'+div_id).val().toLowerCase() === "true") {
                                                     creme.utils.closeDialog($('#'+div_id),true);
                                                 }
                                             },
@@ -509,7 +502,7 @@ creme.utils.iframe_inner_popup = function(url){
 
 }
 
-creme.utils.closeDialog = function(dial, reload, beforeReloadCb, callback_url){
+creme.utils.closeDialog = function(dial, reload, beforeReloadCb, callback_url) {
 //    console.log("creme.utils.closeDialog("+dial+");");
 //    console.log($(dial));
 //    console.log("creme.utils.closeDialog=>creme.utils.stackedPopups : "+creme.utils.stackedPopups);
@@ -518,26 +511,22 @@ creme.utils.closeDialog = function(dial, reload, beforeReloadCb, callback_url){
     $(dial).remove();
     creme.utils.stackedPopups.pop();//Remove dial from opened dialog array
 //    console.log("creme.utils.stackedPopups post pop:"+creme.utils.stackedPopups);
-    if(beforeReloadCb != undefined && $.isFunction(beforeReloadCb))
-    {
+    if(beforeReloadCb != undefined && $.isFunction(beforeReloadCb)) {
         beforeReloadCb();
     }
     // add by Jonathan 20/05/2010 in order to have a different callback url for inner popup if needs
-    if(callback_url != undefined)
-    {
+    if(callback_url != undefined) {
         document.location = callback_url
-    }
-    else
-    {
+    } else {
         if(reload) creme.utils.reloadDialog(creme.utils.stackedPopups[creme.utils.stackedPopups.length-1] || window);//Get the dial's parent dialog or window
     }
 //    console.log("Etat de la stack apres le reload:"+creme.utils.stackedPopups);
 }
 
-creme.utils.reloadDialog = function(dial){
+creme.utils.reloadDialog = function(dial) {
 //    console.log("creme.utils.reloadDialog("+dial+")");
     //if(dial==window) return;//reload(window);
-    if(dial==window){
+    if(dial==window) {
         reload(window);
         return;
     }
@@ -569,32 +558,30 @@ creme.utils.sleep = function(fn, time){
 }
 
 creme.utils.appendInUrl = function(url, strToAppend){
-
     var index_get = url.indexOf('?');
     var get = "", anchor = "";
-    if(index_get > -1)
-    {
+
+    if(index_get > -1) {
         get = url.substring(index_get, url.length);
         url = url.substring(0, index_get);
     }
     var index_anchor = url.indexOf('#');
-    if(index_anchor > -1)
-    {
+    if(index_anchor > -1) {
         anchor = url.substring(index_anchor, url.length);
         url = url.substring(0, index_anchor);
     }
-    if(strToAppend.indexOf('?') > -1){
-        url += strToAppend+get.replace('?','&')+anchor;
-    }
-    else if(strToAppend.indexOf('&') > -1){
-        url += get+strToAppend+anchor;
-    }
-    else url += strToAppend+get+anchor;
+
+    //TODO: factorise '+ anchor' ??
+    if(strToAppend.indexOf('?') > -1) {
+        url += strToAppend+get.replace('?','&') + anchor;
+    } else if(strToAppend.indexOf('&') > -1) {
+        url += get + strToAppend + anchor;
+    } else url += strToAppend + get + anchor;
+
     return url;
 }
 
-creme.utils.ajaxDelete = function(url, _data, ajax_params, msg)
-{
+creme.utils.ajaxDelete = function(url, _data, ajax_params, msg) {
     creme.utils.showDialog(msg || "Êtes-vous sûr ?",
     {
         buttons: {
@@ -609,12 +596,9 @@ creme.utils.ajaxDelete = function(url, _data, ajax_params, msg)
                             creme.utils.showDialog("Suppression effectuée");
                         },
                         error : function(req, status, error){
-                            if(!req.responseText || req.responseText == "")
-                            {
+                            if(!req.responseText || req.responseText == "") {
                                 creme.utils.showDialog("Erreur");
-                            }
-                            else
-                            {
+                            } else {
                                 creme.utils.showDialog(req.responseText);
                             }
                         },
@@ -635,8 +619,7 @@ creme.utils.ajaxDelete = function(url, _data, ajax_params, msg)
     });
 }
 
-creme.utils.innerPopupNReload = function(url, reload_url)
-{
+creme.utils.innerPopupNReload = function(url, reload_url) {
     creme.utils.showInnerPopup(url,
                               {
                                   beforeClose: function(event, ui, dial) {
@@ -668,10 +651,8 @@ creme.utils.handleResearch = function(url, target_node_id, scope)
     });
 }
 
-creme.utils.multiDeleteFromListView = function(lv_selector, delete_url)
-{
-    if($(lv_selector).list_view('countEntities') == 0)
-    {
+creme.utils.multiDeleteFromListView = function(lv_selector, delete_url) {
+    if($(lv_selector).list_view('countEntities') == 0) {
         creme.utils.showDialog(i18n.get_current_language()['SELECT_AT_LEAST_ONE_ENTITY']);
         return;
     }
@@ -687,10 +668,8 @@ creme.utils.multiDeleteFromListView = function(lv_selector, delete_url)
     creme.utils.ajaxDelete(delete_url, {'ids' : $(lv_selector).list_view('getSelectedEntities')}, ajax_opts, i18n.get_current_language()['ARE_YOU_SURE']);
 }
 
-creme.utils.multiAddPropertyFromListView = function(lv_selector, url, ct_id)
-{
-    if($(lv_selector).list_view('countEntities') == 0)
-    {
+creme.utils.multiAddPropertyFromListView = function(lv_selector, url, ct_id) {
+    if($(lv_selector).list_view('countEntities') == 0) {
         creme.utils.showDialog(i18n.get_current_language()['SELECT_AT_LEAST_ONE_ENTITY']);
         return;
     }
@@ -699,10 +678,10 @@ creme.utils.multiAddPropertyFromListView = function(lv_selector, url, ct_id)
     
     $(lv_selector).list_view('option', 'entity_separator', ',');
 
-    var content = '<p>'+i18n.get_current_language()['SELECT']+' : <select name="property">';
+    var content = '<p>' + i18n.get_current_language()['SELECT'] + ' : <select name="property">';
     for(var i in types){
         var type = types[i];
-        content+= '<option value="'+type.pk+'">'+type.text+'</option>';
+        content += '<option value="' + type.pk + '">' + type.text + '</option>';
     }
     content += '</select></p>';
 
@@ -712,8 +691,7 @@ creme.utils.multiAddPropertyFromListView = function(lv_selector, url, ct_id)
             "Ok": function() {
                     var type_id = $('select[name=property]', this).val();
 
-                    if(!type_id || type_id == "")
-                    {
+                    if(!type_id || type_id == "") {
                         creme.utils.showDialog(i18n.get_current_language()['SELECT_AT_LEAST_ONE_ENTITY']);
                         return;
                     }
@@ -731,12 +709,9 @@ creme.utils.multiAddPropertyFromListView = function(lv_selector, url, ct_id)
                             creme.utils.showDialog("Opération effectuée");
                         },
                         error : function(req, status, error){
-                            if(!req.responseText || req.responseText == "")
-                            {
+                            if(!req.responseText || req.responseText == "") {
                                 creme.utils.showDialog("Erreur");
-                            }
-                            else
-                            {
+                            } else {
                                 creme.utils.showDialog(req.responseText);
                             }
                         },
@@ -755,12 +730,10 @@ creme.utils.multiAddPropertyFromListView = function(lv_selector, url, ct_id)
     });
 };
 
-
 creme.utils.autoCheckallState = function(from, select_all_selector, checkboxes_selector){
     var $select_all = $(select_all_selector);
 
-    if(!$(from).is(':checked'))
-    {
+    if(!$(from).is(':checked')) {
         $select_all.uncheck();
         return;
     }
@@ -770,55 +743,39 @@ creme.utils.autoCheckallState = function(from, select_all_selector, checkboxes_s
         all_checked = all_checked & $(this).is(':checked');
     });
 
-    if(all_checked)
-    {
+    if(all_checked) {
         $select_all.check();
-    }
-    else
-    {
+    } else {
         $select_all.uncheck();
     }
 
 };
 
-creme.utils.toggleCheckallState = function(select_all, checkboxes_selector)
-{
-    if($(select_all).is(':checked'))
-    {
+creme.utils.toggleCheckallState = function(select_all, checkboxes_selector) {
+    if($(select_all).is(':checked')) {
         $(checkboxes_selector).check();
-    }
-    else
-    {
+    } else {
         $(checkboxes_selector).uncheck();
     }
-
 };
 
-creme.utils.go_to = function(url, ajax, ajax_options)
-{
-    if(typeof(ajax) != "undefined" && ajax)
-    {
-        if(typeof(ajax_options) != "undefined" && ajax_options)
-        {
+creme.utils.go_to = function(url, ajax, ajax_options) {
+    if(typeof(ajax) != "undefined" && ajax) {
+        if(typeof(ajax_options) != "undefined" && ajax_options) {
             $(ajax_options.target).load(url, ajax_options.data, ajax_options.complete);
-        }
-        else
-        {
+        } else {
             $("#sub_content").load(url, {}, null);
         }
-    }
-    else
-    {
+    } else {
         window.location.href = url;
     }
 }
 
-creme.utils.range = function(start, end)
-{
+creme.utils.range = function(start, end) {
     var tab = [];
-    for(var i=start||0; i < end; i++)
-    {
+    for(var i=start||0; i < end; i++) {
         tab.push(i);
     }
+
     return tab;
 };

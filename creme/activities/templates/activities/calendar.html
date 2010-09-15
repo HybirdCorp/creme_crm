@@ -198,7 +198,7 @@ $(document).ready(function() {
                 </a>
             </li>
         </ul>
-        <form action="" method="POST" name="user_choice">
+        <form action="" method="POST" name="user_choice">{% csrf_token %}
             <p>{% trans "See calendars of :" %}<br/></p>
             <table style="border:2px solid #D7E2E7;">
                 <thead>
