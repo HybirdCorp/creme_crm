@@ -27,6 +27,7 @@ from django.contrib.contenttypes.models import ContentType
 
 from creme_core.models import CremeEntity, RelationType, Relation
 from creme_core.forms import CremeEntityForm, CremeEntityField, CremeDateTimeField
+from creme_core.forms.widgets import Label
 
 from media_managers.models import Image
 from media_managers.forms.widgets import ImageM2MWidget
@@ -37,7 +38,8 @@ from persons.models import Organisation, Contact, Address
 #TODO: la gestion des adresses est a revoir ; pourrait on utiliser 2 formulaire
 #      sur le model Address dont on insererait le contenu ???
 
-class ContactCreateForm(CremeEntityForm):
+#class ContactCreateForm(CremeEntityForm):
+class ContactForm(CremeEntityForm):
     birthday = CremeDateTimeField(label=_('Birthday'), required=False)
     image    = CremeEntityField(label=_('Image'), required=False, model=Image, widget=ImageM2MWidget())
 
@@ -54,7 +56,7 @@ class ContactCreateForm(CremeEntityForm):
         exclude = CremeEntityForm.Meta.exclude + ('billing_adress', 'shipping_adress', 'language', 'is_user')
 
     def __init__(self, *args, **kwargs):
-        super(ContactCreateForm, self).__init__(*args, **kwargs)
+        super(ContactForm, self).__init__(*args, **kwargs)
         Address.inject_fields(self, '_billing')
         Address.inject_fields(self, '_shipping')
 
@@ -83,15 +85,10 @@ class ContactCreateForm(CremeEntityForm):
                 initial['country_shipping'] = shipping_adress.country
 
     def save(self):
-        instance     = self.instance
+        instance = super(ContactForm, self).save()
         cleaned_data = self.cleaned_data
 
-        super(ContactCreateForm, self).save()
-
-        if instance.billing_adress is not None:
-            billing_adress = Address.objects.get(pk=instance.billing_adress.pk)
-        else:
-            billing_adress = Address()
+        billing_adress = instance.billing_adress or Address()
 
         billing_adress.name    = cleaned_data['name_billing']
         billing_adress.address = cleaned_data['address_billing']
@@ -107,10 +104,7 @@ class ContactCreateForm(CremeEntityForm):
             billing_adress.owner = instance
             billing_adress.save()
 
-        if instance.shipping_adress is not None:
-            shipping_adress = Address.objects.get(pk=instance.shipping_adress.pk)
-        else:
-            shipping_adress = Address()
+        shipping_adress = instance.shipping_adress or Address()
 
         shipping_adress.name    = cleaned_data['name_shipping']
         shipping_adress.address = cleaned_data['address_shipping']
@@ -128,20 +122,13 @@ class ContactCreateForm(CremeEntityForm):
 
         instance.billing_adress = billing_adress
         instance.shipping_adress = shipping_adress
-        instance.save()
+        instance.save() #saved twice because of bidirectionnal pk (TODO: change ??)
 
-
-class ContactForm(ContactCreateForm):
-    class Meta:
-        model = Contact
-#        exclude = ('billing_adress', 'shipping_adress', 'image','language','is_user','is_deleted','is_actived')
-        #Poped image from this list because buyers, trainers, salesman and ContactWithRelationForm has the field but doesn't work/save the value
-        #Commented 17 May 2010
-        exclude = ('billing_adress', 'shipping_adress', 'language','is_user','is_deleted','is_actived')
+        return instance
 
 
 class ContactWithRelationForm(ContactForm):
-    orga_overview = CharField(label=_(u'Concerned organisation'), widget=TextInput(attrs={'readonly': 'readonly'}), initial=_('No one'))
+    orga_overview = CharField(label=_(u'Concerned organisation'), widget=Label, initial=_('No one'))
 
     def __init__(self, *args, **kwargs):
         super(ContactWithRelationForm, self).__init__(*args, **kwargs)
@@ -167,8 +154,10 @@ class ContactWithRelationForm(ContactForm):
         self.fields['relation'] = relation_field
 
     def save(self):
-        super(ContactWithRelationForm, self).save()
+        instance = super(ContactWithRelationForm, self).save()
 
         if self.linked_orga:
             relation_type = self.relation_type or self.cleaned_data.get('relation')
-            Relation.create(self.instance, relation_type.id, self.linked_orga)
+            Relation.create(instance, relation_type.id, self.linked_orga)
+
+        return instance
