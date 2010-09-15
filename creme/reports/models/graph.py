@@ -19,16 +19,18 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.db.models.fields import BooleanField
 from datetime import timedelta
 
 from django.db.models import Min, Max
-from django.db.models.fields import PositiveIntegerField, CharField
+from django.db.models.fields import (PositiveIntegerField, CharField,
+                                     BooleanField, FieldDoesNotExist)
 from django.db.models.fields.related import ForeignKey
 from django.db.models.query_utils import Q
 from django.utils.translation import ugettext_lazy as _
 
 from creme_core.models.entity import CremeEntity
+from creme_core.models.relation import RelationType
+from creme_core.models.header_filter import HFI_RELATION, HFI_FIELD
 
 from reports.models.report import Report, report_prefix_url
 from reports.report_aggregation_registry import field_aggregation_registry
@@ -177,3 +179,48 @@ def _get_dates_values(entities, abscissa, ordinate, ordinate_col, aggregate_func
             y.append(sub_entities.aggregate(aggregate_func(ordinate_col)).get(ordinate))
 
     return x, y
+
+def fetch_graph_from_instance_block(instance_block, entity, order='ASC'):
+    volatile_column   = instance_block.data
+
+    graph             = instance_block.entity.get_real_entity()
+    report            = graph.report
+    report_model      = report.ct.model_class()
+
+    model             = entity.__class__
+    ct_entity         = entity.entity_type #entity should always be a CremeEntity because graphs can be created only on CremeEntities
+    
+    columns = volatile_column.split('#')
+    volatile_column, hfi_type = (columns[0], columns[1]) if columns[0] else ('', 0)
+
+    try:
+        hfi_type = int(hfi_type)
+    except ValueError:
+        hfi_type = 0
+
+    x, y = [], []
+
+    if hfi_type == HFI_FIELD:
+        try:
+            field = report_model._meta.get_field(volatile_column)
+            if field.get_internal_type() == 'ForeignKey' and field.rel.to == model:
+                x, y = graph.fetch(extra_q=Q(**{'%s__pk' % volatile_column: entity.pk}), order=order)
+        except FieldDoesNotExist:
+            pass
+
+    elif hfi_type == HFI_RELATION:
+        try:
+            rt=RelationType.objects.get(pk=volatile_column)
+            obj_ctypes = rt.object_ctypes.all()
+
+            if not obj_ctypes or ct_entity in obj_ctypes:
+                extra_q = Q(**{'relations__type__pk': volatile_column}) & Q(**{'relations__object_entity__pk' : entity.pk})
+                x, y = graph.fetch(extra_q=extra_q, order=order)
+
+        except RelationType.DoesNotExist:
+            pass
+
+    else:
+        x, y = graph.fetch(order=order)
+        
+    return (x, y)

@@ -292,7 +292,12 @@ class AjaxChoiceField(ChoiceField):
         """
 #        value = super(ChoiceField, self).clean(value)
 
-        if value in EMPTY_VALUES:
+        is_value_empty = value in EMPTY_VALUES
+
+        if self.required and is_value_empty:
+            raise ValidationError(self.error_messages['required'])
+
+        if is_value_empty:
             value = u''
 
         return smart_unicode(value)

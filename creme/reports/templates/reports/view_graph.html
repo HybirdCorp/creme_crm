@@ -41,7 +41,7 @@
 {% endblock %}
 
 {% block content %}
-    {% with 4 as colspan %}
+    {% with 5 as colspan %}
         <div style="position:relative; width:100%;">
             <table class="table_detail_view ui-corner-all" >
                 <thead>
@@ -51,7 +51,7 @@
                 </thead>
                 <tbody class="collapsable">
                     <tr class="{% cycle "block_header_line_dark" "block_header_line_light" %}">
-                        <th>{% trans 'Generation date' %} : <span id="graph_gen_date_{{object.id}}"></span></td>
+                        <th>{% trans 'Generation date' %} : <span id="graph_gen_date_{{object.id}}"></span></th>
                         <th>
                             <select id="graph_type_{{object.id}}" onchange="creme.graphael.simple_refetch('/reports/graph/fetch_graph/{{object.id}}/'+$('#graph_ordering_{{object.id}}').val(), $(this).val(), '.graph_container_{{object.id}}', '{{object|verbose_ordinate:object.ordinate}}', '{{object|verbose_abscissa:object.abscissa}}  - {{verbose_report_graph_types|get_value:object.type}}', '#graph_gen_date_{{object.id}}');">
                                 <option value="histogram">{% trans 'Histogram' %}</option>
@@ -70,6 +70,12 @@
                                 <img src="{{MEDIA_URL}}/images/refresh_22.png" alt="{% trans 'Regenerate' %}" title="{% trans 'Regenerate' %}" />
                             </a>
                         </th>
+                        <th>
+                            <a onclick="creme.utils.showInnerPopup('/reports/graph/{{object.id}}/block/add');">
+                                <img src="{{MEDIA_URL}}/images/add_22.png" alt="{% trans 'Create a block' %}" title="{% trans 'Create a block with this graph' %}" />
+                            </a>
+                        </th>
+
                     </tr>
                     <tr>
                         <td colspan="{{colspan}}">
@@ -106,8 +112,8 @@
                'x': x,
                'y': y,
                'gen_date_selector': '#graph_gen_date_{{object.id}}',
-               'abscissa_lbl': "{{object|verbose_ordinate:object.ordinate}}",
-               'ordinate_lbl': "{{object|verbose_abscissa:object.abscissa}}  - {{verbose_report_graph_types|get_value:object.type}}"
+               'ordinate_lbl': "{{object|verbose_ordinate:object.ordinate}}",
+               'abscissa_lbl': "{{object|verbose_abscissa:object.abscissa}}  - {{verbose_report_graph_types|get_value:object.type}}"
         });
     </script>
 {% endblock %}

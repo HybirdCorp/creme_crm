@@ -23,7 +23,8 @@ from django.shortcuts import render_to_response
 from django.template.context import RequestContext
 from django.contrib.auth.decorators import login_required
 
-from creme_core.models import BlockConfigItem, RelationBlockItem
+from creme_core.models import (BlockConfigItem, RelationBlockItem,
+                               InstanceBlockConfigItem)
 from creme_core.views.generic import add_entity
 from creme_core.entities_access.functions_for_permissions import get_view_or_die
 from creme_core.constants import DROIT_MODULE_EST_ADMIN
@@ -110,5 +111,14 @@ def delete_relation_block(request):
     rbi = RelationBlockItem.objects.get(pk=request.POST.get('id'))
 
     rbi.delete()
+
+    return HttpResponse()
+
+@login_required
+@get_view_or_die('creme_config', DROIT_MODULE_EST_ADMIN)
+def delete_instance_block(request):
+    ibi = InstanceBlockConfigItem.objects.get(pk=request.POST.get('id'))
+
+    ibi.delete()
 
     return HttpResponse()
