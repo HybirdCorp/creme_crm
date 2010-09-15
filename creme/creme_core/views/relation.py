@@ -263,7 +263,7 @@ def add_relations_bulk(request, model_ct_id, ids):
     POST = request.POST
 
     model    = get_object_or_404(ContentType, pk=model_ct_id).model_class()
-    entities = get_list_or_404(model, pk__in=ids.split(','))
+    entities = get_list_or_404(model, pk__in=[id for id in ids.split(',') if id])
 
     die_statuses = set((edit_object_or_die(request, entity) for entity in entities)) - set([None])
 
