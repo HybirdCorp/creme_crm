@@ -33,9 +33,10 @@ from activities.utils import get_ical_date
 class ActivityType(CremeModel):
     id                    = CharField(primary_key=True, max_length=100)
     name                  = CharField(_(u'Name'), max_length=100)
-    color                 = CharField(_(u'Color'), max_length=100, blank=True , null=True)
+    color                 = CharField(_(u'Color'), max_length=100, blank=True, null=True)
     default_day_duration  = IntegerField(_(u'Default day duration'))
     default_hour_duration = TimeField(_(u'Default hour duration'))
+    is_custom             = BooleanField(default=True) #used by creme_config
 
     def __unicode__(self):
         return self.name

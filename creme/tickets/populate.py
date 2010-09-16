@@ -19,7 +19,7 @@ class Populator(BasePopulator):
 
     def populate(self, *args, **kwargs):
         for pk, name in BASE_STATUS:
-            create(Status, pk, name=name, deletable=False)
+            create(Status, pk, name=name, is_custom=False)
 
         #TODO: use 'start' arg with python 2.6.....
         for i, name in enumerate((_('Low'), _('Normal'), _('High'), _('Urgent'), _('Blocking'))):
