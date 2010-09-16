@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.db.models import CharField
+from django.db.models import CharField, BooleanField
 from django.utils.translation import ugettext_lazy as _
 
 from creme_core.models import CremeModel
@@ -28,7 +28,8 @@ from creme_core.models import CremeModel
 
 
 class InvoiceStatus(CremeModel):
-    name = CharField(_(u'Status'), max_length=100)
+    name      = CharField(_(u'Status'), max_length=100)
+    is_custom = BooleanField(default=True) #used by creme_config
 
     def __unicode__(self):
         return self.name
@@ -40,7 +41,8 @@ class InvoiceStatus(CremeModel):
 
 
 class QuoteStatus(CremeModel):
-    name = CharField(_(u'Status'), max_length=100)
+    name      = CharField(_(u'Status'), max_length=100)
+    is_custom = BooleanField(default=True) #used by creme_config
 
     def __unicode__(self):
         return self.name
@@ -52,7 +54,8 @@ class QuoteStatus(CremeModel):
 
 
 class SalesOrderStatus(CremeModel):
-    name = CharField(_(u'Status'), max_length=100)
+    name      = CharField(_(u'Status'), max_length=100)
+    is_custom = BooleanField(default=True) #used by creme_config
 
     def __unicode__(self):
         return self.name
@@ -62,11 +65,14 @@ class SalesOrderStatus(CremeModel):
         verbose_name = _(u'Sales order status')
         verbose_name_plural = _(u'Sales order status')
 
+
 class CreditNoteStatus(CremeModel):
-    name = CharField(_(u'Status'), max_length=100)
+    name      = CharField(_(u'Status'), max_length=100)
+    is_custom = BooleanField(default=True) #used by creme_config
 
     def __unicode__(self):
         return self.name
+
     class Meta:
         app_label = 'billing'
         verbose_name = _(u"Credit note status")

@@ -45,27 +45,27 @@ class Populator(BasePopulator):
 
         #NB: pk=1 --> default status (used when a quote is converted in invoice for example)
 
-        create(QuoteStatus, 1, name=_(u"Pending")) #default status
-        create(QuoteStatus, 2, name=_(u"Accepted"))
-        create(QuoteStatus, 3, name=_(u"Rejected"))
-        create(QuoteStatus, 4, name=_(u"Created"))
+        create(QuoteStatus, 1, name=_(u"Pending"),  is_custom=False) #default status
+        create(QuoteStatus, 2, name=_(u"Accepted"), is_custom=True)
+        create(QuoteStatus, 3, name=_(u"Rejected"), is_custom=True)
+        create(QuoteStatus, 4, name=_(u"Created"),  is_custom=True)
 
-        create(SalesOrderStatus, 1, name=_(u"Issued")) #default status
-        create(SalesOrderStatus, 2, name=_(u"Accepted"))
-        create(SalesOrderStatus, 3, name=_(u"Rejected"))
-        create(SalesOrderStatus, 4, name=_(u"Created"))
+        create(SalesOrderStatus, 1, name=_(u"Issued"),   is_custom=False) #default status
+        create(SalesOrderStatus, 2, name=_(u"Accepted"), is_custom=True)
+        create(SalesOrderStatus, 3, name=_(u"Rejected"), is_custom=True)
+        create(SalesOrderStatus, 4, name=_(u"Created"),  is_custom=True)
 
-        create(InvoiceStatus, 1, name=_(u"Draft")) #default status
-        create(InvoiceStatus, 2, name=_(u"To be sent"))
-        create(InvoiceStatus, 3, name=_(u"Sent"))
-        create(InvoiceStatus, 4, name=_(u"Resulted"))
-        create(InvoiceStatus, 5, name=_(u"Partly resulted"))
-        create(InvoiceStatus, 6, name=_(u"Collection"))
-        create(InvoiceStatus, 7, name=_(u"Resulted collection"))
-        create(InvoiceStatus, 8, name=_(u"Canceled"))
+        create(InvoiceStatus, 1, name=_(u"Draft"),               is_custom=False) #default status
+        create(InvoiceStatus, 2, name=_(u"To be sent"),          is_custom=False)
+        create(InvoiceStatus, 3, name=_(u"Sent"),                is_custom=True)
+        create(InvoiceStatus, 4, name=_(u"Resulted"),            is_custom=True)
+        create(InvoiceStatus, 5, name=_(u"Partly resulted"),     is_custom=True)
+        create(InvoiceStatus, 6, name=_(u"Collection"),          is_custom=True)
+        create(InvoiceStatus, 7, name=_(u"Resulted collection"), is_custom=True)
+        create(InvoiceStatus, 8, name=_(u"Canceled"),            is_custom=True)
 
-        create(CreditNoteStatus, 1, name=_(u"Draft"))
-        create(CreditNoteStatus, 2, name=_(u"Issued"))
+        create(CreditNoteStatus, 1, name=_(u"Draft"),  is_custom=False)
+        create(CreditNoteStatus, 2, name=_(u"Issued"), is_custom=True)
 
         get_ct = ContentType.objects.get_for_model
         invoice_ct_id = get_ct(Invoice).id
