@@ -80,6 +80,7 @@ class ReportGraphBlock(Block):
         self.verbose               = instance_block_config.verbose
         self.instance_block_id     = instance_block_config.id
         self.instance_block_config = instance_block_config
+        self.verbose_name          = self.verbose
 
     @staticmethod
     def generate_id(app_name, name):
@@ -107,19 +108,8 @@ class ReportGraphBlock(Block):
                             )
 
     def portal_display(self, context, ct_ids):
-        request = context['request']
-        graph = self.graph
-        x, y = graph.fetch()
-        return self._render(self.get_block_template_context(context,
-                                                            graph=graph,
-                                                            x=x,
-                                                            y=y,
-                                                            volatile_column=self.verbose.split(' - ')[1],
-                                                            instance_block_id=self.instance_block_id,
-                                                            verbose_report_graph_types=verbose_report_graph_types,
-                                                            is_ajax=request.is_ajax(),
-                                                            )
-                            )
+        #No specific things on portals so we use home display
+        return self.home_display(context)
 
     def home_display(self, context):
         request = context['request']
