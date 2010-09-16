@@ -12,15 +12,18 @@
             </option>
         {% endfor %}
     </select>
-    <a href="/creme_core/filter/add/{{content_type_id}}">
-        <img border="0" src="{{MEDIA_URL}}images/add_22.png" alt="{% trans "Create a custom filter" %}" title="{% trans "Create a custom filter" %}"/>
-    </a>
-    {% if filter_id %}
-        <a href="/creme_core/filter/edit/{{content_type_id}}/{{filter_id}}" id="filter_edit">
-            <img border="0" src="{{MEDIA_URL}}images/edit_22.png" alt="{% trans "Edit filter" %}" title="{% trans "Edit filter" %}"/>
+    {% if not is_popup_view %}
+        <a href="/creme_core/filter/add/{{content_type_id}}">
+            <img border="0" src="{{MEDIA_URL}}images/add_22.png" alt="{% trans "Create a custom filter" %}" title="{% trans "Create a custom filter" %}"/>
         </a>
-        <a href="/creme_core/filter/delete/{{filter_id}}" id="filter_delete" onclick="creme.utils.confirmDelete(event, this);">
-            <img border="0" src="{{MEDIA_URL}}images/delete_22.png" alt="{% trans "Delete filter" %}" title="{% trans "Delete filter" %}"/>
-        </a>
+        {% if filter_id %}
+            <a href="/creme_core/filter/edit/{{content_type_id}}/{{filter_id}}" id="filter_edit">
+                <img border="0" src="{{MEDIA_URL}}images/edit_22.png" alt="{% trans "Edit filter" %}" title="{% trans "Edit filter" %}"/>
+            </a>
+            {% comment %}TODO: reload only list by ajax{% endcomment %}
+            <a onclick="creme.utils.ajaxDelete('/creme_core/filter/delete', {'id': '{{filter_id}}'}, {complete: function(req, st){if(st!='error'){reload(window);}}});">
+                <img border="0" src="{{MEDIA_URL}}images/delete_22.png" alt="{% trans "Delete filter" %}" title="{% trans "Delete filter" %}"/>
+            </a>
+        {% endif %}
     {% endif %}
 </fieldset>
