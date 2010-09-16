@@ -48,7 +48,7 @@ class Populator(BasePopulator):
         create(ProjectStatus, 7, name=_(u"Finished"),              description=_(u"The project is finished"))
 
         for pk, statusdesc in TASK_STATUS.iteritems():
-            create(TaskStatus, pk, name=unicode(statusdesc.name), description=unicode(statusdesc.verbose_name))
+            create(TaskStatus, pk, name=unicode(statusdesc.name), description=unicode(statusdesc.verbose_name), is_custom=False)
 
         get_ct = ContentType.objects.get_for_model
 

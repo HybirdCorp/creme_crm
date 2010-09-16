@@ -7,21 +7,24 @@
         </legend>
         <select name="hfilter" id="hfilter_list" onchange="$(this.form).list_view('getSubmit')(this);">
             {% for filter in select_values %}
-                <option value="{{filter.value}}" {% if hfilter_id == filter.value %} selected {% endif %}>
+                <option value="{{filter.value}}" {% if hfilter_id == filter.value %}selected{% endif %}>
                     {{filter.text}}
                 </option>
             {% endfor %}
         </select>
-        <a href="/creme_core/header_filter/add/{{content_type_id}}">
-            <img border="0" src="{{MEDIA_URL}}images/add_22.png" alt="{% trans "Create a custom view" %}" title="{% trans "Create a custom view" %}"/>
-        </a>
-        {% if hfilter.is_custom %}
-            <a href="/creme_core/header_filter/edit/{{hfilter_id}}" id="header_filter_edit">
-                <img border="0" src="{{MEDIA_URL}}images/edit_22.png" alt="{% trans "Edit custom view" %}" title="{% trans "Edit custom view" %}"/>
+        {% if not is_popup_view %}
+            <a href="/creme_core/header_filter/add/{{content_type_id}}">
+                <img border="0" src="{{MEDIA_URL}}images/add_22.png" alt="{% trans "Create a custom view" %}" title="{% trans "Create a custom view" %}"/>
             </a>
-            <a href="/creme_core/header_filter/delete/{{hfilter_id}}/" id="header_filter_delete">
-                <img border="0" src="{{MEDIA_URL}}images/delete_22.png" alt="{% trans "Delete custom view" %}" title="{% trans "Delete custom view" %}"/>
-            </a>
+            {% if hfilter.is_custom %}
+                <a href="/creme_core/header_filter/edit/{{hfilter_id}}" id="header_filter_edit">
+                    <img border="0" src="{{MEDIA_URL}}images/edit_22.png" alt="{% trans "Edit custom view" %}" title="{% trans "Edit custom view" %}"/>
+                </a>
+                {% comment %}TODO: reload only list by ajax{% endcomment %}
+                <a onclick="creme.utils.ajaxDelete('/creme_core/header_filter/delete', {'id': '{{hfilter_id}}'}, {complete: function(req, st){if(st!='error'){reload(window);}}});">
+                    <img border="0" src="{{MEDIA_URL}}images/delete_22.png" alt="{% trans "Delete custom view" %}" title="{% trans "Delete custom view" %}"/>
+                </a>
+            {% endif %}
         {% endif %}
     </fieldset>
 {% endwith %}

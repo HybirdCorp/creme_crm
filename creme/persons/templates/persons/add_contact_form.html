@@ -1,9 +1,11 @@
 {% extends "persons/person_form.html" %}
 {% load i18n %}
 
+{% block page_title %} - {% trans 'New contact' %}{% endblock %}
+
 {% block content %}
     {% with 'images/add_64.png' as logo %}
-    {% with _('New') as title %}
+    {% with _('New contact') as title %}
         {% include "persons/frags/contact_form_content.html"%}
     {% endwith %}
     {% endwith %}

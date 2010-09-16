@@ -63,9 +63,9 @@ def get_session_filter_id(request, ct_id):
     return HttpResponse(filter_id)
 
 @login_required
-def delete(request, filter_id):
-    filter_ = get_object_or_404(Filter, pk=filter_id)
-    ct_id = filter_.model_ct_id
+def delete(request):
+    filter_ = get_object_or_404(Filter, pk=request.POST['id'])
+    ct_id   = filter_.model_ct_id
 
     die_status = delete_object_or_die(request, filter_)
     if die_status:

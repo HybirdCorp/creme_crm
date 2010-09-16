@@ -18,22 +18,10 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.db.models import CharField, TextField, BooleanField
-from django.utils.translation import ugettext_lazy as _
+from django.template import Library
 
-from creme_core.models import CremeModel
+register = Library()
 
-
-class TaskStatus(CremeModel):
-    name        = CharField(_('Name'), max_length=100)
-    color_code  = CharField(_('Color'), max_length=100, blank=True, null=True)
-    description = TextField(_('Description'))
-    is_custom   = BooleanField(default=True) #used by creme_config
-
-    class Meta:
-        app_label = 'projects'
-        verbose_name = _(u'Status of task')
-        verbose_name_plural = _(u'Status of task')
-
-    def __unicode__(self):
-        return self.name
+@register.filter(name="is_custom")
+def is_custom(obj):
+    return getattr(obj, 'is_custom', True)

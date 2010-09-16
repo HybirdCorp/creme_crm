@@ -2,7 +2,7 @@
 {% load i18n %}
 {% load creme_core_tags %}
 
-{% block page_title %} - {% trans 'Modify' %} {{object}}{% endblock %}
+{% block page_title %} - {% blocktrans %}Modify {{object}}{% endblocktrans  %}{% endblock %}
 
 {% block content %}
     {% with 'images/edit_64.png' as logo %}

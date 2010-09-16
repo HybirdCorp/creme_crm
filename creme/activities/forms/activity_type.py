@@ -27,11 +27,15 @@ from activities.models import ActivityType
 class ActivityTypeForm(CremeModelForm):
     class Meta:
         model = ActivityType
-        exclude = ('id', )
+        exclude = ('id', 'is_custom')
 
     def save(self):
-        if not self.instance.id:
-            instance = super(ActivityTypeForm, self).save(commit=False)
+        instance = self.instance
+
+        if not instance.id:
+            super(ActivityTypeForm, self).save(commit=False)
             generate_string_id_and_save(ActivityType, [instance], 'creme_config-useractivitytype')
         else:
             super(ActivityTypeForm, self).save()
+
+        return instance
