@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-09-09 12:02+0200\n"
+"POT-Creation-Date: 2010-09-15 19:05+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -15,13 +15,13 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: blocks.py:30 forms/csv_import.py:337 models/creme_property.py:87
+#: blocks.py:30 forms/csv_import.py:341 models/creme_property.py:87
 #: models/entity.py:49
 msgid "Properties"
 msgstr "Propriétés"
 
-#: blocks.py:45 forms/csv_import.py:340 forms/header_filter.py:45
-#: forms/relation.py:32 gui/block.py:279 models/relation.py:181
+#: blocks.py:45 forms/csv_import.py:344 forms/header_filter.py:45
+#: forms/relation.py:32 gui/block.py:280 models/relation.py:181
 msgid "Relations"
 msgstr "Relations"
 
@@ -223,7 +223,7 @@ msgstr ""
 msgid "General information"
 msgstr "Informations générales"
 
-#: forms/base.py:133 forms/csv_import.py:330 models/base.py:172
+#: forms/base.py:133 forms/csv_import.py:334 models/base.py:172
 #: models/prefered_menu.py:27
 msgid "User"
 msgstr "Utilisateur"
@@ -252,7 +252,7 @@ msgstr ""
 "La 1ère ligne du fichier contient-il l'entête des colonnes de valeurs (ex: "
 "\"Nom\",\"Prénom\") ?"
 
-#: forms/csv_import.py:70 forms/csv_import.py:266
+#: forms/csv_import.py:70 forms/csv_import.py:270
 msgid "You have not the credentials to read this document."
 msgstr "Vous n'avez pas les droits pour lire ce document."
 
@@ -273,32 +273,32 @@ msgstr "Valeur par défaut"
 msgid "Importing from a CSV file"
 msgstr "Import depuis un fichier CSV"
 
-#: forms/csv_import.py:262
+#: forms/csv_import.py:266
 msgid "This document doesn't exist or doesn't exist any more."
 msgstr "Ce document n'existe pas/plus."
 
-#: forms/csv_import.py:332
+#: forms/csv_import.py:336
 msgid "Generic information"
 msgstr "Infos génériques"
 
-#: forms/csv_import.py:333
+#: forms/csv_import.py:337
 msgid "Related properties"
 msgstr "Propriétés associées"
 
-#: forms/csv_import.py:334
+#: forms/csv_import.py:338
 msgid "Associated relations"
 msgstr "Relations associées"
 
-#: forms/csv_import.py:372
+#: forms/csv_import.py:379
 msgid "Not in the CSV file"
 msgstr "Pas dans le CSV"
 
-#: forms/csv_import.py:376
+#: forms/csv_import.py:383
 #, python-format
 msgid "Column %(index)s - %(name)s"
 msgstr "Colonne %(index)s - %(name)s"
 
-#: forms/csv_import.py:383
+#: forms/csv_import.py:390
 #, python-format
 msgid "Column %i"
 msgstr "Colonne %i"
@@ -585,7 +585,7 @@ msgid "Related user"
 msgstr "Utilisateur associé"
 
 #: models/search.py:42 templates/creme_core/search_results.html:10
-#: templates/creme_core/templatetags/search_panel.html:7
+#: templates/creme_core/templatetags/search_panel.html:4
 msgid "Search"
 msgstr "Recherche"
 
@@ -641,7 +641,7 @@ msgstr "À propos d'Hybird"
 msgid "CSV importing : results"
 msgstr "Import CSV : bilan"
 
-#: templates/creme_core/csv_importing_report.html:21
+#: templates/creme_core/csv_importing_report.html:20
 #, python-format
 msgid ""
 "%(counter)s entity with type \"%(verbose_name)s\" has been sucessfully "
@@ -655,24 +655,24 @@ msgstr[1] ""
 "%(counter)s entités de type \"%(verbose_name)s\" ont été importées avec "
 "succés."
 
-#: templates/creme_core/csv_importing_report.html:33
+#: templates/creme_core/csv_importing_report.html:31
 msgid "Line of the CSV file"
 msgstr "Ligne du fichier CSV"
 
-#: templates/creme_core/csv_importing_report.html:34
+#: templates/creme_core/csv_importing_report.html:32
 msgid "Induced error"
 msgstr "Erreur provoquée"
 
-#: templates/creme_core/csv_importing_report.html:49
+#: templates/creme_core/csv_importing_report.html:47
 msgid "Other errors have been omitted."
 msgstr "Les autres erreurs ont été omises."
 
-#: templates/creme_core/csv_importing_report.html:57
+#: templates/creme_core/csv_importing_report.html:55
 msgid "No error when importing."
 msgstr "Aucune erreur lors de l'import."
 
-#: templates/creme_core/csv_importing_report.html:66
-#: templates/creme_core/csv_importing_report.html:67
+#: templates/creme_core/csv_importing_report.html:64
+#: templates/creme_core/csv_importing_report.html:65
 #: templates/creme_core/detailview.html:23
 #: templates/creme_core/detailview.html:24
 msgid "Back to the list"
@@ -757,7 +757,7 @@ msgstr ""
 
 #: templates/creme_core/filters.html:587
 #: templates/creme_core/generics/blockform/base.html:53
-#: templates/creme_core/generics/form/base.html:56
+#: templates/creme_core/generics/form/base.html:54
 msgid "Submit"
 msgstr "Envoyer"
 
@@ -832,7 +832,7 @@ msgid "Clean the search"
 msgstr "Effacer la recherche"
 
 #: templates/creme_core/frags/list_view_content.html:66
-#: templates/creme_core/templatetags/search_panel.html:16
+#: templates/creme_core/templatetags/search_panel.html:13
 msgid "Research"
 msgstr "Rechercher"
 
@@ -845,7 +845,23 @@ msgstr "Trier par %(col_title)s"
 msgid "No entity exists / match your search"
 msgstr "Aucun élément n'existe / ne correspond à votre recherche"
 
-#: templates/creme_core/frags/list_view_content.html:153
+#: templates/creme_core/frags/list_view_content.html:130
+msgid "Page"
+msgstr "Page"
+
+#: templates/creme_core/frags/list_view_content.html:130
+msgid "'Enter' to submit"
+msgstr "Touche 'Entrée' pour valider"
+
+#: templates/creme_core/frags/list_view_content.html:130
+msgid "on"
+msgstr "sur"
+
+#: templates/creme_core/frags/list_view_content.html:137
+msgid "Nb / Page"
+msgstr "Nb / Page"
+
+#: templates/creme_core/frags/list_view_content.html:152
 #, python-format
 msgid "Recordings %(start_index)s - %(end_index)s on %(entities_count)s"
 msgstr "Enregistrements %(start_index)s - %(end_index)s sur %(entities_count)s"
@@ -868,11 +884,11 @@ msgid "Fields marked with * are required."
 msgstr "Les champs suivis d'un * sont obligatoires."
 
 #: templates/creme_core/generics/blockform/base.html:40
-#: templates/creme_core/generics/form/base.html:46
+#: templates/creme_core/generics/form/base.html:44
 msgid "Global errors"
 msgstr "Erreurs globales"
 
-#: templates/creme_core/generics/form/base.html:23
+#: templates/creme_core/generics/form/base.html:21
 msgid "Form"
 msgstr "Formulaire"
 
@@ -957,7 +973,7 @@ msgid "Filters"
 msgstr "Filtres"
 
 #: templates/creme_core/templatetags/listview_filters.html:8
-#: templates/creme_core/templatetags/search_panel.html:9
+#: templates/creme_core/templatetags/search_panel.html:6
 msgid "All"
 msgstr "Tout"
 
@@ -969,7 +985,7 @@ msgstr "Créer un filtre personnalisé"
 msgid "Edit filter"
 msgstr "Éditer le filtre"
 
-#: templates/creme_core/templatetags/listview_filters.html:23
+#: templates/creme_core/templatetags/listview_filters.html:24
 msgid "Delete filter"
 msgstr "Supprimer le filtre"
 
@@ -985,7 +1001,7 @@ msgstr "Créer une vue personnalisée"
 msgid "Edit custom view"
 msgstr "Éditer la vue personnalisée"
 
-#: templates/creme_core/templatetags/listview_headerfilters.html:23
+#: templates/creme_core/templatetags/listview_headerfilters.html:24
 msgid "Delete custom view"
 msgstr "Supprimer vue personnalisée"
 
@@ -1041,15 +1057,15 @@ msgstr "%s : <b>Permission refusée</b>,"
 msgid "%(entity)s has already the property %(property)s,"
 msgstr "%(entity)s a déjà la propriété %(property)s,"
 
-#: views/header_filter.py:87
+#: views/header_filter.py:88
 msgid "View sucessfully deleted"
 msgstr "Vue supprimée avec succès"
 
-#: views/header_filter.py:96
+#: views/header_filter.py:98
 msgid "Permission denied"
 msgstr "Permission refusée"
 
-#: views/header_filter.py:101
+#: views/header_filter.py:103
 msgid "This view can't be deleted"
 msgstr "Cette vue ne peut être effacée"
 

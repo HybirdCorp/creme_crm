@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-09-15 15:56+0200\n"
+"POT-Creation-Date: 2010-09-16 15:26+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -425,8 +425,8 @@ msgstr "Fiche contact de l'utilisateur"
 #: templates/creme_config/templatetags/block_custom_fields.html:18
 #: templates/creme_config/templatetags/block_custom_fields.html:28
 #: templates/creme_config/templatetags/block_custom_fields_portal.html:26
-#: templates/creme_config/templatetags/block_models.html:36
-#: templates/creme_config/templatetags/block_models.html:51
+#: templates/creme_config/templatetags/block_models.html:39
+#: templates/creme_config/templatetags/block_models.html:56
 #: templates/creme_config/templatetags/block_property_types.html:19
 #: templates/creme_config/templatetags/block_property_types.html:32
 #: templates/creme_config/templatetags/block_relation_types.html:45
@@ -444,7 +444,7 @@ msgstr "Éditer"
 #: templates/creme_config/templatetags/block_custom_fields.html:19
 #: templates/creme_config/templatetags/block_custom_fields_portal.html:18
 #: templates/creme_config/templatetags/block_entity_credentials.html:27
-#: templates/creme_config/templatetags/block_models.html:37
+#: templates/creme_config/templatetags/block_models.html:40
 #: templates/creme_config/templatetags/block_property_types.html:20
 #: templates/creme_config/templatetags/block_relationblocksconfig.html:18
 #: templates/creme_config/templatetags/block_searchconfig.html:24
@@ -511,6 +511,11 @@ msgstr[1] "%(app_count)s Types configurables"
 #: templates/creme_config/generics/app_portal.html:27
 msgid "No type requires configuration"
 msgstr "Aucun type ne nécessite de configuration"
+
+#: templates/creme_config/generics/model_portal.html:9
+#, python-format
+msgid "Type : %(model_name)s"
+msgstr "Type : %(model_name)s"
 
 #: templates/creme_config/roles/app_credential_portal.html:6
 msgid "Creme applications credentials"
@@ -693,17 +698,21 @@ msgstr "Type d'ensemble"
 msgid "Particular Entity/Role/Team"
 msgstr "Entité/Rôle/Equipe particulier"
 
-#: templates/creme_config/templatetags/block_models.html:21
 #: templates/creme_config/templatetags/block_models.html:22
+#: templates/creme_config/templatetags/block_models.html:23
 msgid "New value"
 msgstr "Nouvelle valeur"
 
-#: templates/creme_config/templatetags/block_models.html:51
+#: templates/creme_config/templatetags/block_models.html:56
 #, python-format
 msgid "Edit '%(object)s'"
 msgstr "Éditer '%(object)s'"
 
-#: templates/creme_config/templatetags/block_models.html:62
+#: templates/creme_config/templatetags/block_models.html:63
+msgid "(no deletable)"
+msgstr "(non supprimable)"
+
+#: templates/creme_config/templatetags/block_models.html:71
 msgid "No value for the moment"
 msgstr "Aucune valeur enregistrée pour le moment"
 

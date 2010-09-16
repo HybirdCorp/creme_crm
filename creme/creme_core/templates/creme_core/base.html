@@ -21,8 +21,7 @@
            var document_width_onload  = $(document).width();
            var document_height_onload = $(document).height();
 
-           function activeEventsMenu()
-           {
+           function activeEventsMenu() {
                 //'fast' transition makes bugs in chrome < 6.1
                 $("#menu_collapse").mouseenter(function(e) {
                     $("#menu_expanded").show('fast');
@@ -35,14 +34,12 @@
                 });
             }
 
-            function desactiveEventsMenu()
-            {
+            function desactiveEventsMenu() {
                 $("#menu_collapse").unbind('mouseenter');
                 $("#menu_expanded").unbind('mouseleave');
             }
 
-            function resizePageElements(menu_width, expanded)
-            {
+            function resizePageElements(menu_width, expanded) {
                 var top = $('#top');
                 var content = $('#content');
                 var footer = $('#footer');

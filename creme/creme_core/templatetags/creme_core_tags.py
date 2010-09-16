@@ -180,20 +180,17 @@ def get_value(dic, key, default=''):
 @register.filter(name="get_meta_value")
 def get_meta_value(obj, key, default=''):
     try:
-#        return obj._meta.__getattribute__(key)
         return getattr(obj._meta, key)
     except:
         return default
 
 @register.filter(name="get_list_object_of_specific_relations") #TODO: rename tag ?
-#def get_list_object_of_specific_relations(object, predicate):
-    #return object.get_list_object_of_specific_relations(predicate)
 def get_related_entities(entity, relation_type_id):
     return entity.get_related_entities(relation_type_id)
 
 @register.filter(name="get_extra_field_value")
 def get_extra_field_value(object, field_name):
-    return object.__getattribute__(field_name)()
+    return object.__getattribute__(field_name)() #TODO: use getattr() ??
 
 @register.filter(name="is_date_gte")
 def is_date_gte(date1, date2):
