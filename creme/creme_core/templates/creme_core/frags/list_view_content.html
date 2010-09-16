@@ -124,20 +124,19 @@
                         <tr>
                             <td>
                                 <button name="page" value="1" {% if not entities.has_previous %} disabled="true" {% else %} onclick="$(this.form).list_view('getSubmit')(this);" {% endif %} type="button">|<</button>
-                                <button name="page" value="{{ entities.previous_page_number }}"{% if not entities.has_previous %} disabled="true" {% else %} onclick="$(this.form).list_view('getSubmit')(this);" {% endif %} type="button"><<</button>
+                                <button name="page" value="{{entities.previous_page_number}}"{% if not entities.has_previous %} disabled="true" {% else %} onclick="$(this.form).list_view('getSubmit')(this);" {% endif %} type="button"><<</button>
                             </td>
                             <td>
-                                Page <input id="user_page" value="{{ entities.number }}" name="page" onkeydown="$(this.form).list_view('getKdSubmit')(event, this);" title="Touche Entrée pour valider"/> sur {{ entities.paginator.num_pages }}
+                                {% trans "Page" %} <input id="user_page" value="{{entities.number}}" name="page" onkeydown="$(this.form).list_view('getKdSubmit')(event, this);" title="{% trans "'Enter' to submit" %}"/> {% trans "on" %} {{entities.paginator.num_pages}}
                             </td>
                             <td>
-                                <button name="page" value="{{ entities.next_page_number }}"{% if not entities.has_next %} disabled="true" {% else %} onclick="$(this.form).list_view('getSubmit')(this);" {% endif %} type="button">>></button>
-                                <button name="page" value="{{ entities.paginator.num_pages }}"{% if entities.number == entities.paginator.num_pages %} disabled="true" {% else %} onclick="$(this.form).list_view('getSubmit')(this);" {% endif %} type="button">>|</button>
+                                <button name="page" value="{{entities.next_page_number}}"{% if not entities.has_next %} disabled="true" {% else %} onclick="$(this.form).list_view('getSubmit')(this);" {% endif %} type="button">>></button>
+                                <button name="page" value="{{entities.paginator.num_pages}}"{% if entities.number == entities.paginator.num_pages %} disabled="true" {% else %} onclick="$(this.form).list_view('getSubmit')(this);" {% endif %} type="button">>|</button>
                             </td>
                             <td>
-                                Nb / Page :
+                                {% trans "Nb / Page" %} :
                                 <select name="rows" onchange="$(this.form).list_view('getSubmit')(this);">
                                     {% with entities.paginator.per_page as rows %}
-                                       {% comment %}Wait before http://docs.djangoproject.com/en/dev/ref/templates/builtins/#operator !!!!{% endcomment %}
                                         <option value="10" {% if rows == 10 %}selected{% endif %}>10</option>
                                         <option value="25" {% if rows == 25 %}selected{% endif %}>25</option>
                                         <option value="50" {% if rows == 50 %}selected{% endif %}>50</option>
