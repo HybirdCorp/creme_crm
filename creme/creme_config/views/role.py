@@ -49,17 +49,16 @@ def edit(request, role_id):
     role = get_object_or_404(CremeRole, pk=role_id)
 
     if request.POST :
-        #roleform = RoleEditForm(request.POST, instance=role)
         roleform = RoleForm(request.POST, instance=role)
 
         if roleform.is_valid():
             roleform.save()
             return HttpResponseRedirect('/creme_config/roles/portal/')
     else:
-        #roleform = RoleEditForm(instance=role)
         roleform = RoleForm(instance=role)
 
-    return render_to_response('creme_core/generics/form/edit.html', {'form': roleform},
+    return render_to_response('creme_core/generics/form/edit.html',
+                              {'form': roleform},
                               context_instance=RequestContext(request))
 
 @login_required
@@ -83,7 +82,8 @@ def portal(request):
     """
     top_roles = CremeRole.objects.filter(superieur=None)
 
-    return render_to_response('creme_config/roles/portal.html', {'top_roles':top_roles},
+    return render_to_response('creme_config/roles/portal.html',
+                              {'top_roles': top_roles},
                               context_instance=RequestContext(request))
 
 @login_required
