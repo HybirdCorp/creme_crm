@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-09-15 19:05+0200\n"
+"POT-Creation-Date: 2010-09-17 13:45+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -125,7 +125,7 @@ msgstr "Lire"
 msgid "Create"
 msgstr "Créer"
 
-#: populate.py:57 templates/creme_core/generics/blockform/edit.html:5
+#: populate.py:57
 msgid "Modify"
 msgstr "Modifier"
 
@@ -223,7 +223,7 @@ msgstr ""
 msgid "General information"
 msgstr "Informations générales"
 
-#: forms/base.py:133 forms/csv_import.py:334 models/base.py:172
+#: forms/base.py:133 forms/csv_import.py:334 models/base.py:174
 #: models/prefered_menu.py:27
 msgid "User"
 msgstr "Utilisateur"
@@ -390,6 +390,14 @@ msgstr "Aujourd'hui"
 msgid "Name"
 msgstr "Nom"
 
+#: models/authent_role.py:38 models/base.py:166
+msgid "Creation date"
+msgstr "Date de création"
+
+#: models/authent_role.py:39 models/base.py:167
+msgid "Last modification"
+msgstr "Dernière modification"
+
 #: models/authent_role.py:41
 msgid "Superior"
 msgstr "Supérieur"
@@ -402,42 +410,58 @@ msgstr "Droits sur les ressources"
 msgid "Application credentials"
 msgstr "Droits d'application"
 
-#: models/block.py:30 models/button_menu.py:30 models/custom_field.py:49
+#: models/block.py:33 models/button_menu.py:30 models/custom_field.py:49
 #: models/search.py:34
 msgid "Related type"
 msgstr "Type associé"
 
-#: models/block.py:31 models/block.py:42
+#: models/block.py:34 models/block.py:45 models/block.py:59
 msgid "Block ID"
 msgstr "Identifiant de bloc"
 
-#: models/block.py:32 models/button_menu.py:32 models/search.py:81
+#: models/block.py:35 models/button_menu.py:32 models/search.py:81
 msgid "Priority"
 msgstr "Priorité"
 
-#: models/block.py:33
+#: models/block.py:36
 msgid "Displayed on portal ?"
 msgstr "Affiché sur la page d'accueil ?"
 
-#: models/block.py:37
+#: models/block.py:40
 msgid "Block to display"
 msgstr "Bloc à afficher"
 
-#: models/block.py:38
+#: models/block.py:41
 msgid "Blocks to display"
 msgstr "Blocs à afficher"
 
-#: models/block.py:43
+#: models/block.py:46
 msgid "Related type of relation"
 msgstr "Type de relation associé"
 
-#: models/block.py:47
+#: models/block.py:50
 msgid "Specific relation block"
 msgstr "Bloc de relation spécifique"
 
-#: models/block.py:48
+#: models/block.py:51
 msgid "Specific relation blocks"
 msgstr "Blocs de relation spécifique"
+
+#: models/block.py:60
+msgid "Block related entity"
+msgstr "Entité associée au bloc"
+
+#: models/block.py:62
+msgid "Verbose"
+msgstr "Verbeux"
+
+#: models/block.py:66
+msgid "Instance's Block to display"
+msgstr "Bloc d'instance à afficher"
+
+#: models/block.py:67
+msgid "Instance's Blocks to display"
+msgstr "Blocs d'instance à afficher"
 
 #: models/button_menu.py:31
 msgid "Button ID"
@@ -613,27 +637,27 @@ msgstr "Champ de recherche"
 msgid "Search fields"
 msgstr "Champs de recherche"
 
-#: templates/creme_core/base.html:73
+#: templates/creme_core/base.html:70
 msgid "Menu"
 msgstr "Menu"
 
-#: templates/creme_core/base.html:74
+#: templates/creme_core/base.html:71
 msgid "Back to Top"
 msgstr "Revenir au début"
 
-#: templates/creme_core/base.html:177
+#: templates/creme_core/base.html:174
 msgid "Welcome,"
 msgstr "Bienvenue, "
 
-#: templates/creme_core/base.html:179
+#: templates/creme_core/base.html:176
 msgid "My settings"
 msgstr "Ma configuration"
 
-#: templates/creme_core/base.html:180
+#: templates/creme_core/base.html:177
 msgid "Log out"
 msgstr "Se déconnecter"
 
-#: templates/creme_core/base.html:228
+#: templates/creme_core/base.html:225
 msgid "About Hybird"
 msgstr "À propos d'Hybird"
 
@@ -888,6 +912,11 @@ msgstr "Les champs suivis d'un * sont obligatoires."
 msgid "Global errors"
 msgstr "Erreurs globales"
 
+#: templates/creme_core/generics/blockform/edit.html:5
+#, python-format
+msgid "Modify %(object)s"
+msgstr "Modifier '%(object)s'"
+
 #: templates/creme_core/generics/form/base.html:21
 msgid "Form"
 msgstr "Formulaire"
@@ -977,15 +1006,15 @@ msgstr "Filtres"
 msgid "All"
 msgstr "Tout"
 
-#: templates/creme_core/templatetags/listview_filters.html:16
+#: templates/creme_core/templatetags/listview_filters.html:17
 msgid "Create a custom filter"
 msgstr "Créer un filtre personnalisé"
 
-#: templates/creme_core/templatetags/listview_filters.html:20
+#: templates/creme_core/templatetags/listview_filters.html:21
 msgid "Edit filter"
 msgstr "Éditer le filtre"
 
-#: templates/creme_core/templatetags/listview_filters.html:24
+#: templates/creme_core/templatetags/listview_filters.html:25
 msgid "Delete filter"
 msgstr "Supprimer le filtre"
 
@@ -993,15 +1022,15 @@ msgstr "Supprimer le filtre"
 msgid "Show only the desired columns"
 msgstr "Afficher uniquement les colonnes désirées"
 
-#: templates/creme_core/templatetags/listview_headerfilters.html:16
+#: templates/creme_core/templatetags/listview_headerfilters.html:17
 msgid "Create a custom view"
 msgstr "Créer une vue personnalisée"
 
-#: templates/creme_core/templatetags/listview_headerfilters.html:20
+#: templates/creme_core/templatetags/listview_headerfilters.html:21
 msgid "Edit custom view"
 msgstr "Éditer la vue personnalisée"
 
-#: templates/creme_core/templatetags/listview_headerfilters.html:24
+#: templates/creme_core/templatetags/listview_headerfilters.html:25
 msgid "Delete custom view"
 msgstr "Supprimer vue personnalisée"
 
@@ -1057,15 +1086,15 @@ msgstr "%s : <b>Permission refusée</b>,"
 msgid "%(entity)s has already the property %(property)s,"
 msgstr "%(entity)s a déjà la propriété %(property)s,"
 
-#: views/header_filter.py:88
+#: views/header_filter.py:87
 msgid "View sucessfully deleted"
 msgstr "Vue supprimée avec succès"
 
-#: views/header_filter.py:98
+#: views/header_filter.py:97
 msgid "Permission denied"
 msgstr "Permission refusée"
 
-#: views/header_filter.py:103
+#: views/header_filter.py:102
 msgid "This view can't be deleted"
 msgstr "Cette vue ne peut être effacée"
 
@@ -1111,9 +1140,3 @@ msgstr "%s ne peut être effacé à cause des ses dépendances."
 #: views/generic/listview.py:114
 msgid "The desired list does not have any view, please create one."
 msgstr "La liste souhaitée n'a aucune vue, veuillez en créer au moins une."
-
-#~ msgid "Create a filter"
-#~ msgstr "Créer un filtre"
-
-#~ msgid "Custom view"
-#~ msgstr "Vue personnalisée"
