@@ -29,9 +29,8 @@ from django.utils.translation import ugettext_lazy as _
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.auth.models import User
 
-from django_extensions.db.models import TimeStampedModel
-
-from function_field import FunctionFieldsManager
+from creme_core.models.function_field import FunctionFieldsManager
+from creme_core.models.fields import CreationDateTimeField, ModificationDateTimeField
 
 
 class CantBeDeleted(Exception):
@@ -163,7 +162,10 @@ class CremeModel(Model):
             parent_obj._collect_sub_objects(seen_objs)
 
 
-class CremeAbstractEntity(CremeModel, TimeStampedModel):
+class CremeAbstractEntity(CremeModel):
+    created  = CreationDateTimeField(_('Creation date'))
+    modified = ModificationDateTimeField(_('Last modification'))
+
     entity_type = ForeignKey(ContentType, editable=False)
     header_filter_search_field = CharField(max_length=200, editable=False)
 

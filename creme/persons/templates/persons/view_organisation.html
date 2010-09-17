@@ -4,7 +4,6 @@
 {% load creme_core_tags %}
 {% load creme_block %}
 
-
 {% block logo %}
     {% if object.url_site %}
         <a href="http://{{object.url_site}}" target="_blank" ><img src="{{object.image.get_image_url}}" alt="" style="max-height:64px;max-width:200px;"/></a>
@@ -25,58 +24,65 @@
 
 {% block detail_view_left_1 %}
     <!--{% cycle "block_header_line_dark" "block_header_line_light" as header_color %}
-        {% cycle "block_line_dark" "block_line_light" as row_color %}
-        {% cycle "td_info" "th_info" as position_class %} -->
+        {% cycle "block_line_dark" "block_line_light" as row_color %} -->
     <table class="table_detail_view ui-corner-all">
         {% get_basic_block_header _("Organisation information") 'infos_48.png' _('Information') %}
         <tbody class="collapsable">
             <tr>
-                <th class="{% cycle header_color %} {% cycle position_class %}">{% trans "Name of the organisation" %}</th>
-                <td class="{% cycle row_color %} {% cycle position_class %}">{{object.name}}</td>
+                <th class="{% cycle header_color %} th_info">{% trans "Creation date" %}</th>
+                <td class="{% cycle row_color %} td_info">{{object.created}}</td>
             </tr>
             <tr>
-                <th class="{% cycle header_color %} {% cycle position_class %}">{% trans "Staff size" %}</th>
-                <td class="{% cycle row_color %} {% cycle position_class %}">{{object.employees}}</td>
+                <th class="{% cycle header_color %} th_info">{% trans "Last modification" %}</th>
+                <td class="{% cycle row_color %} td_info">{{object.modified}}</td>
             </tr>
             <tr>
-                <th class="{% cycle header_color %} {% cycle position_class %}">{% trans "Legal form" %}</th>
-                <td class="{% cycle row_color %} {% cycle position_class %}">{{object.legal_form }}</td>
+                <th class="{% cycle header_color %} th_info">{% trans "Name of the organisation" %}</th>
+                <td class="{% cycle row_color %} td_info">{{object.name}}</td>
             </tr>
             <tr>
-                <th class="{% cycle header_color %} {% cycle position_class %}">{% trans "Line of business" %}</th>
-                <td class="{% cycle row_color %} {% cycle position_class %}">{{object.sector}}</td>
+                <th class="{% cycle header_color %} th_info">{% trans "Staff size" %}</th>
+                <td class="{% cycle row_color %} td_info">{{object.employees}}</td>
             </tr>
             <tr>
-                <th class="{% cycle header_color %} {% cycle position_class %}">{% trans "Capital" %}</th>
-                <td class="{% cycle row_color %} {% cycle position_class %}">{{object.capital}}</td>
+                <th class="{% cycle header_color %} th_info">{% trans "Legal form" %}</th>
+                <td class="{% cycle row_color %} td_info">{{object.legal_form}}</td>
             </tr>
             <tr>
-                <th class="{% cycle header_color %} {% cycle position_class %}">{% trans "SIREN" %}</th>
-                <td class="{% cycle row_color %} {% cycle position_class %}">{{object.siren}}</td>
+                <th class="{% cycle header_color %} th_info">{% trans "Line of business" %}</th>
+                <td class="{% cycle row_color %} td_info">{{object.sector}}</td>
             </tr>
             <tr>
-                <th class="{% cycle header_color %} {% cycle position_class %}">{% trans "NAF code" %}</th>
-                <td class="{% cycle row_color %} {% cycle position_class %}">{{object.naf}}</td>
+                <th class="{% cycle header_color %} th_info">{% trans "Capital" %}</th>
+                <td class="{% cycle row_color %} td_info">{{object.capital}}</td>
             </tr>
             <tr>
-                <th class="{% cycle header_color %} {% cycle position_class %}">{% trans "SIRET" %}</th>
-                <td class="{% cycle row_color %} {% cycle position_class %}">{{object.siret}}</td>
+                <th class="{% cycle header_color %} th_info">{% trans "SIREN" %}</th>
+                <td class="{% cycle row_color %} td_info">{{object.siren}}</td>
             </tr>
             <tr>
-                <th class="{% cycle header_color %} {% cycle position_class %}">{% trans "RCS/RM" %}</th>
-                <td class="{% cycle row_color %} {% cycle position_class %}">{{object.rcs}}</td>
+                <th class="{% cycle header_color %} th_info">{% trans "NAF code" %}</th>
+                <td class="{% cycle row_color %} td_info">{{object.naf}}</td>
             </tr>
             <tr>
-                <th class="{% cycle header_color %} {% cycle position_class %}">{% trans "Intra VAT" %}</th>
-                <td class="{% cycle row_color %} {% cycle position_class %}">{{object.tvaintra}}</td>
+                <th class="{% cycle header_color %} th_info">{% trans "SIRET" %}</th>
+                <td class="{% cycle row_color %} td_info">{{object.siret}}</td>
             </tr>
             <tr>
-                <th class="{% cycle header_color %} {% cycle position_class %}">{% trans "Subject to VAT" %}</th>
-                <td class="{% cycle row_color %} {% cycle position_class %}">{{object|get_html_field_value:"subject_to_vat" }}</td>
+                <th class="{% cycle header_color %} th_info">{% trans "RCS/RM" %}</th>
+                <td class="{% cycle row_color %} td_info">{{object.rcs}}</td>
             </tr>
             <tr>
-                <th class="{% cycle header_color %} {% cycle position_class %}">{% trans "Assigned to" %}</th>
-                <td class="{% cycle row_color %} {% cycle position_class %}">{{object.user}}</td>
+                <th class="{% cycle header_color %} th_info">{% trans "Intra VAT" %}</th>
+                <td class="{% cycle row_color %} td_info">{{object.tvaintra}}</td>
+            </tr>
+            <tr>
+                <th class="{% cycle header_color %} th_info">{% trans "Subject to VAT" %}</th>
+                <td class="{% cycle row_color %} td_info">{{object|get_html_field_value:"subject_to_vat" }}</td>
+            </tr>
+            <tr>
+                <th class="{% cycle header_color %} th_info">{% trans "Assigned to" %}</th>
+                <td class="{% cycle row_color %} td_info">{{object.user}}</td>
             </tr>
         </tbody>
     </table>
@@ -89,28 +95,28 @@
         </thead>
         <tbody class="collapsable">
             <tr>
-                <th class="{% cycle header_color %} {% cycle position_class %}">{% trans "Billing address" %}</th>
-                <td class="{% cycle row_color %} {% cycle position_class %}">{{object.billing_adress}}</td>
+                <th class="{% cycle header_color %} th_info">{% trans "Billing address" %}</th>
+                <td class="{% cycle row_color %} td_info">{{object.billing_adress}}</td>
             </tr>
             <tr>
-                <th class="{% cycle header_color %} {% cycle position_class %}">{% trans "Shipping address" %}</th>
-                <td class="{% cycle row_color %} {% cycle position_class %}">{{object.shipping_adress}}</td>
+                <th class="{% cycle header_color %} th_info">{% trans "Shipping address" %}</th>
+                <td class="{% cycle row_color %} td_info">{{object.shipping_adress}}</td>
             </tr>
             <tr>
-                <th class="{% cycle header_color %} {% cycle position_class %}">{% trans "Landline" %}</th>
-                <td class="{% cycle row_color %} {% cycle position_class %}">{{object.phone}}</td>
+                <th class="{% cycle header_color %} th_info">{% trans "Landline" %}</th>
+                <td class="{% cycle row_color %} td_info">{{object.phone}}</td>
             </tr>
             <tr>
-                <th class="{% cycle header_color %} {% cycle position_class %}">{% trans "Fax" %}</th>
-                <td class="{% cycle row_color %} {% cycle position_class %}">{{object.fax}}</td>
+                <th class="{% cycle header_color %} th_info">{% trans "Fax" %}</th>
+                <td class="{% cycle row_color %} td_info">{{object.fax}}</td>
             </tr>
             <tr>
-                <th class="{% cycle header_color %} {% cycle position_class %}">{% trans "E-mail" %}</th>
-                <td class="{% cycle row_color %} {% cycle position_class %}">{{object.email}}</td>
+                <th class="{% cycle header_color %} th_info">{% trans "E-mail" %}</th>
+                <td class="{% cycle row_color %} td_info">{{object.email}}</td>
             </tr>
             <tr>
-                <th class="{% cycle header_color %} {% cycle position_class %}">{% trans "Web Site" %}</th>
-                <td class="{% cycle row_color %} {% cycle position_class %}">{{object.url_site}}</td>
+                <th class="{% cycle header_color %} th_info">{% trans "Web Site" %}</th>
+                <td class="{% cycle row_color %} td_info">{{object.url_site}}</td>
             </tr>
         </tbody>
     </table>
@@ -119,16 +125,16 @@
         {% get_basic_block_header _('Other Information') 'infos_48.png' _('Information') %}
         <tbody class="collapsable">
             <tr>
-                <th class="{% cycle header_color %} {% cycle position_class %}">{% trans "Description" %}</th>
-                <td class="{% cycle row_color %} {% cycle position_class %}">{{object.description}}</td>
+                <th class="{% cycle header_color %} th_info">{% trans "Description" %}</th>
+                <td class="{% cycle row_color %} td_info">{{object.description}}</td>
             </tr>
             <tr>
-                <th class="{% cycle header_color %} {% cycle position_class %}">{% trans "Date of creation of the organisation" %}</th>
-                <td class="{% cycle row_color %} {% cycle position_class %}">{{object|get_html_field_value:"creation_date"}}</td>
+                <th class="{% cycle header_color %} th_info">{% trans "Date of creation of the organisation" %}</th>
+                <td class="{% cycle row_color %} td_info">{{object|get_html_field_value:"creation_date"}}</td>
             </tr>
             <tr>
-                <th class="{% cycle header_color %} {% cycle position_class %}">{% trans "Logo" %}</th>
-                <td class="{% cycle row_color %} {% cycle position_class %}" >{{object|get_html_field_value:"image"}}</td>
+                <th class="{% cycle header_color %} th_info">{% trans "Logo" %}</th>
+                <td class="{% cycle row_color %} td_info" >{{object|get_html_field_value:"image"}}</td>
             </tr>
         </tbody>
     </table>

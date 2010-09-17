@@ -18,23 +18,25 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django_extensions.management.jobs import HourlyJob
+from datetime import datetime, timedelta
+
+from django.core.management.base import BaseCommand
 
 from creme_core.models import Lock
 
 from recurrents.models import RecurrentGenerator
 
-#from logging import debug
-from datetime import datetime, timedelta
 
 LOCK_NAME = "generate_recurrent_documents"
 
-#NB: python manage.py runjob generate_document
+#NB: python manage.py recurrents_gendocs
 
-class Job(HourlyJob):
+class Command(BaseCommand):
     help = "Generate all recurrent documents that have to be."
 
-    def execute(self):
+    def handle(self, *args, **options):
+        print "oh ouiiii"
+        return
         lock = Lock.objects.filter(name=LOCK_NAME)
 
         if not lock:
@@ -42,7 +44,6 @@ class Job(HourlyJob):
             lock.save()
 
             try:
-                #debug("Y'a t-il des trucs à générer ???")
                 for generator in RecurrentGenerator.objects.filter(is_working=True):
                     recurrent_date = generator.last_generation + timedelta(days = generator.periodicity.value_in_days)
 
@@ -51,12 +52,9 @@ class Job(HourlyJob):
                     now   = datetime.now()
 
                     if recurrent_date < now or (last == first and first < now):
-                        #debug("=== > Oui ! Génération en cours...")
-
                         template = generator.template.get_real_entity()
 
                         template.create_entity()
-                        #debug("Pour le générateur <%s>, génération de <%s> effectué" % (generator,document))
 
                         generator.last_generation = datetime.now()
                         generator.save()

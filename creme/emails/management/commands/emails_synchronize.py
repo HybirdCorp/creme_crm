@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django_extensions.management.jobs import HourlyJob
+from django.core.management.base import BaseCommand
 
 from creme_settings import CREME_GET_EMAIL_JOB_USER_ID
 from creme_core.models import Lock
@@ -28,12 +28,12 @@ from creme.emails.models.mail import EntityEmail
 
 LOCK_NAME = "synchronizing_emails"
 
-#NB: python manage.py runjob synchronize
+#NB: python manage.py emails_synchronize
 
-class Job(HourlyJob):
+class Command(BaseCommand):
     help = "Synchronize all externals mails sent to Creme into Creme."
 
-    def execute(self):
+    def handle(self, *args, **options):
         lock = Lock.objects.filter(name=LOCK_NAME)
 
         if not lock:
@@ -42,7 +42,6 @@ class Job(HourlyJob):
                 lock.save()
 
                 EntityEmail.fetch_mails(CREME_GET_EMAIL_JOB_USER_ID)
-
             finally:
                 lock.delete()
         else:

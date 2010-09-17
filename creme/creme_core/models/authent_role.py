@@ -30,13 +30,13 @@ from django.contrib.auth.models import User
 from django.utils.encoding import force_unicode
 from django.utils.translation import ugettext_lazy as _
 
-from authent import CremeTypeDroit, CremeAppDroit, CremeAppTypeDroit, CremeDroitEntityType, CremeTypeEnsembleFiche
-from django_extensions.db.models import TimeStampedModel
-
-from creme_core.models import CremeModel
+from creme_core.models import CremeModel, CremeTypeDroit, CremeAppDroit, CremeAppTypeDroit, CremeDroitEntityType, CremeTypeEnsembleFiche
+from creme_core.models.fields import CreationDateTimeField, ModificationDateTimeField
 
 
-class CremeRole(CremeModel,TimeStampedModel):
+class CremeRole(CremeModel):
+    created            = CreationDateTimeField(_('Creation date'))
+    modified           = ModificationDateTimeField(_('Last modification'))
     name               = CharField(_(u"Name"), max_length=100)
     superieur          = ForeignKey('self', verbose_name=_(u"Superior"), blank=True, null=True, related_name='subordonne_set')
     droits_entity_type = ManyToManyField(CremeDroitEntityType, verbose_name=_(u"Credentials on resources"), blank=True, null=True)
