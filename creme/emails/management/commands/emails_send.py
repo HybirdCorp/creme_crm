@@ -21,8 +21,8 @@
 from logging import debug
 from datetime import datetime
 
+from django.core.management.base import BaseCommand
 from django.conf import settings
-from django_extensions.management.jobs import HourlyJob
 
 from creme_core.models import Lock
 
@@ -32,12 +32,12 @@ from emails.models.sending import SENDING_TYPE_IMMEDIATE, SENDING_STATE_DONE, SE
 
 LOCK_NAME = "sending_emails"
 
-#NB: python manage.py runjob send_mails
+#NB: python manage.py emails_send
 
-class Job(HourlyJob):
+class Command(BaseCommand):
     help = "Send all unsended mails that have to be."
 
-    def execute(self):
+    def handle(self, *args, **options):
         lock = Lock.objects.filter(name=LOCK_NAME)
 
         if not lock:

@@ -26,10 +26,9 @@ from django.db import models
 from django import template
 from django.utils.safestring import mark_safe
 from django.utils.html import escape
-from django_extensions.db import fields
 
-from creme_core.models import CremeEntity
-from creme_core.models.authent_role import CremeRole
+from creme_core.models import CremeEntity, CremeRole
+from creme_core.models import fields
 from creme_core.utils.meta import get_field_infos, get_model_field_infos, get_m2m_entities
 
 from media_managers.models import Image
@@ -141,7 +140,7 @@ classes = {
 
      fields.ModificationDateTimeField:  simple_print,
      fields.CreationDateTimeField :     simple_print,
-     fields.AutoSlugField:              simple_print,
+     #fields.AutoSlugField:              simple_print,
 }
 
 @register.filter(name="get_html_field_value")
