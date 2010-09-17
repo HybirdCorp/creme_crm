@@ -27,6 +27,9 @@ from django.forms.fields import ChoiceField
 from django.forms.widgets import Select
 from django.utils.translation import ugettext_lazy as _
 
+from django_extensions.db.fields import (ModificationDateTimeField,
+                                         CreationDateTimeField)
+
 from creme_core.forms.base import CremeEntityForm
 from creme_core.forms.widgets import DependentSelect
 from creme_core.forms.fields import AjaxChoiceField
@@ -36,7 +39,7 @@ from reports.report_aggregation_registry import field_aggregation_registry
 from reports.models.graph import ReportGraph, RGT_FK, RGT_RANGE
 
 authorized_aggregate_fields = field_aggregation_registry.authorized_fields
-authorized_abscissa_types = [models.DateField, models.DateTimeField, models.ForeignKey]
+authorized_abscissa_types = [models.DateField, models.DateTimeField, models.ForeignKey, ModificationDateTimeField, CreationDateTimeField]
 
 
 class ReportGraphAddForm(CremeEntityForm):
