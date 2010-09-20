@@ -18,12 +18,21 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from random import choice
-from string import ascii_letters, digits
+from django.utils.translation import ugettext as _
 
-ALLOWED_CHARS = ascii_letters + digits
+from creme_core.registry import creme_registry
+from creme_core.gui.menu import creme_menu
 
-def generate_id():
-    from emails.models.mail import ID_LENGTH
-    return ''.join(choice(ALLOWED_CHARS) for i in xrange(ID_LENGTH))
+
+app_url  = '/crudity'
+app_name = 'crudity'
+
+creme_registry.register_app(app_name, _(u'External data management'), app_url)
+
+#creme_menu.register_app (app_name, '%s/' % app_url, _("External management"))
+creme_menu.register_app (app_name, '%s/' % app_url, "Gestion des données externes")
+reg_menu = creme_menu.register_menu
+reg_menu(app_name, '%s/' % app_url,                       _(u'Portal'))
+reg_menu(app_name, '%s/email/waiting_actions' % app_url,  _(u'Email waiting actions'))
+reg_menu(app_name, '%s/history' % app_url,  _(u'History'))
 

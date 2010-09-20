@@ -44,7 +44,9 @@ from django.template.loader import render_to_string
 from creme_core.models import CremeModel, CremeEntity, Relation
 from creme_core.views.file_handling import handle_uploaded_file
 
-from emails.utils import generate_id, get_unicode_decoded_str
+from crudity.frontends.pop import pop_frontend
+
+from emails.utils import generate_id#, get_unicode_decoded_str
 
 from persons.models import MailSignature
 
@@ -219,32 +221,7 @@ class EntityEmail(_Email, CremeEntity):
 
 
     @staticmethod
-    def fetch_mails(user_id_to_assign):
-        client = None
-        message_count = mailbox_size = 0
-        response = messages = total_size = ""
-
-        try:
-            if CREME_GET_EMAIL_SSL:
-                client = poplib.POP3_SSL(CREME_GET_EMAIL_SERVER, CREME_GET_EMAIL_PORT, CREME_GET_EMAIL_SSL_KEYFILE, CREME_GET_EMAIL_SSL_CERTFILE)
-            else:
-                client = poplib.POP3(CREME_GET_EMAIL_SERVER, CREME_GET_EMAIL_PORT)
-            client.user(CREME_GET_EMAIL_USERNAME)
-            client.pass_(CREME_GET_EMAIL_PASSWORD)
-
-            message_count, mailbox_size = client.stat()
-            response, messages, total_size = client.list()
-        except Exception, e:#TODO: Define better exception
-            debug("Pop connection error : %s", e)
-            if client is not None:
-                client.quit()
-            return -1
-
-        getaddresses = email.utils.getaddresses
-        parsedate    = email.utils.parsedate
-
-        attachment_paths = []
-
+    def fetch_mails(user_id_to_assign):#TODO: Make crudity backend with it
         current_user = User.objects.get(pk=user_id_to_assign)
         #TODO: create category in the populate ?? refactor
         folder_cat, is_cat_created  = FolderCategory.objects.get_or_create(name=u"Fichiers reçus par mail") #TODO: i18n
@@ -253,87 +230,34 @@ class EntityEmail(_Email, CremeEntity):
                                                                user=current_user,
                                                                category=folder_cat)
 
-        for msg_infos in messages:
+#        message_count, emails = pop_frontend.fetch(delete=False, attachment_path=['upload','emails','attachments'])
+        message_count, emails = pop_frontend.fetch(delete=False)
+
+        for email in emails:
             mail = EntityEmail()
             mail.status = MAIL_STATUS_SYNCHRONIZED_WAITING
 
-            message_number, message_size = msg_infos.split(' ')
-            r, raw_message_lines, message_size = client.retr(message_number)
-
-            out_str = '\n'.join(raw_message_lines)
-            out_str = re.sub(r'\r(?!=\n)', '\r\n', out_str)
-
-            email_message = email.message_from_string(out_str)
-            get_all = email_message.get_all
-
-            to_emails   = [addr for name, addr in getaddresses(get_all('to', []))]
-            from_emails = [addr for name, addr in getaddresses(get_all('from', []))]
-            cc_emails   = [addr for name, addr in getaddresses(get_all('cc', []))]
-
-            subjects    = get_all('subject', [])
-
-            dates = []
-            for d in get_all('date', []):
-                if d is not None:
-                    dates.append(datetime(*parsedate(d)[:-3]))
-
-            body_html = u''
-            body = u''
-            # CONTENT HTML / PLAIN
-            if email_message.is_multipart():
-                for part in email_message.walk():
-                    encodings = set(part.get_charsets()) - set([None])
-                    payload   = part.get_payload(decode=True)
-
-                    mct = part.get_content_maintype()
-                    if mct == 'multipart':
-                        continue
-
-                    if mct != 'text':
-                        filename = part.get_filename()
-                        f = SimpleUploadedFile(filename, payload, content_type=part.get_content_type())
-                        attachment_paths.append(handle_uploaded_file(f, path=['upload','emails','attachments'], name=filename))
-
-                    else:
-                        cst = part.get_content_subtype()
-                        content = get_unicode_decoded_str(payload, encodings)
-                        if cst == 'html':
-                            body_html = content
-                        elif cst == 'plain':
-                            body = content
-            else:
-                encodings = set(email_message.get_charsets()) - set([None])
-
-                cst = email_message.get_content_subtype()
-                content = get_unicode_decoded_str(email_message.get_payload(decode=True), encodings)
-                if cst == 'plain':
-                    body = content
-                elif cst == 'html':
-                    body_html = body = content
-
-            mail.body      = body.encode('utf-8')
-            mail.body_html = body_html.encode('utf-8')
-            mail.sender    = u', '.join(set(from_emails))
-            mail.recipient = u', '.join(set(chain(to_emails, cc_emails)))
-            mail.subject   = u', '.join(subjects)
+            mail.body      = email.body.encode('utf-8')
+            mail.body_html = email.body_html.encode('utf-8')
+            mail.sender    = u', '.join(set(email.senders))
+            mail.recipient = u', '.join(set(chain(email.tos, email.ccs)))
+            mail.subject   = email.subject#u', '.join(email.subjects)
             mail.user_id   = user_id_to_assign
-            if dates:
-                mail.reception_date = dates[0]
+            if email.dates:
+                mail.reception_date = email.dates[0]
             mail.genid_n_save()
 
-            for attachment_path in attachment_paths:
-                doc = Document()
-                doc.title = u"%s (mail %s)" % (attachment_path.rpartition(os.sep)[2], mail.id)
-                doc.description = ugettext(u"Received with the mail %s") % (mail, )
-                doc.filedata = attachment_path
-                doc.user_id = user_id_to_assign
-                doc.folder = folder
-                doc.save()
-                Relation.create(doc, REL_OBJ_RELATED_2_DOC, mail)
-
-            # We delete the mail from the server when treated
-            client.dele(message_number)
-
-        client.quit()
+#            for attachment in email.attachments:
+#                #handle_uploaded_file(f, path=attachment_path, name=filename)
+#                #attachment_path=['upload','emails','attachments']
+#                doc = Document()
+#                doc.title = u"%s (mail %s)" % (attachment_path.rpartition(os.sep)[2], mail.id)
+#                doc.description = ugettext(u"Received with the mail %s") % (mail, )
+#                doc.filedata = attachment_path
+#                doc.user_id = user_id_to_assign
+#                doc.folder = folder
+#                doc.save()
+#                Relation.create(doc, REL_OBJ_RELATED_2_DOC, mail)
 
         return message_count
+
