@@ -23,7 +23,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from creme_core.models import CremePropertyType, RelationType
 from creme_core.forms import CremeForm, FieldBlockManager
-from creme_core.forms.widgets import OrderedMultipleChoiceWidget
+from creme_core.forms.widgets import UnorderedMultipleChoiceWidget
 from creme_core.utils import Q_creme_entity_content_types
 
 
@@ -37,18 +37,18 @@ _prop_label  = _(u'Properties constraint')
 
 class _RelationTypeBaseForm(CremeForm):
     subject_ctypes     = ModelMultipleChoiceField(label=_ct_label, queryset=_entities_ct, help_text=_ct_helptext,
-                                                  widget=OrderedMultipleChoiceWidget, required=False)
+                                                  widget=UnorderedMultipleChoiceWidget, required=False)
     subject_properties = ModelMultipleChoiceField(label=_prop_label, queryset=_all_props,
-                                                  widget=OrderedMultipleChoiceWidget, required=False)
+                                                  widget=UnorderedMultipleChoiceWidget, required=False)
 
     #TODO: language....
     subject_predicate  = CharField(label=_(u'Subject => object'))
     object_predicate   = CharField(label=_(u'Object => subject'))
 
     object_ctypes      = ModelMultipleChoiceField(label=_ct_label, queryset=_entities_ct, help_text=_ct_helptext,
-                                                  widget=OrderedMultipleChoiceWidget, required=False)
+                                                  widget=UnorderedMultipleChoiceWidget, required=False)
     object_properties  = ModelMultipleChoiceField(label=_prop_label, queryset=_all_props,
-                                                  widget=OrderedMultipleChoiceWidget, required=False)
+                                                  widget=UnorderedMultipleChoiceWidget, required=False)
 
     blocks = FieldBlockManager(('subject',   _(u'Subject'),        ('subject_ctypes', 'subject_properties')),
                                ('predicate', _(u'Verb/Predicate'), ('subject_predicate', 'object_predicate')),

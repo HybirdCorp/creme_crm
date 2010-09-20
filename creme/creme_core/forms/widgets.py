@@ -578,6 +578,7 @@ class ListViewWidget(TextInput):
                 </script>
             """ % {
                     'input':    super(ListViewWidget, self).render(name, "", self.attrs),
+                    #TODO: don't use "site_media/" ....
                     'includes': ''.join('<script type="text/javascript" src="/site_media/%s"></script>' % js for js in self.Media.js),
                     'id':       id_input,
                     'qfilter':  encode(self.q_filter),
@@ -586,6 +587,23 @@ class ListViewWidget(TextInput):
                 }
 
         return mark_safe(html_output)
+
+
+class UnorderedMultipleChoiceWidget(SelectMultiple):
+    def render(self, name, value, attrs=None, choices=()):
+        attrs = self.build_attrs(attrs, name=name)
+
+        return mark_safe(u"""%(select)s
+                     <script type="text/javascript">
+                        $(document).ready(function() {
+                            creme.forms.toUnorderedMultiSelect('%(id)s');
+                        });
+                     </script>
+                 """ % {
+                        'select': super(UnorderedMultipleChoiceWidget, self).render(name, value, attrs=attrs, choices=choices),
+                        'id':     attrs['id'],
+
+                     })
 
 
 class OrderedMultipleChoiceWidget(SelectMultiple):
