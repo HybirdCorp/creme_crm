@@ -1,0 +1,13 @@
+{% extends "creme_core/base.html" %}
+
+{% load i18n %}
+
+{% block page_title %} - {{frontend_verbose}} - {% trans "Waiting actions" %}{% endblock %}
+
+{% block extrahead %}
+    <script type="text/javascript" src="{{MEDIA_URL}}js/models/emails.js"></script>
+{% endblock %}
+
+{% block content %}
+    {% include "crudity/frags/ajax/waiting_actions.html" %}
+{% endblock %}
