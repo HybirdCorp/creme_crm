@@ -147,6 +147,7 @@ INSTALLED_APPS = (
     'creme.projects',
     'creme.tickets',
     'creme.reports',
+    'creme.crudity',
 )
 
 

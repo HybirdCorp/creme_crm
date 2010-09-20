@@ -1,0 +1,70 @@
+{% load i18n %}
+{% load creme_block %}
+{% load creme_core_tags %}
+{% load crudity_tags %}
+
+{% with 3 as colspan %}
+    <table class="table_detail_view ui-corner-all" id={{block_name}}>
+        <thead>
+            <tr>
+                <th colspan="{{colspan}}">
+                    {% blocktrans count page.paginator.count as counter with waiting_ct.name as ct_name with waiting_type|get_crud_type_verbose as type %}
+                    {{counter}} Waiting action - {{ct_name}} - {{type}}{% plural %}{{counter}} Waiting actions - {{ct_name}} - {{type}}
+                    {% endblocktrans %}
+                </th>
+            </tr>
+        </thead>
+        <tbody class="collapsable">
+            {% if page.paginator.count %}
+                <tr>
+                    <th colspan="{{colspan}}" class="block_header_line_dark" align="left">
+                        <a class="button_link" onclick="creme.emails.mass_action('/crudity/waiting_actions/validate', '[name=select_one]:checked', {% get_block_reload_uri %});">
+                            <img src="{{MEDIA_URL}}images/jewel_ok_22.png" border="0" title="{% trans "Validate" %}" alt="{% trans "Validate" %}" />
+                            {% trans "Validate" %}
+                        </a>
+                        <a class="button_link" onclick="creme.emails.mass_action('/crudity/waiting_actions/delete', '[name=select_one]:checked', {% get_block_reload_uri %});">
+                            <img src="{{MEDIA_URL}}images/delete_22.png" border="0" title="{% trans "Delete" %}" alt="{% trans "Delete" %}" />
+                            {% trans "Delete" %}
+                        </a>
+                    </th>
+                </tr>
+                <tr>
+                    <th class="{% cycle "block_header_line_dark" "block_header_line_light" %}">
+                        <center><input name="select_all" value="all" type="checkbox" title="{% trans "Select all" %}" onclick="creme.utils.toggleCheckallState(this, '#{{block_name}} [name=select_one]');"/></center>
+                    </th>
+                    <th class="{% cycle "block_header_line_dark" "block_header_line_light" %}">{% trans "Data" %}</th>
+                    <th class="{% cycle "block_header_line_dark" "block_header_line_light" %}">{% trans "Actions" %}</th>
+                </tr>
+                {% for waiting_action in page.object_list %}
+                    <!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
+                    <tr>
+                        <td class="{{row_color}}">
+                            <center><input name="select_one" value="{{waiting_action.pk}}" type="checkbox" onclick="creme.utils.autoCheckallState (this, '#{{block_name}} [name=select_all]', '#{{block_name}} [name=select_one]');"/></center>
+                        </td>
+                        <td class="{{row_color}}">
+                            {% for k, v in waiting_action.get_data.items %}
+                                {% if forloop.counter0|mod:4 == 0 %}
+                                <p>
+                                {% else %}
+                                 /
+                                {% endif %}
+                                {{k}} : {{v}}
+                                {% if forloop.counter|mod:4 == 0 %}
+                                    </p>
+                                {% endif %}
+                            {% endfor %}
+                        </td>
+                        <td class="{{row_color}}" align="center" valign="center" style="width:10%;">
+                            {% get_line_deletor at_url '/crudity/waiting_actions/delete' with_args "{'ids': ['{{waiting_action.pk}}'] }" %}
+                        </td>
+                    </tr>
+                {% endfor %}
+            {% else %}
+                <tr>
+                    <td class="block_line_dark">{% blocktrans with waiting_type|get_crud_type_verbose as type with waiting_ct.name as ct_name %}No waiting action for {{type}} {{ct_name}}{% endblocktrans %}</td>
+                </tr>
+            {% endif %}
+        </tbody>
+        {% include 'creme_core/templatetags/widgets/block_footer.html' %}
+    </table>
+{% endwith %}

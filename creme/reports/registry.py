@@ -18,24 +18,10 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from imp import find_module
 from logging import warning
 from datetime import datetime
 
-from django.conf import settings
-
-def find_n_import(filename, imports):
-    results = []
-    for app in settings.INSTALLED_APPS:
-        try:
-            find_module(filename, __import__(app, {}, {}, [app.split(".")[-1]]).__path__)
-        except ImportError, e:
-            # there is no app report_backend_register.py, skip it
-            continue
-
-        results.append(__import__("%s.%s" % (app, filename) , globals(), locals(), imports, -1))
-    return results
-
+from creme_core.utils.imports import find_n_import
 
 class ReportBackendRegistry(object):
     def __init__(self):

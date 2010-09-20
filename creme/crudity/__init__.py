@@ -18,12 +18,16 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from random import choice
-from string import ascii_letters, digits
+from django.utils.translation import ugettext as _
 
-ALLOWED_CHARS = ascii_letters + digits
+CREATE = 1
+READ   = 2
+UPDATE = 3
+DELETE = 4
 
-def generate_id():
-    from emails.models.mail import ID_LENGTH
-    return ''.join(choice(ALLOWED_CHARS) for i in xrange(ID_LENGTH))
-
+VERBOSE_CRUD = {
+    CREATE : _(u"Create"),
+    READ   : _(u"Read"),
+    UPDATE : _(u"Update"),
+    DELETE : _(u"Delete"),
+}

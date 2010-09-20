@@ -18,12 +18,5 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from random import choice
-from string import ascii_letters, digits
-
-ALLOWED_CHARS = ascii_letters + digits
-
-def generate_id():
-    from emails.models.mail import ID_LENGTH
-    return ''.join(choice(ALLOWED_CHARS) for i in xrange(ID_LENGTH))
-
+from actions import *
+from history import *
