@@ -171,15 +171,18 @@ class CreateForm(CremeEntityForm):
     def __init__(self, *args, **kwargs):
         super(CreateForm, self).__init__(*args, **kwargs)
         fields   = self.fields
-        ct_get = ContentType.objects.get_for_model
-        cts = [ct_get(model) for model in creme_registry.iter_entity_models()]
-        cts.sort(key=lambda ct: ct.name)
-        fields['ct'].choices = [(ct.id, ct.name) for ct in cts]
+
+        #TODO: create a ContentTypeModelChoice ??
+        get_ct = ContentType.objects.get_for_model
+        cts    = [(ct.id, unicode(ct)) for ct in (get_ct(model) for model in creme_registry.iter_entity_models())]
+        cts.sort(key=lambda ct_tuple: ct_tuple[1]) #sort by alphabetical order
+        fields['ct'].choices = cts
+
         self.aggregates = list(field_aggregation_registry.itervalues())#Convert to list to reuse it in template
 
         for aggregate in self.aggregates:
             fields[aggregate.name] = AjaxMultipleChoiceField(label=_(aggregate.title), required=False, choices=(), widget=OrderedMultipleChoiceWidget)
-            
+
         #To hande a validation error get ct_id data to rebuild all ?
 
     def clean(self):
