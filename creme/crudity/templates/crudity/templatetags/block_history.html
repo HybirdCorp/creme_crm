@@ -8,9 +8,7 @@
         <thead>
             <tr>
                 <th colspan="{{colspan}}">
-                    {% blocktrans count page.paginator.count as counter with ct.name as ct_name with type|get_crud_type_verbose as type %}
-                    {{counter}} History item - {{ct_name}} - {{type}}{% plural %}{{counter}} History items - {{ct_name}} - {{type}}
-                    {% endblocktrans %}
+                    {% blocktrans count page.paginator.count as counter with ct.name as ct_name with type|get_crud_type_verbose as type %}{{counter}} History item - {{ct_name}} - {{type}}{% plural %}{{counter}} History items - {{ct_name}} - {{type}}{% endblocktrans %}
                 </th>
             </tr>
         </thead>
