@@ -131,6 +131,7 @@ creme.reports.loadFilters = function(ct_id, $target_select)
     creme.reports.__loadFilters(url, ct_id, $target_select, params);
 }
 
+//TODO: refactor when OrderedMultiSelect can be properly reload
 creme.reports.__loadOrderedMultiSelect = function(url, pdata, table_id, input_name)
 {
 
@@ -141,7 +142,7 @@ creme.reports.__loadOrderedMultiSelect = function(url, pdata, table_id, input_na
 
     var success_cb = function(data, textStatus, req){
         $tbody.empty();
-        $columns_table.parent('.oms_div').children().not($columns_table).remove();
+        $columns_table.parent('.dcms_div').children().not($columns_table).remove();
 
         for(var i in data)
         {
@@ -162,7 +163,7 @@ creme.reports.__loadOrderedMultiSelect = function(url, pdata, table_id, input_na
 
     var error_cb = function(req, textStatus, err){
         $tbody.empty();
-        $columns_table.parent('.oms_div').children().not($columns_table).remove();
+        $columns_table.parent('.dcms_div').children().not($columns_table).remove();
     };
 
     creme.ajax.json.post(url, pdata, success_cb, error_cb, false, this.loading_options);

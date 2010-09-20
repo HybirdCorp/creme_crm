@@ -23,7 +23,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from creme_core.models import RelationType
 from creme_core.forms import CremeForm, CremeEntityForm
-from creme_core.forms.widgets import OrderedMultipleChoiceWidget
+from creme_core.forms.widgets import UnorderedMultipleChoiceWidget
 
 from graphs.models import Graph
 
@@ -37,7 +37,7 @@ class GraphForm(CremeEntityForm):
 class AddRelationTypesForm(CremeForm):
     relation_types = ModelMultipleChoiceField(label=_('Types of the peripheral relations'),
                                               queryset=RelationType.objects.all(),
-                                              widget=OrderedMultipleChoiceWidget)
+                                              widget=UnorderedMultipleChoiceWidget)
 
     def __init__(self, graph, *args, **kwargs):
         super(AddRelationTypesForm, self).__init__(*args, **kwargs)
