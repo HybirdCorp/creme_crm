@@ -18,12 +18,11 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from random import choice
-from string import ascii_letters, digits
+def get_unicode_decoded_str(str, encodings):
+    for encoding in encodings:
+        try:
+            return unicode(str, encoding) if not isinstance(str, unicode) else str
+        except:
+            continue
 
-ALLOWED_CHARS = ascii_letters + digits
-
-def generate_id():
-    from emails.models.mail import ID_LENGTH
-    return ''.join(choice(ALLOWED_CHARS) for i in xrange(ID_LENGTH))
-
+    return u"".join([i if ord(i) < 128 else '?' for i in str])
