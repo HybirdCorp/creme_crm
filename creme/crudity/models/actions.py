@@ -32,7 +32,6 @@ from crudity import VERBOSE_CRUD
 __all__ = ("WaitingAction",)
 
 class WaitingAction(CremeModel):
-#    entity_id = PositiveIntegerField(default=0)#useful?
     type      = PositiveIntegerField()
     data      = TextField(blank=True, null=True)
     ct        = ForeignKey(ContentType, verbose_name=_(u"Ressource's type"), blank=False, null=False)#Redundant, but faster bd recovery

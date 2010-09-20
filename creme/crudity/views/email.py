@@ -35,7 +35,7 @@ from crudity.frontends.pop import pop_frontend
 @login_required
 def fetch_emails(request):
     context = RequestContext(request)
-    message_count, emails = pop_frontend.fetch(delete=False)#TODO: Change to True when prod
+    message_count, emails = pop_frontend.fetch(delete=True)
 
     create_be = from_email_crud_registry.get_creates()
 

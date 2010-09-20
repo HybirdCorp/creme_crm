@@ -23,19 +23,17 @@ from django.db.models.fields.related import ForeignKey
 from django.db.models.fields import TextField, PositiveIntegerField
 from django.utils.translation import ugettext_lazy as _
 
-from django_extensions.db.fields import CreationDateTimeField
 
+from creme_core.models.fields import CreationDateTimeField
 from creme_core.models.base import CremeModel
 from creme_core.models.entity import CremeEntity
 
 __all__ = ("History", )
 
 class History(CremeModel):
-#    entity_id   = PositiveIntegerField()
     entity      = ForeignKey(CremeEntity, verbose_name=_(u"Entity"), blank=False, null=False)
     created     = CreationDateTimeField(_(u'Creation date'))
     type        = PositiveIntegerField()
-#    ct          = ForeignKey(ContentType, verbose_name=_(u"Ressource's type"), blank=False, null=False)#Redundant, but faster bd recovery
     description = TextField(_(u'Description'), blank=True, null=True)
 
     class Meta:
@@ -48,16 +46,6 @@ class History(CremeModel):
         if entity:
             entity = entity.get_real_entity()
         return entity
-
-#    def get_entity(self):
-#        entity = None
-#        entity_id = self.entity_id
-#        if entity_id:
-#            try:
-#                entity = CremeEntity.objects.get(pk=entity_id).get_real_entity()
-#            except CremeEntity.DoesNotExist:
-#                pass
-#        return entity
 
     def __unicode__(self):
         return u"History of %s" % self.get_entity() or u""

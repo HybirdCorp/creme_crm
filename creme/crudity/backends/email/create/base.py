@@ -55,17 +55,12 @@ class CreateFromEmailBackend(object):
 
             #Search first the password
             for i, line in enumerate(body):
-#                r = re.search(r'^password=(?P<password>\w+)', line)
                 r = re.search(passwd_pattern, line)
 
-                print "line :", line
-                
                 if r and r.groupdict().get('password') == password:
                     allowed = True
-#                    body.pop(i)
+                    body.pop(i)
                     break
-
-            print "allowed :", allowed
 
             if allowed:
                 for key in data.keys():
@@ -73,7 +68,7 @@ class CreateFromEmailBackend(object):
                         r = re.search(r'%s=(?P<%s>\w+)' % (key, key), line)
                         if r:
                             data[key] = r.groupdict().get(key)
-#                            body.pop(i)
+                            body.pop(i)
                             break
 
                 if self.in_sandbox:
@@ -98,9 +93,7 @@ class CreateFromEmailBackend(object):
             instance.save()
             history = History()
             history.entity = instance
-#            history.entity_id = instance.pk
             history.type = self.type
-#            history.ct = ContentType.objects.get_for_model(self.model)
             history.description = _(u"Creation of %(entity)s") % {'entity': instance}
             history.save()
         except IntegrityError:

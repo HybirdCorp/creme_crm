@@ -1,0 +1,155 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2010-09-20 18:35+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n>1;\n"
+
+#: __init__.py:29
+msgid "Create"
+msgstr "Créer"
+
+#: __init__.py:30
+msgid "Read"
+msgstr "Lire"
+
+#: __init__.py:31
+msgid "Update"
+msgstr "Mettre à jour"
+
+#: __init__.py:32 templates/crudity/templatetags/block_waiting_action.html:24
+#: templates/crudity/templatetags/block_waiting_action.html:25
+msgid "Delete"
+msgstr "Effacer"
+
+#: blocks.py:30 models/actions.py:43 templates/crudity/history.html:11
+#: templates/crudity/waiting_actions.html:5
+#: templates/crudity/frags/ajax/waiting_actions.html:6
+#: templates/crudity/frags/ajax/waiting_actions.html:9
+msgid "Waiting actions"
+msgstr "Actions en attente"
+
+#: blocks.py:54 creme_core_register.py:37 models/history.py:41
+#: models/history.py:42 templates/crudity/history.html:6
+#: templates/crudity/history.html.py:14
+msgid "History"
+msgstr "Historique"
+
+#: creme_core_register.py:30
+msgid "External data management"
+msgstr "Gestion des données externes"
+
+#: creme_core_register.py:35
+msgid "Portal"
+msgstr "Portail"
+
+#: creme_core_register.py:36
+msgid "Email waiting actions"
+msgstr "Actions en attente pour les emails"
+
+#: backends/email/create/base.py:97
+#, python-format
+msgid "Creation of %(entity)s"
+msgstr "Creation de %(entity)s"
+
+#: models/actions.py:37
+msgid "Ressource's type"
+msgstr "Type de ressource"
+
+#: models/actions.py:38
+msgid "Backend's name"
+msgstr "Nom du backend"
+
+#: models/actions.py:42
+msgid "Waiting action"
+msgstr "Action en attente"
+
+#: models/history.py:34 templates/crudity/templatetags/block_history.html:18
+msgid "Entity"
+msgstr "Entité"
+
+#: models/history.py:35
+msgid "Creation date"
+msgstr "Date de création"
+
+#: models/history.py:37 templates/crudity/templatetags/block_history.html:20
+msgid "Description"
+msgstr "Description"
+
+#: templates/crudity/frags/ajax/waiting_actions.html:16
+msgid "Refresh"
+msgstr "Rafraîchir"
+
+#: templates/crudity/templatetags/block_history.html:11
+#, python-format
+msgid "%(counter)s History item - %(ct_name)s - %(type)s"
+msgid_plural "%(counter)s History items - %(ct_name)s - %(type)s"
+msgstr[0] "%(counter)s entrée d'historique - %(ct_name)s - %(type)s"
+msgstr[1] "%(counter)s entrées d'historique - %(ct_name)s - %(type)s"
+
+#: templates/crudity/templatetags/block_history.html:19
+msgid "Created"
+msgstr "Créé"
+
+#: templates/crudity/templatetags/block_history.html:21
+msgid "View entity's file"
+msgstr "Voir la fiche de l'entité"
+
+#: templates/crudity/templatetags/block_history.html:30
+#, python-format
+msgid "View '%(history_entity)s' details"
+msgstr "Voir les détails de '%(history_entity)s'"
+
+#: templates/crudity/templatetags/block_history.html:30
+msgid "View"
+msgstr "Voir"
+
+#: templates/crudity/templatetags/block_history.html:36
+#, python-format
+msgid "No waiting action for %(crud_type)s %(ct_name)s"
+msgstr "Aucune action en attente pour %(crud_type)s %(ct_name)s"
+
+#: templates/crudity/templatetags/block_waiting_action.html:11
+#, python-format
+msgid "%(counter)s Waiting action - %(ct_name)s - %(type)s"
+msgid_plural "%(counter)s Waiting actions - %(ct_name)s - %(type)s"
+msgstr[0] "%(counter)s action en attente - %(ct_name)s - %(type)s"
+msgstr[1] "%(counter)s actions en attente - %(ct_name)s - %(type)s"
+
+#: templates/crudity/templatetags/block_waiting_action.html:20
+#: templates/crudity/templatetags/block_waiting_action.html:21
+msgid "Validate"
+msgstr "Valider"
+
+#: templates/crudity/templatetags/block_waiting_action.html:31
+msgid "Select all"
+msgstr "Tout sélectionner"
+
+#: templates/crudity/templatetags/block_waiting_action.html:33
+msgid "Data"
+msgstr "Donnée"
+
+#: templates/crudity/templatetags/block_waiting_action.html:34
+msgid "Actions"
+msgstr "Actions"
+
+#: templates/crudity/templatetags/block_waiting_action.html:62
+#, python-format
+msgid "No waiting action for %(type)s %(ct_name)s"
+msgstr "Aucune action en attente pour %(type)s %(ct_name)s"
+
+#: views/email.py:62 views/email.py:64
+msgid "Emails"
+msgstr "Courriels"
