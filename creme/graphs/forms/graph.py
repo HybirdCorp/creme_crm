@@ -43,6 +43,10 @@ class AddRelationTypesForm(CremeForm):
         super(AddRelationTypesForm, self).__init__(*args, **kwargs)
         self.graph = graph
 
+        self.fields['relation_types'].queryset = RelationType.objects.exclude(pk__in=graph.orbital_relation_types.all())
+
     def save(self):
-        self.graph.orbital_relation_types = self.cleaned_data['relation_types']
+        relation_types = self.graph.orbital_relation_types
+        for rtype in self.cleaned_data['relation_types']:
+            relation_types.add(rtype)
 
