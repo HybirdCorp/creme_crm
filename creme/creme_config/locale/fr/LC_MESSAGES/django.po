@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-09-16 15:26+0200\n"
+"POT-Creation-Date: 2010-09-20 18:02+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -51,19 +51,23 @@ msgstr "Configuration des blocs"
 msgid "Relation blocks configuration"
 msgstr "Configuration des blocs de relation"
 
-#: blocks.py:199
+#: blocks.py:198
+msgid "Instance blocks configuration"
+msgstr "Configuration des blocs d'instance"
+
+#: blocks.py:212
 msgid "Button menu configuration"
 msgstr "Configuration du menu bouton"
 
-#: blocks.py:215
+#: blocks.py:228
 msgid "Applications credentials configuration"
 msgstr "Configuration des droits des applications"
 
-#: blocks.py:229
+#: blocks.py:242
 msgid "Entities credentials configuration"
 msgstr "Configuration des droits des entités"
 
-#: blocks.py:242
+#: blocks.py:255
 msgid "Search configuration"
 msgstr "Configuration de la recherche"
 
@@ -103,21 +107,26 @@ msgstr "Gestion des rôles"
 msgid "Users settings"
 msgstr "Gestion des utilisateurs"
 
-#: forms/blocks.py:37 forms/button_menu.py:40 forms/custom_fields.py:64
+#: forms/blocks.py:38 forms/button_menu.py:40 forms/custom_fields.py:64
 #: forms/search.py:36 forms/search.py:68
 msgid "Related resource"
 msgstr "Ressource associée"
 
-#: forms/blocks.py:38
+#: forms/blocks.py:39
 msgid "Block to display"
 msgstr "Blocs à afficher"
 
-#: forms/blocks.py:46
+#: forms/blocks.py:47
 #, python-format
 msgid "Relation block: %s"
 msgstr "Bloc de relation: %s"
 
-#: forms/blocks.py:106
+#: forms/blocks.py:49
+#, python-format
+msgid "Instance's block: %s"
+msgstr "Bloc d'instance: %s"
+
+#: forms/blocks.py:109
 msgid "Blocks to display on the portal"
 msgstr "Blocs à afficher sur le portail"
 
@@ -151,7 +160,7 @@ msgid "No selected type means that all types are accepted"
 msgstr "Aucun type séléctionné signifiera que tous les types sont acceptés"
 
 #: forms/creme_property_type.py:44
-msgid "A property type with this anme already exists"
+msgid "A property type with this name already exists"
 msgstr "Un type de propriété avec ce nom existe déjà"
 
 #: forms/custom_fields.py:35
@@ -444,6 +453,7 @@ msgstr "Éditer"
 #: templates/creme_config/templatetags/block_custom_fields.html:19
 #: templates/creme_config/templatetags/block_custom_fields_portal.html:18
 #: templates/creme_config/templatetags/block_entity_credentials.html:27
+#: templates/creme_config/templatetags/block_instanceblocksconfig.html:10
 #: templates/creme_config/templatetags/block_models.html:40
 #: templates/creme_config/templatetags/block_property_types.html:20
 #: templates/creme_config/templatetags/block_relationblocksconfig.html:18
@@ -543,41 +553,41 @@ msgstr "Nouveau rôle"
 msgid "No role for the moment"
 msgstr "Aucun rôle pour le moment"
 
-#: templates/creme_config/roles/view_role.html:24
+#: templates/creme_config/roles/view_role.html:26
 msgid "Information"
 msgstr "Informations"
 
-#: templates/creme_config/roles/view_role.html:25
+#: templates/creme_config/roles/view_role.html:27
 #, python-format
 msgid "Information on %(object)s"
 msgstr "Informations sur %(object)s"
 
-#: templates/creme_config/roles/view_role.html:31
+#: templates/creme_config/roles/view_role.html:33
 #: templates/creme_config/templatetags/block_custom_fields.html:16
 msgid "Name"
 msgstr "Nom"
 
-#: templates/creme_config/roles/view_role.html:35
+#: templates/creme_config/roles/view_role.html:37
 msgid "Superiors"
 msgstr "Supérieurs"
 
-#: templates/creme_config/roles/view_role.html:43
+#: templates/creme_config/roles/view_role.html:45
 msgid "Subordinates"
 msgstr "Subordonnés"
 
-#: templates/creme_config/roles/view_role.html:49
+#: templates/creme_config/roles/view_role.html:51
 msgid "Own credentials"
 msgstr "Droits propres"
 
-#: templates/creme_config/roles/view_role.html:59
+#: templates/creme_config/roles/view_role.html:61
 msgid "Inherited credentials"
 msgstr "Droits hérités"
 
-#: templates/creme_config/roles/view_role.html:69
+#: templates/creme_config/roles/view_role.html:71
 msgid "Allowed applications"
 msgstr "Applications autorisées"
 
-#: templates/creme_config/roles/view_role.html:79
+#: templates/creme_config/roles/view_role.html:81
 msgid "Inherited allowed applications"
 msgstr "Applications autorisées héritées"
 
@@ -696,7 +706,25 @@ msgstr "Type d'ensemble"
 
 #: templates/creme_config/templatetags/block_entity_credentials.html:26
 msgid "Particular Entity/Role/Team"
-msgstr "Entité/Rôle/Equipe particulier"
+msgstr "Entité/Rôle/Équipe particulier"
+
+#: templates/creme_config/templatetags/block_instanceblocksconfig.html:5
+#, python-format
+msgid "%s Instance's block created"
+msgstr "%s Blocs d'instance crée"
+
+#: templates/creme_config/templatetags/block_instanceblocksconfig.html:5
+#, python-format
+msgid "%s Instances' blocks created"
+msgstr "%s Blocs d'instance crées"
+
+#: templates/creme_config/templatetags/block_instanceblocksconfig.html:9
+msgid "Related entity"
+msgstr "Relatif à l'entité"
+
+#: templates/creme_config/templatetags/block_instanceblocksconfig.html:25
+msgid "No type of instance block created for the moment"
+msgstr "Aucun bloc d'instance créé pour le moment"
 
 #: templates/creme_config/templatetags/block_models.html:22
 #: templates/creme_config/templatetags/block_models.html:23
