@@ -1,7 +1,5 @@
 {% load i18n %}
-{% load creme_menu %}
-{% load creme_core_tags %}
-{% load creme_search %}
+{% load creme_menu %}{% load creme_core_tags %}{% load creme_search %}{% load creme_quickforms %}
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="{{ LANGUAGE_CODE }}" xml:lang="{{ LANGUAGE_CODE }}" {% if LANGUAGE_BIDI %}dir="rtl"{% endif %}>
 <head>
@@ -16,7 +14,6 @@
     <style type="text/css">
         .fg-menu-container { z-index: 100; }</style>
     <script type='text/javascript'>
-
       $(document).ready(function() {
            var document_width_onload  = $(document).width();
            var document_height_onload = $(document).height();
@@ -179,6 +176,7 @@
                     </td>
                     <td align="center" valign="middle" style="width: 40%;" >
                         {% get_search_panel %}
+                        {% get_quickforms_panel %}
                     </td>
                     <td align="right" valign="bottom">
                         <a href="/"><img src="{{MEDIA_URL}}images/creme_header_50.png" alt="Crème" border="0" /></a>

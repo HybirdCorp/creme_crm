@@ -65,6 +65,8 @@ creme_core_patterns = patterns('creme_core.views',
     #Research
     (r'^search$', 'search.search'),
 
+    (r'^quickforms/(?P<ct_id>\d+)/(?P<count>\d+)$', 'quick_forms.add'),
+
     #Ajax helpers
     #TODO: move to entity.py ??
     (r'^get_fields$',         'ajax.get_fields'),

@@ -251,10 +251,9 @@ def idiv(integer, integer2):
 def mod(integer, integer2):
     return integer % integer2
 
-#used ??
 @register.filter(name="xrange")
-def x_range(integer):
-    return xrange(0, integer, 1)
+def x_range(integer, start=0):
+    return xrange(start, start + integer)
 
 #move to creme_config (template too) ??
 @register.inclusion_tag('creme_core/templatetags/role_descendant.html')

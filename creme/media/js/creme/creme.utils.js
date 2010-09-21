@@ -328,7 +328,7 @@ creme.utils.loadBlock = function(url) {
         type:     "GET",
         dataType: "json",
         cache:    false, // ??
-      beforeSend: this.loading('loading',false),
+        beforeSend: this.loading('loading',false),
         success:  function(data) {
                         for (var i = 0; i < data.length; ++i) {
                             var block_data = data[i];          //tuple: (block_name, block_html)
@@ -499,7 +499,6 @@ creme.utils.iframeInnerPopup = function(url) {
                                         );
                                     }
                                 });
-
 }
 
 creme.utils.closeDialog = function(dial, reload, beforeReloadCb, callback_url) {
@@ -628,27 +627,36 @@ creme.utils.innerPopupNReload = function(url, reload_url) {
                               });
 }
 
-creme.utils.handleResearch = function(url, target_node_id, scope)
-{
+creme.utils.handleResearch = function(url, target_node_id, scope) {
     var _data = {};
-    $(scope.targets).each(function(){
+    $(scope.targets).each(function() {
        _data[this] = $('[name='+this+']', scope.from).val();
     });
-    
+
     $.ajax({
-        url:url,
+        url: url,
         type: 'POST',
-        data:_data,
-        dataType:'html',
-        success: function(data, status, req){
-            $('#'+target_node_id).html(data);
+        data: _data,
+        dataType: 'html',
+        success: function(data, status, req) {
+            $('#' + target_node_id).html(data);
         },
-        error:function(req, status, errorThrown){
+        error: function(req, status, errorThrown) {
         },
-        complete:function(){
-            document.title=i18n.get_current_language()['SEARCH_RESULTS'];
+        complete: function() {
+            document.title = i18n.get_current_language()['SEARCH_RESULTS'];
         }
     });
+}
+
+creme.utils.handleQuickForms = function(url, $scope_from, targets) {
+    var uri = url;
+
+    $(targets).each(function() {
+        uri += '/' + $('[name=' + this + ']', $scope_from).val();
+    });
+
+    creme.utils.showInnerPopup(uri); //, {'width' : 950}
 }
 
 creme.utils.multiDeleteFromListView = function(lv_selector, delete_url) {
@@ -660,7 +668,7 @@ creme.utils.multiDeleteFromListView = function(lv_selector, delete_url) {
     $(lv_selector).list_view('option', 'entity_separator', ',');
 
     var ajax_opts = {
-        complete : function(request, textStatus){
+        complete : function(request, textStatus) {
                             $(lv_selector).list_view('reload');
                             creme.utils.loading('loading', true);
                     }

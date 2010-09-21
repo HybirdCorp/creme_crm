@@ -17,23 +17,25 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django import template
+from django.template import Library
 from django.contrib.contenttypes.models import ContentType
 
-from creme_core.registry import creme_registry
+from creme_core.gui.quick_forms import quickforms_registry
 
 
-register = template.Library()
+#TODO: regroup with some others templatetags files (eg search_panel, menu) ?????
 
-@register.inclusion_tag('creme_core/templatetags/search_panel.html', takes_context=True)
-def get_search_panel(context, target_node_id='sub_content'):
+register = Library()
+
+@register.inclusion_tag('creme_core/templatetags/quickforms_panel.html', takes_context=True)
+def get_quickforms_panel(context, target_node_id='sub_content'):
     get_ct = ContentType.objects.get_for_model
-    content_types = [{'id': get_ct(model).id, 'verbose_name': model._meta.verbose_name} for model in creme_registry.iter_entity_models()]
+    content_types = [{'id': get_ct(model).id, 'verbose_name': model._meta.verbose_name}
+                        for model in quickforms_registry.iter_models()]
     content_types.sort(key=lambda k: k['verbose_name'])
 
     context.update({
             'content_types':  content_types,
-            'target_node_id': target_node_id, #Ajax version / set your target html node's id
         })
 
     return context
