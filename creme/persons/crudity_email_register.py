@@ -25,7 +25,7 @@ from crudity.backends.email import CreateFromEmailBackend
 
 from persons.models.contact import Contact
 
-create_contact_settings = PERSONS_CONTACT_FROM_EMAIL.get("create")
+create_contact_settings = PERSONS_CONTACT_FROM_EMAIL.get(CREATE)
 
 CREATE_CONTACT_PASSWORD    = create_contact_settings.get("password")
 CREATE_CONTACT_LIMIT_FROMS = create_contact_settings.get("limit_froms")

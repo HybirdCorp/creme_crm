@@ -190,6 +190,9 @@ class _SynchronizationMailsBlock(QuerysetBlock):
     dependencies  = (EntityEmail,)
     order_by      = '-reception_date'
 
+    def __init__(self, *args, **kwargs):
+        super(_SynchronizationMailsBlock, self).__init__()
+
     @jsonify
     def detailview_ajax(self, request):
         context = RequestContext(request)
@@ -213,7 +216,7 @@ class WaitingSynchronizationMailsBlock(_SynchronizationMailsBlock):
                                                             ))
 
 
-class SynchronizatMailsBlock(_SynchronizationMailsBlock):
+class SpamSynchronizationMailsBlock(_SynchronizationMailsBlock):
     id_           = QuerysetBlock.generate_id('emails', 'synchronised_as_spam')
     verbose_name  = _(u'Spam emails')
     template_name = 'emails/templatetags/block_synchronization_spam.html'
@@ -236,4 +239,4 @@ sendings_block          = SendingsBlock()
 mails_block             = MailsBlock()
 mails_history_block     = MailsHistoryBlock()
 mail_waiting_sync_block = WaitingSynchronizationMailsBlock()
-mail_spam_sync_block    = SynchronizatMailsBlock()
+mail_spam_sync_block    = SpamSynchronizationMailsBlock()
