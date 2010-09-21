@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-08-24 16:27+0200\n"
+"POT-Creation-Date: 2010-09-21 14:00+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -19,47 +19,55 @@ msgstr ""
 msgid "Linked documents"
 msgstr "Documents liés"
 
-#: creme_core_register.py:32 models/document.py:44
+#: creme_core_register.py:32 models/document.py:43
 msgid "Documents"
 msgstr "Documents"
 
 #: creme_core_register.py:36
+msgid "Portal"
+msgstr "Portail"
+
+#: creme_core_register.py:37
 msgid "All documents"
 msgstr "Lister les documents"
 
-#: creme_core_register.py:37
+#: creme_core_register.py:38
 #: templates/documents/templatetags/block_linked_docs.html:13
 #: templates/documents/templatetags/block_linked_docs.html:14
 msgid "Add a document"
 msgstr "Ajouter un document"
 
-#: creme_core_register.py:38
+#: creme_core_register.py:39
 msgid "All folders"
 msgstr "Lister les classeurs"
 
-#: creme_core_register.py:39
+#: creme_core_register.py:40
 msgid "Add a folder"
 msgstr "Ajouter un classeur"
 
-#: populate.py:39
+#: populate.py:38
 msgid "related to the document"
 msgstr "concerne le document"
 
-#: populate.py:40
+#: populate.py:39
 msgid "document related to"
 msgstr "document concerné par"
 
-#: populate.py:41
+#: populate.py:40
 msgid "is the current document of"
 msgstr "est le document courant de"
 
-#: populate.py:42
+#: populate.py:41
 msgid "has as current document"
 msgstr "a comme document courant"
 
-#: populate.py:44
+#: populate.py:43
 msgid "Documents related to entities"
 msgstr "Documents crées à partir des fiches"
+
+#: populate.py:44
+msgid "Documents received by email"
+msgstr "Documents reçus par email"
 
 #: populate.py:46
 msgid "Folder containing all the documents related to entities"
@@ -73,7 +81,7 @@ msgstr "Vue de Document"
 msgid "Title"
 msgstr "Titre"
 
-#: populate.py:51 models/document.py:36 models/folder.py:56
+#: populate.py:51 models/document.py:36 models/folder.py:54
 msgid "Folder"
 msgstr "Classeur"
 
@@ -90,20 +98,20 @@ msgstr "Description"
 msgid "File"
 msgstr "Fichier"
 
-#: models/document.py:43
+#: models/document.py:42
 #: templates/documents/templatetags/block_linked_docs.html:8
 msgid "Document"
 msgstr "Document"
 
-#: models/folder.py:34
+#: models/folder.py:33
 msgid "Parent folder"
 msgstr "Classeur parent"
 
-#: models/folder.py:35
+#: models/folder.py:34
 msgid "Category"
 msgstr "Catégorie"
 
-#: models/folder.py:57
+#: models/folder.py:55
 msgid "Folders"
 msgstr "Classeurs"
 
