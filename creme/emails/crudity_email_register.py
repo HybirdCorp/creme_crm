@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from creme.crudity.models.history import History
+
 import os
 from itertools import chain
 
@@ -32,11 +32,12 @@ from creme_settings import EMAILS_ENTITYEMAIL_FROM_EMAIL
 
 from crudity import CREATE
 from crudity.backends.email import CreateFromEmailBackend
+from crudity.models.history import History
 
 from documents.models.document import Document
 from documents.models.folder import Folder
 from documents.models.other_models import FolderCategory
-from documents.constants import REL_OBJ_RELATED_2_DOC
+from documents.constants import REL_OBJ_RELATED_2_DOC, DOCUMENTS_FROM_EMAILS
 
 from emails.models.mail import EntityEmail, MAIL_STATUS_SYNCHRONIZED_WAITING
 from emails.blocks import WaitingSynchronizationMailsBlock, SpamSynchronizationMailsBlock
@@ -69,10 +70,9 @@ class CreateEntityEmailFromEmail(CreateFromEmailBackend):
             return
 
         current_user_id = current_user.id
-        #TODO: create category in the populate ?? refactor
-        folder_cat, is_cat_created  = FolderCategory.objects.get_or_create(name=u"Fichiers reçus par mail") #TODO: i18n
+        folder_cat, is_cat_created  = FolderCategory.objects.get_or_create(pk=DOCUMENTS_FROM_EMAILS)
 
-        folder, is_fold_created = Folder.objects.get_or_create(title=u'Fichiers de %s reçus par mail' % current_user.username, #TODO: i18n
+        folder, is_fold_created = Folder.objects.get_or_create(title=ugettext(u"%(username)s's files received by email") % {'username': current_user.username},
                                                                user=current_user,
                                                                category=folder_cat)
 

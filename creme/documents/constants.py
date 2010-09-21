@@ -7,3 +7,4 @@ REL_SUB_CURRENT_DOC = 'documents-subject_current_doc'
 REL_OBJ_CURRENT_DOC = 'documents-object_current_doc'
 
 DOCUMENTS_FROM_ENTITIES = 1
+DOCUMENTS_FROM_EMAILS   = 2
