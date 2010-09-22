@@ -35,10 +35,11 @@ from creme_core.views.generic import add_entity, edit_entity, view_entity_with_t
 from creme_core.utils.meta import get_model_field_infos
 from creme_core.utils import get_ct_or_404
 from creme_core.utils.meta import get_flds_with_fk_flds, get_date_fields
+from creme_core.date_filters_registry import date_filters_registry
 
 from reports.models import Report, report_prefix_url, report_template_dir, Field
 from reports.forms.report import CreateForm, EditForm, LinkFieldToReportForm, AddFieldToReportForm, get_aggregate_custom_fields, DateReportFilterForm
-from reports.registry import report_backend_registry, report_filters_registry
+from reports.registry import report_backend_registry
 from reports.report_aggregation_registry import field_aggregation_registry
 
 report_app = Report._meta.app_label
@@ -212,7 +213,7 @@ def preview(request, report_id):
                                 'object'  : report,
                                 'html_backend' : html_backend,
                                 'limit_to': LIMIT_TO,
-                                'date_filters': report_filters_registry.itervalues(),
+                                'date_filters': date_filters_registry.itervalues(),
                                 'date_fields' : [(field.name, field.verbose_name) for field in get_date_fields(report.ct.model_class())],
                                 'form': filter_form
                               },
