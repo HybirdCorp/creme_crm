@@ -19,6 +19,7 @@
 ################################################################################
 
 from django.http import Http404
+from django.forms.formsets import formset_factory
 from django.template.context import RequestContext
 from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required
@@ -38,20 +39,23 @@ def add(request, ct_id, count):
     except KeyError, e:
         raise Http404('No form registered for model: %s' % model)
 
+    qformset_class = formset_factory(form_class, extra=int(count))
+
     if request.POST:
-        qform = form_class(request.POST)
+        qformset = qformset_class(request.POST)
 
-        if qform.is_valid():
-            qform.save()
+        if qformset.is_valid():
+            for form in qformset.forms:
+                form.save()
     else:
-        qform = form_class()
+        qformset = qformset_class()
 
-    return inner_popup(request, 'creme_core/generics/blockform/add_popup2.html',
+    return inner_popup(request, 'creme_core/generics/blockformset/add_popup.html',
                        {
-                        'form':   qform,
-                        'title':  _('Quick creation of <%s>') % model._meta.verbose_name,
+                        'formset': qformset,
+                        'title':   _('Quick creation of <%s>') % model._meta.verbose_name,
                        },
-                       is_valid=qform.is_valid(),
+                       is_valid=qformset.is_valid(),
                        reload=False,
                        delegate_reload=True,
                        context_instance=RequestContext(request))

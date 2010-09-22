@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-09-17 13:45+0200\n"
+"POT-Creation-Date: 2010-09-22 11:43+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -541,7 +541,8 @@ msgid "See"
 msgstr "Voir"
 
 #: models/entity.py:189 templates/creme_core/detailview.html:59
-#: templates/creme_core/generics/blockform/edit.html:10
+#: templates/creme_core/generics/blockform/edit.html:9
+#: templates/creme_core/generics/blockform/edit.html:16
 #: templates/creme_core/generics/form/edit.html:3
 #: templates/creme_core/generics/form/edit.html:4
 msgid "Edit"
@@ -609,6 +610,7 @@ msgid "Related user"
 msgstr "Utilisateur associé"
 
 #: models/search.py:42 templates/creme_core/search_results.html:10
+#: templates/creme_core/templatetags/quickforms_panel.html:4
 #: templates/creme_core/templatetags/search_panel.html:4
 msgid "Search"
 msgstr "Recherche"
@@ -637,27 +639,27 @@ msgstr "Champ de recherche"
 msgid "Search fields"
 msgstr "Champs de recherche"
 
-#: templates/creme_core/base.html:70
+#: templates/creme_core/base.html:67
 msgid "Menu"
 msgstr "Menu"
 
-#: templates/creme_core/base.html:71
+#: templates/creme_core/base.html:68
 msgid "Back to Top"
 msgstr "Revenir au début"
 
-#: templates/creme_core/base.html:174
+#: templates/creme_core/base.html:171
 msgid "Welcome,"
 msgstr "Bienvenue, "
 
-#: templates/creme_core/base.html:176
+#: templates/creme_core/base.html:173
 msgid "My settings"
 msgstr "Ma configuration"
 
-#: templates/creme_core/base.html:177
+#: templates/creme_core/base.html:174
 msgid "Log out"
 msgstr "Se déconnecter"
 
-#: templates/creme_core/base.html:225
+#: templates/creme_core/base.html:223
 msgid "About Hybird"
 msgstr "À propos d'Hybird"
 
@@ -781,6 +783,7 @@ msgstr ""
 
 #: templates/creme_core/filters.html:587
 #: templates/creme_core/generics/blockform/base.html:53
+#: templates/creme_core/generics/blockformset/base.html:60
 #: templates/creme_core/generics/form/base.html:54
 msgid "Submit"
 msgstr "Envoyer"
@@ -904,15 +907,17 @@ msgid "Statistics"
 msgstr "Statistiques"
 
 #: templates/creme_core/generics/blockform/base.html:18
+#: templates/creme_core/generics/blockformset/base.html:15
 msgid "Fields marked with * are required."
 msgstr "Les champs suivis d'un * sont obligatoires."
 
 #: templates/creme_core/generics/blockform/base.html:40
+#: templates/creme_core/generics/blockformset/base.html:41
 #: templates/creme_core/generics/form/base.html:44
 msgid "Global errors"
 msgstr "Erreurs globales"
 
-#: templates/creme_core/generics/blockform/edit.html:5
+#: templates/creme_core/generics/blockform/edit.html:7
 #, python-format
 msgid "Modify %(object)s"
 msgstr "Modifier '%(object)s'"
@@ -1043,6 +1048,10 @@ msgstr "Ouvrir"
 msgid "Prefered menu:"
 msgstr "Menus rapides:"
 
+#: templates/creme_core/templatetags/quickforms_panel.html:11
+msgid "Quick creation"
+msgstr "Création rapide"
+
 #: templates/creme_core/templatetags/widgets/block_footer.html:9
 msgid "Previous page"
 msgstr "Page précédente"
@@ -1098,6 +1107,11 @@ msgstr "Permission refusée"
 msgid "This view can't be deleted"
 msgstr "Cette vue ne peut être effacée"
 
+#: views/quick_forms.py:56
+#, python-format
+msgid "Quick creation of <%s>"
+msgstr "Création rapide de <%s>"
+
 #: views/relation.py:252
 #, python-format
 msgid "Relations for <%s>"
@@ -1120,11 +1134,11 @@ msgstr "Certaines des entités n'existent pas ou plus"
 msgid "Operation successfully completed"
 msgstr "Opération déroulée avec succès"
 
-#: views/search.py:96
+#: views/search.py:97
 msgid "Empty search..."
 msgstr "Recherche vide..."
 
-#: views/search.py:98
+#: views/search.py:99
 msgid "Please enter at least 3 characters"
 msgstr "Veuillez entrer au moins 3 caractères"
 
