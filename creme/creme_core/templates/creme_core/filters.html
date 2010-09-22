@@ -323,6 +323,66 @@
         $(tr_test).show();
     }
 
+    function addDateFilterLine(date_field, begin_date, end_date, selected_globaltest)
+    {
+        var $counter = $('#date_fields_count');
+        var count = $counter.val();
+        count = (isNaN(parseInt(count)))?1:(parseInt(count)+1);
+        $counter.val(count);
+
+        var tr_model = $('#date_fields_model').clone();
+        replaceAttr(tr_model, 'id', 'model', count, false);
+        replaceAttr(tr_model, 'name', '', '_'+count, true);
+
+        var tr_test = $('#line_test_model').clone();
+        replaceAttr(tr_test, 'id', 'model', 'filter_'+count, false);
+        replaceAttr(tr_test, 'name', 'model', 'filter_'+count, false);
+
+        var $ids = $('#ids_date_fields');
+        $ids.val($ids.val()+count+',')
+
+        var table = $('#table_filter > tbody');
+        table.append(tr_model);
+        table.append(tr_test);
+
+        $('#line_test_filter_'+count+' select').change(function(){
+                var value = $(this).val();
+                $('#table_filter select[id^="id_global_test"]').each(function(){$(this).val(value);})
+        });
+
+        if(selected_globaltest && selected_globaltest != "")
+        {
+            $('#id_global_test_filter_'+count).val(selected_globaltest);
+            $('#id_global_test_filter_'+count).change();
+        }
+
+        if(date_field && begin_date && end_date)
+        {
+            tr_model.find('select[id^="id_date_fields_"]').val(date_field);
+            //tr_model.find('select[id^="id_date_filters_"]').val(date_filter);
+            tr_model.find('input[id^="id_begin_date_"]').val(begin_date);
+            tr_model.find('input[id^="id_end_date_"]').val(end_date);
+        }
+
+        $("#id_begin_date_"+count).datepicker({dateFormat: "yy-mm-dd", showOn: "button", buttonImage: "{{MEDIA_URL}}/images/icon_calendar.gif", buttonImageOnly: true });
+        $("#id_end_date_"+count).datepicker({dateFormat: "yy-mm-dd", showOn: "button", buttonImage: "{{MEDIA_URL}}/images/icon_calendar.gif", buttonImageOnly: true });
+        $('#id_date_filters_'+count).attr({'end_date_id': "id_end_date_"+count, 'start_date_id': "id_begin_date_"+count});
+
+        $('#id_date_filters_'+count).change(function(){
+            var $me = $(this);
+            var $selected = $(this).find(':selected');
+
+            $("#"+$me.attr('start_date_id')).val($selected.attr('begin'));
+            $("#"+$me.attr('end_date_id')).val($selected.attr('end'));
+        });
+
+
+        //$(tr_model).show('slow');
+        $(tr_model).show();
+        //$(tr_test).show('slow');
+        $(tr_test).show();
+    }
+
     function removeLine(id)
     {
         var line = $('#line_'+id);
@@ -414,6 +474,7 @@
         $('#add_filter').click(function(e){addFilterLine();});
         $('#add_relation').click(function(e){addRelationLine();});
         $('#add_property').click(function(e){addPropertyLine();});
+        $('#add_date_filter').click(function(e){addDateFilterLine();});
         $('#filterform').submit(function(){
             var is_valid = true;
             $('#table_filter > tbody input[readonly!="true"]').each(function(){
@@ -426,7 +487,7 @@
                 }
                 //is_valid=true;
             });
-            if($('#ids').val()=="" && $('#ids_filter').val()=="" && $('#ids_relations').val()=="" && $('#ids_properties').val()=="")
+            if($('#ids').val()=="" && $('#ids_filter').val()=="" && $('#ids_relations').val()=="" && $('#ids_properties').val()=="" && $('#ids_date_fields').val()=="")
             {
                 is_valid=false;
                 showErrorDialog('<p>Veuillez créer au moins une condition</p><p>Ou sélectionnez au moins un filtre existant</p>');
@@ -487,6 +548,9 @@
                 {% for property in properties_conditions %}
                     addPropertyLine('{{property.property_id.0}}', {{property.has_property}} ,'{{edit_dict.is_or_for_all}}');
                 {% endfor %}
+                {% for dt_filter in date_filters_conditions %}
+                    addDateFilterLine('{{dt_filter.date_field}}', '{{dt_filter.begin_date}}', '{{dt_filter.end_date}}', '{{edit_dict.is_or_for_all}}');
+                {% endfor %}
             {% endif %}
         {% endif %}
     });
@@ -516,6 +580,7 @@
                         <td><button type="button" id="add_filter"><img src="{{MEDIA_URL}}images/add_22.png" alt="{% trans "Add" %}"/>{% trans "Add an existing filter as condition" %}</button></td>
                         <td><button type="button" id="add_relation"><img src="{{MEDIA_URL}}images/add_22.png" alt="{% trans "Add" %}"/>{% trans "Add a filter on a relation" %}</button></td>
                         <td><button type="button" id="add_property"><img src="{{MEDIA_URL}}images/add_22.png" alt="{% trans "Add" %}"/>{% trans "Add a filter on a property" %}</button></td>
+                        <td><button type="button" id="add_date_filter"><img src="{{MEDIA_URL}}images/add_22.png" alt="{% trans "Add" %}"/>{% trans "Add a filter on a date field" %}</button></td>
                     </tr>
                 </tbody>
             </table>
@@ -531,10 +596,12 @@
                         <th style="display:none;"><input name="filter_count" id="filter_count" type="hidden" value="0" /></th>
                         <th style="display:none;"><input name="relation_count" id="relation_count" type="hidden" value="0" /></th>
                         <th style="display:none;"><input name="properties_count" id="properties_count" type="hidden" value="0" /></th>
+                        <th style="display:none;"><input name="date_fields_count" id="date_fields_count" type="hidden" value="0" /></th>
                         <th style="display:none;"><input name="ids" id="ids" type="hidden" value="" /></th>
                         <th style="display:none;"><input name="ids_filter" id="ids_filter" type="hidden" value="" /></th>
                         <th style="display:none;"><input name="ids_relations" id="ids_relations" type="hidden" value="" /></th>
                         <th style="display:none;"><input name="ids_properties" id="ids_properties" type="hidden" value="" /></th>
+                        <th style="display:none;"><input name="ids_date_fields" id="ids_date_fields" type="hidden" value="" /></th>
                     </tr>
                     <tr id="line_test_model" style="display:none;">
                         <th>{{form.global_test}}</th>
@@ -575,6 +642,14 @@
                         <td>{{form.has_property}} la propriété </td> {% comment %}I18N{% endcomment %}
                         <td>{{form.properties}}</td>
                         <td><img src="{{MEDIA_URL}}images/delete_22.png" alt="{% trans "Delete" %}" id="model" onclick="deleteLine(this.id,'properties_'+this.id, 'ids_properties');"/></td>
+                    </tr>
+                    <tr id="date_fields_model" style="display:none;">
+                        <td>&nbsp;</td>
+                        <td>{{form.date_fields}}</td>
+                        <td>{{form.date_filters}}</td>
+                        <td>{% trans "Begin date" %} : {{form.begin_date}}</td>
+                        <td>{% trans "End date" %} : {{form.end_date}}</td>
+                        <td><img src="{{MEDIA_URL}}images/delete_22.png" alt="{% trans "Delete" %}" id="model" onclick="deleteLine(this.id,'date_fields_'+this.id, 'ids_date_fields');"/></td>
                     </tr>
                 </thead>
                 <tbody>

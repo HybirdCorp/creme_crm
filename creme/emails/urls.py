@@ -67,6 +67,7 @@ urlpatterns = patterns('emails.views',
     (r'^mail/(?P<mail_id>\w+)$',                           'mail.detailview'),
     (r'^mails$',                                           'mail.listview'),
     (r'^synchronization$',                                 'mail.synchronisation'),
+    (r'^sync_blocks/reload$',                              'mail.reload_sync_blocks'),
 )
 
 urlpatterns += patterns('creme_core.views.generic',

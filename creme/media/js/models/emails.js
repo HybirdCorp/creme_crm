@@ -22,7 +22,7 @@
 
 creme.emails = {};
 
-creme.emails.mass_action = function(url, selector, block_url)
+creme.emails.mass_action = function(url, selector, block_url, complete_cb)
 {
     var values = $(selector).getValues();
 
@@ -32,8 +32,21 @@ creme.emails.mass_action = function(url, selector, block_url)
                                success : function(data, status, req){
                                     creme.utils.showDialog("Opération effectuée");
                                 },
-                               complete:function(req, st){if(st!='error'){creme.utils.loadBlock(block_url);}
-                                   creme.utils.loading('loading', true);}
+                               complete:function(req, st){
+                                   if(st!='error')
+                                   {
+                                       if(block_url && typeof(block_url) != "undefined")
+                                       {
+                                            creme.utils.loadBlock(block_url);
+                                       }
+                                       if(complete_cb && $.isFunction(complete_cb))
+                                       {
+                                           complete_cb();
+                                       }
+                                       
+                                   }
+                                   creme.utils.loading('loading', true);
+                               }
                            });
     
 };

@@ -47,7 +47,7 @@ class PopEmail(object):
         self.ccs              = ccs
         self.subject          = subject
         self.dates            = dates
-        self.attachments = attachments
+        self.attachments      = attachments
 
 #Better ?
 #PopEmail = namedtuple('PopEmail', 'body body_html senders tos ccs subjects dates attachment_paths', verbose=False)
@@ -123,15 +123,16 @@ class PopFrontend(object):
                     payload   = part.get_payload(decode=True)
 
                     mct = part.get_content_maintype()
+                    cst = part.get_content_subtype()
+                    
                     if mct == 'multipart':
                         continue
 
-                    if mct != 'text':
+                    if mct != 'text' or (mct=='text' and cst not in ['plain','html']):
                         filename = part.get_filename()
                         attachments.append((filename, SimpleUploadedFile(filename, payload, content_type=part.get_content_type())))
 
                     else:
-                        cst = part.get_content_subtype()
                         content = get_unicode_decoded_str(payload, encodings)
                         if cst == 'html':
                             body_html = content

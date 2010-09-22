@@ -27,6 +27,7 @@ from django.utils.translation import ugettext as _
 from crudity import CREATE
 from crudity.models.actions import WaitingAction
 from crudity.models.history import History
+from crudity.blocks import WaitingActionBlock
 
 passwd_pattern = re.compile(r'password=(?P<password>\w+)')
 
@@ -37,16 +38,19 @@ class CreateFromEmailBackend(object):
     body_map       = {}   #Mapping email body's key <==> model's key, value in the dict is the default value
     model          = None #Target model
     type           = CREATE
-    subject        = u""#Matched subject
+    subject        = u""  #Matched subject
+    blocks         = (WaitingActionBlock, )#Rendered blocks
 
     def __init__(self):
         self.body_map.update({'password': self.password})
 
-    def create(self, email):
-        limit_froms = self.limit_froms
+    def authorize_senders(self, senders):
+        return not self.limit_froms or set(senders) & set(self.limit_froms)
+    
+    def create(self, email, request=None):
         data = self.body_map.copy()
 
-        if not limit_froms or set(email.senders) & set(limit_froms):
+        if self.authorize_senders(email.senders):
             password = self.password
             body = email.body_html or email.body
             body = [line.replace(' ', '') for line in body.split('\n')]

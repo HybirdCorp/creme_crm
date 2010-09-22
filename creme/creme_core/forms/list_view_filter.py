@@ -19,16 +19,21 @@
 ################################################################################
 
 import logging
+from itertools import chain
 
 from django import forms
 from django.forms.util import ErrorList
 from django.contrib.contenttypes.models import ContentType
 from django.forms.util import ValidationError
+from django.utils.translation import ugettext_lazy as _
 
 from creme_core.models import RelationType, CremePropertyType, FilterType, FilterCondition, FilterValue, Filter, ConditionChildType
 from creme_core.utils import Q_creme_entity_content_types
-from creme_core.utils.meta import get_flds_with_fk_flds
+from creme_core.utils.meta import get_flds_with_fk_flds, get_date_fields
+from creme_core.forms.widgets import DateFilterWidget, CalendarWidget
+from creme_core.populate import DATE_RANGE_FILTER#Waiting for filters refactor
 
+from reports.registry import report_filters_registry
 
 class ListViewFilterForm(forms.Form):
 
@@ -48,6 +53,11 @@ class ListViewFilterForm(forms.Form):
     properties = forms.ModelChoiceField(CremePropertyType.objects.all(), required=False)
 
     content_types = forms.ModelChoiceField(Q_creme_entity_content_types(), required=False, widget=forms.Select(attrs={'onchange':'creme.filters.getListViewFromCt(this);'}))
+
+    date_fields  = forms.ChoiceField(choices=())
+    date_filters = forms.ChoiceField(label=_(u'Filter'), required=False, choices=(), widget=DateFilterWidget(attrs={'id': 'id_date_filters_model'}))
+    begin_date   = forms.DateField(label=_(u'Begin date'), required=False)
+    end_date     = forms.DateField(label=_(u'End date'), required=False)
 
     def __init__(self, data=None, files=None, auto_id='id_%s_model', prefix=None,
                  initial=None, error_class=ErrorList, label_suffix=':',
@@ -75,12 +85,16 @@ class ListViewFilterForm(forms.Form):
 
 #            fields['champs'].choices = [(f.name, f.verbose_name) for f in klass._meta.fields]
 #            fields['champs'].choices = champs
-            fields['champs'].choices = [(f.name,'%s%s' % (f.verbose_name[0].upper(),f.verbose_name[1:])) for f in get_flds_with_fk_flds(klass, 0)]
+            date_fields = get_date_fields(klass)
+            fields['champs'].choices = [(f.name,'%s%s' % (f.verbose_name[0].upper(),f.verbose_name[1:])) for f in get_flds_with_fk_flds(klass, 0) if f not in date_fields]
 #            fields['champs'].choices.append(('relations','Relations'))
             fields['champs'].choices.sort()
 
-            fields['tests'].choices = [(f.id, f.name) for f in FilterType.objects.all()]
+            fields['tests'].choices = [(f.id, f.name) for f in FilterType.objects.exclude(pk=DATE_RANGE_FILTER)]
             fields['parent_filters'].queryset = Filter.objects.filter(model_ct__id=ct_id)
+
+            fields['date_fields'].choices  = [(f.name, f.verbose_name)for f in get_date_fields(klass)]
+            fields['date_filters'].choices = report_filters_registry.itervalues()
 
         filter_id = initial.get('filter_id')
         if filter_id is not None:
@@ -104,14 +118,16 @@ class ListViewFilterForm(forms.Form):
         ids_filter = data.get('ids_filter')
         ids_relation = data.get('ids_relations')
         ids_properties = data.get('ids_properties')
+        ids_date_fields = data.get('ids_date_fields')
         
-        if not ids and not ids_filter and not ids_relation and not ids_properties:
+        if not ids and not ids_filter and not ids_relation and not ids_properties and not ids_date_fields:
             return
         
         ids = ids.split(',')
         ids_filter=ids_filter.split(',')
         ids_relation=ids_relation.split(',')
         ids_properties=ids_properties.split(',')
+        ids_date_fields=ids_date_fields.split(',')
         
         if hasattr(self,'filter_id') and self.filter_id is not None:
             try :
@@ -252,6 +268,36 @@ class ListViewFilterForm(forms.Form):
             except Exception, e:
                 logging.debug("###\n\n\nException : %s" % e)
                 continue
+
+        print "\nids_date_fields : %s\n" % ids_date_fields
+        for id in ids_date_fields :
+            if not id:
+                continue
+
+            try:
+                condition = FilterCondition()
+                condition.champ = data['date_fields_%s' % id]
+
+                condition.type = FilterType.objects.get(pk=DATE_RANGE_FILTER)
+                values = []
+                get_filtervalue = FilterValue.objects.get
+                for value in [data['begin_date_%s' % id], data['end_date_%s' % id]]:
+                    if value:
+                        try:
+                            #values.append(FilterValue.objects.get(value=value))
+                            values.append(get_filtervalue(value=value))
+                        except:
+                            value = FilterValue(value=value)
+                            value.save()
+                            values.append(value)
+                condition.save()
+                condition.values = values
+                condition.save()
+                conditions.append(condition)
+            except Exception, e:
+                logging.debug("###\nException : %s" % e)
+                continue
+
 
         try:
             f.save()

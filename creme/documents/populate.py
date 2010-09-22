@@ -41,6 +41,7 @@ class Populator(BasePopulator):
                             (REL_OBJ_CURRENT_DOC,   _(u'has as current document')))
 
         category = create(FolderCategory, DOCUMENTS_FROM_ENTITIES, name=_(u"Documents related to entities"))
+        category = create(FolderCategory, DOCUMENTS_FROM_EMAILS, name=_(u"Documents received by email"))
 
         create(Folder, title="Creme", description=_(u"Folder containing all the documents related to entities"), category_id=category.pk, user_id=1)
 
