@@ -19,6 +19,7 @@
 ################################################################################
 
 from collections import defaultdict
+
 from itertools import chain
 from django.db.models.query_utils import Q
 from django.forms import DateField
@@ -35,8 +36,8 @@ from creme_core.models import Filter, RelationType, CustomField
 from creme_core.models.header_filter import HeaderFilter, HeaderFilterItem, HFI_FIELD, HFI_RELATION, HFI_CUSTOM, HFI_FUNCTION, HFI_CALCULATED
 from creme_core.utils.meta import (get_verbose_field_name, get_function_field_verbose_name, get_flds_with_fk_flds_str, get_flds_with_fk_flds,
                                    get_date_fields)
+from creme_core.date_filters_registry import date_filters_registry
 
-from reports.registry import report_filters_registry
 from reports.models import Report, Field
 from reports.report_aggregation_registry import field_aggregation_registry
 
@@ -397,8 +398,8 @@ class DateReportFilterForm(CremeForm):
         self.report = report
         fields = self.fields
         fields['date_fields'].choices = [(field.name, field.verbose_name) for field in get_date_fields(report.ct.model_class())]
-#        fields['filters'].choices = [(r.name, r.verbose_name) for r in report_filters_registry.itervalues()]
-        fields['filters'].choices = report_filters_registry.itervalues()
+#        fields['filters'].choices = [(r.name, r.verbose_name) for r in date_filters_registry.itervalues()]
+        fields['filters'].choices = date_filters_registry.itervalues()
         fields['filters'].widget.attrs.update({'id': 'id_filters','start_date_id': 'id_begin_date','end_date_id': 'id_end_date'})
 
     def save(self):

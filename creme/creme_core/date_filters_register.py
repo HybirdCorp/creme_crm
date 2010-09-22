@@ -23,7 +23,8 @@ from calendar import monthrange
 
 from django.utils.translation import ugettext as _
 
-from reports.registry import ReportDatetimeFilter
+from creme_core.date_filters_registry import DatetimeFilter
+
 
 MONTH_NUMBERS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
 quarterMap    = {1: 1, 2: 1, 3: 1, 4: 2, 5: 2, 6: 2, 7: 3, 8: 3, 9: 3, 10: 4, 11: 4, 12: 4}
@@ -115,19 +116,19 @@ def next_quarter_end(filter, now):
     return date(year=q3_year, month=q3_month, day=get_month_last_day(q3_year, q3_month))
 
 to_register = (
-    ('customized',   ReportDatetimeFilter('', _(u"Customized"), lambda x,y: "", lambda x,y: "")),
-    
-    ('last_year',    ReportDatetimeFilter('last_year',    _(u"Last year"),    last_year_beg,    last_year_end)),
-    ('current_year', ReportDatetimeFilter('current_year', _(u"Current year"), current_year_beg, current_year_end)),
-    ('next_year',    ReportDatetimeFilter('next_year',    _(u"Next year"),    next_year_beg,    next_year_end)),
+    ('customized',   DatetimeFilter('', _(u"Customized"), lambda x,y: "", lambda x,y: "")),
 
-    ('last_month',    ReportDatetimeFilter('last_month',    _(u"Last month"),    last_month_beg,    last_month_end)),
-    ('current_month', ReportDatetimeFilter('current_month', _(u"Current month"), current_month_beg, current_month_end)),
-    ('next_month',    ReportDatetimeFilter('next_month',    _(u"Next month"),    next_month_beg,    next_month_end)),
+    ('last_year',    DatetimeFilter('last_year',    _(u"Last year"),    last_year_beg,    last_year_end)),
+    ('current_year', DatetimeFilter('current_year', _(u"Current year"), current_year_beg, current_year_end)),
+    ('next_year',    DatetimeFilter('next_year',    _(u"Next year"),    next_year_beg,    next_year_end)),
 
-    ('last_quarter',    ReportDatetimeFilter('last_quarter',    _(u"Last quarter"),    last_quarter_beg,    last_quarter_end)),
-    ('current_quarter', ReportDatetimeFilter('current_quarter', _(u"Current quarter"), current_quarter_beg, current_quarter_end)),
-    ('next_quarter',    ReportDatetimeFilter('next_quarter',    _(u"Next quarter"),    next_quarter_beg,    next_quarter_end)),
+    ('last_month',    DatetimeFilter('last_month',    _(u"Last month"),    last_month_beg,    last_month_end)),
+    ('current_month', DatetimeFilter('current_month', _(u"Current month"), current_month_beg, current_month_end)),
+    ('next_month',    DatetimeFilter('next_month',    _(u"Next month"),    next_month_beg,    next_month_end)),
+
+    ('last_quarter',    DatetimeFilter('last_quarter',    _(u"Last quarter"),    last_quarter_beg,    last_quarter_end)),
+    ('current_quarter', DatetimeFilter('current_quarter', _(u"Current quarter"), current_quarter_beg, current_quarter_end)),
+    ('next_quarter',    DatetimeFilter('next_quarter',    _(u"Next quarter"),    next_quarter_beg,    next_quarter_end)),
 
 )
 

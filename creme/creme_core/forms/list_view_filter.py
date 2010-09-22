@@ -32,8 +32,7 @@ from creme_core.utils import Q_creme_entity_content_types
 from creme_core.utils.meta import get_flds_with_fk_flds, get_date_fields
 from creme_core.forms.widgets import DateFilterWidget, CalendarWidget
 from creme_core.populate import DATE_RANGE_FILTER#Waiting for filters refactor
-
-from reports.registry import report_filters_registry
+from creme_core.date_filters_registry import date_filters_registry
 
 class ListViewFilterForm(forms.Form):
 
@@ -94,7 +93,7 @@ class ListViewFilterForm(forms.Form):
             fields['parent_filters'].queryset = Filter.objects.filter(model_ct__id=ct_id)
 
             fields['date_fields'].choices  = [(f.name, f.verbose_name)for f in get_date_fields(klass)]
-            fields['date_filters'].choices = report_filters_registry.itervalues()
+            fields['date_filters'].choices = date_filters_registry.itervalues()
 
         filter_id = initial.get('filter_id')
         if filter_id is not None:
