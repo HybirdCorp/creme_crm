@@ -1,0 +1,64 @@
+{% load i18n %}
+<table class="table_header" cellpadding="0" cellspacing="0">
+    <tr>
+        <td width="5%"><img src="{{MEDIA_URL}}{{logo}}" alt=""/></td>
+        <td width="95%">
+            <h1>{{title}}</h1>
+        </td>
+    </tr>
+</table>
+
+{% if help_message %}
+    <div class="help_box">{{help_message}}</div>
+{% endif%}
+
+<p>{% trans "Fields marked with * are required."%} </p>
+
+<div id="editforms">
+    <form method="POST" action="" {% if form.is_multipart %}enctype="multipart/form-data"{% endif %}>{% csrf_token %}
+        <table style="width: 100%;" border="0" cellpadding="0" cellspacing="4">
+            <tbody>
+                {{formset.management_form}}
+                {% for form in formset.forms %}
+                    {% if forloop.counter0|divisibleby:2 %}<tr>{% endif %}
+                        <td style="width: 50%;">
+                            {% for hidden in form.hidden_fields %}
+                                {% if hidden.errors %}
+                                    <p>{{hidden.label}}&nbsp;:&nbsp;{{hidden.errors}}{{hidden}}</p>
+                                {% else %}
+                                    {{hidden}}
+                                {% endif %}
+                            {% endfor %}
+
+                            {% for form_block in form.get_blocks %}
+                                {% include "creme_core/generics/blockform/content.html" %}
+                            {% endfor %}
+
+                            {% if form.non_field_errors %}
+                                <table class="table_detail_view ui-corner-all">
+                                    <thead>
+                                        <tr>
+                                            <th valign="middle">{% trans "Global errors"%}</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="collapsable">
+                                        <tr>
+                                            <td>{{form.non_field_errors}}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            {% endif %}
+                        </td>
+                    {% if forloop.counter|divisibleby:2 %}</tr>{% endif %}
+                {% endfor %}
+                    {% if not formset.total_form_count|divisibleby:2 %}</tr>{% endif %}
+            </tbody>
+        </table>
+
+        {% block submit_buttons %}
+            {% if not hide_submit %}
+                <input type="submit" value="{% trans "Submit"%}" />
+            {% endif %}
+        {% endblock %}
+    </form>
+</div>
