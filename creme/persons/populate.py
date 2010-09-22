@@ -56,6 +56,9 @@ class Populator(BasePopulator):
                             (REL_OBJ_SUPPLIER,    _(u'has as supplier'),            [Contact, Organisation]))
         RelationType.create((REL_SUB_INACTIVE,    _(u'is an inactive customer of'), [Contact, Organisation]),
                             (REL_OBJ_INACTIVE,    _(u'has as inactive customer'),   [Contact, Organisation]))
+        RelationType.create((REL_SUB_SUBSIDIARY,  _(u'has as subsidiary'),          [Organisation]),
+                            (REL_OBJ_SUBSIDIARY,  _(u"is a subsidiary of"),         [Organisation]))
+
 
         create(Civility, 1, civility_name=_(u"Mrs."))
         create(Civility, 2, civility_name=_(u"Miss"))
