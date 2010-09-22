@@ -18,12 +18,12 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from django.contrib.auth.models import User
 from django.core.management.base import BaseCommand
 
 from creme_settings import CREME_GET_EMAIL_JOB_USER_ID
 from creme_core.models import Lock
-from creme.emails.models.mail import EntityEmail
-
+from crudity.views.email import _fetch_emails
 
 
 LOCK_NAME = "synchronizing_emails"
@@ -41,7 +41,13 @@ class Command(BaseCommand):
                 lock = Lock(name=LOCK_NAME)
                 lock.save()
 
-                EntityEmail.fetch_mails(CREME_GET_EMAIL_JOB_USER_ID)
+                try:
+                    user = User.objects.get(pk=CREME_GET_EMAIL_JOB_USER_ID)
+                    print "There are %s new message(s)" % _fetch_emails(user)
+
+                except User.DoesNotExist:
+                    pass
+                
             finally:
                 lock.delete()
         else:

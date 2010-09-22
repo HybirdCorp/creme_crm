@@ -28,17 +28,11 @@ from django.utils.translation import ugettext_lazy as _
 
 from crudity.backends.registry import from_email_crud_registry
 from crudity.backends.email.create.base import drop_from_email_backend
-from crudity.blocks import WaitingActionBlock
 from crudity.frontends.pop import pop_frontend
 
-
-@login_required
-def fetch_emails(request):
-    context = RequestContext(request)
+def _fetch_emails(user):
     message_count, emails = pop_frontend.fetch(delete=True)
-
     create_be = from_email_crud_registry.get_creates()
-
     default_be = create_be.get("*", drop_from_email_backend)
 
     for email in emails:
@@ -47,7 +41,19 @@ def fetch_emails(request):
         if not backend:
             backend = default_be
 
-        backend.create(email)
+        backend.create(email, user)
+    return message_count
+
+@login_required
+def fetch_emails(request, template="crudity/waiting_actions.html", ajax_template="crudity/frags/ajax/waiting_actions.html", extra_tpl_ctx=None, extra_req_ctx=None):
+    context = RequestContext(request)
+
+    if extra_req_ctx:
+        context.update(extra_req_ctx)
+
+    create_be = from_email_crud_registry.get_creates()
+
+    message_count = _fetch_emails(request.user)
 
     blocks = []
 
@@ -56,9 +62,15 @@ def fetch_emails(request):
         model = backend.model
         type  = backend.type
         if backend.type and backend.model:
-            blocks.append(WaitingActionBlock(ct_get_for_model(model), type).detailview_display(context))
+            for be_block in backend.blocks:
+                blocks.append(be_block(ct_get_for_model(model), type).detailview_display(context))
+
+    tpl_dict = {'blocks': blocks, 'frontend_verbose': _(u"Emails"), 'messages_count': message_count}
+
+    if extra_tpl_ctx:
+        tpl_dict.update(extra_tpl_ctx)
 
     if request.is_ajax():
-        return HttpResponse(render_to_string("crudity/frags/ajax/waiting_actions.html", {'blocks': blocks, 'frontend_verbose': _(u"Emails")}, context_instance=context))
+        return HttpResponse(render_to_string(ajax_template, tpl_dict, context_instance=context))
 
-    return render_to_response("crudity/waiting_actions.html", {'blocks': blocks, 'frontend_verbose': _(u"Emails")}, context_instance=context)
+    return render_to_response(template, tpl_dict, context_instance=context)
