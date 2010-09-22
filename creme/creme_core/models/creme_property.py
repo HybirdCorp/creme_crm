@@ -43,6 +43,7 @@ class CremePropertyType(CremeModel):
 
     def delete(self):
         self.property_i18n_set.all().delete()
+        CremeProperty.objects.filter(type=self).delete()
         super(CremePropertyType, self).delete()
 
     @staticmethod
