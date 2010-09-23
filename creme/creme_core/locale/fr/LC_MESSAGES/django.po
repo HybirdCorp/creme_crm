@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-09-22 11:43+0200\n"
+"POT-Creation-Date: 2010-09-23 16:30+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -29,187 +29,192 @@ msgstr "Relations"
 msgid "Core"
 msgstr "Cœur"
 
-#: populate.py:32
+#: populate.py:33
 msgid "Equals"
 msgstr "Est égal à"
 
-#: populate.py:33
+#: populate.py:34
 msgid "Equals (case insensitive)"
 msgstr "Est égal à (Ne respecte pas la casse)"
 
-#: populate.py:34
+#: populate.py:35
 msgid "Does not equal"
 msgstr "N'est pas égal à"
 
-#: populate.py:35
+#: populate.py:36
 msgid "Does not equal (case insensitive)"
 msgstr "N'est pas égal à (Ne respecte pas la casse)"
 
-#: populate.py:36
+#: populate.py:37
 msgid "Contains"
 msgstr "Contient"
 
-#: populate.py:37
+#: populate.py:38
 msgid "Contains (case insensitive)"
 msgstr "Contient (Ne respecte pas la casse)"
 
-#: populate.py:38
+#: populate.py:39
 msgid "Does not contain"
 msgstr "Ne contient pas"
 
-#: populate.py:39
+#: populate.py:40
 msgid "Does not contain (case insensitive)"
 msgstr "Ne contient pas (Ne respecte pas la casse)"
 
-#: populate.py:40
+#: populate.py:41
 msgid ">"
 msgstr ">"
 
-#: populate.py:41
+#: populate.py:42
 msgid ">="
 msgstr ">="
 
-#: populate.py:42
+#: populate.py:43
 msgid "<"
 msgstr "<"
 
-#: populate.py:43
+#: populate.py:44
 msgid "<="
 msgstr "<="
 
-#: populate.py:44
+#: populate.py:45
 msgid "Starts with"
 msgstr "Commence par"
 
-#: populate.py:45
+#: populate.py:46
 msgid "Starts with (case insensitive)"
 msgstr "Commence par (Ne respecte pas la casse)"
 
-#: populate.py:46
+#: populate.py:47
 msgid "Does not start with"
 msgstr "Ne commence pas par"
 
-#: populate.py:47
+#: populate.py:48
 msgid "Does not start with (case insensitive)"
 msgstr "Ne commence pas par (Ne respecte pas la casse)"
 
-#: populate.py:48
+#: populate.py:49
 msgid "Ends with"
 msgstr "Se termine par"
 
-#: populate.py:49
+#: populate.py:50
 msgid "Ends with (case insensitive)"
 msgstr "Se termine par (Ne respecte pas la casse)"
 
-#: populate.py:50
+#: populate.py:51
 msgid "Does not end with"
 msgstr "Ne se termine pas par"
 
-#: populate.py:51
+#: populate.py:52
 msgid "Does not end with (case insensitive)"
 msgstr "Ne se termine pas par (Ne respecte pas la casse)"
 
-#: populate.py:52
+#: populate.py:53
 msgid "Is empty"
 msgstr "Est vide"
 
-#: populate.py:53
+#: populate.py:54
 msgid "Is not empty"
 msgstr "N'est pas vide"
 
 #: populate.py:55
+msgid "Date range"
+msgstr "Interval de date"
+
+#: populate.py:57
 msgid "Read"
 msgstr "Lire"
 
-#: populate.py:56
+#: populate.py:58
 msgid "Create"
 msgstr "Créer"
 
-#: populate.py:57
+#: populate.py:59
 msgid "Modify"
 msgstr "Modifier"
 
-#: populate.py:58 models/entity.py:190 templates/creme_core/detailview.html:62
-#: templates/creme_core/filters.html:549 templates/creme_core/filters.html:555
-#: templates/creme_core/filters.html:571 templates/creme_core/filters.html:577
+#: populate.py:60 models/entity.py:190 templates/creme_core/detailview.html:62
+#: templates/creme_core/filters.html:616 templates/creme_core/filters.html:622
+#: templates/creme_core/filters.html:638 templates/creme_core/filters.html:644
+#: templates/creme_core/filters.html:652
 #: templates/creme_core/templatetags/block_specific_relations.html:26
 #: templates/creme_core/templatetags/widgets/block_line_deletor.html:4
 msgid "Delete"
 msgstr "Supprimer"
 
-#: populate.py:59
+#: populate.py:61
 msgid "Create relation with"
 msgstr "Mettre en relation avec"
 
-#: populate.py:61
+#: populate.py:63
 msgid "His own pages"
 msgstr "Ses fiches"
 
-#: populate.py:62
+#: populate.py:64
 msgid "All pages"
 msgstr "Toutes les fiches"
 
-#: populate.py:63
+#: populate.py:65
 msgid "Pages of the team"
 msgstr "Les fiches de l'équipe"
 
-#: populate.py:64
+#: populate.py:66
 msgid "The pages of subordinates"
 msgstr "Les fiches de ses subordonnés"
 
-#: populate.py:65
+#: populate.py:67
 msgid "The pages of a role"
 msgstr "Les fiches d'un rôle"
 
-#: populate.py:66
+#: populate.py:68
 msgid "The pages of a role and its subordinates"
 msgstr "Les fiches d'un rôle et de ses subordonnés"
 
-#: populate.py:67
+#: populate.py:69
 msgid "His page"
 msgstr "Sa fiche"
 
-#: populate.py:68
+#: populate.py:70
 msgid "The other pages"
 msgstr "Les autres fiches"
 
-#: populate.py:69
+#: populate.py:71
 msgid "Unique page"
 msgstr "Fiche unique"
 
-#: populate.py:70
+#: populate.py:72
 msgid "Pages related to his page"
 msgstr "Fiches en relation avec sa fiche"
 
-#: populate.py:72
+#: populate.py:74
 msgid "Is administrator"
 msgstr "Est administrateur"
 
-#: populate.py:73
+#: populate.py:75
 msgid "Has access"
 msgstr "A accès"
 
-#: populate.py:75
+#: populate.py:77
 msgid "French"
 msgstr "Français"
 
-#: populate.py:76
+#: populate.py:78
 msgid "English"
 msgstr "Anglais"
 
-#: populate.py:78
+#: populate.py:80
 msgid "managed by Creme"
 msgstr "est géré par Creme"
 
-#: populate.py:80 populate.py:81
+#: populate.py:82 populate.py:83
 msgid "related to"
 msgstr "est en relation avec"
 
-#: populate.py:82
+#: populate.py:84
 msgid "owns"
 msgstr "possède"
 
-#: populate.py:83
+#: populate.py:85
 msgid "belongs to"
 msgstr "appartient à"
 
@@ -227,6 +232,10 @@ msgstr "Informations générales"
 #: models/prefered_menu.py:27
 msgid "User"
 msgstr "Utilisateur"
+
+#: forms/creme_property.py:31 models/creme_property.py:41
+msgid "Type of property"
+msgstr "Type de propriété"
 
 #: forms/csv_import.py:50
 msgid "CSV file"
@@ -330,6 +339,20 @@ msgstr "Champs personnalisés"
 msgid "Functions"
 msgstr "Fonctions"
 
+#: forms/list_view_filter.py:58 templates/creme_core/filters.html:563
+#: templates/creme_core/filters.html:566
+#: templates/creme_core/templatetags/listview_filters.html:4
+msgid "Filter"
+msgstr "Filtre"
+
+#: forms/list_view_filter.py:59 templates/creme_core/filters.html:650
+msgid "Begin date"
+msgstr "Date de début"
+
+#: forms/list_view_filter.py:60 templates/creme_core/filters.html:651
+msgid "End date"
+msgstr "Date de fin"
+
 #: forms/relation.py:55 models/relation.py:62
 msgid "No relation"
 msgstr "Aucune relation"
@@ -348,8 +371,9 @@ msgstr "Entités associées"
 
 #: forms/widgets.py:139 forms/widgets.py:260
 #: templates/creme_core/detailview.html:32
-#: templates/creme_core/filters.html:515 templates/creme_core/filters.html:516
-#: templates/creme_core/filters.html:517 templates/creme_core/filters.html:518
+#: templates/creme_core/filters.html:579 templates/creme_core/filters.html:580
+#: templates/creme_core/filters.html:581 templates/creme_core/filters.html:582
+#: templates/creme_core/filters.html:583
 #: templates/creme_core/generics/blockform/add.html:5
 #: templates/creme_core/generics/blockform/add_popup.html:29
 #: templates/creme_core/generics/form/add.html:3
@@ -474,10 +498,6 @@ msgstr "Bouton à afficher"
 #: models/button_menu.py:37
 msgid "Buttons to display"
 msgstr "Boutons à afficher"
-
-#: models/creme_property.py:41
-msgid "Type of property"
-msgstr "Type de propriété"
 
 #: models/creme_property.py:42
 msgid "Types of property"
@@ -610,7 +630,6 @@ msgid "Related user"
 msgstr "Utilisateur associé"
 
 #: models/search.py:42 templates/creme_core/search_results.html:10
-#: templates/creme_core/templatetags/quickforms_panel.html:4
 #: templates/creme_core/templatetags/search_panel.html:4
 msgid "Search"
 msgstr "Recherche"
@@ -726,62 +745,61 @@ msgstr "Éditer '%(object)s'"
 msgid "Delete '%(object)s'"
 msgstr "Supprimer '%(object)s'"
 
-#: templates/creme_core/filters.html:499 templates/creme_core/filters.html:502
-#: templates/creme_core/templatetags/listview_filters.html:4
-msgid "Filter"
-msgstr "Filtre"
-
-#: templates/creme_core/filters.html:502
+#: templates/creme_core/filters.html:566
 msgid "edition"
 msgstr "édition"
 
-#: templates/creme_core/filters.html:502
+#: templates/creme_core/filters.html:566
 msgid "creation"
 msgstr "création"
 
-#: templates/creme_core/filters.html:510
+#: templates/creme_core/filters.html:574
 msgid "Name of the filter"
 msgstr "Nom du filtre"
 
-#: templates/creme_core/filters.html:515
+#: templates/creme_core/filters.html:579
 msgid "Add a condition"
 msgstr "Ajouter une condition"
 
-#: templates/creme_core/filters.html:516
+#: templates/creme_core/filters.html:580
 msgid "Add an existing filter as condition"
 msgstr "Ajouter un filtre existant en tant que condition"
 
-#: templates/creme_core/filters.html:517
+#: templates/creme_core/filters.html:581
 msgid "Add a filter on a relation"
 msgstr "Ajouter un filtre sur une relation"
 
-#: templates/creme_core/filters.html:518
+#: templates/creme_core/filters.html:582
 msgid "Add a filter on a property"
 msgstr "Ajouter un filtre sur une propriété"
 
-#: templates/creme_core/filters.html:526
+#: templates/creme_core/filters.html:583
+msgid "Add a filter on a date field"
+msgstr "Ajouter un filtre sur un champ date"
+
+#: templates/creme_core/filters.html:591
 msgid "Global test"
 msgstr "Test global"
 
-#: templates/creme_core/filters.html:527
+#: templates/creme_core/filters.html:592
 msgid "Fields"
 msgstr "Champs"
 
-#: templates/creme_core/filters.html:528
+#: templates/creme_core/filters.html:593
 msgid "Test"
 msgstr "Test"
 
-#: templates/creme_core/filters.html:529
+#: templates/creme_core/filters.html:594
 msgid "Values (comma-separated)"
 msgstr "Valeurs (séparées par des virgules)"
 
-#: templates/creme_core/filters.html:568
+#: templates/creme_core/filters.html:635
 msgid "Leave empty values to filter all entities having the selected relation."
 msgstr ""
 "Laissez les valeurs vides pour filtrer toutes les entités ayant la relation "
 "sélectionnée."
 
-#: templates/creme_core/filters.html:587
+#: templates/creme_core/filters.html:662
 #: templates/creme_core/generics/blockform/base.html:53
 #: templates/creme_core/generics/blockformset/base.html:60
 #: templates/creme_core/generics/form/base.html:54
@@ -937,8 +955,8 @@ msgstr "%s Propriétés"
 
 #: templates/creme_core/templatetags/block_properties.html:9
 #: templates/creme_core/templatetags/block_properties.html:10
-msgid "New property"
-msgstr "Nouvelle propriété"
+msgid "New properties"
+msgstr "Nouvelles propriétés"
 
 #: templates/creme_core/templatetags/block_properties.html:26
 msgid "No property for the moment"
@@ -1048,6 +1066,7 @@ msgstr "Ouvrir"
 msgid "Prefered menu:"
 msgstr "Menus rapides:"
 
+#: templates/creme_core/templatetags/quickforms_panel.html:4
 #: templates/creme_core/templatetags/quickforms_panel.html:11
 msgid "Quick creation"
 msgstr "Création rapide"
@@ -1085,15 +1104,20 @@ msgstr "%s minute(s)"
 msgid "%s second(s)"
 msgstr "%s seconde(s)"
 
-#: views/creme_property.py:57 views/generic/delete.py:76
+#: views/creme_property.py:65 views/generic/delete.py:76
 #, python-format
 msgid "%s : <b>Permission denied</b>,"
 msgstr "%s : <b>Permission refusée</b>,"
 
-#: views/creme_property.py:65
+#: views/creme_property.py:73
 #, python-format
 msgid "%(entity)s has already the property %(property)s,"
 msgstr "%(entity)s a déjà la propriété %(property)s,"
+
+#: views/creme_property.py:111
+#, python-format
+msgid "New properties for <%s>"
+msgstr "Nouvelles propriétés pour <%s>"
 
 #: views/header_filter.py:87
 msgid "View sucessfully deleted"

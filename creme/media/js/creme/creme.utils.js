@@ -16,16 +16,14 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *******************************************************************************/
 
-function openWindow(url, name, params)
-{
+function openWindow(url, name, params) {
     if(!params || params == '' || typeof(params) == "undefined")
         params = 'menubar=no, status=no, scrollbars=yes, menubar=no, width=800, height=600';
     window[name] = window.open(url,name,params);
 }
 
-function reload(w)
-{
-    w.location.href=w.location.href;
+function reload(w) {
+    w.location.href = w.location.href;
 }
 
 //if(typeof(creme)==undefined) creme = {};
@@ -676,6 +674,7 @@ creme.utils.multiDeleteFromListView = function(lv_selector, delete_url) {
     creme.utils.ajaxDelete(delete_url, {'ids' : $(lv_selector).list_view('getSelectedEntities')}, ajax_opts, i18n.get_current_language()['ARE_YOU_SURE']);
 }
 
+//TODO: move to properties.js ???
 creme.utils.multiAddPropertyFromListView = function(lv_selector, url, ct_id) {
     if($(lv_selector).list_view('countEntities') == 0) {
         creme.utils.showDialog(i18n.get_current_language()['SELECT_AT_LEAST_ONE_ENTITY']);
