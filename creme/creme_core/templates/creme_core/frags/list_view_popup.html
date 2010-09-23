@@ -5,6 +5,9 @@
     $('[name=inner_body] form', '#{{whoami}}').list_view('setSubmit', function(input){
 
         var url = creme.utils.appendInUrl($('[name="inner_header_from_url"]', $('#{{whoami}}')).val(), '?ajax=true');
+        
+        $(input.form).list_view('setReloadUrl', url);
+
         var options = {
                         'action': url,
                         'success': function(data, status){
