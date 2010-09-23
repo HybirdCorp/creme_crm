@@ -1,5 +1,34 @@
 {% load i18n %}
 {% with hfilter.id as hfilter_id %}
+    <script type="text/javascript">
+        function lv_hf_delete(a)
+        {
+            creme.utils.ajaxDelete('/creme_core/header_filter/delete',
+                                   {'id': '{{hfilter_id}}'},
+                                   {
+                                       complete: function(req, st){
+                                           if(st!='error')
+                                           {
+                                               //reload(window);
+                                               var hf_delete = $(a);
+                                               var lv_form = hf_delete.parents('form');
+
+                                               lv_form.list_view('reload');
+
+                                               /*var submit_opts = {
+                                                       'action':'?ajax=true',
+                                                       'success':function(data, status){
+                                                           lv_form.empty().html(data);
+                                                       }
+
+
+                                                   };
+                                              lv_form.list_view('handleSubmit', lv_form[0], submit_opts, null);*/
+                                           }
+                                       }
+                                   });
+        };
+    </script>
     <fieldset title="{% trans "Show only the desired columns" %}">
         <legend>
             <img border="0" src="{{MEDIA_URL}}images/telescope_32.png" alt="{% trans "View of list" %}" title="{% trans "View of list" %}"/>
@@ -20,8 +49,7 @@
                 <a href="/creme_core/header_filter/edit/{{hfilter_id}}" id="header_filter_edit">
                     <img border="0" src="{{MEDIA_URL}}images/edit_22.png" alt="{% trans "Edit custom view" %}" title="{% trans "Edit custom view" %}"/>
                 </a>
-                {% comment %}TODO: reload only list by ajax{% endcomment %}
-                <a onclick="creme.utils.ajaxDelete('/creme_core/header_filter/delete', {'id': '{{hfilter_id}}'}, {complete: function(req, st){if(st!='error'){reload(window);}}});">
+                <a onclick="lv_hf_delete(this);">
                     <img border="0" src="{{MEDIA_URL}}images/delete_22.png" alt="{% trans "Delete custom view" %}" title="{% trans "Delete custom view" %}"/>
                 </a>
             {% endif %}
