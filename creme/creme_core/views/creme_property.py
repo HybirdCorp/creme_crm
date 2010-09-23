@@ -19,7 +19,7 @@
 ################################################################################
 
 from django.db.models import Q
-from django.http import HttpResponseRedirect, HttpResponse
+from django.http import HttpResponse, Http404
 from django.shortcuts import get_object_or_404, render_to_response
 from django.template.context import RequestContext
 from django.utils.translation import ugettext as _
@@ -29,21 +29,29 @@ from django.contrib.contenttypes.models import ContentType
 from creme_core.models import CremeEntity, CremePropertyType, CremeProperty
 from creme_core.entities_access.functions_for_permissions import edit_object_or_die
 from creme_core.entities_access.permissions import user_has_edit_permission_for_an_object
+from creme_core.views.generic import inner_popup
+from creme_core.forms.creme_property import AddPropertiesForm
 
 
 @login_required
 def add_to_entities(request):
-    post_get = request.POST.get
-    ids      = post_get('ids')
-    property_type_id  = post_get('type_id')
+    POST = request.POST
 
-    property_type = get_object_or_404(CremePropertyType, pk=property_type_id)
+    #TODO: a method get_or_404(POST, 'ids') ???
+    try:
+        entities_ids  = POST['ids']
+        prop_type_id  = POST['type_id']
+    except KeyError, e:
+        raise Http404(str(e))
+
+    property_type = get_object_or_404(CremePropertyType, pk=prop_type_id)
 
     return_str = ""
     get = CremeEntity.objects.get
     property_get = CremeProperty.objects.get
-    for id in ids.split(','):
 
+    #TODO: regroup queries ???
+    for id in entities_ids.split(','):
         try:
             entity = get(pk=id)
         except CremeEntity.DoesNotExist:
@@ -71,67 +79,62 @@ def add_to_entities(request):
 
 @login_required
 def get_property_types_for_ct(request):
-    ct = get_object_or_404(ContentType, pk=request.POST.get('ct_id'))
-    property_types = CremePropertyType.objects.filter(Q(subject_ctypes=ct)|Q(subject_ctypes__isnull=True))
+    ct = get_object_or_404(ContentType, pk=request.POST.get('ct_id')) #TODO: get ct_id or 404
+    property_types = CremePropertyType.objects.filter(Q(subject_ctypes=ct) | Q(subject_ctypes__isnull=True))
 
     from django.core import serializers
     data = serializers.serialize('json', property_types, fields=('text',))
+
     return HttpResponse(data, mimetype='text/javascript')
 
+
+#TODO: factorise in a generic add_to_entity_by_ipopup() view (see assistants etc...)
 @login_required
-def add_to_creme_entity(request):
-    """
-        @Permissions : Edit on current creme entity
-    """
-    post_get = request.POST.get
-    entity_id    = post_get('entity')
-    property_id  = post_get('property')
-    callback_url = post_get('callback_url', '/')
+def add_to_entity(request, entity_id):
+    entity = get_object_or_404(CremeEntity, pk=entity_id).get_real_entity()
 
-    if entity_id and property_id:
-        entity = get_object_or_404(CremeEntity, pk=entity_id).get_real_entity()
+    die_status = edit_object_or_die(request, entity)
+    if die_status:
+        return die_status
 
-        die_status = edit_object_or_die(request, entity)
-        if die_status:
-            return die_status
+    if request.POST:
+        prop_form = AddPropertiesForm(entity, request.POST)
 
-        property_type = get_object_or_404(CremePropertyType, pk=property_id)
+        if prop_form.is_valid():
+            prop_form.save()
+    else:
+        prop_form = AddPropertiesForm(entity=entity)
 
-        CremeProperty(type=property_type, creme_entity=entity).save()
-
-    return HttpResponseRedirect(callback_url)
-
-def list_for_entity_ct(request, creme_entity_id):
-    """
-        @Permissions : None (CremePropertyType has no user)
-    """
-    entity = get_object_or_404(CremeEntity, pk=creme_entity_id)
-    entity_ct = entity.entity_type
-    entity = entity_ct.model_class().objects.get(pk=creme_entity_id)
-
-    property_types = CremePropertyType.objects.filter(Q(subject_ctypes=entity_ct)|Q(subject_ctypes__isnull=True))
-
-    return render_to_response('creme_core/properties.html',
-                              {
-                                'property_types': property_types,
-                                'entity':         entity,
-                                'callback_url':   request.REQUEST.get('callback_url')
-                              },
-                              context_instance=RequestContext(request))
+    return inner_popup(request, 'creme_core/generics/blockform/add_popup2.html',
+                       {
+                        'form':   prop_form,
+                        'title':  _('New properties for <%s>') % entity,
+                       },
+                       is_valid=prop_form.is_valid(),
+                       reload=False,
+                       delegate_reload=True,
+                       context_instance=RequestContext(request))
 
 @login_required
 def delete(request):
     """
         @Permissions : Edit on property's linked object
     """
-    post_get = request.POST.get
-    entity = get_object_or_404(CremeEntity, pk=post_get('object_id')).get_real_entity()
+    POST = request.POST
+
+    try:
+        entity_id   = POST['object_id']
+        property_id = POST['id']
+    except KeyError, e:
+        raise Http404(str(e))
+
+    entity = get_object_or_404(CremeEntity, pk=entity_id).get_real_entity()
 
     die_status = edit_object_or_die(request, entity)
     if die_status:
         return die_status
 
-    property_ = get_object_or_404(CremeProperty, pk=post_get('id'))
+    property_ = get_object_or_404(CremeProperty, pk=property_id)
     property_.delete()
 
     return HttpResponse("")

@@ -18,63 +18,14 @@
 
 creme.properties = {};
 
-creme.properties.select_one = function(creme_entity_id)
-{
-    this.show = function($node, text, titre)
-    {
-        $node.html(text);
-        $node.dialog({
-            buttons: { "Ok": function() {  
-                                var $form = $(this).find('form:first');
-                                if($form.size()>0)
-                                    $form.submit();
-                                $(this).dialog("destroy");
-                                $(this).remove(); }
-                     },
-            closeOnEscape: false,
-            hide: 'slide',
-            show: 'slide',
-            title: titre,
-            modal: true
-        });
-    }
-
-    var me = this;
-
-    var current_url = window.location.href;
-    
-
-    $.ajax({
-        type: "GET",
-        url: '/creme_core/property/list_for_entity_ct/' + creme_entity_id,
-        dataType: "text",
-        async:false,
-        data:{'callback_url' : current_url},
-        success: function(data, status)
-        {
-            var $node = $('<div></div>');
-            $('body').append($node);
-            me.show($node, data, 'Séléctionnez une propriété');
-        },
-        error: function(request, status, error){
-            var $node = $('<div></div>');
-            $('body').append($node);
-            me.show($node, '<b>Veuillez recharcher la page.</b>', 'Erreur');
-        }
-    });
-
-}
-
-creme.properties.get_types = function(ct_id)
-{
+creme.properties.get_types = function(ct_id) {
     var types = [];
-    var success_cb = function(data, status){
-        for(var i in data)
-        {
+    var success_cb = function(data, status) {
+        for(var i in data) {
             var d = data[i];
-            types.push({pk : d.pk, text : d.fields['text']})
+            types.push({pk: d.pk, text: d.fields['text']})
         }
     }
-    creme.ajax.json.post('/creme_core/property/get_types', {'ct_id' : ct_id}, success_cb, null, true);
+    creme.ajax.json.post('/creme_core/property/get_types', {'ct_id': ct_id}, success_cb, null, true);
     return types;
 }
