@@ -24,6 +24,7 @@ from logging import debug
 from django.http import HttpResponseRedirect, HttpResponse
 from django.shortcuts import get_object_or_404
 from django.template import RequestContext
+from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required
 
 from creme_core.models.entity import CremeEntity
@@ -47,13 +48,13 @@ def _add_line(request, form_class, document_id):
         return die_status
 
     if request.POST :
-        line_form = form_class(request.POST)
+        line_form = form_class(document, request.POST)
 
         if line_form.is_valid():
             line_form.save()
     else:
-        line_form = form_class(initial={
-                                        'document_id':    document_id,
+        line_form = form_class(document,
+                               initial={
                                         'quantity':       0,
                                         'unit_price':     default_decimal,
                                         'credit':         default_decimal,
@@ -63,15 +64,14 @@ def _add_line(request, form_class, document_id):
                                        })
 
     return inner_popup(request, 'creme_core/generics/blockform/add_popup2.html',
-                              {
-                                'form':   line_form,
-                                'object': document,
-                                'title':  u"Ajout d'une ligne de commande dans le document <%s>" % document,
-                              },
-                              is_valid=line_form.is_valid(),
-                              reload=False,
-                              delegate_reload=True,
-                              context_instance=RequestContext(request))
+                       {
+                        'form':   line_form,
+                        'title':  _(u"New line in the document <%s>") % document,
+                       },
+                       is_valid=line_form.is_valid(),
+                       reload=False,
+                       delegate_reload=True,
+                       context_instance=RequestContext(request))
 
 def add_product_line(request, document_id):
     return _add_line(request, ProductLineCreateForm, document_id)
@@ -98,18 +98,17 @@ def _edit_line(request, line_model, line_id):
     form_class = line.get_edit_form()
 
     if request.POST:
-        line_form = form_class(request.POST, instance=line)
+        line_form = form_class(document, request.POST, instance=line)
 
         if line_form.is_valid():
             line_form.save()
     else:
-        line_form = form_class(initial={'document_id': document.id}, instance=line)
+        line_form = form_class(document, instance=line)
 
     return inner_popup(request, 'creme_core/generics/blockform/edit_popup.html',
                        {
                         'form':   line_form,
-                        'object': document,
-                        'title':  u"Édition d'une ligne dans le document <%s>" % document,
+                        'title':  _(u"Edition of a line in the document <%s>") % document,
                        },
                        is_valid=line_form.is_valid(),
                        reload=False,

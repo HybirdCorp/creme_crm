@@ -25,16 +25,15 @@ from creme_core.gui.button_menu import Button
 
 class GenerateInvoiceNumberyButton(Button):
     id_           = Button.generate_id('billing', 'generate_invoice_number')
-    verbose_name  = _(u'Generate number of the Invoice')
+    verbose_name  = _(u'Generate the number of the Invoice')
     template_name = 'billing/templatetags/button_generate_invoice_number.html'
 
     def get_ctypes(self):
         from billing.models import Invoice
         return (Invoice,)
+
     def ok_4_display(self, entity):
-        print 'dans le bouton invoice'
-        print bool (entity.number)
-        return not bool (entity.number)
+        return not bool(entity.number)
 
 
 generate_invoice_number_button = GenerateInvoiceNumberyButton()
