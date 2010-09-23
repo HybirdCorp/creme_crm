@@ -54,16 +54,16 @@
                 footer.width(new_width);
             }
 
-            var content_height = $("#content").height()+$("#footer").height()+$("#top").height();//$('#footer').offset().top;//
+            //var content_height = $("#content").height()+$("#footer").height()+$("#top").height();//$('#footer').offset().top;//
             var logo_container_height = $('#logo_container').outerHeight();
-            var max_menu_height = content_height - logo_container_height;
+            //var max_menu_height = content_height - logo_container_height;
 
             $('#menu').menu({
                 content: $('#tree_menu2').html(),
                 flyOut: false,
                 backLink: false,
                 alwaysOpen:true,
-                //maxHeight: max_menu_height * 0.9,
+                maxHeight: "100%",
                 crumbDefaultText : '{% trans "Menu" %}',
                 topLinkText : '{% trans "Back to Top" %}'
             });
@@ -71,7 +71,8 @@
             $('#menu').hide();
             $('.fg-menu-container')
                 .appendTo('#menu_expanded')
-                .css({'top': logo_container_height, 'height':max_menu_height, 'bottom':'auto'});
+                .css({'top': logo_container_height, 'bottom':'auto'});
+                //.css({'top': logo_container_height, 'height':max_menu_height, 'bottom':'auto'});
 
             $("#menu_expanded").width($('.fg-menu-container').outerWidth());
 
@@ -113,6 +114,8 @@
 
         $('[role=menuitem]', '#menu_expanded').bind('menu-item-selected', function(e, menu){
             e.stopImmediatePropagation();
+            var href = $('a:first', this).attr('href');
+            //$.cookie('creme-menu-selected', href);
             creme.utils.go_to($('a:first',this).attr('href'), false);
         });
 
@@ -120,14 +123,50 @@
 
       window.onload = function(){
         //var content_height = $("#content").height()+$("#footer").height()+$("#top").height();//Is better but detailviews has float div so we have a very small height size
-        var content_height = $(document).height();
+        /*var content_height = $(document).height();
         var logo_container_height = $('#logo_container').outerHeight();
         var max_menu_height = content_height - logo_container_height;
 
         $('.fg-menu-container').css({'top': logo_container_height, 'height':max_menu_height, 'bottom':'auto'});
         $('.fg-menu').css('height', max_menu_height*0.9);
         allUIMenus[0].setMaxHeight(max_menu_height*0.9);
-        $('#menu_collapse').height(content_height*0.9);
+        $('#menu_collapse').height(content_height*0.9);*/
+
+        //var previous_selected = $.cookie('creme-menu-selected');
+        var previous_selected = window.location.pathname;
+        
+        if(previous_selected != null)
+        {
+            var $initial = $('#menu_expanded div.fg-menu-container').find('[href='+previous_selected+']');
+            var $ul = null;
+
+            var li_stack = [];
+            var more = true;
+
+            var $li = $initial.parent('li');
+            li_stack.push($li);
+
+            var max_deep = 30;//I think the depth of the folder will not go more than 30 (which is already huge)
+            var deep = 0;
+
+            while(more && deep <= max_deep)//Set max deep to avoid max recursion
+            {
+                var ul = $li.parent('ul');
+                $li = ul.parent('li');
+                if($li.size() == 0) more = false;
+                else li_stack.push($li);
+                deep++;
+            }
+
+            
+            var now = +new Date;
+
+            for(var i = li_stack.length-1; i > 0; i--)
+            {
+                li_stack[i].find('a:first').click();
+            }
+        }
+
       };
       </script>
 </head>
