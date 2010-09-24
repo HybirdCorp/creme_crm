@@ -38,11 +38,11 @@ from activities.constants import REL_SUB_PART_2_ACTIVITY, REL_SUB_ACTIVITY_SUBJE
 
 def add_participant(request, activity_id):
     return add_to_entity(request, activity_id, ParticipantCreateForm,
-                         _(u"Ajout de participants pour l'activité <%s>"), entity_class=Activity)
+                         _(u'Adding participants to activity <%s>'), entity_class=Activity)
 
 def add_subject(request, activity_id):
     return add_to_entity(request, activity_id, SubjectCreateForm,
-                         _(u"Ajout de sujets pour l'activité <%s>"), entity_class=Activity)
+                         _(u'Adding subjects to activity <%s>'), entity_class=Activity)
 
 @login_required
 #def unlink_activity(request, activity_id, entity_id):
