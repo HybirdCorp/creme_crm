@@ -25,6 +25,7 @@ from django.contrib.auth.decorators import login_required
 
 from creme_core.entities_access.functions_for_permissions import edit_object_or_die
 from creme_core.views.generic import inner_popup
+from creme_core.utils import get_from_POST_or_404
 
 
 @login_required
@@ -57,10 +58,10 @@ def generic_edit(request, assistant_id, assistant_model, assistant_form, title):
 #TODO: credentials ????
 @login_required
 def generic_delete(request, assistant_model, pk_key='id'):
-    assistant = get_object_or_404(assistant_model, pk=request.POST.get(pk_key))
+    assistant = get_object_or_404(assistant_model, pk=get_from_POST_or_404(request.POST, pk_key))
     assistant.delete()
 
     if request.is_ajax():
         return HttpResponse("", mimetype="text/javascript")
-    else:
-        return HttpResponseRedirect(assistant.creme_entity.get_absolute_url())
+
+    return HttpResponseRedirect(assistant.creme_entity.get_absolute_url())

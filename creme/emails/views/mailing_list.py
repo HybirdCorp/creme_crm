@@ -26,6 +26,7 @@ from django.contrib.contenttypes.models import ContentType
 
 from creme_core.entities_access.functions_for_permissions import get_view_or_die, add_view_or_die, edit_object_or_die
 from creme_core.views.generic import add_entity, add_to_entity, edit_entity, view_entity_with_template, list_view
+from creme_core.utils import get_from_POST_or_404
 
 from emails.models import MailingList
 from emails.forms.mailing_list import (MailingListForm,
@@ -77,7 +78,7 @@ def add_children(request, ml_id):
 @login_required
 @get_view_or_die('emails')
 def _delete_aux(request, ml_id, deletor):
-    subobject_id = request.POST.get('id')
+    subobject_id = get_from_POST_or_404(request.POST, 'id')
     ml = get_object_or_404(MailingList, pk=ml_id)
 
     die_status = edit_object_or_die(request, ml)

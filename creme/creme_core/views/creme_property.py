@@ -19,7 +19,7 @@
 ################################################################################
 
 from django.db.models import Q
-from django.http import HttpResponse, Http404
+from django.http import HttpResponse#, Http404
 from django.shortcuts import get_object_or_404, render_to_response
 from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required
@@ -30,24 +30,17 @@ from creme_core.entities_access.functions_for_permissions import edit_object_or_
 from creme_core.entities_access.permissions import user_has_edit_permission_for_an_object
 from creme_core.views.generic import add_to_entity as generic_add_to_entity
 from creme_core.forms.creme_property import AddPropertiesForm
-
+from creme_core.utils import get_ct_or_404, get_from_POST_or_404
 
 @login_required
 def add_to_entities(request):
-    POST = request.POST
-
-    #TODO: a method get_or_404(POST, 'ids') ???
-    try:
-        entities_ids  = POST['ids']
-        prop_type_id  = POST['type_id']
-    except KeyError, e:
-        raise Http404(str(e))
-
+    POST          = request.POST
+    entities_ids  = get_from_POST_or_404(POST, 'ids')
+    prop_type_id  = get_from_POST_or_404(POST, 'type_id')
     property_type = get_object_or_404(CremePropertyType, pk=prop_type_id)
-
-    return_str = ""
-    get = CremeEntity.objects.get
-    property_get = CremeProperty.objects.get
+    return_str    = ""
+    get           = CremeEntity.objects.get
+    property_get  = CremeProperty.objects.get
 
     #TODO: regroup queries ???
     for id in entities_ids.split(','):
@@ -78,7 +71,7 @@ def add_to_entities(request):
 
 @login_required
 def get_property_types_for_ct(request):
-    ct = get_object_or_404(ContentType, pk=request.POST.get('ct_id')) #TODO: get ct_id or 404
+    ct = get_ct_or_404(get_from_POST_or_404(request.POST, 'ct_id'))
     property_types = CremePropertyType.objects.filter(Q(subject_ctypes=ct) | Q(subject_ctypes__isnull=True))
 
     from django.core import serializers
@@ -94,15 +87,10 @@ def delete(request):
     """
         @Permissions : Edit on property's linked object
     """
-    POST = request.POST
-
-    try:
-        entity_id   = POST['object_id']
-        property_id = POST['id']
-    except KeyError, e:
-        raise Http404(str(e))
-
-    entity = get_object_or_404(CremeEntity, pk=entity_id).get_real_entity()
+    POST        = request.POST
+    entity_id   = get_from_POST_or_404(POST, 'object_id')
+    property_id = get_from_POST_or_404(POST, 'id')
+    entity      = get_object_or_404(CremeEntity, pk=entity_id).get_real_entity()
 
     die_status = edit_object_or_die(request, entity)
     if die_status:

@@ -25,6 +25,7 @@ from django.contrib.auth.decorators import login_required
 
 from creme_core.entities_access.functions_for_permissions import get_view_or_die, edit_object_or_die
 from creme_core.views.generic import add_to_entity
+from creme_core.utils import get_from_POST_or_404
 
 from emails.models import MailingList, EmailRecipient
 from emails.forms.recipient import MailingListAddRecipientsForm, MailingListAddCSVForm
@@ -41,7 +42,7 @@ def add_from_csv(request, ml_id):
 @login_required
 @get_view_or_die('emails')
 def delete(request):
-    recipient = get_object_or_404(EmailRecipient , pk=request.POST.get('id'))
+    recipient = get_object_or_404(EmailRecipient , pk=get_from_POST_or_404(request.POST, 'id'))
     ml = recipient.ml
 
     die_status = edit_object_or_die(request, ml)

@@ -26,6 +26,7 @@ from django.contrib.contenttypes.models import ContentType
 
 from creme_core.entities_access.functions_for_permissions import get_view_or_die, add_view_or_die, edit_object_or_die
 from creme_core.views.generic import add_entity, add_to_entity, edit_entity, view_entity_with_template, list_view
+from creme_core.utils import get_from_POST_or_404
 
 from emails.models import EmailTemplate
 from emails.forms.template import TemplateCreateForm, TemplateEditForm, TemplateAddAttachment
@@ -59,13 +60,14 @@ def add_attachment(request, template_id):
 @login_required
 @get_view_or_die('emails')
 def delete_attachment(request, template_id):
+    attachment_id = get_from_POST_or_404(request.POST, 'id')
     template = get_object_or_404(EmailTemplate, pk=template_id)
 
     die_status = edit_object_or_die(request, template)
     if die_status:
         return die_status
 
-    template.attachments.remove(request.POST.get('id'))
+    template.attachments.remove(attachment_id)
 
     if request.is_ajax():
         return HttpResponse("", mimetype="text/javascript")

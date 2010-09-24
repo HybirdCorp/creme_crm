@@ -28,6 +28,7 @@ from creme_core.models import (BlockConfigItem, RelationBlockItem,
 from creme_core.views.generic import add_entity
 from creme_core.entities_access.functions_for_permissions import get_view_or_die
 from creme_core.constants import DROIT_MODULE_EST_ADMIN
+from creme_core.utils import get_from_POST_or_404
 
 from creme_config.forms.blocks import BlocksAddForm, BlocksEditForm, BlocksPortalEditForm, RelationBlockAddForm
 
@@ -97,7 +98,8 @@ def edit_portal(request, ct_id):
 @login_required
 @get_view_or_die('creme_config', DROIT_MODULE_EST_ADMIN)
 def delete(request):
-    ct_id = request.POST.get('id')
+    ct_id = get_from_POST_or_404(request.POST, 'id')
+
     if not ct_id: #default config can't be deleted
         raise Http404 #bof
 
@@ -108,7 +110,7 @@ def delete(request):
 @login_required
 @get_view_or_die('creme_config', DROIT_MODULE_EST_ADMIN)
 def delete_relation_block(request):
-    rbi = RelationBlockItem.objects.get(pk=request.POST.get('id'))
+    rbi = RelationBlockItem.objects.get(pk=get_from_POST_or_404(request.POST, 'id'))
 
     rbi.delete()
 
@@ -117,7 +119,7 @@ def delete_relation_block(request):
 @login_required
 @get_view_or_die('creme_config', DROIT_MODULE_EST_ADMIN)
 def delete_instance_block(request):
-    ibi = InstanceBlockConfigItem.objects.get(pk=request.POST.get('id'))
+    ibi = InstanceBlockConfigItem.objects.get(pk=get_from_POST_or_404(request.POST, 'id'))
 
     ibi.delete()
 

@@ -28,6 +28,7 @@ from creme_core.views.generic import add_entity
 from creme_core.entities_access.functions_for_permissions import get_view_or_die
 from creme_core.constants import DROIT_MODULE_EST_ADMIN
 from creme_core.models import SearchConfigItem, SearchField
+from creme_core.utils import get_from_POST_or_404
 
 from creme_config.forms.search import SearchEditForm, SearchAddForm
 
@@ -74,9 +75,9 @@ def edit(request, search_config_id):
 @login_required
 @get_view_or_die('creme_config', DROIT_MODULE_EST_ADMIN)
 def delete(request):
-    search_cfg_id = request.POST.get('id')
+    search_cfg_id = get_from_POST_or_404(request.POST, 'id')
 
     SearchConfigItem.objects.filter(id=search_cfg_id).delete()
-    SearchField.objects.filter(search_config_item__id=search_cfg_id).delete()
+    SearchField.objects.filter(search_config_item=search_cfg_id).delete()
 
     return HttpResponse()

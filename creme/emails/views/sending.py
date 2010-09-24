@@ -26,6 +26,7 @@ from django.contrib.auth.decorators import login_required
 
 from creme_core.entities_access.functions_for_permissions import get_view_or_die, edit_object_or_die, read_object_or_die
 from creme_core.views.generic import add_to_entity
+from creme_core.utils import get_from_POST_or_404
 
 from emails.models import EmailCampaign, EmailSending, LightWeightEmail
 from emails.forms.sending import SendingCreateForm
@@ -40,7 +41,7 @@ def add(request, campaign_id):
 @login_required
 @get_view_or_die('emails')
 def delete(request):
-    sending  = get_object_or_404(EmailSending, pk=request.POST.get('id'))
+    sending  = get_object_or_404(EmailSending, pk=get_from_POST_or_404(request.POST, 'id'))
     campaign = sending.campaign
 
     die_status = edit_object_or_die(request, campaign)
@@ -69,7 +70,7 @@ def detailview(request, sending_id):
 
 @login_required
 def delete_mail(request):
-    mail     = get_object_or_404(LightWeightEmail, pk=request.POST.get('id'))
+    mail     = get_object_or_404(LightWeightEmail, pk=get_from_POST_or_404(request.POST, 'id'))
     campaign = mail.sending.campaign
 
     die_status = edit_object_or_die(request, campaign)
@@ -81,8 +82,6 @@ def delete_mail(request):
     if request.is_ajax():
         return HttpResponse("success", mimetype="text/javascript")
 
-    #TODO: better with a named url.....
-#    return HttpResponseRedirect('/emails/campaign/sending/%s' % mail.sending_id)
     return HttpResponse()
 
 @login_required

@@ -42,20 +42,21 @@ def get_entity_repr(request):
 
 @login_required
 def get_creme_entity_repr(request, creme_entity_id):
-     c_entity = get_object_or_404(CremeEntity, pk=creme_entity_id)
-     return HttpResponse(c_entity.entity_type.model_class().objects.get(pk=creme_entity_id).get_entity_summary(), mimetype="text/javascript")
+    entity = get_object_or_404(CremeEntity, pk=creme_entity_id).get_real_entity()
+    return HttpResponse(entity.get_entity_summary(), mimetype="text/javascript")
 
 @login_required
 def render_entity(request):
     POST = request.POST
     model = POST.get('model')
     pk = POST.get('pk')
-    template = POST.get('template')
+    template = POST.get('template') #TODO: check in a list of allowed templates ??
     entity = get_object_or_404(get_object_or_404(ContentType, model=model).model_class(), pk=pk)
-    datas = render_to_string(template, RequestContext(request, {'object':entity}))
-    return HttpResponse(JSONEncoder().encode(datas), mimetype="text/javascript")
+    data = render_to_string(template, RequestContext(request, {'object':entity}))
 
+    return HttpResponse(JSONEncoder().encode(data), mimetype="text/javascript")
 
+#TODO: credentials ??
 @login_required
 def get_creme_entity_as_json(request):
     pk = request.POST.get('pk')
@@ -68,4 +69,5 @@ def get_creme_entity_as_json(request):
             status = 200
         except CremeEntity.DoesNotExist:
             pass
+
     return HttpResponse(serializers.serialize('json', data, fields=fields), mimetype="text/javascript", status=status)

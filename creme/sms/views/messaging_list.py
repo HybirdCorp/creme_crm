@@ -27,6 +27,7 @@ from django.contrib.contenttypes.models import ContentType
 
 from creme_core.entities_access.functions_for_permissions import get_view_or_die, add_view_or_die, edit_object_or_die
 from creme_core.views.generic import add_entity, add_to_entity, edit_entity, view_entity_with_template, list_view
+from creme_core.utils import get_from_POST_or_404
 
 from sms.models import MessagingList
 from sms.forms.messaging_list import MessagingListForm, AddContactsForm, AddContactsFromFilterForm
@@ -63,7 +64,7 @@ def add_contacts_from_filter(request, mlist_id):
 @login_required
 @get_view_or_die('sms')
 def _delete_aux(request, mlist_id, deletor):
-    subobject_id = request.POST.get('id')
+    subobject_id   = get_from_POST_or_404(request.POST, 'id')
     messaging_list = get_object_or_404(MessagingList, pk=mlist_id)
 
     die_status = edit_object_or_die(request, messaging_list)
