@@ -26,6 +26,7 @@ from django.contrib.auth.decorators import login_required
 
 from creme_core.views.generic import add_to_entity, view_entity_with_template, edit_entity
 from creme_core.entities_access.functions_for_permissions import get_view_or_die, edit_object_or_die, delete_object_or_die
+from creme_core.utils import get_from_POST_or_404
 
 from projects.models import Project, ProjectTask
 from projects.forms.task import TaskCreateForm, TaskEditForm
@@ -81,7 +82,8 @@ def delete(request, task_id=None):
 @get_view_or_die('projects')
 def delete_parent(request):
     POST = request.POST
-    task = get_object_or_404(ProjectTask, pk=POST.get('id'))
+    parent_id = get_from_POST_or_404(POST, 'parent_id')
+    task = get_object_or_404(ProjectTask, pk=get_from_POST_or_404(POST, 'id'))
     project = task.project
 
     die_status = edit_object_or_die(request, project)
@@ -92,6 +94,6 @@ def delete_parent(request):
     if die_status:
         return die_status
 
-    task.parents_task.remove(POST.get('parent_id'))
+    task.parents_task.remove(parent_id)
 
     return HttpResponse("")

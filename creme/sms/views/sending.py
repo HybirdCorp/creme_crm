@@ -26,6 +26,7 @@ from django.contrib.auth.decorators import login_required
 
 from creme_core.entities_access.functions_for_permissions import get_view_or_die, edit_object_or_die, read_object_or_die
 from creme_core.views.generic import add_to_entity
+from creme_core.utils import get_from_POST_or_404
 
 from sms.models import SMSCampaign, Sending, Message
 from sms.forms.message import SendingCreateForm
@@ -41,14 +42,14 @@ def add(request,campaign_id):
 @login_required
 @get_view_or_die('sms')
 def delete(request):
-    sending = get_object_or_404(Sending , pk=request.POST.get('id'))
+    sending = get_object_or_404(Sending , pk=get_from_POST_or_404(request.POST, 'id'))
     campaign_id = sending.campaign_id
 
     die_status = edit_object_or_die(request, sending)
     if die_status:
         return die_status
 
-    sending.delete()
+    sending.delete() #TODO: try/except ??
 
     if request.is_ajax():
         return HttpResponse("success", mimetype="text/javascript")

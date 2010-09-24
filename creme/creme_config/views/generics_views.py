@@ -26,6 +26,7 @@ from django.contrib.auth.decorators import login_required
 from creme_core.constants  import DROIT_MODULE_EST_ADMIN
 from creme_core.entities_access.functions_for_permissions import get_view_or_die
 from creme_core.views.generic import add_entity
+from creme_core.utils import get_from_POST_or_404
 
 from creme_config.registry import config_registry
 from creme_config.blocks import generic_models_block
@@ -85,10 +86,8 @@ def delete_model(request, app_name, model_name):
     """
         @Permissions : Admin to creme_config app
     """
-    #model = _get_modelconf(app_name, model_name).model
-    model = _get_modelconf(_get_appconf(app_name), model_name).model
-
-    object_ = get_object_or_404(model, pk=request.POST.get('id'))
+    model   = _get_modelconf(_get_appconf(app_name), model_name).model
+    object_ = get_object_or_404(model, pk=get_from_POST_or_404(request.POST, 'id'))
 
     if not getattr(object_, 'is_custom', True):
         raise Http404 #403 ??

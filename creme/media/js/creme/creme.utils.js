@@ -293,6 +293,7 @@ creme.utils.renderEntity = function(from_node, to_node) {
     });
 }
 
+//TODO: move to assistants.js ??
 creme.utils.validateEntity = function(form, checkbox_id) {
     var checked = document.getElementById(checkbox_id);
     if (checked.checked == false) {

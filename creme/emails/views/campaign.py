@@ -26,6 +26,7 @@ from django.contrib.contenttypes.models import ContentType
 
 from creme_core.entities_access.functions_for_permissions import get_view_or_die, add_view_or_die, edit_object_or_die, delete_object_or_die
 from creme_core.views.generic import add_entity, add_to_entity, edit_entity, view_entity_with_template, list_view
+from creme_core.utils import get_from_POST_or_404
 
 from emails.models import EmailCampaign
 from emails.forms.campaign import CampaignCreateForm, CampaignEditForm, CampaignAddMLForm
@@ -59,13 +60,14 @@ def add_ml(request, campaign_id):
 @login_required
 @get_view_or_die('emails')
 def delete_ml(request, campaign_id):
+    ml_id    = get_from_POST_or_404(request.POST, 'id')
     campaign = get_object_or_404(EmailCampaign, pk=campaign_id)
 
     die_status = edit_object_or_die(request, campaign)
     if die_status:
         return die_status
 
-    campaign.mailing_lists.remove(request.POST.get('id'))
+    campaign.mailing_lists.remove(ml_id)
 
     if request.is_ajax():
         return HttpResponse("", mimetype="text/javascript")

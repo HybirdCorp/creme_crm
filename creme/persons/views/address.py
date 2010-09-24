@@ -32,6 +32,7 @@ from creme_core.models import CremeEntity
 from creme_core.entities_access.functions_for_permissions import (add_view_or_die,
                                                     edit_view_or_die, edit_object_or_die, delete_object_or_die)
 from creme_core.views.generic import add_entity, add_to_entity, inner_popup
+from creme_core.utils import get_from_POST_or_404
 
 from persons.models import Address, Organisation
 from persons.forms.address import AddressWithEntityForm
@@ -92,7 +93,7 @@ def edit(request, address_id):
 @login_required
 @edit_view_or_die(__ct_address, app_name="all_creme_apps")
 def delete(request, pk_key='id'):
-    address = get_object_or_404(Address, pk=request.POST.get(pk_key))
+    address = get_object_or_404(Address, pk=get_from_POST_or_404(request.POST, pk_key))
 
     #TODO: edit on related entity instead ??
     die_status = delete_object_or_die(request, address)

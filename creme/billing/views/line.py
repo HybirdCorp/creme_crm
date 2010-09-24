@@ -30,6 +30,7 @@ from django.contrib.auth.decorators import login_required
 from creme_core.models.entity import CremeEntity
 from creme_core.entities_access.functions_for_permissions import edit_object_or_die, get_view_or_die
 from creme_core.views.generic import add_to_entity, inner_popup
+from creme_core.utils import get_from_POST_or_404
 
 from billing.models import Line, ProductLine, ServiceLine
 from billing.forms.line import ProductLineCreateForm, ProductLineOnTheFlyCreateForm, ServiceLineCreateForm, ServiceLineOnTheFlyCreateForm
@@ -102,8 +103,8 @@ def edit_serviceline(request, line_id):
 @login_required
 @get_view_or_die('billing')
 def delete(request):
-    line      = get_object_or_404(Line, pk=request.POST.get('id'))
-    document  = line.document
+    line     = get_object_or_404(Line, pk=get_from_POST_or_404(request.POST, 'id'))
+    document = line.document
 
     die_status = edit_object_or_die(request, document, app_name='billing')
     if die_status:

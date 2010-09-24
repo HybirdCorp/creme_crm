@@ -27,6 +27,7 @@ from creme_core.models import ButtonMenuItem
 from creme_core.views.generic import add_entity
 from creme_core.entities_access.functions_for_permissions import get_view_or_die
 from creme_core.constants import DROIT_MODULE_EST_ADMIN
+from creme_core.utils import get_from_POST_or_404
 
 from creme_config.forms.button_menu import ButtonMenuAddForm, ButtonMenuEditForm
 
@@ -82,10 +83,12 @@ def edit(request, ct_id):
 @login_required
 @get_view_or_die('creme_config', DROIT_MODULE_EST_ADMIN)
 def delete(request):
-    ct_id = request.POST.get('id')
+    ct_id = get_from_POST_or_404(request.POST, 'id')
+
     #Set a constant to recognize default config, because POST QueryDict can be empty ?
     if not ct_id: #default config can't be deleted
         raise Http404 #bof
 
-    ButtonMenuItem.objects.filter(content_type__id=ct_id).delete()
+    ButtonMenuItem.objects.filter(content_type=ct_id).delete()
+
     return HttpResponse()
