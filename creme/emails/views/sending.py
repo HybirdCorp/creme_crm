@@ -25,39 +25,16 @@ from django.template import RequestContext
 from django.contrib.auth.decorators import login_required
 
 from creme_core.entities_access.functions_for_permissions import get_view_or_die, edit_object_or_die, read_object_or_die
-from creme_core.views.generic import inner_popup
+from creme_core.views.generic import add_to_entity
 
 from emails.models import EmailCampaign, EmailSending, LightWeightEmail
 from emails.forms.sending import SendingCreateForm
 from emails.blocks import mails_block
 
 
-@login_required
-@get_view_or_die('emails')
 def add(request, campaign_id):
-    campaign = get_object_or_404(EmailCampaign, pk=campaign_id)
-
-    die_status = edit_object_or_die(request, campaign)
-    if die_status:
-        return die_status
-
-    if request.POST:
-        sending_add_form = SendingCreateForm(campaign, request.POST)
-
-        if sending_add_form.is_valid():
-            sending_add_form.save()
-    else:
-        sending_add_form = SendingCreateForm(campaign=campaign)
-
-    return inner_popup(request, 'creme_core/generics/blockform/add_popup2.html',
-                       {
-                        'form':   sending_add_form,
-                        'title': _('New sending for <%s>') % campaign,
-                       },
-                       is_valid=sending_add_form.is_valid(),
-                       reload=False,
-                       delegate_reload=True,
-                       context_instance=RequestContext(request))
+    return add_to_entity(request, campaign_id, SendingCreateForm,
+                         _('New sending for <%s>'), entity_class=EmailCampaign)
 
 #TODO: use generic delete ?? (return url not really used)
 @login_required

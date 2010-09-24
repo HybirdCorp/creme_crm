@@ -45,6 +45,7 @@ from reports.forms.graph import ReportGraphAddForm
 report_graph_app = ReportGraph._meta.app_label
 report_graph_ct  = ContentType.objects.get_for_model(ReportGraph)
 
+#TODO: use add_to_entity() generic view
 @login_required
 @get_view_or_die(report_graph_app)
 @add_view_or_die(report_graph_ct, None, report_graph_app)

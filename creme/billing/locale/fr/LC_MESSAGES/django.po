@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-08-24 14:50+0200\n"
+"POT-Creation-Date: 2010-09-23 18:58+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -27,39 +27,48 @@ msgstr "Lignes service"
 msgid "Total"
 msgstr "Total"
 
-#: creme_core_register.py:31
+#: buttons.py:28
+#: templates/billing/templatetags/button_generate_invoice_number.html:4
+msgid "Generate the number of the Invoice"
+msgstr "Générer le numéro de facture"
+
+#: creme_core_register.py:33
 msgid "Billing"
 msgstr "Facturation"
 
-#: creme_core_register.py:36
+#: creme_core_register.py:38
+msgid "Portal"
+msgstr "Portail"
+
+#: creme_core_register.py:39
 msgid "Add an invoice"
 msgstr "Ajouter une facture"
 
-#: creme_core_register.py:37
+#: creme_core_register.py:40
 msgid "All invoices"
 msgstr "Lister les factures"
 
-#: creme_core_register.py:38
+#: creme_core_register.py:41
 msgid "Add a sales order"
 msgstr "Ajouter un bon de commande"
 
-#: creme_core_register.py:39
+#: creme_core_register.py:42
 msgid "All sales orders"
 msgstr "Lister les bons de commande"
 
-#: creme_core_register.py:40
+#: creme_core_register.py:43
 msgid "Add a quote"
 msgstr "Ajouter un devis"
 
-#: creme_core_register.py:41
+#: creme_core_register.py:44
 msgid "All quotes"
 msgstr "Lister les devis"
 
-#: creme_core_register.py:42
+#: creme_core_register.py:45
 msgid "Add a credit note"
 msgstr "Ajouter un avoir"
 
-#: creme_core_register.py:43
+#: creme_core_register.py:46
 msgid "All credit notes"
 msgstr "Lister les avoirs"
 
@@ -131,41 +140,41 @@ msgstr "Recouvrement soldé"
 msgid "Canceled"
 msgstr "Annulée"
 
-#: populate.py:74 models/base.py:38
+#: populate.py:78 models/base.py:38
 msgid "Name"
 msgstr "Nom"
 
-#: populate.py:75 models/base.py:39
+#: populate.py:79 models/base.py:39
 msgid "Number"
 msgstr "Numéro"
 
-#: populate.py:76 forms/base.py:43 models/base.py:40
+#: populate.py:80 forms/base.py:43 models/base.py:40
 msgid "Issuing date"
 msgstr "Date d'émission"
 
-#: populate.py:77 forms/base.py:44 models/base.py:41
+#: populate.py:81 forms/base.py:44 models/base.py:41
 msgid "Expiration date"
 msgstr "Échéance"
 
-#: populate.py:78 forms/templatebase.py:32 forms/templatebase.py:51
-#: models/other_models.py:31 models/other_models.py:43
-#: models/other_models.py:55 models/other_models.py:66
+#: populate.py:82 forms/templatebase.py:31 models/other_models.py:31
+#: models/other_models.py:44 models/other_models.py:57
+#: models/other_models.py:70
 msgid "Status"
 msgstr "Statut"
 
-#: populate.py:80
+#: populate.py:84
 msgid "Invoice view"
 msgstr "Vue de Facture"
 
-#: populate.py:81
+#: populate.py:85
 msgid "Quote view"
 msgstr "Vue de Devis"
 
-#: populate.py:82
+#: populate.py:86
 msgid "Sales order view"
 msgstr "Vue de Bon de Commande"
 
-#: populate.py:83
+#: populate.py:87
 msgid "Credit note view"
 msgstr "Vue des Avoirs"
 
@@ -197,25 +206,21 @@ msgstr "Choisissez une société pour avoir son adresse de livraison"
 msgid "Organisation and addresses"
 msgstr "Société et adresses"
 
-#: forms/line.py:54 forms/line.py:71 forms/line.py:94 forms/line.py:160
-#: forms/line.py:174
+#: forms/line.py:42 forms/line.py:87 forms/line.py:100 forms/line.py:166
+#: forms/line.py:180
 msgid "Line information"
 msgstr "Informations sur la ligne"
 
-#: forms/line.py:60 templates/billing/templatetags/block_product_line.html:33
+#: forms/line.py:66 templates/billing/templatetags/block_product_line.html:33
 #: templates/billing/templatetags/block_product_line.html:47
 msgid "Product"
 msgstr "Produit"
 
-#: forms/line.py:73 forms/line.py:162
-msgid "Additional features"
-msgstr "Fonctionnalités supplémentaires"
-
-#: forms/line.py:76
+#: forms/line.py:75
 msgid "Save as product ?"
 msgstr "Enregistrer en tant que produit ?"
 
-#: forms/line.py:77
+#: forms/line.py:76
 msgid ""
 "Here you can save a on-the-fly Product as a true Product ; in this case, "
 "category and sub-category are required."
@@ -224,7 +229,7 @@ msgstr ""
 "part entière, dans ce cas là, la catégorie et sous-catégorie sont "
 "obligatoires."
 
-#: forms/line.py:78
+#: forms/line.py:77
 msgid "Category"
 msgstr "Catégorie"
 
@@ -232,26 +237,30 @@ msgstr "Catégorie"
 msgid "Sub-category"
 msgstr "Sous-catégorie"
 
-#: forms/line.py:105
+#: forms/line.py:89 forms/line.py:168
+msgid "Additional features"
+msgstr "Fonctionnalités supplémentaires"
+
+#: forms/line.py:111
 msgid "Category is required if you want to save as a true product."
 msgstr ""
 "Catégorie obligatoire si vous souhaitez enregistrer en tant que produit."
 
-#: forms/line.py:107
+#: forms/line.py:113
 msgid "Sub-category is required if you want to save as a true product."
 msgstr ""
 "Sous-catégorie obligatoire si vous souhaitez enregistrer en tant que produit."
 
-#: forms/line.py:144 templates/billing/templatetags/block_service_line.html:6
+#: forms/line.py:151 templates/billing/templatetags/block_service_line.html:6
 #: templates/billing/templatetags/block_service_line.html:20
 msgid "Service"
 msgstr "Service"
 
-#: forms/line.py:165
+#: forms/line.py:160
 msgid "Save as service ?"
 msgstr "Enregistrer en tant que service ?"
 
-#: forms/line.py:166
+#: forms/line.py:161
 msgid ""
 "Here you can save a on-the-fly Service as a true Service ; in this case, "
 "category is required."
@@ -259,16 +268,16 @@ msgstr ""
 "Ceci vous permer d'enregistrer un service à la volée en tant que service à "
 "part entière (dans ce cas la cégorie est obligatoire)."
 
-#: forms/line.py:167
+#: forms/line.py:162
 msgid "Service category"
 msgstr "Catégorie de service"
 
-#: forms/line.py:183
+#: forms/line.py:189
 msgid "Category is required if you want to save as a true service."
 msgstr ""
 "Catégorie obligatoire si vous souhaitez enregistrer en tant que service."
 
-#: forms/templatebase.py:44 forms/templatebase.py:62
+#: forms/templatebase.py:41
 #, python-format
 msgid "Status of %s"
 msgstr "Statut de %s"
@@ -359,19 +368,19 @@ msgstr "Ligne"
 msgid "Lines"
 msgstr "Lignes"
 
-#: models/other_models.py:38 models/other_models.py:39
+#: models/other_models.py:39 models/other_models.py:40
 msgid "Invoice status"
 msgstr "Statut(s) de facture"
 
-#: models/other_models.py:50 models/other_models.py:51
+#: models/other_models.py:52 models/other_models.py:53
 msgid "Quote status"
 msgstr "Statut(s) de devis"
 
-#: models/other_models.py:62 models/other_models.py:63
+#: models/other_models.py:65 models/other_models.py:66
 msgid "Sales order status"
 msgstr "Statut(s) de bon de commande"
 
-#: models/other_models.py:72 models/other_models.py:73
+#: models/other_models.py:78 models/other_models.py:79
 msgid "Credit note status"
 msgstr "Status d'avoir"
 
@@ -520,6 +529,10 @@ msgstr "Total HT"
 msgid "Total (inclusive of tax)"
 msgstr "Total TTC"
 
+#: templates/billing/templatetags/button_generate_invoice_number.html:3
+msgid "Invoice number"
+msgstr "Numéro de Facture"
+
 #: templates/billing/templatetags/line.html:15
 msgid "Total discount"
 msgstr "Remise globale"
@@ -537,6 +550,16 @@ msgstr "%(src)s (converti en patron de <%(dest)s>)"
 #, python-format
 msgid "%(src)s (converted into  %(dest)s)"
 msgstr "%(src)s (converti en %(dest)s)"
+
+#: views/line.py:69
+#, python-format
+msgid "New line in the document <%s>"
+msgstr "Ajout d'une ligne dans le document <%s>"
+
+#: views/line.py:112
+#, python-format
+msgid "Edition of a line in the document <%s>"
+msgstr "Édition d'une ligne dans le document <%s>"
 
 #: views/portal.py:35
 msgid "Total number of documents"

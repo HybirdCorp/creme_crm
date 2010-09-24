@@ -24,38 +24,8 @@ from django.shortcuts import get_object_or_404
 from django.contrib.auth.decorators import login_required
 
 from creme_core.entities_access.functions_for_permissions import edit_object_or_die
-from creme_core.models import CremeEntity
 from creme_core.views.generic import inner_popup
 
-
-@login_required
-def generic_add(request, entity_id, form_class, title):
-    """
-        @Permissions : Edit on entity that's will be linked to the action
-    """
-    entity = get_object_or_404(CremeEntity, pk=entity_id).get_real_entity()
-
-    die_status = edit_object_or_die(request, entity)
-    if die_status:
-        return die_status
-
-    if request.POST:
-        assistant_form = form_class(entity, request.POST)
-
-        if assistant_form.is_valid():
-            assistant_form.save()
-    else:
-        assistant_form = form_class(entity=entity)
-
-    return inner_popup(request, 'creme_core/generics/blockform/add_popup2.html',
-                       {
-                        'form':   assistant_form,
-                        'title':  title % entity,
-                       },
-                       is_valid=assistant_form.is_valid(),
-                       reload=False,
-                       delegate_reload=True,
-                       context_instance=RequestContext(request))
 
 @login_required
 def generic_edit(request, assistant_id, assistant_model, assistant_form, title):

@@ -25,63 +25,19 @@ from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required
 
 from creme_core.entities_access.functions_for_permissions import get_view_or_die, edit_object_or_die
-from creme_core.views.generic import inner_popup
+from creme_core.views.generic import add_to_entity
 
 from sms.models import MessagingList, Recipient
 from sms.forms.recipient import MessagingListAddRecipientsForm, MessagingListAddCSVForm
 
 
-@login_required
-@get_view_or_die('sms')
 def add(request, mlist_id):
-    messaging_list = get_object_or_404(MessagingList, pk=mlist_id)
+    return add_to_entity(request, mlist_id, MessagingListAddRecipientsForm,
+                         _(u'New recipients for <%s>'), entity_class=MessagingList)
 
-    die_status = edit_object_or_die(request, messaging_list)
-    if die_status:
-        return die_status
-
-    if request.POST:
-        recip_add_form = MessagingListAddRecipientsForm(messaging_list, request.POST)
-
-        if recip_add_form.is_valid():
-            recip_add_form.save()
-    else:
-        recip_add_form = MessagingListAddRecipientsForm(messaging_list=messaging_list)
-
-    return inner_popup(request, 'creme_core/generics/blockform/add_popup2.html',
-                       {
-                        'form':   recip_add_form,
-                        'title': _(u'New recipients for <%s>') % messaging_list,
-                       },
-                       is_valid=recip_add_form.is_valid(),
-                       reload=False,
-                       delegate_reload=True,
-                       context_instance=RequestContext(request))
-
-@login_required
-@get_view_or_die('sms')
 def add_from_csv(request, mlist_id):
-    messaging_list = get_object_or_404(MessagingList, pk=mlist_id)
-
-    die_status = edit_object_or_die(request, messaging_list)
-    if die_status:
-        return die_status
-
-    if request.method == 'POST':
-        recip_add_form = MessagingListAddCSVForm(messaging_list, request.POST, request.FILES)
-
-        if recip_add_form.is_valid():
-            recip_add_form.save()
-    else:
-        recip_add_form = MessagingListAddCSVForm(messaging_list=messaging_list)
-
-    return inner_popup(request, 'creme_core/generics/blockform/add_popup2.html',
-                       {
-                        'form':   recip_add_form,
-                        'title': _(u'New recipients for <%s>') % messaging_list,
-                       },
-                       is_valid=recip_add_form.is_valid(),
-                       context_instance=RequestContext(request))
+    return add_to_entity(request, mlist_id, MessagingListAddCSVForm,
+                         _(u'New recipients for <%s>'), entity_class=MessagingList)
 
 @login_required
 @get_view_or_die('sms')

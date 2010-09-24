@@ -22,7 +22,6 @@ from decimal import Decimal
 
 from django.utils.translation import ugettext_lazy as _, ugettext
 from django.forms import IntegerField, BooleanField, ModelChoiceField, Select, ValidationError
-from django.forms.widgets import HiddenInput
 
 from creme_core.forms import CremeModelWithUserForm, FieldBlockManager
 from creme_core.forms.fields import CremeEntityField
@@ -33,62 +32,69 @@ from products.models import Product, Service, Category, SubCategory, ServiceCate
 from billing.models import ProductLine, ServiceLine
 from billing.constants import DEFAULT_VAT
 
-from creme import form_post_save #TODo: move in creme_core ??
+from creme import form_post_save #TODO: move in creme_core ??
+
 
 default_decimal = Decimal()
 
 
 class LineCreateForm(CremeModelWithUserForm):
-    document_id = IntegerField(widget=HiddenInput()) #TODO: it's possible to hack the form: document_id different from the one given is the url
+    blocks = FieldBlockManager(('general', _(u'Line information'), ['related_item', 'comment', 'quantity', 'unit_price',
+                                                                    'discount', 'credit', 'total_discount', 'vat', 'user'])
+                              )
+
+    class Meta:
+        exclude = ('document', 'is_paid')
+
+    def __init__(self, document, *args, **kwargs):
+        super(LineCreateForm, self).__init__(*args, **kwargs)
+        self.document = document
 
     def save(self):
         instance = self.instance
-        created = False if instance.pk else True
-        instance.document_id = self.cleaned_data['document_id']
+        created = not bool(instance.pk)
+        instance.document = self.document #TODO: see if 'document.id' avoid a query
         instance.is_paid = False
         super(LineCreateForm, self).save()
 
         form_post_save.send(sender=self.instance.__class__, instance=self.instance, created=created)
 
-
-bm = FieldBlockManager(('general', _(u'Line information'), ['related_item', 'comment', 'quantity', 'unit_price',
-                                                            'discount', 'credit', 'total_discount', 'vat', 'user'])
-     )
+        return instance
 
 
 class ProductLineCreateForm(LineCreateForm):
-    related_item = CremeEntityField(label=_("Product"), model=Product, widget=ListViewWidget(attrs={'selection_cb':'creme.product_line.auto_populate_selection','selection_cb_args':{'attr':'name','values':['unit_price']}}))
-
-    blocks = bm
+    related_item = CremeEntityField(label=_("Product"), model=Product,
+                                    widget=ListViewWidget(attrs={'selection_cb':'creme.product_line.auto_populate_selection','selection_cb_args':{'attr':'name','values':['unit_price']}}))
 
     class Meta:
         model = ProductLine
-        exclude = ('on_the_fly_item', 'document', 'is_paid')
+        exclude = LineCreateForm.Meta.exclude + ('on_the_fly_item',)
 
 
 class ProductLineOnTheFlyCreateForm(LineCreateForm):
-    blocks = FieldBlockManager(
-        ('general',     _(u'Line information'),    ['on_the_fly_item', 'comment', 'quantity', 'unit_price',
-                                                    'discount', 'credit', 'total_discount', 'vat', 'user']),
-        ('additionnal', _(u'Additional features'), ['has_to_register_as', 'category', 'sub_category'])
-     )
-
     has_to_register_as = BooleanField(label=_(u"Save as product ?"), required=False,
                                       help_text=_(u"Here you can save a on-the-fly Product as a true Product ; in this case, category and sub-category are required."))
     category           = ModelChoiceField(queryset=Category.objects.all(), label=_(u'Category'),
-                                          widget=DependentSelect(target_id='id_sub_category', target_url='/products/sub_category/load'),
+                                          widget=DependentSelect(target_id='id_sub_category',
+                                          target_url='/products/sub_category/load'),
                                           required=False)
     sub_category       = ModelChoiceField(queryset=SubCategory.objects.all(),
                                           label=_(u'Sub-category'),
                                           widget=Select(attrs={'id': 'id_sub_category'}),
                                           required=False)
 
+    blocks = FieldBlockManager(
+        ('general',     _(u'Line information'),    ['on_the_fly_item', 'comment', 'quantity', 'unit_price',
+                                                    'discount', 'credit', 'total_discount', 'vat', 'user']),
+        ('additionnal', _(u'Additional features'), ['has_to_register_as', 'category', 'sub_category'])
+     )
+
     class Meta:
         model = ProductLine
-        exclude = ('related_item', 'document', 'is_paid')
+        exclude = LineCreateForm.Meta.exclude + ('related_item',)
 
-    def __init__(self, *args, **kwargs):
-        super(ProductLineOnTheFlyCreateForm, self).__init__(*args, **kwargs)
+    def __init__(self, document, *args, **kwargs):
+        super(ProductLineOnTheFlyCreateForm, self).__init__(document, *args, **kwargs)
         if self.instance.pk is not None:
             self.blocks = FieldBlockManager(
                     ('general', ugettext(u'Line information'), ['on_the_fly_item', 'comment', 'quantity', 'unit_price',
@@ -99,7 +105,7 @@ class ProductLineOnTheFlyCreateForm(LineCreateForm):
         cleaned_data = self.cleaned_data
         get_data     = cleaned_data.get
 
-        #TODO: use has_key ??
+        #TODO: use has_key() ??
         if get_data('has_to_register_as'):
             if get_data('category') is None:
                 raise ValidationError(ugettext(u'Category is required if you want to save as a true product.'))
@@ -112,49 +118,49 @@ class ProductLineOnTheFlyCreateForm(LineCreateForm):
         get_data = self.cleaned_data.get
 
         if get_data('has_to_register_as'):
-            p = Product()
-            p.name = get_data('on_the_fly_item', '')
-            p.user = get_data('user')
-            p.code = 0
-            p.unit_price = get_data('unit_price', 0)
-            p.category = get_data('category', 0)
-            p.sub_category = get_data('sub_category', 0)
-            p.save()
+            product = Product.objects.create(name=get_data('on_the_fly_item', ''),
+                                             user=get_data('user'),
+                                             code=0,
+                                             unit_price=get_data('unit_price', 0),
+                                             category=get_data('category', 0),
+                                             sub_category=get_data('sub_category', 0),
+                                            )
 
-            plcf = ProductLineCreateForm({
-                    'document_id':    get_data('document_id'),
-                    'related_item':   '%s,' % p.pk,
-                    'quantity':       get_data('quantity', 0),
-                    'unit_price':     get_data('unit_price', default_decimal),
-                    'credit':         get_data('credit', default_decimal),
-                    'discount':       get_data('discount', default_decimal),
-                    'total_discount': get_data('total_discount', False),
-                    'vat':            get_data('vat', DEFAULT_VAT),
-                    'user':           p.user.pk,
-                    'comment':        get_data('comment', '')
-                   })
+            plcf = ProductLineCreateForm(self.document,
+                                         {
+                                            'related_item':   '%s,' % product.pk,
+                                            'quantity':       get_data('quantity', 0),
+                                            'unit_price':     get_data('unit_price', default_decimal),
+                                            'credit':         get_data('credit', default_decimal),
+                                            'discount':       get_data('discount', default_decimal),
+                                            'total_discount': get_data('total_discount', False),
+                                            'vat':            get_data('vat', DEFAULT_VAT),
+                                            'user':           product.user_id,
+                                            'comment':        get_data('comment', '')
+                                        })
 
             if plcf.is_valid():
-                plcf.save()
+                instance = plcf.save()
         else:
-            super(ProductLineOnTheFlyCreateForm, self).save()
+            instance = super(ProductLineOnTheFlyCreateForm, self).save()
+
+        return instance
 
 
 class ServiceLineCreateForm(LineCreateForm):
     related_item = CremeEntityField(label=_("Service"), model=Service, widget=ListViewWidget(attrs={'selection_cb':'creme.product_line.auto_populate_selection','selection_cb_args':{'attr':'name','values':['unit_price']}}))
     #selection_cb uses the same callback than ProductLineCreateForm so is there no Product line block on the Service line block page => Error. Implements its onw function when it'll be necessary
 
-    blocks = bm
-
     class Meta:
         model = ServiceLine
-        exclude = ('on_the_fly_item', 'document', 'is_paid')
+        exclude = LineCreateForm.Meta.exclude + ('on_the_fly_item',)
 
 
 class ServiceLineOnTheFlyCreateForm(LineCreateForm):
-    class Meta:
-        model = ServiceLine
-        exclude = ('related_item', 'document', 'is_paid')
+    has_to_register_as = BooleanField(label=_(u"Save as service ?"), required=False,
+                                      help_text=_(u"Here you can save a on-the-fly Service as a true Service ; in this case, category is required."))
+    category           = ModelChoiceField(queryset=ServiceCategory.objects.all(), label=_(u'Service category'),
+                                          required=False)
 
     blocks = FieldBlockManager(
         ('general',     _(u'Line information'),    ['on_the_fly_item', 'comment', 'quantity', 'unit_price',
@@ -162,14 +168,14 @@ class ServiceLineOnTheFlyCreateForm(LineCreateForm):
         ('additionnal', _(u'Additional features'), ['has_to_register_as','category'])
      )
 
-    has_to_register_as = BooleanField(label=_(u"Save as service ?"), required=False,
-                                      help_text=_(u"Here you can save a on-the-fly Service as a true Service ; in this case, category is required."))
-    category           = ModelChoiceField(queryset=ServiceCategory.objects.all(), label=_(u'Service category'),
-                                          required=False)
+    class Meta:
+        model = ServiceLine
+        exclude = LineCreateForm.Meta.exclude + ('related_item',)
 
-    def __init__(self, *args, **kwargs):
-        super(ServiceLineOnTheFlyCreateForm, self).__init__(*args, **kwargs)
+    def __init__(self, document, *args, **kwargs):
+        super(ServiceLineOnTheFlyCreateForm, self).__init__(document, *args, **kwargs)
         if self.instance.pk is not None:
+            #TODO: remove the block 'additionnal' instead ??
             self.blocks = FieldBlockManager(
                     ('general', _(u'Line information'), ['on_the_fly_item', 'comment', 'quantity', 'unit_price',
                                                          'discount', 'credit', 'total_discount', 'vat', 'user']),
@@ -180,7 +186,7 @@ class ServiceLineOnTheFlyCreateForm(LineCreateForm):
         get_data = cleaned_data.get
 
         if get_data('has_to_register_as') and get_data('category') is None:
-            raise ValidationError(_(u'Category is required if you want to save as a true service.'))
+            raise ValidationError(ugettext(u'Category is required if you want to save as a true service.'))
 
         return cleaned_data
 
@@ -188,28 +194,29 @@ class ServiceLineOnTheFlyCreateForm(LineCreateForm):
         get_data = self.cleaned_data.get
 
         if get_data('has_to_register_as'):
-            s = Service()
-            s.name = get_data('on_the_fly_item', '')
-            s.user = get_data('user')
-            s.reference = ''
-            s.category = get_data('category')
-            s.unit_price = get_data('unit_price', 0)
-            s.save()
+            service = Service.objects.create(name=get_data('on_the_fly_item', ''),
+                                             user=get_data('user'),
+                                             reference='',
+                                             category=get_data('category'),
+                                             unit_price=get_data('unit_price', 0),
+                                            )
 
-            slcf = ServiceLineCreateForm({
-                    'document_id':    get_data('document_id'),
-                    'related_item':   '%s,' % s.pk,
-                    'quantity':       get_data('quantity', 0),
-                    'unit_price':     get_data('unit_price', default_decimal),
-                    'credit':         get_data('credit', default_decimal),
-                    'discount':       get_data('discount', default_decimal),
-                    'total_discount': get_data('total_discount', False),
-                    'vat':            get_data('vat', DEFAULT_VAT),
-                    'user':           s.user.pk,
-                    'comment':        get_data('comment', '')
-                   })
+            slcf = ServiceLineCreateForm(self.document,
+                                         {
+                                            'related_item':   '%s,' % service.pk,
+                                            'quantity':       get_data('quantity', 0),
+                                            'unit_price':     get_data('unit_price', default_decimal),
+                                            'credit':         get_data('credit', default_decimal),
+                                            'discount':       get_data('discount', default_decimal),
+                                            'total_discount': get_data('total_discount', False),
+                                            'vat':            get_data('vat', DEFAULT_VAT),
+                                            'user':           service.user_id,
+                                            'comment':        get_data('comment', ''),
+                                         })
 
             if slcf.is_valid():
-                slcf.save()
+                instance = slcf.save()
         else:
-            super(ServiceLineOnTheFlyCreateForm, self).save()
+            instance = super(ServiceLineOnTheFlyCreateForm, self).save()
+
+        return instance

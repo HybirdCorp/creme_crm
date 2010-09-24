@@ -26,7 +26,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.contenttypes.models import ContentType
 
 from creme_core.entities_access.functions_for_permissions import get_view_or_die, add_view_or_die, edit_object_or_die
-from creme_core.views.generic import add_entity, edit_entity, view_entity_with_template, list_view, inner_popup
+from creme_core.views.generic import add_entity, add_to_entity, edit_entity, view_entity_with_template, list_view
 
 from sms.models import MessagingList
 from sms.forms.messaging_list import MessagingListForm, AddContactsForm, AddContactsFromFilterForm
@@ -52,38 +52,13 @@ def detailview(request, mlist_id):
 def listview(request):
     return list_view(request, MessagingList, extra_dict={'add_url': '/sms/messaging_list/add'})
 
-@login_required
-@get_view_or_die('sms')
-def _add_aux(request, mlist_id, form_class, title):
-    messaging_list = get_object_or_404(MessagingList, pk=mlist_id)
-
-    die_status = edit_object_or_die(request, messaging_list)
-    if die_status:
-        return die_status
-
-    if request.POST:
-        recip_add_form = form_class(messaging_list, request.POST)
-
-        if recip_add_form.is_valid():
-            recip_add_form.save()
-    else:
-        recip_add_form = form_class(messaging_list=messaging_list)
-
-    return inner_popup(request, 'creme_core/generics/blockform/add_popup2.html',
-                       {
-                        'form':  recip_add_form,
-                        'title': title % messaging_list,
-                       },
-                       is_valid=recip_add_form.is_valid(),
-                       reload=False,
-                       delegate_reload=True,
-                       context_instance=RequestContext(request))
-
 def add_contacts(request, mlist_id):
-    return _add_aux(request, mlist_id, AddContactsForm, _('New contacts for <%s>'))
+    return add_to_entity(request, mlist_id, AddContactsForm,
+                         _('New contacts for <%s>'), entity_class=MessagingList)
 
 def add_contacts_from_filter(request, mlist_id):
-    return _add_aux(request, mlist_id, AddContactsFromFilterForm, _('New contacts for <%s>'))
+    return add_to_entity(request, mlist_id, AddContactsFromFilterForm,
+                         _('New contacts for <%s>'), entity_class=MessagingList)
 
 @login_required
 @get_view_or_die('sms')

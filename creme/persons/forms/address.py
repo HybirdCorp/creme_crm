@@ -23,7 +23,7 @@ from django.forms.util import ValidationError
 
 from creme_core.forms import CremeModelForm
 
-from persons.models import Organisation, Address
+from persons.models import Address
 
 
 class AddressWithEntityForm(CremeModelForm):
@@ -31,9 +31,9 @@ class AddressWithEntityForm(CremeModelForm):
         model = Address
         exclude = ('content_type', 'object_id')
 
-    def __init__(self, *args, **kwargs):
-        self._entity = kwargs['initial'].pop('entity')
+    def __init__(self, entity, *args, **kwargs):
         super(AddressWithEntityForm, self).__init__(*args, **kwargs)
+        self._entity = entity
 
     def save(self):
         self.instance.owner = self._entity
