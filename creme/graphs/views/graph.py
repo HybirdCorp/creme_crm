@@ -19,14 +19,13 @@
 ################################################################################
 
 from django.http import HttpResponse
-from django.template import RequestContext
 from django.shortcuts import get_object_or_404
 from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required
 from django.contrib.contenttypes.models import ContentType
 
 from creme_core.entities_access.functions_for_permissions import add_view_or_die, get_view_or_die, read_object_or_die, edit_object_or_die
-from creme_core.views.generic import add_entity, view_entity_with_template, edit_entity, list_view, inner_popup
+from creme_core.views.generic import add_entity, add_to_entity, view_entity_with_template, edit_entity, list_view
 
 from graphs.models import Graph
 from graphs.forms.graph import GraphForm, AddRelationTypesForm
@@ -62,32 +61,9 @@ def detailview(request, graph_id):
 def listview(request):
     return list_view(request, Graph, extra_dict={'add_url':'/graphs/graph/add'})
 
-@login_required
-@get_view_or_die('graphs')
 def add_relation_types(request, graph_id):
-    graph = get_object_or_404(Graph, pk=graph_id)
-
-    die_status = edit_object_or_die(request, graph)
-    if die_status:
-        return die_status
-
-    if request.POST:
-        rtypes_form = AddRelationTypesForm(graph, request.POST)
-
-        if rtypes_form.is_valid():
-            rtypes_form.save()
-    else:
-        rtypes_form = AddRelationTypesForm(graph)
-
-    return inner_popup(request, 'creme_core/generics/blockform/edit_popup.html',
-                       {
-                        'form':   rtypes_form,
-                        'title':  _(u'Add relation types to <%s>') % graph,
-                       },
-                       is_valid=rtypes_form.is_valid(),
-                       reload=False,
-                       delegate_reload=True,
-                       context_instance=RequestContext(request))
+    return add_to_entity(request, graph_id, AddRelationTypesForm,
+                         _(u'Add relation types to <%s>'), entity_class=Graph)
 
 @login_required
 @get_view_or_die('graphs')

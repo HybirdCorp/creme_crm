@@ -20,13 +20,12 @@
 
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404
-from django.template import RequestContext
 from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required
 from django.contrib.contenttypes.models import ContentType
 
 from creme_core.entities_access.functions_for_permissions import get_view_or_die, add_view_or_die, edit_object_or_die
-from creme_core.views.generic import add_entity, edit_entity, view_entity_with_template, list_view, inner_popup
+from creme_core.views.generic import add_entity, add_to_entity, edit_entity, view_entity_with_template, list_view
 
 from emails.models import EmailTemplate
 from emails.forms.template import TemplateCreateForm, TemplateEditForm, TemplateAddAttachment
@@ -53,32 +52,9 @@ def detailview(request, template_id):
 def listview(request):
     return list_view(request, EmailTemplate, extra_dict={'add_url': '/emails/template/add'})
 
-@login_required
-@get_view_or_die('emails')
 def add_attachment(request, template_id):
-    template = get_object_or_404(EmailTemplate, pk=template_id)
-
-    die_status = edit_object_or_die(request, template)
-    if die_status:
-        return die_status
-
-    if request.POST:
-        attachment_add_form = TemplateAddAttachment(template, request.POST)
-
-        if attachment_add_form.is_valid():
-            attachment_add_form.save()
-    else:
-        attachment_add_form = TemplateAddAttachment(template=template)
-
-    return inner_popup(request, 'creme_core/generics/blockform/add_popup2.html',
-                       {
-                        'form':   attachment_add_form,
-                        'title': _('New attachments for <%s>') % template,
-                       },
-                       is_valid=attachment_add_form.is_valid(),
-                       reload=False,
-                       delegate_reload=True,
-                       context_instance=RequestContext(request))
+    return add_to_entity(request, template_id, TemplateAddAttachment,
+                         _('New attachments for <%s>'), entity_class=EmailTemplate)
 
 @login_required
 @get_view_or_die('emails')
