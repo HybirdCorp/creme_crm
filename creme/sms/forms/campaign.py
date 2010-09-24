@@ -30,7 +30,7 @@ from sms.models import SMSCampaign, MessagingList
 
 
 class CampaignCreateForm(CremeEntityForm):
-    messaging_lists = MultiCremeEntityField(label=_(u'Related messaging lists'), required=False, model=MessagingList)
+    lists = MultiCremeEntityField(label=_(u'Related messaging lists'), required=False, model=MessagingList)
 
     class Meta(CremeEntityForm.Meta):
         model = SMSCampaign

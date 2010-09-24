@@ -24,42 +24,16 @@ from django.template import RequestContext
 from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required
 
-from creme_core.views.generic import view_entity_with_template, edit_entity, inner_popup
+from creme_core.views.generic import add_to_entity, view_entity_with_template, edit_entity
 from creme_core.entities_access.functions_for_permissions import get_view_or_die, edit_object_or_die, delete_object_or_die
 
 from projects.models import Project, ProjectTask
 from projects.forms.task import TaskCreateForm, TaskEditForm
 
 
-@login_required
-@get_view_or_die('projects')
 def add(request, project_id):
-    """
-        @Permissions : Acces or Admin to project app & Edit Project
-    """
-    project = get_object_or_404(Project, pk=project_id)
-
-    die_status = edit_object_or_die(request, project)
-    if die_status:
-        return die_status
-
-    if request.POST:
-        task_form = TaskCreateForm(project, request.POST)
-
-        if task_form.is_valid():
-            task_form.save()
-    else:
-        task_form = TaskCreateForm(project)
-
-    return inner_popup(request, 'creme_core/generics/blockform/add_popup2.html',
-                       {
-                         'form':   task_form,
-                         'title':  _(u'Add a task to <%s>') % project, #####xgettext
-                       },
-                       is_valid=task_form.is_valid(),
-                       reload=False,
-                       delegate_reload=True,
-                       context_instance=RequestContext(request))
+    return add_to_entity(request, project_id, TaskCreateForm,
+                         _(u'Add a task to <%s>'), entity_class=Project)
 
 @login_required
 @get_view_or_die('projects')

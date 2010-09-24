@@ -12,13 +12,12 @@ urlpatterns = patterns('sms.views',
     (r'^campaign/(?P<campaign_id>\d+)$',      'campaign.detailview'),
 
     #Campaign: mailing_list block
-    (r'^campaign/(?P<id>\d+)/messaging_list/add$',             'campaign.add_messaging_list'),
+    (r'^campaign/(?P<campaign_id>\d+)/messaging_list/add$',    'campaign.add_messaging_list'),
     (r'^campaign/(?P<campaign_id>\d+)/messaging_list/delete$', 'campaign.delete_messaging_list'),
 
     #Campaign: sending block
-    (r'^campaign/(?P<id>\d+)/sending/add$',      'sending.add'),
-    #(r'^campaign/sending/delete/(?P<id>\d+)$',   'sending.delete'),
-    (r'^campaign/sending/delete$',               'sending.delete'),
+    (r'^campaign/(?P<campaign_id>\d+)/sending/add$', 'sending.add'),
+    (r'^campaign/sending/delete$',                   'sending.delete'),
 
     #Campaign: sending details block
     (r'^campaign/sending/(?P<id>\d+)$',                  'sending.detailview'),

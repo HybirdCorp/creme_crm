@@ -18,70 +18,25 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.http import HttpResponse #HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render_to_response, get_object_or_404
 from django.utils.translation import ugettext as _
-from django.template import RequestContext
 from django.contrib.auth.decorators import login_required
 
 from creme_core.entities_access.functions_for_permissions import get_view_or_die, edit_object_or_die
-from creme_core.views.generic import inner_popup
+from creme_core.views.generic import add_to_entity
 
 from emails.models import MailingList, EmailRecipient
 from emails.forms.recipient import MailingListAddRecipientsForm, MailingListAddCSVForm
 
 
-@login_required
-@get_view_or_die('emails')
 def add(request, ml_id):
-    ml = get_object_or_404(MailingList, pk=ml_id)
+    return add_to_entity(request, ml_id, MailingListAddRecipientsForm,
+                         _(u'New recipients for <%s>'), entity_class=MailingList)
 
-    die_status = edit_object_or_die(request, ml)
-    if die_status:
-        return die_status
-
-    if request.POST:
-        recip_add_form = MailingListAddRecipientsForm(ml, request.POST)
-
-        if recip_add_form.is_valid():
-            recip_add_form.save()
-    else:
-        recip_add_form = MailingListAddRecipientsForm(ml=ml)
-
-    return inner_popup(request, 'creme_core/generics/blockform/add_popup2.html',
-                       {
-                        'form':   recip_add_form,
-                        'title': _(u'New recipients for <%s>') % ml,
-                       },
-                       is_valid=recip_add_form.is_valid(),
-                       reload=False,
-                       delegate_reload=True,
-                       context_instance=RequestContext(request))
-
-@login_required
-@get_view_or_die('emails')
 def add_from_csv(request, ml_id):
-    ml = get_object_or_404(MailingList, pk=ml_id)
-
-    die_status = edit_object_or_die(request, ml)
-    if die_status:
-        return die_status
-
-    if request.method == 'POST':
-        recip_add_form = MailingListAddCSVForm(ml, request.POST, request.FILES)
-
-        if recip_add_form.is_valid():
-            recip_add_form.save()
-    else:
-        recip_add_form = MailingListAddCSVForm(ml=ml)
-
-    return inner_popup(request, 'creme_core/generics/blockform/add_popup2.html',
-                       {
-                        'form':   recip_add_form,
-                        'title': _(u'New recipients for <%s>') % ml,
-                       },
-                       is_valid=recip_add_form.is_valid(),
-                       context_instance=RequestContext(request))
+    return add_to_entity(request, ml_id, MailingListAddCSVForm,
+                         _(u'New recipients for <%s>'), entity_class=MailingList)
 
 @login_required
 @get_view_or_die('emails')
@@ -98,5 +53,4 @@ def delete(request):
     if request.is_ajax():
         return HttpResponse("success", mimetype="text/javascript")
 
-    #return HttpResponse()
     return HttpResponseRedirect(ml.get_absolute_url())

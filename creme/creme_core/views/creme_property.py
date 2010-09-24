@@ -21,7 +21,6 @@
 from django.db.models import Q
 from django.http import HttpResponse, Http404
 from django.shortcuts import get_object_or_404, render_to_response
-from django.template.context import RequestContext
 from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required
 from django.contrib.contenttypes.models import ContentType
@@ -29,7 +28,7 @@ from django.contrib.contenttypes.models import ContentType
 from creme_core.models import CremeEntity, CremePropertyType, CremeProperty
 from creme_core.entities_access.functions_for_permissions import edit_object_or_die
 from creme_core.entities_access.permissions import user_has_edit_permission_for_an_object
-from creme_core.views.generic import inner_popup
+from creme_core.views.generic import add_to_entity as generic_add_to_entity
 from creme_core.forms.creme_property import AddPropertiesForm
 
 
@@ -87,33 +86,8 @@ def get_property_types_for_ct(request):
 
     return HttpResponse(data, mimetype='text/javascript')
 
-
-#TODO: factorise in a generic add_to_entity_by_ipopup() view (see assistants etc...)
-@login_required
 def add_to_entity(request, entity_id):
-    entity = get_object_or_404(CremeEntity, pk=entity_id).get_real_entity()
-
-    die_status = edit_object_or_die(request, entity)
-    if die_status:
-        return die_status
-
-    if request.POST:
-        prop_form = AddPropertiesForm(entity, request.POST)
-
-        if prop_form.is_valid():
-            prop_form.save()
-    else:
-        prop_form = AddPropertiesForm(entity=entity)
-
-    return inner_popup(request, 'creme_core/generics/blockform/add_popup2.html',
-                       {
-                        'form':   prop_form,
-                        'title':  _('New properties for <%s>') % entity,
-                       },
-                       is_valid=prop_form.is_valid(),
-                       reload=False,
-                       delegate_reload=True,
-                       context_instance=RequestContext(request))
+    return generic_add_to_entity(request, entity_id, AddPropertiesForm, _('New properties for <%s>'))
 
 @login_required
 def delete(request):
