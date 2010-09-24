@@ -39,6 +39,7 @@ def error_popup(request, message):
                        is_valid=False,
                        context_instance=RequestContext(request))
 
+#TODO: factorise get_real_entity()....
 @login_required
 @get_view_or_die('projects')
 def _add_generic(request, form, task_id, title):

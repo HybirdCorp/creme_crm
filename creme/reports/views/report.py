@@ -136,6 +136,7 @@ def link_relation_report(request, report_id, field_id, ct_id):
     
     return __link_report(request, report, field, ct)
 
+#TODO: use add_to_entity() generic view
 @login_required
 @get_view_or_die(report_app)
 def add_field(request, report_id):

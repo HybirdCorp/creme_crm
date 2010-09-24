@@ -23,11 +23,12 @@ from datetime import datetime
 from django.http import HttpResponse #, HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.template import RequestContext
+from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required
 from django.contrib.contenttypes.models import ContentType
 
 from creme_core.models import CremeEntity, Relation
-from creme_core.views.generic import inner_popup
+from creme_core.views.generic import add_to_entity
 from creme_core.entities_access.functions_for_permissions import get_view_or_die, edit_object_or_die, edit_view_or_die
 
 from activities.models import Activity
@@ -35,41 +36,13 @@ from activities.forms import ParticipantCreateForm, SubjectCreateForm
 from activities.constants import REL_SUB_PART_2_ACTIVITY, REL_SUB_ACTIVITY_SUBJECT, REL_SUB_LINKED_2_ACTIVITY
 
 
-@login_required
-@edit_view_or_die(ContentType.objects.get_for_model(Activity), None, 'activity') #useful ????
-@get_view_or_die('activities')
-def _add_link(request, activity_id, form_class, title):
-    activity = get_object_or_404(Activity, pk=activity_id)
-
-    die_status = edit_object_or_die(request, activity)
-    if die_status:
-        return die_status
-
-    POST = request.POST
-
-    if POST:
-        form = form_class(activity, POST)
-
-        if form.is_valid():
-            form.save()
-    else:
-        form = form_class(activity=activity)
-
-    return inner_popup(request, 'creme_core/generics/blockform/add_popup2.html',
-                       {
-                        'form':  form,
-                        'title': title % activity,
-                       },
-                       is_valid=form.is_valid(),
-                       reload=False,
-                       delegate_reload=True,
-                       context_instance=RequestContext(request))
-
 def add_participant(request, activity_id):
-    return _add_link(request, activity_id, ParticipantCreateForm, u"Ajout de participants pour l'activité <%s>")
+    return add_to_entity(request, activity_id, ParticipantCreateForm,
+                         _(u"Ajout de participants pour l'activité <%s>"), entity_class=Activity)
 
 def add_subject(request, activity_id):
-    return _add_link(request, activity_id, SubjectCreateForm, u"Ajout de sujets pour l'activité <%s>")
+    return add_to_entity(request, activity_id, SubjectCreateForm,
+                         _(u"Ajout de sujets pour l'activité <%s>"), entity_class=Activity)
 
 @login_required
 #def unlink_activity(request, activity_id, entity_id):

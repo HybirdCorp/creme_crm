@@ -29,6 +29,7 @@ from reports.forms.blocks import GraphInstanceBlockForm
 from reports.models.graph import ReportGraph
 from reports.views.graph import report_graph_app, report_graph_ct
 
+#TODO: use add_to_entity() genreic view
 
 @login_required
 @get_view_or_die(report_graph_app)
