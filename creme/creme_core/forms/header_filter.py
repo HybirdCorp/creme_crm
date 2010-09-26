@@ -175,7 +175,7 @@ class HeaderFilterForm(CremeModelForm):
                                                  title=unicode(func_field.verbose_name),
                                                  type=HFI_FUNCTION,
                                                  has_a_filter=func_field.has_filter,
-                                                 is_hidden=func_field.is_hidden
+                                                 is_hidden=func_field.is_hidden,
                                                  editable=False,
                                                  filter_string=""))
 
