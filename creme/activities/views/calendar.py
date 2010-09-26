@@ -69,7 +69,7 @@ def user_calendar(request):
 @login_required
 @get_view_or_die('activities')
 def my_calendar(request):
-    return getUserCalendar(request, request.user.username)
+    return get_users_calendar(request, request.user.username)
 
 @login_required
 @get_view_or_die('activities')
