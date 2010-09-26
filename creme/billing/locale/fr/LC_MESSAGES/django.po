@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-08-24 14:50+0200\n"
+"POT-Creation-Date: 2010-09-26 17:39+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -27,39 +27,48 @@ msgstr "Lignes service"
 msgid "Total"
 msgstr "Total"
 
-#: creme_core_register.py:31
+#: buttons.py:28
+#: templates/billing/templatetags/button_generate_invoice_number.html:4
+msgid "Generate number of the Invoice"
+msgstr "Générer un numéro de facture"
+
+#: creme_core_register.py:33
 msgid "Billing"
 msgstr "Facturation"
 
-#: creme_core_register.py:36
+#: creme_core_register.py:38
+msgid "Portal"
+msgstr "Portail"
+
+#: creme_core_register.py:39
 msgid "Add an invoice"
 msgstr "Ajouter une facture"
 
-#: creme_core_register.py:37
+#: creme_core_register.py:40
 msgid "All invoices"
 msgstr "Lister les factures"
 
-#: creme_core_register.py:38
+#: creme_core_register.py:41
 msgid "Add a sales order"
 msgstr "Ajouter un bon de commande"
 
-#: creme_core_register.py:39
+#: creme_core_register.py:42
 msgid "All sales orders"
 msgstr "Lister les bons de commande"
 
-#: creme_core_register.py:40
+#: creme_core_register.py:43
 msgid "Add a quote"
 msgstr "Ajouter un devis"
 
-#: creme_core_register.py:41
+#: creme_core_register.py:44
 msgid "All quotes"
 msgstr "Lister les devis"
 
-#: creme_core_register.py:42
+#: creme_core_register.py:45
 msgid "Add a credit note"
 msgstr "Ajouter un avoir"
 
-#: creme_core_register.py:43
+#: creme_core_register.py:46
 msgid "All credit notes"
 msgstr "Lister les avoirs"
 
@@ -80,122 +89,134 @@ msgid "has received"
 msgstr "a reçu"
 
 #: populate.py:48
+msgid "30 days"
+msgstr "à 30 jours"
+
+#: populate.py:49
+msgid "Cash"
+msgstr "Comptant"
+
+#: populate.py:50
+msgid "45 days"
+msgstr "à 45 jours"
+
+#: populate.py:51
+msgid "60 days"
+msgstr "à 60 jours"
+
+#: populate.py:52
+msgid "30 days, end month the 10"
+msgstr "à 30 jours, fin de mois le 10"
+
+#: populate.py:55
 msgid "Pending"
 msgstr "En attente"
 
-#: populate.py:49 populate.py:54
+#: populate.py:56 populate.py:61
 msgid "Accepted"
 msgstr "Accepté"
 
-#: populate.py:50 populate.py:55
+#: populate.py:57 populate.py:62
 msgid "Rejected"
 msgstr "Rejeté"
 
-#: populate.py:51 populate.py:56
+#: populate.py:58 populate.py:63
 msgid "Created"
 msgstr "Créé"
 
-#: populate.py:53 populate.py:68
+#: populate.py:60 populate.py:75
 msgid "Issued"
 msgstr "Émis"
 
-#: populate.py:58 populate.py:67
+#: populate.py:65 populate.py:74
 msgid "Draft"
 msgstr "Brouillon"
 
-#: populate.py:59
+#: populate.py:66
 msgid "To be sent"
 msgstr "À envoyer"
 
-#: populate.py:60
+#: populate.py:67
 msgid "Sent"
 msgstr "Envoyée"
 
-#: populate.py:61
+#: populate.py:68
 msgid "Resulted"
 msgstr "Soldée"
 
-#: populate.py:62
+#: populate.py:69
 msgid "Partly resulted"
 msgstr "Partiellement soldée"
 
-#: populate.py:63
+#: populate.py:70
 msgid "Collection"
 msgstr "Recouvrement"
 
-#: populate.py:64
+#: populate.py:71
 msgid "Resulted collection"
 msgstr "Recouvrement soldé"
 
-#: populate.py:65
+#: populate.py:72
 msgid "Canceled"
 msgstr "Annulée"
 
-#: populate.py:74 models/base.py:38
+#: populate.py:85 models/base.py:38
 msgid "Name"
 msgstr "Nom"
 
-#: populate.py:75 models/base.py:39
+#: populate.py:86 models/base.py:39
 msgid "Number"
 msgstr "Numéro"
 
-#: populate.py:76 forms/base.py:43 models/base.py:40
+#: populate.py:87 forms/base.py:44 models/base.py:40
 msgid "Issuing date"
 msgstr "Date d'émission"
 
-#: populate.py:77 forms/base.py:44 models/base.py:41
+#: populate.py:88 forms/base.py:45 models/base.py:41
 msgid "Expiration date"
 msgstr "Échéance"
 
-#: populate.py:78 forms/templatebase.py:32 forms/templatebase.py:51
-#: models/other_models.py:31 models/other_models.py:43
-#: models/other_models.py:55 models/other_models.py:66
+#: populate.py:89 forms/templatebase.py:32 forms/templatebase.py:51
+#: models/other_models.py:44 models/other_models.py:56
+#: models/other_models.py:68 models/other_models.py:79
 msgid "Status"
 msgstr "Statut"
 
-#: populate.py:80
+#: populate.py:91
 msgid "Invoice view"
 msgstr "Vue de Facture"
 
-#: populate.py:81
+#: populate.py:92
 msgid "Quote view"
 msgstr "Vue de Devis"
 
-#: populate.py:82
+#: populate.py:93
 msgid "Sales order view"
 msgstr "Vue de Bon de Commande"
 
-#: populate.py:83
+#: populate.py:94
 msgid "Credit note view"
 msgstr "Vue des Avoirs"
 
-#: forms/base.py:40
+#: forms/base.py:41
 msgid "Source organisation"
 msgstr "Société émettrice"
 
-#: forms/base.py:41
+#: forms/base.py:42
 msgid "Target organisation"
 msgstr "Société réceptrice"
 
-#: forms/base.py:46 models/base.py:43
-msgid "Billing address"
-msgstr "Adresse de facturation"
+#: forms/base.py:55 models/algo.py:34 models/algo.py:43
+msgid "Organisation"
+msgstr "Société"
 
-#: forms/base.py:46
-msgid "Choose an organisation to get this billing address"
-msgstr "Choisissez une société pour avoir son adresse de facturation"
-
-#: forms/base.py:47 models/base.py:44
+#: forms/base.py:138 models/base.py:44
 msgid "Shipping address"
 msgstr "Adresse de livraison"
 
-#: forms/base.py:47
-msgid "Choose une organisation to get its shipping address"
-msgstr "Choisissez une société pour avoir son adresse de livraison"
-
-#: forms/base.py:50
-msgid "Organisation and addresses"
-msgstr "Société et adresses"
+#: forms/base.py:147 models/base.py:43
+msgid "Billing address"
+msgstr "Adresse de facturation"
 
 #: forms/line.py:54 forms/line.py:71 forms/line.py:94 forms/line.py:160
 #: forms/line.py:174
@@ -273,10 +294,6 @@ msgstr ""
 msgid "Status of %s"
 msgstr "Statut de %s"
 
-#: models/algo.py:34 models/algo.py:43
-msgid "Organisation"
-msgstr "Société"
-
 #: models/algo.py:35
 msgid "Algo name"
 msgstr "Nom de l'algo"
@@ -311,11 +328,15 @@ msgstr "Avoirs"
 msgid "Status of invoice"
 msgstr "Statut de la facture"
 
-#: models/invoice.py:39
+#: models/invoice.py:32 models/other_models.py:27 models/other_models.py:34
+msgid "Payment terms"
+msgstr "Réglement"
+
+#: models/invoice.py:41
 msgid "Invoice"
 msgstr "Facture"
 
-#: models/invoice.py:40
+#: models/invoice.py:42
 msgid "Invoices"
 msgstr "Factures"
 
@@ -359,19 +380,23 @@ msgstr "Ligne"
 msgid "Lines"
 msgstr "Lignes"
 
-#: models/other_models.py:38 models/other_models.py:39
+#: models/other_models.py:35
+msgid "Payments terms"
+msgstr "Réglement"
+
+#: models/other_models.py:51 models/other_models.py:52
 msgid "Invoice status"
 msgstr "Statut(s) de facture"
 
-#: models/other_models.py:50 models/other_models.py:51
+#: models/other_models.py:63 models/other_models.py:64
 msgid "Quote status"
 msgstr "Statut(s) de devis"
 
-#: models/other_models.py:62 models/other_models.py:63
+#: models/other_models.py:75 models/other_models.py:76
 msgid "Sales order status"
 msgstr "Statut(s) de bon de commande"
 
-#: models/other_models.py:72 models/other_models.py:73
+#: models/other_models.py:85 models/other_models.py:86
 msgid "Credit note status"
 msgstr "Status d'avoir"
 
@@ -439,7 +464,7 @@ msgstr "Portail Facturation"
 msgid "List of invoices"
 msgstr "Liste des factures"
 
-#: templates/billing/view_billing.html:23
+#: templates/billing/view_billing.html:24
 #, python-format
 msgid "Download '%(object)s' to the desired format"
 msgstr "Télécharger '%(object)s' au format voulu"
@@ -520,6 +545,11 @@ msgstr "Total HT"
 msgid "Total (inclusive of tax)"
 msgstr "Total TTC"
 
+#: templates/billing/templatetags/button_generate_invoice_number.html:3
+
+msgid "Number Invoice"
+msgstr "Numéro de facture"
+
 #: templates/billing/templatetags/line.html:15
 msgid "Total discount"
 msgstr "Remise globale"
@@ -553,3 +583,12 @@ msgstr "Nombre de devis"
 #: views/portal.py:38
 msgid "Number of salesorders"
 msgstr "Nombre de bon(s) de commande"
+
+#~ msgid "Choose an organisation to get this billing address"
+#~ msgstr "Choisissez une société pour avoir son adresse de facturation"
+
+#~ msgid "Choose une organisation to get its shipping address"
+#~ msgstr "Choisissez une société pour avoir son adresse de livraison"
+
+#~ msgid "Organisation and addresses"
+#~ msgstr "Société et adresses"
