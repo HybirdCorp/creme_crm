@@ -20,24 +20,25 @@
 
 from django.http import HttpResponse
 
-from relatorio.templates.opendocument import Template
+#from relatorio.templates.opendocument import Template
 #from relatorio.templates.pdf import Template as PdfTemplate
 
 
 class Exporter(object):
-    def __init__(self, filepath, context=None):
-        self.filepath = filepath
-        self.context = context
-
-    def generateODT(self, output_name=None):
-        #http://framework.openoffice.org/documentation/mimetypes/mimetypes.html
-        basic = Template(source=None, filepath=self.filepath)
-        basic_generated = basic.generate(o=self.context).render()
-
-        response = HttpResponse(basic_generated.getvalue(), mimetype='application/vnd.oasis.opendocument.text')
-
-        response['Content-Disposition'] = 'attachment; filename="%s.odt"' % ((output_name or "file").replace(' ',''))
-        return response
-
-    def generatePDF(self, output_name=None):
-        raise NotImplementedError
+    pass
+#    def __init__(self, filepath, context=None):
+#        self.filepath = filepath
+#        self.context = context
+#
+#    def generateODT(self, output_name=None):
+#        #http://framework.openoffice.org/documentation/mimetypes/mimetypes.html
+#        basic = Template(source=None, filepath=self.filepath)
+#        basic_generated = basic.generate(o=self.context).render()
+#
+#        response = HttpResponse(basic_generated.getvalue(), mimetype='application/vnd.oasis.opendocument.text')
+#
+#        response['Content-Disposition'] = 'attachment; filename="%s.odt"' % ((output_name or "file").replace(' ',''))
+#        return response
+#
+#    def generatePDF(self, output_name=None):
+#        raise NotImplementedError
