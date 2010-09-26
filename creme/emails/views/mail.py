@@ -27,12 +27,17 @@ from django.contrib.contenttypes.models import ContentType
 
 from creme_core.entities_access.functions_for_permissions import get_view_or_die, read_object_or_die
 from creme_core.views.generic import view_entity_with_template, list_view, inner_popup
+from creme_core.utils import jsonify
+
+from crudity.views.email import fetch_emails
 
 #from emails.blocks import mails_history_block
 from emails.models.mail import (EntityEmail, 
                                 MAIL_STATUS_SYNCHRONIZED_SPAM,
                                 MAIL_STATUS_SYNCHRONIZED,
                                 MAIL_STATUS_SYNCHRONIZED_WAITING)
+                                
+from emails.blocks import SpamSynchronizationMailsBlock, WaitingSynchronizationMailsBlock
 from emails.models import LightWeightEmail
 
 #@login_required
@@ -64,20 +69,9 @@ def view_lightweight_mail(request, mail_id):
 ## SYNCHRO PART ##
 @login_required
 def synchronisation(request):
-    #TODO: Apply permissions? 
-    new_messages_count = EntityEmail.fetch_mails(request.user.id)
-
-    context_dict = {'entityemail_ct_id': ContentType.objects.get_for_model(EntityEmail).id,
-                    'new_messages_count': new_messages_count}
-
-    context_instance =  RequestContext(request)
-
-    if request.is_ajax():
-        return HttpResponse(render_to_string("emails/frags/ajax/synchronize.html", context_dict, context_instance=context_instance))
-
-    return render_to_response("emails/synchronize.html",
-                              context_dict,
-                              context_instance=context_instance)
+    #TODO: Apply permissions?
+    context_dict = {'entityemail_ct_id': ContentType.objects.get_for_model(EntityEmail).id,}
+    return fetch_emails(request, template="emails/synchronize.html", ajax_template="emails/frags/ajax/synchronize.html", extra_tpl_ctx=context_dict)
 
 def _retrieve_emails_ids(request):
     return request.POST.getlist('ids')
@@ -119,6 +113,15 @@ def validated(request):
 def waiting(request):
     #TODO: There no verifications because email is not a CremeEntity!!!
     return set_emails_status(request, MAIL_STATUS_SYNCHRONIZED_WAITING)
+
+@jsonify
+def reload_sync_blocks(request):
+    waiting_block = WaitingSynchronizationMailsBlock()
+    spam_block    = SpamSynchronizationMailsBlock()
+    ctx = RequestContext(request)
+    return [(waiting_block.id_,waiting_block.detailview_display(ctx)),
+            (spam_block.id_,spam_block.detailview_display(ctx))
+            ]
 
 ## END SYNCHRO PART ##
 

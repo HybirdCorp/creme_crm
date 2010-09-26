@@ -26,7 +26,7 @@ from django.contrib.contenttypes.models import ContentType
 
 from creme_core.models import CustomField
 from creme_core.views.generic import add_entity
-from creme_core.utils import get_ct_or_404
+from creme_core.utils import get_ct_or_404, get_from_POST_or_404
 from creme_core.entities_access.functions_for_permissions import get_view_or_die
 from creme_core.constants import DROIT_MODULE_EST_ADMIN
 
@@ -87,7 +87,7 @@ def edit(request, field_id):
 @login_required
 @get_view_or_die('creme_config', DROIT_MODULE_EST_ADMIN)
 def delete_ct(request):
-    for field in CustomField.objects.filter(content_type=request.POST.get('id')):
+    for field in CustomField.objects.filter(content_type=get_from_POST_or_404(request.POST, 'id')):
         field.delete()
 
     if request.is_ajax():
@@ -98,7 +98,7 @@ def delete_ct(request):
 @login_required
 @get_view_or_die('creme_config', DROIT_MODULE_EST_ADMIN)
 def delete(request):
-    field = CustomField.objects.get(pk=request.POST.get('id'))
+    field = CustomField.objects.get(pk=get_from_POST_or_404(request.POST, 'id'))
     field.delete()
 
     if request.is_ajax():

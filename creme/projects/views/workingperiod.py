@@ -24,6 +24,7 @@ from django.http import HttpResponseRedirect, HttpResponse
 from django.contrib.auth.decorators import login_required
 
 from creme_core.entities_access.functions_for_permissions import get_view_or_die, edit_object_or_die
+from creme_core.utils import get_from_POST_or_404
 
 from projects.models import WorkingPeriod
 from projects.forms.workingperiod import PeriodCreateForm, PeriodEditForm
@@ -45,7 +46,7 @@ def edit(request, period_id):
 
 @login_required
 def delete(request):
-    period = get_object_or_404(WorkingPeriod, pk=request.POST.get('id'))
+    period = get_object_or_404(WorkingPeriod, pk=get_from_POST_or_404(request.POST, 'id'))
     related_task = period.task
 
     die_status = edit_object_or_die(request, related_task)

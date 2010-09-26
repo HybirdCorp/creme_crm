@@ -8,7 +8,7 @@ urlpatterns = patterns('tickets.views',
     (r'^tickets$',                        'ticket.listview'),
     (r'^ticket/add$',                     'ticket.add'),
     (r'^ticket/edit/(?P<ticket_id>\d+)$', 'ticket.edit'),
-    (r'^ticket/(?P<object_id>\d+)$',      'ticket.detailview'),
+    (r'^ticket/(?P<ticket_id>\d+)$',      'ticket.detailview'),
 )
 
 urlpatterns += patterns('creme_core.views',

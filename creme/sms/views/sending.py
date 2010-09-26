@@ -25,7 +25,8 @@ from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required
 
 from creme_core.entities_access.functions_for_permissions import get_view_or_die, edit_object_or_die, read_object_or_die
-from creme_core.views.generic import inner_popup
+from creme_core.views.generic import add_to_entity
+from creme_core.utils import get_from_POST_or_404
 
 from sms.models import SMSCampaign, Sending, Message
 from sms.forms.message import SendingCreateForm
@@ -34,46 +35,21 @@ from sms.blocks import messages_block
 #from sms.webservice.backend import WSException
 
 
-@login_required
-@get_view_or_die('sms')
-def add(request, id):
-    campaign = get_object_or_404(SMSCampaign, pk=id)
-
-    die_status = edit_object_or_die(request, campaign)
-    if die_status:
-        return die_status
-
-    if request.POST:
-        sending_add_form = SendingCreateForm(campaign, request.POST)
-
-        if sending_add_form.is_valid():
-            sending_add_form.save()
-    else:
-        sending_add_form = SendingCreateForm(campaign=campaign)
-
-    return inner_popup(request, 'creme_core/generics/blockform/add_popup2.html',
-                       {
-                        'form':   sending_add_form,
-                        'title': _('New sending for <%s>') % campaign,
-                       },
-                       is_valid=sending_add_form.is_valid(),
-                       reload=False,
-                       delegate_reload=True,
-                       context_instance=RequestContext(request))
+def add(request,campaign_id):
+    return add_to_entity(request, campaign_id, SendingCreateForm,
+                         _('New sending for <%s>'), entity_class=SMSCampaign)
 
 @login_required
 @get_view_or_die('sms')
-#def delete(request, id):
 def delete(request):
-    #sending = get_object_or_404(Sending , pk=id)
-    sending = get_object_or_404(Sending , pk=request.POST.get('id'))
+    sending = get_object_or_404(Sending , pk=get_from_POST_or_404(request.POST, 'id'))
     campaign_id = sending.campaign_id
 
     die_status = edit_object_or_die(request, sending)
     if die_status:
         return die_status
 
-    sending.delete()
+    sending.delete() #TODO: try/except ??
 
     if request.is_ajax():
         return HttpResponse("success", mimetype="text/javascript")

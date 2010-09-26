@@ -1,0 +1,42 @@
+{% load i18n %}
+{% load creme_block %}
+{% load creme_core_tags %}
+{% load crudity_tags %}
+
+{% with 4 as colspan %}
+    <table class="table_detail_view ui-corner-all" id={{block_name}}>
+        <thead>
+            <tr>
+                <th colspan="{{colspan}}">
+                    {% blocktrans count page.paginator.count as counter with ct.name as ct_name with type|get_crud_type_verbose as type %}{{counter}} History item - {{ct_name}} - {{type}}{% plural %}{{counter}} History items - {{ct_name}} - {{type}}{% endblocktrans %}
+                </th>
+            </tr>
+        </thead>
+        <tbody class="collapsable">
+            {% if page.paginator.count %}
+                <tr>
+                    <th class="{% cycle "block_header_line_dark" "block_header_line_light" %}">{% trans "Entity" %}</th>
+                    <th class="{% cycle "block_header_line_dark" "block_header_line_light" %}">{% trans "Created" %}</th>
+                    <th class="{% cycle "block_header_line_dark" "block_header_line_light" %}">{% trans "Description" %}</th>
+                    <th class="{% cycle "block_header_line_dark" "block_header_line_light" %}">{% trans "View entity's file" %}</th>
+                </tr>
+                {% for history in page.object_list %}
+                    <!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
+                    <tr>
+                        {% with history.get_entity as history_entity %}
+                            <td class="{{row_color}}">{{history_entity}}</td>
+                            <td class="{{row_color}}">{{history.created}}</td>
+                            <td class="{{row_color}}">{{history.description}}</td>
+                            <td class="{{row_color}}"><a href="{{history_entity.get_absolute_url}}"><img src="{{MEDIA_URL}}images/view_22.png" border="0" title="{% blocktrans %}View '{{history_entity}}' details{% endblocktrans %}" alt="{% trans "View" %}" /></a></td>
+                        {% endwith %}
+                    </tr>
+                {% endfor %}
+            {% else %}
+                <tr>
+                    <td class="block_line_dark">{% blocktrans with type|get_crud_type_verbose as crud_type with ct.name as ct_name %}No waiting action for {{crud_type}} {{ct_name}}{% endblocktrans %}</td>
+                </tr>
+            {% endif %}
+        </tbody>
+        {% include 'creme_core/templatetags/widgets/block_footer.html' %}
+    </table>
+{% endwith %}

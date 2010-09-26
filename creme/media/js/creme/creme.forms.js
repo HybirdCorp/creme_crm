@@ -549,50 +549,45 @@ creme.forms.RelationList.appendSelector = function(self)
 	}
 }
 
-creme.forms.toOrderedMultiSelect = function(table_id) {
+//TODO: refactor in order the widget can be properly reload (see report.js)
+creme.forms._toDualColumnMultiSelect = function(store_id, use_order, buildColumns, refreshStore) {
     //Containers
-    var $div   = $('<div class="oms_div"></div>');
-    var $table = $('#' + table_id);
+    var $div   = $('<div class="dcms_div"></div>');
+    var $store = $('#' + store_id);
 
     //Lists
     var $available = $('<ul name="available"></ul>');
     var $chosen    = $('<ul name="chosen"></ul>');
 
     //Buttons
-    var $add_button    = $('<input class="oms_button" type="button"/>').attr('value', 'Ajouter');
-    var $rem_button    = $('<input class="oms_button" type="button"/>').attr('value', 'Enlever');
-    var $addall_button = $('<input class="oms_button" type="button"/>').attr('value', 'Ajouter tout');
-    var $remall_button = $('<input class="oms_button" type="button"/>').attr('value', 'Enlever tout');
-    var $up_button     = $('<input class="oms_button" type="button"/>').attr('value', 'Monter');
-    var $down_button   = $('<input class="oms_button" type="button"/>').attr('value', 'Descendre');
+    var $add_button    = $('<input class="dcms_button" type="button"/>').attr('value', 'Ajouter');
+    var $rem_button    = $('<input class="dcms_button" type="button"/>').attr('value', 'Enlever');
+    var $addall_button = $('<input class="dcms_button" type="button"/>').attr('value', 'Ajouter tout');
+    var $remall_button = $('<input class="dcms_button" type="button"/>').attr('value', 'Enlever tout');
+    var $up_button     = $('<input class="dcms_button" type="button"/>').attr('value', 'Monter');
+    var $down_button   = $('<input class="dcms_button" type="button"/>').attr('value', 'Descendre');
 
+    if (!use_order) {
+        $up_button.css('display', 'none');
+        $down_button.css('display', 'none');
+    }
 
     function cleanSelection() {
-        $div.find('.oms_focused').removeClass('oms_focused');
+        $div.find('.dcms_focused').removeClass('dcms_focused');
+    }
+
+    function addAvailableLi(label, name, is_hidden) {
+        var $li = $('<li></li>').attr('name', name).append(label).click(clickOnAvailable).dblclick(choseOne);
+
+        if (is_hidden) {
+            $li.hide();
+        }
+
+        $available.append($li)
     }
 
     function addChosenLi(label, name) {
         $chosen.append($('<li></li>').attr('name', name).append(label).click(clickOnChosen).dblclick(removeChosen));
-    }
-
-    function refreshTable() {
-        var chosenMap = {};
-
-        $chosen.find('li').each(function(i) {
-            chosenMap[$(this).attr('name')] = i + 1;
-        });
-
-        $table.find('tr').each(function(i) {
-            var order = chosenMap[$(this).attr('name')];
-
-            if (order != undefined) {
-                $(this).find('.oms_check').attr('checked', true);
-                $(this).find('.oms_order').attr('value', order);
-            } else {
-                $(this).find('.oms_check').attr('checked', false);
-                $(this).find('.oms_order').attr('value', '');
-            }
-        });
     }
 
     function refreshButtons($sel) {
@@ -633,12 +628,12 @@ creme.forms.toOrderedMultiSelect = function(table_id) {
     }
 
     function refreshWidget($sel) {
-        refreshTable();
+        refreshStore($store, $chosen);
         refreshButtons($sel);
     }
 
     function choseOne() {
-        var $sel = $available.find('.oms_focused');
+        var $sel = $available.find('.dcms_focused');
         addChosenLi($sel.text(), $sel.attr('name'));
         $sel.hide();
 
@@ -659,7 +654,7 @@ creme.forms.toOrderedMultiSelect = function(table_id) {
     }
 
     function removeChosen() {
-        var $sel = $chosen.find('.oms_focused');
+        var $sel = $chosen.find('.dcms_focused');
         $available.find('[name="' + $sel.attr('name') + '"]').show();
         $sel.remove();
 
@@ -676,16 +671,16 @@ creme.forms.toOrderedMultiSelect = function(table_id) {
     }
 
     function putChosenUp() {
-        var $sel  = $chosen.find('.oms_focused');
-        var $prev = $chosen.find('.oms_focused').prev();
+        var $sel  = $chosen.find('.dcms_focused');
+        var $prev = $chosen.find('.dcms_focused').prev();
         $sel.insertBefore($prev);
 
         refreshWidget($sel);
     }
 
     function putChosenDown() {
-        var $sel  = $chosen.find('.oms_focused');
-        var $next = $chosen.find('.oms_focused').next();
+        var $sel  = $chosen.find('.dcms_focused');
+        var $next = $chosen.find('.dcms_focused').next();
         $sel.insertAfter($next);
 
         refreshWidget($sel);
@@ -693,40 +688,19 @@ creme.forms.toOrderedMultiSelect = function(table_id) {
 
     function clickOnAvailable() {
         cleanSelection();
-        $(this).addClass('oms_focused');
+        $(this).addClass('dcms_focused');
 
         refreshButtons($(this));
     }
 
     function clickOnChosen() {
         cleanSelection();
-        $(this).addClass('oms_focused');
+        $(this).addClass('dcms_focused');
 
         refreshButtons($(this));
     }
 
-
-    var selected_tmp = [];
-
-    $table.find('tr').each(function(i) {
-        var checked = $(this).find('.oms_check').attr('checked');
-        var label   = $(this).find('.oms_value').text();
-        var li_name = 'oms_row_' + i;
-        var $li     = $('<li></li>').attr('name', li_name).append(label).click(clickOnAvailable).dblclick(choseOne);
-
-        if (checked == true) {
-            $available.append($li.hide());
-            selected_tmp.push([$(this).find('.oms_order').attr('value'), label, li_name]); //[order, label, name]
-        } else {
-            $available.append($li);
-        }
-    });
-
-    selected_tmp.sort(function(a, b) { return a[0] - b[0]; }); //sort by order value
-
-    for (var i = 0; i < selected_tmp.length; ++i) {
-        addChosenLi(selected_tmp[i][1], selected_tmp[i][2]);
-    }
+    buildColumns($store, addAvailableLi, addChosenLi);
 
     var $buttons = $('<div></div>').append($add_button.click(choseOne))
                                    .append($rem_button.click(removeChosen))
@@ -738,8 +712,8 @@ creme.forms.toOrderedMultiSelect = function(table_id) {
                                    .append($down_button.click(putChosenDown));
     refreshButtons();
 
-    $table.css('display', 'none');
-    $table.replaceWith($div);
+    $store.css('display', 'none');
+    $store.replaceWith($div);
 
     var $layout = $('<table></table>');
     $('<tbody></tbody>').appendTo($layout)
@@ -750,7 +724,90 @@ creme.forms.toOrderedMultiSelect = function(table_id) {
                                               .append($('<td></td>').append($buttons))
                                               .append($('<td></td>').append($chosen)));
 
-    $div.append($table).append($layout);
+    $div.append($store).append($layout);
+}
+
+creme.forms.toUnorderedMultiSelect = function(select_id) {
+    function buildColumns($select, addAvailableLi, addChosenLi) { //TODO: use inheritage instead ??
+        $select.find('option').each(function(i) {
+            var label   = $(this).text();
+            var li_name = $(this).attr('value');
+
+            if ($(this).attr('selected') == true) {
+                addAvailableLi(label, li_name, true);
+                addChosenLi(label, li_name);
+            } else {
+                addAvailableLi(label, li_name, false);
+            }
+        });
+    }
+
+    function refreshSelect($select, $chosen) {
+        var chosenMap = {};
+
+        $chosen.find('li').each(function(i) {
+            chosenMap[$(this).attr('name')] = true;
+        });
+
+        $select.find('option').each(function(i) {
+            var is_selected = chosenMap[$(this).attr('value')];
+
+            if (is_selected != undefined) {
+                $(this).attr('selected', 'selected');
+            } else {
+                $(this).attr('selected', '');
+            }
+        });
+    }
+
+    creme.forms._toDualColumnMultiSelect(select_id, false, buildColumns, refreshSelect);
+}
+
+creme.forms.toOrderedMultiSelect = function(table_id) {
+    function buildColumns($table, addAvailableLi, addChosenLi) {
+        var selected_tmp = [];
+
+        $table.find('tr').each(function(i) {
+            var checked = $(this).find('.oms_check').attr('checked');
+            var label   = $(this).find('.oms_value').text();
+            var li_name = 'oms_row_' + i;
+
+            if (checked == true) {
+                addAvailableLi(label, li_name, true);
+                selected_tmp.push([$(this).find('.oms_order').attr('value'), label, li_name]); //[order, label, name]
+            } else {
+                addAvailableLi(label, li_name, false);
+            }
+        });
+
+        selected_tmp.sort(function(a, b) { return a[0] - b[0]; }); //sort by order value
+
+        for (var i = 0; i < selected_tmp.length; ++i) {
+            addChosenLi(selected_tmp[i][1], selected_tmp[i][2]);
+        }
+    }
+
+    function refreshTable($table, $chosen) {
+        var chosenMap = {};
+
+        $chosen.find('li').each(function(i) {
+            chosenMap[$(this).attr('name')] = i + 1;
+        });
+
+        $table.find('tr').each(function(i) {
+            var order = chosenMap[$(this).attr('name')];
+
+            if (order != undefined) {
+                $(this).find('.oms_check').attr('checked', true);
+                $(this).find('.oms_order').attr('value', order);
+            } else {
+                $(this).find('.oms_check').attr('checked', false);
+                $(this).find('.oms_order').attr('value', '');
+            }
+        });
+    }
+
+    creme.forms._toDualColumnMultiSelect(table_id, true, buildColumns, refreshTable);
 }
 
 creme.forms.toCSVImportField = function(table_id) {

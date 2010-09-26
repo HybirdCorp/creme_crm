@@ -19,6 +19,7 @@
 ################################################################################
 
 from collections import defaultdict
+
 from itertools import chain
 from django.db.models.query_utils import Q
 from django.forms import DateField
@@ -35,8 +36,8 @@ from creme_core.models import Filter, RelationType, CustomField
 from creme_core.models.header_filter import HeaderFilter, HeaderFilterItem, HFI_FIELD, HFI_RELATION, HFI_CUSTOM, HFI_FUNCTION, HFI_CALCULATED
 from creme_core.utils.meta import (get_verbose_field_name, get_function_field_verbose_name, get_flds_with_fk_flds_str, get_flds_with_fk_flds,
                                    get_date_fields)
+from creme_core.date_filters_registry import date_filters_registry
 
-from reports.registry import report_filters_registry
 from reports.models import Report, Field
 from reports.report_aggregation_registry import field_aggregation_registry
 
@@ -171,15 +172,18 @@ class CreateForm(CremeEntityForm):
     def __init__(self, *args, **kwargs):
         super(CreateForm, self).__init__(*args, **kwargs)
         fields   = self.fields
-        ct_get = ContentType.objects.get_for_model
-        cts = [ct_get(model) for model in creme_registry.iter_entity_models()]
-        cts.sort(key=lambda ct: ct.name)
-        fields['ct'].choices = [(ct.id, ct.name) for ct in cts]
+
+        #TODO: create a ContentTypeModelChoice ??
+        get_ct = ContentType.objects.get_for_model
+        cts    = [(ct.id, unicode(ct)) for ct in (get_ct(model) for model in creme_registry.iter_entity_models())]
+        cts.sort(key=lambda ct_tuple: ct_tuple[1]) #sort by alphabetical order
+        fields['ct'].choices = cts
+
         self.aggregates = list(field_aggregation_registry.itervalues())#Convert to list to reuse it in template
 
         for aggregate in self.aggregates:
             fields[aggregate.name] = AjaxMultipleChoiceField(label=_(aggregate.title), required=False, choices=(), widget=OrderedMultipleChoiceWidget)
-            
+
         #To hande a validation error get ct_id data to rebuild all ?
 
     def clean(self):
@@ -285,7 +289,7 @@ class EditForm(CremeEntityForm):
         fields['filter'].choices = base_filter
         fields['filter'].initial = instance.ct.id
 
-    def save(self):
+    def save(self): #TODO useless
         super(EditForm, self).save()
 
 
@@ -394,8 +398,8 @@ class DateReportFilterForm(CremeForm):
         self.report = report
         fields = self.fields
         fields['date_fields'].choices = [(field.name, field.verbose_name) for field in get_date_fields(report.ct.model_class())]
-#        fields['filters'].choices = [(r.name, r.verbose_name) for r in report_filters_registry.itervalues()]
-        fields['filters'].choices = report_filters_registry.itervalues()
+#        fields['filters'].choices = [(r.name, r.verbose_name) for r in date_filters_registry.itervalues()]
+        fields['filters'].choices = date_filters_registry.itervalues()
         fields['filters'].widget.attrs.update({'id': 'id_filters','start_date_id': 'id_begin_date','end_date_id': 'id_end_date'})
 
     def save(self):

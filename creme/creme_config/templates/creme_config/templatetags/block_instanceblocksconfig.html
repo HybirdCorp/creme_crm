@@ -1,0 +1,30 @@
+{% load i18n %}
+{% load creme_block %}
+<table class="table_detail_view ui-corner-all" id={{block_name}}>
+    <!--{% cycle "block_line_light" "block_line_dark" as row_color %}-->
+    {% get_block_header _("%s Instance's block created") _("%s Instances' blocks created") %}
+    <tbody class="collapsable">
+        {% if page.paginator.count %}
+            <tr>
+                <th class="block_header_line_light">{% trans "Related entity" %}</th>
+                <th class="block_header_line_light">{% trans "Delete" %}</th>
+            </tr>
+            {% for block_type in page.object_list %}
+                <!--{% cycle row_color %}-->
+                <tr>
+                    <td class="{{row_color}}">
+                        <a href="{{block_type.entity.get_absolute_url}}">{{block_type}}</a>
+                    </td>
+                    <td class="{{row_color}}">
+                        {% get_line_deletor at_url '/creme_config/instance_block/delete' with_args "{'id': '{{block_type.id}}'}" %}
+                    </td>
+                </tr>
+            {% endfor %}
+        {% else %}
+            <tr>
+                <td colspan="2" class="block_line_dark">{% trans "No type of instance block created for the moment" %}</td>
+            </tr>
+        {% endif %}
+    </tbody>
+    {% include 'creme_core/templatetags/widgets/block_footer.html' %}
+</table>

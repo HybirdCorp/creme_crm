@@ -26,6 +26,7 @@ from django.contrib.auth.decorators import login_required
 
 from creme_core.entities_access.functions_for_permissions import get_view_or_die, edit_object_or_die
 from creme_core.views.generic import inner_popup
+from creme_core.utils import get_from_POST_or_404
 
 from graphs.models import Graph, RootNode
 from graphs.forms.root_node import AddRootNodesForm, EditRootNodeForm
@@ -98,7 +99,7 @@ def edit(request, root_id):
 @login_required
 @get_view_or_die('graphs')
 def delete(request):
-    root_node = get_object_or_404(RootNode, pk=request.POST.get('id'))
+    root_node = get_object_or_404(RootNode, pk=get_from_POST_or_404(request.POST, 'id'))
 
     die_status = edit_object_or_die(request, root_node.graph)
     if die_status:

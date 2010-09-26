@@ -5,8 +5,8 @@
 
 {% block title %}
     <a href="/creme_config/">{% trans "Configuration"%} > </a>
-    <a href="/creme_config/{{app_name}}/portal/">{{model|get_meta_value:'app_label'|title}} > </a>
-    Type : {{model|get_meta_value:'verbose_name'|title}}
+    <a href="/creme_config/{{app_name}}/portal/">{{app_verbose_name}} > </a>
+    {% blocktrans with model|get_meta_value:'verbose_name' as model_name %}Type : {{model_name}}{% endblocktrans %}
 {% endblock %}
 
 {% block before_statistics %}

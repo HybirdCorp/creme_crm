@@ -23,3 +23,6 @@ REL_OBJ_SUPPLIER = 'persons-object_supplier'
 
 REL_SUB_INACTIVE = 'persons-subject_inactive_customer'
 REL_OBJ_INACTIVE = 'persons-object_inactive_customer'
+
+REL_SUB_SUBSIDIARY = 'persons-subject_subsidiary'
+REL_OBJ_SUBSIDIARY = 'persons-object_subsidiary'

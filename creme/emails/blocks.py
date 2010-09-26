@@ -190,6 +190,9 @@ class _SynchronizationMailsBlock(QuerysetBlock):
     dependencies  = (EntityEmail,)
     order_by      = '-reception_date'
 
+    def __init__(self, *args, **kwargs):
+        super(_SynchronizationMailsBlock, self).__init__()
+
     @jsonify
     def detailview_ajax(self, request):
         context = RequestContext(request)
@@ -209,11 +212,12 @@ class WaitingSynchronizationMailsBlock(_SynchronizationMailsBlock):
     def detailview_display(self, context):
         context.update({'MAIL_STATUS': MAIL_STATUS})
         return self._render(self.get_block_template_context(context, EntityEmail.objects.filter(status=MAIL_STATUS_SYNCHRONIZED_WAITING),
-                                                            update_url='/creme_core/blocks/reload/basic/%s/' % self.id_
+#                                                            update_url='/creme_core/blocks/reload/basic/%s/' % self.id_
+                                                            update_url='/emails/sync_blocks/reload'
                                                             ))
 
 
-class SynchronizatMailsBlock(_SynchronizationMailsBlock):
+class SpamSynchronizationMailsBlock(_SynchronizationMailsBlock):
     id_           = QuerysetBlock.generate_id('emails', 'synchronised_as_spam')
     verbose_name  = _(u'Spam emails')
     template_name = 'emails/templatetags/block_synchronization_spam.html'
@@ -221,7 +225,8 @@ class SynchronizatMailsBlock(_SynchronizationMailsBlock):
     def detailview_display(self, context):
         context.update({'MAIL_STATUS': MAIL_STATUS})
         return self._render(self.get_block_template_context(context, EntityEmail.objects.filter(status=MAIL_STATUS_SYNCHRONIZED_SPAM),
-                                                            update_url='/creme_core/blocks/reload/basic/%s/' % self.id_
+#                                                            update_url='/creme_core/blocks/reload/basic/%s/' % self.id_
+                                                            update_url='/emails/sync_blocks/reload'
                                                             ))
 
 
@@ -236,4 +241,4 @@ sendings_block          = SendingsBlock()
 mails_block             = MailsBlock()
 mails_history_block     = MailsHistoryBlock()
 mail_waiting_sync_block = WaitingSynchronizationMailsBlock()
-mail_spam_sync_block    = SynchronizatMailsBlock()
+mail_spam_sync_block    = SpamSynchronizationMailsBlock()

@@ -36,7 +36,7 @@ from reports.report_aggregation_registry import field_aggregation_registry
 from reports.models.graph import ReportGraph, RGT_FK, RGT_RANGE
 
 authorized_aggregate_fields = field_aggregation_registry.authorized_fields
-authorized_abscissa_types = [models.DateField, models.DateTimeField, models.ForeignKey]
+authorized_abscissa_types = (models.DateField, models.DateTimeField, models.ForeignKey)
 
 
 class ReportGraphAddForm(CremeEntityForm):
@@ -60,8 +60,8 @@ class ReportGraphAddForm(CremeEntityForm):
         fields['report'].choices = [(report.id, unicode(report))]
         fields['report'].initial = report.id
 
-        fields['aggregates_fields'].choices = [(f.name, unicode(f.verbose_name)) for f in get_flds_with_fk_flds(model, deep=0) if f.__class__ in authorized_aggregate_fields]
-        fields['abscissa_fields'].choices   = [(f.name, unicode(f.verbose_name)) for f in get_flds_with_fk_flds(model, deep=0) if f.__class__ in authorized_abscissa_types]
+        fields['aggregates_fields'].choices = [(f.name, unicode(f.verbose_name)) for f in get_flds_with_fk_flds(model, deep=0) if isinstance(f, authorized_aggregate_fields)]
+        fields['abscissa_fields'].choices   = [(f.name, unicode(f.verbose_name)) for f in get_flds_with_fk_flds(model, deep=0) if isinstance(f, authorized_abscissa_types)]
         fields['abscissa_fields'].widget.target_url += str(report_ct.id) #Bof but when DependentSelect will be refactored improve here too
 
         if data is not None:
@@ -98,6 +98,7 @@ class ReportGraphAddForm(CremeEntityForm):
         except FieldDoesNotExist:
             raise val_err
 
+        #TODO: factorise abscissa_group_by == RGT_FK ?
         if isinstance(abscissa_field, ForeignKey) and abscissa_group_by != RGT_FK:
             raise val_err
         if isinstance(abscissa_field, (DateField, DateTimeField)) and abscissa_group_by == RGT_FK:

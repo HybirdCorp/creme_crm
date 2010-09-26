@@ -25,7 +25,8 @@ from django.forms.widgets import HiddenInput
 from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import ugettext_lazy as _, ugettext
 
-from creme_core.models import RelationType, BlockConfigItem, RelationBlockItem
+from creme_core.models import (RelationType, BlockConfigItem, RelationBlockItem,
+                               InstanceBlockConfigItem)
 from creme_core.forms import CremeForm, CremeModelForm
 from creme_core.forms.widgets import OrderedMultipleChoiceWidget
 from creme_core.gui.block import block_registry, SpecificRelationsBlock
@@ -45,6 +46,8 @@ class DetailviewBlocksForm(CremeForm):
         choices = [(id_, block.verbose_name) for id_, block in block_registry if block.configurable]
         choices.extend((rbi.block_id, ugettext(u'Relation block: %s') % rbi.relation_type.predicate)
                             for rbi in RelationBlockItem.objects.all()) #TODO: filter compatible relation types
+        choices.extend((ibi.block_id, ugettext(u"Instance's block: %s") % ibi)
+                            for ibi in InstanceBlockConfigItem.objects.all())
 
         self.fields['block_ids'].choices = choices
 

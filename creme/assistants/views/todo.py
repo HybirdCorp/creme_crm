@@ -23,13 +23,15 @@ from django.shortcuts import get_object_or_404
 from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required
 
+from creme_core.views.generic import add_to_entity
+
 from assistants.models import ToDo
 from assistants.forms.todo import ToDoCreateForm, ToDoEditForm
-from utils import generic_add, generic_edit, generic_delete
+from utils import generic_edit, generic_delete
 
 
 def add(request, entity_id):
-    return generic_add(request, entity_id, ToDoCreateForm, _(u'New Todo for <%s>'))
+    return add_to_entity(request, entity_id, ToDoCreateForm, _(u'New Todo for <%s>'))
 
 def edit(request, todo_id):
     return generic_edit(request, todo_id, ToDo, ToDoEditForm, _(u"Todo for <%s>"))

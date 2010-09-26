@@ -30,6 +30,7 @@ from creme_core.models import RelationType
 from creme_core.views.generic import add_entity
 from creme_core.entities_access.functions_for_permissions import get_view_or_die
 from creme_core.constants import DROIT_MODULE_EST_ADMIN
+from creme_core.utils import get_from_POST_or_404
 
 from creme_config.forms.relation_type import RelationTypeCreateForm, RelationTypeEditForm
 
@@ -78,7 +79,7 @@ def delete(request):
     """
         @Permissions : Admin to creme_config app
     """
-    relation_type = get_object_or_404(RelationType, pk=request.POST.get('id'))
+    relation_type = get_object_or_404(RelationType, pk=get_from_POST_or_404(request.POST, 'id'))
 
     if not relation_type.is_custom:
         raise Http404("Can't delete a standard RelationType") #TODO: 403 instead ?

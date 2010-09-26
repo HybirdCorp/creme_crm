@@ -24,11 +24,13 @@ from creme_core.registry import creme_registry
 from creme_core.gui.menu import creme_menu
 from creme_core.gui.button_menu import button_registry
 from creme_core.gui.block import block_registry
+from creme_core.gui.quick_forms import quickforms_registry
 
 from persons.models import Contact, Organisation
 from persons.buttons import (become_customer_button, become_prospect_button, become_suspect_button,
                              become_inactive_button, become_supplier_button, add_linked_contact_button)
 from persons.blocks import managers_block, employees_block, address_block, other_address_block
+from persons.forms.quick import ContactQuickForm, OrganisationQuickForm
 
 
 creme_registry.register_entity_models(Contact, Organisation)
@@ -48,3 +50,7 @@ button_registry.register(become_customer_button, become_prospect_button, become_
                          become_inactive_button, become_supplier_button, add_linked_contact_button)
 
 block_registry.register(managers_block, employees_block, address_block, other_address_block)
+
+reg_qform = quickforms_registry.register
+reg_qform(Contact,      ContactQuickForm)
+reg_qform(Organisation, OrganisationQuickForm)

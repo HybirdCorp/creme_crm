@@ -22,7 +22,7 @@ urlpatterns = patterns('creme_config.views',
     (r'^roles/add/$',                    'role.add'),
     (r'^roles/edit/(?P<role_id>\d*)$',   'role.edit'),
     (r'^roles/delete/(?P<role_id>\d*)$', 'role.delete'),
-    (r'^roles/(?P<role_id>\d*)$',        'role.view'),
+    (r'^roles/(?P<role_id>\d+)$',        'role.view'),
     (r'^roles/getDirectDescendant/$',    'role.ajax_get_direct_descendant'),
 
     (r'^roles/entity_credential/add/$',          'entity_credential.add'),
@@ -72,6 +72,7 @@ urlpatterns = patterns('creme_config.views',
     (r'^blocks/delete$',                      'blocks.delete'),
     (r'^relation_block/add/$',                'blocks.add_relation_block'),
     (r'^relation_block/delete$',              'blocks.delete_relation_block'),
+    (r'^instance_block/delete$',              'blocks.delete_instance_block'),
 
     #Prefered Menu
     (r'^prefered_menu/edit/$', 'prefered_menu.edit'),

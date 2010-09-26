@@ -55,12 +55,10 @@ creme.ajax.submit = function(form, data, options) {
                   creme.utils.loading('loading', false, {});
                   if(opts.beforeSend) opts.beforeSend(request);
               },
-              success: function(returnedData, status)
-              {
+              success: function(returnedData, status) {
                 if(opts.success) opts.success(returnedData, status);
               },
-              error: function(request, status, error)
-              {
+              error: function(request, status, error) {
                   if(opts.beforeError) opts.beforeError(request, status, error);
                   if(opts.error) opts.error(request, status, error);
                   if(opts.afterError) opts.afterError(request, status, error);
@@ -105,12 +103,10 @@ creme.ajax.ajax = function(options)
                   creme.utils.loading('loading', false, {});
                   if(options.beforeSend && $.isFunction(options.beforeSend)) options.beforeSend(request);
               },
-              success: function(returnedData, status)
-              {
+              success: function(returnedData, status) {
                 if(options.success && $.isFunction(options.success)) options.success(returnedData, status);
               },
-              error: function(request, status, error)
-              {
+              error: function(request, status, error) {
                   if(options.beforeError && $.isFunction(options.beforeError)) options.beforeError(request, status, error);
                   if(options.error && $.isFunction(options.error)) options.error(request, status, error);
                   if(options.afterError && $.isFunction(options.afterError)) options.afterError(request, status, error);
@@ -123,29 +119,27 @@ creme.ajax.ajax = function(options)
         });
 };
 
-creme.ajax.get = function(options)
-{
+creme.ajax.get = function(options) {
     creme.ajax.ajax($.extend({type:"GET"}, options));
 };
 
-creme.ajax.post = function(options)
-{
+creme.ajax.post = function(options) {
     creme.ajax.ajax($.extend({type:"POST"}, options));
 };
 
 /*
- * creme.ajax.iframe_submit($('#myform'), function(data) {
+ * creme.ajax.iframeSubmit($('#myform'), function(data) {
       	   console.log(data) // result html content (body of iframe)
 	  });
  */
-creme.ajax.iframe_submit = function(form, success_cb, pop_options)
+creme.ajax.iframeSubmit = function(form, success_cb, pop_options)
 {
 	var delay = 1;
 	var id = new Date().getTime()
 	var iframe = $('<iframe style="position:absolute;top:-1000px;left:-1000px;"><html><head></head><body></body></html></iframe>').attr('id', id).appendTo($('body'))
 
 	setTimeout(function() {
-		var submit = creme.ajax.iframe_populate(iframe, form, pop_options);
+		var submit = creme.ajax.iframePopulate(iframe, form, pop_options);
 		submit.trigger('click');
 		
     	iframe.load(function() {
@@ -155,8 +149,7 @@ creme.ajax.iframe_submit = function(form, success_cb, pop_options)
 	}, delay);
 };
 
-creme.ajax.iframe_populate = function(iframe, form, options)
-{
+creme.ajax.iframePopulate = function(iframe, form, options) {
 	var iform = $('<form>').attr('action', options['action']||form.attr('action'))
 						   .attr('method', 'post')
 						   .attr('enctype', form.attr('enctype'));
@@ -189,8 +182,7 @@ creme.ajax.json._handleSendError = function(req, textStatus, errorThrown) {
 	}
 };
 
-creme.ajax.json.send = function(url, data, success_cb, error_cb, sync, method, parameters)
-{
+creme.ajax.json.send = function(url, data, success_cb, error_cb, sync, method, parameters) {
 	var ajax_parameters = {
 		async: !sync,
 		type: method,

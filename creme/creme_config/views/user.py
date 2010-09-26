@@ -27,6 +27,7 @@ from django.contrib.auth.models import User
 
 from creme_core.entities_access.functions_for_permissions import get_view_or_die
 from creme_core.constants import DROIT_MODULE_EST_ADMIN
+from creme_core.utils import get_from_POST_or_404
 
 from creme_config.forms.user_settings import UserSettingsConfigForm
 from creme_config.forms.user import  UserAddForm, UserChangePwForm, UserEditForm
@@ -88,7 +89,7 @@ def delete(request):
     """
         @Permissions : Admin to creme_config app
     """
-    user = get_object_or_404(User, pk=request.POST.get('id'))
+    user = get_object_or_404(User, pk=get_from_POST_or_404(request.POST, 'id'))
 
     if not user.can_be_deleted():
         return HttpResponse(_(u'%s can be deleted because of his dependencies.') % user, status=403)

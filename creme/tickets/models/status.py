@@ -40,7 +40,7 @@ BASE_STATUS = ((OPEN_PK,        ugettext('Open')),
 class Status(CremeModel):
     """Status of a ticket: open, closed, invalid... """
     name      = CharField(_(u'Name'), max_length=100, blank=False, null=False, unique=True)
-    deletable = BooleanField(_(u'Deletable'))
+    is_custom = BooleanField(default=True) #used by creme_config
 
     def __unicode__(self):
         return self.name

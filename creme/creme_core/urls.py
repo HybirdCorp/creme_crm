@@ -28,7 +28,7 @@ creme_core_patterns = patterns('creme_core.views',
 
     (r'^filter/add/(?P<ct_id>\d+)$',                           'list_view_filter.add'),
     (r'^filter/edit/(?P<ct_id>\d+)/(?P<filter_id>\d+)$',       'list_view_filter.edit'), #ct_id useful ????
-    (r'^filter/delete/(?P<filter_id>\d+)$',                    'list_view_filter.delete'),
+    (r'^filter/delete$',                                       'list_view_filter.delete'),
     (r'^filter/getfieldfk/$',                                  'ajax.fieldHasNGetFK'),   #change url ???? move to list_view_filter.py ??
     (r'^filter/register/(?P<filter_id>\d*)/(?P<ct_id>\d+)$',   'list_view_filter.register_in_session'),
     (r'^filter/get_session_filter_id/(?P<ct_id>\d+)$',         'list_view_filter.get_session_filter_id'),
@@ -39,16 +39,15 @@ creme_core_patterns = patterns('creme_core.views',
 
     (r'^clean/$', 'clean.clean'),
 
-    (r'^property/add_to_entities$',                             'creme_property.add_to_entities'),
-    (r'^property/get_types$',                                   'creme_property.get_property_types_for_ct'),
-    (r'^property/add/$',                                        'creme_property.add_to_creme_entity'),
-    (r'^property/list_for_entity_ct/(?P<creme_entity_id>\d+)$', 'creme_property.list_for_entity_ct'),
-    (r'^property/delete$',                                      'creme_property.delete'),
+    (r'^property/add_to_entities$',        'creme_property.add_to_entities'),
+    (r'^property/get_types$',              'creme_property.get_property_types_for_ct'),
+    (r'^property/add/(?P<entity_id>\d+)$', 'creme_property.add_to_entity'),
+    (r'^property/delete$',                 'creme_property.delete'),
 
-    (r'^header_filter/add/(?P<content_type_id>\d+)$',                      'header_filter.add'),
-    (r'^header_filter/delete/(?P<header_filter_id>[\w-]+)/(?P<js>[\d]?)$', 'header_filter.delete'),
-    (r'^header_filter/edit/(?P<header_filter_id>[\w-]+)$',                 'header_filter.edit'),
-    (r'^header_filter/get_4_ct/(?P<content_type_id>\d+)$',                 'header_filter.get_hfs_4_ct'),
+    (r'^header_filter/add/(?P<content_type_id>\d+)$',      'header_filter.add'),
+    (r'^header_filter/delete',                             'header_filter.delete'),
+    (r'^header_filter/edit/(?P<header_filter_id>[\w-]+)$', 'header_filter.edit'),
+    (r'^header_filter/get_4_ct/(?P<content_type_id>\d+)$', 'header_filter.get_hfs_4_ct'),
 
     #Entities representations
     (r'^entity/get_repr/$',                         'entity.get_entity_repr'),
@@ -64,6 +63,8 @@ creme_core_patterns = patterns('creme_core.views',
 
     #Research
     (r'^search$', 'search.search'),
+
+    (r'^quickforms/(?P<ct_id>\d+)/(?P<count>\d)$', 'quick_forms.add'),
 
     #Ajax helpers
     #TODO: move to entity.py ??

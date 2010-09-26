@@ -46,14 +46,16 @@ if(!window.console)
             entity_separator  : ',',
             serializer : 'input[name!=][type!="submit"], select[name!=]',
             submitHandler     : null,//Use handleSubmit in it to easy list view's management
-            kd_submitHandler  : null//Same as submitHandler but for key down events
+            kd_submitHandler  : null,//Same as submitHandler but for key down events,
+            reload_url        : null
         };
 
         var publicMethods = ["countEntities", "getSelectedEntities",
                              "getSelectedEntitiesAsArray",
                              "option", "serializeMe", "ensureSelection",
                              "getSubmit", "getKdSubmit", 
-                             "setSubmit", "setKdSubmit"];
+                             "setSubmit", "setKdSubmit",
+                             "setReloadUrl", "getReloadUrl"];
 
         if (isMethodCall && $.inArray(options, publicMethods) > -1) {
                 var instance = $.data(this[0], 'list_view');
@@ -134,10 +136,23 @@ if(!window.console)
                     return function(){};//Null handler
                 }
 
+                this.setReloadUrl = function(url)
+                {
+                    me.reload_url = url;
+                }
+
+                this.getReloadUrl = function()
+                {
+                    return me.reload_url;
+                }
+
                 /***************** Helpers ****************************/
                 this.reload = function(is_ajax){
+
+                    var url = this.reload_url || creme.utils.appendInUrl(window.location.href,'?ajax='+(is_ajax || true));
+
                     var submit_opts = {
-                        'action': creme.utils.appendInUrl(window.location.href,'?ajax='+is_ajax || true),
+                        'action': url,
                         'success':function(data, status){
                             self.empty().html(data);
                         }

@@ -19,18 +19,21 @@
 
 from django import template
 from django.contrib.contenttypes.models import ContentType
+
 from creme_core.registry import creme_registry
 
-import settings
 
 register = template.Library()
 
-@register.inclusion_tag('creme_core/templatetags/search_panel.html')
-def get_search_panel(target_node_id='sub_content'):
-    content_types = [{'id':ContentType.objects.get_for_model(model).id, 'verbose_name': model._meta.verbose_name} for model in creme_registry.iter_entity_models()]
+@register.inclusion_tag('creme_core/templatetags/search_panel.html', takes_context=True)
+def get_search_panel(context, target_node_id='sub_content'):
+    get_ct = ContentType.objects.get_for_model
+    content_types = [{'id': get_ct(model).id, 'verbose_name': model._meta.verbose_name} for model in creme_registry.iter_entity_models()]
     content_types.sort(key=lambda k: k['verbose_name'])
-    return {
-        'content_types' : content_types,
-        'MEDIA_URL': settings.MEDIA_URL,#TODO:Context processor ?
-        'target_node_id' : target_node_id#Ajax version / set your target html node's id
-    }
+
+    context.update({
+            'content_types':  content_types,
+            'target_node_id': target_node_id, #Ajax version / set your target html node's id
+        })
+
+    return context

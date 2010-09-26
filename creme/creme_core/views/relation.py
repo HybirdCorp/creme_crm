@@ -34,8 +34,7 @@ from creme_core.entities_access.permissions import user_has_read_permission_for_
 from creme_core.entities_access.filter_allowed_objects import filter_RUD_objects
 from creme_core.entities_access.functions_for_permissions import read_object_or_die, edit_object_or_die, delete_object_or_die
 from creme_core.views.generic import inner_popup, list_view_popup_from_widget
-from creme_core.utils import get_ct_or_404
-
+from creme_core.utils import get_ct_or_404, get_from_POST_or_404
 
 #JSON_OPS = frozenset(('gt', 'lt', 'in'))
 
@@ -263,7 +262,7 @@ def add_relations_bulk(request, model_ct_id, ids):
     POST = request.POST
 
     model    = get_object_or_404(ContentType, pk=model_ct_id).model_class()
-    entities = get_list_or_404(model, pk__in=ids.split(','))
+    entities = get_list_or_404(model, pk__in=[id for id in ids.split(',') if id])
 
     die_statuses = set((edit_object_or_die(request, entity) for entity in entities)) - set([None])
 
@@ -293,9 +292,13 @@ def delete(request):
     """
         @Permissions : Delete on relation's subject entity
     """
-    post_get = request.POST.get
-    relation = get_object_or_404(Relation, pk=post_get('id'))
-    entity   = get_object_or_404(CremeEntity, pk=post_get('object_id')).get_real_entity()
+    POST = request.POST
+
+    relation_id = get_from_POST_or_404(POST, 'id')
+    entity_id   = get_from_POST_or_404(POST, 'object_id')
+
+    relation = get_object_or_404(Relation, pk=relation_id)
+    entity   = get_object_or_404(CremeEntity, pk=entity_id).get_real_entity()
 
     die_status = delete_object_or_die(request, entity) #delete credental on 'entity' ?? only one ???
     if die_status:
@@ -311,14 +314,18 @@ def delete_similar(request):
     """Delete relations with the same type between 2 entities
         @Permissions : Delete on relation's subject entity
     """
-    post_get = request.POST.get
-    subject = get_object_or_404(CremeEntity, pk=post_get('subject_id')).get_real_entity()
+    POST = request.POST
+    subject_id = get_from_POST_or_404(POST, 'subject_id')
+    rtype_id   = get_from_POST_or_404(POST, 'type')
+    object_id  = get_from_POST_or_404(POST, 'object_id')
+
+    subject = get_object_or_404(CremeEntity, pk=subject_id).get_real_entity()
 
     die_status = delete_object_or_die(request, subject) #delete credental on 'subject' ?? not relation's object ???
     if die_status:
         return die_status
 
-    for relation in Relation.objects.filter(subject_entity=subject, type=post_get('type'), object_entity__id=post_get('object_id')):
+    for relation in Relation.objects.filter(subject_entity=subject, type=rtype_id, object_entity=object_id):
         relation.get_real_entity().delete()
 
     return HttpResponse("")
@@ -386,12 +393,10 @@ def handle_relation_from_predicate_n_entity(request):
 #TODO: use jsonify
 @login_required
 def get_predicates_choices_4_ct(request):
-    POST = request.POST
-    ct = get_ct_or_404(POST.get('ct_id'))
-
-#    fields = POST.getlist('fields')
+    ct = get_ct_or_404(get_from_POST_or_404(request.POST, 'ct_id'))
 
     #Why this one is not JSON serializable ?
 #    predicates = RelationType.objects.filter(Q(subject_ctypes=ct)|Q(subject_ctypes__isnull=True)).order_by('predicate').values_list('id', 'predicate')
-    predicates = [(r.id, r.predicate) for r in RelationType.objects.filter(Q(subject_ctypes=ct)|Q(subject_ctypes__isnull=True)).order_by('predicate')]
+    predicates = [(rtype.id, rtype.predicate) for rtype in RelationType.get_compatible_ones(ct).order_by('predicate')]
+
     return HttpResponse(JSONEncoder().encode(predicates), mimetype="text/javascript")

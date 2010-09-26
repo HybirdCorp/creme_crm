@@ -1,5 +1,7 @@
 {% extends "creme_core/base.html" %}
 
+{% block page_title %} - {{list_title}}{% endblock %}
+
 {% block extrahead %}
     <link rel="stylesheet" type="text/css" href="{{MEDIA_URL}}css{{CSS_THEME_NAME}}list_view.css" />
     <script type="text/javascript" src="{{MEDIA_URL}}js/models/relations.js"></script>

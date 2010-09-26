@@ -74,15 +74,11 @@ class OrganisationForm(CremeEntityForm):
                 initial['country_shipping'] = shipping_address.country
 
     def save(self):
-        instance     = self.instance
+        instance     = super(OrganisationForm, self).save()
         cleaned_data = self.cleaned_data
 
-        super(OrganisationForm, self).save()
+        billing_address = instance.billing_address or Address()
 
-        if instance.billing_address is not None:
-            billing_address = Address.objects.get(pk=instance.billing_address.pk)
-        else:
-            billing_address = Address()
 
         billing_address.name    = cleaned_data['name_billing']
         billing_address.address = cleaned_data['address_billing']
@@ -98,10 +94,8 @@ class OrganisationForm(CremeEntityForm):
             billing_address.owner = instance
             billing_address.save()
 
-        if instance.shipping_address is not None:
-            shipping_address = Address.objects.get(pk=instance.shipping_address.pk)
-        else:
-            shipping_address = Address()
+        shipping_address = instance.shipping_address or Address()
+
 
         shipping_address.name    = cleaned_data['name_shipping']
         shipping_address.address = cleaned_data['address_shipping']
@@ -120,3 +114,5 @@ class OrganisationForm(CremeEntityForm):
         instance.billing_address = billing_address
         instance.shipping_address = shipping_address
         instance.save()
+
+        return instance
