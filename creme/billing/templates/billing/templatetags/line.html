@@ -44,7 +44,7 @@
                     <td class="{{row_color}}">{{line.get_price_exclusive_of_tax}}</td>
                     <td class="{{row_color}}">{{line.get_price_inclusive_of_tax}}</td>
                     <td class="{{row_color}}">
-                        <form method="POST" action="/billing/line/{{line.id}}/update" id="updateStatus{{line.id}}">
+                        <form method="POST" action="/billing/line/{{line.id}}/update" id="updateStatus{{line.id}}">{% csrf_token %}
                             <input type="checkbox" name="paid" {% if line.is_paid %}checked{% endif %}>
                             <a onclick="update('{{line.id}}')">
                                 <img src="{{MEDIA_URL}}images/refresh_16.png" width="16" height="14" border="0">

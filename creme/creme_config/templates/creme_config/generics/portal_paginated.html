@@ -22,7 +22,7 @@
 <!--
     {% cycle "block_line_light" "block_line_dark" as row_color %}
 -->
-<form name="generic_form" action="" method="POST">
+<form name="generic_form" action="" method="POST">{% csrf_token %}
     <div>
         <input type="hidden" name="order" id="order" value="{{order}}" />
         <input type="hidden" name="way" id="way" value="{{way}}" />
@@ -116,7 +116,7 @@
                 <span class="current">
                     Page {{ pagination.number }} sur {{ pagination.paginator.num_pages }}.
                 </span>
-            {% endifnotequal %}
+            {% endif %}
 
             {% if pagination.has_next %}
                 <a href="?page={{ pagination.next_page_number }}" onclick="this.href+='&order='+$('#order').val()+'&way='+$('#way').val();">Page suivante</a>
@@ -129,7 +129,7 @@
     </div>
     <div>
         <span>
-            {% if pagination.paginator.num_pages|gt:25 %} Page :{% endif %}
+            {% if pagination.paginator.num_pages > 25 %} Page :{% endif %}
             {% for pages in pagination.paginator.num_pages|xrange %}
                 {% if forloop.counter|mod:25 == 0 %}
                   <a href="?page={{forloop.counter}}" onclick="this.href+='&order='+$('#order').val()+'&way='+$('#way').val();">{{forloop.counter}}</a>

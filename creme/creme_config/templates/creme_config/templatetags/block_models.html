@@ -1,14 +1,15 @@
 {% load i18n %}
 {% load creme_core_tags %}
 {% load creme_block %}
+{% load creme_config_tags %}
 <table class="table_detail_view ui-corner-all" id={{block_name}}>
     <thead>
         <tr>
             <th colspan="100">
                 {% if page.paginator.count == 1 %}
-                    {{page.paginator.count}} {{model|get_meta_value:'verbose_name'|title}}
+                    {{page.paginator.count}} {{model|get_meta_value:'verbose_name'}}
                 {% else %}
-                    {{page.paginator.count}} {{model|get_meta_value:'verbose_name_plural'|title}}
+                    {{page.paginator.count}} {{model|get_meta_value:'verbose_name_plural'}}
                 {% endif %}
             </th>
         </tr>
@@ -28,7 +29,9 @@
             {% with model|get_meta_value:'many_to_many' as many_to_many %}
                 <tr>
                     {% for f in fields %}
-                        {% get_column_header f.verbose_name f.name %}
+                        {% if f.name != 'is_custom' %}
+                            {% get_column_header f.verbose_name f.name %}
+                        {% endif %}
                     {% endfor %}
                     {% for f in many_to_many %}
                         <th class="block_header_line_light">{{f.verbose_name}}</th>
@@ -40,7 +43,9 @@
                     <!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
                     <tr>
                         {% for f in fields %}
-                            <td class="{{row_color}}">{{object|get_html_field_value:f.name}}</td>
+                            {% if f.name != 'is_custom' %}
+                                <td class="{{row_color}}">{{object|get_html_field_value:f.name}}</td>
+                            {% endif %}
                         {% endfor %}
                         {% for f in many_to_many %}
                             <td class="{{row_color}}">{{object|get_html_field_value:f.name}}</td>
@@ -52,7 +57,11 @@
                             </a>
                         </td>
                         <td class="{{row_color}}">
-                            {% get_line_deletor at_url '/creme_config/{{app_name}}/{{model_name}}/delete' with_args "{'id':'{{object.pk}}'}" %}
+                            {% if object|is_custom %}
+                                {% get_line_deletor at_url '/creme_config/{{app_name}}/{{model_name}}/delete' with_args "{'id':'{{object.pk}}'}" %}
+                            {% else %}
+                                <em>{% trans "(no deletable)" %}</em>
+                            {% endif %}
                         </td>
                     </tr>
                 {% endfor %}

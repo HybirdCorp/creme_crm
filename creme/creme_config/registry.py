@@ -18,6 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from django.db.models import FieldDoesNotExist
 from django.forms.models import modelform_factory
 from django.contrib.contenttypes.models import ContentType
 
@@ -39,7 +40,14 @@ class ModelConfig(object):
     @property
     def model_form(self):
         if self._form_class is None:
-            self._form_class = modelform_factory(self.model)
+            try:
+                self.model._meta.get_field_by_name('is_custom')
+            except FieldDoesNotExist:
+                exclude = None
+            else:
+                exclude = ('is_custom',)
+
+            self._form_class = modelform_factory(self.model, exclude=exclude)
 
         return self._form_class
 

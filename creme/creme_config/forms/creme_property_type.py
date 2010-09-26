@@ -23,7 +23,7 @@ from django.utils.translation import ugettext_lazy as _, ugettext
 
 from creme_core.models import CremePropertyType
 from creme_core.forms import CremeForm
-from creme_core.forms.widgets import OrderedMultipleChoiceWidget
+from creme_core.forms.widgets import UnorderedMultipleChoiceWidget
 from creme_core.utils import Q_creme_entity_content_types
 
 
@@ -32,7 +32,7 @@ class _CremePropertyTypeBaseForm(CremeForm):
     subject_ctypes = ModelMultipleChoiceField(label=_(u"Related to types of entities"),
                                               help_text=_(u'No selected type means that all types are accepted'),
                                               queryset=Q_creme_entity_content_types(),
-                                              widget=OrderedMultipleChoiceWidget,
+                                              widget=UnorderedMultipleChoiceWidget,
                                               required=False)
 
 
@@ -41,7 +41,7 @@ class CremePropertyTypeAddForm(_CremePropertyTypeBaseForm):
         text = self.cleaned_data['text']
 
         if CremePropertyType.objects.filter(text=text)[:1]: #TODO: exists() in Django 1.2
-            raise ValidationError(ugettext(u"A property type with this anme already exists"))
+            raise ValidationError(ugettext(u"A property type with this name already exists"))
 
         return text
 

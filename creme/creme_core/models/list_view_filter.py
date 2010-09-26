@@ -87,14 +87,28 @@ class FilterCondition(Model):
         key = str(_type.pattern_key % self.champ)
         pattern_value = _type.pattern_value
 
-        for value in self.values.all():
-            q = Q(**{key: pattern_value % value})
+        #Hack for dates
+        if pattern_value.find('(%s,%s)') >= 0:
+            dates = list(self.values.values_list('value', flat=True))[:2]
+            dates.sort()
+
+            q = Q(**{key: tuple(dates)})
 
             if _type.is_exclude:
                 q.negate()
                 result &= q
             else :
                 result |= q
+
+        else:
+            for value in self.values.all():
+                q = Q(**{key: pattern_value % value})
+
+                if _type.is_exclude:
+                    q.negate()
+                    result &= q
+                else :
+                    result |= q
         return result
 
     class Meta:

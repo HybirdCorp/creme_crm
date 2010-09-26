@@ -38,7 +38,7 @@ from other_models import StaffSize, LegalForm, Sector
 from persons.constants import REL_SUB_EMPLOYED_BY, REL_SUB_MANAGES
 
 
-class Organisation (CremeEntity):
+class Organisation(CremeEntity):
     name            = CharField(_(u'Name'), max_length=100)
     phone           = CharField(_(u'Phone number'), max_length=100 , blank=True, null=True)
     fax             = CharField(_(u'Fax'), max_length=100 , blank=True, null=True)
@@ -106,4 +106,4 @@ class Organisation (CremeEntity):
 
     @staticmethod
     def get_all_managed_by_creme():
-        return Organisation.objects.filter(properties__type__id=PROP_IS_MANAGED_BY_CREME)
+        return Organisation.objects.filter(properties__type=PROP_IS_MANAGED_BY_CREME)

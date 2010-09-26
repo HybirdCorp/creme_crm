@@ -5,9 +5,9 @@
     <tbody class="collapsable">
         <tr>
             <th colspan="2" align="left" class="block_header_line_dark" style="font-size:14px;">
-                <a class="button_link" onclick="creme.properties.select_one({{object.id}});">
-                    <img src="{{MEDIA_URL}}images/add_22.png" border="0" title="{% trans "New property" %}" alt="{% trans "New property" %}" />
-                    {% trans "New property" %}
+                <a class="button_link" onclick="creme.utils.innerPopupNReload('/creme_core/property/add/{{object.id}}', {% get_block_reload_uri %});">
+                    <img src="{{MEDIA_URL}}images/add_22.png" border="0" title="{% trans "New properties" %}" alt="{% trans "New properties" %}" />
+                    {% trans "New properties" %}
                 </a>
             </th>
         </tr>

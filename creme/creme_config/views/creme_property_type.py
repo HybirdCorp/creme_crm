@@ -27,6 +27,7 @@ from creme_core.models import CremePropertyType
 from creme_core.views.generic import add_entity
 from creme_core.constants import DROIT_MODULE_EST_ADMIN
 from creme_core.entities_access.functions_for_permissions import get_view_or_die
+from creme_core.utils import get_from_POST_or_404
 
 from creme_config.forms.creme_property_type import CremePropertyTypeEditForm, CremePropertyTypeAddForm
 
@@ -81,7 +82,7 @@ def delete(request):
     """
         @Permissions : Admin to creme_config app
     """
-    property_type = get_object_or_404(CremePropertyType, pk=request.POST.get('id'))
+    property_type = get_object_or_404(CremePropertyType, pk=get_from_POST_or_404(request.POST, 'id'))
 
     if not property_type.is_custom:
         raise Http404("Can't delete a standard PropertyType") #TODO: 403 instead ?

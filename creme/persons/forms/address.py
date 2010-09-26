@@ -21,28 +21,23 @@
 from django.utils.translation import ugettext as _
 from django.forms.util import ValidationError
 
-from creme_core.forms import CremeModelForm, CremeEntityField
+from creme_core.forms import CremeModelForm
 
-from creme_core.models import CremeEntity
-from persons.models.organisation import Organisation, Address
+from persons.models import Address
 
 
 class AddressWithEntityForm(CremeModelForm):
-
     class Meta:
         model = Address
         exclude = ('content_type', 'object_id')
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, entity, *args, **kwargs):
         super(AddressWithEntityForm, self).__init__(*args, **kwargs)
-        self.creme_entity = CremeEntity.objects.get(pk=self.initial['entity_id'])
+        self._entity = entity
 
     def save(self):
-        cleaned_data = self.cleaned_data
-        instance     = self.instance
-        instance.content_type = self.creme_entity.entity_type
-        instance.object_id    = self.creme_entity.id
-        super(AddressWithEntityForm, self).save()
+        self.instance.owner = self._entity
+        return super(AddressWithEntityForm, self).save()
 
 
 def clean_address(address_id):
@@ -50,4 +45,5 @@ def clean_address(address_id):
         address = Address.objects.get(pk=address_id)
     except Address.DoesNotExist:
         raise ValidationError(_(u"This address doesn't exist or doesn't exist any more"))
+
     return address

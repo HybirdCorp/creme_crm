@@ -25,13 +25,15 @@ from django.shortcuts import get_object_or_404
 from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required
 
+from creme_core.views.generic import add_to_entity
+
 from assistants.models import Action
 from assistants.forms.action import ActionCreateForm, ActionEditForm
-from utils import generic_add, generic_edit, generic_delete
+from utils import generic_edit, generic_delete
 
 
 def add(request, entity_id):
-    return generic_add(request, entity_id, ActionCreateForm, _(u'New action for <%s>'))
+    return add_to_entity(request, entity_id, ActionCreateForm, _(u'New action for <%s>'))
 
 def edit(request, action_id):
     return generic_edit(request, action_id, Action, ActionEditForm, _(u"Action for <%s>"))

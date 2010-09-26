@@ -81,16 +81,17 @@ def edit(request, header_filter_id):
                               context_instance=RequestContext(request))
 
 @login_required
-def delete(request, header_filter_id, js=0):
-    hf           = get_object_or_404(HeaderFilter, pk=header_filter_id)
+def delete(request):
+    hf           = get_object_or_404(HeaderFilter, pk=request.POST['id'])
     callback_url = hf.entity_type.model_class().get_lv_absolute_url()
     return_msg   = _(u'View sucessfully deleted')
     status       = 200
+    is_ajax      = request.is_ajax()
 
     if hf.is_custom:
         die_status = delete_object_or_die(request, hf)
         if die_status:
-            if not js:
+            if not is_ajax:
                 return die_status
             else:
                 return_msg = _(u'Permission denied')
@@ -101,7 +102,7 @@ def delete(request, header_filter_id, js=0):
         return_msg = _(u"This view can't be deleted")
         status = 400
 
-    if js:
+    if is_ajax:
         return HttpResponse(return_msg, mimetype="text/javascript", status=status)
 
     return HttpResponseRedirect(callback_url)

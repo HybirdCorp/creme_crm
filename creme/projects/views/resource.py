@@ -24,6 +24,7 @@ from django.shortcuts import get_object_or_404
 from django.http import HttpResponse
 
 from creme_core.entities_access.functions_for_permissions import edit_object_or_die
+from creme_core.utils import get_from_POST_or_404
 
 from projects.forms.resource import ResourceCreateForm, ResourceEditForm
 from projects.views.utils import _add_generic, _edit_generic
@@ -41,7 +42,7 @@ def edit(request, resource_id):
 
 @login_required
 def delete(request):
-    resource   = get_object_or_404(Resource, pk=request.POST.get('id'))
+    resource   = get_object_or_404(Resource, pk=get_from_POST_or_404(request.POST, 'id'))
     die_status = edit_object_or_die(request, resource.task)
 
     if die_status:

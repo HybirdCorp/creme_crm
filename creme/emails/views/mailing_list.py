@@ -20,13 +20,13 @@
 
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render_to_response, get_object_or_404
-from django.template import RequestContext
 from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required
 from django.contrib.contenttypes.models import ContentType
 
 from creme_core.entities_access.functions_for_permissions import get_view_or_die, add_view_or_die, edit_object_or_die
-from creme_core.views.generic import add_entity, edit_entity, view_entity_with_template, list_view, inner_popup
+from creme_core.views.generic import add_entity, add_to_entity, edit_entity, view_entity_with_template, list_view
+from creme_core.utils import get_from_POST_or_404
 
 from emails.models import MailingList
 from emails.forms.mailing_list import (MailingListForm,
@@ -55,52 +55,30 @@ def detailview(request, ml_id):
 def listview(request):
     return list_view(request, MailingList, extra_dict={'add_url': '/emails/mailing_list/add'})
 
-@login_required
-@get_view_or_die('emails')
-def _add_aux(request, ml_id, form_class, title):
-    ml = get_object_or_404(MailingList, pk=ml_id)
-
-    die_status = edit_object_or_die(request, ml)
-    if die_status:
-        return die_status
-
-    if request.POST:
-        recip_add_form = form_class(ml, request.POST)
-
-        if recip_add_form.is_valid():
-            recip_add_form.save()
-    else:
-        recip_add_form = form_class(ml=ml)
-
-    return inner_popup(request, 'creme_core/generics/blockform/add_popup2.html',
-                       {
-                        'form':  recip_add_form,
-                        'title': title % ml,
-                       },
-                       is_valid=recip_add_form.is_valid(),
-                       reload=False,
-                       delegate_reload=True,
-                       context_instance=RequestContext(request))
-
 def add_contacts(request, ml_id):
-    return _add_aux(request, ml_id, AddContactsForm, _('New contacts for <%s>'))
+    return add_to_entity(request, ml_id, AddContactsForm,
+                         _('New contacts for <%s>'), entity_class=MailingList)
 
 def add_contacts_from_filter(request, ml_id):
-    return _add_aux(request, ml_id, AddContactsFromFilterForm, _('New contacts for <%s>'))
+    return add_to_entity(request, ml_id, AddContactsFromFilterForm,
+                         _('New contacts for <%s>'), entity_class=MailingList)
 
 def add_organisations(request, ml_id):
-    return _add_aux(request, ml_id, AddOrganisationsForm, _('New organisations for <%s>'))
+    return add_to_entity(request, ml_id, AddOrganisationsForm,
+                         _('New organisations for <%s>'), entity_class=MailingList)
 
 def add_organisations_from_filter(request, ml_id):
-    return _add_aux(request, ml_id, AddOrganisationsFromFilterForm, _('New organisations for <%s>'))
+    return add_to_entity(request, ml_id, AddOrganisationsFromFilterForm,
+                         _('New organisations for <%s>'), entity_class=MailingList)
 
 def add_children(request, ml_id):
-    return _add_aux(request, ml_id, AddChildForm, _('New child lists for <%s>'))
+    return add_to_entity(request, ml_id, AddChildForm,
+                         _('New child lists for <%s>'), entity_class=MailingList)
 
 @login_required
 @get_view_or_die('emails')
 def _delete_aux(request, ml_id, deletor):
-    subobject_id = request.POST.get('id')
+    subobject_id = get_from_POST_or_404(request.POST, 'id')
     ml = get_object_or_404(MailingList, pk=ml_id)
 
     die_status = edit_object_or_die(request, ml)

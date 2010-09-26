@@ -26,10 +26,9 @@ from django.db import models
 from django import template
 from django.utils.safestring import mark_safe
 from django.utils.html import escape
-from django_extensions.db import fields
 
-from creme_core.models import CremeEntity
-from creme_core.models.authent_role import CremeRole
+from creme_core.models import CremeEntity, CremeRole
+from creme_core.models import fields
 from creme_core.utils.meta import get_field_infos, get_model_field_infos, get_m2m_entities
 
 from media_managers.models import Image
@@ -141,7 +140,7 @@ classes = {
 
      fields.ModificationDateTimeField:  simple_print,
      fields.CreationDateTimeField :     simple_print,
-     fields.AutoSlugField:              simple_print,
+     #fields.AutoSlugField:              simple_print,
 }
 
 @register.filter(name="get_html_field_value")
@@ -180,20 +179,17 @@ def get_value(dic, key, default=''):
 @register.filter(name="get_meta_value")
 def get_meta_value(obj, key, default=''):
     try:
-#        return obj._meta.__getattribute__(key)
         return getattr(obj._meta, key)
     except:
         return default
 
 @register.filter(name="get_list_object_of_specific_relations") #TODO: rename tag ?
-#def get_list_object_of_specific_relations(object, predicate):
-    #return object.get_list_object_of_specific_relations(predicate)
 def get_related_entities(entity, relation_type_id):
     return entity.get_related_entities(relation_type_id)
 
 @register.filter(name="get_extra_field_value")
 def get_extra_field_value(object, field_name):
-    return object.__getattribute__(field_name)()
+    return object.__getattribute__(field_name)() #TODO: use getattr() ??
 
 @register.filter(name="is_date_gte")
 def is_date_gte(date1, date2):
@@ -259,10 +255,9 @@ def mult(integer, integer2):
 def mod(integer, integer2):
     return integer % integer2
 
-#used ??
 @register.filter(name="xrange")
-def x_range(integer):
-    return xrange(0, integer, 1)
+def x_range(integer, start=0):
+    return xrange(start, start + integer)
 
 #move to creme_config (template too) ??
 @register.inclusion_tag('creme_core/templatetags/role_descendant.html')

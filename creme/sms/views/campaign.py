@@ -20,13 +20,12 @@
 
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404
-from django.template import RequestContext
 from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required
 from django.contrib.contenttypes.models import ContentType
 
 from creme_core.entities_access.functions_for_permissions import get_view_or_die, add_view_or_die, edit_object_or_die, delete_object_or_die
-from creme_core.views.generic import add_entity, edit_entity, view_entity_with_template, list_view, inner_popup
+from creme_core.views.generic import add_entity, add_to_entity, edit_entity, view_entity_with_template, list_view
 
 from sms.models import SMSCampaign
 from sms.forms.campaign import CampaignCreateForm, CampaignEditForm, CampaignAddListForm
@@ -67,32 +66,9 @@ def detailview(request, campaign_id):
 def listview(request):
     return list_view(request, SMSCampaign, extra_dict={'add_url': '/sms/campaign/add'})
 
-@login_required
-@get_view_or_die('sms')
-def add_messaging_list(request, id):
-    campaign = get_object_or_404(SMSCampaign, pk=id)
-
-    die_status = edit_object_or_die(request, campaign)
-    if die_status:
-        return die_status
-
-    if request.POST:
-        ml_add_form = CampaignAddListForm(campaign, request.POST)
-
-        if ml_add_form.is_valid():
-            ml_add_form.save()
-    else:
-        ml_add_form = CampaignAddListForm(campaign=campaign)
-
-    return inner_popup(request, 'creme_core/generics/blockform/add_popup2.html',
-                       {
-                        'form':   ml_add_form,
-                        'title': _(u'New messaging lists for <%s>') % campaign,
-                       },
-                       is_valid=ml_add_form.is_valid(),
-                       reload=False,
-                       delegate_reload=True,
-                       context_instance=RequestContext(request))
+def add_messaging_list(request, campaign_id):
+    return add_to_entity(request, campaign_id, CampaignAddListForm,
+                         _(u'New messaging lists for <%s>'), entity_class=SMSCampaign)
 
 @login_required
 @get_view_or_die('sms')

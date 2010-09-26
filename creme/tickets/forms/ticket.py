@@ -33,7 +33,7 @@ class CreateForm(CremeEntityForm):
 
     def save(self):
         self.instance.status_id = OPEN_PK
-        super(CreateForm, self).save()
+        return super(CreateForm, self).save()
 
 
 class EditForm(CremeEntityForm):
@@ -51,4 +51,4 @@ class EditForm(CremeEntityForm):
         if (instance.status_id == CLOSED_PK) and (self.old_status_id != CLOSED_PK):
             instance.closing_date = datetime.now()
 
-        super(EditForm, self).save()
+        return super(EditForm, self).save()

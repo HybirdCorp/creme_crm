@@ -36,7 +36,7 @@ from creme_core.models import CremePropertyType, CremeProperty, RelationType, Re
 from creme_core.entities_access.functions_for_permissions import read_object_or_die
 from base import CremeForm, CremeModelForm, FieldBlockManager
 from fields import RelatedEntitiesField, CremeEntityField
-from widgets import OrderedMultipleChoiceWidget
+from widgets import UnorderedMultipleChoiceWidget
 
 from documents.models import Document
 
@@ -340,7 +340,7 @@ class CSVImportForm4CremeEntity(CSVImportForm):
 
     property_types = ModelMultipleChoiceField(label=_(u'Properties'), required=False,
                                               queryset=CremePropertyType.objects.none(),
-                                              widget=OrderedMultipleChoiceWidget)
+                                              widget=UnorderedMultipleChoiceWidget)
     relations      = RelatedEntitiesField(label=_(u'Relations'), required=False)
 
     class Meta:

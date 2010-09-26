@@ -107,7 +107,7 @@ class SearchEditForm(CremeForm):
         search_cfg_itm.save()
 
         if not fields:
-            SF_filter(search_config_item__id=search_cfg_itm.id).delete()
+            SF_filter(search_config_item__id=search_cfg_itm.id).delete() #TODO: remove '__id'
         else:
             old_ids = set(search_cfg_itm.get_fields().values_list('field', flat=True))
             new_ids = set(fields)

@@ -32,8 +32,8 @@ class FieldAggregation(object):
 
 class FieldAggregationRegistry(object):
 
-    authorized_fields = [models.DecimalField, models.FloatField, models.PositiveIntegerField,
-                         models.PositiveSmallIntegerField, models.IntegerField, models.SmallIntegerField, ]
+    authorized_fields = (models.DecimalField, models.FloatField, models.PositiveIntegerField,
+                         models.PositiveSmallIntegerField, models.IntegerField, models.SmallIntegerField, )
 
     def __init__(self):
         self._aggregations = {}

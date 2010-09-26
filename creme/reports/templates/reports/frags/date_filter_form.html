@@ -7,10 +7,10 @@
             creme.utils.go_to("/reports/report/{{report_id}}/csv", false);
         {% else %}
             creme.utils.go_to("/reports/report/{{report_id}}/csv?field={{form.cleaned_data.date_fields}}&start={{form.cleaned_data.begin_date|to_timestamp}}&end={{form.cleaned_data.end_date|to_timestamp}}", false);
-        {%endif %}
+        {% endif %}
     </script>
 {% endif %}
-<form action="" method="POST">
+<form action="" method="POST">{% csrf_token %}
     <table class="table_detail_view ui-corner-all" >
         <thead>
             <tr>
@@ -19,18 +19,10 @@
         </thead>
         <tbody>
             <tr>
-                <td>
-                    {{form.date_fields.label}}
-                </td>
-                <td>
-                    {{form.filters.label}}
-                </td>
-                <td>
-                    {{form.begin_date.label}}
-                </td>
-                <td>
-                    {{form.end_date.label}}
-                </td>
+                <td>{{form.date_fields.label}}</td>
+                <td>{{form.filters.label}}</td>
+                <td>{{form.begin_date.label}}</td>
+                <td>{{form.end_date.label}}</td>
                 {% if not inner_popup %}
                     <td rowspan="2">
                         <button type="submit">{% trans 'Generate' %}</button>
@@ -38,18 +30,10 @@
                 {% endif %}
             </tr>
             <tr>
-                <td>
-                    {{form.date_fields}}
-                </td>
-                <td>
-                    {{form.filters}}
-                </td>
-                <td>
-                    {{form.begin_date}}
-                </td>
-                <td>
-                    {{form.end_date}}
-                </td>
+                <td>{{form.date_fields}}</td>
+                <td>{{form.filters}}</td>
+                <td>{{form.begin_date}}</td>
+                <td>{{form.end_date}}</td>
             </tr>
         </tbody>
     </table>

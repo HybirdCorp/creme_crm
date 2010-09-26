@@ -96,12 +96,17 @@ class FolderMenu(object):
 
     def render (self):
         if self.folder_url:
-            html = """<li><a href="%s">%s</a><ul>""" % (self.folder_url, self.folder_menu_name)
+            html = """<li><a href="%s">%s</a>""" % (self.folder_url, self.folder_menu_name)
         else:
-            html = """<li><a>%s</a><ul>""" % (self.folder_menu_name,)
-        for item in self.items:
-            html += item.render()
-        html += """</ul></li>"""
+            html = """<li><a>%s</a>""" % (self.folder_menu_name,)
+
+        if self.items:
+            html += "<ul>"
+            for item in self.items:
+                html += item.render()
+            html += "</ul>"
+            
+        html += """</li>"""
         return html
 
     def __repr__ (self):

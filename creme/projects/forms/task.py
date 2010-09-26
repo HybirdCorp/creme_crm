@@ -23,19 +23,21 @@ from django.utils.translation import ugettext_lazy as _, ugettext
 from django.forms import ValidationError
 from django.forms.widgets import HiddenInput
 
-from creme_core.forms.fields import CremeEntityField
-from creme_core.forms.fields import MultiCremeEntityField
 from creme_core.forms import CremeEntityForm
+from creme_core.forms.fields import MultiCremeEntityField
 from creme_core.forms.widgets import DateTimeWidget
 
-from projects.models import ProjectTask, Project
+from projects.models import ProjectTask
 
 
 class TaskEditForm(CremeEntityForm):
-    start        = DateTimeField(label=_(u'Start'), widget=DateTimeWidget(), required = True)
-    end          = DateTimeField(label=_(u'End'), widget=DateTimeWidget(), required = True)
-    parents_task = MultiCremeEntityField(label=_(u'Parent tasks'),
-                                         required=False, model=ProjectTask)
+    start        = DateTimeField(label=_(u'Start'), widget=DateTimeWidget(), required=True)
+    end          = DateTimeField(label=_(u'End'), widget=DateTimeWidget(), required=True)
+    parents_task = MultiCremeEntityField(label=_(u'Parent tasks'), required=False, model=ProjectTask)
+
+    class Meta:
+        model = ProjectTask
+        exclude = CremeEntityForm.Meta.exclude + ('is_all_day', 'type', 'project', 'order')
 
     def clean_parents_task(self):
         parents  = self.cleaned_data['parents_task']
@@ -47,20 +49,23 @@ class TaskEditForm(CremeEntityForm):
 
         return parents
 
-    class Meta:
-        model = ProjectTask
-        exclude = CremeEntityForm.Meta.exclude + ('is_all_day', 'type', 'project', 'order')
-
 
 class TaskCreateForm(TaskEditForm):
-    project = CremeEntityField(model=Project, required=True, widget=HiddenInput()) #TODO: pass to the __init__ ?? (test if one query is deleted)
-
     class Meta:
         model = ProjectTask
-        exclude = CremeEntityForm.Meta.exclude + ('is_all_day', 'type', 'order')
+        exclude = CremeEntityForm.Meta.exclude + ('is_all_day', 'type', 'order', 'project')
+
+    def __init__(self, project, *args, **kwargs):
+        super(TaskCreateForm, self).__init__(*args, **kwargs)
+        self._project = project
 
     #TODO: don't save twice ??
     def save(self):
-        task = super(TaskCreateForm, self).save()
-        task.order = task.project.attribute_order_task()
-        task.save()
+        instance = self.instance
+        instance.project = self._project
+        super(TaskCreateForm, self).save()
+
+        instance.order = instance.project.attribute_order_task()
+        instance.save()
+
+        return instance

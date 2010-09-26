@@ -1,6 +1,11 @@
 {% load i18n %}
 {% load creme_widgets %}
 {% load creme_block %}
+{% if not request.is_ajax %}
+    <div class="help_box">
+        {% trans 'Delete a property type, will delete associated properties' %}
+    </div>
+{% endif %}
 <table class="table_detail_view ui-corner-all" id={{block_name}}>
     {% get_block_header _('%s Type of property') _('%s Types of property') %}
     <tbody class="collapsable">

@@ -18,17 +18,17 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from creme_core.models import CremePropertyType, CremeProperty
+from creme_core.models import CremeProperty
 
-from persons.forms.contact import ContactCreateForm
+from persons.forms.contact import ContactForm
 
 from commercial.constants import PROP_IS_A_SALESMAN
 
 
-class SalesManCreateForm(ContactCreateForm):
+class SalesManCreateForm(ContactForm):
     def save(self):
-        super(SalesManCreateForm, self).save()
+        instance = super(SalesManCreateForm, self).save()
 
-        is_a_salesman = CremePropertyType.objects.get(pk=PROP_IS_A_SALESMAN)
-        property_ = CremeProperty(type=is_a_salesman, creme_entity=self.instance)
-        property_.save()
+        CremeProperty.objects.create(type_id=PROP_IS_A_SALESMAN, creme_entity=instance)
+
+        return instance

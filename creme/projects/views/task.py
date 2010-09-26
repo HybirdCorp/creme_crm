@@ -24,42 +24,17 @@ from django.template import RequestContext
 from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required
 
-from creme_core.views.generic import view_entity_with_template, edit_entity, inner_popup
+from creme_core.views.generic import add_to_entity, view_entity_with_template, edit_entity
 from creme_core.entities_access.functions_for_permissions import get_view_or_die, edit_object_or_die, delete_object_or_die
+from creme_core.utils import get_from_POST_or_404
 
 from projects.models import Project, ProjectTask
 from projects.forms.task import TaskCreateForm, TaskEditForm
 
 
-@login_required
-@get_view_or_die('projects')
 def add(request, project_id):
-    """
-        @Permissions : Acces or Admin to project app & Edit Project
-    """
-    project = get_object_or_404(Project, pk=project_id)
-
-    die_status = edit_object_or_die(request, project)
-    if die_status:
-        return die_status
-
-    if request.POST :
-        task_form = TaskCreateForm(request.POST, initial={'project': project_id})
-
-        if task_form.is_valid():
-            task_form.save()
-    else:
-        task_form = TaskCreateForm(initial={'project': project_id})
-
-    return inner_popup(request, 'creme_core/generics/blockform/add_popup2.html',
-                       {
-                         'form':   task_form,
-                         'title':  _(u'Add a task to <%s>') % project, #####xgettext
-                       },
-                       is_valid=task_form.is_valid(),
-                       reload=False,
-                       delegate_reload=True,
-                       context_instance=RequestContext(request))
+    return add_to_entity(request, project_id, TaskCreateForm,
+                         _(u'Add a task to <%s>'), entity_class=Project)
 
 @login_required
 @get_view_or_die('projects')
@@ -107,7 +82,8 @@ def delete(request, task_id=None):
 @get_view_or_die('projects')
 def delete_parent(request):
     POST = request.POST
-    task = get_object_or_404(ProjectTask, pk=POST.get('id'))
+    parent_id = get_from_POST_or_404(POST, 'parent_id')
+    task = get_object_or_404(ProjectTask, pk=get_from_POST_or_404(POST, 'id'))
     project = task.project
 
     die_status = edit_object_or_die(request, project)
@@ -118,6 +94,6 @@ def delete_parent(request):
     if die_status:
         return die_status
 
-    task.parents_task.remove(POST.get('parent_id'))
+    task.parents_task.remove(parent_id)
 
     return HttpResponse("")

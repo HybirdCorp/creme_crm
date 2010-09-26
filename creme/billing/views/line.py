@@ -24,11 +24,13 @@ from logging import debug
 from django.http import HttpResponseRedirect, HttpResponse
 from django.shortcuts import get_object_or_404
 from django.template import RequestContext
+from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required
 
 from creme_core.models.entity import CremeEntity
 from creme_core.entities_access.functions_for_permissions import edit_object_or_die, get_view_or_die
-from creme_core.views.generic import add_entity, inner_popup
+from creme_core.views.generic import add_to_entity, inner_popup
+from creme_core.utils import get_from_POST_or_404
 
 from billing.models import Line, ProductLine, ServiceLine
 from billing.forms.line import ProductLineCreateForm, ProductLineOnTheFlyCreateForm, ServiceLineCreateForm, ServiceLineOnTheFlyCreateForm
@@ -37,41 +39,18 @@ from billing.constants import DEFAULT_VAT
 
 default_decimal = Decimal()
 
-@login_required
-@get_view_or_die('billing')
 def _add_line(request, form_class, document_id):
-    document = get_object_or_404(CremeEntity, pk=document_id)
-
-    die_status = edit_object_or_die(request, document)
-    if die_status:
-        return die_status
-
-    if request.POST :
-        line_form = form_class(request.POST)
-
-        if line_form.is_valid():
-            line_form.save()
-    else:
-        line_form = form_class(initial={
-                                        'document_id':    document_id,
-                                        'quantity':       0,
-                                        'unit_price':     default_decimal,
-                                        'credit':         default_decimal,
-                                        'discount':       default_decimal,
-                                        'total_discount': False,
-                                        'vat':            DEFAULT_VAT,
-                                       })
-
-    return inner_popup(request, 'creme_core/generics/blockform/add_popup2.html',
-                              {
-                                'form':   line_form,
-                                'object': document,
-                                'title':  u"Ajout d'une ligne de commande dans le document <%s>" % document,
-                              },
-                              is_valid=line_form.is_valid(),
-                              reload=False,
-                              delegate_reload=True,
-                              context_instance=RequestContext(request))
+    return add_to_entity(request, document_id, form_class,
+                         _(u"New line in the document <%s>"),
+                         initial={
+                                    'quantity':       0,
+                                    'unit_price':     default_decimal,
+                                    'credit':         default_decimal,
+                                    'discount':       default_decimal,
+                                    'total_discount': False,
+                                    'vat':            DEFAULT_VAT,
+                                  },
+                         )
 
 def add_product_line(request, document_id):
     return _add_line(request, ProductLineCreateForm, document_id)
@@ -98,18 +77,17 @@ def _edit_line(request, line_model, line_id):
     form_class = line.get_edit_form()
 
     if request.POST:
-        line_form = form_class(request.POST, instance=line)
+        line_form = form_class(document, request.POST, instance=line)
 
         if line_form.is_valid():
             line_form.save()
     else:
-        line_form = form_class(initial={'document_id': document.id}, instance=line)
+        line_form = form_class(document, instance=line)
 
     return inner_popup(request, 'creme_core/generics/blockform/edit_popup.html',
                        {
                         'form':   line_form,
-                        'object': document,
-                        'title':  u"Édition d'une ligne dans le document <%s>" % document,
+                        'title':  _(u"Edition of a line in the document <%s>") % document,
                        },
                        is_valid=line_form.is_valid(),
                        reload=False,
@@ -125,8 +103,8 @@ def edit_serviceline(request, line_id):
 @login_required
 @get_view_or_die('billing')
 def delete(request):
-    line      = get_object_or_404(Line, pk=request.POST.get('id'))
-    document  = line.document
+    line     = get_object_or_404(Line, pk=get_from_POST_or_404(request.POST, 'id'))
+    document = line.document
 
     die_status = edit_object_or_die(request, document, app_name='billing')
     if die_status:

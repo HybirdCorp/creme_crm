@@ -30,27 +30,31 @@ from recurrents.models import RecurrentGenerator
 from recurrents.registry import recurrent_registry
 
 
-class RecurrentGeneratorEditForm(CremeEntityForm):
+class _RecurrentGeneratorForm(CremeEntityForm):
     first_generation = DateTimeField(label=_(u'Date of the first generation'),
                                      required=True, widget=DateTimeWidget())
 
-    class Meta:
+    class Meta(CremeEntityForm.Meta):
         model = RecurrentGenerator
-        exclude = CremeEntityForm.Meta.exclude + ('last_generation', 'ct', 'template', 'is_working')
 
 
-class RecurrentGeneratorCreateForm(RecurrentGeneratorEditForm):
+class RecurrentGeneratorEditForm(_RecurrentGeneratorForm):
+    class Meta(_RecurrentGeneratorForm.Meta):
+        exclude = _RecurrentGeneratorForm.Meta.exclude + ('last_generation', 'ct', 'template', 'is_working')
+
+
+class RecurrentGeneratorCreateForm(_RecurrentGeneratorForm):
     ct = ModelChoiceField(queryset=recurrent_registry.get_all_templates(),
                           label=_(u'Type of resource used as template'))
 
-    class Meta:
-        model = RecurrentGenerator
-        exclude = CremeEntityForm.Meta.exclude + ('is_working', 'template', 'last_generation')
+    class Meta(_RecurrentGeneratorForm.Meta):
+        exclude = _RecurrentGeneratorForm.Meta.exclude + ('last_generation', 'template', 'is_working')
 
     def save(self):
-        instance = super(RecurrentGeneratorCreateForm, self).save()
+        instance = self.instance
         instance.last_generation = instance.first_generation
-        instance.save() #TODO: save only once....
+
+        return super(RecurrentGeneratorCreateForm, self).save()
 
 
 class RecurrentGeneratorWizard(FormWizard):
@@ -79,12 +83,11 @@ class RecurrentGeneratorWizard(FormWizard):
     def parse_params(self, request, *args, **kwargs):
         current_step = self.determine_step(request, *args, **kwargs)
 
-        if request.method == 'POST' and current_step == 0:
-            form = self.get_form(current_step, request.POST)
+        if request.method == 'POST':
+            form = self.get_form(0, request.POST)
+
             if form.is_valid():
-                self.initial[current_step + 1] = {
-                    'ct': form.cleaned_data['ct'].id,
-                }
+                self.initial[1] = {'ct': form.cleaned_data['ct'].id}
 
     def get_template(self, step):
         return 'recurrents/wizard_generator.html'

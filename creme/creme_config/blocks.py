@@ -191,6 +191,19 @@ class RelationBlocksConfigBlock(QuerysetBlock):
                                                             update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
                                                             ))
 
+class InstanceBlocksConfigBlock(QuerysetBlock):
+    id_           = QuerysetBlock.generate_id('creme_config', 'instance_blocks_config')
+    dependencies  = (InstanceBlockConfigItem, BlockConfigItem) #BlockConfigItem because they can be deleted if we delete a InstanceBlockConfigItem
+    page_size     = _PAGE_SIZE
+    verbose_name  = _(u'Instance blocks configuration')
+    template_name = 'creme_config/templatetags/block_instanceblocksconfig.html'
+
+    def detailview_display(self, context):
+
+        return self._render(self.get_block_template_context(context, InstanceBlockConfigItem.objects.all(),
+                                                            update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
+                                                            ))
+
 
 class ButtonMenuBlock(QuerysetBlock):
     id_           = QuerysetBlock.generate_id('creme_config', 'button_menu')
@@ -272,4 +285,5 @@ blocks_list = (
         AppCredentialsBlock(),
         EntityCredentialsBlock(),
         SearchConfigBlock(),
+        InstanceBlocksConfigBlock(),
     )
