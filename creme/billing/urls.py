@@ -8,6 +8,8 @@ urlpatterns = patterns('billing.views',
 
     (r'^odt/(?P<base_id>\d*)$', 'export.export_odt'),
     (r'^pdf/(?P<base_id>\d*)$', 'export.export_pdf'),
+    
+    (r'^generate_pdf/(?P<base_id>\d*)$', 'export.export_pdf_by_latex'),
 
     (r'^templates$',                            'templatebase.listview'),
     (r'^template/edit/(?P<template_id>\d+)$',   'templatebase.edit'),

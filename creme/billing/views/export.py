@@ -20,8 +20,17 @@
 
 import mimetypes
 from StringIO import StringIO
+from os.path import join, exists
+from os import makedirs
+
+from django.utils.encoding import smart_str
+from django.utils.translation import ugettext
 
 from django.shortcuts import get_object_or_404
+from django.template import loader, Context
+from django.http import HttpResponse
+from django.http import HttpResponseRedirect
+
 from django.conf import settings
 
 from creme_core.models.entity import CremeEntity
@@ -29,7 +38,7 @@ from creme_core.utils.exporter import Exporter
 
 from billing.constants import CURRENCY
 
-
+from billing.models import Invoice
 def export_odt(request, base_id):
     c = get_object_or_404(CremeEntity, pk=base_id).get_real_entity()
     c.populate_with_organisation()
@@ -50,3 +59,46 @@ def export_odt(request, base_id):
 def export_pdf(request, base_id):
     c = get_object_or_404(CremeEntity, pk=base_id).get_real_entity()
     return Exporter("%s%s" % (settings.MANDATORY_TEMPLATE, 'billing/templates/report.odt'), c).generatePDF(c.name)
+
+
+def export_pdf_by_latex(request, base_id):
+    object = get_object_or_404(CremeEntity, pk=base_id).get_real_entity()
+    
+    source = object.get_source().get_real_entity()
+    target = object.get_target().get_real_entity()
+
+    if object.__class__ is Invoice : 
+        template_file = 'billing/templates/invoice.tex'
+    else:
+        template_file = 'billing/templates/billings.tex'
+
+    document_name = ugettext(object._meta.verbose_name)
+    
+    t = loader.get_template(template_file)
+    context = Context({
+        'lines': object.get_product_lines (),
+        'source' : source, 
+        'target' : target,
+        'object' : object,
+        'document_name' : document_name
+    })
+    
+    filename = '%s_%i.tex' % (document_name, object.id)
+    pdf_filename = '%s_%i.pdf' % (document_name, object.id)
+    dir_path = join(settings.MEDIA_ROOT, 'upload', 'billing')
+    if not exists(dir_path):
+        makedirs(dir_path)    
+    
+    path_file = join(dir_path, filename)
+    f = open(path_file, 'w')
+    f.write(smart_str(t.render(context)))
+    f.close()
+       
+    import subprocess
+    output='-output-directory %s '% (dir_path,)
+    retcode = subprocess.call(['pdflatex', '-output-directory', dir_path, path_file])
+
+    return HttpResponseRedirect('/download_file/upload/billing/' + pdf_filename)
+   
+    
+    

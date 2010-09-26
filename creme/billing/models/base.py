@@ -46,6 +46,8 @@ class Base(CremeEntity):
     total            = DecimalField(_(u'Total'), max_digits=14, decimal_places=2, blank=True, null=True)
 
     research_fields = CremeEntity.research_fields + ['name']
+    
+    generate_number_in_create = True
 
     class Meta:
         app_label = 'billing'

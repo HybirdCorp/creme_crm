@@ -38,8 +38,8 @@ creme._export.select_one = function(evt, a)
 
     var $select = $('<select></select>');
     //Make dynamics values
-    $select.append($('<option></option>').val("odt").text("Document open-office (ODT)"));
-//    $select.append($('<option></option>').val("pdf").text("Fichier Pdf (PDF)"));
+    //$select.append($('<option></option>').val("odt").text("Document open-office (ODT)"));
+    $select.append($('<option></option>').val("pdf").text("Fichier Pdf (PDF)"));
 
     creme.utils.showDialog($select, {title: '', modal: true, buttons: {"Ok": function(){me.okDialogHandler($(this))}}});
 

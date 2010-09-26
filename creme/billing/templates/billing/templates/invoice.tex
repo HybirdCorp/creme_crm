@@ -1,0 +1,120 @@
+{% load creme_core_tags %}
+
+
+\documentclass[french,11pt]{article}
+\usepackage[french]{babel}
+\usepackage[french]{layout}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[a4paper]{geometry}
+\usepackage{units}
+\usepackage{bera}
+\usepackage{graphicx}
+\usepackage{textcase}
+\usepackage{fancyhdr}
+\usepackage{fp}
+\usepackage{longtable}
+\usepackage{booktabs}
+\usepackage{color}
+\usepackage{array}
+\usepackage{multirow}
+\usepackage[table]{xcolor}
+
+\geometry{verbose,tmargin=4em,bmargin=8em,lmargin=6em,rmargin=6em}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{1ex plus 0.5ex minus 0.2ex}
+
+\thispagestyle{fancy}
+\pagestyle{fancy}
+\setlength{\parindent}{0pt}
+
+\renewcommand{\headrulewidth}{0pt}
+\definecolor{hydarkblue}{rgb}{0,0.38,0.62}
+\definecolor{hylightblue}{rgb}{0.30,0.33,0.37}
+\newcolumntype{M}[1]{>{\raggedleft}p{#1}}
+
+\def\SourceName{%
+{{source.name}}
+}
+
+\def\EditDate{%
+{{object.edit_date}}
+}
+
+\def\TargetName{% 
+{{target.name}} 
+}
+
+\def\Number{%
+{% if object.number %} {{object.number}} {%else%} Numéro non généré {%endif%} 
+}
+
+\def\DocumentName{% 
+{{document_name}} 
+}
+\newcommand{\HyHeader}[1]{
+  \color{white}\begin{center} {#1} \end{center} 
+}
+
+\newcommand{\HySourceName}[1]{
+{\Large\textbf{\MakeTextUppercase{#1}{% templatetag closevariable %} 
+}
+
+\newcommand{\HyDocName}[1]{
+\color{hydarkblue}{% templatetag openvariable %}\Large\textbf{\MakeTextUppercase{#1}{% templatetag closevariable %}} 
+}
+
+\newcommand{\HyInvoiceHeader}[1]{
+
+        \begin{tabular}{| c | c |}
+        \hline Numéro & {#1} \\
+        \hline Date & {\EditDate}\\
+        \hline Réglement & A 30 jours \\
+        \hline 
+        \end{tabular}
+        
+}
+
+\def\TargetAddress{%
+{{target.billing_address.address}} \\
+{{target.billing_address.city}} {{target.billing_address.po_box}} \\
+}
+
+\cfoot{ SIRET : {{source.siret}} - NAF : {{source.naf}} -  RCS : {{source.rcs}} - N° TVA : {{source.tvaintra}}}
+
+
+\begin{document}
+
+
+
+\begin{tabular}{@{}p{0.5\linewidth}M{0.5\linewidth{% templatetag closevariable %}
+\HySourceName{\SourceName} & \HyDocName{\DocumentName} \tabularnewline
+{{source.billing_address.address}} &  \tabularnewline
+{{source.billing_address.city}} {{source.billing_address.po_box}} &  \tabularnewline
+\end{tabular}
+
+
+\begin{tabular}{@{}p{10cm} l }
+\multirow{3}{*} {\HyInvoiceHeader{\Number}} & \textbf{\MakeTextUppercase{\TargetName{% templatetag closevariable %} \\
+ & {{target.billing_address.address}} \\
+ & {{target.billing_address.city}} {{target.billing_address.po_box}} \\
+\end{tabular} 
+
+
+
+\begin{longtable}
+   {|p{0.25\linewidth}|p{0.25\linewidth}|p{0.25\linewidth}|p{0.25\linewidth}|}
+   \hline
+    \rowcolor{hydarkblue} \HyHeader{Description} &  \begin{center} \color{white}{Qté} \end{center} &  \begin{center} \color{white}{PU HT} \end{center}&  \begin{center} \color{white}\centering{Montant HT} \end{center}  \endhead
+   \hline
+   \endfoot
+   
+{% for line in lines %}
+
+    {% if line.related_item %}{{line.related_item}}{% else %} {{line.on_the_fly_item}}{% endif %} & \cellcolor{hylightblue}{{line.quantity}}  &  {{line.unit_price}} & \cellcolor{hylightblue} {{line.quantity|mult:line.unit_price}}  \\{% if forloop.first %}[10pt]{% endif %}
+   
+{% endfor %}
+\end{longtable}
+
+
+\end{document}

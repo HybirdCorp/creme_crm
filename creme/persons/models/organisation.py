@@ -54,8 +54,8 @@ class Organisation (CremeEntity):
     subject_to_vat  = BooleanField(_(u'Subject to VAT'), default=True)
     legal_form      = ForeignKey(LegalForm, verbose_name=_(u'Legal form'), blank=True, null=True)
     employees       = ForeignKey(StaffSize, verbose_name=_(u'Staff size'), blank=True, null=True)
-    billing_adress  = ForeignKey(Address, verbose_name=_(u'Billing address'), blank=True, null=True, related_name='AdressefactuOrganisation_set')
-    shipping_adress = ForeignKey(Address, verbose_name=_(u'Shipping address'), blank=True, null=True, related_name='AdresselivraisonOrganisation_set')
+    billing_address  = ForeignKey(Address, verbose_name=_(u'Billing address'), blank=True, null=True, related_name='AdressefactuOrganisation_set')
+    shipping_address = ForeignKey(Address, verbose_name=_(u'Shipping address'), blank=True, null=True, related_name='AdresselivraisonOrganisation_set')
     annual_revenue  = CharField(_(u'Annual revenue'), max_length=100, blank=True, null=True)
     description     = TextField(_(u'Description'), blank=True, null=True)
     creation_date   = DateField(_(u"Date of creation of the organisation"), blank=True, null=True)
@@ -100,8 +100,8 @@ class Organisation (CremeEntity):
 
     #TODO: used ???
     def zipcode(self):
-        if self.billing_adress is not None:
-            return self.billing_adress.zipcode
+        if self.billing_address is not None:
+            return self.billing_address.zipcode
         return 'Non renseigné'
 
     @staticmethod

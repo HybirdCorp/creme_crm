@@ -45,6 +45,13 @@ class Populator(BasePopulator):
 
         #NB: pk=1 --> default status (used when a quote is converted in invoice for example)
 
+        create(PaymentTerms, 1, name=_(u"30 days")) #default status
+        create(PaymentTerms, 2, name=_(u"Cash"))
+        create(PaymentTerms, 3, name=_(u"45 days"))
+        create(PaymentTerms, 4, name=_(u"60 days"))
+        create(PaymentTerms, 5, name=_(u"30 days, end month the 10")) 
+
+
         create(QuoteStatus, 1, name=_(u"Pending")) #default status
         create(QuoteStatus, 2, name=_(u"Accepted"))
         create(QuoteStatus, 3, name=_(u"Rejected"))

@@ -29,6 +29,7 @@ class FunctionField(object):
     name         = "" #name of the attr if the related model class
     verbose_name = "" #verbose name (used by HeaderFilter)
     has_filter   = False #see HeaderFilterItem.has_a_filter
+    is_hidden   = False
 
     @classmethod
     def filter_in_result(cls, search_string):

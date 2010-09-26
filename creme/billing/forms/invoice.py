@@ -35,6 +35,8 @@ class InvoiceCreateForm(BaseCreateForm):
         fields = self.fields
         fields['status'].queryset = InvoiceStatus.objects.filter(pk=DEFAULT_DRAFT_INVOICE_STATUS)
 
+
+
 class InvoiceEditForm(BaseEditForm):
     class Meta:
         model = Invoice
