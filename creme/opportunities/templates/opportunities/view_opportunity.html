@@ -57,6 +57,17 @@
                     {% endwith %}
                 </td>
             </tr>
+
+            <tr>
+                <th class="{% cycle header_color %}">{% trans "Concerned organisation" %}</th>
+                <td class="{% cycle row_color %}">
+                    {% with object.get_emit_orga as orga %}
+                        <a href="{{orga.get_absolute_url}}">{{orga}}</a>
+                    {% endwith %}
+                </td>
+            </tr>
+
+
         </tbody>
     </table>
     {% include "creme_core/customfields_as_table.html" %}
