@@ -41,7 +41,9 @@ class ItemMenu(object):
         self.items_menu = items
 
     def __cmp__(self, other):
-        return cmp(self.app_name, other.app_name)
+        from django.utils.encoding import smart_unicode
+        return cmp( smart_unicode(self.app_name), smart_unicode(other.app_name))
+        #return cmp(self.app_name, other.app_name)
 
 #@register.inclusion_tag('templatetags/creme_menu.html')
 #def generate_creme_menu ():

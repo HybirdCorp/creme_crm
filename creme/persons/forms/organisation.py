@@ -42,7 +42,7 @@ class OrganisationForm(CremeEntityForm):
 
     class Meta:
         model = Organisation
-        exclude = CremeEntityForm.Meta.exclude + ('billing_adress', 'shipping_adress', 'is_orga_config')
+        exclude = CremeEntityForm.Meta.exclude + ('billing_address', 'shipping_address', 'is_orga_config')
 
     def __init__(self, *args, **kwargs):
         super(OrganisationForm, self).__init__(*args, **kwargs)
@@ -53,25 +53,25 @@ class OrganisationForm(CremeEntityForm):
         if not instance is None:
             initial = self.initial
 
-            billing_adress = instance.billing_adress
-            if not billing_adress is None:
-                initial['name_billing']    = billing_adress.name
-                initial['address_billing'] = billing_adress.address
-                initial['po_box_billing']  = billing_adress.po_box
-                initial['city_billing']    = billing_adress.city
-                initial['state_billing']   = billing_adress.state
-                initial['zipcode_billing'] = billing_adress.zipcode
-                initial['country_billing'] = billing_adress.country
+            billing_address = instance.billing_address
+            if not billing_address is None:
+                initial['name_billing']    = billing_address.name
+                initial['address_billing'] = billing_address.address
+                initial['po_box_billing']  = billing_address.po_box
+                initial['city_billing']    = billing_address.city
+                initial['state_billing']   = billing_address.state
+                initial['zipcode_billing'] = billing_address.zipcode
+                initial['country_billing'] = billing_address.country
 
-            shipping_adress = instance.shipping_adress
-            if not shipping_adress is None:
-                initial['name_shipping']    = shipping_adress.name
-                initial['address_shipping'] = shipping_adress.address
-                initial['po_box_shipping']  = shipping_adress.po_box
-                initial['city_shipping']    = shipping_adress.city
-                initial['state_shipping']   = shipping_adress.state
-                initial['zipcode_shipping'] = shipping_adress.zipcode
-                initial['country_shipping'] = shipping_adress.country
+            shipping_address = instance.shipping_address
+            if not shipping_address is None:
+                initial['name_shipping']    = shipping_address.name
+                initial['address_shipping'] = shipping_address.address
+                initial['po_box_shipping']  = shipping_address.po_box
+                initial['city_shipping']    = shipping_address.city
+                initial['state_shipping']   = shipping_address.state
+                initial['zipcode_shipping'] = shipping_address.zipcode
+                initial['country_shipping'] = shipping_address.country
 
     def save(self):
         instance     = self.instance
@@ -79,44 +79,44 @@ class OrganisationForm(CremeEntityForm):
 
         super(OrganisationForm, self).save()
 
-        if instance.billing_adress is not None:
-            billing_adress = Address.objects.get(pk=instance.billing_adress.pk)
+        if instance.billing_address is not None:
+            billing_address = Address.objects.get(pk=instance.billing_address.pk)
         else:
-            billing_adress = Address()
+            billing_address = Address()
 
-        billing_adress.name    = cleaned_data['name_billing']
-        billing_adress.address = cleaned_data['address_billing']
-        billing_adress.po_box  = cleaned_data['po_box_billing']
-        billing_adress.city    = cleaned_data['city_billing']
-        billing_adress.state   = cleaned_data['state_billing']
-        billing_adress.zipcode = cleaned_data['zipcode_billing']
-        billing_adress.country = cleaned_data['country_billing']
+        billing_address.name    = cleaned_data['name_billing']
+        billing_address.address = cleaned_data['address_billing']
+        billing_address.po_box  = cleaned_data['po_box_billing']
+        billing_address.city    = cleaned_data['city_billing']
+        billing_address.state   = cleaned_data['state_billing']
+        billing_address.zipcode = cleaned_data['zipcode_billing']
+        billing_address.country = cleaned_data['country_billing']
 
-        if instance.billing_adress is not None or \
+        if instance.billing_address is not None or \
            any(cleaned_data[key] for key in ('name_billing', 'address_billing', 'po_box_billing',
                                              'city_billing', 'state_billing', 'zipcode_billing', 'country_billing')):
-            billing_adress.owner = instance
-            billing_adress.save()
+            billing_address.owner = instance
+            billing_address.save()
 
-        if instance.shipping_adress is not None:
-            shipping_adress = Address.objects.get(pk=instance.shipping_adress.pk)
+        if instance.shipping_address is not None:
+            shipping_address = Address.objects.get(pk=instance.shipping_address.pk)
         else:
-            shipping_adress = Address()
+            shipping_address = Address()
 
-        shipping_adress.name    = cleaned_data['name_shipping']
-        shipping_adress.address = cleaned_data['address_shipping']
-        shipping_adress.po_box  = cleaned_data['po_box_shipping']
-        shipping_adress.city    = cleaned_data['city_shipping']
-        shipping_adress.state   = cleaned_data['state_shipping']
-        shipping_adress.zipcode = cleaned_data['zipcode_shipping']
-        shipping_adress.country = cleaned_data['country_shipping']
+        shipping_address.name    = cleaned_data['name_shipping']
+        shipping_address.address = cleaned_data['address_shipping']
+        shipping_address.po_box  = cleaned_data['po_box_shipping']
+        shipping_address.city    = cleaned_data['city_shipping']
+        shipping_address.state   = cleaned_data['state_shipping']
+        shipping_address.zipcode = cleaned_data['zipcode_shipping']
+        shipping_address.country = cleaned_data['country_shipping']
 
-        if instance.shipping_adress is not None or \
+        if instance.shipping_address is not None or \
            any(cleaned_data[key] for key in ('name_shipping', 'address_shipping', 'po_box_shipping',
                                              'city_shipping', 'state_shipping', 'zipcode_shipping', 'country_shipping')):
-            shipping_adress.owner = instance
-            shipping_adress.save()
+            shipping_address.owner = instance
+            shipping_address.save()
 
-        instance.billing_adress = billing_adress
-        instance.shipping_adress = shipping_adress
+        instance.billing_address = billing_address
+        instance.shipping_address = shipping_address
         instance.save()

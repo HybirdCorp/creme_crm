@@ -27,6 +27,11 @@ class SalesOrderCreateForm(BaseCreateForm):
         model = SalesOrder
         exclude = BaseCreateForm.Meta.exclude + ('number',)
 
+    def save(self):
+        instance = super(SalesOrderCreateForm, self).save()
+        return instance
+
+
 
 class SalesOrderEditForm(BaseEditForm):
     class Meta:

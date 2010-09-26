@@ -16,10 +16,11 @@
     {% import_block from_app 'billing' named 'product_lines' as 'product_lines_block' %}
     {% import_block from_app 'billing' named 'service_lines' as 'service_lines_block' %}
     {% import_block from_app 'billing' named 'total' as 'total_block' %}
+    {% import_block from_app 'persons' named 'address' as 'address_block' %}    
 {% endblock %}
 
 {% block edit_delete_buttons %}
-    <a href="/billing/%s/{{object.id}}" onclick="creme._export.select_one(event, this);">
+    <a href="/billing/generate_pdf/{{object.id}}" onclick="creme._export.select_one(event, this);">
         <img src="{{MEDIA_URL}}images/download_64.png" title="{% blocktrans %}Download '{{object}}' to the desired format{% endblocktrans %}" alt="{% blocktrans %}Download '{{object}}' to the desired format{% endblocktrans %}" />
     </a>
     {{block.super}}
@@ -39,7 +40,7 @@
             document.getElementById("updateStatus" + id).submit();
         }
     </script>
-
+    {% display_block_detailview 'address_block' %}
     {% display_block_detailview 'properties_block' %}
     {% display_block_detailview 'relations_block' %}
 {% endblock %}

@@ -95,7 +95,7 @@ class OtherAddressBlock(QuerysetBlock):
     def detailview_display(self, context):
         object = context['object']
             
-        l_pk = [ address.pk for address in (object.billing_adress, object.shipping_adress) if address ]    
+        l_pk = [ address.pk for address in (object.billing_address, object.shipping_address) if address ]    
             
         q_address =  Address.objects.filter(object_id=object.id).exclude(
                                                    pk__in=l_pk)

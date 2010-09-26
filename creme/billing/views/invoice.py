@@ -18,6 +18,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+import datetime
+
 from django.shortcuts import get_object_or_404
 from django.http import HttpResponseRedirect, Http404
 from django.contrib.auth.decorators import login_required
@@ -60,6 +62,8 @@ def generate_number(request, invoice_id):
         status = get_object_or_404(InvoiceStatus, pk=DEFAULT_INVOICE_STATUS)
         invoice.generate_number()
         invoice.status = status
+        if not invoice.issuing_date:
+            invoice.issuing_date = datetime.now()
         invoice.save ()
         
     return HttpResponseRedirect(invoice.get_absolute_url())

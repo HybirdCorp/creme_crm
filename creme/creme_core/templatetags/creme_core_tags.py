@@ -250,6 +250,10 @@ def absolute(integer):
 def idiv(integer, integer2):
     return integer / integer2
 
+@register.filter(name="mult")
+def mult(integer, integer2):
+    return integer * integer2
+
 #TODO: divisibleby in builtins....
 @register.filter(name="mod")
 def mod(integer, integer2):
