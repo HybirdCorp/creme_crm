@@ -9,7 +9,7 @@ You can find more information on Creme on its official web site: http://cremecrm
 DEPENDENCIES:
 - Python 2.5
 - Django 1.2
-- Relatorio (if you use the app creme.billing and want PDF export)
+- pdflatex (if you use the app creme.billing and want PDF export)
 - pygraphviz (if you use the app creme.graphs and want graph export)
 
 RECOMMENDATIONS
