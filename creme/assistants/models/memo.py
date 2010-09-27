@@ -19,12 +19,13 @@
 ################################################################################
 
 from django.db.models import TextField, BooleanField, DateTimeField, ForeignKey, PositiveIntegerField
+from django.db.models.signals import pre_delete
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.generic import GenericForeignKey
 from django.contrib.auth.models import User
 
-from creme_core.models import CremeModel
+from creme_core.models import CremeModel, CremeEntity
 
 
 class Memo(CremeModel):
@@ -45,3 +46,10 @@ class Memo(CremeModel):
         app_label = 'assistants'
         verbose_name = _(u'Memo')
         verbose_name_plural = _(u'Memos')
+
+
+#TODO: can delete this with  a WeakForeignKey ??
+def dispose_entity_memos(sender, instance, **kwargs):
+    Memo.get_memos(instance.id).delete()
+
+pre_delete.connect(dispose_entity_memos, sender=CremeEntity)
