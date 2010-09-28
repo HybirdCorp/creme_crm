@@ -71,7 +71,7 @@ def _get_volatile_columns(report, creme_entity_cts):
         results.append((u"%s#%s" % (rel.name, HFI_RELATION), rel.title))
 
     if not results:
-        results = [("", _(u"No availables choices"))]
+        results = [("", ugettext(u"No availables choices"))]
     else:
         results.insert(0, ("", _(u"None")))
 
@@ -111,7 +111,7 @@ class GraphInstanceBlockForm(CremeForm):
         except InstanceBlockConfigItem.DoesNotExist:
             return cleaned_data
 
-        raise ValidationError(ugettext(u'The instance block for %s with %s already exists !') % (graph, volatil_column.split('#')[0] or _('None')))
+        raise ValidationError(ugettext(u'The instance block for %(graph)s with %(column)s already exists !') % {'graph': graph, 'column': volatil_column.split('#')[0] or _('None')})
 
     def save(self):
         cleaned_data = self.cleaned_data
