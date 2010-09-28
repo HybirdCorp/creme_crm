@@ -59,7 +59,7 @@ class InstanceBlockConfigItem(CremeModel):
     block_id = CharField(_(u"Block ID"), max_length=300, blank=False, null=False)
     entity   = ForeignKey(CremeEntity, verbose_name=_(u"Block related entity"))
     data     = TextField(blank=True, null=True)
-    verbose  = CharField(_(u"Verbose"), max_length=100, blank=True, null=True)
+    verbose  = CharField(_(u"Verbose"), max_length=200, blank=True, null=True)
 
     class Meta:
         app_label = 'creme_core'
