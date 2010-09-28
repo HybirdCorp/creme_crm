@@ -23,10 +23,13 @@ from django.utils.translation import ugettext as _
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.auth.models import User
 
+from creme_core import autodiscover as creme_core_autodiscover
 from creme_core.models import SearchConfigItem
 from creme_core.models.header_filter import HeaderFilterItem, HeaderFilter, HFI_FIELD, HFI_RELATION
 from creme_core.models.relation import RelationType
 from creme_core.models.block import InstanceBlockConfigItem, BlockConfigItem
+
+from creme_core.gui.block import block_registry
 
 from creme_core.utils import create_or_update_models_instance as create
 from creme_core.management.commands.creme_populate import BasePopulator
@@ -113,6 +116,11 @@ class Populator(BasePopulator):
                 BlockConfigItem(content_type_id=opp_ct_id, block_id=rgraph_1_instance_block_id, order=1, on_portal=True),
                 BlockConfigItem(content_type_id=opp_ct_id, block_id=rgraph_2_instance_block_id, order=2, on_portal=True)
             ]
+
+            creme_core_autodiscover()
+            block_ids = [id_ for id_, block in block_registry if block.configurable]
+            for i, block_id in enumerate(block_ids):
+                blocks_to_save.append(BlockConfigItem(content_type_id=opp_ct_id, block_id=block_id, order=i+3, on_portal=False))
 
             #Set instance graphs on opportunity portal
             generate_string_id_and_save(BlockConfigItem, blocks_to_save, 'creme_config-userbci')
