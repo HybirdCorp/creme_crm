@@ -63,16 +63,9 @@ class ToDo(CremeModel):
         verbose_name_plural = _(u'Todos')
 
 
-#def creme_entity_pre_delete_for_todo(sender, instance, **kwargs):
-#    #if hasattr(instance, 'entity_type'):
-#    if isinstance(instance, CremeEntity):
-#        todos = ToDo.get_todos(instance.id)
-#        #print todos
-#        todos.delete()
-#
-#pre_delete.connect(creme_entity_pre_delete_for_todo)
-
+#TODO: can delete this with  a WeakForeignKey ??
 def dispose_entity_todos(sender, instance, **kwargs):
-    ToDo.objects.filter(entity_id=instance.id).delete()
+    #ToDo.objects.filter(entity_id=instance.id).delete()
+    ToDo.get_todos(instance.id).delete()
 
 pre_delete.connect(dispose_entity_todos, sender=CremeEntity)
