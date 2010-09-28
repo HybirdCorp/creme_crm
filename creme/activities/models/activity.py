@@ -34,6 +34,10 @@ class Calendar(CremeModel):
     name        = CharField(_(u'Name'), max_length=100)
     is_default  = BooleanField(_(u'Default ?'), blank=True, default=False)
 
+    class Meta:
+        app_label = 'activities'
+        verbose_name = _(u"Calendar")
+        verbose_name_plural = _(u"Calendars")
      
 
 class ActivityType(CremeModel):
