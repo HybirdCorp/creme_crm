@@ -35,7 +35,7 @@ creme.graphael = {};
 creme.graphael._init = function(selector, options)
 {
     options = $.extend({
-        ratio: 0.5
+        ratio: 0.3
     }, options)
 
     var ratio = options.ratio;
@@ -249,7 +249,8 @@ creme.graphael.simple_pie = function(options)
             parsed_y.push(current);
         }
 
-        var pie_width = graphael_width/5;
+//        var pie_width = graphael_width/5;
+        var pie_width = graphael_height/3;
         var pie = graphael.g.piechart(pie_width*1.5+lpad, graphael_height/2, pie_width, parsed_y,
                                       {
                                         legend: x,

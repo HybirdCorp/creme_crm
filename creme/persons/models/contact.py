@@ -89,3 +89,8 @@ class Contact(CremeEntity):
 
     def get_delete_absolute_url(self):
         return "/persons/contact/delete/%s" % self.id
+
+    def delete(self):
+        #TODO: Make a view to 'say' that can't be deleted
+        if self.is_user is None:
+            super(Contact, self).delete()
