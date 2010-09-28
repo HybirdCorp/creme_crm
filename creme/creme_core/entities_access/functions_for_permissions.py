@@ -30,6 +30,7 @@ from django.shortcuts import render_to_response, redirect
 from django.template import RequestContext
 #from creme_core import creme_constantes
 
+#TODO: should return 403 error when something wrong instead of a simple page with an error message
 def get_view_or_die(app_name, access_type=None):
     def _wrap_get_view_or_die(view):
         def _get_view_or_die(request,  *args, **kwargs):
