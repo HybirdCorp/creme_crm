@@ -19,13 +19,13 @@
 ################################################################################
 
 from django.db.models import CharField, BooleanField, TextField, DateTimeField, ForeignKey, PositiveIntegerField
+from django.db.models.signals import pre_delete
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.generic import GenericForeignKey
-
 from django.contrib.auth.models import User
 
-from creme_core.models import CremeModel
+from creme_core.models import CremeModel, CremeEntity
 
 
 class Action(CremeModel):
@@ -70,10 +70,17 @@ class Action(CremeModel):
 
     @staticmethod
     def get_actions_it_for_cts(ct_ids, today):
-        return Action.objects.filter(entity_content_type__id__in=ct_ids,
+        return Action.objects.filter(entity_content_type__in=ct_ids,
                                      is_ok=False, deadline__gt=today)
 
     @staticmethod
     def get_actions_nit_for_cts(ct_ids, today):
-        return Action.objects.filter(entity_content_type__id__in=ct_ids,
+        return Action.objects.filter(entity_content_type__in=ct_ids,
                                      is_ok=False, deadline__lte=today)
+
+
+#TODO: can delete this with  a WeakForeignKey ??
+def dispose_entity_actions(sender, instance, **kwargs):
+    Action.objects.filter(entity_id=instance.id).delete()
+
+pre_delete.connect(dispose_entity_actions, sender=CremeEntity)

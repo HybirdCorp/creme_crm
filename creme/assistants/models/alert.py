@@ -21,13 +21,13 @@
 from datetime import datetime
 
 from django.db.models import CharField, TextField, BooleanField, DateTimeField, ForeignKey, PositiveIntegerField
+from django.db.models.signals import pre_delete
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.contenttypes.models import ContentType
-
 from django.contrib.contenttypes.generic import GenericForeignKey
 from django.contrib.auth.models import User
 
-from creme_core.models import CremeModel
+from creme_core.models import CremeModel, CremeEntity
 
 
 class Alert(CremeModel):
@@ -54,3 +54,10 @@ class Alert(CremeModel):
         app_label = 'assistants'
         verbose_name = _('Alert')
         verbose_name_plural = _(u'Alerts')
+
+
+#TODO: can delete this with  a WeakForeignKey ??
+def dispose_entity_alerts(sender, instance, **kwargs):
+    Alert.objects.filter(entity_id=instance.id).delete()
+
+pre_delete.connect(dispose_entity_alerts, sender=CremeEntity)

@@ -21,11 +21,12 @@
 import logging
 
 from django.db.models import CharField, BooleanField, TextField, DateTimeField, PositiveIntegerField, ForeignKey
+from django.db.models.signals import pre_delete
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.contenttypes.generic import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 
-from creme_core.models import CremeModel
+from creme_core.models import CremeModel, CremeEntity
 
 
 class CommercialApproach(CremeModel):
@@ -38,7 +39,6 @@ class CommercialApproach(CremeModel):
 
     entity_content_type = ForeignKey(ContentType, related_name="comapp_entity_set")
     entity_id           = PositiveIntegerField()
-
     creme_entity        = GenericForeignKey(ct_field="entity_content_type", fk_field="entity_id")
 
     class Meta:
@@ -59,3 +59,9 @@ class CommercialApproach(CremeModel):
             return CommercialApproach.objects.filter(entity_id=entity_pk, ok_or_in_futur=False)
 
         return CommercialApproach.objects.filter(ok_or_in_futur=False)
+
+#TODO: can delete this with  a WeakForeignKey ??
+def dispose_entity_comapps(sender, instance, **kwargs):
+    CommercialApproach.objects.filter(entity_id=instance.id).delete()
+
+pre_delete.connect(dispose_entity_comapps, sender=CremeEntity)

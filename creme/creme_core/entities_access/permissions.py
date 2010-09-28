@@ -57,6 +57,8 @@ def user_has_acces_to_application(request, app_name, access_type=None):
         access_filter = Q(type_droit__name=constants.DROIT_MODULE_A_ACCES)|Q(type_droit__name=constants.DROIT_MODULE_EST_ADMIN)
     else:
         access_filter = Q(type_droit__name=access_type)
+
+    #TODO: return role.droits_app.filter(access_filter, name_app=app_name).exists()
     if role.droits_app.filter(access_filter, name_app=app_name):
         return True
     return False
