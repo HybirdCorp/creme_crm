@@ -115,8 +115,8 @@ $(document).ready(function() {
                 updater(event, dayDelta, minuteDelta, allDay, revertFunc, jsEvent, ui, view);
             },
             eventClick: function(event) {
-                window.open(event.url, 'gcalevent', 'width=700,height=600,scrollbars=yes');
-                //creme.utils.showInnerPopup(event.url);
+                //window.open(event.url, 'gcalevent', 'width=700,height=600,scrollbars=yes');
+                creme.utils.showInnerPopup(event.url);
                 return false;
             },
             eventResize: function( event, dayDelta, minuteDelta, revertFunc, jsEvent, ui, view ) {
