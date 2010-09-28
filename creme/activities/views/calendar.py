@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from datetime import datetime
+from datetime import datetime, timedelta
 from logging import debug
 
 from django.db.models import Q
@@ -50,11 +50,17 @@ def get_users_calendar(request, usernames):
                               context_instance=RequestContext(request))
 
 def getFormattedDictFromAnActivity(activity):
+
+    start = activity.start
+    end   = activity.end
+    if start == end:
+        end += timedelta(days=1)
+
     return {
             "id" :          int(activity.pk),
             "title":        activity.get_title_for_calendar(),
-            "start":        activity.start.isoformat(),
-            "end":          activity.end.isoformat(),
+            "start":        start.isoformat(),
+            "end":          end.isoformat(),
             "url":          "/activities/activity/%s/popup" % activity.pk,
             "entity_color": "#%s" % (activity.type.color or "C1D9EC"),
             "allDay" :      activity.is_all_day
