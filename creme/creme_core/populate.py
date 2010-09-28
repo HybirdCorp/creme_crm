@@ -22,7 +22,7 @@ from django.utils.translation import ugettext as _
 
 from creme_core.models import *
 from creme_core.utils import create_or_update_models_instance as create
-from creme_core.constants import PROP_IS_MANAGED_BY_CREME, REL_SUB_RELATED_TO, REL_OBJ_RELATED_TO, REL_SUB_HAS, REL_OBJ_HAS
+from creme_core.constants import PROP_IS_MANAGED_BY_CREME, REL_SUB_RELATED_TO, REL_OBJ_RELATED_TO, REL_SUB_HAS, REL_OBJ_HAS, FILTER_TYPE_EQUALS
 from creme_core.management.commands.creme_populate import BasePopulator
 from creme_core.pop_data.populate_data import set_up as set_up_credentials #TODO: remove
 
@@ -30,7 +30,8 @@ DATE_RANGE_FILTER = 23
 
 class Populator(BasePopulator):
     def populate(self, *args, **kwargs):
-        create(FilterType,  1, name=_(u'Equals'),                                 pattern_key='%s__exact',        pattern_value='%s',      is_exclude=False, type_champ="CharField", value_field_type='textfield')
+        #TODO: Make other constants for FilterType
+        create(FilterType,  FILTER_TYPE_EQUALS, name=_(u'Equals'),                pattern_key='%s__exact',        pattern_value='%s',      is_exclude=False, type_champ="CharField", value_field_type='textfield')
         create(FilterType,  2, name=_(u'Equals (case insensitive)'),              pattern_key='%s__iexact',       pattern_value='%s',      is_exclude=False, type_champ="CharField", value_field_type='textfield')
         create(FilterType,  3, name=_(u"Does not equal"),                         pattern_key='%s__exact',        pattern_value='%s',      is_exclude=True , type_champ="CharField", value_field_type='textfield')
         create(FilterType,  4, name=_(u"Does not equal (case insensitive)"),      pattern_key='%s__iexact',       pattern_value='%s',      is_exclude=True,  type_champ="CharField", value_field_type='textfield')
