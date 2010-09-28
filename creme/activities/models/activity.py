@@ -64,7 +64,7 @@ class Activity(CremeEntity):
     end         = DateTimeField(_(u'End'), blank=True, null=True)
     description = TextField(_(u'Description'), blank=True, null=True)
     type        = ForeignKey(ActivityType, verbose_name=_(u"Activity type"))
-    calendar    = ForeignKey(Calendar, verbose_name=_(u"Calendar"))
+    #calendar    = ForeignKey(Calendar, verbose_name=_(u"Calendar"))
     is_all_day  = BooleanField(_(u'All day ?'), blank=True, default=False)
 
     research_fields = CremeEntity.research_fields + ['title', 'type__name']
