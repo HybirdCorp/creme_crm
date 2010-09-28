@@ -1,32 +1,47 @@
-{% extends "activities/view_activity.html" %}
-
 {% load i18n %}
+{% load creme_core_tags %}
+{% load creme_block %}
+<table class="table_header" cellpadding="0" cellspacing="0">
+    <tr>
+        <td width="5%">
+            {% if object.type.id == "activities-activitytype_meeting" %}
+                <img src="{{MEDIA_URL}}images/map_64.png" alt=""/>
+            {% else %}
+                {% if object.type.id == "activities-activitytype_phonecall" %}
+                    <img src="{{MEDIA_URL}}images/phone_64.png" alt=""/>
+               {% else %}
+                      {% if object.type.id == "activities-activitytype_task" %}
+                          <img src="{{MEDIA_URL}}images/task_64.png" alt=""/>
+                      {% else %}
+                          <img src="{{MEDIA_URL}}images/calendar_64.png" alt=""/>
+                      {% endif %}
+                {% endif %}
+            {% endif %}
+        </td>
+        <td width="70%">
+            <h1>
+                {% block title %}
+                    {{object|get_meta_value:"verbose_name"|title}} : {{object|title}}
+                {% endblock %}
+            </h1>
+        </td>
+        <td width="25%" align="right">
+        </td>
+    </tr>
+</table>
 
-{% block extrahead %}
-<script type="text/javascript">
-    //TODO : Remove me when implement the template
-    $(document).ready(function(){
-        $('#full_file').click(function(){
-            if(window.opener)
-            {
-                window.opener.location.href = "{{object.get_absolute_url}}";
-                window.close();
-            }
-        });
-    });
-</script>
-{% endblock %}
+<a id="full_file" href="{{object.get_absolute_url}}">{% trans "Full detailview" %}</a>
 
-{% block view_title %}{{block.super}}<a id="full_file" href="{{object.get_absolute_url}}">{% trans "Full detailview" %}</a>{% endblock %}
-{% block side_menu %}{% endblock %}
+{% include "creme_core/object_as_table.html" %}
 
-{% block top_bar %}{% endblock %}
+{% import_block from_app 'creme_core' named 'relations' as 'relations_block' %}
+{% import_block from_app 'creme_core' named 'properties' as 'properties_block' %}
+{% import_block from_app 'activities' named 'participants' as 'participants_block' %}
+{% import_block from_app 'activities' named 'subjects' as 'subjects_block' %}
 
-{% block last_viewed_items %}{% endblock %}
-{% block prefered_menu %}{% endblock %}
+{% display_block_detailview 'properties_block' %}
+{% display_block_detailview 'relations_block' %}
+{% display_block_detailview 'participants_block' %}
+{% display_block_detailview 'subjects_block' %}
 
-{% block before_content_1 %}{% endblock %}
-
-{% block edit_delete_buttons %}{% endblock %}
-
-{% block button_tab %}{% endblock %}
+{% get_blocks_dependencies %}
