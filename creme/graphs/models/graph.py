@@ -19,16 +19,20 @@
 ################################################################################
 
 from django.db.models import CharField, ManyToManyField, ForeignKey
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, HttpResponse
 from django.utils.translation import ugettext_lazy as _
 from django.conf import settings
 
+from django.shortcuts import render_to_response
 from creme_core.models import CremeModel, CremeEntity, RelationType, Relation
 
 
 class Graph(CremeEntity):
     name                   = CharField(_(u'Name of the graph'), max_length=100)
     orbital_relation_types = ManyToManyField(RelationType, verbose_name=_(u'Types of the peripheral relations'))
+
+    class GraphException(Exception):
+        pass
 
     class Meta:
         app_label = 'graphs'
@@ -125,7 +129,10 @@ class Graph(CremeEntity):
         filename = 'graph_%i.png' % self.id
 
         #TODO: delete old files ???
-        graph.draw(join(dir_path, filename), format='png') #format: pdf svg
+        try:
+            graph.draw(join(dir_path, filename), format='png') #format: pdf svg
+        except IOError, e:
+            raise Graph.GraphException(str(e))
 
         return HttpResponseRedirect('/download_file/upload/graphs/' + filename)
 
