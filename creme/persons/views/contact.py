@@ -74,12 +74,3 @@ def detailview(request, contact_id):
 @change_page_for_last_item_viewed #useful ????
 def listview(request):
     return list_view(request, Contact, extra_dict={'add_url':'/persons/contact/add'})
-
-#TODO: set the HF in the url ????
-@login_required
-@get_view_or_die('persons')
-@change_page_for_last_item_viewed #useful ????
-def list_my_leads_my_customers(request):
-    #use a constant for 'persons-hf_leadcustomer' ??
-    return list_view(request, Contact, hf_pk='persons-hf_leadcustomer',
-                     extra_dict={'list_title': _(u'List of my suspects / prospects / customers')})
