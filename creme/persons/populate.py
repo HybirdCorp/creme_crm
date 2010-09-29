@@ -24,8 +24,6 @@ from django.contrib.auth.models import User
 
 from creme_core import autodiscover as creme_core_autodiscover
 from creme_core.models.header_filter import HeaderFilterItem, HeaderFilter, HFI_FIELD, HFI_RELATION
-from creme_core.models.list_view_filter import Filter, FilterCondition, FilterValue
-from creme_core.constants import FILTER_TYPE_EQUALS
 
 from creme_core.models import (RelationType, CremeProperty, CremePropertyType, ButtonMenuItem, 
                               SearchConfigItem, RelationBlockItem, BlockConfigItem)
@@ -123,30 +121,6 @@ class Populator(BasePopulator):
         create(HeaderFilterItem, pref + 'customer',  order=6, name='est_client_de',   title=_(u'Customer of'), type=HFI_RELATION, header_filter_id=hf_id, has_a_filter=True, editable=False, filter_string="", relation_predicat_id=REL_SUB_CUSTOMER_OF)
         create(HeaderFilterItem, pref + 'prospect',  order=7, name='est_prospect_de', title=_(u'Prospect of'), type=HFI_RELATION, header_filter_id=hf_id, has_a_filter=True, editable=False, filter_string="", relation_predicat_id=REL_SUB_PROSPECT)
         create(HeaderFilterItem, pref + 'suspect',   order=8, name='est_suspect_de',  title=_(u'Suspect of'),  type=HFI_RELATION, header_filter_id=hf_id, has_a_filter=True, editable=False, filter_string="", relation_predicat_id=REL_SUB_SUSPECT)
-
-        lead_filter = create(Filter, name=_(u"Is a customer/Prospect/Suspect"), model_ct_id=orga_ct_id, is_or_for_all=True)#TODO: Add is_custom=False / Make a constant with pk
-
-        lead_filter_cond1       = create(FilterCondition, type_id=FILTER_TYPE_EQUALS, champ='relations__type__id')
-        lead_filter_cond1_value = create(FilterValue, value=REL_SUB_CUSTOMER_OF)
-
-        lead_filter_cond1.values = [lead_filter_cond1_value]
-        lead_filter_cond1.save()
-
-        lead_filter_cond2       = create(FilterCondition, type_id=FILTER_TYPE_EQUALS, champ='relations__type__id')
-        lead_filter_cond2_value = create(FilterValue, value=REL_SUB_PROSPECT)
-
-        lead_filter_cond2.values = [lead_filter_cond2_value]
-        lead_filter_cond2.save()
-
-        lead_filter_cond3       = create(FilterCondition, type_id=FILTER_TYPE_EQUALS, champ='relations__type__id')
-        lead_filter_cond3_value = create(FilterValue, value=REL_SUB_SUSPECT)
-
-        lead_filter_cond3.values = [lead_filter_cond3_value]
-        lead_filter_cond3.save()
-        
-        lead_filter.conditions = [lead_filter_cond1, lead_filter_cond2, lead_filter_cond3]
-        lead_filter.save()
-
 
         hf_id = create(HeaderFilter, 'persons-hf_organisation', name=_(u"Organisation view"), entity_type_id=orga_ct_id, is_custom=False).id
         pref  = 'persons-hfi_organisation_'
