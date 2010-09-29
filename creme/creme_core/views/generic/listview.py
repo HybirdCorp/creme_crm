@@ -147,6 +147,7 @@ def list_view(request, model, hf_pk='', extra_dict=None, template='creme_core/ge
         'add_url':            None,
         'extra_bt_templates': None, # () instead ???,
         'show_actions':       show_actions,
+        'current_research_fields': [str(name_attribut) for (name_attribut, pk, type, pattern, value) in current_lvs.research],
     }
 
     if extra_dict:
