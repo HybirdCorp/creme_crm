@@ -218,3 +218,19 @@ class TicketTestCase(TestCase):
             self.fail(str(e))
 
         self.assertEqual(1, tickets_page.paginator.count)
+
+    def test_ticket_deleteview(self):
+        self.login()
+
+        ticket = Ticket.objects.create(user=self.user,
+                                       title='title',
+                                       description='description',
+                                       status=Status.objects.get(pk=OPEN_PK),
+                                       priority=Priority.objects.all()[0],
+                                       criticity=Criticity.objects.all()[0],
+                                      )
+
+        response = self.client.post('/tickets/ticket/delete/%s' % ticket.pk, follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.redirect_chain), 1)
+        self.assert_(response.redirect_chain[0][0].endswith('/tickets/tickets'))
