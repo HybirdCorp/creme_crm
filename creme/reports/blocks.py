@@ -73,6 +73,7 @@ class ReportGraphBlock(Block):
     order_by      = 'name'
 
     def __init__(self, id_, instance_block_config):
+        super(ReportGraphBlock, self).__init__()
         self.id_                   = id_
         self.graph                 = instance_block_config.entity.get_real_entity()
         self.block_id              = instance_block_config.block_id
