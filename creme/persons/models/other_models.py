@@ -51,7 +51,7 @@ class PeopleFunction(CremeModel):
 
 
 class Sector(CremeModel):
-    sector_name = CharField(_(u'Title'), max_length=100)
+    sector_name = CharField(_(u'Title'), max_length=100)#Todo: Rename into 'name' ?
 
     def __unicode__(self):
         return self.sector_name

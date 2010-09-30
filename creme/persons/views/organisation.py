@@ -18,6 +18,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from django.db.models.query_utils import Q
+from django.utils.translation import ugettext as _
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.auth.decorators import login_required
 
@@ -26,7 +28,7 @@ from creme_core.views.generic import add_entity, edit_entity, view_entity_with_t
 
 from persons.models import Organisation
 from persons.forms.organisation import OrganisationForm
-
+from persons.constants import REL_SUB_SUSPECT, REL_SUB_PROSPECT, REL_SUB_CUSTOMER_OF
 
 @login_required
 @get_view_or_die('persons')
@@ -46,3 +48,12 @@ def detailview(request, organisation_id):
 @get_view_or_die('persons')
 def listview(request):
     return list_view(request, Organisation, extra_dict={'add_url': '/persons/organisation/add'})
+
+#TODO: set the HF in the url ????
+@login_required
+@get_view_or_die('persons')
+def list_my_leads_my_customers(request):
+    #use a constant for 'persons-hf_leadcustomer' ??
+    return list_view(request, Organisation, hf_pk='persons-hf_leadcustomer',
+                     extra_dict={'list_title': _(u'List of my suspects / prospects / customers')},
+                     extra_q=Q(relations__type__id__in=[REL_SUB_CUSTOMER_OF,REL_SUB_PROSPECT,REL_SUB_SUSPECT]))
