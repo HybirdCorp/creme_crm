@@ -249,6 +249,28 @@ creme.graphael.simple_pie = function(options)
             parsed_y.push(current);
         }
 
+        /* All this calculs are for the buggy scale when percentage exceeds */
+        var total = 0;
+        for(var j=-1, lpy=parsed_y.length; ++j < lpy;)
+        {
+            total += parsed_y[j];
+        }
+
+        var percent_y_values = [];
+        for(var j=-1, lpy=parsed_y.length; ++j < lpy;)
+        {
+            percent_y_values.push(parsed_y[j]*100/total);
+        }
+        
+        var is_scale_buggy = false;
+        for(var k=-1, llpy=percent_y_values.length; ++k < llpy;)
+        {
+            if(percent_y_values[k] > 99.999){
+                is_scale_buggy = true;
+            }
+        }
+        /* End */
+
 //        var pie_width = graphael_width/5;
         var pie_width = graphael_height/3;
         var pie = graphael.g.piechart(pie_width*1.5+lpad, graphael_height/2, pie_width, parsed_y,
@@ -260,7 +282,7 @@ creme.graphael.simple_pie = function(options)
             var sector = this.sector;
             var label  = this.label;
             sector.stop();
-            sector.scale(1.1, 1.1, this.cx, this.cy);
+            if(!is_scale_buggy) sector.scale(1.1, 1.1, this.cx, this.cy);
             var value = (sector.value != undefined && sector.value.value != undefined) ? sector.value.value : 100;
             this.flag = graphael.g.popup(sector.middle.x, sector.middle.y + creme.graphael.paddings.I_PAD, value);
 
@@ -272,7 +294,7 @@ creme.graphael.simple_pie = function(options)
         }, function () {
             var label  = this.label;
             
-            this.sector.animate({scale: [1, 1, this.cx, this.cy]}, 500, "bounce");
+            if(!is_scale_buggy) this.sector.animate({scale: [1, 1, this.cx, this.cy]}, 500, "bounce");
 
             this.flag.animate({opacity: 0}, 300, function () {this.remove();});
 

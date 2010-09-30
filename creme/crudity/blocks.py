@@ -31,6 +31,7 @@ class WaitingActionBlock(QuerysetBlock):
     template_name = 'crudity/templatetags/block_waiting_action.html'
 
     def __init__(self, ct, waiting_type):
+        super(WaitingActionBlock, self).__init__()
         self.ct   = ct
         self.type = waiting_type
         self.id_  = self.generate_id()
@@ -55,6 +56,7 @@ class HistoryBlock(QuerysetBlock):
     template_name = 'crudity/templatetags/block_history.html'
 
     def __init__(self, ct, crud_type):
+        super(HistoryBlock, self).__init__()
         self.ct   = ct
         self.type = crud_type
         self.id_  = self.generate_id()

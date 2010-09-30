@@ -281,6 +281,7 @@ class SpecificRelationsBlock(QuerysetBlock):
     template_name = 'creme_core/templatetags/block_specific_relations.html'
 
     def __init__(self, id_, relation_type_id):
+        super(SpecificRelationsBlock, self).__init__()
         self.id_ = id_
         self.relation_type_deps = (relation_type_id,)
 
