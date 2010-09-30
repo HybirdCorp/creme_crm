@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from datetime import datetime, time
+from datetime import time
 
 from django.utils.translation import ugettext_lazy as _
 
@@ -28,7 +28,7 @@ from assistants.models import Alert
 
 
 class AlertEditForm(CremeModelWithUserForm):
-    trigger_date = CremeDateTimeField(label=_(u"Trigger date")) #Date d'échéance
+    trigger_date = CremeDateTimeField(label=_(u'Trigger date'))
     trigger_time = CremeTimeField(label=_(u'Hour'), required=False)
 
     class Meta:
@@ -38,31 +38,27 @@ class AlertEditForm(CremeModelWithUserForm):
     def __init__(self, entity, *args, **kwargs):
         super(AlertEditForm, self).__init__(*args, **kwargs)
         self.entity = entity
-        self.fields['trigger_time'].initial = self.instance.trigger_date.time() if self.instance.trigger_date else time()
+
+        trigger_date = self.instance.trigger_date
+        self.fields['trigger_time'].initial = trigger_date.time() if trigger_date else time()
 
     def clean(self):
-        if self._errors:
-            return self.cleaned_data
-
         cleaned_data = self.cleaned_data
 
-        trigger_date = cleaned_data.get("trigger_date")
-        trigger_time = cleaned_data.get('trigger_time', time())
-        cleaned_data["trigger_date"] = trigger_date.replace(hour=trigger_time.hour, minute=trigger_time.minute)
+        if not self._errors:
+            trigger_date = cleaned_data.get('trigger_date')
+            trigger_time = cleaned_data.get('trigger_time') or time()
+            cleaned_data['trigger_date'] = trigger_date.replace(hour=trigger_time.hour, minute=trigger_time.minute)
 
         return cleaned_data
 
-    def save (self):
-        entity = self.entity
-
+    def save(self):
         instance = self.instance
-        instance.entity_content_type = entity.entity_type
-        instance.entity_id = entity.id
-        instance.for_user = self.cleaned_data['user'] 
+        instance.creme_entity = self.entity
+        instance.for_user = self.cleaned_data['user']
 
-        super(AlertEditForm, self).save()
+        return super(AlertEditForm, self).save()
 
 
 class AlertCreateForm(AlertEditForm): #useful ??
-    def save (self):
-        super(AlertCreateForm, self).save()
+    pass
