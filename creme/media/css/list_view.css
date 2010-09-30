@@ -87,6 +87,14 @@
     border-right: 1px solid #548295;
 }
 
+.list_view .columns_bottom th.search input,
+.list_view .columns_bottom th.search select,
+.list_view .columns_top th.search input,
+.list_view .columns_top th.search select{
+    background-color: #FCD3CF;
+    /*background: #fdd5d1 url(/site_media/css/jquery-css/creme-theme/images/ui-bg_glass_75_f7d6d2_1x400.png) 50% 50% repeat-x;*/
+}
+
 .list_view .columns_bottom th{
     border-bottom: 1px solid #548295;
     border-left: 1px solid #548295;

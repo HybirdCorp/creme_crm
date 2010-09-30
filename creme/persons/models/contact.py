@@ -66,6 +66,10 @@ class Contact(CremeEntity):
         #return """<a href="%s">Voir</a> | <a href="%s">Éditer</a> | <a href="%s" onclick="creme.utils.confirmDelete(event, this);">Effacer</a>""" \
                 #% (self.get_absolute_url(), self.get_edit_absolute_url(), self.get_delete_absolute_url())
 
+    def save(self):
+        self.header_filter_search_field = u"%s %s %s" % (self.civility, self.first_name, self.last_name)
+        super(Contact, self).save()
+
     def get_employers(self):
         from organisation import Organisation
         return Organisation.objects.filter(relations__type=REL_OBJ_EMPLOYED_BY, relations__object_entity=self.id)

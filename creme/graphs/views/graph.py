@@ -18,8 +18,10 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from django.template.context import RequestContext
 from django.http import HttpResponse
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, render_to_response
+
 from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required
 from django.contrib.contenttypes.models import ContentType
@@ -29,6 +31,7 @@ from creme_core.views.generic import add_entity, add_to_entity, view_entity_with
 from creme_core.utils import get_from_POST_or_404
 
 from graphs.models import Graph
+
 from graphs.forms.graph import GraphForm, AddRelationTypesForm
 
 
@@ -47,7 +50,12 @@ def dl_png(request, graph_id):
     if die_status:
         return die_status
 
-    return graph.generate_png()
+    try:
+        return graph.generate_png()
+    except Graph.GraphException:
+        return render_to_response("graphs/graph_error.html",
+                                 {'error_message': _(u"This graph is too big!")},
+                                 context_instance=RequestContext(request))
 
 def edit(request, graph_id):
     return edit_entity(request, graph_id, Graph, GraphForm, 'graphs')
