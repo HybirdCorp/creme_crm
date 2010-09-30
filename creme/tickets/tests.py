@@ -22,7 +22,7 @@ class TicketTestCase(TestCase):
         self.assert_(logged, 'Not logged in')
 
     def setUp(self):
-        PopulateCommand().handle('-a tickets -v')
+        PopulateCommand().handle(application=['creme_core', 'tickets'])
         self.password = 'test'
         self.user = None
 
