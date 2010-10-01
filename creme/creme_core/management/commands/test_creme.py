@@ -19,18 +19,18 @@
 ################################################################################
 
 from django.core.management.base import BaseCommand
-
-from creme_core import autodiscover
-from creme_core.reminder import reminder_registry
+from django.core.management.commands.test import Command as TestCommand
+from django.conf import settings
 
 
 class Command(BaseCommand):
-    help = 'Execute all reminders.'
+    help = 'Get the list of installed apps.'
     args = ''
 
     def handle(self, *args, **options):
-        print 'Reminder Commands'
-        autodiscover()
-        for one_remind in reminder_registry.itervalues():
-            one_remind.execute()
+        PREFIX = 'creme.'
+        length = len(PREFIX)
+        creme_apps = [app[length:] for app in settings.INSTALLED_APPS if app.startswith(PREFIX)]
+
+        TestCommand().handle(*creme_apps)
 

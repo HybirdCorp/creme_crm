@@ -27,6 +27,7 @@ from creme_core.models import CremeEntity, Relation, RelationType
 from persons.constants import REL_SUB_CUSTOMER_OF, REL_SUB_PROSPECT, REL_SUB_SUSPECT, REL_SUB_INACTIVE, REL_SUB_SUPPLIER
 from persons.models import Organisation
 
+#TODO: use POST instead of GET (some data are written)
 
 #TODO: generalise and move to creme_core ??
 @login_required
@@ -36,8 +37,8 @@ def _link(request, entity_id, relation_type_id, mngd_orga_id):
     relation_type = get_object_or_404(RelationType, pk=relation_type_id)
     managed_orga  = get_object_or_404(Organisation, pk=mngd_orga_id)
 
-    if not relation_type.subject_ctypes.filter(id=entity.entity_type_id)[:1]:
-        raise Http404('Imcompatible relation type') #bof bof
+    if not relation_type.subject_ctypes.filter(id=entity.entity_type_id).exists():
+        raise Http404('Incompatible relation type') #bof bof
 
     Relation.create(entity, relation_type_id, managed_orga)
 
