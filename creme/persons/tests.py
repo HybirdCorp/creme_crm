@@ -54,7 +54,7 @@ class PersonsTestCase(TestCase):
         self.assertEqual(ct_id_set, set(ct.id for ct in rel_sub_customer.subject_ctypes.all()))
         self.assertEqual(ct_id_set, set(ct.id for ct in rel_obj_customer.subject_ctypes.all()))
 
-    def create_contact(self, first_name, last_name):
+    def create_contact(self, first_name, last_name): #useful ??
         response = self.client.post('/persons/contact/add', follow=True,
                                     data={
                                             'user':       self.user.pk,
@@ -117,6 +117,28 @@ class PersonsTestCase(TestCase):
         self.assertEqual(len(response.redirect_chain), 1)
         self.assert_(response.redirect_chain[0][0].endswith('/persons/organisation/%s' % orga.id))
 
+    def test_orga_editview01(self):
+        self.login()
+
+        name = 'Bebop'
+        orga = Organisation.objects.create(user=self.user, name=name)
+
+        response = self.client.get('/persons/organisation/edit/%s' % orga.id)
+        self.assertEqual(response.status_code, 200)
+
+        name += '_edited'
+        response = self.client.post('/persons/organisation/edit/%s' % orga.id, follow=True,
+                                    data={
+                                            'user': self.user.pk,
+                                            'name': name,
+                                         }
+                                   )
+        self.assertEqual(response.status_code, 200)
+        self.assert_(response.redirect_chain)
+
+        edited_orga = Organisation.objects.get(pk=orga.id)
+        self.assertEqual(name, edited_orga.name)
+
     def test_become_customer(self):
         self.login()
 
@@ -125,13 +147,7 @@ class PersonsTestCase(TestCase):
         except IndexError, e:
             self.fail(str(e))
 
-        first_name = 'Jet'
-        last_name  = 'Black'
-        self.create_contact(first_name, last_name)
-        try:
-            customer = Contact.objects.get(first_name=first_name, last_name=last_name)
-        except Exception, e:
-            self.fail(str(e))
+        customer = Contact.objects.create(user=self.user, first_name='Jet', last_name='Black')
 
         response = self.client.get('/persons/%s/become_customer/%s' % (customer.id, mng_orga.id), follow=True)
         self.assertEqual(200, response.status_code)
