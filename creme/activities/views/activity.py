@@ -25,10 +25,9 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.contenttypes.models import ContentType
 
 from creme_core.models import RelationType
-from creme_core.views.generic import (view_real_entity_with_template, #view_real_entity,
-                                      add_entity, inner_popup, list_view)
+from creme_core.views.generic import view_real_entity_with_template, add_entity, inner_popup, list_view
 from creme_core.entities_access.functions_for_permissions import get_view_or_die, edit_object_or_die, add_view_or_die, edit_view_or_die
-from creme_core.utils import get_ct_or_404
+from creme_core.utils import get_ct_or_404, get_from_GET_or_404
 #from creme_core.gui.last_viewed import change_page_for_last_viewed
 
 from activities.models import Activity
@@ -73,11 +72,14 @@ _forms_map = {
 @get_view_or_die('activities')
 def add_with_relation(request, act_type):
     #change_page_for_last_viewed(request) #TODO: works ???
-
     GET = request.GET
-    model_class   = get_ct_or_404(GET['ct_entity_for_relation']).model_class()
-    entity        = get_object_or_404(model_class, pk=GET['id_entity_for_relation'])
-    relation_type = get_object_or_404(RelationType, pk=GET['entity_relation_type'])
+    ct_id     = get_from_GET_or_404(GET, 'ct_entity_for_relation')
+    entity_id = get_from_GET_or_404(GET, 'id_entity_for_relation')
+    rtype_id  = get_from_GET_or_404(GET, 'entity_relation_type')
+
+    model_class   = get_ct_or_404(ct_id).model_class()
+    entity        = get_object_or_404(model_class, pk=entity_id)
+    relation_type = get_object_or_404(RelationType, pk=rtype_id)
 
     #TODO: credentials ??
 
@@ -140,18 +142,7 @@ def detailview(request, activity_id):
 @login_required
 @get_view_or_die('activities')
 def popupview(request, activity_id):
-#    activity = view_real_entity(request, activity_id)
-#
-#    return inner_popup(request, 'activity/view_activity_popup.html',#TODO : Implement the real template without head/title/meta... ASAP
-#                              {
-#                                'object': activity,
-#                                'title':  u"%s" % activity,
-#                              },
-#                              is_valid=False,
-#                              context_instance=RequestContext(request))
-
-    return view_real_entity_with_template(request,
-                                          activity_id,
+    return view_real_entity_with_template(request, activity_id,
                                           '/activities/activity',
                                           'activities/view_activity_popup.html')
 
@@ -169,7 +160,7 @@ def listview(request):
 @login_required
 @get_view_or_die('activities')
 def download_ical(request, ids):
-    activities = Activity.objects.filter(pk__in=ids.split(','))
+    activities = Activity.objects.filter(pk__in=ids.split(',')) #TODO: credentials
     response = HttpResponse(get_ical(activities), mimetype="text/calendar")
     response['Content-Disposition'] = "attachment; filename=Calendar.ics"
     return response
