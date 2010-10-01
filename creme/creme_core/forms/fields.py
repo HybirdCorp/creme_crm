@@ -104,6 +104,8 @@ class RelatedEntitiesField(CharField):
     relation_types = property(lambda self: self._relation_types, _set_relation_types)
 
     def clean(self, value):
+        value = value or ''
+
         if not value and self.required:
             raise ValidationError(self.error_messages['required'])
 
