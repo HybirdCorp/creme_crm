@@ -23,6 +23,7 @@ from django.utils.translation import ugettext as _
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.auth.decorators import login_required
 
+from creme_core.constants import PROP_IS_MANAGED_BY_CREME
 from creme_core.entities_access.functions_for_permissions import add_view_or_die, get_view_or_die
 from creme_core.views.generic import add_entity, edit_entity, view_entity_with_template, list_view
 
@@ -56,4 +57,4 @@ def list_my_leads_my_customers(request):
     #use a constant for 'persons-hf_leadcustomer' ??
     return list_view(request, Organisation, hf_pk='persons-hf_leadcustomer',
                      extra_dict={'list_title': _(u'List of my suspects / prospects / customers')},
-                     extra_q=Q(relations__type__id__in=[REL_SUB_CUSTOMER_OF,REL_SUB_PROSPECT,REL_SUB_SUSPECT]))
+                     extra_q=Q(relations__type__in=[REL_SUB_CUSTOMER_OF,REL_SUB_PROSPECT,REL_SUB_SUSPECT], relations__object_entity__properties__type=PROP_IS_MANAGED_BY_CREME))
