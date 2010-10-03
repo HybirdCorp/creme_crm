@@ -108,7 +108,13 @@
    \hline
    \endfoot
    
-{% for line in lines %}
+{% for line in plines %}
+
+    {% if line.related_item %}{{line.related_item}}{% else %} {{line.on_the_fly_item}}{% endif %} & \cellcolor{hylightblue}{{line.quantity}}  &  {{line.unit_price}} & \cellcolor{hylightblue} {{line.quantity|mult:line.unit_price}}  \\{% if forloop.first %}[10pt]{% endif %}
+   
+{% endfor %}
+
+{% for line in slines %}
 
     {% if line.related_item %}{{line.related_item}}{% else %} {{line.on_the_fly_item}}{% endif %} & \cellcolor{hylightblue}{{line.quantity}}  &  {{line.unit_price}} & \cellcolor{hylightblue} {{line.quantity|mult:line.unit_price}}  \\{% if forloop.first %}[10pt]{% endif %}
    
