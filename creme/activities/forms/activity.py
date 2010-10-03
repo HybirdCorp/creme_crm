@@ -247,12 +247,14 @@ class ActivityCreateForm(_ActivityCreateBaseForm):
         fields['relation_type_preview'].initial = relation_type.predicate
 
     def save(self):
-        super(ActivityCreateForm, self).save()
+        instance = super(ActivityCreateForm, self).save()
 
         Relation.create(self._entity_for_relation, self._relation_type.id, self.instance)
 
         if self.cleaned_data.get('is_comapp', False):
             self._create_commercial_approach(self._entity_for_relation)
+            
+        return instance
 
 
 class ActivityCreateWithoutRelationForm(_ActivityCreateBaseForm):
@@ -261,10 +263,11 @@ class ActivityCreateWithoutRelationForm(_ActivityCreateBaseForm):
         self.fields['is_comapp'].help_text = ugettext(u"Add participants to them be linked to a commercial approach.")
 
     def save(self):
-        super(ActivityCreateWithoutRelationForm, self).save()
+        instance = super(ActivityCreateWithoutRelationForm, self).save()
 
         if self.cleaned_data.get('is_comapp', False):
             self._create_commercial_approach()
+        return instance
 
 
 #TODO: factorise ?? (ex: CreateForm inherits from EditForm....)
@@ -305,4 +308,4 @@ class ActivityEditForm(CremeEntityForm):
 
     def save(self):
         self.instance.end = self.cleaned_data['end']
-        super(ActivityEditForm, self).save()
+        return super(ActivityEditForm, self).save()
