@@ -68,6 +68,12 @@ def jsonify(func): ##
         return HttpResponse(JSONEncoder().encode(rendered), mimetype="text/javascript")
     return _aux
 
+def get_from_GET_or_404(GET, key):
+    try:
+        return GET[key]
+    except KeyError:
+        raise Http404('No GET argument with this key: %s' % key)
+
 def get_from_POST_or_404(POST, key):
     try:
         return POST[key]

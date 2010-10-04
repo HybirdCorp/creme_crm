@@ -19,7 +19,7 @@
 ################################################################################
 
 from logging import debug
-import datetime
+from datetime import datetime, time
 
 from django.forms.util import ValidationError
 from django.forms import IntegerField, CharField, BooleanField, ModelMultipleChoiceField
@@ -32,7 +32,7 @@ from creme_core.models import CremeEntity, Relation, RelationType
 from creme_core.forms import CremeForm, CremeEntityForm, RelatedEntitiesField, CremeDateTimeField, CremeTimeField
 from creme_core.forms.widgets import Label
 
-from persons.models.contact import Contact
+from persons.models import Contact
 
 from activities.models import Activity
 from activities.constants import *
@@ -40,11 +40,11 @@ from activities.constants import *
 
 def _clean_interval(cleaned_data):
     if cleaned_data.get('is_all_day'):
-        cleaned_data['start_time'] = datetime.time(hour=0,  minute=0)
-        cleaned_data['end_time']   = datetime.time(hour=23, minute=59)
+        cleaned_data['start_time'] = time(hour=0,  minute=0)
+        cleaned_data['end_time']   = time(hour=23, minute=59)
 
-    start_time = cleaned_data.get('start_time', datetime.time())
-    end_time   = cleaned_data.get('end_time',   datetime.time())
+    start_time = cleaned_data.get('start_time') or time()
+    end_time   = cleaned_data.get('end_time') or time()
 
     cleaned_data['start'] = cleaned_data['start'].replace(hour=start_time.hour, minute=start_time.minute)
 
@@ -54,7 +54,7 @@ def _clean_interval(cleaned_data):
     cleaned_data['end'] = cleaned_data['end'].replace(hour=end_time.hour, minute=end_time.minute)
 
     if cleaned_data['start'] > cleaned_data['end']:
-        raise ValidationError(ugettext(u"End time is before start time")) #L'heure de fin est avant le début
+        raise ValidationError(ugettext(u"End time is before start time"))
 
 def _check_activity_collisions(activity_start, activity_end, participants, exclude_activity_id=None):
     collision_test = ~(Q(end__lte=activity_start) | Q(start__gte=activity_end))
@@ -162,8 +162,8 @@ class _ActivityCreateBaseForm(CremeEntityForm):
         super(_ActivityCreateBaseForm, self).__init__(*args, **kwargs)
         fields = self.fields
 
-        fields['start_time'].initial = datetime.time(9, 0)
-        fields['end_time'].initial   = datetime.time(18, 0)
+        fields['start_time'].initial = time(9, 0)
+        fields['end_time'].initial   = time(18, 0)
 
     def clean(self):
         if self._errors:
@@ -207,8 +207,8 @@ class _ActivityCreateBaseForm(CremeEntityForm):
 
         return instance
 
+    #TODO: inject from 'commercial' app instead ??
     def _create_commercial_approach(self, extra_entity=None):
-        from datetime import datetime
         from commercial.models import CommercialApproach
 
         participants = [entity for rtype, entity in self.cleaned_data['participants']]
@@ -216,17 +216,20 @@ class _ActivityCreateBaseForm(CremeEntityForm):
         if extra_entity:
             participants.append(extra_entity)
 
+        if not participants:
+            return
+
         now = datetime.now()
         instance = self.instance
+        create_comapp = CommercialApproach.objects.create
 
         for participant in participants:
-            comapp = CommercialApproach()
-            comapp.title = instance.title
-            comapp.description = instance.description
-            comapp.creation_date = now
-            comapp.creme_entity = participant
-            comapp.related_activity_id = instance.id
-            comapp.save()
+            create_comapp(title=instance.title,
+                          description=instance.description,
+                          creation_date=now,
+                          creme_entity=participant,
+                          related_activity_id=instance.id,
+                         )
 
 
 class ActivityCreateForm(_ActivityCreateBaseForm):
@@ -244,12 +247,14 @@ class ActivityCreateForm(_ActivityCreateBaseForm):
         fields['relation_type_preview'].initial = relation_type.predicate
 
     def save(self):
-        super(ActivityCreateForm, self).save()
+        instance = super(ActivityCreateForm, self).save()
 
         Relation.create(self._entity_for_relation, self._relation_type.id, self.instance)
 
         if self.cleaned_data.get('is_comapp', False):
             self._create_commercial_approach(self._entity_for_relation)
+            
+        return instance
 
 
 class ActivityCreateWithoutRelationForm(_ActivityCreateBaseForm):
@@ -258,10 +263,11 @@ class ActivityCreateWithoutRelationForm(_ActivityCreateBaseForm):
         self.fields['is_comapp'].help_text = ugettext(u"Add participants to them be linked to a commercial approach.")
 
     def save(self):
-        super(ActivityCreateWithoutRelationForm, self).save()
+        instance = super(ActivityCreateWithoutRelationForm, self).save()
 
         if self.cleaned_data.get('is_comapp', False):
             self._create_commercial_approach()
+        return instance
 
 
 #TODO: factorise ?? (ex: CreateForm inherits from EditForm....)
@@ -302,4 +308,4 @@ class ActivityEditForm(CremeEntityForm):
 
     def save(self):
         self.instance.end = self.cleaned_data['end']
-        super(ActivityEditForm, self).save()
+        return super(ActivityEditForm, self).save()
