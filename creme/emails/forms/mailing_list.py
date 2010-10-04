@@ -38,8 +38,7 @@ class MailingListForm(CremeEntityForm):
 
 
 class AddContactsForm(CremeForm):
-    recipients = MultiCremeEntityField(label=_(u'Contacts'),
-                                       required=False, model=Contact)# other filter (name + email)??
+    recipients = MultiCremeEntityField(label=_(u'Contacts'), required=False, model=Contact)# other filter (name + email)??
 
     blocks = FieldBlockManager(('general', _(u'Contacts recipients'), '*'))
 
@@ -73,7 +72,6 @@ class AddOrganisationsForm(CremeForm):
 
 
 class AddPersonsFromFilterForm(CremeForm): #private class ???
-    #filter_ = ModelChoiceField(label=_(u'Filtres'), queryset=Filter.objects.filter(model_ct=ContentType.objects.get_for_model(Contact)))
     #NB: it seems empty_value can not be set to 'All' with a ModelChoiceField --> ChoiceField
     filters = ChoiceField(label=_(u'Filters'), choices=())
 
@@ -127,8 +125,7 @@ class AddOrganisationsFromFilterForm(AddPersonsFromFilterForm):
 
 
 class AddChildForm(CremeForm):
-    child = CremeEntityField(label=_(u'List'),
-                             required=True, model=MailingList)
+    child = CremeEntityField(label=_(u'List'), required=True, model=MailingList)
 
     blocks = FieldBlockManager(('general', _(u'Child mailing list'), '*'))
 

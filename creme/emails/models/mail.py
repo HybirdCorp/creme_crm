@@ -80,12 +80,6 @@ MAIL_STATUS = {
 ID_LENGTH = 32
 
 class _Email(CremeModel):
-    """
-    id is a unique generated string in order to avoid stats hacking.
-    """
-#    id             = CharField(_(u'Identifiant du mail'), primary_key=True, max_length=ID_LENGTH)
-#    sending        = ForeignKey(EmailSending, null=True, verbose_name=_(u"Envoi associé"), related_name='mails_set')
-
     reads          = PositiveIntegerField(_(u'Number of reads'), blank=True, null=True, default=0)
     status         = PositiveSmallIntegerField(_(u'Status'))
 
