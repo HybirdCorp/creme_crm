@@ -62,4 +62,4 @@ class IndisponibilityCreateForm(CremeEntityForm):
 
     def save(self):
         self.instance.type_id = ACTIVITYTYPE_INDISPO
-        super(IndisponibilityCreateForm, self).save()
+        return super(IndisponibilityCreateForm, self).save()
