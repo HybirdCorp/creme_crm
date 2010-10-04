@@ -18,6 +18,11 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+import re
+import htmlentitydefs
+
+html_mark = re.compile(r"""(?P<html>(</|<!|<|&lt;)[-="' ;/.#:@\w]*(>|/>|&gt;))""")
+
 def get_unicode_decoded_str(str, encodings):
     for encoding in encodings:
         try:
@@ -26,3 +31,80 @@ def get_unicode_decoded_str(str, encodings):
             continue
 
     return u"".join([i if ord(i) < 128 else '?' for i in str])
+
+def strip_html_(str):
+    is_html = True
+    while is_html:
+        reg=re.search(html_mark, str)
+        if reg:
+            str=str.replace(reg.groupdict().get('html'), '')
+        else:
+            is_html=False
+    return str
+
+def unescape(text):
+   """Removes HTML or XML character references
+      and entities from a text string.
+      keep &amp;, &gt;, &lt; in the source code.
+   from Fredrik Lundh
+   http://effbot.org/zone/re-sub.htm#unescape-html
+   """
+   def fixup(m):
+      text = m.group(0)
+      if text[:2] == "&#":
+         # character reference
+         try:
+            if text[:3] == "&#x":
+               return unichr(int(text[3:-1], 16))
+            else:
+               return unichr(int(text[2:-1]))
+         except ValueError:
+#            print "erreur de valeur"
+            pass
+      else:
+         # named entity
+         try:
+            if text[1:-1] == "amp":
+               text = "&amp;amp;"
+            elif text[1:-1] == "gt":
+               text = "&amp;gt;"
+            elif text[1:-1] == "lt":
+               text = "&amp;lt;"
+            else:
+               print text[1:-1]
+               text = unichr(htmlentitydefs.name2codepoint[text[1:-1]])
+         except KeyError:
+#            print "keyerror"
+            pass
+      return text # leave as is
+   return re.sub("&#?\w+;", fixup, text)
+
+def strip_html(text):
+    """
+    http://effbot.org/zone/re-sub.htm#strip-html
+    """
+    def fixup(m):
+        text = m.group(0)
+        if text[:1] == "<":
+            return "" # ignore tags
+        if text[:2] == "&#":
+            try:
+                if text[:3] == "&#x":
+                    return unichr(int(text[3:-1], 16))
+                else:
+                    return unichr(int(text[2:-1]))
+            except ValueError:
+                pass
+        elif text[:1] == "&":
+#            import htmlentitydefs
+            entity = htmlentitydefs.entitydefs.get(text[1:-1])
+            if entity:
+                if entity[:2] == "&#":
+                    try:
+                        return unichr(int(entity[2:-1]))
+                    except ValueError:
+                        pass
+                else:
+                    return unicode(entity, "iso-8859-1")
+        return text # leave as is
+    return re.sub("(?s)<[^>]*>|&#?\w+;", fixup, text)
