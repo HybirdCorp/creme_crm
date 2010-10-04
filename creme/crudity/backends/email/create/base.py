@@ -28,6 +28,7 @@ from crudity import CREATE
 from crudity.models.actions import WaitingAction
 from crudity.models.history import History
 from crudity.blocks import WaitingActionBlock
+from crudity.utils import strip_html, strip_html_
 
 passwd_pattern = re.compile(r'password=(?P<password>\w+)')
 
@@ -48,31 +49,42 @@ class CreateFromEmailBackend(object):
         return not self.limit_froms or set(senders) & set(self.limit_froms)
     
     def create(self, email, request=None):
+        from django.utils.html import escape
         data = self.body_map.copy()
 
         if self.authorize_senders(email.senders):
             password = self.password
             body = email.body_html or email.body
-            body = [line.replace(' ', '') for line in body.split('\n')]
+            
+            if email.body_html:
+                #TODO: Not really good to have parse twice to strip...
+                body = strip_html(body)
+                body = strip_html_(body)
+
+            splited_body = [line for line in body.split('\n') if line.strip()]
+            bodyc= splited_body
+            bodyp = [line.replace(' ', '') for line in splited_body]
 
             allowed = False
 
             #Search first the password
-            for i, line in enumerate(body):
+            for i, line in enumerate(bodyp):
                 r = re.search(passwd_pattern, line)
 
                 if r and r.groupdict().get('password') == password:
                     allowed = True
-                    body.pop(i)
+#                    bodyp.pop(i)
                     break
 
             if allowed:
                 for key in data.keys():
-                    for i, line in enumerate(body):
-                        r = re.search(r'%s=(?P<%s>\w+)' % (key, key), line)
+                    for i, line in enumerate(bodyc):
+#                        r = re.search(r"""[\t ]*%s[\t ]*=(?P<%s>['"/@ \t.;?!\\\w]+)""" % (key, key), line)
+                        r = re.search(ur"""[\t ]*%s[\t ]*=(?P<%s>['"/@ \t.;?!\\\w&]+)""" % (key, key), line, flags=re.UNICODE)
+
                         if r:
                             data[key] = r.groupdict().get(key)
-                            body.pop(i)
+                            bodyc.pop(i)
                             break
 
                 if self.in_sandbox:

@@ -24,6 +24,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.db.models.fields import TextField, PositiveIntegerField, CharField
 from django.db.models.fields.related import ForeignKey
 from django.utils.translation import ugettext_lazy as _
+from django.utils.encoding import smart_str
 
 from creme_core.models.base import CremeModel
 
@@ -48,7 +49,7 @@ class WaitingAction(CremeModel):
     def set_data(self, data):#force data to be a dict...
         _data = []
         for k, v in data.items():
-            _data.append(u"%s:%s" % (k, encodestring(str(v))))
+            _data.append(u"%s:%s" % (k, encodestring(smart_str(v))))
         return "#".join(_data)
 
     def get_data(self):
@@ -57,7 +58,7 @@ class WaitingAction(CremeModel):
         if data:
             for d in data.split('#'):
                 k, v = d.split(':')
-                _data[k] = decodestring(v)
+                _data[k] = decodestring(v).decode('utf-8')
                 
         return _data
 
