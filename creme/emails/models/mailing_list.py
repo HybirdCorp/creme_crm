@@ -28,9 +28,9 @@ from persons.models import Contact, Organisation
 
 class MailingList(CremeEntity):
     name          = CharField(_(u'Name of the mailing list'), max_length=80)
-    children      = ManyToManyField('self', verbose_name=u'Listes filles', symmetrical=False, related_name='parents_set')
-    contacts      = ManyToManyField(Contact, verbose_name=u'Contacts destinataires')
-    organisations = ManyToManyField(Organisation, verbose_name=u'Sociétés destinataires')
+    children      = ManyToManyField('self', verbose_name=_(u'Child mailing lists'), symmetrical=False, related_name='parents_set')
+    contacts      = ManyToManyField(Contact, verbose_name=_(u'Contacts recipients'))
+    organisations = ManyToManyField(Organisation, verbose_name=_(u'Organisations recipients'))
 
     class Meta:
         app_label = "emails"
