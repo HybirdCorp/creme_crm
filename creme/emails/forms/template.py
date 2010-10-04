@@ -21,7 +21,7 @@
 from django.forms import CharField, ValidationError
 from django.forms.widgets import Textarea
 from django.template import Template, VariableNode
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import ugettext_lazy as _, ugettext
 
 from creme_core.forms import CremeEntityForm, CremeForm, FieldBlockManager
 from creme_core.forms.fields import MultiCremeEntityField
@@ -64,7 +64,7 @@ class TemplateEditForm(CremeEntityForm):
                 invalid_vars.append(varname)
 
         if invalid_vars:
-            raise ValidationError(u'Les variables suivantes sont invalides: %s ' % invalid_vars)
+            raise ValidationError(ugettext(u'The following variables are invalid: %s') % invalid_vars)
 
         return body
 

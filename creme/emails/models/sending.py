@@ -69,7 +69,6 @@ class EmailSending(CremeModel):
     sender        = EmailField(_(u"Sender address"), max_length=100)
     campaign      = ForeignKey(EmailCampaign, verbose_name=_(u'Related campaign'), related_name='sendings_set')
     type          = PositiveSmallIntegerField(verbose_name=_(u"Sending type"))
-    #creation_date = DateField(_(u"Date de création")) #, blank=True, null=True
     sending_date  = DateTimeField(_(u"Sending date of emails"))
     state         = PositiveSmallIntegerField(verbose_name=_(u"Sending state"))
 
@@ -175,9 +174,11 @@ class EmailSending(CremeModel):
 
 
 class LightWeightEmail(_Email):
-    """Used by campaigns"""
+    """Used by campaigns
+    id is a unique generated string in order to avoid stats hacking.
+    """
     id           = CharField(_(u'Email ID'), primary_key=True, max_length=ID_LENGTH)
-    sending      = ForeignKey(EmailSending, null=True, verbose_name=_(u"Related sending"), related_name='mails_set')
+    sending      = ForeignKey(EmailSending, null=True, verbose_name=_(u"Related sending"), related_name='mails_set') #TODO: null=True useful ??
 
     recipient_ct = ForeignKey(ContentType, null=True) #useful ?????
     recipient_id = PositiveIntegerField(null=True)
@@ -190,7 +191,7 @@ class LightWeightEmail(_Email):
         verbose_name_plural = _(u'Emails of campaign')
 
     def get_body(self):
-        if self.sending is None:
+        if self.sending is None: #really useful ??? 'assert self.sending' instead ??
             return self.body
 
         try:
