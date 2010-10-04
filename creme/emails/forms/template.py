@@ -40,7 +40,7 @@ def _get_vars_help():
 
 class TemplateEditForm(CremeEntityForm):
     body        = CharField(label=_(u'Body'), widget=RTEWidget(),
-                            help_text=_(u'You can use variables: %s' % _get_vars_help()))
+                            help_text=_(u'You can use variables: %s') % _get_vars_help())
     attachments = MultiCremeEntityField(label=_(u'Attachments'), required=False, model=Document)
 
     class Meta(CremeEntityForm.Meta):
