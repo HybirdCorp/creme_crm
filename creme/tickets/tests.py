@@ -111,6 +111,11 @@ class TicketTestCase(TestCase):
         self.failIf(ticket.closing_date)
         self.failIf(ticket.get_resolving_duration())
 
+        try: #test FunctionField
+            funf = ticket.function_fields.get('get_resolving_duration')
+        except Exception, e:
+            self.fail(str(e))
+
     def test_ticket_editview01(self):
         self.login()
 

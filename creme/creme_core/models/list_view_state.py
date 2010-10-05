@@ -30,6 +30,7 @@ from django.shortcuts import get_object_or_404
 from creme_core.models import Relation, CustomField, CustomFieldEnumValue
 from header_filter import HeaderFilterItem, HFI_FIELD, HFI_RELATION, HFI_CUSTOM, HFI_FUNCTION
 
+#TODO: move to creme_core.gui ??
 
 def simple_value(value):
     if value:

@@ -31,11 +31,12 @@ def _is_valid(category):
     if not category:
         return False
 
-    return bool(Category.objects.filter(id=category).count())
+    return Category.objects.filter(id=category).exists()
 
 #TODO: use @jsonify ??
+#TODO: use GET instead of POST
 def get_sub_cat_on_cat_change(request):
-    logging.debug("GET_SUB_CAT_ON_CAT_CHANGE")
+    #logging.debug("GET_SUB_CAT_ON_CAT_CHANGE")
 
     category = request.POST.get('record_id', '')
 

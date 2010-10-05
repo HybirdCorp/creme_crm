@@ -19,10 +19,9 @@
 ################################################################################
 
 from django.db import models
-from django.db.models.fields.related import ForeignKey
+from django.db.models.fields.related import ForeignKey, ManyToManyField
 from django.db.models.base import ModelBase
 from django.db.models import Field, FieldDoesNotExist
-from django.db.models.fields.related import ManyToManyField
 
 
 class NotDjangoModel(Exception):
