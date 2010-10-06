@@ -45,7 +45,7 @@
                         <form method="post" action="/assistants/action/validate/{{action.id}}/">{% csrf_token %}
                             <input type="checkbox" name="checked_action{{action.id}}" id="checked_action{{action.id}}" />
                             {# move validateEntity() to a 'assistants.js' file ?? #}
-                            <button type="button" onclick="creme.utils.validateEntity(this.form, 'checked_action{{action.id}}');" style="background:transparent; cursor:pointer;border:0px;">
+                            <button type="button" onclick="creme.utils.validateEntity(this.form, 'checked_action{{action.id}}', {% get_block_reload_uri %});" style="background:transparent; cursor:pointer;border:0px;">
                                 <img src="{{MEDIA_URL}}images/refresh_16.png" width="16" height="16" border="0"  alt="{% trans "Edit" %}" />
                             </button>
                         </form>

@@ -40,7 +40,7 @@
                     <td class="{{row_color}}">
                         <form method="post" action="/assistants/alert/validate/{{alert.id}}/">{% csrf_token %}
                             <input type="checkbox" name="checked_alert{{alert.id}}" id="checked_alert{{alert.id}}" />
-                                <button type="button" onclick="creme.utils.validateEntity(this.form, 'checked_alert{{alert.id}}');" style="background:transparent; cursor:pointer;border:0px;">
+                                <button type="button" onclick="creme.utils.validateEntity(this.form, 'checked_alert{{alert.id}}', {% get_block_reload_uri %});" style="background:transparent; cursor:pointer;border:0px;">
                                 <img src="{{MEDIA_URL}}images/refresh_16.png" width="16" height="16" border="0">
                             </button>
                         </form>
