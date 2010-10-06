@@ -19,10 +19,10 @@
 ################################################################################
 
 from datetime import datetime
+from logging import debug
 
 from django.http import Http404, HttpResponse
-from django.db.models.query_utils import Q
-from django.db.models.fields.related import ForeignKey, ManyToManyField
+from django.db.models import ForeignKey, ManyToManyField, FieldDoesNotExist, Q
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext
 from django.utils.translation import ugettext as _
@@ -32,15 +32,15 @@ from django.contrib.contenttypes.models import ContentType
 
 from creme_core.entities_access.functions_for_permissions import add_view_or_die, get_view_or_die
 from creme_core.views.generic import add_entity, edit_entity, view_entity_with_template, list_view, inner_popup
-from creme_core.utils.meta import get_model_field_infos
-from creme_core.utils import get_ct_or_404
-from creme_core.utils.meta import get_flds_with_fk_flds, get_date_fields
+from creme_core.utils.meta import get_model_field_infos, get_flds_with_fk_flds, get_date_fields, is_date_field
+from creme_core.utils import get_ct_or_404, get_from_GET_or_404
 from creme_core.date_filters_registry import date_filters_registry
 
 from reports.models import Report, report_prefix_url, report_template_dir, Field
 from reports.forms.report import CreateForm, EditForm, LinkFieldToReportForm, AddFieldToReportForm, get_aggregate_custom_fields, DateReportFilterForm
 from reports.registry import report_backend_registry
 from reports.report_aggregation_registry import field_aggregation_registry
+
 
 report_app = Report._meta.app_label
 report_ct  = ContentType.objects.get_for_model(Report)
@@ -163,24 +163,25 @@ def add_field(request, report_id):
                        context_instance=RequestContext(request))
 
 _order_direction = {
-    'up': -1,
-    'down':1
+    'up':   -1,
+    'down':  1,
 }
+
 @login_required
 @get_view_or_die(report_app)
 def change_field_order(request):
     POST = request.POST
-    report = get_object_or_404(Report, pk=POST.get('report_id'))
+    report = get_object_or_404(Report, pk=POST.get('report_id')) #TODO: use get_from_POST_or_404
     field  = get_object_or_404(Field,  pk=POST.get('field_id'))
     direction = POST.get('direction', 'up')
 
-    field.order =  field.order+_order_direction[direction]
+    field.order =  field.order + _order_direction[direction]
     try:
         other_field = report.columns.get(order=field.order)
     except Field.DoesNotExist:
         return HttpResponse("", status=403, mimetype="text/javascript")
 
-    other_field.order = other_field.order-_order_direction[direction]
+    other_field.order = other_field.order - _order_direction[direction]
 
     field.save()
     other_field.save()
@@ -207,7 +208,7 @@ def preview(request, report_id):
 
     req_ctx = RequestContext(request)
 
-    html_backend = html_backend(report, context_instance=req_ctx, limit_to=LIMIT_TO, extra_fetch_q=extra_q_filter)
+    html_backend = html_backend(report, context_instance=req_ctx, limit_to=LIMIT_TO, extra_fetch_q=extra_q_filter) #reusing the same variable is not great
 
     return render_to_response("%s/preview_report.html" % report_template_dir,
                               {
@@ -223,15 +224,15 @@ def preview(request, report_id):
 @login_required
 @get_view_or_die(report_app)
 def set_selected(request):
-    POST = request.POST
-    report   = get_object_or_404(Report, pk=POST.get('report_id'))
-    field    = get_object_or_404(Field,  pk=POST.get('field_id'))
+    POST   = request.POST
+    report = get_object_or_404(Report, pk=POST.get('report_id')) #TODO: use get_from_POST_or_404()
+    field  = get_object_or_404(Field,  pk=POST.get('field_id'))
 
     try:
-        checked  = int(POST.get('checked', 0))
+        checked = int(POST.get('checked', 0))
     except ValueError:
-        checked  = 0
-    checked  = bool(checked)
+        checked = 0
+    checked = bool(checked)
 
     #Ensure all other fields are un-selected
     for column in report.columns.all():
@@ -249,24 +250,26 @@ def set_selected(request):
 def csv(request, report_id):
     report = get_object_or_404(Report, pk=report_id)
     csv_backend = report_backend_registry.get_backend('CSV')
-
-    extra_q_filter = Q()
-
     GET = request.GET
+
     if GET:
-        GET_get = GET.get
-
-        field = GET_get('field')
-        start_date = None
-        end_date = None
+        field_name = get_from_GET_or_404(GET, 'field')
         try:
-            start_date = datetime.fromtimestamp(float(GET_get('start')))
-            end_date = datetime.fromtimestamp(float(GET_get('end')))
-        except ValueError, TypeError:
-            pass
+            if not is_date_field(report.ct.model_class()._meta.get_field(field_name)):
+                raise Http404('%s is not a date field' % field_name)
+        except FieldDoesNotExist, e:
+            raise Http404(str(e))
 
-        if field and start_date and end_date:
-            extra_q_filter = Q(**{str("%s__range" % field):(start_date, end_date)})
+        from_ts = lambda s: datetime.fromtimestamp(float(get_from_GET_or_404(GET, s)))
+        try:
+            start_date = from_ts('start')
+            end_date   = from_ts('end')
+        except (ValueError, TypeError), e:
+            raise Http404('Bad date input (%s)' % e)
+
+        extra_q_filter = Q(**{str("%s__range" % field_name): (start_date, end_date)})
+    else:
+        extra_q_filter = Q()
 
     return csv_backend(report, extra_q_filter).render_to_response()
 
@@ -274,7 +277,7 @@ def csv(request, report_id):
 def get_aggregate_fields(request):
     POST_get = request.POST.get
     aggregate_name = POST_get('aggregate_name')
-    ct = get_ct_or_404(POST_get('ct_id'))
+    ct = get_ct_or_404(POST_get('ct_id')) #TODO: use get_from_POST_or_404()
     model = ct.model_class()
     authorized_fields = field_aggregation_registry.authorized_fields
     choices = []
@@ -290,11 +293,11 @@ def get_aggregate_fields(request):
 @login_required
 def date_filter_form(request, report_id):
     report = get_object_or_404(Report, pk=report_id)
-    
+
     redirect = False
     simple_redirect = False
     valid = False
-    
+
     if request.POST:
         form = DateReportFilterForm(report, request.POST)
         redirect = True

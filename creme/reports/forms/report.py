@@ -41,8 +41,9 @@ from creme_core.date_filters_registry import date_filters_registry
 from reports.models import Report, Field
 from reports.report_aggregation_registry import field_aggregation_registry
 
+
 def _save_field(name, title, order, type):
-    f = Field(name=name, title=title, order=order, type=type)
+    f = Field(name=name, title=title, order=order, type=type) #TODO: use create()
     f.save()
     return f
 
@@ -167,7 +168,7 @@ class CreateForm(CremeEntityForm):
 
     class Meta:
         model = Report
-        exclude = CremeEntityForm.Meta.exclude 
+        exclude = CremeEntityForm.Meta.exclude
 
     def __init__(self, *args, **kwargs):
         super(CreateForm, self).__init__(*args, **kwargs)
@@ -387,6 +388,7 @@ class AddFieldToReportForm(CremeForm):
         report.columns = fields_to_keep
         report.save()
 
+
 class DateReportFilterForm(CremeForm):
     date_fields  = ChoiceField(label=_(u'Fields'), required=True, choices=())
     filters      = AjaxChoiceField(label=_(u'Filter'), required=False, choices=(), widget=DateFilterWidget)
@@ -400,14 +402,18 @@ class DateReportFilterForm(CremeForm):
         fields['date_fields'].choices = [(field.name, field.verbose_name) for field in get_date_fields(report.ct.model_class())]
 #        fields['filters'].choices = [(r.name, r.verbose_name) for r in date_filters_registry.itervalues()]
         fields['filters'].choices = date_filters_registry.itervalues()
-        fields['filters'].widget.attrs.update({'id': 'id_filters','start_date_id': 'id_begin_date','end_date_id': 'id_end_date'})
+        fields['filters'].widget.attrs.update({'id': 'id_filters', 'start_date_id': 'id_begin_date', 'end_date_id': 'id_end_date'})
 
     def save(self):
         return self.cleaned_data
 
     def get_q(self):
         cleaned_data = self.cleaned_data
-        q = Q()
+
         if cleaned_data:
-            q = Q(**{str("%s__range" % cleaned_data.get('date_fields')):(cleaned_data.get('begin_date'), cleaned_data.get('end_date'))})
+            get_data = cleaned_data.get
+            q = Q(**{str("%s__range" % get_data('date_fields')): (get_data('begin_date'), get_data('end_date'))})
+        else:
+            q = Q()
+
         return q

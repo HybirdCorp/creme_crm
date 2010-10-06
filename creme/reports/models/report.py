@@ -61,8 +61,8 @@ class Field(CremeModel):
     title     = CharField(max_length=100)
     order     = PositiveIntegerField()
     type      = PositiveSmallIntegerField() #==> {HFI_FIELD, HFI_RELATION, HFI_FUNCTION, HFI_CUSTOM, HFI_CALCULATED}#Add in choices ?
-    selected  = BooleanField(default=False)
-    report    = ForeignKey("Report", blank=True, null=True)
+    selected  = BooleanField(default=False) #use this field to expand
+    report    = ForeignKey("Report", blank=True, null=True) #Sub report
 
     class Meta:
         app_label = 'reports'
@@ -262,7 +262,7 @@ class Field(CremeModel):
 class Report(CremeEntity):
     name    = CharField(_(u'Name of the report'), max_length=100)
     ct      = ForeignKey(ContentType, verbose_name=_(u"Entity type"))
-    columns = ManyToManyField(Field, verbose_name=_(u"Displayed columns"), related_name='report_columns_set')
+    columns = ManyToManyField(Field, verbose_name=_(u"Displayed columns"), related_name='report_columns_set') #TODO: use a One2Many instead....
     filter  = ForeignKey(Filter, verbose_name=_(u'Filter'), blank=True, null=True)
 
     class Meta:
