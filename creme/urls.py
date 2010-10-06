@@ -10,6 +10,8 @@ import creme_core
 creme_core.autodiscover()
 
 
+handler500 = 'creme.creme_core.views.exceptions.server_error'
+
 urlpatterns = patterns('',
     url(r'^creme_login/$',  'django.contrib.auth.views.login', {'template_name': 'authent/creme_login.html'} , name="creme_login"),
     url(r'^creme_logout/$', 'django.contrib.auth.views.logout_then_login' , name="creme_logout"),
