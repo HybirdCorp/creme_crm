@@ -294,12 +294,13 @@ creme.utils.renderEntity = function(from_node, to_node) {
 }
 
 //TODO: move to assistants.js ??
-creme.utils.validateEntity = function(form, checkbox_id) {
+creme.utils.validateEntity = function(form, checkbox_id, reload_url) {
     var checked = document.getElementById(checkbox_id);
     if (checked.checked == false) {
         creme.utils.showDialog("<p>Merci de <b>cocher</b> si vous considérez comme traité !</p>", {'title':'Erreur'}, 'error');
     } else {
-        form.submit();
+//        form.submit();
+        creme.ajax.submit(form, {}, {'success': function(){creme.utils.loadBlock(reload_url);}});
     }
 }
 
