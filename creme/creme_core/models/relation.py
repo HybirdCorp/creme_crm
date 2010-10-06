@@ -209,19 +209,23 @@ class Relation(CremeAbstractEntity):
         return sym_relation
 
     @transaction.commit_manually
-    def save(self):
-        update = bool(self.pk)
+    def save(self, using='default', force_insert=False):
+        try:
+            update = bool(self.pk)
 
-        super(Relation, self).save()
+            super(Relation, self).save(using=using, force_insert=force_insert)
 
-        sym_relation = self._build_symmetric_relation(update)
-        super(Relation, sym_relation).save()
+            sym_relation = self._build_symmetric_relation(update)
+            super(Relation, sym_relation).save(using=using, force_insert=force_insert)
 
-        if self.symmetric_relation is None:
-            self.symmetric_relation = sym_relation
-            super(Relation, self).save()
-
-        transaction.commit()
+            if self.symmetric_relation is None:
+                self.symmetric_relation = sym_relation
+                super(Relation, self).save(using=using, force_insert=False)
+        except Exception, e:
+            debug('Error in creme_core.Relation.save(): %s', e)
+            transaction.rollback()
+        else:
+            transaction.commit()
 
     def _collect_sub_objects(self, seen_objs, parent=None, nullable=False):
         pk_val = self._get_pk_val()
