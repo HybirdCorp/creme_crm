@@ -49,16 +49,11 @@ class Populator(BasePopulator):
         create(QuoteStatus, 3, name=_(u"Rejected"))
         create(QuoteStatus, 4, name=_(u"Created"))
 
-        
         create(PaymentTerms, 1, name=_(u"30 days")) #default status
         create(PaymentTerms, 2, name=_(u"Cash"))
         create(PaymentTerms, 3, name=_(u"45 days"))
         create(PaymentTerms, 4, name=_(u"60 days"))
         create(PaymentTerms, 5, name=_(u"30 days, end month the 10")) 
-
-
-
-
 
         create(SalesOrderStatus, 1, name=_(u"Issued"),   is_custom=False) #default status
         create(SalesOrderStatus, 2, name=_(u"Accepted"), is_custom=True)
@@ -96,7 +91,5 @@ class Populator(BasePopulator):
         create_hf('billing-hf_salesorder', 'billing-hfi_salesorder_', _(u'Sales order view'), SalesOrder)
         create_hf('billing-hf_creditnote', 'billing-hfi_creditnote_', _(u'Credit note view'), CreditNote)
 
-        SearchConfigItem.create(Invoice,    ['name', 'number', 'total', 'status__name'])
-        SearchConfigItem.create(CreditNote, ['name', 'number', 'total', 'status__name'])
-        SearchConfigItem.create(Quote,      ['name', 'number', 'total', 'status__name'])
-        SearchConfigItem.create(SalesOrder, ['name', 'number', 'total', 'status__name'])
+        for model in (Invoice, CreditNote, Quote, SalesOrder):
+            SearchConfigItem.create(model, ['name', 'number', 'total', 'status__name'])

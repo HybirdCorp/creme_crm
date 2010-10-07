@@ -6,10 +6,9 @@ from django.conf.urls.defaults import patterns
 urlpatterns = patterns('billing.views',
     (r'^$', 'portal.portal'),
 
-    (r'^odt/(?P<base_id>\d*)$', 'export.export_odt'),
-    (r'^pdf/(?P<base_id>\d*)$', 'export.export_pdf'),
-    
-    (r'^generate_pdf/(?P<base_id>\d*)$', 'export.export_pdf_by_latex'),
+    (r'^odt/(?P<base_id>\d+)$',          'export.export_odt'), #TODO: delete ??
+    (r'^pdf/(?P<base_id>\d+)$',          'export.export_pdf'), #TODO: delete ??
+    (r'^generate_pdf/(?P<base_id>\d+)$', 'export.export_pdf_by_latex'),
 
     (r'^templates$',                            'templatebase.listview'),
     (r'^template/edit/(?P<template_id>\d+)$',   'templatebase.edit'),
@@ -25,19 +24,17 @@ urlpatterns = patterns('billing.views',
     (r'^quote/add$',                    'quote.add'),
     (r'^quote/edit/(?P<quote_id>\d+)$', 'quote.edit'),
     (r'^quote/(?P<quote_id>\d+)$',      'quote.detailview'),
-    
 
-    (r'^credit_note$',                       'credit_note.listview'),
-    (r'^credit_note/add$',                    'credit_note.add'),
+    (r'^credit_note$',                              'credit_note.listview'),
+    (r'^credit_note/add$',                          'credit_note.add'),
     (r'^credit_note/edit/(?P<credit_note_id>\d+)$', 'credit_note.edit'),
     (r'^credit_note/(?P<credit_note_id>\d+)$',      'credit_note.detailview'),
-    
 
-    (r'^invoices$',                         'invoice.listview'),
-    (r'^invoice/add$',                      'invoice.add'),
-    (r'^invoice/edit/(?P<invoice_id>\d+)$', 'invoice.edit'),
+    (r'^invoices$',                                    'invoice.listview'),
+    (r'^invoice/add$',                                 'invoice.add'),
+    (r'^invoice/edit/(?P<invoice_id>\d+)$',            'invoice.edit'),
     (r'^invoice/generate_number/(?P<invoice_id>\d+)$', 'invoice.generate_number'),
-    (r'^invoice/(?P<invoice_id>\d+)$',      'invoice.detailview'),
+    (r'^invoice/(?P<invoice_id>\d+)$',                 'invoice.detailview'),
 
     (r'^(?P<document_id>\d+)/convert/$', 'convert.convert'),
 

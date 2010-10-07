@@ -34,10 +34,10 @@ from billing.views.base import view_billing_entity
 @get_view_or_die('billing')
 @add_view_or_die(ContentType.objects.get_for_model(CreditNote), None, 'billing')
 def add(request):
-    return add_entity(request, CreditNoteCreateForm, template='billing/add_billing.html')
+    return add_entity(request, CreditNoteCreateForm)
 
 def edit(request, credit_note_id):
-    return edit_entity(request, credit_note_id, CreditNote, CreditNoteEditForm, 'billing', 'billing/edit_billing.html')
+    return edit_entity(request, credit_note_id, CreditNote, CreditNoteEditForm, 'billing')
 
 @login_required
 def detailview(request, credit_note_id):
