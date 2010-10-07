@@ -32,7 +32,7 @@ from creme_core.models.custom_field import CustomField
 from creme_core.registry import creme_registry, NotRegistered
 from creme_core.entities_access.functions_for_permissions import edit_object_or_die
 from creme_core.utils.meta import get_flds_with_fk_flds, get_flds_with_fk_flds_str
-from creme_core.utils import get_ct_or_404
+from creme_core.utils import get_ct_or_404, get_from_POST_or_404
 #from creme.creme_utils.views import handle_uploaded_file
 
 
@@ -116,42 +116,48 @@ def fieldHasNGetFK(request):
         return HttpResponse(JSONEncoder().encode(datas), mimetype="text/javascript")
     return HttpResponse('', mimetype="text/javascript", status=400)
 
-#TODO: use utils.jsonify ???
 @login_required
 def get_fields(request):
-    """
-        @Returns : Fields for a model [('field1', 'field1_verbose_name'),...]
-    """
-    post_get = request.POST.get
-    model    = get_ct_or_404(post_get('ct_id')).model_class()
+    """@return Fields for a model [('field1', 'field1_verbose_name'),...]"""
+    POST = request.POST
 
     try:
-        deep = int(post_get('deep', 1))
-    except ValueError:
-        deep = 1
+        model = get_ct_or_404(int(get_from_POST_or_404(POST, 'ct_id'))).model_class()
+        deep  = int(POST.get('deep', 1))
+    except ValueError, e:
+        msg    = str(e)
+        status = 400
+    except Http404, e:
+        msg    = str(e)
+        status = 404
+    else:
+        msg    = JSONEncoder().encode(get_flds_with_fk_flds_str(model, deep))
+        status = 200
 
-    fields = get_flds_with_fk_flds_str(model, deep)
+    return HttpResponse(msg, mimetype="text/javascript", status=status)
 
-    return HttpResponse(JSONEncoder().encode(fields), mimetype="text/javascript")
-
-#TODO: use utils.jsonify ???
 @login_required
+def _get_ct_info(request, generator):
+    try:
+        ct = get_ct_or_404(int(get_from_POST_or_404(request.POST, 'ct_id')))
+    except ValueError, e:
+        status = 400
+        msg    = str(e)
+    except Http404, e:
+        status = 404
+        msg    = str(e)
+    else:
+        status = 200
+        msg    = JSONEncoder().encode(generator(ct))
+
+    return HttpResponse(msg, mimetype="text/javascript", status=status)
+
 def get_custom_fields(request):
-    """
-        @Returns : Custom fields for a model [('cfield1_name', 'cfield1_name'),...]
-    """
-    ct = get_ct_or_404(request.POST.get('ct_id'))
-    fields = [(cf.name, cf.name) for cf in CustomField.objects.filter(content_type=ct)]
+    """@return Custom fields for a model [('cfield1_name', 'cfield1_name'), ...]"""
+    return _get_ct_info(request,
+                        lambda ct: [(cf.name, cf.name) for cf in CustomField.objects.filter(content_type=ct)])
 
-    return HttpResponse(JSONEncoder().encode(fields), mimetype="text/javascript")
-
-#TODO: use utils.jsonify ???
-@login_required
 def get_function_fields(request):
-    """
-        @Returns : functions fields for a model [('func_name', 'func_verbose_name'), ...]
-    """
-    ct = get_ct_or_404(request.POST.get('ct_id'))
-    functions = [(f_field.name, unicode(f_field.verbose_name)) for f_field in ct.model_class().function_fields]
-
-    return HttpResponse(JSONEncoder().encode(functions), mimetype="text/javascript")
+    """@return functions fields for a model [('func_name', 'func_verbose_name'), ...]"""
+    return _get_ct_info(request,
+                        lambda ct: [(f_field.name, unicode(f_field.verbose_name)) for f_field in ct.model_class().function_fields])
