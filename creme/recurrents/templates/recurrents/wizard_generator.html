@@ -1,11 +1,6 @@
 {% extends "creme_core/base.html" %}
 
-{% load creme_core_tags %}
-
-{% block extrahead %}
-    {% comment %}  WTF !!???  (remove when billing form use True widgets)  {% endcomment %}
-    {% include "billing/form_script.html" %}
-{% endblock %}
+{% comment %}{% load creme_core_tags %}{% endcomment %}
 
 {% block content %}
     {% include "recurrents/frags/wizard_form_content.html" %}

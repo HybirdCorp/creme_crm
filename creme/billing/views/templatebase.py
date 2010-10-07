@@ -31,7 +31,7 @@ from billing.views.base import view_billing_entity
 
 
 def edit(request, template_id):
-    return edit_entity(request, template_id, TemplateBase, TemplateBaseEditForm, 'billing', 'billing/edit_billing.html')
+    return edit_entity(request, template_id, TemplateBase, TemplateBaseEditForm, 'billing')
 
 @login_required
 @get_view_or_die('recurrents')

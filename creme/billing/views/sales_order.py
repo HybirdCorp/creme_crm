@@ -34,10 +34,10 @@ from billing.views.base import view_billing_entity
 @get_view_or_die('billing')
 @add_view_or_die(ContentType.objects.get_for_model(SalesOrder), None, 'billing')
 def add(request):
-    return add_entity(request, SalesOrderCreateForm, template='billing/add_billing.html')
+    return add_entity(request, SalesOrderCreateForm)
 
 def edit(request, order_id):
-    return edit_entity(request, order_id, SalesOrder, SalesOrderEditForm, 'billing', 'billing/edit_billing.html')
+    return edit_entity(request, order_id, SalesOrder, SalesOrderEditForm, 'billing')
 
 @login_required
 def detailview(request, order_id):
