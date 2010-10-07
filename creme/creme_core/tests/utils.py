@@ -84,7 +84,17 @@ class MetaTestCase(TestCase):
         except Exception, e:
             self.fail(str(e))
 
-    #TODO: test get_flds_with_fk_flds
+    def test_get_date_fields(self):
+        entity = models.CremeEntity()
+        get_field = entity._meta.get_field
+        self.assert_(meta.is_date_field(get_field('created')))
+        self.failIf(meta.is_date_field(get_field('user')))
+
+        datefields = meta.get_date_fields(entity)
+        self.assertEqual(2, len(datefields))
+        self.assertEqual(set(('created', 'modified')), set(f.name for f in datefields))
+
+    #TODO: test get_flds_with_fk_flds etc...
 
 
 class ChunkToolsTestCase(TestCase):
