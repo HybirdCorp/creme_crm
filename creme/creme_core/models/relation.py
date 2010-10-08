@@ -272,6 +272,28 @@ class Relation(CremeAbstractEntity):
         relation.subject_entity = subject
         relation.type_id = relation_type_id
         relation.object_entity = object_
-        #relation.user = User.objects.get(pk=1)
         relation.user_id = user_id
         relation.save()
+
+    def update_links(self, subject_entity=None, object_entity=None, save=False):
+        """Beware: use this method if you have to update the related entities of a relation.
+        @param subject_entity Give the param if you want to update the value of the relation's subject.
+        @param object_entity Give the param if you want to update the value of the relation's object.
+        @param save Save the relation if needed. Default to False.
+        """
+        changed = False
+
+        if subject_entity is not None:
+            if self.subject_entity_id != subject_entity.id:
+                self.subject_entity = subject_entity
+                self.symmetric_relation.object_entity = subject_entity
+                changed = True
+
+        if object_entity is not None:
+            if self.object_entity_id != object_entity.id:
+                self.object_entity = object_entity
+                self.symmetric_relation.subject_entity = object_entity
+                changed = True
+
+        if save and changed:
+            self.save()
