@@ -79,3 +79,16 @@ def get_from_POST_or_404(POST, key):
         return POST[key]
     except KeyError:
         raise Http404('No POST argument with this key: %s' % key)
+
+def find_first(iterable, function, *default):
+    """
+    @param default Optionnal argument.
+    """
+    for elt in iterable:
+        if function(elt):
+            return elt
+
+    if default:
+        return default[0]
+
+    raise IndexError
