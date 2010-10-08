@@ -42,14 +42,14 @@ default_decimal = Decimal()
 def _add_line(request, form_class, document_id):
     return add_to_entity(request, document_id, form_class,
                          _(u"New line in the document <%s>"),
-                         initial={
-                                    'quantity':       0,
-                                    'unit_price':     default_decimal,
-                                    'credit':         default_decimal,
-                                    'discount':       default_decimal,
-                                    'total_discount': False,
-                                    'vat':            DEFAULT_VAT,
-                                  },
+                         #initial={ #COMMENTED on 8 Oct 2010
+                                    #'quantity':       0,
+                                    #'unit_price':     default_decimal,
+                                    #'credit':         default_decimal,
+                                    #'discount':       default_decimal,
+                                    #'total_discount': False,
+                                    #'vat':            DEFAULT_VAT,
+                                  #},
                          )
 
 def add_product_line(request, document_id):

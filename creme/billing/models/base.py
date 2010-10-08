@@ -35,10 +35,10 @@ from billing.utils import round_to_2
 
 
 class Base(CremeEntity):
-    name             = CharField(_(u'Name'), max_length=100, blank=False, null=False)
+    name             = CharField(_(u'Name'), max_length=100)
     number           = CharField(_(u'Number'), max_length=100, blank=True, null=True)
     issuing_date     = DateField(_(u"Issuing date"), blank=True, null=True)
-    expiration_date  = DateField(_(u"Expiration date"), blank=True, null=True)
+    expiration_date  = DateField(_(u"Expiration date"), blank=True, null=True) #TODO: null/blank=False (required in the form)
     discount         = DecimalField(_(u'Discount'), max_digits=4, decimal_places=2, blank=True, null=True)
     billing_address  = ForeignKey(Address, verbose_name=_(u'Billing address'), related_name='BillingAddress_set', blank=True, null=True)
     shipping_address = ForeignKey(Address, verbose_name=_(u'Shipping address'), related_name='ShippingAddress_set', blank=True, null=True)
@@ -46,11 +46,16 @@ class Base(CremeEntity):
     total            = DecimalField(_(u'Total'), max_digits=14, decimal_places=2, blank=True, null=True)
 
     research_fields = CremeEntity.research_fields + ['name']
-    
+
     generate_number_in_create = True
 
     class Meta:
         app_label = 'billing'
+
+    def __init__(self, *args, **kwargs):
+        super(Base, self).__init__(*args, **kwargs)
+        self._productlines_cache = None
+        self._servicelines_cache = None
 
     def __unicode__(self):
         return self.name
@@ -96,45 +101,42 @@ class Base(CremeEntity):
                 debug('Exception during billing.generate_number(): %s', e)
 
     def get_product_lines(self):
-        return ProductLine.objects.filter(document=self)
+        if self._productlines_cache is None:
+            self._productlines_cache = list(ProductLine.objects.filter(document=self)) #force the retrieving all all lines (no slice)
+        else:
+            debug('Cache HIT for product lines in document pk=%s !!' % self.id)
+
+        return self._productlines_cache
 
     def get_service_lines(self):
-        return ServiceLine.objects.filter(document=self)
+        if self._servicelines_cache is None:
+            self._servicelines_cache = list(ServiceLine.objects.filter(document=self))
+        else:
+            debug('Cache HIT for service lines in document pk=%s !!' % self.id)
+
+        return self._servicelines_cache
 
     # Could replace get_x_lines()
     def get_lines(self, klass):
         return klass.objects.filter(document=self)
 
-    # TODO : Not use and could be refactor : get_line_total_price(tax = True, klass) ( klass would be ProductLine, ServiceLine, ... )
     def get_product_lines_total_price_exclusive_of_tax(self):
-        total = 0
-        for p in ProductLine.objects.filter(document=self):
-            total += p.get_price_exclusive_of_tax()
-        return round_to_2(total)
+        return round_to_2(sum(l.get_price_exclusive_of_tax() for l in self.get_product_lines()))
 
     def get_product_lines_total_price_inclusive_of_tax(self):
-        total = 0
-        for p in ProductLine.objects.filter(document=self):
-            total += p.get_price_inclusive_of_tax()
-        return round_to_2(total)
+        return round_to_2(sum(l.get_price_inclusive_of_tax() for l in self.get_product_lines()))
 
     def get_service_lines_total_price_exclusive_of_tax(self):
-        total = 0
-        for s in ServiceLine.objects.filter(document=self):
-            total += s.get_price_exclusive_of_tax()
-        return round_to_2(total)
+        return round_to_2(sum(l.get_price_exclusive_of_tax() for l in self.get_service_lines()))
 
     def get_service_lines_total_price_inclusive_of_tax(self):
-        total = 0
-        for s in ServiceLine.objects.filter(document=self):
-            total += s.get_price_inclusive_of_tax()
-        return round_to_2(total)
+        return round_to_2(sum(l.get_price_inclusive_of_tax() for l in self.get_service_lines()))
 
-    def get_total (self):
-        return self.get_service_lines_total_price_exclusive_of_tax () + self.get_product_lines_total_price_exclusive_of_tax()
+    def get_total(self):
+        return self.get_service_lines_total_price_exclusive_of_tax() + self.get_product_lines_total_price_exclusive_of_tax()
 
     def get_total_with_tax(self):
-        return self.get_service_lines_total_price_inclusive_of_tax () + self.get_product_lines_total_price_inclusive_of_tax()
+        return self.get_service_lines_total_price_inclusive_of_tax() + self.get_product_lines_total_price_inclusive_of_tax()
 
     def build(self, template):
         self._build_object(template)

@@ -20,35 +20,37 @@
 
 from django.utils.translation import ugettext_lazy as _
 
-from creme_core.gui.block import Block, QuerysetBlock
+from creme_core.gui.block import Block, PaginatedBlock
 from creme_core.models import CremeEntity
 
 from billing.models import ProductLine, ServiceLine
 
 
-class ProductLinesBlock(QuerysetBlock):
-    id_           = QuerysetBlock.generate_id('billing', 'product_lines')
+#NB PaginatedBlock and not QuerysetBlock to avoid the retrieving of a sliced
+#   queryset of lines : we retrieve all the lines to compute the totals any way.
+class ProductLinesBlock(PaginatedBlock):
+    id_           = PaginatedBlock.generate_id('billing', 'product_lines')
     dependencies  = (ProductLine,)
     verbose_name  = _(u'Product lines')
     template_name = 'billing/templatetags/block_product_line.html'
 
     def detailview_display(self, context):
-        pk = context['object'].pk
-        return self._render(self.get_block_template_context(context, ProductLine.objects.filter(document=pk),
-                                                            update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, pk),
+        document = context['object']
+        return self._render(self.get_block_template_context(context, document.get_product_lines(),
+                                                            update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, document.pk),
                                                             ))
 
 
-class  ServiceLinesBlock(QuerysetBlock):
-    id_           = QuerysetBlock.generate_id('billing', 'service_lines')
+class  ServiceLinesBlock(PaginatedBlock):
+    id_           = PaginatedBlock.generate_id('billing', 'service_lines')
     dependencies  = (ServiceLine,)
     verbose_name  = _(u'Service lines')
     template_name = 'billing/templatetags/block_service_line.html'
 
     def detailview_display(self, context):
-        pk = context['object'].pk
-        return self._render(self.get_block_template_context(context, ServiceLine.objects.filter(document=pk),
-                                                            update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, pk),
+        document = context['object']
+        return self._render(self.get_block_template_context(context, document.get_service_lines(),
+                                                            update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, document.pk),
                                                             ))
 
 
@@ -58,12 +60,9 @@ class TotalBlock(Block):
     verbose_name  = _(u'Total')
     template_name = 'billing/templatetags/block_total.html'
 
+    #TODO: move in Block ??
     def detailview_display(self, context):
-        document = context['object']
-        return self._render(self.get_block_template_context(context,
-                                                            total=document.get_total(), #TODO: Why not in the template ??
-                                                            total_with_tax=document.get_total_with_tax()) #TODO: Why not in the template ??
-                            )
+        return self._render(self.get_block_template_context(context))
 
 
 product_lines_block = ProductLinesBlock()
