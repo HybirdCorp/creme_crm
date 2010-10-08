@@ -39,11 +39,11 @@ class Line(CremeModel):
 
     comment         = TextField(_('Comment'), blank=True, null=True)
     quantity        = IntegerField(_(u'Quantity'), blank=False, null=False, default=0)
-    unit_price      = DecimalField(_(u'Unit price'), max_digits=10, decimal_places=2, blank=True, default=default_decimal)
-    discount        = DecimalField(_(u'Discount'), max_digits=10, decimal_places=2, blank=True, default=default_decimal)
-    credit          = DecimalField(_(u'Credit'), max_digits=10, decimal_places=2, blank=True, default=default_decimal)
+    unit_price      = DecimalField(_(u'Unit price'), max_digits=10, decimal_places=2, default=default_decimal)
+    discount        = DecimalField(_(u'Discount'), max_digits=10, decimal_places=2, default=default_decimal)
+    credit          = DecimalField(_(u'Credit'), max_digits=10, decimal_places=2, default=default_decimal)
     total_discount  = BooleanField(_('Total discount ?'))
-    vat             = DecimalField(_(u'VAT'), max_digits=4, decimal_places=2, blank=True, default=DEFAULT_VAT)
+    vat             = DecimalField(_(u'VAT'), max_digits=4, decimal_places=2, default=DEFAULT_VAT)
     is_paid         = BooleanField(_(u'Paid ?'))
 
     class Meta:
