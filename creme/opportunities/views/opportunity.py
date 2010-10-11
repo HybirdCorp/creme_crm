@@ -30,6 +30,7 @@ from django.contrib.contenttypes.models import ContentType
 from creme_core.models import Relation
 from creme_core.entities_access.functions_for_permissions import add_view_or_die, get_view_or_die
 from creme_core.views.generic import add_entity, edit_entity, view_entity_with_template, list_view
+from creme_core.utils import get_ct_or_404
 
 from creme_config.models import CremeKVConfig
 
@@ -90,15 +91,12 @@ _CURRENT_DOC_DICT = {
             SalesOrder: False
         }
 
+#TODO: use a POST instead ??
 @login_required
 @get_view_or_die('opportunities')
 def generate_new_doc(request, opp_id, ct_id):
-    try:
-        ct_doc = ContentType.objects.get_for_id(ct_id)
-    except ContentType.DoesNotExist:
-        raise Http404('No ContentType matches the given query.')
-
-    opp = get_object_or_404 (Opportunity, id=opp_id)
+    ct_doc = get_ct_or_404(ct_id)
+    opp    = get_object_or_404(Opportunity, id=opp_id)
 
     klass = ct_doc.model_class()
     document = klass()
