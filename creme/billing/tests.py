@@ -48,7 +48,6 @@ class BillingTestCase(TestCase):
         self.assertEqual(1, CremePropertyType.objects.filter(pk=PROP_IS_MANAGED_BY_CREME).count())
 
     def create_invoice(self, name, source, target):
-        #return self.client.post('/billing/invoice/add', follow=True,
         response = self.client.post('/billing/invoice/add', follow=True,
                                     data={
                                             'user':            self.user.pk,
@@ -85,16 +84,6 @@ class BillingTestCase(TestCase):
         self.failIf(target.billing_address)
         self.failIf(target.shipping_address)
 
-        #response = self.create_invoice(name, source, target)
-        #self.assertEqual(200, response.status_code)
-        #self.assertEqual(1,   len(response.redirect_chain))
-
-        #try:
-            #invoice = Invoice.objects.get(name=name)
-        #except Exception, e:
-            #self.fail(str(e))
-
-        #self.assert_(response.redirect_chain[0][0].endswith('/billing/invoice/%s' % invoice.id))
         invoice = self.create_invoice(name, source, target)
 
         self.assertEqual(1,    invoice.status_id)
@@ -178,25 +167,27 @@ class BillingTestCase(TestCase):
         response = self.client.get('/billing/invoice/edit/%s' % invoice.id)
         self.assertEqual(200, response.status_code)
 
+    def create_invoice_n_orgas(self, name):
+        create = Organisation.objects.create
+        source = create(user=self.user, name='Source Orga')
+        target = create(user=self.user, name='Target Orga')
+
+        invoice = self.create_invoice(name, source, target)
+
+        return invoice, source, target
+
     def test_invoice_editview02(self):
         self.login()
 
-        name     = 'Invoice001'
-        create_orga = Organisation.objects.create
-        source   = create_orga(user=self.user, name='Source Orga')
-        target   = create_orga(user=self.user, name='Target Orga')
-
-        #self.create_invoice(name, source, target)
-        #try:
-            #invoice = Invoice.objects.get(name=name)
-        #except Exception, e:
-            #self.fail(str(e))
-        invoice = self.create_invoice(name, source, target)
+        name = 'Invoice001'
+        invoice, source, target = self.create_invoice_n_orgas(name)
 
         response = self.client.get('/billing/invoice/edit/%s' % invoice.id)
         self.assertEqual(200, response.status_code)
 
         name += '_edited'
+
+        create_orga = Organisation.objects.create
         source = create_orga(user=self.user, name='Source Orga 2')
         target = create_orga(user=self.user, name='Target Orga 2')
 
@@ -228,14 +219,10 @@ class BillingTestCase(TestCase):
         self.assertEqual(11,   exp_date.month)
         self.assertEqual(14,   exp_date.day)
 
-    def test_invoice_addlines01(self):
+    def test_invoice_addlines01(self): #product line
         self.login()
 
-        create_orga = Organisation.objects.create
-        source  = create_orga(user=self.user, name='Source Orga')
-        target  = create_orga(user=self.user, name='Target Orga')
-        invoice = self.create_invoice('Invoice001', source, target)
-
+        invoice  = self.create_invoice_n_orgas('Invoice001')[0]
         response = self.client.get('/billing/%s/product_line/add' % invoice.id)
         self.assertEqual(200, response.status_code)
 
@@ -265,4 +252,39 @@ class BillingTestCase(TestCase):
         self.assertEqual(unit_price, invoice.get_total())
         self.assertEqual(unit_price, invoice.get_total_with_tax())
 
-    #TODO: add product on-the fly line, add service lines
+    def test_invoice_addlines02(self): #service line
+        self.login()
+
+        invoice = self.create_invoice_n_orgas('Invoice001')[0]
+        response = self.client.get('/billing/%s/service_line/add' % invoice.id)
+        self.assertEqual(200, response.status_code)
+
+        self.failIf(invoice.get_service_lines())
+
+        unit_price = Decimal('1.33')
+        cat     = ServiceCategory.objects.create(name='Cat', description='DESCRIPTION')
+        service = Service.objects.create(user=self.user, name='Mushroom hunting', reference='465',
+                                         unit_price=unit_price, description='Wooot', countable=False,
+                                         category=cat)
+
+        response = self.client.post('/billing/%s/service_line/add' % invoice.id,
+                                    data={
+                                            'user':         self.user.pk,
+                                            'related_item': service.id,
+                                            'comment':      'no comment !',
+                                            'quantity':     2,
+                                            'unit_price':   unit_price,
+                                            'discount':     Decimal(),
+                                            'vat':          Decimal('19.6'),
+                                            'credit':       Decimal(),
+                                         }
+                                   )
+        self.assertEqual(200, response.status_code)
+        self.failIf(response.context['form'].errors)
+
+        invoice = Invoice.objects.get(pk=invoice.id) #refresh (line cache)
+        self.assertEqual(1, len(invoice.get_service_lines()))
+        self.assertEqual(Decimal('2.66'), invoice.get_total()) # 2 * 1.33
+        self.assertEqual(Decimal('3.19'), invoice.get_total_with_tax()) #2.66 * 1.196 == 3.18136
+
+    #TODO: add product/service on-the fly line
