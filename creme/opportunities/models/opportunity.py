@@ -137,6 +137,7 @@ class Opportunity(CremeEntity):
             self._service_lines = ServiceLine.objects.filter(document=self)
         return self._service_lines
 
+    #TODO: factorise with billing ??
     def get_total(self):
         if self.use_lines:
             #TODO: can use aggregate functions instead ???
@@ -147,6 +148,7 @@ class Opportunity(CremeEntity):
             else:
                 return (self.estimated_sales or 0.0)
 
+    #TODO: factorise with billing ??
     def get_total_with_tax(self):
         if self.use_lines:
             return round_to_2(sum(l.get_price_inclusive_of_tax() for l in chain(self.product_lines, self.service_lines)))
