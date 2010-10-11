@@ -19,10 +19,9 @@
 ################################################################################
 
 from decimal import Decimal
+
 from billing.constants import ROUND_POLICY
 
-#def round_to_2(decimal_instance):
-#    return decimal_instance.quantize(Decimal('.01'), rounding=ROUND_POLICY)
 
 def round_to_2(decimal_instance):
     try:
