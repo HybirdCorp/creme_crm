@@ -27,7 +27,8 @@ from creme_core.models.entity import CremeEntity
 from creme_core.entities_access.functions_for_permissions import get_view_or_die, edit_object_or_die
 from creme_core.views.generic import inner_popup
 
-from projects import constants
+from projects.models import ProjectTask
+from projects.constants import COMPLETED_PK, CANCELED_PK
 
 
 def error_popup(request, message):
@@ -39,29 +40,27 @@ def error_popup(request, message):
                        is_valid=False,
                        context_instance=RequestContext(request))
 
-#TODO: factorise get_real_entity()....
 @login_required
 @get_view_or_die('projects')
 def _add_generic(request, form, task_id, title):
-    task = get_object_or_404(CremeEntity, pk=task_id)
+    task = get_object_or_404(ProjectTask, pk=task_id)
 
     die_status = edit_object_or_die(request, task)
     if die_status:
         return die_status
 
-    current_status_id = task.get_real_entity().status_id
-    if current_status_id == constants.COMPLETED_PK or current_status_id == constants.CANCELED_PK:
-        state = task.get_real_entity().status.name
+    if task.status_id in (COMPLETED_PK, CANCELED_PK):
+        state = task.status.name
         return error_popup(request,
                            _(u"You can't add a resources or a working period to a task which has status <%s>") % state)
 
     if request.POST:
-        form_obj = form(request.POST, initial={'related_task': task.get_real_entity()})
+        form_obj = form(task, request.POST)
 
         if form_obj.is_valid():
             form_obj.save()
     else:
-        form_obj = form(initial={'related_task': task.get_real_entity()})
+        form_obj = form(task)
 
     return inner_popup(request, 'creme_core/generics/blockform/add_popup2.html',
                        {

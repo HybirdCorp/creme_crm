@@ -33,6 +33,7 @@ from django.contrib.contenttypes.models import ContentType
 
 from creme_core.models import RelationType, CremeEntity
 from creme_core.utils import creme_entity_content_types
+from creme_core.utils.queries import get_q_from_dict
 from creme_core.forms.widgets import CTEntitySelector, SelectorList, ListViewWidget, ListEditionWidget, RelationListWidget, CalendarWidget, TimeWidget
 from creme_core.constants import REL_SUB_RELATED_TO, REL_SUB_HAS
 
@@ -170,7 +171,7 @@ class _EntityField(_CommaMultiValueField):
     def _set_model(self, model):
         self._model = self.widget.model = model
 
-    model = property(_get_model, _set_model) #TODO: lambda isntead of '_get_model' ??
+    model = property(_get_model, _set_model) #TODO: lambda instead of '_get_model' ?? del _set_model ?
 
     def _get_q_filter(self):
         return self._q_filter
@@ -223,7 +224,7 @@ class CremeEntityField(_EntityField):
 
         try:
             if self.q_filter is not None:
-                return self.model.objects.filter(**self.q_filter).get(pk=clean_id[0])
+                return self.model.objects.filter(get_q_from_dict(self.q_filter)).get(pk=clean_id[0])
             else:
                 return self.model.objects.get(pk=clean_id[0])
         except self.model.DoesNotExist:
@@ -251,7 +252,8 @@ class MultiCremeEntityField(_EntityField):
             return []
 
         if self.q_filter is not None:
-            entities = self.model.objects.filter(**self.q_filter).filter(pk__in=cleaned_ids)
+            #entities = self.model.objects.filter(**self.q_filter).filter(pk__in=cleaned_ids) #COMMENTED on 12 oct 2010 ; to be tested
+            entities = self.model.objects.filter(get_q_from_dict(self.q_filter)).filter(pk__in=cleaned_ids)
         else:
             entities = self.model.objects.filter(pk__in=cleaned_ids)
 

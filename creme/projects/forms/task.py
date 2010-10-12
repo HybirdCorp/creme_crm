@@ -18,9 +18,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.forms import DateTimeField
+from django.forms import DateTimeField, ValidationError
 from django.utils.translation import ugettext_lazy as _, ugettext
-from django.forms import ValidationError
 from django.forms.widgets import HiddenInput
 
 from creme_core.forms import CremeEntityForm
@@ -43,6 +42,7 @@ class TaskEditForm(CremeEntityForm):
         parents  = self.cleaned_data['parents_task']
         instance = self.instance
 
+        #TODO: use a q_filter to avoid selecting itself; check true cycle
         for parent in parents:
             if parent == instance:
                 raise ValidationError(ugettext(u"A task can't be its own parent"))
@@ -51,21 +51,15 @@ class TaskEditForm(CremeEntityForm):
 
 
 class TaskCreateForm(TaskEditForm):
-    class Meta:
-        model = ProjectTask
-        exclude = CremeEntityForm.Meta.exclude + ('is_all_day', 'type', 'order', 'project')
-
     def __init__(self, project, *args, **kwargs):
         super(TaskCreateForm, self).__init__(*args, **kwargs)
         self._project = project
 
-    #TODO: don't save twice ??
-    def save(self):
+    def save(self, *args, **kwargs):
         instance = self.instance
-        instance.project = self._project
-        super(TaskCreateForm, self).save()
+        project  = self._project
 
-        instance.order = instance.project.attribute_order_task()
-        instance.save()
+        instance.project = project
+        instance.order   = project.attribute_order_task()
 
-        return instance
+        return super(TaskCreateForm, self).save(*args, **kwargs)
