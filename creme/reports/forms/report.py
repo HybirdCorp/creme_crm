@@ -302,6 +302,7 @@ class LinkFieldToReportForm(CremeForm):
         self.ct = ct
         super(LinkFieldToReportForm, self).__init__(*args, **kwargs)
 
+        #TODO: on the field, not the widget...
         self.fields['report'].widget.q_filter = {'ct__id' : ct.id, '~id__in' : [r.id for r in chain(report.get_ascendants_reports(),[report])]}
 
     def save(self):

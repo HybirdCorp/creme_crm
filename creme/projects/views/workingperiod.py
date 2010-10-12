@@ -27,14 +27,14 @@ from creme_core.entities_access.functions_for_permissions import get_view_or_die
 from creme_core.utils import get_from_POST_or_404
 
 from projects.models import WorkingPeriod
-from projects.forms.workingperiod import PeriodCreateForm, PeriodEditForm
+from projects.forms.workingperiod import WorkingPeriodForm
 from projects.views.utils import _add_generic, _edit_generic
 
 
 @login_required
 @get_view_or_die('projects')
 def add(request, task_id):
-    return _add_generic(request, PeriodCreateForm, task_id, _(u"New working period"))
+    return _add_generic(request, WorkingPeriodForm, task_id, _(u"New working period"))
 
 @login_required
 @get_view_or_die('projects')
@@ -42,7 +42,7 @@ def edit(request, period_id):
     """
         @Permissions : Acces or Admin to project & Edit on current object
     """
-    return _edit_generic(request, PeriodEditForm, period_id, WorkingPeriod, _(u"Edition of a working period"))
+    return _edit_generic(request, WorkingPeriodForm, period_id, WorkingPeriod, _(u"Edition of a working period"))
 
 @login_required
 def delete(request):

@@ -18,9 +18,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.db.models import CharField, TextField, ForeignKey, DateTimeField
+from django.db.models import CharField, TextField, ForeignKey, DateTimeField, Max
 from django.utils.translation import ugettext_lazy as _
-from django.db.models import Max
 
 from creme_core.models import CremeEntity, Relation
 

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-09-09 21:40+0200\n"
+"POT-Creation-Date: 2010-10-12 13:24+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -75,7 +75,7 @@ msgstr "Terminée"
 msgid "The task is finished"
 msgstr "La tâche est terminée"
 
-#: creme_core_register.py:31 models/project.py:44
+#: creme_core_register.py:31 models/project.py:43
 msgid "Projects"
 msgstr "Projets"
 
@@ -165,7 +165,7 @@ msgstr "Vue de Projet"
 msgid "Name"
 msgstr "Nom"
 
-#: populate.py:58 models/project.py:33 models/projectstatus.py:30
+#: populate.py:58 models/project.py:32 models/projectstatus.py:30
 #: models/taskstatus.py:30
 msgid "Description"
 msgstr "Description"
@@ -210,23 +210,19 @@ msgstr "Responsable(s) du projet"
 msgid "Contact to be assigned to this task"
 msgstr "Contact à affecter à cette tâche"
 
-#: forms/resource.py:50
-msgid "This resource is already assigned to thsi task"
-msgstr "Cette ressource est déjà affectée à la tâche"
-
-#: forms/task.py:35
+#: forms/task.py:33
 msgid "Start"
 msgstr "Début"
 
-#: forms/task.py:36
+#: forms/task.py:34
 msgid "End"
 msgstr "Fin"
 
-#: forms/task.py:37 templates/projects/templatetags/block_tasks.html:22
+#: forms/task.py:35 templates/projects/templatetags/block_tasks.html:22
 msgid "Parent tasks"
 msgstr "Tâche(s) parente(s)"
 
-#: forms/task.py:46
+#: forms/task.py:48
 msgid "A task can't be its own parent"
 msgstr "Une tâche ne peut pas être parente d'elle même"
 
@@ -248,32 +244,28 @@ msgstr "Et"
 msgid "Period duration"
 msgstr "Durée de la période"
 
-#: forms/workingperiod.py:53
-msgid "This resource has not been allocated to this task"
-msgstr "Cette ressource n'a pas été affectée au projet"
-
-#: models/project.py:32
+#: models/project.py:31
 msgid "Name of the project"
 msgstr "Nom du projet"
 
-#: models/project.py:34 models/task.py:38
+#: models/project.py:33 models/task.py:38
 #: templates/projects/templatetags/block_tasks.html:21
 msgid "Status"
 msgstr "Statut"
 
-#: models/project.py:35
+#: models/project.py:34
 msgid "Estimated start"
 msgstr "Début prévisionnel"
 
-#: models/project.py:36
+#: models/project.py:35
 msgid "Estimated end"
 msgstr "Fin prévisionnelle"
 
-#: models/project.py:37
+#: models/project.py:36
 msgid "Effective end date"
 msgstr "Fin effective"
 
-#: models/project.py:43 models/task.py:34 templates/projects/portal.html:3
+#: models/project.py:42 models/task.py:34 templates/projects/portal.html:3
 #: templates/projects/view_project.html:17
 msgid "Project"
 msgstr "Projet"
@@ -296,7 +288,7 @@ msgid "Hourly cost (in €)"
 msgstr "Coût horaire (en €)"
 
 #: models/resource.py:34 models/task.py:49 models/workingperiod.py:34
-#: templates/projects/view_task.html:6
+#: templates/projects/view_task.html:8
 msgid "Task"
 msgstr "Tâche"
 
@@ -320,7 +312,7 @@ msgstr "Durée prévue (en heures)"
 msgid "Tasks"
 msgstr "Tâches"
 
-#: models/taskstatus.py:34 models/taskstatus.py:35
+#: models/taskstatus.py:35 models/taskstatus.py:36
 msgid "Status of task"
 msgstr "Statut(s) de tâche"
 
@@ -496,7 +488,7 @@ msgstr "Périodes"
 
 #: templates/projects/templatetags/block_working_periods.html:11
 #: templates/projects/templatetags/block_working_periods.html:12
-#: views/workingperiod.py:36
+#: views/workingperiod.py:37
 msgid "New working period"
 msgstr "Nouvelle période travaillée"
 
@@ -527,20 +519,20 @@ msgstr "Aucune période travaillée n'a été saisie concernant cette tâche"
 msgid "Number de projects"
 msgstr "Nombre de projet(s)"
 
-#: views/resource.py:34
+#: views/resource.py:35
 msgid "Allocation of a new resource"
 msgstr "Affectation d'une nouvelle ressource"
 
-#: views/resource.py:40
+#: views/resource.py:41
 msgid "Edition of a resource"
 msgstr "Édition d'une ressource"
 
-#: views/task.py:57
+#: views/task.py:37
 #, python-format
 msgid "Add a task to <%s>"
 msgstr "Ajouter une tâche à <%s>"
 
-#: views/workingperiod.py:44
+#: views/workingperiod.py:45
 msgid "Edition of a working period"
 msgstr "Édition d'une période travaillée"
 
@@ -551,3 +543,9 @@ msgid ""
 msgstr ""
 "Vous ne pouvez pas ajouter de ressources ou de périodes travaillées à une "
 "tâche en statut <%s>"
+
+#~ msgid "This resource is already assigned to this task"
+#~ msgstr "Cette ressource est déjà affectée à la tâche"
+
+#~ msgid "This resource has not been allocated to this task"
+#~ msgstr "Cette ressource n'a pas été affectée au projet"

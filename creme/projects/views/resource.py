@@ -26,19 +26,19 @@ from django.http import HttpResponse
 from creme_core.entities_access.functions_for_permissions import edit_object_or_die
 from creme_core.utils import get_from_POST_or_404
 
-from projects.forms.resource import ResourceCreateForm, ResourceEditForm
+from projects.forms.resource import ResourceForm
 from projects.views.utils import _add_generic, _edit_generic
 from projects.models import Resource
 
 
 def add(request, task_id):
-    return _add_generic(request, ResourceCreateForm, task_id, _(u"Allocation of a new resource"))
+    return _add_generic(request, ResourceForm, task_id, _(u"Allocation of a new resource"))
 
 def edit(request, resource_id):
     """
         @Permissions : Acces or Admin to project & Edit on current object
     """
-    return _edit_generic(request, ResourceEditForm, resource_id, Resource, _(u"Edition of a resource"))
+    return _edit_generic(request, ResourceForm, resource_id, Resource, _(u"Edition of a resource"))
 
 @login_required
 def delete(request):

@@ -29,7 +29,7 @@ from persons.models import Contact
 from projects.models import Resource
 
 
-class ResourceEditForm(CremeEntityForm):
+class ResourceForm(CremeEntityForm):
     linked_contact = CremeEntityField(label=_(u'Contact to be assigned to this task'),
                                       required=True, model=Contact)
 
@@ -37,20 +37,11 @@ class ResourceEditForm(CremeEntityForm):
         model = Resource
         exclude = CremeEntityForm.Meta.exclude + ('task',)
 
+    def __init__(self, task, *args, **kwargs):
+        super(ResourceForm, self).__init__(*args, **kwargs)
+        self.related_task = task
+        self.fields['linked_contact'].q_filter = {'~pk__in': list(task.resources_set.all().values_list('linked_contact_id', flat=True))}
 
-class ResourceCreateForm(ResourceEditForm):
-    def __init__(self, *args, **kwargs):
-        self.related_task = kwargs['initial'].pop('related_task')
-        super(ResourceCreateForm, self).__init__(*args, **kwargs)
-
-    def clean_linked_contact(self):
-        contact = self.cleaned_data['linked_contact']
-
-        if self.related_task.resources_set.filter(linked_contact=contact):
-            raise ValidationError(ugettext(u"This resource is already assigned to thsi task"))
-
-        return contact
-
-    def save(self):
+    def save(self, *args, **kwargs):
         self.instance.task = self.related_task
-        super(ResourceCreateForm, self).save()
+        return super(ResourceForm, self).save(*args, **kwargs)
