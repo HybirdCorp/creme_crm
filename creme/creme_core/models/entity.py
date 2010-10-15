@@ -93,6 +93,12 @@ class CremeEntity(CremeAbstractEntity):
 
         return unicode(real_entity)
 
+    def change_or_die(self, user):
+        return EntityCredentials.change_or_die(user, self)
+
+    def delete_or_die(self, user):
+        return EntityCredentials.delete_or_die(user, self)
+
     @staticmethod
     def get_real_entity_by_id(pk):
         return CremeEntity.objects.get(pk=pk).get_real_entity()
@@ -228,7 +234,17 @@ class CremeEntity(CremeAbstractEntity):
             debug(u'Fill properties cache entity_id=%s', entity_id)
             entity._properties = properties_map[entity_id]
 
+    def view_or_die(self, user):
+        return EntityCredentials.view_or_die(user, self)
+
+    def save(self, *args, **kwargs):
+        super(CremeEntity, self).save(*args, **kwargs)
+
+        #signal instead ??
+        EntityCredentials.create(self)
+
 
 from relation import Relation
 from creme_property import CremeProperty
 from custom_field import CustomField, CustomFieldValue
+from auth import EntityCredentials
