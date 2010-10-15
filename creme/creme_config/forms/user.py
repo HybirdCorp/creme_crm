@@ -39,6 +39,7 @@ from persons.models import Contact, Organisation
 
 _get_ct = ContentType.objects.get_for_model
 
+#TODO: see django.contrib.auth.forms.UserCreationForm
 class UserAddForm(CremeModelForm):
     password_1     = CharField(label=_(u"Password"), min_length=6, widget=PasswordInput(), required=True)
     password_2     = CharField(label=_(u"Confirm password"), min_length=6, widget=PasswordInput(), required=True)
@@ -117,6 +118,7 @@ class UserEditForm(CremeModelForm):
         fields = ('first_name', 'last_name', 'email', 'is_superuser')
 
 
+#TODO: see django.contrib.auth.forms.PasswordChangeForm
 class UserChangePwForm(CremeForm):
     password_1 = CharField(label=_(u"Password"), min_length=6, widget=PasswordInput())
     password_2 = CharField(label=_(u"Confirm password"), min_length=6, widget=PasswordInput())

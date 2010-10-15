@@ -16,6 +16,7 @@ from list_view_state import ListViewState
 
 from authent import CremeTypeDroit, CremeAppDroit, CremeAppTypeDroit, CremeDroitEntityType, CremeTypeEnsembleFiche
 from authent_role import CremeRole, CremeProfile
+from auth import EntityCredentials, UserRole, SetCredentials, UserProfile
 
 from lock import Lock
 

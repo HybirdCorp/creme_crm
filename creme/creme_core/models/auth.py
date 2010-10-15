@@ -1,0 +1,235 @@
+# -*- coding: utf-8 -*-
+
+################################################################################
+#    Creme is a free/open-source Customer Relationship Management software
+#    Copyright (C) 2009-2010  Hybird
+#
+#    This program is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU Affero General Public License as published by
+#    the Free Software Foundation, either version 3 of the License, or
+#    (at your option) any later version.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU Affero General Public License for more details.
+#
+#    You should have received a copy of the GNU Affero General Public License
+#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+################################################################################
+
+#import logging
+
+from django.db.models import Model, CharField, ForeignKey, PositiveSmallIntegerField, PositiveIntegerField, Q
+from django.core.exceptions import PermissionDenied
+from django.utils.translation import ugettext as _
+from django.contrib.auth.models import User
+
+from entity import CremeEntity
+from creme_core.utils import find_first
+from creme_core.utils.contribute_to_model import contribute_to_model
+
+
+NO_CRED = ''
+VIEW    = 'v'
+CHANGE  = 'c'
+DELETE  = 'd'
+
+CRED_MAP = { #private ? inner ??
+        'creme_core.view_entity':   VIEW,
+        'creme_core.change_entity': CHANGE,
+        'creme_core.delete_entity': DELETE,
+        #LINK ??
+    }
+
+
+class EntityCredentials(Model):
+    entity = ForeignKey(CremeEntity, null=True, related_name='credentials') #NB: null means: default credentials
+    user   = ForeignKey(User, null=True)
+    value  = CharField(max_length='3')
+
+    class Meta:
+        app_label = 'creme_core'
+
+    def has_perm(self, perm):
+        return CRED_MAP.get(perm) in self.value
+
+    @staticmethod
+    def _build_credentials(view=False, change=False, delete=False):
+        cred = ''
+
+        if view:    cred += VIEW
+        if change:  cred += CHANGE
+        if delete:  cred += DELETE
+
+        return cred
+
+    @staticmethod
+    def change_or_die(user, entity):
+        if not EntityCredentials.get_creds(user, entity).has_perm('creme_core.change_entity'): #constant ??
+            raise PermissionDenied(_(u'You are not allowed to edit this entity: %s') % entity)
+
+    @staticmethod
+    def create(entity):
+        buildc = EntityCredentials._build_credentials
+
+        for user in User.objects.select_related('role'):
+            role = user.role
+
+            if role:
+                EntityCredentials.objects.create(user=user, entity=entity,
+                                                 value=buildc(*role.get_perms(user, entity)))
+
+    @staticmethod
+    def delete_or_die(user, entity):
+        if not EntityCredentials.get_creds(user, entity).has_perm('creme_core.delete_entity'): #constant ??
+            raise PermissionDenied(_(u'You are not allowed to delete this entity: %s') % entity)
+
+    @staticmethod
+    def filter(user, queryset): #give wanted perm ???
+        if not user.is_superuser:
+            query = Q(credentials__user=user, credentials__value__contains=VIEW)
+
+            default = EntityCredentials.get_default_creds() #cache ???
+            if default.has_perm('creme_core.view_entity'):
+                query |= Q(credentials__isnull=True)
+
+            queryset = queryset.filter(query)
+
+        return queryset
+
+    @staticmethod
+    def get_creds(user, entity):
+        creds = EntityCredentials.objects.filter(Q(entity__isnull=True) | Q(entity=entity, user=user))
+
+        if not creds:
+            return EntityCredentials(entity=entity, user=user, value=NO_CRED)
+
+        if len(creds) == 1:
+            return creds[0]
+
+        return find_first(creds, lambda c: c.entity_id)
+
+    @staticmethod
+    def get_default_creds(): #_private ??
+        defaults = EntityCredentials.objects.filter(entity__isnull=True)[:1] #get ???
+
+        return defaults[0] if defaults else EntityCredentials(entity=None, value=NO_CRED)
+
+    @staticmethod
+    def set_default_perms(view=False, change=False, delete=False):
+        default = EntityCredentials.get_default_creds()
+        default.value = EntityCredentials._build_credentials(view, change, delete)
+        default.save()
+
+    @staticmethod
+    def set_entity_perms(user, entity, view=False, change=False, delete=False):
+        try:
+            perms = EntityCredentials.objects.get(user=user, entity=entity)
+        except EntityCredentials.DoesNotExist:
+            perms = EntityCredentials(user=user, entity=entity)
+
+        perms.value = EntityCredentials._build_credentials(view, change, delete)
+
+        perms.save()
+
+    @staticmethod
+    def view_or_die(user, entity):
+        if not EntityCredentials.get_creds(user, entity).has_perm('creme_core.view_entity'): #constant ??
+            raise PermissionDenied(_(u'You are not allowed to view this entity: %s') % entity)
+
+
+class UserRole(Model):
+    name     = CharField(_(u"Name"), max_length=100)
+    #superior = ForeignKey('self', verbose_name=_(u"Superior"), null=True) #related_name='subordinates'
+    #Application credentials ???
+
+    class Meta:
+        app_label = 'creme_core'
+
+    def get_perms(self, user, entity):
+        """@return (can_view, can_change, can_delete) 3 boolean tuple"""
+        raw_perms = SetCredentials.CRED_NONE
+
+        for creds in self.credentials.all():
+            raw_perms |= creds.get_raw_perms(user, entity)
+
+        return SetCredentials.get_perms(raw_perms)
+
+
+class SetCredentials(Model):
+    role     = ForeignKey(UserRole, related_name='credentials')
+    value    = PositiveSmallIntegerField() #see SetCredentials.CRED_*
+    set_type = PositiveIntegerField() #PositiveSmallIntegerField() ??
+    #content_type        = ForeignKey(ContentType, null=True)
+    #entity              = ForeignKey(CremeEntity, null=True) #id_fiche_role_ou_equipe = PositiveIntegerField( blank=True, null=True) ??
+
+    CRED_NONE   = 0
+    CRED_ADD    = 0b0001 #to be used....
+    CRED_VIEW   = 0b0010
+    CRED_CHANGE = 0b0100
+    CRED_DELETE = 0b1000
+    #CRED_LINK ??
+
+    #ESET means 'Entities SET'
+    ESET_ALL = 0b0001 #all entities
+    ESET_OWN = 0b0010 #his own entities
+    #DROIT_TEF_FICHE_UNIQUE = "fiche_unique"
+    #DROIT_TEF_FICHES_EQUIPE = "les_fiches_de_l_equipe"
+    #DROIT_TEF_SA_FICHE = "sa_fiche"
+    #DROIT_TEF_FICHES_D_UN_ROLE = "fiche_d_un_role"
+    #DROIT_TEF_FICHES_D_UN_ROLE_ET_SUBORDONNES = "fiche_d_un_role_et_subordonnees"
+    #DROIT_TEF_FICHES_DE_SES_SUBORDONNES = "les_fiches_de_ses_subordonnes"
+    #DROIT_TEF_LES_AUTRES_FICHES = "les_autres_fiches"
+    #DROIT_TEF_EN_REL_AVC_SA_FICHE = "fiche_en_rel_avec_sa_fiche"
+
+    class Meta:
+        app_label = 'creme_core'
+
+    @staticmethod
+    def get_perms(raw_perms):
+        """Get boolean perms from binary perms.
+        @param raw_perms Binary perms returned by SetCredentials.get_raw_perms().
+        @return (view, change, delete) 3 boolean tuple
+        """
+        return (bool(raw_perms & SetCredentials.CRED_VIEW),
+                bool(raw_perms & SetCredentials.CRED_CHANGE),
+                bool(raw_perms & SetCredentials.CRED_DELETE)
+               )
+
+    def get_raw_perms(self, user, entity):
+        """@return an integer with binary flags for perms (see get_perms)"""
+        if self.set_type == SetCredentials.ESET_ALL:
+            return self.value
+        else: #SetCredentials.ESET_OWN
+            if user.id == entity.user_id:
+                return self.value
+
+        return SetCredentials.CRED_NONE
+
+
+class UserProfile(Model):
+    role = ForeignKey(UserRole, verbose_name=_(u'Role'), null=True)
+
+    class Meta:
+        abstract = True
+
+    def update_credentials(self):
+        role = self.role
+
+        if role is None:
+            EntityCredentials.objects.all().delete()
+        else: #TODO factorise with EntityCredentials.create() ??
+            build_value  = EntityCredentials._build_credentials
+            create_creds = EntityCredentials.objects.create
+            get_perms    = role.get_perms
+
+            for entity in CremeEntity.objects.all():
+                create_creds(user=self, entity=entity, value=build_value(*get_perms(self, entity)))
+
+
+#NB: We use a contribute_to_model() instead of regular Django's profile
+# management to avoid having a additional DB table and creating a annoying
+# signal handler to create the corresponding Profile object each time a User is
+# created
+contribute_to_model(UserProfile, User)

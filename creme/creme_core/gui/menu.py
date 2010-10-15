@@ -34,16 +34,20 @@ class ItemMenu(object):
         self.menu_url = menu_url
         self.menu_name = menu_name
 
+    def __unicode__(self):
+        return u'<ItemMenu: name:%s url:%s>' % (self.menu_url, self.menu_name)
+
 
 class AppMenu(object):
     def __init__(self, app_name, app_url, app_menu_name=None):
         self.app_name = app_name
         self.app_url = app_url
         self.app_menu_name = ""
-        if app_menu_name is None :
-            self.app_menu_name = app_name
-        else:
-            self.app_menu_name = app_menu_name
+        #if app_menu_name is None :
+            #self.app_menu_name = app_name
+        #else:
+            #self.app_menu_name = app_menu_name
+        self.app_menu_name = app_menu_name or app_name
         self.items = []
 
 

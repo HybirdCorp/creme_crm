@@ -100,8 +100,9 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.doc.XViewMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
 
-    #'creme.creme_core.middleware.sql_logger.SQLLogToConsoleMiddleware',
-    #'creme.creme_core.middleware.module_logger.LogImportedModulesMiddleware',
+    'creme.creme_core.middleware.exceptions.Beautiful403Middleware',
+    #'creme.creme_core.middleware.sql_logger.SQLLogToConsoleMiddleware',       #debuging purpose
+    #'creme.creme_core.middleware.module_logger.LogImportedModulesMiddleware', #debuging purpose
 )
 
 ROOT_URLCONF = 'creme.urls'
@@ -176,6 +177,7 @@ TRUE_DELETE = True
 
 CREME_EMAIL = "to"
 
+AUTHENTICATION_BACKENDS = ('creme_core.auth.backend.EntityBackend',)
 AUTH_PROFILE_MODULE = "creme_core.cremeprofile"
 
 #TODO: remove

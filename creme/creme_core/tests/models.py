@@ -3,9 +3,12 @@
 from datetime import datetime
 
 from django.test import TestCase
-from django.contrib.auth.models import User
+from django.core.exceptions import PermissionDenied
+from django.contrib.auth.models import User, Permission
+from django.contrib.contenttypes.models import ContentType
 
 from creme_core.models import *
+from creme_core.auth.backend import EntityBackend
 
 
 class ModelsTestCase(TestCase):
@@ -106,3 +109,313 @@ class RelationsTestCase(TestCase):
         sym = relation.symmetric_relation
         self.assertEqual(entity4.id, sym.subject_entity.id)
         self.assertEqual(entity3.id, sym.object_entity.id)
+
+
+class CredentialsTestCase(TestCase):
+    def setUp(self):
+        self.password = 'password'
+        self.user = User.objects.create_user('Kenji', 'kenji@century.jp', self.password)
+        self.other_user = User.objects.create_user('Shogun', 'shogun@century.jp', 'uselesspw')
+
+        self.entity1 = CremeEntity.objects.create(user=self.user)
+        self.entity2 = CremeEntity.objects.create(user=self.user)
+
+        self.client.login(username=self.user.username, password=self.password)
+
+    def test_default_perms(self):
+        self.failIf(self.user.has_perm('creme_core.view_entity',   self.entity1))
+        self.failIf(self.user.has_perm('creme_core.change_entity', self.entity1))
+        self.failIf(self.user.has_perm('creme_core.delete_entity', self.entity1))
+
+        EntityCredentials.set_default_perms(view=True, change=True, delete=True)
+
+        self.assert_(self.user.has_perm('creme_core.view_entity',   self.entity1))
+        self.assert_(self.user.has_perm('creme_core.change_entity', self.entity1))
+        self.assert_(self.user.has_perm('creme_core.delete_entity', self.entity1))
+
+    def test_entity_perms(self):
+        EntityCredentials.set_entity_perms(self.user, self.entity1, view=True, change=True, delete=True)
+
+        self.assert_(self.user.has_perm('creme_core.view_entity',   self.entity1))
+        self.assert_(self.user.has_perm('creme_core.change_entity', self.entity1))
+        self.assert_(self.user.has_perm('creme_core.delete_entity', self.entity1))
+
+    def build_qs(self):
+        return CremeEntity.objects.filter(pk__in=(self.entity1.id, self.entity2.id))
+
+    def ids_list(self, iterable):
+        return [e.id for e in iterable]
+
+    def test_filter01(self): #filter with default credentials OK
+        EntityCredentials.set_default_perms(view=True, change=True, delete=True)
+
+        ids = [self.entity1.id, self.entity2.id]
+
+        qs = EntityCredentials.filter(self.user, self.build_qs()) #TODO: give wanted perms ???
+        self.assertEqual(ids, self.ids_list(qs))
+
+        qs = EntityCredentials.filter(self.other_user, self.build_qs())
+        self.assertEqual(ids, self.ids_list(qs))
+
+    def test_filter02(self): #filter with default credentials KO
+        qs1 = self.build_qs()
+        qs2 = EntityCredentials.filter(self.user, qs1)
+
+        self.assert_(qs1._result_cache is None)
+        self.failIf(qs2)
+        self.failIf(EntityCredentials.filter(self.other_user, qs1))
+
+    def test_filter03(self):  #filter with all credentials set
+        EntityCredentials.set_entity_perms(self.user, self.entity1, view=False)
+        EntityCredentials.set_entity_perms(self.user, self.entity2, view=True)
+
+        qs1 = self.build_qs()
+        qs2 = EntityCredentials.filter(self.user, qs1)
+
+        self.assert_(qs1._result_cache is None)
+        self.assertEqual([self.entity2.id], self.ids_list(qs2))
+
+        self.failIf(EntityCredentials.filter(self.other_user, qs1))
+
+    def test_filter04(self): #filter with some credentials set (and default OK)
+        EntityCredentials.set_default_perms(view=True, change=True, delete=True)
+        EntityCredentials.set_entity_perms(self.user, self.entity2, view=True)
+
+        qs = EntityCredentials.filter(self.user, self.build_qs())
+        self.assertEqual([self.entity1.id, self.entity2.id], self.ids_list(qs))
+
+    def test_filter05(self): #filter with some credentials set (and default KO)
+        EntityCredentials.set_entity_perms(self.user, self.entity2, view=True)
+
+        qs = EntityCredentials.filter(self.user, self.build_qs())
+        self.assertEqual([self.entity2.id], self.ids_list(qs))
+
+    def test_filter05(self): #super-user
+        self.user.is_superuser = True
+
+        qs = EntityCredentials.filter(self.user, self.build_qs())
+        self.assertEqual([self.entity1.id, self.entity2.id], self.ids_list(qs))
+
+    def test_regularperms01(self):
+        ct = content_type=ContentType.objects.get_for_model(CremeProperty)
+
+        try:
+            perm = Permission.objects.get(codename='add_cremeproperty', content_type=ct)
+        except Permission.DoesNotExist, e:
+            self.fail(str(e))
+
+        self.user.user_permissions.add(perm)
+        self.assert_(self.user.has_perm('creme_core.add_cremeproperty'))
+
+    def test_helpers01(self):
+        self.assertRaises(PermissionDenied, EntityCredentials.view_or_die, self.user, self.entity1)
+        self.assertRaises(PermissionDenied, self.entity1.view_or_die, self.user)
+
+        EntityCredentials.set_default_perms(view=True)
+
+        try:
+            EntityCredentials.view_or_die(self.user, self.entity1)
+            self.entity1.view_or_die(self.user)
+        except PermissionDenied, e:
+            self.fail(str(e))
+
+    def test_helpers02(self):
+        self.assertRaises(PermissionDenied, EntityCredentials.change_or_die, self.user, self.entity1)
+        self.assertRaises(PermissionDenied, self.entity1.change_or_die, self.user)
+
+        EntityCredentials.set_default_perms(change=True)
+
+        try:
+            EntityCredentials.change_or_die(self.user, self.entity1)
+            self.entity1.change_or_die(self.user)
+        except PermissionDenied, e:
+            self.fail(str(e))
+
+    def test_helpers03(self):
+        self.assertRaises(PermissionDenied, EntityCredentials.delete_or_die, self.user, self.entity1)
+        self.assertRaises(PermissionDenied, self.entity1.delete_or_die, self.user)
+
+        EntityCredentials.set_default_perms(delete=True)
+
+        try:
+            EntityCredentials.delete_or_die(self.user, self.entity1)
+            self.entity1.delete_or_die(self.user)
+        except PermissionDenied, e:
+            self.fail(str(e))
+
+    #this tests contribute_to_model too
+    def test_role_esetall01(self): # CRED_VIEW + ESET_ALL
+        try:
+            role = UserRole.objects.create(name='Coder')
+            self.user.role = role
+            self.user.save()
+            SetCredentials.objects.create(role=role,
+                                          value=SetCredentials.CRED_VIEW,
+                                          set_type=SetCredentials.ESET_ALL) #helper ??
+        except Exception, e:
+            self.fail(str(e))
+
+        entity3 = CremeEntity.objects.create(user=self.user) #created by user -> user can read, other_ser has no creds
+        self.assert_(self.user.has_perm('creme_core.view_entity', entity3))
+        self.failIf(self.user.has_perm('creme_core.change_entity', entity3))
+        self.failIf(self.user.has_perm('creme_core.delete_entity', entity3))
+        self.failIf(self.other_user.has_perm('creme_core.view_entity', entity3)) #default creds for him...
+
+        entity4 = CremeEntity.objects.create(user=self.other_user) #created by user -> user can read in anyway
+        self.assert_(self.user.has_perm('creme_core.view_entity',  entity4))
+        self.failIf(self.user.has_perm('creme_core.change_entity', entity4))
+        self.failIf(self.user.has_perm('creme_core.delete_entity', entity4))
+        self.failIf(self.other_user.has_perm('creme_core.view_entity',   entity4))
+        self.failIf(self.other_user.has_perm('creme_core.change_entity', entity4))
+        self.failIf(self.other_user.has_perm('creme_core.delete_entity', entity4))
+
+        ##the entities created before the role was set should have right credentials too
+        ##role.update_credentials(self.user) # good API ????
+        #self.user.update_credentials()
+        #self.assert_(self.user.has_perm('creme_core.view_entity',  self.entity1))
+        #self.failIf(self.user.has_perm('creme_core.change_entity', self.entity1))
+        #self.failIf(self.user.has_perm('creme_core.delete_entity', self.entity1))
+        #self.assert_(self.user.has_perm('creme_core.view_entity',  self.entity2))
+
+        ##we modify the user perms -> entities should still have the right credentials
+        #self.user.role = None
+        #self.user.save()
+        #self.user.update_credentials()
+        #self.failIf(self.user.has_perm('creme_core.view_entity', self.entity1))
+        #self.failIf(self.user.has_perm('creme_core.view_entity', entity3))
+        #self.failIf(self.user.has_perm('creme_core.view_entity', entity4))
+
+    def test_role_esetall02(self): # CRED_CHANGE + ESET_ALL
+        try:
+            role = UserRole.objects.create(name='Coder')
+            self.user.role = role
+            self.user.save()
+            SetCredentials.objects.create(role=role,
+                                          value=SetCredentials.CRED_CHANGE,
+                                          set_type=SetCredentials.ESET_ALL)
+        except Exception, e:
+            self.fail(str(e))
+
+        entity3 = CremeEntity.objects.create(user=self.user)
+        self.failIf(self.user.has_perm('creme_core.view_entity',    entity3))
+        self.assert_(self.user.has_perm('creme_core.change_entity', entity3))
+        self.failIf(self.user.has_perm('creme_core.delete_entity',  entity3))
+
+        entity4 = CremeEntity.objects.create(user=self.other_user)
+        self.failIf(self.user.has_perm('creme_core.view_entity',    entity4))
+        self.assert_(self.user.has_perm('creme_core.change_entity', entity4))
+        self.failIf(self.user.has_perm('creme_core.delete_entity',  entity4))
+
+    def test_role_esetall03(self): # CRED_DELETE + ESET_ALL
+        try:
+            role = UserRole.objects.create(name='Coder')
+            self.user.role = role
+            self.user.save()
+            SetCredentials.objects.create(role=role,
+                                          value=SetCredentials.CRED_DELETE,
+                                          set_type=SetCredentials.ESET_ALL)
+        except Exception, e:
+            self.fail(str(e))
+
+        entity3 = CremeEntity.objects.create(user=self.user)
+        self.failIf(self.user.has_perm('creme_core.view_entity',    entity3))
+        self.failIf(self.user.has_perm('creme_core.change_entity',  entity3))
+        self.assert_(self.user.has_perm('creme_core.delete_entity', entity3))
+
+        entity4 = CremeEntity.objects.create(user=self.other_user)
+        self.failIf(self.user.has_perm('creme_core.view_entity',    entity4))
+        self.failIf(self.user.has_perm('creme_core.change_entity',  entity4))
+        self.assert_(self.user.has_perm('creme_core.delete_entity', entity4))
+
+    def test_role_esetown01(self): # CRED_VIEW + ESET_OWN
+        try:
+            role = UserRole.objects.create(name='Coder')
+            self.user.role = role
+            self.user.save()
+            SetCredentials.objects.create(role=role,
+                                          value=SetCredentials.CRED_VIEW,
+                                          set_type=SetCredentials.ESET_OWN)
+        except Exception, e:
+            self.fail(str(e))
+
+        entity3 = CremeEntity.objects.create(user=self.user)
+        self.assert_(self.user.has_perm('creme_core.view_entity',  entity3))
+        self.failIf(self.user.has_perm('creme_core.change_entity', entity3))
+        self.failIf(self.user.has_perm('creme_core.delete_entity', entity3))
+
+        entity4 = CremeEntity.objects.create(user=self.other_user)
+        self.failIf(self.user.has_perm('creme_core.view_entity',   entity4))
+        self.failIf(self.user.has_perm('creme_core.change_entity', entity4))
+        self.failIf(self.user.has_perm('creme_core.delete_entity', entity4))
+
+    def test_role_esetown02(self): # ESET_OWN + CRED_VIEW/CRED_CHANGE
+        try:
+            role = UserRole.objects.create(name='Coder')
+            self.user.role = role
+            self.user.save()
+            SetCredentials.objects.create(role=role,
+                                          value=SetCredentials.CRED_CHANGE | SetCredentials.CRED_DELETE,
+                                          set_type=SetCredentials.ESET_OWN)
+        except Exception, e:
+            self.fail(str(e))
+
+        entity3 = CremeEntity.objects.create(user=self.user)
+        self.failIf(self.user.has_perm('creme_core.view_entity',    entity3))
+        self.assert_(self.user.has_perm('creme_core.change_entity', entity3))
+        self.assert_(self.user.has_perm('creme_core.delete_entity', entity3))
+
+        entity4 = CremeEntity.objects.create(user=self.other_user)
+        self.failIf(self.user.has_perm('creme_core.view_entity',   entity4))
+        self.failIf(self.user.has_perm('creme_core.change_entity', entity4))
+        self.failIf(self.user.has_perm('creme_core.delete_entity', entity4))
+
+    def test_role_multiset01(self): # ESET_OWN + ESET_ALL
+        try:
+            role = UserRole.objects.create(name='Coder')
+            self.user.role = role
+            self.user.save()
+            SetCredentials.objects.create(role=role,
+                                          value=SetCredentials.CRED_VIEW,
+                                          set_type=SetCredentials.ESET_ALL)
+            SetCredentials.objects.create(role=role,
+                                          value=SetCredentials.CRED_CHANGE | SetCredentials.CRED_DELETE,
+                                          set_type=SetCredentials.ESET_OWN)
+        except Exception, e:
+            self.fail(str(e))
+
+        entity3 = CremeEntity.objects.create(user=self.user)
+        self.assert_(self.user.has_perm('creme_core.view_entity',   entity3))
+        self.assert_(self.user.has_perm('creme_core.change_entity', entity3))
+        self.assert_(self.user.has_perm('creme_core.delete_entity', entity3))
+
+        entity4 = CremeEntity.objects.create(user=self.other_user)
+        self.assert_(self.user.has_perm('creme_core.view_entity',  entity4))
+        self.failIf(self.user.has_perm('creme_core.change_entity', entity4))
+        self.failIf(self.user.has_perm('creme_core.delete_entity', entity4))
+
+    def test_role_updating01(self):
+        try:
+            role = UserRole.objects.create(name='Coder')
+            self.user.role = role
+            self.user.save()
+            SetCredentials.objects.create(role=role,
+                                          value=SetCredentials.CRED_VIEW,
+                                          set_type=SetCredentials.ESET_ALL)
+        except Exception, e:
+            self.fail(str(e))
+
+
+        #the entities created before the role was set should have right credentials too
+        self.user.update_credentials()
+        self.assert_(self.user.has_perm('creme_core.view_entity',  self.entity1))
+        self.failIf(self.user.has_perm('creme_core.change_entity', self.entity1))
+        self.failIf(self.user.has_perm('creme_core.delete_entity', self.entity1))
+        self.assert_(self.user.has_perm('creme_core.view_entity',  self.entity2))
+
+        #we modify the user perms -> entities should still have the right credentials
+        self.user.role = None
+        self.user.save()
+        self.user.update_credentials()
+        self.failIf(self.user.has_perm('creme_core.view_entity', self.entity1))
+
+    #TODO: don't write cred if equals to default creds ??????

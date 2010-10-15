@@ -40,6 +40,9 @@ class ItemMenu(object):
         self.app_url = url
         self.items_menu = items
 
+    def __str__(self):
+        return '<ItemMenu: app:%s url:%s>' % (self.app_name, self.app_url)
+
     def __cmp__(self, other):
         from django.utils.encoding import smart_unicode
         return cmp( smart_unicode(self.app_name), smart_unicode(other.app_name))
@@ -57,7 +60,7 @@ class ItemMenu(object):
 
     #return {'menu': list_item}
 
-from django.conf import settings
+#from django.conf import settings
 
 if settings.USE_STRUCT_MENU:
     @register.inclusion_tag('creme_core/templatetags/treecreme_menu.html')

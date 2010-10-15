@@ -71,6 +71,7 @@ def user_has_permission(request, app_name, content_type, type_droit, type_ensemb
         Checks in sub-roles too
         If one or much entity matches  the user has the permission
     """
+    #return True
     debug('###user_has_permission###')
     try:
         user_role = request.user.get_profile().creme_role
