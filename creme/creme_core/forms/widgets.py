@@ -669,6 +669,7 @@ class Label(TextInput):
 
 class ListEditionWidget(Widget):
     content = ()
+    only_delete = False
 
     def render(self, name, value, attrs=None, choices=()):
         output = [u'<table %s><tbody>' % flatatt(self.build_attrs(attrs, name=name))]
@@ -684,16 +685,21 @@ class ListEditionWidget(Widget):
                 else:
                     label = new_label
 
-            output.append(u"""
-                <tr>
-                    <td><input type="checkbox" name="%(name)s_check_%(i)s" %(checked)s/></td>
-                    <td><input type="text" name="%(name)s_value_%(i)s" value="%(label)s"/></td>
-                </tr>""" % {
-                                'i':        i,
-                                'name':     name,
-                                'label':    label,
-                                'checked':  checked,
-                            })
+            row = u"""<tr>
+                        <td><input type="checkbox" name="%(name)s_check_%(i)s" %(checked)s/></td>
+                        <td><input type="text" name="%(name)s_value_%(i)s" value="%(label)s" style="display:none;"/><span>%(label)s</span></td>
+                      </tr>""" if self.only_delete \
+                else u"""<tr>
+                            <td><input type="checkbox" name="%(name)s_check_%(i)s" %(checked)s/></td>
+                            <td><input type="text" name="%(name)s_value_%(i)s" value="%(label)s"/></td>
+                         </tr>"""
+
+            output.append(row  % {
+                            'i':        i,
+                            'name':     name,
+                            'label':    label,
+                            'checked':  checked,
+                        })
 
         output.append(u"""</tbody></table>""")
 

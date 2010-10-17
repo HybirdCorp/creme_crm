@@ -268,6 +268,20 @@ class SearchConfigBlock(QuerysetBlock):
 #        return self._render(self.get_block_template_context(context, SearchConfigItem.objects.select_related('searchfield_set'),
 #                                              update_url='/creme_config/blocks/reload/'))
 
+class UserRolesBlock(QuerysetBlock):
+    id_           = QuerysetBlock.generate_id('creme_config', 'user_roles')
+    dependencies  = (UserRole,)
+    order_by      = 'name'
+    page_size     = _PAGE_SIZE
+    verbose_name  = _(u'User roles configuration')
+    template_name = 'creme_config/templatetags/block_user_roles.html'
+
+    def detailview_display(self, context):
+        return self._render(self.get_block_template_context(context, UserRole.objects.all(),
+                                                            update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
+                                                            ))
+
+
 generic_models_block = GenericModelsBlock()
 custom_fields_block  = CustomFieldsBlock()
 
@@ -286,4 +300,5 @@ blocks_list = (
         EntityCredentialsBlock(),
         SearchConfigBlock(),
         InstanceBlocksConfigBlock(),
+        UserRolesBlock(),
     )

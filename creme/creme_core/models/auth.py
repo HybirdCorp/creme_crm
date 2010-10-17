@@ -22,7 +22,7 @@
 
 from django.db.models import Model, CharField, ForeignKey, PositiveSmallIntegerField, PositiveIntegerField, Q
 from django.core.exceptions import PermissionDenied
-from django.utils.translation import ugettext as _
+from django.utils.translation import ugettext_lazy as _, ugettext
 from django.contrib.auth.models import User
 
 from entity import CremeEntity
@@ -67,7 +67,7 @@ class EntityCredentials(Model):
     @staticmethod
     def change_or_die(user, entity):
         if not EntityCredentials.get_creds(user, entity).has_perm('creme_core.change_entity'): #constant ??
-            raise PermissionDenied(_(u'You are not allowed to edit this entity: %s') % entity)
+            raise PermissionDenied(ugettext(u'You are not allowed to edit this entity: %s') % entity)
 
     @staticmethod
     def create(entity):
@@ -83,7 +83,7 @@ class EntityCredentials(Model):
     @staticmethod
     def delete_or_die(user, entity):
         if not EntityCredentials.get_creds(user, entity).has_perm('creme_core.delete_entity'): #constant ??
-            raise PermissionDenied(_(u'You are not allowed to delete this entity: %s') % entity)
+            raise PermissionDenied(ugettext(u'You are not allowed to delete this entity: %s') % entity)
 
     @staticmethod
     def filter(user, queryset): #give wanted perm ???
@@ -136,11 +136,11 @@ class EntityCredentials(Model):
     @staticmethod
     def view_or_die(user, entity):
         if not EntityCredentials.get_creds(user, entity).has_perm('creme_core.view_entity'): #constant ??
-            raise PermissionDenied(_(u'You are not allowed to view this entity: %s') % entity)
+            raise PermissionDenied(ugettext(u'You are not allowed to view this entity: %s') % entity)
 
 
 class UserRole(Model):
-    name     = CharField(_(u"Name"), max_length=100)
+    name     = CharField(_(u'Name'), max_length=100)
     #superior = ForeignKey('self', verbose_name=_(u"Superior"), null=True) #related_name='subordinates'
     #Application credentials ???
 
@@ -160,7 +160,7 @@ class UserRole(Model):
 class SetCredentials(Model):
     role     = ForeignKey(UserRole, related_name='credentials')
     value    = PositiveSmallIntegerField() #see SetCredentials.CRED_*
-    set_type = PositiveIntegerField() #PositiveSmallIntegerField() ??
+    set_type = PositiveIntegerField() #see SetCredentials.ESET_*
     #content_type        = ForeignKey(ContentType, null=True)
     #entity              = ForeignKey(CremeEntity, null=True) #id_fiche_role_ou_equipe = PositiveIntegerField( blank=True, null=True) ??
 
@@ -183,8 +183,29 @@ class SetCredentials(Model):
     #DROIT_TEF_LES_AUTRES_FICHES = "les_autres_fiches"
     #DROIT_TEF_EN_REL_AVC_SA_FICHE = "fiche_en_rel_avec_sa_fiche"
 
+    ESET_MAP = {
+            ESET_ALL: _(u'all entities'),
+            ESET_OWN: _(u"user's own entities"),
+        }
+
     class Meta:
         app_label = 'creme_core'
+
+    def __unicode__(self):
+        value = self.value
+        perms = []
+
+        if value & SetCredentials.CRED_VIEW:
+            perms.append(ugettext('Can view'))
+        if value & SetCredentials.CRED_CHANGE:
+            perms.append(ugettext('Can change'))
+        if value & SetCredentials.CRED_CHANGE:
+            perms.append(ugettext('Can delete'))
+
+        if not perms:
+            perms.append(ugettext(u'Nothing allowed'))
+
+        return ugettext(u'For %s => %s') % (SetCredentials.ESET_MAP[self.set_type], u'|'.join(perms))
 
     @staticmethod
     def get_perms(raw_perms):
@@ -207,9 +228,25 @@ class SetCredentials(Model):
 
         return SetCredentials.CRED_NONE
 
+    def set_value(self, can_view, can_change, can_delete):
+        """Set the 'value' attribute from 3 booleans"""
+        value = SetCredentials.CRED_NONE
+
+        if can_view:
+            value |= SetCredentials.CRED_VIEW
+
+        if can_change:
+            value |= SetCredentials.CRED_CHANGE
+
+        if can_delete:
+            value |= SetCredentials.CRED_DELETE
+
+        self.value = value
+
 
 class UserProfile(Model):
     role = ForeignKey(UserRole, verbose_name=_(u'Role'), null=True)
+    #TODO; can we override 'permissions' fields ??
 
     class Meta:
         abstract = True

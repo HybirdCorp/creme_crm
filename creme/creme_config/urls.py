@@ -18,6 +18,16 @@ urlpatterns = patterns('creme_config.views',
     (r'^relation_type/delete$',                            'relation_type.delete'),
 
     #Roles
+    (r'^role/portal/$',                          'user_role.portal'),
+    (r'^role/add/$',                             'user_role.add'),
+    (r'^role/edit/(?P<role_id>\d+)$',            'user_role.edit'),
+    (r'^role/add_credentials/(?P<role_id>\d+)$', 'user_role.add_credentials'),
+    (r'^role/delete$',                           'user_role.delete'),
+
+
+    #TODO: gestion des droits par defaut
+
+    #Old Roles
     (r'^roles/portal/$',                 'role.portal'),
     (r'^roles/add/$',                    'role.add'),
     (r'^roles/edit/(?P<role_id>\d*)$',   'role.edit'),
