@@ -272,18 +272,26 @@ class ListEditionField(Field):
     widget = ListEditionWidget
     default_error_messages = {}
 
-    def __init__(self, content=(), *args, **kwargs):
+    def __init__(self, content=(), only_delete=False, *args, **kwargs):
         """
         @param content Sequence of strings
+        @param only_delete Can only delete elements, not edit them.
         """
         super(ListEditionField, self).__init__(*args, **kwargs)
         self.content = content
+        self.only_delete = only_delete
 
     def _set_content(self, content):
         self._content = content
         self.widget.content = content
 
     content = property(lambda self: self._content, _set_content)
+
+    def _set_only_delete(self, only_delete):
+        self._only_delete = only_delete
+        self.widget.only_delete = only_delete
+
+    only_delete = property(lambda self: self._only_delete, _set_only_delete)
 
 
 class AjaxChoiceField(ChoiceField):
