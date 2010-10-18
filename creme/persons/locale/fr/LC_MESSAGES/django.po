@@ -7,10 +7,11 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-10-05 11:28+0200\n"
+"POT-Creation-Date: 2010-10-18 15:13+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -23,7 +24,7 @@ msgstr "Responsables d'une société"
 msgid "Organisation employees"
 msgstr "Salariés d'une société"
 
-#: blocks.py:80 models/address.py:36 models/address.py:51 models/address.py:70
+#: blocks.py:80 models/address.py:36 models/address.py:52 models/address.py:71
 #: templates/persons/view_address.html:18
 #: templates/persons/templatetags/block_address.html:13
 #: templates/persons/templatetags/block_address.html:14
@@ -313,19 +314,19 @@ msgstr "Adresse de facturation"
 msgid "Shipping address"
 msgstr "Adresse de livraison"
 
-#: forms/contact.py:132
+#: forms/contact.py:138
 msgid "Concerned organisation"
 msgstr "Société concernée"
 
-#: forms/contact.py:132
+#: forms/contact.py:138
 msgid "No one"
 msgstr "Aucune"
 
-#: forms/contact.py:147
+#: forms/contact.py:153
 msgid "Relation type"
 msgstr "Type de relation"
 
-#: forms/contact.py:152
+#: forms/contact.py:158
 msgid "Status in the organisation"
 msgstr "Statut dans la société"
 
@@ -339,7 +340,7 @@ msgstr "Date de création"
 msgid "Logo"
 msgstr "Logo"
 
-#: models/address.py:37 models/address.py:71
+#: models/address.py:37 models/address.py:72
 #: templates/persons/view_address.html:22
 #: templates/persons/templatetags/block_address.html:17
 #: templates/persons/templatetags/block_address.html:18
@@ -347,7 +348,7 @@ msgstr "Logo"
 msgid "PO box"
 msgstr "Boite postale"
 
-#: models/address.py:38 models/address.py:72
+#: models/address.py:38 models/address.py:73
 #: templates/persons/view_address.html:26
 #: templates/persons/templatetags/block_address.html:21
 #: templates/persons/templatetags/block_address.html:22
@@ -355,7 +356,7 @@ msgstr "Boite postale"
 msgid "City"
 msgstr "Ville"
 
-#: models/address.py:39 models/address.py:73
+#: models/address.py:39 models/address.py:74
 #: templates/persons/view_address.html:30
 #: templates/persons/templatetags/block_address.html:25
 #: templates/persons/templatetags/block_address.html:26
@@ -363,7 +364,7 @@ msgstr "Ville"
 msgid "State"
 msgstr "Département"
 
-#: models/address.py:40 models/address.py:74
+#: models/address.py:40 models/address.py:75
 #: templates/persons/view_address.html:34
 #: templates/persons/templatetags/block_address.html:29
 #: templates/persons/templatetags/block_address.html:30
@@ -371,7 +372,7 @@ msgstr "Département"
 msgid "Zip code"
 msgstr "Code postal"
 
-#: models/address.py:41 models/address.py:75
+#: models/address.py:41 models/address.py:76
 #: templates/persons/view_address.html:38
 #: templates/persons/templatetags/block_address.html:33
 #: templates/persons/templatetags/block_address.html:34
@@ -379,11 +380,18 @@ msgstr "Code postal"
 msgid "Country"
 msgstr "Pays"
 
-#: models/address.py:52 templates/persons/templatetags/block_address.html:4
+#: models/address.py:42 models/address.py:77
+#: templates/persons/templatetags/block_address.html:37
+#: templates/persons/templatetags/block_address.html:38
+#: templates/persons/templatetags/block_other_address.html:53
+msgid "Department"
+msgstr "Département"
+
+#: models/address.py:53 templates/persons/templatetags/block_address.html:4
 msgid "Addresses"
 msgstr "Adresses"
 
-#: models/address.py:69 templates/persons/view_address.html:14
+#: models/address.py:70 templates/persons/view_address.html:14
 msgid "Address name"
 msgstr "Nom de l'adresse"
 
@@ -742,7 +750,7 @@ msgstr "%s Adresses Supplémentaires"
 msgid "Add an Address"
 msgstr "Ajouter une Adresse"
 
-#: templates/persons/templatetags/block_other_address.html:55
+#: templates/persons/templatetags/block_other_address.html:59
 msgid "No other address set for the moment"
 msgstr "Aucune addresses supplémentaires enregistrées pour le moment"
 

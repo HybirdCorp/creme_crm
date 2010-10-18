@@ -32,19 +32,20 @@ from creme_core.models import CremeEntity, CremeModel
 
 
 class Address(CremeModel):
-    name    = CharField(_(u"Name"), max_length=100, blank=True, null=True)
-    address = TextField(_(u"Address"), blank=True, null=True)
-    po_box  = CharField(_(u"PO box"), max_length=50, blank=True, null=True)
-    city    = CharField(_(u"City"), max_length=100, blank=True, null=True)
-    state   = CharField(_(u"State"), max_length=100, blank=True, null=True)
-    zipcode = CharField(_(u"Zip code"), max_length=100, blank=True, null=True)
-    country = CharField(_(u"Country"), max_length=40, blank=True, null=True)
+    name       = CharField(_(u"Name"), max_length=100, blank=True, null=True)
+    address    = TextField(_(u"Address"), blank=True, null=True)
+    po_box     = CharField(_(u"PO box"), max_length=50, blank=True, null=True)
+    city       = CharField(_(u"City"), max_length=100, blank=True, null=True)
+    state      = CharField(_(u"State"), max_length=100, blank=True, null=True)
+    zipcode    = CharField(_(u"Zip code"), max_length=100, blank=True, null=True)
+    country    = CharField(_(u"Country"), max_length=40, blank=True, null=True)
+    department = CharField(_(u"Department"), max_length=100, blank=True, null=True)
 
     content_type = ForeignKey(ContentType, related_name="object_set")
     object_id    = PositiveIntegerField()
     owner        = GenericForeignKey(ct_field="content_type", fk_field="object_id")
 
-    research_fields = CremeEntity.research_fields + ['address', 'po_box', 'city', 'state', 'zipcode', 'country']
+    research_fields = CremeEntity.research_fields + ['address', 'po_box', 'city', 'state', 'zipcode', 'country', 'department']
 
     class Meta:
         app_label = 'persons'
@@ -52,10 +53,10 @@ class Address(CremeModel):
         verbose_name_plural = _(u'Addresses')
 
     def __str__(self): #useful ????
-        return '%s %s %s' % (self.address, self.zipcode, self.city)
+        return '%s %s %s %s' % (self.address, self.zipcode, self.city, self.department)
 
     def __unicode__(self):
-        return force_unicode('%s %s %s' % (self.address, self.zipcode, self.city))
+        return force_unicode('%s %s %s %s' % (self.address, self.zipcode, self.city, self.department))#force_unicode ?
 
     @staticmethod
     def inject_fields(form, suffix=""):
@@ -73,3 +74,4 @@ class Address(CremeModel):
         fields['state' + suffix]   = CharField(label=_(u"State"), max_length=100, required=False)
         fields['zipcode' + suffix] = CharField(label=_(u"Zip code"), max_length=20, required=False)
         fields['country' + suffix] = CharField(label=_(u"Country"), max_length=40, required=False)
+        fields['department' + suffix] = CharField(label=_(u"Department"), max_length=100, required=False)
