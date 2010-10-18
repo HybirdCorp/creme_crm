@@ -33,5 +33,9 @@
             <th class="block_header_line_dark  th_info_4_columns">{% trans "Country" %}</th><td class="{% cycle row_color_b %} td_info_4_columns">{{object.billing_address.country}}</td>
             <th class="block_header_line_light th_info_4_columns">{% trans "Country" %}</th><td class="{% cycle row_color_s %} td_info_4_columns">{{object.shipping_address.country}}</td>
         </tr>
+        <tr>
+            <th class="block_header_line_dark  th_info_4_columns">{% trans "Department" %}</th><td class="{% cycle row_color_b %} td_info_4_columns">{{object.billing_address.department}}</td>
+            <th class="block_header_line_light th_info_4_columns">{% trans "Department" %}</th><td class="{% cycle row_color_s %} td_info_4_columns">{{object.shipping_address.department}}</td>
+        </tr>
     </tbody>
 </table>

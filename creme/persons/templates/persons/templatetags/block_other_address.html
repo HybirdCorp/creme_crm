@@ -20,7 +20,7 @@
                     <th class="block_header_line_dark">{% trans "Actions" %}</th>
                 </tr>
                 <tr>
-                    <th class="{% cycle header_color %} th_info">{% trans "Address" %}</td>
+                    <th class="{% cycle header_color %} th_info">{% trans "Address" %}</th>
                     <td class="{% cycle row_color %} td_info" >{{address.address}}</td>
                     <td class="{{row_color}}" align="center" valign="center" rowspan="7">
                         <a onclick="creme.utils.innerPopupNReload('/persons/address/edit/{{address.id}}/', {% get_block_reload_uri %});">
@@ -30,24 +30,28 @@
                     </td>
                 </tr>
                 <tr>
-                    <th class="{% cycle header_color %} th_info">{% trans "PO box" %}</td>
+                    <th class="{% cycle header_color %} th_info">{% trans "PO box" %}</th>
                     <td class="{% cycle row_color %} td_info">{{address.po_box}}</td>
                 </tr>
                 <tr>
-                    <th class="{% cycle header_color %} th_info">{% trans "City" %}</td>
+                    <th class="{% cycle header_color %} th_info">{% trans "City" %}</th>
                     <td class="{% cycle row_color %} td_info">{{address.city}}</td>
                 </tr>
                 <tr>
-                    <th class="{% cycle header_color %} th_info">{% trans "State" %}</td>
+                    <th class="{% cycle header_color %} th_info">{% trans "State" %}</th>
                     <td class="{% cycle row_color %} td_info">{{address.state}}</td>
                 </tr>
                 <tr>
-                    <th class="{% cycle header_color %} th_info">{% trans "Zip code" %}</td>
+                    <th class="{% cycle header_color %} th_info">{% trans "Zip code" %}</th>
                     <td class="{% cycle row_color %} td_info">{{address.zipcode}}</td>
                 </tr>
                 <tr>
-                    <th class="{% cycle header_color %} th_info">{% trans "Country" %}</td>
+                    <th class="{% cycle header_color %} th_info">{% trans "Country" %}</th>
                     <td class="{% cycle row_color %} td_info">{{address.country}}</td>
+                </tr>
+                <tr>
+                    <th class="{% cycle header_color %} th_info">{% trans "Department" %}</th>
+                    <td class="{% cycle row_color %} td_info">{{address.department}}</td>
                 </tr>
             {% endfor %}
         {% else %} 
