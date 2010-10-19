@@ -673,6 +673,14 @@ class ListEditionWidget(Widget):
 
     def render(self, name, value, attrs=None, choices=()):
         output = [u'<table %s><tbody>' % flatatt(self.build_attrs(attrs, name=name))]
+        row = u"""<tr>
+                    <td><input type="checkbox" name="%(name)s_check_%(i)s" %(checked)s/></td>
+                    <td><input type="text" name="%(name)s_value_%(i)s" value="%(label)s" style="display:none;"/><span>%(label)s</span></td>
+                    </tr>""" if self.only_delete \
+            else u"""<tr>
+                        <td><input type="checkbox" name="%(name)s_check_%(i)s" %(checked)s/></td>
+                        <td><input type="text" name="%(name)s_value_%(i)s" value="%(label)s"/></td>
+                        </tr>"""
 
         for i, label in enumerate(self.content):
             checked = 'checked'
@@ -684,15 +692,6 @@ class ListEditionWidget(Widget):
                     checked = ''
                 else:
                     label = new_label
-
-            row = u"""<tr>
-                        <td><input type="checkbox" name="%(name)s_check_%(i)s" %(checked)s/></td>
-                        <td><input type="text" name="%(name)s_value_%(i)s" value="%(label)s" style="display:none;"/><span>%(label)s</span></td>
-                      </tr>""" if self.only_delete \
-                else u"""<tr>
-                            <td><input type="checkbox" name="%(name)s_check_%(i)s" %(checked)s/></td>
-                            <td><input type="text" name="%(name)s_value_%(i)s" value="%(label)s"/></td>
-                         </tr>"""
 
             output.append(row  % {
                             'i':        i,

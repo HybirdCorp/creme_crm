@@ -20,12 +20,15 @@
 
 #import logging
 
-from django.db.models import Model, CharField, ForeignKey, PositiveSmallIntegerField, PositiveIntegerField, Q
+from django.db.models import (Model, CharField, ForeignKey, ManyToManyField,
+                              PositiveSmallIntegerField, PositiveIntegerField, TextField, Q)
 from django.core.exceptions import PermissionDenied
 from django.utils.translation import ugettext_lazy as _, ugettext
 from django.contrib.auth.models import User
+from django.contrib.contenttypes.models import ContentType
 
 from entity import CremeEntity
+from creme_core.registry import creme_registry
 from creme_core.utils import find_first
 from creme_core.utils.contribute_to_model import contribute_to_model
 
@@ -34,6 +37,7 @@ NO_CRED = ''
 VIEW    = 'v'
 CHANGE  = 'c'
 DELETE  = 'd'
+ALL_CREDS = ''.join((VIEW, CHANGE, DELETE))
 
 CRED_MAP = { #private ? inner ??
         'creme_core.view_entity':   VIEW,
@@ -50,6 +54,15 @@ class EntityCredentials(Model):
 
     class Meta:
         app_label = 'creme_core'
+
+    def can_change(self):
+        return self.has_perm('creme_core.change_entity') #constant ??
+
+    def can_delete(self):
+        return self.has_perm('creme_core.delete_entity') #constant ??
+
+    def can_view(self):
+        return self.has_perm('creme_core.view_entity') #constant ??
 
     def has_perm(self, perm):
         return CRED_MAP.get(perm) in self.value
@@ -100,6 +113,9 @@ class EntityCredentials(Model):
 
     @staticmethod
     def get_creds(user, entity):
+        if user.is_superuser:
+            return EntityCredentials(entity=entity, user=user, value=ALL_CREDS)
+
         creds = EntityCredentials.objects.filter(Q(entity__isnull=True) | Q(entity=entity, user=user))
 
         if not creds:
@@ -111,7 +127,7 @@ class EntityCredentials(Model):
         return find_first(creds, lambda c: c.entity_id)
 
     @staticmethod
-    def get_default_creds(): #_private ??
+    def get_default_creds():
         defaults = EntityCredentials.objects.filter(entity__isnull=True)[:1] #get ???
 
         return defaults[0] if defaults else EntityCredentials(entity=None, value=NO_CRED)
@@ -140,12 +156,62 @@ class EntityCredentials(Model):
 
 
 class UserRole(Model):
-    name     = CharField(_(u'Name'), max_length=100)
-    #superior = ForeignKey('self', verbose_name=_(u"Superior"), null=True) #related_name='subordinates'
-    #Application credentials ???
+    name             = CharField(_(u'Name'), max_length=100)
+    #superior        = ForeignKey('self', verbose_name=_(u"Superior"), null=True) #related_name='subordinates'
+    creatable_ctypes = ManyToManyField(ContentType, null=True, verbose_name=_(u'Creatable resources'))
+    raw_allowed_apps = TextField(default='') #use 'allowed_apps' property
+    raw_admin_4_apps = TextField(default='') #use 'admin_4_apps' property
 
     class Meta:
         app_label = 'creme_core'
+
+    def __init__(self, *args, **kwargs):
+        super(UserRole, self).__init__(*args, **kwargs)
+        self._allowed_apps = None
+        self._admin_4_apps = None
+
+    def __unicode__(self):
+        return self.name
+
+    def _get_admin_4_apps(self):
+        if self._admin_4_apps is None:
+            self._admin_4_apps = set(app_name for app_name in self.raw_admin_4_apps.split('\n') if app_name)
+
+        return self._admin_4_apps
+
+    def _set_admin_4_apps(self, apps):
+        """@param apps Sequence of app labels (strings)"""
+        self._admin_4_apps = set(apps)
+        self.raw_admin_4_apps = '\n'.join(apps)
+
+    admin_4_apps = property(_get_admin_4_apps, _set_admin_4_apps); del _get_admin_4_apps, _set_admin_4_apps
+
+    def _get_allowed_apps(self):
+        if self._allowed_apps is None:
+            self._allowed_apps = set(app_name for app_name in self.raw_allowed_apps.split('\n') if app_name)
+
+        return self._allowed_apps
+
+    def _set_allowed_apps(self, apps):
+        """@param apps Sequence of app labels (strings)"""
+        self._allowed_apps = set(apps)
+        self.raw_allowed_apps = '\n'.join(apps)
+
+    allowed_apps = property(_get_allowed_apps, _set_allowed_apps); del _get_allowed_apps, _set_allowed_apps
+
+    def get_admin_4_apps_verbose(self): #for templates
+        get_app = creme_registry.get_app
+        return [get_app(app_name).verbose_name for app_name in self.admin_4_apps]
+
+    def get_allowed_apps_verbose(self): #for templates
+        get_app = creme_registry.get_app
+        return [get_app(app_name).verbose_name for app_name in self.allowed_apps]
+
+    def can_create(self, app_name, model_name):  #use a cache ??
+        """@return True if a model with ContentType(app_name, model_name) can be created."""
+        ct = ContentType.objects.get_by_natural_key(app_name, model_name)
+
+        return self.creatable_ctypes.filter(pk=ct.id).exists()
 
     def get_perms(self, user, entity):
         """@return (can_view, can_change, can_delete) 3 boolean tuple"""
@@ -205,7 +271,10 @@ class SetCredentials(Model):
         if not perms:
             perms.append(ugettext(u'Nothing allowed'))
 
-        return ugettext(u'For %s => %s') % (SetCredentials.ESET_MAP[self.set_type], u'|'.join(perms))
+        return ugettext(u'For %(set)s => %(perms)s') % {
+                    'set':      SetCredentials.ESET_MAP[self.set_type],
+                    'perms':    u'|'.join(perms),
+                }
 
     @staticmethod
     def get_perms(raw_perms):
@@ -246,7 +315,7 @@ class SetCredentials(Model):
 
 class UserProfile(Model):
     role = ForeignKey(UserRole, verbose_name=_(u'Role'), null=True)
-    #TODO; can we override 'permissions' fields ??
+    #permissions = None #TODO; can we "erase" 'permissions' fields ?? doesn't seem to work
 
     class Meta:
         abstract = True

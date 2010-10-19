@@ -15,7 +15,7 @@ from tickets.models.criticity import Criticity
 
 
 class Populator(BasePopulator):
-    dependencies = ['creme.core']
+    dependencies = ['creme.creme_core']
 
     def populate(self, *args, **kwargs):
         for pk, name in BASE_STATUS:

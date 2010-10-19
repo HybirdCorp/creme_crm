@@ -50,6 +50,9 @@ class CremeRegistry(object):
 
         return app
 
+    def iter_apps(self):
+        return self._apps.itervalues()
+
     def register_entity_models(self, *models):
         """Register CremeEntity models."""
         self._entity_models.extend(models)

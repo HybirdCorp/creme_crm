@@ -127,14 +127,31 @@ class CredentialsTestCase(TestCase):
         self.failIf(self.user.has_perm('creme_core.change_entity', self.entity1))
         self.failIf(self.user.has_perm('creme_core.delete_entity', self.entity1))
 
+        defcreds = EntityCredentials.get_default_creds()
+        self.failIf(defcreds.can_view())
+        self.failIf(defcreds.can_change())
+        self.failIf(defcreds.can_delete())
+
         EntityCredentials.set_default_perms(view=True, change=True, delete=True)
 
         self.assert_(self.user.has_perm('creme_core.view_entity',   self.entity1))
         self.assert_(self.user.has_perm('creme_core.change_entity', self.entity1))
         self.assert_(self.user.has_perm('creme_core.delete_entity', self.entity1))
 
-    def test_entity_perms(self):
+        defcreds = EntityCredentials.get_default_creds()
+        self.assert_(defcreds.can_view())
+        self.assert_(defcreds.can_change())
+        self.assert_(defcreds.can_delete())
+
+    def test_entity_perms01(self):
         EntityCredentials.set_entity_perms(self.user, self.entity1, view=True, change=True, delete=True)
+
+        self.assert_(self.user.has_perm('creme_core.view_entity',   self.entity1))
+        self.assert_(self.user.has_perm('creme_core.change_entity', self.entity1))
+        self.assert_(self.user.has_perm('creme_core.delete_entity', self.entity1))
+
+    def test_entity_perms02(self): #super-user
+        self.user.is_superuser = True
 
         self.assert_(self.user.has_perm('creme_core.view_entity',   self.entity1))
         self.assert_(self.user.has_perm('creme_core.change_entity', self.entity1))
@@ -196,7 +213,7 @@ class CredentialsTestCase(TestCase):
         qs = EntityCredentials.filter(self.user, self.build_qs())
         self.assertEqual([self.entity1.id, self.entity2.id], self.ids_list(qs))
 
-    def test_regularperms01(self):
+    def test_regularperms01(self): #regular perms not used
         ct = content_type=ContentType.objects.get_for_model(CremeProperty)
 
         try:
@@ -205,7 +222,7 @@ class CredentialsTestCase(TestCase):
             self.fail(str(e))
 
         self.user.user_permissions.add(perm)
-        self.assert_(self.user.has_perm('creme_core.add_cremeproperty'))
+        self.failIf(self.user.has_perm('creme_core.add_cremeproperty'))
 
     def test_helpers01(self):
         self.assertRaises(PermissionDenied, EntityCredentials.view_or_die, self.user, self.entity1)
@@ -243,6 +260,13 @@ class CredentialsTestCase(TestCase):
         except PermissionDenied, e:
             self.fail(str(e))
 
+    def test_helpers04(self): #super-user
+        self.user.is_superuser = True
+
+        self.entity1.view_or_die(self.user)
+        self.entity1.change_or_die(self.user)
+        self.entity1.delete_or_die(self.user)
+
     #this tests contribute_to_model too
     def test_role_esetall01(self): # CRED_VIEW + ESET_ALL
         try:
@@ -268,22 +292,6 @@ class CredentialsTestCase(TestCase):
         self.failIf(self.other_user.has_perm('creme_core.view_entity',   entity4))
         self.failIf(self.other_user.has_perm('creme_core.change_entity', entity4))
         self.failIf(self.other_user.has_perm('creme_core.delete_entity', entity4))
-
-        ##the entities created before the role was set should have right credentials too
-        ##role.update_credentials(self.user) # good API ????
-        #self.user.update_credentials()
-        #self.assert_(self.user.has_perm('creme_core.view_entity',  self.entity1))
-        #self.failIf(self.user.has_perm('creme_core.change_entity', self.entity1))
-        #self.failIf(self.user.has_perm('creme_core.delete_entity', self.entity1))
-        #self.assert_(self.user.has_perm('creme_core.view_entity',  self.entity2))
-
-        ##we modify the user perms -> entities should still have the right credentials
-        #self.user.role = None
-        #self.user.save()
-        #self.user.update_credentials()
-        #self.failIf(self.user.has_perm('creme_core.view_entity', self.entity1))
-        #self.failIf(self.user.has_perm('creme_core.view_entity', entity3))
-        #self.failIf(self.user.has_perm('creme_core.view_entity', entity4))
 
     def test_role_esetall02(self): # CRED_CHANGE + ESET_ALL
         try:
@@ -417,5 +425,90 @@ class CredentialsTestCase(TestCase):
         self.user.save()
         self.user.update_credentials()
         self.failIf(self.user.has_perm('creme_core.view_entity', self.entity1))
+
+    def test_creation_creds01(self):
+        try:
+            role = UserRole.objects.create(name='Coder')
+            self.user.role = role
+            self.user.save()
+        except Exception, e:
+            self.fail(str(e))
+
+        self.failIf(self.user.has_perm('creme_core.add_cremeproperty'))
+        self.failIf(self.user.has_perm('creme_core.add_relation'))
+
+        get_ct = ContentType.objects.get_for_model
+        role.creatable_ctypes = [get_ct(CremeProperty), get_ct(Relation)]
+
+        #role = UserRole.objects.get(pk=role.id) #refresh cache
+        self.assert_(self.user.has_perm('creme_core.add_cremeproperty'))
+        self.assert_(self.user.has_perm('creme_core.add_relation'))
+        self.failIf(self.user.has_perm('creme_core.add_cremepropertytype'))
+
+    def test_creation_creds02(self):
+        self.user.is_superuser = True
+        self.assert_(self.user.has_perm('creme_core.add_cremeproperty'))
+
+    def test_app_creds01(self):
+        try:
+            role = UserRole.objects.create(name='Salesman')
+            self.user.role = role
+            self.user.save()
+        except Exception, e:
+            self.fail(str(e))
+
+        self.failIf(self.user.has_perm('creme_core'))
+        self.failIf(self.user.has_perm('foobar'))
+        self.failIf(role.allowed_apps)
+
+        role.allowed_apps = ['creme_core', 'foobar']
+        role.save()
+
+        role = UserRole.objects.get(pk=role.id) #refresh object
+        allowed_apps = role.allowed_apps
+        self.assertEqual(2, len(allowed_apps))
+        self.assert_('creme_core' in allowed_apps)
+        self.assert_('foobar' in allowed_apps)
+
+        self.user.role = role #refresh object
+        self.assert_(self.user.has_perm('creme_core'))
+        self.assert_(self.user.has_perm('foobar'))
+        self.failIf(self.user.has_perm('quux'))
+
+    def test_app_creds02(self):
+        try:
+            role = UserRole.objects.create(name='CEO')
+            self.user.role = role
+            self.user.save()
+        except Exception, e:
+            self.fail(str(e))
+
+        self.failIf(self.user.has_perm('creme_core.can_admin'))
+        self.failIf(self.user.has_perm('foobar.can_admin'))
+        self.failIf(role.admin_4_apps)
+
+        role.admin_4_apps = ['creme_core', 'foobar']
+        role.save()
+
+        role = UserRole.objects.get(pk=role.id) #refresh object
+        admin_4_apps = role.admin_4_apps
+        self.assertEqual(2, len(admin_4_apps))
+        self.assert_('creme_core' in admin_4_apps)
+        self.assert_('foobar' in admin_4_apps)
+
+        self.user.role = role #refresh object
+        self.assert_(self.user.has_perm('creme_core.can_admin'))
+        self.assert_(self.user.has_perm('foobar.can_admin'))
+        self.failIf(self.user.has_perm('quux.can_admin'))
+
+        self.assert_(self.user.has_perm('creme_core'))
+        self.assert_(self.user.has_perm('foobar'))
+        self.failIf(self.user.has_perm('quux'))
+
+    def test_app_creds03(self):
+        self.user.is_superuser = True
+
+        self.assert_(self.user.has_perm('creme_core'))
+        self.assert_(self.user.has_perm('creme_core.can_admin'))
 
     #TODO: don't write cred if equals to default creds ??????

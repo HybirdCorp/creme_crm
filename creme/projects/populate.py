@@ -33,7 +33,7 @@ from projects.constants import REL_OBJ_PROJECT_MANAGER, REL_SUB_PROJECT_MANAGER,
 
 
 class Populator(BasePopulator):
-    dependencies = ['creme.core', 'creme.persons']
+    dependencies = ['creme.creme_core', 'creme.persons']
 
     def populate(self, *args, **kwargs):
         RelationType.create((REL_SUB_PROJECT_MANAGER, _(u'is one of the leaders of this project'), [Contact]),

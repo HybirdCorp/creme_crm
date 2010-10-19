@@ -46,7 +46,7 @@ from persons.buttons import (become_customer_button, become_prospect_button, bec
 
 
 class Populator(BasePopulator):
-    dependencies = ['creme.core']
+    dependencies = ['creme.creme_core']
 
     def populate(self, *args, **kwargs):
         RelationType.create((REL_SUB_EMPLOYED_BY, _(u'is an employee of'),          [Contact]),
