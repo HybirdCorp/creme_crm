@@ -41,7 +41,7 @@ from opportunities.constants import *
 
 
 class Populator(BasePopulator):
-    dependencies = ['creme.core', 'creme.config', 'creme.persons', 'creme.products', 'creme.billing']
+    dependencies = ['creme.creme_core', 'creme.creme_config', 'creme.persons', 'creme.products', 'creme.billing']
 
     def populate(self, *args, **kwargs):
         RelationType.create((REL_SUB_TARGETS_ORGA,      _(u'targets the organisation'),          [Opportunity]),

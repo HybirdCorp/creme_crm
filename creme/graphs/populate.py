@@ -30,7 +30,7 @@ from models import Graph
 
 
 class Populator(BasePopulator):
-    dependencies = ['creme.core']
+    dependencies = ['creme.creme_core']
 
     def populate(self, *args, **kwargs):
         get_ct = ContentType.objects.get_for_model

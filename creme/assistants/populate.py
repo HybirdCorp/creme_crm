@@ -26,7 +26,7 @@ from blocks import alerts_block, actions_it_block, actions_nit_block, memos_bloc
 
 
 class Populator(BasePopulator):
-    dependencies = ['creme.core']
+    dependencies = ['creme.creme_core']
 
     def populate(self, *args, **kwargs):
         create(BlockConfigItem, 'assistants-todos_block',       content_type=None, block_id=todos_block.id_,       order=100, on_portal=False)
