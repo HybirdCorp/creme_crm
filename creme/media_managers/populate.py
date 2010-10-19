@@ -30,7 +30,7 @@ from media_managers.models import MediaCategory, Image
 
 
 class Populator(BasePopulator):
-    dependencies = ['creme.core']
+    dependencies = ['creme.creme_core']
 
     def populate(self, *args, **kwargs):
         #TODO: created by 'products' & 'persons' app ?? (pk_string)

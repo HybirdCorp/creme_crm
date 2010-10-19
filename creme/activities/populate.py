@@ -33,7 +33,7 @@ from activities.constants import *
 
 
 class Populator(BasePopulator):
-    dependencies = ['creme.core']
+    dependencies = ['creme.creme_core']
 
     def populate(self, *args, **kwargs):
         RelationType.create((REL_SUB_LINKED_2_ACTIVITY, _(u"related to the activity")),

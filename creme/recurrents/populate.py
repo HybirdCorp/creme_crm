@@ -30,7 +30,7 @@ from recurrents.models import RecurrentGenerator, Periodicity
 
 
 class Populator(BasePopulator):
-    dependencies = ['creme.core']
+    dependencies = ['creme.creme_core']
 
     def populate(self, *args, **kwargs):
         #TODO: i18n
