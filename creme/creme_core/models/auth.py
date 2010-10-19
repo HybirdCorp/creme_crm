@@ -271,7 +271,10 @@ class SetCredentials(Model):
         if not perms:
             perms.append(ugettext(u'Nothing allowed'))
 
-        return ugettext(u'For %s => %s') % (SetCredentials.ESET_MAP[self.set_type], u'|'.join(perms))
+        return ugettext(u'For %(set)s => %(perms)s') % {
+                    'set':      SetCredentials.ESET_MAP[self.set_type],
+                    'perms':    u'|'.join(perms),
+                }
 
     @staticmethod
     def get_perms(raw_perms):
