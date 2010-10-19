@@ -99,6 +99,7 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.middleware.doc.XViewMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
+    'django.middleware.locale.LocaleMiddleware',
 
     'creme.creme_core.middleware.exceptions.Beautiful403Middleware',
     #'creme.creme_core.middleware.sql_logger.SQLLogToConsoleMiddleware',       #debuging purpose
@@ -122,7 +123,7 @@ INSTALLED_APPS = (
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
-    'django.contrib.sites',
+    #'django.contrib.sites', #remove ??
     'django.contrib.admin',
     'django.contrib.admindocs',
 
