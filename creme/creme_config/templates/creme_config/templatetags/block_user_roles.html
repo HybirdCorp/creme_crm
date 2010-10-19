@@ -10,9 +10,9 @@
     {% get_block_header _('%s Role') _('%s Roles') %}
     <tbody class="collapsable">
         <tr>
-            <th colspan="4" class="block_header_line_dark" align="left">
-                <a class="button_link" href="/creme_config/role/add/">
-                    <img src="{{MEDIA_URL}}images/add_22.png" border="0" alt="{% trans "New role" %}"/>
+            <th colspan="7" class="block_header_line_dark" align="left">
+                <a class="button_link" onclick="creme.utils.innerPopupNReload('/creme_config/role/add/', {% get_block_reload_uri %});">
+                    <img src="{{MEDIA_URL}}images/add_22.png" border="0" alt="{% trans "New role" %}" title="{% trans "New role" %}"/>
                     {% trans "New role" %}
                 </a>
             </th>
@@ -20,7 +20,10 @@
         {% if page.paginator.count %}
             <tr>
                 {% get_column_header _('Name') 'name' %}
-                <th class="block_header_line_light">{% trans "Credentials" %}</th>
+                <th class="block_header_line_light">{% trans "Allowed applications" %}</th>
+                <th class="block_header_line_light">{% trans "Administrated applications" %}</th>
+                <th class="block_header_line_light">{% trans "Creation credentials" %}</th>
+                <th class="block_header_line_light">{% trans "Entities credentials" %}</th>
                 <th class="block_header_line_light">{% trans "Edit" %}</th>
                 <th class="block_header_line_light">{% trans "Delete" %}</th>
             </tr>
@@ -29,14 +32,23 @@
                 <tr>
                     <td class="{{row_color}}">{{role.name}}</td>
                     <td class="{{row_color}}">
+                        {% widget_select_or_msg role.get_allowed_apps_verbose _('No allowed application') %}
+                    </td>
+                    <td class="{{row_color}}">
+                        {% widget_select_or_msg role.get_admin_4_apps_verbose _('No administrated application') %}
+                    </td>
+                    <td class="{{row_color}}">
+                        {% widget_select_or_msg role.creatable_ctypes.all _('No creation credential') %}
+                    </td>
+                    <td class="{{row_color}}">
                         {% widget_select_or_msg role.credentials.all _('No credential') %}
-                        <a class="button_link" href="/creme_config/role/add_credentials/{{role.id}}">
+                        <a class="button_link" onclick="creme.utils.innerPopupNReload('/creme_config/role/add_credentials/{{role.id}}', {% get_block_reload_uri %});">
                             <img src="{{MEDIA_URL}}images/add_22.png" border="0" alt="{% trans "New credentials" %}"/>
                             {% trans "New credentials" %}
                         </a>
                     </td>
                     <td class="{{row_color}}">
-                        <a href="/creme_config/role/edit/{{role.id}}">
+                        <a class="button_link" onclick="creme.utils.innerPopupNReload('/creme_config/role/edit/{{role.id}}', {% get_block_reload_uri %});">
                             <img src="{{MEDIA_URL}}images/edit_22.png" border="0" alt="{% trans "Edit" %}" title="{% trans "Edit" %}">
                         </a>
                     </td>
