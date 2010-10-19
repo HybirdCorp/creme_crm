@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-09-30 10:02+0200\n"
+"POT-Creation-Date: 2010-10-19 16:08+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -173,7 +173,7 @@ msgstr "Créer"
 msgid "Modify"
 msgstr "Modifier"
 
-#: populate.py:61 models/entity.py:190 templates/creme_core/detailview.html:62
+#: populate.py:61 models/entity.py:196 templates/creme_core/detailview.html:62
 #: templates/creme_core/filters.html:616 templates/creme_core/filters.html:622
 #: templates/creme_core/filters.html:638 templates/creme_core/filters.html:644
 #: templates/creme_core/filters.html:652
@@ -352,17 +352,17 @@ msgstr "Colonne %(index)s - %(name)s"
 msgid "Column %i"
 msgstr "Colonne %i"
 
-#: forms/fields.py:51 forms/fields.py:86
+#: forms/fields.py:52 forms/fields.py:87
 msgid "Invalid format"
 msgstr "Format invalide"
 
-#: forms/fields.py:160
+#: forms/fields.py:163
 #, python-format
 msgid "Select a valid choice. %(value)s is not an available choice."
 msgstr ""
 "Sélectionnez un choix valide. %(value)s n'est pas un des choix disponibles."
 
-#: forms/fields.py:206
+#: forms/fields.py:209
 msgid "This entity doesn't exist."
 msgstr "Cette entité n'existe pas."
 
@@ -448,11 +448,64 @@ msgstr "Maintenant"
 msgid "Today"
 msgstr "Aujourd'hui"
 
-#: models/authent.py:40 models/authent.py:63 models/authent.py:98
-#: models/authent_role.py:40 models/i18n.py:26 models/prefered_menu.py:28
+#: models/auth.py:83
+#, python-format
+msgid "You are not allowed to edit this entity: %s"
+msgstr "Vous n'ếtes pas autorisé à modifier cette fiche: %s"
+
+#: models/auth.py:99
+#, python-format
+msgid "You are not allowed to delete this entity: %s"
+msgstr "Vous n'ếtes pas autorisé à supprimer cette fiche: %s"
+
+#: models/auth.py:155
+#, python-format
+msgid "You are not allowed to view this entity: %s"
+msgstr "Vous n'ếtes pas autorisé à voir cette fiche: %s"
+
+#: models/auth.py:159 models/authent.py:40 models/authent.py:63
+#: models/authent.py:98 models/authent_role.py:40 models/i18n.py:26
+#: models/prefered_menu.py:28
 #: templates/creme_core/templatetags/block_specific_relations.html:25
 msgid "Name"
 msgstr "Nom"
+
+#: models/auth.py:161
+msgid "Creatable resources"
+msgstr "Ressources créables"
+
+#: models/auth.py:253
+msgid "all entities"
+msgstr "toutes les entités"
+
+#: models/auth.py:254
+msgid "user's own entities"
+msgstr "ses propres fiches"
+
+#: models/auth.py:265
+msgid "Can view"
+msgstr "Peut voir"
+
+#: models/auth.py:267
+msgid "Can change"
+msgstr "Peut modifier"
+
+#: models/auth.py:269
+msgid "Can delete"
+msgstr "Peut supprimer"
+
+#: models/auth.py:272
+msgid "Nothing allowed"
+msgstr "Rien d'autorisé"
+
+#: models/auth.py:274
+#, python-format
+msgid "For %(set)s => %(perms)s"
+msgstr "Pour %(set)s => %(perms)s"
+
+#: models/auth.py:317
+msgid "Role"
+msgstr "Rôle"
 
 #: models/authent_role.py:38 models/base.py:166
 msgid "Creation date"
@@ -596,11 +649,11 @@ msgstr "Liste de choix"
 msgid "List of choices (multi sélection)"
 msgstr "Liste de choix (multi sélection)"
 
-#: models/entity.py:187
+#: models/entity.py:193
 msgid "See"
 msgstr "Voir"
 
-#: models/entity.py:189 templates/creme_core/detailview.html:59
+#: models/entity.py:195 templates/creme_core/detailview.html:59
 #: templates/creme_core/generics/blockform/edit.html:9
 #: templates/creme_core/generics/blockform/edit.html:16
 #: templates/creme_core/generics/form/edit.html:3

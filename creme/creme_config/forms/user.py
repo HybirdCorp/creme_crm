@@ -43,7 +43,7 @@ class UserAddForm(CremeModelForm):
     password_2   = CharField(label=_(u"Confirm password"), min_length=6, widget=PasswordInput(), required=True)
     role         = ModelChoiceField(label=_(u"Role"), queryset=CremeRole.objects.all())
     contact      = CremeEntityField(label=_(u"Related contact"), model=Contact, q_filter={'is_user': None}, required=False,
-                                    help_text=_(u"Select the related contact if he already exists (if you don't a contact, one will be automatically created)."))
+                                    help_text=_(u"Select the related contact if he already exists (if you don't, a contact will be automatically created)."))
     organisation = ModelChoiceField(label=_(u"User organisation"), queryset=Organisation.get_all_managed_by_creme())
     relation     = ModelChoiceField(label=_(u"Position in the organisation"),
                                     queryset=RelationType.objects.filter(subject_ctypes=_get_ct(Contact), object_ctypes=_get_ct(Organisation)))
