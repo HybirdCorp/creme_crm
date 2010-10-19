@@ -4,6 +4,7 @@
 
 from django.test import TestCase
 from django.core.serializers.json import simplejson
+from django.utils.translation import ugettext as _
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 
@@ -52,11 +53,11 @@ class ViewsTestCase(TestCase):
 
         content = simplejson.loads(response.content)
         self.assertEqual(13, len(content))
-        self.assertEqual(content[0], ["created", "Creme entity - Creation date"])
-        self.assertEqual(content[1], ["modified", "Creme entity - Last modification"])
-        self.assertEqual(content[2], ["user__id", "User - Id"])
-        self.assertEqual(content[3], ["user__username", "User - Username"])
-        self.assertEqual(content[4], ["user__first_name", "User - First name"])
+        self.assertEqual(content[0], ["created",          "Creme entity - " + _('Creation date')])
+        self.assertEqual(content[1], ["modified",         "Creme entity - " + _("Last modification")])
+        self.assertEqual(content[2], ["user__id",         _("User") + " - Id"])
+        self.assertEqual(content[3], ["user__username",   _("User") + " - " + _("Username")])
+        self.assertEqual(content[4], ["user__first_name", _("User") + " - " + _("First name")])
         #etc...
 
         response = self.client.post('/creme_core/get_fields', data={'ct_id': 0})
@@ -78,7 +79,7 @@ class ViewsTestCase(TestCase):
         self.assertEqual('text/javascript', response['Content-Type'])
 
         content = simplejson.loads(response.content)
-        self.assertEqual(content, [['get_pretty_properties', 'Properties']])
+        self.assertEqual(content, [['get_pretty_properties', _('Properties')]])
 
         response = self.client.post('/creme_core/get_function_fields', data={'ct_id': 0})
         self.assertEqual(404,               response.status_code)
