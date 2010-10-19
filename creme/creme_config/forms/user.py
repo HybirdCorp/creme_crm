@@ -19,12 +19,11 @@
 ################################################################################
 
 import re
-
 from logging import debug
 
 from django.utils.safestring import mark_safe
 from django.forms import CharField, BooleanField, ModelChoiceField, ValidationError
-from django.forms.widgets import HiddenInput, CheckboxInput, PasswordInput
+from django.forms.widgets import PasswordInput
 from django.utils.translation import ugettext_lazy as _, ugettext
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
@@ -32,7 +31,6 @@ from django.contrib.contenttypes.models import ContentType
 from creme_core.models import Relation, RelationType, CremeProfile, CremeRole
 from creme_core.forms import CremeForm, CremeModelForm
 from creme_core.forms.fields import CremeEntityField
-from creme_core.forms.widgets import ListViewWidget
 
 from persons.models import Contact, Organisation
 
@@ -41,18 +39,14 @@ _get_ct = ContentType.objects.get_for_model
 
 #TODO: see django.contrib.auth.forms.UserCreationForm
 class UserAddForm(CremeModelForm):
-    password_1     = CharField(label=_(u"Password"), min_length=6, widget=PasswordInput(), required=True)
-    password_2     = CharField(label=_(u"Confirm password"), min_length=6, widget=PasswordInput(), required=True)
-    role           = ModelChoiceField(label=_(u"Role"), queryset=CremeRole.objects.all())
-    contact_exists = BooleanField(label=_(u"His related contact already exists ?"), required=False,
-                                  help_text=_(u"Uncheck if you want the related contact to be automatically created."),
-                                  widget=CheckboxInput(attrs={'onclick': 'config.handleShowContacts(this, "id_contact_div");'}))
-    contact        = CremeEntityField(label=_(u"Contacts"), model=Contact, q_filter={'is_user': None},
-                                      widget=ListViewWidget(attrs={'style':'display:none;'}), required=False)
-
-    organisation   = ModelChoiceField(label=_(u"User organisation"), queryset=Organisation.get_all_managed_by_creme())
-    relation       = ModelChoiceField(label=_(u"Position in the organisation"),
-                                      queryset=RelationType.objects.filter(subject_ctypes=_get_ct(Contact), object_ctypes=_get_ct(Organisation)))
+    password_1   = CharField(label=_(u"Password"), min_length=6, widget=PasswordInput(), required=True)
+    password_2   = CharField(label=_(u"Confirm password"), min_length=6, widget=PasswordInput(), required=True)
+    role         = ModelChoiceField(label=_(u"Role"), queryset=CremeRole.objects.all())
+    contact      = CremeEntityField(label=_(u"Related contact"), model=Contact, q_filter={'is_user': None}, required=False,
+                                    help_text=_(u"Select the related contact if he already exists (if you don't a contact, one will be automatically created)."))
+    organisation = ModelChoiceField(label=_(u"User organisation"), queryset=Organisation.get_all_managed_by_creme())
+    relation     = ModelChoiceField(label=_(u"Position in the organisation"),
+                                    queryset=RelationType.objects.filter(subject_ctypes=_get_ct(Contact), object_ctypes=_get_ct(Organisation)))
 
     class Meta:
         model = User
@@ -74,35 +68,21 @@ class UserAddForm(CremeModelForm):
 
         return pw2
 
-    def clean_contact(self):
-        get_data = self.cleaned_data.get
-        contact_exists = get_data('contact_exists', False)
-        contact = get_data('contact', None)
-
-        if contact_exists:
-            self.fields['contact'].widget.attrs['style'] = "display:block;"
-
-            if not contact:
-                raise ValidationError(ugettext(u"Select a Contact if he already exists"))
-
-        return contact
-
-    def save(self):
+    def save(self, *args, **kwargs):
         cleaned  = self.cleaned_data
         instance = self.instance
 
         instance.set_password(cleaned['password_1'])
-        super(UserAddForm, self).save()
+        super(UserAddForm, self).save(*args, **kwargs)
 
         CremeProfile.objects.create(creme_role=cleaned['role'], user=instance)
 
         contact = cleaned.get('contact', None)
 
         if not contact:
-            contact = Contact()
-            contact.last_name  = instance.last_name or instance.username
-            contact.first_name = instance.first_name or instance.username
-            contact.user = instance
+            contact = Contact(last_name=(instance.last_name or instance.username),
+                              first_name=(instance.first_name or instance.username),
+                              user=instance)
 
         contact.is_user = instance
         contact.save()

@@ -33,7 +33,7 @@ from creme_config.forms.user_settings import UserSettingsConfigForm
 from creme_config.forms.user import  UserAddForm, UserChangePwForm, UserEditForm
 
 
-portal_url = '/creme_config/user/portal/'
+PORTAL_URL = '/creme_config/user/portal/'
 
 @login_required
 @get_view_or_die('creme_config', DROIT_MODULE_EST_ADMIN)
@@ -47,7 +47,7 @@ def change_password(request, user_id):
         entity_form = UserChangePwForm(request.POST, initial={'user': user})
         if entity_form.is_valid():
             entity_form.save()
-            return HttpResponseRedirect(portal_url)
+            return HttpResponseRedirect(PORTAL_URL)
     else:
         entity_form = UserChangePwForm(initial={'user': user})
 
@@ -61,15 +61,15 @@ def add(request):
     """
         @Permissions : Admin to creme_config app
     """
-    if request.POST :
+    if request.method == 'POST':
         entity_form = UserAddForm(request.POST)
         if entity_form.is_valid():
             entity_form.save()
-            return HttpResponseRedirect(portal_url)
+            return HttpResponseRedirect(PORTAL_URL)
     else:
         entity_form = UserAddForm()
 
-    return render_to_response('creme_config/users/add_user.html',
+    return render_to_response('creme_core/generics/blockform/add.html', #REMOVE 'creme_config/users/add_user.html',
                               {'form': entity_form},
                               context_instance=RequestContext(request))
 
@@ -79,8 +79,7 @@ def portal(request):
     """
         @Permissions : Acces OR Admin to creme_config app
     """
-    return render_to_response('creme_config/users/portal.html',
-                              {},
+    return render_to_response('creme_config/users/portal.html', {},
                               context_instance=RequestContext(request))
 
 @login_required
@@ -106,11 +105,11 @@ def edit(request, user_id):
     """
     user = get_object_or_404(User, pk=user_id)
 
-    if request.POST :
+    if request.method == 'POST':
         userform = UserEditForm(request.POST,instance=user)
         if userform.is_valid():
             userform.save()
-            return HttpResponseRedirect(portal_url)
+            return HttpResponseRedirect(PORTAL_URL)
     else:
         userform = UserEditForm(instance=user)
 
@@ -126,11 +125,11 @@ def edit_own_settings(request):
     """
     user = get_object_or_404(User, pk=request.user.id)
 
-    if request.POST :
+    if request.method == 'POST':
         settings_form = UserSettingsConfigForm(user, request.POST)
         if settings_form.is_valid():
             settings_form.save()
-        return HttpResponseRedirect('/')
+            return HttpResponseRedirect('/')
     else:
         settings_form = UserSettingsConfigForm(user)
 
