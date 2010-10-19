@@ -21,24 +21,43 @@
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template.context import RequestContext
+from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required
 
 from creme_core.models import UserRole
-from creme_core.views.generic import add_entity
+from creme_core.views.generic import add_entity, inner_popup
 from creme_core.entities_access.functions_for_permissions import get_view_or_die
 from creme_core.constants import DROIT_MODULE_EST_ADMIN
 from creme_core.utils import get_from_POST_or_404
 
-from creme_config.forms.user_role import UserRoleCreateForm, UserRoleEditForm, AddCredentialsForm
+from creme_config.forms.user_role import UserRoleCreateForm, UserRoleEditForm, AddCredentialsForm, DefaultCredsForm
 
 
-PORTAL_URL = '/creme_config/role/portal/'
+#PORTAL_URL = '/creme_config/role/portal/'
 
+##TODO: add a generic view add_model() ??
 @login_required
 @get_view_or_die('creme_config', DROIT_MODULE_EST_ADMIN)
 def add(request):
-    return add_entity(request, UserRoleCreateForm, PORTAL_URL, 'creme_core/generics/form/add.html')
+    if request.method == 'POST':
+        roleform = UserRoleCreateForm(request.POST)
 
+        if roleform.is_valid():
+            roleform.save()
+    else:
+        roleform = UserRoleCreateForm()
+
+    return inner_popup(request, 'creme_core/generics/blockform/add_popup2.html',
+                       {
+                        'form':  roleform,
+                        'title': _(u'New role'),
+                       },
+                       is_valid=roleform.is_valid(),
+                       reload=False,
+                       delegate_reload=True,
+                       context_instance=RequestContext(request))
+
+#TODO: add a generic view edit_model() ??
 @login_required
 @get_view_or_die('creme_config', DROIT_MODULE_EST_ADMIN)
 def edit(request, role_id):
@@ -49,13 +68,18 @@ def edit(request, role_id):
 
         if roleform.is_valid():
             roleform.save()
-            return HttpResponseRedirect(PORTAL_URL)
     else:
         roleform = UserRoleEditForm(instance=role)
 
-    return render_to_response('creme_core/generics/form/edit.html',
-                              {'form': roleform},
-                              context_instance=RequestContext(request))
+    return inner_popup(request, 'creme_core/generics/blockform/edit_popup.html',
+                       {
+                        'form':  roleform,
+                        'title': _(u'Edit %s') % role,
+                       },
+                       is_valid=roleform.is_valid(),
+                       reload=False,
+                       delegate_reload=True,
+                       context_instance=RequestContext(request))
 
 @login_required
 @get_view_or_die('creme_config', DROIT_MODULE_EST_ADMIN)
@@ -63,17 +87,22 @@ def add_credentials(request, role_id):
     role = get_object_or_404(UserRole, pk=role_id)
 
     if request.method == 'POST':
-        roleform = AddCredentialsForm(role, request.POST)
+        add_form = AddCredentialsForm(role, request.POST)
 
-        if roleform.is_valid():
-            roleform.save()
-            return HttpResponseRedirect(PORTAL_URL)
+        if add_form.is_valid():
+            add_form.save()
     else:
-        roleform = AddCredentialsForm(role)
+        add_form = AddCredentialsForm(role)
 
-    return render_to_response('creme_core/generics/blockform/edit.html',
-                              {'form': roleform},
-                              context_instance=RequestContext(request))
+    return inner_popup(request, 'creme_core/generics/blockform/edit_popup.html',
+                       {
+                        'form':  add_form,
+                        'title': _(u'Add creddentials to <%s>') % role,
+                       },
+                       is_valid=add_form.is_valid(),
+                       reload=False,
+                       delegate_reload=True,
+                       context_instance=RequestContext(request))
 
 @login_required
 @get_view_or_die('creme_config')
@@ -88,3 +117,24 @@ def delete(request):
     role.delete() #TODO: overload to udpate credentials
 
     return HttpResponse()
+
+@login_required
+@get_view_or_die('creme_config', DROIT_MODULE_EST_ADMIN)
+def set_default_creds(request):
+    if request.method == 'POST':
+        form = DefaultCredsForm(request.POST)
+
+        if form.is_valid():
+            form.save()
+    else:
+        form = DefaultCredsForm()
+
+    return inner_popup(request, 'creme_core/generics/blockform/edit_popup.html',
+                       {
+                        'form':  form,
+                        'title': _(u'Edit default credentials'),
+                       },
+                       is_valid=form.is_valid(),
+                       reload=False,
+                       delegate_reload=True,
+                       context_instance=RequestContext(request))

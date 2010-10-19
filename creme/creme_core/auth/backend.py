@@ -23,6 +23,8 @@ from django.contrib.auth.backends import ModelBackend
 from creme_core.models import EntityCredentials
 
 
+_ADD_PREFIX = 'add_'
+
 class EntityBackend(ModelBackend):
     supports_object_permissions = True
 
@@ -30,4 +32,20 @@ class EntityBackend(ModelBackend):
         if obj:
             return EntityCredentials.get_creds(user_obj, obj).has_perm(perm)
 
-        return super(EntityBackend, self).has_perm(user_obj, perm)
+        if user_obj.role is not None:
+            app_name, dot, action_name = perm.partition('.')
+
+            if not action_name:
+                if app_name in user_obj.role.allowed_apps:
+                    return True
+
+                return app_name in user_obj.role.admin_4_apps
+
+            if action_name == 'can_admin':
+                return app_name in user_obj.role.admin_4_apps
+
+            if action_name.startswith(_ADD_PREFIX):
+                return user_obj.role.can_create(app_name, action_name[len(_ADD_PREFIX):])
+
+        #return super(EntityBackend, self).has_perm(user_obj, perm)
+        return False

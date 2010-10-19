@@ -24,7 +24,7 @@ from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 
 from creme_core.models import *
-from creme_core.gui.block import QuerysetBlock, BlocksManager
+from creme_core.gui.block import Block, QuerysetBlock, BlocksManager
 from creme_core.utils import jsonify
 
 from creme_config.registry import config_registry
@@ -268,6 +268,7 @@ class SearchConfigBlock(QuerysetBlock):
 #        return self._render(self.get_block_template_context(context, SearchConfigItem.objects.select_related('searchfield_set'),
 #                                              update_url='/creme_config/blocks/reload/'))
 
+
 class UserRolesBlock(QuerysetBlock):
     id_           = QuerysetBlock.generate_id('creme_config', 'user_roles')
     dependencies  = (UserRole,)
@@ -280,6 +281,19 @@ class UserRolesBlock(QuerysetBlock):
         return self._render(self.get_block_template_context(context, UserRole.objects.all(),
                                                             update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
                                                             ))
+
+
+class DefaultCredentialsBlock(Block):
+    id_           = Block.generate_id('creme_config', 'default_credentials')
+    dependencies  = (EntityCredentials,)
+    verbose_name  = _(u'Default credentials')
+    template_name = 'creme_config/templatetags/block_default_credentials.html'
+
+    def detailview_display(self, context):
+        return self._render(self.get_block_template_context(context,
+                                                            creds=EntityCredentials.get_default_creds(),
+                                                            update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
+                                                           ))
 
 
 generic_models_block = GenericModelsBlock()
@@ -301,4 +315,5 @@ blocks_list = (
         SearchConfigBlock(),
         InstanceBlocksConfigBlock(),
         UserRolesBlock(),
+        DefaultCredentialsBlock(),
     )
