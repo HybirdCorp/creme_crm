@@ -17,17 +17,15 @@
 <table class="table_detail_view ui-corner-all" id={{block_name}}>
     <thead>
         <tr>
-            <th colspan="2">
-                <center>
-                    <table class="block_header" cellspacing="0" cellpadding="0">
-                        <tbody>
-                            <tr>
-                                <td><img src="{{MEDIA_URL}}images/graph_48.png" alt="{% trans 'Graph' %}" title="{% trans 'Graph' %}" /></td>
-                                <td>&nbsp;{{graph}}</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </center>
+            <th colspan="2" class="collapser">
+                <table class="block_header" cellspacing="0" cellpadding="0">
+                    <tbody>
+                        <tr>
+                            <td><img src="{{MEDIA_URL}}images/graph_48.png" alt="{% trans 'Graph' %}" title="{% trans 'Graph' %}" /></td>
+                            <td>&nbsp;{{graph}}</td>
+                        </tr>
+                    </tbody>
+                </table>
             </th>
         </tr>
     </thead>
