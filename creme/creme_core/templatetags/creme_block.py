@@ -38,8 +38,9 @@ register = Library()
 def get_block_reload_uri(context): #{% include 'creme_core/templatetags/widgets/block_reload_uri.html' %} instead ??
     return context
 
-@register.inclusion_tag('creme_core/templatetags/widgets/block_header.html', takes_context=True)
-def get_block_header(context, singular_title, plural_title, icon='', short_title='', count=None):
+@register.inclusion_tag('creme_core/templatetags/widgets/block_title.html', takes_context=True)
+#def get_block_header(context, singular_title, plural_title, icon='', short_title='', count=None):
+def get_block_title(context, singular_title, plural_title, icon='', short_title='', count=None):
     if count is None:
         count = context['page'].paginator.count
 
@@ -51,7 +52,8 @@ def get_block_header(context, singular_title, plural_title, icon='', short_title
 
     return context
 
-@register.inclusion_tag('creme_core/templatetags/widgets/block_header.html', takes_context=True)
+#@register.inclusion_tag('creme_core/templatetags/widgets/block_header.html', takes_context=True)
+@register.inclusion_tag('creme_core/templatetags/widgets/block_title.html', takes_context=True)
 def get_basic_block_header(context, title, icon='', short_title=''):
     context.update({
             'title':       ugettext(title),

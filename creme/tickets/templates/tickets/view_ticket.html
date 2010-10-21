@@ -8,6 +8,10 @@
 {% block after_object_as_table_1 %}
     <table class="table_detail_view ui-corner-all">
         {% get_basic_block_header _('Other information') 'infos_48.png' _('Information') %}
+        {% include "creme_core/templatetags/widgets/block_header_beg.html" %}
+            <th style="width: 80%;" class="collapser">{% get_basic_block_header _('Other information') 'infos_48.png' _('Information') %}</th>
+            <th style="width: 20%;" align="right"></th>
+        {% include "creme_core/templatetags/widgets/block_header_end.html" %}
         <tbody class="collapsable">
             <tr>
                 <th class="block_header_line_dark">{% trans "Resolving duration" %}</th>

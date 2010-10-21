@@ -97,7 +97,7 @@
     </thead>
     <tbody>
         {% for entity in entities.object_list %}
-            <tr class="selectable">
+            <tr class="selectable {% if forloop.counter|mod:2 == 0 %}odd{% endif %}">
                 {% if not o2m %}<td><input name="select_one" value="{{entity.pk}}" type="checkbox" /></td>{% endif %}
                 <td style="display:none;">
                     <input type="hidden" name="entity_id" value="{{entity.pk}}" />

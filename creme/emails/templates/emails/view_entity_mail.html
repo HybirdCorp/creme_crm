@@ -42,7 +42,10 @@
     <div style="float:left;width:50%;margin-left:-5px;">
         <table class="table_detail_view ui-corner-all">
             {% with object|get_meta_value:"verbose_name" as tmp %} {% with tmp|format:_("Information %s") as title %}
-                {% get_basic_block_header title 'infos_48.png' _('Information') %}
+                {% include "creme_core/templatetags/widgets/block_header_beg.html" %}
+                    <th style="width: 80%;" class="collapser">{% get_basic_block_header title 'infos_48.png' _('Information') %}</th>
+                    <th style="width: 20%;" align="right"></th>
+                {% include "creme_core/templatetags/widgets/block_header_end.html" %}
             {% endwith %} {% endwith %}
             <tbody class="collapsable">
                 <tr>

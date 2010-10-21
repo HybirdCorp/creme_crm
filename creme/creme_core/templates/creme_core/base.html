@@ -133,6 +133,10 @@
         $('#menu_collapse').height(content_height*0.9);*/
 
         //var previous_selected = $.cookie('creme-menu-selected');
+
+        var logo_container_height = $('#logo_container').outerHeight();//Webkit
+        $('.fg-menu-container').css({'top': logo_container_height});//Webkit
+
         var previous_selected = window.location.pathname;
         
         if(previous_selected != null)
@@ -206,18 +210,18 @@
         <div id="top" class="header">
             <table height="50" width="100%" border="0" cellpadding="0" cellspacing="0">
                 <tr>
-                    <td align="left" valign="middle">
+                    <td align="left" valign="middle" style="width:25%;">
                         {% trans 'Welcome,' %} <strong>{% if user.first_name %}{{ user.first_name|escape }}{% else %}{{ user.username }}{% endif %}</strong> -
                         {% block userlinks %}
                             <a href="/creme_config/user/edit/settings/">{% trans 'My settings' %}</a> -
                             <a href="/creme_core/clean/">{% trans 'Log out' %}</a>
                         {% endblock %}
                     </td>
-                    <td align="center" valign="middle" style="width: 40%;" >
+                    <td align="center" valign="middle" style="width:50%;">
                         {% get_search_panel %}
                         {% get_quickforms_panel %}
                     </td>
-                    <td align="right" valign="bottom">
+                    <td align="right" valign="middle" style="width:25%;">
                         <a href="/"><img src="{{MEDIA_URL}}images/creme_header_50.png" alt="Crème" border="0" /></a>
                     </td>
                 </tr>
