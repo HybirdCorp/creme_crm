@@ -30,7 +30,9 @@ from creme_core.models import CremeEntity
 
 @login_required
 def app_portal(request, app_name, template, models, stats, config_url=None, extra_template_dict=None):
-    if not request.user.has_perm(app_name):
+    has_perm = request.user.has_perm
+
+    if not has_perm(app_name):
         raise PermissionDenied(_(u'You are not allowed to access to the app: %s') % app_name)
 
     get_ct = ContentType.objects.get_for_model
@@ -44,6 +46,7 @@ def app_portal(request, app_name, template, models, stats, config_url=None, extr
                         'ct_ids':       ct_ids,
                         'stats':        stats,
                         'config_url':   config_url,
+                        'can_admin':    has_perm('%s.can_admin' % app_name),
                     }
 
     if extra_template_dict is not None:

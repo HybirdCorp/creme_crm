@@ -29,12 +29,14 @@
     {% if config_url %}
         <div>
             <ul class="button_list hbox">
-                <li>
-                    <a class="menu_button" href="{{config_url}}">
-                        <img src="{{MEDIA_URL}}images/config_32.png" border="0" title="{% trans "Configure" %}" alt="{% trans "Configure" %}" />
-                        {% trans "Configure" %}
-                    </a>
-                </li>
+                {% if can_admin %}
+                    <li>
+                        <a class="menu_button" href="{{config_url}}">
+                            <img src="{{MEDIA_URL}}images/config_32.png" border="0" title="{% trans "Configure" %}" alt="{% trans "Configure" %}" />
+                            {% trans "Configure" %}
+                        </a>
+                    </li>
+                {% endif %}
             </ul>
         </div>
     {% endif %}
