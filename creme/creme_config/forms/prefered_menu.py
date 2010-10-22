@@ -34,15 +34,17 @@ class PreferedMenuForm(CremeForm):
 
     def __init__(self, user, *args, **kwargs):
         super(PreferedMenuForm, self).__init__(*args, **kwargs)
-
         self.user = user
 
-        get_app = creme_registry.get_app
+        get_app  = creme_registry.get_app
+        has_perm = user.has_perm if user else lambda app_name: True
 
         #TODOS: remove force_unicode when item.menu_name is correct unicode....
         apps = set((item.menu_url, u'%s - %s' % (get_app(app).verbose_name, force_unicode(item.menu_name)))
                     for app, items in creme_menu.app_menu.items()
-                        for item in items.items)
+                        if has_perm(app)
+                            for item in items.items
+                  )
 
         menu_entries = self.fields['menu_entries']
         menu_entries.choices = apps

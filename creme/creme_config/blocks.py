@@ -55,11 +55,7 @@ class GenericModelsBlock(QuerysetBlock):
                                                             app_name=context['app_name']))
 
     @jsonify
-    def detailview_ajax(self, request, ct_id):
-        ct_id = int(ct_id)
-        model = ContentType.objects.get_for_id(ct_id).model_class()
-        app_name = model._meta.app_label
-
+    def detailview_ajax(self, request, ct_id, model, app_name):
         context = RequestContext(request)
         context.update({
                 'model':      model,
