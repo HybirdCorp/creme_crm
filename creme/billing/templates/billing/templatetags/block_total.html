@@ -3,16 +3,16 @@
 {% load creme_block %}
 <table  class="table_detail_view ui-corner-all" id={{block_name}}>
     <thead>
-        <tr><th colspan="2">{% trans "Totals" %}</th></tr>
+        <tr><th colspan="2" align="left">{% trans "Totals" %}</th></tr>
     </thead>
     <tbody class="collapsable">
         <tr>
-             <th class="block_header_line_dark" align="center" valign="center"><h1>{% trans "Total (exclusive of tax)" %}</h1></th>
-             <td class="block_line_dark" align="center" valign="center"><h1>{{object.get_total}}</h1></td>
+             <th class="block_header_line_dark th_info" align="center" valign="center"><h1>{% trans "Total (exclusive of tax)" %}</h1></th>
+             <td class="block_line_dark td_info" align="center" valign="center"><h1>{{object.get_total}}</h1></td>
         </tr>
         <tr>
-             <th class="block_header_line_light" align="center" valign="center"><h1>{% trans "Total (inclusive of tax)" %}</h1></th>
-             <td class="block_line_light" align="center" valign="center"><h1>{{object.get_total_with_tax}}</h1></td>
+             <th class="block_header_line_light th_info" align="center" valign="center"><h1>{% trans "Total (inclusive of tax)" %}</h1></th>
+             <td class="block_line_light td_info" align="center" valign="center"><h1>{{object.get_total_with_tax}}</h1></td>
         </tr>
     </tbody>
 </table>

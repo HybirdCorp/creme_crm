@@ -1,0 +1,13 @@
+{% if icon %}
+    <table cellspacing="0" cellpadding="0">
+        <tbody>
+            <tr>
+                <th><img src="{{MEDIA_URL}}images/{{icon}}" alt="{{short_title}}" title="{{short_title}}" /></th>
+                <th>&nbsp;{{title}}</th>
+            </tr>
+        </tbody>
+    </table>
+{% else %}
+    {{title}}
+{% endif %}
+                        

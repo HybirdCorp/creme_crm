@@ -17,15 +17,17 @@
 {% endif %}
 
 <table class="table_detail_view ui-corner-all" id={{block_name}}>
-    {% get_block_header _('%s Graph') _('%s Graphs') 'graph_48.png' 'Graph' %}
-    <tbody class="collapsable">
-        <tr>
-            <th colspan="6" class="block_header_line_dark" align="left">
-                <a class="button_link" onclick="creme.utils.innerPopupNReload('/reports/graph/{{object.id}}/add', {% get_block_reload_uri %});">
+    {% include "creme_core/templatetags/widgets/block_header_beg.html" %}
+        <th style="width: 80%;" class="collapser" align="left">{% get_block_title _('%s Graph') _('%s Graphs') 'graph_48.png' 'Graph' %}</th>
+        <th style="width: 20%;" align="right">
+            <div class="buttons">
+                <a class="add" onclick="creme.utils.innerPopupNReload('/reports/graph/{{object.id}}/add', {% get_block_reload_uri %});">
                     <img src="{{MEDIA_URL}}images/add_22.png" border="0" title="{% trans 'Add new graph' %}" alt="{% trans 'Add' %}" />{% trans 'New' %}
                 </a>
-            </th>
-        </tr>
+            </div>
+        </th>
+    {% include "creme_core/templatetags/widgets/block_header_end.html" %}
+    <tbody class="collapsable">
         {% if page.paginator.count %}
             <tr>
                 <th class="block_header_line_dark" style="width:20px;">&nbsp;</th>

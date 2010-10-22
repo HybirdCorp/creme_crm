@@ -3,12 +3,17 @@
 {% with object.get_custom_fields_n_values as custom_fields_n_values %}
     {% if custom_fields_n_values %}
         <table class="table_detail_view ui-corner-all">
-            {% get_basic_block_header _('Custom fields') 'infos_48.png' _('Information') %}
+            {% include "creme_core/templatetags/widgets/block_header_beg.html" %}
+                <th style="width: 80%;" class="collapser" align="left">{% get_basic_block_header _('Custom fields') 'infos_48.png' _('Information') %}</th>
+                <th style="width: 20%;" align="right">
+                    <div class="buttons"></div>
+                </th>
+            {% include "creme_core/templatetags/widgets/block_header_end.html" %}
             <tbody class="collapsable">
                 {% for field, value in custom_fields_n_values %}
                     <tr>
-                        <th class="{% cycle "block_header_line_dark" "block_header_line_light" %}">{{field.name}}</th>
-                        <td class="{% cycle "block_line_dark" "block_line_light" %}">{{value}}</td>
+                        <th class="{% cycle "block_header_line_dark" "block_header_line_light" %} th_info">{{field.name}}</th>
+                        <td class="{% cycle "block_line_dark" "block_line_light" %} td_info">{{value}}</td>
                     </tr>
                 {% endfor %}
             </tbody>

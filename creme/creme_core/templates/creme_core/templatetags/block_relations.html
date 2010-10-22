@@ -5,16 +5,18 @@
 {% regroup page.object_list by type as predicate_list %}
 
 <table class="table_detail_view ui-corner-all" id={{block_name}}>
-    {% get_block_header _('%s Relation') _('%s Relations') 'relations_48.png' _('Relation') %}
-    <tbody class="collapsable">
-        <tr>
-            <th colspan="2" align="left" class="block_header_line_dark" style="font-size:14px;">
-                <a class="button_link" onclick="creme.utils.innerPopupNReload('/creme_core/relation/add/{{object.id}}', {% get_block_reload_uri %});">
+    {% include "creme_core/templatetags/widgets/block_header_beg.html" %}
+        <th style="width: 80%;" class="collapser">{% get_block_title _('%s Relation') _('%s Relations') 'relations_48.png' _('Relation') %}</th>
+        <th style="width: 20%;" align="right">
+            <div class="buttons">
+                <a class="add" onclick="creme.utils.innerPopupNReload('/creme_core/relation/add/{{object.id}}', {% get_block_reload_uri %});">
                     <img src="{{MEDIA_URL}}images/add_22.png" border="0" title="{% trans "New relations" %}" alt="{% trans "New relations" %}" />
                     {% trans "New relations" %}
                 </a>
-            </th>
-        </tr>
+            </div>
+        </th>
+    {% include "creme_core/templatetags/widgets/block_header_end.html" %}
+    <tbody class="collapsable">
         {% if page.paginator.count %}
             {% for predicate in predicate_list %}
                 <tr>

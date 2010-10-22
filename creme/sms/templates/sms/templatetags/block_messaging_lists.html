@@ -1,17 +1,18 @@
 {% load i18n %}
 {% load creme_block %}
 <table class="table_detail_view ui-corner-all" id={{block_name}}>
-    {% get_block_header _('%s Related messaging list') _('%s Related messaging lists') 'sms_48.png' _('Messaging list') %}
-    <tbody class="collapsable">
-        <tr>
-            <th colspan="4" class="block_header_line_dark" align="left">
-                {% comment %}<a class="button_link" onclick="creme.utils.showInnerPopup('/sms/campaign/{{object.pk}}/messaging_list/add')">{% endcomment %}
-                <a class="button_link" onclick="creme.utils.innerPopupNReload('/sms/campaign/{{object.pk}}/messaging_list/add', '{{update_url}}?base_url={{base_url}}');">
+    {% include "creme_core/templatetags/widgets/block_header_beg.html" %}
+        <th style="width: 80%;" class="collapser" align="left">{% get_block_title _('%s Related messaging list') _('%s Related messaging lists') 'sms_48.png' _('Messaging list') %}</th>
+        <th style="width: 20%;" align="right">
+            <div class="buttons">
+                <a class="add" onclick="creme.utils.innerPopupNReload('/sms/campaign/{{object.pk}}/messaging_list/add', '{{update_url}}?base_url={{base_url}}');">
                     <img src="{{MEDIA_URL}}images/add_22.png" border="0" title="{% trans "Add lists" %}" alt="{% trans "Add lists" %}" />
                     {% trans "Add existing messaging lists" %}
                 </a>
-            </th>
-        </tr>
+            </div>
+        </th>
+    {% include "creme_core/templatetags/widgets/block_header_end.html" %}
+    <tbody class="collapsable">
         {% if page.paginator.count %}
             <tr>
                 <th class="block_header_line_dark">{% trans "Name of the list" %}</th>

@@ -171,7 +171,8 @@ creme.utils.bindToggle = function(self) {
     }
 
 creme.utils.bindShowHideTbody = function() {
-    $('.table_detail_view thead').each(function() {creme.utils.bindToggle($(this));});
+//    $('.table_detail_view thead').each(function() {creme.utils.bindToggle($(this));});
+    $('.table_detail_view ').find('.collapser').each(function() {creme.utils.bindToggle($(this));});
 }
 
 //TODO: Remove evt argument, a argument?

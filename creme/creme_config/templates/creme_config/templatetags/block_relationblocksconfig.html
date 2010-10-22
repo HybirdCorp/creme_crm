@@ -2,7 +2,10 @@
 {% load creme_block %}
 <table class="table_detail_view ui-corner-all" id={{block_name}}>
     <!--{% cycle "block_line_light" "block_line_dark" as row_color %}-->
-    {% get_block_header _('%s Type of relation block created') _('%s Types of relation block created') %}
+    {% include "creme_core/templatetags/widgets/block_header_beg.html" %}
+        <th style="width: 80%;" class="collapser" align="left">{% get_block_title _('%s Type of relation block created') _('%s Types of relation block created') %}</th>
+        <th style="width: 20%;" align="right"></th>
+    {% include "creme_core/templatetags/widgets/block_header_end.html" %}
     <tbody class="collapsable">
         <tr>
             <th class="block_header_line_light" style="font-size:14px;" align="left" colspan="100">

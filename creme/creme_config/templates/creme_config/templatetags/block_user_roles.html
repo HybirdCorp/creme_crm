@@ -7,7 +7,10 @@
     </div>
 {% endif %}
 <table class="table_detail_view ui-corner-all" id={{block_name}}>
-    {% get_block_header _('%s Role') _('%s Roles') %}
+    {% include "creme_core/templatetags/widgets/block_header_beg.html" %}
+        <th style="width: 80%;" class="collapser" align="left">{% get_block_title  _('%s Role') _('%s Roles') %}</th>
+        <th style="width: 20%;" align="right"></th>
+    {% include "creme_core/templatetags/widgets/block_header_end.html" %}
     <tbody class="collapsable">
         <tr>
             <th colspan="7" class="block_header_line_dark" align="left">

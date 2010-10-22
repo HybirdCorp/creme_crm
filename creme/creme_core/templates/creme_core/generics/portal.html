@@ -47,12 +47,15 @@
 
     {% block statistics %}
         <table class="table_detail_view ui-corner-all">
-            {% get_basic_block_header _('Statistics') 'infos_48.png' _('Information') %}
+            {% include "creme_core/templatetags/widgets/block_header_beg.html" %}
+                <th style="width: 80%;" class="collapser">{% get_basic_block_header _('Statistics') 'infos_48.png' _('Information') %}</th>
+                <th style="width: 20%;" align="right"></th>
+            {% include "creme_core/templatetags/widgets/block_header_end.html" %}
             <tbody class="collapsable">
                 {% for statk, statv in stats %}
                     <tr>
-                        <th class="{% cycle "block_header_line_dark" "block_header_line_light" %}">{{statk}}</th>
-                        <td class="{% cycle "block_line_dark" "block_line_light" %}">{{statv}}</td>
+                        <th class="{% cycle "block_header_line_dark" "block_header_line_light" %} th_info">{{statk}}</th>
+                        <td class="{% cycle "block_line_dark" "block_line_light" %} td_info">{{statv}}</td>
                     </tr>
                 {% endfor %}
             </tbody>
