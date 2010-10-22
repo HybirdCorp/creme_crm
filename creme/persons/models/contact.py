@@ -25,7 +25,8 @@ from django.utils.translation import ugettext_lazy as _, ugettext
 from django.utils.encoding import force_unicode
 from django.contrib.auth.models import User
 
-from creme_core.models import CremeEntity, Language
+from creme_core.models.entity import CremeEntity
+from creme_core.models.i18n import Language
 
 from media_managers.models import Image
 
