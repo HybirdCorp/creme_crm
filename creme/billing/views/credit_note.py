@@ -40,8 +40,8 @@ def edit(request, credit_note_id):
 @login_required
 @permission_required('billing')
 def detailview(request, credit_note_id):
-    order = get_object_or_404(CreditNote, pk=credit_note_id)
-    return view_billing_entity(request, credit_note_id, order, '/billing/credit_note', 'billing/view_billing.html')
+    credit_note = get_object_or_404(CreditNote, pk=credit_note_id)
+    return view_billing_entity(request, credit_note, '/billing/credit_note')
 
 @login_required
 @permission_required('billing')

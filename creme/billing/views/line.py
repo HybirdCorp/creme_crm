@@ -68,7 +68,7 @@ def _edit_line(request, line_model, line_id):
     line     = get_object_or_404(line_model, pk=line_id)
     document = line.document
 
-    document.change_or_die(request.user)
+    document.can_change_or_die(request.user)
 
     form_class = line.get_edit_form()
 
@@ -102,7 +102,7 @@ def delete(request):
     line     = get_object_or_404(Line, pk=get_from_POST_or_404(request.POST, 'id'))
     document = line.document
 
-    document.change_or_die(request.user)
+    document.can_change_or_die(request.user)
 
     line.delete()
 
@@ -114,7 +114,7 @@ def update(request, line_id):
     line     = get_object_or_404(Line, pk=line_id)
     document = line.document
 
-    document.change_or_die(request.user)
+    document.can_change_or_die(request.user)
 
     line.is_paid = request.POST.has_key('paid')
     line.save()

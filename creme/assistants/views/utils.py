@@ -32,7 +32,7 @@ def generic_edit(request, assistant_id, assistant_model, assistant_form, title):
     alert = get_object_or_404(assistant_model, pk=assistant_id)
     entity = alert.creme_entity
 
-    entity.change_or_die(request.user)
+    entity.can_change_or_die(request.user)
 
     if request.POST:
         edit_form = assistant_form(entity, request.POST, instance=alert)

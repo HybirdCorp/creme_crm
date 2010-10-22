@@ -22,7 +22,6 @@
 
 from django.db.models import (Model, CharField, ForeignKey, ManyToManyField,
                               PositiveSmallIntegerField, PositiveIntegerField, TextField, Q)
-from django.core.exceptions import PermissionDenied
 from django.utils.translation import ugettext_lazy as _, ugettext
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
@@ -78,11 +77,6 @@ class EntityCredentials(Model):
         return cred
 
     @staticmethod
-    def change_or_die(user, entity):
-        if not EntityCredentials.get_creds(user, entity).has_perm('creme_core.change_entity'): #constant ??
-            raise PermissionDenied(ugettext(u'You are not allowed to edit this entity: %s') % entity)
-
-    @staticmethod
     def create(entity):
         buildc = EntityCredentials._build_credentials
 
@@ -92,11 +86,6 @@ class EntityCredentials(Model):
             if role:
                 EntityCredentials.objects.create(user=user, entity=entity,
                                                  value=buildc(*role.get_perms(user, entity)))
-
-    @staticmethod
-    def delete_or_die(user, entity):
-        if not EntityCredentials.get_creds(user, entity).has_perm('creme_core.delete_entity'): #constant ??
-            raise PermissionDenied(ugettext(u'You are not allowed to delete this entity: %s') % entity)
 
     @staticmethod
     def filter(user, queryset): #give wanted perm ???
@@ -148,11 +137,6 @@ class EntityCredentials(Model):
         perms.value = EntityCredentials._build_credentials(view, change, delete)
 
         perms.save()
-
-    @staticmethod
-    def view_or_die(user, entity):
-        if not EntityCredentials.get_creds(user, entity).has_perm('creme_core.view_entity'): #constant ??
-            raise PermissionDenied(ugettext(u'You are not allowed to view this entity: %s') % entity)
 
 
 class UserRole(Model):

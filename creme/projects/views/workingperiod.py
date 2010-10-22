@@ -45,7 +45,7 @@ def edit(request, period_id):
 def delete(request):
     period = get_object_or_404(WorkingPeriod, pk=get_from_POST_or_404(request.POST, 'id'))
 
-    period.task.change_or_die(request.user)
+    period.task.can_change_or_die(request.user)
     period.delete()
 
     return HttpResponse("")

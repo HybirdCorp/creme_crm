@@ -87,7 +87,7 @@ def add_to_entity(request, entity_id, form_class, title, entity_class=None, init
     else:
         entity = get_object_or_404(CremeEntity, pk=entity_id).get_real_entity()
 
-    entity.change_or_die(request.user)
+    entity.can_change_or_die(request.user)
 
     if request.method == 'POST':
         form = form_class(entity, request.POST, request.FILES or None)

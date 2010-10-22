@@ -59,7 +59,7 @@ def detailview(request, image_id):
     """
     image = view_entity(request, image_id, Image)
 
-    image.view_or_die(request.user)
+    image.can_view_or_die(request.user)
 
     return render_to_response('media_managers/view_image.html',
                               {

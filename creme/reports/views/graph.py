@@ -73,7 +73,7 @@ def add(request, report_id):
 def edit(request, graph_id):
     graph = get_object_or_404(ReportGraph, pk=graph_id)
 
-    graph.change_or_die(request.user)
+    graph.can_change_or_die(request.user)
 
     POST = request.POST
     if POST:

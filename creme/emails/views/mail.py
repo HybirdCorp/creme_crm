@@ -51,7 +51,7 @@ def view_lightweight_mail(request, mail_id):
     #die_status = read_object_or_die(request, email)
     #if die_status:
         #return die_status
-    email.sending.campaign.view_or_die(request.user)
+    email.sending.campaign.can_view_or_die(request.user)
 
     template = "emails/view_email.html"
     ctx_dict = {'mail': email, 'title': 'Détails du mail'}

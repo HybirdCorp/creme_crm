@@ -31,7 +31,7 @@ def edit_entity(request, object_id, model, edit_form, app_name, template='creme_
         raise PermissionDenied("You don'thave access to the app: %s" % app_name)
 
     entity = get_object_or_404(model, pk=object_id)
-    entity.change_or_die(request.user)
+    entity.can_change_or_die(request.user)
 
     if request.method == 'POST':
         form = edit_form(request.POST, instance=entity)

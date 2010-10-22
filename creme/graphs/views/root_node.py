@@ -37,7 +37,7 @@ from graphs.forms.root_node import AddRootNodesForm, EditRootNodeForm
 def add(request, graph_id):
     graph = get_object_or_404(Graph, pk=graph_id)
 
-    graph.change_or_die(request.user)
+    graph.can_change_or_die(request.user)
 
     if request.POST:
         nodes_form = AddRootNodesForm(graph, request.POST)
@@ -71,7 +71,7 @@ def edit(request, root_id):
     root_node = get_object_or_404(RootNode, pk=root_id)
     graph     = root_node.graph
 
-    graph.change_or_die(request.user)
+    graph.can_change_or_die(request.user)
 
     if request.POST:
         nodes_form = EditRootNodeForm(request.POST, instance=root_node)
@@ -96,7 +96,7 @@ def edit(request, root_id):
 def delete(request):
     root_node = get_object_or_404(RootNode, pk=get_from_POST_or_404(request.POST, 'id'))
 
-    graph.change_or_die(request.user)
+    graph.can_change_or_die(request.user)
 
     root_node.delete()
 

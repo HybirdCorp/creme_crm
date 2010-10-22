@@ -65,7 +65,7 @@ def _delete_aux(request, mlist_id, deletor):
     subobject_id   = get_from_POST_or_404(request.POST, 'id')
     messaging_list = get_object_or_404(MessagingList, pk=mlist_id)
 
-    messaging_list.change_or_die(request.user)
+    messaging_list.can_change_or_die(request.user)
 
     deletor(messaging_list, subobject_id)
 

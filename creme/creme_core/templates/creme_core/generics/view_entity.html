@@ -1,6 +1,20 @@
 {% extends "creme_core/detailview.html" %}
 
-{% load creme_block %}
+{% load creme_block %}{% load creme_widgets %}
+
+{% block add_new_button %}
+    {% if path %}
+        <li>{% get_add_button object request.user %}</li>
+    {% endif %}
+{% endblock %}
+
+{% block edit_delete_buttons %}
+    {% if path %}
+        {% get_edit_button object request.user %}
+        &nbsp;
+        {% get_delete_button object request.user %}
+    {% endif %}
+{% endblock %}
 
 {% block creme_blocks_import %}
     {{block.super}}

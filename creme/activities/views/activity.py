@@ -102,7 +102,7 @@ def add_without_relation(request, act_type):
 def edit(request, activity_id):
     activity = get_object_or_404(Activity, pk=activity_id).get_real_entity()
 
-    activity.change_or_die(request.user)
+    activity.can_change_or_die(request.user)
 
     form_class = ActivityEditForm if activity.type_id != ACTIVITYTYPE_INDISPO else IndisponibilityCreateForm
 

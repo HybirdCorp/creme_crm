@@ -1,9 +1,7 @@
-{% extends "creme_core/detailview.html" %}
+{% extends "billing/view_billing.html" %}
 
 {% load i18n %}
 {% load creme_block %}
-
-{% comment %} INHRHIT FROM 'view_billing.html' ??? {% endcomment %}
 
 {% block extra_menu_buttons %}
     {% if object.ct.model == 'quote' %}
@@ -14,45 +12,4 @@
             <li><a class="menu_button" href="/billing/{{object.id}}/convert/?type=invoice" >{% trans "Convert to Invoice" %}</a></li>
         {% endif %}
     {% endif %}
-{% endblock %}
-
-{% block extrahead %}
-    {{block.super}}
-    <script type="text/javascript" src="{{MEDIA_URL}}js/export.js"></script>
-{% endblock %}
-
-{% block logo %}<img src="{{MEDIA_URL}}images/document_64.png" alt=""/>{% endblock %}
-
-{% block creme_blocks_import %}
-    {{block.super}}
-
-    {% import_block from_app 'creme_core' named 'relations' as 'relations_block' %}
-    {% import_block from_app 'creme_core' named 'properties' as 'properties_block' %}
-
-    {% import_block from_app 'billing' named 'product_lines' as 'product_lines_block' %}
-    {% import_block from_app 'billing' named 'service_lines' as 'service_lines_block' %}
-{% comment %}   TOTAL ????   {% endcomment %}
-{% endblock %}
-
-{% block edit_delete_buttons %}
-    {{block.super}}
-{% endblock %}
-
-{% block before_detail_view_1 %}
-    {% display_block_detailview 'product_lines_block' %}
-    {% display_block_detailview 'service_lines_block' %}
-{% endblock %}
-
-{% block detail_view_left_1 %}
-    {% include "creme_core/object_as_table.html" %}
-
-    <!-- MOVE THIS SCRIPT ??!! -->
-    <script type="text/javascript">
-        function update(id) {
-            document.getElementById("updateStatus" + id).submit();
-        }
-    </script>
-
-    {% display_block_detailview 'properties_block' %}
-    {% display_block_detailview 'relations_block' %}
 {% endblock %}

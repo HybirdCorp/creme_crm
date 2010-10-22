@@ -36,12 +36,12 @@ def edit(request, template_id):
 @permission_required('recurrents')
 def detailview(request, template_id):
     template = get_object_or_404(TemplateBase, pk=template_id)
-    return view_billing_entity(request, template_id, template, '/billing/template', 'billing/view_template.html')
+    return view_billing_entity(request, template, '/billing/template', 'billing/view_template.html', can_download=False)
 
 @login_required
 @permission_required('billing')
 def listview(request):
-    return list_view(request, TemplateBase, extra_dict={'add_url':'/recurrents/generator/add'})
+    return list_view(request, TemplateBase, extra_dict={'add_url': '/recurrents/generator/add'})
 
 #TODO: use POST
 @login_required
@@ -50,10 +50,10 @@ def delete(request, template_id):
     user = request.user
 
     template = get_object_or_404(TemplateBase, pk=template_id)
-    template.delete_or_die(user)
+    template.can_delete_or_die(user)
 
     generator = template.get_generator()
-    generator.delete_or_die(user)
+    generator.can_delete_or_die(user)
 
     if generator: # WTF ??
         generator.delete()

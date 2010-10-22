@@ -92,7 +92,7 @@ def delete(request):
     property_id = get_from_POST_or_404(POST, 'id')
     entity      = get_object_or_404(CremeEntity, pk=entity_id).get_real_entity()
 
-    entity.change_or_die(request.user)
+    entity.can_change_or_die(request.user)
 
     property_ = get_object_or_404(CremeProperty, pk=property_id)
     property_.delete()

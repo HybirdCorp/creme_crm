@@ -26,17 +26,17 @@ from creme_core.gui.last_viewed import add_item_in_last_viewed
 
 
 #TODO: remove and use view_entity_with_template instead ????
-#TODO: 'object_id' unused....  (rename 'object' to 'entity')
 @login_required
 @permission_required('billing')
-def view_billing_entity(request, object_id, object, path, template='billing/view_billing.html'):
-    object.view_or_die(request.user)
+def view_billing_entity(request, entity, path, template='billing/view_billing.html', can_download=True):
+    entity.can_view_or_die(request.user)
 
-    add_item_in_last_viewed(request, object)
+    add_item_in_last_viewed(request, entity)
 
     return render_to_response(template,
                               {
-                                'object': object,
-                                'path':   path,
+                                'object':       entity,
+                                'path':         path,
+                                'can_download': can_download,
                               },
                               context_instance=RequestContext(request))

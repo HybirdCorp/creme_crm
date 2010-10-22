@@ -69,7 +69,7 @@ def edit(request, address_id):
     #die_status = edit_object_or_die(request, address)
     #if die_status:
         #return die_status
-    entity.change_or_die(request.user)
+    entity.can_change_or_die(request.user)
 
     if request.POST:
         edit_form = AddressWithEntityForm(entity, request.POST, instance=address)
@@ -98,7 +98,7 @@ def delete(request, pk_key='id'):
     #die_status = delete_object_or_die(request, address)
     #if die_status:
         #return die_status
-    address.owner.change_or_die(request.user)
+    address.owner.can_change_or_die(request.user)
 
     address.delete()
 

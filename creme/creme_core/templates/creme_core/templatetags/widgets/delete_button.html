@@ -1,0 +1,8 @@
+{% load i18n %}
+{% if can_delete %}
+    <a href="{{path}}/delete/{{object.id}}" onclick="creme.utils.confirmDelete(event, this);">
+        <img src="{{MEDIA_URL}}images/delete_64.png" title="{% blocktrans %}Delete '{{object}}'{% endblocktrans %}" alt="{% trans "Delete" %}" />
+    </a>
+{% else %}
+    <img src="{{MEDIA_URL}}images/delete_64.png" title="{% blocktrans %}You can't delete '{{object}}'{% endblocktrans %}" alt="{% trans "Can't delete" %}"  style="opacity:0.5;"/>
+{% endif %}
