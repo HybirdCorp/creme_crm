@@ -4,7 +4,10 @@
 {% load creme_core_tags %}
 
 {% block top_header %}
-    {% get_block_header _('%s Incoming email to treat') _('%s Incoming emails to treat') 'email_48.png' _('Emails') %}
+    {% include "creme_core/templatetags/widgets/block_header_beg.html" %}
+        <th style="width: 80%;" class="collapser" align="left">{% get_block_title  _('%s Incoming email to treat') _('%s Incoming emails to treat') 'email_48.png' _('Emails') %}</th>
+        <th style="width: 20%;" align="right"></th>
+    {% include "creme_core/templatetags/widgets/block_header_end.html" %}
 {% endblock %}
 
 {% block toolbar %}

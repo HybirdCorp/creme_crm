@@ -38,7 +38,10 @@
                 </th>
             </tr>
         </thead>{% endcomment %}
-        {% get_basic_block_header _('Statistics') 'infos_48.png' _('Statistics') %}
+        {% include "creme_core/templatetags/widgets/block_header_beg.html" %}
+            <th style="width: 80%;" class="collapser">{% get_basic_block_header _('Statistics') 'infos_48.png' _('Statistics') %}</th>
+            <th style="width: 20%;" align="right"></th>
+        {% include "creme_core/templatetags/widgets/block_header_end.html" %}
         <tbody class="collapsable">
             {% for statk, statv in stats %}
                 <tr>
@@ -50,7 +53,10 @@
     </table>
 
     <table class="table_detail_view ui-corner-all">
-        {% get_basic_block_header _('Last added Images') 'image_48.png' _('Image') %}
+        {% include "creme_core/templatetags/widgets/block_header_beg.html" %}
+            <th style="width: 80%;" class="collapser">{% get_basic_block_header _('Last added Images') 'image_48.png' _('Image') %}</th>
+            <th style="width: 20%;" align="right"></th>
+        {% include "creme_core/templatetags/widgets/block_header_end.html" %}
         <tbody class="collapsable">
             <tr>
                 {% for object in objects_list %}

@@ -24,7 +24,7 @@ Date:		September 2008
 .fg-menu ul.fg-menu-scroll { overflow: scroll;  overflow-x: hidden; }
 
 .fg-menu li { clear:both; float:left; width:100%; margin: 0; padding:0; border: 0; }	
-.fg-menu li li { font-size:1em; } /* inner li font size must be reset so that they don't blow up */
+.fg-menu li li { font-size:1em; } /* inner li font size must be reset so that they don't blow up | Old value 1em */
 
 .fg-menu-flyout ul ul { padding: .4em; }
 .fg-menu-flyout li { position:relative; }
@@ -36,7 +36,7 @@ Date:		September 2008
 .fg-menu-footer {  margin-top: .4em; padding: .4em; }
 .fg-menu-header {  margin-bottom: .4em; padding: .4em; }
 
-.fg-menu-breadcrumb li { float: left; list-style: none; margin: 0; padding: 0 .2em; font-size: .9em; opacity: .7; }
+.fg-menu-breadcrumb li { float: left; list-style: none; margin: 0; padding: 0 .2em; font-size: .9em; opacity: .7; }/* Old value 0.9em */
 .fg-menu-breadcrumb li.fg-menu-prev-list,
 .fg-menu-breadcrumb li.fg-menu-current-crumb { clear: left; float: none; opacity: 1; }
 .fg-menu-breadcrumb li.fg-menu-current-crumb { padding-top: .2em; }
@@ -62,7 +62,7 @@ Date:		September 2008
 .fg-menu-breadcrumb .fg-menu-current-crumb a:link,
 .fg-menu-breadcrumb .fg-menu-current-crumb a:visited,
 .fg-menu-breadcrumb .fg-menu-current-crumb a:hover,
-.fg-menu-breadcrumb .fg-menu-current-crumb a:active { display:block; background-image:none; font-size:1.3em; text-decoration:none; }
+.fg-menu-breadcrumb .fg-menu-current-crumb a:active { display:block; background-image:none; font-size:1.1em; text-decoration:none; }/* Old value 1.3em */
 
 
 
@@ -110,5 +110,5 @@ Date:		September 2008
 
 .fg-menu .horizontal-divider hr, .fg-menu .horizontal-divider span { padding:0; margin:5px .6em; }
 .fg-menu .horizontal-divider hr { border:0; height:1px; }
-.fg-menu .horizontal-divider span { font-size:.9em; text-transform: uppercase; padding-left:.2em; }
+.fg-menu .horizontal-divider span { font-size:.8em; text-transform: uppercase; padding-left:.2em; }/* Old value 0.9em */
 

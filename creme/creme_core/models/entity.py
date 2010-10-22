@@ -29,9 +29,9 @@ from django.utils.translation import ugettext_lazy as _, ugettext
 from django.conf import settings
 from django.forms.util import flatatt
 from django.contrib.contenttypes.models import ContentType
+from django.template.loader import render_to_string
 
 from base import CremeAbstractEntity
-from django.template.loader import render_to_string
 from function_field import FunctionField
 
 
@@ -71,6 +71,8 @@ class CremeEntity(CremeAbstractEntity):
         self._cvalues_map = {}
 
     def delete(self):
+        from auth import EntityCredentials
+
         for relation in self.relations.all():
             relation.delete()
 
@@ -95,9 +97,13 @@ class CremeEntity(CremeAbstractEntity):
         return unicode(real_entity)
 
     def change_or_die(self, user):
+        from auth import EntityCredentials
+
         return EntityCredentials.change_or_die(user, self)
 
     def delete_or_die(self, user):
+        from auth import EntityCredentials
+
         return EntityCredentials.delete_or_die(user, self)
 
     @staticmethod
@@ -236,16 +242,19 @@ class CremeEntity(CremeAbstractEntity):
             entity._properties = properties_map[entity_id]
 
     def view_or_die(self, user):
+        from auth import EntityCredentials
+
         return EntityCredentials.view_or_die(user, self)
 
     def save(self, *args, **kwargs):
         super(CremeEntity, self).save(*args, **kwargs)
 
         #signal instead ??
+        from auth import EntityCredentials
         EntityCredentials.create(self)
 
 
 from relation import Relation
 from creme_property import CremeProperty
 from custom_field import CustomField, CustomFieldValue
-from auth import EntityCredentials
+

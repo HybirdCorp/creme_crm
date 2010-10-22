@@ -1,25 +1,25 @@
 {% load i18n %}
 {% load creme_block %}
 {% load sms_tags %}
-<style>
-tr.creme-sms-message td.notsent {
-}
+<style type="text/css">
+    tr.creme-sms-message td.notsent {
+    }
 
-tr.creme-sms-message td.wait {
-    background-color:#f7e895;
-}
+    tr.creme-sms-message td.wait {
+        background-color:#f7e895;
+    }
 
-tr.creme-sms-message td.accept {
-    background-color:#F0E7D4;
-}
+    tr.creme-sms-message td.accept {
+        background-color:#F0E7D4;
+    }
 
-tr.creme-sms-message td.sent {
-    background-color:#c8f795;
-}
+    tr.creme-sms-message td.sent {
+        background-color:#c8f795;
+    }
 
-tr.creme-sms-message td.error {
-    background-color:#f7a590;
-}
+    tr.creme-sms-message td.error {
+        background-color:#f7a590;
+    }
 </style>
 <script type="text/javascript">
     sms_messages = {
@@ -35,20 +35,24 @@ tr.creme-sms-message td.error {
     };
 </script>
 <table class="table_detail_view ui-corner-all" id={{block_name}}>
-    {% get_block_header _('%s Message') _('%s Messages') 'sms_48.png' _('Messages') %}
+    {% include "creme_core/templatetags/widgets/block_header_beg.html" %}
+        <th style="width: 80%;" class="collapser" align="left">{% get_block_title _('%s Message') _('%s Messages') 'sms_48.png' _('Messages') %}</th>
+        <th style="width: 20%;" align="right">
+            <div class="buttons">
+                {% if object %}
+                    <a class="add" onclick="sms_messages.send();">
+                        <img src="{{MEDIA_URL}}images/add_22.png" border="0" title="{% trans "Send" %}" alt="{% trans "Send" %}" />
+                        {% trans "Send" %}
+                    </a>
+                    <a onclick="sms_messages.sync();">
+                        <img src="{{MEDIA_URL}}images/refresh_22.png" border="0" title="{% trans "Synchronize" %}" alt="{% trans "Synchronize" %}" />
+                        {% trans "Synchronize" %}
+                    </a>
+                {% endif %}
+            </div>
+        </th>
+    {% include "creme_core/templatetags/widgets/block_header_end.html" %}
     <tbody class="collapsable">
-        <tr>
-            <th colspan="4" class="block_header_line_dark" align="left">
-                <a class="button_link" onclick="sms_messages.send();">
-                    <img src="{{MEDIA_URL}}images/add_22.png" border="0" title="{% trans "Send" %}" alt="{% trans "Send" %}" />
-                    {% trans "Send" %}
-                </a>
-                <a class="button_link" onclick="sms_messages.sync();">
-                    <img src="{{MEDIA_URL}}images/refresh_22.png" border="0" title="{% trans "Synchronize" %}" alt="{% trans "Synchronize" %}" />
-                    {% trans "Synchronize" %}
-                </a>
-            </th>
-        </tr>
         {% if page.paginator.count %}
             <tr>
                 <th class="block_header_line_dark">{% trans "Number" %}</th>

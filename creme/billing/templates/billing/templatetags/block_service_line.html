@@ -3,7 +3,10 @@
 {% load creme_block %}
 
 {% block header %}
-    {% get_block_header _('%s related Service') _('%s related Services') 'service_48.png' _('Service') %}
+    {% include "creme_core/templatetags/widgets/block_header_beg.html" %}
+        <th style="width: 80%;" class="collapser" align="left">{% get_block_title _('%s related Service') _('%s related Services') 'service_48.png' _('Service') %}</th>
+        <th style="width: 20%;" align="right"></th>
+    {% include "creme_core/templatetags/widgets/block_header_end.html" %}
 {% endblock %}
 
 {% block add_buttons %}

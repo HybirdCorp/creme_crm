@@ -1,14 +1,16 @@
 {% load i18n %}
 {% load creme_core_tags %}
 <div class="research_box">
-    <img border="0" title="{% trans "Search" %}" alt="{% trans "Search" %}" src="{{MEDIA_URL}}images/looking_glass_22.png" align="top">
-    <select name="ct_id">
-        <option value="">{% trans "All" %}</option>
-        <option disabled>------</option>
-        {% for ct in content_types %}
-            <option value="{{ct.id}}">{{ct.verbose_name}}</option>
-        {% endfor %}
-    </select>
-    <input type="text" name="research" />
-    <input type="button" value="{% trans "Research" %}" onclick="creme.utils.handleResearch('/creme_core/search', '{{target_node_id}}', {'from':$(this).parent('.research_box'), 'targets':['ct_id','research']});"/>
+    <span>
+        <img border="0" title="{% trans "Search" %}" alt="{% trans "Search" %}" src="{{MEDIA_URL}}images/looking_glass_22.png" align="top">
+        <select name="ct_id">
+            <option value="">{% trans "All" %}</option>
+            <option disabled>------</option>
+            {% for ct in content_types %}
+                <option value="{{ct.id}}">{{ct.verbose_name}}</option>
+            {% endfor %}
+        </select>
+        <input type="text" name="research" />
+        <input type="button" value="{% trans "Research" %}" onclick="creme.utils.handleResearch('/creme_core/search', '{{target_node_id}}', {'from':$(this).parent('span').parent('.research_box'), 'targets':['ct_id','research']});"/>
+    </span>
 </div>

@@ -1,20 +1,22 @@
 {% load i18n %}
 {% load creme_block %}
 <table class="table_detail_view ui-corner-all" id={{block_name}}>
-    {% get_block_header _('% Contact recipient') _('% Contacts recipients') 'contacts_48.png' _('Contacts') %}
-    <tbody class="collapsable">
-        <tr>
-            <th colspan="4" class="block_header_line_dark" align="left">
-                <a class="button_link" onclick="creme.utils.innerPopupNReload('/emails/mailing_list/{{object.pk}}/contact/add', {% get_block_reload_uri %});">
+    {% include "creme_core/templatetags/widgets/block_header_beg.html" %}
+        <th style="width: 80%;" class="collapser" align="left">{% get_block_title _('% Contact recipient') _('% Contacts recipients') 'contacts_48.png' _('Contacts') %}</th>
+        <th style="width: 20%;" align="right">
+            <div class="buttons">
+                <a class="add" onclick="creme.utils.innerPopupNReload('/emails/mailing_list/{{object.pk}}/contact/add', {% get_block_reload_uri %});">
                     <img src="{{MEDIA_URL}}images/add_22.png" border="0" title="{% trans "Add from existing contacts" %}" alt="{% trans "Add from existing contacts" %}" />
                     {% trans "Add from existing contacts" %}
                 </a>
-                <a class="button_link" onclick="creme.utils.innerPopupNReload('/emails/mailing_list/{{object.pk}}/contact/add_from_filter', {% get_block_reload_uri %});">
+                <a class="add" onclick="creme.utils.innerPopupNReload('/emails/mailing_list/{{object.pk}}/contact/add_from_filter', {% get_block_reload_uri %});">
                     <img src="{{MEDIA_URL}}images/add_22.png" border="0" title="{% trans "Add from a filter" %}" alt="{% trans "Add from a filter" %}" />
                     {% trans "Add from a filter" %}
                 </a>
-            </th>
-        </tr>
+            </div>
+        </th>
+    {% include "creme_core/templatetags/widgets/block_header_end.html" %}
+    <tbody class="collapsable">
         {% if page.paginator.count %}
             <tr>
                 <th class="block_header_line_dark">{% trans "Address" %}</th>
