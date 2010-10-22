@@ -54,8 +54,8 @@ def delete(request, task_id=None):
     project = task.project
     user = request.user
 
-    project.change_or_die(user)
-    task.delete_or_die(user)
+    project.can_change_or_die(user)
+    task.can_delete_or_die(user)
 
     task.delete()
 
@@ -73,8 +73,8 @@ def delete_parent(request):
     project = task.project
     user = request.user
 
-    project.change_or_die(user)
-    task.change_or_die(user)
+    project.can_change_or_die(user)
+    task.can_change_or_die(user)
 
     task.parents_task.remove(parent_id)
 

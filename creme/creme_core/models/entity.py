@@ -22,6 +22,7 @@ import os
 from collections import defaultdict
 from logging import debug
 
+from django.core.exceptions import PermissionDenied
 from django.utils.encoding import force_unicode
 from django.utils.html import escape
 from django.utils.safestring import mark_safe
@@ -68,6 +69,7 @@ class CremeEntity(CremeAbstractEntity):
         self._relations_map = {}
         self._properties = None
         self._cvalues_map = {}
+        self._credentials_map = {}
 
     def delete(self):
         from auth import EntityCredentials
@@ -95,15 +97,32 @@ class CremeEntity(CremeAbstractEntity):
 
         return unicode(real_entity)
 
-    def change_or_die(self, user):
+    def can_change(self, user):
+        return self.get_credentials(user).can_change()
+
+    def can_change_or_die(self, user):
+        if not self.can_change(user):
+            raise PermissionDenied(ugettext(u'You are not allowed to edit this entity: %s') % self)
+
+    def can_delete(self, user):
+        return self.get_credentials(user).can_delete()
+
+    def can_delete_or_die(self, user):
+        if not self.can_delete(user):
+            raise PermissionDenied(ugettext(u'You are not allowed to delete this entity: %s') % self)
+
+    def get_credentials(self, user): #private ??
         from auth import EntityCredentials
 
-        return EntityCredentials.change_or_die(user, self)
+        creds_map = self._credentials_map
 
-    def delete_or_die(self, user):
-        from auth import EntityCredentials
+        creds = creds_map.get(user.id)
 
-        return EntityCredentials.delete_or_die(user, self)
+        if creds is None:
+            creds = EntityCredentials.get_creds(user, self)
+            creds_map[user.id] = creds
+
+        return creds
 
     @staticmethod
     def get_real_entity_by_id(pk):
@@ -127,11 +146,6 @@ class CremeEntity(CremeAbstractEntity):
     def get_delete_absolute_url(self):
         return "/creme_core/entity/delete/%s" % self.id
 
-    ##TODO: improve query (list is paginated later, so don't get all object, and return a queryset if possible)
-    #def get_list_object_of_specific_relations(self, relation_type_id):
-        ##TODO: regroup entities retrieveing by ct to reduce queries ???
-        ##return [rel.object_creme_entity for rel in self.relations.filter(type__id=relation_type_id)]
-        #return [rel.object_entity for rel in self.relations.filter(type__id=relation_type_id)]
     def get_related_entities(self, relation_type_id, real_entities=True):
         return [relation.object_entity.get_real_entity()
                     for relation in self.get_relations(relation_type_id, real_entities)]
@@ -240,10 +254,12 @@ class CremeEntity(CremeAbstractEntity):
             debug(u'Fill properties cache entity_id=%s', entity_id)
             entity._properties = properties_map[entity_id]
 
-    def view_or_die(self, user):
-        from auth import EntityCredentials
+    def can_view(self, user):
+        return self.get_credentials(user).can_view()
 
-        return EntityCredentials.view_or_die(user, self)
+    def can_view_or_die(self, user):
+        if not self.can_view(user):
+            raise PermissionDenied(ugettext(u'You are not allowed to view this entity: %s') % self)
 
     def save(self, *args, **kwargs):
         super(CremeEntity, self).save(*args, **kwargs)

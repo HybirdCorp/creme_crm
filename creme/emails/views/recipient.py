@@ -44,7 +44,7 @@ def delete(request):
     recipient = get_object_or_404(EmailRecipient , pk=get_from_POST_or_404(request.POST, 'id'))
     ml = recipient.ml
 
-    ml.change_or_die(request.user)
+    ml.can_change_or_die(request.user)
 
     recipient.delete()
 

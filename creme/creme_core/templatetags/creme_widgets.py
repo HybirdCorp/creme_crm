@@ -20,7 +20,30 @@
 
 from django.template import Library
 
+
 register = Library()
+
+@register.inclusion_tag('creme_core/templatetags/widgets/add_button.html', takes_context=True)
+def get_add_button(context, entity, user):
+    meta = entity._meta
+    context.update({
+            'can_add': user.has_perm('%s.add_%s' % (meta.app_label, meta.object_name.lower()))
+           })
+    return context
+
+@register.inclusion_tag('creme_core/templatetags/widgets/delete_button.html', takes_context=True)
+def get_delete_button(context, entity, user):
+    context.update({
+            'can_delete': entity.can_delete(user),
+           })
+    return context
+
+@register.inclusion_tag('creme_core/templatetags/widgets/edit_button.html', takes_context=True)
+def get_edit_button(context, entity, user):
+    context.update({
+            'can_change': entity.can_change(user),
+           })
+    return context
 
 @register.inclusion_tag('creme_core/templatetags/widgets/select_or_msg.html')
 def widget_select_or_msg(items, void_msg):

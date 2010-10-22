@@ -40,7 +40,7 @@ def error_popup(request, message):
 def _add_generic(request, form, task_id, title):
     task = get_object_or_404(ProjectTask, pk=task_id)
 
-    task.change_or_die(request.user)
+    task.can_change_or_die(request.user)
 
     if task.status_id in (COMPLETED_PK, CANCELED_PK):
         state = task.status.name
@@ -69,7 +69,7 @@ def _edit_generic(request, form, obj_id, model, title):
     obj  = get_object_or_404(model, pk=obj_id)
     task = obj.task
 
-    task.change_or_die(request.user)
+    task.can_change_or_die(request.user)
 
     if request.POST :
         form_obj = form(request.POST, instance=obj)

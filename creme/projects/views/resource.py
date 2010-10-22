@@ -45,7 +45,7 @@ def edit(request, resource_id):
 def delete(request):
     resource = get_object_or_404(Resource, pk=get_from_POST_or_404(request.POST, 'id'))
 
-    resource.task.change_or_die(request.user)
+    resource.task.can_change_or_die(request.user)
     resource.delete()
 
     return HttpResponse()

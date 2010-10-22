@@ -61,7 +61,7 @@ def detailview(request, project_id):
 def close(request, project_id):
     project = Project.objects.get(pk=project_id)
 
-    project.change_or_die(request.user)
+    project.can_change_or_die(request.user)
 
     project.effective_end_date = datetime.date.today()
     project.save()

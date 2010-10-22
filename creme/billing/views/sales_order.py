@@ -41,7 +41,7 @@ def edit(request, order_id):
 @permission_required('billing')
 def detailview(request, order_id):
     order = get_object_or_404(SalesOrder, pk=order_id)
-    return view_billing_entity(request, order_id, order, '/billing/sales_order', 'billing/view_sales_order.html')
+    return view_billing_entity(request, order, '/billing/sales_order', 'billing/view_sales_order.html')
 
 @login_required
 @permission_required('billing')

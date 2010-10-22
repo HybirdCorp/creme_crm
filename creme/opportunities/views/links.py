@@ -37,7 +37,7 @@ from opportunities.models import Opportunity
 def set_current_quote(request, opp_id, quote_id):
     opp = get_object_or_404(Opportunity, pk=opp_id)
 
-    opp.change_or_die(request.user)
+    opp.can_change_or_die(request.user)
 
     quote = get_object_or_404(Quote, pk=quote_id)
     #TODO: credential for quote ??? link credential instead ?????

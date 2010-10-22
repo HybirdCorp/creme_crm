@@ -27,7 +27,7 @@ from creme_core.gui.last_viewed import add_item_in_last_viewed
 
 def view_entity(request, entity_id, model):
     entity = get_object_or_404(model, pk=entity_id)
-    entity.view_or_die(request.user)
+    entity.can_view_or_die(request.user)
 
     add_item_in_last_viewed(request, entity)
 
@@ -35,7 +35,7 @@ def view_entity(request, entity_id, model):
 
 def view_entity_with_template(request, object_id, model, path, template='creme_core/generics/view_entity.html', extra_template_dict=None):
     entity = get_object_or_404(model, pk=object_id)
-    entity.view_or_die(request.user)
+    entity.can_view_or_die(request.user)
 
     add_item_in_last_viewed(request, entity)
 
@@ -48,7 +48,7 @@ def view_entity_with_template(request, object_id, model, path, template='creme_c
 
 def view_real_entity(request, object_id):
     entity = get_object_or_404(CremeEntity, pk=object_id).get_real_entity()
-    entity.view_or_die(request.user)
+    entity.can_view_or_die(request.user)
 
     add_item_in_last_viewed(request, entity)
 
@@ -56,7 +56,7 @@ def view_real_entity(request, object_id):
 
 def view_real_entity_with_template(request, object_id, path, template='creme_core/generics/view_entity.html'):
     entity = get_object_or_404(CremeEntity, pk=object_id).get_real_entity()
-    entity.view_or_die(request.user)
+    entity.can_view_or_die(request.user)
 
     add_item_in_last_viewed(request, entity)
 

@@ -43,7 +43,7 @@ def delete(request):
     sending  = get_object_or_404(EmailSending, pk=get_from_POST_or_404(request.POST, 'id'))
     campaign = sending.campaign
 
-    campaign.change_or_die(request.user)
+    campaign.can_change_or_die(request.user)
 
     sending.delete()
 
@@ -57,7 +57,7 @@ def detailview(request, sending_id):
     sending  = get_object_or_404(EmailSending, pk=sending_id)
     campaign = sending.campaign
 
-    campaign.view_or_die(request.user)
+    campaign.can_view_or_die(request.user)
 
     return render_to_response('emails/popup_sending.html',
                               {'object': sending},
@@ -68,7 +68,7 @@ def delete_mail(request):
     mail     = get_object_or_404(LightWeightEmail, pk=get_from_POST_or_404(request.POST, 'id'))
     campaign = mail.sending.campaign
 
-    campaign.change_or_die(request.user)
+    campaign.can_change_or_die(request.user)
 
     mail.delete()
 

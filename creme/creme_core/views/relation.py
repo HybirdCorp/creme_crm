@@ -214,7 +214,7 @@ def json_predicate_content_types(request, id):
 def __get_entity_predicates(request, id):
     entity = get_object_or_404(CremeEntity, pk=id).get_real_entity()
 
-    entity.view_or_die(request.user)
+    entity.can_view_or_die(request.user)
 
     predicates = RelationType.objects.filter(can_be_create_with_popup=True).order_by('predicate')
 
@@ -222,7 +222,7 @@ def __get_entity_predicates(request, id):
 
 def add_relations(request, subject_id, relation_type_id=None):
     subject = get_object_or_404(CremeEntity, pk=subject_id)
-    subject.change_or_die(request.user)
+    subject.can_change_or_die(request.user)
 
     relations_types = [relation_type_id] if relation_type_id else None
     POST = request.POST
@@ -255,7 +255,7 @@ def add_relations_bulk(request, model_ct_id, ids):
 
     #TODO: improve by regrouping queries
     for entity in entities:
-        entity.change_or_die(request.user)
+        entity.can_change_or_die(request.user)
 
     if POST:
         form = MultiEntitiesRelationCreateForm(entities, request.user.id, None, POST)
@@ -288,7 +288,7 @@ def delete(request):
     relation = get_object_or_404(Relation, pk=relation_id)
     entity   = get_object_or_404(CremeEntity, pk=entity_id).get_real_entity()
 
-    entity.delete_or_die(request.user) #TODO: delete credentials on 'entity' ?? only one ???
+    entity.can_delete_or_die(request.user) #TODO: delete credentials on 'entity' ?? only one ???
 
     relation.get_real_entity().delete()
 
@@ -307,7 +307,7 @@ def delete_similar(request):
 
     subject = get_object_or_404(CremeEntity, pk=subject_id).get_real_entity()
 
-    subject.delete_or_die(request.user) #TODO: delete credentials on 'subject' ?? only it ???
+    subject.can_delete_or_die(request.user) #TODO: delete credentials on 'subject' ?? only it ???
 
     for relation in Relation.objects.filter(subject_entity=subject, type=rtype_id, object_entity=object_id):
         relation.get_real_entity().delete()
@@ -343,7 +343,7 @@ def handle_relation_from_predicate_n_entity(request):
     return_msg = []
     status = 200
 
-    subject.view_or_die(request.user)
+    subject.can_view_or_die(request.user)
 
     is_there_already_err = False
 

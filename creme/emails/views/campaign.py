@@ -62,7 +62,7 @@ def delete_ml(request, campaign_id):
     ml_id    = get_from_POST_or_404(request.POST, 'id')
     campaign = get_object_or_404(EmailCampaign, pk=campaign_id)
 
-    campaign.change_or_die(request.user)
+    campaign.can_change_or_die(request.user)
 
     campaign.mailing_lists.remove(ml_id)
 

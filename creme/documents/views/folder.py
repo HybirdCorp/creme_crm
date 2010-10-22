@@ -50,7 +50,7 @@ def detailview(request, object_id):
     """
     folder = view_entity(request, object_id, Folder)
 
-    folder.view_or_die(request.user)
+    folder.can_view_or_die(request.user)
 
     return render_to_response('creme_core/generics/view_entity.html',
                               {'object': folder, 'path': '/documents/folder'},

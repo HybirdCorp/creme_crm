@@ -45,7 +45,7 @@ def delete(request):
     recipient      = get_object_or_404(Recipient , pk=get_from_POST_or_404(request.POST, 'id'))
     messaging_list = recipient.messaging_list
 
-    messaging_list.change_or_die(request.user)
+    messaging_list.can_change_or_die(request.user)
 
     recipient.delete()
 

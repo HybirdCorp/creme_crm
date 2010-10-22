@@ -104,7 +104,7 @@ def delete_entities_js(request, entities_ids):
 def delete_entity(request, object_id, callback_url=None):
     entity = get_object_or_404(CremeEntity, pk=object_id).get_real_entity()
 
-    entity.delete_or_die(request.user)
+    entity.can_delete_or_die(request.user)
 
     if callback_url is None:
         callback_url = entity.get_lv_absolute_url()

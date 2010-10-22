@@ -37,7 +37,6 @@ def get_today(request):
 def get_blocks_manager(request):
     return {BlocksManager.var_name: BlocksManager()}
 
-
 def get_version(request):
     if settings.DEBUG:
         from django import get_version

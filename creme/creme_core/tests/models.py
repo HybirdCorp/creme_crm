@@ -224,47 +224,53 @@ class CredentialsTestCase(TestCase):
         self.failIf(self.user.has_perm('creme_core.add_cremeproperty'))
 
     def test_helpers01(self):
-        self.assertRaises(PermissionDenied, EntityCredentials.view_or_die, self.user, self.entity1)
-        self.assertRaises(PermissionDenied, self.entity1.view_or_die, self.user)
+        self.assertRaises(PermissionDenied, self.entity1.can_view_or_die, self.user)
+        self.failIf(self.entity1.can_view(self.user))
 
         EntityCredentials.set_default_perms(view=True)
+        entity1 = CremeEntity.objects.get(pk=self.entity1.id) #refresh cache
 
         try:
-            EntityCredentials.view_or_die(self.user, self.entity1)
-            self.entity1.view_or_die(self.user)
+            entity1.can_view_or_die(self.user)
         except PermissionDenied, e:
             self.fail(str(e))
+
+        self.assert_(entity1.can_view(self.user))
 
     def test_helpers02(self):
-        self.assertRaises(PermissionDenied, EntityCredentials.change_or_die, self.user, self.entity1)
-        self.assertRaises(PermissionDenied, self.entity1.change_or_die, self.user)
+        self.assertRaises(PermissionDenied, self.entity1.can_change_or_die, self.user)
+        self.failIf(self.entity1.can_change(self.user))
 
         EntityCredentials.set_default_perms(change=True)
+        entity1 = CremeEntity.objects.get(pk=self.entity1.id) #refresh cache
 
         try:
-            EntityCredentials.change_or_die(self.user, self.entity1)
-            self.entity1.change_or_die(self.user)
+            entity1.can_change_or_die(self.user)
         except PermissionDenied, e:
             self.fail(str(e))
+
+        self.assert_(entity1.can_change(self.user))
 
     def test_helpers03(self):
-        self.assertRaises(PermissionDenied, EntityCredentials.delete_or_die, self.user, self.entity1)
-        self.assertRaises(PermissionDenied, self.entity1.delete_or_die, self.user)
+        self.assertRaises(PermissionDenied, self.entity1.can_delete_or_die, self.user)
+        self.failIf(self.entity1.can_delete(self.user))
 
         EntityCredentials.set_default_perms(delete=True)
+        entity1 = CremeEntity.objects.get(pk=self.entity1.id) #refresh cache
 
         try:
-            EntityCredentials.delete_or_die(self.user, self.entity1)
-            self.entity1.delete_or_die(self.user)
+            entity1.can_delete_or_die(self.user)
         except PermissionDenied, e:
             self.fail(str(e))
+
+        self.assert_(entity1.can_delete(self.user))
 
     def test_helpers04(self): #super-user
         self.user.is_superuser = True
 
-        self.entity1.view_or_die(self.user)
-        self.entity1.change_or_die(self.user)
-        self.entity1.delete_or_die(self.user)
+        self.entity1.can_view_or_die(self.user)
+        self.entity1.can_change_or_die(self.user)
+        self.entity1.can_delete_or_die(self.user)
 
     #this tests contribute_to_model too
     def test_role_esetall01(self): # CRED_VIEW + ESET_ALL

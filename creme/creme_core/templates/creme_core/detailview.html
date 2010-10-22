@@ -1,8 +1,6 @@
 {% extends "creme_core/base.html" %}
 {% load i18n %}
-{% load creme_core_tags %}
-{% load creme_block %}
-{% load creme_menu %}
+{% load creme_core_tags %}{% load creme_block %}{% load creme_menu %}
 
 {% block page_title %} - {{object}}{% endblock %}
 
@@ -26,7 +24,7 @@
                 </li>
             {% endif %}
             {% block add_new_button %}
-                {% if path %}
+                {% if path %}{% comment %}REMOVE ?? (see view_entity.html) {% endcomment %}
                     <li>
                         <a class="menu_button" href="{{path}}/add">
                             <img src="{{MEDIA_URL}}images/add_32.png" border="0" title="{% trans "Add" %}" alt="{% trans "Add" %}" />
@@ -55,6 +53,7 @@
                     <span>
                         {% block edit_delete_buttons %}
                             {% if path %}
+                                {% comment %}REMOVE ?? (see view_entity.html) {% endcomment %}
                                 <a href="{{path}}/edit/{{object.id}}">
                                     <img src="{{MEDIA_URL}}images/edit_64.png" title="{% blocktrans %}Edit '{{object}}'{% endblocktrans %}" alt="{% trans "Edit" %}"/>
                                 </a>&nbsp;
