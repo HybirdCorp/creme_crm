@@ -18,22 +18,21 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, permission_required
 from django.shortcuts import get_object_or_404
 from django.template.context import RequestContext
 from django.utils.translation import ugettext_lazy as _
 
-from creme_core.entities_access.functions_for_permissions import add_view_or_die, get_view_or_die
 from creme_core.views.generic.popup import inner_popup
 from reports.forms.blocks import GraphInstanceBlockForm
 from reports.models.graph import ReportGraph
-from reports.views.graph import report_graph_app, report_graph_ct
+#from reports.views.graph import report_graph_app, report_graph_ct
 
-#TODO: use add_to_entity() genreic view
+#TODO: use add_to_entity() generic view
 
 @login_required
-@get_view_or_die(report_graph_app)
-@add_view_or_die(report_graph_ct, None, report_graph_app)
+@permission_required('reports')
+#@permission_required('reports.add_reportgraph')
 def add_graph_instance_block(request, graph_id):
     graph = get_object_or_404(ReportGraph, pk=graph_id)
     POST = request.POST

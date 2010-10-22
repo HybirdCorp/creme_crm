@@ -18,34 +18,24 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-#from logging import debug
-
 from django.template import RequestContext
 from django.shortcuts import get_object_or_404, render_to_response
 
 from creme_core.models import CremeEntity
 from creme_core.gui.last_viewed import add_item_in_last_viewed
-from creme_core.entities_access.functions_for_permissions import read_object_or_die
 
 
 def view_entity(request, entity_id, model):
-    """
-        @TODO : Die status here ?
-    """
     entity = get_object_or_404(model, pk=entity_id)
+    entity.view_or_die(request.user)
+
     add_item_in_last_viewed(request, entity)
 
     return entity
 
 def view_entity_with_template(request, object_id, model, path, template='creme_core/generics/view_entity.html', extra_template_dict=None):
-    """
-        @Permissions : Read on current object
-    """
-    entity     = get_object_or_404(model, pk=object_id)
-    die_status = read_object_or_die(request, entity)
-
-    if die_status:
-        return die_status
+    entity = get_object_or_404(model, pk=object_id)
+    entity.view_or_die(request.user)
 
     add_item_in_last_viewed(request, entity)
 
@@ -57,32 +47,16 @@ def view_entity_with_template(request, object_id, model, path, template='creme_c
                               context_instance=RequestContext(request))
 
 def view_real_entity(request, object_id):
-    """
-        @Permissions : Read on current object
-    """
-    entity     = get_object_or_404(CremeEntity, pk=object_id)
-    die_status = read_object_or_die(request, entity)
-
-    if die_status:
-        return die_status
-
-    entity = entity.get_real_entity()
+    entity = get_object_or_404(CremeEntity, pk=object_id).get_real_entity()
+    entity.view_or_die(request.user)
 
     add_item_in_last_viewed(request, entity)
 
     return entity
 
 def view_real_entity_with_template(request, object_id, path, template='creme_core/generics/view_entity.html'):
-    """
-        @Permissions : Read on current object
-    """
-    entity     = get_object_or_404(CremeEntity, pk=object_id)
-    die_status = read_object_or_die(request, entity)
-
-    if die_status:
-        return die_status
-
-    entity = entity.get_real_entity()
+    entity = get_object_or_404(CremeEntity, pk=object_id).get_real_entity()
+    entity.view_or_die(request.user)
 
     add_item_in_last_viewed(request, entity)
 

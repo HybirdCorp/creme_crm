@@ -21,10 +21,8 @@
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.utils.translation import ugettext as _
-from django.contrib.auth.decorators import login_required
-from django.contrib.contenttypes.models import ContentType
+from django.contrib.auth.decorators import login_required, permission_required
 
-from creme_core.entities_access.functions_for_permissions import get_view_or_die, add_view_or_die, edit_object_or_die
 from creme_core.views.generic import add_entity, add_to_entity, edit_entity, view_entity_with_template, list_view
 from creme_core.utils import get_from_POST_or_404
 
@@ -33,8 +31,8 @@ from emails.forms.template import TemplateCreateForm, TemplateEditForm, Template
 
 
 @login_required
-@get_view_or_die('emails')
-@add_view_or_die(ContentType.objects.get_for_model(EmailTemplate), None, 'emails')
+@permission_required('emails')
+@permission_required('emails.add_emailtemplate')
 def add(request):
     return add_entity(request, TemplateCreateForm)
 
@@ -42,14 +40,14 @@ def edit(request, template_id):
     return edit_entity(request, template_id, EmailTemplate, TemplateEditForm, 'emails')
 
 @login_required
-@get_view_or_die('emails')
+@permission_required('emails')
 def detailview(request, template_id):
     return view_entity_with_template(request, template_id, EmailTemplate,
                                      '/emails/template',
                                      'emails/view_template.html')
 
 @login_required
-@get_view_or_die('emails')
+@permission_required('emails')
 def listview(request):
     return list_view(request, EmailTemplate, extra_dict={'add_url': '/emails/template/add'})
 
@@ -58,14 +56,12 @@ def add_attachment(request, template_id):
                          _('New attachments for <%s>'), entity_class=EmailTemplate)
 
 @login_required
-@get_view_or_die('emails')
+@permission_required('emails')
 def delete_attachment(request, template_id):
     attachment_id = get_from_POST_or_404(request.POST, 'id')
     template = get_object_or_404(EmailTemplate, pk=template_id)
 
-    die_status = edit_object_or_die(request, template)
-    if die_status:
-        return die_status
+    template.change_or_die(request.user)
 
     template.attachments.remove(attachment_id)
 

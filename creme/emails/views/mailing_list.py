@@ -21,10 +21,8 @@
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render_to_response, get_object_or_404
 from django.utils.translation import ugettext as _
-from django.contrib.auth.decorators import login_required
-from django.contrib.contenttypes.models import ContentType
+from django.contrib.auth.decorators import login_required, permission_required
 
-from creme_core.entities_access.functions_for_permissions import get_view_or_die, add_view_or_die, edit_object_or_die
 from creme_core.views.generic import add_entity, add_to_entity, edit_entity, view_entity_with_template, list_view
 from creme_core.utils import get_from_POST_or_404
 
@@ -35,8 +33,8 @@ from emails.forms.mailing_list import (MailingListForm,
 
 
 @login_required
-@get_view_or_die('emails')
-@add_view_or_die(ContentType.objects.get_for_model(MailingList), None, 'emails')
+@permission_required('emails')
+@permission_required('emails.add_mailinglist')
 def add(request):
     return add_entity(request, MailingListForm)
 
@@ -44,14 +42,14 @@ def edit(request, ml_id):
     return edit_entity(request, ml_id, MailingList, MailingListForm, 'emails')
 
 @login_required
-@get_view_or_die('emails')
+@permission_required('emails')
 def detailview(request, ml_id):
     return view_entity_with_template(request, ml_id, MailingList,
                                      '/emails/mailing_list',
                                      'emails/view_mailing_list.html')
 
 @login_required
-@get_view_or_die('emails')
+@permission_required('emails')
 def listview(request):
     return list_view(request, MailingList, extra_dict={'add_url': '/emails/mailing_list/add'})
 
@@ -76,14 +74,12 @@ def add_children(request, ml_id):
                          _('New child lists for <%s>'), entity_class=MailingList)
 
 @login_required
-@get_view_or_die('emails')
+@permission_required('emails')
 def _delete_aux(request, ml_id, deletor):
     subobject_id = get_from_POST_or_404(request.POST, 'id')
     ml = get_object_or_404(MailingList, pk=ml_id)
 
-    die_status = edit_object_or_die(request, ml)
-    if die_status:
-        return die_status
+    ml.change_or_die(request.user)
 
     deletor(ml, subobject_id)
 

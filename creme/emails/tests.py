@@ -17,7 +17,7 @@ from emails.models.sending import SENDING_TYPE_IMMEDIATE, SENDING_TYPE_DEFERRED
 class EmailsTestCase(TestCase):
     def login(self):
         if not self.user:
-            user = User.objects.all()[0]
+            user = User.objects.create(username='Tetsuo')
             user.set_password(self.password)
             user.is_superuser = True
             user.save()

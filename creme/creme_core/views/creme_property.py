@@ -26,11 +26,10 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.contenttypes.models import ContentType
 
 from creme_core.models import CremeEntity, CremePropertyType, CremeProperty
-from creme_core.entities_access.functions_for_permissions import edit_object_or_die
-from creme_core.entities_access.permissions import user_has_edit_permission_for_an_object
 from creme_core.views.generic import add_to_entity as generic_add_to_entity
 from creme_core.forms.creme_property import AddPropertiesForm
 from creme_core.utils import get_ct_or_404, get_from_POST_or_404
+
 
 @login_required
 def add_to_entities(request):
@@ -41,6 +40,7 @@ def add_to_entities(request):
     return_str    = ""
     get           = CremeEntity.objects.get
     property_get  = CremeProperty.objects.get
+    has_perm      = request.user.has_perm
 
     #TODO: regroup queries ???
     for id in entities_ids.split(','):
@@ -53,7 +53,7 @@ def add_to_entities(request):
             debug('not digit ?!')
             continue
 
-        if not user_has_edit_permission_for_an_object(request, entity):
+        if not has_perm('creme_core.change_entity', entity):
             return_str += _(u'%s : <b>Permission denied</b>,') % entity
             continue
 
@@ -92,9 +92,7 @@ def delete(request):
     property_id = get_from_POST_or_404(POST, 'id')
     entity      = get_object_or_404(CremeEntity, pk=entity_id).get_real_entity()
 
-    die_status = edit_object_or_die(request, entity)
-    if die_status:
-        return die_status
+    entity.change_or_die(request.user)
 
     property_ = get_object_or_404(CremeProperty, pk=property_id)
     property_.delete()

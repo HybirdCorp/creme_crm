@@ -11,11 +11,13 @@ from creme_config.registry import config_registry
 urlpatterns = patterns('creme_config.views',
     (r'^$', 'portal.portal'),
 
-    #Relations Types
-    (r'^relation_type/portal/$',                           'relation_type.portal'),
-    (r'^relation_type/add/$',                              'relation_type.add'),
-    (r'^relation_type/edit/(?P<relation_type_id>[\w-]+)$', 'relation_type.edit'),
-    (r'^relation_type/delete$',                            'relation_type.delete'),
+    #Users
+    (r'^user/portal/$',                        'user.portal'),
+    (r'^user/add/$',                           'user.add'),
+    (r'^user/edit/(?P<user_id>\d+)$',          'user.edit'),
+    (r'^user/delete$',                         'user.delete'),
+    (r'^user/edit/password/(?P<user_id>\d+)$', 'user.change_password'),
+    (r'^user/edit/settings/$',                 'user.edit_own_settings'),
 
     #Roles
     (r'^role/portal/$',                          'user_role.portal'),
@@ -25,36 +27,11 @@ urlpatterns = patterns('creme_config.views',
     (r'^role/delete$',                           'user_role.delete'),
     (r'^role/set_default_creds/$',               'user_role.set_default_creds'),
 
-    #Old Roles
-    (r'^roles/portal/$',                 'role.portal'),
-    (r'^roles/add/$',                    'role.add'),
-    (r'^roles/edit/(?P<role_id>\d*)$',   'role.edit'),
-    (r'^roles/delete/(?P<role_id>\d*)$', 'role.delete'),
-    (r'^roles/(?P<role_id>\d+)$',        'role.view'),
-    (r'^roles/getDirectDescendant/$',    'role.ajax_get_direct_descendant'),
-
-    (r'^roles/entity_credential/add/$',          'entity_credential.add'),
-    (r'^roles/entity_credential/portal/$',       'entity_credential.portal'),
-    (r'^roles/entity_credential/delete$',        'entity_credential.delete'),
-    (r'^roles/entity_credential/generate_all/$', 'entity_credential.generate_all_possibilities'),
-
-    (r'^roles/app_credential/portal/$',  'app_credential.portal'),
-    (r'^roles/app_credential/add/$',     'app_credential.add'),
-    (r'^roles/app_credential/delete$',   'app_credential.delete'),
-
-    #Profiles
-    (r'^profile/portal/$',                    'profile.portal'),
-    (r'^profile/add/$',                       'profile.add'),
-    (r'^profile/edit/(?P<profile_id>\d+)$',   'profile.edit'),
-    (r'^profile/delete/(?P<profile_id>\d+)$', 'profile.delete'),
-
-    #Users
-    (r'^user/portal/$',                        'user.portal'),
-    (r'^user/add/$',                           'user.add'),
-    (r'^user/edit/(?P<user_id>\d+)$',          'user.edit'),
-    (r'^user/delete$',                         'user.delete'),
-    (r'^user/edit/password/(?P<user_id>\d+)$', 'user.change_password'),
-    (r'^user/edit/settings/$',                 'user.edit_own_settings'),
+    #Relations Types
+    (r'^relation_type/portal/$',                           'relation_type.portal'),
+    (r'^relation_type/add/$',                              'relation_type.add'),
+    (r'^relation_type/edit/(?P<relation_type_id>[\w-]+)$', 'relation_type.edit'),
+    (r'^relation_type/delete$',                            'relation_type.delete'),
 
     #Property Types
     (r'^property_type/portal/$',                           'creme_property_type.portal'),

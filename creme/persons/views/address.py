@@ -25,22 +25,19 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.core import serializers
 from django.shortcuts import get_object_or_404
 from django.template import RequestContext
-from django.contrib.contenttypes.models import ContentType
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, permission_required
 
 from creme_core.models import CremeEntity
-from creme_core.entities_access.functions_for_permissions import (add_view_or_die,
-                                                    edit_view_or_die, edit_object_or_die, delete_object_or_die)
 from creme_core.views.generic import add_entity, add_to_entity, inner_popup
 from creme_core.utils import get_from_POST_or_404
 
 from persons.models import Address, Organisation
 from persons.forms.address import AddressWithEntityForm
 
-__ct_address = ContentType.objects.get_for_model(Address)
 
 @login_required
-@add_view_or_die(__ct_address, app_name="all_creme_apps")
+#@add_view_or_die(__ct_address, app_name="all_creme_apps")
+@permission_required('persons')
 def add(request):
     req_get = request.GET.get
     orga    = get_object_or_404(Organisation, pk=req_get('organisation_id'))
@@ -63,14 +60,16 @@ def add(request):
 
 
 @login_required
-@edit_view_or_die(__ct_address, app_name="all_creme_apps")
+@permission_required('persons')
+#@edit_view_or_die(__ct_address, app_name="all_creme_apps")
 def edit(request, address_id):
     address = get_object_or_404(Address, pk=address_id)
     entity = address.owner
 
-    die_status = edit_object_or_die(request, address)
-    if die_status:
-        return die_status
+    #die_status = edit_object_or_die(request, address)
+    #if die_status:
+        #return die_status
+    entity.change_or_die(request.user)
 
     if request.POST:
         edit_form = AddressWithEntityForm(entity, request.POST, instance=address)
@@ -91,14 +90,15 @@ def edit(request, address_id):
                        context_instance=RequestContext(request))
 
 @login_required
-@edit_view_or_die(__ct_address, app_name="all_creme_apps")
+#@edit_view_or_die(__ct_address, app_name="all_creme_apps")
+@permission_required('persons')
 def delete(request, pk_key='id'):
     address = get_object_or_404(Address, pk=get_from_POST_or_404(request.POST, pk_key))
 
-    #TODO: edit on related entity instead ??
-    die_status = delete_object_or_die(request, address)
-    if die_status:
-        return die_status
+    #die_status = delete_object_or_die(request, address)
+    #if die_status:
+        #return die_status
+    address.owner.change_or_die(request.user)
 
     address.delete()
 
@@ -108,12 +108,14 @@ def delete(request, pk_key='id'):
         return HttpResponseRedirect(address.owner.get_absolute_url())
 
 @login_required #TODO: twice... (see add_to_entity())
-@add_view_or_die(__ct_address, app_name="all_creme_apps")
+#@add_view_or_die(__ct_address, app_name="all_creme_apps")
+@permission_required('persons')
 def ipopup_add_adress(request, entity_id):
     return add_to_entity(request, entity_id, AddressWithEntityForm, _(u'Adding Address to <%s>'))
 
 #TODO: credentials ??
 @login_required
+@permission_required('persons')
 def get_org_addresses(request):
     POST_get = request.POST.get #TODO: '[]' to raise exception instead ??
     verbose_field = POST_get('verbose_field', '')

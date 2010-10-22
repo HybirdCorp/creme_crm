@@ -4,7 +4,7 @@ from django.test import TestCase
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 
-from creme_core.models import RelationType, Relation
+from creme_core.models import RelationType, Relation, CremeProperty
 from creme_core.management.commands.creme_populate import Command as PopulateCommand
 from creme_core.constants import PROP_IS_MANAGED_BY_CREME
 
@@ -15,7 +15,7 @@ from persons.constants import *
 class PersonsTestCase(TestCase):
     def login(self):
         if not self.user:
-            user = User.objects.all()[0]
+            user = User.objects.create(username='Kaneda')
             user.set_password(self.password)
             user.is_superuser = True
             user.save()
@@ -143,7 +143,8 @@ class PersonsTestCase(TestCase):
         self.login()
 
         try:
-            mng_orga = Organisation.objects.filter(properties__type=PROP_IS_MANAGED_BY_CREME)[0]
+            mng_orga = Organisation.objects.create(user=self.user, name='Bebop')
+            CremeProperty.objects.create(type_id=PROP_IS_MANAGED_BY_CREME, creme_entity=mng_orga)
         except IndexError, e:
             self.fail(str(e))
 

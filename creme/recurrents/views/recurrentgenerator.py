@@ -18,11 +18,9 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.contrib.auth.decorators import login_required
-from django.contrib.contenttypes.models import ContentType
+from django.contrib.auth.decorators import login_required, permission_required
 
 from creme_core.views.generic import view_entity_with_template, list_view, edit_entity
-from creme_core.entities_access.functions_for_permissions import add_view_or_die, get_view_or_die
 
 from recurrents.models import RecurrentGenerator
 from recurrents.forms.recurrentgenerator import RecurrentGeneratorWizard, RecurrentGeneratorEditForm
@@ -31,8 +29,8 @@ from recurrents.forms.recurrentgenerator import RecurrentGeneratorWizard, Recurr
 _wizard = RecurrentGeneratorWizard()
 
 @login_required
-@get_view_or_die('recurrents')
-@add_view_or_die(ContentType.objects.get_for_model(RecurrentGenerator), None, 'recurrents')
+@permission_required('recurrents')
+@permission_required('recurrents.add_recurrentgenerator')
 def add(request):
     return _wizard(request)
 
@@ -40,12 +38,12 @@ def edit(request, generator_id):
     return edit_entity(request, generator_id, RecurrentGenerator, RecurrentGeneratorEditForm, 'recurrents')
 
 @login_required
-@get_view_or_die('recurrents')
+@permission_required('recurrents')
 def listview(request):
-    return list_view(request, RecurrentGenerator, extra_dict={'add_url':'/recurrents/generator/add'})
+    return list_view(request, RecurrentGenerator, extra_dict={'add_url': '/recurrents/generator/add'})
 
 @login_required
-@get_view_or_die('recurrents')
+@permission_required('recurrents')
 def detailview(request, generator_id):
     return view_entity_with_template(request, generator_id, RecurrentGenerator,
                                      '/recurrents/generator', 'recurrents/view_generator.html',)

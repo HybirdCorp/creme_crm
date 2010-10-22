@@ -32,7 +32,7 @@ DEFAULT_PATTERN = '__icontains'
 
 class SearchConfigItem(CremeModel):
     content_type = ForeignKey(ContentType, verbose_name=_(u"Related type"))
-#    role         = ForeignKey(CremeRole,   verbose_name=_(u"Rôle associé"),        null=True)#TODO:To be done ?
+#    role         = ForeignKey(UserRole,   verbose_name=_(u"Related role"),        null=True)#TODO:To be done ?
     user         = ForeignKey(User, verbose_name=_(u"Related user"), null=True)
 
     _searchfields = None

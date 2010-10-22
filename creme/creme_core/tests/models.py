@@ -8,7 +8,6 @@ from django.contrib.auth.models import User, Permission
 from django.contrib.contenttypes.models import ContentType
 
 from creme_core.models import *
-from creme_core.auth.backend import EntityBackend
 
 
 class ModelsTestCase(TestCase):
@@ -426,6 +425,55 @@ class CredentialsTestCase(TestCase):
         self.user.update_credentials()
         self.failIf(self.user.has_perm('creme_core.view_entity', self.entity1))
 
+    def test_role_updating02(self):
+        role1 = UserRole.objects.create(name='View all')
+        SetCredentials.objects.create(role=role1,
+                                      value=SetCredentials.CRED_VIEW,
+                                      set_type=SetCredentials.ESET_ALL)
+
+        entity3 = CremeEntity.objects.create(user=self.other_user)
+
+        self.user.role = role1
+        self.user.save()
+        self.user.update_credentials()
+        self.assert_(self.user.has_perm('creme_core.view_entity',  self.entity1))
+        self.failIf(self.user.has_perm('creme_core.change_entity', self.entity1))
+        self.assert_(self.user.has_perm('creme_core.view_entity',  entity3))
+        self.failIf(self.user.has_perm('creme_core.change_entity', entity3))
+
+        role2 = UserRole.objects.create(name='Isolated worker')
+        SetCredentials.objects.create(role=role2,
+                                      value=SetCredentials.CRED_VIEW|SetCredentials.CRED_CHANGE|SetCredentials.CRED_DELETE,
+                                      set_type=SetCredentials.ESET_OWN)
+
+        #we modify the user perms -> entities should still have the right credentials
+        self.user.role = role2
+        self.user.save()
+        self.user.update_credentials()
+        self.assert_(self.user.has_perm('creme_core.view_entity',   self.entity1))
+        self.assert_(self.user.has_perm('creme_core.change_entity', self.entity1))
+        self.failIf(self.user.has_perm('creme_core.view_entity',    entity3))
+        self.failIf(self.user.has_perm('creme_core.change_entity',  entity3))
+
+    def test_role_updating03(self): #detect a bug: all EntityCredentials were deleted when calling update_credentials()
+        role1 = UserRole.objects.create(name='View all')
+        SetCredentials.objects.create(role=role1,
+                                      value=SetCredentials.CRED_VIEW,
+                                      set_type=SetCredentials.ESET_ALL)
+
+        self.user.role = role1
+        self.user.update_credentials()
+        self.assertEqual(2, EntityCredentials.objects.count())
+
+        role2 = UserRole.objects.create(name='View all')
+        SetCredentials.objects.create(role=role2,
+                                      value=SetCredentials.CRED_VIEW,
+                                      set_type=SetCredentials.ESET_ALL)
+
+        self.other_user.role = role2
+        self.other_user.update_credentials()
+        self.assertEqual(4, EntityCredentials.objects.count())
+
     def test_creation_creds01(self):
         try:
             role = UserRole.objects.create(name='Coder')
@@ -510,5 +558,39 @@ class CredentialsTestCase(TestCase):
 
         self.assert_(self.user.has_perm('creme_core'))
         self.assert_(self.user.has_perm('creme_core.can_admin'))
+
+    def test_delete01(self): #delete role
+        role = UserRole.objects.create(name='Coder')
+        SetCredentials.objects.create(role=role,
+                                        value=SetCredentials.CRED_VIEW,
+                                        set_type=SetCredentials.ESET_ALL)
+
+        self.user.role = role
+        self.user.save()
+
+        self.user.update_credentials()
+        self.assert_(self.user.has_perm('creme_core.view_entity',  self.entity1))
+        self.assertEqual(2, EntityCredentials.objects.count())
+
+        #we delete the role -> entities should still have the right credentials
+        role.delete()
+        self.failIf(self.user.has_perm('creme_core.view_entity', self.entity1))
+        self.assertEqual(0, EntityCredentials.objects.count())
+
+    def test_delete02(self): #delete entity
+        role = UserRole.objects.create(name='Coder')
+        SetCredentials.objects.create(role=role,
+                                        value=SetCredentials.CRED_VIEW,
+                                        set_type=SetCredentials.ESET_ALL)
+
+        self.user.role = role
+        self.user.save()
+
+        self.user.update_credentials()
+        self.assertEqual(2, EntityCredentials.objects.count())
+
+        self.entity1.delete()
+        self.assertEqual([self.entity2.id], [creds.entity_id for creds in EntityCredentials.objects.all()])
+
 
     #TODO: don't write cred if equals to default creds ??????

@@ -22,11 +22,9 @@ from django.utils.translation import ugettext as _
 from django.http import HttpResponseRedirect, HttpResponse
 from django.shortcuts import get_object_or_404, render_to_response
 from django.template.context import RequestContext
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth.models import User
 
-from creme_core.entities_access.functions_for_permissions import get_view_or_die
-from creme_core.constants import DROIT_MODULE_EST_ADMIN
 from creme_core.utils import get_from_POST_or_404
 
 from creme_config.forms.user_settings import UserSettingsConfigForm
@@ -36,11 +34,8 @@ from creme_config.forms.user import  UserAddForm, UserChangePwForm, UserEditForm
 PORTAL_URL = '/creme_config/user/portal/'
 
 @login_required
-@get_view_or_die('creme_config', DROIT_MODULE_EST_ADMIN)
+@permission_required('creme_config.can_admin')
 def change_password(request, user_id):
-    """
-        @Permissions : Admin to creme_config app
-    """
     user = get_object_or_404(User, pk=user_id)
 
     if request.POST:
@@ -56,11 +51,8 @@ def change_password(request, user_id):
                               context_instance=RequestContext(request))
 
 @login_required
-@get_view_or_die('creme_config', DROIT_MODULE_EST_ADMIN)
+@permission_required('creme_config.can_admin')
 def add(request):
-    """
-        @Permissions : Admin to creme_config app
-    """
     if request.method == 'POST':
         entity_form = UserAddForm(request.POST)
         if entity_form.is_valid():
@@ -74,20 +66,14 @@ def add(request):
                               context_instance=RequestContext(request))
 
 @login_required
-@get_view_or_die('creme_config')
+@permission_required('creme_config')
 def portal(request):
-    """
-        @Permissions : Acces OR Admin to creme_config app
-    """
     return render_to_response('creme_config/users/portal.html', {},
                               context_instance=RequestContext(request))
 
 @login_required
-@get_view_or_die('creme_config', DROIT_MODULE_EST_ADMIN)
+@permission_required('creme_config.can_admin')
 def delete(request):
-    """
-        @Permissions : Admin to creme_config app
-    """
     user = get_object_or_404(User, pk=get_from_POST_or_404(request.POST, 'id'))
 
     if not user.can_be_deleted():
@@ -98,11 +84,8 @@ def delete(request):
     return HttpResponse()
 
 @login_required
-@get_view_or_die('creme_config', DROIT_MODULE_EST_ADMIN)
+@permission_required('creme_config.can_admin')
 def edit(request, user_id):
-    """
-        @Permissions : Admin to creme_config app
-    """
     user = get_object_or_404(User, pk=user_id)
 
     if request.method == 'POST':
@@ -118,11 +101,8 @@ def edit(request, user_id):
                               context_instance=RequestContext(request))
 
 @login_required
-@get_view_or_die('creme_config', DROIT_MODULE_EST_ADMIN)
+@permission_required('creme_config.can_admin')
 def edit_own_settings(request):
-    """
-        @Permissions : Admin to creme_config app
-    """
     user = get_object_or_404(User, pk=request.user.id)
 
     if request.method == 'POST':

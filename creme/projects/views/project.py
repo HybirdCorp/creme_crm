@@ -21,11 +21,9 @@
 import datetime
 
 from django.http import HttpResponseRedirect
-from django.contrib.contenttypes.models import ContentType
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, permission_required
 
 from creme_core.views.generic import view_entity_with_template, add_entity, list_view, edit_entity
-from creme_core.entities_access.functions_for_permissions import add_view_or_die, get_view_or_die, edit_object_or_die
 from creme_core.gui.last_viewed import change_page_for_last_item_viewed
 
 from projects.models import Project
@@ -33,8 +31,8 @@ from projects.forms.project import ProjectCreateForm, ProjectEditForm
 
 
 @login_required
-@get_view_or_die('projects')
-@add_view_or_die(ContentType.objects.get_for_model(Project), None, 'projects')
+@permission_required('projects')
+@permission_required('projects.add_project')
 def add(request):
     return add_entity(request, ProjectCreateForm)
 
@@ -42,13 +40,13 @@ def edit(request, project_id):
     return edit_entity(request, project_id, Project, ProjectEditForm, 'projects')
 
 @login_required
-@get_view_or_die('projects')
+@permission_required('projects')
 @change_page_for_last_item_viewed
 def listview(request):
     return list_view(request, Project, extra_dict={'add_url':'/projects/project/add'})
 
 @login_required
-@get_view_or_die('projects')
+@permission_required('projects')
 def detailview(request, project_id):
     """
         @Permissions : Acces or Admin to project app & Read on current Project object
@@ -57,13 +55,13 @@ def detailview(request, project_id):
                                      '/projects/project',
                                      'projects/view_project.html',)
 
+#TODO: use POST
+@login_required
+@permission_required('projects')
 def close(request, project_id):
     project = Project.objects.get(pk=project_id)
 
-    die_status = edit_object_or_die(request, project)
-
-    if die_status:
-        return die_status
+    project.change_or_die(request.user)
 
     project.effective_end_date = datetime.date.today()
     project.save()

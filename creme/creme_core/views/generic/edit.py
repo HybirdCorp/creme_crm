@@ -23,28 +23,18 @@ from django.shortcuts import get_object_or_404, render_to_response
 from django.template import RequestContext
 from django.contrib.auth.decorators import login_required
 
-from creme_core.entities_access.functions_for_permissions import edit_object_or_die
-from creme_core.entities_access.permissions import user_has_acces_to_application
-
 
 @login_required
 def edit_entity(request, object_id, model, edit_form, app_name, template='creme_core/generics/blockform/edit.html'):
-    """
-        @Permissions : Acces or Admin to app & Edit on current object
-    """
-    if not user_has_acces_to_application(request, app_name):
-        return render_to_response('creme_core/forbidden.html', {}, context_instance=RequestContext(request))
+    if not request.user.has_perm(app_name):
+        from django.core.exceptions import PermissionDenied
+        raise PermissionDenied("You don'thave access to the app: %s" % app_name)
 
     entity = get_object_or_404(model, pk=object_id)
+    entity.change_or_die(request.user)
 
-    die_status = edit_object_or_die(request, entity)
-    if die_status:
-        return die_status
-
-    POST = request.POST
-
-    if POST:
-        form = edit_form(POST, instance=entity)
+    if request.method == 'POST':
+        form = edit_form(request.POST, instance=entity)
 
         if form.is_valid():
             form.save()

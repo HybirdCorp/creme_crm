@@ -19,11 +19,10 @@
 ################################################################################
 
 from django.utils.translation import ugettext as _
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, permission_required
 from django.shortcuts import get_object_or_404
 from django.http import HttpResponse
 
-from creme_core.entities_access.functions_for_permissions import edit_object_or_die
 from creme_core.utils import get_from_POST_or_404
 
 from projects.forms.resource import ResourceForm
@@ -31,23 +30,22 @@ from projects.views.utils import _add_generic, _edit_generic
 from projects.models import Resource
 
 
+@login_required
+@permission_required('projects')
 def add(request, task_id):
     return _add_generic(request, ResourceForm, task_id, _(u"Allocation of a new resource"))
 
+@login_required
+@permission_required('projects')
 def edit(request, resource_id):
-    """
-        @Permissions : Acces or Admin to project & Edit on current object
-    """
     return _edit_generic(request, ResourceForm, resource_id, Resource, _(u"Edition of a resource"))
 
 @login_required
+@permission_required('projects')
 def delete(request):
-    resource   = get_object_or_404(Resource, pk=get_from_POST_or_404(request.POST, 'id'))
-    die_status = edit_object_or_die(request, resource.task)
+    resource = get_object_or_404(Resource, pk=get_from_POST_or_404(request.POST, 'id'))
 
-    if die_status:
-        return die_status
-
+    resource.task.change_or_die(request.user)
     resource.delete()
 
     return HttpResponse()

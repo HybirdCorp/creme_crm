@@ -23,13 +23,10 @@ from logging import debug #
 from django.http import HttpResponseRedirect, HttpResponse, Http404
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext
-from django.contrib.contenttypes.models import ContentType
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, permission_required
 
 from creme_core.models import RelationType
 from creme_core.views.generic import add_entity
-from creme_core.entities_access.functions_for_permissions import get_view_or_die
-from creme_core.constants import DROIT_MODULE_EST_ADMIN
 from creme_core.utils import get_from_POST_or_404
 
 from creme_config.forms.relation_type import RelationTypeCreateForm, RelationTypeEditForm
@@ -38,22 +35,19 @@ from creme_config.forms.relation_type import RelationTypeCreateForm, RelationTyp
 portal_url = '/creme_config/relation_type/portal/'
 
 @login_required
-@get_view_or_die('creme_config')
+@permission_required('creme_config')
 def portal(request):
-    """
-        @Permissions : Acces OR Admin to creme_config app
-    """
     return render_to_response('creme_config/relation_type_portal.html',
                               {},
                               context_instance=RequestContext(request))
 
 @login_required
-@get_view_or_die('creme_config', DROIT_MODULE_EST_ADMIN)
+@permission_required('creme_config.can_admin')
 def add(request):
     return add_entity(request, RelationTypeCreateForm, portal_url)
 
 @login_required
-@get_view_or_die('creme_config', DROIT_MODULE_EST_ADMIN)
+@permission_required('creme_config.can_admin')
 def edit(request, relation_type_id):
     relation_type = get_object_or_404(RelationType, pk=relation_type_id)
 
@@ -74,11 +68,8 @@ def edit(request, relation_type_id):
                               context_instance=RequestContext(request))
 
 @login_required
-@get_view_or_die('creme_config', DROIT_MODULE_EST_ADMIN)
+@permission_required('creme_config.can_admin')
 def delete(request):
-    """
-        @Permissions : Admin to creme_config app
-    """
     relation_type = get_object_or_404(RelationType, pk=get_from_POST_or_404(request.POST, 'id'))
 
     if not relation_type.is_custom:

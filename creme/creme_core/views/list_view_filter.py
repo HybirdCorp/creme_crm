@@ -11,13 +11,13 @@ from django.contrib.contenttypes.models import ContentType
 from creme_core.populate import DATE_RANGE_FILTER
 from creme_core.models import Filter
 from creme_core.forms.list_view_filter import ListViewFilterForm
-from creme_core.entities_access.functions_for_permissions import add_view_or_die, edit_object_or_die, delete_object_or_die
 from creme_core.utils import get_ct_or_404
 from creme_core.views.generic import list_view_popup, list_view_popup_from_widget
 
 
 @login_required
-@add_view_or_die(ContentType.objects.get_for_model(Filter), app_name="all_creme_apps")
+#@add_view_or_die(ContentType.objects.get_for_model(Filter), app_name="all_creme_apps")
+#TODO: @permission_required('creme_core') ??
 def add(request, ct_id):
     if request.POST:
         #beware: we doesn't test the form validity voluntarily
@@ -68,9 +68,10 @@ def delete(request):
     filter_ = get_object_or_404(Filter, pk=request.POST['id'])
     ct_id   = filter_.model_ct_id
 
-    die_status = delete_object_or_die(request, filter_)
-    if die_status:
-        return die_status
+    #TODO: credentials
+    #die_status = delete_object_or_die(request, filter_)
+    #if die_status:
+        #return die_status
 
     filter_.delete()
 
@@ -88,9 +89,10 @@ def edit(request, ct_id, filter_id):
     current_filter = get_object_or_404(Filter, pk=filter_id)
     model_klass = ContentType.objects.get_for_id(ct_id).model_class()
 
-    die_status = edit_object_or_die(request, current_filter)
-    if die_status:
-        return die_status
+    #TODO: credentials
+    #die_status = edit_object_or_die(request, current_filter)
+    #if die_status:
+        #return die_status
 
     if request.POST :
         filterform = ListViewFilterForm(request.POST, initial={'user': request.user.id, 'content_type_id': ct_id, 'filter_id': filter_id})

@@ -19,12 +19,13 @@
 ################################################################################
 
 from django.utils.translation import ugettext as _
+from django.contrib.auth.models import User
 
 from creme_core.models import *
 from creme_core.utils import create_or_update_models_instance as create
-from creme_core.constants import PROP_IS_MANAGED_BY_CREME, REL_SUB_RELATED_TO, REL_OBJ_RELATED_TO, REL_SUB_HAS, REL_OBJ_HAS, FILTER_TYPE_EQUALS
+from creme_core.constants import *
 from creme_core.management.commands.creme_populate import BasePopulator
-from creme_core.pop_data.populate_data import set_up as set_up_credentials #TODO: remove
+
 
 DATE_RANGE_FILTER = 23
 
@@ -55,26 +56,6 @@ class Populator(BasePopulator):
         create(FilterType, 22, name=_(u"Is not empty"),                           pattern_key='%s__isnull',       pattern_value='%s',      is_exclude=True,  type_champ="CharField", value_field_type='textfield')
         create(FilterType, DATE_RANGE_FILTER, name=_(u"Date range"),              pattern_key='%s__range',        pattern_value='(%s,%s)', is_exclude=False, type_champ="CharField", value_field_type='textfield')
 
-        create(CremeTypeDroit, 1, name=_(u"Read"))
-        create(CremeTypeDroit, 2, name=_(u"Create"))
-        create(CremeTypeDroit, 3, name=_(u"Modify"))
-        create(CremeTypeDroit, 4, name=_(u"Delete"))
-        create(CremeTypeDroit, 5, name=_(u"Create relation with"))
-
-        create(CremeTypeEnsembleFiche,  1, name=_(u"His own pages"))
-        create(CremeTypeEnsembleFiche,  2, name=_(u"All pages"))
-        create(CremeTypeEnsembleFiche,  3, name=_(u"Pages of the team"))
-        create(CremeTypeEnsembleFiche,  4, name=_(u"The pages of subordinates"))
-        create(CremeTypeEnsembleFiche,  5, name=_(u"The pages of a role"))
-        create(CremeTypeEnsembleFiche,  6, name=_(u"The pages of a role and its subordinates"))
-        create(CremeTypeEnsembleFiche,  7, name=_(u"His page"))
-        create(CremeTypeEnsembleFiche,  8, name=_(u"The other pages"))
-        create(CremeTypeEnsembleFiche,  9, name=_(u"Unique page"))
-        create(CremeTypeEnsembleFiche, 10, name=_(u"Pages related to his page"))
-
-        create(CremeAppTypeDroit, 1, name=_(u"Is administrator"))
-        create(CremeAppTypeDroit, 2, name=_(u"Has access"))
-
         create(Language, 1, name=_(u'French'),  code='FRA')
         create(Language, 2, name=_(u'English'), code='EN')
 
@@ -85,4 +66,17 @@ class Populator(BasePopulator):
         RelationType.create((REL_SUB_HAS,        _(u'owns')),
                             (REL_OBJ_HAS,        _(u'belongs to')))
 
-        set_up_credentials()
+
+        try:
+            root = User.objects.get(pk=1)
+        except User.DoesNotExist:
+            login = password = 'root'
+
+            root = User(username=login, is_superuser=True)
+            root.set_password(password)
+            root.save()
+
+            print 'A super-user has been created with login="%(login)s" and password="%(password)s".' % {
+                            'login':    login,
+                            'password': password,
+                        }

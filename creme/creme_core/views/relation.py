@@ -28,11 +28,8 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.contenttypes.models import ContentType
 
 from creme_core.forms.relation import RelationCreateForm, MultiEntitiesRelationCreateForm
-from creme_core.models import Relation, RelationType, CremeEntity
+from creme_core.models import Relation, RelationType, CremeEntity, EntityCredentials
 from creme_core.registry import creme_registry
-from creme_core.entities_access.permissions import user_has_read_permission_for_an_object
-from creme_core.entities_access.filter_allowed_objects import filter_RUD_objects
-from creme_core.entities_access.functions_for_permissions import read_object_or_die, edit_object_or_die, delete_object_or_die
 from creme_core.views.generic import inner_popup, list_view_popup_from_widget
 from creme_core.utils import get_ct_or_404, get_from_POST_or_404
 
@@ -161,7 +158,8 @@ JSON_ENTITY_FIELDS = {
 def json_entity_get(request, id):
     try:
         fields, range, sort, use_columns = __json_parse_select_request(request.GET, JSON_ENTITY_FIELDS)
-        query = filter_RUD_objects(request, CremeEntity.objects.filter(pk=id))
+        #query = filter_RUD_objects(request, CremeEntity.objects.filter(pk=id))
+        query = EntityCredentials.filter(request.user, CremeEntity.objects.filter(pk=id))
         return HttpResponse(__json_select(query, fields, (0, 1), sort, use_columns), mimetype="text/javascript") #TODO: move out the 'try' block
     except JSONSelectError, err:
         return HttpResponse(err.message, mimetype="text/javascript", status=err.status)
@@ -216,30 +214,22 @@ def json_predicate_content_types(request, id):
 def __get_entity_predicates(request, id):
     entity = get_object_or_404(CremeEntity, pk=id).get_real_entity()
 
-    # TODO : unable to test it !
-    die_status = read_object_or_die(request, entity)
-
-    if die_status:
-        return die_status
+    entity.view_or_die(request.user)
 
     predicates = RelationType.objects.filter(can_be_create_with_popup=True).order_by('predicate')
-    predicates = predicates.filter(Q(subject_ctypes=entity.entity_type)|Q(subject_ctypes__isnull=True)).distinct()
-    return predicates
+
+    return predicates.filter(Q(subject_ctypes=entity.entity_type)|Q(subject_ctypes__isnull=True)).distinct()
 
 def add_relations(request, subject_id, relation_type_id=None):
     subject = get_object_or_404(CremeEntity, pk=subject_id)
-
-    die_status = edit_object_or_die(request, subject)
-    if die_status:
-        return die_status
+    subject.change_or_die(request.user)
 
     relations_types = [relation_type_id] if relation_type_id else None
-
     POST = request.POST
 
     if POST:
         form = RelationCreateForm(subject, request.user.id, relations_types, POST)
-        
+
         if form.is_valid():
             form.save()
     else:
@@ -255,8 +245,7 @@ def add_relations(request, subject_id, relation_type_id=None):
                        delegate_reload=True,
                        context_instance=RequestContext(request))
 
-# NOTE : filter_RUD_objects <= filter allowed entities for this user 
-
+#TODO: use EntityCredentials.filter to filter allowed entities for this user
 @login_required
 def add_relations_bulk(request, model_ct_id, ids):
     POST = request.POST
@@ -264,10 +253,9 @@ def add_relations_bulk(request, model_ct_id, ids):
     model    = get_object_or_404(ContentType, pk=model_ct_id).model_class()
     entities = get_list_or_404(model, pk__in=[id for id in ids.split(',') if id])
 
-    die_statuses = set((edit_object_or_die(request, entity) for entity in entities)) - set([None])
-
-    if die_statuses:
-        return die_statuses.pop()
+    #TODO: improve by regrouping queries
+    for entity in entities:
+        entity.change_or_die(request.user)
 
     if POST:
         form = MultiEntitiesRelationCreateForm(entities, request.user.id, None, POST)
@@ -300,9 +288,7 @@ def delete(request):
     relation = get_object_or_404(Relation, pk=relation_id)
     entity   = get_object_or_404(CremeEntity, pk=entity_id).get_real_entity()
 
-    die_status = delete_object_or_die(request, entity) #delete credental on 'entity' ?? only one ???
-    if die_status:
-        return die_status
+    entity.delete_or_die(request.user) #TODO: delete credentials on 'entity' ?? only one ???
 
     relation.get_real_entity().delete()
 
@@ -321,9 +307,7 @@ def delete_similar(request):
 
     subject = get_object_or_404(CremeEntity, pk=subject_id).get_real_entity()
 
-    die_status = delete_object_or_die(request, subject) #delete credental on 'subject' ?? not relation's object ???
-    if die_status:
-        return die_status
+    subject.delete_or_die(request.user) #TODO: delete credentials on 'subject' ?? only it ???
 
     for relation in Relation.objects.filter(subject_entity=subject, type=rtype_id, object_entity=object_id):
         relation.get_real_entity().delete()
@@ -359,11 +343,7 @@ def handle_relation_from_predicate_n_entity(request):
     return_msg = []
     status = 200
 
-    die_status = read_object_or_die(request, subject)
-    if die_status:
-        return die_status
-#        return_msg = "Fiche non accessible. Permissions non accordée."
-#        status = 403
+    subject.view_or_die(request.user)
 
     is_there_already_err = False
 
@@ -372,7 +352,8 @@ def handle_relation_from_predicate_n_entity(request):
         for entity_id in entities:
             try: #TODO: group SQL queries ??? (group by class)
                 entity = centity_get(pk=entity_id).get_real_entity()
-                if not user_has_read_permission_for_an_object(request, entity):
+                #if not user_has_read_permission_for_an_object(request, entity):
+                if not request.user.has_perm('creme_core.view_entity', entity):
                     return_msg.append(_(u"access permission denied : %s denied") % entity)
                     status = 403
                     continue

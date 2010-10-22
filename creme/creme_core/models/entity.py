@@ -78,11 +78,12 @@ class CremeEntity(CremeAbstractEntity):
             prop.delete()
 
         CustomFieldValue.delete_all(self)
+        EntityCredentials.objects.filter(entity=self).delete()
 
         if settings.TRUE_DELETE and self.can_be_deleted():
             super(CremeEntity, self).delete()
         else:
-            self.is_deleted = True
+            self.is_deleted = True #TODO: custom_fields and credentials are deleted anyway ??
             self.save()
 
     def __unicode__(self):

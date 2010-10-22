@@ -18,10 +18,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.contrib.auth.decorators import login_required
-from django.contrib.contenttypes.models import ContentType
+from django.contrib.auth.decorators import login_required, permission_required
 
-from creme_core.entities_access.functions_for_permissions import get_view_or_die, add_view_or_die
 from creme_core.views.generic import add_entity, edit_entity, view_entity_with_template, list_view
 
 from sms.models import MessageTemplate
@@ -29,8 +27,8 @@ from sms.forms.template import TemplateCreateForm, TemplateEditForm
 
 
 @login_required
-@get_view_or_die('sms')
-@add_view_or_die(ContentType.objects.get_for_model(MessageTemplate), None, 'sms')
+@permission_required('sms')
+@permission_required('sms.add_messagetemplate')
 def add(request):
     return add_entity(request, TemplateCreateForm)
 
@@ -38,13 +36,13 @@ def edit(request, template_id):
     return edit_entity(request, template_id, MessageTemplate, TemplateEditForm, 'sms')
 
 @login_required
-@get_view_or_die('sms')
+@permission_required('sms')
 def detailview(request, template_id):
     return view_entity_with_template(request, template_id, MessageTemplate,
                                      '/sms/template',
                                      'sms/view_template.html')
 
 @login_required
-@get_view_or_die('sms')
+@permission_required('sms')
 def listview(request):
     return list_view(request, MessageTemplate, extra_dict={'add_url': '/sms/template/add'})

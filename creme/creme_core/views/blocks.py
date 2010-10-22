@@ -25,7 +25,6 @@ from django.shortcuts import get_object_or_404
 from django.contrib.auth.decorators import login_required
 
 from creme_core.models import CremeEntity
-from creme_core.entities_access.functions_for_permissions import read_object_or_die
 from creme_core.gui.block import block_registry, str2list, BlocksManager
 from creme_core.utils import jsonify
 from creme_core.blocks import relations_block
@@ -54,11 +53,9 @@ def _build_blocks_render(request, block_id, blocks_manager, block_render_functio
 @login_required
 @jsonify
 def reload_detailview(request, block_id, entity_id):
-    entity = get_object_or_404(CremeEntity, pk=entity_id).get_real_entity() #get_real_entity() ??
+    entity = get_object_or_404(CremeEntity, pk=entity_id).get_real_entity()
 
-    die_status = read_object_or_die(request, entity)
-    if die_status:
-        return die_status
+    entity.view_or_die(request.user)
 
     context = RequestContext(request)
     context['object'] = entity
@@ -95,11 +92,9 @@ def reload_basic(request, block_id):
 @login_required
 @jsonify
 def reload_relations_block(request, entity_id, relation_type_ids=''):
-    entity = get_object_or_404(CremeEntity, pk=entity_id).get_real_entity() #get_real_entity() ??
+    entity = get_object_or_404(CremeEntity, pk=entity_id).get_real_entity()
 
-    die_status = read_object_or_die(request, entity)
-    if die_status:
-        return die_status
+    entity.view_or_die(request.user)
 
     context = RequestContext(request)
     context['object'] = entity

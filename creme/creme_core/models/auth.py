@@ -323,9 +323,9 @@ class UserProfile(Model):
     def update_credentials(self):
         role = self.role
 
-        if role is None:
-            EntityCredentials.objects.all().delete()
-        else: #TODO factorise with EntityCredentials.create() ??
+        EntityCredentials.objects.filter(user=self).delete()
+
+        if role is not None: #TODO factorise with EntityCredentials.create() ??
             build_value  = EntityCredentials._build_credentials
             create_creds = EntityCredentials.objects.create
             get_perms    = role.get_perms

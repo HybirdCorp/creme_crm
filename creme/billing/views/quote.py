@@ -19,10 +19,8 @@
 ################################################################################
 
 from django.shortcuts import get_object_or_404
-from django.contrib.auth.decorators import login_required
-from django.contrib.contenttypes.models import ContentType
+from django.contrib.auth.decorators import login_required, permission_required
 
-from creme_core.entities_access.functions_for_permissions import add_view_or_die, get_view_or_die
 from creme_core.views.generic import add_entity, edit_entity, list_view
 
 from billing.models import Quote
@@ -31,8 +29,8 @@ from billing.views.base import view_billing_entity
 
 
 @login_required
-@get_view_or_die('billing')
-@add_view_or_die(ContentType.objects.get_for_model(Quote), None, 'billing')
+@permission_required('billing')
+@permission_required('billing.add_quote')
 def add(request):
     return add_entity(request, QuoteCreateForm)
 
@@ -40,11 +38,12 @@ def edit(request, quote_id):
     return edit_entity(request, quote_id, Quote, QuoteEditForm, 'billing')
 
 @login_required
+@permission_required('billing')
 def detailview(request, quote_id):
     quote = get_object_or_404(Quote, pk=quote_id)
     return view_billing_entity(request, quote_id, quote, '/billing/quote', 'billing/view_quote.html')
 
 @login_required
-@get_view_or_die('billing')
+@permission_required('billing')
 def listview(request):
     return list_view(request, Quote, extra_dict={'add_url':'/billing/quote/add'})

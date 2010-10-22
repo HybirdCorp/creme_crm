@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from creme_exceptions import NotGoodInstance
+from creme_exceptions import NotGoodInstance #TODO: move from models ?
 
 from base import CremeModel, CremeAbstractEntity
 from entity import CremeEntity
@@ -12,10 +12,8 @@ from function_field import FunctionField, FunctionFieldsManager
 
 from header_filter import HeaderFilterItem, HeaderFilter, HeaderFilterList
 from list_view_filter import Filter, FilterCondition, FilterType, FilterValue, ConditionChildType
-from list_view_state import ListViewState
+from list_view_state import ListViewState #TODO: move to gui ?
 
-from authent import CremeTypeDroit, CremeAppDroit, CremeAppTypeDroit, CremeDroitEntityType, CremeTypeEnsembleFiche
-from authent_role import CremeRole, CremeProfile
 from auth import EntityCredentials, UserRole, SetCredentials, UserProfile
 
 from lock import Lock

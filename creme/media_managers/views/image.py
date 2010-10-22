@@ -20,10 +20,8 @@
 
 from django.template import RequestContext
 from django.shortcuts import render_to_response
-from django.contrib.auth.decorators import login_required
-from django.contrib.contenttypes.models import ContentType
+from django.contrib.auth.decorators import login_required, permission_required
 
-from creme_core.entities_access.functions_for_permissions import add_view_or_die, get_view_or_die, read_object_or_die
 from creme_core.views.generic import add_entity, edit_entity, view_entity, list_view, view_entity_with_template
 from creme_core.templatetags.creme_core_tags import image_size #TODO: move to media_managers ???
 
@@ -32,8 +30,8 @@ from media_managers.forms.image import ImageForm
 
 
 @login_required
-@get_view_or_die('media_managers')
-@add_view_or_die(ContentType.objects.get_for_model(Image), None, 'media_managers')
+@permission_required('media_managers')
+@permission_required('media_managers.add_image')
 def add(request):
     req_get = request.GET.get
     kwargs = {}
@@ -53,7 +51,7 @@ def edit(request, image_id):
     return edit_entity(request, image_id, Image, ImageForm, 'media_managers')
 
 @login_required
-@get_view_or_die('media_managers')
+@permission_required('media_managers')
 def detailview(request, image_id):
     """
         @Permissions : Acces or Admin to produits app & Read on current Image object
@@ -61,9 +59,7 @@ def detailview(request, image_id):
     """
     image = view_entity(request, image_id, Image)
 
-    die_status = read_object_or_die(request, image)
-    if die_status:
-        return die_status
+    image.view_or_die(request.user)
 
     return render_to_response('media_managers/view_image.html',
                               {
@@ -72,9 +68,9 @@ def detailview(request, image_id):
                                 'size':     image_size(image, max_h=2000, max_w=500),
                               } ,
                               context_instance=RequestContext(request))
-    
+
 @login_required
-@get_view_or_die('media_managers')
+@permission_required('media_managers')
 def popupview(request, image_id):
     """
         @Permissions : Acces or Admin to produits app & Read on current Image object
@@ -96,6 +92,6 @@ def popupview(request, image_id):
 #                              context_instance=RequestContext(request))
 
 @login_required
-@get_view_or_die('media_managers')
+@permission_required('media_managers')
 def listview(request):
-    return list_view(request, Image, extra_dict={'add_url':'/media_managers/image/add'})
+    return list_view(request, Image, extra_dict={'add_url': '/media_managers/image/add'})

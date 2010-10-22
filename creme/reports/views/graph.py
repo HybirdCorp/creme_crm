@@ -21,13 +21,11 @@
 
 from django.db.models.fields import (FieldDoesNotExist, DateField, DateTimeField)
 from django.db.models.fields.related import ForeignKey
-from django.contrib.auth.decorators import login_required
-from django.contrib.contenttypes.models import ContentType
+from django.contrib.auth.decorators import login_required, permission_required
 from django.shortcuts import get_object_or_404
 from django.template.context import RequestContext
 from django.utils.translation import ugettext_lazy as _
 
-from creme_core.entities_access.functions_for_permissions import add_view_or_die, get_view_or_die
 from creme_core.views.generic.popup import inner_popup
 from creme_core.views.generic.detailview import view_entity_with_template
 from creme_core.utils import jsonify, get_ct_or_404
@@ -42,13 +40,13 @@ from reports.models.graph import (ReportGraph, verbose_report_graph_types,
 from reports.forms.graph import ReportGraphAddForm
 
 
-report_graph_app = ReportGraph._meta.app_label
-report_graph_ct  = ContentType.objects.get_for_model(ReportGraph)
+#report_graph_app = ReportGraph._meta.app_label #TODO: use a contant REPORTS instead
+
 
 #TODO: use add_to_entity() generic view
 @login_required
-@get_view_or_die(report_graph_app)
-@add_view_or_die(report_graph_ct, None, report_graph_app)
+@permission_required('reports')
+@permission_required('reports.add_reportgraph')
 def add(request, report_id):
     report = get_object_or_404(Report, pk=report_id)
     POST = request.POST
@@ -71,10 +69,12 @@ def add(request, report_id):
                        context_instance=RequestContext(request))
 
 @login_required
-@get_view_or_die(report_graph_app)
-@add_view_or_die(report_graph_ct, None, report_graph_app)
+@permission_required('reports')
 def edit(request, graph_id):
     graph = get_object_or_404(ReportGraph, pk=graph_id)
+
+    graph.change_or_die(request.user)
+
     POST = request.POST
     if POST:
         graph_form = ReportGraphAddForm(graph.report, POST, instance=graph)
@@ -96,21 +96,19 @@ def edit(request, graph_id):
 
 
 @login_required
-@get_view_or_die(report_graph_app)
+@permission_required('reports')
 def detailview(request, graph_id):
-    """
-        @Permissions : Acces or Admin to document app & Read on current ReportGraph object
-    """
     return view_entity_with_template(request, graph_id, ReportGraph,
                                      '%s/report' % report_prefix_url,
                                      '%s/view_graph.html' % report_template_dir,
                                      extra_template_dict={'verbose_report_graph_types': verbose_report_graph_types})
 
 @jsonify
+#@permission_required('reports') ??
 def get_available_report_graph_types(request, ct_id):
     ct = get_ct_or_404(ct_id)
     model = ct.model_class()
-    
+
     abscissa_field = request.POST.get('record_id')
 
     field = None
@@ -121,6 +119,7 @@ def get_available_report_graph_types(request, ct_id):
     except FieldDoesNotExist:
         pass
 
+    #TODO: factorise 'if field'
     if field and isinstance(field, (DateField, DateTimeField)):
         verbose_report_graph_types_get = verbose_report_graph_types.get
         result = [{'id': type_id, 'text': unicode(verbose_report_graph_types_get(type_id))} for type_id in [RGT_DAY, RGT_MONTH, RGT_YEAR, RGT_RANGE]]
@@ -130,6 +129,7 @@ def get_available_report_graph_types(request, ct_id):
     return {'result': result}
 
 @jsonify
+#@permission_required('reports') ??
 def fetch_graph(request, graph_id, order):
     graph = get_object_or_404(ReportGraph, pk=graph_id)
 
@@ -138,10 +138,11 @@ def fetch_graph(request, graph_id, order):
     return {'x': x, 'y': y, 'graph_id': graph_id}
 
 @jsonify
+#@permission_required('reports') ??
 def fetch_graph_from_instanceblock(request, instance_block_id, entity_id, order):
     instance_block = get_object_or_404(InstanceBlockConfigItem, pk=instance_block_id)
     entity = get_object_or_404(CremeEntity, pk=entity_id).get_real_entity()
-    
+
     x, y = fetch_graph_from_instance_block(instance_block, entity, order=order)
 
     return {'x': x, 'y': y}

@@ -19,10 +19,8 @@
 ################################################################################
 
 from django.shortcuts import get_object_or_404
-from django.contrib.auth.decorators import login_required
-from django.contrib.contenttypes.models import ContentType
+from django.contrib.auth.decorators import login_required, permission_required
 
-from creme_core.entities_access.functions_for_permissions import add_view_or_die, get_view_or_die
 from creme_core.views.generic import add_entity, edit_entity, list_view
 
 from billing.models import CreditNote
@@ -31,8 +29,8 @@ from billing.views.base import view_billing_entity
 
 
 @login_required
-@get_view_or_die('billing')
-@add_view_or_die(ContentType.objects.get_for_model(CreditNote), None, 'billing')
+@permission_required('billing')
+@permission_required('billing.add_creditnote')
 def add(request):
     return add_entity(request, CreditNoteCreateForm)
 
@@ -40,11 +38,12 @@ def edit(request, credit_note_id):
     return edit_entity(request, credit_note_id, CreditNote, CreditNoteEditForm, 'billing')
 
 @login_required
+@permission_required('billing')
 def detailview(request, credit_note_id):
     order = get_object_or_404(CreditNote, pk=credit_note_id)
     return view_billing_entity(request, credit_note_id, order, '/billing/credit_note', 'billing/view_billing.html')
 
 @login_required
-@get_view_or_die('billing')
+@permission_required('billing')
 def listview(request):
-    return list_view(request, CreditNote, extra_dict={'add_url':'/billing/credit_note/add'})
+    return list_view(request, CreditNote, extra_dict={'add_url': '/billing/credit_note/add'})

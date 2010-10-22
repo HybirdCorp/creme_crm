@@ -31,13 +31,15 @@ creme_registry.register_app('creme_config', _(u'General configuration') , '/crem
 
 creme_menu.register_app('creme_config', '/creme_config/', 'Configuration générale')
 reg_menu = creme_menu.register_menu
-reg_menu('creme_config', '/creme_config/',                                _(u"Portal"))
-reg_menu('creme_config', '/creme_config/relation_type/portal/',           _(u"Relation types settings"))
-reg_menu('creme_config', '/creme_config/property_type/portal/',           _(u"Property types settings"))
-reg_menu('creme_config', '/creme_config/roles/entity_credential/portal/', _(u"Entities credentials settings"))
-reg_menu('creme_config', '/creme_config/roles/app_credential/portal/',    _(u"Applications credentials settings"))
-reg_menu('creme_config', '/creme_config/profile/portal/',                 _(u'Profiles settings'))
-reg_menu('creme_config', '/creme_config/roles/portal/',                   _(u'Roles settings'))
-reg_menu('creme_config', '/creme_config/user/portal/',                    _(u'Users settings'))
+reg_menu('creme_config', '/creme_config/',                      _(u"Portal"))
+reg_menu('creme_config', '/creme_config/relation_type/portal/', _(u"Relation types settings"))
+reg_menu('creme_config', '/creme_config/property_type/portal/', _(u"Property types settings"))
+reg_menu('creme_config', '/creme_config/custom_fields/portal/', _(u"Custom fields settings"))
+reg_menu('creme_config', '/creme_config/blocks/portal/',        _(u"Blocks settings"))
+reg_menu('creme_config', '/creme_config/prefered_menu/edit/',   _(u"Default prefered menu settings"))
+reg_menu('creme_config', '/creme_config/button_menu/portal/',   _(u"Button menu settings"))
+reg_menu('creme_config', '/creme_config/search/portal/',        _(u"Search settings"))
+reg_menu('creme_config', '/creme_config/user/portal/',          _(u'Users settings'))
+reg_menu('creme_config', '/creme_config/role/portal/',          _(u'Roles and credentials settings'))
 
 block_registry.register(*blocks_list)

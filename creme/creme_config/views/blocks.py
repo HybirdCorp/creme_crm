@@ -21,13 +21,10 @@
 from django.http import HttpResponseRedirect, Http404, HttpResponse
 from django.shortcuts import render_to_response
 from django.template.context import RequestContext
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, permission_required
 
-from creme_core.models import (BlockConfigItem, RelationBlockItem,
-                               InstanceBlockConfigItem)
+from creme_core.models import BlockConfigItem, RelationBlockItem, InstanceBlockConfigItem
 from creme_core.views.generic import add_entity
-from creme_core.entities_access.functions_for_permissions import get_view_or_die
-from creme_core.constants import DROIT_MODULE_EST_ADMIN
 from creme_core.utils import get_from_POST_or_404
 
 from creme_config.forms.blocks import BlocksAddForm, BlocksEditForm, BlocksPortalEditForm, RelationBlockAddForm
@@ -36,7 +33,7 @@ from creme_config.forms.blocks import BlocksAddForm, BlocksEditForm, BlocksPorta
 portal_url = '/creme_config/blocks/portal/'
 
 @login_required
-@get_view_or_die('creme_config', DROIT_MODULE_EST_ADMIN)
+@permission_required('creme_config.can_admin')
 def add(request):
     """
         @Permissions : Admin to creme_config app
@@ -44,7 +41,7 @@ def add(request):
     return add_entity(request, BlocksAddForm, portal_url)
 
 @login_required
-@get_view_or_die('creme_config', DROIT_MODULE_EST_ADMIN)
+@permission_required('creme_config.can_admin')
 def add_relation_block(request):
     """
         @Permissions : Admin to creme_config app
@@ -52,7 +49,7 @@ def add_relation_block(request):
     return add_entity(request, RelationBlockAddForm, portal_url)
 
 @login_required
-@get_view_or_die('creme_config')
+@permission_required('creme_config.can_admin')
 def portal(request):
     """
         @Permissions : Access OR Admin to creme_config app
@@ -62,7 +59,7 @@ def portal(request):
                               context_instance=RequestContext(request))
 
 @login_required
-@get_view_or_die('creme_config', DROIT_MODULE_EST_ADMIN)
+@permission_required('creme_config.can_admin')
 def _edit(request, ct_id, form_class):
     ct_id = int(ct_id)
 
@@ -96,7 +93,7 @@ def edit_portal(request, ct_id):
     return _edit(request, ct_id, BlocksPortalEditForm)
 
 @login_required
-@get_view_or_die('creme_config', DROIT_MODULE_EST_ADMIN)
+@permission_required('creme_config.can_admin')
 def delete(request):
     ct_id = get_from_POST_or_404(request.POST, 'id')
 
@@ -108,7 +105,7 @@ def delete(request):
     return HttpResponse()
 
 @login_required
-@get_view_or_die('creme_config', DROIT_MODULE_EST_ADMIN)
+@permission_required('creme_config.can_admin')
 def delete_relation_block(request):
     rbi = RelationBlockItem.objects.get(pk=get_from_POST_or_404(request.POST, 'id'))
 
@@ -117,7 +114,7 @@ def delete_relation_block(request):
     return HttpResponse()
 
 @login_required
-@get_view_or_die('creme_config', DROIT_MODULE_EST_ADMIN)
+@permission_required('creme_config.can_admin')
 def delete_instance_block(request):
     ibi = InstanceBlockConfigItem.objects.get(pk=get_from_POST_or_404(request.POST, 'id'))
 

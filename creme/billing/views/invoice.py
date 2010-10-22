@@ -22,10 +22,8 @@ import datetime
 
 from django.shortcuts import get_object_or_404
 from django.http import HttpResponseRedirect, Http404
-from django.contrib.auth.decorators import login_required
-from django.contrib.contenttypes.models import ContentType
+from django.contrib.auth.decorators import login_required, permission_required
 
-from creme_core.entities_access.functions_for_permissions import add_view_or_die, get_view_or_die
 from creme_core.views.generic import add_entity, edit_entity, list_view
 
 from billing.constants import DEFAULT_INVOICE_STATUS
@@ -35,8 +33,8 @@ from billing.views.base import view_billing_entity
 
 
 @login_required
-@get_view_or_die('billing')
-@add_view_or_die(ContentType.objects.get_for_model(Invoice), None, 'billing')
+@permission_required('billing')
+@permission_required('billing.add_invoice')
 def add(request):
     return add_entity(request, InvoiceCreateForm)
 
@@ -44,27 +42,32 @@ def edit(request, invoice_id):
     return edit_entity(request, invoice_id, Invoice, InvoiceEditForm, 'billing')
 
 @login_required
+@permission_required('billing')
 def detailview(request, invoice_id):
     invoice = get_object_or_404(Invoice, pk=invoice_id)
     return view_billing_entity(request, invoice_id, invoice, '/billing/invoice')
 
 @login_required
-@get_view_or_die('billing')
+@permission_required('billing')
 def listview(request):
-    return list_view(request, Invoice, extra_dict={'add_url':'/billing/invoice/add'})
-
-
+    return list_view(request, Invoice, extra_dict={'add_url': '/billing/invoice/add'})
 
 @login_required
+@permission_required('billing')
 def generate_number(request, invoice_id):
     invoice = get_object_or_404(Invoice, pk=invoice_id)
+
+    #TODO: edit credentials ??
+
     if not invoice.number:
         status = get_object_or_404(InvoiceStatus, pk=DEFAULT_INVOICE_STATUS)
+
         invoice.generate_number()
         invoice.status = status
+
         if not invoice.issuing_date:
             invoice.issuing_date = datetime.now()
-        invoice.save ()
-        
-    return HttpResponseRedirect(invoice.get_absolute_url())
 
+        invoice.save()
+
+    return HttpResponseRedirect(invoice.get_absolute_url())

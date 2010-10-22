@@ -28,6 +28,7 @@ from persons.constants import REL_SUB_CUSTOMER_OF, REL_SUB_PROSPECT, REL_SUB_SUS
 from persons.models import Organisation
 
 #TODO: use POST instead of GET (some data are written)
+#TODO: credentials ??
 
 #TODO: generalise and move to creme_core ??
 @login_required

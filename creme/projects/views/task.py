@@ -22,10 +22,9 @@ from django.http import HttpResponseRedirect, HttpResponse
 from django.shortcuts import get_object_or_404
 from django.template import RequestContext
 from django.utils.translation import ugettext as _
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, permission_required
 
 from creme_core.views.generic import add_to_entity, view_entity_with_template, edit_entity
-from creme_core.entities_access.functions_for_permissions import get_view_or_die, edit_object_or_die, delete_object_or_die
 from creme_core.utils import get_from_POST_or_404
 
 from projects.models import Project, ProjectTask
@@ -37,39 +36,26 @@ def add(request, project_id):
                          _(u'Add a task to <%s>'), entity_class=Project)
 
 @login_required
-@get_view_or_die('projects')
+@permission_required('projects')
 def detailview(request, object_id):
-    """
-        @Permissions : Acces or Admin to project app & implicit from view_entity_with_template
-    """
     return view_entity_with_template(request, object_id, ProjectTask,
                                      '/projects/task',
                                      'projects/view_task.html')
 
 @login_required
-@get_view_or_die('projects')
+@permission_required('projects')
 def edit(request, task_id):
-    """
-        @Permissions : Acces or Admin to project & Edit on current object
-    """
     return edit_entity(request, task_id, ProjectTask, TaskEditForm, 'projects')
 
 @login_required
-@get_view_or_die('projects')
+@permission_required('projects')
 def delete(request, task_id=None):
-    """
-        @Permissions : Acces or Admin to project app & Delete on current task object (pass but notify if it hasn't permission)
-    """
     task = get_object_or_404(ProjectTask, pk=request.POST.get('id', task_id))
     project = task.project
+    user = request.user
 
-    die_status = edit_object_or_die(request, project)
-    if die_status:
-        return die_status
-
-    die_status = delete_object_or_die(request, task)
-    if die_status:
-        return die_status
+    project.change_or_die(user)
+    task.delete_or_die(user)
 
     task.delete()
 
@@ -79,20 +65,16 @@ def delete(request, task_id=None):
     return HttpResponseRedirect(project.get_absolute_url())
 
 @login_required
-@get_view_or_die('projects')
+@permission_required('projects')
 def delete_parent(request):
     POST = request.POST
     parent_id = get_from_POST_or_404(POST, 'parent_id')
     task = get_object_or_404(ProjectTask, pk=get_from_POST_or_404(POST, 'id'))
     project = task.project
+    user = request.user
 
-    die_status = edit_object_or_die(request, project)
-    if die_status:
-        return die_status
-
-    die_status = edit_object_or_die(request, task)
-    if die_status:
-        return die_status
+    project.change_or_die(user)
+    task.change_or_die(user)
 
     task.parents_task.remove(parent_id)
 

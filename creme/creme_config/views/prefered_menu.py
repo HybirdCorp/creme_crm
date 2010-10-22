@@ -21,16 +21,13 @@
 from django.http import HttpResponseRedirect
 from django.shortcuts import render_to_response
 from django.template.context import RequestContext
-from django.contrib.auth.decorators import login_required
-
-from creme_core.entities_access.functions_for_permissions import get_view_or_die
-from creme_core.constants import DROIT_MODULE_EST_ADMIN
+from django.contrib.auth.decorators import login_required, permission_required
 
 from creme_config.forms.prefered_menu import PreferedMenuForm
 
 
 @login_required
-@get_view_or_die('creme_config', DROIT_MODULE_EST_ADMIN)
+@permission_required('creme_config.can_admin')
 def edit(request):
     if request.POST:
         form = PreferedMenuForm(None, request.POST)

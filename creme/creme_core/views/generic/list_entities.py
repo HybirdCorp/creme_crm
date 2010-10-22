@@ -27,8 +27,7 @@ from django.db.models import Q
 from django.core.paginator import Paginator, InvalidPage, EmptyPage
 from django.conf import settings
 
-from creme_core.entities_access.filter_allowed_objects import filter_RUD_objects
-
+from creme_core.models import EntityCredentials
 
 #TODO: only used by documents.folders.... delete when not used any more....
 
@@ -44,7 +43,8 @@ def list_entities(request, model_entity, list_attribut, Q_filter=None, sorder=No
     if Q_filter is not None:
         entity_list = entity_list.filter(Q_filter)
 
-    entity_list = filter_RUD_objects(request, entity_list)
+    #entity_list = filter_RUD_objects(request, entity_list)
+    entity_list = EntityCredentials.filter(request.user, entity_list)
 
     if sorder is not None :
         entity_list = entity_list.order_by(sorder)

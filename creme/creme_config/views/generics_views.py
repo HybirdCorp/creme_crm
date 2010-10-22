@@ -21,10 +21,8 @@
 from django.http import HttpResponseRedirect, Http404, HttpResponse
 from django.shortcuts import get_object_or_404, render_to_response
 from django.template.context import RequestContext
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, permission_required
 
-from creme_core.constants  import DROIT_MODULE_EST_ADMIN
-from creme_core.entities_access.functions_for_permissions import get_view_or_die
 from creme_core.views.generic import add_entity
 from creme_core.utils import get_from_POST_or_404
 
@@ -52,22 +50,16 @@ def _get_model_portal_url(app_name, model_name):
     return '/creme_config/%s/%s/portal/' % (app_name, model_name)
 
 @login_required
-@get_view_or_die('creme_config', DROIT_MODULE_EST_ADMIN)
+@permission_required('creme_config.can_admin')
 def add_model(request, app_name, model_name):
-    """
-        @Permissions : Admin to creme_config app
-    """
     return add_entity(request,
                       _get_modelconf(_get_appconf(app_name), model_name).model_form,
                       _get_model_portal_url(app_name, model_name),
                       'creme_core/generics/form/add.html')
 
 @login_required
-@get_view_or_die('creme_config')
+@permission_required('creme_config')
 def portal_model(request, app_name, model_name):
-    """
-        @Permissions : Acces OR Admin to creme_config app
-    """
     app_config = _get_appconf(app_name)
     model      = _get_modelconf(app_config, model_name).model
 
@@ -81,11 +73,8 @@ def portal_model(request, app_name, model_name):
                               context_instance=RequestContext(request))
 
 @login_required
-@get_view_or_die('creme_config', DROIT_MODULE_EST_ADMIN)
+@permission_required('creme_config.can_admin')
 def delete_model(request, app_name, model_name):
-    """
-        @Permissions : Admin to creme_config app
-    """
     model   = _get_modelconf(_get_appconf(app_name), model_name).model
     object_ = get_object_or_404(model, pk=get_from_POST_or_404(request.POST, 'id'))
 
@@ -97,11 +86,8 @@ def delete_model(request, app_name, model_name):
     return HttpResponse()
 
 @login_required
-@get_view_or_die('creme_config', DROIT_MODULE_EST_ADMIN)
+@permission_required('creme_config.can_admin')
 def edit_model(request, app_name, model_name, object_id):
-    """
-        @Permissions : Admin to creme_config app
-    """
     modelconf  = _get_modelconf(_get_appconf(app_name), model_name)
     model_form = modelconf.model_form
 
@@ -121,11 +107,8 @@ def edit_model(request, app_name, model_name, object_id):
                               context_instance=RequestContext(request))
 
 @login_required
-@get_view_or_die('creme_config')
+@permission_required('creme_config')
 def portal_app(request, app_name):
-    """
-        @Permissions : Acces OR Admin to creme_config app
-    """
     app_config = _get_appconf(app_name)
 
     return render_to_response('creme_config/generics/app_portal.html',
@@ -137,6 +120,6 @@ def portal_app(request, app_name):
                               context_instance=RequestContext(request))
 
 @login_required
-@get_view_or_die('creme_config')
+@permission_required('creme_config')
 def reload_block(request, ct_id):
     return generic_models_block.detailview_ajax(request, ct_id)

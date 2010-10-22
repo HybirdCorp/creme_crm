@@ -21,14 +21,11 @@
 from django.http import HttpResponseRedirect, HttpResponse
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template.context import RequestContext
-from django.contrib.auth.decorators import login_required
-from django.contrib.contenttypes.models import ContentType
+from django.contrib.auth.decorators import login_required, permission_required
 
 from creme_core.models import CustomField
 from creme_core.views.generic import add_entity
 from creme_core.utils import get_ct_or_404, get_from_POST_or_404
-from creme_core.entities_access.functions_for_permissions import get_view_or_die
-from creme_core.constants import DROIT_MODULE_EST_ADMIN
 
 from creme_config.forms.custom_fields import CustomFieldsCTAddForm, CustomFieldsAddForm, CustomFieldsEditForm
 from creme_config.blocks import custom_fields_block
@@ -37,12 +34,12 @@ from creme_config.blocks import custom_fields_block
 ct_url = '/creme_config/custom_fields/ct/%s'
 
 @login_required
-@get_view_or_die('creme_config', DROIT_MODULE_EST_ADMIN)
+@permission_required('creme_config.can_admin')
 def add_ct(request):
     return add_entity(request, CustomFieldsCTAddForm, '/creme_config/custom_fields/portal/')
 
 @login_required
-@get_view_or_die('creme_config', DROIT_MODULE_EST_ADMIN)
+@permission_required('creme_config.can_admin')
 def add(request, ct_id):
     ct = get_ct_or_404(ct_id)
 
@@ -51,14 +48,14 @@ def add(request, ct_id):
                       extra_initial={'ct': ct})
 
 @login_required
-@get_view_or_die('creme_config')
+@permission_required('creme_config')
 def portal(request):
     return render_to_response('creme_config/custom_fields/portal.html',
                               {},
                               context_instance=RequestContext(request))
 
 @login_required
-@get_view_or_die('creme_config')
+@permission_required('creme_config')
 def view(request, ct_id):
     ct = get_ct_or_404(ct_id)
 
@@ -67,7 +64,7 @@ def view(request, ct_id):
                               context_instance=RequestContext(request))
 
 @login_required
-@get_view_or_die('creme_config', DROIT_MODULE_EST_ADMIN)
+@permission_required('creme_config.can_admin')
 def edit(request, field_id):
     cfield = get_object_or_404(CustomField, pk=field_id)
 
@@ -85,7 +82,7 @@ def edit(request, field_id):
                               context_instance=RequestContext(request))
 
 @login_required
-@get_view_or_die('creme_config', DROIT_MODULE_EST_ADMIN)
+@permission_required('creme_config.can_admin')
 def delete_ct(request):
     for field in CustomField.objects.filter(content_type=get_from_POST_or_404(request.POST, 'id')):
         field.delete()
@@ -96,7 +93,7 @@ def delete_ct(request):
     return HttpResponse()
 
 @login_required
-@get_view_or_die('creme_config', DROIT_MODULE_EST_ADMIN)
+@permission_required('creme_config.can_admin')
 def delete(request):
     field = CustomField.objects.get(pk=get_from_POST_or_404(request.POST, 'id'))
     field.delete()
@@ -107,6 +104,6 @@ def delete(request):
     return HttpResponse()
 
 @login_required
-@get_view_or_die('creme_config')
+@permission_required('creme_config')
 def reload_block(request, ct_id):
     return custom_fields_block.detailview_ajax(request, ct_id)
