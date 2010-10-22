@@ -1,5 +1,6 @@
 {% load i18n %}
 <img src="{{MEDIA_URL}}images/pin.png" alt="{% trans 'Open' %}" class="pinmenu"/>
+<div class="ui-corner-all">Menu fixe <input type="checkbox" id="fix_menu"/></div>
 <ul>
     {% for item in menu %}
         <li><a href="{{ item.app_url }}">{{ item.app_name }}</a>
