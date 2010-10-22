@@ -119,6 +119,75 @@
             creme.utils.go_to($('a:first',this).attr('href'), false);
         });
 
+        function bind_scroll()
+        {
+            $(document).scroll(function(){
+                var $doc = $(this);
+                var current = $doc.scrollTop();
+                var logo_container_height = $('#logo_container').outerHeight();
+
+                var top = current + logo_container_height;
+
+                var padding = 0.25;
+                var pad_compl = 0.8;
+
+                var $menu = $('.fg-menu-container');
+                var $menu_h = $menu.height();
+    //            var $menu_h = $menu.outerHeight();
+                var $menu_top = $menu.position().top;
+
+                var $footer   = $('#footer');
+                var $footer_h = $footer.height();
+                var $footer_top = $footer.position().top;
+
+                var menu_dim = $menu_top+$menu_h;
+                var menu_dim2 = menu_dim+(menu_dim*padding);
+                var foot_dim = $footer_top+$footer_h;
+
+                var speed = 200;
+
+                if(top > menu_dim2 && menu_dim2 < foot_dim)
+                {
+    //                $menu.css({'top': top});
+                    $menu.animate({top: top}, speed, 'linear');
+                }
+                else if (current == 0)
+                {
+    //                $menu.css({'top': logo_container_height});
+                    $menu.animate({top: logo_container_height}, speed, 'linear');
+                }
+                else
+                {
+                    var new_top = top*pad_compl;
+                    if (new_top >= logo_container_height)
+    //                $menu.css({'top': new_top});
+                    $menu.animate({top: new_top}, speed, 'linear');
+                }
+
+            });
+            $.cookie('fix_menu_checked', true, {expires: 7, path: '/', domain: '', secure: false});
+        }
+
+        $('.fg-menu-container').find('#fix_menu').click(function(){
+           var $chk = $(this);
+           if($chk.is(':checked'))
+           {
+               $(document).unbind('scroll');
+               $.cookie('fix_menu_checked', false, {expires: 7, path: '/', domain: '', secure: false});
+           }
+           else
+           {
+                bind_scroll();
+           }
+        });
+
+        var c_fix_menu_checked = $.cookie('fix_menu_checked');
+        $('.fg-menu-container').find('#fix_menu').check();
+        if(c_fix_menu_checked == null || c_fix_menu_checked == false)
+        {
+            bind_scroll();
+            $('.fg-menu-container').find('#fix_menu').uncheck();
+        }
       });
 
       window.onload = function(){
