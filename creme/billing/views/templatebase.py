@@ -19,10 +19,9 @@
 ################################################################################
 
 from django.shortcuts import get_object_or_404
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, permission_required
 from django.http import HttpResponseRedirect
 
-from creme_core.entities_access.functions_for_permissions import get_view_or_die, delete_object_or_die
 from creme_core.views.generic import edit_entity, list_view
 
 from billing.models import TemplateBase
@@ -34,35 +33,30 @@ def edit(request, template_id):
     return edit_entity(request, template_id, TemplateBase, TemplateBaseEditForm, 'billing')
 
 @login_required
-@get_view_or_die('recurrents')
+@permission_required('recurrents')
 def detailview(request, template_id):
     template = get_object_or_404(TemplateBase, pk=template_id)
     return view_billing_entity(request, template_id, template, '/billing/template', 'billing/view_template.html')
 
 @login_required
-@get_view_or_die('billing')
+@permission_required('billing')
 def listview(request):
     return list_view(request, TemplateBase, extra_dict={'add_url':'/recurrents/generator/add'})
 
+#TODO: use POST
 @login_required
-@get_view_or_die('recurrents')
+@permission_required('recurrents')
 def delete(request, template_id):
+    user = request.user
+
     template = get_object_or_404(TemplateBase, pk=template_id)
-
-    die_status = delete_object_or_die(request, template)
-
-    if die_status:
-        return die_status
+    template.delete_or_die(user)
 
     generator = template.get_generator()
+    generator.delete_or_die(user)
 
-    die_status = delete_object_or_die(request, template)
-
-    if die_status:
-        return die_status
-
-    if generator:
+    if generator: # WTF ??
         generator.delete()
     template.delete()
-    
+
     return HttpResponseRedirect('/recurrents/generators')

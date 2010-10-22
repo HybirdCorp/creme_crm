@@ -29,10 +29,9 @@ from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required
 from django.contrib.contenttypes.models import ContentType
 
-from creme_core.models import CremeEntity, Filter, ListViewState
+from creme_core.models import CremeEntity, Filter, ListViewState, EntityCredentials
 from creme_core.models.header_filter import HeaderFilterList
 from creme_core.gui.last_viewed import change_page_for_last_item_viewed
-from creme_core.entities_access.filter_allowed_objects import filter_RUD_objects
 from creme_core.utils.queries import get_q_from_dict
 from popup import inner_popup
 
@@ -55,7 +54,9 @@ def _build_entity_queryset(request, model, list_view_state, extra_q):
     list_view_state.extra_q = extra_q
 
     queryset = queryset.filter(list_view_state.get_q_with_research(model))
-    queryset = filter_RUD_objects(request, queryset).distinct().order_by("%s%s" % (list_view_state.sort_order, list_view_state.sort_field))
+    #queryset = filter_RUD_objects(request, queryset).distinct().order_by("%s%s" % (list_view_state.sort_order, list_view_state.sort_field))
+    queryset = EntityCredentials.filter(request.user, queryset)
+    queryset = queryset.distinct().order_by("%s%s" % (list_view_state.sort_order, list_view_state.sort_field))
 
     return queryset
 

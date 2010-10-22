@@ -12,7 +12,7 @@ from tickets.models.status import BASE_STATUS, OPEN_PK, CLOSED_PK, INVALID_PK
 class TicketTestCase(TestCase):
     def login(self):
         if not self.user:
-            user = User.objects.all()[0]
+            user = User.objects.create(username='Sam')
             user.set_password(self.password)
             user.is_superuser = True
             user.save()

@@ -19,9 +19,11 @@
 ################################################################################
 
 from itertools import izip
+from logging import debug
 
 from django.forms import ChoiceField, BooleanField, ModelMultipleChoiceField, MultipleChoiceField
 from django.utils.translation import ugettext_lazy as _
+from django.contrib.auth.models import User
 
 from creme_core.models import UserRole, SetCredentials, EntityCredentials
 from creme_core.registry import creme_registry
@@ -36,12 +38,13 @@ _ALL_APPS = [(app.name, app.verbose_name) for app in creme_registry.iter_apps()]
 class UserRoleCreateForm(CremeModelForm):
     creatable_ctypes = ModelMultipleChoiceField(label=_(u'Creatable resources'),
                                                 queryset=Q_creme_entity_content_types(),
+                                                required=False,
                                                 widget=UnorderedMultipleChoiceWidget)
     allowed_apps     = MultipleChoiceField(label=_(u'Allowed applications'),
-                                           choices=_ALL_APPS,
+                                           choices=_ALL_APPS, required=False,
                                            widget=UnorderedMultipleChoiceWidget)
     admin_4_apps     = MultipleChoiceField(label=_(u'Administrated applications'),
-                                           choices=_ALL_APPS,
+                                           choices=_ALL_APPS, required=False,
                                            widget=UnorderedMultipleChoiceWidget)
 
     class Meta:
@@ -55,7 +58,7 @@ class UserRoleCreateForm(CremeModelForm):
         instance.allowed_apps = cleaned['allowed_apps']
         instance.admin_4_apps = cleaned['admin_4_apps']
 
-        super(UserRoleCreateForm, self).save(*args, **kwargs)
+        return super(UserRoleCreateForm, self).save(*args, **kwargs)
 
 
 class UserRoleEditForm(UserRoleCreateForm):
@@ -83,7 +86,11 @@ class UserRoleEditForm(UserRoleCreateForm):
 
         if creds2del:
             SetCredentials.objects.filter(pk__in=creds2del).delete()
-            #TODO: user.update_credentials() !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+            debug('Role "%s" has changed => update credentials', role)
+            for user in User.objects.filter(role=role):
+                user.role = role
+                user.update_credentials()
 
         return role
 
@@ -109,9 +116,12 @@ class AddCredentialsForm(CremeModelForm):
         instance.role = self.role
         instance.set_value(get_data('can_view'), get_data('can_change'), get_data('can_delete'))
 
-        #TODO: user.update_credentials() !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        super(AddCredentialsForm, self).save(*args, **kwargs)
 
-        return super(AddCredentialsForm, self).save(*args, **kwargs)
+        for user in User.objects.filter(role=self.role):
+            user.update_credentials()
+
+        return instance
 
 
 class DefaultCredsForm(CremeForm):

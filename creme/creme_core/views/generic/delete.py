@@ -26,12 +26,10 @@ from django.template.context import RequestContext
 from django.shortcuts import get_object_or_404
 from django.contrib.auth.decorators import login_required
 
-from creme_core.entities_access.functions_for_permissions import delete_object_or_die
-from creme_core.entities_access.permissions import user_has_delete_permission_for_an_object
 from django.shortcuts import render_to_response
 from creme_core.models.entity import CremeEntity
 
-#TODO: ajouter le test sur l'app facon @get_view_or_die('persons') (ticket 196)
+#TODO: @permission_required(app_name) ??
 
 @login_required
 def delete_entities_js_post(request):
@@ -50,6 +48,9 @@ def delete_entities_js(request, entities_ids):
 
     return_str = ""
     get = CremeEntity.objects.get
+    has_perm = request.user.has_perm
+
+    #TODO: regroup queries...
 
     for id in entities_ids.split(','):
         debug('delete id=%s', id)
@@ -72,7 +73,7 @@ def delete_entities_js(request, entities_ids):
             return_str += '%s : already marked is_deleted,' % f
             continue
 
-        if not user_has_delete_permission_for_an_object(request, f):
+        if not has_perm('creme_core.delete_entity', f):
             return_str += _(u'%s : <b>Permission denied</b>,') % f
             continue
 
@@ -99,17 +100,11 @@ def delete_entities_js(request, entities_ids):
 
     return HttpResponse(return_str, mimetype="text/javascript", status=return_status)
 
-
 @login_required
 def delete_entity(request, object_id, callback_url=None):
-    """
-        @Permissions : Delete on current object
-    """
     entity = get_object_or_404(CremeEntity, pk=object_id).get_real_entity()
 
-    die_status = delete_object_or_die(request, entity)
-    if die_status:
-        return die_status
+    entity.delete_or_die(request.user)
 
     if callback_url is None:
         callback_url = entity.get_lv_absolute_url()

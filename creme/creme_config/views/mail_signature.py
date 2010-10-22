@@ -22,10 +22,8 @@ from django.core.paginator import Paginator, EmptyPage, InvalidPage
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render_to_response
 from django.template.context import RequestContext
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, permission_required
 
-from creme_core.constants import DROIT_MODULE_EST_ADMIN
-from creme_core.entities_access.functions_for_permissions import get_view_or_die
 from creme_core.views.generic import add_entity
 
 from persons.models.other_models import MailSignature
@@ -36,7 +34,7 @@ from creme_config.forms.mail_signature import MailSignatureForm
 portal_url = '/creme_config/mailsignature/portal/'
 
 @login_required
-@get_view_or_die('creme_config', DROIT_MODULE_EST_ADMIN)
+@permission_required('creme_config.can_admin')
 def add(request):
     """
         @Permissions : Admin to creme_config app
@@ -44,7 +42,7 @@ def add(request):
     return add_entity(request, MailSignatureForm, portal_url, 'creme_core/generics/form/add.html')
 
 @login_required
-@get_view_or_die('creme_config')
+@permission_required('creme_config')
 def portal(request):
     """
         @Permissions : Acces OR Admin to creme_config app
@@ -87,7 +85,7 @@ def portal(request):
                              context_instance=RequestContext(request ) )
 
 @login_required
-@get_view_or_die('creme_config', DROIT_MODULE_EST_ADMIN)
+@permission_required('creme_config.can_admin')
 def delete(request, mailsignature_id):
     """
         @Permissions : Admin to creme_config app
@@ -97,7 +95,7 @@ def delete(request, mailsignature_id):
     return HttpResponseRedirect(portal_url)
 
 @login_required
-@get_view_or_die('creme_config', DROIT_MODULE_EST_ADMIN)
+@permission_required('creme_config.can_admin')
 def edit(request, mailsignature_id):
     """
         @Permissions : Admin to creme_config app
@@ -118,7 +116,7 @@ def edit(request, mailsignature_id):
                               context_instance=RequestContext(request))
 
 @login_required
-@get_view_or_die('creme_config')
+@permission_required('creme_config')
 def view(request, mailsignature_id):
     """
         @Permissions : Acces OR Admin to creme_config app

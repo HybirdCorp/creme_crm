@@ -21,12 +21,10 @@
 from django.http import HttpResponseRedirect, Http404, HttpResponse
 from django.shortcuts import get_object_or_404, render_to_response
 from django.template import RequestContext
-from django.contrib.auth.decorators import login_required
-from django.contrib.contenttypes.models import ContentType
+from django.contrib.auth.decorators import login_required, permission_required
 
 from creme_core.models import RelationType
 from creme_core.views.generic import view_real_entity_with_template, add_entity, inner_popup, list_view
-from creme_core.entities_access.functions_for_permissions import get_view_or_die, edit_object_or_die, add_view_or_die, edit_view_or_die
 from creme_core.utils import get_ct_or_404, get_from_GET_or_404
 #from creme_core.gui.last_viewed import change_page_for_last_viewed
 
@@ -35,12 +33,10 @@ from activities.forms import*
 from activities.utils import get_ical
 from activities.constants import ACTIVITYTYPE_INDISPO
 
-__activity_ct = ContentType.objects.get_for_model(Activity)
-
 
 @login_required
-@add_view_or_die(__activity_ct, None, 'activities')
-@get_view_or_die('activities')
+@permission_required('activities')
+@permission_required('activities.add_activity')
 def add_indisponibility(request):
     return add_entity(request, IndisponibilityCreateForm, '/activities/calendar/user')
 
@@ -68,8 +64,8 @@ _forms_map = {
     }
 
 @login_required
-@add_view_or_die(__activity_ct, None, 'activities')
-@get_view_or_die('activities')
+@permission_required('activities')
+@permission_required('activities.add_activity')
 def add_with_relation(request, act_type):
     #change_page_for_last_viewed(request) #TODO: works ???
     GET = request.GET
@@ -91,8 +87,8 @@ def add_with_relation(request, act_type):
     return _add_activity(request, form_class[0], entity_for_relation=entity, relation_type=relation_type)
 
 @login_required
-@add_view_or_die(__activity_ct, None, 'activities')
-@get_view_or_die('activities')
+@permission_required('activities')
+@permission_required('activities.add_activity')
 def add_without_relation(request, act_type):
     form_class = _forms_map.get(act_type)
 
@@ -102,17 +98,11 @@ def add_without_relation(request, act_type):
     return _add_activity(request, form_class[1])
 
 @login_required
-@get_view_or_die('activities')
+@permission_required('activities')
 def edit(request, activity_id):
-    """
-        @Permissions : Acces or Admin to ticket app & Edit on current Activity object
-    """
-    activity = get_object_or_404(Activity, pk=activity_id)
-    activity = activity.get_real_entity() #after edit_object_or_die ????
+    activity = get_object_or_404(Activity, pk=activity_id).get_real_entity()
 
-    die_status = edit_object_or_die(request, activity)
-    if die_status:
-        return die_status
+    activity.change_or_die(request.user)
 
     form_class = ActivityEditForm if activity.type_id != ACTIVITYTYPE_INDISPO else IndisponibilityCreateForm
 
@@ -133,21 +123,21 @@ def edit(request, activity_id):
                               context_instance=RequestContext(request))
 
 @login_required
-@get_view_or_die('activities')
+@permission_required('activities')
 def detailview(request, activity_id):
     return view_real_entity_with_template(request, activity_id,
                                           '/activities/activity',
                                           'activities/view_activity.html')
 
 @login_required
-@get_view_or_die('activities')
+@permission_required('activities')
 def popupview(request, activity_id):
     return view_real_entity_with_template(request, activity_id,
                                           '/activities/activity',
                                           'activities/view_activity_popup.html')
 
 @login_required
-@get_view_or_die('activities')
+@permission_required('activities')
 def listview(request):
     return list_view(request, Activity, 
                      extra_dict={'extra_bt_templates':
@@ -158,7 +148,7 @@ def listview(request):
                     )
 
 @login_required
-@get_view_or_die('activities')
+@permission_required('activities')
 def download_ical(request, ids):
     activities = Activity.objects.filter(pk__in=ids.split(',')) #TODO: credentials
     response = HttpResponse(get_ical(activities), mimetype="text/calendar")

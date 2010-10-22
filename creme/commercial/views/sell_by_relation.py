@@ -21,9 +21,8 @@
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render_to_response
 from django.template import RequestContext
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, permission_required
 
-from creme_core.entities_access.functions_for_permissions import get_view_or_die
 from creme_core.models.entity import CremeEntity
 
 from commercial.models import SellByRelation
@@ -31,7 +30,7 @@ from commercial.forms.sell_by_relation import SellByRelationEditForm
 
 
 @login_required
-@get_view_or_die('commercial')
+@permission_required('commercial')
 def edit(request, relation_id):
     relation = get_object_or_404(SellByRelation, pk=relation_id)
 

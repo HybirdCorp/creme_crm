@@ -17,7 +17,7 @@ from commercial.constants import PROP_IS_A_SALESMAN, REL_OBJ_SOLD_BY, REL_SUB_SO
 class CommercialTestCase(TestCase):
     def login(self):
         if not self.user:
-            user = User.objects.all()[0]
+            user = User.objects.create(username='Frodo')
             user.set_password(self.password)
             user.is_superuser = True
             user.save()

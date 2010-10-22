@@ -20,10 +20,9 @@
 
 from django.utils.translation import ugettext as _
 from django.shortcuts import get_object_or_404
-from django.http import HttpResponseRedirect, HttpResponse
-from django.contrib.auth.decorators import login_required
+from django.http import HttpResponse
+from django.contrib.auth.decorators import login_required, permission_required
 
-from creme_core.entities_access.functions_for_permissions import get_view_or_die, edit_object_or_die
 from creme_core.utils import get_from_POST_or_404
 
 from projects.models import WorkingPeriod
@@ -32,28 +31,21 @@ from projects.views.utils import _add_generic, _edit_generic
 
 
 @login_required
-@get_view_or_die('projects')
+@permission_required('projects')
 def add(request, task_id):
     return _add_generic(request, WorkingPeriodForm, task_id, _(u"New working period"))
 
 @login_required
-@get_view_or_die('projects')
+@permission_required('projects')
 def edit(request, period_id):
-    """
-        @Permissions : Acces or Admin to project & Edit on current object
-    """
     return _edit_generic(request, WorkingPeriodForm, period_id, WorkingPeriod, _(u"Edition of a working period"))
 
 @login_required
+@permission_required('projects')
 def delete(request):
     period = get_object_or_404(WorkingPeriod, pk=get_from_POST_or_404(request.POST, 'id'))
-    related_task = period.task
 
-    die_status = edit_object_or_die(request, related_task)
-    if die_status:
-        return die_status
-
+    period.task.change_or_die(request.user)
     period.delete()
 
     return HttpResponse("")
-#    return HttpResponseRedirect('/projects/task/%s' % related_task.id)

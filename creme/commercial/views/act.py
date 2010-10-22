@@ -18,20 +18,18 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.contrib.auth.decorators import login_required
-from django.contrib.contenttypes.models import ContentType
+from django.contrib.auth.decorators import login_required, permission_required
 
 from creme_core.views.generic import list_view, add_entity, edit_entity, view_entity_with_template
 from creme_core.gui.last_viewed import change_page_for_last_item_viewed
-from creme_core.entities_access.functions_for_permissions import add_view_or_die, get_view_or_die
 
 from commercial.models import Act
 from commercial.forms.act import CreateForm, EditForm
 
 
 @login_required
-@get_view_or_die('commercial')
-@add_view_or_die(ContentType.objects.get_for_model(Act), None, 'commercial')
+@permission_required('commercial')
+@permission_required('commercial.add_act')
 def add(request):
     return add_entity(request, CreateForm)
 
@@ -39,13 +37,13 @@ def edit(request, act_id):
     return edit_entity(request, act_id, Act, EditForm, 'commercial')
 
 @login_required
-@get_view_or_die('commercial')
+@permission_required('commercial')
 def detailview(request, object_id):
     return view_entity_with_template(request, object_id, Act, '/commercial/act',
                                      'creme_core/generics/view_entity.html')
 
 @login_required
-@get_view_or_die('commercial')
-@change_page_for_last_item_viewed
+@permission_required('commercial')
+@change_page_for_last_item_viewed #WTF ???
 def listview(request):
     return list_view(request, Act, extra_dict={'add_url':'/commercial/act/add'})

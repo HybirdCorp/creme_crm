@@ -24,21 +24,17 @@ from itertools import chain
 from django.http import HttpResponseRedirect, Http404
 from django.shortcuts import render_to_response, get_object_or_404
 from django.utils.translation import ugettext
-from django.contrib.auth.decorators import login_required
-from django.contrib.contenttypes.models import ContentType
+from django.contrib.auth.decorators import login_required, permission_required
 
 from creme_core.models import Relation
-from creme_core.entities_access.functions_for_permissions import add_view_or_die, get_view_or_die
 from creme_core.views.generic import add_entity, edit_entity, view_entity_with_template, list_view
 from creme_core.utils import get_ct_or_404
-
-from creme_config.models import CremeKVConfig
 
 from persons.models import Organisation
 
 from documents.constants import REL_SUB_CURRENT_DOC
 
-from billing.models import Line, ProductLine , ServiceLine, Quote, Invoice, SalesOrder
+from billing.models import Quote, Invoice, SalesOrder
 from billing.constants import REL_SUB_BILL_ISSUED, REL_SUB_BILL_RECEIVED
 
 from opportunities.models import Opportunity
@@ -46,18 +42,15 @@ from opportunities.forms.opportunity import OpportunityCreateForm, OpportunityEd
 from opportunities.constants import REL_OBJ_LINKED_QUOTE, REL_OBJ_LINKED_INVOICE, REL_OBJ_LINKED_SALESORDER
 
 
-_ct = ContentType.objects.get_for_model(Opportunity)
-
-
 @login_required
-@get_view_or_die('opportunities')
-@add_view_or_die(_ct, None, 'opportunities')
+@permission_required('opportunities')
+@permission_required('opportunities.add_opportunity')
 def add(request):
     return add_entity(request, OpportunityCreateForm)
 
 @login_required
-@get_view_or_die('opportunities')
-@add_view_or_die(_ct, None, 'opportunities')
+@permission_required('opportunities')
+@permission_required('opportunities.add_opportunity')
 def add_to_orga(request, orga_id):
     orga = get_object_or_404(Organisation, pk=orga_id)
 
@@ -67,7 +60,7 @@ def edit(request, opp_id):
     return edit_entity(request, opp_id, Opportunity, OpportunityEditForm, 'opportunities')
 
 @login_required
-@get_view_or_die('opportunities')
+@permission_required('opportunities')
 def detailview(request, opp_id):
     return view_entity_with_template(request, opp_id, Opportunity,
                                      '/opportunities/opportunity',
@@ -75,9 +68,9 @@ def detailview(request, opp_id):
                                      )
 
 @login_required
-@get_view_or_die('opportunities')
+@permission_required('opportunities')
 def listview(request):
-    return list_view(request, Opportunity, extra_dict={'add_url':'/opportunities/opportunity/add'})
+    return list_view(request, Opportunity, extra_dict={'add_url': '/opportunities/opportunity/add'})
 
 _RELATIONS_DICT = {
             Quote:      REL_OBJ_LINKED_QUOTE,
@@ -92,8 +85,9 @@ _CURRENT_DOC_DICT = {
         }
 
 #TODO: use a POST instead ??
+#TODO: credentials
 @login_required
-@get_view_or_die('opportunities')
+@permission_required('opportunities')
 def generate_new_doc(request, opp_id, ct_id):
     ct_doc = get_ct_or_404(ct_id)
     opp    = get_object_or_404(Opportunity, id=opp_id)

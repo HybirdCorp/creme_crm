@@ -18,18 +18,13 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from datetime import datetime
-
-from django.http import HttpResponse #, HttpResponseRedirect
+from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
-from django.template import RequestContext
 from django.utils.translation import ugettext as _
-from django.contrib.auth.decorators import login_required
-from django.contrib.contenttypes.models import ContentType
+from django.contrib.auth.decorators import login_required, permission_required
 
-from creme_core.models import CremeEntity, Relation
+from creme_core.models import Relation #CremeEntity
 from creme_core.views.generic import add_to_entity
-from creme_core.entities_access.functions_for_permissions import get_view_or_die, edit_object_or_die, edit_view_or_die
 
 from activities.models import Activity
 from activities.forms import ParticipantCreateForm, SubjectCreateForm
@@ -45,6 +40,7 @@ def add_subject(request, activity_id):
                          _(u'Adding subjects to activity <%s>'), entity_class=Activity)
 
 @login_required
+@permission_required('activities')
 #def unlink_activity(request, activity_id, entity_id):
 def unlink_activity(request):
     #TODO: use credentials ????
@@ -69,6 +65,4 @@ def unlink_activity(request):
     for relation in Relation.objects.filter(subject_entity=entity_id, type__in=types, object_entity=activity_id):
         relation.delete()
 
-    #return HttpResponseRedirect(entity.get_absolute_url())
     return HttpResponse('')
-

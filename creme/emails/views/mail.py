@@ -22,10 +22,9 @@ from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, render_to_response
 from django.template.context import RequestContext
 from django.template.loader import render_to_string
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.contenttypes.models import ContentType
 
-from creme_core.entities_access.functions_for_permissions import get_view_or_die, read_object_or_die
 from creme_core.views.generic import view_entity_with_template, list_view, inner_popup
 from creme_core.utils import jsonify
 
@@ -36,7 +35,7 @@ from emails.models.mail import (EntityEmail,
                                 MAIL_STATUS_SYNCHRONIZED_SPAM,
                                 MAIL_STATUS_SYNCHRONIZED,
                                 MAIL_STATUS_SYNCHRONIZED_WAITING)
-                                
+
 from emails.blocks import SpamSynchronizationMailsBlock, WaitingSynchronizationMailsBlock
 from emails.models import LightWeightEmail
 
@@ -45,12 +44,14 @@ from emails.models import LightWeightEmail
     #return mails_history_block.detailview_ajax(request, entity_id)
 
 @login_required
+@permission_required('emails')
 def view_lightweight_mail(request, mail_id):
     email = get_object_or_404(LightWeightEmail, pk=mail_id)
-    die_status = read_object_or_die(request, email)
 
-    if die_status:
-        return die_status
+    #die_status = read_object_or_die(request, email)
+    #if die_status:
+        #return die_status
+    email.sending.campaign.view_or_die(request.user)
 
     template = "emails/view_email.html"
     ctx_dict = {'mail': email, 'title': 'Détails du mail'}
@@ -70,8 +71,12 @@ def view_lightweight_mail(request, mail_id):
 @login_required
 def synchronisation(request):
     #TODO: Apply permissions?
-    context_dict = {'entityemail_ct_id': ContentType.objects.get_for_model(EntityEmail).id,}
-    return fetch_emails(request, template="emails/synchronize.html", ajax_template="emails/frags/ajax/synchronize.html", extra_tpl_ctx=context_dict)
+    return fetch_emails(request, template="emails/synchronize.html",
+                        ajax_template="emails/frags/ajax/synchronize.html",
+                        extra_tpl_ctx={
+                                'entityemail_ct_id': ContentType.objects.get_for_model(EntityEmail).id,
+                            }
+                       )
 
 def _retrieve_emails_ids(request):
     return request.POST.getlist('ids')
@@ -91,6 +96,7 @@ def set_emails_status(request, status):
     return HttpResponse()
 
 @login_required
+@permission_required('emails')
 def delete(request):
     #TODO: There no verifications because email is not a CremeEntity!!!
     for id in _retrieve_emails_ids(request):
@@ -100,16 +106,19 @@ def delete(request):
     return HttpResponse()
 
 @login_required
+@permission_required('emails')
 def spam(request):
     #TODO: There no verifications because email is not a CremeEntity!!!
     return set_emails_status(request, MAIL_STATUS_SYNCHRONIZED_SPAM)
 
 @login_required
+@permission_required('emails')
 def validated(request):
     #TODO: There no verifications because email is not a CremeEntity!!!
     return set_emails_status(request, MAIL_STATUS_SYNCHRONIZED)
 
 @login_required
+@permission_required('emails')
 def waiting(request):
     #TODO: There no verifications because email is not a CremeEntity!!!
     return set_emails_status(request, MAIL_STATUS_SYNCHRONIZED_WAITING)
@@ -126,12 +135,12 @@ def reload_sync_blocks(request):
 ## END SYNCHRO PART ##
 
 @login_required
-@get_view_or_die('emails')
+@permission_required('emails')
 def detailview(request, mail_id):
     return view_entity_with_template(request, mail_id, EntityEmail,
                                      '/emails/mail', 'emails/view_entity_mail.html')
 
 @login_required
-@get_view_or_die('emails')
+@permission_required('emails')
 def listview(request):
     return list_view(request, EntityEmail)

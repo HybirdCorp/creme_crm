@@ -21,10 +21,9 @@
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.utils.translation import ugettext as _
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.contenttypes.models import ContentType
 
-from creme_core.entities_access.functions_for_permissions import get_view_or_die, add_view_or_die, edit_object_or_die, delete_object_or_die
 from creme_core.views.generic import add_entity, add_to_entity, edit_entity, view_entity_with_template, list_view
 from creme_core.utils import get_from_POST_or_404
 
@@ -33,8 +32,8 @@ from emails.forms.campaign import CampaignCreateForm, CampaignEditForm, Campaign
 
 
 @login_required
-@get_view_or_die('emails')
-@add_view_or_die(ContentType.objects.get_for_model(EmailCampaign), None, 'emails')
+@permission_required('emails')
+@permission_required('emails.add_emailcampaign')
 def add(request):
     return add_entity(request, CampaignCreateForm)
 
@@ -42,14 +41,14 @@ def edit(request, campaign_id):
     return edit_entity(request, campaign_id, EmailCampaign, CampaignEditForm, 'emails')
 
 @login_required
-@get_view_or_die('emails')
+@permission_required('emails')
 def detailview(request, campaign_id):
     return view_entity_with_template(request, campaign_id, EmailCampaign,
                                      '/emails/campaign',
                                      'emails/view_campaign.html')
 
 @login_required
-@get_view_or_die('emails')
+@permission_required('emails')
 def listview(request):
     return list_view(request, EmailCampaign, extra_dict={'add_url': '/emails/campaign/add'})
 
@@ -58,14 +57,12 @@ def add_ml(request, campaign_id):
                          _('New mailing lists for <%s>'), entity_class=EmailCampaign)
 
 @login_required
-@get_view_or_die('emails')
+@permission_required('emails')
 def delete_ml(request, campaign_id):
     ml_id    = get_from_POST_or_404(request.POST, 'id')
     campaign = get_object_or_404(EmailCampaign, pk=campaign_id)
 
-    die_status = edit_object_or_die(request, campaign)
-    if die_status:
-        return die_status
+    campaign.change_or_die(request.user)
 
     campaign.mailing_lists.remove(ml_id)
 

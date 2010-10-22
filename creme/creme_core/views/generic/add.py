@@ -24,7 +24,6 @@ from django.template import RequestContext
 from django.contrib.auth.decorators import login_required
 
 from creme_core.models import CremeEntity
-from creme_core.entities_access.functions_for_permissions import edit_object_or_die
 from creme_core.gui.last_viewed import change_page_for_last_viewed
 from creme_core.views.generic.popup import inner_popup
 
@@ -72,7 +71,7 @@ def add_entity(request, form_class, url_redirect='', template='creme_core/generi
     return render_to_response(template, template_dict,
                               context_instance=RequestContext(request))
 
-#TODO: @get_view_or_die('app_name') ??
+#TODO: @permission_required('app_name') ??
 @login_required
 def add_to_entity(request, entity_id, form_class, title, entity_class=None, initial=None,
                   template='creme_core/generics/blockform/add_popup2.html'):
@@ -88,9 +87,7 @@ def add_to_entity(request, entity_id, form_class, title, entity_class=None, init
     else:
         entity = get_object_or_404(CremeEntity, pk=entity_id).get_real_entity()
 
-    die_status = edit_object_or_die(request, entity)
-    if die_status:
-        return die_status
+    entity.change_or_die(request.user)
 
     if request.method == 'POST':
         form = form_class(entity, request.POST, request.FILES or None)

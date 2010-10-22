@@ -18,38 +18,41 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, permission_required
 from django.core.serializers import serialize
 from django.http import HttpResponse
 
-from creme_core.models import CremeEntity
-from creme_core.entities_access.filter_allowed_objects import filter_can_read_objects
+from creme_core.models import CremeEntity, EntityCredentials
 
 from documents.models import Folder, Document
 
 
 @login_required
+@permission_required('documents')
 def get_child_folders(request):
     """
         @Permissions : Filter can Read folder
     """
     if request.POST.has_key('id'):
         folders = Folder.objects.filter(parent_folder=request.POST['id']).order_by('-title')
-        folders = filter_can_read_objects(request, folders)
+        folders = EntityCredentials.filter(request.user, folders)
         data = serialize('json', folders, fields=('title', 'description', 'parent_folder'))
-        return HttpResponse(data, mimetype="text/javascript")
     else:
-        return HttpResponse({}, mimetype="text/javascript")
+        data = {}
+
+    return HttpResponse(data, mimetype="text/javascript")
 
 @login_required
+@permission_required('documents')
 def get_child_documents(request):
     """
         @Permissions : Filter can Read documents
     """
     if request.POST.has_key('id'):
         documents = Document.objects.filter(folder=request.POST['id'])
-        documents = filter_can_read_objects(request, documents)
+        documents = EntityCredentials.filter(request.user, documents)
         data = serialize('json', documents, fields=('title', 'description', 'folder', 'filedata'))
-        return HttpResponse(data, mimetype="text/javascript")
     else:
-        return HttpResponse({}, mimetype="text/javascript")
+        data = {}
+
+    return HttpResponse(data, mimetype="text/javascript")

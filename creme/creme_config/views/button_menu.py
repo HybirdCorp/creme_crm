@@ -21,12 +21,10 @@
 from django.http import HttpResponseRedirect, Http404, HttpResponse
 from django.shortcuts import render_to_response
 from django.template.context import RequestContext
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, permission_required
 
 from creme_core.models import ButtonMenuItem
 from creme_core.views.generic import add_entity
-from creme_core.entities_access.functions_for_permissions import get_view_or_die
-from creme_core.constants import DROIT_MODULE_EST_ADMIN
 from creme_core.utils import get_from_POST_or_404
 
 from creme_config.forms.button_menu import ButtonMenuAddForm, ButtonMenuEditForm
@@ -35,25 +33,19 @@ from creme_config.forms.button_menu import ButtonMenuAddForm, ButtonMenuEditForm
 portal_url = '/creme_config/button_menu/portal/'
 
 @login_required
-@get_view_or_die('creme_config', DROIT_MODULE_EST_ADMIN)
+@permission_required('creme_config.can_admin')
 def add(request):
-    """
-        @Permissions : Admin to creme_config app
-    """
     return add_entity(request, ButtonMenuAddForm, portal_url)
 
 @login_required
-@get_view_or_die('creme_config')
+@permission_required('creme_config')
 def portal(request):
-    """
-        @Permissions : Access OR Admin to creme_config app
-    """
     return render_to_response('creme_config/button_menu_portal.html',
                               {},
                               context_instance=RequestContext(request))
 
 @login_required
-@get_view_or_die('creme_config', DROIT_MODULE_EST_ADMIN)
+@permission_required('creme_config.can_admin')
 def edit(request, ct_id):
     ct_id = int(ct_id)
 
@@ -81,7 +73,7 @@ def edit(request, ct_id):
                               context_instance=RequestContext(request))
 
 @login_required
-@get_view_or_die('creme_config', DROIT_MODULE_EST_ADMIN)
+@permission_required('creme_config.can_admin')
 def delete(request):
     ct_id = get_from_POST_or_404(request.POST, 'id')
 

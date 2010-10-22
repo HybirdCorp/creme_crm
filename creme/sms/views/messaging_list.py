@@ -22,10 +22,8 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext
 from django.utils.translation import ugettext as _
-from django.contrib.auth.decorators import login_required
-from django.contrib.contenttypes.models import ContentType
+from django.contrib.auth.decorators import login_required, permission_required
 
-from creme_core.entities_access.functions_for_permissions import get_view_or_die, add_view_or_die, edit_object_or_die
 from creme_core.views.generic import add_entity, add_to_entity, edit_entity, view_entity_with_template, list_view
 from creme_core.utils import get_from_POST_or_404
 
@@ -34,8 +32,8 @@ from sms.forms.messaging_list import MessagingListForm, AddContactsForm, AddCont
 
 
 @login_required
-@get_view_or_die('sms')
-@add_view_or_die(ContentType.objects.get_for_model(MessagingList), None, 'sms')
+@permission_required('sms')
+@permission_required('sms.add_messaginglist')
 def add(request):
     return add_entity(request, MessagingListForm)
 
@@ -43,13 +41,13 @@ def edit(request, mlist_id):
     return edit_entity(request, mlist_id, MessagingList, MessagingListForm, 'sms')
 
 @login_required
-@get_view_or_die('sms')
+@permission_required('sms')
 def detailview(request, mlist_id):
     return view_entity_with_template(request, mlist_id, MessagingList,
                                      '/sms/messaging_list', 'sms/view_messaginglist.html')
 
 @login_required
-@get_view_or_die('sms')
+@permission_required('sms')
 def listview(request):
     return list_view(request, MessagingList, extra_dict={'add_url': '/sms/messaging_list/add'})
 
@@ -62,14 +60,12 @@ def add_contacts_from_filter(request, mlist_id):
                          _('New contacts for <%s>'), entity_class=MessagingList)
 
 @login_required
-@get_view_or_die('sms')
+@permission_required('sms')
 def _delete_aux(request, mlist_id, deletor):
     subobject_id   = get_from_POST_or_404(request.POST, 'id')
     messaging_list = get_object_or_404(MessagingList, pk=mlist_id)
 
-    die_status = edit_object_or_die(request, messaging_list)
-    if die_status:
-        return die_status
+    messaging_list.change_or_die(request.user)
 
     deletor(messaging_list, subobject_id)
 

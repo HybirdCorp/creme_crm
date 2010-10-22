@@ -21,9 +21,8 @@
 from django.http import HttpResponse, HttpResponseRedirect
 from django.template import RequestContext
 from django.shortcuts import get_object_or_404
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, permission_required
 
-from creme_core.entities_access.functions_for_permissions import edit_object_or_die
 from creme_core.views.generic import inner_popup
 from creme_core.utils import get_from_POST_or_404
 
@@ -33,9 +32,7 @@ def generic_edit(request, assistant_id, assistant_model, assistant_form, title):
     alert = get_object_or_404(assistant_model, pk=assistant_id)
     entity = alert.creme_entity
 
-    die_status = edit_object_or_die(request, entity)
-    if die_status:
-        return die_status
+    entity.change_or_die(request.user)
 
     if request.POST:
         edit_form = assistant_form(entity, request.POST, instance=alert)

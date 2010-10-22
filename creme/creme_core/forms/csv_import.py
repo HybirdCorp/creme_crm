@@ -33,7 +33,6 @@ from django.contrib.contenttypes.models import ContentType
 from django.contrib.auth.models import User
 
 from creme_core.models import CremePropertyType, CremeProperty, RelationType, Relation, CremeEntity
-from creme_core.entities_access.functions_for_permissions import read_object_or_die
 from base import CremeForm, CremeModelForm, FieldBlockManager
 from fields import RelatedEntitiesField, CremeEntityField
 from widgets import UnorderedMultipleChoiceWidget
@@ -54,7 +53,8 @@ class CSVUploadForm(CremeForm):
 
     def __init__(self, request, *args, **kwargs):
         super(CSVUploadForm, self).__init__(*args, **kwargs)
-        self._request    = request
+        #self._request    = request
+        self._user = request.user #TODO: 'user' instead of 'request' as arg
         self._csv_header = None
 
     @property
@@ -65,8 +65,7 @@ class CSVUploadForm(CremeForm):
         cleaned_data = self.cleaned_data
         csv_document = cleaned_data['csv_document']
 
-        die_status = read_object_or_die(self._request, csv_document)
-        if die_status:
+        if not self._user.has_perm('creme_core.view_entity', csv_document):
             raise ValidationError(ugettext("You have not the credentials to read this document."))
 
         if cleaned_data['csv_has_header']:
@@ -249,7 +248,8 @@ class CSVImportForm(CremeModelForm):
 
     def __init__(self, request, *args, **kwargs):
         super(CSVImportForm, self).__init__(*args, **kwargs)
-        self._request = request
+        #self._request = request
+        self._user = request.user #TODO: 'user' instead of 'request' as arg
         self.import_errors = LimitedList(50)
         self.imported_objects_count = 0
 
@@ -265,8 +265,7 @@ class CSVImportForm(CremeModelForm):
         except Document.DoesNotExist:
             raise ValidationError(ugettext("This document doesn't exist or doesn't exist any more."))
 
-        die_status = read_object_or_die(self._request, csv_document)
-        if die_status:
+        if not self._user.has_perm('creme_core.view_entity', csv_document):
             raise ValidationError(ugettext("You have not the credentials to read this document."))
 
         return csv_document

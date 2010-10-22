@@ -23,10 +23,8 @@ from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, render_to_response
 
 from django.utils.translation import ugettext as _
-from django.contrib.auth.decorators import login_required
-from django.contrib.contenttypes.models import ContentType
+from django.contrib.auth.decorators import login_required, permission_required
 
-from creme_core.entities_access.functions_for_permissions import add_view_or_die, get_view_or_die, read_object_or_die, edit_object_or_die
 from creme_core.views.generic import add_entity, add_to_entity, view_entity_with_template, edit_entity, list_view
 from creme_core.utils import get_from_POST_or_404
 
@@ -36,19 +34,17 @@ from graphs.forms.graph import GraphForm, AddRelationTypesForm
 
 
 @login_required
-@get_view_or_die('graphs')
-@add_view_or_die(ContentType.objects.get_for_model(Graph), None, 'graphs')
+@permission_required('graphs')
+@permission_required('graphs.add_graph')
 def add(request):
     return add_entity(request, GraphForm)
 
 @login_required
-@get_view_or_die('graphs')
+@permission_required('graphs')
 def dl_png(request, graph_id):
     graph = get_object_or_404(Graph, pk=graph_id)
 
-    die_status = read_object_or_die(request, graph)
-    if die_status:
-        return die_status
+    graph.view_or_die(request.user)
 
     try:
         return graph.generate_png()
@@ -61,12 +57,12 @@ def edit(request, graph_id):
     return edit_entity(request, graph_id, Graph, GraphForm, 'graphs')
 
 @login_required
-@get_view_or_die('graphs')
+@permission_required('graphs')
 def detailview(request, graph_id):
     return view_entity_with_template(request, graph_id, Graph, '/graphs/graph', 'graphs/view_graph.html')
 
 @login_required
-@get_view_or_die('graphs')
+@permission_required('graphs')
 def listview(request):
     return list_view(request, Graph, extra_dict={'add_url':'/graphs/graph/add'})
 
@@ -75,14 +71,12 @@ def add_relation_types(request, graph_id):
                          _(u'Add relation types to <%s>'), entity_class=Graph)
 
 @login_required
-@get_view_or_die('graphs')
+@permission_required('graphs')
 def delete_relation_type(request, graph_id):
     rtypes_id = get_from_POST_or_404(request.POST, 'id')
     graph     = get_object_or_404(Graph, pk=graph_id)
 
-    die_status = edit_object_or_die(request, graph)
-    if die_status:
-        return die_status
+    graph.change_or_die(request.user)
 
     graph.orbital_relation_types.remove(rtypes_id)
 

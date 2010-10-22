@@ -15,6 +15,7 @@
             {% get_column_header _("User name") 'username' %}
             {% get_column_header _('Last name') 'last_name' %}
             {% get_column_header _('First name') 'first_name' %}
+            <th class="block_header_line_light">{% trans "Role" %}</th>
             {% get_column_header _('Email') 'email' %}
             {% get_column_header _('Super-user ?') 'is_superuser' %}
             {% get_column_header _('Active ?') 'is_active' %}
@@ -29,6 +30,7 @@
                 <td class="{{row_color}}">{{user.username}}</td>
                 <td class="{{row_color}}">{{user.last_name}}</td>
                 <td class="{{row_color}}">{{user.first_name}}</td>
+                <td class="{{row_color}}">{{user.role|default:_('None')}}</td>
                 <td class="{{row_color}}">{{user.email}}</td>
                 <td class="{{row_color}}">{{user.is_superuser|yesno:_('Yes,No')}}</td>
                 <td class="{{row_color}}">{{user.is_active|yesno:_('Yes,No')}}</td>

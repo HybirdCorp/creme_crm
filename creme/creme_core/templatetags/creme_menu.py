@@ -22,9 +22,9 @@ from django.conf import settings
 from django.template.context import RequestContext
 from django.template import Library
 from django.db.models import Q
+from django.utils.encoding import smart_unicode
 
 from creme_core.models import PreferedMenuItem, ButtonMenuItem
-from creme_core.entities_access.permissions import user_has_acces_to_application
 from creme_core.gui.menu import creme_menu, new_creme_menu
 from creme_core.gui.last_viewed import last_viewed_items
 from creme_core.gui.button_menu import button_registry
@@ -44,30 +44,17 @@ class ItemMenu(object):
         return '<ItemMenu: app:%s url:%s>' % (self.app_name, self.app_url)
 
     def __cmp__(self, other):
-        from django.utils.encoding import smart_unicode
-        return cmp( smart_unicode(self.app_name), smart_unicode(other.app_name))
-        #return cmp(self.app_name, other.app_name)
+        return cmp(smart_unicode(self.app_name), smart_unicode(other.app_name))
 
-#@register.inclusion_tag('templatetags/creme_menu.html')
-#def generate_creme_menu ():
-    #list_item = []
-    #for key , value in creme_menu.app_menu.iteritems():
-        #item = ItemMenu ()
-        #item.app_name = value.app_menu_name
-        #item.app_url = value.app_url
-        #item.items_menu = value.items
-        #list_item.append( item )
-
-    #return {'menu': list_item}
-
-#from django.conf import settings
 
 if settings.USE_STRUCT_MENU:
     @register.inclusion_tag('creme_core/templatetags/treecreme_menu.html')
     def generate_treecreme_menu(request):
+        has_perm = request.user.has_perm
         items = [ItemMenu(appitem.app_menu_name, appitem.app_url, appitem.items)
                     for appitem in creme_menu.app_menu.itervalues()
-                        if user_has_acces_to_application(request, appitem.app_name)
+                        #if user_has_acces_to_application(request, appitem.app_name)
+                        if has_perm(appitem.app_name)
                 ]
         items.sort()
 

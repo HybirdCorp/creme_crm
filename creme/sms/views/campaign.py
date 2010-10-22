@@ -21,10 +21,8 @@
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.utils.translation import ugettext as _
-from django.contrib.auth.decorators import login_required
-from django.contrib.contenttypes.models import ContentType
+from django.contrib.auth.decorators import login_required, permission_required
 
-from creme_core.entities_access.functions_for_permissions import get_view_or_die, add_view_or_die, edit_object_or_die, delete_object_or_die
 from creme_core.views.generic import add_entity, add_to_entity, edit_entity, view_entity_with_template, list_view
 
 from sms.models import SMSCampaign
@@ -32,8 +30,8 @@ from sms.forms.campaign import CampaignCreateForm, CampaignEditForm, CampaignAdd
 
 
 @login_required
-@get_view_or_die('sms')
-@add_view_or_die(ContentType.objects.get_for_model(SMSCampaign), None, 'sms')
+@permission_required('sms')
+@permission_required('sms.add_smscampaign')
 def add(request):
     return add_entity(request, CampaignCreateForm)
 
@@ -42,12 +40,10 @@ def edit(request, campaign_id):
 
 # TODO : perhaps more reliable to forbid delete for campaigns with sendings.
 @login_required
+@permission_required('sms')
 def delete(request, id): 
     campaign = get_object_or_404(SMSCampaign, pk=id).get_real_entity()
-
-    die_status = delete_object_or_die(request, campaign)
-    if die_status:
-        return die_status
+    campaign.delete_or_die(request.user)
 
     callback_url = campaign.get_lv_absolute_url()
 
@@ -56,13 +52,13 @@ def delete(request, id):
     return HttpResponseRedirect(callback_url)
 
 @login_required
-@get_view_or_die('sms')
+@permission_required('sms')
 def detailview(request, campaign_id):
     return view_entity_with_template(request, campaign_id, SMSCampaign,
                                      '/sms/campaign', 'sms/view_campaign.html')
 
 @login_required
-@get_view_or_die('sms')
+@permission_required('sms')
 def listview(request):
     return list_view(request, SMSCampaign, extra_dict={'add_url': '/sms/campaign/add'})
 
@@ -71,13 +67,10 @@ def add_messaging_list(request, campaign_id):
                          _(u'New messaging lists for <%s>'), entity_class=SMSCampaign)
 
 @login_required
-@get_view_or_die('sms')
+@permission_required('sms')
 def delete_messaging_list(request, campaign_id):
     campaign = get_object_or_404(SMSCampaign, pk=campaign_id)
-
-    die_status = edit_object_or_die(request, campaign)
-    if die_status:
-        return die_status
+    campaign.change_or_die(request.user)
 
     campaign.lists.remove(request.POST.get('id'))
 

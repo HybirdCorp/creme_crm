@@ -28,4 +28,4 @@ class Beautiful403Middleware(object):
     def process_exception(self, request, exception):
         if isinstance(exception, PermissionDenied):
             return HttpResponseForbidden(render_to_string('creme_core/forbidden.html',
-                                                          RequestContext(request, {'error_message': str(exception)})))
+                                                          RequestContext(request, {'error_message': unicode(exception)})))

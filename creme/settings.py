@@ -179,7 +179,6 @@ TRUE_DELETE = True
 CREME_EMAIL = "to"
 
 AUTHENTICATION_BACKENDS = ('creme_core.auth.backend.EntityBackend',)
-AUTH_PROFILE_MODULE = "creme_core.cremeprofile"
 
 #TODO: remove
 PAGGING_SIZE = 5

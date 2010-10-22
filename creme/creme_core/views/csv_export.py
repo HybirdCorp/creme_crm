@@ -27,9 +27,8 @@ from django.shortcuts import get_object_or_404
 from django.utils.encoding import smart_str
 from django.contrib.auth.decorators import login_required
 
-from creme_core.models import Filter, ListViewState
+from creme_core.models import Filter, ListViewState, EntityCredentials
 from creme_core.models.header_filter import HeaderFilter, HFI_FIELD, HFI_RELATION, HFI_FUNCTION, HFI_CUSTOM
-from creme_core.entities_access.filter_allowed_objects import filter_RUD_objects
 from creme_core.utils import get_ct_or_404
 from creme_core.utils.meta import get_field_infos
 from creme_core.utils.chunktools import iter_as_slices
@@ -72,7 +71,9 @@ def dl_listview_as_csv(request, ct_id):
         entities = entities.filter(current_lvs.extra_q)
 
     entities = entities.filter(current_lvs.get_q_with_research(model))
-    entities = filter_RUD_objects(request, entities).distinct().order_by("%s%s" % (sort_order, sort_field))
+    #entities = filter_RUD_objects(request, entities).distinct().order_by("%s%s" % (sort_order, sort_field))
+    entities = EntityCredentials.filter(request.user, entities)
+    entities = entities.distinct().order_by("%s%s" % (sort_order, sort_field)) #distinct ???
     entities = hf.improve_queryset(entities) #optimisation time !!!
 
     #TODO: move to a template ???

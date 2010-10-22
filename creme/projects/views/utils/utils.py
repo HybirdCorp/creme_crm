@@ -21,10 +21,7 @@
 from django.utils.translation import ugettext as _
 from django.shortcuts import get_object_or_404
 from django.template import RequestContext
-from django.contrib.auth.decorators import login_required
 
-from creme_core.models.entity import CremeEntity
-from creme_core.entities_access.functions_for_permissions import get_view_or_die, edit_object_or_die
 from creme_core.views.generic import inner_popup
 
 from projects.models import ProjectTask
@@ -40,14 +37,10 @@ def error_popup(request, message):
                        is_valid=False,
                        context_instance=RequestContext(request))
 
-@login_required
-@get_view_or_die('projects')
 def _add_generic(request, form, task_id, title):
     task = get_object_or_404(ProjectTask, pk=task_id)
 
-    die_status = edit_object_or_die(request, task)
-    if die_status:
-        return die_status
+    task.change_or_die(request.user)
 
     if task.status_id in (COMPLETED_PK, CANCELED_PK):
         state = task.status.name
@@ -72,27 +65,24 @@ def _add_generic(request, form, task_id, title):
                        delegate_reload=True,
                        context_instance=RequestContext(request))
 
-@login_required
-@get_view_or_die('projects')
-def _edit_generic(request, form, entity_id, model, title):
-    entity = get_object_or_404(model, pk=entity_id)
+def _edit_generic(request, form, obj_id, model, title):
+    obj  = get_object_or_404(model, pk=obj_id)
+    task = obj.task
 
-    die_status = edit_object_or_die(request, entity.task)
-    if die_status:
-        return die_status
+    task.change_or_die(request.user)
 
     if request.POST :
-        form_obj = form(request.POST, instance=entity)
+        form_obj = form(request.POST, instance=obj)
 
         if form_obj.is_valid():
             form_obj.save()
     else:
-        form_obj = form(instance=entity)
+        form_obj = form(instance=obj)
 
     return inner_popup(request, 'creme_core/generics/blockform/edit_popup.html',
                        {
                          'form':   form_obj,
-                         'object': entity.task,
+                         'object': task,
                          'title':  title,
                        },
                        is_valid=form_obj.is_valid(),

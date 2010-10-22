@@ -22,11 +22,9 @@ from logging import debug
 
 from django.db.models import Q
 from django.utils.translation import ugettext as _
-from django.contrib.contenttypes.models import ContentType
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, permission_required
 
 from creme_core.gui.last_viewed import change_page_for_last_item_viewed
-from creme_core.entities_access.functions_for_permissions import add_view_or_die, get_view_or_die
 from creme_core.views.generic import add_entity, list_view
 
 from persons.models import Contact
@@ -36,16 +34,16 @@ from commercial.constants import PROP_IS_A_SALESMAN
 
 
 @login_required
-@get_view_or_die('commercial')
-@add_view_or_die(ContentType.objects.get_for_model(Contact), None, 'persons')
+@permission_required('persons')
+@permission_required('persons.add_contact')
 def add(request):
     return add_entity(request, SalesManCreateForm, template='persons/add_contact_form.html')
 
-#TODO: factorise with generic list_view (ticket 194)
+#TODO: factorise with generic list_view ??
 #      problem: list_view can accept to filter on a property (register a filtered view in the menu etc...)
 @login_required
-@get_view_or_die('commercial')
-@change_page_for_last_item_viewed
+@permission_required('persons')
+@change_page_for_last_item_viewed #useful ??
 def listview(request):
     return list_view(request, Contact,
                      extra_dict={

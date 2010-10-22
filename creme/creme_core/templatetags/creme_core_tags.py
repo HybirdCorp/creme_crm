@@ -27,7 +27,7 @@ from django import template
 from django.utils.safestring import mark_safe
 from django.utils.html import escape
 
-from creme_core.models import CremeEntity, CremeRole
+from creme_core.models import CremeEntity
 from creme_core.models import fields
 from creme_core.utils.meta import get_field_infos, get_model_field_infos, get_m2m_entities
 
@@ -258,11 +258,6 @@ def mod(integer, integer2):
 @register.filter(name="xrange")
 def x_range(integer, start=0):
     return xrange(start, start + integer)
-
-#move to creme_config (template too) ??
-@register.inclusion_tag('creme_core/templatetags/role_descendant.html')
-def get_first_descendant(role):
-    return {'role': role, 'sub_roles': CremeRole.objects.filter(superieur=role)}
 
 @register.filter(name="isiterable")
 def isiterable(iterable):

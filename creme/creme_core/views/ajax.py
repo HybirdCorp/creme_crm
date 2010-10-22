@@ -30,7 +30,6 @@ from django.contrib.auth.models import ContentType
 from creme_core.models import CremeEntity
 from creme_core.models.custom_field import CustomField
 from creme_core.registry import creme_registry, NotRegistered
-from creme_core.entities_access.functions_for_permissions import edit_object_or_die
 from creme_core.utils.meta import get_flds_with_fk_flds, get_flds_with_fk_flds_str
 from creme_core.utils import get_ct_or_404, get_from_POST_or_404
 #from creme.creme_utils.views import handle_uploaded_file
@@ -64,8 +63,7 @@ def edit_js(request):
             entite = CremeEntity.objects.get(pk=id)
             object = entite.entity_type.model_class().objects.get(pk=id)
 
-            die_status = edit_object_or_die(request, object)
-            if die_status:
+            if not request.user.has_perm('creme_core.change_entity', object):
                 return HttpResponse("Vous n'avez pas la permission d'éditer cet objet", mimetype="text/javascript", status=400)
 
         except Exception, e:

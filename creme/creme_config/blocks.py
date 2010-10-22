@@ -220,34 +220,6 @@ class ButtonMenuBlock(QuerysetBlock):
                                                             ))
 
 
-class AppCredentialsBlock(QuerysetBlock):
-    id_           = QuerysetBlock.generate_id('creme_config', 'app_credentials')
-    dependencies  = (CremeAppDroit,)
-    order_by      = 'name_app'
-    page_size     = _PAGE_SIZE
-    verbose_name  = _(u'Applications credentials configuration')
-    template_name = 'creme_config/templatetags/block_app_credentials.html'
-
-    def detailview_display(self, context):
-        return self._render(self.get_block_template_context(context, CremeAppDroit.objects.all(),
-                                                            update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
-                                                            ))
-
-
-class EntityCredentialsBlock(QuerysetBlock):
-    id_           = QuerysetBlock.generate_id('creme_config', 'entity_credentials')
-    dependencies  = (CremeDroitEntityType,)
-    order_by      = 'content_type'
-    page_size     = _PAGE_SIZE
-    verbose_name  = _(u'Entities credentials configuration')
-    template_name = 'creme_config/templatetags/block_entity_credentials.html'
-
-    def detailview_display(self, context):
-        return self._render(self.get_block_template_context(context, CremeDroitEntityType.objects.all(),
-                                                            update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
-                                                            ))
-
-
 class SearchConfigBlock(QuerysetBlock):
     id_           = QuerysetBlock.generate_id('creme_config', 'searchconfig')
     dependencies  = (SearchConfigItem,)
@@ -310,8 +282,6 @@ blocks_list = (
         RelationBlocksConfigBlock(),
         ButtonMenuBlock(),
         UsersBlock(),
-        AppCredentialsBlock(),
-        EntityCredentialsBlock(),
         SearchConfigBlock(),
         InstanceBlocksConfigBlock(),
         UserRolesBlock(),

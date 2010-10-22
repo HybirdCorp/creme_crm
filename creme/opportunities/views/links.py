@@ -20,11 +20,10 @@
 
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.contenttypes.models import ContentType
 
 from creme_core.models import Relation
-from creme_core.entities_access.functions_for_permissions import edit_object_or_die
 
 from documents.constants import REL_SUB_CURRENT_DOC
 
@@ -34,12 +33,11 @@ from opportunities.models import Opportunity
 
 
 @login_required
+@permission_required('opportunities')
 def set_current_quote(request, opp_id, quote_id):
     opp = get_object_or_404(Opportunity, pk=opp_id)
 
-    die_status = edit_object_or_die(request, opp)
-    if die_status:
-        return die_status
+    opp.change_or_die(request.user)
 
     quote = get_object_or_404(Quote, pk=quote_id)
     #TODO: credential for quote ??? link credential instead ?????

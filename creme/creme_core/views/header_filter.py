@@ -31,7 +31,6 @@ from creme_core.models.list_view_state import ListViewState
 from creme_core.models.header_filter import HeaderFilter, HeaderFilterList
 from creme_core.forms.header_filter import HeaderFilterForm
 from creme_core.views.generic import add_entity
-from creme_core.entities_access.functions_for_permissions import delete_object_or_die
 from creme_core.utils import get_ct_or_404
 
 
@@ -89,7 +88,7 @@ def delete(request):
     is_ajax      = request.is_ajax()
 
     if hf.is_custom:
-        die_status = delete_object_or_die(request, hf)
+        #die_status = delete_object_or_die(request, hf) #TODO: credentials on non-entity models ???
         if die_status:
             if not is_ajax:
                 return die_status

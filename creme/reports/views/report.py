@@ -27,10 +27,9 @@ from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext
 from django.utils.translation import ugettext as _
 from django.utils.simplejson import JSONEncoder
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.contenttypes.models import ContentType
 
-from creme_core.entities_access.functions_for_permissions import add_view_or_die, get_view_or_die
 from creme_core.views.generic import add_entity, edit_entity, view_entity_with_template, list_view, inner_popup
 from creme_core.utils.meta import get_model_field_infos, get_flds_with_fk_flds, get_date_fields, is_date_field
 from creme_core.utils import get_ct_or_404, get_from_GET_or_404
@@ -42,12 +41,12 @@ from reports.registry import report_backend_registry
 from reports.report_aggregation_registry import field_aggregation_registry
 
 
-report_app = Report._meta.app_label
-report_ct  = ContentType.objects.get_for_model(Report)
+#report_app = Report._meta.app_label
+#report_ct  = ContentType.objects.get_for_model(Report)
 
 @login_required
-@get_view_or_die(report_app)
-@add_view_or_die(report_ct, None, report_app)
+@permission_required('reports')
+@permission_required('reports.add_report')
 def add(request):
     tpl_dict = {
         'help_messages' : [],
@@ -59,22 +58,19 @@ def edit(request, report_id):
     return edit_entity(request, report_id, Report, EditForm, report_app)
 
 @login_required
-@get_view_or_die('reports')
+@permission_required('reports')
 def detailview(request, report_id):
-    """
-        @Permissions : Acces or Admin to document app & Read on current Report object
-    """
     return view_entity_with_template(request, report_id, Report,
                                      '%s/report' % report_prefix_url,
                                      '%s/view_report.html' % report_template_dir)
 
 @login_required
-@get_view_or_die(report_app)
+@permission_required('reports')
 def listview(request):
     return list_view(request, Report, extra_dict={'add_url':'%s/report/add' % report_prefix_url})
 
 @login_required
-@get_view_or_die(report_app)
+@permission_required('reports')
 def unlink_report(request):
     field = get_object_or_404(Field, pk=request.POST.get('field_id'))
     field.report   = None
@@ -104,7 +100,7 @@ def __link_report(request, report, field, ct):
                        context_instance=RequestContext(request))
 
 @login_required
-@get_view_or_die(report_app)
+@permission_required('reports')
 def link_report(request, report_id, field_id):
     field  = get_object_or_404(Field,  pk=field_id)
     report = get_object_or_404(Report, pk=report_id)
@@ -129,7 +125,7 @@ def link_report(request, report_id, field_id):
     return __link_report(request, report, field, ct)
 
 @login_required
-@get_view_or_die(report_app)
+@permission_required('reports')
 def link_relation_report(request, report_id, field_id, ct_id):
     field  = get_object_or_404(Field,  pk=field_id)
     report = get_object_or_404(Report, pk=report_id)
@@ -139,7 +135,7 @@ def link_relation_report(request, report_id, field_id, ct_id):
 
 #TODO: use add_to_entity() generic view
 @login_required
-@get_view_or_die(report_app)
+@permission_required('reports')
 def add_field(request, report_id):
     report = get_object_or_404(Report, pk=report_id)
     POST = request.POST
@@ -168,7 +164,7 @@ _order_direction = {
 }
 
 @login_required
-@get_view_or_die(report_app)
+@permission_required('reports')
 def change_field_order(request):
     POST = request.POST
     report = get_object_or_404(Report, pk=POST.get('report_id')) #TODO: use get_from_POST_or_404
@@ -189,10 +185,10 @@ def change_field_order(request):
     return HttpResponse("", status=200, mimetype="text/javascript")
 
 @login_required
-@get_view_or_die(report_app)
+@permission_required('reports')
 def preview(request, report_id):
     report = get_object_or_404(Report, pk=report_id)
-    
+
     extra_q_filter = Q()
 
     if request.POST:
@@ -222,7 +218,7 @@ def preview(request, report_id):
                               context_instance=req_ctx)
 
 @login_required
-@get_view_or_die(report_app)
+@permission_required('reports')
 def set_selected(request):
     POST   = request.POST
     report = get_object_or_404(Report, pk=POST.get('report_id')) #TODO: use get_from_POST_or_404()
@@ -246,7 +242,7 @@ def set_selected(request):
     return HttpResponse("", status=200, mimetype="text/javascript")
 
 @login_required
-@get_view_or_die(report_app)
+@permission_required('reports')
 def csv(request, report_id):
     report = get_object_or_404(Report, pk=report_id)
     csv_backend = report_backend_registry.get_backend('CSV')
@@ -274,6 +270,7 @@ def csv(request, report_id):
     return csv_backend(report, extra_q_filter).render_to_response()
 
 @login_required
+#@permission_required('reports') ??
 def get_aggregate_fields(request):
     POST_get = request.POST.get
     aggregate_name = POST_get('aggregate_name')
@@ -291,6 +288,7 @@ def get_aggregate_fields(request):
     return HttpResponse(JSONEncoder().encode(choices), mimetype="text/javascript")
 
 @login_required
+#@permission_required('reports') ??
 def date_filter_form(request, report_id):
     report = get_object_or_404(Report, pk=report_id)
 

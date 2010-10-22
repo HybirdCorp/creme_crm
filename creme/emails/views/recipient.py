@@ -21,9 +21,8 @@
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render_to_response, get_object_or_404
 from django.utils.translation import ugettext as _
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, permission_required
 
-from creme_core.entities_access.functions_for_permissions import get_view_or_die, edit_object_or_die
 from creme_core.views.generic import add_to_entity
 from creme_core.utils import get_from_POST_or_404
 
@@ -40,14 +39,12 @@ def add_from_csv(request, ml_id):
                          _(u'New recipients for <%s>'), entity_class=MailingList)
 
 @login_required
-@get_view_or_die('emails')
+@permission_required('emails')
 def delete(request):
     recipient = get_object_or_404(EmailRecipient , pk=get_from_POST_or_404(request.POST, 'id'))
     ml = recipient.ml
 
-    die_status = edit_object_or_die(request, ml)
-    if die_status:
-        return die_status
+    ml.change_or_die(request.user)
 
     recipient.delete()
 

@@ -4,6 +4,7 @@ from django.contrib import admin
 
 from creme_core.models import *
 
+
 register = admin.site.register
 
 register(CremeEntity)
@@ -14,13 +15,9 @@ register(CremePropertyType)
 register(RelationType)
 register(Relation)
 
-register(CremeRole)
-register(CremeProfile)
-register(CremeTypeDroit)
-register(CremeTypeEnsembleFiche)
-register(CremeDroitEntityType)
-register(CremeAppTypeDroit)
-register(CremeAppDroit)
+register(UserRole)
+register(EntityCredentials)
+register(SetCredentials)
 
 #register(CustomFields)
 #register(ValueOfCustomFieldsList)

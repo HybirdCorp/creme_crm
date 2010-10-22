@@ -18,10 +18,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.contrib.auth.decorators import login_required
-from django.contrib.contenttypes.models import ContentType
+from django.contrib.auth.decorators import login_required, permission_required
 
-from creme_core.entities_access.functions_for_permissions import add_view_or_die, get_view_or_die
 from creme_core.views.generic import add_entity, edit_entity, view_entity_with_template, list_view
 
 from products.models import Product
@@ -29,8 +27,8 @@ from products.forms.product import ProductCreateForm
 
 
 @login_required
-@get_view_or_die('products')
-@add_view_or_die(ContentType.objects.get_for_model(Product), None, 'products')
+@permission_required('products')
+@permission_required('products.add_product')
 def add(request):
     return add_entity(request, ProductCreateForm)
 
@@ -38,11 +36,11 @@ def edit(request, product_id):
     return edit_entity(request, product_id, Product, ProductCreateForm, 'products')
 
 @login_required
-@get_view_or_die('products')
+@permission_required('products')
 def detailview(request, product_id):
     return view_entity_with_template(request, product_id, Product, '/products/product', 'products/view_product.html')
 
-login_required
-@get_view_or_die('products')
+@login_required
+@permission_required('products')
 def listview(request):
     return list_view(request, Product, extra_dict={'add_url': '/products/product/add'})

@@ -20,13 +20,11 @@
 
 from django.http import HttpResponseRedirect, HttpResponse
 from django.template.context import RequestContext
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, permission_required
 from django.shortcuts import get_object_or_404, render_to_response
 from django.conf import settings
 
 from creme_core.views.generic import add_entity
-from creme_core.entities_access.functions_for_permissions import get_view_or_die
-from creme_core.constants import DROIT_MODULE_EST_ADMIN
 from creme_core.models import SearchConfigItem, SearchField
 from creme_core.utils import get_from_POST_or_404
 
@@ -36,25 +34,19 @@ from creme_config.forms.search import SearchEditForm, SearchAddForm
 portal_url = '/creme_config/search/portal/'
 
 @login_required
-@get_view_or_die('creme_config', DROIT_MODULE_EST_ADMIN)
+@permission_required('creme_config.can_admin')
 def add(request):
-    """
-        @Permissions : Admin to creme_config app
-    """
     return add_entity(request, SearchAddForm, portal_url)
 
 @login_required
-@get_view_or_die('creme_config')
+@permission_required('creme_config')
 def portal(request):
-    """
-        @Permissions : Access OR Admin to creme_config app
-    """
     return render_to_response('creme_config/search_portal.html',
                               {'SHOW_HELP': settings.SHOW_HELP},#TODO:Context processor ?
                               context_instance=RequestContext(request))
 
 @login_required
-@get_view_or_die('creme_config', DROIT_MODULE_EST_ADMIN)
+@permission_required('creme_config.can_admin')
 def edit(request, search_config_id):
     search_config = get_object_or_404(SearchConfigItem, pk=search_config_id)
 
@@ -71,9 +63,8 @@ def edit(request, search_config_id):
                               {'form': search_cfg_form},
                               context_instance=RequestContext(request))
 
-
 @login_required
-@get_view_or_die('creme_config', DROIT_MODULE_EST_ADMIN)
+@permission_required('creme_config.can_admin')
 def delete(request):
     search_cfg_id = get_from_POST_or_404(request.POST, 'id')
 

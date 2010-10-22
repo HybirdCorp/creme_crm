@@ -26,20 +26,17 @@ from django.http import HttpResponse
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext
 from django.utils.simplejson import JSONEncoder, JSONDecoder
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth.models import User
 
-#from creme_core.models import * #bof ?
-from creme_core.entities_access.functions_for_permissions import get_view_or_die
-from creme_core.entities_access.filter_allowed_objects import filter_can_read_objects
-from creme_core.entities_access.permissions import user_has_edit_permission_for_an_object
+from creme_core.models import EntityCredentials
 
 from activities.models import Activity
 from activities.utils import get_last_day_of_a_month
 
 
 @login_required
-@get_view_or_die('activities')
+@permission_required('activities')
 def get_users_calendar(request, usernames):
     return render_to_response('activities/calendar.html',
                               {
@@ -66,19 +63,15 @@ def getFormattedDictFromAnActivity(activity):
             "allDay" :      activity.is_all_day
             }
 
-@login_required
-@get_view_or_die('activities')
 def user_calendar(request):
 #    return getUserCalendar(request, request.POST.get('username', request.user.username))
     return get_users_calendar(request, request.POST.getlist('user_selected') or [request.user.username])
 
-@login_required
-@get_view_or_die('activities')
 def my_calendar(request):
     return get_users_calendar(request, request.user.username)
 
 @login_required
-@get_view_or_die('activities')
+@permission_required('activities')
 def get_users_activities(request, usernames):
     users = User.objects.filter(username__in=usernames.split(','))
 
@@ -106,27 +99,30 @@ def get_users_activities(request, usernames):
     #TODO: user__in=users twice ???? can be rewrite better....
     list_activities = Activity.objects.filter(user__in=users).filter(current_activities | overlap_activities & overlap_activities2)
     list_activities = list_activities.filter(user_activities & Q(is_deleted=False))
-    list_activities = filter_can_read_objects(request, list_activities)
+    #list_activities = filter_can_read_objects(request, list_activities)
+    list_activities = EntityCredentials.filter(request.user, list_activities)
 
     return HttpResponse(JSONEncoder().encode([getFormattedDictFromAnActivity(activity) for activity in list_activities.all()]),
-                        mimetype = "text/javascript")
+                        mimetype="text/javascript")
 
 @login_required
-@get_view_or_die('activities')
+@permission_required('activities')
 def update_activity_date(request):
     POST_get = request.POST.get
-    id_ = POST_get('id')
+    id_             = POST_get('id')
     start_timestamp = POST_get('start')
-    end_timestamp = POST_get('end')
+    end_timestamp   = POST_get('end')
+
     try:
         is_all_day = JSONDecoder().decode(POST_get('allDay', 'null'))
     except ValueError:
         is_all_day = None
 
-    if id_ is not None and start_timestamp is not None and end_timestamp is not None:
+    if id_ is not None and start_timestamp is not None and end_timestamp is not None: #TODO: use a guard instead ??
         activity = get_object_or_404(Activity, pk=id_)
 
-        if not user_has_edit_permission_for_an_object(request, activity, 'activities'):
+        #if not user_has_edit_permission_for_an_object(request, activity, 'activities'):
+        if not request.user.has_perm('creme_core.change_entity', activity):
             return HttpResponse("forbidden", mimetype="text/javascript", status=403)
 
         try:

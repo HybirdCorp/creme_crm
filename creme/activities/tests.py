@@ -19,7 +19,7 @@ from activities.forms.activity import _check_activity_collisions
 class ActivitiesTestCase(TestCase):
     def login(self):
         if not self.user:
-            user = User.objects.all()[0]
+            user = User.objects.create(username='Kay')
             user.set_password(self.password)
             user.is_superuser = True
             user.save()
