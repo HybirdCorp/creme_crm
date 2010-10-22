@@ -100,8 +100,7 @@ def edit(request, user_id):
                               {'form': userform},
                               context_instance=RequestContext(request))
 
-@login_required
-@permission_required('creme_config.can_admin')
+@login_required #no special permission needed
 def edit_own_settings(request):
     user = get_object_or_404(User, pk=request.user.id)
 

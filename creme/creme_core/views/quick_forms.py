@@ -18,6 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from django.core.exceptions import PermissionDenied
 from django.http import Http404
 from django.forms.formsets import formset_factory
 from django.template.context import RequestContext
@@ -28,11 +29,16 @@ from creme_core.views.generic import inner_popup
 from creme_core.gui.quick_forms import quickforms_registry
 from creme_core.utils import get_ct_or_404
 
-#TODO: credentials ??
 
 @login_required
 def add(request, ct_id, count):
-    model = get_ct_or_404(ct_id).model_class()
+    ct    = get_ct_or_404(ct_id)
+    model = ct.model_class()
+    model_name = model._meta.verbose_name
+
+    if not request.user.has_perm('%s.add_%s' % (ct.app_label, ct.model)):
+        #TODO: manage/display error on js side (for now it just does nothing)
+        raise PermissionDenied('You are not allowed to create entity with type "%s"' % model_name)
 
     try:
         form_class = quickforms_registry.get_form(model)
@@ -41,7 +47,7 @@ def add(request, ct_id, count):
 
     qformset_class = formset_factory(form_class, extra=int(count))
 
-    if request.POST:
+    if request.method == 'POST':
         qformset = qformset_class(request.POST)
 
         if qformset.is_valid():
@@ -53,7 +59,7 @@ def add(request, ct_id, count):
     return inner_popup(request, 'creme_core/generics/blockformset/add_popup.html',
                        {
                         'formset': qformset,
-                        'title':   _('Quick creation of <%s>') % model._meta.verbose_name,
+                        'title':   _('Quick creation of <%s>') % model_name,
                        },
                        is_valid=qformset.is_valid(),
                        reload=False,
