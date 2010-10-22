@@ -3,12 +3,15 @@
 <div class="quickform_box">
     <span>
         <img border="0" title="{% trans "Quick creation" %}" alt="{% trans "Quick creation" %}" src="{{MEDIA_URL}}images/quick_22.png" align="top">
-        <select name="entity_count">
+        <select name="entity_count" {% if not content_types %}disabled="true"{% endif %}>
             {% for i in 9|xrange:1 %}<option value="{{i}}">{{i}}</option>{% endfor %}
         </select>
-        <select name="ct_id">
+        <select name="ct_id" {% if not content_types %}disabled="true"{% endif %}>
             {% for ct in content_types %}<option value="{{ct.id}}">{{ct.verbose_name}}</option>{% endfor %}
         </select>
-        <input type="button" value="{% trans "Quick creation" %}" onclick="creme.utils.handleQuickForms('/creme_core/quickforms', $(this).parent('span').parent('.quickform_box'), ['ct_id', 'entity_count']);"/>
+        <input type="button" value="{% trans "Quick creation" %}"
+            {% if content_types %}onclick="creme.utils.handleQuickForms('/creme_core/quickforms', $(this).parent('span').parent('.quickform_box'), ['ct_id', 'entity_count']);"
+            {% else %}disabled="true"
+            {% endif %}/>
     </span>
 </div>
