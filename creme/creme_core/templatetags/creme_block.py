@@ -21,11 +21,11 @@
 from re import compile as compile_re
 
 from django.template import TemplateSyntaxError, Node as TemplateNode
+from django.template.defaulttags import TemplateLiteral
 from django.template.loader import get_template
 from django.template import Library, Template
 from django.utils.translation import ugettext, ungettext
 from django.contrib.contenttypes.models import ContentType
-#from django.conf import settings
 
 from creme_core.models import BlockConfigItem
 from creme_core.gui.block import Block, block_registry, BlocksManager
@@ -85,6 +85,46 @@ def get_column_header(context, column_name, field_name):
     return context
 
 
+#-------------------------------------------------------------------------------
+_line_adder_re = compile_re(r'at_url (.*?) with_label (.*?) with_perms (\w+)$')
+
+@register.tag(name="get_line_adder")
+def do_line_adder(parser, token):
+    """Eg: {% get_line_adder at_url '/assistants/action/add/{{object.id}}/' with_label _("New action") with_perms has_perm %}"""
+    try:
+        tag_name, arg = token.contents.split(None, 1) # Splitting by None == splitting by spaces.
+    except ValueError:
+        raise TemplateSyntaxError, "%r tag requires arguments" % token.contents.split()[0]
+
+    match = _line_adder_re.search(arg)
+    if not match:
+        raise TemplateSyntaxError, "%r tag had invalid arguments" % tag_name
+
+    add_url, label_str, perm_name = match.groups()
+
+    first_char = add_url[0]
+    if not (first_char == add_url[-1] and first_char in ('"', "'")):
+        raise TemplateSyntaxError, "%r tag's url argument should be in quotes" % tag_name
+
+    label_var = TemplateLiteral(parser.compile_filter(label_str), label_str)
+
+    return LineAdderNode(add_url[1:-1], label_var, perm_name)
+
+class LineAdderNode(TemplateNode):
+    def __init__(self, add_url,  label_var, perm_name):
+        self.adder_tpl = get_template('creme_core/templatetags/widgets/block_line_adder.html')
+        self.url_tpl   = Template(add_url)
+        self.perm_name = perm_name
+        self.label_var = label_var
+
+    def render(self, context):
+        context['add_url'] = self.url_tpl.render(context)
+        context['label'] = self.label_var.eval(context)
+        context['add_line_perm'] = context[self.perm_name]
+
+        return self.adder_tpl.render(context)
+
+#-------------------------------------------------------------------------------
 _line_deletor_re = compile_re(r'at_url (.*?) with_args (.*?)$')
 
 @register.tag(name="get_line_deletor")
@@ -123,6 +163,81 @@ class LineDeletorNode(TemplateNode):
         return self.deletor_tpl.render(context)
 
 
+_line_deletor_re2 = compile_re(r'at_url (.*?) with_args (.*?) with_perms (\w+)$')
+
+@register.tag(name="get_line_deletor2")
+def do_line_deletor2(parser, token):
+    """Eg: {% get_line_deletor2 at_url '/app/model/delete' with_args "{'id' : {{object.id}} }" with_perms boolean_variable %}"""
+    try:
+        # Splitting by None == splitting by spaces.
+        tag_name, arg = token.contents.split(None, 1)
+    except ValueError:
+        raise TemplateSyntaxError, "%r tag requires arguments" % token.contents.split()[0]
+
+    match = _line_deletor_re2.search(arg)
+    if not match:
+        raise TemplateSyntaxError, "%r tag had invalid arguments" % tag_name
+
+    delete_url, post_args, perm_name = match.groups()
+
+    for group in (delete_url, post_args):
+        first_char = group[0]
+        if not (first_char == group[-1] and first_char in ('"', "'")):
+            raise TemplateSyntaxError, "%r tag's argument should be in quotes" % tag_name
+
+    return LineDeletorNode2(delete_url[1:-1], post_args[1:-1], perm_name)
+
+class LineDeletorNode2(TemplateNode):
+    def __init__(self, delete_url, post_args, perm_name):
+        self.deletor_tpl = get_template('creme_core/templatetags/widgets/block_line_deletor2.html')
+        self.url_tpl = Template(delete_url)
+        self.args_tpl = Template(post_args)
+        self.perm_name = perm_name
+
+    def render(self, context):
+        context['delete_url'] = self.url_tpl.render(context)
+        context['post_args'] = self.args_tpl.render(context)
+        context['delete_line_perm'] = context[self.perm_name]
+
+        return self.deletor_tpl.render(context)
+
+#-------------------------------------------------------------------------------
+_line_editor_re = compile_re(r'at_url (.*?) with_perms (\w+)$')
+
+@register.tag(name="get_line_editor")
+def do_line_editor(parser, token):
+    """Eg: {% get_line_editor at_url '/assistants/action/edit/{{action.id}}/' with_perms has_perm %}"""
+    try:
+        tag_name, arg = token.contents.split(None, 1) # Splitting by None == splitting by spaces.
+    except ValueError:
+        raise TemplateSyntaxError, "%r tag requires arguments" % token.contents.split()[0]
+
+    match = _line_editor_re.search(arg)
+    if not match:
+        raise TemplateSyntaxError, "%r tag had invalid arguments" % tag_name
+
+    edit_url, perm_name = match.groups()
+
+    first_char = edit_url[0]
+    if not (first_char == edit_url[-1] and first_char in ('"', "'")):
+        raise TemplateSyntaxError, "%r tag's url argument should be in quotes" % tag_name
+
+    return LineEditorNode(edit_url[1:-1], perm_name)
+
+class LineEditorNode(TemplateNode):
+    def __init__(self, edit_url, perm_name):
+        self.editor_tpl = get_template('creme_core/templatetags/widgets/block_line_editor.html')
+        self.url_tpl = Template(edit_url)
+        self.perm_name = perm_name
+
+    def render(self, context):
+        context['edit_url'] = self.url_tpl.render(context)
+        context['edit_line_perm'] = context[self.perm_name]
+
+        return self.editor_tpl.render(context)
+
+
+#-------------------------------------------------------------------------------
 _block_importer_re = compile_re(r'from_app (.*?) named (.*?) as (.*?)$')
 
 @register.tag(name="import_block")
@@ -162,6 +277,7 @@ class BlockImporterNode(TemplateNode):
         return ''
 
 
+#-------------------------------------------------------------------------------
 @register.tag(name="display_block_detailview")
 def do_block_detailviewer(parser, token):
     """Eg: {% display_block_detailview 'relations_block' %} %}"""

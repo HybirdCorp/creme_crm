@@ -1,6 +1,6 @@
-/*.x-add-button {
-    background-image: url(/site_media/images/add_16.png) !important;
-}*/
+.forbidden {
+    opacity: 0.5;
+}
 
 html.central_panel {
     background-color: #e6f2f7;
@@ -752,50 +752,49 @@ textarea:disabled, textarea[readonly] {
     -webkit-border-radius: 4px;
 }
 
-.quickform_box {padding : 4px;}
+.quickform_box {padding: 4px;}
 .quickform_box span{
     padding : 4px;
-    
-    color : #2c596c;
-    background : #E6F2F7 none repeat scroll 0 0;
-    border : 2px solid #d7e2e7;
+
+    color: #2c596c;
+    background: #E6F2F7 none repeat scroll 0 0;
+    border: 2px solid #d7e2e7;
 
     -moz-border-radius: 4px;
     -webkit-border-radius: 4px;
 }
 
 .pointer {
-    cursor : pointer;
+    cursor: pointer;
 }
 
 
 /* BUTTONS */
 
-.buttons
-{
+.buttons {
     
 }
 
-.buttons a, .buttons button{
-    display:block;
+.buttons a, .buttons button, .buttons span {
+    display: block;
 /*    float:left;*/
-    float:right;
-    margin:0 7px 0 0;
+    float: right;
+    margin: 0 7px 0 0;
 /*    margin:0 0 0 7px;*/
-    background-color:#f5f5f5;
-    border:1px solid #dedede;
-    border-top:1px solid #eee;
-    border-left:1px solid #eee;
+    background-color: #f5f5f5;
+    border: 1px solid #dedede;
+    border-top: 1px solid #eee;
+    border-left: 1px solid #eee;
 
-    font-family:"Lucida Grande", Tahoma, Arial, Verdana, sans-serif;
-    font-size:100%;
+    font-family: "Lucida Grande", Tahoma, Arial, Verdana, sans-serif;
+    font-size: 100%;
 /*    line-height:130%;*/
-    text-decoration:none;
-    font-weight:bold;
-    color:#565656;
-    cursor:pointer;
+    text-decoration: none;
+    font-weight: bold;
+    color: #565656;
+    cursor: pointer;
 /*    padding:5px 10px 6px 7px;  Links */
-    padding:5px 7px 5px 7px; /* Links */
+    padding: 5px 7px 5px 7px; /* Links */
     -moz-border-radius: 4px;
     -webkit-border-radius: 4px;
     border-radius: 4px;
@@ -803,84 +802,83 @@ textarea:disabled, textarea[readonly] {
     min-width: 150px;
     text-align: left;
 }
-.buttons button{
-    width:auto;
-    overflow:visible;
-    padding:4px 10px 3px 7px; /* IE6 */
+.buttons button {
+    width: auto;
+    overflow: visible;
+    padding: 4px 10px 3px 7px; /* IE6 */
 }
-.buttons button[type]{
-    padding:5px 10px 5px 7px; /* Firefox */
-    line-height:17px; /* Safari */
+.buttons button[type] {
+    padding: 5px 10px 5px 7px; /* Firefox */
+    line-height: 17px; /* Safari */
 }
-*:first-child+html button[type]{
-    padding:4px 10px 3px 7px; /* IE7 */
+*:first-child+html button[type] {
+    padding: 4px 10px 3px 7px; /* IE7 */
 }
-.buttons button img, .buttons a img{
-    margin:0 3px -3px 0 !important;
-    padding:0;
-    border:none;
-    width:16px;
-    height:16px;
+.buttons button img, .buttons a img {
+    margin: 0 3px -3px 0 !important;
+    padding: 0;
+    border: none;
+    width: 16px;
+    height: 16px;
 }
 
 /* NORMAL */
-.buttons button:hover, .buttons a:hover{
-    background-color:#dff4ff;
-    border:1px solid #c2e1ef;
-    color:#336699;
+.buttons button:hover, .buttons a:hover {
+    background-color: #dff4ff;
+    border: 1px solid #c2e1ef;
+    color: #336699;
 }
-.buttons a:active{
-    background-color:#6299c5;
-    border:1px solid #6299c5;
-    color:#fff;
+.buttons a:active {
+    background-color: #6299c5;
+    border: 1px solid #6299c5;
+    color: #fff;
 }
 
 /* LINK */
-.buttons button.link, .buttons a.link{
-    color:#518DC9;
+.buttons button.link, .buttons a.link {
+    color: #518DC9;
 }
-.buttons a.link:hover, button.link:hover{
-    background-color:#dff4ff;
-    border:1px solid #c2e1ef;
-    color:#336699;
+.buttons a.link:hover, button.link:hover {
+    background-color: #dff4ff;
+    border: 1px solid #c2e1ef;
+    color: #336699;
 }
-.buttons a.link:active{
-    background-color:#518DC9;
-    border:1px solid #518DC9;
-    color:#fff;
+.buttons a.link:active {
+    background-color: #518DC9;
+    border: 1px solid #518DC9;
+    color: #fff;
 }
 
 /* ADD */
-.buttons button.add, .buttons a.add{
-    color:#529214;
+.buttons button.add, .buttons a.add, .buttons span.add {
+    color: #529214;
 }
-.buttons a.add:hover, button.add:hover{
-    background-color:#E6EFC2;
-    border:1px solid #C6D880;
-    color:#529214;
+.buttons a.add:hover, button.add:hover {
+    background-color: #E6EFC2;
+    border: 1px solid #C6D880;
+    color: #529214;
 }
-.buttons a.add:active{
-    background-color:#529214;
-    border:1px solid #529214;
-    color:#fff;
+.buttons a.add:active {
+    background-color: #529214;
+    border: 1px solid #529214;
+    color: #fff;
 }
 
 /* NEGATIVE */
-.buttons a.negative, button.negative{
-    color:#d12f19;
+.buttons a.negative, button.negative {
+    color: #d12f19;
 }
-.buttons a.negative:hover, button.negative:hover{
-    background:#fbe3e4;
-    border:1px solid #fbc2c4;
-    color:#d12f19;
+.buttons a.negative:hover, button.negative:hover {
+    background: #fbe3e4;
+    border: 1px solid #fbc2c4;
+    color: #d12f19;
 }
-.buttons a.negative:active{
-    background-color:#d12f19;
-    border:1px solid #d12f19;
-    color:#fff;
+.buttons a.negative:active {
+    background-color: #d12f19;
+    border: 1px solid #d12f19;
+    color: #fff;
 }
 
-.collapser
-{
+.collapser {
     cursor: pointer;
 }
