@@ -302,6 +302,59 @@ class TemplatizeNode(template.Node):
         self.inner_template = template.Template(template_string)
         self.var_name = var_name
 
+    def __repr__(self):
+        return "<Templatize node>"
+
     def render(self, context):
         context[self.var_name] = self.inner_template.render(context)
+        return ''
+
+#TODO: move to a 'creme_auth' file ??
+_haspermto_re = compile_re(r'(\w+) (.*?) as (\w+)')
+
+_perms_methods = {
+        'view':     'can_view',
+        'change':   'can_change',
+        'delete':   'can_delete',
+    }
+
+@register.tag(name="has_perm_to")
+def do_has_perm_to(parser, token):  #{% has_perm_to change action.creme_entity as has_perm %}
+    try:
+        # Splitting by None == splitting by spaces.
+        tag_name, arg = token.contents.split(None, 1)
+    except ValueError:
+        raise template.TemplateSyntaxError, "%r tag requires arguments" % token.contents.split()[0]
+
+    match = _haspermto_re.search(arg)
+    if not match:
+        raise template.TemplateSyntaxError, "%r tag had invalid arguments: %r" % (tag_name, arg)
+
+    perm_type, entity_path, var_name = match.groups()
+
+    perm_method = _perms_methods.get(perm_type)
+    if not perm_method:
+        raise template.TemplateSyntaxError, "%r invalid permission tag: %r" % (tag_name, perm_type)
+
+    #TODO: don't attacks defaulttags but parser api ??
+    entity_var = template.defaulttags.TemplateLiteral(parser.compile_filter(entity_path), entity_path)
+
+    return HasPermToNode(perm_method, entity_var, var_name)
+
+class HasPermToNode(template.Node):
+    def __init__(self, perm_method, entity_var, var_name):
+        self.perm_method = perm_method
+        self.entity_var = entity_var
+        self.var_name = var_name
+
+    def __repr__(self):
+        return "<HasPermTo node>"
+
+    def render(self, context):
+        var = self.entity_var.eval(context) #can raise template.VariableDoesNotExist...
+        perm_func = getattr(var, self.perm_method)
+        user = context['request'].user
+
+        context[self.var_name] = perm_func(user)
+
         return ''

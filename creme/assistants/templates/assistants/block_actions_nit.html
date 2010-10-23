@@ -1,11 +1,11 @@
 {% load i18n %}
-{% load creme_block %}
+{% load creme_core_tags %}{% load creme_block %}
 <table class="table_detail_view ui-corner-all" id={{block_name}}>
     {% include "creme_core/templatetags/widgets/block_header_beg.html" %}
         <th style="width: 80%;" class="collapser">{% get_block_title _('%s Reaction not in time') _('%s Reactions not in time') 'action_48.png' _('Reaction') %}</th>
-        <th style="width: 20%;" align="right">
+        {% comment %}<th style="width: 20%;" align="right">
             <div class="buttons"></div>
-        </th>
+        </th>{% endcomment %}
     {% include "creme_core/templatetags/widgets/block_header_end.html" %}
     <tbody class="collapsable">
         {% if page.paginator.count %}
@@ -45,10 +45,9 @@
                         </form>
                     </td>
                     <td class="{{row_color}}" align="center" valign="center" style="width:10%;">
-                        <a onclick="creme.utils.innerPopupNReload('/assistants/action/edit/{{action.id}}/', {% get_block_reload_uri %});">
-                            <img src="{{MEDIA_URL}}images/edit_22.png" border="0" title="{% trans "Edit" %}" alt="{% trans "Edit" %}">
-                        </a>
-                        {% get_line_deletor at_url '/assistants/action/delete' with_args "{'id' : {{action.id}} }" %}
+                        {% has_perm_to change action.creme_entity as has_perm %}
+                        {% get_line_editor at_url '/assistants/action/edit/{{action.id}}/' with_perms has_perm %}
+                        {% get_line_deletor2 at_url '/assistants/action/delete' with_args "{'id' : {{action.id}} }" with_perms has_perm %}
                     </td>
                 </tr>
             {% endfor %}

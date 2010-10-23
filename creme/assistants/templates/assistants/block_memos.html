@@ -1,16 +1,13 @@
 {% load i18n %}
-{% load creme_core_tags %}
-{% load creme_block %}
+{% load creme_core_tags %}{% load creme_block %}
 <table class="table_detail_view ui-corner-all" id={{block_name}}>
     {% include "creme_core/templatetags/widgets/block_header_beg.html" %}
         <th style="width: 80%;" class="collapser" align="left">{% get_block_title _('%s Memo') _('%s Memos') 'memo_48.png' _('Memo') %}</th>
         <th style="width: 20%;" align="right">
             <div class="buttons">
                 {% if object %}
-                    <a class="add" onclick="creme.utils.innerPopupNReload('/assistants/memo/add/{{object.id}}/', {% get_block_reload_uri %});">
-                        <img src="{{MEDIA_URL}}images/add_22.png" border="0" title="{% trans "Add" %}" alt="{% trans "Add" %}" />
-                        {% trans "New memo" %}
-                    </a>
+                    {% has_perm_to change object as has_perm %}
+                    {% get_line_adder at_url '/assistants/memo/add/{{object.id}}/' with_label _("New memo") with_perms has_perm %}
                 {% endif %}
             </div>
         </th>
@@ -38,10 +35,9 @@
                     <td class="{{row_color}}">{{memo.creation_date|date:"d/m/y"}}</td>
                     <td class="{{row_color}}">{{memo|get_html_field_value:"content"}}</td>
                     <td class="{{row_color}}" align="center" valign="center" style="width:10%;">
-                        <a onclick="creme.utils.innerPopupNReload('/assistants/memo/edit/{{memo.id}}/', {% get_block_reload_uri %});">
-                            <img src="{{MEDIA_URL}}images/edit_22.png" border="0" title="{% trans "Edit" %}" alt="{% trans "Edit" %}">
-                        </a>
-                        {% get_line_deletor at_url '/assistants/memo/delete' with_args "{'id' : {{memo.id}} }" %}
+                        {% has_perm_to change memo.creme_entity as has_perm %}
+                        {% get_line_editor at_url '/assistants/memo/edit/{{memo.id}}/' with_perms has_perm %}
+                        {% get_line_deletor2 at_url '/assistants/memo/delete' with_args "{'id' : {{memo.id}} }" with_perms has_perm %}
                     </td>
                 </tr>
             {% endfor %}
