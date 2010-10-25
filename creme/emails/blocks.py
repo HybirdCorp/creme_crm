@@ -210,7 +210,7 @@ class WaitingSynchronizationMailsBlock(_SynchronizationMailsBlock):
     template_name = 'emails/templatetags/block_synchronization.html'
 
     def detailview_display(self, context):
-        context.update({'MAIL_STATUS': MAIL_STATUS})
+        context.update({'MAIL_STATUS': MAIL_STATUS, 'entityemail_ct_id': ContentType.objects.get_for_model(EntityEmail).id})
         return self._render(self.get_block_template_context(context, EntityEmail.objects.filter(status=MAIL_STATUS_SYNCHRONIZED_WAITING),
 #                                                            update_url='/creme_core/blocks/reload/basic/%s/' % self.id_
                                                             update_url='/emails/sync_blocks/reload'
@@ -223,7 +223,7 @@ class SpamSynchronizationMailsBlock(_SynchronizationMailsBlock):
     template_name = 'emails/templatetags/block_synchronization_spam.html'
 
     def detailview_display(self, context):
-        context.update({'MAIL_STATUS': MAIL_STATUS})
+        context.update({'MAIL_STATUS': MAIL_STATUS, 'entityemail_ct_id': ContentType.objects.get_for_model(EntityEmail).id})
         return self._render(self.get_block_template_context(context, EntityEmail.objects.filter(status=MAIL_STATUS_SYNCHRONIZED_SPAM),
 #                                                            update_url='/creme_core/blocks/reload/basic/%s/' % self.id_
                                                             update_url='/emails/sync_blocks/reload'

@@ -6,21 +6,17 @@
 {% block top_header %}
     {% include "creme_core/templatetags/widgets/block_header_beg.html" %}
         <th style="width: 80%;" class="collapser" align="left">{% get_block_title  _('%s Incoming email marked as spam') _('%s Incoming emails marked as spam') 'spam_48.png' _('Spam') %}</th>
-        <th style="width: 20%;" align="right"></th>
-    {% include "creme_core/templatetags/widgets/block_header_end.html" %}
-{% endblock %}
-
-{% block toolbar %}
-    <tr>
-        <th colspan="{{colspan}}" class="block_header_line_dark" align="left">
-            <a class="button_link" onclick="creme.emails.mass_action('/emails/mail/waiting', '[name=select_one]:checked', {% get_block_reload_uri %});">
-                <img src="{{MEDIA_URL}}images/email_22.png" border="0" title="{% trans "Marked as 'to be treated'" %}" alt="{% trans "Marked as 'to be treated'" %}" />
-                {% trans "Marked as 'to be treated'" %}
-            </a>
-            <a class="button_link" onclick="creme.emails.mass_action('/emails/mail/delete', '[name=select_one]:checked', {% get_block_reload_uri %});">
-                <img src="{{MEDIA_URL}}images/delete_22.png" border="0" title="{% trans "Delete" %}" alt="{% trans "Delete" %}" />
-                {% trans "Delete" %}
-            </a>
+        <th style="width: 20%;" align="right">
+            <div class="buttons">
+                <a class="add" onclick="creme.emails.mass_action('/emails/mail/waiting', '[name=select_one]:checked', {% get_block_reload_uri %});">
+                    <img src="{{MEDIA_URL}}images/email_22.png" border="0" title="{% trans "Marked as 'to be treated'" %}" alt="{% trans "Marked as 'to be treated'" %}" />
+                    {% trans "Marked as 'to be treated'" %}
+                </a>
+                <a class="negative" onclick="creme.emails.mass_action('/emails/mail/delete', '[name=select_one]:checked', {% get_block_reload_uri %});">
+                    <img src="{{MEDIA_URL}}images/delete_22.png" border="0" title="{% trans "Delete" %}" alt="{% trans "Delete" %}" />
+                    {% trans "Delete" %}
+                </a>
+            </div>
         </th>
-    </tr>
+    {% include "creme_core/templatetags/widgets/block_header_end.html" %}
 {% endblock %}
