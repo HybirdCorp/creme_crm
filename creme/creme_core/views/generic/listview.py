@@ -136,7 +136,7 @@ def list_view(request, model, hf_pk='', extra_dict=None, template='creme_core/ge
 
     template_dict = {
         'model':              model,
-        'list_title':         u"Liste des %s" % unicode(model._meta.verbose_name_plural),
+        'list_title':         _(u"List of %s") % unicode(model._meta.verbose_name_plural),
         'header_filters':     header_filters,
         'entities':           entities,
         'list_view_state':    current_lvs,

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-10-24 23:04+0200\n"
+"POT-Creation-Date: 2010-10-25 16:33+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -16,7 +16,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 
 #: blocks.py:30 forms/csv_import.py:340 models/creme_property.py:88
-#: models/entity.py:50 tests/views.py:82
+#: models/entity.py:49 tests/views.py:82
 msgid "Properties"
 msgstr "Propriétés"
 
@@ -544,21 +544,21 @@ msgstr "Liste de choix"
 msgid "List of choices (multi sélection)"
 msgstr "Liste de choix (multi sélection)"
 
-#: models/entity.py:105
+#: models/entity.py:104
 #, python-format
 msgid "You are not allowed to edit this entity: %s"
 msgstr "Vous n'ếtes pas autorisé à modifier cette fiche: %s"
 
-#: models/entity.py:112
+#: models/entity.py:111
 #, python-format
 msgid "You are not allowed to delete this entity: %s"
 msgstr "Vous n'ếtes pas autorisé à supprimer cette fiche: %s"
 
-#: models/entity.py:213
+#: models/entity.py:212
 msgid "See"
 msgstr "Voir"
 
-#: models/entity.py:215 templates/creme_core/detailview.html:58
+#: models/entity.py:213 templates/creme_core/detailview.html:58
 #: templates/creme_core/generics/blockform/edit.html:9
 #: templates/creme_core/generics/blockform/edit.html:16
 #: templates/creme_core/generics/form/edit.html:3
@@ -568,7 +568,7 @@ msgstr "Voir"
 msgid "Edit"
 msgstr "Éditer"
 
-#: models/entity.py:216 templates/creme_core/detailview.html:61
+#: models/entity.py:214 templates/creme_core/detailview.html:61
 #: templates/creme_core/filters.html:616 templates/creme_core/filters.html:622
 #: templates/creme_core/filters.html:638 templates/creme_core/filters.html:644
 #: templates/creme_core/filters.html:652
@@ -579,7 +579,7 @@ msgstr "Éditer"
 msgid "Delete"
 msgstr "Supprimer"
 
-#: models/entity.py:262
+#: models/entity.py:257
 #, python-format
 msgid "You are not allowed to view this entity: %s"
 msgstr "Vous n'ếtes pas autorisé à voir cette fiche: %s"
@@ -588,7 +588,8 @@ msgstr "Vous n'ếtes pas autorisé à voir cette fiche: %s"
 msgid "Name of the view"
 msgstr "Nom de la vue"
 
-#: models/header_filter.py:180 templates/creme_core/frags/actions.html:20
+#: models/header_filter.py:180
+#: templates/creme_core/templatetags/widgets/entity_actions.html:18
 msgid "Actions"
 msgstr "Actions"
 
@@ -880,57 +881,57 @@ msgstr "Aucune correspondance"
 msgid "Download CSV"
 msgstr "Télécharger CSV"
 
-#: templates/creme_core/frags/list_view_content.html:53
+#: templates/creme_core/frags/list_view_content.html:54
 msgid "Import CSV"
 msgstr "Importer CSV"
 
-#: templates/creme_core/frags/list_view_content.html:56
+#: templates/creme_core/frags/list_view_content.html:58
 msgid "Multiple deletion"
 msgstr "Suppression multiple"
 
-#: templates/creme_core/frags/list_view_content.html:59
+#: templates/creme_core/frags/list_view_content.html:61
 msgid "Multiple property adding"
 msgstr "Ajout de propriété multiple"
 
-#: templates/creme_core/frags/list_view_content.html:62
+#: templates/creme_core/frags/list_view_content.html:64
 msgid "Multiple relation adding"
 msgstr "Ajout de relation multiple"
 
-#: templates/creme_core/frags/list_view_content.html:65
+#: templates/creme_core/frags/list_view_content.html:67
 msgid "Clean the search"
 msgstr "Effacer la recherche"
 
-#: templates/creme_core/frags/list_view_content.html:66
+#: templates/creme_core/frags/list_view_content.html:68
 #: templates/creme_core/templatetags/search_panel.html:14
 msgid "Research"
 msgstr "Rechercher"
 
-#: templates/creme_core/frags/list_view_content.html:89
+#: templates/creme_core/frags/list_view_content.html:91
 #, python-format
 msgid "Sort by %(col_title)s"
 msgstr "Trier par %(col_title)s"
 
-#: templates/creme_core/frags/list_view_content.html:115
+#: templates/creme_core/frags/list_view_content.html:117
 msgid "No entity exists / match your search"
 msgstr "Aucun élément n'existe / ne correspond à votre recherche"
 
-#: templates/creme_core/frags/list_view_content.html:130
+#: templates/creme_core/frags/list_view_content.html:132
 msgid "Page"
 msgstr "Page"
 
-#: templates/creme_core/frags/list_view_content.html:130
+#: templates/creme_core/frags/list_view_content.html:132
 msgid "'Enter' to submit"
 msgstr "Touche 'Entrée' pour valider"
 
-#: templates/creme_core/frags/list_view_content.html:130
+#: templates/creme_core/frags/list_view_content.html:132
 msgid "on"
 msgstr "sur"
 
-#: templates/creme_core/frags/list_view_content.html:137
+#: templates/creme_core/frags/list_view_content.html:139
 msgid "Nb / Page"
 msgstr "Nb / Page"
 
-#: templates/creme_core/frags/list_view_content.html:152
+#: templates/creme_core/frags/list_view_content.html:154
 #, python-format
 msgid "Recordings %(start_index)s - %(end_index)s on %(entities_count)s"
 msgstr "Enregistrements %(start_index)s - %(end_index)s sur %(entities_count)s"
@@ -974,6 +975,7 @@ msgid "%s Property"
 msgstr "%s Propriété"
 
 #: templates/creme_core/templatetags/block_properties.html:5
+#, python-format
 msgid "%s Properties"
 msgstr "%s Propriétés"
 
@@ -1136,6 +1138,10 @@ msgstr "Vous ne pouvez pas supprimer '%(object)s'"
 msgid "You can't edit '%(object)s'"
 msgstr "Vous ne pouvez pas éditer '%(object)s'"
 
+#: templates/creme_core/templatetags/widgets/entity_actions.html:35
+msgid "forbidden"
+msgstr "interdit"
+
 #: templatetags/creme_date.py:33
 #, python-format
 msgid "%s day(s)"
@@ -1238,6 +1244,11 @@ msgstr "%s ne peut être effacé à cause des ses dépendances."
 #: views/generic/listview.py:115
 msgid "The desired list does not have any view, please create one."
 msgstr "La liste souhaitée n'a aucune vue, veuillez en créer au moins une."
+
+#: views/generic/listview.py:139
+#, python-format
+msgid "List of %s"
+msgstr "Liste des %s"
 
 #: views/generic/portal.py:36
 #, python-format
