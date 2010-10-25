@@ -7,10 +7,11 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-08-25 17:11+0200\n"
+"POT-Creation-Date: 2010-10-25 11:25+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -24,46 +25,50 @@ msgid "Commercial strategy"
 msgstr "Plan Commercial"
 
 #: creme_core_register.py:37
+msgid "Portal"
+msgstr "Portail"
+
+#: creme_core_register.py:38
 msgid "All commercial actions"
 msgstr "Lister les actions commerciales"
 
-#: creme_core_register.py:38
+#: creme_core_register.py:39
 msgid "Add a commercial action"
 msgstr "Ajouter une action commerciale"
 
-#: creme_core_register.py:39
+#: creme_core_register.py:40
 msgid "All salesmen"
 msgstr "Lister les commerciaux"
 
-#: creme_core_register.py:40
+#: creme_core_register.py:41
 msgid "Add a salesman"
 msgstr "Ajouter un commercial"
 
-#: populate.py:40
+#: populate.py:39
 msgid "has sold"
 msgstr "a vendu"
 
-#: populate.py:41
+#: populate.py:40
 msgid "has been sold by"
 msgstr "a été vendu par"
 
-#: populate.py:44
+#: populate.py:43
 msgid "is a salesman"
 msgstr "est un commercial"
 
-#: populate.py:48
+#: populate.py:47
 msgid "Com Action view"
 msgstr "Vue d'Action Com"
 
-#: populate.py:50
+#: populate.py:49
 msgid "Name"
 msgstr "Nom"
 
-#: populate.py:51 models/act.py:33
+#: populate.py:50 models/act.py:33
 msgid "Expected sales"
 msgstr "CA espéré"
 
-#: populate.py:52 forms/act.py:29 models/act.py:38
+#: populate.py:51 forms/act.py:29 models/act.py:38
 msgid "Due date"
 msgstr "Échéance"
 
@@ -95,20 +100,20 @@ msgstr "Action Commerciale"
 msgid "Commercial Actions"
 msgstr "Actions Commerciales"
 
-#: models/commercial_approach.py:32
+#: models/commercial_approach.py:33
 #: templates/commercial/templatetags/block_approaches.html:18
 msgid "Title"
 msgstr "Titre"
 
-#: models/commercial_approach.py:33
+#: models/commercial_approach.py:34
 msgid "Done ?"
 msgstr "Faite ?"
 
-#: models/commercial_approach.py:34
+#: models/commercial_approach.py:35
 msgid "Description"
 msgstr "Description"
 
-#: models/commercial_approach.py:35
+#: models/commercial_approach.py:36
 msgid "Creation date"
 msgstr "Date de création"
 
@@ -137,25 +142,21 @@ msgstr "Portail Commercial"
 msgid "List of commercial actions"
 msgstr "Liste des actions commerciales"
 
-#: templates/commercial/templatetags/block_approaches.html:4
+#: templates/commercial/templatetags/block_approaches.html:5
 #, python-format
 msgid "%s Commercial approach"
 msgstr "%s Démarche commerciale"
 
-#: templates/commercial/templatetags/block_approaches.html:4
+#: templates/commercial/templatetags/block_approaches.html:5
 #, python-format
 msgid "%s Commercial approaches"
 msgstr "%s Démarches Commerciales"
 
-#: templates/commercial/templatetags/block_approaches.html:4
+#: templates/commercial/templatetags/block_approaches.html:5
 msgid "Comapp"
 msgstr "Demco"
 
 #: templates/commercial/templatetags/block_approaches.html:10
-msgid "Add"
-msgstr "Ajouter"
-
-#: templates/commercial/templatetags/block_approaches.html:11
 msgid "New commercial approach"
 msgstr "Nouvelle démarche commerciale"
 
@@ -211,7 +212,7 @@ msgstr "Payée"
 msgid "Non paid"
 msgstr "Non payée"
 
-#: views/commercial_approach.py:57
+#: views/commercial_approach.py:29
 #, python-format
 msgid "New commercial approach for <%s>"
 msgstr "Nouvelle démarche commerciale pour <%s>"
@@ -220,6 +221,9 @@ msgstr "Nouvelle démarche commerciale pour <%s>"
 msgid "Number of commercial actions"
 msgstr "Nombre d'actions commerciales"
 
-#: views/salesman.py:52
+#: views/salesman.py:50
 msgid "List of salesmen"
 msgstr "Liste des commerciaux"
+
+#~ msgid "Add"
+#~ msgstr "Ajouter"

@@ -8,10 +8,11 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-09-20 18:35+0200\n"
+"POT-Creation-Date: 2010-10-25 11:26+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -34,14 +35,14 @@ msgstr "Mettre à jour"
 msgid "Delete"
 msgstr "Effacer"
 
-#: blocks.py:30 models/actions.py:43 templates/crudity/history.html:11
+#: blocks.py:30 models/actions.py:44 templates/crudity/history.html:11
 #: templates/crudity/waiting_actions.html:5
 #: templates/crudity/frags/ajax/waiting_actions.html:6
 #: templates/crudity/frags/ajax/waiting_actions.html:9
 msgid "Waiting actions"
 msgstr "Actions en attente"
 
-#: blocks.py:54 creme_core_register.py:37 models/history.py:41
+#: blocks.py:55 creme_core_register.py:37 models/history.py:41
 #: models/history.py:42 templates/crudity/history.html:6
 #: templates/crudity/history.html.py:14
 msgid "History"
@@ -51,28 +52,24 @@ msgstr "Historique"
 msgid "External data management"
 msgstr "Gestion des données externes"
 
-#: creme_core_register.py:35
-msgid "Portal"
-msgstr "Portail"
-
 #: creme_core_register.py:36
 msgid "Email waiting actions"
 msgstr "Actions en attente pour les emails"
 
-#: backends/email/create/base.py:97
+#: backends/email/create/base.py:113
 #, python-format
 msgid "Creation of %(entity)s"
 msgstr "Creation de %(entity)s"
 
-#: models/actions.py:37
+#: models/actions.py:38
 msgid "Ressource's type"
 msgstr "Type de ressource"
 
-#: models/actions.py:38
+#: models/actions.py:39
 msgid "Backend's name"
 msgstr "Nom du backend"
 
-#: models/actions.py:42
+#: models/actions.py:43
 msgid "Waiting action"
 msgstr "Action en attente"
 
@@ -150,6 +147,9 @@ msgstr "Actions"
 msgid "No waiting action for %(type)s %(ct_name)s"
 msgstr "Aucune action en attente pour %(type)s %(ct_name)s"
 
-#: views/email.py:62 views/email.py:64
+#: views/email.py:68
 msgid "Emails"
 msgstr "Courriels"
+
+#~ msgid "Portal"
+#~ msgstr "Portail"

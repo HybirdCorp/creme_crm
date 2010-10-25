@@ -7,10 +7,11 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-08-27 14:32+0200\n"
+"POT-Creation-Date: 2010-10-25 11:31+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -139,15 +140,11 @@ msgstr "Dupliqué"
 msgid "Won't fix"
 msgstr "Ne sera pas corrigé"
 
-#: models/status.py:43
-msgid "Deletable"
-msgstr "Supprimable"
-
 #: models/status.py:50 models/status.py:51
 msgid "Ticket status"
 msgstr "Statut(s) de ticket"
 
-#: models/ticket.py:36 templates/tickets/view_ticket.html:13
+#: models/ticket.py:36 templates/tickets/view_ticket.html:16
 msgid "Resolving duration"
 msgstr "Temps de résolution"
 
@@ -172,11 +169,11 @@ msgstr "Portail Ticket"
 msgid "List of tickets"
 msgstr "Liste des tickets"
 
-#: templates/tickets/view_ticket.html:10
+#: templates/tickets/view_ticket.html:11
 msgid "Other information"
 msgstr "Informations Supplémentaires"
 
-#: templates/tickets/view_ticket.html:10
+#: templates/tickets/view_ticket.html:11
 msgid "Information"
 msgstr "Informations"
 
@@ -191,3 +188,6 @@ msgstr "Nombre de ticket(s) ouvert(s)"
 #: views/portal.py:21
 msgid "Percentage of closed tickets"
 msgstr "Pourcentage de tickets fermés"
+
+#~ msgid "Deletable"
+#~ msgstr "Supprimable"
