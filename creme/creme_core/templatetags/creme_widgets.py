@@ -45,6 +45,16 @@ def get_edit_button(context, entity, user):
            })
     return context
 
+@register.inclusion_tag('creme_core/templatetags/widgets/entity_actions.html', takes_context=True)
+def get_entity_actions(context, entity):
+    user = context['request'].user
+
+    context.update({
+            'id':      entity.id,
+            'actions': entity.get_actions(user),
+           })
+    return context
+
 @register.inclusion_tag('creme_core/templatetags/widgets/select_or_msg.html')
 def widget_select_or_msg(items, void_msg):
     return {'items': items, 'void_msg': void_msg}
