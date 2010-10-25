@@ -6,20 +6,28 @@
 <table  class="table_detail_view ui-corner-all" id={{block_name}}>
     <thead>
         <tr>
-            <th colspan="2" align="left" class="collapser">
-                {% blocktrans with relation_type.predicate as predicate %}Entities related to: {{predicate}}{% endblocktrans %}
+            <th colspan="2">
+                <table>
+                    <tbody>
+                        <tr>
+                            <th align="left" style="width: 80%;" class="collapser">
+                                {% blocktrans with relation_type.predicate as predicate %}Entities related to: {{predicate}}{% endblocktrans %}
+                            </th>
+                            <th style="width: 20%;" align="right">
+                                <div class="buttons">
+                                    <a class="add" onclick="creme.utils.innerPopupNReload('/creme_core/relation/add/{{object.id}}/{{relation_type.id}}', {% get_block_reload_uri %});">
+                                        <img src="{{MEDIA_URL}}images/add_22.png" border="0" title="{% trans "Link to existing entities" %}" alt="{% trans "Link to existing entities" %}" />
+                                        {% trans "Link to existing entities" %}
+                                    </a>
+                                </div>
+                            </th>
+                        </tr>
+                    </tbody>
+                </table>
             </th>
         </tr>
     </thead>
     <tbody class="collapsable">
-        <tr>
-            <th colspan="2" align="left" class="block_header_line_dark" style="font-size:14px;">
-                <a class="button_link" onclick="creme.utils.innerPopupNReload('/creme_core/relation/add/{{object.id}}/{{relation_type.id}}', {% get_block_reload_uri %});">
-                    <img src="{{MEDIA_URL}}images/add_22.png" border="0" title="{% trans "Link to existing entities" %}" alt="{% trans "Link to existing entities" %}" />
-                    {% trans "Link to existing entities" %}
-                </a>
-            </th>
-        </tr>
         {% if page.paginator.count %}
             <tr>
                 <th class="block_header_line_dark">{% trans "Name" %}</th>
@@ -38,7 +46,7 @@
             {% endfor %}
         {% else %}
             <tr>
-                <td class="block_line_dark">{% trans "No related entity for the moment" %}</td>
+                <td colspan="2" class="block_line_dark">{% trans "No related entity for the moment" %}</td>
             </tr>
         {% endif %}
     </tbody>

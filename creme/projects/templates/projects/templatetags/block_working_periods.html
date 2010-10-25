@@ -3,24 +3,28 @@
 <table class="table_detail_view ui-corner-all" id={{block_name}}>
     {% include "creme_core/templatetags/widgets/block_header_beg.html" %}
         <th style="width: 80%;" class="collapser" align="left">{% get_block_title  _('%s Working period') _('%s Working periods') 'project_48.png' _('Periods') %}</th>
-        <th style="width: 20%;" align="right"></th>
-    {% include "creme_core/templatetags/widgets/block_header_end.html" %}
-    <tbody class="collapsable">
-        <tr>
-            <th colspan="11" class="block_header_line_dark" align="left">
+        <th style="width: 20%;" align="right">
+            <div class="buttons">
                 {% if object.is_alive %}
                     {% comment %}<a class="button_link" onclick="creme.utils.showInnerPopup('/projects/task/{{object.id}}/period/add', {'width' : 950});">{% endcomment %}
-                    <a class="button_link" onclick="creme.utils.innerPopupNReload('/projects/task/{{object.id}}/period/add', {% get_block_reload_uri %});">
+                    <a class="add" onclick="creme.utils.innerPopupNReload('/projects/task/{{object.id}}/period/add', {% get_block_reload_uri %});">
                         <img src="{{MEDIA_URL}}images/add_22.png" border="0" title="{% trans "New working period" %}" alt="{% trans "New working period" %}" />
                         {% trans "New working period" %}
                     </a>
-                {% else %}
-                    <em>
-                        {% blocktrans with object.status.name as status %}You can't add a working périod because this task is {{status}}{% endblocktrans %}
-                    </em>
                 {% endif %}
-            </th>
-        </tr>
+            </div>
+        </th>
+    {% include "creme_core/templatetags/widgets/block_header_end.html" %}
+    <tbody class="collapsable">
+        {% if not object.is_alive %}
+            <tr>
+                <th colspan="11" class="block_header_line_dark" align="left">
+                        <em>
+                            {% blocktrans with object.status.name as status %}You can't add a working périod because this task is {{status}}{% endblocktrans %}
+                        </em>
+                </th>
+            </tr>
+        {% endif %}
         {% if page.paginator.count %}
             <tr>
                 <th class="block_header_line_dark">{% trans "Between" %}</th>
