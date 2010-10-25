@@ -18,7 +18,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-import os
 from collections import defaultdict
 from logging import debug
 
@@ -37,12 +36,12 @@ from function_field import FunctionField
 
 
 class EntityAction(object):
-    def __init__(self, url, text, is_default=False, attrs=None, icon=None):
+    def __init__(self, url, text, is_allowed, attrs=None, icon=None):
         self.url = url
         self.text = text
-        self.is_default = is_default
         self.attrs = mark_safe(flatatt(attrs or {}))
-        self.icon = os.path.join(settings.MEDIA_URL, *icon) if icon and hasattr(icon, "__iter__") else None
+        self.icon = icon
+        self.is_allowed = is_allowed
 
 
 class _PrettyPropertiesField(FunctionField):
@@ -208,17 +207,13 @@ class CremeEntity(CremeAbstractEntity):
     def get_entity_summary(self):
         return escape(unicode(self))
 
-    def get_entity_actions(self):
-        ctx = {
-            'default_action': EntityAction(self.get_absolute_url(), ugettext(u"See"), True, icon=["images", "view_16.png"]),
-            'actions' : [
-                    EntityAction(self.get_edit_absolute_url(),   ugettext(u"Edit"),   icon=["images", "edit_16.png"]),
-                    EntityAction(self.get_delete_absolute_url(), ugettext(u"Delete"), icon=["images", "delete_16.png"], attrs={'class': 'confirm_delete'}),
-            ],
-            'id': self.id,
-            'MEDIA_URL': settings.MEDIA_URL,
-        }
-        return render_to_string("creme_core/frags/actions.html", ctx)
+    def get_actions(self, user): #TODO: improve icon/css class management....
+        return {
+                'default': EntityAction(self.get_absolute_url(), ugettext(u"See"), True, icon="view_16.png"),
+                'others':  [EntityAction(self.get_edit_absolute_url(),   ugettext(u"Edit"),   self.can_change(user), icon="edit_16.png"),
+                            EntityAction(self.get_delete_absolute_url(), ugettext(u"Delete"), self.can_delete(user), icon="delete_16.png", attrs={'class': 'confirm_delete'}),
+                           ]
+               }
 
     def get_custom_fields_n_values(self):
         cfields = CustomField.objects.filter(content_type=self.entity_type_id) #TODO: in a staticmethod of CustomField ??

@@ -26,6 +26,7 @@ from django.db import models
 from django import template
 from django.utils.safestring import mark_safe
 from django.utils.html import escape
+from django.contrib.contenttypes.models import ContentType
 
 from creme_core.models import CremeEntity
 from creme_core.models import fields
@@ -312,14 +313,26 @@ class TemplatizeNode(template.Node):
 #TODO: move to a 'creme_auth' file ??
 _haspermto_re = compile_re(r'(\w+) (.*?) as (\w+)')
 
-_perms_methods = {
-        'view':     'can_view',
-        'change':   'can_change',
-        'delete':   'can_delete',
+def _can_create(model, user):
+    ct = ContentType.objects.get_for_model(model)
+    return user.has_perm('%s.add_%s' % (ct.app_label, ct.model))
+
+_perms_funcs = {
+        'create': _can_create,
+        'view':   lambda entity, user: entity.can_view(user),
+        'change': lambda entity, user: entity.can_change(user),
+        'delete': lambda entity, user: entity.can_delete(user),
     }
 
 @register.tag(name="has_perm_to")
-def do_has_perm_to(parser, token):  #{% has_perm_to change action.creme_entity as has_perm %}
+def do_has_perm_to(parser, token):
+    """{% has_perm_to TYPE OBJECT as VAR %}
+    eg: {% has_perm_to change action.creme_entity as has_perm %}
+
+    TYPE: in ('create', 'view','change', 'delete')
+    OBJECT: must be a CremeEntity, for ('view','change', 'delete') types
+            and a class inheriting from CremeEntity for 'create'
+    """
     try:
         # Splitting by None == splitting by spaces.
         tag_name, arg = token.contents.split(None, 1)
@@ -332,18 +345,18 @@ def do_has_perm_to(parser, token):  #{% has_perm_to change action.creme_entity a
 
     perm_type, entity_path, var_name = match.groups()
 
-    perm_method = _perms_methods.get(perm_type)
-    if not perm_method:
+    perm_func = _perms_funcs.get(perm_type)
+    if not perm_func:
         raise template.TemplateSyntaxError, "%r invalid permission tag: %r" % (tag_name, perm_type)
 
     #TODO: don't attacks defaulttags but parser api ??
     entity_var = template.defaulttags.TemplateLiteral(parser.compile_filter(entity_path), entity_path)
 
-    return HasPermToNode(perm_method, entity_var, var_name)
+    return HasPermToNode(perm_func, entity_var, var_name)
 
 class HasPermToNode(template.Node):
-    def __init__(self, perm_method, entity_var, var_name):
-        self.perm_method = perm_method
+    def __init__(self, perm_func, entity_var, var_name):
+        self.perm_func = perm_func
         self.entity_var = entity_var
         self.var_name = var_name
 
@@ -351,10 +364,9 @@ class HasPermToNode(template.Node):
         return "<HasPermTo node>"
 
     def render(self, context):
-        var = self.entity_var.eval(context) #can raise template.VariableDoesNotExist...
-        perm_func = getattr(var, self.perm_method)
+        var  = self.entity_var.eval(context) #can raise template.VariableDoesNotExist...
         user = context['request'].user
 
-        context[self.var_name] = perm_func(user)
+        context[self.var_name] = self.perm_func(var, user)
 
         return ''
