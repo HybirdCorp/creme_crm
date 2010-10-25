@@ -7,10 +7,11 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-08-24 17:27+0200\n"
+"POT-Creation-Date: 2010-10-25 11:28+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -20,49 +21,53 @@ msgid "Media managers"
 msgstr "Gestionnaires des média"
 
 #: creme_core_register.py:34
+msgid "Portal"
+msgstr "Portail"
+
+#: creme_core_register.py:35
 msgid "Add an image"
 msgstr "Ajouter une image"
 
-#: creme_core_register.py:35
+#: creme_core_register.py:36
 msgid "All images"
 msgstr "Lister les images"
 
-#: populate.py:38
+#: populate.py:37
 msgid "Product image"
 msgstr "Image de produit"
 
-#: populate.py:39
+#: populate.py:38
 msgid "Organisation logo"
 msgstr "Logo de société"
 
-#: populate.py:40
+#: populate.py:39
 msgid "Contact photograph"
 msgstr "Photo de contact"
 
-#: populate.py:42
+#: populate.py:41
 msgid "Image view"
 msgstr "Vue d'Image"
 
-#: populate.py:44 models/image.py:36
+#: populate.py:43 models/image.py:36
 #: templates/media_managers/image_as_table.html:16
 msgid "Name"
 msgstr "Nom"
 
-#: populate.py:45 models/image.py:40 models/image.py:49
-#: templates/media_managers/portal.html:53
+#: populate.py:44 models/image.py:40 models/image.py:49
+#: templates/media_managers/portal.html:57
 msgid "Image"
 msgstr "Image"
 
-#: populate.py:46 models/image.py:37
+#: populate.py:45 models/image.py:37
 #: templates/media_managers/image_as_table.html:20
 msgid "Description"
 msgstr "Description"
 
-#: populate.py:47
+#: populate.py:46
 msgid "User"
 msgstr "Utilisateur"
 
-#: populate.py:48 models/image.py:42
+#: populate.py:47 models/image.py:42
 #: templates/media_managers/image_as_table.html:32
 msgid "Categories"
 msgstr "Catégories"
@@ -118,15 +123,15 @@ msgid "Go to the list"
 msgstr "Aller à la liste"
 
 #: templates/media_managers/portal.html:37
-#: templates/media_managers/portal.html:41
+#: templates/media_managers/portal.html:42
 msgid "Statistics"
 msgstr "Statistiques"
 
-#: templates/media_managers/portal.html:53
+#: templates/media_managers/portal.html:57
 msgid "Last added Images"
 msgstr "Dernières images ajoutées"
 
-#: templates/media_managers/portal.html:60
+#: templates/media_managers/portal.html:66
 msgid "See"
 msgstr "Voir"
 

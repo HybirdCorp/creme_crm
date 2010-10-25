@@ -7,10 +7,11 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-09-07 18:28+0200\n"
+"POT-Creation-Date: 2010-10-25 11:29+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -28,7 +29,7 @@ msgid "Linked Services"
 msgstr "Services liés"
 
 #: blocks.py:114
-#: templates/opportunities/templatetags/block_responsibles.html:7
+#: templates/opportunities/templatetags/block_responsibles.html:8
 msgid "Responsibles"
 msgstr "Chargés d'affaire'"
 
@@ -193,13 +194,13 @@ msgid "Opportunity view"
 msgstr "Vue d'Opportunité"
 
 #: populate.py:90 models/opportunity.py:50
-#: templates/opportunities/templatetags/block_contacts.html:19
-#: templates/opportunities/templatetags/block_invoices.html:24
-#: templates/opportunities/templatetags/block_products.html:19
-#: templates/opportunities/templatetags/block_quotes.html:24
-#: templates/opportunities/templatetags/block_responsibles.html:19
-#: templates/opportunities/templatetags/block_sales_orders.html:24
-#: templates/opportunities/templatetags/block_services.html:21
+#: templates/opportunities/templatetags/block_contacts.html:21
+#: templates/opportunities/templatetags/block_invoices.html:26
+#: templates/opportunities/templatetags/block_products.html:21
+#: templates/opportunities/templatetags/block_quotes.html:26
+#: templates/opportunities/templatetags/block_responsibles.html:21
+#: templates/opportunities/templatetags/block_sales_orders.html:26
+#: templates/opportunities/templatetags/block_services.html:23
 msgid "Name"
 msgstr "Nom"
 
@@ -215,11 +216,11 @@ msgstr "Phase de vente"
 msgid "Closing date"
 msgstr "Date de signature"
 
-#: forms/opportunity.py:41 templates/opportunities/view_opportunity.html:53
+#: forms/opportunity.py:41 templates/opportunities/view_opportunity.html:55
 msgid "Target organisation"
 msgstr "Société cible"
 
-#: forms/opportunity.py:42
+#: forms/opportunity.py:42 templates/opportunities/view_opportunity.html:64
 msgid "Concerned organisation"
 msgstr "Société concernée"
 
@@ -281,25 +282,25 @@ msgstr "Portail Opportunités"
 msgid "List of opportunities"
 msgstr "Liste des opportunités"
 
-#: templates/opportunities/view_opportunity.html:38
+#: templates/opportunities/view_opportunity.html:39
 msgid "Opportunity information"
 msgstr "Informations sur l'opportunité"
 
-#: templates/opportunities/view_opportunity.html:38
+#: templates/opportunities/view_opportunity.html:39
 msgid "Information"
 msgstr "Informations"
 
-#: templates/opportunities/templatetags/block_contacts.html:7
+#: templates/opportunities/templatetags/block_contacts.html:8
 #, python-format
 msgid "%s Contact linked to this opportunity"
 msgstr "%s Contact lié à cette opportunité"
 
-#: templates/opportunities/templatetags/block_contacts.html:7
+#: templates/opportunities/templatetags/block_contacts.html:8
 #, python-format
 msgid "%s Contacts linked to this opportunity"
 msgstr "%s Contacts liés à cette opportunité"
 
-#: templates/opportunities/templatetags/block_contacts.html:7
+#: templates/opportunities/templatetags/block_contacts.html:8
 msgid "Contacts"
 msgstr "Contacts"
 
@@ -310,31 +311,31 @@ msgstr "Contacts"
 msgid "Link to an existing contact"
 msgstr "Lier à un contact existant"
 
-#: templates/opportunities/templatetags/block_contacts.html:20
-#: templates/opportunities/templatetags/block_invoices.html:25
-#: templates/opportunities/templatetags/block_products.html:20
-#: templates/opportunities/templatetags/block_quotes.html:26
-#: templates/opportunities/templatetags/block_responsibles.html:20
-#: templates/opportunities/templatetags/block_sales_orders.html:25
-#: templates/opportunities/templatetags/block_services.html:22
+#: templates/opportunities/templatetags/block_contacts.html:22
+#: templates/opportunities/templatetags/block_invoices.html:27
+#: templates/opportunities/templatetags/block_products.html:22
+#: templates/opportunities/templatetags/block_quotes.html:28
+#: templates/opportunities/templatetags/block_responsibles.html:22
+#: templates/opportunities/templatetags/block_sales_orders.html:27
+#: templates/opportunities/templatetags/block_services.html:24
 msgid "Delete"
 msgstr "Supprimer"
 
-#: templates/opportunities/templatetags/block_contacts.html:33
+#: templates/opportunities/templatetags/block_contacts.html:35
 msgid "No linked contact for the moment"
 msgstr "Aucun contact lié pour le moment"
 
-#: templates/opportunities/templatetags/block_invoices.html:7
+#: templates/opportunities/templatetags/block_invoices.html:8
 #, python-format
 msgid "%s Generated Invoice"
 msgstr "%s Facture générée"
 
-#: templates/opportunities/templatetags/block_invoices.html:7
+#: templates/opportunities/templatetags/block_invoices.html:8
 #, python-format
 msgid "%s Generated Invoices"
 msgstr "%s Factures générées"
 
-#: templates/opportunities/templatetags/block_invoices.html:7
+#: templates/opportunities/templatetags/block_invoices.html:8
 msgid "Invoices"
 msgstr "Factures"
 
@@ -348,27 +349,27 @@ msgstr "Lier à une facture existante"
 msgid "Generate an invoice"
 msgstr "Générer une facture"
 
-#: templates/opportunities/templatetags/block_invoices.html:23
-#: templates/opportunities/templatetags/block_quotes.html:23
-#: templates/opportunities/templatetags/block_sales_orders.html:23
+#: templates/opportunities/templatetags/block_invoices.html:25
+#: templates/opportunities/templatetags/block_quotes.html:25
+#: templates/opportunities/templatetags/block_sales_orders.html:25
 msgid "Number"
 msgstr "Numéro"
 
-#: templates/opportunities/templatetags/block_invoices.html:41
+#: templates/opportunities/templatetags/block_invoices.html:43
 msgid "No invoice for the moment"
 msgstr "Aucune facture enregistrée pour le moment"
 
-#: templates/opportunities/templatetags/block_products.html:7
+#: templates/opportunities/templatetags/block_products.html:8
 #, python-format
 msgid "%s Related Product"
 msgstr "%s Produit concerné"
 
-#: templates/opportunities/templatetags/block_products.html:7
+#: templates/opportunities/templatetags/block_products.html:8
 #, python-format
 msgid "%s Related Products"
 msgstr "%s Produits concernés"
 
-#: templates/opportunities/templatetags/block_products.html:7
+#: templates/opportunities/templatetags/block_products.html:8
 msgid "Products"
 msgstr "Produits"
 
@@ -377,21 +378,21 @@ msgstr "Produits"
 msgid "Link to an existing product"
 msgstr "Lier à un produit existant"
 
-#: templates/opportunities/templatetags/block_products.html:33
+#: templates/opportunities/templatetags/block_products.html:35
 msgid "No related product for the moment"
 msgstr "Aucun produit concerné pour le moment"
 
-#: templates/opportunities/templatetags/block_quotes.html:7
+#: templates/opportunities/templatetags/block_quotes.html:8
 #, python-format
 msgid "%s Proposed Quote"
 msgstr "%s Devis proposé"
 
-#: templates/opportunities/templatetags/block_quotes.html:7
+#: templates/opportunities/templatetags/block_quotes.html:8
 #, python-format
 msgid "%s Proposed Quotes"
 msgstr "%s Devis proposés"
 
-#: templates/opportunities/templatetags/block_quotes.html:7
+#: templates/opportunities/templatetags/block_quotes.html:8
 msgid "Quotes"
 msgstr "Devis"
 
@@ -405,43 +406,43 @@ msgstr "Lier à un devis existant"
 msgid "Generate a new current quote"
 msgstr "Générer un nouveau devis courant"
 
-#: templates/opportunities/templatetags/block_quotes.html:25
+#: templates/opportunities/templatetags/block_quotes.html:27
 msgid "Current quote ?"
 msgstr "Devis courant ?"
 
-#: templates/opportunities/templatetags/block_quotes.html:40
+#: templates/opportunities/templatetags/block_quotes.html:42
 msgid "Become"
 msgstr "Le devenir"
 
-#: templates/opportunities/templatetags/block_quotes.html:51
+#: templates/opportunities/templatetags/block_quotes.html:53
 msgid "No quote for the moment"
 msgstr "Aucun devis enregistré pour le moment"
 
-#: templates/opportunities/templatetags/block_responsibles.html:7
+#: templates/opportunities/templatetags/block_responsibles.html:8
 #, python-format
 msgid "%s Responsible"
 msgstr "%s Chargé d'affaire"
 
-#: templates/opportunities/templatetags/block_responsibles.html:7
+#: templates/opportunities/templatetags/block_responsibles.html:8
 #, python-format
 msgid "%s Responsibles"
 msgstr "%s Chargés d'affaire"
 
-#: templates/opportunities/templatetags/block_responsibles.html:33
+#: templates/opportunities/templatetags/block_responsibles.html:35
 msgid "No responsible for the moment"
 msgstr "Aucun chargé d'affaire enregistré pour le moment"
 
-#: templates/opportunities/templatetags/block_sales_orders.html:7
+#: templates/opportunities/templatetags/block_sales_orders.html:8
 #, python-format
 msgid "%s Related Sales Order"
 msgstr "%s Bon de commande associé"
 
-#: templates/opportunities/templatetags/block_sales_orders.html:7
+#: templates/opportunities/templatetags/block_sales_orders.html:8
 #, python-format
 msgid "%s Related Sales Orders"
 msgstr "%s Bons de commande associés"
 
-#: templates/opportunities/templatetags/block_sales_orders.html:7
+#: templates/opportunities/templatetags/block_sales_orders.html:8
 msgid "Sales orders"
 msgstr "Bons de commande"
 
@@ -455,21 +456,21 @@ msgstr "Lier à un bon existant"
 msgid "Generate a new current salesorder"
 msgstr "Générer un nouveau Bon courant"
 
-#: templates/opportunities/templatetags/block_sales_orders.html:41
+#: templates/opportunities/templatetags/block_sales_orders.html:43
 msgid "No salesorder for the moment"
 msgstr "Aucun bon enregistré pour le moment"
 
-#: templates/opportunities/templatetags/block_services.html:9
+#: templates/opportunities/templatetags/block_services.html:10
 #, python-format
 msgid "%s Related Service"
 msgstr "%s Service concerné"
 
-#: templates/opportunities/templatetags/block_services.html:9
+#: templates/opportunities/templatetags/block_services.html:10
 #, python-format
 msgid "%s Related Services"
 msgstr "%s Services concernés"
 
-#: templates/opportunities/templatetags/block_services.html:9
+#: templates/opportunities/templatetags/block_services.html:10
 msgid "Service"
 msgstr "Service"
 
@@ -478,7 +479,7 @@ msgstr "Service"
 msgid "Link to an existing service"
 msgstr "Lier à un service existant"
 
-#: templates/opportunities/templatetags/block_services.html:35
+#: templates/opportunities/templatetags/block_services.html:37
 msgid "No related service for the moment"
 msgstr "Aucun service concerné pour le moment"
 
@@ -486,7 +487,7 @@ msgstr "Aucun service concerné pour le moment"
 msgid "Create a linked opportunity"
 msgstr "Créer une opportunité reliée"
 
-#: views/opportunity.py:107
+#: views/opportunity.py:99
 #, python-format
 msgid "Generated from the opportunity «%s»"
 msgstr "Générée depuis l'opportunité «%s»"

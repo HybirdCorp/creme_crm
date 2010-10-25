@@ -7,10 +7,11 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-09-29 18:06+0200\n"
+"POT-Creation-Date: 2010-10-25 11:28+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -85,17 +86,17 @@ msgstr "Télécharger '%(object)s' sous forme de fichier PNG"
 msgid "Download PNG"
 msgstr "Télécharger PNG"
 
-#: templates/graphs/templatetags/block_orbital_rtypes.html:4
+#: templates/graphs/templatetags/block_orbital_rtypes.html:5
 #, python-format
 msgid "%s Periperal type of relation"
 msgstr "%s Type de relation périphérique"
 
-#: templates/graphs/templatetags/block_orbital_rtypes.html:4
+#: templates/graphs/templatetags/block_orbital_rtypes.html:5
 #, python-format
 msgid "%s Periperal types of relation"
 msgstr "%s Types de relations périphériques"
 
-#: templates/graphs/templatetags/block_orbital_rtypes.html:4
+#: templates/graphs/templatetags/block_orbital_rtypes.html:5
 msgid "Periperal relation types"
 msgstr "Types de relation périphériques"
 
@@ -107,29 +108,29 @@ msgstr "Ajouter des types de relation"
 msgid "Add some existing types of relation"
 msgstr "Ajouter des types de relation existants"
 
-#: templates/graphs/templatetags/block_orbital_rtypes.html:16
+#: templates/graphs/templatetags/block_orbital_rtypes.html:18
 msgid "Type of relation"
 msgstr "Type de relation"
 
-#: templates/graphs/templatetags/block_orbital_rtypes.html:17
+#: templates/graphs/templatetags/block_orbital_rtypes.html:19
 msgid "Delete"
 msgstr "Supprimer"
 
-#: templates/graphs/templatetags/block_orbital_rtypes.html:30
+#: templates/graphs/templatetags/block_orbital_rtypes.html:32
 msgid "No type of relation for the moment"
 msgstr "Pas de type de relation pour le moment"
 
-#: templates/graphs/templatetags/block_root_nodes.html:5
+#: templates/graphs/templatetags/block_root_nodes.html:6
 #, python-format
 msgid "%s Root node"
 msgstr "%s Nœud racine"
 
-#: templates/graphs/templatetags/block_root_nodes.html:5
+#: templates/graphs/templatetags/block_root_nodes.html:6
 #, python-format
 msgid "%s Root nodes"
 msgstr "%s Nœuds racines"
 
-#: templates/graphs/templatetags/block_root_nodes.html:5
+#: templates/graphs/templatetags/block_root_nodes.html:6
 msgid "Root nodes"
 msgstr "Nœuds racines"
 
@@ -141,35 +142,35 @@ msgstr "Ajouter des nœuds racines"
 msgid "Add root nodes from existing entities"
 msgstr "Ajouter des nœuds racines depuis des entités existantes"
 
-#: templates/graphs/templatetags/block_root_nodes.html:18
+#: templates/graphs/templatetags/block_root_nodes.html:20
 msgid "Entity"
 msgstr "Entité"
 
-#: templates/graphs/templatetags/block_root_nodes.html:19
+#: templates/graphs/templatetags/block_root_nodes.html:21
 msgid "Types of relation"
 msgstr "Types de relation"
 
-#: templates/graphs/templatetags/block_root_nodes.html:20
+#: templates/graphs/templatetags/block_root_nodes.html:22
 msgid "Actions"
 msgstr "Actions"
 
-#: templates/graphs/templatetags/block_root_nodes.html:29
+#: templates/graphs/templatetags/block_root_nodes.html:31
 msgid "No type of relation"
 msgstr "Pas de type de relation"
 
-#: templates/graphs/templatetags/block_root_nodes.html:33
+#: templates/graphs/templatetags/block_root_nodes.html:35
 msgid "Edit"
 msgstr "Éditer"
 
-#: templates/graphs/templatetags/block_root_nodes.html:41
+#: templates/graphs/templatetags/block_root_nodes.html:43
 msgid "No root node for the moment"
 msgstr "Pas de nœud racine pour le moment"
 
-#: views/graph.py:57
+#: views/graph.py:53
 msgid "This graph is too big!"
 msgstr "Ce graphique est trop gros!"
 
-#: views/graph.py:75
+#: views/graph.py:71
 #, python-format
 msgid "Add relation types to <%s>"
 msgstr "Ajouter des types de relation à <%s>"
@@ -178,7 +179,7 @@ msgstr "Ajouter des types de relation à <%s>"
 msgid "Number of graphs"
 msgstr "Nombre de graphe(s)"
 
-#: views/root_node.py:92
+#: views/root_node.py:87
 #, python-format
 msgid "Edit root node for <%s>"
 msgstr "Éditer le nœud racine pour <%s>"
