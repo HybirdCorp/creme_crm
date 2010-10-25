@@ -4,10 +4,7 @@
 {% load creme_block %}
 
 {% block block_header %}
-    {% include "creme_core/templatetags/widgets/block_header_beg.html" %}
-        <th style="width: 80%;" class="collapser" align="left">{% get_block_title _("%s Manager") _("%s Managers") 'contacts_48.png' _('Managers') %}</th>
-        <th style="width: 20%;" align="right"></th>
-    {% include "creme_core/templatetags/widgets/block_header_end.html" %}
+    {% get_block_title _("%s Manager") _("%s Managers") 'contacts_48.png' _('Managers') %}
 {% endblock %}
 
 {% block add_title %}{% trans "Create a manager" %}{% endblock %}
