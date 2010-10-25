@@ -1,6 +1,5 @@
 {% load i18n %}
-{% load creme_core_tags %}
-{% load creme_listview %}
+{% load creme_core_tags %}{% load creme_widgets %}{% load creme_listview %}
 
 {% with header_filters.selected.items as columns %}
 
@@ -43,15 +42,18 @@
         <tr id="list_thead_toolbar" class="toolbar">
             <th colspan="{{colspan}}">
                 {% if not is_popup_view %}
-                    {% if add_url %}
+                    {% has_perm_to create model as creation_perm %}
+                    {% if add_url and creation_perm %}
                         <a href="{{add_url}}"><img border="0" src="{{MEDIA_URL}}images/add_22.png" alt="{% trans "New" %}" title="{% trans "New" %}"/>{% trans "New" %}</a>
                     {% endif %}
                     <a href="/creme_core/list_view/dl_csv/{{content_type_id}}?list_url={{request.path}}">
                         <img border="0" src="{{MEDIA_URL}}images/document_csv_22.png" alt="{% trans "Download CSV" %}" title="{% trans "Download CSV" %}"/>{% trans "Download CSV" %}
                     </a>&nbsp;
-                    <a href="/creme_core/list_view/import_csv/{{content_type_id}}?list_url={{request.path}}">
-                        <img border="0" src="{{MEDIA_URL}}images/document_csv_22.png" alt="{% trans "Import CSV" %}" title="{% trans "Import CSV" %}"/>{% trans "Import CSV" %}
-                    </a>&nbsp;
+                    {% if creation_perm %}
+                        <a href="/creme_core/list_view/import_csv/{{content_type_id}}?list_url={{request.path}}">
+                            <img border="0" src="{{MEDIA_URL}}images/document_csv_22.png" alt="{% trans "Import CSV" %}" title="{% trans "Import CSV" %}"/>{% trans "Import CSV" %}
+                        </a>&nbsp;
+                    {% endif %}
                     <a onclick="creme.utils.multiDeleteFromListView('form[name=list_view_form]', '/creme_core/delete_js');">
                         <img border="0" src="{{MEDIA_URL}}images/delete_22.png" alt="{% trans "Multiple deletion" %}" title="{% trans "Multiple deletion" %}"/>{% trans "Multiple deletion" %}
                     </a>&nbsp;
@@ -104,7 +106,7 @@
                 </td>
                 {% for column in columns %}
                     {% if not column.type %}
-                        <td title="actions" class="list_view_actions">{{entity.get_entity_actions|safe}}</td>
+                        <td title="actions" class="list_view_actions">{% get_entity_actions entity %}</td>
                     {% else %}
                         <td title="" name="{{column.name}}" {% if column.is_hidden %}style="display:none;"{% endif %}>{% if column.is_hidden %}{{column|hf_get_html_output:entity|safe}}{% else %}{{column|hf_get_html_output:entity|safe|linebreaks}}{% endif %}</td>
                     {% endif %}

@@ -37,8 +37,8 @@ from django.utils.translation import ugettext_lazy as _, ugettext
 from django.conf import settings
 from django.core.mail import EmailMultiAlternatives
 from django.db import IntegrityError
-from django.utils.safestring import mark_safe
-from django.forms.util import flatatt
+#from django.utils.safestring import mark_safe
+#from django.forms.util import flatatt
 from django.template.loader import render_to_string
 
 from creme_core.models import CremeModel, CremeEntity, Relation
@@ -114,7 +114,7 @@ class _Email(CremeModel):
         img_cache = {}
 
         if mail.status == MAIL_STATUS_SENT:
-            error('Mail already sent to the recipient')
+            error('Mail already sent to the recipient') #i18n ?
             return
 
         body = mail.body
@@ -201,15 +201,13 @@ class EntityEmail(_Email, CremeEntity):
     def get_delete_absolute_url(self):
         return u"/emails/entitymail/delete/%s" % self.id
 
-    def get_entity_actions(self):
-        ctx = {
-            'actions' : [
-                    (self.get_absolute_url(),        ugettext(u"See"),    mark_safe(flatatt({})), "%s/images/view_16.png" % settings.MEDIA_URL),
-                    (self.get_delete_absolute_url(), ugettext(u"Delete"), mark_safe(flatatt({'class': 'confirm_delete'})), "%s/images/delete_16.png"  % settings.MEDIA_URL)
-            ],
-            'id': self.id,
-        }
-        return render_to_string("creme_core/frags/actions.html", ctx)
-#        return u"""<a href="%s">Voir</a> | <a href="%s" onclick="creme.utils.confirmDelete(event, this);">Effacer</a>""" \
-#                % (self.get_absolute_url(), self.get_delete_absolute_url())
-
+    #COMMENTED on 25 oct 2010
+    #def get_entity_actions(self):
+        #ctx = {
+            #'actions' : [
+                    #(self.get_absolute_url(),        ugettext(u"See"),    mark_safe(flatatt({})), "%s/images/view_16.png" % settings.MEDIA_URL),
+                    #(self.get_delete_absolute_url(), ugettext(u"Delete"), mark_safe(flatatt({'class': 'confirm_delete'})), "%s/images/delete_16.png"  % settings.MEDIA_URL)
+            #],
+            #'id': self.id,
+        #}
+        #return render_to_string("creme_core/frags/actions.html", ctx)
