@@ -26,7 +26,7 @@ from creme_core.gui.menu import creme_menu
 from products.models import Product, Service
 
 
-creme_registry.register_app('products', _(u'Products et services'), '/products')
+creme_registry.register_app('products', _(u'Products and services'), '/products')
 creme_registry.register_entity_models(Product, Service)
 
 creme_menu.register_app('products', '/products/', 'Produits et Services')
