@@ -34,7 +34,7 @@ from persons.forms.quick import ContactQuickForm, OrganisationQuickForm
 
 
 creme_registry.register_entity_models(Contact, Organisation)
-creme_registry.register_app('persons', _(u'Accounts and Contact'), '/persons')
+creme_registry.register_app('persons', _(u'Accounts and Contacts'), '/persons')
 
 creme_menu.register_app('persons', '/persons/', 'Comptes et contacts')
 reg_menu = creme_menu.register_menu

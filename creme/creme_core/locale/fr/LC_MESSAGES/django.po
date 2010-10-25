@@ -974,7 +974,7 @@ msgid "%s Property"
 msgstr "%s Propriété"
 
 #: templates/creme_core/templatetags/block_properties.html:5
-msgid "% Properties"
+msgid "%s Properties"
 msgstr "%s Propriétés"
 
 #: templates/creme_core/templatetags/block_properties.html:9

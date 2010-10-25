@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-08-25 15:55+0200\n"
+"POT-Creation-Date: 2010-10-25 09:32+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -16,147 +16,151 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 
 #: creme_core_register.py:29
-msgid "Products et services"
+msgid "Products and services"
 msgstr "Produits et services"
 
 #: creme_core_register.py:34
+msgid "Portal"
+msgstr "Portail"
+
+#: creme_core_register.py:35
 msgid "All products"
 msgstr "Lister les produits"
 
-#: creme_core_register.py:35
+#: creme_core_register.py:36
 msgid "Add a product"
 msgstr "Ajouter un produit"
 
-#: creme_core_register.py:36
+#: creme_core_register.py:37
 msgid "All services"
 msgstr "Lister les services"
 
-#: creme_core_register.py:37
+#: creme_core_register.py:38
 msgid "Add a service"
 msgstr "Ajouter un service"
 
-#: populate.py:39
+#: populate.py:38
 msgid "Product view"
 msgstr "Vue de Produit"
 
-#: populate.py:41 populate.py:48 forms/product.py:40 forms/service.py:33
+#: populate.py:40 populate.py:47 forms/product.py:39 forms/service.py:33
 #: models/product.py:45 models/service.py:43
 msgid "Images"
 msgstr "Images"
 
-#: populate.py:42 populate.py:49 models/product.py:35 models/service.py:34
+#: populate.py:41 populate.py:48 models/product.py:35 models/service.py:34
 msgid "Name"
 msgstr "Nom"
 
-#: populate.py:43 models/product.py:36
+#: populate.py:42 models/product.py:36
 msgid "Code"
 msgstr "Code"
 
-#: populate.py:44 populate.py:51
+#: populate.py:43 populate.py:50
 msgid "User"
 msgstr "Utilisateur"
 
-#: populate.py:46
+#: populate.py:45
 msgid "Service view"
 msgstr "Vue de Service"
 
-#: populate.py:50 models/service.py:36
+#: populate.py:49 models/service.py:36
 msgid "Reference"
 msgstr "Référence"
 
-#: populate.py:55
+#: populate.py:54
 msgid "Category 1"
 msgstr "Catégorie 1"
 
-#: populate.py:55
+#: populate.py:54
 msgid "Description of 'category 1'"
 msgstr "Description de 'catégorie 1'"
 
-#: populate.py:56
+#: populate.py:55
 msgid "Category 2"
 msgstr "Catégorie 2"
 
-#: populate.py:56
+#: populate.py:55
 msgid "Description of 'category 2'"
 msgstr "Description de 'catégorie 2'"
 
-#: populate.py:58
+#: populate.py:57
 msgid "Cooking"
 msgstr "Cuisine"
 
-#: populate.py:58
+#: populate.py:57
 msgid "Items for the kitchen"
 msgstr "Articles pour la cuisine"
 
-#: populate.py:59
+#: populate.py:58
 msgid "Fruit/vegetables"
 msgstr "Primeurs"
 
-#: populate.py:59
+#: populate.py:58
 msgid "Early fruit and vegetables"
 msgstr "Fruits, légumes, ..."
 
-#: populate.py:60
+#: populate.py:59
 msgid "Informatic"
 msgstr "Informatique"
 
-#: populate.py:60
+#: populate.py:59
 msgid "Geeks' sideline"
 msgstr "La gamme des geeks"
 
-#: populate.py:62
+#: populate.py:61
 msgid "Oven"
 msgstr "Four"
 
-#: populate.py:62
+#: populate.py:61
 msgid "Gas oven"
 msgstr "Four à gaz"
 
-#: populate.py:63
+#: populate.py:62
 msgid "Pans"
 msgstr "Casseroles"
 
-#: populate.py:63
+#: populate.py:62
 msgid "To cook"
 msgstr "Pour faire la cuisine"
 
-#: populate.py:64
+#: populate.py:63
 msgid "Laptops"
 msgstr "Portables"
 
-#: populate.py:64
+#: populate.py:63
 msgid "Laptops, netbooks"
 msgstr "Les PC portables"
 
-#: populate.py:65
+#: populate.py:64
 msgid "Desktops"
 msgstr "Bureau"
 
-#: populate.py:65
+#: populate.py:64
 msgid "Home computers"
 msgstr "Les PC de salon"
 
-#: populate.py:66
+#: populate.py:65
 msgid "Accessories"
 msgstr "Accessoires"
 
-#: populate.py:66
+#: populate.py:65
 msgid "Accessories for desktops/laptops"
 msgstr "Accessoires pour PC fixes/portables"
 
-#: populate.py:67
+#: populate.py:66
 msgid "Fruits"
 msgstr "Fruits"
 
-#: populate.py:67
+#: populate.py:66
 msgid "Bananas, apples..."
 msgstr "Bananes, pommes..."
 
-#: populate.py:68
+#: populate.py:67
 msgid "Vegetables"
 msgstr "Légumes"
 
-#: populate.py:68
+#: populate.py:67
 msgid "Carrots, potatoes..."
 msgstr "Carottes, patates..."
 
@@ -164,7 +168,7 @@ msgstr "Carottes, patates..."
 msgid "Category"
 msgstr "Catégorie"
 
-#: forms/product.py:38 models/product.py:44
+#: forms/product.py:37 models/product.py:44
 msgid "Sub-category"
 msgstr "Sous-catégorie"
 
@@ -261,7 +265,7 @@ msgstr "Portail Produits & Services"
 msgid "List of products"
 msgstr "Liste des produits"
 
-#: views/ajax.py:46
+#: views/ajax.py:47
 msgid "Choose a category"
 msgstr "Choisissez une catégorie"
 

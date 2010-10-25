@@ -2,7 +2,7 @@
 {% load creme_core_tags %}{% load creme_block %}
 <table class="table_detail_view ui-corner-all" id={{block_name}}>
     {% include "creme_core/templatetags/widgets/block_header_beg.html" %}
-        <th style="width: 80%;" class="collapser" align="left">{% get_block_title _('%s Property') _('% Properties') 'property_48.png' _('Property') %}</th>
+        <th style="width: 80%;" class="collapser" align="left">{% get_block_title _('%s Property') _('%s Properties') 'property_48.png' _('Property') %}</th>
         <th style="width: 20%;" align="right">
             <div class="buttons">
                 {% has_perm_to change object as has_perm %}
