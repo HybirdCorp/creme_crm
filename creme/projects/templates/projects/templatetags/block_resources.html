@@ -3,23 +3,27 @@
 <table class="table_detail_view ui-corner-all" id={{block_name}}>
     {% include "creme_core/templatetags/widgets/block_header_beg.html" %}
         <th style="width: 80%;" class="collapser" align="left">{% get_block_title  _('%s Resource assigned to this Task') _('%s Resources assigned to this Task') 'contacts_48.png' _('Resource') %}</th>
-        <th style="width: 20%;" align="right"></th>
-    {% include "creme_core/templatetags/widgets/block_header_end.html" %}
-    <tbody class="collapsable">
-        <tr>
-            <th colspan="11" class="block_header_line_dark" align="left">
+        <th style="width: 20%;" align="right">
+            <div class="buttons">
                 {% if object.is_alive %}
-                    <a class="button_link" onclick="creme.utils.innerPopupNReload('/projects/task/{{object.id}}/resource/add', {% get_block_reload_uri %});">
+                    <a class="add" onclick="creme.utils.innerPopupNReload('/projects/task/{{object.id}}/resource/add', {% get_block_reload_uri %});">
                         <img src="{{MEDIA_URL}}images/add_22.png" border="0" title="{% trans "Add a resource" %}" alt="{% trans "Add a resource" %}" />
                         {% trans "Add a resource from an existing contact" %}
                     </a>
-                {% else %}
+                {% endif %}
+            </div>
+        </th>
+    {% include "creme_core/templatetags/widgets/block_header_end.html" %}
+    <tbody class="collapsable">
+        {% if not object.is_alive %}
+            <tr>
+                <th colspan="11" class="block_header_line_dark" align="left">
                     <em>
                         {% blocktrans with object.status.name as status %}You can't add a resource because this task is {{status}}{% endblocktrans %}
                     </em>
-                {% endif %}
-            </th>
-        </tr>
+                </th>
+            </tr>
+        {% endif %}
         {% if page.paginator.count %}
             <tr>
                 <th class="block_header_line_dark">{% trans "Contact" %}</th>

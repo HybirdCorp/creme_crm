@@ -6,22 +6,22 @@
 </script>
 
 <table  class="table_detail_view ui-corner-all" id={{block_name}}>
-    {% block block_header %}
-        <thead><tr><th>PEOPLE BLOCK</th></tr></thead>
-    {% endblock %}
-    <tbody class="collapsable">
-        <tr>
-            <th colspan="5" class="block_header_line_dark" align="left">
-                <a class="button_link" onclick="creme.relations.handleAddFromPredicateEntity('/creme_core/relation/add/from/predicate/{{predicate_id}}/entity/{{object.id}}/{{ct_id}}', '{{predicate_id}}', '{{object.id}}', {% get_block_reload_uri %});">
-                    <img src="{{MEDIA_URL}}images/relations_22.png" border="0" title="{% trans "Link to an existing contact" %}" alt="{% trans "Link to an existing contact" %}" />
-                    {% trans "Link to an existing contact" %}
-                </a>
-                <a class="button_link" href="/persons/contact/add_with_relation/{{object.pk}}/{{predicate_id}}?callback_url=" onclick="this.href+=window.location.href">
+    {% include "creme_core/templatetags/widgets/block_header_beg.html" %}
+        <th style="width: 80%;" class="collapser" align="left">{% block block_header %}{% endblock %}</th>
+        <th style="width: 20%;" align="right">
+            <div class="buttons">
+                <a class="add" href="/persons/contact/add_with_relation/{{object.pk}}/{{predicate_id}}?callback_url=" onclick="this.href+=window.location.href">
                     <img src="{{MEDIA_URL}}images/add_22.png" border="0" title="{% trans "Create a contact" %}" alt="{% trans "Create a contact" %}" />
                     {% block add_title %}{% trans "Create a contact" %}{% endblock %}
                 </a>
-            </th>
-        </tr>
+                <a class="link" onclick="creme.relations.handleAddFromPredicateEntity('/creme_core/relation/add/from/predicate/{{predicate_id}}/entity/{{object.id}}/{{ct_id}}', '{{predicate_id}}', '{{object.id}}', {% get_block_reload_uri %});">
+                    <img src="{{MEDIA_URL}}images/relations_22.png" border="0" title="{% trans "Link to an existing contact" %}" alt="{% trans "Link to an existing contact" %}" />
+                    {% trans "Link to an existing contact" %}
+                </a>
+            </div>
+        </th>
+    {% include "creme_core/templatetags/widgets/block_header_end.html" %}
+    <tbody class="collapsable">
         {% if page.paginator.count %}
             <tr>
                 <th class="block_header_line_dark">{% trans "Name" %}</th>

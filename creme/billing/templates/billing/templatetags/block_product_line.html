@@ -30,18 +30,15 @@
             );
         }
     </script>
-    {% include "creme_core/templatetags/widgets/block_header_beg.html" %}
-        <th style="width: 80%;" class="collapser" align="left">{% get_block_title _('%s related Product') _('%s related Products') 'product_48.png' _('Product') %}</th>
-        <th style="width: 20%;" align="right"></th>
-    {% include "creme_core/templatetags/widgets/block_header_end.html" %}
+    {% get_block_title _('%s related Product') _('%s related Products') 'product_48.png' _('Product') %}
 {% endblock %}
 
 {% block add_buttons %}
-    <a class="button_link" onclick="creme.utils.innerPopupNReload('/billing/{{object.id}}/product_line/add', {% get_block_reload_uri %});">
+    <a class="add" onclick="creme.utils.innerPopupNReload('/billing/{{object.id}}/product_line/add', {% get_block_reload_uri %});">
         <img src="{{MEDIA_URL}}images/add_22.png" border="0" title="{% trans "Add a product" %}" alt="{% trans "Add a product" %}" />
         {% trans "Add from an existing Product" %}
     </a>
-    <a class="button_link" onclick="creme.utils.innerPopupNReload('/billing/{{object.id}}/product_line/add_on_the_fly', {% get_block_reload_uri %});">
+    <a class="add" onclick="creme.utils.innerPopupNReload('/billing/{{object.id}}/product_line/add_on_the_fly', {% get_block_reload_uri %});">
         <img src="{{MEDIA_URL}}images/add_22.png" border="0" title="{% trans "Add a product" %}" alt="{% trans "Add a product" %}" />
         {% trans "Add a line on the fly" %}
     </a>
