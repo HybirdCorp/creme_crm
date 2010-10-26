@@ -28,7 +28,9 @@ from django.utils.translation import ugettext as _
 from django.utils.encoding import force_unicode
 from django.utils.simplejson.encoder import JSONEncoder
 from django.utils.safestring import mark_safe
+from django.utils.formats import date_format
 from django.conf import settings
+
 #from django.template.loader import render_to_string
 
 
@@ -337,26 +339,47 @@ class TimeWidget(TextInput):
 
 
 class CalendarWidget(TextInput):
+    is_localized = True
+    default_help_text = settings.DATE_FORMAT_VERBOSE
+
     def render(self, name, value, attrs=None):
         #be carefull: JS and python date format should be equal (here: date == "yy-mm-dd")
         if isinstance(value, datetime):
+            self.default_help_text = settings.DATETIME_FORMAT_VERBOSE
             value = value.date()
 
+#        value = date_format(value, 'DATE_FORMAT') if value is not None else None
         attrs = self.build_attrs(attrs, name=name)
-        
+
+        date_format_js = settings.DATE_FORMAT_JS.get(settings.DATE_FORMAT)
+        dates_js = {
+            'dd': 'd.getDate()',
+            'mm': '(d.getMonth()+1)',
+            'yy': 'd.getFullYear()',
+        }
+
+        cmd_js = []
+        for f in date_format_js.split(settings.DATE_FORMAT_JS_SEP):
+            cmd_js.append(dates_js.get(f))
+
         html_output = """
+            %(help_text)s
+            <br/>
             %(input)s
-            <button type="button" onclick="d=new Date();$('#%(id)s').val(d.getFullYear() + '-' + (d.getMonth()+1) + '-' + d.getDate());">
+            <button type="button" onclick="d=new Date();$('#%(id)s').val(%(today_js)s);">
                 %(today_label)s
             </button>
             <script type="text/javascript">
-                $("#%(id)s").datepicker({dateFormat: "yy-mm-dd", showOn: "button", buttonImage: "%(MEDIA_URL)s/images/icon_calendar.gif", buttonImageOnly: true });
+                $("#%(id)s").datepicker({dateFormat: "%(date_format_js)s", showOn: "button", buttonImage: "%(MEDIA_URL)s/images/icon_calendar.gif", buttonImageOnly: true });
             </script>
             """ % {
-                    'input':        super(CalendarWidget, self).render(name, value, attrs),
-                    'id':           attrs['id'],
-                    'MEDIA_URL':    settings.MEDIA_URL,
-                    'today_label':  _(u"Today"),
+                    'input':          super(CalendarWidget, self).render(name, value, attrs),
+                    'id':             attrs['id'],
+                    'MEDIA_URL':      settings.MEDIA_URL,
+                    'today_label':    _(u"Today"),
+                    'date_format_js': date_format_js,
+                    'today_js':       ("+'%s'+" % settings.DATE_FORMAT_JS_SEP).join(cmd_js),
+                    'help_text':      _(u'%s') % (self.help_text if self.help_text not in ('', u'', None) else self.default_help_text)
                   }
 
         return mark_safe(html_output)

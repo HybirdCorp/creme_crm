@@ -26,6 +26,7 @@ from django.db import models
 from django import template
 from django.utils.safestring import mark_safe
 from django.utils.html import escape
+from django.utils.formats import date_format
 from django.contrib.contenttypes.models import ContentType
 
 from creme_core.models import CremeEntity
@@ -109,15 +110,20 @@ def print_urlfield(x):
     esc_x = escape(x)
     return '<a href="%s" target="_blank">%s</a>' % (esc_x, esc_x)
 
+def print_datetime(x):
+    return date_format(x, 'DATETIME_FORMAT') if x else ''
+
+def print_date(x):
+    return date_format(x, 'DATE_FORMAT') if x else ''
+
 #TODO: remove all avlue with simple_print => classes.get(KEY, simple_print) ??
 classes = {
      models.AutoField:                  simple_print,
      models.BooleanField:               lambda x: '<input type="checkbox" value="%s" %s disabled/>' % (escape(x), 'checked' if x else ''),
      models.CharField:                  simple_print,
      models.CommaSeparatedIntegerField: simple_print,
-     models.DateField:                  lambda x: x.strftime('%d/%m/%Y') if x else '',
-     models.DateTimeField:              lambda x: x.strftime('%d/%m/%Y %H:%M') if x else '',
-#     models.DateTimeField:              simple_print,
+     models.DateField:                  print_date,
+     models.DateTimeField:              print_datetime,
      models.DecimalField:               simple_print,
      models.EmailField:                 simple_print,
      models.FileField:                  simple_print,
@@ -139,8 +145,8 @@ classes = {
      models.ManyToManyField:            get_m2m_popup_str,
      models.OneToOneField:              get_foreign_key_popup_str,
 
-     fields.ModificationDateTimeField:  simple_print,
-     fields.CreationDateTimeField :     simple_print,
+     fields.ModificationDateTimeField:  print_datetime,
+     fields.CreationDateTimeField :     print_datetime,
      #fields.AutoSlugField:              simple_print,
 }
 
