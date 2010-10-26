@@ -362,6 +362,11 @@ class CalendarWidget(TextInput):
         for f in date_format_js.split(settings.DATE_FORMAT_JS_SEP):
             cmd_js.append(dates_js.get(f))
 
+        if hasattr(self, 'help_text') and self.help_text not in ('', u'', None):
+            help_text = _(u'%s') % (self.help_text,)
+        else:
+            help_text = _(u'%s') % (self.default_help_text)
+
         html_output = """
             %(help_text)s
             <br/>
@@ -379,7 +384,7 @@ class CalendarWidget(TextInput):
                     'today_label':    _(u"Today"),
                     'date_format_js': date_format_js,
                     'today_js':       ("+'%s'+" % settings.DATE_FORMAT_JS_SEP).join(cmd_js),
-                    'help_text':      _(u'%s') % (self.help_text if self.help_text not in ('', u'', None) else self.default_help_text)
+                    'help_text':      help_text
                   }
 
         return mark_safe(html_output)
