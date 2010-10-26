@@ -48,9 +48,7 @@ from emails.models import LightWeightEmail
 def view_lightweight_mail(request, mail_id):
     email = get_object_or_404(LightWeightEmail, pk=mail_id)
 
-    #die_status = read_object_or_die(request, email)
-    #if die_status:
-        #return die_status
+    #TODO: disable the link in the template in not allowed
     email.sending.campaign.can_view_or_die(request.user)
 
     template = "emails/view_email.html"
@@ -99,6 +97,7 @@ def set_emails_status(request, status):
 @permission_required('emails')
 def delete(request):
     #TODO: There no verifications because email is not a CremeEntity!!!
+    #TODO: regroup queries
     for id in _retrieve_emails_ids(request):
         email = get_object_or_404(EntityEmail, pk=id)
         email.delete()
@@ -128,8 +127,8 @@ def reload_sync_blocks(request):
     waiting_block = WaitingSynchronizationMailsBlock()
     spam_block    = SpamSynchronizationMailsBlock()
     ctx = RequestContext(request)
-    return [(waiting_block.id_,waiting_block.detailview_display(ctx)),
-            (spam_block.id_,spam_block.detailview_display(ctx))
+    return [(waiting_block.id_, waiting_block.detailview_display(ctx)),
+            (spam_block.id_, spam_block.detailview_display(ctx))
             ]
 
 ## END SYNCHRO PART ##
