@@ -46,7 +46,7 @@ def change_password(request, user_id):
     else:
         entity_form = UserChangePwForm(initial={'user': user})
 
-    return render_to_response('creme_config/users/add_user.html',
+    return render_to_response('creme_core/generics/form/edit.html',
                               {'form': entity_form},
                               context_instance=RequestContext(request))
 
