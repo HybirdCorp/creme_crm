@@ -66,7 +66,7 @@ def view_lightweight_mail(request, mail_id):
     return render_to_response(template, ctx_dict,
                               context_instance=RequestContext(request))
 
-
+#TODO: credentials (don't forget templates)
 ## SYNCHRO PART ##
 @login_required
 def synchronisation(request):

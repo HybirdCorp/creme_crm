@@ -145,7 +145,7 @@ class ProjectsTestCase(TestCase):
 
         return task
 
-    def test_resource_n_period_createview01(self):
+    def test_resource_n_period01(self): #createviews
         self.login()
 
         project = self.create_project('Eva02')[0]
@@ -187,5 +187,62 @@ class ProjectsTestCase(TestCase):
         self.assertEqual(8,   project.get_effective_duration())
         self.assertEqual(800, project.get_project_cost()) #8 * 100
         self.assertEqual(0,   project.get_delay())
+
+    def test_resource_n_period02(self): #editviews
+        self.login()
+
+        project  = self.create_project('Eva02')[0]
+        task     = self.create_task(project, 'arms')
+        worker   = Contact.objects.create(user=self.user, first_name='Yui', last_name='Ikari')
+        response = self.client.post('/projects/task/%s/resource/add' % task.id, follow=True,
+                                    data={
+                                        'user':           self.user.id,
+                                        'linked_contact': worker.id,
+                                        'hourly_cost':    100,
+                                    })
+        resource = task.resources_set.all()[0]
+        response = self.client.post('/projects/task/%s/period/add' % task.id, follow=True,
+                                    data={
+                                        'resource':   resource.id,
+                                        'start_date': '2010-10-11',
+                                        'end_date':   '2010-10-12',
+                                        'duration':   8,
+                                    })
+
+        response = self.client.get('/projects/resource/edit/%s' % resource.id)
+        self.assertEqual(200, response.status_code)
+
+        response = self.client.post('/projects/resource/edit/%s' % resource.id, follow=True,
+                                    data={
+                                        'user':           self.user.id,
+                                        'linked_contact': worker.id,
+                                        'hourly_cost':    200,
+                                    })
+        self.assertEqual(200, response.status_code)
+        self.failIf(response.context['form'].errors)
+
+        resource = Resource.objects.get(pk=resource.id) #refresh
+        self.assertEqual(200, resource.hourly_cost)
+
+
+        wperiods = list(resource.workingperiod_set.all())
+        self.assertEqual(1, len(wperiods))
+
+        wperiod = wperiods[0]
+        response = self.client.get('/projects/period/edit/%s' % wperiod.id)
+        self.assertEqual(200, response.status_code)
+
+        response = self.client.post('/projects/period/edit/%s' % wperiod.id, follow=True,
+                                    data={
+                                        'resource':   resource.id,
+                                        'start_date': '2010-10-11',
+                                        'end_date':   '2010-10-12',
+                                        'duration':   10,
+                                    })
+        self.assertEqual(200, response.status_code)
+        self.failIf(response.context['form'].errors)
+
+        wperiod = WorkingPeriod.objects.get(pk=wperiod.id) #refresh
+        self.assertEqual(10, wperiod.duration)
 
     #TODO: test better get_project_cost(), get_effective_duration(), get_delay()

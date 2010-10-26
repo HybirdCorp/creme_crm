@@ -1,16 +1,23 @@
 {% load i18n %}
-{% load creme_block %}
-{% load creme_widgets %}
+{% load creme_core_tags %}{% load creme_block %}{% load creme_widgets %}
+{% has_perm_to change object as has_perm %}
 <table class="table_detail_view ui-corner-all" id={{block_name}}>
     {% include "creme_core/templatetags/widgets/block_header_beg.html" %}
         <th style="width: 80%;" class="collapser" align="left">{% get_block_title _('%s Root node') _('%s Root nodes') 'graph_48.png' _('Root nodes') %}</th>
         <th style="width: 20%;" align="right">
             <div class="buttons">
-               {% comment %}<a class="button_link" onclick="creme.utils.innerPopupNReload('/graphs/graph/{{object.pk}}/roots/add', {% get_block_reload_uri %});">{% endcomment %}
-               <a class="add" href="/graphs/graph/{{object.pk}}/roots/add">
-                    <img src="{{MEDIA_URL}}images/add_22.png" border="0" title="{% trans "Add root nodes" %}" alt="{% trans "Add root nodes" %}" />
-                    {% trans "Add root nodes from existing entities" %}
-                </a>
+                {% comment %}{% get_line_adder at_url '/graphs/graph/{{object.pk}}/roots/add' with_label _("Add root nodes from existing entities") with_perms has_perm %}{% endcomment %}
+                {% if has_perm %}
+                    <a class="add" href="/graphs/graph/{{object.pk}}/roots/add">
+                        <img src="{{MEDIA_URL}}images/add_22.png" border="0" title="{% trans "Add root nodes" %}" alt="{% trans "Add root nodes" %}" />
+                        {% trans "Add root nodes from existing entities" %}
+                    </a>
+                {% else %}
+                    <span class="add forbidden">
+                        <img src="{{MEDIA_URL}}images/add_22.png" border="0" title="{% trans "Can't add" %}" alt="{% trans "Can't add" %}" />
+                        {% trans "Add root nodes from existing entities" %}
+                    </span>
+                {% endif %}
             </div>
         </th>
     {% include "creme_core/templatetags/widgets/block_header_end.html" %}
@@ -31,10 +38,8 @@
                         {% widget_select_or_msg rnode.relation_types.all _('No type of relation') %}
                     </td>
                     <td class="{{row_color}}" align="center" valign="center" style="width:10%;">
-                        <a onclick="creme.utils.innerPopupNReload('/graphs/root/edit/{{rnode.id}}/', {% get_block_reload_uri %});">
-                            <img src="{{MEDIA_URL}}images/edit_22.png" border="0" title="{% trans "Edit" %}" alt="{% trans "Edit" %}">
-                        </a>
-                        {% get_line_deletor at_url '/graphs/root/delete' with_args "{'id':{{rnode.pk}} }" %}
+                        {% get_line_editor at_url '/graphs/root/edit/{{rnode.id}}/' with_perms has_perm %}
+                        {% get_line_deletor2 at_url '/graphs/root/delete' with_args "{'id':{{rnode.pk}} }" with_perms has_perm %}
                     </td>
                 </tr>
             {% endfor %}

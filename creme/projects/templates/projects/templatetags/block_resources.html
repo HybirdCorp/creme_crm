@@ -1,15 +1,13 @@
 {% load i18n %}
-{% load creme_block %}
+{% load creme_core_tags %}{% load creme_block %}
+{% has_perm_to change object as task_change_perm %}
 <table class="table_detail_view ui-corner-all" id={{block_name}}>
     {% include "creme_core/templatetags/widgets/block_header_beg.html" %}
         <th style="width: 80%;" class="collapser" align="left">{% get_block_title  _('%s Resource assigned to this Task') _('%s Resources assigned to this Task') 'contacts_48.png' _('Resource') %}</th>
         <th style="width: 20%;" align="right">
             <div class="buttons">
                 {% if object.is_alive %}
-                    <a class="add" onclick="creme.utils.innerPopupNReload('/projects/task/{{object.id}}/resource/add', {% get_block_reload_uri %});">
-                        <img src="{{MEDIA_URL}}images/add_22.png" border="0" title="{% trans "Add a resource" %}" alt="{% trans "Add a resource" %}" />
-                        {% trans "Add a resource from an existing contact" %}
-                    </a>
+                    {% get_line_adder at_url '/projects/task/{{object.id}}/resource/add' with_label _("Add a resource from an existing contact") with_perms creation_perm %}
                 {% endif %}
             </div>
         </th>
@@ -18,9 +16,7 @@
         {% if not object.is_alive %}
             <tr>
                 <th colspan="11" class="block_header_line_dark" align="left">
-                    <em>
-                        {% blocktrans with object.status.name as status %}You can't add a resource because this task is {{status}}{% endblocktrans %}
-                    </em>
+                    <em>{% blocktrans with object.status.name as status %}You can't add a resource because this task is {{status}}{% endblocktrans %}</em>
                 </th>
             </tr>
         {% endif %}
@@ -40,11 +36,9 @@
                         {% blocktrans with resource.hourly_cost as cost %}{{cost}} € / hour{% endblocktrans %}
                     </td>
                     <td class="{{row_color}}" align="center" valign="center" style="width:10%;">
-                        {% comment %}<a class="button_link" onclick="creme.utils.showInnerPopup('{{resource.get_edit_absolute_url}}');">{% endcomment %}
-                        <a class="button_link" onclick="creme.utils.innerPopupNReload('{{resource.get_edit_absolute_url}}', {% get_block_reload_uri %});">
-                            <img src="{{MEDIA_URL}}images/edit_22.png" border="0" title="{% trans "Edit resource" %}" alt="{% trans "Edit resource" %}" />
-                        </a>
-                        {% get_line_deletor at_url '/projects/resource/delete' with_args "{'id':{{resource.pk}} }" %}
+                        {% comment %}TODO: use {{resource.get_edit_absolute_url}} ?? {% endcomment %}
+                        {% get_line_editor at_url '/projects/resource/edit/{{resource.id}}' with_perms task_change_perm %}
+                        {% get_line_deletor2 at_url '/projects/resource/delete' with_args "{'id': {{resource.pk}} }" with_perms task_change_perm %}
                     </td>
                 </tr>
             {% endfor %}

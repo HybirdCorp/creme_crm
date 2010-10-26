@@ -31,6 +31,7 @@ from projects.models import Project, ProjectTask
 from projects.forms.task import TaskCreateForm, TaskEditForm
 
 
+@permission_required('projects.add_projecttask')
 def add(request, project_id):
     return add_to_entity(request, project_id, TaskCreateForm,
                          _(u'Add a task to <%s>'), entity_class=Project)
@@ -70,10 +71,9 @@ def delete_parent(request):
     POST = request.POST
     parent_id = get_from_POST_or_404(POST, 'parent_id')
     task = get_object_or_404(ProjectTask, pk=get_from_POST_or_404(POST, 'id'))
-    project = task.project
     user = request.user
 
-    project.can_change_or_die(user)
+    #task.project.can_change_or_die(user) #beware: modify block_tasks.html template if uncommented....
     task.can_change_or_die(user)
 
     task.parents_task.remove(parent_id)

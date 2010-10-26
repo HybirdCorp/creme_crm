@@ -18,6 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from django.core.exceptions import PermissionDenied
 from django.utils.translation import ugettext as _
 from django.shortcuts import get_object_or_404
 from django.template import RequestContext
@@ -25,7 +26,6 @@ from django.template import RequestContext
 from creme_core.views.generic import inner_popup
 
 from projects.models import ProjectTask
-from projects.constants import COMPLETED_PK, CANCELED_PK
 
 
 def error_popup(request, message):
@@ -39,13 +39,18 @@ def error_popup(request, message):
 
 def _add_generic(request, form, task_id, title):
     task = get_object_or_404(ProjectTask, pk=task_id)
+    user = request.user
 
     task.can_change_or_die(request.user)
 
-    if task.status_id in (COMPLETED_PK, CANCELED_PK):
+    if not task.is_alive():
         state = task.status.name
         return error_popup(request,
                            _(u"You can't add a resources or a working period to a task which has status <%s>") % state)
+
+    model = form._meta.model
+    if not user.has_perm_to_create(model):
+        raise PermissionDenied(_(u'You are not allowed to create a %s') % model._meta.verbose_name)
 
     if request.POST:
         form_obj = form(task, request.POST)
@@ -72,12 +77,14 @@ def _edit_generic(request, form, obj_id, model, title):
     task.can_change_or_die(request.user)
 
     if request.POST :
-        form_obj = form(request.POST, instance=obj)
+        form_obj = form(task, request.POST, instance=obj)
 
         if form_obj.is_valid():
             form_obj.save()
     else:
-        form_obj = form(instance=obj)
+        form_obj = form(task, instance=obj)
+
+    #TODO: problem with edit credentails : Resource is a CremeEntity (with credentials) and not WorkingPeriod
 
     return inner_popup(request, 'creme_core/generics/blockform/edit_popup.html',
                        {

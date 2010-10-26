@@ -32,11 +32,10 @@ from creme_core.utils import get_ct_or_404
 
 @login_required
 def add(request, ct_id, count):
-    ct    = get_ct_or_404(ct_id)
-    model = ct.model_class()
+    model = get_ct_or_404(ct_id).model_class()
     model_name = model._meta.verbose_name
 
-    if not request.user.has_perm('%s.add_%s' % (ct.app_label, ct.model)):
+    if not request.user.has_perm_to_create(model):
         #TODO: manage/display error on js side (for now it just does nothing)
         raise PermissionDenied('You are not allowed to create entity with type "%s"' % model_name)
 

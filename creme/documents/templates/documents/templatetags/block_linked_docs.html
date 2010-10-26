@@ -1,6 +1,5 @@
 {% load i18n %}
-{% load creme_core_tags %}
-{% load creme_block %}
+{% load creme_core_tags %}{% load creme_block %}
 <script type="text/javascript">
     creme.include('{{MEDIA_URL}}js/models/relations.js','js');
 </script>
@@ -9,10 +8,17 @@
         <th style="width: 80%;" class="collapser" align="left">{% get_block_title _('%s linked Document') _('%s linked Documents') 'document_48.png' _('Document') %}</th>
         <th style="width: 20%;" align="right">
             <div class="buttons">
-                <a class="add" href="/documents/document/add_from_detailview?callback_url={{object.get_absolute_url}}&entity_id={{object.id}}">
-                    <img src="{{MEDIA_URL}}images/add_22.png" border="0" title="{% trans "Add a document" %}" alt="{% trans "Add a document" %}" />
-                    {% trans "Add a document" %}
-                </a>
+                {% if has_creation_perm %}
+                    <a class="add" href="/documents/document/add_from_detailview?callback_url={{object.get_absolute_url}}&entity_id={{object.id}}">
+                        <img src="{{MEDIA_URL}}images/add_22.png" border="0" title="{% trans "Add a document" %}" alt="{% trans "Add a document" %}" />
+                        {% trans "Add a document" %}
+                    </a>
+                {% else %}
+                    <span class="add forbidden">
+                        <img src="{{MEDIA_URL}}images/add_22.png" border="0" title="{% trans "Can't add" %}" alt="{% trans "Can't add" %}" />
+                        {% trans "Add a document" %}
+                    </span>
+                {% endif %}
                 <a class="link" onclick="creme.relations.handleAddFromPredicateEntity('/creme_core/relation/add/from/predicate/{{predicate_id}}/entity/{{object.id}}/{{ct_id}}', '{{predicate_id}}', '{{object.id}}', {% get_block_reload_uri %});">
                     <img src="{{MEDIA_URL}}images/relations_22.png" border="0" title="{% trans "Link to a document" %}" alt="{% trans "Link to a document" %}" />
                     {% trans "Link to an existing document" %}

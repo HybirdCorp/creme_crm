@@ -21,7 +21,6 @@ urlpatterns = patterns('sms.views',
 
     #Campaign: sending details block
     (r'^campaign/sending/(?P<id>\d+)$',                  'sending.detailview'),
-    #(r'^campaign/sending/message/delete/(?P<id>\w+)$',   'sending.delete_message'),
     (r'^campaign/sending/message/delete$',               'sending.delete_message'),
     (r'^campaign/sending/(?P<id>\d+)/messages/sync/$',   'sending.sync_messages'),
     (r'^campaign/sending/(?P<id>\d+)/messages/send/$',   'sending.send_messages'),

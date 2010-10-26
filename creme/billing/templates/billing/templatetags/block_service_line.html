@@ -1,20 +1,15 @@
 {% extends 'billing/templatetags/line.html' %}
 {% load i18n %}
-{% load creme_block %}
+{% load creme_core_tags %}{% load creme_block %}
 
 {% block header %}
     {% get_block_title _('%s related Service') _('%s related Services') 'service_48.png' _('Service') %}
 {% endblock %}
 
 {% block add_buttons %}
-    <a class="add" onclick="creme.utils.innerPopupNReload('/billing/{{object.id}}/service_line/add', {% get_block_reload_uri %});">
-        <img src="{{MEDIA_URL}}images/add_22.png" border="0" title="{% trans "Add a Service" %}" alt="{% trans "Add a Service" %}" />
-        {% trans "Add from an existing Service" %}
-    </a>
-    <a class="add" onclick="creme.utils.innerPopupNReload('/billing/{{object.id}}/service_line/add_on_the_fly', {% get_block_reload_uri %});">
-        <img src="{{MEDIA_URL}}images/add_22.png" border="0" title="{% trans "Add a Service" %}" alt="{% trans "Add a Service" %}" />
-        {% trans "Add a line on the fly" %}
-    </a>
+    {% has_perm_to change object as has_perm %}
+    {% get_line_adder at_url '/billing/{{object.id}}/service_line/add' with_label _("Add from an existing Service") with_perms has_perm %}
+    {% get_line_adder at_url '/billing/{{object.id}}/service_line/add_on_the_fly' with_label _("Add a line on the fly") with_perms has_perm %}
 {% endblock %}
 
 {% block item_name %}{% trans "Service" %}{% endblock %}
@@ -22,8 +17,7 @@
 {% block empty_msg %}{% trans "No service in this document" %}{% endblock %}
 
 {% block line_actions %}
-    <a class="button_link" onclick="creme.utils.innerPopupNReload('/billing/serviceline/{{line.id}}/edit', {% get_block_reload_uri %});">
-        <img src="{{MEDIA_URL}}images/edit_22.png" border="0">
-    </a>
+    {% has_perm_to change object as has_perm %}
+    {% get_line_editor at_url '/billing/serviceline/{{line.id}}/edit' with_perms has_perm %}
     {{block.super}}
 {% endblock %}

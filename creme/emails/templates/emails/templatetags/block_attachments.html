@@ -1,14 +1,12 @@
 {% load i18n %}
-{% load creme_block %}
+{% load creme_core_tags %}{% load creme_block %}
+{% has_perm_to change object as has_perm %}
 <table class="table_detail_view ui-corner-all" id={{block_name}}>
     {% include "creme_core/templatetags/widgets/block_header_beg.html" %}
         <th style="width: 80%;" class="collapser" align="left">{% get_block_title _('%s Attachment') _('%s Attachments') %}</th>
         <th style="width: 20%;" align="right">
             <div class="buttons">
-                <a class="add" onclick="creme.utils.innerPopupNReload('/emails/template/{{object.pk}}/attachment/add', {% get_block_reload_uri %});">
-                    <img src="{{MEDIA_URL}}images/add_22.png" border="0" title="{% trans "Add an attachment" %}" alt="{% trans "Add an attachment" %}" />
-                    {% trans "Add existing documents" %}
-                </a>
+                {% get_line_adder at_url '/emails/template/{{object.pk}}/attachment/add' with_label _("Add existing documents") with_perms has_perm %}
             </div>
         </th>
     {% include "creme_core/templatetags/widgets/block_header_end.html" %}
@@ -25,7 +23,7 @@
                         <a href="{{attachment.get_absolute_url}}">{{attachment.title}}</a>
                     </td>
                     <td class="{{row_color}}" align="center" valign="center" style="width:10%;">
-                        {% get_line_deletor at_url '/emails/template/{{object.pk}}/attachment/delete' with_args "{'id':{{attachment.pk}} }" %}
+                        {% get_line_deletor2 at_url '/emails/template/{{object.pk}}/attachment/delete' with_args "{'id':{{attachment.pk}} }" with_perms has_perm %}
                     </td>
                 </tr>
             {% endfor %}

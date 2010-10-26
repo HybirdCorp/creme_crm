@@ -1,14 +1,12 @@
 {% load i18n %}
-{% load creme_block %}
+{% load creme_core_tags %}{% load creme_block %}
+{% has_perm_to change object as has_perm %}
 <table  class="table_detail_view ui-corner-all" id={{block_name}}>
     {% include "creme_core/templatetags/widgets/block_header_beg.html" %}
         <th style="width: 80%;" class="collapser">{% get_block_title _("%s Other Address") _("%s Others Addresses") 'infos_48.png' _('Other Address') %}</th>
         <th style="width: 20%;" align="right">
             <div class="buttons">
-                <a class="add" onclick="creme.utils.innerPopupNReload('/persons/address/ip_add/{{object.id}}', {% get_block_reload_uri %});">
-                    <img src="{{MEDIA_URL}}images/add_22.png" border="0" title="{% trans "Add an Address" %}" alt="{% trans "Add an Address" %}" />
-                    {% trans "Add an Address" %}
-                </a>
+                {% get_line_adder at_url '/persons/address/ip_add/{{object.id}}' with_label _("Add an Address") with_perms has_perm %}
             </div>
         </th>
     {% include "creme_core/templatetags/widgets/block_header_end.html" %}
@@ -25,10 +23,8 @@
                     <th class="{% cycle header_color %} th_info">{% trans "Address" %}</th>
                     <td class="{% cycle row_color %} td_info" >{{address.address}}</td>
                     <td class="{{row_color}}" align="center" valign="center" rowspan="7">
-                        <a onclick="creme.utils.innerPopupNReload('/persons/address/edit/{{address.id}}/', {% get_block_reload_uri %});">
-                            <img src="{{MEDIA_URL}}images/edit_22.png" border="0">
-                        </a>
-                        {% get_line_deletor at_url '/persons/address/delete' with_args "{'id': {{address.id}} }" %}
+                        {% get_line_editor at_url '/persons/address/edit/{{address.id}}/' with_perms has_perm %}
+                        {% get_line_deletor2 at_url '/persons/address/delete' with_args "{'id': {{address.id}} }" with_perms has_perm %}
                     </td>
                 </tr>
                 <tr>
