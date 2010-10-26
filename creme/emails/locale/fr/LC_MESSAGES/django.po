@@ -592,11 +592,11 @@ msgid "No child list for the moment"
 msgstr "Aucune liste fille pour le moment"
 
 #: templates/emails/templatetags/block_contacts.html:5
-msgid "% Contact recipient"
+msgid "%s Contact recipient"
 msgstr "%s Contact destinataire"
 
 #: templates/emails/templatetags/block_contacts.html:5
-msgid "% Contacts recipients"
+msgid "%s Contacts recipients"
 msgstr "%s Contacts destinataires"
 
 #: templates/emails/templatetags/block_contacts.html:9

@@ -1,5 +1,6 @@
 {% load i18n %}
-{% load creme_block %}
+{% load creme_core_tags %}{% load creme_block %}
+{% has_perm_to change object.campaign as has_perm %}
 <table class="table_detail_view ui-corner-all" id={{block_name}}>
     {% include "creme_core/templatetags/widgets/block_header_beg.html" %}
         <th style="width: 80%;" class="collapser" align="left">{% get_block_title _('%s Email') _('%s Emails') 'email_48.png' _('Emails') %}</th>
@@ -18,7 +19,7 @@
                     <td class="{{row_color}}">{{mail.recipient}}</td>
                     <td class="{{row_color}}">{{mail.get_status_str}}</td>
                     <td class="{{row_color}}" align="center" valign="center" style="width:10%;">
-                        {% get_line_deletor at_url '/emails/campaign/sending/mail/delete' with_args "{'id':'{{mail.pk}}'}" %}
+                        {% get_line_deletor2 at_url '/emails/campaign/sending/mail/delete' with_args "{'id':'{{mail.pk}}'}" with_perms has_perm %}
                     </td>
                 </tr>
             {% endfor %}

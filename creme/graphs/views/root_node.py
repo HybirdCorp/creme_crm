@@ -96,7 +96,7 @@ def edit(request, root_id):
 def delete(request):
     root_node = get_object_or_404(RootNode, pk=get_from_POST_or_404(request.POST, 'id'))
 
-    graph.can_change_or_die(request.user)
+    root_node.graph.can_change_or_die(request.user)
 
     root_node.delete()
 

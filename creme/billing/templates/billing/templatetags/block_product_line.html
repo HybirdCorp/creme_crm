@@ -1,13 +1,13 @@
 {% extends 'billing/templatetags/line.html' %}
 {% load i18n %}
-{% load creme_block %}
+{% load creme_core_tags %}{% load creme_block %}
 
 {% block header %}
 {% comment %}   TODO: in a billing.js file ?  {% endcomment %}
     <script type="text/javascript">
         if(!creme.product_line) creme.product_line = {}
-        creme.product_line.auto_populate_selection = function(id, targetInputId, nodesToPopulate){
-            var $form = $('#'+targetInputId).parents('form');
+        creme.product_line.auto_populate_selection = function(id, targetInputId, nodesToPopulate) {
+            var $form = $('#' + targetInputId).parents('form');
             var fields = nodesToPopulate.values;
 
             creme.ajax.json.post(
@@ -17,12 +17,10 @@
                     fields:fields
                 },
                 function(data){
-                    for(var i in fields)
-                    {
+                    for(var i in fields) {
                         var field = nodesToPopulate.values[i];
-                        var node = $form.find('['+nodesToPopulate.attr+'='+field+']');
-                        if(node.size() > 0)
-                        {
+                        var node = $form.find('[' + nodesToPopulate.attr + '=' + field + ']');
+                        if(node.size() > 0) {
                             node.val(data[0].fields[field]);
                         }
                     }
@@ -34,14 +32,9 @@
 {% endblock %}
 
 {% block add_buttons %}
-    <a class="add" onclick="creme.utils.innerPopupNReload('/billing/{{object.id}}/product_line/add', {% get_block_reload_uri %});">
-        <img src="{{MEDIA_URL}}images/add_22.png" border="0" title="{% trans "Add a product" %}" alt="{% trans "Add a product" %}" />
-        {% trans "Add from an existing Product" %}
-    </a>
-    <a class="add" onclick="creme.utils.innerPopupNReload('/billing/{{object.id}}/product_line/add_on_the_fly', {% get_block_reload_uri %});">
-        <img src="{{MEDIA_URL}}images/add_22.png" border="0" title="{% trans "Add a product" %}" alt="{% trans "Add a product" %}" />
-        {% trans "Add a line on the fly" %}
-    </a>
+    {% has_perm_to change object as has_perm %}
+    {% get_line_adder at_url '/billing/{{object.id}}/product_line/add' with_label _("Add from an existing Product") with_perms has_perm %}
+    {% get_line_adder at_url '/billing/{{object.id}}/product_line/add_on_the_fly' with_label _("Add a line on the fly") with_perms has_perm %}
 {% endblock %}
 
 {% block item_name %}{% trans "Product" %}{% endblock %}
@@ -49,8 +42,7 @@
 {% block empty_msg %}{% trans "No product in this document" %}{% endblock %}
 
 {% block line_actions %}
-    <a class="button_link" onclick="creme.utils.innerPopupNReload('/billing/productline/{{line.id}}/edit', {% get_block_reload_uri %});">
-        <img src="{{MEDIA_URL}}images/edit_22.png" border="0">
-    </a>
+    {% has_perm_to change object as has_perm %}
+    {% get_line_editor at_url '/billing/productline/{{line.id}}/edit' with_perms has_perm %}
     {{block.super}}
 {% endblock %}

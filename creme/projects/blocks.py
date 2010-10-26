@@ -55,8 +55,11 @@ class ProjectTaskBlock(QuerysetBlock):
 
     def detailview_display(self, context):
         project = context['object']
+        user    = context['request'].user
+        creation_perm = user.has_perm('projects.add_projecttask') and project.can_change(user)
         return self._render(self.get_block_template_context(context, project.get_tasks(),
                                                             update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, project.pk),
+                                                            creation_perm=creation_perm, #TODO: use a tempatetag instead ??
                                                             ))
 
 class ResourceTaskBlock(QuerysetBlock):
@@ -67,9 +70,12 @@ class ResourceTaskBlock(QuerysetBlock):
 
     def detailview_display(self, context):
         task = context['object']
+        user = context['request'].user
+        creation_perm = task.can_change(user) and user.has_perm_to_create(Resource)
         return self._render(self.get_block_template_context(context, task.get_resources(),
                                                             update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, task.pk),
-                                                            ))
+                                                            creation_perm=creation_perm, #TODO: templatetag instead ??
+                                                           ))
 
 
 class WorkingPeriodTaskBlock(QuerysetBlock):

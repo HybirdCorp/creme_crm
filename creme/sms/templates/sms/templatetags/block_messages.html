@@ -1,6 +1,7 @@
 {% load i18n %}
-{% load creme_block %}
+{% load creme_core_tags %}{% load creme_block %}
 {% load sms_tags %}
+{% has_perm_to change object.campaign as has_perm %}
 <style type="text/css">
     tr.creme-sms-message td.notsent {
     }
@@ -39,7 +40,7 @@
         <th style="width: 80%;" class="collapser" align="left">{% get_block_title _('%s Message') _('%s Messages') 'sms_48.png' _('Messages') %}</th>
         <th style="width: 20%;" align="right">
             <div class="buttons">
-                {% if object %}
+                {% if has_perm %}
                     <a class="add" onclick="sms_messages.send();">
                         <img src="{{MEDIA_URL}}images/add_22.png" border="0" title="{% trans "Send" %}" alt="{% trans "Send" %}" />
                         {% trans "Send" %}
@@ -48,6 +49,15 @@
                         <img src="{{MEDIA_URL}}images/refresh_22.png" border="0" title="{% trans "Synchronize" %}" alt="{% trans "Synchronize" %}" />
                         {% trans "Synchronize" %}
                     </a>
+                {% else %}
+                    <span class="add forbidden">
+                        <img src="{{MEDIA_URL}}images/add_22.png" border="0" title="{% trans "Can't send" %}" alt="{% trans "Can't send" %}" />
+                        {% trans "Send" %}
+                    </span>
+                    <span class="forbidden">
+                        <img src="{{MEDIA_URL}}images/refresh_22.png" border="0" title="{% trans "Can't synchronize" %}" alt="{% trans "Can't synchronize" %}" />
+                        {% trans "Synchronize" %}
+                    </span>
                 {% endif %}
             </div>
         </th>
@@ -67,7 +77,7 @@
                     <td class="{{row_color}} {{message.status}}">{{message.statusname}}</td>
                     <td class="{{row_color}}">{{message.status_message}}</td>
                     <td class="{{row_color}}" align="center" valign="center" style="width:10%;">
-                        {% get_line_deletor at_url '/sms/campaign/sending/message/delete' with_args "{'id':{{message.pk}} }" %}
+                        {% get_line_deletor2 at_url '/sms/campaign/sending/message/delete' with_args "{'id':{{message.pk}} }" with_perms has_perm %}
                     </td>
                 </tr>
             {% endfor %}

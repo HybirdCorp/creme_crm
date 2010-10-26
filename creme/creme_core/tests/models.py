@@ -490,6 +490,7 @@ class CredentialsTestCase(TestCase):
 
         self.failIf(self.user.has_perm('creme_core.add_cremeproperty'))
         self.failIf(self.user.has_perm('creme_core.add_relation'))
+        self.failIf(self.user.has_perm_to_create(CremeProperty)) #helper
 
         get_ct = ContentType.objects.get_for_model
         role.creatable_ctypes = [get_ct(CremeProperty), get_ct(Relation)]
@@ -498,6 +499,15 @@ class CredentialsTestCase(TestCase):
         self.assert_(self.user.has_perm('creme_core.add_cremeproperty'))
         self.assert_(self.user.has_perm('creme_core.add_relation'))
         self.failIf(self.user.has_perm('creme_core.add_cremepropertytype'))
+
+        #helpers
+        self.assert_(self.user.has_perm_to_create(CremeProperty))
+        self.failIf(self.user.has_perm_to_create(CremePropertyType))
+
+        ptype = CremePropertyType.create(str_pk='test-prop_foobar', text='text')
+        prop  = CremeProperty.objects.create(type=ptype, creme_entity=self.entity1)
+        self.assert_(self.user.has_perm_to_create(prop))
+        self.failIf(self.user.has_perm_to_create(ptype))
 
     def test_creation_creds02(self):
         self.user.is_superuser = True

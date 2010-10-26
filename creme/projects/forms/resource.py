@@ -29,19 +29,27 @@ from persons.models import Contact
 from projects.models import Resource
 
 
-class ResourceForm(CremeEntityForm):
+class ResourceEditForm(CremeEntityForm):
+    class Meta:
+        model = Resource
+        exclude = CremeEntityForm.Meta.exclude + ('task', 'linked_contact')
+
+    def __init__(self, task, *args, **kwargs):
+        super(ResourceEditForm, self).__init__(*args, **kwargs)
+        self.related_task = task
+
+
+class ResourceCreateForm(ResourceEditForm):
     linked_contact = CremeEntityField(label=_(u'Contact to be assigned to this task'),
                                       required=True, model=Contact)
 
-    class Meta:
-        model = Resource
+    class Meta(ResourceEditForm.Meta):
         exclude = CremeEntityForm.Meta.exclude + ('task',)
 
     def __init__(self, task, *args, **kwargs):
-        super(ResourceForm, self).__init__(*args, **kwargs)
-        self.related_task = task
+        super(ResourceCreateForm, self).__init__(task, *args, **kwargs)
         self.fields['linked_contact'].q_filter = {'~pk__in': list(task.resources_set.all().values_list('linked_contact_id', flat=True))}
 
     def save(self, *args, **kwargs):
         self.instance.task = self.related_task
-        return super(ResourceForm, self).save(*args, **kwargs)
+        return super(ResourceCreateForm, self).save(*args, **kwargs)

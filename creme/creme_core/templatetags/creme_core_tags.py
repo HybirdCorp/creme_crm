@@ -313,8 +313,9 @@ class TemplatizeNode(template.Node):
 #TODO: move to a 'creme_auth' file ??
 _haspermto_re = compile_re(r'(\w+) (.*?) as (\w+)')
 
-def _can_create(model, user):
-    ct = ContentType.objects.get_for_model(model)
+def _can_create(model_or_ct, user):
+    ct = model_or_ct if isinstance(model_or_ct, ContentType) else ContentType.objects.get_for_model(model_or_ct)
+
     return user.has_perm('%s.add_%s' % (ct.app_label, ct.model))
 
 _perms_funcs = {
@@ -331,7 +332,7 @@ def do_has_perm_to(parser, token):
 
     TYPE: in ('create', 'view','change', 'delete')
     OBJECT: must be a CremeEntity, for ('view','change', 'delete') types
-            and a class inheriting from CremeEntity for 'create'
+            and a class inheriting from CremeEntity OR a ContentType instance for 'create' type.
     """
     try:
         # Splitting by None == splitting by spaces.
