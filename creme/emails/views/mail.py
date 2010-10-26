@@ -22,6 +22,7 @@ from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, render_to_response
 from django.template.context import RequestContext
 from django.template.loader import render_to_string
+from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.contenttypes.models import ContentType
 
@@ -35,7 +36,6 @@ from emails.models.mail import (EntityEmail,
                                 MAIL_STATUS_SYNCHRONIZED_SPAM,
                                 MAIL_STATUS_SYNCHRONIZED,
                                 MAIL_STATUS_SYNCHRONIZED_WAITING)
-
 from emails.blocks import SpamSynchronizationMailsBlock, WaitingSynchronizationMailsBlock
 from emails.models import LightWeightEmail
 
@@ -54,7 +54,7 @@ def view_lightweight_mail(request, mail_id):
     email.sending.campaign.can_view_or_die(request.user)
 
     template = "emails/view_email.html"
-    ctx_dict = {'mail': email, 'title': 'Détails du mail'}
+    ctx_dict = {'mail': email, 'title': _(u'Details of the mail')}
 
     if request.is_ajax():
         return inner_popup(request, template,

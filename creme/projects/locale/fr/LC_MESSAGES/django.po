@@ -7,14 +7,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-10-25 11:30+0200\n"
+"POT-Creation-Date: 2010-10-26 20:38+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
-"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Language: \n"
 
 #: blocks.py:33
 msgid "Extra project information"
@@ -26,13 +26,13 @@ msgstr "Informations supplémentaires sur une tâche de projet"
 
 #: blocks.py:53
 msgid "Tasks of a project"
-msgstr "Tâches d''un projet"
+msgstr "Tâches d'un projet"
 
-#: blocks.py:65
+#: blocks.py:68
 msgid "Resources assigned to a task"
 msgstr "Ressource(s) affectée(s) à une tâche"
 
-#: blocks.py:78
+#: blocks.py:84
 msgid "Working periods for this task"
 msgstr "Période(s) travaillée(s) sur cette tâche"
 
@@ -162,7 +162,7 @@ msgid "Project view"
 msgstr "Vue de Projet"
 
 #: populate.py:57 models/projectstatus.py:28 models/taskstatus.py:28
-#: templates/projects/templatetags/block_tasks.html:20
+#: templates/projects/templatetags/block_tasks.html:16
 msgid "Name"
 msgstr "Nom"
 
@@ -191,7 +191,7 @@ msgstr "Vue de Ressource"
 msgid "Name of the resource"
 msgstr "Nom de la ressource"
 
-#: populate.py:70 templates/projects/templatetags/block_resources.html:30
+#: populate.py:70 templates/projects/templatetags/block_resources.html:26
 msgid "Hourly cost"
 msgstr "Coût horaire"
 
@@ -207,7 +207,7 @@ msgstr "Fin du projet"
 msgid "Project leaders"
 msgstr "Responsable(s) du projet"
 
-#: forms/resource.py:33
+#: forms/resource.py:43
 msgid "Contact to be assigned to this task"
 msgstr "Contact à affecter à cette tâche"
 
@@ -219,7 +219,7 @@ msgstr "Début"
 msgid "End"
 msgstr "Fin"
 
-#: forms/task.py:35 templates/projects/templatetags/block_tasks.html:24
+#: forms/task.py:35 templates/projects/templatetags/block_tasks.html:20
 msgid "Parent tasks"
 msgstr "Tâche(s) parente(s)"
 
@@ -232,12 +232,12 @@ msgid "Resources allocated to this task"
 msgstr "Ressource(s) affectée(s) à cette tâche"
 
 #: forms/workingperiod.py:34 models/workingperiod.py:31
-#: templates/projects/templatetags/block_working_periods.html:30
+#: templates/projects/templatetags/block_working_periods.html:25
 msgid "Between"
 msgstr "Entre"
 
 #: forms/workingperiod.py:35 models/workingperiod.py:32
-#: templates/projects/templatetags/block_working_periods.html:31
+#: templates/projects/templatetags/block_working_periods.html:26
 msgid "And"
 msgstr "Et"
 
@@ -250,7 +250,7 @@ msgid "Name of the project"
 msgstr "Nom du projet"
 
 #: models/project.py:33 models/task.py:38
-#: templates/projects/templatetags/block_tasks.html:23
+#: templates/projects/templatetags/block_tasks.html:19
 msgid "Status"
 msgstr "Statut"
 
@@ -280,7 +280,7 @@ msgid "Status of project"
 msgstr "Statut(s) de projet"
 
 #: models/resource.py:32
-#: templates/projects/templatetags/block_resources.html:29
+#: templates/projects/templatetags/block_resources.html:25
 msgid "Contact"
 msgstr "Contact"
 
@@ -288,7 +288,7 @@ msgstr "Contact"
 msgid "Hourly cost (in €)"
 msgstr "Coût horaire (en €)"
 
-#: models/resource.py:34 models/task.py:49 models/workingperiod.py:34
+#: models/resource.py:34 models/workingperiod.py:34
 #: templates/projects/view_task.html:8
 msgid "Task"
 msgstr "Tâche"
@@ -301,7 +301,7 @@ msgstr "Ressource de projet"
 msgid "Resources of project"
 msgstr "Ressources de projet"
 
-#: models/task.py:35 templates/projects/templatetags/block_tasks.html:19
+#: models/task.py:35 templates/projects/templatetags/block_tasks.html:15
 msgid "Order"
 msgstr "Ordre"
 
@@ -309,9 +309,13 @@ msgstr "Ordre"
 msgid "Estimated duration (in hours)"
 msgstr "Durée prévue (en heures)"
 
-#: models/task.py:50 templates/projects/templatetags/block_tasks.html:6
-msgid "Tasks"
-msgstr "Tâches"
+#: models/task.py:49
+msgid "Task of project"
+msgstr "Tâche d'un projet"
+
+#: models/task.py:50
+msgid "Tasks of project"
+msgstr "Tâches d'un projet"
 
 #: models/taskstatus.py:35 models/taskstatus.py:36
 msgid "Status of task"
@@ -322,7 +326,7 @@ msgid "Duration (in hours)"
 msgstr "Durée (en heures)"
 
 #: models/workingperiod.py:35
-#: templates/projects/templatetags/block_resources.html:5
+#: templates/projects/templatetags/block_resources.html:6
 msgid "Resource"
 msgstr "Ressource"
 
@@ -375,45 +379,37 @@ msgstr "Coût total du projet (€)"
 msgid "Total overtime (in hours)"
 msgstr "Heure(s) supplémentaire(s) totale(s)"
 
-#: templates/projects/templatetags/block_resources.html:5
+#: templates/projects/templatetags/block_resources.html:6
 #, python-format
 msgid "%s Resource assigned to this Task"
 msgstr "%s Ressource affectée à la Tâche"
 
-#: templates/projects/templatetags/block_resources.html:5
+#: templates/projects/templatetags/block_resources.html:6
 #, python-format
 msgid "%s Resources assigned to this Task"
 msgstr "%s Ressources affectées à la Tâche"
 
 #: templates/projects/templatetags/block_resources.html:10
-msgid "Add a resource"
-msgstr "Ajouter une ressource"
-
-#: templates/projects/templatetags/block_resources.html:11
 msgid "Add a resource from an existing contact"
 msgstr "Ajouter une ressource à partir d'un contact existant"
 
-#: templates/projects/templatetags/block_resources.html:22
+#: templates/projects/templatetags/block_resources.html:19
 #, python-format
 msgid "You can't add a resource because this task is %(status)s"
 msgstr ""
 "Vous ne pouvez pas ajouter de ressources car cette tâche est %(status)s"
 
-#: templates/projects/templatetags/block_resources.html:31
-#: templates/projects/templatetags/block_working_periods.html:34
+#: templates/projects/templatetags/block_resources.html:27
+#: templates/projects/templatetags/block_working_periods.html:29
 msgid "Actions"
 msgstr "Actions"
 
-#: templates/projects/templatetags/block_resources.html:40
+#: templates/projects/templatetags/block_resources.html:36
 #, python-format
 msgid "%(cost)s € / hour"
 msgstr "%(cost)s € / heure"
 
-#: templates/projects/templatetags/block_resources.html:45
-msgid "Edit resource"
-msgstr "Éditer la ressource"
-
-#: templates/projects/templatetags/block_resources.html:53
+#: templates/projects/templatetags/block_resources.html:47
 msgid "No resource assigned to this task"
 msgstr "Aucune ressource n'est affecté à cette tâche"
 
@@ -430,7 +426,7 @@ msgid "Parent task(s)"
 msgstr "Tâche(s) parente(s)"
 
 #: templates/projects/templatetags/block_task_extra_info.html:25
-#: templates/projects/templatetags/block_tasks.html:25
+#: templates/projects/templatetags/block_tasks.html:21
 msgid "Delete"
 msgstr "Supprimer"
 
@@ -438,81 +434,79 @@ msgstr "Supprimer"
 msgid "This task has no parent"
 msgstr "Cette tâche n'a aucun parent"
 
-#: templates/projects/templatetags/block_tasks.html:6
+#: templates/projects/templatetags/block_tasks.html:5
 #, python-format
 msgid "%s Related Task"
 msgstr "%s Tâche associée au projet"
 
-#: templates/projects/templatetags/block_tasks.html:6
+#: templates/projects/templatetags/block_tasks.html:5
 #, python-format
 msgid "%s Related Tasks"
 msgstr "%s Tâches associées au projet"
 
-#: templates/projects/templatetags/block_tasks.html:10
-#: templates/projects/templatetags/block_tasks.html:11
+#: templates/projects/templatetags/block_tasks.html:5
+msgid "Tasks"
+msgstr "Tâches"
+
+#: templates/projects/templatetags/block_tasks.html:8
 msgid "New task"
 msgstr "Nouvelle tâche"
 
-#: templates/projects/templatetags/block_tasks.html:21
+#: templates/projects/templatetags/block_tasks.html:17
 msgid "Estimated duration (hours)"
 msgstr "Durée prévue (heures)"
 
-#: templates/projects/templatetags/block_tasks.html:22
+#: templates/projects/templatetags/block_tasks.html:18
 msgid "Effective duration (hours)"
 msgstr "Durée effective (heures)"
 
-#: templates/projects/templatetags/block_tasks.html:26
+#: templates/projects/templatetags/block_tasks.html:22
 msgid "Cost"
 msgstr "Coût"
 
-#: templates/projects/templatetags/block_tasks.html:45
+#: templates/projects/templatetags/block_tasks.html:40
 msgid "No parent task"
 msgstr "Aucune tâche parente"
 
-#: templates/projects/templatetags/block_tasks.html:56
+#: templates/projects/templatetags/block_tasks.html:52
 msgid "No task in this project for the moment"
 msgstr "Aucune tâche dans ce projet pour le moment"
 
-#: templates/projects/templatetags/block_working_periods.html:5
+#: templates/projects/templatetags/block_working_periods.html:6
 #, python-format
 msgid "%s Working period"
 msgstr "%s Période travaillée"
 
-#: templates/projects/templatetags/block_working_periods.html:5
+#: templates/projects/templatetags/block_working_periods.html:6
 #, python-format
 msgid "%s Working periods"
 msgstr "%s Périodes travaillées"
 
-#: templates/projects/templatetags/block_working_periods.html:5
+#: templates/projects/templatetags/block_working_periods.html:6
 msgid "Periods"
 msgstr "Périodes"
 
-#: templates/projects/templatetags/block_working_periods.html:11
-#: templates/projects/templatetags/block_working_periods.html:12
+#: templates/projects/templatetags/block_working_periods.html:10
 #: views/workingperiod.py:36
 msgid "New working period"
 msgstr "Nouvelle période travaillée"
 
-#: templates/projects/templatetags/block_working_periods.html:23
+#: templates/projects/templatetags/block_working_periods.html:19
 #, python-format
 msgid "You can't add a working périod because this task is %(status)s"
 msgstr ""
-"Vous ne pouvez pas ajouter de périodes travaillées car cette tâche est "
-"%(status)s"
+"Vous ne pouvez pas ajouter de périodes travaillées car cette tâche est %"
+"(status)s"
 
-#: templates/projects/templatetags/block_working_periods.html:32
+#: templates/projects/templatetags/block_working_periods.html:27
 msgid "Duration (hours)"
 msgstr "Durée (heures)"
 
-#: templates/projects/templatetags/block_working_periods.html:33
+#: templates/projects/templatetags/block_working_periods.html:28
 msgid "Concerned resource(s)"
 msgstr "Ressource(s) concernée(s)"
 
 #: templates/projects/templatetags/block_working_periods.html:48
-msgid "Editer period"
-msgstr "Éditer la période"
-
-#: templates/projects/templatetags/block_working_periods.html:56
 msgid "No working period record for this task"
 msgstr "Aucune période travaillée n'a été saisie concernant cette tâche"
 
@@ -520,15 +514,15 @@ msgstr "Aucune période travaillée n'a été saisie concernant cette tâche"
 msgid "Number de projects"
 msgstr "Nombre de projet(s)"
 
-#: views/resource.py:36
+#: views/resource.py:37
 msgid "Allocation of a new resource"
 msgstr "Affectation d'une nouvelle ressource"
 
-#: views/resource.py:41
+#: views/resource.py:42
 msgid "Edition of a resource"
 msgstr "Édition d'une ressource"
 
-#: views/task.py:36
+#: views/task.py:37
 #, python-format
 msgid "Add a task to <%s>"
 msgstr "Ajouter une tâche à <%s>"
@@ -537,13 +531,27 @@ msgstr "Ajouter une tâche à <%s>"
 msgid "Edition of a working period"
 msgstr "Édition d'une période travaillée"
 
-#: views/utils/utils.py:48
+#: views/utils/utils.py:49
 #, python-format
 msgid ""
 "You can't add a resources or a working period to a task which has status <%s>"
 msgstr ""
 "Vous ne pouvez pas ajouter de ressources ou de périodes travaillées à une "
 "tâche en statut <%s>"
+
+#: views/utils/utils.py:53
+#, python-format
+msgid "You are not allowed to create a %s"
+msgstr "Vous n'êtes pas autorisé à créer une %s"
+
+#~ msgid "Add a resource"
+#~ msgstr "Ajouter une ressource"
+
+#~ msgid "Edit resource"
+#~ msgstr "Éditer la ressource"
+
+#~ msgid "Editer period"
+#~ msgstr "Éditer la période"
 
 #~ msgid "This resource is already assigned to this task"
 #~ msgstr "Cette ressource est déjà affectée à la tâche"
