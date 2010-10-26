@@ -158,13 +158,13 @@ creme.utils.build_q_input = function(field, value, is_or, is_negated, name) {
     return $('<input />').attr('name',name).attr('type','hidden').val(creme.utils.build_q_value(field, value, is_or, is_negated));
 }
 
-creme.utils.bindToggle = function(self) {
-        $(self).toggle(function(e) {
-            var table = $(self).parents('table');
+creme.utils.bindToggle = function($self) {
+        $self.toggle(function(e) {
+            var table = $self.parents('table');
             table.find('tbody.collapsable').hide();
             table.find('tfooter.collapsable').hide();
         },function(e) {
-            var table = $(self).parents('table');
+            var table = $self.parents('table');
             table.find('tbody.collapsable').show();
             table.find('tfooter.collapsable').show();
         });

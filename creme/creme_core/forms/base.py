@@ -20,6 +20,7 @@
 
 #from logging import debug
 
+from django.db.models.fields import FieldDoesNotExist
 from django.forms import Form, ModelForm, ModelChoiceField
 from django.forms.forms import BoundField
 from django.utils.translation import ugettext_lazy as _
@@ -141,6 +142,16 @@ class CremeEntityForm(CremeModelWithUserForm):
         super(CremeModelForm, self).__init__(*args, **kwargs)
         assert self.instance, CremeEntity
         self._build_customfields()
+
+        #Populate help_text in form widgets
+        #Rule is form field help text or model field help text
+        for field_name, form_field in self.fields.iteritems():
+            try:
+                model_field = self.instance._meta.get_field(field_name)
+                help_text = form_field.help_text if form_field.help_text not in (None, u'') else model_field.help_text
+                form_field.widget.help_text = help_text
+            except FieldDoesNotExist:
+                form_field.widget.help_text = form_field.help_text
 
     def _build_customfields(self):
         self._customs = self.instance.get_custom_fields_n_values()

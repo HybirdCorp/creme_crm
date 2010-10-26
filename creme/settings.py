@@ -1,5 +1,7 @@
 # Django settings for creme project.
 
+from django.utils.translation import ugettext_lazy as _
+
 #DEBUG = True
 DEBUG = False
 TEMPLATE_DEBUG = DEBUG
@@ -193,7 +195,30 @@ logging.basicConfig(
     format='%(message)s'
 )
 
-DATE_FORMAT = 'j-m-Y'
+DATE_FORMAT         = 'd-m-Y'
+DATE_FORMAT_VERBOSE = _(u'Format : Day-Month-Year (Ex:31-12-2010)')
+DATE_FORMAT_JS      = {
+    'd-m-Y': 'dd-mm-yy',
+}
+DATE_FORMAT_JS_SEP = '-' #DATE_FORMAT_JS values separator
+DATE_INPUT_FORMATS = (
+    '%d-%m-%Y', '%d/%m/%Y'
+    '%Y-%m-%d',  '%m/%d/%Y', '%m/%d/%y',  '%b %d %Y',
+    '%b %d, %Y', '%d %b %Y', '%d %b, %Y', '%B %d %Y',
+    '%B %d, %Y', '%d %B %Y', '%d %B, %Y', 
+)
+
+DATETIME_FORMAT         = '%s H:i:s' % DATE_FORMAT
+DATETIME_FORMAT_VERBOSE = _(u'Format : Day-Month-Year Hour:Minute:Second (Ex:31-12-2010 23:59:59)')
+DATETIME_INPUT_FORMATS  = (
+    '%d-%m-%Y', '%d/%m/%Y',
+    '%Y-%m-%d %H:%M:%S', '%Y-%m-%d %H:%M', '%Y-%m-%d',
+    '%m/%d/%Y %H:%M:%S', '%m/%d/%Y %H:%M', '%m/%d/%Y',
+    '%m/%d/%y %H:%M:%S', '%m/%d/%y %H:%M', '%m/%d/%y',
+    '%d-%m-%Y %H:%M:%S', '%d/%m/%Y %H:%M:%S',
+    '%d-%m-%Y %H:%M',    '%d/%m/%Y %H:%M', 
+)
+
 
 ALLOWED_EXTENSIONS = [
                       'pdf', 'rtf', 'xps', 'eml'

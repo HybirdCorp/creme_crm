@@ -63,3 +63,11 @@ msgstr "Mot de passe:"
 #: templates/authent/creme_login.html:39
 msgid "Log in"
 msgstr "Se connecter"
+
+#: settings.py:199
+msgid "Format : Day-Month-Year (Ex:31-12-2010)"
+msgstr "Format : Jour-Mois-Année (Ex:31-12-2010)"
+
+#: settings.py:213
+msgid "Format : Day-Month-Year Hour:Minute:Second (Ex:31-12-2010 23:59:59)"
+msgstr "Format : Jour-Mois-Année Heure:Minute:Seconde (Ex:31-12-2010 23:59:59)"
