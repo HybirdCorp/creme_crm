@@ -752,7 +752,7 @@ msgstr "Ajouter une Adresse"
 
 #: templates/persons/templatetags/block_other_address.html:61
 msgid "No other address set for the moment"
-msgstr "Aucune addresses supplémentaires enregistrées pour le moment"
+msgstr "Aucune addresse supplémentaire enregistrée pour le moment"
 
 #: templates/persons/templatetags/button_add_linked_contact.html:3
 msgid "Linked contact"
