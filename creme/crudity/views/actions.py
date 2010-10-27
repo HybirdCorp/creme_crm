@@ -20,7 +20,7 @@
 
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, permission_required
 from django.template.context import RequestContext
 
 from creme_core.utils import get_ct_or_404, jsonify
@@ -34,6 +34,7 @@ def _retrieve_actions_ids(request):
     return request.POST.getlist('ids')
 
 @login_required
+@permission_required('crudity')
 def delete(request):
     #TODO: There no verifications because email is not a CremeEntity!!!
     for id in _retrieve_actions_ids(request):
@@ -43,6 +44,7 @@ def delete(request):
     return HttpResponse()
 
 @jsonify
+@permission_required('crudity')
 def validate(request):
     for id in _retrieve_actions_ids(request):
         action = get_object_or_404(WaitingAction, pk=id)
@@ -61,6 +63,7 @@ def validate(request):
 #    return HttpResponse()
 
 @jsonify
+@permission_required('crudity')
 def reload(request, ct_id, waiting_type):
     ct = get_ct_or_404(ct_id)
     block = WaitingActionBlock(ct, waiting_type)

@@ -18,68 +18,70 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.utils.encoding import smart_str,smart_unicode
+from django.utils.encoding import smart_str, smart_unicode
 
-from creme_core.registry import creme_registry
+#from creme_core.registry import creme_registry
 
 #TODO: merge the 2 menu api (idea: use tags ?)
 #TODO: refactor code.....
 
 ######################### 1rst Menu API #########################################
 
-class ItemMenu(object):
-    __slots__ = ('menu_url', 'menu_name')
+class MenuItem(object):
+    __slots__ = ('url', 'name', 'perm')
 
-    def __init__ (self, menu_url, menu_name):
-        self.menu_url = menu_url
-        self.menu_name = menu_name
+    def __init__(self, url, name, perm):
+        self.url  = url
+        self.name = name
+        self.perm = perm
 
     def __unicode__(self):
-        return u'<ItemMenu: name:%s url:%s>' % (self.menu_url, self.menu_name)
+        return u'<MenuItem: name:%s url:%s perm:%s>' % (self.url, self.name, self.perm)
 
 
-class AppMenu(object):
-    def __init__(self, app_name, app_url, app_menu_name=None):
+class MenuAppItem(object):
+    def __init__(self, app_name, app_url, verbose_name=None):
         self.app_name = app_name
         self.app_url = app_url
-        self.app_menu_name = ""
-        #if app_menu_name is None :
-            #self.app_menu_name = app_name
-        #else:
-            #self.app_menu_name = app_menu_name
-        self.app_menu_name = app_menu_name or app_name
+        self.name = verbose_name or app_name #TODO: retrieve 'verbose_name' from creme_registry...
         self.items = []
+
+    def __unicode__(self):
+        return u'<MenuAppItem: app:%s url:%s name:%s>' % (self.app_name, self.app_url, self.name)
+
+    def __iter__(self):
+        return iter(self.items)
+
+    def add_item(self, url, name, perm):
+        self.items.append(MenuItem(url, name, perm))
 
 
 class CremeMenu(object):
-    def __init__(self, creme_registry):
-        self.app_menu = {}
-        self.__creme_registry = creme_registry
+    def __init__(self):
+        self.app_items = {}
 
-    def register_app(self, app_name, app_url, app_menu_name=None):
-        if not self.app_menu.has_key(app_name):
-            self.app_menu[app_name] = AppMenu(app_name, app_url, app_menu_name)
+    def __iter__(self):
+        return self.app_items.itervalues()
 
-    def register_menu(self, app_name, menu_url, menu_name):
-        if self.app_menu.has_key(app_name):
-            self.app_menu[app_name].items.append(ItemMenu(menu_url, menu_name))
+    def register_app(self, app_name, app_url, name=None):
+        if not self.app_items.has_key(app_name):
+            self.app_items[app_name] = MenuAppItem(app_name, app_url, name)
 
-    def get_item_url(self, menu_name):
-        for app, v in self.app_menu.items():
-            for item in v.items:
-                if smart_unicode(item.menu_name) == smart_unicode(menu_name):
-                    return item.menu_url
-        return ''
+    def register_item(self, app_name, item_url, item_name, item_perm): #item_perm='persons.add_organisation'
+        app_item = self.app_items.get(app_name)
+        if app_item is not None:
+            app_item.add_item(item_url, item_name, item_perm)
 
-    def get_item_name(self, menu_url):
-        for app, v in self.app_menu.items():
-            for item in v.items:
-                if smart_unicode(item.menu_url) == smart_unicode(menu_url):
-                    return item.menu_name
-        return ''
+    def get_item_name(self, item_url):
+        for app_item in self.app_items.itervalues():
+            for item in app_item:
+                if smart_unicode(item.url) == smart_unicode(item_url): #TODO: smartunicode useful ???
+                    return item.name
+
+        return '' #TODO: None ? exception ??
 
 
-creme_menu = CremeMenu(creme_registry)
+creme_menu = CremeMenu()
 
 
 ######################### 2nd Menu API #########################################
@@ -98,7 +100,7 @@ class FolderMenu(object):
             self.folder_menu_name = folder_menu_name
         self.items = []
 
-    def render (self):
+    def render(self):
         if self.folder_url:
             html = """<li><a href="%s">%s</a>""" % (self.folder_url, self.folder_menu_name)
         else:
@@ -109,7 +111,6 @@ class FolderMenu(object):
             for item in self.items:
                 html += item.render()
             html += "</ul>"
-            
         html += """</li>"""
         return html
 

@@ -21,28 +21,31 @@
 from django.contrib.contenttypes.models import ContentType
 from django.shortcuts import render_to_response
 from django.template.context import RequestContext
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, permission_required
 
 from creme_core.utils import get_ct_or_404, jsonify
 
 from crudity.backends.registry import from_email_crud_registry
 from crudity.blocks import HistoryBlock
 
+
 @login_required
+@permission_required('crudity')
 def history(request):
-    blocks = []
+    blocks  = []
     context = RequestContext(request)
-    ct_get_for_model = ContentType.objects.get_for_model
-    
-    for name, backend in from_email_crud_registry.iteritems():
-        model = backend.model
-        type  = backend.type
-        if backend.type and backend.model:
-            blocks.append(HistoryBlock(ct_get_for_model(model), type).detailview_display(context))
-            
+    get_ct  = ContentType.objects.get_for_model
+
+    for name, backend in from_email_crud_registry.iteritems(): #'name' unused....
+        bmodel = backend.model
+        btype  = backend.type
+        if btype and bmodel:
+            blocks.append(HistoryBlock(get_ct(bmodel), btype).detailview_display(context))
+
     return render_to_response("crudity/history.html", {'blocks': blocks}, context_instance=context)
 
 @jsonify
+@permission_required('crudity')
 def reload(request, ct_id, type):
     block = HistoryBlock(get_ct_or_404(ct_id), type)
     return [(block.id_, block.detailview_display(RequestContext(request)))]

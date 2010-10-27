@@ -67,6 +67,7 @@ def view_lightweight_mail(request, mail_id):
 #TODO: credentials (don't forget templates)
 ## SYNCHRO PART ##
 @login_required
+@permission_required('emails')
 def synchronisation(request):
     #TODO: Apply permissions?
     return fetch_emails(request, template="emails/synchronize.html",
@@ -123,6 +124,7 @@ def waiting(request):
     return set_emails_status(request, MAIL_STATUS_SYNCHRONIZED_WAITING)
 
 @jsonify
+@permission_required('emails')
 def reload_sync_blocks(request):
     waiting_block = WaitingSynchronizationMailsBlock()
     spam_block    = SpamSynchronizationMailsBlock()

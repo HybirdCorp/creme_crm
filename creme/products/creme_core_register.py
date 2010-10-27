@@ -30,9 +30,9 @@ creme_registry.register_app('products', _(u'Products and services'), '/products'
 creme_registry.register_entity_models(Product, Service)
 
 creme_menu.register_app('products', '/products/', 'Produits et Services')
-reg_menu = creme_menu.register_menu
-reg_menu('products', '/products/',            _(u'Portal'))
-reg_menu('products', '/products/products',    _(u'All products'))
-reg_menu('products', '/products/product/add', _(u'Add a product'))
-reg_menu('products', '/products/services',    _(u'All services'))
-reg_menu('products', '/products/service/add', _(u'Add a service'))
+reg_menu = creme_menu.register_item
+reg_menu('products', '/products/',            _(u'Portal'),        'products')
+reg_menu('products', '/products/products',    _(u'All products'),  'products')
+reg_menu('products', '/products/product/add', _(u'Add a product'), 'products.add_product')
+reg_menu('products', '/products/services',    _(u'All services'),  'products')
+reg_menu('products', '/products/service/add', _(u'Add a service'), 'products.add_service')

@@ -32,16 +32,16 @@ creme_registry.register_entity_models(EmailCampaign, MailingList, EmailTemplate,
 creme_registry.register_app('emails', _(u'Emails'), '/emails')
 
 creme_menu.register_app ('emails', '/emails/', "Courriels et Campagnes")
-reg_menu = creme_menu.register_menu
-reg_menu('emails', '/emails/',                 _(u'Portal'))
-reg_menu('emails', '/emails/campaigns' ,       _(u'All campaigns'))
-reg_menu('emails', '/emails/campaign/add',     _(u'Add a campaign'))
-reg_menu('emails', '/emails/mailing_lists',    _(u'All mailing lists'))
-reg_menu('emails', '/emails/mailing_list/add', _(u'Add a mailing list'))
-reg_menu('emails', '/emails/templates',        _(u'All email templates'))
-reg_menu('emails', '/emails/template/add',     _(u'Add an email template'))
-reg_menu('emails', '/emails/mails',            _(u'All emails'))
-reg_menu('emails', '/emails/synchronization',  _(u'Synchronization of incoming emails'))
+reg_menu = creme_menu.register_item
+reg_menu('emails', '/emails/',                 _(u'Portal'),                             'emails')
+reg_menu('emails', '/emails/campaigns' ,       _(u'All campaigns'),                      'emails')
+reg_menu('emails', '/emails/campaign/add',     _(u'Add a campaign'),                     'emails.add_emailcampaign')
+reg_menu('emails', '/emails/mailing_lists',    _(u'All mailing lists'),                  'emails')
+reg_menu('emails', '/emails/mailing_list/add', _(u'Add a mailing list'),                 'emails.add_mailinglist')
+reg_menu('emails', '/emails/templates',        _(u'All email templates'),                'emails')
+reg_menu('emails', '/emails/template/add',     _(u'Add an email template'),              'emails.add_emailtemplate')
+reg_menu('emails', '/emails/mails',            _(u'All emails'),                         'emails')
+reg_menu('emails', '/emails/synchronization',  _(u'Synchronization of incoming emails'), 'emails')
 
 block_registry.register(mailing_lists_block, recipients_block, contacts_block, organisations_block,
                         child_lists_block, parent_lists_block, attachments_block, sendings_block,

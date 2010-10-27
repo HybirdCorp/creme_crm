@@ -91,6 +91,7 @@ Date:		September 2008
 
 .fg-menu a span { display:block; cursor:pointer; }
 
+.fg-menu span.forbidden { padding-left: 3%; } /* guitouze's hack */
 
  /* SUGGESTED STYLES - for use with jQuery UI Themeroller CSS */	
  

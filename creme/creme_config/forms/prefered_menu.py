@@ -20,7 +20,6 @@
 
 from django.forms import MultipleChoiceField
 from django.utils.translation import ugettext_lazy as _
-from django.utils.encoding import force_unicode ######
 
 from creme_core.registry import creme_registry
 from creme_core.models import PreferedMenuItem
@@ -37,13 +36,13 @@ class PreferedMenuForm(CremeForm):
         self.user = user
 
         get_app  = creme_registry.get_app
-        has_perm = user.has_perm if user else lambda app_name: True
+        has_perm = user.has_perm if user else lambda perm_label: True
 
-        #TODOS: remove force_unicode when item.menu_name is correct unicode....
-        apps = set((item.menu_url, u'%s - %s' % (get_app(app).verbose_name, force_unicode(item.menu_name)))
-                    for app, items in creme_menu.app_menu.items()
-                        if has_perm(app)
-                            for item in items.items
+        apps = set((item.url, u'%s - %s' % (get_app(appitem.app_name).verbose_name, item.name))
+                    for appitem in creme_menu
+                        if has_perm(appitem.app_name)
+                            for item in appitem.items
+                                if has_perm(item.perm)
                   )
 
         menu_entries = self.fields['menu_entries']

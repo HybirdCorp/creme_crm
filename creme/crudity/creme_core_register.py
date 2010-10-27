@@ -29,10 +29,9 @@ app_name = 'crudity'
 
 creme_registry.register_app(app_name, _(u'External data management'), app_url)
 
-#creme_menu.register_app (app_name, '%s/' % app_url, _("External management"))
 creme_menu.register_app (app_name, '%s/' % app_url, "Gestion des données externes")
-reg_menu = creme_menu.register_menu
+reg_menu = creme_menu.register_item
 #reg_menu(app_name, '%s/' % app_url,                       _(u'Portal'))
-reg_menu(app_name, '%s/email/waiting_actions' % app_url,  _(u'Email waiting actions'))
-reg_menu(app_name, '%s/history' % app_url,  _(u'History'))
+reg_menu(app_name, '%s/email/waiting_actions' % app_url,  _(u'Email waiting actions'), 'crudity')
+reg_menu(app_name, '%s/history' % app_url,                _(u'History'),               'crudity')
 
