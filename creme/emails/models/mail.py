@@ -81,7 +81,7 @@ ID_LENGTH = 32
 
 class _Email(CremeModel):
     reads          = PositiveIntegerField(_(u'Number of reads'), blank=True, null=True, default=0)
-    status         = PositiveSmallIntegerField(_(u'Status'))
+    status         = PositiveSmallIntegerField(_(u'Status'), default=MAIL_STATUS_NOTSENT)
 
     sender         = CharField(_(u'Sender'), max_length=100)
     recipient      = CharField(_(u'Recipient'), max_length=100)
@@ -117,7 +117,7 @@ class _Email(CremeModel):
             error('Mail already sent to the recipient') #i18n ?
             return
 
-        body = mail.body
+        body = mail.body_html or mail.body
         #body += '<img src="http://minimails.hybird.org/emails/stats/bbm/%s" />' % mail.ident
 
         signature = mail.signature
@@ -200,6 +200,22 @@ class EntityEmail(_Email, CremeEntity):
 
     def get_delete_absolute_url(self):
         return u"/emails/entitymail/delete/%s" % self.id
+
+    @staticmethod
+    def create_n_send_mail(sender, recipient, subject, user_pk, body_html=u"", signature=None, attachments=None):
+        email           = EntityEmail()
+        email.sender    = sender
+        email.recipient = recipient
+        email.subject   = subject
+        email.body_html = body_html
+        email.signature = signature
+        email.user_id   = user_pk
+        email.genid_n_save()
+        if attachments:
+            email.attachments = attachments
+            email.save()
+        email.send()
+        return email
 
     #COMMENTED on 25 oct 2010
     #def get_entity_actions(self):

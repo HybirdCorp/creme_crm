@@ -1,0 +1,36 @@
+{% load i18n %}
+{% load creme_block %}
+<table class="table_detail_view ui-corner-all" id={{block_name}}>
+    {% include "creme_core/templatetags/widgets/block_header_beg.html" %}
+        <th style="width: 80%;" class="collapser" align="left">{% get_block_title _("%s Campaigns email in the history") _("%s Campaigns emails in the history") 'email_48.png' _('Emails') %}</th>
+        <th style="width: 20%;" align="right"></th>
+    {% include "creme_core/templatetags/widgets/block_header_end.html" %}
+    <tbody class="collapsable">
+        {% if page.paginator.count %}
+            <tr>
+                <th class="block_header_line_dark">{% trans "Sending date" %}</th>
+                <th class="block_header_line_dark">{% trans "Subject" %}</th>
+                <th class="block_header_line_dark">{% trans "Status" %}</th>
+                <th class="block_header_line_dark">{% trans "Detail" %}</th>
+            </tr>
+            {% for mail in page.object_list %}
+                <!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
+                <tr>
+                    <td class="{{row_color}}">{{mail.sending_date}}</td>
+                    <td class="{{row_color}}">{{mail.subject}}</td>
+                    <td class="{{row_color}}">{{mail.get_status_str}}</td>
+                    <td class="{{row_color}}">
+                        <a class="button_link" onclick="creme.utils.showInnerPopup('/emails/mails_history/{{mail.pk}}')">
+                            <img src="{{MEDIA_URL}}images/view_22.png" border="0" title="{% trans "Details" %}" alt="{% trans "Details" %}" />
+                        </a>
+                    </td>
+                </tr>
+            {% endfor %}
+        {% else %}
+            <tr>
+                <td class="block_line_dark">{% trans "No campaign email in the history for the moment" %}</td>
+            </tr>
+        {% endif %}
+    </tbody>
+    {% include 'creme_core/templatetags/widgets/block_footer.html' %}
+</table>

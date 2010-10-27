@@ -18,8 +18,31 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-REL_SUB_MAIL_RECEIVED = 'email-subject_mail_received'
-REL_OBJ_MAIL_RECEIVED = 'email-object_mail_received'
+from django.core.management.base import BaseCommand
 
-REL_SUB_MAIL_SENDED = 'email-subject_mail_sended'
-REL_OBJ_MAIL_SENDED = 'email-object_mail_sended'
+from creme_core.models import Lock
+
+from emails.models.mail import EntityEmail, MAIL_STATUS_NOTSENT, MAIL_STATUS_SENDINGERROR
+
+LOCK_NAME = "entity_emails_send"
+
+#NB: python manage.py entity_emails_send
+
+class Command(BaseCommand):
+    help = "Send all unsended mails that have to be."
+
+    def handle(self, *args, **options):
+        lock = Lock.objects.filter(name=LOCK_NAME)
+
+        if not lock:
+            try:
+                lock = Lock(name=LOCK_NAME)
+                lock.save()
+
+                for email in EntityEmail.objects.filter(status__in=[MAIL_STATUS_NOTSENT, MAIL_STATUS_SENDINGERROR]):
+                    email.send()
+                    
+            finally:
+                lock.delete()
+        else:
+            print 'A process is already running'

@@ -24,20 +24,27 @@ from django.template.context import RequestContext
 from django.template.loader import render_to_string
 from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.contenttypes.models import ContentType
+from django.utils.translation import ugettext_lazy as _
 
-from creme_core.views.generic import view_entity_with_template, list_view, inner_popup
-from creme_core.utils import jsonify
+from creme_core.views.generic import (view_entity_with_template, list_view,
+                                      inner_popup, add_entity, add_to_entity,
+                                      view_real_entity_with_template)
+                                      
+from creme_core.utils import jsonify, get_from_POST_or_404
 
 from crudity.views.email import fetch_emails
 
 #from emails.blocks import mails_history_block
-from emails.models.mail import (EntityEmail, 
+from emails.models.mail import (EntityEmail,
+                                MAIL_STATUS_SENT,
                                 MAIL_STATUS_SYNCHRONIZED_SPAM,
                                 MAIL_STATUS_SYNCHRONIZED,
                                 MAIL_STATUS_SYNCHRONIZED_WAITING)
 
 from emails.blocks import SpamSynchronizationMailsBlock, WaitingSynchronizationMailsBlock
 from emails.models import LightWeightEmail
+
+from emails.forms.mail import EntityEmailForm
 
 #@login_required
 #def reload_block_mails_history(request, entity_id):
@@ -54,7 +61,7 @@ def view_lightweight_mail(request, mail_id):
     email.sending.campaign.can_view_or_die(request.user)
 
     template = "emails/view_email.html"
-    ctx_dict = {'mail': email, 'title': 'Détails du mail'}
+    ctx_dict = {'mail': email, 'title': 'Détails du mail'}#TODO: i18n
 
     if request.is_ajax():
         return inner_popup(request, template,
@@ -138,9 +145,45 @@ def reload_sync_blocks(request):
 @permission_required('emails')
 def detailview(request, mail_id):
     return view_entity_with_template(request, mail_id, EntityEmail,
-                                     '/emails/mail', 'emails/view_entity_mail.html')
+                                     '/emails/mail', 'emails/view_entity_mail.html',
+                                     extra_template_dict={'sent_status': MAIL_STATUS_SENT})
 
 @login_required
 @permission_required('emails')
 def listview(request):
     return list_view(request, EntityEmail)
+
+
+@login_required
+@permission_required('emails')
+def create_n_send(request, entity_id):
+    return add_to_entity(
+                         request,
+                         entity_id,
+                         EntityEmailForm,
+                         title=_(u'Sending an email to <%s>'),
+                         initial={'current_user': request.user}
+                        )
+
+@jsonify
+@login_required
+@permission_required('emails')
+def resend_mails(request):
+    _ids = get_from_POST_or_404(request.POST, 'ids')
+    ids = _ids.split(',')
+
+    for id in ids:
+        try:
+            EntityEmail.objects.get(pk=id).send()
+        except EntityEmail.DoesNotExist:
+            pass
+
+    return {}
+    
+@login_required
+@permission_required('activities')
+def popupview(request, mail_id):
+    return view_real_entity_with_template(request, mail_id,
+                                          '/emails/mail',
+                                          'emails/view_entity_mail_popup.html')
+
