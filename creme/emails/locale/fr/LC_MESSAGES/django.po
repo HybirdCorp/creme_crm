@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-10-27 14:27+0200\n"
+"POT-Creation-Date: 2010-10-27 14:45+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 
 #: blocks.py:48 forms/campaign.py:46 models/mailing_list.py:38
-#: templates/emails/templatetags/block_mailing_lists.html:5
+#: templates/emails/templatetags/block_mailing_lists.html:6
 msgid "Mailing lists"
 msgstr "Listes de diffusion de courriels"
 
@@ -51,7 +51,7 @@ msgstr "Listes de diffusion parentes"
 msgid "Attachments"
 msgstr "Fichiers attachés"
 
-#: blocks.py:140 templates/emails/templatetags/block_sendings.html:5
+#: blocks.py:140 templates/emails/templatetags/block_sendings.html:6
 msgid "Sendings"
 msgstr "Envois"
 
@@ -59,26 +59,26 @@ msgstr "Envois"
 msgid "Emails of a sending"
 msgstr "Courriels d'un envoi"
 
-#: blocks.py:181
+#: blocks.py:178
 msgid "Emails history"
 msgstr "Historique des mails"
 
-#: blocks.py:200
+#: blocks.py:197
 msgid "Campaings emails history"
 msgstr "Historique des mails des campagnes"
 
-#: blocks.py:231
+#: blocks.py:228
 msgid "Incoming Emails to sync"
 msgstr "Courriels entrants à traiter"
 
-#: blocks.py:244
+#: blocks.py:241
 msgid "Spam emails"
 msgstr "Courriels entrants marqués comme spam"
 
 #: creme_core_register.py:32 models/mail.py:177 templates/emails/portal.html:3
 #: templates/emails/frags/ajax/synchronize.html:6
 #: templates/emails/templatetags/block_lw_mails_history.html:5
-#: templates/emails/templatetags/block_mails.html:5
+#: templates/emails/templatetags/block_mails.html:6
 #: templates/emails/templatetags/block_mails_history.html:9
 #: templates/emails/templatetags/block_synchronization.html:8
 msgid "Emails"
@@ -156,7 +156,7 @@ msgid "Mailing list view"
 msgstr "Vue de Liste de Diffusion"
 
 #: populate.py:47 populate.py:50 populate.py:53 models/template.py:32
-#: templates/emails/templatetags/block_attachments.html:18
+#: templates/emails/templatetags/block_attachments.html:16
 msgid "Name"
 msgstr "Nom"
 
@@ -204,12 +204,12 @@ msgid "Sender"
 msgstr "Émetteur"
 
 #: forms/mail.py:47 forms/mailing_list.py:41
-#: templates/emails/templatetags/block_contacts.html:5
+#: templates/emails/templatetags/block_contacts.html:6
 msgid "Contacts"
 msgstr "Contacts"
 
 #: forms/mail.py:48 forms/mailing_list.py:58
-#: templates/emails/templatetags/block_organisations.html:5
+#: templates/emails/templatetags/block_organisations.html:6
 msgid "Organisations"
 msgstr "Sociétés"
 
@@ -295,7 +295,7 @@ msgstr "Patron de courriel"
 #: templates/emails/view_email.html:51
 #: templates/emails/templatetags/block_lw_mails_history.html:11
 #: templates/emails/templatetags/block_mails_history.html:26
-#: templates/emails/templatetags/block_sendings.html:18
+#: templates/emails/templatetags/block_sendings.html:16
 msgid "Sending date"
 msgstr "Date d'envoi"
 
@@ -381,7 +381,7 @@ msgstr "Nombre de lecture(s)"
 #: templates/emails/view_entity_mail_popup.html:37
 #: templates/emails/templatetags/_block_synchronization.html:14
 #: templates/emails/templatetags/block_lw_mails_history.html:13
-#: templates/emails/templatetags/block_mails.html:12
+#: templates/emails/templatetags/block_mails.html:13
 #: templates/emails/templatetags/block_mails_history.html:25
 msgid "Status"
 msgstr "Statut"
@@ -390,7 +390,7 @@ msgstr "Statut"
 #: templates/emails/view_email.html:23
 #: templates/emails/view_entity_mail.html:76
 #: templates/emails/view_entity_mail_popup.html:45
-#: templates/emails/templatetags/block_mails.html:11
+#: templates/emails/templatetags/block_mails.html:12
 #: templates/emails/templatetags/block_mails_history.html:23
 msgid "Recipient"
 msgstr "Destinataire"
@@ -521,16 +521,16 @@ msgid "Delete '%(object)s'"
 msgstr "Supprimer '%(object)s'"
 
 #: templates/emails/view_entity_mail.html:40
-#: templates/emails/templatetags/block_attachments.html:19
-#: templates/emails/templatetags/block_child_lists.html:19
-#: templates/emails/templatetags/block_contacts.html:23
-#: templates/emails/templatetags/block_mailing_lists.html:19
-#: templates/emails/templatetags/block_mails.html:13
-#: templates/emails/templatetags/block_organisations.html:23
-#: templates/emails/templatetags/block_recipients.html:23
-#: templates/emails/templatetags/block_sendings.html:23
+#: templates/emails/templatetags/block_attachments.html:17
+#: templates/emails/templatetags/block_child_lists.html:17
+#: templates/emails/templatetags/block_contacts.html:18
+#: templates/emails/templatetags/block_mailing_lists.html:17
+#: templates/emails/templatetags/block_mails.html:14
+#: templates/emails/templatetags/block_organisations.html:18
+#: templates/emails/templatetags/block_recipients.html:28
+#: templates/emails/templatetags/block_sendings.html:21
+#: templates/emails/templatetags/block_synchronization.html:24
 #: templates/emails/templatetags/block_synchronization.html:25
-#: templates/emails/templatetags/block_synchronization.html:26
 #: templates/emails/templatetags/block_synchronization_spam.html:16
 #: templates/emails/templatetags/block_synchronization_spam.html:17
 msgid "Delete"
@@ -602,85 +602,79 @@ msgstr "Voir la fiche"
 msgid "No received email to synchronize"
 msgstr "Aucun courriel reçu à synchroniser"
 
-#: templates/emails/templatetags/block_attachments.html:5
+#: templates/emails/templatetags/block_attachments.html:6
 #, python-format
 msgid "%s Attachment"
 msgstr "%s Fichier attaché"
 
-#: templates/emails/templatetags/block_attachments.html:5
+#: templates/emails/templatetags/block_attachments.html:6
 #, python-format
 msgid "%s Attachments"
 msgstr "%s Fichiers attachés"
 
 #: templates/emails/templatetags/block_attachments.html:9
-msgid "Add an attachment"
-msgstr "Ajouter un fichier attaché"
-
-#: templates/emails/templatetags/block_attachments.html:10
 msgid "Add existing documents"
 msgstr "Ajouter des documents existants"
 
-#: templates/emails/templatetags/block_attachments.html:34
+#: templates/emails/templatetags/block_attachments.html:32
 msgid "No attachment for the moment"
 msgstr "Aucune pièce jointe pour le moment"
 
-#: templates/emails/templatetags/block_child_lists.html:5
+#: templates/emails/templatetags/block_child_lists.html:6
 #, python-format
 msgid "%s Child List"
 msgstr "%s Liste fille"
 
-#: templates/emails/templatetags/block_child_lists.html:5
+#: templates/emails/templatetags/block_child_lists.html:6
 #, python-format
 msgid "%s Child Lists"
 msgstr "%s Listes filles"
 
 #: templates/emails/templatetags/block_child_lists.html:9
-#: templates/emails/templatetags/block_child_lists.html:10
 msgid "Add a child list"
 msgstr "Ajouter une liste fille"
 
-#: templates/emails/templatetags/block_child_lists.html:18
-#: templates/emails/templatetags/block_mailing_lists.html:18
+#: templates/emails/templatetags/block_child_lists.html:16
+#: templates/emails/templatetags/block_mailing_lists.html:16
 #: templates/emails/templatetags/block_parent_lists.html:14
 msgid "Name of the list"
 msgstr "Nom de la liste"
 
-#: templates/emails/templatetags/block_child_lists.html:34
+#: templates/emails/templatetags/block_child_lists.html:32
 msgid "No child list for the moment"
 msgstr "Aucune liste fille pour le moment"
 
-#: templates/emails/templatetags/block_contacts.html:5
-msgid "% Contact recipient"
+#: templates/emails/templatetags/block_contacts.html:6
+#, fuzzy, python-format
+msgid "%s Contact recipient"
 msgstr "%s Contact destinataire"
 
-#: templates/emails/templatetags/block_contacts.html:5
-msgid "% Contacts recipients"
+#: templates/emails/templatetags/block_contacts.html:6
+#, python-format
+msgid "%s Contacts recipients"
 msgstr "%s Contacts destinataires"
 
 #: templates/emails/templatetags/block_contacts.html:9
-#: templates/emails/templatetags/block_contacts.html:10
 msgid "Add from existing contacts"
 msgstr "Ajouter depuis des contacts existant"
 
-#: templates/emails/templatetags/block_contacts.html:13
-#: templates/emails/templatetags/block_contacts.html:14
-#: templates/emails/templatetags/block_organisations.html:13
-#: templates/emails/templatetags/block_organisations.html:14
+#: templates/emails/templatetags/block_contacts.html:10
+#: templates/emails/templatetags/block_organisations.html:10
 msgid "Add from a filter"
 msgstr "Ajouter à partir d'un filtre"
 
-#: templates/emails/templatetags/block_contacts.html:22
-#: templates/emails/templatetags/block_organisations.html:22
-#: templates/emails/templatetags/block_recipients.html:22
+#: templates/emails/templatetags/block_contacts.html:17
+#: templates/emails/templatetags/block_organisations.html:17
+#: templates/emails/templatetags/block_recipients.html:27
 msgid "Address"
 msgstr "Adresse"
 
-#: templates/emails/templatetags/block_contacts.html:33
+#: templates/emails/templatetags/block_contacts.html:28
 #, python-format
 msgid "%(contact)s: no email address."
 msgstr "%(contact)s: pas d'adresse email."
 
-#: templates/emails/templatetags/block_contacts.html:44
+#: templates/emails/templatetags/block_contacts.html:39
 msgid "No contact recipient for the moment"
 msgstr "Aucun contact destinataire pour le moment"
 
@@ -701,8 +695,8 @@ msgstr "Détail"
 
 #: templates/emails/templatetags/block_lw_mails_history.html:24
 #: templates/emails/templatetags/block_mails_history.html:39
-#: templates/emails/templatetags/block_sendings.html:22
-#: templates/emails/templatetags/block_sendings.html:34
+#: templates/emails/templatetags/block_sendings.html:20
+#: templates/emails/templatetags/block_sendings.html:32
 msgid "Details"
 msgstr "Détails"
 
@@ -710,39 +704,35 @@ msgstr "Détails"
 msgid "No campaign email in the history for the moment"
 msgstr "Aucun courriel des campagnes dans l'historique pour le moment"
 
-#: templates/emails/templatetags/block_mailing_lists.html:5
+#: templates/emails/templatetags/block_mailing_lists.html:6
 #, python-format
 msgid "%s Related mailing list"
 msgstr "%s Liste de diffusion associée"
 
-#: templates/emails/templatetags/block_mailing_lists.html:5
+#: templates/emails/templatetags/block_mailing_lists.html:6
 #, python-format
 msgid "%s Related mailing lists"
 msgstr "%s Listes de diffusion associées"
 
 #: templates/emails/templatetags/block_mailing_lists.html:9
-msgid "Add lists"
-msgstr "Ajouter de listes"
-
-#: templates/emails/templatetags/block_mailing_lists.html:10
 msgid "Add existing mailing lists"
 msgstr "Ajouter des listes de diffusion existantes"
 
-#: templates/emails/templatetags/block_mailing_lists.html:34
+#: templates/emails/templatetags/block_mailing_lists.html:32
 msgid "No related mailing list for the moment"
 msgstr "Aucune liste de diffusion associée pour le moment"
 
-#: templates/emails/templatetags/block_mails.html:5
+#: templates/emails/templatetags/block_mails.html:6
 #, python-format
 msgid "%s Email"
 msgstr "%s Courriel"
 
-#: templates/emails/templatetags/block_mails.html:5
+#: templates/emails/templatetags/block_mails.html:6
 #, python-format
 msgid "%s Emails"
 msgstr "%s Courriels"
 
-#: templates/emails/templatetags/block_mails.html:27
+#: templates/emails/templatetags/block_mails.html:28
 msgid "No email in this sending"
 msgstr "Aucun mail dans cet envoi"
 
@@ -765,27 +755,26 @@ msgstr "Envoyer un nouveau courriel en rapport avec cette fiche"
 msgid "No email in the history for the moment"
 msgstr "Aucun courriel dans l'historique pour le moment"
 
-#: templates/emails/templatetags/block_organisations.html:5
+#: templates/emails/templatetags/block_organisations.html:6
 #, python-format
 msgid "%s Organisation recipient"
 msgstr "%s Société destinataire"
 
-#: templates/emails/templatetags/block_organisations.html:5
+#: templates/emails/templatetags/block_organisations.html:6
 #, python-format
 msgid "%s Organisations recipients"
 msgstr "%s Sociétés destinataires"
 
 #: templates/emails/templatetags/block_organisations.html:9
-#: templates/emails/templatetags/block_organisations.html:10
 msgid "Add from existing organisations"
 msgstr "Ajouter depuis des sociétés existantes"
 
-#: templates/emails/templatetags/block_organisations.html:33
+#: templates/emails/templatetags/block_organisations.html:28
 #, python-format
 msgid "%(orga)s : no email address."
 msgstr "%(orga)s : pas d'adresse email."
 
-#: templates/emails/templatetags/block_organisations.html:44
+#: templates/emails/templatetags/block_organisations.html:39
 msgid "No organisation recipient for the moment"
 msgstr "Aucune société destinataire pour le moment"
 
@@ -793,58 +782,61 @@ msgstr "Aucune société destinataire pour le moment"
 msgid "No parent list for the moment"
 msgstr "Aucune liste parente pour le moment"
 
-#: templates/emails/templatetags/block_recipients.html:5
+#: templates/emails/templatetags/block_recipients.html:6
 #, python-format
 msgid "%s Unlinked recipient"
 msgstr "%s Destinataire manuel"
 
-#: templates/emails/templatetags/block_recipients.html:5
+#: templates/emails/templatetags/block_recipients.html:6
 #, python-format
 msgid "%s Unlinked recipients"
 msgstr "%s Destinataires manuels"
 
 #: templates/emails/templatetags/block_recipients.html:9
-#: templates/emails/templatetags/block_recipients.html:10
 msgid "Add manually"
 msgstr "Ajouter à la main"
 
+#: templates/emails/templatetags/block_recipients.html:12
 #: templates/emails/templatetags/block_recipients.html:13
-#: templates/emails/templatetags/block_recipients.html:14
+#: templates/emails/templatetags/block_recipients.html:18
 msgid "Add from a CSV file"
 msgstr "Ajouter à partir d'un fichier CSV"
 
-#: templates/emails/templatetags/block_recipients.html:36
+#: templates/emails/templatetags/block_recipients.html:17
+msgid "Can't add"
+msgstr "Ne peux ajouter"
+
+#: templates/emails/templatetags/block_recipients.html:41
 msgid "No unlinked recipient for the moment"
 msgstr "Aucun destinataire pour le moment"
 
-#: templates/emails/templatetags/block_sendings.html:5
+#: templates/emails/templatetags/block_sendings.html:6
 #, python-format
 msgid "%s Sending"
 msgstr "%s Envoi"
 
-#: templates/emails/templatetags/block_sendings.html:5
+#: templates/emails/templatetags/block_sendings.html:6
 #, python-format
 msgid "%s Sendings"
 msgstr "%s Envois"
 
 #: templates/emails/templatetags/block_sendings.html:9
-#: templates/emails/templatetags/block_sendings.html:10
 msgid "New sending"
 msgstr "Nouvel envoi"
 
-#: templates/emails/templatetags/block_sendings.html:19
+#: templates/emails/templatetags/block_sendings.html:17
 msgid "Type"
 msgstr "Type"
 
-#: templates/emails/templatetags/block_sendings.html:20
+#: templates/emails/templatetags/block_sendings.html:18
 msgid "State"
 msgstr "État"
 
-#: templates/emails/templatetags/block_sendings.html:21
+#: templates/emails/templatetags/block_sendings.html:19
 msgid "Number of email(s)"
 msgstr "Nombre de message(s)"
 
-#: templates/emails/templatetags/block_sendings.html:44
+#: templates/emails/templatetags/block_sendings.html:42
 msgid "No sending for the moment"
 msgstr "Aucun envoi pour le moment"
 
@@ -868,8 +860,8 @@ msgstr "Relier à"
 msgid "Mark as treated"
 msgstr "Marquer comme traité"
 
+#: templates/emails/templatetags/block_synchronization.html:28
 #: templates/emails/templatetags/block_synchronization.html:29
-#: templates/emails/templatetags/block_synchronization.html:30
 msgid "Mark as spam"
 msgstr "Marquer comme spam"
 
@@ -897,7 +889,11 @@ msgstr "Marquer comme à traiter"
 msgid "New mailing lists for <%s>"
 msgstr "Nouvelles listes de diffusion pour <%s>"
 
-#: views/mail.py:164
+#: views/mail.py:62
+msgid "Details of the mail"
+msgstr "Détails du courriel"
+
+#: views/mail.py:163
 #, python-format
 msgid "Sending an email to <%s>"
 msgstr "Envoi d'un mail à <%s>"
@@ -939,6 +935,12 @@ msgstr "Nouvel envoi pour <%s>"
 #, python-format
 msgid "New attachments for <%s>"
 msgstr "Nouveaux fichiers joints pour <%s>"
+
+#~ msgid "Add an attachment"
+#~ msgstr "Ajouter un fichier attaché"
+
+#~ msgid "Add lists"
+#~ msgstr "Ajouter de listes"
 
 #~ msgid "See"
 #~ msgstr "Voir"
