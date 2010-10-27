@@ -75,3 +75,33 @@ creme.reload_synchronisation = function($target, target_url){
         }
     });
 };
+
+creme.emails.resend = function(url, ids, block_url, complete_cb)
+{
+    creme.ajax.post(
+        {
+            'url':url,
+            'data':{
+                'ids': ids
+            },
+            success : function(data, status, req)
+            {
+                creme.utils.showDialog("Opération effectuée");
+            },
+            complete:function(req, st)
+            {
+                if(st!='error')
+                {
+                    if(block_url && typeof(block_url) != "undefined")
+                    {
+                        creme.utils.loadBlock(block_url);
+                    }
+                    if(complete_cb && $.isFunction(complete_cb))
+                    {
+                        complete_cb();
+                    }
+                }
+                creme.utils.loading('loading', true);
+            }
+        });
+}
