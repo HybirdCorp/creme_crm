@@ -28,7 +28,7 @@ from persons.models import Contact
 from task import ProjectTask
 
 
-class Resource(CremeEntity):
+class Resource(CremeEntity): #CremeModel instead ??
     linked_contact  = ForeignKey(Contact, verbose_name=_(u'Contact'))
     hourly_cost     = PositiveIntegerField(_(u'Hourly cost (in €)'), blank=True, null=True)
     task            = ForeignKey(ProjectTask, verbose_name=_(u'Task'), related_name='resources_set')

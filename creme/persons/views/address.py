@@ -61,14 +61,10 @@ def add(request):
 
 @login_required
 @permission_required('persons')
-#@edit_view_or_die(__ct_address, app_name="all_creme_apps")
 def edit(request, address_id):
     address = get_object_or_404(Address, pk=address_id)
     entity = address.owner
 
-    #die_status = edit_object_or_die(request, address)
-    #if die_status:
-        #return die_status
     entity.can_change_or_die(request.user)
 
     if request.POST:
@@ -90,14 +86,10 @@ def edit(request, address_id):
                        context_instance=RequestContext(request))
 
 @login_required
-#@edit_view_or_die(__ct_address, app_name="all_creme_apps")
 @permission_required('persons')
 def delete(request, pk_key='id'):
     address = get_object_or_404(Address, pk=get_from_POST_or_404(request.POST, pk_key))
 
-    #die_status = delete_object_or_die(request, address)
-    #if die_status:
-        #return die_status
     address.owner.can_change_or_die(request.user)
 
     address.delete()
@@ -108,7 +100,6 @@ def delete(request, pk_key='id'):
         return HttpResponseRedirect(address.owner.get_absolute_url())
 
 @login_required #TODO: twice... (see add_to_entity())
-#@add_view_or_die(__ct_address, app_name="all_creme_apps")
 @permission_required('persons')
 def ipopup_add_adress(request, entity_id):
     return add_to_entity(request, entity_id, AddressWithEntityForm, _(u'Adding Address to <%s>'))

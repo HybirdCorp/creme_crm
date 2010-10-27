@@ -25,9 +25,8 @@ register = Library()
 
 @register.inclusion_tag('creme_core/templatetags/widgets/add_button.html', takes_context=True)
 def get_add_button(context, entity, user):
-    meta = entity._meta
     context.update({
-            'can_add': user.has_perm('%s.add_%s' % (meta.app_label, meta.object_name.lower()))
+            'can_add': user.has_perm_to_create(entity),
            })
     return context
 

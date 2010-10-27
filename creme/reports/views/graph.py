@@ -42,13 +42,14 @@ from reports.forms.graph import ReportGraphAddForm
 
 #report_graph_app = ReportGraph._meta.app_label #TODO: use a contant REPORTS instead
 
-
 #TODO: use add_to_entity() generic view
 @login_required
 @permission_required('reports')
-@permission_required('reports.add_reportgraph')
 def add(request, report_id):
     report = get_object_or_404(Report, pk=report_id)
+
+    report.can_change_or_die(request.user)
+
     POST = request.POST
     if POST:
         graph_form = ReportGraphAddForm(report, POST)

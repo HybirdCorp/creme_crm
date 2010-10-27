@@ -4,5 +4,5 @@
         <img src="{{MEDIA_URL}}images/delete_64.png" title="{% blocktrans %}Delete '{{object}}'{% endblocktrans %}" alt="{% trans "Delete" %}" />
     </a>
 {% else %}
-    <img src="{{MEDIA_URL}}images/delete_64.png" title="{% blocktrans %}You can't delete '{{object}}'{% endblocktrans %}" alt="{% trans "Can't delete" %}"  style="opacity:0.5;"/>
+    <img class="forbidden" src="{{MEDIA_URL}}images/delete_64.png" title="{% blocktrans %}You can't delete '{{object}}'{% endblocktrans %}" alt="{% trans "Can't delete" %}"/>
 {% endif %}

@@ -80,6 +80,8 @@ def unlink_report(request):
     return HttpResponse("", mimetype="text/javascript")
 
 def __link_report(request, report, field, ct):
+    report.can_change_or_die(request.user)
+
     POST = request.POST
     if POST:
         link_form = LinkFieldToReportForm(report, field, ct, POST)
@@ -114,13 +116,8 @@ def link_report(request, report_id, field_id):
 
     if model is None:
         raise Http404
-    
-    ct = ContentType.objects.get_for_model(model)
 
-    #Really useful here ?
-#    die_status = edit_object_or_die(request, field)
-#    if die_status:
-#        return die_status
+    ct = ContentType.objects.get_for_model(model)
 
     return __link_report(request, report, field, ct)
 
@@ -130,7 +127,7 @@ def link_relation_report(request, report_id, field_id, ct_id):
     field  = get_object_or_404(Field,  pk=field_id)
     report = get_object_or_404(Report, pk=report_id)
     ct = get_ct_or_404(ct_id)
-    
+
     return __link_report(request, report, field, ct)
 
 #TODO: use add_to_entity() generic view
@@ -139,7 +136,9 @@ def link_relation_report(request, report_id, field_id, ct_id):
 def add_field(request, report_id):
     report = get_object_or_404(Report, pk=report_id)
     POST = request.POST
-    
+
+    report.can_change_or_die(request.user)
+
     if POST:
         add_field_form = AddFieldToReportForm(report, POST)
 
@@ -170,6 +169,8 @@ def change_field_order(request):
     report = get_object_or_404(Report, pk=POST.get('report_id')) #TODO: use get_from_POST_or_404
     field  = get_object_or_404(Field,  pk=POST.get('field_id'))
     direction = POST.get('direction', 'up')
+
+    report.can_change_or_die(request.user)
 
     field.order =  field.order + _order_direction[direction]
     try:

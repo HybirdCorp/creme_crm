@@ -161,15 +161,12 @@ class MailsBlock(QuerysetBlock):
                                                             ))
 
     #Useful method because EmailSending is not a CremeEntity (should be ?) --> generic view in creme_core (problems with credemtials ?) ??
-    #TODO: use RequestContext
     @jsonify
     def detailview_ajax(self, request, entity_id):
-        from creme_core.gui.block import BlocksManager
-        context = {
-                'request':              request,
-                'object':               EmailSending.objects.get(id=entity_id),
-                BlocksManager.var_name: BlocksManager(),
-            }
+        context = RequestContext(request)
+        context.update({
+                'object': EmailSending.objects.get(id=entity_id),
+            })
 
         return [(self.id_, self.detailview_display(context))]
 

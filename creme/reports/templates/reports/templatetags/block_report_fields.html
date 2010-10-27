@@ -1,9 +1,9 @@
 {% load i18n %}
-{% load creme_block %}
+{% load creme_core_tags %}{% load creme_block %}{% load queryset_tags %}
 {% load report_tags %}
-{% load queryset_tags %}
 
 {% with 6 as colspan %}
+{% has_perm_to change object as has_perm %}
 <table class="table_detail_view ui-corner-all" id={{block_name}}>
     <thead>
         <tr>
@@ -13,102 +13,117 @@
     <tbody class="collapsable">
         <tr>
             <th align="left" colspan="{{colspan}}" class="{% cycle "block_header_line_dark" "block_header_line_light" %}">
-                <a class="button_link" onclick="creme.utils.innerPopupNReload('/reports/report/{{object.id}}/field/add', {% get_block_reload_uri %});">
-                    <img src="{{MEDIA_URL}}images/add_22.png" border="0" title="{% trans "Add a column" %}" alt="{% trans "Add a column" %}" />
-                    {% trans "Add" %} /
-                    <img src="{{MEDIA_URL}}images/delete_22.png" border="0" title="{% trans "Delete a column" %}" alt="{% trans "Delete a column" %}" />
-                    {% trans "Delete a column" %}
-                </a>
+                {% if has_perm %}
+                    <a class="button_link" onclick="creme.utils.innerPopupNReload('/reports/report/{{object.id}}/field/add', {% get_block_reload_uri %});">
+                        <img src="{{MEDIA_URL}}images/add_22.png" border="0" title="{% trans "Add a column" %}" alt="{% trans "Add a column" %}" />
+                        {% trans "Add" %} /
+                        <img src="{{MEDIA_URL}}images/delete_22.png" border="0" title="{% trans "Delete a column" %}" alt="{% trans "Delete a column" %}" />
+                        {% trans "Delete a column" %}
+                    </a>
+                {% else %}
+                    <span class="button_link forbidden">
+                        <img src="{{MEDIA_URL}}images/add_22.png" border="0" title="{% trans "Can't add" %}" alt="{% trans "Can't add" %}" />
+                        {% trans "Add" %} /
+                        <img src="{{MEDIA_URL}}images/delete_22.png" border="0" title="{% trans "Can't delete" %}" alt="{% trans "Can't delete" %}" />
+                        {% trans "Delete a column" %}
+                    </a>
+                {% endif %}
             </th>
         </tr>
         {% if object.columns.all %}
             <tr>
-                <th class="{% cycle "block_header_line_dark" "block_header_line_light" %}">{% trans "#" %}</th>
-                <th class="{% cycle "block_header_line_dark" "block_header_line_light" %}">{% trans "Column" %}</th>
-                <th class="{% cycle "block_header_line_dark" "block_header_line_light" %}">{% trans "Displayed in the report" %}</th>
-                <th class="{% cycle "block_header_line_dark" "block_header_line_light" %}">{% trans "Type" %}</th>
-                <th class="{% cycle "block_header_line_dark" "block_header_line_light" %}">{% trans "Action(s)" %}</th>
-                <th class="{% cycle "block_header_line_dark" "block_header_line_light" %}">{% trans "Expand ?" %}</th>
+                <th class="block_header_line_light">{% trans "#" %}</th>
+                <th class="block_header_line_light">{% trans "Column" %}</th>
+                <th class="block_header_line_light">{% trans "Displayed in the report" %}</th>
+                <th class="block_header_line_light">{% trans "Type" %}</th>
+                <th class="block_header_line_light">{% trans "Action(s)" %}</th>
+                <th class="block_header_line_light">{% trans "Expand ?" %}</th>
             </tr>
-            <!--
-                {% cycle "block_header_line_light" "block_header_line_dark" as header_row %}
-                {% cycle "block_line_light" "block_line_dark" as row_color %}
-            -->
             {% for column in object.columns.all|order_by:"order" %}
+                <!--{% cycle "block_line_light" "block_line_dark" as row_color %}-->
                 <tr>
-                    <td class="{% cycle "block_line_dark" "block_line_light" %}">{{column.order}}</td>
-                    <td class="{% cycle "block_line_dark" "block_line_light" %}">{{column}}</td>
-                    <td class="{% cycle "block_line_dark" "block_line_light" %}">
+                    <td class="{{row_color}}">{{column.order}}</td>
+                    <td class="{{row_color}}">{{column}}</td>
+                    <td class="{{row_color}}">
                     {% if column.report %}
                         {% trans "Columns of" %} : <a href="{{column.report.get_absolute_url}}">{{column.report}}</a> ({{column.report.columns.all|order_by:"order"|join:", "}})
                     {% else %}
                         {% trans "Value" %}
                     {% endif %}
                     </td>
-                    <td class="{% cycle "block_line_dark" "block_line_light" %}">{{column.type|get_verbose_type}}</td>
-                    <td class="{% cycle "block_line_dark" "block_line_light" %}">
+                    <td class="{{row_color}}">{{column.type|get_verbose_type}}</td>
+                    <td class="{{row_color}}">
                         <table style="width: 100%;">
                             <tbody>
                                 <tr>
                                     <td style="width: 66%;">
                                         {% if HFI_FIELD == column.type %}
                                             {% if column.report %}
-                                                <a onclick="creme.reports.unlink_report('{{column.pk}}', '{{update_url}}');">{% trans 'Unlink the report' %}</a>
+                                                {% if has_perm %}
+                                                    <a onclick="creme.reports.unlink_report('{{column.pk}}', '{{update_url}}');">{% trans 'Unlink the report' %}</a>
+                                                {% else %}
+                                                    <span class="forbidden">{% trans 'Unlink the report' %}</span>
+                                                {% endif %}
                                             {% else %}
                                                     {% if column|is_field_is_linkable:object.ct %}
-                                                        {% comment %}<a onclick="creme.reports.link_report('{{object.id}}', '{{column.pk}}', '{{update_url}}?base_url={{base_url}}');">{% trans 'Link a report' %}</a>{% endcomment %}
-                                                        <a onclick="creme.reports.link_report('{{object.id}}', '{{column.pk}}', {% get_block_reload_uri %});">
-                                                            {% trans 'Link a report' %}
-                                                        </a>
+                                                        {% if has_perm %}
+                                                            <a onclick="creme.reports.link_report('{{object.id}}', '{{column.pk}}', {% get_block_reload_uri %});">{% trans 'Link a report' %}</a>
+                                                        {% else %}
+                                                            <span class="forbidden">{% trans 'Link a report' %}</span>
+                                                        {% endif %}
                                                     {% endif %}
-
                                             {% endif %}
                                         {% endif %}
                                         {% if HFI_RELATION == column.type %}{% comment %}TODO use "else"{% endcomment %}
                                             {% if column.report %}
-                                                {% comment %}<a onclick="creme.reports.unlink_report('{{column.pk}}', '{{update_url}}');">{% trans 'Unlink the report' %}</a>{% endcomment %}
-                                                <a onclick="creme.reports.unlink_report('{{column.pk}}', {% get_block_reload_uri %});">
-                                                    {% trans 'Unlink the report' %}
-                                                </a>
+                                                {% if has_perm %}
+                                                    <a onclick="creme.reports.unlink_report('{{column.pk}}', {% get_block_reload_uri %});">{% trans 'Unlink the report' %}</a>
+                                                {% else %}
+                                                    <span class="forbidden">{% trans 'Unlink the report' %}</span>
+                                                {% endif %}
                                             {% else %}
-                                                {% comment %}<a onclick="creme.reports.link_relation_report('{{object.id}}', '{{column.pk}}', '{{column.name}}','{{update_url}}?base_url={{base_url}}');">{% trans 'Link a report' %}</a>{% endcomment %}
-                                                <a onclick="creme.reports.link_relation_report('{{object.id}}', '{{column.pk}}', '{{column.name}}', {% get_block_reload_uri %});">
-                                                    {% trans 'Link a report' %}
-                                                </a>
+                                                {% if has_perm %}
+                                                    <a onclick="creme.reports.link_relation_report('{{object.id}}', '{{column.pk}}', '{{column.name}}', {% get_block_reload_uri %});">{% trans 'Link a report' %}</a>
+                                                {% else %}
+                                                    <span class="forbidden">{% trans 'Link a report' %}</span>
+                                                {% endif %}
                                             {% endif %}
                                         {% endif %}
                                     </td>
                                     <td style="width: 33%;" align="center" valign="middle">
                                         {% if column.order != 1 %}
-                                            {% comment %}<a onclick="creme.reports.changeOrder('{{object.id}}', '{{column.pk}}', 'up','{{update_url}}?base_url={{base_url}}');">{% endcomment %}
-                                            <a onclick="creme.reports.changeOrder('{{object.id}}', '{{column.pk}}', 'up', {% get_block_reload_uri %});">
-                                                <img src="{{MEDIA_URL}}images/small_up_arrow_16.png" border="0" title="{% trans "Column up" %}" alt="{% trans "Column up" %}" />
-                                            </a>
+                                            {% if has_perm %}
+                                                <a onclick="creme.reports.changeOrder('{{object.id}}', '{{column.pk}}', 'up', {% get_block_reload_uri %});">
+                                                    <img src="{{MEDIA_URL}}images/small_up_arrow_16.png" border="0" title="{% trans "Column up" %}" alt="{% trans "Column up" %}" />
+                                                </a>
+                                            {% else %}
+                                                    <img class="forbidden" src="{{MEDIA_URL}}images/small_up_arrow_16.png" border="0" title="{% trans "Column up" %}" alt="{% trans "Column up" %}" />
+                                            {% endif %}
                                         {% endif %}<br/>
-                                    <!--</td>
-                                    <td style="width: 33%;">-->
                                         {% if column.order != object.columns.count %}
-                                            {% comment %}<a onclick="creme.reports.changeOrder('{{object.id}}', '{{column.pk}}', 'down','{{update_url}}?base_url={{base_url}}');">{% endcomment %}
-                                            <a onclick="creme.reports.changeOrder('{{object.id}}', '{{column.pk}}', 'down', {% get_block_reload_uri %});">
-                                                <img src="{{MEDIA_URL}}images/small_down_arrow_16.png" border="0" title="{% trans "Column down" %}" alt="{% trans "Column down" %}" />
-                                            </a>
+                                            {% if has_perm %}
+                                                <a onclick="creme.reports.changeOrder('{{object.id}}', '{{column.pk}}', 'down', {% get_block_reload_uri %});">
+                                                    <img src="{{MEDIA_URL}}images/small_down_arrow_16.png" border="0" title="{% trans "Column down" %}" alt="{% trans "Column down" %}" />
+                                                </a>
+                                            {% else %}
+                                                    <img class="forbidden" src="{{MEDIA_URL}}images/small_down_arrow_16.png" border="0" title="{% trans "Column down" %}" alt="{% trans "Column down" %}" />
+                                            {% endif %}
                                         {% endif %}
                                     </td>
                                 </tr>
                             </tbody>
                         </table>
                     </td>
-                    <td class="{% cycle "block_line_dark" "block_line_light" %}">
+                    <td class="{{row_color}}">
                         {% if HFI_FIELD == column.type %}
                             {% if column|is_field_is_linkable:object.ct and column.report %}
-                                <input type="checkbox" name="selected" onclick="creme.reports.setSelected(this, '{{object.id}}', '{{column.pk}}', '{{update_url}}?base_url={{base_url}}');" {% if column.selected %} checked {% endif %}/>
-                           {% endif %}
-                        {% endif %}
-                        {% if HFI_RELATION == column.type %}{% comment %}TODO: use 'else'{% endcomment %}
+                                <input {% if not has_perm %}disabled="true"{% endif %} type="checkbox" name="selected" onclick="creme.reports.setSelected(this, '{{object.id}}', '{{column.pk}}', '{{update_url}}?base_url={{base_url}}');" {% if column.selected %} checked {% endif %}/>
+                            {% endif %}
+                        {% else %}{% if HFI_RELATION == column.type %}
                             {# if column.report #}
-                                <input type="checkbox" name="selected" onclick="creme.reports.setSelected(this, '{{object.id}}', '{{column.pk}}', '{{update_url}}?base_url={{base_url}}');" {% if column.selected %} checked {% endif %}/>
+                                <input {% if not has_perm %}disabled="true"{% endif %} type="checkbox" name="selected" onclick="creme.reports.setSelected(this, '{{object.id}}', '{{column.pk}}', '{{update_url}}?base_url={{base_url}}');" {% if column.selected %} checked {% endif %}/>
                             {# endif #}
-                        {% endif %}
+                        {% endif %}{% endif %}
                     </td>
                 </tr>
             {% endfor %}

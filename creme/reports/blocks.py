@@ -31,6 +31,7 @@ from creme.reports.models.graph import fetch_graph_from_instance_block
 from reports.models import Field, report_template_dir
 from reports.models.graph import ReportGraph, verbose_report_graph_types
 
+
 class ReportFieldsBlock(Block):
     id_           = Block.generate_id('reports', 'fields')
     dependencies  = (Field,)
