@@ -24,6 +24,7 @@ from django.template.context import RequestContext
 from django.utils.simplejson import JSONEncoder
 from django.utils.translation import ugettext_lazy as _
 
+from creme_core.models.relation import Relation
 from creme_core.gui.block import QuerysetBlock
 from creme_core.utils import jsonify
 
@@ -31,13 +32,15 @@ from persons.models import Contact, Organisation
 
 from documents.models import Document
 
+from emails.constants import REL_SUB_MAIL_SENDED, REL_SUB_MAIL_RECEIVED
 from emails.models import EmailRecipient, EmailSending, LightWeightEmail, MailingList, EntityEmail
-from emails.models.mail import MAIL_STATUS_SYNCHRONIZED_SPAM, MAIL_STATUS_SYNCHRONIZED_WAITING, MAIL_STATUS
+from emails.models.mail import MAIL_STATUS_SYNCHRONIZED_SPAM, MAIL_STATUS_SYNCHRONIZED_WAITING, MAIL_STATUS, MAIL_STATUS_SENT
 
 
 __all__ = ['mailing_lists_block', 'recipients_block', 'contacts_block', 'organisations_block',
            'child_lists_block', 'parent_lists_block', 'attachments_block', 'sendings_block',
-           'mails_block', 'mails_history_block', 'mail_waiting_sync_block', 'mail_spam_sync_block']
+           'mails_block', 'mails_history_block', 'mail_waiting_sync_block', 'mail_spam_sync_block',
+           'lw_mails_history_block']
 
 class MailingListsBlock(QuerysetBlock):
     id_           = QuerysetBlock.generate_id('emails', 'mailing_lists')
@@ -170,10 +173,29 @@ class MailsBlock(QuerysetBlock):
 
 class MailsHistoryBlock(QuerysetBlock):
     id_           = QuerysetBlock.generate_id('emails', 'mails_history')
-    dependencies  = (LightWeightEmail,)
+    dependencies  = (EntityEmail, Relation)
     order_by      = '-sending_date'
     verbose_name  = _(u"Emails history")
     template_name = 'emails/templatetags/block_mails_history.html'
+    configurable  = True
+
+    def detailview_display(self, context):
+        pk = context['object'].pk
+
+        entityemail_pk = Relation.objects.filter(type__pk__in=[REL_SUB_MAIL_SENDED, REL_SUB_MAIL_RECEIVED], object_entity=pk).values_list('subject_entity', flat=True).distinct()
+
+        return self._render(self.get_block_template_context(context,
+                                                            EntityEmail.objects.filter(pk__in=entityemail_pk),
+                                                            update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, pk),
+                                                            sent_status = MAIL_STATUS_SENT,
+                                                            ))
+
+class LwMailsHistoryBlock(QuerysetBlock):
+    id_           = QuerysetBlock.generate_id('emails', 'lw_mails_history')
+    dependencies  = (LightWeightEmail,)
+    order_by      = '-sending_date'
+    verbose_name  = _(u"Campaings emails history")
+    template_name = 'emails/templatetags/block_lw_mails_history.html'
     configurable  = True
 
     def detailview_display(self, context):
@@ -237,5 +259,6 @@ attachments_block       = AttachmentsBlock()
 sendings_block          = SendingsBlock()
 mails_block             = MailsBlock()
 mails_history_block     = MailsHistoryBlock()
+lw_mails_history_block  = LwMailsHistoryBlock()
 mail_waiting_sync_block = WaitingSynchronizationMailsBlock()
 mail_spam_sync_block    = SpamSynchronizationMailsBlock()
