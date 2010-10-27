@@ -29,15 +29,14 @@ from reports.blocks import report_fields_block, report_graphs_block
 
 report_app = Report._meta.app_label
 
-
 creme_registry.register_app(report_app, _(u'Reports'), report_prefix_url)
 creme_registry.register_entity_models(Report)
 
 creme_menu.register_app(report_app, '%s/' % report_prefix_url, 'Rapports')
-reg_menu = creme_menu.register_menu
-reg_menu(report_app, '%s/' % report_prefix_url,           _(u'Portal'))
-reg_menu(report_app, '%s/reports' % report_prefix_url,    _(u'All reports'))
-reg_menu(report_app, '%s/report/add' % report_prefix_url, _(u'Add a report'))
+reg_menu = creme_menu.register_item
+reg_menu(report_app, '%s/' % report_prefix_url,           _(u'Portal'),       'reports')
+reg_menu(report_app, '%s/reports' % report_prefix_url,    _(u'All reports'),  'reports')
+reg_menu(report_app, '%s/report/add' % report_prefix_url, _(u'Add a report'), 'reports.add_report')
 
 block_registry.register(report_fields_block)
 block_registry.register(report_graphs_block)

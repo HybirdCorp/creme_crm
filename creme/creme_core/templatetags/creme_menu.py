@@ -32,16 +32,29 @@ from creme_core.gui.button_menu import button_registry
 
 register = Library()
 
-class ItemMenu(object):
-    __slots__ = ('app_name', 'app_url', 'items_menu')
+class MenuItem(object):
+    __slots__ = ('url', 'name', 'has_perm')
 
-    def __init__ (self, name, url, items):
+    def __init__(self, url, name, has_perm):
+        self.url = url
+        self.name = name
+        self.has_perm = has_perm
+
+    def __unicode__(self):
+        return u'<MenuItem: name:%s url:%s perm:%s>' % (self.url, self.name, self.perm)
+
+
+class MenuAppItem(object):
+    __slots__ = ('app_name', 'url', 'items')
+
+    def __init__(self, name, url, items, user):
         self.app_name = name
-        self.app_url = url
-        self.items_menu = items
+        self.url = url
+        has_perm = user.has_perm
+        self.items = [MenuItem(item.url, item.name, has_perm(item.perm)) for item in items]
 
-    def __str__(self):
-        return '<ItemMenu: app:%s url:%s>' % (self.app_name, self.app_url)
+    def __unicode__(self):
+        return u'<MenuAppItem: app:%s url:%s>' % (self.app_name, self.app_url)
 
     def __cmp__(self, other):
         return cmp(smart_unicode(self.app_name), smart_unicode(other.app_name))
@@ -50,18 +63,15 @@ class ItemMenu(object):
 if settings.USE_STRUCT_MENU:
     @register.inclusion_tag('creme_core/templatetags/treecreme_menu.html')
     def generate_treecreme_menu(request):
-        has_perm = request.user.has_perm
-        items = [ItemMenu(appitem.app_menu_name, appitem.app_url, appitem.items)
-                    for appitem in creme_menu.app_menu.itervalues()
-                        #if user_has_acces_to_application(request, appitem.app_name)
+        user = request.user
+        has_perm = user.has_perm
+        items = [MenuAppItem(appitem.name, appitem.app_url, appitem.items, user)
+                    for appitem in creme_menu
                         if has_perm(appitem.app_name)
                 ]
         items.sort()
 
-        ctx = RequestContext(request)
-        ctx.update({'menu':items})
-        return ctx
-#        return {'menu':items}
+        return RequestContext(request, {'menu': items})
 
 else:
     from django.utils.html import escape
@@ -87,7 +97,9 @@ def get_last_items_menu(request):
 @register.inclusion_tag('creme_core/templatetags/menu_buttons.html', takes_context=True)
 def get_button_menu(context):
     entity = context['object']
-    bmi = ButtonMenuItem.objects.filter(Q(content_type=entity.entity_type)|Q(content_type__isnull=True)).order_by('order').values_list('button_id', flat=True)
+    bmi = ButtonMenuItem.objects.filter(Q(content_type=entity.entity_type) | Q(content_type__isnull=True)) \
+                                .order_by('order') \
+                                .values_list('button_id', flat=True)
 
     context['buttons'] = [button.render(context) for button in button_registry.get_buttons(bmi, entity)]
 

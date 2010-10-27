@@ -19,7 +19,7 @@
 ################################################################################
 
 from django.contrib.contenttypes.models import ContentType
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, permission_required
 from django.http import HttpResponse
 from django.shortcuts import render_to_response
 from django.template.loader import render_to_string
@@ -45,6 +45,7 @@ def _fetch_emails(user):
     return message_count
 
 @login_required
+@permission_required('crudity')
 def fetch_emails(request, template="crudity/waiting_actions.html", ajax_template="crudity/frags/ajax/waiting_actions.html", extra_tpl_ctx=None, extra_req_ctx=None):
     context = RequestContext(request)
 

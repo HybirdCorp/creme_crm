@@ -12,7 +12,7 @@ creme_registry.register_app('recurrents', _(u'Recurrent document'), '/recurrents
 creme_registry.register_entity_models(RecurrentGenerator)
 
 creme_menu.register_app('recurrents', '/recurrents/', 'Documents récurrents')
-reg_menu = creme_menu.register_menu
-reg_menu('recurrents', '/recurrents/',              _(u'Portal'))
-reg_menu('recurrents', '/recurrents/generators',    _(u'All recurrent generators'))
-reg_menu('recurrents', '/recurrents/generator/add', _(u'Add a generator'))
+reg_menu = creme_menu.register_item
+reg_menu('recurrents', '/recurrents/',              _(u'Portal'),                   'recurrents')
+reg_menu('recurrents', '/recurrents/generators',    _(u'All recurrent generators'), 'recurrents')
+reg_menu('recurrents', '/recurrents/generator/add', _(u'Add a generator'),          'recurrents.add_recurrentgenerator')

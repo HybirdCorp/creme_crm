@@ -26,7 +26,7 @@ from creme_config.registry import config_registry
 
 
 @login_required
-@permission_required('creme_config')
+@permission_required('creme_config.can_admin')
 def portal(request):
     return render_to_response('creme_config/portal.html',
                               {'app_configs': config_registry.apps()},

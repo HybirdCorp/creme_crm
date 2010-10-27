@@ -12,7 +12,7 @@ creme_registry.register_entity_models(Ticket)
 
 #TODO: i18n
 creme_menu.register_app('tickets', '/tickets/', 'Tickets')
-reg_menu = creme_menu.register_menu
-reg_menu('tickets', '/tickets/',           _(u'Portal'))
-reg_menu('tickets', '/tickets/tickets',    _(u'All tickets'))
-reg_menu('tickets', '/tickets/ticket/add', _(u'Add a ticket'))
+reg_menu = creme_menu.register_item
+reg_menu('tickets', '/tickets/',           _(u'Portal'),       'tickets')
+reg_menu('tickets', '/tickets/tickets',    _(u'All tickets'),  'tickets')
+reg_menu('tickets', '/tickets/ticket/add', _(u'Add a ticket'), 'tickets.add_ticket')

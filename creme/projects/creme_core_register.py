@@ -32,9 +32,9 @@ creme_registry.register_app('projects', _(u'Projects'), '/projects')
 creme_registry.register_entity_models(Project, Resource, ProjectTask)
 
 creme_menu.register_app('projects', '/projects/', 'Projets')
-reg_menu = creme_menu.register_menu
-reg_menu('projects', '/projects/',            _('Portal'))
-reg_menu('projects', '/projects/projects',    _('All projects'))
-reg_menu('projects', '/projects/project/add', _('Add a project'))
+reg_menu = creme_menu.register_item
+reg_menu('projects', '/projects/',            _('Portal'),        'projects')
+reg_menu('projects', '/projects/projects',    _('All projects'),  'projects')
+reg_menu('projects', '/projects/project/add', _('Add a project'), 'projects.add_project')
 
 block_registry.register(project_extra_info, task_extra_info, tasks_block, resources_block, working_periods_block)

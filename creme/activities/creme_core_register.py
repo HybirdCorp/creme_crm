@@ -34,11 +34,11 @@ creme_registry.register_app('activities', _(u'Activities'), '/activities')
 creme_registry.register_entity_models(Activity)
 
 creme_menu.register_app('activities', '/activities/', 'Activités')
-reg_menu = creme_menu.register_menu
-reg_menu('activities', '/activities/',                    _(u'Portal'))
-reg_menu('activities', '/activities/calendar/user',       _(u'Calendar'))
-reg_menu('activities', '/activities/indisponibility/add', _(u'Add an indisponibility'))
-reg_menu('activities', '/activities/activities',          _(u'All activities'))
+reg_menu = creme_menu.register_item
+reg_menu('activities', '/activities/',                    _(u'Portal'),                 'activities')
+reg_menu('activities', '/activities/calendar/user',       _(u'Calendar'),               'activities')
+reg_menu('activities', '/activities/indisponibility/add', _(u'Add an indisponibility'), 'activities.add_activity')
+reg_menu('activities', '/activities/activities',          _(u'All activities'),         'activities')
 
 block_registry.register(participants_block, subjects_block, future_activities_block, past_activities_block)
 

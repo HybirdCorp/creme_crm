@@ -37,13 +37,13 @@ creme_registry.register_entity_models(Contact, Organisation)
 creme_registry.register_app('persons', _(u'Accounts and Contacts'), '/persons')
 
 creme_menu.register_app('persons', '/persons/', 'Comptes et contacts')
-reg_menu = creme_menu.register_menu
-reg_menu('persons', '/persons/',                 _(u'Portal'))
-reg_menu('persons', '/persons/contacts',         _(u'All contacts'))
-reg_menu('persons', '/persons/leads_customers',  _(u'My customers / prospects / suspects'))
-reg_menu('persons', '/persons/contact/add',      _(u'Add a contact'))
-reg_menu('persons', '/persons/organisations',    _(u'All organisations'))
-reg_menu('persons', '/persons/organisation/add', _(u'Add an organisation'))
+reg_menu = creme_menu.register_item
+reg_menu('persons', '/persons/',                 _(u'Portal'),                              'persons')
+reg_menu('persons', '/persons/contacts',         _(u'All contacts'),                        'persons')
+reg_menu('persons', '/persons/leads_customers',  _(u'My customers / prospects / suspects'), 'persons')
+reg_menu('persons', '/persons/contact/add',      _(u'Add a contact'),                       'persons.add_contact')
+reg_menu('persons', '/persons/organisations',    _(u'All organisations'),                   'persons')
+reg_menu('persons', '/persons/organisation/add', _(u'Add an organisation'),                 'persons.add_organisation')
 
 
 button_registry.register(become_customer_button, become_prospect_button, become_suspect_button,

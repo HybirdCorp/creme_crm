@@ -2,14 +2,20 @@
 <img src="{{MEDIA_URL}}images/pin.png" alt="{% trans 'Open' %}" class="pinmenu"/>
 <div class="ui-corner-all">Menu fixe <input type="checkbox" id="fix_menu"/></div>
 <ul>
-    {% for item in menu %}
-        <li><a href="{{ item.app_url }}">{{ item.app_name }}</a>
-            {% if item.items_menu %}
-            <ul>
-                {% for item_menu in item.items_menu %}
-                    <li><a href="{{ item_menu.menu_url }}">{{ item_menu.menu_name }}</a></li>
-                {% endfor %}
-            </ul>
+    {% for appitem in menu %}
+        <li><a href="{{appitem.url}}">{{appitem.app_name}}</a>
+            {% if appitem.items %}
+                <ul>
+                    {% for item in appitem.items %}
+                        <li>
+                            {% if item.has_perm %}
+                                <a href="{{item.url}}">{{item.name}}</a>
+                            {% else %}
+                                <span class="forbidden">{{item.name}}</span>
+                            {% endif %}
+                        </li>
+                    {% endfor %}
+                </ul>
             {% endif %}
         </li>
     {% endfor %}
