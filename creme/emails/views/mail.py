@@ -22,6 +22,7 @@ from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, render_to_response
 from django.template.context import RequestContext
 from django.template.loader import render_to_string
+from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import ugettext_lazy as _
@@ -40,7 +41,6 @@ from emails.models.mail import (EntityEmail,
                                 MAIL_STATUS_SYNCHRONIZED_SPAM,
                                 MAIL_STATUS_SYNCHRONIZED,
                                 MAIL_STATUS_SYNCHRONIZED_WAITING)
-
 from emails.blocks import SpamSynchronizationMailsBlock, WaitingSynchronizationMailsBlock
 from emails.models import LightWeightEmail
 
@@ -55,13 +55,11 @@ from emails.forms.mail import EntityEmailForm
 def view_lightweight_mail(request, mail_id):
     email = get_object_or_404(LightWeightEmail, pk=mail_id)
 
-    #die_status = read_object_or_die(request, email)
-    #if die_status:
-        #return die_status
+    #TODO: disable the link in the template in not allowed
     email.sending.campaign.can_view_or_die(request.user)
 
     template = "emails/view_email.html"
-    ctx_dict = {'mail': email, 'title': 'Détails du mail'}#TODO: i18n
+    ctx_dict = {'mail': email, 'title': _(u'Details of the mail')}
 
     if request.is_ajax():
         return inner_popup(request, template,
@@ -73,7 +71,7 @@ def view_lightweight_mail(request, mail_id):
     return render_to_response(template, ctx_dict,
                               context_instance=RequestContext(request))
 
-
+#TODO: credentials (don't forget templates)
 ## SYNCHRO PART ##
 @login_required
 def synchronisation(request):
@@ -106,6 +104,7 @@ def set_emails_status(request, status):
 @permission_required('emails')
 def delete(request):
     #TODO: There no verifications because email is not a CremeEntity!!!
+    #TODO: regroup queries
     for id in _retrieve_emails_ids(request):
         email = get_object_or_404(EntityEmail, pk=id)
         email.delete()
@@ -135,8 +134,8 @@ def reload_sync_blocks(request):
     waiting_block = WaitingSynchronizationMailsBlock()
     spam_block    = SpamSynchronizationMailsBlock()
     ctx = RequestContext(request)
-    return [(waiting_block.id_,waiting_block.detailview_display(ctx)),
-            (spam_block.id_,spam_block.detailview_display(ctx))
+    return [(waiting_block.id_, waiting_block.detailview_display(ctx)),
+            (spam_block.id_, spam_block.detailview_display(ctx))
             ]
 
 ## END SYNCHRO PART ##

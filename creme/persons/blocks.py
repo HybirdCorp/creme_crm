@@ -24,10 +24,8 @@ from django.contrib.contenttypes.models import ContentType
 from creme_core.models import Relation
 from creme_core.gui.block import Block, QuerysetBlock
 
-from persons.models import Contact, Address 
+from persons.models import Contact, Address
 from persons.constants import REL_OBJ_MANAGES, REL_OBJ_EMPLOYED_BY
-
-_contact_ct_id = None
 
 
 class ManagersBlock(QuerysetBlock):
@@ -38,20 +36,16 @@ class ManagersBlock(QuerysetBlock):
     template_name = 'persons/templatetags/block_managers.html'
 
     def detailview_display(self, context):
-        global _contact_ct_id
-
         orga = context['object']
-
-        if not _contact_ct_id:
-            _contact_ct_id = ContentType.objects.get_for_model(Contact).id
 
         return self._render(self.get_block_template_context(context,
                                                             orga.get_managers(),
                                                             update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, orga.pk),
                                                             predicate_id=REL_OBJ_MANAGES,
-                                                            ct_id=_contact_ct_id))
+                                                            ct=ContentType.objects.get_for_model(Contact),
+                                                            ))
 
-
+#TODO factorise with ManagersBlock ??
 class EmployeesBlock(QuerysetBlock):
     id_           = QuerysetBlock.generate_id('persons', 'employees')
     dependencies  = (Relation,) #Contact
@@ -60,18 +54,14 @@ class EmployeesBlock(QuerysetBlock):
     template_name = 'persons/templatetags/block_employees.html'
 
     def detailview_display(self, context):
-        global _contact_ct_id
-
         orga = context['object']
-
-        if not _contact_ct_id:
-            _contact_ct_id = ContentType.objects.get_for_model(Contact).id
 
         return self._render(self.get_block_template_context(context,
                                                             orga.get_employees(),
                                                             update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, orga.pk),
                                                             predicate_id=REL_OBJ_EMPLOYED_BY,
-                                                            ct_id=_contact_ct_id))
+                                                            ct=ContentType.objects.get_for_model(Contact),
+                                                            ))
 
 
 class AddressBlock(Block):
@@ -85,6 +75,7 @@ class AddressBlock(Block):
         return self._render(self.get_block_template_context(context ,
                             update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, object.pk)))
 
+
 class OtherAddressBlock(QuerysetBlock):
     id_           = QuerysetBlock.generate_id('persons', 'other_address')
     dependencies  = (Address,)
@@ -93,16 +84,14 @@ class OtherAddressBlock(QuerysetBlock):
     page_size = 1
 
     def detailview_display(self, context):
-        object = context['object']
-            
-        l_pk = [ address.pk for address in (object.billing_address, object.shipping_address) if address ]    
-            
-        q_address =  Address.objects.filter(object_id=object.id).exclude(
-                                                   pk__in=l_pk)
-        return self._render(self.get_block_template_context(context, q_address,
-                                                            update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, object.pk)
-                                                             ))
+        person = context['object']
 
+        l_pk = [address.pk for address in (person.billing_address, person.shipping_address) if address]
+        q_address = Address.objects.filter(object_id=person.id).exclude(pk__in=l_pk)
+
+        return self._render(self.get_block_template_context(context, q_address,
+                                                            update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, person.pk)
+                                                           ))
 
 
 address_block = AddressBlock ()

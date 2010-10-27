@@ -4,5 +4,5 @@
         <img src="{{MEDIA_URL}}images/edit_64.png" title="{% blocktrans %}Edit '{{object}}'{% endblocktrans %}" alt="{% trans "Edit" %}"/>
     </a>
 {% else %}
-    <img src="{{MEDIA_URL}}images/edit_64.png" title="{% blocktrans %}You can't edit '{{object}}'{% endblocktrans %}" alt="{% trans "Can't edit" %}" style="opacity:0.5;"/>
+    <img class="forbidden" src="{{MEDIA_URL}}images/edit_64.png" title="{% blocktrans %}You can't edit '{{object}}'{% endblocktrans %}" alt="{% trans "Can't edit" %}"/>
 {% endif %}

@@ -1,20 +1,24 @@
 {% load i18n %}
-{% load creme_block %}
-
+{% load creme_core_tags %}{% load creme_block %}
 <script type="text/javascript">
-    creme.include('{{MEDIA_URL}}/js/models/relations.js','js');
+    creme.include('{{MEDIA_URL}}/js/models/relations.js', 'js');
 </script>
-
 <table  class="table_detail_view ui-corner-all" id={{block_name}}>
     {% include "creme_core/templatetags/widgets/block_header_beg.html" %}
         <th style="width: 80%;" class="collapser" align="left">{% block block_header %}{% endblock %}</th>
         <th style="width: 20%;" align="right">
             <div class="buttons">
-                <a class="add" href="/persons/contact/add_with_relation/{{object.pk}}/{{predicate_id}}?callback_url=" onclick="this.href+=window.location.href">
-                    <img src="{{MEDIA_URL}}images/add_22.png" border="0" title="{% trans "Create a contact" %}" alt="{% trans "Create a contact" %}" />
-                    {% block add_title %}{% trans "Create a contact" %}{% endblock %}
-                </a>
-                <a class="link" onclick="creme.relations.handleAddFromPredicateEntity('/creme_core/relation/add/from/predicate/{{predicate_id}}/entity/{{object.id}}/{{ct_id}}', '{{predicate_id}}', '{{object.id}}', {% get_block_reload_uri %});">
+                {% has_perm_to create ct as creation_perm %}
+                {% if creation_perm %}
+                    <a class="add" href="/persons/contact/add_with_relation/{{object.pk}}/{{predicate_id}}?callback_url=" onclick="this.href+=window.location.href">
+                        <img src="{{MEDIA_URL}}images/add_22.png" border="0" title="{% trans "Create a contact" %}" alt="{% trans "Create a contact" %}" />
+                {% else %}
+                    <span class="add forbidden">
+                        <img src="{{MEDIA_URL}}images/add_22.png" border="0" title="{% trans "Can't add" %}" alt="{% trans "Can't add" %}" />
+                {% endif %}
+                {% block add_title %}{% trans "Create a contact" %}{% endblock %}
+                {% if creation_perm %}</a>{% else %}</span>{% endif %}
+                <a class="link" onclick="creme.relations.handleAddFromPredicateEntity('/creme_core/relation/add/from/predicate/{{predicate_id}}/entity/{{object.id}}/{{ct.id}}', '{{predicate_id}}', '{{object.id}}', {% get_block_reload_uri %});">
                     <img src="{{MEDIA_URL}}images/relations_22.png" border="0" title="{% trans "Link to an existing contact" %}" alt="{% trans "Link to an existing contact" %}" />
                     {% trans "Link to an existing contact" %}
                 </a>

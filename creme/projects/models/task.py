@@ -46,8 +46,8 @@ class ProjectTask(Activity):
 
     class Meta:
         app_label = 'projects'
-        verbose_name = _(u'Task')
-        verbose_name_plural = _(u'Tasks')
+        verbose_name = _(u'Task of project')
+        verbose_name_plural = _(u'Tasks of project')
 
     def __init__ (self, *args , **kwargs):
         super(ProjectTask, self).__init__(*args, **kwargs)

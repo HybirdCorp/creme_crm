@@ -29,14 +29,11 @@ register = Library()
 
 @register.inclusion_tag('creme_core/templatetags/quickforms_panel.html', takes_context=True)
 def get_quickforms_panel(context, target_node_id='sub_content'):
-    get_ct = ContentType.objects.get_for_model
-    content_types = []
-    has_perm = context['request'].user.has_perm
-
-    for model in quickforms_registry.iter_models():
-        ct = get_ct(model)
-        if has_perm('%s.add_%s' % (ct.app_label, ct.model)): #TODO: move to a helper function in utils ??
-            content_types.append({'id': ct.id, 'verbose_name': model._meta.verbose_name})
+    get_ct   = ContentType.objects.get_for_model
+    has_perm = context['request'].user.has_perm_to_create
+    content_types = [{'id':           get_ct(model).id,
+                      'verbose_name': model._meta.verbose_name
+                     } for model in quickforms_registry.iter_models() if has_perm(model)]
 
     content_types.sort(key=lambda k: k['verbose_name'])
 

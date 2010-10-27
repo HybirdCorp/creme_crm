@@ -36,22 +36,16 @@ class LinkedDocsBlock(QuerysetBlock):
     template_name = 'documents/templatetags/block_linked_docs.html'
     configurable  = True
 
-    def __init__(self, *args, **kwargs):
-        super(LinkedDocsBlock, self).__init__(*args, **kwargs)
-
-        self._doc_ct_id = None
-
     def detailview_display(self, context):
         entity = context['object']
-
-        if not self._doc_ct_id:
-            self._doc_ct_id = ContentType.objects.get_for_model(Document).id
 
         return self._render(self.get_block_template_context(context,
                                                             Document.get_linkeddoc_relations(entity),
                                                             update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, entity.id),
                                                             predicate_id=REL_SUB_RELATED_2_DOC,
-                                                            ct_id=self._doc_ct_id))
+                                                            ct_id=ContentType.objects.get_for_model(Document).id,
+                                                            has_creation_perm=context['request'].user.has_perm('documents.add_document'),
+                                                            ))
 
 
 linked_docs_block = LinkedDocsBlock()

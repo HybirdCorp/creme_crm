@@ -55,7 +55,8 @@
                     </td>
                     <td class="{{row_color}}" align="center" valign="center" style="width:10%;">
                         {% block line_actions %}
-                            {% get_line_deletor at_url '/billing/line/delete' with_args "{'id': '{{line.id}}' }" %}
+                            {% has_perm_to change object as has_perm %}
+                            {% get_line_deletor2 at_url '/billing/line/delete' with_args "{'id': '{{line.id}}' }" with_perms has_perm %}
                         {% endblock %}
                    </td>
                 </tr>

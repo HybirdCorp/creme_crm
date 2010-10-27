@@ -304,6 +304,12 @@ class UserProfile(Model):
     class Meta:
         abstract = True
 
+    def has_perm_to_create(self, model_or_entity):
+        """Helper for has_perm( method)
+        eg: user.has_perm('myapp.add_mymodel') => user.has_perm_to_create(MyModel)"""
+        meta = model_or_entity._meta
+        return self.has_perm('%s.add_%s' % (meta.app_label, meta.object_name.lower()))
+
     def update_credentials(self):
         role = self.role
 

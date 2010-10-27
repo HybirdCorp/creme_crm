@@ -1,14 +1,12 @@
 {% load i18n %}
-{% load creme_block %}
+{% load creme_core_tags %}{% load creme_block %}
+{% has_perm_to change object as has_perm %}
 <table class="table_detail_view ui-corner-all" id={{block_name}}>
     {% include "creme_core/templatetags/widgets/block_header_beg.html" %}
         <th style="width: 80%;" class="collapser" align="left">{% get_block_title _('%s Periperal type of relation') _('%s Periperal types of relation') 'graph_48.png' _('Periperal relation types') %}</th>
         <th style="width: 20%;" align="right">
             <div class="buttons">
-                <a class="add" onclick="creme.utils.innerPopupNReload('/graphs/graph/{{object.pk}}/relation_types/add', {% get_block_reload_uri %});">
-                    <img src="{{MEDIA_URL}}images/add_22.png" border="0" title="{% trans "Add types of relation" %}" alt="{% trans "Add types of relation" %}" />
-                    {% trans "Add some existing types of relation" %}
-                </a>
+                {% get_line_adder at_url '/graphs/graph/{{object.pk}}/relation_types/add' with_label _("Add some existing types of relation") with_perms has_perm %}
             </div>
         </th>
     {% include "creme_core/templatetags/widgets/block_header_end.html" %}
@@ -23,7 +21,7 @@
                 <tr>
                     <td class="{{row_color}}">{{rtype}}</td>
                     <td class="{{row_color}}" align="center" valign="center" style="width:10%;">
-                        {% get_line_deletor at_url '/graphs/graph/{{object.pk}}/relation_type/delete' with_args "{'id':'{{rtype.pk}}' }" %}
+                        {% get_line_deletor2 at_url '/graphs/graph/{{object.pk}}/relation_type/delete' with_args "{'id':'{{rtype.pk}}' }" with_perms has_perm %}
                     </td>
                 </tr>
             {% endfor %}
