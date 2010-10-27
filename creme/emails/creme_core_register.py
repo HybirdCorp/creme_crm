@@ -45,4 +45,5 @@ reg_menu('emails', '/emails/synchronization',  _(u'Synchronization of incoming e
 
 block_registry.register(mailing_lists_block, recipients_block, contacts_block, organisations_block,
                         child_lists_block, parent_lists_block, attachments_block, sendings_block,
-                        mails_block, mails_history_block, mail_waiting_sync_block, mail_spam_sync_block)
+                        mails_block, mails_history_block, mail_waiting_sync_block, mail_spam_sync_block,
+                        lw_mails_history_block)

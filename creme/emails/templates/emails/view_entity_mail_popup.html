@@ -1,0 +1,75 @@
+{% load i18n %}
+{% load creme_core_tags %}
+{% load email_tags %}
+<table class="table_detail_view ui-corner-all">
+    <thead>
+        <tr>
+            <th colspan="2">
+                <center>
+                    <table class="block_header" cellspacing="0" cellpadding="0">
+                        <tbody>
+                            <tr>
+                                <td><img src="{{MEDIA_URL}}images/email_48.png" alt="" title="Email" /></td>
+                                <td>&nbsp;{{object}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </center>
+            </th>
+        </tr>
+        <tr>
+            <th class="{% cycle "block_header_line_dark" "block_header_line_light" %}" colspan="2">
+                <a href="{{object.get_absolute_url}}">{% trans "Full detailview" %}</a>
+            </th>
+        </tr>
+    </thead>
+    <tbody class="collapsable">
+        <!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
+        <tr>
+            <th class="{% cycle "block_header_line_dark" "block_header_line_light" %}">{% trans "User" %}</th>
+            <td class="{% cycle "block_line_dark" "block_line_light" %}">{{object|get_html_field_value:"user"}}</td>
+        </tr>
+        <tr>
+            <th class="{% cycle "block_header_line_dark" "block_header_line_light" %}">{% trans "Number of reads" %}</th>
+            <td class="{% cycle "block_line_dark" "block_line_light" %}">{{object|get_html_field_value:"reads"}}</td>
+        </tr>
+        <tr>
+            <th class="{% cycle "block_header_line_dark" "block_header_line_light" %}">{% trans "Status" %}</th>
+            <td class="{% cycle "block_line_dark" "block_line_light" %}">{{object.get_status_str}}</td>
+        </tr>
+        <tr>
+            <th class="{% cycle "block_header_line_dark" "block_header_line_light" %}">{% trans "Sender" %}</th>
+            <td class="{% cycle "block_line_dark" "block_line_light" %}">{{object|get_html_field_value:"sender"}}</td>
+        </tr>
+        <tr>
+            <th class="{% cycle "block_header_line_dark" "block_header_line_light" %}">{% trans "Recipient" %}</th>
+            <td class="{% cycle "block_line_dark" "block_line_light" %}">{{object|get_html_field_value:"recipient"}}</td>
+        </tr>
+        <tr>
+            <th class="{% cycle "block_header_line_dark" "block_header_line_light" %}">{% trans "Subject" %}</th>
+            <td class="{% cycle "block_line_dark" "block_line_light" %}">{{object|get_html_field_value:"subject"}}</td>
+        </tr>
+        <tr>
+            <th class="{% cycle "block_header_line_dark" "block_header_line_light" %}">{% trans "Reception date" %}</th>
+            <td class="{% cycle "block_line_dark" "block_line_light" %}">{{object|get_html_field_value:"reception_date"}}</td>
+        </tr>
+        <tr>
+            <th class="{% cycle "block_header_line_dark" "block_header_line_light" %}">{% trans "Attachments" %}</th>
+            <td class="{% cycle "block_line_dark" "block_line_light" %}">
+                <ul>
+                    {% for doc in object.attachments.all %}
+                        <li>
+                            <a href="{{doc.get_absolute_url}}">{{doc}}</a>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </td>
+        </tr>
+        <tr>
+            <th class="{% cycle "block_header_line_dark" "block_header_line_light" %}">{% trans "Email body" %}</th>
+            <td>
+                {{object|get_email_body}}
+            </td>
+        </tr>
+    </tbody>
+</table>
