@@ -19,7 +19,9 @@
 ################################################################################
 
 from django.forms import MultipleChoiceField
+from django.utils import translation
 from django.utils.translation import ugettext_lazy as _
+from django.utils.encoding import force_unicode
 
 from creme_core.registry import creme_registry
 from creme_core.models import PreferedMenuItem
@@ -62,7 +64,11 @@ class PreferedMenuForm(CremeForm):
         #NB: the default PreferedMenuItem items (user==None) will be before other ones.
         offset = 100 if user else 1
 
-        for i, menu_url in enumerate(self.cleaned_data['menu_entries']):
-            menu_name = unicode(get_item_name(menu_url))
+        #NB: the technic used to retrieve translation key is the one used by Meta classes (verbose_name_raw) (can be improved ??)
+        lang = translation.get_language()
+        translation.deactivate_all()
 
-            create_item(user=user, name=menu_name, label=menu_name, url=menu_url, order=i + offset)
+        for i, item_url in enumerate(self.cleaned_data['menu_entries']):
+            create_item(user=user, label=force_unicode(get_item_name(item_url)), url=item_url, order=i + offset)
+
+        translation.activate(lang)
