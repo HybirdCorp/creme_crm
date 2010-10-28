@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-10-25 16:33+0200\n"
+"POT-Creation-Date: 2010-10-28 15:56+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -28,6 +28,11 @@ msgstr "Relations"
 #: creme_core_register.py:36
 msgid "Core"
 msgstr "Cœur"
+
+#: creme_core_register.py:38 templates/creme_core/home.html:16
+#: templates/creme_core/home.html.py:17
+msgid "Home"
+msgstr "Accueil"
 
 #: date_filters_register.py:119
 msgid "Customized"
@@ -185,11 +190,11 @@ msgstr "possède"
 msgid "belongs to"
 msgstr "appartient à"
 
-#: forms/base.py:119 forms/base.py:126
+#: forms/base.py:120 forms/base.py:127
 msgid "General information"
 msgstr "Informations générales"
 
-#: forms/base.py:133 forms/csv_import.py:333 models/base.py:174
+#: forms/base.py:134 forms/csv_import.py:333 models/base.py:174
 #: models/prefered_menu.py:27 tests/views.py:58 tests/views.py:59
 #: tests/views.py:60
 msgid "User"
@@ -331,7 +336,7 @@ msgstr "Certains prédicats n'existent pas"
 msgid "Related entities"
 msgstr "Entités associées"
 
-#: forms/widgets.py:139 forms/widgets.py:260
+#: forms/widgets.py:141 forms/widgets.py:262
 #: templates/creme_core/detailview.html:30
 #: templates/creme_core/filters.html:579 templates/creme_core/filters.html:580
 #: templates/creme_core/filters.html:581 templates/creme_core/filters.html:582
@@ -344,36 +349,36 @@ msgstr "Entités associées"
 msgid "Add"
 msgstr "Ajouter"
 
-#: forms/widgets.py:175
+#: forms/widgets.py:177
 msgid "Select..."
 msgstr "Sélectionner..."
 
-#: forms/widgets.py:300
+#: forms/widgets.py:302
 msgid "On"
 msgstr "Le"
 
-#: forms/widgets.py:301
+#: forms/widgets.py:303
 msgid "at"
 msgstr "à"
 
-#: forms/widgets.py:302 forms/widgets.py:330
+#: forms/widgets.py:304 forms/widgets.py:332
 msgid "h"
 msgstr "h"
 
-#: forms/widgets.py:305
+#: forms/widgets.py:307
 msgid "Clean"
 msgstr "Effacer"
 
-#: forms/widgets.py:306 forms/widgets.py:333
+#: forms/widgets.py:308 forms/widgets.py:335
 msgid "Now"
 msgstr "Maintenant"
 
-#: forms/widgets.py:359
+#: forms/widgets.py:384
 msgid "Today"
 msgstr "Aujourd'hui"
 
-#: models/auth.py:143 models/i18n.py:26 models/prefered_menu.py:28
-#: templates/creme_core/templatetags/block_specific_relations.html:25
+#: models/auth.py:143 models/i18n.py:26
+#: templates/creme_core/templatetags/block_specific_relations.html:23
 msgid "Name"
 msgstr "Nom"
 
@@ -572,7 +577,7 @@ msgstr "Éditer"
 #: templates/creme_core/filters.html:616 templates/creme_core/filters.html:622
 #: templates/creme_core/filters.html:638 templates/creme_core/filters.html:644
 #: templates/creme_core/filters.html:652
-#: templates/creme_core/templatetags/block_specific_relations.html:26
+#: templates/creme_core/templatetags/block_specific_relations.html:24
 #: templates/creme_core/templatetags/widgets/block_line_deletor.html:4
 #: templates/creme_core/templatetags/widgets/block_line_deletor2.html:5
 #: templates/creme_core/templatetags/widgets/delete_button.html:4
@@ -605,15 +610,15 @@ msgstr "Langue"
 msgid "Languages"
 msgstr "Langues"
 
-#: models/prefered_menu.py:29
+#: models/prefered_menu.py:28
 msgid "Label"
 msgstr "Label"
 
-#: models/prefered_menu.py:30
+#: models/prefered_menu.py:29
 msgid "Url"
 msgstr "Url"
 
-#: models/prefered_menu.py:31
+#: models/prefered_menu.py:30
 msgid "Order"
 msgstr "Ordre"
 
@@ -683,19 +688,19 @@ msgstr "Menu"
 msgid "Back to Top"
 msgstr "Revenir au début"
 
-#: templates/creme_core/base.html:283
+#: templates/creme_core/base.html:284
 msgid "Welcome,"
 msgstr "Bienvenue, "
 
-#: templates/creme_core/base.html:285
+#: templates/creme_core/base.html:286
 msgid "My settings"
 msgstr "Ma configuration"
 
-#: templates/creme_core/base.html:286
+#: templates/creme_core/base.html:287
 msgid "Log out"
 msgstr "Se déconnecter"
 
-#: templates/creme_core/base.html:335
+#: templates/creme_core/base.html:336
 msgid "About Hybird"
 msgstr "À propos d'Hybird"
 
@@ -836,10 +841,6 @@ msgstr ""
 #: templates/creme_core/templatetags/listview_headerfilters.html:35
 msgid "View of list"
 msgstr "Vue de liste"
-
-#: templates/creme_core/home.html:16 templates/creme_core/home.html.py:17
-msgid "Home"
-msgstr "Accueil"
 
 #: templates/creme_core/object_as_table.html:7
 #, python-format
@@ -1006,17 +1007,17 @@ msgstr "Nouvelles relations"
 msgid "No relation for the moment"
 msgstr "Aucune relation pour le moment"
 
-#: templates/creme_core/templatetags/block_specific_relations.html:10
+#: templates/creme_core/templatetags/block_specific_relations.html:9
 #, python-format
 msgid "Entities related to: %(predicate)s"
 msgstr "Entités relatives à: %(predicate)s"
 
-#: templates/creme_core/templatetags/block_specific_relations.html:18
-#: templates/creme_core/templatetags/block_specific_relations.html:19
+#: templates/creme_core/templatetags/block_specific_relations.html:14
+#: templates/creme_core/templatetags/block_specific_relations.html:15
 msgid "Link to existing entities"
 msgstr "Lier à des entités existantes"
 
-#: templates/creme_core/templatetags/block_specific_relations.html:41
+#: templates/creme_core/templatetags/block_specific_relations.html:39
 msgid "No related entity for the moment"
 msgstr "Aucune entité liée pour le moment"
 
@@ -1095,6 +1096,10 @@ msgstr "Menus rapides:"
 #: templates/creme_core/templatetags/quickforms_panel.html:12
 msgid "Quick creation"
 msgstr "Création rapide"
+
+#: templates/creme_core/templatetags/treecreme_menu.html:3
+msgid "Fixed menu"
+msgstr "Menu fixe"
 
 #: templates/creme_core/templatetags/widgets/add_button.html:9
 #: templates/creme_core/templatetags/widgets/block_line_adder.html:9
@@ -1197,7 +1202,7 @@ msgstr "Permission refusée"
 msgid "This view can't be deleted"
 msgstr "Cette vue ne peut être effacée"
 
-#: views/quick_forms.py:62
+#: views/quick_forms.py:61
 #, python-format
 msgid "Quick creation of <%s>"
 msgstr "Création rapide de <%s>"

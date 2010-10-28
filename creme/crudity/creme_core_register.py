@@ -18,20 +18,18 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.utils.translation import ugettext as _
+from django.utils.translation import ugettext_lazy as _
 
 from creme_core.registry import creme_registry
 from creme_core.gui.menu import creme_menu
 
 
-app_url  = '/crudity'
-app_name = 'crudity'
+APP_NAME = 'crudity' #TODO: in constants.py ??
 
-creme_registry.register_app(app_name, _(u'External data management'), app_url)
+creme_registry.register_app(APP_NAME, _(u'External data management'), '/crudity')
 
-creme_menu.register_app (app_name, '%s/' % app_url, "Gestion des données externes")
-reg_menu = creme_menu.register_item
-#reg_menu(app_name, '%s/' % app_url,                       _(u'Portal'))
-reg_menu(app_name, '%s/email/waiting_actions' % app_url,  _(u'Email waiting actions'), 'crudity')
-reg_menu(app_name, '%s/history' % app_url,                _(u'History'),               'crudity')
+reg_item = creme_menu.register_app(APP_NAME, '/crudity/').register_item
+#reg_item('/crudity/',                       _(u'Portal'))
+reg_item('/crudity/email/waiting_actions',  _(u'Email waiting actions'), 'crudity')
+reg_item('/crudity/history',                _(u'History'),               'crudity')
 

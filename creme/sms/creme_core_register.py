@@ -31,15 +31,13 @@ from sms.blocks import messaging_lists_block, recipients_block, contacts_block, 
 creme_registry.register_entity_models(SMSCampaign, MessagingList, MessageTemplate)
 creme_registry.register_app('sms', _(u'SMS'), '/sms')
 
-creme_menu.register_app('sms', '/sms/', "SMS")
-
-reg_menu = creme_menu.register_item
-reg_menu('sms', '/sms/',                   _(u'Portal'),                 'sms')
-reg_menu('sms', '/sms/campaigns' ,         _(u'All campaigns'),          'sms')
-reg_menu('sms', '/sms/campaign/add',       _(u'Add a campaign'),         'sms.add_smscampaign')
-reg_menu('sms', '/sms/messaging_lists',    _(u'All messaging lists'),    'sms')
-reg_menu('sms', '/sms/messaging_list/add', _(u'Add a messaging list'),   'sms.add_messaginglist')
-reg_menu('sms', '/sms/templates',          _(u'All message templates'),  'sms')
-reg_menu('sms', '/sms/template/add',       _(u'Add a message template'), 'sms.add_messagetemplate')
+reg_item = creme_menu.register_app('sms', '/sms/').register_item
+reg_item('/sms/',                   _(u'Portal'),                 'sms')
+reg_item('/sms/campaigns' ,         _(u'All campaigns'),          'sms')
+reg_item('/sms/campaign/add',       _(u'Add a campaign'),         'sms.add_smscampaign')
+reg_item('/sms/messaging_lists',    _(u'All messaging lists'),    'sms')
+reg_item('/sms/messaging_list/add', _(u'Add a messaging list'),   'sms.add_messaginglist')
+reg_item('/sms/templates',          _(u'All message templates'),  'sms')
+reg_item('/sms/template/add',       _(u'Add a message template'), 'sms.add_messagetemplate')
 
 block_registry.register(messaging_lists_block, recipients_block, contacts_block, messages_block, sendings_block)

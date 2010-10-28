@@ -7,28 +7,28 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-10-25 11:30+0200\n"
+"POT-Creation-Date: 2010-10-28 15:29+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
-"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Language: \n"
 
 #: creme_core_register.py:11
-msgid "Recurrent document"
+msgid "Recurrent documents"
 msgstr "Documents récurrents"
 
-#: creme_core_register.py:16
+#: creme_core_register.py:15
 msgid "Portal"
 msgstr "Portail"
 
-#: creme_core_register.py:17
+#: creme_core_register.py:16
 msgid "All recurrent generators"
 msgstr "Lister les générateurs récurrents"
 
-#: creme_core_register.py:18
+#: creme_core_register.py:17
 msgid "Add a generator"
 msgstr "Ajouter un générateur"
 

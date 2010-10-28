@@ -35,6 +35,6 @@ ContentType.__unicode__ = lambda self: ugettext(self.name)
 
 creme_registry.register_app('creme_core', _(u'Core'), '/')
 
-creme_menu.register_app('creme_core', '/', 'Accueil')
+creme_menu.register_app('creme_core', '/', _(u'Home'))
 
 block_registry.register(relations_block, properties_block)

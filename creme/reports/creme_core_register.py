@@ -27,16 +27,15 @@ from creme_core.gui.block import block_registry
 from reports.models import Report, report_prefix_url
 from reports.blocks import report_fields_block, report_graphs_block
 
-report_app = Report._meta.app_label
+REPORT_APP = Report._meta.app_label
 
-creme_registry.register_app(report_app, _(u'Reports'), report_prefix_url)
+creme_registry.register_app(REPORT_APP, _(u'Reports'), report_prefix_url)
 creme_registry.register_entity_models(Report)
 
-creme_menu.register_app(report_app, '%s/' % report_prefix_url, 'Rapports')
-reg_menu = creme_menu.register_item
-reg_menu(report_app, '%s/' % report_prefix_url,           _(u'Portal'),       'reports')
-reg_menu(report_app, '%s/reports' % report_prefix_url,    _(u'All reports'),  'reports')
-reg_menu(report_app, '%s/report/add' % report_prefix_url, _(u'Add a report'), 'reports.add_report')
+reg_item = creme_menu.register_app(REPORT_APP, '%s/' % report_prefix_url).register_item
+reg_item('%s/' % report_prefix_url,           _(u'Portal'),       'reports')
+reg_item('%s/reports' % report_prefix_url,    _(u'All reports'),  'reports')
+reg_item('%s/report/add' % report_prefix_url, _(u'Add a report'), 'reports.add_report')
 
 block_registry.register(report_fields_block)
 block_registry.register(report_graphs_block)
