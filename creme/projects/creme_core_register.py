@@ -24,12 +24,12 @@ from creme_core.registry import creme_registry
 from creme_core.gui.menu import creme_menu
 from creme_core.gui.block import block_registry
 
-from projects.models import Project, ProjectTask, Resource
+from projects.models import Project, ProjectTask
 from projects.blocks import *
 
 
 creme_registry.register_app('projects', _(u'Projects'), '/projects')
-creme_registry.register_entity_models(Project, Resource, ProjectTask)
+creme_registry.register_entity_models(Project, ProjectTask) #TODO: need to register ProjectTask ??
 
 reg_item = creme_menu.register_app('projects', '/projects/').register_item
 reg_item('/projects/',            _('Portal'),        'projects')
