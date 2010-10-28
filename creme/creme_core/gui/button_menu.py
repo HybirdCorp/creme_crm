@@ -27,9 +27,8 @@ class Button(object):
     id_           = None   #overload with an unicode object ; use generate_id()
     verbose_name  = 'BUTTON' #used in the user configuration (see ButtonMenuItem)
     template_name = 'creme_core/templatetags/button.html' #used to render the button of course
-
-    def __init__(self):
-        self._template = None
+    permission    = None #None means not permission needed ; overload to set to 'myapp.add_mymodel' for example
+                         #BEWARE: you have to use the context variable 'has_perm' yourself !!
 
     @staticmethod
     def generate_id(app_name, name):
@@ -43,6 +42,10 @@ class Button(object):
         """
         return ()
 
+    def has_perm(self, context):
+        permission = self.permission
+        return context['request'].user.has_perm(permission) if permission else True
+
     def ok_4_display(self, entity):
         """
         @param entity CremeEntity which detailview is displayed.
@@ -51,9 +54,9 @@ class Button(object):
         return True
 
     def render(self, context):
-        if not self._template:
-            self._template = get_template(self.template_name)
-        return self._template.render(context)
+        context['has_perm'] = self.has_perm(context)
+
+        return get_template(self.template_name).render(context)
 
 
 class ButtonsRegistry(object):

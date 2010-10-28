@@ -32,6 +32,9 @@ class GenerateInvoiceNumberyButton(Button):
         from billing.models import Invoice
         return (Invoice,)
 
+    def has_perm(self, context):
+        return context['object'].can_change(context['request'].user)
+
     def ok_4_display(self, entity):
         return not bool(entity.number)
 
