@@ -48,10 +48,6 @@ def _add_generic(request, form, task_id, title):
         return error_popup(request,
                            _(u"You can't add a resources or a working period to a task which has status <%s>") % state)
 
-    model = form._meta.model
-    if not user.has_perm_to_create(model):
-        raise PermissionDenied(_(u'You are not allowed to create a %s') % model._meta.verbose_name)
-
     if request.POST:
         form_obj = form(task, request.POST)
 
@@ -84,8 +80,6 @@ def _edit_generic(request, form, obj_id, model, title):
     else:
         form_obj = form(task, instance=obj)
 
-    #TODO: problem with edit credentails : Resource is a CremeEntity (with credentials) and not WorkingPeriod
-
     return inner_popup(request, 'creme_core/generics/blockform/edit_popup.html',
                        {
                          'form':   form_obj,
@@ -93,4 +87,6 @@ def _edit_generic(request, form, obj_id, model, title):
                          'title':  title,
                        },
                        is_valid=form_obj.is_valid(),
+                       reload=False,
+                       delegate_reload=True,
                        context_instance=RequestContext(request))

@@ -28,7 +28,7 @@ from persons.models import Contact
 from task import ProjectTask
 
 
-class Resource(CremeEntity): #CremeModel instead ??
+class Resource(CremeEntity): #NB: CremeEntity and not CremeModel because we use a CremeEntityField in WorkingPeriods' form
     linked_contact  = ForeignKey(Contact, verbose_name=_(u'Contact'))
     hourly_cost     = PositiveIntegerField(_(u'Hourly cost (in €)'), blank=True, null=True)
     task            = ForeignKey(ProjectTask, verbose_name=_(u'Task'), related_name='resources_set')
@@ -46,10 +46,6 @@ class Resource(CremeEntity): #CremeModel instead ??
 
     def get_edit_absolute_url(self):
         return "/projects/resource/edit/%s" % self.id
-
-#Commented on 15 june 2010
-#    def get_delete_absolute_url(self):
-#        return "/projects/resource/delete/%s" % self.id
 
     def delete(self):
         # delete first all working period related to this resource (functionnal constraint)

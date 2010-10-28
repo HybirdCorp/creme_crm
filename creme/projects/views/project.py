@@ -48,9 +48,6 @@ def listview(request):
 @login_required
 @permission_required('projects')
 def detailview(request, project_id):
-    """
-        @Permissions : Acces or Admin to project app & Read on current Project object
-    """
     return view_entity_with_template(request, project_id, Project,
                                      '/projects/project',
                                      'projects/view_project.html',)
