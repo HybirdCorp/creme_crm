@@ -33,17 +33,16 @@ from billing.buttons import generate_invoice_number_button
 creme_registry.register_app('billing', _(u'Billing'), '/billing')
 creme_registry.register_entity_models(Invoice, Quote, SalesOrder, CreditNote)
 
-creme_menu.register_app('billing', '/billing/', 'Facturation') #TODO: i18n
-reg_menu = creme_menu.register_item
-reg_menu('billing', '/billing/',                _(u'Portal'),            'billing')
-reg_menu('billing', '/billing/invoice/add',     _(u'Add an invoice'),    'billing.add_invoice')
-reg_menu('billing', '/billing/invoices',        _(u'All invoices'),      'billing')
-reg_menu('billing', '/billing/sales_order/add', _(u'Add a sales order'), 'billing.add_salesorder')
-reg_menu('billing', '/billing/sales_orders',    _(u'All sales orders'),  'billing')
-reg_menu('billing', '/billing/quote/add',       _(u'Add a quote'),       'billing.add_quote')
-reg_menu('billing', '/billing/quotes',          _(u'All quotes'),        'billing')
-reg_menu('billing', '/billing/credit_note/add', _(u'Add a credit note'), 'billing.add_creditnote')
-reg_menu('billing', '/billing/credit_note',     _(u'All credit notes'),  'billing')
+reg_item = creme_menu.register_app('billing', '/billing/').register_item
+reg_item('/billing/',                _(u'Portal'),            'billing')
+reg_item('/billing/invoice/add',     _(u'Add an invoice'),    'billing.add_invoice')
+reg_item('/billing/invoices',        _(u'All invoices'),      'billing')
+reg_item('/billing/sales_order/add', _(u'Add a sales order'), 'billing.add_salesorder')
+reg_item('/billing/sales_orders',    _(u'All sales orders'),  'billing')
+reg_item('/billing/quote/add',       _(u'Add a quote'),       'billing.add_quote')
+reg_item('/billing/quotes',          _(u'All quotes'),        'billing')
+reg_item('/billing/credit_note/add', _(u'Add a credit note'), 'billing.add_creditnote')
+reg_item('/billing/credit_note',     _(u'All credit notes'),  'billing')
 
 block_registry.register(product_lines_block, service_lines_block, total_block)
 button_registry.register(generate_invoice_number_button)

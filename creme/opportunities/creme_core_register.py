@@ -33,11 +33,10 @@ from opportunities.blocks import *
 creme_registry.register_app('opportunities', _(u'Opportunities'), '/opportunities')
 creme_registry.register_entity_models(Opportunity)
 
-creme_menu.register_app('opportunities', '/opportunities/', 'Opportunités de vente')
-reg_menu = creme_menu.register_item
-reg_menu('opportunities', '/opportunities/',                _(u'Portal'),             'opportunities')
-reg_menu('opportunities', '/opportunities/opportunities',   _(u'All opportunities'),  'opportunities')
-reg_menu('opportunities', '/opportunities/opportunity/add', _(u'Add an opportunity'), 'opportunities.add_opportunity')
+reg_item = creme_menu.register_app('opportunities', '/opportunities/').register_item
+reg_item('/opportunities/',                _(u'Portal'),             'opportunities')
+reg_item('/opportunities/opportunities',   _(u'All opportunities'),  'opportunities')
+reg_item('/opportunities/opportunity/add', _(u'Add an opportunity'), 'opportunities.add_opportunity')
 
 button_registry.register(linked_opportunity_button)
 

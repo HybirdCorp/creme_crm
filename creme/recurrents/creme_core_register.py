@@ -8,11 +8,10 @@ from creme_core.gui.menu import creme_menu
 from recurrents.models import RecurrentGenerator
 
 
-creme_registry.register_app('recurrents', _(u'Recurrent document'), '/recurrents')
+creme_registry.register_app('recurrents', _(u'Recurrent documents'), '/recurrents')
 creme_registry.register_entity_models(RecurrentGenerator)
 
-creme_menu.register_app('recurrents', '/recurrents/', 'Documents récurrents')
-reg_menu = creme_menu.register_item
-reg_menu('recurrents', '/recurrents/',              _(u'Portal'),                   'recurrents')
-reg_menu('recurrents', '/recurrents/generators',    _(u'All recurrent generators'), 'recurrents')
-reg_menu('recurrents', '/recurrents/generator/add', _(u'Add a generator'),          'recurrents.add_recurrentgenerator')
+reg_item = creme_menu.register_app('recurrents', '/recurrents/').register_item
+reg_item('/recurrents/',              _(u'Portal'),                   'recurrents')
+reg_item('/recurrents/generators',    _(u'All recurrent generators'), 'recurrents')
+reg_item('/recurrents/generator/add', _(u'Add a generator'),          'recurrents.add_recurrentgenerator')

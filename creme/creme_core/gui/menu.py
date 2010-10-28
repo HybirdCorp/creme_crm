@@ -18,9 +18,11 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from logging import warn
+
 from django.utils.encoding import smart_str, smart_unicode
 
-#from creme_core.registry import creme_registry
+from creme_core.registry import creme_registry
 
 #TODO: merge the 2 menu api (idea: use tags ?)
 #TODO: refactor code.....
@@ -43,42 +45,58 @@ class MenuAppItem(object):
     def __init__(self, app_name, app_url, verbose_name=None):
         self.app_name = app_name
         self.app_url = app_url
-        self.name = verbose_name or app_name #TODO: retrieve 'verbose_name' from creme_registry...
-        self.items = []
+        #self.name = verbose_name or app_name #TODO: retrieve 'verbose_name' from creme_registry...
+        self.name = verbose_name or creme_registry.get_app(app_name).verbose_name
+        self._items = []
 
     def __unicode__(self):
         return u'<MenuAppItem: app:%s url:%s name:%s>' % (self.app_name, self.app_url, self.name)
 
     def __iter__(self):
-        return iter(self.items)
+        return iter(self._items)
 
-    def add_item(self, url, name, perm):
+    items = property(lambda self: self._items)
+
+    def register_item(self, url, name, perm):
+        """
+        @param name Label used in the GUI ; using ugettext_lazy reurned object is advised.
+        @param perm Permission string ; eg:'persons.add_organisation'
+        """
         self.items.append(MenuItem(url, name, perm))
 
 
 class CremeMenu(object):
     def __init__(self):
-        self.app_items = {}
+        self._app_items = {}
 
     def __iter__(self):
-        return self.app_items.itervalues()
+        return self._app_items.itervalues()
 
-    def register_app(self, app_name, app_url, name=None):
-        if not self.app_items.has_key(app_name):
-            self.app_items[app_name] = MenuAppItem(app_name, app_url, name)
+    def get_app_item(self, app_name):
+        app_item = self._app_items.get(app_name)
 
-    def register_item(self, app_name, item_url, item_name, item_perm): #item_perm='persons.add_organisation'
-        app_item = self.app_items.get(app_name)
-        if app_item is not None:
-            app_item.add_item(item_url, item_name, item_perm)
+        if not app_item:
+            raise KeyError('App not (yet) registered : %s (beware to the order for INSTALLED_APPS in settings.py)', app_name)
+
+        return app_item
 
     def get_item_name(self, item_url):
-        for app_item in self.app_items.itervalues():
+        for app_item in self._app_items.itervalues():
             for item in app_item:
                 if smart_unicode(item.url) == smart_unicode(item_url): #TODO: smartunicode useful ???
                     return item.name
 
         return '' #TODO: None ? exception ??
+
+    def register_app(self, app_name, app_url, name=None):
+        if not self._app_items.has_key(app_name):
+            app_item = MenuAppItem(app_name, app_url, name)
+            self._app_items[app_name] = app_item
+        else:
+            warn('This app has already been registered in the menu: %s', app_name)
+            app_item = None
+
+        return app_item
 
 
 creme_menu = CremeMenu()
@@ -121,15 +139,15 @@ class FolderMenu(object):
         return cmp(self.order, other.order)
 
 
-class LeafMenu (object):
+class LeafMenu(object):
     __slots__ = ('menu_url', 'menu_name', 'order')
 
-    def __init__ (self, menu_url, menu_name, order):
+    def __init__(self, menu_url, menu_name, order):
         self.menu_url = menu_url
         self.menu_name = menu_name
         self.order = order
 
-    def render (self):
+    def render(self):
         if self.menu_name :
             return """<li><a href="%s">%s</a></li>""" % (self.menu_url, self.menu_name)
 

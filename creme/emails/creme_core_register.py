@@ -25,23 +25,22 @@ from creme_core.gui.menu import creme_menu
 from creme_core.gui.block import block_registry
 
 from emails.models import EmailCampaign, MailingList, EmailTemplate, EntityEmail
-from emails.blocks import *
+from emails.blocks import * #TODO: blocks_list ??
 
 
 creme_registry.register_entity_models(EmailCampaign, MailingList, EmailTemplate, EntityEmail)
 creme_registry.register_app('emails', _(u'Emails'), '/emails')
 
-creme_menu.register_app ('emails', '/emails/', "Courriels et Campagnes")
-reg_menu = creme_menu.register_item
-reg_menu('emails', '/emails/',                 _(u'Portal'),                             'emails')
-reg_menu('emails', '/emails/campaigns' ,       _(u'All campaigns'),                      'emails')
-reg_menu('emails', '/emails/campaign/add',     _(u'Add a campaign'),                     'emails.add_emailcampaign')
-reg_menu('emails', '/emails/mailing_lists',    _(u'All mailing lists'),                  'emails')
-reg_menu('emails', '/emails/mailing_list/add', _(u'Add a mailing list'),                 'emails.add_mailinglist')
-reg_menu('emails', '/emails/templates',        _(u'All email templates'),                'emails')
-reg_menu('emails', '/emails/template/add',     _(u'Add an email template'),              'emails.add_emailtemplate')
-reg_menu('emails', '/emails/mails',            _(u'All emails'),                         'emails')
-reg_menu('emails', '/emails/synchronization',  _(u'Synchronization of incoming emails'), 'emails')
+reg_item = creme_menu.register_app ('emails', '/emails/').register_item
+reg_item('/emails/',                 _(u'Portal'),                             'emails')
+reg_item('/emails/campaigns' ,       _(u'All campaigns'),                      'emails')
+reg_item('/emails/campaign/add',     _(u'Add a campaign'),                     'emails.add_emailcampaign')
+reg_item('/emails/mailing_lists',    _(u'All mailing lists'),                  'emails')
+reg_item('/emails/mailing_list/add', _(u'Add a mailing list'),                 'emails.add_mailinglist')
+reg_item('/emails/templates',        _(u'All email templates'),                'emails')
+reg_item('/emails/template/add',     _(u'Add an email template'),              'emails.add_emailtemplate')
+reg_item('/emails/mails',            _(u'All emails'),                         'emails')
+reg_item('/emails/synchronization',  _(u'Synchronization of incoming emails'), 'emails')
 
 block_registry.register(mailing_lists_block, recipients_block, contacts_block, organisations_block,
                         child_lists_block, parent_lists_block, attachments_block, sendings_block,

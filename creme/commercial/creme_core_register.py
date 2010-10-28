@@ -31,13 +31,13 @@ from commercial.blocks import approaches_block
 creme_registry.register_app('commercial', _(u'Commercial strategy'), '/commercial')
 creme_registry.register_entity_models(Act)
 
-#TODO: i18n
-creme_menu.register_app('commercial', '/commercial/', 'Commercial')
-reg_menu = creme_menu.register_item
-reg_menu('commercial', '/commercial/',             _(u'Portal'),                  'commercial')
-reg_menu('commercial', '/commercial/acts',         _(u'All commercial actions'),  'commercial')
-reg_menu('commercial', '/commercial/act/add',      _(u'Add a commercial action'), 'commercial.add_act')
-reg_menu('persons',    '/commercial/salesmen',     _(u'All salesmen'),            'persons')
-reg_menu('persons',    '/commercial/salesman/add', _(u'Add a salesman'),          'persons.add_contact')
+reg_item = creme_menu.register_app('commercial', '/commercial/').register_item
+reg_item('/commercial/',             _(u'Portal'),                  'commercial')
+reg_item('/commercial/acts',         _(u'All commercial actions'),  'commercial')
+reg_item('/commercial/act/add',      _(u'Add a commercial action'), 'commercial.add_act')
+
+reg_item = creme_menu.get_app_item('persons').register_item
+reg_item('/commercial/salesmen',     _(u'All salesmen'),   'persons')
+reg_item('/commercial/salesman/add', _(u'Add a salesman'), 'persons.add_contact')
 
 block_registry.register(approaches_block)
