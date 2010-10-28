@@ -27,6 +27,7 @@ class LinkedOpportunityButton(Button):
     id_           = Button.generate_id('opportunities', 'linked_opportunity')
     verbose_name  = _(u'Add an opportunity linked to an organisation')
     template_name = 'opportunities/templatetags/button_linked_opp.html'
+    permission    = 'opportunities.add_opportunity'
 
     def get_ctypes(self):
         from persons.models import Organisation

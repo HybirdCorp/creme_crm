@@ -57,7 +57,7 @@ def listview(request):
 def generate_number(request, invoice_id):
     invoice = get_object_or_404(Invoice, pk=invoice_id)
 
-    #TODO: edit credentials ??
+    invoice.can_change_or_die(request.user)
 
     if not invoice.number:
         status = get_object_or_404(InvoiceStatus, pk=DEFAULT_INVOICE_STATUS)
