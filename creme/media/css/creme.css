@@ -814,7 +814,7 @@ textarea:disabled, textarea[readonly] {
 *:first-child+html button[type] {
     padding: 4px 10px 3px 7px; /* IE7 */
 }
-.buttons button img, .buttons a img {
+.buttons button img, .buttons a img , .buttons span img {
     margin: 0 3px -3px 0 !important;
     padding: 0;
     border: none;
