@@ -42,11 +42,12 @@ class MenuItem(object):
 
 
 class MenuAppItem(object):
-    def __init__(self, app_name, app_url, verbose_name=None):
+    def __init__(self, app_name, app_url, verbose_name=None, force_order=None):
+        """@param force_order Order of the item in the menu ; None if the verbose_name is use as key."""
         self.app_name = app_name
         self.app_url = app_url
-        #self.name = verbose_name or app_name #TODO: retrieve 'verbose_name' from creme_registry...
         self.name = verbose_name or creme_registry.get_app(app_name).verbose_name
+        self.force_order = force_order
         self._items = []
 
     def __unicode__(self):
@@ -88,9 +89,10 @@ class CremeMenu(object):
 
         return '' #TODO: None ? exception ??
 
-    def register_app(self, app_name, app_url, name=None):
+    def register_app(self, app_name, app_url, name=None, force_order=None):
+        """@param force_order Order of the item in the menu ; None if the verbose_name is use as key."""
         if not self._app_items.has_key(app_name):
-            app_item = MenuAppItem(app_name, app_url, name)
+            app_item = MenuAppItem(app_name, app_url, name, force_order)
             self._app_items[app_name] = app_item
         else:
             warn('This app has already been registered in the menu: %s', app_name)
