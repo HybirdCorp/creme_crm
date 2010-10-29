@@ -594,7 +594,7 @@ msgid "Edit"
 msgstr "Éditer"
 
 #: templates/persons/portal.html:4
-msgid "Account & contacts portal"
+msgid "Accounts & contacts portal"
 msgstr "Portail contacts & organisations"
 
 #: templates/persons/portal.html:6
