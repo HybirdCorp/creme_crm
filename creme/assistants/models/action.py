@@ -39,7 +39,6 @@ class Action(CremeModel):
 
     entity_content_type = ForeignKey(ContentType, related_name="action_entity_set")
     entity_id           = PositiveIntegerField()
-
     creme_entity        = GenericForeignKey(ct_field="entity_content_type", fk_field="entity_id")
 
     for_user            = ForeignKey(User, verbose_name=_(u'Assigned to'), blank=True, null=True, related_name='user_action_assigned_set')
@@ -57,26 +56,31 @@ class Action(CremeModel):
 
     @staticmethod
     def get_actions_it(today, entity=None):
-        #TODO: filter entity_type is useless if actions are always linked to CremeEntity. change ??
-        return Action.objects.filter(is_ok=False, entity_content_type=entity.entity_type,
-                                     entity_id=entity.id, deadline__gt=today) if entity else \
-               Action.objects.filter(is_ok=False, deadline__gt=today)
+        queryset = Action.objects.filter(is_ok=False, deadline__gt=today).select_related('for_user')
+
+        if entity:
+            queryset = queryset.filter(entity_id=entity.id)
+
+        return queryset
 
     @staticmethod
     def get_actions_nit(today, entity=None):
-        return Action.objects.filter(is_ok=False, entity_content_type=entity.entity_type,
-                                     entity_id=entity.id, deadline__lte=today) if entity else \
-               Action.objects.filter(is_ok=False, deadline__lte=today)
+        queryset = Action.objects.filter(is_ok=False, deadline__lte=today).select_related('for_user')
+
+        if entity:
+            queryset = queryset.filter(entity_id=entity.id)
+
+        return queryset
 
     @staticmethod
-    def get_actions_it_for_cts(ct_ids, today):
-        return Action.objects.filter(entity_content_type__in=ct_ids,
-                                     is_ok=False, deadline__gt=today)
+    def get_actions_it_for_ctypes(ct_ids, today):
+        return Action.objects.filter(entity_content_type__in=ct_ids, is_ok=False, deadline__gt=today) \
+                             .select_related('for_user')
 
     @staticmethod
-    def get_actions_nit_for_cts(ct_ids, today):
-        return Action.objects.filter(entity_content_type__in=ct_ids,
-                                     is_ok=False, deadline__lte=today)
+    def get_actions_nit_for_ctypes(ct_ids, today):
+        return Action.objects.filter(entity_content_type__in=ct_ids, is_ok=False, deadline__lte=today) \
+                             .select_related('for_user')
 
 
 #TODO: can delete this with  a WeakForeignKey ??

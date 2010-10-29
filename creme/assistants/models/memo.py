@@ -39,8 +39,16 @@ class Memo(CremeModel):
     creme_entity        = GenericForeignKey(ct_field="entity_content_type", fk_field="entity_id")
 
     @staticmethod
-    def get_memos(entity_pk):
-        return Memo.objects.filter(entity_id=entity_pk)
+    def get_home_memos():
+        return Memo.objects.filter(on_homepage=True).select_related('user')
+
+    @staticmethod
+    def get_memos(entity):
+        return Memo.objects.filter(entity_id=entity.id).select_related('user')
+
+    @staticmethod
+    def get_memos_for_ctypes(ct_ids):
+        return Memo.objects.filter(entity_content_type__in=ct_ids).select_related('user')
 
     class Meta:
         app_label = 'assistants'
@@ -50,6 +58,6 @@ class Memo(CremeModel):
 
 #TODO: can delete this with  a WeakForeignKey ??
 def dispose_entity_memos(sender, instance, **kwargs):
-    Memo.get_memos(instance.id).delete()
+    Memo.objects.filter(entity_id=instance.id).delete()
 
 pre_delete.connect(dispose_entity_memos, sender=CremeEntity)

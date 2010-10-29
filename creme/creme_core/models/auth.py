@@ -28,7 +28,6 @@ from django.contrib.contenttypes.models import ContentType
 
 from entity import CremeEntity
 from creme_core.registry import creme_registry
-from creme_core.utils import find_first
 from creme_core.utils.contribute_to_model import contribute_to_model
 
 
@@ -102,18 +101,31 @@ class EntityCredentials(Model):
 
     @staticmethod
     def get_creds(user, entity):
+        return EntityCredentials.get_creds_map(user, [entity])[entity.id]
+
+    @staticmethod
+    def get_creds_map(user, entities): #TODO: unit test better...
+        """Return a dictionnary with items: (CremeEntity.id, EntityCredentials instance).
+        Of course it managed default permissions.
+        @param user User concerned by the request.
+        @param entities A sequence of CremeEntity (beware, it's iterated twice --> not an iterator).
+        """
         if user.is_superuser:
-            return EntityCredentials(entity=entity, user=user, value=ALL_CREDS)
+            return dict((e.id, EntityCredentials(entity=e, user=user, value=ALL_CREDS)) for e in entities)
 
-        creds = EntityCredentials.objects.filter(Q(entity__isnull=True) | Q(entity=entity, user=user))
+        #NB: "e.id" instead of "e"  => avoid one parasit query by entity (ORM bug ??)
+        creds_map = dict((creds.entity_id, creds) for creds in EntityCredentials.objects.filter(Q(entity__isnull=True) | Q(entity__in=[e.id for e in entities], user=user)))
 
-        if not creds:
-            return EntityCredentials(entity=entity, user=user, value=NO_CRED)
+        default_creds = creds_map.pop(None, None)
+        default_value = default_creds.value if default_creds else NO_CRED
 
-        if len(creds) == 1:
-            return creds[0]
+        for entity in entities:
+            creds = creds_map.get(entity.id)
 
-        return find_first(creds, lambda c: c.entity_id)
+            if not creds:
+                creds_map[entity.id] = EntityCredentials(entity=entity, user=user, value=default_value)
+
+        return creds_map
 
     @staticmethod
     def get_default_creds():
@@ -130,7 +142,7 @@ class EntityCredentials(Model):
     @staticmethod
     def set_entity_perms(user, entity, view=False, change=False, delete=False):
         try:
-            perms = EntityCredentials.objects.get(user=user, entity=entity)
+            perms = EntityCredentials.objects.get(user=user, entity=entity.id)
         except EntityCredentials.DoesNotExist:
             perms = EntityCredentials(user=user, entity=entity)
 
@@ -153,6 +165,7 @@ class UserRole(Model):
         super(UserRole, self).__init__(*args, **kwargs)
         self._allowed_apps = None
         self._admin_4_apps = None
+        self._creatable_ctypes_set = None
 
     def __unicode__(self):
         return self.name
@@ -191,11 +204,14 @@ class UserRole(Model):
         get_app = creme_registry.get_app
         return [get_app(app_name).verbose_name for app_name in self.allowed_apps]
 
-    def can_create(self, app_name, model_name):  #use a cache ??
+    def can_create(self, app_name, model_name):
         """@return True if a model with ContentType(app_name, model_name) can be created."""
         ct = ContentType.objects.get_by_natural_key(app_name, model_name)
 
-        return self.creatable_ctypes.filter(pk=ct.id).exists()
+        if self._creatable_ctypes_set is None:
+            self._creatable_ctypes_set = frozenset(self.creatable_ctypes.values_list('id', flat=True))
+
+        return (ct.id in self._creatable_ctypes_set)
 
     def get_perms(self, user, entity):
         """@return (can_view, can_change, can_delete) 3 boolean tuple"""
