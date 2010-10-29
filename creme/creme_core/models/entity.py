@@ -118,10 +118,24 @@ class CremeEntity(CremeAbstractEntity):
         creds = creds_map.get(user.id)
 
         if creds is None:
+            debug('CremeEntity.get_credentials(): Cache MISS for id=%s user=%s', self.id, user)
             creds = EntityCredentials.get_creds(user, self)
             creds_map[user.id] = creds
+        else:
+            debug('CremeEntity.get_credentials(): Cache HIT for id=%s user=%s', self.id, user)
 
         return creds
+
+    @staticmethod
+    def populate_credentials(entities, user): #TODO: unit test...
+        """ @param entities Seequence of CremeEntity (iterated several times _> not an iterator)
+        """
+        from auth import EntityCredentials
+        creds_map = EntityCredentials.get_creds_map(user, entities)
+        user_id   = user.id
+
+        for entity in entities:
+            entity._credentials_map[user_id] = creds_map[entity.id]
 
     @staticmethod
     def get_real_entity_by_id(pk):

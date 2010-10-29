@@ -54,8 +54,17 @@ class ToDo(CremeModel):
             self.has_deadline = False 
 
     @staticmethod
-    def get_todos(entity_pk):
-        return ToDo.objects.filter(entity_id=entity_pk)
+    def get_todos(entity=None):
+        queryset = ToDo.objects.select_related('for_user')
+
+        if entity:
+            queryset = queryset.filter(entity_id=entity.id)
+
+        return queryset
+
+    @staticmethod
+    def get_todos_for_ctypes(ct_ids):
+        return ToDo.objects.filter(entity_content_type__in=ct_ids).select_related('for_user')
 
     class Meta:
         app_label = 'assistants'
@@ -65,7 +74,6 @@ class ToDo(CremeModel):
 
 #TODO: can delete this with  a WeakForeignKey ??
 def dispose_entity_todos(sender, instance, **kwargs):
-    #ToDo.objects.filter(entity_id=instance.id).delete()
-    ToDo.get_todos(instance.id).delete()
+    ToDo.objects.filter(entity_id=instance.id).delete()
 
 pre_delete.connect(dispose_entity_todos, sender=CremeEntity)

@@ -100,7 +100,7 @@ class HeaderFilter(Model): #CremeModel ???
         """Add a select_related() call to the queryset in order to improve the
         queries of a listview that uses this HeaderFilter.
         """
-        assert entities_qs._result_cache is None #ensure optimisation of global optimisation level
+        assert entities_qs._result_cache is None #ensure optimisation of global level
 
         fnames = [hfi.name for hfi in self.items if hfi.type == HFI_FIELD]
 

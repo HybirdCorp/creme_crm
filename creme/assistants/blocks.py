@@ -18,11 +18,35 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.utils.translation import ugettext_lazy as _
+from collections import defaultdict
 
+from django.utils.translation import ugettext_lazy as _
+from django.contrib.contenttypes.models import ContentType
+
+from creme_core.models import CremeEntity
 from creme_core.gui.block import QuerysetBlock, list4url
 
 from assistants.models import Action, Alert, Memo, ToDo
+
+
+#TODO: factorise with a AssistantBlock ???
+
+def _populate_related_real_entities(assistants, user):
+    entities_ids_by_ct = defaultdict(set)
+
+    for assistant in assistants:
+        entities_ids_by_ct[assistant.entity_content_type_id].add(assistant.entity_id)
+
+    entities_map = {}
+    get_ct = ContentType.objects.get_for_id
+
+    for ct_id, entities_ids in entities_ids_by_ct.iteritems():
+        entities_map.update(get_ct(ct_id).model_class().objects.in_bulk(entities_ids))
+
+    for assistant in assistants:
+        assistant.creme_entity = entities_map[assistant.entity_id]
+
+    CremeEntity.populate_credentials(entities_map.values(), user) #beware: values() and not itervalues()
 
 
 class TodosBlock(QuerysetBlock):
@@ -34,20 +58,32 @@ class TodosBlock(QuerysetBlock):
     configurable  = True
 
     def detailview_display(self, context):
-        pk = context['object'].pk
-        return self._render(self.get_block_template_context(context, ToDo.get_todos(pk),
-                                                            update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, pk),
-                                                            ))
+        entity = context['object']
+        btc = self.get_block_template_context(context, ToDo.get_todos(entity),
+                                              update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, entity.pk),
+                                             )
+
+        #NB: optimisation ; it avoids the retrieving of the entity during template rendering.
+        for todo in btc['page'].object_list:
+            todo.creme_entity = entity
+
+        return self._render(btc)
 
     def portal_display(self, context, ct_ids):
-        return self._render(self.get_block_template_context(context, ToDo.objects.filter(entity_content_type__id__in=ct_ids),
-                                                            update_url='/creme_core/blocks/reload/portal/%s/%s/' % (self.id_, list4url(ct_ids)),
-                                                            ))
+        btc = self.get_block_template_context(context, ToDo.get_todos_for_ctypes(ct_ids),
+                                              update_url='/creme_core/blocks/reload/portal/%s/%s/' % (self.id_, list4url(ct_ids)),
+                                             )
+        _populate_related_real_entities(btc['page'].object_list, context['request'].user)
+
+        return self._render(btc)
 
     def home_display(self, context):
-        return self._render(self.get_block_template_context(context, ToDo.objects.all(),
-                                                            update_url='/creme_core/blocks/reload/home/%s/' % self.id_,
-                                                            ))
+        btc = self.get_block_template_context(context, ToDo.get_todos(),
+                                              update_url='/creme_core/blocks/reload/home/%s/' % self.id_,
+                                             )
+        _populate_related_real_entities(btc['page'].object_list, context['request'].user)
+
+        return self._render(btc)
 
 
 class MemosBlock(QuerysetBlock):
@@ -59,20 +95,32 @@ class MemosBlock(QuerysetBlock):
     configurable  = True
 
     def detailview_display(self, context):
-        pk = context['object'].pk
-        return self._render(self.get_block_template_context(context, Memo.get_memos(pk),
-                                                            update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, pk),
-                                                            ))
+        entity = context['object']
+        btc = self.get_block_template_context(context, Memo.get_memos(entity),
+                                              update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, entity.id),
+                                             )
+
+        #NB: optimisation ; it avoids the retrieving of the entity during template rendering.
+        for memo in btc['page'].object_list:
+            memo.creme_entity = entity
+
+        return self._render(btc)
 
     def portal_display(self, context, ct_ids):
-        return self._render(self.get_block_template_context(context, Memo.objects.filter(entity_content_type__id__in=ct_ids),
+        btc = self.get_block_template_context(context, Memo.get_memos_for_ctypes(ct_ids),
                                                             update_url='/creme_core/blocks/reload/portal/%s/%s/' % (self.id_, list4url(ct_ids)),
-                                                            ))
+                                                            )
+        _populate_related_real_entities(btc['page'].object_list, context['request'].user)
+
+        return self._render(btc)
 
     def home_display(self, context):
-        return self._render(self.get_block_template_context(context, Memo.objects.filter(on_homepage=True),
-                                                            update_url='/creme_core/blocks/reload/home/%s/' % self.id_,
-                                                            ))
+        btc = self.get_block_template_context(context, Memo.get_home_memos(),
+                                              update_url='/creme_core/blocks/reload/home/%s/' % self.id_,
+                                             )
+        _populate_related_real_entities(btc['page'].object_list, context['request'].user)
+
+        return self._render(btc)
 
 
 class AlertsBlock(QuerysetBlock):
@@ -84,20 +132,32 @@ class AlertsBlock(QuerysetBlock):
     configurable  = True
 
     def detailview_display(self, context):
-        pk = context['object'].pk
-        return self._render(self.get_block_template_context(context, Alert.get_alerts(pk),
-                                                            update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, pk),
-                                                            ))
+        entity = context['object']
+        btc= self.get_block_template_context(context, Alert.get_alerts(entity),
+                                             update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, entity.id),
+                                            )
+
+        #NB: optimisation ; it avoids the retrieving of the entity during template rendering.
+        for alert in btc['page'].object_list:
+            alert.creme_entity = entity
+
+        return self._render(btc)
 
     def portal_display(self, context, ct_ids):
-        return self._render(self.get_block_template_context(context, Alert.objects.filter(entity_content_type__id__in=ct_ids),
-                                                            update_url='/creme_core/blocks/reload/portal/%s/%s/' % (self.id_, list4url(ct_ids)),
-                                                            ))
+        btc = self.get_block_template_context(context, Alert.get_alerts_for_ctypes(ct_ids),
+                                              update_url='/creme_core/blocks/reload/portal/%s/%s/' % (self.id_, list4url(ct_ids)),
+                                             )
+        _populate_related_real_entities(btc['page'].object_list, context['request'].user)
+
+        return self._render(btc)
 
     def home_display(self, context):
-        return self._render(self.get_block_template_context(context, Alert.get_alerts(),
+        btc = self.get_block_template_context(context, Alert.get_alerts(),
                                                             update_url='/creme_core/blocks/reload/home/%s/' % self.id_,
-                                                            ))
+                                                            )
+        _populate_related_real_entities(btc['page'].object_list, context['request'].user)
+
+        return self._render(btc)
 
 
 class ActionsITBlock(QuerysetBlock):
@@ -110,19 +170,31 @@ class ActionsITBlock(QuerysetBlock):
 
     def detailview_display(self, context):
         entity = context['object']
-        return self._render(self.get_block_template_context(context, Action.get_actions_it(context['today'], entity),
-                                                            update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, entity.pk),
-                                                            ))
+        btc = self.get_block_template_context(context, Action.get_actions_it(context['today'], entity),
+                                              update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, entity.pk),
+                                             )
+
+        #NB: optimisation ; it avoids the retrieving of the entity during template rendering.
+        for action in btc['page'].object_list:
+            action.creme_entity = entity
+
+        return self._render(btc)
 
     def portal_display(self, context, ct_ids):
-        return self._render(self.get_block_template_context(context, Action.get_actions_it_for_cts(ct_ids, context['today']),
-                                                            update_url='/creme_core/blocks/reload/portal/%s/%s/' % (self.id_, list4url(ct_ids)),
-                                                            ))
+        btc = self.get_block_template_context(context, Action.get_actions_it_for_ctypes(ct_ids, context['today']),
+                                              update_url='/creme_core/blocks/reload/portal/%s/%s/' % (self.id_, list4url(ct_ids)),
+                                             )
+        _populate_related_real_entities(btc['page'].object_list, context['request'].user)
+
+        return self._render(btc)
 
     def home_display(self, context):
-        return self._render(self.get_block_template_context(context, Action.get_actions_it(context['today']),
-                                                            update_url='/creme_core/blocks/reload/home/%s/' % self.id_,
-                                                            ))
+        btc = self.get_block_template_context(context, Action.get_actions_it(context['today']),
+                                              update_url='/creme_core/blocks/reload/home/%s/' % self.id_,
+                                             )
+        _populate_related_real_entities(btc['page'].object_list, context['request'].user)
+
+        return self._render(btc)
 
 
 class ActionsNITBlock(QuerysetBlock):
@@ -135,19 +207,31 @@ class ActionsNITBlock(QuerysetBlock):
 
     def detailview_display(self, context):
         entity = context['object']
-        return self._render(self.get_block_template_context(context, Action.get_actions_nit(context['today'], entity),
-                                                            update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, entity.pk),
-                                                            ))
+        btc = self.get_block_template_context(context, Action.get_actions_nit(context['today'], entity),
+                                              update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, entity.pk),
+                                             )
+
+        #NB: optimisation ; it avoids the retrieving of the entity during template rendering.
+        for action in btc['page'].object_list:
+            action.creme_entity = entity
+
+        return self._render(btc)
 
     def portal_display(self, context, ct_ids):
-        return self._render(self.get_block_template_context(context, Action.get_actions_nit_for_cts(ct_ids, context['today']),
-                                                            update_url='/creme_core/blocks/reload/portal/%s/%s/' % (self.id_, list4url(ct_ids)),
-                                                            ))
+        btc = self.get_block_template_context(context, Action.get_actions_nit_for_ctypes(ct_ids, context['today']),
+                                              update_url='/creme_core/blocks/reload/portal/%s/%s/' % (self.id_, list4url(ct_ids)),
+                                             )
+        _populate_related_real_entities(btc['page'].object_list, context['request'].user)
+
+        return self._render(btc)
 
     def home_display(self, context):
-        return self._render(self.get_block_template_context(context, Action.get_actions_nit(context['today']),
-                                                            update_url='/creme_core/blocks/reload/home/%s/' % self.id_,
-                                                            ))
+        btc = self.get_block_template_context(context, Action.get_actions_nit(context['today']),
+                                              update_url='/creme_core/blocks/reload/home/%s/' % self.id_,
+                                             )
+        _populate_related_real_entities(btc['page'].object_list, context['request'].user)
+
+        return self._render(btc)
 
 
 alerts_block      = AlertsBlock()

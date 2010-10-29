@@ -244,7 +244,7 @@ class CremeAbstractEntity(CremeModel):
         entities_map = {}
         get_ct = ContentType.objects.get_for_id
 
-        for ct_id in entities_by_ct.iterkeys():
+        for ct_id in entities_by_ct.iterkeys(): #TODO: use iteritems (entities_by_ct[ct_id]) ??
             entities_map.update(get_ct(ct_id).model_class().objects.in_bulk(entities_by_ct[ct_id]))
 
         for entity in entities:

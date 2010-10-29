@@ -495,7 +495,7 @@ class CredentialsTestCase(TestCase):
         get_ct = ContentType.objects.get_for_model
         role.creatable_ctypes = [get_ct(CremeProperty), get_ct(Relation)]
 
-        #role = UserRole.objects.get(pk=role.id) #refresh cache
+        self.user.role = UserRole.objects.get(pk=role.id) #refresh cache
         self.assert_(self.user.has_perm('creme_core.add_cremeproperty'))
         self.assert_(self.user.has_perm('creme_core.add_relation'))
         self.failIf(self.user.has_perm('creme_core.add_cremepropertytype'))

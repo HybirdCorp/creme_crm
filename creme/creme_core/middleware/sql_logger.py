@@ -13,7 +13,6 @@ _TEMPLATE = Template("""
 QUERIES: {{count}} quer{{count|pluralize:"y,ies"}} in {{time}} seconds:
 {% for sql in sqllog %}
   [{{forloop.counter}}] {{sql.time}}s: {{sql.sql|safe}}
-
 {% endfor %}""")
 
 
@@ -25,7 +24,8 @@ class SQLLogToConsoleMiddleware(object):
     def process_response(self, request, response):
         queries = connection.queries
 
-        if queries:
+        #if queries:
+        if queries and len(queries) > 1: #filter queries with only session retrieving
             print _TEMPLATE.render(Context({
                     'sqllog': queries,
                     'count':  len(queries),
