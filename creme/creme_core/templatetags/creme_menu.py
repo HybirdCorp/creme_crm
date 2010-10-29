@@ -18,11 +18,13 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from sys import maxint as MAXINT
+
 from django.conf import settings
 from django.template.context import RequestContext
 from django.template import Library
 from django.db.models import Q
-from django.utils.encoding import smart_unicode
+#from django.utils.encoding import smart_unicode
 
 from creme_core.models import PreferedMenuItem, ButtonMenuItem
 from creme_core.gui.menu import creme_menu, new_creme_menu
@@ -45,11 +47,13 @@ class MenuItem(object):
 
 
 class MenuAppItem(object):
-    __slots__ = ('app_name', 'url', 'items')
+    __slots__ = ('app_name', 'url', 'force_order', 'items')
 
-    def __init__(self, name, url, items, user):
-        self.app_name = name
+    def __init__(self, name, url, force_order, items, user):
+        #self.app_name = name
+        self.app_name = unicode(name)
         self.url = url
+        self.force_order = force_order
         has_perm = user.has_perm
         self.items = [MenuItem(item.url, item.name, has_perm(item.perm)) for item in items]
 
@@ -57,7 +61,17 @@ class MenuAppItem(object):
         return u'<MenuAppItem: app:%s url:%s>' % (self.app_name, self.app_url)
 
     def __cmp__(self, other):
-        return cmp(smart_unicode(self.app_name), smart_unicode(other.app_name))
+        force_order1 = self.force_order
+        force_order2 = other.force_order
+
+        if force_order1 is not None:
+            return cmp(force_order1, force_order2 if force_order2 is not None else MAXINT)
+
+        if force_order2 is not None:
+            return 1
+
+        #return cmp(smart_unicode(self.app_name), smart_unicode(other.app_name))
+        return cmp(self.app_name, other.app_name)
 
 
 if settings.USE_STRUCT_MENU:
@@ -65,7 +79,7 @@ if settings.USE_STRUCT_MENU:
     def generate_treecreme_menu(request):
         user = request.user
         has_perm = user.has_perm
-        items = [MenuAppItem(appitem.name, appitem.app_url, appitem.items, user)
+        items = [MenuAppItem(appitem.name, appitem.app_url, appitem.force_order, appitem.items, user)
                     for appitem in creme_menu
                         if has_perm(appitem.app_name)
                 ]
