@@ -32,7 +32,7 @@ class PropertiesBlock(QuerysetBlock):
 
     def detailview_display(self, context):
         entity = context['object']
-        return self._render(self.get_block_template_context(context, entity.properties.all(),
+        return self._render(self.get_block_template_context(context, entity.properties.select_related('type'),
                                                             update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, entity.pk),
                                                             ))
 

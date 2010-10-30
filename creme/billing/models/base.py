@@ -102,7 +102,8 @@ class Base(CremeEntity):
 
     def get_product_lines(self):
         if self._productlines_cache is None:
-            self._productlines_cache = list(ProductLine.objects.filter(document=self)) #force the retrieving all all lines (no slice)
+             #force the retrieving all all lines (no slice)
+            self._productlines_cache = list(ProductLine.objects.filter(document=self.id)) #NB: 'document=self.id' instead of 'document=self' avoids a weird query
         else:
             debug('Cache HIT for product lines in document pk=%s !!' % self.id)
 
@@ -110,7 +111,7 @@ class Base(CremeEntity):
 
     def get_service_lines(self):
         if self._servicelines_cache is None:
-            self._servicelines_cache = list(ServiceLine.objects.filter(document=self))
+            self._servicelines_cache = list(ServiceLine.objects.filter(document=self.id))
         else:
             debug('Cache HIT for service lines in document pk=%s !!' % self.id)
 
