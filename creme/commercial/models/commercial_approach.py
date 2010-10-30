@@ -28,6 +28,8 @@ from django.contrib.contenttypes.models import ContentType
 
 from creme_core.models import CremeModel, CremeEntity
 
+from activities.models import Activity
+
 
 class CommercialApproach(CremeModel):
     title               = CharField(_(u'Title'), max_length=200)
@@ -35,7 +37,7 @@ class CommercialApproach(CremeModel):
     description         = TextField(_(u'Description'), blank=True, null=True)
     creation_date       = DateTimeField(_(u'Creation date'), blank=False, null=False)
 
-    related_activity_id = PositiveIntegerField(null=True)
+    related_activity    = ForeignKey(Activity, null=True)
 
     entity_content_type = ForeignKey(ContentType, related_name="comapp_entity_set")
     entity_id           = PositiveIntegerField()
@@ -46,19 +48,19 @@ class CommercialApproach(CremeModel):
         verbose_name = _(u'Commercial approach')
         verbose_name_plural = _(u'Commercial approaches')
 
-    def get_related_activity(self):
-        from activities.models import Activity
-        try:
-            return Activity.objects.get(pk=self.related_activity_id)
-        except Activity.DoesNotExist:
-            return None
-
     @staticmethod
     def get_approaches(entity_pk=None):
-        if entity_pk:
-            return CommercialApproach.objects.filter(entity_id=entity_pk, ok_or_in_futur=False)
+        queryset = CommercialApproach.objects.filter(ok_or_in_futur=False).select_related('related_activity')
 
-        return CommercialApproach.objects.filter(ok_or_in_futur=False)
+        if entity_pk:
+            queryset = queryset.filter(entity_id=entity_pk)
+
+        return queryset
+
+    @staticmethod
+    def get_approaches_for_ctypes(ct_ids):
+        return CommercialApproach.objects.filter(entity_content_type__in=ct_ids, ok_or_in_futur=False).select_related('related_activity')
+
 
 #TODO: can delete this with  a WeakForeignKey ??
 def dispose_entity_comapps(sender, instance, **kwargs):

@@ -33,15 +33,7 @@
                     {% endif %}
                     <td class="{{row_color}}"><em>{{approach.description}}</em></td>
                     <td class="{{row_color}}">
-                        <em>
-                            {% with approach.get_related_activity as activity %}
-                                {% if activity %}
-                                    {{activity}}
-                                {% else %}
-                                    {% trans "Nothing" %}
-                                {% endif %}
-                            {% endwith %}
-                        </em>
+                        <em>{{approach.related_activity|default:_("Nothing")}}</em>
                     </td>
                 </tr>
             {% endfor %}
