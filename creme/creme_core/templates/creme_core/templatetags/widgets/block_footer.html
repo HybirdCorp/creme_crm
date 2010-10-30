@@ -1,5 +1,5 @@
 {% load i18n %}
-{% load creme_block %}
+{% load creme_block %}{% load creme_core_tags %}
 {% if page.paginator.num_pages != 1 %}
     <tfooter class="collapsable">
         <tr>
@@ -15,6 +15,12 @@
                         {% trans "Next page" %}
                     </a>
                 {% endif %}
+                &nbsp;|&nbsp;{% trans "Go to page" %}:
+                <select onchange="creme.utils.loadBlock({% get_block_reload_uri %} + '&{{block_name}}_page='+$(this).val())">
+                    {% for p in page.paginator.num_pages|xrange:1 %}
+                        <option value="{{p}}" {% if page.number == p %}selected{% endif %}>{{p}}</option>
+                    {% endfor %}
+                </select>
             </td>
         </tr>
     </tfooter>
