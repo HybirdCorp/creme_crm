@@ -114,7 +114,7 @@ class HeaderFilter(Model): #CremeModel ???
 
         return entities_qs
 
-    def populate_entities(self, entities):
+    def populate_entities(self, entities, user):
         """Fill caches of CremeEntity objects, related to the columns that will
         be displayed with this HeaderFilter.
         @param entities QuerySet on CremeEntity (or subclass).
@@ -123,6 +123,10 @@ class HeaderFilter(Model): #CremeModel ???
 
         for hfi in self.items:
             hfi_groups[hfi.type].append(hfi)
+
+        group = hfi_groups[HFI_ACTIONS]
+        if group:
+            CremeEntity.populate_credentials(entities, user)
 
         group = hfi_groups[HFI_RELATION]
         if group:

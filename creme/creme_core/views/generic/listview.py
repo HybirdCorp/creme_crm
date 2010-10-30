@@ -158,7 +158,7 @@ def list_view(request, model, hf_pk='', extra_dict=None, template='creme_core/ge
         template = 'creme_core/frags/list_view_content.html'
 
     #optimisation time !!
-    hf.populate_entities(entities.object_list)
+    hf.populate_entities(entities.object_list, request.user)
 
     return render_to_response(template, template_dict, context_instance=RequestContext(request))
 

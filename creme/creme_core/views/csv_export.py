@@ -38,6 +38,7 @@ from creme_core.utils.chunktools import iter_as_slices
 def dl_listview_as_csv(request, ct_id):
     ct    = get_ct_or_404(ct_id)
     model = ct.model_class()
+    user  = request.user
 
     response = HttpResponse(mimetype='text/csv')
     response['Content-Disposition'] = 'attachment; filename="%s.csv"' % ct.model
@@ -83,7 +84,7 @@ def dl_listview_as_csv(request, ct_id):
     writerow([smart_str(column.title) for column in columns]) #doesn't accept generator expression... ;(
 
     for entities_slice in iter_as_slices(entities, 256):
-        hf.populate_entities(entities_slice) #optimisation time !!!
+        hf.populate_entities(entities_slice, user) #optimisation time !!!
 
         for entity in entities_slice:
             line = []
