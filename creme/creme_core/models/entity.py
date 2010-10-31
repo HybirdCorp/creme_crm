@@ -271,11 +271,14 @@ class CremeEntity(CremeAbstractEntity):
             raise PermissionDenied(ugettext(u'You are not allowed to view this entity: %s') % self)
 
     def save(self, *args, **kwargs):
+        created = bool(self.pk is None)
+
         super(CremeEntity, self).save(*args, **kwargs)
+        debug('CremeEntity.save(%s, %s)', args, kwargs)
 
         #signal instead ??
         from auth import EntityCredentials
-        EntityCredentials.create(self)
+        EntityCredentials.create(self, created)
 
 
 from relation import Relation

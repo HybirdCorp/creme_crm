@@ -284,7 +284,7 @@ class CredentialsTestCase(TestCase):
         except Exception, e:
             self.fail(str(e))
 
-        entity3 = CremeEntity.objects.create(user=self.user) #created by user -> user can read, other_ser has no creds
+        entity3 = CremeEntity.objects.create(user=self.user) #created by user -> user can read, other_user has no creds
         self.assert_(self.user.has_perm('creme_core.view_entity', entity3))
         self.failIf(self.user.has_perm('creme_core.change_entity', entity3))
         self.failIf(self.user.has_perm('creme_core.delete_entity', entity3))
@@ -608,5 +608,22 @@ class CredentialsTestCase(TestCase):
         self.entity1.delete()
         self.assertEqual([self.entity2.id], [creds.entity_id for creds in EntityCredentials.objects.all()])
 
+    def test_multisave01(self): #old lines were not cleaned if an Entiywas re-save
+        role = UserRole.objects.create(name='Coder')
+        SetCredentials.objects.create(role=role,
+                                        value=SetCredentials.CRED_VIEW,
+                                        set_type=SetCredentials.ESET_ALL)
+
+        self.user.role = role
+        self.user.save()
+        self.other_user.role = role
+        self.other_user.save()
+
+        entity3 = CremeEntity.objects.create(user_id=self.user.id)
+        self.assertEqual(2, EntityCredentials.objects.count())
+
+        entity3.user = self.other_user
+        entity3.save()
+        self.assertEqual(2, EntityCredentials.objects.count())
 
     #TODO: don't write cred if equals to default creds ??????
