@@ -18,7 +18,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-#import logging
+from collections import defaultdict
+from logging import debug
 
 from django.db.models import (Model, CharField, ForeignKey, ManyToManyField,
                               PositiveSmallIntegerField, PositiveIntegerField, TextField, Q)
@@ -76,15 +77,21 @@ class EntityCredentials(Model):
         return cred
 
     @staticmethod
-    def create(entity):
-        buildc = EntityCredentials._build_credentials
+    def create(entity, created):
+        if not created:
+            EntityCredentials.objects.filter(entity=entity.id).delete()
 
-        for user in User.objects.select_related('role'):
+        users = User.objects.select_related('role')
+        UserRole.populate_setcreds([user.role for user in users if user.role]) #NB: optimsation time !
+
+        buildc = EntityCredentials._build_credentials
+        create_creds = EntityCredentials.objects.create
+
+        for user in users:
             role = user.role
 
             if role:
-                EntityCredentials.objects.create(user=user, entity=entity,
-                                                 value=buildc(*role.get_perms(user, entity)))
+                create_creds(user=user, entity=entity, value=buildc(*role.get_perms(user, entity)))
 
     @staticmethod
     def filter(user, queryset): #give wanted perm ???
@@ -166,6 +173,7 @@ class UserRole(Model):
         self._allowed_apps = None
         self._admin_4_apps = None
         self._creatable_ctypes_set = None
+        self._setcredentials = None
 
     def __unicode__(self):
         return self.name
@@ -217,10 +225,29 @@ class UserRole(Model):
         """@return (can_view, can_change, can_delete) 3 boolean tuple"""
         raw_perms = SetCredentials.CRED_NONE
 
-        for creds in self.credentials.all():
+        setcredentials = self._setcredentials
+
+        if setcredentials is None: #TODO: implemnt a true getter get_set_credentials() ??
+            debug('UserRole.get_perms(): Cache MISS for id=%s', self.id)
+            self._setcredentials = setcredentials = list(self.credentials.all())
+        else:
+            debug('UserRole.get_perms(): Cache HIT for id=%s', self.id)
+
+        for creds in setcredentials:
             raw_perms |= creds.get_raw_perms(user, entity)
 
         return SetCredentials.get_perms(raw_perms)
+
+    @staticmethod
+    def populate_setcreds(roles):
+        role_ids = set(role.id for role in roles)
+        creds_by_role = defaultdict(list)
+
+        for setcreds in SetCredentials.objects.filter(role__in=role_ids):
+            creds_by_role[setcreds.role_id].append(setcreds)
+
+        for role in roles:
+            role._setcredentials = creds_by_role[role.id]
 
 
 class SetCredentials(Model):
