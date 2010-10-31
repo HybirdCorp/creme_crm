@@ -78,14 +78,27 @@ class EntityCredentials(Model):
 
     @staticmethod
     def create(entity, created):
-        if not created:
-            EntityCredentials.objects.filter(entity=entity.id).delete()
+        if created:
+            create_creds = EntityCredentials.objects.create
+        else:
+            existing_creds = dict((creds.user_id, creds) for creds in EntityCredentials.objects.filter(entity=entity.id))
+
+            def create_creds(user, entity, value):
+                creds = existing_creds.get(user.id)
+
+                if creds is None:
+                    #should never happen, but there can be race condition I suppose....
+                    EntityCredentials.objects.create(user=user, entity=entity, value=value)
+                elif value != creds.value:
+                    creds.value = value
+                    creds.save()
+                else:
+                    debug('EntityCredentials.create(): no change for entity=%s & user=%s', entity, user)
 
         users = User.objects.select_related('role')
-        UserRole.populate_setcreds([user.role for user in users if user.role]) #NB: optimsation time !
+        UserRole.populate_setcreds([user.role for user in users if user.role]) #NB: optimisation time !
 
         buildc = EntityCredentials._build_credentials
-        create_creds = EntityCredentials.objects.create
 
         for user in users:
             role = user.role
