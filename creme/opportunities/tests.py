@@ -138,7 +138,55 @@ class OpportunitiesTestCase(TestCase):
         self.assertEqual(1, filter_(subject_entity=quote, type=REL_SUB_LINKED_QUOTE,  object_entity=opportunity).count())
         self.assertEqual(1, filter_(subject_entity=quote, type=REL_SUB_CURRENT_DOC,   object_entity=opportunity).count())
 
+    def test_opportunity_generate_new_doc02(self):
+        self.login()
 
-    #TODO: def test_opportunity_generate_new_doc02(self): with product/service lines
+        opportunity, target, emitter = self.create_opportunity('Opportunity01')
+        ct = ContentType.objects.get_for_model(Quote)
 
-    #TODO: test (r'^opportunity/(?P<opp_id>\d+)/linked/quote/(?P<quote_id>\d+)/set_current/$', 'links.set_current_quote'),
+        self.client.get('/opportunities/opportunity/generate_new_doc/%s/%s' % (opportunity.id, ct.id))
+        quote1 = Quote.objects.all()[0]
+
+        self.client.get('/opportunities/opportunity/generate_new_doc/%s/%s' % (opportunity.id, ct.id))
+
+        quotes = Quote.objects.exclude(pk=quote1.id)
+        self.assertEqual(1, len(quotes))
+
+        quote2 = quotes[0]
+
+        filter_ = Relation.objects.filter
+        self.assertEqual(1, filter_(subject_entity=quote2, type=REL_SUB_BILL_ISSUED,   object_entity=emitter).count())
+        self.assertEqual(1, filter_(subject_entity=quote2, type=REL_SUB_BILL_RECEIVED, object_entity=target).count())
+        self.assertEqual(1, filter_(subject_entity=quote2, type=REL_SUB_LINKED_QUOTE,  object_entity=opportunity).count())
+        self.assertEqual(1, filter_(subject_entity=quote2, type=REL_SUB_CURRENT_DOC,   object_entity=opportunity).count())
+
+        self.assertEqual(1, filter_(subject_entity=quote1, type=REL_SUB_BILL_ISSUED,   object_entity=emitter).count())
+        self.assertEqual(1, filter_(subject_entity=quote1, type=REL_SUB_BILL_RECEIVED, object_entity=target).count())
+        self.assertEqual(1, filter_(subject_entity=quote1, type=REL_SUB_LINKED_QUOTE,  object_entity=opportunity).count())
+        self.assertEqual(0, filter_(subject_entity=quote1, type=REL_SUB_CURRENT_DOC,   object_entity=opportunity).count())
+
+    def test_set_current_quote(self):
+        self.login()
+
+        opportunity, target, emitter = self.create_opportunity('Opportunity01')
+        ct = ContentType.objects.get_for_model(Quote)
+
+        self.client.get('/opportunities/opportunity/generate_new_doc/%s/%s' % (opportunity.id, ct.id))
+        quote1 = Quote.objects.all()[0]
+
+        self.client.get('/opportunities/opportunity/generate_new_doc/%s/%s' % (opportunity.id, ct.id))
+        quote2 = Quote.objects.exclude(pk=quote1.id)[0]
+
+        response = self.client.get('/opportunities/opportunity/%s/linked/quote/%s/set_current/' % (opportunity.id, quote1.id), follow=True)
+        self.assertEqual(200, response.status_code)
+
+        filter_ = Relation.objects.filter
+        self.assertEqual(1, filter_(subject_entity=quote2, type=REL_SUB_BILL_ISSUED,   object_entity=emitter).count())
+        self.assertEqual(1, filter_(subject_entity=quote2, type=REL_SUB_BILL_RECEIVED, object_entity=target).count())
+        self.assertEqual(1, filter_(subject_entity=quote2, type=REL_SUB_LINKED_QUOTE,  object_entity=opportunity).count())
+        self.assertEqual(0, filter_(subject_entity=quote2, type=REL_SUB_CURRENT_DOC,   object_entity=opportunity).count())
+
+        self.assertEqual(1, filter_(subject_entity=quote1, type=REL_SUB_BILL_ISSUED,   object_entity=emitter).count())
+        self.assertEqual(1, filter_(subject_entity=quote1, type=REL_SUB_BILL_RECEIVED, object_entity=target).count())
+        self.assertEqual(1, filter_(subject_entity=quote1, type=REL_SUB_LINKED_QUOTE,  object_entity=opportunity).count())
+        self.assertEqual(1, filter_(subject_entity=quote1, type=REL_SUB_CURRENT_DOC,   object_entity=opportunity).count())

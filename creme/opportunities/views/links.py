@@ -32,6 +32,7 @@ from billing.models import Quote
 from opportunities.models import Opportunity
 
 
+#TODO: use POST ??
 @login_required
 @permission_required('opportunities')
 def set_current_quote(request, opp_id, quote_id):
