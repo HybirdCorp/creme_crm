@@ -34,7 +34,7 @@ class Populator(BasePopulator):
         create(HeaderFilterItem, pref + 'status',    order=2, name='status',       title=_(u'Status'),       type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True, editable=True, sortable=True, filter_string="status__name__icontains")
         create(HeaderFilterItem, pref + 'priority',  order=3, name='priority',     title=_(u'Priority'),     type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True, editable=True, sortable=True, filter_string="priority__name__icontains")
         create(HeaderFilterItem, pref + 'criticity', order=4, name='criticity',    title=_(u'Criticity'),    type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True, editable=True, sortable=True, filter_string="criticity__name__icontains")
-        create(HeaderFilterItem, pref + 'cdate',     order=5, name='closing_date', title=_(u'Closing date'), type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True, editable=True, sortable=True, filter_string="closing_date__icontains")
+        create(HeaderFilterItem, pref + 'cdate',     order=5, name='closing_date', title=_(u'Closing date'), type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True, editable=True, sortable=True, filter_string="closing_date__range")
 
         SearchConfigItem.create(Ticket, ['title', 'description', 'status__name', 'priority__name', 'criticity__name'])
 
