@@ -1,0 +1,42 @@
+{% extends "creme_core/generics/view_entity.html" %}
+
+{% load i18n %}
+{% load creme_block %}
+
+{% block edit_delete_buttons %}
+    <a href="/events/event/{{object.id}}/contacts">
+        <img src="{{MEDIA_URL}}images/view_64.png" title="{% trans "View related contacts" %}" alt="{% trans "View related contacts" %}"/>
+    </a>&nbsp;
+    {{block.super}}
+{% endblock %}
+
+{% block logo %}<img src="{{MEDIA_URL}}images/event_64.png" alt="{% trans "Event" %}"/>{% endblock %}
+
+{% block detail_view_right_1 %}
+    <table class="table_detail_view ui-corner-all">
+        {% include "creme_core/templatetags/widgets/block_header_beg.html" %}
+            <th style="width: 80%;" class="collapser">{% get_basic_block_header _('Results') 'infos_48.png' _('Information') %}</th>
+            <th style="width: 20%;" align="right"></th>
+        {% include "creme_core/templatetags/widgets/block_header_end.html" %}
+        <tbody class="collapsable">
+            {% with object.get_stats as stats %}
+                <tr>
+                    <th class="block_header_line_dark th_info"><h2>{% trans "Number of invitations" %}</h2></th>
+                    <td class="block_line_dark td_info"><h2>{{stats.invations_count}}</h2></td>
+                </tr>
+                <tr>
+                    <th class="block_header_line_light th_info"><h2>{% trans "Number of accepted invitations" %}</h2></th>
+                    <td class="block_line_light td_info"><h2>{{stats.accepted_count}}</h2></td>
+                </tr>
+                <tr>
+                    <th class="block_header_line_dark th_info"><h2>{% trans "Number of refused invitations" %}</h2></th>
+                    <td class="block_line_dark td_info"><h2>{{stats.refused_count}}</h2></td>
+                </tr>
+                <tr>
+                    <th class="block_header_line_light th_info"><h2>{% trans "Number of visitors" %}</h2></th>
+                    <td class="block_line_light td_info"><h2>{{stats.visitors_count}}</h2></td>
+                </tr>
+            {% endwith %}
+        </tbody>
+    </table>
+{% endblock %}
