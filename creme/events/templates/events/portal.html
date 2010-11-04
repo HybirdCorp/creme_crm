@@ -1,0 +1,6 @@
+{% extends "creme_core/generics/portal.html" %}
+{% load i18n %}
+{% block logo %}<img src="{{MEDIA_URL}}images/event_64.png" alt="{% trans "Event" %}"/>{% endblock %}
+{% block title %}{% trans "Events portal" %}{% endblock %}
+{% block list_url %}/events/events{% endblock %}
+{% block list_msg %}{% trans "List of events" %}{% endblock %}

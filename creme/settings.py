@@ -140,17 +140,18 @@ INSTALLED_APPS = (
 
     #CREME OPTIONNAL APPS (can be safely commented)
     'creme.graphs',
+    'creme.reports',
     'creme.products',
     'creme.recurrents',
     'creme.billing',       #need 'creme.products'
     'creme.opportunities', #need 'creme.billing'
     'creme.commercial',
+    'creme.events',
     'creme.crudity',
     'creme.emails', #need 'creme.crudity'
     'creme.sms',
     'creme.projects',
     'creme.tickets',
-    'creme.reports',
 )
 
 

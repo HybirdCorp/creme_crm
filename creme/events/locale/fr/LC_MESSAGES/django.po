@@ -1,0 +1,187 @@
+# FR LOCALISATION OF 'EVENTS' APP
+# Copyright (C) 2010 Hybird
+# This file is distributed under the same license as the Creme package.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2010-11-04 14:58+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n>1;\n"
+
+#: creme_core_register.py:30 models/event.py:57
+msgid "Events"
+msgstr "Évènements"
+
+#: creme_core_register.py:33
+msgid "Portal"
+msgstr "Portail"
+
+#: creme_core_register.py:34
+msgid "All events"
+msgstr "Tous les évènements"
+
+#: creme_core_register.py:35
+msgid "Add an event"
+msgstr "Ajouter un évènement"
+
+#: populate.py:21
+msgid "is invited to the event"
+msgstr "est invité à l'évènement"
+
+#: populate.py:22
+msgid "has invited"
+msgstr "a invité"
+
+#: populate.py:23
+msgid "accepted the invitation to the event"
+msgstr "a accepté i'invitation à l'évènement"
+
+#: populate.py:24
+msgid "prepares to receive"
+msgstr "se prépare à recevoir"
+
+#: populate.py:25
+msgid "refused the invitation to the event"
+msgstr "a refusé l'invitation à l'évènement"
+
+#: populate.py:26
+msgid "do not prepare to receive any more"
+msgstr "ne se prépare plus à recevoir"
+
+#: populate.py:27
+msgid "came to the event"
+msgstr "est venu à l'évènement"
+
+#: populate.py:28
+msgid "received"
+msgstr "a accueilli"
+
+#: populate.py:29
+msgid "did not come to the event"
+msgstr "n'est pas venu à l'évènement"
+
+#: populate.py:30
+msgid "did not receive"
+msgstr "n'a pas accueilli"
+
+#: populate.py:34
+msgid "Show"
+msgstr "Salon"
+
+#: populate.py:34
+msgid "Conference"
+msgstr "Conférence"
+
+#: populate.py:34
+msgid "Breakfast"
+msgstr "Petit déjeuner"
+
+#: populate.py:34
+msgid "Brunch"
+msgstr "Brunch"
+
+#: populate.py:37
+msgid "Event view"
+msgstr "Vue d'évènement"
+
+#: populate.py:39 models/event.py:33 models/event.py:45
+msgid "Name"
+msgstr "Nom"
+
+#: populate.py:40 models/event.py:46
+msgid "Type"
+msgstr "Type"
+
+#: populate.py:41 forms/event.py:33 models/event.py:49
+msgid "Start date"
+msgstr "Date de début"
+
+#: populate.py:42 forms/event.py:34 models/event.py:50
+msgid "End date"
+msgstr "Date de fin"
+
+#: forms/event.py:42
+msgid "Related contacts"
+msgstr "Contacts en rapport"
+
+#: models/event.py:37
+msgid "Type of event"
+msgstr "Type d'évènement"
+
+#: models/event.py:38
+msgid "Types of event"
+msgstr "Types d'évènement"
+
+#: models/event.py:47
+msgid "Description"
+msgstr "Description"
+
+#: models/event.py:48
+msgid "Place"
+msgstr "Lieu"
+
+#: models/event.py:51
+msgid "Budget (€)"
+msgstr "Budget prévisionnel (€)"
+
+#: models/event.py:52
+msgid "Final cost (€)"
+msgstr "Coût final (€)"
+
+#: models/event.py:56 templates/events/portal.html:3
+#: templates/events/view_event.html:13
+msgid "Event"
+msgstr "Évènement"
+
+#: templates/events/portal.html:4
+msgid "Events portal"
+msgstr "Portail des évènements"
+
+#: templates/events/portal.html:6
+msgid "List of events"
+msgstr "Liste des évènements"
+
+#: templates/events/view_event.html:8
+msgid "View related contacts"
+msgstr "Voir les contacts en rapport"
+
+#: templates/events/view_event.html:18
+msgid "Results"
+msgstr "Résultats"
+
+#: templates/events/view_event.html:18
+msgid "Information"
+msgstr "Informations"
+
+#: templates/events/view_event.html:24
+msgid "Number of invitations"
+msgstr "Nombre d'invitations"
+
+#: templates/events/view_event.html:28
+msgid "Number of accepted invitations"
+msgstr "Nombre d'invitations acceptées"
+
+#: templates/events/view_event.html:32
+msgid "Number of refused invitations"
+msgstr "Nombre d'invitations refusées"
+
+#: templates/events/view_event.html:36
+msgid "Number of visitors"
+msgstr "Nombre de visiteurs"
+
+#: views/event.py:68
+#, python-format
+msgid "List of contacts related to <%s>"
+msgstr "Liste des contacts liés à <%s>"
+
+#: views/portal.py:14
+msgid "Number of events"
+msgstr "Nombre d'évènements"

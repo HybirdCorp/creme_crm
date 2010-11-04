@@ -119,7 +119,7 @@ class ParticipantCreateForm(CremeForm):
 
         return cleaned_data
 
-    def save (self):
+    def save(self):
         _save_participants(self.cleaned_data['participants'], self.activity)
 
 
