@@ -26,7 +26,7 @@ from django.utils.html import escape
 from django.utils.translation import ugettext as _
 from django.contrib.contenttypes.models import ContentType
 
-from creme_core.models.header_filter import HeaderFilter, HFI_FIELD, HFI_RELATION, HFI_FUNCTION, HFI_CUSTOM
+from creme_core.models.header_filter import HeaderFilter, HFI_FIELD, HFI_RELATION, HFI_FUNCTION, HFI_CUSTOM, HFI_VOLATILE
 from creme_core.models import Filter, CustomField
 from creme_core.templatetags.creme_core_tags import get_html_field_value
 
@@ -145,6 +145,7 @@ def get_listview_columns_header(context):
 
     return context
 
+#TODO: use a map ?? a method in HeaderFilterItem ??
 @register.filter(name="hf_get_html_output")
 def get_html_output(hfi, entity):
     hfi_type = hfi.type
@@ -166,6 +167,9 @@ def get_html_output(hfi, entity):
 
         if hfi_type == HFI_CUSTOM:
             return entity.get_custom_value(hfi.get_customfield())
+
+        if hfi_type == HFI_VOLATILE:
+            return hfi.volatile_render(entity)
     except AttributeError, e:
         debug('Templatetag "hf_get_html_output": %s', e)
         return u""

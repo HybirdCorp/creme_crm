@@ -1,0 +1,15 @@
+{% extends "creme_core/generics/list_entities.html" %}
+
+{% block extrahead %}
+    {{block.super}}
+    <script type="text/javascript">
+        post_contact_status = function(url, select) {
+            creme.ajax.post({
+                        'url': url,
+                        'data': {
+                                'status': $(select).find('[selected="true"]').attr("value")
+                            },
+                    });
+        }
+    </script>
+{% endblock %}

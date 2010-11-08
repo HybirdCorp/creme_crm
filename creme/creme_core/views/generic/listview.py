@@ -54,7 +54,6 @@ def _build_entity_queryset(request, model, list_view_state, extra_q):
     list_view_state.extra_q = extra_q
 
     queryset = queryset.filter(list_view_state.get_q_with_research(model))
-    #queryset = filter_RUD_objects(request, queryset).distinct().order_by("%s%s" % (list_view_state.sort_order, list_view_state.sort_field))
     queryset = EntityCredentials.filter(request.user, queryset)
     queryset = queryset.distinct().order_by("%s%s" % (list_view_state.sort_order, list_view_state.sort_field))
 
@@ -78,11 +77,10 @@ def _build_entities_page(request, list_view_state, queryset, size):
 
 @login_required
 @change_page_for_last_item_viewed
-def list_view(request, model, hf_pk='', extra_dict=None, template='creme_core/generics/list_entities.html', show_actions=True, extra_q=None, o2m=False):
-    """
-        Generic list_view wrapper / generator
-        Accept only CremeEntity model and subclasses
-        @Permissions : Filter RUD objects
+def list_view(request, model, hf_pk='', extra_dict=None, template='creme_core/generics/list_entities.html', show_actions=True, extra_q=None, o2m=False, post_process=None):
+    """ Generic list_view wrapper / generator
+    Accept only CremeEntity model and subclasses
+    @param post_process Function that takes the template context as parameter (so you can modify it).
     """
     assert issubclass(model, CremeEntity), '%s is not a subclass of CremeEntity' % model
 
@@ -156,6 +154,9 @@ def list_view(request, model, hf_pk='', extra_dict=None, template='creme_core/ge
 
     if request.GET.get('ajax', False):
         template = 'creme_core/frags/list_view_content.html'
+
+    if post_process:
+        post_process(template_dict)
 
     #optimisation time !!
     hf.populate_entities(entities.object_list, request.user)
