@@ -1,0 +1,35 @@
+{% extends "creme_core/base.html" %}
+{% load i18n %}
+{% load creme_core_tags %}{% load creme_block %}
+
+{% block page_title %} - {% trans "View your settings" %}{% endblock %}
+
+{% block extrahead %}
+    <script type="text/javascript">
+        $(document).ready(function() {
+            creme.utils.bindShowHideTbody();
+        });
+    </script>
+{% endblock %}
+
+
+{% block content %}
+    <table class="table_header" cellpadding="0" cellspacing="0">
+        <tr>
+            <td width="5%"><img src="{{MEDIA_URL}}images/config_64.png" alt="{% trans "Configuration" %}"/></td>
+            <td width="70%">
+                <h1>{% trans "View and edit your Creme settings" %}</h1>
+            </td>
+            <td width="25%" align="right"></td>
+        </tr>
+    </table>
+    <div class=zone_spacer_5px></div>
+
+    {% import_block from_app 'creme_config' named 'user_prefered_menus' as 'prefered_menus_block' %}
+    {% import_block from_app 'activities' named 'user_calendars' as 'user_calendars_block' %}
+    
+    {% display_block_detailview 'prefered_menus_block' %}
+    {% display_block_detailview 'user_calendars_block' %}
+
+    {% get_blocks_dependencies %}
+{% endblock %}

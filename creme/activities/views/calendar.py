@@ -26,13 +26,17 @@ from django.http import HttpResponse
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext
 from django.utils.simplejson import JSONEncoder, JSONDecoder
+from django.utils.translation import ugettext_lazy as _
 from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth.models import User
 
 from creme_core.models import EntityCredentials
+from creme_core.views.generic.popup import inner_popup
+from creme_core.utils import get_from_POST_or_404
 
-from activities.models import Activity
+from activities.models import Activity, Calendar
 from activities.utils import get_last_day_of_a_month
+from activities.forms.calendar import CalendarForm
 
 
 @login_required
@@ -141,3 +145,39 @@ def update_activity_date(request):
         return HttpResponse("success", mimetype="text/javascript")
 
     return HttpResponse("error", mimetype="text/javascript", status=400)
+
+@login_required
+@permission_required('activities')
+def add_user_calendar(request, calendar_id=None):
+
+    instance = None
+    if calendar_id is not None:
+        instance = get_object_or_404(Calendar, pk=calendar_id)
+
+    user = request.user
+    POST = request.POST
+    if POST:
+        cal_form = CalendarForm(user, POST, instance=instance)
+
+        if cal_form.is_valid():
+            cal_form.save()
+    else:
+        cal_form = CalendarForm(user=user, instance=instance)
+
+    return inner_popup(request, 'creme_core/generics/blockform/add_popup2.html',
+                       {
+                        'form':   cal_form,
+                        'title': _(u'Add a calendar'),
+                       },
+                       is_valid=cal_form.is_valid(),
+                       reload=False,
+                       delegate_reload=True,
+                       context_instance=RequestContext(request))
+
+@login_required
+@permission_required('activities')
+def delete_user_calendar(request):
+    #TODO: Adding the possibility to transfert activities
+    calendar = get_object_or_404(Calendar, pk=get_from_POST_or_404(request.POST, 'id'))
+    calendar.delete()
+    return HttpResponse("", mimetype="text/javascript")

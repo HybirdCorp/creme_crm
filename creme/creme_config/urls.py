@@ -18,6 +18,7 @@ urlpatterns = patterns('creme_config.views',
     (r'^user/delete$',                         'user.delete'),
     (r'^user/edit/password/(?P<user_id>\d+)$', 'user.change_password'),
     (r'^user/edit/settings/$',                 'user.edit_own_settings'),
+    (r'^user/view/settings/$',                 'user.view_own_settings'),
 
     #Roles
     (r'^role/portal/$',                          'user_role.portal'),

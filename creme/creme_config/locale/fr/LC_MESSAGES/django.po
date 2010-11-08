@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-10-25 11:26+0200\n"
+"POT-Creation-Date: 2010-11-08 18:54+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -72,47 +72,51 @@ msgstr "Configuration des rôles utilisateurs"
 msgid "Default credentials"
 msgstr "Droits par défaut"
 
+#: blocks.py:269
+msgid "My prefered menus"
+msgstr "Mes menus préférés"
+
 #: creme_core_register.py:30
 msgid "General configuration"
 msgstr "Configuration générale"
 
-#: creme_core_register.py:34
+#: creme_core_register.py:33
 msgid "Portal"
 msgstr "Portail"
 
-#: creme_core_register.py:35 templates/creme_config/portal.html:20
+#: creme_core_register.py:34 templates/creme_config/portal.html:20
 msgid "Relation types settings"
 msgstr "Gestion des types de relation"
 
-#: creme_core_register.py:36 templates/creme_config/portal.html:23
+#: creme_core_register.py:35 templates/creme_config/portal.html:23
 msgid "Property types settings"
 msgstr "Gestion des types de propriété"
 
-#: creme_core_register.py:37 templates/creme_config/portal.html:26
+#: creme_core_register.py:36 templates/creme_config/portal.html:26
 msgid "Custom fields settings"
 msgstr "Gestion des champs personnalisés (custom fields)"
 
-#: creme_core_register.py:38 templates/creme_config/portal.html:29
+#: creme_core_register.py:37 templates/creme_config/portal.html:29
 msgid "Blocks settings"
 msgstr "Gestion des blocs"
 
-#: creme_core_register.py:39 templates/creme_config/portal.html:32
+#: creme_core_register.py:38 templates/creme_config/portal.html:32
 msgid "Default prefered menu settings"
 msgstr "Gestion du menu rapide par défaut"
 
-#: creme_core_register.py:40 templates/creme_config/portal.html:35
+#: creme_core_register.py:39 templates/creme_config/portal.html:35
 msgid "Button menu settings"
 msgstr "Gestion du menu bouton"
 
-#: creme_core_register.py:41 templates/creme_config/portal.html:38
+#: creme_core_register.py:40 templates/creme_config/portal.html:38
 msgid "Search settings"
 msgstr "Gestion de la recherche"
 
-#: creme_core_register.py:42 templates/creme_config/portal.html:52
+#: creme_core_register.py:41 templates/creme_config/portal.html:52
 msgid "Users settings"
 msgstr "Gestion des utilisateurs"
 
-#: creme_core_register.py:43 templates/creme_config/portal.html:55
+#: creme_core_register.py:42 templates/creme_config/portal.html:55
 msgid "Roles and credentials settings"
 msgstr "Gestion des rôles et des droits"
 
@@ -219,7 +223,7 @@ msgstr "Nouveaux choix de la liste"
 msgid "Give the new possible choices (one per line)."
 msgstr "Rentrez les nouveaux choix possibles (un par ligne)."
 
-#: forms/prefered_menu.py:33
+#: forms/prefered_menu.py:34
 msgid "Menu entries"
 msgstr "Entrées du menu"
 
@@ -381,6 +385,7 @@ msgstr "Clé"
 #: templates/creme_config/relation_type_portal.html:6
 #: templates/creme_config/search_portal.html:6
 #: templates/creme_config/user_role_portal.html:6
+#: templates/creme_config/user_settings.html:19
 #: templates/creme_config/custom_fields/portal.html:6
 #: templates/creme_config/custom_fields/view.html:6
 #: templates/creme_config/generics/app_portal.html:5
@@ -536,6 +541,14 @@ msgstr "Éditez une configuration pour spécifier des champs de recherche."
 msgid "Roles"
 msgstr "Rôles"
 
+#: templates/creme_config/user_settings.html:5
+msgid "View your settings"
+msgstr "Voir vos réglages"
+
+#: templates/creme_config/user_settings.html:21
+msgid "View and edit your Creme settings"
+msgstr "Voir et éditer vos réglages Creme"
+
 #: templates/creme_config/custom_fields/portal.html:6
 #: templates/creme_config/custom_fields/view.html:7
 msgid "Custom fields"
@@ -609,6 +622,7 @@ msgid "New custom field"
 msgstr "Nouveau champ personnalisé"
 
 #: templates/creme_config/templatetags/block_custom_fields.html:22
+#: templates/creme_config/templatetags/block_user_prefered_menus.html:20
 #: templates/creme_config/templatetags/block_user_roles.html:26
 msgid "Name"
 msgstr "Nom"
@@ -814,6 +828,29 @@ msgstr "Nouvelle configuration de recherche"
 #: templates/creme_config/templatetags/block_searchconfig.html:62
 msgid "No search configuration for the moment"
 msgstr "Aucune configuration de recherche enregistrée pour le moment"
+
+#: templates/creme_config/templatetags/block_user_prefered_menus.html:6
+#, python-format
+msgid "My %s Prefered menu"
+msgstr "Mes %s menu préféré"
+
+#: templates/creme_config/templatetags/block_user_prefered_menus.html:6
+#, python-format
+msgid "My %s Prefered menus"
+msgstr "Mes %s menus préférés"
+
+#: templates/creme_config/templatetags/block_user_prefered_menus.html:13
+#: templates/creme_config/templatetags/block_user_prefered_menus.html:14
+msgid "Edit my prefered menus"
+msgstr "Éditer mes menus préférés"
+
+#: templates/creme_config/templatetags/block_user_prefered_menus.html:21
+msgid "Order"
+msgstr "Ordre"
+
+#: templates/creme_config/templatetags/block_user_prefered_menus.html:32
+msgid "You have no prefered menu for the moment"
+msgstr "Vous n'avez aucun menu préféré pour le moment"
 
 #: templates/creme_config/templatetags/block_user_roles.html:6
 msgid ""

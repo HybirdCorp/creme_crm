@@ -1,0 +1,37 @@
+{% load i18n %}
+{% load creme_core_tags %}{% load creme_block %}
+
+<table class="table_detail_view ui-corner-all" id={{block_name}}>
+    {% include "creme_core/templatetags/widgets/block_header_beg.html" %}
+        <th style="width: 80%;" class="collapser" align="left">{% get_block_title  _('My %s Prefered menu') _('My %s Prefered menus') %}</th>
+        <th style="width: 20%;" align="right"></th>
+    {% include "creme_core/templatetags/widgets/block_header_end.html" %}
+    <tbody class="collapsable">
+        <tr>
+            <th colspan="7" class="block_header_line_dark" align="left">
+                <a class="button_link" href="/creme_config/user/edit/settings/">
+                    <img src="{{MEDIA_URL}}images/edit_22.png" border="0" alt="{% trans "Edit my prefered menus" %}" title="{% trans "Edit my prefered menus" %}"/>
+                    {% trans "Edit my prefered menus" %}
+                </a>
+            </th>
+        </tr>
+        {% if page.paginator.count %}
+            <tr>
+                <th class="block_header_line_light">{% trans "Name" %}</th>
+                <th class="block_header_line_light">{% trans "Order" %}</th>
+            </tr>
+            {% for prefered_menu in page.object_list %}
+                <!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
+                <tr>
+                    <td class="{{row_color}}"><a href="{{prefered_menu.url}}">{{prefered_menu.label}}</a></td>
+                    <td class="{{row_color}}">{{page.number|sub:1|mult:page_size|add:forloop.counter}}</td>
+                </tr>
+            {% endfor %}
+        {% else %}
+            <tr>
+                <td class="block_line_dark">{% trans "You have no prefered menu for the moment" %}</td>
+            </tr>
+        {% endif %}
+    </tbody>
+    {% include 'creme_core/templatetags/widgets/block_footer.html' %}
+</table>

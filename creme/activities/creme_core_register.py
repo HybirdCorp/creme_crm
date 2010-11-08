@@ -26,7 +26,7 @@ from creme_core.gui.block import block_registry
 from creme_core.gui.button_menu import button_registry
 
 from activities.models import Activity
-from activities.blocks import participants_block, subjects_block, future_activities_block, past_activities_block
+from activities.blocks import participants_block, subjects_block, future_activities_block, past_activities_block, user_calendars_block
 from activities.buttons import add_meeting_button, add_phonecall_button, add_task_button
 
 
@@ -39,6 +39,6 @@ reg_item('/activities/calendar/user',       _(u'Calendar'),               'activ
 reg_item('/activities/indisponibility/add', _(u'Add an indisponibility'), 'activities.add_activity')
 reg_item('/activities/activities',          _(u'All activities'),         'activities')
 
-block_registry.register(participants_block, subjects_block, future_activities_block, past_activities_block)
+block_registry.register(participants_block, subjects_block, future_activities_block, past_activities_block, user_calendars_block)
 
 button_registry.register(add_meeting_button, add_phonecall_button, add_task_button)

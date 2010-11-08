@@ -108,10 +108,16 @@ def edit_own_settings(request):
         settings_form = UserSettingsConfigForm(user, request.POST)
         if settings_form.is_valid():
             settings_form.save()
-            return HttpResponseRedirect('/')
+            return HttpResponseRedirect('/creme_config/user/view/settings/')
     else:
         settings_form = UserSettingsConfigForm(user)
 
     return render_to_response('creme_core/generics/form/edit.html',
                               {'form': settings_form},
+                              context_instance=RequestContext(request))
+
+@login_required #no special permission needed
+def view_own_settings(request):
+    return render_to_response('creme_config/user_settings.html',
+                              {'user': request.user},
                               context_instance=RequestContext(request))
