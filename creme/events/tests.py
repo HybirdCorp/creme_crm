@@ -162,3 +162,174 @@ class EventsTestCase(TestCase):
         self.assertEqual(1, stats['accepted_count'])
         self.assertEqual(2, stats['refused_count'])
         self.assertEqual(3, stats['visitors_count'])
+
+    def test_set_invitation_status01(self):
+        self.login()
+
+        event = self.create_event('Eclipse', EventType.objects.all()[0])
+        casca = Contact.objects.create(user=self.user, first_name='Casca', last_name='Miura')
+
+        stats = event.get_stats()
+        self.assertEqual(0, stats['invations_count'])
+        self.assertEqual(0, stats['accepted_count'])
+        self.assertEqual(0, stats['refused_count'])
+        self.assertEqual(0, stats['visitors_count'])
+
+        response = self.client.post('/events/event/%s/contact/%s/set_invitation_status' % (event.id, casca.id),
+                                    data={'status': str(INV_STATUS_NO_ANSWER)}
+                                   )
+        self.assertEqual(response.status_code, 200)
+
+        stats = event.get_stats()
+        self.assertEqual(1, stats['invations_count'])
+        self.assertEqual(0, stats['accepted_count'])
+        self.assertEqual(0, stats['refused_count'])
+        self.assertEqual(0, stats['visitors_count'])
+
+        response = self.client.post('/events/event/%s/contact/%s/set_invitation_status' % (event.id, casca.id),
+                                    data={'status': str(INV_STATUS_NOT_INVITED)}
+                                   )
+        self.assertEqual(response.status_code, 200)
+
+        stats = event.get_stats()
+        self.assertEqual(0, stats['invations_count'])
+        self.assertEqual(0, stats['accepted_count'])
+        self.assertEqual(0, stats['refused_count'])
+        self.assertEqual(0, stats['visitors_count'])
+
+    def test_set_invitation_status02(self):
+        self.login()
+
+        event = self.create_event('Eclipse', EventType.objects.all()[0])
+        casca = Contact.objects.create(user=self.user, first_name='Casca', last_name='Miura')
+
+        response = self.client.post('/events/event/%s/contact/%s/set_invitation_status' % (event.id, casca.id),
+                                    data={'status': str(INV_STATUS_ACCEPTED)}
+                                   )
+        self.assertEqual(response.status_code, 200)
+
+        stats = event.get_stats()
+        self.assertEqual(1, stats['invations_count'])
+        self.assertEqual(1, stats['accepted_count'])
+        self.assertEqual(0, stats['refused_count'])
+
+        self.client.post('/events/event/%s/contact/%s/set_invitation_status' % (event.id, casca.id),
+                         data={'status': str(INV_STATUS_NOT_INVITED)})
+        stats = event.get_stats()
+        self.assertEqual(0, stats['invations_count'])
+        self.assertEqual(0, stats['accepted_count'])
+        self.assertEqual(0, stats['refused_count'])
+
+    def test_set_invitation_status03(self):
+        self.login()
+
+        event = self.create_event('Eclipse', EventType.objects.all()[0])
+        casca = Contact.objects.create(user=self.user, first_name='Casca', last_name='Miura')
+
+        self.client.post('/events/event/%s/contact/%s/set_invitation_status' % (event.id, casca.id),
+                         data={'status': str(INV_STATUS_REFUSED)})
+        stats = event.get_stats()
+        self.assertEqual(1, stats['invations_count'])
+        self.assertEqual(0, stats['accepted_count'])
+        self.assertEqual(1, stats['refused_count'])
+
+        self.client.post('/events/event/%s/contact/%s/set_invitation_status' % (event.id, casca.id),
+                         data={'status': str(INV_STATUS_NOT_INVITED)})
+        stats = event.get_stats()
+        self.assertEqual(0, stats['invations_count'])
+        self.assertEqual(0, stats['accepted_count'])
+        self.assertEqual(0, stats['refused_count'])
+
+    def test_set_invitation_status04(self):
+        self.login()
+
+        event = self.create_event('Eclipse', EventType.objects.all()[0])
+        casca = Contact.objects.create(user=self.user, first_name='Casca', last_name='Miura')
+
+        self.client.post('/events/event/%s/contact/%s/set_invitation_status' % (event.id, casca.id),
+                         data={'status': str(INV_STATUS_ACCEPTED)})
+        self.client.post('/events/event/%s/contact/%s/set_invitation_status' % (event.id, casca.id),
+                         data={'status': str(INV_STATUS_REFUSED)})
+        stats = event.get_stats()
+        self.assertEqual(1, stats['invations_count'])
+        self.assertEqual(0, stats['accepted_count'])
+        self.assertEqual(1, stats['refused_count'])
+
+        self.client.post('/events/event/%s/contact/%s/set_invitation_status' % (event.id, casca.id),
+                         data={'status': str(INV_STATUS_NO_ANSWER)})
+        stats = event.get_stats()
+        self.assertEqual(1, stats['invations_count'])
+        self.assertEqual(0, stats['accepted_count'])
+        self.assertEqual(0, stats['refused_count'])
+
+    def test_set_invitation_status04(self):
+        self.login()
+
+        event = self.create_event('Eclipse', EventType.objects.all()[0])
+        casca = Contact.objects.create(user=self.user, first_name='Casca', last_name='Miura')
+
+        self.client.post('/events/event/%s/contact/%s/set_invitation_status' % (event.id, casca.id),
+                         data={'status': str(INV_STATUS_REFUSED)})
+        self.client.post('/events/event/%s/contact/%s/set_invitation_status' % (event.id, casca.id),
+                         data={'status': str(INV_STATUS_ACCEPTED)})
+        stats = event.get_stats()
+        self.assertEqual(1, stats['invations_count'])
+        self.assertEqual(1, stats['accepted_count'])
+        self.assertEqual(0, stats['refused_count'])
+
+    def test_set_presence_status01(self):
+        self.login()
+
+        event = self.create_event('Eclipse', EventType.objects.all()[0])
+        casca = Contact.objects.create(user=self.user, first_name='Casca', last_name='Miura')
+
+        response = self.client.post('/events/event/%s/contact/%s/set_presence_status' % (event.id, casca.id),
+                                    data={'status': str(PRES_STATUS_COME)})
+        self.assertEqual(response.status_code, 200)
+
+        stats = event.get_stats()
+        self.assertEqual(0, stats['invations_count'])
+        self.assertEqual(0, stats['accepted_count'])
+        self.assertEqual(0, stats['refused_count'])
+        self.assertEqual(1, stats['visitors_count'])
+
+        self.client.post('/events/event/%s/contact/%s/set_presence_status' % (event.id, casca.id),
+                         data={'status': str(PRES_STATUS_DONT_KNOW)})
+        self.assertEqual(0, event.get_stats()['visitors_count'])
+        self.assertEqual(0, Relation.objects.filter(subject_entity=casca, object_entity=event, type=REL_SUB_NOT_CAME_EVENT).count())
+
+    def test_set_presence_status02(self):
+        self.login()
+
+        event = self.create_event('Eclipse', EventType.objects.all()[0])
+        casca = Contact.objects.create(user=self.user, first_name='Casca', last_name='Miura')
+
+        self.client.post('/events/event/%s/contact/%s/set_presence_status' % (event.id, casca.id),
+                         data={'status': str(PRES_STATUS_COME)})
+        self.assertEqual(1, event.get_stats()['visitors_count'])
+
+        self.client.post('/events/event/%s/contact/%s/set_presence_status' % (event.id, casca.id),
+                         data={'status': str(PRES_STATUS_NOT_COME)})
+        self.assertEqual(0, event.get_stats()['visitors_count'])
+        self.assertEqual(1, Relation.objects.filter(subject_entity=casca, object_entity=event, type=REL_SUB_NOT_CAME_EVENT).count())
+
+        self.client.post('/events/event/%s/contact/%s/set_presence_status' % (event.id, casca.id),
+                         data={'status': str(PRES_STATUS_DONT_KNOW)})
+        self.assertEqual(0, event.get_stats()['visitors_count'])
+        self.assertEqual(0, Relation.objects.filter(subject_entity=casca, object_entity=event, type=REL_SUB_NOT_CAME_EVENT).count())
+
+    def test_set_presence_status03(self):
+        self.login()
+
+        event = self.create_event('Eclipse', EventType.objects.all()[0])
+        casca = Contact.objects.create(user=self.user, first_name='Casca', last_name='Miura')
+
+        self.client.post('/events/event/%s/contact/%s/set_presence_status' % (event.id, casca.id),
+                         data={'status': str(PRES_STATUS_NOT_COME)})
+        self.assertEqual(0, event.get_stats()['visitors_count'])
+        self.assertEqual(1, Relation.objects.filter(subject_entity=casca, object_entity=event, type=REL_SUB_NOT_CAME_EVENT).count())
+
+        self.client.post('/events/event/%s/contact/%s/set_presence_status' % (event.id, casca.id),
+                         data={'status': str(PRES_STATUS_COME)})
+        self.assertEqual(1, event.get_stats()['visitors_count'])
+        self.assertEqual(0, Relation.objects.filter(subject_entity=casca, object_entity=event, type=REL_SUB_NOT_CAME_EVENT).count())

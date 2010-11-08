@@ -21,7 +21,7 @@
 from django.db.models import CharField, TextField, DateTimeField, DecimalField, ForeignKey, Count
 from django.utils.translation import ugettext_lazy as _
 
-from creme_core.models import CremeEntity, CremeModel, RelationType
+from creme_core.models import CremeEntity, CremeModel, RelationType, Relation
 
 from events.constants import *
 
@@ -85,3 +85,36 @@ class Event(CremeEntity):
                 'refused_count':   get_count(REL_OBJ_REFUSED_INVITATION, 0),
                 'visitors_count':  get_count(REL_OBJ_CAME_EVENT, 0),
                }
+
+    def set_invitation_status(self, contact, status, user):
+        relations = Relation.objects
+
+        if status == INV_STATUS_NOT_INVITED:
+            relations.filter(subject_entity=contact.id, object_entity=self.id,
+                                    type__in=(REL_SUB_IS_INVITED_TO, REL_SUB_ACCEPTED_INVITATION, REL_SUB_REFUSED_INVITATION)) \
+                            .delete()
+        else:
+            create_relations = Relation.objects.create
+            relations.get_or_create(subject_entity=contact, type=RelationType.objects.get(pk=REL_SUB_IS_INVITED_TO), object_entity=self, user=user)
+
+            if status == INV_STATUS_ACCEPTED:
+                relations.create(subject_entity=contact, type_id=REL_SUB_ACCEPTED_INVITATION, object_entity=self, user=user)
+                relations.filter(subject_entity=contact.id, object_entity=self.id, type=REL_SUB_REFUSED_INVITATION) \
+                         .delete()
+            elif status == INV_STATUS_REFUSED:
+                relations.create(subject_entity=contact, type_id=REL_SUB_REFUSED_INVITATION, object_entity=self, user=user)
+                relations.filter(subject_entity=contact.id, object_entity=self.id, type=REL_SUB_ACCEPTED_INVITATION) \
+                         .delete()
+
+    def set_presence_status(self, contact, status, user):
+        relations = Relation.objects
+
+        if status == PRES_STATUS_NOT_COME:
+            relations.filter(subject_entity=contact.id, type=REL_SUB_CAME_EVENT, object_entity=self.id).delete()
+            relations.create(subject_entity=contact, type_id=REL_SUB_NOT_CAME_EVENT, object_entity=self, user=user)
+        elif status == PRES_STATUS_COME:
+            relations.filter(subject_entity=contact.id, type=REL_SUB_NOT_CAME_EVENT, object_entity=self.id).delete()
+            relations.create(subject_entity=contact, type_id=REL_SUB_CAME_EVENT, object_entity=self, user=user)
+        else: #PRES_STATUS_DONT_KNOW
+            relations.filter(subject_entity=contact.id, type__in=(REL_SUB_CAME_EVENT, REL_SUB_NOT_CAME_EVENT), object_entity=self.id) \
+                     .delete()

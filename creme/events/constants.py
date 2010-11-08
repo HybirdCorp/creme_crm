@@ -14,3 +14,14 @@ REL_OBJ_CAME_EVENT = 'events-object_came_event'
 
 REL_SUB_NOT_CAME_EVENT = 'events-subject_not_came_event'
 REL_OBJ_NOT_CAME_EVENT = 'events-object_not_came_event'
+
+#Invitation status
+INV_STATUS_NOT_INVITED  = 1
+INV_STATUS_NO_ANSWER    = 2
+INV_STATUS_ACCEPTED     = 3
+INV_STATUS_REFUSED      = 4
+
+#Presence status
+PRES_STATUS_DONT_KNOW = 1
+PRES_STATUS_COME      = 2
+PRES_STATUS_NOT_COME  = 3
