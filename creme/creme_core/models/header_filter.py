@@ -36,6 +36,7 @@ HFI_RELATION   = 2
 HFI_FUNCTION   = 3
 HFI_CUSTOM     = 4
 HFI_CALCULATED = 5 #TODO: Used only in reports for the moment, integrate into HF?
+HFI_VOLATILE   = 6 #not saved in DB : added at runtime to implements tricky columnns ; see HeaderFilterItem.volatile_render
 
 
 class HeaderFilterList(list):
@@ -82,10 +83,9 @@ class HeaderFilter(Model): #CremeModel ???
         return u'<HeaderFilter: name="%s">' % self.name
 
     def build_items(self, show_actions=False):
-        items = self.header_filter_items.order_by('order')
+        items = list(self.header_filter_items.order_by('order'))
 
         if show_actions:
-            items = list(items)
             items.insert(0, _hfi_action)
 
         self._items = items
@@ -162,6 +162,7 @@ class HeaderFilterItem(Model):  #CremeModel ???
     relation_content_type = ForeignKey(ContentType, blank=True, null=True) #TODO: useful ??
 
     _customfield = None
+    _volatile_render = None
 
     def __unicode__(self):
         return u"<HeaderFilterItem: order: %i, name: %s, title: %s>" % (self.order, self.name, self.title)
@@ -180,5 +181,17 @@ class HeaderFilterItem(Model):  #CremeModel ???
 
         return self._customfield
 
+    def _get_volatile_render(self):
+        assert self.type == HFI_VOLATILE
+        assert self._volatile_render is not None
+        return self._volatile_render
+
+    def _set_volatile_render(self, volatile_render):
+        assert self.type == HFI_VOLATILE
+        self._volatile_render = volatile_render
+
+    #volatile_render is a 'function' that takes one parameter: the entity display on the current list line
+    #this function must be set on the HeaderFilterItem with type HFI_VOLATILE
+    volatile_render = property(_get_volatile_render, _set_volatile_render); del (_get_volatile_render, _set_volatile_render)
 
 _hfi_action = HeaderFilterItem(order=0, name='entity_actions', title=_(u'Actions'), type=HFI_ACTIONS, has_a_filter=False, editable=False, is_hidden=False)

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-11-04 14:58+0100\n"
+"POT-Creation-Date: 2010-11-08 11:02+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -42,7 +42,7 @@ msgstr "a invité"
 
 #: populate.py:23
 msgid "accepted the invitation to the event"
-msgstr "a accepté i'invitation à l'évènement"
+msgstr "a accepté l'invitation à l'évènement"
 
 #: populate.py:24
 msgid "prepares to receive"
@@ -177,7 +177,43 @@ msgstr "Nombre d'invitations refusées"
 msgid "Number of visitors"
 msgstr "Nombre de visiteurs"
 
+#: views/event.py:60
+msgid "Not invited"
+msgstr "Pas invité"
+
+#: views/event.py:61
+msgid "Did not answer"
+msgstr "N'a pas répondu"
+
+#: views/event.py:62
+msgid "Accepted the invitation"
+msgstr "a accepté l'invitation"
+
+#: views/event.py:63
+msgid "Refused the invitation"
+msgstr "a refusé l'invitation"
+
+#: views/event.py:67
+msgid "N/A"
+msgstr "N/A"
+
 #: views/event.py:68
+msgid "Come"
+msgstr "Venu"
+
+#: views/event.py:69
+msgid "Not come"
+msgstr "Pas venu"
+
+#: views/event.py:91
+msgid "Invitation"
+msgstr "Invitation"
+
+#: views/event.py:95
+msgid "Presence"
+msgstr "Présence"
+
+#: views/event.py:163
 #, python-format
 msgid "List of contacts related to <%s>"
 msgstr "Liste des contacts liés à <%s>"
