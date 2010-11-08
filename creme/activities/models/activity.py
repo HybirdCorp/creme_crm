@@ -22,6 +22,7 @@ from logging import debug
 from datetime import datetime
 
 from django.db.models import CharField, IntegerField, TimeField, DateTimeField, TextField, ForeignKey, BooleanField, PositiveIntegerField
+from django.contrib.auth.models import User
 from django.utils.translation import ugettext_lazy as _
 
 from creme_core.models import CremeEntity, CremeModel, Relation
@@ -32,13 +33,41 @@ from activities.utils import get_ical_date
 
 class Calendar(CremeModel):
     name        = CharField(_(u'Name'), max_length=100)
-    is_default  = BooleanField(_(u'Default ?'), blank=True, default=False)
+    is_default  = BooleanField(_(u'Default ?'), default=False)
+    is_custom   = BooleanField(default=True) #used by creme_config
+    is_public   = BooleanField(default=False)
+    user        = ForeignKey(User, verbose_name=_(u"Calendar owner"))
 
     class Meta:
         app_label = 'activities'
         verbose_name = _(u"Calendar")
         verbose_name_plural = _(u"Calendars")
-     
+
+    def __unicode__(self):
+        return self.name
+
+    def delete(self):
+        CalendarActivityLink.objects.filter(calendar=self).delete()
+        super(Calendar, self).delete()
+
+    @staticmethod
+    def get_user_default_calendar(user):
+        """ Returns the default user calendar and creating it if necessary"""
+        try:
+            return Calendar.objects.get(user=user, is_default=True)
+        except Calendar.DoesNotExist:
+            try:
+                c = Calendar.objects.filter(user=user)[0]
+                c.is_default = True
+                c.save()
+                return c
+            except IndexError:
+                return Calendar.objects.create(name=_(u"Default %(user)s's calendar") % {'user': user},
+                                               user=user,
+                                               is_default=True,
+                                               is_custom=False)
+
+
 
 class ActivityType(CremeModel):
     id                    = CharField(primary_key=True, max_length=100)
@@ -222,3 +251,13 @@ class PhoneCall(Activity):
         app_label = 'activities'
         verbose_name = _(u'Phone call')
         verbose_name_plural = _(u'Phone calls')
+
+
+class CalendarActivityLink(CremeModel):
+    calendar = ForeignKey(Calendar, verbose_name=_(u"Selected Calendar"))
+    activity = ForeignKey(Activity, verbose_name=_(u"Selected Activity"))
+
+    class Meta:
+        app_label = 'activities'
+        verbose_name = _(u'Calendar activity link')
+        verbose_name_plural = _(u'Calendars activities links')
