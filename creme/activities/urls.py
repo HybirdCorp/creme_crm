@@ -24,10 +24,16 @@ urlpatterns = patterns('activities.views',
     (r'^calendar/user$',                                                'calendar.user_calendar'),
     (r'^calendar/users_activities/(?P<usernames>([\w]+){1}(,[\w]+)*)$', 'calendar.get_users_activities'),
     (r'^calendar/activity/update',                                      'calendar.update_activity_date'),
+    (r'^calendar/add$',                                                 'calendar.add_user_calendar'),
+    (r'^calendar/(?P<calendar_id>\d+)/edit$',                           'calendar.add_user_calendar'),
+    (r'^calendar/delete$',                                              'calendar.delete_user_calendar'),
 
     (r'^indisponibility/add$', 'activity.add_indisponibility'), #TODO: use activity/add-(?P<type>.*) ?? with a factory type-based ?
 
     (r'^get_entity_relation_choices_for_activity$', 'ajax.get_entity_relation_choices_for_activity'),
+
+
+
 )
 
 urlpatterns += patterns('creme_core.views.generic',

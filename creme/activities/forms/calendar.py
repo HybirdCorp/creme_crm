@@ -29,10 +29,11 @@ class CalendarForm(CremeModelForm):
         exclude = ('id', 'is_custom')
 
     def __init__(self, user=None, *args, **kwargs):
+        super(CalendarForm, self).__init__(*args, **kwargs)
         if user is not None:
             self.fields['user'].queryset = User.objects.filter(pk=user.pk)
             self.fields['user'].initial  = user.pk
-        super(CalendarForm, self).__init__(*args, **kwargs)
+            self.fields['user'].empty_label  = None
 
     def save(self):
         instance = self.instance

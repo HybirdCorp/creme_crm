@@ -47,8 +47,8 @@ class Calendar(CremeModel):
         return self.name
 
     def delete(self):
-        CalendarActivityLink.objects.filter(calendar=self).delete()
-        super(Calendar, self).delete()
+        CalendarActivityLink.objects.filter(calendar=self).delete()#TODO: Hum what happens if the super refuses the deletion ?
+        super(Calendar, self).delete()#TODO: Verify self is not the last calendar? transfert is_default on another cal?
 
     @staticmethod
     def get_user_default_calendar(user):
