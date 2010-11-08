@@ -10,10 +10,10 @@
             {% for field, is_required in fields %}
                 {% if not field.is_hidden %}
                     <tr>
-                        <th class="{% cycle "block_header_line_dark" "block_header_line_light" %}">
+                        <th class="{% cycle "block_header_line_dark" "block_header_line_light" %} th_info">
                             <label for="{{field.auto_id}}">{{field.label}} {% if is_required %}*{% endif %}</label>
                         </th>
-                        <td class="{% cycle "block_line_dark" "block_line_light" %}">
+                        <td class="{% cycle "block_line_dark" "block_line_light" %} td_info">
                             {% if field.help_text %}
                                 {{field.help_text}} <br />
                             {% endif %}

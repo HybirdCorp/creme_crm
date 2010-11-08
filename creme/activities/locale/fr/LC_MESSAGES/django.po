@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-10-25 11:21+0200\n"
+"POT-Creation-Date: 2010-11-08 11:51+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -16,7 +16,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: blocks.py:35 forms/activity.py:104 forms/activity.py:157
+#: blocks.py:35 forms/activity.py:104 forms/activity.py:158
 msgid "Participants"
 msgstr "Participants"
 
@@ -33,15 +33,15 @@ msgstr "Activités futures"
 msgid "Past activities"
 msgstr "Activités passées"
 
-#: buttons.py:28
+#: buttons.py:30
 msgid "Add a meeting"
 msgstr "Ajouter un rendez-vous"
 
-#: buttons.py:34
+#: buttons.py:37
 msgid "Add a phone call"
 msgstr "Ajouter un appel téléphonique"
 
-#: buttons.py:40
+#: buttons.py:44
 msgid "Add a task"
 msgstr "Ajouter une tâche"
 
@@ -50,20 +50,20 @@ msgstr "Ajouter une tâche"
 msgid "Activities"
 msgstr "Activités"
 
-#: creme_core_register.py:38
+#: creme_core_register.py:37
 msgid "Portal"
 msgstr "Portail"
 
-#: creme_core_register.py:39 models/activity.py:39
+#: creme_core_register.py:38 models/activity.py:39
 #: templates/activities/portal.html:10
 msgid "Calendar"
 msgstr "Calendrier"
 
-#: creme_core_register.py:40
+#: creme_core_register.py:39
 msgid "Add an indisponibility"
 msgstr "Ajouter une indisponibilité"
 
-#: creme_core_register.py:41
+#: creme_core_register.py:40
 msgid "All activities"
 msgstr "Lister les activités"
 
@@ -133,21 +133,24 @@ msgstr "En retard"
 
 #: populate.py:59 models/activity.py:197
 #: templates/activities/calendar.html:196
-#: templates/activities/templatetags/button_add_task.html:3
+#: templates/activities/templatetags/button_add_task.html:4
+#: templates/activities/templatetags/button_add_task.html:9
 msgid "Task"
 msgstr "Tâche"
 
 #: populate.py:60 models/activity.py:170
 #: templates/activities/calendar.html:184
 #: templates/activities/frags/button_add_meeting_without_relation.html:3
-#: templates/activities/templatetags/button_add_meeting.html:3
+#: templates/activities/templatetags/button_add_meeting.html:4
+#: templates/activities/templatetags/button_add_meeting.html:9
 msgid "Meeting"
 msgstr "Rendez-vous"
 
 #: populate.py:61 models/activity.py:223
 #: templates/activities/calendar.html:190
 #: templates/activities/frags/button_add_phonecall_without_relation.html:3
-#: templates/activities/templatetags/button_add_phonecall.html:3
+#: templates/activities/templatetags/button_add_phonecall.html:4
+#: templates/activities/templatetags/button_add_phonecall.html:9
 msgid "Phone call"
 msgstr "Appel téléphonique"
 
@@ -177,7 +180,7 @@ msgstr "Vue d'Activité"
 msgid "Name"
 msgstr "Nom"
 
-#: populate.py:70 forms/activity.py:142 forms/activity.py:275
+#: populate.py:70 forms/activity.py:142 forms/activity.py:297
 #: forms/indisponibility.py:33 models/activity.py:63
 msgid "Start"
 msgstr "Début"
@@ -203,11 +206,11 @@ msgstr ""
 "%(participant)s participe déjà à l'activité «%(activity)s» entre %(start)s "
 "et %(end)s."
 
-#: forms/activity.py:143 forms/activity.py:276
+#: forms/activity.py:143 forms/activity.py:298
 msgid "Start time"
 msgstr "Heure de début"
 
-#: forms/activity.py:144 forms/activity.py:277
+#: forms/activity.py:144 forms/activity.py:299
 msgid "End time"
 msgstr "Heure de fin"
 
@@ -219,31 +222,49 @@ msgstr "Est une démarche commerciale ?"
 msgid "Do I participate to this meeting ?"
 msgstr "Est-ce que je participe à ce rendez-vous ?"
 
-#: forms/activity.py:149
+#: forms/activity.py:148
+#, python-format
+msgid ""
+"Do the responsable of this file participate to this meeting ? (Currently %s)"
+msgstr "Est-ce que le responsable de cette fiche participe à ce rendez-vous ? (Actuellement %s)"
+
+#: forms/activity.py:150
 msgid "Other participants"
 msgstr "Autres participants"
 
-#: forms/activity.py:153
+#: forms/activity.py:154
 msgid "Users"
 msgstr "Utilisateurs"
 
-#: forms/activity.py:156 forms/indisponibility.py:41
+#: forms/activity.py:157 forms/indisponibility.py:41
 msgid "When"
 msgstr "Quand"
 
-#: forms/activity.py:158
+#: forms/activity.py:159
 msgid "Users to keep informed"
 msgstr "Les utilisateurs à tenir informés"
 
-#: forms/activity.py:236
+#: forms/activity.py:172
+msgid "Nobody"
+msgstr "Personne"
+
+#: forms/activity.py:173
+msgid "Do the responsable of this file participate to this meeting ?"
+msgstr "Est-ce que le responsable de cette fiche participe à ce rendez-vous ?"
+
+#: forms/activity.py:173
+msgid "Currently"
+msgstr "Actuellement"
+
+#: forms/activity.py:258
 msgid "Who / What"
 msgstr "Qui / Quoi"
 
-#: forms/activity.py:237
+#: forms/activity.py:259
 msgid "Relation with the activity"
 msgstr "Relation avec l'activité"
 
-#: forms/activity.py:263
+#: forms/activity.py:285
 msgid "Add participants to them be linked to a commercial approach."
 msgstr ""
 "Ajoutez des participants pour qu'ils soient liés à une démarche commerciale"
@@ -476,18 +497,21 @@ msgstr "Cacher la liste des utilisateurs"
 
 #: templates/activities/calendar.html:185
 #: templates/activities/frags/button_add_meeting_without_relation.html:4
-#: templates/activities/templatetags/button_add_meeting.html:4
+#: templates/activities/templatetags/button_add_meeting.html:5
+#: templates/activities/templatetags/button_add_meeting.html:10
 msgid "Create a meeting"
 msgstr "Créer un rendez-vous"
 
 #: templates/activities/calendar.html:191
 #: templates/activities/frags/button_add_phonecall_without_relation.html:4
-#: templates/activities/templatetags/button_add_phonecall.html:4
+#: templates/activities/templatetags/button_add_phonecall.html:5
+#: templates/activities/templatetags/button_add_phonecall.html:10
 msgid "Create a phone call"
 msgstr "Créer un appel téléphonique"
 
 #: templates/activities/calendar.html:197
-#: templates/activities/templatetags/button_add_task.html:4
+#: templates/activities/templatetags/button_add_task.html:5
+#: templates/activities/templatetags/button_add_task.html:10
 msgid "Create a task"
 msgstr "Créer une tâche"
 
@@ -624,6 +648,12 @@ msgstr "Ajouter un sujet"
 #: templates/activities/templatetags/block_subjects.html:32
 msgid "No subject for the moment"
 msgstr "Aucun sujet enregistré pour le moment"
+
+#: templates/activities/templatetags/button_add_meeting.html:8
+#: templates/activities/templatetags/button_add_phonecall.html:8
+#: templates/activities/templatetags/button_add_task.html:8
+msgid "forbidden"
+msgstr "interdit"
 
 #: views/blocks.py:36
 #, python-format

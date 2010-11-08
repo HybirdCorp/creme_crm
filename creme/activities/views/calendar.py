@@ -50,7 +50,9 @@ def getFormattedDictFromAnActivity(activity):
 
     start = activity.start
     end   = activity.end
-    if start == end:
+    is_all_day = activity.is_all_day
+    
+    if start == end and not is_all_day:
         end += timedelta(days=1)
 
     return {
@@ -60,7 +62,7 @@ def getFormattedDictFromAnActivity(activity):
             "end":          end.isoformat(),
             "url":          "/activities/activity/%s/popup" % activity.pk,
             "entity_color": "#%s" % (activity.type.color or "C1D9EC"),
-            "allDay" :      activity.is_all_day
+            "allDay" :      is_all_day
             }
 
 def user_calendar(request):
