@@ -39,16 +39,16 @@ class Memo(CremeModel):
     creme_entity        = GenericForeignKey(ct_field="entity_content_type", fk_field="entity_id")
 
     @staticmethod
-    def get_home_memos():
-        return Memo.objects.filter(on_homepage=True).select_related('user')
-
-    @staticmethod
     def get_memos(entity):
         return Memo.objects.filter(entity_id=entity.id).select_related('user')
 
     @staticmethod
-    def get_memos_for_ctypes(ct_ids):
-        return Memo.objects.filter(entity_content_type__in=ct_ids).select_related('user')
+    def get_memos_for_home(user):
+        return Memo.objects.filter(on_homepage=True, user=user).select_related('user')
+
+    @staticmethod
+    def get_memos_for_ctypes(ct_ids, user):
+        return Memo.objects.filter(entity_content_type__in=ct_ids, user=user).select_related('user')
 
     class Meta:
         app_label = 'assistants'

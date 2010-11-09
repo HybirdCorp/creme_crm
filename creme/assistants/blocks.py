@@ -64,7 +64,7 @@ class _AssistantsBlock(QuerysetBlock):
 
     def detailview_display(self, context):
         entity = context['object']
-        btc = self.get_block_template_context(context, self._get_queryset_for_detailview(entity, context), #ToDo.get_todos(entity),
+        btc = self.get_block_template_context(context, self._get_queryset_for_detailview(entity, context),
                                               update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, entity.pk),
                                              )
 
@@ -75,7 +75,7 @@ class _AssistantsBlock(QuerysetBlock):
         return self._render(btc)
 
     def portal_display(self, context, ct_ids):
-        btc = self.get_block_template_context(context, self._get_queryset_for_portal(ct_ids, context),#ToDo.get_todos_for_ctypes(ct_ids),
+        btc = self.get_block_template_context(context, self._get_queryset_for_portal(ct_ids, context),
                                               update_url='/creme_core/blocks/reload/portal/%s/%s/' % (self.id_, list4url(ct_ids)),
                                              )
         self._populate_related_real_entities(btc['page'].object_list, context['request'].user)
@@ -83,7 +83,7 @@ class _AssistantsBlock(QuerysetBlock):
         return self._render(btc)
 
     def home_display(self, context):
-        btc = self.get_block_template_context(context, self._get_queryset_for_home(context),#ToDo.get_todos(),
+        btc = self.get_block_template_context(context, self._get_queryset_for_home(context),
                                               update_url='/creme_core/blocks/reload/home/%s/' % self.id_,
                                              )
         self._populate_related_real_entities(btc['page'].object_list, context['request'].user)
@@ -102,10 +102,10 @@ class TodosBlock(_AssistantsBlock):
         return ToDo.get_todos(entity)
 
     def _get_queryset_for_home(self, context):
-        return ToDo.get_todos()
+        return ToDo.get_todos_for_home(context['request'].user)
 
     def _get_queryset_for_portal(self, ct_ids, context):
-        return ToDo.get_todos_for_ctypes(ct_ids)
+        return ToDo.get_todos_for_ctypes(ct_ids, context['request'].user)
 
 
 class MemosBlock(_AssistantsBlock):
@@ -119,10 +119,10 @@ class MemosBlock(_AssistantsBlock):
         return Memo.get_memos(entity)
 
     def _get_queryset_for_home(self, context):
-        return Memo.get_home_memos()
+        return Memo.get_memos_for_home(context['request'].user)
 
     def _get_queryset_for_portal(self, ct_ids, context):
-        return Memo.get_memos_for_ctypes(ct_ids)
+        return Memo.get_memos_for_ctypes(ct_ids, context['request'].user)
 
 
 class AlertsBlock(_AssistantsBlock):
@@ -136,10 +136,10 @@ class AlertsBlock(_AssistantsBlock):
         return Alert.get_alerts(entity)
 
     def _get_queryset_for_home(self, context):
-        return Alert.get_alerts()
+        return Alert.get_alerts_for_home(context['request'].user)
 
     def _get_queryset_for_portal(self, ct_ids, context):
-        return Alert.get_alerts_for_ctypes(ct_ids)
+        return Alert.get_alerts_for_ctypes(ct_ids, context['request'].user)
 
 
 class ActionsITBlock(_AssistantsBlock):
@@ -150,13 +150,13 @@ class ActionsITBlock(_AssistantsBlock):
     template_name = 'assistants/block_actions_it.html'
 
     def _get_queryset_for_detailview(self, entity, context):
-        return Action.get_actions_it(context['today'], entity)
+        return Action.get_actions_it(entity, context['today'])
 
     def _get_queryset_for_home(self, context):
-        return  Action.get_actions_it(context['today'])
+        return Action.get_actions_it_for_home(context['request'].user, context['today'])
 
     def _get_queryset_for_portal(self, ct_ids, context):
-        return Action.get_actions_it_for_ctypes(ct_ids, context['today'])
+        return Action.get_actions_it_for_ctypes(ct_ids, context['request'].user, context['today'])
 
 
 class ActionsNITBlock(_AssistantsBlock):
@@ -167,13 +167,13 @@ class ActionsNITBlock(_AssistantsBlock):
     template_name = 'assistants/block_actions_nit.html'
 
     def _get_queryset_for_detailview(self, entity, context):
-        return Action.get_actions_nit(context['today'], entity)
+        return Action.get_actions_nit(entity, context['today'])
 
     def _get_queryset_for_home(self, context):
-        return  Action.get_actions_nit(context['today'])
+        return  Action.get_actions_nit_for_home(context['request'].user, context['today'])
 
     def _get_queryset_for_portal(self, ct_ids, context):
-        return Action.get_actions_nit_for_ctypes(ct_ids, context['today'])
+        return Action.get_actions_nit_for_ctypes(ct_ids, context['request'].user, context['today'])
 
 
 alerts_block      = AlertsBlock()

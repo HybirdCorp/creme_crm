@@ -43,17 +43,16 @@ class Alert(CremeModel):
     for_user            = ForeignKey(User, verbose_name=_(u'Assigned to'), blank=True, null=True, related_name='user_alert_assigned_set')
 
     @staticmethod
-    def get_alerts(entity=None):
-        queryset = Alert.objects.filter(is_validated=False).select_related('for_user')
-
-        if entity:
-            queryset = queryset.filter(entity_id=entity.id)
-
-        return queryset
+    def get_alerts(entity):
+        return Alert.objects.filter(is_validated=False, entity_id=entity.id).select_related('for_user')
 
     @staticmethod
-    def get_alerts_for_ctypes(ct_ids):
-        return Alert.objects.filter(entity_content_type__in=ct_ids).select_related('for_user')
+    def get_alerts_for_home(user):
+        return Alert.objects.filter(is_validated=False, for_user=user).select_related('for_user')
+
+    @staticmethod
+    def get_alerts_for_ctypes(ct_ids, user):
+        return Alert.objects.filter(entity_content_type__in=ct_ids, for_user=user).select_related('for_user')
 
     class Meta:
         app_label = 'assistants'

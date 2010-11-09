@@ -55,31 +55,33 @@ class Action(CremeModel):
             self.is_ok = False
 
     @staticmethod
-    def get_actions_it(today, entity=None):
-        queryset = Action.objects.filter(is_ok=False, deadline__gt=today).select_related('for_user')
-
-        if entity:
-            queryset = queryset.filter(entity_id=entity.id)
-
-        return queryset
-
-    @staticmethod
-    def get_actions_nit(today, entity=None):
-        queryset = Action.objects.filter(is_ok=False, deadline__lte=today).select_related('for_user')
-
-        if entity:
-            queryset = queryset.filter(entity_id=entity.id)
-
-        return queryset
-
-    @staticmethod
-    def get_actions_it_for_ctypes(ct_ids, today):
-        return Action.objects.filter(entity_content_type__in=ct_ids, is_ok=False, deadline__gt=today) \
+    def get_actions_it(entity, today):
+        return Action.objects.filter(entity_id=entity.id, is_ok=False, deadline__gt=today) \
                              .select_related('for_user')
 
     @staticmethod
-    def get_actions_nit_for_ctypes(ct_ids, today):
-        return Action.objects.filter(entity_content_type__in=ct_ids, is_ok=False, deadline__lte=today) \
+    def get_actions_nit(entity, today):
+        return Action.objects.filter(entity_id=entity.id, is_ok=False, deadline__lte=today) \
+                             .select_related('for_user')
+
+    @staticmethod
+    def get_actions_it_for_home(user, today):
+        return Action.objects.filter(is_ok=False, deadline__gt=today, for_user=user) \
+                             .select_related('for_user')
+
+    @staticmethod
+    def get_actions_nit_for_home(user, today):
+        return Action.objects.filter(is_ok=False, deadline__lte=today, for_user=user) \
+                             .select_related('for_user')
+
+    @staticmethod
+    def get_actions_it_for_ctypes(ct_ids, user, today):
+        return Action.objects.filter(entity_content_type__in=ct_ids, for_user=user, is_ok=False, deadline__gt=today) \
+                             .select_related('for_user')
+
+    @staticmethod
+    def get_actions_nit_for_ctypes(ct_ids, user, today):
+        return Action.objects.filter(entity_content_type__in=ct_ids, for_user=user, is_ok=False, deadline__lte=today) \
                              .select_related('for_user')
 
 

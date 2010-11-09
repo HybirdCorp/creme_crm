@@ -54,17 +54,16 @@ class ToDo(CremeModel):
             self.has_deadline = False 
 
     @staticmethod
-    def get_todos(entity=None):
-        queryset = ToDo.objects.select_related('for_user')
-
-        if entity:
-            queryset = queryset.filter(entity_id=entity.id)
-
-        return queryset
+    def get_todos(entity):
+        return ToDo.objects.filter(entity_id=entity.id).select_related('for_user')
 
     @staticmethod
-    def get_todos_for_ctypes(ct_ids):
-        return ToDo.objects.filter(entity_content_type__in=ct_ids).select_related('for_user')
+    def get_todos_for_home(user):
+        return ToDo.objects.filter(for_user=user).select_related('for_user')
+
+    @staticmethod
+    def get_todos_for_ctypes(ct_ids, user):
+        return ToDo.objects.filter(entity_content_type__in=ct_ids, for_user=user).select_related('for_user')
 
     class Meta:
         app_label = 'assistants'
