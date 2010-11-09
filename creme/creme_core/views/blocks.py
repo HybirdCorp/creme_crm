@@ -20,16 +20,16 @@
 
 from datetime import datetime
 
+from django.core.exceptions import PermissionDenied
 from django.template import RequestContext
 from django.shortcuts import get_object_or_404
 from django.contrib.auth.decorators import login_required
 
 from creme_core.models import CremeEntity
 from creme_core.gui.block import block_registry, str2list, BlocksManager
-from creme_core.utils import jsonify
+from creme_core.utils import jsonify, get_ct_or_404
 from creme_core.blocks import relations_block
 
-#TODO: credentials..... (+ @get_view_or_die('app_name'))
 
 def _get_depblock_ids(request, block_id):
     ids = [block_id]
@@ -76,6 +76,15 @@ def reload_home(request, block_id):
 def reload_portal(request, block_id, ct_ids):
     context = RequestContext(request)
     ct_ids = str2list(ct_ids)
+    app_labels = set(get_ct_or_404(ct_id).model_class()._meta.app_label for ct_id in ct_ids)
+
+    if len(app_labels) != 1:
+        raise PermissionDenied('Error: all ContentTypes must be related to the same app')
+
+    app_label = iter(app_labels).next()
+
+    if not request.user.has_perm(app_label): #TODO: in a role method ??
+        raise PermissionDenied('You are not allowed to access to the app: %s' % app_label)
 
     return _build_blocks_render(request, block_id, BlocksManager.get(context),
                                 lambda block: block.portal_display(context, ct_ids))
