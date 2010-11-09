@@ -22,7 +22,7 @@ from django.utils.translation import ugettext as _
 
 from creme_core.views.generic.portal import app_portal
 
-from creme_config.utils.url_generator import generate_portal_url
+from creme_config.utils import generate_portal_url
 
 from activities.models import Activity
 
