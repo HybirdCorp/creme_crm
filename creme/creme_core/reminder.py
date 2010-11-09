@@ -33,8 +33,8 @@ from creme_core.models import DateReminder
 FIRST_REMINDER = 1
 
 class Reminder(object):
-    id_           = None   #overload with an unicode object ; use generate_id()
-    model_        = None    #overload with an creme object
+    id_    = None   #overload with an unicode object ; use generate_id()
+    model_ = None   #overload with a CremeModel
 
     def __init__(self):
         pass
@@ -80,8 +80,9 @@ class Reminder(object):
 
         for object in objects:
             #reminders = DateReminder.objects.filter(model_id=object.id, model_content_type=object_ct)
-            reminders = reminder_filter(model_id=object.id, model_content_type=object_ct)[:1] #TODO: use exists with Django 1.2
-            if not reminders: 
+            #reminders = reminder_filter(model_id=object.id, model_content_type=object_ct)[:1]
+            #if not reminders:
+            if not reminder_filter(model_id=object.id, model_content_type=object_ct).exists():
                 self.send_mails(object)
                 date_reminder = DateReminder()
                 date_reminder.date_or_remind = now #factorise ??
