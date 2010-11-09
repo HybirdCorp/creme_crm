@@ -263,6 +263,22 @@ class DefaultCredentialsBlock(Block):
                                                             update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
                                                            ))
 
+class UserPreferedMenusBlock(QuerysetBlock):
+    id_           = QuerysetBlock.generate_id('creme_config', 'user_prefered_menus')
+    dependencies  = ()
+    verbose_name  = _(u'My prefered menus')
+    template_name = 'creme_config/templatetags/block_user_prefered_menus.html'
+    order_by      = 'order'
+
+    def detailview_display(self, context):
+        request = context['request']
+        user    = request.user
+
+        return self._render(self.get_block_template_context(context,
+                                                            PreferedMenuItem.objects.filter(user=user),
+                                                            page_size=self.page_size,
+                                                            update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
+                                                           ))
 
 generic_models_block = GenericModelsBlock()
 custom_fields_block  = CustomFieldsBlock()
@@ -282,4 +298,5 @@ blocks_list = (
         InstanceBlocksConfigBlock(),
         UserRolesBlock(),
         DefaultCredentialsBlock(),
+        UserPreferedMenusBlock(),
     )

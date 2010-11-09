@@ -283,7 +283,7 @@
                     <td align="left" valign="middle" style="width:25%;">
                         {% trans 'Welcome,' %} <strong>{% if user.first_name %}{{ user.first_name|escape }}{% else %}{{ user.username }}{% endif %}</strong> -
                         {% block userlinks %}
-                            <a href="/creme_config/user/edit/settings/">{% trans 'My settings' %}</a> -
+                            <a href="/creme_config/user/view/settings/">{% trans 'My settings' %}</a> -
                             <a href="/creme_core/clean/">{% trans 'Log out' %}</a>
                         {% endblock %}
                     </td>

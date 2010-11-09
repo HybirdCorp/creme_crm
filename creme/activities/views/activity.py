@@ -44,14 +44,14 @@ def _add_activity(request, class_form, **form_args):
     POST = request.POST
 
     if POST:
-        activity_form = class_form(data=POST, **form_args)
+        activity_form = class_form(current_user=request.user, data=POST, **form_args)
 
         if activity_form.is_valid():
             activity_form.save()
 
             return  HttpResponseRedirect('/activities/calendar/my')
     else:
-        activity_form = class_form(**form_args)
+        activity_form = class_form(current_user=request.user, **form_args)
 
     return render_to_response('creme_core/generics/blockform/add.html',
                               {'form': activity_form},
