@@ -24,7 +24,7 @@ from django.contrib.contenttypes.models import ContentType
 from creme_core.models import Relation
 from creme_core.gui.block import QuerysetBlock
 
-from models import Activity
+from models import Activity, Calendar
 from constants import *
 
 
@@ -99,8 +99,24 @@ class PastActivitiesBlock(QuerysetBlock):
                                                             update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, entity.id),
                                                             ))
 
+class UserCalendars(QuerysetBlock):
+    id_           = QuerysetBlock.generate_id('activities', 'user_calendars')
+    dependencies  = (Calendar, )
+    verbose_name  = _(u'My calendars')
+    template_name = 'activities/templatetags/block_user_calendars.html'
+    order_by      = 'name'
+
+    def detailview_display(self, context):
+        model = Calendar
+        user = context['request'].user
+        return self._render(self.get_block_template_context(context,
+                                                            Calendar.objects.filter(user=user),
+                                                            update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
+                                                            ))
+
 
 participants_block      = ParticipantsBlock()
 subjects_block          = SubjectsBlock()
 future_activities_block = FutureActivitiesBlock()
 past_activities_block   = PastActivitiesBlock()
+user_calendars_block    = UserCalendars()

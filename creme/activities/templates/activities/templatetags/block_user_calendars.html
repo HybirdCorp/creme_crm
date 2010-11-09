@@ -1,0 +1,52 @@
+{% load i18n %}
+{% load creme_block %}{% load creme_core_tags %}
+<table  class="table_detail_view ui-corner-all" id={{block_name}}>
+    {% include "creme_core/templatetags/widgets/block_header_beg.html" %}
+        <th style="width: 80%;" class="collapser" align="left">
+                {% get_block_title _('%s Calendar') _('%s Calendars') 'calendar_48.png' _('Calendars') %}
+        </th>
+        <th style="width: 20%;" align="right"></th>
+    {% include "creme_core/templatetags/widgets/block_header_end.html" %}
+    <tbody class="collapsable">
+        <tr>
+            <th colspan="5" class="block_header_line_dark" align="left">
+                <a class="button_link" onclick="creme.utils.innerPopupNReload('/activities/calendar/add', {% get_block_reload_uri %});">
+                    <img src="{{MEDIA_URL}}images/add_22.png" border="0" alt="{% trans "New calendar" %}" title="{% trans "New calendar" %}"/>
+                    {% trans "New calendar" %}
+                </a>
+            </th>
+        </tr>
+        {% if page.paginator.count %}
+            <tr>
+                {% get_column_header _('Name') 'name' %}
+                {% get_column_header _('Is default ?') 'is_default' %}
+                {% get_column_header _('Is public ?') 'is_public' %}
+                <th class="block_header_line_dark">{% trans "Edit" %}</th>
+                <th class="block_header_line_dark">{% trans "Delete" %}</th>
+            </tr>
+            {% for calendar in page.object_list %}
+                <!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
+                <tr>
+                    <td class="{{row_color}}">{{calendar.name}}</td>
+                    <td class="{{row_color}}">{{calendar|get_html_field_value:"is_default"}}</td>
+                    <td class="{{row_color}}">{{calendar|get_html_field_value:"is_public"}}</td>
+                    <td class="{{row_color}}">
+                        <a onclick="creme.utils.innerPopupNReload('/activities/calendar/{{calendar.id}}/edit', {% get_block_reload_uri %});">
+                            <img src="{{MEDIA_URL}}images/edit_22.png" border="0" alt="{% trans "Edit calendar" %}" title="{% trans "Edit calendar" %}"/>
+                        </a>
+                    </td>
+                    <td class="{{row_color}}" align="center" valign="center" style="width:10%;">
+                        {% get_line_deletor at_url '/activities/calendar/delete' with_args "{'id': '{{calendar.id}}'}" %}
+                    </td>
+                </tr>
+            {% endfor %}
+        {% else %}
+            <tr>
+                <td class="block_line_dark">
+                    {% block activities_empty %}{% trans "No future related activity for the moment" %}{% endblock %}
+                </td>
+            </tr>
+        {% endif %}
+    </tbody>
+    {% include 'creme_core/templatetags/widgets/block_footer.html' %}
+</table>
