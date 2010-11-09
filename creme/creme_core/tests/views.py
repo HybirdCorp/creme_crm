@@ -109,3 +109,73 @@ class ViewsTestCase(TestCase):
         response = self.client.post('/creme_core/get_custom_fields', data={'ct_id': 'notint'})
         self.assertEqual(400,               response.status_code)
         self.assertEqual('text/javascript', response['Content-Type'])
+
+    def test_get_creme_entity_as_json01(self):
+        try:
+            entity = CremeEntity.objects.create(user=self.user)
+        except Exception, e:
+            self.fail(str(e))
+
+        response = self.client.post('/creme_core/entity/json', data={'pk': entity.id})
+        self.assertEqual(200,               response.status_code)
+        self.assertEqual('text/javascript', response['Content-Type'])
+
+        json_data = simplejson.loads(response.content)
+        #[{'pk': 1,
+        #  'model': 'creme_core.cremeentity',
+        #  'fields': {'is_actived': False,
+        #             'is_deleted': False,
+        #             'created': '2010-11-09 14:34:04',
+        #             'header_filter_search_field': '',
+        #             'entity_type': 100,
+        #             'modified': '2010-11-09 14:34:04',
+        #             'user': 1
+        #            }
+        #}]
+        try:
+            dic = json_data[0]
+            pk     = dic['pk']
+            model  = dic['model']
+            fields = dic['fields']
+            user = fields['user']
+        except Exception, e:
+            self.fail(str(e))
+
+        self.assertEqual(entity.id, pk)
+        self.assertEqual('creme_core.cremeentity', model)
+        self.assertEqual(self.user.id, user)
+
+    def test_get_creme_entity_as_json02(self):
+        try:
+            entity = CremeEntity.objects.create(user=self.user)
+        except Exception, e:
+            self.fail(str(e))
+
+        response = self.client.post('/creme_core/entity/json', data={'pk': entity.id, 'fields': ['user', 'entity_type']})
+        self.assertEqual(200, response.status_code)
+
+        json_data = simplejson.loads(response.content)
+        #[{'pk': 1,
+        #  'model': 'creme_core.cremeentity',
+        #  'fields': {'user': 1, 'entity_type': 100}}
+        #]
+        try:
+            fields = json_data[0]['fields']
+            user = fields['user']
+            entity_type = fields['entity_type']
+        except Exception, e:
+            self.fail(str(e))
+
+            self.assertEqual(self.user.id, user)
+            self.assertEqual(ContentType.objects.get_for_model(CremeEntity).id, entity_type)
+
+    def test_get_creme_entity_repr(self):
+        try:
+            entity = CremeEntity.objects.create(user=self.user)
+        except Exception, e:
+            self.fail(str(e))
+
+        response = self.client.get('/creme_core/entity/get_repr/%s' % entity.id)
+        self.assertEqual(200,               response.status_code)
+        self.assertEqual('text/javascript', response['Content-Type'])
+        self.assertEqual('Creme entity: %s' % entity.id, response.content)

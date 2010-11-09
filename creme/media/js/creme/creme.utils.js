@@ -265,6 +265,7 @@ creme.utils.changeOtherNodes = function (from_id, arrayNodesIds, callback) {
     );
 }
 
+//TODO: seems useless (remove the view too)
 creme.utils.fillNode = function(from_node, to_node) {
     $.ajax({
         url: "/creme_core/entity/get_repr/",
@@ -277,6 +278,7 @@ creme.utils.fillNode = function(from_node, to_node) {
     });
 }
 
+//TODO: seems useless (remove the view too)
 creme.utils.renderEntity = function(from_node, to_node) {
     var pk = from_node.val();
     if(pk && !isNaN(parseInt(pk)) && pk!=0)
