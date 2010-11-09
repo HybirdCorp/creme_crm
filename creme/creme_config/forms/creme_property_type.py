@@ -40,7 +40,7 @@ class CremePropertyTypeAddForm(_CremePropertyTypeBaseForm):
     def clean_text(self):
         text = self.cleaned_data['text']
 
-        if CremePropertyType.objects.filter(text=text)[:1]: #TODO: exists() in Django 1.2
+        if CremePropertyType.objects.filter(text=text).exists():
             raise ValidationError(ugettext(u"A property type with this name already exists"))
 
         return text

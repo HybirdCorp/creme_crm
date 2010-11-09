@@ -33,7 +33,6 @@ class Populator(BasePopulator):
     dependencies = ['creme.creme_core']
 
     def populate(self, *args, **kwargs):
-        #TODO: i18n
         create(Periodicity, 1, name=_(u'Daily'),     value_in_days=1,   description=_(u'Every day'))
         create(Periodicity, 2, name=_(u'Weekly'),    value_in_days=7,   description=_(u'Every week'))
         create(Periodicity, 3, name=_(u'Monthly'),   value_in_days=30,  description=_(u'Every month'))
