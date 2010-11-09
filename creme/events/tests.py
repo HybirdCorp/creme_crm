@@ -2,6 +2,7 @@
 
 from django.test import TestCase
 from django.contrib.auth.models import User
+from django.contrib.contenttypes.models import ContentType
 
 from creme_core.models import RelationType, Relation
 from creme_core.management.commands.creme_populate import Command as PopulateCommand
@@ -333,3 +334,127 @@ class EventsTestCase(TestCase):
                          data={'status': str(PRES_STATUS_COME)})
         self.assertEqual(1, event.get_stats()['visitors_count'])
         self.assertEqual(0, Relation.objects.filter(subject_entity=casca, object_entity=event, type=REL_SUB_NOT_CAME_EVENT).count())
+
+    def test_list_contacts(self):
+        self.login()
+
+        event = self.create_event('Eclipse', EventType.objects.all()[0])
+
+        create_contact = Contact.objects.create
+        casca    = create_contact(user=self.user, first_name='Casca',    last_name='Miura')
+        judo     = create_contact(user=self.user, first_name='Judo',     last_name='Miura')
+        griffith = create_contact(user=self.user, first_name='Griffith', last_name='Miura')
+
+        self.client.post('/events/event/%s/contact/%s/set_presence_status' % (event.id, casca.id),
+                         data={'status': str(PRES_STATUS_COME)})
+        self.client.post('/events/event/%s/contact/%s/set_invitation_status' % (event.id, judo.id),
+                         data={'status': str(INV_STATUS_NO_ANSWER)})
+        self.client.post('/events/event/%s/contact/%s/set_invitation_status' % (event.id, griffith.id),
+                         data={'status': str(INV_STATUS_ACCEPTED)})
+
+        PopulateCommand().handle(application=['persons']) #HeaderFilter....
+
+        response = self.client.get('/events/event/%s/contacts' % event.id)
+        self.assertEqual(response.status_code, 200)
+
+        try:
+            contacts_page = response.context['entities']
+        except KeyError, e:
+            self.fail(str(e))
+
+        self.assertEqual(3, contacts_page.paginator.count)
+        self.assertEqual(set((casca.id, judo.id, griffith.id)), set(contact.id for contact in contacts_page.object_list))
+
+    @staticmethod
+    def relations_types(contact, event):
+        return list(Relation.objects.filter(subject_entity=contact, object_entity=event) \
+                                    .values_list('type_id', flat=True))
+
+    def test_link_contacts01(self):
+        self.login()
+
+        event = self.create_event('Eclipse', EventType.objects.all()[0])
+        casca = Contact.objects.create(user=self.user, first_name='Casca', last_name='Miura')
+
+        response = self.client.get('/events/event/%s/link_contacts' % event.id)
+        self.assertEqual(response.status_code, 200)
+
+        response = self.client.post('/events/event/%s/link_contacts' % event.id, follow=True,
+                                    data= {
+                                            "related_contacts": '(%s,%s,%s);' % (REL_OBJ_CAME_EVENT, ContentType.objects.get_for_model(Contact).id, casca.id),
+                                          }
+                                   )
+        self.assertEqual(200, response.status_code)
+        self.assertEqual([REL_SUB_CAME_EVENT], self.relations_types(casca, event))
+
+    def test_link_contacts02(self):
+        self.login()
+
+        event = self.create_event('Eclipse', EventType.objects.all()[0])
+
+        create_contact = Contact.objects.create
+        casca    = create_contact(user=self.user, first_name='Casca',    last_name='Miura')
+        judo     = create_contact(user=self.user, first_name='Judo',     last_name='Miura')
+        griffith = create_contact(user=self.user, first_name='Griffith', last_name='Miura')
+        rickert  = create_contact(user=self.user, first_name='Rickert',  last_name='Miura')
+        carcus   = create_contact(user=self.user, first_name='Carcus',   last_name='Miura')
+
+        ct_id = ContentType.objects.get_for_model(Contact).id
+
+        response = self.client.post('/events/event/%s/link_contacts' % event.id, follow=True,
+                                    data= {
+                                            "related_contacts": '(%s,%s,%s);(%s,%s,%s);(%s,%s,%s);(%s,%s,%s);(%s,%s,%s);' % \
+                                                (REL_OBJ_IS_INVITED_TO,  ct_id, casca.id,
+                                                 REL_OBJ_CAME_EVENT,     ct_id, judo.id,
+                                                 REL_OBJ_NOT_CAME_EVENT, ct_id, griffith.id,
+                                                 REL_OBJ_IS_INVITED_TO,  ct_id, rickert.id,
+                                                 REL_OBJ_CAME_EVENT,     ct_id, carcus.id,
+                                                ),
+                                          }
+                                   )
+        self.assertEqual(200, response.status_code)
+
+        rel_filter = Relation.objects.filter
+
+        self.assertEqual([REL_SUB_IS_INVITED_TO],  self.relations_types(casca, event))
+        self.assertEqual([REL_SUB_CAME_EVENT],     self.relations_types(judo, event))
+        self.assertEqual([REL_SUB_NOT_CAME_EVENT], self.relations_types(griffith, event))
+        self.assertEqual([REL_SUB_IS_INVITED_TO],  self.relations_types(rickert, event))
+        self.assertEqual([REL_SUB_CAME_EVENT],     self.relations_types(carcus, event))
+
+        response = self.client.post('/events/event/%s/link_contacts' % event.id, follow=True,
+                                    data= {
+                                            "related_contacts": '(%s,%s,%s);(%s,%s,%s);(%s,%s,%s);(%s,%s,%s);(%s,%s,%s);' % \
+                                                (REL_OBJ_IS_INVITED_TO,  ct_id, casca.id,
+                                                 REL_OBJ_NOT_CAME_EVENT, ct_id, judo.id,
+                                                 REL_OBJ_CAME_EVENT,     ct_id, griffith.id,
+                                                 REL_OBJ_CAME_EVENT,     ct_id, rickert.id,
+                                                 REL_OBJ_CAME_EVENT,     ct_id, carcus.id,
+                                                ),
+                                          }
+                                   )
+        self.assertEqual(200, response.status_code)
+
+        self.assertEqual([REL_SUB_IS_INVITED_TO],  self.relations_types(casca, event))
+        self.assertEqual([REL_SUB_NOT_CAME_EVENT], self.relations_types(judo, event))
+        self.assertEqual([REL_SUB_CAME_EVENT],     self.relations_types(griffith, event))
+        self.assertEqual(set([REL_SUB_IS_INVITED_TO, REL_SUB_CAME_EVENT]), set(self.relations_types(rickert, event)))
+        self.assertEqual([REL_SUB_CAME_EVENT],     self.relations_types(carcus, event))
+
+    def test_link_contacts03(self):
+        self.login()
+
+        event = self.create_event('Eclipse', EventType.objects.all()[0])
+        casca = Contact.objects.create(user=self.user, first_name='Casca', last_name='Miura')
+        ct_id = ContentType.objects.get_for_model(Contact).id
+
+        response = self.client.post('/events/event/%s/link_contacts' % event.id, follow=True,
+                                    data= {
+                                            "related_contacts": '(%s,%s,%s);(%s,%s,%s);' % \
+                                                (REL_OBJ_IS_INVITED_TO,  ct_id, casca.id,
+                                                 REL_OBJ_CAME_EVENT,     ct_id, casca.id,
+                                                ),
+                                          }
+                                   )
+        self.assertEqual(200, response.status_code)
+        self.assertFormError(response, 'form', 'related_contacts', [u'Contact  Casca Miura is present twice.'])
