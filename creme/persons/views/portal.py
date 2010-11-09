@@ -24,7 +24,7 @@ from django.utils.translation import ugettext as _
 from creme_core.views.generic import app_portal
 from creme_core.models import Relation
 
-from creme_config.utils.url_generator import generate_portal_url
+from creme_config.utils import generate_portal_url
 
 from persons.models import Contact, Organisation
 from persons.constants import REL_OBJ_CUSTOMER_OF #REL_SUB_CUSTOMER_OF

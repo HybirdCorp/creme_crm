@@ -24,7 +24,7 @@ from django.contrib.contenttypes.models import ContentType
 
 from creme_core.registry import creme_registry
 
-from creme_config.utils.url_generator import generate_portal_url
+from creme_config.utils import generate_portal_url
 
 
 class NotRegisteredInConfig(Exception):
