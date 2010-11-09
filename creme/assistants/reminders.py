@@ -21,6 +21,7 @@
 from datetime import datetime, timedelta
 
 from django.db.models import Q
+from django.utils.translation import ugettext as _
 from django.conf import settings
 
 from creme_core.reminder import Reminder
@@ -33,16 +34,18 @@ class ReminderAlert(Reminder):
     model_ = Alert
 
     def generate_email_subject(self, object):
-        #TODO: i18n
-        return u'rappel concernant une alerte Crème CRM à propos de %s' % (object.creme_entity,)
+        return _(u'Reminder concerning a Creme CRM alert related to %s') % object.creme_entity
 
-    def generate_email_body(self, object): #TODO: i18n
-        entity = object.creme_entity
-        return u"""Ce mail est envoyé automatiquement par Crème CRM pour vous rappeler qu'une alerte concernant %s va arriver à échéance. \r\n
-            Alerte : %s \r\n 
-            dont la description est : %s \r\n.
+    def generate_email_body(self, object):
+        return _(u"""This mail is automatically sent by Crème CRM to remind you that an alert concerning %(entity)s will expire.
+            Alert : %(title)s.
+            which description is : %(description)s.
 
-            qui est rattachée à la fiche : %s """ % (entity, object.title, object.description, entity) #TODO: use a dict instead
+            which is related to the entity : %(entity)s""") % {
+                    'entity':      object.creme_entity,
+                    'title':       object.title,
+                    'description': object.description,
+                }
 
     def get_Q_filter(self):
         delta = timedelta(minutes=getattr(settings, 'DEFAULT_TIME_ALERT_REMIND', 30))
@@ -55,16 +58,18 @@ class ReminderTodo(Reminder):
     model_ = ToDo
 
     def generate_email_subject(self, object):
-        #TODO: i18n
-        return u'rappel concernant une todo Crème CRM à propos de %s' % (object.creme_entity,)
+        return _(u'Reminder concerning a Creme CRM todo related to %s') % object.creme_entity
 
-    def generate_email_body(self, object): #TODO: i18n
-        entity = object.creme_entity
-        return u"""Ce mail est envoyé automatiquement par Crème CRM pour vous rappeler qu'une todo concernant %s va arriver à échéance. \r\n
-            Todo : %s \r\n 
-            dont la description est : %s \r\n.
+    def generate_email_body(self, object):
+        return _(u"""This mail is automatically sent by Crème CRM to remind you that a todo concerning %(entity)s will expire.
+            Todo : %(title)s. 
+            which description is : %(description)s.
 
-            qui est rattachée à la fiche : %s """ % (entity, object.title, object.description, entity)
+             which is related to the entity : %(entity)s""") % {
+                    'entity':      object.creme_entity,
+                    'title':       object.title,
+                    'description': object.description,
+                }
 
     def get_Q_filter(self):
         delta = timedelta(days=1)
@@ -72,7 +77,8 @@ class ReminderTodo(Reminder):
         return Q(deadline__lte=now + delta, is_ok=False)
 
     def ok_for_continue(self):
-        return True if datetime.now().hour > 8 else False
+        #return True if datetime.now().hour > 8 else False
+        return (datetime.now().hour > 8)
 
 
 reminder_alert = ReminderAlert()

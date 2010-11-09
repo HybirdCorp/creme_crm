@@ -7,34 +7,78 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-10-25 11:24+0200\n"
+"POT-Creation-Date: 2010-11-09 11:15+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
-"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Language: \n"
 
-#: blocks.py:32 models/todo.py:63
+#: blocks.py:98 models/todo.py:72
 msgid "Todos"
 msgstr "Todos"
 
-#: blocks.py:57 models/memo.py:48
+#: blocks.py:115 models/memo.py:56
 msgid "Memos"
 msgstr "Mémos"
 
-#: blocks.py:82 models/alert.py:56
+#: blocks.py:132 models/alert.py:61
 msgid "Alerts"
 msgstr "Alertes"
 
-#: blocks.py:107
+#: blocks.py:149
 msgid "Actions in time"
 msgstr "Actions dans les délais"
 
-#: blocks.py:132
+#: blocks.py:166
 msgid "Reactions not in time"
 msgstr "Réactions hors délais"
+
+#: reminders.py:37
+#, python-format
+msgid "Reminder concerning a Creme CRM alert related to %s"
+msgstr "Rappel concernant une alerte Crème CRM à propos de %s"
+
+#: reminders.py:40
+#, python-format
+msgid ""
+"This mail is automatically sent by Crème CRM to remind you that an alert "
+"concerning %(entity)s will expire.\n"
+"            Alert : %(title)s.\n"
+"            which description is : %(description)s.\n"
+"\n"
+"            which is related to the entity : %(entity)s"
+msgstr ""
+"Ce mail est envoyé automatiquement par Crème CRM pour vous rappeler qu'une "
+"alerte concernant %(entity)s va arriver à échéance.\n"
+"            Alerte : %(title)s.\n"
+"            dont la description est : %(description)s.\n"
+"\n"
+"            qui est rattachée à la fiche : %(entity)s"
+
+#: reminders.py:61
+#, python-format
+msgid "Reminder concerning a Creme CRM todo related to %s"
+msgstr "Rappel concernant une todo Crème CRM à propos de %s"
+
+#: reminders.py:64
+#, python-format
+msgid ""
+"This mail is automatically sent by Crème CRM to remind you that a todo "
+"concerning %(entity)s will expire.\n"
+"            Todo : %(title)s. \n"
+"            which description is : %(description)s.\n"
+"\n"
+"             which is related to the entity : %(entity)s"
+msgstr ""
+"Ce mail est envoyé automatiquement par Crème CRM pour vous rappeler qu'une "
+"todo concernant %(entity)s va arriver à échéance.\n"
+"            Todo : %(title)s. \n"
+"            dont la description est : %(description)s.\n"
+"\n"
+"            qui est rattachée à la fiche : %(entity)s"
 
 #: forms/action.py:31 forms/todo.py:31 models/action.py:37 models/todo.py:39
 #: templates/assistants/block_actions_it.html:26
@@ -79,15 +123,15 @@ msgstr "Action cible"
 msgid "Validation date"
 msgstr "Date de validation"
 
-#: models/action.py:45 models/alert.py:44 models/memo.py:35 models/todo.py:40
+#: models/action.py:44 models/alert.py:43 models/memo.py:35 models/todo.py:40
 msgid "Assigned to"
 msgstr "Assigné à"
 
-#: models/action.py:49 templates/assistants/block_actions_it.html:5
+#: models/action.py:48 templates/assistants/block_actions_it.html:5
 msgid "Action"
 msgstr "Action"
 
-#: models/action.py:50 templates/assistants/block_actions_it.html:28
+#: models/action.py:49 templates/assistants/block_actions_it.html:28
 #: templates/assistants/block_actions_nit.html:23
 #: templates/assistants/block_alerts.html:26
 #: templates/assistants/block_memos.html:24
@@ -105,7 +149,7 @@ msgstr "Description"
 msgid "Validated"
 msgstr "Validée"
 
-#: models/alert.py:55 templates/assistants/block_alerts.html:5
+#: models/alert.py:60 templates/assistants/block_alerts.html:5
 msgid "Alert"
 msgstr "Alerte"
 
@@ -117,7 +161,7 @@ msgstr "Contenu"
 msgid "Displayed on homepage"
 msgstr "Affiché en page d'accueil"
 
-#: models/memo.py:47 templates/assistants/block_memos.html:5
+#: models/memo.py:55 templates/assistants/block_memos.html:5
 msgid "Memo"
 msgstr "Mémo"
 
@@ -125,7 +169,7 @@ msgstr "Mémo"
 msgid "Done ?"
 msgstr "Faite ?"
 
-#: models/todo.py:62 templates/assistants/block_todos.html:5
+#: models/todo.py:71 templates/assistants/block_todos.html:5
 msgid "Todo"
 msgstr "Todo"
 
