@@ -54,6 +54,9 @@ class EntityCredentials(Model):
     class Meta:
         app_label = 'creme_core'
 
+    def __unicode__(self):
+        return u'<EntityCredentials: entity="%s", user="%s", value="%s">' % (self.entity, self.user, self.value)
+
     def can_change(self):
         return self.has_perm('creme_core.change_entity') #constant ??
 
@@ -191,6 +194,17 @@ class UserRole(Model):
     def __unicode__(self):
         return self.name
 
+    def delete(self):
+        users = list(User.objects.filter(role=self))
+
+        for user in users:
+            user.role = None
+            user.save()
+
+        EntityCredentials.objects.filter(user__in=users).delete()
+
+        super(UserRole, self).delete()
+
     def _get_admin_4_apps(self):
         if self._admin_4_apps is None:
             self._admin_4_apps = set(app_name for app_name in self.raw_admin_4_apps.split('\n') if app_name)
@@ -217,6 +231,9 @@ class UserRole(Model):
 
     allowed_apps = property(_get_allowed_apps, _set_allowed_apps); del _get_allowed_apps, _set_allowed_apps
 
+    def is_app_allowed_or_administrable(self, app_name):
+        return (app_name in self.allowed_apps) or (app_name in self.admin_4_apps)
+
     def get_admin_4_apps_verbose(self): #for templates
         get_app = creme_registry.get_app
         return [get_app(app_name).verbose_name for app_name in self.admin_4_apps]
@@ -237,17 +254,19 @@ class UserRole(Model):
     def get_perms(self, user, entity):
         """@return (can_view, can_change, can_delete) 3 boolean tuple"""
         raw_perms = SetCredentials.CRED_NONE
+        real_entity_class = ContentType.objects.get_for_id(entity.entity_type_id).model_class()
 
-        setcredentials = self._setcredentials
+        if self.is_app_allowed_or_administrable(real_entity_class._meta.app_label):
+            setcredentials = self._setcredentials
 
-        if setcredentials is None: #TODO: implemnt a true getter get_set_credentials() ??
-            debug('UserRole.get_perms(): Cache MISS for id=%s', self.id)
-            self._setcredentials = setcredentials = list(self.credentials.all())
-        else:
-            debug('UserRole.get_perms(): Cache HIT for id=%s', self.id)
+            if setcredentials is None: #TODO: implement a true getter get_set_credentials() ??
+                debug('UserRole.get_perms(): Cache MISS for id=%s', self.id)
+                self._setcredentials = setcredentials = list(self.credentials.all())
+            else:
+                debug('UserRole.get_perms(): Cache HIT for id=%s', self.id)
 
-        for creds in setcredentials:
-            raw_perms |= creds.get_raw_perms(user, entity)
+            for creds in setcredentials:
+                raw_perms |= creds.get_raw_perms(user, entity)
 
         return SetCredentials.get_perms(raw_perms)
 

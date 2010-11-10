@@ -285,13 +285,13 @@ class ListEditionField(Field):
         self._content = content
         self.widget.content = content
 
-    content = property(lambda self: self._content, _set_content)
+    content = property(lambda self: self._content, _set_content); del _set_content
 
     def _set_only_delete(self, only_delete):
         self._only_delete = only_delete
         self.widget.only_delete = only_delete
 
-    only_delete = property(lambda self: self._only_delete, _set_only_delete)
+    only_delete = property(lambda self: self._only_delete, _set_only_delete); del _set_only_delete
 
 
 class AjaxChoiceField(ChoiceField):

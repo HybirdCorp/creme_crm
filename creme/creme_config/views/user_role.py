@@ -119,7 +119,7 @@ def portal(request):
 @permission_required('creme_config.can_admin')
 def delete(request):
     role = get_object_or_404(UserRole, pk=get_from_POST_or_404(request.POST, 'id'))
-    role.delete() #TODO: overload to udpate credentials
+    role.delete()
 
     return HttpResponse()
 
