@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
 
-#from datetime import datetime
-
 from django.test import TestCase
 from django.core.serializers.json import simplejson
 from django.utils.translation import ugettext as _
@@ -9,8 +7,6 @@ from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 
 from creme_core.models import *
-#from creme_core.management.commands.creme_populate import Command as PopulateCommand
-#from creme_core.constants import REL_SUB_RELATED_TO
 
 
 class ViewsTestCase(TestCase):
@@ -26,7 +22,6 @@ class ViewsTestCase(TestCase):
         self.assert_(logged, 'Not logged in')
 
     def setUp(self):
-        #PopulateCommand().handle(application=['creme_core', 'reports'])
         self.password = 'test'
         self.user = None
 
@@ -39,8 +34,8 @@ class ViewsTestCase(TestCase):
             self.fail(str(e))
 
         self.assertEqual(200, response.status_code)
-        #[('http://testserver/creme_logout/', 302), ('http://testserver/creme_login/', 302)]
-        self.assert_(2, len(response.redirect_chain))
+        self.assertEqual(2,   len(response.redirect_chain))
+
         last = response.redirect_chain[-1]
         self.assert_(last[0].endswith('/creme_login/'))
         self.assertEqual(302, last[1])

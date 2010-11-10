@@ -70,13 +70,14 @@ class UserRoleEditForm(UserRoleCreateForm):
         super(UserRoleEditForm, self).__init__(*args, **kwargs)
 
         fields = self.fields
-        instance = self.instance
+        role   = self.instance
 
-        self._creds = instance.credentials.all() #get_credentials() ?? problem with cache for updating SetCredentials lines
+        self._creds = role.credentials.all() #get_credentials() ?? problem with cache for updating SetCredentials lines
+        self._apps  = role.allowed_apps | role.admin_4_apps
 
         fields['set_credentials'].content = [unicode(creds) for creds in self._creds]
-        fields['allowed_apps'].initial = instance.allowed_apps
-        fields['admin_4_apps'].initial = instance.admin_4_apps
+        fields['allowed_apps'].initial = role.allowed_apps
+        fields['admin_4_apps'].initial = role.admin_4_apps
 
     def save(self, *args, **kwargs):
         role = super(UserRoleEditForm, self).save(*args, **kwargs)
@@ -87,7 +88,9 @@ class UserRoleEditForm(UserRoleCreateForm):
         if creds2del:
             SetCredentials.objects.filter(pk__in=creds2del).delete()
 
+        if creds2del or (self._apps != role.allowed_apps | role.admin_4_apps):
             debug('Role "%s" has changed => update credentials', role)
+
             for user in User.objects.filter(role=role):
                 user.role = role
                 user.update_credentials()
@@ -112,13 +115,15 @@ class AddCredentialsForm(CremeModelForm):
     def save(self, *args, **kwargs):
         instance = self.instance
         get_data = self.cleaned_data.get
+        role     = self.role
 
-        instance.role = self.role
+        instance.role = role
         instance.set_value(get_data('can_view'), get_data('can_change'), get_data('can_delete'))
 
         super(AddCredentialsForm, self).save(*args, **kwargs)
 
-        for user in User.objects.filter(role=self.role):
+        for user in User.objects.filter(role=role):
+            debug('Role "%s" has changed => update credentials for user: %s', role, user)
             user.update_credentials()
 
         return instance

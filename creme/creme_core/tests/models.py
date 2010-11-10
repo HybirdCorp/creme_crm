@@ -275,7 +275,9 @@ class CredentialsTestCase(TestCase):
     #this tests contribute_to_model too
     def test_role_esetall01(self): # CRED_VIEW + ESET_ALL
         try:
-            role = UserRole.objects.create(name='Coder')
+            role = UserRole(name='Coder')
+            role.allowed_apps = ['creme_core']
+            role.save()
             self.user.role = role
             self.user.save()
             SetCredentials.objects.create(role=role,
@@ -298,9 +300,27 @@ class CredentialsTestCase(TestCase):
         self.failIf(self.other_user.has_perm('creme_core.change_entity', entity4))
         self.failIf(self.other_user.has_perm('creme_core.delete_entity', entity4))
 
+    def test_role_esetall01__noappcreds(self): #app is not allowed -> no creds
+        role = UserRole.objects.create(name='Coder')
+        self.user.role = role
+        self.user.save()
+        SetCredentials.objects.create(role=role,
+                                        value=SetCredentials.CRED_VIEW,
+                                        set_type=SetCredentials.ESET_ALL) #helper ??
+
+        entity3 = CremeEntity.objects.create(user=self.user) #created by user -> user can read, other_user has no creds
+        self.failIf(self.user.has_perm('creme_core.view_entity', entity3))
+        self.failIf(self.user.has_perm('creme_core.change_entity', entity3))
+        self.failIf(self.user.has_perm('creme_core.delete_entity', entity3))
+
+        entity4 = CremeEntity.objects.create(user=self.other_user)
+        self.failIf(self.user.has_perm('creme_core.view_entity',  entity4))
+
     def test_role_esetall02(self): # CRED_CHANGE + ESET_ALL
         try:
-            role = UserRole.objects.create(name='Coder')
+            role = UserRole(name='Coder')
+            role.admin_4_apps = ['creme_core']
+            role.save()
             self.user.role = role
             self.user.save()
             SetCredentials.objects.create(role=role,
@@ -320,15 +340,14 @@ class CredentialsTestCase(TestCase):
         self.failIf(self.user.has_perm('creme_core.delete_entity',  entity4))
 
     def test_role_esetall03(self): # CRED_DELETE + ESET_ALL
-        try:
-            role = UserRole.objects.create(name='Coder')
-            self.user.role = role
-            self.user.save()
-            SetCredentials.objects.create(role=role,
-                                          value=SetCredentials.CRED_DELETE,
-                                          set_type=SetCredentials.ESET_ALL)
-        except Exception, e:
-            self.fail(str(e))
+        role = UserRole(name='Coder')
+        role.allowed_apps = ['creme_core']
+        role.save()
+        self.user.role = role
+        self.user.save()
+        SetCredentials.objects.create(role=role,
+                                      value=SetCredentials.CRED_DELETE,
+                                      set_type=SetCredentials.ESET_ALL)
 
         entity3 = CremeEntity.objects.create(user=self.user)
         self.failIf(self.user.has_perm('creme_core.view_entity',    entity3))
@@ -341,15 +360,15 @@ class CredentialsTestCase(TestCase):
         self.assert_(self.user.has_perm('creme_core.delete_entity', entity4))
 
     def test_role_esetown01(self): # CRED_VIEW + ESET_OWN
-        try:
-            role = UserRole.objects.create(name='Coder')
-            self.user.role = role
-            self.user.save()
-            SetCredentials.objects.create(role=role,
-                                          value=SetCredentials.CRED_VIEW,
-                                          set_type=SetCredentials.ESET_OWN)
-        except Exception, e:
-            self.fail(str(e))
+        role = UserRole(name='Coder')
+        role.allowed_apps = ['creme_core']
+        role.admin_4_apps = ['creme_core']
+        role.save()
+        self.user.role = role
+        self.user.save()
+        SetCredentials.objects.create(role=role,
+                                      value=SetCredentials.CRED_VIEW,
+                                      set_type=SetCredentials.ESET_OWN)
 
         entity3 = CremeEntity.objects.create(user=self.user)
         self.assert_(self.user.has_perm('creme_core.view_entity',  entity3))
@@ -362,15 +381,14 @@ class CredentialsTestCase(TestCase):
         self.failIf(self.user.has_perm('creme_core.delete_entity', entity4))
 
     def test_role_esetown02(self): # ESET_OWN + CRED_VIEW/CRED_CHANGE
-        try:
-            role = UserRole.objects.create(name='Coder')
-            self.user.role = role
-            self.user.save()
-            SetCredentials.objects.create(role=role,
-                                          value=SetCredentials.CRED_CHANGE | SetCredentials.CRED_DELETE,
-                                          set_type=SetCredentials.ESET_OWN)
-        except Exception, e:
-            self.fail(str(e))
+        role = UserRole(name='Coder')
+        role.allowed_apps = ['creme_core', 'foobar']
+        role.save()
+        self.user.role = role
+        self.user.save()
+        SetCredentials.objects.create(role=role,
+                                      value=SetCredentials.CRED_CHANGE | SetCredentials.CRED_DELETE,
+                                      set_type=SetCredentials.ESET_OWN)
 
         entity3 = CremeEntity.objects.create(user=self.user)
         self.failIf(self.user.has_perm('creme_core.view_entity',    entity3))
@@ -383,18 +401,17 @@ class CredentialsTestCase(TestCase):
         self.failIf(self.user.has_perm('creme_core.delete_entity', entity4))
 
     def test_role_multiset01(self): # ESET_OWN + ESET_ALL
-        try:
-            role = UserRole.objects.create(name='Coder')
-            self.user.role = role
-            self.user.save()
-            SetCredentials.objects.create(role=role,
-                                          value=SetCredentials.CRED_VIEW,
-                                          set_type=SetCredentials.ESET_ALL)
-            SetCredentials.objects.create(role=role,
-                                          value=SetCredentials.CRED_CHANGE | SetCredentials.CRED_DELETE,
-                                          set_type=SetCredentials.ESET_OWN)
-        except Exception, e:
-            self.fail(str(e))
+        role = UserRole(name='Coder')
+        role.allowed_apps = ['foobar', 'creme_core']
+        role.save()
+        self.user.role = role
+        self.user.save()
+        SetCredentials.objects.create(role=role,
+                                      value=SetCredentials.CRED_VIEW,
+                                      set_type=SetCredentials.ESET_ALL)
+        SetCredentials.objects.create(role=role,
+                                      value=SetCredentials.CRED_CHANGE | SetCredentials.CRED_DELETE,
+                                      set_type=SetCredentials.ESET_OWN)
 
         entity3 = CremeEntity.objects.create(user=self.user)
         self.assert_(self.user.has_perm('creme_core.view_entity',   entity3))
@@ -407,16 +424,15 @@ class CredentialsTestCase(TestCase):
         self.failIf(self.user.has_perm('creme_core.delete_entity', entity4))
 
     def test_role_updating01(self):
-        try:
-            role = UserRole.objects.create(name='Coder')
-            self.user.role = role
-            self.user.save()
-            SetCredentials.objects.create(role=role,
-                                          value=SetCredentials.CRED_VIEW,
-                                          set_type=SetCredentials.ESET_ALL)
-        except Exception, e:
-            self.fail(str(e))
-
+        role = UserRole(name='Coder')
+        role.allowed_apps = ['foobar', 'quux']
+        role.admin_4_apps = ['stuff', 'creme_core']
+        role.save()
+        self.user.role = role
+        self.user.save()
+        SetCredentials.objects.create(role=role,
+                                      value=SetCredentials.CRED_VIEW,
+                                      set_type=SetCredentials.ESET_ALL)
 
         #the entities created before the role was set should have right credentials too
         self.user.update_credentials()
@@ -432,7 +448,9 @@ class CredentialsTestCase(TestCase):
         self.failIf(self.user.has_perm('creme_core.view_entity', self.entity1))
 
     def test_role_updating02(self):
-        role1 = UserRole.objects.create(name='View all')
+        role1 = UserRole(name='View all')
+        role1.allowed_apps = ['creme_core']
+        role1.save()
         SetCredentials.objects.create(role=role1,
                                       value=SetCredentials.CRED_VIEW,
                                       set_type=SetCredentials.ESET_ALL)
@@ -447,7 +465,9 @@ class CredentialsTestCase(TestCase):
         self.assert_(self.user.has_perm('creme_core.view_entity',  entity3))
         self.failIf(self.user.has_perm('creme_core.change_entity', entity3))
 
-        role2 = UserRole.objects.create(name='Isolated worker')
+        role2 = UserRole(name='Isolated worker')
+        role2.allowed_apps = ['creme_core']
+        role2.save()
         SetCredentials.objects.create(role=role2,
                                       value=SetCredentials.CRED_VIEW|SetCredentials.CRED_CHANGE|SetCredentials.CRED_DELETE,
                                       set_type=SetCredentials.ESET_OWN)
@@ -576,7 +596,9 @@ class CredentialsTestCase(TestCase):
         self.assert_(self.user.has_perm('creme_core.can_admin'))
 
     def test_delete01(self): #delete role
-        role = UserRole.objects.create(name='Coder')
+        role = UserRole(name='Coder')
+        role.allowed_apps = ['creme_core']
+        role.save()
         SetCredentials.objects.create(role=role,
                                         value=SetCredentials.CRED_VIEW,
                                         set_type=SetCredentials.ESET_ALL)
@@ -608,7 +630,7 @@ class CredentialsTestCase(TestCase):
         self.entity1.delete()
         self.assertEqual([self.entity2.id], [creds.entity_id for creds in EntityCredentials.objects.all()])
 
-    def test_multisave01(self): #old lines were not cleaned if an Entiywas re-save
+    def test_multisave01(self): #old lines were not cleaned if an Entiy was re-save
         role = UserRole.objects.create(name='Coder')
         SetCredentials.objects.create(role=role,
                                         value=SetCredentials.CRED_VIEW,
