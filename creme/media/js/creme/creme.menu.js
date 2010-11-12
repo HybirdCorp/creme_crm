@@ -19,31 +19,26 @@
 /*
  * Requires : jQuery
  *            creme
- *            
  */
 
 creme.menu = {};
-
 creme.menu.actions = {};
 
-creme.menu.actions.flatMenu = function(trigger_selector, content_selector){
+creme.menu.actions.flatMenu = function(trigger_selector, content_selector) {
     $(trigger_selector).menu({
             content: $(content_selector).html(),
             showSpeed: 400
     });
-    
-    $('[role=menuitem]','[aria-labelledby="'+trigger_selector.replace('#','')+'"]')
-    .live('menu-item-selected', function(e, menu){
+
+    $('[role=menuitem]','[aria-labelledby="' + trigger_selector.replace('#', '') + '"]')
+    .live('menu-item-selected', function(e, menu) {
         e.stopImmediatePropagation();
 
-        var $a = $('a:first',this);
+        var $a = $('a:first', this);
 
-        if($a.hasClass('confirm_delete'))
-        {
+        if($a.hasClass('confirm_delete')) { //TODO: this way is not really powerful (can't be easily extended from python side...)
             creme.utils.confirmDelete2($a.attr('href'));
-        }
-        else
-        {
+        } else {
             creme.utils.go_to($a.attr('href'));
         }
     });
