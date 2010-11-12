@@ -21,16 +21,17 @@
 from django.db.models import Q
 from django.http import HttpResponse, Http404
 from django.shortcuts import get_object_or_404
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import ugettext_lazy as _, ugettext
 from django.contrib.auth.decorators import login_required, permission_required
 
+from creme_core.models.entity import EntityAction
 from creme_core.models.header_filter import HeaderFilterItem, HFI_RELATION, HFI_VOLATILE
 from creme_core.views.generic import add_entity, edit_entity, view_entity_with_template, list_view
 
 from persons.models import Contact
 
 from events.models import Event
-from events.forms.event import EventForm, AddContactsToEventForm
+from events.forms.event import EventForm, AddContactsToEventForm, RelatedOpportunityCreateForm
 from events.constants import *
 
 
@@ -70,6 +71,20 @@ PRES_STATUS_MAP = {
     }
 
 
+def build_get_actions(event, entity):
+    """Build bound method to overload 'get_actions()' method of CremeEntities"""
+    def _get_actions(user):
+        return {
+                'default': EntityAction(entity.get_absolute_url(), ugettext(u"See"), entity.can_view(user), icon="view_16.png"),
+                'others':  [EntityAction('/events/event/%s/add_opportunity_with/%s' % (event.id, entity.id),
+                                         ugettext(u"Create an opportunity"),
+                                         user.has_perm('opportunities.add_opportunity'), #TODO: other credentials ??
+                                         icon="opportunity_16.png",
+                                        ),
+                           ]
+               }
+    return _get_actions
+
 class ListViewPostProcessor(object):
     def __init__(self, event):
         self.event = event
@@ -96,6 +111,9 @@ class ListViewPostProcessor(object):
         hfi = HeaderFilterItem(name='presence_management', title=_(u'Presence'), type=HFI_VOLATILE)
         hfi.volatile_render = self.presence_render
         hfitems.append(hfi)
+
+        for entity in context['entities'].object_list:
+            entity.get_actions = build_get_actions(self.event, entity)
 
     def has_relation(self, entity, rtype_id):
         id_ = self.event.id
@@ -213,3 +231,15 @@ def set_presence_status(request, event_id, contact_id):
     event.set_presence_status(contact, status, request.user)
 
     return HttpResponse('', mimetype='text/javascript')
+
+@login_required
+@permission_required('events')
+@permission_required('opportunities')
+@permission_required('opportunities.add_opportunity')
+def add_opportunity(request, event_id, contact_id):
+    event   = get_object_or_404(Event, pk=event_id)
+    contact = get_object_or_404(Contact, pk=contact_id)
+
+    #TODO: link credentials ??
+
+    return add_entity(request, RelatedOpportunityCreateForm, extra_initial={'event': event, 'contact': contact})

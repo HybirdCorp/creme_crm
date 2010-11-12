@@ -15,6 +15,10 @@ REL_OBJ_CAME_EVENT = 'events-object_came_event'
 REL_SUB_NOT_CAME_EVENT = 'events-subject_not_came_event'
 REL_OBJ_NOT_CAME_EVENT = 'events-object_not_came_event'
 
+REL_SUB_GEN_BY_EVENT = 'events-subject_gen_by_event'
+REL_OBJ_GEN_BY_EVENT = 'events-object_gen_by_event'
+
+
 #Invitation status
 INV_STATUS_NOT_INVITED  = 1
 INV_STATUS_NO_ANSWER    = 2

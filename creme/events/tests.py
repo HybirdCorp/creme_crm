@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from django.test import TestCase
+from django.utils.translation import ugettext as _
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 
@@ -457,4 +458,4 @@ class EventsTestCase(TestCase):
                                           }
                                    )
         self.assertEqual(200, response.status_code)
-        self.assertFormError(response, 'form', 'related_contacts', [u'Contact  Casca Miura is present twice.'])
+        self.assertFormError(response, 'form', 'related_contacts', [_(u'Contact %s is present twice.') % casca])
