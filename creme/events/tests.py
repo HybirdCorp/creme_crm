@@ -459,3 +459,5 @@ class EventsTestCase(TestCase):
                                    )
         self.assertEqual(200, response.status_code)
         self.assertFormError(response, 'form', 'related_contacts', [_(u'Contact %s is present twice.') % casca])
+
+    #TODO: add a test for related opportunity creation

@@ -32,10 +32,10 @@ def portal(request):
         @Permissions : Acces or Admin to billing app
     """
     stats = (
-                (_('Total number of documents'), Base.objects.all().count()),
-                (_('Number of invoices'),        Invoice.objects.all().count()),
-                (_('Number of quotes'),          Quote.objects.all().count()),
-                (_('Number of salesorders'),     SalesOrder.objects.all().count()),
+                (_('Total number of documents'), Base.objects.count()),
+                (_('Number of invoices'),        Invoice.objects.count()),
+                (_('Number of quotes'),          Quote.objects.count()),
+                (_('Number of salesorders'),     SalesOrder.objects.count()),
             )
 
     return app_portal(request, 'billing', 'billing/portal.html',

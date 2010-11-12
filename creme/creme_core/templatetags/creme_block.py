@@ -20,6 +20,7 @@
 
 from re import compile as compile_re
 
+from django.db.models import Q
 from django.template import TemplateSyntaxError, Node as TemplateNode
 from django.template.defaulttags import TemplateLiteral
 from django.template.loader import get_template
@@ -315,13 +316,12 @@ def do_detailview_blocks_importer(parser, token):
 class DetailviewBlocksImporterNode(TemplateNode):
     def render(self, context):
         blocks_manager = BlocksManager.get(context)
-
-        BCI_filter = BlockConfigItem.objects.filter
-
-        block_ids = BCI_filter(content_type=context['object'].entity_type).order_by('order').values_list('block_id', flat=True)
+        bc_items = BlockConfigItem.objects.filter(Q(content_type=None) | Q(content_type=context['object'].entity_type)) \
+                                          .order_by('order')
+        block_ids = [bc_item.block_id for bc_item in bc_items if bc_item.content_type_id is not None]
 
         if not block_ids:
-            block_ids = BCI_filter(content_type=None).order_by('order').values_list('block_id', flat=True)
+            block_ids = [bc_item.block_id for bc_item in bc_items] #we fallback to the default config.
 
         blocks_manager.add_group('detailview_blocks', *block_registry.get_blocks([id_ for id_ in block_ids if id_])) #TODO: use CONSTANT
 
@@ -362,20 +362,24 @@ class PortalBlocksImporterNode(TemplateNode):
     def render(self, context):
         blocks_manager = BlocksManager.get(context)
         ct_ids = context[self.ct_ids_varname]
+        bc_items = BlockConfigItem.objects.filter(Q(content_type=None) | Q(content_type__in=ct_ids), on_portal=True) \
+                                          .order_by('order')
 
-        #blocks from all ct are merged (merge algo is quite stupid but it is satisfactory)
-        BCI_filter    = BlockConfigItem.objects.filter
-        block_ids     = []
-        block_ids_set = set() #ordered set would be cool....
+        ctypes_filter     = set(ct_ids)
+        configured_ctypes = set(bci.content_type_id for bci in bc_items)
+        if not all(ct_id in configured_ctypes for ct_id in ct_ids):
+            ctypes_filter.add(None) #NB: at least one ContentType has no specific configuration => we use default config too.
 
-        for ct_id in ct_ids:
-            ct_id_filter = ct_id if BCI_filter(content_type__id=ct_id)[:1] else None  #TODO: use exists() in django 1.2
-            ct_block_ids = BCI_filter(content_type__id=ct_id_filter, on_portal=True).order_by('order').values_list('block_id', flat=True)
+        #Blocks for all ContentTypes are merged (merging algo is quite stupid but it is satisfactory)
+        block_ids   = []
+        used_blocks = set()
 
-            for block_id in ct_block_ids:
-                if block_id not in block_ids_set:
-                    block_ids_set.add(block_id)
-                    block_ids.append(block_id)
+        for bc_item in bc_items:
+            block_id = bc_item.block_id
+
+            if (block_id not in used_blocks) and (bc_item.content_type_id in ctypes_filter):
+                used_blocks.add(block_id)
+                block_ids.append(block_id)
 
         blocks_manager.add_group('portal_blocks', *block_registry.get_blocks([id_ for id_ in block_ids if id_])) #TODO: use CONSTANT
 
