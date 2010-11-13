@@ -35,10 +35,10 @@
 
 {% block detail_view_left_1 %}
     <table class="table_detail_view ui-corner-all">
-        {% include "creme_core/templatetags/widgets/block_header_beg.html" %}
+        {% get_block_header colspan=2 %}
             <th style="width: 80%;" class="collapser">{% get_basic_block_header _("Opportunity information") 'infos_48.png' _('Information') %}</th>
             <th style="width: 20%;" align="right"></th>
-        {% include "creme_core/templatetags/widgets/block_header_end.html" %}
+        {% end_get_block_header %}
         <tbody class="collapsable">
             <!--{% cycle "block_header_line_dark" "block_header_line_light" as header_color %}
                 {% cycle "block_line_dark" "block_line_light" as row_color %}-->

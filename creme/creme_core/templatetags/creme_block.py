@@ -35,12 +35,53 @@ from creme_core.blocks import properties_block, relations_block
 
 register = Library()
 
+
+#-------------------------------------------------------------------------------
+_COLSPAN_ARG = 'colspan='
+
+@register.tag(name="get_block_header")
+def do_block_header(parser, token):
+    """Eg:{% get_block_header colspan=8 %}
+            <th style="width: 80%;" class="collapser">My title</th>
+          {% end_get_block_header %}
+    """
+    try:
+        tag_name, arg = token.contents.split(None, 1) # Splitting by None == splitting by spaces.
+    except ValueError:
+        raise TemplateSyntaxError("%r tag requires arguments" % token.contents.split()[0])
+
+    if not arg.startswith(_COLSPAN_ARG):
+        raise TemplateSyntaxError("%r tag argument is on the model: %s12" % (tag_name, _COLSPAN_ARG))
+
+    try:
+        colspan = int(arg[len(_COLSPAN_ARG):])
+    except Exception, e:
+        raise TemplateSyntaxError(str(e))
+
+    nodelist = parser.parse(('end_get_block_header',))
+    parser.delete_first_token()
+
+    return HeaderNode(nodelist, colspan)
+
+class HeaderNode(TemplateNode):
+    def __init__(self, nodelist, colspan):
+        self.header_tpl = get_template('creme_core/templatetags/widgets/block_header.html')
+        self.nodelist = nodelist
+        self.colspan  = colspan
+
+    def render(self, context):
+        context['content'] = self.nodelist.render(context)
+        context['colspan'] = self.colspan
+
+        return self.header_tpl.render(context)
+
+#-------------------------------------------------------------------------------
+
 @register.inclusion_tag('creme_core/templatetags/widgets/block_reload_uri.html', takes_context=True)
 def get_block_reload_uri(context): #{% include 'creme_core/templatetags/widgets/block_reload_uri.html' %} instead ??
     return context
 
 @register.inclusion_tag('creme_core/templatetags/widgets/block_title.html', takes_context=True)
-#def get_block_header(context, singular_title, plural_title, icon='', short_title='', count=None):
 def get_block_title(context, singular_title, plural_title, icon='', short_title='', count=None):
     if count is None:
         count = context['page'].paginator.count
@@ -53,7 +94,6 @@ def get_block_title(context, singular_title, plural_title, icon='', short_title=
 
     return context
 
-#@register.inclusion_tag('creme_core/templatetags/widgets/block_header.html', takes_context=True)
 @register.inclusion_tag('creme_core/templatetags/widgets/block_title.html', takes_context=True)
 def get_basic_block_header(context, title, icon='', short_title=''):
     context.update({

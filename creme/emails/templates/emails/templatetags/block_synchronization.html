@@ -1,10 +1,8 @@
 {% extends "emails/templatetags/_block_synchronization.html" %}
 {% load i18n %}
-{% load creme_block %}
-{% load creme_core_tags %}
-
+{% load creme_block %}{% load creme_core_tags %}
 {% block top_header %}
-    {% include "creme_core/templatetags/widgets/block_header_beg.html" %}
+    {% get_block_header colspan=7 %}
         <th style="width: 80%;" class="collapser" align="left">{% get_block_title  _('%s Incoming email to treat') _('%s Incoming emails to treat') 'email_48.png' _('Emails') %}</th>
         <th style="width: 10%;" align="right">
             <div class="buttons">
@@ -30,5 +28,5 @@
                 </a>
             </div>
         </th>
-    {% include "creme_core/templatetags/widgets/block_header_end.html" %}
+    {% end_get_block_header %}
 {% endblock %}

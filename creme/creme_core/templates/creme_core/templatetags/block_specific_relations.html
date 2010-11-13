@@ -4,7 +4,7 @@
     creme.include('{{MEDIA_URL}}js/models/relations.js', 'js');
 </script>
 <table  class="table_detail_view ui-corner-all" id={{block_name}}>
-    {% include "creme_core/templatetags/widgets/block_header_beg.html" %}
+    {% get_block_header colspan=2 %}
         <th align="left" style="width: 80%;" class="collapser">
             {% blocktrans with relation_type.predicate as predicate %}Entities related to: {{predicate}}{% endblocktrans %}
         </th>
@@ -16,7 +16,7 @@
                 </a>
             </div>
         </th>
-    {% include "creme_core/templatetags/widgets/block_header_end.html" %}
+    {% end_get_block_header %}
     <tbody class="collapsable">
         {% if page.paginator.count %}
             <tr>

@@ -1,13 +1,13 @@
 {% load i18n %}
 {% load creme_block %}
 <table class="table_detail_view ui-corner-all" id={{block_name}}>
-    {% include "creme_core/templatetags/widgets/block_header_beg.html" %}
+    {% get_block_header colspan=4 %}
         <th style="width: 80%;" class="collapser" align="left">{% get_block_title _('%s Configured type of resource') _('%s Configured types of resource') %}</th>
         <th style="width: 20%;" align="right">
             <div class="buttons">
             </div>
         </th>
-    {% include "creme_core/templatetags/widgets/block_header_end.html" %}
+    {% end_get_block_header %}
     <tbody class="collapsable">
         <tr>
             <th class="block_header_line_light" style="font-size:14px;" align="left" colspan="4">
