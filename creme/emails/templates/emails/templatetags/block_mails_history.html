@@ -5,7 +5,7 @@
     creme.include('/site_media/js/models/emails.js','js');
 </script>
 <table class="table_detail_view ui-corner-all" id={{block_name}}>
-    {% include "creme_core/templatetags/widgets/block_header_beg.html" %}
+    {% get_block_header colspan=6 %}
         <th style="width: 80%;" class="collapser" align="left">{% get_block_title _("%s Email in the history") _("%s Emails in the history") 'email_48.png' _('Emails') %}</th>
         <th style="width: 20%;" align="right">
             <div class="buttons">
@@ -15,7 +15,7 @@
                 </a>
             </div>
         </th>
-    {% include "creme_core/templatetags/widgets/block_header_end.html" %}
+    {% end_get_block_header %}
     <tbody class="collapsable">
         {% if page.paginator.count %}
             <tr>

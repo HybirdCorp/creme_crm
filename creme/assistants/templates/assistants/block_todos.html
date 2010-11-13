@@ -1,7 +1,7 @@
 {% load i18n %}
 {% load creme_core_tags %}{% load creme_block %}
 <table class="table_detail_view ui-corner-all" id={{block_name}}>
-    {% include "creme_core/templatetags/widgets/block_header_beg.html" %}
+    {% get_block_header colspan=8 %}
         <th style="width: 80%;" class="collapser">{% get_block_title _('%s Todo') _('%s Todos') 'memo_48.png' _('Todo') %}</th>
         <th style="width: 20%;" align="right">
             {% if object %}
@@ -11,7 +11,7 @@
                 </div>
             {% endif %}
         </th>
-    {% include "creme_core/templatetags/widgets/block_header_end.html" %}
+    {% end_get_block_header %}
     <tbody class="collapsable">
         {% if page.paginator.count %}
             <tr>
