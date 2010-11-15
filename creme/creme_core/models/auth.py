@@ -290,15 +290,22 @@ class SetCredentials(Model):
     #entity              = ForeignKey(CremeEntity, null=True) #id_fiche_role_ou_equipe = PositiveIntegerField( blank=True, null=True) ??
 
     CRED_NONE   = 0
-    CRED_ADD    = 0b0001 #to be used....
-    CRED_VIEW   = 0b0010
-    CRED_CHANGE = 0b0100
-    CRED_DELETE = 0b1000
+    #For python 2.5 compatibility
+    #CRED_ADD    = 0b0001 #to be used....
+    CRED_ADD    = 1 #to be used....
+    #CRED_VIEW   = 0b0010
+    CRED_VIEW   = 2
+    #CRED_CHANGE = 0b0100
+    CRED_CHANGE = 4
+    #CRED_DELETE = 0b1000
+    CRED_DELETE = 8
     #CRED_LINK ??
 
     #ESET means 'Entities SET'
-    ESET_ALL = 0b0001 #all entities
-    ESET_OWN = 0b0010 #his own entities
+    #ESET_ALL = 0b0001 #all entities
+    ESET_ALL = 1 #all entities
+    #ESET_OWN = 0b0010 #his own entities
+    ESET_OWN = 2
     #DROIT_TEF_FICHE_UNIQUE = "fiche_unique"
     #DROIT_TEF_FICHES_EQUIPE = "les_fiches_de_l_equipe"
     #DROIT_TEF_SA_FICHE = "sa_fiche"
