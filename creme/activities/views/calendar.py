@@ -37,16 +37,24 @@ from creme_core.utils import get_from_POST_or_404
 from activities.models import Activity, Calendar
 from activities.utils import get_last_day_of_a_month
 from activities.forms.calendar import CalendarForm
+from activities.constants import ACTIVITYTYPE_INDISPO
 
 
 @login_required
 @permission_required('activities')
-def get_users_calendar(request, usernames):
+def get_users_calendar(request, usernames, calendars_ids):
+    user = request.user
+    if user.username not in usernames:
+        calendars_ids = []
+        
+    cal_ids = [str(id) for id in calendars_ids]
     return render_to_response('activities/calendar.html',
                               {
-                                'events_url':    "/activities/calendar/users_activities/%s" % ",".join(usernames),
+                                'events_url':    "/activities/calendar/users_activities/%s/%s" % (",".join(usernames), ",".join(cal_ids)),
                                 'users':         User.objects.all().order_by('username'),
-                                'current_users': User.objects.filter(username__in=usernames)
+                                'current_users': User.objects.filter(username__in=usernames),
+                                'my_calendars' : Calendar.objects.filter(user=user),
+                                'current_calendars': cal_ids,
                               },
                               context_instance=RequestContext(request))
 
@@ -69,46 +77,75 @@ def getFormattedDictFromAnActivity(activity):
             "allDay" :      is_all_day
             }
 
+@login_required
+@permission_required('activities')
 def user_calendar(request):
 #    return getUserCalendar(request, request.POST.get('username', request.user.username))
-    return get_users_calendar(request, request.POST.getlist('user_selected') or [request.user.username])
+    user = request.user
+    POST = request.POST
+    POST_getlist = POST.getlist
+    Calendar.get_user_default_calendar(user)#Don't really need the calendar but this create it in case of the user hasn't a calendar
+    return get_users_calendar(request, 
+                              POST_getlist('user_selected') or [user.username],
+                              POST_getlist('calendar_selected'))# or [Calendar.get_user_default_calendar(user).pk])
 
 def my_calendar(request):
-    return get_users_calendar(request, request.user.username)
+    user = request.user
+    return get_users_calendar(request, user.username, [Calendar.get_user_default_calendar(user).pk])
 
 @login_required
 @permission_required('activities')
-def get_users_activities(request, usernames):
+def get_users_activities(request, usernames, calendars_ids):
     users = User.objects.filter(username__in=usernames.split(','))
+    GET = request.GET
 
-    if request.GET.has_key("start"):
+    cals_ids = []
+    for cal_id in calendars_ids.split(','):
+        if cal_id:
+            try:
+                cals_ids.append(long(cal_id))
+            except ValueError:
+                continue
+
+
+    users_cal_ids  = set(Calendar.objects.filter(is_public=True, user__in=users.filter(~Q(pk=request.user.pk))).values_list('id', flat=True))
+    users_cal_ids |= set(cals_ids)
+
+    if GET.has_key("start"):
         try:
-            start = datetime.fromtimestamp(float(request.GET['start']))
+            start = datetime.fromtimestamp(float(GET['start']))
         except:
             start = datetime.now().replace(day=1)
     else:
         start = datetime.now().replace(day=1)
 
-    if request.GET.has_key("end") :
+    if GET.has_key("end"):
         try:
-            end = datetime.fromtimestamp(float(request.GET['end']))
+            end = datetime.fromtimestamp(float(GET['end']))
         except:
             end = get_last_day_of_a_month(start)
     else:
         end = get_last_day_of_a_month(start)
 
-    current_activities = Q(start__range=(start, end))
-    overlap_activities = Q(end__gt=start)
+    current_activities  = Q(start__range=(start, end))
+    overlap_activities  = Q(end__gt=start)
     overlap_activities2 = Q(start__lt=end)
-    user_activities = Q(user__in=users)
+    time_range = current_activities | overlap_activities & overlap_activities2
 
-    #TODO: user__in=users twice ???? can be rewrite better....
-    list_activities = Activity.objects.filter(user__in=users).filter(current_activities | overlap_activities & overlap_activities2)
-    list_activities = list_activities.filter(user_activities & Q(is_deleted=False))
-    #list_activities = filter_can_read_objects(request, list_activities)
+#    user_activities = Q(user__in=users)
+
+    list_activities = Activity.objects.filter(calendaractivitylink__calendar__in=users_cal_ids)
+#    list_activities = list_activities.filter(current_activities | overlap_activities & overlap_activities2)
+    list_activities = list_activities.filter(time_range)
+    list_activities = list_activities.filter(Q(is_deleted=False))
+    list_activities |= Activity.objects.filter(type__id=ACTIVITYTYPE_INDISPO).filter(time_range & Q(user__in=users))
+
+#    list_activities = Activity.objects.filter(user__in=users).filter(current_activities | overlap_activities & overlap_activities2)
+#    list_activities = list_activities.filter(user_activities & Q(is_deleted=False))
+#    #list_activities = filter_can_read_objects(request, list_activities)
     list_activities = EntityCredentials.filter(request.user, list_activities)
 
-    return HttpResponse(JSONEncoder().encode([getFormattedDictFromAnActivity(activity) for activity in list_activities.all()]),
+    return HttpResponse(JSONEncoder().encode([getFormattedDictFromAnActivity(activity) for activity in list_activities]),
                         mimetype="text/javascript")
 
 @login_required

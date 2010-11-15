@@ -42,6 +42,7 @@ class Calendar(CremeModel):
         app_label = 'activities'
         verbose_name = _(u"Calendar")
         verbose_name_plural = _(u"Calendars")
+        ordering = ['name']
 
     def __unicode__(self):
         return self.name

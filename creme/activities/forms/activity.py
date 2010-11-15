@@ -193,8 +193,13 @@ class _ActivityCreateBaseForm(CremeEntityForm):
         _clean_interval(self.cleaned_data)
         self.check_activities()
 
-        if cleaned_data.get('my_participation') and not cleaned_data.get('my_calendar'):
+        my_participation = cleaned_data.get('my_participation')
+        if my_participation and not cleaned_data.get('my_calendar'):
             errors['my_calendar'] = ErrorList([_(u"If you participe, you have to choose one of your calendars.")])
+
+        if not my_participation and not cleaned_data.get('user_participation'):
+            errors['my_participation']   = ErrorList([_(u"You or the assigned user has to participate")])
+            errors['user_participation'] = ErrorList([_(u"You or the assigned user has to participate")])
 
         return self.cleaned_data
 
@@ -236,12 +241,14 @@ class _ActivityCreateBaseForm(CremeEntityForm):
 
         # Participation of event's owner
         if cleaned_data['user_participation']:
+            user = cleaned_data['user']
             try:
-                me = Contact.objects.get(is_user=cleaned_data['user'])
+                me = Contact.objects.get(is_user=user)
             except Contact.DoesNotExist:
                 pass
             else:
                 Relation.create(me, REL_SUB_PART_2_ACTIVITY, instance)
+                CalendarActivityLink.objects.get_or_create(calendar=Calendar.get_user_default_calendar(user), activity=instance)
 
         _save_participants(cleaned_data['participants'], instance)
 

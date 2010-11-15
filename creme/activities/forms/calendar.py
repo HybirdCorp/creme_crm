@@ -23,10 +23,23 @@ from creme_core.forms.base import CremeModelForm
 
 from activities.models.activity import Calendar
 
-class CalendarForm(CremeModelForm):
+class _CalendarForm(CremeModelForm):
     class Meta:
         model = Calendar
         exclude = ('id', 'is_custom')
+
+    def save(self):
+        instance = self.instance
+        instance.is_custom = True
+
+        if instance.is_default:
+            Calendar.objects.filter(user=self.cleaned_data['user']).update(is_default=False)
+
+        super(_CalendarForm, self).save()
+        return instance
+
+
+class CalendarForm(_CalendarForm):
 
     def __init__(self, user=None, *args, **kwargs):
         super(CalendarForm, self).__init__(*args, **kwargs)
@@ -36,11 +49,13 @@ class CalendarForm(CremeModelForm):
             self.fields['user'].empty_label  = None
 
     def save(self):
-        instance = self.instance
-        instance.is_custom = True
-
-        if instance.is_default:
-            Calendar.objects.filter(user=self.cleaned_data['user']).update(is_default=False)
-
         super(CalendarForm, self).save()
-        return instance
+
+
+class CalendarConfigForm(_CalendarForm):
+
+    def __init__(self, *args, **kwargs):
+        super(CalendarConfigForm, self).__init__(*args, **kwargs)
+
+    def save(self):
+        super(CalendarConfigForm, self).save()
