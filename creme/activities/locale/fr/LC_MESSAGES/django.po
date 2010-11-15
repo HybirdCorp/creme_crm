@@ -699,7 +699,7 @@ msgstr "%s Calendrier"
 #: templates/activities/templatetags/block_user_calendars.html:6
 #python-format
 msgid "%s Calendars"
-msgstr "Calendriers"
+msgstr "%s Calendriers"
 
 #: templates/activities/templatetags/block_user_calendars.html:14
 #: templates/activities/templatetags/block_user_calendars.html:15
