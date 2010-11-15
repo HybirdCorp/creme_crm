@@ -240,6 +240,10 @@ def range_timestamp(date1, date2):
 def sub(object1, object2):
     return object1 - object2
 
+@register.filter(name="str")
+def _str(object1):
+    return str(object1)
+
 # TODO : abs name gives a template syntax error
 @register.filter(name="absolute")
 def absolute(integer):

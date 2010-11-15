@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-11-08 18:49+0100\n"
+"POT-Creation-Date: 2010-11-15 18:05+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -49,7 +49,7 @@ msgstr "Ajouter un appel téléphonique"
 msgid "Add a task"
 msgstr "Ajouter une tâche"
 
-#: creme_core_register.py:33 models/activity.py:105
+#: creme_core_register.py:33 models/activity.py:106
 #: templates/activities/portal.html:5
 msgid "Activities"
 msgstr "Activités"
@@ -135,23 +135,23 @@ msgstr "Finie"
 msgid "Delayed"
 msgstr "En retard"
 
-#: populate.py:59 models/activity.py:226
-#: templates/activities/calendar.html:196
+#: populate.py:59 models/activity.py:227
+#: templates/activities/calendar.html:241
 #: templates/activities/templatetags/button_add_task.html:4
 #: templates/activities/templatetags/button_add_task.html:9
 msgid "Task"
 msgstr "Tâche"
 
-#: populate.py:60 models/activity.py:199
-#: templates/activities/calendar.html:184
+#: populate.py:60 models/activity.py:200
+#: templates/activities/calendar.html:229
 #: templates/activities/frags/button_add_meeting_without_relation.html:3
 #: templates/activities/templatetags/button_add_meeting.html:4
 #: templates/activities/templatetags/button_add_meeting.html:9
 msgid "Meeting"
 msgstr "Rendez-vous"
 
-#: populate.py:61 models/activity.py:252
-#: templates/activities/calendar.html:190
+#: populate.py:61 models/activity.py:253
+#: templates/activities/calendar.html:235
 #: templates/activities/frags/button_add_phonecall_without_relation.html:3
 #: templates/activities/templatetags/button_add_phonecall.html:4
 #: templates/activities/templatetags/button_add_phonecall.html:9
@@ -178,19 +178,19 @@ msgstr "Indisponibilité"
 msgid "Activity view"
 msgstr "Vue d'Activité"
 
-#: populate.py:69 models/activity.py:35 models/activity.py:74
-#: models/activity.py:204
-#: templates/activities/templatetags/block_future_activities.html:30
+#: populate.py:69 models/activity.py:35 models/activity.py:75
+#: models/activity.py:205
+#: templates/activities/templatetags/block_future_activities.html:29
 #: templates/activities/templatetags/block_user_calendars.html:21
 msgid "Name"
 msgstr "Nom"
 
-#: populate.py:70 forms/activity.py:143 forms/activity.py:315
-#: forms/indisponibility.py:33 models/activity.py:92
+#: populate.py:70 forms/activity.py:143 forms/activity.py:322
+#: forms/indisponibility.py:33 models/activity.py:93
 msgid "Start"
 msgstr "Début"
 
-#: populate.py:71 forms/indisponibility.py:34 models/activity.py:93
+#: populate.py:71 forms/indisponibility.py:34 models/activity.py:94
 msgid "End"
 msgstr "Fin"
 
@@ -211,11 +211,11 @@ msgstr ""
 "%(participant)s participe déjà à l'activité «%(activity)s» entre %(start)s "
 "et %(end)s."
 
-#: forms/activity.py:144 forms/activity.py:316
+#: forms/activity.py:144 forms/activity.py:323
 msgid "Start time"
 msgstr "Heure de début"
 
-#: forms/activity.py:145 forms/activity.py:317
+#: forms/activity.py:145 forms/activity.py:324
 msgid "End time"
 msgstr "Heure de fin"
 
@@ -267,19 +267,23 @@ msgstr "Est-ce que le responsable de cette fiche participe à ce rendez-vous ?"
 msgid "Currently"
 msgstr "Actuellement"
 
-#: forms/activity.py:197
+#: forms/activity.py:198
 msgid "If you participe, you have to choose one of your calendars."
 msgstr "Si vous participez, vous devez choisir un de vos calendrier"
 
-#: forms/activity.py:276
+#: forms/activity.py:201 forms/activity.py:202
+msgid "You or the assigned user has to participate"
+msgstr "Vous ou l'utilisateur assigné à la fiche doit participer"
+
+#: forms/activity.py:283
 msgid "Who / What"
 msgstr "Qui / Quoi"
 
-#: forms/activity.py:277
+#: forms/activity.py:284
 msgid "Relation with the activity"
 msgstr "Relation avec l'activité"
 
-#: forms/activity.py:303
+#: forms/activity.py:310
 msgid "Add participants to them be linked to a commercial approach."
 msgstr ""
 "Ajoutez des participants pour qu'ils soient liés à une démarche commerciale"
@@ -320,258 +324,283 @@ msgstr "Par défaut ?"
 msgid "Calendar owner"
 msgstr "Proprietaire du calendrier"
 
-#: models/activity.py:44
+#: models/activity.py:44 templates/activities/calendar.html:4
 #: templates/activities/templatetags/block_user_calendars.html:6
 msgid "Calendars"
 msgstr "Calendriers"
 
-#: models/activity.py:65
+#: models/activity.py:66
 #, python-format
 msgid "Default %(user)s's calendar"
 msgstr "Calendrier de %(user)s par défaut"
 
-#: models/activity.py:75
+#: models/activity.py:76
 msgid "Color"
 msgstr "Couleur"
 
-#: models/activity.py:76
+#: models/activity.py:77
 msgid "Default day duration"
 msgstr "Durée en jours par défaut"
 
-#: models/activity.py:77
+#: models/activity.py:78
 msgid "Default hour duration"
 msgstr "Durée en heures/minutes/secondes par défaut"
 
-#: models/activity.py:85 models/activity.py:95
+#: models/activity.py:86 models/activity.py:96
 msgid "Activity type"
 msgstr "Type d'activité"
 
-#: models/activity.py:86
+#: models/activity.py:87
 msgid "Activity types"
 msgstr "Types d'activité"
 
-#: models/activity.py:91
+#: models/activity.py:92
 msgid "Title"
 msgstr "Titre"
 
-#: models/activity.py:94 models/activity.py:205 models/activity.py:232
+#: models/activity.py:95 models/activity.py:206 models/activity.py:233
 msgid "Description"
 msgstr "Description"
 
-#: models/activity.py:97
+#: models/activity.py:98
 msgid "All day ?"
 msgstr "Jour entier ?"
 
-#: models/activity.py:104
+#: models/activity.py:105
 msgid "Activity"
 msgstr "Activité"
 
-#: models/activity.py:191
+#: models/activity.py:192
 msgid "Meeting place"
 msgstr "Lieu de rendez-vous"
 
-#: models/activity.py:200
+#: models/activity.py:201
 msgid "Meetings"
 msgstr "Rendez-vous"
 
-#: models/activity.py:212 models/activity.py:213
+#: models/activity.py:213 models/activity.py:214
 msgid "Task status"
 msgstr "Statut de tâche"
 
-#: models/activity.py:217
+#: models/activity.py:218
 msgid "Duration (in hour)"
 msgstr "Durée (en heures)"
 
-#: models/activity.py:218
+#: models/activity.py:219
 msgid "Status"
 msgstr "Statut"
 
-#: models/activity.py:227
+#: models/activity.py:228
 msgid "Tasks"
 msgstr "Tâches"
 
-#: models/activity.py:231
+#: models/activity.py:232
 msgid "Call type"
 msgstr "Type d'appel"
 
-#: models/activity.py:239 models/activity.py:244
+#: models/activity.py:240 models/activity.py:245
 msgid "Phonecall type"
 msgstr "Type d'appel"
 
-#: models/activity.py:240
+#: models/activity.py:241
 msgid "Phonecall types"
 msgstr "Types d'appel"
 
-#: models/activity.py:253
+#: models/activity.py:254
 msgid "Phone calls"
 msgstr "Appels Téléphoniques"
 
-#: models/activity.py:257
+#: models/activity.py:258
 msgid "Selected Calendar"
 msgstr "Calendrier sélectionné"
 
-#: models/activity.py:258
+#: models/activity.py:259
 msgid "Selected Activity"
 msgstr "Activité sélectionnée"
 
-#: models/activity.py:262
+#: models/activity.py:263
 msgid "Calendar activity link"
 msgstr "Lien calendrier activité"
 
-#: models/activity.py:263
+#: models/activity.py:264
 msgid "Calendars activities links"
 msgstr "Lien calendrier activité"
 
-#: templates/activities/calendar.html:17
+#: templates/activities/calendar.html:18
 msgid "You do not have permission, the change will not be saved."
 msgstr ""
 "Vous n'avez pas l'autorisation, la modification ne sera pas sauvegardée."
 
-#: templates/activities/calendar.html:21
+#: templates/activities/calendar.html:22
 msgid "Error, please reload the page."
 msgstr "Erreur, veuillez recharger la page."
 
-#: templates/activities/calendar.html:48
+#: templates/activities/calendar.html:49
 msgid "All day"
 msgstr "Jour entier"
 
-#: templates/activities/calendar.html:71
+#: templates/activities/calendar.html:72
 msgid "Today"
 msgstr "Aujourd'hui"
 
-#: templates/activities/calendar.html:72
+#: templates/activities/calendar.html:73
 msgid "Month"
 msgstr "Mois"
 
-#: templates/activities/calendar.html:73
+#: templates/activities/calendar.html:74
 msgid "Week"
 msgstr "Semaine"
 
-#: templates/activities/calendar.html:74
+#: templates/activities/calendar.html:75
 msgid "Day"
 msgstr "Jour"
 
-#: templates/activities/calendar.html:76
+#: templates/activities/calendar.html:77
 msgid "January"
 msgstr "Janvier"
 
-#: templates/activities/calendar.html:76
+#: templates/activities/calendar.html:77
 msgid "February"
 msgstr "Février"
 
-#: templates/activities/calendar.html:76
+#: templates/activities/calendar.html:77
 msgid "March"
 msgstr "Mars"
 
-#: templates/activities/calendar.html:77
+#: templates/activities/calendar.html:78
 msgid "April"
 msgstr "Avril"
 
-#: templates/activities/calendar.html:77
+#: templates/activities/calendar.html:78
 msgid "May"
 msgstr "Mai"
 
-#: templates/activities/calendar.html:77
+#: templates/activities/calendar.html:78
 msgid "June"
 msgstr "Juin"
 
-#: templates/activities/calendar.html:78
+#: templates/activities/calendar.html:79
 msgid "July"
 msgstr "Juillet"
 
-#: templates/activities/calendar.html:78
+#: templates/activities/calendar.html:79
 msgid "August"
 msgstr "Août"
 
-#: templates/activities/calendar.html:78
+#: templates/activities/calendar.html:79
 msgid "September"
 msgstr "Septembre"
 
-#: templates/activities/calendar.html:79
+#: templates/activities/calendar.html:80
 msgid "October"
 msgstr "Octobre"
 
-#: templates/activities/calendar.html:79
+#: templates/activities/calendar.html:80
 msgid "November"
 msgstr "Novembre"
 
-#: templates/activities/calendar.html:79
+#: templates/activities/calendar.html:80
 msgid "December"
 msgstr "Décembre"
 
-#: templates/activities/calendar.html:80
+#: templates/activities/calendar.html:81
 msgid "Sunday"
 msgstr "Dimanche"
 
-#: templates/activities/calendar.html:80
+#: templates/activities/calendar.html:81
 msgid "Monday"
 msgstr "Lundi"
 
-#: templates/activities/calendar.html:80
+#: templates/activities/calendar.html:81
 msgid "Tuesday"
 msgstr "Mardi"
 
-#: templates/activities/calendar.html:81
+#: templates/activities/calendar.html:82
 msgid "Wesnesday"
 msgstr "Mercredi"
 
-#: templates/activities/calendar.html:81
+#: templates/activities/calendar.html:82
 msgid "Thursday"
 msgstr "Jeudi"
 
-#: templates/activities/calendar.html:81
+#: templates/activities/calendar.html:82
 msgid "Friday"
 msgstr "Vendredi"
 
-#: templates/activities/calendar.html:82
+#: templates/activities/calendar.html:83
 msgid "Saturday"
 msgstr "Samedi"
 
-#: templates/activities/calendar.html:159
+#: templates/activities/calendar.html:160
 msgid "Show the users list"
-msgstr "Montrer la liste des utilisateurs"
+msgstr "Afficher la liste des utilisateurs"
 
-#: templates/activities/calendar.html:164
+#: templates/activities/calendar.html:165
 msgid "Hide the users list"
 msgstr "Cacher la liste des utilisateurs"
 
-#: templates/activities/calendar.html:185
+#: templates/activities/calendar.html:178
+msgid "Show the list of my calendars"
+msgstr "Afficher la liste de mes calendriers"
+
+#: templates/activities/calendar.html:183
+#: templates/activities/calendar.html:286
+msgid "Hide the list of my calendars"
+msgstr "Cacher la liste de mes calendriers"
+
+#: templates/activities/calendar.html:230
 #: templates/activities/frags/button_add_meeting_without_relation.html:4
 #: templates/activities/templatetags/button_add_meeting.html:5
 #: templates/activities/templatetags/button_add_meeting.html:10
 msgid "Create a meeting"
 msgstr "Créer un rendez-vous"
 
-#: templates/activities/calendar.html:191
+#: templates/activities/calendar.html:236
 #: templates/activities/frags/button_add_phonecall_without_relation.html:4
 #: templates/activities/templatetags/button_add_phonecall.html:5
 #: templates/activities/templatetags/button_add_phonecall.html:10
 msgid "Create a phone call"
 msgstr "Créer un appel téléphonique"
 
-#: templates/activities/calendar.html:197
+#: templates/activities/calendar.html:242
 #: templates/activities/templatetags/button_add_task.html:5
 #: templates/activities/templatetags/button_add_task.html:10
 msgid "Create a task"
 msgstr "Créer une tâche"
 
-#: templates/activities/calendar.html:202
+#: templates/activities/calendar.html:254
 msgid "See calendars of :"
 msgstr "Voir les calendriers de :"
 
-#: templates/activities/calendar.html:207
+#: templates/activities/calendar.html:258
 msgid "Hide the list of users"
 msgstr "Cacher la liste des utilisateurs"
 
-#: templates/activities/calendar.html:208
-msgid "See the calendar of selected users"
-msgstr "Voir le calendrier des utilisateurs séléctionnés"
+#: templates/activities/calendar.html:259
+msgid "Select all users"
+msgstr "Sélectionner tout les utilisateurs"
 
-#: templates/activities/calendar.html:227
+#: templates/activities/calendar.html:260
+msgid "See public calendars of selected users"
+msgstr "Voir les calendriers publics des utilisateurs sélectionnés"
+
+#: templates/activities/calendar.html:282
+msgid "My calendars :"
+msgstr "Mes calendriers"
+
+#: templates/activities/calendar.html:287
+msgid "Select all my calendars"
+msgstr "Sélectionner tout mes calendriers"
+
+#: templates/activities/calendar.html:288
+msgid "See my selected calendars"
+msgstr "Voir mes calendriers sélectionnés"
+
+#: templates/activities/calendar.html:311
 msgid "Calendar of :"
 msgstr "Calendrier de :"
 
-#: templates/activities/calendar.html:229
+#: templates/activities/calendar.html:313
 msgid "Loading..."
 msgstr "Chargement..."
 
@@ -582,6 +611,21 @@ msgstr "Portail Activités"
 #: templates/activities/portal.html:11
 msgid "Go to the calendar"
 msgstr "Aller au calendrier"
+
+#: templates/activities/view_activity.html:37
+#: templates/activities/view_activity_popup.html:41
+msgid "Other Information"
+msgstr "Autres Informations"
+
+#: templates/activities/view_activity.html:37
+#: templates/activities/view_activity_popup.html:41
+msgid "Information"
+msgstr "Information"
+
+#: templates/activities/view_activity.html:42
+#: templates/activities/view_activity_popup.html:46
+msgid "Present in calendars"
+msgstr "Présent dans les calendriers de :"
 
 #: templates/activities/view_activity_popup.html:33
 msgid "Full detailview"
@@ -614,24 +658,24 @@ msgstr "%s Activités futures liées"
 msgid "Link to an activity"
 msgstr "Lier à une activité"
 
-#: templates/activities/templatetags/block_future_activities.html:31
+#: templates/activities/templatetags/block_future_activities.html:30
 msgid "Subject(s)"
 msgstr "Sujet(s)"
 
-#: templates/activities/templatetags/block_future_activities.html:32
+#: templates/activities/templatetags/block_future_activities.html:31
 msgid "Participant(s)"
 msgstr "Participant(s)"
 
-#: templates/activities/templatetags/block_future_activities.html:33
+#: templates/activities/templatetags/block_future_activities.html:32
 msgid "Related to"
 msgstr "Relié(s)"
 
-#: templates/activities/templatetags/block_future_activities.html:34
+#: templates/activities/templatetags/block_future_activities.html:33
 #: templates/activities/templatetags/block_user_calendars.html:25
 msgid "Delete"
 msgstr "Supprimer"
 
-#: templates/activities/templatetags/block_future_activities.html:63
+#: templates/activities/templatetags/block_future_activities.html:62
 #: templates/activities/templatetags/block_user_calendars.html:46
 msgid "No future related activity for the moment"
 msgstr "Aucune activité future liée pour le moment"
@@ -691,13 +735,15 @@ msgstr "Ajouter un sujet"
 msgid "No subject for the moment"
 msgstr "Aucun sujet enregistré pour le moment"
 
+# python-format
 #: templates/activities/templatetags/block_user_calendars.html:6
-#python-format
+#, python-format
 msgid "%s Calendar"
 msgstr "%s Calendrier"
 
+# python-format
 #: templates/activities/templatetags/block_user_calendars.html:6
-#python-format
+#, python-format
 msgid "%s Calendars"
 msgstr "%s Calendriers"
 
@@ -738,7 +784,7 @@ msgstr "Ajout de participants pour l'activité <%s>"
 msgid "Adding subjects to activity <%s>"
 msgstr "Ajout de sujets pour l'activité <%s>"
 
-#: views/calendar.py:170
+#: views/calendar.py:207
 msgid "Add a calendar"
 msgstr "Ajouter un calendrier"
 

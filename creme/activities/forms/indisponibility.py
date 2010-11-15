@@ -62,4 +62,5 @@ class IndisponibilityCreateForm(CremeEntityForm):
 
     def save(self):
         self.instance.type_id = ACTIVITYTYPE_INDISPO
+        self.instance.end = self.cleaned_data['end'].replace(hour=23, minute=59, second=59, microsecond=59)
         return super(IndisponibilityCreateForm, self).save()

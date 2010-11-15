@@ -3,6 +3,8 @@
 {% load creme_core_tags %}
 {% load creme_block %}
 
+{% block page_title %} - {% trans "Configuration"%} > {{app_verbose_name}} > {% blocktrans with model|get_meta_value:'verbose_name' as model_name %}Type : {{model_name}}{% endblocktrans %}{% endblock %}
+
 {% block title %}
     <a href="/creme_config/">{% trans "Configuration"%} > </a>
     <a href="/creme_config/{{app_name}}/portal/">{{app_verbose_name}} > </a>
