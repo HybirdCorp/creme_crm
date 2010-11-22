@@ -28,8 +28,8 @@ from creme_core.gui.block import BlocksManager
 def get_logo_url(request):
     return {'logo_url': settings.LOGO_URL}
 
-def get_css_theme(request):
-    return {'CSS_THEME_NAME': getattr(settings, "CSS_THEME_NAME", "/")}
+#def get_css_theme(request):
+    #return {'CSS_THEME_NAME': getattr(settings, "CSS_THEME_NAME", "/")}
 
 def get_today(request):
     return {'today': datetime.today()}

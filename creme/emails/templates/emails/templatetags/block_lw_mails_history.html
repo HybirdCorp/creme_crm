@@ -1,4 +1,5 @@
 {% load i18n %}
+{% load media %}
 {% load creme_block %}
 <table class="table_detail_view ui-corner-all" id={{block_name}}>
     {% get_block_header colspan=4 %}
@@ -21,7 +22,7 @@
                     <td class="{{row_color}}">{{mail.get_status_str}}</td>
                     <td class="{{row_color}}">
                         <a class="button_link" onclick="creme.utils.showInnerPopup('/emails/mails_history/{{mail.pk}}')">
-                            <img src="{{MEDIA_URL}}images/view_22.png" border="0" title="{% trans "Details" %}" alt="{% trans "Details" %}" />
+                            <img src="{% media_url 'images/view_22.png' %}" border="0" title="{% trans "Details" %}" alt="{% trans "Details" %}" />
                         </a>
                     </td>
                 </tr>

@@ -75,11 +75,11 @@ def build_get_actions(event, entity):
     """Build bound method to overload 'get_actions()' method of CremeEntities"""
     def _get_actions(user):
         return {
-                'default': EntityAction(entity.get_absolute_url(), ugettext(u"See"), entity.can_view(user), icon="view_16.png"),
+                'default': EntityAction(entity.get_absolute_url(), ugettext(u"See"), entity.can_view(user), icon="images/view_16.png"),
                 'others':  [EntityAction('/events/event/%s/add_opportunity_with/%s' % (event.id, entity.id),
                                          ugettext(u"Create an opportunity"),
                                          user.has_perm('opportunities.add_opportunity'), #TODO: other credentials ??
-                                         icon="opportunity_16.png",
+                                         icon="images/opportunity_16.png",
                                         ),
                            ]
                }

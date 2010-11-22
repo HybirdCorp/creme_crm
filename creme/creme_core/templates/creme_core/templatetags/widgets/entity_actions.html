@@ -1,4 +1,5 @@
 {% load i18n %}
+{% load media %}
 <script type="text/javascript">
     $(function() {
         creme.menu.actions.flatMenu('#actions_button_{{id}}', '#actions_div_{{id}}');
@@ -9,10 +10,10 @@
     <a href="#actions_div_{{id}}" id="actions_button_{{id}}">
         {% with actions.default as action %}
             {% if action %}
-                <img src="{{MEDIA_URL}}/images/small_down_arrow_16.png"/>
+                <img src="{% media_url 'images/small_down_arrow_16.png' %}"/>
                 </a>|
                 <a href="{{action.url}}" class="default-action">
-                    {% if action.icon %}<img src="{{MEDIA_URL}}/images/{{action.icon}}" />{% endif %}
+                    {% if action.icon %}<img src="{% media_url action.icon %}" />{% endif %}
                     {{action.text}}
             {% else %}
                 {% trans "Actions" %}
@@ -26,12 +27,12 @@
             <li>
                 {% if action.is_allowed %}
                     <a href="{{action.url}}" {{action.attrs}}>
-                        {% if action.icon %}<img src="{{MEDIA_URL}}/images/{{action.icon}}" />{% endif %}
+                        {% if action.icon %}<img src="{% media_url action.icon %}" />{% endif %}
                         {{action.text}}
                     </a>
                 {% else %}
                     <span class=" forbidden">
-                        {% if action.icon %}<img src="{{MEDIA_URL}}/images/{{action.icon}}" />{% endif %}
+                        {% if action.icon %}<img src="{% media_url action.icon %}" />{% endif %}
                         {{action.text}} ({% trans "forbidden" %})
                     </span>
                 {% endif %}

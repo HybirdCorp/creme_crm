@@ -1,13 +1,14 @@
 {% extends "creme_core/generics/portal.html" %}
 
 {% load i18n %}
+{% load media %}
 
-{% block logo %}<img src="{{MEDIA_URL}}images/calendar_64.png" alt="{% trans "Activities" %}"/>{% endblock %}
+{% block logo %}<img src="{% media_url 'images/calendar_64.png' %}" alt="{% trans "Activities" %}"/>{% endblock %}
 {% block title %}{% trans "Activities portal" %}{% endblock %}
 
 {% block header_link %}
     <a href="/activities/calendar/user">
         {% trans "Calendar" %}
-        <img src="{{MEDIA_URL}}images/right_arrow_64.png" title="{% trans "Go to the calendar" %}" alt="{% trans "Go to the calendar" %}"/>
+        <img src="{% media_url 'images/right_arrow_64.png' %}" title="{% trans "Go to the calendar" %}" alt="{% trans "Go to the calendar" %}"/>
     </a>
 {% endblock %}

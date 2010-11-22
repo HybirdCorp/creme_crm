@@ -1,6 +1,6 @@
 {% extends "creme_core/generics/view_entity.html" %}
-
 {% load i18n %}
+{% load media %}
 {% load creme_core_tags %}{% load creme_block %}
 
 {% block extra_menu_buttons %}
@@ -9,12 +9,12 @@
             {% has_perm_to change object as has_perm %}
             {% if has_perm %}
                 <a class="menu_button" href="/projects/project/{{object.id}}/close" >
-                    <img src="{{MEDIA_URL}}images/cancel_32.png" border="0" title="{% trans "Close project" %}" alt="{% trans "Close project" %}" />
+                    <img src="{% media_url 'images/cancel_32.png' %}" border="0" title="{% trans "Close project" %}" alt="{% trans "Close project" %}" />
                     {% trans "Close project" %}
                 </a>
             {% else %}
                 <span class="menu_button forbidden" title="{% trans "forbidden" %}">
-                    <img src="{{MEDIA_URL}}images/cancel_32.png" border="0" title="{% trans "Close project" %}" alt="{% trans "Close project" %}" />
+                    <img src="{% media_url 'images/cancel_32.png' %}" border="0" title="{% trans "Close project" %}" alt="{% trans "Close project" %}" />
                     {% trans "Close project" %}
                 </span>
             {% endif %}
@@ -22,7 +22,7 @@
     {% endif %}
 {% endblock %}
 
-{% block logo %}<img src="{{MEDIA_URL}}images/project_64.png" alt="{% trans "Project" %}"/>{% endblock %}
+{% block logo %}<img src="{% media_url 'images/project_64.png' %}" alt="{% trans "Project" %}"/>{% endblock %}
 
 {% block creme_blocks_import %}
     {{block.super}}

@@ -1,4 +1,5 @@
 {% load i18n %}
+{% load media %}
 {% load creme_core_tags %}
 <!--{% cycle "block_header_line_light" "block_header_line_dark" as header_row %}
     {% cycle "block_line_light" "block_line_dark" as row_color %}-->
@@ -6,7 +7,7 @@
     <thead>
         <tr>
             <th align="center" colspan="2">
-                <img src="{{MEDIA_URL}}images/infos_48.png" alt="{% trans "Image information" %}" title="{% trans "Image information" %}">
+                <img src="{% media_url 'images/infos_48.png' %}" alt="{% trans "Image information" %}" title="{% trans "Image information" %}">
                 {% trans "Image information" %}
             </th>
         </tr>

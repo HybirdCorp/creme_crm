@@ -1,9 +1,10 @@
 {% load i18n %}
+{% load media %}
 {% load creme_block %}
 {% if edit_line_perm %}
     <a onclick="creme.utils.innerPopupNReload('{{edit_url}}', {% get_block_reload_uri %});">
-        <img src="{{MEDIA_URL}}images/edit_22.png" border="0" title="{% trans "Edit" %}" alt="{% trans "Edit" %}" />
+        <img src="{% media_url 'images/edit_22.png' %}" border="0" title="{% trans "Edit" %}" alt="{% trans "Edit" %}" />
     </a>
 {% else %}
-    <img class="forbidden" src="{{MEDIA_URL}}images/edit_22.png" border="0" title="{% trans "Can't edit" %}" alt="{% trans "Can't edit" %}" />
+    <img class="forbidden" src="{% media_url 'images/edit_22.png' %}" border="0" title="{% trans "Can't edit" %}" alt="{% trans "Can't edit" %}" />
 {% endif %}

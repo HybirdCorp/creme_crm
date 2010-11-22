@@ -1,4 +1,5 @@
 {% load i18n %}
+{% load media %}
 {% load creme_core_tags %}{% load creme_block %}{% load creme_widgets %}
 {% has_perm_to change object as has_perm %}
 <table class="table_detail_view ui-corner-all" id={{block_name}}>
@@ -9,12 +10,12 @@
                 {% comment %}{% get_line_adder at_url '/graphs/graph/{{object.pk}}/roots/add' with_label _("Add root nodes from existing entities") with_perms has_perm %}{% endcomment %}
                 {% if has_perm %}
                     <a class="add" href="/graphs/graph/{{object.pk}}/roots/add">
-                        <img src="{{MEDIA_URL}}images/add_22.png" border="0" title="{% trans "Add root nodes" %}" alt="{% trans "Add root nodes" %}" />
+                        <img src="{% media_url 'images/add_22.png' %}" border="0" title="{% trans "Add root nodes" %}" alt="{% trans "Add root nodes" %}" />
                         {% trans "Add root nodes from existing entities" %}
                     </a>
                 {% else %}
                     <span class="add forbidden">
-                        <img src="{{MEDIA_URL}}images/add_22.png" border="0" title="{% trans "Can't add" %}" alt="{% trans "Can't add" %}" />
+                        <img src="{% media_url 'images/add_22.png' %}" border="0" title="{% trans "Can't add" %}" alt="{% trans "Can't add" %}" />
                         {% trans "Add root nodes from existing entities" %}
                     </span>
                 {% endif %}

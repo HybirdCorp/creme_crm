@@ -1,4 +1,5 @@
 {% load i18n %}
+{% load media %}
 {% load creme_core_tags %}{% load creme_block %}
 {% has_perm_to change object as has_perm %}
 <script type="text/javascript">
@@ -38,16 +39,16 @@
                     <td class="{{row_color}}">{{sending.formatstatus}}</td>
                     <td class="{{row_color}}" align="center" valign="center" style="width:10%;">
                         <a onclick="creme.utils.showInnerPopup('/sms/campaign/sending/{{sending.pk}}', {width:700})">
-                            <img src="{{MEDIA_URL}}images/view_22.png" border="0" title="{% trans "Details" %}" alt="{% trans "Details" %}" />
+                            <img src="{% media_url 'images/view_22.png' %}" border="0" title="{% trans "Details" %}" alt="{% trans "Details" %}" />
                         </a>
                     </td>
                     <td class="{{row_color}}" align="center" valign="center" style="width:10%;">
                         {% if has_perm %}
                             <a onclick="sms_sendings.sync({{sending.pk}});">
-                                <img src="{{MEDIA_URL}}images/refresh_22.png" border="0" title="{% trans "Synchronize" %}" alt="{% trans "Synchronize" %}" />
+                                <img src="{% media_url 'images/refresh_22.png' %}" border="0" title="{% trans "Synchronize" %}" alt="{% trans "Synchronize" %}" />
                             </a>
                         {% else %}
-                            <img class="forbidden" src="{{MEDIA_URL}}images/refresh_22.png" border="0" title="{% trans "Can't synchronize" %}" alt="{% trans "Can't synchronize" %}" />
+                            <img class="forbidden" src="{% media_url 'images/refresh_22.png' %}" border="0" title="{% trans "Can't synchronize" %}" alt="{% trans "Can't synchronize" %}" />
                         {% endif %}
                     </td>
                     <td class="{{row_color}}" align="center" valign="center" style="width:10%;">

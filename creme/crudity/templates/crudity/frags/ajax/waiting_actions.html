@@ -1,19 +1,14 @@
 {% load i18n %}
-{% load creme_core_tags %}
-{% load creme_block %}
+{% load media %}
+{% load creme_core_tags %}{% load creme_block %}
 <table class="table_header" cellpadding="0" cellspacing="0">
     <tr>
-        <td width="5%"><!--<img src="{{MEDIA_URL}}images/_64.png" alt="{% trans "Waiting actions" %}"/>--></td>
-        <td width="70%">
-            <h1>
-                {{frontend_verbose}} - {% trans "Waiting actions" %}
-            </h1>
-        </td>
-
+        <td width="5%">{% comment %}<img src="{% media_url 'images/actions_64.png' %}" alt="{% trans "Waiting actions" %}"/>{% endcomment %}</td>
+        <td width="70%"><h1>{{frontend_verbose}} - {% trans "Waiting actions" %}</h1></td>
         <td width="25%" align="right">
             <span>
                 <a onclick="creme.reload_synchronisation($('#sub_content'), '/crudity/email/waiting_actions');">
-                    <img src="{{MEDIA_URL}}images/refresh_64.png" title="{% trans "Refresh" %}" alt="{% trans "Refresh" %}"/>
+                    <img src="{% media_url 'images/refresh_64.png' %}" title="{% trans "Refresh" %}" alt="{% trans "Refresh" %}"/>
                 </a>&nbsp;
             </span>
         </td>

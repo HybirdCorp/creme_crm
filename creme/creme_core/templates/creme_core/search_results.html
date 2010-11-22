@@ -1,5 +1,6 @@
 {% comment %}{% extends "creme_core/base.html" %}{% endcomment %}
 {% load i18n %}
+{% load media %}
 {% load creme_core_tags %}
 
 {% comment %}{% block page_title %} - {% trans 'Search results' %} : {{results|length}} résultat{{ results|pluralize }}{% endblock %}{% endcomment %}
@@ -7,7 +8,7 @@
 {% comment %}{% block content %}{% endcomment %}
     <table class="table_header" cellpadding="0" cellspacing="0">
         <tr>
-            <td width="5%"><img src="{{MEDIA_URL}}images/looking_glass_64.png" alt="{% trans "Search" %}"/></td>
+            <td width="5%"><img src="{% media_url 'images/looking_glass_64.png' %}" alt="{% trans "Search" %}"/></td>
             <td width="95%">
                 <h1>{% blocktrans count total as result_count %}Search results : {{result_count}} result{% plural %}Search results : {{result_count}} results{% endblocktrans %}</h1>
             </td>

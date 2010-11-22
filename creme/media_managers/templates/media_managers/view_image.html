@@ -1,13 +1,14 @@
 {% extends "creme_core/generics/view_entity.html" %}
-
+{% load media %}
 {% load creme_block %}
 
-{% block logo %}<img src="{{MEDIA_URL}}images/image_64.png" alt=""/>{% endblock %}
+{% block logo %}<img src="{% media_url 'images/image_64.png' %}" alt=""/>{% endblock %}
 
 {% block button_tab %}{% endblock %}
 
 {% block detail_view_left_1 %}
     <a href="/download_file/{{ object.image }}" alt="{{ object.image }}"><img src="{{MEDIA_URL}}{{ object.image }}" width="100%" /></a>
+    {% comment %}<a href="/download_file/{{ object.image }}" alt="{{ object.image }}"><img src="{% media_url object.image %}" width="100%" /></a>{% endcomment %}
 {% endblock %}
 
 {% block detail_view_right_1 %}

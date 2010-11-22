@@ -1,5 +1,3 @@
-{% load i18n %}
-<img src="{{MEDIA_URL}}images/pin.png" alt="{% trans 'Open' %}" class="pinmenu"/>
-<ul>
-    {{menu}}
-</ul>
+{% load i18n %}{% load media %}
+<img src="{% media_url 'images/pin.png' %}" alt="{% trans 'Open' %}" class="pinmenu"/>
+<ul>{{menu}}</ul>

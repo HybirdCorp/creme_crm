@@ -13,6 +13,8 @@ django.wsgi
 .settings*
 
 creme/media/upload/*/*
+creme/media/static/*
+creme/_generated_media_names.py
 
 #netbeans users
 nbproject/*

@@ -1,20 +1,21 @@
 {% extends "creme_core/generics/view_entity.html" %}
 {% load i18n %}
+{% load media %}
 {% load creme_block %}{% load activities_tags %}
 
 {% block add_new_button %}{% endblock %}
 
 {% block logo %}
     {% if object.type.id == "activities-activitytype_meeting" %}
-        <img src="{{MEDIA_URL}}images/map_64.png" alt=""/>
+        <img src="{% media_url 'images/map_64.png' %}" alt=""/>
     {% else %}
         {% if object.type.id == "activities-activitytype_phonecall" %}
-            <img src="{{MEDIA_URL}}images/phone_64.png" alt=""/>
+            <img src="{% media_url 'images/phone_64.png' %}" alt=""/>
        {% else %}
               {% if object.type.id == "activities-activitytype_task" %}
-                  <img src="{{MEDIA_URL}}images/task_64.png" alt=""/>
+                  <img src="{% media_url 'images/task_64.png' %}" alt=""/>
               {% else %}
-                  <img src="{{MEDIA_URL}}images/calendar_64.png" alt=""/>
+                  <img src="{% media_url 'images/calendar_64.png' %}" alt=""/>
               {% endif %}
         {% endif %}
     {% endif %}

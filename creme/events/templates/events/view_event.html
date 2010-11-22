@@ -1,16 +1,16 @@
 {% extends "creme_core/generics/view_entity.html" %}
-
 {% load i18n %}
+{% load media %}
 {% load creme_block %}
 
 {% block edit_delete_buttons %}
     <a href="/events/event/{{object.id}}/contacts">
-        <img src="{{MEDIA_URL}}images/view_64.png" title="{% trans "View related contacts" %}" alt="{% trans "View related contacts" %}"/>
+        <img src="{% media_url 'images/view_64.png' %}" title="{% trans "View related contacts" %}" alt="{% trans "View related contacts" %}"/>
     </a>&nbsp;
     {{block.super}}
 {% endblock %}
 
-{% block logo %}<img src="{{MEDIA_URL}}images/event_64.png" alt="{% trans "Event" %}"/>{% endblock %}
+{% block logo %}<img src="{% media_url 'images/event_64.png' %}" alt="{% trans "Event" %}"/>{% endblock %}
 
 {% block detail_view_right_1 %}
     <table class="table_detail_view ui-corner-all">

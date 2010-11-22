@@ -1,21 +1,27 @@
-{% load creme_core_tags %}
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="{{ LANGUAGE_CODE }}" xml:lang="{{ LANGUAGE_CODE }}" {% if LANGUAGE_BIDI %}dir="rtl"{% endif %}>
+{% load media %}
+{% load creme_core_tags %}
 <head>
     <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
     <title>Creme CRM - {{object}}</title>
     {% comment %}<link rel='stylesheet' type='text/css' href='{{MEDIA_URL}}css/jquery-css/creme-theme/jquery-ui-1.7.2.custom.css' />{% endcomment %}
-    <link rel="stylesheet" type="text/css" href="{{MEDIA_URL}}css{{CSS_THEME_NAME}}creme.css" />
+    {% comment %}<link rel="stylesheet" type="text/css" href="{{MEDIA_URL}}css{{CSS_THEME_NAME}}creme.css" />{% endcomment %}
     {% comment %}<link rel="stylesheet" type="text/css" href="{{MEDIA_URL}}css/creme-ui.css" />{% endcomment %}
-    <link rel="shortcut icon" href="{{MEDIA_URL}}images/favicon.ico" type="image/x-icon" />
-    {% include "creme_core/frags/header_js_minimum.html" %}
+    {% include_media 'main.css' %}
+    <script type='text/javascript'>
+        var creme = {};
+    </script>
+    {% include_media 'main.js' %}
+    <link rel="shortcut icon" href="{% media_url 'images/favicon.ico' %}" type="image/x-icon" />
+    {% comment %}{% include "creme_core/frags/header_js_minimum.html" %}{% endcomment %}
     <script type="text/javascript">
         $(document).ready(function() {
             creme.utils.bindShowHideTbody();
         });
         {% if from_id %}
             if (window.opener) {
-                window.opener.lv_widget.handleSelection([{{object.id}}], '{{from_id}}');
+                window.opener.creme.lv_widget.handleSelection([{{object.id}}], '{{from_id}}');
             }
         {% endif %}
     </script>
@@ -23,7 +29,7 @@
 <body>
     <table class="table_header" cellpadding="0" cellspacing="0">
         <tr>
-            <td width="5%"><img src="{{MEDIA_URL}}images/image_64.png" alt=""/></td>
+            <td width="5%"><img src="{% media_url 'images/image_64.png' %}" alt=""/></td>
             <td width="70%">
                 <h1>{{object|get_meta_value:"verbose_name"|title}} : {{object|title}}</h1>
             </td>
@@ -31,10 +37,10 @@
                 <span>
                     {% if path %}
                         <a href="{{path}}/edit/{{object.id}}">
-                            <img src="{{MEDIA_URL}}images/edit_64.png" title="Éditer '{{object}}'" alt="Éditer"/>
+                            <img src="{% media_url 'images/edit_64.png' %}" title="Éditer '{{object}}'" alt="Éditer"/>
                         </a>&nbsp;
                         <a href="{{path}}/delete/{{object.id}}" onclick="creme.utils.confirmDelete(event, this);">
-                            <img src="{{MEDIA_URL}}images/delete_64.png" title="Supprimer '{{object}}'" alt="Supprimer" />
+                            <img src="{% media_url 'images/delete_64.png' %}" title="Supprimer '{{object}}'" alt="Supprimer" />
                         </a>
                     {% endif %}
                 </span>
@@ -45,6 +51,7 @@
     <div class=zone_spacer_5px></div>
 
     <a href="/download_file/{{ object.image }}" alt="{{ object.image }}"><img src="{{MEDIA_URL}}{{ object.image }}" /></a>
+    {% comment %}<a href="/download_file/{{object.image}}" alt="{{object.image}}"><img src="{% media_url object.image %}" /></a>{% endcomment %}
 
     {% include "media_managers/image_as_table.html" %}
 

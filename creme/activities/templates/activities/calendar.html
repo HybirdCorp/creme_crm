@@ -1,11 +1,12 @@
 {% extends "creme_core/base.html" %}
 {% load i18n %}
+{% load media %}
 {% load creme_core_tags %}
 {% block page_title %} - {% trans "Calendars" %}{% endblock %}
 {% block extrahead %}
-<link rel='stylesheet' type='text/css' href='{{MEDIA_URL}}css/fullcalendar-1.4.5/fullcalendar.css' />
-<script type='text/javascript' src='{{MEDIA_URL}}js/datejs/date-fr-FR.js'></script>
-<script type='text/javascript' src='{{MEDIA_URL}}js/jquery/extensions/fullcalendar-1.4.5/prod/fullcalendar.js'></script>
+{% comment %} <link rel='stylesheet' type='text/css' href='{{MEDIA_URL}}css/fullcalendar-1.4.5/fullcalendar.css' /> {% endcomment %}
+{% comment %} <script type='text/javascript' src='{{MEDIA_URL}}js/datejs/date-fr-FR.js'></script> {% endcomment %}
+{% comment %} <script type='text/javascript' src='{{MEDIA_URL}}js/jquery/extensions/fullcalendar-1.4.5/prod/fullcalendar.js'></script> {% endcomment %}
 <script type='text/javascript'>
 $(document).ready(function() {
     function updater(event, dayDelta, minuteDelta, allDay, revertFunc, jsEvent, ui, view){
@@ -226,19 +227,19 @@ $(document).ready(function() {
         <ul class="button_list hbox">
             <li>
                 <a class="menu_button" href="/activities/activity/add-without-relation/meeting" >
-                    <img src="{{MEDIA_URL}}images/map_32.png" border="0" title="{% trans "Meeting" %}" alt="{% trans "Meeting" %}" />
+                    <img src="{% media_url 'images/map_32.png' %}" border="0" title="{% trans "Meeting" %}" alt="{% trans "Meeting" %}" />
                     {% trans "Create a meeting" %}
                 </a>
             </li>
             <li>
                 <a class="menu_button" href="/activities/activity/add-without-relation/phonecall">
-                    <img src="{{MEDIA_URL}}images/phone_32.png" border="0" title="{% trans "Phone call" %}" alt="{% trans "Phone call" %}" />
+                    <img src="{% media_url 'images/phone_32.png' %}" border="0" title="{% trans "Phone call" %}" alt="{% trans "Phone call" %}" />
                     {% trans "Create a phone call" %}
                 </a>
             </li>
             <li>
                 <a class="menu_button" href="/activities/activity/add-without-relation/task">
-                    <img src="{{MEDIA_URL}}images/task_32.png" border="0" title="{% trans "Task" %}" alt="{% trans "Task" %}" />
+                    <img src="{% media_url 'images/task_32.png' %}" border="0" title="{% trans "Task" %}" alt="{% trans "Task" %}" />
                     {% trans "Create a task" %}
                 </a>
             </li>

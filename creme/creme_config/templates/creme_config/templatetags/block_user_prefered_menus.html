@@ -1,4 +1,4 @@
-{% load i18n %}
+{% load i18n %}{% load media %}
 {% load creme_core_tags %}{% load creme_block %}
 <table class="table_detail_view ui-corner-all" id={{block_name}}>
     {% get_block_header colspan=2 %}
@@ -9,7 +9,7 @@
         <tr>
             <th colspan="7" class="block_header_line_dark" align="left">
                 <a class="button_link" href="/creme_config/user/edit/settings/">
-                    <img src="{{MEDIA_URL}}images/edit_22.png" border="0" alt="{% trans "Edit my prefered menus" %}" title="{% trans "Edit my prefered menus" %}"/>
+                    <img src="{% media_url 'images/edit_22.png' %}" border="0" alt="{% trans "Edit my prefered menus" %}" title="{% trans "Edit my prefered menus" %}"/>
                     {% trans "Edit my prefered menus" %}
                 </a>
             </th>

@@ -1,16 +1,15 @@
 {% extends "creme_core/generics/view_entity.html" %}
-
 {% load i18n %}
-{% load creme_core_tags %}
-{% load creme_block %}
+{% load media %}
+{% load creme_core_tags %}{% load creme_block %}
 
 {% block logo %}
     {% if object.url_site %}
         <a href="http://{{object.url_site}}" target="_blank" ><img src="{{object.image.get_image_url}}" alt="" style="max-height:64px;max-width:200px;"/></a>
-    {% else %} {% if object.image.get_image_url %}
+    {% else %}{% if object.image.get_image_url %}
         <img src="{{object.image.get_image_url}}" alt="" title="{% trans "Please enter the web site address" %}" style="max-height:64px;max-width:200px;"/>
     {% else %}
-        <img src="{{MEDIA_URL}}images/organisation_64.png" alt="{% trans "Organisation" %}"/>
+        <img src="{% media_url 'images/organisation_64.png' %}" alt="{% trans "Organisation" %}"/>
     {% endif %}{% endif %}
 {% endblock %}
 
