@@ -1,5 +1,6 @@
 {% extends "creme_core/base.html" %}
 {% load i18n %}
+{% load media %}
 {% load creme_block %}
 
 {% block extrahead %}
@@ -19,7 +20,7 @@
                 {% block header_link %}
                     <a href="{% block list_url %}{% endblock %}">
                         {% block list_msg %}{% endblock %}
-                        <img src="{{MEDIA_URL}}images/right_arrow_64.png" title="{% trans "Go to the list" %}" alt="{% trans "Go to the list" %}"/>
+                        <img src="{% media_url 'images/right_arrow_64.png' %}" title="{% trans "Go to the list" %}" alt="{% trans "Go to the list" %}"/>
                     </a>
                 {% endblock %}
             </td>
@@ -32,7 +33,7 @@
                 {% if can_admin %}
                     <li>
                         <a class="menu_button" href="{{config_url}}">
-                            <img src="{{MEDIA_URL}}images/config_32.png" border="0" title="{% trans "Configure" %}" alt="{% trans "Configure" %}" />
+                            <img src="{% media_url 'images/config_32.png' %}" border="0" title="{% trans "Configure" %}" alt="{% trans "Configure" %}" />
                             {% trans "Configure" %}
                         </a>
                     </li>

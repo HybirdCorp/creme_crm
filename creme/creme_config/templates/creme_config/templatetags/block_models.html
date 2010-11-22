@@ -1,6 +1,6 @@
 {% load i18n %}
-{% load creme_core_tags %}
-{% load creme_block %}
+{% load media %}
+{% load creme_core_tags %}{% load creme_block %}
 {% load creme_config_tags %}
 <table class="table_detail_view ui-corner-all" id={{block_name}}>
     <thead>
@@ -19,7 +19,7 @@
             <th colspan="100" class="block_header_line_dark" align="left">
                 {% comment %}INNER POPUP ??{% endcomment %}
                 <a class="button_link" href="/creme_config/{{app_name}}/{{model_name}}/add/">
-                    <img src="{{MEDIA_URL}}images/add_22.png" border="0" alt="{% trans "New value" %}"/>
+                    <img src="{% media_url 'images/add_22.png' %}" border="0" alt="{% trans "New value" %}"/>
                     {% trans "New value" %}
                 </a>
             </th>
@@ -53,7 +53,7 @@
                         <td class="{{row_color}}">
                             <a href="/creme_config/{{app_name}}/{{model_name}}/edit/{{object.id}}">
                                 {% comment %} Inner popup ????  {% endcomment %}
-                                <img src="{{MEDIA_URL}}images/edit_16.png" border="0" alt="{% blocktrans %}Edit '{{object}}'{% endblocktrans %}" title="{% trans "Edit" %}">
+                                <img src="{% media_url 'images/edit_16.png' %}" border="0" alt="{% blocktrans %}Edit '{{object}}'{% endblocktrans %}" title="{% trans "Edit" %}">
                             </a>
                         </td>
                         <td class="{{row_color}}">

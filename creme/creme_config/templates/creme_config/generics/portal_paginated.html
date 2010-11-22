@@ -1,11 +1,11 @@
 {% extends "creme_config/portal.html" %}
-
+{% load media %}
 {% load creme_core_tags %}
 
-{% block extrahead %}
+{% comment %}{% block extrahead %}
     {{block.super}}
     <script type="text/javascript" src="{{MEDIA_URL}}js/models/creme_config.js"></script>
-{% endblock %}
+{% endblock %}{% endcomment %}
 
 {% block title %}
     <a href="/creme_config/">Configuration > </a>
@@ -42,7 +42,7 @@
                     <tr>
                         <th class="block_header_line_light" style="font-size:14px;" align="left" colspan="6">
                             <a class="button_link" href="{{paths|get_value:'add'}}">
-                                <img src="{{MEDIA_URL}}images/add_22.png" border="0" alt="Ajouter"/>
+                                <img src="{% media_url 'images/add_22.png' %}" border="0" alt="Ajouter"/>
                                 Nouvelle valeur
                             </a>
                         </th>
@@ -80,14 +80,14 @@
                                 <td class="{{row_color}}">
                                     {% if edit_path %}
                                         <a href="{{edit_path|cut:'%s'}}{{object.id}}">
-                                            <img src="{{MEDIA_URL}}images/edit_16.png" border="0" alt="Éditer {{object}}" title="Éditer">
+                                            <img src="{% media_url 'images/edit_16.png' %}" border="0" alt="Éditer {{object}}" title="Éditer">
                                         </a>
                                     {% endif %}
                                 </td>
                                 <td class="{{row_color}}">
                                     {% if delete_path %}
                                         <a href="{{delete_path|cut:'%s'}}{{object.id}}">
-                                            <img src="{{MEDIA_URL}}images/delete_22.png" border="0" alt="Effacer  {{object}}" title="Effacer">
+                                            <img src="{% media_url 'images/delete_22.png' %}" border="0" alt="Effacer  {{object}}" title="Effacer">
                                         </a>
                                     {% endif %}
                                 </td>

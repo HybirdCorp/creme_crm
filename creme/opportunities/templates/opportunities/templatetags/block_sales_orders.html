@@ -1,19 +1,20 @@
 {% load i18n %}
+{% load media %}
 {% load creme_block %}
-<script type="text/javascript">
+{% comment %}<script type="text/javascript">
     creme.include('{{MEDIA_URL}}js/models/relations.js','js');
-</script>
+</script>{% endcomment %}
 <table  class="table_detail_view ui-corner-all" id={{block_name}}>
     {% get_block_header colspan=3 %}
         <th style="width: 80%;" class="collapser" align="left">{% get_block_title _('%s Related Sales Order') _('%s Related Sales Orders') 'invoice_48.png' _('Sales orders') %}</th>
         <th style="width: 20%;" align="right">
             <div class="buttons">
                <a class="link" onclick="creme.relations.handleAddFromPredicateEntity('/creme_core/relation/add/from/predicate/{{predicate_id}}/entity/{{object.id}}/{{ct_id}}', '{{predicate_id}}', '{{object.id}}', {% get_block_reload_uri %});">
-                    <img src="{{MEDIA_URL}}images/relations_22.png" border="0" title="{% trans "Link to an existing salesorder" %}" alt="{% trans "Link to an existing salesorder" %}" />
+                    <img src="{% media_url 'images/relations_22.png' %}" border="0" title="{% trans "Link to an existing salesorder" %}" alt="{% trans "Link to an existing salesorder" %}" />
                     {% trans "Link to an existing salesorder" %}
                 </a>
                 <a class="add" href="/opportunities/opportunity/generate_new_doc/{{object.id}}/{{ct_id}}">
-                    <img src="{{MEDIA_URL}}images/add_22.png" border="0" title="{% trans "Generate a new current salesorder" %}" alt="{% trans "Generate a new current salesorder" %}" />
+                    <img src="{% media_url 'images/add_22.png' %}" border="0" title="{% trans "Generate a new current salesorder" %}" alt="{% trans "Generate a new current salesorder" %}" />
                     {% trans "Generate a new current salesorder" %}
                 </a>
             </div>

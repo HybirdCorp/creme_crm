@@ -1,18 +1,17 @@
 {% load i18n %}
+{% load media %}
 {% load creme_core_tags %}{% load creme_block %}
 {% load graph_tags %}
-{% if not is_ajax %}
-    {% comment %}<script type="text/javascript" src="{{MEDIA_URL}}js/libs/graphael/dev/raphael-1.5.2.js"></script>{% endcomment %}
+{% comment %}{% if not is_ajax %}
     <script type="text/javascript" src="{{MEDIA_URL}}js/libs/graphael/prod/raphael-1.5.2.min.js"></script>
     <script type="text/javascript" src="{{MEDIA_URL}}js/libs/graphael/prod/g.raphael-min.js"></script>
     <script type="text/javascript" src="{{MEDIA_URL}}js/libs/graphael/prod/g.line-min.js"></script>
     <script type="text/javascript" src="{{MEDIA_URL}}js/libs/graphael/prod/g.pie-min.js"></script>
     <script type="text/javascript" src="{{MEDIA_URL}}js/libs/graphael/prod/g.dot-min.js"></script>
     <script type="text/javascript" src="{{MEDIA_URL}}js/libs/graphael/prod/g.bar-min.js"></script>
-    {% comment %}<script type="text/javascript" src="{{MEDIA_URL}}js/libs/graphael/dev/g.bar.js"></script>{% endcomment %}
     <script type="text/javascript" src="{{MEDIA_URL}}js/creme/creme.graphael.js"></script>
-    <script type='text/javascript' src='{{MEDIA_URL}}js/datejs/date-fr-FR.js'></script>{# TODO: i18n  datejs has 150 availables languages#}
-{% endif %}
+    <script type='text/javascript' src='{{MEDIA_URL}}js/datejs/date-fr-FR.js'></script>TODO: i18n  datejs has 150 availables languages
+{% endif %}{% endcomment %}
 {% has_perm_to change object.report as has_perm %}
 <table class="table_detail_view ui-corner-all" id={{block_name}}>
     {% get_block_header colspan=6 %}
@@ -20,7 +19,7 @@
         <th style="width: 20%;" align="right">
             <div class="buttons">
                 {% comment %}<a class="add" onclick="creme.utils.innerPopupNReload('/reports/graph/{{object.id}}/add', {% get_block_reload_uri %});">
-                    <img src="{{MEDIA_URL}}images/add_22.png" border="0" title="{% trans 'Add new graph' %}" alt="{% trans 'Add' %}" />{% trans 'New' %}
+                    <img src="{% media_url 'images/add_22.png' %}" border="0" title="{% trans 'Add new graph' %}" alt="{% trans 'Add' %}" />{% trans 'New' %}
                 </a>{% endcomment %}
                 {% get_line_adder at_url '/reports/graph/{{object.id}}/add' with_label _("Add new graph") with_perms has_perm %}
             </div>
@@ -40,8 +39,8 @@
                 <!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
                 <tr>
                     <td class="{{row_color}}" style="width:20px;">
-                        <img class="pointer report_graph_{{graph.id}}" src="{{MEDIA_URL}}/images/expandme.gif" alt="{% trans 'Expand' %}" title="{% trans 'Expand' %}"/>
-                        <img class="pointer report_graph_{{graph.id}}_expanded" src="{{MEDIA_URL}}/images/expanded.gif" alt="{% trans 'Reduce' %}" title="{% trans 'Reduce' %}" style="display:none;"/>
+                        <img class="pointer report_graph_{{graph.id}}" src="{% media_url 'images/expandme.gif' %}" alt="{% trans 'Expand' %}" title="{% trans 'Expand' %}"/>
+                        <img class="pointer report_graph_{{graph.id}}_expanded" src="{% media_url 'images/expanded.gif' %}" alt="{% trans 'Reduce' %}" title="{% trans 'Reduce' %}" style="display:none;"/>
                     </td>
                     <td class="{{row_color}}"><a href="{{graph.get_absolute_url}}">{{graph.name}}</a></td>
                     <td class="{{row_color}}">{{graph|verbose_abscissa:graph.abscissa}}</td>
@@ -49,7 +48,7 @@
                     <td class="{{row_color}}">{{verbose_report_graph_types|get_value:graph.type}}{% if graph.days %} ({{graph.days}}){% endif %}</td>
                     <td class="{{row_color}}" align="center" valign="center" style="width:10%;">
                         <a onclick="creme.utils.innerPopupNReload('/reports/graph/edit/{{graph.id}}', {% get_block_reload_uri %});">
-                            <img src="{{MEDIA_URL}}images/edit_22.png" alt="{% trans 'Edit' %}" title="{% trans 'Edit' %}" border="0">
+                            <img src="{% media_url 'images/edit_22.png' %}" alt="{% trans 'Edit' %}" title="{% trans 'Edit' %}" border="0">
                         </a>
                         {% get_line_deletor at_url '/creme_core/delete_js' with_args "{'ids' : '{{graph.id}}' }" %}
                     </td>
@@ -76,12 +75,12 @@
                                         </td>
                                         <td>
                                             <a onclick="creme.graphael.simple_refetch('/reports/graph/fetch_graph/{{graph.id}}/'+$('#graph_ordering_{{graph.id}}').val(), $('#graph_type_{{graph.id}}').val(), '.graph_container_{{graph.id}}', '{{graph|verbose_ordinate:graph.ordinate}}', '{{graph|verbose_abscissa:graph.abscissa}}  - {{verbose_report_graph_types|get_value:graph.type}}', '#graph_gen_date_{{graph.id}}');">
-                                                <img src="{{MEDIA_URL}}/images/refresh_22.png" alt="{% trans 'Regenerate' %}" title="{% trans 'Regenerate' %}" />
+                                                <img src="{% media_url 'images/refresh_22.png' %}" alt="{% trans 'Regenerate' %}" title="{% trans 'Regenerate' %}" />
                                             </a>
                                         </td>
                                         <td>
                                             <a onclick="creme.utils.innerPopupNReload('/reports/graph/{{graph.id}}/block/add', {% get_block_reload_uri %});">
-                                                <img src="{{MEDIA_URL}}/images/add_22.png" alt="{% trans 'Create a block' %}" title="{% trans 'Create a block with this graph' %}" />
+                                                <img src="{% media_url 'images/add_22.png' %}" alt="{% trans 'Create a block' %}" title="{% trans 'Create a block with this graph' %}" />
                                             </a>
                                         </td>
                                     </tr>

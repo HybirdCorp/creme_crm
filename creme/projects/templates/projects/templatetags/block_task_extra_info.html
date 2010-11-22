@@ -1,4 +1,5 @@
 {% load i18n %}
+{% load media %}
 {% load creme_block %}
 <table  class="table_detail_view ui-corner-all" id={{block_name}}>
     {% get_block_header colspan=2 %}
@@ -22,7 +23,7 @@
                 {% for parent in object.get_parents %}
                     <a href="{{parent.get_absolute_url}}">{{parent.subject}}</a>
                     <a href="/projects/task/{{object.id}}/parent/delete/{{parent.id}}">
-                        <img src="{{MEDIA_URL}}images/delete_22.png" border="0" alt="{% trans "Delete" %}" title="{% trans "Delete" %}"/>
+                        <img src="{% media_url 'images/delete_22.png' %}" border="0" alt="{% trans "Delete" %}" title="{% trans "Delete" %}"/>
                     </a>
                 {% empty %}
                     {% trans "This task has no parent" %}

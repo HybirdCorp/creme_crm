@@ -1,9 +1,9 @@
 {% extends "creme_core/generics/view_entity.html" %}
-
 {% load i18n %}
+{% load media %}
 {% load creme_block %}
 
-{% block logo %}<img src="{{MEDIA_URL}}images/graph_64.png" alt="{% trans "Graph" %}"/>{% endblock %}
+{% block logo %}<img src="{% media_url 'images/graph_64.png' %}" alt="{% trans "Graph" %}"/>{% endblock %}
 
 {% block creme_blocks_import %}
     {{block.super}}
@@ -14,7 +14,7 @@
 
 {% block edit_delete_buttons %}
     <a href="/graphs/graph/{{object.id}}/png">
-        <img src="{{MEDIA_URL}}images/download_64.png" title="{% blocktrans %}Download '{{object}}' as PNG file{% endblocktrans %}" alt="{% trans "Download PNG" %}"/>
+        <img src="{% media_url 'images/download_64.png' %}" title="{% blocktrans %}Download '{{object}}' as PNG file{% endblocktrans %}" alt="{% trans "Download PNG" %}"/>
     </a>&nbsp;
     {{block.super}}
 {% endblock %}

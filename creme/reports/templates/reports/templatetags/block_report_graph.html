@@ -1,9 +1,9 @@
 {% load i18n %}
-{% load creme_core_tags %}
-{% load creme_block %}
+{% load media %}
+{% load creme_core_tags %}{% load creme_block %}
 {% load graph_tags %}
 
-{% if not is_ajax %}
+{% comment %}{% if not is_ajax %}
 <script type="text/javascript" src="{{MEDIA_URL}}js/libs/graphael/prod/raphael-1.5.2.min.js"></script>
 <script type="text/javascript" src="{{MEDIA_URL}}js/libs/graphael/prod/g.raphael-min.js"></script>
 <script type="text/javascript" src="{{MEDIA_URL}}js/libs/graphael/prod/g.line-min.js"></script>
@@ -11,8 +11,8 @@
 <script type="text/javascript" src="{{MEDIA_URL}}js/libs/graphael/prod/g.dot-min.js"></script>
 <script type="text/javascript" src="{{MEDIA_URL}}js/libs/graphael/prod/g.bar-min.js"></script>
 <script type="text/javascript" src="{{MEDIA_URL}}js/creme/creme.graphael.js"></script>
-<script type='text/javascript' src='{{MEDIA_URL}}js/datejs/date-fr-FR.js'></script>{# TODO: i18n  datejs has 150 availables languages#}
-{% endif %}
+<script type='text/javascript' src='{{MEDIA_URL}}js/datejs/date-fr-FR.js'></script> TODO: i18n  datejs has 150 availables languages
+{% endif %}{% endcomment %}
 
 <table class="table_detail_view ui-corner-all" id={{block_name}}>
     <thead>
@@ -21,7 +21,7 @@
                 <table class="block_header" cellspacing="0" cellpadding="0">
                     <tbody>
                         <tr>
-                            <td><img src="{{MEDIA_URL}}images/graph_48.png" alt="{% trans 'Graph' %}" title="{% trans 'Graph' %}" /></td>
+                            <td><img src="{% media_url 'images/graph_48.png' %}" alt="{% trans 'Graph' %}" title="{% trans 'Graph' %}" /></td>
                             <td>&nbsp;{{graph}}</td>
                         </tr>
                     </tbody>
@@ -73,7 +73,7 @@
                                     {% else %}
                                         <a onclick="creme.graphael.simple_refetch('/reports/graph/fetch_graph/{{graph.id}}/'+$('#graph_ordering_{{instance_block_id}}').val(), $('#graph_type_{{instance_block_id}}').val(), '.graph_container_{{instance_block_id}}', '{{graph|verbose_ordinate:graph.ordinate}}', '{{graph|verbose_abscissa:graph.abscissa}}  - {{verbose_report_graph_types|get_value:graph.type}}', '#graph_gen_date_{{instance_block_id}}');">
                                     {% endif %}
-                                        <img src="{{MEDIA_URL}}/images/refresh_22.png" alt="{% trans 'Regenerate' %}" title="{% trans 'Regenerate' %}" />
+                                        <img src="{% media_url 'images/refresh_22.png' %}" alt="{% trans 'Regenerate' %}" title="{% trans 'Regenerate' %}" />
                                     </a>
                                 </td>
                             </tr>

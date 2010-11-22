@@ -1,12 +1,12 @@
-{% load i18n %}
+{% load i18n %}{% load media %}
 {% if can_add %}
     <a class="menu_button" href="{{path}}/add">
-        <img src="{{MEDIA_URL}}images/add_32.png" border="0" title="{% trans "Add" %}" alt="{% trans "Add" %}" />
+        <img src="{% media_url 'images/add_32.png' %}" border="0" title="{% trans "Add" %}" alt="{% trans "Add" %}" />
         {% trans "New" %}
     </a>
 {% else %}
     <span class="menu_button" style="opacity:0.5;">
-        <img src="{{MEDIA_URL}}images/add_32.png" border="0" title="{% trans "Can't add" %}" alt="{% trans "Can't add" %}"/>
+        <img src="{% media_url 'images/add_32.png' %}" border="0" title="{% trans "Can't add" %}" alt="{% trans "Can't add" %}"/>
         {% trans "New (forbidden)" %}
     </span>
 {% endif %}

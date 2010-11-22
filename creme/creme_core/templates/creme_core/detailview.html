@@ -1,5 +1,6 @@
 {% extends "creme_core/base.html" %}
 {% load i18n %}
+{% load media %}
 {% load creme_core_tags %}{% load creme_block %}{% load creme_menu %}
 
 {% block page_title %} - {{object}}{% endblock %}
@@ -18,7 +19,7 @@
             {% if object.get_lv_absolute_url %}
                 <li>
                     <a class="menu_button" href="{{object.get_lv_absolute_url}}">
-                        <img src="{{MEDIA_URL}}images/left_arrow_32.png" border="0" title="{% trans "Back to the list" %}" alt="{% trans "Back to the list" %}" />
+                        <img src="{% media_url 'images/left_arrow_32.png' %}" border="0" title="{% trans "Back to the list" %}" alt="{% trans "Back to the list" %}" />
                         {% trans "Back to the list" %}
                     </a>
                 </li>
@@ -27,7 +28,7 @@
                 {% if path %}{% comment %}REMOVE ?? (see view_entity.html) {% endcomment %}
                     <li>
                         <a class="menu_button" href="{{path}}/add">
-                            <img src="{{MEDIA_URL}}images/add_32.png" border="0" title="{% trans "Add" %}" alt="{% trans "Add" %}" />
+                            <img src="{% media_url 'images/add_32.png' %}" border="0" title="{% trans "Add" %}" alt="{% trans "Add" %}" />
                             {% trans "New" %}
                         </a>
                     </li>
@@ -55,10 +56,10 @@
                             {% if path %}
                                 {% comment %}REMOVE ?? (see view_entity.html) {% endcomment %}
                                 <a href="{{path}}/edit/{{object.id}}">
-                                    <img src="{{MEDIA_URL}}images/edit_64.png" title="{% blocktrans %}Edit '{{object}}'{% endblocktrans %}" alt="{% trans "Edit" %}"/>
+                                    <img src="{% media_url 'images/edit_64.png' %}" title="{% blocktrans %}Edit '{{object}}'{% endblocktrans %}" alt="{% trans "Edit" %}"/>
                                 </a>&nbsp;
                                 <a href="{{path}}/delete/{{object.id}}" onclick="creme.utils.confirmDelete(event, this);">
-                                    <img src="{{MEDIA_URL}}images/delete_64.png" title="{% blocktrans %}Delete '{{object}}'{% endblocktrans %}" alt="{% trans "Delete" %}" />
+                                    <img src="{% media_url 'images/delete_64.png' %}" title="{% blocktrans %}Delete '{{object}}'{% endblocktrans %}" alt="{% trans "Delete" %}" />
                                 </a>
                             {% endif %}
                         {% endblock %}

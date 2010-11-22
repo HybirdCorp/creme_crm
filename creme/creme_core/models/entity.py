@@ -223,9 +223,9 @@ class CremeEntity(CremeAbstractEntity):
 
     def get_actions(self, user): #TODO: improve icon/css class management....
         return {
-                'default': EntityAction(self.get_absolute_url(), ugettext(u"See"), True, icon="view_16.png"),
-                'others':  [EntityAction(self.get_edit_absolute_url(),   ugettext(u"Edit"),   self.can_change(user), icon="edit_16.png"),
-                            EntityAction(self.get_delete_absolute_url(), ugettext(u"Delete"), self.can_delete(user), icon="delete_16.png", attrs={'class': 'confirm_delete'}),
+                'default': EntityAction(self.get_absolute_url(), ugettext(u"See"), True, icon="images/view_16.png"),
+                'others':  [EntityAction(self.get_edit_absolute_url(),   ugettext(u"Edit"),   self.can_change(user), icon="images/edit_16.png"),
+                            EntityAction(self.get_delete_absolute_url(), ugettext(u"Delete"), self.can_delete(user), icon="images/delete_16.png", attrs={'class': 'confirm_delete'}),
                            ]
                }
 

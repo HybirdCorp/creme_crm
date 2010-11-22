@@ -1,5 +1,6 @@
 {% load i18n %}
-<img src="{{MEDIA_URL}}images/pin.png" alt="{% trans 'Open' %}" class="pinmenu"/>
+{% load media %}
+<img src="{% media_url 'images/pin.png' %}" alt="{% trans 'Open' %}" class="pinmenu"/>
 <div class="ui-corner-all">{% trans 'Fixed menu' %} <input type="checkbox" id="fix_menu"/></div>
 <ul>
     {% for appitem in menu %}

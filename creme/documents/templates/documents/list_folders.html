@@ -2,9 +2,9 @@
 
 {% load i18n %}
 
-{% block extrahead %}
+{% comment %}{% block extrahead %}
     <script type="text/javascript" src="{{MEDIA_URL}}js/models/folders.js" />
-{% endblock %}
+{% endblock %}{% endcomment %}
 
 {% block content %}
     {% regroup list_objects.object_list|dictsort:"category" by category as list_object %}

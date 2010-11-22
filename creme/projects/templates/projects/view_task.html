@@ -1,11 +1,11 @@
 {% extends "creme_core/generics/view_entity.html" %}
-
 {% load i18n %}
+{% load media %}
 {% load creme_block %}
 
 {% block add_new_button %}{% endblock %}
 
-{% block logo %}<img src="{{MEDIA_URL}}images/task_64.png" alt="{% trans "Task" %}"/>{% endblock %}
+{% block logo %}<img src="{% media_url 'images/task_64.png' %}" alt="{% trans "Task" %}"/>{% endblock %}
 
 {% block creme_blocks_import %}
     {{block.super}}

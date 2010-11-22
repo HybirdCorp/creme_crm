@@ -1,8 +1,9 @@
 {% load i18n %}
+{% load media %}
 {% load creme_core_tags %}
 <div class="quickform_box">
     <span>
-        <img border="0" title="{% trans "Quick creation" %}" alt="{% trans "Quick creation" %}" src="{{MEDIA_URL}}images/quick_22.png" align="top">
+        <img border="0" title="{% trans "Quick creation" %}" alt="{% trans "Quick creation" %}" src="{% media_url 'images/quick_22.png' %}" align="top">
         <select name="entity_count" {% if not content_types %}disabled="true"{% endif %}>
             {% for i in 9|xrange:1 %}<option value="{{i}}">{{i}}</option>{% endfor %}
         </select>

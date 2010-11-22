@@ -20,7 +20,7 @@
 
 from django.http import HttpResponseServerError
 from django.template import Context, loader #RequestContext
-from django.conf import settings
+#from django.conf import settings
 
 
 #def page_not_found(request, template_name='404.html'):
@@ -31,4 +31,5 @@ from django.conf import settings
 def server_error(request, template_name='500.html'):
     """500 error handler."""
     t = loader.get_template(template_name)
-    return HttpResponseServerError(t.render(Context({'MEDIA_URL': settings.MEDIA_URL})))
+    #return HttpResponseServerError(t.render(Context({'MEDIA_URL': settings.MEDIA_URL})))
+    return HttpResponseServerError(t.render(Context()))

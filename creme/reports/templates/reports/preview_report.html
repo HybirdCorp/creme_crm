@@ -1,16 +1,14 @@
 {% extends "creme_core/detailview.html" %}
-
 {% load i18n %}
-{% load creme_core_tags %}
-{% load queryset_tags %}
-{% load report_tags %}
+{% load media %}
+{% load creme_core_tags %}{% load queryset_tags %}{% load report_tags %}
 
 {% block page_title %} - {% blocktrans %}Preview {{object}}{% endblocktrans %}{% endblock %}
 
 {% block before_content_1 %}
     <table class="table_header" cellpadding="0" cellspacing="0">
         <tr>
-            <td width="5%"><img src="{{MEDIA_URL}}images/reporting_64.png" alt="{% trans "Report" %}"/></td>
+            <td width="5%"><img src="{% media_url 'images/reporting_64.png' %}" alt="{% trans "Report" %}"/></td>
             <td width="70%">
                 <h1>
                     {% blocktrans with object|get_meta_value:"verbose_name"|title as verbose_name and object|title as title %}Preview {{verbose_name}} : {{title}}{% endblocktrans %}
@@ -19,7 +17,7 @@
             <td width="25%" align="right">
                 <span>
                     <a href="{{object.get_absolute_url}}">
-                        <img src="{{MEDIA_URL}}images/left_arrow_64.png" title="{% blocktrans %}Back to the detailview : '{{object}}'{% endblocktrans %}" alt="{% trans "Back" %}"/>
+                        <img src="{% media_url 'images/left_arrow_64.png' %}" title="{% blocktrans %}Back to the detailview : '{{object}}'{% endblocktrans %}" alt="{% trans "Back" %}"/>
                     </a>&nbsp;
 
                     {% if form.cleaned_data %}
@@ -27,7 +25,7 @@
                     {% else %}
                         <a href="/reports/report/{{object.id}}/csv">
                     {% endif %}
-                        <img src="{{MEDIA_URL}}images/document_csv_64.png" title="{% blocktrans %}Download '{{object}}' as CSV file{% endblocktrans %}" alt="{% trans "Download CSV" %}"/>
+                        <img src="{% media_url 'images/document_csv_64.png' %}" title="{% blocktrans %}Download '{{object}}' as CSV file{% endblocktrans %}" alt="{% trans "Download CSV" %}"/>
                     </a>&nbsp;
                 </span>
             </td>

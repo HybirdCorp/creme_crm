@@ -2,17 +2,21 @@
 <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
 <html xmlns="http://www.w3.org/1999/xhtml" lang="{{ LANGUAGE_CODE }}" xml:lang="{{ LANGUAGE_CODE }}" {% if LANGUAGE_BIDI %}dir="rtl"{% endif %}>
 {% load i18n %}
-{% load creme_menu %}
-{% load creme_core_tags %}
+{% load media %}
+{% load creme_menu %}{% load creme_core_tags %}
 <head>
     <title>{{title}}</title>
-    <link rel='stylesheet' type='text/css' href='{{MEDIA_URL}}css/jquery-css/creme-theme/jquery-ui-1.7.2.custom.css' />
+    {% comment %}<link rel='stylesheet' type='text/css' href='{{MEDIA_URL}}css/jquery-css/creme-theme/jquery-ui-1.7.2.custom.css' />
     <link rel="stylesheet" type="text/css" href="{{MEDIA_URL}}css/creme.css" />
     <link rel="stylesheet" type="text/css" href="{{MEDIA_URL}}css/creme-ui.css" />
-    {% include "creme_core/frags/header_js_minimum.html" %}
+    {% include "creme_core/frags/header_js_minimum.html" %}{% endcomment %}
+    {% include_media 'main.css' %}
+    <script type='text/javascript'>
+        var creme = {};
+    </script>
+    {% include_media 'main.js' %}
     <script language="javascript">
-        function handleValidation(form)
-        {
+        function handleValidation(form) {
             {% if form.is_valid %}
                 if (window.opener) reload(window.opener);
                 $(window).unload(function(){window.close();});

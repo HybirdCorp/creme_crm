@@ -1,4 +1,5 @@
 {% load i18n %}
+{% load media %}
 {% load creme_menu %}{% load creme_core_tags %}{% load creme_search %}{% load creme_quickforms %}
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="{{ LANGUAGE_CODE }}" xml:lang="{{ LANGUAGE_CODE }}" {% if LANGUAGE_BIDI %}dir="rtl"{% endif %}>
@@ -6,11 +7,16 @@
     <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=8" />
     <title>Creme CRM{% block page_title %}{% endblock %}</title>
-    <link rel='stylesheet' type='text/css' href='{{MEDIA_URL}}css/jquery-css/creme-theme/jquery-ui-1.7.2.custom.css' />
-    <link rel="stylesheet" type="text/css" href="{{MEDIA_URL}}css{{CSS_THEME_NAME}}creme.css" />
-    <link rel="stylesheet" type="text/css" href="{{MEDIA_URL}}css/creme-ui.css" />
-    <link rel="shortcut icon" href="{{MEDIA_URL}}images/favicon.ico" type="image/x-icon" />
-    {% include "creme_core/frags/header_js_minimum.html" %}
+{% comment %}     <link rel='stylesheet' type='text/css' href='{{MEDIA_URL}}css/jquery-css/creme-theme/jquery-ui-1.7.2.custom.css' /> {% endcomment %}
+{% comment %}     <link rel="stylesheet" type="text/css" href="{{MEDIA_URL}}css{{CSS_THEME_NAME}}creme.css" /> {% endcomment %}
+{% comment %}     <link rel="stylesheet" type="text/css" href="{{MEDIA_URL}}css/creme-ui.css" /> {% endcomment %}
+    <script type='text/javascript'>
+        var creme = {};
+    </script>
+    {% include_media 'main.css' %}
+    {% include_media 'main.js' %}
+    <link rel="shortcut icon" href="{% media_url 'images/favicon.ico' %}" type="image/x-icon" />
+    {% comment %}{% include "creme_core/frags/header_js_minimum.html" %}{% endcomment %}
     <style type="text/css">
         .fg-menu-container { z-index: 100; }</style>
     <script type='text/javascript'>
@@ -79,14 +85,14 @@
             $('.pinmenu').toggle(
              //Pin / Fixer le menu
              function() {
-                $(this).attr('src','{{MEDIA_URL}}images/unpin.png');
+                $(this).attr('src', '{% media_url "images/unpin.png" %}');
                 desactiveEventsMenu();
                 resizePageElements($("#menu_expanded").outerWidth(), true);
                 $.cookie('menu_creme', 'expanded', {expires: 7, path: '/', domain: '', secure: false});
              },
              //Unpin / Rendre le menu flottant
              function() {
-                $(this).attr('src','{{MEDIA_URL}}images/pin.png');
+                $(this).attr('src', '{% media_url "images/pin.png" %}');
                 activeEventsMenu();
                 resizePageElements($("#menu_collapse").outerWidth(), false);
                 $.cookie('menu_creme', 'collapse', {expires: 7, path: '/', domain: '', secure: false});
@@ -94,12 +100,12 @@
             );
 
            if($.cookie('menu_creme') == 'expanded') {
-                $('.pinmenu').attr('src','{{MEDIA_URL}}images/unpin.png');
+                $('.pinmenu').attr('src', '{% media_url "images/unpin.png" %}');
                 desactiveEventsMenu();
                 $("#menu_expanded").show('fast',resizePageElements($("#menu_expanded").outerWidth(), true));
                 $("#menu_collapse").hide('fast');
            } else {
-               $('.pinmenu').attr('src','{{MEDIA_URL}}images/pin.png');
+               $('.pinmenu').attr('src', '{% media_url "images/pin.png" %}');
                activeEventsMenu();
                $("#menu_expanded").hide('slow');
                $("#menu_collapse").show('fast', resizePageElements($("#menu_collapse").outerWidth(), false));
@@ -109,8 +115,8 @@
      {% block extrahead %}{% endblock %}
      <script type='text/javascript'>
       $(document).ready(function() {
-        $("#menu_collapse").css('height',$(document).height());
-        $("#menu_expanded").css('height',$(document).height());
+        $("#menu_collapse").css('height', $(document).height());
+        $("#menu_expanded").css('height', $(document).height());
 
         $('[role=menuitem]', '#menu_expanded').bind('menu-item-selected', function(e, menu){
             e.stopImmediatePropagation();
@@ -119,8 +125,7 @@
             creme.utils.go_to($('a:first',this).attr('href'), false);
         });
 
-        function bind_scroll()
-        {
+        function bind_scroll() {
             $(document).scroll(function(){
                 var $doc = $(this);
                 var current = $doc.scrollTop();
@@ -146,46 +151,36 @@
 
                 var speed = 200;
 
-                if(top > menu_dim2 && menu_dim2 < foot_dim)
-                {
+                if(top > menu_dim2 && menu_dim2 < foot_dim) {
     //                $menu.css({'top': top});
                     $menu.animate({top: top}, speed, 'linear');
-                }
-                else if (current == 0)
-                {
+                } else if (current == 0) {
     //                $menu.css({'top': logo_container_height});
                     $menu.animate({top: logo_container_height}, speed, 'linear');
-                }
-                else
-                {
+                } else {
                     var new_top = top*pad_compl;
                     if (new_top >= logo_container_height)
     //                $menu.css({'top': new_top});
                     $menu.animate({top: new_top}, speed, 'linear');
                 }
-
             });
             $.cookie('fix_menu_checked', false, {expires: 7, path: '/', domain: '', secure: false});
         }
 
-        $('.fg-menu-container').find('#fix_menu').click(function(){
+        $('.fg-menu-container').find('#fix_menu').click(function() {
            var $chk = $(this);
-           if($chk.is(':checked'))
-           {
+           if($chk.is(':checked')) {
                $(document).unbind('scroll');
                $.cookie('fix_menu_checked', true, {expires: 7, path: '/', domain: '', secure: false});
-           }
-           else
-           {
+           } else {
                 bind_scroll();
            }
         });
 
         var c_fix_menu_checked = $.cookie('fix_menu_checked');
         $('.fg-menu-container').find('#fix_menu').check();
-        
-        if(c_fix_menu_checked == null || c_fix_menu_checked == false || c_fix_menu_checked == "false")
-        {
+
+        if(c_fix_menu_checked == null || c_fix_menu_checked == false || c_fix_menu_checked == "false") {
             bind_scroll();
             $('.fg-menu-container').find('#fix_menu').uncheck();
         }
@@ -208,9 +203,8 @@
         $('.fg-menu-container').css({'top': logo_container_height});//Webkit
 
         var previous_selected = window.location.pathname;
-        
-        if(previous_selected != null)
-        {
+
+        if(previous_selected != null) {
             var $initial = $('#menu_expanded div.fg-menu-container').find('[href='+previous_selected+']');
             var $ul = null;
 
@@ -232,11 +226,9 @@
                 deep++;
             }
 
-            
             var now = +new Date;
 
-            for(var i = li_stack.length-1; i > 0; i--)
-            {
+            for(var i = li_stack.length-1; i > 0; i--) {
                 li_stack[i].find('a:first').click();
             }
         }
@@ -247,7 +239,7 @@
 <body {% block bodyclass %}{% endblock %}>
     {% block side_menu %}
         <div id="menu_collapse" class="ui-corner-all menu_collapse">
-            <img src="{{MEDIA_URL}}images/favicon.ico"/>
+            <img src="{% media_url 'images/favicon.ico' %}"/>
             M<br/>
             E<br/>
             N<br/>
@@ -262,7 +254,7 @@
         <div id="menu_expanded" class="menu_expanded">
             <div style="padding-left:0%;padding-bottom:10px;padding-top:10px;" id="logo_container">
                 <center>
-                    <a href="/"><img style="cursor:pointer;" src="{{logo_url}}" alt="Logo" class="logo"/></a>
+                    <a href="/"><img style="cursor:pointer;" src="{% media_url logo_url %}" alt="Logo" class="logo"/></a>
                 </center>
             </div>
             {% block sidebar %}
@@ -292,7 +284,7 @@
                         {% get_quickforms_panel %}
                     </td>
                     <td align="right" valign="middle" style="width:25%;">
-                        <a href="/"><img src="{{MEDIA_URL}}images/creme_header_50.png" alt="Crème" border="0" /></a>
+                        <a href="/"><img src="{% media_url 'images/creme_header_50.png' %}" alt="Crème" border="0" /></a>
                     </td>
                 </tr>
             </table>

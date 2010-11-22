@@ -1,14 +1,11 @@
 {% extends "creme_core/detailview.html" %}
-
 {% load i18n %}
-{% load creme_core_tags %}
-{% load queryset_tags %}
-{% load report_tags %}
-{% load graph_tags %}
+{% load media %}
+{% load creme_core_tags %}{% load queryset_tags %}{% load report_tags %}{% load graph_tags %}
 
 {% block page_title %} - {% blocktrans %}Rendered {{object}}{% endblocktrans %}{% endblock %}
 
-{% block extrahead %}
+{% comment %}{% block extrahead %}
 {{block.super}}
 <script type="text/javascript" src="{{MEDIA_URL}}js/libs/graphael/prod/raphael-1.5.2.min.js"></script>
 <script type="text/javascript" src="{{MEDIA_URL}}js/libs/graphael/prod/g.raphael-min.js"></script>
@@ -18,12 +15,12 @@
 <script type="text/javascript" src="{{MEDIA_URL}}js/libs/graphael/prod/g.bar-min.js"></script>
 <script type='text/javascript' src='{{MEDIA_URL}}js/datejs/date-fr-FR.js'></script>{# TODO: i18n  datejs has 150 availables languages#}
 <script type="text/javascript" src="{{MEDIA_URL}}js/creme/creme.graphael.js"></script>
-{% endblock %}
+{% endblock %}{% endcomment %}
 
 {% block before_content_1 %}
     <table class="table_header" cellpadding="0" cellspacing="0">
         <tr>
-            <td width="5%"><img src="{{MEDIA_URL}}images/graph_64.png" alt="{% trans "Graph" %}"/></td>
+            <td width="5%"><img src="{% media_url 'images/graph_64.png' %}" alt="{% trans "Graph" %}"/></td>
             <td width="70%">
                 <h1>
                     {% blocktrans with object|get_meta_value:"verbose_name"|title as verbose_name and object|title as title %}Rendered {{verbose_name}} : {{title}}{% endblocktrans %}
@@ -32,7 +29,7 @@
             <td width="25%" align="right">
                 <span>
                     <a href="{{object.report.get_absolute_url}}">
-                        <img src="{{MEDIA_URL}}images/left_arrow_64.png" title="{% blocktrans %}Back to the detailview : '{{object}}'{% endblocktrans %}" alt="{% trans "Back" %}"/>
+                        <img src="{% media_url 'images/left_arrow_64.png' %}" title="{% blocktrans %}Back to the detailview : '{{object}}'{% endblocktrans %}" alt="{% trans "Back" %}"/>
                     </a>&nbsp;
                 </span>
             </td>
@@ -67,15 +64,14 @@
                         </th>
                         <th>
                             <a onclick="creme.graphael.simple_refetch('/reports/graph/fetch_graph/{{object.id}}/'+$('#graph_ordering_{{object.id}}').val(), $('#graph_type_{{object.id}}').val(), '.graph_container_{{object.id}}', '{{object|verbose_ordinate:object.ordinate}}', '{{object|verbose_abscissa:object.abscissa}}  - {{verbose_report_graph_types|get_value:object.type}}', '#graph_gen_date_{{object.id}}');">
-                                <img src="{{MEDIA_URL}}/images/refresh_22.png" alt="{% trans 'Regenerate' %}" title="{% trans 'Regenerate' %}" />
+                                <img src="{% media_url 'images/refresh_22.png' %}" alt="{% trans 'Regenerate' %}" title="{% trans 'Regenerate' %}" />
                             </a>
                         </th>
                         <th>
                             <a onclick="creme.utils.showInnerPopup('/reports/graph/{{object.id}}/block/add');">
-                                <img src="{{MEDIA_URL}}/images/add_22.png" alt="{% trans 'Create a block' %}" title="{% trans 'Create a block with this graph' %}" />
+                                <img src="{% media_url 'images/add_22.png' %}" alt="{% trans 'Create a block' %}" title="{% trans 'Create a block with this graph' %}" />
                             </a>
                         </th>
-
                     </tr>
                     <tr>
                         <td colspan="{{colspan}}">

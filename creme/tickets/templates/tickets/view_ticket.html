@@ -1,9 +1,9 @@
 {% extends "creme_core/generics/view_entity.html" %}
-
 {% load i18n %}
+{% load media %}
 {% load creme_block %}
 
-{% block logo %}<img src="{{MEDIA_URL}}images/ticket_64.png" alt="{% trans "Ticket" %}"/>{% endblock %}
+{% block logo %}<img src="{% media_url 'images/ticket_64.png' %}" alt="{% trans "Ticket" %}"/>{% endblock %}
 
 {% block after_object_as_table_1 %}
     <table class="table_detail_view ui-corner-all">

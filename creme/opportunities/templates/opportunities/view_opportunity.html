@@ -1,10 +1,9 @@
 {% extends "creme_core/generics/view_entity.html" %}
-
 {% load i18n %}
-{% load creme_core_tags %}
-{% load creme_block %}
+{% load media %}
+{% load creme_core_tags %}{% load creme_block %}
 
-{% block logo %}<img src="{{MEDIA_URL}}images/opportunity_64.png" alt=""/>{% endblock %}
+{% block logo %}<img src="{% media_url 'images/opportunity_64.png' %}" alt=""/>{% endblock %}
 
 {% block creme_blocks_import %}
     {{block.super}}

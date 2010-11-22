@@ -1,4 +1,5 @@
 {% load i18n %}
+{% load media %}
 {% load creme_core_tags %}{% load creme_block %}
 {% load sms_tags %}
 {% has_perm_to change object.campaign as has_perm %}
@@ -42,20 +43,20 @@
             <div class="buttons">
                 {% if has_perm %}
                     <a class="add" onclick="sms_messages.send();">
-                        <img src="{{MEDIA_URL}}images/add_22.png" border="0" title="{% trans "Send" %}" alt="{% trans "Send" %}" />
+                        <img src="{% media_url 'images/add_22.png' %}" border="0" title="{% trans "Send" %}" alt="{% trans "Send" %}" />
                         {% trans "Send" %}
                     </a>
                     <a onclick="sms_messages.sync();">
-                        <img src="{{MEDIA_URL}}images/refresh_22.png" border="0" title="{% trans "Synchronize" %}" alt="{% trans "Synchronize" %}" />
+                        <img src="{% media_url 'images/refresh_22.png' %}" border="0" title="{% trans "Synchronize" %}" alt="{% trans "Synchronize" %}" />
                         {% trans "Synchronize" %}
                     </a>
                 {% else %}
                     <span class="add forbidden">
-                        <img src="{{MEDIA_URL}}images/add_22.png" border="0" title="{% trans "Can't send" %}" alt="{% trans "Can't send" %}" />
+                        <img src="{% media_url 'images/add_22.png' %}" border="0" title="{% trans "Can't send" %}" alt="{% trans "Can't send" %}" />
                         {% trans "Send" %}
                     </span>
                     <span class="forbidden">
-                        <img src="{{MEDIA_URL}}images/refresh_22.png" border="0" title="{% trans "Can't synchronize" %}" alt="{% trans "Can't synchronize" %}" />
+                        <img src="{% media_url 'images/refresh_22.png' %}" border="0" title="{% trans "Can't synchronize" %}" alt="{% trans "Can't synchronize" %}" />
                         {% trans "Synchronize" %}
                     </span>
                 {% endif %}

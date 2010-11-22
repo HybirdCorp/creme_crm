@@ -4,9 +4,9 @@
 
 {% block page_title %} - {{frontend_verbose}} - {% trans "Waiting actions" %}{% endblock %}
 
-{% block extrahead %}
+{% comment %}{% block extrahead %}
     <script type="text/javascript" src="{{MEDIA_URL}}js/models/emails.js"></script>
-{% endblock %}
+{% endblock %}{% endcomment %}
 
 {% block content %}
     {% include "crudity/frags/ajax/waiting_actions.html" %}

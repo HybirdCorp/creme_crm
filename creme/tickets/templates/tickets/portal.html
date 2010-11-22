@@ -1,6 +1,7 @@
 {% extends "creme_core/generics/portal.html" %}
 {% load i18n %}
-{% block logo %}<img src="{{MEDIA_URL}}images/ticket_64.png" alt="{% trans "Ticket" %}"/>{% endblock %}
+{% load media %}
+{% block logo %}<img src="{% media_url 'images/ticket_64.png' %}" alt="{% trans "Ticket" %}"/>{% endblock %}
 {% block title %}{% trans "Ticket portal" %}{% endblock %}
 {% block list_url %}/tickets/tickets{% endblock %}
 {% block list_msg %}{% trans "List of tickets" %}{% endblock %}

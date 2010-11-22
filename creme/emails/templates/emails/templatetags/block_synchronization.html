@@ -1,5 +1,6 @@
 {% extends "emails/templatetags/_block_synchronization.html" %}
 {% load i18n %}
+{% load media %}
 {% load creme_block %}{% load creme_core_tags %}
 {% block top_header %}
     {% get_block_header colspan=7 %}
@@ -7,11 +8,11 @@
         <th style="width: 10%;" align="right">
             <div class="buttons">
                 <a class="link" onclick="creme.emails.mass_relation('/creme_core/relation/add_to_entities/{{entityemail_ct_id}}/', '[name=select_one]:checked', {% get_block_reload_uri %});">
-                    <img src="{{MEDIA_URL}}images/add_22.png" border="0" title="{% trans "Link to" %}" alt="{% trans "Link to" %}" />
+                    <img src="{% media_url 'images/add_22.png' %}" border="0" title="{% trans "Link to" %}" alt="{% trans "Link to" %}" />
                     {% trans "Link to" %}
                 </a>
                 <a class="add" onclick="creme.emails.mass_action('/emails/mail/validated', '[name=select_one]:checked', {% get_block_reload_uri %});">
-                    <img src="{{MEDIA_URL}}images/jewel_ok_22.png" border="0" title="{% trans "Mark as treated" %}" alt="{% trans "Mark as treated" %}" />
+                    <img src="{% media_url 'images/jewel_ok_22.png' %}" border="0" title="{% trans "Mark as treated" %}" alt="{% trans "Mark as treated" %}" />
                     {% trans "Mark as treated" %}
                 </a>
             </div>
@@ -19,11 +20,11 @@
         <th style="width: 10%;" align="right">
             <div class="buttons">
                 <a class="negative" onclick="creme.emails.mass_action('/emails/mail/delete', '[name=select_one]:checked', {% get_block_reload_uri %});">
-                    <img src="{{MEDIA_URL}}images/delete_22.png" border="0" title="{% trans "Delete" %}" alt="{% trans "Delete" %}" />
+                    <img src="{% media_url 'images/delete_22.png' %}" border="0" title="{% trans "Delete" %}" alt="{% trans "Delete" %}" />
                     {% trans "Delete" %}
                 </a>
                 <a class="negative" onclick="creme.emails.mass_action('/emails/mail/spam', '[name=select_one]:checked', {% get_block_reload_uri %});">
-                    <img src="{{MEDIA_URL}}images/spam_22.png" border="0" title="{% trans "Mark as spam" %}" alt="{% trans "Mark as spam" %}" />
+                    <img src="{% media_url 'images/spam_22.png' %}" border="0" title="{% trans "Mark as spam" %}" alt="{% trans "Mark as spam" %}" />
                     {% trans "Mark as spam" %}
                 </a>
             </div>

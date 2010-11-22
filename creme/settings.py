@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # Django settings for creme project.
 
 from django.utils.translation import ugettext_lazy as _
@@ -10,7 +11,7 @@ ADMINS = (
     # ('Your Name', 'your_email@domain.com'),
 )
 
-#login / password pour l'interface admin : admin/admin
+#login / password for interface of administration : admin/admin
 
 from os.path import dirname, join, abspath
 CREME_ROOT = dirname(abspath(__file__))
@@ -96,6 +97,8 @@ TEMPLATE_LOADERS = (
 )
 
 MIDDLEWARE_CLASSES = (
+    'mediagenerator.middleware.MediaMiddleware', #Media middleware has to come first
+
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -129,6 +132,9 @@ INSTALLED_APPS = (
     'django.contrib.admin',
     'django.contrib.admindocs',
 
+    #EXTERNAL APPS
+    'mediagenerator', #It manages js/css/images
+
     #CREME CORE APPS
     'creme.creme_core',
     'creme.creme_config',
@@ -155,9 +161,8 @@ INSTALLED_APPS = (
 )
 
 
-#LOGO_URL = '/site_media/images/creme_256.png'
-LOGO_URL = '/site_media/images/creme_256_cropped.png'
-#LOGO_URL = '/site_media/images/logos/hybird.png'
+LOGO_URL = 'images/creme_256_cropped.png'
+#LOGO_URL = 'images/logos/hybird.png'
 
 from django.conf.global_settings import TEMPLATE_CONTEXT_PROCESSORS
 TEMPLATE_CONTEXT_PROCESSORS += (
@@ -166,7 +171,7 @@ TEMPLATE_CONTEXT_PROCESSORS += (
      'creme_core.context_processors.get_logo_url',
      'creme_core.context_processors.get_version',
      'creme_core.context_processors.get_today',
-     'creme_core.context_processors.get_css_theme',
+     #'creme_core.context_processors.get_css_theme',
      'creme_core.context_processors.get_blocks_manager',
 )
 
@@ -233,8 +238,6 @@ ALLOWED_EXTENSIONS = [
                       'ogg', 'ogm'
                       ]
 
-
-
 USE_STRUCT_MENU = True
 
 DEFAULT_TIME_ALERT_REMIND = 10
@@ -242,6 +245,120 @@ DEFAULT_TIME_TODO_REMIND = 120
 
 #Show or not help messages in all the application
 SHOW_HELP = True
+
+
+#MEDIA GENERATOR SETTINGS ######################################################
+#http://www.allbuttonspressed.com/projects/django-mediagenerator
+MEDIA_DEV_MODE = False #DEBUG
+DEV_MEDIA_URL = '/devmedia/'
+PRODUCTION_MEDIA_URL = '/static_media/'
+
+GENERATED_MEDIA_DIR = join(MEDIA_ROOT, 'static')
+GLOBAL_MEDIA_DIRS = (join(dirname(__file__), 'static'),)
+
+#TODO: create a static/css/creme-minimal.css for login/logout ??
+CREME_CORE_CSS = ('main.css',
+                    'creme_core/css/jquery-css/creme-theme/jquery-ui-1.7.2.custom.css',
+                    'creme_core/css/fg-menu-3.0/fg.menu.css',
+                    'creme_core/css/jquery.gccolor.1.0.3/gccolor.css',
+
+                    'creme_core/css/creme.css',
+                    'creme_core/css/creme-ui.css',
+
+                    'creme_core/css/list_view.css',
+                    'creme_core/css/rte.css',
+
+                    #APPS
+                    'activities/css/fullcalendar.css',
+                 )
+
+CREME_CORE_JS = ('main.js',
+                    {'filter': 'mediagenerator.filters.media_url.MediaURL'}, #to get the media_url() function in JS.
+
+                    #TODO: remove '/dev' '-dev'
+                    'creme_core/js/jquery/dev/jquery-1.3.2-dev.js',
+                    #'creme_core/js/jquery/dev/ui.core.js', #delete file ??
+                    #'creme_core/js/jquery/dev/ui.draggable.js', #delete file ??
+                    'creme_core/js/jquery/prod/jquery-ui-1.7.2.custom.min.js',
+                    'creme_core/js/jquery/dev/jquery.cookie.dev.js',
+
+                    #TODO: remove '/dev'
+                    'creme_core/js/jquery/extensions/fg-menu-3.0/dev/fg.menu.js',
+                    'creme_core/js/jquery/extensions/fg-menu-3.0/dev/jquery.hotkeys-0.7.8.js',
+                    'activities/js/jquery/extensions/fullcalendar-1.4.5/dev/fullcalendar.js', #TODO: move with activities.js (beware it causes errors for now)
+                    'creme_core/js/jquery/extensions/jquery.gccolor.1.0.3/dev/jquery.gccolor.1.0.3.js',
+                    'creme_core/js/jquery/extensions/json-2.2/dev/jquery.json-2.2.js',
+                    'creme_core/js/jquery/extensions/highlight.js',
+                    #'creme_core/js/jquery/extensions/include.js', #delete file ??
+                    'creme_core/js/jquery/extensions/jquery.magnifier.js',
+                    'creme_core/js/jquery/extensions/jquery.utils.js',
+                    'creme_core/js/jquery/extensions/wait.js',
+
+                    #'creme_core/js/datejs/date-en-US.js', #TODO improve
+                    'creme_core/js/datejs/date-fr-FR.js',
+
+                     #TODO: remove '/dev'
+                     #TODO: an other bundle only for graphael ??
+                    'creme_core/js/lib/graphael/dev/raphael-1.5.2.js',
+                    'creme_core/js/lib/graphael/dev/g.raphael.js',
+                    'creme_core/js/lib/graphael/dev/g.bar.js',
+                    'creme_core/js/lib/graphael/dev/g.line.js',
+                    'creme_core/js/lib/graphael/dev/g.pie.js',
+                    #'creme_core/js/lib/graphael/prod/raphael-1.5.2.min.js',
+                    #'creme_core/js/lib/graphael/prod/g.raphael-min.js', #causes a JS error
+                    #'creme_core/js/lib/graphael/prod/g.line-min.js',
+                    #'creme_core/js/lib/graphael/prod/g.pie-min.js',
+                    #'creme_core/js/lib/graphael/prod/g.dot-min.js',
+                    #'creme_core/js/lib/graphael/prod/g.bar-min.js',
+
+                    'creme_core/js/utils.js',
+                    'creme_core/js/forms.js',
+                    'creme_core/js/ajax.js',
+                    'creme_core/js/creme.graphael.js',
+                    'creme_core/js/menu.js',
+
+                    'creme_core/js/widgets/base.js',
+                    'creme_core/js/widgets/dselect.js',
+                    'creme_core/js/widgets/chainedselect.js',
+                    'creme_core/js/widgets/selectorlist.js',
+                    'creme_core/js/widgets/entityselector.js',
+                    'creme_core/js/widgets/rte.js',
+
+                    'creme_core/js/filters.js',
+                    'creme_core/js/properties.js',
+                    'creme_core/js/relations.js',
+                    'creme_core/js/list_view.core.js',
+                    'creme_core/js/lv_widget.js',
+                    'creme_core/js/export.js',
+                    'creme_core/js/i18n.js',
+
+                    #OTHER APPS (mandatory ones)
+                    'creme_config/js/creme_config.js',
+                    'activities/js/activities.js',
+                    'documents/js/folders.js',
+                    'media_managers/js/media_managers.js',
+                    'persons/js/persons.js',
+                )
+
+CREME_OPT_JS = ( #OPTIONNAL APPS
+                'reports/js/reports.js',
+                'emails/js/emails.js',
+               )
+
+MEDIA_BUNDLES = (CREME_CORE_CSS, CREME_CORE_JS + CREME_OPT_JS)
+
+ROOT_MEDIA_FILTERS = {
+    'js':  'mediagenerator.filters.yuicompressor.YUICompressor',
+    #'js':  'mediagenerator.filters.closure.Closure', #NB: Closure causes compilation errors...
+    'css': 'mediagenerator.filters.yuicompressor.YUICompressor',
+}
+
+YUICOMPRESSOR_PATH = join(dirname(__file__), 'static', 'utils', 'yui', 'yuicompressor-2.4.2.jar')
+#CLOSURE_COMPILER_PATH = join(dirname(__file__), 'closure.jar')
+
+COPY_MEDIA_FILETYPES = ('gif', 'jpg', 'jpeg', 'png', 'ico', 'cur')
+
+#MEDIA GENERATOR SETTINGS [END] ################################################
 
 try:
     from local_settings import *

@@ -1,8 +1,9 @@
 {% load i18n %}
+{% load media %}
 {% load creme_core_tags %}
 <div class="research_box">
     <span>
-        <img border="0" title="{% trans "Search" %}" alt="{% trans "Search" %}" src="{{MEDIA_URL}}images/looking_glass_22.png" align="top">
+        <img border="0" title="{% trans "Search" %}" alt="{% trans "Search" %}" src="{% media_url 'images/looking_glass_22.png' %}" align="top">
         <select name="ct_id">
             <option value="">{% trans "All" %}</option>
             <option disabled>------</option>

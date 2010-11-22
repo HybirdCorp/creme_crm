@@ -31,7 +31,7 @@
                         <td class="{{row_color}}">{{mail.reception_date}}</td>
                         <td class="{{row_color}}" align="center" valign="center" style="width:10%;">
                             <a href="{{mail.get_absolute_url}}">
-                                <img src="{{MEDIA_URL}}images/view_22.png" border="0" title="{% trans "See the entity" %}" alt="{% trans "See the entity" %}" />
+                                <img src="{% media_url 'images/view_22.png' %}" border="0" title="{% trans "See the entity" %}" alt="{% trans "See the entity" %}" />
                             </a>
                             {% get_line_deletor at_url '/emails/mail/delete' with_args "{'ids': ['{{mail.pk}}'] }" %}
                         </td>

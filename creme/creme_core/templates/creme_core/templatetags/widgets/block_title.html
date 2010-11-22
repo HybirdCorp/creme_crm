@@ -1,8 +1,9 @@
+{% load creme_core_tags %}{% load media %}
 {% if icon %}
     <table cellspacing="0" cellpadding="0">
         <tbody>
-            <tr>
-                <th><img src="{{MEDIA_URL}}images/{{icon}}" alt="{{short_title}}" title="{{short_title}}" /></th>
+            <tr>{% templatize 'images/{{icon}}' as icon_path %}
+                <th><img src="{% media_url icon_path %}" alt="{{short_title}}" title="{{short_title}}" /></th>
                 <th>&nbsp;{{title}}</th>
             </tr>
         </tbody>
@@ -10,4 +11,3 @@
 {% else %}
     {{title}}
 {% endif %}
-                        
