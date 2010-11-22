@@ -1,13 +1,14 @@
+{% load media %}
 {% load creme_block %}
 <th class="block_header_line_dark">
     {% if field_name == order %}
         {% if asc %}
-            <img src="{{MEDIA_URL}}images/small_up_arrow_16.png" border="0" />
+            <img src="{% media_url 'images/small_up_arrow_16.png' %}" border="0" />
             <a class="button_link" onclick="creme.utils.loadBlock({% get_block_reload_uri %} + '&{{block_name}}_order=-{{field_name}}')">
                 {{column_name}}
             </a>
         {% else %}
-            <img src="{{MEDIA_URL}}images/small_down_arrow_16.png" border="0" />
+            <img src="{% media_url 'images/small_down_arrow_16.png' %}" border="0" />
             <a class="button_link" onclick="creme.utils.loadBlock({% get_block_reload_uri %} + '&{{block_name}}_order={{field_name}}')">
                 {{column_name}}
             </a>

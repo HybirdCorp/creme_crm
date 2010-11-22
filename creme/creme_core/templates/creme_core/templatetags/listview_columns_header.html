@@ -1,4 +1,4 @@
-{% load i18n %}
+{% load i18n %}{% load media %}
 {% load creme_core_tags %}
 <tr id="list_thead_search" class="columns_bottom">
     {% if not o2m %}<th><center><input name="select_all" value="all" type="checkbox" title="{% trans "Select all" %}"/></center></th>{% endif %}
@@ -35,8 +35,8 @@
                                        style="width:80px" value="{% if search %}{{column_options.values.end}}{% endif %}"/>
                             </span>
                             <script type="text/javascript">
-                                $("#id_{{column.name}}").datepicker({dateFormat:   "yy-mm-dd", showOn: "button", buttonImage: "{{MEDIA_URL}}/images/icon_calendar.gif", buttonImageOnly: true, onSelect: function(dateText, inst){$('#id_{{column.name}}_2').val(dateText);}});
-                                $("#id_{{column.name}}_2").datepicker({dateFormat: "yy-mm-dd", showOn: "button", buttonImage: "{{MEDIA_URL}}/images/icon_calendar.gif", buttonImageOnly: true });
+                                $("#id_{{column.name}}").datepicker({dateFormat:   "yy-mm-dd", showOn: "button", buttonImage: "{% media_url 'images/icon_calendar.gif' %}", buttonImageOnly: true, onSelect: function(dateText, inst){$('#id_{{column.name}}_2').val(dateText);}});
+                                $("#id_{{column.name}}_2").datepicker({dateFormat: "yy-mm-dd", showOn: "button", buttonImage: "{% media_url 'images/icon_calendar.gif' %}", buttonImageOnly: true });
                             </script>
                         {% else %}{% if column_type == "text" %}
                             <input name="{{column.name}}" title="{{column.title}}" type="{{column_type}}" value="{% if search %}{{column_options.value}}{% endif %}"/>

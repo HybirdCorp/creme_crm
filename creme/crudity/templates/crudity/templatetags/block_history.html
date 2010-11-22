@@ -1,8 +1,7 @@
 {% load i18n %}
-{% load creme_block %}
-{% load creme_core_tags %}
+{% load media %}
+{% load creme_block %}{% load creme_core_tags %}
 {% load crudity_tags %}
-
 {% with 4 as colspan %}
     <table class="table_detail_view ui-corner-all" id={{block_name}}>
         <thead>
@@ -27,7 +26,7 @@
                             <td class="{{row_color}}">{{history_entity}}</td>
                             <td class="{{row_color}}">{{history.created}}</td>
                             <td class="{{row_color}}">{{history.description}}</td>
-                            <td class="{{row_color}}"><a href="{{history_entity.get_absolute_url}}"><img src="{{MEDIA_URL}}images/view_22.png" border="0" title="{% blocktrans %}View '{{history_entity}}' details{% endblocktrans %}" alt="{% trans "View" %}" /></a></td>
+                            <td class="{{row_color}}"><a href="{{history_entity.get_absolute_url}}"><img src="{% media_url 'images/view_22.png' %}" border="0" title="{% blocktrans %}View '{{history_entity}}' details{% endblocktrans %}" alt="{% trans "View" %}" /></a></td>
                         {% endwith %}
                     </tr>
                 {% endfor %}

@@ -1,12 +1,12 @@
 {% extends "creme_core/base.html" %}
 {% load i18n %}
-{% load creme_core_tags %}
-{% load creme_block %}
+{% load media %}
+{% load creme_core_tags %}{% load creme_block %}
 
 {% block content %}
     <table class="table_header" cellpadding="0" cellspacing="0">
         <tr>
-            <td width="5%"><img src="{{MEDIA_URL}}images/document_csv_64.png" title="CSV" alt="CSV"/></td>
+            <td width="5%"><img src="{% media_url 'images/document_csv_64.png' %}" title="CSV" alt="CSV"/></td>
             <td width="95%">
                 <h1>
                     {% trans "CSV importing : results" %}
@@ -64,7 +64,7 @@
         <ul class="button_list hbox">
             <li>
                 <a class="menu_button" href="{{back_url}}">
-                    <img src="{{MEDIA_URL}}images/left_arrow_32.png" border="0" title="{% trans "Back to the list" %}" alt="{% trans "Back to the list" %}" />
+                    <img src="{% media_url 'images/left_arrow_32.png' %}" border="0" title="{% trans "Back to the list" %}" alt="{% trans "Back to the list" %}" />
                     {% trans "Back to the list" %}
                 </a>
             </li>

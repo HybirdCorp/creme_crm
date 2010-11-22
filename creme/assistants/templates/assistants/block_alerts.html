@@ -1,4 +1,5 @@
 {% load i18n %}
+{% load media %}
 {% load creme_core_tags %}{% load creme_block %}
 <table class="table_detail_view ui-corner-all" id={{block_name}}>
     {% get_block_header colspan=7 %}
@@ -41,7 +42,7 @@
                         <form method="post" action="/assistants/alert/validate/{{alert.id}}/">{% csrf_token %}
                             <input type="checkbox" name="checked_alert{{alert.id}}" id="checked_alert{{alert.id}}" />
                                 <button type="button" onclick="creme.utils.validateEntity(this.form, 'checked_alert{{alert.id}}', {% get_block_reload_uri %});" style="background:transparent; cursor:pointer;border:0px;">
-                                <img src="{{MEDIA_URL}}images/refresh_16.png" width="16" height="16" border="0">
+                                <img src="{% media_url 'images/refresh_16.png' %}" width="16" height="16" border="0">
                             </button>
                         </form>
                     </td>

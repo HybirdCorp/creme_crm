@@ -18,6 +18,8 @@ urlpatterns = patterns('',
     (r'^', include('creme.creme_core.urls')),
 
     (r'^site_media/(?P<path>.*)$', 'django.views.static.serve', {'document_root': settings.MEDIA_ROOT}),
+    #NB: in production, configure your web server to statically serve the files in the 'media/static/' dir (and so comment the following line)
+    (r'^static_media/(?P<path>.*)$', 'django.views.static.serve', {'document_root': settings.GENERATED_MEDIA_DIR}),
 
     (r'^creme_config/',   include('creme.creme_config.urls')),
     (r'^media_managers/', include('creme.media_managers.urls')),

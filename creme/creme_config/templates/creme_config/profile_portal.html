@@ -1,5 +1,6 @@
 {% extends "creme_config/portal.html" %}
 {% load i18n %}
+{% load media %}
 {% load creme_core_tags %}
 
 {% block title %}
@@ -32,7 +33,7 @@
                 <tr>
                     <th class="block_header_line_light" style="font-size:14px;" align="left" colspan="6">
                         <a class="button_link" href="/creme_config/profile/add/">
-                            <img src="{{MEDIA_URL}}images/add_22.png" border="0" alt="{% trans "New profile" %}"/>
+                            <img src="{% media_url 'images/add_22.png' %}" border="0" alt="{% trans "New profile" %}"/>
                             {% trans "New profile" %}
                         </a>
                     </th>
@@ -63,12 +64,12 @@
                             </td>
                             <td class="{{row_color}}">
                                 <a href="/creme_config/profile/edit/{{profile.id}}">
-                                    <img src="{{MEDIA_URL}}images/edit_22.png" border="0" title="{% trans "Edit" %}" alt="{% trans "Edit" %}">
+                                    <img src="{% media_url 'images/edit_22.png' %}" border="0" title="{% trans "Edit" %}" alt="{% trans "Edit" %}">
                                 </a>
                             </td>
                             <td class="{{row_color}}">
                                 <a href="/creme_config/profile/delete/{{profile.id}}">
-                                    <img src="{{MEDIA_URL}}images/delete_22.png" border="0" title="{% trans "Delete" %}" alt="{% trans "Delete" %}">
+                                    <img src="{% media_url 'images/delete_22.png' %}" border="0" title="{% trans "Delete" %}" alt="{% trans "Delete" %}">
                                 </a>
                             </td>
                         </tr>

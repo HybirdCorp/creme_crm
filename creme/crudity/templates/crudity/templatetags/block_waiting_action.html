@@ -1,8 +1,7 @@
 {% load i18n %}
-{% load creme_block %}
-{% load creme_core_tags %}
+{% load media %}
+{% load creme_block %}{% load creme_core_tags %}
 {% load crudity_tags %}
-
 {% with 3 as colspan %}
     <table class="table_detail_view ui-corner-all" id={{block_name}}>
         <thead>
@@ -17,11 +16,11 @@
                 <tr>
                     <th colspan="{{colspan}}" class="block_header_line_dark" align="left">
                         <a class="button_link" onclick="creme.emails.mass_action('/crudity/waiting_actions/validate', '[name=select_one]:checked', {% get_block_reload_uri %});">
-                            <img src="{{MEDIA_URL}}images/jewel_ok_22.png" border="0" title="{% trans "Validate" %}" alt="{% trans "Validate" %}" />
+                            <img src="{% media_url 'images/jewel_ok_22.png' %}" border="0" title="{% trans "Validate" %}" alt="{% trans "Validate" %}" />
                             {% trans "Validate" %}
                         </a>
                         <a class="button_link" onclick="creme.emails.mass_action('/crudity/waiting_actions/delete', '[name=select_one]:checked', {% get_block_reload_uri %});">
-                            <img src="{{MEDIA_URL}}images/delete_22.png" border="0" title="{% trans "Delete" %}" alt="{% trans "Delete" %}" />
+                            <img src="{% media_url 'images/delete_22.png' %}" border="0" title="{% trans "Delete" %}" alt="{% trans "Delete" %}" />
                             {% trans "Delete" %}
                         </a>
                     </th>

@@ -1,4 +1,5 @@
 {% load i18n %}
+{% load media %}
 {% load creme_core_tags %}
 {% load email_tags %}
 <table class="table_detail_view ui-corner-all">
@@ -9,7 +10,7 @@
                     <table class="block_header" cellspacing="0" cellpadding="0">
                         <tbody>
                             <tr>
-                                <td><img src="{{MEDIA_URL}}images/email_48.png" alt="" title="Email" /></td>
+                                <td><img src="{% media_url 'images/email_48.png' %}" alt="" title="Email" /></td>
                                 <td>&nbsp;{{object}}</td>
                             </tr>
                         </tbody>

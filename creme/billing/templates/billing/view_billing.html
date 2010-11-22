@@ -1,14 +1,15 @@
 {% extends "creme_core/generics/view_entity.html" %}
 
 {% load i18n %}
+{% load media %}
 {% load creme_block %}
 
-{% block extrahead %}
+{% comment %}{% block extrahead %}
     {{block.super}}
     {% if can_download %}<script type="text/javascript" src="{{MEDIA_URL}}js/export.js"></script>{% endif %}
-{% endblock %}
+{% endblock %}{% endcomment %}
 
-{% block logo %}<img src="{{MEDIA_URL}}images/invoice_64.png" alt=""/>{% endblock %}
+{% block logo %}<img src="{% media_url 'images/invoice_64.png' %}" alt=""/>{% endblock %}
 
 {% block creme_blocks_import %}
     {{block.super}}
@@ -22,7 +23,7 @@
 {% block edit_delete_buttons %}
     {% if can_download %}
         <a href="/billing/generate_pdf/{{object.id}}" onclick="creme._export.select_one(event, this);">
-            <img src="{{MEDIA_URL}}images/download_64.png" title="{% blocktrans %}Download '{{object}}' to the desired format{% endblocktrans %}" alt="{% blocktrans %}Download '{{object}}' to the desired format{% endblocktrans %}" />
+            <img src="{% media_url 'images/download_64.png' %}" title="{% blocktrans %}Download '{{object}}' to the desired format{% endblocktrans %}" alt="{% blocktrans %}Download '{{object}}' to the desired format{% endblocktrans %}" />
         </a>
     {% endif %}
     {{block.super}}
@@ -36,7 +37,7 @@
 {% block detail_view_left_1 %}
     {% include "creme_core/object_as_table.html" %}
 
-    <!-- MOVE THIS SCRIPT ??!! -->
+    <!-- TODO: MOVE THIS SCRIPT ??!! and rename function (creme.billing.updateLine())-->
     <script type="text/javascript">
         function update(id) {
             document.getElementById("updateStatus" + id).submit();

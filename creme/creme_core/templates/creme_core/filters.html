@@ -1,8 +1,9 @@
 {% extends "creme_core/base.html" %}
 {% load i18n %}
+{% load media %}
 
 {% block extrahead %}
-<script type="text/javascript" src="{{MEDIA_URL}}js/models/filters.js"></script>
+{% comment %} <script type="text/javascript" src="{{MEDIA_URL}}js/models/filters.js"></script> {% endcomment %}
 <script type="text/javascript">
     function replaceAttr(node, attr, oldvalue, count, is_just_append)
     {
@@ -364,8 +365,8 @@
             tr_model.find('input[id^="id_end_date_"]').val(end_date);
         }
 
-        $("#id_begin_date_"+count).datepicker({dateFormat: "yy-mm-dd", showOn: "button", buttonImage: "{{MEDIA_URL}}/images/icon_calendar.gif", buttonImageOnly: true });
-        $("#id_end_date_"+count).datepicker({dateFormat: "yy-mm-dd", showOn: "button", buttonImage: "{{MEDIA_URL}}/images/icon_calendar.gif", buttonImageOnly: true });
+        $("#id_begin_date_"+count).datepicker({dateFormat: "yy-mm-dd", showOn: "button", buttonImage: "{% media_url 'images/icon_calendar.gif' %}", buttonImageOnly: true });
+        $("#id_end_date_"+count).datepicker({dateFormat: "yy-mm-dd", showOn: "button", buttonImage: "{% media_url 'images/icon_calendar.gif' %}", buttonImageOnly: true });
         $('#id_date_filters_'+count).attr({'end_date_id': "id_end_date_"+count, 'start_date_id': "id_begin_date_"+count});
 
         $('#id_date_filters_'+count).change(function(){
@@ -560,7 +561,7 @@
 {% block content %}
     <table class="table_header" cellpadding="0" cellspacing="0">
         <tr>
-            <td width="5%"><img src="{{MEDIA_URL}}images/filter_64.png" title="{% trans "Filter" %}" alt="{% trans "Filter" %}"/></td>
+            <td width="5%"><img src="{% media_url 'images/filter_64.png' %}" title="{% trans "Filter" %}" alt="{% trans "Filter" %}"/></td>
             <td width="95%">
                 <h1>
                     {% trans "Filter" %} : {% if mode == 'edit' %} {% trans "edition" %} {% else %} {% trans "creation" %} {% endif %}
@@ -576,11 +577,11 @@
             <table width="100%">
                 <tbody>
                     <tr>
-                        <td><button type="button" id="add"><img src="{{MEDIA_URL}}images/add_22.png" alt="{% trans "Add" %}"/>{% trans "Add a condition" %}</button></td>
-                        <td><button type="button" id="add_filter"><img src="{{MEDIA_URL}}images/add_22.png" alt="{% trans "Add" %}"/>{% trans "Add an existing filter as condition" %}</button></td>
-                        <td><button type="button" id="add_relation"><img src="{{MEDIA_URL}}images/add_22.png" alt="{% trans "Add" %}"/>{% trans "Add a filter on a relation" %}</button></td>
-                        <td><button type="button" id="add_property"><img src="{{MEDIA_URL}}images/add_22.png" alt="{% trans "Add" %}"/>{% trans "Add a filter on a property" %}</button></td>
-                        <td><button type="button" id="add_date_filter"><img src="{{MEDIA_URL}}images/add_22.png" alt="{% trans "Add" %}"/>{% trans "Add a filter on a date field" %}</button></td>
+                        <td><button type="button" id="add"><img src="{% media_url 'images/add_22.png' %}" alt="{% trans "Add" %}"/>{% trans "Add a condition" %}</button></td>
+                        <td><button type="button" id="add_filter"><img src="{% media_url 'images/add_22.png' %}" alt="{% trans "Add" %}"/>{% trans "Add an existing filter as condition" %}</button></td>
+                        <td><button type="button" id="add_relation"><img src="{% media_url 'images/add_22.png' %}" alt="{% trans "Add" %}"/>{% trans "Add a filter on a relation" %}</button></td>
+                        <td><button type="button" id="add_property"><img src="{% media_url 'images/add_22.png' %}" alt="{% trans "Add" %}"/>{% trans "Add a filter on a property" %}</button></td>
+                        <td><button type="button" id="add_date_filter"><img src="{% media_url 'images/add_22.png' %}" alt="{% trans "Add" %}"/>{% trans "Add a filter on a date field" %}</button></td>
                     </tr>
                 </tbody>
             </table>
@@ -613,13 +614,13 @@
                         <td>&nbsp;</td>
                         <td>{{form.champs}} - {{form.champsfk}}</td>
                         <td>{{form.tests}}</td>
-                        <td>&nbsp;{{form.value}}&nbsp;<img src="{{MEDIA_URL}}images/delete_22.png" alt="{% trans "Delete" %}" id="model" onclick="removeLine(this.id);"/></td>
+                        <td>&nbsp;{{form.value}}&nbsp;<img src="{% media_url 'images/delete_22.png' %}" alt="{% trans "Delete" %}" id="model" onclick="removeLine(this.id);"/></td>
                     </tr>
                     <tr id="filter_model" style="display:none;">
                         <td>&nbsp;</td>
                         <td>Filtre : </td>
                         <td>{{form.parent_filters}}</td>
-                        <td><img src="{{MEDIA_URL}}images/delete_22.png" alt="{% trans "Delete" %}" id="model" onclick="removeFilterLine(this.id);"/></td>
+                        <td><img src="{% media_url 'images/delete_22.png' %}" alt="{% trans "Delete" %}" id="model" onclick="removeFilterLine(this.id);"/></td>
                     </tr>
                     <tr id="relation_model" style="display:none;">
                         <td>&nbsp;</td>
@@ -635,13 +636,13 @@
                                 {% trans "Leave empty values to filter all entities having the selected relation." %}
                             </span>
                         </td>
-                        <td><img src="{{MEDIA_URL}}images/delete_22.png" alt="{% trans "Delete" %}" id="model" onclick="deleteLine(this.id,'relation_'+this.id, 'ids_relations');"/></td>
+                        <td><img src="{% media_url 'images/delete_22.png' %}" alt="{% trans "Delete" %}" id="model" onclick="deleteLine(this.id,'relation_'+this.id, 'ids_relations');"/></td>
                     </tr>
                     <tr id="properties_model" style="display:none;">
                         <td>&nbsp;</td>
                         <td>{{form.has_property}} la propriété </td> {% comment %}I18N{% endcomment %}
                         <td>{{form.properties}}</td>
-                        <td><img src="{{MEDIA_URL}}images/delete_22.png" alt="{% trans "Delete" %}" id="model" onclick="deleteLine(this.id,'properties_'+this.id, 'ids_properties');"/></td>
+                        <td><img src="{% media_url 'images/delete_22.png' %}" alt="{% trans "Delete" %}" id="model" onclick="deleteLine(this.id,'properties_'+this.id, 'ids_properties');"/></td>
                     </tr>
                     <tr id="date_fields_model" style="display:none;">
                         <td>&nbsp;</td>
@@ -649,7 +650,7 @@
                         <td>{{form.date_filters}}</td>
                         <td>{% trans "Begin date" %} : {{form.begin_date}}</td>
                         <td>{% trans "End date" %} : {{form.end_date}}</td>
-                        <td><img src="{{MEDIA_URL}}images/delete_22.png" alt="{% trans "Delete" %}" id="model" onclick="deleteLine(this.id,'date_fields_'+this.id, 'ids_date_fields');"/></td>
+                        <td><img src="{% media_url 'images/delete_22.png' %}" alt="{% trans "Delete" %}" id="model" onclick="deleteLine(this.id,'date_fields_'+this.id, 'ids_date_fields');"/></td>
                     </tr>
                 </thead>
                 <tbody>

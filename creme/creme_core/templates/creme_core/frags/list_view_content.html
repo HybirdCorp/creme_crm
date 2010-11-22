@@ -1,4 +1,5 @@
 {% load i18n %}
+{% load media %}
 {% load creme_core_tags %}{% load creme_widgets %}{% load creme_listview %}
 
 {% with header_filters.selected.items as columns %}
@@ -44,28 +45,28 @@
                 {% if not is_popup_view %}
                     {% has_perm_to create model as creation_perm %}
                     {% if add_url and creation_perm %}
-                        <a href="{{add_url}}"><img border="0" src="{{MEDIA_URL}}images/add_22.png" alt="{% trans "New" %}" title="{% trans "New" %}"/>{% trans "New" %}</a>
+                        <a href="{{add_url}}"><img border="0" src="{% media_url 'images/add_22.png' %}" alt="{% trans "New" %}" title="{% trans "New" %}"/>{% trans "New" %}</a>
                     {% endif %}
                     <a href="/creme_core/list_view/dl_csv/{{content_type_id}}?list_url={{request.path}}">
-                        <img border="0" src="{{MEDIA_URL}}images/document_csv_22.png" alt="{% trans "Download CSV" %}" title="{% trans "Download CSV" %}"/>{% trans "Download CSV" %}
+                        <img border="0" src="{% media_url 'images/document_csv_22.png' %}" alt="{% trans "Download CSV" %}" title="{% trans "Download CSV" %}"/>{% trans "Download CSV" %}
                     </a>&nbsp;
                     {% if creation_perm %}
                         <a href="/creme_core/list_view/import_csv/{{content_type_id}}?list_url={{request.path}}">
-                            <img border="0" src="{{MEDIA_URL}}images/document_csv_22.png" alt="{% trans "Import CSV" %}" title="{% trans "Import CSV" %}"/>{% trans "Import CSV" %}
+                            <img border="0" src="{% media_url 'images/document_csv_22.png' %}" alt="{% trans "Import CSV" %}" title="{% trans "Import CSV" %}"/>{% trans "Import CSV" %}
                         </a>&nbsp;
                     {% endif %}
                     <a onclick="creme.utils.multiDeleteFromListView('form[name=list_view_form]', '/creme_core/delete_js');">
-                        <img border="0" src="{{MEDIA_URL}}images/delete_22.png" alt="{% trans "Multiple deletion" %}" title="{% trans "Multiple deletion" %}"/>{% trans "Multiple deletion" %}
+                        <img border="0" src="{% media_url 'images/delete_22.png' %}" alt="{% trans "Multiple deletion" %}" title="{% trans "Multiple deletion" %}"/>{% trans "Multiple deletion" %}
                     </a>&nbsp;
                     <a onclick="creme.utils.multiAddPropertyFromListView('form[name=list_view_form]', '/creme_core/property/add_to_entities', '{{content_type_id}}');">
-                        <img border="0" src="{{MEDIA_URL}}images/property_22.png" alt="{% trans "Multiple property adding" %}" title="{% trans "Multiple property adding" %}"/>{% trans "Multiple property adding" %}
+                        <img border="0" src="{% media_url 'images/property_22.png' %}" alt="{% trans "Multiple property adding" %}" title="{% trans "Multiple property adding" %}"/>{% trans "Multiple property adding" %}
                     </a>&nbsp;
                     <a onclick="creme.relations.addFromListView('form[name=list_view_form]', '/creme_core/relation/add_to_entities/{{content_type_id}}/');">
-                        <img border="0" src="{{MEDIA_URL}}images/relations_22.png" alt="{% trans "Multiple relation adding" %}" title="{% trans "Multiple relation adding" %}"/>{% trans "Multiple relation adding" %}
+                        <img border="0" src="{% media_url 'images/relations_22.png' %}" alt="{% trans "Multiple relation adding" %}" title="{% trans "Multiple relation adding" %}"/>{% trans "Multiple relation adding" %}
                     </a>&nbsp;
                 {% endif %}
                 <button  value="0" type="button" name="_search"{% if not search %} disabled="true" {% else %} onclick="$(this.form).list_view('getSubmit')(this);" {% endif %}>{% trans "Clean the search" %}</button>
-                <button  value="1" type="button" name="_search" onclick="$(this.form).list_view('getSubmit')(this);"><img border="0" src="{{MEDIA_URL}}images/looking_glass_22.png" alt="{% trans "Research" %}" title="{% trans "Research" %}"/>{% trans "Research" %}</button>
+                <button  value="1" type="button" name="_search" onclick="$(this.form).list_view('getSubmit')(this);"><img border="0" src="{% media_url 'images/looking_glass_22.png' %}" alt="{% trans "Research" %}" title="{% trans "Research" %}"/>{% trans "Research" %}</button>
                 {% block extra_buttons %}{% endblock %}
                 {% if extra_bt_templates|isiterable %}
                     {% for templ in extra_bt_templates %}

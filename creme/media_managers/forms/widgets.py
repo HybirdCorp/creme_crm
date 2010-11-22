@@ -20,26 +20,14 @@
 
 from django.utils.translation import ugettext as _
 from django.utils.safestring import mark_safe
-from django.conf import settings
 
 from creme_core.forms.widgets import ListViewWidget
 
 
 class ImageM2MWidget(ListViewWidget):
-    include_js =  settings.MEDIA_URL + '/js/models/image_m2m_widget.js'
-
     def render(self, name, value, attrs=None):
-        html_output = u"""
-                %(input)s
-                <script type="text/javascript">
-                    include('%(include)s', 'js');
-                </script>
-                <a href="javascript:image_m2m_widget.handleCreate('/media_managers/image/add?popup=true&from_id=%(id)s', 'm2m_%(id)s_popup');">
-                    %(label)s
-                </a>
-            """ % {
+        html_output = u"""%(input)s<a href="javascript:creme.media_managers.createImageM2MWidget('/media_managers/image/add?popup=true&from_id=%(id)s', 'm2m_%(id)s_popup');">%(label)s</a>""" % {
                     'input':   super(ImageM2MWidget, self).render(name, value, attrs),
-                    'include': self.include_js,
                     'id':      self.attrs['id'],
                     'label':   _(u'Add image'),
                   }

@@ -1,7 +1,7 @@
 {% extends "creme_core/generics/blockform/add.html" %}
 
 {% block extrahead %}
-    <script type="text/javascript" src="{{MEDIA_URL}}js/models/reports.js"></script>
+    {% comment %}<script type="text/javascript" src="{{MEDIA_URL}}js/models/reports.js"></script>{% endcomment %}
     <script type="text/javascript">
         $(document).ready(function(){
             $('#{{form.ct.auto_id}}').change(function(){

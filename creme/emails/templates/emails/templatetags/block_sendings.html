@@ -1,4 +1,5 @@
 {% load i18n %}
+{% load media %}
 {% load creme_core_tags %}{% load creme_block %}
 {% has_perm_to change object as has_perm %}
 <table class="table_detail_view ui-corner-all" id={{block_name}}>
@@ -29,7 +30,7 @@
                     <td class="{{row_color}}">{{sending.get_mails.count}}</td>
                     <td class="{{row_color}}" align="center" valign="center" style="width:10%;">
                         <a class="button_link" onclick="creme.utils.showInnerPopup('/emails/campaign/sending/{{sending.pk}}')">
-                            <img src="{{MEDIA_URL}}images/view_22.png" border="0" title="{% trans "Details" %}" alt="{% trans "Details" %}" />
+                            <img src="{% media_url 'images/view_22.png' %}" border="0" title="{% trans "Details" %}" alt="{% trans "Details" %}" />
                         </a>
                     </td>
                     <td class="{{row_color}}" align="center" valign="center" style="width:10%;">

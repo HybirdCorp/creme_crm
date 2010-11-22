@@ -9,8 +9,10 @@ You can find more information on Creme on its official web site: http://cremecrm
 DEPENDENCIES:
 - Python 2.5
 - Django 1.2
+- Django-mediagenerator 1.8
 - pdflatex (if you use the app creme.billing and want PDF export)
 - pygraphviz (if you use the app creme.graphs and want graph export)
+- Java (only needed to build the compressed version of CSS and JavaScript files at installation time)
 
 RECOMMENDATIONS
 It's recommended to use a database engine that supports transactions.
@@ -21,4 +23,5 @@ See the creme/settings.py and set your parameters (or put them in a new file cal
 When you have chosen the creme apps you want (by commenting the unwanted ones), and configured the DB parameters
 run the following command in the creme/ directory:
 >> python manage.py syncdb
+>> python manage.py generatemedia
 >> python manage.py creme_populate -v
