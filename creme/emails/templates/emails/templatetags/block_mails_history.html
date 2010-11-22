@@ -1,16 +1,16 @@
 {% load i18n %}
-{% load creme_core_tags %}
-{% load creme_block %}
-<script type="text/javascript">
-    creme.include('/site_media/js/models/emails.js','js');
-</script>
+{% load media %}
+{% load creme_core_tags %}{% load creme_block %}
+{% comment %}<script type="text/javascript">
+    creme.include('{{MEDIA_URL}}js/models/emails.js','js');
+</script>{% endcomment %}
 <table class="table_detail_view ui-corner-all" id={{block_name}}>
     {% get_block_header colspan=6 %}
         <th style="width: 80%;" class="collapser" align="left">{% get_block_title _("%s Email in the history") _("%s Emails in the history") 'email_48.png' _('Emails') %}</th>
         <th style="width: 20%;" align="right">
             <div class="buttons">
                 <a class="add" onclick="creme.utils.innerPopupNReload('/emails/mail/add/{{object.pk}}', {% get_block_reload_uri %});">
-                    <img src="{{MEDIA_URL}}images/add_22.png" border="0" title="{% trans "Send a new mail related to this file" %}" alt="{% trans "Send a new mail related to this file" %}" />
+                    <img src="{% media_url 'images/add_22.png' %}" border="0" title="{% trans "Send a new mail related to this file" %}" alt="{% trans "Send a new mail related to this file" %}" />
                     {% trans "Send a new mail related to this file" %}
                 </a>
             </div>
@@ -36,11 +36,11 @@
                     <td class="{{row_color}}">{{mail|get_html_field_value:"sending_date"}}</td>
                     <td class="{{row_color}}">
                         <a class="button_link" onclick="creme.utils.showInnerPopup('/emails/mail/{{mail.pk}}/popup');">
-                            <img src="{{MEDIA_URL}}images/view_22.png" border="0" title="{% trans "Details" %}" alt="{% trans "Details" %}" />
+                            <img src="{% media_url 'images/view_22.png' %}" border="0" title="{% trans "Details" %}" alt="{% trans "Details" %}" />
                         </a>
                         {% if mail.status != sent_status %}
                             <a class="button_link" onclick="creme.emails.resend('/emails/mail/resend', ['{{mail.pk}}'], {% get_block_reload_uri %});">
-                                <img src="{{MEDIA_URL}}images/refresh_22.png" border="0" title="{% trans "Re-send" %}" alt="{% trans "Re-send" %}" />
+                                <img src="{% media_url 'images/refresh_22.png' %}" border="0" title="{% trans "Re-send" %}" alt="{% trans "Re-send" %}" />
                             </a>
                         {% endif %}
                     </td>

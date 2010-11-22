@@ -1,0 +1,184 @@
+.list_view {
+    width: 100%;
+    border : 1px solid #548295;
+    padding : 4px;
+    margin : 0px;
+    -moz-border-radius: 4px;
+    -webkit-border-radius: 4px;
+}
+
+.list_view thead {
+    /*font-size:16px;*/
+    /*font-weight:bold;*/
+    /*color:white;*/
+    color:#2C596C;
+    /*background-color:#94c6db;*/
+    background: #94c6db url(jquery-css/creme-theme/images/ui-bg_diagonals-thick_15_94c6db_40x40.png) 50% 50% repeat;
+    padding : 0px;
+}
+
+.list_view fieldset {
+   border: 1px solid #548295;
+   padding:0 10px 2px 10px;
+}
+
+.list_view fieldset legend {
+    padding: 0 10px;
+    border-left: #548295 1px solid;
+    border-right: #548295 1px solid;
+}
+
+.list_view fieldset:hover {
+   background-color:#95B6DB;
+}
+
+.list_view .toolbar th {
+    padding-top: 5px;
+    padding-bottom: 5px;
+}
+
+.list_view .toolbar button, .list_view .toolbar a, .list_view button {
+    /*padding: 4px ;
+    border: 1px solid #d5e0e5;
+    background-color: #d9e5ea;
+    color:  #22439f;
+    -moz-border-radius: 4px;
+    -webkit-border-radius: 4px;*/
+
+    cursor:pointer;
+    border: 1px solid #d5e0e5;
+    background: #d9e5ea url(../css/jquery-css/creme-theme/images/ui-bg_highlight-hard_75_d9e5ea_1x100.png) 50% 50% repeat-x;
+    font-weight: normal;
+    color: #22439f;
+    outline: none;
+    -moz-border-radius: 4px;
+    -webkit-border-radius: 4px;
+
+}
+
+.list_view .toolbar button:hover, .list_view .toolbar a:hover, .list_view button:hover {
+    /*color: #f46758;
+    border: 1px solid #f7b5ad;
+    background-color: #fdd5d1;
+    text-decoration: none;
+    cursor:pointer;*/
+
+    cursor:pointer;
+    border: 1px solid #f7b5ad;
+    background: #fdd5d1 url(../css/jquery-css/creme-theme/images/ui-bg_inset-soft_75_fdd5d1_1x100.png) 50% 50% repeat-x;
+    font-weight: normal;
+    color: #f46758;
+    outline: none;
+    -moz-border-radius: 4px;
+    -webkit-border-radius: 4px;
+    text-decoration: none;
+}
+
+/*.list_view thead th{
+    border-bottom: 1px solid #548295;
+    border-left: 1px solid #548295;
+    border-right: 1px solid #548295;
+}*/
+
+
+.list_view .columns_top th {
+    border-top: 1px solid #548295;
+    border-left: 1px solid #548295;
+    border-right: 1px solid #548295;
+}
+
+.list_view .columns_bottom th.search input,
+.list_view .columns_bottom th.search select,
+.list_view .columns_top th.search input,
+.list_view .columns_top th.search select {
+    background-color: #FCD3CF;
+    /*background: #fdd5d1 url(jquery-css/creme-theme/images/ui-bg_glass_75_f7d6d2_1x400.png) 50% 50% repeat-x;*/
+}
+
+.list_view .columns_bottom th{
+    border-bottom: 1px solid #548295;
+    border-left: 1px solid #548295;
+    border-right: 1px solid #548295;
+    text-align: center;
+    padding-bottom: 2px;
+}
+
+/*.list_view tbody tr:nth-of-type(odd) { CSS3*/
+.list_view tbody tr.odd {
+    background-color: #E6F2F7;
+}
+
+.list_view tbody tr {
+    border-bottom: 1px solid #333;
+}
+
+.list_view tbody td{
+    color:#376e86;
+    padding-left:5px;
+    padding-right:5px;
+    /*min-width:5% !important;*/
+    white-space:nowrap;
+    padding:2px 6px;
+    text-align: center;
+    border-bottom: 1px solid #548295;
+    border-left: 1px solid #548295;
+    border-right: 1px solid #548295;
+}
+
+.list_view tbody td ul{
+    text-align:left;
+}
+
+.list_view tfoot tr td table tr td{
+    border: 0;
+    color:#2C596C;
+    font-weight:bold;
+}
+
+.list_view tfoot tr td {
+    border-bottom: 1px solid #548295;
+    border-left: 1px solid #548295;
+    border-right: 1px solid #548295;
+    /*background-color:#94c6db;*/
+    background: #94c6db url(jquery-css/creme-theme/images/ui-bg_diagonals-thick_15_94c6db_40x40.png) 50% 50% repeat;
+}
+
+/*.list_view button{
+    border: #548295 1px outset;
+    color: #2C596C;
+}*/
+.list_view button[disabled="true"], .list_view button[disabled="true"]:hover, .list_view button[disabled="true"]:active{
+    background-color: #CCCCCC;
+    color : #919191;
+    cursor:auto;
+}
+
+/*.list_view button:hover{
+    background-color: #D7E2E7;
+} */
+.list_view button:active {
+    border: #548295 1px inset;
+}
+
+.list_view input, .list_view select, .list_view input, .list_view select {
+    border: #548295 1px solid;
+    /*background-color: #DDEEFF;*/
+}
+
+.list_view input:hover, .list_view select:hover, .list_view input:focus, .list_view select:focus {
+    border: #548295 1px solid;
+    background-color: #D7E2E7;
+}
+
+.list_view_actions {
+    max-width: 1%;
+    width: 1%;
+}
+/*
+.list_view select {
+    color:#376e86;
+    border : 1px solid #548295;
+    -moz-border-radius: 4px;
+    -webkit-border-radius: 4px;
+}
+*/

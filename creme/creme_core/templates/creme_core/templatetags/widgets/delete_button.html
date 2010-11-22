@@ -1,8 +1,8 @@
-{% load i18n %}
+{% load i18n %}{% load media %}
 {% if can_delete %}
     <a href="{{path}}/delete/{{object.id}}" onclick="creme.utils.confirmDelete(event, this);">
-        <img src="{{MEDIA_URL}}images/delete_64.png" title="{% blocktrans %}Delete '{{object}}'{% endblocktrans %}" alt="{% trans "Delete" %}" />
+        <img src="{% media_url 'images/delete_64.png' %}" title="{% blocktrans %}Delete '{{object}}'{% endblocktrans %}" alt="{% trans "Delete" %}" />
     </a>
 {% else %}
-    <img class="forbidden" src="{{MEDIA_URL}}images/delete_64.png" title="{% blocktrans %}You can't delete '{{object}}'{% endblocktrans %}" alt="{% trans "Can't delete" %}"/>
+    <img class="forbidden" src="{% media_url 'images/delete_64.png' %}" title="{% blocktrans %}You can't delete '{{object}}'{% endblocktrans %}" alt="{% trans "Can't delete" %}"/>
 {% endif %}

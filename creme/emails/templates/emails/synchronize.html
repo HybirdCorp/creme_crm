@@ -2,9 +2,9 @@
 
 {% block page_title %} - Synchronisation des mails externes dans Creme{% endblock %}
 
-{% block extrahead %}
+{% comment %}{% block extrahead %}
     <script type="text/javascript" src="{{MEDIA_URL}}js/models/emails.js"></script>
-{% endblock %}
+{% endblock %}{% endcomment %}
 
 {% block content %}
     {% include "emails/frags/ajax/synchronize.html" %}

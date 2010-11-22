@@ -1,7 +1,7 @@
 {% load i18n %}
+{% load media %}
 {% load creme_core_tags %}{% load creme_block %}{% load queryset_tags %}
 {% load report_tags %}
-
 {% with 6 as colspan %}
 {% has_perm_to change object as has_perm %}
 <table class="table_detail_view ui-corner-all" id={{block_name}}>
@@ -15,16 +15,16 @@
             <th align="left" colspan="{{colspan}}" class="{% cycle "block_header_line_dark" "block_header_line_light" %}">
                 {% if has_perm %}
                     <a class="button_link" onclick="creme.utils.innerPopupNReload('/reports/report/{{object.id}}/field/add', {% get_block_reload_uri %});">
-                        <img src="{{MEDIA_URL}}images/add_22.png" border="0" title="{% trans "Add a column" %}" alt="{% trans "Add a column" %}" />
+                        <img src="{% media_url 'images/add_22.png' %}" border="0" title="{% trans "Add a column" %}" alt="{% trans "Add a column" %}" />
                         {% trans "Add" %} /
-                        <img src="{{MEDIA_URL}}images/delete_22.png" border="0" title="{% trans "Delete a column" %}" alt="{% trans "Delete a column" %}" />
+                        <img src="{% media_url 'images/delete_22.png' %}" border="0" title="{% trans "Delete a column" %}" alt="{% trans "Delete a column" %}" />
                         {% trans "Delete a column" %}
                     </a>
                 {% else %}
                     <span class="button_link forbidden">
-                        <img src="{{MEDIA_URL}}images/add_22.png" border="0" title="{% trans "Can't add" %}" alt="{% trans "Can't add" %}" />
+                        <img src="{% media_url 'images/add_22.png' %}" border="0" title="{% trans "Can't add" %}" alt="{% trans "Can't add" %}" />
                         {% trans "Add" %} /
-                        <img src="{{MEDIA_URL}}images/delete_22.png" border="0" title="{% trans "Can't delete" %}" alt="{% trans "Can't delete" %}" />
+                        <img src="{% media_url 'images/delete_22.png' %}" border="0" title="{% trans "Can't delete" %}" alt="{% trans "Can't delete" %}" />
                         {% trans "Delete a column" %}
                     </a>
                 {% endif %}
@@ -94,19 +94,19 @@
                                         {% if column.order != 1 %}
                                             {% if has_perm %}
                                                 <a onclick="creme.reports.changeOrder('{{object.id}}', '{{column.pk}}', 'up', {% get_block_reload_uri %});">
-                                                    <img src="{{MEDIA_URL}}images/small_up_arrow_16.png" border="0" title="{% trans "Column up" %}" alt="{% trans "Column up" %}" />
+                                                    <img src="{% media_url 'images/small_up_arrow_16.png' %}" border="0" title="{% trans "Column up" %}" alt="{% trans "Column up" %}" />
                                                 </a>
                                             {% else %}
-                                                    <img class="forbidden" src="{{MEDIA_URL}}images/small_up_arrow_16.png" border="0" title="{% trans "Column up" %}" alt="{% trans "Column up" %}" />
+                                                    <img class="forbidden" src="{% media_url 'images/small_up_arrow_16.png' %}" border="0" title="{% trans "Column up" %}" alt="{% trans "Column up" %}" />
                                             {% endif %}
                                         {% endif %}<br/>
                                         {% if column.order != object.columns.count %}
                                             {% if has_perm %}
                                                 <a onclick="creme.reports.changeOrder('{{object.id}}', '{{column.pk}}', 'down', {% get_block_reload_uri %});">
-                                                    <img src="{{MEDIA_URL}}images/small_down_arrow_16.png" border="0" title="{% trans "Column down" %}" alt="{% trans "Column down" %}" />
+                                                    <img src="{% media_url 'images/small_down_arrow_16.png' %}" border="0" title="{% trans "Column down" %}" alt="{% trans "Column down" %}" />
                                                 </a>
                                             {% else %}
-                                                    <img class="forbidden" src="{{MEDIA_URL}}images/small_down_arrow_16.png" border="0" title="{% trans "Column down" %}" alt="{% trans "Column down" %}" />
+                                                    <img class="forbidden" src="{% media_url 'images/small_down_arrow_16.png' %}" border="0" title="{% trans "Column down" %}" alt="{% trans "Column down" %}" />
                                             {% endif %}
                                         {% endif %}
                                     </td>

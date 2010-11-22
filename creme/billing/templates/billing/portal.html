@@ -1,6 +1,7 @@
 {% extends "creme_core/generics/portal.html" %}
 {% load i18n %}
-{% block logo %}<img src="{{MEDIA_URL}}images/invoice_64.png" alt=""/>{% endblock %}
+{% load media %}
+{% block logo %}<img src="{% media_url 'images/invoice_64.png' %}" alt=""/>{% endblock %}
 {% block title %}{% trans "Billing portal" %}{% endblock %}
 {% block list_url %}/billing/invoices{% endblock %}
 {% block list_msg %}{% trans "List of invoices" %}{% endblock %}

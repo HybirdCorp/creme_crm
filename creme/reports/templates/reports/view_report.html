@@ -1,11 +1,11 @@
 {% extends "creme_core/generics/view_entity.html" %}
-
 {% load i18n %}
+{% load media %}
 {% load creme_block %}
 
-{% block extrahead %}<script type="text/javascript" src="{{MEDIA_URL}}js/models/reports.js"></script>{% endblock %}
+{% comment %}{% block extrahead %}<script type="text/javascript" src="{{MEDIA_URL}}js/models/reports.js"></script>{% endblock %}{% endcomment %}
 
-{% block logo %}<img src="{{MEDIA_URL}}images/reporting_64.png" alt="{% trans "Report" %}"/>{% endblock %}
+{% block logo %}<img src="{% media_url 'images/reporting_64.png' %}" alt="{% trans "Report" %}"/>{% endblock %}
 
 {% block creme_blocks_import %}
     {{block.super}}
@@ -21,10 +21,10 @@
 
 {% block edit_delete_buttons %}
     <a href="/reports/report/{{object.id}}/preview">
-        <img src="{{MEDIA_URL}}images/view_64.png" title="{% blocktrans %}Preview of the report : '{{object}}'{% endblocktrans %}" alt="{% trans "Preview" %}"/>
+        <img src="{% media_url 'images/view_64.png' %}" title="{% blocktrans %}Preview of the report : '{{object}}'{% endblocktrans %}" alt="{% trans "Preview" %}"/>
     </a>&nbsp;
     <a onclick="creme.utils.showInnerPopup('/reports/date_filter_form/{{object.id}}');">
-        <img src="{{MEDIA_URL}}images/document_csv_64.png" title="{% blocktrans %}Download '{{object}}' as CSV file{% endblocktrans %}" alt="{% trans "Download CSV" %}"/>
+        <img src="{% media_url 'images/document_csv_64.png' %}" title="{% blocktrans %}Download '{{object}}' as CSV file{% endblocktrans %}" alt="{% trans "Download CSV" %}"/>
     </a>&nbsp;
     {{block.super}}
 {% endblock %}

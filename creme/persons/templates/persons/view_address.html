@@ -1,10 +1,11 @@
 {% load i18n %}
+{% load media %}
 {% load creme_core_tags %}
 <table class="table_detail_view ui-corner-all">
     <thead>
         <tr>
             <th align="center" colspan="2">
-                <img src="{{MEDIA_URL}}images/infos_48.png" alt="{% trans "Information" %}" title="{% trans "Information" %}">
+                <img src="{% media_url 'images/infos_48.png' %}" alt="{% trans "Information" %}" title="{% trans "Information" %}">
                 {% trans "Address information" %}
             </th>
         </tr>

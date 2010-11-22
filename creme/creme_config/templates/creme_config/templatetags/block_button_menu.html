@@ -1,4 +1,5 @@
 {% load i18n %}
+{% load media %}
 {% load creme_block %}
 <table class="table_detail_view ui-corner-all" id={{block_name}}><!--{% cycle "block_line_light" "block_line_dark" as row_color %}-->
     {% get_block_header colspan=3 %}
@@ -9,7 +10,7 @@
         <tr>
             <th class="block_header_line_light" style="font-size:14px;" align="left" colspan="100">
                 <a class="button_link" href="/creme_config/button_menu/add/">
-                    <img src="{{MEDIA_URL}}images/add_22.png" border="0" alt="{% trans "New buttons configuration" %}"/>
+                    <img src="{% media_url 'images/add_22.png' %}" border="0" alt="{% trans "New buttons configuration" %}"/>
                     {% trans "New buttons configuration" %}
                 </a>
             </th>
@@ -21,26 +22,21 @@
         </tr>
         {% comment %} ONLY IF PAGE==1 ?? {% endcomment %}
         <tr>
-            <td class="{{row_color}}">
-                Configuration par défaut
-            </td>
+            <td class="{{row_color}}">{% trans "Default configuration" %}</td>
             <td class="{{row_color}}">
                 <a href="/creme_config/button_menu/edit/0">
-                    <img src="{{MEDIA_URL}}images/edit_22.png" border="0" alt="{% trans "Edit" %}" title="{% trans "Edit" %}">
+                    <img src="{% media_url 'images/edit_22.png' %}" border="0" alt="{% trans "Edit" %}" title="{% trans "Edit" %}">
                 </a>
             </td>
             <td class="{{row_color}}"></td>
         </tr>
         {% if page.paginator.count %}
-            {% for ct in page.object_list %}
-                <!--{% cycle row_color %}-->
+            {% for ct in page.object_list %}<!--{% cycle row_color %}-->
                 <tr>
-                    <td class="{{row_color}}">
-                        {{ct}}
-                    </td>
+                    <td class="{{row_color}}">{{ct}}</td>
                     <td class="{{row_color}}">
                         <a href="/creme_config/button_menu/edit/{{ct.id}}">
-                            <img src="{{MEDIA_URL}}images/edit_22.png" border="0" alt="{% trans "Edit" %}" title="{% trans "Edit" %}">
+                            <img src="{% media_url 'images/edit_22.png' %}" border="0" alt="{% trans "Edit" %}" title="{% trans "Edit" %}">
                         </a>
                     </td>
                     <td class="{{row_color}}">

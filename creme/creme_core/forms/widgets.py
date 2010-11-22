@@ -31,6 +31,8 @@ from django.utils.safestring import mark_safe
 from django.utils.formats import date_format
 from django.conf import settings
 
+from mediagenerator.utils import media_url
+
 #from django.template.loader import render_to_string
 
 
@@ -40,7 +42,6 @@ def widget_render_context(klass, widget, name, value, attrs, css='', typename=''
     css = ' '.join((css, 'ui-creme-widget widget-auto' if auto else 'ui-creme-widget', typename))
     attrs['class'] = ' '.join([attrs.get('class', ''), 'ui-creme-input', typename])
     context = {
-                'MEDIA_URL':  settings.MEDIA_URL,
                 'input':      super(klass, widget).render(name, value, attrs) if not noinput else '',
                 #'id':         id + '-' + typename if id else '',
                 'script':     '',
@@ -76,7 +77,7 @@ class DynamicSelect(Select):
         attrs['widget'] = typename
         context['input'] = super(DynamicSelect, self).render(name, value, attrs)
 
-        return mark_safe("""%(input)s %(script)s""" % context)
+        return mark_safe(u"%(input)s%(script)s" % context)
 
 
 class ChainedInput(TextInput):
@@ -99,15 +100,11 @@ class ChainedInput(TextInput):
                                         style=attrs.pop('style', ''),
                                         selects=self._render_inputs())
 
-        html_output = """
-            <div class="%(css)s" style="%(style)s" widget="%(typename)s">
+        return mark_safe("""<div class="%(css)s" style="%(style)s" widget="%(typename)s">
                 %(input)s
                 %(selects)s
                 %(script)s
-            </div>
-        """ % context;
-
-        return mark_safe(html_output)
+            </div>""" % context)
 
     def set(self, **kwargs):
         for name, input in kwargs.iteritems():
@@ -116,7 +113,7 @@ class ChainedInput(TextInput):
     def put(self, name, widget=DynamicSelect, attrs=None, **kwargs):
         self.inputs[name] = widget(attrs=attrs, **kwargs)
 
-    def _render_inputs(self):
+    def _render_inputs(self): #TODO: use join() ??
         output = '<ul class="ui-layout hbox">'
 
         for name, input in self.inputs.iteritems():
@@ -140,23 +137,20 @@ class SelectorList(TextInput):
                                         typename='ui-creme-selectorlist',
                                         add=_(u'Add'),
                                         selector=self.selector.render('', '', {'auto':False,}))
+        context['img_url'] = media_url('images/add_16.png')
 
-        html_output = """
-            <div class="%(css)s" style="%(style)s" widget="%(typename)s">
+        return mark_safe("""<div class="%(css)s" style="%(style)s" widget="%(typename)s">
                 %(input)s
                 <div class="inner-selector-model" style="display:none;">%(selector)s</div>
                 <ul class="selectors ui-layout"></ul>
                 <div class="add">
                     <ul class="ui-layout hbox">
-                        <li><img src="%(MEDIA_URL)s/images/add_16.png" alt="%(add)s" title="%(add)s"/></li>
+                        <li><img src="%(img_url)s" alt="%(add)s" title="%(add)s"/></li>
                         <li><span>%(add)s</span></li>
                     </ul>
                 </div>
                 %(script)s
-            </div>
-        """ % context
-
-        return mark_safe(html_output)
+            </div>""" % context)
 
 
 class EntitySelector(TextInput):
@@ -203,6 +197,7 @@ class CTEntitySelector(ChainedInput):
         return super(CTEntitySelector, self).render(name, value, attrs)
 
 
+#TODO: unused ??
 class EntitySelectorList(SelectorList):
     def __init__(self, attrs=None):
         super(EntitySelectorList, self).__init__(attrs)
@@ -215,21 +210,20 @@ class EntitySelectorList(SelectorList):
                                         typename='ui-creme-selectorlist',
                                         add='Ajouter',
                                         selector=self.selector.render(name, value, {'auto':False,}))
+        context['img_url'] = media_url('images/add_16.png')
 
-        html_output = """
+        return mark_safe("""
             <div id="%(id)s" class="%(css)s" style="%(style)s" widget="%(typename)s">
                 %(input)s
                 <div class="inner-selector-model" style="display:none;">%(selector)s</div>
                 <ul class="selectors ui-layout"></ul>
                 <div class="add">
-                    <img src="%(MEDIA_URL)s/images/add_16.png" alt="%(add)s" title="%(add)s"/>
+                    <img src="%(img_url)s" alt="%(add)s" title="%(add)s"/>
                     %(add)s
                 </div>
                 %(script)s
             </div>
-        """ % context
-
-        return mark_safe(html_output)
+        """ % context)
 
 
 #TODO: deprecated -> rewrite this with Selector system....
@@ -241,13 +235,12 @@ class RelationListWidget(TextInput):
     def render(self, name, value, attrs=None):
         attrs = self.build_attrs(attrs, name=name, type='hidden')
 
-        html_output = """
-            %(input)s
+        html_output = """%(input)s
             <div id="%(id)s_list" class="ui-creme-rel-selector-list" widget-input="%(id)s">
                 %(predicates)s
                 <div class="list"></div>
                 <div onclick="creme.forms.RelationList.appendSelector($('#%(id)s_list'));" class="add">
-                    <img src="%(MEDIA_URL)s/images/add_16.png" alt="%(title)s" title="%(title)s"/>
+                    <img src="%(img_url)s" alt="%(title)s" title="%(title)s"/>
                     %(title)s
                 </div>
             </div>
@@ -255,9 +248,8 @@ class RelationListWidget(TextInput):
                 $('.ui-creme-rel-selector-list#%(id)s_list').each(function() {
                     creme.forms.RelationList.init($(this));
                 });
-            </script>
-        """ % {
-                'MEDIA_URL':  settings.MEDIA_URL,
+            </script>""" % {
+                'img_url':   media_url('images/add_16.png'),
                 'input':      super(RelationListWidget, self).render(name, value, attrs),
                 'title':      _(u'Add'),
                 'id':         attrs['id'],
@@ -281,7 +273,7 @@ class DateTimeWidget(TextInput):
     def render(self, name, value, attrs=None):
         attrs = self.build_attrs(attrs, name=name, type='hidden')
 
-        html_output = """ 
+        return mark_safe("""
             <ul id="%(id)s_datetimepicker" class="ui-creme-datetimepicker" style="list-style:none;margin:0;padding:0;">
                 %(input)s
                 <li>%(date_label)s&nbsp;</li>
@@ -296,8 +288,7 @@ class DateTimeWidget(TextInput):
             </ul>
             <script type="text/javascript">
                 $('.ui-creme-datetimepicker#%(id)s_datetimepicker').each(function() {creme.forms.DateTimePicker.init($(this));});
-            </script>
-        """ % {
+            </script>""" % {
                 'input':        super(DateTimeWidget, self).render(name, value, attrs),
                 'date_label':   _(u'On'),
                 'time_label':   _(u'at'),
@@ -306,16 +297,14 @@ class DateTimeWidget(TextInput):
                 'id':           attrs['id'],
                 'clear_label':  _(u'Clean'),
                 'now_label':    _(u'Now'),
-              }
-
-        return mark_safe(html_output)
+              })
 
 
 class TimeWidget(TextInput):
     def render(self, name, value, attrs=None):
         attrs = self.build_attrs(attrs, name=name, type='hidden')
 
-        html_output = """ 
+        return mark_safe("""
             <ul id="%(id)s_timepicker" class="ui-creme-timepicker" style="list-style:none;margin:0;padding:0;">
                 %(input)s
                 <li class="hour"><input class="ui-corner-all" type="text" maxlength="2"/></li>
@@ -326,16 +315,13 @@ class TimeWidget(TextInput):
             </ul>
             <script type="text/javascript">
                 $('.ui-creme-timepicker#%(id)s_timepicker').each(function() {creme.forms.TimePicker.init($(this));});
-            </script>
-        """ % {
+            </script>""" % {
                 'input':        super(TimeWidget, self).render(name, value, attrs),
                 'hour_label':   _(u'h'),
                 'minute_label': '',
                 'id':           attrs['id'],
                 'now_label':    _(u'Now'),
-              }
-
-        return mark_safe(html_output)
+              })
 
 
 class CalendarWidget(TextInput):
@@ -369,27 +355,23 @@ class CalendarWidget(TextInput):
         else:
             help_text = _(self.default_help_text)
 
-        html_output = """
-            %(help_text)s
+        return mark_safe("""%(help_text)s
             <br/>
             %(input)s
             <button type="button" onclick="d=new Date();$('#%(id)s').val(%(today_js)s);">
                 %(today_label)s
             </button>
             <script type="text/javascript">
-                $("#%(id)s").datepicker({dateFormat: "%(date_format_js)s", showOn: "button", buttonImage: "%(MEDIA_URL)s/images/icon_calendar.gif", buttonImageOnly: true });
-            </script>
-            """ % {
+                $("#%(id)s").datepicker({dateFormat: "%(date_format_js)s", showOn: "button", buttonImage: "%(img_url)s", buttonImageOnly: true });
+            </script>""" % {
                     'input':          super(CalendarWidget, self).render(name, value, attrs),
                     'id':             attrs['id'],
-                    'MEDIA_URL':      settings.MEDIA_URL,
                     'today_label':    _(u"Today"),
                     'date_format_js': date_format_js,
                     'today_js':       ("+'%s'+" % settings.DATE_FORMAT_JS_SEP).join(cmd_js),
-                    'help_text':      help_text
-                  }
-
-        return mark_safe(html_output)
+                    'help_text':      help_text,
+                    'img_url':        media_url('images/icon_calendar.gif'),
+                  })
 
 
 #TODO: refactor
@@ -497,80 +479,48 @@ class UploadedFileWidget(FileInput):
 
 
 class RTEWidget(Textarea):
-    css        = settings.MEDIA_URL + '/css/rte.css'
-    images_url = settings.MEDIA_URL + '/images/'
-    js         = settings.MEDIA_URL + '/js/models/jquery.rte.js'
-
     def render(self, name, value, attrs=None):
         attrs = self.build_attrs(attrs, name=name)
 
-        html_output = """
-                <script type="text/javascript">
-                    include('%(js)s','js');
-                    include('%(css)s','css');
-                    $(document).ready(function() {
-                        $("#%(id)s").rte({content_css_url: "%(css)s", media_url: "%(url)s" });
-                    });
+        return mark_safe("""<script type="text/javascript">
+                    $(document).ready(function() { $("#%(id)s").rte(); });
                 </script>
                 %(textarea)s
                 <input type="checkbox" id="%(id)s_is_rte_enabled" name="%(name)s_is_rte_enabled" style="display:none;" checked />
             """ % {
-                    'js':       self.js,
-                    'css':      self.css,
                     'id':       attrs['id'],
                     'name':     attrs['name'],
-                    'url':      self.images_url,
                     'textarea': super(RTEWidget, self).render(name, value, attrs),
-                }
-
-        return mark_safe(html_output)
+                })
 
 
 class ColorPickerWidget(TextInput):
-    css = settings.MEDIA_URL + '/css/jquery.gccolor.1.0.3/gccolor.css'
-    js  = settings.MEDIA_URL +'/js/jquery/extensions/jquery.gccolor.1.0.3/dev/jquery.gccolor.1.0.3.js'
+    #css = settings.MEDIA_URL + '/css/jquery.gccolor.1.0.3/gccolor.css'
+    #js  = settings.MEDIA_URL +'/js/jquery/extensions/jquery.gccolor.1.0.3/dev/jquery.gccolor.1.0.3.js'
 
     def render(self, name, value, attrs=None):
         attrs = self.build_attrs(attrs, name=name)
 
-        html_output = """
-                <script type="text/javascript">
-                    include('%(js)s','js');
-                    include('%(css)s','css');
-                    $(document).ready(function() {
-                        $("#%(id)s").gccolor();
-                    });
-                </script>
-                %(input)s
-            """ % {
-                    'js':    self.js,
-                    'css':   self.css,
+        #include('%(js)s','js');
+        #include('%(css)s','css');
+        return mark_safe("""<script type="text/javascript">
+                    $(document).ready(function() { $("#%(id)s").gccolor(); });
+                </script>%(input)s""" % {
+                    #'js':    self.js,
+                    #'css':   self.css,
                     'id':    attrs['id'],
                     'input': super(ColorPickerWidget, self).render(name, value, attrs),
-                }
-
-        return mark_safe(html_output)
+                })
 
 
 #TODO: refactor (build_attrs(), model/o2m set by the field etc....)
 class ListViewWidget(TextInput):
-    """
-        A list view many-to-many widget
-        Usage in a form definition :
-
+    """A list view many-to-many widget
+    Examples of usage in a form definition :
         mailing_list = fields.CremeEntityField(required=False, model=MailingList, q_filter=None)
-        For many to many, precise o2m attribute to false :
-            mailing_list = fields.MultiCremeEntityField(
-                                                        required=False,
-                                                        model=MailingList,
-                                                        q_filter=None,
-                                                        widget=ListViewWidget()
-                            )
-        q_filter has to be a list of dict => {'pk__in':[1,2], 'name__contains':'toto'} or None
+        mailing_list = fields.MultiCremeEntityField(required=False, model=MailingList, q_filter=None)
+    @param q_filter Has to be a list of dict => {'pk__in':[1,2], 'name__contains':'toto'} or None
     """
-    class Media:
-        js = ('js/models/lv_widget.js',)
-
     def __init__(self, attrs=None, q_filter=None):
         super(ListViewWidget, self).__init__(attrs)
         self.q_filter = q_filter
@@ -597,26 +547,20 @@ class ListViewWidget(TextInput):
         if(value and (type(value)==type(1) or type(value)==type(1L))):
             value = [value]
 
-        html_output = """
-                %(input)s
-                %(includes)s
+        return mark_safe("""%(input)s
                 <script type="text/javascript">
                     $(document).ready(function() {
-                        lv_widget.init_widget('%(id)s','%(qfilter)s', %(js_attrs)s);
-                        lv_widget.handleSelection(%(value)s, '%(id)s');
+                        creme.lv_widget.init_widget('%(id)s','%(qfilter)s', %(js_attrs)s);
+                        creme.lv_widget.handleSelection(%(value)s, '%(id)s');
                     });
                 </script>
             """ % {
                     'input':    super(ListViewWidget, self).render(name, "", self.attrs),
-                    #TODO: don't use "site_media/" ....
-                    'includes': ''.join('<script type="text/javascript" src="/site_media/%s"></script>' % js for js in self.Media.js),
                     'id':       id_input,
                     'qfilter':  encode(self.q_filter),
                     'js_attrs': encode([{'name': k, 'value': v} for k, v in self.attrs.iteritems()]),
                     'value':    encode(value),
-                }
-
-        return mark_safe(html_output)
+                })
 
 
 class UnorderedMultipleChoiceWidget(SelectMultiple):
@@ -632,7 +576,6 @@ class UnorderedMultipleChoiceWidget(SelectMultiple):
                  """ % {
                         'select': super(UnorderedMultipleChoiceWidget, self).render(name, value, attrs=attrs, choices=choices),
                         'id':     attrs['id'],
-
                      })
 
 
@@ -749,8 +692,7 @@ class DateFilterWidget(Select):
         rendered = super(DateFilterWidget, self).render(name, value, attrs=None, choices=())
         self_id = self.attrs.get('id')
         if self_id:
-            rendered += """
-            <script type="text/javascript">
+            rendered += """<script type="text/javascript">
                 $(document).ready(function(){
                     $('#%(self_id)s').change(function(){
                         var $me = $(this);
@@ -759,8 +701,7 @@ class DateFilterWidget(Select):
                         $("#"+$me.attr('end_date_id')).val($selected.attr('end'));
                     });
                 });
-            </script>
-            """ % {
+            </script>""" % {
                 'self_id' : self_id,
             }
         return mark_safe(rendered)

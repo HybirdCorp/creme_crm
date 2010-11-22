@@ -1,6 +1,6 @@
 {% extends "creme_core/base.html" %}
-
 {% load i18n %}
+{% load media %}
 {% load creme_block %}
 
 {% block extrahead %}
@@ -22,7 +22,7 @@
                 {% block header_link %}
                     <a href="{% block list_url %}images{% endblock %}">
                         {% block list_msg %}{% trans "List of images" %}{% endblock %}
-                        <img src="{{MEDIA_URL}}images/right_arrow_64.png" title="{% trans "Go to the list" %}" alt="{% trans "Go to the list" %}"/>
+                        <img src="{% media_url 'images/right_arrow_64.png' %}" title="{% trans "Go to the list" %}" alt="{% trans "Go to the list" %}"/>
                     </a>
                 {% endblock %}
             </td>

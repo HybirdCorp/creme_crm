@@ -1,3 +1,4 @@
 {% extends "creme_core/generics/view_entity.html" %}
 {% load i18n %}
-{% block logo %}<img src="{{MEDIA_URL}}images/sms_64.png" alt="{% trans "Message template" %}"/>{% endblock %}
+{% load media %}
+{% block logo %}<img src="{% media_url 'images/sms_64.png' %}" alt="{% trans "Message template" %}"/>{% endblock %}

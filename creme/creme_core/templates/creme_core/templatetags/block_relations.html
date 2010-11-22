@@ -1,4 +1,5 @@
 {% load i18n %}
+{% load media %}
 {% load creme_core_tags %}{% load creme_block %}
 {% regroup page.object_list by type as predicate_list %}
 <table class="table_detail_view ui-corner-all" id={{block_name}}>
@@ -7,7 +8,7 @@
         <th style="width: 20%;" align="right">
             <div class="buttons">
                 <a class="add" onclick="creme.utils.innerPopupNReload('/creme_core/relation/add/{{object.id}}', {% get_block_reload_uri %});">
-                    <img src="{{MEDIA_URL}}images/add_22.png" border="0" title="{% trans "New relations" %}" alt="{% trans "New relations" %}" />
+                    <img src="{% media_url 'images/add_22.png' %}" border="0" title="{% trans "New relations" %}" alt="{% trans "New relations" %}" />
                     {% trans "New relations" %}
                 </a>
             </div>

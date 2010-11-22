@@ -1,6 +1,7 @@
 {% extends "creme_core/generics/portal.html" %}
 {% load i18n %}
-{% block logo %}<img src="{{MEDIA_URL}}images/email_64.png" alt="{% trans "Emails" %}"/>{% endblock %}
+{% load media %}
+{% block logo %}<img src="{% media_url 'images/email_64.png' %}" alt="{% trans "Emails" %}"/>{% endblock %}
 {% block title %}{% trans "Emails & Campaigns portal" %}{% endblock %}
 {% block list_url %}/emails/campaigns{% endblock %}
 {% block list_msg %}{% trans "List of campaigns" %}{% endblock %}

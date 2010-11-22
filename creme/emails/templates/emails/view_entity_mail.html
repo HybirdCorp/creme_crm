@@ -1,8 +1,7 @@
 {% extends "creme_core/base.html" %}
 {% load i18n %}
-{% load creme_core_tags %}
-{% load creme_block %}
-{% load creme_menu %}
+{% load media %}
+{% load creme_core_tags %}{% load creme_block %}{% load creme_menu %}
 {% load email_tags %}
 
 {% block page_title %} - {{object}}{% endblock %}
@@ -13,15 +12,15 @@
             creme.utils.bindShowHideTbody();
         });
     </script>
-    <script type="text/javascript">
-        creme.include('/site_media/js/models/emails.js','js');
-    </script>
+    {% comment %}<script type="text/javascript">
+        creme.include('{{MEDIA_URL}}js/models/emails.js','js');
+    </script>{% endcomment %}
 {% endblock %}
 
 {% block content %}
     <table class="table_header" cellpadding="0" cellspacing="0">
         <tr>
-            <td width="5%"><img src="{{MEDIA_URL}}images/email_64.png" title="{% trans "Email" %}" alt="{% trans "Email" %}"/></td>
+            <td width="5%"><img src="{% media_url 'images/email_64.png' %}" title="{% trans "Email" %}" alt="{% trans "Email" %}"/></td>
             <td width="70%">
                 <h1>
                     {% block title %}
@@ -33,11 +32,11 @@
                 <span>
                     {% if object.status != sent_status %}
                         <a onclick="creme.emails.resend('/emails/mail/resend', ['{{object.pk}}'], undefined, function(){reload(window);});">{# TODO: Reload only object_as_table when it'll be a block #}
-                            <img src="{{MEDIA_URL}}images/refresh_64.png" title="{% trans "Re-send" %}" alt="{% trans "Re-send" %}" />
+                            <img src="{% media_url 'images/refresh_64.png' %}" title="{% trans "Re-send" %}" alt="{% trans "Re-send" %}" />
                         </a>
                     {% endif %}
                     <a href="/emails/entitymail/delete/{{object.id}}" onclick="creme.utils.confirmDelete(event, this);">
-                        <img src="{{MEDIA_URL}}images/delete_64.png" title="{% blocktrans %}Delete '{{object}}'{% endblocktrans %}" alt="{% trans "Delete" %}" />
+                        <img src="{% media_url 'images/delete_64.png' %}" title="{% blocktrans %}Delete '{{object}}'{% endblocktrans %}" alt="{% trans "Delete" %}" />
                     </a>
                 </span>
             </td>

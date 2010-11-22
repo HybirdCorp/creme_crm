@@ -1,9 +1,7 @@
-{% load i18n %}
+{% load i18n %}{% load media %}
 <script>
-    function download_ical()
-    {
-        if($('form[name="list_view_form"]').list_view('countEntities') <= 0)
-        {
+    function download_ical() {
+        if($('form[name="list_view_form"]').list_view('countEntities') <= 0) {
             creme.utils.showDialog("{% trans "Please select at least a line in order to export." %}", {'title':'Erreur'});
             return false;
         }
@@ -12,5 +10,5 @@
     }
 </script>
 <a onclick="return download_ical();">
-    <img border="0" src="{{MEDIA_URL}}images/calendar_ical_22.png" alt="{% trans "Download in iCalendar format" %}" title="{% trans "Download in iCalendar format" %}"/>{% trans "Download in iCalendar format" %}
+    <img border="0" src="{% media_url 'images/calendar_ical_22.png' %}" alt="{% trans "Download in iCalendar format" %}" title="{% trans "Download in iCalendar format" %}"/>{% trans "Download in iCalendar format" %}
 </a>&nbsp;

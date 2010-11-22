@@ -1,4 +1,5 @@
 {% load i18n %}
+{% load media %}
 {% load creme_block %}{% load creme_core_tags %}
 <table  class="table_detail_view ui-corner-all" id={{block_name}}>
     {% get_block_header colspan=5 %}
@@ -11,7 +12,7 @@
         <tr>
             <th colspan="5" class="block_header_line_dark" align="left">
                 <a class="button_link" onclick="creme.utils.innerPopupNReload('/activities/calendar/add', {% get_block_reload_uri %});">
-                    <img src="{{MEDIA_URL}}images/add_22.png" border="0" alt="{% trans "New calendar" %}" title="{% trans "New calendar" %}"/>
+                    <img src="{% media_url 'images/add_22.png' %}" border="0" alt="{% trans "New calendar" %}" title="{% trans "New calendar" %}"/>
                     {% trans "New calendar" %}
                 </a>
             </th>
@@ -32,7 +33,7 @@
                     <td class="{{row_color}}">{{calendar|get_html_field_value:"is_public"}}</td>
                     <td class="{{row_color}}">
                         <a onclick="creme.utils.innerPopupNReload('/activities/calendar/{{calendar.id}}/edit', {% get_block_reload_uri %});">
-                            <img src="{{MEDIA_URL}}images/edit_22.png" border="0" alt="{% trans "Edit calendar" %}" title="{% trans "Edit calendar" %}"/>
+                            <img src="{% media_url 'images/edit_22.png' %}" border="0" alt="{% trans "Edit calendar" %}" title="{% trans "Edit calendar" %}"/>
                         </a>
                     </td>
                     <td class="{{row_color}}" align="center" valign="center" style="width:10%;">
