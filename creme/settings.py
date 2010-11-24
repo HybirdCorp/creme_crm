@@ -31,6 +31,12 @@ DATABASES = {
     },
 }
 
+#I18N / L10N ###################################################################
+
+# If you set this to False, Django will make some optimizations so as not
+# to load the internationalization machinery.
+USE_I18N = True
+
 # Local time zone for this installation. Choices can be found here:
 # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
 # although not all choices may be available on all operating systems.
@@ -42,33 +48,50 @@ TIME_ZONE = 'Europe/Paris'
 # http://www.i18nguy.com/unicode/language-identifiers.html
 LANGUAGE_CODE = 'fr-FR'
 
-#LANGUAGES = (
-  #('en', 'English'), #_('English')
-  #('fr', 'French'),  #_('French')
-#)
+LANGUAGES = (
+  ('en', 'English'), #_('English')
+  ('fr', 'French'),  #_('French')
+)
+
+DATE_FORMAT         = 'd-m-Y'
+DATE_FORMAT_VERBOSE = _(u'Format : Day-Month-Year (Ex:31-12-2010)')
+DATE_FORMAT_JS      = {
+    'd-m-Y': 'dd-mm-yy',
+}
+DATE_FORMAT_JS_SEP = '-' #DATE_FORMAT_JS values separator
+DATE_INPUT_FORMATS = (
+    '%d-%m-%Y', '%d/%m/%Y'
+    '%Y-%m-%d',  '%m/%d/%Y', '%m/%d/%y',  '%b %d %Y',
+    '%b %d, %Y', '%d %b %Y', '%d %b, %Y', '%B %d %Y',
+    '%B %d, %Y', '%d %B %Y', '%d %B, %Y',
+)
+
+DATETIME_FORMAT         = '%s H:i:s' % DATE_FORMAT
+DATETIME_FORMAT_VERBOSE = _(u'Format : Day-Month-Year Hour:Minute:Second (Ex:31-12-2010 23:59:59)')
+DATETIME_INPUT_FORMATS  = (
+    '%d-%m-%Y', '%d/%m/%Y',
+    '%Y-%m-%d %H:%M:%S', '%Y-%m-%d %H:%M', '%Y-%m-%d',
+    '%m/%d/%Y %H:%M:%S', '%m/%d/%Y %H:%M', '%m/%d/%Y',
+    '%m/%d/%y %H:%M:%S', '%m/%d/%y %H:%M', '%m/%d/%y',
+    '%d-%m-%Y %H:%M:%S', '%d/%m/%Y %H:%M:%S',
+    '%d-%m-%Y %H:%M',    '%d/%m/%Y %H:%M',
+)
+
+#I18N / L10N [END]##############################################################
+
+
+#SITE: URLs / PATHS / ... ######################################################
 
 SITE_ID = 1
 SITE_DOMAIN = 'http://mydomain' #No end slash!
 
 APPEND_SLASH = False
-# If you set this to False, Django will make some optimizations so as not
-# to load the internationalization machinery.
-USE_I18N = True
 
-# For module emailing campaign
-EMAIL_HOST = 'mail_server'
-EMAIL_HOST_USER = 'mail_user'
-EMAIL_HOST_PASSWORD = 'mail_password'
+ROOT_URLCONF = 'creme.urls'
 
-EMAIL_USE_TLS = True
-CMP_EMAILS = 40 
-REMOTE_DJANGO = False
-
-#Dev smtp serv
-#=> python -m smtpd -n -c DebuggingServer localhost:1025
-#Think to comment email prod settings
-#EMAIL_HOST = 'localhost'
-#EMAIL_PORT = 1025
+LOGIN_REDIRECT_URL = '/'
+LOGIN_URL = '/creme_login/'
+LOGOUT_URL = '/creme_logout/'
 
 # Absolute path to the directory that holds media.
 # Example: "/home/media/media.lawrence.com/"
@@ -86,6 +109,9 @@ ADMIN_MEDIA_PREFIX = '/media/'
 
 # Make this unique, and don't share it with anybody.
 SECRET_KEY = '1&7rbnl7u#+j-2#@5=7@Z0^9v@y_Q!*y^krWS)r)39^M)9(+6('
+
+#SITE: URLs / PATHS / ... [END]#################################################
+
 
 # List of loaders that know how to import templates from various sources.
 TEMPLATE_LOADERS = (
@@ -110,9 +136,6 @@ MIDDLEWARE_CLASSES = (
     #'creme.creme_core.middleware.sql_logger.SQLLogToConsoleMiddleware',       #debuging purpose
     #'creme.creme_core.middleware.module_logger.LogImportedModulesMiddleware', #debuging purpose
 )
-
-ROOT_URLCONF = 'creme.urls'
-
 
 #Principal template directory, note the tail slash
 MANDATORY_TEMPLATE = join(CREME_ROOT, "templates")
@@ -160,10 +183,6 @@ INSTALLED_APPS = (
     'creme.tickets',
 )
 
-
-LOGO_URL = 'images/creme_256_cropped.png'
-#LOGO_URL = 'images/logos/hybird.png'
-
 from django.conf.global_settings import TEMPLATE_CONTEXT_PROCESSORS
 TEMPLATE_CONTEXT_PROCESSORS += (
      'django.core.context_processors.request',
@@ -175,24 +194,45 @@ TEMPLATE_CONTEXT_PROCESSORS += (
      'creme_core.context_processors.get_blocks_manager',
 )
 
-
-LOGIN_REDIRECT_URL = '/'
-
-LOGIN_URL = '/creme_login/'
-
-LOGOUT_URL = '/creme_logout/'
-
 TRUE_DELETE = True
-
-CREME_EMAIL = "to"
 
 AUTHENTICATION_BACKENDS = ('creme_core.auth.backend.EntityBackend',)
 
-#TODO: remove
-PAGGING_SIZE = 5
+ALLOWED_EXTENSIONS = [
+                      'pdf', 'rtf', 'xps', 'eml',
+                      'gif', 'png', 'jpeg', 'jpg', 'jpe', 'bmp', 'psd', 'tif', 'tiff', 'tga',
+                      'gtar', 'gz', 'tar', 'zip', 'rar', 'ace', 'torrent', 'tgz', 'bz2',
+                      '7z', 'txt', 'c', 'cpp', 'hpp', 'diz', 'csv', 'ini', 'log', 'js',
+                      'xml', 'xls', 'xlsx', 'xlsm', 'xlsb', 'doc', 'docx', 'docm', 'dot',
+                      'dotx', 'dotm', 'pdf', 'ai', 'ps', 'ppt', 'pptx', 'pptm', 'odg',
+                      'odp', 'ods', 'odt', 'rtf', 'rm', 'ram', 'wma', 'wmv', 'swf', 'mov',
+                      'm4v', 'm4a', 'mp4', '3gp', '3g2', 'qt', 'avi', 'mpeg', 'mpg', 'mp3',
+                      'ogg', 'ogm',
+                      ]
 
-BLOCK_SIZE = 10 #lines number in common blocks
+#EMAILS ########################################################################
 
+# For module emailing campaign
+EMAIL_HOST = 'mail_server'
+EMAIL_HOST_USER = 'mail_user'
+EMAIL_HOST_PASSWORD = 'mail_password'
+EMAIL_USE_TLS = True
+
+CMP_EMAILS = 40
+REMOTE_DJANGO = False
+
+#Dev smtp serv
+#=> python -m smtpd -n -c DebuggingServer localhost:1025
+#Think to comment email prod settings
+#EMAIL_HOST = 'localhost'
+#EMAIL_PORT = 1025
+
+CREME_EMAIL = "to"
+
+#EMAILS [END] ###################################################################
+
+
+#LOGS ##########################################################################
 
 import logging
 
@@ -201,54 +241,27 @@ logging.basicConfig(
     format='%(message)s'
 )
 
-DATE_FORMAT         = 'd-m-Y'
-DATE_FORMAT_VERBOSE = _(u'Format : Day-Month-Year (Ex:31-12-2010)')
-DATE_FORMAT_JS      = {
-    'd-m-Y': 'dd-mm-yy',
-}
-DATE_FORMAT_JS_SEP = '-' #DATE_FORMAT_JS values separator
-DATE_INPUT_FORMATS = (
-    '%d-%m-%Y', '%d/%m/%Y'
-    '%Y-%m-%d',  '%m/%d/%Y', '%m/%d/%y',  '%b %d %Y',
-    '%b %d, %Y', '%d %b %Y', '%d %b, %Y', '%B %d %Y',
-    '%B %d, %Y', '%d %B %Y', '%d %B, %Y', 
-)
-
-DATETIME_FORMAT         = '%s H:i:s' % DATE_FORMAT
-DATETIME_FORMAT_VERBOSE = _(u'Format : Day-Month-Year Hour:Minute:Second (Ex:31-12-2010 23:59:59)')
-DATETIME_INPUT_FORMATS  = (
-    '%d-%m-%Y', '%d/%m/%Y',
-    '%Y-%m-%d %H:%M:%S', '%Y-%m-%d %H:%M', '%Y-%m-%d',
-    '%m/%d/%Y %H:%M:%S', '%m/%d/%Y %H:%M', '%m/%d/%Y',
-    '%m/%d/%y %H:%M:%S', '%m/%d/%y %H:%M', '%m/%d/%y',
-    '%d-%m-%Y %H:%M:%S', '%d/%m/%Y %H:%M:%S',
-    '%d-%m-%Y %H:%M',    '%d/%m/%Y %H:%M', 
-)
+#LOGS [END]#####################################################################
 
 
-ALLOWED_EXTENSIONS = [
-                      'pdf', 'rtf', 'xps', 'eml'
-                      'gif', 'png', 'jpeg', 'jpg', 'jpe', 'bmp', 'psd', 'tif', 'tiff', 'tga',
-                      'gtar', 'gz', 'tar', 'zip', 'rar', 'ace', 'torrent', 'tgz', 'bz2',
-                      '7z', 'txt', 'c', 'cpp', 'hpp', 'diz', 'csv', 'ini', 'log', 'js',
-                      'xml', 'xls', 'xlsx', 'xlsm', 'xlsb', 'doc', 'docx', 'docm', 'dot',
-                      'dotx', 'dotm', 'pdf', 'ai', 'ps', 'ppt', 'pptx', 'pptm', 'odg',
-                      'odp', 'ods', 'odt', 'rtf', 'rm', 'ram', 'wma', 'wmv', 'swf', 'mov',
-                      'm4v', 'm4a', 'mp4', '3gp', '3g2', 'qt', 'avi', 'mpeg', 'mpg', 'mp3',
-                      'ogg', 'ogm'
-                      ]
+#GUI ###########################################################################
 
-USE_STRUCT_MENU = True
+#Main menu
+LOGO_URL = 'images/creme_256_cropped.png' #Big image in the side menu
+USE_STRUCT_MENU = True #True = use the per app menu
 
-DEFAULT_TIME_ALERT_REMIND = 10
-DEFAULT_TIME_TODO_REMIND = 120
+PAGGING_SIZE = 5 #TODO: remove
+BLOCK_SIZE = 10 #Lines number in common blocks
 
 #Show or not help messages in all the application
 SHOW_HELP = True
 
+#GUI [END]######################################################################
+
 
 #MEDIA GENERATOR SETTINGS ######################################################
 #http://www.allbuttonspressed.com/projects/django-mediagenerator
+
 MEDIA_DEV_MODE = False #DEBUG
 DEV_MEDIA_URL = '/devmedia/'
 PRODUCTION_MEDIA_URL = '/static_media/'
@@ -272,8 +285,13 @@ CREME_CORE_CSS = ('main.css',
                     'activities/css/fullcalendar.css',
                  )
 
+CREME_I18N_JS = ('l10n.js',
+                    {'filter': 'mediagenerator.filters.i18n.I18N'}, #to build the i18n catalog statically.
+                )
+
 CREME_CORE_JS = ('main.js',
                     {'filter': 'mediagenerator.filters.media_url.MediaURL'}, #to get the media_url() function in JS.
+                    #{'filter': 'mediagenerator.filters.i18n.I18N'}, #to put the i18n catalog in JS (avoid ajax retrieving).
 
                     #TODO: remove '/dev' '-dev'
                     'creme_core/js/jquery/dev/jquery-1.3.2-dev.js',
@@ -330,7 +348,6 @@ CREME_CORE_JS = ('main.js',
                     'creme_core/js/list_view.core.js',
                     'creme_core/js/lv_widget.js',
                     'creme_core/js/export.js',
-                    'creme_core/js/i18n.js',
 
                     #OTHER APPS (mandatory ones)
                     'creme_config/js/creme_config.js',
@@ -345,7 +362,9 @@ CREME_OPT_JS = ( #OPTIONNAL APPS
                 'emails/js/emails.js',
                )
 
-MEDIA_BUNDLES = (CREME_CORE_CSS, CREME_CORE_JS + CREME_OPT_JS)
+#MEDIA_BUNDLES = (CREME_CORE_CSS, CREME_CORE_JS + CREME_OPT_JS)
+MEDIA_BUNDLES = (CREME_CORE_CSS, CREME_I18N_JS, CREME_CORE_JS + CREME_OPT_JS)
+
 
 ROOT_MEDIA_FILTERS = {
     'js':  'mediagenerator.filters.yuicompressor.YUICompressor',
@@ -359,6 +378,16 @@ YUICOMPRESSOR_PATH = join(dirname(__file__), 'static', 'utils', 'yui', 'yuicompr
 COPY_MEDIA_FILETYPES = ('gif', 'jpg', 'jpeg', 'png', 'ico', 'cur')
 
 #MEDIA GENERATOR SETTINGS [END] ################################################
+
+
+#APPS CONFIGURATION ############################################################
+
+#ASSISTANTS --------------------------------------------------------------------
+DEFAULT_TIME_ALERT_REMIND = 10
+DEFAULT_TIME_TODO_REMIND = 120
+
+#APPS CONFIGURATION [END]#######################################################
+
 
 try:
     from local_settings import *
