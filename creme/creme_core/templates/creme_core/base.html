@@ -10,13 +10,9 @@
 {% comment %}     <link rel='stylesheet' type='text/css' href='{{MEDIA_URL}}css/jquery-css/creme-theme/jquery-ui-1.7.2.custom.css' /> {% endcomment %}
 {% comment %}     <link rel="stylesheet" type="text/css" href="{{MEDIA_URL}}css{{CSS_THEME_NAME}}creme.css" /> {% endcomment %}
 {% comment %}     <link rel="stylesheet" type="text/css" href="{{MEDIA_URL}}css/creme-ui.css" /> {% endcomment %}
-    <script type='text/javascript'>
-        var creme = {};
-    </script>
     {% include_media 'main.css' %}
-    {% include_media 'main.js' %}
+    {% include "creme_core/frags/js_header.html" %}
     <link rel="shortcut icon" href="{% media_url 'images/favicon.ico' %}" type="image/x-icon" />
-    {% comment %}{% include "creme_core/frags/header_js_minimum.html" %}{% endcomment %}
     <style type="text/css">
         .fg-menu-container { z-index: 100; }</style>
     <script type='text/javascript'>
@@ -113,7 +109,7 @@
       });
     </script>
      {% block extrahead %}{% endblock %}
-     <script type='text/javascript'>
+     <script type='text/javascript'>{% comment %}TODO: move in js file{% endcomment %}
       $(document).ready(function() {
         $("#menu_collapse").css('height', $(document).height());
         $("#menu_expanded").css('height', $(document).height());
@@ -186,7 +182,7 @@
         }
       });
 
-      window.onload = function(){
+      window.onload = function() {
         //var content_height = $("#content").height()+$("#footer").height()+$("#top").height();//Is better but detailviews has float div so we have a very small height size
         /*var content_height = $(document).height();
         var logo_container_height = $('#logo_container').outerHeight();
@@ -217,8 +213,7 @@
             var max_deep = 30;//I think the depth of the folder will not go more than 30 (which is already huge)
             var deep = 0;
 
-            while(more && deep <= max_deep)//Set max deep to avoid max recursion
-            {
+            while(more && deep <= max_deep) { //Set max deep to avoid max recursion
                 var ul = $li.parent('ul');
                 $li = ul.parent('li');
                 if($li.size() == 0) more = false;
@@ -232,7 +227,6 @@
                 li_stack[i].find('a:first').click();
             }
         }
-
       };
       </script>
 </head>
@@ -262,7 +256,7 @@
                     Menu
                 </a>
                 <div id="tree_menu2" style="display:none;">
-                 {% generate_treecreme_menu request %} 
+                 {% generate_treecreme_menu request %}
                 </div>
             {% endblock %}
         </div>
@@ -328,4 +322,4 @@
         <a href="http://hybird.org">{% trans "About Hybird" %}</a> -  2009 - 2010 {{django_version}}
     </div>
 </body>
-</html> 
+</html>

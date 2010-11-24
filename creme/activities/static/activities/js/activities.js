@@ -23,7 +23,7 @@ creme.activities.ajax = {};
 creme.activities.select_one = function(url) {
     var me = this;
 
-    this.okDialogHandler = function(ui){
+    this.okDialogHandler = function(ui) {
         url+='&entity_relation_type='+$(ui).find('select').val();
         $(ui).dialog("destroy");
         $(ui).remove();
@@ -31,15 +31,15 @@ creme.activities.select_one = function(url) {
     }
 
     creme.ajax.json.get('/activities/get_entity_relation_choices_for_activity', {},
-		 function(data) {
-    		  var options = creme.forms.Select.optionsFromData(data, 'predicate', 'pk');
-			  var $select = creme.forms.Select.fill($('<select/>'), options, options[0][0]);
-			  creme.utils.showDialog($select, {
-				  						title: '', 
-				  						modal: true, 
-				  						buttons: {
-				  							"Ok": function(){me.okDialogHandler($(this))}
-			  							}
-			  						 });
-		 });
+        function(data) {
+            var options = creme.forms.Select.optionsFromData(data, 'predicate', 'pk');
+            var $select = creme.forms.Select.fill($('<select/>'), options, options[0][0]);
+            var buttons = {};
+
+            buttons[gettext("Ok")] = function() {
+                    me.okDialogHandler($(this))
+                }
+
+            creme.utils.showDialog($select, {title: '', modal: true, buttons: buttons });
+         });
 }

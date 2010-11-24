@@ -41,22 +41,18 @@ creme.graphael._init = function(selector, options)
     var ratio = options.ratio;
 
     var nodes = $(selector);
-    for(var i=-1, l=nodes.length; ++i < l;)
-    {
+    for(var i=-1, l=nodes.length; ++i < l;) {
         var node = nodes[i];
         var $node = $(node);
 
         var n_width  = $node.width();
 
-        if(ratio > 1)
-        {
+        if(ratio > 1) {
             var n_height = n_width / ratio;
-        }
-        else
-        {
+        } else {
             var n_height = n_width * ratio;
         }
-        
+
 //        var n_width  = $node.width();
 //        var n_height = n_width * 0.5;
 
@@ -66,13 +62,11 @@ creme.graphael._init = function(selector, options)
     return nodes;
 };
 
-creme.graphael.init = function(selector, options)
-{
+creme.graphael.init = function(selector, options) {
     var initial_nodes = $(selector);
     var nodes = initial_nodes.not('.initialized');
 
-    for(var i=-1, l=nodes.length; ++i < l;)
-    {
+    for(var i=-1, l=nodes.length; ++i < l;) {
         var node = nodes[i];
         var $node = $(node);
         //Not really optimized because _init takes a selector and not a node
@@ -93,7 +87,7 @@ creme.graphael.paddings = {
 
 creme.graphael.barchart = {};
 
-creme.graphael.barchart.fin = function (r, chart){
+creme.graphael.barchart.fin = function (r, chart) {
     chart.flag = r.g.popup(chart.bar.x, chart.bar.y + creme.graphael.paddings.I_PAD, chart.bar.value || "0").insertBefore(chart);
 };
 
@@ -101,14 +95,12 @@ creme.graphael.barchart.fout = function () {
     this.flag.animate({opacity: 0}, 300, function () {this.remove();});
 };
 
-creme.graphael.simple_barchart = function(options)
-{
+creme.graphael.simple_barchart = function(options) {
     if(!options || options == undefined || options.instance==undefined) return;//Need at least a Raphael's instance
     var graphael = options.instance;
     var container = options.container;
 
-    if(!container.hasClass('graphael-barchart-drawn'))
-    {
+    if(!container.hasClass('graphael-barchart-drawn')) {
         var paddings = $.extend(creme.graphael.paddings, options.paddings);
         var x = options.x || [], y = options.y || [];
 
@@ -122,8 +114,7 @@ creme.graphael.simple_barchart = function(options)
 
         graphael.g.txtattr.font = "12px 'Fontin Sans', Fontin-Sans, sans-serif";
 
-        if(x.length==0 || y.length==0)
-        {
+        if(x.length==0 || y.length==0) {
             gtext(graphael_width/2, graphael_height/2, "No data");//TODO: i18n
             return;
         }
@@ -144,12 +135,9 @@ creme.graphael.simple_barchart = function(options)
         var lbl_abscissa = gtext(graphael_width/2, graphael_height - ipad, options.abscissa_lbl || "");
 
         var show_legend = false ? (options.show_legend == undefined || options.show_legend == false) : true;
-        if(!show_legend ||  x.length <=5)
-        {
+        if(!show_legend ||  x.length <=5) {
             barchart.label([x], true);
-        }
-        else
-        {
+        } else {
             var range = creme.utils.range(1, x.length+1)
             barchart.label([range], true);
 
@@ -158,11 +146,10 @@ creme.graphael.simple_barchart = function(options)
             var circles = [];
             var labels  = [];
 
-            for(var i=0; i < range.length; i++)
-            {
+            for(var i=0; i < range.length; i++) {
                 var lgd = range[i];
                 var label = gtext(init_lbl_x, graphael_height + previous_height, lgd+" : "+x[i]);
-                
+
                 label.attr({
                    x : label.getBBox().x+label.getBBox().width,
                 });
@@ -205,22 +192,19 @@ creme.graphael.simple_barchart = function(options)
             });
         }
 
-        if(options.gen_date_selector)
-        {
+        if(options.gen_date_selector) {
             $(options.gen_date_selector).text(new Date().toString("dd-MM-yyyy HH:mm:ss"));//Needs Datejs but doesn't bug when not
         }
         container.addClass('graphael-barchart-drawn');
     }
 };
 
-creme.graphael.simple_pie = function(options)
-{
+creme.graphael.simple_pie = function(options) {
     if(!options || options == undefined || options.instance==undefined) return;//Need at least a Raphael's instance
     var graphael = options.instance;
     var container = options.container;
 
-    if(!container.hasClass('graphael-pie-drawn'))
-    {
+    if(!container.hasClass('graphael-pie-drawn')) {
         var paddings = $.extend(creme.graphael.paddings, options.paddings);
         var x = options.x || [], y = options.y || [];
 
@@ -232,8 +216,7 @@ creme.graphael.simple_pie = function(options)
         var graphael_height = graphael.height;
         var gtext = graphael.g.text;
 
-        if(x.length==0 || y.length==0)
-        {
+        if(x.length==0 || y.length==0) {
             gtext(graphael_width/2, graphael_height/2, "No data");//TODO: i18n
             return;
         }
@@ -241,8 +224,7 @@ creme.graphael.simple_pie = function(options)
         graphael.g.txtattr.font = "12px 'Fontin Sans', Fontin-Sans, sans-serif";
 
         var parsed_y = [];
-        for(var i=-1, l=y.length; ++i < l;)
-        {
+        for(var i=-1, l=y.length; ++i < l;) {
             var current = parseInt(y[i]);
             if(isNaN(current)) current = 0;
 
@@ -251,20 +233,17 @@ creme.graphael.simple_pie = function(options)
 
         /* All this calculs are for the buggy scale when percentage exceeds */
         var total = 0;
-        for(var j=-1, lpy=parsed_y.length; ++j < lpy;)
-        {
+        for(var j=-1, lpy=parsed_y.length; ++j < lpy;) {
             total += parsed_y[j];
         }
 
         var percent_y_values = [];
-        for(var j=-1, lpy=parsed_y.length; ++j < lpy;)
-        {
+        for(var j=-1, lpy=parsed_y.length; ++j < lpy;) {
             percent_y_values.push(parsed_y[j]*100/total);
         }
-        
+
         var is_scale_buggy = false;
-        for(var k=-1, llpy=percent_y_values.length; ++k < llpy;)
-        {
+        for(var k=-1, llpy=percent_y_values.length; ++k < llpy;) {
             if(percent_y_values[k] > 99.999){
                 is_scale_buggy = true;
             }
@@ -272,7 +251,7 @@ creme.graphael.simple_pie = function(options)
         /* End */
 
 //        var pie_width = graphael_width/5;
-        var pie_width = graphael_height/3;
+        var pie_width = graphael_height / 3;
         var pie = graphael.g.piechart(pie_width*1.5+lpad, graphael_height/2, pie_width, parsed_y,
                                       {
                                         legend: x,
@@ -293,7 +272,7 @@ creme.graphael.simple_pie = function(options)
             }
         }, function () {
             var label  = this.label;
-            
+
             if(!is_scale_buggy) this.sector.animate({scale: [1, 1, this.cx, this.cy]}, 500, "bounce");
 
             this.flag.animate({opacity: 0}, 300, function () {this.remove();});
@@ -301,11 +280,10 @@ creme.graphael.simple_pie = function(options)
             if (label) {
                 label[0].animate({scale: 1}, 500, "bounce");
                 label[1].attr({"font-weight": 400});
-            }       
+            }
         });
 
-        if(options.gen_date_selector)
-        {
+        if(options.gen_date_selector) {
             $(options.gen_date_selector).text(new Date().toString("dd-MM-yyyy HH:mm:ss"));//Needs Datejs but doesn't bug when not
         }
         container.addClass('graphael-pie-drawn');
@@ -313,12 +291,11 @@ creme.graphael.simple_pie = function(options)
 };
 
 
-creme.graphael.simple_refetch = function(url, type, container_selector, o_lbl, a_lbl, date_selector)
-{
+creme.graphael.simple_refetch = function(url, type, container_selector, o_lbl, a_lbl, date_selector) {
     var type_infos = creme.graphael.simple_refetch.types[type];
-    if(type_infos != undefined)
-    {
-        creme.ajax.json.get(url, {}, function(d){
+
+    if(type_infos != undefined) {
+        creme.ajax.json.get(url, {}, function(d) {
             var x = d.x;
             var y = d.y;
 

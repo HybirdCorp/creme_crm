@@ -29,28 +29,26 @@ creme.relations.handleAddFromPredicateEntity = function(url, predicate_id, subje
                         if(lv.size() > 0) {
                             var ids = lv.list_view("getSelectedEntitiesAsArray");
                             if(ids.length == 0 || lv.list_view("countEntities") == 0) {
-                                creme.utils.showDialog("Veuillez sélectioner au moins un enregistrement !", {'title':'Erreur'});
+                                creme.utils.showDialog(gettext("Please select at least one entity."), {'title': gettext("Error")});
                                 return;
                             }
 
                             if(lv.list_view('option','o2m') && lv.list_view("countEntities") > 1) {
-                                creme.utils.showDialog("Veuillez sélectioner un seul enregistrement !", {'title':'Erreur'});
+                                creme.utils.showDialog(gettext("Please select only one entity."), {'title': gettext("Error")});
                                 return;
                             }
 
-                            var infoBoxOptions = {buttons: {
-                                                        "Ok": function() {
-                                                            if(typeof(block_reload_url) != "undefined")
-                                                            {
-                                                                $(this).dialog("destroy");
-                                                                $(this).remove();
-                                                                creme.utils.loadBlock(block_reload_url);
-                                                            } else {
-                                                                reload(window);
-                                                            }
-                                                        }
-                                                    }
-                                                 };
+                            var buttons = {};
+                            buttons[gettext("Ok")] = function() {
+                                    if(typeof(block_reload_url) != "undefined") {
+                                        $(this).dialog("destroy");
+                                        $(this).remove();
+                                        creme.utils.loadBlock(block_reload_url);
+                                    } else {
+                                        reload(window);
+                                    }
+                                }
+                            var infoBoxOptions = {buttons: buttons};
                             creme.ajax.json.post('/creme_core/relation/add_from_predicate/save',
                                                  {
                                                     'entities'    : ids,
@@ -58,10 +56,10 @@ creme.relations.handleAddFromPredicateEntity = function(url, predicate_id, subje
                                                     'predicate_id': predicate_id
                                                  },
                                                  function(data){
-                                                    creme.utils.showDialog(data, jQuery.extend({'title':'Information'}, infoBoxOptions));
+                                                    creme.utils.showDialog(data, jQuery.extend({'title': gettext("Information")}, infoBoxOptions));
                                                  },
                                                  function(error){
-                                                    creme.utils.showDialog(error.request.responseText, jQuery.extend({'title':'Erreur'}, infoBoxOptions));
+                                                    creme.utils.showDialog(error.request.responseText, jQuery.extend({'title': gettext("Error")}, infoBoxOptions));
                                                  }
                                                  ,
                                                  true,
@@ -70,7 +68,7 @@ creme.relations.handleAddFromPredicateEntity = function(url, predicate_id, subje
                         }
                         creme.utils.closeDialog(dialog,false);
                   },
-                  'send_button_label':"Valider la selection"
+                  'send_button_label': gettext("Validate the selection")
                 }
     creme.utils.showInnerPopup(url, options);
 }

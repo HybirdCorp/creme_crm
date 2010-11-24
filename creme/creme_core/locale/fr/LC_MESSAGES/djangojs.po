@@ -1,0 +1,170 @@
+# FR LOCALISATION OF 'CREME_CORE' APP (JavaScript only)
+# Copyright (C) 2010 Hybird
+# This file is distributed under the same license as the Creme package.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2010-11-24 11:04+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n>1\n"
+
+#: static/creme_core/js/ajax.js:39 static/creme_core/js/ajax.js.py:90
+#: static/creme_core/js/utils.js:455
+msgid "Error !"
+msgstr "Erreur !"
+
+#: static/creme_core/js/ajax.js:39 static/creme_core/js/ajax.js.py:90
+#: static/creme_core/js/utils.js:455
+msgid "The page will be reload !"
+msgstr "La page va être rechargée !"
+
+#: static/creme_core/js/ajax.js:40 static/creme_core/js/ajax.js.py:91
+#: static/creme_core/js/filters.js:38 static/creme_core/js/filters.js.py:44
+#: static/creme_core/js/forms.js:244 static/creme_core/js/lv_widget.js:48
+#: static/creme_core/js/lv_widget.js:54 static/creme_core/js/relations.js:32
+#: static/creme_core/js/relations.js:37 static/creme_core/js/relations.js:62
+#: static/creme_core/js/utils.js:186 static/creme_core/js/utils.js.py:282
+#: static/creme_core/js/utils.js:456 static/creme_core/js/utils.js.py:700
+#: static/creme_core/js/widgets/entityselector.js:66
+msgid "Error"
+msgstr "Erreur"
+
+#: static/creme_core/js/export.js:42
+msgid "Pdf file (PDF)"
+msgstr "Fichier Pdf (PDF)"
+
+#: static/creme_core/js/export.js:45 static/creme_core/js/relations.js:42
+#: static/creme_core/js/utils.js:176 static/creme_core/js/utils.js.py:210
+#: static/creme_core/js/utils.js:567 static/creme_core/js/utils.js.py:678
+#: static/creme_core/js/widgets/rte.js:132
+msgid "Ok"
+msgstr "Ok"
+
+#: static/creme_core/js/filters.js:37 static/creme_core/js/forms.js:243
+#: static/creme_core/js/lv_widget.js:47 static/creme_core/js/relations.js:32
+#: static/creme_core/js/utils.js:661 static/creme_core/js/utils.js.py:682
+#: static/creme_core/js/widgets/entityselector.js:66
+msgid "Please select at least one entity."
+msgstr "Veuillez sélectionner au moins un enregistrement."
+
+#: static/creme_core/js/filters.js:43 static/creme_core/js/lv_widget.js:53
+#: static/creme_core/js/relations.js:37
+msgid "Please select only one entity."
+msgstr "Veuillez sélectioner un seul enregistrement."
+
+#: static/creme_core/js/filters.js:61 static/creme_core/js/forms.js:237
+#: static/creme_core/js/lv_widget.js:60 static/creme_core/js/relations.js:71
+#: static/creme_core/js/widgets/entityselector.js:60
+msgid "Validate the selection"
+msgstr "Valider la sélection"
+
+#: static/creme_core/js/forms.js:279 static/creme_core/js/forms.js.py:342
+#: static/creme_core/js/forms.js:382
+msgid "Selection..."
+msgstr "Sélection..."
+
+#: static/creme_core/js/forms.js:284 static/creme_core/js/forms.js.py:285
+#: static/creme_core/js/lv_widget.js:105 static/creme_core/js/lv_widget.js:106
+#: static/creme_core/js/widgets/selectorlist.js:60
+#: static/creme_core/js/widgets/selectorlist.js:61
+msgid "Delete"
+msgstr "Effacer"
+
+#: static/creme_core/js/forms.js:374
+msgid ""
+"Server unavailable: please reload the page. If the problem persists, please "
+"contact your administrator."
+msgstr ""
+"Serveur inaccessible : veuillez recharger la page. Si le problème persiste, "
+"veuillez contacter votre administrateur."
+
+#: static/creme_core/js/forms.js:523 static/creme_core/js/lv_widget.js:38
+msgid "Add"
+msgstr "Ajouter"
+
+#: static/creme_core/js/forms.js:524
+msgid "Remove"
+msgstr "Enlever"
+
+#: static/creme_core/js/forms.js:525
+msgid "Add all"
+msgstr "Ajouter tout"
+
+#: static/creme_core/js/forms.js:526
+msgid "Remove all"
+msgstr "Enlever tout"
+
+#: static/creme_core/js/forms.js:527
+msgid "Up"
+msgstr "Monter"
+
+#: static/creme_core/js/forms.js:528
+msgid "Down"
+msgstr "Descendre"
+
+#: static/creme_core/js/forms.js:680
+msgid "Available"
+msgstr "Disponible(s)"
+
+#: static/creme_core/js/forms.js:682
+msgid "Chosen"
+msgstr "Choisi(s)"
+
+#: static/creme_core/js/lv_widget.js:36 static/creme_core/js/utils.js:669
+msgid "Select"
+msgstr "Sélectionnez"
+
+#: static/creme_core/js/relations.js:59
+msgid "Information"
+msgstr "Information"
+
+#: static/creme_core/js/utils.js:57
+msgid "Loading..."
+msgstr "Chargement..."
+
+#: static/creme_core/js/utils.js:183 static/creme_core/js/utils.js.py:575
+msgid "Suppression done"
+msgstr "Suppression effectuée"
+
+#: static/creme_core/js/utils.js:202 static/creme_core/js/utils.js.py:235
+#: static/creme_core/js/utils.js:596 static/creme_core/js/utils.js.py:715
+#: static/creme_core/js/widgets/rte.js:127
+msgid "Cancel"
+msgstr "Annuler"
+
+#: static/creme_core/js/utils.js:204 static/creme_core/js/utils.js.py:237
+#: static/creme_core/js/utils.js:598 static/creme_core/js/utils.js.py:656
+msgid "Are you sure ?"
+msgstr "Êtes-vous sûr ?"
+
+#: static/creme_core/js/utils.js:281
+msgid "Check the box if you consider as treated"
+msgstr "Merci de cocher si vous considérez comme traité"
+
+#: static/creme_core/js/utils.js:354
+msgid "Close"
+msgstr "Fermer"
+
+#: static/creme_core/js/utils.js:373 static/creme_core/js/utils.js.py:415
+msgid "Send"
+msgstr "Envoyer"
+
+#: static/creme_core/js/utils.js:627
+msgid "Search results..."
+msgstr "Résultats de recherche..."
+
+#: static/creme_core/js/utils.js:696
+msgid "Process done"
+msgstr "Opération effectuée"
+
+#: static/creme_core/js/widgets/rte.js:229
+msgid "Paste your text"
+msgstr "Collez votre texte"

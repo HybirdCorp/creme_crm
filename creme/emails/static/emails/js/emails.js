@@ -22,52 +22,43 @@
 
 creme.emails = {};
 
-creme.emails.mass_action = function(url, selector, block_url, complete_cb)
-{
+creme.emails.mass_action = function(url, selector, block_url, complete_cb) {
     var values = $(selector).getValues();
 
     creme.utils.ajaxDelete(url,
                            {'ids': values},
                            {
                                success : function(data, status, req){
-                                    creme.utils.showDialog("Opération effectuée");
+                                    creme.utils.showDialog(gettext("Process done"));
                                 },
                                complete:function(req, st){
-                                   if(st!='error')
-                                   {
-                                       if(block_url && typeof(block_url) != "undefined")
-                                       {
+                                   if(st!='error') {
+                                       if(block_url && typeof(block_url) != "undefined") {
                                             creme.utils.loadBlock(block_url);
                                        }
-                                       if(complete_cb && $.isFunction(complete_cb))
-                                       {
+                                       if(complete_cb && $.isFunction(complete_cb)) {
                                            complete_cb();
                                        }
-                                       
+
                                    }
                                    creme.utils.loading('loading', true);
                                }
                            });
-    
 };
 
-
-
-creme.emails.mass_relation = function(url, selector, block_url)
-{
+creme.emails.mass_relation = function(url, selector, block_url) {
     var values = $(selector).getValues();
-    if(values.length == 0)
-    {
-        creme.utils.showDialog(i18n.get_current_language()['SELECT_AT_LEAST_ONE_ENTITY']);
+    if(values.length == 0) {
+        creme.utils.showDialog(gettext("Please select at least one entity."));
         return false;
     }
 
-    url += values.join(',')+',';
+    url += values.join(',') + ',';
 
     creme.utils.innerPopupNReload(url, block_url);
 };
 
-creme.reload_synchronisation = function($target, target_url){
+creme.reload_synchronisation = function($target, target_url) {
     creme.ajax.get({
         url : target_url,
         success : function(data){
@@ -76,28 +67,19 @@ creme.reload_synchronisation = function($target, target_url){
     });
 };
 
-creme.emails.resend = function(url, ids, block_url, complete_cb)
-{
-    creme.ajax.post(
-        {
-            'url':url,
-            'data':{
-                'ids': ids
-            },
-            success : function(data, status, req)
-            {
-                creme.utils.showDialog("Opération effectuée");
-            },
-            complete:function(req, st)
-            {
-                if(st!='error')
-                {
-                    if(block_url && typeof(block_url) != "undefined")
-                    {
+creme.emails.resend = function(url, ids, block_url, complete_cb) {
+    creme.ajax.post({
+            'url': url,
+            'data': {'ids': ids},
+            success : function(data, status, req) {
+                    creme.utils.showDialog(gettext("Process done"));
+                },
+            complete: function(req, st) {
+                if(st!='error') {
+                    if(block_url && typeof(block_url) != "undefined") {
                         creme.utils.loadBlock(block_url);
                     }
-                    if(complete_cb && $.isFunction(complete_cb))
-                    {
+                    if(complete_cb && $.isFunction(complete_cb)) {
                         complete_cb();
                     }
                 }

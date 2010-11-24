@@ -61,13 +61,13 @@ creme.reports.__loadFilters = function(url, ct_id, $target_select, parameters) {
     if($target_select.size() != 1) return;
 
     var params = $.extend({
-        'err_label' : 'Aucun disponible',//TODO:i18n
+        'err_label' : gettext("None available"),
         'always_option': null,//Always the 1st <option /> in non-empty success cases
         'empty_option' : null,
         'error_option' : null
     }, parameters);
 
-    var $def_option = $('<option value="">'+params.err_label+'</option>');
+    var $def_option = $('<option value="">' + params.err_label + '</option>');
 
     var success_cb = function(data, textStatus, req){
         $target_select.empty();
@@ -100,16 +100,16 @@ creme.reports.__loadFilters = function(url, ct_id, $target_select, parameters) {
 }
 
 creme.reports.loadHeaderFilters = function(ct_id, $target_select) {
-    var url = '/creme_core/header_filter/get_4_ct/'+ct_id;
+    var url = '/creme_core/header_filter/get_4_ct/' + ct_id;
     var params = {
-        'always_option': $('<option value="">Aucune vue sélectionnée</option>')
+        'always_option': $('<option value="">' + gettext("No selected view") + '</option>')
     };
     creme.reports.__loadFilters(url, ct_id, $target_select, params);
 }
 
 creme.reports.loadFilters = function(ct_id, $target_select) {
     var url = '/creme_core/filter/get_4_ct/' + ct_id;
-    var $all_opt = $('<option value="">Tout</option>');
+    var $all_opt = $('<option value="">' + gettext("All") + '</option>');
 
     var params = {
         'empty_option' : $all_opt,
@@ -122,7 +122,7 @@ creme.reports.loadFilters = function(ct_id, $target_select) {
 
 //TODO: refactor when OrderedMultiSelect can be properly reload
 creme.reports.__loadOrderedMultiSelect = function(url, pdata, table_id, input_name) {
-    var $columns_table = $('#'+table_id);
+    var $columns_table = $('#' + table_id);
 
     if($columns_table.size() !=1) return;
 
@@ -197,7 +197,6 @@ creme.reports.loadAggregates = function(ct_id, options) {
     }
 }
 
-
 creme.reports.unlink_report = function(field_id, block_url) {
     var success_cb = function(data, textStatus, req) {
         if(block_url && block_url != undefined) {
@@ -206,7 +205,7 @@ creme.reports.unlink_report = function(field_id, block_url) {
     };
 
     var error_cb = function(req, textStatus, err) {
-        
+
     };
 
     creme.ajax.json.post('/reports/report/field/unlink_report', {'field_id': field_id}, success_cb, success_cb, false, this.loading_options);
@@ -219,27 +218,25 @@ creme.reports.link_report = function(report_id, field_id, block_url) {
 creme.reports.link_relation_report = function(report_id, field_id, predicate, block_url) {
     var success_cb = function(data, textStatus, req) {
         var $select = $('<select />');
-        creme.forms.Select.fill($select, [["","Sélectionnez un type"]].concat(data), "");
+        creme.forms.Select.fill($select, [["", gettext("Select a type")]].concat(data), "");
 
-        creme.utils.showDialog($select, {
-            buttons : {
-                "Ok" : function() {
-                    if($select.val() == "") {
-                        creme.utils.showDialog("Veuillez sélectionner un type.");
-                        return;
-                    }
-
-                    creme.utils.innerPopupNReload('/reports/report/'+report_id+'/field/'+field_id+'/link_relation_report/'+$select.val(), block_url);
-
-                    $(this).dialog("close");
+        var buttons = {};
+        buttons[gettext("Ok")] = function() {
+                if($select.val() == "") {
+                    creme.utils.showDialog(gettext("Please select a type."));
+                    return;
                 }
-            }
-        });
 
+                creme.utils.innerPopupNReload('/reports/report/'+report_id+'/field/'+field_id+'/link_relation_report/'+$select.val(), block_url);
+
+                $(this).dialog("close");
+            }
+
+        creme.utils.showDialog($select, {buttons: buttons});
     }
 
     var error_cb = function(req, textStatus, err) {
-        
+
     }
 
     creme.forms.RelationSelector.contentTypeRequest(predicate, success_cb, error_cb);

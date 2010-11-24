@@ -22,25 +22,28 @@
 
 creme._export = {};
 
-creme._export.select_one = function(evt, a)
-{
-    evt.preventDefault();
-    var current_href = $(a).attr('href');
+//TODO: mobe to billing ??
 
+creme._export.select_one = function(evt, a) {
+    evt.preventDefault();
+
+    var current_href = $(a).attr('href');
     var me = this;
 
-    this.okDialogHandler = function(ui){
+    this.okDialogHandler = function(ui) {
         current_href = current_href.replace('%s', $(ui).find('select').val());
         $(ui).dialog("destroy");
         $(ui).remove();
-        window.location.href=current_href;
+        window.location.href = current_href;
     }
 
     var $select = $('<select></select>');
     //Make dynamics values
     //$select.append($('<option></option>').val("odt").text("Document open-office (ODT)"));
-    $select.append($('<option></option>').val("pdf").text("Fichier Pdf (PDF)"));
+    $select.append($('<option></option>').val("pdf").text(gettext("Pdf file (PDF)")));
 
-    creme.utils.showDialog($select, {title: '', modal: true, buttons: {"Ok": function(){me.okDialogHandler($(this))}}});
+    var buttons = {};
+    buttons[gettext("Ok")] = function() {me.okDialogHandler($(this))}
 
+    creme.utils.showDialog($select, {title: '', modal: true, buttons: buttons});
 }

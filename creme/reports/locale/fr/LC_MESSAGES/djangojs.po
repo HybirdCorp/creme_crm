@@ -1,0 +1,37 @@
+# FR LOCALISATION OF 'REPORTS' APP (JavaScript only)
+# Copyright (C) 2010 Hybird
+# This file is distributed under the same license as the Creme package.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2010-11-24 11:48+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n>1\n"
+
+#: static/reports/js/reports.js:63
+msgid "None available"
+msgstr "Aucun disponible"
+
+#: static/reports/js/reports.js:104
+msgid "No selected view"
+msgstr "Aucune vue sélectionnée"
+
+#: static/reports/js/reports.js:111
+msgid "All"
+msgstr "Tout"
+
+#: static/reports/js/reports.js:219
+msgid "Select a type"
+msgstr "Sélectionnez un type"
+
+#: static/reports/js/reports.js:225
+msgid "Please select a type."
+msgstr "Veuillez sélectionner un type."
