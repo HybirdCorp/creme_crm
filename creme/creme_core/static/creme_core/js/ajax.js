@@ -36,7 +36,8 @@ creme.ajax.submit = function(form, data, options) {
             beforeError : null,
             beforeComplete : null,
             error : function(){
-                creme.utils.showDialog("<p><b>Erreur !</b></p><p>La page va être rechargée!</p>",{'title':'Erreur'});
+                creme.utils.showDialog('<p><b>' + gettext("Error !") + '</b></p><p>' +  gettext("The page will be reload !") + '</p>',
+                                       {'title': gettext("Error")});
                 creme.utils.sleep("reload(window)");
             },
             afterError : null,
@@ -44,7 +45,7 @@ creme.ajax.submit = function(form, data, options) {
         };
 
         var opts = $.extend(defaults, options);
-    
+
         $.ajax({
               url: opts.action,
               type: opts.method,
@@ -84,8 +85,10 @@ creme.ajax.ajax = function(options)
             success : null,
             beforeError : null,
             beforeComplete : null,
-            error : function(){
-                creme.utils.showDialog("<p><b>Erreur !</b></p><p>La page va être rechargée!</p>",{'title':'Erreur'});
+            error : function() {
+                //TODO: factorise....
+                creme.utils.showDialog('<p><b>' + gettext("Error !") + '</b></p><p>' +  gettext("The page will be reload !") + '</p>',
+                                       {'title': gettext("Error")});
                 creme.utils.sleep("reload(window)");
             },
             afterError : null,
@@ -98,7 +101,7 @@ creme.ajax.ajax = function(options)
               data : options.data,
               async : options.async,
               dataType: options.dataType,
-              
+
               beforeSend : function(request){
                   creme.utils.loading('loading', false, {});
                   if(options.beforeSend && $.isFunction(options.beforeSend)) options.beforeSend(request);
@@ -129,120 +132,120 @@ creme.ajax.post = function(options) {
 
 /*
  * creme.ajax.iframeSubmit($('#myform'), function(data) {
-      	   console.log(data) // result html content (body of iframe)
-	  });
+             console.log(data) // result html content (body of iframe)
+      });
  */
 creme.ajax.iframeSubmit = function(form, success_cb, pop_options)
 {
-	var delay = 1;
-	var id = new Date().getTime()
-	var iframe = $('<iframe style="position:absolute;top:-1000px;left:-1000px;"><html><head></head><body></body></html></iframe>').attr('id', id).appendTo($('body'))
+    var delay = 1;
+    var id = new Date().getTime()
+    var iframe = $('<iframe style="position:absolute;top:-1000px;left:-1000px;"><html><head></head><body></body></html></iframe>').attr('id', id).appendTo($('body'))
 
-	setTimeout(function() {
-		var submit = creme.ajax.iframePopulate(iframe, form, pop_options);
-		submit.trigger('click');
-		
-    	iframe.load(function() {
-    		success_cb($(this).contents().find('body').html());
-    		iframe.remove();
-    	});
-	}, delay);
+    setTimeout(function() {
+        var submit = creme.ajax.iframePopulate(iframe, form, pop_options);
+        submit.trigger('click');
+
+        iframe.load(function() {
+            success_cb($(this).contents().find('body').html());
+            iframe.remove();
+        });
+    }, delay);
 };
 
 creme.ajax.iframePopulate = function(iframe, form, options) {
-	var iform = $('<form>').attr('action', options['action']||form.attr('action'))
-						   .attr('method', 'post')
-						   .attr('enctype', form.attr('enctype'));
-		
-	$('input, textarea', form).each(function() {
-		iform.append($(this).clone().text($(this).val()));
-	});
-	
-	$('select', form).each(function() {
-		iform.append($(this).clone().val($(this).val()).change());
-	});
+    var iform = $('<form>').attr('action', options['action']||form.attr('action'))
+                           .attr('method', 'post')
+                           .attr('enctype', form.attr('enctype'));
+
+    $('input, textarea', form).each(function() {
+        iform.append($(this).clone().text($(this).val()));
+    });
+
+    $('select', form).each(function() {
+        iform.append($(this).clone().val($(this).val()).change());
+    });
 
         $('[name=whoami]').each(function(){
             iform.append($(this).clone().text($(this).val()));
         });
 
-	iframe.contents().find('body').append(iform);
-	
-	return $('<input type="submit" name="submit" value="1" id="submit"/>').appendTo(iform);
+    iframe.contents().find('body').append(iform);
+
+    return $('<input type="submit" name="submit" value="1" id="submit"/>').appendTo(iform);
 };
 
 creme.ajax.json = {};
 creme.ajax.json._handleSendError = function(req, textStatus, errorThrown) {
-	switch(textStatus) {
-		case "parsererror":
-			return {type:"request", status:req.status, message:"JSON parse error", request:req}
-			break;
-		default:
-			return {type:"request", status:req.status, message:"" + req.status + " " + req.statusText, request:req}
-	}
+    switch(textStatus) {
+        case "parsererror":
+            return {type:"request", status:req.status, message:"JSON parse error", request:req}
+            break;
+        default:
+            return {type:"request", status:req.status, message:"" + req.status + " " + req.statusText, request:req}
+    }
 };
 
 creme.ajax.json.send = function(url, data, success_cb, error_cb, sync, method, parameters) {
-	var ajax_parameters = {
-		async: !sync,
-		type: method,
-		url: url,
-		data: data,
-		dataType: "json",
-		success: function(data, textStatus) {
-			if (success_cb != undefined) {
-				success_cb(data);
-			}
-		},
-		error : function(req, textStatus, errorThrown) {
-		   	if (error_cb != undefined) {
-		   		error_cb(creme.ajax.json._handleSendError(req, textStatus, errorThrown));
-		   	}
-		}
-	};
-	
-	if (parameters != undefined) {
-		ajax_parameters = $.extend(ajax_parameters, parameters);
-	}
-	
-	$.ajax(ajax_parameters);
+    var ajax_parameters = {
+        async: !sync,
+        type: method,
+        url: url,
+        data: data,
+        dataType: "json",
+        success: function(data, textStatus) {
+            if (success_cb != undefined) {
+                success_cb(data);
+            }
+        },
+        error : function(req, textStatus, errorThrown) {
+               if (error_cb != undefined) {
+                   error_cb(creme.ajax.json._handleSendError(req, textStatus, errorThrown));
+               }
+        }
+    };
+
+    if (parameters != undefined) {
+        ajax_parameters = $.extend(ajax_parameters, parameters);
+    }
+
+    $.ajax(ajax_parameters);
 };
 
 creme.ajax.json.post = function(url, data, success_cb, error_cb, sync, parameters) {
-	creme.ajax.json.send(url, data, success_cb, error_cb, sync, "POST", parameters);
+    creme.ajax.json.send(url, data, success_cb, error_cb, sync, "POST", parameters);
 };
 
 creme.ajax.json.get = function(url, data, success_cb, error_cb, sync, parameters) {
-	creme.ajax.json.send(url, data, success_cb, error_cb, sync, "GET", parameters);
+    creme.ajax.json.send(url, data, success_cb, error_cb, sync, "GET", parameters);
 };
 
 // Code copied from JQuery 1.4.*
 creme.ajax.json.parse = function(data) {
-	if ( typeof data !== "string" || !data ) {
-		return null;
-	}
+    if ( typeof data !== "string" || !data ) {
+        return null;
+    }
 
-	// Make sure leading/trailing whitespace is removed (IE can't handle it)
-	data = jQuery.trim( data );
-	
-	// Make sure the incoming data is actual JSON
-	// Logic borrowed from http://json.org/json2.js
-	if ( /^[\],:{}\s]*$/.test(data.replace(/\\(?:["\\\/bfnrt]|u[0-9a-fA-F]{4})/g, "@")
-		.replace(/"[^"\\\n\r]*"|true|false|null|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?/g, "]")
-		.replace(/(?:^|:|,)(?:\s*\[)+/g, "")) ) {
+    // Make sure leading/trailing whitespace is removed (IE can't handle it)
+    data = jQuery.trim( data );
 
-		try {
-			// Try to use the native JSON parser first
-			return window.JSON && window.JSON.parse ?
-				window.JSON.parse( data ) :
-				(new Function("return " + data))();
-		} catch(err) {
-			console.log("Invalid JSON: " + data);
-			return null;
-		}
+    // Make sure the incoming data is actual JSON
+    // Logic borrowed from http://json.org/json2.js
+    if ( /^[\],:{}\s]*$/.test(data.replace(/\\(?:["\\\/bfnrt]|u[0-9a-fA-F]{4})/g, "@")
+        .replace(/"[^"\\\n\r]*"|true|false|null|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?/g, "]")
+        .replace(/(?:^|:|,)(?:\s*\[)+/g, "")) ) {
 
-	} else {
-		console.log( "Invalid JSON: " + data );
-		return null;
-	}
+        try {
+            // Try to use the native JSON parser first
+            return window.JSON && window.JSON.parse ?
+                window.JSON.parse( data ) :
+                (new Function("return " + data))();
+        } catch(err) {
+            //console.log("Invalid JSON: " + data);
+            return null;
+        }
+
+    } else {
+        //console.log( "Invalid JSON: " + data );
+        return null;
+    }
 };

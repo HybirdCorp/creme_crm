@@ -20,7 +20,7 @@
 creme.lv_widget = {};
 
 creme.lv_widget.init_widget = function(id, q_filter, extra_attrs) {
-    var input = $('#'+id);
+    var input = $('#' + id);
     input.hide();
     var td = input.parent();
     var $div = $('<div></div>');
@@ -34,31 +34,31 @@ creme.lv_widget.init_widget = function(id, q_filter, extra_attrs) {
     td.append(
         $div
         .attr('id', id+'_div')
-        .text(
-            'Sélectionner '+$('label[for='+id+']').text()
-        )
+        .text(gettext("Select") + ' : ' + $('label[for=' + id + ']').text())
         .append(
-            $('<img />').attr('src', media_url("images/add_16.png")).attr('alt', 'Ajouter').attr('title', 'Ajouter')
+            $('<img />').attr('src', media_url("images/add_16.png")).attr('alt', gettext("Add")).attr('title', gettext("Add"))
             .bind('click',
                   {'input': input, 'input_id': id, 'lv_widget': creme.lv_widget},
-                  function(e){
+                  function(e) {
                         var options = {
                             'send_button': function(dialog){
                                                     var lv = $('form[name="list_view_form"]');
                                                     var ids = lv.list_view("getSelectedEntitiesAsArray");
                                                     if(ids == "" || lv.list_view("countEntities") == 0) {
-                                                        creme.utils.showDialog("Veuillez sélectioner au moins un enregistrement !", {'title':'Erreur'});
+                                                        creme.utils.showDialog(gettext("Please select at least one entity."),
+                                                                               {'title': gettext("Error")});
                                                         return;
                                                     }
 
                                                     if(lv.list_view('option', 'o2m') && lv.list_view("countEntities") > 1) {
-                                                        creme.utils.showDialog("Veuillez sélectioner un seul enregistrement !", {'title':'Erreur'});
+                                                        creme.utils.showDialog(gettext("Please select only one entity."),
+                                                                               {'title': gettext("Error")});
                                                         return;
                                                     }
                                                     creme.lv_widget.handleSelection(ids, e.data.input_id);
                                                     creme.utils.closeDialog(dialog, false);
                                           },
-                          'send_button_label': "Valider la sélection"
+                          'send_button_label': gettext("Validate the selection")
                         }
 //                        var params='menubar=no, status=no, scrollbars=yes, height=800';
                         //openWindow('/creme_core/lv_popup/'+e.data.input.attr('ct_id')+'/'+e.data.input.attr('o2m')+'?js_handler=window.opener.lv_widget.handleSelection&js_arguments=ids,"'+e.data.input_id+'"&q_filter='+q_filter, 'select_multiple_entity', params);
@@ -76,7 +76,6 @@ creme.lv_widget.handleSelection = function(ids, targetInputId) {
 //        $targetDiv.append($('<div></div>').attr('name','container'));
 //        var $targetDivContainer = $targetDiv.find('[name=container]');
 
-        var current_language = i18n.get_current_language();
         var o2m = Boolean(parseInt($targetInput.attr('o2m')));
 
         if(o2m) {
@@ -92,7 +91,7 @@ creme.lv_widget.handleSelection = function(ids, targetInputId) {
             if(id && id !="")
                 $.ajax({
                             type: "GET",
-                            url: '/creme_core/entity/get_repr/'+id,
+                            url: '/creme_core/entity/get_repr/' + id,
                             dataType: "text",
                             async : false,
                             success: function(data, status) {
@@ -104,20 +103,19 @@ creme.lv_widget.handleSelection = function(ids, targetInputId) {
                                     $('<div></div>')
                                         .html(data)
                                         .append($('<input type="hidden"/>').val(id))
-                                        .append(
-                                            $('<img />').attr('src', media_url("images/delete_22.png"))
-                                            .attr('alt', current_language.DELETE)
-                                            .attr('title', current_language.DELETE)
-                                            .attr('onclick', 'creme.lv_widget.delete_a_value(this, "' + targetInputId + '")')
+                                        .append($('<img />').attr('src', media_url("images/delete_22.png"))
+                                                            .attr('alt', gettext("Delete"))
+                                                            .attr('title', gettext("Delete"))
+                                                            .attr('onclick', 'creme.lv_widget.delete_a_value(this, "' + targetInputId + '")')
                                         )
                                 );
                             },
-                            error: function(request, status, error){}
+                            error: function(request, status, error) {}
                 });
         }
 
-        eval("var selection_cb="+$targetInput.attr('selection_cb')); //WTF ??
-        eval("var selection_cb_args="+$targetInput.attr('selection_cb_args'));  //WTF ??
+        eval("var selection_cb=" + $targetInput.attr('selection_cb')); //WTF ??
+        eval("var selection_cb_args=" + $targetInput.attr('selection_cb_args'));  //WTF ??
         if(selection_cb && $.isFunction(selection_cb)) {
             selection_cb(ids, targetInputId, selection_cb_args);
         }

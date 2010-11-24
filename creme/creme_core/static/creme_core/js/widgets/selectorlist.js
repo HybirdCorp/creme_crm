@@ -50,7 +50,6 @@ creme.widget.SelectorList = creme.widget.declare('ui-creme-selectorlist', {
 
     appendSelector: function(element, selector) {
         var self = creme.widget.SelectorList;
-        var current_language = i18n.get_current_language();
 
         var selector = self._getSelector(element, selector);
         selector.addClass('selector').attr('style', 'display:inline;');
@@ -58,8 +57,8 @@ creme.widget.SelectorList = creme.widget.declare('ui-creme-selectorlist', {
         var selector_item = $('<ul>').addClass('ui-layout hbox').css('display', 'block');
 
         var delete_button = $('<img/>').attr('src', media_url('images/delete_22.png'))
-                                       .attr('alt', current_language.DELETE)
-                                       .attr('title', current_language.DELETE)
+                                       .attr('alt', gettext("Delete"))
+                                       .attr('title', gettext("Delete"))
                                        .attr('style', 'position:absolute;top:0.1em;left:0.1em;')
                                        .click(function() {
                                             selector_item.remove();

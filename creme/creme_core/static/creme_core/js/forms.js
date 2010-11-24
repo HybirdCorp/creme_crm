@@ -23,70 +23,65 @@ creme.forms = {}
  */
 
 creme.forms.Select = {}
-creme.forms.Select.optionsFromData = function(data, option_label, option_value)
-{
+creme.forms.Select.optionsFromData = function(data, option_label, option_value) {
     var options = [];
-    
+
     option_value = (option_value != undefined) ? option_value : 0;
     option_label = (option_label != undefined) ? option_label : 1;
-    
+
     var getter_builder = function(getter) {
         if (typeof getter == 'function')
             return getter;
-    
+
         return function(entry) {return entry[getter];}
     };
-    
+
     var option_label_getter = getter_builder(option_label);
     var option_value_getter = getter_builder(option_value);
-    
-    for(var index = 0; index < data.length; ++index)
-    {
+
+    for(var index = 0; index < data.length; ++index) {
         var entry = data[index];
          var entry_value = option_value_getter(entry);
          var entry_label = option_label_getter(entry);
-     
+
          if ((entry_value == undefined) || (entry_label == undefined))
              continue;
-     
+
         options.push([entry_value, entry_label]);
     }
-    
+
     return options;
 }
 
-creme.forms.Select.fill = function(self, options, selected)
-{
+creme.forms.Select.fill = function(self, options, selected) {
     if ((self == undefined) || (options == undefined)) {
         return;
     }
-    
+
     var old_value = self.val();
     var value;
     self.empty();
-     
-     for(var index = 0; index < options.length; ++index)
-     {
+
+     for(var index = 0; index < options.length; ++index) {
          var entry = options[index];
          var entry_value = entry[0];
          var entry_label = entry[1];
-     
+
          option = $('<option/>').val(entry_value).text(entry_label);
 
          if (entry_value == selected) {
              option.attr('selected', 'selected');
              value = selected;
          }
-     
+
          self.append(option);
      }
-     
-     if (value == undefined)
-     {
+
+     if (value == undefined) {
          if (options.length > 0) {
              value = options[0][0];
          }
-     
+
          if (old_value != undefined) {
              for(var index = 0; index < options.length; ++index)    {
                  if (options[index][0] == old_value) {
@@ -96,7 +91,7 @@ creme.forms.Select.fill = function(self, options, selected)
              }
          }
      }
-     
+
      self.val(value);
      self.change();
      return self;
@@ -106,29 +101,27 @@ creme.forms.Select.fill = function(self, options, selected)
  * TimePicker widget
  */
 creme.forms.TimePicker = {}
-creme.forms.TimePicker.init = function(self) 
-{
+creme.forms.TimePicker.init = function(self) {
     var time = creme.forms.TimePicker.timeval(self);
-    
+
     $('li.hour input[type="text"]', self).val(time.hour);
     $('li.minute input[type="text"]', self).val(time.minute);
-    
+
     $('li input[type="text"]', self).bind('change', function() {
             creme.forms.TimePicker.update(self);
         });
-    
+
     $('li button', self).bind('click', function() {
             var now = new Date();
             creme.forms.TimePicker.set(self, now.getHours(), now.getMinutes());
         });
 }
 
-creme.forms.TimePicker.parseTime = function(value) 
-{
+creme.forms.TimePicker.parseTime = function(value) {
     var values = (value != undefined) ? value.split(':') : [];
     var hour = (values.length > 1) ? values[0] : '';
     var minute = (values.length > 1) ? values[1] : '';
-    
+
     return {hour:hour, minute:minute};
 }
 
@@ -140,22 +133,19 @@ creme.forms.TimePicker.timeval = function(self) {
     return creme.forms.TimePicker.parseTime($('input[type="hidden"]', self).val());
 }
 
-creme.forms.TimePicker.update = function(self) 
-{
+creme.forms.TimePicker.update = function(self) {
     var hour = $('li.hour input[type="text"]', self).val();
     var minute = $('li.minute input[type="text"]', self).val();
     $('input[type="hidden"]', self).val(hour + ':' + minute);
 }
 
-creme.forms.TimePicker.clear = function(self) 
-{
+creme.forms.TimePicker.clear = function(self) {
     $('li.hour input[type="text"]', self).val('');
     $('li.minute input[type="text"]', self).val('');
     $('input[type="hidden"]', self).val('');
 }
 
-creme.forms.TimePicker.set = function(self, hour, minute) 
-{
+creme.forms.TimePicker.set = function(self, hour, minute) {
     $('li.hour input[type="text"]', self).val(hour);
     $('li.minute input[type="text"]', self).val(minute);
     $('input[type="hidden"]', self).val(hour + ':' + minute);
@@ -166,28 +156,27 @@ creme.forms.TimePicker.set = function(self, hour, minute)
  */
 
 creme.forms.DateTimePicker = {}
-creme.forms.DateTimePicker.init = function(self) 
-{
+creme.forms.DateTimePicker.init = function(self) {
     var datetime = creme.forms.DateTimePicker.datetimeval(self);
-    
+
     $('li.date input[type="text"]', self).val(datetime.date);
     $('li.hour input[type="text"]', self).val(datetime.hour);
     $('li.minute input[type="text"]', self).val(datetime.minute);
-    
+
     $('li input[type="text"]', self).bind('change', function() {
             creme.forms.DateTimePicker.update(self);
         });
-    
+
     $('li.now button', self).bind('click', function() {
             var now = new Date();
             creme.forms.DateTimePicker.set(self, now.getFullYear(), now.getMonth(), now.getDate(), now.getHours(), now.getMinutes());
         });
-    
+
     $('li.clear button', self).bind('click', function() {
 //             var now = new Date();
             creme.forms.DateTimePicker.clear(self);
         });
-    
+
     $('li.date input[type="text"]', self).datepicker({
             dateFormat: "yy-mm-dd",
             showOn: "button",
@@ -204,32 +193,28 @@ creme.forms.DateTimePicker.datetimeval = function(self) {
     return creme.forms.DateTimePicker.parseDateTime($('input[type="hidden"]', self).val());
 }
 
-creme.forms.DateTimePicker.parseDateTime = function(value)
-{
+creme.forms.DateTimePicker.parseDateTime = function(value) {
     var values = (value != undefined) ? value.split(' ') : [];
     var date = (values.length > 1) ? values[0] : '';
     var time = creme.forms.TimePicker.parseTime((values.length > 1) ? values[1] : '');
     return $.extend({date:date}, time);
 }
 
-creme.forms.DateTimePicker.update = function(self) 
-{
+creme.forms.DateTimePicker.update = function(self) {
     var date = $('li.date input[type="text"]', self).val();
     var hour = $('li.hour input[type="text"]', self).val();
     var minute = $('li.minute input[type="text"]', self).val();
     $('input[type="hidden"]', self).val(date + ' ' + hour + ':' + minute);
 }
 
-creme.forms.DateTimePicker.clear = function(self) 
-{
+creme.forms.DateTimePicker.clear = function(self) {
     $('li.date input[type="text"]', self).val('');
     $('li.hour input[type="text"]', self).val('');
     $('li.minute input[type="text"]', self).val('');
     $('input[type="hidden"]', self).val('');
 }
 
-creme.forms.DateTimePicker.set = function(self, year, month, day, hour, minute) 
-{
+creme.forms.DateTimePicker.set = function(self, year, month, day, hour, minute) {
     var date = year + '-' + ((month < 9) ? '0' : '') + (month + 1) + '-' + ((day < 9) ? '0' : '') + day;
     $('li.date input[type="text"]', self).val(date);
     $('li.hour input[type="text"]', self).val(hour);
@@ -249,14 +234,14 @@ creme.forms.RelationSelector.openEntityInnerPopup = function(self, list) {
     var url = '/creme_core/lv_popup/' + content_type + '/' + o2m;
 
     creme.utils.showInnerPopup(url, {
-            'send_button_label': 'Valider la selection',
-            'send_button': function(dialog)
-                {
+            'send_button_label': gettext("Validate the selection"),
+            'send_button': function(dialog) {
                     var lv = $('form[name="list_view_form"]');
                     var result = lv.list_view("getSelectedEntitiesAsArray");
 
                     if (result.length == 0) {
-                        creme.utils.showDialog("Veuillez sélectioner au moins un enregistrement !", {'title':'Erreur'});
+                        creme.utils.showDialog(gettext("Please select at least one entity."),
+                                               {'title': gettext("Error")});
                         return;
                     }
 
@@ -289,17 +274,15 @@ creme.forms.RelationSelector.init = function(self, predicates, content_types, en
 }
 
 creme.forms.RelationSelector.create = function() {
-    var current_language = i18n.get_current_language();
-
     var predicate_select = $('<select/>').attr('name', 'predicate');
     var content_type_select = $('<select/>').attr('name', 'content_type');
-    var target_select = $('<button type="button"/>').attr('name', 'target').text('Selection...');
+    var target_select = $('<button type="button"/>').attr('name', 'target').text(gettext("Selection..."));
 
     var relation_selector = $('<ul style="list-style:none;padding:0;margin:0;"/>').attr('id', new Date().getTime()).addClass('ui-creme-rel-selector');
 
     var delete_button = $('<img/>').attr('src', media_url('images/delete_22.png'))
-                                   .attr('alt', current_language.DELETE)
-                                   .attr('title', current_language.DELETE)
+                                   .attr('alt', gettext("Delete"))
+                                   .attr('title', gettext("Delete"))
 
     relation_selector.append($('<li/>').append('&nbsp;').append(predicate_select))
                      .append($('<li/>').append('&nbsp;').append(content_type_select))
@@ -356,7 +339,7 @@ creme.forms.RelationSelector.val = function(self) {
 
 creme.forms.RelationSelector.clear = function(self) {
     $('input[type="hidden"]', self).val('');
-    creme.forms.RelationSelector.targetButton(self).text('Selection...');
+    creme.forms.RelationSelector.targetButton(self).text(gettext("Selection..."));
 }
 
 creme.forms.RelationSelector.update = function(self, target_id) {
@@ -388,8 +371,7 @@ creme.forms.RelationSelector.updateTargetButtonText = function(self, result) {
             }
         },
         function(err) {
-            var current_language = i18n.get_current_language();
-            target.text(current_language.NOT_ACCESSIBLE);
+            target.text(gettext("Server unavailable: please reload the page. If the problem persists, please contact your administrator."));
         }, false);
 }
 
@@ -397,7 +379,7 @@ creme.forms.RelationSelector.updateContentTypeSelect = function(self) {
     var content_type_select = creme.forms.RelationSelector.contentTypeSelect(self);
     var predicate_select = creme.forms.RelationSelector.predicateSelect(self);
 
-    creme.forms.RelationSelector.targetButton(self).text('Sélectionner...');
+    creme.forms.RelationSelector.targetButton(self).text(gettext("Selection..."));
     creme.forms.RelationSelector.clear(self);
 
     creme.forms.RelationSelector.contentTypeRequest(predicate_select.val(),
@@ -476,13 +458,13 @@ creme.forms.RelationList.__getPredicates = function(self) {
     $('select.predicates option', self).each(function() {
             predicates.push([$(this).val(), $(this).text()]);
         });
-    
+
 /*
     predicates.sort(function(a, b) {
             return (a[1] > b[1]) ? 1 : ((a[1] < b[1]) ? -1 : 0);
         });
 */
-    
+
     return predicates;
 }
 
@@ -540,12 +522,13 @@ creme.forms._toDualColumnMultiSelect = function(store_id, use_order, buildColumn
     var $chosen    = $('<ul name="chosen"></ul>');
 
     //Buttons
-    var $add_button    = $('<input class="dcms_button" type="button"/>').attr('value', 'Ajouter');
-    var $rem_button    = $('<input class="dcms_button" type="button"/>').attr('value', 'Enlever');
-    var $addall_button = $('<input class="dcms_button" type="button"/>').attr('value', 'Ajouter tout');
-    var $remall_button = $('<input class="dcms_button" type="button"/>').attr('value', 'Enlever tout');
-    var $up_button     = $('<input class="dcms_button" type="button"/>').attr('value', 'Monter');
-    var $down_button   = $('<input class="dcms_button" type="button"/>').attr('value', 'Descendre');
+    var button_html = '<input class="dcms_button" type="button"/>';
+    var $add_button    = $(button_html).attr('value', gettext("Add"));
+    var $rem_button    = $(button_html).attr('value', gettext("Remove"));
+    var $addall_button = $(button_html).attr('value', gettext("Add all"));
+    var $remall_button = $(button_html).attr('value', gettext("Remove all"));
+    var $up_button     = $(button_html).attr('value', gettext("Up"));
+    var $down_button   = $(button_html).attr('value', gettext("Down"));
 
     if (!use_order) {
         $up_button.css('display', 'none');
@@ -579,7 +562,7 @@ creme.forms._toDualColumnMultiSelect = function(store_id, use_order, buildColumn
         } else {
             var $parent = $sel.parent();
 
-            if ($parent.attr('name') == $chosen.attr('name')) { //TODO: comparison on name is ugly, but '==' and '===' don't work....
+            if ($parent.attr('name') == $chosen.attr('name')) { /*TODO: comparison on name is ugly, but '==' and '===' don't work....*/
                 $add_button.attr('disabled', 'disabled');
                 $rem_button.attr('disabled', '');
 
@@ -697,9 +680,9 @@ creme.forms._toDualColumnMultiSelect = function(store_id, use_order, buildColumn
 
     var $layout = $('<table></table>');
     $('<tbody></tbody>').appendTo($layout)
-                        .append($('<tr></tr>').append($('<th></th>').append('Disponible(s)'))
+                        .append($('<tr></tr>').append($('<th></th>').append(gettext("Available")))
                                               .append($('<th></th>'))
-                                              .append($('<th></th>').append('Choisi(s)')))
+                                              .append($('<th></th>').append(gettext("Chosen"))))
                         .append($('<tr></tr>').append($('<td></td>').append($available))
                                               .append($('<td></td>').append($buttons))
                                               .append($('<td></td>').append($chosen)));

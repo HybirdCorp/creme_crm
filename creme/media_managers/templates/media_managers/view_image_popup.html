@@ -9,10 +9,7 @@
     {% comment %}<link rel="stylesheet" type="text/css" href="{{MEDIA_URL}}css{{CSS_THEME_NAME}}creme.css" />{% endcomment %}
     {% comment %}<link rel="stylesheet" type="text/css" href="{{MEDIA_URL}}css/creme-ui.css" />{% endcomment %}
     {% include_media 'main.css' %}
-    <script type='text/javascript'>
-        var creme = {};
-    </script>
-    {% include_media 'main.js' %}
+    {% include "creme_core/frags/js_header.html" %}
     <link rel="shortcut icon" href="{% media_url 'images/favicon.ico' %}" type="image/x-icon" />
     {% comment %}{% include "creme_core/frags/header_js_minimum.html" %}{% endcomment %}
     <script type="text/javascript">

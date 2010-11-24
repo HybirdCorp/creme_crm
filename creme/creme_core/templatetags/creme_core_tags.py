@@ -70,7 +70,7 @@ def get_m2m_popup_str(x):
 MAX_HEIGHT = 200
 MAX_WIDTH = 200
 
-@register.filter(name="get_html_image_size") 
+@register.filter(name="get_html_image_size")
 def image_size(image, max_h=MAX_HEIGHT, max_w=MAX_WIDTH):
     debug('image_size')
 
@@ -167,12 +167,12 @@ def get_html_field_value(obj, field_name):
 @register.filter(name="get_value")
 def get_value(dic, key, default=''):
   """
-  Usage: 
+  Usage:
 
-  view: 
+  view:
   some_dict = {'keyA':'valueA','keyB':{'subKeyA':'subValueA','subKeyB':'subKeyB'},'keyC':'valueC'}
   keys = ['keyA','keyC']
-  template: 
+  template:
   {{ some_dict|get:"keyA" }}
   {{ some_dict|get:"keyB"|get:"subKeyA" }}
   {% for key in keys %}{{ some_dict|get:key }}{% endfor %}

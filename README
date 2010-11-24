@@ -12,7 +12,7 @@ DEPENDENCIES:
 - Django-mediagenerator 1.8
 - pdflatex (if you use the app creme.billing and want PDF export)
 - pygraphviz (if you use the app creme.graphs and want graph export)
-- Java (only needed to build the compressed version of CSS and JavaScript files at installation time)
+- Java >= 1.4 (only needed to build the compressed version of CSS and JavaScript files at installation time)
 
 RECOMMENDATIONS
 It's recommended to use a database engine that supports transactions.
@@ -24,4 +24,5 @@ When you have chosen the creme apps you want (by commenting the unwanted ones), 
 run the following command in the creme/ directory:
 >> python manage.py syncdb
 >> python manage.py generatemedia
+[Do not worry about 'URL not found' messages]
 >> python manage.py creme_populate -v

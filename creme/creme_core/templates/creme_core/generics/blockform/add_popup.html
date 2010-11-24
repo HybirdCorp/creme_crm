@@ -11,10 +11,7 @@
     <link rel="stylesheet" type="text/css" href="{{MEDIA_URL}}css/creme-ui.css" />
     {% include "creme_core/frags/header_js_minimum.html" %}{% endcomment %}
     {% include_media 'main.css' %}
-    <script type='text/javascript'>
-        var creme = {};
-    </script>
-    {% include_media 'main.js' %}
+    {% include "creme_core/frags/js_header.html" %}
     <script language="javascript">
         function handleValidation(form) {
             {% if form.is_valid %}
