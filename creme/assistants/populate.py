@@ -18,19 +18,26 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from django.utils.translation import ugettext as _
+
 from creme_core.models import BlockConfigItem
 from creme_core.utils import create_or_update_models_instance as create
 from creme_core.management.commands.creme_populate import BasePopulator
 
-from blocks import alerts_block, actions_it_block, actions_nit_block, memos_block, todos_block
+from assistants.models import UserMessagePriority
+from blocks import alerts_block, actions_it_block, actions_nit_block, memos_block, todos_block, messages_block
 
 
 class Populator(BasePopulator):
     dependencies = ['creme.creme_core']
 
     def populate(self, *args, **kwargs):
+        for i, title in enumerate((_(u'Important'), _(u'Very important'), _(u'Not important'))):
+            create(UserMessagePriority, i + 1, title=title, is_custom=False)
+
         create(BlockConfigItem, 'assistants-todos_block',       content_type=None, block_id=todos_block.id_,       order=100, on_portal=False)
         create(BlockConfigItem, 'assistants-memos_block',       content_type=None, block_id=memos_block.id_,       order=200, on_portal=True)
         create(BlockConfigItem, 'assistants-alerts_block',      content_type=None, block_id=alerts_block.id_,      order=300, on_portal=True)
         create(BlockConfigItem, 'assistants-actions_it_block',  content_type=None, block_id=actions_it_block.id_,  order=400, on_portal=True)
         create(BlockConfigItem, 'assistants-actions_nit_block', content_type=None, block_id=actions_nit_block.id_, order=410, on_portal=True)
+        create(BlockConfigItem, 'assistants-messages_block',    content_type=None, block_id=messages_block.id_,    order=500, on_portal=True)

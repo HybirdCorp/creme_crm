@@ -18,8 +18,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from datetime import datetime
-
 from django.db.models import CharField, BooleanField, TextField, DateTimeField, ForeignKey, PositiveIntegerField
 from django.db.models.signals import pre_delete
 from django.utils.translation import ugettext_lazy as _
@@ -43,6 +41,10 @@ class ToDo(CremeModel):
     entity_id           = PositiveIntegerField()
     creme_entity        = GenericForeignKey(ct_field="entity_content_type", fk_field="entity_id")
 
+    class Meta:
+        app_label = 'assistants'
+        verbose_name = _(u'Todo')
+        verbose_name_plural = _(u'Todos')
 
     def __init__(self, *args, **kwargs):
         super(ToDo, self).__init__(*args, **kwargs)
@@ -51,7 +53,7 @@ class ToDo(CremeModel):
             self.is_ok = False
 
         if self.deadline is None:
-            self.has_deadline = False 
+            self.has_deadline = False
 
     @staticmethod
     def get_todos(entity):
@@ -64,11 +66,6 @@ class ToDo(CremeModel):
     @staticmethod
     def get_todos_for_ctypes(ct_ids, user):
         return ToDo.objects.filter(entity_content_type__in=ct_ids, for_user=user).select_related('for_user')
-
-    class Meta:
-        app_label = 'assistants'
-        verbose_name = _(u'Todo')
-        verbose_name_plural = _(u'Todos')
 
 
 #TODO: can delete this with  a WeakForeignKey ??

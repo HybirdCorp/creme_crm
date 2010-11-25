@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from datetime import datetime 
+from datetime import datetime
 from logging import warning
 
 from django.core.mail import EmailMessage, SMTPConnection
@@ -58,7 +58,7 @@ class Reminder(object):
     def ok_for_continue (self):
         return True
 
-    def send_mails (self, object):
+    def send_mails(self, object):
         body     = self.generate_email_body(object)
         subject  = self.generate_email_subject(object)
         messages = [EmailMessage(subject, body, CREME_EMAIL, [email]) for email in self.get_emails(object)]
@@ -70,7 +70,7 @@ class Reminder(object):
 
     def execute(self):
         if not self.ok_for_continue():
-            return 
+            return
 
         model_ = self.__class__.model_
         objects = model_.objects.filter(self.get_Q_filter())
@@ -111,7 +111,7 @@ class ReminderRegistry(object):
         return self._reminders.iteritems()
 
     def itervalues(self):
-        return self._reminders.itervalues() 
+        return self._reminders.itervalues()
 
 
 reminder_registry = ReminderRegistry()

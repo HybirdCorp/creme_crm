@@ -82,15 +82,13 @@ def add_to_entity(request, entity_id, form_class, title, entity_class=None, init
     @param entity_class If given, it's the entity's class (else it could be any class inheriting CremeEntity)
     @param initial classical 'initial' of Forms (passed when the request is a GET)
     """
-    if entity_class:
-        entity = get_object_or_404(entity_class, pk=entity_id)
-    else:
-        entity = get_object_or_404(CremeEntity, pk=entity_id).get_real_entity()
+    entity = get_object_or_404(entity_class, pk=entity_id) if entity_class else \
+             get_object_or_404(CremeEntity, pk=entity_id).get_real_entity()
 
     entity.can_change_or_die(request.user)
 
     if request.method == 'POST':
-        form = form_class(entity, request.POST, request.FILES or None)
+        form = form_class(entity, request.POST, request.FILES or None, initial=initial)
 
         if form.is_valid():
             form.save()
