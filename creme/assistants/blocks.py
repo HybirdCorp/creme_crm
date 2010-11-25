@@ -26,7 +26,7 @@ from django.contrib.contenttypes.models import ContentType
 from creme_core.models import CremeEntity
 from creme_core.gui.block import QuerysetBlock, list4url
 
-from assistants.models import Action, Alert, Memo, ToDo
+from assistants.models import Action, Alert, Memo, ToDo, UserMessage
 
 
 class _AssistantsBlock(QuerysetBlock):
@@ -34,6 +34,7 @@ class _AssistantsBlock(QuerysetBlock):
 
     @staticmethod
     def _populate_related_real_entities(assistants, user):
+        assistants = [assistant for assistant in assistants if assistant.entity_id]
         entities_ids_by_ct = defaultdict(set)
 
         for assistant in assistants:
@@ -176,8 +177,26 @@ class ActionsNITBlock(_AssistantsBlock):
         return Action.get_actions_nit_for_ctypes(ct_ids, context['request'].user, context['today'])
 
 
+class UserMessagesBlock(_AssistantsBlock):
+    id_           = QuerysetBlock.generate_id('assistants', 'messages')
+    dependencies  = (ToDo,)
+    order_by      = '-creation_date'
+    verbose_name  = _(u'User messages')
+    template_name = 'assistants/block_messages.html'
+
+    def _get_queryset_for_detailview(self, entity, context):
+        return UserMessage.get_messages(entity, context['request'].user)
+
+    def _get_queryset_for_home(self, context):
+        return UserMessage.get_messages_for_home(context['request'].user)
+
+    def _get_queryset_for_portal(self, ct_ids, context):
+        return UserMessage.get_messages_for_ctypes(ct_ids, context['request'].user)
+
+
 alerts_block      = AlertsBlock()
 actions_it_block  = ActionsITBlock()
 actions_nit_block = ActionsNITBlock()
 memos_block       = MemosBlock()
 todos_block       = TodosBlock()
+messages_block    = UserMessagesBlock()

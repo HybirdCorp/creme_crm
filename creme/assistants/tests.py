@@ -238,4 +238,4 @@ class AlertTestCase(AssistantsTestCase):
         self.assert_(Alert.objects.all()[0].is_validated)
 
 
-#TODO: test for Action and Memo
+#TODO: test for Action, Memo and UserMessage

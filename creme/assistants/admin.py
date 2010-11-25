@@ -21,8 +21,13 @@ class ToDoAdmin(admin.ModelAdmin):
     list_display = ('title', 'description', 'creation_date', 'deadline', 'for_user')
 
 
+class UserMessageAdmin(admin.ModelAdmin):
+    list_display = ('title', 'body', 'priority', 'sender', 'recipient')
+
+
 register = admin.site.register
 register(Action, ActionAdmin)
 register(Alert, AlertAdmin)
 register(Memo, MemoAdmin)
 register(ToDo, ToDoAdmin)
+register(UserMessage, UserMessageAdmin)

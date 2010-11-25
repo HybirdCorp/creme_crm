@@ -18,19 +18,33 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.utils.translation import ugettext_lazy as _
+from django.core.management.base import BaseCommand
+from django.utils import translation
+from django.conf import settings
 
-from creme_core.registry import creme_registry
-from creme_core.gui.block import block_registry
+from creme_core.models import Lock
 
-from assistants.blocks import alerts_block, actions_it_block, actions_nit_block, memos_block, todos_block, messages_block
+from assistants.models import UserMessage
 
 
-creme_registry.register_app('assistants', _(u'Assistants (Todos, Memo, ...)'), '/')
-block_registry.register(todos_block, memos_block, alerts_block, actions_it_block, actions_nit_block, messages_block)
+LOCK_NAME = "sending_usermessages"
 
-#from creme_core.reminder import reminder_registry
-#from reminders import reminder_alert, reminder_todo
-#reg_reminder = reminder_registry.register
-#reg_reminder (reminder_alert)
-#reg_reminder (reminder_todo)
+#NB: python manage.py usermessages_send
+
+class Command(BaseCommand):
+    help = "Send all unsended mails related to user messages that have to be."
+
+    def handle(self, *args, **options):
+        lock = Lock.objects.filter(name=LOCK_NAME)
+
+        if not lock:
+            try:
+                lock = Lock(name=LOCK_NAME)
+                lock.save()
+
+                translation.activate(settings.LANGUAGE_CODE)
+                UserMessage.send_mails()
+            finally:
+                lock.delete()
+        else:
+            print 'A process is already running'

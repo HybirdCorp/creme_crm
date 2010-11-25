@@ -21,4 +21,8 @@ urlpatterns = patterns('creme.assistants.views',
     (r'^action/edit/(?P<action_id>\d+)/$',     'action.edit'),
     (r'^action/delete$',                       'action.delete'),
     (r'^action/validate/(?P<action_id>\d+)/$', 'action.validate'),
+
+    (r'^message/add/$',                    'user_message.add'),
+    (r'^message/add/(?P<entity_id>\d+)/$', 'user_message.add_to_entity'),
+    (r'^message/delete$',                  'user_message.delete'),
 )
