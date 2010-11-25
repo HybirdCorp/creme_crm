@@ -103,7 +103,7 @@ def get_hfi_function_or_save(columns_get, model, function, order):
 
 def _get_hfi_calculated_title(aggregate, calculated_column, model):
     field_name, sep, aggregate_name = calculated_column.rpartition('__')
-    
+
     cfs_info = field_name.split('__')
     if cfs_info[0] == 'cf':
         cf_id   = cfs_info[1]
@@ -152,7 +152,7 @@ def get_aggregate_fields(fields, model, initial_data=None):
 
 
 class CreateForm(CremeEntityForm):
-    hf     = AjaxModelChoiceField(label=_(u" "), queryset=HeaderFilter.objects.none(), required=False)
+    hf     = AjaxModelChoiceField(label=_(u"Existing view"), queryset=HeaderFilter.objects.none(), required=False)
     filter = AjaxModelChoiceField(label=_(u"Filter"), queryset=Filter.objects.none(), required=False)
 
     columns       = AjaxMultipleChoiceField(label=_(u'Regular fields'),required=False, choices=(), widget=OrderedMultipleChoiceWidget)

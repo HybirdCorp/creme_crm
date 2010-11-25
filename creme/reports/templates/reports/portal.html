@@ -1,6 +1,7 @@
 {% extends "creme_core/generics/portal.html" %}
+{% load i18n %}
 {% load media %}
-{% block logo %}<img src="{% media_url 'images/reporting_64.png' %}" alt=""/>{% endblock %}
-{% block title %}Portail Rapports{% endblock %}
+{% block logo %}<img src="{% media_url 'images/reporting_64.png' %}" alt="{% trans "Reports" %}"/>{% endblock %}
+{% block title %}{% trans "Reports portal" %}{% endblock %}
 {% block list_url %}/reports/reports{% endblock %}
-{% block list_msg %}Liste des rapports{% endblock %}
+{% block list_msg %}{% trans "List of reports" %}{% endblock %}
