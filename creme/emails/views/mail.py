@@ -30,7 +30,7 @@ from django.utils.translation import ugettext_lazy as _
 from creme_core.views.generic import (view_entity_with_template, list_view,
                                       inner_popup, add_entity, add_to_entity,
                                       view_real_entity_with_template)
-                                      
+
 from creme_core.utils import jsonify, get_from_POST_or_404
 
 from crudity.views.email import fetch_emails
@@ -158,8 +158,7 @@ def listview(request):
 @login_required
 @permission_required('emails')
 def create_n_send(request, entity_id):
-    return add_to_entity(
-                         request,
+    return add_to_entity(request,
                          entity_id,
                          EntityEmailForm,
                          title=_(u'Sending an email to <%s>'),
@@ -173,6 +172,7 @@ def resend_mails(request):
     _ids = get_from_POST_or_404(request.POST, 'ids')
     ids = _ids.split(',')
 
+    #TODO: regroup queries
     for id in ids:
         try:
             EntityEmail.objects.get(pk=id).send()
@@ -180,7 +180,7 @@ def resend_mails(request):
             pass
 
     return {}
-    
+
 @login_required
 @permission_required('activities')
 def popupview(request, mail_id):
