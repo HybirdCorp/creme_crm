@@ -37,6 +37,7 @@ from emails.models.mail import EntityEmail
 
 from persons.models import Contact, Organisation
 
+
 invalid_email_error = ugettext(u'The email address for %(entity)s is invalid')
 
 class EntityEmailForm(CremeEntityForm):
@@ -87,7 +88,7 @@ class EntityEmailForm(CremeEntityForm):
                 validate_email(entity.email)
             except Exception, e:#Better exception ?
                 c_recipients_errors.append(invalid_email_error % {'entity': contacts[i]})
-                
+
         if c_recipients_errors:
             errors['c_recipients'] = ErrorList(c_recipients_errors)
 
@@ -110,7 +111,7 @@ class EntityEmailForm(CremeEntityForm):
     def save(self):
         cleaned_data = self.cleaned_data
         cleaned_data_get = cleaned_data.get
-        
+
         sender      = cleaned_data_get('sender')
         subject     = cleaned_data_get('subject')
         body_html   = cleaned_data_get('body_html')
@@ -120,11 +121,8 @@ class EntityEmailForm(CremeEntityForm):
 
         entity = self.entity
 
-
         if cleaned_data_get('send_me'):
-            print "Je m'envoie un mail"
             EntityEmail.create_n_send_mail(sender, sender, subject, user_pk, body_html, signature, attachments)
-
 
         Relation_create = Relation.create
 
@@ -133,9 +131,3 @@ class EntityEmailForm(CremeEntityForm):
 
             Relation_create(email, REL_SUB_MAIL_SENDED,   entity,  user_id=user_pk)
             Relation_create(email, REL_SUB_MAIL_RECEIVED, _entity, user_id=user_pk)
-
-
-            
-
-            
-        
