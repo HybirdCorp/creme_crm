@@ -4,6 +4,8 @@
 
 {% block extrahead %}
 {% comment %} <script type="text/javascript" src="{{MEDIA_URL}}js/models/filters.js"></script> {% endcomment %}
+{% with 0 as AND %}
+{% with 1 as OR %}
 <script type="text/javascript">
     function replaceAttr(node, attr, oldvalue, count, is_just_append)
     {
@@ -136,7 +138,7 @@
         });
 
         if(selected_globaltest && selected_globaltest != "")
-            $('#id_global_test_'+count).val(selected_globaltest).change();
+            $('#id_global_test_'+count).val(selected_globaltest == "True" ? {{OR}} : {{AND}}).change();
 
         if(select_field.children().size() > 0)
         {
@@ -197,7 +199,7 @@
         
         if(selected_globaltest && selected_globaltest != "")
         {
-            $('#id_global_test_filter_'+count).val(selected_globaltest);
+            $('#id_global_test_filter_'+count).val(selected_globaltest == "True" ? {{OR}} : {{AND}});
             $('#id_global_test_filter_'+count).change();
         }
         
@@ -247,8 +249,7 @@
 
         if(selected_globaltest && selected_globaltest != "")
         {
-            $('#id_global_test_filter_'+count).val(selected_globaltest);
-            $('#id_global_test_filter_'+count).change();
+            $('#id_global_test_filter_'+count).val(selected_globaltest == "True" ? {{OR}} : {{AND}}).change();
         }
 
         if(selected_predicate)
@@ -308,7 +309,7 @@
 
         if(selected_globaltest && selected_globaltest != "")
         {
-            $('#id_global_test_filter_'+count).val(selected_globaltest);
+            $('#id_global_test_filter_'+count).val(selected_globaltest == "True" ? {{OR}} : {{AND}});
             $('#id_global_test_filter_'+count).change();
         }
 
@@ -353,7 +354,7 @@
 
         if(selected_globaltest && selected_globaltest != "")
         {
-            $('#id_global_test_filter_'+count).val(selected_globaltest);
+            $('#id_global_test_filter_'+count).val(selected_globaltest == "True" ? {{OR}} : {{AND}});
             $('#id_global_test_filter_'+count).change();
         }
 
@@ -556,6 +557,8 @@
         {% endif %}
     });
 </script>
+{% endwith %}
+{% endwith %}
 {% endblock %}
 
 {% block content %}
@@ -592,7 +595,7 @@
                         <th>{% trans "Global test" %}</th>
                         <th>{% trans "Fields" %}</th>
                         <th>{% trans "Test" %}</th>
-                        <th>{% trans "Values (comma-separated)" %}</th>
+                        <th>{% trans "Values" %}</th>
                         <th style="display:none;"><input name="line_count" id="line_count" type="hidden" value="0" /></th>
                         <th style="display:none;"><input name="filter_count" id="filter_count" type="hidden" value="0" /></th>
                         <th style="display:none;"><input name="relation_count" id="relation_count" type="hidden" value="0" /></th>
@@ -613,8 +616,15 @@
                     <tr id="line_model" style="display:none;">
                         <td>&nbsp;</td>
                         <td>{{form.champs}} - {{form.champsfk}}</td>
-                        <td>{{form.tests}}</td>
-                        <td>&nbsp;{{form.value}}&nbsp;<img src="{% media_url 'images/delete_22.png' %}" alt="{% trans "Delete" %}" id="model" onclick="removeLine(this.id);"/></td>
+                        <td>{{form.tests}}
+                        </td>
+                        <td class="ui-state-highlight ui-corner-all">
+                            {{form.value}}
+                            <img src="{% media_url 'images/delete_22.png' %}" alt="{% trans "Delete" %}" id="model" onclick="removeLine(this.id);"/>
+                            <span  style="padding:3px;">
+                                <span class="ui-icon ui-icon-info" ></span>{% trans "Values (comma-separated)" %}
+                            </span>
+                        </td>
                     </tr>
                     <tr id="filter_model" style="display:none;">
                         <td>&nbsp;</td>
