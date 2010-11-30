@@ -23,9 +23,9 @@ from django.db import models
 from django.db.models.fields.related import ForeignKey
 from django.db.models.fields import FieldDoesNotExist, DateTimeField, DateField
 from django.forms.util import ValidationError
-from django.forms.fields import ChoiceField
-from django.forms.widgets import Select
-from django.utils.translation import ugettext_lazy as _
+from django.forms.fields import ChoiceField, BooleanField
+from django.forms.widgets import Select, CheckboxInput
+from django.utils.translation import ugettext_lazy as _, ugettext
 
 from creme_core.forms.base import CremeEntityForm
 from creme_core.forms.widgets import DependentSelect
@@ -46,6 +46,13 @@ class ReportGraphAddForm(CremeEntityForm):
     abscissa_fields   = ChoiceField(label=_(u'Abscissa field'), choices=(), widget=DependentSelect(target_id='id_abscissa_group_by', target_url='/reports/graph/get_available_types/'))
     abscissa_group_by = AjaxChoiceField(label=_(u'Abscissa : Group by'), choices=(), widget=Select(attrs={'id': 'id_abscissa_group_by'}))
 
+    is_count = BooleanField(label=_(u'Entities count'), help_text=_(u'Make a count instead of aggregate ?'), required=False, widget=CheckboxInput(attrs={'onchange': "creme.reports.graphs.toggleDisableOthers(this, ['#id_aggregates', '#id_aggregates_fields']);"}))
+
+    blocks = CremeEntityForm.blocks.new(
+                ('abscissa',       _(u'Abscissa informations'), ['abscissa_fields', 'abscissa_group_by', 'days']),
+                ('ordinate',   _(u'Ordinates informations'),    ['is_count', 'aggregates', 'aggregates_fields']),
+            )
+
     class Meta:
         model = ReportGraph
         exclude = CremeEntityForm.Meta.exclude + ('ordinate', 'abscissa', 'type')
@@ -61,6 +68,10 @@ class ReportGraphAddForm(CremeEntityForm):
         fields['report'].initial = report.id
 
         fields['aggregates_fields'].choices = [(f.name, unicode(f.verbose_name)) for f in get_flds_with_fk_flds(model, deep=0) if isinstance(f, authorized_aggregate_fields)]
+        if not fields['aggregates_fields'].choices:
+             fields['aggregates_fields'].choices = [(f.name, unicode(f.verbose_name)) for f in get_flds_with_fk_flds(model, deep=0) if isinstance(f, authorized_aggregate_fields)]
+             fields['aggregates_fields'].required = False
+
         fields['abscissa_fields'].choices   = [(f.name, unicode(f.verbose_name)) for f in get_flds_with_fk_flds(model, deep=0) if isinstance(f, authorized_abscissa_types)]
         fields['abscissa_fields'].widget.target_url += str(report_ct.id) #Bof but when DependentSelect will be refactored improve here too
 
@@ -89,6 +100,9 @@ class ReportGraphAddForm(CremeEntityForm):
 
         abscissa_fields = get_data('abscissa_fields')
         abscissa_field  = None
+        aggregates_fields = get_data('aggregates_fields')
+        is_count = get_data('is_count')
+
 
         #TODO: method instead ?
         val_err = ValidationError(self.fields['abscissa_group_by'].error_messages['invalid_choice'] % {'value': abscissa_fields})
@@ -98,14 +112,18 @@ class ReportGraphAddForm(CremeEntityForm):
         except FieldDoesNotExist:
             raise val_err
 
-        #TODO: factorise abscissa_group_by == RGT_FK ?
-        if isinstance(abscissa_field, ForeignKey) and abscissa_group_by != RGT_FK:
+        is_abscissa_group_by_is_RGT_FK = abscissa_group_by == RGT_FK
+
+        if isinstance(abscissa_field, ForeignKey) and not is_abscissa_group_by_is_RGT_FK:
             raise val_err
-        if isinstance(abscissa_field, (DateField, DateTimeField)) and abscissa_group_by == RGT_FK:
+        if isinstance(abscissa_field, (DateField, DateTimeField)) and is_abscissa_group_by_is_RGT_FK:
             raise val_err
 
         if abscissa_group_by == RGT_RANGE and not cleaned_data.get('days'):
-            raise ValidationError(_(u"You have to specify a day range if you use 'by X days'")) #TODO: ugettext instead of ugettext_lazy
+            raise ValidationError(ugettext(u"You have to specify a day range if you use 'by X days'"))
+
+        if not aggregates_fields and not is_count:
+            raise ValidationError(ugettext(u"If you don't choose an ordinate field (or none available) you have to check 'Make a count instead of aggregate ?'"))
 
         return cleaned_data
 
@@ -117,7 +135,12 @@ class ReportGraphAddForm(CremeEntityForm):
         graph.name     = get_data('name')
         graph.report   = self.report
         graph.abscissa = get_data('abscissa_fields')
-        graph.ordinate = '%s__%s' % (get_data('aggregates_fields'), get_data('aggregates'))
+        
+        if get_data('aggregates_fields'):
+            graph.ordinate = '%s__%s' % (get_data('aggregates_fields'), get_data('aggregates'))
+        else:
+            graph.ordinate = u""
+            
         graph.type     = get_data('abscissa_group_by')
         graph.is_count = get_data('is_count')
         graph.days     = get_data('days')

@@ -91,8 +91,8 @@ class ReportGraph(CremeEntity):
         is_count      = self.is_count
         ordinate_col, sep, aggregate = ordinate.rpartition('__')
         aggregate_field = field_aggregation_registry.get(aggregate)
-        aggregate_func  = aggregate_field.func
-        aggregate_col   = aggregate_func(ordinate_col)
+        aggregate_func  = aggregate_field.func if aggregate_field else None#Seems to be a count
+        aggregate_col   = aggregate_func(ordinate_col) if aggregate_func else None#Seems to be a count
 
         if report.filter is not None:
             entities = model_manager.filter(report.filter.get_q())

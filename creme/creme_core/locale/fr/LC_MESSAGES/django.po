@@ -7,16 +7,17 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-10-30 20:57+0200\n"
+"POT-Creation-Date: 2010-11-29 17:40+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
 #: blocks.py:30 forms/csv_import.py:340 models/creme_property.py:88
-#: models/entity.py:49 tests/views.py:82
+#: models/entity.py:49 tests/views.py:77
 msgid "Properties"
 msgstr "Propriétés"
 
@@ -29,8 +30,8 @@ msgstr "Relations"
 msgid "Core"
 msgstr "Cœur"
 
-#: creme_core_register.py:38 templates/creme_core/home.html:16
-#: templates/creme_core/home.html.py:17
+#: creme_core_register.py:38 templates/creme_core/home.html:17
+#: templates/creme_core/home.html.py:18
 msgid "Home"
 msgstr "Accueil"
 
@@ -195,8 +196,8 @@ msgid "General information"
 msgstr "Informations générales"
 
 #: forms/base.py:134 forms/csv_import.py:333 models/base.py:174
-#: models/prefered_menu.py:27 tests/views.py:58 tests/views.py:59
-#: tests/views.py:60
+#: models/prefered_menu.py:27 tests/views.py:53 tests/views.py:54
+#: tests/views.py:55
 msgid "User"
 msgstr "Utilisateur"
 
@@ -306,17 +307,17 @@ msgstr "Champs personnalisés"
 msgid "Functions"
 msgstr "Fonctions"
 
-#: forms/list_view_filter.py:57 templates/creme_core/filters.html:563
-#: templates/creme_core/filters.html:566
-#: templates/creme_core/templatetags/listview_filters.html:4
+#: forms/list_view_filter.py:57 templates/creme_core/filters.html:567
+#: templates/creme_core/filters.html:570
+#: templates/creme_core/templatetags/listview_filters.html:5
 msgid "Filter"
 msgstr "Filtre"
 
-#: forms/list_view_filter.py:58 templates/creme_core/filters.html:650
+#: forms/list_view_filter.py:58 templates/creme_core/filters.html:661
 msgid "Begin date"
 msgstr "Date de début"
 
-#: forms/list_view_filter.py:59 templates/creme_core/filters.html:651
+#: forms/list_view_filter.py:59 templates/creme_core/filters.html:662
 msgid "End date"
 msgstr "Date de fin"
 
@@ -336,94 +337,94 @@ msgstr "Certains prédicats n'existent pas"
 msgid "Related entities"
 msgstr "Entités associées"
 
-#: forms/widgets.py:141 forms/widgets.py:262
-#: templates/creme_core/detailview.html:30
-#: templates/creme_core/filters.html:579 templates/creme_core/filters.html:580
-#: templates/creme_core/filters.html:581 templates/creme_core/filters.html:582
-#: templates/creme_core/filters.html:583
+#: forms/widgets.py:138 forms/widgets.py:254
+#: templates/creme_core/detailview.html:31
+#: templates/creme_core/filters.html:583 templates/creme_core/filters.html:584
+#: templates/creme_core/filters.html:585 templates/creme_core/filters.html:586
+#: templates/creme_core/filters.html:587
 #: templates/creme_core/generics/blockform/add.html:5
-#: templates/creme_core/generics/blockform/add_popup.html:29
-#: templates/creme_core/generics/form/add.html:3
+#: templates/creme_core/generics/blockform/add_popup.html:30
+#: templates/creme_core/generics/form/add.html:4
 #: templates/creme_core/templatetags/widgets/add_button.html:4
-#: templates/creme_core/templatetags/widgets/block_line_adder.html:5
+#: templates/creme_core/templatetags/widgets/block_line_adder.html:6
 msgid "Add"
 msgstr "Ajouter"
 
-#: forms/widgets.py:177
+#: forms/widgets.py:171
 msgid "Select..."
 msgstr "Sélectionner..."
 
-#: forms/widgets.py:302
+#: forms/widgets.py:293
 msgid "On"
 msgstr "Le"
 
-#: forms/widgets.py:303
+#: forms/widgets.py:294
 msgid "at"
 msgstr "à"
 
-#: forms/widgets.py:304 forms/widgets.py:332
+#: forms/widgets.py:295 forms/widgets.py:320
 msgid "h"
 msgstr "h"
 
-#: forms/widgets.py:307
+#: forms/widgets.py:298
 msgid "Clean"
 msgstr "Effacer"
 
-#: forms/widgets.py:308 forms/widgets.py:335
+#: forms/widgets.py:299 forms/widgets.py:323
 msgid "Now"
 msgstr "Maintenant"
 
-#: forms/widgets.py:386
+#: forms/widgets.py:369
 msgid "Today"
 msgstr "Aujourd'hui"
 
-#: models/auth.py:155 models/i18n.py:26
-#: templates/creme_core/templatetags/block_specific_relations.html:23
+#: models/auth.py:178 models/i18n.py:26
+#: templates/creme_core/templatetags/block_specific_relations.html:24
 msgid "Name"
 msgstr "Nom"
 
-#: models/auth.py:157
+#: models/auth.py:180
 msgid "Creatable resources"
 msgstr "Ressources créables"
 
-#: models/auth.py:253
+#: models/auth.py:319
 msgid "all entities"
 msgstr "toutes les entités"
 
-#: models/auth.py:254
+#: models/auth.py:320
 msgid "user's own entities"
 msgstr "ses propres fiches"
 
-#: models/auth.py:265
+#: models/auth.py:331
 msgid "Can view"
 msgstr "Peut voir"
 
-#: models/auth.py:267
+#: models/auth.py:333
 msgid "Can change"
 msgstr "Peut modifier"
 
-#: models/auth.py:269
+#: models/auth.py:335
 msgid "Can delete"
 msgstr "Peut supprimer"
 
-#: models/auth.py:272
+#: models/auth.py:338
 msgid "Nothing allowed"
 msgstr "Rien d'autorisé"
 
-#: models/auth.py:274
+#: models/auth.py:340
 #, python-format
 msgid "For %(set)s => %(perms)s"
 msgstr "Pour %(set)s => %(perms)s"
 
-#: models/auth.py:317
+#: models/auth.py:383
 msgid "Role"
 msgstr "Rôle"
 
-#: models/base.py:166 tests/views.py:56
+#: models/base.py:166 tests/views.py:51
 msgid "Creation date"
 msgstr "Date de création"
 
-#: models/base.py:167 tests/views.py:57
+#: models/base.py:167 tests/views.py:52
 msgid "Last modification"
 msgstr "Dernière modification"
 
@@ -497,7 +498,7 @@ msgid "Types of property"
 msgstr "Types de propriété"
 
 #: models/creme_property.py:87
-#: templates/creme_core/templatetags/block_properties.html:5
+#: templates/creme_core/templatetags/block_properties.html:6
 msgid "Property"
 msgstr "Propriété"
 
@@ -563,23 +564,23 @@ msgstr "Vous n'ếtes pas autorisé à supprimer cette fiche: %s"
 msgid "See"
 msgstr "Voir"
 
-#: models/entity.py:227 templates/creme_core/detailview.html:58
+#: models/entity.py:227 templates/creme_core/detailview.html:59
 #: templates/creme_core/generics/blockform/edit.html:9
 #: templates/creme_core/generics/blockform/edit.html:16
-#: templates/creme_core/generics/form/edit.html:3
 #: templates/creme_core/generics/form/edit.html:4
-#: templates/creme_core/templatetags/widgets/block_line_editor.html:5
+#: templates/creme_core/generics/form/edit.html:5
+#: templates/creme_core/templatetags/widgets/block_line_editor.html:6
 #: templates/creme_core/templatetags/widgets/edit_button.html:4
 msgid "Edit"
 msgstr "Éditer"
 
-#: models/entity.py:228 templates/creme_core/detailview.html:61
-#: templates/creme_core/filters.html:616 templates/creme_core/filters.html:622
-#: templates/creme_core/filters.html:638 templates/creme_core/filters.html:644
-#: templates/creme_core/filters.html:652
-#: templates/creme_core/templatetags/block_specific_relations.html:24
-#: templates/creme_core/templatetags/widgets/block_line_deletor.html:4
-#: templates/creme_core/templatetags/widgets/block_line_deletor2.html:5
+#: models/entity.py:228 templates/creme_core/detailview.html:62
+#: templates/creme_core/filters.html:623 templates/creme_core/filters.html:633
+#: templates/creme_core/filters.html:649 templates/creme_core/filters.html:655
+#: templates/creme_core/filters.html:663
+#: templates/creme_core/templatetags/block_specific_relations.html:25
+#: templates/creme_core/templatetags/widgets/block_line_deletor.html:5
+#: templates/creme_core/templatetags/widgets/block_line_deletor2.html:6
 #: templates/creme_core/templatetags/widgets/delete_button.html:4
 msgid "Delete"
 msgstr "Supprimer"
@@ -589,12 +590,12 @@ msgstr "Supprimer"
 msgid "You are not allowed to view this entity: %s"
 msgstr "Vous n'ếtes pas autorisé à voir cette fiche: %s"
 
-#: models/header_filter.py:72
+#: models/header_filter.py:73
 msgid "Name of the view"
 msgstr "Nom de la vue"
 
-#: models/header_filter.py:184
-#: templates/creme_core/templatetags/widgets/entity_actions.html:18
+#: models/header_filter.py:197
+#: templates/creme_core/templatetags/widgets/entity_actions.html:19
 msgid "Actions"
 msgstr "Actions"
 
@@ -635,7 +636,7 @@ msgid "Types of relation"
 msgstr "Types de relation"
 
 #: models/relation.py:180
-#: templates/creme_core/templatetags/block_relations.html:9
+#: templates/creme_core/templatetags/block_relations.html:7
 msgid "Relation"
 msgstr "Relation"
 
@@ -651,8 +652,8 @@ msgstr "Mémentos"
 msgid "Related user"
 msgstr "Utilisateur associé"
 
-#: models/search.py:42 templates/creme_core/search_results.html:10
-#: templates/creme_core/templatetags/search_panel.html:5
+#: models/search.py:42 templates/creme_core/search_results.html:11
+#: templates/creme_core/templatetags/search_panel.html:6
 msgid "Search"
 msgstr "Recherche"
 
@@ -680,27 +681,27 @@ msgstr "Champ de recherche"
 msgid "Search fields"
 msgstr "Champs de recherche"
 
-#: templates/creme_core/base.html:67
+#: templates/creme_core/base.html:69
 msgid "Menu"
 msgstr "Menu"
 
-#: templates/creme_core/base.html:68
+#: templates/creme_core/base.html:70
 msgid "Back to Top"
 msgstr "Revenir au début"
 
-#: templates/creme_core/base.html:284
+#: templates/creme_core/base.html:270
 msgid "Welcome,"
 msgstr "Bienvenue, "
 
-#: templates/creme_core/base.html:286
+#: templates/creme_core/base.html:272
 msgid "My settings"
 msgstr "Ma configuration"
 
-#: templates/creme_core/base.html:287
+#: templates/creme_core/base.html:273
 msgid "Log out"
 msgstr "Se déconnecter"
 
-#: templates/creme_core/base.html:336
+#: templates/creme_core/base.html:322
 msgid "About Hybird"
 msgstr "À propos d'Hybird"
 
@@ -740,93 +741,97 @@ msgstr "Aucune erreur lors de l'import."
 
 #: templates/creme_core/csv_importing_report.html:67
 #: templates/creme_core/csv_importing_report.html:68
-#: templates/creme_core/detailview.html:21
 #: templates/creme_core/detailview.html:22
+#: templates/creme_core/detailview.html:23
 msgid "Back to the list"
 msgstr "Retour à la liste"
 
 #: templates/creme_core/customfields_as_table.html:7
-#: templates/creme_core/object_as_table.html:8
-#: templates/creme_core/generics/portal.html:53
+#: templates/creme_core/object_as_table.html:7
+#: templates/creme_core/generics/portal.html:54
 msgid "Information"
 msgstr "Informations"
 
-#: templates/creme_core/detailview.html:31
-#: templates/creme_core/frags/list_view_content.html:47
-#: templates/creme_core/generics/form/add.html:4
+#: templates/creme_core/detailview.html:32
+#: templates/creme_core/frags/list_view_content.html:48
+#: templates/creme_core/generics/form/add.html:5
 #: templates/creme_core/templatetags/widgets/add_button.html:5
 msgid "New"
 msgstr "Nouveau"
 
-#: templates/creme_core/detailview.html:58
+#: templates/creme_core/detailview.html:59
 #: templates/creme_core/templatetags/widgets/edit_button.html:4
 #, python-format
 msgid "Edit '%(object)s'"
 msgstr "Éditer '%(object)s'"
 
-#: templates/creme_core/detailview.html:61
+#: templates/creme_core/detailview.html:62
 #: templates/creme_core/templatetags/widgets/delete_button.html:4
 #, python-format
 msgid "Delete '%(object)s'"
 msgstr "Supprimer '%(object)s'"
 
-#: templates/creme_core/filters.html:566
+#: templates/creme_core/filters.html:570
 msgid "edition"
 msgstr "édition"
 
-#: templates/creme_core/filters.html:566
+#: templates/creme_core/filters.html:570
 msgid "creation"
 msgstr "création"
 
-#: templates/creme_core/filters.html:574
+#: templates/creme_core/filters.html:578
 msgid "Name of the filter"
 msgstr "Nom du filtre"
 
-#: templates/creme_core/filters.html:579
+#: templates/creme_core/filters.html:583
 msgid "Add a condition"
 msgstr "Ajouter une condition"
 
-#: templates/creme_core/filters.html:580
+#: templates/creme_core/filters.html:584
 msgid "Add an existing filter as condition"
 msgstr "Ajouter un filtre existant en tant que condition"
 
-#: templates/creme_core/filters.html:581
+#: templates/creme_core/filters.html:585
 msgid "Add a filter on a relation"
 msgstr "Ajouter un filtre sur une relation"
 
-#: templates/creme_core/filters.html:582
+#: templates/creme_core/filters.html:586
 msgid "Add a filter on a property"
 msgstr "Ajouter un filtre sur une propriété"
 
-#: templates/creme_core/filters.html:583
+#: templates/creme_core/filters.html:587
 msgid "Add a filter on a date field"
 msgstr "Ajouter un filtre sur un champ date"
 
-#: templates/creme_core/filters.html:591
+#: templates/creme_core/filters.html:595
 msgid "Global test"
 msgstr "Test global"
 
-#: templates/creme_core/filters.html:592
+#: templates/creme_core/filters.html:596
 msgid "Fields"
 msgstr "Champs"
 
-#: templates/creme_core/filters.html:593
+#: templates/creme_core/filters.html:597
 msgid "Test"
 msgstr "Test"
 
-#: templates/creme_core/filters.html:594
+#: templates/creme_core/filters.html:598
+msgid "Values"
+msgstr "Valeurs"
+
+#: templates/creme_core/filters.html:625
 msgid "Values (comma-separated)"
 msgstr "Valeurs (séparées par des virgules)"
 
-#: templates/creme_core/filters.html:635
+#: templates/creme_core/filters.html:646
 msgid "Leave empty values to filter all entities having the selected relation."
 msgstr ""
 "Laissez les valeurs vides pour filtrer toutes les entités ayant la relation "
 "sélectionnée."
 
-#: templates/creme_core/filters.html:662
+#: templates/creme_core/filters.html:673
 #: templates/creme_core/generics/blockform/base.html:53
-#: templates/creme_core/generics/blockformset/base.html:60
+#: templates/creme_core/generics/blockformset/base.html:61
 #: templates/creme_core/generics/form/base.html:54
 msgid "Submit"
 msgstr "Envoyer"
@@ -837,126 +842,126 @@ msgstr ""
 "Vous n'avez pas accès à cette page, veuillez contacter votre administrateur."
 
 #: templates/creme_core/header_filters.html:5
+#: templates/creme_core/templatetags/listview_headerfilters.html:33
 #: templates/creme_core/templatetags/listview_headerfilters.html:34
-#: templates/creme_core/templatetags/listview_headerfilters.html:35
 msgid "View of list"
 msgstr "Vue de liste"
 
-#: templates/creme_core/object_as_table.html:7
+#: templates/creme_core/object_as_table.html:6
 #, python-format
 msgid "Information %s"
 msgstr "Informations %s"
 
-#: templates/creme_core/search_results.html:5
+#: templates/creme_core/search_results.html:6
 msgid "Search results"
 msgstr "Resultats de recherche"
 
-#: templates/creme_core/search_results.html:12
+#: templates/creme_core/search_results.html:13
 #, python-format
 msgid "Search results : %(result_count)s result"
 msgid_plural "Search results : %(result_count)s results"
 msgstr[0] "Résultats de recherche : %(result_count)s résultat"
 msgstr[1] "Résultats de recherche : %(result_count)s résultats"
 
-#: templates/creme_core/search_results.html:22
+#: templates/creme_core/search_results.html:23
 msgid "Your search : "
 msgstr "Votre recherche : "
 
-#: templates/creme_core/search_results.html:23
+#: templates/creme_core/search_results.html:24
 msgid "Concerned types : "
 msgstr "Types concernés : "
 
-#: templates/creme_core/search_results.html:55
+#: templates/creme_core/search_results.html:56
 msgid "Action"
 msgstr "Action"
 
-#: templates/creme_core/search_results.html:66
+#: templates/creme_core/search_results.html:67
 msgid "Go to the page"
 msgstr "Aller sur la fiche"
 
-#: templates/creme_core/search_results.html:77
+#: templates/creme_core/search_results.html:78
 msgid "No match"
 msgstr "Aucune correspondance"
 
-#: templates/creme_core/frags/list_view_content.html:50
+#: templates/creme_core/frags/list_view_content.html:51
 msgid "Download CSV"
 msgstr "Télécharger CSV"
 
-#: templates/creme_core/frags/list_view_content.html:54
+#: templates/creme_core/frags/list_view_content.html:55
 msgid "Import CSV"
 msgstr "Importer CSV"
 
-#: templates/creme_core/frags/list_view_content.html:58
+#: templates/creme_core/frags/list_view_content.html:59
 msgid "Multiple deletion"
 msgstr "Suppression multiple"
 
-#: templates/creme_core/frags/list_view_content.html:61
+#: templates/creme_core/frags/list_view_content.html:62
 msgid "Multiple property adding"
 msgstr "Ajout de propriété multiple"
 
-#: templates/creme_core/frags/list_view_content.html:64
+#: templates/creme_core/frags/list_view_content.html:65
 msgid "Multiple relation adding"
 msgstr "Ajout de relation multiple"
 
-#: templates/creme_core/frags/list_view_content.html:67
+#: templates/creme_core/frags/list_view_content.html:68
 msgid "Clean the search"
 msgstr "Effacer la recherche"
 
-#: templates/creme_core/frags/list_view_content.html:68
-#: templates/creme_core/templatetags/search_panel.html:14
+#: templates/creme_core/frags/list_view_content.html:69
+#: templates/creme_core/templatetags/search_panel.html:15
 msgid "Research"
 msgstr "Rechercher"
 
-#: templates/creme_core/frags/list_view_content.html:91
+#: templates/creme_core/frags/list_view_content.html:92
 #, python-format
 msgid "Sort by %(col_title)s"
 msgstr "Trier par %(col_title)s"
 
-#: templates/creme_core/frags/list_view_content.html:117
+#: templates/creme_core/frags/list_view_content.html:118
 msgid "No entity exists / match your search"
 msgstr "Aucun élément n'existe / ne correspond à votre recherche"
 
-#: templates/creme_core/frags/list_view_content.html:132
+#: templates/creme_core/frags/list_view_content.html:133
 msgid "Page"
 msgstr "Page"
 
-#: templates/creme_core/frags/list_view_content.html:132
+#: templates/creme_core/frags/list_view_content.html:133
 msgid "'Enter' to submit"
 msgstr "Touche 'Entrée' pour valider"
 
-#: templates/creme_core/frags/list_view_content.html:132
+#: templates/creme_core/frags/list_view_content.html:133
 msgid "on"
 msgstr "sur"
 
-#: templates/creme_core/frags/list_view_content.html:139
+#: templates/creme_core/frags/list_view_content.html:140
 msgid "Nb / Page"
 msgstr "Nb / Page"
 
-#: templates/creme_core/frags/list_view_content.html:154
+#: templates/creme_core/frags/list_view_content.html:155
 #, python-format
 msgid "Recordings %(start_index)s - %(end_index)s on %(entities_count)s"
 msgstr "Enregistrements %(start_index)s - %(end_index)s sur %(entities_count)s"
 
-#: templates/creme_core/generics/portal.html:22
+#: templates/creme_core/generics/portal.html:23
 msgid "Go to the list"
 msgstr "Aller à la liste"
 
-#: templates/creme_core/generics/portal.html:35
 #: templates/creme_core/generics/portal.html:36
+#: templates/creme_core/generics/portal.html:37
 msgid "Configure"
 msgstr "Configurer"
 
-#: templates/creme_core/generics/portal.html:53
+#: templates/creme_core/generics/portal.html:54
 msgid "Statistics"
 msgstr "Statistiques"
 
 #: templates/creme_core/generics/blockform/base.html:18
-#: templates/creme_core/generics/blockformset/base.html:15
+#: templates/creme_core/generics/blockformset/base.html:16
 msgid "Fields marked with * are required."
 msgstr "Les champs suivis d'un * sont obligatoires."
 
 #: templates/creme_core/generics/blockform/base.html:40
-#: templates/creme_core/generics/blockformset/base.html:41
+#: templates/creme_core/generics/blockformset/base.html:42
 #: templates/creme_core/generics/form/base.html:44
 msgid "Global errors"
 msgstr "Erreurs globales"
@@ -970,12 +975,12 @@ msgstr "Modifier '%(object)s'"
 msgid "Form"
 msgstr "Formulaire"
 
-#: templates/creme_core/templatetags/block_properties.html:5
+#: templates/creme_core/templatetags/block_properties.html:6
 #, python-format
 msgid "%s Property"
 msgstr "%s Propriété"
 
-#: templates/creme_core/templatetags/block_properties.html:5
+#: templates/creme_core/templatetags/block_properties.html:6
 #, python-format
 msgid "%s Properties"
 msgstr "%s Propriétés"
@@ -984,40 +989,40 @@ msgstr "%s Propriétés"
 msgid "New properties"
 msgstr "Nouvelles propriétés"
 
-#: templates/creme_core/templatetags/block_properties.html:27
+#: templates/creme_core/templatetags/block_properties.html:26
 msgid "No property for the moment"
 msgstr "Aucune propriété pour le moment"
 
-#: templates/creme_core/templatetags/block_relations.html:9
+#: templates/creme_core/templatetags/block_relations.html:7
 #, python-format
 msgid "%s Relation"
 msgstr "%s Relation"
 
-#: templates/creme_core/templatetags/block_relations.html:9
+#: templates/creme_core/templatetags/block_relations.html:7
 #, python-format
 msgid "%s Relations"
 msgstr "%s Relations"
 
-#: templates/creme_core/templatetags/block_relations.html:13
-#: templates/creme_core/templatetags/block_relations.html:14
+#: templates/creme_core/templatetags/block_relations.html:11
+#: templates/creme_core/templatetags/block_relations.html:12
 msgid "New relations"
 msgstr "Nouvelles relations"
 
-#: templates/creme_core/templatetags/block_relations.html:40
+#: templates/creme_core/templatetags/block_relations.html:38
 msgid "No relation for the moment"
 msgstr "Aucune relation pour le moment"
 
-#: templates/creme_core/templatetags/block_specific_relations.html:9
+#: templates/creme_core/templatetags/block_specific_relations.html:10
 #, python-format
 msgid "Entities related to: %(predicate)s"
 msgstr "Entités relatives à: %(predicate)s"
 
-#: templates/creme_core/templatetags/block_specific_relations.html:14
 #: templates/creme_core/templatetags/block_specific_relations.html:15
+#: templates/creme_core/templatetags/block_specific_relations.html:16
 msgid "Link to existing entities"
 msgstr "Lier à des entités existantes"
 
-#: templates/creme_core/templatetags/block_specific_relations.html:39
+#: templates/creme_core/templatetags/block_specific_relations.html:40
 msgid "No related entity for the moment"
 msgstr "Aucune entité liée pour le moment"
 
@@ -1042,49 +1047,49 @@ msgstr "Entre"
 msgid "and"
 msgstr "et"
 
-#: templates/creme_core/templatetags/listview_filters.html:2
+#: templates/creme_core/templatetags/listview_filters.html:3
 msgid "Filter the lines of the table"
 msgstr "Filtrer les lignes de la table"
 
-#: templates/creme_core/templatetags/listview_filters.html:5
+#: templates/creme_core/templatetags/listview_filters.html:6
 msgid "Filters"
 msgstr "Filtres"
 
-#: templates/creme_core/templatetags/listview_filters.html:8
-#: templates/creme_core/templatetags/search_panel.html:7
+#: templates/creme_core/templatetags/listview_filters.html:9
+#: templates/creme_core/templatetags/search_panel.html:8
 msgid "All"
 msgstr "Tout"
 
-#: templates/creme_core/templatetags/listview_filters.html:17
+#: templates/creme_core/templatetags/listview_filters.html:18
 msgid "Create a custom filter"
 msgstr "Créer un filtre personnalisé"
 
-#: templates/creme_core/templatetags/listview_filters.html:21
+#: templates/creme_core/templatetags/listview_filters.html:22
 msgid "Edit filter"
 msgstr "Éditer le filtre"
 
-#: templates/creme_core/templatetags/listview_filters.html:25
+#: templates/creme_core/templatetags/listview_filters.html:26
 msgid "Delete filter"
 msgstr "Supprimer le filtre"
 
-#: templates/creme_core/templatetags/listview_headerfilters.html:32
+#: templates/creme_core/templatetags/listview_headerfilters.html:31
 msgid "Show only the desired columns"
 msgstr "Afficher uniquement les colonnes désirées"
 
-#: templates/creme_core/templatetags/listview_headerfilters.html:46
+#: templates/creme_core/templatetags/listview_headerfilters.html:45
 msgid "Create a custom view"
 msgstr "Créer une vue personnalisée"
 
-#: templates/creme_core/templatetags/listview_headerfilters.html:50
+#: templates/creme_core/templatetags/listview_headerfilters.html:49
 msgid "Edit custom view"
 msgstr "Éditer la vue personnalisée"
 
-#: templates/creme_core/templatetags/listview_headerfilters.html:53
+#: templates/creme_core/templatetags/listview_headerfilters.html:52
 msgid "Delete custom view"
 msgstr "Supprimer vue personnalisée"
 
 #: templates/creme_core/templatetags/newtreecreme_menu.html:2
-#: templates/creme_core/templatetags/treecreme_menu.html:2
+#: templates/creme_core/templatetags/treecreme_menu.html:3
 msgid "Open"
 msgstr "Ouvrir"
 
@@ -1092,17 +1097,17 @@ msgstr "Ouvrir"
 msgid "Prefered menu:"
 msgstr "Menus rapides:"
 
-#: templates/creme_core/templatetags/quickforms_panel.html:5
-#: templates/creme_core/templatetags/quickforms_panel.html:12
+#: templates/creme_core/templatetags/quickforms_panel.html:6
+#: templates/creme_core/templatetags/quickforms_panel.html:13
 msgid "Quick creation"
 msgstr "Création rapide"
 
-#: templates/creme_core/templatetags/treecreme_menu.html:3
+#: templates/creme_core/templatetags/treecreme_menu.html:4
 msgid "Fixed menu"
 msgstr "Menu fixe"
 
 #: templates/creme_core/templatetags/widgets/add_button.html:9
-#: templates/creme_core/templatetags/widgets/block_line_adder.html:9
+#: templates/creme_core/templatetags/widgets/block_line_adder.html:10
 msgid "Can't add"
 msgstr "Création interdite"
 
@@ -1127,12 +1132,12 @@ msgstr "Page suivante"
 msgid "Go to page"
 msgstr "Aller à la page"
 
-#: templates/creme_core/templatetags/widgets/block_line_deletor2.html:8
+#: templates/creme_core/templatetags/widgets/block_line_deletor2.html:9
 #: templates/creme_core/templatetags/widgets/delete_button.html:7
 msgid "Can't delete"
 msgstr "Suppression interdite"
 
-#: templates/creme_core/templatetags/widgets/block_line_editor.html:8
+#: templates/creme_core/templatetags/widgets/block_line_editor.html:9
 #: templates/creme_core/templatetags/widgets/edit_button.html:7
 msgid "Can't edit"
 msgstr "Édition interdite"
@@ -1147,7 +1152,7 @@ msgstr "Vous ne pouvez pas supprimer '%(object)s'"
 msgid "You can't edit '%(object)s'"
 msgstr "Vous ne pouvez pas éditer '%(object)s'"
 
-#: templates/creme_core/templatetags/widgets/entity_actions.html:35
+#: templates/creme_core/templatetags/widgets/entity_actions.html:36
 msgid "forbidden"
 msgstr "interdit"
 
@@ -1171,11 +1176,11 @@ msgstr "%s minute(s)"
 msgid "%s second(s)"
 msgstr "%s seconde(s)"
 
-#: tests/views.py:59
+#: tests/views.py:54
 msgid "Username"
 msgstr "Nom d'utilisateur"
 
-#: tests/views.py:60
+#: tests/views.py:55
 msgid "First name"
 msgstr "Prénom"
 
@@ -1250,11 +1255,11 @@ msgstr "Aucune entitée séléctionnée"
 msgid "%s can not be deleted because of its dependencies."
 msgstr "%s ne peut être effacé à cause des ses dépendances."
 
-#: views/generic/listview.py:115
+#: views/generic/listview.py:113
 msgid "The desired list does not have any view, please create one."
 msgstr "La liste souhaitée n'a aucune vue, veuillez en créer au moins une."
 
-#: views/generic/listview.py:139
+#: views/generic/listview.py:137
 #, python-format
 msgid "List of %s"
 msgstr "Liste des %s"

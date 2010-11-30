@@ -105,10 +105,25 @@ class FilterCondition(Model):
                 q = Q(**{key: pattern_value % value})
 
                 if _type.is_exclude:
-                    q.negate()
+#                    q.negate()
                     result &= q
                 else :
                     result |= q
+
+            c_q = Q()
+            for child in self.childs.all():
+                c_type = child.type
+                c_key = str(c_type.pattern_key % child.champ)
+                c_pattern_value = c_type.pattern_value
+                for value in child.values.all():
+                    c_q &= Q(**{c_key: c_pattern_value % value})
+#            if _type.is_exclude:
+#                c_q.negate()
+            result &= c_q
+
+            if _type.is_exclude:
+                result.negate()
+
         return result
 
     class Meta:
@@ -116,6 +131,7 @@ class FilterCondition(Model):
 
     def __unicode__(self):
         return u'%s %s %s' % (self.type, self.champ, self.values.all())
+#        return u'Type:%s, Champs: %s, Values: %s, Childs: [%s], Child Type: %s' % (self.type, self.champ, self.values.all(), u','.join([unicode(c) for c in self.childs.all()]), self.child_type)
 
 
 class Filter(Model):
@@ -172,7 +188,8 @@ class Filter(Model):
 
     def get_q(self):
         maxi_q = Q()
-        for cond in self.conditions.all():
+#        for cond in self.conditions.all():
+        for cond in self.conditions.filter(FilterConditionChilds_set__isnull=True):
             if self.is_or_for_all:
                 maxi_q |= cond.get_q()
             else :

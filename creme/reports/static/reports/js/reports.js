@@ -309,3 +309,11 @@ creme.reports.graphs.bind_toggle_graph = function(selectors, show_cb) {
         });
     });
 };
+
+creme.reports.graphs.toggleDisableOthers = function(me, others)
+{
+    var is_checked = me.checked;//More generic with all node types ?
+    $.each(others, function(i, n){
+        $(n).attr('disabled', is_checked)
+    });
+};
