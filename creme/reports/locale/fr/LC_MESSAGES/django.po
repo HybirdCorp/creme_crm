@@ -128,7 +128,7 @@ msgstr "Abscisse : Grouper par"
 
 #: forms/graph.py:49
 msgid "Entities count"
-msgstr ""
+msgstr "Comptage d'entités"
 
 #: forms/graph.py:49 models/graph.py:62
 msgid "Make a count instead of aggregate ?"
