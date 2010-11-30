@@ -579,17 +579,17 @@ creme.utils.ajaxDelete = function(url, _data, ajax_params, msg) {
                 beforeSend : function(req) {
                     creme.utils.loading('loading', false);
                 },
-                success: function(data, status, req){
+                success: function(data, status, req) {
                     creme.utils.showDialog(gettext("Suppression done"));
                 },
-                error: function(req, status, error){
+                error: function(req, status, error) {
                     if(!req.responseText || req.responseText == "") {
-                        creme.utils.showDialog("Erreur");
+                        creme.utils.showDialog(gettext("Error"));
                     } else {
                         creme.utils.showDialog(req.responseText);
                     }
                 },
-                complete: function(request, textStatus){
+                complete: function(request, textStatus) {
                     creme.utils.loading('loading', true);
                 },
                 sync: false,
