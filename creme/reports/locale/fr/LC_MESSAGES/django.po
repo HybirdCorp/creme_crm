@@ -7,14 +7,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-11-25 18:00+0100\n"
+"POT-Creation-Date: 2010-11-30 14:04+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: \n"
 
 #: blocks.py:38 templates/reports/templatetags/block_report_fields.html:10
 msgid "Columns of the report"
@@ -126,10 +126,32 @@ msgstr "Champ d'abscisse"
 msgid "Abscissa : Group by"
 msgstr "Abscisse : Grouper par"
 
-#: forms/graph.py:108
+#: forms/graph.py:49
+msgid "Entities count"
+msgstr ""
+
+#: forms/graph.py:49 models/graph.py:62
+msgid "Make a count instead of aggregate ?"
+msgstr "Effectuer un comptage à la place des valeurs calculées ?"
+
+#: forms/graph.py:52
+msgid "Abscissa informations"
+msgstr "Informations sur les abscisses"
+
+#: forms/graph.py:53
+msgid "Ordinates informations"
+msgstr "Informations sur les ordonnées"
+
+#: forms/graph.py:123
 msgid "You have to specify a day range if you use 'by X days'"
 msgstr ""
 "Vous devez spécifier une échelle de jours si vous utilisez 'par X jours'"
+
+#: forms/graph.py:126
+msgid ""
+"If you don't choose an ordinate field (or none available) you have to check "
+"'Make a count instead of aggregate ?'"
+msgstr "Si vous ne choisissez aucun champ d'ordonée (ou qu'aucun n'est disponible) vous devez cocher 'Effectuer un comptage à la place des valeurs calculées ?'"
 
 #: forms/report.py:155
 msgid "Existing view"
@@ -235,10 +257,6 @@ msgstr "Type"
 #: models/graph.py:61
 msgid "Days"
 msgstr "Jours"
-
-#: models/graph.py:62
-msgid "Make a count instead of aggregate ?"
-msgstr "Effectuer un comptage à la place des valeurs calculées ?"
 
 #: models/graph.py:66
 msgid "Report's graph"
