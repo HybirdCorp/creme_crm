@@ -18,15 +18,18 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.utils.translation import ugettext_lazy as _
+from django.template import Library
 
-from creme_core.forms import CremeEntityForm, CremeDateTimeField
-
-from commercial.models import Act
+from commercial.models import CommercialAssetScore
 
 
-class ActForm(CremeEntityForm):
-    due_date = CremeDateTimeField(label=_(u"Due date"))
+register = Library()
 
-    class Meta(CremeEntityForm.Meta):
-        model = Act
+@register.inclusion_tag('commercial/templatetags/widget_asset_score.html', takes_context=True)
+def widget_asset_score(context, segment, asset):
+    strategy = context['strategy']
+    orga     = context['orga']
+
+    context['score'] = strategy.get_asset_score(orga, asset, segment)
+
+    return context

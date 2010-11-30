@@ -23,16 +23,16 @@ from collections import defaultdict
 from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import ugettext_lazy as _
 
-from creme_core.gui.block import QuerysetBlock, list4url
+from creme_core.gui.block import Block, QuerysetBlock, list4url
 
-from commercial.models import CommercialApproach
+from commercial.models import CommercialApproach, MarketSegment, CommercialAsset, MarketSegmentCharm
 
 
 class ApproachesBlock(QuerysetBlock):
     id_           = QuerysetBlock.generate_id('commercial', 'approaches')
     dependencies  = (CommercialApproach,)
     order_by      = 'title'
-    verbose_name  = _(u'Commercial Approaches')
+    verbose_name  = _(u'Commercial approaches')
     template_name = 'commercial/templatetags/block_approaches.html'
     configurable  = True
 
@@ -77,4 +77,84 @@ class ApproachesBlock(QuerysetBlock):
         return self._render(btc)
 
 
-approaches_block = ApproachesBlock()
+class SegmentsBlock(QuerysetBlock):
+    id_           = QuerysetBlock.generate_id('commercial', 'segments')
+    dependencies  = (MarketSegment,)
+    order_by      = 'name'
+    verbose_name  = _(u'Market segments')
+    template_name = 'commercial/templatetags/block_segments.html'
+
+    def detailview_display(self, context):
+        strategy = context['object']
+        return self._render(self.get_block_template_context(context, strategy.segments.all(), #TODO: cached getter ??
+                                                            update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, strategy.pk),
+                                                           ))
+
+
+class AssetsBlock(QuerysetBlock):
+    id_           = QuerysetBlock.generate_id('commercial', 'assets')
+    dependencies  = (CommercialAsset,)
+    order_by      = 'name'
+    verbose_name  = _(u'Commercial assets')
+    template_name = 'commercial/templatetags/block_assets.html'
+
+    def detailview_display(self, context):
+        strategy = context['object']
+        return self._render(self.get_block_template_context(context, strategy.assets.all(),
+                                                            update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, strategy.pk),
+                                                           ))
+
+class CharmsBlock(QuerysetBlock):
+    id_           = QuerysetBlock.generate_id('commercial', 'charms')
+    dependencies  = (MarketSegmentCharm,)
+    order_by      = 'name'
+    verbose_name  = _(u'Segment charms')
+    template_name = 'commercial/templatetags/block_charms.html'
+
+    def detailview_display(self, context):
+        strategy = context['object']
+        return self._render(self.get_block_template_context(context, strategy.charms.all(),
+                                                            update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, strategy.pk),
+                                                           ))
+
+
+class EvaluatedOrgasBlock(QuerysetBlock):
+    id_           = QuerysetBlock.generate_id('commercial', 'evaluated_orgas')
+    dependencies  = (MarketSegmentCharm,)
+    order_by      = 'name'
+    verbose_name  = _(u'Evaluated organisations')
+    template_name = 'commercial/templatetags/block_evalorgas.html'
+
+    def detailview_display(self, context):
+        strategy = context['object']
+        return self._render(self.get_block_template_context(context, strategy.evaluated_orgas.all(),
+                                                            update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, strategy.pk),
+                                                           ))
+
+class AssetsMatrixBlock(Block):
+    id_           = Block.generate_id('commercial', 'assets_matrix')
+    #dependencies  = (CommercialAsset,) #useless (custom reload view....)
+    verbose_name  = u'Assets / segments matrix'
+    template_name = 'commercial/templatetags/block_assets_matrix.html'
+
+    def detailview_display(self, context):
+        strategy = context['strategy']
+        orga = context['orga']
+        return self._render(self.get_block_template_context(context,
+                                                            assets=strategy.get_assets_list(),
+                                                            segments=strategy.get_segments_list(),
+                                                            totals=strategy.get_segments_totals(orga),
+                                                            update_url='/commercial/blocks/assets_matrix/%s/%s/' % (strategy.pk, orga.pk),
+                                                           ))
+
+assets_matrix_block = AssetsMatrixBlock()
+
+blocks_list = (
+    ApproachesBlock(),
+    SegmentsBlock(),
+    AssetsBlock(),
+    CharmsBlock(),
+    EvaluatedOrgasBlock(),
+    assets_matrix_block,
+
+)
