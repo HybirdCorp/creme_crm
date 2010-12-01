@@ -283,6 +283,7 @@ CREME_CORE_CSS = ('main.css',
 
                     #APPS
                     'activities/css/fullcalendar.css',
+                    'commercial/css/commercial.css',
                  )
 
 CREME_I18N_JS = ('l10n.js',

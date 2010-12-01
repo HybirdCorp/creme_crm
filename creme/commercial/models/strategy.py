@@ -39,14 +39,19 @@ class Strategy(CremeEntity):
         super(Strategy, self).__init__(*args, **kwargs)
 
         self._segments_list = None
+
         self._assets_list = None
         self._assets_scores_map = {} #dict of dict of dict for hierarchy: organisation/segment/asset
+
+        self._charms_list = None
+        self._charms_scores_map = {} #dict of dict of dict for hierarchy: organisation/segment/charm
 
     def __unicode__(self):
         return self.name
 
     def delete(self):
         CommercialAssetScore.objects.filter(asset__strategy=self.id, segment__strategy=self.id).delete()
+        MarketSegmentCharmScore.objects.filter(charm__strategy=self.id, segment__strategy=self.id).delete()
 
         self.segments.all().delete()
         self.assets.all().delete()
@@ -63,12 +68,6 @@ class Strategy(CremeEntity):
     @staticmethod
     def get_lv_absolute_url():
         return "/commercial/strategies"
-
-    def get_assets_list(self):
-        if self._assets_list is None:
-            self._assets_list = list(self.assets.all())
-
-        return self._assets_list
 
     def _get_assets_scores_objects(self, orga):
         scores = self._assets_scores_map.get(orga.id)
@@ -92,24 +91,56 @@ class Strategy(CremeEntity):
 
         return scores
 
+    def _get_charms_scores_objects(self, orga):
+        scores = self._charms_scores_map.get(orga.id)
+
+        if scores is None:
+            charms = self.get_charms_list()
+            segments = self.get_segments_list()
+
+            #build a 'matrix' with default score(=1) everywhere
+            scores = dict((segment.id,
+                           dict((charm.id,
+                                 MarketSegmentCharmScore(score=1, organisation=orga, charm=charm, segment=segment)
+                                ) for charm in charms)
+                          ) for segment in segments)
+
+            #set the right scores in the matrix
+            for score in MarketSegmentCharmScore.objects.filter(organisation=orga, charm__in=charms, segment__in=segments):
+                scores[score.segment_id][score.charm_id] = score
+
+            self._charms_scores_map[orga.id] = scores
+
+        return scores
+
     def _get_asset_score_object(self, orga, asset_id, segment_id):
         return self._get_assets_scores_objects(orga)[segment_id][asset_id]
 
     def get_asset_score(self, orga, asset, segment):
         return self._get_asset_score_object(orga, asset.id, segment.id).score
 
-    def get_segments_list(self):
-        if self._segments_list is None:
-            self._segments_list = list(self.segments.all())
+    def get_assets_list(self):
+        if self._assets_list is None:
+            self._assets_list = list(self.assets.all())
 
-        return self._segments_list
+        return self._assets_list
 
-    def get_segments_totals(self, orga):
+    def _get_charm_score_object(self, orga, charm_id, segment_id):
+        return self._get_charms_scores_objects(orga)[segment_id][charm_id]
+
+    def get_charm_score(self, orga, charm, segment):
+        return self._get_charm_score_object(orga, charm.id, segment.id).score
+
+    def get_charms_list(self):
+        if self._charms_list is None:
+            self._charms_list = list(self.charms.all())
+
+        return self._charms_list
+
+    def _get_totals(self, orga_scores):
         """@return a list of tuple (total_for_segment, total_category)
         with 1 <= total_category <= 3  (1 is weak, 3 strong)
         """
-        orga_scores = self._get_assets_scores_objects(orga)
-
         if not orga_scores:
             return []
 
@@ -127,14 +158,32 @@ class Strategy(CremeEntity):
 
         return [(score, _compute_category(score)) for score in scores]
 
-    def set_asset_score(self, asset_id, segment_id, orga_id, score):
+    def get_assets_totals(self, orga):
+        return self._get_totals(self._get_assets_scores_objects(orga))
+
+    def get_charms_totals(self, orga):
+        return self._get_totals(self._get_charms_scores_objects(orga))
+
+    def get_segments_list(self):
+        if self._segments_list is None:
+            self._segments_list = list(self.segments.all())
+
+        return self._segments_list
+
+    def _set_score(self, model_id, segment_id, orga_id, score, get_object):
         orga = self.evaluated_orgas.get(pk=orga_id) #raise exception if invalid orga
 
-        score_object = self._get_asset_score_object(orga, asset_id, segment_id)
+        score_object = get_object(orga, model_id, segment_id)
 
         if score_object.score != score:
             score_object.score = score
             score_object.save()
+
+    def set_asset_score(self, asset_id, segment_id, orga_id, score):
+        self._set_score(asset_id, segment_id, orga_id, score, self._get_asset_score_object)
+
+    def set_charm_score(self, charm_id, segment_id, orga_id, score):
+        self._set_score(charm_id, segment_id, orga_id, score, self._get_charm_score_object)
 
 
 class MarketSegment(CremeModel):
@@ -186,5 +235,19 @@ class MarketSegmentCharm(CremeModel):
         verbose_name = _(u'Segment charm')
         verbose_name_plural = _(u'Segment charms')
 
-    #def __unicode__(self):
-        #return self.name
+    def __unicode__(self):
+        return self.name
+
+
+class MarketSegmentCharmScore(CremeModel):
+    score        = PositiveSmallIntegerField()
+    segment      = ForeignKey(MarketSegment)
+    charm        = ForeignKey(MarketSegmentCharm)
+    organisation = ForeignKey(Organisation)
+
+    class Meta:
+        app_label = "commercial"
+
+    def __unicode__(self): #debugging
+        return u'<CharmScore: orga=%s score=%s segment=%s> charm=%s>' % (
+                    self.organisation, self.score, self.segment, self.charm)
