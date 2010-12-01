@@ -1,4 +1,4 @@
-{% load creme_block %}<select name="asset_score_{{asset.id}}_{{segment.id}}" onchange="post_asset_score('/commercial/strategy/{{strategy.id}}/set_asset_score', {{asset.id}}, {{segment.id}}, {{orga.id}}, this, {% get_block_reload_uri %});">
+{% load creme_block %}<select name="{{model_name}}_score_{{model.id}}_{{segment.id}}" onchange="creme.commercial.post_score('/commercial/strategy/{{strategy.id}}/set_{{model_name}}_score', {{model.id}}, {{segment.id}}, {{orga.id}}, this, {% get_block_reload_uri %});">
     <option value="1" {% if score == 1 %}selected{% endif %}>1</option>
     <option value="2" {% if score == 2 %}selected{% endif %}>2</option>
     <option value="3" {% if score == 3 %}selected{% endif %}>3</option>

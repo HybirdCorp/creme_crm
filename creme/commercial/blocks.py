@@ -143,18 +143,37 @@ class AssetsMatrixBlock(Block):
         return self._render(self.get_block_template_context(context,
                                                             assets=strategy.get_assets_list(),
                                                             segments=strategy.get_segments_list(),
-                                                            totals=strategy.get_segments_totals(orga),
+                                                            totals=strategy.get_assets_totals(orga),
                                                             update_url='/commercial/blocks/assets_matrix/%s/%s/' % (strategy.pk, orga.pk),
                                                            ))
 
+
+class CharmsMatrixBlock(Block):
+    id_           = Block.generate_id('commercial', 'charms_matrix')
+    #dependencies  = (MarketSegmentCharm,) #useless (custom reload view....)
+    verbose_name  = u'Charmss / segments matrix'
+    template_name = 'commercial/templatetags/block_charms_matrix.html'
+
+    def detailview_display(self, context):
+        strategy = context['strategy']
+        orga = context['orga']
+        return self._render(self.get_block_template_context(context,
+                                                            charms=strategy.get_charms_list(),
+                                                            segments=strategy.get_segments_list(),
+                                                            totals=strategy.get_charms_totals(orga),
+                                                            update_url='/commercial/blocks/charms_matrix/%s/%s/' % (strategy.pk, orga.pk),
+                                                           ))
+
+approaches_block    = ApproachesBlock()
 assets_matrix_block = AssetsMatrixBlock()
+charms_matrix_block = CharmsMatrixBlock()
 
 blocks_list = (
-    ApproachesBlock(),
+    approaches_block,
     SegmentsBlock(),
     AssetsBlock(),
     CharmsBlock(),
     EvaluatedOrgasBlock(),
     assets_matrix_block,
-
+    charms_matrix_block,
 )

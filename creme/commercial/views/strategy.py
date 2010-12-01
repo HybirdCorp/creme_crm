@@ -33,7 +33,7 @@ from persons.models import Organisation
 
 from commercial.models import Strategy, MarketSegment, CommercialAsset, MarketSegmentCharm
 from commercial.forms.strategy import StrategyForm, SegmentForm, AssetForm, CharmForm, AddOrganisationForm
-from commercial.blocks import assets_matrix_block
+from commercial.blocks import assets_matrix_block, charms_matrix_block
 
 
 @login_required
@@ -166,14 +166,14 @@ def orga_evaluation(request, strategy_id, orga_id):
 
 @login_required
 @permission_required('commercial')
-def set_asset_score(request, strategy_id):
+def _set_score(request, strategy_id, method_name):
     strategy = get_object_or_404(Strategy, pk=strategy_id)
     strategy.can_change_or_die(request.user)
 
     POST = request.POST
 
     try:
-        asset_id   = int(POST['asset_id'])
+        model_id   = int(POST['model_id'])
         segment_id = int(POST['segment_id'])
         orga_id    = int(POST['orga_id'])
         score      = int(POST['score'])
@@ -184,16 +184,22 @@ def set_asset_score(request, strategy_id):
         raise Http404('Problem with a "score" arg: not 1 <= %s <= 4' % score)
 
     try:
-        strategy.set_asset_score(asset_id, segment_id, orga_id, score)
+        getattr(strategy, method_name)(model_id, segment_id, orga_id, score)
     except Exception, e:
         raise Http404(str(e))
 
     return HttpResponse('', mimetype='text/javascript')
 
+def set_asset_score(request, strategy_id):
+    return _set_score(request, strategy_id, 'set_asset_score')
+
+def set_charm_score(request, strategy_id):
+    return _set_score(request, strategy_id, 'set_charm_score')
+
 @login_required
 @permission_required('commercial')
 @jsonify
-def reload_assets_matrix(request, strategy_id, orga_id):
+def _reload_matrix(request, strategy_id, orga_id, block):
     strategy = get_object_or_404(Strategy, pk=strategy_id)
     strategy.can_view_or_die(request.user)
 
@@ -201,4 +207,10 @@ def reload_assets_matrix(request, strategy_id, orga_id):
     context['orga']     = get_object_or_404(Organisation, pk=orga_id)
     context['strategy'] = strategy
 
-    return [(assets_matrix_block.id_, assets_matrix_block.detailview_display(context))]
+    return [(block.id_, block.detailview_display(context))]
+
+def reload_assets_matrix(request, strategy_id, orga_id):
+    return _reload_matrix(request, strategy_id, orga_id, assets_matrix_block)
+
+def reload_charms_matrix(request, strategy_id, orga_id):
+    return _reload_matrix(request, strategy_id, orga_id, charms_matrix_block)

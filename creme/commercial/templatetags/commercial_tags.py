@@ -25,11 +25,24 @@ from commercial.models import CommercialAssetScore
 
 register = Library()
 
-@register.inclusion_tag('commercial/templatetags/widget_asset_score.html', takes_context=True)
+@register.inclusion_tag('commercial/templatetags/widget_score.html', takes_context=True)
 def widget_asset_score(context, segment, asset):
     strategy = context['strategy']
     orga     = context['orga']
 
     context['score'] = strategy.get_asset_score(orga, asset, segment)
+    context['model_name'] = 'asset'
+    context['model'] = asset
+
+    return context
+
+@register.inclusion_tag('commercial/templatetags/widget_score.html', takes_context=True)
+def widget_charm_score(context, segment, charm):
+    strategy = context['strategy']
+    orga     = context['orga']
+
+    context['score'] = strategy.get_charm_score(orga, charm, segment)
+    context['model_name'] = 'charm'
+    context['model'] = charm
 
     return context

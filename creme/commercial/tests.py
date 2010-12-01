@@ -338,7 +338,7 @@ class StrategyTestCase(TestCase):
     def _set_asset_score(self, strategy, orga, asset, segment, score):
         response = self.client.post('/commercial/strategy/%s/set_asset_score' % strategy.id,
                                     data={
-                                            'asset_id':   asset.id,
+                                            'model_id':   asset.id,
                                             'segment_id': segment.id,
                                             'orga_id':    orga.id,
                                             'score':      score,
@@ -355,14 +355,14 @@ class StrategyTestCase(TestCase):
         strategy.evaluated_orgas.add(orga)
 
         self.assertEqual(1, strategy.get_asset_score(orga, asset, segment))
-        self.assertEqual([(1, 3)], strategy.get_segments_totals(orga))
+        self.assertEqual([(1, 3)], strategy.get_assets_totals(orga))
 
         score = 3
         self._set_asset_score(strategy, orga, asset, segment, score)
 
         strategy = Strategy.objects.get(pk=strategy.pk) #refresh object (cache....)
         self.assertEqual(score, strategy.get_asset_score(orga, asset, segment))
-        self.assertEqual([(score, 3)], strategy.get_segments_totals(orga))
+        self.assertEqual([(score, 3)], strategy.get_assets_totals(orga))
 
     def test_set_asset_score02(self):
         strategy = Strategy.objects.create(user=self.user, name='Strat#1')
@@ -383,7 +383,7 @@ class StrategyTestCase(TestCase):
         self.assertEqual(1, strategy.get_asset_score(orga, asset02, segment01))
         self.assertEqual(1, strategy.get_asset_score(orga, asset02, segment02))
 
-        self.assertEqual([(2, 3), (2, 3)], strategy.get_segments_totals(orga))
+        self.assertEqual([(2, 3), (2, 3)], strategy.get_assets_totals(orga))
 
         score11 = 1; score12 = 4; score21 = 3; score22 = 2
         self._set_asset_score(strategy, orga, asset01, segment01, score11)
@@ -397,7 +397,71 @@ class StrategyTestCase(TestCase):
         self.assertEqual(score21, strategy.get_asset_score(orga, asset02, segment01))
         self.assertEqual(score22, strategy.get_asset_score(orga, asset02, segment02))
 
-        self.assertEqual([(score11 + score21, 1), (score12 + score22, 3)], strategy.get_segments_totals(orga))
+        self.assertEqual([(score11 + score21, 1), (score12 + score22, 3)], strategy.get_assets_totals(orga))
+
+    def _set_charm_score(self, strategy, orga, charm, segment, score):
+        response = self.client.post('/commercial/strategy/%s/set_charm_score' % strategy.id,
+                                    data={
+                                            'model_id':   charm.id,
+                                            'segment_id': segment.id,
+                                            'orga_id':    orga.id,
+                                            'score':      score,
+                                         }
+                                   )
+        self.assertEqual(200, response.status_code)
+
+    def test_set_charm_score01(self):
+        strategy = Strategy.objects.create(user=self.user, name='Strat#1')
+        segment  = MarketSegment.objects.create(name='Industry', strategy=strategy)
+        charm    = MarketSegmentCharm.objects.create(name='Celebrity', strategy=strategy)
+
+        orga = Organisation.objects.create(user=self.user, name='Nerv')
+        strategy.evaluated_orgas.add(orga)
+
+        self.assertEqual(1, strategy.get_charm_score(orga, charm, segment))
+        self.assertEqual([(1, 3)], strategy.get_charms_totals(orga))
+
+        score = 3
+        self._set_charm_score(strategy, orga, charm, segment, score)
+
+        strategy = Strategy.objects.get(pk=strategy.pk) #refresh object (cache....)
+        self.assertEqual(score, strategy.get_charm_score(orga, charm, segment))
+        self.assertEqual([(score, 3)], strategy.get_charms_totals(orga))
+
+    def test_set_charm_score02(self):
+        strategy = Strategy.objects.create(user=self.user, name='Strat#1')
+
+        create_segment = MarketSegment.objects.create
+        segment01 = create_segment(name='Industry', strategy=strategy)
+        segment02 = create_segment(name='People', strategy=strategy)
+
+        create_charm = MarketSegmentCharm.objects.create
+        charm01 = create_charm(name='Money', strategy=strategy)
+        charm02 = create_charm(name='Celebrity', strategy=strategy)
+
+        orga = Organisation.objects.create(user=self.user, name='Nerv')
+        strategy.evaluated_orgas.add(orga)
+
+        self.assertEqual(1, strategy.get_charm_score(orga, charm01, segment01))
+        self.assertEqual(1, strategy.get_charm_score(orga, charm01, segment02))
+        self.assertEqual(1, strategy.get_charm_score(orga, charm02, segment01))
+        self.assertEqual(1, strategy.get_charm_score(orga, charm02, segment02))
+
+        self.assertEqual([(2, 3), (2, 3)], strategy.get_charms_totals(orga))
+
+        score11 = 1; score12 = 4; score21 = 3; score22 = 2
+        self._set_charm_score(strategy, orga, charm01, segment01, score11)
+        self._set_charm_score(strategy, orga, charm01, segment02, score12)
+        self._set_charm_score(strategy, orga, charm02, segment01, score21)
+        self._set_charm_score(strategy, orga, charm02, segment02, score22)
+
+        strategy = Strategy.objects.get(pk=strategy.pk) #refresh object (cache....)
+        self.assertEqual(score11, strategy.get_charm_score(orga, charm01, segment01))
+        self.assertEqual(score12, strategy.get_charm_score(orga, charm01, segment02))
+        self.assertEqual(score21, strategy.get_charm_score(orga, charm02, segment01))
+        self.assertEqual(score22, strategy.get_charm_score(orga, charm02, segment02))
+
+        self.assertEqual([(score11 + score21, 1), (score12 + score22, 3)], strategy.get_charms_totals(orga))
 
     def test_delete01(self):
         strategy = Strategy.objects.create(user=self.user, name='Strat#1')
@@ -417,12 +481,14 @@ class StrategyTestCase(TestCase):
         strategy.evaluated_orgas.add(orga)
 
         self._set_asset_score(strategy, orga, asset, segment, 2)
+        self._set_charm_score(strategy, orga, charm, segment, 3)
 
         self.assertEqual(1, Strategy.objects.count())
         self.assertEqual(1, MarketSegment.objects.count())
         self.assertEqual(1, CommercialAsset.objects.count())
         self.assertEqual(1, MarketSegmentCharm.objects.count())
         self.assertEqual(1, CommercialAssetScore.objects.count())
+        self.assertEqual(1, MarketSegmentCharmScore.objects.count())
 
         strategy.delete()
         self.assertEqual(0, Strategy.objects.count())
@@ -430,5 +496,6 @@ class StrategyTestCase(TestCase):
         self.assertEqual(0, CommercialAsset.objects.count())
         self.assertEqual(0, MarketSegmentCharm.objects.count())
         self.assertEqual(0, CommercialAssetScore.objects.count())
+        self.assertEqual(0, MarketSegmentCharmScore.objects.count())
 
 #TODO: tests for Act, (SellByRelation)

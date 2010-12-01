@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-11-30 11:06+0100\n"
+"POT-Creation-Date: 2010-12-01 00:01+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -20,15 +20,15 @@ msgstr ""
 msgid "Commercial approaches"
 msgstr "Démarches commerciales"
 
-#: blocks.py:84 models/strategy.py:82
+#: blocks.py:84 models/strategy.py:162
 msgid "Market segments"
 msgstr "Segments de marché"
 
-#: blocks.py:98 models/strategy.py:95
+#: blocks.py:98 models/strategy.py:175
 msgid "Commercial assets"
 msgstr "Atouts commerciaux"
 
-#: blocks.py:111 models/strategy.py:120
+#: blocks.py:111 models/strategy.py:202
 msgid "Segment charms"
 msgstr "Attraits de segment"
 
@@ -84,8 +84,8 @@ msgstr "est un commercial"
 msgid "Com Action view"
 msgstr "Vue d'Action Com"
 
-#: populate.py:50 populate.py:55 models/strategy.py:30 models/strategy.py:76
-#: models/strategy.py:89 models/strategy.py:114
+#: populate.py:50 populate.py:55 models/strategy.py:30 models/strategy.py:156
+#: models/strategy.py:169 models/strategy.py:196
 #: templates/commercial/templatetags/block_assets.html:16
 #: templates/commercial/templatetags/block_charms.html:16
 #: templates/commercial/templatetags/block_evalorgas.html:17
@@ -172,15 +172,15 @@ msgstr "Date de paiement"
 msgid "Commercial strategies"
 msgstr "Stratégies commerciales"
 
-#: models/strategy.py:81
+#: models/strategy.py:161
 msgid "Market segment"
 msgstr "Segment de marché"
 
-#: models/strategy.py:94
+#: models/strategy.py:174
 msgid "Commercial asset"
 msgstr "Atout commercial"
 
-#: models/strategy.py:119
+#: models/strategy.py:201
 msgid "Segment charm"
 msgstr "Attrait de segment"
 
@@ -189,16 +189,16 @@ msgstr "Attrait de segment"
 msgid "Evaluation of «%(orga)s»"
 msgstr "Évaluation de «%(orga)s»"
 
-#: templates/commercial/orga_evaluation.html:34
-#: templates/commercial/orga_evaluation.html:35
+#: templates/commercial/orga_evaluation.html:39
+#: templates/commercial/orga_evaluation.html:40
 msgid "Back to the strategy"
 msgstr "Retour à la stratégie"
 
-#: templates/commercial/orga_evaluation.html:46
+#: templates/commercial/orga_evaluation.html:51
 msgid "Organisation"
 msgstr "Société"
 
-#: templates/commercial/orga_evaluation.html:47
+#: templates/commercial/orga_evaluation.html:52
 #, python-format
 msgid "Evaluation of «%(orga)s» by «%(strategy)s»"
 msgstr "Évaluation de «%(orga)s» par «%(strategy)s»"
@@ -272,19 +272,25 @@ msgid "Actions"
 msgstr "Actions"
 
 #: templates/commercial/templatetags/block_assets.html:30
-#: templates/commercial/templatetags/block_assets_matrix.html:22
+#: templates/commercial/templatetags/block_assets_matrix.html:37
 msgid "No commercial asset for the moment"
 msgstr "Aucun atout commerciale enregistré pour le moment"
 
-#: templates/commercial/templatetags/block_assets_matrix.html:7
+#: templates/commercial/templatetags/block_assets_matrix.html:18
 msgid "Assets / Segments matrix"
-msgstr "Matrice Attraits / Segments"
+msgstr "Matrice Atouts / Segments"
 
-#: templates/commercial/templatetags/block_assets_matrix.html:13
+#: templates/commercial/templatetags/block_assets_matrix.html:24
 msgid "Assets / Segments"
-msgstr "Attraits / Segments"
+msgstr "Atouts / Segments"
 
-#: templates/commercial/templatetags/block_assets_matrix.html:23
+#: templates/commercial/templatetags/block_assets_matrix.html:34
+#: templates/commercial/templatetags/block_charms_matrix.html:34
+msgid "TOTAL"
+msgstr "TOTAL"
+
+#: templates/commercial/templatetags/block_assets_matrix.html:38
+#: templates/commercial/templatetags/block_charms_matrix.html:38
 #: templates/commercial/templatetags/block_segments.html:30
 msgid "No market segment for the moment"
 msgstr "Aucun segment de marché enregistré pour le moment"
@@ -306,6 +312,18 @@ msgstr "Nouvel attrait de segment"
 #: templates/commercial/templatetags/block_charms.html:30
 msgid "No segment charm for the moment"
 msgstr "Aucun attrait enregistré pour le moment"
+
+#: templates/commercial/templatetags/block_charms_matrix.html:18
+msgid "Charms / Segments matrix"
+msgstr "Matrice Attraits / Segments"
+
+#: templates/commercial/templatetags/block_charms_matrix.html:24
+msgid "Charms / Segments"
+msgstr "Attraits / Segments"
+
+#: templates/commercial/templatetags/block_charms_matrix.html:37
+msgid "No market segment charm for the moment"
+msgstr "Aucun attrait de segment de marché enregistré pour le moment"
 
 #: templates/commercial/templatetags/block_evalorgas.html:7
 #, python-format
@@ -388,42 +406,42 @@ msgstr "Nombre d'actions commerciales"
 msgid "List of salesmen"
 msgstr "Liste des commerciaux"
 
-#: views/strategy.py:61
+#: views/strategy.py:62
 #, python-format
 msgid "New market segment for <%s>"
 msgstr "Nouveau segment pour <%s>"
 
-#: views/strategy.py:65
+#: views/strategy.py:66
 #, python-format
 msgid "New commercial asset for <%s>"
 msgstr "Nouvel attrait pour <%s>"
 
-#: views/strategy.py:69
+#: views/strategy.py:70
 #, python-format
 msgid "New segment charm for <%s>"
 msgstr "Nouvel attrait pour <%s>"
 
-#: views/strategy.py:73
+#: views/strategy.py:74
 #, python-format
 msgid "New organisation for <%s>"
 msgstr "Nouvelle société pour <%s>"
 
-#: views/strategy.py:103
+#: views/strategy.py:104
 #, python-format
 msgid "Segment for <%s>"
 msgstr "Segment pour <%s>"
 
-#: views/strategy.py:106
+#: views/strategy.py:107
 #, python-format
 msgid "Asset for <%s>"
 msgstr "Atout pour <%s>"
 
-#: views/strategy.py:109
+#: views/strategy.py:110
 #, python-format
 msgid "Charm for <%s>"
 msgstr "Attrait pour <%s>"
 
-#: views/strategy.py:158
+#: views/strategy.py:159
 #, python-format
 msgid ""
 "This organisation <%(orga)s> is not (no more ?) evaluated by the strategy %"

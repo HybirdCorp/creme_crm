@@ -1,7 +1,6 @@
 {% extends "creme_core/base.html" %}
 {% load i18n %}
 {% load media %}
-{% comment %}{% load creme_core_tags %}{% endcomment %}
 {% load creme_block %}
 
 {% block page_title %} - {% blocktrans %}Evaluation of «{{orga}}»{% endblocktrans %}{% endblock %}
@@ -12,12 +11,15 @@
             creme.utils.bindShowHideTbody();
         });
 
-        post_asset_score = function(url, asset_id, segment_id, orga_id, select, reload_url) {
+        //TODO: move to a commercial.js file
+        creme.commercial = {};
+
+        creme.commercial.post_score = function(url, model_id, segment_id, orga_id, select, reload_url) {
             creme.ajax.post({
                         'url': url,
                         'data': {
-                                'score':     $(select).find('[selected="true"]').attr("value"),
-                                'asset_id':   asset_id,
+                                'score':      $(select).find('[selected="true"]').attr("value"),
+                                'model_id':   model_id,
                                 'segment_id': segment_id,
                                 'orga_id':    orga_id
                             },
@@ -55,15 +57,13 @@
     <div class=zone_spacer_5px></div>
 
     {% import_block from_app 'commercial' named 'assets_matrix' as 'assets_matrix_block' %}
+    {% import_block from_app 'commercial' named 'charms_matrix' as 'charms_matrix_block' %}
 
     <div style="float:left;width:49.9%;margin-left:0px;">
-        {% comment %}{% with orga as object %}
-            {% include "creme_core/object_as_table.html" %}
-        {% endwith %}{% endcomment %}
         {% display_block_detailview 'assets_matrix_block' %}
     </div>
     <div style="float:right;width:49.9%;margin-right:0px;">
-
+        {% display_block_detailview 'charms_matrix_block' %}
     </div>
 
     {% comment %}{% block after_detail_view_1 %}{% endblock %}{% endcomment %}

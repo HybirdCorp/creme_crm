@@ -43,9 +43,11 @@ urlpatterns = patterns('commercial.views',
 
     #Scores
     (r'^strategy/(?P<strategy_id>\d+)/set_asset_score$', 'strategy.set_asset_score'),
+    (r'^strategy/(?P<strategy_id>\d+)/set_charm_score$', 'strategy.set_charm_score'),
 
     #Blocks
     (r'^blocks/assets_matrix/(?P<strategy_id>\d+)/(?P<orga_id>\d+)/$', 'strategy.reload_assets_matrix'),
+    (r'^blocks/charms_matrix/(?P<strategy_id>\d+)/(?P<orga_id>\d+)/$', 'strategy.reload_charms_matrix'),
 
     (r'^relsellby/edit/(?P<relation_id>\d+)$', 'sell_by_relation.edit'),
 )
