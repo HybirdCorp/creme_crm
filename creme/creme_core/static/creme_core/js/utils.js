@@ -66,23 +66,26 @@ creme.utils.loading = function(div_id, is_loaded, params) {
 }
 
 creme.utils.showDialog = function(text, options, div_id) {
-    var $div = $('#'+div_id);
+    var $div = $('#' + div_id);
+
     if($div.size() == 0) {
         var d = new Date();
-        div_id = d.getTime().toString()+Math.ceil(Math.random()*1000000);
-        $div = $('<div id="'+div_id+'"  style="display:none;"></div>');
+        div_id = d.getTime().toString() + Math.ceil(Math.random() * 1000000);
+        $div = $('<div id="' + div_id + '"  style="display:none;"></div>');
         $(document.body).append($div);
     }
     $div.html(text);
     //$div.append($('<input type="hidden"/>').attr('id','dialog_id').val(div_id));
+
+    buttons = {};
+    buttons[gettext("Ok")] = function() {
+            $(this).dialog("close");
+            /*$(this).dialog("destroy");
+            $(this).remove();*/
+        }
+
     $div.dialog(jQuery.extend({
-        buttons: {
-            "Ok": function() {
-                $(this).dialog("close");
-                /*$(this).dialog("destroy");
-                $(this).remove();*/
-            }
-        },
+        buttons: buttons,
         closeOnEscape: false,
         hide: 'slide',
         show: 'slide',
