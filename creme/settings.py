@@ -33,6 +33,11 @@ DATABASES = {
 
 #I18N / L10N ###################################################################
 
+LANGUAGES = (
+  ('en', 'English'), #_('English')
+  ('fr', 'French'),  #_('French')
+)
+
 # If you set this to False, Django will make some optimizations so as not
 # to load the internationalization machinery.
 USE_I18N = True
@@ -46,12 +51,8 @@ TIME_ZONE = 'Europe/Paris'
 
 # Language code for this installation. All choices can be found here:
 # http://www.i18nguy.com/unicode/language-identifiers.html
-LANGUAGE_CODE = 'fr-FR'
+LANGUAGE_CODE = 'fr' #Choose in the LANGUAGES values
 
-LANGUAGES = (
-  ('en', 'English'), #_('English')
-  ('fr', 'French'),  #_('French')
-)
 
 DATE_FORMAT         = 'd-m-Y'
 DATE_FORMAT_VERBOSE = _(u'Format : Day-Month-Year (Ex:31-12-2010)')
