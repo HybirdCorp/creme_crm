@@ -18,14 +18,10 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from logging import debug
-from datetime import datetime
-
-from django.db.models import Model, CharField, TextField, ForeignKey, PositiveIntegerField, DateField, BooleanField
+from django.db.models import CharField, TextField, PositiveIntegerField, DateField
 from django.utils.translation import ugettext_lazy as _
-from django.utils.encoding import force_unicode
 
-from creme_core.models import CremeEntity 
+from creme_core.models import CremeEntity
 
 
 class Act(CremeEntity):
@@ -36,7 +32,6 @@ class Act(CremeEntity):
     goal          = TextField(_(u"Goal of the action"), blank=True, null=True)
     aim           = TextField(_(u'Objectives to achieve'), blank=True, null=True)
     due_date      = DateField(_(u'Due date'), blank=False, null=False)
-
 
     def __unicode__(self):
         return self.name
