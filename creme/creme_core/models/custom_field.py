@@ -143,12 +143,12 @@ class CustomFieldValue(CremeModel):
         field.initial = self.value
 
     @staticmethod
-    def get_formfield_class(): #overload meeee
-        return forms.Field
+    def _get_formfield(**kwargs): #overload meeee
+        return forms.Field(**kwargs)
 
     @classmethod
     def get_formfield(cls, custom_field, custom_value):
-        field = cls.get_formfield_class()(label=custom_field.name, required=False)
+        field = cls._get_formfield(label=custom_field.name, required=False)
         cls._build_formfield(custom_field, field)
 
         if custom_value:
@@ -174,8 +174,8 @@ class CustomFieldString(CustomFieldValue):
         return self.value
 
     @staticmethod
-    def get_formfield_class():
-        return forms.CharField
+    def _get_formfield(**kwargs):
+        return forms.CharField(**kwargs)
 
 
 class CustomFieldInteger(CustomFieldValue):
@@ -187,12 +187,15 @@ class CustomFieldInteger(CustomFieldValue):
         app_label = 'creme_core'
 
     @staticmethod
-    def get_formfield_class():
-        return forms.IntegerField
+    def _get_formfield(**kwargs):
+        return forms.IntegerField(**kwargs)
 
 
 class CustomFieldFloat(CustomFieldValue):
-    value = DecimalField(max_digits=4, decimal_places=2)
+    _MAX_DIGITS = 4
+    _DECIMAL_PLACES = 2
+
+    value = DecimalField(max_digits=_MAX_DIGITS, decimal_places=_DECIMAL_PLACES)
 
     verbose_name = _(u'Decimal')
 
@@ -200,8 +203,11 @@ class CustomFieldFloat(CustomFieldValue):
         app_label = 'creme_core'
 
     @staticmethod
-    def get_formfield_class():
-        return forms.DecimalField
+    def _get_formfield(**kwargs):
+        return forms.DecimalField(max_digits=CustomFieldFloat._MAX_DIGITS,
+                                  decimal_places=CustomFieldFloat._DECIMAL_PLACES,
+                                  **kwargs
+                                 )
 
 
 class CustomFieldDateTime(CustomFieldValue):
@@ -213,9 +219,9 @@ class CustomFieldDateTime(CustomFieldValue):
         app_label = 'creme_core'
 
     @staticmethod
-    def get_formfield_class():
+    def _get_formfield(**kwargs):
         from creme_core.forms.fields import CremeDateTimeField #avoid cyclic import
-        return CremeDateTimeField
+        return CremeDateTimeField(**kwargs)
 
 
 class CustomFieldBoolean(CustomFieldValue):
@@ -230,8 +236,8 @@ class CustomFieldBoolean(CustomFieldValue):
         return ugettext(u'Yes') if self.value else ugettext(u'No')
 
     @staticmethod
-    def get_formfield_class():
-        return forms.BooleanField
+    def _get_formfield(**kwargs):
+        return forms.BooleanField(**kwargs)
 
 
 class CustomFieldEnumValue(CremeModel):
@@ -258,8 +264,8 @@ class CustomFieldEnum(CustomFieldValue):
         app_label = 'creme_core'
 
     @staticmethod
-    def get_formfield_class():
-        return forms.ChoiceField
+    def _get_formfield(**kwargs):
+        return forms.ChoiceField(**kwargs)
 
     @classmethod
     def _get_4_entities(cls, entities, cfields):
@@ -299,8 +305,8 @@ class CustomFieldMultiEnum(CustomFieldValue):
         return u' / '.join(unicode(val) for val in self.get_enumvalues())
 
     @staticmethod
-    def get_formfield_class():
-        return forms.MultipleChoiceField
+    def _get_formfield(**kwargs):
+        return forms.MultipleChoiceField(**kwargs)
 
     @classmethod
     def _get_4_entities(cls, entities, cfields):
