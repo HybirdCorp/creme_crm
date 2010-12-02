@@ -33,7 +33,7 @@ from persons.models import Organisation
 
 from commercial.models import Strategy, MarketSegment, CommercialAsset, MarketSegmentCharm
 from commercial.forms.strategy import StrategyForm, SegmentForm, AssetForm, CharmForm, AddOrganisationForm
-from commercial.blocks import assets_matrix_block, charms_matrix_block
+from commercial.blocks import assets_matrix_block, charms_matrix_block, assets_charms_matrix_block
 
 
 @login_required
@@ -146,7 +146,7 @@ def delete_evalorga(request, strategy_id):
 
 @login_required
 @permission_required('commercial')
-def orga_evaluation(request, strategy_id, orga_id):
+def _orga_view(request, strategy_id, orga_id, template):
     user = request.user
 
     strategy = get_object_or_404(Strategy, pk=strategy_id)
@@ -160,9 +160,15 @@ def orga_evaluation(request, strategy_id, orga_id):
                             'orga': orga, 'strategy': strategy}
                      )
 
-    return render_to_response('commercial/orga_evaluation.html',
+    return render_to_response(template,
                               {'orga': orga, 'strategy': strategy}, #TODO: factorise with Http404 ??
                               context_instance=RequestContext(request))
+
+def orga_evaluation(request, strategy_id, orga_id):
+    return _orga_view(request, strategy_id, orga_id, 'commercial/orga_evaluation.html')
+
+def orga_synthesis(request, strategy_id, orga_id):
+    return _orga_view(request, strategy_id, orga_id, 'commercial/orga_synthesis.html')
 
 @login_required
 @permission_required('commercial')
@@ -180,9 +186,6 @@ def _set_score(request, strategy_id, method_name):
     except Exception, e:
         raise Http404('Problem with a posted arg: %s' % str(e))
 
-    if not 1 <= score <= 4:
-        raise Http404('Problem with a "score" arg: not 1 <= %s <= 4' % score)
-
     try:
         getattr(strategy, method_name)(model_id, segment_id, orga_id, score)
     except Exception, e:
@@ -195,6 +198,28 @@ def set_asset_score(request, strategy_id):
 
 def set_charm_score(request, strategy_id):
     return _set_score(request, strategy_id, 'set_charm_score')
+
+@login_required
+@permission_required('commercial')
+def set_segment_category(request, strategy_id):
+    strategy = get_object_or_404(Strategy, pk=strategy_id)
+    strategy.can_change_or_die(request.user)
+
+    POST = request.POST
+
+    try:
+        segment_id = int(POST['segment_id'])
+        orga_id    = int(POST['orga_id'])
+        category   = int(POST['category'])
+    except Exception, e:
+        raise Http404('Problem with a posted arg: %s' % str(e))
+
+    try:
+        strategy.set_segment_category(segment_id, orga_id, category)
+    except Exception, e:
+        raise Http404(str(e))
+
+    return HttpResponse('', mimetype='text/javascript')
 
 @login_required
 @permission_required('commercial')
@@ -214,3 +239,6 @@ def reload_assets_matrix(request, strategy_id, orga_id):
 
 def reload_charms_matrix(request, strategy_id, orga_id):
     return _reload_matrix(request, strategy_id, orga_id, charms_matrix_block)
+
+def reload_assets_charms_matrix(request, strategy_id, orga_id):
+    return _reload_matrix(request, strategy_id, orga_id, assets_charms_matrix_block)

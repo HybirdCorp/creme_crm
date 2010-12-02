@@ -37,17 +37,20 @@ urlpatterns = patterns('commercial.views',
     (r'^charm/delete$',                             'strategy.delete_charm'),
 
     #Evaluated organisations
-    (r'^strategy/(?P<strategy_id>\d+)/add/organisation/$',             'strategy.add_evalorga'),
-    (r'^strategy/(?P<strategy_id>\d+)/organisation/delete$',           'strategy.delete_evalorga'),
-    (r'^strategy/(?P<strategy_id>\d+)/organisation/(?P<orga_id>\d+)$', 'strategy.orga_evaluation'),
+    (r'^strategy/(?P<strategy_id>\d+)/add/organisation/$',                        'strategy.add_evalorga'),
+    (r'^strategy/(?P<strategy_id>\d+)/organisation/delete$',                      'strategy.delete_evalorga'),
+    (r'^strategy/(?P<strategy_id>\d+)/organisation/(?P<orga_id>\d+)/evaluation$', 'strategy.orga_evaluation'),
+    (r'^strategy/(?P<strategy_id>\d+)/organisation/(?P<orga_id>\d+)/synthesis$',  'strategy.orga_synthesis'),
 
-    #Scores
+    #Scores & category
     (r'^strategy/(?P<strategy_id>\d+)/set_asset_score$', 'strategy.set_asset_score'),
     (r'^strategy/(?P<strategy_id>\d+)/set_charm_score$', 'strategy.set_charm_score'),
+    (r'^strategy/(?P<strategy_id>\d+)/set_segment_cat$', 'strategy.set_segment_category'),
 
     #Blocks
-    (r'^blocks/assets_matrix/(?P<strategy_id>\d+)/(?P<orga_id>\d+)/$', 'strategy.reload_assets_matrix'),
-    (r'^blocks/charms_matrix/(?P<strategy_id>\d+)/(?P<orga_id>\d+)/$', 'strategy.reload_charms_matrix'),
+    (r'^blocks/assets_matrix/(?P<strategy_id>\d+)/(?P<orga_id>\d+)/$',        'strategy.reload_assets_matrix'),
+    (r'^blocks/charms_matrix/(?P<strategy_id>\d+)/(?P<orga_id>\d+)/$',        'strategy.reload_charms_matrix'),
+    (r'^blocks/assets_charms_matrix/(?P<strategy_id>\d+)/(?P<orga_id>\d+)/$', 'strategy.reload_assets_charms_matrix'),
 
     (r'^relsellby/edit/(?P<relation_id>\d+)$', 'sell_by_relation.edit'),
 )

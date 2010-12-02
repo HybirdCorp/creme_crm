@@ -327,8 +327,8 @@ class StrategyTestCase(TestCase):
         self.assertEqual(1,       len(orgas))
         self.assertEqual(orga.pk, orgas[0].pk)
 
-        response = self.client.get('/commercial/strategy/%s/organisation/%s' % (strategy.id, orga.id))
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(200, self.client.get('/commercial/strategy/%s/organisation/%s/evaluation' % (strategy.id, orga.id)).status_code)
+        self.assertEqual(200, self.client.get('/commercial/strategy/%s/organisation/%s/synthesis'  % (strategy.id, orga.id)).status_code)
 
         response = self.client.post('/commercial/strategy/%s/organisation/delete' % strategy.id,
                                     data={'id': orga.id}, follow=True)
@@ -470,7 +470,6 @@ class StrategyTestCase(TestCase):
         strategy.delete()
         self.assertEqual(0, Strategy.objects.count())
 
-    #TODO: complete (MarketSegmentCharmScore ??)
     def test_delete02(self):
         strategy = Strategy.objects.create(user=self.user, name='Strat#1')
         segment  = MarketSegment.objects.create(name='Industry', strategy=strategy)
@@ -497,5 +496,81 @@ class StrategyTestCase(TestCase):
         self.assertEqual(0, MarketSegmentCharm.objects.count())
         self.assertEqual(0, CommercialAssetScore.objects.count())
         self.assertEqual(0, MarketSegmentCharmScore.objects.count())
+
+    def _set_segment_category(self, strategy, segment, orga, category):
+        response = self.client.post('/commercial/strategy/%s/set_segment_cat' % strategy.id,
+                                    data={
+                                            'segment_id': segment.id,
+                                            'orga_id':    orga.id,
+                                            'category':   category,
+                                         }
+                                   )
+        self.assertEqual(response.status_code, 200)
+
+    def test_segments_categories(self):
+        strategy = Strategy.objects.create(user=self.user, name='Strat#1')
+
+        create_segment = MarketSegment.objects.create
+        industry    = create_segment(name='Industry', strategy=strategy)
+        individual  = create_segment(name='Individual', strategy=strategy)
+        community   = create_segment(name='Community', strategy=strategy)
+        association = create_segment(name='Association', strategy=strategy)
+
+        create_asset = CommercialAsset.objects.create
+        asset01 = create_asset(name='Capital', strategy=strategy)
+        asset02 = create_asset(name='Size', strategy=strategy)
+
+        create_charm = MarketSegmentCharm.objects.create
+        charm01 = create_charm(name='Money', strategy=strategy)
+        charm02 = create_charm(name='Celebrity', strategy=strategy)
+
+        orga = Organisation.objects.create(user=self.user, name='Nerv')
+        strategy.evaluated_orgas.add(orga)
+
+        self._set_asset_score(strategy, orga, asset01, industry, 4)
+        self._set_asset_score(strategy, orga, asset02, industry, 3)
+        self._set_charm_score(strategy, orga, charm01, industry, 4)
+        self._set_charm_score(strategy, orga, charm02, industry, 3)
+
+        self._set_asset_score(strategy, orga, asset01, individual, 3)
+        self._set_asset_score(strategy, orga, asset02, individual, 3)
+        self._set_charm_score(strategy, orga, charm01, individual, 1)
+        self._set_charm_score(strategy, orga, charm02, individual, 1)
+
+        self._set_asset_score(strategy, orga, asset01, community, 2)
+        self._set_asset_score(strategy, orga, asset02, community, 1)
+        self._set_charm_score(strategy, orga, charm01, community, 3)
+        self._set_charm_score(strategy, orga, charm02, community, 4)
+
+        self.assertEqual([association.id], [segment.id for segment in strategy.get_segments_for_category(orga, 4)])
+        self.assertEqual([individual.id],  [segment.id for segment in strategy.get_segments_for_category(orga, 3)])
+        self.assertEqual([community.id],   [segment.id for segment in strategy.get_segments_for_category(orga, 2)])
+        self.assertEqual([industry.id],    [segment.id for segment in strategy.get_segments_for_category(orga, 1)])
+
+        self._set_segment_category(strategy, individual, orga, 4)
+
+        strategy = Strategy.objects.get(pk=strategy.pk) #refresh object (cache....)
+        self.assertEqual([], [segment.id for segment in strategy.get_segments_for_category(orga, 3)])
+        self.assertEqual(set([association.id, individual.id]),
+                         set(segment.id for segment in strategy.get_segments_for_category(orga, 4))
+                        )
+        self.assertEqual(1, MarketSegmentCategory.objects.count())
+
+        self._set_segment_category(strategy, individual, orga, 2)
+
+        strategy = Strategy.objects.get(pk=strategy.pk) #refresh object (cache....)
+        self.assertEqual([association.id], [segment.id for segment in strategy.get_segments_for_category(orga, 4)])
+        self.assertEqual([],               [segment.id for segment in strategy.get_segments_for_category(orga, 3)])
+        self.assertEqual([industry.id],    [segment.id for segment in strategy.get_segments_for_category(orga, 1)])
+        self.assertEqual(set([community.id, individual.id]),
+                         set(segment.id for segment in strategy.get_segments_for_category(orga, 2))
+                        )
+        self.assertEqual(1, MarketSegmentCategory.objects.count())
+
+        self.assertEqual(1, strategy.get_segment_category(orga, industry))
+        self.assertEqual(2, strategy.get_segment_category(orga, individual))
+        self.assertEqual(2, strategy.get_segment_category(orga, community))
+        self.assertEqual(4, strategy.get_segment_category(orga, association))
+
 
 #TODO: tests for Act, (SellByRelation)
