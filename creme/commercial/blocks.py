@@ -151,7 +151,7 @@ class AssetsMatrixBlock(Block):
 class CharmsMatrixBlock(Block):
     id_           = Block.generate_id('commercial', 'charms_matrix')
     #dependencies  = (MarketSegmentCharm,) #useless (custom reload view....)
-    verbose_name  = u'Charmss / segments matrix'
+    verbose_name  = u'Charms / segments matrix'
     template_name = 'commercial/templatetags/block_charms_matrix.html'
 
     def detailview_display(self, context):
@@ -164,9 +164,25 @@ class CharmsMatrixBlock(Block):
                                                             update_url='/commercial/blocks/charms_matrix/%s/%s/' % (strategy.pk, orga.pk),
                                                            ))
 
-approaches_block    = ApproachesBlock()
-assets_matrix_block = AssetsMatrixBlock()
-charms_matrix_block = CharmsMatrixBlock()
+class AssetsCharmsMatrixBlock(Block):
+    id_           = Block.generate_id('commercial', 'assets_charms_matrix')
+    #dependencies  = (CommercialAsset, MarketSegmentCharm,) #useless (custom reload view....)
+    verbose_name  = u'Assets / Charms segments matrix'
+    template_name = 'commercial/templatetags/block_assets_charms_matrix.html'
+
+    def detailview_display(self, context):
+        strategy = context['strategy']
+        orga = context['orga']
+        return self._render(self.get_block_template_context(context,
+                                                            segments=strategy.get_segments_list(),
+                                                            update_url='/commercial/blocks/assets_charms_matrix/%s/%s/' % (strategy.pk, orga.pk),
+                                                           ))
+
+
+approaches_block           = ApproachesBlock()
+assets_matrix_block        = AssetsMatrixBlock()
+charms_matrix_block        = CharmsMatrixBlock()
+assets_charms_matrix_block = AssetsCharmsMatrixBlock()
 
 blocks_list = (
     approaches_block,
@@ -176,4 +192,5 @@ blocks_list = (
     EvaluatedOrgasBlock(),
     assets_matrix_block,
     charms_matrix_block,
+    assets_charms_matrix_block,
 )

@@ -24,12 +24,12 @@ from creme_core.registry import creme_registry
 from creme_core.gui.menu import creme_menu
 from creme_core.gui.block import block_registry
 
-from commercial.models.act import Act
+from commercial.models import Act, Strategy
 from commercial.blocks import blocks_list
 
 
 creme_registry.register_app('commercial', _(u'Commercial strategy'), '/commercial')
-creme_registry.register_entity_models(Act)
+creme_registry.register_entity_models(Act, Strategy)
 
 reg_item = creme_menu.register_app('commercial', '/commercial/').register_item
 reg_item('/commercial/',             _(u'Portal'),                  'commercial')
