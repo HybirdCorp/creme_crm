@@ -24,20 +24,22 @@ from creme_core.registry import creme_registry
 from creme_core.gui.menu import creme_menu
 from creme_core.gui.block import block_registry
 
-from commercial.models.act import Act
-from commercial.blocks import approaches_block
+from commercial.models import Act, Strategy
+from commercial.blocks import blocks_list
 
 
 creme_registry.register_app('commercial', _(u'Commercial strategy'), '/commercial')
-creme_registry.register_entity_models(Act)
+creme_registry.register_entity_models(Act, Strategy)
 
 reg_item = creme_menu.register_app('commercial', '/commercial/').register_item
 reg_item('/commercial/',             _(u'Portal'),                  'commercial')
 reg_item('/commercial/acts',         _(u'All commercial actions'),  'commercial')
 reg_item('/commercial/act/add',      _(u'Add a commercial action'), 'commercial.add_act')
+reg_item('/commercial/strategies',   _(u'All strategies'),          'commercial')
+reg_item('/commercial/strategy/add', _(u'Add a strategy'),          'commercial.add_strategy')
 
 reg_item = creme_menu.get_app_item('persons').register_item
 reg_item('/commercial/salesmen',     _(u'All salesmen'),   'persons')
 reg_item('/commercial/salesman/add', _(u'Add a salesman'), 'persons.add_contact')
 
-block_registry.register(approaches_block)
+block_registry.register(*blocks_list)
