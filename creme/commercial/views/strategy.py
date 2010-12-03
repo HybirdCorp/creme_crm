@@ -178,7 +178,7 @@ def _set_score(request, strategy_id, method_name):
 
     POST = request.POST
 
-    try:
+    try: #TODO: use get_from_POST_or_404() with 'cast=int' argument
         model_id   = int(POST['model_id'])
         segment_id = int(POST['segment_id'])
         orga_id    = int(POST['orga_id'])

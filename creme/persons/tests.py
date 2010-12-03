@@ -222,7 +222,7 @@ class PersonsTestCase(TestCase):
         mng_orga = self._build_managed_orga()
         customer = Contact.objects.create(user=self.user, first_name='Jet', last_name='Black')
 
-        response = self.client.get(url % (customer.id, mng_orga.id), follow=True)
+        response = self.client.post(url % customer.id, data={'id': mng_orga.id}, follow=True)
         self.assertEqual(200, response.status_code)
         self.assert_(response.redirect_chain)
 
@@ -232,19 +232,19 @@ class PersonsTestCase(TestCase):
             self.fail(str(e))
 
     def test_become_customer(self):
-        self._become_test('/persons/%s/become_customer/%s', REL_SUB_CUSTOMER_OF)
+        self._become_test('/persons/%s/become_customer', REL_SUB_CUSTOMER_OF)
 
     def test_become_prospect(self):
-        self._become_test('/persons/%s/become_prospect/%s', REL_SUB_PROSPECT)
+        self._become_test('/persons/%s/become_prospect', REL_SUB_PROSPECT)
 
     def test_become_suspect(self):
-        self._become_test('/persons/%s/become_suspect/%s', REL_SUB_SUSPECT)
+        self._become_test('/persons/%s/become_suspect', REL_SUB_SUSPECT)
 
     def test_become_inactive_customer(self):
-        self._become_test('/persons/%s/become_inactive_customer/%s', REL_SUB_INACTIVE)
+        self._become_test('/persons/%s/become_inactive_customer', REL_SUB_INACTIVE)
 
     def test_become_supplier(self):
-        self._become_test('/persons/%s/become_supplier/%s', REL_SUB_SUPPLIER)
+        self._become_test('/persons/%s/become_supplier', REL_SUB_SUPPLIER)
 
     def test_leads_customers01(self):
         self.login()
@@ -270,9 +270,10 @@ class PersonsTestCase(TestCase):
         acme = Organisation.objects.create(user=self.user, name='Acme')
         fsf  = Organisation.objects.create(user=self.user, name='FSF')
 
-        self.client.get('/persons/%s/become_customer/%s' % (nerv.id, mng_orga.id))
-        self.client.get('/persons/%s/become_prospect/%s' % (acme.id, mng_orga.id))
-        self.client.get('/persons/%s/become_suspect/%s'  % (fsf.id,  mng_orga.id))
+        data = {'id': mng_orga.id}
+        self.client.post('/persons/%s/become_customer' % nerv.id, data=data)
+        self.client.post('/persons/%s/become_prospect' % acme.id, data=data)
+        self.client.post('/persons/%s/become_suspect'  % fsf.id,  data=data)
 
         response = self.client.get('/persons/leads_customers')
         orgas_page = response.context['entities']
@@ -289,8 +290,7 @@ class PersonsTestCase(TestCase):
 
         nerv = Organisation.objects.create(user=self.user, name='Nerv')
         acme = Organisation.objects.create(user=self.user, name='Acme')
-
-        self.client.get('/persons/%s/become_customer/%s' % (nerv.id, acme.id))
+        self.client.post('/persons/%s/become_customer' % nerv.id, data={'id': acme.id})
 
         response = self.client.get('/persons/leads_customers')
         self.assertEqual(0, response.context['entities'].paginator.count)
