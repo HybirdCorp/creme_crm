@@ -66,7 +66,7 @@ class PersonsTestCase(TestCase):
 
         return response
 
-    def test_contact_createview01(self):
+    def test_contact_createview(self):
         self.login()
 
         response = self.client.get('/persons/contact/add')
@@ -87,6 +87,51 @@ class PersonsTestCase(TestCase):
         self.assert_(response.redirect_chain)
         self.assertEqual(len(response.redirect_chain), 1)
         self.assert_(response.redirect_chain[0][0].endswith('/persons/contact/%s' % contact.id))
+
+        response = self.client.get('/persons/contact/%s' % contact.id)
+        self.assertEqual(response.status_code, 200)
+
+    def test_contact_editview(self):
+        self.login()
+        first_name = 'Faye'
+        contact = Contact.objects.create(user=self.user, first_name=first_name, last_name='Valentine')
+
+        response = self.client.get('/persons/contact/edit/%s' % contact.id)
+        self.assertEqual(response.status_code, 200)
+
+        last_name = 'Spiegel'
+        response = self.client.post('/persons/contact/edit/%s' % contact.id, follow=True,
+                                    data={
+                                            'user':       self.user.pk,
+                                            'first_name': first_name,
+                                            'last_name':  last_name,
+                                         }
+                                   )
+        self.assertEqual(response.status_code, 200)
+        self.assert_(response.redirect_chain[0][0].endswith('/persons/contact/%s' % contact.id))
+
+        contact = Contact.objects.get(pk=contact.id)
+        self.assertEqual(last_name, contact.last_name)
+
+    def test_contact_listview(self):
+        self.login()
+
+        faye  = Contact.objects.create(user=self.user, first_name='Faye',  last_name='Valentine')
+        spike = Contact.objects.create(user=self.user, first_name='Spike', last_name='Spiegel')
+
+        response = self.client.get('/persons/contacts')
+        self.assertEqual(response.status_code, 200)
+
+        try:
+            contacts_page = response.context['entities']
+        except KeyError, e:
+            self.fail(str(e))
+
+        self.assertEqual(3, contacts_page.paginator.count) #3: Creme user
+
+        contacts_set = set(contact.id for contact in contacts_page.object_list)
+        self.assert_(faye.id in contacts_set)
+        self.assert_(spike.id in contacts_set)
 
     def test_orga_createview01(self):
         self.login()
@@ -117,6 +162,9 @@ class PersonsTestCase(TestCase):
         self.assertEqual(len(response.redirect_chain), 1)
         self.assert_(response.redirect_chain[0][0].endswith('/persons/organisation/%s' % orga.id))
 
+        response = self.client.get('/persons/organisation/%s' % orga.id)
+        self.assertEqual(response.status_code, 200)
+
     def test_orga_editview01(self):
         self.login()
 
@@ -139,25 +187,215 @@ class PersonsTestCase(TestCase):
         edited_orga = Organisation.objects.get(pk=orga.id)
         self.assertEqual(name, edited_orga.name)
 
-    def test_become_customer(self):
+    def test_orga_listview(self):
         self.login()
 
+        nerv = Organisation.objects.create(user=self.user, name='Nerv')
+        acme = Organisation.objects.create(user=self.user, name='Acme')
+
+        response = self.client.get('/persons/organisations')
+        self.assertEqual(response.status_code, 200)
+
+        try:
+            orgas_page = response.context['entities']
+        except KeyError, e:
+            self.fail(str(e))
+
+        self.assertEqual(3, orgas_page.paginator.count) #3: default orga
+
+        orgas_set = set(orga.id for orga in orgas_page.object_list)
+        self.assert_(nerv.id in orgas_set)
+        self.assert_(acme.id in orgas_set)
+
+    def _build_managed_orga(self):
         try:
             mng_orga = Organisation.objects.create(user=self.user, name='Bebop')
             CremeProperty.objects.create(type_id=PROP_IS_MANAGED_BY_CREME, creme_entity=mng_orga)
-        except IndexError, e:
+        except Exception, e:
             self.fail(str(e))
 
+        return mng_orga
+
+    def _become_test(self, url, relation_type):
+        self.login()
+
+        mng_orga = self._build_managed_orga()
         customer = Contact.objects.create(user=self.user, first_name='Jet', last_name='Black')
 
-        response = self.client.get('/persons/%s/become_customer/%s' % (customer.id, mng_orga.id), follow=True)
+        response = self.client.get(url % (customer.id, mng_orga.id), follow=True)
         self.assertEqual(200, response.status_code)
         self.assert_(response.redirect_chain)
 
         try:
-            Relation.objects.get(subject_entity=customer, object_entity=mng_orga, type=REL_SUB_CUSTOMER_OF)
+            Relation.objects.get(subject_entity=customer, object_entity=mng_orga, type=relation_type)
         except Exception, e:
             self.fail(str(e))
 
+    def test_become_customer(self):
+        self._become_test('/persons/%s/become_customer/%s', REL_SUB_CUSTOMER_OF)
 
-#TODO: tests for edit/delete/detail/list views ; tests for Address model ; test leads_customers view
+    def test_become_prospect(self):
+        self._become_test('/persons/%s/become_prospect/%s', REL_SUB_PROSPECT)
+
+    def test_become_suspect(self):
+        self._become_test('/persons/%s/become_suspect/%s', REL_SUB_SUSPECT)
+
+    def test_become_inactive_customer(self):
+        self._become_test('/persons/%s/become_inactive_customer/%s', REL_SUB_INACTIVE)
+
+    def test_become_supplier(self):
+        self._become_test('/persons/%s/become_supplier/%s', REL_SUB_SUPPLIER)
+
+    def test_leads_customers01(self):
+        self.login()
+
+        self._build_managed_orga()
+        Organisation.objects.create(user=self.user, name='Nerv')
+
+        response = self.client.get('/persons/leads_customers')
+        self.assertEqual(response.status_code, 200)
+
+        try:
+            orgas_page = response.context['entities']
+        except KeyError, e:
+            self.fail(str(e))
+
+        self.assertEqual(0, orgas_page.paginator.count)
+
+    def test_leads_customers02(self):
+        self.login()
+
+        mng_orga = self._build_managed_orga()
+        nerv = Organisation.objects.create(user=self.user, name='Nerv')
+        acme = Organisation.objects.create(user=self.user, name='Acme')
+        fsf  = Organisation.objects.create(user=self.user, name='FSF')
+
+        self.client.get('/persons/%s/become_customer/%s' % (nerv.id, mng_orga.id))
+        self.client.get('/persons/%s/become_prospect/%s' % (acme.id, mng_orga.id))
+        self.client.get('/persons/%s/become_suspect/%s'  % (fsf.id,  mng_orga.id))
+
+        response = self.client.get('/persons/leads_customers')
+        orgas_page = response.context['entities']
+
+        self.assertEqual(3, orgas_page.paginator.count)
+
+        orgas_set = set(orga.id for orga in orgas_page.object_list)
+        self.assert_(nerv.id in orgas_set)
+        self.assert_(acme.id in orgas_set)
+        self.assert_(fsf.id in orgas_set)
+
+    def test_leads_customers03(self):
+        self.login()
+
+        nerv = Organisation.objects.create(user=self.user, name='Nerv')
+        acme = Organisation.objects.create(user=self.user, name='Acme')
+
+        self.client.get('/persons/%s/become_customer/%s' % (nerv.id, acme.id))
+
+        response = self.client.get('/persons/leads_customers')
+        self.assertEqual(0, response.context['entities'].paginator.count)
+
+    def _create_address(self, orga, name, address, po_box, city, state, zipcode, country, department):
+        response = self.client.post('/persons/address/ip_add/%s' % orga.id,
+                                    data={
+                                            'name':       name,
+                                            'address':    address,
+                                            'po_box':     po_box,
+                                            'city':       city,
+                                            'state':      state,
+                                            'zipcode':    zipcode,
+                                            'country':    country,
+                                            'department': department,
+                                         }
+                                   )
+        self.assertEqual(response.status_code, 200)
+
+    def test_address_createview(self):
+        self.login()
+        orga = Organisation.objects.create(user=self.user, name='Nerv')
+
+        self.assertEqual(0, Address.objects.filter(object_id=orga.id).count())
+
+        response = self.client.get('/persons/address/ip_add/%s' % orga.id)
+        self.assertEqual(response.status_code, 200)
+
+        name = 'Address#1'
+        address_value = '21 jump street'
+        po_box = 'Popop'
+        city = 'Antlantis'
+        state = '??'
+        zipcode = '424242'
+        country = 'wtf'
+        department = 'rucrazy'
+
+        self._create_address(orga, name, address_value, po_box, city, state, zipcode, country, department)
+
+        addresses = Address.objects.filter(object_id=orga.id)
+        self.assertEqual(1, len(addresses))
+
+        address = addresses[0]
+        self.assertEqual(name,       address.name)
+        self.assertEqual(address_value, address.address)
+        self.assertEqual(po_box,     address.po_box)
+        self.assertEqual(city,       address.city)
+        self.assertEqual(state,      address.state)
+        self.assertEqual(zipcode,    address.zipcode)
+        self.assertEqual(country,    address.country)
+        self.assertEqual(department, address.department)
+
+    def test_address_editview(self):
+        self.login()
+        orga = Organisation.objects.create(user=self.user, name='Nerv')
+
+        name = 'Address#1'
+        address_value = '21 jump street'
+        po_box = 'Popop'
+        city = 'Antlantis'
+        state = '??'
+        zipcode = '424242'
+        country = 'wtf'
+        department = 'rucrazy'
+
+        self._create_address(orga, name, address_value, po_box, city, state, zipcode, country, department)
+        address = Address.objects.filter(object_id=orga.id)[0]
+
+        response = self.client.get('/persons/address/edit/%s' % address.id)
+        self.assertEqual(response.status_code, 200)
+
+        city = 'Groville'
+        country = 'Groland'
+        response = self.client.post('/persons/address/edit/%s' % address.id,
+                                    data={
+                                            'name':       name,
+                                            'address':    address,
+                                            'po_box':     po_box,
+                                            'city':       city,
+                                            'state':      state,
+                                            'zipcode':    zipcode,
+                                            'country':    country,
+                                            'department': department,
+                                         }
+                                   )
+        self.assertEqual(response.status_code, 200)
+
+        address = Address.objects.get(pk=address.id)
+        self.assertEqual(city,    address.city)
+        self.assertEqual(country, address.country)
+
+    def test_address_deleteview(self):
+        self.login()
+        orga = Organisation.objects.create(user=self.user, name='Nerv')
+
+        self._create_address(orga, 'name', 'address', 'po_box', 'city', 'state', 'zipcode', 'country', 'department')
+        address = Address.objects.filter(object_id=orga.id)[0]
+
+        response = self.client.post('/persons/address/delete', data={'id': address.id})
+        self.assertEqual(0, Address.objects.filter(object_id=orga.id).count())
+
+    def test_portal(self):
+        self.login()
+
+        response = self.client.get('/persons/')
+        self.assertEqual(response.status_code, 200)
+
+#TODO: tests for portal stats ; quickforms
