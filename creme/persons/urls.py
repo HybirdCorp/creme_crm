@@ -19,11 +19,11 @@ urlpatterns = patterns('persons.views',
     (r'^organisation/(?P<organisation_id>\d+)$',      'organisation.detailview'),
     (r'^leads_customers$',                            'organisation.list_my_leads_my_customers'),
 
-    (r'^(?P<entity_id>\d+)/become_customer/(?P<mngd_orga_id>\d+)$',          'crud_relations.become_customer'),
-    (r'^(?P<entity_id>\d+)/become_prospect/(?P<mngd_orga_id>\d+)$',          'crud_relations.become_prospect'),
-    (r'^(?P<entity_id>\d+)/become_suspect/(?P<mngd_orga_id>\d+)$',           'crud_relations.become_suspect'),
-    (r'^(?P<entity_id>\d+)/become_inactive_customer/(?P<mngd_orga_id>\d+)$', 'crud_relations.become_inactive'),
-    (r'^(?P<entity_id>\d+)/become_supplier/(?P<mngd_orga_id>\d+)$',          'crud_relations.become_supplier'),
+    (r'^(?P<entity_id>\d+)/become_customer$',          'crud_relations.become_customer'),
+    (r'^(?P<entity_id>\d+)/become_prospect$',          'crud_relations.become_prospect'),
+    (r'^(?P<entity_id>\d+)/become_suspect$',           'crud_relations.become_suspect'),
+    (r'^(?P<entity_id>\d+)/become_inactive_customer$', 'crud_relations.become_inactive'),
+    (r'^(?P<entity_id>\d+)/become_supplier$',          'crud_relations.become_supplier'),
 
     #(r'^address/from_organisation$',         'address.get_org_addresses'), #Commented on 3 Decemeber 2010
     #(r'^address/add$',                       'address.add'), #Commented on 3 Decemeber 2010    (else: specify Organisation or Contact ??)
