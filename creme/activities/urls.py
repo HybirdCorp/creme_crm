@@ -40,5 +40,5 @@ urlpatterns = patterns('activities.views',
 urlpatterns += patterns('creme_core.views.generic',
     #(r'^edit_js/$', 'creme_core.views.edit_js'),
     (r'^activity/delete/(?P<object_id>\d+)$',               'delete_entity'),
-    (r'^activity/delete_js/(?P<entities_ids>([\d]+[,])+)$', 'delete_entities_js'),
+    #(r'^activity/delete_js/(?P<entities_ids>([\d]+[,])+)$', 'delete_entities_js'), #Commented 6 december 2010
 )
