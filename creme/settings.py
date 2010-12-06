@@ -61,7 +61,7 @@ DATE_FORMAT_JS      = {
 }
 DATE_FORMAT_JS_SEP = '-' #DATE_FORMAT_JS values separator
 DATE_INPUT_FORMATS = (
-    '%d-%m-%Y', '%d/%m/%Y'
+    '%d-%m-%Y', '%d/%m/%Y',
     '%Y-%m-%d',  '%m/%d/%Y', '%m/%d/%y',  '%b %d %Y',
     '%b %d, %Y', '%d %b %Y', '%d %b, %Y', '%B %d %Y',
     '%B %d, %Y', '%d %B %Y', '%d %B, %Y',
