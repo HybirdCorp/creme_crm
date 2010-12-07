@@ -18,7 +18,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from itertools import imap
+from itertools import chain
+from logging import debug, error
 from xml.etree.ElementTree import tostring
 
 from django.db.models import Q
@@ -26,9 +27,11 @@ from django.contrib.auth.models import User
 
 from base import Base
 
-from activesync.contacts import serialize_contact, CREME_CONTACT_MAPPING, save_contact
+from activesync.contacts import (serialize_contact, CREME_CONTACT_MAPPING,
+                                 save_contact, update_contact)
 from activesync.models.active_sync import CremeExchangeMapping
 from activesync import config
+from activesync.constants import CONFLICT_SERVER_MASTER
 
 from persons.models.contact import Contact
 
@@ -55,11 +58,16 @@ class AirSync(Base):
 
         ns0 = "{AirSync:}"
         ns1 = "{Contacts:}"
-        d_ns0 = {'ns0': ns0}
+        d_ns = {'ns0': ns0, 'ns1': ns1}
         exch_map_manager = CremeExchangeMapping.objects
+        exch_map_manager_get = exch_map_manager.get
+        contact_getter = Contact.objects.get
         self.last_synckey = synckey
+        CONFLICT_MODE = config.CONFLICT_MODE
+        IS_SERVER_MASTER = True if CONFLICT_MODE==CONFLICT_SERVER_MASTER else False
+
         options = {
-            'Conflict': config.CONFLICT_MODE,
+            'Conflict': CONFLICT_MODE,
         }
 
         if synckey is None:
@@ -73,33 +81,40 @@ class AirSync(Base):
 
             xml = super(AirSync, self).send({'class': "Contacts", 'synckey': 0, 'server_id': server_id, 'supported': supported, 'extra_ns': extra_ns}, headers={"X-Ms-Policykey": policy_key})
 
-            collection = xml.find('%(ns0)sCollections/%(ns0)sCollection' % d_ns0)
+            collection = xml.find('%(ns0)sCollections/%(ns0)sCollection' % d_ns)
             collection_find   = collection.find
             
-            self.last_synckey = collection_find('%(ns0)sSyncKey' % d_ns0).text
-            status            = collection_find('%(ns0)sStatus' % d_ns0).text
-            server_id         = collection_find('%(ns0)sCollectionId' % d_ns0).text
+            self.last_synckey = collection_find('%(ns0)sSyncKey' % d_ns).text
+            status            = collection_find('%(ns0)sStatus' % d_ns).text
+            server_id         = collection_find('%(ns0)sCollectionId' % d_ns).text
 
         if fetch:
+            ################
+            ##SERVER PART ##
+            ################
             xml2 = super(AirSync, self).send({'class': "Contacts", 'synckey': self.last_synckey, 'server_id': server_id, 'fetch': True, 'extra_ns': extra_ns, 'options': options}, headers={"X-Ms-Policykey": policy_key})
 
-            print "\n\n xml2 :", tostring(xml2), "\n\n"
+#            print "\n\n xml2 :", tostring(xml2), "\n\n"
 
-            add_nodes    = xml2.findall('%(ns0)sCollections/%(ns0)sCollection/%(ns0)sCommands/%(ns0)sAdd' % d_ns0)
-            change_nodes = xml2.findall('%(ns0)sCollections/%(ns0)sCollection/%(ns0)sCommands/%(ns0)sChange' % d_ns0)
+            commands_node = xml2.find('%(ns0)sCollections/%(ns0)sCollection/%(ns0)sCommands' % d_ns)
+            add_nodes    = commands_node.findall('%(ns0)sAdd' % d_ns)    if commands_node else []
+            change_nodes = commands_node.findall('%(ns0)sChange' % d_ns) if commands_node else []
+            delete_nodes = commands_node.findall('%(ns0)sDelete' % d_ns) if commands_node else []
 
-            self.last_synckey = xml2.find('%(ns0)sCollections/%(ns0)sCollection/%(ns0)sSyncKey' % d_ns0).text
+            self.last_synckey = xml2.find('%(ns0)sCollections/%(ns0)sCollection/%(ns0)sSyncKey' % d_ns).text
             
             create = exch_map_manager.create
 
-            print "##Ajouts : len(add_nodes) :", len(add_nodes)
+            #Can be usefull for IHM ?
+            print "##Ajouts      : len(add_nodes) :",    len(add_nodes)
             print "##Changements : len(change_nodes) :", len(change_nodes)
+            print "##Delete      : len(delete_nodes) :", len(delete_nodes)
 
             for add_node in add_nodes:
                 add_node_find = add_node.find
                 
-                server_id_pk  = add_node_find('%(ns0)sServerId' % d_ns0).text#This is the object pk on the server map it whith cremepk
-                app_data      = add_node_find('%(ns0)sApplicationData' % d_ns0)
+                server_id_pk  = add_node_find('%(ns0)sServerId' % d_ns).text#This is the object pk on the server map it whith cremepk
+                app_data      = add_node_find('%(ns0)sApplicationData' % d_ns)
                 app_data_find = app_data.find
 
                 data = {'user': user}
@@ -114,44 +129,155 @@ class AirSync(Base):
                                 data[c_field] = d.text
 
                 contact = save_contact(data, user)
-                create(creme_entity_id=contact.id, exchange_entity_id=server_id_pk, synced=True)
-                print "create :", contact
+                create(creme_entity_id=contact.id, exchange_entity_id=server_id_pk, synced=True, user=user)
+                debug("Create a contact: %s", contact)
 
-        q_not_synced = ~Q(pk__in=exch_map_manager.filter(synced=True).values_list('creme_entity_id', flat=True))
+            for change_node in change_nodes:
+                c_server_id = change_node.find('%(ns0)sServerId' % d_ns).text
+                contact     = None
+                
+                try:
+                    contact_mapping = exch_map_manager_get(exchange_entity_id=c_server_id, user=user)
+                    contact = contact_mapping.get_entity()
+                except CremeExchangeMapping.DoesNotExist:
+                    error("Server changes object with server_id: %s when creme hasn't it or doesn't belongs to %s", c_server_id, user)
+                    continue #TODO: Think about creating it ? / got a mapping issue ?
 
-        add_objects = map(lambda c:  add_object(c, lambda cc: serialize_contact(cc, reverse_ns)), Contact.objects.filter(q_not_synced & Q(is_deleted=False)))
-        xml3 = super(AirSync, self).send({'class': "Contacts", 'synckey': self.last_synckey, 'server_id': server_id, 'fetch': False, 'objects': add_objects, 'extra_ns': extra_ns}, headers={"X-Ms-Policykey": policy_key})
-        xml3_collection = xml3.find('%(ns0)sCollections/%(ns0)sCollection' % d_ns0)
+                if contact is not None:
+                    if not IS_SERVER_MASTER and contact_mapping.is_creme_modified:
+                        #We don't update the contact because creme modified it and it's the master
+                        continue
+
+                    update_data = {}
+                    app_data_node = change_node.find('%(ns0)sApplicationData' % d_ns)
+                    for ns, field_dict in CREME_CONTACT_MAPPING.iteritems():
+                        for c_field, x_field in field_dict.iteritems():
+                            node = app_data_node.find('%(ns1)s%(x_field)s' % {'x_field': x_field, 'ns1': ns1})
+                            if node is not None:
+                                if callable(c_field):
+                                    c_field = c_field(needs_attr=True)
+
+                                update_data[c_field] = node.text
+
+                    debug("Update %s with %s", contact, update_data)
+                    update_contact(contact, update_data)
+
+                    #Server is the master so we unset the creme flag to prevent creme modifications
+                    contact_mapping.is_creme_modified = False
+                    contact_mapping.save()
+
+            for delete_node in delete_nodes:
+                #TODO: Hum, consider refactor this part with changes_nodes
+                c_server_id = delete_node.find('%(ns0)sServerId' % d_ns).text
+                contact     = None
+                c_x_mapping = None
+                try:
+                    c_x_mapping = exch_map_manager_get(exchange_entity_id=c_server_id, user=user)
+                    contact = c_x_mapping.get_entity()
+                except CremeExchangeMapping.DoesNotExist:
+                    error("Server delete object with server_id: %s when creme hasn't it or doesn't belongs to %s", c_server_id, user)
+                    continue #TODO: Think about creating it ? / got a mapping issue ?
+
+                if contact is not None:
+                    if not IS_SERVER_MASTER and c_x_mapping.is_creme_modified:
+                        #We don't delete the contact because creme modified it and it's the master
+                        debug("Creme modified %s, when the server deletes it", contact)
+                    else:
+                        debug("Deleting %s", contact)
+                        contact.delete()
+                    c_x_mapping.delete()
+
+#        q_not_synced = ~Q(pk__in=exch_map_manager.filter(synced=True).values_list('creme_entity_id', flat=True))
+#        add_objects = map(lambda c:  add_object(c, lambda cc: serialize_contact(cc, reverse_ns)), Contact.objects.filter(q_not_synced & Q(is_deleted=False)))
+
+        objects = list(chain(get_add_objects(reverse_ns, user), get_change_objects(reverse_ns, user), get_deleted_objects(user)))
+
+        xml3 = super(AirSync, self).send({'class':     "Contacts",
+                                          'synckey':   self.last_synckey,
+                                          'server_id': server_id,
+                                          'fetch':     False,
+                                          'objects':   objects,
+                                          'extra_ns':  extra_ns
+                                          },
+                                          headers={
+                                            "X-Ms-Policykey": policy_key
+                                          })
+                                          
+        xml3_collection = xml3.find('%(ns0)sCollections/%(ns0)sCollection' % d_ns)
         xml3_collection_find = xml3_collection.find
 
-        print "\n\n xml3 :", tostring(xml3), "\n\n"
+#        print "\n\n xml3 :", tostring(xml3), "\n\n"
 
-        self.last_synckey = xml3_collection_find('%(ns0)sSyncKey' % d_ns0).text
-        status            = xml3_collection_find('%(ns0)sStatus' % d_ns0).text
-        responses         = xml3_collection_find('%(ns0)sResponses' % d_ns0)
+        self.last_synckey = xml3_collection_find('%(ns0)sSyncKey' % d_ns).text
+        status            = xml3_collection_find('%(ns0)sStatus' % d_ns).text
+        responses         = xml3_collection_find('%(ns0)sResponses' % d_ns)
 
         self.synced = {
             "Add":[],
+            "Change": [],
         }
-
+        
         if responses is not None:
-            add_nodes = responses.findall('%(ns0)sAdd' % d_ns0)
+            add_nodes = responses.findall('%(ns0)sAdd' % d_ns)#Present if the "Add" operation succeeded
             add_stack = self.synced['Add']
             add_stack_append = add_stack.append
+
             for add_node in add_nodes:
                 add_node_find = add_node.find
                 add_stack_append({
-                    'client_id' : add_node_find('%(ns0)sClientId' % d_ns0).text, #Creme PK
-                    'server_id' : add_node_find('%(ns0)sServerId' % d_ns0).text, #Server PK
-                    'status'    : add_node_find('%(ns0)sStatus'   % d_ns0).text,
+                    'client_id' : add_node_find('%(ns0)sClientId' % d_ns).text, #Creme PK
+                    'server_id' : add_node_find('%(ns0)sServerId' % d_ns).text, #Server PK
+                    'status'    : add_node_find('%(ns0)sStatus'   % d_ns).text,
                 })
 
-#            change_nodes = 
-            
+            change_nodes = responses.findall('%(ns0)sChange' % d_ns)#Present if the "Change" operation failed
+            change_stack = self.synced['Change']
+            change_stack_append = change_stack.append
+            for change_node in change_nodes:
+                change_node_find = change_node.find
+                change_stack_append({
+                    'server_id' : change_node_find('%(ns0)sServerId' % d_ns).text, #Server PK
+                    'status'    : change_node_find('%(ns0)sStatus'   % d_ns).text, #Error status
+                })
 
+            
 def add_object(o, serializer):
     return "<Add><ClientId>%s</ClientId><ApplicationData>%s</ApplicationData></Add>" % (o.id, serializer(o))
 
+def get_add_objects(reverse_ns, user):
+    q_not_synced = ~Q(pk__in=CremeExchangeMapping.objects.filter(synced=True).values_list('creme_entity_id', flat=True))
+    objects = []
+    
+    for contact in Contact.objects.filter(q_not_synced & Q(is_deleted=False, user=user)):
+        objects.append(add_object(contact, lambda cc: serialize_contact(cc, reverse_ns)))
+        
+    return objects
+#    return map(lambda c:  add_object(c, lambda cc: serialize_contact(cc, reverse_ns)), Contact.objects.filter(q_not_synced & Q(is_deleted=False)))
+
+
+def change_object(o, serializer):
+    return "<Change><ServerId>%s</ServerId><ApplicationData>%s</ApplicationData></Change>" % (o.id, serializer(o))
+
+def get_change_objects(reverse_ns, user):
+    modified_ids = CremeExchangeMapping.objects.filter(is_creme_modified=True, user=user).values_list('creme_entity_id', flat=True)
+    objects = []
+    
+    for contact in Contact.objects.filter(id__in=modified_ids):
+        objects.append(change_object(contact, lambda cc: serialize_contact(cc, reverse_ns)))#Naive version send all attribute even it's not modified
+
+    return objects
+
+def delete_object(server_id):
+    return "<Delete><ServerId>%s</ServerId></Delete>" % server_id
+
+def get_deleted_objects(user):
+    deleted_ids = CremeExchangeMapping.objects.filter(was_deleted=True, user=user).values_list('exchange_entity_id', flat=True)
+    objects = []
+    
+    for server_id in deleted_ids:
+        objects.append(delete_object(server_id))
+        
+    return objects
 
 #<ns0:Sync xmlns:ns0="AirSync:">
 #    <ns0:Collections>
