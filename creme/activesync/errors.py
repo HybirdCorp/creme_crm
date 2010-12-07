@@ -18,11 +18,22 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-#SERVER_URL = "http://127.0.0.1/Microsoft-Server-ActiveSync"
-#USER = "raph"
-#PWD  = "raph"
-#CLIENT_ID = "64F55E2D0EE7A12E717863BA8048BED1"
+from django.utils.translation import ugettext as _
 
-IS_ZPUSH = True
+################################################################################
+# Creme active sync constants
+SYNC_ERR_FORBIDDEN               = -1
+SYNC_ERR_WRONG_CFG_NO_SERVER_URL = 0
+SYNC_ERR_WRONG_CFG_NO_LOGIN      = 1
+SYNC_ERR_WRONG_CFG_NO_PWD        = 2
 
-CONFLICT_MODE = 1 #0 Client object replaces server object. / 1 Server object replaces client object.
+SYNC_ERR_VERBOSE = {
+    SYNC_ERR_FORBIDDEN: _(u"Wrong username and/or password"),
+    SYNC_ERR_WRONG_CFG_NO_SERVER_URL: _(u"No server url, please fill in information in global settings configuration or in your own settings"),
+    SYNC_ERR_WRONG_CFG_NO_LOGIN: _(u"No login, please fill in information in your own settings"),
+    SYNC_ERR_WRONG_CFG_NO_PWD: _(u"No password, please fill in information in your own settings"),
+}
+
+class CremeActiveSyncError(Exception):
+    def __init__(self, msg):
+        super(CremeActiveSyncError, self).__init__(SYNC_ERR_VERBOSE.get(msg, msg))

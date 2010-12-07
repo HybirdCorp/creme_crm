@@ -1,0 +1,37 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2010-11-16 15:50+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n>1;\n"
+
+#: errors.py:28
+msgid "Wrong username and/or password"
+msgstr "Mauvais nom d'utilisateur et/ou mot de passe"
+
+#: sync.py:61
+msgid ""
+"No server url, please fill in information in global settings configuration "
+"or in your own settings"
+msgstr ""
+
+#: sync.py:84
+msgid "No login, please fill in information in your own settings"
+msgstr ""
+
+#: sync.py:91
+msgid "No password, please fill in information in your own settings"
+msgstr ""

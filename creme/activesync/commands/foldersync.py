@@ -38,6 +38,7 @@ class FolderSync(Base):
         try:
             xml = super(FolderSync, self).send({'synckey': sync_key}, headers={"X-Ms-Policykey": policy_key})
         except restkit.errors.RequestFailed, r:
+            print "Error:" ,r.response.status
             if r.status_int == 449:
                 self.status = SYNC_NEED_CURRENT_POLICY
 

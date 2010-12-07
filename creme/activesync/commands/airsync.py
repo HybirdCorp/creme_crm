@@ -85,13 +85,15 @@ class AirSync(Base):
 
             print "\n\n xml2 :", tostring(xml2), "\n\n"
 
-            add_nodes = xml2.findall('%(ns0)sCollections/%(ns0)sCollection/%(ns0)sCommands/%(ns0)sAdd' % d_ns0)
+            add_nodes    = xml2.findall('%(ns0)sCollections/%(ns0)sCollection/%(ns0)sCommands/%(ns0)sAdd' % d_ns0)
+            change_nodes = xml2.findall('%(ns0)sCollections/%(ns0)sCollection/%(ns0)sCommands/%(ns0)sChange' % d_ns0)
 
             self.last_synckey = xml2.find('%(ns0)sCollections/%(ns0)sCollection/%(ns0)sSyncKey' % d_ns0).text
             
             create = exch_map_manager.create
 
-            print "len(add_nodes) :", len(add_nodes)
+            print "##Ajouts : len(add_nodes) :", len(add_nodes)
+            print "##Changements : len(change_nodes) :", len(change_nodes)
 
             for add_node in add_nodes:
                 add_node_find = add_node.find
@@ -124,8 +126,8 @@ class AirSync(Base):
 
         print "\n\n xml3 :", tostring(xml3), "\n\n"
 
-        self.last_synckey = xml3_collection_find('%(ns0)sSynckey' % d_ns0)
-        status            = xml3_collection_find('%(ns0)sStatus' % d_ns0)
+        self.last_synckey = xml3_collection_find('%(ns0)sSyncKey' % d_ns0).text
+        status            = xml3_collection_find('%(ns0)sStatus' % d_ns0).text
         responses         = xml3_collection_find('%(ns0)sResponses' % d_ns0)
 
         self.synced = {
