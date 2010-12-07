@@ -1,8 +1,3 @@
-from creme.creme_core.views.file_handling import MAXINT
-from django.contrib.contenttypes.models import ContentType
-from creme.media_managers.models.image import Image
-from django.core.files.base import ContentFile
-import base64
 # -*- coding: utf-8 -*-
 
 ################################################################################
@@ -22,14 +17,17 @@ import base64
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
+import base64
+from random import randint
+
+from django.contrib.contenttypes.models import ContentType
+from django.core.files.base import ContentFile
 
 from activesync.config import IS_ZPUSH
 from creme_core.utils.meta import get_field_infos
-from creme_core.views.file_handling import handle_uploaded_file
-
-from random import randint
+from creme_core.views.file_handling import handle_uploaded_file, MAXINT
 from persons.models import PeopleFunction, Contact, Civility, Address
-
+from media_managers.models.image import Image
 
 def get_encoded_contact_img(contact=None, needs_attr=False, *args, **kwargs):
     if needs_attr:
@@ -43,66 +41,6 @@ def get_repr(contact=None, needs_attr=False, *args, **kwargs):
     if needs_attr:
         return ''
     return unicode(contact)
-
-def save_contact(data, user):
-    """Save a contact from a populated data dict
-        @Returns : A saved contact instance
-    """
-    c = Contact()
-    ct_contact = ContentType.objects.get_for_model(Contact)
-    pop_ = data.pop
-    
-    pop_('', None)
-
-    civility_name = pop_('civility__civility_name', None)
-    if civility_name is not None:
-        c.civility = Civility.objects.get_or_create(civility_name=civility_name)[0]
-
-    function_name = pop_('function__function_name', None)
-    if function_name is not None:
-        c.function = PeopleFunction.objects.get_or_create(function_name=function_name)[0]
-
-    b_address = Address(city=pop_('billing_adress__city', None),
-                        state=pop_('billing_adress__state', None),
-                        country=pop_('billing_adress__country', None),
-                        po_box=pop_('billing_adress__po_box', None),
-                        address=pop_('billing_adress__address', None))
-
-    s_address = Address(city=pop_('shipping_adress__city', None),
-                        state=pop_('shipping_adress__state', None),
-                        country=pop_('shipping_adress__country', None),
-                        po_box=pop_('shipping_adress__po_box', None),
-                        address=pop_('shipping_adress__address', None))
-
-    c.billing_adress  = b_address
-    c.shipping_adress = s_address
-
-    image_b64 = pop_('image', None)
-    if image_b64 is not None:
-        image_format = Image.get_image_format(image_b64)
-        i = Image()
-        i.image = handle_uploaded_file(ContentFile(base64.decodestring(image_b64)), path=['upload','images'], name='file_%08x.%s' % (randint(0, MAXINT), image_format))
-        i.user = user
-        i.save()
-        c.image = i
-        
-    c.user = user
-
-    c.__dict__.update(data)
-
-    c.save()
-
-    b_address.content_type = ct_contact
-    b_address.object_id = c.id
-    b_address.save()
-
-    s_address.content_type = ct_contact
-    s_address.object_id = c.id
-    s_address.save()
-    
-    return c
-
-
 
 CREME_CONTACT_MAPPING = {
     'Contacts:':
@@ -145,6 +83,127 @@ CREME_CONTACT_MAPPING = {
 
 if not IS_ZPUSH:
     CREME_CONTACT_MAPPING['AirSyncBase:'].update({'description': 'Body'})
+
+
+### Contact helpers
+def create_or_update_adress(contact, prefix, d):
+    dpop_ = d.pop
+    adress = getattr(contact, '%s_adress' % prefix)#if exception happens means model change
+    if adress is not None:
+        city = dpop_('%s_adress__city' % prefix, None)
+        if city:
+            adress.city = city
+
+        state = dpop_('%s_adress__state' % prefix, None)
+        if state:
+            adress.state = state
+
+        country = dpop_('%s_adress__country' % prefix, None)
+        if country:
+            adress.country = country
+
+        po_box = dpop_('%s_adress__po_box' % prefix, None)
+        if po_box:
+            adress.po_box = po_box
+
+        _address = dpop_('%s_adress__address' % prefix, None)
+        if _address:
+            adress.address = _address
+
+        adress.save()
+    else:
+        c_address = Address(city=dpop_('%s_adress__city' % prefix, None),
+                    state=dpop_('%s_adress__state' % prefix, None),
+                    country=dpop_('%s_adress__country' % prefix, None),
+                    po_box=dpop_('%s_adress__po_box' % prefix, None),
+                    address=dpop_('%s_adress__address' % prefix, None))
+        c_address.content_type = ContentType.objects.get_for_model(Contact)
+        c_address.object_id = contact.id
+        c_address.save()
+        setattr(contact, '%s_adress' % prefix, c_address)
+
+def create_or_update_civility(contact, d):
+    civility_name = d.pop('civility__civility_name', None)
+    if civility_name is not None:
+        contact.civility = Civility.objects.get_or_create(civility_name=civility_name)[0]
+
+def create_or_update_function(contact, d):
+    function_name = d.pop('function__function_name', None)
+    if function_name is not None:
+        contact.function = PeopleFunction.objects.get_or_create(function_name=function_name)[0]
+
+def create_image_from_b64(contact, d, user):
+    image_b64 = d.pop('image', None)
+    if image_b64 is not None:
+        image_format = Image.get_image_format(image_b64)
+        i = Image()
+        i.image = handle_uploaded_file(ContentFile(base64.decodestring(image_b64)), path=['upload','images'], name='file_%08x.%s' % (randint(0, MAXINT), image_format))
+        i.user = user
+        i.save()
+        contact.image = i
+###
+
+def save_contact(data, user):
+    """Save a contact from a populated data dict
+        @Returns : A saved contact instance
+    """
+    c = Contact()
+    ct_contact = ContentType.objects.get_for_model(Contact)
+    pop_ = data.pop
+    
+    pop_('', None)
+
+    create_or_update_civility(c, data)
+    create_or_update_function(c, data)
+
+    b_address = Address(city=pop_('billing_adress__city', None),
+                        state=pop_('billing_adress__state', None),
+                        country=pop_('billing_adress__country', None),
+                        po_box=pop_('billing_adress__po_box', None),
+                        address=pop_('billing_adress__address', None))
+    c.billing_adress  = b_address
+
+    s_address = Address(city=pop_('shipping_adress__city', None),
+                        state=pop_('shipping_adress__state', None),
+                        country=pop_('shipping_adress__country', None),
+                        po_box=pop_('shipping_adress__po_box', None),
+                        address=pop_('shipping_adress__address', None))
+    c.shipping_adress = s_address
+
+    create_image_from_b64(c, data, user)
+        
+    c.user = user
+    c.__dict__.update(data)
+    c.save()
+
+    b_address.content_type = ct_contact
+    b_address.object_id = c.id
+    b_address.save()
+
+    s_address.content_type = ct_contact
+    s_address.object_id = c.id
+    s_address.save()
+    
+    return c
+
+def update_contact(contact, data):
+    """Update a contact instance from a updated data dict
+        @Returns : A saved contact instance
+    """
+    pop_ = data.pop
+    pop_('', None)
+    
+    create_or_update_civility(contact, data)
+    create_or_update_function(contact, data)
+
+    create_or_update_adress(contact, 'billing',  data)
+    create_or_update_adress(contact, 'shipping', data)
+
+    create_image_from_b64(contact, data, contact.user)
+
+    contact.__dict__.update(data)
+    contact.save()
+    return contact
 
 def serialize_contact(contact, namespaces):
     """Serialize a contact in xml respecting namespaces prefixes
