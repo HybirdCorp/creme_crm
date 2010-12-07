@@ -3,8 +3,8 @@
 ################################################################################
 # Folder sync / Provisionning
 
-SYNC_NEED_CURRENT_POLICY = 142
-
+SYNC_REMOTE_WIPE_REQUESTED = 140
+SYNC_NEED_CURRENT_POLICY   = 142
 
 ################################################################################
 #Provisionning

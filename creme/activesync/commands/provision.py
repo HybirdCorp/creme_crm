@@ -19,7 +19,7 @@
 ################################################################################
 
 from creme.activesync.contacts import IS_ZPUSH
-from activesync.constants import SYNC_PROVISION_RWSTATUS_NA
+from activesync.constants import SYNC_PROVISION_RWSTATUS_NA, SYNC_PROVISION_RWSTATUS_WIPED
 
 from base import Base
 
@@ -32,15 +32,20 @@ class Provision(Base):
         super(Provision, self).__init__(*args, **kwargs)
         self._create_connection()
 
-    def send(self, policy_key=0):
+    def send(self, policy_key=0, remote_wipe=False):
         policy_type = 'MS-EAS-Provisioning-WBXML'
 #        policy_type = 'MS-WAP-Provisioning-XML'
 
+        if remote_wipe:
+            xml = super(Provision, self).send({'rw_status': 1}, headers={"X-Ms-Policykey": policy_key})#TODO:Make constant with the 1
+            self.policy_key = self.get_policy_key(xml)
+            return
+        
         settings = True
         if IS_ZPUSH:
             settings = False
             policy_type = 'MS-WAP-Provisioning-XML'
-            
+
         if policy_key == 0:
             xml = super(Provision, self).send({'settings': settings, 'policy_type': policy_type}, headers={"X-Ms-Policykey": policy_key})
             self.policy_key = self.get_policy_key(xml)

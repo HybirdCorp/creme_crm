@@ -28,7 +28,7 @@ class CremeExchangeMapping(CremeModel):
     creme_entity_id    = models.IntegerField(u'Creme entity pk', unique=True)
     exchange_entity_id = models.CharField(u'Exchange entity pk', max_length=64, unique=True)
     synced             = models.BooleanField(u'Already synced on server', default=False)
-
+    
     def __unicode__(self):
         return u"<CremeExchangeMapping ce_id: <%s>, ex_id: <%s> >" % (self.creme_entity_id, self.exchange_entity_id)
 
@@ -39,10 +39,11 @@ class CremeExchangeMapping(CremeModel):
 
 
 class CremeClient(CremeModel):
-    user       = models.ForeignKey(User, verbose_name=u'Assigned to')
-    client_id  = models.CharField(u'Creme Client ID', max_length=32,  default=generate_guid())
-    policy_key = models.CharField(u'Last policy key', max_length=200, default=0)
-    sync_key   = models.CharField(u'Last sync key',   max_length=200, default=None, blank=True, null=True)
+    user               = models.ForeignKey(User, verbose_name=u'Assigned to')
+    client_id          = models.CharField(u'Creme Client ID',   max_length=32,  default=generate_guid())
+    policy_key         = models.CharField(u'Last policy key',   max_length=200, default=0)
+    sync_key           = models.CharField(u'Last sync key',     max_length=200, default=None, blank=True, null=True)
+    contact_folder_id  = models.CharField(u'Contact folder id', max_length=64,  default=None, blank=True, null=True)
 
     def __unicode__(self):
         return u"<CremeClient for <%s> >" % self.user

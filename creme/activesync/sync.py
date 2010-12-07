@@ -28,12 +28,14 @@ from creme_config.constants import (MAPI_DOMAIN, MAPI_SERVER_SSL, MAPI_SERVER_UR
                                     USER_MOBILE_SYNC_SERVER_SSL,
                                     USER_MOBILE_SYNC_SERVER_URL)
 
+from activesync.errors import (CremeActiveSyncError,
+                               SYNC_ERR_WRONG_CFG_NO_SERVER_URL,
+                               SYNC_ERR_WRONG_CFG_NO_LOGIN,
+                               SYNC_ERR_WRONG_CFG_NO_PWD)
+                               
 from activesync.models.active_sync import CremeClient, CremeExchangeMapping
 from activesync.commands import FolderSync, Provision, AirSync
 from activesync.constants import SYNC_FOLDER_TYPE_CONTACT, SYNC_NEED_CURRENT_POLICY
-
-class WrongSyncConfig(Exception):
-    pass
 
 class Synchronization(object):
     """
@@ -44,9 +46,10 @@ class Synchronization(object):
         self.client = CremeClient.objects.get_or_create(user=user)[0]
         self.client_id  = self.client.client_id
         self.policy_key = self.client.policy_key
+        self.contact_folder_id = self.client.contact_folder_id
         self.sync_key = self.client.sync_key
         user_id = user.id
-
+        
         ckv_get = CremeKVConfig.objects.get
         ckv_doesnotexist = CremeKVConfig.DoesNotExist
 
@@ -58,7 +61,7 @@ class Synchronization(object):
             try:
                 self.server_url = ckv_get(pk=MAPI_SERVER_URL).value
             except ckv_doesnotexist:
-                raise WrongSyncConfig(_(u"No server url, please fill in information in global settings configuration or in your own settings"))
+                raise CremeActiveSyncError(SYNC_ERR_WRONG_CFG_NO_SERVER_URL)
 
         try:
             self.domain = ckv_get(pk=USER_MOBILE_SYNC_SERVER_DOMAIN % user_id).value
@@ -81,14 +84,14 @@ class Synchronization(object):
             if self.login.strip() == u"":
                 raise ckv_doesnotexist
         except ckv_doesnotexist:
-            raise WrongSyncConfig(_(u"No login, please fill in information in your own settings"))
-
+            raise CremeActiveSyncError(SYNC_ERR_WRONG_CFG_NO_LOGIN)
+        
         try:
             self.pwd = ckv_get(pk=USER_MOBILE_SYNC_SERVER_PWD % user_id).value
             if self.pwd.strip() == u"":
                 raise ckv_doesnotexist
         except ckv_doesnotexist:
-            raise WrongSyncConfig(_(u"No password, please fill in information in your own settings"))
+            raise CremeActiveSyncError(SYNC_ERR_WRONG_CFG_NO_PWD)
 
         self.params = (self.server_url, self.login, self.pwd, self.client_id)
 
@@ -98,9 +101,9 @@ class Synchronization(object):
         sync_key   = self.sync_key or 0
         contacts   = []
         provisionned = False
-
+        
         fs = self.folder_sync(policy_key, sync_key)#Try to sync server folders
-
+        
         if fs.status == SYNC_NEED_CURRENT_POLICY:
             #Permission denied we need a new policy_key
             provisionned = True
@@ -114,9 +117,18 @@ class Synchronization(object):
         #For the moment we fetch only the contacts folder
         contacts = filter(lambda x: int(x['type']) == SYNC_FOLDER_TYPE_CONTACT, fs.add)
 
+        self.client.sync_key = fs.synckey
+        
         if contacts:#The contact folder exists
             contact_folder = contacts[0]
             serverid       = contact_folder.get('serverid')#Contact folder id
+
+        if self.contact_folder_id:
+            serverid = self.contact_folder_id
+
+        if serverid:
+            self.client.contact_folder_id = serverid
+            print "----CONTACT FOLDER :", serverid
 
             if provisionned:
                 as_ = self.sync(policy_key, serverid, None, True, user=self.user)
@@ -124,14 +136,14 @@ class Synchronization(object):
                 as_ = self.sync(policy_key, serverid, fs.synckey, True, user=self.user)
 
             self.client.sync_key = as_.last_synckey
-            self.client.policy_key = policy_key
-
+            
             create = CremeExchangeMapping.objects.create
             for synced in as_.synced['Add']:#Only add for the moment
                 client_id = synced.get('client_id')
                 server_id = synced.get('server_id')
                 create(creme_entity_id=client_id, exchange_entity_id=server_id, synced=True)#Create objects
 
+        self.client.policy_key = policy_key
         self.client.save()
 
     def sync(self, policy_key, serverid, synckey=None, fetch=True, user=None):

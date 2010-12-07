@@ -19,8 +19,10 @@
 ################################################################################
 
 import libxml2
+import restkit.errors
 from xml.etree.ElementTree import fromstring, tostring
 
+from activesync.errors import SYNC_ERR_FORBIDDEN, CremeActiveSyncError
 from activesync.wbxml.dtd import AirsyncDTD_Reverse
 from activesync.wbxml.codec2 import WBXMLEncoder
 
@@ -46,15 +48,21 @@ class Base(object):
         self.connection = Connection.create(self.url, self.user, self.password, *args, **kwargs)
 
     def _encode(self, content):
+        print "\n==Request==\n",content,"\n"
         return self.encoder(content)
 #        return self.encoder(libxml2.parseDoc(content))
 
     def _decode(self, content):
 #        return self.decoder(content)
+        print "\n==Response==\n",str(self.decoder(content)),"\n"
+#        print "\n==Response==\n",tostring(fromstring(str(self.decoder(content)))),"\n"
         return fromstring(str(self.decoder(content)))#Trick to use ElementTree instead of libxml2 in waiting for own ElementTree parser
 
     def _send(self, encoded_content, *args, **kwargs):
-        return self.connection.send(self.command, encoded_content, self.device_id, *args, **kwargs)
+        try:
+            return self.connection.send(self.command, encoded_content, self.device_id, *args, **kwargs)
+        except restkit.errors.Unauthorized:
+            raise CremeActiveSyncError(SYNC_ERR_FORBIDDEN)
 
     def send(self, template_dict, *args, **kwargs):
         content = render_to_string(self.template_name, template_dict)
