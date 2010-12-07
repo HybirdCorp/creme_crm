@@ -24,3 +24,5 @@ PWD  = "raph"
 CLIENT_ID = "64F55E2D0EE7A12E717863BA8048BED1"
 
 IS_ZPUSH = True
+
+CONFLICT_MODE = 1 #0 Client object replaces server object. / 1 Server object replaces client object.

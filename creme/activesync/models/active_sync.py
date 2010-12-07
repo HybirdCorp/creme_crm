@@ -25,8 +25,9 @@ from creme_core.models.base import CremeModel
 from activesync.utils import generate_guid
 
 class CremeExchangeMapping(CremeModel):
-    creme_entity_id    = models.IntegerField(u'Creme entity pk')
-    exchange_entity_id = models.CharField(u'Exchange entity pk', max_length=64)
+    creme_entity_id    = models.IntegerField(u'Creme entity pk', unique=True)
+    exchange_entity_id = models.CharField(u'Exchange entity pk', max_length=64, unique=True)
+    synced             = models.BooleanField(u'Already synced on server', default=False)
 
     def __unicode__(self):
         return u"<CremeExchangeMapping ce_id: <%s>, ex_id: <%s> >" % (self.creme_entity_id, self.exchange_entity_id)

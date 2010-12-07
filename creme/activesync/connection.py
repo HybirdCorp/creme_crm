@@ -19,8 +19,12 @@
 ################################################################################
 
 import libxml2
-from restkit import Resource, BasicAuth
+from restkit import Resource, BasicAuth, set_logging
 from wbxml.converters import XMLToWBXML, WBXMLToXML
+
+#set_logging("debug")
+set_logging("error")
+#set_logging("info")
 
 class Connection(Resource):
     def __init__(self,  url, pool_instance=None, **kwargs):

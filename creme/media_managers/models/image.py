@@ -21,6 +21,11 @@
 import base64
 import mimetypes
 
+try:
+    from PIL import ImageFile as PILImageFile
+except ImportError:
+    import ImageFile as PILImageFile #TODO: Verify on other distributions
+
 from django.db.models import CharField, TextField, ImageField, ManyToManyField
 from django.utils.translation import ugettext_lazy as _
 from django.utils.safestring import mark_safe
@@ -99,5 +104,12 @@ class Image(CremeEntity):
         for ch in self.image.file.chunks():
             encoded += encoder(ch)
         return encoded
-        
+
+    @staticmethod
+    def get_image_format(image_base64_str):
+        p = PILImageFile.Parser()
+        p.feed(base64.decodestring(image_base64_str))
+        return p.close().format
+
+
 #    image_file = property(get_image_file)
