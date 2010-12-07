@@ -1,0 +1,2 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Provision xmlns="Provision:" xmlns:settings="Settings:">{% if policy_type %}<Policies><Policy><PolicyType>{{policy_type}}</PolicyType>{% if policy_key %}<PolicyKey>{{policy_key}}</PolicyKey>{% endif %}{% if policy_status %}<Status>{{policy_status}}</Status>{% endif %}</Policy></Policies>{% endif %}{% if rw_status >= 0 %}<RemoteWipe><Status>{{rw_status}}</Status></RemoteWipe>{% endif %}</Provision>
