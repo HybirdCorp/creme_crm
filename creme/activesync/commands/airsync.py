@@ -38,7 +38,7 @@ class AirSync(Base):
     def send(self, policy_key, server_id, synckey):
         xml = super(AirSync, self).send({'class': "Contacts", 'synckey': 0, 'server_id': server_id}, headers={"X-Ms-Policykey": policy_key})
         ns0 = "{AirSync:}"
-        ns1 = "{POOMCONTACTS:}"
+        ns1 = "{Contacts:}"
 
         new_synckey = xml.find('%sCollections/%sCollection/%sSyncKey' % (ns0, ns0, ns0)).text
         status      = xml.find('%sCollections/%sCollection/%sStatus' % (ns0, ns0, ns0)).text

@@ -183,19 +183,43 @@ class WBXMLEncoder(object):
 #        _debuglog('Exit _encode_node')
 #        return
 
+#    def _encode_node(self, node):
+#        children  = node.getchildren()
+#
+#        ns  = self.get_ns(node.tag)
+#        tag = (ns, self.get_tag(node.tag, ns))
+#
+#        self.start_tag(tag, False, False)
+#        if children:
+#            for child in children:
+#                self._encode_node(child)
+#        elif node.text:
+#            self.content(node.text)
+#        self.end_tag()
+
     def _encode_node(self, node):
         children  = node.getchildren()
+        node_text = node.text
 
         ns  = self.get_ns(node.tag)
         tag = (ns, self.get_tag(node.tag, ns))
 
-        self.start_tag(tag, False, False)
+        if children or node_text:
+            self.start_tag(tag, False, False)
+        else:
+            self.start_tag(tag, False, True)
+
         if children:
             for child in children:
                 self._encode_node(child)
-        elif node.text:
-            self.content(node.text)
-        self.end_tag()
+                
+        elif node_text:
+            self.content(node_text)
+
+        if not children and not node_text:
+            self._output_stack()
+        else:
+            self.end_tag()
 
     def _processNode(node, encoder):
 	_debuglog("processNode")

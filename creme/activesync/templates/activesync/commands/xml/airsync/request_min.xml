@@ -1,2 +1,2 @@
 <?xml version="1.0" encoding="utf-8"?>
-<Sync xmlns="AirSync:" xmlns:A1="POOMCONTACTS:"><Collections><Collection><Class>{{class}}</Class><SyncKey>{{synckey}}</SyncKey><CollectionId>{{server_id}}</CollectionId>{% if synckey == 0 %}<Supported><A1:FirstName/><A1:JobTitle/><A1:Department/></Supported>{% else %}<DeletesAsMoves/><GetChanges/>{% endif %}</Collection></Collections></Sync>
+<Sync xmlns="AirSync:" xmlns:A1="Contacts:"><Collections><Collection><Class>{{class}}</Class><SyncKey>{{synckey}}</SyncKey><CollectionId>{{server_id}}</CollectionId>{% if synckey == 0 %}<Supported><A1:FirstName/><A1:JobTitle/><A1:Department/></Supported>{% else %}<DeletesAsMoves/><GetChanges/>{% endif %}</Collection></Collections></Sync>
