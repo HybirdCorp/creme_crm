@@ -28,6 +28,8 @@ from creme_core.gui.block import Block, QuerysetBlock, BlocksManager
 from creme_core.utils import jsonify
 
 from creme_config.registry import config_registry
+from creme_config.constants import MAPI_SERVER_URL, MAPI_DOMAIN, MAPI_SERVER_SSL
+from creme_config.models.config_models import CremeKVConfig
 
 _PAGE_SIZE = 12
 
@@ -280,6 +282,41 @@ class UserPreferedMenusBlock(QuerysetBlock):
                                                             update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
                                                            ))
 
+class MobileSyncConfigBlock(Block):
+    id_           = Block.generate_id('creme_config', 'mobile_sync')
+    dependencies  = ()
+    verbose_name  = _(u'Mobile synchronisation')
+    template_name = 'creme_config/templatetags/block_mobile_sync.html'
+
+    def detailview_display(self, context):
+        try:
+            server_url = CremeKVConfig.objects.get(pk=MAPI_SERVER_URL)
+        except CremeKVConfig.DoesNotExist:
+            server_url = CremeKVConfig(id=MAPI_SERVER_URL, value="")
+            server_url.save()
+
+        try:
+            server_domain = CremeKVConfig.objects.get(pk=MAPI_DOMAIN)
+        except CremeKVConfig.DoesNotExist:
+            server_domain = CremeKVConfig(id=MAPI_DOMAIN, value="")
+            server_domain.save()
+
+        try:
+    #        server_ssl = CremeKVConfig.objects.get(pk=MAPI_SERVER_SSL)
+            is_server_ssl = CremeKVConfig.get_int_value(MAPI_SERVER_SSL)
+        except CremeKVConfig.DoesNotExist:
+            server_ssl = CremeKVConfig(id=MAPI_SERVER_SSL, value="0")
+            server_ssl.save()
+            is_server_ssl = 0
+        except ValueError:
+            is_server_ssl = 0
+
+        return self._render(self.get_block_template_context(context,
+                                                            url=server_url.value,
+                                                            domain=server_domain.value,
+                                                            ssl=is_server_ssl,
+                                                            update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,))
+
 generic_models_block = GenericModelsBlock()
 custom_fields_block  = CustomFieldsBlock()
 
@@ -299,4 +336,5 @@ blocks_list = (
         UserRolesBlock(),
         DefaultCredentialsBlock(),
         UserPreferedMenusBlock(),
+        MobileSyncConfigBlock(),
     )

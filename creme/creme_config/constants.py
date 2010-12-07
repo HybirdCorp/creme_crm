@@ -18,14 +18,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from creme_core.management.commands.creme_populate import BasePopulator
-from creme_core.utils import create_or_update_models_instance as create
-
-from creme_config.constants import MAPI_DOMAIN, MAPI_SERVER_SSL, MAPI_SERVER_URL
-from creme_config.models.config_models import CremeKVConfig
-
-class Populator(BasePopulator):
-    def populate(self, *args, **kwargs):
-        create(CremeKVConfig, id=MAPI_SERVER_URL, value="")
-        create(CremeKVConfig, id=MAPI_DOMAIN,     value="")
-        create(CremeKVConfig, id=MAPI_SERVER_SSL, value="0")
+MAPI_SERVER_URL = "mapi-server_url"
+MAPI_DOMAIN     = "mapi-domain"
+MAPI_SERVER_SSL = "mapi-server_ssl"

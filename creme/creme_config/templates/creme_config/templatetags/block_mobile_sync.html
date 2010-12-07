@@ -1,0 +1,32 @@
+{% load i18n %}
+{% load media %}
+{% load creme_block %}
+<table class="table_detail_view ui-corner-all" id={{block_name}}>
+    <thead>
+        <tr>
+            <th colspan="2"><img src="{% media_url 'images/phone_sync_48.png' %}" alt="{% trans 'Phone synchronisation' %}" title="{% trans 'Phone synchronisation' %}"/>{% trans "Default mobile synchronisation configuration" %}</th>
+        </tr>
+    </thead>
+    <tbody class="collapsable">
+        <tr>
+            <th class="block_header_line_light" style="font-size:14px;" align="left" colspan="100">
+                <a class="button_link" onclick="creme.utils.innerPopupNReload('/creme_config/mobile_synchronisation/edit', {% get_block_reload_uri %});">
+                    <img src="{% media_url 'images/edit_22.png' %}" border="0" alt="{% trans "Edit" %}"/>
+                    {% trans "Edit" %}
+                </a>
+            </th>
+        </tr>
+        <tr>
+            <th class="block_header_line_light th_info">{% trans "Server url" %}</th>
+            <td class="block_line_light td_info">{{url}}</td>
+        </tr>
+        <tr>
+            <th class="block_header_line_light th_info">{% trans "Domain" %}</th>
+            <td class="block_line_light td_info">{{domain}}</td>
+        </tr>
+        <tr>
+            <th class="block_header_line_dark th_info">{% trans "Is secure" %}</th>
+            <td class="block_line_dark td_info">{{ssl}}</td>
+        </tr>
+    </tbody>
+</table>

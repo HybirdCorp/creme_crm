@@ -53,7 +53,7 @@ class GeneralConfig(Model):
 
 
 class CremeKVConfig(Model):
-    id    = CharField(primary_key=True, max_length=100, blank=False, null=False)
+    id     = CharField(primary_key=True, max_length=100, blank=False, null=False)
     value  = CharField(max_length=100, blank=False, null=False)
 
     @staticmethod
