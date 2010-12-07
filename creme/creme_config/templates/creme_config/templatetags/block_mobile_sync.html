@@ -1,6 +1,7 @@
 {% load i18n %}
 {% load media %}
 {% load creme_block %}
+{% load creme_core_tags %}
 <table class="table_detail_view ui-corner-all" id={{block_name}}>
     <thead>
         <tr>
@@ -26,7 +27,7 @@
         </tr>
         <tr>
             <th class="block_header_line_dark th_info">{% trans "Is secure" %}</th>
-            <td class="block_line_dark td_info">{{ssl}}</td>
+            <td class="block_line_dark td_info">{{ssl|print_boolean}}</td>
         </tr>
     </tbody>
 </table>

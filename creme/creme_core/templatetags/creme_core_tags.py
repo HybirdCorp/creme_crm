@@ -116,10 +116,14 @@ def print_datetime(x):
 def print_date(x):
     return date_format(x, 'DATE_FORMAT') if x else ''
 
+@register.filter(name="print_boolean")
+def print_boolean(x):
+    return mark_safe('<input type="checkbox" value="%s" %s disabled/>' % (escape(x), 'checked' if x else ''))#Potentially double safe marked
+
 #TODO: remove all avlue with simple_print => classes.get(KEY, simple_print) ??
 classes = {
      models.AutoField:                  simple_print,
-     models.BooleanField:               lambda x: '<input type="checkbox" value="%s" %s disabled/>' % (escape(x), 'checked' if x else ''),
+     models.BooleanField:               print_boolean,
      models.CharField:                  simple_print,
      models.CommaSeparatedIntegerField: simple_print,
      models.DateField:                  print_date,

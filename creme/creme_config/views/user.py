@@ -102,7 +102,7 @@ def edit(request, user_id):
 
 @login_required #no special permission needed
 def edit_own_settings(request):
-    user = get_object_or_404(User, pk=request.user.id)
+    user = get_object_or_404(User, pk=request.user.id)#??? User is already in the request
 
     if request.method == 'POST':
         settings_form = UserSettingsConfigForm(user, request.POST)
