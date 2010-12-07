@@ -23,8 +23,9 @@ WBXML_EXT_T_1       = 0x81
 WBXML_EXT_T_2       = 0x82
 WBXML_STR_T         = 0x83
 WBXML_LITERAL_A     = 0x84
-WBXML_EXT_0         = 0xC1
-WBXML_EXT_1         = 0xC2
+WBXML_EXT_0         = 0xC0
+WBXML_EXT_1         = 0xC1
+WBXML_EXT_2         = 0xC2
 WBXML_OPAQUE        = 0xC3
 WBXML_LITERAL_AC    = 0xC4
 

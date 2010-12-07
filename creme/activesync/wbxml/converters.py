@@ -23,8 +23,8 @@ import StringIO
 #
 ###############################################################################
 
-DEBUG = False
-#DEBUG = True
+#DEBUG = False
+DEBUG = True
 
 def _debuglog(*msg):
     if DEBUG:

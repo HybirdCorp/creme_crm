@@ -1,16 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
-<Sync xmlns="AirSync:" xmlns:A1="Contacts:">
+<Sync xmlns="AirSync:"{% for pref, ns in extra_ns.iteritems %} xmlns:{{pref}}="{{ns}}"{% endfor %}>
     <Collections>
         <Collection>
             <Class>{{class}}</Class>
             <SyncKey>{{synckey}}</SyncKey>
             <CollectionId>{{server_id}}</CollectionId>
             {% if synckey == 0 %}
-                <Supported><A1:FirstName/><A1:JobTitle/><A1:Department/></Supported>
-            {% else %}
-                <DeletesAsMoves/>
-                <GetChanges/>
+            <Supported>
+                {% for tag in supported %}
+                    {{tag|safe}}
+                {% endfor %}
+            </Supported>
+            {% endif %}
+            {% if fetch %}
+            <DeletesAsMoves/>
+            <GetChanges/>
+            {% endif %}
+            {% if not fetch and objects %}
+            <Commands>
+                {% for obj in objects %}
+                    {{obj|safe}}
+                {% endfor %}
+            </Commands>
             {% endif %}
         </Collection>
     </Collections>
 </Sync>
+

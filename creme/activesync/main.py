@@ -18,6 +18,9 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from django.contrib.auth.models import User
+
+from activesync.sync import Synchronization
 from activesync.config    import *
 from activesync.commands  import *
 from activesync.constants import *
@@ -25,10 +28,25 @@ from activesync.constants import *
 from restkit.errors import (ResourceNotFound, Unauthorized, RequestFailed,
                             ParserError, RequestError)
 
+#Advised order
+#Provision
+#FolderSync
+#GetItemEstimate
+#Sync
+#Sync
+#Ping
+
 def main():
+#    try:
+    sync = Synchronization(User.objects.get(pk=1))
+    sync.synchronize()
+#    except (ResourceNotFound, Unauthorized, RequestFailed, ParserError, RequestError), e:
+#        print "Error. Response from server :", e.response.status
+
+
+def main0():
     try:
         params = (SERVER_URL, USER, PWD, CLIENT_ID)
-#        params = ('https://m.hotmail.com', 'aquaplanning2010@hotmail.fr', 'aquaplanning', CLIENT_ID)
         p = Provision(*params)
         p.send()
         policy_key = p.policy_key
@@ -44,7 +62,12 @@ def main():
             serverid = contact_folder.get('serverid')
 
             as_ = AirSync(*params)
-            as_.send(policy_key, serverid, fs.synckey)
+            as_.send(policy_key, serverid, None)#fs.synckey)
+
+#            from time import sleep
+#            sleep(3)
+#            as_2 = AirSync(*params)
+#            as_2.send(policy_key, serverid, as_.last_synckey)
 
 
     except (ResourceNotFound, Unauthorized, RequestFailed, ParserError, RequestError), e:

@@ -18,7 +18,9 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from activesync import xml2util
+import restkit.errors
+
+from activesync.constants import SYNC_NEED_CURRENT_POLICY
 
 from base import Base
 
@@ -31,52 +33,33 @@ class FolderSync(Base):
         super(FolderSync, self).__init__(*args, **kwargs)
         self._create_connection()
 
-    def send(self, policy_key):
-        xml = super(FolderSync, self).send({'synckey': 0}, headers={"X-Ms-Policykey": policy_key})
-        ns = "{FolderHierarchy:}"
+    def send(self, policy_key, sync_key=0):
+        xml = None
+        try:
+            xml = super(FolderSync, self).send({'synckey': sync_key}, headers={"X-Ms-Policykey": policy_key})
+        except restkit.errors.RequestFailed, r:
+            if r.status_int == 449:
+                self.status = SYNC_NEED_CURRENT_POLICY
 
-        self.status  = xml.find('%sStatus' % ns).text
-        self.synckey = xml.find('%sSyncKey' % ns).text
+        if xml is not None:
+            ns = "{FolderHierarchy:}"
 
-        self.add = []
-        add_append = self.add.append
-        add_nodes = xml.findall('%sChanges/%sAdd' % (ns,ns))
+            self.status  = xml.find('%sStatus' % ns).text
+            if self.status != SYNC_NEED_CURRENT_POLICY:
+                self.synckey = xml.find('%sSyncKey' % ns).text
 
-        for add_node in add_nodes:
-            add_append({
-                'serverid'    : add_node.find("%sServerId" % ns).text,
-                'parentid'    : add_node.find("%sParentId" % ns).text,
-                'displayname' : add_node.find("%sDisplayName" % ns).text,
-                'type'        : add_node.find("%sType" % ns).text,
-            })
+                self.add = []
+                add_append = self.add.append
+                add_nodes = xml.findall('%sChanges/%sAdd' % (ns,ns))
+
+                for add_node in add_nodes:
+                    add_append({
+                        'serverid'    : add_node.find("%sServerId" % ns).text,
+                        'parentid'    : add_node.find("%sParentId" % ns).text,
+                        'displayname' : add_node.find("%sDisplayName" % ns).text,
+                        'type'        : add_node.find("%sType" % ns).text,
+                    })
         
-
-    def send_old(self, policy_key):
-        xml = super(FolderSync, self).send({'synckey': 0}, headers={"X-Ms-Policykey": policy_key})
-        xp = xml.xpathNewContext()
-        xp.xpathRegisterNs("f", "FolderHierarchy:")
-
-        self.synckey = None
-        self.status = None
-
-        get_node_value  = xml2util.GetNodeValue
-        find_child_node = xml2util.FindChildNode
-
-        for node in xp.xpathEval("/f:FolderSync"):
-            self.synckey = get_node_value(find_child_node(node, "SyncKey"))
-            self.status  = get_node_value(find_child_node(node, "Status"))
-
-        self.add = []
-        for node in xp.xpathEval("/f:FolderSync/f:Changes/f:Add"):
-
-            self.add.append({
-                'serverid'    : get_node_value(find_child_node(node, "ServerId")),
-                'parentid'    : get_node_value(find_child_node(node, "ParentId")),
-                'displayname' : get_node_value(find_child_node(node, "DisplayName")),
-                'type'        : get_node_value(find_child_node(node, "Type")),
-            })
-
-#            self.count = get_node_value(find_child_node(node, "Count"))
 
 
 

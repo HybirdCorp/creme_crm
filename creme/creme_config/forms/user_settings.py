@@ -82,17 +82,17 @@ class UserSettingsConfigForm(PreferedMenuForm):
             pass
 
         try:
-            fields['url'].help_text %= CremeKVConfig.objects.get(pk=MAPI_SERVER_URL).value
+            fields['url'].help_text %= ckv_get(pk=MAPI_SERVER_URL).value
         except CremeKVConfig.DoesNotExist:
             pass
 
         try:
-            fields['domain'].help_text %= CremeKVConfig.objects.get(pk=MAPI_DOMAIN).value
+            fields['domain'].help_text %= ckv_get(pk=MAPI_DOMAIN).value
         except CremeKVConfig.DoesNotExist:
             pass
 
         try:
-            fields['ssl'].help_text %= ugettext(_('Yes') if bool(CremeKVConfig.objects.get(pk=MAPI_SERVER_SSL).value) else _('No'))
+            fields['ssl'].help_text %= ugettext(_('Yes') if bool(ckv_get(pk=MAPI_SERVER_SSL).value) else _('No'))
         except CremeKVConfig.DoesNotExist:
             pass
 
@@ -106,29 +106,34 @@ class UserSettingsConfigForm(PreferedMenuForm):
         ckv_get_or_create = CremeKVConfig.objects.get_or_create
 
         url = clean_get('url')
-        user_url_cfg, is_created = ckv_get_or_create(pk=USER_MOBILE_SYNC_SERVER_URL % user_id)
-        user_url_cfg.value = url
-        user_url_cfg.save()
+        if url:
+            user_url_cfg, is_created = ckv_get_or_create(pk=USER_MOBILE_SYNC_SERVER_URL % user_id)
+            user_url_cfg.value = url
+            user_url_cfg.save()
 
         domain = clean_get('domain')
-        user_domain_cfg, is_created = ckv_get_or_create(pk=USER_MOBILE_SYNC_SERVER_DOMAIN % user_id)
-        user_domain_cfg.value = domain
-        user_domain_cfg.save()
+        if domain:
+            user_domain_cfg, is_created = ckv_get_or_create(pk=USER_MOBILE_SYNC_SERVER_DOMAIN % user_id)
+            user_domain_cfg.value = domain
+            user_domain_cfg.save()
 
         ssl = clean_get('ssl')
-        user_ssl_cfg, is_created = ckv_get_or_create(pk=USER_MOBILE_SYNC_SERVER_SSL % user_id)
-        user_ssl_cfg.value = ssl
-        user_ssl_cfg.save()
+        if ssl:
+            user_ssl_cfg, is_created = ckv_get_or_create(pk=USER_MOBILE_SYNC_SERVER_SSL % user_id)
+            user_ssl_cfg.value = ssl
+            user_ssl_cfg.save()
 
         login = clean_get('login')
-        user_login_cfg, is_created = ckv_get_or_create(pk=USER_MOBILE_SYNC_SERVER_LOGIN % user_id)
-        user_login_cfg.value = login
-        user_login_cfg.save()
+        if login:
+            user_login_cfg, is_created = ckv_get_or_create(pk=USER_MOBILE_SYNC_SERVER_LOGIN % user_id)
+            user_login_cfg.value = login
+            user_login_cfg.save()
 
         password = clean_get('password')
-        user_password_cfg, is_created = ckv_get_or_create(pk=USER_MOBILE_SYNC_SERVER_PWD % user_id)
-        user_password_cfg.value = password
-        user_password_cfg.save()
+        if password:
+            user_password_cfg, is_created = ckv_get_or_create(pk=USER_MOBILE_SYNC_SERVER_PWD % user_id)
+            user_password_cfg.value = password
+            user_password_cfg.save()#TODO: Needs to be crypted ?
 
 
 
