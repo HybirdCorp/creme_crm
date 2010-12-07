@@ -21,3 +21,10 @@
 MAPI_SERVER_URL = "mapi-server_url"
 MAPI_DOMAIN     = "mapi-domain"
 MAPI_SERVER_SSL = "mapi-server_ssl"
+
+#NB: %s have to be replaced by user's pk
+USER_MOBILE_SYNC_SERVER_URL    = "mapi-server_url-%s"
+USER_MOBILE_SYNC_SERVER_DOMAIN = "mapi-domain-%s"
+USER_MOBILE_SYNC_SERVER_SSL    = "mapi-server_ssl-%s"
+USER_MOBILE_SYNC_SERVER_LOGIN  = "mapi-server_login-%s"
+USER_MOBILE_SYNC_SERVER_PWD    = "mapi-server_pwd-%s"
