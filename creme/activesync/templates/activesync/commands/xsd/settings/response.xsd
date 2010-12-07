@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xs:schema xmlns:tns="Settings:" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:rm="RightsManagement:" targetNamespace="Settings:" elementFormDefault="qualified" attributeFormDefault="unqualified">
+  <xs:import namespace="RightsManagement:"/>
+  <xs:element name="Settings">
+    <xs:complexType>
+      <xs:all>
+        <xs:element name="Status" type="xs:integer" minOccurs="0"/>
+        <xs:element name="Oof" minOccurs="0">
+          <xs:complexType>
+            <xs:all>
+              <xs:element name="Status" type="xs:integer" minOccurs="0"/>
+              <xs:element name="Get" minOccurs="0">
+                <xs:complexType>
+                  <xs:sequence>
+                    <xs:element name="OofState" minOccurs="0">
+                      <xs:simpleType>
+                        <xs:restriction base="xs:integer">
+                          <xs:enumeration value="0"/>
+                          <xs:enumeration value="1"/>
+                          <xs:enumeration value="2"/>
+                        </xs:restriction>
+                      </xs:simpleType>
+                    </xs:element>
+                    <xs:element name="StartTime" type="xs:dateTime"/>
+                    <xs:element name="EndTime" type="xs:dateTime"/>
+                    <xs:element name="OofMessage" minOccurs="0" maxOccurs="3">
+                      <xs:complexType>
+                        <xs:sequence>
+                          <xs:element name="AppliesToInternal" minOccurs="0"/>
+                          <xs:element name="AppliesToExternalKnown" minOccurs="0"/>
+                          <xs:element name="AppliesToExternalUnknown" minOccurs="0"/>
+                          <xs:element name="Enabled" type="xs:integer" minOccurs="0"/>
+                          <xs:element name="ReplyMessage" type="xs:string" minOccurs="0"/>
+                          <xs:element name="BodyType" type="xs:string"/>
+                        </xs:sequence>
+                      </xs:complexType>
+                    </xs:element>
+                  </xs:sequence>
+                </xs:complexType>
+              </xs:element>
+            </xs:all>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="DeviceInformation" minOccurs="0">
+          <xs:complexType>
+            <xs:all>
+              <xs:element name="Status" minOccurs="0"/>
+            </xs:all>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="DevicePassword" minOccurs="0">
+          <xs:complexType>
+            <xs:all>
+              <xs:element name="Status" minOccurs="0"/>
+            </xs:all>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="UserInformation" minOccurs="0">
+          <xs:complexType>
+            <xs:all>
+              <xs:element name="Status" type="xs:integer" minOccurs="0"/>
+              <xs:element name="Get" minOccurs="0">
+                <xs:complexType>
+                  <xs:all>
+                    <xs:element name="Accounts" minOccurs="0">
+                      <xs:complexType>
+                        <xs:sequence>
+                          <xs:element name="Account" maxOccurs="unbounded">
+                            <xs:complexType>
+                              <xs:all>
+                                <xs:element name="AccountId" type="xs:string" minOccurs="0"/>
+                                <xs:element name="AccountName" type="xs:string" minOccurs="0"/>
+                                <xs:element name="UserDisplayName" type="xs:string" minOccurs="0"/>
+                                <xs:element name="SendDisabled" type="xs:boolean" minOccurs="0"/>
+                                <xs:element name="EmailAddresses" minOccurs="0">
+                                  <xs:complexType>
+                                    <xs:sequence>
+                                      <xs:element name="SMTPAddress" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+                                      <xs:element name="PrimarySmtpAddress" type="xs:string" minOccurs="0"/>
+                                    </xs:sequence>
+                                  </xs:complexType>
+                                </xs:element>
+                              </xs:all>
+                            </xs:complexType>
+                          </xs:element>
+                        </xs:sequence>
+                      </xs:complexType>
+                    </xs:element>
+                  </xs:all>
+                </xs:complexType>
+              </xs:element>
+            </xs:all>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="RightsManagementInformation" minOccurs="0">
+          <xs:complexType>
+            <xs:all>
+              <xs:element name="Status" type="xs:integer" minOccurs="0"/>
+              <xs:element name="Get">
+                <xs:complexType>
+                  <xs:all>
+                    <xs:element ref="rm:RightsManagementTemplates"/>
+                  </xs:all>
+                </xs:complexType>
+              </xs:element>
+            </xs:all>
+          </xs:complexType>
+        </xs:element>
+      </xs:all>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>
