@@ -1,0 +1,19 @@
+<!--
+    Document   : creme_settings.xml
+    Created on : 18 octobre 2010, 11:00
+    Author     : raph
+    Description:
+        Default "creme mobile" settings
+-->
+<settings:DeviceInformation>
+    <settings:Set>
+        <settings:Model>CremeMobile</settings:Model>
+<!--        <settings:IMEI></settings:IMEI>-->
+        <settings:FriendlyName>Creme Mobile</settings:FriendlyName>
+        <settings:OS>Creme/Python 2.6.6/Django 1.2.3</settings:OS>
+        <settings:OSLanguage>Python</settings:OSLanguage>
+<!--        <settings:PhoneNumber></settings:PhoneNumber>-->
+<!--        <settings:MobileOperator></settings:MobileOperator>-->
+        <settings:UserAgent>CremeCRM/1.0</settings:UserAgent>
+    </settings:Set>
+</settings:DeviceInformation>

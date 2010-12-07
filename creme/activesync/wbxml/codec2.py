@@ -35,8 +35,9 @@ WBXML_EXT_T_1       = 0x81
 WBXML_EXT_T_2       = 0x82
 WBXML_STR_T         = 0x83
 WBXML_LITERAL_A     = 0x84
-WBXML_EXT_0         = 0xC1
-WBXML_EXT_1         = 0xC2
+WBXML_EXT_0         = 0xC0
+WBXML_EXT_1         = 0xC1
+WBXML_EXT_2         = 0xC2
 WBXML_OPAQUE        = 0xC3
 WBXML_LITERAL_AC    = 0xC4
 
@@ -59,8 +60,8 @@ WBXML_DEBUG         = True
 import StringIO
 from xml.etree.ElementTree import fromstring, XML, Element, _ElementInterface
 
-DEBUG = True
-#DEBUG = False
+#DEBUG = True
+DEBUG = False
 
 def _debuglog(*msg):
     if DEBUG:
@@ -81,12 +82,21 @@ class WBXMLEncoder(object):
         >>> from xml.etree.ElementTree import XML
         >>> xml_str = '<?xml version="1.0" encoding="UTF-8"?><FolderSync xmlns="FolderHierarchy:"><SyncKey>0</SyncKey></FolderSync>'
         >>> xml = XML(xml_str)
-        >>> encoder = WBXMLEncoder(xml, AirsyncDTD_Reverse)
+        >>> encoder = WBXMLEncoder(AirsyncDTD_Reverse)
         >>> wbxml = '\x03\x01j\x00\x00\x07VR\x030\x00\x01\x01'
-        >>> encoder.encode() == wbxml
+        >>> encoder.encode(xml) == wbxml
         True
     """
-    def __init__(self, to_encode, dtd):
+    def __init__(self, dtd):
+        self._out    = StringIO.StringIO()
+        self._dtd    = dtd
+        self._tagcp  = 0
+        self._attrcp = 0
+        self._stack  = []
+
+    def encode(self, to_encode):
+        _debuglog('Enter encode')
+
         if isinstance(to_encode, (unicode, basestring)):
             self.xml = XML(to_encode)
         elif isinstance(to_encode, (_ElementInterface, )):
@@ -94,14 +104,6 @@ class WBXMLEncoder(object):
         else:
             raise WrongXMLType("to_encode has to be an instance of unicode or basestring or xml.etree.ElementTree.Element not %s" % to_encode.__class__)
 
-        self._out    = StringIO.StringIO()
-        self._dtd    = dtd
-        self._tagcp  = 0
-        self._attrcp = 0
-        self._stack  = []
-
-    def encode(self):
-        _debuglog('Enter encode')
         #Writting the wbxml header
         self.write_header()
 
@@ -130,73 +132,6 @@ class WBXMLEncoder(object):
         _debuglog('Exit get_tag with ', tag.replace('{%s}' % ns, ''))
         return tag.replace('{%s}' % ns, '')
 
-#    def _encode_node(self, node):
-#        _debuglog('Enter _encode_node with node:', node)
-#        children = node.getchildren()
-#        nocontent = True
-#        nocontent = False
-#
-#        print "children :", children
-#
-#        if children:
-#            for child in children:
-#                self._encode_node(child)
-#        else:
-#            ns = self.get_ns(node.tag)
-#            tag = (ns, self.get_tag(node.tag, ns))
-#            print "tag :", tag
-#
-#            self.start_tag(tag, False, nocontent)
-#
-#            print "node.text :", node.text
-#            if node.text:
-#                self.content(node.text)
-#            else:
-#                self.end_tag()
-#        _debuglog('Exit _encode_node')
-#        return
-
-#    def _encode_node(self, node):
-#        _debuglog('Enter _encode_node with node:', node)
-#        children = node.getchildren()
-#        nocontent = True
-##        nocontent = False
-#
-#        print "children :", children
-#
-#        ns = self.get_ns(node.tag)
-#        tag = (ns, self.get_tag(node.tag, ns))
-#        print "tag :", tag
-#
-#        self.start_tag(tag, False, nocontent)
-#
-#        print "node.text :", node.text
-#        if node.text:
-#            self.content(node.text)
-#        else:
-#            self.end_tag()
-#
-#        if children:
-#            for child in children:
-#                self._encode_node(child)
-#
-#        _debuglog('Exit _encode_node')
-#        return
-
-#    def _encode_node(self, node):
-#        children  = node.getchildren()
-#
-#        ns  = self.get_ns(node.tag)
-#        tag = (ns, self.get_tag(node.tag, ns))
-#
-#        self.start_tag(tag, False, False)
-#        if children:
-#            for child in children:
-#                self._encode_node(child)
-#        elif node.text:
-#            self.content(node.text)
-#        self.end_tag()
-
     def _encode_node(self, node):
         children  = node.getchildren()
         node_text = node.text
@@ -220,39 +155,6 @@ class WBXMLEncoder(object):
             self._output_stack()
         else:
             self.end_tag()
-
-    def _processNode(node, encoder):
-	_debuglog("processNode")
-	if node.type == 'element':
-		_debuglog("content flag:")
-		nocontent = (node.children == None)
-		# We have a tag. Handle attrs later
-		_debuglog("pn: get namespace")
-		_debuglog("node.ns():", str(node.ns()))
-		ns=node.ns();
-		_debuglog("pn: got namespace")
-		if ns!=None:
-			prefix = ns.content
-		else:
-			prefix = None
-		tag = (prefix,str(node.name).strip())
-		_debuglog("TAG ",tag)
-		encoder.StartTag(tag,False,nocontent)
-		# process the children
-		if node.children != None:
-			_processNode(node.children,encoder)
-		if not nocontent:
-			encoder.EndTag();
-	# process node text content
-	elif node.type == 'text':
-		_debuglog("text node")
-		encoder.Content(node.content)
-
-	# process only tags for the moment
-	if node.next != None:
-		_debuglog("next node - ", node.next.type)
-		_processNode(node.next, encoder)
-	return
 
     def write_byte(self, byte):
         """Send a byte to the output stream"""
@@ -423,3 +325,13 @@ class WBXMLEncoder(object):
 
         _debuglog("Exit get_mapping with mapping:", mapping)
         return mapping
+
+################################################################################
+
+class WBXMLDecoder(object):
+
+    def __init__(self, dtd):
+        pass
+
+    def decode(self, to_decode):
+        pass

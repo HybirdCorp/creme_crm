@@ -1,2 +1,3 @@
-__author__="raph"
-__date__ ="$12 oct. 2010 12:25:20$"
+# -*- coding: utf-8 -*-
+
+from active_sync import CremeExchangeMapping, CremeClient

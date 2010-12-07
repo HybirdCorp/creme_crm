@@ -18,6 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+import base64
 import mimetypes
 
 from django.db.models import CharField, TextField, ImageField, ManyToManyField
@@ -43,6 +44,10 @@ class Image(CremeEntity):
                                  related_name="Image_media_category_set", blank=True, null=True)
 
     research_fields = CremeEntity.research_fields + ['description', 'name', 'image']
+
+    encodings = {
+        "base64": lambda x: base64.b64encode(x),
+    }
 
     class Meta:
         app_label = 'media_managers'
@@ -88,4 +93,11 @@ class Image(CremeEntity):
         #return (self.image.file, "image/gif")
         return (self.image.file, mimetypes.guess_type(self.image.path)[0])
 
+    def get_encoded(self, encoding="base64"):
+        encoded = u""
+        encoder = self.encodings.get(encoding, "base64")
+        for ch in self.image.file.chunks():
+            encoded += encoder(ch)
+        return encoded
+        
 #    image_file = property(get_image_file)

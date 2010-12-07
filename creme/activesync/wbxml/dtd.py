@@ -340,6 +340,15 @@ AirsyncDTD_Forward = {
             0x0b : 'Id',
             0x0c : 'Class',
         }, 0xe : {
+#            0x05 : "Provision",
+#            0x06 : "Policies",
+#            0x07 : "Policy",
+#            0x08 : "PolicyType",
+#            0x09 : "PolicyKey",
+#            0x0A : "Data",
+#            0x0B : "Status",
+#            0x0C : "RemoteWipe",
+#            0x0D : "EASProvisionDoc",
             0x05 : "Provision",
             0x06 : "Policies",
             0x07 : "Policy",
@@ -349,13 +358,134 @@ AirsyncDTD_Forward = {
             0x0B : "Status",
             0x0C : "RemoteWipe",
             0x0D : "EASProvisionDoc",
-        }
+            0x0E : "DevicePasswordEnabled",
+            0x0F : "AlphanumericDevicePasswordRequired",
+            0x10 : "DeviceEncryptionEnabled",
+#            0x10 : "RequireStorageCardEncryption"(equivalent : "DeviceEncryptionEnabled"),
+            0x11 : "PasswordRecoveryEnabled",
+            0x13 : "AttachmentsEnabled",
+            0x14 : "MinDevicePasswordLength",
+            0x15 : "MaxInactivityTimeDeviceLock",
+            0x16 : "MaxDevicePasswordFailedAttempts",
+            0x17 : "MaxAttachmentSize",
+            0x18 : "AllowSimpleDevicePassword",
+            0x19 : "DevicePasswordExpiration",
+            0x1A : "DevicePasswordHistory",
+            0x1B : "AllowStorageCard",
+            0x1C : "AllowCamera",
+            0x1D : "RequireDeviceEncryption",
+            0x1E : "AllowUnsignedApplications",
+            0x1F : "AllowUnsignedInstallationPackages",
+            0x20 : "MinDevicePasswordComplexCharacters",
+            0x21 : "AllowWiFi",
+            0x22 : "AllowTextMessaging",
+            0x23 : "AllowPOPIMAPEmail",
+            0x24 : "AllowBluetooth",
+            0x25 : "AllowIrDA",
+            0x26 : "RequireManualSyncWhenRoaming",
+            0x27 : "AllowDesktopSync",
+            0x28 : "MaxCalendarAgeFilter",
+            0x29 : "AllowHTMLEmail",
+            0x2A : "MaxEmailAgeFilter",
+            0x2B : "MaxEmailBodyTruncationSize",
+            0x2C : "MaxEmailHTMLBodyTruncationSize",
+            0x2D : "RequireSignedSMIMEMessages",
+            0x2E : "RequireEncryptedSMIMEMessages",
+            0x2F : "RequireSignedSMIMEAlgorithm",
+            0x30 : "RequireEncryptionSMIMEAlgorithm",
+            0x31 : "AllowSMIMEEncryptionAlgorithmNegotiation",
+            0x32 : "AllowSMIMESoftCerts",
+            0x33 : "AllowBrowser",
+            0x34 : "AllowConsumerEmail",
+            0x35 : "AllowRemoteDesktop",
+            0x36 : "AllowInternetSharing",
+            0x37 : "UnapprovedInROMApplicationList",
+            0x38 : "ApplicationName",
+            0x39 : "ApprovedApplicationList",
+            0x3A : "Hash",
+        }, 0xf : {
+
+        }, 0x10: {
+
+        }, 0x11: {
+            0x05 : "BodyPreference",
+            0x06 : "Type",
+            0x07 : "TruncationSize",
+            0x08 : "AllOrNone",
+            0x0A : "Body",
+            0x0B : "Data",
+            0x0C : "EstimatedDataSize",
+            0x0D : "Truncated",
+            0x0E : "Attachments",
+            0x0F : "Attachment",
+            0x10 : "DisplayName",
+            0x11 : "FileReference",
+            0x12 : "Method",
+            0x13 : "ContentId",
+            0x14 : "ContentLocation",
+            0x15 : "IsInline",
+            0x16 : "NativeBodyType",
+            0x17 : "ContentType",
+            0x18 : "Preview",
+            0x19 : "BodyPartPreference",
+            0x1A : "BodyPart",
+            0x1B : "Status",
+        }, 0x12: {
+            0x05 : "Settings",
+            0x06 : "Status",
+            0x07 : "Get",
+            0x08 : "Set",
+            0x09 : "Oof",
+            0x0A : "OofState",
+            0x0B : "StartTime",
+            0x0C : "EndTime",
+            0x0D : "OofMessage",
+            0x0E : "AppliesToInternal",
+            0x0F : "AppliesToExternalKnown",
+            0x10 : "AppliesToExternalUnknown",
+            0x11 : "Enabled",
+            0x12 : "ReplyMessage",
+            0x13 : "BodyType",
+            0x14 : "DevicePassword",
+            0x15 : "Password",
+            0x16 : "DeviceInformation",
+            0x17 : "Model",
+            0x18 : "IMEI",
+            0x19 : "FriendlyName",
+            0x1A : "OS",
+            0x1B : "OSLanguage",
+            0x1C : "PhoneNumber",
+            0x1D : "UserInformation",
+            0x1E : "EmailAddresses",
+            0x1F : "SmtpAddress",
+            0x20 : "UserAgent",
+            0x21 : "EnableOutboundSMS",
+            0x22 : "MobileOperator",
+            0x23 : "PrimarySmtpAddress",
+            0x24 : "Accounts",
+            0x25 : "Account",
+            0x26 : "AccountId",
+            0x27 : "AccountName",
+            0x28 : "UserDisplayName",
+            0x29 : "SendDisabled",
+            0x2B : "ihsManagementInformation",
+        }, 0x13: {
+
+        }, 0x14: {
+
+        }, 0x15: {
+
+        }, 0x16: {
+
+        }, 0x17: {
+
+        },
 
     }, 'namespaces' : {
     	0 : 'AirSync:',
         1 : 'Contacts:',
         2 : 'Email:',
-        3 : 'AirNotify:',
+        3 : 'AirNotify:',#Seems deprecated
         4 : 'Calendar:',
         5 : 'Move:',
         6 : 'GetItemEstimate:',
@@ -367,6 +497,15 @@ AirsyncDTD_Forward = {
         0xC : 'Contacts2:',
         0xD : 'Ping:',
         0xE : 'Provision:',
+        0xF : 'Search:',#TODO
+        0x10: 'Gal:',#TODO
+        0x11: 'AirSyncBase:',#TODO: To be tested
+        0x12: 'Settings:',
+        0x13: 'DocumentLibrary:',#TODO
+        0x14: 'ItemOperations:',#TODO
+        0x15: 'ComposeMail:',#TODO
+        0x16: 'Email2:',#TODO
+        0x17: 'Notes:',#TODO
     }
 }
 
@@ -406,6 +545,6 @@ def InitializeDTD():
 #
 #	AirsyncDTD.append(AirsyncDTD_Forward)
 #	AirsyncDTD.append(AirsyncDTD_Reverse)
-#
+
 
 

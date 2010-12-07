@@ -1,11 +1,27 @@
 # -*- coding: utf-8 -*-
 
-#Provisionning remote wipe status
+################################################################################
+# Folder sync / Provisionning
+
+SYNC_NEED_CURRENT_POLICY = 142
+
+
+################################################################################
+#Provisionning
+##remote wipe status
 SYNC_PROVISION_RWSTATUS_NA      = 0
 SYNC_PROVISION_RWSTATUS_OK      = 1
 SYNC_PROVISION_RWSTATUS_PENDING = 2
 SYNC_PROVISION_RWSTATUS_WIPED   = 3
 
+##Command status
+SYNC_PROVISION_STATUS_SUCCESS       = 1 # Success => Apply the policy.
+SYNC_PROVISION_STATUS_PROTERROR     = 2 # Protocol error / Policy not defined. => Fix bug in client code./ Stop sending policy information. No policy is implemented.
+SYNC_PROVISION_STATUS_SERVERERROR   = 3 # The policy type is unknown / An error occurred on the server => Issue a request by using MS-EAS-Provisioning-WBXML / Retry
+SYNC_PROVISION_STATUS_DEVEXTMANAGED = 4 # Used ?
+SYNC_PROVISION_STATUS_POLKEYMISM    = 5 # Policy key mismatch => Issue a new Provision request to obtain a valid policy key
+
+################################################################################
 #Folder sync
 ## Server return status
 SYNC_FOLDER_STATUS_SUCCESS         = 1  # Success
@@ -36,3 +52,4 @@ SYNC_FOLDER_TYPE_USER_JOURNAL     = 16
 SYNC_FOLDER_TYPE_USER_NOTE        = 17
 SYNC_FOLDER_TYPE_UNKNOWN          = 18
 SYNC_FOLDER_TYPE_RECIPIENT_CACHE  = 19
+################################################################################
