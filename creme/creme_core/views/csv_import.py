@@ -35,15 +35,14 @@ def csv_import(request, ct_id):
     if request.method == 'POST':
         POST = request.POST
         step = int(POST.get('csv_step', 0))
+        form = CSVUploadForm(request, POST)
 
         if step == 0:
-            form = CSVUploadForm(request, POST)
-
             if form.is_valid():
                 cleaned_data = form.cleaned_data
 
                 CSVImportForm = form_factory(ct, form.csv_header)
-                form = CSVImportForm(request, 
+                form = CSVImportForm(request,
                                      initial={
                                                 'csv_step':       1,
                                                 'csv_document':   cleaned_data['csv_document'].id,
@@ -51,7 +50,9 @@ def csv_import(request, ct_id):
                                              })
         else:
             assert step == 1
-            CSVImportForm = form_factory(ct, None)
+            form.is_valid() #clean fields
+
+            CSVImportForm = form_factory(ct, form.csv_header)
             form = CSVImportForm(request, POST)
 
             if form.is_valid():
