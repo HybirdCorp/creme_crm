@@ -15,6 +15,11 @@
             {% if fetch %}
             <DeletesAsMoves/>
             <GetChanges/>
+                {% if options %}
+                    <Options>
+                        {% for tag, value in options.iteritems %}<{{tag}}>{{value}}</{{tag}}>{% endfor %}
+                    </Options>
+                {% endif %}
             {% endif %}
             {% if not fetch and objects %}
             <Commands>

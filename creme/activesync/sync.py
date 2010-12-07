@@ -130,7 +130,7 @@ class Synchronization(object):
             for synced in as_.synced['Add']:#Only add for the moment
                 client_id = synced.get('client_id')
                 server_id = synced.get('server_id')
-                create(creme_entity_id=client_id, exchange_entity_id=server_id)#Create objects
+                create(creme_entity_id=client_id, exchange_entity_id=server_id, synced=True)#Create objects
 
         self.client.save()
 

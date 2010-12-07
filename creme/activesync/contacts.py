@@ -1,3 +1,8 @@
+from creme.creme_core.views.file_handling import MAXINT
+from django.contrib.contenttypes.models import ContentType
+from creme.media_managers.models.image import Image
+from django.core.files.base import ContentFile
+import base64
 # -*- coding: utf-8 -*-
 
 ################################################################################
@@ -20,19 +25,84 @@
 
 from activesync.config import IS_ZPUSH
 from creme_core.utils.meta import get_field_infos
+from creme_core.views.file_handling import handle_uploaded_file
 
-def get_encoded_contact_img(contact, needs_attr=False):
+from random import randint
+from persons.models import PeopleFunction, Contact, Civility, Address
+
+
+def get_encoded_contact_img(contact=None, needs_attr=False, *args, **kwargs):
     if needs_attr:
         return 'image'
     encoded_img = None
-    if contact.image is not None:
+    if contact and contact.image is not None:
         encoded_img = contact.image.get_encoded(encoding="base64")
     return encoded_img
 
-def get_repr(contact, needs_attr=False):
+def get_repr(contact=None, needs_attr=False, *args, **kwargs):
     if needs_attr:
         return ''
     return unicode(contact)
+
+def save_contact(data, user):
+    """Save a contact from a populated data dict
+        @Returns : A saved contact instance
+    """
+    c = Contact()
+    ct_contact = ContentType.objects.get_for_model(Contact)
+    pop_ = data.pop
+    
+    pop_('', None)
+
+    civility_name = pop_('civility__civility_name', None)
+    if civility_name is not None:
+        c.civility = Civility.objects.get_or_create(civility_name=civility_name)[0]
+
+    function_name = pop_('function__function_name', None)
+    if function_name is not None:
+        c.function = PeopleFunction.objects.get_or_create(function_name=function_name)[0]
+
+    b_address = Address(city=pop_('billing_adress__city', None),
+                        state=pop_('billing_adress__state', None),
+                        country=pop_('billing_adress__country', None),
+                        po_box=pop_('billing_adress__po_box', None),
+                        address=pop_('billing_adress__address', None))
+
+    s_address = Address(city=pop_('shipping_adress__city', None),
+                        state=pop_('shipping_adress__state', None),
+                        country=pop_('shipping_adress__country', None),
+                        po_box=pop_('shipping_adress__po_box', None),
+                        address=pop_('shipping_adress__address', None))
+
+    c.billing_adress  = b_address
+    c.shipping_adress = s_address
+
+    image_b64 = pop_('image', None)
+    if image_b64 is not None:
+        image_format = Image.get_image_format(image_b64)
+        i = Image()
+        i.image = handle_uploaded_file(ContentFile(base64.decodestring(image_b64)), path=['upload','images'], name='file_%08x.%s' % (randint(0, MAXINT), image_format))
+        i.user = user
+        i.save()
+        c.image = i
+        
+    c.user = user
+
+    c.__dict__.update(data)
+
+    c.save()
+
+    b_address.content_type = ct_contact
+    b_address.object_id = c.id
+    b_address.save()
+
+    s_address.content_type = ct_contact
+    s_address.object_id = c.id
+    s_address.save()
+    
+    return c
+
+
 
 CREME_CONTACT_MAPPING = {
     'Contacts:':
@@ -82,6 +152,7 @@ def serialize_contact(contact, namespaces):
        TODO: Add the possibility to subset contact fields ?
     """
     xml = []
+    xml_append = xml.append
     for ns, values in CREME_CONTACT_MAPPING.iteritems():
         prefix = namespaces.get(ns)
         for c_field, xml_field in values.iteritems():
@@ -92,11 +163,11 @@ def serialize_contact(contact, namespaces):
                 f_class, value = get_field_infos(contact, c_field)
 
             if value:
-                xml.append("<%(prefix)s%(tag)s>%(value)s</%(prefix)s%(tag)s>" %
+                xml_append("<%(prefix)s%(tag)s>%(value)s</%(prefix)s%(tag)s>" %
                            {
                             'prefix': '%s:' % prefix if prefix else '',
                             'tag': xml_field,
                             'value': value #Problems with unicode
                             }
                            )
-    return "".join(xml)
+    return "".join(xml)      
