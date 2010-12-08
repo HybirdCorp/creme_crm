@@ -22,15 +22,11 @@ from django.utils.translation import ugettext_lazy as _
 
 from creme_core.forms import CremeEntityForm, CremeDateTimeField
 
-from commercial.models.act import Act
+from commercial.models import Act
 
 
-class CreateForm(CremeEntityForm):
+class ActForm(CremeEntityForm):
     due_date = CremeDateTimeField(label=_(u"Due date"))
 
     class Meta(CremeEntityForm.Meta):
         model = Act
-
-
-class EditForm(CreateForm):
-    pass

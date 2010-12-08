@@ -49,15 +49,15 @@ urlpatterns = patterns('billing.views',
 )
 
 urlpatterns += patterns('creme_core.views',
-    (r'^invoice/edit_js/$',                                'ajax.edit_js'),
+    #(r'^invoice/edit_js/$',                                'ajax.edit_js'),
     (r'^invoice/delete/(?P<object_id>\d+)$',               'generic.delete_entity'),
-    (r'^invoice/delete_js/(?P<entities_ids>([\d]+[,])+)$', 'generic.delete_entities_js'),
+    #(r'^invoice/delete_js/(?P<entities_ids>([\d]+[,])+)$', 'generic.delete_entities_js'), #Commented 6 december 2010
 
-    (r'^quote/edit_js/$',                                'ajax.edit_js'),
+    #(r'^quote/edit_js/$',                                'ajax.edit_js'),
     (r'^quote/delete/(?P<object_id>\d+)$',               'generic.delete_entity'),
-    (r'^quote/delete_js/(?P<entities_ids>([\d]+[,])+)$', 'generic.delete_entities_js'),
+    #(r'^quote/delete_js/(?P<entities_ids>([\d]+[,])+)$', 'generic.delete_entities_js'), #Commented 6 december 2010
 
-    (r'^sales_order/edit_js/$',                                'ajax.edit_js'),
+    #(r'^sales_order/edit_js/$',                                'ajax.edit_js'),
     (r'^sales_order/delete/(?P<object_id>\d+)$',               'generic.delete_entity'),
-    (r'^sales_order/delete_js/(?P<entities_ids>([\d]+[,])+)$', 'generic.delete_entities_js'),
+    #(r'^sales_order/delete_js/(?P<entities_ids>([\d]+[,])+)$', 'generic.delete_entities_js'),#Commented 6 december 2010
 )

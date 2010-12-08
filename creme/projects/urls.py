@@ -11,9 +11,9 @@ urlpatterns = patterns('projects.views',
     (r'^project/add$',                        'project.add'),
     (r'^project/edit/(?P<project_id>\d+)$',   'project.edit'),
     (r'^project/(?P<project_id>\d+)$',        'project.detailview'),
-    (r'^project/(?P<project_id>\d+)/close$',  'project.close'),
+    (r'^project/(?P<project_id>\d+)/close$',  'project.close'), #TODO: change url ?? project/close/(?P<project_id>\d+)
 
-    #Project: Task block 
+    #Project: Task block
     (r'^project/(?P<project_id>\d+)/task/add', 'task.add'),
     (r'^task/delete/(?P<task_id>\d+)$',        'task.delete'),#Keeps detailview delete compatibility
     (r'^task/delete$',                         'task.delete'),
