@@ -19,10 +19,12 @@
 ################################################################################
 
 from collections import defaultdict
+from itertools import chain
 from logging import debug
 
-from django.db.models import (Model, CharField, ForeignKey, ManyToManyField,
-                              PositiveSmallIntegerField, PositiveIntegerField, TextField, Q)
+from django.db.models import (Model, CharField, TextField, BooleanField,
+                              PositiveSmallIntegerField, PositiveIntegerField,
+                              ForeignKey, ManyToManyField, Q)
 from django.utils.translation import ugettext_lazy as _, ugettext
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
@@ -289,16 +291,12 @@ class SetCredentials(Model):
     #content_type        = ForeignKey(ContentType, null=True)
     #entity              = ForeignKey(CremeEntity, null=True) #id_fiche_role_ou_equipe = PositiveIntegerField( blank=True, null=True) ??
 
+    #For python 2.5 compatibility, we don't use the binary expression
     CRED_NONE   = 0
-    #For python 2.5 compatibility
-    #CRED_ADD    = 0b0001 #to be used....
-    CRED_ADD    = 1 #to be used....
-    #CRED_VIEW   = 0b0010
-    CRED_VIEW   = 2
-    #CRED_CHANGE = 0b0100
-    CRED_CHANGE = 4
-    #CRED_DELETE = 0b1000
-    CRED_DELETE = 8
+    CRED_ADD    = 1 #0b0001   to be used....
+    CRED_VIEW   = 2 #0b0010
+    CRED_CHANGE = 4 #0b0100
+    CRED_DELETE = 8 #0b1000
     #CRED_LINK ??
 
     #ESET means 'Entities SET'
@@ -358,7 +356,9 @@ class SetCredentials(Model):
         if self.set_type == SetCredentials.ESET_ALL:
             return self.value
         else: #SetCredentials.ESET_OWN
-            if user.id == entity.user_id:
+            if entity.user.is_team and user.id in entity.user.teammates:
+                return self.value
+            elif user.id == entity.user_id:
                 return self.value
 
         return SetCredentials.CRED_NONE
@@ -380,11 +380,58 @@ class SetCredentials(Model):
 
 
 class UserProfile(Model):
-    role = ForeignKey(UserRole, verbose_name=_(u'Role'), null=True)
+    role    = ForeignKey(UserRole, verbose_name=_(u'Role'), null=True)
+    is_team = BooleanField(verbose_name=_(u'Is a team ?'), default=False)
     #permissions = None #TODO; can we "erase" 'permissions' fields ?? doesn't seem to work
+
+    _teammates = None
 
     class Meta:
         abstract = True
+
+    def __unicode__(self):
+        return self.username if not self.is_team else ugettext('%s (team)') % self.username
+
+    def _set_teammates(self, users):
+        if not self.is_team:
+            raise ValueError('User.add_teammate() works only if user.is_team == True ')
+        assert not any(user.is_team for user in users)
+
+        old_teammates = self.teammates
+        new_teammates = dict((u.id, u) for u in users)
+
+        old_set = set(old_teammates.iterkeys())
+        new_set = set(new_teammates.iterkeys())
+
+        users2remove = [old_teammates[user_id] for user_id in (old_set - new_set)]
+        TeamM2M.objects.filter(team=self, teammate__in=users2remove).delete()
+
+        users2add = [new_teammates[user_id] for user_id in (new_set - old_set)]
+        for user in users2add:
+            TeamM2M.objects.get_or_create(team=self, teammate=user)
+
+        entities = CremeEntity.objects.filter(user=self) #NB: optimisation
+        for user in chain(users2remove, users2add):
+            user.update_credentials(entities)
+
+        self._teammates = None #clear cache (we could rebuild it but ...)
+
+    def _get_teammates(self):
+        if not self.is_team:
+            raise ValueError('User.get_teammates() works only if user.is_team == True ')
+
+        teammates = self._teammates
+
+        if teammates is None:
+            debug('User.teammates: Cache MISS for user_id=%s', self.id)
+            self._teammates = teammates = dict((u.id, u) for u in User.objects.filter(team_m2m__team=self))
+        else:
+            debug('User.teammates: Cache HIT for user_id=%s', self.id)
+
+        return teammates
+
+    #NB notice that cache and credentails are well updated when using this property
+    teammates = property(_get_teammates, _set_teammates); del (_get_teammates, _set_teammates)
 
     def has_perm_to_create(self, model_or_entity):
         """Helper for has_perm( method)
@@ -392,18 +439,39 @@ class UserProfile(Model):
         meta = model_or_entity._meta
         return self.has_perm('%s.add_%s' % (meta.app_label, meta.object_name.lower()))
 
-    def update_credentials(self):
+    def update_credentials(self, entity_qs=None):
+        """Update the credentials (EntityCredentials objects) related to this user.
+        @param entity_qs If not None, update only the credentials related to the
+                         CremeEntities retrieved by this queyset
+                         (if None: all credentials are updated).
+        """
         role = self.role
 
-        EntityCredentials.objects.filter(user=self).delete()
+        qs2del = EntityCredentials.objects.filter(user=self)
+
+        if entity_qs is not None:
+            qs2del.filter(entity__in=entity_qs)
+
+        qs2del.delete()
 
         if role is not None: #TODO factorise with EntityCredentials.create() ??
             build_value  = EntityCredentials._build_credentials
             create_creds = EntityCredentials.objects.create
             get_perms    = role.get_perms
 
-            for entity in CremeEntity.objects.all():
+            qs2update = entity_qs if entity_qs is not None else CremeEntity.objects.all()
+
+            for entity in qs2update:
                 create_creds(user=self, entity=entity, value=build_value(*get_perms(self, entity)))
+
+
+#TODO: remove this class when we can contribute_to_model with a ManyToManyField
+class TeamM2M(Model):
+    team     = ForeignKey(User, related_name='team_m2m_teamside')
+    teammate = ForeignKey(User, related_name='team_m2m')
+
+    class Meta:
+        app_label = 'creme_core'
 
 
 #NB: We use a contribute_to_model() instead of regular Django's profile
