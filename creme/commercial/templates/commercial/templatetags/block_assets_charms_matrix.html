@@ -1,0 +1,52 @@
+{% load i18n %}
+{% load creme_core_tags %}{% load creme_block %}
+{% load commercial_tags %}
+{% has_perm_to change strategy as has_perm %}
+<table class="table_detail_view ui-corner-all" id={{block_name}}>
+    {% get_block_header colspan=2 %}
+        <th style="width: 80%;" align="left" class="collapser">{% trans 'Assets / Charms matrix'%}</th>
+        <th style="width: 20%;" align="right"></th>
+    {% end_get_block_header %}
+    <tbody class="collapsable">
+        <tr>
+            <td class="block_line_dark">
+                <table class="table_detail_view ui-corner-all">
+                    <thead>
+                        <tr><th colspan="2">{% trans 'Segments'%}</th></tr>
+                    </thead>
+                    <tbody>
+                        {% for segment in segments %}<!--{% cycle "block_header_line_light" "block_header_line_dark" as header_color %}{% cycle "block_line_light" "block_line_dark" as row_color %}-->
+                            <tr>
+                                <th class="{{header_color}}">{{segment}}</th>
+                                <td class="{{row_color}}">{% widget_segment_category segment %}</td>
+                            </tr>
+                        {% empty %}
+                            <tr><td class="block_line_dark">{% trans "No market segment for the moment" %}</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </td>
+            <td class="block_line_light">
+                <table class="table_detail_view ui-corner-all">
+                    <tbody>
+                        <tr>
+                            <th class="block_header_line_light">{% trans "Strong charms" %}</th>
+                            <td class="strategy_score_2">{% get_segments_for_category strategy orga 2 %}<em>{% trans "Pool segment(s) [1]" %}</em></td>
+                            <td class="strategy_score_3">{% get_segments_for_category strategy orga 1 %}<em>{% trans "Priority segment(s)" %}</em></td>
+                        </tr>
+                        <tr>
+                            <th class="block_header_line_dark">{% trans "Weak charms" %}</th>
+                            <td class="strategy_score_1">{% get_segments_for_category strategy orga 4 %}<em>{% trans "Abandoned segment(s)" %}</em></td>
+                            <td class="strategy_score_2">{% get_segments_for_category strategy orga 3 %}<em>{% trans "Pool segment(s) [2]" %}</em></td>
+                        </tr>
+                        <tr>
+                            <th></th>
+                            <th class="block_header_line_light">{% trans "Weak assets" %}</th>
+                            <th class="block_header_line_light">{% trans "Strong assets" %}</th>
+                        </tr>
+                    </tbody>
+                </table>
+            </td>
+        </tr>
+    </tbody>
+</table>

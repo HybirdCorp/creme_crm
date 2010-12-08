@@ -24,26 +24,25 @@ from creme_core.views.generic import list_view, add_entity, edit_entity, view_en
 from creme_core.gui.last_viewed import change_page_for_last_item_viewed
 
 from commercial.models import Act
-from commercial.forms.act import CreateForm, EditForm
+from commercial.forms.act import ActForm
 
 
 @login_required
 @permission_required('commercial')
 @permission_required('commercial.add_act')
 def add(request):
-    return add_entity(request, CreateForm)
+    return add_entity(request, ActForm)
 
 def edit(request, act_id):
-    return edit_entity(request, act_id, Act, EditForm, 'commercial')
+    return edit_entity(request, act_id, Act, ActForm, 'commercial')
 
 @login_required
 @permission_required('commercial')
-def detailview(request, object_id):
-    return view_entity_with_template(request, object_id, Act, '/commercial/act',
-                                     'creme_core/generics/view_entity.html')
+def detailview(request, act_id):
+    return view_entity_with_template(request, act_id, Act, '/commercial/act')
 
 @login_required
 @permission_required('commercial')
 @change_page_for_last_item_viewed #WTF ???
 def listview(request):
-    return list_view(request, Act, extra_dict={'add_url':'/commercial/act/add'})
+    return list_view(request, Act, extra_dict={'add_url': '/commercial/act/add'})
