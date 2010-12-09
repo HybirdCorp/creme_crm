@@ -47,7 +47,8 @@ class ViewsTestCase(TestCase):
         self.assertEqual('text/javascript', response['Content-Type'])
 
         content = simplejson.loads(response.content)
-        self.assertEqual(13, len(content))
+        #print 'CONTENT:', content
+        self.assertEqual(14, len(content))
         self.assertEqual(content[0], ["created",          "Creme entity - " + _('Creation date')])
         self.assertEqual(content[1], ["modified",         "Creme entity - " + _("Last modification")])
         self.assertEqual(content[2], ["user__id",         _("User") + " - Id"])
