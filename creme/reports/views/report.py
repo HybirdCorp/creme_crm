@@ -55,7 +55,7 @@ def add(request):
     return add_entity(request, CreateForm, template="%s/add_report.html" % report_template_dir, extra_template_dict=tpl_dict)
 
 def edit(request, report_id):
-    return edit_entity(request, report_id, Report, EditForm, report_app)
+    return edit_entity(request, report_id, Report, EditForm, 'reports')
 
 @login_required
 @permission_required('reports')

@@ -82,7 +82,6 @@ class ReportsTestCase(TestCase):
         except Field.DoesNotExist, e:
             self.fail(str(e))
 
-
     def test_report_createview02(self):
         name  = 'trinita'
         self.failIf(Report.objects.filter(name=name).exists())
@@ -111,6 +110,14 @@ class ReportsTestCase(TestCase):
         self.assertEqual('get_pretty_properties', field.name)
         self.assertEqual('Properties', field.title)
         self.assertEqual(HFI_FUNCTION, field.type)
+
+    def test_report_editview(self):
+        report = self.create_report('trinita')
+
+        response = self.client.get('/reports/report/edit/%s' % report.id)
+        self.assertEqual(200, response.status_code)
+
+        #TODO: complete this test
 
     def test_report_change_field_order01(self):
         report = self.create_report('trinita')
