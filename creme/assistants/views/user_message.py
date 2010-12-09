@@ -63,7 +63,7 @@ def add_to_entity(request, entity_id):
 def delete(request):
     msg = get_object_or_404(UserMessage, pk=get_from_POST_or_404(request.POST, 'id'))
 
-    if request.user.id != msg.for_user_id:
+    if request.user.id != msg.recipient_id:
         raise PermissionDenied(_('You are not allowed to delete this message: %s') % msg)
 
     msg.delete()
