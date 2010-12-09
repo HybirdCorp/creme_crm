@@ -23,8 +23,8 @@ from datetime import datetime, time
 
 from django.forms.models import ModelChoiceField
 from django.forms.util import ValidationError, ErrorList
-from django.forms import IntegerField, CharField, BooleanField, ModelMultipleChoiceField
-from django.forms.widgets import CheckboxSelectMultiple
+from django.forms import IntegerField, CharField, BooleanField#, ModelMultipleChoiceField
+#from django.forms.widgets import CheckboxSelectMultiple
 from django.utils.translation import ugettext_lazy as _, ugettext
 from django.db.models import Q
 from django.contrib.auth.models import User
@@ -145,20 +145,21 @@ class _ActivityCreateBaseForm(CremeEntityForm):
     end_time   = CremeTimeField(label=_(u'End time'), required=False)
 
     is_comapp          = BooleanField(required=False, label=_(u"Is a commercial approach ?"))
-    my_participation   = BooleanField(required=False, label=_(u"Do I participate to this meeting ?"))
-    my_calendar        = ModelChoiceField(queryset=Calendar.objects.none(), required=False, label=_(u"On which of my calendar this activity will appears?"), empty_label=None)
-    user_participation = BooleanField(required=False, label=_(u"Do the responsable of this file participate to this meeting ? (Currently %s)"))
+    my_participation   = BooleanField(required=False, label=_(u"Do I participate to this activity ?"))
+    my_calendar        = ModelChoiceField(queryset=Calendar.objects.none(), required=False, label=_(u"On which of my calendar this activity will appear ?"), empty_label=None)
+    user_participation = BooleanField(required=False, label=_(u"Does the owner of this activity participate ? (Currently %s)"))
     participants       = RelatedEntitiesField(relation_types=[REL_SUB_ACTIVITY_SUBJECT, REL_SUB_PART_2_ACTIVITY, REL_SUB_LINKED_2_ACTIVITY],
-                                            label=_(u'Other participants'), required=False)
+                                              label=_(u'Other participants'), required=False)
 
-    informed_users = ModelMultipleChoiceField(queryset=User.objects.all(),
-                                              widget=CheckboxSelectMultiple(),
-                                              required=False, label=_(u"Users"))
+    #TODO: uncomment when it works...
+    #informed_users = ModelMultipleChoiceField(queryset=User.objects.all(),
+                                              #widget=CheckboxSelectMultiple(),
+                                              #required=False, label=_(u"Users"))
 
     blocks = CremeEntityForm.blocks.new(
                 ('datetime',       _(u'When'),                   ['start', 'start_time', 'end_time', 'is_all_day']),
                 ('participants',   _(u'Participants'),           ['my_participation', 'my_calendar', 'user_participation', 'participants']),
-                ('informed_users', _(u'Users to keep informed'), ['informed_users']),
+                #('informed_users', _(u'Users to keep informed'), ['informed_users']),
             )
 
     def __init__(self, current_user, *args, **kwargs):
@@ -171,16 +172,20 @@ class _ActivityCreateBaseForm(CremeEntityForm):
         fields['start_time'].initial = time(9, 0)
         fields['end_time'].initial   = time(18, 0)
 
-        user_field = fields['user']
-        fields['user_participation'].label %= user_field.queryset[0] if user_field.queryset else _(u"Nobody")
-        user_field.widget.attrs['onchange'] = "$('label[for=id_user_participation]').html('%s (%s '+this.options[this.selectedIndex].innerHTML+')');" % (_(u"Do the responsable of this file participate to this meeting ?"), _(u"Currently"))
+        #TODO: create real widget to manage JS more cleanly
 
-        my_default_calendar = Calendar.get_user_default_calendar(current_user)
+        user_field = fields['user']
+        fields['user_participation'].label %= user_field.queryset[0] if user_field.queryset else ugettext(u"Nobody")
+        user_field.widget.attrs['onchange'] = "$('label[for=id_user_participation]').html('%s (%s '+this.options[this.selectedIndex].innerHTML+')');" % (
+                                                     ugettext(u"Does the owner of this activity participate ?"), ugettext(u"Currently")
+                                                    )
+
+        my_default_calendar = Calendar.get_user_default_calendar(current_user) #TODO: variable used once...
         fields['my_calendar'].queryset = Calendar.objects.filter(user=current_user)
         fields['my_calendar'].initial  = my_default_calendar
 
         if data is None or not data.get('my_participation', False):
-            fields['my_calendar'].widget.attrs['disabled']  = 'disabled'
+            fields['my_calendar'].widget.attrs['disabled'] = 'disabled'
         fields['my_participation'].widget.attrs['onclick'] = "if($(this).is(':checked')){$('#id_my_calendar').removeAttr('disabled');}else{$('#id_my_calendar').attr('disabled', 'disabled');}"
 
     def clean(self):
@@ -195,11 +200,12 @@ class _ActivityCreateBaseForm(CremeEntityForm):
 
         my_participation = cleaned_data.get('my_participation')
         if my_participation and not cleaned_data.get('my_calendar'):
-            errors['my_calendar'] = ErrorList([_(u"If you participe, you have to choose one of your calendars.")])
+            errors['my_calendar'] = ErrorList([ugettext(u"If you participe, you have to choose one of your calendars.")])
 
         if not my_participation and not cleaned_data.get('user_participation'):
-            errors['my_participation']   = ErrorList([_(u"You or the assigned user has to participate")])
-            errors['user_participation'] = ErrorList([_(u"You or the assigned user has to participate")])
+            errlist = ErrorList([ugettext(u"You or the assigned user has to participate")])
+            errors['my_participation']   = errlist
+            errors['user_participation'] = errlist
 
         return self.cleaned_data
 
@@ -314,6 +320,7 @@ class ActivityCreateWithoutRelationForm(_ActivityCreateBaseForm):
 
         if self.cleaned_data.get('is_comapp', False):
             self._create_commercial_approach()
+
         return instance
 
 
