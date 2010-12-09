@@ -68,17 +68,26 @@ def jsonify(func): ##
         return HttpResponse(JSONEncoder().encode(rendered), mimetype="text/javascript")
     return _aux
 
-def get_from_GET_or_404(GET, key):
+def get_from_GET_or_404(GET, key): #TODO: factorise with get_from_POST_or_404()
     try:
         return GET[key]
     except KeyError:
         raise Http404('No GET argument with this key: %s' % key)
 
-def get_from_POST_or_404(POST, key):
+def get_from_POST_or_404(POST, key, cast=None):
+    """@param cast A function that cast the return value, and raise an Exception if it is not possible (eg: int)
+    """
     try:
-        return POST[key]
+        value = POST[key]
+
+        if cast:
+            value = cast(value)
     except KeyError:
         raise Http404('No POST argument with this key: %s' % key)
+    except Exception, e:
+        raise Http404('Problen with argument "%s" : it can not be coerced (%s)' % (key, str(e)))
+
+    return value
 
 def find_first(iterable, function, *default):
     """

@@ -1,0 +1,29 @@
+{% load i18n %}
+{% load creme_core_tags %}{% load creme_block %}
+{% load commercial_tags %}
+{% has_perm_to change strategy as has_perm %}
+<table class="table_detail_view ui-corner-all" id={{block_name}}>
+    {% get_block_header colspan=10 %}{% comment %}TODO: improve get_block_header to accept variable as colpsan{% endcomment %}
+        <th style="width: 80%;" align="left" class="collapser">{% trans 'Assets / Segments matrix'%}</th>
+        <th style="width: 20%;" align="right"></th>
+    {% end_get_block_header %}
+    <tbody class="collapsable">
+        {% if segments %}{% if assets %}
+            <tr>
+                <th class="block_header_line_dark">{% trans 'Assets / Segments' %}</th>
+                {% for segment in segments %}<th class="block_header_line_dark">{{segment}}</th>{% endfor %}
+            </tr>
+            {% for asset in assets %}<!--{% cycle "block_header_line_light" "block_header_line_dark" as header_color %}{% cycle "block_line_light" "block_line_dark" as row_color %}-->
+                <tr>
+                    <th class="{{header_color}}">{{asset}}</th>
+                    {% for segment in segments %}<td class="{{row_color}}">{% widget_asset_score segment asset %}</td>{% endfor %}
+                </tr>
+            {% endfor %}
+            <tr>
+                <th class="block_header_line_dark"><strong>{% trans 'TOTAL' %}</strong></th>
+                {% for total in totals %}<td class="strategy_score_{{total.1}}"><strong>{{total.0}}</strong></td>{% endfor %}
+            </tr>
+        {% else %}<tr><td class="block_line_dark">{% trans "No commercial asset for the moment" %}</td></tr>{% endif %}
+        {% else %}<tr><td class="block_line_dark">{% trans "No market segment for the moment" %}</td></tr>{% endif %}
+    </tbody>
+</table>

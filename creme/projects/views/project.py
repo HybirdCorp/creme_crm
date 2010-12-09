@@ -18,9 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-import datetime
-
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, Http404
 from django.contrib.auth.decorators import login_required, permission_required
 
 from creme_core.views.generic import view_entity_with_template, add_entity, list_view, edit_entity
@@ -52,15 +50,19 @@ def detailview(request, project_id):
                                      '/projects/project',
                                      'projects/view_project.html',)
 
-#TODO: use POST
 @login_required
 @permission_required('projects')
 def close(request, project_id):
+    if request.method != "POST":
+        raise Http404('This view uses POST method')
+
     project = Project.objects.get(pk=project_id)
 
     project.can_change_or_die(request.user)
 
-    project.effective_end_date = datetime.date.today()
+    if not project.close():
+        raise Http404('Project is already closed: %s' % project)
+
     project.save()
 
     return HttpResponseRedirect(project.get_absolute_url())

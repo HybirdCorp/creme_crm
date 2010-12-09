@@ -27,7 +27,7 @@ from creme_core.models.header_filter import HeaderFilterItem, HeaderFilter, HFI_
 from creme_core.utils import create_or_update_models_instance as create
 from creme_core.management.commands.creme_populate import BasePopulator
 
-from commercial.models import Act
+from commercial.models import Act, Strategy
 from commercial.blocks import approaches_block
 from commercial.constants import PROP_IS_A_SALESMAN, REL_OBJ_SOLD_BY, REL_SUB_SOLD_BY
 
@@ -39,15 +39,21 @@ class Populator(BasePopulator):
         RelationType.create((REL_SUB_SOLD_BY, _(u'has sold')),
                             (REL_OBJ_SOLD_BY, _(u'has been sold by')))
 
-
         CremePropertyType.create(PROP_IS_A_SALESMAN, _(u'is a salesman'))
 
         create(BlockConfigItem, 'commercial-approaches_block', content_type=None, block_id=approaches_block.id_, order=10,  on_portal=False)
 
-        hf_id = create(HeaderFilter, 'commercial-hf_act', name=_(u"Com Action view"), entity_type_id=ContentType.objects.get_for_model(Act).id, is_custom=False).id
+        get_ct = ContentType.objects.get_for_model
+
+        hf_id = create(HeaderFilter, 'commercial-hf_act', name=_(u"Com Action view"), entity_type_id=get_ct(Act).id, is_custom=False).id
         pref  = 'commercial-hfi_act_'
         create(HeaderFilterItem, pref + 'name',        order=1, name='name',        title=_(u'Name'),           type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True, editable=True, sortable=True, filter_string="name__icontains")
         create(HeaderFilterItem, pref + 'ca_expected', order=2, name='ca_expected', title=_(u'Expected sales'), type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True, editable=True, sortable=True, filter_string="ca_expected__icontains")
         create(HeaderFilterItem, pref + 'due_date',    order=3, name='due_date',    title=_(u'Due date'),       type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True, editable=True, sortable=True, filter_string="due_date__range")
 
+        hf_id = create(HeaderFilter, 'commercial-hf_strategy', name=_(u"Strategy view"), entity_type_id=get_ct(Strategy).id, is_custom=False).id
+        create(HeaderFilterItem, 'commercial-hfi_strategy_name', order=1, name='name', title=_(u'Name'), type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True, editable=True, sortable=True, filter_string="name__icontains")
+
+
         SearchConfigItem.create(Act, ['name', 'ca_expected', 'cost', 'target', 'goal', 'aim'])
+        SearchConfigItem.create(Strategy, ['name'])

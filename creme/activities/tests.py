@@ -43,6 +43,14 @@ class ActivitiesTestCase(TestCase):
         acttypes = ActivityType.objects.filter(pk__in=acttypes_pks)
         self.assertEqual(len(acttypes_pks), len(acttypes))
 
+    def assertNoFormError(self, response): #TODO: move in a CremeTestCase ??? (copied from creme_config)
+        try:
+            errors = response.context['form'].errors
+        except Exception, e:
+            pass
+        else:
+            self.fail(errors)
+
     def test_activity_createview01(self):
         self.login()
 
@@ -61,6 +69,7 @@ class ActivitiesTestCase(TestCase):
                                          }
                                    )
         self.assertEqual(response.status_code, 200)
+        self.assertNoFormError(response)
 
         try:
             act  = Activity.objects.get(type=ACTIVITYTYPE_TASK, title=title)
@@ -73,8 +82,8 @@ class ActivitiesTestCase(TestCase):
 
         start = task.start
         self.assertEqual(2010, start.year)
-        self.assertEqual(1,   start.month)
-        self.assertEqual(10,    start.day)
+        self.assertEqual(1,    start.month)
+        self.assertEqual(10,   start.day)
 
     def test_activity_createview02(self):
         self.login()
@@ -100,6 +109,7 @@ class ActivitiesTestCase(TestCase):
                                             'end_time':   '18:30:00',
                                          }
                                     )
+        self.assertNoFormError(response)
         self.assertEqual(response.status_code, 200)
         self.assert_(response.redirect_chain)
 
