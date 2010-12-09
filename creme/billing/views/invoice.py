@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-import datetime
+from datetime import date
 
 from django.shortcuts import get_object_or_404
 from django.http import HttpResponseRedirect, Http404
@@ -55,10 +55,14 @@ def listview(request):
 @login_required
 @permission_required('billing')
 def generate_number(request, invoice_id):
+    if request.method != 'POST':
+        raise Http404('This view uses POST method.')
+
     invoice = get_object_or_404(Invoice, pk=invoice_id)
 
     invoice.can_change_or_die(request.user)
 
+    #TODO: move in model ???
     if not invoice.number:
         status = get_object_or_404(InvoiceStatus, pk=DEFAULT_INVOICE_STATUS)
 
@@ -66,8 +70,10 @@ def generate_number(request, invoice_id):
         invoice.status = status
 
         if not invoice.issuing_date:
-            invoice.issuing_date = datetime.now()
+            invoice.issuing_date = date.today()
 
         invoice.save()
+    else:
+        raise Http404('This invoice has already a number: %s.' % invoice)
 
     return HttpResponseRedirect(invoice.get_absolute_url())

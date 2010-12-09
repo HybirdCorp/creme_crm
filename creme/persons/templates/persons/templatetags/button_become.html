@@ -1,22 +1,20 @@
+{% load i18n %}
 {% if managed_orga|length == 1 %}
-    <a class="menu_button" href="{{become_url}}{{managed_orga.0.pk}}">{{verbose_name}}</a>
+    <a class="menu_button" onclick="creme.persons.post_become(this, {{managed_orga.0.pk}});">{{verbose_name}}<form method="POST" action="{{become_url}}" style="display:none;">{% csrf_token %}<input id="id_become" name="id"/></form></a>
 {% else %}
-    {% with today|date:"U" as today_timestamp %}
-        <script type="text/javascript">
-            function become_{{what}}_{{today_timestamp}}() {
-                creme.utils.showDialog(
-                    "<select>{% for m_orga in managed_orga %}<option value='{{m_orga.pk}}'>{{m_orga}}</option>{% endfor %}</select>",
-                    {
-                        buttons:{
-                            "Ok": function() {
-                                window.location.href = '{{become_url}}' + $('select', this).val();
-                                $(this).dialog("close");
-                            }
+    <script type="text/javascript">
+        function become_{{what}}(atag) {
+            creme.utils.showDialog(
+                "<select>{% for m_orga in managed_orga %}<option value='{{m_orga.pk}}'>{{m_orga}}</option>{% endfor %}</select>",
+                {
+                    buttons: {
+                        '{% trans "Ok" %}': function() {
+                            creme.persons.post_become(atag, $('select', this).val());
                         }
                     }
-                );
-            }
-        </script>
-        <a class="menu_button" onclick="become_{{what}}_{{today_timestamp}}();">{{verbose_name}}</a>
-    {% endwith %}
+                }
+            );
+        }
+    </script>
+    <a class="menu_button" onclick="become_{{what}}(this);">{{verbose_name}}<form method="POST" action="{{become_url}}" style="display:none;">{% csrf_token %}<input id="id_become" name="id"/></form></a>
 {% endif %}
