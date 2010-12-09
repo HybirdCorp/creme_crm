@@ -25,7 +25,7 @@ from django.forms.models import ModelChoiceField
 from django.forms.util import ValidationError, ErrorList
 from django.forms import IntegerField, CharField, BooleanField, ModelMultipleChoiceField
 from django.forms.widgets import CheckboxSelectMultiple
-from django.utils.translation import ugettext as _, ugettext
+from django.utils.translation import ugettext_lazy as _, ugettext
 from django.db.models import Q
 from django.contrib.auth.models import User
 
@@ -165,7 +165,7 @@ class _ActivityCreateBaseForm(CremeEntityForm):
         super(_ActivityCreateBaseForm, self).__init__(*args, **kwargs)
         self.current_user = current_user
         data = kwargs.get('data')
-        
+
         fields = self.fields
 
         fields['start_time'].initial = time(9, 0)
@@ -300,7 +300,7 @@ class ActivityCreateForm(_ActivityCreateBaseForm):
 
         if self.cleaned_data.get('is_comapp', False):
             self._create_commercial_approach(self._entity_for_relation)
-            
+
         return instance
 
 
