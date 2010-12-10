@@ -31,9 +31,10 @@ from assistants.models import UserMessage
 
 
 class UserMessageForm(CremeModelForm):
-    users = ModelMultipleChoiceField(queryset=User.objects.all(),
+    users = ModelMultipleChoiceField(queryset=User.objects.all(), label=_(u"Recipients"),
                                      widget=UnorderedMultipleChoiceWidget,
-                                     label=_(u"Recipients"))
+                                     help_text=_(u'Each time a team is selected, a message is sent to each teammate (do not worry, there can not be any duplicate).')
+                                     )
 
     class Meta:
         model = UserMessage
@@ -57,7 +58,14 @@ class UserMessageForm(CremeModelForm):
         priority = cdata['priority']
         now = datetime.now()
 
+        users = {}
         for user in cdata['users']:
+            if user.is_team:
+                users.update(user.teammates)
+            else:
+                users[user.id] = user
+
+        for user in users.itervalues():
             msg = UserMessage(title=title, body=body, creation_date=now, priority=priority,
                               sender=sender, recipient=user, email_sent=False)
             msg.creme_entity = entity
