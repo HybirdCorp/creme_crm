@@ -31,9 +31,6 @@ from creme_core.models.header_filter import HFI_FUNCTION, HFI_RELATION, HFI_FIEL
 
 from reports.report_aggregation_registry import field_aggregation_registry
 
-report_prefix_url   = '/reports'
-report_template_dir = 'reports'
-
 
 class DropLine(Exception):
     pass
@@ -275,18 +272,17 @@ class Report(CremeEntity):
         return self.name
 
     def get_absolute_url(self):
-        return "%s/report/%s" % (report_prefix_url, self.id)
+        return "/reports/report/%s" % self.id
 
     def get_edit_absolute_url(self):
-        return "%s/report/edit/%s" % (report_prefix_url, self.id)
+        return "/reports/report/edit/%s" % self.id
 
     @staticmethod
     def get_lv_absolute_url():
-        """url for list_view """
-        return "%s/reports" % report_prefix_url
+        return "/reports/reports"
 
     def get_delete_absolute_url(self):
-        return "%s/report/delete/%s" % (report_prefix_url, self.id)
+        return "/reports/report/delete/%s" % self.id
 
     def get_ascendants_reports(self):
         fields = Field.objects.filter(report__id=self.id) #TODO: use related name ?

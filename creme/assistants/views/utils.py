@@ -29,18 +29,18 @@ from creme_core.utils import get_from_POST_or_404
 
 @login_required
 def generic_edit(request, assistant_id, assistant_model, assistant_form, title):
-    alert = get_object_or_404(assistant_model, pk=assistant_id)
-    entity = alert.creme_entity
+    assistant = get_object_or_404(assistant_model, pk=assistant_id)
+    entity = assistant.creme_entity
 
     entity.can_change_or_die(request.user)
 
     if request.POST:
-        edit_form = assistant_form(entity, request.POST, instance=alert)
+        edit_form = assistant_form(entity, request.POST, instance=assistant)
 
         if edit_form.is_valid():
             edit_form.save()
     else: # return page on GET request
-        edit_form = assistant_form(entity=entity, instance=alert)
+        edit_form = assistant_form(entity=entity, instance=assistant)
 
     return inner_popup(request, 'creme_core/generics/blockform/edit_popup.html',
                        {

@@ -7,14 +7,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-11-29 17:40+0100\n"
+"POT-Creation-Date: 2010-12-08 18:03+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
-"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Language: \n"
 
 #: blocks.py:30 forms/csv_import.py:340 models/creme_property.py:88
 #: models/entity.py:49 tests/views.py:77
@@ -378,40 +378,40 @@ msgstr "Maintenant"
 msgid "Today"
 msgstr "Aujourd'hui"
 
-#: models/auth.py:178 models/i18n.py:26
+#: models/auth.py:180 models/i18n.py:26
 #: templates/creme_core/templatetags/block_specific_relations.html:24
 msgid "Name"
 msgstr "Nom"
 
-#: models/auth.py:180
+#: models/auth.py:182
 msgid "Creatable resources"
 msgstr "Ressources créables"
 
-#: models/auth.py:319
+#: models/auth.py:317
 msgid "all entities"
 msgstr "toutes les entités"
 
-#: models/auth.py:320
+#: models/auth.py:318
 msgid "user's own entities"
 msgstr "ses propres fiches"
 
-#: models/auth.py:331
+#: models/auth.py:329
 msgid "Can view"
 msgstr "Peut voir"
 
-#: models/auth.py:333
+#: models/auth.py:331
 msgid "Can change"
 msgstr "Peut modifier"
 
-#: models/auth.py:335
+#: models/auth.py:333
 msgid "Can delete"
 msgstr "Peut supprimer"
 
-#: models/auth.py:338
+#: models/auth.py:336
 msgid "Nothing allowed"
 msgstr "Rien d'autorisé"
 
-#: models/auth.py:340
+#: models/auth.py:338
 #, python-format
 msgid "For %(set)s => %(perms)s"
 msgstr "Pour %(set)s => %(perms)s"
@@ -419,6 +419,15 @@ msgstr "Pour %(set)s => %(perms)s"
 #: models/auth.py:383
 msgid "Role"
 msgstr "Rôle"
+
+#: models/auth.py:384
+msgid "Is a team ?"
+msgstr "Est une équipe ?"
+
+#: models/auth.py:393
+#, python-format
+msgid "%s (team)"
+msgstr "%s (équipe)"
 
 #: models/base.py:166 tests/views.py:51
 msgid "Creation date"
@@ -522,31 +531,31 @@ msgstr "Chaîne de caractères"
 msgid "Integer"
 msgstr "Nombre entier"
 
-#: models/custom_field.py:197
+#: models/custom_field.py:200
 msgid "Decimal"
 msgstr "Nombre à virgule"
 
-#: models/custom_field.py:210
+#: models/custom_field.py:216
 msgid "Date"
 msgstr "Date"
 
-#: models/custom_field.py:224
+#: models/custom_field.py:230
 msgid "Boolean (2 values: Yes/No)"
 msgstr "Booléen (2 valeurs: Oui/Non)"
 
-#: models/custom_field.py:230 templatetags/creme_listview.py:59
+#: models/custom_field.py:236 templatetags/creme_listview.py:59
 msgid "Yes"
 msgstr "Oui"
 
-#: models/custom_field.py:230 templatetags/creme_listview.py:63
+#: models/custom_field.py:236 templatetags/creme_listview.py:63
 msgid "No"
 msgstr "Non"
 
-#: models/custom_field.py:255
+#: models/custom_field.py:261
 msgid "List of choices"
 msgstr "Liste de choix"
 
-#: models/custom_field.py:287
+#: models/custom_field.py:293
 msgid "List of choices (multi sélection)"
 msgstr "Liste de choix (multi sélection)"
 

@@ -1,0 +1,45 @@
+{% load i18n %}
+{% load media %}
+{% load creme_block %}{% load creme_widgets %}
+<table class="table_detail_view ui-corner-all" id={{block_name}}>
+    {% get_block_header colspan=11 %}
+        <th style="width: 80%;" class="collapser" align="left">{% get_block_title  _('%s Team') _('%s Teams') %}</th>
+        <th style="width: 20%;" align="right"></th>
+    {% end_get_block_header %}
+    <tbody class="collapsable">
+        <tr>
+            <th class="block_header_line_light" style="font-size:14px;" align="left" colspan="3">
+                <a class="button_link" href="/creme_config/team/add/">
+                    <img src="{% media_url 'images/add_22.png' %}" border="0" alt="{% trans "New team" %}"/>
+                    {% trans "New team" %}
+                </a>
+            </th>
+        </tr>
+        {% if page.paginator.count %}
+            <tr>
+                {% get_column_header _("Name") 'username' %}
+                <th class="block_header_line_light">{% trans "Teammates" %}</th>
+                <th class="block_header_line_light">{% trans "Actions" %}</th>
+            </tr>
+            {% for team in page.object_list %}<!--{% cycle "block_line_light" "block_line_dark" as row_color %}-->
+                <tr>
+                    <td class="{{row_color}}">{{team.username}}</td>
+                    <td class="{{row_color}}">
+                        {% widget_select_or_msg team.teammates.values _('No teammate') %} ({{team.teammates|length}})
+                    </td>
+                    <td class="{{row_color}}">
+                        <a href="/creme_config/team/edit/{{team.id}}">
+                            <img src="{% media_url 'images/edit_22.png' %}" border="0" alt="{% trans "Edit" %}" title="{% trans "Edit" %}">
+                        </a>
+                        {% get_line_deletor at_url '/creme_config/team/delete' with_args "{'id':'{{team.id}}'}" %}
+                    </td>
+                </tr>
+            {% endfor %}
+        {% else %}
+            <tr>
+                <td class="block_line_dark">{% trans "No team for the moment" %}</td>
+            </tr>
+        {% endif %}
+    </tbody>
+    {% include 'creme_core/templatetags/widgets/block_footer.html' %}
+</table>

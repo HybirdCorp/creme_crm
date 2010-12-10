@@ -35,14 +35,11 @@ from creme_core.utils.meta import get_model_field_infos, get_flds_with_fk_flds, 
 from creme_core.utils import get_ct_or_404, get_from_GET_or_404
 from creme_core.date_filters_registry import date_filters_registry
 
-from reports.models import Report, report_prefix_url, report_template_dir, Field
+from reports.models import Report, Field
 from reports.forms.report import CreateForm, EditForm, LinkFieldToReportForm, AddFieldToReportForm, get_aggregate_custom_fields, DateReportFilterForm
 from reports.registry import report_backend_registry
 from reports.report_aggregation_registry import field_aggregation_registry
 
-
-#report_app = Report._meta.app_label
-#report_ct  = ContentType.objects.get_for_model(Report)
 
 @login_required
 @permission_required('reports')
@@ -52,7 +49,7 @@ def add(request):
         'help_messages' : [],
         'ct_posted'  : request.POST.get('ct'),
     }
-    return add_entity(request, CreateForm, template="%s/add_report.html" % report_template_dir, extra_template_dict=tpl_dict)
+    return add_entity(request, CreateForm, template="reports/add_report.html", extra_template_dict=tpl_dict)
 
 def edit(request, report_id):
     return edit_entity(request, report_id, Report, EditForm, 'reports')
@@ -61,13 +58,13 @@ def edit(request, report_id):
 @permission_required('reports')
 def detailview(request, report_id):
     return view_entity_with_template(request, report_id, Report,
-                                     '%s/report' % report_prefix_url,
-                                     '%s/view_report.html' % report_template_dir)
+                                     '/reports/report',
+                                     'reports/view_report.html')
 
 @login_required
 @permission_required('reports')
 def listview(request):
-    return list_view(request, Report, extra_dict={'add_url':'%s/report/add' % report_prefix_url})
+    return list_view(request, Report, extra_dict={'add_url': '/reports/report/add'})
 
 @login_required
 @permission_required('reports')
@@ -200,21 +197,18 @@ def preview(request, report_id):
         filter_form = DateReportFilterForm(report)
 
     LIMIT_TO = 25
-
     html_backend = report_backend_registry.get_backend('HTML')
-
     req_ctx = RequestContext(request)
-
     html_backend = html_backend(report, context_instance=req_ctx, limit_to=LIMIT_TO, extra_fetch_q=extra_q_filter) #reusing the same variable is not great
 
-    return render_to_response("%s/preview_report.html" % report_template_dir,
+    return render_to_response("reports/preview_report.html",
                               {
-                                'object'  : report,
-                                'html_backend' : html_backend,
-                                'limit_to': LIMIT_TO,
-                                'date_filters': date_filters_registry.itervalues(),
-                                'date_fields' : [(field.name, field.verbose_name) for field in get_date_fields(report.ct.model_class())],
-                                'form': filter_form
+                                'object':        report,
+                                'html_backend':  html_backend,
+                                'limit_to':      LIMIT_TO,
+                                'date_filters':  date_filters_registry.itervalues(),
+                                'date_fields':   [(field.name, field.verbose_name) for field in get_date_fields(report.ct.model_class())],
+                                'form':          filter_form,
                               },
                               context_instance=req_ctx)
 
@@ -306,13 +300,13 @@ def date_filter_form(request, report_id):
     else:
         form = DateReportFilterForm(report)
 
-    return inner_popup(request, "%s/frags/date_filter_form.html" % report_template_dir,
+    return inner_popup(request, 'reports/frags/date_filter_form.html',
                        {
-                        'form':  form,
-                        'title': _(u'Temporal filters for <%s>' % report),
-                        'inner_popup': True,
-                        'report_id': report_id,
-                        'redirect':redirect,
+                        'form':            form,
+                        'title':           _(u'Temporal filters for <%s>' % report),
+                        'inner_popup':     True,
+                        'report_id':       report_id,
+                        'redirect':        redirect,
                         'simple_redirect': simple_redirect,
                        },
                        is_valid=valid,
