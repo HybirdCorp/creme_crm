@@ -35,30 +35,31 @@ from persons.models import Address, Organisation
 from persons.forms.address import AddressWithEntityForm
 
 
-@login_required
-#@add_view_or_die(__ct_address, app_name="all_creme_apps")
-@permission_required('persons')
-def add(request):
-    req_get = request.GET.get
-    orga    = get_object_or_404(Organisation, pk=req_get('organisation_id'))
+#Commented on 3 Decemeber 2010
+#@login_required
+##@add_view_or_die(__ct_address, app_name="all_creme_apps")
+#@permission_required('persons')
+#def add(request):
+    #req_get = request.GET.get
+    #orga    = get_object_or_404(Organisation, pk=req_get('organisation_id'))
 
-    #TODO: credentials ?
+    ##TODO: credentials ?
 
-    if req_get('popup') == "true":
-        template = "creme_core/generics/blockform/add_popup.html"
-    else:
-        template = 'creme_core/generics/blockform/add.html'
+    #if req_get('popup') == "true":
+        #template = "creme_core/generics/blockform/add_popup.html"
+    #else:
+        #template = 'creme_core/generics/blockform/add.html'
 
-    callback_url = req_get('callback_url') or "/creme_core/nothing/"
+    #callback_url = req_get('callback_url') or "/creme_core/nothing/"
 
-    return add_entity(request,
-                      AddressWithEntityForm,
-                      callback_url,
-                      template,
-                      #extra_initial={'organisation_id': req_get('organisation_id')})
-                      extra_initial={'entity': orga})
+    #return add_entity(request,
+                      #AddressWithEntityForm,
+                      #callback_url,
+                      #template,
+                      ##extra_initial={'organisation_id': req_get('organisation_id')})
+                      #extra_initial={'entity': orga})
 
-
+#TODO: generic view like add_to_entity() ????
 @login_required
 @permission_required('persons')
 def edit(request, address_id):
@@ -104,12 +105,13 @@ def delete(request, pk_key='id'):
 def ipopup_add_adress(request, entity_id):
     return add_to_entity(request, entity_id, AddressWithEntityForm, _(u'Adding Address to <%s>'))
 
-#TODO: credentials ??
-@login_required
-@permission_required('persons')
-def get_org_addresses(request):
-    POST_get = request.POST.get #TODO: '[]' to raise exception instead ??
-    verbose_field = POST_get('verbose_field', '')
-    addresses = Address.objects.filter(content_type=POST_get('ct_id'), object_id=POST_get('entity_id'))
+#Commented on 3 Decemeber 2010
+##TODO: credentials ??
+#@login_required
+#@permission_required('persons')
+#def get_org_addresses(request):
+    #POST_get = request.POST.get #TODO: '[]' to raise exception instead ??
+    #verbose_field = POST_get('verbose_field', '')
+    #addresses = Address.objects.filter(content_type=POST_get('ct_id'), object_id=POST_get('entity_id'))
 
-    return HttpResponse(serializers.serialize('json', addresses, fields=(verbose_field)), mimetype="text/javascript")
+    #return HttpResponse(serializers.serialize('json', addresses, fields=(verbose_field)), mimetype="text/javascript")
