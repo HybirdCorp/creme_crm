@@ -51,6 +51,8 @@ class ActivitiesTestCase(TestCase):
 
         title  = 'my_task'
         status = TaskStatus.objects.all()[0]
+        my_calendar = Calendar.get_user_default_calendar(self.user)
+        
         response = self.client.post('/activities/activity/add-without-relation/task',
                                     follow=True,
                                     data={
@@ -58,6 +60,9 @@ class ActivitiesTestCase(TestCase):
                                             'title':  title,
                                             'status': status.pk,
                                             'start':  '2010-1-10',
+                                            'user_participation': True,
+                                            'my_participation': True,
+                                            'my_calendar': my_calendar.pk,
                                          }
                                    )
         self.assertEqual(response.status_code, 200)
@@ -98,6 +103,7 @@ class ActivitiesTestCase(TestCase):
                                             'start':      '2010-1-10',
                                             'start_time': '17:30:00',
                                             'end_time':   '18:30:00',
+                                            'user_participation': True,
                                          }
                                     )
         self.assertEqual(response.status_code, 200)
