@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-12-09 12:46+0100\n"
+"POT-Creation-Date: 2010-12-13 11:14+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -250,10 +250,9 @@ msgid "Nobody"
 msgstr "Personne"
 
 #: forms/activity.py:180
-#, fuzzy
 msgid "Does the owner of this activity participate ?"
 msgstr ""
-"Est-ce que le responsable de cette activité participe ? (Actuellement %s)"
+"Est-ce que le responsable de cette activité participe ?"
 
 #: forms/activity.py:180
 msgid "Currently"
@@ -312,9 +311,14 @@ msgstr "Est-ce que je participe à cette tâche"
 msgid "Default ?"
 msgstr "Par défaut ?"
 
+#: models/activity.py:38
+#: templates/activities/templatetags/block_user_calendars.html:24
+msgid "Is public ?"
+msgstr "Est public ?"
+
 #: models/activity.py:39
 msgid "Calendar owner"
-msgstr "Proprietaire du calendrier"
+msgstr "Propriétaire du calendrier"
 
 #: models/activity.py:44 templates/activities/calendar.html:5
 #: templates/activities/templatetags/block_user_calendars.html:7
@@ -748,10 +752,6 @@ msgstr "Nouveau calendrier"
 msgid "Is default ?"
 msgstr "Par défaut ?"
 
-#: templates/activities/templatetags/block_user_calendars.html:24
-msgid "Is public ?"
-msgstr "Est public ?"
-
 #: templates/activities/templatetags/block_user_calendars.html:25
 msgid "Edit"
 msgstr "Éditer"
@@ -784,8 +784,8 @@ msgstr "Ajouter un calendrier"
 msgid "Activities' count"
 msgstr "Nombre d'activité(s)"
 
-msgid "Users"
-msgstr "Utilisateurs"
+#~ msgid "Users"
+#~ msgstr "Utilisateurs"
 
-msgid "Users to keep informed"
-msgstr "Les utilisateurs à tenir informés"
+#~ msgid "Users to keep informed"
+#~ msgstr "Les utilisateurs à tenir informés"
