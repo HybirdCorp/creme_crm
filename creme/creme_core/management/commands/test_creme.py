@@ -24,7 +24,7 @@ from django.conf import settings
 
 
 class Command(BaseCommand):
-    help = 'Get the list of installed apps.'
+    help = 'Run tests for installed apps.'
     args = ''
 
     def handle(self, *args, **options):
