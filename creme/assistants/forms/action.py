@@ -47,19 +47,15 @@ class ActionEditForm(CremeModelWithUserForm):
         cleaned_data = self.cleaned_data
 
         deadline = cleaned_data.get("deadline")
-        deadline_time = cleaned_data.get('deadline_time', time())
+        deadline_time = cleaned_data.get('deadline_time') or time()
         cleaned_data["deadline"] = deadline.replace(hour=deadline_time.hour, minute=deadline_time.minute)
 
         return cleaned_data
- 
+
     def save (self):
-        entity = self.entity
-
         instance = self.instance
-        instance.entity_content_type = entity.entity_type
-        instance.entity_id = entity.id
-
-        instance.for_user = self.cleaned_data['user']
+        instance.creme_entity = self.entity
+        instance.for_user     = self.cleaned_data['user']
 
         super(ActionEditForm, self).save()
 
