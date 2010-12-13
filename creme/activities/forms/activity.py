@@ -151,21 +151,21 @@ class _ActivityCreateBaseForm(CremeEntityForm):
     participants       = RelatedEntitiesField(relation_types=[REL_SUB_ACTIVITY_SUBJECT, REL_SUB_PART_2_ACTIVITY, REL_SUB_LINKED_2_ACTIVITY],
                                             label=_(u'Other participants'), required=False)
 
-    informed_users = ModelMultipleChoiceField(queryset=User.objects.all(),
-                                              widget=CheckboxSelectMultiple(),
-                                              required=False, label=_(u"Users"))
+    #informed_users = ModelMultipleChoiceField(queryset=User.objects.all(),
+                                              #widget=CheckboxSelectMultiple(),
+                                              #required=False, label=_(u"Users"))
 
     blocks = CremeEntityForm.blocks.new(
                 ('datetime',       _(u'When'),                   ['start', 'start_time', 'end_time', 'is_all_day']),
                 ('participants',   _(u'Participants'),           ['my_participation', 'my_calendar', 'user_participation', 'participants']),
-                ('informed_users', _(u'Users to keep informed'), ['informed_users']),
+                #('informed_users', _(u'Users to keep informed'), ['informed_users']),
             )
 
     def __init__(self, current_user, *args, **kwargs):
         super(_ActivityCreateBaseForm, self).__init__(*args, **kwargs)
         self.current_user = current_user
         data = kwargs.get('data')
-        
+
         fields = self.fields
 
         fields['start_time'].initial = time(9, 0)
@@ -300,7 +300,7 @@ class ActivityCreateForm(_ActivityCreateBaseForm):
 
         if self.cleaned_data.get('is_comapp', False):
             self._create_commercial_approach(self._entity_for_relation)
-            
+
         return instance
 
 
