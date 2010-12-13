@@ -1,13 +1,5 @@
 # -*- coding: utf-8 -*-
 
-from unittest import TestLoader, TestSuite
-
-import utils
-import models
-import views
-
-
-def suite():
-    loadtests = TestLoader().loadTestsFromModule
-
-    return TestSuite([loadtests(module) for module in (utils, models, views)])
+from utils import *
+from models import *
+from views import *

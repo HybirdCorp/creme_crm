@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-11-25 16:18+0100\n"
+"POT-Creation-Date: 2010-12-10 13:59+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -88,7 +88,7 @@ msgstr "Rappel concernant une todo Crème CRM à propos de %s"
 msgid ""
 "This mail is automatically sent by Crème CRM to remind you that a todo "
 "concerning %(entity)s will expire.\n"
-"            Todo : %(title)s. \n"
+"            Todo : %(title)s.\n"
 "            which description is : %(description)s.\n"
 "\n"
 "             which is related to the entity : %(entity)s"
@@ -115,9 +115,17 @@ msgstr "Heure"
 msgid "Trigger date"
 msgstr "Date de déclenchement de l'alerte"
 
-#: forms/user_message.py:36
+#: forms/user_message.py:34
 msgid "Recipients"
 msgstr "Destinataires"
+
+#: forms/user_message.py:36
+msgid ""
+"Each time a team is selected, a message is sent to each teammate (do not "
+"worry, there can not be any duplicate)."
+msgstr ""
+"Lorsque vous sélectionnez une équipe, une message est envoyé à chacun des "
+"membres de l'équipe (pas de souci, les doublons sont éliminés)."
 
 #: models/action.py:32 models/todo.py:32 models/user_message.py:32
 #: models/user_message.py:45 templates/assistants/block_actions_it.html:19
@@ -227,12 +235,12 @@ msgstr "Destinataire"
 msgid "User message"
 msgstr "Message utilisateur"
 
-#: models/user_message.py:77
+#: models/user_message.py:81
 #, python-format
 msgid "User message from Creme: %s"
 msgstr "Message utilisateur de Creme: %s"
 
-#: models/user_message.py:78
+#: models/user_message.py:82
 #, python-format
 msgid ""
 "%(user)s send you the following message:\n"

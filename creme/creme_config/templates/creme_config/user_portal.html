@@ -8,5 +8,7 @@
 
 {% block before_statistics %}
     {% import_block from_app 'creme_config' named 'users' as 'users_block' %}
+    {% import_block from_app 'creme_config' named 'teams' as 'teams_block' %}
     {% display_block_detailview 'users_block' %}
+    {% display_block_detailview 'teams_block' %}
 {% endblock %}

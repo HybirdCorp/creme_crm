@@ -62,7 +62,7 @@ class ReminderTodo(Reminder):
 
     def generate_email_body(self, object):
         return _(u"""This mail is automatically sent by Crème CRM to remind you that a todo concerning %(entity)s will expire.
-            Todo : %(title)s. 
+            Todo : %(title)s.
             which description is : %(description)s.
 
              which is related to the entity : %(entity)s""") % {

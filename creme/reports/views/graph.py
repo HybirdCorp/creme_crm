@@ -33,14 +33,12 @@ from creme_core.models.entity import CremeEntity
 from creme_core.models.block import InstanceBlockConfigItem
 from creme.creme_core.utils import jsonify
 
-from reports.models.report import Report, report_prefix_url, report_template_dir
+from reports.models.report import Report
 from reports.models.graph import (ReportGraph, verbose_report_graph_types,
                                   RGT_FK, RGT_RANGE, RGT_YEAR, RGT_MONTH, RGT_DAY,
                                   fetch_graph_from_instance_block)
 from reports.forms.graph import ReportGraphAddForm
 
-
-#report_graph_app = ReportGraph._meta.app_label #TODO: use a contant REPORTS instead
 
 #TODO: use add_to_entity() generic view
 @login_required
@@ -100,8 +98,8 @@ def edit(request, graph_id):
 @permission_required('reports')
 def detailview(request, graph_id):
     return view_entity_with_template(request, graph_id, ReportGraph,
-                                     '%s/report' % report_prefix_url,
-                                     '%s/view_graph.html' % report_template_dir,
+                                     '/reports/report',
+                                     'reports/view_graph.html',
                                      extra_template_dict={'verbose_report_graph_types': verbose_report_graph_types})
 
 @jsonify
