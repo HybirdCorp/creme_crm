@@ -129,7 +129,6 @@ END:VEVENT
                     'status'     : ""
                 }
 
-
     def get_title_for_calendar(self):
         type_name = self.type.name
 

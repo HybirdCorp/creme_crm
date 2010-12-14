@@ -116,18 +116,80 @@ class FieldBlockManager(object):
         return result
 
 
-class CremeForm(Form):
+class HookableForm(object):
+    #Beware: use related method to manipulate
+    _post_clean_callbacks = () # ==> add_post_clean_callback()
+    _post_init_callbacks  = () # ==> add_post_init_callback()
+    _post_save_callbacks  = () # ==> add_post_save_callback()
+
+    @classmethod
+    def __add_callback(cls, attrname, callback):
+        callbacks = list(getattr(cls, attrname))
+        callbacks.append(callback)
+        setattr(cls, attrname, callbacks)
+
+    @classmethod
+    def add_post_clean_callback(cls, callback):
+        cls.__add_callback('_post_clean_callbacks', callback)
+
+    @classmethod
+    def add_post_init_callback(cls, callback):
+        cls.__add_callback('_post_init_callbacks', callback)
+
+    @classmethod
+    def add_post_save_callback(cls, callback):
+        cls.__add_callback('_post_save_callbacks', callback)
+
+    def _post_clean(self):
+        for callback in self._post_clean_callbacks:
+            callback(self)
+
+    def _post_init(self):
+        for callback in self._post_init_callbacks:
+            callback(self)
+
+    def _post_save(self):
+        for callback in self._post_save_callbacks:
+            callback(self)
+
+
+class CremeForm(Form, HookableForm):
     blocks = FieldBlockManager(('general', _(u'General information'), '*'))
+
+    def __init__(self, *args, **kwargs):
+        super(CremeForm, self).__init__(*args, **kwargs)
+        self._post_init()
+
+    def clean(self, *args, **kwargs):
+        res = super(CremeForm, self).clean(*args, **kwargs)
+        self._post_clean()
+        return res
 
     def get_blocks(self):
         return self.blocks.build(self)
 
+    def save(self, *args, **kwargs):
+        self._post_save()
 
-class CremeModelForm(ModelForm):
+
+class CremeModelForm(ModelForm, HookableForm):
     blocks = FieldBlockManager(('general', _(u'General information'), '*'))
+
+    def __init__(self, *args, **kwargs):
+        super(CremeModelForm, self).__init__(*args, **kwargs)
+        self._post_init()
+
+    def clean(self, *args, **kwargs):
+        res = super(CremeModelForm, self).clean(*args, **kwargs)
+        self._post_clean()
+        return res
 
     def get_blocks(self):
         return self.blocks.build(self)
+
+    def save(self, *args, **kwargs):
+        super(CremeModelForm, self).save(self, *args, **kwargs)
+        self._post_save()
 
 
 class CremeModelWithUserForm(CremeModelForm):
@@ -139,7 +201,7 @@ class CremeEntityForm(CremeModelWithUserForm):
         exclude = ('is_deleted', 'is_actived')
 
     def __init__(self, *args, **kwargs):
-        super(CremeModelForm, self).__init__(*args, **kwargs)
+        super(CremeEntityForm, self).__init__(*args, **kwargs)
         assert self.instance, CremeEntity
         self._build_customfields()
 
@@ -162,7 +224,7 @@ class CremeEntityForm(CremeModelWithUserForm):
             fields[_CUSTOM_NAME % i] = cfield.get_formfield(cvalue)
 
     def save(self, *args, **kwargs):
-        instance = super(CremeModelForm, self).save(*args, **kwargs)
+        instance = super(CremeEntityForm, self).save(*args, **kwargs)
         cleaned_data = self.cleaned_data
 
         for i, (custom_field, custom_value) in enumerate(self._customs):

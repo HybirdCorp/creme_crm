@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-12-10 13:59+0100\n"
+"POT-Creation-Date: 2010-12-14 13:45+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -15,6 +15,36 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Language: \n"
+
+#: activities_register.py:37
+msgid "Users"
+msgstr "Utilisateurs"
+
+#: activities_register.py:39
+msgid "Users to keep informed"
+msgstr "Les utilisateurs à tenir informés"
+
+#: activities_register.py:61
+#, python-format
+msgid "[Creme] Activity created: %s"
+msgstr "[Creme] Activité créée: %s"
+
+#: activities_register.py:62
+#, python-format
+msgid ""
+"A new activity has been created: %(activity)s.\n"
+"    Description: %(description)s.\n"
+"    Start: %(start)s.\n"
+"    End: %(end)s.\n"
+"    Subjects: %(subjects)s.\n"
+"    Participants: %(participants)s."
+msgstr ""
+"Une nouvelle activité a été créée: %(activity)s.\n"
+"    Description: %(description)s.\n"
+"    Début: %(start)s.\n"
+"    Fin: %(end)s.\n"
+"    Sujets: %(subjects)s.\n"
+"    Participants: %(participants)s."
 
 #: blocks.py:99 models/todo.py:47
 msgid "Todos"
@@ -40,21 +70,21 @@ msgstr "Réactions hors délais"
 msgid "User messages"
 msgstr "Messages utilisateur"
 
-#: creme_core_register.py:29
-msgid "Assistants (Todos, Memo, ...)"
-msgstr "Assistants (Todos, Mémo, ...)"
-
-#: populate.py:35
+#: constants.py:10
 msgid "Important"
 msgstr "Important"
 
-#: populate.py:35
+#: constants.py:11
 msgid "Very important"
 msgstr "Très important"
 
-#: populate.py:35
+#: constants.py:12
 msgid "Not important"
 msgstr "Pas important"
+
+#: creme_core_register.py:29
+msgid "Assistants (Todos, Memo, ...)"
+msgstr "Assistants (Todos, Mémo, ...)"
 
 #: reminders.py:37
 #, python-format
