@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-12-02 14:51+0100\n"
+"POT-Creation-Date: 2010-12-13 18:51+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -16,19 +16,28 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Language: \n"
 
+#: activities_register.py:32
+msgid "Is a commercial approach ?"
+msgstr "Est une démarche commerciale ?"
+
+#: activities_register.py:33
+msgid "Add participants to them be linked to a commercial approach."
+msgstr ""
+"Ajoutez des participants pour qu'ils soient liés à une démarche commerciale"
+
 #: blocks.py:35 models/commercial_approach.py:49
 msgid "Commercial approaches"
 msgstr "Démarches commerciales"
 
-#: blocks.py:84 models/strategy.py:284
+#: blocks.py:84 models/strategy.py:285
 msgid "Market segments"
 msgstr "Segments de marché"
 
-#: blocks.py:98 models/strategy.py:297
+#: blocks.py:98 models/strategy.py:298
 msgid "Commercial assets"
 msgstr "Atouts commerciaux"
 
-#: blocks.py:111 models/strategy.py:324
+#: blocks.py:111 models/strategy.py:325
 msgid "Segment charms"
 msgstr "Attraits de segment"
 
@@ -84,8 +93,8 @@ msgstr "est un commercial"
 msgid "Com Action view"
 msgstr "Vue d'Action Com"
 
-#: populate.py:50 populate.py:55 models/strategy.py:39 models/strategy.py:278
-#: models/strategy.py:291 models/strategy.py:318
+#: populate.py:50 populate.py:55 models/strategy.py:39 models/strategy.py:279
+#: models/strategy.py:292 models/strategy.py:319
 #: templates/commercial/templatetags/block_assets.html:16
 #: templates/commercial/templatetags/block_charms.html:16
 #: templates/commercial/templatetags/block_evalorgas.html:17
@@ -172,15 +181,15 @@ msgstr "Date de paiement"
 msgid "Commercial strategies"
 msgstr "Stratégies commerciales"
 
-#: models/strategy.py:283
+#: models/strategy.py:284
 msgid "Market segment"
 msgstr "Segment de marché"
 
-#: models/strategy.py:296
+#: models/strategy.py:297
 msgid "Commercial asset"
 msgstr "Atout commercial"
 
-#: models/strategy.py:323
+#: models/strategy.py:324
 msgid "Segment charm"
 msgstr "Attrait de segment"
 
@@ -296,62 +305,42 @@ msgstr "Matrice Atouts / Attraits"
 msgid "Segments"
 msgstr "Segments"
 
-#: templates/commercial/templatetags/block_assets_charms_matrix.html:23
-#: templates/commercial/templatetags/widget_category.html:2
-msgid "Priority segment"
-msgstr "Segment prioritaire"
-
 #: templates/commercial/templatetags/block_assets_charms_matrix.html:24
-#: templates/commercial/templatetags/widget_category.html:3
-msgid "Pool segment [1]"
-msgstr "Segment réservoir [1]"
-
-#: templates/commercial/templatetags/block_assets_charms_matrix.html:25
-#: templates/commercial/templatetags/widget_category.html:4
-msgid "Pool segment [2]"
-msgstr "Segment réservoir [2]"
-
-#: templates/commercial/templatetags/block_assets_charms_matrix.html:26
-#: templates/commercial/templatetags/widget_category.html:5
-msgid "Abandoned segment"
-msgstr "Segment abandonné"
-
-#: templates/commercial/templatetags/block_assets_charms_matrix.html:32
 #: templates/commercial/templatetags/block_assets_matrix.html:27
 #: templates/commercial/templatetags/block_charms_matrix.html:27
 #: templates/commercial/templatetags/block_segments.html:30
 msgid "No market segment for the moment"
 msgstr "Aucun segment de marché enregistré pour le moment"
 
-#: templates/commercial/templatetags/block_assets_charms_matrix.html:41
+#: templates/commercial/templatetags/block_assets_charms_matrix.html:33
 msgid "Strong charms"
 msgstr "Attraits Forts"
 
-#: templates/commercial/templatetags/block_assets_charms_matrix.html:42
+#: templates/commercial/templatetags/block_assets_charms_matrix.html:34
 msgid "Pool segment(s) [1]"
 msgstr "Segment(s) réservoir(s) [1]"
 
-#: templates/commercial/templatetags/block_assets_charms_matrix.html:43
+#: templates/commercial/templatetags/block_assets_charms_matrix.html:35
 msgid "Priority segment(s)"
 msgstr "Segment(s) prioritaire(s)"
 
-#: templates/commercial/templatetags/block_assets_charms_matrix.html:46
+#: templates/commercial/templatetags/block_assets_charms_matrix.html:38
 msgid "Weak charms"
 msgstr "Attraits faibles"
 
-#: templates/commercial/templatetags/block_assets_charms_matrix.html:47
+#: templates/commercial/templatetags/block_assets_charms_matrix.html:39
 msgid "Abandoned segment(s)"
 msgstr "Segment(s) abandonné(s)"
 
-#: templates/commercial/templatetags/block_assets_charms_matrix.html:48
+#: templates/commercial/templatetags/block_assets_charms_matrix.html:40
 msgid "Pool segment(s) [2]"
 msgstr "Segment(s) réservoir(s) [2]"
 
-#: templates/commercial/templatetags/block_assets_charms_matrix.html:52
+#: templates/commercial/templatetags/block_assets_charms_matrix.html:44
 msgid "Weak assets"
 msgstr "Atouts faibles"
 
-#: templates/commercial/templatetags/block_assets_charms_matrix.html:53
+#: templates/commercial/templatetags/block_assets_charms_matrix.html:45
 msgid "Strong assets"
 msgstr "Atouts forts"
 
@@ -477,6 +466,22 @@ msgstr "Payée"
 #: templates/commercial/templatetags/block_sell_by.html:31
 msgid "Non paid"
 msgstr "Non payée"
+
+#: templates/commercial/templatetags/widget_category.html:2
+msgid "Priority segment"
+msgstr "Segment prioritaire"
+
+#: templates/commercial/templatetags/widget_category.html:3
+msgid "Pool segment [1]"
+msgstr "Segment réservoir [1]"
+
+#: templates/commercial/templatetags/widget_category.html:4
+msgid "Pool segment [2]"
+msgstr "Segment réservoir [2]"
+
+#: templates/commercial/templatetags/widget_category.html:5
+msgid "Abandoned segment"
+msgstr "Segment abandonné"
 
 #: views/commercial_approach.py:29
 #, python-format

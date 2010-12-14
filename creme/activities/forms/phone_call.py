@@ -28,7 +28,7 @@ from creme_core.forms import CremeDateTimeField, CremeTimeField
 from assistants.models.alert import Alert
 
 from activities.models import PhoneCall, PhoneCallType
-from activity import ActivityCreateForm, ActivityEditForm, ActivityCreateWithoutRelationForm
+from activity import RelatedActivityCreateForm, ActivityCreateForm
 
 
 def _init_fields(fields):
@@ -43,6 +43,7 @@ def _generate_alert(phone_call, cleaned_data):
         alert_start_time = cleaned_data.get('alert_start_time') or time()
         alert_day        = cleaned_data.get('alert_day') or phone_call.start
 
+        #TODO: use Alert.objects.create() ??
         alert = Alert()
         alert.for_user     = phone_call.user
         alert.trigger_date = alert_day.replace(hour=alert_start_time.hour, minute=alert_start_time.minute)
@@ -52,6 +53,33 @@ def _generate_alert(phone_call, cleaned_data):
         alert.save()
 
 
+class RelatedPhoneCallCreateForm(RelatedActivityCreateForm):
+    generate_alert   = BooleanField(label=_(u"Do you want to generate an alert or a reminder ?"), required=False)
+    alert_day        = CremeDateTimeField(label=_(u"Alert day"), required=False)
+    alert_start_time = CremeTimeField(label=_(u"Alert time"), required=False)
+
+    class Meta(RelatedActivityCreateForm.Meta):
+        model = PhoneCall
+        exclude = RelatedActivityCreateForm.Meta.exclude + ('type', )
+
+    blocks = RelatedActivityCreateForm.blocks.new(
+                    ('alert_datetime', _(u'Generate an alert or a reminder'), ['generate_alert', 'alert_day', 'alert_start_time']),
+                )
+
+    def __init__(self, *args, **kwargs):
+        super(RelatedPhoneCallCreateForm, self).__init__(*args, **kwargs)
+
+        if not self.instance.id: #TODO: useful (create -> instance not created ??!!)
+            _init_fields(self.fields)
+
+    def save(self):
+        instance = super(RelatedPhoneCallCreateForm, self).save()
+        _generate_alert(instance, self.cleaned_data)
+
+        return instance
+
+
+#TODO: use multiple inheritage to factorise alert code ???
 class PhoneCallCreateForm(ActivityCreateForm):
     generate_alert   = BooleanField(label=_(u"Do you want to generate an alert or a reminder ?"), required=False)
     alert_day        = CremeDateTimeField(label=_(u"Alert day"), required=False)
@@ -59,52 +87,19 @@ class PhoneCallCreateForm(ActivityCreateForm):
 
     class Meta(ActivityCreateForm.Meta):
         model = PhoneCall
-        exclude = ActivityCreateForm.Meta.exclude + ('type', )
+        exclude = ActivityCreateForm.Meta.exclude + ('type',)
 
     blocks = ActivityCreateForm.blocks.new(
-                ('alert_datetime', _(u'Generate an alert or a reminder'), ['generate_alert', 'alert_day', 'alert_start_time']),
+                    ('alert_datetime', _(u'Generate an alert or a reminder'), ['generate_alert', 'alert_day', 'alert_start_time']),
                 )
-
 
     def __init__(self, *args, **kwargs):
         super(PhoneCallCreateForm, self).__init__(*args, **kwargs)
 
-        if not self.instance.id: #TODO: useful (create -> instance not created ??!!)
-            _init_fields(self.fields)
+        _init_fields(self.fields)
 
     def save(self):
         instance = super(PhoneCallCreateForm, self).save()
         _generate_alert(instance, self.cleaned_data)
 
         return instance
-
-
-#TODO: use multiple inheritage to factorise alert code ???
-class PhoneCallCreateWithoutRelationForm(ActivityCreateWithoutRelationForm):
-    generate_alert   = BooleanField(label=_(u"Do you want to generate an alert or a reminder ?"), required=False)
-    alert_day        = CremeDateTimeField(label=_(u"Alert day"), required=False)
-    alert_start_time = CremeTimeField(label=_(u"Alert time"), required=False)
-
-    class Meta(ActivityCreateWithoutRelationForm.Meta):
-        model = PhoneCall
-        exclude = ActivityCreateWithoutRelationForm.Meta.exclude + ('type',)
-
-    blocks = ActivityCreateWithoutRelationForm.blocks.new(
-                ('alert_datetime', _(u'Generate an alert or a reminder'), ['generate_alert', 'alert_day', 'alert_start_time']),
-                )
-
-    def __init__(self, *args, **kwargs):
-        super(PhoneCallCreateWithoutRelationForm, self).__init__(*args, **kwargs)
-
-        _init_fields(self.fields)
-
-    def save(self):
-        instance = super(PhoneCallCreateWithoutRelationForm, self).save()
-        _generate_alert(instance, self.cleaned_data)
-
-        return instance
-
-
-#class PhoneCallEditForm(ActivityEditForm):
-    #class Meta(ActivityEditForm.Meta):
-        #model = PhoneCall
