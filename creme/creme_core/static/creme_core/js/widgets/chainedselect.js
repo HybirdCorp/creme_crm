@@ -49,8 +49,14 @@ creme.widget.ChainedSelect = creme.widget.declare('ui-creme-chainedselect', {
         var self = creme.widget.ChainedSelect;
         var values = []
 
-        $('.ui-creme-widget.widget-active', element).each(function() {
-            values.push('"' + $(this).parent().attr('chained-name') + '":"' + $(this).data('widget').val($(this)) + '"');
+        $('.ui-creme-widget.widget-active', element).each(function() 
+        {
+        	var value = $(this).data('widget').val($(this));
+        	var name = $(this).parent().attr('chained-name');
+        	
+        	//console.log('chainedselect._update > value="' + name + '", type=' + value);
+        	
+            values.push('"' + name + '":' + ((typeof value === 'string') ? '"' + value + '"' : value));
         });
 
         creme.widget.input(element).val('{' + values.join(',') + '}');
