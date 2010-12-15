@@ -672,4 +672,5 @@ class ActionTestCase(AssistantsTestCase):
         self.assert_(action.is_ok)
         self.assert_((datetime.now() - action.validation_date).seconds < 10)
 
+    #TODO: test usermessage + hook in activity form
     #TODO: improve block reloading tests with several blocks

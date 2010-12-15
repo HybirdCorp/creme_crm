@@ -23,8 +23,7 @@ from datetime import datetime, time
 
 from django.forms.models import ModelChoiceField
 from django.forms.util import ValidationError, ErrorList
-from django.forms import IntegerField, CharField, BooleanField#, ModelMultipleChoiceField
-#from django.forms.widgets import CheckboxSelectMultiple
+from django.forms import IntegerField, CharField, BooleanField
 from django.utils.translation import ugettext_lazy as _, ugettext
 from django.db.models import Q
 from django.contrib.auth.models import User
@@ -135,7 +134,7 @@ class SubjectCreateForm(CremeForm):
         _save_participants(self.cleaned_data['subjects'], self.activity)
 
 
-class _ActivityCreateBaseForm(CremeEntityForm):
+class ActivityCreateForm(CremeEntityForm):
     class Meta(CremeEntityForm.Meta):
         model = Activity
         exclude = CremeEntityForm.Meta.exclude + ('end',)
@@ -144,26 +143,19 @@ class _ActivityCreateBaseForm(CremeEntityForm):
     start_time = CremeTimeField(label=_(u'Start time'), required=False)
     end_time   = CremeTimeField(label=_(u'End time'), required=False)
 
-    is_comapp          = BooleanField(required=False, label=_(u"Is a commercial approach ?"))
     my_participation   = BooleanField(required=False, label=_(u"Do I participate to this activity ?"))
     my_calendar        = ModelChoiceField(queryset=Calendar.objects.none(), required=False, label=_(u"On which of my calendar this activity will appear ?"), empty_label=None)
     user_participation = BooleanField(required=False, label=_(u"Does the owner of this activity participate ? (Currently %s)"))
     participants       = RelatedEntitiesField(relation_types=[REL_SUB_ACTIVITY_SUBJECT, REL_SUB_PART_2_ACTIVITY, REL_SUB_LINKED_2_ACTIVITY],
                                               label=_(u'Other participants'), required=False)
 
-    #TODO: uncomment when it works...
-    #informed_users = ModelMultipleChoiceField(queryset=User.objects.all(),
-                                              #widget=CheckboxSelectMultiple(),
-                                              #required=False, label=_(u"Users"))
-
     blocks = CremeEntityForm.blocks.new(
-                ('datetime',       _(u'When'),                   ['start', 'start_time', 'end_time', 'is_all_day']),
-                ('participants',   _(u'Participants'),           ['my_participation', 'my_calendar', 'user_participation', 'participants']),
-                #('informed_users', _(u'Users to keep informed'), ['informed_users']),
+                ('datetime',     _(u'When'),         ['start', 'start_time', 'end_time', 'is_all_day']),
+                ('participants', _(u'Participants'), ['my_participation', 'my_calendar', 'user_participation', 'participants']),
             )
 
     def __init__(self, current_user, *args, **kwargs):
-        super(_ActivityCreateBaseForm, self).__init__(*args, **kwargs)
+        super(ActivityCreateForm, self).__init__(*args, **kwargs)
         self.current_user = current_user
         data = kwargs.get('data')
 
@@ -195,7 +187,7 @@ class _ActivityCreateBaseForm(CremeEntityForm):
         cleaned_data = self.cleaned_data
         errors       = self.errors
 
-        _clean_interval(self.cleaned_data)
+        _clean_interval(cleaned_data)
         self.check_activities()
 
         my_participation = cleaned_data.get('my_participation')
@@ -233,7 +225,7 @@ class _ActivityCreateBaseForm(CremeEntityForm):
         cleaned_data = self.cleaned_data
 
         instance.end = cleaned_data['end']
-        super(_ActivityCreateBaseForm, self).save()
+        super(ActivityCreateForm, self).save()
 
         # Participation of event's creator
         if cleaned_data['my_participation']:
@@ -260,37 +252,13 @@ class _ActivityCreateBaseForm(CremeEntityForm):
 
         return instance
 
-    #TODO: inject from 'commercial' app instead ??
-    def _create_commercial_approach(self, extra_entity=None):
-        from commercial.models import CommercialApproach
 
-        participants = [entity for rtype, entity in self.cleaned_data['participants']]
-
-        if extra_entity:
-            participants.append(extra_entity)
-
-        if not participants:
-            return
-
-        now = datetime.now()
-        instance = self.instance
-        create_comapp = CommercialApproach.objects.create
-
-        for participant in participants:
-            create_comapp(title=instance.title,
-                          description=instance.description,
-                          creation_date=now,
-                          creme_entity=participant,
-                          related_activity_id=instance.id,
-                         )
-
-
-class ActivityCreateForm(_ActivityCreateBaseForm):
+class RelatedActivityCreateForm(ActivityCreateForm):
     entity_preview        = CharField(label=_(u'Who / What'), required=False, widget=Label)
     relation_type_preview = CharField(label=_(u'Relation with the activity'), required=False, widget=Label)
 
     def __init__(self, entity_for_relation, relation_type, *args, **kwargs):
-        super(ActivityCreateForm, self).__init__(*args, **kwargs)
+        super(RelatedActivityCreateForm, self).__init__(*args, **kwargs)
 
         self._entity_for_relation = entity_for_relation
         self._relation_type = relation_type
@@ -300,26 +268,9 @@ class ActivityCreateForm(_ActivityCreateBaseForm):
         fields['relation_type_preview'].initial = relation_type.predicate
 
     def save(self):
-        instance = super(ActivityCreateForm, self).save()
+        instance = super(RelatedActivityCreateForm, self).save()
 
-        Relation.create(self._entity_for_relation, self._relation_type.id, self.instance)
-
-        if self.cleaned_data.get('is_comapp', False):
-            self._create_commercial_approach(self._entity_for_relation)
-
-        return instance
-
-
-class ActivityCreateWithoutRelationForm(_ActivityCreateBaseForm):
-    def __init__(self, *args, **kwargs):
-        super(ActivityCreateWithoutRelationForm, self).__init__(*args, **kwargs)
-        self.fields['is_comapp'].help_text = ugettext(u"Add participants to them be linked to a commercial approach.")
-
-    def save(self):
-        instance = super(ActivityCreateWithoutRelationForm, self).save()
-
-        if self.cleaned_data.get('is_comapp', False):
-            self._create_commercial_approach()
+        Relation.create(self._entity_for_relation, self._relation_type.id, instance)
 
         return instance
 

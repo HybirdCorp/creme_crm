@@ -2,6 +2,8 @@
 
 from django.conf.urls.defaults import patterns
 
+from creme_core.utils.imports import find_n_import
+
 
 urlpatterns = patterns('activities.views',
     (r'^$', 'portal.portal'),
@@ -32,9 +34,6 @@ urlpatterns = patterns('activities.views',
     (r'^indisponibility/add$', 'activity.add_indisponibility'), #TODO: use activity/add-(?P<type>.*) ?? with a factory type-based ?
 
     (r'^get_entity_relation_choices_for_activity$', 'ajax.get_entity_relation_choices_for_activity'),
-
-
-
 )
 
 urlpatterns += patterns('creme_core.views.generic',
@@ -42,3 +41,5 @@ urlpatterns += patterns('creme_core.views.generic',
     (r'^activity/delete/(?P<object_id>\d+)$',               'delete_entity'),
     #(r'^activity/delete_js/(?P<entities_ids>([\d]+[,])+)$', 'delete_entities_js'), #Commented 6 december 2010
 )
+
+find_n_import("activities_register", [])

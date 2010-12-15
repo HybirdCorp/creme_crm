@@ -29,7 +29,7 @@ from creme_core.utils import get_ct_or_404, get_from_GET_or_404
 #from creme_core.gui.last_viewed import change_page_for_last_viewed
 
 from activities.models import Activity
-from activities.forms import*
+from activities.forms import *
 from activities.utils import get_ical
 from activities.constants import ACTIVITYTYPE_INDISPO
 
@@ -58,9 +58,9 @@ def _add_activity(request, class_form, **form_args):
                               context_instance=RequestContext(request))
 
 _forms_map = {
-        "meeting":   (MeetingCreateForm,   MeetingCreateWithoutRelationForm),
-        "task":      (TaskCreateForm,      TaskCreateWithoutRelationForm),
-        "phonecall": (PhoneCallCreateForm, PhoneCallCreateWithoutRelationForm),
+        "meeting":   (RelatedMeetingCreateForm,   MeetingCreateForm),
+        "task":      (RelatedTaskCreateForm,      TaskCreateForm),
+        "phonecall": (RelatedPhoneCallCreateForm, PhoneCallCreateForm),
     }
 
 @login_required
@@ -139,7 +139,7 @@ def popupview(request, activity_id):
 @login_required
 @permission_required('activities')
 def listview(request):
-    return list_view(request, Activity, 
+    return list_view(request, Activity,
                      extra_dict={'extra_bt_templates':
                                     ('activities/frags/ical_list_view_button.html',
                                      'activities/frags/button_add_meeting_without_relation.html',

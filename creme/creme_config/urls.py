@@ -93,7 +93,7 @@ urlpatterns = patterns('creme_config.views',
     (r'^(?P<app_name>\w+)/(?P<model_name>\w+)/delete$',                       'generics_views.delete_model'),
 )
 
-
+#TODO: use creme_core.utils.imports ???
 for app in settings.INSTALLED_APPS:
     try:
         find_module("creme_config_register", __import__(app, {}, {}, [app.split(".")[-1]]).__path__)
