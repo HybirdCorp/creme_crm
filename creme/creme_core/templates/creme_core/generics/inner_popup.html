@@ -17,6 +17,8 @@
                             creme.utils.closeDialog($('#{{whoami}}'), {{reload}});
                         {% endif %}
                     {% endif %}
+                {% else %}
+                    creme.widget.ready();
                 {% endif %}
         </script>
     </div>
