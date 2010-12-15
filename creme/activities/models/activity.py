@@ -35,7 +35,7 @@ class Calendar(CremeModel):
     name        = CharField(_(u'Name'), max_length=100)
     is_default  = BooleanField(_(u'Default ?'), default=False)
     is_custom   = BooleanField(default=True) #used by creme_config
-    is_public   = BooleanField(default=False)
+    is_public   = BooleanField(default=False, verbose_name=_(u"Is public ?"))
     user        = ForeignKey(User, verbose_name=_(u"Calendar owner"))
 
     class Meta:
@@ -128,7 +128,6 @@ END:VEVENT
                     'categories' : self.type.name,
                     'status'     : ""
                 }
-
 
     def get_title_for_calendar(self):
         type_name = self.type.name
