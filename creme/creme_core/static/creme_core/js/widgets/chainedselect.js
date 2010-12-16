@@ -29,8 +29,12 @@ creme.widget.ChainedSelect = creme.widget.declare('ui-creme-chainedselect', {
         });
 
         $('.ui-creme-widget', element).bind('change', function() {
-            self.reloadDeps(element, $(this).parent().attr('chained-name'));
+            self._reload_dependencies(element, $(this).parent().attr('chained-name'));
             self._update(element);
+        });
+
+        $('img.reset', element).bind('click', function() {
+            self.reset(element);
         });
 
         var value = self.val(element);
@@ -71,7 +75,7 @@ creme.widget.ChainedSelect = creme.widget.declare('ui-creme-chainedselect', {
         });
     },
 
-    reloadDeps: function(element, name, cb, error_cb) {
+    _reload_dependencies: function(element, name, cb, error_cb) {
         var self = creme.widget.ChainedSelect;
 
         $('.ui-creme-widget[url*="${' + name + '}"]', element).each(function() {
@@ -88,6 +92,12 @@ creme.widget.ChainedSelect = creme.widget.declare('ui-creme-chainedselect', {
          });
     },
 
+    reset: function(element) {
+    	console.log('reset')
+    	var self = creme.widget.ChainedSelect;
+        self.val(element, '{}');
+    },
+
     val: function(element, value) {
         var self = creme.widget.ChainedSelect;
 
@@ -99,7 +109,7 @@ creme.widget.ChainedSelect = creme.widget.declare('ui-creme-chainedselect', {
 
             $('.ui-creme-widget', element).each(function() {
                 var itemval = (values) ? values[$(this).parent().attr('chained-name')] : null;
-                itemval = (itemval) ? itemval : null;
+                itemval = (itemval) ? itemval : '';
                 $(this).data('widget').val($(this), itemval);
             });
 

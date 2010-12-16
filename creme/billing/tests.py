@@ -48,6 +48,9 @@ class BillingTestCase(TestCase):
         self.assertEqual(1, CremePropertyType.objects.filter(pk=PROP_IS_MANAGED_BY_CREME).count())
 
     def create_invoice(self, name, source, target):
+        source_field = '{"ctype":"%s", "entity":"%s"}' % (source.entity_type_id, source.id)
+        target_field = '{"ctype":"%s", "entity":"%s"}' % (target.entity_type_id, target.id)
+        
         response = self.client.post('/billing/invoice/add', follow=True,
                                     data={
                                             'user':            self.user.pk,
@@ -55,8 +58,8 @@ class BillingTestCase(TestCase):
                                             'issuing_date':    '2010-9-7',
                                             'expiration_date': '2010-10-13',
                                             'status':          1,
-                                            'source':          source.id,
-                                            'target':          target.id,
+                                            'source':          source_field,
+                                            'target':          target_field,
                                             }
                                    )
         self.assertEqual(200, response.status_code)
