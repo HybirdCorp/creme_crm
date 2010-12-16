@@ -25,17 +25,17 @@ from django.forms.widgets import Select
 from django.utils.translation import ugettext_lazy as _, ugettext
 
 from creme_core.models import Relation
-from creme_core.forms import CremeEntityForm, CremeEntityField, CremeDateField
+from creme_core.forms import CremeEntityForm, CremeEntityField, CremeDateField, GenericEntityField
 from creme_core.utils import find_first
 
-from persons.models.organisation import Organisation, Address
+from persons.models.organisation import Organisation, Address, Contact
 
 from billing.constants import REL_SUB_BILL_ISSUED, REL_SUB_BILL_RECEIVED
 
 
 class BaseEditForm(CremeEntityForm):
-    source = CremeEntityField(label=_(u"Source organisation"), model=Organisation)
-    target = CremeEntityField(label=_(u"Target organisation"), model=Organisation)
+    source = GenericEntityField(label=_(u"Source organisation"), models=[Organisation], required=True)
+    target = GenericEntityField(label=_(u"Target organisation"), models=[Organisation, Contact], required=True)
 
     issuing_date    = CremeDateField(label=_(u"Issuing date"), required=False)
     expiration_date = CremeDateField(label=_(u"Expiration date"))

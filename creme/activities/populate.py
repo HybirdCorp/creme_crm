@@ -44,7 +44,7 @@ class Populator(BasePopulator):
                             #(REL_OBJ_CALL,             u'concerne'))
         RelationType.create((REL_SUB_ACTIVITY_SUBJECT, _(u"is subject of the activity")),
                             (REL_OBJ_ACTIVITY_SUBJECT, _(u'is to subject')))
-        RelationType.create((REL_SUB_PART_2_ACTIVITY,  _(u"participates to the activity")),
+        RelationType.create((REL_SUB_PART_2_ACTIVITY,  _(u"participates to the activity"), [Contact]),
                             (REL_OBJ_PART_2_ACTIVITY,  _(u'has as participant')))
 
         create(PhoneCallType, 1, name=_(u"Incoming"), description=_(u"Incoming call"))

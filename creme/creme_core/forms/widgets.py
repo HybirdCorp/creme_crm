@@ -91,14 +91,16 @@ class ChainedInput(TextInput):
         super(ChainedInput, self).__init__(attrs)
         self.inputs = {}
         self.set(**kwargs)
+        self.from_python = None # TODO : wait for django 1.2 and new widget api to remove this hack
 
     def render(self, name, value, attrs=None):
+        value = self.from_python(value) if self.from_python is not None else value # TODO : wait for django 1.2 and new widget api to remove this hack
         attrs = self.build_attrs(attrs, name=name, type='hidden')
 
         context = widget_render_context(ChainedInput, self, name, value, attrs,
                                         typename='ui-creme-chainedselect',
                                         style=attrs.pop('style', ''),
-                                        selects=self._render_inputs())
+                                        selects=self._render_inputs(attrs))
 
         return mark_safe("""<div class="%(css)s" style="%(style)s" widget="%(typename)s">
                 %(input)s
@@ -113,14 +115,20 @@ class ChainedInput(TextInput):
     def put(self, name, widget=DynamicSelect, attrs=None, **kwargs):
         self.inputs[name] = widget(attrs=attrs, **kwargs)
 
-    def _render_inputs(self): #TODO: use join() ??
-        output = '<ul class="ui-layout hbox">'
+    def _render_inputs(self, attrs): #TODO: use join() ??
+        output = ['<ul class="ui-layout hbox">']
 
-        for name, input in self.inputs.iteritems():
-            output += '<li chained-name="' + name + '">' + input.render('', '') + '</li>'
+        output.extend('<li chained-name="%s">%s</li>' % (name, input.render('', ''))
+                         for name, input in self.inputs.iteritems()
+                     )
 
-        output += '</ul>'
-        return output
+        if attrs.pop('reset', True):
+            output.append("""<li>
+                                 <img class="reset" src="%s" alt="%s" title="%s"></img>
+                             </li>""" % (media_url('images/delete_22.png'), _(u'Reset'), _(u'Reset')))
+
+        output.append('</ul>')
+        return '\n'.join(output)
 
 
 class SelectorList(TextInput):
@@ -136,7 +144,7 @@ class SelectorList(TextInput):
         context = widget_render_context(SelectorList, self, name, value, attrs,
                                         typename='ui-creme-selectorlist',
                                         add=_(u'Add'),
-                                        selector=self.selector.render('', '', {'auto':False,}))
+                                        selector=self.selector.render('', '', {'auto':False,'reset':False}))
         context['img_url'] = media_url('images/add_16.png')
 
         return mark_safe("""<div class="%(css)s" style="%(style)s" widget="%(typename)s">
@@ -196,6 +204,26 @@ class CTEntitySelector(ChainedInput):
     def render(self, name, value, attrs=None):
         return super(CTEntitySelector, self).render(name, value, attrs)
 
+class RelationSelector(ChainedInput):
+    def __init__(self, relation_types, content_types, attrs=None):
+        super(RelationSelector, self).__init__(attrs)
+
+        if relation_types.__class__ == str:
+            rtype = ChainedInput.Model(widget=DynamicSelect, attrs={'auto':False}, url=relation_types)
+        else:
+            rtype = ChainedInput.Model(widget=DynamicSelect, attrs={'auto':False}, options=relation_types)
+
+        if content_types.__class__ == str:
+            ctype = ChainedInput.Model(widget=DynamicSelect, attrs={'auto':False}, url=content_types)
+        else:
+            ctype = ChainedInput.Model(widget=DynamicSelect, attrs={'auto':False}, options=content_types)
+
+        self.set(rtype=rtype,
+                 ctype=ctype,
+                 entity=ChainedInput.Model(widget=EntitySelector, attrs={'auto':False}));
+
+    def render(self, name, value, attrs=None):
+        return super(CTEntitySelector, self).render(name, value, attrs)
 
 #TODO: unused ??
 class EntitySelectorList(SelectorList):
