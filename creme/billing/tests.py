@@ -47,10 +47,10 @@ class BillingTestCase(TestCase):
 
         self.assertEqual(1, CremePropertyType.objects.filter(pk=PROP_IS_MANAGED_BY_CREME).count())
 
+    def genericfield_format_entity(self, entity):
+        return '{"ctype":"%s", "entity":"%s"}' % (entity.entity_type_id, entity.id)
+
     def create_invoice(self, name, source, target):
-        source_field = '{"ctype":"%s", "entity":"%s"}' % (source.entity_type_id, source.id)
-        target_field = '{"ctype":"%s", "entity":"%s"}' % (target.entity_type_id, target.id)
-        
         response = self.client.post('/billing/invoice/add', follow=True,
                                     data={
                                             'user':            self.user.pk,
@@ -58,8 +58,8 @@ class BillingTestCase(TestCase):
                                             'issuing_date':    '2010-9-7',
                                             'expiration_date': '2010-10-13',
                                             'status':          1,
-                                            'source':          source_field,
-                                            'target':          target_field,
+                                            'source':          self.genericfield_format_entity(source),
+                                            'target':          self.genericfield_format_entity(target),
                                             }
                                    )
         self.assertEqual(200, response.status_code)
@@ -127,23 +127,7 @@ class BillingTestCase(TestCase):
         response = self.client.get('/billing/invoice/add')
         self.assertEqual(source.id, response.context['form']['source'].field.initial)
 
-        response = self.client.post('/billing/invoice/add', follow=True,
-                                    data={
-                                            'user':            self.user.pk,
-                                            'name':            name,
-                                            'issuing_date':    '2010-9-7',
-                                            'expiration_date': '2010-10-13',
-                                            'status':          1,
-                                            'source':          source.id,
-                                            'target':          target.id,
-                                         }
-                                   )
-        self.assertEqual(200, response.status_code)
-
-        try:
-            invoice = Invoice.objects.get(name=name)
-        except Exception, e:
-            self.fail(str(e))
+        invoice = self.create_invoice(name, source, target)
 
         self.assertEqual(target.billing_address.id,  invoice.billing_address_id)
         self.assertEqual(target.shipping_address.id, invoice.shipping_address_id)
@@ -205,8 +189,8 @@ class BillingTestCase(TestCase):
                                             'issuing_date':    '2010-9-7',
                                             'expiration_date': '2011-11-14',
                                             'status':          1,
-                                            'source':          source.id,
-                                            'target':          target.id,
+                                            'source':          self.genericfield_format_entity(source),
+                                            'target':          self.genericfield_format_entity(target),
                                          }
                                    )
         self.assertEqual(200, response.status_code)
