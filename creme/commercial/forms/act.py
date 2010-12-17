@@ -20,13 +20,41 @@
 
 from django.utils.translation import ugettext_lazy as _
 
-from creme_core.forms import CremeEntityForm, CremeDateTimeField
+from creme_core.forms import CremeEntityForm, CremeModelForm, CremeDateTimeField
+from creme_core.utils import Q_creme_entity_content_types
 
-from commercial.models import Act
+from commercial.models import Act, ActObjective
 
 
 class ActForm(CremeEntityForm):
+    start    = CremeDateTimeField(label=_(u"Start"))
     due_date = CremeDateTimeField(label=_(u"Due date"))
 
     class Meta(CremeEntityForm.Meta):
         model = Act
+
+
+class ObjectiveForm(CremeModelForm):
+    class Meta:
+        model = ActObjective
+        fields = ('name',)
+
+    def __init__(self, entity, *args, **kwargs):
+        super(ObjectiveForm, self).__init__(*args, **kwargs)
+        self.act = entity
+
+    def save(self, *args, **kwargs):
+        self.instance.act = self.act
+        super(ObjectiveForm, self).save(*args, **kwargs)
+
+
+class RelationObjectiveForm(ObjectiveForm):
+    class Meta(ObjectiveForm.Meta):
+        fields = ('name', 'ctype')
+
+    def __init__(self, *args, **kwargs):
+        super(RelationObjectiveForm, self).__init__(*args, **kwargs)
+
+        ctype_field = self.fields['ctype']
+        ctype_field.queryset = Q_creme_entity_content_types()
+        ctype_field.empty_label = None
