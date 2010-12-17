@@ -28,7 +28,7 @@ from assistants.models import Action
 
 
 class ActionEditForm(CremeModelWithUserForm):
-    deadline      = CremeDateTimeField(label=_(u"Deadline")) #Date d'échéance
+    deadline      = CremeDateTimeField(label=_(u"Deadline"))
     deadline_time = CremeTimeField(label=_(u'Hour'), required=False)
 
     class Meta:
