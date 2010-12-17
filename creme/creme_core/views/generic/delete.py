@@ -23,11 +23,12 @@ from logging import debug
 from django.utils.translation import ugettext as _
 from django.http import Http404, HttpResponse, HttpResponseRedirect
 from django.template.context import RequestContext
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, render_to_response
 from django.contrib.auth.decorators import login_required
 
-from django.shortcuts import render_to_response
-from creme_core.models.entity import CremeEntity
+from creme_core.models import CremeEntity
+from creme_core.utils import get_from_POST_or_404
+
 
 #TODO: @permission_required(app_name) ??
 
@@ -116,3 +117,19 @@ def delete_entity(request, object_id, callback_url=None):
         return render_to_response("creme_core/forbidden.html", {
                                     'error_message' : _(u'%s can not be deleted because of its dependencies.' % entity)
                                  }, context_instance=RequestContext(request))
+
+def delete_related_to_entity(request, model):
+    """Delete a model related to a CremeEntity.
+    @param request Request with POST method ; POST data should contain an 'id'(=pk) value.
+    @param model A django model class that implements the method get_related_entity().
+    """
+    auxiliary = get_object_or_404(model, pk=get_from_POST_or_404(request.POST, 'id'))
+    entity = auxiliary.get_related_entity()
+
+    entity.can_change_or_die(request.user)
+    auxiliary.delete()
+
+    if request.is_ajax():
+        return HttpResponse("", mimetype="text/javascript")
+
+    return HttpResponseRedirect(entity.get_absolute_url())

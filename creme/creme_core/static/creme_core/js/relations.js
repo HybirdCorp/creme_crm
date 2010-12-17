@@ -55,10 +55,10 @@ creme.relations.handleAddFromPredicateEntity = function(url, predicate_id, subje
                                                     'subject_id'  : subject_id,
                                                     'predicate_id': predicate_id
                                                  },
-                                                 function(data){
+                                                 function(data) {
                                                     creme.utils.showDialog(data, jQuery.extend({'title': gettext("Information")}, infoBoxOptions));
                                                  },
-                                                 function(error){
+                                                 function(error) {
                                                     creme.utils.showDialog(error.request.responseText, jQuery.extend({'title': gettext("Error")}, infoBoxOptions));
                                                  }
                                                  ,

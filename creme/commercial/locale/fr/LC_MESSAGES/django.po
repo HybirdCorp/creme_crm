@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-12-13 18:51+0100\n"
+"POT-Creation-Date: 2010-12-17 17:34+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -25,23 +25,23 @@ msgid "Add participants to them be linked to a commercial approach."
 msgstr ""
 "Ajoutez des participants pour qu'ils soient liés à une démarche commerciale"
 
-#: blocks.py:35 models/commercial_approach.py:49
+#: blocks.py:39 models/commercial_approach.py:49
 msgid "Commercial approaches"
 msgstr "Démarches commerciales"
 
-#: blocks.py:84 models/strategy.py:285
+#: blocks.py:88 models/strategy.py:285
 msgid "Market segments"
 msgstr "Segments de marché"
 
-#: blocks.py:98 models/strategy.py:298
+#: blocks.py:102 models/strategy.py:298
 msgid "Commercial assets"
 msgstr "Atouts commerciaux"
 
-#: blocks.py:111 models/strategy.py:325
+#: blocks.py:115 models/strategy.py:325
 msgid "Segment charms"
 msgstr "Attraits de segment"
 
-#: blocks.py:125
+#: blocks.py:129
 msgid "Evaluated organisations"
 msgstr "Sociétés évaluées"
 
@@ -77,80 +77,138 @@ msgstr "Lister les commerciaux"
 msgid "Add a salesman"
 msgstr "Ajouter un commercial"
 
-#: populate.py:39
+#: populate.py:41
 msgid "has sold"
 msgstr "a vendu"
 
-#: populate.py:40
+#: populate.py:42
 msgid "has been sold by"
 msgstr "a été vendu par"
 
-#: populate.py:42
+#: populate.py:43
+msgid "is related to the commercial action"
+msgstr "est lié à l'action commerciale"
+
+#: populate.py:44
+msgid "is related to the opportunity"
+msgstr "est lié à l'opportunité"
+
+#: populate.py:45
+msgid "completes a goal of the commercial action"
+msgstr "rempli un but de l'action commerciale"
+
+#: populate.py:46
+msgid "is completed thanks to"
+msgstr "est remplie grace à"
+
+#: populate.py:48
 msgid "is a salesman"
 msgstr "est un commercial"
 
-#: populate.py:48
+#: populate.py:50
+msgid "Phone calls"
+msgstr "Appels téléphoniques"
+
+#: populate.py:50
+msgid "Show"
+msgstr "Salon"
+
+#: populate.py:50
+msgid "Demo"
+msgstr "Démo"
+
+#: populate.py:57
 msgid "Com Action view"
 msgstr "Vue d'Action Com"
 
-#: populate.py:50 populate.py:55 models/strategy.py:39 models/strategy.py:279
-#: models/strategy.py:292 models/strategy.py:319
+#: populate.py:59 populate.py:64 models/act.py:93 models/strategy.py:39
+#: models/strategy.py:279 models/strategy.py:292 models/strategy.py:319
 #: templates/commercial/templatetags/block_assets.html:16
 #: templates/commercial/templatetags/block_charms.html:16
 #: templates/commercial/templatetags/block_evalorgas.html:17
+#: templates/commercial/templatetags/block_objectives.html:17
+#: templates/commercial/templatetags/block_opportunities.html:19
 #: templates/commercial/templatetags/block_segments.html:16
 msgid "Name"
 msgstr "Nom"
 
-#: populate.py:51 models/act.py:29
+#: populate.py:60 models/act.py:48
 msgid "Expected sales"
 msgstr "CA espéré"
 
-#: populate.py:52 forms/act.py:29 models/act.py:34
+#: populate.py:61 forms/act.py:31 models/act.py:54
 msgid "Due date"
 msgstr "Échéance"
 
-#: populate.py:54
+#: populate.py:63
 msgid "Strategy view"
 msgstr "Vue de stratégie"
+
+#: forms/act.py:30 models/act.py:53
+msgid "Start"
+msgstr "Début"
 
 #: forms/strategy.py:65
 #: templates/commercial/templatetags/block_evalorgas.html:7
 msgid "Organisations"
 msgstr "Sociétés"
 
-#: models/act.py:28
-msgid "Name of the commercial action"
-msgstr "Nom de l'action commerciale"
-
-#: models/act.py:30
-msgid "Cost of the commercial action"
-msgstr "Coût de l'action commerciale"
-
-#: models/act.py:31
-msgid "Target"
-msgstr "Cible"
-
-#: models/act.py:32
-msgid "Goal of the action"
-msgstr "But de l'action"
-
-#: models/act.py:33
-msgid "Objectives to achieve"
-msgstr "Objectifs à réaliser"
-
-#: models/act.py:52
-msgid "Commercial Action"
-msgstr "Action Commerciale"
-
-#: models/act.py:53
-msgid "Commercial Actions"
-msgstr "Actions Commerciales"
-
-#: models/commercial_approach.py:35
+#: models/act.py:33 models/commercial_approach.py:35
 #: templates/commercial/templatetags/block_approaches.html:18
 msgid "Title"
 msgstr "Titre"
+
+#: models/act.py:38
+msgid "Type of Commercial Action"
+msgstr "Type d'Action Commerciale"
+
+#: models/act.py:39
+msgid "Types of Commercial Actions"
+msgstr "Types d'Action Commerciales"
+
+#: models/act.py:46
+msgid "Name of the commercial action"
+msgstr "Nom de l'action commerciale"
+
+#: models/act.py:49
+msgid "Cost of the commercial action"
+msgstr "Coût de l'action commerciale"
+
+#: models/act.py:51
+msgid "Goal of the action"
+msgstr "But de l'action"
+
+#: models/act.py:55
+msgid "Type"
+msgstr "Type"
+
+#: models/act.py:61
+msgid "Commercial Action"
+msgstr "Action Commerciale"
+
+#: models/act.py:62
+msgid "Commercial Actions"
+msgstr "Actions Commerciales"
+
+#: models/act.py:95 templates/commercial/templatetags/block_objectives.html:18
+msgid "Counter"
+msgstr "Compteur"
+
+#: models/act.py:96 templates/commercial/templatetags/block_objectives.html:19
+msgid "Reached"
+msgstr "Atteint"
+
+#: models/act.py:97
+msgid "Counted type"
+msgstr "Type compté"
+
+#: models/act.py:101
+msgid "Commercial Objective"
+msgstr "Objectif Commercial"
+
+#: models/act.py:102
+msgid "Commercial Objectives"
+msgstr "Objectifs Commerciaux"
 
 #: models/commercial_approach.py:36
 msgid "Done ?"
@@ -287,6 +345,7 @@ msgstr "Nouvel atout commercial"
 
 #: templates/commercial/templatetags/block_assets.html:17
 #: templates/commercial/templatetags/block_charms.html:17
+#: templates/commercial/templatetags/block_objectives.html:20
 #: templates/commercial/templatetags/block_segments.html:17
 #: templates/commercial/templatetags/block_sell_by.html:10
 msgid "Actions"
@@ -410,6 +469,7 @@ msgid "See synthesis"
 msgstr "Voir la synthèse"
 
 #: templates/commercial/templatetags/block_evalorgas.html:20
+#: templates/commercial/templatetags/block_opportunities.html:21
 msgid "Delete"
 msgstr "Supprimer"
 
@@ -424,6 +484,59 @@ msgstr "Synthèse"
 #: templates/commercial/templatetags/block_evalorgas.html:42
 msgid "No evaluated organisation for the moment"
 msgstr "Aucune société évaluée pour le moment"
+
+#: templates/commercial/templatetags/block_objectives.html:6
+#, python-format
+msgid "%s Objective"
+msgstr "%s Objectif"
+
+#: templates/commercial/templatetags/block_objectives.html:6
+#, python-format
+msgid "%s Objectives"
+msgstr "%s Objectifs"
+
+#: templates/commercial/templatetags/block_objectives.html:9
+msgid "New relation objective"
+msgstr "Nouvel objectif de relation"
+
+#: templates/commercial/templatetags/block_objectives.html:10
+msgid "New custom objective"
+msgstr "Nouvel objectif personnalisé"
+
+#: templates/commercial/templatetags/block_objectives.html:46
+msgid "No objective for the moment"
+msgstr "Aucun objectif pour le moment"
+
+#: templates/commercial/templatetags/block_opportunities.html:6
+#, python-format
+msgid "%s Related opportunity"
+msgstr "%s Opportunité liée"
+
+#: templates/commercial/templatetags/block_opportunities.html:6
+#, python-format
+msgid "%s Related opportunities"
+msgstr "%s Opportunités liées"
+
+#: templates/commercial/templatetags/block_opportunities.html:6
+msgid "Opportunity"
+msgstr "Opportunité"
+
+#: templates/commercial/templatetags/block_opportunities.html:10
+#: templates/commercial/templatetags/block_opportunities.html:11
+msgid "Link to an existing opportunity"
+msgstr "Lier à des opportunités existantes"
+
+#: templates/commercial/templatetags/block_opportunities.html:20
+msgid "Made sales"
+msgstr "CA final"
+
+#: templates/commercial/templatetags/block_opportunities.html:33
+msgid "Total"
+msgstr "Total"
+
+#: templates/commercial/templatetags/block_opportunities.html:38
+msgid "No related opportunity for the moment"
+msgstr "Aucune opportunité liée pour le moment"
 
 #: templates/commercial/templatetags/block_segments.html:6
 #, python-format
@@ -483,6 +596,16 @@ msgstr "Segment réservoir [2]"
 msgid "Abandoned segment"
 msgstr "Segment abandonné"
 
+#: views/act.py:60 views/act.py:68
+#, python-format
+msgid "New objective for <%s>"
+msgstr "Nouvel objectif pour <%s>"
+
+#: views/act.py:75
+#, python-format
+msgid "Objective for <%s>"
+msgstr "Objectif pour <%s>"
+
 #: views/commercial_approach.py:29
 #, python-format
 msgid "New commercial approach for <%s>"
@@ -539,6 +662,12 @@ msgid ""
 msgstr ""
 "Cette société <%(orga)s> n'est pas (n'est plus ?) évaluée par la stratégie %"
 "(strategy)s"
+
+#~ msgid "Target"
+#~ msgstr "Cible"
+
+#~ msgid "Objectives to achieve"
+#~ msgstr "Objectifs à réaliser"
 
 #~ msgid "Add"
 #~ msgstr "Ajouter"
