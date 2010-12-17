@@ -58,7 +58,7 @@ class BillingTestCase(TestCase):
                                             'issuing_date':    '2010-9-7',
                                             'expiration_date': '2010-10-13',
                                             'status':          1,
-                                            'source':          self.genericfield_format_entity(source),
+                                            'source':          source.id,
                                             'target':          self.genericfield_format_entity(target),
                                             }
                                    )
@@ -189,7 +189,7 @@ class BillingTestCase(TestCase):
                                             'issuing_date':    '2010-9-7',
                                             'expiration_date': '2011-11-14',
                                             'status':          1,
-                                            'source':          self.genericfield_format_entity(source),
+                                            'source':          source.id,
                                             'target':          self.genericfield_format_entity(target),
                                          }
                                    )
