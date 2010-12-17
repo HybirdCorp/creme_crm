@@ -23,9 +23,13 @@ from collections import defaultdict
 from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import ugettext_lazy as _
 
-from creme_core.gui.block import Block, QuerysetBlock, list4url
+from creme_core.models import Relation
+from creme_core.gui.block import Block, PaginatedBlock, QuerysetBlock, list4url
 
-from commercial.models import CommercialApproach, MarketSegment, CommercialAsset, MarketSegmentCharm
+from opportunities.models import Opportunity
+
+from commercial.models import *
+from commercial.constants import REL_OBJ_OPPORT_LINKED
 
 
 class ApproachesBlock(QuerysetBlock):
@@ -179,6 +183,36 @@ class AssetsCharmsMatrixBlock(Block):
                                                            ))
 
 
+class ActObjectivesBlock(QuerysetBlock):
+    id_           = QuerysetBlock.generate_id('commercial', 'objectives')
+    dependencies  = (ActObjective,)
+    order_by      = 'name'
+    verbose_name  = u'Objectives of an Act'
+    template_name = 'commercial/templatetags/block_objectives.html'
+
+    def detailview_display(self, context):
+        act = context['object']
+        return self._render(self.get_block_template_context(context, ActObjective.objects.filter(act=act.id),
+                                                            update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, act.pk),
+                                                           ))
+
+
+class RelatedOpportunitiesBlock(PaginatedBlock):
+    id_           = PaginatedBlock.generate_id('commercial', 'opportunities')
+    dependencies  = (Relation,)
+    relation_type_deps = (REL_OBJ_OPPORT_LINKED,)
+    verbose_name  = u'Opportunities related to an Act'
+    template_name = 'commercial/templatetags/block_opportunities.html'
+
+    def detailview_display(self, context):
+        act = context['object']
+        return self._render(self.get_block_template_context(context, act.get_related_opportunities(),
+                                                            update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, act.pk),
+                                                            predicate_id=REL_OBJ_OPPORT_LINKED,
+                                                            opp_ct=ContentType.objects.get_for_model(Opportunity),
+                                                           ))
+
+
 approaches_block           = ApproachesBlock()
 assets_matrix_block        = AssetsMatrixBlock()
 charms_matrix_block        = CharmsMatrixBlock()
@@ -193,4 +227,6 @@ blocks_list = (
     assets_matrix_block,
     charms_matrix_block,
     assets_charms_matrix_block,
+    ActObjectivesBlock(),
+    RelatedOpportunitiesBlock(),
 )

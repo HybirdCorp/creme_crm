@@ -266,14 +266,20 @@ class Relation(CremeAbstractEntity):
                                              relations__object_entity__in=list_entity).values_list('id', flat=True)
         return Q(id__in=list_pk_f)
 
+    #TODO: remove (use Relation.objects.create() instead) ; user_id=1 is BAD !!!
     @staticmethod
     def create(subject, relation_type_id, object_, user_id=1): #really useful ??? (only 'user' attr help)
-        relation = Relation()
-        relation.subject_entity = subject
-        relation.type_id = relation_type_id
-        relation.object_entity = object_
-        relation.user_id = user_id
-        relation.save()
+        #relation = Relation()
+        #relation.subject_entity = subject
+        #relation.type_id = relation_type_id
+        #relation.object_entity = object_
+        #relation.user_id = user_id
+        #relation.save()
+        return Relation.objects.create(subject_entity=subject,
+                                       type_id=relation_type_id,
+                                       object_entity=object_,
+                                       user_id=user_id,
+                                      )
 
     def update_links(self, subject_entity=None, object_entity=None, save=False):
         """Beware: use this method if you have to update the related entities of a relation.

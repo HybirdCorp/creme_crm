@@ -1,17 +1,20 @@
 # -*- coding: utf-8 -*-
 
-from datetime import datetime
+from datetime import datetime, date
 
 from django.test import TestCase
 from django.contrib.auth.models import User
+from django.contrib.contenttypes.models import ContentType
 
-from creme_core.models import RelationType, CremePropertyType, CremeProperty, CremeEntity
+from creme_core.models import RelationType, Relation, CremePropertyType, CremeProperty, CremeEntity
 from creme_core.management.commands.creme_populate import Command as PopulateCommand
 
 from persons.models import Contact, Organisation
 
+from opportunities.models import Opportunity, SalesPhase
+
 from commercial.models import *
-from commercial.constants import PROP_IS_A_SALESMAN, REL_OBJ_SOLD_BY, REL_SUB_SOLD_BY
+from commercial.constants import *
 
 
 class CommercialTestCase(TestCase):
@@ -138,7 +141,7 @@ class CommercialTestCase(TestCase):
         self.assertEqual(response.status_code, 200)
 
 
-class StrategyTestCase(TestCase):
+class LoggedTestCase(TestCase):
     def setUp(self):
         self.password = 'test'
 
@@ -150,6 +153,8 @@ class StrategyTestCase(TestCase):
         logged = self.client.login(username=user.username, password=self.password)
         self.assert_(logged, 'Not logged in')
 
+
+class StrategyTestCase(LoggedTestCase):
     def test_strategy_create(self):
         response = self.client.get('/commercial/strategy/add')
         self.assertEqual(response.status_code, 200)
@@ -573,4 +578,285 @@ class StrategyTestCase(TestCase):
         self.assertEqual(4, strategy.get_segment_category(orga, association))
 
 
-#TODO: tests for Act, (SellByRelation)
+class ActTestCase(LoggedTestCase):
+    def test_populate(self):
+        PopulateCommand().handle(application=['creme_core', 'persons', 'commercial'])
+        self.assertEqual(3, ActType.objects.count())
+
+        rtypes = RelationType.objects.filter(pk=REL_SUB_OPPORT_LINKED)
+        self.assertEqual(1, len(rtypes))
+
+        rtype = rtypes[0]
+        get_ct = ContentType.objects.get_for_model
+        self.assertEqual([get_ct(Opportunity).id], [ct.id for ct in rtype.subject_ctypes.all()])
+        self.assertEqual([get_ct(Act).id],         [ct.id for ct in rtype.object_ctypes.all()])
+
+        rtypes = RelationType.objects.filter(pk=REL_SUB_COMPLETE_GOAL)
+        self.assertEqual(1, len(rtypes))
+        self.assertEqual([get_ct(Act).id], [ct.id for ct in rtypes[0].object_ctypes.all()])
+
+    def test_create(self):
+        response = self.client.get('/commercial/act/add')
+        self.assertEqual(200, response.status_code)
+
+        name = 'Act#1'
+        atype = ActType.objects.create(title='Show')
+        response = self.client.post('/commercial/act/add', follow=True,
+                                    data={
+                                            'user':     self.user.pk,
+                                            'name':     name,
+                                            'start':    '2011-11-20',
+                                            'due_date': '2011-12-25',
+                                            'act_type': atype.id,
+                                         }
+                                   )
+        self.assertEqual(200, response.status_code)
+        self.assert_(response.redirect_chain)
+        self.assertEqual(len(response.redirect_chain), 1)
+
+        acts = Act.objects.all()
+        self.assertEqual(1, len(acts))
+
+        act = acts[0]
+        self.assertEqual(name,     act.name)
+        self.assertEqual(atype.id, act.act_type_id)
+
+        start = act.start
+        self.assertEqual(2011, start.year)
+        self.assertEqual(11,   start.month)
+        self.assertEqual(20,   start.day)
+
+        due_date = act.due_date
+        self.assertEqual(2011, due_date.year)
+        self.assertEqual(12,   due_date.month)
+        self.assertEqual(25,   due_date.day)
+
+    def create_act(self):
+        atype = ActType.objects.create(title='Show')
+        return Act.objects.create(user=self.user, name='NAME', expected_sales=1000, cost=50,
+                                 goal='GOAL', start=date(2010, 11, 25), due_date=date(2011, 12, 26),
+                                 act_type=atype)
+
+    def test_edit(self):
+        act = self.create_act()
+        response = self.client.get('/commercial/act/edit/%s' % act.id)
+        self.assertEqual(200, response.status_code)
+
+        name = 'Act#1'
+        expected_sales = 2000
+        cost = 100
+        goal = 'Win'
+        atype = ActType.objects.create(title='Demo')
+        response = self.client.post('/commercial/act/edit/%s' % act.id, follow=True,
+                                    data={
+                                            'user':            self.user.pk,
+                                            'name':            name,
+                                            'start':           '2011-11-20',
+                                            'due_date':        '2011-12-25',
+                                            'expected_sales':  expected_sales,
+                                            'cost':            cost,
+                                            'goal':            goal,
+                                            'act_type':        atype.id,
+                                         }
+                                   )
+        self.assertEqual(200, response.status_code)
+        self.assert_(response.redirect_chain)
+        self.assertEqual(len(response.redirect_chain), 1)
+
+        act = Act.objects.get(pk=act.id)
+        self.assertEqual(name,           act.name)
+        self.assertEqual(cost,           act.cost)
+        self.assertEqual(expected_sales, act.expected_sales)
+        self.assertEqual(goal,           act.goal)
+        self.assertEqual(atype.id,       act.act_type_id)
+
+        start = act.start
+        self.assertEqual(2011, start.year)
+        self.assertEqual(11,   start.month)
+        self.assertEqual(20,   start.day)
+
+        due_date = act.due_date
+        self.assertEqual(2011, due_date.year)
+        self.assertEqual(12,   due_date.month)
+        self.assertEqual(25,   due_date.day)
+
+    def test_listview(self):
+        PopulateCommand().handle(application=['creme_core', 'persons', 'commercial'])
+
+        atype = ActType.objects.create(title='Show')
+        create_act = Act.objects.create
+        acts = [create_act(user=self.user, name='NAME_%s' % i, expected_sales=1000,
+                           cost=50, goal='GOAL', act_type=atype,
+                           start=date(2010, 11, 25), due_date=date(2011, 12, 26)
+                          ) for i in xrange(1, 3)
+               ]
+
+        response = self.client.get('/commercial/acts')
+        self.assertEqual(200, response.status_code)
+
+        try:
+            acts_page = response.context['entities']
+        except Exception, e:
+            self.fail(str(e))
+
+        self.assertEqual(1, acts_page.number)
+        self.assertEqual(2, acts_page.paginator.count)
+        self.assertEqual(set(a.id for a in acts), set(o.id for o in acts_page.object_list))
+
+    def test_detailview(self):
+        act = self.create_act()
+        response = self.client.get('/commercial/act/%s' % act.id)
+        self.assertEqual(200, response.status_code)
+
+    def assertNoFormError(self, response):
+        try:
+            errors = response.context['form'].errors
+        except Exception, e:
+            pass
+        else:
+            if errors:
+                self.fail(errors)
+
+    def test_add_objective01(self):
+        act = self.create_act()
+        response = self.client.get('/commercial/act/%s/add/custom_objective' % act.id)
+        self.assertEqual(200, response.status_code)
+        self.assertEqual(0,   ActObjective.objects.count())
+
+        name = 'Objective#1'
+        response = self.client.post('/commercial/act/%s/add/custom_objective' % act.id,
+                                    data={'name': name})
+        self.assertEqual(200, response.status_code)
+        self.assertNoFormError(response)
+
+        self.assertEqual(1, ActObjective.objects.count())
+
+        objectives = ActObjective.objects.filter(act=act.id)
+        self.assertEqual(1, len(objectives))
+
+        objective = objectives[0]
+        self.assertEqual(name,   objective.name)
+        self.assertEqual(act.id, objective.act_id)
+        self.assertEqual(0,      objective.counter)
+        self.failIf(objective.reached)
+
+    def test_add_objective02(self):
+        act = self.create_act()
+        response = self.client.get('/commercial/act/%s/add/relation_objective' % act.id)
+        self.assertEqual(200, response.status_code)
+        self.assertEqual(0,   ActObjective.objects.count())
+
+        name  = 'Objective#2'
+        ct_id = ContentType.objects.get_for_model(Organisation).id
+        response = self.client.post('/commercial/act/%s/add/relation_objective' % act.id,
+                                    data={
+                                            'name':  name,
+                                            'ctype': ct_id,
+                                         }
+                                   )
+        self.assertEqual(200, response.status_code)
+        self.assertNoFormError(response)
+        self.assertEqual(1, ActObjective.objects.count())
+
+        objectives = ActObjective.objects.filter(act=act.id)
+        self.assertEqual(1, len(objectives))
+
+        objective = objectives[0]
+        self.assertEqual(name,   objective.name)
+        self.assertEqual(act.id, objective.act_id)
+        self.assertEqual(0,      objective.counter)
+        self.assertEqual(ct_id,  objective.ctype_id)
+
+    def test_edit_objective01(self):
+        act = self.create_act()
+        objective = ActObjective.objects.create(act=act, name='OBJ#1')
+
+        response = self.client.get('/commercial/objective/%s/edit' % objective.id)
+        self.assertEqual(200, response.status_code)
+
+        name = 'OBJ_NAME'
+        response = self.client.post('/commercial/objective/%s/edit' % objective.id,
+                                    data={
+                                            'name': name
+                                         }
+                                   )
+        self.assertEqual(200, response.status_code)
+
+        objective = ActObjective.objects.get(pk=objective.id)
+        self.assertEqual(name, objective.name)
+
+    def test_delete_objective01(self):
+        act = self.create_act()
+        objective = ActObjective.objects.create(act=act, name='OBJ#1')
+
+        response = self.client.post('/commercial/objective/delete', data={'id': objective.id})
+        self.assertEqual(302, response.status_code)
+        self.assertEqual(0,   ActObjective.objects.filter(pk=objective.id).count())
+
+    def test_incr_objective_counter(self):
+        act = self.create_act()
+        objective = ActObjective.objects.create(act=act, name='OBJ#1')
+        self.assertEqual(0, objective.counter)
+
+        response = self.client.post('/commercial/objective/%s/incr' % objective.id, data={'diff': 1})
+        self.assertEqual(200, response.status_code)
+        self.assertEqual(1, ActObjective.objects.get(pk=objective.id).counter)
+
+        response = self.client.post('/commercial/objective/%s/incr' % objective.id, data={'diff': -3})
+        self.assertEqual(200, response.status_code)
+        self.assertEqual(-2, ActObjective.objects.get(pk=objective.id).counter)
+
+    def test_reach_objective(self):
+        act = self.create_act()
+        objective = ActObjective.objects.create(act=act, name='OBJ#1')
+        self.failIf(objective.reached)
+
+        response = self.client.post('/commercial/objective/%s/reach' % objective.id, data={'reached': 'true'})
+        self.assertEqual(200, response.status_code)
+        self.assert_(ActObjective.objects.get(pk=objective.id).reached)
+
+        response = self.client.post('/commercial/objective/%s/reach' % objective.id, data={'reached': 'false'})
+        self.assertEqual(200, response.status_code)
+        self.failIf(ActObjective.objects.get(pk=objective.id).reached)
+
+    def test_count_relations(self):
+        PopulateCommand().handle(application=['commercial']) #'creme_core', 'persons'
+        RelationType.objects.get(pk=REL_SUB_COMPLETE_GOAL) #raise exception if error
+
+        act = self.create_act()
+        objective = ActObjective.objects.create(act=act, name='Orga counter', ctype=ContentType.objects.get_for_model(Organisation))
+        self.assertEqual(0, objective.get_relations_count())
+
+        orga = Organisation.objects.create(user=self.user, name='Ferraille corp')
+        Relation.create(orga, REL_SUB_COMPLETE_GOAL, act, user_id=self.user.pk)
+
+        self.assertEqual(1, objective.get_relations_count())
+
+    def test_related_opportunities(self):
+        PopulateCommand().handle(application=['commercial']) #'creme_core', 'persons'
+        RelationType.objects.get(pk=REL_SUB_OPPORT_LINKED) #raise exception if error
+
+        act = self.create_act()
+        self.assertEqual([], act.get_related_opportunities())
+        self.assertEqual(0,  act.get_made_sales())
+
+        sales_phase = SalesPhase.objects.create(name='Foresale', description='Foresale')
+        opp01 = Opportunity.objects.create(user=self.user, name='OPP01', sales_phase=sales_phase, closing_date=date.today())
+        Relation.create(opp01, REL_SUB_OPPORT_LINKED, act, user_id=self.user.pk)
+
+        act = Act.objects.get(pk=act.id) #refresh cache
+        self.assertEqual([opp01.id], [o.id for o in act.get_related_opportunities()])
+        self.assertEqual(0,          act.get_made_sales())
+
+        opp01.made_sales = 1500; opp01.save()
+        self.assertEqual(1500, Act.objects.get(pk=act.id).get_made_sales())
+
+        opp02 = Opportunity.objects.create(user=self.user, name='OPP01', sales_phase=sales_phase, closing_date=date.today(), made_sales=500)
+        Relation.create(opp02, REL_SUB_OPPORT_LINKED, act, user_id=self.user.pk)
+        act  = Act.objects.get(pk=act.id) #refresh cache
+        opps = act.get_related_opportunities()
+        self.assertEqual(2, len(opps))
+        self.assertEqual(set([opp01.id, opp02.id]), set(o.id for o in opps))
+        self.assertEqual(2000, Act.objects.get(pk=act.id).get_made_sales())
+
+#TODO: (tests SellByRelation)

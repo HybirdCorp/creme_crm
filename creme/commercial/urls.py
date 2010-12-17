@@ -16,6 +16,14 @@ urlpatterns = patterns('commercial.views',
     (r'^act/edit/(?P<act_id>\d+)$', 'act.edit'),
     (r'^act/(?P<act_id>\d+)$',      'act.detailview'),
 
+    #Objectives
+    (r'^act/(?P<act_id>\d+)/add/custom_objective$',   'act.add_custom_objective'),
+    (r'^act/(?P<act_id>\d+)/add/relation_objective$', 'act.add_relation_objective'),
+    (r'^objective/(?P<objective_id>\d+)/edit$',       'act.edit_objective'),
+    (r'^objective/(?P<objective_id>\d+)/incr$',       'act.incr_objective_counter'),
+    (r'^objective/(?P<objective_id>\d+)/reach$',      'act.reach_objective'),
+    (r'^objective/delete$',                           'act.delete_objective'),
+
     (r'^strategies$',                         'strategy.listview'),
     (r'^strategy/add$',                       'strategy.add'),
     (r'^strategy/edit/(?P<strategy_id>\d+)$', 'strategy.edit'),
