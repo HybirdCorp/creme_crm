@@ -35,8 +35,10 @@ from persons.constants import REL_SUB_SUSPECT, REL_SUB_PROSPECT, REL_SUB_CUSTOME
 def add(request):
     return add_entity(request, OrganisationForm, template="persons/add_organisation_form.html")
 
+@login_required
+@permission_required('persons')
 def edit(request, organisation_id):
-    return edit_entity(request, organisation_id, Organisation, OrganisationForm, 'persons', template='persons/edit_organisation_form.html')
+    return edit_entity(request, organisation_id, Organisation, OrganisationForm, template='persons/edit_organisation_form.html')
 
 @login_required
 @permission_required('persons')

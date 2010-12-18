@@ -41,8 +41,10 @@ from events.constants import *
 def add(request):
     return add_entity(request, EventForm)
 
+@login_required
+@permission_required('events')
 def edit(request, event_id):
-    return edit_entity(request, event_id, Event, EventForm, 'events')
+    return edit_entity(request, event_id, Event, EventForm)
 
 @login_required
 @permission_required('events')
@@ -195,7 +197,7 @@ def list_contacts(request, event_id):
 @login_required
 @permission_required('events')
 def link_contacts(request, event_id):
-    return edit_entity(request, event_id, Event, AddContactsToEventForm, 'events')
+    return edit_entity(request, event_id, Event, AddContactsToEventForm)
 
 def _get_status(request, valid_status):
     try:

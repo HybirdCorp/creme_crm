@@ -45,14 +45,17 @@ from reports.report_aggregation_registry import field_aggregation_registry
 @permission_required('reports')
 @permission_required('reports.add_report')
 def add(request):
-    tpl_dict = {
-        'help_messages' : [],
-        'ct_posted'  : request.POST.get('ct'),
-    }
-    return add_entity(request, CreateForm, template="reports/add_report.html", extra_template_dict=tpl_dict)
+    return add_entity(request, CreateForm, template="reports/add_report.html",
+                      extra_template_dict={
+                                            'help_messages': [],
+                                            'ct_posted':     request.POST.get('ct'),
+                                          }
+                     )
 
+@login_required
+@permission_required('reports')
 def edit(request, report_id):
-    return edit_entity(request, report_id, Report, EditForm, 'reports')
+    return edit_entity(request, report_id, Report, EditForm)
 
 @login_required
 @permission_required('reports')

@@ -36,8 +36,10 @@ from emails.forms.template import TemplateCreateForm, TemplateEditForm, Template
 def add(request):
     return add_entity(request, TemplateCreateForm)
 
+@login_required
+@permission_required('emails')
 def edit(request, template_id):
-    return edit_entity(request, template_id, EmailTemplate, TemplateEditForm, 'emails')
+    return edit_entity(request, template_id, EmailTemplate, TemplateEditForm)
 
 @login_required
 @permission_required('emails')

@@ -38,8 +38,10 @@ from documents.forms.folder import FolderForm
 def add(request):
     return add_entity(request, FolderForm)
 
+@login_required
+@permission_required('documents')
 def edit(request, folder_id):
-    return edit_entity(request, folder_id, Folder, FolderForm, 'documents')
+    return edit_entity(request, folder_id, Folder, FolderForm)
 
 @login_required
 @permission_required('documents')

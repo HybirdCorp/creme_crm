@@ -34,8 +34,10 @@ from billing.views.base import view_billing_entity
 def add(request):
     return add_entity(request, CreditNoteCreateForm)
 
+@login_required
+@permission_required('billing')
 def edit(request, credit_note_id):
-    return edit_entity(request, credit_note_id, CreditNote, CreditNoteEditForm, 'billing')
+    return edit_entity(request, credit_note_id, CreditNote, CreditNoteEditForm)
 
 @login_required
 @permission_required('billing')

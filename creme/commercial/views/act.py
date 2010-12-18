@@ -37,8 +37,10 @@ from commercial.forms.act import ActForm, ObjectiveForm, RelationObjectiveForm
 def add(request):
     return generic.add_entity(request, ActForm)
 
+@login_required
+@permission_required('commercial')
 def edit(request, act_id):
-    return generic.edit_entity(request, act_id, Act, ActForm, 'commercial')
+    return generic.edit_entity(request, act_id, Act, ActForm)
 
 @login_required
 @permission_required('commercial')

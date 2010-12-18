@@ -37,8 +37,10 @@ from sms.forms.messaging_list import MessagingListForm, AddContactsForm, AddCont
 def add(request):
     return add_entity(request, MessagingListForm)
 
+@login_required
+@permission_required('sms')
 def edit(request, mlist_id):
-    return edit_entity(request, mlist_id, MessagingList, MessagingListForm, 'sms')
+    return edit_entity(request, mlist_id, MessagingList, MessagingListForm)
 
 @login_required
 @permission_required('sms')

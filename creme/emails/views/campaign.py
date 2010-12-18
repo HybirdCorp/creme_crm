@@ -37,8 +37,10 @@ from emails.forms.campaign import CampaignCreateForm, CampaignEditForm, Campaign
 def add(request):
     return add_entity(request, CampaignCreateForm)
 
+@login_required
+@permission_required('emails')
 def edit(request, campaign_id):
-    return edit_entity(request, campaign_id, EmailCampaign, CampaignEditForm, 'emails')
+    return edit_entity(request, campaign_id, EmailCampaign, CampaignEditForm)
 
 @login_required
 @permission_required('emails')

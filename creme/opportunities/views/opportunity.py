@@ -56,8 +56,10 @@ def add_to_orga(request, orga_id):
 
     return add_entity(request, OpportunityCreateForm, extra_initial={"target_orga": orga_id})
 
+@login_required
+@permission_required('opportunities')
 def edit(request, opp_id):
-    return edit_entity(request, opp_id, Opportunity, OpportunityEditForm, 'opportunities')
+    return edit_entity(request, opp_id, Opportunity, OpportunityEditForm)
 
 @login_required
 @permission_required('opportunities')

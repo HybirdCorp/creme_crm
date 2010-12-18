@@ -28,7 +28,6 @@ from creme_core.gui.last_viewed import change_page_for_last_viewed
 from creme_core.views.generic.popup import inner_popup
 
 
-@login_required
 def add_entity(request, form_class, url_redirect='', template='creme_core/generics/blockform/add.html',
                function_post_save=None, extra_initial=None, extra_template_dict=None):
     """
