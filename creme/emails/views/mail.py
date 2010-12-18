@@ -154,7 +154,6 @@ def detailview(request, mail_id):
 def listview(request):
     return list_view(request, EntityEmail)
 
-
 @login_required
 @permission_required('emails')
 def create_n_send(request, entity_id):

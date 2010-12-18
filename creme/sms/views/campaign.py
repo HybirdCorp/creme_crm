@@ -41,8 +41,8 @@ def edit(request, campaign_id):
 # TODO : perhaps more reliable to forbid delete for campaigns with sendings.
 @login_required
 @permission_required('sms')
-def delete(request, id): 
-    campaign = get_object_or_404(SMSCampaign, pk=id).get_real_entity()
+def delete(request, id):
+    campaign = get_object_or_404(SMSCampaign, pk=id)
     campaign.can_delete_or_die(request.user)
 
     callback_url = campaign.get_lv_absolute_url()

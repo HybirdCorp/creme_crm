@@ -24,9 +24,7 @@ from django.template import RequestContext
 from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required, permission_required
 
-from creme_core.views.generic import (list_view, add_entity, add_to_entity,
-                                      edit_entity, view_entity_with_template,
-                                      inner_popup)
+from creme_core.views import generic
 from creme_core.utils import get_from_POST_or_404, jsonify
 
 from persons.models import Organisation
@@ -40,96 +38,78 @@ from commercial.blocks import assets_matrix_block, charms_matrix_block, assets_c
 @permission_required('commercial')
 @permission_required('commercial.add_strategy')
 def add(request):
-    return add_entity(request, StrategyForm)
+    return generic.add_entity(request, StrategyForm)
 
 def edit(request, strategy_id):
-    return edit_entity(request, strategy_id, Strategy, StrategyForm, 'commercial')
+    return generic.edit_entity(request, strategy_id, Strategy, StrategyForm, 'commercial')
 
 @login_required
 @permission_required('commercial')
 def detailview(request, strategy_id):
-    return view_entity_with_template(request, strategy_id, Strategy, '/commercial/strategy',
-                                     template='commercial/view_strategy.html'
-                                    )
+    return generic.view_entity_with_template(request, strategy_id, Strategy,
+                                             '/commercial/strategy',
+                                             template='commercial/view_strategy.html'
+                                            )
 
 @login_required
 @permission_required('commercial')
 #@change_page_for_last_item_viewed
 def listview(request):
-    return list_view(request, Strategy, extra_dict={'add_url': '/commercial/strategy/add'})
+    return generic.list_view(request, Strategy, extra_dict={'add_url': '/commercial/strategy/add'})
 
 def add_segment(request, strategy_id):
-    return add_to_entity(request, strategy_id, SegmentForm, _(u"New market segment for <%s>"),
-                         entity_class=Strategy)
+    return generic.add_to_entity(request, strategy_id, SegmentForm,
+                                 _(u"New market segment for <%s>"),
+                                 entity_class=Strategy
+                                )
 
 def add_asset(request, strategy_id):
-    return add_to_entity(request, strategy_id, AssetForm, _(u"New commercial asset for <%s>"),
-                         entity_class=Strategy)
+    return generic.add_to_entity(request, strategy_id, AssetForm,
+                                 _(u"New commercial asset for <%s>"),
+                                 entity_class=Strategy
+                                )
 
 def add_charm(request, strategy_id):
-    return add_to_entity(request, strategy_id, CharmForm, _(u"New segment charm for <%s>"),
-                         entity_class=Strategy)
+    return generic.add_to_entity(request, strategy_id, CharmForm,
+                                 _(u"New segment charm for <%s>"),
+                                 entity_class=Strategy
+                                )
 
 def add_evalorga(request, strategy_id):
-    return add_to_entity(request, strategy_id, AddOrganisationForm, _(u"New organisation for <%s>"),
-                         entity_class=Strategy)
+    return generic.add_to_entity(request, strategy_id, AddOrganisationForm,
+                                 _(u"New organisation for <%s>"),
+                                 entity_class=Strategy
+                                )
 
 @login_required
 @permission_required('commercial')
-def _edit(request, model_id, model_class, form_class, title):
-    model = get_object_or_404(model_class, pk=model_id)
-    strategy = model.strategy
-
-    strategy.can_change_or_die(request.user)
-
-    if request.POST:
-        edit_form = form_class(strategy, request.POST, instance=model)
-
-        if edit_form.is_valid():
-            edit_form.save()
-    else: # return page on GET request
-        edit_form = form_class(entity=strategy, instance=model)
-
-    return inner_popup(request, 'creme_core/generics/blockform/edit_popup.html',
-                       {
-                        'form':  edit_form,
-                        'title': title % strategy,
-                       },
-                       is_valid=edit_form.is_valid(),
-                       reload=False,
-                       delegate_reload=True,
-                       context_instance=RequestContext(request))
-
 def edit_segment(request, segment_id):
-    return _edit(request, segment_id, MarketSegment, SegmentForm, _(u"Segment for <%s>"))
-
-def edit_asset(request, asset_id):
-    return _edit(request, asset_id, CommercialAsset, AssetForm, _(u"Asset for <%s>"))
-
-def edit_charm(request, charm_id):
-    return _edit(request, charm_id, MarketSegmentCharm, CharmForm, _(u"Charm for <%s>"))
+    return generic.edit_related_to_entity(request, segment_id, MarketSegment, SegmentForm, _(u"Segment for <%s>"))
 
 @login_required
 @permission_required('commercial')
-def _delete(request, model_class):
-    model = get_object_or_404(model_class, pk=get_from_POST_or_404(request.POST, 'id'))
+def edit_asset(request, asset_id):
+    return generic.edit_related_to_entity(request, asset_id, CommercialAsset, AssetForm, _(u"Asset for <%s>"))
 
-    model.strategy.can_change_or_die(request.user)
-    model.delete()
+@login_required
+@permission_required('commercial')
+def edit_charm(request, charm_id):
+    return generic.edit_related_to_entity(request, charm_id, MarketSegmentCharm, CharmForm, _(u"Charm for <%s>"))
 
-    if request.is_ajax():
-        return HttpResponse("", mimetype="text/javascript")
-
-    return HttpResponseRedirect(model.strategy.get_absolute_url())
-
+@login_required
+@permission_required('commercial')
 def delete_segment(request):
-    return _delete(request, MarketSegment)
+    return generic.delete_related_to_entity(request, MarketSegment)
 
+@login_required
+@permission_required('commercial')
 def delete_asset(request):
-    return _delete(request, CommercialAsset)
+    return generic.delete_related_to_entity(request, CommercialAsset)
 
+@login_required
+@permission_required('commercial')
 def delete_charm(request):
-    return _delete(request, MarketSegmentCharm)
+    return generic.delete_related_to_entity(request, MarketSegmentCharm)
 
 @login_required
 @permission_required('commercial')
@@ -177,14 +157,10 @@ def _set_score(request, strategy_id, method_name):
     strategy.can_change_or_die(request.user)
 
     POST = request.POST
-
-    try: #TODO: use get_from_POST_or_404() with 'cast=int' argument
-        model_id   = int(POST['model_id'])
-        segment_id = int(POST['segment_id'])
-        orga_id    = int(POST['orga_id'])
-        score      = int(POST['score'])
-    except Exception, e:
-        raise Http404('Problem with a posted arg: %s' % str(e))
+    model_id   = get_from_POST_or_404(POST, 'model_id', int)
+    segment_id = get_from_POST_or_404(POST, 'segment_id', int)
+    orga_id    = get_from_POST_or_404(POST, 'orga_id', int)
+    score      = get_from_POST_or_404(POST, 'score', int)
 
     try:
         getattr(strategy, method_name)(model_id, segment_id, orga_id, score)
@@ -206,13 +182,9 @@ def set_segment_category(request, strategy_id):
     strategy.can_change_or_die(request.user)
 
     POST = request.POST
-
-    try:
-        segment_id = int(POST['segment_id'])
-        orga_id    = int(POST['orga_id'])
-        category   = int(POST['category'])
-    except Exception, e:
-        raise Http404('Problem with a posted arg: %s' % str(e))
+    segment_id = get_from_POST_or_404(POST, 'segment_id', int)
+    orga_id    = get_from_POST_or_404(POST, 'orga_id', int)
+    category   = get_from_POST_or_404(POST, 'category', int)
 
     try:
         strategy.set_segment_category(segment_id, orga_id, category)

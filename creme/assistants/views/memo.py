@@ -21,18 +21,19 @@
 from django.contrib.auth.decorators import login_required
 from django.utils.translation import ugettext as _
 
-from creme_core.views.generic import add_to_entity
+from creme_core.views.generic import add_to_entity, edit_related_to_entity, delete_related_to_entity
 
 from assistants.models import Memo
 from assistants.forms.memo import MemoCreateForm, MemoEditForm
-from utils import generic_edit, generic_delete
 
 
 def add(request, entity_id):
     return add_to_entity(request, entity_id, MemoCreateForm, _(u'New Memo for <%s>'))
 
+@login_required
 def edit(request, memo_id):
-    return generic_edit(request, memo_id, Memo, MemoEditForm, _(u"Memo for <%s>"))
+    return edit_related_to_entity(request, memo_id, Memo, MemoEditForm, _(u"Memo for <%s>"))
 
+@login_required
 def delete(request):
-    return generic_delete(request, Memo)
+    return delete_related_to_entity(request, Memo)
