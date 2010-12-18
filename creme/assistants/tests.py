@@ -13,6 +13,7 @@ from creme_core.management.commands.creme_populate import Command as PopulateCom
 from assistants.models import *
 from assistants.blocks import todos_block
 
+
 class AssistantsAppTestCase(TestCase):
     def test_populate(self):
         PopulateCommand().handle(application=['assistants'])

@@ -287,6 +287,9 @@ class MarketSegment(CremeModel):
     def __unicode__(self):
         return self.name
 
+    def get_related_entity(self): #for generic views
+        return self.strategy
+
 
 class CommercialAsset(CremeModel):
     name     = CharField(_(u"Name"), max_length=100)
@@ -299,6 +302,9 @@ class CommercialAsset(CremeModel):
 
     def __unicode__(self):
         return self.name
+
+    def get_related_entity(self): #for generic views
+        return self.strategy
 
 
 class CommercialAssetScore(CremeModel):
@@ -326,6 +332,9 @@ class MarketSegmentCharm(CremeModel):
 
     def __unicode__(self):
         return self.name
+
+    def get_related_entity(self): #for generic views
+        return self.strategy
 
 
 class MarketSegmentCharmScore(CremeModel):
