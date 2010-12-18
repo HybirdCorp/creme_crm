@@ -27,10 +27,14 @@ from sms.models import MessagingList, Recipient
 from sms.forms.recipient import MessagingListAddRecipientsForm, MessagingListAddCSVForm
 
 
+@login_required
+@permission_required('sms')
 def add(request, mlist_id):
     return add_to_entity(request, mlist_id, MessagingListAddRecipientsForm,
                          _(u'New recipients for <%s>'), entity_class=MessagingList)
 
+@login_required
+@permission_required('sms')
 def add_from_csv(request, mlist_id):
     return add_to_entity(request, mlist_id, MessagingListAddCSVForm,
                          _(u'New recipients for <%s>'), entity_class=MessagingList)

@@ -27,10 +27,14 @@ from emails.models import MailingList, EmailRecipient
 from emails.forms.recipient import MailingListAddRecipientsForm, MailingListAddCSVForm
 
 
+@login_required
+@permission_required('emails')
 def add(request, ml_id):
     return add_to_entity(request, ml_id, MailingListAddRecipientsForm,
                          _(u'New recipients for <%s>'), entity_class=MailingList)
 
+@login_required
+@permission_required('emails')
 def add_from_csv(request, ml_id):
     return add_to_entity(request, ml_id, MailingListAddCSVForm,
                          _(u'New recipients for <%s>'), entity_class=MailingList)

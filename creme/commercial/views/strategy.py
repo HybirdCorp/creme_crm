@@ -57,24 +57,32 @@ def detailview(request, strategy_id):
 def listview(request):
     return generic.list_view(request, Strategy, extra_dict={'add_url': '/commercial/strategy/add'})
 
+@login_required
+@permission_required('commercial')
 def add_segment(request, strategy_id):
     return generic.add_to_entity(request, strategy_id, SegmentForm,
                                  _(u"New market segment for <%s>"),
                                  entity_class=Strategy
                                 )
 
+@login_required
+@permission_required('commercial')
 def add_asset(request, strategy_id):
     return generic.add_to_entity(request, strategy_id, AssetForm,
                                  _(u"New commercial asset for <%s>"),
                                  entity_class=Strategy
                                 )
 
+@login_required
+@permission_required('commercial')
 def add_charm(request, strategy_id):
     return generic.add_to_entity(request, strategy_id, CharmForm,
                                  _(u"New segment charm for <%s>"),
                                  entity_class=Strategy
                                 )
 
+@login_required
+@permission_required('commercial')
 def add_evalorga(request, strategy_id):
     return generic.add_to_entity(request, strategy_id, AddOrganisationForm,
                                  _(u"New organisation for <%s>"),

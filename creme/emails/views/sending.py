@@ -31,6 +31,8 @@ from emails.forms.sending import SendingCreateForm
 from emails.blocks import mails_block
 
 
+@login_required
+@permission_required('emails')
 def add(request, campaign_id):
     return add_to_entity(request, campaign_id, SendingCreateForm,
                          _('New sending for <%s>'), entity_class=EmailCampaign)

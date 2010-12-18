@@ -53,22 +53,32 @@ def detailview(request, ml_id):
 def listview(request):
     return list_view(request, MailingList, extra_dict={'add_url': '/emails/mailing_list/add'})
 
+@login_required
+@permission_required('emails')
 def add_contacts(request, ml_id):
     return add_to_entity(request, ml_id, AddContactsForm,
                          _('New contacts for <%s>'), entity_class=MailingList)
 
+@login_required
+@permission_required('emails')
 def add_contacts_from_filter(request, ml_id):
     return add_to_entity(request, ml_id, AddContactsFromFilterForm,
                          _('New contacts for <%s>'), entity_class=MailingList)
 
+@login_required
+@permission_required('emails')
 def add_organisations(request, ml_id):
     return add_to_entity(request, ml_id, AddOrganisationsForm,
                          _('New organisations for <%s>'), entity_class=MailingList)
 
+@login_required
+@permission_required('emails')
 def add_organisations_from_filter(request, ml_id):
     return add_to_entity(request, ml_id, AddOrganisationsFromFilterForm,
                          _('New organisations for <%s>'), entity_class=MailingList)
 
+@login_required
+@permission_required('emails')
 def add_children(request, ml_id):
     return add_to_entity(request, ml_id, AddChildForm,
                          _('New child lists for <%s>'), entity_class=MailingList)

@@ -51,6 +51,8 @@ def detailview(request, template_id):
 def listview(request):
     return list_view(request, EmailTemplate, extra_dict={'add_url': '/emails/template/add'})
 
+@login_required
+@permission_required('emails')
 def add_attachment(request, template_id):
     return add_to_entity(request, template_id, TemplateAddAttachment,
                          _('New attachments for <%s>'), entity_class=EmailTemplate)

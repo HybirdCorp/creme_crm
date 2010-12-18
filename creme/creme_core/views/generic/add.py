@@ -71,8 +71,6 @@ def add_entity(request, form_class, url_redirect='', template='creme_core/generi
     return render_to_response(template, template_dict,
                               context_instance=RequestContext(request))
 
-#TODO: @permission_required('app_name') ??
-@login_required
 def add_to_entity(request, entity_id, form_class, title, entity_class=None, initial=None,
                   template='creme_core/generics/blockform/add_popup2.html'):
     """ Add models related to one CremeEntity (eg: a CremeProperty)
