@@ -34,14 +34,16 @@ from projects.forms.project import ProjectCreateForm, ProjectEditForm
 def add(request):
     return add_entity(request, ProjectCreateForm)
 
+@login_required
+@permission_required('projects')
 def edit(request, project_id):
-    return edit_entity(request, project_id, Project, ProjectEditForm, 'projects')
+    return edit_entity(request, project_id, Project, ProjectEditForm)
 
 @login_required
 @permission_required('projects')
 @change_page_for_last_item_viewed
 def listview(request):
-    return list_view(request, Project, extra_dict={'add_url':'/projects/project/add'})
+    return list_view(request, Project, extra_dict={'add_url': '/projects/project/add'})
 
 @login_required
 @permission_required('projects')

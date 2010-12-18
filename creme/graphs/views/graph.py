@@ -53,8 +53,10 @@ def dl_png(request, graph_id):
                                  {'error_message': _(u"This graph is too big!")},
                                  context_instance=RequestContext(request))
 
+@login_required
+@permission_required('graphs')
 def edit(request, graph_id):
-    return edit_entity(request, graph_id, Graph, GraphForm, 'graphs')
+    return edit_entity(request, graph_id, Graph, GraphForm)
 
 @login_required
 @permission_required('graphs')

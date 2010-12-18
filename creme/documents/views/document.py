@@ -43,8 +43,10 @@ def add_from_detailview(request):
     return add_entity(request, DocumentCreateViewForm, req_get('callback_url'),
                       extra_initial={'entity_id': req_get('entity_id')})
 
+@login_required
+@permission_required('documents')
 def edit(request, document_id):
-    return edit_entity(request, document_id, Document, DocumentEditForm, 'documents')
+    return edit_entity(request, document_id, Document, DocumentEditForm)
 
 @login_required
 @permission_required('documents')

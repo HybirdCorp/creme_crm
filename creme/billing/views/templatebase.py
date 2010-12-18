@@ -29,8 +29,10 @@ from billing.forms.templatebase import TemplateBaseEditForm
 from billing.views.base import view_billing_entity
 
 
+@login_required
+@permission_required('billing')
 def edit(request, template_id):
-    return edit_entity(request, template_id, TemplateBase, TemplateBaseEditForm, 'billing')
+    return edit_entity(request, template_id, TemplateBase, TemplateBaseEditForm)
 
 @login_required
 @permission_required('recurrents')

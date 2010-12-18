@@ -59,8 +59,10 @@ def add_with_relation(request, orga_id, predicate_id=None):
                       request.REQUEST.get('callback_url'),
                       'persons/add_contact_form.html', extra_initial=initial)
 
+@login_required
+@permission_required('persons')
 def edit(request, contact_id):
-    return edit_entity(request, contact_id, Contact, ContactForm, 'persons', template='persons/edit_contact_form.html')
+    return edit_entity(request, contact_id, Contact, ContactForm, template='persons/edit_contact_form.html')
 
 @login_required
 @permission_required('persons')

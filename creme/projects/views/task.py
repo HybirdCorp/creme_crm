@@ -47,7 +47,7 @@ def detailview(request, object_id):
 @login_required
 @permission_required('projects')
 def edit(request, task_id):
-    return edit_entity(request, task_id, ProjectTask, TaskEditForm, 'projects')
+    return edit_entity(request, task_id, ProjectTask, TaskEditForm)
 
 @login_required
 @permission_required('projects')

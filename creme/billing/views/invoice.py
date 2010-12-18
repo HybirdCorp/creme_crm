@@ -38,8 +38,10 @@ from billing.views.base import view_billing_entity
 def add(request):
     return add_entity(request, InvoiceCreateForm)
 
+@login_required
+@permission_required('billing')
 def edit(request, invoice_id):
-    return edit_entity(request, invoice_id, Invoice, InvoiceEditForm, 'billing')
+    return edit_entity(request, invoice_id, Invoice, InvoiceEditForm)
 
 @login_required
 @permission_required('billing')

@@ -32,8 +32,10 @@ from sms.forms.template import TemplateCreateForm, TemplateEditForm
 def add(request):
     return add_entity(request, TemplateCreateForm)
 
+@login_required
+@permission_required('sms')
 def edit(request, template_id):
-    return edit_entity(request, template_id, MessageTemplate, TemplateEditForm, 'sms')
+    return edit_entity(request, template_id, MessageTemplate, TemplateEditForm)
 
 @login_required
 @permission_required('sms')

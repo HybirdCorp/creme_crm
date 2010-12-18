@@ -47,8 +47,10 @@ def add(request):
 
     return add_entity(request, ImageForm, return_path, **kwargs)
 
+@login_required
+@permission_required('media_managers')
 def edit(request, image_id):
-    return edit_entity(request, image_id, Image, ImageForm, 'media_managers')
+    return edit_entity(request, image_id, Image, ImageForm)
 
 @login_required
 @permission_required('media_managers')

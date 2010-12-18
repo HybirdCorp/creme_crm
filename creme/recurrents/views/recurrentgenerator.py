@@ -34,8 +34,10 @@ _wizard = RecurrentGeneratorWizard()
 def add(request):
     return _wizard(request)
 
+@login_required
+@permission_required('recurrents')
 def edit(request, generator_id):
-    return edit_entity(request, generator_id, RecurrentGenerator, RecurrentGeneratorEditForm, 'recurrents')
+    return edit_entity(request, generator_id, RecurrentGenerator, RecurrentGeneratorEditForm)
 
 @login_required
 @permission_required('recurrents')

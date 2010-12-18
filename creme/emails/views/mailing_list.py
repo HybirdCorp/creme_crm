@@ -38,8 +38,10 @@ from emails.forms.mailing_list import (MailingListForm,
 def add(request):
     return add_entity(request, MailingListForm)
 
+@login_required
+@permission_required('emails')
 def edit(request, ml_id):
-    return edit_entity(request, ml_id, MailingList, MailingListForm, 'emails')
+    return edit_entity(request, ml_id, MailingList, MailingListForm)
 
 @login_required
 @permission_required('emails')

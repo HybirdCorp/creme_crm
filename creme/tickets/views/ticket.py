@@ -33,8 +33,10 @@ from tickets.forms.ticket import CreateForm, EditForm
 def add(request):
     return add_entity(request, CreateForm)
 
+@login_required
+@permission_required('tickets')
 def edit(request, ticket_id):
-    return edit_entity(request, ticket_id, Ticket, EditForm, 'tickets')
+    return edit_entity(request, ticket_id, Ticket, EditForm)
 
 @login_required
 @permission_required('tickets')

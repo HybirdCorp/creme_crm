@@ -40,8 +40,10 @@ from commercial.blocks import assets_matrix_block, charms_matrix_block, assets_c
 def add(request):
     return generic.add_entity(request, StrategyForm)
 
+@login_required
+@permission_required('commercial')
 def edit(request, strategy_id):
-    return generic.edit_entity(request, strategy_id, Strategy, StrategyForm, 'commercial')
+    return generic.edit_entity(request, strategy_id, Strategy, StrategyForm)
 
 @login_required
 @permission_required('commercial')

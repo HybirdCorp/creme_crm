@@ -35,8 +35,10 @@ from sms.forms.campaign import CampaignCreateForm, CampaignEditForm, CampaignAdd
 def add(request):
     return add_entity(request, CampaignCreateForm)
 
+@login_required
+@permission_required('sms')
 def edit(request, campaign_id):
-    return edit_entity(request, campaign_id, SMSCampaign, CampaignEditForm, 'sms')
+    return edit_entity(request, campaign_id, SMSCampaign, CampaignEditForm)
 
 # TODO : perhaps more reliable to forbid delete for campaigns with sendings.
 @login_required

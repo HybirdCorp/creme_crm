@@ -32,8 +32,10 @@ from products.forms.service import ServiceCreateForm
 def add(request):
     return add_entity(request, ServiceCreateForm)
 
+@login_required
+@permission_required('products')
 def edit(request, service_id):
-    return edit_entity(request, service_id, Service, ServiceCreateForm, 'products')
+    return edit_entity(request, service_id, Service, ServiceCreateForm)
 
 @login_required
 @permission_required('products')
