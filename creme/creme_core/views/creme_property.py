@@ -72,13 +72,14 @@ def add_to_entities(request):
 @login_required
 def get_property_types_for_ct(request):
     ct = get_ct_or_404(get_from_POST_or_404(request.POST, 'ct_id'))
-    property_types = CremePropertyType.objects.filter(Q(subject_ctypes=ct) | Q(subject_ctypes__isnull=True))
+    property_types = CremePropertyType.objects.filter(Q(subject_ctypes=ct) | Q(subject_ctypes__isnull=True)) #TODO: in a CremeProperty method ??
 
     from django.core import serializers
     data = serializers.serialize('json', property_types, fields=('text',))
 
     return HttpResponse(data, mimetype='text/javascript')
 
+@login_required
 def add_to_entity(request, entity_id):
     return generic_add_to_entity(request, entity_id, AddPropertiesForm, _('New properties for <%s>'))
 

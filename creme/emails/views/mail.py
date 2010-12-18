@@ -157,9 +157,7 @@ def listview(request):
 @login_required
 @permission_required('emails')
 def create_n_send(request, entity_id):
-    return add_to_entity(request,
-                         entity_id,
-                         EntityEmailForm,
+    return add_to_entity(request, entity_id, EntityEmailForm,
                          title=_(u'Sending an email to <%s>'),
                          initial={'current_user': request.user}
                         )
@@ -181,9 +179,7 @@ def resend_mails(request):
     return {}
 
 @login_required
-@permission_required('activities')
+@permission_required('emails')
 def popupview(request, mail_id):
-    return view_real_entity_with_template(request, mail_id,
-                                          '/emails/mail',
+    return view_real_entity_with_template(request, mail_id, '/emails/mail',
                                           'emails/view_entity_mail_popup.html')
-

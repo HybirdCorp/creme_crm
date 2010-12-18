@@ -62,6 +62,8 @@ def detailview(request, campaign_id):
 def listview(request):
     return list_view(request, SMSCampaign, extra_dict={'add_url': '/sms/campaign/add'})
 
+@login_required
+@permission_required('sms')
 def add_messaging_list(request, campaign_id):
     return add_to_entity(request, campaign_id, CampaignAddListForm,
                          _(u'New messaging lists for <%s>'), entity_class=SMSCampaign)

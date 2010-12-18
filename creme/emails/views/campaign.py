@@ -52,6 +52,8 @@ def detailview(request, campaign_id):
 def listview(request):
     return list_view(request, EmailCampaign, extra_dict={'add_url': '/emails/campaign/add'})
 
+@login_required
+@permission_required('emails')
 def add_ml(request, campaign_id):
     return add_to_entity(request, campaign_id, CampaignAddMLForm,
                          _('New mailing lists for <%s>'), entity_class=EmailCampaign)

@@ -32,6 +32,8 @@ from billing.models import Line, ProductLine, ServiceLine
 from billing.forms.line import ProductLineCreateForm, ProductLineOnTheFlyCreateForm, ServiceLineCreateForm, ServiceLineOnTheFlyCreateForm
 
 
+@login_required
+@permission_required('billing')
 def _add_line(request, form_class, document_id):
     return add_to_entity(request, document_id, form_class, _(u"New line in the document <%s>"))
 

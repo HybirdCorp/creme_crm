@@ -51,10 +51,14 @@ def detailview(request, mlist_id):
 def listview(request):
     return list_view(request, MessagingList, extra_dict={'add_url': '/sms/messaging_list/add'})
 
+@login_required
+@permission_required('sms')
 def add_contacts(request, mlist_id):
     return add_to_entity(request, mlist_id, AddContactsForm,
                          _('New contacts for <%s>'), entity_class=MessagingList)
 
+@login_required
+@permission_required('sms')
 def add_contacts_from_filter(request, mlist_id):
     return add_to_entity(request, mlist_id, AddContactsFromFilterForm,
                          _('New contacts for <%s>'), entity_class=MessagingList)

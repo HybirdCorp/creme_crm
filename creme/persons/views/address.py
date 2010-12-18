@@ -66,7 +66,7 @@ def edit(request, address_id):
 def delete(request):
     return delete_related_to_entity(request, Address)
 
-@login_required #TODO: twice... (see add_to_entity())
+@login_required
 @permission_required('persons')
 def ipopup_add_adress(request, entity_id):
     return add_to_entity(request, entity_id, AddressWithEntityForm, _(u'Adding Address to <%s>'))

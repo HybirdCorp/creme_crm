@@ -66,6 +66,8 @@ def detailview(request, graph_id):
 def listview(request):
     return list_view(request, Graph, extra_dict={'add_url':'/graphs/graph/add'})
 
+@login_required
+@permission_required('graphs')
 def add_relation_types(request, graph_id):
     return add_to_entity(request, graph_id, AddRelationTypesForm,
                          _(u'Add relation types to <%s>'), entity_class=Graph)

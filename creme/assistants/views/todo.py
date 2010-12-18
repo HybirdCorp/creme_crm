@@ -29,6 +29,7 @@ from assistants.models import ToDo
 from assistants.forms.todo import ToDoCreateForm, ToDoEditForm
 
 
+@login_required
 def add(request, entity_id):
     return add_to_entity(request, entity_id, ToDoCreateForm, _(u'New Todo for <%s>'))
 
