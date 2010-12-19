@@ -45,18 +45,8 @@ def edit(request, folder_id):
 
 @login_required
 @permission_required('documents')
-def detailview(request, object_id):
-    """
-        @Permissions : Acces or Admin to document app & Read on current Folder object
-        TODO : Use generic view_entity_with_template
-    """
-    folder = view_entity(request, object_id, Folder)
-
-    folder.can_view_or_die(request.user)
-
-    return render_to_response('creme_core/generics/view_entity.html',
-                              {'object': folder, 'path': '/documents/folder'},
-                              context_instance=RequestContext(request))
+def detailview(request, folder_id):
+    return view_entity(request, folder_id, Folder, '/documents/folder')
 
 #TODO: use new list view ????
 @login_required

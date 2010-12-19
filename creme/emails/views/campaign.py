@@ -24,7 +24,7 @@ from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.contenttypes.models import ContentType
 
-from creme_core.views.generic import add_entity, add_to_entity, edit_entity, view_entity_with_template, list_view
+from creme_core.views.generic import add_entity, add_to_entity, edit_entity, view_entity, list_view
 from creme_core.utils import get_from_POST_or_404
 
 from emails.models import EmailCampaign
@@ -45,9 +45,7 @@ def edit(request, campaign_id):
 @login_required
 @permission_required('emails')
 def detailview(request, campaign_id):
-    return view_entity_with_template(request, campaign_id, EmailCampaign,
-                                     '/emails/campaign',
-                                     'emails/view_campaign.html')
+    return view_entity(request, campaign_id, EmailCampaign, '/emails/campaign', 'emails/view_campaign.html')
 
 @login_required
 @permission_required('emails')

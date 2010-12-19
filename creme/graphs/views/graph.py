@@ -25,7 +25,7 @@ from django.shortcuts import get_object_or_404, render_to_response
 from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required, permission_required
 
-from creme_core.views.generic import add_entity, add_to_entity, view_entity_with_template, edit_entity, list_view
+from creme_core.views.generic import add_entity, add_to_entity, view_entity, edit_entity, list_view
 from creme_core.utils import get_from_POST_or_404
 
 from graphs.models import Graph
@@ -61,7 +61,7 @@ def edit(request, graph_id):
 @login_required
 @permission_required('graphs')
 def detailview(request, graph_id):
-    return view_entity_with_template(request, graph_id, Graph, '/graphs/graph', 'graphs/view_graph.html')
+    return view_entity(request, graph_id, Graph, '/graphs/graph', 'graphs/view_graph.html')
 
 @login_required
 @permission_required('graphs')

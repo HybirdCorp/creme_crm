@@ -24,7 +24,7 @@ from django.template import RequestContext
 from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required, permission_required
 
-from creme_core.views.generic import add_to_entity, view_entity_with_template, edit_entity
+from creme_core.views.generic import add_to_entity, view_entity, edit_entity
 from creme_core.utils import get_from_POST_or_404
 
 from projects.models import Project, ProjectTask
@@ -40,9 +40,7 @@ def add(request, project_id):
 @login_required
 @permission_required('projects')
 def detailview(request, object_id):
-    return view_entity_with_template(request, object_id, ProjectTask,
-                                     '/projects/task',
-                                     'projects/view_task.html')
+    return view_entity(request, object_id, ProjectTask, '/projects/task', 'projects/view_task.html')
 
 @login_required
 @permission_required('projects')

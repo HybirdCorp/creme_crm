@@ -21,7 +21,7 @@
 from django.shortcuts import get_object_or_404
 from django.contrib.auth.decorators import login_required, permission_required
 
-from creme_core.views.generic import add_entity, edit_entity, list_view, view_entity_with_template
+from creme_core.views.generic import add_entity, edit_entity, list_view, view_entity
 
 from billing.models import SalesOrder
 from billing.forms.sales_order import SalesOrderCreateForm, SalesOrderEditForm
@@ -41,11 +41,8 @@ def edit(request, order_id):
 @login_required
 @permission_required('billing')
 def detailview(request, order_id):
-    return view_entity_with_template(request, order_id, SalesOrder,
-                                     '/billing/sales_order',
-                                     'billing/view_sales_order.html',
-                                     {'can_download': True},
-                                    )
+    return view_entity(request, order_id, SalesOrder, '/billing/sales_order',
+                       'billing/view_sales_order.html', {'can_download': True})
 
 @login_required
 @permission_required('billing')

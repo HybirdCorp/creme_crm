@@ -23,7 +23,7 @@ from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required, permission_required
 
 from creme_core.constants import PROP_IS_MANAGED_BY_CREME
-from creme_core.views.generic import add_entity, edit_entity, view_entity_with_template, list_view
+from creme_core.views.generic import add_entity, edit_entity, view_entity, list_view
 
 from persons.models import Organisation
 from persons.forms.organisation import OrganisationForm
@@ -43,7 +43,7 @@ def edit(request, organisation_id):
 @login_required
 @permission_required('persons')
 def detailview(request, organisation_id):
-    return view_entity_with_template(request, organisation_id, Organisation, '/persons/organisation', 'persons/view_organisation.html')
+    return view_entity(request, organisation_id, Organisation, '/persons/organisation', 'persons/view_organisation.html')
 
 @login_required
 @permission_required('persons')

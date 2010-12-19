@@ -24,7 +24,7 @@ from django.shortcuts import get_object_or_404
 from django.http import HttpResponseRedirect, Http404
 from django.contrib.auth.decorators import login_required, permission_required
 
-from creme_core.views.generic import add_entity, edit_entity, list_view, view_entity_with_template
+from creme_core.views.generic import add_entity, edit_entity, list_view, view_entity
 
 from billing.constants import DEFAULT_INVOICE_STATUS
 from billing.models import Invoice, InvoiceStatus
@@ -45,11 +45,9 @@ def edit(request, invoice_id):
 @login_required
 @permission_required('billing')
 def detailview(request, invoice_id):
-    return view_entity_with_template(request, invoice_id, Invoice,
-                                     '/billing/invoice',
-                                     'billing/view_billing.html',
-                                     {'can_download': True},
-                                    )
+    return view_entity(request, invoice_id, Invoice, '/billing/invoice',
+                       'billing/view_billing.html', {'can_download': True},
+                       )
 
 @login_required
 @permission_required('billing')

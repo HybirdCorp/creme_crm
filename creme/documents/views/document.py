@@ -20,7 +20,7 @@
 
 from django.contrib.auth.decorators import login_required, permission_required
 
-from creme_core.views.generic import add_entity, edit_entity, view_entity_with_template, list_view
+from creme_core.views.generic import add_entity, edit_entity, view_entity, list_view
 
 from documents.models.document import Document
 from documents.forms.document import DocumentCreateForm, DocumentCreateViewForm, DocumentEditForm
@@ -51,8 +51,7 @@ def edit(request, document_id):
 @login_required
 @permission_required('documents')
 def detailview(request, object_id):
-    return view_entity_with_template(request, object_id, Document,
-                                     '/documents/document', 'documents/view_document.html')
+    return view_entity(request, object_id, Document, '/documents/document', 'documents/view_document.html')
 
 @login_required
 @permission_required('documents')

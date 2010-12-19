@@ -30,7 +30,7 @@ from django.utils.simplejson import JSONEncoder
 from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.contenttypes.models import ContentType
 
-from creme_core.views.generic import add_entity, edit_entity, view_entity_with_template, list_view, inner_popup
+from creme_core.views.generic import add_entity, edit_entity, view_entity, list_view, inner_popup
 from creme_core.utils.meta import get_model_field_infos, get_flds_with_fk_flds, get_date_fields, is_date_field
 from creme_core.utils import get_ct_or_404, get_from_GET_or_404
 from creme_core.date_filters_registry import date_filters_registry
@@ -60,9 +60,7 @@ def edit(request, report_id):
 @login_required
 @permission_required('reports')
 def detailview(request, report_id):
-    return view_entity_with_template(request, report_id, Report,
-                                     '/reports/report',
-                                     'reports/view_report.html')
+    return view_entity(request, report_id, Report, '/reports/report', 'reports/view_report.html')
 
 @login_required
 @permission_required('reports')

@@ -22,8 +22,8 @@ from django.template import RequestContext
 from django.shortcuts import render_to_response
 from django.contrib.auth.decorators import login_required, permission_required
 
-from creme_core.views.generic import add_entity, edit_entity, view_entity, list_view, view_entity_with_template
-from creme_core.templatetags.creme_core_tags import image_size #TODO: move to media_managers ???
+from creme_core.views.generic import add_entity, edit_entity, list_view, view_entity
+#from creme_core.templatetags.creme_core_tags import image_size #TODO: move to media_managers ???
 
 from media_managers.models import Image
 from media_managers.forms.image import ImageForm
@@ -55,43 +55,17 @@ def edit(request, image_id):
 @login_required
 @permission_required('media_managers')
 def detailview(request, image_id):
-    """
-        @Permissions : Acces or Admin to produits app & Read on current Image object
-        TODO : Use generic view_entity_with_template
-    """
-    image = view_entity(request, image_id, Image)
-
-    image.can_view_or_die(request.user)
-
-    return render_to_response('media_managers/view_image.html',
-                              {
-                                'object':   image,
-                                'path':     '/media_managers/image',
-                                'size':     image_size(image, max_h=2000, max_w=500),
-                              } ,
-                              context_instance=RequestContext(request))
+    #'size':     image_size(image, max_h=2000, max_w=500)
+    return view_entity(request, image_id, Image, '/media_managers/image', 'media_managers/view_image.html')
 
 @login_required
 @permission_required('media_managers')
 def popupview(request, image_id):
-    """
-        @Permissions : Acces or Admin to produits app & Read on current Image object
-        TODO : Use inner popup ?
-    """
-    return view_entity_with_template(request, image_id, Image, '/media_managers/image', template='media_managers/view_image_popup.html', extra_template_dict={'from_id':  request.GET.get('from_id')})
-#    image = view_entity(request, image_id, Image, lambda x: x)
-#
-#    die_status = read_object_or_die(request, image)
-#    if die_status:
-#        return die_status
-#
-#    return render_to_response('media_managers/view_image_popup.html',
-#                              {
-#                                'object':   image,
-#                                'path':     '/media_managers/image',
-#                                'from_id':  request.GET.get('from_id'),
-#                              },
-#                              context_instance=RequestContext(request))
+    #TODO : Use inner popup ?
+    return view_entity(request, image_id, Image, '/media_managers/image',
+                       template='media_managers/view_image_popup.html',
+                       extra_template_dict={'from_id': request.GET.get('from_id')}
+                      )
 
 @login_required
 @permission_required('media_managers')

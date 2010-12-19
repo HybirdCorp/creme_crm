@@ -48,10 +48,9 @@ def edit(request, strategy_id):
 @login_required
 @permission_required('commercial')
 def detailview(request, strategy_id):
-    return generic.view_entity_with_template(request, strategy_id, Strategy,
-                                             '/commercial/strategy',
-                                             template='commercial/view_strategy.html'
-                                            )
+    return generic.view_entity(request, strategy_id, Strategy, '/commercial/strategy',
+                               template='commercial/view_strategy.html'
+                              )
 
 @login_required
 @permission_required('commercial')
