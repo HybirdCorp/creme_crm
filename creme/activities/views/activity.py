@@ -24,7 +24,7 @@ from django.template import RequestContext
 from django.contrib.auth.decorators import login_required, permission_required
 
 from creme_core.models import RelationType
-from creme_core.views.generic import view_real_entity_with_template, add_entity, inner_popup, list_view
+from creme_core.views.generic import view_real_entity, add_entity, inner_popup, list_view
 from creme_core.utils import get_ct_or_404, get_from_GET_or_404
 #from creme_core.gui.last_viewed import change_page_for_last_viewed
 
@@ -125,16 +125,12 @@ def edit(request, activity_id):
 @login_required
 @permission_required('activities')
 def detailview(request, activity_id):
-    return view_real_entity_with_template(request, activity_id,
-                                          '/activities/activity',
-                                          'activities/view_activity.html')
+    return view_real_entity(request, activity_id, '/activities/activity', 'activities/view_activity.html')
 
 @login_required
 @permission_required('activities')
 def popupview(request, activity_id):
-    return view_real_entity_with_template(request, activity_id,
-                                          '/activities/activity',
-                                          'activities/view_activity_popup.html')
+    return view_real_entity(request, activity_id, '/activities/activity', 'activities/view_activity_popup.html')
 
 @login_required
 @permission_required('activities')

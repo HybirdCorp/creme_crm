@@ -27,7 +27,7 @@ from django.utils.translation import ugettext
 from django.contrib.auth.decorators import login_required, permission_required
 
 from creme_core.models import Relation
-from creme_core.views.generic import add_entity, edit_entity, view_entity_with_template, list_view
+from creme_core.views.generic import add_entity, edit_entity, view_entity, list_view
 from creme_core.utils import get_ct_or_404
 
 from persons.models import Organisation
@@ -64,10 +64,9 @@ def edit(request, opp_id):
 @login_required
 @permission_required('opportunities')
 def detailview(request, opp_id):
-    return view_entity_with_template(request, opp_id, Opportunity,
-                                     '/opportunities/opportunity',
-                                     'opportunities/view_opportunity.html',
-                                     )
+    return view_entity(request, opp_id, Opportunity, '/opportunities/opportunity',
+                       'opportunities/view_opportunity.html',
+                      )
 
 @login_required
 @permission_required('opportunities')

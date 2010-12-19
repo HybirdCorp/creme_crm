@@ -9,7 +9,7 @@ urlpatterns = patterns('documents.views',
     (r'^folders$',                        'folder.listview'),
     (r'^folder/add$',                     'folder.add'),
     (r'^folder/edit/(?P<folder_id>\d+)$', 'folder.edit'),
-    (r'^folder/(?P<object_id>\d+)$',      'folder.detailview'),
+    (r'^folder/(?P<folder_id>\d+)$',      'folder.detailview'),
 
     (r'^getChildFolders/$',   'ajax.get_child_folders'),
     (r'^getChildDocuments/$', 'ajax.get_child_documents'),

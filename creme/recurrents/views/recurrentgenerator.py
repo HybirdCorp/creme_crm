@@ -20,7 +20,7 @@
 
 from django.contrib.auth.decorators import login_required, permission_required
 
-from creme_core.views.generic import view_entity_with_template, list_view, edit_entity
+from creme_core.views.generic import view_entity, list_view, edit_entity
 
 from recurrents.models import RecurrentGenerator
 from recurrents.forms.recurrentgenerator import RecurrentGeneratorWizard, RecurrentGeneratorEditForm
@@ -47,5 +47,6 @@ def listview(request):
 @login_required
 @permission_required('recurrents')
 def detailview(request, generator_id):
-    return view_entity_with_template(request, generator_id, RecurrentGenerator,
-                                     '/recurrents/generator', 'recurrents/view_generator.html',)
+    return view_entity(request, generator_id, RecurrentGenerator,
+                       '/recurrents/generator', 'recurrents/view_generator.html'
+                      )

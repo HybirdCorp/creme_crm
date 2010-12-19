@@ -45,9 +45,9 @@ def edit(request, act_id):
 @login_required
 @permission_required('commercial')
 def detailview(request, act_id):
-    return generic.view_entity_with_template(request, act_id, Act, '/commercial/act',
-                                             template='commercial/view_act.html'
-                                            )
+    return generic.view_entity(request, act_id, Act, '/commercial/act',
+                               template='commercial/view_act.html'
+                              )
 
 @login_required
 @permission_required('commercial')

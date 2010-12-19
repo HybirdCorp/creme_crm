@@ -21,7 +21,7 @@
 from django.http import HttpResponseRedirect, Http404
 from django.contrib.auth.decorators import login_required, permission_required
 
-from creme_core.views.generic import view_entity_with_template, add_entity, list_view, edit_entity
+from creme_core.views.generic import view_entity, add_entity, list_view, edit_entity
 from creme_core.gui.last_viewed import change_page_for_last_item_viewed
 
 from projects.models import Project
@@ -48,9 +48,7 @@ def listview(request):
 @login_required
 @permission_required('projects')
 def detailview(request, project_id):
-    return view_entity_with_template(request, project_id, Project,
-                                     '/projects/project',
-                                     'projects/view_project.html',)
+    return view_entity(request, project_id, Project, '/projects/project', 'projects/view_project.html')
 
 @login_required
 @permission_required('projects')

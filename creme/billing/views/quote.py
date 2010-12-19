@@ -21,7 +21,7 @@
 from django.shortcuts import get_object_or_404
 from django.contrib.auth.decorators import login_required, permission_required
 
-from creme_core.views.generic import add_entity, edit_entity, list_view, view_entity_with_template
+from creme_core.views.generic import add_entity, edit_entity, list_view, view_entity
 
 from billing.models import Quote
 from billing.forms.quote import QuoteCreateForm, QuoteEditForm
@@ -41,10 +41,9 @@ def edit(request, quote_id):
 @login_required
 @permission_required('billing')
 def detailview(request, quote_id):
-    return view_entity_with_template(request, quote_id, Quote, '/billing/quote',
-                                     'billing/view_quote.html',
-                                     {'can_download': True},
-                                    )
+    return view_entity(request, quote_id, Quote, '/billing/quote',
+                       'billing/view_quote.html', {'can_download': True},
+                      )
 
 @login_required
 @permission_required('billing')

@@ -24,7 +24,7 @@ from django.template import RequestContext
 from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required, permission_required
 
-from creme_core.views.generic import add_entity, add_to_entity, edit_entity, view_entity_with_template, list_view
+from creme_core.views.generic import add_entity, add_to_entity, edit_entity, view_entity, list_view
 from creme_core.utils import get_from_POST_or_404
 
 from sms.models import MessagingList
@@ -45,8 +45,7 @@ def edit(request, mlist_id):
 @login_required
 @permission_required('sms')
 def detailview(request, mlist_id):
-    return view_entity_with_template(request, mlist_id, MessagingList,
-                                     '/sms/messaging_list', 'sms/view_messaginglist.html')
+    return view_entity(request, mlist_id, MessagingList, '/sms/messaging_list', 'sms/view_messaginglist.html')
 
 @login_required
 @permission_required('sms')

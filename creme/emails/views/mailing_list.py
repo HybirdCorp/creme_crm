@@ -23,7 +23,7 @@ from django.shortcuts import render_to_response, get_object_or_404
 from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required, permission_required
 
-from creme_core.views.generic import add_entity, add_to_entity, edit_entity, view_entity_with_template, list_view
+from creme_core.views.generic import add_entity, add_to_entity, edit_entity, view_entity, list_view
 from creme_core.utils import get_from_POST_or_404
 
 from emails.models import MailingList
@@ -46,9 +46,7 @@ def edit(request, ml_id):
 @login_required
 @permission_required('emails')
 def detailview(request, ml_id):
-    return view_entity_with_template(request, ml_id, MailingList,
-                                     '/emails/mailing_list',
-                                     'emails/view_mailing_list.html')
+    return view_entity(request, ml_id, MailingList, '/emails/mailing_list', 'emails/view_mailing_list.html')
 
 @login_required
 @permission_required('emails')
