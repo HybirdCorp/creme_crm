@@ -36,7 +36,7 @@ class TaskEditForm(CremeEntityForm):
 
     class Meta:
         model = ProjectTask
-        exclude = CremeEntityForm.Meta.exclude + ('is_all_day', 'type', 'project', 'order')
+        exclude = CremeEntityForm.Meta.exclude + ('is_all_day', 'type', 'project', 'order', 'status')
 
     def clean_parents_task(self):
         parents  = self.cleaned_data['parents_task']

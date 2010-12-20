@@ -6,7 +6,7 @@ from projects.models import *
 
 
 class ProjectAdmin(admin.ModelAdmin):
-    list_display = ('name', 'description', 'status', 'start_date', 'end_date', 'effective_end_date')
+    list_display = ('name', 'description', 'tstatus', 'start_date', 'end_date', 'effective_end_date')
 
 
 class ResourceAdmin(admin.ModelAdmin):
@@ -14,7 +14,7 @@ class ResourceAdmin(admin.ModelAdmin):
 
 
 class ProjectTaskAdmin(admin.ModelAdmin):
-    list_display = ('project', 'order', 'duration', 'status')
+    list_display = ('project', 'order', 'duration', 'tstatus')
 
 
 register = admin.site.register

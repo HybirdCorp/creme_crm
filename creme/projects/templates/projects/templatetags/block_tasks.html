@@ -30,7 +30,7 @@
                     </td>
                     <td class="{{row_color}}" align="center">{{task.duration}}h</td>
                     {% include 'projects/frag_task_delay_td.html' %}
-                    <td class="{{row_color}}" align="center">{{task.status}}</td>
+                    <td class="{{row_color}}" align="center">{{task.tstatus}}</td>
                     <td class="{{row_color}}">
                         {% for parent in task.get_parents %}
                             <a href="/projects/task/{{parent.id}}">{{parent.title}}</a>
