@@ -50,7 +50,7 @@ class ProjectsTestCase(TestCase):
                                     data={
                                             'user':         self.user.pk,
                                             'name':         name,
-                                            'status':       ProjectStatus.objects.all()[0].id,
+                                            'tstatus':       ProjectStatus.objects.all()[0].id,
                                             'start_date':   '2010-10-11',
                                             'end_date':     '2010-12-31',
                                             'responsibles': manager.id,
@@ -89,7 +89,7 @@ class ProjectsTestCase(TestCase):
                                         'start':    '2010-10-11',
                                         'end':      '2010-10-30',
                                         'duration': 50,
-                                        'status':   TaskStatus.objects.all()[0].id,
+                                        'tstatus':   TaskStatus.objects.all()[0].id,
                                     })
         self.assertEqual(200, response.status_code)
         self.failIf(response.context['form'].errors)
@@ -107,7 +107,7 @@ class ProjectsTestCase(TestCase):
                                         'start':        '2010-10-30',
                                         'end':          '2010-11-20',
                                         'duration':     180,
-                                        'status':       TaskStatus.objects.all()[0].id,
+                                        'tstatus':       TaskStatus.objects.all()[0].id,
                                         'parents_task': task1.id,
                                     })
         self.assertEqual(200, response.status_code)
@@ -134,7 +134,7 @@ class ProjectsTestCase(TestCase):
                                         'start':    '2010-10-11',
                                         'end':      '2010-10-30',
                                         'duration': 50,
-                                        'status':   TaskStatus.objects.all()[0].id,
+                                        'tstatus':   TaskStatus.objects.all()[0].id,
                                     })
         self.assertEqual(200, response.status_code)
 

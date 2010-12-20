@@ -44,7 +44,7 @@ def _add_generic(request, form, task_id, title):
     task.can_change_or_die(request.user)
 
     if not task.is_alive():
-        state = task.status.name
+        state = task.tstatus.name
         return error_popup(request,
                            _(u"You can't add a resources or a working period to a task which has status <%s>") % state)
 
