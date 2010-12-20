@@ -192,7 +192,7 @@ class CustomFieldInteger(CustomFieldValue):
 
 
 class CustomFieldFloat(CustomFieldValue):
-    _MAX_DIGITS = 4
+    _MAX_DIGITS = 12
     _DECIMAL_PLACES = 2
 
     value = DecimalField(max_digits=_MAX_DIGITS, decimal_places=_DECIMAL_PLACES)
