@@ -26,7 +26,7 @@ from creme_core.models import RelationType, BlockConfigItem, ButtonMenuItem, Sea
 from creme_core.utils import create_or_update_models_instance as create
 from creme_core.management.commands.creme_populate import BasePopulator
 
-from activities.models import Activity, ActivityType, PhoneCallType, TaskStatus
+from activities.models import Activity, ActivityType, PhoneCallType, Status
 from activities.blocks import future_activities_block, past_activities_block
 from activities.buttons import add_meeting_button, add_phonecall_button, add_task_button
 from activities.constants import *
@@ -51,10 +51,11 @@ class Populator(BasePopulator):
         create(PhoneCallType, 2, name=_(u"Outgoing"), description=_(u"Outgoing call"))
         create(PhoneCallType, 3, name=_(u"Other"),    description=_(u"Example: a conference"))
 
-        create(TaskStatus, 1, name=_(u"Planned"),     description=_(u"Planned"))
-        create(TaskStatus, 2, name=_(u"In progress"), description=_(u"In progress"))
-        create(TaskStatus, 3, name=_(u"Done"),        description=_(u"Done"))
-        create(TaskStatus, 4, name=_(u"Delayed"),     description=_(u"Delayed"))
+        create(Status, 1, name=_(u"Planned"),     description=_(u"Planned"))
+        create(Status, 2, name=_(u"In progress"), description=_(u"In progress"))
+        create(Status, 3, name=_(u"Done"),        description=_(u"Done"))
+        create(Status, 4, name=_(u"Delayed"),     description=_(u"Delayed"))
+        create(Status, 5, name=_(u"Cancelled"),     description=_(u"Cancelled"))
 
         create(ActivityType, ACTIVITYTYPE_TASK,      name=_(u"Task"),            color="987654", default_day_duration=0, default_hour_duration="00:15:00", is_custom=False)
         create(ActivityType, ACTIVITYTYPE_MEETING,   name=_(u"Meeting"),         color="456FFF", default_day_duration=0, default_hour_duration="00:15:00", is_custom=False)

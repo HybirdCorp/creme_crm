@@ -7,7 +7,7 @@
     </script>
 {% endblock %}{% endcomment %}
 <table  class="table_detail_view ui-corner-all" id={{block_name}}>
-    {% get_block_header colspan=2 %}
+    {% get_block_header colspan=7 %}
         <th style="width: 80%;" class="collapser" align="left">
             {% block activities_header %}
                 {% get_block_title _('%s Future related activity') _('%s Future related activities') 'calendar_48.png' _('Future activities') %}
@@ -27,7 +27,9 @@
     <tbody class="collapsable">
         {% if page.paginator.count %}
             <tr>
+                <th class="block_header_line_dark">{% trans "Status" %}</th>
                 <th class="block_header_line_dark">{% trans "Name" %}</th>
+                <th class="block_header_line_dark">{% trans "Date" %}</th>
                 <th class="block_header_line_dark">{% trans "Subject(s)" %}</th>
                 <th class="block_header_line_dark">{% trans "Participant(s)" %}</th>
                 <th class="block_header_line_dark">{% trans "Related to" %}</th>
@@ -36,7 +38,12 @@
             {% for activity in page.object_list %}
                 <!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
                 <tr>
+                    <td class="{{row_color}}">{{activity.status}}</td>
                     <td class="{{row_color}}"><a href="{{activity.get_absolute_url}}">{{activity}}</a></td>
+                    <td class="{{row_color}}"><a href="{{activity.get_absolute_url}}">
+                                               {% include 'activities/templatetags/activity_date.html' %}
+                                              </a>
+                    </td>
                     <td class="{{row_color}}">
                         {% with activity.get_subject_relations as relations %}
                             {% include 'activities/templatetags/activity_relations_field.html' %}
