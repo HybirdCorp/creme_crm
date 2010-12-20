@@ -293,43 +293,31 @@ CREME_I18N_JS = ('l10n.js',
 
 CREME_CORE_JS = ('main.js',
                     {'filter': 'mediagenerator.filters.media_url.MediaURL'}, #to get the media_url() function in JS.
-                    #{'filter': 'mediagenerator.filters.i18n.I18N'}, #to put the i18n catalog in JS (avoid ajax retrieving).
 
-                    #TODO: remove '/dev' '-dev'
-                    'creme_core/js/jquery/dev/jquery-1.3.2-dev.js',
-                    #'creme_core/js/jquery/dev/ui.core.js', #delete file ??
-                    #'creme_core/js/jquery/dev/ui.draggable.js', #delete file ??
-                    'creme_core/js/jquery/prod/jquery-ui-1.7.2.custom.min.js',
-                    'creme_core/js/jquery/dev/jquery.cookie.dev.js',
-
-                    #TODO: remove '/dev'
-                    'creme_core/js/jquery/extensions/fg-menu-3.0/dev/fg.menu.js',
-                    'creme_core/js/jquery/extensions/fg-menu-3.0/dev/jquery.hotkeys-0.7.8.js',
-                    'activities/js/jquery/extensions/fullcalendar-1.4.5/dev/fullcalendar.js', #TODO: move with activities.js (beware it causes errors for now)
-                    'creme_core/js/jquery/extensions/jquery.gccolor.1.0.3/dev/jquery.gccolor.1.0.3.js',
-                    'creme_core/js/jquery/extensions/json-2.2/dev/jquery.json-2.2.js',
+                    'creme_core/js/jquery/jquery-1.3.2.js',
+                    #'creme_core/js/jquery/ui/ui.core.js', #delete file ??
+                    #'creme_core/js/jquery/ui/ui.draggable.js', #delete file ??
+                    'creme_core/js/jquery/ui/jquery-ui-1.7.2.custom.min.js', #TODO: use a non minified version ?
+                    'creme_core/js/jquery/extensions/cookie.js',
+                    'creme_core/js/jquery/extensions/fg-menu-3.0/fg.menu.js',
+                    'creme_core/js/jquery/extensions/fg-menu-3.0/jquery.hotkeys-0.7.8.js',
+                    'activities/js/jquery/extensions/fullcalendar-1.4.5.js', #TODO: move with activities.js (beware it causes errors for now)
+                    'creme_core/js/jquery/extensions/gccolor-1.0.3.js',
+                    'creme_core/js/jquery/extensions/json-2.2.js',
                     'creme_core/js/jquery/extensions/highlight.js',
-                    #'creme_core/js/jquery/extensions/include.js', #delete file ??
-                    'creme_core/js/jquery/extensions/jquery.magnifier.js',
-                    'creme_core/js/jquery/extensions/jquery.utils.js',
+                    'creme_core/js/jquery/extensions/magnifier.js',
+                    'creme_core/js/jquery/extensions/utils.js',
                     'creme_core/js/jquery/extensions/wait.js',
 
                     #'creme_core/js/datejs/date-en-US.js', #TODO improve
                     'creme_core/js/datejs/date-fr-FR.js',
 
-                     #TODO: remove '/dev'
                      #TODO: an other bundle only for graphael ??
-                    'creme_core/js/lib/graphael/dev/raphael-1.5.2.js',
-                    'creme_core/js/lib/graphael/dev/g.raphael.js',
-                    'creme_core/js/lib/graphael/dev/g.bar.js',
-                    'creme_core/js/lib/graphael/dev/g.line.js',
-                    'creme_core/js/lib/graphael/dev/g.pie.js',
-                    #'creme_core/js/lib/graphael/prod/raphael-1.5.2.min.js',
-                    #'creme_core/js/lib/graphael/prod/g.raphael-min.js', #causes a JS error
-                    #'creme_core/js/lib/graphael/prod/g.line-min.js',
-                    #'creme_core/js/lib/graphael/prod/g.pie-min.js',
-                    #'creme_core/js/lib/graphael/prod/g.dot-min.js',
-                    #'creme_core/js/lib/graphael/prod/g.bar-min.js',
+                    'creme_core/js/lib/graphael/raphael-1.5.2.js',
+                    'creme_core/js/lib/graphael/g.raphael.js',
+                    'creme_core/js/lib/graphael/g.bar.js',
+                    'creme_core/js/lib/graphael/g.line.js',
+                    'creme_core/js/lib/graphael/g.pie.js',
 
                     'creme_core/js/utils.js',
                     'creme_core/js/forms.js',
@@ -364,7 +352,6 @@ CREME_OPT_JS = ( #OPTIONNAL APPS
                 'emails/js/emails.js',
                )
 
-#MEDIA_BUNDLES = (CREME_CORE_CSS, CREME_CORE_JS + CREME_OPT_JS)
 MEDIA_BUNDLES = (CREME_CORE_CSS, CREME_I18N_JS, CREME_CORE_JS + CREME_OPT_JS)
 
 
