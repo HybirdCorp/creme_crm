@@ -38,7 +38,7 @@ class Line(CremeModel):
     document        = ForeignKey(CremeEntity, verbose_name=_(u'Related to'), blank=False, null=False, related_name='billing_lines_set')
 
     comment         = TextField(_('Comment'), blank=True, null=True)
-    quantity        = IntegerField(_(u'Quantity'), blank=False, null=False, default=0)
+    quantity        = IntegerField(_(u'Quantity'), blank=False, null=False, default=1)
     unit_price      = DecimalField(_(u'Unit price'), max_digits=10, decimal_places=2, default=default_decimal)
     discount        = DecimalField(_(u'Discount'), max_digits=10, decimal_places=2, default=default_decimal)
     credit          = DecimalField(_(u'Credit'), max_digits=10, decimal_places=2, default=default_decimal)
