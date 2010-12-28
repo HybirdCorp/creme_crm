@@ -17,6 +17,7 @@
     {% import_block from_app 'billing' named 'product_lines' as 'product_lines_block' %}
     {% import_block from_app 'billing' named 'service_lines' as 'service_lines_block' %}
     {% import_block from_app 'billing' named 'total' as 'total_block' %}
+    {% import_block from_app 'billing' named 'target' as 'target_block' %}
     {% import_block from_app 'persons' named 'address' as 'address_block' %}
 {% endblock %}
 
@@ -49,5 +50,6 @@
 {% endblock %}
 
 {% block detail_view_right_1 %}
+    {% display_block_detailview 'target_block' %}
     {% display_block_detailview 'total_block' %}
 {% endblock %}
