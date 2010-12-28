@@ -46,3 +46,7 @@ reg_item('/billing/credit_note',     _(u'All credit notes'),  'billing')
 
 block_registry.register(product_lines_block, service_lines_block, total_block)
 button_registry.register(generate_invoice_number_button)
+
+from signals import connect_to_signals
+
+connect_to_signals ()

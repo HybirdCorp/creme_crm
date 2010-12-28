@@ -43,8 +43,9 @@ class Base(CremeEntity):
     billing_address  = ForeignKey(Address, verbose_name=_(u'Billing address'), related_name='BillingAddress_set', blank=True, null=True)
     shipping_address = ForeignKey(Address, verbose_name=_(u'Shipping address'), related_name='ShippingAddress_set', blank=True, null=True)
     comment          = CharField(_(u'Comment'), max_length=500, blank=True, null=True)
-    total            = DecimalField(_(u'Total'), max_digits=14, decimal_places=2, blank=True, null=True)
-
+    total_vat        = DecimalField(_(u'Total with VAT'),    max_digits=14, decimal_places=2, blank=True, null=True, editable=False, default=0)
+    total_no_vat     = DecimalField(_(u'Total without VAT'), max_digits=14, decimal_places=2, blank=True, null=True, editable=False, default=0)
+    
     research_fields = CremeEntity.research_fields + ['name']
 
     generate_number_in_create = True
@@ -59,6 +60,10 @@ class Base(CremeEntity):
 
     def __unicode__(self):
         return self.name
+
+    def invalidate_cache(self):
+        self._productlines_cache = None
+        self._servicelines_cache = None
 
     #TODO: factorise with get_target()
     #TODO: return an Organisation instead of a CremeEntity ??
