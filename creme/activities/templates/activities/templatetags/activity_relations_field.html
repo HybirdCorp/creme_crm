@@ -3,12 +3,22 @@
     {% if not count %}
         {% trans "No one" %}
     {% else %}
-        {% if count <= 3 %}
+        {% if count == 1 %}
             {% with relations.0.subject_entity.get_real_entity as subject %}
-                <a href="{{subject.get_absolute_url}}">{{subject}}</a><br/>
+             <a href="{{subject.get_absolute_url}}">{{subject}}</a><br />
             {% endwith %}
         {% else %}
-            ({{count}})
+            {% if count <= 3 %}
+            <ul>
+            {% for relation in relations %}
+                {% with relation.subject_entity.get_real_entity as subject %}
+                 <li>   <a href="{{subject.get_absolute_url}}">{{subject}}</a></li>
+                {% endwith %}
+            {%  endfor %}
+            </ul>
+            {% else %}
+                ({{count}})
+            {% endif %}
         {% endif %}
     {% endif %}
 {% endwith %}
