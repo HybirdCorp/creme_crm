@@ -110,6 +110,7 @@ class Activity(CremeEntity):
     #calendar    = ForeignKey(Calendar, verbose_name=_(u"Calendar"))
     is_all_day  = BooleanField(_(u'All day ?'), blank=True, default=False)
     status      = ForeignKey(Status, verbose_name=_(u'Status'), blank=True, null=True)
+    occuped     = BooleanField(_(u'Occuped ?'), default=False)
 
 
     research_fields = CremeEntity.research_fields + ['title', 'type__name']
