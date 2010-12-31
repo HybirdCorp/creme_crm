@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
 
 from decimal import Decimal, ROUND_UP, ROUND_DOWN, ROUND_HALF_EVEN
+from django.conf import settings
 
 DEFAULT_DECIMAL = Decimal()
-DEFAULT_VAT = Decimal("19.6")
+DEFAULT_VAT = Decimal(getattr(settings,"DEFAULT_VAT","19.6"))
 ROUND_POLICY = ROUND_UP
 CURRENCY = "Euro"
 
