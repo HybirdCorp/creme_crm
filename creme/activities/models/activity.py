@@ -29,7 +29,6 @@ from creme_core.models import CremeEntity, CremeModel, Relation
 
 from activities.constants import *
 from activities.utils import get_ical_date
-from creme.creme_core.models.base import CremeModel
 
 
 class Calendar(CremeModel):
@@ -266,3 +265,4 @@ class CalendarActivityLink(CremeModel):
         app_label = 'activities'
         verbose_name = _(u'Calendar activity link')
         verbose_name_plural = _(u'Calendars activities links')
+        unique_together = ("calendar", "activity")
