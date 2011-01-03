@@ -31,7 +31,6 @@ from creme_core.views.generic.detailview import view_entity_with_template
 from creme_core.utils import jsonify, get_ct_or_404
 from creme_core.models.entity import CremeEntity
 from creme_core.models.block import InstanceBlockConfigItem
-from creme.creme_core.utils import jsonify
 
 from reports.models.report import Report, report_prefix_url, report_template_dir
 from reports.models.graph import (ReportGraph, verbose_report_graph_types,
