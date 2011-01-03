@@ -109,4 +109,7 @@ class ActObjective(CremeModel):
 
     #TODO: optimise by regrouping queries
     def get_relations_count(self): #TODO: get_count that works with custom objectives too ??
-        return Relation.objects.filter(type=REL_SUB_COMPLETE_GOAL, object_entity=self.act_id).count()
+        return Relation.objects.filter(type=REL_SUB_COMPLETE_GOAL,
+                                       object_entity=self.act_id,
+                                       subject_entity__entity_type=self.ctype_id) \
+                               .count()

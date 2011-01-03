@@ -827,10 +827,17 @@ class ActTestCase(LoggedTestCase):
         objective = ActObjective.objects.create(act=act, name='Orga counter', ctype=ContentType.objects.get_for_model(Organisation))
         self.assertEqual(0, objective.get_relations_count())
 
-        orga = Organisation.objects.create(user=self.user, name='Ferraille corp')
-        Relation.create(orga, REL_SUB_COMPLETE_GOAL, act, user_id=self.user.pk)
-
+        orga01 = Organisation.objects.create(user=self.user, name='Ferraille corp')
+        Relation.create(orga01, REL_SUB_COMPLETE_GOAL, act, user_id=self.user.pk)
         self.assertEqual(1, objective.get_relations_count())
+
+        orga02 = Organisation.objects.create(user=self.user, name='World company')
+        Relation.create(orga02, REL_SUB_COMPLETE_GOAL, act, user_id=self.user.pk)
+        self.assertEqual(2, objective.get_relations_count())
+
+        contact = Contact.objects.create(user=self.user, first_name='Monsieur', last_name='Ferraille')
+        Relation.create(contact, REL_SUB_COMPLETE_GOAL, act, user_id=self.user.pk)
+        self.assertEqual(2, objective.get_relations_count())
 
     def test_related_opportunities(self):
         PopulateCommand().handle(application=['commercial']) #'creme_core', 'persons'
