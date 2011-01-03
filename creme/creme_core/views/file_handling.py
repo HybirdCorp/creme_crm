@@ -70,7 +70,7 @@ def handle_uploaded_file(f, path=None, name=None):
     final_path = os.path.join(path, name)
     
     while os.path.exists(final_path):
-        name = get_name(f, True)
+        name = secure_filename(get_name(f, True))
         final_path = os.path.join(path, name)
 
     destination = open(final_path, 'wb+', 0755)
