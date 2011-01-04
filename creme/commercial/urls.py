@@ -30,9 +30,11 @@ urlpatterns = patterns('commercial.views',
     (r'^strategy/(?P<strategy_id>\d+)$',      'strategy.detailview'),
 
     #Segments
-    (r'^strategy/(?P<strategy_id>\d+)/add/segment/$', 'strategy.add_segment'),
-    (r'^segment/edit/(?P<segment_id>\d+)/$',          'strategy.edit_segment'),
-    (r'^segment/delete$',                             'strategy.delete_segment'),
+    (r'^strategy/(?P<strategy_id>\d+)/add/segment/$',                      'strategy.add_segment'),
+    (r'^strategy/(?P<strategy_id>\d+)/link/segment/$',                     'strategy.link_segment'),
+    (r'^strategy/(?P<strategy_id>\d+)/unlink/segment/$',                   'strategy.unlink_segment'),
+    (r'^strategy/(?P<strategy_id>\d+)/segment/edit/(?P<segment_id>\d+)/$', 'strategy.edit_segment'),
+    #(r'^segment/delete$',                                                  'strategy.delete_segment'),
 
     #Assets
     (r'^strategy/(?P<strategy_id>\d+)/add/asset/$', 'strategy.add_asset'),

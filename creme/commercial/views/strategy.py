@@ -30,7 +30,7 @@ from creme_core.utils import get_from_POST_or_404, jsonify
 from persons.models import Organisation
 
 from commercial.models import Strategy, MarketSegment, CommercialAsset, MarketSegmentCharm
-from commercial.forms.strategy import StrategyForm, SegmentForm, AssetForm, CharmForm, AddOrganisationForm
+from commercial.forms import strategy as forms
 from commercial.blocks import assets_matrix_block, charms_matrix_block, assets_charms_matrix_block
 
 
@@ -38,12 +38,12 @@ from commercial.blocks import assets_matrix_block, charms_matrix_block, assets_c
 @permission_required('commercial')
 @permission_required('commercial.add_strategy')
 def add(request):
-    return generic.add_entity(request, StrategyForm)
+    return generic.add_entity(request, forms.StrategyForm)
 
 @login_required
 @permission_required('commercial')
 def edit(request, strategy_id):
-    return generic.edit_entity(request, strategy_id, Strategy, StrategyForm)
+    return generic.edit_entity(request, strategy_id, Strategy, forms.StrategyForm)
 
 @login_required
 @permission_required('commercial')
@@ -61,15 +61,36 @@ def listview(request):
 @login_required
 @permission_required('commercial')
 def add_segment(request, strategy_id):
-    return generic.add_to_entity(request, strategy_id, SegmentForm,
+    return generic.add_to_entity(request, strategy_id, forms.SegmentCreateForm,
                                  _(u"New market segment for <%s>"),
                                  entity_class=Strategy
                                 )
 
 @login_required
 @permission_required('commercial')
+def link_segment(request, strategy_id):
+    return generic.add_to_entity(request, strategy_id, forms.SegmentLinkForm,
+                                 _(u"New market segment for <%s>"),
+                                 entity_class=Strategy
+                                )
+
+@login_required
+@permission_required('commercial')
+def unlink_segment(request, strategy_id):
+    strategy = get_object_or_404(Strategy, pk=strategy_id)
+    strategy.can_change_or_die(request.user)
+
+    strategy.unlink_segment(get_from_POST_or_404(request.POST, 'id', int))
+
+    if request.is_ajax():
+        return HttpResponse("", mimetype="text/javascript")
+
+    return HttpResponseRedirect(strategy.get_absolute_url())
+
+@login_required
+@permission_required('commercial')
 def add_asset(request, strategy_id):
-    return generic.add_to_entity(request, strategy_id, AssetForm,
+    return generic.add_to_entity(request, strategy_id, forms.AssetForm,
                                  _(u"New commercial asset for <%s>"),
                                  entity_class=Strategy
                                 )
@@ -77,7 +98,7 @@ def add_asset(request, strategy_id):
 @login_required
 @permission_required('commercial')
 def add_charm(request, strategy_id):
-    return generic.add_to_entity(request, strategy_id, CharmForm,
+    return generic.add_to_entity(request, strategy_id, forms.CharmForm,
                                  _(u"New segment charm for <%s>"),
                                  entity_class=Strategy
                                 )
@@ -85,30 +106,59 @@ def add_charm(request, strategy_id):
 @login_required
 @permission_required('commercial')
 def add_evalorga(request, strategy_id):
-    return generic.add_to_entity(request, strategy_id, AddOrganisationForm,
+    return generic.add_to_entity(request, strategy_id, forms.AddOrganisationForm,
                                  _(u"New organisation for <%s>"),
                                  entity_class=Strategy
                                 )
 
 @login_required
 @permission_required('commercial')
-def edit_segment(request, segment_id):
-    return generic.edit_related_to_entity(request, segment_id, MarketSegment, SegmentForm, _(u"Segment for <%s>"))
+def edit_segment(request, strategy_id, segment_id):
+    strategy = get_object_or_404(Strategy, pk=strategy_id)
+    strategy.can_change_or_die(request.user) #NB: segment can be edited if one strategy that uses it can be edited....
+
+    try:
+        segment = strategy.segments.get(pk=segment_id)
+    except CremePropertyType.DoesNotExist, e:
+        raise Http404(str(e))
+
+    if request.POST:
+        segment_form = forms.SegmentEditForm(request.POST, instance=segment)
+
+        if segment_form.is_valid():
+            segment_form.save()
+    else: # return page on GET request
+        segment_form = forms.SegmentEditForm(instance=segment)
+
+    return generic.inner_popup(request, 'creme_core/generics/blockform/edit_popup.html',
+                               {
+                                'form':  segment_form,
+                                'title': _(u"Segment for <%s>") % strategy,
+                               },
+                               is_valid=segment_form.is_valid(),
+                               reload=False,
+                               delegate_reload=True,
+                               context_instance=RequestContext(request)
+                              )
 
 @login_required
 @permission_required('commercial')
 def edit_asset(request, asset_id):
-    return generic.edit_related_to_entity(request, asset_id, CommercialAsset, AssetForm, _(u"Asset for <%s>"))
+    return generic.edit_related_to_entity(request, asset_id, CommercialAsset,
+                                          forms.AssetForm, _(u"Asset for <%s>")
+                                         )
 
 @login_required
 @permission_required('commercial')
 def edit_charm(request, charm_id):
-    return generic.edit_related_to_entity(request, charm_id, MarketSegmentCharm, CharmForm, _(u"Charm for <%s>"))
+    return generic.edit_related_to_entity(request, charm_id, MarketSegmentCharm,
+                                          forms.CharmForm, _(u"Charm for <%s>")
+                                         )
 
-@login_required
-@permission_required('commercial')
-def delete_segment(request):
-    return generic.delete_related_to_entity(request, MarketSegment)
+#@login_required
+#@permission_required('commercial')
+#def delete_segment(request):
+    #return generic.delete_related_to_entity(request, MarketSegment)
 
 @login_required
 @permission_required('commercial')

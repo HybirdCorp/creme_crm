@@ -155,6 +155,14 @@ class LoggedTestCase(TestCase):
 
 
 class StrategyTestCase(LoggedTestCase):
+    def assertNoFormError(self, response):
+        try:
+            errors = response.context['form'].errors
+        except Exception, e:
+            pass
+        else:
+            self.fail(errors)
+
     def test_strategy_create(self):
         response = self.client.get('/commercial/strategy/add')
         self.assertEqual(response.status_code, 200)
@@ -189,7 +197,8 @@ class StrategyTestCase(LoggedTestCase):
                                             'user': self.user.pk,
                                             'name': name,
                                          })
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(200, response.status_code)
+        self.assertNoFormError(response)
 
         strategy = Strategy.objects.get(pk=strategy.pk)
         self.assertEqual(name, strategy.name)
@@ -198,42 +207,69 @@ class StrategyTestCase(LoggedTestCase):
         strategy = Strategy.objects.create(user=self.user, name='Strat#1')
 
         response = self.client.get('/commercial/strategy/%s/add/segment/' % strategy.id)
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(200, response.status_code)
 
         name = 'Industry'
-        response = self.client.post('/commercial/strategy/%s/add/segment/' % strategy.id,
-                                    data={'name': name})
-        self.assertEqual(response.status_code, 200)
+        response = self.client.post('/commercial/strategy/%s/add/segment/' % strategy.id, data={'name': name})
+        self.assertEqual(200, response.status_code)
 
         segments = strategy.segments.all()
-        self.assertEqual(1,    len(segments))
-        self.assertEqual(name, segments[0].name)
+        self.assertEqual(1, len(segments))
+
+        segment = segments[0]
+        self.assertEqual(name, segment.name)
+        self.assertEqual(u'is in the segment "%s"' % name, segment.property_type.text)
+
+    def test_segment_link(self):
+        strategy01 = Strategy.objects.create(user=self.user, name='Strat#1')
+        self.client.post('/commercial/strategy/%s/add/segment/' % strategy01.id, data={'name': 'Industry'})
+        self.client.post('/commercial/strategy/%s/add/segment/' % strategy01.id, data={'name': 'Customer'})
+        segments = strategy01.segments.all()
+        self.assertEqual(2, len(segments))
+
+        strategy02 = Strategy.objects.create(user=self.user, name='Strat#2')
+        self.assertEqual(0, strategy02.segments.count())
+
+        response = self.client.get('/commercial/strategy/%s/link/segment/' % strategy02.id)
+        self.assertEqual(200, response.status_code)
+
+        response = self.client.post('/commercial/strategy/%s/link/segment/' % strategy02.id,
+                                    data={'segments': [segments[0].id, segments[1].id]}
+                                   )
+        self.assertEqual(200, response.status_code)
+        self.assertEqual(2,   strategy02.segments.count())
+
+    def _create_segment(self, strategy, name):
+        self.client.post('/commercial/strategy/%s/add/segment/' % strategy.id, data={'name': name})
+        return strategy.segments.get(name=name)
 
     def test_segment_edit(self):
         strategy = Strategy.objects.create(user=self.user, name='Strat#1')
         name = 'Industry'
-        segment = MarketSegment.objects.create(name=name, strategy=strategy)
+        segment = self._create_segment(strategy, name)
 
-        response = self.client.get('/commercial/segment/edit/%s/' % segment.id)
-        self.assertEqual(response.status_code, 200)
+        response = self.client.get('/commercial/strategy/%s/segment/edit/%s/' % (strategy.id, segment.id))
+        self.assertEqual(200, response.status_code)
 
-        name += 'of Cheese'
-        response = self.client.post('/commercial/segment/edit/%s/' % segment.id,
-                                    data={'name': name})
-        self.assertEqual(response.status_code, 200)
+        name += ' of Cheese'
+        response = self.client.post('/commercial/strategy/%s/segment/edit/%s/' % (strategy.id, segment.id),
+                                    data={'name': name}
+                                   )
+        self.assertEqual(200, response.status_code)
 
         segment = MarketSegment.objects.get(pk=segment.pk)
-        self.assertEqual(name,        segment.name)
-        self.assertEqual(strategy.id, segment.strategy_id)
+        self.assertEqual(name, segment.name)
+        self.assertEqual(u'is in the segment "%s"' % name, segment.property_type.text)
 
-    def test_segment_delete(self):
-        strategy = Strategy.objects.create(user=self.user, name='Strat#1')
-        segment = MarketSegment.objects.create(name='Industry', strategy=strategy)
-        self.assertEqual(1, len(strategy.segments.all()))
+    #TODO: segment can be deleted ??
+    #def test_segment_delete(self):
+        #strategy = Strategy.objects.create(user=self.user, name='Strat#1')
+        #segment = MarketSegment.objects.create(name='Industry', strategy=strategy)
+        #self.assertEqual(1, len(strategy.segments.all()))
 
-        response = self.client.post('/commercial/segment/delete', data={'id': segment.id}, follow=True)
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(0, len(strategy.segments.all()))
+        #response = self.client.post('/commercial/segment/delete', data={'id': segment.id}, follow=True)
+        #self.assertEqual(response.status_code, 200)
+        #self.assertEqual(0, len(strategy.segments.all()))
 
     def test_asset_add(self):
         strategy = Strategy.objects.create(user=self.user, name='Strat#1')
@@ -353,7 +389,7 @@ class StrategyTestCase(LoggedTestCase):
 
     def test_set_asset_score01(self):
         strategy = Strategy.objects.create(user=self.user, name='Strat#1')
-        segment  = MarketSegment.objects.create(name='Industry', strategy=strategy)
+        segment  = self._create_segment(strategy, 'Industry')
         asset    = CommercialAsset.objects.create(name='Capital', strategy=strategy)
 
         orga = Organisation.objects.create(user=self.user, name='Nerv')
@@ -372,9 +408,8 @@ class StrategyTestCase(LoggedTestCase):
     def test_set_asset_score02(self):
         strategy = Strategy.objects.create(user=self.user, name='Strat#1')
 
-        create_segment = MarketSegment.objects.create
-        segment01 = create_segment(name='Industry', strategy=strategy)
-        segment02 = create_segment(name='People', strategy=strategy)
+        segment01  = self._create_segment(strategy, 'Industry')
+        segment02  = self._create_segment(strategy, 'People')
 
         create_asset = CommercialAsset.objects.create
         asset01 = create_asset(name='Capital', strategy=strategy)
@@ -417,7 +452,7 @@ class StrategyTestCase(LoggedTestCase):
 
     def test_set_charm_score01(self):
         strategy = Strategy.objects.create(user=self.user, name='Strat#1')
-        segment  = MarketSegment.objects.create(name='Industry', strategy=strategy)
+        segment  = self._create_segment(strategy, 'Industry')
         charm    = MarketSegmentCharm.objects.create(name='Celebrity', strategy=strategy)
 
         orga = Organisation.objects.create(user=self.user, name='Nerv')
@@ -434,11 +469,9 @@ class StrategyTestCase(LoggedTestCase):
         self.assertEqual([(score, 3)], strategy.get_charms_totals(orga))
 
     def test_set_charm_score02(self):
-        strategy = Strategy.objects.create(user=self.user, name='Strat#1')
-
-        create_segment = MarketSegment.objects.create
-        segment01 = create_segment(name='Industry', strategy=strategy)
-        segment02 = create_segment(name='People', strategy=strategy)
+        strategy  = Strategy.objects.create(user=self.user, name='Strat#1')
+        segment01 = self._create_segment(strategy, 'Industry')
+        segment02 = self._create_segment(strategy, 'People')
 
         create_charm = MarketSegmentCharm.objects.create
         charm01 = create_charm(name='Money', strategy=strategy)
@@ -468,40 +501,6 @@ class StrategyTestCase(LoggedTestCase):
 
         self.assertEqual([(score11 + score21, 1), (score12 + score22, 3)], strategy.get_charms_totals(orga))
 
-    def test_delete01(self):
-        strategy = Strategy.objects.create(user=self.user, name='Strat#1')
-        self.assertEqual(1, Strategy.objects.count())
-
-        strategy.delete()
-        self.assertEqual(0, Strategy.objects.count())
-
-    def test_delete02(self):
-        strategy = Strategy.objects.create(user=self.user, name='Strat#1')
-        segment  = MarketSegment.objects.create(name='Industry', strategy=strategy)
-        asset    = CommercialAsset.objects.create(name='Capital', strategy=strategy)
-        charm    = MarketSegmentCharm.objects.create(name='Celebrity', strategy=strategy)
-
-        orga = Organisation.objects.create(user=self.user, name='Nerv')
-        strategy.evaluated_orgas.add(orga)
-
-        self._set_asset_score(strategy, orga, asset, segment, 2)
-        self._set_charm_score(strategy, orga, charm, segment, 3)
-
-        self.assertEqual(1, Strategy.objects.count())
-        self.assertEqual(1, MarketSegment.objects.count())
-        self.assertEqual(1, CommercialAsset.objects.count())
-        self.assertEqual(1, MarketSegmentCharm.objects.count())
-        self.assertEqual(1, CommercialAssetScore.objects.count())
-        self.assertEqual(1, MarketSegmentCharmScore.objects.count())
-
-        strategy.delete()
-        self.assertEqual(0, Strategy.objects.count())
-        self.assertEqual(0, MarketSegment.objects.count())
-        self.assertEqual(0, CommercialAsset.objects.count())
-        self.assertEqual(0, MarketSegmentCharm.objects.count())
-        self.assertEqual(0, CommercialAssetScore.objects.count())
-        self.assertEqual(0, MarketSegmentCharmScore.objects.count())
-
     def _set_segment_category(self, strategy, segment, orga, category):
         response = self.client.post('/commercial/strategy/%s/set_segment_cat' % strategy.id,
                                     data={
@@ -510,16 +509,15 @@ class StrategyTestCase(LoggedTestCase):
                                             'category':   category,
                                          }
                                    )
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(200, response.status_code)
 
     def test_segments_categories(self):
         strategy = Strategy.objects.create(user=self.user, name='Strat#1')
 
-        create_segment = MarketSegment.objects.create
-        industry    = create_segment(name='Industry', strategy=strategy)
-        individual  = create_segment(name='Individual', strategy=strategy)
-        community   = create_segment(name='Community', strategy=strategy)
-        association = create_segment(name='Association', strategy=strategy)
+        industry    = self._create_segment(strategy, 'Industry')
+        individual  = self._create_segment(strategy, 'Individual')
+        community   = self._create_segment(strategy, 'Community')
+        association = self._create_segment(strategy, 'Association')
 
         create_asset = CommercialAsset.objects.create
         asset01 = create_asset(name='Capital', strategy=strategy)
@@ -576,6 +574,102 @@ class StrategyTestCase(LoggedTestCase):
         self.assertEqual(2, strategy.get_segment_category(orga, individual))
         self.assertEqual(2, strategy.get_segment_category(orga, community))
         self.assertEqual(4, strategy.get_segment_category(orga, association))
+
+    def test_delete01(self):
+        strategy = Strategy.objects.create(user=self.user, name='Strat#1')
+        self.assertEqual(1, Strategy.objects.count())
+
+        strategy.delete()
+        self.assertEqual(0, Strategy.objects.count())
+
+    def test_delete02(self):
+        strategy = Strategy.objects.create(user=self.user, name='Strat#1')
+        segment  = self._create_segment(strategy, 'Industry')
+        asset    = CommercialAsset.objects.create(name='Capital', strategy=strategy)
+        charm    = MarketSegmentCharm.objects.create(name='Celebrity', strategy=strategy)
+
+        orga = Organisation.objects.create(user=self.user, name='Nerv')
+        strategy.evaluated_orgas.add(orga)
+
+        self._set_asset_score(strategy, orga, asset, segment, 2)
+        self._set_charm_score(strategy, orga, charm, segment, 3)
+        self._set_segment_category(strategy, segment, orga, 2)
+
+        self.assertEqual(1, Strategy.objects.count())
+        self.assertEqual(1, MarketSegment.objects.count())
+        self.assertEqual(1, CommercialAsset.objects.count())
+        self.assertEqual(1, MarketSegmentCharm.objects.count())
+        self.assertEqual(1, CommercialAssetScore.objects.count())
+        self.assertEqual(1, MarketSegmentCharmScore.objects.count())
+        self.assertEqual(1, MarketSegmentCategory.objects.count())
+
+        strategy.delete()
+        self.assertEqual(0, Strategy.objects.count())
+        self.assertEqual(0, MarketSegment.objects.count())
+        self.assertEqual(0, CommercialAsset.objects.count())
+        self.assertEqual(0, MarketSegmentCharm.objects.count())
+        self.assertEqual(0, CommercialAssetScore.objects.count())
+        self.assertEqual(0, MarketSegmentCharmScore.objects.count())
+        self.assertEqual(0, MarketSegmentCategory.objects.count())
+
+    def test_segment_unlink01(self):
+        strategy = Strategy.objects.create(user=self.user, name='Strat#1')
+        segment = self._create_segment(strategy, 'People')
+
+        self.assertEqual(1, strategy.segments.count())
+        self.assertEqual(1, MarketSegment.objects.count())
+
+        self.client.post('/commercial/strategy/%s/unlink/segment/' % strategy.id, data={'id': segment.id})
+        self.assertEqual(0, strategy.segments.count())
+        self.assertEqual(1, MarketSegment.objects.count())
+
+    def test_segment_unlink02(self):
+        strategy = Strategy.objects.create(user=self.user, name='Strat#1')
+
+        industry   = self._create_segment(strategy, 'Industry')
+        individual = self._create_segment(strategy, 'Individual')
+
+        create_asset = CommercialAsset.objects.create
+        asset01 = create_asset(name='Capital', strategy=strategy)
+        asset02 = create_asset(name='Size', strategy=strategy)
+
+        create_charm = MarketSegmentCharm.objects.create
+        charm01 = create_charm(name='Money', strategy=strategy)
+        charm02 = create_charm(name='Celebrity', strategy=strategy)
+
+        orga = Organisation.objects.create(user=self.user, name='Nerv')
+        strategy.evaluated_orgas.add(orga)
+
+        self._set_asset_score(strategy, orga, asset01, industry, 4)
+        self._set_asset_score(strategy, orga, asset02, industry, 3)
+        self._set_charm_score(strategy, orga, charm01, industry, 4)
+        self._set_charm_score(strategy, orga, charm02, industry, 3)
+
+        self._set_asset_score(strategy, orga, asset01, individual, 3)
+        self._set_asset_score(strategy, orga, asset02, individual, 3)
+        self._set_charm_score(strategy, orga, charm01, individual, 2)
+        self._set_charm_score(strategy, orga, charm02, individual, 2)
+
+        self._set_segment_category(strategy, industry,   orga, 2)
+        self._set_segment_category(strategy, individual, orga, 4)
+
+        self.assertEqual(4, CommercialAssetScore.objects.count())
+        self.assertEqual(4, MarketSegmentCharmScore.objects.count())
+        self.assertEqual(2, MarketSegmentCategory.objects.count())
+
+        self.client.post('/commercial/strategy/%s/unlink/segment/' % strategy.id, data={'id': industry.id})
+
+        asset_scores = CommercialAssetScore.objects.all()
+        self.assertEqual(2, len(asset_scores))
+        self.assert_(set([individual.id]), set(ascore.segment_id for ascore in asset_scores))
+
+        charm_scores = MarketSegmentCharmScore.objects.all()
+        self.assertEqual(2, len(charm_scores))
+        self.assert_(set([individual.id]), set(cscore.segment_id for cscore in charm_scores))
+
+        cats = MarketSegmentCategory.objects.all()
+        self.assertEqual(1, len(cats))
+        self.assert_(set([individual.id]), set(cat.segment_id for cat in cats))
 
 
 class ActTestCase(LoggedTestCase):
