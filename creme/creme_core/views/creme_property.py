@@ -26,7 +26,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.contenttypes.models import ContentType
 
 from creme_core.models import CremeEntity, CremePropertyType, CremeProperty
-from creme_core.views.generic import add_to_entity as generic_add_to_entity
+from creme_core.views import generic
 from creme_core.forms.creme_property import AddPropertiesForm
 from creme_core.utils import get_ct_or_404, get_from_POST_or_404
 
@@ -81,21 +81,8 @@ def get_property_types_for_ct(request):
 
 @login_required
 def add_to_entity(request, entity_id):
-    return generic_add_to_entity(request, entity_id, AddPropertiesForm, _('New properties for <%s>'))
+    return generic.add_to_entity(request, entity_id, AddPropertiesForm, _('New properties for <%s>'))
 
 @login_required
 def delete(request):
-    """
-        @Permissions : Edit on property's linked object
-    """
-    POST        = request.POST
-    entity_id   = get_from_POST_or_404(POST, 'object_id')
-    property_id = get_from_POST_or_404(POST, 'id')
-    entity      = get_object_or_404(CremeEntity, pk=entity_id).get_real_entity()
-
-    entity.can_change_or_die(request.user)
-
-    property_ = get_object_or_404(CremeProperty, pk=property_id)
-    property_.delete()
-
-    return HttpResponse("")
+    return generic.delete_related_to_entity(request, CremeProperty)
