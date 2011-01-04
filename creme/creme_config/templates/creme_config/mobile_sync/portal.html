@@ -2,12 +2,14 @@
 {% load i18n %}
 {% load creme_block %}
 
+{% block page_title %} - {% trans "Configuration" %} > {% trans "Mobile synchronization" %} {% endblock %}
+
 {% block title %}
-    <a href="/creme_config/">{% trans "Configuration" %} > </a>{% trans "Mobile synchronisation" %}
+    <a href="/creme_config/">{% trans "Configuration" %} > </a>{% trans "Mobile synchronization" %}
 {% endblock %}
 
 {% block before_statistics %}
-    <div class="help_box">{% trans 'Here you set the default configuration for mobile synchronisation. Each user get this config until he override it in his own settings.' %}</div>
+    <div class="help_box">{% trans 'Here you set the default configuration for mobile synchronization. Each user get this config until he override it in his own settings.' %}</div>
     {% import_block from_app 'creme_config' named 'mobile_sync' as 'mobile_sync_block' %}
     {% display_block_detailview 'mobile_sync_block' %}
 {% endblock %}

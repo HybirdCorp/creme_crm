@@ -5,13 +5,13 @@
 <table class="table_detail_view ui-corner-all" id={{block_name}}>
     <thead>
         <tr>
-            <th colspan="2"><img src="{% media_url 'images/phone_sync_48.png' %}" alt="{% trans 'Phone synchronization' %}" title="{% trans 'Phone synchronization' %}"/>{% trans "Default mobile synchronization configuration" %}</th>
+            <th class="collapser" align="left" colspan="2"><img src="{% media_url 'images/phone_sync_48.png' %}" alt="{% trans 'Phone synchronization' %}" title="{% trans 'Phone synchronization' %}"/>{% trans "Your mobile synchronization configuration" %}</th>
         </tr>
     </thead>
     <tbody class="collapsable">
         <tr>
             <th class="block_header_line_light" style="font-size:14px;" align="left" colspan="100">
-                <a class="button_link" onclick="creme.utils.innerPopupNReload('/creme_config/mobile_synchronization/edit', {% get_block_reload_uri %});">
+                <a class="button_link" onclick="creme.utils.innerPopupNReload('/activesync/user_settings', {% get_block_reload_uri %});">
                     <img src="{% media_url 'images/edit_22.png' %}" border="0" alt="{% trans "Edit" %}"/>
                     {% trans "Edit" %}
                 </a>
@@ -27,7 +27,15 @@
         </tr>
         <tr>
             <th class="block_header_line_dark th_info">{% trans "Is secure" %}</th>
-            <td class="block_line_dark td_info">{{ssl|print_boolean}}</td>
+            <td class="block_line_dark td_info">{{ssl|safe}}</td>
+        </tr>
+        <tr>
+            <th class="block_header_line_dark th_info">{% trans "Username" %}</th>
+            <td class="block_line_dark td_info">{{username}}</td>
+        </tr>
+        <tr>
+            <th class="block_header_line_dark th_info">{% trans "Password" %}</th>
+            <td class="block_line_dark td_info">{% for i in password|length|xrange %}*{% empty %}{% trans "Not filled in" %}{% endfor %}</td>
         </tr>
     </tbody>
 </table>

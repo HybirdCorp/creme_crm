@@ -489,6 +489,36 @@ div.sidebar1separator2 {
     padding-top: 3px;
 }
 
+.successlist {
+    border: 1px solid #0b5d0b;
+    background: #aaf0a2 url(jquery-css/creme-theme/images/ui-bg_inset-soft_75_aaf0a2_1x100) 50% bottom repeat-x;
+    color: #0b5d0b;
+}
+
+.successlist a {
+    color: #0b5d0b;
+}
+
+.successlist li {
+    list-style-image: url(images/jewel_ok_16.png);
+    padding-top: 3px;
+}
+
+.infolist {
+    border: 1px solid #56bbc8;
+    background: #e6f5f7 url(jquery-css/creme-theme/images/ui-bg_glass_65_f6fcff_1x400.png) 50% bottom repeat-x;
+    color: #56bbc8;
+}
+
+.infolist a {
+    color: #56bbc8;
+}
+
+.infolist li {
+    list-style-image: url(images/infos_16.png);
+    padding-top: 3px;
+}
+
 .back_pink {
     background-color: #f7cbc6;
 }

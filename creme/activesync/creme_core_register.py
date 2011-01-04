@@ -18,15 +18,17 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-#SERVER_URL = "http://127.0.0.1/Microsoft-Server-ActiveSync"
-#USER = "raph"
-#PWD  = "raph"
-#CLIENT_ID = "64F55E2D0EE7A12E717863BA8048BED1"
+from django.utils.translation import ugettext_lazy as _
 
-#TODO: Delete this
-IS_ZPUSH = True
-#IS_ZPUSH = False
+from creme_core.gui.block import block_registry
+from creme_core.gui.menu import creme_menu
+from activesync.blocks import user_mobile_sync_config_block
 
-CONFLICT_MODE = 1 #0 Client object replaces server object. / 1 Server object replaces client object.
+block_registry.register(user_mobile_sync_config_block)
 
-ACTIVE_SYNC_DEBUG = True #Make appears some debug informations on the UI
+try:
+    reg_item = creme_menu.get_app_item('persons').register_item
+    reg_item('/activesync/sync', _(u'Contact synchronisation'), 'persons')
+except KeyError:
+    pass #persons app isn't installed
+

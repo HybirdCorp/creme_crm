@@ -81,9 +81,9 @@ urlpatterns = patterns('creme_config.views',
     (r'^search/edit/(?P<search_config_id>\d+)$', 'search.edit'),
     (r'^search/delete$',                         'search.delete'),
 
-    #Mobile synchronisation
-    (r'^mobile_synchronisation/portal/$', 'mobile_sync.portal'),
-    (r'^mobile_synchronisation/edit$',    'mobile_sync.edit'),
+    #Mobile synchronization
+    (r'^mobile_synchronization/portal/$', 'mobile_sync.portal'),
+    (r'^mobile_synchronization/edit$',    'mobile_sync.edit'),
 
     #Generic portal config
     (r'^models/(?P<ct_id>\d+)/reload/$',                                      'generics_views.reload_block'),

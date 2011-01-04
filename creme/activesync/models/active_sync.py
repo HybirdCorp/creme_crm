@@ -63,6 +63,7 @@ class CremeClient(CremeModel):
     client_id          = models.CharField(u'Creme Client ID',   max_length=32,  default=generate_guid(), unique=True)
     policy_key         = models.CharField(u'Last policy key',   max_length=200, default=0)
     sync_key           = models.CharField(u'Last sync key',     max_length=200, default=None, blank=True, null=True)
+    folder_sync_key    = models.CharField(u'Last folder sync key', max_length=200, default=None, blank=True, null=True)
     contact_folder_id  = models.CharField(u'Contact folder id', max_length=64,  default=None, blank=True, null=True)
     last_sync          = models.DateTimeField(_(u'Last sync'), blank=True, null=True)
 

@@ -17,6 +17,7 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
+from logging import debug
 from datetime import datetime
 
 from django.db.models import Q
@@ -28,16 +29,22 @@ from creme_config.constants import (MAPI_DOMAIN, MAPI_SERVER_SSL, MAPI_SERVER_UR
                                     USER_MOBILE_SYNC_SERVER_LOGIN,
                                     USER_MOBILE_SYNC_SERVER_PWD,
                                     USER_MOBILE_SYNC_SERVER_SSL,
-                                    USER_MOBILE_SYNC_SERVER_URL)
+                                    USER_MOBILE_SYNC_SERVER_URL)#TODO: * ?
 
+from activesync.config import ACTIVE_SYNC_DEBUG
 from activesync.errors import (CremeActiveSyncError,
                                SYNC_ERR_WRONG_CFG_NO_SERVER_URL,
                                SYNC_ERR_WRONG_CFG_NO_LOGIN,
-                               SYNC_ERR_WRONG_CFG_NO_PWD)
+                               SYNC_ERR_WRONG_CFG_NO_PWD,
+                               SYNC_ERR_ABORTED)#TODO: * ?
                                
 from activesync.models.active_sync import CremeClient, CremeExchangeMapping
 from activesync.commands import FolderSync, Provision, AirSync
-from activesync.constants import SYNC_FOLDER_TYPE_CONTACT, SYNC_NEED_CURRENT_POLICY
+from activesync import constants as as_constants
+
+INFO    = 'info'
+ERROR   = 'error'
+SUCCESS = 'success'
 
 class Synchronization(object):
     """
@@ -48,10 +55,26 @@ class Synchronization(object):
         self.client = CremeClient.objects.get_or_create(user=user)[0]
         self.client_id  = self.client.client_id
         self.policy_key = self.client.policy_key
+        self.last_sync  = self.client.last_sync
         self.contact_folder_id = self.client.contact_folder_id
         self.sync_key = self.client.sync_key
+        self.folder_sync_key = self.client.folder_sync_key
+        self._data    = {
+            'debug': {
+                'xml': [],
+                'errors': [],
+            },
+        }
+
+        #TODO: If messages will be used somewhere else activate the django messaging system
+        self.messages = {
+                            INFO   : [],
+                            ERROR  : [],
+                            SUCCESS: [],
+                        }
+                        
         user_id = user.id
-        
+
         ckv_get = CremeKVConfig.objects.get
         ckv_doesnotexist = CremeKVConfig.DoesNotExist
 
@@ -74,10 +97,10 @@ class Synchronization(object):
                 self.domain = None
             
         try:
-            self.server_ssl = ckv_get(pk=USER_MOBILE_SYNC_SERVER_SSL % user_id).value
+            self.server_ssl = bool(int(ckv_get(pk=USER_MOBILE_SYNC_SERVER_SSL % user_id).value))
         except ckv_doesnotexist:
             try:
-                self.server_ssl = ckv_get(pk=MAPI_SERVER_SSL).value
+                self.server_ssl = bool(int(ckv_get(pk=MAPI_SERVER_SSL).value))
             except ckv_doesnotexist:
                 self.server_ssl = False
 
@@ -97,30 +120,66 @@ class Synchronization(object):
 
         self.params = (self.server_url, self.login, self.pwd, self.client_id)
 
+
+    ###### UI helpers #######
+    def add_message(self, level, msg):
+        try:
+            self.messages[level].append(msg)
+        except KeyError:
+            pass
+
+    def add_info_message(self, msg):
+        self.messages[INFO].append(msg)
+
+    def add_success_message(self, msg):
+        self.messages[SUCCESS].append(msg)
+
+    def add_error_message(self, msg):
+        self.messages[ERROR].append(msg)
+
+    def get_messages(self, level):
+        try:
+            return self.messages[level]
+        except KeyError:
+            return []
+
+    def get_info_messages(self):
+        return self.messages[INFO]
+
+    def get_success_messages(self):
+        return self.messages[SUCCESS]
+
+    def get_error_messages(self):
+        return self.messages[ERROR]
+
+    def merge_command_messages(self, cmd):
+        self.messages[INFO].extend(cmd.get_info_messages())
+        self.messages[SUCCESS].extend(cmd.get_success_messages())
+        self.messages[ERROR].extend(cmd.get_error_messages())
+
+    ###### End UI helpers #######
+
+
     def synchronize(self):
         """Complete synchronization process"""
-        params = self.params
+        params     = self.params
         policy_key = self.policy_key
+        folder_sync_key = self.folder_sync_key or 0
+
+        #Big TODO set folder_sync_key !!! folder_sync_key != sync_key !!!!
+
         sync_key   = self.sync_key or 0
         contacts   = []
         client     = self.client
         user       = self.user
-        provisionned = False
-        
-        fs = self._folder_sync(policy_key, sync_key)#Try to sync server folders
-        
-        if fs.status == SYNC_NEED_CURRENT_POLICY:
-            #Permission denied we need a new policy_key
-            provisionned = True
-            provision = Provision(*params)
-            provision.send()
-            policy_key = provision.policy_key
 
-            #Trying again to sync folders
-            fs = self._folder_sync(policy_key, sync_key)
+        print "Begin with policy_key :", policy_key
+
+        _fs = self._folder_sync(policy_key, sync_key)#Try to sync server folders
+        fs = self._handle_folder_sync(_fs)
 
         #For the moment we fetch only the contacts folder
-        contacts = filter(lambda x: int(x['type']) == SYNC_FOLDER_TYPE_CONTACT, fs.add)
+        contacts = filter(lambda x: int(x['type']) == as_constants.SYNC_FOLDER_TYPE_CONTACT, fs.add)
 
         client.sync_key = fs.synckey
         
@@ -135,10 +194,11 @@ class Synchronization(object):
             client.contact_folder_id = serverid
             print "----CONTACT FOLDER :", serverid
 
-            if provisionned:
-                as_ = self._sync(policy_key, serverid, None, True, user=user)
-            else:
-                as_ = self._sync(policy_key, serverid, fs.synckey, True, user=user)
+#            if provisionned:
+#                as_ = self._sync(policy_key, serverid, None, True, user=user)
+#            else:
+#            as_ = self._sync(policy_key, serverid, fs.synckey, True, user=user)
+            as_ = self._sync(policy_key, serverid, None, True, user=user)
 
             client.sync_key = as_.last_synckey
 
@@ -162,7 +222,7 @@ class Synchronization(object):
             #TODO: Verify the status ?
             c_x_mapping_manager.filter(was_deleted=True, user=user).delete()
 
-
+        #TODO: Try except and put this in the else
         client.policy_key = policy_key
         client.last_sync  = datetime.now()
         client.save()
@@ -170,14 +230,66 @@ class Synchronization(object):
     def _sync(self, policy_key, serverid, synckey=None, fetch=True, user=None):
         as_ = AirSync(*self.params)
         as_.send(policy_key, serverid, synckey, fetch, user)
+
+        self.merge_command_messages(as_)
+
+        if ACTIVE_SYNC_DEBUG:
+            self._data['debug']['xml'].extend(as_._data['debug']['xml'])
+            
         return as_
 
     def _folder_sync(self, policy_key, sync_key=0):
+        """Process a foldersync command
+           @returns : A FolderSync instance"""
         fs = FolderSync(*self.params)
         fs.send(policy_key, sync_key)
+
+        self.merge_command_messages(fs)
+
+        if ACTIVE_SYNC_DEBUG:
+            self._data['debug']['xml'].extend(fs._data['debug']['xml'])
+
         return fs
-        
-        
+
+    def _handle_folder_sync(self, folder_sync):
+
+        if folder_sync.status == as_constants.SYNC_FOLDER_STATUS_SUCCESS:
+            return folder_sync
+
+        if folder_sync.status == as_constants.SYNC_NEED_CURRENT_POLICY:
+            debug("SYNC_NEED_CURRENT_POLICY")
+            #Permission denied we need a new policy_key
+#            provisionned = True
+            provision = Provision(*self.params)
+            provision.send()
+            policy_key = provision.policy_key
+
+            if ACTIVE_SYNC_DEBUG:
+                self._data['debug']['xml'].extend(provision._data['debug']['xml'])
+
+            print "policy_key :", policy_key
+
+            #Trying again to sync folders
+            _fs = self._folder_sync(policy_key, folder_sync.sync_key)
+            fs  = self._handle_folder_sync(_fs)
+
+            print "policy_key :", policy_key
+            return fs
+
+        if folder_sync.status == as_constants.SYNC_FOLDER_STATUS_INVALID_SYNCKEY:
+            _fs = self._folder_sync(0, 0)
+            fs  = self._handle_folder_sync(_fs)
+            return fs
+
+        if folder_sync.status in (as_constants.SYNC_FOLDER_STATUS_SERVER_ERROR,
+                                  as_constants.SYNC_FOLDER_STATUS_TIMEOUT,
+                                  as_constants.SYNC_FOLDER_STATUS_BAD_REQUEST,
+                                  as_constants.SYNC_FOLDER_STATUS_UNKNOW_ERROR,
+                                  as_constants.SYNC_FOLDER_STATUS_ERROR):
+
+            self.add_error_message(_(u'There is a server error, please try again later...'))
+            raise CremeActiveSyncError(SYNC_ERR_ABORTED)
+
         
         
         

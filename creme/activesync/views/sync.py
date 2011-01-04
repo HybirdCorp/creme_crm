@@ -17,8 +17,50 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
+from django.http import HttpResponse
+from django.template.context import RequestContext
+from django.contrib.auth.decorators import login_required
+from django.template.loader import render_to_string
+from django.shortcuts import render_to_response
+
+from activesync.sync import Synchronization
+from activesync.config import ACTIVE_SYNC_DEBUG
+from activesync.errors import CremeActiveSyncError
 
 #TODO: Credentials onMerge with trunk
 @login_required
 def main_sync(request):
-    pass
+    sync = Synchronization(request.user)
+
+    error_messages = sync.get_error_messages()
+
+    try:
+        sync.synchronize()
+    except CremeActiveSyncError, err:
+        error_messages.extend(err)
+
+    tpl_dict = {
+        'server_url': sync.server_url,
+        'login':      sync.login,
+        'domain':     sync.domain,
+        'server_ssl': sync.server_ssl,
+        'last_sync':  sync.last_sync,
+
+        'info_messages'    :  sync.get_info_messages(),
+        'success_messages' :  sync.get_success_messages(),
+        'error_messages'   :  error_messages,
+
+
+        #DEBUG
+        'xml':        sync._data['debug']['xml'],
+        'ACTIVE_SYNC_DEBUG': ACTIVE_SYNC_DEBUG,
+    }
+    context = RequestContext(request)
+
+
+    if request.is_ajax():
+        return HttpResponse(render_to_string('activesync/frags/ajax/main_sync.html', tpl_dict, context_instance=context))
+
+    return render_to_response('activesync/main_sync.html',
+                       tpl_dict,
+                       context_instance=context)
