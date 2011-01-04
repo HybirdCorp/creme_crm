@@ -64,7 +64,8 @@ class CremeKVConfig(Model):
     class Meta:
         app_label = "creme_config"
 
-
+    def __unicode__(self):
+        return u"%s : %s" % (self.id, self.value)
 
 #class UserSettings(Model):
     #user = ForeignKey(User, unique=True)

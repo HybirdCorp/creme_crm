@@ -1,0 +1,87 @@
+{% load i18n %}
+{% load media %}
+{% load creme_block %}
+{% load creme_core_tags %}
+<table class="table_header" cellpadding="0" cellspacing="0">
+    <tr>
+        <td width="5%"><img src="{% media_url 'images/phone_sync_48.png' %}" alt="{% trans 'Phone synchronization' %}" title="{% trans 'Phone synchronization' %}"/></td>
+        <td width="75%"><h1>{% trans 'Mobile synchronization' %}</h1></td>
+        <td width="20%" align="right">
+            <span>
+                <a onclick="creme.utils.innerPopupNReload('/activesync/user_settings', {% get_block_reload_uri %});">
+                    <img src="{% media_url 'images/config_64.png' %}" border="0" alt="{% trans "Edit your mobile configuration" %}" title="{% trans "Edit your mobile configuration" %}"/>
+                </a>
+                &nbsp;
+                <a onclick="creme.reload_synchronisation($('#sub_content'), '/activesync/sync');">
+                    <img src="{% media_url 'images/refresh_64.png' %}" title="{% trans "Refresh" %}" alt="{% trans "Refresh" %}"/>
+                </a>
+            </span>
+        </td>
+    </tr>
+</table>
+
+<div class="help_box">
+    <table>
+        <thead>
+            <tr>
+                <th class="th_info" colspan="2">{% trans "Your current parameters :" %}</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <th class="th_info">{% trans "Server url" %}:</th>
+                <td class="td_info">{{server_url}}</td>
+            </tr>
+            <tr>
+                <th class="th_info">{% trans "Login" %}:</th>
+                <td class="td_info">{{login}}</td>
+            </tr>
+            <tr>
+                <th class="th_info">{% trans "Domain" %}:</th>
+                <td class="td_info">{{domain}}</td>
+            </tr>
+            <tr>
+                <th class="th_info">{% trans "Is secure (SSL)" %}:</th>
+                <td class="td_info">{{server_ssl|print_boolean}}</td>
+            </tr>
+            <tr>
+                <th class="th_info">{% trans "Last synchronization" %}:</th>
+                <td class="td_info">{{last_sync|default:_("Never")}}</td>
+            </tr>
+            <tr>
+                <th class="th_info">{% trans "Status" %}</th>
+                <td class="td_info">
+                    {% if error_messages %}
+                        <ul class="errorlist">
+                            {% for message in error_messages %}
+                                <li>{{message}}</li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                    {% if info_messages %}
+                        <ul class="infolist">
+                            {% for message in info_messages %}
+                                <li>{{message}}</li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                    {% if success_messages %}
+                        <ul class="successlist">
+                            {% for message in success_messages %}
+                                <li>{{message}}</li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+{% if ACTIVE_SYNC_DEBUG %}
+    {% for x in xml %}
+        {{x}}<br/><br/>
+    {% endfor %}
+{% endif %}
+
+{% get_blocks_dependencies %}

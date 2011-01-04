@@ -1,0 +1,16 @@
+{% extends "creme_core/base.html" %}
+{% load i18n %}
+
+{% block page_title %} - {% trans "Mobile synchronization" %}{% endblock %}
+
+{% block extrahead %}
+    <script>
+        $(document).ready(function(){
+            creme.utils.bindShowHideTbody();
+        });
+    </script>
+{% endblock %}
+
+{% block content %}
+    {% include "activesync/frags/ajax/main_sync.html" %}
+{% endblock %}

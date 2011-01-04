@@ -285,7 +285,7 @@ class UserPreferedMenusBlock(QuerysetBlock):
 class MobileSyncConfigBlock(Block):
     id_           = Block.generate_id('creme_config', 'mobile_sync')
     dependencies  = ()
-    verbose_name  = _(u'Mobile synchronisation')
+    verbose_name  = _(u'Mobile synchronization')
     template_name = 'creme_config/templatetags/block_mobile_sync.html'
 
     def detailview_display(self, context):
@@ -314,7 +314,7 @@ class MobileSyncConfigBlock(Block):
         return self._render(self.get_block_template_context(context,
                                                             url=server_url.value,
                                                             domain=server_domain.value,
-                                                            ssl=is_server_ssl,
+                                                            ssl=bool(is_server_ssl),
                                                             update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,))
 
 generic_models_block = GenericModelsBlock()

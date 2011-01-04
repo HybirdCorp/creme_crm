@@ -35,10 +35,15 @@ class Connection(Resource):
 
     def post(self, path=None, payload=None, headers=None, cmd="", device_id=None, device_type="SmartPhone", **params):
         min_headers = {
+#            "MS-ASProtocolVersions": "1.0,2.0,2.5,12.0",
+            "MS-ASProtocolVersions": "2.5",
             "Ms-Asprotocolversion": "2.5",
+#            "Ms-Asprotocolversion": "12.0",
+#            "Ms-Asprotocolversion": "14.0",
             "User-Agent": "CremeCRM/1.0",
             "Connection": "close",
             "Content-Type": "application/vnd.ms-sync.wbxml",
+#            "Authorization: Basic %s" % base64.encode(username+':'+password),#Not used here, but can be another auth method
         }
 
         if headers:

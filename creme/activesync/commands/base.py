@@ -25,11 +25,16 @@ from xml.etree.ElementTree import fromstring, tostring
 from activesync.errors import SYNC_ERR_FORBIDDEN, CremeActiveSyncError
 from activesync.wbxml.dtd import AirsyncDTD_Reverse
 from activesync.wbxml.codec2 import WBXMLEncoder
+from activesync.config import ACTIVE_SYNC_DEBUG
 
 from django.template.loader import render_to_string
 
 from activesync.connection import Connection
 from activesync.wbxml.converters import XMLToWBXML, WBXMLToXML
+
+_INFO    = 'info'
+_ERROR   = 'error'
+_SUCCESS = 'success'
 
 class Base(object):
     template_name = u"overloadme.xml" #XML template to send to the server
@@ -43,25 +48,77 @@ class Base(object):
         self.user      = user
         self.password  = pwd
         self.device_id = device_id
+        self._data     = {
+            'debug': {
+                'xml': [],
+                'errors': [],
+            },
+        }
+        self._messages = {
+                    _INFO   : [],
+                    _ERROR  : [],
+                    _SUCCESS: [],
+                }
+
+    ###### UI helpers #######
+    def add_message(self, level, msg):
+        try:
+            self._messages[level].append(msg)
+        except KeyError:
+            pass
+
+    def add_info_message(self, msg):
+        self._messages[_INFO].append(msg)
+
+    def add_success_message(self, msg):
+        self._messages[_SUCCESS].append(msg)
+
+    def add_error_message(self, msg):
+        self._messages[_ERROR].append(msg)
+
+    def get_messages(self, level):
+        try:
+            return self._messages[level]
+        except KeyError:
+            return []
+
+    def get_info_messages(self):
+        return self._messages[_INFO]
+
+    def get_success_messages(self):
+        return self._messages[_SUCCESS]
+
+    def get_error_messages(self):
+        return self._messages[_ERROR]
+    ###### End UI helpers #######
 
     def _create_connection(self, *args, **kwargs):
         self.connection = Connection.create(self.url, self.user, self.password, *args, **kwargs)
 
     def _encode(self, content):
         print "\n==Request==\n",content,"\n"
+        
+        if ACTIVE_SYNC_DEBUG:
+            self._data['debug']['xml'].append(u"Request: %s" % content)
+
         return self.encoder(content)
 #        return self.encoder(libxml2.parseDoc(content))
 
     def _decode(self, content):
 #        return self.decoder(content)
         print "\n==Response==\n",str(self.decoder(content)),"\n"
+
+        if ACTIVE_SYNC_DEBUG:
+            self._data['debug']['xml'].append(u"Response: %s" % str(self.decoder(content)))
+
 #        print "\n==Response==\n",tostring(fromstring(str(self.decoder(content)))),"\n"
         return fromstring(str(self.decoder(content)))#Trick to use ElementTree instead of libxml2 in waiting for own ElementTree parser
 
     def _send(self, encoded_content, *args, **kwargs):
         try:
             return self.connection.send(self.command, encoded_content, self.device_id, *args, **kwargs)
-        except restkit.errors.Unauthorized:
+        except restkit.errors.Unauthorized, err:
+            self._data['debug']['errors'].append(err.msg)
             raise CremeActiveSyncError(SYNC_ERR_FORBIDDEN)
 
     def send(self, template_dict, *args, **kwargs):

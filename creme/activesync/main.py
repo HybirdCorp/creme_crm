@@ -38,40 +38,10 @@ from restkit.errors import (ResourceNotFound, Unauthorized, RequestFailed,
 
 def main():
 #    try:
-    sync = Synchronization(User.objects.get(pk=1))
+#    sync = Synchronization(User.objects.get(pk=1))
+#    sync = Synchronization(User.objects.get(pk=2))
+    sync = Synchronization(User.objects.get(pk=3))
     sync.synchronize()
 #    except (ResourceNotFound, Unauthorized, RequestFailed, ParserError, RequestError), e:
 #        print "Error. Response from server :", e.response.status
 
-
-def main0():
-    try:
-        params = (SERVER_URL, USER, PWD, CLIENT_ID)
-        p = Provision(*params)
-        p.send()
-        policy_key = p.policy_key
-
-        fs = FolderSync(*params)
-        fs.send(policy_key)
-
-        contacts = filter(lambda x: int(x['type']) == SYNC_FOLDER_TYPE_CONTACT, fs.add)
-
-        if contacts:
-            contact_folder = contacts[0]
-
-            serverid = contact_folder.get('serverid')
-
-            as_ = AirSync(*params)
-            as_.send(policy_key, serverid, None)#fs.synckey)
-
-#            from time import sleep
-#            sleep(3)
-#            as_2 = AirSync(*params)
-#            as_2.send(policy_key, serverid, as_.last_synckey)
-
-
-    except (ResourceNotFound, Unauthorized, RequestFailed, ParserError, RequestError), e:
-        print "Error. Response from server :", e.response.status
-
-#    except Exception, e:
-#            print "Exception :", e

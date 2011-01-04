@@ -24,6 +24,7 @@ from xml.etree.ElementTree import tostring
 
 from django.db.models import Q
 from django.contrib.auth.models import User
+from django.utils.translation import ugettext_lazy as _
 
 from base import Base
 
@@ -31,7 +32,7 @@ from activesync.contacts import (serialize_contact, CREME_CONTACT_MAPPING,
                                  save_contact, update_contact)
 from activesync.models.active_sync import CremeExchangeMapping
 from activesync import config
-from activesync.constants import CONFLICT_SERVER_MASTER
+from activesync.constants import CONFLICT_SERVER_MASTER, SYNC_AIRSYNC_STATUS_SUCCESS
 
 from persons.models.contact import Contact
 
@@ -50,6 +51,7 @@ class AirSync(Base):
             @param server_id
             @param synckey None to fetch all server changes or last synckey supplied by server
             @param fetch True for fetching changes False for current pushing changes
+            @param user to retrieve mapping, create objects...
         """
         print "AirSync policy_key:%s, server_id: %s, synckey=%s, fetch=%s, user=%s" % (policy_key, server_id, synckey, fetch, user)
         extra_ns = {'A1': 'Contacts:', 'A2': 'AirSyncBase:', 'A3': 'Contacts2:'}
@@ -70,7 +72,13 @@ class AirSync(Base):
             'Conflict': CONFLICT_MODE,
         }
 
-        if synckey is None:
+        self.synced = {
+                        "Add":[],
+                        "Change": [],
+                      }
+
+
+        if synckey in (0, None):
             supported = []
             supported_append = supported.append
 
@@ -81,12 +89,28 @@ class AirSync(Base):
 
             xml = super(AirSync, self).send({'class': "Contacts", 'synckey': 0, 'server_id': server_id, 'supported': supported, 'extra_ns': extra_ns}, headers={"X-Ms-Policykey": policy_key})
 
+            err_status_xml = xml.find('%(ns0)sStatus' % d_ns)
+            if err_status_xml:
+                #If the status is at the root it seems there is an error
+                self.add_error_message(_(u"There was an error during synchronization phase. Error code : %s") % err_status_xml.text)
+                return
+
             collection = xml.find('%(ns0)sCollections/%(ns0)sCollection' % d_ns)
-            collection_find   = collection.find
+            collection_find = collection.find
             
             self.last_synckey = collection_find('%(ns0)sSyncKey' % d_ns).text
-            status            = collection_find('%(ns0)sStatus' % d_ns).text
+            self.status       = collection_find('%(ns0)sStatus' % d_ns).text
             server_id         = collection_find('%(ns0)sCollectionId' % d_ns).text
+
+            try:
+                self.status = int(self.status)
+            except ValueError:
+                pass ###TODO: ???
+
+
+            if self.status != SYNC_AIRSYNC_STATUS_SUCCESS:
+                self.add_error_message(_(u"There was an error during synchronization phase. Try again later."))
+                return
 
         if fetch:
             ################
@@ -96,14 +120,36 @@ class AirSync(Base):
 
 #            print "\n\n xml2 :", tostring(xml2), "\n\n"
 
-            commands_node = xml2.find('%(ns0)sCollections/%(ns0)sCollection/%(ns0)sCommands' % d_ns)
-            add_nodes    = commands_node.findall('%(ns0)sAdd' % d_ns)    if commands_node else []
-            change_nodes = commands_node.findall('%(ns0)sChange' % d_ns) if commands_node else []
-            delete_nodes = commands_node.findall('%(ns0)sDelete' % d_ns) if commands_node else []
+            xml2_collection      = xml2.find('%(ns0)sCollections/%(ns0)sCollection' % d_ns)
+            xml2_collection_find = xml2_collection.find
 
-            self.last_synckey = xml2.find('%(ns0)sCollections/%(ns0)sCollection/%(ns0)sSyncKey' % d_ns).text
-            
+#            self.last_synckey = xml2.find('%(ns0)sCollections/%(ns0)sCollection/%(ns0)sSyncKey' % d_ns).text
+#            self.status       = xml2.find('%(ns0)sCollections/%(ns0)sCollection/%(ns0)sStatus' % d_ns).text
+
+            self.last_synckey = xml2_collection_find('%(ns0)sSyncKey' % d_ns).text
+            self.status       = xml2_collection_find('%(ns0)sStatus' % d_ns).text
+
+            try:
+                self.status = int(self.status)
+            except ValueError:
+                pass
+
+            if self.status != SYNC_AIRSYNC_STATUS_SUCCESS:
+                self.add_error_message(_(u"There was an error during synchronization phase. Try again later."))
+                return
+
+#            commands_node = xml2.find('%(ns0)sCollections/%(ns0)sCollection/%(ns0)sCommands' % d_ns)
+            commands_node = xml2_collection_find('%(ns0)sCommands' % d_ns)
+            add_nodes     = commands_node.findall('%(ns0)sAdd' % d_ns)    if commands_node else []
+            change_nodes  = commands_node.findall('%(ns0)sChange' % d_ns) if commands_node else []
+            delete_nodes  = commands_node.findall('%(ns0)sDelete' % d_ns) if commands_node else []
+
             create = exch_map_manager.create
+
+            #TODO: Singular / Plural
+            self.add_info_message(_(u"There is %s new items") % len(add_nodes))
+            self.add_info_message(_(u"There is %s changed items") % len(change_nodes))
+            self.add_info_message(_(u"There is %s deleted items") % len(delete_nodes))
 
             #Can be usefull for IHM ?
             print "##Ajouts      : len(add_nodes) :",    len(add_nodes)
@@ -130,7 +176,8 @@ class AirSync(Base):
 
                 contact = save_contact(data, user)
                 create(creme_entity_id=contact.id, exchange_entity_id=server_id_pk, synced=True, user=user)
-                debug("Create a contact: %s", contact)
+#                debug("Create a contact: %s", contact)
+                self.add_success_message(_(u"Successfully created %s") % contact)
 
             for change_node in change_nodes:
                 c_server_id = change_node.find('%(ns0)sServerId' % d_ns).text
@@ -161,6 +208,7 @@ class AirSync(Base):
 
                     debug("Update %s with %s", contact, update_data)
                     update_contact(contact, update_data)
+                    self.add_success_message(_(u"Successfully updated %s with %s") % (contact, update_data))#TODO: Format update_data
 
                     #Server is the master so we unset the creme flag to prevent creme modifications
                     contact_mapping.is_creme_modified = False
@@ -185,6 +233,7 @@ class AirSync(Base):
                     else:
                         debug("Deleting %s", contact)
                         contact.delete()
+                        self.add_success_message(_(u"Successfully deleted %s") % contact)
                     c_x_mapping.delete()
 
 #        q_not_synced = ~Q(pk__in=exch_map_manager.filter(synced=True).values_list('creme_entity_id', flat=True))
@@ -209,14 +258,18 @@ class AirSync(Base):
 #        print "\n\n xml3 :", tostring(xml3), "\n\n"
 
         self.last_synckey = xml3_collection_find('%(ns0)sSyncKey' % d_ns).text
-        status            = xml3_collection_find('%(ns0)sStatus' % d_ns).text
+        self.status       = xml3_collection_find('%(ns0)sStatus' % d_ns).text
         responses         = xml3_collection_find('%(ns0)sResponses' % d_ns)
 
-        self.synced = {
-            "Add":[],
-            "Change": [],
-        }
-        
+        try:
+            self.status = int(self.status)
+        except ValueError:
+            pass
+
+        if self.status != SYNC_AIRSYNC_STATUS_SUCCESS:
+            self.add_error_message(_(u"There was an error during synchronization phase. Try again later."))
+            return
+
         if responses is not None:
             add_nodes = responses.findall('%(ns0)sAdd' % d_ns)#Present if the "Add" operation succeeded
             add_stack = self.synced['Add']
@@ -261,9 +314,13 @@ def change_object(o, serializer):
 def get_change_objects(reverse_ns, user):
     modified_ids = CremeExchangeMapping.objects.filter(is_creme_modified=True, user=user).values_list('creme_entity_id', flat=True)
     objects = []
-    
+
+    debug(u"Change object ids : %s", modified_ids)
+
     for contact in Contact.objects.filter(id__in=modified_ids):
         objects.append(change_object(contact, lambda cc: serialize_contact(cc, reverse_ns)))#Naive version send all attribute even it's not modified
+
+    debug(u"Change object : %s", objects)
 
     return objects
 

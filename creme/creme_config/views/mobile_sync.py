@@ -30,7 +30,7 @@ from creme_config.constants import MAPI_SERVER_URL, MAPI_DOMAIN, MAPI_SERVER_SSL
 from creme_config.models.config_models import CremeKVConfig
 from creme_config.forms.mobile_sync import MobileSyncForm
 
-portal_url = "/creme_config/mobile_synchronisation/portal/"
+portal_url = "/creme_config/mobile_synchronization/portal/"
 
 @login_required
 @permission_required('creme_config.can_admin')
@@ -71,7 +71,7 @@ def edit(request):
     return inner_popup(request, 'creme_core/generics/blockform/add_popup2.html',
                        {
                          'form': mobile_sync_form,
-                         'title': _(u'Edit default mobile synchronisation configuration'),
+                         'title': _(u'Edit default mobile synchronization configuration'),
                        },
                        is_valid=mobile_sync_form.is_valid(),
                        reload=False,

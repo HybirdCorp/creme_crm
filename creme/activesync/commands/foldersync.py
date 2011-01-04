@@ -20,7 +20,10 @@
 
 import restkit.errors
 
-from activesync.constants import SYNC_NEED_CURRENT_POLICY
+from activesync.constants import (SYNC_NEED_CURRENT_POLICY,
+                                  SYNC_FOLDER_STATUS_ERROR,
+                                  SYNC_FOLDER_STATUS_INVALID_SYNCKEY,
+                                  SYNC_FOLDER_STATUS_SUCCESS)
 
 from base import Base
 
@@ -35,19 +38,38 @@ class FolderSync(Base):
 
     def send(self, policy_key, sync_key=0):
         xml = None
+        self.synckey = sync_key
+        self.status  = -1
+
         try:
             xml = super(FolderSync, self).send({'synckey': sync_key}, headers={"X-Ms-Policykey": policy_key})
         except restkit.errors.RequestFailed, r:
             print "Error:" ,r.response.status
+            print "Error:" ,r.response.__dict__
             if r.status_int == 449:
                 self.status = SYNC_NEED_CURRENT_POLICY
+            elif r.status_int >= 400 and r.status_int < 500:
+                #Could happend when AS version is not supported by the server
+                self.status = SYNC_FOLDER_STATUS_ERROR
+
 
         if xml is not None:
             ns = "{FolderHierarchy:}"
 
             self.status  = xml.find('%sStatus' % ns).text
-            if self.status != SYNC_NEED_CURRENT_POLICY:
+
+            try:
+                self.status = int(self.status)
+            except ValueError:
+                self.status = SYNC_FOLDER_STATUS_ERROR
+
+#            if self.status != SYNC_NEED_CURRENT_POLICY:
+            if self.status == SYNC_FOLDER_STATUS_SUCCESS:
+                print "[FolderSync] Doesn't need SYNC_NEED_CURRENT_POLICY"
+                
                 self.synckey = xml.find('%sSyncKey' % ns).text
+
+                print "[FolderSync] self.synckey :", self.synckey
 
                 self.add = []
                 add_append = self.add.append
@@ -60,6 +82,10 @@ class FolderSync(Base):
                         'displayname' : add_node.find("%sDisplayName" % ns).text,
                         'type'        : add_node.find("%sType" % ns).text,
                     })
+
+        print "[FolderSync] (end) Status :", self.status
+        self.add_info_message("[FolderSync] (end) Status : %s" % self.status)
+
         
 
 

@@ -34,7 +34,6 @@ class Provision(Base):
 
     def send(self, policy_key=0, remote_wipe=False):
         policy_type = 'MS-EAS-Provisioning-WBXML'
-#        policy_type = 'MS-WAP-Provisioning-XML'
 
         if remote_wipe:
             xml = super(Provision, self).send({'rw_status': 1}, headers={"X-Ms-Policykey": policy_key})#TODO:Make constant with the 1
