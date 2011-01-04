@@ -175,3 +175,32 @@ class ViewsTestCase(TestCase):
         self.assertEqual(200,               response.status_code)
         self.assertEqual('text/javascript', response['Content-Type'])
         self.assertEqual('Creme entity: %s' % entity.id, response.content)
+
+    def test_add_property(self):
+        ptype01 = CremePropertyType.create(str_pk='test-prop_foobar01', text='wears strange hats')
+        ptype02 = CremePropertyType.create(str_pk='test-prop_foobar02', text='wears strange pants')
+        entity  = CremeEntity.objects.create(user=self.user)
+        self.assertEqual(0, entity.properties.count())
+
+        response = self.client.get('/creme_core/property/add/%s' % entity.id)
+        self.assertEqual(200, response.status_code)
+
+        response = self.client.post('/creme_core/property/add/%s' % entity.id,
+                                    data={'types': [ptype01.id, ptype02.id]}
+                                   )
+        self.assertEqual(200, response.status_code)
+
+        properties = entity.properties.all()
+        self.assertEqual(2, len(properties))
+        self.assertEqual(set([ptype01.id, ptype02.id]), set(p.type_id for p in properties))
+
+    def test_delete_property(self):
+        ptype  = CremePropertyType.create(str_pk='test-prop_foobar', text='hairy')
+        entity = CremeEntity.objects.create(user=self.user)
+        prop   = CremeProperty.objects.create(type=ptype, creme_entity=entity)
+
+        response = self.client.post('/creme_core/property/delete', data={'id': prop.id})
+        self.assertEqual(302, response.status_code)
+        self.assertEqual(0,   CremeProperty.objects.filter(pk=prop.id).count())
+
+    #TODO: test get_property_types_for_ct(), add_to_entities()
