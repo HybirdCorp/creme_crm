@@ -21,9 +21,9 @@
 from itertools import izip as zip
 
 from django.db.models import CharField, ForeignKey, ManyToManyField, PositiveSmallIntegerField
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import ugettext_lazy as _, ugettext
 
-from creme_core.models import CremeEntity, CremeModel
+from creme_core.models import CremeEntity, CremeModel, CremePropertyType
 
 from persons.models import Organisation
 
@@ -35,9 +35,28 @@ _CATEGORY_MAP = {
         11: 1, # Strong charms & strong assets
     }
 
+
+class MarketSegment(CremeModel):
+    name          = CharField(_(u"Name"), max_length=100)
+    property_type = ForeignKey(CremePropertyType)
+
+    class Meta:
+        app_label = "commercial"
+        verbose_name = _(u'Market segment')
+        verbose_name_plural = _(u'Market segments')
+
+    def __unicode__(self):
+        return self.name
+
+    @staticmethod
+    def generate_property_text(segment_name):
+        return ugettext(u'is in the segment "%s"') % segment_name
+
+
 class Strategy(CremeEntity):
     name            = CharField(_(u"Name"), max_length=100)
     evaluated_orgas = ManyToManyField(Organisation, null=True)
+    segments        = ManyToManyField(MarketSegment, null=True)
 
     class Meta:
         app_label = "commercial"
@@ -46,7 +65,12 @@ class Strategy(CremeEntity):
 
     def __init__(self, *args, **kwargs):
         super(Strategy, self).__init__(*args, **kwargs)
+        self._clear_caches()
 
+    def __unicode__(self):
+        return self.name
+
+    def _clear_caches(self):
         self._segments_list = None
 
         self._assets_list = None
@@ -57,12 +81,10 @@ class Strategy(CremeEntity):
 
         self._segments_categories = {}
 
-    def __unicode__(self):
-        return self.name
-
     def delete(self):
         CommercialAssetScore.objects.filter(asset__strategy=self.id, segment__strategy=self.id).delete()
         MarketSegmentCharmScore.objects.filter(charm__strategy=self.id, segment__strategy=self.id).delete()
+        MarketSegmentCategory.objects.filter(strategy=self.id).delete()
 
         self.segments.all().delete()
         self.assets.all().delete()
@@ -270,25 +292,20 @@ class Strategy(CremeEntity):
             cat_obj.category = category
             cat_obj.save()
         else:
-            MarketSegmentCategory.objects.create(segment=segment, organisation=orga, category=category)
+            MarketSegmentCategory.objects.create(strategy=self, segment=segment,
+                                                 organisation=orga, category=category
+                                                )
 
         self._segments_categories.pop(orga.id, None) #clean cache
 
+    def unlink_segment(self, segment_id):
+        self.segments.remove(segment_id)
 
-class MarketSegment(CremeModel):
-    name     = CharField(_(u"Name"), max_length=100)
-    strategy = ForeignKey(Strategy, related_name='segments')
+        CommercialAssetScore.objects.filter(segment=segment_id, asset__strategy=self.id).delete()
+        MarketSegmentCharmScore.objects.filter(segment=segment_id, charm__strategy=self.id).delete()
+        MarketSegmentCategory.objects.filter(strategy=self, segment=segment_id).delete()
 
-    class Meta:
-        app_label = "commercial"
-        verbose_name = _(u'Market segment')
-        verbose_name_plural = _(u'Market segments')
-
-    def __unicode__(self):
-        return self.name
-
-    def get_related_entity(self): #for generic views
-        return self.strategy
+        self._clear_caches()
 
 
 class CommercialAsset(CremeModel):
@@ -353,6 +370,7 @@ class MarketSegmentCharmScore(CremeModel):
 
 class MarketSegmentCategory(CremeModel):
     category     = PositiveSmallIntegerField()
+    strategy     = ForeignKey(Strategy)
     segment      = ForeignKey(MarketSegment)
     organisation = ForeignKey(Organisation)
 
