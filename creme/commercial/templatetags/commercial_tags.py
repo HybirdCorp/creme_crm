@@ -30,11 +30,11 @@ def get_segments_for_category(strategy, orga, category):
     return u'<ul>%s</ul>' % (u'\n'.join(u'<li><h3>%s</h3></li>' % segment for segment in strategy.get_segments_for_category(orga, category)))
 
 @register.inclusion_tag('commercial/templatetags/widget_score.html', takes_context=True)
-def widget_asset_score(context, segment, asset):
+def widget_asset_score(context, segment_desc, asset):
     strategy = context['strategy']
     orga     = context['orga']
 
-    context['score'] = strategy.get_asset_score(orga, asset, segment)
+    context['score'] = strategy.get_asset_score(orga, asset, segment_desc)
     context['model_name'] = 'asset'
     context['model'] = asset
 

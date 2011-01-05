@@ -8,15 +8,15 @@
         <th style="width: 20%;" align="right"></th>
     {% end_get_block_header %}
     <tbody class="collapsable">
-        {% if segments %}{% if charms %}
+        {% if segment_info %}{% if charms %}
             <tr>
                 <th class="block_header_line_dark">{% trans 'Charms / Segments' %}</th>
-                {% for segment in segments %}<th class="block_header_line_dark">{{segment}}</th>{% endfor %}
+                {% for segment_desc in segment_info %}<th class="block_header_line_dark">{{segment_desc}}</th>{% endfor %}
             </tr>
             {% for charm in charms %}<!--{% cycle "block_header_line_light" "block_header_line_dark" as header_color %}{% cycle "block_line_light" "block_line_dark" as row_color %}-->
                 <tr>
                     <th class="{{header_color}}">{{charm}}</th>
-                    {% for segment in segments %}<td class="{{row_color}}">{% widget_charm_score segment charm %}</td>{% endfor %}
+                    {% for segment_desc in segment_info %}<td class="{{row_color}}">{% widget_charm_score segment_desc charm %}</td>{% endfor %}
                 </tr>
             {% endfor %}
             <tr>

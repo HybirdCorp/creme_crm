@@ -81,16 +81,15 @@ class ApproachesBlock(QuerysetBlock):
         return self._render(btc)
 
 
-class SegmentsBlock(QuerysetBlock):
+class SegmentDescriptionsBlock(PaginatedBlock):
     id_           = QuerysetBlock.generate_id('commercial', 'segments')
     dependencies  = (MarketSegment,)
-    order_by      = 'name'
     verbose_name  = _(u'Market segments')
     template_name = 'commercial/templatetags/block_segments.html'
 
     def detailview_display(self, context):
         strategy = context['object']
-        return self._render(self.get_block_template_context(context, strategy.segments.all(), #TODO: cached getter ??
+        return self._render(self.get_block_template_context(context, strategy.get_segment_descriptions_list(),
                                                             update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, strategy.pk),
                                                            ))
 
@@ -146,7 +145,7 @@ class AssetsMatrixBlock(Block):
         orga = context['orga']
         return self._render(self.get_block_template_context(context,
                                                             assets=strategy.get_assets_list(),
-                                                            segments=strategy.get_segments_list(),
+                                                            segment_info=strategy.get_segment_descriptions_list(),
                                                             totals=strategy.get_assets_totals(orga),
                                                             update_url='/commercial/blocks/assets_matrix/%s/%s/' % (strategy.pk, orga.pk),
                                                            ))
@@ -163,7 +162,7 @@ class CharmsMatrixBlock(Block):
         orga = context['orga']
         return self._render(self.get_block_template_context(context,
                                                             charms=strategy.get_charms_list(),
-                                                            segments=strategy.get_segments_list(),
+                                                            segment_info=strategy.get_segment_descriptions_list(),
                                                             totals=strategy.get_charms_totals(orga),
                                                             update_url='/commercial/blocks/charms_matrix/%s/%s/' % (strategy.pk, orga.pk),
                                                            ))
@@ -178,7 +177,7 @@ class AssetsCharmsMatrixBlock(Block):
         strategy = context['strategy']
         orga = context['orga']
         return self._render(self.get_block_template_context(context,
-                                                            segments=strategy.get_segments_list(),
+                                                            segment_info=strategy.get_segment_descriptions_list(),
                                                             update_url='/commercial/blocks/assets_charms_matrix/%s/%s/' % (strategy.pk, orga.pk),
                                                            ))
 
@@ -220,7 +219,7 @@ assets_charms_matrix_block = AssetsCharmsMatrixBlock()
 
 blocks_list = (
     approaches_block,
-    SegmentsBlock(),
+    SegmentDescriptionsBlock(),
     AssetsBlock(),
     CharmsBlock(),
     EvaluatedOrgasBlock(),

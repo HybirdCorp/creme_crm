@@ -14,14 +14,14 @@
         //TODO: move to a commercial.js file
         creme.commercial = {};
 
-        creme.commercial.post_score = function(url, model_id, segment_id, orga_id, select, reload_url) {
+        creme.commercial.post_score = function(url, model_id, segment_desc_id, orga_id, select, reload_url) {
             creme.ajax.post({
                         'url': url,
                         'data': {
-                                'score':      $(select).find('[selected="true"]').attr("value"),
-                                'model_id':   model_id,
-                                'segment_id': segment_id,
-                                'orga_id':    orga_id
+                                'score':           $(select).find('[selected="true"]').attr("value"),
+                                'model_id':        model_id,
+                                'segment_desc_id': segment_desc_id,
+                                'orga_id':         orga_id
                             },
                         'success': function(data, status) {
                               creme.utils.loadBlock(reload_url);
