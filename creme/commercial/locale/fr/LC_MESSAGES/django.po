@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-01-04 15:28+0100\n"
+"POT-Creation-Date: 2011-01-05 15:46+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -29,19 +29,19 @@ msgstr ""
 msgid "Commercial approaches"
 msgstr "Démarches commerciales"
 
-#: blocks.py:88 models/strategy.py:46
+#: blocks.py:87 models/strategy.py:50
 msgid "Market segments"
 msgstr "Segments de marché"
 
-#: blocks.py:102 models/strategy.py:318
+#: blocks.py:101 models/strategy.py:343
 msgid "Commercial assets"
 msgstr "Atouts commerciaux"
 
-#: blocks.py:115 models/strategy.py:348
+#: blocks.py:114 models/strategy.py:373
 msgid "Segment charms"
 msgstr "Attraits de segment"
 
-#: blocks.py:129
+#: blocks.py:128
 msgid "Evaluated organisations"
 msgstr "Sociétés évaluées"
 
@@ -49,7 +49,7 @@ msgstr "Sociétés évaluées"
 msgid "Completes a goal (Commercial action)"
 msgstr "Remplit un but (Action Commerciale)"
 
-#: creme_core_register.py:33 models/strategy.py:63
+#: creme_core_register.py:33 models/strategy.py:66
 msgid "Commercial strategy"
 msgstr "Plan commercial"
 
@@ -125,8 +125,9 @@ msgstr "Démo"
 msgid "Com Action view"
 msgstr "Vue d'Action Com"
 
-#: populate.py:60 populate.py:65 models/act.py:93 models/strategy.py:40
-#: models/strategy.py:57 models/strategy.py:312 models/strategy.py:342
+#: populate.py:60 populate.py:65 forms/strategy.py:74 models/act.py:93
+#: models/strategy.py:44 models/strategy.py:61 models/strategy.py:337
+#: models/strategy.py:367
 #: templates/commercial/templatetags/block_assets.html:16
 #: templates/commercial/templatetags/block_charms.html:16
 #: templates/commercial/templatetags/block_evalorgas.html:17
@@ -152,11 +153,11 @@ msgstr "Vue de stratégie"
 msgid "Start"
 msgstr "Début"
 
-#: forms/strategy.py:79
-msgid "Available segments"
-msgstr "Segments disponible"
+#: forms/strategy.py:76
+msgid "General information"
+msgstr "Informations Générales"
 
-#: forms/strategy.py:120
+#: forms/strategy.py:121
 #: templates/commercial/templatetags/block_evalorgas.html:7
 msgid "Organisations"
 msgstr "Sociétés"
@@ -243,24 +244,52 @@ msgstr "Commission payée ?"
 msgid "Date of payment"
 msgstr "Date de paiement"
 
-#: models/strategy.py:45
+#: models/strategy.py:49
 msgid "Market segment"
 msgstr "Segment de marché"
 
-#: models/strategy.py:53
+#: models/strategy.py:57
 #, python-format
 msgid "is in the segment \"%s\""
 msgstr "est du segment \"%s\""
 
-#: models/strategy.py:64
+#: models/strategy.py:67
 msgid "Commercial strategies"
 msgstr "Stratégies commerciales"
 
-#: models/strategy.py:317
+#: models/strategy.py:308
+#: templates/commercial/templatetags/block_segments.html:18
+msgid "Product"
+msgstr "Produit"
+
+#: models/strategy.py:309
+#: templates/commercial/templatetags/block_segments.html:19
+msgid "Place"
+msgstr "Distribution"
+
+#: models/strategy.py:310
+#: templates/commercial/templatetags/block_segments.html:20
+msgid "Price"
+msgstr "Prix"
+
+#: models/strategy.py:311
+#: templates/commercial/templatetags/block_segments.html:21
+msgid "Promotion"
+msgstr "Publicité"
+
+#: models/strategy.py:315
+msgid "Market segment description"
+msgstr "Description de segment de marché"
+
+#: models/strategy.py:316
+msgid "Market segment descriptions"
+msgstr "descriptions de segment de marché"
+
+#: models/strategy.py:342
 msgid "Commercial asset"
 msgstr "Atout commercial"
 
-#: models/strategy.py:347
+#: models/strategy.py:372
 msgid "Segment charm"
 msgstr "Attrait de segment"
 
@@ -359,7 +388,7 @@ msgstr "Nouvel atout commercial"
 #: templates/commercial/templatetags/block_assets.html:17
 #: templates/commercial/templatetags/block_charms.html:17
 #: templates/commercial/templatetags/block_objectives.html:20
-#: templates/commercial/templatetags/block_segments.html:18
+#: templates/commercial/templatetags/block_segments.html:22
 #: templates/commercial/templatetags/block_sell_by.html:10
 msgid "Actions"
 msgstr "Actions"
@@ -380,7 +409,7 @@ msgstr "Segments"
 #: templates/commercial/templatetags/block_assets_charms_matrix.html:24
 #: templates/commercial/templatetags/block_assets_matrix.html:27
 #: templates/commercial/templatetags/block_charms_matrix.html:27
-#: templates/commercial/templatetags/block_segments.html:31
+#: templates/commercial/templatetags/block_segments.html:39
 msgid "No market segment for the moment"
 msgstr "Aucun segment de marché enregistré pour le moment"
 
@@ -645,42 +674,42 @@ msgstr "Nombre d'actions commerciales"
 msgid "List of salesmen"
 msgstr "Liste des commerciaux"
 
-#: views/strategy.py:66 views/strategy.py:74
+#: views/strategy.py:64 views/strategy.py:72
 #, python-format
 msgid "New market segment for <%s>"
 msgstr "Nouveau segment pour <%s>"
 
-#: views/strategy.py:95
+#: views/strategy.py:80
 #, python-format
 msgid "New commercial asset for <%s>"
 msgstr "Nouvel attrait pour <%s>"
 
-#: views/strategy.py:103
+#: views/strategy.py:88
 #, python-format
 msgid "New segment charm for <%s>"
 msgstr "Nouvel attrait pour <%s>"
 
-#: views/strategy.py:111
+#: views/strategy.py:96
 #, python-format
 msgid "New organisation for <%s>"
 msgstr "Nouvelle société pour <%s>"
 
-#: views/strategy.py:137
+#: views/strategy.py:104
 #, python-format
 msgid "Segment for <%s>"
 msgstr "Segment pour <%s>"
 
-#: views/strategy.py:149
+#: views/strategy.py:111
 #, python-format
 msgid "Asset for <%s>"
 msgstr "Atout pour <%s>"
 
-#: views/strategy.py:156
+#: views/strategy.py:118
 #, python-format
 msgid "Charm for <%s>"
 msgstr "Attrait pour <%s>"
 
-#: views/strategy.py:199
+#: views/strategy.py:166
 #, python-format
 msgid ""
 "This organisation <%(orga)s> is not (no more ?) evaluated by the strategy %"
@@ -688,6 +717,9 @@ msgid ""
 msgstr ""
 "Cette société <%(orga)s> n'est pas (n'est plus ?) évaluée par la stratégie %"
 "(strategy)s"
+
+#~ msgid "Available segments"
+#~ msgstr "Segments disponible"
 
 #~ msgid "Target"
 #~ msgstr "Cible"

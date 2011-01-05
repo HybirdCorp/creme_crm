@@ -19,78 +19,20 @@
 ################################################################################
 
 from django.utils.translation import ugettext_lazy as _
-from django.forms import ModelMultipleChoiceField
+from django.forms import CharField
 
 from creme_core.models import CremePropertyType
-from creme_core.forms import CremeForm, CremeModelForm, CremeEntityForm, MultiCremeEntityField
-from creme_core.forms.widgets import UnorderedMultipleChoiceWidget
+from creme_core.forms import CremeForm, CremeModelForm, CremeEntityForm, FieldBlockManager, MultiCremeEntityField
 
 from persons.models import Organisation
 
-from commercial.models import Strategy, MarketSegment, CommercialAsset, MarketSegmentCharm
+from commercial.models import Strategy, MarketSegment, MarketSegmentDescription, CommercialAsset, MarketSegmentCharm
 
 
 class StrategyForm(CremeEntityForm):
     class Meta:
         model = Strategy
         exclude = CremeEntityForm.Meta.exclude + ('evaluated_orgas', 'segments')
-
-
-class _SegmentForm(CremeModelForm):
-    class Meta:
-        model = MarketSegment
-        fields = ('name',)
-
-
-class SegmentEditForm(_SegmentForm):
-    def save(self):
-        segment = super(SegmentEditForm, self).save()
-
-        ptype = segment.property_type
-        ptype.text = MarketSegment.generate_property_text(segment.name)
-        ptype.save()
-
-        return segment
-
-
-class SegmentCreateForm(_SegmentForm):
-    def __init__(self, entity, *args, **kwargs):
-        super(SegmentCreateForm, self).__init__(*args, **kwargs)
-        self._strategy = entity
-
-    def save(self):
-        segment = self.instance
-
-        # is_custom=False ==> CremePropertyType won't be deletable
-        segment.property_type = CremePropertyType.create('commercial-segment',
-                                                         MarketSegment.generate_property_text(self.cleaned_data['name']),
-                                                         generate_pk=True,
-                                                         is_custom=False
-                                                        )
-        super(SegmentCreateForm, self).save()
-
-        self._strategy.segments.add(segment)
-
-        return segment
-
-
-class SegmentLinkForm(CremeForm):
-    segments = ModelMultipleChoiceField(queryset=MarketSegment.objects.all(),
-                                        label=_(u'Available segments'),
-                                        widget=UnorderedMultipleChoiceWidget
-                                       )
-
-    def __init__(self, entity, *args, **kwargs):
-        super(SegmentLinkForm, self).__init__(*args, **kwargs)
-        self._strategy = entity
-
-        self.fields['segments'].queryset = MarketSegment.objects.exclude(strategy=entity)
-
-    def save(self):
-        segments = self._strategy.segments
-
-        for segment in self.cleaned_data['segments']:
-            segments.add(segment)
 
 
 class _AuxForm(CremeModelForm):
@@ -101,9 +43,21 @@ class _AuxForm(CremeModelForm):
         super(_AuxForm, self).__init__(*args, **kwargs)
         self._strategy = entity
 
-    def save(self):
+    def save(self, *args, **kwargs):
         self.instance.strategy = self._strategy
-        return super(_AuxForm, self).save()
+        return super(_AuxForm, self).save(*args, **kwargs)
+
+
+class SegmentLinkForm(_AuxForm):
+    class Meta(_AuxForm.Meta):
+        model = MarketSegmentDescription
+
+    def __init__(self, entity, *args, **kwargs):
+        super(SegmentLinkForm, self).__init__(entity, *args, **kwargs)
+
+        segment_field = self.fields['segment']
+        segment_field.queryset = MarketSegment.objects.exclude(marketsegmentdescription__strategy=entity)
+        segment_field.empty_label = None
 
 
 class AssetForm(_AuxForm):
@@ -114,6 +68,53 @@ class AssetForm(_AuxForm):
 class CharmForm(_AuxForm):
     class Meta(_AuxForm.Meta):
         model = MarketSegmentCharm
+
+
+class _SegmentForm(_AuxForm):
+    name = CharField(label=_(u"Name"), max_length=100)
+
+    blocks = FieldBlockManager(('general', _(u'General information'), ['name', 'product', 'place', 'price', 'promotion']))
+
+    class Meta:
+        model = MarketSegmentDescription
+        exclude = _AuxForm.Meta.exclude + ('segment',)
+
+
+class SegmentEditForm(_SegmentForm):
+    def __init__(self, *args, **kwargs):
+        super(SegmentEditForm, self).__init__(*args, **kwargs)
+        self.fields['name'].initial = self.instance.segment.name
+
+    def save(self):
+        seginfo = super(SegmentEditForm, self).save()
+        name = self.cleaned_data['name']
+
+        segment = seginfo.segment
+        segment.name = name
+        segment.save()
+
+        ptype = segment.property_type
+        ptype.text = MarketSegment.generate_property_text(name)
+        ptype.save()
+
+        return seginfo
+
+
+class SegmentCreateForm(_SegmentForm):
+    def save(self):
+        segment_desc = self.instance
+        name = self.cleaned_data['name']
+
+        # is_custom=False ==> CremePropertyType won't be deletable
+        ptype = CremePropertyType.create('commercial-segment',
+                                         MarketSegment.generate_property_text(name),
+                                         generate_pk=True, is_custom=False
+                                        )
+
+        segment_desc.segment = MarketSegment.objects.create(name=name, property_type=ptype)
+        super(SegmentCreateForm, self).save()
+
+        return segment_desc
 
 
 class AddOrganisationForm(CremeForm):

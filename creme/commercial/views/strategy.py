@@ -29,7 +29,7 @@ from creme_core.utils import get_from_POST_or_404, jsonify
 
 from persons.models import Organisation
 
-from commercial.models import Strategy, MarketSegment, CommercialAsset, MarketSegmentCharm
+from commercial.models import Strategy, MarketSegmentDescription, CommercialAsset, MarketSegmentCharm
 from commercial.forms import strategy as forms
 from commercial.blocks import assets_matrix_block, charms_matrix_block, assets_charms_matrix_block
 
@@ -54,7 +54,6 @@ def detailview(request, strategy_id):
 
 @login_required
 @permission_required('commercial')
-#@change_page_for_last_item_viewed
 def listview(request):
     return generic.list_view(request, Strategy, extra_dict={'add_url': '/commercial/strategy/add'})
 
@@ -73,19 +72,6 @@ def link_segment(request, strategy_id):
                                  _(u"New market segment for <%s>"),
                                  entity_class=Strategy
                                 )
-
-@login_required
-@permission_required('commercial')
-def unlink_segment(request, strategy_id):
-    strategy = get_object_or_404(Strategy, pk=strategy_id)
-    strategy.can_change_or_die(request.user)
-
-    strategy.unlink_segment(get_from_POST_or_404(request.POST, 'id', int))
-
-    if request.is_ajax():
-        return HttpResponse("", mimetype="text/javascript")
-
-    return HttpResponseRedirect(strategy.get_absolute_url())
 
 @login_required
 @permission_required('commercial')
@@ -113,33 +99,10 @@ def add_evalorga(request, strategy_id):
 
 @login_required
 @permission_required('commercial')
-def edit_segment(request, strategy_id, segment_id):
-    strategy = get_object_or_404(Strategy, pk=strategy_id)
-    strategy.can_change_or_die(request.user) #NB: segment can be edited if one strategy that uses it can be edited....
-
-    try:
-        segment = strategy.segments.get(pk=segment_id)
-    except CremePropertyType.DoesNotExist, e:
-        raise Http404(str(e))
-
-    if request.POST:
-        segment_form = forms.SegmentEditForm(request.POST, instance=segment)
-
-        if segment_form.is_valid():
-            segment_form.save()
-    else: # return page on GET request
-        segment_form = forms.SegmentEditForm(instance=segment)
-
-    return generic.inner_popup(request, 'creme_core/generics/blockform/edit_popup.html',
-                               {
-                                'form':  segment_form,
-                                'title': _(u"Segment for <%s>") % strategy,
-                               },
-                               is_valid=segment_form.is_valid(),
-                               reload=False,
-                               delegate_reload=True,
-                               context_instance=RequestContext(request)
-                              )
+def edit_segment(request, strategy_id, seginfo_id):
+    return generic.edit_related_to_entity(request, seginfo_id, MarketSegmentDescription,
+                                          forms.SegmentEditForm, _(u"Segment for <%s>")
+                                         )
 
 @login_required
 @permission_required('commercial')
@@ -159,6 +122,11 @@ def edit_charm(request, charm_id):
 #@permission_required('commercial')
 #def delete_segment(request):
     #return generic.delete_related_to_entity(request, MarketSegment)
+
+@login_required
+@permission_required('commercial')
+def unlink_segment(request, strategy_id):
+    return generic.delete_related_to_entity(request, MarketSegmentDescription)
 
 @login_required
 @permission_required('commercial')
@@ -217,12 +185,12 @@ def _set_score(request, strategy_id, method_name):
 
     POST = request.POST
     model_id   = get_from_POST_or_404(POST, 'model_id', int)
-    segment_id = get_from_POST_or_404(POST, 'segment_id', int)
+    segment_desc_id = get_from_POST_or_404(POST, 'segment_desc_id', int)
     orga_id    = get_from_POST_or_404(POST, 'orga_id', int)
     score      = get_from_POST_or_404(POST, 'score', int)
 
     try:
-        getattr(strategy, method_name)(model_id, segment_id, orga_id, score)
+        getattr(strategy, method_name)(model_id, segment_desc_id, orga_id, score)
     except Exception, e:
         raise Http404(str(e))
 
@@ -241,12 +209,12 @@ def set_segment_category(request, strategy_id):
     strategy.can_change_or_die(request.user)
 
     POST = request.POST
-    segment_id = get_from_POST_or_404(POST, 'segment_id', int)
-    orga_id    = get_from_POST_or_404(POST, 'orga_id', int)
-    category   = get_from_POST_or_404(POST, 'category', int)
+    segment_desc_id = get_from_POST_or_404(POST, 'segment_desc_id', int)
+    orga_id         = get_from_POST_or_404(POST, 'orga_id', int)
+    category        = get_from_POST_or_404(POST, 'category', int)
 
     try:
-        strategy.set_segment_category(segment_id, orga_id, category)
+        strategy.set_segment_category(segment_desc_id, orga_id, category)
     except Exception, e:
         raise Http404(str(e))
 
