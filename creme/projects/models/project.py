@@ -30,7 +30,7 @@ from projects.constants import REL_OBJ_PROJECT_MANAGER
 class Project(CremeEntity):
     name                = CharField(_(u'Name of the project'), max_length=100, blank=True, null=True)
     description         = TextField(_(u'Description'), blank=True, null=True)
-    tstatus              = ForeignKey(ProjectStatus, verbose_name=_(u'Status'))
+    pstatus              = ForeignKey(ProjectStatus, verbose_name=_(u'Status'))
     start_date          = DateTimeField(_(u'Estimated start'), blank=True, null=True)
     end_date            = DateTimeField(_(u'Estimated end'), blank=True, null=True)
     effective_end_date  = DateTimeField(_(u'Effective end date'), blank=True, null=True)

@@ -92,4 +92,4 @@ class Populator(BasePopulator):
         create_hf('billing-hf_creditnote', 'billing-hfi_creditnote_', _(u'Credit note view'), CreditNote)
 
         for model in (Invoice, CreditNote, Quote, SalesOrder):
-            SearchConfigItem.create(model, ['name', 'number', 'total', 'status__name'])
+            SearchConfigItem.create(model, ['name', 'number', 'status__name'])
