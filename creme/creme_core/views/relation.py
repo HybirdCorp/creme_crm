@@ -68,10 +68,10 @@ def __json_select(query, fields, range, sort_field=None, use_columns=False):
 #def __json_parse_filter(filter, allowed_filters, allowed_ops):
 #    field = str(filter[0])
 #    size = len(filter)
-#    
+#
 #    if field not in allowed_filters:
 #        raise JSONSelectError("forbidden filter '%s'" % field, 403)
-#    
+#
 #    if size == 2:
 #        return (field, filter[1])
 #
@@ -92,21 +92,21 @@ def __json_select(query, fields, range, sort_field=None, use_columns=False):
 def __json_parse_field(field, allowed_fields, use_columns=False):
     if field not in allowed_fields.keys():
         raise JSONSelectError("forbidden field '%s'" % field, 403)
-    
+
     if use_columns:
         return field
-    
+
     getter = allowed_fields.get(field)
-        
+
     if not getter:
         raise JSONSelectError("forbidden fields '%s'" % field, 403)
-    
+
     return getter
-    
+
 def __json_parse_fields(fields, allowed_fields, use_columns=False):
     if not fields:
         raise JSONSelectError("no such field", 400)
-    
+
     return list(__json_parse_field(field, allowed_fields, use_columns) for field in fields)
 
 # TODO (refs 293) : unused tool. remove it !
@@ -116,7 +116,7 @@ def __json_parse_fields(fields, allowed_fields, use_columns=False):
 #
 #    use_columns = bool(request.get('value_list', 0))
 #    range = [int(i) if i is not None else None for i in (request.get('start'), request.get('end'))]
-#    
+#
 #    filters = __json_parse_filters(request.getlist('filters'), allowed_filters, allowed_ops)
 #    fields = __json_parse_fields(request.getlist('fields'), allowed_fields, use_columns)
 #    sort = request.get('sort')
@@ -144,7 +144,7 @@ JSON_ENTITY_FIELDS = {
                         'entity_type': lambda e: e.entity_type_id
                      }
 
-# TODO (refs 293) : unused tool. remove it !
+#TODO: unused tool. remove it !
 #@login_required
 #def json_entity_select(request):
 #    try:
@@ -184,7 +184,7 @@ def json_entity_predicates(request, id):
 
 JSON_CONTENT_TYPE_FIELDS = {
                             'unicode':  unicode,
-                            'name':     lambda e: e.name, 
+                            'name':     lambda e: e.name,
                             'id':       lambda e: e.id
                            }
 
@@ -195,7 +195,7 @@ def json_predicate_content_types(request, id):
         content_types = get_object_or_404(RelationType, pk=id).object_ctypes.all()
 
         fields, range, sort, use_columns = __json_parse_select_request(request.GET, JSON_CONTENT_TYPE_FIELDS)
-        
+
         #if not content_type_ids:
         if not content_types:
             content_type_from_model = ContentType.objects.get_for_model
@@ -255,7 +255,7 @@ def add_relations_bulk(request, model_ct_id, ids):
 
     #TODO: improve by regrouping queries
     for entity in entities:
-        entity.can_change_or_die(request.user)
+        entity.can_change_or_die(request.user) #TODO: edit credentials ??? only on subject ??
 
     if POST:
         form = MultiEntitiesRelationCreateForm(entities, request.user.id, None, POST)
@@ -275,25 +275,20 @@ def add_relations_bulk(request, model_ct_id, ids):
                        delegate_reload=True,
                        context_instance=RequestContext(request))
 
+#TODO: deeply think about the relation credentials...
 @login_required
 def delete(request):
-    """
-        @Permissions : Delete on relation's subject entity
-    """
-    POST = request.POST
+    relation = get_object_or_404(Relation, pk=get_from_POST_or_404(request.POST, 'id'))
+    subject  = relation.subject_entity
 
-    relation_id = get_from_POST_or_404(POST, 'id')
-    entity_id   = get_from_POST_or_404(POST, 'object_id')
-
-    relation = get_object_or_404(Relation, pk=relation_id)
-    entity   = get_object_or_404(CremeEntity, pk=entity_id).get_real_entity()
-
-    entity.can_delete_or_die(request.user) #TODO: delete credentials on 'entity' ?? only one ???
-
+    subject.can_delete_or_die(request.user) #TODO: delete credentials on 'subject_entity' ?? only one ???
     relation.get_real_entity().delete()
 
-#    return HttpResponseRedirect(entity.get_absolute_url())
-    return HttpResponse("")
+    if request.is_ajax():
+        return HttpResponse("", mimetype="text/javascript")
+
+    return HttpResponseRedirect(subject.get_absolute_url())
+
 
 @login_required
 def delete_similar(request):
@@ -312,26 +307,32 @@ def delete_similar(request):
     for relation in Relation.objects.filter(subject_entity=subject, type=rtype_id, object_entity=object_id):
         relation.get_real_entity().delete()
 
-    return HttpResponse("")
+    if request.is_ajax():
+        return HttpResponse("", mimetype="text/javascript")
+
+    return HttpResponseRedirect(subject.get_absolute_url())
 
 @login_required
-def add_relation_from_predicate_n_entity(request, predicate_id, subject_id, object_ct_id, o2m=False):
+def objects_to_link_selection(request, rtype_id, subject_id, object_ct_id, o2m=False):
     template_dict = {
-        'predicate_id': predicate_id,
-        'subject_id':   subject_id,
+        'predicate_id': rtype_id,   #TODO: useful ??
+        'subject_id':   subject_id, #TODO: useful ??
         'o2m':          o2m
     }
 
-    #TODo: only one query ??
-    pklist = Relation.objects.filter(type__id=predicate_id, subject_entity__id=subject_id).values_list('object_entity_id') #TODO: can remove the '__id'
-    extra_q = ~Q(pk__in=pklist)
+    #extra_q = ~Q(pk__in=Relation.objects.filter(type=rtype_id, subject_entity=subject_id).values_list('object_entity_id'))
+    rtype   = get_object_or_404(RelationType, pk=rtype_id)
+    extra_q = ~Q(relations__type=rtype.symmetric_type_id, relations__object_entity=subject_id)
 
     return list_view_popup_from_widget(request, object_ct_id, o2m, extra_dict=template_dict, extra_q=extra_q)
 
+
+#TODO: refactor (add unit tests too)
+#TODO: rework credentials (for now: Read on subject & object entities)
 @login_required
-def handle_relation_from_predicate_n_entity(request):
-    """
-        @Permissions : Read on subject entity & Read on object entities
+def add_relations_with_same_type(request):
+    """Allow to create from a POST request several relations with the same
+    relation type, between a subject and several other entities.
     """
     post = request.POST
     entities     = post.getlist('entities')
@@ -375,9 +376,6 @@ def handle_relation_from_predicate_n_entity(request):
 @login_required
 def get_predicates_choices_4_ct(request):
     ct = get_ct_or_404(get_from_POST_or_404(request.POST, 'ct_id'))
-
-    #Why this one is not JSON serializable ?
-#    predicates = RelationType.objects.filter(Q(subject_ctypes=ct)|Q(subject_ctypes__isnull=True)).order_by('predicate').values_list('id', 'predicate')
     predicates = [(rtype.id, rtype.predicate) for rtype in RelationType.get_compatible_ones(ct).order_by('predicate')]
 
     return HttpResponse(JSONEncoder().encode(predicates), mimetype="text/javascript")

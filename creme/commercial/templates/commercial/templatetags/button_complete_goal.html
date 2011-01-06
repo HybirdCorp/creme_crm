@@ -1,6 +1,6 @@
 {% load i18n %}{% load media %}
 {% if has_perm %}
-    <a class="menu_button" onclick="creme.relations.handleAddFromPredicateEntity('/creme_core/relation/add/from/predicate/{{predicate_id}}/entity/{{object.id}}/{{act_ct.id}}', '{{predicate_id}}', '{{object.id}}');">
+    <a class="menu_button" onclick="creme.relations.handleAddFromPredicateEntity('/creme_core/relation/objects2link/rtype/{{predicate_id}}/entity/{{object.id}}/{{act_ct.id}}', '{{predicate_id}}', '{{object.id}}');">
         {% trans "Completes a goal" %}
     </a>
 {% else %}
