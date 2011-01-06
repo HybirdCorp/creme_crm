@@ -320,6 +320,8 @@ def objects_to_link_selection(request, rtype_id, subject_id, object_ct_id, o2m=F
         'o2m':          o2m
     }
 
+    #TODO: add subject = get_object_or_404(CremeEntity, pk=subject_id); subject.can_view_or_die(request.user)
+
     #extra_q = ~Q(pk__in=Relation.objects.filter(type=rtype_id, subject_entity=subject_id).values_list('object_entity_id'))
     rtype   = get_object_or_404(RelationType, pk=rtype_id)
     extra_q = ~Q(relations__type=rtype.symmetric_type_id, relations__object_entity=subject_id)

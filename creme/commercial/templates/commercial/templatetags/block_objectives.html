@@ -2,7 +2,7 @@
 {% load creme_core_tags %}{% load creme_block %}
 {% has_perm_to change object as has_perm %}
 <table class="table_detail_view ui-corner-all" id={{block_name}}>
-    {% get_block_header colspan=4 %}
+    {% get_block_header colspan=5 %}
         <th style="width: 80%;" align="left" class="collapser">{% get_block_title _('%s Objective') _('%s Objectives') %}</th>
         <th style="width: 20%;" align="right">
             <div class="buttons">
@@ -16,24 +16,27 @@
             <tr>
                 {% get_column_header _('Name') 'name' %}
                 <th class="block_header_line_dark">{% trans "Counter" %}</th>
+                <th class="block_header_line_dark">{% trans "Goal" %}</th>
                 <th class="block_header_line_dark">{% trans "Reached" %}</th>
                 <th class="block_header_line_dark">{% trans "Actions" %}</th>
             </tr>
             {% for objective in page.object_list %}<!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
                 <tr>
                     <td class="{{row_color}}">{{objective}}</td>
-                    {% if not objective.ctype %}
-                        <td class="{{row_color}}">
+                    <td class="{{row_color}}">
+                        {% if not objective.ctype %}
                             <button type="button" {% if not has_perm %}disabled="true"{% else %}onclick="creme.commercial.incr_counter(-1, '/commercial/objective/{{objective.id}}/incr', {% get_block_reload_uri %})"{% endif %} name="incr_objective_counter{{objective.id}}">-</button>
                             {{objective.counter}}
                             <button type="button" {% if not has_perm %}disabled="true"{% else %}onclick="creme.commercial.incr_counter(1, '/commercial/objective/{{objective.id}}/incr', {% get_block_reload_uri %})"{% endif %} name="decr_objective_counter{{objective.id}}">+</button>
-                        </td>
-                        <td class="{{row_color}}">
-                            <input type="checkbox" {% if objective.reached %}checked{% endif %} {% if not has_perm %}disabled="true"{% else %}onchange="creme.commercial.post_reach('/commercial/objective/{{objective.id}}/reach', this,  {% get_block_reload_uri %});"{% endif %} name="reached_objective{{objective.id}}" />
-                        </td>
+                        {% else %}
+                            {{objective.get_count}} ({{objective.ctype}})
+                        {% endif %}
+                    </td>
+                    <td class="{{row_color}}">{{objective.counter_goal}}</td>
+                    {% if objective.reached %}
+                        <td class="{{row_color}} td_valid">{% trans "Yes"%}</td>
                     {% else %}
-                        <td class="{{row_color}}">{{objective.get_relations_count}} ({{objective.ctype}})</td>
-                        <td class="{{row_color}}"></td>
+                        <td class="{{row_color}} td_error">{% trans "No"%}</td>
                     {% endif %}
                     <td class="{{row_color}}" align="center" valign="center" style="width:10%;">
                         {% get_line_editor at_url '/commercial/objective/{{objective.id}}/edit' with_perms has_perm %}

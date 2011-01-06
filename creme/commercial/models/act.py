@@ -44,12 +44,9 @@ class ActType(CremeModel):
 
 class Act(CremeEntity):
     name           = CharField(_(u"Name of the commercial action"), max_length=100)
-    #ca_expected   = PositiveIntegerField(_(u'Expected sales'), blank=True, null=True)
     expected_sales = PositiveIntegerField(_(u'Expected sales'), blank=True, null=True)
     cost           = PositiveIntegerField(_(u"Cost of the commercial action"), blank=True, null=True)
-    #target        = TextField(_(u'Target'), blank=True, null=True)
     goal           = TextField(_(u"Goal of the action"), blank=True, null=True)
-    #aim           = TextField(_(u'Objectives to achieve'), blank=True, null=True)
     start          = DateField(_(u'Start'))
     due_date       = DateField(_(u'Due date'))
     act_type       = ForeignKey(ActType, verbose_name=_(u'Type'))
@@ -90,11 +87,13 @@ class Act(CremeEntity):
 
 
 class ActObjective(CremeModel):
-    name    = CharField(_(u"Name"), max_length=100)
-    act     = ForeignKey(Act)
-    counter = PositiveIntegerField(_(u'Counter'), default=0)
-    reached = BooleanField(_(u'Reached'), default=False)
-    ctype   = ForeignKey(ContentType, verbose_name=_(u'Counted type'), null=True)
+    name         = CharField(_(u"Name"), max_length=100)
+    act          = ForeignKey(Act)
+    counter      = PositiveIntegerField(_(u'Counter'), default=0)
+    counter_goal = PositiveIntegerField(_(u'Value to reach'), default=1)
+    ctype        = ForeignKey(ContentType, verbose_name=_(u'Counted type'), null=True)
+
+    _count_cache = None
 
     class Meta:
         app_label = "commercial"
@@ -107,9 +106,16 @@ class ActObjective(CremeModel):
     def get_related_entity(self): #NB: see edit_related_to_entity()
         return self.act
 
-    #TODO: optimise by regrouping queries
-    def get_relations_count(self): #TODO: get_count that works with custom objectives too ??
-        return Relation.objects.filter(type=REL_SUB_COMPLETE_GOAL,
-                                       object_entity=self.act_id,
-                                       subject_entity__entity_type=self.ctype_id) \
-                               .count()
+    def get_count(self):
+        if self._count_cache is None:
+            self._count_cache =  self.counter if not self.ctype else \
+                                 Relation.objects.filter(type=REL_SUB_COMPLETE_GOAL,
+                                                         object_entity=self.act_id,
+                                                         subject_entity__entity_type=self.ctype_id) \
+                                                 .count()
+
+        return self._count_cache
+
+    @property
+    def reached(self):
+        return self.get_count() >= self.counter_goal

@@ -875,8 +875,13 @@ class ActTestCase(LoggedTestCase):
         self.assertEqual(0,   ActObjective.objects.count())
 
         name = 'Objective#1'
+        counter_goal = 20
         response = self.client.post('/commercial/act/%s/add/custom_objective' % act.id,
-                                    data={'name': name})
+                                    data={
+                                            'name':         name,
+                                            'counter_goal': counter_goal,
+                                         }
+                                   )
         self.assertEqual(200, response.status_code)
         self.assertNoFormError(response)
 
@@ -886,10 +891,19 @@ class ActTestCase(LoggedTestCase):
         self.assertEqual(1, len(objectives))
 
         objective = objectives[0]
-        self.assertEqual(name,   objective.name)
-        self.assertEqual(act.id, objective.act_id)
-        self.assertEqual(0,      objective.counter)
+        self.assertEqual(name,         objective.name)
+        self.assertEqual(act.id,       objective.act_id)
+        self.assertEqual(0,            objective.counter)
+        self.assertEqual(counter_goal, objective.counter_goal)
+
+        self.assertEqual(0, objective.get_count())
         self.failIf(objective.reached)
+
+        objective.counter = counter_goal
+        objective.save()
+        objective = ActObjective.objects.get(pk=objective.id) #refresh cache
+        self.assertEqual(counter_goal, objective.get_count())
+        self.assert_(objective.reached)
 
     def test_add_objective02(self):
         act = self.create_act()
@@ -898,11 +912,13 @@ class ActTestCase(LoggedTestCase):
         self.assertEqual(0,   ActObjective.objects.count())
 
         name  = 'Objective#2'
+        counter_goal = 2
         ct_id = ContentType.objects.get_for_model(Organisation).id
         response = self.client.post('/commercial/act/%s/add/relation_objective' % act.id,
                                     data={
-                                            'name':  name,
-                                            'ctype': ct_id,
+                                            'name':         name,
+                                            'ctype':        ct_id,
+                                            'counter_goal': counter_goal,
                                          }
                                    )
         self.assertEqual(200, response.status_code)
@@ -913,28 +929,34 @@ class ActTestCase(LoggedTestCase):
         self.assertEqual(1, len(objectives))
 
         objective = objectives[0]
-        self.assertEqual(name,   objective.name)
-        self.assertEqual(act.id, objective.act_id)
-        self.assertEqual(0,      objective.counter)
-        self.assertEqual(ct_id,  objective.ctype_id)
+        self.assertEqual(name,         objective.name)
+        self.assertEqual(act.id,       objective.act_id)
+        self.assertEqual(0,            objective.counter)
+        self.assertEqual(counter_goal, objective.counter_goal)
+        self.assertEqual(ct_id,        objective.ctype_id)
 
     def test_edit_objective01(self):
         act = self.create_act()
         objective = ActObjective.objects.create(act=act, name='OBJ#1')
+        self.assertEqual(1, objective.counter_goal)
 
         response = self.client.get('/commercial/objective/%s/edit' % objective.id)
         self.assertEqual(200, response.status_code)
 
         name = 'OBJ_NAME'
+        counter_goal = 3
         response = self.client.post('/commercial/objective/%s/edit' % objective.id,
                                     data={
-                                            'name': name
+                                            'name':         name,
+                                            'counter_goal': counter_goal,
                                          }
                                    )
         self.assertEqual(200, response.status_code)
+        self.assertNoFormError(response)
 
         objective = ActObjective.objects.get(pk=objective.id)
-        self.assertEqual(name, objective.name)
+        self.assertEqual(name,         objective.name)
+        self.assertEqual(counter_goal, objective.counter_goal)
 
     def test_delete_objective01(self):
         act = self.create_act()
@@ -955,40 +977,36 @@ class ActTestCase(LoggedTestCase):
 
         response = self.client.post('/commercial/objective/%s/incr' % objective.id, data={'diff': -3})
         self.assertEqual(200, response.status_code)
-        self.assertEqual(-2, ActObjective.objects.get(pk=objective.id).counter)
-
-    def test_reach_objective(self):
-        act = self.create_act()
-        objective = ActObjective.objects.create(act=act, name='OBJ#1')
-        self.failIf(objective.reached)
-
-        response = self.client.post('/commercial/objective/%s/reach' % objective.id, data={'reached': 'true'})
-        self.assertEqual(200, response.status_code)
-        self.assert_(ActObjective.objects.get(pk=objective.id).reached)
-
-        response = self.client.post('/commercial/objective/%s/reach' % objective.id, data={'reached': 'false'})
-        self.assertEqual(200, response.status_code)
-        self.failIf(ActObjective.objects.get(pk=objective.id).reached)
+        self.assertEqual(-2,  ActObjective.objects.get(pk=objective.id).counter)
 
     def test_count_relations(self):
         PopulateCommand().handle(application=['commercial']) #'creme_core', 'persons'
         RelationType.objects.get(pk=REL_SUB_COMPLETE_GOAL) #raise exception if error
 
         act = self.create_act()
-        objective = ActObjective.objects.create(act=act, name='Orga counter', ctype=ContentType.objects.get_for_model(Organisation))
-        self.assertEqual(0, objective.get_relations_count())
+        objective = ActObjective.objects.create(act=act, name='Orga counter', counter_goal=2,
+                                                ctype=ContentType.objects.get_for_model(Organisation)
+                                               )
+        self.assertEqual(0, objective.get_count())
+        self.failIf(objective.reached)
 
         orga01 = Organisation.objects.create(user=self.user, name='Ferraille corp')
         Relation.create(orga01, REL_SUB_COMPLETE_GOAL, act, user_id=self.user.pk)
-        self.assertEqual(1, objective.get_relations_count())
+        objective = ActObjective.objects.get(pk=objective.id) #refresh cache
+        self.assertEqual(1, objective.get_count())
+        self.failIf(objective.reached)
 
         orga02 = Organisation.objects.create(user=self.user, name='World company')
         Relation.create(orga02, REL_SUB_COMPLETE_GOAL, act, user_id=self.user.pk)
-        self.assertEqual(2, objective.get_relations_count())
+        objective = ActObjective.objects.get(pk=objective.id) #refresh cache
+        self.assertEqual(2, objective.get_count())
+        self.assert_(objective.reached)
 
         contact = Contact.objects.create(user=self.user, first_name='Monsieur', last_name='Ferraille')
         Relation.create(contact, REL_SUB_COMPLETE_GOAL, act, user_id=self.user.pk)
-        self.assertEqual(2, objective.get_relations_count())
+        objective = ActObjective.objects.get(pk=objective.id) #refresh cache
+        self.assertEqual(2, objective.get_count())
+        self.assert_(objective.reached)
 
     def test_related_opportunities(self):
         PopulateCommand().handle(application=['commercial']) #'creme_core', 'persons'

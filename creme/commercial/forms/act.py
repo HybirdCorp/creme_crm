@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import ugettext_lazy as _, ugettext
 
 from creme_core.forms import CremeEntityForm, CremeModelForm, CremeDateTimeField
 from creme_core.utils import Q_creme_entity_content_types
@@ -37,11 +37,13 @@ class ActForm(CremeEntityForm):
 class ObjectiveForm(CremeModelForm):
     class Meta:
         model = ActObjective
-        fields = ('name',)
+        fields = ('name', 'counter_goal')
 
     def __init__(self, entity, *args, **kwargs):
         super(ObjectiveForm, self).__init__(*args, **kwargs)
         self.act = entity
+
+        self.fields['counter_goal'].help_text = ugettext(u'Integer value the counter has to reach')
 
     def save(self, *args, **kwargs):
         self.instance.act = self.act
@@ -50,7 +52,7 @@ class ObjectiveForm(CremeModelForm):
 
 class RelationObjectiveForm(ObjectiveForm):
     class Meta(ObjectiveForm.Meta):
-        fields = ('name', 'ctype')
+        fields = ObjectiveForm.Meta.fields + ('ctype',)
 
     def __init__(self, *args, **kwargs):
         super(RelationObjectiveForm, self).__init__(*args, **kwargs)
