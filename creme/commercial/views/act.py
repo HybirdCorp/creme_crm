@@ -106,14 +106,3 @@ def bool_from_str(string):
         return b
 
     raise ValueError('Can not be coerce to a boolean value: %s' % str(string))
-
-@login_required
-@permission_required('commercial')
-def reach_objective(request, objective_id): #TODO: test if relation Objective ???
-    objective = get_object_or_404(ActObjective, pk=objective_id)
-    objective.act.can_change_or_die(request.user)
-
-    objective.reached = get_from_POST_or_404(request.POST, 'reached', bool_from_str)
-    objective.save()
-
-    return HttpResponse()

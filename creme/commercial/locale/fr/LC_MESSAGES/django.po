@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-01-05 15:46+0100\n"
+"POT-Creation-Date: 2011-01-06 18:37+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -125,7 +125,7 @@ msgstr "Démo"
 msgid "Com Action view"
 msgstr "Vue d'Action Com"
 
-#: populate.py:60 populate.py:65 forms/strategy.py:74 models/act.py:93
+#: populate.py:60 populate.py:65 forms/strategy.py:74 models/act.py:90
 #: models/strategy.py:44 models/strategy.py:61 models/strategy.py:337
 #: models/strategy.py:367
 #: templates/commercial/templatetags/block_assets.html:16
@@ -137,11 +137,11 @@ msgstr "Vue d'Action Com"
 msgid "Name"
 msgstr "Nom"
 
-#: populate.py:61 models/act.py:48
+#: populate.py:61 models/act.py:47
 msgid "Expected sales"
 msgstr "CA espéré"
 
-#: populate.py:62 forms/act.py:31 models/act.py:54
+#: populate.py:62 forms/act.py:31 models/act.py:51
 msgid "Due date"
 msgstr "Échéance"
 
@@ -149,9 +149,13 @@ msgstr "Échéance"
 msgid "Strategy view"
 msgstr "Vue de stratégie"
 
-#: forms/act.py:30 models/act.py:53
+#: forms/act.py:30 models/act.py:50
 msgid "Start"
 msgstr "Début"
+
+#: forms/act.py:46
+msgid "Integer value the counter has to reach"
+msgstr "Valeur entière que le compteur doit atteindre"
 
 #: forms/strategy.py:76
 msgid "General information"
@@ -179,43 +183,43 @@ msgstr "Types d'Action Commerciales"
 msgid "Name of the commercial action"
 msgstr "Nom de l'action commerciale"
 
-#: models/act.py:49
+#: models/act.py:48
 msgid "Cost of the commercial action"
 msgstr "Coût de l'action commerciale"
 
-#: models/act.py:51
+#: models/act.py:49
 msgid "Goal of the action"
 msgstr "But de l'action"
 
-#: models/act.py:55
+#: models/act.py:52
 msgid "Type"
 msgstr "Type"
 
-#: models/act.py:61
+#: models/act.py:58
 msgid "Commercial Action"
 msgstr "Action Commerciale"
 
-#: models/act.py:62
+#: models/act.py:59
 msgid "Commercial Actions"
 msgstr "Actions Commerciales"
 
-#: models/act.py:95 templates/commercial/templatetags/block_objectives.html:18
+#: models/act.py:92 templates/commercial/templatetags/block_objectives.html:18
 msgid "Counter"
 msgstr "Compteur"
 
-#: models/act.py:96 templates/commercial/templatetags/block_objectives.html:19
-msgid "Reached"
-msgstr "Atteint"
+#: models/act.py:93
+msgid "Value to reach"
+msgstr "Valeur à atteindre"
 
-#: models/act.py:97
+#: models/act.py:94
 msgid "Counted type"
 msgstr "Type compté"
 
-#: models/act.py:101
+#: models/act.py:100
 msgid "Commercial Objective"
 msgstr "Objectif Commercial"
 
-#: models/act.py:102
+#: models/act.py:101
 msgid "Commercial Objectives"
 msgstr "Objectifs Commerciaux"
 
@@ -387,7 +391,7 @@ msgstr "Nouvel atout commercial"
 
 #: templates/commercial/templatetags/block_assets.html:17
 #: templates/commercial/templatetags/block_charms.html:17
-#: templates/commercial/templatetags/block_objectives.html:20
+#: templates/commercial/templatetags/block_objectives.html:21
 #: templates/commercial/templatetags/block_segments.html:22
 #: templates/commercial/templatetags/block_sell_by.html:10
 msgid "Actions"
@@ -545,7 +549,23 @@ msgstr "Nouvel objectif de relation"
 msgid "New custom objective"
 msgstr "Nouvel objectif personnalisé"
 
-#: templates/commercial/templatetags/block_objectives.html:46
+#: templates/commercial/templatetags/block_objectives.html:19
+msgid "Goal"
+msgstr "But"
+
+#: templates/commercial/templatetags/block_objectives.html:20
+msgid "Reached"
+msgstr "Atteint"
+
+#: templates/commercial/templatetags/block_objectives.html:37
+msgid "Yes"
+msgstr "Oui"
+
+#: templates/commercial/templatetags/block_objectives.html:39
+msgid "No"
+msgstr "Non"
+
+#: templates/commercial/templatetags/block_objectives.html:49
 msgid "No objective for the moment"
 msgstr "Aucun objectif pour le moment"
 
@@ -717,15 +737,3 @@ msgid ""
 msgstr ""
 "Cette société <%(orga)s> n'est pas (n'est plus ?) évaluée par la stratégie %"
 "(strategy)s"
-
-#~ msgid "Available segments"
-#~ msgstr "Segments disponible"
-
-#~ msgid "Target"
-#~ msgstr "Cible"
-
-#~ msgid "Objectives to achieve"
-#~ msgstr "Objectifs à réaliser"
-
-#~ msgid "Add"
-#~ msgstr "Ajouter"
