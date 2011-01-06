@@ -6,7 +6,7 @@
         <th style="width: 80%;" align="left" class="collapser">{% get_block_title _('%s Related opportunity') _('%s Related opportunities') 'opportunity_48.png' _('Opportunity') %}</th>
         <th style="width: 20%;" align="right">
             <div class="buttons">
-                <a class="link" onclick="creme.relations.handleAddFromPredicateEntity('/creme_core/relation/add/from/predicate/{{predicate_id}}/entity/{{object.id}}/{{opp_ct.id}}', '{{predicate_id}}', '{{object.id}}', {% get_block_reload_uri %});">
+                <a class="link" onclick="creme.relations.handleAddFromPredicateEntity('/creme_core/relation/objects2link/rtype/{{predicate_id}}/entity/{{object.id}}/{{opp_ct.id}}', '{{predicate_id}}', '{{object.id}}', {% get_block_reload_uri %});">
                     <img src="{% media_url 'images/relations_22.png' %}" border="0" title="{% trans "Link to an existing opportunity" %}" alt="{% trans "Link to an existing opportunity" %}" />
                     {% trans "Link to an existing opportunity" %}
                 </a>

@@ -7,6 +7,9 @@ from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 
 from creme_core.models import *
+from creme_core.management.commands.creme_populate import Command as PopulateCommand
+
+from persons.models import Contact, Organisation #TODO: find a way to create model that inherit CremeEntity in the unit tests ??
 
 
 class ViewsTestCase(TestCase):
@@ -204,3 +207,103 @@ class ViewsTestCase(TestCase):
         self.assertEqual(0,   CremeProperty.objects.filter(pk=prop.id).count())
 
     #TODO: test get_property_types_for_ct(), add_to_entities()
+
+    def _aux_relation_objects_to_link_selection(self):
+        PopulateCommand().handle(application=['creme_core', 'persons'])
+
+        self.assertEqual(1, Contact.objects.count())
+        self.contact01 = Contact.objects.all()[0] #NB: Fulbert Creme
+
+        self.subject   = CremeEntity.objects.create(user=self.user)
+        self.contact02 = Contact.objects.create(user=self.user, first_name='Laharl', last_name='Overlord')
+        self.contact03 = Contact.objects.create(user=self.user, first_name='Etna',   last_name='Devil')
+        self.orga01    = Organisation.objects.create(user=self.user, name='Earth Defense Force')
+
+        self.rtype, sym_rtype = RelationType.create(('test-subject_foobar', 'is loving',   [Contact]),
+                                               ('test-object_foobar',  'is loved by', [Contact])
+                                              )
+
+    def test_relation_objects_to_link_selection01(self):
+        self._aux_relation_objects_to_link_selection()
+
+        ct = ContentType.objects.get_for_model(Contact)
+        response = self.client.get('/creme_core/relation/objects2link/rtype/%s/entity/%s/%s' % \
+                                        (self.rtype.id, self.subject.id, ct.id)
+                                  )
+        self.assertEqual(200, response.status_code)
+
+        try:
+            entities = response.context['entities']
+        except Exception, e:
+            self.fail('%s : %s' % (e.__class__.__name__, str(e)))
+
+        contacts = entities.object_list
+        self.assertEqual(3, len(contacts))
+        self.assert_(all(isinstance(c, Contact) for c in contacts))
+        self.assertEqual(set([self.contact01.id, self.contact02.id, self.contact03.id]),
+                         set(c.id for c in contacts)
+                        )
+
+    def test_relation_objects_to_link_selection02(self):
+        self._aux_relation_objects_to_link_selection()
+
+        #contact03 will not be proposed by the listview
+        Relation.objects.create(user=self.user, type=self.rtype, subject_entity=self.subject, object_entity=self.contact03)
+
+        ct = ContentType.objects.get_for_model(Contact)
+        response = self.client.get('/creme_core/relation/objects2link/rtype/%s/entity/%s/%s' % \
+                                        (self.rtype.id, self.subject.id, ct.id)
+                                  )
+        self.assertEqual(200, response.status_code)
+
+        contacts = response.context['entities'].object_list
+        self.assertEqual(2, len(contacts))
+        self.assertEqual(set([self.contact01.id, self.contact02.id]), set(c.id for c in contacts))
+
+    def test_relation_delete(self):
+        subject_entity = CremeEntity.objects.create(user=self.user)
+        object_entity  = CremeEntity.objects.create(user=self.user)
+
+        rtype, sym_rtype = RelationType.create(('test-subject_foobar', 'is loving'), ('test-object_foobar',  'is loved by'))
+        relation = Relation.objects.create(user=self.user, type=rtype, subject_entity=subject_entity, object_entity=object_entity)
+        sym_relation = relation.symmetric_relation
+
+        response = self.client.post('/creme_core/relation/delete', data={'id': relation.id})
+        self.assertEqual(302, response.status_code)
+
+        self.assertEqual(0, Relation.objects.filter(pk__in=[relation.pk, sym_relation.pk]).count())
+
+    def test_relation_delete_similar(self):
+        subject_entity01 = CremeEntity.objects.create(user=self.user)
+        object_entity01  = CremeEntity.objects.create(user=self.user)
+
+        subject_entity02 = CremeEntity.objects.create(user=self.user)
+        object_entity02  = CremeEntity.objects.create(user=self.user)
+
+        rtype01, useless = RelationType.create(('test-subject_love', 'is loving'), ('test-object_love', 'is loved by'))
+        rtype02, useless = RelationType.create(('test-subject_son',  'is son of'), ('test-object_son',  'is parent of'))
+
+        #will be deleted (normally)
+        relation01 = Relation.objects.create(user=self.user, type=rtype01, subject_entity=subject_entity01, object_entity=object_entity01)
+        relation02 = Relation.objects.create(user=self.user, type=rtype01, subject_entity=subject_entity01, object_entity=object_entity01)
+
+        #won't be deleted (normally)
+        relation03 = Relation.objects.create(user=self.user, type=rtype01, subject_entity=subject_entity01, object_entity=object_entity02) #different object
+        relation04 = Relation.objects.create(user=self.user, type=rtype01, subject_entity=subject_entity02, object_entity=object_entity01) #different subject
+        relation05 = Relation.objects.create(user=self.user, type=rtype02, subject_entity=subject_entity01, object_entity=object_entity01) #different type
+
+        self.assertEqual(10, Relation.objects.count())
+
+        response = self.client.post('/creme_core/relation/delete/similar',
+                                    data={
+                                            'subject_id': subject_entity01.id,
+                                            'type':       rtype01.id,
+                                            'object_id':  object_entity01.id,
+                                         }
+                                   )
+        self.assertEqual(302, response.status_code)
+        self.assertEqual(0,   Relation.objects.filter(pk__in=[relation01.pk, relation02.pk]).count())
+        self.assertEqual(3,   Relation.objects.filter(pk__in=[relation03.pk, relation04.pk, relation05.pk]).count())
+
+        #TODO: test other relation views...
+

@@ -22,6 +22,7 @@
 
 if(!creme.relations) creme.relations = {}
 
+//TODO: is 'url' arg useful ?? (it is always '/creme_core/relation/objects2link/rtype/...')
 creme.relations.handleAddFromPredicateEntity = function(url, predicate_id, subject_id, block_reload_url) {
     var options = {
                 'send_button': function(dialog){

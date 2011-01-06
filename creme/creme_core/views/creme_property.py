@@ -31,6 +31,7 @@ from creme_core.forms.creme_property import AddPropertiesForm
 from creme_core.utils import get_ct_or_404, get_from_POST_or_404
 
 
+#TODO: use  a true form (like the bulk) relation adding
 @login_required
 def add_to_entities(request):
     POST          = request.POST

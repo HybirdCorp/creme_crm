@@ -30,7 +30,7 @@
                     <tr>
                         <td class="{{row_color}}"><a href="{{entity_obj.get_absolute_url}}">{{entity_obj}}</a></td>
                         <td class="{{row_color}}" align="center" valign="center" style="width:10%;">
-                            {% get_line_deletor at_url '/creme_core/relation/delete' with_args "{'id':{{relation.pk}}, 'object_id':{{object.pk}} }" %}
+                            {% get_line_deletor at_url '/creme_core/relation/delete' with_args "{'id':{{relation.pk}} }" %}
                         </td>
                     </tr>
                 {% endwith %}

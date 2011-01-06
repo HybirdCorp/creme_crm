@@ -41,7 +41,7 @@ class ManagersBlock(QuerysetBlock):
         return self._render(self.get_block_template_context(context,
                                                             orga.get_managers(),
                                                             update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, orga.pk),
-                                                            predicate_id=REL_OBJ_MANAGES,
+                                                            predicate_id=REL_OBJ_MANAGES, #TODO: rename to 'relation_type_id' ??
                                                             ct=ContentType.objects.get_for_model(Contact),
                                                             ))
 
