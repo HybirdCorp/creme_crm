@@ -69,6 +69,6 @@ class Populator(BasePopulator):
         create(HeaderFilterItem, pref + 'contact', order=1, name='linked_contact', title=_(u'Name of the resource'), type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True, editable=True, sortable=True, filter_string="linked_contact__icontains")
         create(HeaderFilterItem, pref + 'cost',    order=2, name='hourly_cost',    title=_(u'Hourly cost'),          type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True, editable=True, sortable=True, filter_string="hourly_cost__icontains")
 
-        SearchConfigItem.create(Project,     ['name', 'description', 'pstatus__name'])
+        SearchConfigItem.create(Project,     ['name', 'description', 'status__name'])
         SearchConfigItem.create(Resource,    ['linked_contact__first_name', 'linked_contact__last_name', 'hourly_cost'])
         SearchConfigItem.create(ProjectTask, ['project__name', 'duration', 'tstatus__name'])
