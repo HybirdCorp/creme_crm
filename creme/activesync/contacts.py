@@ -55,16 +55,16 @@ CREME_CONTACT_MAPPING = {
 #        'sector__sector_name'     : None,
         'email'                   : 'Email1Address',
         'url_site'                : 'WebPage',
-        'billing_adress__city'    : 'BusinessCity',
-        'billing_adress__state'   : 'BusinessState',
-        'billing_adress__country' : 'BusinessCountry',
-        'billing_adress__po_box'  : 'BusinessPostalCode',
-        'billing_adress__address' : 'BusinessStreet',
-        'shipping_adress__city'   : 'OtherCity',
-        'shipping_adress__state'  : 'OtherState',
-        'shipping_adress__country': 'OtherCountry',
-        'shipping_adress__po_box' : 'OtherPostalCode',
-        'shipping_adress__address': 'OtherStreet',
+        'billing_address__city'   : 'BusinessCity',
+        'billing_address__state'  : 'BusinessState',
+        'billing_address__country': 'BusinessCountry',
+        'billing_address__po_box' : 'BusinessPostalCode',
+        'billing_address__address': 'BusinessStreet',
+        'shipping_address__city'   : 'OtherCity',
+        'shipping_address__state'  : 'OtherState',
+        'shipping_address__country': 'OtherCountry',
+        'shipping_address__po_box' : 'OtherPostalCode',
+        'shipping_address__address': 'OtherStreet',
         'birthday'                : 'Birthday',
         get_encoded_contact_img   : 'Picture',#'image'
 #        ''                        : 'CompanyName',
@@ -86,41 +86,41 @@ if not IS_ZPUSH:
 
 
 ### Contact helpers
-def create_or_update_adress(contact, prefix, d):
+def create_or_update_address(contact, prefix, d):
     dpop_ = d.pop
-    adress = getattr(contact, '%s_adress' % prefix)#if exception happens means model change
-    if adress is not None:
-        city = dpop_('%s_adress__city' % prefix, None)
+    address = getattr(contact, '%s_address' % prefix)#if exception happens means model change
+    if address is not None:
+        city = dpop_('%s_address__city' % prefix, None)
         if city:
-            adress.city = city
+            address.city = city
 
-        state = dpop_('%s_adress__state' % prefix, None)
+        state = dpop_('%s_address__state' % prefix, None)
         if state:
-            adress.state = state
+            address.state = state
 
-        country = dpop_('%s_adress__country' % prefix, None)
+        country = dpop_('%s_address__country' % prefix, None)
         if country:
-            adress.country = country
+            address.country = country
 
-        po_box = dpop_('%s_adress__po_box' % prefix, None)
+        po_box = dpop_('%s_address__po_box' % prefix, None)
         if po_box:
-            adress.po_box = po_box
+            address.po_box = po_box
 
-        _address = dpop_('%s_adress__address' % prefix, None)
+        _address = dpop_('%s_address__address' % prefix, None)
         if _address:
-            adress.address = _address
+            address.address = _address
 
-        adress.save()
+        address.save()
     else:
-        c_address = Address(city=dpop_('%s_adress__city' % prefix, None),
-                    state=dpop_('%s_adress__state' % prefix, None),
-                    country=dpop_('%s_adress__country' % prefix, None),
-                    po_box=dpop_('%s_adress__po_box' % prefix, None),
-                    address=dpop_('%s_adress__address' % prefix, None))
+        c_address = Address(city=dpop_('%s_address__city' % prefix, None),
+                    state=dpop_('%s_address__state' % prefix, None),
+                    country=dpop_('%s_address__country' % prefix, None),
+                    po_box=dpop_('%s_address__po_box' % prefix, None),
+                    address=dpop_('%s_address__address' % prefix, None))
         c_address.content_type = ContentType.objects.get_for_model(Contact)
         c_address.object_id = contact.id
         c_address.save()
-        setattr(contact, '%s_adress' % prefix, c_address)
+        setattr(contact, '%s_address' % prefix, c_address)
 
 def create_or_update_civility(contact, d):
     civility_name = d.pop('civility__civility_name', None)
@@ -156,19 +156,19 @@ def save_contact(data, user):
     create_or_update_civility(c, data)
     create_or_update_function(c, data)
 
-    b_address = Address(city=pop_('billing_adress__city', None),
-                        state=pop_('billing_adress__state', None),
-                        country=pop_('billing_adress__country', None),
-                        po_box=pop_('billing_adress__po_box', None),
-                        address=pop_('billing_adress__address', None))
-    c.billing_adress  = b_address
+    b_address = Address(city=pop_('billing_address__city', None),
+                        state=pop_('billing_address__state', None),
+                        country=pop_('billing_address__country', None),
+                        po_box=pop_('billing_address__po_box', None),
+                        address=pop_('billing_address__address', None))
+    c.billing_address  = b_address
 
-    s_address = Address(city=pop_('shipping_adress__city', None),
-                        state=pop_('shipping_adress__state', None),
-                        country=pop_('shipping_adress__country', None),
-                        po_box=pop_('shipping_adress__po_box', None),
-                        address=pop_('shipping_adress__address', None))
-    c.shipping_adress = s_address
+    s_address = Address(city=pop_('shipping_address__city', None),
+                        state=pop_('shipping_address__state', None),
+                        country=pop_('shipping_address__country', None),
+                        po_box=pop_('shipping_address__po_box', None),
+                        address=pop_('shipping_address__address', None))
+    c.shipping_address = s_address
 
     create_image_from_b64(c, data, user)
         
@@ -196,8 +196,8 @@ def update_contact(contact, data):
     create_or_update_civility(contact, data)
     create_or_update_function(contact, data)
 
-    create_or_update_adress(contact, 'billing',  data)
-    create_or_update_adress(contact, 'shipping', data)
+    create_or_update_address(contact, 'billing',  data)
+    create_or_update_address(contact, 'shipping', data)
 
     create_image_from_b64(contact, data, contact.user)
 

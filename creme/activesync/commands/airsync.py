@@ -25,6 +25,7 @@ from xml.etree.ElementTree import tostring
 from django.db.models import Q
 from django.contrib.auth.models import User
 from django.utils.translation import ugettext_lazy as _
+from django.db.utils import IntegrityError
 
 from base import Base
 
@@ -77,8 +78,7 @@ class AirSync(Base):
                         "Change": [],
                       }
 
-
-        if synckey in (0, None):
+        if synckey in (0, 1, None):
             supported = []
             supported_append = supported.append
 
@@ -147,9 +147,9 @@ class AirSync(Base):
             create = exch_map_manager.create
 
             #TODO: Singular / Plural
-            self.add_info_message(_(u"There is %s new items") % len(add_nodes))
-            self.add_info_message(_(u"There is %s changed items") % len(change_nodes))
-            self.add_info_message(_(u"There is %s deleted items") % len(delete_nodes))
+            self.add_info_message(_(u"There is %s new items from the server")     % len(add_nodes))
+            self.add_info_message(_(u"There is %s changed items from the server") % len(change_nodes))
+            self.add_info_message(_(u"There is %s deleted items from the server") % len(delete_nodes))
 
             #Can be usefull for IHM ?
             print "##Ajouts      : len(add_nodes) :",    len(add_nodes)
@@ -175,9 +175,16 @@ class AirSync(Base):
                                 data[c_field] = d.text
 
                 contact = save_contact(data, user)
-                create(creme_entity_id=contact.id, exchange_entity_id=server_id_pk, synced=True, user=user)
-#                debug("Create a contact: %s", contact)
-                self.add_success_message(_(u"Successfully created %s") % contact)
+                try:
+                    create(creme_entity_id=contact.id, exchange_entity_id=server_id_pk, synced=True, user=user)
+                    self.add_success_message(_(u"Successfully created %s") % contact)
+                except IntegrityError:
+                    error(u"Contact : %s (pk=%s) created twice and only one in the mapping", contact, contact.pk)
+                    self.add_error_message(u"TODO: REMOVE ME : Contact : %s (pk=%s) created twice and only one in the mapping" % (contact, contact.pk))
+
+#                create(creme_entity_id=contact.id, exchange_entity_id=server_id_pk, synced=True, user=user)
+##                debug("Create a contact: %s", contact)
+#                self.add_success_message(_(u"Successfully created %s") % contact)
 
             for change_node in change_nodes:
                 c_server_id = change_node.find('%(ns0)sServerId' % d_ns).text
@@ -239,7 +246,7 @@ class AirSync(Base):
 #        q_not_synced = ~Q(pk__in=exch_map_manager.filter(synced=True).values_list('creme_entity_id', flat=True))
 #        add_objects = map(lambda c:  add_object(c, lambda cc: serialize_contact(cc, reverse_ns)), Contact.objects.filter(q_not_synced & Q(is_deleted=False)))
 
-        objects = list(chain(get_add_objects(reverse_ns, user), get_change_objects(reverse_ns, user), get_deleted_objects(user)))
+        objects = list(chain(get_add_objects(reverse_ns, user, self), get_change_objects(reverse_ns, user, self), get_deleted_objects(user, self)))
 
         xml3 = super(AirSync, self).send({'class':     "Contacts",
                                           'synckey':   self.last_synckey,
@@ -297,28 +304,34 @@ class AirSync(Base):
 def add_object(o, serializer):
     return "<Add><ClientId>%s</ClientId><ApplicationData>%s</ApplicationData></Add>" % (o.id, serializer(o))
 
-def get_add_objects(reverse_ns, user):
+def get_add_objects(reverse_ns, user, msg_stack):
     q_not_synced = ~Q(pk__in=CremeExchangeMapping.objects.filter(synced=True).values_list('creme_entity_id', flat=True))
     objects = []
     
     for contact in Contact.objects.filter(q_not_synced & Q(is_deleted=False, user=user)):
+        msg_stack.add_info_message(_(u"Adding %s on the server") % contact)
         objects.append(add_object(contact, lambda cc: serialize_contact(cc, reverse_ns)))
         
     return objects
 #    return map(lambda c:  add_object(c, lambda cc: serialize_contact(cc, reverse_ns)), Contact.objects.filter(q_not_synced & Q(is_deleted=False)))
 
 
-def change_object(o, serializer):
-    return "<Change><ServerId>%s</ServerId><ApplicationData>%s</ApplicationData></Change>" % (o.id, serializer(o))
+def change_object(server_id, o, serializer):
+    return "<Change><ServerId>%s</ServerId><ApplicationData>%s</ApplicationData></Change>" % (server_id, serializer(o))
 
-def get_change_objects(reverse_ns, user):
-    modified_ids = CremeExchangeMapping.objects.filter(is_creme_modified=True, user=user).values_list('creme_entity_id', flat=True)
+def get_change_objects(reverse_ns, user, msg_stack):
+#    modified_ids = CremeExchangeMapping.objects.filter(is_creme_modified=True, user=user).values_list('creme_entity_id', flat=True)
+
+    #modified_ids a dict with creme_entity_id value as key and corresponding exchange_entity_id as value
+    modified_ids = dict(CremeExchangeMapping.objects.filter(is_creme_modified=True, user=user).values_list('creme_entity_id', 'exchange_entity_id'))
+
     objects = []
 
     debug(u"Change object ids : %s", modified_ids)
 
-    for contact in Contact.objects.filter(id__in=modified_ids):
-        objects.append(change_object(contact, lambda cc: serialize_contact(cc, reverse_ns)))#Naive version send all attribute even it's not modified
+    for contact in Contact.objects.filter(id__in=modified_ids.keys()):
+        msg_stack.add_info_message(_(u"Sending changes of %s on the server") % contact)
+        objects.append(change_object(modified_ids[contact.id], contact, lambda cc: serialize_contact(cc, reverse_ns)))#Naive version send all attribute even it's not modified
 
     debug(u"Change object : %s", objects)
 
@@ -327,11 +340,17 @@ def get_change_objects(reverse_ns, user):
 def delete_object(server_id):
     return "<Delete><ServerId>%s</ServerId></Delete>" % server_id
 
-def get_deleted_objects(user):
-    deleted_ids = CremeExchangeMapping.objects.filter(was_deleted=True, user=user).values_list('exchange_entity_id', flat=True)
+def get_deleted_objects(user, msg_stack):
+#    deleted_ids = CremeExchangeMapping.objects.filter(was_deleted=True, user=user).values_list('exchange_entity_id', flat=True)
+    deleted_ids = CremeExchangeMapping.objects.filter(was_deleted=True, user=user).values_list('exchange_entity_id', 'creme_entity_repr')
     objects = []
     
-    for server_id in deleted_ids:
+#    for server_id in deleted_ids:
+#        objects.append(delete_object(server_id))
+
+    for server_id, entity_repr in deleted_ids:
+        if entity_repr is not None:
+            msg_stack.add_info_message(_(u"Deleting %s on the server") % entity_repr)
         objects.append(delete_object(server_id))
         
     return objects

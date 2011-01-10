@@ -165,9 +165,6 @@ class Synchronization(object):
         params     = self.params
         policy_key = self.policy_key
         folder_sync_key = self.folder_sync_key or 0
-
-        #Big TODO set folder_sync_key !!! folder_sync_key != sync_key !!!!
-
         sync_key   = self.sync_key or 0
         contacts   = []
         client     = self.client
@@ -175,13 +172,14 @@ class Synchronization(object):
 
         print "Begin with policy_key :", policy_key
 
-        _fs = self._folder_sync(policy_key, sync_key)#Try to sync server folders
-        fs = self._handle_folder_sync(_fs)
+        _fs = self._folder_sync(policy_key, folder_sync_key)#Try to sync server folders
+        fs  = self._handle_folder_sync(_fs)
 
         #For the moment we fetch only the contacts folder
         contacts = filter(lambda x: int(x['type']) == as_constants.SYNC_FOLDER_TYPE_CONTACT, fs.add)
 
-        client.sync_key = fs.synckey
+#        client.sync_key = fs.synckey
+        client.folder_sync_key = fs.synckey
         
         if contacts:#The contact folder exists
             contact_folder = contacts[0]
@@ -198,7 +196,8 @@ class Synchronization(object):
 #                as_ = self._sync(policy_key, serverid, None, True, user=user)
 #            else:
 #            as_ = self._sync(policy_key, serverid, fs.synckey, True, user=user)
-            as_ = self._sync(policy_key, serverid, None, True, user=user)
+#            as_ = self._sync(policy_key, serverid, None, True, user=user)
+            as_ = self._sync(policy_key, serverid, sync_key, True, user=user)
 
             client.sync_key = as_.last_synckey
 

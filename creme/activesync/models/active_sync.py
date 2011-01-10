@@ -36,6 +36,7 @@ class CremeExchangeMapping(CremeModel):
     is_creme_modified  = models.BooleanField(u'Modified by creme?',       default=False)
     was_deleted        = models.BooleanField(u'Was deleted by creme?',    default=False)#Seems redundant with is_deleted but isn't in case of TRUE_DELETE
     user               = models.ForeignKey(User, verbose_name=u'Belongs to')
+    creme_entity_repr  = models.CharField(u'Verbose entity representation', max_length=200, null=True, blank=True, default=u"")#IHM/User purposes
 
     def __unicode__(self):
         return u"<CremeExchangeMapping ce_id: <%s>, ex_id: <%s>, belongs to %s>" % (self.creme_entity_id, self.exchange_entity_id, self.user)
