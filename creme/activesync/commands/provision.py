@@ -34,12 +34,15 @@ class Provision(Base):
 
     def send(self, policy_key=0, remote_wipe=False):
         policy_type = 'MS-EAS-Provisioning-WBXML'
+        
+        #Seems to be policy_type = 'MS-EAS-Provisioning-WBXML' for AS version >=12.0
+        #and 'MS-WAP-Provisioning-XML' for AS version = 2.5
 
         if remote_wipe:
             xml = super(Provision, self).send({'rw_status': 1}, headers={"X-Ms-Policykey": policy_key})#TODO:Make constant with the 1
             self.policy_key = self.get_policy_key(xml)
             return
-        
+
         settings = True
         if IS_ZPUSH:
             settings = False

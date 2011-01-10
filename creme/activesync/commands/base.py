@@ -101,7 +101,8 @@ class Base(object):
         if ACTIVE_SYNC_DEBUG:
             self._data['debug']['xml'].append(u"Request: %s" % content)
 
-        return self.encoder(content)
+        return self.encoder(str(content.encode('utf-8')))#TODO: Verify side effects
+#        return self.encoder(content)
 #        return self.encoder(libxml2.parseDoc(content))
 
     def _decode(self, content):
