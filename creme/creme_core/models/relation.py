@@ -259,12 +259,14 @@ class Relation(CremeAbstractEntity):
 
     @staticmethod
     def filter_in(model, filter_predicate, value_for_filter):
-        list_rel_pk = Relation.objects.filter(type=filter_predicate).values_list('object_entity', flat=True)
-        list_entity = CremeEntity.objects.filter(pk__in=list_rel_pk,
-                                                 header_filter_search_field__icontains=value_for_filter)
-        list_pk_f = model.objects.filter(relations__type=filter_predicate,
-                                             relations__object_entity__in=list_entity).values_list('id', flat=True)
-        return Q(id__in=list_pk_f)
+        return Q(relations__type=filter_predicate, relations__object_entity__header_filter_search_field__icontains=value_for_filter)
+
+#        list_rel_pk = Relation.objects.filter(type=filter_predicate).values_list('object_entity', flat=True)
+#        list_entity = CremeEntity.objects.filter(pk__in=list_rel_pk,
+#                                                 header_filter_search_field__icontains=value_for_filter)
+#        list_pk_f = model.objects.filter(relations__type=filter_predicate,
+#                                             relations__object_entity__in=list_entity).values_list('id', flat=True)
+#        return Q(id__in=list_pk_f)
 
     @staticmethod
     def create(subject, relation_type_id, object_, user_id=1): #really useful ??? (only 'user' attr help)
