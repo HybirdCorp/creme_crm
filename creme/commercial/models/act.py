@@ -26,7 +26,11 @@ from creme_core.models import CremeEntity, CremeModel, Relation
 
 from opportunities.models import Opportunity
 
+from commercial.models import MarketSegment
 from commercial.constants import REL_SUB_OPPORT_LINKED, REL_SUB_COMPLETE_GOAL
+
+
+_NAME_LENGTH = 100
 
 
 class ActType(CremeModel):
@@ -44,12 +48,13 @@ class ActType(CremeModel):
 
 class Act(CremeEntity):
     name           = CharField(_(u"Name of the commercial action"), max_length=100)
-    expected_sales = PositiveIntegerField(_(u'Expected sales'), blank=True, null=True)
+    expected_sales = PositiveIntegerField(_(u'Expected sales'))
     cost           = PositiveIntegerField(_(u"Cost of the commercial action"), blank=True, null=True)
     goal           = TextField(_(u"Goal of the action"), blank=True, null=True)
     start          = DateField(_(u'Start'))
     due_date       = DateField(_(u'Due date'))
     act_type       = ForeignKey(ActType, verbose_name=_(u'Type'))
+    segment        = ForeignKey(MarketSegment, verbose_name=_(u'Related segment'))
 
     _related_opportunities = None
 
@@ -87,11 +92,11 @@ class Act(CremeEntity):
 
 
 class ActObjective(CremeModel):
-    name         = CharField(_(u"Name"), max_length=100)
-    act          = ForeignKey(Act)
+    name         = CharField(_(u"Name"), max_length=_NAME_LENGTH)
+    act          = ForeignKey(Act, related_name='objectives')
     counter      = PositiveIntegerField(_(u'Counter'), default=0)
     counter_goal = PositiveIntegerField(_(u'Value to reach'), default=1)
-    ctype        = ForeignKey(ContentType, verbose_name=_(u'Counted type'), null=True)
+    ctype        = ForeignKey(ContentType, verbose_name=_(u'Counted type'), null=True, blank=True)
 
     _count_cache = None
 
@@ -119,3 +124,102 @@ class ActObjective(CremeModel):
     @property
     def reached(self):
         return self.get_count() >= self.counter_goal
+
+
+class ActObjectivePattern(CremeEntity):
+    name          = CharField(_(u"Name"), max_length=100)
+    average_sales = PositiveIntegerField(_(u'Average sales'))
+    segment       = ForeignKey(MarketSegment, verbose_name=_(u'Related segment'))
+
+    _components_cache = None
+
+    class Meta:
+        app_label = "commercial"
+        verbose_name = _(u'Commercial objective pattern')
+        verbose_name_plural = _(u'Commercial objective patterns')
+
+    def __unicode__(self):
+        return self.name
+
+    def get_absolute_url(self):
+        return "/commercial/objective_pattern/%s" % self.id
+
+    def get_edit_absolute_url(self):
+        return "/commercial/objective_pattern/edit/%s" % self.id
+
+    @staticmethod
+    def get_lv_absolute_url():
+        return "/commercial/objective_patterns"
+
+    def get_components_tree(self):
+        """Get (and cache) the ActObjectivePatternComponent objects tree related
+        to this pattern, with only one query.
+        @see ActObjectivePatternComponent.get_children
+        """
+        root_components = self._components_cache
+
+        if root_components is None:
+            components = dict((comp.id, comp) for comp  in self.components.all())
+            root_components = []
+
+            for comp in components.itervalues():
+                comp._children_cache = []
+
+            for comp in components.itervalues():
+                children = components[comp.parent_id]._children_cache if comp.parent_id else root_components
+                children.append(comp)
+
+            self._components_cache = root_components
+
+        return root_components
+
+
+class ActObjectivePatternComponent(CremeModel):
+    pattern      = ForeignKey(ActObjectivePattern, related_name='components')
+    parent       = ForeignKey('self', null=True, related_name='children')
+    name         = CharField(_(u"Name"), max_length=_NAME_LENGTH)
+    ctype        = ForeignKey(ContentType, verbose_name=_(u'Counted type'), null=True, blank=True)
+    success_rate = PositiveIntegerField(_(u'Success rate')) #smallinteger ??
+
+    _children_cache = None
+
+    class Meta:
+        app_label = "commercial"
+
+    def __unicode__(self):
+        return self.name
+
+    #TODO: delete this code with new ForeignKey in Django1.3 ?? (maybe it causes more queries)
+    def delete(self):
+        def find_node(nodes, pk):
+            for node in nodes:
+                if node.id == pk:
+                    return node
+
+                found = find_node(node.get_children(), pk)
+
+                if found: return found
+
+        def flatten_node_ids(node, node_list):
+            node_list.append(node.id)
+
+            for child in node.get_children():
+                flatten_node_ids(child, node_list)
+
+        children2del = []
+
+        #TODO: tree may inherit from a smart tree strucrure with right method like found()/flatten() etc...
+        flatten_node_ids(find_node(self.pattern.get_components_tree(), self.id), children2del)
+        ActObjectivePatternComponent.objects.filter(pk__in=children2del).delete()
+        #NB super(ActObjectivePatternComponent, self).delete() is not called
+
+    def get_children(self):
+        children = self._children_cache
+
+        if children is None:
+            self._children_cache = children = list(self.children.all())
+
+        return children
+
+    def get_related_entity(self): #NB: see delete_related_to_entity()
+        return self.pattern

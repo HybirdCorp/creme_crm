@@ -11,18 +11,35 @@ urlpatterns = patterns('commercial.views',
 
     (r'^approach/add/(?P<entity_id>\d+)/$', 'commercial_approach.add'),
 
+    #Segments
+    (r'^market_segments$',    'market_segment.listview'),
+    (r'^market_segment/add$', 'market_segment.add'),
+
+    #Acts
     (r'^acts$',                     'act.listview'),
     (r'^act/add$',                  'act.add'),
     (r'^act/edit/(?P<act_id>\d+)$', 'act.edit'),
     (r'^act/(?P<act_id>\d+)$',      'act.detailview'),
 
     #Objectives
-    (r'^act/(?P<act_id>\d+)/add/custom_objective$',   'act.add_custom_objective'),
-    (r'^act/(?P<act_id>\d+)/add/relation_objective$', 'act.add_relation_objective'),
-    (r'^objective/(?P<objective_id>\d+)/edit$',       'act.edit_objective'),
-    (r'^objective/(?P<objective_id>\d+)/incr$',       'act.incr_objective_counter'),
-    #(r'^objective/(?P<objective_id>\d+)/reach$',      'act.reach_objective'),
-    (r'^objective/delete$',                           'act.delete_objective'),
+    #(r'^act/(?P<act_id>\d+)/add/custom_objective$',        'act.add_custom_objective'),
+    #(r'^act/(?P<act_id>\d+)/add/relation_objective$',      'act.add_relation_objective'),
+    (r'^act/(?P<act_id>\d+)/add/objective$',               'act.add_objective'),
+    (r'^act/(?P<act_id>\d+)/add/objectives_from_pattern$', 'act.add_objectives_from_pattern'),
+    (r'^objective/(?P<objective_id>\d+)/edit$',            'act.edit_objective'),
+    (r'^objective/(?P<objective_id>\d+)/incr$',            'act.incr_objective_counter'),
+    (r'^objective/delete$',                                'act.delete_objective'),
+
+    #Objective patterns
+    (r'^objective_patterns$',                            'act.listview_objective_pattern'),
+    (r'^objective_pattern/add$',                         'act.add_objective_pattern'),
+    (r'^objective_pattern/edit/(?P<objpattern_id>\d+)$', 'act.edit_objective_pattern'),
+    (r'^objective_pattern/(?P<objpattern_id>\d+)$',      'act.objective_pattern_detailview'), #TODO: a separated file for pattern ???
+
+    #Pattern component
+    (r'^objective_pattern/(?P<objpattern_id>\d+)/add_component$',     'act.add_pattern_component'),
+    (r'^objective_pattern/component/(?P<component_id>\d+)/add_child', 'act.add_child_pattern_component'),
+    (r'^objective_pattern/component/delete',                          'act.delete_pattern_component'),
 
     (r'^strategies$',                         'strategy.listview'),
     (r'^strategy/add$',                       'strategy.add'),

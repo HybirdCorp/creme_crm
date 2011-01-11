@@ -18,12 +18,15 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.utils.translation import ugettext_lazy as _, ugettext
+from math import ceil
 
-from creme_core.forms import CremeEntityForm, CremeModelForm, CremeDateTimeField
+from django.utils.translation import ugettext_lazy as _, ugettext
+from django.forms import ModelChoiceField, IntegerField
+
+from creme_core.forms import CremeForm, CremeEntityForm, CremeModelForm, CremeDateTimeField
 from creme_core.utils import Q_creme_entity_content_types
 
-from commercial.models import Act, ActObjective
+from commercial.models import Act, ActObjective, ActObjectivePattern, ActObjectivePatternComponent
 
 
 class ActForm(CremeEntityForm):
@@ -37,26 +40,94 @@ class ActForm(CremeEntityForm):
 class ObjectiveForm(CremeModelForm):
     class Meta:
         model = ActObjective
-        fields = ('name', 'counter_goal')
+        fields = ('name', 'counter_goal', 'ctype')
 
     def __init__(self, entity, *args, **kwargs):
         super(ObjectiveForm, self).__init__(*args, **kwargs)
         self.act = entity
+        fields = self.fields
 
-        self.fields['counter_goal'].help_text = ugettext(u'Integer value the counter has to reach')
+        fields['counter_goal'].help_text = ugettext(u'Integer value the counter has to reach')
+
+        ctype_field = fields['ctype']
+        ctype_field.queryset = Q_creme_entity_content_types()
+        ctype_field.empty_label = ugettext(u'Do not count entity')
 
     def save(self, *args, **kwargs):
         self.instance.act = self.act
         super(ObjectiveForm, self).save(*args, **kwargs)
 
 
-class RelationObjectiveForm(ObjectiveForm):
-    class Meta(ObjectiveForm.Meta):
-        fields = ObjectiveForm.Meta.fields + ('ctype',)
+class ObjectivesFromPatternForm(CremeForm):
+    pattern = ModelChoiceField(label=_(u'Pattern'), empty_label=None,
+                               queryset=ActObjectivePattern.objects.all()
+                              )
+
+    def __init__(self, entity, *args, **kwargs):
+        super(ObjectivesFromPatternForm, self).__init__(*args, **kwargs)
+        self.act = entity
+
+        self.fields['pattern'].queryset = ActObjectivePattern.objects.filter(segment=entity.segment_id)
+
+    def save(self, *args, **kwargs):
+        act = self.act
+        pattern = self.cleaned_data['pattern']
+        create_objective = ActObjective.objects.create
+        won_opps = int(ceil(float(act.expected_sales) / float(pattern.average_sales)))
+
+        create_objective(act=act, name=ugettext(u'Number of won opportunities'), counter_goal=won_opps)
+
+        def create_objectives_from_components(comps, parent_goal):
+            for comp in comps:
+                counter_goal = int(ceil(parent_goal * (100.0 / comp.success_rate)))
+                create_objective(act=act, name=comp.name, ctype_id=comp.ctype_id, counter_goal=counter_goal)
+                create_objectives_from_components(comp.get_children(), counter_goal)
+
+        create_objectives_from_components(pattern.get_components_tree(), won_opps)
+
+
+class ObjectivePatternForm(CremeEntityForm):
+    class Meta(CremeEntityForm.Meta):
+        model = ActObjectivePattern
+
+
+class _PatternComponentForm(CremeModelForm):
+    success_rate = IntegerField(label=_(u'Success rate'), min_value=1, max_value=100,
+                                help_text=_(u'Percentage of success')
+                               )
+
+    class Meta:
+        model = ActObjectivePatternComponent
+        exclude = ('pattern', 'parent')
 
     def __init__(self, *args, **kwargs):
-        super(RelationObjectiveForm, self).__init__(*args, **kwargs)
+        super(_PatternComponentForm, self).__init__(*args, **kwargs)
 
+        #TODO: factorise with ObjectiveForm ??
         ctype_field = self.fields['ctype']
         ctype_field.queryset = Q_creme_entity_content_types()
-        ctype_field.empty_label = None
+        ctype_field.empty_label = ugettext(u'Do not count entity')
+
+
+class PatternComponentForm(_PatternComponentForm):
+    def __init__(self, entity, *args, **kwargs):
+        super(PatternComponentForm, self).__init__(*args, **kwargs)
+        self.pattern = entity
+
+    def save(self, *args, **kwargs):
+        self.instance.pattern = self.pattern
+        super(PatternComponentForm, self).save(*args, **kwargs)
+
+
+class PatternChildComponentForm(_PatternComponentForm):
+    def __init__(self, parent, *args, **kwargs):
+        super(PatternChildComponentForm, self).__init__(*args, **kwargs)
+        self.parent = parent
+
+    def save(self, *args, **kwargs):
+        parent = self.parent
+        instance = self.instance
+
+        instance.pattern = parent.pattern
+        instance.parent = parent
+        super(PatternChildComponentForm, self).save(*args, **kwargs)

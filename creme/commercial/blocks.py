@@ -81,11 +81,25 @@ class ApproachesBlock(QuerysetBlock):
         return self._render(btc)
 
 
-class SegmentDescriptionsBlock(PaginatedBlock):
+class SegmentsBlock(QuerysetBlock):
     id_           = QuerysetBlock.generate_id('commercial', 'segments')
     dependencies  = (MarketSegment,)
+    order_by      = 'name'
     verbose_name  = _(u'Market segments')
     template_name = 'commercial/templatetags/block_segments.html'
+
+    def detailview_display(self, context):
+        return self._render(self.get_block_template_context(context, MarketSegment.objects.all(),
+                                                            update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
+                                                            has_perm=context['request'].user.has_perm('commercial'), #TODO: better credentials
+                                                           ))
+
+
+class SegmentDescriptionsBlock(PaginatedBlock):
+    id_           = QuerysetBlock.generate_id('commercial', 'segment_info')
+    dependencies  = (MarketSegment,)
+    verbose_name  = _(u'Market segment descriptions')
+    template_name = 'commercial/templatetags/block_segment_info.html'
 
     def detailview_display(self, context):
         strategy = context['object']
@@ -191,7 +205,7 @@ class ActObjectivesBlock(QuerysetBlock):
 
     def detailview_display(self, context):
         act = context['object']
-        return self._render(self.get_block_template_context(context, ActObjective.objects.filter(act=act.id),
+        return self._render(self.get_block_template_context(context, act.objectives.all(),
                                                             update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, act.pk),
                                                            ))
 
@@ -212,6 +226,30 @@ class RelatedOpportunitiesBlock(PaginatedBlock):
                                                            ))
 
 
+class PatternComponentsBlock(Block):
+    id_           = Block.generate_id('commercial', 'pattern_components')
+    dependencies  = (ActObjectivePatternComponent,)
+    verbose_name  = u'Objective patterns components'
+    template_name = 'commercial/templatetags/block_components.html'
+
+    def detailview_display(self, context):
+        pattern = context['object']
+        flattened_tree = []
+
+        def explore_tree(components, deep):
+            for comp in components:
+                comp.deep = deep
+                flattened_tree.append(comp)
+                explore_tree(comp.get_children(), deep + 1)
+
+        explore_tree(pattern.get_components_tree(), 0)
+
+        return self._render(self.get_block_template_context(context,
+                                                            components=flattened_tree,
+                                                            update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, pattern.pk),
+                                                           ))
+
+
 approaches_block           = ApproachesBlock()
 assets_matrix_block        = AssetsMatrixBlock()
 charms_matrix_block        = CharmsMatrixBlock()
@@ -219,6 +257,7 @@ assets_charms_matrix_block = AssetsCharmsMatrixBlock()
 
 blocks_list = (
     approaches_block,
+    SegmentsBlock(),
     SegmentDescriptionsBlock(),
     AssetsBlock(),
     CharmsBlock(),
@@ -228,4 +267,5 @@ blocks_list = (
     assets_charms_matrix_block,
     ActObjectivesBlock(),
     RelatedOpportunitiesBlock(),
+    PatternComponentsBlock(),
 )
