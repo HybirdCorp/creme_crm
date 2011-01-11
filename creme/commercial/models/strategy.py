@@ -21,14 +21,16 @@
 from itertools import izip as zip
 
 from django.db.models import CharField, TextField, PositiveSmallIntegerField, ForeignKey, ManyToManyField
-from django.utils.translation import ugettext_lazy as _, ugettext
+from django.utils.translation import ugettext_lazy as _
 
-from creme_core.models import CremeEntity, CremeModel, CremePropertyType
+from creme_core.models import CremeEntity, CremeModel
 
 from persons.models import Organisation
 
+from market_segment import MarketSegment
 
-__all__ = ('Strategy', 'MarketSegment', 'MarketSegmentDescription', 'MarketSegmentCategory',
+
+__all__ = ('Strategy', 'MarketSegmentDescription', 'MarketSegmentCategory',
            'CommercialAsset', 'CommercialAssetScore', 'MarketSegmentCharm', 'MarketSegmentCharmScore'
           )
 
@@ -38,23 +40,6 @@ _CATEGORY_MAP = {
         10: 3, # Weak charms   & strong assets
         11: 1, # Strong charms & strong assets
     }
-
-
-class MarketSegment(CremeModel):
-    name          = CharField(_(u"Name"), max_length=100)
-    property_type = ForeignKey(CremePropertyType)
-
-    class Meta:
-        app_label = "commercial"
-        verbose_name = _(u'Market segment')
-        verbose_name_plural = _(u'Market segments')
-
-    def __unicode__(self):
-        return self.name
-
-    @staticmethod
-    def generate_property_text(segment_name):
-        return ugettext(u'is in the segment "%s"') % segment_name
 
 
 class Strategy(CremeEntity):

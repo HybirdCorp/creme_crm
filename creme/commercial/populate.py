@@ -64,6 +64,12 @@ class Populator(BasePopulator):
         hf_id = create(HeaderFilter, 'commercial-hf_strategy', name=_(u"Strategy view"), entity_type_id=get_ct(Strategy).id, is_custom=False).id
         create(HeaderFilterItem, 'commercial-hfi_strategy_name', order=1, name='name', title=_(u'Name'), type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True, editable=True, sortable=True, filter_string="name__icontains")
 
+        hf_id = create(HeaderFilter, 'commercial-hf_objpattern', name=_(u"Objective pattern view"), entity_type_id=get_ct(ActObjectivePattern).id, is_custom=False).id
+        pref  = 'commercial-hfi_objpattern_'
+        create(HeaderFilterItem, pref + 'name',    order=1, name='name',    title=_(u'Name'),    type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True, editable=True, sortable=True, filter_string="name__icontains")
+        create(HeaderFilterItem, pref + 'segment', order=2, name='segment', title=_(u'Segment'), type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True, editable=True, sortable=True, filter_string="segment__name__icontains")
+
+
         create(ButtonMenuItem, 'commercial-complete_goal_button', button_id=complete_goal_button.id_,   order=60)
 
         SearchConfigItem.create(Act, ['name', 'expected_sales', 'cost', 'goal'])
