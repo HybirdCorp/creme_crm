@@ -87,6 +87,8 @@ urlpatterns += patterns('creme_core.views',
     (r'^act/delete/(?P<object_id>\d+)$',               'generic.delete_entity'),
     #(r'^act/delete_js/(?P<entities_ids>([\d]+[,])+)$', 'generic.delete_entities_js'), #Commented 6 december 2010
 
+    (r'^objective_pattern/delete/(?P<object_id>\d+)$', 'generic.delete_entity'),
+
     (r'^strategy/delete/(?P<object_id>\d+)$',               'generic.delete_entity'),
     #(r'^strategy/delete_js/(?P<entities_ids>([\d]+[,])+)$', 'generic.delete_entities_js'), #Commented 6 december 2010
 )
