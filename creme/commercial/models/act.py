@@ -69,6 +69,9 @@ class Act(CremeEntity):
     def get_absolute_url(self):
         return "/commercial/act/%s" % self.id
 
+    def get_delete_absolute_url(self):
+        return "/commercial/act/delete/%s" % self.id
+
     def get_edit_absolute_url(self):
         return "/commercial/act/edit/%s" % self.id
 
@@ -143,6 +146,9 @@ class ActObjectivePattern(CremeEntity):
 
     def get_absolute_url(self):
         return "/commercial/objective_pattern/%s" % self.id
+
+    def get_delete_absolute_url(self):
+        return "/commercial/objective_pattern/delete/%s" % self.id
 
     def get_edit_absolute_url(self):
         return "/commercial/objective_pattern/edit/%s" % self.id
