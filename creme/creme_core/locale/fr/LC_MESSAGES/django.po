@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-12-08 18:03+0100\n"
+"POT-Creation-Date: 2011-01-13 09:49+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Language: \n"
 
 #: blocks.py:30 forms/csv_import.py:340 models/creme_property.py:88
-#: models/entity.py:49 tests/views.py:77
+#: models/entity.py:49 tests/views.py:94
 msgid "Properties"
 msgstr "Propriétés"
 
@@ -191,13 +191,13 @@ msgstr "possède"
 msgid "belongs to"
 msgstr "appartient à"
 
-#: forms/base.py:120 forms/base.py:127
+#: forms/base.py:157 forms/base.py:176
 msgid "General information"
 msgstr "Informations générales"
 
-#: forms/base.py:134 forms/csv_import.py:333 models/base.py:174
-#: models/prefered_menu.py:27 tests/views.py:53 tests/views.py:54
-#: tests/views.py:55
+#: forms/base.py:197 forms/csv_import.py:333 models/base.py:174
+#: models/prefered_menu.py:27 tests/views.py:68 tests/views.py:69
+#: tests/views.py:70
 msgid "User"
 msgstr "Utilisateur"
 
@@ -280,19 +280,19 @@ msgstr "Colonne %(index)s - %(name)s"
 msgid "Column %i"
 msgstr "Colonne %i"
 
-#: forms/fields.py:52 forms/fields.py:87
+#: forms/fields.py:50 forms/fields.py:229
 msgid "Invalid format"
 msgstr "Format invalide"
 
-#: forms/fields.py:163
+#: forms/fields.py:101 forms/fields.py:351
+msgid "This entity doesn't exist."
+msgstr "Cette entité n'existe pas."
+
+#: forms/fields.py:305
 #, python-format
 msgid "Select a valid choice. %(value)s is not an available choice."
 msgstr ""
 "Sélectionnez un choix valide. %(value)s n'est pas un des choix disponibles."
-
-#: forms/fields.py:209
-msgid "This entity doesn't exist."
-msgstr "Cette entité n'existe pas."
 
 #: forms/header_filter.py:43
 msgid "Regular fields"
@@ -337,12 +337,17 @@ msgstr "Certains prédicats n'existent pas"
 msgid "Related entities"
 msgstr "Entités associées"
 
-#: forms/widgets.py:138 forms/widgets.py:254
+#: forms/widgets.py:128
+msgid "Reset"
+msgstr "Vider"
+
+#: forms/widgets.py:146 forms/widgets.py:282
 #: templates/creme_core/detailview.html:31
 #: templates/creme_core/filters.html:583 templates/creme_core/filters.html:584
 #: templates/creme_core/filters.html:585 templates/creme_core/filters.html:586
 #: templates/creme_core/filters.html:587
 #: templates/creme_core/generics/blockform/add.html:5
+#: templates/creme_core/generics/blockform/add.html:8
 #: templates/creme_core/generics/blockform/add_popup.html:30
 #: templates/creme_core/generics/form/add.html:4
 #: templates/creme_core/templatetags/widgets/add_button.html:4
@@ -350,31 +355,31 @@ msgstr "Entités associées"
 msgid "Add"
 msgstr "Ajouter"
 
-#: forms/widgets.py:171
+#: forms/widgets.py:179
 msgid "Select..."
 msgstr "Sélectionner..."
 
-#: forms/widgets.py:293
+#: forms/widgets.py:321
 msgid "On"
 msgstr "Le"
 
-#: forms/widgets.py:294
+#: forms/widgets.py:322
 msgid "at"
 msgstr "à"
 
-#: forms/widgets.py:295 forms/widgets.py:320
+#: forms/widgets.py:323 forms/widgets.py:348
 msgid "h"
 msgstr "h"
 
-#: forms/widgets.py:298
+#: forms/widgets.py:326
 msgid "Clean"
 msgstr "Effacer"
 
-#: forms/widgets.py:299 forms/widgets.py:323
+#: forms/widgets.py:327 forms/widgets.py:351
 msgid "Now"
 msgstr "Maintenant"
 
-#: forms/widgets.py:369
+#: forms/widgets.py:397
 msgid "Today"
 msgstr "Aujourd'hui"
 
@@ -429,11 +434,11 @@ msgstr "Est une équipe ?"
 msgid "%s (team)"
 msgstr "%s (équipe)"
 
-#: models/base.py:166 tests/views.py:51
+#: models/base.py:166 tests/views.py:66
 msgid "Creation date"
 msgstr "Date de création"
 
-#: models/base.py:167 tests/views.py:52
+#: models/base.py:167 tests/views.py:67
 msgid "Last modification"
 msgstr "Dernière modification"
 
@@ -998,7 +1003,7 @@ msgstr "%s Propriétés"
 msgid "New properties"
 msgstr "Nouvelles propriétés"
 
-#: templates/creme_core/templatetags/block_properties.html:26
+#: templates/creme_core/templatetags/block_properties.html:25
 msgid "No property for the moment"
 msgstr "Aucune propriété pour le moment"
 
@@ -1185,25 +1190,25 @@ msgstr "%s minute(s)"
 msgid "%s second(s)"
 msgstr "%s seconde(s)"
 
-#: tests/views.py:54
+#: tests/views.py:69
 msgid "Username"
 msgstr "Nom d'utilisateur"
 
-#: tests/views.py:55
+#: tests/views.py:70
 msgid "First name"
 msgstr "Prénom"
 
-#: views/creme_property.py:57 views/generic/delete.py:77
+#: views/creme_property.py:58 views/generic/delete.py:78
 #, python-format
 msgid "%s : <b>Permission denied</b>,"
 msgstr "%s : <b>Permission refusée</b>,"
 
-#: views/creme_property.py:65
+#: views/creme_property.py:66
 #, python-format
 msgid "%(entity)s has already the property %(property)s,"
 msgstr "%(entity)s a déjà la propriété %(property)s,"
 
-#: views/creme_property.py:83
+#: views/creme_property.py:85
 #, python-format
 msgid "New properties for <%s>"
 msgstr "Nouvelles propriétés pour <%s>"
@@ -1225,25 +1230,36 @@ msgstr "Cette vue ne peut être effacée"
 msgid "Quick creation of <%s>"
 msgstr "Création rapide de <%s>"
 
-#: views/relation.py:241
+#: views/relation.py:243
 #, python-format
 msgid "Relations for <%s>"
 msgstr "Relations pour <%s>"
 
-#: views/relation.py:271
+#: views/relation.py:273
 msgid "Multiple adding of relations"
 msgstr "Ajout multiple de relations"
 
-#: views/relation.py:357
+#: views/relation.py:377
 #, python-format
-msgid "access permission denied : %s denied"
-msgstr "permission d'accès à : %s refusée"
+msgid "%s entities doesn't exist / doesn't exist any more"
+msgstr "%s entité(s) n'existe(nt) pas ou plus"
 
-#: views/relation.py:362
-msgid "Some entities doesn't exist / doesn't exist any more"
-msgstr "Certaines des entités n'existent pas ou plus"
+#: views/relation.py:398
+#, python-format
+msgid "Incompatible type for object entity with id=%s"
+msgstr "Type incompatible pour l'entité objet avec l'id=%s"
 
-#: views/relation.py:370
+#: views/relation.py:400
+#, python-format
+msgid "Missing compatible property for object entity with id=%s"
+msgstr "Il manque une propriété compatible pour l'entité objet avec l'id=%s"
+
+#: views/relation.py:402
+#, python-format
+msgid "Permission denied to entity with id=%s"
+msgstr "Permission refusée pour l'entité avec l'id=%s"
+
+#: views/relation.py:408
 msgid "Operation successfully completed"
 msgstr "Opération déroulée avec succès"
 
@@ -1255,11 +1271,11 @@ msgstr "Recherche vide..."
 msgid "Please enter at least 3 characters"
 msgstr "Veuillez entrer au moins 3 caractères"
 
-#: views/generic/delete.py:38
+#: views/generic/delete.py:39
 msgid "No selected entities"
 msgstr "Aucune entitée séléctionnée"
 
-#: views/generic/delete.py:117
+#: views/generic/delete.py:118
 #, python-format
 msgid "%s can not be deleted because of its dependencies."
 msgstr "%s ne peut être effacé à cause des ses dépendances."
@@ -1277,6 +1293,15 @@ msgstr "Liste des %s"
 #, python-format
 msgid "You are not allowed to access to the app: %s"
 msgstr "Vous n'avez pas accés à cette application: %s"
+
+#~ msgid "Can not find entity with id=%s"
+#~ msgstr "L'entité avec l'id=%s ne peut pas être trouvée"
+
+#~ msgid "Incompatible type for subject"
+#~ msgstr "Type incompatible pour le sujet"
+
+#~ msgid "access permission denied : %s denied"
+#~ msgstr "permission d'accès à : %s refusée"
 
 #~ msgid "Read"
 #~ msgstr "Lire"

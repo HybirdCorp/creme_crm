@@ -25,7 +25,6 @@ class ModelsTestCase(TestCase):
         self.assert_((now - entity.created).seconds < 10)
         self.assert_((now - entity.modified).seconds < 10)
 
-
     def test_property01(self):
         text = 'TEXT'
 

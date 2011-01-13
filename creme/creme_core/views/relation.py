@@ -18,6 +18,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from collections import defaultdict
+
 from django.db.models.query_utils import Q
 from django.http import Http404, HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, get_list_or_404
@@ -329,50 +331,86 @@ def objects_to_link_selection(request, rtype_id, subject_id, object_ct_id, o2m=F
     return list_view_popup_from_widget(request, object_ct_id, o2m, extra_dict=template_dict, extra_q=extra_q)
 
 
-#TODO: refactor (add unit tests too)
 #TODO: rework credentials (for now: Read on subject & object entities)
+#TODO: factorise code (with RelatedEntitiesField for example) ?  With a smart static method method in RelationType ?
 @login_required
 def add_relations_with_same_type(request):
     """Allow to create from a POST request several relations with the same
     relation type, between a subject and several other entities.
     """
-    post = request.POST
-    entities     = post.getlist('entities')
-    subject_id   = post.get('subject_id')
-    predicate_id = post.get('predicate_id')
+    user = request.user
+    POST = request.POST
+    subject_id = get_from_POST_or_404(POST, 'subject_id', int)
+    rtype_id   = get_from_POST_or_404(POST, 'predicate_id') #TODO: rename POST arg
+    entity_ids = POST.getlist('entities')
 
-    subject = get_object_or_404(CremeEntity, pk=subject_id).get_real_entity()
+    if not entity_ids:
+        raise Http404('Void "entities" parameter.')
 
-    return_msg = []
-    status = 200
+    rtype = get_object_or_404(RelationType, pk=rtype_id)
 
-    subject.can_view_or_die(request.user)
+    entity_ids.append(subject_id) #NB: so we can do only one query
+    entities = list(CremeEntity.objects.filter(pk__in=entity_ids))
 
-    is_there_already_err = False
+    CremeEntity.populate_credentials(entities, user)
 
-    if entities and predicate_id:
-        centity_get = CremeEntity.objects.get
-        for entity_id in entities:
-            try: #TODO: group SQL queries ??? (group by class)
-                entity = centity_get(pk=entity_id).get_real_entity()
-                #if not user_has_read_permission_for_an_object(request, entity):
-                if not request.user.has_perm('creme_core.view_entity', entity):
-                    return_msg.append(_(u"access permission denied : %s denied") % entity)
-                    status = 403
-                    continue
-            except CremeEntity.DoesNotExist:
-                if not is_there_already_err:
-                    return_msg.append(_(u"Some entities doesn't exist / doesn't exist any more"))
-                    is_there_already_err = True
-                    status = 404
-                continue
+    subject_properties = frozenset(rtype.subject_properties.values_list('id', flat=True))
+    object_properties  = frozenset(rtype.object_properties.values_list('id', flat=True))
 
-            Relation.create(subject, predicate_id, entity)
+    if subject_properties or object_properties:
+        CremeEntity.populate_properties(entities) #Optimise the get_properties() (but it retrieves CremePropertyType objects too)
 
-    if status == 200:
-        return_msg.append(_(u"Operation successfully completed"))
+    for i, entity in enumerate(entities):
+        if entity.id == subject_id:
+            subject = entity
+            entities.pop(i)
+            break
+    else:
+        raise Http404('Can not find entity with id=%s' % subject_id)
 
-    return HttpResponse(",".join(return_msg), status=status)
+    subject.can_view_or_die(user) #TODO: credentials rework needed
+
+    errors = defaultdict(list)
+    len_diff = len(entity_ids) - len(entities)
+
+    if len_diff != 1: #'subject' has been poped from entities, but not subject_id from entity_ids, so 1 and not 0
+        errors[404].append(_(u"%s entities doesn't exist / doesn't exist any more") % len_diff)
+
+    #TODO: move in a RelationType method ??
+    subject_ctypes = frozenset(int(ct_id) for ct_id in rtype.subject_ctypes.values_list('id', flat=True))
+    if subject_ctypes and subject.entity_type_id not in subject_ctypes:
+        raise Http404('Incompatible type for subject') #404 ??
+
+    if subject_properties and not any(p.type_id in subject_properties for p in subject.get_properties()):
+        raise Http404('Missing compatible property for subject') #404 ??
+
+    #TODO: move in a RelationType method ??
+    object_ctypes = frozenset(int(ct_id) for ct_id in rtype.object_ctypes.values_list('id', flat=True))
+    check_ctype = (lambda e: e.entity_type_id in object_ctypes) if object_ctypes else \
+                  lambda e: True
+
+    check_properties = (lambda e: any(p.type_id in object_properties for p in e.get_properties())) if object_properties else \
+                       lambda e: True
+
+    create_relation = Relation.objects.create
+    for entity in entities:
+        if not check_ctype(entity):
+            errors[404].append(_(u"Incompatible type for object entity with id=%s") % entity.id) #404 ??
+        elif not check_properties(entity):
+            errors[404].append(_(u"Missing compatible property for object entity with id=%s") % entity.id) #404 ??
+        elif not entity.can_view(user):  #TODO: credentials rework needed
+            errors[403].append(_("Permission denied to entity with id=%s") % entity.id)
+        else:
+            create_relation(subject_entity=subject, type=rtype, object_entity=entity, user=user)
+
+    if not errors:
+        status = 200
+        message = _(u"Operation successfully completed")
+    else:
+        status = min(errors.iterkeys())
+        message = ",".join(msg for error_messages in errors.itervalues() for msg in error_messages)
+
+    return HttpResponse(message, status=status)
 
 #TODO: use jsonify
 @login_required
