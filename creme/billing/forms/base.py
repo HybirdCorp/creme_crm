@@ -74,16 +74,25 @@ class BaseEditForm(CremeEntityForm):
         cleaned_data = self.cleaned_data
         source = cleaned_data['source']
         target = cleaned_data['target']
+        user   = cleaned_data['user']
 
         if self.issued_relation:
             self.issued_relation.update_links(object_entity=source, save=True)
         else:
-            Relation.create(instance, REL_SUB_BILL_ISSUED, source)
+            Relation.objects.create(subject_entity=instance,
+                                    type_id=REL_SUB_BILL_ISSUED,
+                                    object_entity=source,
+                                    user=user
+                                   )
 
         if self.received_relation:
             self.received_relation.update_links(object_entity=target, save=True)
         else:
-            Relation.create(instance, REL_SUB_BILL_RECEIVED, target)
+            Relation.objects.create(subject_entity=instance,
+                                    type_id=REL_SUB_BILL_RECEIVED,
+                                    object_entity=target,
+                                    user=user
+                                   )
 
         return instance
 

@@ -84,23 +84,27 @@ class MultiEntitiesRelationCreateForm(RelationCreateForm):
         self.user_id = user_id
 
         if subjects:
-            fields = self.fields
-            fields['entities_lbl'].initial = ",".join((unicode(subject) for subject in subjects))
+            self.fields['entities_lbl'].initial = ",".join((unicode(subject) for subject in subjects))
 
     def save(self):
         user_id = self.user_id
 
         rel_man = Relation.objects
         rel_get = rel_man.get
-        rel_filter = rel_man.filter
+        #rel_filter = rel_man.filter
+        create_relation = rel_man.create
 
-        #TODO: odd code
+        #TODO: regroup queries
         for subject in self.subjects:
             for predicate_id, entity in self.cleaned_data['relations']:
                 try:
-                    rel_get(user=user_id, type=predicate_id, subject_entity=subject, object_entity=entity) 
+                    rel_get(user=user_id, type=predicate_id, subject_entity=subject, object_entity=entity) #TODO: same user is important ??
                 except Relation.MultipleObjectsReturned:
-                    rel_filter(user=user_id, type=predicate_id, subject_entity=subject, object_entity=entity).delete()
-                    Relation.create(subject, predicate_id, entity, user_id)
+                    #TODO: Commented on 13 january 2011
+                    ##rel_filter(user=user_id, type=predicate_id, subject_entity=subject, object_entity=entity).delete()
+                    ##Relation.create(subject, predicate_id, entity, user_id)
+                    #create_relation(subject_entity=subject, type_id=predicate_id, object_entity=entity, user_id=user_id)
+                    pass
                 except Relation.DoesNotExist:
-                    Relation.create(subject, predicate_id, entity, user_id)
+                    create_relation(subject_entity=subject, type_id=predicate_id, object_entity=entity, user_id=user_id)
+

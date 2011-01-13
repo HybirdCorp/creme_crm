@@ -97,7 +97,9 @@ class UserAddForm(CremeModelForm):
         contact.is_user = user
         contact.save()
 
-        Relation.create(contact, cleaned['relation'].id, cleaned['organisation'])
+        Relation.objects.create(subject_entity=contact, type=cleaned['relation'],
+                                object_entity=cleaned['organisation'], user=user,
+                               )
 
         user.update_credentials()
 

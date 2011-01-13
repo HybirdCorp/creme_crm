@@ -1083,19 +1083,19 @@ class ActTestCase(LoggedTestCase):
         self.failIf(objective.reached)
 
         orga01 = Organisation.objects.create(user=self.user, name='Ferraille corp')
-        Relation.create(orga01, REL_SUB_COMPLETE_GOAL, act, user_id=self.user.pk)
+        Relation.objects.create(subject_entity=orga01, type_id=REL_SUB_COMPLETE_GOAL, object_entity=act, user=self.user)
         objective = ActObjective.objects.get(pk=objective.id) #refresh cache
         self.assertEqual(1, objective.get_count())
         self.failIf(objective.reached)
 
         orga02 = Organisation.objects.create(user=self.user, name='World company')
-        Relation.create(orga02, REL_SUB_COMPLETE_GOAL, act, user_id=self.user.pk)
+        Relation.objects.create(subject_entity=orga02, type_id=REL_SUB_COMPLETE_GOAL, object_entity=act, user=self.user)
         objective = ActObjective.objects.get(pk=objective.id) #refresh cache
         self.assertEqual(2, objective.get_count())
         self.assert_(objective.reached)
 
         contact = Contact.objects.create(user=self.user, first_name='Monsieur', last_name='Ferraille')
-        Relation.create(contact, REL_SUB_COMPLETE_GOAL, act, user_id=self.user.pk)
+        Relation.objects.create(subject_entity=contact, type_id=REL_SUB_COMPLETE_GOAL, object_entity=act, user=self.user)
         objective = ActObjective.objects.get(pk=objective.id) #refresh cache
         self.assertEqual(2, objective.get_count())
         self.assert_(objective.reached)
@@ -1110,7 +1110,7 @@ class ActTestCase(LoggedTestCase):
 
         sales_phase = SalesPhase.objects.create(name='Foresale', description='Foresale')
         opp01 = Opportunity.objects.create(user=self.user, name='OPP01', sales_phase=sales_phase, closing_date=date.today())
-        Relation.create(opp01, REL_SUB_OPPORT_LINKED, act, user_id=self.user.pk)
+        Relation.objects.create(subject_entity=opp01, type_id=REL_SUB_OPPORT_LINKED, object_entity=act, user=self.user)
 
         act = Act.objects.get(pk=act.id) #refresh cache
         self.assertEqual([opp01.id], [o.id for o in act.get_related_opportunities()])
@@ -1120,7 +1120,7 @@ class ActTestCase(LoggedTestCase):
         self.assertEqual(1500, Act.objects.get(pk=act.id).get_made_sales())
 
         opp02 = Opportunity.objects.create(user=self.user, name='OPP01', sales_phase=sales_phase, closing_date=date.today(), made_sales=500)
-        Relation.create(opp02, REL_SUB_OPPORT_LINKED, act, user_id=self.user.pk)
+        Relation.objects.create(subject_entity=opp02, type_id=REL_SUB_OPPORT_LINKED, object_entity=act, user=self.user)
         act  = Act.objects.get(pk=act.id) #refresh cache
         opps = act.get_related_opportunities()
         self.assertEqual(2, len(opps))
