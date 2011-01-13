@@ -23,10 +23,9 @@ from datetime import date
 from django.db.models import CharField, TextField, ForeignKey, DateTimeField, Max
 from django.utils.translation import ugettext_lazy as _
 
-from creme_core.models import CremeEntity, Relation
+from creme_core.models import CremeEntity
 
 from projects.models import ProjectStatus
-from projects.constants import REL_OBJ_PROJECT_MANAGER
 
 
 class Project(CremeEntity):
@@ -68,10 +67,6 @@ class Project(CremeEntity):
         for task in self.get_tasks():
             task.delete()
         super(Project, self).delete()
-
-    def add_responsibles(self, responsibles_list):
-        for responsible in responsibles_list:
-            Relation.create(self, REL_OBJ_PROJECT_MANAGER, responsible)
 
     def get_tasks(self):
         if self.tasks_list is None:

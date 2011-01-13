@@ -44,7 +44,9 @@ def _link(request, entity_id, relation_type_id):
     if not relation_type.subject_ctypes.filter(id=entity.entity_type_id).exists(): #TODO: in a Relation type method() ??
         raise Http404('Incompatible relation type') #bof bof
 
-    Relation.create(entity, relation_type_id, managed_orga)
+    Relation.objects.create(subject_entity=entity, type_id=relation_type_id,
+                            object_entity=managed_orga, user=request.user,
+                           )
 
     return HttpResponseRedirect(entity.get_absolute_url())
 

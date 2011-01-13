@@ -91,14 +91,17 @@ def _check_activity_collisions(activity_start, activity_end, participants, exclu
     if collisions:
         raise ValidationError(collisions)
 
-def _save_participants(participants, instance):
+def _save_participants(participants, activity):
     """
     @param participants sequence of tuple relationtype_id, entity (see RelatedEntitiesField)
     """
-    create_relation = Relation.create
+    create_relation = Relation.objects.create
+    user = activity.user
 
     for relationtype_id, entity in participants:
-        create_relation(entity, relationtype_id, instance)
+        create_relation(subject_entity=entity, type_id=relationtype_id,
+                        object_entity=activity, user=user
+                       )
 
 class ParticipantCreateForm(CremeForm):
     participants = RelatedEntitiesField(relation_types=[REL_SUB_PART_2_ACTIVITY], label=_(u'Participants'), required=False)
@@ -227,6 +230,9 @@ class ActivityCreateForm(CremeEntityForm):
         instance.end = cleaned_data['end']
         super(ActivityCreateForm, self).save()
 
+        user = cleaned_data['user']
+
+        #TODO: factorise....
         # Participation of event's creator
         if cleaned_data['my_participation']:
             try:
@@ -234,18 +240,21 @@ class ActivityCreateForm(CremeEntityForm):
             except Contact.DoesNotExist:
                 pass
             else:
-                Relation.create(me, REL_SUB_PART_2_ACTIVITY, instance)
+                Relation.objects.create(subject_entity=me, type_id=REL_SUB_PART_2_ACTIVITY,
+                                        object_entity=instance, user=user,
+                                       )
                 CalendarActivityLink.objects.get_or_create(calendar=cleaned_data.get('my_calendar'), activity=instance)
 
         # Participation of event's owner
         if cleaned_data['user_participation']:
-            user = cleaned_data['user']
             try:
                 me = Contact.objects.get(is_user=user)
             except Contact.DoesNotExist:
                 pass
             else:
-                Relation.create(me, REL_SUB_PART_2_ACTIVITY, instance)
+                Relation.objects.create(subject_entity=me, type_id=REL_SUB_PART_2_ACTIVITY,
+                                        object_entity=instance, user=user,
+                                       )
                 CalendarActivityLink.objects.get_or_create(calendar=Calendar.get_user_default_calendar(user), activity=instance)
 
         _save_participants(cleaned_data['participants'], instance)
@@ -270,7 +279,11 @@ class RelatedActivityCreateForm(ActivityCreateForm):
     def save(self):
         instance = super(RelatedActivityCreateForm, self).save()
 
-        Relation.create(self._entity_for_relation, self._relation_type.id, instance)
+        Relation.objects.create(subject_entity=self._entity_for_relation,
+                                type=self._relation_type,
+                                object_entity=instance,
+                                user=instance.user,
+                               )
 
         return instance
 
