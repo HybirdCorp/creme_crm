@@ -2,11 +2,6 @@
 {% load media %}
 {% load creme_core_tags %}
 
-{% comment %}{% block extrahead %}
-    {{block.super}}
-    <script type="text/javascript" src="{{MEDIA_URL}}js/models/creme_config.js"></script>
-{% endblock %}{% endcomment %}
-
 {% block title %}
     <a href="/creme_config/">Configuration > </a>
     {% with paths|get_value:"app_portal" as app_portal%}
@@ -16,7 +11,6 @@
     {% endwith %}
     </a>Type : {{model|get_meta_value:'verbose_name'|title}}
 {% endblock %}
-
 
 {% block before_statistics %}
 <!--

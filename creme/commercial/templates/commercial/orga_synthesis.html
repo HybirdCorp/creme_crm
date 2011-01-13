@@ -55,17 +55,7 @@
 
     <div class=zone_spacer_5px></div>
 
-    {% comment %}{% import_block from_app 'commercial' named 'assets_matrix' as 'assets_matrix_block' %}
-    {% import_block from_app 'commercial' named 'charms_matrix' as 'charms_matrix_block' %}{% endcomment %}
     {% import_block from_app 'commercial' named 'assets_charms_matrix' as 'assets_charms_matrix_block' %}
-
-    {% comment %}<div style="float:left;width:49.9%;margin-left:0px;">
-        {% display_block_detailview 'assets_matrix_block' %}
-    </div>
-    <div style="float:right;width:49.9%;margin-right:0px;">
-        {% display_block_detailview 'charms_matrix_block' %}
-    </div>{% endcomment %}
     {% display_block_detailview 'assets_charms_matrix_block' %}
-
     {% get_blocks_dependencies %}
 {% endblock %}
