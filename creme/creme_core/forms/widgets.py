@@ -70,7 +70,7 @@ class DynamicSelect(Select):
         attrs = self.build_attrs(attrs, name=name)
         attrs['url'] = self.url
         typename='ui-creme-dselect'
-        context = widget_render_context(DynamicSelect, self, name, value, attrs, 
+        context = widget_render_context(DynamicSelect, self, name, value, attrs,
                                         typename=typename,
                                         noinput=True)
         attrs['class'] = context.get('css', '')
@@ -468,7 +468,7 @@ class DependentSelect(Select):
 ##            script += "console.log('apres2');"
 #            logging.debug("\n\n\n id : %s | target_val : %s\n\n\n" % (self.target_id,self.target_val))
 
-            
+
         script += '</script>'
         attrs['onchange'] = "change_%s ();" % (id)
         select = super(DependentSelect, self).render(name, value, attrs, choices)
@@ -494,7 +494,6 @@ class UploadedFileWidget(FileInput):
     def render(self, name, value, attrs=None):
         visual=''
         if self.url is not None :
-            #import settings
             visual = '<a href="/download_file/%s">' % (self.url)
             visual += '<img src="%s%s" alt="%s"/></a>' % (settings.MEDIA_URL, self.url, self.url)
 
@@ -523,19 +522,12 @@ class RTEWidget(Textarea):
 
 
 class ColorPickerWidget(TextInput):
-    #css = settings.MEDIA_URL + '/css/jquery.gccolor.1.0.3/gccolor.css'
-    #js  = settings.MEDIA_URL +'/js/jquery/extensions/jquery.gccolor.1.0.3/dev/jquery.gccolor.1.0.3.js'
-
     def render(self, name, value, attrs=None):
         attrs = self.build_attrs(attrs, name=name)
 
-        #include('%(js)s','js');
-        #include('%(css)s','css');
         return mark_safe("""<script type="text/javascript">
                     $(document).ready(function() { $("#%(id)s").gccolor(); });
                 </script>%(input)s""" % {
-                    #'js':    self.js,
-                    #'css':   self.css,
                     'id':    attrs['id'],
                     'input': super(ColorPickerWidget, self).render(name, value, attrs),
                 })

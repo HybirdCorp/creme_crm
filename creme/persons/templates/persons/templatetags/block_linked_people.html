@@ -1,9 +1,5 @@
-{% load i18n %}
-{% load media %}
+{% load i18n %}{% load media %}
 {% load creme_core_tags %}{% load creme_block %}
-{% comment %}<script type="text/javascript">
-    creme.include('{{MEDIA_URL}}/js/models/relations.js', 'js');
-</script>{% endcomment %}
 <table  class="table_detail_view ui-corner-all" id={{block_name}}>
     {% get_block_header colspan=5 %}
         <th style="width: 80%;" class="collapser" align="left">{% block block_header %}{% endblock %}</th>
@@ -35,8 +31,7 @@
                 <th class="block_header_line_dark">{% trans "Email" %}</th>
                 <th class="block_header_line_dark">{% trans "Actions" %}</th>
             </tr>
-            {% for people in page.object_list %}
-                <!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
+            {% for people in page.object_list %}<!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
                 <tr>
                     <td class="{{row_color}}"><a href="{{people.get_absolute_url}}">{{people}}</a></td>
                     <td class="{{row_color}}">{{people.landline}}</td>

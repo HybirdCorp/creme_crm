@@ -1,9 +1,5 @@
-{% load i18n %}
-{% load media %}
+{% load i18n %}{% load media %}
 {% load creme_block %}
-{% comment %}<script type="text/javascript">
-    creme.include('{{MEDIA_URL}}js/models/relations.js','js');
-</script>{% endcomment %}
 <table  class="table_detail_view ui-corner-all" id={{block_name}}>
     {% get_block_header colspan=2 %}
         <th style="width: 80%;" class="collapser" align="left">{% get_block_title _('%s Related Product') _('%s Related Products') 'product_48.png' _('Products') %}</th>
