@@ -238,7 +238,7 @@ class CremeEntity(CremeAbstractEntity):
     def get_properties(self):
         if self._properties is None:
             debug('CremeEntity.get_properties(): Cache MISS for id=%s', self.id)
-            self._properties = self.properties.all().select_related('type')
+            self._properties = list(self.properties.all().select_related('type'))
         else:
             debug('CremeEntity.get_properties(): Cache HIT for id=%s', self.id)
 
