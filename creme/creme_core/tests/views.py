@@ -37,6 +37,15 @@ class ViewsTestCase(TestCase):
         logged = self.client.login(username=self.user.username, password=password)
         self.assert_(logged, 'Not logged in')
 
+    def assertNoFormError(self, response): #TODO: move in a CremeTestCase ??? (copied from creme_config)
+        try:
+            errors = response.context['form'].errors
+        except Exception, e:
+            pass
+        else:
+            if errors:
+                self.fail(errors)
+
     def test_clean(self):
         self.login()
 
@@ -233,6 +242,85 @@ class ViewsTestCase(TestCase):
 
     #TODO: test get_property_types_for_ct(), add_to_entities()
 
+    def _aux_test_add_relations(self):
+        self.login()
+
+        create_entity = CremeEntity.objects.create
+        self.subject01 = create_entity(user=self.user)
+        self.subject02 = create_entity(user=self.user)
+        self.object01  = create_entity(user=self.user)
+        self.object02  = create_entity(user=self.user)
+
+        self.ct_id = ContentType.objects.get_for_model(CremeEntity).id
+
+        self.rtype01, srtype01 = RelationType.create(('test-subject_foobar1', 'is loving'),
+                                                     ('test-object_foobar1',  'is loved by')
+                                                    )
+        self.rtype02, srtype02 = RelationType.create(('test-subject_foobar2', 'is hating'),
+                                                     ('test-object_foobar2',  'is hated by')
+                                                    )
+
+    def assertEntiTyHasRelation(self, subject_entity, rtype, object_entity):
+        try:
+            relation = subject_entity.relations.get(type=rtype)
+        except Exception, e:
+            self.fail(str(e))
+        else:
+            self.assertEqual(object_entity.id, relation.object_entity_id)
+
+    def test_add_relations(self):
+        self._aux_test_add_relations()
+        self.assertEqual(0, self.subject01.relations.count())
+
+        response = self.client.get('/creme_core/relation/add/%s' % self.subject01.id)
+        self.assertEqual(200, response.status_code)
+
+        response = self.client.post('/creme_core/relation/add/%s' % self.subject01.id,
+                                    data={
+                                            'relations': '(%s,%s,%s);(%s,%s,%s);' % (
+                                                                self.rtype01.id, self.ct_id, self.object01.id,
+                                                                self.rtype02.id, self.ct_id, self.object02.id,
+                                                            ),
+                                         }
+                                   )
+        self.assertNoFormError(response)
+        self.assertEqual(2, self.subject01.relations.count())
+
+        self.assertEntiTyHasRelation(self.subject01, self.rtype01, self.object01)
+        self.assertEntiTyHasRelation(self.subject01, self.rtype02, self.object02)
+
+    def test_add_relations_bulk(self):
+        self._aux_test_add_relations()
+
+        #this relation should not be recreated by the view
+        Relation.objects.create(user=self.user,
+                                subject_entity=self.subject02,
+                                type=self.rtype02,
+                                object_entity=self.object02
+                               )
+
+        url = '/creme_core/relation/add_to_entities/%s/%s,%s,' % (self.ct_id, self.subject01.id, self.subject02.id)
+        response = self.client.get(url)
+        self.assertEqual(200, response.status_code)
+
+        response = self.client.post(url, data={
+                                                'entities_lbl': 'wtf',
+                                                'relations': '(%s,%s,%s);(%s,%s,%s);' % (
+                                                                self.rtype01.id, self.ct_id, self.object01.id,
+                                                                self.rtype02.id, self.ct_id, self.object02.id,
+                                                               ),
+                                              })
+        self.assertNoFormError(response)
+        self.assertEqual(200, response.status_code)
+
+        self.assertEqual(2, self.subject01.relations.count())
+        self.assertEntiTyHasRelation(self.subject01, self.rtype01, self.object01)
+        self.assertEntiTyHasRelation(self.subject01, self.rtype02, self.object02)
+
+        self.assertEqual(2, self.subject02.relations.count()) #and not 3
+        self.assertEntiTyHasRelation(self.subject02, self.rtype01, self.object01)
+        self.assertEntiTyHasRelation(self.subject02, self.rtype02, self.object02)
+
     def _aux_relation_objects_to_link_selection(self):
         PopulateCommand().handle(application=['creme_core', 'persons'])
 
@@ -246,16 +334,17 @@ class ViewsTestCase(TestCase):
         self.contact03 = Contact.objects.create(user=self.user, first_name='Etna',   last_name='Devil')
         self.orga01    = Organisation.objects.create(user=self.user, name='Earth Defense Force')
 
+        self.ct_contact = ContentType.objects.get_for_model(Contact)
+
         self.rtype, sym_rtype = RelationType.create(('test-subject_foobar', 'is loving',   [Contact]),
-                                               ('test-object_foobar',  'is loved by', [Contact])
-                                              )
+                                                    ('test-object_foobar',  'is loved by', [Contact])
+                                                   )
 
     def test_relation_objects_to_link_selection01(self):
         self._aux_relation_objects_to_link_selection()
 
-        ct = ContentType.objects.get_for_model(Contact)
         response = self.client.get('/creme_core/relation/objects2link/rtype/%s/entity/%s/%s' % \
-                                        (self.rtype.id, self.subject.id, ct.id)
+                                        (self.rtype.id, self.subject.id, self.ct_contact.id)
                                   )
         self.assertEqual(200, response.status_code)
 
@@ -270,6 +359,49 @@ class ViewsTestCase(TestCase):
         self.assertEqual(set([self.contact01.id, self.contact02.id, self.contact03.id]),
                          set(c.id for c in contacts)
                         )
+
+    def test_relation_objects_to_link_selection02(self):
+        self._aux_relation_objects_to_link_selection()
+
+        #contact03 will not be proposed by the listview
+        Relation.objects.create(user=self.user, type=self.rtype, subject_entity=self.subject, object_entity=self.contact03)
+
+        response = self.client.get('/creme_core/relation/objects2link/rtype/%s/entity/%s/%s' % \
+                                        (self.rtype.id, self.subject.id, self.ct_contact.id)
+                                  )
+        self.assertEqual(200, response.status_code)
+
+        contacts = response.context['entities'].object_list
+        self.assertEqual(2, len(contacts))
+        self.assertEqual(set([self.contact01.id, self.contact02.id]), set(c.id for c in contacts))
+
+    def test_relation_objects_to_link_selection03(self):
+        self._aux_relation_objects_to_link_selection()
+
+        ptype01 = CremePropertyType.create(str_pk='test-prop_foobar01', text='Is lovable')
+        ptype02 = CremePropertyType.create(str_pk='test-prop_foobar02', text='Is a girl')
+
+        contact04 = Contact.objects.create(user=self.user, first_name='Flonne', last_name='Angel')
+
+        #contact02 will not be proposed by the listview
+        create_property = CremeProperty.objects.create
+        create_property(type=ptype01, creme_entity=self.contact01)
+        create_property(type=ptype02, creme_entity=self.contact03)
+        create_property(type=ptype01, creme_entity=contact04)
+        create_property(type=ptype02, creme_entity=contact04)
+
+        rtype, sym_rtype = RelationType.create(('test-subject_loving', 'is loving',   [Contact]),
+                                               ('test-object_loving',  'is loved by', [Contact], [ptype01, ptype02])
+                                              )
+
+        response = self.client.get('/creme_core/relation/objects2link/rtype/%s/entity/%s/%s' % \
+                                        (rtype.id, self.subject.id, self.ct_contact.id)
+                                  )
+        self.assertEqual(200, response.status_code)
+
+        contacts = response.context['entities'].object_list
+        self.assertEqual(3, len(contacts))
+        self.assertEqual(set([self.contact01.id, self.contact03.id, contact04.id]), set(c.id for c in contacts))
 
     def _aux_add_relations_with_same_type(self):
         self.subject  = CremeEntity.objects.create(user=self.user)
@@ -394,22 +526,6 @@ class ViewsTestCase(TestCase):
         relation = relations[0]
         self.assertEqual(allowed01.id, relation.subject_entity_id)
         self.assertEqual(allowed02.id, relation.object_entity_id)
-
-    def test_relation_objects_to_link_selection02(self):
-        self._aux_relation_objects_to_link_selection()
-
-        #contact03 will not be proposed by the listview
-        Relation.objects.create(user=self.user, type=self.rtype, subject_entity=self.subject, object_entity=self.contact03)
-
-        ct = ContentType.objects.get_for_model(Contact)
-        response = self.client.get('/creme_core/relation/objects2link/rtype/%s/entity/%s/%s' % \
-                                        (self.rtype.id, self.subject.id, ct.id)
-                                  )
-        self.assertEqual(200, response.status_code)
-
-        contacts = response.context['entities'].object_list
-        self.assertEqual(2, len(contacts))
-        self.assertEqual(set([self.contact01.id, self.contact02.id]), set(c.id for c in contacts))
 
     def test_add_relations_with_same_type05(self): #ct constraint errors
         self.login()
@@ -540,14 +656,6 @@ class ViewsTestCase(TestCase):
         self.assertEqual(3,   Relation.objects.filter(pk__in=[relation03.pk, relation04.pk, relation05.pk]).count())
 
         #TODO: test other relation views...
-
-    def assertNoFormError(self, response): #TODO: move in a CremeTestCase ??? (copied from creme_config)
-        try:
-            errors = response.context['form'].errors
-        except Exception, e:
-            pass
-        else:
-            self.fail(errors)
 
     def test_headerfilter_create(self): #TODO: test HFI creation....
         self.login()

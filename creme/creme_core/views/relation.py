@@ -214,12 +214,13 @@ def json_predicate_content_types(request, id):
         return HttpResponse(err, mimetype="text/javascript", status=500)
 
 def __get_entity_predicates(request, id):
-    entity = get_object_or_404(CremeEntity, pk=id).get_real_entity()
+    entity = get_object_or_404(CremeEntity, pk=id).get_real_entity() #TODO: useful 'get_real_entity() ??'
 
     entity.can_view_or_die(request.user)
 
     predicates = RelationType.objects.filter(can_be_create_with_popup=True).order_by('predicate')
 
+    #TODO: use CremePropertyType constraints too
     return predicates.filter(Q(subject_ctypes=entity.entity_type)|Q(subject_ctypes__isnull=True)).distinct()
 
 def add_relations(request, subject_id, relation_type_id=None):
@@ -250,17 +251,16 @@ def add_relations(request, subject_id, relation_type_id=None):
 #TODO: use EntityCredentials.filter to filter allowed entities for this user
 @login_required
 def add_relations_bulk(request, model_ct_id, ids):
-    POST = request.POST
-
+    user = request.user
     model    = get_object_or_404(ContentType, pk=model_ct_id).model_class()
     entities = get_list_or_404(model, pk__in=[id for id in ids.split(',') if id])
 
-    #TODO: improve by regrouping queries
+    CremeEntity.populate_credentials(entities, user)
     for entity in entities:
-        entity.can_change_or_die(request.user) #TODO: edit credentials ??? only on subject ??
+        entity.can_change_or_die(user) #TODO: edit credentials ???
 
-    if POST:
-        form = MultiEntitiesRelationCreateForm(entities, request.user.id, None, POST)
+    if request.method == 'POST':
+        form = MultiEntitiesRelationCreateForm(entities, request.user.id, None, request.POST)
 
         if form.is_valid():
             form.save()
@@ -324,9 +324,12 @@ def objects_to_link_selection(request, rtype_id, subject_id, object_ct_id, o2m=F
 
     #TODO: add subject = get_object_or_404(CremeEntity, pk=subject_id); subject.can_view_or_die(request.user)
 
-    #extra_q = ~Q(pk__in=Relation.objects.filter(type=rtype_id, subject_entity=subject_id).values_list('object_entity_id'))
     rtype   = get_object_or_404(RelationType, pk=rtype_id)
-    extra_q = ~Q(relations__type=rtype.symmetric_type_id, relations__object_entity=subject_id)
+    extra_q = ~Q(relations__type=rtype.symmetric_type_id, relations__object_entity=subject_id) #TODO: filter with relation creds too
+
+    prop_types = list(rtype.object_properties.all())
+    if prop_types:
+        extra_q &= Q(properties__type__in=prop_types)
 
     return list_view_popup_from_widget(request, object_ct_id, o2m, extra_dict=template_dict, extra_q=extra_q)
 

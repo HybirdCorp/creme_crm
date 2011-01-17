@@ -38,7 +38,8 @@ class RelationType(CremeModel):
     If *_ctypes = null --> all contenttypes are valid.
     If *_properties = null --> all properties are valid.
     """
-    id = CharField(primary_key=True, max_length=100)
+    id = CharField(primary_key=True, max_length=100) #NB: convention: 'app_name-foobar'
+                                                     #BEWARE: 'id' MUST only contain alphanumeric '-' and '_'
 
     subject_ctypes     = ManyToManyField(ContentType,       blank=True, null=True, related_name='relationtype_subjects_set')
     object_ctypes      = ManyToManyField(ContentType,       blank=True, null=True, related_name='relationtype_objects_set')
