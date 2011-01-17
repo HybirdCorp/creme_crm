@@ -76,31 +76,52 @@ def string_value(value): #TODO: rename to regex_value ???
 def bool_value(value):
     return bool(int_value(value))
 
+#NB: This gather all django/creme query terms for filtering.
+#    We set simple_value function to stay compatible with the API
 QUERY_TERMS_FUNC = {
     'exact':       lambda x: x,
-#    'iexact':      simple_value,
-#    'contains':    simple_value,
-#    'icontains':   simple_value,
-#    'gt':          simple_value,
-#    'gte':         simple_value,
-#    'lt':          simple_value,
-#    'lte':         simple_value,
+    'iexact':      simple_value,
+    'contains':    simple_value,
+    'icontains':   simple_value,
+    'gt':          simple_value,
+    'gte':         simple_value,
+    'lt':          simple_value,
+    'lte':         simple_value,
     'in':          lambda x: x if hasattr(x, '__iter__') else [],
-#    'startswith':  simple_value,
-#    'istartswith': simple_value,
-#    'endswith':    simple_value,
-#    'iendswith':   simple_value,
+    'startswith':  simple_value,
+    'istartswith': simple_value,
+    'endswith':    simple_value,
+    'iendswith':   simple_value,
     'range':       range_value,
     'year':        int_value,
     'month':       int_value,
     'day':         int_value,
     'week_day':    int_value,
     'isnull':      bool,
-#    'search':      simple_value,
+    'search':      simple_value,
     'regex':       string_value,
     'iregex':      string_value,
     'creme-boolean': bool_value,
 }
+
+def get_field_name_from_pattern(pattern):
+    """
+        Gives field__sub_field for field__sub_field__pattern
+        where pattern is in QUERY_TERMS_FUNC keys
+        >>> get_field_name_from_pattern('foo__bar__icontains')
+        'foo__bar'
+        >>> get_field_name_from_pattern('foo__bar')
+        'foo__bar'
+    """
+    patterns = pattern.split('__')
+    keys = QUERY_TERMS_FUNC.keys()
+    for p in patterns:
+        if p in keys:
+            patterns.remove(p)
+            break#Logically we should have only one query pattern
+
+    return "__".join(patterns)
+
 
 def _get_value_for_query(pattern, value):
     query_terms_pattern = QUERY_TERMS.keys() #TODO: query_terms_pattern = set(QUERY_TERMS.iterkeys()) ????? constant ???

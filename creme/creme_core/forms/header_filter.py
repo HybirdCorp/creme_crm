@@ -18,19 +18,20 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from itertools import chain
 from collections import defaultdict
 from logging import debug
 
 from django.db import models
 from django.db.models.query_utils import Q
 from django.db.models.fields import FieldDoesNotExist
-from django.forms import MultipleChoiceField, ModelChoiceField
-from django.forms.widgets import HiddenInput
-from django.utils.translation import ugettext_lazy as _
+from django.forms import MultipleChoiceField, ValidationError
+from django.utils.translation import ugettext_lazy as _, ugettext
 from django.contrib.contenttypes.models import ContentType
 
 from creme_core.models.header_filter import HeaderFilterItem, HeaderFilter, HFI_FIELD, HFI_RELATION, HFI_FUNCTION, HFI_CUSTOM
-from creme_core.models import RelationType, RelationPredicate_i18n, CustomField
+from creme_core.models.list_view_state import get_field_name_from_pattern
+from creme_core.models import RelationType, CustomField
 from creme_core.forms import CremeModelForm
 from creme_core.forms.widgets import OrderedMultipleChoiceWidget
 from creme_core.utils.meta import get_flds_with_fk_flds_str, get_model_field_infos
@@ -66,7 +67,10 @@ class HeaderFilterForm(CremeModelForm):
         self._relation_types = RelationType.objects.filter(Q(subject_ctypes=ct)|Q(subject_ctypes__isnull=True)).order_by('predicate').values_list('id', 'predicate')
         self._custom_fields  = CustomField.objects.filter(content_type=ct)
 
-        fields['fields'].choices = get_flds_with_fk_flds_str(model, 1)
+        fields_choices = set(chain(get_flds_with_fk_flds_str(model, 1), get_flds_with_fk_flds_str(model, 0)))
+        fields_choices = sorted(fields_choices, key=lambda k: ugettext(k[1]))
+
+        fields['fields'].choices = fields_choices
         fields['custom_fields'].choices = [(cf.id, cf.name) for cf in self._custom_fields]
         fields['relations'].choices = self._relation_types
         fields['functions'].choices = [(f.name, f.verbose_name) for f in model.function_fields]
@@ -77,7 +81,7 @@ class HeaderFilterForm(CremeModelForm):
             for hfi in HeaderFilterItem.objects.filter(header_filter__id=instance.id).order_by('order'):
                 initial_data[hfi.type].append(hfi)
 
-            fields['fields'].initial = [hfi.filter_string.rpartition('__')[0] for hfi in initial_data[HFI_FIELD]]
+            fields['fields'].initial = [get_field_name_from_pattern(hfi.filter_string) for hfi in initial_data[HFI_FIELD]]
             fields['custom_fields'].initial = [int(hfi.name) for hfi in initial_data[HFI_CUSTOM]]
             fields['relations'].initial = [hfi.relation_predicat_id for hfi in initial_data[HFI_RELATION]]
             fields['functions'].initial = [hfi.name for hfi in initial_data[HFI_FUNCTION]]
@@ -93,6 +97,18 @@ class HeaderFilterForm(CremeModelForm):
         for id_, predicate in self._relation_types:
             if id_ == relation_type_id:
                 return predicate
+
+    def clean(self):
+        cleaned_data = self.cleaned_data
+        fields    = cleaned_data['fields']
+        cfs       = cleaned_data['custom_fields']
+        relations = cleaned_data['relations']
+        functions =cleaned_data['functions']
+
+        if not (fields or cfs or relations or functions):
+            raise ValidationError(ugettext(u"You have to choose at least one element in avalaible lists."))
+
+        return cleaned_data
 
     def save(self):
         cleaned_data = self.cleaned_data
@@ -119,14 +135,22 @@ class HeaderFilterForm(CremeModelForm):
             try:
                 field_infos = get_model_field_infos(model_klass, field)
                 field_obj   = field_infos[0]['field']
-
+                
                 pattern = "%s__icontains"
+
+                if isinstance(field_obj, models.ForeignKey) :
+                    if field.find('__') == -1:
+                        pattern = "%s"
+#                        pattern = "%s__pk"
+                    else:
+                        field_obj = field_infos[1]['field'] #The sub-field is considered as the main field
+
                 if isinstance(field_obj, (models.DateField, models.DateTimeField)):
                     pattern = "%s__range"
                 elif isinstance(field_obj, models.BooleanField):
                     pattern = "%s__creme-boolean"
 
-                items_2_save.append(HeaderFilterItem(name=field.partition('__')[0],
+                items_2_save.append(HeaderFilterItem(name=field,
                                                      title=u" - ".join(unicode(field_info['field'].verbose_name) for field_info in field_infos),
                                                      type=HFI_FIELD,
                                                      has_a_filter=True,
@@ -159,7 +183,7 @@ class HeaderFilterForm(CremeModelForm):
         for relation_type_id in cleaned_data['relations']:
             predicate = self._get_predicate(relation_type_id)
 
-            items_2_save.append(HeaderFilterItem(name=predicate.replace(' ', '_').replace("'", "_"),
+            items_2_save.append(HeaderFilterItem(name=relation_type_id,
                                                  title=predicate,#.replace("'", " "),
                                                  type=HFI_RELATION,
                                                  #has_a_filter=False,

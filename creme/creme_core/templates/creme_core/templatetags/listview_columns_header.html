@@ -11,7 +11,7 @@
                             <select name="{{column.name}}" title="{{column.title}}">
                                 <option value="">{% trans "Select" %}</option>
                                 {% for options in column_options.values %}
-                                    <option value="{{options.text}}" {% if search %}{{options.selected}}{% endif %}>
+                                    <option value="{{options.value}}" {% if search %}{{options.selected}}{% endif %}>
                                         {{options.text}}
                                     </option>
                                 {% endfor %}
