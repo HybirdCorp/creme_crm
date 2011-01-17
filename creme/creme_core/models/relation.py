@@ -57,7 +57,6 @@ class RelationType(CremeModel):
         verbose_name_plural = _(u'Types of relation')
 
     def __unicode__(self):
-        #from creme_core.i18n import translate_predicate
         sym_type = self.symmetric_type
         symmetric_pred = ugettext(u'No relation') if sym_type is None else sym_type.predicate
 
