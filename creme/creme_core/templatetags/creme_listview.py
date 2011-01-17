@@ -24,12 +24,11 @@ from django import template
 from django.db import models
 from django.utils.html import escape
 from django.utils.translation import ugettext as _
-from django.contrib.contenttypes.models import ContentType
 
-from creme_core.models.header_filter import HeaderFilter, HFI_FIELD, HFI_RELATION, HFI_FUNCTION, HFI_CUSTOM, HFI_VOLATILE
+from creme_core.models.header_filter import HFI_FIELD, HFI_RELATION, HFI_FUNCTION, HFI_CUSTOM, HFI_VOLATILE
 from creme_core.models import Filter, CustomField
 from creme_core.templatetags.creme_core_tags import get_html_field_value
-
+from creme_core.utils.meta import get_model_field_infos
 
 register = template.Library()
 
@@ -80,7 +79,7 @@ def _build_select_search_widget(item_ctx, search_value, choices):
     item_ctx['values'] = [{
                             'value':    id_,
                             'text':     unicode(val),
-                            'selected': 'selected' if selected_value == unicode(val) else ''
+                            'selected': 'selected' if selected_value == unicode(id_) else ''
                           } for id_, val in choices
                          ]
 
@@ -104,8 +103,16 @@ def get_listview_columns_header(context):
 
         if item_type == HFI_FIELD:
             try:
-                field = get_model_field(item.name)
-            except FieldDoesNotExist:
+                field_name = item.name
+                if field_name.find('__') > -1:
+                    field = None
+                    sub_field_obj = get_model_field_infos(model, field_name)[1]['field']
+                    if isinstance(sub_field_obj, (models.DateField, models.DateTimeField, models.BooleanField)):
+                        field = sub_field_obj
+                else:
+                    field = get_model_field(field_name)
+
+            except models.FieldDoesNotExist:
                 continue
 
             if isinstance(field, models.ForeignKey):
