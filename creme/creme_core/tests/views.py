@@ -541,3 +541,30 @@ class ViewsTestCase(TestCase):
 
         #TODO: test other relation views...
 
+    def assertNoFormError(self, response): #TODO: move in a CremeTestCase ??? (copied from creme_config)
+        try:
+            errors = response.context['form'].errors
+        except Exception, e:
+            pass
+        else:
+            self.fail(errors)
+
+    def test_headerfilter_create(self): #TODO: test HFI creation....
+        self.login()
+
+        ct = ContentType.objects.get_for_model(CremeEntity)
+        self.assertEqual(0, HeaderFilter.objects.filter(entity_type=ct).count())
+
+        response = self.client.get('/creme_core/header_filter/add/%s' % ct.id)
+        self.assertEqual(200, response.status_code)
+
+        name = 'DefaultHeaderFilter'
+        response = self.client.post('/creme_core/header_filter/add/%s' % ct.id,
+                                    data={'name': name}
+                                   )
+        self.assertNoFormError(response)
+        self.assertEqual(302, response.status_code)
+
+        hfilters = HeaderFilter.objects.filter(entity_type=ct)
+        self.assertEqual(1,    len(hfilters))
+        self.assertEqual(name, hfilters[0].name)
