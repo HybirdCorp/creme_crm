@@ -188,7 +188,7 @@ class CremeModelForm(ModelForm, HookableForm):
         return self.blocks.build(self)
 
     def save(self, *args, **kwargs):
-        instance = super(CremeModelForm, self).save(self, *args, **kwargs)
+        instance = super(CremeModelForm, self).save(*args, **kwargs)
         self._post_save()
         return instance
 
