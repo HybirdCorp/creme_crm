@@ -1,9 +1,6 @@
 {% load i18n %}
 {% load media %}
 {% load creme_core_tags %}{% load creme_block %}
-{% comment %}<script type="text/javascript">
-    creme.include('{{MEDIA_URL}}js/models/relations.js','js');
-</script>{% endcomment %}
 <table class="table_detail_view ui-corner-all" id={{block_name}}>
     {% get_block_header colspan=2 %}
         <th style="width: 80%;" class="collapser" align="left">{% get_block_title _('%s linked Document') _('%s linked Documents') 'document_48.png' _('Document') %}</th>
@@ -20,7 +17,7 @@
                         {% trans "Add a document" %}
                     </span>
                 {% endif %}
-                <a class="link" onclick="creme.relations.handleAddFromPredicateEntity('/creme_core/relation/add/from/predicate/{{predicate_id}}/entity/{{object.id}}/{{ct_id}}', '{{predicate_id}}', '{{object.id}}', {% get_block_reload_uri %});">
+                <a class="link" onclick="creme.relations.handleAddFromPredicateEntity('/creme_core/relation/objects2link/rtype/{{predicate_id}}/entity/{{object.id}}/{{ct_id}}', '{{predicate_id}}', '{{object.id}}', {% get_block_reload_uri %});">
                     <img src="{% media_url 'images/relations_22.png' %}" border="0" title="{% trans "Link to a document" %}" alt="{% trans "Link to a document" %}" />
                     {% trans "Link to an existing document" %}
                 </a>
@@ -34,23 +31,20 @@
                 <th class="block_header_line_dark">{% trans "Delete" %}</th>
             </tr>
             {% for relation in page.object_list %}
-                {% with relation.object_entity.get_real_entity as doc %}
-                    <!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
+                {% with relation.object_entity.get_real_entity as doc %}<!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
                     <tr>
                         <td class="{{row_color}}">
                             <a href="{{doc.get_absolute_url}}" title="{{doc}}">{{doc}}</a>
                         </td>
                         <td class="{{row_color}}" align="center" valign="center" style="width:10%;">
-                            {% get_line_deletor at_url '/creme_core/relation/delete' with_args "{'id':{{relation.pk}}, 'object_id':{{object.pk}} }" %}
+                            {% get_line_deletor at_url '/creme_core/relation/delete' with_args "{'id':{{relation.pk}} }" %}
                         </td>
                     </tr>
                 {% endwith %}
             {% endfor %}
         {% else %}
             <tr>
-                <td class="block_line_dark">
-                    {% trans "No linked document" %}
-                </td>
+                <td class="block_line_dark">{% trans "No linked document" %}</td>
             </tr>
         {% endif %}
     </tbody>

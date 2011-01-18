@@ -50,7 +50,7 @@ creme.widget.EntitySelector = creme.widget.declare('ui-creme-entityselector', {
     },
 
     _select: function(element, content_type, cb) {
-        console.log(element.data('popup'), element);
+        //console.log(element.data('popup'), element);
 
         var self = creme.widget.EntitySelector
         var o2m = (creme.widget.options($(element))['multiple'] === '1') ? '0' : '1'

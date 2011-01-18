@@ -153,7 +153,20 @@ class UsersBlock(QuerysetBlock):
     template_name = 'creme_config/templatetags/block_users.html'
 
     def detailview_display(self, context):
-        return self._render(self.get_block_template_context(context, User.objects.all(),
+        return self._render(self.get_block_template_context(context, User.objects.filter(is_team=False),
+                                                            update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
+                                                            ))
+
+class TeamsBlock(QuerysetBlock):
+    id_           = QuerysetBlock.generate_id('creme_config', 'teams')
+    dependencies  = (User,)
+    order_by      = 'username'
+    page_size     = _PAGE_SIZE
+    verbose_name  = u'Teams configuration'
+    template_name = 'creme_config/templatetags/block_teams.html'
+
+    def detailview_display(self, context):
+        return self._render(self.get_block_template_context(context, User.objects.filter(is_team=True),
                                                             update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
                                                             ))
 
@@ -294,6 +307,7 @@ blocks_list = (
         RelationBlocksConfigBlock(),
         ButtonMenuBlock(),
         UsersBlock(),
+        TeamsBlock(),
         SearchConfigBlock(),
         InstanceBlocksConfigBlock(),
         UserRolesBlock(),

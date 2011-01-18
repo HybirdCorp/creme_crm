@@ -66,23 +66,26 @@ creme.utils.loading = function(div_id, is_loaded, params) {
 }
 
 creme.utils.showDialog = function(text, options, div_id) {
-    var $div = $('#'+div_id);
+    var $div = $('#' + div_id);
+
     if($div.size() == 0) {
         var d = new Date();
-        div_id = d.getTime().toString()+Math.ceil(Math.random()*1000000);
-        $div = $('<div id="'+div_id+'"  style="display:none;"></div>');
+        div_id = d.getTime().toString() + Math.ceil(Math.random() * 1000000);
+        $div = $('<div id="' + div_id + '"  style="display:none;"></div>');
         $(document.body).append($div);
     }
     $div.html(text);
     //$div.append($('<input type="hidden"/>').attr('id','dialog_id').val(div_id));
+
+    buttons = {};
+    buttons[gettext("Ok")] = function() {
+            $(this).dialog("close");
+            /*$(this).dialog("destroy");
+            $(this).remove();*/
+        }
+
     $div.dialog(jQuery.extend({
-        buttons: {
-            "Ok": function() {
-                $(this).dialog("close");
-                /*$(this).dialog("destroy");
-                $(this).remove();*/
-            }
-        },
+        buttons: buttons,
         closeOnEscape: false,
         hide: 'slide',
         show: 'slide',
@@ -580,17 +583,17 @@ creme.utils.ajaxDelete = function(url, _data, ajax_params, msg) {
                 beforeSend : function(req) {
                     creme.utils.loading('loading', false);
                 },
-                success: function(data, status, req){
+                success: function(data, status, req) {
                     creme.utils.showDialog(gettext("Suppression done"));
                 },
-                error: function(req, status, error){
+                error: function(req, status, error) {
                     if(!req.responseText || req.responseText == "") {
-                        creme.utils.showDialog("Erreur");
+                        creme.utils.showDialog(gettext("Error"));
                     } else {
                         creme.utils.showDialog(req.responseText);
                     }
                 },
-                complete: function(request, textStatus){
+                complete: function(request, textStatus) {
                     creme.utils.loading('loading', true);
                 },
                 sync: false,

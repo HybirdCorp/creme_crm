@@ -14,7 +14,7 @@ urlpatterns = patterns('media_managers.views',
 )
 
 urlpatterns += patterns('creme_core.views',
-    (r'^image/edit_js/$',                                'ajax.edit_js'),
-    (r'^image/delete_js/(?P<entities_ids>([\d]+[,])+)$', 'generic.delete_entities_js'),
+    #(r'^image/edit_js/$',                                'ajax.edit_js'),
+    #(r'^image/delete_js/(?P<entities_ids>([\d]+[,])+)$', 'generic.delete_entities_js'), #Commented 6 december 2010
     (r'^image/delete/(?P<object_id>\d+)$',               'generic.delete_entity'),
 )

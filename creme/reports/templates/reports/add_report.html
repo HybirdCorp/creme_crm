@@ -1,44 +1,39 @@
 {% extends "creme_core/generics/blockform/add.html" %}
 
 {% block extrahead %}
-    {% comment %}<script type="text/javascript" src="{{MEDIA_URL}}js/models/reports.js"></script>{% endcomment %}
     <script type="text/javascript">
         $(document).ready(function(){
-            $('#{{form.ct.auto_id}}').change(function(){
+            $('#{{form.ct.auto_id}}').change(function() {
                 var opts = {
                     'ct':this,
                     'hf':'#{{form.hf.auto_id}}',//'#hf',
                     'show_after_ct':'.show_after_ct',
                     'filter':'#{{form.filter.auto_id}}',
-                    'columns':
-                        {
+                    'columns': {
                             'table_id':'{{form.columns.auto_id}}',
                             'name' : '{{form.columns.name}}'
                         },
-                    'cf' :
-                        {
+                    'cf' : {
                             'table_id':'{{form.custom_fields.auto_id}}',
                             'name' : '{{form.custom_fields.name}}'
                         },
-                    'relations' :
-                        {
+                    'relations' : {
                             'table_id':'{{form.relations.auto_id}}',
                             'name' : '{{form.relations.name}}'
                         },
-                    'functions' :
-                        {
+                    'functions' : {
                             'table_id':'{{form.functions.auto_id}}',
                             'name' : '{{form.functions.name}}'
                         },
                     'aggregates' : [
-                        {% for aggregate in form.aggregates %}
-                        {
-                            'target_node': 'id_{{aggregate.name}}',
-                            'input_name' : '{{aggregate.name}}',
-                            'name': '{{aggregate.name}}'
-                        }{% if not forloop.last %},{% endif %}{# Prevent trailing comma incompatible with IE #}
-                        {% endfor %}
-                    ]
+                            {% for aggregate in form.aggregates %}
+                                {
+                                    'target_node': 'id_{{aggregate.name}}',
+                                    'input_name' : '{{aggregate.name}}',
+                                    'name': '{{aggregate.name}}'
+                                }{% if not forloop.last %},{% endif %}{# Prevent trailing comma incompatible with IE #}
+                            {% endfor %}
+                        ]
                 };
                 creme.reports.load(opts);
             });
@@ -48,8 +43,6 @@
             {% endif %}
 
             $('#{{form.ct.auto_id}}').change();
-
-            
         });
     </script>
 {% endblock %}

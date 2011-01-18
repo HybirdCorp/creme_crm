@@ -4,13 +4,13 @@
 {% load creme_core_tags %}{% load creme_block %}
 
 {% block extra_menu_buttons %}
-    {% if not object.effective_end_date %}
-        <li>
-            {% has_perm_to change object as has_perm %}
+    {% if not object.is_closed %}
+        <li>{% has_perm_to change object as has_perm %}
             {% if has_perm %}
-                <a class="menu_button" href="/projects/project/{{object.id}}/close" >
+                <a class="menu_button" onclick="$('#id_project_close').submit();">
                     <img src="{% media_url 'images/cancel_32.png' %}" border="0" title="{% trans "Close project" %}" alt="{% trans "Close project" %}" />
                     {% trans "Close project" %}
+                    <div style="display:none;"><form id="id_project_close" method="POST" action="/projects/project/{{object.id}}/close">{% csrf_token %}</form></div>
                 </a>
             {% else %}
                 <span class="menu_button forbidden" title="{% trans "forbidden" %}">

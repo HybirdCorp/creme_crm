@@ -22,15 +22,12 @@ from django.utils.translation import ugettext as _
 
 from creme_core.views.generic import app_portal
 
-from reports.models import Report, report_template_dir
+from reports.models import Report
 
 
 def portal(request):
-    """
-        @Permissions : Acces or Admin to rapport app
-    """
     stats = (
-                (_('Number of reports'), Report.objects.all().count()),
+                (_('Number of reports'), Report.objects.count()),
             )
 
-    return app_portal(request, Report._meta.app_label, '%s/portal.html' % report_template_dir, Report, stats)
+    return app_portal(request, Report._meta.app_label, 'reports/portal.html', Report, stats)
