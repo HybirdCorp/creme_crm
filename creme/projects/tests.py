@@ -32,6 +32,15 @@ class ProjectsTestCase(TestCase):
         self.password = 'test'
         self.user = None
 
+    def assertNoFormError(self, response): #move in a CremeTestCase ???
+        try:
+            errors = response.context['form'].errors
+        except Exception, e:
+            pass
+        else:
+            if errors:
+                self.fail(errors)
+
     def test_populate(self):
         rtypes = RelationType.objects.filter(pk=REL_SUB_PROJECT_MANAGER)
         self.assertEqual(1, rtypes.count())
@@ -50,12 +59,13 @@ class ProjectsTestCase(TestCase):
                                     data={
                                             'user':         self.user.pk,
                                             'name':         name,
-                                            'tstatus':       ProjectStatus.objects.all()[0].id,
+                                            'status':       ProjectStatus.objects.all()[0].id,
                                             'start_date':   '2010-10-11',
                                             'end_date':     '2010-12-31',
                                             'responsibles': manager.id,
-                                    }
+                                         }
                                    )
+        self.assertNoFormError(response)
         self.assertEqual(200, response.status_code)
 
         try:
