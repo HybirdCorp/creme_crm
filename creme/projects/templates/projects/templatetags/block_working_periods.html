@@ -16,7 +16,7 @@
         {% if not object.is_alive %}
             <tr>
                 <th colspan="11" class="block_header_line_dark" align="left">
-                    <em>{% blocktrans with object.status.name as status %}You can't add a working périod because this task is {{status}}{% endblocktrans %}</em>
+                    <em>{% blocktrans with object.tstatus.name as status %}You can't add a working périod because this task is {{status}}{% endblocktrans %}</em>
                 </th>
             </tr>
         {% endif %}

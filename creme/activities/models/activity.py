@@ -86,6 +86,18 @@ class ActivityType(CremeModel):
         verbose_name = _(u"Activity type")
         verbose_name_plural = _(u"Activity types")
 
+class Status(CremeModel):
+    name        = CharField(_(u'Name'), max_length=100)
+    description = TextField(_(u'Description'))
+
+    def __unicode__(self):
+        return self.name
+
+    class Meta:
+        app_label = 'activities'
+        verbose_name = _(u'Status')
+        verbose_name_plural = _(u'Status') #arf plural....
+        
 
 class Activity(CremeEntity):
     """Activity : event or task"""
@@ -96,6 +108,9 @@ class Activity(CremeEntity):
     type        = ForeignKey(ActivityType, verbose_name=_(u"Activity type"))
     #calendar    = ForeignKey(Calendar, verbose_name=_(u"Calendar"))
     is_all_day  = BooleanField(_(u'All day ?'), blank=True, default=False)
+    status      = ForeignKey(Status, verbose_name=_(u'Status'), blank=True, null=True)
+    occuped     = BooleanField(_(u'Occuped ?'), default=False)
+
 
     research_fields = CremeEntity.research_fields + ['title', 'type__name']
     excluded_fields_in_html_output = CremeEntity.excluded_fields_in_html_output + ['type', 'activity_ptr']
@@ -200,22 +215,10 @@ class Meeting(Activity):
         verbose_name_plural = _(u'Meetings')
 
 
-class TaskStatus(CremeModel):
-    name        = CharField(_(u'Name'), max_length=100)
-    description = TextField(_(u'Description'))
-
-    def __unicode__(self):
-        return self.name
-
-    class Meta:
-        app_label = 'activities'
-        verbose_name = _(u'Task status')
-        verbose_name_plural = _(u'Task status') #arf plural....
 
 
 class Task(Activity):
     duration = PositiveIntegerField(_(u'Duration (in hour)'), blank=True, null=True)
-    status   = ForeignKey(TaskStatus, verbose_name=_(u'Status'))
 
     def __init__ (self, *args , **kwargs):
         super(Task, self).__init__(*args, **kwargs)
@@ -261,3 +264,4 @@ class CalendarActivityLink(CremeModel):
         app_label = 'activities'
         verbose_name = _(u'Calendar activity link')
         verbose_name_plural = _(u'Calendars activities links')
+        unique_together = ("calendar", "activity")

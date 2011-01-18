@@ -18,12 +18,12 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from creme.crudity.models.history import History
 from django.utils.translation import ugettext_lazy as _
 
 from creme_core.gui.block import QuerysetBlock
 
 from crudity.models.actions import WaitingAction
+from crudity.models.history import History
 
 class WaitingActionBlock(QuerysetBlock):
     dependencies  = ()
