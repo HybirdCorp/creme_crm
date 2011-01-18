@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-10-25 11:28+0200\n"
+"POT-Creation-Date: 2011-01-18 10:36+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -20,15 +20,15 @@ msgstr ""
 msgid "Media managers"
 msgstr "Gestionnaires des média"
 
-#: creme_core_register.py:34
+#: creme_core_register.py:33
 msgid "Portal"
 msgstr "Portail"
 
-#: creme_core_register.py:35
+#: creme_core_register.py:34
 msgid "Add an image"
 msgstr "Ajouter une image"
 
-#: creme_core_register.py:36
+#: creme_core_register.py:35
 msgid "All images"
 msgstr "Lister les images"
 
@@ -49,38 +49,38 @@ msgid "Image view"
 msgstr "Vue d'Image"
 
 #: populate.py:43 models/image.py:36
-#: templates/media_managers/image_as_table.html:16
+#: templates/media_managers/image_as_table.html:17
 msgid "Name"
 msgstr "Nom"
 
 #: populate.py:44 models/image.py:40 models/image.py:49
-#: templates/media_managers/portal.html:57
+#: templates/media_managers/portal.html:49
 msgid "Image"
 msgstr "Image"
 
 #: populate.py:45 models/image.py:37
-#: templates/media_managers/image_as_table.html:20
+#: templates/media_managers/image_as_table.html:21
 msgid "Description"
 msgstr "Description"
 
 #: populate.py:46
-msgid "User"
-msgstr "Utilisateur"
+msgid "User - Username"
+msgstr "Utilisateur - Nom d'utilisateur"
 
 #: populate.py:47 models/image.py:42
-#: templates/media_managers/image_as_table.html:32
+#: templates/media_managers/image_as_table.html:33
 msgid "Categories"
 msgstr "Catégories"
 
-#: forms/widgets.py:44
+#: forms/widgets.py:32
 msgid "Add image"
 msgstr "Ajouter image"
 
-#: models/image.py:38 templates/media_managers/image_as_table.html:24
+#: models/image.py:38 templates/media_managers/image_as_table.html:25
 msgid "Height"
 msgstr "Hauteur"
 
-#: models/image.py:39 templates/media_managers/image_as_table.html:28
+#: models/image.py:39 templates/media_managers/image_as_table.html:29
 msgid "Width"
 msgstr "Largueur"
 
@@ -100,17 +100,16 @@ msgstr "Catégorie de média"
 msgid "Media categories"
 msgstr "Catégories de média"
 
-#: templates/media_managers/image_as_table.html:9
 #: templates/media_managers/image_as_table.html:10
+#: templates/media_managers/image_as_table.html:11
 msgid "Image information"
 msgstr "Informations sur l'image"
 
-#: templates/media_managers/image_as_table.html:37
+#: templates/media_managers/image_as_table.html:38
 msgid "Download image"
 msgstr "Télécharger l'image"
 
 #: templates/media_managers/portal.html:20
-#: templates/media_managers/portal.html:36
 msgid "Media portal"
 msgstr "Portail des medias"
 
@@ -122,19 +121,21 @@ msgstr "Liste des images"
 msgid "Go to the list"
 msgstr "Aller à la liste"
 
-#: templates/media_managers/portal.html:37
-#: templates/media_managers/portal.html:42
+#: templates/media_managers/portal.html:34
 msgid "Statistics"
 msgstr "Statistiques"
 
-#: templates/media_managers/portal.html:57
+#: templates/media_managers/portal.html:49
 msgid "Last added Images"
 msgstr "Dernières images ajoutées"
 
-#: templates/media_managers/portal.html:66
+#: templates/media_managers/portal.html:58
 msgid "See"
 msgstr "Voir"
 
 #: views/portal.py:33
 msgid "Number of images"
 msgstr "Nombre d'image(s)"
+
+#~ msgid "User"
+#~ msgstr "Utilisateur"

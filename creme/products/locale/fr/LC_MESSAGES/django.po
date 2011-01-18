@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-10-25 11:29+0200\n"
+"POT-Creation-Date: 2011-01-18 10:43+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -20,23 +20,23 @@ msgstr ""
 msgid "Products and services"
 msgstr "Produits et services"
 
-#: creme_core_register.py:34
+#: creme_core_register.py:33
 msgid "Portal"
 msgstr "Portail"
 
-#: creme_core_register.py:35
+#: creme_core_register.py:34
 msgid "All products"
 msgstr "Lister les produits"
 
-#: creme_core_register.py:36
+#: creme_core_register.py:35
 msgid "Add a product"
 msgstr "Ajouter un produit"
 
-#: creme_core_register.py:37
+#: creme_core_register.py:36
 msgid "All services"
 msgstr "Lister les services"
 
-#: creme_core_register.py:38
+#: creme_core_register.py:37
 msgid "Add a service"
 msgstr "Ajouter un service"
 
@@ -44,10 +44,9 @@ msgstr "Ajouter un service"
 msgid "Product view"
 msgstr "Vue de Produit"
 
-#: populate.py:40 populate.py:47 forms/product.py:39 forms/service.py:33
-#: models/product.py:45 models/service.py:43
-msgid "Images"
-msgstr "Images"
+#: populate.py:40 populate.py:47
+msgid "Images - Name"
+msgstr "Images - Nom"
 
 #: populate.py:41 populate.py:48 models/product.py:35 models/service.py:34
 msgid "Name"
@@ -58,8 +57,8 @@ msgid "Code"
 msgstr "Code"
 
 #: populate.py:43 populate.py:50
-msgid "User"
-msgstr "Utilisateur"
+msgid "User - Username"
+msgstr "Utilisateur - Nom d'utilisateur"
 
 #: populate.py:45
 msgid "Service view"
@@ -173,6 +172,11 @@ msgstr "Catégorie"
 msgid "Sub-category"
 msgstr "Sous-catégorie"
 
+#: forms/product.py:39 forms/service.py:33 models/product.py:45
+#: models/service.py:43
+msgid "Images"
+msgstr "Images"
+
 #: models/other_models.py:28 models/other_models.py:58
 msgid "Name of the category"
 msgstr "Nom de la catégorie"
@@ -250,7 +254,7 @@ msgstr "Dénombrable"
 msgid "Unit"
 msgstr "Unité"
 
-#: models/service.py:66 templates/products/view_service.html:3
+#: models/service.py:66 templates/products/view_service.html:4
 msgid "Service"
 msgstr "Service"
 
@@ -258,11 +262,11 @@ msgstr "Service"
 msgid "Services"
 msgstr "Services"
 
-#: templates/products/portal.html:4
+#: templates/products/portal.html:5
 msgid "Products & Services portal"
 msgstr "Portail Produits & Services"
 
-#: templates/products/portal.html:6
+#: templates/products/portal.html:7
 msgid "List of products"
 msgstr "Liste des produits"
 
@@ -277,3 +281,6 @@ msgstr "Nombre de produit(s)"
 #: views/portal.py:36
 msgid "Number of services"
 msgstr "Nombre de service(s)"
+
+#~ msgid "User"
+#~ msgstr "Utilisateur"
