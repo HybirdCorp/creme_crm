@@ -275,7 +275,8 @@ class UserTestCase(TestCase):
         except Exception, e:
             pass
         else:
-            self.fail(errors)
+            if errors:
+                self.fail(errors)
 
     def test_create01(self):
         response = self.client.get('/creme_config/user/add/')

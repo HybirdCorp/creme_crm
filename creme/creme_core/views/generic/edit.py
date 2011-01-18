@@ -21,6 +21,7 @@
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render_to_response
 from django.template import RequestContext
+from django.utils.translation import ugettext as _
 #from django.contrib.auth.decorators import login_required
 
 from creme_core.views.generic.popup import inner_popup
@@ -63,7 +64,7 @@ def edit_related_to_entity(request, pk, model, form_class, title_format):
 
     entity.can_change_or_die(request.user)
 
-    if request.POST:
+    if request.method == 'POST':
         edit_form = form_class(entity, request.POST, instance=auxiliary)
 
         if edit_form.is_valid():
@@ -79,4 +80,35 @@ def edit_related_to_entity(request, pk, model, form_class, title_format):
                        is_valid=edit_form.is_valid(),
                        reload=False,
                        delegate_reload=True,
-                       context_instance=RequestContext(request))
+                       context_instance=RequestContext(request)
+                      )
+
+def edit_model_with_popup(request, query_dict, model, form_class, title_format=None,
+                          template='creme_core/generics/blockform/edit_popup.html'):
+    """
+    @param query_dict A dictionary that represnts the query to retrieve the edited instance (eg: {'pk': 12})
+    @param model A django model class that implements the method get_related_entity().
+    @param model title_format A format unicode with an arg (for the edited instance).
+    """
+    instance = get_object_or_404(model, **query_dict)
+
+    if request.method == 'POST':
+        edit_form = form_class(request.POST, request.FILES or None, instance=instance)
+
+        if edit_form.is_valid():
+            edit_form.save()
+    else: # return page on GET request
+        edit_form = form_class(instance=instance)
+
+    title_format = title_format or _(u'Edit <%s>')
+
+    return inner_popup(request, template,
+                       {
+                        'form':  edit_form,
+                        'title': title_format % instance,
+                       },
+                       is_valid=edit_form.is_valid(),
+                       reload=False,
+                       delegate_reload=True,
+                       context_instance=RequestContext(request)
+                      )
