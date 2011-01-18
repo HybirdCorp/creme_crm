@@ -54,7 +54,7 @@ class _PrettyPropertiesField(FunctionField):
 
 
 class CremeEntity(CremeAbstractEntity):
-    header_filter_exclude_fields = CremeAbstractEntity.header_filter_exclude_fields + ['id', 'cremeentity_ptr', 'entity_type', 'is_deleted', 'is_actived', 'header_filter_search_field'] #TODO: use a set() ??
+    header_filter_exclude_fields = CremeAbstractEntity.header_filter_exclude_fields + ['cremeentity_ptr', 'entity_type', 'is_deleted', 'is_actived', 'header_filter_search_field'] #TODO: use a set() ??
     extra_filter_exclude_fields  = CremeAbstractEntity.extra_filter_exclude_fields + ['id', 'cremeentity_ptr', 'header_filter_search_field']
 
     function_fields = CremeAbstractEntity.function_fields.new(_PrettyPropertiesField)

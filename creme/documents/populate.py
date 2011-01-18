@@ -47,8 +47,8 @@ class Populator(BasePopulator):
 
         hf_id = create(HeaderFilter, 'documents-hf', name=_(u'Document view'), entity_type_id=ContentType.objects.get_for_model(Document).id, is_custom=False).id
         pref  = 'documents-hfi_'
-        create(HeaderFilterItem, pref + 'title',  order=1, name='title',  title=_(u'Title'),  type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True, editable=True, sortable=True, filter_string="title__icontains")
-        create(HeaderFilterItem, pref + 'folder', order=2, name='folder', title=_(u'Folder'), type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True, editable=True, sortable=True, filter_string="folder__title__icontains")
+        create(HeaderFilterItem, pref + 'title',  order=1, name='title',         title=_(u'Title'),          type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True, editable=True, sortable=True, filter_string="title__icontains")
+        create(HeaderFilterItem, pref + 'folder', order=2, name='folder__title', title=_(u'Folder - Title'), type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True, editable=True, sortable=True, filter_string="folder__title__icontains")
 
         create(BlockConfigItem, 'documents-linked_docs_block', content_type=None, block_id=linked_docs_block.id_, order=1000, on_portal=False)
 

@@ -27,7 +27,7 @@ from creme_core.utils import create_or_update_models_instance as create
 from creme_core.management.commands.creme_populate import BasePopulator
 from persons.models import Contact
 
-from activities.models import Activity, ActivityType, PhoneCallType, TaskStatus
+from activities.models import Activity, ActivityType, PhoneCallType, Status
 from activities.blocks import future_activities_block, past_activities_block
 from activities.buttons import add_meeting_button, add_phonecall_button, add_task_button
 from activities.constants import *
@@ -52,10 +52,11 @@ class Populator(BasePopulator):
         create(PhoneCallType, 2, name=_(u"Outgoing"), description=_(u"Outgoing call"))
         create(PhoneCallType, 3, name=_(u"Other"),    description=_(u"Example: a conference"))
 
-        create(TaskStatus, 1, name=_(u"Planned"),     description=_(u"Planned"))
-        create(TaskStatus, 2, name=_(u"In progress"), description=_(u"In progress"))
-        create(TaskStatus, 3, name=_(u"Done"),        description=_(u"Done"))
-        create(TaskStatus, 4, name=_(u"Delayed"),     description=_(u"Delayed"))
+        create(Status, 1, name=_(u"Planned"),     description=_(u"Planned"))
+        create(Status, 2, name=_(u"In progress"), description=_(u"In progress"))
+        create(Status, 3, name=_(u"Done"),        description=_(u"Done"))
+        create(Status, 4, name=_(u"Delayed"),     description=_(u"Delayed"))
+        create(Status, 5, name=_(u"Cancelled"),     description=_(u"Cancelled"))
 
         create(ActivityType, ACTIVITYTYPE_TASK,      name=_(u"Task"),            color="987654", default_day_duration=0, default_hour_duration="00:15:00", is_custom=False)
         create(ActivityType, ACTIVITYTYPE_MEETING,   name=_(u"Meeting"),         color="456FFF", default_day_duration=0, default_hour_duration="00:15:00", is_custom=False)
@@ -70,7 +71,8 @@ class Populator(BasePopulator):
         create(HeaderFilterItem, pref + 'title', order=1, name='title', title=_(u'Name'),  type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True, editable=True, sortable=True, filter_string="title__icontains")
         create(HeaderFilterItem, pref + 'start', order=2, name='start', title=_(u'Start'), type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True, editable=True, sortable=True, filter_string="start__range")
         create(HeaderFilterItem, pref + 'end',   order=3, name='end',   title=_(u'End'),   type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True, editable=True, sortable=True, filter_string="end__range")
-        create(HeaderFilterItem, pref + 'type',  order=4, name='type',  title=_(u'Type'),  type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True, editable=True, sortable=True, filter_string="type__name__icontains")
+        create(HeaderFilterItem, pref + 'type',  order=5, name='type__name',  title=_(u'Type - Name'),  type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True, editable=True, sortable=True, filter_string="type__name__icontains")
+        create(HeaderFilterItem, pref + 'type',  order=4, name='status__name',  title=_(u'Status - Name'),  type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True, editable=True, sortable=True, filter_string="status__name__icontains")
 
         create(BlockConfigItem, 'activities-future_activities_block', content_type=None, block_id=future_activities_block.id_, order=20, on_portal=False)
         create(BlockConfigItem, 'activities-past_activities_block',   content_type=None, block_id=past_activities_block.id_,   order=21, on_portal=False)

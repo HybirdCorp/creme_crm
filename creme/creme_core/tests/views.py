@@ -70,14 +70,14 @@ class ViewsTestCase(TestCase):
         self.assertEqual('text/javascript', response['Content-Type'])
 
         content = simplejson.loads(response.content)
-        #print 'CONTENT:', content
-        self.assertEqual(14, len(content))
-        self.assertEqual(content[0], ["created",          "Creme entity - " + _('Creation date')])
-        self.assertEqual(content[1], ["modified",         "Creme entity - " + _("Last modification")])
-        self.assertEqual(content[2], ["user__id",         _("User") + " - Id"])
-        self.assertEqual(content[3], ["user__username",   _("User") + " - " + _("Username")])
-        self.assertEqual(content[4], ["user__first_name", _("User") + " - " + _("First name")])
-        #etc...
+        self.assertEqual(7, len(content))
+        self.assertEqual(content[0],    ["created",          "Creme entity - " + _('Creation date')])
+        self.assertEqual(content[1],    ["modified",         "Creme entity - " + _("Last modification")])
+        self.assertEqual(content[2],    ["user__username",   _("User") + " - " + _("Username")])
+        self.assertEqual(content[3],    ["user__first_name", _("User") + " - " + _("First name")])
+        self.assertEqual(content[4],    ["user__last_name",  _("User") + " - " + _("Last name")])
+        self.assertEqual(content[5][0], "user__email")
+        self.assertEqual(content[6][0], "user__is_team")
 
         response = self.client.post('/creme_core/get_fields', data={'ct_id': 0})
         self.assertEqual(404,               response.status_code)

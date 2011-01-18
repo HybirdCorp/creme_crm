@@ -6,9 +6,9 @@ from models import *
 
 
 class BillingBaseAdmin(admin.ModelAdmin):
-    list_display  = ('name', 'status', 'issuing_date', 'expiration_date', 'discount', 'total')
-    list_filter   = ['status', 'issuing_date', 'expiration_date', 'discount', 'total']
-    search_fields = ['name', 'status', 'issuing_date', 'expiration_date', 'discount', 'total']
+    list_display  = ('name', 'status', 'issuing_date', 'expiration_date', 'discount', 'total_vat', 'total_no_vat')
+    list_filter   = ['status', 'issuing_date', 'expiration_date', 'discount',  'total_vat', 'total_no_vat']
+    search_fields = ['name', 'status', 'issuing_date', 'expiration_date', 'discount',  'total_vat', 'total_no_vat']
 
 class LineAdmin(admin.ModelAdmin):
     list_display = ('related_item', 'document', 'comment', 'quantity', 'unit_price', 'discount', 'vat', 'total_discount')

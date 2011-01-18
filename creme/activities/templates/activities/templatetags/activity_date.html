@@ -1,0 +1,8 @@
+{% load i18n %}
+{%  if activity.start.day != activity.end.day %}
+     {% trans "Begin" %} {{ activity.start|date:"SHORT_DATE_FORMAT" }}, {{ activity.start|date:"H:i" }}<br />
+      {% trans "End" %} {{ activity.end|date:"SHORT_DATE_FORMAT" }}, {{ activity.end|date:"H:i" }}
+{% else %}
+     {% trans "The" %} {{ activity.start|date:"SHORT_DATE_FORMAT" }}<br />
+     {% trans "begin" %} {{ activity.start|date:"H:i" }} {% trans "to" %} {{ activity.end|date:"H:i" }}
+{% endif %}

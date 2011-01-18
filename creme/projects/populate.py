@@ -71,4 +71,4 @@ class Populator(BasePopulator):
 
         SearchConfigItem.create(Project,     ['name', 'description', 'status__name'])
         SearchConfigItem.create(Resource,    ['linked_contact__first_name', 'linked_contact__last_name', 'hourly_cost'])
-        SearchConfigItem.create(ProjectTask, ['project__name', 'duration', 'status__name'])
+        SearchConfigItem.create(ProjectTask, ['project__name', 'duration', 'tstatus__name'])

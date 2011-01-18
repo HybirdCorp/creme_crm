@@ -27,12 +27,6 @@
             {% endif %}
         {% endfor %}
 
-        {% block main_content %}
-            {% for form_block in form.get_blocks %}
-                {% include "creme_core/generics/blockform/content.html" %}
-            {% endfor %}
-        {% endblock %}
-
         {% if form.non_field_errors %}
             <table class="table_detail_view ui-corner-all">
                 <thead>
@@ -47,6 +41,12 @@
                 </tbody>
             </table>
         {% endif %}
+
+        {% block main_content %}
+            {% for form_block in form.get_blocks %}
+                {% include "creme_core/generics/blockform/content.html" %}
+            {% endfor %}
+        {% endblock %}
 
         {% block submit_buttons %}
             {% if not hide_submit %}

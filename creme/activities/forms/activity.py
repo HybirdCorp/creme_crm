@@ -74,6 +74,7 @@ def _check_activity_collisions(activity_start, activity_end, participants, exclu
         # do collision request
         #TODO: can be done with less queries ?
         #  eg:  Activity.objects.filter(relations__object_entity=participant.id, relations__object_entity__type=REL_OBJ_PART_2_ACTIVITY).filter(collision_test)
+        #activity_collisions = Activity.objects.exclude(occuped=False).filter(pk__in=activity_ids).filter(collision_test)[:1]
         activity_collisions = Activity.objects.filter(pk__in=activity_ids).filter(collision_test)[:1]
 
         if activity_collisions:
@@ -117,7 +118,8 @@ class ParticipantCreateForm(CremeForm):
             return cleaned_data
 
         activity = self.activity
-        _check_activity_collisions(activity.start, activity.end,
+        if activity.occuped :
+            _check_activity_collisions(activity.start, activity.end,
                                    [entity for rtype, entity in cleaned_data['participants']])
 
         return cleaned_data
@@ -220,8 +222,8 @@ class ActivityCreateForm(CremeEntityForm):
                 participants.append(Contact.objects.get(is_user=self.current_user))
             except Contact.DoesNotExist:
                 pass
-
-        _check_activity_collisions(cleaned_data['start'], cleaned_data['end'], participants)
+        if cleaned_data['occuped']:
+            _check_activity_collisions(cleaned_data['start'], cleaned_data['end'], participants)
 
     def save(self):
         instance     = self.instance
@@ -318,7 +320,8 @@ class ActivityEditForm(CremeEntityForm):
         _clean_interval(cleaned_data)
 
         # check if activity period change cause collisions
-        _check_activity_collisions(cleaned_data['start'], cleaned_data['end'],
+        if cleaned_data['occuped']:
+            _check_activity_collisions(cleaned_data['start'], cleaned_data['end'],
                                    instance.get_related_entities(REL_OBJ_PART_2_ACTIVITY),
                                    instance.id)
 
