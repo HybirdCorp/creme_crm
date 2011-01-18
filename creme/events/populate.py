@@ -40,9 +40,9 @@ class Populator(BasePopulator):
 
         hf_id = create(HeaderFilter, 'events-hf', name=_(u'Event view'), entity_type_id=ContentType.objects.get_for_model(Event).id, is_custom=False).id
         pref = 'events-hfi_'
-        create(HeaderFilterItem, pref + 'name',       order=1, name='name',       title=_(u'Name'),       type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True, editable=True, sortable=True, filter_string="name__icontains")
-        create(HeaderFilterItem, pref + 'type',       order=2, name='type',       title=_(u'Type'),       type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True, editable=True, sortable=True, filter_string="type__name__icontains")
-        create(HeaderFilterItem, pref + 'start_date', order=3, name='start_date', title=_(u'Start date'), type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True, editable=True, sortable=True, filter_string="start_date__range")
-        create(HeaderFilterItem, pref + 'end_date',   order=4, name='end_date',   title=_(u'End date'),   type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True, editable=True, sortable=True, filter_string="end_date__range")
+        create(HeaderFilterItem, pref + 'name',       order=1, name='name',       title=_(u'Name'),        type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True, editable=True, sortable=True, filter_string="name__icontains")
+        create(HeaderFilterItem, pref + 'type',       order=2, name='type__name', title=_(u'Type - Name'), type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True, editable=True, sortable=True, filter_string="type__name__icontains")
+        create(HeaderFilterItem, pref + 'start_date', order=3, name='start_date', title=_(u'Start date'),  type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True, editable=True, sortable=True, filter_string="start_date__range")
+        create(HeaderFilterItem, pref + 'end_date',   order=4, name='end_date',   title=_(u'End date'),    type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True, editable=True, sortable=True, filter_string="end_date__range")
 
         SearchConfigItem.create(Event, ['name', 'description', 'type__name'])

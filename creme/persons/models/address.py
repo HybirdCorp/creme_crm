@@ -46,7 +46,7 @@ class Address(CremeModel):
     owner        = GenericForeignKey(ct_field="content_type", fk_field="object_id")
 
     research_fields = CremeEntity.research_fields + ['address', 'po_box', 'city', 'state', 'zipcode', 'country', 'department']
-
+    header_filter_exclude_fields = CremeEntity.header_filter_exclude_fields + ['object_id', ]
     class Meta:
         app_label = 'persons'
         verbose_name = _(u'Address')

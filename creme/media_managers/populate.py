@@ -40,11 +40,11 @@ class Populator(BasePopulator):
 
         hf_id = create(HeaderFilter, 'media_managers-hf_image', name=_(u"Image view"), entity_type_id=ContentType.objects.get_for_model(Image).id, is_custom=False).id
         pref  = 'media_managers-hfi_image_'
-        create(HeaderFilterItem, pref + 'name',  order=1, name='name',        title=_(u'Name'),         type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True,  editable=True, filter_string="name__icontains" )
-        create(HeaderFilterItem, pref + 'image', order=2, name='image',       title=_(u'Image'),       type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=False, editable=False)
-        create(HeaderFilterItem, pref + 'descr', order=3, name='description', title=_(u'Description'), type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True,  editable=True, filter_string="description__icontains")
-        create(HeaderFilterItem, pref + 'user',  order=4, name='user',        title=_(u'User'),        type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True,  editable=True, filter_string="user__username__icontains" )
-        create(HeaderFilterItem, pref + 'cat',   order=5, name='categories',  title=_(u'Categories'),  type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=False, editable=False)
+        create(HeaderFilterItem, pref + 'name',  order=1, name='name',           title=_(u'Name'),            type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True,  editable=True, filter_string="name__icontains" )
+        create(HeaderFilterItem, pref + 'image', order=2, name='image',          title=_(u'Image'),           type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=False, editable=False)
+        create(HeaderFilterItem, pref + 'descr', order=3, name='description',    title=_(u'Description'),     type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True,  editable=True, filter_string="description__icontains")
+        create(HeaderFilterItem, pref + 'user',  order=4, name='user__username', title=_(u'User - Username'), type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True,  editable=True, filter_string="user__username__icontains" )
+        create(HeaderFilterItem, pref + 'cat',   order=5, name='categories',     title=_(u'Categories'),      type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=False, editable=False)
 
         SearchConfigItem.create(Image, ['name', 'description', 'categories__name'])
 

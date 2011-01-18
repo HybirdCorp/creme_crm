@@ -106,7 +106,7 @@ class HeaderFilter(Model): #CremeModel ???
 
         if fnames:
             get_field = entities_qs.model._meta.get_field_by_name
-            fk_list   = [fname for fname in fnames if isinstance(get_field(fname)[0], ForeignKey)]
+            fk_list   = [fname for fname in fnames if isinstance(get_field(fname.partition('__')[0])[0], ForeignKey)]
 
             if fk_list:
                 debug("HeaderFilter.improve_queryset(): select_related() on %s", fk_list)
