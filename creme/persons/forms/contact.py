@@ -164,7 +164,10 @@ class ContactWithRelationForm(ContactForm):
         instance = super(ContactWithRelationForm, self).save()
 
         if self.linked_orga:
-            relation_type = self.relation_type or self.cleaned_data.get('relation')
-            Relation.create(instance, relation_type.id, self.linked_orga)
+            Relation.objects.create(subject_entity=instance,
+                                    type=self.relation_type or self.cleaned_data.get('relation'),
+                                    object_entity=self.linked_orga,
+                                    user=instance.user,
+                                   )
 
         return instance

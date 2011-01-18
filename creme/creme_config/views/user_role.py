@@ -39,7 +39,7 @@ PORTAL_URL = '/creme_config/role/portal/'
 @login_required
 @permission_required('creme_config.can_admin')
 def add(request):
-    return add_entity(request, UserRoleCreateForm, PORTAL_URL) #, 'creme_core/generics/form/add.html'
+    return add_entity(request, UserRoleCreateForm, PORTAL_URL)
     #if request.method == 'POST':
         #roleform = UserRoleCreateForm(request.POST)
 

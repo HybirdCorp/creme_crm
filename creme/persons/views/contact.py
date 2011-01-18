@@ -24,7 +24,7 @@ from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required, permission_required
 
 from creme_core.models import RelationType
-from creme_core.views.generic import add_entity, edit_entity, view_entity_with_template, list_view
+from creme_core.views.generic import add_entity, edit_entity, view_entity, list_view
 from creme_core.gui.last_viewed import change_page_for_last_item_viewed
 
 from persons.models import Contact, Organisation
@@ -59,13 +59,15 @@ def add_with_relation(request, orga_id, predicate_id=None):
                       request.REQUEST.get('callback_url'),
                       'persons/add_contact_form.html', extra_initial=initial)
 
+@login_required
+@permission_required('persons')
 def edit(request, contact_id):
-    return edit_entity(request, contact_id, Contact, ContactForm, 'persons', template='persons/edit_contact_form.html')
+    return edit_entity(request, contact_id, Contact, ContactForm, template='persons/edit_contact_form.html')
 
 @login_required
 @permission_required('persons')
 def detailview(request, contact_id):
-    return view_entity_with_template(request, contact_id, Contact, '/persons/contact', 'persons/view_contact.html')
+    return view_entity(request, contact_id, Contact, '/persons/contact', 'persons/view_contact.html')
 
 @login_required
 @permission_required('persons')

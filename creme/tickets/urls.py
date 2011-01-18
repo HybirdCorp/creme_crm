@@ -12,7 +12,7 @@ urlpatterns = patterns('tickets.views',
 )
 
 urlpatterns += patterns('creme_core.views',
-    (r'^ticket/edit_js/$',                                'ajax.edit_js'),
+    #(r'^ticket/edit_js/$',                                'ajax.edit_js'),
     (r'^ticket/delete/(?P<object_id>\d+)$',               'generic.delete_entity'),
-    (r'^ticket/delete_js/(?P<entities_ids>([\d]+[,])+)$', 'generic.delete_entities_js'),
+    #(r'^ticket/delete_js/(?P<entities_ids>([\d]+[,])+)$', 'generic.delete_entities_js'), #Commented 6 december 2010
 )

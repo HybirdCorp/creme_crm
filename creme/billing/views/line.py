@@ -18,7 +18,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-#from decimal import Decimal
 from logging import debug
 
 from django.http import HttpResponseRedirect, HttpResponse
@@ -27,28 +26,16 @@ from django.template import RequestContext
 from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required, permission_required
 
-from creme_core.views.generic import add_to_entity, inner_popup
-from creme_core.utils import get_from_POST_or_404
+from creme_core.views.generic import add_to_entity, inner_popup, delete_related_to_entity
 
 from billing.models import Line, ProductLine, ServiceLine
 from billing.forms.line import ProductLineCreateForm, ProductLineOnTheFlyCreateForm, ServiceLineCreateForm, ServiceLineOnTheFlyCreateForm
-#from billing.constants import DEFAULT_VAT
 
 
-#default_decimal = Decimal()
-
+@login_required
+@permission_required('billing')
 def _add_line(request, form_class, document_id):
-    return add_to_entity(request, document_id, form_class,
-                         _(u"New line in the document <%s>"),
-                         #initial={ #COMMENTED on 8 Oct 2010
-                                    #'quantity':       0,
-                                    #'unit_price':     default_decimal,
-                                    #'credit':         default_decimal,
-                                    #'discount':       default_decimal,
-                                    #'total_discount': False,
-                                    #'vat':            DEFAULT_VAT,
-                                  #},
-                         )
+    return add_to_entity(request, document_id, form_class, _(u"New line in the document <%s>"))
 
 def add_product_line(request, document_id):
     return _add_line(request, ProductLineCreateForm, document_id)
@@ -99,14 +86,7 @@ def edit_serviceline(request, line_id):
 @login_required
 @permission_required('billing')
 def delete(request):
-    line     = get_object_or_404(Line, pk=get_from_POST_or_404(request.POST, 'id'))
-    document = line.document
-
-    document.can_change_or_die(request.user)
-
-    line.delete()
-
-    return HttpResponse()
+    return delete_related_to_entity(request, Line)
 
 @login_required
 @permission_required('billing')

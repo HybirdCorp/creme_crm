@@ -35,8 +35,6 @@ class Command(BaseCommand):
     help = "Generate all recurrent documents that have to be."
 
     def handle(self, *args, **options):
-        print "oh ouiiii"
-        return
         lock = Lock.objects.filter(name=LOCK_NAME)
 
         if not lock:

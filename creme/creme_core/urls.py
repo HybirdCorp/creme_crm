@@ -2,22 +2,26 @@
 
 from django.conf.urls.defaults import patterns, include
 
+relation_patterns = patterns('creme_core.views.relation',
+    (r'^add/(?P<subject_id>\d+)$',                                                                         'add_relations'),
+    (r'^add/(?P<subject_id>\d+)/(?P<relation_type_id>[\w-]+)$',                                            'add_relations'),
+    (r'^add_from_predicate/save$',                                                                         'add_relations_with_same_type'),
+    (r'^add_to_entities/(?P<model_ct_id>\d+)/(?P<ids>([\d]+[,])+)$',                                       'add_relations_bulk'),
+     #TODO: 'simple' param as GET param ??
+    (r'^objects2link/rtype/(?P<rtype_id>[\w-]+)/entity/(?P<subject_id>\d+)/(?P<object_ct_id>\d+)$',        'objects_to_link_selection'),
+    (r'^objects2link/rtype/(?P<rtype_id>[\w-]+)/entity/(?P<subject_id>\d+)/(?P<object_ct_id>\d+)/simple$', 'objects_to_link_selection', {'o2m': True}),
+    (r'^delete$',                                                                                          'delete'),
+    (r'^delete/similar$',                                                                                  'delete_similar'),
+    #TODO: unused tool. remove it !
+    #(r'^entity/select/json$',                                                                              'json_entity_select'),
+    (r'^entity/(?P<id>\d+)/json$',                                                                         'json_entity_get'),
+    (r'^entity/(?P<id>\d+)/predicates/json$',                                                              'json_entity_predicates'),
+    (r'^predicate/(?P<id>[\w-]+)/content_types/json$',                                                     'json_predicate_content_types'),
+    (r'^get_predicates_choices_4_ct$',                                                                     'get_predicates_choices_4_ct'),
+)
 
 creme_core_patterns = patterns('creme_core.views',
-    (r'^relation/add/(?P<subject_id>\d+)$',                                                                              'relation.add_relations'),
-    (r'^relation/add/(?P<subject_id>\d+)/(?P<relation_type_id>[\w-]+)$',                                                 'relation.add_relations'),
-    (r'^relation/add/from/predicate/(?P<predicate_id>[\w-]+)/entity/(?P<subject_id>\d+)/(?P<object_ct_id>\d+)$',         'relation.add_relation_from_predicate_n_entity'),
-    (r'^relation/add/from/predicate/(?P<predicate_id>[\w-]+)/entity/(?P<subject_id>\d+)/(?P<object_ct_id>\d+)/simple$',  'relation.add_relation_from_predicate_n_entity', {'o2m':True}),
-    (r'^relation/add_from_predicate/save$',                                                                              'relation.handle_relation_from_predicate_n_entity'),
-    (r'^relation/delete$',                                                                                               'relation.delete'),
-    (r'^relation/delete/similar$',                                                                                       'relation.delete_similar'),
-    # TODO (refs 293) unused tool. remove it !
-    #(r'^relation/entity/select/json$',                                                                                   'relation.json_entity_select'),
-    (r'^relation/entity/(?P<id>\d+)/json$',                                                                              'relation.json_entity_get'),
-    (r'^relation/entity/(?P<id>\d+)/predicates/json$',                                                                   'relation.json_entity_predicates'),
-    (r'^relation/predicate/(?P<id>[\w-]+)/content_types/json$',                                                          'relation.json_predicate_content_types'),
-    (r'^relation/add_to_entities/(?P<model_ct_id>\d+)/(?P<ids>([\d]+[,])+)$',                                            'relation.add_relations_bulk'),
-    (r'^relation/get_predicates_choices_4_ct$',                                                                          'relation.get_predicates_choices_4_ct'),
+    (r'^relation/', include(relation_patterns)),
 
     (r'^blocks/reload/relations_block/(?P<entity_id>\d+)/$',                                'blocks.reload_relations_block'),
     (r'^blocks/reload/relations_block/(?P<entity_id>\d+)/(?P<relation_type_ids>[\w,-]+)/$', 'blocks.reload_relations_block'),
@@ -27,15 +31,15 @@ creme_core_patterns = patterns('creme_core.views',
     (r'^blocks/reload/basic/(?P<block_id>[\w-]+)/$',                                        'blocks.reload_basic'), #most of blocks in creme_config for example
 
     (r'^filter/add/(?P<ct_id>\d+)$',                           'list_view_filter.add'),
-    (r'^filter/edit/(?P<ct_id>\d+)/(?P<filter_id>\d+)$',       'list_view_filter.edit'), #ct_id useful ????
+    (r'^filter/edit/(?P<ct_id>\d+)/(?P<filter_id>\d+)$',       'list_view_filter.edit'), #TODO: ct_id useful ????
     (r'^filter/delete$',                                       'list_view_filter.delete'),
-    (r'^filter/getfieldfk/$',                                  'ajax.fieldHasNGetFK'),   #change url ???? move to list_view_filter.py ??
+    (r'^filter/getfieldfk/$',                                  'ajax.fieldHasNGetFK'),   #TODO: change url ???? move to list_view_filter.py ??
     (r'^filter/register/(?P<filter_id>\d*)/(?P<ct_id>\d+)$',   'list_view_filter.register_in_session'),
     (r'^filter/get_session_filter_id/(?P<ct_id>\d+)$',         'list_view_filter.get_session_filter_id'),
     (r'^filter/select_entity_popup/(?P<content_type_id>\d+)$', 'list_view_filter.get_list_view_popup_from_ct'),
     (r'^filter/get_4_ct/(?P<content_type_id>\d+)$',            'list_view_filter.get_filters_4_ct'),
 
-    (r'^edit_js$', 'ajax.edit_js'),
+    #(r'^edit_js$', 'ajax.edit_js'), #TODO: commented on 5 january 2011 (delete view too)
 
     (r'^clean/$', 'clean.clean'),
 
@@ -71,7 +75,6 @@ creme_core_patterns = patterns('creme_core.views',
     (r'^get_fields$',          'ajax.get_fields'),
     (r'^get_custom_fields$',   'ajax.get_custom_fields'),
     (r'^get_function_fields$', 'ajax.get_function_fields'),
-
 )
 
 creme_core_patterns += patterns('creme_core.views.generic',

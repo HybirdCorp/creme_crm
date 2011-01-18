@@ -1,0 +1,61 @@
+{% extends "creme_core/base.html" %}
+{% load i18n %}
+{% load media %}
+{% load creme_block %}
+
+{% block page_title %} - {% blocktrans %}Synthesis of «{{orga}}»{% endblocktrans %}{% endblock %}
+
+{% block extrahead %}
+    <script type="text/javascript">
+        $(document).ready(function() {
+            creme.utils.bindShowHideTbody();
+        });
+
+        //TODO: move to a commercial.js file
+        creme.commercial = {};
+
+        creme.commercial.post_category = function(url, segment_desc_id, orga_id, select, reload_url) {
+            creme.ajax.post({
+                        'url': url,
+                        'data': {
+                                'category':        $(select).find('[selected="true"]').attr("value"),
+                                'segment_desc_id': segment_desc_id,
+                                'orga_id':         orga_id
+                            },
+                        'success': function(data, status) {
+                              creme.utils.loadBlock(reload_url);
+                            }
+                    });
+        }
+    </script>
+{% endblock %}
+
+{% block before_content_1 %}
+    <div class=zone_spacer_5px>
+        <ul class="button_list hbox">
+            <li>
+                <a class="menu_button" href="{{strategy.get_absolute_url}}">
+                    <img src="{% media_url 'images/left_arrow_32.png' %}" border="0" title="{% trans "Back to the strategy" %}" alt="{% trans "Back to the strategy" %}" />
+                    {% trans "Back to the strategy" %}
+                </a>
+            </li>
+        </ul>
+    </div>
+{% endblock %}
+
+{% block content %}
+    {% block view_title %}
+        <table class="table_header" cellpadding="0" cellspacing="0">
+            <tr>
+                <td width="5%"><img src="{% media_url 'images/organisation_64.png' %}" border="0" title="{% trans "Organisation" %}" alt="{% trans "Organisation" %}" /></td>
+                <td width="95%"><h1>{% blocktrans %}Synthesis of «{{orga}}» by «{{strategy}}»{% endblocktrans %}</h1></td>
+            </tr>
+        </table>
+    {% endblock %}
+
+    <div class=zone_spacer_5px></div>
+
+    {% import_block from_app 'commercial' named 'assets_charms_matrix' as 'assets_charms_matrix_block' %}
+    {% display_block_detailview 'assets_charms_matrix_block' %}
+    {% get_blocks_dependencies %}
+{% endblock %}
