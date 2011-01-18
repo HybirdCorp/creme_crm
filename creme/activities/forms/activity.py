@@ -39,6 +39,21 @@ from assistants.models.alert import Alert
 from activities.models import Activity, Calendar, CalendarActivityLink
 from activities.constants import *
 
+from assistants.models.alert import Alert
+
+def _generate_alert(phone_call, cleaned_data):
+    if cleaned_data['generate_alert']:
+        alert_start_time = cleaned_data.get('alert_start_time') or time()
+        alert_day        = cleaned_data.get('alert_day') or phone_call.start
+
+        alert = Alert()
+        alert.for_user     = phone_call.user
+        alert.trigger_date = alert_day.replace(hour=alert_start_time.hour, minute=alert_start_time.minute)
+        alert.creme_entity = phone_call
+        alert.title        = ugettext(u"Alert of phone call")
+        alert.description  = ugettext(u'Alert related to a phone call')
+        alert.save()
+
 
 def _generate_alert(phone_call, cleaned_data): #TODO: ActivityCreateForm's static method instead ???
     if cleaned_data['generate_alert']:
@@ -172,13 +187,11 @@ class ActivityCreateForm(CremeEntityForm):
     alert_day        = CremeDateTimeField(label=_(u"Alert day"), required=False)
     alert_start_time = CremeTimeField(label=_(u"Alert time"), required=False)
 
-
     blocks = CremeEntityForm.blocks.new(
                 ('datetime',     _(u'When'),         ['start', 'start_time', 'end_time', 'is_all_day']),
                 ('participants', _(u'Participants'), ['my_participation', 'my_calendar', 'user_participation', 'participants']),
                 ('alert_datetime', _(u'Generate an alert or a reminder'), ['generate_alert', 'alert_day', 'alert_start_time']),
             )
-
 
 
     def __init__(self, current_user, *args, **kwargs):
