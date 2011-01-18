@@ -58,9 +58,9 @@ class ActivitiesTestCase(TestCase):
         self.assertEqual(response.status_code, 200)
 
         title  = 'my_task'
-        status = TaskStatus.objects.all()[0]
+        status = Status.objects.all()[0]
         my_calendar = Calendar.get_user_default_calendar(self.user)
-
+        
         response = self.client.post('/activities/activity/add-without-relation/task',
                                     follow=True,
                                     data={

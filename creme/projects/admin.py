@@ -14,7 +14,7 @@ class ResourceAdmin(admin.ModelAdmin):
 
 
 class ProjectTaskAdmin(admin.ModelAdmin):
-    list_display = ('project', 'order', 'duration', 'status')
+    list_display = ('project', 'order', 'duration', 'tstatus')
 
 
 register = admin.site.register

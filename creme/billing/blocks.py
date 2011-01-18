@@ -23,7 +23,7 @@ from django.utils.translation import ugettext_lazy as _
 from creme_core.gui.block import Block, PaginatedBlock
 from creme_core.models import CremeEntity
 
-from billing.models import ProductLine, ServiceLine
+from billing.models import ProductLine, ServiceLine, Invoice, SalesOrder, Quote
 
 
 #NB PaginatedBlock and not QuerysetBlock to avoid the retrieving of a sliced
@@ -65,6 +65,18 @@ class TotalBlock(Block):
         return self._render(self.get_block_template_context(context))
 
 
+class TargetBlock(Block):
+    id_           = Block.generate_id('billing', 'target')
+    dependencies  = (Invoice, SalesOrder, Quote)
+    verbose_name  = _(u'Target Organisation')
+    template_name = 'billing/templatetags/block_target.html'
+
+    #TODO: move in Block ??
+    def detailview_display(self, context):
+        return self._render(self.get_block_template_context(context))
+
+
 product_lines_block = ProductLinesBlock()
 service_lines_block = ServiceLinesBlock()
 total_block         = TotalBlock()
+target_block        = TargetBlock()

@@ -49,8 +49,8 @@ class WorkingPeriodForm(CremeModelForm):
         task = self.task
         self.instance.task = task
 
-        if task.status_id == constants.NOT_STARTED_PK:
-            task.status_id = constants.IN_PROGRESS_PK
+        if task.tstatus_id == constants.NOT_STARTED_PK:
+            task.tstatus_id = constants.IN_PROGRESS_PK
             task.save()
 
         return super(WorkingPeriodForm, self).save(*args, **kwargs)
