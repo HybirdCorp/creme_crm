@@ -25,52 +25,27 @@ from django.template.context import RequestContext
 from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth.models import User
 
+from creme_core.views.generic import add_model_with_popup, edit_model_with_popup
 from creme_core.utils import get_from_POST_or_404
 
 from creme_config.forms.user_settings import UserSettingsConfigForm
 from creme_config.forms.user import UserAddForm, UserChangePwForm, UserEditForm, TeamCreateForm, TeamEditForm
 
 
-PORTAL_URL = '/creme_config/user/portal/'
-
 @login_required
 @permission_required('creme_config.can_admin')
 def change_password(request, user_id):
-    user = get_object_or_404(User, pk=user_id)
-
-    if request.POST:
-        pw_form = UserChangePwForm(request.POST, initial={'user': user})
-        if pw_form.is_valid():
-            pw_form.save()
-            return HttpResponseRedirect(PORTAL_URL)
-    else:
-        pw_form = UserChangePwForm(initial={'user': user})
-
-    return render_to_response('creme_core/generics/form/edit.html',
-                              {'form': pw_form},
-                              context_instance=RequestContext(request))
+    return edit_model_with_popup(request, {'pk': user_id}, User, UserChangePwForm, _(u'Change password for <%s>'))
 
 @login_required
 @permission_required('creme_config.can_admin')
-def _add(request, form_class):
-    if request.method == 'POST':
-        form = form_class(request.POST)
-
-        if form.is_valid():
-            form.save()
-            return HttpResponseRedirect(PORTAL_URL)
-    else:
-        form = form_class()
-
-    return render_to_response('creme_core/generics/blockform/add.html',
-                              {'form': form},
-                              context_instance=RequestContext(request))
-
 def add(request):
-    return _add(request, UserAddForm)
+    return add_model_with_popup(request, UserAddForm, _(u'New user'))
 
+@login_required
+@permission_required('creme_config.can_admin')
 def add_team(request):
-    return _add(request, TeamCreateForm)
+    return add_model_with_popup(request, TeamCreateForm, _(u'New team'))
 
 @login_required
 @permission_required('creme_config')
@@ -92,25 +67,13 @@ def delete(request):
 
 @login_required
 @permission_required('creme_config.can_admin')
-def _edit(request, form_class, instance):
-    if request.method == 'POST':
-        form = form_class(request.POST, instance=instance)
-
-        if form.is_valid():
-            form.save()
-            return HttpResponseRedirect(PORTAL_URL)
-    else:
-        form = form_class(instance=instance)
-
-    return render_to_response('creme_core/generics/blockform/edit.html',
-                              {'form': form},
-                              context_instance=RequestContext(request))
-
 def edit(request, user_id):
-    return _edit(request, UserEditForm, get_object_or_404(User, pk=user_id))
+    return edit_model_with_popup(request, {'pk': user_id}, User, UserEditForm)
 
+@login_required
+@permission_required('creme_config.can_admin')
 def edit_team(request, user_id):
-    return _edit(request, TeamEditForm, get_object_or_404(User, pk=user_id, is_team=True))
+    return edit_model_with_popup(request, {'pk': user_id, 'is_team': True}, User, TeamEditForm)
 
 @login_required #no special permission needed
 def edit_own_settings(request):
