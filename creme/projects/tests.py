@@ -50,7 +50,7 @@ class ProjectsTestCase(TestCase):
                                     data={
                                             'user':         self.user.pk,
                                             'name':         name,
-                                            'tstatus':       ProjectStatus.objects.all()[0].id,
+                                            'status':       ProjectStatus.objects.all()[0].id,
                                             'start_date':   '2010-10-11',
                                             'end_date':     '2010-12-31',
                                             'responsibles': manager.id,
