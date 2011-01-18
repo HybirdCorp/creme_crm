@@ -143,6 +143,10 @@ class UserChangePwForm(CremeForm):
     password_1 = CharField(label=_(u"Password"), min_length=6, widget=PasswordInput())
     password_2 = CharField(label=_(u"Confirm password"), min_length=6, widget=PasswordInput())
 
+    def __init__(self, *args, **kwargs):
+        self.user = kwargs.pop('instance')
+        super(UserChangePwForm, self).__init__(*args, **kwargs)
+
     def clean_password_2(self):
         data = self.data
         pw2  = data['password_2']
@@ -153,12 +157,9 @@ class UserChangePwForm(CremeForm):
         return pw2
 
     def save(self):
-        user = self.initial.get('user')
-        pw   = self.cleaned_data.get('password_1')
-
-        if user and pw:
-            user.set_password(pw)
-            user.save()
+        user = self.user
+        user.set_password(self.cleaned_data.get('password_1'))
+        user.save()
 
 
 class TeamCreateForm(CremeModelForm):
