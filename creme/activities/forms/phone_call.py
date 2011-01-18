@@ -25,7 +25,7 @@ from django.utils.translation import ugettext_lazy as _, ugettext
 
 from creme_core.forms import CremeDateTimeField, CremeTimeField
 
-from assistants.models.alert import Alert
+#from assistants.models.alert import Alert
 
 from activities.models import PhoneCall, PhoneCallType
 from activity import RelatedActivityCreateForm, ActivityCreateForm
@@ -38,33 +38,21 @@ def _init_fields(fields):
     fields['start_time'].initial = now.time()
     fields['end_time'].initial   = (now + timedelta(minutes=5)).time()
 
-def _generate_alert(phone_call, cleaned_data):
-    if cleaned_data['generate_alert']:
-        alert_start_time = cleaned_data.get('alert_start_time') or time()
-        alert_day        = cleaned_data.get('alert_day') or phone_call.start
-
         #TODO: use Alert.objects.create() ??
-        alert = Alert()
-        alert.for_user     = phone_call.user
-        alert.trigger_date = alert_day.replace(hour=alert_start_time.hour, minute=alert_start_time.minute)
-        alert.creme_entity = phone_call
-        alert.title        = ugettext(u"Alert of phone call")
-        alert.description  = ugettext(u'Alert related to a phone call')
-        alert.save()
 
 
 class RelatedPhoneCallCreateForm(RelatedActivityCreateForm):
-    generate_alert   = BooleanField(label=_(u"Do you want to generate an alert or a reminder ?"), required=False)
-    alert_day        = CremeDateTimeField(label=_(u"Alert day"), required=False)
-    alert_start_time = CremeTimeField(label=_(u"Alert time"), required=False)
+#    generate_alert   = BooleanField(label=_(u"Do you want to generate an alert or a reminder ?"), required=False)
+#    alert_day        = CremeDateTimeField(label=_(u"Alert day"), required=False)
+#    alert_start_time = CremeTimeField(label=_(u"Alert time"), required=False)
 
     class Meta(RelatedActivityCreateForm.Meta):
         model = PhoneCall
         exclude = RelatedActivityCreateForm.Meta.exclude + ('type', )
 
-    blocks = RelatedActivityCreateForm.blocks.new(
-                    ('alert_datetime', _(u'Generate an alert or a reminder'), ['generate_alert', 'alert_day', 'alert_start_time']),
-                )
+#    blocks = RelatedActivityCreateForm.blocks.new(
+#                    ('alert_datetime', _(u'Generate an alert or a reminder'), ['generate_alert', 'alert_day', 'alert_start_time']),
+#                )
 
     def __init__(self, *args, **kwargs):
         super(RelatedPhoneCallCreateForm, self).__init__(*args, **kwargs)
@@ -72,34 +60,34 @@ class RelatedPhoneCallCreateForm(RelatedActivityCreateForm):
         if not self.instance.id: #TODO: useful (create -> instance not created ??!!)
             _init_fields(self.fields)
 
-    def save(self):
-        instance = super(RelatedPhoneCallCreateForm, self).save()
-        _generate_alert(instance, self.cleaned_data)
+#    def save(self):
+#        instance = super(RelatedPhoneCallCreateForm, self).save()
+#        _generate_alert(instance, self.cleaned_data)
 
-        return instance
+#        return instance
 
 
 #TODO: use multiple inheritage to factorise alert code ???
 class PhoneCallCreateForm(ActivityCreateForm):
-    generate_alert   = BooleanField(label=_(u"Do you want to generate an alert or a reminder ?"), required=False)
-    alert_day        = CremeDateTimeField(label=_(u"Alert day"), required=False)
-    alert_start_time = CremeTimeField(label=_(u"Alert time"), required=False)
+#    generate_alert   = BooleanField(label=_(u"Do you want to generate an alert or a reminder ?"), required=False)
+#    alert_day        = CremeDateTimeField(label=_(u"Alert day"), required=False)
+#    alert_start_time = CremeTimeField(label=_(u"Alert time"), required=False)
 
     class Meta(ActivityCreateForm.Meta):
         model = PhoneCall
         exclude = ActivityCreateForm.Meta.exclude + ('type',)
 
-    blocks = ActivityCreateForm.blocks.new(
-                    ('alert_datetime', _(u'Generate an alert or a reminder'), ['generate_alert', 'alert_day', 'alert_start_time']),
-                )
+#    blocks = ActivityCreateForm.blocks.new(
+#                    ('alert_datetime', _(u'Generate an alert or a reminder'), ['generate_alert', 'alert_day', 'alert_start_time']),
+#                )
 
     def __init__(self, *args, **kwargs):
         super(PhoneCallCreateForm, self).__init__(*args, **kwargs)
 
         _init_fields(self.fields)
 
-    def save(self):
-        instance = super(PhoneCallCreateForm, self).save()
-        _generate_alert(instance, self.cleaned_data)
-
-        return instance
+#    def save(self):
+#        instance = super(PhoneCallCreateForm, self).save()
+#        _generate_alert(instance, self.cleaned_data)
+#
+#        return instance
