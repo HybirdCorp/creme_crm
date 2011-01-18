@@ -38,6 +38,21 @@ from persons.models import Contact
 from activities.models import Activity, Calendar, CalendarActivityLink
 from activities.constants import *
 
+from assistants.models.alert import Alert
+
+def _generate_alert(phone_call, cleaned_data):
+    if cleaned_data['generate_alert']:
+        alert_start_time = cleaned_data.get('alert_start_time') or time()
+        alert_day        = cleaned_data.get('alert_day') or phone_call.start
+
+        alert = Alert()
+        alert.for_user     = phone_call.user
+        alert.trigger_date = alert_day.replace(hour=alert_start_time.hour, minute=alert_start_time.minute)
+        alert.creme_entity = phone_call
+        alert.title        = ugettext(u"Alert of phone call")
+        alert.description  = ugettext(u'Alert related to a phone call')
+        alert.save()
+
 
 def _clean_interval(cleaned_data):
     if cleaned_data.get('is_all_day'):
@@ -153,6 +168,11 @@ class _ActivityCreateBaseForm(CremeEntityForm):
     participants       = RelatedEntitiesField(relation_types=[REL_SUB_ACTIVITY_SUBJECT, REL_SUB_PART_2_ACTIVITY, REL_SUB_LINKED_2_ACTIVITY],
                                             label=_(u'Other participants'), required=False)
 
+    generate_alert   = BooleanField(label=_(u"Do you want to generate an alert or a reminder ?"), required=False)
+    alert_day        = CremeDateTimeField(label=_(u"Alert day"), required=False)
+    alert_start_time = CremeTimeField(label=_(u"Alert time"), required=False)
+    
+
     #informed_users = ModelMultipleChoiceField(queryset=User.objects.all(),
                                               #widget=CheckboxSelectMultiple(),
                                               #required=False, label=_(u"Users"))
@@ -160,8 +180,11 @@ class _ActivityCreateBaseForm(CremeEntityForm):
     blocks = CremeEntityForm.blocks.new(
                 ('datetime',       _(u'When'),                   ['start', 'start_time', 'end_time', 'is_all_day']),
                 ('participants',   _(u'Participants'),           ['my_participation', 'my_calendar', 'user_participation', 'participants']),
+                ('alert_datetime', _(u'Generate an alert or a reminder'), ['generate_alert', 'alert_day', 'alert_start_time']),
                 #('informed_users', _(u'Users to keep informed'), ['informed_users']),
             )
+
+    
 
     def __init__(self, current_user, *args, **kwargs):
         super(_ActivityCreateBaseForm, self).__init__(*args, **kwargs)
@@ -229,7 +252,10 @@ class _ActivityCreateBaseForm(CremeEntityForm):
         cleaned_data = self.cleaned_data
 
         instance.end = cleaned_data['end']
+
         super(_ActivityCreateBaseForm, self).save()
+
+        _generate_alert(instance, self.cleaned_data)
 
         # Participation of event's creator
         if cleaned_data['my_participation']:
