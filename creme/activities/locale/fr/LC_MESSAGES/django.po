@@ -207,6 +207,10 @@ msgstr "Type - Nom"
 msgid "Status - Name"
 msgstr "Statut - Nom"
 
+#: populate.py:74
+msgid "Status - Name"
+msgstr "Statut - Nom"
+
 #: forms/activity.py:57 forms/indisponibility.py:59
 msgid "End time is before start time"
 msgstr "L'heure de fin est avant le début"
@@ -229,10 +233,18 @@ msgid "End time"
 msgstr "Heure de fin"
 
 #: forms/activity.py:149
+msgid "Is a commercial approach ?"
+msgstr "Est une démarche commerciale ?"
+
+#: forms/activity.py:148
+msgid "Do I participate to this meeting ?"
+msgstr "Est-ce que je participe à ce rendez-vous ?"
+
+#: forms/activity.py:151
 msgid "Do I participate to this activity ?"
 msgstr "Est-ce que je participe à cette activité ?"
 
-#: forms/activity.py:150
+#: forms/activity.py:152
 msgid "On which of my calendar this activity will appear ?"
 #: forms/activity.py:151
 msgstr "Sur lequel de mes calendriers cette activité doit apparaître?"
