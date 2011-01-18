@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-10-25 11:31+0200\n"
+"POT-Creation-Date: 2011-01-18 10:46+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -20,15 +20,15 @@ msgstr ""
 msgid "Tickets"
 msgstr "Tickets"
 
-#: creme_core_register.py:16
+#: creme_core_register.py:14
 msgid "Portal"
 msgstr "Portail"
 
-#: creme_core_register.py:17
+#: creme_core_register.py:15
 msgid "All tickets"
 msgstr "Lister les tickets"
 
-#: creme_core_register.py:18
+#: creme_core_register.py:16
 msgid "Add a ticket"
 msgstr "Ajouter un ticket"
 
@@ -84,17 +84,17 @@ msgstr "Vue de Ticket"
 msgid "Title"
 msgstr "Titre"
 
-#: populate.py:34 models/ticket.py:44
-msgid "Status"
-msgstr "Statut"
+#: populate.py:34
+msgid "Status - Name"
+msgstr "Statut - Nom"
 
-#: populate.py:35 models/ticket.py:46
-msgid "Priority"
-msgstr "Priorité"
+#: populate.py:35
+msgid "Priority - Name"
+msgstr "Priorité - Nom"
 
-#: populate.py:36 models/ticket.py:47
-msgid "Criticity"
-msgstr "Criticité"
+#: populate.py:36
+msgid "Criticity - Name"
+msgstr "Criticité - Nom"
 
 #: populate.py:37 models/ticket.py:45
 msgid "Closing date"
@@ -152,20 +152,32 @@ msgstr "Temps de résolution"
 msgid "Description"
 msgstr "Description"
 
+#: models/ticket.py:44
+msgid "Status"
+msgstr "Statut"
+
+#: models/ticket.py:46
+msgid "Priority"
+msgstr "Priorité"
+
+#: models/ticket.py:47
+msgid "Criticity"
+msgstr "Criticité"
+
 #: models/ticket.py:48
 msgid "Solution"
 msgstr "Solution"
 
-#: models/ticket.py:54 templates/tickets/portal.html:3
+#: models/ticket.py:54 templates/tickets/portal.html:4
 #: templates/tickets/view_ticket.html:6
 msgid "Ticket"
 msgstr "Ticket"
 
-#: templates/tickets/portal.html:4
+#: templates/tickets/portal.html:5
 msgid "Ticket portal"
 msgstr "Portail Ticket"
 
-#: templates/tickets/portal.html:6
+#: templates/tickets/portal.html:7
 msgid "List of tickets"
 msgstr "Liste des tickets"
 
@@ -177,15 +189,15 @@ msgstr "Informations Supplémentaires"
 msgid "Information"
 msgstr "Informations"
 
-#: views/portal.py:19
+#: views/portal.py:37
 msgid "Number of tickets"
 msgstr "Nombre de ticket(s)"
 
-#: views/portal.py:20
+#: views/portal.py:38
 msgid "Number of open tickets"
 msgstr "Nombre de ticket(s) ouvert(s)"
 
-#: views/portal.py:21
+#: views/portal.py:39
 msgid "Percentage of closed tickets"
 msgstr "Pourcentage de tickets fermés"
 

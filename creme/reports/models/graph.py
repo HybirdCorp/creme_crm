@@ -106,13 +106,13 @@ class ReportGraph(CremeEntity):
         x, y = [], []
 
         if type == RGT_DAY:
-            x, y = _get_dates_values(entities, abscissa, ordinate, ordinate_col, aggregate_func, entities_filter, 'day', q_func=lambda date: Q(**{'%s__year' % abscissa: date.year}) & Q(**{'%s__month' % abscissa: date.month})  & Q(**{'%s__day' % abscissa: date.day}), date_format="%d/%m/%Y", order=order, is_count=is_count)
+            x, y = _get_dates_values(entities, abscissa, ordinate, ordinate_col, aggregate_func, entities_filter, 'day', q_func=lambda date: Q(**{str('%s__year' % abscissa): date.year}) & Q(**{str('%s__month' % abscissa): date.month})  & Q(**{str('%s__day' % abscissa): date.day}), date_format="%d/%m/%Y", order=order, is_count=is_count)
 
         elif type == RGT_MONTH:
-            x, y = _get_dates_values(entities, abscissa, ordinate, ordinate_col, aggregate_func, entities_filter, 'month', q_func=lambda date: Q(**{'%s__year' % abscissa: date.year}) & Q(**{'%s__month' % abscissa: date.month}), date_format="%m/%Y", order=order, is_count=is_count)
+            x, y = _get_dates_values(entities, abscissa, ordinate, ordinate_col, aggregate_func, entities_filter, 'month', q_func=lambda date: Q(**{str('%s__year' % abscissa): date.year}) & Q(**{str('%s__month' % abscissa): date.month}), date_format="%m/%Y", order=order, is_count=is_count)
 
         elif type == RGT_YEAR:
-            x, y = _get_dates_values(entities, abscissa, ordinate, ordinate_col, aggregate_func, entities_filter, 'year', q_func=lambda date: Q(**{'%s__year' % abscissa: date.year}), date_format="%Y", order=order, is_count=is_count)
+            x, y = _get_dates_values(entities, abscissa, ordinate, ordinate_col, aggregate_func, entities_filter, 'year', q_func=lambda date: Q(**{str('%s__year' % abscissa): date.year}), date_format="%Y", order=order, is_count=is_count)
 
         elif type == RGT_RANGE:
             min_date = entities.aggregate(min_date=Min(abscissa)).get('min_date')
@@ -126,7 +126,7 @@ class ReportGraph(CremeEntity):
                         end   = min_date + days
                         x.append("%s-%s" % (begin.strftime("%d/%m/%Y"), end.strftime("%d/%m/%Y")))
 
-                        sub_entities = entities_filter(Q(**{'%s__range' % abscissa: (begin, end)}))
+                        sub_entities = entities_filter(Q(**{str('%s__range' % abscissa): (begin, end)}))
                         if is_count:
                             y.append(sub_entities.count())
                         else:
@@ -138,7 +138,7 @@ class ReportGraph(CremeEntity):
                         end   = max_date - days
                         x.append("%s-%s" % (begin.strftime("%d/%m/%Y"), end.strftime("%d/%m/%Y")))
 
-                        sub_entities = entities_filter(Q(**{'%s__range' % abscissa: (end, begin)}))
+                        sub_entities = entities_filter(Q(**{str('%s__range' % abscissa): (end, begin)}))
                         if is_count:
                             y.append(sub_entities.count())
                         else:
@@ -155,7 +155,7 @@ class ReportGraph(CremeEntity):
 
             for fk_id in fk_ids:
                 x.append(fks.get(fk_id, ''))
-                sub_entities = entities_filter(Q(**{'%s' % abscissa: fk_id}))
+                sub_entities = entities_filter(Q(**{str('%s' % abscissa): fk_id}))
                 if is_count:
                     y.append(sub_entities.count())
                 else:
@@ -205,7 +205,7 @@ def fetch_graph_from_instance_block(instance_block, entity, order='ASC'):
         try:
             field = report_model._meta.get_field(volatile_column)
             if field.get_internal_type() == 'ForeignKey' and field.rel.to == model:
-                x, y = graph.fetch(extra_q=Q(**{'%s__pk' % volatile_column: entity.pk}), order=order)
+                x, y = graph.fetch(extra_q=Q(**{ str('%s__pk' % volatile_column) : entity.pk}), order=order)
         except FieldDoesNotExist:
             pass
 

@@ -7,10 +7,11 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-11-12 12:09+0100\n"
+"POT-Creation-Date: 2011-01-18 10:35+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -104,9 +105,9 @@ msgstr "Vue d'évènement"
 msgid "Name"
 msgstr "Nom"
 
-#: populate.py:44 models/event.py:46
-msgid "Type"
-msgstr "Type"
+#: populate.py:44
+msgid "Type - Name"
+msgstr "Type - Nom"
 
 #: populate.py:45 forms/event.py:41 models/event.py:49
 msgid "Start date"
@@ -116,14 +117,14 @@ msgstr "Date de début"
 msgid "End date"
 msgstr "Date de fin"
 
-#: forms/event.py:56
-msgid "Related contacts"
-msgstr "Contacts en rapport"
-
-#: forms/event.py:69
+#: tests.py:461 forms/event.py:69
 #, python-format
 msgid "Contact %s is present twice."
 msgstr "Le contact %s est présent deux fois."
+
+#: forms/event.py:56
+msgid "Related contacts"
+msgstr "Contacts en rapport"
 
 #: forms/event.py:124
 #, python-format
@@ -135,6 +136,10 @@ msgstr "Généré par l'évènement \"%s\""
 msgid "(The contact \"%s\" is not related to an organisation)."
 msgstr "(Le contact \"%s\" n'est relié à aucune société)."
 
+#: forms/event.py:129
+msgid "Target organisation"
+msgstr "Société cible"
+
 #: models/event.py:37
 msgid "Type of event"
 msgstr "Type d'évènement"
@@ -142,6 +147,10 @@ msgstr "Type d'évènement"
 #: models/event.py:38
 msgid "Types of event"
 msgstr "Types d'évènement"
+
+#: models/event.py:46
+msgid "Type"
+msgstr "Type"
 
 #: models/event.py:47
 msgid "Description"
@@ -159,16 +168,16 @@ msgstr "Budget prévisionnel (€)"
 msgid "Final cost (€)"
 msgstr "Coût final (€)"
 
-#: models/event.py:56 templates/events/portal.html:3
+#: models/event.py:56 templates/events/portal.html:4
 #: templates/events/view_event.html:13
 msgid "Event"
 msgstr "Évènement"
 
-#: templates/events/portal.html:4
+#: templates/events/portal.html:5
 msgid "Events portal"
 msgstr "Portail des évènements"
 
-#: templates/events/portal.html:6
+#: templates/events/portal.html:7
 msgid "List of events"
 msgstr "Liste des évènements"
 
@@ -227,6 +236,10 @@ msgstr "Venu"
 #: views/event.py:70
 msgid "Not come"
 msgstr "Pas venu"
+
+#: views/event.py:78
+msgid "See"
+msgstr "Voir"
 
 #: views/event.py:80
 msgid "Create an opportunity"

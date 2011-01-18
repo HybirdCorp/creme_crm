@@ -48,8 +48,8 @@ class Populator(BasePopulator):
 
         hf_id = create(HeaderFilter, 'reports-hf', name=_(u'Report view'), entity_type_id=get_ct(Report).id, is_custom=False).id
         pref  = 'reports-hfi_report_' 
-        create(HeaderFilterItem, pref + 'name', order=1, name='name', title=_(u'Name'),        type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True, editable=True, sortable=True, filter_string="name__icontains")
-        create(HeaderFilterItem, pref + 'ct',   order=2, name='ct',   title=_(u"Entity type"), type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True, editable=True, sortable=True, filter_string="ct__name__icontains")
+        create(HeaderFilterItem, pref + 'name', order=1, name='name',     title=_(u'Name'),               type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True, editable=True, sortable=True, filter_string="name__icontains")
+        create(HeaderFilterItem, pref + 'ct',   order=2, name='ct__name', title=_(u"Entity type - Name"), type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True, editable=True, sortable=True, filter_string="ct__name__icontains")
 
         SearchConfigItem.create(Report, ['name', 'ct__name'])
 
