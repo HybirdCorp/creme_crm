@@ -18,19 +18,17 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.db.models import CharField
-from django.utils.translation import ugettext_lazy as _
+from django.test import TestCase
 
-from creme_core.models.base import CremeModel
+from creme_core.models.list_view_state import *
 
-class Language(CremeModel):
-    name = CharField(_('Name'), max_length=100)
-    code = CharField(_('Code'), max_length=5)
-
-    def __unicode__(self):
-        return u'%s - %s' % (self.name, self.code)
-
-    class Meta:
-        app_label = 'creme_core'
-        verbose_name = _(u'Language')
-        verbose_name_plural = _(u'Languages')
+class ListViewStateTestCase(TestCase):
+    def test_get_field_name_from_pattern(self):
+        self.assertEqual('foo__bar__plop', get_field_name_from_pattern('foo__bar__plop__icontains'))
+        self.assertEqual('foo__bar',       get_field_name_from_pattern('foo__bar__icontains'))
+        self.assertEqual('foo__bar',       get_field_name_from_pattern('foo__bar__exact'))
+        self.assertEqual('foo__bar',       get_field_name_from_pattern('foo__bar__creme-boolean'))
+        self.assertEqual('foo__bar',       get_field_name_from_pattern('foo__bar__exact'))
+        self.assertEqual('foo__bar',       get_field_name_from_pattern('foo__bar'))
+        self.assertEqual('foo',            get_field_name_from_pattern('foo'))
+        self.assertEqual('foo',            get_field_name_from_pattern('foo__isnull'))

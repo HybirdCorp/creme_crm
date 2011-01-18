@@ -37,17 +37,17 @@ class Populator(BasePopulator):
 
         hf_id = create(HeaderFilter, 'products-hf_product', name=_(u'Product view'), entity_type_id=get_ct(Product).id, is_custom=False).id
         pref = 'products-hfi_product_'
-        create(HeaderFilterItem, pref + 'images', order=1, name='images', title=_(u'Images'), type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True, editable=False, sortable=False, filter_string="images__name__icontains")
-        create(HeaderFilterItem, pref + 'name',   order=2, name='name',   title=_(u'Name'),   type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True, editable=True,  sortable=True,  filter_string="name__icontains")
-        create(HeaderFilterItem, pref + 'code',   order=3, name='code',   title=_(u'Code'),   type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True, editable=True,  sortable=True,  filter_string="code__icontains")
-        create(HeaderFilterItem, pref + 'user',   order=4, name='user',   title=_(u'User'),   type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True, editable=True,  sortable=True,  filter_string="user__username__icontains")
+        create(HeaderFilterItem, pref + 'images', order=1, name='images__name',   title=_(u'Images - Name'),   type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True, editable=False, sortable=False, filter_string="images__name__icontains")
+        create(HeaderFilterItem, pref + 'name',   order=2, name='name',           title=_(u'Name'),            type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True, editable=True,  sortable=True,  filter_string="name__icontains")
+        create(HeaderFilterItem, pref + 'code',   order=3, name='code',           title=_(u'Code'),            type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True, editable=True,  sortable=True,  filter_string="code__icontains")
+        create(HeaderFilterItem, pref + 'user',   order=4, name='user__username', title=_(u'User - Username'), type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True, editable=True,  sortable=True,  filter_string="user__username__icontains")
 
         hf_id = create(HeaderFilter, 'products-hf_service', name=_(u'Service view'), entity_type_id=get_ct(Service).id, is_custom=False).id
         pref  = 'products-hfi_service_'
-        create(HeaderFilterItem, pref + 'images', order=1, name='images',    title=_(u'Images'),    type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True, editable=False, sortable=False, filter_string="images__name__icontains")
-        create(HeaderFilterItem, pref + 'name',   order=2, name='name',      title=_(u'Name'),      type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True, editable=True,  sortable=True,  filter_string="name__icontains")
-        create(HeaderFilterItem, pref + 'ref',    order=3, name='reference', title=_(u'Reference'), type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True, editable=True,  sortable=True,  filter_string="reference__icontains")
-        create(HeaderFilterItem, pref + 'user',   order=4, name='user',      title=_(u'User'),      type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True, editable=True,  sortable=True,  filter_string="user__username__icontains")
+        create(HeaderFilterItem, pref + 'images', order=1, name='images__name',   title=_(u'Images - Name'),   type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True, editable=False, sortable=False, filter_string="images__name__icontains")
+        create(HeaderFilterItem, pref + 'name',   order=2, name='name',           title=_(u'Name'),            type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True, editable=True,  sortable=True,  filter_string="name__icontains")
+        create(HeaderFilterItem, pref + 'ref',    order=3, name='reference',      title=_(u'Reference'),       type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True, editable=True,  sortable=True,  filter_string="reference__icontains")
+        create(HeaderFilterItem, pref + 'user',   order=4, name='user__username', title=_(u'User - Username'), type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True, editable=True,  sortable=True,  filter_string="user__username__icontains")
 
 
         #TODO: move to client's populate.py ??

@@ -104,6 +104,9 @@ Model._can_be_deleted = _can_be_deleted
 Model.can_be_deleted  = can_be_deleted
 
 class CremeModel(Model):
+    
+    header_filter_exclude_fields = ['id', 'pk']
+
     class Meta:
         abstract = True
 
@@ -179,7 +182,7 @@ class CremeAbstractEntity(CremeModel):
     function_fields = FunctionFieldsManager()
 
     excluded_fields_in_html_output = ['id', 'cremeentity_ptr' , 'entity_type', 'header_filter_search_field', 'is_deleted', 'is_actived'] #use a set
-    header_filter_exclude_fields = ['password', 'is_superuser', 'is_active', 'is_staff']
+    header_filter_exclude_fields = CremeModel.header_filter_exclude_fields + ['password', 'is_superuser', 'is_active', 'is_staff']
     extra_filter_fields = [] #=> Usage: [{'name':'', 'verbose_name':''},...]
     extra_filter_exclude_fields = ['id']
 

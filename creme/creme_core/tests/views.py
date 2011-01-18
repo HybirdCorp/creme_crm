@@ -47,12 +47,12 @@ class ViewsTestCase(TestCase):
         self.assertEqual('text/javascript', response['Content-Type'])
 
         content = simplejson.loads(response.content)
-        self.assertEqual(13, len(content))
+        self.assertEqual(6, len(content))
         self.assertEqual(content[0], ["created",          "Creme entity - " + _('Creation date')])
         self.assertEqual(content[1], ["modified",         "Creme entity - " + _("Last modification")])
-        self.assertEqual(content[2], ["user__id",         _("User") + " - Id"])
-        self.assertEqual(content[3], ["user__username",   _("User") + " - " + _("Username")])
-        self.assertEqual(content[4], ["user__first_name", _("User") + " - " + _("First name")])
+        self.assertEqual(content[2], ["user__username",   _("User") + " - " + _("Username")])
+        self.assertEqual(content[3], ["user__first_name", _("User") + " - " + _("First name")])
+        self.assertEqual(content[4], ["user__last_name", _("User") + " - " + _("Last name")])
         #etc...
 
         response = self.client.post('/creme_core/get_fields', data={'ct_id': 0})
