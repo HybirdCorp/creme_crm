@@ -260,6 +260,8 @@ class Relation(CremeAbstractEntity):
     @staticmethod
     def filter_in(model, filter_predicate, value_for_filter):
         return Q(relations__type=filter_predicate, relations__object_entity__header_filter_search_field__icontains=value_for_filter)
+#                                             relations__object_entity__in=list_entity).values_list('id', flat=True)
+#        return Q(id__in=list_pk_f)
 
 #        list_rel_pk = Relation.objects.filter(type=filter_predicate).values_list('object_entity', flat=True)
 #        list_entity = CremeEntity.objects.filter(pk__in=list_rel_pk,
