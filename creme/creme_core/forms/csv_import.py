@@ -41,6 +41,8 @@ from documents.models import Document
 
 
 def _csv_to_list(line_str):
+    #TODO: improve the 'parsing' method ?? (what about a',' between the "" ??)
+    #      factorise with csv export ??? use csv.Sniffer class to guess csv format ??
     return [word.strip('"').strip() for word in smart_unicode(line_str).split(',')]
 
 
@@ -49,7 +51,7 @@ class CSVUploadForm(CremeForm):
     csv_document   = CremeEntityField(label=_(u'CSV file'), model=Document,
                                       help_text=_(u"""A file that contains the fields values of an entity on each line, separated by commas and each surrounded by quotation marks "."""))
     csv_has_header = BooleanField(label=_(u'Header present ?'), required=False,
-                                  help_text=_(u"""Does the first line of the line contain the header of teh columns (eg: "Last name","First name") ?"""))
+                                  help_text=_(u"""Does the first line of the line contain the header of the columns (eg: "Last name","First name") ?"""))
 
     def __init__(self, request, *args, **kwargs):
         super(CSVUploadForm, self).__init__(*args, **kwargs)

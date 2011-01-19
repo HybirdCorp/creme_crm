@@ -78,7 +78,7 @@ def dl_listview_as_csv(request, ct_id):
     entities = hf.improve_queryset(entities) #optimisation time !!!
 
     #TODO: move to a template ???
-    writer = csv.writer(response, delimiter=";")
+    writer = csv.writer(response, quoting=csv.QUOTE_ALL)
     writerow = writer.writerow
 
     writerow([smart_str(column.title) for column in columns]) #doesn't accept generator expression... ;(

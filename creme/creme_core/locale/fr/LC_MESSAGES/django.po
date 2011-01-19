@@ -223,7 +223,7 @@ msgstr "Entête présent ?"
 
 #: forms/csv_import.py:52
 msgid ""
-"Does the first line of the line contain the header of teh columns (eg: "
+"Does the first line of the line contain the header of the columns (eg: "
 "\"Last name\",\"First name\") ?"
 msgstr ""
 "La 1ère ligne du fichier contient-il l'entête des colonnes de valeurs (ex: "
