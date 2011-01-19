@@ -101,6 +101,9 @@ class EmailSending(CremeModel):
     def get_absolute_url(self):
         return self.campaign.get_absolute_url()
 
+    def get_related_entity(self): #for generic views
+        return self.campaign
+
     def send_mails(self):
 #        mails = Email.objects.filter(sending=self)
         mails = LightWeightEmail.objects.filter(sending=self)
@@ -199,6 +202,9 @@ class LightWeightEmail(_Email):
             return body_template.render(Context(loads(self.body.encode('utf-8')) if self.body else {}))
         except:#Pickle raise too much differents exceptions...Catch'em all ?
             return ""
+
+    def get_related_entity(self): #for generic views
+        return self.sending.campaign
 
     def genid_n_save(self):
         #BEWARE: manage manually

@@ -182,12 +182,13 @@ class MailsHistoryBlock(QuerysetBlock):
     def detailview_display(self, context):
         pk = context['object'].pk
 
+        #TODO: improve query.....
         entityemail_pk = Relation.objects.filter(type__pk__in=[REL_SUB_MAIL_SENDED, REL_SUB_MAIL_RECEIVED], object_entity=pk).values_list('subject_entity', flat=True).distinct()
 
         return self._render(self.get_block_template_context(context,
                                                             EntityEmail.objects.filter(pk__in=entityemail_pk),
                                                             update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, pk),
-                                                            sent_status = MAIL_STATUS_SENT,
+                                                            sent_status=MAIL_STATUS_SENT,
                                                             ))
 
 class LwMailsHistoryBlock(QuerysetBlock):

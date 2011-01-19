@@ -26,7 +26,7 @@ from django.utils.translation import ugettext_lazy as _
 from creme_core.views.generic.popup import inner_popup
 from reports.forms.blocks import GraphInstanceBlockForm
 from reports.models.graph import ReportGraph
-#from reports.views.graph import report_graph_app, report_graph_ct
+
 
 #TODO: use add_to_entity() generic view
 
