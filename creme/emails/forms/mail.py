@@ -38,13 +38,15 @@ from emails.models.mail import EntityEmail
 from persons.models import Contact, Organisation
 
 
-invalid_email_error = ugettext(u'The email address for %(entity)s is invalid')
+invalid_email_error = _(u'The email address for %(entity)s is invalid')
 
 class EntityEmailForm(CremeEntityForm):
-    #On doit relier aux contact et/ou orga séléctionnées + à l'entitée en cours
-    #On doit envoyer aux contact et orga séléctionnées
-
+    """Mails are related to the selected contacts/organisations & the 'current' entity.
+    Mails are send to selected contacts/organisations.
+    """
     sender       = EmailField(label=_(u'Sender'))
+
+    #TODO: use the new GenericEntityField ??
     c_recipients = MultiCremeEntityField(label=_(u'Contacts'),      required=False, model=Contact,      q_filter={'email__isnull': False})
     o_recipients = MultiCremeEntityField(label=_(u'Organisations'), required=False, model=Organisation, q_filter={'email__isnull': False})
 
@@ -82,16 +84,16 @@ class EntityEmailForm(CremeEntityForm):
         contacts      = list(cleaned_data.get('c_recipients', []))
         organisations = list(cleaned_data.get('o_recipients', []))
 
+        #TODO: factorise
         c_recipients_errors = []
         for i, entity in enumerate(contacts):
             try:
                 validate_email(entity.email)
             except Exception, e:#Better exception ?
-                c_recipients_errors.append(invalid_email_error % {'entity': contacts[i]})
+                c_recipients_errors.append(invalid_email_error % {'entity': contacts[i]}) #TODO: WTF "contacts[i]" !! (why not 'entity' ??!!)
 
         if c_recipients_errors:
             errors['c_recipients'] = ErrorList(c_recipients_errors)
-
 
         o_recipients_errors = []
         for i, entity in enumerate(organisations):
@@ -103,31 +105,30 @@ class EntityEmailForm(CremeEntityForm):
         if o_recipients_errors:
             errors['o_recipients'] = ErrorList(o_recipients_errors)
 
-        if not contacts and not organisations:
+        if not contacts and not organisations: #TODO: why not move this test before
             raise ValidationError(ugettext(u'Select at least a Contact or an Organisation'))
 
         return cleaned_data
 
     def save(self):
-        cleaned_data = self.cleaned_data
-        cleaned_data_get = cleaned_data.get
+        get_data = self.cleaned_data.get
 
-        sender      = cleaned_data_get('sender')
-        subject     = cleaned_data_get('subject')
-        body_html   = cleaned_data_get('body_html')
-        signature   = cleaned_data_get('signature')
-        attachments = cleaned_data_get('attachments')
-        user_pk     = cleaned_data_get('user').pk
+        sender      = get_data('sender')
+        subject     = get_data('subject')
+        body_html   = get_data('body_html')
+        signature   = get_data('signature')
+        attachments = get_data('attachments')
+        user_pk     = get_data('user').pk
 
         entity = self.entity
 
-        if cleaned_data_get('send_me'):
+        if get_data('send_me'):
             EntityEmail.create_n_send_mail(sender, sender, subject, user_pk, body_html, signature, attachments)
 
-        Relation_create = Relation.create
+        create_relation = Relation.objects.create
 
-        for _entity in chain(cleaned_data_get('c_recipients',[]), cleaned_data_get('o_recipients',[])):
-            email = EntityEmail.create_n_send_mail(sender, _entity.email, subject, user_pk, body_html, signature, attachments)
+        for recipient in chain(get_data('c_recipients', []), get_data('o_recipients', [])):
+            email = EntityEmail.create_n_send_mail(sender, recipient.email, subject, user_pk, body_html, signature, attachments)
 
-            Relation_create(email, REL_SUB_MAIL_SENDED,   entity,  user_id=user_pk)
-            Relation_create(email, REL_SUB_MAIL_RECEIVED, _entity, user_id=user_pk)
+            create_relation(subject_entity=email, type_id=REL_SUB_MAIL_SENDED,   object_entity=entity,    user_id=user_pk)
+            create_relation(subject_entity=email, type_id=REL_SUB_MAIL_RECEIVED, object_entity=recipient, user_id=user_pk)

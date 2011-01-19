@@ -1,0 +1,15 @@
+{% extends "creme_core/generics/view_entity.html" %}
+{% comment %}{% load i18n %}{% endcomment %}
+{% comment %}{% load media %}{% endcomment %}
+{% load creme_block %}
+
+{% comment %}{% block logo %}<img src="{% media_url 'images/graph_64.png' %}" alt=""/>{% endblock %}{% endcomment %}
+
+{% block creme_blocks_import %}
+    {{block.super}}
+    {% import_block from_app 'commercial' named 'pattern_components' as 'components_block' %}
+{% endblock %}
+
+{% block before_detail_view_1 %}
+    {% display_block_detailview 'components_block' %}
+{% endblock %}
