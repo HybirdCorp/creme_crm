@@ -657,7 +657,7 @@ class ViewsTestCase(TestCase):
 
         #TODO: test other relation views...
 
-    def test_headerfilter_create(self): #TODO: test HFI creation....
+    def test_headerfilter_create(self): #TODO: test several HFI, other types of HFI
         self.login()
 
         ct = ContentType.objects.get_for_model(CremeEntity)
@@ -666,13 +666,41 @@ class ViewsTestCase(TestCase):
         response = self.client.get('/creme_core/header_filter/add/%s' % ct.id)
         self.assertEqual(200, response.status_code)
 
+        try:
+            form = response.context['form']
+            fields_field = form.fields['fields']
+        except KeyError, e:
+            self.fail(str(e))
+
+        for i, (fname, fvname) in enumerate(fields_field.choices):
+            if fname == 'created': created_index = i; break
+        else:
+            self.fail('No "created" field')
+
         name = 'DefaultHeaderFilter'
         response = self.client.post('/creme_core/header_filter/add/%s' % ct.id,
-                                    data={'name': name}
+                                    data={
+                                            'name':                            name,
+                                            'fields_check_%s' % created_index: 'on',
+                                            'fields_value_%s' % created_index: 'created',
+                                            'fields_order_%s' % created_index: 1,
+                                         }
                                    )
         self.assertNoFormError(response)
         self.assertEqual(302, response.status_code)
 
         hfilters = HeaderFilter.objects.filter(entity_type=ct)
-        self.assertEqual(1,    len(hfilters))
-        self.assertEqual(name, hfilters[0].name)
+        self.assertEqual(1, len(hfilters))
+
+        hfilter = hfilters[0]
+        self.assertEqual(name, hfilter.name)
+
+        hfitems = hfilter.header_filter_items.all()
+        self.assertEqual(1, len(hfitems))
+
+        hfitem = hfitems[0]
+        self.assertEqual('created',        hfitem.name)
+        self.assertEqual(1,                hfitem.order)
+        self.assertEqual(1,                hfitem.type)
+        self.assertEqual('created__range', hfitem.filter_string)
+        self.failIf(hfitem.is_hidden)
