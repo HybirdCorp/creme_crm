@@ -49,9 +49,6 @@ class SMSCampaign(CremeEntity):
     def get_lv_absolute_url():
         return "/sms/campaigns"
 
-    def get_delete_absolute_url(self):
-        return "/sms/campaign/delete/%s" % self.id
-
     def delete(self):
         self.lists.clear()
 

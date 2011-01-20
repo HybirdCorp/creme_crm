@@ -19,25 +19,15 @@ urlpatterns = patterns('persons.views',
     (r'^organisation/(?P<organisation_id>\d+)$',      'organisation.detailview'),
     (r'^leads_customers$',                            'organisation.list_my_leads_my_customers'),
 
-    (r'^(?P<entity_id>\d+)/become_customer/(?P<mngd_orga_id>\d+)$',          'crud_relations.become_customer'),
-    (r'^(?P<entity_id>\d+)/become_prospect/(?P<mngd_orga_id>\d+)$',          'crud_relations.become_prospect'),
-    (r'^(?P<entity_id>\d+)/become_suspect/(?P<mngd_orga_id>\d+)$',           'crud_relations.become_suspect'),
-    (r'^(?P<entity_id>\d+)/become_inactive_customer/(?P<mngd_orga_id>\d+)$', 'crud_relations.become_inactive'),
-    (r'^(?P<entity_id>\d+)/become_supplier/(?P<mngd_orga_id>\d+)$',          'crud_relations.become_supplier'),
+    (r'^(?P<entity_id>\d+)/become_customer$',          'crud_relations.become_customer'),
+    (r'^(?P<entity_id>\d+)/become_prospect$',          'crud_relations.become_prospect'),
+    (r'^(?P<entity_id>\d+)/become_suspect$',           'crud_relations.become_suspect'),
+    (r'^(?P<entity_id>\d+)/become_inactive_customer$', 'crud_relations.become_inactive'),
+    (r'^(?P<entity_id>\d+)/become_supplier$',          'crud_relations.become_supplier'),
 
-    (r'^address/from_organisation$',         'address.get_org_addresses'), #TODO: still useful ??
-    (r'^address/add$',                       'address.add'), #TODO: NOT USED (specify Organisation or Contact ??)
+    #(r'^address/from_organisation$',         'address.get_org_addresses'), #Commented on 3 Decemeber 2010
+    #(r'^address/add$',                       'address.add'), #Commented on 3 Decemeber 2010    (else: specify Organisation or Contact ??)
+    (r'^address/ip_add/(?P<entity_id>\d+)$', 'address.ipopup_add_adress'), #TODO: rename url and view
     (r'^address/delete$',                    'address.delete'),
     (r'^address/edit/(?P<address_id>\d+)',   'address.edit'),
-    (r'^address/ip_add/(?P<entity_id>\d+)$', 'address.ipopup_add_adress'),
-)
-
-urlpatterns += patterns('creme_core.views',
-    (r'^contact/edit_js/$',                                'ajax.edit_js'),
-    (r'^contact/delete/(?P<object_id>\d+)$',               'generic.delete_entity'),
-    (r'^contact/delete_js/(?P<entities_ids>([\d]+[,])+)$', 'generic.delete_entities_js'),
-
-    (r'^organisation/edit_js/$',                                'ajax.edit_js'),
-    (r'^organisation/delete/(?P<object_id>\d+)$',               'generic.delete_entity'),
-    (r'^organisation/delete_js/(?P<entities_ids>([\d]+[,])+)$', 'generic.delete_entities_js'),
 )

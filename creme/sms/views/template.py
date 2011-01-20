@@ -20,7 +20,7 @@
 
 from django.contrib.auth.decorators import login_required, permission_required
 
-from creme_core.views.generic import add_entity, edit_entity, view_entity_with_template, list_view
+from creme_core.views.generic import add_entity, edit_entity, view_entity, list_view
 
 from sms.models import MessageTemplate
 from sms.forms.template import TemplateCreateForm, TemplateEditForm
@@ -32,15 +32,15 @@ from sms.forms.template import TemplateCreateForm, TemplateEditForm
 def add(request):
     return add_entity(request, TemplateCreateForm)
 
+@login_required
+@permission_required('sms')
 def edit(request, template_id):
-    return edit_entity(request, template_id, MessageTemplate, TemplateEditForm, 'sms')
+    return edit_entity(request, template_id, MessageTemplate, TemplateEditForm)
 
 @login_required
 @permission_required('sms')
 def detailview(request, template_id):
-    return view_entity_with_template(request, template_id, MessageTemplate,
-                                     '/sms/template',
-                                     'sms/view_template.html')
+    return view_entity(request, template_id, MessageTemplate, '/sms/template', 'sms/view_template.html')
 
 @login_required
 @permission_required('sms')

@@ -36,8 +36,9 @@ creme.menu.actions.flatMenu = function(trigger_selector, content_selector) {
 
         var $a = $('a:first', this);
 
-        if($a.hasClass('confirm_delete')) { //TODO: this way is not really powerful (can't be easily extended from python side...)
-            creme.utils.confirmDelete2($a.attr('href'));
+        //TODO: use 3 classes: 'confirm', 'post', 'ajax'
+        if($a.hasClass('confirm')) {
+            creme.utils.confirmBeforeGo($a.attr('href'), true, {type: "POST"});
         } else {
             creme.utils.go_to($a.attr('href'));
         }

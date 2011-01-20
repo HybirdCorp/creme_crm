@@ -60,9 +60,6 @@ class ProjectTask(Activity):
     def get_edit_absolute_url(self):
         return "/projects/task/edit/%s" % self.id
 
-    def get_delete_absolute_url(self):
-        return "/projects/task/delete/%s" % self.id
-
     ##### ------------------ #####
     ##### Business functions #####
     ##### ------------------ #####

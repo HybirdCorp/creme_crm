@@ -12,12 +12,11 @@
     {% end_get_block_header %}
     <tbody class="collapsable">
         {% if page.paginator.count %}
-            {% for property in page.object_list %}
-                <!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
+            {% for property in page.object_list %}<!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
                 <tr>
                     <td class="{{row_color}}">{{property}}</td>
                     <td class="{{row_color}}" align="center" valign="center" style="width:10%;">
-                        {% get_line_deletor2 at_url '/creme_core/property/delete' with_args "{'id':{{property.pk}}, 'object_id':{{object.pk}} }" with_perms has_perm %}
+                        {% get_line_deletor2 at_url '/creme_core/property/delete' with_args "{'id':{{property.pk}} }" with_perms has_perm %}
                     </td>
                 </tr>
             {% endfor %}

@@ -89,9 +89,6 @@ class Organisation(CremeEntity):
         """url for list_view """
         return "/persons/organisations"
 
-    def get_delete_absolute_url(self):
-        return "/persons/organisation/delete/%s" % self.id
-
     def get_managers(self):
         return Contact.objects.filter(relations__type=REL_SUB_MANAGES, relations__object_entity=self.id)
 

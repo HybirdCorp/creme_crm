@@ -225,7 +225,7 @@ class CremeEntity(CremeAbstractEntity):
         return {
                 'default': EntityAction(self.get_absolute_url(), ugettext(u"See"), True, icon="images/view_16.png"),
                 'others':  [EntityAction(self.get_edit_absolute_url(),   ugettext(u"Edit"),   self.can_change(user), icon="images/edit_16.png"),
-                            EntityAction(self.get_delete_absolute_url(), ugettext(u"Delete"), self.can_delete(user), icon="images/delete_16.png", attrs={'class': 'confirm_delete'}),
+                            EntityAction(self.get_delete_absolute_url(), ugettext(u"Delete"), self.can_delete(user), icon="images/delete_16.png", attrs={'class': 'confirm'}),
                            ]
                }
 
@@ -238,7 +238,7 @@ class CremeEntity(CremeAbstractEntity):
     def get_properties(self):
         if self._properties is None:
             debug('CremeEntity.get_properties(): Cache MISS for id=%s', self.id)
-            self._properties = self.properties.all().select_related('type')
+            self._properties = list(self.properties.all().select_related('type'))
         else:
             debug('CremeEntity.get_properties(): Cache HIT for id=%s', self.id)
 
