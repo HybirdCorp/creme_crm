@@ -97,7 +97,7 @@ class Status(CremeModel):
         app_label = 'activities'
         verbose_name = _(u'Status')
         verbose_name_plural = _(u'Status') #arf plural....
-        
+
 
 class Activity(CremeEntity):
     """Activity : event or task"""
@@ -109,7 +109,7 @@ class Activity(CremeEntity):
     #calendar    = ForeignKey(Calendar, verbose_name=_(u"Calendar"))
     is_all_day  = BooleanField(_(u'All day ?'), blank=True, default=False)
     status      = ForeignKey(Status, verbose_name=_(u'Status'), blank=True, null=True)
-    occuped     = BooleanField(_(u'Occuped ?'), default=False)
+    busy        = BooleanField(_(u'Busy ?'), default=False)
 
 
     research_fields = CremeEntity.research_fields + ['title', 'type__name']

@@ -7,20 +7,20 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-01-18 10:29+0100\n"
+"POT-Creation-Date: 2011-01-20 12:04+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
-"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Language: \n"
 
-#: blocks.py:35 forms/activity.py:106 forms/activity.py:162
+#: blocks.py:35 forms/activity.py:121 forms/activity.py:184
 msgid "Participants"
 msgstr "Participants"
 
-#: blocks.py:49 forms/activity.py:130
+#: blocks.py:49 forms/activity.py:147
 msgid "Subjects"
 msgstr "Sujets"
 
@@ -189,7 +189,7 @@ msgstr "Vue d'Activité"
 msgid "Name"
 msgstr "Nom"
 
-#: populate.py:71 forms/activity.py:145 forms/activity.py:324
+#: populate.py:71 forms/activity.py:162 forms/activity.py:353
 #: forms/indisponibility.py:33 models/activity.py:105
 msgid "Start"
 msgstr "Début"
@@ -207,40 +207,48 @@ msgstr "Type - Nom"
 msgid "Status - Name"
 msgstr "Statut - Nom"
 
-#: forms/activity.py:58 forms/indisponibility.py:59
+#: forms/activity.py:52
+msgid "Alert of phone call"
+msgstr "Alerte d'appel téléphonique"
+
+#: forms/activity.py:53
+msgid "Alert related to a phone call"
+msgstr "Alerte en rapport avec un appel téléphonique"
+
+#: forms/activity.py:73 forms/indisponibility.py:59
 msgid "End time is before start time"
 msgstr "L'heure de fin est avant le début"
 
-#: forms/activity.py:86
+#: forms/activity.py:101
 #, python-format
 msgid ""
-"%(participant)s already participates to the activity «%(activity)s» between "
-"%(start)s and %(end)s."
+"%(participant)s already participates to the activity «%(activity)s» between %"
+"(start)s and %(end)s."
 msgstr ""
-"%(participant)s participe déjà à l'activité «%(activity)s» entre %(start)s "
-"et %(end)s."
+"%(participant)s participe déjà à l'activité «%(activity)s» entre %(start)s et "
+"%(end)s."
 
-#: forms/activity.py:146 forms/activity.py:325
+#: forms/activity.py:163 forms/activity.py:354
 msgid "Start time"
 msgstr "Heure de début"
 
-#: forms/activity.py:147 forms/activity.py:326
+#: forms/activity.py:164 forms/activity.py:355
 msgid "End time"
 msgstr "Heure de fin"
 
-#: forms/activity.py:149
+#: forms/activity.py:166
 msgid "Is a commercial approach ?"
 msgstr "Est une démarche commerciale ?"
 
-#: forms/activity.py:150
+#: forms/activity.py:167
 msgid "Do I participate to this meeting ?"
 msgstr "Est-ce que je participe à ce rendez-vous ?"
 
-#: forms/activity.py:151
+#: forms/activity.py:168
 msgid "On which of my calendar this activity will appears?"
 msgstr "Sur lequel de mes calendriers cette activité doit apparaître?"
 
-#: forms/activity.py:152
+#: forms/activity.py:169
 #, python-format
 msgid ""
 "Do the responsable of this file participate to this meeting ? (Currently %s)"
@@ -248,70 +256,62 @@ msgstr ""
 "Est-ce que le responsable de cette fiche participe à ce rendez-vous ? "
 "(Actuellement %s)"
 
-#: forms/activity.py:154
+#: forms/activity.py:171
 msgid "Other participants"
 msgstr "Autres participants"
 
-#: forms/activity.py:161 forms/indisponibility.py:41
-msgid "When"
-msgstr "Quand"
-
-#: forms/activity.py:177
-msgid "Nobody"
-msgstr "Personne"
-
-#: forms/activity.py:178
-msgid "Do the responsable of this file participate to this meeting ?"
-msgstr "Est-ce que le responsable de cette fiche participe à ce rendez-vous ?"
-
-#: forms/activity.py:178
-msgid "Currently"
-msgstr "Actuellement"
-
-#: forms/activity.py:200
-msgid "If you participe, you have to choose one of your calendars."
-msgstr "Si vous participez, vous devez choisir un de vos calendrier"
-
-#: forms/activity.py:203 forms/activity.py:204
-msgid "You or the assigned user has to participate"
-msgstr "Vous ou l'utilisateur assigné à la fiche doit participer"
-
-#: forms/activity.py:285
-msgid "Who / What"
-msgstr "Qui / Quoi"
-
-#: forms/activity.py:286
-msgid "Relation with the activity"
-msgstr "Relation avec l'activité"
-
-#: forms/activity.py:312
-msgid "Add participants to them be linked to a commercial approach."
-msgstr ""
-"Ajoutez des participants pour qu'ils soient liés à une démarche commerciale"
-
-#: forms/phone_call.py:50
-msgid "Alert of phone call"
-msgstr "Alerte d'appel téléphonique"
-
-#: forms/phone_call.py:51
-msgid "Alert related to a phone call"
-msgstr "Alerte en rapport avec un appel téléphonique"
-
-#: forms/phone_call.py:56 forms/phone_call.py:84
+#: forms/activity.py:173
 msgid "Do you want to generate an alert or a reminder ?"
 msgstr "Voulez vous générer une alerte ou un rappel ?"
 
-#: forms/phone_call.py:57 forms/phone_call.py:85
+#: forms/activity.py:174
 msgid "Alert day"
 msgstr "Jour de l'alerte"
 
-#: forms/phone_call.py:58 forms/phone_call.py:86
+#: forms/activity.py:175
 msgid "Alert time"
 msgstr "Heure de l'alerte"
 
-#: forms/phone_call.py:65 forms/phone_call.py:93
+#: forms/activity.py:183 forms/indisponibility.py:41
+msgid "When"
+msgstr "Quand"
+
+#: forms/activity.py:185
 msgid "Generate an alert or a reminder"
 msgstr "Générer une alerte ou un rappel"
+
+#: forms/activity.py:202
+msgid "Nobody"
+msgstr "Personne"
+
+#: forms/activity.py:203
+msgid "Do the responsable of this file participate to this meeting ?"
+msgstr "Est-ce que le responsable de cette fiche participe à ce rendez-vous ?"
+
+#: forms/activity.py:203
+msgid "Currently"
+msgstr "Actuellement"
+
+#: forms/activity.py:225
+msgid "If you participe, you have to choose one of your calendars."
+msgstr "Si vous participez, vous devez choisir un de vos calendrier"
+
+#: forms/activity.py:228 forms/activity.py:229
+msgid "You or the assigned user has to participate"
+msgstr "Vous ou l'utilisateur assigné à la fiche doit participer"
+
+#: forms/activity.py:314
+msgid "Who / What"
+msgstr "Qui / Quoi"
+
+#: forms/activity.py:315
+msgid "Relation with the activity"
+msgstr "Relation avec l'activité"
+
+#: forms/activity.py:341
+msgid "Add participants to them be linked to a commercial approach."
+msgstr ""
+"Ajoutez des participants pour qu'ils soient liés à une démarche commerciale"
 
 #: forms/task.py:38 forms/task.py:48
 msgid "Do I participate to this task"
@@ -378,8 +378,8 @@ msgid "All day ?"
 msgstr "Jour entier ?"
 
 #: models/activity.py:112
-msgid "Occuped ?"
-msgstr ""
+msgid "Busy ?"
+msgstr "Occupé ?"
 
 #: models/activity.py:120
 msgid "Activity"
