@@ -30,7 +30,7 @@ from creme_core.models import CremeEntity
 from creme_core.utils import get_from_POST_or_404
 
 
-#TODO: @permission_required(app_name) ??
+#TODO: move all functions to entity.py and delete this file ??
 
 @login_required
 def delete_entities_js_post(request):
@@ -102,22 +102,33 @@ def delete_entities_js(request, entities_ids):
     return HttpResponse(return_str, mimetype="text/javascript", status=return_status)
 
 @login_required
-def delete_entity(request, object_id, callback_url=None):
-    entity = get_object_or_404(CremeEntity, pk=object_id).get_real_entity()
+def delete_entity(request, entity_id, callback_url=None):
+    if request.method != 'POST':
+        raise Http404('Use POST method for this view')
 
+    entity = get_object_or_404(CremeEntity, pk=entity_id)
     entity.can_delete_or_die(request.user)
+    entity = entity.get_real_entity()
 
-    if callback_url is None:
+    if not entity.can_be_deleted():
+        msg = _(u'%s can not be deleted because of its dependencies.') % entity
+
+        if request.is_ajax():
+            return HttpResponse(msg, mimetype="text/javascript", status=403)
+
+        return render_to_response("creme_core/forbidden.html",
+                                  {'error_message' : msg},
+                                  context_instance=RequestContext(request)
+                                 )
+
+    if callback_url is None: #TODO: useful ??
         callback_url = entity.get_lv_absolute_url()
 
-    if entity.can_be_deleted():
-        entity.delete()
-        return HttpResponseRedirect(callback_url)
-    else:
-        return render_to_response("creme_core/forbidden.html", {
-                                    'error_message' : _(u'%s can not be deleted because of its dependencies.' % entity)
-                                 }, context_instance=RequestContext(request))
+    entity.delete()
 
+    return HttpResponseRedirect(callback_url)
+
+#TODO: move to views/entity.py with a generic url /creme_core/entity/delete_related/(?P<ct_id>\d+)/(?P<model_id>\d+) ???
 def delete_related_to_entity(request, model):
     """Delete a model related to a CremeEntity.
     @param request Request with POST method ; POST data should contain an 'id'(=pk) value.

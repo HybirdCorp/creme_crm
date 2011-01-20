@@ -31,8 +31,3 @@ urlpatterns = patterns('projects.views',
     (r'^period/edit/(?P<period_id>\d+)$',   'workingperiod.edit'),
     (r'^period/delete$',                    'workingperiod.delete'),
 )
-
-urlpatterns += patterns('creme_core.views',
-    (r'^project/edit_js/$',                  'ajax.edit_js'),
-    (r'^project/delete/(?P<object_id>\d+)$', 'generic.delete_entity', {'callback_url': '/projects/projects'}),
-)

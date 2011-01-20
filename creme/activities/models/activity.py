@@ -97,7 +97,7 @@ class Status(CremeModel):
         app_label = 'activities'
         verbose_name = _(u'Status')
         verbose_name_plural = _(u'Status') #arf plural....
-        
+
 
 class Activity(CremeEntity):
     """Activity : event or task"""
@@ -165,9 +165,6 @@ END:VEVENT
 
     def get_edit_absolute_url(self):
         return "/activities/activity/edit/%s" % self.id
-
-    def get_delete_absolute_url(self):
-        return "/activities/activity/delete/%s" % self.id
 
     @staticmethod
     def get_lv_absolute_url():

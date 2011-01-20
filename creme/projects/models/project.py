@@ -56,9 +56,6 @@ class Project(CremeEntity):
     def get_lv_absolute_url():
         return "/projects/projects"
 
-    def get_delete_absolute_url(self):
-        return "/projects/project/delete/%s" % self.id
-
     ##### ------------------ #####
     ##### Business functions #####
     ##### ------------------ #####

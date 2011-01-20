@@ -198,9 +198,6 @@ class EntityEmail(_Email, CremeEntity):
     def get_lv_absolute_url():
         return "/emails/mails"
 
-    def get_delete_absolute_url(self):
-        return u"/emails/entitymail/delete/%s" % self.id
-
     @staticmethod
     def create_n_send_mail(sender, recipient, subject, user_pk, body_html=u"", signature=None, attachments=None):
         email           = EntityEmail()

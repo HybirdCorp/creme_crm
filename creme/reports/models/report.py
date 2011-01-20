@@ -73,7 +73,7 @@ class Field(CremeModel):
     @staticmethod
     def get_instance_from_hf_item(hf_item):
         """
-            @Returns : A Field instance (not saved !) built from an HeaderFilterItem instance
+            @returns : A Field instance (not saved !) built from an HeaderFilterItem instance
         """
         if hf_item.type == HFI_RELATION:
             return Field(name=hf_item.relation_predicat_id, title=hf_item.title, order=hf_item.order, type=hf_item.type)
@@ -95,7 +95,7 @@ class Field(CremeModel):
 
     def get_children_fields_with_hierarchy(self):
         """
-            @Returns: A "hierarchical" dict in the format :
+            @return: A "hierarchical" dict in the format :
             {'children': [{'children': [], 'field': <Field: Prénom>, 'report': None},
                           {'children': [],
                            'field': <Field: Fonction - Intitulé>,
@@ -281,9 +281,6 @@ class Report(CremeEntity):
     def get_lv_absolute_url():
         return "/reports/reports"
 
-    def get_delete_absolute_url(self):
-        return "/reports/report/delete/%s" % self.id
-
     def get_ascendants_reports(self):
         fields = Field.objects.filter(report__id=self.id) #TODO: use related name ?
         asc_reports = []
@@ -402,7 +399,7 @@ class Report(CremeEntity):
     def get_children_fields_with_hierarchy(self):
         return [c.get_children_fields_with_hierarchy() for c in self.columns.all()]
 
-    def get_children_fields_flat(self):
+    def get_children_fields_flat(self): #TODO: use itertools.chain ??
         children = []
 
         for c in self.columns.all():

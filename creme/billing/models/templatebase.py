@@ -50,9 +50,6 @@ class TemplateBase(Base):
     def get_lv_absolute_url():
         return "/billing/templates"
 
-    def get_delete_absolute_url(self):
-        return "/billing/template/delete/%s" % self.id
-
     def get_generator(self):
         from recurrents.models import RecurrentGenerator
         try:

@@ -53,11 +53,12 @@ creme_core_patterns = patterns('creme_core.views',
     (r'^header_filter/edit/(?P<header_filter_id>[\w-]+)$', 'header_filter.edit'),
     (r'^header_filter/get_4_ct/(?P<content_type_id>\d+)$', 'header_filter.get_hfs_4_ct'),
 
-    #Entities representations
-    (r'^entity/get_repr/$',                         'entity.get_entity_repr'),
-    (r'^entity/get_repr/(?P<creme_entity_id>\d+)$', 'entity.get_creme_entity_repr'),
-    (r'^entity/render$',                            'entity.render_entity'),
-    (r'^entity/json$',                              'entity.get_creme_entity_as_json'),
+    #Entities
+    (r'^entity/delete/(?P<entity_id>\d+)$',   'generic.delete_entity'),
+    (r'^entity/get_repr/$',                   'entity.get_entity_repr'),
+    (r'^entity/get_repr/(?P<entity_id>\d+)$', 'entity.get_creme_entity_repr'),
+    (r'^entity/render$',                      'entity.render_entity'),
+    (r'^entity/json$',                        'entity.get_creme_entity_as_json'),
 
     (r'^list_view/import_csv/(?P<ct_id>\d+)$', 'csv_import.csv_import'),
     (r'^list_view/dl_csv/(?P<ct_id>\d+)$',     'csv_export.dl_listview_as_csv'),

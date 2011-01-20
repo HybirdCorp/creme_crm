@@ -108,9 +108,6 @@ class Opportunity(CremeEntity):
     def get_edit_absolute_url(self):
         return "/opportunities/opportunity/edit/%s" % self.id
 
-    def get_delete_absolute_url(self):
-        return "/opportunities/opportunity/delete/%s" % self.id
-
     @staticmethod
     def get_lv_absolute_url():
         """url for list_view """
