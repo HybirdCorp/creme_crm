@@ -16,8 +16,3 @@ urlpatterns = patterns('opportunities.views',
 
     (r'^opportunity/(?P<opp_id>\d+)/linked/quote/(?P<quote_id>\d+)/set_current/$', 'links.set_current_quote'),
 )
-
-urlpatterns += patterns('creme_core.views.generic',
-    (r'^opportunity/delete/(?P<object_id>\d+)$',               'delete_entity'),
-    #(r'^opportunity/delete_js/(?P<entities_ids>([\d]+[,])+)$', 'delete_entities_js'), #Commented 6 december 2010
-)

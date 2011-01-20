@@ -20,11 +20,3 @@ urlpatterns = patterns('documents.views',
     (r'^document/edit/(?P<document_id>\d+)$', 'document.edit'),
     (r'^document/(?P<object_id>\d+)$',        'document.detailview'),
 )
-
-urlpatterns += patterns('creme_core.views',
-    #(r'^document/edit_js/$',                                'ajax.edit_js'),
-    (r'^document/delete/(?P<object_id>\d*)$',               'generic.delete_entity'),
-    #(r'^document/delete_js/(?P<entities_ids>([\d]+[,])+)$', 'generic.delete_entities_js'), #Commented 6 december 2010
-
-    (r'^folder/delete/(?P<object_id>\d*)$',                 'generic.delete_entity'),
-)

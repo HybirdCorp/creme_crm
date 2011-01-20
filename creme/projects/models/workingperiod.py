@@ -44,7 +44,3 @@ class WorkingPeriod(CremeModel):
 
     def get_edit_absolute_url(self):
         return "/projects/period/edit/%s" % self.id
-
-#Commented 15 june 10 
-#    def get_delete_absolute_url(self):
-#        return "/projects/period/delete/%s" % self.id

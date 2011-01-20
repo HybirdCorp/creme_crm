@@ -1,7 +1,7 @@
-{% extends "creme_core/base.html" %}
+{% extends "creme_core/base.html" %}{% comment %} TODO: why not extend view_entity.html ????? {% endcomment %}
 {% load i18n %}
 {% load media %}
-{% load creme_core_tags %}{% load creme_block %}{% load creme_menu %}
+{% load creme_core_tags %}{% load creme_block %}{% load creme_menu %}{% load creme_widgets %}
 {% load email_tags %}
 
 {% block page_title %} - {{object}}{% endblock %}
@@ -32,9 +32,7 @@
                             <img src="{% media_url 'images/refresh_64.png' %}" title="{% trans "Re-send" %}" alt="{% trans "Re-send" %}" />
                         </a>
                     {% endif %}
-                    <a href="/emails/entitymail/delete/{{object.id}}" onclick="creme.utils.confirmDelete(event, this);">
-                        <img src="{% media_url 'images/delete_64.png' %}" title="{% blocktrans %}Delete '{{object}}'{% endblocktrans %}" alt="{% trans "Delete" %}" />
-                    </a>
+                    {% get_delete_button object request.user %}
                 </span>
             </td>
         </tr>

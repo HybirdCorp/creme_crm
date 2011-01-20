@@ -209,6 +209,24 @@ class ViewsTestCase(TestCase):
         self.assertEqual('text/javascript', response['Content-Type'])
         self.assertEqual('Creme entity: %s' % entity.id, response.content)
 
+    def test_delete_entity01(self):
+        self.login()
+
+        entity = Organisation.objects.create(user=self.user, name='Nerv') #to get a get_lv_absolute_url() method
+
+        response = self.client.post('/creme_core/entity/delete/%s' % entity.id)
+        self.assertEqual(302, response.status_code)
+        self.assertEqual(0,   Organisation.objects.filter(pk=entity.id).count())
+
+    def test_delete_entity02(self):
+        self.login(is_superuser=False)
+
+        entity = Organisation.objects.create(user=self.other_user, name='Nerv')
+
+        response = self.client.post('/creme_core/entity/delete/%s' % entity.id)
+        self.assertEqual(403, response.status_code)
+        self.assertEqual(1,   Organisation.objects.filter(pk=entity.id).count())
+
     def test_add_property(self):
         self.login()
 

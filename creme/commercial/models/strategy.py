@@ -83,9 +83,6 @@ class Strategy(CremeEntity):
     def get_absolute_url(self):
         return "/commercial/strategy/%s" % self.id
 
-    def get_delete_absolute_url(self):
-        return "/commercial/strategy/delete/%s" % self.id
-
     def get_edit_absolute_url(self):
         return "/commercial/strategy/edit/%s" % self.id
 

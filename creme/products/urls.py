@@ -17,13 +17,3 @@ urlpatterns = patterns('products.views',
 
     (r'^sub_category/load$', 'ajax.get_sub_cat_on_cat_change'),
 )
-
-urlpatterns += patterns('creme_core.views',
-    #(r'^product/edit_js/$',                                'ajax.edit_js'),
-    (r'^product/delete/(?P<object_id>\d+)$',               'generic.delete_entity'),
-    #(r'^product/delete_js/(?P<entities_ids>([\d]+[,])+)$', 'generic.delete_entities_js'), #Commented 6 december 2010
-
-    #(r'^service/edit_js/$',                                'ajax.edit_js'),
-    (r'^service/delete/(?P<object_id>\d+)$',               'generic.delete_entity'),
-    #(r'^service/delete_js/(?P<entities_ids>([\d]+[,])+)$', 'generic.delete_entities_js'), #Commented 6 december 2010
-)

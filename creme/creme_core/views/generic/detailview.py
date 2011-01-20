@@ -35,6 +35,7 @@ from creme_core.gui.last_viewed import add_item_in_last_viewed
     #return entity
 
 #def view_entity_with_template(request, object_id, model, path, template='creme_core/generics/view_entity.html', extra_template_dict=None):
+#TODO: remove 'path' arg (use get_edit_absolute_url() etc...) ??
 def view_entity(request, object_id, model, path, template='creme_core/generics/view_entity.html', extra_template_dict=None):
     entity = get_object_or_404(model, pk=object_id)
     entity.can_view_or_die(request.user)

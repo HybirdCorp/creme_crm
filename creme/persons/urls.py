@@ -31,13 +31,3 @@ urlpatterns = patterns('persons.views',
     (r'^address/delete$',                    'address.delete'),
     (r'^address/edit/(?P<address_id>\d+)',   'address.edit'),
 )
-
-urlpatterns += patterns('creme_core.views',
-    #(r'^contact/edit_js/$',                                'ajax.edit_js'),
-    (r'^contact/delete/(?P<object_id>\d+)$',               'generic.delete_entity'),
-    #(r'^contact/delete_js/(?P<entities_ids>([\d]+[,])+)$', 'generic.delete_entities_js'), #Commented 6 december 2010
-
-    #(r'^organisation/edit_js/$',                                'ajax.edit_js'),
-    (r'^organisation/delete/(?P<object_id>\d+)$',               'generic.delete_entity'),
-    #(r'^organisation/delete_js/(?P<entities_ids>([\d]+[,])+)$', 'generic.delete_entities_js'), #Commented 6 december 2010
-)
