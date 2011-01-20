@@ -90,7 +90,7 @@ def _check_activity_collisions(activity_start, activity_end, participants, exclu
         # do collision request
         #TODO: can be done with less queries ?
         #  eg:  Activity.objects.filter(relations__object_entity=participant.id, relations__object_entity__type=REL_OBJ_PART_2_ACTIVITY).filter(collision_test)
-        #activity_collisions = Activity.objects.exclude(occuped=False).filter(pk__in=activity_ids).filter(collision_test)[:1]
+        #activity_collisions = Activity.objects.exclude(busy=False).filter(pk__in=activity_ids).filter(collision_test)[:1]
         activity_collisions = Activity.objects.filter(pk__in=activity_ids).filter(collision_test)[:1]
 
         if activity_collisions:
@@ -131,9 +131,11 @@ class ParticipantCreateForm(CremeForm):
             return cleaned_data
 
         activity = self.activity
-        if activity.occuped :
+
+        if activity.busy:
             _check_activity_collisions(activity.start, activity.end,
-                                   [entity for rtype, entity in cleaned_data['participants']])
+                                       [entity for rtype, entity in cleaned_data['participants']]
+                                      )
 
         return cleaned_data
 
@@ -171,7 +173,7 @@ class _ActivityCreateBaseForm(CremeEntityForm):
     generate_alert   = BooleanField(label=_(u"Do you want to generate an alert or a reminder ?"), required=False)
     alert_day        = CremeDateTimeField(label=_(u"Alert day"), required=False)
     alert_start_time = CremeTimeField(label=_(u"Alert time"), required=False)
-    
+
 
     #informed_users = ModelMultipleChoiceField(queryset=User.objects.all(),
                                               #widget=CheckboxSelectMultiple(),
@@ -184,7 +186,7 @@ class _ActivityCreateBaseForm(CremeEntityForm):
                 #('informed_users', _(u'Users to keep informed'), ['informed_users']),
             )
 
-    
+
 
     def __init__(self, current_user, *args, **kwargs):
         super(_ActivityCreateBaseForm, self).__init__(*args, **kwargs)
@@ -244,7 +246,8 @@ class _ActivityCreateBaseForm(CremeEntityForm):
                 participants.append(Contact.objects.get(is_user=self.current_user))
             except Contact.DoesNotExist:
                 pass
-        if cleaned_data['occuped']:
+
+        if cleaned_data['busy']:
             _check_activity_collisions(cleaned_data['start'], cleaned_data['end'], participants)
 
     def save(self):
@@ -375,10 +378,11 @@ class ActivityEditForm(CremeEntityForm):
         _clean_interval(cleaned_data)
 
         # check if activity period change cause collisions
-        if cleaned_data['occuped']:
+        if cleaned_data['busy']:
             _check_activity_collisions(cleaned_data['start'], cleaned_data['end'],
-                                   instance.get_related_entities(REL_OBJ_PART_2_ACTIVITY),
-                                   instance.id)
+                                       instance.get_related_entities(REL_OBJ_PART_2_ACTIVITY),
+                                       instance.id
+                                      )
 
         return cleaned_data
 
