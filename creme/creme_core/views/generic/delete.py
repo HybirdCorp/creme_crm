@@ -18,6 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from collections import defaultdict
 from logging import debug
 
 from django.utils.translation import ugettext as _
@@ -32,74 +33,51 @@ from creme_core.utils import get_from_POST_or_404
 
 #TODO: move all functions to entity.py and delete this file ??
 
+
 @login_required
-def delete_entities_js_post(request):
-    ids = request.POST.get('ids')
-    if not ids:
+def delete_entities(request):
+    """Delete several CremeEntity, with a Ajax call (POSt method)."""
+    try:
+        entity_ids = [int(e_id) for e_id in get_from_POST_or_404(request.POST, 'ids').split(',') if e_id]
+    except ValueError, e:
+        return HttpResponse("Bad POST argument", mimetype="text/javascript", status=400)
+
+    if not entity_ids:
         return HttpResponse(_(u"No selected entities"), mimetype="text/javascript", status=400)
-    return delete_entities_js(request, ids)
 
-@login_required
-def delete_entities_js(request, entities_ids):
-    """
-        @Permissions : Delete on object (No warning if user hasn't permissions just pass)
-        TODO: use 'CremeEntity.get_real_entity()'
-    """
-    debug('delete_entities_js -> ids: %s ', entities_ids)
+    debug('delete_entities() -> ids: %s ', entity_ids)
 
-    return_str = ""
-    get = CremeEntity.objects.get
-    has_perm = request.user.has_perm
+    user     = request.user
+    entities = list(CremeEntity.objects.filter(pk__in=entity_ids))
+    errors   = defaultdict(list)
 
-    #TODO: regroup queries...
+    len_diff = len(entity_ids) - len(entities)
+    if len_diff:
+        errors[404].append(_(u"%s entities doesn't exist / doesn't exist any more") % len_diff)
 
-    for id in entities_ids.split(','):
-        debug('delete id=%s', id)
+    CremeEntity.populate_credentials(entities, user)
+    CremeEntity.populate_real_entities(entities)
 
-        if not id.isdigit():
-            debug('not digit ?!')
+    for entity in entities:
+        if not entity.can_delete(user):
+            errors[403].append(_(u'%s : <b>Permission denied</b>,') % entity)
             continue
+
+        entity = entity.get_real_entity()
 
         try:
-#            model_klass = get(pk=id).entity_type.model_class()
-            f = get(pk=id).get_real_entity()
-        except CremeEntity.DoesNotExist:
-            debug("entity doesn't exist")
-            continue #no need to return an error, the element won't be in the list after the refreshing
+            entity.delete()
+        except CremeEntity.CanNotBeDeleted, e:
+            errors[400].append(unicode(e))
 
-#        f = model_klass.objects.get(pk=id) #can't fail (pk in CremeEntity.objects)
+    if not errors:
+        status = 200
+        message = _(u"Operation successfully completed")
+    else:
+        status = min(errors.iterkeys())
+        message = ",".join(msg for error_messages in errors.itervalues() for msg in error_messages)
 
-        if f.is_deleted:
-            debug("already marked is_deleted")
-            return_str += '%s : already marked is_deleted,' % f
-            continue
-
-        if not has_perm('creme_core.delete_entity', f):
-            return_str += _(u'%s : <b>Permission denied</b>,') % f
-            continue
-
-        try:
-            f.delete()
-        except Exception, e: #TODO: find the exact Exception type
-            debug('Exception: %s', e)
-            try:
-                debug('Force the suppression in case no relation matches')
-                f.delete()  #TODO: is a second delete() useful ???
-            except:
-                debug('Forced suppression failed')
-                try:
-                    debug('Set is_deleted=True')
-                    f.is_deleted = True
-                    f.save()
-                except:
-                    debug('Setting is_deleted failed')
-                    return_str += '%s : can not be marked as is_deleted,' % f
-
-    return_status = 200 if not return_str else 400
-    return_str    = "[%s]" % return_str
-    debug('return string: %s', return_str)
-
-    return HttpResponse(return_str, mimetype="text/javascript", status=return_status)
+    return HttpResponse(message, mimetype="text/javascript", status=status)
 
 @login_required
 def delete_entity(request, entity_id, callback_url=None):
@@ -110,21 +88,19 @@ def delete_entity(request, entity_id, callback_url=None):
     entity.can_delete_or_die(request.user)
     entity = entity.get_real_entity()
 
-    if not entity.can_be_deleted():
-        msg = _(u'%s can not be deleted because of its dependencies.') % entity
-
-        if request.is_ajax():
-            return HttpResponse(msg, mimetype="text/javascript", status=403)
-
-        return render_to_response("creme_core/forbidden.html",
-                                  {'error_message' : msg},
-                                  context_instance=RequestContext(request)
-                                 )
-
     if callback_url is None: #TODO: useful ??
         callback_url = entity.get_lv_absolute_url()
 
-    entity.delete()
+    try:
+        entity.delete()
+    except CremeEntity.CanNotBeDeleted, e:
+        if request.is_ajax():
+            return HttpResponse(unicode(e), mimetype="text/javascript", status=400)
+
+        return render_to_response("creme_core/forbidden.html",
+                                  {'error_message': unicode(e)},
+                                  context_instance=RequestContext(request)
+                                 )
 
     return HttpResponseRedirect(callback_url)
 
