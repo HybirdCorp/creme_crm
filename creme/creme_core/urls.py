@@ -80,7 +80,7 @@ creme_core_patterns = patterns('creme_core.views',
 
 creme_core_patterns += patterns('creme_core.views.generic',
     (r'^lv_popup/(?P<ct_id>\d+)/(?P<o2m>0|1)$', 'listview.list_view_popup_from_widget'),
-    (r'^delete_js$',                            'delete.delete_entities_js_post'),
+    (r'^delete_js$',                            'delete.delete_entities'),
 )
 
 urlpatterns = patterns('creme_core.views',

@@ -25,7 +25,7 @@ class ViewsTestCase(TestCase):
         role.allowed_apps = ['creme_core']
         role.save()
         SetCredentials.objects.create(role=role,
-                                      value=SetCredentials.CRED_VIEW,
+                                      value=SetCredentials.CRED_VIEW | SetCredentials.CRED_CHANGE | SetCredentials.CRED_DELETE,
                                       set_type=SetCredentials.ESET_OWN)
         basic_user = User.objects.create(username='Mireille', role=role)
         basic_user.set_password(password)
@@ -226,6 +226,79 @@ class ViewsTestCase(TestCase):
         response = self.client.post('/creme_core/entity/delete/%s' % entity.id)
         self.assertEqual(403, response.status_code)
         self.assertEqual(1,   Organisation.objects.filter(pk=entity.id).count())
+
+    def test_delete_entity03(self):
+        self.login()
+
+        entity01 = Organisation.objects.create(user=self.other_user, name='Nerv')
+        entity02 = Organisation.objects.create(user=self.other_user, name='Seele')
+
+        rtype, srtype = RelationType.create(('test-subject_linked', 'is linked to'),
+                                            ('test-object_linked',  'is linked to')
+                                           )
+        Relation.objects.create(user=self.user, type=rtype, subject_entity=entity01, object_entity=entity02)
+
+        response = self.client.post('/creme_core/entity/delete/%s' % entity01.id)
+        #self.assertEqual(400, response.status_code)
+        self.assertEqual(2,   Organisation.objects.filter(pk__in=[entity01.id, entity02.id]).count())
+
+    def test_delete_entities01(self):
+        self.login()
+
+        entity01 = CremeEntity.objects.create(user=self.user)
+        entity02 = CremeEntity.objects.create(user=self.user)
+        entity03 = CremeEntity.objects.create(user=self.user)
+
+        response = self.client.post('/creme_core/delete_js',
+                                    data={'ids': '%s,%s,' % (entity01.id, entity02.id)}
+                                   )
+        self.assertEqual(200, response.status_code)
+        self.assertEqual(0,   CremeEntity.objects.filter(pk__in=[entity01.id, entity02.id]).count())
+        self.assertEqual(1,   CremeEntity.objects.filter(pk=entity03.id).count())
+
+    def test_delete_entities02(self):
+        self.login()
+
+        entity01 = CremeEntity.objects.create(user=self.user)
+        entity02 = CremeEntity.objects.create(user=self.user)
+
+        response = self.client.post('/creme_core/delete_js',
+                                    data={'ids': '%s,%s,' % (entity01.id, entity02.id + 1)}
+                                   )
+        self.assertEqual(404, response.status_code)
+        self.assertEqual(0,   CremeEntity.objects.filter(pk=entity01.id).count())
+        self.assertEqual(1,   CremeEntity.objects.filter(pk=entity02.id).count())
+
+    def test_delete_entities03(self):
+        self.login(is_superuser=False)
+
+        forbidden = CremeEntity.objects.create(user=self.other_user)
+        allowed   = CremeEntity.objects.create(user=self.user)
+        response = self.client.post('/creme_core/delete_js',
+                                    data={'ids': '%s,%s,' % (forbidden.id, allowed.id)}
+                                   )
+        self.assertEqual(403, response.status_code)
+        self.assertEqual(0,   CremeEntity.objects.filter(pk=allowed.id).count())
+        self.assertEqual(1,   CremeEntity.objects.filter(pk=forbidden.id).count())
+
+    def test_delete_entities04(self):
+        self.login()
+
+        entity01 = CremeEntity.objects.create(user=self.user)
+        entity02 = CremeEntity.objects.create(user=self.user)
+        entity03 = CremeEntity.objects.create(user=self.user) #not linked => can be deleted
+
+        rtype, srtype = RelationType.create(('test-subject_linked', 'is linked to'),
+                                            ('test-object_linked',  'is linked to')
+                                           )
+        Relation.objects.create(user=self.user, type=rtype, subject_entity=entity01, object_entity=entity02)
+
+        response = self.client.post('/creme_core/delete_js',
+                                    data={'ids': '%s,%s,%s,' % (entity01.id, entity02.id, entity03.id)}
+                                   )
+        self.assertEqual(400, response.status_code)
+        self.assertEqual(2,   CremeEntity.objects.filter(pk__in=[entity01.id, entity02.id]).count())
+        self.assertEqual(0,   CremeEntity.objects.filter(pk=entity03.id).count())
 
     def test_add_property(self):
         self.login()
