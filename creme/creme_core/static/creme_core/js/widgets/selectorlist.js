@@ -59,7 +59,8 @@ creme.widget.SelectorList = creme.widget.declare('ui-creme-selectorlist', {
         var delete_button = $('<img/>').attr('src', media_url('images/delete_22.png'))
                                        .attr('alt', gettext("Delete"))
                                        .attr('title', gettext("Delete"))
-                                       .attr('style', 'position:absolute;top:0.1em;left:0.1em;')
+                                       .attr('style', 'vertical-align:middle;')
+                                       .addClass('delete')
                                        .click(function() {
                                             selector_item.remove();
                                             self._update(element);

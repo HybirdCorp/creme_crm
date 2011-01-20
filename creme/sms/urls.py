@@ -46,9 +46,3 @@ urlpatterns = patterns('sms.views',
     (r'^template/edit/(?P<template_id>\d+)$', 'template.edit'),
     (r'^template/(?P<template_id>\d+)$',      'template.detailview'),
 )
-
-urlpatterns += patterns('creme_core.views.generic',
-    (r'^campaign/delete/(?P<object_id>\d+)$',       'delete_entity'),
-    (r'^messaging_list/delete/(?P<object_id>\d+)$', 'delete_entity'),
-    (r'^template/delete/(?P<object_id>\d+)$',       'delete_entity'),
-)

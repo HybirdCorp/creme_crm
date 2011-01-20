@@ -46,7 +46,7 @@ def get_users_calendar(request, usernames, calendars_ids):
     user = request.user
     if user.username not in usernames:
         calendars_ids = []
-        
+
     cal_ids = [str(id) for id in calendars_ids]
     return render_to_response('activities/calendar.html',
                               {
@@ -59,11 +59,10 @@ def get_users_calendar(request, usernames, calendars_ids):
                               context_instance=RequestContext(request))
 
 def getFormattedDictFromAnActivity(activity):
-
     start = activity.start
     end   = activity.end
     is_all_day = activity.is_all_day
-    
+
     if start == end and not is_all_day:
         end += timedelta(days=1)
 
@@ -85,7 +84,8 @@ def user_calendar(request):
     POST = request.POST
     POST_getlist = POST.getlist
     Calendar.get_user_default_calendar(user)#Don't really need the calendar but this create it in case of the user hasn't a calendar
-    return get_users_calendar(request, 
+
+    return get_users_calendar(request,
                               POST_getlist('user_selected') or [user.username],
                               POST_getlist('calendar_selected'))# or [Calendar.get_user_default_calendar(user).pk])
 
@@ -106,7 +106,6 @@ def get_users_activities(request, usernames, calendars_ids):
                 cals_ids.append(long(cal_id))
             except ValueError:
                 continue
-
 
     users_cal_ids  = set(Calendar.objects.filter(is_public=True, user__in=users.filter(~Q(pk=request.user.pk))).values_list('id', flat=True))
     users_cal_ids |= set(cals_ids)
@@ -186,10 +185,10 @@ def update_activity_date(request):
 @login_required
 @permission_required('activities')
 def add_user_calendar(request, calendar_id=None):
-
-    instance = None
-    if calendar_id is not None:
-        instance = get_object_or_404(Calendar, pk=calendar_id)
+    #instance = None
+    #if calendar_id is not None:
+        #instance = get_object_or_404(Calendar, pk=calendar_id)
+    instance = get_object_or_404(Calendar, pk=calendar_id) if calendar_id is not None else None
 
     user = request.user
     POST = request.POST

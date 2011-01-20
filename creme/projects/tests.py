@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-#from datetime import date
+from datetime import datetime, date, time
 
 from django.test import TestCase
 from django.contrib.auth.models import User
@@ -254,5 +254,29 @@ class ProjectsTestCase(TestCase):
 
         wperiod = WorkingPeriod.objects.get(pk=wperiod.id) #refresh
         self.assertEqual(10, wperiod.duration)
+
+    def test_project_close(self):
+        self.login()
+
+        project = self.create_project('Eva01')[0]
+        self.assert_(not project.is_closed)
+        self.assert_(not project.effective_end_date)
+
+        response = self.client.get('/projects/project/%s/close' % project.id)
+        self.assertEqual(404, response.status_code)
+
+        response = self.client.post('/projects/project/%s/close' % project.id, follow=True)
+        self.assertEqual(200, response.status_code)
+
+        project = Project.objects.get(pk=project.id) #refresh
+        self.assert_(project.is_closed)
+        self.assert_(project.effective_end_date)
+
+        delta = datetime.combine(date.today(), time()) - project.effective_end_date
+        self.assert_(delta.seconds < 10)
+
+        #already closed
+        response = self.client.post('/projects/project/%s/close' % project.id, follow=True)
+        self.assertEqual(404, response.status_code)
 
     #TODO: test better get_project_cost(), get_effective_duration(), get_delay()

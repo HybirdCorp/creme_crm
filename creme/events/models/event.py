@@ -70,9 +70,6 @@ class Event(CremeEntity):
         """url for list_view """
         return "/events/events"
 
-    def get_delete_absolute_url(self):
-        return "/events/event/delete/%s" % self.id
-
     def get_stats(self):
         types_count = dict(RelationType.objects.filter(relation__subject_entity=self.id, id__in=_STATS_TYPES) \
                                                .annotate(relations_count=Count('relation')) \

@@ -64,7 +64,7 @@ creme.widget.DynamicSelect = creme.widget.declare('ui-creme-dselect', {
     },
 
     val: function(element, value) {
-        console.log(element, value);
+        //console.log(element, value);
 
         if (value !== undefined)
             return element.val(value).change();

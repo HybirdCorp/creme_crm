@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from datetime import datetime
+from datetime import date
 from decimal import Decimal
 
 from django.test import TestCase
@@ -47,6 +47,9 @@ class BillingTestCase(TestCase):
 
         self.assertEqual(1, CremePropertyType.objects.filter(pk=PROP_IS_MANAGED_BY_CREME).count())
 
+    def genericfield_format_entity(self, entity):
+        return '{"ctype":"%s", "entity":"%s"}' % (entity.entity_type_id, entity.id)
+
     def create_invoice(self, name, source, target):
         response = self.client.post('/billing/invoice/add', follow=True,
                                     data={
@@ -56,7 +59,7 @@ class BillingTestCase(TestCase):
                                             'expiration_date': '2010-10-13',
                                             'status':          1,
                                             'source':          source.id,
-                                            'target':          target.id,
+                                            'target':          self.genericfield_format_entity(target),
                                             }
                                    )
         self.assertEqual(200, response.status_code)
@@ -124,44 +127,32 @@ class BillingTestCase(TestCase):
         response = self.client.get('/billing/invoice/add')
         self.assertEqual(source.id, response.context['form']['source'].field.initial)
 
-        response = self.client.post('/billing/invoice/add', follow=True,
-                                    data={
-                                            'user':            self.user.pk,
-                                            'name':            name,
-                                            'issuing_date':    '2010-9-7',
-                                            'expiration_date': '2010-10-13',
-                                            'status':          1,
-                                            'source':          source.id,
-                                            'target':          target.id,
-                                         }
-                                   )
-        self.assertEqual(200, response.status_code)
-
-        try:
-            invoice = Invoice.objects.get(name=name)
-        except Exception, e:
-            self.fail(str(e))
+        invoice = self.create_invoice(name, source, target)
 
         self.assertEqual(target.billing_address.id,  invoice.billing_address_id)
         self.assertEqual(target.shipping_address.id, invoice.shipping_address_id)
+
+        url = invoice.get_absolute_url()
+        self.assertEqual('/billing/invoice/%s' % invoice.id, url)
+        self.assertEqual(200, self.client.get(url).status_code)
 
     def test_invoice_editview01(self):
         self.login()
 
         #Test when not all relation with organisations exist
         invoice = Invoice.objects.create(user=self.user, name='invoice01',
-                                         expiration_date=datetime(year=2010, month=12, day=31),
+                                         expiration_date=date(year=2010, month=12, day=31),
                                          status_id=1, number='INV0001')
 
         response = self.client.get('/billing/invoice/edit/%s' % invoice.id)
         self.assertEqual(200, response.status_code)
 
-    def test_invoice_editview01(self):
+    def test_invoice_editview02(self):
         self.login()
 
         #Test when not all relation with organisations exist
         invoice = Invoice.objects.create(user=self.user, name='invoice01',
-                                         expiration_date=datetime(year=2010, month=12, day=31),
+                                         expiration_date=date(year=2010, month=12, day=31),
                                          status_id=1, number='INV0001')
 
         response = self.client.get('/billing/invoice/edit/%s' % invoice.id)
@@ -176,7 +167,7 @@ class BillingTestCase(TestCase):
 
         return invoice, source, target
 
-    def test_invoice_editview02(self):
+    def test_invoice_editview03(self):
         self.login()
 
         name = 'Invoice001'
@@ -199,7 +190,7 @@ class BillingTestCase(TestCase):
                                             'expiration_date': '2011-11-14',
                                             'status':          1,
                                             'source':          source.id,
-                                            'target':          target.id,
+                                            'target':          self.genericfield_format_entity(target),
                                          }
                                    )
         self.assertEqual(200, response.status_code)
@@ -287,4 +278,49 @@ class BillingTestCase(TestCase):
         self.assertEqual(Decimal('2.66'), invoice.get_total()) # 2 * 1.33
         self.assertEqual(Decimal('3.19'), invoice.get_total_with_tax()) #2.66 * 1.196 == 3.18136
 
+    def test_generate_number01(self):
+        self.login()
+
+        invoice = self.create_invoice_n_orgas('Invoice001')[0]
+        self.failIf(invoice.number)
+        self.assertEqual(1, invoice.status_id)
+        issuing_date = invoice.issuing_date
+        self.assert_(issuing_date)
+
+        response = self.client.get('/billing/invoice/generate_number/%s' % invoice.id, follow=True)
+        self.assertEqual(404, response.status_code)
+
+        response = self.client.post('/billing/invoice/generate_number/%s' % invoice.id, follow=True)
+        self.assertEqual(200, response.status_code)
+
+        invoice = Invoice.objects.get(pk=invoice.id)
+        number    = invoice.number
+        status_id = invoice.status_id
+        self.assert_(number)
+        self.assertEqual(2, status_id)
+        self.assertEqual(issuing_date, invoice.issuing_date)
+
+        #already generated
+        response = self.client.post('/billing/invoice/generate_number/%s' % invoice.id, follow=True)
+        self.assertEqual(404, response.status_code)
+
+        invoice = Invoice.objects.get(pk=invoice.id)
+        self.assertEqual(number,    invoice.number)
+        self.assertEqual(status_id, invoice.status_id)
+
+    def test_generate_number02(self):
+        self.login()
+
+        invoice = self.create_invoice_n_orgas('Invoice001')[0]
+        invoice.issuing_date = None
+        invoice.save()
+
+        response = self.client.post('/billing/invoice/generate_number/%s' % invoice.id, follow=True)
+        self.assertEqual(200, response.status_code)
+
+        invoice = Invoice.objects.get(pk=invoice.id)
+        self.assert_(invoice.issuing_date)
+        self.assertEqual(date.today(), invoice.issuing_date) #NB this test can fail if run at midnight...
+
     #TODO: add product/service on-the fly line
+#TODO: add tests for other billing document (Quote, SalesOrder, CreditNote)
