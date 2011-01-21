@@ -388,8 +388,9 @@ class PersonsTestCase(TestCase):
 
         self._create_address(orga, 'name', 'address', 'po_box', 'city', 'state', 'zipcode', 'country', 'department')
         address = Address.objects.filter(object_id=orga.id)[0]
+        ct = ContentType.objects.get_for_model(Address)
 
-        response = self.client.post('/persons/address/delete', data={'id': address.id})
+        response = self.client.post('/creme_core/entity/delete_related/%s' % ct.id, data={'id': address.id})
         self.assertEqual(0, Address.objects.filter(object_id=orga.id).count())
 
     def test_portal(self):

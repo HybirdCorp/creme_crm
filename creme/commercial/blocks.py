@@ -97,7 +97,7 @@ class SegmentsBlock(QuerysetBlock):
 
 class SegmentDescriptionsBlock(PaginatedBlock):
     id_           = QuerysetBlock.generate_id('commercial', 'segment_info')
-    dependencies  = (MarketSegment,)
+    dependencies  = (MarketSegment,) #MarketSegmentDescription ??
     verbose_name  = _(u'Market segment descriptions')
     template_name = 'commercial/templatetags/block_segment_info.html'
 
@@ -105,6 +105,7 @@ class SegmentDescriptionsBlock(PaginatedBlock):
         strategy = context['object']
         return self._render(self.get_block_template_context(context, strategy.get_segment_descriptions_list(),
                                                             update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, strategy.pk),
+                                                            ct_id=ContentType.objects.get_for_model(MarketSegmentDescription).id,
                                                            ))
 
 
@@ -119,6 +120,7 @@ class AssetsBlock(QuerysetBlock):
         strategy = context['object']
         return self._render(self.get_block_template_context(context, strategy.assets.all(),
                                                             update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, strategy.pk),
+                                                            ct_id=ContentType.objects.get_for_model(CommercialAsset).id,
                                                            ))
 
 class CharmsBlock(QuerysetBlock):
@@ -132,6 +134,7 @@ class CharmsBlock(QuerysetBlock):
         strategy = context['object']
         return self._render(self.get_block_template_context(context, strategy.charms.all(),
                                                             update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, strategy.pk),
+                                                            ct_id=ContentType.objects.get_for_model(MarketSegmentCharm).id,
                                                            ))
 
 
@@ -207,6 +210,7 @@ class ActObjectivesBlock(QuerysetBlock):
         act = context['object']
         return self._render(self.get_block_template_context(context, act.objectives.all(),
                                                             update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, act.pk),
+                                                            ct_id=ContentType.objects.get_for_model(ActObjective).id,
                                                            ))
 
 
@@ -247,6 +251,7 @@ class PatternComponentsBlock(Block):
         return self._render(self.get_block_template_context(context,
                                                             components=flattened_tree,
                                                             update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, pattern.pk),
+                                                            ct_id=ContentType.objects.get_for_model(ActObjectivePatternComponent).id,
                                                            ))
 
 

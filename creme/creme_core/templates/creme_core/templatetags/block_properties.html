@@ -16,7 +16,7 @@
                 <tr>
                     <td class="{{row_color}}">{{property}}</td>
                     <td class="{{row_color}}" align="center" valign="center" style="width:10%;">
-                        {% get_line_deletor2 at_url '/creme_core/property/delete' with_args "{'id':{{property.pk}} }" with_perms has_perm %}
+                        {% get_line_deletor2 at_url '/creme_core/entity/delete_related/{{ct_id}}' with_args "{'id':{{property.pk}} }" with_perms has_perm %}
                     </td>
                 </tr>
             {% endfor %}

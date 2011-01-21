@@ -24,7 +24,7 @@ from django.utils.translation import ugettext as _
 from django.template import RequestContext
 from django.contrib.auth.decorators import login_required, permission_required
 
-from creme_core.views.generic import add_to_entity, delete_related_to_entity
+from creme_core.views.generic import add_to_entity
 
 from emails.models import EmailCampaign, EmailSending, LightWeightEmail
 from emails.forms.sending import SendingCreateForm
@@ -39,11 +39,6 @@ def add(request, campaign_id):
 
 @login_required
 @permission_required('emails')
-def delete(request):
-    return delete_related_to_entity(request, EmailSending)
-
-@login_required
-@permission_required('emails')
 def detailview(request, sending_id):
     sending  = get_object_or_404(EmailSending, pk=sending_id)
     campaign = sending.campaign
@@ -53,11 +48,6 @@ def detailview(request, sending_id):
     return render_to_response('emails/popup_sending.html',
                               {'object': sending},
                               context_instance=RequestContext(request))
-
-@login_required
-@permission_required('emails')
-def delete_mail(request):
-    return delete_related_to_entity(request, LightWeightEmail)
 
 @login_required
 @permission_required('emails')

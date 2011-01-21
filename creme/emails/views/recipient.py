@@ -21,9 +21,9 @@
 from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required, permission_required
 
-from creme_core.views.generic import add_to_entity, delete_related_to_entity
+from creme_core.views.generic import add_to_entity
 
-from emails.models import MailingList, EmailRecipient
+from emails.models import MailingList
 from emails.forms.recipient import MailingListAddRecipientsForm, MailingListAddCSVForm
 
 
@@ -38,8 +38,3 @@ def add(request, ml_id):
 def add_from_csv(request, ml_id):
     return add_to_entity(request, ml_id, MailingListAddCSVForm,
                          _(u'New recipients for <%s>'), entity_class=MailingList)
-
-@login_required
-@permission_required('emails')
-def delete(request):
-    return delete_related_to_entity(request, EmailRecipient)

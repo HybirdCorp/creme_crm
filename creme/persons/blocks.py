@@ -73,7 +73,8 @@ class AddressBlock(Block):
     def detailview_display(self, context):
         object = context['object']
         return self._render(self.get_block_template_context(context ,
-                            update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, object.pk)))
+                                                            update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, object.pk),
+                                                           ))
 
 
 class OtherAddressBlock(QuerysetBlock):
@@ -89,7 +90,8 @@ class OtherAddressBlock(QuerysetBlock):
 
         return self._render(self.get_block_template_context(context,
                                                             Address.objects.filter(object_id=person.id).exclude(pk__in=l_pk),
-                                                            update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, person.pk)
+                                                            update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, person.pk),
+                                                            ct_id=ContentType.objects.get_for_model(Address).id,
                                                            ))
 
 

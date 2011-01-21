@@ -18,11 +18,11 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.contrib.contenttypes.models import ContentType
 from django.http import HttpResponse
 from django.template.context import RequestContext
 from django.utils.simplejson import JSONEncoder
 from django.utils.translation import ugettext_lazy as _
+from django.contrib.contenttypes.models import ContentType
 
 from creme_core.models.relation import Relation
 from creme_core.gui.block import QuerysetBlock
@@ -65,7 +65,8 @@ class EmailRecipientsBlock(QuerysetBlock):
         mailing_list = context['object']
         return self._render(self.get_block_template_context(context, EmailRecipient.objects.filter(ml=mailing_list), #get_recipients() ???
                                                             update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, mailing_list.pk),
-                                                            ))
+                                                            ct_id=ContentType.objects.get_for_model(EmailRecipient).id,
+                                                           ))
 
 
 class ContactsBlock(QuerysetBlock):
@@ -78,7 +79,7 @@ class ContactsBlock(QuerysetBlock):
         mailing_list = context['object']
         return self._render(self.get_block_template_context(context, mailing_list.contacts.all(),
                                                             update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, mailing_list.pk),
-                                                            ))
+                                                           ))
 
 
 class OrganisationsBlock(QuerysetBlock):
@@ -91,7 +92,7 @@ class OrganisationsBlock(QuerysetBlock):
         mailing_list = context['object']
         return self._render(self.get_block_template_context(context, mailing_list.organisations.all(),
                                                             update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, mailing_list.pk),
-                                                            ))
+                                                           ))
 
 
 class ChildListsBlock(QuerysetBlock):
@@ -104,7 +105,7 @@ class ChildListsBlock(QuerysetBlock):
         mailing_list = context['object']
         return self._render(self.get_block_template_context(context, mailing_list.children.all(),
                                                             update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, mailing_list.pk),
-                                                            ))
+                                                           ))
 
 
 class ParentListsBlock(QuerysetBlock):
@@ -117,7 +118,7 @@ class ParentListsBlock(QuerysetBlock):
         mailing_list = context['object']
         return self._render(self.get_block_template_context(context, mailing_list.parents_set.all(),
                                                             update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, mailing_list.pk),
-                                                            ))
+                                                           ))
 
 
 class AttachmentsBlock(QuerysetBlock):
@@ -130,7 +131,7 @@ class AttachmentsBlock(QuerysetBlock):
         template = context['object']
         return self._render(self.get_block_template_context(context, template.attachments.all(),
                                                             update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, template.pk),
-                                                            ))
+                                                           ))
 
 
 class SendingsBlock(QuerysetBlock):
@@ -142,9 +143,10 @@ class SendingsBlock(QuerysetBlock):
 
     def detailview_display(self, context):
         campaign = context['object']
-        return self._render(self.get_block_template_context(context, EmailSending.objects.filter(campaign=campaign), #get_sendings() ??
+        return self._render(self.get_block_template_context(context, EmailSending.objects.filter(campaign=campaign), #TODO: use related_name
                                                             update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, campaign.pk),
-                                                            ))
+                                                            ct_id=ContentType.objects.get_for_model(EmailSending).id,
+                                                           ))
 
 
 class MailsBlock(QuerysetBlock):
@@ -157,8 +159,9 @@ class MailsBlock(QuerysetBlock):
     def detailview_display(self, context):
         sending = context['object']
         return self._render(self.get_block_template_context(context, sending.get_mails(),
-                                                            update_url='/emails/campaign/sending/%s/mails/reload/' % sending.pk
-                                                            ))
+                                                            update_url='/emails/campaign/sending/%s/mails/reload/' % sending.pk,
+                                                            ct_id=ContentType.objects.get_for_model(LightWeightEmail).id,
+                                                           ))
 
     #Useful method because EmailSending is not a CremeEntity (should be ?) --> generic view in creme_core (problems with credemtials ?) ??
     @jsonify

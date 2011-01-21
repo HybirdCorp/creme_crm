@@ -118,26 +118,6 @@ def edit_charm(request, charm_id):
                                           forms.CharmForm, _(u"Charm for <%s>")
                                          )
 
-#@login_required
-#@permission_required('commercial')
-#def delete_segment(request):
-    #return generic.delete_related_to_entity(request, MarketSegment)
-
-@login_required
-@permission_required('commercial')
-def unlink_segment(request, strategy_id):
-    return generic.delete_related_to_entity(request, MarketSegmentDescription)
-
-@login_required
-@permission_required('commercial')
-def delete_asset(request):
-    return generic.delete_related_to_entity(request, CommercialAsset)
-
-@login_required
-@permission_required('commercial')
-def delete_charm(request):
-    return generic.delete_related_to_entity(request, MarketSegmentCharm)
-
 @login_required
 @permission_required('commercial')
 def delete_evalorga(request, strategy_id):

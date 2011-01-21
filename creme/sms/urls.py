@@ -34,7 +34,6 @@ urlpatterns = patterns('sms.views',
     #Mailing list: recipients block
     (r'^messaging_list/(?P<mlist_id>\d+)/recipient/add$',     'recipient.add'),
     (r'^messaging_list/(?P<mlist_id>\d+)/recipient/add_csv$', 'recipient.add_from_csv'),
-    (r'^messaging_list/recipient/delete$',                    'recipient.delete'),
 
     #Mailing list: contacts block
     (r'^messaging_list/(?P<mlist_id>\d+)/contact/add$',             'messaging_list.add_contacts'),

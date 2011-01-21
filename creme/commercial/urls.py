@@ -22,13 +22,10 @@ urlpatterns = patterns('commercial.views',
     (r'^act/(?P<act_id>\d+)$',      'act.detailview'),
 
     #Objectives
-    #(r'^act/(?P<act_id>\d+)/add/custom_objective$',        'act.add_custom_objective'),
-    #(r'^act/(?P<act_id>\d+)/add/relation_objective$',      'act.add_relation_objective'),
     (r'^act/(?P<act_id>\d+)/add/objective$',               'act.add_objective'),
     (r'^act/(?P<act_id>\d+)/add/objectives_from_pattern$', 'act.add_objectives_from_pattern'),
     (r'^objective/(?P<objective_id>\d+)/edit$',            'act.edit_objective'),
     (r'^objective/(?P<objective_id>\d+)/incr$',            'act.incr_objective_counter'),
-    (r'^objective/delete$',                                'act.delete_objective'),
 
     #Objective patterns
     (r'^objective_patterns$',                            'act.listview_objective_pattern'),
@@ -39,7 +36,6 @@ urlpatterns = patterns('commercial.views',
     #Pattern component
     (r'^objective_pattern/(?P<objpattern_id>\d+)/add_component$',     'act.add_pattern_component'),
     (r'^objective_pattern/component/(?P<component_id>\d+)/add_child', 'act.add_child_pattern_component'),
-    (r'^objective_pattern/component/delete',                          'act.delete_pattern_component'),
 
     (r'^strategies$',                         'strategy.listview'),
     (r'^strategy/add$',                       'strategy.add'),
@@ -49,19 +45,15 @@ urlpatterns = patterns('commercial.views',
     #Segments
     (r'^strategy/(?P<strategy_id>\d+)/add/segment/$',                      'strategy.add_segment'),
     (r'^strategy/(?P<strategy_id>\d+)/link/segment/$',                     'strategy.link_segment'),
-    (r'^strategy/(?P<strategy_id>\d+)/unlink/segment/$',                   'strategy.unlink_segment'),
     (r'^strategy/(?P<strategy_id>\d+)/segment/edit/(?P<seginfo_id>\d+)/$', 'strategy.edit_segment'),
-    #(r'^segment/delete$',                                                  'strategy.delete_segment'),
 
     #Assets
     (r'^strategy/(?P<strategy_id>\d+)/add/asset/$', 'strategy.add_asset'),
     (r'^asset/edit/(?P<asset_id>\d+)/$',            'strategy.edit_asset'),
-    (r'^asset/delete$',                             'strategy.delete_asset'),
 
     #Charms
     (r'^strategy/(?P<strategy_id>\d+)/add/charm/$', 'strategy.add_charm'),
     (r'^charm/edit/(?P<charm_id>\d+)/$',            'strategy.edit_charm'),
-    (r'^charm/delete$',                             'strategy.delete_charm'),
 
     #Evaluated organisations
     (r'^strategy/(?P<strategy_id>\d+)/add/organisation/$',                        'strategy.add_evalorga'),
