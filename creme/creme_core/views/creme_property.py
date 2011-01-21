@@ -83,7 +83,3 @@ def get_property_types_for_ct(request):
 @login_required
 def add_to_entity(request, entity_id):
     return generic.add_to_entity(request, entity_id, AddPropertiesForm, _('New properties for <%s>'))
-
-@login_required
-def delete(request):
-    return generic.delete_related_to_entity(request, CremeProperty)

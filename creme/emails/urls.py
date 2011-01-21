@@ -17,11 +17,9 @@ urlpatterns = patterns('emails.views',
 
     #Campaign: sending block
     (r'^campaign/(?P<campaign_id>\d+)/sending/add$', 'sending.add'),
-    (r'^campaign/sending/delete$',                   'sending.delete'),
 
-    #Campaign: sending details block
+    #Campaign: sending details block (TODO: remove campaign/ from url ??)
     (r'^campaign/sending/(?P<sending_id>\d+)$',               'sending.detailview'),
-    (r'^campaign/sending/mail/delete$',                       'sending.delete_mail'),
     (r'^campaign/sending/(?P<sending_id>\d+)/mails/reload/$', 'sending.reload_block_mails'),
 
     (r'^mailing_lists$',                    'mailing_list.listview'),
@@ -32,7 +30,6 @@ urlpatterns = patterns('emails.views',
     #Mailing list: recipients block
     (r'^mailing_list/(?P<ml_id>\d+)/recipient/add$',     'recipient.add'),
     (r'^mailing_list/(?P<ml_id>\d+)/recipient/add_csv$', 'recipient.add_from_csv'),
-    (r'^mailing_list/recipient/delete$',                 'recipient.delete'),
 
     #Mailing list: contacts block
     (r'^mailing_list/(?P<ml_id>\d+)/contact/add$',             'mailing_list.add_contacts'),

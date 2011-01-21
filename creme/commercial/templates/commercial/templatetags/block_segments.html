@@ -15,10 +15,6 @@
             {% for segment in page.object_list %}<!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
                 <tr>
                     <td class="{{row_color}}">{{segment.name}}</td>
-                    {% comment %}<td class="{{row_color}}" align="center" valign="center" style="width:10%;">
-                        {% get_line_editor at_url '/commercial/strategy/{{object.id}}/segment/edit/{{segment_desc.id}}/' with_perms has_perm %}
-                        {% get_line_deletor2 at_url '/commercial/strategy/{{object.id}}/unlink/segment/' with_args "{'id' : {{segment_desc.id}} }" with_perms has_perm %}
-                    </td>{% endcomment %}
                 </tr>
             {% endfor %}
         {% else %}

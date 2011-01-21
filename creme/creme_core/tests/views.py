@@ -326,8 +326,9 @@ class ViewsTestCase(TestCase):
         ptype  = CremePropertyType.create(str_pk='test-prop_foobar', text='hairy')
         entity = CremeEntity.objects.create(user=self.user)
         prop   = CremeProperty.objects.create(type=ptype, creme_entity=entity)
+        ct     = ContentType.objects.get_for_model(CremeProperty)
 
-        response = self.client.post('/creme_core/property/delete', data={'id': prop.id})
+        response = self.client.post('/creme_core/entity/delete_related/%s' % ct.id, data={'id': prop.id})
         self.assertEqual(302, response.status_code)
         self.assertEqual(0,   CremeProperty.objects.filter(pk=prop.id).count())
 

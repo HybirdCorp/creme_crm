@@ -28,7 +28,7 @@ from django.shortcuts import get_object_or_404, render_to_response
 from django.contrib.auth.decorators import login_required
 
 from creme_core.models import CremeEntity
-from creme_core.utils import get_from_POST_or_404
+from creme_core.utils import get_from_POST_or_404, get_ct_or_404
 
 
 #TODO: move all functions to entity.py and delete this file ??
@@ -104,12 +104,13 @@ def delete_entity(request, entity_id, callback_url=None):
 
     return HttpResponseRedirect(callback_url)
 
-#TODO: move to views/entity.py with a generic url /creme_core/entity/delete_related/(?P<ct_id>\d+)/(?P<model_id>\d+) ???
-def delete_related_to_entity(request, model):
+@login_required
+def delete_related_to_entity(request, ct_id):
     """Delete a model related to a CremeEntity.
     @param request Request with POST method ; POST data should contain an 'id'(=pk) value.
     @param model A django model class that implements the method get_related_entity().
     """
+    model = get_ct_or_404(ct_id).model_class()
     auxiliary = get_object_or_404(model, pk=get_from_POST_or_404(request.POST, 'id'))
     entity = auxiliary.get_related_entity()
 

@@ -117,7 +117,8 @@ class TodoTestCase(AssistantsTestCase):
         self.assertEqual(1, ToDo.objects.count())
 
         todo     = ToDo.objects.all()[0]
-        response = self.client.post('/assistants/todo/delete', data={'id': todo.id})
+        ct = ContentType.objects.get_for_model(ToDo)
+        response = self.client.post('/creme_core/entity/delete_related/%s' % ct.id, data={'id': todo.id})
 
         self.assertEqual(302, response.status_code)
         self.assertEqual(0,   ToDo.objects.all().count())
@@ -331,7 +332,8 @@ class AlertTestCase(AssistantsTestCase):
         self.assertEqual(1, Alert.objects.count())
 
         alert    = Alert.objects.all()[0]
-        response = self.client.post('/assistants/alert/delete', data={'id': alert.id})
+        ct = ContentType.objects.get_for_model(Alert)
+        response = self.client.post('/creme_core/entity/delete_related/%s' % ct.id, data={'id': alert.id})
         self.assertEqual(0, Alert.objects.count())
 
     def test_alert_validate(self): #validate
@@ -415,8 +417,8 @@ class MemoTestCase(AssistantsTestCase):
     def test_memo_delete02(self):
         self._create_memo('CONTENT', True, self.entity)
         memo = Memo.objects.all()[0]
-
-        response = self.client.post('/assistants/memo/delete', data={'id': memo.id})
+        ct = ContentType.objects.get_for_model(Memo)
+        response = self.client.post('/creme_core/entity/delete_related/%s' % ct.id, data={'id': memo.id})
         self.assertEqual(302, response.status_code)
         self.assertEqual(0,   Memo.objects.count())
 
@@ -656,7 +658,8 @@ class ActionTestCase(AssistantsTestCase):
         self._create_action('2010-12-24', 'title', 'descr', 'reaction')
 
         action= Action.objects.all()[0]
-        response = self.client.post('/assistants/action/delete', data={'id': action.id})
+        ct = ContentType.objects.get_for_model(Action)
+        response = self.client.post('/creme_core/entity/delete_related/%s' % ct.id, data={'id': action.id})
         self.assertEqual(302, response.status_code)
         self.assertEqual(0,   Action.objects.all().count())
 

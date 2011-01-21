@@ -133,16 +133,6 @@ def edit_objective(request, objective_id):
 
 @login_required
 @permission_required('commercial')
-def delete_objective(request):
-    return generic.delete_related_to_entity(request, ActObjective)
-
-@login_required
-@permission_required('commercial')
-def delete_pattern_component(request):
-    return generic.delete_related_to_entity(request, ActObjectivePatternComponent)
-
-@login_required
-@permission_required('commercial')
 def incr_objective_counter(request, objective_id): #TODO: test if relation Objective ???
     objective = get_object_or_404(ActObjective, pk=objective_id)
     objective.act.can_change_or_die(request.user)

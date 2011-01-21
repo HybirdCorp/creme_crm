@@ -19,6 +19,7 @@
 ################################################################################
 
 from django.utils.translation import ugettext_lazy as _
+from django.contrib.contenttypes.models import ContentType
 
 from creme_core.models import Relation, CremeProperty
 from creme_core.gui.block import QuerysetBlock, BlocksManager
@@ -34,7 +35,8 @@ class PropertiesBlock(QuerysetBlock):
         entity = context['object']
         return self._render(self.get_block_template_context(context, entity.properties.select_related('type'),
                                                             update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, entity.pk),
-                                                            ))
+                                                            ct_id=ContentType.objects.get_for_model(CremeProperty).id,
+                                                           ))
 
 
 class RelationsBlock(QuerysetBlock):

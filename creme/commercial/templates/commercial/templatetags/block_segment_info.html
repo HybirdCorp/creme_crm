@@ -30,7 +30,7 @@
                     <td class="{{row_color}}">{{segment_desc.promotion}}</td>
                     <td class="{{row_color}}" align="center" valign="center" style="width:10%;">
                         {% get_line_editor at_url '/commercial/strategy/{{object.id}}/segment/edit/{{segment_desc.id}}/' with_perms has_perm %}
-                        {% get_line_deletor2 at_url '/commercial/strategy/{{object.id}}/unlink/segment/' with_args "{'id' : {{segment_desc.id}} }" with_perms has_perm %}
+                        {% get_line_deletor2 at_url '/creme_core/entity/delete_related/{{ct_id}}' with_args "{'id' : {{segment_desc.id}} }" with_perms has_perm %}
                     </td>
                 </tr>
             {% endfor %}

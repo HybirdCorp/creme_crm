@@ -403,7 +403,8 @@ class StrategyTestCase(LoggedTestCase):
         asset = CommercialAsset.objects.create(name='Capital', strategy=strategy)
         self.assertEqual(1, len(strategy.assets.all()))
 
-        response = self.client.post('/commercial/asset/delete', data={'id': asset.id}, follow=True)
+        ct = ContentType.objects.get_for_model(CommercialAsset)
+        response = self.client.post('/creme_core/entity/delete_related/%s' % ct.id, data={'id': asset.id}, follow=True)
         self.assertEqual(200, response.status_code)
         self.assertEqual(0,   len(strategy.assets.all()))
 
@@ -446,7 +447,8 @@ class StrategyTestCase(LoggedTestCase):
         charm = MarketSegmentCharm.objects.create(name='Dollars', strategy=strategy)
         self.assertEqual(1, len(strategy.charms.all()))
 
-        response = self.client.post('/commercial/charm/delete', data={'id': charm.id}, follow=True)
+        ct = ContentType.objects.get_for_model(MarketSegmentCharm)
+        response = self.client.post('/creme_core/entity/delete_related/%s' % ct.id, data={'id': charm.id}, follow=True)
         self.assertEqual(200, response.status_code)
         self.assertEqual(0, len(strategy.charms.all()))
 
@@ -718,7 +720,8 @@ class StrategyTestCase(LoggedTestCase):
         self.assertEqual(1, strategy.segment_info.count())
         self.assertEqual(1, MarketSegment.objects.count())
 
-        self.client.post('/commercial/strategy/%s/unlink/segment/' % strategy.id, data={'id': segment_desc.id})
+        ct = ContentType.objects.get_for_model(MarketSegmentDescription)
+        self.client.post('/creme_core/entity/delete_related/%s' % ct.id, data={'id': segment_desc.id})
         self.assertEqual(0, strategy.segment_info.count())
         self.assertEqual(1, MarketSegment.objects.count())
 
@@ -757,7 +760,8 @@ class StrategyTestCase(LoggedTestCase):
         self.assertEqual(4, MarketSegmentCharmScore.objects.count())
         self.assertEqual(2, MarketSegmentCategory.objects.count())
 
-        self.client.post('/commercial/strategy/%s/unlink/segment/' % strategy.id, data={'id': industry.id})
+        ct = ContentType.objects.get_for_model(MarketSegmentDescription)
+        self.client.post('/creme_core/entity/delete_related/%s' % ct.id, data={'id': industry.id})
         self.assertEqual(1, MarketSegmentDescription.objects.count())
 
         asset_scores = CommercialAssetScore.objects.all()
@@ -1053,8 +1057,9 @@ class ActTestCase(LoggedTestCase):
     def test_delete_objective01(self):
         act = self.create_act()
         objective = ActObjective.objects.create(act=act, name='OBJ#1')
+        ct = ContentType.objects.get_for_model(ActObjective)
 
-        response = self.client.post('/commercial/objective/delete', data={'id': objective.id})
+        response = self.client.post('/creme_core/entity/delete_related/%s' % ct.id, data={'id': objective.id})
         self.assertEqual(302, response.status_code)
         self.assertEqual(0,   ActObjective.objects.filter(pk=objective.id).count())
 
@@ -1365,8 +1370,9 @@ class ActObjectivePatternTestCase(LoggedTestCase):
     def test_delete_pattern_component01(self):
         pattern = self._create_pattern()
         comp01 = ActObjectivePatternComponent.objects.create(name='Signed opportunities', pattern=pattern, success_rate=20)
+        ct = ContentType.objects.get_for_model(ActObjectivePatternComponent)
 
-        response = self.client.post('/commercial/objective_pattern/component/delete',
+        response = self.client.post('/creme_core/entity/delete_related/%s' % ct.id,
                                     data={'id': comp01.id}
                                    )
         self.assertNoFormError(response)
@@ -1384,7 +1390,8 @@ class ActObjectivePatternTestCase(LoggedTestCase):
         comp05 = create_comp(name='Smiles done',          pattern=pattern,                success_rate=1) #NB: should not be removed
         comp06 = create_comp(name='Stand by me',          pattern=pattern, parent=comp05, success_rate=1) #NB: should not be removed
 
-        response = self.client.post('/commercial/objective_pattern/component/delete', data={'id': comp01.id})
+        ct = ContentType.objects.get_for_model(ActObjectivePatternComponent)
+        response = self.client.post('/creme_core/entity/delete_related/%s' % ct.id, data={'id': comp01.id})
         self.assertNoFormError(response)
         self.assertEqual(302, response.status_code)
 

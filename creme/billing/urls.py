@@ -43,7 +43,6 @@ urlpatterns = patterns('billing.views',
     (r'^(?P<document_id>\d+)/service_line/add$',            'line.add_service_line'),
     (r'^(?P<document_id>\d+)/service_line/add_on_the_fly$', 'line.add_service_line_on_the_fly'),
     (r'^line/(?P<line_id>\d+)/update$',                     'line.update'),
-    (r'^line/delete$',                                      'line.delete'),
     (r'^productline/(?P<line_id>\d+)/edit$',                'line.edit_productline'),
     (r'^serviceline/(?P<line_id>\d+)/edit$',                'line.edit_serviceline'),
 )

@@ -28,6 +28,5 @@ urlpatterns = patterns('persons.views',
     #(r'^address/from_organisation$',         'address.get_org_addresses'), #Commented on 3 Decemeber 2010
     #(r'^address/add$',                       'address.add'), #Commented on 3 Decemeber 2010    (else: specify Organisation or Contact ??)
     (r'^address/ip_add/(?P<entity_id>\d+)$', 'address.ipopup_add_adress'), #TODO: rename url and view
-    (r'^address/delete$',                    'address.delete'),
     (r'^address/edit/(?P<address_id>\d+)',   'address.edit'),
 )

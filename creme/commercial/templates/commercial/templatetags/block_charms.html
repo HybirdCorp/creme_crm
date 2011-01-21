@@ -21,7 +21,7 @@
                     <td class="{{row_color}}">{{charm.name}}</td>
                     <td class="{{row_color}}" align="center" valign="center" style="width:10%;">
                         {% get_line_editor at_url '/commercial/charm/edit/{{charm.id}}/' with_perms has_perm %}
-                        {% get_line_deletor2 at_url '/commercial/charm/delete' with_args "{'id' : {{charm.id}} }" with_perms has_perm %}
+                        {% get_line_deletor2 at_url '/creme_core/entity/delete_related/{{ct_id}}' with_args "{'id' : {{charm.id}} }" with_perms has_perm %}
                     </td>
                 </tr>
             {% endfor %}

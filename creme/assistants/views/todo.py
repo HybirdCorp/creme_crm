@@ -23,7 +23,7 @@ from django.shortcuts import get_object_or_404
 from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required
 
-from creme_core.views.generic import add_to_entity, edit_related_to_entity, delete_related_to_entity
+from creme_core.views.generic import add_to_entity, edit_related_to_entity
 
 from assistants.models import ToDo
 from assistants.forms.todo import ToDoCreateForm, ToDoEditForm
@@ -44,7 +44,3 @@ def validate(request, todo_id):
     todo.is_ok = True
     todo.save()
     return HttpResponseRedirect(todo.creme_entity.get_absolute_url())
-
-@login_required
-def delete(request):
-    return delete_related_to_entity(request, ToDo)

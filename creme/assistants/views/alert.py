@@ -23,7 +23,7 @@ from django.shortcuts import get_object_or_404
 from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required
 
-from creme_core.views.generic import add_to_entity, edit_related_to_entity, delete_related_to_entity
+from creme_core.views.generic import add_to_entity, edit_related_to_entity
 
 from assistants.models import Alert
 from assistants.forms.alert import AlertCreateForm, AlertEditForm
@@ -36,10 +36,6 @@ def add(request, entity_id):
 @login_required
 def edit(request, alert_id):
     return edit_related_to_entity(request, alert_id, Alert, AlertEditForm, _(u"Alert for <%s>"))
-
-@login_required
-def delete(request):
-    return delete_related_to_entity(request, Alert)
 
 #TODO: credentials ???
 @login_required

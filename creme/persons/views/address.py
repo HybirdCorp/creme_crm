@@ -26,7 +26,7 @@ from django.utils.translation import ugettext as _
 #from django.shortcuts import get_object_or_404
 from django.contrib.auth.decorators import login_required, permission_required
 
-from creme_core.views.generic import add_to_entity, edit_related_to_entity, delete_related_to_entity #add_entity
+from creme_core.views.generic import add_to_entity, edit_related_to_entity #add_entity
 
 from persons.models import Address #, Organisation
 from persons.forms.address import AddressWithEntityForm
@@ -60,11 +60,6 @@ from persons.forms.address import AddressWithEntityForm
 @permission_required('persons')
 def edit(request, address_id):
     return edit_related_to_entity(request, address_id, Address, AddressWithEntityForm, _(u"Address for <%s>"))
-
-@login_required
-@permission_required('persons')
-def delete(request):
-    return delete_related_to_entity(request, Address)
 
 @login_required
 @permission_required('persons')

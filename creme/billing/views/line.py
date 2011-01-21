@@ -26,7 +26,7 @@ from django.template import RequestContext
 from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required, permission_required
 
-from creme_core.views.generic import add_to_entity, inner_popup, delete_related_to_entity
+from creme_core.views.generic import add_to_entity, inner_popup
 
 from billing.models import Line, ProductLine, ServiceLine
 from billing.forms.line import ProductLineCreateForm, ProductLineOnTheFlyCreateForm, ServiceLineCreateForm, ServiceLineOnTheFlyCreateForm
@@ -82,11 +82,6 @@ def edit_productline(request, line_id):
 
 def edit_serviceline(request, line_id):
     return _edit_line(request, ServiceLine, line_id)
-
-@login_required
-@permission_required('billing')
-def delete(request):
-    return delete_related_to_entity(request, Line)
 
 @login_required
 @permission_required('billing')
