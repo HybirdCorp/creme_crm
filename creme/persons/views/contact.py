@@ -25,7 +25,6 @@ from django.contrib.auth.decorators import login_required, permission_required
 
 from creme_core.models import RelationType
 from creme_core.views.generic import add_entity, edit_entity, view_entity, list_view
-from creme_core.gui.last_viewed import change_page_for_last_item_viewed
 
 from persons.models import Contact, Organisation
 from persons.forms.contact import ContactWithRelationForm, ContactForm
@@ -71,6 +70,5 @@ def detailview(request, contact_id):
 
 @login_required
 @permission_required('persons')
-@change_page_for_last_item_viewed #useful ????
 def listview(request):
     return list_view(request, Contact, extra_dict={'add_url': '/persons/contact/add'})

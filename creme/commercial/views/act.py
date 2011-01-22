@@ -25,7 +25,6 @@ from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required, permission_required
 
 from creme_core.views import generic
-from creme_core.gui.last_viewed import change_page_for_last_item_viewed
 from creme_core.utils import get_from_POST_or_404
 
 from commercial.models import Act, ActObjective, ActObjectivePattern, ActObjectivePatternComponent
@@ -70,7 +69,6 @@ def objective_pattern_detailview(request, objpattern_id):
 
 @login_required
 @permission_required('commercial')
-@change_page_for_last_item_viewed #WTF ???
 def listview(request):
     return generic.list_view(request, Act, extra_dict={'add_url': '/commercial/act/add'})
 

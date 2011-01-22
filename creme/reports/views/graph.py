@@ -62,6 +62,7 @@ def add(request, report_id):
                        delegate_reload=True,
                        context_instance=RequestContext(request))
 
+#TODO: use edit_related_to_entity() generic view
 @login_required
 @permission_required('reports')
 def edit(request, graph_id):
