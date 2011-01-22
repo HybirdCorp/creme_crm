@@ -22,7 +22,6 @@ from django.http import HttpResponseRedirect, Http404
 from django.contrib.auth.decorators import login_required, permission_required
 
 from creme_core.views.generic import view_entity, add_entity, list_view, edit_entity
-from creme_core.gui.last_viewed import change_page_for_last_item_viewed
 
 from projects.models import Project
 from projects.forms.project import ProjectCreateForm, ProjectEditForm
@@ -41,7 +40,6 @@ def edit(request, project_id):
 
 @login_required
 @permission_required('projects')
-@change_page_for_last_item_viewed
 def listview(request):
     return list_view(request, Project, extra_dict={'add_url': '/projects/project/add'})
 

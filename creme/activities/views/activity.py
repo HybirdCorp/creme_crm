@@ -26,7 +26,6 @@ from django.contrib.auth.decorators import login_required, permission_required
 from creme_core.models import RelationType
 from creme_core.views.generic import view_real_entity, add_entity, inner_popup, list_view
 from creme_core.utils import get_ct_or_404, get_from_GET_or_404
-#from creme_core.gui.last_viewed import change_page_for_last_viewed
 
 from activities.models import Activity
 from activities.forms import *
@@ -67,7 +66,6 @@ _forms_map = {
 @permission_required('activities')
 @permission_required('activities.add_activity')
 def add_with_relation(request, act_type):
-    #change_page_for_last_viewed(request) #TODO: works ???
     GET = request.GET
     ct_id     = get_from_GET_or_404(GET, 'ct_entity_for_relation')
     entity_id = get_from_GET_or_404(GET, 'id_entity_for_relation')

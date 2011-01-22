@@ -26,7 +26,6 @@ from django.contrib.contenttypes.models import ContentType
 
 from creme_core.views.generic import add_entity, edit_entity, view_entity
 from creme_core.views.generic.list_entities import list_entities ##
-from creme_core.gui.last_viewed import change_page_for_last_item_viewed ##
 
 from documents.models import Folder
 from documents.forms.folder import FolderForm
@@ -51,7 +50,6 @@ def detailview(request, folder_id):
 #TODO: use new list view ????
 @login_required
 @permission_required('documents')
-@change_page_for_last_item_viewed
 def listview(request):
     list_field = [
                     ('title',         True, 'title'),
