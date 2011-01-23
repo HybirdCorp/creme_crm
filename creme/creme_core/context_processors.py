@@ -22,6 +22,8 @@ from datetime import datetime
 
 from django.conf import settings
 
+from creme import __version__
+
 from creme_core.gui.block import BlocksManager
 
 
@@ -38,6 +40,9 @@ def get_blocks_manager(request):
     return {BlocksManager.var_name: BlocksManager()}
 
 def get_version(request):
+    return {'creme_version': __version__}
+
+def get_django_version(request):
     if settings.DEBUG:
         from django import get_version
         return {'django_version': get_version()}
