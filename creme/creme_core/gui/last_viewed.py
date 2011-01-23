@@ -87,7 +87,7 @@ class LastViewedItem(object):
             if entity:
                 if entity.modified > item.modified:
                     updated = True
-                    item.update(entity.get_real_entity()) #TODO: use CremeEntity.popula_real_entities
+                    item.update(entity.get_real_entity()) #TODO: use CremeEntity.populate_real_entities()
 
                 items.append(item)
 
