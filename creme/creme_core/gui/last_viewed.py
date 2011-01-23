@@ -54,7 +54,7 @@ def change_page_for_last_item_viewed(func):
 def __add_item_in_last_viewed(request, item):
     debug('__add_item_in_last_viewed: %s', item)
     session = request.session
-#todo , in python 2.6    
+#todo , in python 2.6
 #    last_viewed_items = session.get('last_viewed_items', deque(maxlen=MAX_LAST_ITEMS))
     last_viewed_items = session.get('last_viewed_items', deque())
 
@@ -94,21 +94,21 @@ def last_viewed_items(request):
     if not old_items:
         return ()
 
-    date_map = dict(CremeEntity.objects.filter(pk__in=[item.pk for item in old_items]).values_list('id', 'modified'))
-
+    entities = dict((e.id, e) for e in CremeEntity.objects.filter(pk__in=[item.pk for item in old_items]))
     items = []
-    updated = False
+    updated = (len(old_items) != len(entities))
 
     for item in old_items:
-        date = date_map.get(int(item.pk))
-        if date:
-            if date > item.modified:
+        entity = entities.get(item.pk)
+
+        if entity:
+            if entity.modified > item.modified:
                 updated = True
-                item.update(CremeEntity.objects.get(pk=item.pk).get_real_entity())
+                item.update(entity.get_real_entity())
 
             items.append(item)
 
     if updated:
         session['last_viewed_items'] = deque(items)
 
-    return items 
+    return items
