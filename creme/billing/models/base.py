@@ -168,7 +168,6 @@ class Base(CremeEntity):
         self.billing_address    = template.billing_address
         self.shipping_address   = template.shipping_address
         self.comment            = template.comment
-        self.total              = template.total
         self.save()
 
     def _build_lines(self, template, klass):
