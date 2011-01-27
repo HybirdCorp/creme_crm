@@ -64,7 +64,7 @@ def getFormattedDictFromAnActivity(activity):
     is_all_day = activity.is_all_day
 
     if start == end and not is_all_day:
-        end += timedelta(days=1)
+        end += timedelta(seconds=1)
 
     return {
             "id" :          int(activity.pk),
@@ -85,9 +85,12 @@ def user_calendar(request):
     POST_getlist = POST.getlist
     Calendar.get_user_default_calendar(user)#Don't really need the calendar but this create it in case of the user hasn't a calendar
 
+    usernames = User.objects.all().values_list('username', flat=True)
+
     return get_users_calendar(request,
-                              POST_getlist('user_selected') or [user.username],
-                              POST_getlist('calendar_selected'))# or [Calendar.get_user_default_calendar(user).pk])
+                              POST_getlist('user_selected') or usernames,
+                              POST_getlist('calendar_selected') or [Calendar.get_user_default_calendar(user).pk])
+
 
 def my_calendar(request):
     user = request.user
