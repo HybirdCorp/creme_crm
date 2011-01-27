@@ -116,7 +116,7 @@ class PatternComponentForm(_PatternComponentForm):
 
     def save(self, *args, **kwargs):
         self.instance.pattern = self.pattern
-        super(PatternComponentForm, self).save(*args, **kwargs)
+        return super(PatternComponentForm, self).save(*args, **kwargs)
 
 
 class PatternChildComponentForm(_PatternComponentForm):
@@ -130,4 +130,23 @@ class PatternChildComponentForm(_PatternComponentForm):
 
         instance.pattern = parent.pattern
         instance.parent = parent
-        super(PatternChildComponentForm, self).save(*args, **kwargs)
+        return super(PatternChildComponentForm, self).save(*args, **kwargs)
+
+
+class PatternParentComponentForm(_PatternComponentForm):
+    def __init__(self, child, *args, **kwargs):
+        super(PatternParentComponentForm, self).__init__(*args, **kwargs)
+        self.child = child
+
+    def save(self, *args, **kwargs):
+        child = self.child
+        instance = self.instance
+
+        instance.pattern = child.pattern
+        instance.parent = child.parent
+        super(PatternParentComponentForm, self).save(*args, **kwargs)
+
+        child.parent = instance
+        child.save() #TODO: use *args/**kwargs ('using' arg)???
+
+        return instance

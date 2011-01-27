@@ -1134,6 +1134,15 @@ class ActTestCase(LoggedTestCase):
 
 
 class ActObjectivePatternTestCase(LoggedTestCase):
+    def assertFormError(self, response):
+        try:
+            errors = response.context['form'].errors
+        except Exception, e:
+            self.fail(str(e))
+        else:
+            if not errors:
+                self.fail('No errors')
+
     def test_create(self):
         response = self.client.get('/commercial/objective_pattern/add')
         self.assertEqual(200, response.status_code)
@@ -1218,7 +1227,7 @@ class ActObjectivePatternTestCase(LoggedTestCase):
         self.assertEqual(3, patterns_page.paginator.count)
         self.assertEqual(set(p.id for p in patterns), set(o.id for o in patterns_page.object_list))
 
-    def test_add_pattern_component01(self): #no parent component, no counted relation
+    def test_add_root_pattern_component01(self): #no parent component, no counted relation
         pattern  = self._create_pattern()
         response = self.client.get('/commercial/objective_pattern/%s/add_component' % pattern.id)
         self.assertEqual(200, response.status_code)
@@ -1241,7 +1250,7 @@ class ActObjectivePatternTestCase(LoggedTestCase):
         self.assert_(component.parent is None)
         self.assert_(component.ctype is None)
 
-    def test_add_pattern_component02(self): #counted relation (no parent component)
+    def test_add_root_pattern_component02(self): #counted relation (no parent component)
         pattern = self._create_pattern()
         name = 'Called contacts'
         ct = ContentType.objects.get_for_model(Contact)
@@ -1262,7 +1271,7 @@ class ActObjectivePatternTestCase(LoggedTestCase):
         self.assertEqual(name,  component.name)
         self.assertEqual(ct.id, component.ctype.id)
 
-    def test_add_pattern_component03(self): #parent component
+    def test_add_child_pattern_component01(self): #parent component
         pattern = self._create_pattern()
         comp01 = ActObjectivePatternComponent.objects.create(name='Signed opportunities', pattern=pattern, success_rate=50)
 
@@ -1307,33 +1316,87 @@ class ActObjectivePatternTestCase(LoggedTestCase):
 
         self.assertEqual(ct.id, comp03.ctype.id)
 
-    def assertFormError(self, response):
-        try:
-            errors = response.context['form'].errors
-        except Exception, e:
-            self.fail(str(e))
-        else:
-            if not errors:
-                self.fail('No errors')
+    def test_add_parent_pattern_component01(self):
+        pattern = self._create_pattern()
+        comp01 = ActObjectivePatternComponent.objects.create(name='Sent mails', pattern=pattern, success_rate=5)
+        response = self.client.get('/commercial/objective_pattern/component/%s/add_parent' % comp01.id)
+        self.assertEqual(200, response.status_code)
+
+        name = 'Signed opportunities'
+        success_rate = 50
+        response = self.client.post('/commercial/objective_pattern/component/%s/add_parent' % comp01.id,
+                                    data={
+                                            'name':         name,
+                                            'success_rate': success_rate,
+                                         }
+                                   )
+        self.assertNoFormError(response)
+        self.assertEqual(200, response.status_code)
+
+        pattern = ActObjectivePattern.objects.get(pk=pattern.id)
+        components = pattern.components.all()
+        self.assertEqual(2, len(components))
+
+        child = components[0]
+        self.assertEqual(comp01.id, child.id)
+
+        parent = components[1]
+        self.assertEqual(name,            parent.name)
+        self.assertEqual(success_rate,    parent.success_rate)
+        self.assertEqual(None,            parent.parent_id)
+        self.assertEqual(child.parent_id, parent.id)
+
+    def test_add_parent_pattern_component02(self):
+        pattern = self._create_pattern()
+        comp01 = ActObjectivePatternComponent.objects.create(name='Signed opportunities', pattern=pattern, success_rate=50)
+        comp02 = ActObjectivePatternComponent.objects.create(name='Spread Vcards',        pattern=pattern, success_rate=1, parent=comp01)
+
+        name = 'Called contacts'
+        ct   = ContentType.objects.get_for_model(Contact)
+        response = self.client.post('/commercial/objective_pattern/component/%s/add_parent' % comp02.id,
+                                    data={
+                                            'name':         name,
+                                            'ctype':        ct.id,
+                                            'success_rate': 20,
+                                         }
+                                   )
+        self.assertNoFormError(response)
+        self.assertEqual(200, response.status_code)
+
+        pattern = ActObjectivePattern.objects.get(pk=pattern.id)
+        components = pattern.components.all()
+        self.assertEqual(3, len(components))
+
+        grandpa = components[0]
+        self.assertEqual(comp01.id, grandpa.id)
+
+        child = components[1]
+        self.assertEqual(comp02.id, child.id)
+
+        parent = components[2]
+        self.assertEqual(name,  parent.name)
+        self.assertEqual(ct.id, parent.ctype_id)
+
+        self.assertEqual(child.parent_id,  parent.id)
+        self.assertEqual(parent.parent_id, grandpa.id)
 
     def test_add_pattern_component_errors(self):
-        pattern  = self._create_pattern()
+        pattern = self._create_pattern()
+        self.assertFormError(self.client.post('/commercial/objective_pattern/%s/add_component' % pattern.id,
+                                              data={
+                                                    'name':         'Signed opportunities',
+                                                    'success_rate': 0, #minimunm is 1
+                                                   }
+                                             )
+                            )
 
-        response = self.client.post('/commercial/objective_pattern/%s/add_component' % pattern.id,
-                                    data={
-                                            'name':         'Signed opportunities',
-                                            'success_rate': 0,
-                                         }
-                                   )
-        self.assertFormError(response)
-
-        response = self.client.post('/commercial/objective_pattern/%s/add_component' % pattern.id,
-                                    data={
-                                            'name':         'Signed opportunities',
-                                            'success_rate': 101,
-                                         }
-                                   )
-        self.assertFormError(response)
+        self.assertFormError(self.client.post('/commercial/objective_pattern/%s/add_component' % pattern.id,
+                                              data={
+                                                    'name':         'Signed opportunities',
+                                                    'success_rate': 101, #maximum is 100
+                                                   }
+                                             )
+                            )
 
     def test_get_component_tree(self):
         pattern = self._create_pattern()
