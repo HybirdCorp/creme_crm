@@ -99,28 +99,40 @@ def add_pattern_component(request, objpattern_id):
 
 @login_required
 @permission_required('commercial')
-def add_child_pattern_component(request, component_id):
-    parent_comp = get_object_or_404(ActObjectivePatternComponent, pk=component_id)
-    pattern = parent_comp.pattern
-    pattern.can_change_or_die(request.user)
+def _add_subpattern_component(request, component_id, form_class, title):
+    related_comp = get_object_or_404(ActObjectivePatternComponent, pk=component_id)
+    related_comp.pattern.can_change_or_die(request.user)
 
     if request.method == 'POST':
-        form = forms.PatternChildComponentForm(parent_comp, request.POST)
+        form = form_class(related_comp, request.POST)
 
         if form.is_valid():
             form.save()
     else:
-        form = forms.PatternChildComponentForm(parent_comp)
+        form = form_class(related_comp)
 
     return generic.inner_popup(request, 'creme_core/generics/blockform/add_popup2.html',
                                {
-                                'form':   form,
-                                'title':  _('New child objective for <%s>') % parent_comp,
+                                'form':  form,
+                                'title': title % related_comp,
                                },
                                is_valid=form.is_valid(),
                                reload=False,
                                delegate_reload=True,
-                               context_instance=RequestContext(request))
+                               context_instance=RequestContext(request),
+                              )
+
+def add_child_pattern_component(request, component_id):
+    return _add_subpattern_component(request, component_id,
+                                     forms.PatternChildComponentForm,
+                                     _('New child objective for <%s>')
+                                    )
+
+def add_parent_pattern_component(request, component_id):
+    return _add_subpattern_component(request, component_id,
+                                     forms.PatternParentComponentForm,
+                                     _('New parent objective for <%s>')
+                                    )
 
 @login_required
 @permission_required('commercial')

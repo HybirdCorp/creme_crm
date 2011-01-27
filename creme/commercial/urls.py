@@ -34,8 +34,9 @@ urlpatterns = patterns('commercial.views',
     (r'^objective_pattern/(?P<objpattern_id>\d+)$',      'act.objective_pattern_detailview'), #TODO: a separated file for pattern ???
 
     #Pattern component
-    (r'^objective_pattern/(?P<objpattern_id>\d+)/add_component$',     'act.add_pattern_component'),
-    (r'^objective_pattern/component/(?P<component_id>\d+)/add_child', 'act.add_child_pattern_component'),
+    (r'^objective_pattern/(?P<objpattern_id>\d+)/add_component$',      'act.add_pattern_component'),
+    (r'^objective_pattern/component/(?P<component_id>\d+)/add_child',  'act.add_child_pattern_component'),
+    (r'^objective_pattern/component/(?P<component_id>\d+)/add_parent', 'act.add_parent_pattern_component'),
 
     (r'^strategies$',                         'strategy.listview'),
     (r'^strategy/add$',                       'strategy.add'),

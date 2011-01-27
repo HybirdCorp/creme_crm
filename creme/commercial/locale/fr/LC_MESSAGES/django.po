@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-01-12 00:42+0100\n"
+"POT-Creation-Date: 2011-01-27 15:44+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -37,15 +37,15 @@ msgstr "Segments de marché"
 msgid "Market segment descriptions"
 msgstr "descriptions de segment de marché"
 
-#: blocks.py:115 models/strategy.py:328
+#: blocks.py:116 models/strategy.py:328
 msgid "Commercial assets"
 msgstr "Atouts commerciaux"
 
-#: blocks.py:128 models/strategy.py:358
+#: blocks.py:130 models/strategy.py:358
 msgid "Segment charms"
 msgstr "Attraits de segment"
 
-#: blocks.py:142
+#: blocks.py:145
 msgid "Evaluated organisations"
 msgstr "Sociétés évaluées"
 
@@ -476,7 +476,7 @@ msgstr "Segments"
 #: templates/commercial/templatetags/block_assets_matrix.html:27
 #: templates/commercial/templatetags/block_charms_matrix.html:27
 #: templates/commercial/templatetags/block_segment_info.html:39
-#: templates/commercial/templatetags/block_segments.html:25
+#: templates/commercial/templatetags/block_segments.html:21
 msgid "No market segment for the moment"
 msgstr "Aucun segment de marché enregistré pour le moment"
 
@@ -568,7 +568,11 @@ msgstr "Nouvel objectif"
 msgid "New sub-objective"
 msgstr "Nouveau sous-objectif"
 
-#: templates/commercial/templatetags/block_components.html:27
+#: templates/commercial/templatetags/block_components.html:21
+msgid "New parent objective"
+msgstr "Nouvel objectif parent"
+
+#: templates/commercial/templatetags/block_components.html:28
 #: templates/commercial/templatetags/block_objectives.html:49
 msgid "No objective for the moment"
 msgstr "Aucun objectif pour le moment"
@@ -747,17 +751,22 @@ msgstr "Segment réservoir [2]"
 msgid "Abandoned segment"
 msgstr "Segment abandonné"
 
-#: views/act.py:86 views/act.py:99
+#: views/act.py:84 views/act.py:97
 #, python-format
 msgid "New objective for <%s>"
 msgstr "Nouvel objectif pour <%s>"
 
-#: views/act.py:120
+#: views/act.py:128
 #, python-format
 msgid "New child objective for <%s>"
 msgstr "Nouvel objectif enfant pour <%s>"
 
-#: views/act.py:131
+#: views/act.py:134
+#, python-format
+msgid "New parent objective for <%s>"
+msgstr "Nouvel objectif parent pour <%s>"
+
+#: views/act.py:141
 #, python-format
 msgid "Objective for <%s>"
 msgstr "Objectif pour <%s>"
@@ -775,7 +784,7 @@ msgstr "Nouveau segment de marché"
 msgid "Number of commercial actions"
 msgstr "Nombre d'actions commerciales"
 
-#: views/salesman.py:50
+#: views/salesman.py:48
 msgid "List of salesmen"
 msgstr "Liste des commerciaux"
 
@@ -814,7 +823,7 @@ msgstr "Atout pour <%s>"
 msgid "Charm for <%s>"
 msgstr "Attrait pour <%s>"
 
-#: views/strategy.py:166
+#: views/strategy.py:146
 #, python-format
 msgid ""
 "This organisation <%(orga)s> is not (no more ?) evaluated by the strategy %"
