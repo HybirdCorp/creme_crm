@@ -31,7 +31,7 @@ from utils import generic_edit, generic_delete
 
 
 def add(request, entity_id):
-    return add_to_entity(request, entity_id, AlertCreateForm, _(u'New alert for <%s>'))
+    return add_to_entity(request, entity_id, AlertCreateForm, _(u'New alert for <%s>'), initial = {'user': request.user.id})
 
 def edit(request, alert_id):
     return generic_edit(request, alert_id, Alert, AlertEditForm, _(u"Alert for <%s>"))

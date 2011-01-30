@@ -31,7 +31,7 @@ from utils import generic_edit, generic_delete
 
 
 def add(request, entity_id):
-    return add_to_entity(request, entity_id, ToDoCreateForm, _(u'New Todo for <%s>'))
+    return add_to_entity(request, entity_id, ToDoCreateForm, _(u'New Todo for <%s>'), initial = {'user': request.user.id})
 
 def edit(request, todo_id):
     return generic_edit(request, todo_id, ToDo, ToDoEditForm, _(u"Todo for <%s>"))

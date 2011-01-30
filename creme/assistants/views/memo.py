@@ -29,7 +29,7 @@ from utils import generic_edit, generic_delete
 
 
 def add(request, entity_id):
-    return add_to_entity(request, entity_id, MemoCreateForm, _(u'New Memo for <%s>'))
+    return add_to_entity(request, entity_id, MemoCreateForm, _(u'New Memo for <%s>'), initial = {'user': request.user.id})
 
 def edit(request, memo_id):
     return generic_edit(request, memo_id, Memo, MemoEditForm, _(u"Memo for <%s>"))
