@@ -40,7 +40,8 @@ def edit(request, act_id):
 @permission_required('commercial')
 def detailview(request, object_id):
     return view_entity_with_template(request, object_id, Act, '/commercial/act',
-                                     'creme_core/generics/view_entity.html')
+                                     'commercial/view_act.html'
+                                    )
 
 @login_required
 @permission_required('commercial')
