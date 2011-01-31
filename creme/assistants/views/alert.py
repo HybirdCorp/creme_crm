@@ -31,7 +31,7 @@ from assistants.forms.alert import AlertCreateForm, AlertEditForm
 
 @login_required
 def add(request, entity_id):
-    return add_to_entity(request, entity_id, AlertCreateForm, _(u'New alert for <%s>'))
+    return add_to_entity(request, entity_id, AlertCreateForm, _(u'New alert for <%s>'), initial = {'user': request.user.id})
 
 @login_required
 def edit(request, alert_id):
