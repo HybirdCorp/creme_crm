@@ -168,7 +168,7 @@ creme.utils.bindToggle = function($self) {
 
 creme.utils.bindShowHideTbody = function() {
 //    $('.table_detail_view thead').each(function() {creme.utils.bindToggle($(this));});
-    $('.table_detail_view ').find('.collapser').each(function() {creme.utils.bindToggle($(this));});
+    $('.table_detail_view').find('.collapser').each(function() {creme.utils.bindToggle($(this));});
 }
 
 // COMMENTED on 19 january 2011
@@ -344,7 +344,7 @@ creme.utils.loadBlock = function(url) {
                             var block      = $(block_data[1]); //'compile' to DOM
 
                             $('#' + block_data[0]).replaceWith(block);
-                            $('thead', block).each(function() {creme.utils.bindToggle($(this));});
+                            $(block).find('.collapser').each(function() {creme.utils.bindToggle($(this));});
                         }
                   },
       complete: this.loading('loading',true)
