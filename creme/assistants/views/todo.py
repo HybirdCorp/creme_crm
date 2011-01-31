@@ -31,7 +31,7 @@ from assistants.forms.todo import ToDoCreateForm, ToDoEditForm
 
 @login_required
 def add(request, entity_id):
-    return add_to_entity(request, entity_id, ToDoCreateForm, _(u'New Todo for <%s>'))
+    return add_to_entity(request, entity_id, ToDoCreateForm, _(u'New Todo for <%s>'), initial = {'user': request.user.id})
 
 @login_required
 def edit(request, todo_id):

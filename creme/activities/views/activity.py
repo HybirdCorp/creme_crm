@@ -50,7 +50,7 @@ def _add_activity(request, class_form, **form_args):
 
             return  HttpResponseRedirect('/activities/calendar/my')
     else:
-        activity_form = class_form(current_user=request.user, **form_args)
+        activity_form = class_form(current_user=request.user, initial = {'user': request.user.id}, **form_args)
 
     return render_to_response('creme_core/generics/blockform/add.html',
                               {'form': activity_form},
