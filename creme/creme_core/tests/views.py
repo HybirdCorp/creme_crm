@@ -7,6 +7,7 @@ from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 
 from creme_core.models import *
+from creme_core.models.header_filter import HFI_FIELD
 from creme_core.management.commands.creme_populate import Command as PopulateCommand
 
 from persons.models import Contact, Organisation #TODO: find a way to create model that inherit CremeEntity in the unit tests ??
@@ -796,3 +797,24 @@ class ViewsTestCase(TestCase):
         self.assertEqual(1,                hfitem.type)
         self.assertEqual('created__range', hfitem.filter_string)
         self.failIf(hfitem.is_hidden)
+
+    def test_csv_export(self): #TODO: test other hfi type...
+        self.login()
+
+        ct = ContentType.objects.get_for_model(Contact)
+        hf = HeaderFilter.objects.create(id='test-hf_contact', name='Contact view', entity_type=ct)
+        create_hfi = HeaderFilterItem.objects.create
+        create_hfi(id='test-hfi_lastname',  order=1, name='last_name',  title='Last name',  type=HFI_FIELD, header_filter=hf, has_a_filter=True, editable=True, filter_string="last_name__icontains")
+        create_hfi(id='test-hfi_firstname', order=2, name='first_name', title='First name', type=HFI_FIELD, header_filter=hf, has_a_filter=True, editable=True, filter_string="first_name__icontains")
+
+        for first_name, last_name in [('Spike', 'Spiegel'), ('Jet', 'Black'), ('Faye', 'Valentine'), ('Edward', 'Wong')]:
+            Contact.objects.create(user=self.user, first_name=first_name, last_name=last_name)
+
+        lv_url = Contact.get_lv_absolute_url()
+        self.assertEqual(200, self.client.get(lv_url).status_code) #set the current list view state...
+
+        response = self.client.get('/creme_core/list_view/dl_csv/%s' % ct.id, data={'list_url': lv_url})
+        self.assertEqual(200, response.status_code)
+        self.assertEqual(['"Last name","First name"', '"Black","Jet"', '"Spiegel","Spike"', '"Valentine","Faye"', '"Wong","Edward"'],
+                         response.content.splitlines()
+                        )
