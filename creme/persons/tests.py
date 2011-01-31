@@ -7,6 +7,7 @@ from django.contrib.contenttypes.models import ContentType
 from creme_core.models import RelationType, Relation, CremeProperty
 from creme_core.management.commands.creme_populate import Command as PopulateCommand
 from creme_core.constants import PROP_IS_MANAGED_BY_CREME
+from creme_core.gui.quick_forms import quickforms_registry
 
 from persons.models import *
 from persons.constants import *
@@ -399,4 +400,44 @@ class PersonsTestCase(TestCase):
         response = self.client.get('/persons/')
         self.assertEqual(response.status_code, 200)
 
-#TODO: tests for portal stats ; quickforms
+    def test_quickform01(self):
+        self.login()
+
+        models = set(quickforms_registry.iter_models())
+        self.assert_(Contact in models)
+        self.assert_(Organisation in models)
+
+        data = [('Faye', 'Valentine'), ('Spike', 'Spiegel')]
+
+        ct = ContentType.objects.get_for_model(Contact)
+        url = '/creme_core/quickforms/%s/%s' % (ct.id, len(data))
+
+        self.assertEqual(200, self.client.get(url).status_code)
+
+        response = self.client.post(url,
+                                    data={
+                                            'form-TOTAL_FORMS':   len(data),
+                                            'form-INITIAL_FORMS': 0,
+                                            'form-MAX_NUM_FORMS': u'',
+                                            'form-0-user':        self.user.id,
+                                            'form-0-first_name':  data[0][0],
+                                            'form-0-last_name':   data[0][1],
+                                            'form-1-user':        self.user.id,
+                                            'form-1-first_name':  data[1][0],
+                                            'form-1-last_name':   data[1][1],
+                                         }
+                                   )
+        self.assertEqual(200, response.status_code)
+
+        contacts = Contact.objects.all()
+        self.assertEqual(3, len(contacts))
+
+        for first_name, last_name in data:
+            try:
+                contact = Contact.objects.get(first_name=first_name)
+            except Exception, e:
+                self.fail(str(e))
+
+            self.assertEqual(last_name, contact.last_name)
+
+#TODO: tests for portal stats
