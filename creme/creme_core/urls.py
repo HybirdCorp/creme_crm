@@ -33,7 +33,7 @@ creme_core_patterns = patterns('creme_core.views',
     (r'^filter/add/(?P<ct_id>\d+)$',                           'list_view_filter.add'),
     (r'^filter/edit/(?P<ct_id>\d+)/(?P<filter_id>\d+)$',       'list_view_filter.edit'), #TODO: ct_id useful ????
     (r'^filter/delete$',                                       'list_view_filter.delete'),
-    (r'^filter/getfieldfk/$',                                  'ajax.fieldHasNGetFK'),   #TODO: change url ???? move to list_view_filter.py ??
+    (r'^filter/field_has_n_get_fk$',                           'list_view_filter.field_has_n_get_fk'),
     (r'^filter/register/(?P<filter_id>\d*)/(?P<ct_id>\d+)$',   'list_view_filter.register_in_session'),
     (r'^filter/get_session_filter_id/(?P<ct_id>\d+)$',         'list_view_filter.get_session_filter_id'),
     (r'^filter/select_entity_popup/(?P<content_type_id>\d+)$', 'list_view_filter.get_list_view_popup_from_ct'),
