@@ -463,6 +463,7 @@ creme.utils.handleDialogSubmit = function(dialog) {
     $form.find('input[name!=], select[name!=], button[name!=], textarea[name!=]').each(function() {
        var $node = $(this);
        var $node_value = $node.val();
+       if($node.is(':select') && $node.is('[multiple=true]') && $node_value == null) return;
        if(!$node.is(':checkbox')) post_data[$node.attr('name')] = (!$node_value || $node_value==null)? "" : $node_value;
        if($node.is(':checked')) post_data[$node.attr('name')] = $node.is(':checked'); //Works if the checkbox is not required in form (99% of cases)
     });
