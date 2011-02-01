@@ -166,6 +166,7 @@ class GenericEntityField(JSONField):
         get_ct = ContentType.objects.get_for_model
         return (get_ct(model) for model in models) if models else creme_entity_content_types()
 
+#TODO: Add a q_filter, see utilization in EntityEmailForm
 class MultiGenericEntityField(GenericEntityField):
     def __init__(self, models=None, *args, **kwargs):
         super(MultiGenericEntityField, self).__init__(models, *args, **kwargs)

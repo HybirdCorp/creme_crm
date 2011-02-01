@@ -46,7 +46,7 @@ class EntityEmailForm(CremeEntityForm):
     """
     sender       = EmailField(label=_(u'Sender'))
 
-    #TODO: use the new GenericEntityField ??
+    #TODO: use the new GenericEntityField ?? When it use q_filter
     c_recipients = MultiCremeEntityField(label=_(u'Contacts'),      required=False, model=Contact,      q_filter={'email__isnull': False})
     o_recipients = MultiCremeEntityField(label=_(u'Organisations'), required=False, model=Organisation, q_filter={'email__isnull': False})
 
@@ -76,37 +76,30 @@ class EntityEmailForm(CremeEntityForm):
             if contact.email:
                 self.fields['sender'].initial = contact.email
 
+    def validate_entity_email(self, field_name, entities):
+        recipients_errors = []
+        for entity in entities:
+            try:
+                validate_email(entity.email)
+            except Exception, e:#Better exception ?
+                recipients_errors.append(invalid_email_error % {'entity': entity})
+
+        if recipients_errors:
+            self.errors[field_name] = ErrorList(recipients_errors)
+
 
     def clean(self):
         cleaned_data = self.cleaned_data
-        errors = self.errors
 
         contacts      = list(cleaned_data.get('c_recipients', []))
         organisations = list(cleaned_data.get('o_recipients', []))
 
-        #TODO: factorise
-        c_recipients_errors = []
-        for i, entity in enumerate(contacts):
-            try:
-                validate_email(entity.email)
-            except Exception, e:#Better exception ?
-                c_recipients_errors.append(invalid_email_error % {'entity': contacts[i]}) #TODO: WTF "contacts[i]" !! (why not 'entity' ??!!)
-
-        if c_recipients_errors:
-            errors['c_recipients'] = ErrorList(c_recipients_errors)
-
-        o_recipients_errors = []
-        for i, entity in enumerate(organisations):
-            try:
-                validate_email(entity.email)
-            except Exception, e:#Better exception ?
-                o_recipients_errors.append(invalid_email_error % {'entity': organisations[i]})
-
-        if o_recipients_errors:
-            errors['o_recipients'] = ErrorList(o_recipients_errors)
-
-        if not contacts and not organisations: #TODO: why not move this test before
+        if not contacts and not organisations:
             raise ValidationError(ugettext(u'Select at least a Contact or an Organisation'))
+
+        #TODO: Join this 2 lines when using GenericEntityField
+        self.validate_entity_email('c_recipients', contacts)
+        self.validate_entity_email('o_recipients', organisations)
 
         return cleaned_data
 
