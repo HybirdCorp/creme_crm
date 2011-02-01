@@ -86,6 +86,7 @@ class ActivityType(CremeModel):
         verbose_name = _(u"Activity type")
         verbose_name_plural = _(u"Activity types")
 
+
 class Status(CremeModel):
     name        = CharField(_(u'Name'), max_length=100)
     description = TextField(_(u'Description'))
@@ -144,7 +145,6 @@ END:VEVENT
                     'status'     : ""
                 }
 
-
     def get_title_for_calendar(self):
         type_name = self.type.name
 
@@ -190,12 +190,25 @@ END:VEVENT
         return Activity.objects.filter(relations__object_entity=entity, relations__type__in=types)
 
     @staticmethod
+    def _get_linked_for_ctypes_aux(ct_ids):
+        types = (REL_OBJ_PART_2_ACTIVITY, REL_OBJ_ACTIVITY_SUBJECT, REL_OBJ_LINKED_2_ACTIVITY)
+        return Activity.objects.filter(relations__object_entity__entity_type__in=ct_ids, relations__type__in=types).distinct()
+
+    @staticmethod
     def get_future_linked(entity, today):
         return Activity._get_linked_aux(entity).filter(end__gt=today)
 
     @staticmethod
+    def get_future_linked_for_ctypes(ct_ids, today):
+        return Activity._get_linked_for_ctypes_aux(ct_ids).filter(end__gt=today)
+
+    @staticmethod
     def get_past_linked(entity, today):
         return Activity._get_linked_aux(entity).filter(end__lte=today)
+
+    @staticmethod
+    def get_past_linked_for_ctypes(ct_ids, today):
+        return Activity._get_linked_for_ctypes_aux(ct_ids).filter(end__lte=today)
 
     def handle_all_day(self):
         if self.is_all_day:
