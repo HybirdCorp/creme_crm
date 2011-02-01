@@ -44,6 +44,35 @@
                     {% endwith %}
                 {% endwith %}
             {% endif %}
+            {% if not column.type %}
+                <script type="text/javascript">
+                    $(function() {
+                        $('#bulk_actions').NavIt({ArrowSideOnRight: false});
+                    });
+                </script>
+                <ul id="bulk_actions" class="entity_menu ui-widget ui-corner-all ui-state-default">
+                    <li>
+                        <a onclick="$(this).parents('ul').find('ul').slideToggle('slide')">{% trans "Actions" %}</a>
+                        <ul style="float: left; position: absolute; z-index: 10;" class="ui-widget ui-widget-content ui-corner-all">
+                            <li>
+                                <a style="white-space: nowrap;" onclick="creme.utils.multiDeleteFromListView('form[name=list_view_form]', '/creme_core/delete_js');">
+                                    <img border="0" src="{% media_url 'images/delete_22.png' %}" alt="{% trans "Multiple deletion" %}" title="{% trans "Multiple deletion" %}"/>{% trans "Multiple deletion" %}
+                                </a>
+                            </li>
+                            <li>
+                                <a style="white-space: nowrap;" onclick="creme.utils.multiAddPropertyFromListView('form[name=list_view_form]', '/creme_core/property/add_to_entities', '{{content_type_id}}');">
+                                    <img border="0" src="{% media_url 'images/property_22.png' %}" alt="{% trans "Multiple property adding" %}" title="{% trans "Multiple property adding" %}"/>{% trans "Multiple property adding" %}
+                                </a>
+                            </li>
+                            <li>
+                                <a style="white-space: nowrap;" onclick="creme.relations.addFromListView('form[name=list_view_form]', '/creme_core/relation/add_to_entities/{{content_type_id}}/');">
+                                    <img border="0" src="{% media_url 'images/relations_22.png' %}" alt="{% trans "Multiple relation adding" %}" title="{% trans "Multiple relation adding" %}"/>{% trans "Multiple relation adding" %}
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+            {% endif %}
         </th>
     {% endfor %}
 </tr>
