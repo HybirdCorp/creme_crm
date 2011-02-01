@@ -48,6 +48,7 @@ class _BlockContext(object): #TODO: rename to Context ?? (so Context-> TemplateC
         return '<BlockContext>'
 
     def update(self, modified, template_context):
+        """Overload me (see _PaginatedBlockContext, _QuerysetBlockContext)"""
         return False
 
 

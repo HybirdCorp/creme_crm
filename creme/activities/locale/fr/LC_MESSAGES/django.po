@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-01-20 12:04+0100\n"
+"POT-Creation-Date: 2011-02-01 14:44+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -16,24 +16,27 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Language: \n"
 
-#: blocks.py:35 forms/activity.py:121 forms/activity.py:184
+#: blocks.py:37 forms/activity.py:121 forms/activity.py:184
 msgid "Participants"
 msgstr "Participants"
 
-#: blocks.py:49 forms/activity.py:147
+#: blocks.py:51 forms/activity.py:147
 msgid "Subjects"
 msgstr "Sujets"
 
-#: blocks.py:63
-#: templates/activities/templatetags/block_future_activities.html:13
+#: blocks.py:67
+#: templates/activities/templatetags/block_future_activities.html:8
+#: templates/activities/templatetags/block_future_activities.html:10
 msgid "Future activities"
 msgstr "Activités futures"
 
-#: blocks.py:90 templates/activities/templatetags/block_past_activities.html:9
+#: blocks.py:102
+#: templates/activities/templatetags/block_past_activities.html:10
+#: templates/activities/templatetags/block_past_activities.html:12
 msgid "Past activities"
 msgstr "Activités passées"
 
-#: blocks.py:105
+#: blocks.py:134
 msgid "My calendars"
 msgstr "Mes calendrier"
 
@@ -49,7 +52,7 @@ msgstr "Ajouter un appel téléphonique"
 msgid "Add a task"
 msgstr "Ajouter une tâche"
 
-#: creme_core_register.py:33 models/activity.py:121
+#: creme_core_register.py:33 models/activity.py:122
 #: templates/activities/portal.html:6
 msgid "Activities"
 msgstr "Activités"
@@ -139,14 +142,14 @@ msgstr "En retard"
 msgid "Cancelled"
 msgstr "Annulé"
 
-#: populate.py:60 models/activity.py:230
+#: populate.py:60 models/activity.py:243
 #: templates/activities/calendar.html:242
 #: templates/activities/templatetags/button_add_task.html:4
 #: templates/activities/templatetags/button_add_task.html:9
 msgid "Task"
 msgstr "Tâche"
 
-#: populate.py:61 models/activity.py:215
+#: populate.py:61 models/activity.py:228
 #: templates/activities/calendar.html:230
 #: templates/activities/frags/button_add_meeting_without_relation.html:2
 #: templates/activities/templatetags/button_add_meeting.html:4
@@ -154,7 +157,7 @@ msgstr "Tâche"
 msgid "Meeting"
 msgstr "Rendez-vous"
 
-#: populate.py:62 models/activity.py:256
+#: populate.py:62 models/activity.py:269
 #: templates/activities/calendar.html:236
 #: templates/activities/frags/button_add_phonecall_without_relation.html:2
 #: templates/activities/templatetags/button_add_phonecall.html:4
@@ -183,18 +186,18 @@ msgid "Activity view"
 msgstr "Vue d'Activité"
 
 #: populate.py:70 models/activity.py:35 models/activity.py:75
-#: models/activity.py:90
+#: models/activity.py:91
 #: templates/activities/templatetags/block_future_activities.html:31
 #: templates/activities/templatetags/block_user_calendars.html:22
 msgid "Name"
 msgstr "Nom"
 
 #: populate.py:71 forms/activity.py:162 forms/activity.py:353
-#: forms/indisponibility.py:33 models/activity.py:105
+#: forms/indisponibility.py:33 models/activity.py:106
 msgid "Start"
 msgstr "Début"
 
-#: populate.py:72 forms/indisponibility.py:34 models/activity.py:106
+#: populate.py:72 forms/indisponibility.py:34 models/activity.py:107
 #: templates/activities/templatetags/activity_date.html:4
 msgid "End"
 msgstr "Fin"
@@ -352,7 +355,7 @@ msgstr "Durée en jours par défaut"
 msgid "Default hour duration"
 msgstr "Durée en heures/minutes/secondes par défaut"
 
-#: models/activity.py:86 models/activity.py:108
+#: models/activity.py:86 models/activity.py:109
 msgid "Activity type"
 msgstr "Type d'activité"
 
@@ -360,76 +363,76 @@ msgstr "Type d'activité"
 msgid "Activity types"
 msgstr "Types d'activité"
 
-#: models/activity.py:91 models/activity.py:107 models/activity.py:236
+#: models/activity.py:92 models/activity.py:108 models/activity.py:249
 msgid "Description"
 msgstr "Description"
 
-#: models/activity.py:98 models/activity.py:99 models/activity.py:111
+#: models/activity.py:99 models/activity.py:100 models/activity.py:112
 #: templates/activities/templatetags/block_future_activities.html:30
 msgid "Status"
 msgstr "Statut"
 
-#: models/activity.py:104
+#: models/activity.py:105
 msgid "Title"
 msgstr "Titre"
 
-#: models/activity.py:110
+#: models/activity.py:111
 msgid "All day ?"
 msgstr "Jour entier ?"
 
-#: models/activity.py:112
+#: models/activity.py:113
 msgid "Busy ?"
 msgstr "Occupé ?"
 
-#: models/activity.py:120
+#: models/activity.py:121
 msgid "Activity"
 msgstr "Activité"
 
-#: models/activity.py:207
+#: models/activity.py:220
 msgid "Meeting place"
 msgstr "Lieu de rendez-vous"
 
-#: models/activity.py:216
+#: models/activity.py:229
 msgid "Meetings"
 msgstr "Rendez-vous"
 
-#: models/activity.py:222
+#: models/activity.py:235
 msgid "Duration (in hour)"
 msgstr "Durée (en heures)"
 
-#: models/activity.py:231
+#: models/activity.py:244
 msgid "Tasks"
 msgstr "Tâches"
 
-#: models/activity.py:235
+#: models/activity.py:248
 msgid "Call type"
 msgstr "Type d'appel"
 
-#: models/activity.py:243 models/activity.py:248
+#: models/activity.py:256 models/activity.py:261
 msgid "Phonecall type"
 msgstr "Type d'appel"
 
-#: models/activity.py:244
+#: models/activity.py:257
 msgid "Phonecall types"
 msgstr "Types d'appel"
 
-#: models/activity.py:257
+#: models/activity.py:270
 msgid "Phone calls"
 msgstr "Appels Téléphoniques"
 
-#: models/activity.py:261
+#: models/activity.py:274
 msgid "Selected Calendar"
 msgstr "Calendrier sélectionné"
 
-#: models/activity.py:262
+#: models/activity.py:275
 msgid "Selected Activity"
 msgstr "Activité sélectionnée"
 
-#: models/activity.py:266
+#: models/activity.py:279
 msgid "Calendar activity link"
 msgstr "Lien calendrier activité"
 
-#: models/activity.py:267
+#: models/activity.py:280
 msgid "Calendars activities links"
 msgstr "Lien calendrier activité"
 
@@ -666,18 +669,28 @@ msgstr "jusqu'à"
 msgid "No one"
 msgstr "Aucun"
 
-#: templates/activities/templatetags/block_future_activities.html:13
+#: templates/activities/templatetags/block_future_activities.html:8
+#, python-format
+msgid "%s Future activity for me"
+msgstr "%s Activité future pour moi"
+
+#: templates/activities/templatetags/block_future_activities.html:8
+#, python-format
+msgid "%s Future activities for me"
+msgstr "%s Activités futures pour moi"
+
+#: templates/activities/templatetags/block_future_activities.html:10
 #, python-format
 msgid "%s Future related activity"
 msgstr "%s Activité future liée"
 
-#: templates/activities/templatetags/block_future_activities.html:13
+#: templates/activities/templatetags/block_future_activities.html:10
 #, python-format
 msgid "%s Future related activities"
 msgstr "%s Activités futures liées"
 
+#: templates/activities/templatetags/block_future_activities.html:19
 #: templates/activities/templatetags/block_future_activities.html:20
-#: templates/activities/templatetags/block_future_activities.html:21
 msgid "Link to an activity"
 msgstr "Lier à une activité"
 
@@ -702,7 +715,7 @@ msgstr "Relié(s)"
 msgid "Delete"
 msgstr "Supprimer"
 
-#: templates/activities/templatetags/block_future_activities.html:70
+#: templates/activities/templatetags/block_future_activities.html:68
 #: templates/activities/templatetags/block_user_calendars.html:47
 msgid "No future related activity for the moment"
 msgstr "Aucune activité future liée pour le moment"
@@ -730,17 +743,27 @@ msgstr "Ajouter depuis des fiches existantes"
 msgid "No participant for the moment"
 msgstr "Aucun participant enregistré pour le moment"
 
-#: templates/activities/templatetags/block_past_activities.html:9
+#: templates/activities/templatetags/block_past_activities.html:10
+#, python-format
+msgid "%s Past activity for me"
+msgstr "%s Activité passée pour moi"
+
+#: templates/activities/templatetags/block_past_activities.html:10
+#, python-format
+msgid "%s Past activities for me"
+msgstr "%s Activités passées pour moi"
+
+#: templates/activities/templatetags/block_past_activities.html:12
 #, python-format
 msgid "%s Past related activity"
 msgstr "%s Activité passée liée"
 
-#: templates/activities/templatetags/block_past_activities.html:9
+#: templates/activities/templatetags/block_past_activities.html:12
 #, python-format
 msgid "%s Past related activities"
 msgstr "%s Activités passées liées"
 
-#: templates/activities/templatetags/block_past_activities.html:14
+#: templates/activities/templatetags/block_past_activities.html:18
 msgid "No past related activity for the moment"
 msgstr "Aucune activité passée liée pour le moment"
 
@@ -807,7 +830,7 @@ msgstr "Ajout de participants pour l'activité <%s>"
 msgid "Adding subjects to activity <%s>"
 msgstr "Ajout de sujets pour l'activité <%s>"
 
-#: views/calendar.py:207
+#: views/calendar.py:211
 msgid "Add a calendar"
 msgstr "Ajouter un calendrier"
 

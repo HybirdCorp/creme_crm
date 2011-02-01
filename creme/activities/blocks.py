@@ -22,7 +22,9 @@ from django.utils.translation import ugettext_lazy as _
 from django.contrib.contenttypes.models import ContentType
 
 from creme_core.models import Relation
-from creme_core.gui.block import QuerysetBlock
+from creme_core.gui.block import QuerysetBlock, list4url
+
+from persons.models import Contact
 
 from models import Activity, Calendar
 from constants import *
@@ -56,6 +58,8 @@ class SubjectsBlock(QuerysetBlock):
                                                             ))
 
 
+#TODO: need query optimisations (retrieve all relations in one query,
+#      retrieve subjects (real entities) of relations by grouping them)
 class FutureActivitiesBlock(QuerysetBlock):
     id_           = QuerysetBlock.generate_id('activities', 'future_activities')
     dependencies  = (Relation,) #Activity
@@ -64,40 +68,55 @@ class FutureActivitiesBlock(QuerysetBlock):
     template_name = 'activities/templatetags/block_future_activities.html'
     configurable  = True
 
-    def __init__(self, *args, **kwargs):
-        super(FutureActivitiesBlock, self).__init__(*args, **kwargs)
+    def _get_queryset_for_entity(self, entity, context):
+        return Activity.get_future_linked(entity, context['today'])
 
-        self._activity_ct_id = None
+    def _get_queryset_for_ctypes(self, ct_ids, context):
+        return Activity.get_future_linked_for_ctypes(ct_ids, context['today'])
+
 
     def detailview_display(self, context):
         entity = context['object']
-        activities = Activity.get_future_linked(entity, context['today'])
 
-        if not self._activity_ct_id:
-            self._activity_ct_id = ContentType.objects.get_for_model(Activity).id
-
-        return self._render(self.get_block_template_context(context, activities,
+        return self._render(self.get_block_template_context(context,
+                                                            self._get_queryset_for_entity(entity, context),
                                                             update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, entity.id),
                                                             predicate_id=REL_SUB_LINKED_2_ACTIVITY,
-                                                            ct_id=self._activity_ct_id,
-                                                            ))
+                                                            ct_id=ContentType.objects.get_for_model(Activity).id,
+                                                           ))
+
+    def portal_display(self, context, ct_ids):
+        return self._render(self.get_block_template_context(context,
+                                                            self._get_queryset_for_ctypes(ct_ids, context),
+                                                            update_url='/creme_core/blocks/reload/portal/%s/%s/' % (self.id_, list4url(ct_ids)),
+                                                           ))
+
+    def home_display(self, context):
+        user = context['request'].user
+
+        #cache the Contact related to the current user (used by PastActivitiesBlock too)
+        entity = context.get('user_contact')
+        if entity is None:
+            context['user_contact'] = entity = Contact.objects.get(is_user=user)
+
+        return self._render(self.get_block_template_context(context,
+                                                            self._get_queryset_for_entity(entity, context),
+                                                            update_url='/creme_core/blocks/reload/home/%s/' % self.id_,
+                                                            is_home=True
+                                                           ))
 
 
-class PastActivitiesBlock(QuerysetBlock):
+class PastActivitiesBlock(FutureActivitiesBlock):
     id_           = QuerysetBlock.generate_id('activities', 'past_activities')
-    dependencies  = (Relation,) #Activity
-    relation_type_deps = (REL_SUB_LINKED_2_ACTIVITY, REL_SUB_ACTIVITY_SUBJECT, REL_SUB_PART_2_ACTIVITY)
     verbose_name  = _(u'Past activities')
     template_name = 'activities/templatetags/block_past_activities.html'
-    configurable  = True
 
-    def detailview_display(self, context):
-        entity = context['object']
-        activities = Activity.get_past_linked(entity, context['today'])
+    def _get_queryset_for_entity(self, entity, context):
+        return Activity.get_past_linked(entity, context['today'])
 
-        return self._render(self.get_block_template_context(context, activities,
-                                                            update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, entity.id),
-                                                            ))
+    def _get_queryset_for_ctypes(self, ct_ids, context):
+        return Activity.get_past_linked_for_ctypes(ct_ids, context['today'])
+
 
 class UserCalendars(QuerysetBlock):
     id_           = QuerysetBlock.generate_id('activities', 'user_calendars')
@@ -112,7 +131,7 @@ class UserCalendars(QuerysetBlock):
         return self._render(self.get_block_template_context(context,
                                                             Calendar.objects.filter(user=user),
                                                             update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
-                                                            ))
+                                                           ))
 
 
 participants_block      = ParticipantsBlock()
