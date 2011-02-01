@@ -44,3 +44,40 @@ creme.menu.actions.flatMenu = function(trigger_selector, content_selector) {
         }
     });
 };
+
+creme.menu.NavIt = function(trigger_selector, options)
+{
+    $(trigger_selector).NavIt(options || {});
+
+    $(trigger_selector).find('a').click(function(e) {
+        var $a = $(this);
+        var confirm   = $a.hasClass('confirm');
+        var post      = $a.hasClass('post');
+        var ajax      = $a.hasClass('ajax');
+        var list_view = $a.hasClass('lv_reload');
+
+        var opts = {
+            type: (post)?"POST":"GET"
+        }
+
+        if(ajax && list_view) {
+            opts = $.extend(opts, {
+                success : function(data, status, req) {
+                    //creme.utils.showDialog(gettext("Operation done"));
+                    $a.parents('form').list_view('reload');
+                }
+            });
+        }
+
+        if(confirm) {
+            creme.utils.confirmBeforeGo($a.attr('href'), ajax, opts);
+        } else {
+            creme.utils.go_to($a.attr('href'));
+        }
+        e.preventDefault();
+    });
+};
+
+creme.menu.HNavIt = function(trigger_selector, options) {
+    creme.menu.NavIt(trigger_selector, $.extend({ArrowSideOnRight: false}, options));
+}

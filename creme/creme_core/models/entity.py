@@ -231,7 +231,7 @@ class CremeEntity(CremeAbstractEntity):
         return {
                 'default': EntityAction(self.get_absolute_url(), ugettext(u"See"), True, icon="images/view_16.png"),
                 'others':  [EntityAction(self.get_edit_absolute_url(),   ugettext(u"Edit"),   self.can_change(user), icon="images/edit_16.png"),
-                            EntityAction(self.get_delete_absolute_url(), ugettext(u"Delete"), self.can_delete(user), icon="images/delete_16.png", attrs={'class': 'confirm'}),
+                            EntityAction(self.get_delete_absolute_url(), ugettext(u"Delete"), self.can_delete(user), icon="images/delete_16.png", attrs={'class': 'confirm post ajax lv_reload'}),
                            ]
                }
 

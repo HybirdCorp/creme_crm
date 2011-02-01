@@ -282,6 +282,7 @@ CREME_CORE_CSS = ('main.css',
 
                     'creme_core/css/list_view.css',
                     'creme_core/css/rte.css',
+                    'creme_core/css/navit.css',
 
                     #APPS
                     'activities/css/fullcalendar.css',
@@ -319,6 +320,8 @@ CREME_CORE_JS = ('main.js',
                     'creme_core/js/lib/graphael/g.bar.js',
                     'creme_core/js/lib/graphael/g.line.js',
                     'creme_core/js/lib/graphael/g.pie.js',
+                    
+                    'creme_core/js/lib/jquery.navIt.0.0.6.js',
 
                     'creme_core/js/utils.js',
                     'creme_core/js/forms.js',
