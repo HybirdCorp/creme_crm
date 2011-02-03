@@ -47,6 +47,10 @@ class ViewsTestCase(TestCase):
             if errors:
                 self.fail(errors)
 
+    def test_home(self): #TODO: improve test
+        self.login()
+        self.assertEqual(200, self.client.get('/').status_code)
+
     def test_clean(self):
         self.login()
 

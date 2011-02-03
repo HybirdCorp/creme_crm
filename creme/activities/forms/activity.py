@@ -40,19 +40,6 @@ from activities.models import Activity, Calendar, CalendarActivityLink
 from activities.constants import *
 
 
-def _generate_alert(phone_call, cleaned_data):
-    if cleaned_data['generate_alert']:
-        alert_start_time = cleaned_data.get('alert_start_time') or time()
-        alert_day        = cleaned_data.get('alert_day') or phone_call.start
-
-        Alert.objects.create(for_user=phone_call.user,
-                             trigger_date=alert_day.replace(hour=alert_start_time.hour, minute=alert_start_time.minute),
-                             creme_entity=phone_call,
-                             title=ugettext(u"Alert of phone call"),
-                             description=ugettext(u'Alert related to a phone call'),
-                            )
-
-
 def _generate_alert(phone_call, cleaned_data): #TODO: ActivityCreateForm's static method instead ???
     if cleaned_data['generate_alert']:
         alert_start_time = cleaned_data.get('alert_start_time') or time()
