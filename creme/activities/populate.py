@@ -26,6 +26,8 @@ from creme_core.models import RelationType, BlockConfigItem, ButtonMenuItem, Sea
 from creme_core.utils import create_or_update_models_instance as create
 from creme_core.management.commands.creme_populate import BasePopulator
 
+from persons.models import Contact
+
 from activities.models import Activity, ActivityType, PhoneCallType, Status
 from activities.blocks import future_activities_block, past_activities_block
 from activities.buttons import add_meeting_button, add_phonecall_button, add_task_button
@@ -44,7 +46,7 @@ class Populator(BasePopulator):
                             #(REL_OBJ_CALL,             u'concerne'))
         RelationType.create((REL_SUB_ACTIVITY_SUBJECT, _(u"is subject of the activity")),
                             (REL_OBJ_ACTIVITY_SUBJECT, _(u'is to subject')))
-        RelationType.create((REL_SUB_PART_2_ACTIVITY,  _(u"participates to the activity")),
+        RelationType.create((REL_SUB_PART_2_ACTIVITY,  _(u"participates to the activity"), [Contact]),
                             (REL_OBJ_PART_2_ACTIVITY,  _(u'has as participant')))
 
         create(PhoneCallType, 1, name=_(u"Incoming"), description=_(u"Incoming call"))

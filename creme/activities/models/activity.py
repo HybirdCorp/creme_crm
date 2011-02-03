@@ -176,13 +176,13 @@ END:VEVENT
         return "/activities/activities"
 
     def get_participant_relations(self):
-        return Relation.objects.filter(object_entity=self, type=REL_SUB_PART_2_ACTIVITY)
+        return Relation.objects.filter(object_entity=self.id, type=REL_SUB_PART_2_ACTIVITY)
 
     def get_subject_relations(self):
-        return Relation.objects.filter(object_entity=self, type=REL_SUB_ACTIVITY_SUBJECT)
+        return Relation.objects.filter(object_entity=self.id, type=REL_SUB_ACTIVITY_SUBJECT)
 
     def get_linkedto_relations(self):
-        return Relation.objects.filter(object_entity=self, type=REL_SUB_LINKED_2_ACTIVITY)
+        return Relation.objects.filter(object_entity=self.id, type=REL_SUB_LINKED_2_ACTIVITY)
 
     @staticmethod
     def _get_linked_aux(entity):

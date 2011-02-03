@@ -23,30 +23,26 @@ from django.forms import TimeField
 from django.forms.widgets import HiddenInput
 
 from activities.models import Task
-from activity import ActivityCreateForm, ActivityEditForm, ActivityCreateWithoutRelationForm
+from activity import ActivityCreateForm, RelatedActivityCreateForm
 
 
-class TaskCreateForm(ActivityCreateForm):
+class RelatedTaskCreateForm(RelatedActivityCreateForm):
     end_time = TimeField(widget=HiddenInput(), required=False)
 
+    class Meta(RelatedActivityCreateForm.Meta):
+        model = Task
+        exclude = RelatedActivityCreateForm.Meta.exclude + ('type',)
+
+    def __init__(self, *args, **kwargs):
+        super(RelatedTaskCreateForm, self).__init__(*args, **kwargs)
+        self.fields['my_participation'].label = _(u'Do I participate to this task')
+
+
+class TaskCreateWithoutRelationForm(ActivityCreateForm):
     class Meta(ActivityCreateForm.Meta):
         model = Task
         exclude = ActivityCreateForm.Meta.exclude + ('type',)
 
     def __init__(self, *args, **kwargs):
-        super(TaskCreateForm, self).__init__(*args, **kwargs)
-        self.fields['my_participation'].label = _(u'Do I participate to this task')
-
-
-class TaskCreateWithoutRelationForm(ActivityCreateWithoutRelationForm):
-    class Meta(ActivityCreateWithoutRelationForm.Meta):
-        model = Task
-        exclude = ActivityCreateWithoutRelationForm.Meta.exclude + ('type',)
-
-    def __init__(self, *args, **kwargs):
         super(TaskCreateWithoutRelationForm, self).__init__(*args, **kwargs)
         self.fields['my_participation'].label = _(u'Do I participate to this task')
-
-#class TaskEditForm(ActivityEditForm):
-    #class Meta(ActivityEditForm.Meta):
-        #model = Task

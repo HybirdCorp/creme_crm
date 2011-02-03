@@ -37,11 +37,29 @@ class ParticipantsBlock(QuerysetBlock):
     verbose_name  = _(u'Participants')
     template_name = 'activities/templatetags/block_participants.html'
 
+    #def detailview_display(self, context):
+        #activity = context['object']
+        #return self._render(self.get_block_template_context(context, activity.get_participant_relations(),
+                                                            #update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, activity.pk),
+                                                           #))
     def detailview_display(self, context):
         activity = context['object']
-        return self._render(self.get_block_template_context(context, activity.get_participant_relations(),
-                                                            update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, activity.pk),
-                                                            ))
+        btc = self.get_block_template_context(context,
+                                              activity.relations.filter(type=REL_OBJ_PART_2_ACTIVITY).select_related('type', 'object_entity'),
+                                              update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, activity.pk),
+                                             )
+        relations = btc['page'].object_list
+        contacts = dict((c.id, c) for c in Contact.objects.filter(pk__in=[r.object_entity_id for r in relations]).select_related('user'))
+
+        for relation in relations:
+            relation.object_entity = contacts[relation.object_entity_id]
+
+        users_contacts = dict((contact.is_user_id, contact) for contact in contacts.itervalues() if contact.is_user_id)
+
+        for calendar in Calendar.objects.filter(user__in=users_contacts.keys(), calendaractivitylink__activity=activity.id):
+            users_contacts[calendar.user_id].calendar_cache = calendar
+
+        return self._render(btc)
 
 
 class SubjectsBlock(QuerysetBlock):
@@ -51,6 +69,7 @@ class SubjectsBlock(QuerysetBlock):
     verbose_name  = _(u'Subjects')
     template_name = 'activities/templatetags/block_subjects.html'
 
+    #TODO: optimise (Relation.populate_real_object_entities)
     def detailview_display(self, context):
         activity = context['object']
         return self._render(self.get_block_template_context(context, activity.get_subject_relations(),
