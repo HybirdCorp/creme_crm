@@ -17,12 +17,14 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
+
 from django import template
 
 from activities.models import CalendarActivityLink, Calendar
 
 register = template.Library()
 
+#TODO: unused ???
 @register.filter(name="get_activity_calendars")
 def get_activity_calendars(activity, only_publics=False):
     calendars_ids = CalendarActivityLink.objects.filter(activity=activity.pk).values_list('calendar', flat=True)

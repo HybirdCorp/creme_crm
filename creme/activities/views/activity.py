@@ -58,9 +58,9 @@ def _add_activity(request, class_form, **form_args):
                               context_instance=RequestContext(request))
 
 _forms_map = {
-        "meeting":   (MeetingCreateForm,   MeetingCreateWithoutRelationForm),
-        "task":      (TaskCreateForm,      TaskCreateWithoutRelationForm),
-        "phonecall": (PhoneCallCreateForm, PhoneCallCreateWithoutRelationForm),
+        "meeting":   (RelatedMeetingCreateForm,   MeetingCreateWithoutRelationForm),
+        "task":      (RelatedTaskCreateForm,      TaskCreateWithoutRelationForm),
+        "phonecall": (RelatedPhoneCallCreateForm, PhoneCallCreateWithoutRelationForm),
     }
 
 @login_required
@@ -78,6 +78,11 @@ def add_with_relation(request, act_type):
     relation_type = get_object_or_404(RelationType, pk=rtype_id)
 
     #TODO: credentials ??
+
+    #TODO: move to a RelationType method...
+    subject_ctypes = frozenset(relation_type.subject_ctypes.values_list('id', flat=True))
+    if subject_ctypes and not int(ct_id) in subject_ctypes:
+        raise Http404('Incompatible relation type') #bof bof
 
     form_class = _forms_map.get(act_type)
 
@@ -139,7 +144,7 @@ def popupview(request, activity_id):
 @login_required
 @permission_required('activities')
 def listview(request):
-    return list_view(request, Activity, 
+    return list_view(request, Activity,
                      extra_dict={'extra_bt_templates':
                                     ('activities/frags/ical_list_view_button.html',
                                      'activities/frags/button_add_meeting_without_relation.html',

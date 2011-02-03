@@ -20,22 +20,16 @@
 
 
 from activities.models import Meeting
-from activity import ActivityCreateForm, ActivityEditForm, ActivityCreateWithoutRelationForm
+from activity import ActivityCreateForm, RelatedActivityCreateForm
 
 
-class MeetingCreateForm(ActivityCreateForm):
+class RelatedMeetingCreateForm(RelatedActivityCreateForm):
+    class Meta:
+        model = Meeting
+        exclude = RelatedActivityCreateForm.Meta.exclude + ('type',)
+
+
+class MeetingCreateWithoutRelationForm(ActivityCreateForm):
     class Meta:
         model = Meeting
         exclude = ActivityCreateForm.Meta.exclude + ('type',)
-
-
-class MeetingCreateWithoutRelationForm(ActivityCreateWithoutRelationForm):
-    class Meta:
-        model = Meeting
-        exclude = ActivityCreateWithoutRelationForm.Meta.exclude + ('type',)
-
-
-#class MeetingEditForm(ActivityEditForm):
-    #class Meta:
-        #model = Meeting
-        #exclude = ActivityEditForm.Meta.exclude

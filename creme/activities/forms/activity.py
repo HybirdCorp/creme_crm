@@ -18,40 +18,27 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from logging import debug
+from functools import partial
 from datetime import datetime, time
+from logging import debug
 
-from django.forms.models import ModelChoiceField
+from django.forms import IntegerField, BooleanField, ModelChoiceField, ModelMultipleChoiceField
 from django.forms.util import ValidationError, ErrorList
-from django.forms import IntegerField, CharField, BooleanField, ModelMultipleChoiceField
-from django.forms.widgets import CheckboxSelectMultiple
 from django.utils.translation import ugettext as _, ugettext
 from django.db.models import Q
 from django.contrib.auth.models import User
 
 from creme_core.models import CremeEntity, Relation, RelationType
-from creme_core.forms import CremeForm, CremeEntityForm, RelatedEntitiesField, CremeDateTimeField, CremeTimeField
-from creme_core.forms.widgets import Label
+from creme_core.forms import CremeForm, CremeEntityForm
+from creme_core.forms.fields import RelatedEntitiesField, CremeDateTimeField, CremeTimeField, MultiCremeEntityField, GenericEntitiesField
+from creme_core.forms.widgets import UnorderedMultipleChoiceWidget
 
 from persons.models import Contact
 
-from activities.models import Activity, Calendar, CalendarActivityLink
-from activities.constants import *
-
 from assistants.models.alert import Alert
 
-def _generate_alert(phone_call, cleaned_data):
-    if cleaned_data['generate_alert']:
-        alert_start_time = cleaned_data.get('alert_start_time') or time()
-        alert_day        = cleaned_data.get('alert_day') or phone_call.start
-
-        alert = Alert()
-        alert.for_user     = phone_call.user
-        alert.trigger_date = alert_day.replace(hour=alert_start_time.hour, minute=alert_start_time.minute)
-        alert.creme_entity = phone_call
-        alert.title        = ugettext(u"Alert of phone call")
-        alert.description  = ugettext(u'Alert related to a phone call')
-        alert.save()
+from activities.models import Activity, Calendar, CalendarActivityLink
+from activities.constants import *
 
 
 def _clean_interval(cleaned_data):
@@ -108,53 +95,63 @@ def _check_activity_collisions(activity_start, activity_end, participants, exclu
     if collisions:
         raise ValidationError(collisions)
 
-def _save_participants(participants, instance):
-    """
-    @param participants sequence of tuple relationtype_id, entity (see RelatedEntitiesField)
-    """
-    create_relation = Relation.create
-
-    for relationtype_id, entity in participants:
-        create_relation(entity, relationtype_id, instance)
-
+#TODO: factorise with ActivityCreateForm ??
+#TODO: for the moment the calendars info on detailview is not reload because it is not a true Block.
 class ParticipantCreateForm(CremeForm):
-    participants = RelatedEntitiesField(relation_types=[REL_SUB_PART_2_ACTIVITY], label=_(u'Participants'), required=False)
+    participants = MultiCremeEntityField(label=_(u'Participants'), model=Contact)
 
     def __init__(self, activity, *args, **kwargs):
         super(ParticipantCreateForm, self).__init__(*args, **kwargs)
         self.activity = activity
+        self.participants = []
+
+        existing = Contact.objects.filter(relations__type=REL_SUB_PART_2_ACTIVITY, relations__object_entity=activity.id)
+        self.fields['participants'].q_filter = {'~pk__in': [c.id for c in existing]}
 
     def clean(self):
         cleaned_data = self.cleaned_data
 
-        if self._errors:
-            return cleaned_data
+        if not self._errors:
+            activity = self.activity
 
-        activity = self.activity
+            self.participants += cleaned_data['participants']
 
-        if activity.busy:
-            _check_activity_collisions(activity.start, activity.end,
-                                       [entity for rtype, entity in cleaned_data['participants']]
-                                      )
+            if activity.busy:
+                _check_activity_collisions(activity.start, activity.end, self.participants)
 
         return cleaned_data
 
     def save(self):
-        _save_participants(self.cleaned_data['participants'], self.activity)
+        activity = self.activity
+        create_link = CalendarActivityLink.objects.get_or_create
+        create_relation = partial(Relation.objects.create, object_entity=activity,
+                                  type_id=REL_SUB_PART_2_ACTIVITY, user=activity.user
+                                 )
+
+        for participant in self.participants:
+            if participant.is_user:
+                create_link(calendar=Calendar.get_user_default_calendar(participant.is_user), activity=activity)
+
+            create_relation(subject_entity=participant)
 
 
 class SubjectCreateForm(CremeForm):
     subjects = RelatedEntitiesField(relation_types=[REL_SUB_ACTIVITY_SUBJECT], label=_(u'Subjects'), required=False)
+    #subjects = GenericEntitiesField(label=_(u'Subjects')) #TODO: use when bug with innerpopup is fixed ; filter already linked
 
     def __init__(self, activity, *args, **kwargs):
         super(SubjectCreateForm, self).__init__(*args, **kwargs)
         self.activity = activity
 
     def save (self):
-        _save_participants(self.cleaned_data['subjects'], self.activity)
+        activity = self.activity
+        create_relation = partial(Relation.objects.create, object_entity=activity, user=activity.user)
+
+        for relationtype_id, entity in self.cleaned_data['subjects']:
+            create_relation(subject_entity=entity, type_id=relationtype_id)
 
 
-class _ActivityCreateBaseForm(CremeEntityForm):
+class ActivityCreateForm(CremeEntityForm):
     class Meta(CremeEntityForm.Meta):
         model = Activity
         exclude = CremeEntityForm.Meta.exclude + ('end',)
@@ -163,189 +160,169 @@ class _ActivityCreateBaseForm(CremeEntityForm):
     start_time = CremeTimeField(label=_(u'Start time'), required=False)
     end_time   = CremeTimeField(label=_(u'End time'), required=False)
 
-    is_comapp          = BooleanField(required=False, label=_(u"Is a commercial approach ?"))
-    my_participation   = BooleanField(required=False, label=_(u"Do I participate to this meeting ?"))
-    my_calendar        = ModelChoiceField(queryset=Calendar.objects.none(), required=False, label=_(u"On which of my calendar this activity will appears?"), empty_label=None)
-    user_participation = BooleanField(required=False, label=_(u"Do the responsable of this file participate to this meeting ? (Currently %s)"))
-    participants       = RelatedEntitiesField(relation_types=[REL_SUB_ACTIVITY_SUBJECT, REL_SUB_PART_2_ACTIVITY, REL_SUB_LINKED_2_ACTIVITY],
-                                            label=_(u'Other participants'), required=False)
+    is_comapp = BooleanField(required=False, label=_(u"Is a commercial approach ?"),
+                             help_text=_(u"All participants (except users), subjects and linked entities will be linked to a commercial approach.")
+                            )
+
+    my_participation    = BooleanField(required=False, label=_(u"Do I participate to this meeting ?"))
+    my_calendar         = ModelChoiceField(queryset=Calendar.objects.none(), required=False, label=_(u"On which of my calendar this activity will appears?"), empty_label=None)
+    participating_users = ModelMultipleChoiceField(label=_(u'Other participating users'), queryset=User.objects.all(),
+                                                   required=False, widget=UnorderedMultipleChoiceWidget
+                                                  )
+    other_participants  = MultiCremeEntityField(label=_(u'Other participants'), model=Contact, required=False)
+    subjects            = GenericEntitiesField(label=_(u'Subjects'), required=False)
+    linked_entities     = GenericEntitiesField(label=_(u'Entities linked to this activity'), required=False)
+
 
     generate_alert   = BooleanField(label=_(u"Do you want to generate an alert or a reminder ?"), required=False)
     alert_day        = CremeDateTimeField(label=_(u"Alert day"), required=False)
     alert_start_time = CremeTimeField(label=_(u"Alert time"), required=False)
 
-
-    #informed_users = ModelMultipleChoiceField(queryset=User.objects.all(),
-                                              #widget=CheckboxSelectMultiple(),
-                                              #required=False, label=_(u"Users"))
-
     blocks = CremeEntityForm.blocks.new(
                 ('datetime',       _(u'When'),                   ['start', 'start_time', 'end_time', 'is_all_day']),
-                ('participants',   _(u'Participants'),           ['my_participation', 'my_calendar', 'user_participation', 'participants']),
+                ('participants',   _(u'Participants'),           ['my_participation', 'my_calendar', 'participating_users', 'other_participants', 'subjects', 'linked_entities']),
                 ('alert_datetime', _(u'Generate an alert or a reminder'), ['generate_alert', 'alert_day', 'alert_start_time']),
-                #('informed_users', _(u'Users to keep informed'), ['informed_users']),
             )
 
-
-
     def __init__(self, current_user, *args, **kwargs):
-        super(_ActivityCreateBaseForm, self).__init__(*args, **kwargs)
+        super(ActivityCreateForm, self).__init__(*args, **kwargs)
         self.current_user = current_user
-        data = kwargs.get('data')
+        self.participants = []
 
         fields = self.fields
 
         fields['start_time'].initial = time(9, 0)
         fields['end_time'].initial   = time(18, 0)
 
-        user_field = fields['user']
-        fields['user_participation'].label %= user_field.queryset[0] if user_field.queryset else _(u"Nobody")
-        user_field.widget.attrs['onchange'] = "$('label[for=id_user_participation]').html('%s (%s '+this.options[this.selectedIndex].innerHTML+')');" % (_(u"Do the responsable of this file participate to this meeting ?"), _(u"Currently"))
-
         my_default_calendar = Calendar.get_user_default_calendar(current_user)
         fields['my_calendar'].queryset = Calendar.objects.filter(user=current_user)
         fields['my_calendar'].initial  = my_default_calendar
 
-        if data is None or not data.get('my_participation', False):
+        #TODO: refactor this with a smart widget that manages dependencies
+        data = kwargs.get('data') or {}
+        if not data.get('my_participation', False):
             fields['my_calendar'].widget.attrs['disabled']  = 'disabled'
         fields['my_participation'].widget.attrs['onclick'] = "if($(this).is(':checked')){$('#id_my_calendar').removeAttr('disabled');}else{$('#id_my_calendar').attr('disabled', 'disabled');}"
 
+        fields['participating_users'].queryset = User.objects.exclude(pk=current_user.id)
+        fields['other_participants'].q_filter = {'is_user__isnull': True}
+
     def clean(self):
+        cleaned_data = self.cleaned_data
+
         if self._errors:
-            return self.cleaned_data
+            return cleaned_data
 
-        cleaned_data = self.cleaned_data
-        errors       = self.errors
+        _clean_interval(cleaned_data)
 
-        _clean_interval(self.cleaned_data)
-        self.check_activities()
-
-        my_participation = cleaned_data.get('my_participation')
-        if my_participation and not cleaned_data.get('my_calendar'):
-            errors['my_calendar'] = ErrorList([_(u"If you participe, you have to choose one of your calendars.")])
-
-        if not my_participation and not cleaned_data.get('user_participation'):
-            errors['my_participation']   = ErrorList([_(u"You or the assigned user has to participate")])
-            errors['user_participation'] = ErrorList([_(u"You or the assigned user has to participate")])
-
-        return self.cleaned_data
-
-    # TODO : check for activities in same range for participants
-    def check_activities(self):
-        cleaned_data = self.cleaned_data
-        participants = [entity for rtype, entity in cleaned_data['participants']]
-
-        if cleaned_data.get('user_participation'):
-            try:
-                participants.append(Contact.objects.get(is_user=cleaned_data['user']))
-            except Contact.DoesNotExist:
-                pass
+        users = list(cleaned_data['participating_users'])
 
         if cleaned_data.get('my_participation'):
-            try:
-                participants.append(Contact.objects.get(is_user=self.current_user))
-            except Contact.DoesNotExist:
-                pass
+            if not cleaned_data.get('my_calendar'):
+                self.errors['my_calendar'] = ErrorList([_(u"If you participe, you have to choose one of your calendars.")])
+            else:
+                users.append(self.current_user)
+
+        self.participants.extend(Contact.objects.filter(is_user__in=users))
+        self.participants += cleaned_data['other_participants']
 
         if cleaned_data['busy']:
-            _check_activity_collisions(cleaned_data['start'], cleaned_data['end'], participants)
+            _check_activity_collisions(cleaned_data['start'], cleaned_data['end'], self.participants)
+
+        return cleaned_data
 
     def save(self):
         instance     = self.instance
         cleaned_data = self.cleaned_data
 
         instance.end = cleaned_data['end']
+        super(ActivityCreateForm, self).save()
 
-        super(_ActivityCreateBaseForm, self).save()
+        self._generate_alert()
+        self._create_commercial_approach()
 
-        _generate_alert(instance, self.cleaned_data)
+        create_link = CalendarActivityLink.objects.get_or_create
 
-        # Participation of event's creator
         if cleaned_data['my_participation']:
-            try:
-                me = Contact.objects.get(is_user=self.current_user)
-            except Contact.DoesNotExist:
-                pass
-            else:
-                Relation.create(me, REL_SUB_PART_2_ACTIVITY, instance)
-                CalendarActivityLink.objects.get_or_create(calendar=cleaned_data.get('my_calendar'), activity=instance)
+            create_link(calendar=cleaned_data['my_calendar'], activity=instance)
 
-        # Participation of event's owner
-        if cleaned_data['user_participation']:
-            user = cleaned_data['user']
-            try:
-                me = Contact.objects.get(is_user=user)
-            except Contact.DoesNotExist:
-                pass
-            else:
-                Relation.create(me, REL_SUB_PART_2_ACTIVITY, instance)
-                CalendarActivityLink.objects.get_or_create(calendar=Calendar.get_user_default_calendar(user), activity=instance)
+        for part_user in cleaned_data['participating_users']:
+            #TODO: regroup queries ??
+            create_link(calendar=Calendar.get_user_default_calendar(part_user), activity=instance)
 
-        _save_participants(cleaned_data['participants'], instance)
+        create_relation = partial(Relation.objects.create, object_entity=instance, user=instance.user)
+
+        for participant in self.participants:
+            create_relation(subject_entity=participant, type_id=REL_SUB_PART_2_ACTIVITY)
+
+        for subject in cleaned_data['subjects']:
+            create_relation(subject_entity=subject, type_id=REL_SUB_ACTIVITY_SUBJECT)
+
+        for linked in cleaned_data['linked_entities']:
+            create_relation(subject_entity=linked, type_id=REL_SUB_LINKED_2_ACTIVITY)
 
         return instance
 
+    def _generate_alert(self):
+        cleaned_data = self.cleaned_data
+
+        if cleaned_data['generate_alert']:
+            activity = self.instance
+
+            alert_start_time = cleaned_data.get('alert_start_time') or time()
+            alert_day        = cleaned_data.get('alert_day') or activity.start
+
+            Alert.objects.create(for_user=activity.user,
+                                 trigger_date=alert_day.replace(hour=alert_start_time.hour, minute=alert_start_time.minute),
+                                 creme_entity=activity,
+                                 title=ugettext(u"Alert of activity"),
+                                 description=ugettext(u'Alert related to %s') % activity,
+                                )
+
     #TODO: inject from 'commercial' app instead ??
-    def _create_commercial_approach(self, extra_entity=None):
+    def _create_commercial_approach(self):
         from commercial.models import CommercialApproach
 
-        participants = [entity for rtype, entity in self.cleaned_data['participants']]
+        cleaned_data = self.cleaned_data
 
-        if extra_entity:
-            participants.append(extra_entity)
+        comapp_subjects = list(cleaned_data['other_participants'])
+        comapp_subjects += cleaned_data['subjects']
+        comapp_subjects += cleaned_data['linked_entities']
 
-        if not participants:
+        if not comapp_subjects:
             return
 
         now = datetime.now()
         instance = self.instance
         create_comapp = CommercialApproach.objects.create
 
-        for participant in participants:
+        for entity in comapp_subjects:
             create_comapp(title=instance.title,
                           description=instance.description,
                           creation_date=now,
-                          creme_entity=participant,
+                          creme_entity=entity,
                           related_activity_id=instance.id,
                          )
 
 
-class ActivityCreateForm(_ActivityCreateBaseForm):
-    entity_preview        = CharField(label=_(u'Who / What'), required=False, widget=Label)
-    relation_type_preview = CharField(label=_(u'Relation with the activity'), required=False, widget=Label)
-
+class RelatedActivityCreateForm(ActivityCreateForm):
     def __init__(self, entity_for_relation, relation_type, *args, **kwargs):
-        super(ActivityCreateForm, self).__init__(*args, **kwargs)
-
-        self._entity_for_relation = entity_for_relation
-        self._relation_type = relation_type
-
+        super(RelatedActivityCreateForm, self).__init__(*args, **kwargs)
         fields = self.fields
-        fields['entity_preview'].initial =  entity_for_relation
-        fields['relation_type_preview'].initial = relation_type.predicate
+        rtype_id = relation_type.id
 
-    def save(self):
-        instance = super(ActivityCreateForm, self).save()
+        if rtype_id == REL_SUB_PART_2_ACTIVITY:
+            assert isinstance(entity_for_relation, Contact)
 
-        Relation.create(self._entity_for_relation, self._relation_type.id, self.instance)
-
-        if self.cleaned_data.get('is_comapp', False):
-            self._create_commercial_approach(self._entity_for_relation)
-
-        return instance
-
-
-class ActivityCreateWithoutRelationForm(_ActivityCreateBaseForm):
-    def __init__(self, *args, **kwargs):
-        super(ActivityCreateWithoutRelationForm, self).__init__(*args, **kwargs)
-        self.fields['is_comapp'].help_text = ugettext(u"Add participants to them be linked to a commercial approach.")
-
-    def save(self):
-        instance = super(ActivityCreateWithoutRelationForm, self).save()
-
-        if self.cleaned_data.get('is_comapp', False):
-            self._create_commercial_approach()
-        return instance
+            if entity_for_relation.is_user:
+                self.fields['participating_users'].initial = [entity_for_relation.is_user]
+            else:
+                self.fields['other_participants'].initial = entity_for_relation.id
+        elif rtype_id == REL_SUB_ACTIVITY_SUBJECT:
+            self.fields['subjects'].initial = [entity_for_relation.id]
+        else:
+            assert rtype_id == REL_SUB_LINKED_2_ACTIVITY
+            self.fields['linked_entities'].initial = [entity_for_relation.id]
 
 
 #TODO: factorise ?? (ex: CreateForm inherits from EditForm....)

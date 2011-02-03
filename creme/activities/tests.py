@@ -43,8 +43,19 @@ class ActivitiesTestCase(TestCase):
         acttypes = ActivityType.objects.filter(pk__in=acttypes_pks)
         self.assertEqual(len(acttypes_pks), len(acttypes))
 
+    def assertNoFormError(self, response): #TODO: move in a CremeTestCase ??? (copied from creme_config)
+        try:
+            errors = response.context['form'].errors
+        except Exception, e:
+            pass
+        else:
+            self.fail(errors)
+
     def test_activity_createview01(self):
         self.login()
+
+        user = self.user
+        me = Contact.objects.create(user=user, is_user=user, first_name='Ryoga', last_name='Hibiki')
 
         response = self.client.get('/activities/activity/add-without-relation/task')
         self.assertEqual(response.status_code, 200)
@@ -52,20 +63,20 @@ class ActivitiesTestCase(TestCase):
         title  = 'my_task'
         status = Status.objects.all()[0]
         my_calendar = Calendar.get_user_default_calendar(self.user)
-        
+
         response = self.client.post('/activities/activity/add-without-relation/task',
                                     follow=True,
                                     data={
-                                            'user':   self.user.pk,
-                                            'title':  title,
-                                            'status': status.pk,
-                                            'start':  '2010-1-10',
-                                            'user_participation': True,
+                                            'user':             user.pk,
+                                            'title':            title,
+                                            'status':           status.pk,
+                                            'start':            '2010-1-10',
                                             'my_participation': True,
-                                            'my_calendar': my_calendar.pk,
+                                            'my_calendar':      my_calendar.pk,
                                          }
                                    )
-        self.assertEqual(response.status_code, 200)
+        self.assertNoFormError(response)
+        self.assertEqual(200, response.status_code)
 
         try:
             act  = Activity.objects.get(type=ACTIVITYTYPE_TASK, title=title)
@@ -81,13 +92,26 @@ class ActivitiesTestCase(TestCase):
         self.assertEqual(1,   start.month)
         self.assertEqual(10,    start.day)
 
+        self.assertEqual(2, Relation.objects.count())
+
+        relations = Relation.objects.filter(type=REL_SUB_PART_2_ACTIVITY)
+        self.assertEqual(1, len(relations))
+
+        relation = relations[0]
+        self.assertEqual(me.id,   relation.subject_entity_id)
+        self.assertEqual(task.id, relation.object_entity_id)
+
     def test_activity_createview02(self):
         self.login()
 
-        c = Contact.objects.create(user=self.user, first_name='first_name', last_name='last_name')
+        user = self.user
+        other_user = User.objects.create_user('akane', 'akane@tendo.jp')
 
-        args = '&'.join(['ct_entity_for_relation=%s' % c.entity_type_id,
-                         'id_entity_for_relation=%s' % c.id,
+        contact01 = Contact.objects.create(user=user, first_name='Ryoga', last_name='Hibiki')
+        contact02 = Contact.objects.create(user=user, first_name='Akane', last_name='Tendo', is_user=other_user)
+
+        args = '&'.join(['ct_entity_for_relation=%s' % contact01.entity_type_id,
+                         'id_entity_for_relation=%s' % contact01.id,
                          'entity_relation_type=%s' % REL_SUB_PART_2_ACTIVITY
                         ])
         uri = '/activities/activity/add-with-relation/meeting?' + args
@@ -98,15 +122,16 @@ class ActivitiesTestCase(TestCase):
         title  = 'my_meeting'
         response = self.client.post(uri, follow=True,
                                     data={
-                                            'user':       self.user.pk,
-                                            'title':      title,
-                                            'start':      '2010-1-10',
-                                            'start_time': '17:30:00',
-                                            'end_time':   '18:30:00',
-                                            'user_participation': True,
+                                            'user':                user.pk,
+                                            'title':               title,
+                                            'start':               '2010-1-10',
+                                            'start_time':          '17:30:00',
+                                            'end_time':            '18:30:00',
+                                            'participating_users': other_user.pk,
                                          }
                                     )
-        self.assertEqual(response.status_code, 200)
+        self.assertNoFormError(response)
+        self.assertEqual(200, response.status_code)
         self.assert_(response.redirect_chain)
 
         try:
@@ -120,6 +145,15 @@ class ActivitiesTestCase(TestCase):
         self.assertEqual(10,    start.day)
         self.assertEqual(17,    start.hour)
         self.assertEqual(30,    start.minute)
+
+        self.assertEqual(2, Relation.objects.count())
+
+        relations = Relation.objects.filter(type=REL_SUB_PART_2_ACTIVITY)
+        self.assertEqual(1, len(relations))
+
+        relation = relations[0]
+        self.assertEqual(contact02.id, relation.subject_entity_id)
+        self.assertEqual(meeting.id,   relation.object_entity_id)
 
     def test_activity_createview03(self):
         self.login()

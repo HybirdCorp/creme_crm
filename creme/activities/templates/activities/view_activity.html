@@ -31,7 +31,7 @@
 {% block detail_view_left_1 %}
     {% include "creme_core/object_as_table.html" %}{# TODO: Really need to have the possibility of extending this #}
 
-<!--{% cycle "block_header_line_dark" "block_header_line_light" as header_color %}
+{% comment %}<!--{% cycle "block_header_line_dark" "block_header_line_light" as header_color %}
     {% cycle "block_line_dark" "block_line_light" as row_color %}-->
     <table class="table_detail_view ui-corner-all">
         {% get_block_header colspan=2 %}
@@ -54,7 +54,7 @@
                 </td>
             </tr>
         </tbody>
-    </table>
+    </table>{% endcomment %}
 
     {% display_block_detailview 'participants_block' %}
     {% display_block_detailview 'subjects_block' %}

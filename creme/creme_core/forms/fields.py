@@ -71,15 +71,18 @@ class GenericEntitiesField(CharField):
         return JSONEncoder().encode(entities)
 
     def clean(self, value):
-        if not value and self.required:
-            raise ValidationError(self.error_messages['required'])
+        if not value:
+            if self.required:
+                raise ValidationError(self.error_messages['required'])
+
+            return []
 
         try:
             data = jsonloads(value)
         except:
             raise ValidationError(self.error_messages['invalidformat'])
 
-        return CremeEntity.objects.filter(pk__in=[entry['entity'] for entry in data if entry['entity'] != 'null'])
+        return list(CremeEntity.objects.filter(pk__in=[entry['entity'] for entry in data if entry['entity'] != 'null']))
 
 
 class RelatedEntitiesField(CharField):
