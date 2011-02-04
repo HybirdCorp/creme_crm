@@ -167,9 +167,6 @@ END:VEVENT
     def get_edit_absolute_url(self):
         return "/activities/activity/edit/%s" % self.id
 
-    def get_delete_absolute_url(self):
-        return "/activities/activity/delete/%s" % self.id
-
     @staticmethod
     def get_lv_absolute_url():
         """url for list_view """

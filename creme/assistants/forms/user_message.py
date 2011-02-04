@@ -18,8 +18,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from datetime import datetime
-
 from django.forms import ModelMultipleChoiceField
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.auth.models import User
@@ -31,9 +29,10 @@ from assistants.models import UserMessage
 
 
 class UserMessageForm(CremeModelForm):
-    users = ModelMultipleChoiceField(queryset=User.objects.all(),
+    users = ModelMultipleChoiceField(queryset=User.objects.all(), label=_(u"Recipients"),
                                      widget=UnorderedMultipleChoiceWidget,
-                                     label=_(u"Recipients"))
+                                     help_text=_(u'Each time a team is selected, a message is sent to each teammate (do not worry, there can not be any duplicate).')
+                                     )
 
     class Meta:
         model = UserMessage
@@ -49,16 +48,5 @@ class UserMessageForm(CremeModelForm):
     def save(self):
         #NB: we do not call super() because we create several instances
         cdata  = self.cleaned_data
-        sender = self.sender
-        entity = self.entity
-
-        title = cdata['title']
-        body = cdata['body']
-        priority = cdata['priority']
-        now = datetime.now()
-
-        for user in cdata['users']:
-            msg = UserMessage(title=title, body=body, creation_date=now, priority=priority,
-                              sender=sender, recipient=user, email_sent=False)
-            msg.creme_entity = entity
-            msg.save()
+        UserMessage.create_messages(cdata['users'], cdata['title'], cdata['body'],
+                                    cdata['priority'].id, self.sender, self.entity)

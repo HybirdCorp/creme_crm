@@ -54,6 +54,3 @@ class RecurrentGenerator(CremeEntity):
     @staticmethod
     def get_lv_absolute_url():
         return "/recurrents/generators"
-
-    def get_delete_absolute_url(self):
-        return "/recurrents/generator/delete/%s" % self.id

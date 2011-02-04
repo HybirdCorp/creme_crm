@@ -22,6 +22,7 @@ from collections import defaultdict
 from re import compile as re_compile
 from logging import debug
 
+from django.core.exceptions import PermissionDenied
 from django.forms import Field, CharField, MultipleChoiceField, ChoiceField, ModelChoiceField, DateField, TimeField, DateTimeField
 from django.forms.util import ValidationError
 from django.forms.fields import EMPTY_VALUES
@@ -38,25 +39,138 @@ from creme_core.forms.widgets import CTEntitySelector, SelectorList, ListViewWid
 from creme_core.constants import REL_SUB_RELATED_TO, REL_SUB_HAS
 
 
-__all__ = ('GenericEntitiesField', 'RelatedEntitiesField', 'CremeEntityField', 'MultiCremeEntityField',
+__all__ = ('MultiGenericEntityField', 'GenericEntityField',
+           'RelatedEntitiesField', 'CremeEntityField', 'MultiCremeEntityField',
            'ListEditionField',
            'AjaxChoiceField', 'AjaxMultipleChoiceField', 'AjaxModelChoiceField',
            'CremeTimeField', 'CremeDateField', 'CremeDateTimeField')
 
-def get_entity_ctypes_options(): #TODO: staticmethod ??
-    return ((ctype.pk, ctype.__unicode__()) for ctype in creme_entity_content_types())
-
-
-class GenericEntitiesField(CharField):
+class JSONField(CharField):
     default_error_messages = {
         'invalidformat': _(u'Invalid format'),
     }
 
-    def __init__(self, ctypes=None, *args, **kwargs):
-        super(GenericEntitiesField, self).__init__(*args, **kwargs)
-        self.ctypes = ctypes
-        self.widget = SelectorList(CTEntitySelector(get_entity_ctypes_options() if not ctypes else ctypes))
-         # TODO : wait for django 1.2 and new widget api to remove this hack
+    def __init(self, *args, **kwargs):
+        super(JSONField, self).__init__(*args, **kwargs)
+
+    def clean_value(self, data, name, type, default=None):
+        if not data and self.required:
+            raise ValidationError(self.error_messages['required'])
+
+        if not isinstance(data, dict):
+            raise ValidationError(self.error_messages['invalidformat'])
+
+        value = data.get(name)
+
+        if not value and self.required:
+            raise ValidationError(self.error_messages['required'])
+
+        if isinstance(value, type):
+            return value
+
+        try:
+            return type(value)
+        except:
+            raise ValidationError(self.error_messages['invalidformat'])
+
+    def clean_json(self, value):
+        if not value:
+            if self.required:
+                raise ValidationError(self.error_messages['required'])
+
+            return None
+
+        try:
+            data = jsonloads(value)
+        except:
+            raise ValidationError(self.error_messages['invalidformat'])
+
+        return data
+
+    def format_json(self, value):
+        return JSONEncoder().encode(value)
+
+    def from_python(self, value):
+        return self.format_json(value)
+
+    def clean(self, value):
+        return self.clean_json(value)
+
+class GenericEntityField(JSONField):
+    default_error_messages = {
+        'doesnotexist' : _(u"This entity doesn't exist."),
+    }
+
+    def __init__(self, models=None, *args, **kwargs):
+        super(GenericEntityField, self).__init__(models, *args, **kwargs)
+        self.ctypes = list(self._get_ctypes(models))
+        self.widget = CTEntitySelector(self._get_ctypes_options(self.ctypes))
+        # TODO : wait for django 1.2 and new widget api to remove this hack
+        self.widget.from_python = lambda v: self.from_python(v)
+
+    # TODO : wait for django 1.2 and new widget api to remove this hack
+    def from_python(self, value):
+        if not value:
+            return ''
+
+        if isinstance(value, basestring):
+            return value
+
+        ctype, pk = CremeEntity.objects.filter(pk=value).values_list('entity_type', 'pk')[0]
+        entity = {'ctype': ctype, 'entity': pk}
+
+        return self.format_json(entity)
+
+    def clean(self, value):
+        data = self.clean_json(value)
+
+        if not data:
+            if self.required:
+                raise ValidationError(self.error_messages['required'])
+
+            return None
+
+        ctype_pk, entity_pk = self.clean_value(data, 'ctype', int), self.clean_value(data, 'entity', int)
+
+        return self.clean_entity(ctype_pk, entity_pk)
+
+    def clean_entity(self, ctype_pk, entity_pk):
+        ctype = self.clean_ctype(ctype_pk)
+        model = ctype.model_class()
+
+        try:
+            #return CremeEntity.objects.get(pk=data['entity']).get_real_entity()
+            entity = model.objects.get(pk=entity_pk)
+
+            #entity.can_view_or_die(user) TODO: user not reachable from field --> forbidden id can be forged...
+        except model.DoesNotExist, PermissionDenied:
+            if self.required:
+                raise ValidationError(self.error_messages['doesnotexist'])
+
+        #print 'GenericEntityField.clean_entity(ctype=%s, entity=%s) > %s' % (ctype_pk, entity_pk, entity)
+        return entity
+
+    def clean_ctype(self, ctype_pk):
+        # check ctype in allowed ones
+        ctype = [ct for ct in self.ctypes if ct.pk == ctype_pk]
+
+        if not ctype:
+            raise ValidationError(self.error_messages['doesnotexist'])
+
+        return ctype[0] if ctype else None
+
+    def _get_ctypes_options(self, ctypes):
+        return ((ctype.pk, unicode(ctype)) for ctype in ctypes)
+
+    def _get_ctypes(self, models=None):
+        get_ct = ContentType.objects.get_for_model
+        return (get_ct(model) for model in models) if models else creme_entity_content_types()
+
+class MultiGenericEntityField(GenericEntityField):
+    def __init__(self, models=None, *args, **kwargs):
+        super(MultiGenericEntityField, self).__init__(models, *args, **kwargs)
+        self.widget = SelectorList(self.widget)
+        # TODO : wait for django 1.2 and new widget api to remove this hack
         self.widget.from_python = lambda v: self.from_python(v)
 
     # TODO : wait for django 1.2 and new widget api to remove this hack
@@ -68,22 +182,47 @@ class GenericEntitiesField(CharField):
             return value
 
         entities = [{'ctype':ctype, 'entity':pk} for ctype, pk in CremeEntity.objects.filter(pk__in=value).values_list('entity_type', 'pk')]
-        return JSONEncoder().encode(entities)
+        return self.format_json(entities)
 
     def clean(self, value):
-        if not value:
+        data = self.clean_json(value)
+
+        if not data:
             if self.required:
                 raise ValidationError(self.error_messages['required'])
 
             return []
 
-        try:
-            data = jsonloads(value)
-        except:
+        if not isinstance(data, list):
             raise ValidationError(self.error_messages['invalidformat'])
 
-        return list(CremeEntity.objects.filter(pk__in=[entry['entity'] for entry in data if entry['entity'] != 'null']))
+        entities_map = defaultdict(list)
+        clean_value = self.clean_value
 
+        # TODO : the entities order can be lost, see for refactor.
+        # build a dictionnary of entity pks by content type (ignore invalid entries)
+        for entry in data:
+            try:
+                entities_map[clean_value(entry, 'ctype', int)].append(clean_value(entry, 'entity', int))
+            except Exception, e:
+                debug("invalid entity entry %s : %s", entry, e)
+
+        entities = []
+
+        # build the list of entities (ignore invalid entries)
+        for ct_id, e_ids in entities_map.iteritems():
+            try:
+                ct = self.clean_ctype(ct_id)
+                entities.extend(ct.model_class().objects.filter(pk__in=e_ids))
+            except Exception, e:
+                debug("invalid entity entry (ctype=%s, ids=%s) : %s", ct_id, e_ids, e)
+
+        if not entities and self.required:
+            raise ValidationError(self.error_messages['required'])
+
+        return entities
+
+        #return CremeEntity.objects.filter(pk__in=[entry['entity'] for entry in data if entry['entity'] != 'null'])
 
 class RelatedEntitiesField(CharField):
     default_error_messages = {

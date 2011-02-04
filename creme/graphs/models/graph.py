@@ -52,9 +52,6 @@ class Graph(CremeEntity):
     def get_lv_absolute_url():
         return "/graphs/graphs"
 
-    def get_delete_absolute_url(self):
-        return "/graphs/graph/delete/%s" % self.id
-
     def generate_png(self):
         from os.path import join, exists
         from os import makedirs

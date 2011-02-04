@@ -1,19 +1,6 @@
-{% load i18n %}
-{% load media %}
+{% load i18n %}{% load media %}
 {% load creme_core_tags %}{% load creme_block %}
 {% load graph_tags %}
-
-{% comment %}{% if not is_ajax %}
-<script type="text/javascript" src="{{MEDIA_URL}}js/libs/graphael/prod/raphael-1.5.2.min.js"></script>
-<script type="text/javascript" src="{{MEDIA_URL}}js/libs/graphael/prod/g.raphael-min.js"></script>
-<script type="text/javascript" src="{{MEDIA_URL}}js/libs/graphael/prod/g.line-min.js"></script>
-<script type="text/javascript" src="{{MEDIA_URL}}js/libs/graphael/prod/g.pie-min.js"></script>
-<script type="text/javascript" src="{{MEDIA_URL}}js/libs/graphael/prod/g.dot-min.js"></script>
-<script type="text/javascript" src="{{MEDIA_URL}}js/libs/graphael/prod/g.bar-min.js"></script>
-<script type="text/javascript" src="{{MEDIA_URL}}js/creme/creme.graphael.js"></script>
-<script type='text/javascript' src='{{MEDIA_URL}}js/datejs/date-fr-FR.js'></script> TODO: i18n  datejs has 150 availables languages
-{% endif %}{% endcomment %}
-
 <table class="table_detail_view ui-corner-all" id={{block_name}}>
     <thead>
         <tr>

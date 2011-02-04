@@ -50,6 +50,8 @@ def set_current_quote(request, opp_id, quote_id):
     for relation in Relation.objects.filter(object_entity=opp, type=REL_SUB_CURRENT_DOC, subject_entity__entity_type=ct):
         relation.delete()
 
-    Relation.create(quote, REL_SUB_CURRENT_DOC, opp)
+    Relation.objects.create(subject_entity=quote, type_id=REL_SUB_CURRENT_DOC,
+                            object_entity=opp, user=request.user
+                           )
 
     return HttpResponseRedirect(opp.get_absolute_url())

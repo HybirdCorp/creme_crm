@@ -52,9 +52,6 @@ class Invoice(Base):
         """url for list_view """
         return "/billing/invoices"
 
-    def get_delete_absolute_url(self):
-        return "/billing/invoice/delete/%s" % self.id
-
     #TODO: use sum()....
     def get_products_price_inclusive_of_tax(self): #TODO: useless ??
         total = 0

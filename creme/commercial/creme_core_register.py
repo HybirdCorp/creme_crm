@@ -23,21 +23,30 @@ from django.utils.translation import ugettext_lazy as _
 from creme_core.registry import creme_registry
 from creme_core.gui.menu import creme_menu
 from creme_core.gui.block import block_registry
+from creme_core.gui.button_menu import button_registry
 
-from commercial.models.act import Act
-from commercial.blocks import approaches_block
+from commercial.models import Act, Strategy
+from commercial.blocks import blocks_list
+from commercial.buttons import complete_goal_button
 
 
 creme_registry.register_app('commercial', _(u'Commercial strategy'), '/commercial')
-creme_registry.register_entity_models(Act)
+creme_registry.register_entity_models(Act, Strategy)
 
 reg_item = creme_menu.register_app('commercial', '/commercial/').register_item
-reg_item('/commercial/',             _(u'Portal'),                  'commercial')
-reg_item('/commercial/acts',         _(u'All commercial actions'),  'commercial')
-reg_item('/commercial/act/add',      _(u'Add a commercial action'), 'commercial.add_act')
+reg_item('/commercial/',                      _(u'Portal'),                   'commercial')
+reg_item('/commercial/market_segments',       _(u'All market segments'),      'commercial')
+reg_item('/commercial/acts',                  _(u'All commercial actions'),   'commercial')
+reg_item('/commercial/act/add',               _(u'Add a commercial action'),  'commercial.add_act')
+reg_item('/commercial/strategies',            _(u'All strategies'),           'commercial')
+reg_item('/commercial/strategy/add',          _(u'Add a strategy'),           'commercial.add_strategy')
+reg_item('/commercial/objective_patterns',    _(u'All objective patterns'),   'commercial')
+reg_item('/commercial/objective_pattern/add', _(u'Add an objective pattern'), 'commercial.add_actobjectivepattern')
 
 reg_item = creme_menu.get_app_item('persons').register_item
 reg_item('/commercial/salesmen',     _(u'All salesmen'),   'persons')
 reg_item('/commercial/salesman/add', _(u'Add a salesman'), 'persons.add_contact')
 
-block_registry.register(approaches_block)
+block_registry.register(*blocks_list)
+
+button_registry.register(complete_goal_button)

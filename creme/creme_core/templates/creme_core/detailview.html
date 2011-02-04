@@ -54,13 +54,10 @@
                     <span>
                         {% block edit_delete_buttons %}
                             {% if path %}
-                                {% comment %}REMOVE ?? (see view_entity.html) {% endcomment %}
-                                <a href="{{path}}/edit/{{object.id}}">
+                                {% comment %} COMMENTED on 19 january 2011 {% endcomment %}
+                                {% comment %}<a href="{{path}}/edit/{{object.id}}">
                                     <img src="{% media_url 'images/edit_64.png' %}" title="{% blocktrans %}Edit '{{object}}'{% endblocktrans %}" alt="{% trans "Edit" %}"/>
-                                </a>&nbsp;
-                                <a href="{{path}}/delete/{{object.id}}" onclick="creme.utils.confirmDelete(event, this);">
-                                    <img src="{% media_url 'images/delete_64.png' %}" title="{% blocktrans %}Delete '{{object}}'{% endblocktrans %}" alt="{% trans "Delete" %}" />
-                                </a>
+                                </a>{% endcomment %}
                             {% endif %}
                         {% endblock %}
                     </span>
@@ -80,7 +77,7 @@
 
     {% block end_button_tab %}
         <div class=zone_spacer_5px></div>
-    {% endblock %} 
+    {% endblock %}
 
     {% block creme_blocks_import %}
          {% import_detailview_blocks %}

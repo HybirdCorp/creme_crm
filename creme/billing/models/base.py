@@ -184,9 +184,9 @@ class Base(CremeEntity):
         source = get_relation(subject_entity=template, type=REL_SUB_BILL_ISSUED).object_entity
         target = get_relation(subject_entity=template, type=REL_SUB_BILL_RECEIVED).object_entity
 
-        create_relation = Relation.create
-        create_relation(self, REL_SUB_BILL_ISSUED,   source)
-        create_relation(self, REL_SUB_BILL_RECEIVED, target)
+        create_relation = Relation.objects.create
+        create_relation(subject_entity=self, type_id=REL_SUB_BILL_ISSUED,   object_entity=source, user=self.user)
+        create_relation(subject_entity=self, type_id=REL_SUB_BILL_RECEIVED, object_entity=target, user=self.user)
 
     def _build_properties(self, template):
         debug("=> Clone properties")
