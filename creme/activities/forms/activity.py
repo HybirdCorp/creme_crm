@@ -97,7 +97,6 @@ def _check_activity_collisions(activity_start, activity_end, participants, exclu
         raise ValidationError(collisions)
 
 #TODO: factorise with ActivityCreateForm ??
-#TODO: for the moment the calendars info on detailview is not reload because it is not a true Block.
 class ParticipantCreateForm(CremeForm):
     participants = MultiCremeEntityField(label=_(u'Participants'), model=Contact)
 
