@@ -52,7 +52,7 @@ def add_relation_block(request):
 @permission_required('creme_config.can_admin')
 def portal(request):
     """
-        @Permissions : Access OR Admin to creme_config app
+        @Permissions : Admin to creme_config app
     """
     return render_to_response('creme_config/blocks_portal.html',
                               {},
@@ -107,7 +107,7 @@ def delete(request):
 @login_required
 @permission_required('creme_config.can_admin')
 def delete_relation_block(request):
-    rbi = RelationBlockItem.objects.get(pk=get_from_POST_or_404(request.POST, 'id'))
+    rbi = RelationBlockItem.objects.get(pk=get_from_POST_or_404(request.POST, 'id')) #TODO: get_object_or_404 ??
 
     rbi.delete()
 
@@ -116,7 +116,7 @@ def delete_relation_block(request):
 @login_required
 @permission_required('creme_config.can_admin')
 def delete_instance_block(request):
-    ibi = InstanceBlockConfigItem.objects.get(pk=get_from_POST_or_404(request.POST, 'id'))
+    ibi = InstanceBlockConfigItem.objects.get(pk=get_from_POST_or_404(request.POST, 'id')) #TODO: get_object_or_404 ??
 
     ibi.delete()
 
