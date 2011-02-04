@@ -23,7 +23,7 @@ from django.forms import TimeField
 from django.forms.widgets import HiddenInput
 
 from activities.models import Task
-from activity import ActivityCreateForm, RelatedActivityCreateForm
+from activity import RelatedActivityCreateForm, ActivityCreateForm
 
 
 class RelatedTaskCreateForm(RelatedActivityCreateForm):
@@ -38,11 +38,11 @@ class RelatedTaskCreateForm(RelatedActivityCreateForm):
         self.fields['my_participation'].label = _(u'Do I participate to this task')
 
 
-class TaskCreateWithoutRelationForm(ActivityCreateForm):
+class TaskCreateForm(ActivityCreateForm):
     class Meta(ActivityCreateForm.Meta):
         model = Task
         exclude = ActivityCreateForm.Meta.exclude + ('type',)
 
     def __init__(self, *args, **kwargs):
-        super(TaskCreateWithoutRelationForm, self).__init__(*args, **kwargs)
+        super(TaskCreateForm, self).__init__(*args, **kwargs)
         self.fields['my_participation'].label = _(u'Do I participate to this task')

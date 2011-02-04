@@ -18,6 +18,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from collections import defaultdict
+
 from django.db.models.query_utils import Q
 from django.http import Http404, HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, get_list_or_404
@@ -68,10 +70,10 @@ def __json_select(query, fields, range, sort_field=None, use_columns=False):
 #def __json_parse_filter(filter, allowed_filters, allowed_ops):
 #    field = str(filter[0])
 #    size = len(filter)
-#    
+#
 #    if field not in allowed_filters:
 #        raise JSONSelectError("forbidden filter '%s'" % field, 403)
-#    
+#
 #    if size == 2:
 #        return (field, filter[1])
 #
@@ -92,21 +94,21 @@ def __json_select(query, fields, range, sort_field=None, use_columns=False):
 def __json_parse_field(field, allowed_fields, use_columns=False):
     if field not in allowed_fields.keys():
         raise JSONSelectError("forbidden field '%s'" % field, 403)
-    
+
     if use_columns:
         return field
-    
+
     getter = allowed_fields.get(field)
-        
+
     if not getter:
         raise JSONSelectError("forbidden fields '%s'" % field, 403)
-    
+
     return getter
-    
+
 def __json_parse_fields(fields, allowed_fields, use_columns=False):
     if not fields:
         raise JSONSelectError("no such field", 400)
-    
+
     return list(__json_parse_field(field, allowed_fields, use_columns) for field in fields)
 
 # TODO (refs 293) : unused tool. remove it !
@@ -116,7 +118,7 @@ def __json_parse_fields(fields, allowed_fields, use_columns=False):
 #
 #    use_columns = bool(request.get('value_list', 0))
 #    range = [int(i) if i is not None else None for i in (request.get('start'), request.get('end'))]
-#    
+#
 #    filters = __json_parse_filters(request.getlist('filters'), allowed_filters, allowed_ops)
 #    fields = __json_parse_fields(request.getlist('fields'), allowed_fields, use_columns)
 #    sort = request.get('sort')
@@ -144,7 +146,7 @@ JSON_ENTITY_FIELDS = {
                         'entity_type': lambda e: e.entity_type_id
                      }
 
-# TODO (refs 293) : unused tool. remove it !
+#TODO: unused tool. remove it !
 #@login_required
 #def json_entity_select(request):
 #    try:
@@ -184,7 +186,7 @@ def json_entity_predicates(request, id):
 
 JSON_CONTENT_TYPE_FIELDS = {
                             'unicode':  unicode,
-                            'name':     lambda e: e.name, 
+                            'name':     lambda e: e.name,
                             'id':       lambda e: e.id
                            }
 
@@ -195,7 +197,7 @@ def json_predicate_content_types(request, id):
         content_types = get_object_or_404(RelationType, pk=id).object_ctypes.all()
 
         fields, range, sort, use_columns = __json_parse_select_request(request.GET, JSON_CONTENT_TYPE_FIELDS)
-        
+
         #if not content_type_ids:
         if not content_types:
             content_type_from_model = ContentType.objects.get_for_model
@@ -212,12 +214,13 @@ def json_predicate_content_types(request, id):
         return HttpResponse(err, mimetype="text/javascript", status=500)
 
 def __get_entity_predicates(request, id):
-    entity = get_object_or_404(CremeEntity, pk=id).get_real_entity()
+    entity = get_object_or_404(CremeEntity, pk=id).get_real_entity() #TODO: useful 'get_real_entity() ??'
 
     entity.can_view_or_die(request.user)
 
     predicates = RelationType.objects.filter(can_be_create_with_popup=True).order_by('predicate')
 
+    #TODO: use CremePropertyType constraints too
     return predicates.filter(Q(subject_ctypes=entity.entity_type)|Q(subject_ctypes__isnull=True)).distinct()
 
 def add_relations(request, subject_id, relation_type_id=None):
@@ -248,17 +251,16 @@ def add_relations(request, subject_id, relation_type_id=None):
 #TODO: use EntityCredentials.filter to filter allowed entities for this user
 @login_required
 def add_relations_bulk(request, model_ct_id, ids):
-    POST = request.POST
-
+    user = request.user
     model    = get_object_or_404(ContentType, pk=model_ct_id).model_class()
     entities = get_list_or_404(model, pk__in=[id for id in ids.split(',') if id])
 
-    #TODO: improve by regrouping queries
+    CremeEntity.populate_credentials(entities, user)
     for entity in entities:
-        entity.can_change_or_die(request.user)
+        entity.can_change_or_die(user) #TODO: edit credentials ???
 
-    if POST:
-        form = MultiEntitiesRelationCreateForm(entities, request.user.id, None, POST)
+    if request.method == 'POST':
+        form = MultiEntitiesRelationCreateForm(entities, request.user.id, None, request.POST)
 
         if form.is_valid():
             form.save()
@@ -275,25 +277,20 @@ def add_relations_bulk(request, model_ct_id, ids):
                        delegate_reload=True,
                        context_instance=RequestContext(request))
 
+#TODO: deeply think about the relation credentials...
 @login_required
 def delete(request):
-    """
-        @Permissions : Delete on relation's subject entity
-    """
-    POST = request.POST
+    relation = get_object_or_404(Relation, pk=get_from_POST_or_404(request.POST, 'id'))
+    subject  = relation.subject_entity
 
-    relation_id = get_from_POST_or_404(POST, 'id')
-    entity_id   = get_from_POST_or_404(POST, 'object_id')
-
-    relation = get_object_or_404(Relation, pk=relation_id)
-    entity   = get_object_or_404(CremeEntity, pk=entity_id).get_real_entity()
-
-    entity.can_delete_or_die(request.user) #TODO: delete credentials on 'entity' ?? only one ???
-
+    subject.can_delete_or_die(request.user) #TODO: delete credentials on 'subject_entity' ?? only one ???
     relation.get_real_entity().delete()
 
-#    return HttpResponseRedirect(entity.get_absolute_url())
-    return HttpResponse("")
+    if request.is_ajax():
+        return HttpResponse("", mimetype="text/javascript")
+
+    return HttpResponseRedirect(subject.get_absolute_url())
+
 
 @login_required
 def delete_similar(request):
@@ -312,72 +309,116 @@ def delete_similar(request):
     for relation in Relation.objects.filter(subject_entity=subject, type=rtype_id, object_entity=object_id):
         relation.get_real_entity().delete()
 
-    return HttpResponse("")
+    if request.is_ajax():
+        return HttpResponse("", mimetype="text/javascript")
+
+    return HttpResponseRedirect(subject.get_absolute_url())
 
 @login_required
-def add_relation_from_predicate_n_entity(request, predicate_id, subject_id, object_ct_id, o2m=False):
+def objects_to_link_selection(request, rtype_id, subject_id, object_ct_id, o2m=False):
     template_dict = {
-        'predicate_id': predicate_id,
-        'subject_id':   subject_id,
+        'predicate_id': rtype_id,   #TODO: useful ??
+        'subject_id':   subject_id, #TODO: useful ??
         'o2m':          o2m
     }
 
-    #TODo: only one query ??
-    pklist = Relation.objects.filter(type__id=predicate_id, subject_entity__id=subject_id).values_list('object_entity_id') #TODO: can remove the '__id'
-    extra_q = ~Q(pk__in=pklist)
+    #TODO: add subject = get_object_or_404(CremeEntity, pk=subject_id); subject.can_view_or_die(request.user)
+
+    rtype   = get_object_or_404(RelationType, pk=rtype_id)
+    extra_q = ~Q(relations__type=rtype.symmetric_type_id, relations__object_entity=subject_id) #TODO: filter with relation creds too
+
+    prop_types = list(rtype.object_properties.all())
+    if prop_types:
+        extra_q &= Q(properties__type__in=prop_types)
 
     return list_view_popup_from_widget(request, object_ct_id, o2m, extra_dict=template_dict, extra_q=extra_q)
 
+
+#TODO: rework credentials (for now: Read on subject & object entities)
+#TODO: factorise code (with RelatedEntitiesField for example) ?  With a smart static method method in RelationType ?
 @login_required
-def handle_relation_from_predicate_n_entity(request):
+def add_relations_with_same_type(request):
+    """Allow to create from a POST request several relations with the same
+    relation type, between a subject and several other entities.
     """
-        @Permissions : Read on subject entity & Read on object entities
-    """
-    post = request.POST
-    entities     = post.getlist('entities')
-    subject_id   = post.get('subject_id')
-    predicate_id = post.get('predicate_id')
+    user = request.user
+    POST = request.POST
+    subject_id = get_from_POST_or_404(POST, 'subject_id', int)
+    rtype_id   = get_from_POST_or_404(POST, 'predicate_id') #TODO: rename POST arg
+    entity_ids = POST.getlist('entities')
 
-    subject = get_object_or_404(CremeEntity, pk=subject_id).get_real_entity()
+    if not entity_ids:
+        raise Http404('Void "entities" parameter.')
 
-    return_msg = []
-    status = 200
+    rtype = get_object_or_404(RelationType, pk=rtype_id)
 
-    subject.can_view_or_die(request.user)
+    entity_ids.append(subject_id) #NB: so we can do only one query
+    entities = list(CremeEntity.objects.filter(pk__in=entity_ids))
 
-    is_there_already_err = False
+    CremeEntity.populate_credentials(entities, user)
 
-    if entities and predicate_id:
-        centity_get = CremeEntity.objects.get
-        for entity_id in entities:
-            try: #TODO: group SQL queries ??? (group by class)
-                entity = centity_get(pk=entity_id).get_real_entity()
-                #if not user_has_read_permission_for_an_object(request, entity):
-                if not request.user.has_perm('creme_core.view_entity', entity):
-                    return_msg.append(_(u"access permission denied : %s denied") % entity)
-                    status = 403
-                    continue
-            except CremeEntity.DoesNotExist:
-                if not is_there_already_err:
-                    return_msg.append(_(u"Some entities doesn't exist / doesn't exist any more"))
-                    is_there_already_err = True
-                    status = 404
-                continue
+    subject_properties = frozenset(rtype.subject_properties.values_list('id', flat=True))
+    object_properties  = frozenset(rtype.object_properties.values_list('id', flat=True))
 
-            Relation.create(subject, predicate_id, entity)
+    if subject_properties or object_properties:
+        CremeEntity.populate_properties(entities) #Optimise the get_properties() (but it retrieves CremePropertyType objects too)
 
-    if status == 200:
-        return_msg.append(_(u"Operation successfully completed"))
+    for i, entity in enumerate(entities):
+        if entity.id == subject_id:
+            subject = entity
+            entities.pop(i)
+            break
+    else:
+        raise Http404('Can not find entity with id=%s' % subject_id)
 
-    return HttpResponse(",".join(return_msg), status=status)
+    subject.can_view_or_die(user) #TODO: credentials rework needed
+
+    errors = defaultdict(list)
+    len_diff = len(entity_ids) - len(entities)
+
+    if len_diff != 1: #'subject' has been poped from entities, but not subject_id from entity_ids, so 1 and not 0
+        errors[404].append(_(u"%s entities doesn't exist / doesn't exist any more") % len_diff)
+
+    #TODO: move in a RelationType method ??
+    subject_ctypes = frozenset(int(ct_id) for ct_id in rtype.subject_ctypes.values_list('id', flat=True))
+    if subject_ctypes and subject.entity_type_id not in subject_ctypes:
+        raise Http404('Incompatible type for subject') #404 ??
+
+    if subject_properties and not any(p.type_id in subject_properties for p in subject.get_properties()):
+        raise Http404('Missing compatible property for subject') #404 ??
+
+    #TODO: move in a RelationType method ??
+    object_ctypes = frozenset(int(ct_id) for ct_id in rtype.object_ctypes.values_list('id', flat=True))
+    check_ctype = (lambda e: e.entity_type_id in object_ctypes) if object_ctypes else \
+                  lambda e: True
+
+    check_properties = (lambda e: any(p.type_id in object_properties for p in e.get_properties())) if object_properties else \
+                       lambda e: True
+
+    create_relation = Relation.objects.create
+    for entity in entities:
+        if not check_ctype(entity):
+            errors[404].append(_(u"Incompatible type for object entity with id=%s") % entity.id) #404 ??
+        elif not check_properties(entity):
+            errors[404].append(_(u"Missing compatible property for object entity with id=%s") % entity.id) #404 ??
+        elif not entity.can_view(user):  #TODO: credentials rework needed
+            errors[403].append(_("Permission denied to entity with id=%s") % entity.id)
+        else:
+            create_relation(subject_entity=subject, type=rtype, object_entity=entity, user=user)
+
+    if not errors:
+        status = 200
+        message = _(u"Operation successfully completed")
+    else:
+        status = min(errors.iterkeys())
+        message = ",".join(msg for error_messages in errors.itervalues() for msg in error_messages)
+
+    return HttpResponse(message, status=status)
 
 #TODO: use jsonify
 @login_required
 def get_predicates_choices_4_ct(request):
     ct = get_ct_or_404(get_from_POST_or_404(request.POST, 'ct_id'))
-
-    #Why this one is not JSON serializable ?
-#    predicates = RelationType.objects.filter(Q(subject_ctypes=ct)|Q(subject_ctypes__isnull=True)).order_by('predicate').values_list('id', 'predicate')
     predicates = [(rtype.id, rtype.predicate) for rtype in RelationType.get_compatible_ones(ct).order_by('predicate')]
 
     return HttpResponse(JSONEncoder().encode(predicates), mimetype="text/javascript")

@@ -44,26 +44,18 @@ def add(request, graph_id):
 
         if nodes_form.is_valid():
             nodes_form.save()
-
-            return HttpResponseRedirect(graph.get_absolute_url()) ###
     else:
         nodes_form = AddRootNodesForm(graph=graph)
 
-    #return inner_popup(request, 'creme_core/generics/blockform/add_popup2.html',
-                       #{
-                        #'form':   nodes_form,
-                        #'title':  _(u'Add root nodes'),
-                       #},
-                       #is_valid=nodes_form.is_valid(),
-                       #reload=False,
-                       #delegate_reload=True,
-                       #context_instance=RequestContext(request))
-
-    return render_to_response('creme_core/generics/blockform/add.html',
-                              {
-                                'form': nodes_form,
-                              },
-                              context_instance=RequestContext(request))
+    return inner_popup(request, 'creme_core/generics/blockform/add_popup2.html',
+                       {
+                        'form':   nodes_form,
+                        'title':  _(u'Add root nodes'),
+                       },
+                       is_valid=nodes_form.is_valid(),
+                       reload=False,
+                       delegate_reload=True,
+                       context_instance=RequestContext(request))
 
 @login_required
 @permission_required('graphs')

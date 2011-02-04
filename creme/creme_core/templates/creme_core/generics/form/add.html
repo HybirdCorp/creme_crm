@@ -1,5 +1,10 @@
-{% extends "creme_core/generics/form/base.html" %}
+{% extends "creme_core/base.html" %}
 {% load i18n %}
-{% load media %}
-{% block logo %}<img src="{% media_url 'images/add_64.png' %}" alt="{% trans "Add" %}"/>{% endblock %}
-{% block title %}{% trans "New" %}{% endblock %}
+
+{% block page_title %} - {% trans 'Add' %}{% endblock %}
+
+{% block content %}
+    {% with 'images/add_64.png' as logo %}{% with _('Add') as title %}
+        {% include "creme_core/generics/form/base.html" %}
+     {% endwith %}{% endwith %}
+{% endblock %}

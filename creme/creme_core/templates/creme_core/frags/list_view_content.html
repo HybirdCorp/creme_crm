@@ -55,15 +55,6 @@
                             <img border="0" src="{% media_url 'images/document_csv_22.png' %}" alt="{% trans "Import CSV" %}" title="{% trans "Import CSV" %}"/>{% trans "Import CSV" %}
                         </a>&nbsp;
                     {% endif %}
-                    <a onclick="creme.utils.multiDeleteFromListView('form[name=list_view_form]', '/creme_core/delete_js');">
-                        <img border="0" src="{% media_url 'images/delete_22.png' %}" alt="{% trans "Multiple deletion" %}" title="{% trans "Multiple deletion" %}"/>{% trans "Multiple deletion" %}
-                    </a>&nbsp;
-                    <a onclick="creme.utils.multiAddPropertyFromListView('form[name=list_view_form]', '/creme_core/property/add_to_entities', '{{content_type_id}}');">
-                        <img border="0" src="{% media_url 'images/property_22.png' %}" alt="{% trans "Multiple property adding" %}" title="{% trans "Multiple property adding" %}"/>{% trans "Multiple property adding" %}
-                    </a>&nbsp;
-                    <a onclick="creme.relations.addFromListView('form[name=list_view_form]', '/creme_core/relation/add_to_entities/{{content_type_id}}/');">
-                        <img border="0" src="{% media_url 'images/relations_22.png' %}" alt="{% trans "Multiple relation adding" %}" title="{% trans "Multiple relation adding" %}"/>{% trans "Multiple relation adding" %}
-                    </a>&nbsp;
                 {% endif %}
                 <button  value="0" type="button" name="_search"{% if not search %} disabled="true" {% else %} onclick="$(this.form).list_view('getSubmit')(this);" {% endif %}>{% trans "Clean the search" %}</button>
                 <button  value="1" type="button" name="_search" onclick="$(this.form).list_view('getSubmit')(this);"><img border="0" src="{% media_url 'images/looking_glass_22.png' %}" alt="{% trans "Research" %}" title="{% trans "Research" %}"/>{% trans "Research" %}</button>
@@ -87,12 +78,14 @@
         <tr class="columns_top">
             {% if not o2m %}<th>&nbsp;</th>{% endif %}
             {% for column in columns %}
-                {% if not column.is_hidden %}
+                {% if not column.is_hidden and column.type %}
                     <th {% if column.name in current_research_fields %}class="search"{% endif %}>
                         <button type="button" {% if column.sortable %}title="{% blocktrans with column.title as col_title %}Sort by {{col_title}}{% endblocktrans %}" onclick="creme.utils.handleSort('#sort_field', '#sort_order', '{{column.name}}', this, $(this.form).list_view('getSubmit'));"{% else %} disabled="true" {% endif %}>
                             {{column.title}}
                         </button>
                     </th>
+                {% else %}
+                    <th></th>
                 {% endif %}
             {% endfor %}
         </tr>
