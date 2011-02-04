@@ -567,12 +567,12 @@ msgstr "Liste de choix (multi sélection)"
 #: models/entity.py:104
 #, python-format
 msgid "You are not allowed to edit this entity: %s"
-msgstr "Vous n'ếtes pas autorisé à modifier cette fiche: %s"
+msgstr "Vous n'êtes pas autorisé à modifier cette fiche: %s"
 
 #: models/entity.py:111
 #, python-format
 msgid "You are not allowed to delete this entity: %s"
-msgstr "Vous n'ếtes pas autorisé à supprimer cette fiche: %s"
+msgstr "Vous n'êtes pas autorisé à supprimer cette fiche: %s"
 
 #: models/entity.py:226
 msgid "See"
@@ -602,7 +602,7 @@ msgstr "Supprimer"
 #: models/entity.py:271
 #, python-format
 msgid "You are not allowed to view this entity: %s"
-msgstr "Vous n'ếtes pas autorisé à voir cette fiche: %s"
+msgstr "Vous n'êtes pas autorisé à voir cette fiche: %s"
 
 #: models/header_filter.py:73
 msgid "Name of the view"
