@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-02-04 09:50+0100\n"
+"POT-Creation-Date: 2011-02-04 22:34+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -467,12 +467,8 @@ msgstr "Fiche contact de l'utilisateur"
 
 #: templates/creme_config/profile_portal.html:46
 #: templates/creme_config/profile_portal.html:67
-#: templates/creme_config/templatetags/block_blocksconfig.html:20
-#: templates/creme_config/templatetags/block_blocksconfig.html:29
-#: templates/creme_config/templatetags/block_blocksconfig.html:48
-#: templates/creme_config/templatetags/block_button_menu.html:20
-#: templates/creme_config/templatetags/block_button_menu.html:28
-#: templates/creme_config/templatetags/block_button_menu.html:39
+#: templates/creme_config/templatetags/block_blocksconfig.html:17
+#: templates/creme_config/templatetags/block_button_menu.html:17
 #: templates/creme_config/templatetags/block_custom_fields.html:20
 #: templates/creme_config/templatetags/block_custom_fields_portal.html:28
 #: templates/creme_config/templatetags/block_default_credentials.html:13
@@ -490,14 +486,14 @@ msgstr "Éditer"
 
 #: templates/creme_config/profile_portal.html:47
 #: templates/creme_config/profile_portal.html:72
-#: templates/creme_config/templatetags/block_blocksconfig.html:22
-#: templates/creme_config/templatetags/block_button_menu.html:21
+#: templates/creme_config/templatetags/block_blocksconfig.html:19
+#: templates/creme_config/templatetags/block_button_menu.html:18
 #: templates/creme_config/templatetags/block_custom_fields.html:21
 #: templates/creme_config/templatetags/block_custom_fields_portal.html:21
 #: templates/creme_config/templatetags/block_instanceblocksconfig.html:12
 #: templates/creme_config/templatetags/block_models.html:36
 #: templates/creme_config/templatetags/block_property_types.html:26
-#: templates/creme_config/templatetags/block_relationblocksconfig.html:21
+#: templates/creme_config/templatetags/block_relationblocksconfig.html:18
 #: templates/creme_config/templatetags/block_searchconfig.html:27
 #: templates/creme_config/templatetags/block_user_roles.html:30
 msgid "Delete"
@@ -603,32 +599,30 @@ msgstr "%s Type de ressource configuré"
 msgid "%s Configured types of resource"
 msgstr "%s Types de resource configurés"
 
-#: templates/creme_config/templatetags/block_blocksconfig.html:13
-#: templates/creme_config/templatetags/block_blocksconfig.html:14
+#: templates/creme_config/templatetags/block_blocksconfig.html:12
+#: views/blocks.py:38
 msgid "New blocks configuration"
 msgstr "Nouvelle configuration de blocs"
 
-#: templates/creme_config/templatetags/block_blocksconfig.html:19
-#: templates/creme_config/templatetags/block_button_menu.html:19
+#: templates/creme_config/templatetags/block_blocksconfig.html:16
+#: templates/creme_config/templatetags/block_button_menu.html:16
 #: templates/creme_config/templatetags/block_custom_fields.html:19
 #: templates/creme_config/templatetags/block_custom_fields_portal.html:19
 #: templates/creme_config/templatetags/block_searchconfig.html:20
 msgid "Type"
 msgstr "Type"
 
-#: templates/creme_config/templatetags/block_blocksconfig.html:21
-#: templates/creme_config/templatetags/block_blocksconfig.html:34
-#: templates/creme_config/templatetags/block_blocksconfig.html:53
+#: templates/creme_config/templatetags/block_blocksconfig.html:18
 msgid "Edit portal"
 msgstr "Éditer le portail"
 
-#: templates/creme_config/templatetags/block_blocksconfig.html:26
-#: templates/creme_config/templatetags/block_button_menu.html:25
+#: templates/creme_config/templatetags/block_blocksconfig.html:22
+#: templates/creme_config/templatetags/block_button_menu.html:22
 msgid "Default configuration"
 msgstr "Configuration par défaut"
 
-#: templates/creme_config/templatetags/block_button_menu.html:13
-#: templates/creme_config/templatetags/block_button_menu.html:14
+#: templates/creme_config/templatetags/block_button_menu.html:12
+#: views/button_menu.py:38
 msgid "New buttons configuration"
 msgstr "Nouvelle configuration de boutons"
 
@@ -814,16 +808,16 @@ msgstr "%s Type de bloc de relation crée"
 msgid "%s Types of relation block created"
 msgstr "%s Types de bloc de relation crées"
 
-#: templates/creme_config/templatetags/block_relationblocksconfig.html:13
-#: templates/creme_config/templatetags/block_relationblocksconfig.html:14
+#: templates/creme_config/templatetags/block_relationblocksconfig.html:12
+#: views/blocks.py:43
 msgid "New type of block"
 msgstr "Nouveau type de bloc"
 
-#: templates/creme_config/templatetags/block_relationblocksconfig.html:20
+#: templates/creme_config/templatetags/block_relationblocksconfig.html:17
 msgid "Related type of relation"
 msgstr "Type de relation associé"
 
-#: templates/creme_config/templatetags/block_relationblocksconfig.html:36
+#: templates/creme_config/templatetags/block_relationblocksconfig.html:32
 msgid "No type of relation block created for the moment"
 msgstr "Aucun type de bloc de relation créé pour le moment"
 
@@ -991,6 +985,24 @@ msgstr "Date d'inscription"
 msgid "None"
 msgstr "Aucun"
 
+#: views/blocks.py:70
+#, python-format
+msgid "Edit portal configuration for %s"
+msgstr "Éditer la configuration de portail pour %s"
+
+#: views/blocks.py:70 views/button_menu.py:64
+#, python-format
+msgid "Edit configuration for %s"
+msgstr "Éditer la configuration pour %s"
+
+#: views/blocks.py:73
+msgid "Edit home configuration"
+msgstr "Éditer la configuration de l'accueil"
+
+#: views/blocks.py:73 views/button_menu.py:65
+msgid "Edit default configuration"
+msgstr "Éditer la configuration par défaut"
+
 #: views/user.py:38
 #, python-format
 msgid "Change password for <%s>"
@@ -1012,9 +1024,6 @@ msgstr "Éditer les droits par défaut"
 
 #~ msgid "Edit '%(object)s'"
 #~ msgstr "Éditer '%(object)s'"
-
-#~ msgid "Entities credentials configuration"
-#~ msgstr "Configuration des droits des entités"
 
 #~ msgid "Entities credentials settings"
 #~ msgstr "Gestion des droits d'entité"
