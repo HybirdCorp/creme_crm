@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-02-04 22:34+0100\n"
+"POT-Creation-Date: 2011-02-04 23:12+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -156,7 +156,7 @@ msgid "Buttons to display"
 msgstr "Boutons à afficher"
 
 #: forms/creme_property_type.py:31
-#: templates/creme_config/templatetags/block_property_types.html:23
+#: templates/creme_config/templatetags/block_property_types.html:20
 msgid "Title"
 msgstr "Intitulé"
 
@@ -474,8 +474,7 @@ msgstr "Fiche contact de l'utilisateur"
 #: templates/creme_config/templatetags/block_default_credentials.html:13
 #: templates/creme_config/templatetags/block_default_credentials.html:21
 #: templates/creme_config/templatetags/block_models.html:35
-#: templates/creme_config/templatetags/block_property_types.html:25
-#: templates/creme_config/templatetags/block_property_types.html:38
+#: templates/creme_config/templatetags/block_property_types.html:22
 #: templates/creme_config/templatetags/block_relation_types.html:50
 #: templates/creme_config/templatetags/block_searchconfig.html:26
 #: templates/creme_config/templatetags/block_searchconfig.html:52
@@ -492,7 +491,7 @@ msgstr "Éditer"
 #: templates/creme_config/templatetags/block_custom_fields_portal.html:21
 #: templates/creme_config/templatetags/block_instanceblocksconfig.html:12
 #: templates/creme_config/templatetags/block_models.html:36
-#: templates/creme_config/templatetags/block_property_types.html:26
+#: templates/creme_config/templatetags/block_property_types.html:23
 #: templates/creme_config/templatetags/block_relationblocksconfig.html:18
 #: templates/creme_config/templatetags/block_searchconfig.html:27
 #: templates/creme_config/templatetags/block_user_roles.html:30
@@ -705,7 +704,7 @@ msgstr "(non supprimable)"
 msgid "No value for the moment"
 msgstr "Aucune valeur enregistrée pour le moment"
 
-#: templates/creme_config/templatetags/block_property_types.html:5
+#: templates/creme_config/templatetags/block_property_types.html:4
 msgid "Delete a property type, will delete associated properties"
 msgstr "Supprimer un type de propriété supprimera les propriétés associées"
 
@@ -719,20 +718,20 @@ msgstr "%s Type de propriété"
 msgid "%s Types of property"
 msgstr "%s Types de propriété"
 
-#: templates/creme_config/templatetags/block_property_types.html:16
-#: templates/creme_config/templatetags/block_property_types.html:17
+#: templates/creme_config/templatetags/block_property_types.html:15
+#: views/creme_property_type.py:37
 msgid "New custom type of property"
 msgstr "Nouveau type de propriété personnalisé"
 
-#: templates/creme_config/templatetags/block_property_types.html:24
+#: templates/creme_config/templatetags/block_property_types.html:21
 msgid "Applies on entities with following types"
 msgstr "S'applique aux entités des types suivants"
 
-#: templates/creme_config/templatetags/block_property_types.html:33
+#: templates/creme_config/templatetags/block_property_types.html:29
 msgid "No related type of resource"
 msgstr "Pas de type de ressource associé"
 
-#: templates/creme_config/templatetags/block_property_types.html:49
+#: templates/creme_config/templatetags/block_property_types.html:41
 msgid "No type of property for the moment"
 msgstr "Aucun type de propriété enregistré pour le moment"
 
@@ -1002,6 +1001,11 @@ msgstr "Éditer la configuration de l'accueil"
 #: views/blocks.py:73 views/button_menu.py:65
 msgid "Edit default configuration"
 msgstr "Éditer la configuration par défaut"
+
+#: views/creme_property_type.py:59
+#, python-format
+msgid "Edit the type \"%s\""
+msgstr "Éditer le type \"%s\""
 
 #: views/user.py:38
 #, python-format
