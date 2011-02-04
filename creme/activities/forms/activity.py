@@ -24,7 +24,7 @@ from logging import debug
 
 from django.forms import IntegerField, BooleanField, ModelChoiceField, ModelMultipleChoiceField
 from django.forms.util import ValidationError, ErrorList
-from django.utils.translation import ugettext as _, ugettext
+from django.utils.translation import ugettext_lazy as _, ugettext
 from django.db.models import Q
 from django.contrib.auth.models import User
 
@@ -96,7 +96,6 @@ def _check_activity_collisions(activity_start, activity_end, participants, exclu
         raise ValidationError(collisions)
 
 #TODO: factorise with ActivityCreateForm ??
-#TODO: for the moment the calendars info on detailview is not reload because it is not a true Block.
 class ParticipantCreateForm(CremeForm):
     participants = MultiCremeEntityField(label=_(u'Participants'), model=Contact)
 
@@ -284,6 +283,9 @@ class ActivityCreateForm(CremeEntityForm):
         from commercial.models import CommercialApproach
 
         cleaned_data = self.cleaned_data
+
+        if not cleaned_data.get('is_comapp', False):
+            return
 
         comapp_subjects = list(cleaned_data['other_participants'])
         comapp_subjects += cleaned_data['subjects']
