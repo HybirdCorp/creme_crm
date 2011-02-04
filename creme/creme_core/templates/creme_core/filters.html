@@ -82,7 +82,7 @@
             if(value!="")
             {
                 $.ajax({
-                    url : '/creme_core/filter/getfieldfk/',
+                    url : '/creme_core/filter/field_has_n_get_fk',
                     type : 'POST',
                     async : false,
                     data : {fieldname : ''+value, ct_id : {{content_type_id}} },
@@ -93,24 +93,16 @@
                     },
                     success :  function(data, textStatus)
                     {
-                        if(data != "")
+                        select_fk.empty();
+                        for(var couple in data)
                         {
-                            select_fk.empty();
-                            for(var couple in data)
-                            {
-                                var values = data[couple];
-                                select_fk.append(
-                                    $('<option></option>')
-                                        .val(values[0])
-                                        .text(values[1])
-                                );
-                            }
+                            var values = data[couple];
+                            select_fk.append(
+                                $('<option></option>')
+                                    .val(values[0])
+                                    .text(values[1])
+                            );
                         }
-                        else
-                        {
-                            select_fk.empty();
-                        }
-
                     },
                     complete : function(XMLHttpRequest, textStatus)
                     {
