@@ -44,7 +44,7 @@ def edit(request, property_type_id):
     if not property_type.is_custom:
         raise Http404("Can't edit a standard PropertyType") #TODO: 403 instead ?
 
-    if request.POST :
+    if request.method == 'POST':
         property_type_form = CremePropertyTypeEditForm(property_type, request.POST)
 
         if property_type_form.is_valid():
