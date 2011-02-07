@@ -94,7 +94,7 @@ class Event(CremeEntity):
                                     type__in=(REL_SUB_IS_INVITED_TO, REL_SUB_ACCEPTED_INVITATION, REL_SUB_REFUSED_INVITATION)) \
                             .delete()
         else:
-            create_relations = Relation.objects.create
+            create_relations = relations.create
             relations.get_or_create(subject_entity=contact, type=RelationType.objects.get(pk=REL_SUB_IS_INVITED_TO), object_entity=self, user=user)
 
             if status == INV_STATUS_ACCEPTED:
@@ -104,6 +104,10 @@ class Event(CremeEntity):
             elif status == INV_STATUS_REFUSED:
                 relations.create(subject_entity=contact, type_id=REL_SUB_REFUSED_INVITATION, object_entity=self, user=user)
                 relations.filter(subject_entity=contact.id, object_entity=self.id, type=REL_SUB_ACCEPTED_INVITATION) \
+                         .delete()
+            else:
+                assert status == INV_STATUS_NO_ANSWER
+                relations.filter(subject_entity=contact.id, object_entity=self.id, type__in=[REL_SUB_ACCEPTED_INVITATION, REL_SUB_REFUSED_INVITATION]) \
                          .delete()
 
     def set_presence_status(self, contact, status, user):
