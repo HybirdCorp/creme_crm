@@ -50,6 +50,7 @@ class CremePropertyTypeAddForm(_CremePropertyTypeBaseForm):
         CremePropertyType.create('creme_config-userproperty',
                                  get_data('text'), get_data('subject_ctypes'),
                                  is_custom=True, generate_pk=True)
+        super(CremePropertyTypeAddForm, self).save()
 
 
 class CremePropertyTypeEditForm(_CremePropertyTypeBaseForm):
@@ -65,3 +66,4 @@ class CremePropertyTypeEditForm(_CremePropertyTypeBaseForm):
     def save(self):
         get_data = self.cleaned_data.get
         CremePropertyType.create(self.instance.id, get_data('text'), get_data('subject_ctypes'), is_custom=True)
+        super(CremePropertyTypeEditForm, self).save()

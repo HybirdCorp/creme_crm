@@ -48,9 +48,6 @@ class SalesOrder(Base):
         """url for list_view """
         return "/billing/sales_orders"
 
-    def get_delete_absolute_url(self):
-        return "/billing/sales_order/delete/%s" % self.id
-
     def build(self, template):
         # Specific recurrent generation rules
         self.status = SalesOrderStatus.objects.get(pk=template.status_id) #TODO: self.status_id = template.status_id

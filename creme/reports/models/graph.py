@@ -1,4 +1,3 @@
-
 # -*- coding: utf-8 -*-
 
 ################################################################################
@@ -32,7 +31,7 @@ from creme_core.models.entity import CremeEntity
 from creme_core.models.relation import RelationType
 from creme_core.models.header_filter import HFI_RELATION, HFI_FIELD
 
-from reports.models.report import Report, report_prefix_url
+from reports.models.report import Report
 from reports.report_aggregation_registry import field_aggregation_registry
 
 
@@ -71,13 +70,10 @@ class ReportGraph(CremeEntity):
         return self.name
 
     def get_absolute_url(self):
-        return "%s/graph/%s" % (report_prefix_url, self.id)
+        return "/reports/graph/%s" % self.id
 
     def get_edit_absolute_url(self):
-        return "%s/graph/edit/%s" % (report_prefix_url, self.id)
-
-    def get_delete_absolute_url(self):
-        return "%s/graph/delete/%s" % (report_prefix_url, self.id)
+        return "/reports/graph/edit/%s" % self.id
 
     def fetch(self, extra_q=None, order='ASC'):
         assert order=='ASC' or order=='DESC'
@@ -119,7 +115,7 @@ class ReportGraph(CremeEntity):
             min_date = entities.aggregate(min_date=Min(abscissa)).get('min_date')
             max_date = entities.aggregate(max_date=Max(abscissa)).get('max_date')
             days = timedelta(self.days or 1)
-            
+
             if min_date is not None and max_date is not None:
                 if order == 'ASC':
                     while min_date <= max_date:
@@ -145,11 +141,11 @@ class ReportGraph(CremeEntity):
                         else:
                             y.append(sub_entities.aggregate(aggregate_col).get(ordinate))
                         max_date = end
-                
+
         elif type == RGT_FK:
-            
             fk_ids = set(entities.values_list(abscissa, flat=True))#.distinct()
             _fks = entities.model._meta.get_field(abscissa).rel.to.objects.filter(pk__in=fk_ids)
+
             if order == 'DESC':
                 _fks.reverse()#Seems useless on models which haven't ordering
             fks = dict((rel.id, unicode(rel)) for rel in _fks)
@@ -191,7 +187,7 @@ def fetch_graph_from_instance_block(instance_block, entity, order='ASC'):
 
     model             = entity.__class__
     ct_entity         = entity.entity_type #entity should always be a CremeEntity because graphs can be created only on CremeEntities
-    
+
     columns = volatile_column.split('#')
     volatile_column, hfi_type = (columns[0], columns[1]) if columns[0] else ('', 0)
 
@@ -224,5 +220,5 @@ def fetch_graph_from_instance_block(instance_block, entity, order='ASC'):
 
     else:
         x, y = graph.fetch(order=order)
-        
+
     return (x, y)

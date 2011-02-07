@@ -72,8 +72,7 @@ creme.ajax.submit = function(form, data, options) {
         });
 };
 
-creme.ajax.ajax = function(options)
-{
+creme.ajax.ajax = function(options) {
         options = $.extend({
             type   : "GET",
             url : "",
@@ -114,7 +113,7 @@ creme.ajax.ajax = function(options)
                   if(options.error && $.isFunction(options.error)) options.error(request, status, error);
                   if(options.afterError && $.isFunction(options.afterError)) options.afterError(request, status, error);
               },
-              complete:function (request, status) {
+              complete: function (request, status) {
                   if(options.beforeComplete) options.beforeComplete(request, status);
                   creme.utils.loading('loading', true, {});
                   if(options.complete) options.complete(request, status);
@@ -135,8 +134,7 @@ creme.ajax.post = function(options) {
              console.log(data) // result html content (body of iframe)
       });
  */
-creme.ajax.iframeSubmit = function(form, success_cb, pop_options)
-{
+creme.ajax.iframeSubmit = function(form, success_cb, pop_options) {
     var delay = 1;
     var id = new Date().getTime()
     var iframe = $('<iframe style="position:absolute;top:-1000px;left:-1000px;"><html><head></head><body></body></html></iframe>').attr('id', id).appendTo($('body'))

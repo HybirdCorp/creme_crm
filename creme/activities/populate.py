@@ -25,6 +25,7 @@ from creme_core.models.header_filter import HeaderFilterItem, HeaderFilter, HFI_
 from creme_core.models import RelationType, BlockConfigItem, ButtonMenuItem, SearchConfigItem
 from creme_core.utils import create_or_update_models_instance as create
 from creme_core.management.commands.creme_populate import BasePopulator
+from persons.models import Contact
 
 from persons.models import Contact
 

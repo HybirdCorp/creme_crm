@@ -21,6 +21,7 @@
 from django.http import HttpResponse
 from django.utils.simplejson import JSONEncoder
 from django.utils.translation import ugettext_lazy as _
+from django.contrib.contenttypes.models import ContentType
 
 from creme_core.gui.block import QuerysetBlock
 from creme_core.utils import jsonify
@@ -53,7 +54,8 @@ class RecipientsBlock(QuerysetBlock):
         pk = context['object'].pk
         return self._render(self.get_block_template_context(context, Recipient.objects.filter(messaging_list=pk), #get_recipients() ??? related_name()
                                                             update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, pk),
-                                                            ))
+                                                            ct_id=ContentType.objects.get_for_model(Recipient).id,
+                                                           ))
 
 
 class ContactsBlock(QuerysetBlock):

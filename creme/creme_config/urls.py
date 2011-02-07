@@ -19,6 +19,9 @@ urlpatterns = patterns('creme_config.views',
     (r'^user/edit/password/(?P<user_id>\d+)$', 'user.change_password'),
     (r'^user/edit/settings/$',                 'user.edit_own_settings'),
     (r'^user/view/settings/$',                 'user.view_own_settings'),
+    (r'^team/add/$',                           'user.add_team'),
+    (r'^team/edit/(?P<user_id>\d+)$',          'user.edit_team'),
+    (r'^team/delete$',                         'user.delete_team'),
 
     #Roles
     (r'^role/portal/$',                          'user_role.portal'),
@@ -90,7 +93,7 @@ urlpatterns = patterns('creme_config.views',
     (r'^(?P<app_name>\w+)/(?P<model_name>\w+)/delete$',                       'generics_views.delete_model'),
 )
 
-
+#TODO: use creme_core.utils.imports ???
 for app in settings.INSTALLED_APPS:
     try:
         find_module("creme_config_register", __import__(app, {}, {}, [app.split(".")[-1]]).__path__)

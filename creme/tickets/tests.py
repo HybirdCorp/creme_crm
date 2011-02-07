@@ -235,7 +235,7 @@ class TicketTestCase(TestCase):
                                        criticity=Criticity.objects.all()[0],
                                       )
 
-        response = self.client.post('/tickets/ticket/delete/%s' % ticket.pk, follow=True)
+        response = self.client.post('/creme_core/entity/delete/%s' % ticket.pk, follow=True)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.redirect_chain), 1)
         self.assert_(response.redirect_chain[0][0].endswith('/tickets/tickets'))
