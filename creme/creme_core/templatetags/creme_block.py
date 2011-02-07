@@ -427,7 +427,7 @@ class PortalBlocksImporterNode(TemplateNode):
 
 
 @register.tag(name="display_portal_blocks")
-def do_detailview_blocks_displayer(parser, token):
+def do_portal_blocks_displayer(parser, token):
     """Eg: {% display_portal_blocks ct_ids %}"""
     return PortalBlocksDisplayerNode(_parse_one_var_tag(token))
 
