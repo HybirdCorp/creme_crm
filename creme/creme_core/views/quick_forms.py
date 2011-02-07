@@ -30,6 +30,11 @@ from creme_core.gui.quick_forms import quickforms_registry
 from creme_core.utils import get_ct_or_404
 
 
+#TODO: it seems there is a problem with formsets : if the 'user' field is empty
+#      it does not raise a Validation exception, but it causes a SQL integrity
+#      error ; we are saved by the 'empty_label=None' of user field, but it is
+#      not really perfect...
+
 @login_required
 def add(request, ct_id, count):
     model = get_ct_or_404(ct_id).model_class()
@@ -50,7 +55,7 @@ def add(request, ct_id, count):
         qformset = qformset_class(request.POST)
 
         if qformset.is_valid():
-            for form in qformset.forms:
+            for form in qformset.forms: #TODO: django1.3 -> "for form in qformset:"
                 form.save()
     else:
         qformset = qformset_class()

@@ -1,9 +1,5 @@
-{% load i18n %}
-{% load media %}
+{% load i18n %}{% load media %}
 {% load creme_core_tags %}{% load creme_block %}
-{% comment %}<script type="text/javascript">
-    creme.include('{{MEDIA_URL}}/js/models/relations.js', 'js');
-</script>{% endcomment %}
 <table  class="table_detail_view ui-corner-all" id={{block_name}}>
     {% get_block_header colspan=5 %}
         <th style="width: 80%;" class="collapser" align="left">{% block block_header %}{% endblock %}</th>
@@ -19,7 +15,7 @@
                 {% endif %}
                 {% block add_title %}{% trans "Create a contact" %}{% endblock %}
                 {% if creation_perm %}</a>{% else %}</span>{% endif %}
-                <a class="link" onclick="creme.relations.handleAddFromPredicateEntity('/creme_core/relation/add/from/predicate/{{predicate_id}}/entity/{{object.id}}/{{ct.id}}', '{{predicate_id}}', '{{object.id}}', {% get_block_reload_uri %});">
+                <a class="link" onclick="creme.relations.handleAddFromPredicateEntity('/creme_core/relation/objects2link/rtype/{{predicate_id}}/entity/{{object.id}}/{{ct.id}}', '{{predicate_id}}', '{{object.id}}', {% get_block_reload_uri %});">
                     <img src="{% media_url 'images/relations_22.png' %}" border="0" title="{% trans "Link to an existing contact" %}" alt="{% trans "Link to an existing contact" %}" />
                     {% trans "Link to an existing contact" %}
                 </a>
@@ -35,8 +31,7 @@
                 <th class="block_header_line_dark">{% trans "Email" %}</th>
                 <th class="block_header_line_dark">{% trans "Actions" %}</th>
             </tr>
-            {% for people in page.object_list %}
-                <!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
+            {% for people in page.object_list %}<!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
                 <tr>
                     <td class="{{row_color}}"><a href="{{people.get_absolute_url}}">{{people}}</a></td>
                     <td class="{{row_color}}">{{people.landline}}</td>

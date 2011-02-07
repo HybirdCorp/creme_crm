@@ -50,8 +50,3 @@ urlpatterns = patterns('reports.views',
 
     (r'^graph/(?P<graph_id>\d+)/block/add$', 'blocks.add_graph_instance_block'),
 )
-
-urlpatterns += patterns('creme_core.views.generic',
-    (r'^report/delete/(?P<object_id>\d+)$', 'delete_entity'),
-    (r'^graph/delete/(?P<object_id>\d+)$',  'delete_entity'),
-)

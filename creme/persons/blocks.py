@@ -41,7 +41,7 @@ class ManagersBlock(QuerysetBlock):
         return self._render(self.get_block_template_context(context,
                                                             orga.get_managers(),
                                                             update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, orga.pk),
-                                                            predicate_id=REL_OBJ_MANAGES,
+                                                            predicate_id=REL_OBJ_MANAGES, #TODO: rename to 'relation_type_id' ??
                                                             ct=ContentType.objects.get_for_model(Contact),
                                                             ))
 
@@ -73,7 +73,8 @@ class AddressBlock(Block):
     def detailview_display(self, context):
         object = context['object']
         return self._render(self.get_block_template_context(context ,
-                            update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, object.pk)))
+                                                            update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, object.pk),
+                                                           ))
 
 
 class OtherAddressBlock(QuerysetBlock):
@@ -85,12 +86,12 @@ class OtherAddressBlock(QuerysetBlock):
 
     def detailview_display(self, context):
         person = context['object']
-
         l_pk = [address.pk for address in (person.billing_address, person.shipping_address) if address]
-        q_address = Address.objects.filter(object_id=person.id).exclude(pk__in=l_pk)
 
-        return self._render(self.get_block_template_context(context, q_address,
-                                                            update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, person.pk)
+        return self._render(self.get_block_template_context(context,
+                                                            Address.objects.filter(object_id=person.id).exclude(pk__in=l_pk),
+                                                            update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, person.pk),
+                                                            ct_id=ContentType.objects.get_for_model(Address).id,
                                                            ))
 
 

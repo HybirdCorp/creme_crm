@@ -52,9 +52,6 @@ class EmailCampaign(CremeEntity):
     def get_lv_absolute_url():
         return "/emails/campaigns"
 
-    def get_delete_absolute_url(self):
-        return "/emails/campaign/delete/%s" % self.id
-
     def delete(self):
         for sending in self.sendings_set.all():
             sending.mails_set.all().delete() #use CremeModel delete() ??

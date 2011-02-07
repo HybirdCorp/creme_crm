@@ -21,7 +21,7 @@
 
 from django.contrib.auth.decorators import login_required, permission_required
 
-from creme_core.views.generic import add_entity, edit_entity, view_entity_with_template, list_view
+from creme_core.views.generic import add_entity, edit_entity, view_entity, list_view
 
 from tickets.models.ticket import Ticket
 from tickets.forms.ticket import CreateForm, EditForm
@@ -33,15 +33,15 @@ from tickets.forms.ticket import CreateForm, EditForm
 def add(request):
     return add_entity(request, CreateForm)
 
+@login_required
+@permission_required('tickets')
 def edit(request, ticket_id):
-    return edit_entity(request, ticket_id, Ticket, EditForm, 'tickets')
+    return edit_entity(request, ticket_id, Ticket, EditForm)
 
 @login_required
 @permission_required('tickets')
 def detailview(request, ticket_id):
-    return view_entity_with_template(request, ticket_id, Ticket,
-                                     '/tickets/ticket',
-                                     'tickets/view_ticket.html')
+    return view_entity(request, ticket_id, Ticket, '/tickets/ticket', 'tickets/view_ticket.html')
 
 @login_required
 @permission_required('tickets')

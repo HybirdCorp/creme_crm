@@ -69,12 +69,21 @@ class SubjectsBlock(QuerysetBlock):
     verbose_name  = _(u'Subjects')
     template_name = 'activities/templatetags/block_subjects.html'
 
-    #TODO: optimise (Relation.populate_real_object_entities)
+    #def detailview_display(self, context):
+        #activity = context['object']
+        #return self._render(self.get_block_template_context(context, activity.get_subject_relations(),
+                                                            #update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, activity.pk),
+                                                            #))
     def detailview_display(self, context):
         activity = context['object']
-        return self._render(self.get_block_template_context(context, activity.get_subject_relations(),
-                                                            update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, activity.pk),
-                                                            ))
+        btc = self.get_block_template_context(context,
+                                              activity.relations.filter(type=REL_OBJ_ACTIVITY_SUBJECT).select_related('type', 'object_entity'),
+                                              update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, activity.pk),
+                                             )
+
+        Relation.populate_real_object_entities(btc['page'].object_list)
+
+        return self._render(btc)
 
 
 #TODO: need query optimisations (retrieve all relations in one query,

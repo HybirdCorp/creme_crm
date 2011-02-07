@@ -88,5 +88,7 @@ class CremeProperty(CremeModel):
         verbose_name_plural = _(u'Properties')
 
     def __unicode__(self):
-        #return force_unicode(u"%s a la propriété: %s" % (self.creme_entity, self.type)) #causes too much  queries...
         return unicode(self.type)
+
+    def get_related_entity(self): #for generic views
+        return self.creme_entity

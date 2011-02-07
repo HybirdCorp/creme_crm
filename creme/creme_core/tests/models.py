@@ -25,7 +25,6 @@ class ModelsTestCase(TestCase):
         self.assert_((now - entity.created).seconds < 10)
         self.assert_((now - entity.modified).seconds < 10)
 
-
     def test_property01(self):
         text = 'TEXT'
 
@@ -213,7 +212,7 @@ class CredentialsTestCase(TestCase):
         self.assertEqual([self.entity1.id, self.entity2.id], self.ids_list(qs))
 
     def test_regularperms01(self): #regular perms not used
-        ct = content_type=ContentType.objects.get_for_model(CremeProperty)
+        ct = ContentType.objects.get_for_model(CremeProperty)
 
         try:
             perm = Permission.objects.get(codename='add_cremeproperty', content_type=ct)
@@ -272,12 +271,18 @@ class CredentialsTestCase(TestCase):
         self.entity1.can_change_or_die(self.user)
         self.entity1.can_delete_or_die(self.user)
 
+    def _create_role(self, name, allowed_apps=(), admin_4_apps=()):
+        role = UserRole(name=name)
+        role.allowed_apps = allowed_apps
+        role.admin_4_apps = admin_4_apps
+        role.save()
+
+        return role
+
     #this tests contribute_to_model too
     def test_role_esetall01(self): # CRED_VIEW + ESET_ALL
         try:
-            role = UserRole(name='Coder')
-            role.allowed_apps = ['creme_core']
-            role.save()
+            role = self._create_role('Coder', ['creme_core'])
             self.user.role = role
             self.user.save()
             SetCredentials.objects.create(role=role,
@@ -318,9 +323,7 @@ class CredentialsTestCase(TestCase):
 
     def test_role_esetall02(self): # CRED_CHANGE + ESET_ALL
         try:
-            role = UserRole(name='Coder')
-            role.admin_4_apps = ['creme_core']
-            role.save()
+            role = self._create_role('Coder', ['creme_core'])
             self.user.role = role
             self.user.save()
             SetCredentials.objects.create(role=role,
@@ -340,9 +343,7 @@ class CredentialsTestCase(TestCase):
         self.failIf(self.user.has_perm('creme_core.delete_entity',  entity4))
 
     def test_role_esetall03(self): # CRED_DELETE + ESET_ALL
-        role = UserRole(name='Coder')
-        role.allowed_apps = ['creme_core']
-        role.save()
+        role = self._create_role('Coder', ['creme_core'])
         self.user.role = role
         self.user.save()
         SetCredentials.objects.create(role=role,
@@ -360,10 +361,7 @@ class CredentialsTestCase(TestCase):
         self.assert_(self.user.has_perm('creme_core.delete_entity', entity4))
 
     def test_role_esetown01(self): # CRED_VIEW + ESET_OWN
-        role = UserRole(name='Coder')
-        role.allowed_apps = ['creme_core']
-        role.admin_4_apps = ['creme_core']
-        role.save()
+        role = self._create_role('Coder', ['creme_core'], ['creme_core'])
         self.user.role = role
         self.user.save()
         SetCredentials.objects.create(role=role,
@@ -381,9 +379,7 @@ class CredentialsTestCase(TestCase):
         self.failIf(self.user.has_perm('creme_core.delete_entity', entity4))
 
     def test_role_esetown02(self): # ESET_OWN + CRED_VIEW/CRED_CHANGE
-        role = UserRole(name='Coder')
-        role.allowed_apps = ['creme_core', 'foobar']
-        role.save()
+        role = self._create_role('Coder', ['creme_core', 'foobar'])
         self.user.role = role
         self.user.save()
         SetCredentials.objects.create(role=role,
@@ -401,9 +397,7 @@ class CredentialsTestCase(TestCase):
         self.failIf(self.user.has_perm('creme_core.delete_entity', entity4))
 
     def test_role_multiset01(self): # ESET_OWN + ESET_ALL
-        role = UserRole(name='Coder')
-        role.allowed_apps = ['foobar', 'creme_core']
-        role.save()
+        role = self._create_role('Coder', ['foobar', 'creme_core'])
         self.user.role = role
         self.user.save()
         SetCredentials.objects.create(role=role,
@@ -424,10 +418,7 @@ class CredentialsTestCase(TestCase):
         self.failIf(self.user.has_perm('creme_core.delete_entity', entity4))
 
     def test_role_updating01(self):
-        role = UserRole(name='Coder')
-        role.allowed_apps = ['foobar', 'quux']
-        role.admin_4_apps = ['stuff', 'creme_core']
-        role.save()
+        role = self._create_role('Coder', ['foobar', 'quux'], ['stuff', 'creme_core'])
         self.user.role = role
         self.user.save()
         SetCredentials.objects.create(role=role,
@@ -448,9 +439,7 @@ class CredentialsTestCase(TestCase):
         self.failIf(self.user.has_perm('creme_core.view_entity', self.entity1))
 
     def test_role_updating02(self):
-        role1 = UserRole(name='View all')
-        role1.allowed_apps = ['creme_core']
-        role1.save()
+        role1 = self._create_role('View all', ['creme_core'])
         SetCredentials.objects.create(role=role1,
                                       value=SetCredentials.CRED_VIEW,
                                       set_type=SetCredentials.ESET_ALL)
@@ -465,9 +454,7 @@ class CredentialsTestCase(TestCase):
         self.assert_(self.user.has_perm('creme_core.view_entity',  entity3))
         self.failIf(self.user.has_perm('creme_core.change_entity', entity3))
 
-        role2 = UserRole(name='Isolated worker')
-        role2.allowed_apps = ['creme_core']
-        role2.save()
+        role2 = self._create_role('Isolated worker', ['creme_core'])
         SetCredentials.objects.create(role=role2,
                                       value=SetCredentials.CRED_VIEW|SetCredentials.CRED_CHANGE|SetCredentials.CRED_DELETE,
                                       set_type=SetCredentials.ESET_OWN)
@@ -596,9 +583,7 @@ class CredentialsTestCase(TestCase):
         self.assert_(self.user.has_perm('creme_core.can_admin'))
 
     def test_delete01(self): #delete role
-        role = UserRole(name='Coder')
-        role.allowed_apps = ['creme_core']
-        role.save()
+        role = self._create_role('Coder', ['creme_core'])
         SetCredentials.objects.create(role=role,
                                         value=SetCredentials.CRED_VIEW,
                                         set_type=SetCredentials.ESET_ALL)
@@ -617,9 +602,8 @@ class CredentialsTestCase(TestCase):
 
     def test_delete02(self): #delete entity
         role = UserRole.objects.create(name='Coder')
-        SetCredentials.objects.create(role=role,
-                                        value=SetCredentials.CRED_VIEW,
-                                        set_type=SetCredentials.ESET_ALL)
+        SetCredentials.objects.create(role=role, value=SetCredentials.CRED_VIEW,
+                                      set_type=SetCredentials.ESET_ALL)
 
         self.user.role = role
         self.user.save()
@@ -632,9 +616,8 @@ class CredentialsTestCase(TestCase):
 
     def test_multisave01(self): #old lines were not cleaned if an Entiy was re-save
         role = UserRole.objects.create(name='Coder')
-        SetCredentials.objects.create(role=role,
-                                        value=SetCredentials.CRED_VIEW,
-                                        set_type=SetCredentials.ESET_ALL)
+        SetCredentials.objects.create(role=role, value=SetCredentials.CRED_VIEW,
+                                      set_type=SetCredentials.ESET_ALL)
 
         self.user.role = role
         self.user.save()
@@ -647,5 +630,98 @@ class CredentialsTestCase(TestCase):
         entity3.user = self.other_user
         entity3.save()
         self.assertEqual(2, EntityCredentials.objects.count())
+
+    def test_create_team01(self):
+        team = User.objects.create(username='Teamee')
+
+        self.failIf(team.is_team)
+
+        try:
+            team.teammates = [self.user]
+        except ValueError:
+            pass
+        else:
+            self.fail()
+
+        try:
+            teammates = team.teammates
+        except ValueError:
+            pass
+        else:
+            self.fail()
+
+    def test_create_team02(self):
+        team = User.objects.create(username='Teamee', is_team=True)
+
+        team.teammates = [self.user, self.other_user]
+        teammates = team.teammates
+        self.assertEqual(2, len(teammates))
+
+        self.assert_(all(isinstance(u, User) for u in teammates.itervalues()))
+
+        ids_set = set([self.user.id, self.other_user.id])
+        self.assertEqual(ids_set, set(teammates.iterkeys()))
+        self.assertEqual(ids_set, set(u.id for u in teammates.itervalues()))
+
+        user3 = User.objects.create_user('Kanna', 'kanna@century.jp', 'uselesspw')
+        team.teammates = [self.user, self.other_user, user3]
+        self.assertEqual(3, len(team.teammates))
+
+        team.teammates = [self.other_user]
+        self.assertEqual(1, len(team.teammates))
+
+    def _create_team(self, name, teammates):
+        team = User.objects.create(username=name, is_team=True, role=None)
+        team.teammates = teammates
+        return team
+
+    def test_team_credentials(self):
+        role = self._create_role('Worker', ['creme_core'])
+        SetCredentials.objects.create(role=role, value=SetCredentials.CRED_VIEW,
+                                      set_type=SetCredentials.ESET_OWN)
+
+        self.user.role = role
+        self.user.save()
+
+        team = self._create_team('Teamee', [self.user])
+
+        entity3 = CremeEntity.objects.create(user=team)
+        self.assert_(not entity3.can_view(self.other_user))
+        self.assert_(entity3.can_view(self.user)) #belongs to the team
+
+        self.assertEqual(0, EntityCredentials.objects.filter(user=team).count())
+
+    def test_team_credentials_updating01(self):
+        role = self._create_role('Worker', ['creme_core'])
+        SetCredentials.objects.create(role=role, value=SetCredentials.CRED_VIEW,
+                                      set_type=SetCredentials.ESET_OWN)
+
+        self.user.role = role
+        self.user.save()
+
+        team    = self._create_team('Teamee', [])
+        entity3 = CremeEntity.objects.create(user=team)
+
+        self.assert_(not entity3.can_view(self.user))
+
+        team.teammates = [self.user] #credentials should be updated automaticcaly
+        self.assert_(CremeEntity.objects.get(pk=entity3.id).can_view(self.user))
+
+    def test_team_credentials_updating02(self):
+        role = self._create_role('Worker', ['creme_core'])
+        SetCredentials.objects.create(role=role, value=SetCredentials.CRED_VIEW,
+                                      set_type=SetCredentials.ESET_OWN)
+
+        self.user.role = role
+        self.user.save()
+
+        team    = self._create_team('Teamee', [self.user])
+        entity3 = CremeEntity.objects.create(user=team)
+        self.assert_(entity3.can_view(self.user))
+
+        team.teammates = [] #ie: remove 'self.user'
+        self.assertEqual({}, team.teammates)
+
+        self.assert_(not CremeEntity.objects.get(pk=entity3.id).can_view(self.user))
 
     #TODO: don't write cred if equals to default creds ??????

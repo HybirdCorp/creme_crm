@@ -67,6 +67,9 @@ class ToDo(CremeModel):
     def get_todos_for_ctypes(ct_ids, user):
         return ToDo.objects.filter(entity_content_type__in=ct_ids, for_user=user).select_related('for_user')
 
+    def get_related_entity(self): #for generic views
+        return self.creme_entity
+
 
 #TODO: can delete this with  a WeakForeignKey ??
 def dispose_entity_todos(sender, instance, **kwargs):

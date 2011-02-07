@@ -21,22 +21,19 @@
 from django.http import HttpResponseRedirect
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext
+from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required
 
 from creme_core.models import CremeEntity
-from creme_core.gui.last_viewed import change_page_for_last_viewed
 from creme_core.views.generic.popup import inner_popup
 
 
-@login_required
 def add_entity(request, form_class, url_redirect='', template='creme_core/generics/blockform/add.html',
                function_post_save=None, extra_initial=None, extra_template_dict=None):
     """
     @param url_redirect: string or format string with ONE argument replaced by the id of the created entity.
     @param function_post_save: allow processing on the just saved entity. Its signature: function_post_save(request, entity)
     """
-    change_page_for_last_viewed(request)
-
     initial_dict = {'user': request.user.id}
     if extra_initial:
         initial_dict.update(extra_initial)
@@ -71,8 +68,6 @@ def add_entity(request, form_class, url_redirect='', template='creme_core/generi
     return render_to_response(template, template_dict,
                               context_instance=RequestContext(request))
 
-#TODO: @permission_required('app_name') ??
-@login_required
 def add_to_entity(request, entity_id, form_class, title, entity_class=None, initial=None,
                   template='creme_core/generics/blockform/add_popup2.html'):
     """ Add models related to one CremeEntity (eg: a CremeProperty)
@@ -80,7 +75,7 @@ def add_to_entity(request, entity_id, form_class, title, entity_class=None, init
     @param form_class Form which first __init__'s argument MUST BE the related CremeEntity.
     @param title Title of the Inner Popup: Must be a format string with one arg: the related entity.
     @param entity_class If given, it's the entity's class (else it could be any class inheriting CremeEntity)
-    @param initial classical 'initial' of Forms (passed when the request is a GET)
+    @param initial classical 'initial' of Forms
     """
     entity = get_object_or_404(entity_class, pk=entity_id) if entity_class else \
              get_object_or_404(CremeEntity, pk=entity_id).get_real_entity()
@@ -104,3 +99,28 @@ def add_to_entity(request, entity_id, form_class, title, entity_class=None, init
                        reload=False,
                        delegate_reload=True,
                        context_instance=RequestContext(request))
+
+def add_model_with_popup(request, form_class, title=None, initial=None,
+                        template='creme_core/generics/blockform/add_popup2.html'):
+    """
+    @param title Title of the Inner Popup.
+    @param initial classical 'initial' of Forms (passed when the request is a GET)
+    """
+    if request.method == 'POST':
+        form = form_class(request.POST, request.FILES or None, initial=initial)
+
+        if form.is_valid():
+            form.save()
+    else:
+        form = form_class(initial=initial)
+
+    return inner_popup(request, template,
+                       {
+                        'form':   form,
+                        'title':  title or _(u'New'),
+                       },
+                       is_valid=form.is_valid(),
+                       reload=False,
+                       delegate_reload=True,
+                       context_instance=RequestContext(request)
+                      )
