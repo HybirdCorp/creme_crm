@@ -264,7 +264,7 @@ class EventsTestCase(TestCase):
         self.assertEqual(0, stats['accepted_count'])
         self.assertEqual(0, stats['refused_count'])
 
-    def test_set_invitation_status04(self):
+    def test_set_invitation_status05(self):
         self.login()
 
         event = self.create_event('Eclipse', EventType.objects.all()[0])

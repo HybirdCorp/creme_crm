@@ -205,7 +205,7 @@ class CredentialsTestCase(TestCase):
         qs = EntityCredentials.filter(self.user, self.build_qs())
         self.assertEqual([self.entity2.id], self.ids_list(qs))
 
-    def test_filter05(self): #super-user
+    def test_filter06(self): #super-user
         self.user.is_superuser = True
 
         qs = EntityCredentials.filter(self.user, self.build_qs())
