@@ -324,11 +324,9 @@ def delete_similar(request):
 
     subject.can_delete_or_die(request.user) #TODO: delete credentials on 'subject' ?? only it ???
 
-    print rtype_id
-    print RelationType._is_relation_type_internal(rtype_id)
     RelationType._is_relation_type_internal_die(rtype_id, _("You can't delete this relation"))
 
-    return HttpResponse("stop")
+    return HttpResponse("")
 
     for relation in Relation.objects.filter(subject_entity=subject, type=rtype_id, object_entity=object_id):
         relation.get_real_entity().delete()
