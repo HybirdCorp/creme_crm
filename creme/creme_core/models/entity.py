@@ -63,6 +63,9 @@ class CremeEntity(CremeAbstractEntity):
         app_label = 'creme_core'
         ordering = ('id',)
 
+    class CanNotBeDeleted(Exception):
+        pass
+
     def __init__(self, *args, **kwargs):
         super(CremeEntity, self).__init__(*args, **kwargs)
         self._relations_map = {}
@@ -73,16 +76,19 @@ class CremeEntity(CremeAbstractEntity):
     def delete(self):
         from auth import EntityCredentials
 
-        for relation in self.relations.all():
-            relation.delete()
+        if settings.TRUE_DELETE:
+            if not self.can_be_deleted():
+                raise CremeEntity.CanNotBeDeleted(ugettext(u'%s can not be deleted because of its dependencies.') % self)
 
-        for prop in self.properties.all():
-            prop.delete()
+            for relation in self.relations.all():
+                relation.delete()
 
-        CustomFieldValue.delete_all(self)
-        EntityCredentials.objects.filter(entity=self).delete()
+            for prop in self.properties.all():
+                prop.delete()
 
-        if settings.TRUE_DELETE and self.can_be_deleted():
+            CustomFieldValue.delete_all(self)
+            EntityCredentials.objects.filter(entity=self).delete()
+
             super(CremeEntity, self).delete()
         else:
             self.is_deleted = True #TODO: custom_fields and credentials are deleted anyway ??
@@ -128,7 +134,7 @@ class CremeEntity(CremeAbstractEntity):
 
     @staticmethod
     def populate_credentials(entities, user): #TODO: unit test...
-        """ @param entities Seequence of CremeEntity (iterated several times _> not an iterator)
+        """ @param entities Sequence of CremeEntity (iterated several times -> not an iterator)
         """
         from auth import EntityCredentials
         creds_map = EntityCredentials.get_creds_map(user, entities)
@@ -225,7 +231,7 @@ class CremeEntity(CremeAbstractEntity):
         return {
                 'default': EntityAction(self.get_absolute_url(), ugettext(u"See"), True, icon="images/view_16.png"),
                 'others':  [EntityAction(self.get_edit_absolute_url(),   ugettext(u"Edit"),   self.can_change(user), icon="images/edit_16.png"),
-                            EntityAction(self.get_delete_absolute_url(), ugettext(u"Delete"), self.can_delete(user), icon="images/delete_16.png", attrs={'class': 'confirm_delete'}),
+                            EntityAction(self.get_delete_absolute_url(), ugettext(u"Delete"), self.can_delete(user), icon="images/delete_16.png", attrs={'class': 'confirm post ajax lv_reload'}),
                            ]
                }
 
@@ -238,7 +244,7 @@ class CremeEntity(CremeAbstractEntity):
     def get_properties(self):
         if self._properties is None:
             debug('CremeEntity.get_properties(): Cache MISS for id=%s', self.id)
-            self._properties = self.properties.all().select_related('type')
+            self._properties = list(self.properties.all().select_related('type'))
         else:
             debug('CremeEntity.get_properties(): Cache HIT for id=%s', self.id)
 

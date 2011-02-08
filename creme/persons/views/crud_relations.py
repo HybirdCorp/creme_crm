@@ -20,42 +20,47 @@
 
 from django.http import HttpResponseRedirect, Http404
 from django.shortcuts import get_object_or_404
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, permission_required
 
 from creme_core.models import CremeEntity, Relation, RelationType
+from creme_core.utils import get_from_POST_or_404
 
 from persons.constants import REL_SUB_CUSTOMER_OF, REL_SUB_PROSPECT, REL_SUB_SUSPECT, REL_SUB_INACTIVE, REL_SUB_SUPPLIER
 from persons.models import Organisation
 
-#TODO: use POST instead of GET (some data are written)
-#TODO: credentials ??
 
+#TODO: credentials ??
 #TODO: generalise and move to creme_core ??
 @login_required
-def _link(request, entity_id, relation_type_id, mngd_orga_id):
+@permission_required('persons')
+def _link(request, entity_id, relation_type_id):
+    mngd_orga_id = get_from_POST_or_404(request.POST, 'id', int)
+
     entity = get_object_or_404(CremeEntity, pk=entity_id).get_real_entity()
 
     relation_type = get_object_or_404(RelationType, pk=relation_type_id)
     managed_orga  = get_object_or_404(Organisation, pk=mngd_orga_id)
 
-    if not relation_type.subject_ctypes.filter(id=entity.entity_type_id).exists():
+    if not relation_type.subject_ctypes.filter(id=entity.entity_type_id).exists(): #TODO: in a Relation type method() ??
         raise Http404('Incompatible relation type') #bof bof
 
-    Relation.create(entity, relation_type_id, managed_orga)
+    Relation.objects.create(subject_entity=entity, type_id=relation_type_id,
+                            object_entity=managed_orga, user=request.user,
+                           )
 
     return HttpResponseRedirect(entity.get_absolute_url())
 
-def become_customer(request, entity_id, mngd_orga_id):
-    return _link(request, entity_id, REL_SUB_CUSTOMER_OF, mngd_orga_id)
+def become_customer(request, entity_id):
+    return _link(request, entity_id, REL_SUB_CUSTOMER_OF)
 
-def become_prospect(request, entity_id, mngd_orga_id):
-    return _link(request, entity_id, REL_SUB_PROSPECT, mngd_orga_id)
+def become_prospect(request, entity_id):
+    return _link(request, entity_id, REL_SUB_PROSPECT)
 
-def become_suspect(request, entity_id, mngd_orga_id):
-    return _link(request, entity_id, REL_SUB_SUSPECT, mngd_orga_id)
+def become_suspect(request, entity_id):
+    return _link(request, entity_id, REL_SUB_SUSPECT)
 
-def become_inactive(request, entity_id, mngd_orga_id):
-    return _link(request, entity_id, REL_SUB_INACTIVE, mngd_orga_id)
+def become_inactive(request, entity_id):
+    return _link(request, entity_id, REL_SUB_INACTIVE)
 
-def become_supplier(request, entity_id, mngd_orga_id):
-    return _link(request, entity_id, REL_SUB_SUPPLIER, mngd_orga_id)
+def become_supplier(request, entity_id):
+    return _link(request, entity_id, REL_SUB_SUPPLIER)

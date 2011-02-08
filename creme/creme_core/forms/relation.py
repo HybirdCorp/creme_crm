@@ -18,6 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from django.db.models import Q
 from django.forms import CharField, ValidationError
 from django.utils.translation import ugettext_lazy as _, ugettext
 from django.contrib.contenttypes.models import ContentType
@@ -74,13 +75,16 @@ class RelationCreateForm(CremeForm):
         return cleaned_data
 
     def save(self):
+        subject = self.subject
+        user_id = self.user_id
+        create_relation = Relation.objects.create
+
         for relation_type_id, entity in self.cleaned_data['relations']:
-            relation = Relation()
-            relation.user_id = self.user_id
-            relation.type_id = relation_type_id
-            relation.subject_entity = self.subject
-            relation.object_entity_id = entity.id
-            relation.save()
+            create_relation(user_id=user_id,
+                            subject_entity=subject,
+                            type_id=relation_type_id,
+                            object_entity_id=entity.id
+                           )
 
 
 class MultiEntitiesRelationCreateForm(RelationCreateForm):
@@ -92,23 +96,34 @@ class MultiEntitiesRelationCreateForm(RelationCreateForm):
         self.user_id = user_id
 
         if subjects:
-            fields = self.fields
-            fields['entities_lbl'].initial = ",".join((unicode(subject) for subject in subjects))
+            self.fields['entities_lbl'].initial = ",".join((unicode(subject) for subject in subjects))
+
+    @staticmethod
+    def hash_relation(subject_id, rtype_id, object_id):
+        return '%s#%s#%s' % (subject_id, rtype_id, object_id)
 
     def save(self):
         user_id = self.user_id
+        relations_cdata = self.cleaned_data['relations']
+        existing_relations_query = Q()
 
-        rel_man = Relation.objects
-        rel_get = rel_man.get
-        rel_filter = rel_man.filter
-
-        #TODO: odd code
         for subject in self.subjects:
-            for predicate_id, entity in self.cleaned_data['relations']:
-                try:
-                    rel_get(user=user_id, type=predicate_id, subject_entity=subject, object_entity=entity) 
-                except Relation.MultipleObjectsReturned:
-                    rel_filter(user=user_id, type=predicate_id, subject_entity=subject, object_entity=entity).delete()
-                    Relation.create(subject, predicate_id, entity, user_id)
-                except Relation.DoesNotExist:
-                    Relation.create(subject, predicate_id, entity, user_id)
+            for rtype_id, object_entity in relations_cdata:
+                existing_relations_query |= Q(type=rtype_id, subject_entity=subject, object_entity=object_entity)
+
+        hash_relation = self.hash_relation
+        existing_relations = frozenset(hash_relation(r.subject_entity_id, r.type_id, r.object_entity_id)
+                                            for r in Relation.objects.filter(existing_relations_query)
+                                      )
+
+        create_relation = Relation.objects.create
+
+        #TODO: check credentials for relations' objects ???
+        for subject in self.subjects:
+            for rtype_id, object_entity in relations_cdata:
+                if not hash_relation(subject.id, rtype_id, object_entity.id) in existing_relations:
+                    create_relation(user_id=user_id,
+                                    subject_entity=subject,
+                                    type_id=rtype_id,
+                                    object_entity=object_entity,
+                                   )

@@ -3,10 +3,6 @@
 
 {% block page_title %} - {% trans "Synchronization of incoming emails with Creme" %}{% endblock %}
 
-{% comment %}{% block extrahead %}
-    <script type="text/javascript" src="{{MEDIA_URL}}js/models/emails.js"></script>
-{% endblock %}{% endcomment %}
-
 {% block content %}
     {% include "emails/frags/ajax/synchronize.html" %}
 {% endblock %}

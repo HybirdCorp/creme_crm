@@ -20,19 +20,18 @@
 
 from logging import debug #
 
-from django.http import HttpResponseRedirect, HttpResponse, Http404
+from django.http import HttpResponse, Http404
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext
+from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required, permission_required
 
 from creme_core.models import RelationType
-from creme_core.views.generic import add_entity
+from creme_core.views.generic import add_model_with_popup, inner_popup
 from creme_core.utils import get_from_POST_or_404
 
 from creme_config.forms.relation_type import RelationTypeCreateForm, RelationTypeEditForm
 
-
-portal_url = '/creme_config/relation_type/portal/'
 
 @login_required
 @permission_required('creme_config')
@@ -44,28 +43,35 @@ def portal(request):
 @login_required
 @permission_required('creme_config.can_admin')
 def add(request):
-    return add_entity(request, RelationTypeCreateForm, portal_url)
+    return add_model_with_popup(request, RelationTypeCreateForm, _(u'New custom type'))
 
 @login_required
 @permission_required('creme_config.can_admin')
 def edit(request, relation_type_id):
     relation_type = get_object_or_404(RelationType, pk=relation_type_id)
 
-    if not relation_type.is_custom:
+    if not relation_type.is_custom: #TODO: in a generic method (can_edit or die() ?) and use edit_model_with_popup() ?
         raise Http404("Can't edit a standard RelationType") #TODO: 403 instead ?
 
-    if request.POST:
+    if request.method == 'POST':
         form = RelationTypeEditForm(relation_type, request.POST)
 
         if form.is_valid():
             form.save()
-            return HttpResponseRedirect(portal_url)
     else:
         form = RelationTypeEditForm(instance=relation_type)
 
-    return render_to_response('creme_core/generics/blockform/edit.html',
-                              {'form': form},
-                              context_instance=RequestContext(request))
+    return inner_popup(request,
+                       'creme_core/generics/blockform/edit_popup.html',
+                       {
+                        'form':  form,
+                        'title': _(u'Edit the type "%s"') % relation_type,
+                       },
+                       is_valid=form.is_valid(),
+                       reload=False,
+                       delegate_reload=True,
+                       context_instance=RequestContext(request)
+                      )
 
 @login_required
 @permission_required('creme_config.can_admin')

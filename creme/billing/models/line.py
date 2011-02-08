@@ -66,6 +66,9 @@ class Line(CremeModel):
         else:
             return round_to_2(self.quantity * (self.unit_price - self.discount))
 
+    def get_related_entity(self): #for generic views
+        return self.document
+
     def clone(self):
         clone = self.__class__()
         clone.on_the_fly_item   = self.on_the_fly_item

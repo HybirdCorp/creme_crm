@@ -30,7 +30,7 @@ from creme_core.utils.meta import get_flds_with_fk_flds_str
 from creme_core.models import SearchConfigItem, SearchField
 
 
-EXCLUDED_FIELDS_TYPES = frozenset(['AutoField','DateTimeField','DateField', 'FileField', 'ImageField', 'OneToOneField'])
+EXCLUDED_FIELDS_TYPES = frozenset(['AutoField', 'DateTimeField', 'DateField', 'FileField', 'ImageField', 'OneToOneField'])
 
 class SearchAddForm(CremeForm):
     ct_id  = ChoiceField(label=_(u'Related resource'), choices=(), required=True)
@@ -64,20 +64,20 @@ class SearchAddForm(CremeForm):
         sfi.save()
 
 
-class SearchEditForm(CremeForm):
+class SearchEditForm(CremeForm): #TODO: why not CremeModel form ??
     ct     = CharField(label=_(u"Related resource"),  widget=Label())
     fields = MultipleChoiceField(label=_(u'Concerned fields'), required=False,
                                  choices=(), widget=OrderedMultipleChoiceWidget)
     user   = ModelChoiceField(label=_(u'User'), queryset=User.objects.all(),
                               empty_label=_(u"All users"), required=False)
 
-    def __init__(self, search_cfg_itm, *args, **kwargs):
+    def __init__(self, *args, **kwargs):
+        self.search_cfg_itm = search_cfg_itm = kwargs.pop('instance')
         super(SearchEditForm, self).__init__(*args, **kwargs)
 
         fields = self.fields
         target_model = search_cfg_itm.content_type.model_class()
 
-        self.search_cfg_itm = search_cfg_itm
         fields['ct'].initial = target_model._meta.verbose_name
 
         #For the moment the research is only done with icontains so we avoid so field's type
@@ -91,7 +91,7 @@ class SearchEditForm(CremeForm):
         fields['fields'].choices = model_fields
         fields['fields'].initial = search_cfg_fields
 
-        if search_cfg_itm.user:
+        if search_cfg_itm.user: #TODO: search_cfg_itm.user_id ??
             fields['user'].initial = search_cfg_itm.user.pk
 
     def save(self):
