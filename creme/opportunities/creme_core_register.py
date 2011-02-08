@@ -41,4 +41,5 @@ reg_item('/opportunities/opportunity/add', _(u'Add an opportunity'), 'opportunit
 button_registry.register(linked_opportunity_button)
 
 block_registry.register(linked_contacts_block, linked_products_block, linked_services_block,
-                        responsibles_block, quotes_block, sales_orders_block, invoices_block)
+                        responsibles_block, quotes_block, sales_orders_block, invoices_block,
+                        target_organisation_block)

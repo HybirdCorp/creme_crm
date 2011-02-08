@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-01-18 10:37+0100\n"
+"POT-Creation-Date: 2011-02-08 16:58+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -16,34 +16,38 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: blocks.py:45
+#: blocks.py:47
 msgid "Linked Contacts"
 msgstr "Contacts liés"
 
-#: blocks.py:66
+#: blocks.py:68
 msgid "Linked Products"
 msgstr "Produits liés"
 
-#: blocks.py:90
+#: blocks.py:92
 msgid "Linked Services"
 msgstr "Services liés"
 
-#: blocks.py:114
+#: blocks.py:116
 #: templates/opportunities/templatetags/block_responsibles.html:9
 msgid "Responsibles"
 msgstr "Chargés d'affaire'"
 
-#: blocks.py:136
+#: blocks.py:138
 msgid "Quotes linked to the opportunity"
 msgstr "Devis liés à l'opportunité"
 
-#: blocks.py:162
+#: blocks.py:164
 msgid "Salesorders linked to the opportunity"
 msgstr "Bons de commande liés à l'opportunité"
 
-#: blocks.py:188
+#: blocks.py:190
 msgid "Invoices linked to the opportunity"
 msgstr "Factures liées à l'opportunité"
+
+#: blocks.py:214
+msgid "Opportunities which target the organisation"
+msgstr "Opportunités qui ciblent la société"
 
 #: buttons.py:28
 msgid "Add an opportunity linked to an organisation"
@@ -201,6 +205,7 @@ msgstr "Vue d'Opportunité"
 #: templates/opportunities/templatetags/block_responsibles.html:22
 #: templates/opportunities/templatetags/block_sales_orders.html:27
 #: templates/opportunities/templatetags/block_services.html:24
+#: templates/opportunities/templatetags/block_target_orga.html:27
 msgid "Name"
 msgstr "Nom"
 
@@ -257,14 +262,17 @@ msgid "Name of the opportunity"
 msgstr "Nom de l'opportunité"
 
 #: models/opportunity.py:78
+#: templates/opportunities/templatetags/block_target_orga.html:28
 msgid "Estimated sales"
 msgstr "CA estimé"
 
 #: models/opportunity.py:79
+#: templates/opportunities/templatetags/block_target_orga.html:29
 msgid "Made sales"
 msgstr "CA final"
 
 #: models/opportunity.py:80
+#: templates/opportunities/templatetags/block_target_orga.html:30
 msgid "Sales phase"
 msgstr "Phase de vente"
 
@@ -274,6 +282,9 @@ msgid "% of chance to win"
 msgstr "% de chance d'obtention"
 
 #: models/opportunity.py:94 templates/opportunities/portal.html:4
+#: templates/opportunities/templatetags/block_target_orga.html:6
+#: templates/opportunities/templatetags/block_target_orga.html:12
+#: templates/opportunities/templatetags/block_target_orga.html:17
 #: templates/opportunities/templatetags/button_linked_opp.html:4
 #: templates/opportunities/templatetags/button_linked_opp.html:9
 msgid "Opportunity"
@@ -488,14 +499,35 @@ msgstr "Lier à un service existant"
 msgid "No related service for the moment"
 msgstr "Aucun service concerné pour le moment"
 
+#: templates/opportunities/templatetags/block_target_orga.html:6
+#, python-format
+msgid "%s Opportunity which targets the organisation"
+msgstr "%s Opportunité qui cible la société"
+
+#: templates/opportunities/templatetags/block_target_orga.html:6
+#, python-format
+msgid "%s Opportunities which target the organisation"
+msgstr "%s Opportunités qui ciblent la société"
+
+#: templates/opportunities/templatetags/block_target_orga.html:13
+#: templates/opportunities/templatetags/block_target_orga.html:18
 #: templates/opportunities/templatetags/button_linked_opp.html:5
 #: templates/opportunities/templatetags/button_linked_opp.html:10
 msgid "Create a linked opportunity"
 msgstr "Créer une opportunité reliée"
 
+#: templates/opportunities/templatetags/block_target_orga.html:16
 #: templates/opportunities/templatetags/button_linked_opp.html:8
 msgid "forbidden"
 msgstr "interdit"
+
+#: templates/opportunities/templatetags/block_target_orga.html:31
+msgid "Delete the opportunity"
+msgstr "Supprimer l'opportunité"
+
+#: templates/opportunities/templatetags/block_target_orga.html:49
+msgid "No opportunity for the moment"
+msgstr "Aucune opportunité pour le moment"
 
 #: views/opportunity.py:99
 #, python-format

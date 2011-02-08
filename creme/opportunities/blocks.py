@@ -31,10 +31,12 @@ from products.models import Product, Service
 from billing.models import Quote, Invoice, SalesOrder
 
 from constants import *
+from models import Opportunity
 
 
 __all__ = ['linked_contacts_block', 'linked_products_block', 'linked_services_block',
-           'responsibles_block', 'quotes_block', 'sales_orders_block', 'invoices_block']
+           'responsibles_block', 'quotes_block', 'sales_orders_block', 'invoices_block',
+           'target_organisation_block']
 
 _contact_ct_id = None
 
@@ -205,11 +207,28 @@ class InvoicesBlock(QuerysetBlock):
                                                             predicate_id=REL_OBJ_LINKED_INVOICE,
                                                             ct_id=self._invoice_ct_id))
 
+class TargetOrganisationsBlock(QuerysetBlock):
+    id_           = QuerysetBlock.generate_id('opportunities', 'target_organisations')
+    dependencies  = (Relation,) #Organisation
+    relation_type_deps = (REL_OBJ_TARGETS_ORGA, )
+    verbose_name  = _(u"Opportunities which target the organisation")
+    template_name = 'opportunities/templatetags/block_target_orga.html'
 
-linked_contacts_block = LinkedContactsBlock()
-linked_products_block = LinkedProductsBlock()
-linked_services_block = LinkedServicesBlock()
-responsibles_block    = ResponsiblesBlock()
-quotes_block          = QuotesBlock()
-sales_orders_block    = SalesOrdersBlock()
-invoices_block        = InvoicesBlock()
+    def detailview_display(self, context):
+        orga = context['object']
+
+        return self._render(self.get_block_template_context(context,
+                                                            Opportunity.objects.filter(relations__object_entity=orga.id, relations__type=REL_SUB_TARGETS_ORGA),
+                                                            update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, orga.pk),
+                                                            predicate_id=REL_OBJ_TARGETS_ORGA,
+                                                            ct=ContentType.objects.get_for_model(Opportunity),
+                                                            ))
+
+linked_contacts_block     = LinkedContactsBlock()
+linked_products_block     = LinkedProductsBlock()
+linked_services_block     = LinkedServicesBlock()
+responsibles_block        = ResponsiblesBlock()
+quotes_block              = QuotesBlock()
+sales_orders_block        = SalesOrdersBlock()
+invoices_block            = InvoicesBlock()
+target_organisation_block = TargetOrganisationsBlock()
