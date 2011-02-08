@@ -27,7 +27,9 @@
                                 <a href="{{entity_obj.get_absolute_url}}">{{entity_obj}}</a>
                             </td>
                             <td class="{% cycle "block_line_dark" "block_line_light" %}" align="center" valign="center" style="width:10%;">
-                                {% get_line_deletor at_url '/creme_core/relation/delete' with_args "{'id':{{relation.pk}}, 'object_id':{{object.pk}} }" %}
+                                {% if not relation.type.is_internal %}
+                                    {% get_line_deletor at_url '/creme_core/relation/delete' with_args "{'id':{{relation.pk}}, 'object_id':{{object.pk}} }" %}
+                                {% endif %}
                             </td>
                         </tr>
                     {% endwith %}
