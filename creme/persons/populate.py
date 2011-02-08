@@ -18,6 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+
 from django.utils.translation import ugettext as _
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.auth.models import User
@@ -27,8 +28,10 @@ from creme_core.models.header_filter import HeaderFilterItem, HeaderFilter, HFI_
 
 from creme_core.models import (RelationType, CremeProperty, CremePropertyType, ButtonMenuItem, 
                               SearchConfigItem, RelationBlockItem, BlockConfigItem)
+from creme_core.models.list_view_filter import FilterCondition, FilterValue, Filter
 
-from creme_core.constants import PROP_IS_MANAGED_BY_CREME
+
+from creme_core.constants import PROP_IS_MANAGED_BY_CREME, FILTER_TYPE_EQUALS
 from creme_core.utils import create_or_update_models_instance as create
 from creme_core.utils.id_generator import generate_string_id_and_save
 
@@ -140,6 +143,17 @@ class Populator(BasePopulator):
         create(ButtonMenuItem, 'persons-inactive_orga_button',  content_type_id=orga_ct_id, button_id=become_inactive_button.id_,    order=23)
         create(ButtonMenuItem, 'persons-supplier_button',       content_type_id=orga_ct_id, button_id=become_supplier_button.id_,    order=24)
         create(ButtonMenuItem, 'persons-linked_contact_button', content_type_id=orga_ct_id, button_id=add_linked_contact_button.id_, order=25)
+
+        #Create a list view filter to use it in the report
+        managed_orga_filter = create(Filter, name=_(u"Managed by creme"), model_ct_id=orga_ct_id, is_custom=False)
+        managed_orga_filter_cond  = create(FilterCondition, type_id=FILTER_TYPE_EQUALS, champ='properties__type__id')
+        managed_orga_filter_value = create(FilterValue, value=PROP_IS_MANAGED_BY_CREME)
+
+        managed_orga_filter_cond.values = [managed_orga_filter_value]
+        managed_orga_filter_cond.save()
+
+        managed_orga_filter.conditions = [managed_orga_filter_cond]
+        managed_orga_filter.save()
 
 
         admin = User.objects.get(pk=1) #TODO: use constant ?????
