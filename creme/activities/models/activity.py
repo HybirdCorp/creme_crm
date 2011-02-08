@@ -52,6 +52,13 @@ class Calendar(CremeModel):
         super(Calendar, self).delete()#TODO: Verify self is not the last calendar? transfert is_default on another cal?
 
     @staticmethod
+    def get_user_calendars(user, get_default_if_none=True):
+        calendars = Calendar.objects.filter(user=user)
+        if not calendars and get_default_if_none:
+            calendars = [Calendar.get_user_default_calendar(user)]
+        return calendars
+
+    @staticmethod
     def get_user_default_calendar(user):
         """ Returns the default user calendar and creating it if necessary"""
         try:
