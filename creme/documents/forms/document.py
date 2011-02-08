@@ -21,10 +21,9 @@
 from logging import debug
 
 from django.db.models.query_utils import Q
-from django.forms.widgets import HiddenInput
-from django.forms import ModelChoiceField, CharField
+from django.forms import CharField
 
-from creme_core.models import CremeEntity, Relation
+from creme_core.models import Relation
 from creme_core.forms import CremeEntityForm
 from creme_core.forms.widgets import UploadedFileWidget
 from creme_core.views.file_handling import handle_uploaded_file
@@ -61,61 +60,51 @@ class DocumentEditForm(CremeEntityForm):
 
 
 class DocumentCreateViewForm(DocumentCreateForm):
-    entity = ModelChoiceField(queryset=CremeEntity.objects.all(), widget=HiddenInput()) #TODO: pass entity_id to __init__ instead ??
-
     class Meta(CremeEntityForm.Meta):
         model   = Document
         exclude = CremeEntityForm.Meta.exclude + ('folder', )
 
     def __init__(self, *args, **kwargs):
         super(DocumentCreateViewForm, self).__init__(*args, **kwargs)
-        entity_id = self.initial.get('entity_id')
-        #debug('entity_id : %s ', entity_id)
-        #debug('self.initial : %s ', self.initial)
-
-        if entity_id:
-            try:
-                self.fields['entity'].queryset = CremeEntity.objects.filter(pk=entity_id)
-                self.initial['entity'] = entity_id
-            except CremeEntity.DoesNotExist, e:
-                debug('CremeEntity.DoesNotExist : %s', e)
+        self.related_entity = self.initial['entity']
 
     def save(self):
-        cleaned_data = self.cleaned_data
-        entity = cleaned_data['entity']
-        user = cleaned_data['user']
+        entity = self.related_entity.get_real_entity()
+        user   = self.cleaned_data['user']
 
         try:
-            entity_klass = entity.entity_type.model_class()
-            real_entity = entity_klass.objects.get(pk=entity.id) #doable in only one line...
-        except entity_klass.DoesNotExist, e: #bof
-            debug('Error: %s', e)
-
-        try:
-            creme_folder = Folder.objects.get(title='Creme')#Unique title (created in populate.py)
+            creme_folder = Folder.objects.get(title='Creme') #Unique title (created in populate.py)
             creme_folder_category = FolderCategory.objects.get(pk=DOCUMENTS_FROM_ENTITIES)
-            model_folder_kwargs = {'title': real_entity.entity_type, 'parent_folder': creme_folder, 'category': creme_folder_category}
+            model_folder_kwargs = {'title': entity.entity_type, 'parent_folder': creme_folder, 'category': creme_folder_category}
 
             try:
                 model_folder = Folder.objects.get(Q(**model_folder_kwargs))
-            except Folder.DoesNotExist, c_exc:
-                debug('Folder.DoesNotExist :%s', c_exc)
+            except Folder.DoesNotExist, e:
+                debug('Folder.DoesNotExist: %s', e)
                 model_folder = Folder(**model_folder_kwargs)
                 model_folder.user = user
                 model_folder.save()
 
             try:
-                entity_folder = Folder.objects.get(title=u'%s_%s' % (real_entity.id, unicode(real_entity))) #beurkkk
-            except Folder.DoesNotExist, c_exc:
-                debug('Folder.DoesNotExist :%s', c_exc)
-                entity_folder = Folder(title=u'%s_%s' % (real_entity.id, unicode(real_entity)),
+                entity_folder = Folder.objects.get(title=u'%s_%s' % (entity.id, unicode(entity))) #beurkkk
+            except Folder.DoesNotExist, e:
+                debug('Folder.DoesNotExist: %s', e)
+                entity_folder = Folder(title=u'%s_%s' % (entity.id, unicode(entity)),
                                        parent_folder=model_folder,
                                        category=creme_folder_category,
-                                       user=user)
+                                       user=user
+                                      )
                 entity_folder.save()
-        except (Folder.DoesNotExist, FolderCategory.DoesNotExist), c_exc:
-            debug("Populate.py had not been run ?! : %s", c_exc)
+        except (Folder.DoesNotExist, FolderCategory.DoesNotExist), e:
+            debug("Populate.py had not been run ?! : %s", e)
 
         self.instance.folder = entity_folder
         super(DocumentCreateViewForm, self).save()
-        Relation.create(real_entity, REL_SUB_RELATED_2_DOC, self.instance)
+
+        Relation.objects.create(subject_entity=entity,
+                                type_id=REL_SUB_RELATED_2_DOC,
+                                object_entity=self.instance,
+                                user=user
+                               )
+
+        return self.instance

@@ -54,6 +54,7 @@ def add(request):
                        delegate_reload=True,
                        context_instance=RequestContext(request))
 
+@login_required
 def add_to_entity(request, entity_id):
     return generic_add_to_entity(request, entity_id, UserMessageForm,
                                  _(u'New message about <%s>'),

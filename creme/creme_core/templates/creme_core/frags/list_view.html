@@ -1,23 +1,21 @@
-{% comment %}<script type="text/javascript" src="{{MEDIA_URL}}js/models/list_view.core.js"></script>
-<script type="text/javascript" src="{{MEDIA_URL}}js/jquery/extensions/jquery.magnifier.js"></script>{% endcomment %}
 <script type="text/javascript">
     $(document).ready(function (){
         $('form[name="list_view_form"]').list_view({
             o2m: {{o2m|lower}},
-            kd_submitHandler : function (e, input){
+            kd_submitHandler : function (e, input) {
                  e = (window.event)?window.event:e;
 
                 var key=(window.event)?e.keyCode:e.which;
 
-                if (key == 13){
+                if (key == 13) {
                     $(input.form).list_view('getSubmit')(input);
                 }
                 return true;
             },
-            submitHandler : function (input){
+            submitHandler : function (input) {
                 var options = {
                     'action': '?ajax=true',
-                    'success':function(data, status){
+                    'success':function(data, status) {
                         $(input.form).empty().html(data);
                     }
                 };

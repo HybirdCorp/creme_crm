@@ -89,8 +89,8 @@ class ActivitiesTestCase(TestCase):
 
         start = task.start
         self.assertEqual(2010, start.year)
-        self.assertEqual(1,   start.month)
-        self.assertEqual(10,    start.day)
+        self.assertEqual(1,    start.month)
+        self.assertEqual(10,   start.day)
 
         self.assertEqual(2, Relation.objects.count())
 
@@ -196,8 +196,8 @@ class ActivitiesTestCase(TestCase):
             c1 = Contact.objects.create(user=self.user, first_name='first_name1', last_name='last_name1')
             c2 = Contact.objects.create(user=self.user, first_name='first_name2', last_name='last_name2')
 
-            Relation.create(c1, REL_SUB_PART_2_ACTIVITY, act01, user_id=self.user.id)
-            Relation.create(c1, REL_SUB_PART_2_ACTIVITY, act02, user_id=self.user.id)
+            Relation.objects.create(subject_entity=c1, type_id=REL_SUB_PART_2_ACTIVITY, object_entity=act01, user=self.user)
+            Relation.objects.create(subject_entity=c1, type_id=REL_SUB_PART_2_ACTIVITY, object_entity=act02, user=self.user)
         except Exception, e:
             self.fail(str(e))
 
@@ -244,3 +244,5 @@ class ActivitiesTestCase(TestCase):
                           activity_start=datetime(year=2010, month=10, day=1, hour=11, minute=0),
                           activity_end=datetime(year=2010, month=10, day=1, hour=13, minute=30),
                           participants=[c1, c2])
+
+#TODO: complete test case

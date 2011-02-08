@@ -25,50 +25,32 @@ from django.template.context import RequestContext
 from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth.models import User
 
+from creme_core.views.generic import add_model_with_popup, edit_model_with_popup
 from creme_core.utils import get_from_POST_or_404
 
 from creme_config.forms.user_settings import UserSettingsConfigForm
-from creme_config.forms.user import  UserAddForm, UserChangePwForm, UserEditForm
+from creme_config.forms.user import UserAddForm, UserChangePwForm, UserEditForm, TeamCreateForm, TeamEditForm
 
-
-PORTAL_URL = '/creme_config/user/portal/'
 
 @login_required
 @permission_required('creme_config.can_admin')
 def change_password(request, user_id):
-    user = get_object_or_404(User, pk=user_id)
-
-    if request.POST:
-        entity_form = UserChangePwForm(request.POST, initial={'user': user})
-        if entity_form.is_valid():
-            entity_form.save()
-            return HttpResponseRedirect(PORTAL_URL)
-    else:
-        entity_form = UserChangePwForm(initial={'user': user})
-
-    return render_to_response('creme_core/generics/form/edit.html',
-                              {'form': entity_form},
-                              context_instance=RequestContext(request))
+    return edit_model_with_popup(request, {'pk': user_id}, User, UserChangePwForm, _(u'Change password for <%s>'))
 
 @login_required
 @permission_required('creme_config.can_admin')
 def add(request):
-    if request.method == 'POST':
-        entity_form = UserAddForm(request.POST)
-        if entity_form.is_valid():
-            entity_form.save()
-            return HttpResponseRedirect(PORTAL_URL)
-    else:
-        entity_form = UserAddForm()
+    return add_model_with_popup(request, UserAddForm, _(u'New user'))
 
-    return render_to_response('creme_core/generics/blockform/add.html', #REMOVE 'creme_config/users/add_user.html',
-                              {'form': entity_form},
-                              context_instance=RequestContext(request))
+@login_required
+@permission_required('creme_config.can_admin')
+def add_team(request):
+    return add_model_with_popup(request, TeamCreateForm, _(u'New team'))
 
 @login_required
 @permission_required('creme_config')
 def portal(request):
-    return render_to_response('creme_config/users/portal.html', {},
+    return render_to_response('creme_config/user_portal.html', {},
                               context_instance=RequestContext(request))
 
 @login_required
@@ -77,7 +59,7 @@ def delete(request):
     user = get_object_or_404(User, pk=get_from_POST_or_404(request.POST, 'id'))
 
     if not user.can_be_deleted():
-        return HttpResponse(_(u'%s can be deleted because of his dependencies.') % user, status=403)
+        return HttpResponse(_(u'%s can not be deleted because of his dependencies.') % user, status=403)
 
     user.delete()
 
@@ -86,19 +68,12 @@ def delete(request):
 @login_required
 @permission_required('creme_config.can_admin')
 def edit(request, user_id):
-    user = get_object_or_404(User, pk=user_id)
+    return edit_model_with_popup(request, {'pk': user_id}, User, UserEditForm)
 
-    if request.method == 'POST':
-        userform = UserEditForm(request.POST,instance=user)
-        if userform.is_valid():
-            userform.save()
-            return HttpResponseRedirect(PORTAL_URL)
-    else:
-        userform = UserEditForm(instance=user)
-
-    return render_to_response('creme_core/generics/form/edit.html',
-                              {'form': userform},
-                              context_instance=RequestContext(request))
+@login_required
+@permission_required('creme_config.can_admin')
+def edit_team(request, user_id):
+    return edit_model_with_popup(request, {'pk': user_id, 'is_team': True}, User, TeamEditForm)
 
 @login_required #no special permission needed
 def edit_own_settings(request):
@@ -121,3 +96,15 @@ def view_own_settings(request):
     return render_to_response('creme_config/user_settings.html',
                               {'user': request.user},
                               context_instance=RequestContext(request))
+
+@login_required
+@permission_required('creme_config.can_admin')
+def delete_team(request):
+    team = get_object_or_404(User, pk=get_from_POST_or_404(request.POST, 'id'), is_team=True)
+
+    if not team.can_be_deleted():
+        return HttpResponse(_(u'%s can not be deleted because of his dependencies.') % team, status=403)
+
+    team.delete() #no need to update credentials: team is deleted if there are teammates or entities owned
+
+    return HttpResponse()

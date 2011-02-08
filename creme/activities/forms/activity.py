@@ -30,12 +30,13 @@ from django.contrib.auth.models import User
 
 from creme_core.models import CremeEntity, Relation, RelationType
 from creme_core.forms import CremeForm, CremeEntityForm
-from creme_core.forms.fields import RelatedEntitiesField, CremeDateTimeField, CremeTimeField, MultiCremeEntityField, GenericEntitiesField
+from creme_core.forms.fields import RelatedEntitiesField, CremeDateTimeField, CremeTimeField, MultiCremeEntityField, MultiGenericEntityField
 from creme_core.forms.widgets import UnorderedMultipleChoiceWidget
 
 from persons.models import Contact
 
 from assistants.models.alert import Alert
+
 
 from activities.models import Activity, Calendar, CalendarActivityLink
 from activities.constants import *
@@ -136,7 +137,7 @@ class ParticipantCreateForm(CremeForm):
 
 class SubjectCreateForm(CremeForm):
     subjects = RelatedEntitiesField(relation_types=[REL_SUB_ACTIVITY_SUBJECT], label=_(u'Subjects'), required=False)
-    #subjects = GenericEntitiesField(label=_(u'Subjects')) #TODO: use when bug with innerpopup is fixed ; filter already linked
+    #subjects = MultiGenericEntityField(label=_(u'Subjects')) #TODO: use when bug with innerpopup is fixed ; filter already linked
 
     def __init__(self, activity, *args, **kwargs):
         super(SubjectCreateForm, self).__init__(*args, **kwargs)
@@ -159,9 +160,6 @@ class ActivityCreateForm(CremeEntityForm):
     start_time = CremeTimeField(label=_(u'Start time'), required=False)
     end_time   = CremeTimeField(label=_(u'End time'), required=False)
 
-    is_comapp = BooleanField(required=False, label=_(u"Is a commercial approach ?"),
-                             help_text=_(u"All participants (except users), subjects and linked entities will be linked to a commercial approach.")
-                            )
 
     my_participation    = BooleanField(required=False, label=_(u"Do I participate to this meeting ?"))
     my_calendar         = ModelChoiceField(queryset=Calendar.objects.none(), required=False, label=_(u"On which of my calendar this activity will appears?"), empty_label=None)
@@ -169,8 +167,8 @@ class ActivityCreateForm(CremeEntityForm):
                                                    required=False, widget=UnorderedMultipleChoiceWidget
                                                   )
     other_participants  = MultiCremeEntityField(label=_(u'Other participants'), model=Contact, required=False)
-    subjects            = GenericEntitiesField(label=_(u'Subjects'), required=False)
-    linked_entities     = GenericEntitiesField(label=_(u'Entities linked to this activity'), required=False)
+    subjects            = MultiGenericEntityField(label=_(u'Subjects'), required=False)
+    linked_entities     = MultiGenericEntityField(label=_(u'Entities linked to this activity'), required=False)
 
 
     generate_alert   = BooleanField(label=_(u"Do you want to generate an alert or a reminder ?"), required=False)
@@ -193,14 +191,14 @@ class ActivityCreateForm(CremeEntityForm):
         fields['start_time'].initial = time(9, 0)
         fields['end_time'].initial   = time(18, 0)
 
-        my_default_calendar = Calendar.get_user_default_calendar(current_user)
+        my_default_calendar = Calendar.get_user_default_calendar(current_user) #TODO: variable used once...
         fields['my_calendar'].queryset = Calendar.objects.filter(user=current_user)
         fields['my_calendar'].initial  = my_default_calendar
 
         #TODO: refactor this with a smart widget that manages dependencies
         data = kwargs.get('data') or {}
         if not data.get('my_participation', False):
-            fields['my_calendar'].widget.attrs['disabled']  = 'disabled'
+            fields['my_calendar'].widget.attrs['disabled'] = 'disabled'
         fields['my_participation'].widget.attrs['onclick'] = "if($(this).is(':checked')){$('#id_my_calendar').removeAttr('disabled');}else{$('#id_my_calendar').attr('disabled', 'disabled');}"
 
         fields['participating_users'].queryset = User.objects.exclude(pk=current_user.id)
@@ -238,7 +236,6 @@ class ActivityCreateForm(CremeEntityForm):
         super(ActivityCreateForm, self).save()
 
         self._generate_alert()
-        self._create_commercial_approach()
 
         create_link = CalendarActivityLink.objects.get_or_create
 
@@ -277,34 +274,6 @@ class ActivityCreateForm(CremeEntityForm):
                                  title=ugettext(u"Alert of activity"),
                                  description=ugettext(u'Alert related to %s') % activity,
                                 )
-
-    #TODO: inject from 'commercial' app instead ??
-    def _create_commercial_approach(self):
-        from commercial.models import CommercialApproach
-
-        cleaned_data = self.cleaned_data
-
-        if not cleaned_data.get('is_comapp', False):
-            return
-
-        comapp_subjects = list(cleaned_data['other_participants'])
-        comapp_subjects += cleaned_data['subjects']
-        comapp_subjects += cleaned_data['linked_entities']
-
-        if not comapp_subjects:
-            return
-
-        now = datetime.now()
-        instance = self.instance
-        create_comapp = CommercialApproach.objects.create
-
-        for entity in comapp_subjects:
-            create_comapp(title=instance.title,
-                          description=instance.description,
-                          creation_date=now,
-                          creme_entity=entity,
-                          related_activity_id=instance.id,
-                         )
 
 
 class RelatedActivityCreateForm(ActivityCreateForm):

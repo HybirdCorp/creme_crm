@@ -84,6 +84,9 @@ class Action(CremeModel):
         return Action.objects.filter(entity_content_type__in=ct_ids, for_user=user, is_ok=False, deadline__lte=today) \
                              .select_related('for_user')
 
+    def get_related_entity(self): #for generic views
+        return self.creme_entity
+
 
 #TODO: can delete this with  a WeakForeignKey ??
 def dispose_entity_actions(sender, instance, **kwargs):

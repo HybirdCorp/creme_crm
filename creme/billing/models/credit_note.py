@@ -43,9 +43,6 @@ class CreditNote(Base):
         """url for list_view """
         return "/billing/credit_note"
 
-    def get_delete_absolute_url(self):
-        return "/billing/credit_note/delete/%s" % self.id
-
     def build(self, template):
         # Specific recurrent generation rules
         self.status = CreditNoteStatus.objects.get(pk = template.status_id)

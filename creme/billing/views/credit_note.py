@@ -21,11 +21,10 @@
 from django.shortcuts import get_object_or_404
 from django.contrib.auth.decorators import login_required, permission_required
 
-from creme_core.views.generic import add_entity, edit_entity, list_view
+from creme_core.views.generic import add_entity, edit_entity, list_view, view_entity
 
 from billing.models import CreditNote
 from billing.forms.credit_note import CreditNoteCreateForm, CreditNoteEditForm
-from billing.views.base import view_billing_entity
 
 
 @login_required
@@ -34,14 +33,18 @@ from billing.views.base import view_billing_entity
 def add(request):
     return add_entity(request, CreditNoteCreateForm)
 
+@login_required
+@permission_required('billing')
 def edit(request, credit_note_id):
-    return edit_entity(request, credit_note_id, CreditNote, CreditNoteEditForm, 'billing')
+    return edit_entity(request, credit_note_id, CreditNote, CreditNoteEditForm)
 
 @login_required
 @permission_required('billing')
 def detailview(request, credit_note_id):
-    credit_note = get_object_or_404(CreditNote, pk=credit_note_id)
-    return view_billing_entity(request, credit_note, '/billing/credit_note')
+    return view_entity(request, credit_note_id, CreditNote,
+                       '/billing/credit_note', 'billing/view_billing.html',
+                       {'can_download': True},
+                      )
 
 @login_required
 @permission_required('billing')

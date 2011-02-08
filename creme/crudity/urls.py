@@ -14,7 +14,3 @@ urlpatterns = patterns('crudity.views',
     (r'^history$',                                                         'history.history'),
     (r'^history_block/block_crudity-(?P<ct_id>\d+)-(?P<type>\d+)/reload$', 'history.reload'),
 )
-
-urlpatterns += patterns('creme_core.views.generic',
-    
-)

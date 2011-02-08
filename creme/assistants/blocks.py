@@ -63,10 +63,15 @@ class _AssistantsBlock(QuerysetBlock):
         """OVERLOAD ME"""
         pass
 
+    @classmethod
+    def _get_contenttype_id(cls):
+        return ContentType.objects.get_for_model(cls.dependencies[0]).id
+
     def detailview_display(self, context):
         entity = context['object']
         btc = self.get_block_template_context(context, self._get_queryset_for_detailview(entity, context),
                                               update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, entity.pk),
+                                              ct_id=self._get_contenttype_id(),
                                              )
 
         #NB: optimisation ; it avoids the retrieving of the entity during template rendering.
@@ -78,6 +83,7 @@ class _AssistantsBlock(QuerysetBlock):
     def portal_display(self, context, ct_ids):
         btc = self.get_block_template_context(context, self._get_queryset_for_portal(ct_ids, context),
                                               update_url='/creme_core/blocks/reload/portal/%s/%s/' % (self.id_, list4url(ct_ids)),
+                                              ct_id=self._get_contenttype_id(),
                                              )
         self._populate_related_real_entities(btc['page'].object_list, context['request'].user)
 
@@ -86,6 +92,7 @@ class _AssistantsBlock(QuerysetBlock):
     def home_display(self, context):
         btc = self.get_block_template_context(context, self._get_queryset_for_home(context),
                                               update_url='/creme_core/blocks/reload/home/%s/' % self.id_,
+                                              ct_id=self._get_contenttype_id(),
                                              )
         self._populate_related_real_entities(btc['page'].object_list, context['request'].user)
 
@@ -179,7 +186,7 @@ class ActionsNITBlock(_AssistantsBlock):
 
 class UserMessagesBlock(_AssistantsBlock):
     id_           = QuerysetBlock.generate_id('assistants', 'messages')
-    dependencies  = (ToDo,)
+    dependencies  = (UserMessage,)
     order_by      = '-creation_date'
     verbose_name  = _(u'User messages')
     template_name = 'assistants/block_messages.html'

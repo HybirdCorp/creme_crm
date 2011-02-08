@@ -39,7 +39,8 @@ class RelationType(CremeModel):
     If *_ctypes = null --> all contenttypes are valid.
     If *_properties = null --> all properties are valid.
     """
-    id = CharField(primary_key=True, max_length=100)
+    id = CharField(primary_key=True, max_length=100) #NB: convention: 'app_name-foobar'
+                                                     #BEWARE: 'id' MUST only contain alphanumeric '-' and '_'
 
     subject_ctypes     = ManyToManyField(ContentType,       blank=True, null=True, related_name='relationtype_subjects_set')
     object_ctypes      = ManyToManyField(ContentType,       blank=True, null=True, related_name='relationtype_objects_set')
@@ -58,7 +59,6 @@ class RelationType(CremeModel):
         verbose_name_plural = _(u'Types of relation')
 
     def __unicode__(self):
-        #from creme_core.i18n import translate_predicate
         sym_type = self.symmetric_type
         symmetric_pred = ugettext(u'No relation') if sym_type is None else sym_type.predicate
 
@@ -275,6 +275,8 @@ class Relation(CremeAbstractEntity):
     @staticmethod
     def filter_in(model, filter_predicate, value_for_filter):
         return Q(relations__type=filter_predicate, relations__object_entity__header_filter_search_field__icontains=value_for_filter)
+#                                             relations__object_entity__in=list_entity).values_list('id', flat=True)
+#        return Q(id__in=list_pk_f)
 
 #        list_rel_pk = Relation.objects.filter(type=filter_predicate).values_list('object_entity', flat=True)
 #        list_entity = CremeEntity.objects.filter(pk__in=list_rel_pk,
@@ -283,14 +285,20 @@ class Relation(CremeAbstractEntity):
 #                                             relations__object_entity__in=list_entity).values_list('id', flat=True)
 #        return Q(id__in=list_pk_f)
 
-    @staticmethod
-    def create(subject, relation_type_id, object_, user_id=1): #really useful ??? (only 'user' attr help)
-        relation = Relation()
-        relation.subject_entity = subject
-        relation.type_id = relation_type_id
-        relation.object_entity = object_
-        relation.user_id = user_id
-        relation.save()
+    ##todo: remove (use Relation.objects.create() instead) ; user_id=1 is BAD !!!
+    #@staticmethod
+    #def create(subject, relation_type_id, object_, user_id=1): #really useful ??? (only 'user' attr help)
+        ##relation = Relation()
+        ##relation.subject_entity = subject
+        ##relation.type_id = relation_type_id
+        ##relation.object_entity = object_
+        ##relation.user_id = user_id
+        ##relation.save()
+        #return Relation.objects.create(subject_entity=subject,
+                                       #type_id=relation_type_id,
+                                       #object_entity=object_,
+                                       #user_id=user_id,
+                                      #)
 
     def update_links(self, subject_entity=None, object_entity=None, save=False):
         """Beware: use this method if you have to update the related entities of a relation.

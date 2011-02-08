@@ -31,7 +31,6 @@ from django.contrib.contenttypes.models import ContentType
 
 from creme_core.models import CremeEntity, Filter, ListViewState, EntityCredentials
 from creme_core.models.header_filter import HeaderFilterList
-from creme_core.gui.last_viewed import change_page_for_last_item_viewed
 from creme_core.utils.queries import get_q_from_dict
 from popup import inner_popup
 
@@ -75,8 +74,7 @@ def _build_entities_page(request, list_view_state, queryset, size):
 
     return entities_page
 
-@login_required
-@change_page_for_last_item_viewed
+@login_required #TODO: remove ??
 def list_view(request, model, hf_pk='', extra_dict=None, template='creme_core/generics/list_entities.html', show_actions=True, extra_q=None, o2m=False, post_process=None):
     """ Generic list_view wrapper / generator
     Accept only CremeEntity model and subclasses
