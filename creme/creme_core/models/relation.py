@@ -22,6 +22,7 @@ from logging import debug
 
 from django.db.models import Q, CharField, ForeignKey, ManyToManyField, BooleanField
 from django.db import transaction
+from django.http import Http404
 from django.utils.encoding import force_unicode, smart_str
 from django.utils.html import escape
 from django.utils.translation import ugettext_lazy as _, ugettext
@@ -45,8 +46,8 @@ class RelationType(CremeModel):
     subject_properties = ManyToManyField(CremePropertyType, blank=True, null=True, related_name='relationtype_subjects_set')
     object_properties  = ManyToManyField(CremePropertyType, blank=True, null=True, related_name='relationtype_objects_set')
 
-    can_be_create_with_popup = BooleanField(default=True) #still useful ????
-    is_custom                = BooleanField(default=False)
+    is_internal = BooleanField(default=False) #still useful ????
+    is_custom   = BooleanField(default=False)
 
     predicate      = CharField(_(u'Predicate'), max_length=100)
     symmetric_type = ForeignKey('self', blank=True, null=True)
@@ -80,11 +81,11 @@ class RelationType(CremeModel):
 
     @staticmethod
     def get_compatible_ones(ct):
-        return RelationType.objects.filter(Q(subject_ctypes=ct) | Q(subject_ctypes__isnull=True))
+        return RelationType.objects.filter((Q(subject_ctypes=ct) | Q(subject_ctypes__isnull=True)) & Q(is_internal=False))
 
     @staticmethod
     @transaction.commit_manually
-    def create(subject_desc, object_desc, is_custom=False, generate_pk=False):
+    def create(subject_desc, object_desc, is_custom=False, generate_pk=False, is_internal=False):
         """
         @param subject_desc Tuple (string_pk, predicate_string [, sequence_of_cremeEntityClasses [, sequence_of_propertyTypes]])
         @param object_desc See subject_desc
@@ -102,13 +103,13 @@ class RelationType(CremeModel):
         pred_object  = object_desc[1]
 
         if not generate_pk:
-            sub_relation_type = create(RelationType, pk_subject, predicate=pred_subject, is_custom=is_custom)
-            obj_relation_type = create(RelationType, pk_object,  predicate=pred_object,  is_custom=is_custom)
+            sub_relation_type = create(RelationType, pk_subject, predicate=pred_subject, is_custom=is_custom, is_internal=is_internal)
+            obj_relation_type = create(RelationType, pk_object,  predicate=pred_object,  is_custom=is_custom, is_internal=is_internal)
         else:
             from creme_core.utils.id_generator import generate_string_id_and_save
 
-            sub_relation_type = RelationType(predicate=pred_subject, is_custom=is_custom)
-            obj_relation_type = RelationType(predicate=pred_object,  is_custom=is_custom)
+            sub_relation_type = RelationType(predicate=pred_subject, is_custom=is_custom, is_internal=is_internal)
+            obj_relation_type = RelationType(predicate=pred_object,  is_custom=is_custom, is_internal=is_internal)
 
             generate_string_id_and_save(RelationType, [sub_relation_type], pk_subject)
             generate_string_id_and_save(RelationType, [obj_relation_type], pk_object)
@@ -158,6 +159,20 @@ class RelationType(CremeModel):
         transaction.commit()
 
         return (sub_relation_type, obj_relation_type)
+
+    @staticmethod
+    def _is_relation_type_internal(relation_type_id):
+        try:
+            rt = RelationType.objects.get(pk=relation_type_id)
+        except RelationType.DoesNotExist:
+            return False
+        return rt.is_internal
+
+    @staticmethod
+    def _is_relation_type_internal_die(relation_type_id, err_msg=""):
+        #TODO: Move from here ??
+        if RelationType._is_relation_type_internal(relation_type_id):
+            raise Http404(err_msg)
 
 
 class RelationPredicate_i18n(CremeModel):

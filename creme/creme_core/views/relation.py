@@ -216,15 +216,24 @@ def __get_entity_predicates(request, id):
 
     entity.can_view_or_die(request.user)
 
-    predicates = RelationType.objects.filter(can_be_create_with_popup=True).order_by('predicate')
+    predicates = RelationType.objects.filter(is_internal=False).order_by('predicate')
 
     return predicates.filter(Q(subject_ctypes=entity.entity_type)|Q(subject_ctypes__isnull=True)).distinct()
 
 def add_relations(request, subject_id, relation_type_id=None):
+    """
+        NB: In case of relation_type_id=None is internal relation type is verified in RelationCreateForm clean
+    """
     subject = get_object_or_404(CremeEntity, pk=subject_id)
     subject.can_change_or_die(request.user)
 
-    relations_types = [relation_type_id] if relation_type_id else None
+#    relations_types = [relation_type_id] if relation_type_id else None
+
+    relations_types = None
+    if relation_type_id and not RelationType._is_relation_type_internal(relation_type_id):
+        relations_types = [relation_type_id]
+
+
     POST = request.POST
 
     if POST:
@@ -248,6 +257,9 @@ def add_relations(request, subject_id, relation_type_id=None):
 #TODO: use EntityCredentials.filter to filter allowed entities for this user
 @login_required
 def add_relations_bulk(request, model_ct_id, ids):
+    """
+        NB: Is internal relation type is verified in MultiEntitiesRelationCreateForm clean
+    """
     POST = request.POST
 
     model    = get_object_or_404(ContentType, pk=model_ct_id).model_class()
@@ -286,6 +298,9 @@ def delete(request):
     entity_id   = get_from_POST_or_404(POST, 'object_id')
 
     relation = get_object_or_404(Relation, pk=relation_id)
+
+    RelationType._is_relation_type_internal_die(relation.type.id, _("You can't delete this relation"))
+
     entity   = get_object_or_404(CremeEntity, pk=entity_id).get_real_entity()
 
     entity.can_delete_or_die(request.user) #TODO: delete credentials on 'entity' ?? only one ???
@@ -309,6 +324,12 @@ def delete_similar(request):
 
     subject.can_delete_or_die(request.user) #TODO: delete credentials on 'subject' ?? only it ???
 
+    print rtype_id
+    print RelationType._is_relation_type_internal(rtype_id)
+    RelationType._is_relation_type_internal_die(rtype_id, _("You can't delete this relation"))
+
+    return HttpResponse("stop")
+
     for relation in Relation.objects.filter(subject_entity=subject, type=rtype_id, object_entity=object_id):
         relation.get_real_entity().delete()
 
@@ -321,6 +342,8 @@ def add_relation_from_predicate_n_entity(request, predicate_id, subject_id, obje
         'subject_id':   subject_id,
         'o2m':          o2m
     }
+
+    RelationType._is_relation_type_internal_die(predicate_id, _("You can't add this relation type from here"))
 
     #TODo: only one query ??
     pklist = Relation.objects.filter(type__id=predicate_id, subject_entity__id=subject_id).values_list('object_entity_id') #TODO: can remove the '__id'
@@ -338,6 +361,8 @@ def handle_relation_from_predicate_n_entity(request):
     subject_id   = post.get('subject_id')
     predicate_id = post.get('predicate_id')
 
+    RelationType._is_relation_type_internal_die(predicate_id, _("You can't add this relation type from here"))
+    
     subject = get_object_or_404(CremeEntity, pk=subject_id).get_real_entity()
 
     return_msg = []

@@ -235,6 +235,8 @@ class RelationListWidget(TextInput):
     def render(self, name, value, attrs=None):
         attrs = self.build_attrs(attrs, name=name, type='hidden')
 
+        self.relation_types = sorted(self.relation_types, key=lambda k: k.predicate)#TODO: Replace with _(k.predicate) when predicate will be traducted
+
         html_output = """%(input)s
             <div id="%(id)s_list" class="ui-creme-rel-selector-list" widget-input="%(id)s">
                 %(predicates)s
