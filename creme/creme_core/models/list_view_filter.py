@@ -143,6 +143,7 @@ class Filter(Model):
     conditions     = ManyToManyField(FilterCondition)#, related_name='filter_conditions')
     model_ct       = ForeignKey(ContentType)
     is_or_for_all  = BooleanField(default=False)
+    is_custom      = BooleanField(blank=False, default=True)
 
 
 #    def add_condition(self, champ, type, value):
