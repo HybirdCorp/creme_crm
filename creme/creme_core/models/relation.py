@@ -169,6 +169,7 @@ class RelationPredicate_i18n(CremeModel):
         app_label = 'creme_core'
 
 
+#TODO: remove CremeAbstractEntity inheritage (user not useful any more ??) ??
 class Relation(CremeAbstractEntity):
     type               = ForeignKey(RelationType, blank=True, null=True)
     symmetric_relation = ForeignKey('self', blank=True, null=True)

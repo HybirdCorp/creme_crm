@@ -116,6 +116,27 @@ class CremeEntity(CremeAbstractEntity):
         if not self.can_delete(user):
             raise PermissionDenied(ugettext(u'You are not allowed to delete this entity: %s') % self)
 
+    def can_link(self, user):
+        return self.get_credentials(user).can_link()
+
+    def can_link_or_die(self, user):
+        if not self.can_link(user):
+            raise PermissionDenied(ugettext(u'You are not allowed to link this entity: %s') % self)
+
+    def can_unlink(self, user):
+        return self.get_credentials(user).can_unlink()
+
+    def can_unlink_or_die(self, user):
+        if not self.can_unlink(user):
+            raise PermissionDenied(ugettext(u'You are not allowed to unlink this entity: %s') % self)
+
+    def can_view(self, user):
+        return self.get_credentials(user).can_view()
+
+    def can_view_or_die(self, user):
+        if not self.can_view(user):
+            raise PermissionDenied(ugettext(u'You are not allowed to view this entity: %s') % self)
+
     def get_credentials(self, user): #private ??
         from auth import EntityCredentials
 
@@ -268,13 +289,6 @@ class CremeEntity(CremeAbstractEntity):
             entity_id = entity.id
             debug(u'Fill properties cache entity_id=%s', entity_id)
             entity._properties = properties_map[entity_id]
-
-    def can_view(self, user):
-        return self.get_credentials(user).can_view()
-
-    def can_view_or_die(self, user):
-        if not self.can_view(user):
-            raise PermissionDenied(ugettext(u'You are not allowed to view this entity: %s') % self)
 
     def save(self, *args, **kwargs):
         created = bool(self.pk is None)

@@ -38,20 +38,23 @@ NO_CRED = ''
 VIEW    = 'v'
 CHANGE  = 'c'
 DELETE  = 'd'
-ALL_CREDS = ''.join((VIEW, CHANGE, DELETE))
+LINK    = 'l'
+UNLINK  = 'u'
+ALL_CREDS = ''.join((VIEW, CHANGE, DELETE, LINK, UNLINK))
 
 CRED_MAP = { #private ? inner ??
         'creme_core.view_entity':   VIEW,
         'creme_core.change_entity': CHANGE,
         'creme_core.delete_entity': DELETE,
-        #LINK ??
+        'creme_core.link_entity':   LINK,
+        'creme_core.unlink_entity': UNLINK,
     }
 
 
 class EntityCredentials(Model):
     entity = ForeignKey(CremeEntity, null=True, related_name='credentials') #NB: null means: default credentials
     user   = ForeignKey(User, null=True)
-    value  = CharField(max_length='3')
+    value  = CharField(max_length='5')
 
     class Meta:
         app_label = 'creme_core'
@@ -65,6 +68,12 @@ class EntityCredentials(Model):
     def can_delete(self):
         return self.has_perm('creme_core.delete_entity') #constant ??
 
+    def can_link(self):
+        return self.has_perm('creme_core.link_entity') #constant ??
+
+    def can_unlink(self):
+        return self.has_perm('creme_core.unlink_entity') #constant ??
+
     def can_view(self):
         return self.has_perm('creme_core.view_entity') #constant ??
 
@@ -72,12 +81,14 @@ class EntityCredentials(Model):
         return CRED_MAP.get(perm) in self.value
 
     @staticmethod
-    def _build_credentials(view=False, change=False, delete=False):
+    def _build_credentials(view=False, change=False, delete=False, link=False, unlink=False):
         cred = ''
 
         if view:    cred += VIEW
         if change:  cred += CHANGE
         if delete:  cred += DELETE
+        if link:    cred += LINK
+        if unlink:  cred += UNLINK
 
         return cred
 
@@ -159,19 +170,19 @@ class EntityCredentials(Model):
         return defaults[0] if defaults else EntityCredentials(entity=None, value=NO_CRED)
 
     @staticmethod
-    def set_default_perms(view=False, change=False, delete=False):
+    def set_default_perms(view=False, change=False, delete=False, link=False, unlink=False):
         default = EntityCredentials.get_default_creds()
-        default.value = EntityCredentials._build_credentials(view, change, delete)
+        default.value = EntityCredentials._build_credentials(view, change, delete, link, unlink)
         default.save()
 
     @staticmethod
-    def set_entity_perms(user, entity, view=False, change=False, delete=False):
+    def set_entity_perms(user, entity, view=False, change=False, delete=False, link=False, unlink=False):
         try:
             perms = EntityCredentials.objects.get(user=user, entity=entity.id)
         except EntityCredentials.DoesNotExist:
             perms = EntityCredentials(user=user, entity=entity)
 
-        perms.value = EntityCredentials._build_credentials(view, change, delete)
+        perms.value = EntityCredentials._build_credentials(view, change, delete, link, unlink)
 
         perms.save()
 
@@ -292,18 +303,17 @@ class SetCredentials(Model):
     #entity              = ForeignKey(CremeEntity, null=True) #id_fiche_role_ou_equipe = PositiveIntegerField( blank=True, null=True) ??
 
     #For python 2.5 compatibility, we don't use the binary expression
-    CRED_NONE   = 0
-    CRED_ADD    = 1 #0b0001   to be used....
-    CRED_VIEW   = 2 #0b0010
-    CRED_CHANGE = 4 #0b0100
-    CRED_DELETE = 8 #0b1000
-    #CRED_LINK ??
+    CRED_NONE   =  0
+    CRED_ADD    =  1 #0b000001   to be used....(??)
+    CRED_VIEW   =  2 #0b000010
+    CRED_CHANGE =  4 #0b000100
+    CRED_DELETE =  8 #0b001000
+    CRED_LINK   = 16 #0b010000
+    CRED_UNLINK = 32 #0b100000
 
     #ESET means 'Entities SET'
-    #ESET_ALL = 0b0001 #all entities
-    ESET_ALL = 1 #all entities
-    #ESET_OWN = 0b0010 #his own entities
-    ESET_OWN = 2
+    ESET_ALL = 1 #0b0001 => all entities
+    ESET_OWN = 2 #0b0010 => his own entities
     #DROIT_TEF_FICHE_UNIQUE = "fiche_unique"
     #DROIT_TEF_FICHES_EQUIPE = "les_fiches_de_l_equipe"
     #DROIT_TEF_SA_FICHE = "sa_fiche"
@@ -324,31 +334,33 @@ class SetCredentials(Model):
     def __unicode__(self):
         value = self.value
         perms = []
+        append = perms.append
 
-        if value & SetCredentials.CRED_VIEW:
-            perms.append(ugettext('Can view'))
-        if value & SetCredentials.CRED_CHANGE:
-            perms.append(ugettext('Can change'))
-        if value & SetCredentials.CRED_CHANGE:
-            perms.append(ugettext('Can delete'))
+        if value & SetCredentials.CRED_VIEW:   append(ugettext('View'))
+        if value & SetCredentials.CRED_CHANGE: append(ugettext('Change'))
+        if value & SetCredentials.CRED_CHANGE: append(ugettext('Delete'))
+        if value & SetCredentials.CRED_LINK:   append(ugettext('Link'))
+        if value & SetCredentials.CRED_UNLINK: append(ugettext('Unlink'))
 
         if not perms:
-            perms.append(ugettext(u'Nothing allowed'))
+            append(ugettext(u'Nothing allowed'))
 
-        return ugettext(u'For %(set)s => %(perms)s') % {
+        return ugettext(u'For %(set)s: %(perms)s') % {
                     'set':      SetCredentials.ESET_MAP[self.set_type],
-                    'perms':    u'|'.join(perms),
+                    'perms':    u', '.join(perms),
                 }
 
     @staticmethod
     def get_perms(raw_perms):
         """Get boolean perms from binary perms.
         @param raw_perms Binary perms returned by SetCredentials.get_raw_perms().
-        @return (view, change, delete) 3 boolean tuple
+        @return (view, change, delete, link, unlink) 5 boolean tuple
         """
         return (bool(raw_perms & SetCredentials.CRED_VIEW),
                 bool(raw_perms & SetCredentials.CRED_CHANGE),
-                bool(raw_perms & SetCredentials.CRED_DELETE)
+                bool(raw_perms & SetCredentials.CRED_DELETE),
+                bool(raw_perms & SetCredentials.CRED_LINK),
+                bool(raw_perms & SetCredentials.CRED_UNLINK),
                )
 
     def get_raw_perms(self, user, entity):
@@ -363,18 +375,15 @@ class SetCredentials(Model):
 
         return SetCredentials.CRED_NONE
 
-    def set_value(self, can_view, can_change, can_delete):
+    def set_value(self, can_view, can_change, can_delete, can_link, can_unlink):
         """Set the 'value' attribute from 3 booleans"""
         value = SetCredentials.CRED_NONE
 
-        if can_view:
-            value |= SetCredentials.CRED_VIEW
-
-        if can_change:
-            value |= SetCredentials.CRED_CHANGE
-
-        if can_delete:
-            value |= SetCredentials.CRED_DELETE
+        if can_view:   value |= SetCredentials.CRED_VIEW
+        if can_change: value |= SetCredentials.CRED_CHANGE
+        if can_delete: value |= SetCredentials.CRED_DELETE
+        if can_link:   value |= SetCredentials.CRED_LINK
+        if can_unlink: value |= SetCredentials.CRED_UNLINK
 
         self.value = value
 

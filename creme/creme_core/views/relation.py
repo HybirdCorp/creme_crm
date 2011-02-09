@@ -109,7 +109,7 @@ def __json_parse_fields(fields, allowed_fields, use_columns=False):
     if not fields:
         raise JSONSelectError("no such field", 400)
 
-    return list(__json_parse_field(field, allowed_fields, use_columns) for field in fields)
+    return list(__json_parse_field(field, allowed_fields, use_columns) for field in fields) #TODO: list comprehension ??
 
 # TODO (refs 293) : unused tool. remove it !
 #def __json_parse_filtered_select_request(request, allowed_filters, allowed_ops, allowed_fields):
@@ -216,7 +216,7 @@ def json_predicate_content_types(request, id):
 def __get_entity_predicates(request, id):
     entity = get_object_or_404(CremeEntity, pk=id).get_real_entity() #TODO: useful 'get_real_entity() ??'
 
-    entity.can_view_or_die(request.user)
+    entity.can_view_or_die(request.user) #TODO: remove
 
     predicates = RelationType.objects.filter(can_be_create_with_popup=True).order_by('predicate')
 
@@ -225,18 +225,17 @@ def __get_entity_predicates(request, id):
 
 def add_relations(request, subject_id, relation_type_id=None):
     subject = get_object_or_404(CremeEntity, pk=subject_id)
-    subject.can_change_or_die(request.user)
+    subject.can_link_or_die(request.user)
 
     relations_types = [relation_type_id] if relation_type_id else None
-    POST = request.POST
 
-    if POST:
-        form = RelationCreateForm(subject, request.user.id, relations_types, POST)
+    if request.method == 'POST':
+        form = RelationCreateForm(subject=subject, user=request.user, relations_types=relations_types, data=request.POST)
 
         if form.is_valid():
             form.save()
     else:
-        form = RelationCreateForm(subject=subject, user_id=request.user.id, relations_types=relations_types)
+        form = RelationCreateForm(subject=subject, user=request.user, relations_types=relations_types)
 
     return inner_popup(request, 'creme_core/generics/blockform/add_popup2.html',
                        {
@@ -246,26 +245,36 @@ def add_relations(request, subject_id, relation_type_id=None):
                        is_valid=form.is_valid(),
                        reload=False,
                        delegate_reload=True,
-                       context_instance=RequestContext(request))
+                       context_instance=RequestContext(request)
+                      )
 
-#TODO: use EntityCredentials.filter to filter allowed entities for this user
 @login_required
 def add_relations_bulk(request, model_ct_id, ids):
     user = request.user
     model    = get_object_or_404(ContentType, pk=model_ct_id).model_class()
     entities = get_list_or_404(model, pk__in=[id for id in ids.split(',') if id])
 
+    CremeEntity.populate_real_entities(entities)
     CremeEntity.populate_credentials(entities, user)
+
+    filtered = {True: [], False: []}
     for entity in entities:
-        entity.can_change_or_die(user) #TODO: edit credentials ???
+        filtered[entity.can_link(user)].append(entity)
 
     if request.method == 'POST':
-        form = MultiEntitiesRelationCreateForm(entities, request.user.id, None, request.POST)
+        form = MultiEntitiesRelationCreateForm(subjects=filtered[True],
+                                               forbidden_subjects=filtered[False],
+                                               user=request.user,
+                                               data=request.POST
+                                              )
 
         if form.is_valid():
             form.save()
     else:
-        form = MultiEntitiesRelationCreateForm(subjects=entities, user_id=request.user.id)
+        form = MultiEntitiesRelationCreateForm(subjects=filtered[True],
+                                               forbidden_subjects=filtered[False],
+                                               user=request.user
+                                              )
 
     return inner_popup(request, 'creme_core/generics/blockform/add_popup2.html',
                        {
@@ -277,42 +286,43 @@ def add_relations_bulk(request, model_ct_id, ids):
                        delegate_reload=True,
                        context_instance=RequestContext(request))
 
-#TODO: deeply think about the relation credentials...
 @login_required
 def delete(request):
     relation = get_object_or_404(Relation, pk=get_from_POST_or_404(request.POST, 'id'))
     subject  = relation.subject_entity
+    user = request.user
 
-    subject.can_delete_or_die(request.user) #TODO: delete credentials on 'subject_entity' ?? only one ???
+    subject.can_unlink_or_die(user)
+    relation.object_entity.can_unlink_or_die(user)
+
     relation.get_real_entity().delete()
 
     if request.is_ajax():
         return HttpResponse("", mimetype="text/javascript")
 
-    return HttpResponseRedirect(subject.get_absolute_url())
-
+    return HttpResponseRedirect(subject.get_real_entity().get_absolute_url())
 
 @login_required
 def delete_similar(request):
-    """Delete relations with the same type between 2 entities
-        @Permissions : Delete on relation's subject entity
-    """
+    """Delete relations with the same type between 2 entities"""
     POST = request.POST
     subject_id = get_from_POST_or_404(POST, 'subject_id')
     rtype_id   = get_from_POST_or_404(POST, 'type')
     object_id  = get_from_POST_or_404(POST, 'object_id')
 
-    subject = get_object_or_404(CremeEntity, pk=subject_id).get_real_entity()
+    user = request.user
+    subject = get_object_or_404(CremeEntity, pk=subject_id)
 
-    subject.can_delete_or_die(request.user) #TODO: delete credentials on 'subject' ?? only it ???
+    subject.can_unlink_or_die(user)
+    get_object_or_404(CremeEntity, pk=object_id).can_unlink_or_die(user)
 
-    for relation in Relation.objects.filter(subject_entity=subject, type=rtype_id, object_entity=object_id):
+    for relation in Relation.objects.filter(subject_entity=subject.id, type=rtype_id, object_entity=object_id):
         relation.get_real_entity().delete()
 
     if request.is_ajax():
         return HttpResponse("", mimetype="text/javascript")
 
-    return HttpResponseRedirect(subject.get_absolute_url())
+    return HttpResponseRedirect(subject.get_real_entity().get_absolute_url())
 
 @login_required
 def objects_to_link_selection(request, rtype_id, subject_id, object_ct_id, o2m=False):
@@ -322,7 +332,7 @@ def objects_to_link_selection(request, rtype_id, subject_id, object_ct_id, o2m=F
         'o2m':          o2m
     }
 
-    #TODO: add subject = get_object_or_404(CremeEntity, pk=subject_id); subject.can_view_or_die(request.user)
+    #TODO: add subject = get_object_or_404(CremeEntity, pk=subject_id); subject.can_link_or_die(request.user)
 
     rtype   = get_object_or_404(RelationType, pk=rtype_id)
     extra_q = ~Q(relations__type=rtype.symmetric_type_id, relations__object_entity=subject_id) #TODO: filter with relation creds too
@@ -334,7 +344,6 @@ def objects_to_link_selection(request, rtype_id, subject_id, object_ct_id, o2m=F
     return list_view_popup_from_widget(request, object_ct_id, o2m, extra_dict=template_dict, extra_q=extra_q)
 
 
-#TODO: rework credentials (for now: Read on subject & object entities)
 #TODO: factorise code (with RelatedEntitiesField for example) ?  With a smart static method method in RelationType ?
 @login_required
 def add_relations_with_same_type(request):
@@ -371,7 +380,7 @@ def add_relations_with_same_type(request):
     else:
         raise Http404('Can not find entity with id=%s' % subject_id)
 
-    subject.can_view_or_die(user) #TODO: credentials rework needed
+    subject.can_link_or_die(user)
 
     errors = defaultdict(list)
     len_diff = len(entity_ids) - len(entities)
@@ -401,7 +410,7 @@ def add_relations_with_same_type(request):
             errors[404].append(_(u"Incompatible type for object entity with id=%s") % entity.id) #404 ??
         elif not check_properties(entity):
             errors[404].append(_(u"Missing compatible property for object entity with id=%s") % entity.id) #404 ??
-        elif not entity.can_view(user):  #TODO: credentials rework needed
+        elif not entity.can_link(user):
             errors[403].append(_("Permission denied to entity with id=%s") % entity.id)
         else:
             create_relation(subject_entity=subject, type=rtype, object_entity=entity, user=user)

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-02-05 11:22+0100\n"
+"POT-Creation-Date: 2011-02-09 18:30+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,12 +17,12 @@ msgstr ""
 "Language: \n"
 
 #: blocks.py:31 forms/csv_import.py:342 models/creme_property.py:88
-#: models/entity.py:49 tests/views.py:108
+#: models/entity.py:49 tests/views.py:112
 msgid "Properties"
 msgstr "Propriétés"
 
 #: blocks.py:47 forms/csv_import.py:345 forms/header_filter.py:46
-#: forms/relation.py:33 gui/block.py:281 models/relation.py:181
+#: forms/relation.py:35 gui/block.py:281 models/relation.py:182
 msgid "Relations"
 msgstr "Relations"
 
@@ -196,8 +196,8 @@ msgid "General information"
 msgstr "Informations générales"
 
 #: forms/base.py:197 forms/csv_import.py:335 models/base.py:177
-#: models/prefered_menu.py:27 tests/views.py:81 tests/views.py:82
-#: tests/views.py:83
+#: models/prefered_menu.py:27 tests/views.py:85 tests/views.py:86
+#: tests/views.py:87
 msgid "User"
 msgstr "Utilisateur"
 
@@ -325,21 +325,39 @@ msgstr "Date de début"
 msgid "End date"
 msgstr "Date de fin"
 
-#: forms/relation.py:56 models/relation.py:62
+#: forms/relation.py:52
+#, python-format
+msgid "Entity #%s (not viewable)"
+msgstr "Fiche #%s (non visible)"
+
+#: forms/relation.py:64 models/relation.py:62
 msgid "No relation"
 msgstr "Aucune relation"
 
-#: forms/relation.py:59
+#: forms/relation.py:67
 msgid "There are duplicates"
 msgstr "Il y a des doublons"
 
-#: forms/relation.py:64
+#: forms/relation.py:72
 msgid "Some predicates doesn't not exist"
 msgstr "Certains prédicats n'existent pas"
 
-#: forms/relation.py:83
+#: forms/relation.py:80
+#, python-format
+msgid "Some entities are not linkable: %s"
+msgstr "Certaines fiches ne sont pas reliables: %s"
+
+#: forms/relation.py:93
 msgid "Related entities"
 msgstr "Entités associées"
+
+#: forms/relation.py:101
+msgid "NONE !"
+msgstr "AUCUNE !"
+
+#: forms/relation.py:104
+msgid "Unlinkable entities"
+msgstr "Fiches non reliables"
 
 #: forms/widgets.py:128
 msgid "Reset"
@@ -388,62 +406,77 @@ msgstr "Maintenant"
 msgid "Today"
 msgstr "Aujourd'hui"
 
-#: models/auth.py:180 models/i18n.py:27
-#: templates/creme_core/templatetags/block_specific_relations.html:21
+#: models/auth.py:191 models/i18n.py:27
+#: templates/creme_core/templatetags/block_specific_relations.html:28
 msgid "Name"
 msgstr "Nom"
 
-#: models/auth.py:182
+#: models/auth.py:193
 msgid "Creatable resources"
 msgstr "Ressources créables"
 
-#: models/auth.py:317
+#: models/auth.py:327
 msgid "all entities"
 msgstr "toutes les entités"
 
-#: models/auth.py:318
+#: models/auth.py:328
 msgid "user's own entities"
 msgstr "ses propres fiches"
 
-#: models/auth.py:329
-msgid "Can view"
-msgstr "Peut voir"
+#: models/auth.py:339
+msgid "View"
+msgstr "Voir"
 
-#: models/auth.py:331
-msgid "Can change"
-msgstr "Peut modifier"
+#: models/auth.py:340
+msgid "Change"
+msgstr "Modifier"
 
-#: models/auth.py:333
-msgid "Can delete"
-msgstr "Peut supprimer"
+#: models/auth.py:341 models/entity.py:255
+#: templates/creme_core/filters.html:614 templates/creme_core/filters.html:624
+#: templates/creme_core/filters.html:640 templates/creme_core/filters.html:646
+#: templates/creme_core/filters.html:654
+#: templates/creme_core/templatetags/block_specific_relations.html:29
+#: templates/creme_core/templatetags/widgets/block_line_deletor.html:5
+#: templates/creme_core/templatetags/widgets/block_line_deletor2.html:6
+#: templates/creme_core/templatetags/widgets/delete_button.html:4
+msgid "Delete"
+msgstr "Supprimer"
 
-#: models/auth.py:336
+#: models/auth.py:342
+msgid "Link"
+msgstr "Lier"
+
+#: models/auth.py:343
+msgid "Unlink"
+msgstr "Délier"
+
+#: models/auth.py:346
 msgid "Nothing allowed"
 msgstr "Rien d'autorisé"
 
-#: models/auth.py:338
+#: models/auth.py:348
 #, python-format
-msgid "For %(set)s => %(perms)s"
-msgstr "Pour %(set)s => %(perms)s"
+msgid "For %(set)s: %(perms)s"
+msgstr "Pour %(set)s: %(perms)s"
 
-#: models/auth.py:383
+#: models/auth.py:392
 msgid "Role"
 msgstr "Rôle"
 
-#: models/auth.py:384
+#: models/auth.py:393
 msgid "Is a team ?"
 msgstr "Est une équipe ?"
 
-#: models/auth.py:393
+#: models/auth.py:402
 #, python-format
 msgid "%s (team)"
 msgstr "%s (équipe)"
 
-#: models/base.py:169 tests/views.py:79
+#: models/base.py:169 tests/views.py:83
 msgid "Creation date"
 msgstr "Date de création"
 
-#: models/base.py:170 tests/views.py:80
+#: models/base.py:170 tests/views.py:84
 msgid "Last modification"
 msgstr "Dernière modification"
 
@@ -584,11 +617,26 @@ msgstr "Vous n'êtes pas autorisé à modifier cette fiche: %s"
 msgid "You are not allowed to delete this entity: %s"
 msgstr "Vous n'êtes pas autorisé à supprimer cette fiche: %s"
 
-#: models/entity.py:232
+#: models/entity.py:124
+#, python-format
+msgid "You are not allowed to link this entity: %s"
+msgstr "Vous n'êtes pas autorisé à relier cette fiche: %s"
+
+#: models/entity.py:131
+#, python-format
+msgid "You are not allowed to unlink this entity: %s"
+msgstr "Vous n'êtes pas autorisé à délier cette fiche: %s"
+
+#: models/entity.py:138
+#, python-format
+msgid "You are not allowed to view this entity: %s"
+msgstr "Vous n'êtes pas autorisé à voir cette fiche: %s"
+
+#: models/entity.py:253
 msgid "See"
 msgstr "Voir"
 
-#: models/entity.py:233 templates/creme_core/detailview.html:59
+#: models/entity.py:254 templates/creme_core/detailview.html:59
 #: templates/creme_core/generics/blockform/edit.html:9
 #: templates/creme_core/generics/blockform/edit.html:16
 #: templates/creme_core/generics/form/edit.html:8
@@ -597,21 +645,6 @@ msgstr "Voir"
 #: templates/creme_core/templatetags/widgets/edit_button.html:4
 msgid "Edit"
 msgstr "Éditer"
-
-#: models/entity.py:234 templates/creme_core/filters.html:614
-#: templates/creme_core/filters.html:624 templates/creme_core/filters.html:640
-#: templates/creme_core/filters.html:646 templates/creme_core/filters.html:654
-#: templates/creme_core/templatetags/block_specific_relations.html:22
-#: templates/creme_core/templatetags/widgets/block_line_deletor.html:5
-#: templates/creme_core/templatetags/widgets/block_line_deletor2.html:6
-#: templates/creme_core/templatetags/widgets/delete_button.html:4
-msgid "Delete"
-msgstr "Supprimer"
-
-#: models/entity.py:277
-#, python-format
-msgid "You are not allowed to view this entity: %s"
-msgstr "Vous n'êtes pas autorisé à voir cette fiche: %s"
 
 #: models/header_filter.py:73
 msgid "Name of the view"
@@ -659,7 +692,7 @@ msgstr "Type de relation"
 msgid "Types of relation"
 msgstr "Types de relation"
 
-#: models/relation.py:180
+#: models/relation.py:181
 #: templates/creme_core/templatetags/block_relations.html:7
 msgid "Relation"
 msgstr "Relation"
@@ -1019,12 +1052,18 @@ msgstr "%s Relation"
 msgid "%s Relations"
 msgstr "%s Relations"
 
-#: templates/creme_core/templatetags/block_relations.html:11
 #: templates/creme_core/templatetags/block_relations.html:12
+#: templates/creme_core/templatetags/block_relations.html:13
+#: templates/creme_core/templatetags/block_relations.html:18
 msgid "New relations"
 msgstr "Nouvelles relations"
 
-#: templates/creme_core/templatetags/block_relations.html:38
+#: templates/creme_core/templatetags/block_relations.html:17
+#: templates/creme_core/templatetags/block_specific_relations.html:18
+msgid "Can't link"
+msgstr "Liaison interdite"
+
+#: templates/creme_core/templatetags/block_relations.html:46
 msgid "No relation for the moment"
 msgstr "Aucune relation pour le moment"
 
@@ -1033,12 +1072,13 @@ msgstr "Aucune relation pour le moment"
 msgid "Entities related to: %(predicate)s"
 msgstr "Entités relatives à: %(predicate)s"
 
-#: templates/creme_core/templatetags/block_specific_relations.html:12
 #: templates/creme_core/templatetags/block_specific_relations.html:13
+#: templates/creme_core/templatetags/block_specific_relations.html:14
+#: templates/creme_core/templatetags/block_specific_relations.html:19
 msgid "Link to existing entities"
 msgstr "Lier à des entités existantes"
 
-#: templates/creme_core/templatetags/block_specific_relations.html:37
+#: templates/creme_core/templatetags/block_specific_relations.html:46
 msgid "No related entity for the moment"
 msgstr "Aucune entité liée pour le moment"
 
@@ -1209,12 +1249,16 @@ msgstr "%s minute(s)"
 msgid "%s second(s)"
 msgstr "%s seconde(s)"
 
-#: tests/views.py:81
+#: tests/views.py:85
 msgid "Username"
 msgstr "Nom d'utilisateur"
 
-#: tests/views.py:82
+#: tests/views.py:86
 msgid "First name"
+msgstr "Prénom"
+
+#: tests/views.py:87
+msgid "Last name"
 msgstr "Prénom"
 
 #: views/creme_property.py:58 views/generic/delete.py:63
@@ -1249,36 +1293,36 @@ msgstr "Cette vue ne peut être effacée"
 msgid "Quick creation of <%s>"
 msgstr "Création rapide de <%s>"
 
-#: views/relation.py:244
+#: views/relation.py:243
 #, python-format
 msgid "Relations for <%s>"
 msgstr "Relations pour <%s>"
 
-#: views/relation.py:273
+#: views/relation.py:282
 msgid "Multiple adding of relations"
 msgstr "Ajout multiple de relations"
 
-#: views/relation.py:380 views/generic/delete.py:56
+#: views/relation.py:389 views/generic/delete.py:56
 #, python-format
 msgid "%s entities doesn't exist / doesn't exist any more"
 msgstr "%s entité(s) n'existe(nt) pas ou plus"
 
-#: views/relation.py:401
+#: views/relation.py:410
 #, python-format
 msgid "Incompatible type for object entity with id=%s"
 msgstr "Type incompatible pour l'entité objet avec l'id=%s"
 
-#: views/relation.py:403
+#: views/relation.py:412
 #, python-format
 msgid "Missing compatible property for object entity with id=%s"
 msgstr "Il manque une propriété compatible pour l'entité objet avec l'id=%s"
 
-#: views/relation.py:405
+#: views/relation.py:414
 #, python-format
 msgid "Permission denied to entity with id=%s"
 msgstr "Permission refusée pour l'entité avec l'id=%s"
 
-#: views/relation.py:411 views/generic/delete.py:75
+#: views/relation.py:420 views/generic/delete.py:75
 msgid "Operation successfully completed"
 msgstr "Opération déroulée avec succès"
 
@@ -1313,6 +1357,12 @@ msgstr "Liste des %s"
 msgid "You are not allowed to access to the app: %s"
 msgstr "Vous n'avez pas accés à cette application: %s"
 
+#~ msgid "Can view"
+#~ msgstr "Peut voir"
+
+#~ msgid "Can delete"
+#~ msgstr "Peut supprimer"
+
 #~ msgid "Can not find entity with id=%s"
 #~ msgstr "L'entité avec l'id=%s ne peut pas être trouvée"
 
@@ -1333,12 +1383,6 @@ msgstr "Vous n'avez pas accés à cette application: %s"
 
 #~ msgid "Create relation with"
 #~ msgstr "Mettre en relation avec"
-
-#~ msgid "His own pages"
-#~ msgstr "Ses fiches"
-
-#~ msgid "All pages"
-#~ msgstr "Toutes les fiches"
 
 #~ msgid "Pages of the team"
 #~ msgstr "Les fiches de l'équipe"
@@ -1364,17 +1408,8 @@ msgstr "Vous n'avez pas accés à cette application: %s"
 #~ msgid "Pages related to his page"
 #~ msgstr "Fiches en relation avec sa fiche"
 
-#~ msgid "Is administrator"
-#~ msgstr "Est administrateur"
-
 #~ msgid "Has access"
 #~ msgstr "A accès"
 
 #~ msgid "Superior"
 #~ msgstr "Supérieur"
-
-#~ msgid "Credentials on resources"
-#~ msgstr "Droits sur les ressources"
-
-#~ msgid "Application credentials"
-#~ msgstr "Droits d'application"

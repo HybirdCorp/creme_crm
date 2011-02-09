@@ -21,7 +21,7 @@
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.contenttypes.models import ContentType
 
-from creme_core.models import Relation, CremeProperty
+from creme_core.models import CremeEntity, Relation, CremeProperty
 from creme_core.gui.block import QuerysetBlock, BlocksManager
 
 
@@ -61,7 +61,9 @@ class RelationsBlock(QuerysetBlock):
         btc = self.get_block_template_context(context, relations, update_url=update_url)
 
         #NB: DB optimisation
-        Relation.populate_real_object_entities(btc['page'].object_list)
+        relations = btc['page'].object_list
+        Relation.populate_real_object_entities(relations)
+        CremeEntity.populate_credentials([r.object_entity.get_real_entity() for r in relations], context['user'])
 
         return self._render(btc)
 
