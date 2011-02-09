@@ -240,6 +240,10 @@ def range_timestamp(date1, date2):
 def sub(object1, object2):
     return object1 - object2
 
+@register.filter(name="and_op")
+def and_op(object1, object2):
+    return bool(object1 and object2)
+
 @register.filter(name="str")
 def _str(object1):
     return str(object1)
@@ -333,6 +337,8 @@ _perms_funcs = {
         'view':   lambda entity, user: entity.can_view(user),
         'change': lambda entity, user: entity.can_change(user),
         'delete': lambda entity, user: entity.can_delete(user),
+        'link':   lambda entity, user: entity.can_link(user),
+        'unlink': lambda entity, user: entity.can_unlink(user),
     }
 
 @register.tag(name="has_perm_to")
@@ -340,7 +346,7 @@ def do_has_perm_to(parser, token):
     """{% has_perm_to TYPE OBJECT as VAR %}
     eg: {% has_perm_to change action.creme_entity as has_perm %}
 
-    TYPE: in ('create', 'view','change', 'delete')
+    TYPE: in ('create', 'view','change', 'delete', 'link', 'unlink')
     OBJECT: must be a CremeEntity, for ('view','change', 'delete') types
             and a class inheriting from CremeEntity OR a ContentType instance for 'create' type.
     """
@@ -360,7 +366,7 @@ def do_has_perm_to(parser, token):
     if not perm_func:
         raise template.TemplateSyntaxError, "%r invalid permission tag: %r" % (tag_name, perm_type)
 
-    #TODO: don't attacks defaulttags but parser api ??
+    #TODO: don't attack defaulttags but parser api ??
     entity_var = template.defaulttags.TemplateLiteral(parser.compile_filter(entity_path), entity_path)
 
     return HasPermToNode(perm_func, entity_var, var_name)

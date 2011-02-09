@@ -91,6 +91,8 @@ class UserRoleTestCase(TestCase):
                                             'can_view':   True,
                                             'can_change': False,
                                             'can_delete': False,
+                                            'can_link':   False,
+                                            'can_unlink': False,
                                             'set_type':   SetCredentials.ESET_ALL,
                                          }
                                    )
@@ -227,6 +229,8 @@ class UserRoleTestCase(TestCase):
         self.failIf(defcreds.can_view())
         self.failIf(defcreds.can_change())
         self.failIf(defcreds.can_delete())
+        self.failIf(defcreds.can_link())
+        self.failIf(defcreds.can_unlink())
 
         response = self.client.get('/creme_config/role/set_default_creds/')
         self.assertEqual(200, response.status_code)
@@ -236,6 +240,8 @@ class UserRoleTestCase(TestCase):
                                             'can_view':   True,
                                             'can_change': True,
                                             'can_delete': True,
+                                            'can_link':   True,
+                                            'can_unlink': True,
                                          }
                                    )
         self.assertEqual(200, response.status_code)
@@ -244,6 +250,8 @@ class UserRoleTestCase(TestCase):
         self.assert_(defcreds.can_view())
         self.assert_(defcreds.can_change())
         self.assert_(defcreds.can_delete())
+        self.assert_(defcreds.can_link())
+        self.assert_(defcreds.can_unlink())
 
     def test_portal(self):
         response = self.client.get('/creme_config/role/portal/')

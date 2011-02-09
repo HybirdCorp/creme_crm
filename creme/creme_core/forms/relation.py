@@ -18,6 +18,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from functools import partial
+
 from django.db.models import Q
 from django.forms import CharField, ValidationError
 from django.utils.translation import ugettext_lazy as _, ugettext
@@ -32,18 +34,24 @@ from creme_core.forms.widgets import Label
 class RelationCreateForm(CremeForm):
     relations = RelatedEntitiesField(label=_(u'Relations'))
 
-    def __init__(self, subject, user_id, relations_types=None, *args, **kwargs):
+    def __init__(self, subject, user, relations_types=None, *args, **kwargs):
         """
         @param relations_types Sequence of RelationTypes ids to narrow to these types ; or None that means all types compatible with the subject.
         """
         super(RelationCreateForm, self).__init__(*args, **kwargs)
         self.subject = subject
-        self.user_id = user_id
+        self.user = user
 
         if not relations_types:
             relations_types = RelationType.get_compatible_ones(subject.entity_type).values_list('id', flat=True)
 
         self.fields['relations'].relation_types = relations_types
+
+    @staticmethod
+    def _entities2unicode(entities, user): #TODO: move to creme_core.utils ?
+        return u', '.join(unicode(entity) if entity.can_view(user) else ugettext(u'Entity #%s (not viewable)') % entity.id
+                              for entity in entities
+                         )
 
     def clean(self):
         if self._errors:
@@ -63,39 +71,47 @@ class RelationCreateForm(CremeForm):
         if RelationType.objects.filter(pk__in=relation_type_ids).count() < len(relation_type_ids):
             raise ValidationError(ugettext(u"Some predicates doesn't not exist"))
 
+        user = self.user
+        entities = [entity for rt_id, entity in relations]
+        CremeEntity.populate_credentials(entities, user)
+
+        unlinkable = self._entities2unicode((e for e in entities if not e.can_link(user)) , user)
+        if unlinkable:
+            raise ValidationError(ugettext(u"Some entities are not linkable: %s") % unlinkable)
+
         # TODO : add validation for relations (check doubles, and existence)
         return cleaned_data
 
     def save(self):
-        subject = self.subject
-        user_id = self.user_id
-        create_relation = Relation.objects.create
+        create_relation = partial(Relation.objects.create, subject_entity=self.subject, user=self.user)
 
         for relation_type_id, entity in self.cleaned_data['relations']:
-            create_relation(user_id=user_id,
-                            subject_entity=subject,
-                            type_id=relation_type_id,
-                            object_entity_id=entity.id
-                           )
+            create_relation(type_id=relation_type_id, object_entity=entity)
 
 
 class MultiEntitiesRelationCreateForm(RelationCreateForm):
     entities_lbl = CharField(label=_(u"Related entities"), widget=Label())
 
-    def __init__(self, subjects, user_id, *args, **kwargs):
-        super(MultiEntitiesRelationCreateForm, self).__init__(subjects[0], user_id, *args, **kwargs)
+    def __init__(self, subjects, forbidden_subjects, user, *args, **kwargs):
+        subject = subjects[0] if subjects else forbidden_subjects[0]
+        super(MultiEntitiesRelationCreateForm, self).__init__(subject=subject, user=user, relations_types=None, *args, **kwargs)
         self.subjects = subjects
-        self.user_id = user_id
+        self.user = user
 
-        if subjects:
-            self.fields['entities_lbl'].initial = ",".join((unicode(subject) for subject in subjects))
+        self.fields['entities_lbl'].initial = self._entities2unicode(subjects, user) if subjects else ugettext(u'NONE !')
+
+        if forbidden_subjects:
+            self.fields['bad_entities_lbl'] = CharField(label=ugettext(u"Unlinkable entities"),
+                                                        widget=Label,
+                                                        initial=self._entities2unicode(forbidden_subjects, user)
+                                                       )
 
     @staticmethod
     def hash_relation(subject_id, rtype_id, object_id):
         return '%s#%s#%s' % (subject_id, rtype_id, object_id)
 
     def save(self):
-        user_id = self.user_id
+        user = self.user
         relations_cdata = self.cleaned_data['relations']
         existing_relations_query = Q()
 
@@ -110,11 +126,10 @@ class MultiEntitiesRelationCreateForm(RelationCreateForm):
 
         create_relation = Relation.objects.create
 
-        #TODO: check credentials for relations' objects ???
         for subject in self.subjects:
             for rtype_id, object_entity in relations_cdata:
                 if not hash_relation(subject.id, rtype_id, object_entity.id) in existing_relations:
-                    create_relation(user_id=user_id,
+                    create_relation(user=user,
                                     subject_entity=subject,
                                     type_id=rtype_id,
                                     object_entity=object_entity,

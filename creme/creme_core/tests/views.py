@@ -26,7 +26,11 @@ class ViewsTestCase(TestCase):
         role.allowed_apps = ['creme_core']
         role.save()
         SetCredentials.objects.create(role=role,
-                                      value=SetCredentials.CRED_VIEW | SetCredentials.CRED_CHANGE | SetCredentials.CRED_DELETE,
+                                      value=SetCredentials.CRED_VIEW   | \
+                                            SetCredentials.CRED_CHANGE | \
+                                            SetCredentials.CRED_DELETE | \
+                                            SetCredentials.CRED_LINK   | \
+                                            SetCredentials.CRED_UNLINK,
                                       set_type=SetCredentials.ESET_OWN)
         basic_user = User.objects.create(username='Mireille', role=role)
         basic_user.set_password(password)
@@ -339,8 +343,8 @@ class ViewsTestCase(TestCase):
 
     #TODO: test get_property_types_for_ct(), add_to_entities()
 
-    def _aux_test_add_relations(self):
-        self.login()
+    def _aux_test_add_relations(self, is_superuser=True):
+        self.login(is_superuser)
 
         create_entity = CremeEntity.objects.create
         self.subject01 = create_entity(user=self.user)
@@ -357,6 +361,19 @@ class ViewsTestCase(TestCase):
                                                      ('test-object_foobar2',  'is hated by')
                                                     )
 
+    def _set_all_creds_except_one(self, excluded):
+        value = SetCredentials.CRED_NONE
+
+        for cred in (SetCredentials.CRED_VIEW, SetCredentials.CRED_CHANGE,
+                     SetCredentials.CRED_DELETE, SetCredentials.CRED_LINK,
+                     SetCredentials.CRED_UNLINK):
+            if cred != excluded:
+                value |= cred
+
+        SetCredentials.objects.create(role=self.user.role,
+                                      value=value,
+                                      set_type=SetCredentials.ESET_ALL)
+
     def assertEntiTyHasRelation(self, subject_entity, rtype, object_entity):
         try:
             relation = subject_entity.relations.get(type=rtype)
@@ -365,7 +382,7 @@ class ViewsTestCase(TestCase):
         else:
             self.assertEqual(object_entity.id, relation.object_entity_id)
 
-    def test_add_relations(self):
+    def test_add_relations01(self):
         self._aux_test_add_relations()
         self.assertEqual(0, self.subject01.relations.count())
 
@@ -386,7 +403,40 @@ class ViewsTestCase(TestCase):
         self.assertEntiTyHasRelation(self.subject01, self.rtype01, self.object01)
         self.assertEntiTyHasRelation(self.subject01, self.rtype02, self.object02)
 
-    def test_add_relations_bulk(self):
+    def test_add_relations02(self):
+        self.login(is_superuser=False)
+        subject = CremeEntity.objects.create(user=self.other_user)
+        response = self.client.get('/creme_core/relation/add/%s' % subject.id)
+        self.assertEqual(403, response.status_code)
+
+    def test_add_relations03(self):
+        self._aux_test_add_relations(is_superuser=False)
+        self._set_all_creds_except_one(excluded=SetCredentials.CRED_LINK)
+
+        unlinkable = CremeEntity.objects.create(user=self.other_user)
+        self.assert_(unlinkable.can_view(self.user))
+        self.failIf(unlinkable.can_link(self.user))
+
+        response = self.client.post('/creme_core/relation/add/%s' % self.subject01.id,
+                                    data={
+                                            'relations': '(%s,%s,%s);(%s,%s,%s);' % (
+                                                                self.rtype01.id, self.ct_id, self.object01.id,
+                                                                self.rtype02.id, self.ct_id, unlinkable.id,
+                                                            ),
+                                         }
+                                   )
+        try:
+            form = response.context['form']
+        except Exception, e:
+            self.fail('No form in context ? (%s)', str(e))
+
+        if not form.errors:
+            self.fail('Not the excepted error in form.')
+
+        self.assertEqual(1, len(form.errors.get('__all__', [])))
+        self.assertEqual(0, self.subject01.relations.count())
+
+    def test_add_relations_bulk01(self):
         self._aux_test_add_relations()
 
         #this relation should not be recreated by the view
@@ -397,8 +447,7 @@ class ViewsTestCase(TestCase):
                                )
 
         url = '/creme_core/relation/add_to_entities/%s/%s,%s,' % (self.ct_id, self.subject01.id, self.subject02.id)
-        response = self.client.get(url)
-        self.assertEqual(200, response.status_code)
+        self.assertEqual(200, self.client.get(url).status_code)
 
         response = self.client.post(url, data={
                                                 'entities_lbl': 'wtf',
@@ -417,6 +466,79 @@ class ViewsTestCase(TestCase):
         self.assertEqual(2, self.subject02.relations.count()) #and not 3
         self.assertEntiTyHasRelation(self.subject02, self.rtype01, self.object01)
         self.assertEntiTyHasRelation(self.subject02, self.rtype02, self.object02)
+
+    def test_add_relations_bulk02(self):
+        self._aux_test_add_relations(is_superuser=False)
+
+        unviewable = CremeEntity.objects.create(user=self.other_user)
+        self.failIf(unviewable.can_view(self.user))
+
+        url = '/creme_core/relation/add_to_entities/%s/%s,%s,' % (self.ct_id, self.subject01.id, unviewable.id)
+        response = self.client.get(url)
+        self.assertEqual(200, response.status_code)
+
+        try:
+            label = response.context['form'].fields['bad_entities_lbl']
+        except Exception, e:
+            self.fail(str(e))
+
+        self.assert_(label.initial)
+
+        response = self.client.post(url, data={
+                                                'entities_lbl':     'do not care',
+                                                'bad_entities_lbl': 'do not care',
+                                                'relations':        '(%s,%s,%s);(%s,%s,%s);' % (
+                                                                        self.rtype01.id, self.ct_id, self.object01.id,
+                                                                        self.rtype02.id, self.ct_id, self.object02.id,
+                                                                       ),
+                                              })
+        self.assertNoFormError(response)
+        self.assertEqual(200, response.status_code)
+        self.assertEqual(2,   self.subject01.relations.count())
+        self.assertEqual(0,   unviewable.relations.count())
+
+    def test_add_relations_bulk03(self):
+        self._aux_test_add_relations(is_superuser=False)
+
+        self._set_all_creds_except_one(excluded=SetCredentials.CRED_LINK)
+        unlinkable = CremeEntity.objects.create(user=self.other_user)
+        self.assert_(unlinkable.can_view(self.user))
+        self.failIf(unlinkable.can_link(self.user))
+
+        response = self.client.get('/creme_core/relation/add_to_entities/%s/%s,%s,' % (self.ct_id, self.subject01.id, unlinkable.id))
+        self.assertEqual(200, response.status_code)
+
+        try:
+            label = response.context['form'].fields['bad_entities_lbl']
+        except Exception, e:
+            self.fail(str(e))
+
+        self.assertEqual(unicode(unlinkable), label.initial)
+
+    def test_add_relations_bulk04(self):
+        self._aux_test_add_relations(is_superuser=False)
+
+        url = '/creme_core/relation/add_to_entities/%s/%s,' % (self.ct_id, self.subject01.id)
+        self.assertEqual(200, self.client.get(url).status_code)
+
+        self._set_all_creds_except_one(excluded=SetCredentials.CRED_LINK)
+        unlinkable = CremeEntity.objects.create(user=self.other_user)
+
+        response = self.client.post(url, data={
+                                                'entities_lbl': 'wtf',
+                                                'relations':    '(%s,%s,%s);' % (self.rtype01.id, self.ct_id, unlinkable.id),
+                                              })
+        self.assertEqual(200, response.status_code)
+
+        try:
+            form = response.context['form']
+        except Exception, e:
+            self.fail('No form in context ? (%s)', str(e))
+
+        if not form.errors:
+            self.fail('Not the excepted error in form.')
+
+        self.assertEqual(1, len(form.errors.get('__all__', [])))
 
     def _aux_relation_objects_to_link_selection(self):
         PopulateCommand().handle(application=['creme_core', 'persons'])
@@ -586,6 +708,7 @@ class ViewsTestCase(TestCase):
 
     def test_add_relations_with_same_type04(self): #credentials errors
         self.login(is_superuser=False)
+        self._set_all_creds_except_one(excluded=SetCredentials.CRED_LINK)
 
         forbidden = CremeEntity.objects.create(user=self.other_user)
         allowed01 = CremeEntity.objects.create(user=self.user)
@@ -596,8 +719,8 @@ class ViewsTestCase(TestCase):
 
         post = self.client.post
 
-        self.failIf(forbidden.can_view(self.user))
-        self.assert_(allowed01.can_view(self.user))
+        self.failIf(forbidden.can_link(self.user))
+        self.assert_(allowed01.can_link(self.user))
 
         self.assertEqual(403, post('/creme_core/relation/add_from_predicate/save',
                                     data={
@@ -702,8 +825,7 @@ class ViewsTestCase(TestCase):
         self.assertEqual(1,              len(relations))
         self.assertEqual(good_object.id, relations[0].object_entity_id)
 
-
-    def test_relation_delete(self):
+    def test_relation_delete01(self):
         self.login()
 
         subject_entity = CremeEntity.objects.create(user=self.user)
@@ -718,7 +840,24 @@ class ViewsTestCase(TestCase):
 
         self.assertEqual(0, Relation.objects.filter(pk__in=[relation.pk, sym_relation.pk]).count())
 
-    def test_relation_delete_similar(self):
+    def test_relation_delete02(self):
+        self.login(is_superuser=False)
+
+        self._set_all_creds_except_one(excluded=SetCredentials.CRED_UNLINK)
+
+        allowed   = CremeEntity.objects.create(user=self.user)
+        forbidden = CremeEntity.objects.create(user=self.other_user)
+        rtype, sym_rtype = RelationType.create(('test-subject_foobar', 'is loving'), ('test-object_foobar', 'is loved by'))
+
+        relation = Relation.objects.create(user=self.user, type=rtype, subject_entity=allowed, object_entity=forbidden)
+        self.assertEqual(403, self.client.post('/creme_core/relation/delete', data={'id': relation.id}).status_code)
+        self.assertEqual(1,   Relation.objects.filter(pk=relation.pk).count())
+
+        relation = Relation.objects.create(user=self.user, type=rtype, subject_entity=forbidden, object_entity=allowed)
+        self.assertEqual(403, self.client.post('/creme_core/relation/delete', data={'id': relation.id}).status_code)
+        self.assertEqual(1,   Relation.objects.filter(pk=relation.pk).count())
+
+    def test_relation_delete_similar01(self):
         self.login()
 
         subject_entity01 = CremeEntity.objects.create(user=self.user)
@@ -752,7 +891,39 @@ class ViewsTestCase(TestCase):
         self.assertEqual(0,   Relation.objects.filter(pk__in=[relation01.pk, relation02.pk]).count())
         self.assertEqual(3,   Relation.objects.filter(pk__in=[relation03.pk, relation04.pk, relation05.pk]).count())
 
-        #TODO: test other relation views...
+    def test_relation_delete_similar02(self):
+        self.login(is_superuser=False)
+        self._set_all_creds_except_one(excluded=SetCredentials.CRED_UNLINK)
+
+        allowed   = CremeEntity.objects.create(user=self.user)
+        forbidden = CremeEntity.objects.create(user=self.other_user)
+
+        rtype, useless = RelationType.create(('test-subject_love', 'is loving'), ('test-object_love', 'is loved by'))
+        relation01 = Relation.objects.create(user=self.user, type=rtype, subject_entity=allowed,   object_entity=forbidden)
+        relation02 = Relation.objects.create(user=self.user, type=rtype, subject_entity=forbidden, object_entity=allowed)
+        self.assertEqual(4, Relation.objects.count())
+
+        response = self.client.post('/creme_core/relation/delete/similar',
+                                    data={
+                                            'subject_id': allowed.id,
+                                            'type':       rtype.id,
+                                            'object_id':  forbidden.id,
+                                         }
+                                   )
+        self.assertEqual(403, response.status_code)
+        self.assertEqual(4,   Relation.objects.count())
+
+        response = self.client.post('/creme_core/relation/delete/similar',
+                                    data={
+                                            'subject_id': forbidden.id,
+                                            'type':       rtype.id,
+                                            'object_id':  allowed.id,
+                                         }
+                                   )
+        self.assertEqual(403, response.status_code)
+        self.assertEqual(4,   Relation.objects.count())
+
+    #TODO: test other relation views...
 
     def test_headerfilter_create(self): #TODO: test several HFI, other types of HFI
         self.login()
