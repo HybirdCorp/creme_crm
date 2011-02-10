@@ -328,7 +328,7 @@ def delete_similar(request):
     get_object_or_404(CremeEntity, pk=object_id).can_unlink_or_die(user)
 
     RelationType._is_relation_type_internal_die(rtype_id, _("You can't delete this relation")) #TODO: get_object_or_404(RelationType, ..) etc...
-    
+
     for relation in Relation.objects.filter(subject_entity=subject.id, type=rtype_id, object_entity=object_id):
         relation.get_real_entity().delete()
 
@@ -349,7 +349,10 @@ def objects_to_link_selection(request, rtype_id, subject_id, object_ct_id, o2m=F
     RelationType._is_relation_type_internal_die(rtype_id, _("You can't add this relation type from here")) #TODO: query done twice.... ;(
 
     rtype   = get_object_or_404(RelationType, pk=rtype_id)
-    extra_q = ~Q(relations__type=rtype.symmetric_type_id, relations__object_entity=subject_id) #TODO: filter with relation creds too
+
+    #TODO: filter with relation creds too
+    #extra_q = ~Q(relations__type=rtype.symmetric_type_id, relations__object_entity=subject_id) #It seems that way causes some entities linked with another reelation type to be skipped...
+    extra_q = ~Q(pk__in=CremeEntity.objects.filter(relations__type=rtype.symmetric_type_id, relations__object_entity=subject_id).values_list('id', flat=True))
 
     prop_types = list(rtype.object_properties.all())
     if prop_types:
@@ -371,7 +374,7 @@ def add_relations_with_same_type(request):
     entity_ids = POST.getlist('entities')
 
     RelationType._is_relation_type_internal_die(rtype_id, _("You can't add this relation type from here")) #TODO: query done twice... ;(
-    
+
     if not entity_ids:
         raise Http404('Void "entities" parameter.')
 
