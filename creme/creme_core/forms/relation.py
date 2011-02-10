@@ -79,6 +79,14 @@ class RelationCreateForm(CremeForm):
         if unlinkable:
             raise ValidationError(ugettext(u"Some entities are not linkable: %s") % unlinkable)
 
+        #TODO: regroup queries....        
+        _is_relation_type_internal = RelationType._is_relation_type_internal
+        rel_type_get               = RelationType.objects.get
+        for relation_type_id in relation_type_ids:
+            if _is_relation_type_internal(relation_type_id):
+                rt = rel_type_get(pk=relation_type_id)#No verification of existence here because verified above
+                raise ValidationError(ugettext(u"You can't add %(predicate)s from here") % {'predicate': rt})
+
         # TODO : add validation for relations (check doubles, and existence)
         return cleaned_data
 

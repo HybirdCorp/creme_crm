@@ -218,16 +218,24 @@ def __get_entity_predicates(request, id):
 
     entity.can_view_or_die(request.user) #TODO: remove
 
-    predicates = RelationType.objects.filter(can_be_create_with_popup=True).order_by('predicate')
+    predicates = RelationType.objects.filter(is_internal=False).order_by('predicate')
 
     #TODO: use CremePropertyType constraints too
     return predicates.filter(Q(subject_ctypes=entity.entity_type)|Q(subject_ctypes__isnull=True)).distinct()
 
 def add_relations(request, subject_id, relation_type_id=None):
+    """
+        NB: In case of relation_type_id=None is internal relation type is verified in RelationCreateForm clean
+    """
     subject = get_object_or_404(CremeEntity, pk=subject_id)
     subject.can_link_or_die(request.user)
 
-    relations_types = [relation_type_id] if relation_type_id else None
+#    relations_types = [relation_type_id] if relation_type_id else None
+    relations_types = None
+    if relation_type_id and not RelationType._is_relation_type_internal(relation_type_id): #TODO: bof...
+        relations_types = [relation_type_id]
+
+
 
     if request.method == 'POST':
         form = RelationCreateForm(subject=subject, user=request.user, relations_types=relations_types, data=request.POST)
@@ -295,6 +303,9 @@ def delete(request):
     subject.can_unlink_or_die(user)
     relation.object_entity.can_unlink_or_die(user)
 
+
+    RelationType._is_relation_type_internal_die(relation.type.id, _("You can't delete this relation")) #TODO: remove/change this ugly _is_relation_type_internal_die() method....
+
     relation.get_real_entity().delete()
 
     if request.is_ajax():
@@ -316,6 +327,8 @@ def delete_similar(request):
     subject.can_unlink_or_die(user)
     get_object_or_404(CremeEntity, pk=object_id).can_unlink_or_die(user)
 
+    RelationType._is_relation_type_internal_die(rtype_id, _("You can't delete this relation")) #TODO: get_object_or_404(RelationType, ..) etc...
+    
     for relation in Relation.objects.filter(subject_entity=subject.id, type=rtype_id, object_entity=object_id):
         relation.get_real_entity().delete()
 
@@ -333,6 +346,7 @@ def objects_to_link_selection(request, rtype_id, subject_id, object_ct_id, o2m=F
     }
 
     #TODO: add subject = get_object_or_404(CremeEntity, pk=subject_id); subject.can_link_or_die(request.user)
+    RelationType._is_relation_type_internal_die(rtype_id, _("You can't add this relation type from here")) #TODO: query done twice.... ;(
 
     rtype   = get_object_or_404(RelationType, pk=rtype_id)
     extra_q = ~Q(relations__type=rtype.symmetric_type_id, relations__object_entity=subject_id) #TODO: filter with relation creds too
@@ -356,6 +370,8 @@ def add_relations_with_same_type(request):
     rtype_id   = get_from_POST_or_404(POST, 'predicate_id') #TODO: rename POST arg
     entity_ids = POST.getlist('entities')
 
+    RelationType._is_relation_type_internal_die(rtype_id, _("You can't add this relation type from here")) #TODO: query done twice... ;(
+    
     if not entity_ids:
         raise Http404('Void "entities" parameter.')
 
