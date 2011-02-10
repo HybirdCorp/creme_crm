@@ -36,8 +36,17 @@ register = template.Library()
 def get_listview_filters(context):
     filters = Filter.objects.filter(model_ct=context['content_type_id']).order_by('name') #TODO: retrieve in a cache...
 
-    context['select_values'] = [{'value': filter_.id, 'text': filter_.name} for filter_ in filters] #TODO: use queryset.values('id', 'name') ??
+    #TODO: Make the same manner as hf
+    filter_id = context['filter_id']
+    selected = None
+    if filter_id:
+        try:
+            selected = filters.get(pk=filter_id)
+        except Filter.DoesNotExist:
+            pass
 
+    context['select_values'] = [{'value': filter_.id, 'text': filter_.name} for filter_ in filters] #TODO: use queryset.values('id', 'name') ??
+    context['filter']        = selected
     return context
 
 @register.inclusion_tag('creme_core/templatetags/listview_headerfilters.html', takes_context=True)

@@ -170,7 +170,6 @@ def list_view_popup(request, model, extra_dict=None, o2m=False, extra_q=None, *a
 
     return list_view(request, model,
                      template="creme_core/generics/list_entities_popup.html",
-                     show_actions=False,
                      extra_dict=popup_extra_dict,
                      o2m=o2m,
                      extra_q=extra_q,
@@ -181,11 +180,15 @@ def list_view_popup(request, model, extra_dict=None, o2m=False, extra_q=None, *a
 def list_view_popup_from_widget(request, ct_id, o2m, *args, **kwargs):
     req_get = request.REQUEST.get
     o2m = bool(int(o2m))
+
+    json_str_q_filter = str(req_get('q_filter', {}))
+
     extra_dict = {
                     'list_view_template': 'creme_core/frags/list_view_popup.html',
                     'js_handler':         req_get('js_handler'),
                     'js_arguments':       req_get('js_arguments'),
                     'whoami':             req_get('whoami'),
+                    'q_filter':           json_str_q_filter,
                  }
 
     #TODO: Can be improved ?
@@ -195,7 +198,7 @@ def list_view_popup_from_widget(request, ct_id, o2m, *args, **kwargs):
 
     model = get_object_or_404(ContentType, pk=ct_id).model_class()
 
-    extra_q_dict = JSONDecoder().decode(str(req_get('q_filter', {}))) or {}
+    extra_q_dict = JSONDecoder().decode(json_str_q_filter) or {}
 #    ex_q_dict = dict((str(k), v) for k, v in extra_q_dict.items())
 #
 #    extra_q = Q(**(ex_q_dict or {}))
