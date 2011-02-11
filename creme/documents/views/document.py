@@ -42,7 +42,7 @@ def add_from_detailview(request):
     GET = request.GET
     entity = get_object_or_404(CremeEntity, pk=get_from_GET_or_404(GET, 'entity_id'))
 
-    entity.can_view_or_die(request.user)  #TODO: rework credentials for relation
+    entity.can_link_or_die(request.user)
 
     return add_entity(request, DocumentCreateViewForm, GET.get('callback_url'),
                       extra_initial={'entity': entity}

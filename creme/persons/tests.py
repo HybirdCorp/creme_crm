@@ -4,7 +4,7 @@ from django.test import TestCase
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 
-from creme_core.models import RelationType, Relation, CremeProperty
+from creme_core.models import RelationType, Relation, CremeProperty, UserRole, SetCredentials
 from creme_core.management.commands.creme_populate import Command as PopulateCommand
 from creme_core.constants import PROP_IS_MANAGED_BY_CREME
 from creme_core.gui.quick_forms import quickforms_registry
@@ -14,21 +14,40 @@ from persons.constants import *
 
 
 class PersonsTestCase(TestCase):
-    def login(self):
-        if not self.user:
-            user = User.objects.create(username='Kaneda')
-            user.set_password(self.password)
-            user.is_superuser = True
-            user.save()
-            self.user = user
+    def login(self, is_superuser=True):
+        password = 'test'
 
-        logged = self.client.login(username=self.user.username, password=self.password)
+        superuser = User.objects.create(username='Kirika')
+        superuser.set_password(password)
+        superuser.is_superuser = True
+        superuser.save()
+
+        role = UserRole.objects.create(name='Basic')
+        role.allowed_apps = ['persons']
+        role.save()
+        basic_user = User.objects.create(username='Mireille', role=role)
+        basic_user.set_password(password)
+        basic_user.save()
+
+        self.user, self.other_user = (superuser, basic_user) if is_superuser else \
+                                     (basic_user, superuser)
+
+        logged = self.client.login(username=self.user.username, password=password)
         self.assert_(logged, 'Not logged in')
 
     def setUp(self):
         PopulateCommand().handle(application=['creme_core', 'persons'])
         self.password = 'test'
         self.user = None
+
+    def assertNoFormError(self, response): #TODO: move in a CremeTestCase ??? (copied from creme_config)
+        try:
+            errors = response.context['form'].errors
+        except Exception, e:
+            pass
+        else:
+            if errors:
+                self.fail(errors)
 
     def test_populate(self): #test relationtype creation with constraints
         def get_relationtype_or_fail(pk):
@@ -133,6 +152,80 @@ class PersonsTestCase(TestCase):
         contacts_set = set(contact.id for contact in contacts_page.object_list)
         self.assert_(faye.id in contacts_set)
         self.assert_(spike.id in contacts_set)
+
+    def test_create_linked_contact01(self):
+        self.login()
+
+        orga = Organisation.objects.create(user=self.user, name='Acme')
+        redir = orga.get_absolute_url()
+        uri = "/persons/contact/add_with_relation/%(orga_id)s/%(rtype_id)s?callback_url=%(url)s" % {
+                    'orga_id':  orga.id,
+                    'rtype_id': REL_OBJ_EMPLOYED_BY,
+                    'url':      redir,
+                }
+        self.assertEqual(200, self.client.get(uri).status_code)
+
+        first_name = 'Bugs'
+        last_name = 'Bunny'
+        response = self.client.post(uri, data={
+                                        'orga_overview': 'dontcare',
+                                        'relation':      'dontcare',
+                                        'user':          self.user.pk,
+                                        'first_name':    first_name,
+                                        'last_name':     last_name,
+                                    }, follow=True
+                                   )
+        self.assertNoFormError(response)
+        self.assertEqual(200, response.status_code)
+        self.assert_(response.redirect_chain)
+        self.assert_(response.redirect_chain[-1][0].endswith(redir))
+
+        try:
+            contact = Contact.objects.get(first_name=first_name)
+            Relation.objects.get(subject_entity=orga.id, type=REL_OBJ_EMPLOYED_BY, object_entity=contact.id)
+        except Exception, e:
+            self.fail(str(e))
+
+        self.assertEqual(last_name, contact.last_name)
+
+    def test_create_linked_contact02(self):
+        self.login(is_superuser=False)
+
+        role = self.user.role
+        SetCredentials.objects.create(role=role,
+                                      value=SetCredentials.CRED_VIEW   | SetCredentials.CRED_CHANGE | \
+                                            SetCredentials.CRED_DELETE | SetCredentials.CRED_UNLINK, #no CRED_LINK
+                                      set_type=SetCredentials.ESET_OWN)
+        role.creatable_ctypes = [ContentType.objects.get_for_model(Contact)]
+
+        orga = Organisation.objects.create(user=self.user, name='Acme')
+        response = self.client.get("/persons/contact/add_with_relation/%(orga_id)s/%(rtype_id)s?callback_url=%(url)s" % {
+                                        'orga_id':  orga.id,
+                                        'rtype_id': REL_OBJ_EMPLOYED_BY,
+                                        'url':      orga.get_absolute_url(),
+                                    })
+        self.assert_(response.context) #no context if redirect to creme_login...
+        self.assertEqual(403, response.status_code)
+
+    def test_create_linked_contact03(self):
+        self.login()
+
+        orga = Organisation.objects.create(user=self.user, name='Acme')
+        url = "/persons/contact/add_with_relation/%(orga_id)s/%(rtype_id)s?callback_url=%(url)s"
+
+        self.assertEqual(404, self.client.get(url % {
+                                        'orga_id':  1024, #doesn't exist
+                                        'rtype_id': REL_OBJ_EMPLOYED_BY,
+                                        'url':      orga.get_absolute_url(),
+                                    }).status_code)
+        self.assertEqual(404, self.client.get(url % {
+                                        'orga_id':  orga.id, #doesn't exist
+                                        'rtype_id': 'IDONOTEXIST',
+                                        'url':      orga.get_absolute_url(),
+                                    }).status_code)
+
+    #TODO: test relation's object creds
+    #TODO: test bad rtype (doesn't exist, constraints) => fixed list of types ??
 
     def test_orga_createview01(self):
         self.login()
