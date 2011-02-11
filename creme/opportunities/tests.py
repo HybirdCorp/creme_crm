@@ -165,6 +165,8 @@ class OpportunitiesTestCase(TestCase):
         self.assertEqual(1, filter_(subject_entity=quote1, type=REL_SUB_LINKED_QUOTE,  object_entity=opportunity).count())
         self.assertEqual(0, filter_(subject_entity=quote1, type=REL_SUB_CURRENT_DOC,   object_entity=opportunity).count())
 
+    #def test_opportunity_generate_new_doc02(self): #TODO test with credentials problems
+
     def test_set_current_quote(self):
         self.login()
 
@@ -190,3 +192,5 @@ class OpportunitiesTestCase(TestCase):
         self.assertEqual(1, filter_(subject_entity=quote1, type=REL_SUB_BILL_RECEIVED, object_entity=target).count())
         self.assertEqual(1, filter_(subject_entity=quote1, type=REL_SUB_LINKED_QUOTE,  object_entity=opportunity).count())
         self.assertEqual(1, filter_(subject_entity=quote1, type=REL_SUB_CURRENT_DOC,   object_entity=opportunity).count())
+
+#TODO: test add_to_orga (with bad creds etc...)
