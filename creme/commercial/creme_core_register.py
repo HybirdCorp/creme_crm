@@ -25,13 +25,13 @@ from creme_core.gui.menu import creme_menu
 from creme_core.gui.block import block_registry
 from creme_core.gui.button_menu import button_registry
 
-from commercial.models import Act, Strategy
+from commercial.models import Act, ActObjectivePattern, Strategy
 from commercial.blocks import blocks_list
 from commercial.buttons import complete_goal_button
 
 
 creme_registry.register_app('commercial', _(u'Commercial strategy'), '/commercial')
-creme_registry.register_entity_models(Act, Strategy)
+creme_registry.register_entity_models(Act, ActObjectivePattern, Strategy)
 
 reg_item = creme_menu.register_app('commercial', '/commercial/').register_item
 reg_item('/commercial/',                      _(u'Portal'),                   'commercial')
