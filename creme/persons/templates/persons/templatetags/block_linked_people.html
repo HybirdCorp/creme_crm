@@ -1,24 +1,32 @@
 {% load i18n %}{% load media %}
 {% load creme_core_tags %}{% load creme_block %}
+{% has_perm_to link object as link_perm %}{% has_perm_to unlink object as unlink_perm %}
 <table  class="table_detail_view ui-corner-all" id={{block_name}}>
     {% get_block_header colspan=5 %}
         <th style="width: 80%;" class="collapser" align="left">{% block block_header %}{% endblock %}</th>
         <th style="width: 20%;" align="right">
             <div class="buttons">
                 {% has_perm_to create ct as creation_perm %}
-                {% if creation_perm %}
-                    <a class="add" href="/persons/contact/add_with_relation/{{object.pk}}/{{predicate_id}}?callback_url=" onclick="this.href+=window.location.href">
-                        <img src="{% media_url 'images/add_22.png' %}" border="0" title="{% trans "Create a contact" %}" alt="{% trans "Create a contact" %}" />
+                {% if creation_perm and link_perm %}
+                    <a class="add" href="/persons/contact/add_with_relation/{{object.pk}}/{{rtype_id}}?callback_url=" onclick="this.href+=window.location.href">
+                        <img src="{% media_url 'images/add_22.png' %}" border="0" title="{{add_title}}" alt="{{add_title}}" />{{add_title}}
+                    </a>
                 {% else %}
                     <span class="add forbidden">
-                        <img src="{% media_url 'images/add_22.png' %}" border="0" title="{% trans "Can't add" %}" alt="{% trans "Can't add" %}" />
+                        <img src="{% media_url 'images/add_22.png' %}" border="0" title="{% trans "Can't add" %}" alt="{% trans "Can't add" %}" />{{add_title}}
+                    </span>
                 {% endif %}
-                {% block add_title %}{% trans "Create a contact" %}{% endblock %}
-                {% if creation_perm %}</a>{% else %}</span>{% endif %}
-                <a class="link" onclick="creme.relations.handleAddFromPredicateEntity('/creme_core/relation/objects2link/rtype/{{predicate_id}}/entity/{{object.id}}/{{ct.id}}', '{{predicate_id}}', '{{object.id}}', {% get_block_reload_uri %});">
-                    <img src="{% media_url 'images/relations_22.png' %}" border="0" title="{% trans "Link to an existing contact" %}" alt="{% trans "Link to an existing contact" %}" />
-                    {% trans "Link to an existing contact" %}
-                </a>
+                {% if link_perm %}
+                    <a class="link" onclick="creme.relations.handleAddFromPredicateEntity('/creme_core/relation/objects2link/rtype/{{rtype_id}}/entity/{{object.id}}/{{ct.id}}', '{{rtype_id}}', '{{object.id}}', {% get_block_reload_uri %});">
+                        <img src="{% media_url 'images/relations_22.png' %}" border="0" title="{% trans "Link to existing contacts" %}" alt="{% trans "Link to existing contacts" %}" />
+                        {% trans "Link to existing contacts" %}
+                    </a>
+                {% else %}
+                    <span class="link forbidden">
+                        <img src="{% media_url 'images/relations_22.png' %}" border="0" title="{% trans "Can't link" %}" alt="{% trans "Can't link" %}" />
+                        {% trans "Link to existing contacts" %}
+                    </span>
+                {% endif %}
             </div>
         </th>
     {% end_get_block_header %}
@@ -38,10 +46,17 @@
                     <td class="{{row_color}}">{{people.mobile}}</td>
                     <td class="{{row_color}}">{{people.email}}</td>
                     <td class="{{row_color}}" align="center" valign="center" style="width:10%;">
-                        <a href="{{people.get_edit_absolute_url}}">
-                            <img src="{% media_url 'images/edit_22.png' %}" border="0">
-                        </a>
-                        {% get_line_deletor at_url '/creme_core/relation/delete/similar' with_args "{ 'subject_id':{{object.pk}}, 'type':'{{predicate_id}}', 'object_id':{{people.pk}} }" %}
+                        {% has_perm_to change people as people_edit_perm %}{% has_perm_to unlink people as people_unlink_perm %}
+                        {% if people_edit_perm %}
+                            <a href="{{people.get_edit_absolute_url}}">
+                                <img src="{% media_url 'images/edit_22.png' %}" border="0">
+                            </a>
+                        {% else %}
+                            <img class="forbidden" src="{% media_url 'images/edit_22.png' %}" border="0" title="{% trans "Can't edit" %}" alt="{% trans "Can't edit" %}" />
+                        {% endif %}
+                        {% with unlink_perm|and_op:people_unlink_perm as has_perm %}
+                            {% get_line_deletor2 at_url '/creme_core/relation/delete/similar' with_args "{ 'subject_id':{{object.pk}}, 'type':'{{rtype_id}}', 'object_id':{{people.pk}} }" with_perms has_perm %}
+                        {% endwith %}
                     </td>
                 </tr>
             {% endfor %}

@@ -21,7 +21,7 @@
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.contenttypes.models import ContentType
 
-from creme_core.models import Relation
+from creme_core.models import CremeEntity, Relation
 from creme_core.gui.block import Block, QuerysetBlock
 
 from persons.models import Contact, Address
@@ -35,33 +35,38 @@ class ManagersBlock(QuerysetBlock):
     verbose_name  = _(u"Organisation managers")
     template_name = 'persons/templatetags/block_managers.html'
 
+    def _get_people_qs(self, orga):
+        return orga.get_managers()
+
+    def _get_add_title(self):
+        return _(u'Create a manager') #lazy -> translated only if used
+
     def detailview_display(self, context):
         orga = context['object']
+        btc = self.get_block_template_context(context,
+                                              self._get_people_qs(orga).select_related('civility'),
+                                              update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, orga.pk),
+                                              rtype_id=self.relation_type_deps[0],
+                                              ct=ContentType.objects.get_for_model(Contact),
+                                              add_title=self._get_add_title(),
+                                             )
 
-        return self._render(self.get_block_template_context(context,
-                                                            orga.get_managers(),
-                                                            update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, orga.pk),
-                                                            predicate_id=REL_OBJ_MANAGES, #TODO: rename to 'relation_type_id' ??
-                                                            ct=ContentType.objects.get_for_model(Contact),
-                                                            ))
+        CremeEntity.populate_credentials(btc['page'].object_list, context['user'])
 
-#TODO factorise with ManagersBlock ??
-class EmployeesBlock(QuerysetBlock):
+        return self._render(btc)
+
+
+class EmployeesBlock(ManagersBlock):
     id_           = QuerysetBlock.generate_id('persons', 'employees')
-    dependencies  = (Relation,) #Contact
     relation_type_deps = (REL_OBJ_EMPLOYED_BY, )
     verbose_name  = _(u"Organisation employees")
     template_name = 'persons/templatetags/block_employees.html'
 
-    def detailview_display(self, context):
-        orga = context['object']
+    def _get_people_qs(self, orga):
+        return orga.get_employees()
 
-        return self._render(self.get_block_template_context(context,
-                                                            orga.get_employees(),
-                                                            update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, orga.pk),
-                                                            predicate_id=REL_OBJ_EMPLOYED_BY,
-                                                            ct=ContentType.objects.get_for_model(Contact),
-                                                            ))
+    def _get_add_title(self):
+        return _(u'Create an employee') #lazy -> translated only if used
 
 
 class AddressBlock(Block):
@@ -71,9 +76,8 @@ class AddressBlock(Block):
     template_name = 'persons/templatetags/block_address.html'
 
     def detailview_display(self, context):
-        object = context['object']
-        return self._render(self.get_block_template_context(context ,
-                                                            update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, object.pk),
+        return self._render(self.get_block_template_context(context,
+                                                            update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, context['object'].pk),
                                                            ))
 
 
@@ -95,7 +99,7 @@ class OtherAddressBlock(QuerysetBlock):
                                                            ))
 
 
-address_block = AddressBlock ()
-other_address_block = OtherAddressBlock ()
+address_block = AddressBlock()
+other_address_block = OtherAddressBlock()
 managers_block  = ManagersBlock()
 employees_block = EmployeesBlock()

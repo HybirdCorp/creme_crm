@@ -45,6 +45,7 @@ class ParticipantsBlock(QuerysetBlock):
                                              )
         relations = btc['page'].object_list
         #TODO: select_related(depth=1) ?? remove civility with better entity repr system ??
+        #TODO: move in Relation.populate_real_objects() (with new arg for fixed model) ???
         contacts = dict((c.id, c) for c in Contact.objects.filter(pk__in=[r.object_entity_id for r in relations]).select_related('user', 'is_user', 'civility'))
 
         CremeEntity.populate_credentials(contacts.values(), context['user'])

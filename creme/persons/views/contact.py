@@ -20,6 +20,7 @@
 
 from logging import debug
 
+from django.shortcuts import get_object_or_404
 from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required, permission_required
 
@@ -40,23 +41,21 @@ def add(request):
 @permission_required('persons')
 @permission_required('persons.add_contact')
 def add_with_relation(request, orga_id, predicate_id=None):
-    try:
-        linked_orga = Organisation.objects.get(pk=orga_id) #credential ??
-    except Organisation.DoesNotExist, e:
-        debug('Organisation.DoesNotExist: %s', e)
-        linked_orga = None
+    user = request.user
+    linked_orga = get_object_or_404(Organisation, pk=orga_id)
+    linked_orga.can_link_or_die(user)
+    linked_orga.can_view_or_die(user) #displayed in the form....
 
     initial = {'linked_orga': linked_orga}
 
     if predicate_id:
-        try:
-            initial.update(relation_type=RelationType.objects.get(symmetric_type=predicate_id))
-        except RelationType.DoesNotExist, e:
-            debug('RelationType.DoesNotExist: %s', e)
+        rtype = get_object_or_404(RelationType, symmetric_type=predicate_id)
+        initial.update(relation_type=rtype) #TODO: inline ,??
 
     return add_entity(request, ContactWithRelationForm,
-                      request.REQUEST.get('callback_url'),
-                      'persons/add_contact_form.html', extra_initial=initial)
+                      request.REQUEST.get('callback_url'), #TODO: request.GET ??
+                      'persons/add_contact_form.html', extra_initial=initial
+                     )
 
 @login_required
 @permission_required('persons')

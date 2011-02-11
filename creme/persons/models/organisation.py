@@ -95,11 +95,11 @@ class Organisation(CremeEntity):
     def get_employees(self):
         return Contact.objects.filter(relations__type=REL_SUB_EMPLOYED_BY, relations__object_entity=self.id)
 
-    #TODO: used ???
-    def zipcode(self):
-        if self.billing_address is not None:
-            return self.billing_address.zipcode
-        return 'Non renseigné'
+    #COMMENTED on 11 february 2011
+    #def zipcode(self):
+        #if self.billing_address is not None:
+            #return self.billing_address.zipcode
+        #return 'Non renseigné'
 
     @staticmethod
     def get_all_managed_by_creme():
