@@ -22,6 +22,7 @@ from collections import defaultdict
 from itertools import chain
 from logging import debug
 
+from django.core.exceptions import PermissionDenied
 from django.db.models import (Model, CharField, TextField, BooleanField,
                               PositiveSmallIntegerField, PositiveIntegerField,
                               ForeignKey, ManyToManyField, Q)
@@ -447,6 +448,10 @@ class UserProfile(Model):
         eg: user.has_perm('myapp.add_mymodel') => user.has_perm_to_create(MyModel)"""
         meta = model_or_entity._meta
         return self.has_perm('%s.add_%s' % (meta.app_label, meta.object_name.lower()))
+
+    def has_perm_to_create_or_die(self, model_or_entity):
+        if not self.has_perm_to_create(model_or_entity):
+            raise PermissionDenied(ugettext(u'You are not allowed to create: %s') % model_or_entity._meta.verbose_name)
 
     def update_credentials(self, entity_qs=None):
         """Update the credentials (EntityCredentials objects) related to this user.

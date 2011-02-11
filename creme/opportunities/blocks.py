@@ -21,7 +21,7 @@
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.contenttypes.models import ContentType
 
-from creme_core.models import Relation
+from creme_core.models import CremeEntity, Relation
 from creme_core.gui.block import QuerysetBlock
 
 from persons.models import Contact
@@ -34,201 +34,135 @@ from constants import *
 from models import Opportunity
 
 
-__all__ = ['linked_contacts_block', 'linked_products_block', 'linked_services_block',
-           'responsibles_block', 'quotes_block', 'sales_orders_block', 'invoices_block',
-           'target_organisation_block']
+_get_ct = ContentType.objects.get_for_model
 
-_contact_ct_id = None
 
-class LinkedContactsBlock(QuerysetBlock):
-    id_           = QuerysetBlock.generate_id('opportunities', 'linked_contacts')
+class _LinkedStuffBlock(QuerysetBlock):
+    #id_           = SET ME
     dependencies  = (Relation,) #Contact
+    #relation_type_deps = SET ME
+    #verbose_name  = SET ME
+    #template_name = SET ME
+
+    _ct = _get_ct(Contact) #overload if needed
+
+    def _get_queryset(self, entity): #overload
+        pass
+
+    def detailview_display(self, context):
+        entity = context['object']
+        btc = self.get_block_template_context(context,
+                                              self._get_queryset(entity),
+                                              update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, entity.pk),
+                                              predicate_id=self.relation_type_deps[0],
+                                              ct=self._ct,
+                                             )
+
+        CremeEntity.populate_credentials(btc['page'].object_list, context['user'])
+
+        return self._render(btc)
+
+
+class LinkedContactsBlock(_LinkedStuffBlock):
+    id_           = QuerysetBlock.generate_id('opportunities', 'linked_contacts')
     relation_type_deps = (REL_OBJ_LINKED_CONTACT, )
     verbose_name  = _(u'Linked Contacts')
     template_name = 'opportunities/templatetags/block_contacts.html'
 
-    def detailview_display(self, context):
-        global _contact_ct_id
-
-        opp = context['object']
-
-        if not _contact_ct_id:
-            _contact_ct_id = ContentType.objects.get_for_model(Contact).id
-
-        return self._render(self.get_block_template_context(context, opp.get_contacts(),
-                                                            update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, opp.pk),
-                                                            predicate_id=REL_OBJ_LINKED_CONTACT,
-                                                            ct_id=_contact_ct_id))
+    def _get_queryset(self, entity):
+        return entity.get_contacts().select_related('civility')
 
 
-class LinkedProductsBlock(QuerysetBlock):
+class LinkedProductsBlock(_LinkedStuffBlock):
     id_           = QuerysetBlock.generate_id('opportunities', 'linked_products')
-    dependencies  = (Relation,)
     relation_type_deps = (REL_OBJ_LINKED_PRODUCT, )
     verbose_name  = _(u'Linked Products')
     template_name = 'opportunities/templatetags/block_products.html'
 
-    def __init__(self, *args, **kwargs):
-        super(LinkedProductsBlock, self).__init__(*args, **kwargs)
+    _ct = _get_ct(Product)
 
-        self._product_ct_id = None
-
-    def detailview_display(self, context):
-        opp = context['object']
-
-        if not self._product_ct_id:
-            self._product_ct_id = ContentType.objects.get_for_model(Product).id
-
-        return self._render(self.get_block_template_context(context, opp.get_products(),
-                                                            update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, opp.pk),
-                                                            predicate_id=REL_OBJ_LINKED_PRODUCT,
-                                                            ct_id=self._product_ct_id))
+    def _get_queryset(self, entity):
+        return entity.get_products()
 
 
-class LinkedServicesBlock(QuerysetBlock):
+class LinkedServicesBlock(_LinkedStuffBlock):
     id_           = QuerysetBlock.generate_id('opportunities', 'linked_services')
-    dependencies  = (Relation,)
     relation_type_deps = (REL_OBJ_LINKED_SERVICE, )
     verbose_name  = _(u'Linked Services')
     template_name = 'opportunities/templatetags/block_services.html'
 
-    def __init__(self, *args, **kwargs):
-        super(LinkedServicesBlock, self).__init__(*args, **kwargs)
+    _ct = _get_ct(Service)
 
-        self._service_ct_id = None
-
-    def detailview_display(self, context):
-        opp = context['object']
-
-        if not self._service_ct_id:
-            self._service_ct_id = ContentType.objects.get_for_model(Service).id
-
-        return self._render(self.get_block_template_context(context, opp.get_services(),
-                                                            update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, opp.pk),
-                                                            predicate_id=REL_OBJ_LINKED_SERVICE,
-                                                            ct_id=self._service_ct_id))
+    def _get_queryset(self, entity):
+        return entity.get_services()
 
 
-class ResponsiblesBlock(QuerysetBlock):
+class ResponsiblesBlock(_LinkedStuffBlock):
     id_           = QuerysetBlock.generate_id('opportunities', 'responsibles')
-    dependencies  = (Relation,)
     relation_type_deps = (REL_OBJ_RESPONSIBLE, )
     verbose_name  = _(u'Responsibles')
     template_name = 'opportunities/templatetags/block_responsibles.html'
 
-    def detailview_display(self, context):
-        global _contact_ct_id
-
-        opp = context['object']
-
-        if not _contact_ct_id:
-            _contact_ct_id = ContentType.objects.get_for_model(Contact).id
-
-        return self._render(self.get_block_template_context(context,
-                                                            opp.get_responsibles(),
-                                                            update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, opp.pk),
-                                                            predicate_id=REL_OBJ_RESPONSIBLE,
-                                                            ct_id=_contact_ct_id))
+    def _get_queryset(self, entity):
+        return entity.get_responsibles().select_related('civility')
 
 
-class QuotesBlock(QuerysetBlock):
+class QuotesBlock(_LinkedStuffBlock):
     id_           = QuerysetBlock.generate_id('opportunities', 'quotes')
-    dependencies  = (Relation,)
     relation_type_deps = (REL_OBJ_LINKED_QUOTE, )
     verbose_name  = _(u"Quotes linked to the opportunity")
     template_name = 'opportunities/templatetags/block_quotes.html'
 
-    def __init__(self, *args, **kwargs):
-        super(QuotesBlock, self).__init__(*args, **kwargs)
+    _ct = _get_ct(Quote)
 
-        self._quote_ct_id = None
-
-    def detailview_display(self, context):
-        opp = context['object']
-
-        if not self._quote_ct_id:
-            self._quote_ct_id = ContentType.objects.get_for_model(Quote).id
-
-        return self._render(self.get_block_template_context(context,
-                                                            opp.get_quotes(),
-                                                            update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, opp.pk),
-                                                            predicate_id=REL_OBJ_LINKED_QUOTE,
-                                                            ct_id=self._quote_ct_id,
-                                                            current_quote_id=opp.get_current_quote_id()))
+    def _get_queryset(self, entity):
+        return entity.get_quotes()
 
 
-class SalesOrdersBlock(QuerysetBlock):
+class SalesOrdersBlock(_LinkedStuffBlock):
     id_           = QuerysetBlock.generate_id('opportunities', 'sales_orders')
-    dependencies  = (Relation,)
     relation_type_deps = (REL_OBJ_LINKED_SALESORDER, )
     verbose_name  = _(u"Salesorders linked to the opportunity")
     template_name = 'opportunities/templatetags/block_sales_orders.html'
 
-    def __init__(self, *args, **kwargs):
-        super(SalesOrdersBlock, self).__init__(*args, **kwargs)
+    _ct = _get_ct(SalesOrder)
 
-        self._salesorder_ct_id = None
-
-    def detailview_display(self, context):
-        opp = context['object']
-
-        if not self._salesorder_ct_id:
-            self._salesorder_ct_id = ContentType.objects.get_for_model(SalesOrder).id
-
-        block_context = self.get_block_template_context(context, opp.get_salesorder(),
-                                                        update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, opp.pk),
-                                                        predicate_id=REL_OBJ_LINKED_SALESORDER,
-                                                        ct_id=self._salesorder_ct_id)
-
-        return self._render(block_context)
+    def _get_queryset(self, entity):
+        return entity.get_salesorder()
 
 
-class InvoicesBlock(QuerysetBlock):
+class InvoicesBlock(_LinkedStuffBlock):
     id_           = QuerysetBlock.generate_id('opportunities', 'invoices')
-    dependencies  = (Relation,)
     relation_type_deps = (REL_OBJ_LINKED_INVOICE, )
     verbose_name  = _(u"Invoices linked to the opportunity")
     template_name = 'opportunities/templatetags/block_invoices.html'
 
-    def __init__(self, *args, **kwargs):
-        super(InvoicesBlock, self).__init__(*args, **kwargs)
+    _ct = _get_ct(Invoice)
 
-        self._invoice_ct_id = None
+    def _get_queryset(self, entity):
+        return entity.get_invoices()
 
-    def detailview_display(self, context):
-        opp = context['object']
 
-        if not self._invoice_ct_id:
-            self._invoice_ct_id = ContentType.objects.get_for_model(Invoice).id
-
-        return self._render(self.get_block_template_context(context,
-                                                            opp.get_invoices(),
-                                                            update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, opp.pk),
-                                                            predicate_id=REL_OBJ_LINKED_INVOICE,
-                                                            ct_id=self._invoice_ct_id))
-
-class TargetOrganisationsBlock(QuerysetBlock):
-    id_           = QuerysetBlock.generate_id('opportunities', 'target_organisations')
-    dependencies  = (Relation,) #Organisation
+#TODO: this block is imported directly by the Organisation's template (because configurable blocks can not be contrained to a CT) => improve....
+class LinkedOpportunitiesBlock(_LinkedStuffBlock):
+    id_           = QuerysetBlock.generate_id('opportunities', 'linked_opportunities')
     relation_type_deps = (REL_OBJ_TARGETS_ORGA, )
     verbose_name  = _(u"Opportunities which target the organisation")
-    template_name = 'opportunities/templatetags/block_target_orga.html'
+    template_name = 'opportunities/templatetags/block_opportunities.html'
 
-    def detailview_display(self, context):
-        orga = context['object']
+    _ct = _get_ct(Opportunity)
 
-        return self._render(self.get_block_template_context(context,
-                                                            Opportunity.objects.filter(relations__object_entity=orga.id, relations__type=REL_SUB_TARGETS_ORGA),
-                                                            update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, orga.pk),
-                                                            predicate_id=REL_OBJ_TARGETS_ORGA,
-                                                            ct=ContentType.objects.get_for_model(Opportunity),
-                                                            ))
+    def _get_queryset(self, entity):
+        return Opportunity.objects.filter(relations__object_entity=entity.id, relations__type=REL_SUB_TARGETS_ORGA)
 
-linked_contacts_block     = LinkedContactsBlock()
-linked_products_block     = LinkedProductsBlock()
-linked_services_block     = LinkedServicesBlock()
-responsibles_block        = ResponsiblesBlock()
-quotes_block              = QuotesBlock()
-sales_orders_block        = SalesOrdersBlock()
-invoices_block            = InvoicesBlock()
-target_organisation_block = TargetOrganisationsBlock()
+
+blocks_list = (
+    LinkedContactsBlock(),
+    LinkedProductsBlock(),
+    LinkedServicesBlock(),
+    ResponsiblesBlock(),
+    QuotesBlock(),
+    SalesOrdersBlock(),
+    InvoicesBlock(),
+    LinkedOpportunitiesBlock(),
+)

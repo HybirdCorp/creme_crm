@@ -23,7 +23,7 @@ from itertools import chain
 
 from django.http import HttpResponseRedirect, Http404
 from django.shortcuts import render_to_response, get_object_or_404
-from django.utils.translation import ugettext
+from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required, permission_required
 
 from creme_core.models import Relation
@@ -53,6 +53,7 @@ def add(request):
 @permission_required('opportunities.add_opportunity')
 def add_to_orga(request, orga_id):
     orga = get_object_or_404(Organisation, pk=orga_id)
+    orga.can_link_or_die(request.user) #TODO: test the link creds with the future opp in the form.clean()
 
     return add_entity(request, OpportunityCreateForm, extra_initial={"target_orga": orga_id})
 
@@ -86,18 +87,25 @@ _CURRENT_DOC_DICT = {
         }
 
 #TODO: use a POST instead ??
-#TODO: credentials
 @login_required
 @permission_required('opportunities')
 def generate_new_doc(request, opp_id, ct_id):
     ct_doc = get_ct_or_404(ct_id)
     opp    = get_object_or_404(Opportunity, id=opp_id)
+    user   = request.user
+
+    opp.can_link_or_die(user)
+
+    #TODO: link credentials on the future doc too....
 
     klass = ct_doc.model_class()
-    document = klass()
+
+    user.has_perm_to_create_or_die(klass)
+
+    document = klass() #TODO: use klass.objects.create
     document.user = opp.user
     document.issuing_date = datetime.now()
-    document.comment = ugettext(u"Generated from the opportunity «%s»") % opp
+    document.comment = _(u"Generated from the opportunity «%s»") % opp
     document.status_id = 1
     document.save()
 
@@ -115,7 +123,7 @@ def generate_new_doc(request, opp_id, ct_id):
         new_line.document = document
         new_line.save()
 
-    for relation in Relation.objects.filter(object_entity=opp, type=REL_SUB_CURRENT_DOC, subject_entity__entity_type=ct_doc):
+    for relation in Relation.objects.filter(object_entity=opp.id, type=REL_SUB_CURRENT_DOC, subject_entity__entity_type=ct_doc):
         relation.delete()
 
     if _CURRENT_DOC_DICT[klass]:
