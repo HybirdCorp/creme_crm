@@ -147,6 +147,9 @@ class EntityCredentials(Model):
         @param user User concerned by the request.
         @param entities A sequence of CremeEntity (beware, it's iterated twice --> not an iterator).
         """
+        if not entities:
+            return {}
+
         if user.is_superuser:
             return dict((e.id, EntityCredentials(entity=e, user=user, value=ALL_CREDS)) for e in entities)
 

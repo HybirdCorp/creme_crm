@@ -23,7 +23,7 @@ from collections import defaultdict
 from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import ugettext_lazy as _
 
-from creme_core.models import Relation
+from creme_core.models import CremeEntity, Relation
 from creme_core.gui.block import Block, PaginatedBlock, QuerysetBlock, list4url
 
 from opportunities.models import Opportunity
@@ -207,9 +207,10 @@ class ActObjectivesBlock(QuerysetBlock):
     template_name = 'commercial/templatetags/block_objectives.html'
 
     def detailview_display(self, context):
-        act = context['object']
-        return self._render(self.get_block_template_context(context, act.objectives.all(),
-                                                            update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, act.pk),
+        act_id = context['object'].id
+        return self._render(self.get_block_template_context(context,
+                                                            ActObjective.objects.filter(act=act_id), #NB: "act.objectives.all()" causes a strange additional query...
+                                                            update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, act_id),
                                                             ct_id=ContentType.objects.get_for_model(ActObjective).id,
                                                            ))
 
@@ -221,13 +222,19 @@ class RelatedOpportunitiesBlock(PaginatedBlock):
     verbose_name  = u'Opportunities related to an Act'
     template_name = 'commercial/templatetags/block_opportunities.html'
 
+    _ct = ContentType.objects.get_for_model(Opportunity)
+
     def detailview_display(self, context):
         act = context['object']
-        return self._render(self.get_block_template_context(context, act.get_related_opportunities(),
-                                                            update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, act.pk),
-                                                            predicate_id=REL_OBJ_OPPORT_LINKED,
-                                                            opp_ct=ContentType.objects.get_for_model(Opportunity),
-                                                           ))
+        btc = self.get_block_template_context(context, act.get_related_opportunities(),
+                                              update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, act.pk),
+                                              predicate_id=REL_OBJ_OPPORT_LINKED,
+                                              opp_ct=self._ct,
+                                             )
+
+        CremeEntity.populate_credentials(btc['page'].object_list, context['user'])
+
+        return self._render(btc)
 
 
 class PatternComponentsBlock(Block):
