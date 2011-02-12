@@ -33,9 +33,11 @@ class CompleteGoalButton(Button):
     template_name = 'commercial/templatetags/button_complete_goal.html'
     permission    = 'commercial'
 
+    _ct = ContentType.objects.get_for_model(Act)
+
     def render(self, context):
         context['predicate_id'] = REL_SUB_COMPLETE_GOAL
-        context['act_ct'] = ContentType.objects.get_for_model(Act)
+        context['act_ct'] = self._ct
 
         return super(CompleteGoalButton, self).render(context)
 
