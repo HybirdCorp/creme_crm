@@ -75,7 +75,7 @@ def add_with_relation(request, act_type):
     entity        = get_object_or_404(model_class, pk=entity_id)
     relation_type = get_object_or_404(RelationType, pk=rtype_id)
 
-    #TODO: credentials ??
+    entity.can_link_or_die(request.user)
 
     #TODO: move to a RelationType method...
     subject_ctypes = frozenset(relation_type.subject_ctypes.values_list('id', flat=True))
