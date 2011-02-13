@@ -47,8 +47,8 @@ class RelationType(CremeModel):
     subject_properties = ManyToManyField(CremePropertyType, blank=True, null=True, related_name='relationtype_subjects_set')
     object_properties  = ManyToManyField(CremePropertyType, blank=True, null=True, related_name='relationtype_objects_set')
 
-    is_internal = BooleanField(default=False) #still useful ????
-    is_custom   = BooleanField(default=False)
+    is_internal = BooleanField(default=False) # if True, the relations with this type can not be created/deleted directly by the users.
+    is_custom   = BooleanField(default=False) # if True, the RelationType can ot be deleted (in creme_config).
 
     predicate      = CharField(_(u'Predicate'), max_length=100)
     symmetric_type = ForeignKey('self', blank=True, null=True)
@@ -160,19 +160,9 @@ class RelationType(CremeModel):
 
         return (sub_relation_type, obj_relation_type)
 
-    @staticmethod
-    def _is_relation_type_internal(relation_type_id):
-        try:
-            rt = RelationType.objects.get(pk=relation_type_id)
-        except RelationType.DoesNotExist:
-            return False
-        return rt.is_internal
-
-    @staticmethod
-    def _is_relation_type_internal_die(relation_type_id, err_msg=""):
-        #TODO: Move from here ??
-        if RelationType._is_relation_type_internal(relation_type_id):
-            raise Http404(err_msg)
+    def is_not_internal_or_die(self):
+        if self.is_internal:
+            raise Http404(ugettext("You can't add/delete the relations with this type (internal type)"))
 
 
 class RelationPredicate_i18n(CremeModel):

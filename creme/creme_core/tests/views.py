@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from django.test import TestCase
+from django.http import Http404
 from django.core.serializers.json import simplejson
 from django.utils.translation import ugettext as _
 from django.contrib.auth.models import User
@@ -622,6 +623,21 @@ class ViewsTestCase(TestCase):
         self.assertEqual(3, len(contacts))
         self.assertEqual(set([self.contact01.id, self.contact03.id, contact04.id]), set(c.id for c in contacts))
 
+    def test_relation_objects_to_link_selection04(self):
+        self.login()
+
+        subject = CremeEntity.objects.create(user=self.user)
+        ct_id = ContentType.objects.get_for_model(Contact).id
+        rtype, sym_rtype = RelationType.create(('test-subject_foobar', 'is loving',   [Contact]),
+                                               ('test-object_foobar',  'is loved by', [Contact]),
+                                               is_internal=True
+                                              )
+
+        response = self.client.get('/creme_core/relation/objects2link/rtype/%s/entity/%s/%s' % \
+                                        (rtype.id, subject.id, ct_id)
+                                  )
+        self.assertEqual(404, response.status_code)
+
     def _aux_add_relations_with_same_type(self):
         self.subject  = CremeEntity.objects.create(user=self.user)
         self.object01 = CremeEntity.objects.create(user=self.user)
@@ -825,6 +841,26 @@ class ViewsTestCase(TestCase):
         self.assertEqual(1,              len(relations))
         self.assertEqual(good_object.id, relations[0].object_entity_id)
 
+    def test_add_relations_with_same_type07(self): #is_internal
+        self.login()
+
+        subject  = CremeEntity.objects.create(user=self.user)
+        object01 = CremeEntity.objects.create(user=self.user)
+        object02 = CremeEntity.objects.create(user=self.user)
+        rtype, sym_rtype = RelationType.create(('test-subject_foobar', 'is loving',),
+                                               ('test-object_foobar',  'is loved by',),
+                                               is_internal=True
+                                              )
+        response = self.client.post('/creme_core/relation/add_from_predicate/save',
+                                    data={
+                                            'subject_id':   subject.id,
+                                            'predicate_id': rtype.id,
+                                            'entities':     [object01.id, object02.id],
+                                         }
+                                   )
+        self.assertEqual(404, response.status_code)
+        self.assertEqual(0,   Relation.objects.filter(type=rtype.id).count())
+
     def test_relation_delete01(self):
         self.login()
 
@@ -834,6 +870,7 @@ class ViewsTestCase(TestCase):
         rtype, sym_rtype = RelationType.create(('test-subject_foobar', 'is loving'), ('test-object_foobar',  'is loved by'))
         relation = Relation.objects.create(user=self.user, type=rtype, subject_entity=subject_entity, object_entity=object_entity)
         sym_relation = relation.symmetric_relation
+        self.assert_(rtype.is_not_internal_or_die() is None)
 
         response = self.client.post('/creme_core/relation/delete', data={'id': relation.id})
         self.assertEqual(302, response.status_code)
@@ -856,6 +893,21 @@ class ViewsTestCase(TestCase):
         relation = Relation.objects.create(user=self.user, type=rtype, subject_entity=forbidden, object_entity=allowed)
         self.assertEqual(403, self.client.post('/creme_core/relation/delete', data={'id': relation.id}).status_code)
         self.assertEqual(1,   Relation.objects.filter(pk=relation.pk).count())
+
+    def test_relation_delete03(self): #is internal
+        self.login()
+
+        subject_entity = CremeEntity.objects.create(user=self.user)
+        object_entity  = CremeEntity.objects.create(user=self.user)
+
+        rtype, sym_rtype = RelationType.create(('test-subject_foobar', 'is loving'), ('test-object_foobar',  'is loved by'), is_internal=True)
+        self.assert_(rtype.is_internal)
+        self.assert_(sym_rtype.is_internal)
+        self.assertRaises(Http404, rtype.is_not_internal_or_die)
+
+        relation = Relation.objects.create(user=self.user, type=rtype, subject_entity=subject_entity, object_entity=object_entity)
+        self.assertEqual(404, self.client.post('/creme_core/relation/delete', data={'id': relation.id}).status_code)
+        self.assertEqual(1, Relation.objects.filter(pk=relation.pk).count())
 
     def test_relation_delete_similar01(self):
         self.login()
@@ -922,6 +974,24 @@ class ViewsTestCase(TestCase):
                                    )
         self.assertEqual(403, response.status_code)
         self.assertEqual(4,   Relation.objects.count())
+
+    def test_relation_delete_similar03(self): #is internal
+        self.login()
+
+        subject_entity = CremeEntity.objects.create(user=self.user)
+        object_entity  = CremeEntity.objects.create(user=self.user)
+        rtype, useless = RelationType.create(('test-subject_love', 'is loving'), ('test-object_love', 'is loved by'), is_internal=True)
+        relation = Relation.objects.create(user=self.user, type=rtype, subject_entity=subject_entity, object_entity=object_entity)
+
+        response = self.client.post('/creme_core/relation/delete/similar',
+                                    data={
+                                            'subject_id': subject_entity.id,
+                                            'type':       rtype.id,
+                                            'object_id':  object_entity.id,
+                                         }
+                                   )
+        self.assertEqual(404, response.status_code)
+        self.assertEqual(1,   Relation.objects.filter(pk=relation.pk).count())
 
     #TODO: test other relation views...
 
