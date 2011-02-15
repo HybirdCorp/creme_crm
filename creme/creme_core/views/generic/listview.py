@@ -182,6 +182,7 @@ def list_view_popup_from_widget(request, ct_id, o2m, *args, **kwargs):
     o2m = bool(int(o2m))
 
     json_str_q_filter = str(req_get('q_filter', {}))
+    show_actions      = bool(int(req_get('sa', False)))
 
     extra_dict = {
                     'list_view_template': 'creme_core/frags/list_view_popup.html',
@@ -210,6 +211,6 @@ def list_view_popup_from_widget(request, ct_id, o2m, *args, **kwargs):
     if supplied_extra_q:
         extra_q &= supplied_extra_q
 
-    response = list_view_popup(request, model, extra_dict=extra_dict, o2m=o2m, extra_q=extra_q, *args, **kwargs)
+    response = list_view_popup(request, model, extra_dict=extra_dict, o2m=o2m, extra_q=extra_q, show_actions=show_actions, *args, **kwargs)
 
     return inner_popup(request, '', {}, is_valid=False, html=response._get_content(), context_instance=RequestContext(request))
