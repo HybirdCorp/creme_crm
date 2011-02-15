@@ -65,6 +65,13 @@ creme.menu.NavIt = function(trigger_selector, options)
                 success : function(data, status, req) {
                     //creme.utils.showDialog(gettext("Operation done"));
                     $a.parents('form').list_view('reload');
+                },
+                error : function(req, status, error){
+                    if(!req.responseText || req.responseText == "") {
+                        creme.utils.showDialog(gettext("Error"));
+                    } else {
+                        creme.utils.showDialog(req.responseText);
+                    }
                 }
             });
         }
