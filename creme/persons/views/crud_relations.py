@@ -29,23 +29,27 @@ from persons.constants import REL_SUB_CUSTOMER_OF, REL_SUB_PROSPECT, REL_SUB_SUS
 from persons.models import Organisation
 
 
-#TODO: credentials ??
 #TODO: generalise and move to creme_core ??
 @login_required
 @permission_required('persons')
 def _link(request, entity_id, relation_type_id):
-    mngd_orga_id = get_from_POST_or_404(request.POST, 'id', int)
-
-    entity = get_object_or_404(CremeEntity, pk=entity_id).get_real_entity()
-
+    managed_orga  = get_object_or_404(Organisation, pk=get_from_POST_or_404(request.POST, 'id', int))
+    entity        = get_object_or_404(CremeEntity, pk=entity_id).get_real_entity()
     relation_type = get_object_or_404(RelationType, pk=relation_type_id)
-    managed_orga  = get_object_or_404(Organisation, pk=mngd_orga_id)
+    user = request.user
 
     if not relation_type.subject_ctypes.filter(id=entity.entity_type_id).exists(): #TODO: in a Relation type method() ??
-        raise Http404('Incompatible relation type') #bof bof
+        raise Http404('Incompatible relation type for subject') #bof bof
+
+    if not relation_type.object_ctypes.filter(id=managed_orga.entity_type_id).exists(): #TODO: in a Relation type method() ??
+        raise Http404('Incompatible relation type for object') #bof bof
+
+    CremeEntity.populate_credentials([entity, managed_orga], user) #optimisation
+    entity.can_link_or_die(user)
+    managed_orga.can_link_or_die(user)
 
     Relation.objects.create(subject_entity=entity, type_id=relation_type_id,
-                            object_entity=managed_orga, user=request.user,
+                            object_entity=managed_orga, user=user,
                            )
 
     return HttpResponseRedirect(entity.get_absolute_url())

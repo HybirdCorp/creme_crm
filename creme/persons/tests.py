@@ -301,9 +301,10 @@ class PersonsTestCase(TestCase):
         self.assert_(nerv.id in orgas_set)
         self.assert_(acme.id in orgas_set)
 
-    def _build_managed_orga(self):
+    def _build_managed_orga(self, user=None):
+        user = user or self.user
         try:
-            mng_orga = Organisation.objects.create(user=self.user, name='Bebop')
+            mng_orga = Organisation.objects.create(user=user, name='Bebop')
             CremeProperty.objects.create(type_id=PROP_IS_MANAGED_BY_CREME, creme_entity=mng_orga)
         except Exception, e:
             self.fail(str(e))
@@ -325,8 +326,33 @@ class PersonsTestCase(TestCase):
         except Exception, e:
             self.fail(str(e))
 
-    def test_become_customer(self):
+    def test_become_customer01(self):
         self._become_test('/persons/%s/become_customer', REL_SUB_CUSTOMER_OF)
+
+    def test_become_customer02(self): #creds errors
+        self.login(is_superuser=False)
+
+        role = self.user.role
+        SetCredentials.objects.create(role=role,
+                                      value=SetCredentials.CRED_VIEW   | SetCredentials.CRED_CHANGE | \
+                                            SetCredentials.CRED_DELETE | SetCredentials.CRED_UNLINK, #no CRED_LINK
+                                      set_type=SetCredentials.ESET_ALL)
+        SetCredentials.objects.create(role=role,
+                                      value=SetCredentials.CRED_VIEW   | SetCredentials.CRED_CHANGE | \
+                                            SetCredentials.CRED_DELETE | SetCredentials.CRED_LINK | SetCredentials.CRED_UNLINK,
+                                      set_type=SetCredentials.ESET_OWN)
+
+        mng_orga01 = self._build_managed_orga()
+        customer01 = Contact.objects.create(user=self.other_user, first_name='Jet', last_name='Black') #can not link it
+        response = self.client.post('/persons/%s/become_customer' % customer01.id, data={'id': mng_orga01.id}, follow=True)
+        self.assertEqual(403, response.status_code)
+        self.assertEqual(0,   Relation.objects.filter(subject_entity=customer01.id).count())
+
+        mng_orga02 = self._build_managed_orga(user=self.other_user)  #can not link it
+        customer02 = Contact.objects.create(user=self.user, first_name='Vicious', last_name='??')
+        response = self.client.post('/persons/%s/become_customer' % customer02.id, data={'id': mng_orga02.id}, follow=True)
+        self.assertEqual(403, response.status_code)
+        self.assertEqual(0,   Relation.objects.filter(subject_entity=customer02.id).count())
 
     def test_become_prospect(self):
         self._become_test('/persons/%s/become_prospect', REL_SUB_PROSPECT)

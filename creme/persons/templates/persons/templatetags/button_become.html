@@ -1,20 +1,25 @@
 {% load i18n %}
-{% if managed_orga|length == 1 %}
-    <a class="menu_button" onclick="creme.persons.post_become(this, {{managed_orga.0.pk}});">{{verbose_name}}<form method="POST" action="{{become_url}}" style="display:none;">{% csrf_token %}<input id="id_become" name="id"/></form></a>
-{% else %}
-    <script type="text/javascript">
-        function become_{{what}}(atag) {
-            creme.utils.showDialog(
-                "<select>{% for m_orga in managed_orga %}<option value='{{m_orga.pk}}'>{{m_orga}}</option>{% endfor %}</select>",
-                {
-                    buttons: {
-                        '{% trans "Ok" %}': function() {
-                            creme.persons.post_become(atag, $('select', this).val());
+{% load creme_core_tags %}{% has_perm_to link object as link_perm %}
+{% if link_perm %}
+    {% if managed_orga|length == 1 %}
+        <a class="menu_button" onclick="creme.persons.post_become(this, {{managed_orga.0.pk}});">{{verbose_name}}<form method="POST" action="{{become_url}}" style="display:none;">{% csrf_token %}<input id="id_become" name="id"/></form></a>
+    {% else %}
+        <script type="text/javascript">
+            function become_{{what}}(atag) {
+                creme.utils.showDialog(
+                    "<select>{% for m_orga in managed_orga %}<option value='{{m_orga.pk}}'>{{m_orga}}</option>{% endfor %}</select>",
+                    {
+                        buttons: {
+                            '{% trans "Ok" %}': function() {
+                                creme.persons.post_become(atag, $('select', this).val());
+                            }
                         }
                     }
-                }
-            );
-        }
-    </script>
-    <a class="menu_button" onclick="become_{{what}}(this);">{{verbose_name}}<form method="POST" action="{{become_url}}" style="display:none;">{% csrf_token %}<input id="id_become" name="id"/></form></a>
+                );
+            }
+        </script>
+        <a class="menu_button" onclick="become_{{what}}(this);">{{verbose_name}}<form method="POST" action="{{become_url}}" style="display:none;">{% csrf_token %}<input id="id_become" name="id"/></form></a>
+    {% endif %}
+{% else %}
+    <span class="menu_button forbidden" title="{% trans "forbidden" %}">{{verbose_name}}</span>
 {% endif %}
