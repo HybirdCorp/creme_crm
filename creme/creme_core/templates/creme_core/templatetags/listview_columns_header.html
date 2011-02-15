@@ -44,7 +44,7 @@
                     {% endwith %}
                 {% endwith %}
             {% endif %}
-            {% if not column.type %}
+            {% if not column.type and show_actions %}
                 <script type="text/javascript">
                     $(function() {
                         $('#bulk_actions').NavIt({ArrowSideOnRight: false});
