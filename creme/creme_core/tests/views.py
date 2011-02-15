@@ -1001,7 +1001,8 @@ class ViewsTestCase(TestCase):
         ct = ContentType.objects.get_for_model(CremeEntity)
         self.assertEqual(0, HeaderFilter.objects.filter(entity_type=ct).count())
 
-        response = self.client.get('/creme_core/header_filter/add/%s' % ct.id)
+        uri = '/creme_core/header_filter/add/%s' % ct.id
+        response = self.client.get(uri)
         self.assertEqual(200, response.status_code)
 
         try:
@@ -1016,7 +1017,7 @@ class ViewsTestCase(TestCase):
             self.fail('No "created" field')
 
         name = 'DefaultHeaderFilter'
-        response = self.client.post('/creme_core/header_filter/add/%s' % ct.id,
+        response = self.client.post(uri,
                                     data={
                                             'name':                            name,
                                             'fields_check_%s' % created_index: 'on',
@@ -1042,6 +1043,74 @@ class ViewsTestCase(TestCase):
         self.assertEqual(1,                hfitem.type)
         self.assertEqual('created__range', hfitem.filter_string)
         self.failIf(hfitem.is_hidden)
+
+    def test_headerfilter_edit01(self): #not editable
+        self.login()
+
+        ct = ContentType.objects.get_for_model(CremeEntity)
+        hf = HeaderFilter.objects.create(pk='tests-hf_entity', name='Entity view', entity_type_id=ct.id, is_custom=False)
+        HeaderFilterItem.objects.create(pk='tests-hfi_entity_created', order=1, name='created',
+                                        title='Created', type=HFI_FIELD, header_filter=hf,
+                                        has_a_filter=True, editable=True,  filter_string="created__range"
+                                       )
+
+        response = self.client.get('/creme_core/header_filter/edit/%s' % hf.id)
+        self.assertEqual(404, response.status_code)
+
+    def test_headerfilter_edit02(self):
+        self.login()
+
+        ct = ContentType.objects.get_for_model(Contact)
+        hf = HeaderFilter.objects.create(pk='tests-hf_contact', name='Contact view', entity_type_id=ct.id, is_custom=True)
+        HeaderFilterItem.objects.create(pk='tests-hfi_entity_first_name', order=1,
+                                        name='first_name', title='First name',
+                                        type=HFI_FIELD, header_filter=hf,
+                                        filter_string="first_name__icontains"
+                                       )
+
+        uri = '/creme_core/header_filter/edit/%s' % hf.id
+        response = self.client.get(uri)
+        self.assertEqual(200, response.status_code)
+
+        try:
+            form = response.context['form']
+            fields_field = form.fields['fields']
+        except KeyError, e:
+            self.fail(str(e))
+
+        first_name_index  = None
+        last_name_index = None
+        for i, (fname, fvname) in enumerate(fields_field.choices):
+            if   fname == 'first_name': first_name_index = i
+            elif fname == 'last_name':  last_name_index  = i
+
+        if first_name_index is None: self.fail('No "first_name" field')
+        if last_name_index  is None: self.fail('No "last_name" field')
+
+        name = 'Entity view v2'
+        response = self.client.post(uri,
+                                    data={
+                                            'name':                               name,
+                                            'fields_check_%s' % first_name_index: 'on',
+                                            'fields_value_%s' % first_name_index: 'first_name',
+                                            'fields_order_%s' % first_name_index: 1,
+                                            'fields_check_%s' % last_name_index:  'on',
+                                            'fields_value_%s' % last_name_index:  'last_name',
+                                            'fields_order_%s' % last_name_index:  2,
+                                         }
+                                   )
+        self.assertNoFormError(response)
+        self.assertEqual(302, response.status_code)
+
+        hf = HeaderFilter.objects.get(pk=hf.id)
+        self.assertEqual(name, hf.name)
+
+        hfitems = hf.header_filter_items.all()
+        self.assertEqual(2,            len(hfitems))
+        self.assertEqual('first_name', hfitems[0].name)
+        self.assertEqual('last_name',  hfitems[1].name)
+
+    #TODO: def test_headerfilter_delete(self): #editable and not editable
 
     def test_csv_export(self): #TODO: test other hfi type...
         self.login()

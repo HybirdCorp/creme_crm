@@ -39,17 +39,23 @@ from creme_core.utils import get_ct_or_404
 def add(request, ct_id, count):
     model = get_ct_or_404(ct_id).model_class()
     model_name = model._meta.verbose_name
+    user = request.user
 
-    if not request.user.has_perm_to_create(model):
+    if not user.has_perm_to_create(model):
         #TODO: manage/display error on js side (for now it just does nothing)
         raise PermissionDenied('You are not allowed to create entity with type "%s"' % model_name)
 
     try:
-        form_class = quickforms_registry.get_form(model)
+        base_form_class = quickforms_registry.get_form(model)
     except KeyError, e:
         raise Http404('No form registered for model: %s' % model)
 
-    qformset_class = formset_factory(form_class, extra=int(count))
+    #we had the mandatory 'user' argument
+    class _QuickForm(base_form_class):
+        def __init__(self, *args, **kwargs):
+            base_form_class.__init__(self, user=user, *args, **kwargs)
+
+    qformset_class = formset_factory(_QuickForm, extra=int(count))
 
     if request.method == 'POST':
         qformset = qformset_class(request.POST)

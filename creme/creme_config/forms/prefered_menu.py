@@ -33,12 +33,12 @@ from creme_core.gui.menu import creme_menu
 class PreferedMenuForm(CremeForm):
     menu_entries = MultipleChoiceField(label=_(u'Menu entries'), required=False, widget=OrderedMultipleChoiceWidget)
 
-    def __init__(self, user, *args, **kwargs):
+    def __init__(self, user2edit, *args, **kwargs):
         super(PreferedMenuForm, self).__init__(*args, **kwargs)
-        self.user = user
+        self.user2edit = user2edit
 
         get_app  = creme_registry.get_app
-        has_perm = user.has_perm if user else lambda perm_label: True
+        has_perm = user2edit.has_perm if user2edit else lambda perm_label: True
 
         apps = set((item.url, u'%s - %s' % (get_app(appitem.app_name).verbose_name, item.name))
                     for appitem in creme_menu
@@ -51,10 +51,10 @@ class PreferedMenuForm(CremeForm):
         menu_entries.choices = apps
         menu_entries.choices.sort()
 
-        menu_entries.initial = PreferedMenuItem.objects.filter(user=user).order_by('order').values_list('url', flat=True)
+        menu_entries.initial = PreferedMenuItem.objects.filter(user=user2edit).order_by('order').values_list('url', flat=True)
 
     def save(self):
-        user = self.user
+        user = self.user2edit
 
         PreferedMenuItem.objects.filter(user=user).delete()
 

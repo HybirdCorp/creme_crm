@@ -43,14 +43,17 @@ def add(request, report_id):
 
     report.can_change_or_die(request.user)
 
-    POST = request.POST
-    if POST:
-        graph_form = ReportGraphAddForm(report, POST)
+    #POST = request.POST
+    #if POST:
+    if request.method == 'POST':
+        #graph_form = ReportGraphAddForm(report, POST)
+        graph_form = ReportGraphAddForm(report=report, user=request.user, data=request.POST)
 
         if graph_form.is_valid():
             graph_form.save()
     else:
-        graph_form = ReportGraphAddForm(report=report)
+        #graph_form = ReportGraphAddForm(report=report)
+        graph_form = ReportGraphAddForm(report=report, user=request.user)
 
     return inner_popup(request, 'creme_core/generics/blockform/add_popup2.html',
                        {
@@ -70,14 +73,13 @@ def edit(request, graph_id):
 
     graph.can_change_or_die(request.user)
 
-    POST = request.POST
-    if POST:
-        graph_form = ReportGraphAddForm(graph.report, POST, instance=graph)
+    if request.method == 'POST':
+        graph_form = ReportGraphAddForm(report=graph.report, user=request.user, data=request.POST, instance=graph)
 
         if graph_form.is_valid():
             graph_form.save()
     else:
-        graph_form = ReportGraphAddForm(report=graph.report, instance=graph)
+        graph_form = ReportGraphAddForm(report=graph.report, user=request.user, instance=graph)
 
     return inner_popup(request, 'creme_core/generics/blockform/add_popup2.html',
                        {
@@ -87,8 +89,8 @@ def edit(request, graph_id):
                        is_valid=graph_form.is_valid(),
                        reload=False,
                        delegate_reload=True,
-                       context_instance=RequestContext(request))
-
+                       context_instance=RequestContext(request)
+                      )
 
 @login_required
 @permission_required('reports')

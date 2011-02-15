@@ -35,6 +35,15 @@ class BillingTestCase(TestCase):
         self.password = 'test'
         self.user = None
 
+    def assertNoFormError(self, response): #move in a CremeTestCase ???
+        try:
+            errors = response.context['form'].errors
+        except Exception, e:
+            pass
+        else:
+            if errors:
+                self.fail(errors)
+
     def test_populate(self):
         self.assertEqual(1, RelationType.objects.filter(pk=REL_SUB_BILL_ISSUED).count())
         self.assertEqual(1, RelationType.objects.filter(pk=REL_OBJ_BILL_ISSUED).count())
@@ -62,6 +71,7 @@ class BillingTestCase(TestCase):
                                             'target':          self.genericfield_format_entity(target),
                                             }
                                    )
+        self.assertNoFormError(response)
         self.assertEqual(200, response.status_code)
         self.assertEqual(1,   len(response.redirect_chain))
 
@@ -88,8 +98,7 @@ class BillingTestCase(TestCase):
         self.failIf(target.shipping_address)
 
         invoice = self.create_invoice(name, source, target)
-
-        self.assertEqual(1,    invoice.status_id)
+        self.assertEqual(1, invoice.status_id)
 
         exp_date = invoice.expiration_date
         self.assertEqual(2010, exp_date.year)
@@ -210,7 +219,7 @@ class BillingTestCase(TestCase):
         self.assertEqual(11,   exp_date.month)
         self.assertEqual(14,   exp_date.day)
 
-    def test_invoice_addlines01(self): #product line
+    def test_invoice_add_product_lines01(self):
         self.login()
 
         invoice  = self.create_invoice_n_orgas('Invoice001')[0]
@@ -236,14 +245,48 @@ class BillingTestCase(TestCase):
                                             'credit':       Decimal(),
                                          }
                                    )
+        self.assertNoFormError(response)
         self.assertEqual(200, response.status_code)
-        self.failIf(response.context['form'].errors)
+        #self.failIf(response.context['form'].errors)
 
         self.assertEqual(1, len(invoice.get_product_lines()))
         self.assertEqual(unit_price, invoice.get_total())
         self.assertEqual(unit_price, invoice.get_total_with_tax())
 
-    def test_invoice_addlines02(self): #service line
+    def test_invoice_add_product_lines02(self): #on-the-fly
+        self.login()
+
+        invoice  = self.create_invoice_n_orgas('Invoice001')[0]
+        response = self.client.get('/billing/%s/product_line/add_on_the_fly' % invoice.id)
+        self.assertEqual(200, response.status_code)
+
+        unit_price = Decimal('1.0')
+        name = 'Awesomo'
+        response = self.client.post('/billing/%s/product_line/add_on_the_fly' % invoice.id,
+                                    data={
+                                            'user':            self.user.pk,
+                                            'on_the_fly_item': name,
+                                            'comment':         'no comment !',
+                                            'quantity':        1,
+                                            'unit_price':      unit_price,
+                                            'discount':        Decimal(),
+                                            'vat':             Decimal(),
+                                            'credit':          Decimal(),
+                                         }
+                                   )
+        self.assertNoFormError(response)
+        self.assertEqual(200, response.status_code)
+
+        lines = invoice.get_product_lines()
+        self.assertEqual(1, len(lines))
+        self.assertEqual(name, lines[0].on_the_fly_item)
+
+        self.assertEqual(unit_price, invoice.get_total())
+        self.assertEqual(unit_price, invoice.get_total_with_tax())
+
+    #TODO: on-the-fly that creates a true product
+
+    def test_invoice_add_service_lines01(self):
         self.login()
 
         invoice = self.create_invoice_n_orgas('Invoice001')[0]
@@ -270,13 +313,44 @@ class BillingTestCase(TestCase):
                                             'credit':       Decimal(),
                                          }
                                    )
+        self.assertNoFormError(response)
         self.assertEqual(200, response.status_code)
-        self.failIf(response.context['form'].errors)
 
         invoice = Invoice.objects.get(pk=invoice.id) #refresh (line cache)
         self.assertEqual(1, len(invoice.get_service_lines()))
         self.assertEqual(Decimal('2.66'), invoice.get_total()) # 2 * 1.33
         self.assertEqual(Decimal('3.19'), invoice.get_total_with_tax()) #2.66 * 1.196 == 3.18136
+
+    def test_invoice_add_service_lines02(self):
+        self.login()
+
+        invoice = self.create_invoice_n_orgas('Invoice001')[0]
+        uri = '/billing/%s/service_line/add_on_the_fly' % invoice.id
+        self.assertEqual(200, self.client.get(uri).status_code)
+
+        unit_price = Decimal('1.33')
+        name = 'Car wash'
+        response = self.client.post(uri, data={
+                                                'user':            self.user.pk,
+                                                'on_the_fly_item': name,
+                                                'comment':         'no comment !',
+                                                'quantity':        2,
+                                                'unit_price':      unit_price,
+                                                'discount':        Decimal(),
+                                                'vat':             Decimal('19.6'),
+                                                'credit':          Decimal(),
+                                             }
+                                   )
+        self.assertNoFormError(response)
+        self.assertEqual(200, response.status_code)
+
+        invoice = Invoice.objects.get(pk=invoice.id) #refresh (line cache)
+
+        lines = invoice.get_service_lines()
+        self.assertEqual(1, len(lines))
+        self.assertEqual(name, lines[0].on_the_fly_item)
+
+    #TODO: on-the-fly that creates a true service
 
     def test_generate_number01(self):
         self.login()
@@ -322,5 +396,4 @@ class BillingTestCase(TestCase):
         self.assert_(invoice.issuing_date)
         self.assertEqual(date.today(), invoice.issuing_date) #NB this test can fail if run at midnight...
 
-    #TODO: add product/service on-the fly line
 #TODO: add tests for other billing document (Quote, SalesOrder, CreditNote)

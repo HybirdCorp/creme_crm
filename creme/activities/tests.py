@@ -5,12 +5,13 @@ from datetime import datetime
 from django.test import TestCase
 from django.forms.util import ValidationError
 from django.contrib.auth.models import User
+from django.contrib.contenttypes.models import ContentType
 
 from creme_core.models import RelationType, Relation, UserRole, SetCredentials
 from creme_core.management.commands.creme_populate import Command as PopulateCommand
 from creme_core.constants import REL_SUB_RELATED_TO
 
-from persons.models import Contact
+from persons.models import Contact, Organisation
 
 from activities.models import *
 from activities.constants import *
@@ -60,7 +61,8 @@ class ActivitiesTestCase(TestCase):
         except Exception, e:
             pass
         else:
-            self.fail(errors)
+            if errors:
+                self.fail(errors)
 
     def test_activity_createview01(self):
         self.login()
@@ -327,5 +329,48 @@ class ActivitiesTestCase(TestCase):
 
         self.assertEqual(403, self.client.post('/activities/linked_activity/unlink', data={'id': activity.id, 'object_id': contact.id}).status_code)
         self.assertEqual(1,   contact.relations.filter(pk=relation.id).count())
+
+    def test_add_participants(self):
+        self.login()
+
+        activity = self._create_meeting()
+        contact01 = Contact.objects.create(user=self.user, first_name='Musashi', last_name='Miyamoto')
+        contact02 = Contact.objects.create(user=self.user, first_name='Kojiro',  last_name='Sasaki')
+        ids = (contact01.id, contact02.id)
+
+        uri = '/activities/activity/%s/participant/add' % activity.id
+        self.assertEqual(200, self.client.get(uri).status_code)
+
+        response = self.client.post(uri, data={'participants': '%s,%s' % ids})
+        self.assertNoFormError(response)
+        self.assertEqual(200, response.status_code)
+
+        relations = Relation.objects.filter(subject_entity=activity.id, type=REL_OBJ_PART_2_ACTIVITY)
+        self.assertEqual(2, len(relations))
+        self.assertEqual(set(ids), set(r.object_entity_id for r in relations))
+
+    def test_add_subjects(self):
+        self.login()
+
+        activity = self._create_meeting()
+        orga = Organisation.objects.create(user=self.user, name='Ghibli')
+
+        uri = '/activities/activity/%s/subject/add' % activity.id
+        self.assertEqual(200, self.client.get(uri).status_code)
+
+        response = self.client.post(uri,
+                                    data={'subjects': '(%s,%s,%s);' % (
+                                                REL_OBJ_ACTIVITY_SUBJECT,
+                                                ContentType.objects.get_for_model(Organisation).id,
+                                                orga.id,
+                                               )
+                                         }
+                                   )
+        self.assertNoFormError(response)
+        self.assertEqual(200, response.status_code)
+
+        relations = Relation.objects.filter(subject_entity=activity.id, type=REL_OBJ_ACTIVITY_SUBJECT)
+        self.assertEqual(1, len(relations))
+        self.assertEqual(orga.id, relations[0].object_entity_id)
 
 #TODO: complete test case

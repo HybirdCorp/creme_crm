@@ -36,9 +36,9 @@ class SendingCreateForm(CremeModelForm):
         model   = Sending
         exclude = ('campaign', 'date', 'content')
 
-    def __init__(self, campaign, *args, **kwargs):
-            super(SendingCreateForm, self).__init__(*args, **kwargs)
-            self.campaign = campaign
+    def __init__(self, entity, *args, **kwargs):
+        super(SendingCreateForm, self).__init__(*args, **kwargs)
+        self.campaign = entity
 
     def save(self):
         instance = self.instance

@@ -80,14 +80,17 @@ def unlink_report(request):
 def __link_report(request, report, field, ct):
     report.can_change_or_die(request.user)
 
-    POST = request.POST
-    if POST:
-        link_form = LinkFieldToReportForm(report, field, ct, POST)
+    #POST = request.POST
+    #if POST:
+    if request.method == 'POST':
+        #link_form = LinkFieldToReportForm(report, field, ct, POST)
+        link_form = LinkFieldToReportForm(report, field, ct, user=request.user, data=request.POST)
 
         if link_form.is_valid():
             link_form.save()
     else:
-        link_form = LinkFieldToReportForm(report=report, field=field, ct=ct)
+        #link_form = LinkFieldToReportForm(report=report, field=field, ct=ct)
+        link_form = LinkFieldToReportForm(report=report, field=field, ct=ct, user=request.user)
 
     return inner_popup(request, 'creme_core/generics/blockform/add_popup2.html',
                        {
@@ -97,7 +100,8 @@ def __link_report(request, report, field, ct):
                        is_valid=link_form.is_valid(),
                        reload=False,
                        delegate_reload=True,
-                       context_instance=RequestContext(request))
+                       context_instance=RequestContext(request)
+                      )
 
 @login_required
 @permission_required('reports')
@@ -133,17 +137,16 @@ def link_relation_report(request, report_id, field_id, ct_id):
 @permission_required('reports')
 def add_field(request, report_id):
     report = get_object_or_404(Report, pk=report_id)
-    POST = request.POST
 
     report.can_change_or_die(request.user)
 
-    if POST:
-        add_field_form = AddFieldToReportForm(report, POST)
+    if request.method == 'POST':
+        add_field_form = AddFieldToReportForm(report=report, user=request.user, data=request.POST)
 
         if add_field_form.is_valid():
             add_field_form.save()
     else:
-        add_field_form = AddFieldToReportForm(report=report)
+        add_field_form = AddFieldToReportForm(report=report, user=request.user)
 
     return inner_popup(request, 'creme_core/generics/blockform/add_popup2.html',
                        {
@@ -190,12 +193,13 @@ def preview(request, report_id):
 
     extra_q_filter = Q()
 
-    if request.POST:
-        filter_form = DateReportFilterForm(report, request.POST)
+    if request.method == 'POST':
+        filter_form = DateReportFilterForm(report=report, user=request.user, data=request.POST)
+
         if filter_form.is_valid():
             extra_q_filter = filter_form.get_q()
     else:
-        filter_form = DateReportFilterForm(report)
+        filter_form = DateReportFilterForm(report=report, user=request.user)
 
     LIMIT_TO = 25
     html_backend = report_backend_registry.get_backend('HTML')
@@ -244,7 +248,7 @@ def csv(request, report_id):
     csv_backend = report_backend_registry.get_backend('CSV')
     GET = request.GET
 
-    if GET:
+    if GET: #TODO: request.method == 'GET'
         field_name = get_from_GET_or_404(GET, 'field')
         try:
             if not is_date_field(report.ct.model_class()._meta.get_field(field_name)):
@@ -292,14 +296,14 @@ def date_filter_form(request, report_id):
     simple_redirect = False
     valid = False
 
-    if request.POST:
-        form = DateReportFilterForm(report, request.POST)
+    if request.method == 'POST':
+        form = DateReportFilterForm(report=report, user=request.user, data=request.POST)
         redirect = True
         valid = True
         if not form.is_valid():
            simple_redirect = True
     else:
-        form = DateReportFilterForm(report)
+        form = DateReportFilterForm(report=report, user=request.user)
 
     return inner_popup(request, 'reports/frags/date_filter_form.html',
                        {

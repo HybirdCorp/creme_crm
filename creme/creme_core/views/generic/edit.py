@@ -35,42 +35,47 @@ def edit_entity(request, object_id, model, edit_form, template='creme_core/gener
         #raise PermissionDenied("You don't have access to the app: %s" % app_name)
 
     entity = get_object_or_404(model, pk=object_id)
-    entity.can_change_or_die(request.user)
+    user = request.user
+
+    entity.can_change_or_die(user)
 
     if request.method == 'POST':
-        form = edit_form(request.POST, instance=entity)
+        form = edit_form(user=user, data=request.POST, instance=entity)
 
         if form.is_valid():
             form.save()
 
             return HttpResponseRedirect(entity.get_absolute_url())
     else:
-        form = edit_form(instance=entity)
+        form = edit_form(user=user, instance=entity)
 
     return render_to_response(template,
                               {
                                 'form':   form,
                                 'object': entity,
                               },
-                              context_instance=RequestContext(request))
+                              context_instance=RequestContext(request)
+                             )
 
 def edit_related_to_entity(request, pk, model, form_class, title_format):
     """Edit a model related to a CremeEntity.
     @param model A django model class that implements the method get_related_entity().
+    @param form_class Form which __init__'s method MUST HAVE an argument caled 'entity' (the related CremeEntity).
     @param model title_format A format unicode with an arg (for the related entity).
     """
     auxiliary = get_object_or_404(model, pk=pk)
     entity = auxiliary.get_related_entity()
+    user = request.user
 
-    entity.can_change_or_die(request.user)
+    entity.can_change_or_die(user)
 
     if request.method == 'POST':
-        edit_form = form_class(entity, request.POST, instance=auxiliary)
+        edit_form = form_class(entity=entity, user=user, data=request.POST, instance=auxiliary)
 
         if edit_form.is_valid():
             edit_form.save()
     else: # return page on GET request
-        edit_form = form_class(entity=entity, instance=auxiliary)
+        edit_form = form_class(entity=entity, user=user, instance=auxiliary)
 
     return inner_popup(request, 'creme_core/generics/blockform/edit_popup.html',
                        {
@@ -93,12 +98,12 @@ def edit_model_with_popup(request, query_dict, model, form_class, title_format=N
     instance = get_object_or_404(model, **query_dict)
 
     if request.method == 'POST':
-        edit_form = form_class(request.POST, request.FILES or None, instance=instance)
+        edit_form = form_class(user=request.user, data=request.POST, files=request.FILES or None, instance=instance)
 
         if edit_form.is_valid():
             edit_form.save()
     else: # return page on GET request
-        edit_form = form_class(instance=instance)
+        edit_form = form_class(user=request.user, instance=instance)
 
     title_format = title_format or _(u'Edit <%s>')
 

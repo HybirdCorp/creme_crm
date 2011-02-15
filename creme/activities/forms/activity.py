@@ -100,12 +100,12 @@ def _check_activity_collisions(activity_start, activity_end, participants, exclu
 class ParticipantCreateForm(CremeForm):
     participants = MultiCremeEntityField(label=_(u'Participants'), model=Contact)
 
-    def __init__(self, activity, *args, **kwargs):
+    def __init__(self, entity, *args, **kwargs):
         super(ParticipantCreateForm, self).__init__(*args, **kwargs)
-        self.activity = activity
+        self.activity = entity
         self.participants = []
 
-        existing = Contact.objects.filter(relations__type=REL_SUB_PART_2_ACTIVITY, relations__object_entity=activity.id)
+        existing = Contact.objects.filter(relations__type=REL_SUB_PART_2_ACTIVITY, relations__object_entity=entity.id)
         self.fields['participants'].q_filter = {'~pk__in': [c.id for c in existing]}
 
     def clean(self):
@@ -136,19 +136,19 @@ class ParticipantCreateForm(CremeForm):
 
 
 class SubjectCreateForm(CremeForm):
-    subjects = RelatedEntitiesField(relation_types=[REL_SUB_ACTIVITY_SUBJECT], label=_(u'Subjects'), required=False)
+    subjects = RelatedEntitiesField(relation_types=[REL_OBJ_ACTIVITY_SUBJECT], label=_(u'Subjects'), required=False)
     #subjects = MultiGenericEntityField(label=_(u'Subjects')) #TODO: use when bug with innerpopup is fixed ; filter already linked
 
-    def __init__(self, activity, *args, **kwargs):
+    def __init__(self, entity, *args, **kwargs):
         super(SubjectCreateForm, self).__init__(*args, **kwargs)
-        self.activity = activity
+        self.activity = entity
 
-    def save (self):
+    def save (self): #TODO: test link creds
         activity = self.activity
-        create_relation = partial(Relation.objects.create, object_entity=activity, user=activity.user)
+        create_relation = partial(Relation.objects.create, subject_entity=activity, user=self.user)
 
         for relationtype_id, entity in self.cleaned_data['subjects']:
-            create_relation(subject_entity=entity, type_id=relationtype_id)
+            create_relation(object_entity=entity, type_id=relationtype_id)
 
 
 class ActivityCreateForm(CremeEntityForm):
@@ -181,18 +181,18 @@ class ActivityCreateForm(CremeEntityForm):
                 ('alert_datetime', _(u'Generate an alert or a reminder'), ['generate_alert', 'alert_day', 'alert_start_time']),
             )
 
-    def __init__(self, current_user, *args, **kwargs):
+    def __init__(self, *args, **kwargs):
         super(ActivityCreateForm, self).__init__(*args, **kwargs)
-        self.current_user = current_user
         self.participants = []
 
+        user =  self.user
         fields = self.fields
 
         fields['start_time'].initial = time(9, 0)
         fields['end_time'].initial   = time(18, 0)
 
-        my_default_calendar = Calendar.get_user_default_calendar(current_user) #TODO: variable used once...
-        fields['my_calendar'].queryset = Calendar.objects.filter(user=current_user)
+        my_default_calendar = Calendar.get_user_default_calendar(user) #TODO: variable used once...
+        fields['my_calendar'].queryset = Calendar.objects.filter(user=user)
         fields['my_calendar'].initial  = my_default_calendar
 
         #TODO: refactor this with a smart widget that manages dependencies
@@ -201,7 +201,7 @@ class ActivityCreateForm(CremeEntityForm):
             fields['my_calendar'].widget.attrs['disabled'] = 'disabled'
         fields['my_participation'].widget.attrs['onclick'] = "if($(this).is(':checked')){$('#id_my_calendar').removeAttr('disabled');}else{$('#id_my_calendar').attr('disabled', 'disabled');}"
 
-        fields['participating_users'].queryset = User.objects.exclude(pk=current_user.id)
+        fields['participating_users'].queryset = User.objects.exclude(pk=user.id)
         fields['other_participants'].q_filter = {'is_user__isnull': True}
 
     def clean(self):
@@ -218,7 +218,7 @@ class ActivityCreateForm(CremeEntityForm):
             if not cleaned_data.get('my_calendar'):
                 self.errors['my_calendar'] = ErrorList([_(u"If you participe, you have to choose one of your calendars.")])
             else:
-                users.append(self.current_user)
+                users.append(self.user)
 
         self.participants.extend(Contact.objects.filter(is_user__in=users))
         self.participants += cleaned_data['other_participants']
