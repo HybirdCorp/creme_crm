@@ -364,9 +364,10 @@ creme.utils.showInnerPopup = function(url, options, div_id) {
         $(document.body).append($div);
     }
     url += (url.indexOf('?') != -1) ? '&whoami='+div_id: '?whoami='+div_id;
-    $.get(
-        url,
-        function(data) {
+    $.ajax({
+        url: url,
+        type: "GET",
+        success: function(data) {
             //var data = $(data).remove('meta,title,html');
             /*$(document.body).append($('<div id="temp"></div>').append(data))
             var $temp = $('#temp');
@@ -448,8 +449,15 @@ creme.utils.showInnerPopup = function(url, options, div_id) {
                                        //help_text : "Touche Echap pour fermer."
                                    },options), div_id
            );
+        },
+        error : function(req, status, error){
+            if(!req.responseText || req.responseText == "") {
+                creme.utils.showDialog(gettext("Error during loading the page."));
+            } else {
+                creme.utils.showDialog(req.responseText);
+            }
         }
-    );
+    });
     return div_id;
 }
 
