@@ -18,73 +18,28 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template.context import RequestContext
 from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required, permission_required
 
 from creme_core.models import UserRole
-from creme_core.views.generic import add_entity, inner_popup
+from creme_core.views.generic import add_model_with_popup, edit_model_with_popup, inner_popup
 from creme_core.utils import get_from_POST_or_404
 
 from creme_config.forms.user_role import UserRoleCreateForm, UserRoleEditForm, AddCredentialsForm, DefaultCredsForm
 
 
-PORTAL_URL = '/creme_config/role/portal/'
-
-#TODO: inner_popups not used because they do not manage very well 'empty' *ChoiceField (POST contains 'null' value)
-
-##TODO: add a generic view add_model() ??
 @login_required
 @permission_required('creme_config.can_admin')
 def add(request):
-    return add_entity(request, UserRoleCreateForm, PORTAL_URL)
-    #if request.method == 'POST':
-        #roleform = UserRoleCreateForm(request.POST)
+    return add_model_with_popup(request, UserRoleCreateForm, _(u'New role'))
 
-        #if roleform.is_valid():
-            #roleform.save()
-    #else:
-        #roleform = UserRoleCreateForm()
-
-    #return inner_popup(request, 'creme_core/generics/blockform/add_popup2.html',
-                       #{
-                        #'form':  roleform,
-                        #'title': _(u'New role'),
-                       #},
-                       #is_valid=roleform.is_valid(),
-                       #reload=False,
-                       #delegate_reload=True,
-                       #context_instance=RequestContext(request))
-
-#TODO: add a generic view edit_model() ??
 @login_required
 @permission_required('creme_config.can_admin')
 def edit(request, role_id):
-    role = get_object_or_404(UserRole, pk=role_id)
-
-    if request.method == 'POST':
-        roleform = UserRoleEditForm(user=request.user, data=request.POST, instance=role)
-
-        if roleform.is_valid():
-            roleform.save()
-            return HttpResponseRedirect(PORTAL_URL) #
-    else:
-        roleform = UserRoleEditForm(user=request.user, instance=role)
-
-    #return inner_popup(request, 'creme_core/generics/blockform/edit_popup.html',
-                       #{
-                        #'form':  roleform,
-                        #'title': _(u'Edit %s') % role,
-                       #},
-                       #is_valid=roleform.is_valid(),
-                       #reload=False,
-                       #delegate_reload=True,
-                       #context_instance=RequestContext(request))
-    return render_to_response('creme_core/generics/blockform/edit.html',
-                              {'form': roleform},
-                              context_instance=RequestContext(request))
+    return edit_model_with_popup(request, {'pk': role_id}, UserRole, UserRoleEditForm)
 
 @login_required
 @permission_required('creme_config.can_admin')
