@@ -38,7 +38,8 @@ class UserRoleTestCase(TestCase):
         except Exception, e:
             pass
         else:
-            self.fail(errors)
+            if errors:
+                self.fail(errors)
 
     def test_create01(self):
         response = self.client.get('/creme_config/role/add/')
@@ -58,10 +59,6 @@ class UserRoleTestCase(TestCase):
                                    )
         self.assertNoFormError(response)
         self.assertEqual(200, response.status_code)
-
-        redirect_chain = response.redirect_chain
-        self.assertEqual(1, len(redirect_chain))
-        self.assert_(redirect_chain[0][0].endswith('/creme_config/role/portal/'))
 
         try:
             role = UserRole.objects.get(name=name)
