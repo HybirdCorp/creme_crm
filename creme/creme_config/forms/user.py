@@ -144,7 +144,7 @@ class UserChangePwForm(CremeForm):
     password_2 = CharField(label=_(u"Confirm password"), min_length=6, widget=PasswordInput())
 
     def __init__(self, *args, **kwargs):
-        self.user = kwargs.pop('instance')
+        self.user2edit = kwargs.pop('instance')
         super(UserChangePwForm, self).__init__(*args, **kwargs)
 
     def clean_password_2(self):
@@ -157,7 +157,7 @@ class UserChangePwForm(CremeForm):
         return pw2
 
     def save(self):
-        user = self.user
+        user = self.user2edit
         user.set_password(self.cleaned_data.get('password_1'))
         user.save()
 

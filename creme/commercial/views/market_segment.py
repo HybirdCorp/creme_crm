@@ -33,12 +33,12 @@ from commercial.forms.market_segment import MarketSegmentForm
 @permission_required('commercial')
 def add(request):
     if request.method == 'POST':
-        segment_form = MarketSegmentForm(request.POST)
+        segment_form = MarketSegmentForm(user=request.user, data=request.POST)
 
         if segment_form.is_valid():
             segment_form.save()
     else:
-        segment_form = MarketSegmentForm()
+        segment_form = MarketSegmentForm(user=request.user)
 
     return inner_popup(request, 'creme_core/generics/blockform/add_popup2.html',
                        {

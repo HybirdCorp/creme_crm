@@ -37,24 +37,25 @@ def error_popup(request, message):
                        is_valid=False,
                        context_instance=RequestContext(request))
 
+#TODO: improve add_to_entity (see:"if not task.is_alive() etc...") ???
 def _add_generic(request, form, task_id, title):
     task = get_object_or_404(ProjectTask, pk=task_id)
     user = request.user
 
-    task.can_change_or_die(request.user)
+    task.can_change_or_die(user)
 
     if not task.is_alive():
         state = task.tstatus.name
         return error_popup(request,
                            _(u"You can't add a resources or a working period to a task which has status <%s>") % state)
 
-    if request.POST:
-        form_obj = form(task, request.POST)
+    if request.method == 'POST':
+        form_obj = form(task, user=user, data=request.POST)
 
         if form_obj.is_valid():
             form_obj.save()
     else:
-        form_obj = form(task)
+        form_obj = form(task, user=user)
 
     return inner_popup(request, 'creme_core/generics/blockform/add_popup2.html',
                        {
@@ -66,24 +67,26 @@ def _add_generic(request, form, task_id, title):
                        delegate_reload=True,
                        context_instance=RequestContext(request))
 
+#TODO: remoce and use generic.edit_related_to_entity() ??
 def _edit_generic(request, form, obj_id, model, title):
     obj  = get_object_or_404(model, pk=obj_id)
     task = obj.task
+    user = request.user
 
-    task.can_change_or_die(request.user)
+    task.can_change_or_die(user)
 
-    if request.POST :
-        form_obj = form(task, request.POST, instance=obj)
+    if request.method == 'POST':
+        form_obj = form(task, user=user, data=request.POST, instance=obj)
 
         if form_obj.is_valid():
             form_obj.save()
     else:
-        form_obj = form(task, instance=obj)
+        form_obj = form(task, user=user, instance=obj)
 
     return inner_popup(request, 'creme_core/generics/blockform/edit_popup.html',
                        {
                          'form':   form_obj,
-                         'object': task,
+                         'object': task, #TODO: useful ???
                          'title':  title,
                        },
                        is_valid=form_obj.is_valid(),

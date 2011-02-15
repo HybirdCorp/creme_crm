@@ -59,12 +59,12 @@ def _edit(request, ct_id, form_class, portal):
         raise Http404 #bof bof
 
     if request.POST:
-        blocks_form = form_class(bci, request.POST)
+        blocks_form = form_class(block_config_items=bci, user=request.user, data=request.POST)
 
         if blocks_form.is_valid():
             blocks_form.save()
     else:
-        blocks_form = form_class(block_config_items=bci, initial={'ct_id': ct_id})
+        blocks_form = form_class(block_config_items=bci, user=request.user, initial={'ct_id': ct_id})
 
     if ct_id:
         title = _(u'Edit portal configuration for %s') if portal else _(u'Edit configuration for %s')

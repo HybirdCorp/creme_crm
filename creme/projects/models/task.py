@@ -25,7 +25,6 @@ from activities.models import Activity, ActivityType
 from activities.constants import ACTIVITYTYPE_TASK
 
 from projects import constants
-
 from project import Project
 from taskstatus import TaskStatus
 
@@ -35,7 +34,7 @@ class ProjectTask(Activity):
     order        = PositiveIntegerField(_(u'Order'), blank=True, null=True)
     parents_task = ManyToManyField("self", blank=True, null=True, symmetrical=False)
     duration     = PositiveIntegerField(_(u'Estimated duration (in hours)'), blank=False, null=False)
-    tstatus       = ForeignKey(TaskStatus, verbose_name=_(u'Status'))
+    tstatus      = ForeignKey(TaskStatus, verbose_name=_(u'Status'))
 
     header_filter_exclude_fields = Activity.header_filter_exclude_fields + ['activity_ptr'] #TODO: use a set() ??
     excluded_fields_in_html_output = Activity.excluded_fields_in_html_output + ['status']

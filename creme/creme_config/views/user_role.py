@@ -65,13 +65,13 @@ def edit(request, role_id):
     role = get_object_or_404(UserRole, pk=role_id)
 
     if request.method == 'POST':
-        roleform = UserRoleEditForm(request.POST, instance=role)
+        roleform = UserRoleEditForm(user=request.user, data=request.POST, instance=role)
 
         if roleform.is_valid():
             roleform.save()
             return HttpResponseRedirect(PORTAL_URL) #
     else:
-        roleform = UserRoleEditForm(instance=role)
+        roleform = UserRoleEditForm(user=request.user, instance=role)
 
     #return inner_popup(request, 'creme_core/generics/blockform/edit_popup.html',
                        #{
@@ -92,12 +92,12 @@ def add_credentials(request, role_id):
     role = get_object_or_404(UserRole, pk=role_id)
 
     if request.method == 'POST':
-        add_form = AddCredentialsForm(role, request.POST)
+        add_form = AddCredentialsForm(role, user=request.user, data=request.POST)
 
         if add_form.is_valid():
             add_form.save()
     else:
-        add_form = AddCredentialsForm(role)
+        add_form = AddCredentialsForm(role, user=request.user)
 
     return inner_popup(request, 'creme_core/generics/blockform/edit_popup.html',
                        {
@@ -107,7 +107,8 @@ def add_credentials(request, role_id):
                        is_valid=add_form.is_valid(),
                        reload=False,
                        delegate_reload=True,
-                       context_instance=RequestContext(request))
+                       context_instance=RequestContext(request)
+                      )
 
 @login_required
 @permission_required('creme_config')
@@ -127,12 +128,12 @@ def delete(request):
 @permission_required('creme_config.can_admin')
 def set_default_creds(request):
     if request.method == 'POST':
-        form = DefaultCredsForm(request.POST)
+        form = DefaultCredsForm(user=request.user, data=request.POST)
 
         if form.is_valid():
             form.save()
     else:
-        form = DefaultCredsForm()
+        form = DefaultCredsForm(user=request.user)
 
     return inner_popup(request, 'creme_core/generics/blockform/edit_popup.html',
                        {
@@ -142,4 +143,5 @@ def set_default_creds(request):
                        is_valid=form.is_valid(),
                        reload=False,
                        delegate_reload=True,
-                       context_instance=RequestContext(request))
+                       context_instance=RequestContext(request)
+                      )

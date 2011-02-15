@@ -54,12 +54,12 @@ def edit(request, ct_id):
         raise Http404 #bof bof
 
     if request.method == 'POST':
-        buttons_form = ButtonMenuEditForm(bmi, ct_id, request.POST)
+        buttons_form = ButtonMenuEditForm(bmi, ct_id, user=request.user, data=request.POST)
 
         if buttons_form.is_valid():
             buttons_form.save()
     else:
-        buttons_form = ButtonMenuEditForm(bmi, ct_id)
+        buttons_form = ButtonMenuEditForm(bmi, ct_id, user=request.user)
 
     title = _(u'Edit configuration for %s') % ContentType.objects.get_for_id(ct_id) if ct_id  else \
             _(u'Edit default configuration')

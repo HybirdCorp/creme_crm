@@ -169,8 +169,9 @@ class ProjectsTestCase(TestCase):
                                         'linked_contact': worker.id,
                                         'hourly_cost':    100,
                                     })
+        self.assertNoFormError(response)
         self.assertEqual(200, response.status_code)
-        self.failIf(response.context['form'].errors)
+        #self.failIf(response.context['form'].errors)
 
         resources = list(task.resources_set.all())
         self.assertEqual(1, len(resources))

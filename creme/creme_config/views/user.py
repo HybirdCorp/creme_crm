@@ -77,15 +77,16 @@ def edit_team(request, user_id):
 
 @login_required #no special permission needed
 def edit_own_settings(request):
-    user = get_object_or_404(User, pk=request.user.id)
+    user = request.user
 
     if request.method == 'POST':
-        settings_form = UserSettingsConfigForm(user, request.POST)
+        settings_form = UserSettingsConfigForm(user2edit=user, user=user, data=request.POST)
+
         if settings_form.is_valid():
             settings_form.save()
             return HttpResponseRedirect('/creme_config/user/view/settings/')
     else:
-        settings_form = UserSettingsConfigForm(user)
+        settings_form = UserSettingsConfigForm(user2edit=user, user=user)
 
     return render_to_response('creme_core/generics/form/edit.html',
                               {'form': settings_form},

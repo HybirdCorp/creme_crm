@@ -34,13 +34,12 @@ from creme_core.forms.widgets import Label
 class RelationCreateForm(CremeForm):
     relations = RelatedEntitiesField(label=_(u'Relations'))
 
-    def __init__(self, subject, user, relations_types=None, *args, **kwargs):
+    def __init__(self, subject, relations_types=None, *args, **kwargs):
         """
         @param relations_types Sequence of RelationTypes ids to narrow to these types ; or None that means all types compatible with the subject.
         """
         super(RelationCreateForm, self).__init__(*args, **kwargs)
         self.subject = subject
-        self.user = user
 
         if not relations_types:
             relations_types = RelationType.get_compatible_ones(subject.entity_type).values_list('id', flat=True)

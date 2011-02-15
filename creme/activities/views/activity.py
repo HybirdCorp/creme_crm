@@ -40,17 +40,15 @@ def add_indisponibility(request):
     return add_entity(request, IndisponibilityCreateForm, '/activities/calendar/user')
 
 def _add_activity(request, class_form, **form_args):
-    POST = request.POST
-
-    if POST:
-        activity_form = class_form(current_user=request.user, data=POST, **form_args)
+    if request.method == 'POST':
+        activity_form = class_form(user=request.user, data=request.POST, **form_args)
 
         if activity_form.is_valid():
             activity_form.save()
 
             return  HttpResponseRedirect('/activities/calendar/my')
     else:
-        activity_form = class_form(current_user=request.user, initial = {'user': request.user.id}, **form_args)
+        activity_form = class_form(user=request.user, **form_args)
 
     return render_to_response('creme_core/generics/blockform/add.html',
                               {'form': activity_form},

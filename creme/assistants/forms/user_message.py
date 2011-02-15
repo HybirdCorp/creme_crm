@@ -40,7 +40,6 @@ class UserMessageForm(CremeModelForm):
 
     def __init__(self, entity, *args, **kwargs):
         super(UserMessageForm, self).__init__(*args, **kwargs)
-        self.sender = self.initial['user']
         self.entity = entity
 
         self.fields['priority'].empty_label = None #TODO: generalise this behavior to all forms ???
@@ -49,4 +48,4 @@ class UserMessageForm(CremeModelForm):
         #NB: we do not call super() because we create several instances
         cdata  = self.cleaned_data
         UserMessage.create_messages(cdata['users'], cdata['title'], cdata['body'],
-                                    cdata['priority'].id, self.sender, self.entity)
+                                    cdata['priority'].id, self.user, self.entity)

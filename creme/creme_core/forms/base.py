@@ -156,8 +156,10 @@ class HookableForm(object):
 class CremeForm(Form, HookableForm):
     blocks = FieldBlockManager(('general', _(u'General information'), '*'))
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, user, *args, **kwargs):
+        """@param user The user that sends the request (i order to check the permissions)"""
         super(CremeForm, self).__init__(*args, **kwargs)
+        self.user = user
         self._post_init()
 
     def clean(self, *args, **kwargs):
@@ -175,8 +177,10 @@ class CremeForm(Form, HookableForm):
 class CremeModelForm(ModelForm, HookableForm):
     blocks = FieldBlockManager(('general', _(u'General information'), '*'))
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, user, *args, **kwargs):
+        """@param user The user that sends the request (i order to check the permissions)"""
         super(CremeModelForm, self).__init__(*args, **kwargs)
+        self.user = user
         self._post_init()
 
     def clean(self, *args, **kwargs):
@@ -195,6 +199,10 @@ class CremeModelForm(ModelForm, HookableForm):
 
 class CremeModelWithUserForm(CremeModelForm):
     user = ModelChoiceField(label=_('User'), queryset=User.objects.all(), empty_label=None)
+
+    def __init__(self, user, *args, **kwargs):
+        super(CremeModelWithUserForm, self).__init__(user=user, *args, **kwargs)
+        self.fields['user'].initial = user.id
 
 
 class CremeEntityForm(CremeModelWithUserForm):

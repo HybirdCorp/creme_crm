@@ -101,15 +101,17 @@ def add_pattern_component(request, objpattern_id):
 @permission_required('commercial')
 def _add_subpattern_component(request, component_id, form_class, title):
     related_comp = get_object_or_404(ActObjectivePatternComponent, pk=component_id)
-    related_comp.pattern.can_change_or_die(request.user)
+    user = request.user
+
+    related_comp.pattern.can_change_or_die(user)
 
     if request.method == 'POST':
-        form = form_class(related_comp, request.POST)
+        form = form_class(related_comp, user=user, data=request.POST)
 
         if form.is_valid():
             form.save()
     else:
-        form = form_class(related_comp)
+        form = form_class(related_comp, user=user)
 
     return generic.inner_popup(request, 'creme_core/generics/blockform/add_popup2.html',
                                {
@@ -164,4 +166,4 @@ def bool_from_str(string):
     if b is not None:
         return b
 
-    raise ValueError('Can not be coerce to a boolean value: %s' % str(string))
+    raise ValueError('Can not be coerced to a boolean value: %s' % str(string))

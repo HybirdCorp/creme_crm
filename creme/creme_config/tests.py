@@ -413,6 +413,7 @@ class UserTestCase(TestCase):
                                             'password_2':   password,
                                           }
                                    )
+        self.assertNoFormError(response)
         self.assertEqual(200, response.status_code)
 
         other_user = User.objects.get(pk=other_user.pk)

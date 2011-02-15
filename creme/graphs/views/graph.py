@@ -66,7 +66,7 @@ def detailview(request, graph_id):
 @login_required
 @permission_required('graphs')
 def listview(request):
-    return list_view(request, Graph, extra_dict={'add_url':'/graphs/graph/add'})
+    return list_view(request, Graph, extra_dict={'add_url': '/graphs/graph/add'})
 
 @login_required
 @permission_required('graphs')
@@ -81,7 +81,6 @@ def delete_relation_type(request, graph_id):
     graph     = get_object_or_404(Graph, pk=graph_id)
 
     graph.can_change_or_die(request.user)
-
     graph.orbital_relation_types.remove(rtypes_id)
 
     return HttpResponse("", mimetype="text/javascript")
