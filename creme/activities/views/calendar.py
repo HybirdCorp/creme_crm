@@ -87,9 +87,13 @@ def user_calendar(request):
 
     usernames = User.objects.all().values_list('username', flat=True)
 
+    calendars_ids = Calendar.get_user_calendars(user, False).values_list('id', flat=True)
+    if not calendars_ids:
+        calendars_ids = [Calendar.get_user_default_calendar(user).pk]
+
     return get_users_calendar(request,
-                              POST_getlist('user_selected') or usernames,
-                              POST_getlist('calendar_selected') or [Calendar.get_user_default_calendar(user).pk])
+                              POST_getlist('user_selected') or [request.user.username],#usernames,
+                              POST_getlist('calendar_selected') or calendars_ids)#[Calendar.get_user_default_calendar(user).pk])
 
 
 def my_calendar(request):
