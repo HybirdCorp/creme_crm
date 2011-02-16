@@ -40,7 +40,7 @@ from creme_core.constants import REL_SUB_RELATED_TO, REL_SUB_HAS
 
 
 __all__ = ('MultiGenericEntityField', 'GenericEntityField',
-           'MultiRelationEntityField', 'RelationEntityField', 
+           'MultiRelationEntityField', 'RelationEntityField',
            'RelatedEntitiesField', # TODO : remove this
            'CremeEntityField', 'MultiCremeEntityField',
            'ListEditionField',
@@ -56,17 +56,17 @@ class JSONField(CharField):
     def __init(self, *args, **kwargs):
         super(JSONField, self).__init__(*args, **kwargs)
 
-    def clean_value(self, data, name, type, default=None):
-        if not data and self.required:
-            raise ValidationError(self.error_messages['required'])
+    def clean_value(self, data, name, type):
+        if not data:
+            raise ValidationError(self.error_messages['invalidformat'])
 
         if not isinstance(data, dict):
             raise ValidationError(self.error_messages['invalidformat'])
 
         value = data.get(name)
 
-        if not value and self.required:
-            raise ValidationError(self.error_messages['required'])
+        if not value:
+            raise ValidationError(self.error_messages['invalidformat'])
 
         if isinstance(value, type):
             return value
@@ -98,27 +98,29 @@ class JSONField(CharField):
 
     def clean(self, value):
         return self.clean_json(value)
-    
+
     def _create_widget(self):
         pass
-    
+
     def _build_widget(self):
         self.widget = self._create_widget()
         # TODO : wait for django 1.2 and new widget api to remove this hack
         self.widget.from_python = lambda v: self.from_python(v)
 
+
 class GenericEntityField(JSONField):
     default_error_messages = {
+        'ctypenotallowed' : _(u"This content type is not allowed."),
         'doesnotexist' : _(u"This entity doesn't exist."),
     }
 
     def __init__(self, models=None, *args, **kwargs):
         super(GenericEntityField, self).__init__(models, *args, **kwargs)
-        self.ctypes = list(self._get_ctypes(models))
+        self.allowed_models = models if models else list()
         self._build_widget()
-        
+
     def _create_widget(self):
-        return CTEntitySelector(self._get_ctypes_options(self.ctypes))
+        return CTEntitySelector(self._get_ctypes_options(self.get_ctypes()))
 
     # TODO : wait for django 1.2 and new widget api to remove this hack
     def from_python(self, value):
@@ -135,11 +137,14 @@ class GenericEntityField(JSONField):
             pk = value['entity']
 
         entity = {'ctype': ctype, 'entity': pk}
-        
+
         return self.format_json(entity)
 
     def clean(self, value):
         data = self.clean_json(value)
+
+        if data is not None and not isinstance(data, dict):
+            raise ValidationError(self.error_messages['invalidformat'])
 
         if not data:
             if self.required:
@@ -169,19 +174,32 @@ class GenericEntityField(JSONField):
 
     def clean_ctype(self, ctype_pk):
         # check ctype in allowed ones
-        ctype = [ct for ct in self.ctypes if ct.pk == ctype_pk]
+        for ct in (ct for ct in self.get_ctypes() if ct.pk == ctype_pk):
+            return ct
 
-        if not ctype:
-            raise ValidationError(self.error_messages['doesnotexist'])
+        raise ValidationError(self.error_messages['ctypenotallowed'])
 
-        return ctype[0] if ctype else None
+    def clean_rtype(self, rtype_pk):
+        # is relation type allowed
+        if rtype_pk not in self.allowed_rtypes:
+            raise ValidationError(self.error_messages['rtypenotallowed'], params={'rtype':rtype_pk})
+
+        try:
+            return RelationType.objects.get(pk=rtype_pk)
+        except RelationType.DoesNotExist, PermissionDenied:
+            raise ValidationError(self.error_messages['rtypedoesnotexist'], params={'rtype':rtype_pk})
 
     def _get_ctypes_options(self, ctypes):
         return ((ctype.pk, unicode(ctype)) for ctype in ctypes)
 
-    def _get_ctypes(self, models=None):
+    def get_ctypes(self):
         get_ct = ContentType.objects.get_for_model
-        return (get_ct(model) for model in models) if models else creme_entity_content_types()
+        return [get_ct(model) for model in self.allowed_models] if self.allowed_models else list(creme_entity_content_types())
+
+    def set_allowed_models(self, models=None):
+        self.allowed_models = models if models else list()
+        self._build_widget()
+
 
 #TODO: Add a q_filter, see utilization in EntityEmailForm
 class MultiGenericEntityField(GenericEntityField):
@@ -192,7 +210,7 @@ class MultiGenericEntityField(GenericEntityField):
 #        self.widget.from_python = lambda v: self.from_python(v)
 
     def _create_widget(self):
-        return SelectorList(CTEntitySelector(self._get_ctypes_options(self.ctypes), multiple=True));
+        return SelectorList(CTEntitySelector(self._get_ctypes_options(self.get_ctypes()), multiple=True));
 
     # TODO : wait for django 1.2 and new widget api to remove this hack
     def from_python(self, value):
@@ -201,30 +219,30 @@ class MultiGenericEntityField(GenericEntityField):
 
         if isinstance(value, basestring):
             return value
-        
+
         entities = []
-        
+
         for entry in value:
             if isinstance(entry, CremeEntity):
                 ctype, pk = entry.entity_type.id, entry.id
                 entry = {'ctype': ctype, 'entity': pk}
-            
+
             entities.append(entry)
-            
+
         #entities = [{'ctype':ctype, 'entity':pk} for ctype, pk in CremeEntity.objects.filter(pk__in=value).values_list('entity_type', 'pk')]
         return self.format_json(entities)
 
     def clean(self, value):
         data = self.clean_json(value)
 
+        if data is not None and not isinstance(data, list):
+            raise ValidationError(self.error_messages['invalidformat'])
+
         if not data:
             if self.required:
                 raise ValidationError(self.error_messages['required'])
 
             return []
-
-        if not isinstance(data, list):
-            raise ValidationError(self.error_messages['invalidformat'])
 
         entities_map = defaultdict(list)
         clean_value = self.clean_value
@@ -235,20 +253,19 @@ class MultiGenericEntityField(GenericEntityField):
             try:
                 entities_map[clean_value(entry, 'ctype', int)].append(clean_value(entry, 'entity', int))
             except Exception, e:
-                debug("invalid entity entry %s : %s", entry, e)
+                raise ValidationError(self.error_messages['invalidformat'])
 
         entities = []
 
         # build the list of entities (ignore invalid entries)
-        for ct_id, e_ids in entities_map.iteritems():
-            try:
-                ct = self.clean_ctype(ct_id)
-                entities.extend(ct.model_class().objects.filter(pk__in=e_ids))
-            except Exception, e:
-                debug("invalid entity entry (ctype=%s, ids=%s) : %s", ct_id, e_ids, e)
+        for ct_id, entity_pks in entities_map.iteritems():
+            ctype = self.clean_ctype(ct_id)
+            ctype_entities = dict((entity.pk, entity) for entity in ctype.model_class().objects.filter(pk__in=entity_pks))
 
-        if not entities and self.required:
-            raise ValidationError(self.error_messages['required'])
+            if not all(entity_pk in ctype_entities for entity_pk in entity_pks):
+                raise ValidationError(self.error_messages['doesnotexist'])
+
+            entities.extend(ctype_entities.values())
 
         return entities
 
@@ -263,7 +280,7 @@ class RelationEntityField(JSONField):
         'doesnotexist' : _(u"This entity doesn't exist."),
         'nopropertymatch' : _(u"This entity has no property that matches relation type constraints")
     }
-    
+
     def __init__(self, relations=(REL_SUB_RELATED_TO, REL_SUB_HAS), *args, **kwargs):
         super(RelationEntityField, self).__init__(*args, **kwargs)
         self.allowed_rtypes = frozenset(relations)
@@ -359,6 +376,7 @@ class RelationEntityField(JSONField):
         self.allowed_rtypes = frozenset(allowed)
         self._build_widget()
 
+
 class MultiRelationEntityField(RelationEntityField):
     def __init__(self, relations=(REL_SUB_RELATED_TO, REL_SUB_HAS), *args, **kwargs):
         super(MultiRelationEntityField, self).__init__(relations, *args, **kwargs)
@@ -439,7 +457,7 @@ class MultiRelationEntityField(RelationEntityField):
         need_property_validation = False
 
         for rtype_pk, ctype_pk, entity_pk in cleaned_entries:
-            # check if relation type is allowed 
+            # check if relation type is allowed
             if rtype_pk not in self.allowed_rtypes:
                 raise ValidationError(self.error_messages['rtypenotallowed'], params={'rtype':rtype_pk, 'ctype':ctype_pk})
 
@@ -457,7 +475,7 @@ class MultiRelationEntityField(RelationEntityField):
 
         entities_cache = dict()
 
-        # build real entity cache and check both entity id exists and in correct content type 
+        # build real entity cache and check both entity id exists and in correct content type
         for ctype, entity_pks in ctypes_cache.values():
             ctype_entities = dict((entity.pk, entity) for entity in ctype.model_class().objects.filter(pk__in=entity_pks))
 
@@ -488,6 +506,7 @@ class MultiRelationEntityField(RelationEntityField):
             return None
 
         return relations
+
 
 # TODO: remove this field when refactor of activity and event forms will be done.
 class RelatedEntitiesField(CharField):

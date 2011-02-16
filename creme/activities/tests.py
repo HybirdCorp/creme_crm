@@ -358,12 +358,20 @@ class ActivitiesTestCase(TestCase):
         uri = '/activities/activity/%s/subject/add' % activity.id
         self.assertEqual(200, self.client.get(uri).status_code)
 
+        from creme_core.models import CremeEntity
+        print 'CREMEENTITY:', [(e.entity_type_id, e.id) for e in CremeEntity.objects.all()]
+
         response = self.client.post(uri,
-                                    data={'subjects': '(%s,%s,%s);' % (
-                                                REL_OBJ_ACTIVITY_SUBJECT,
+                                    #data={'subjects': '(%s,%s,%s);' % (
+                                                #REL_OBJ_ACTIVITY_SUBJECT,
+                                                #ContentType.objects.get_for_model(Organisation).id,
+                                                #orga.id,
+                                               #)
+                                         #}
+                                     data={'subjects': '[{"ctype":"%s", "entity":"%s"}]' % (
                                                 ContentType.objects.get_for_model(Organisation).id,
                                                 orga.id,
-                                               )
+                                               ),
                                          }
                                    )
         self.assertNoFormError(response)
@@ -372,5 +380,7 @@ class ActivitiesTestCase(TestCase):
         relations = Relation.objects.filter(subject_entity=activity.id, type=REL_OBJ_ACTIVITY_SUBJECT)
         self.assertEqual(1, len(relations))
         self.assertEqual(orga.id, relations[0].object_entity_id)
+
+    #TODO: def test_add_subjects02(self): #with creds
 
 #TODO: complete test case

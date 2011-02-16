@@ -30,7 +30,7 @@ from django.contrib.auth.models import User
 
 from creme_core.models import CremeEntity, Relation, RelationType
 from creme_core.forms import CremeForm, CremeEntityForm
-from creme_core.forms.fields import RelatedEntitiesField, CremeDateTimeField, CremeTimeField, MultiCremeEntityField, MultiGenericEntityField
+from creme_core.forms.fields import CremeDateTimeField, CremeTimeField, MultiCremeEntityField, MultiGenericEntityField
 from creme_core.forms.widgets import UnorderedMultipleChoiceWidget
 
 from persons.models import Contact
@@ -136,19 +136,19 @@ class ParticipantCreateForm(CremeForm):
 
 
 class SubjectCreateForm(CremeForm):
-    subjects = RelatedEntitiesField(relation_types=[REL_OBJ_ACTIVITY_SUBJECT], label=_(u'Subjects'), required=False)
-    #subjects = MultiGenericEntityField(label=_(u'Subjects')) #TODO: use when bug with innerpopup is fixed ; filter already linked
+    subjects = MultiGenericEntityField(label=_(u'Subjects')) #TODO: qfilter to exclude current subjects
 
     def __init__(self, entity, *args, **kwargs):
         super(SubjectCreateForm, self).__init__(*args, **kwargs)
         self.activity = entity
 
     def save (self): #TODO: test link creds
-        activity = self.activity
-        create_relation = partial(Relation.objects.create, subject_entity=activity, user=self.user)
+        create_relation = partial(Relation.objects.create, subject_entity=self.activity,
+                                  type_id=REL_OBJ_ACTIVITY_SUBJECT, user=self.user
+                                 )
 
-        for relationtype_id, entity in self.cleaned_data['subjects']:
-            create_relation(object_entity=entity, type_id=relationtype_id)
+        for entity in self.cleaned_data['subjects']:
+            create_relation(object_entity=entity)
 
 
 class ActivityCreateForm(CremeEntityForm):
