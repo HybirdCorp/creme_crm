@@ -69,6 +69,9 @@ class FieldTestCase(TestCase):
         err, stack = self.assertFieldRaises(ValidationError, func, *args, **kwargs)
         message = unicode(field().error_messages[key])
 
+        if not hasattr(err, 'messages'):
+            self.fail('unexpected empty message instead of "%s"\nerror : %s' % (message, stack))
+
         if message != err.messages[0]:
             self.fail('unexpected message "%s" instead of "%s"\nerror : %s' % (err.messages[0], message, stack))
 
@@ -118,17 +121,17 @@ def get_field_entry_pair(ctypemodel, model):
 class GenericEntityFieldTestCase(FieldTestCase):
     def test_models_ctypes(self):
         field = GenericEntityField(models=[Organisation, Contact, Address])
-        self.assertEquals(3, len(field.ctypes))
-        self.assertEquals(ContentType.objects.get_for_model(Organisation), field.ctypes[0])
-        self.assertEquals(ContentType.objects.get_for_model(Contact), field.ctypes[1])
-        self.assertEquals(ContentType.objects.get_for_model(Address), field.ctypes[2])
+        self.assertEquals(3, len(field.get_ctypes()))
+        self.assertEquals(ContentType.objects.get_for_model(Organisation), field.get_ctypes()[0])
+        self.assertEquals(ContentType.objects.get_for_model(Contact), field.get_ctypes()[1])
+        self.assertEquals(ContentType.objects.get_for_model(Address), field.get_ctypes()[2])
 
     def test_default_ctypes(self):
         autodiscover()
 
         field = GenericEntityField()
-        self.assertTrue(len(field.ctypes) > 0)
-        self.assertEquals(list(creme_entity_content_types()), field.ctypes)
+        self.assertTrue(len(field.get_ctypes()) > 0)
+        self.assertEquals(list(creme_entity_content_types()), field.get_ctypes())
 
     def test_format_object(self):
         self.populate('creme_core', 'persons')
@@ -155,9 +158,17 @@ class GenericEntityFieldTestCase(FieldTestCase):
     def test_clean_invalid_data_type(self):
         field = GenericEntityField(required=False)
         self.assertFieldValidationError(GenericEntityField, 'invalidformat', field.clean, '"this is a string"')
+        self.assertFieldValidationError(GenericEntityField, 'invalidformat', field.clean, "[]")
+
+    def test_clean_invalid_data(self):
+        field = GenericEntityField(required=False)
+        self.assertFieldValidationError(GenericEntityField, 'invalidformat', field.clean, '{"entity":"1"}')
+        self.assertFieldValidationError(GenericEntityField, 'invalidformat', field.clean, '{"ctype":"12"}')
+        self.assertFieldValidationError(GenericEntityField, 'invalidformat', field.clean, '{"ctype":"notanumber","entity":"1"}')
+        self.assertFieldValidationError(GenericEntityField, 'invalidformat', field.clean, '{"ctype":"12","entity":"notanumber"}')
 
     # data injection : use a correct content entry (content type and id), but content type not in field list...
-    def test_clean_unknown_ctype(self):
+    def test_clean_unallowed_ctype(self):
         self.populate('creme_core', 'persons')
 
         field = GenericEntityField(models=[Organisation, Address])
@@ -166,7 +177,7 @@ class GenericEntityFieldTestCase(FieldTestCase):
 
         value = '{"ctype":"%s","entity":"%s"}' % (contact_ctype.pk, contact.pk)
 
-        self.assertFieldValidationError(GenericEntityField, 'doesnotexist', field.clean, value)
+        self.assertFieldValidationError(GenericEntityField, 'ctypenotallowed', field.clean, value)
 
     # data injection : use a contact id with address content type...
     def test_clean_unknown_entity(self):
@@ -199,17 +210,17 @@ class GenericEntityFieldTestCase(FieldTestCase):
 class MultiGenericEntityFieldTestCase(FieldTestCase):
     def test_models_ctypes(self):
         field = MultiGenericEntityField(models=[Organisation, Contact, Address])
-        self.assertEquals(3, len(field.ctypes))
-        self.assertEquals(ContentType.objects.get_for_model(Organisation), field.ctypes[0])
-        self.assertEquals(ContentType.objects.get_for_model(Contact), field.ctypes[1])
-        self.assertEquals(ContentType.objects.get_for_model(Address), field.ctypes[2])
+        self.assertEquals(3, len(field.get_ctypes()))
+        self.assertEquals(ContentType.objects.get_for_model(Organisation), field.get_ctypes()[0])
+        self.assertEquals(ContentType.objects.get_for_model(Contact), field.get_ctypes()[1])
+        self.assertEquals(ContentType.objects.get_for_model(Address), field.get_ctypes()[2])
 
     def test_default_ctypes(self):
         autodiscover()
 
         field = MultiGenericEntityField()
-        self.assertTrue(len(field.ctypes) > 0)
-        self.assertEquals(list(creme_entity_content_types()), field.ctypes)
+        self.assertTrue(len(field.get_ctypes()) > 0)
+        self.assertEquals(list(creme_entity_content_types()), field.get_ctypes())
 
     def test_format_object(self):
         self.populate('creme_core', 'persons')
@@ -226,7 +237,6 @@ class MultiGenericEntityFieldTestCase(FieldTestCase):
     def test_clean_empty_required(self):
         field = MultiGenericEntityField(required=True)
         self.assertFieldValidationError(MultiGenericEntityField, 'required', field.clean, None)
-        self.assertFieldValidationError(MultiGenericEntityField, 'required', field.clean, "{}")
         self.assertFieldValidationError(MultiGenericEntityField, 'required', field.clean, "[]")
 
     def test_clean_empty_not_required(self):
@@ -240,9 +250,17 @@ class MultiGenericEntityFieldTestCase(FieldTestCase):
     def test_clean_invalid_data_type(self):
         field = MultiGenericEntityField(required=False)
         self.assertFieldValidationError(MultiGenericEntityField, 'invalidformat', field.clean, '"this is a string"')
+        self.assertFieldValidationError(MultiGenericEntityField, 'invalidformat', field.clean, "{}")
+        
+    def test_clean_invalid_data(self):
+        field = MultiGenericEntityField(required=False)
+        self.assertFieldValidationError(MultiGenericEntityField, 'invalidformat', field.clean, '[{"entity":"1"}]')
+        self.assertFieldValidationError(MultiGenericEntityField, 'invalidformat', field.clean, '[{"ctype":"12"}]')
+        self.assertFieldValidationError(MultiGenericEntityField, 'invalidformat', field.clean, '[{"ctype":"notanumber","entity":"1"}]')
+        self.assertFieldValidationError(MultiGenericEntityField, 'invalidformat', field.clean, '[{"ctype":"12","entity":"notanumber"}]')
 
     # data injection : a Contact and an Organisation entries. the Contact one is remove (not in field list)
-    def test_clean_unknown_ctype(self):
+    def test_clean_unallowed_ctype(self):
         self.populate('creme_core', 'persons')
 
         field = MultiGenericEntityField(models=[Organisation, Address])
@@ -253,10 +271,7 @@ class MultiGenericEntityFieldTestCase(FieldTestCase):
         value = '[{"ctype":"%s","entity":"%s"}, {"ctype":"%s","entity":"%s"}]' % (contact_ctype.pk, contact.pk,
                                                                                   organisation_ctype.pk, organisation.pk)
 
-        entities = field.clean(value)
-
-        self.assertEquals(1, len(entities))
-        self.assertEquals(organisation, entities[0])
+        self.assertFieldValidationError(MultiGenericEntityField, 'ctypenotallowed', field.clean, value)
 
     # data injection : a Contact and an Organisation entries. the Organisation one is removed (invalid content type)
     def test_clean_unknown_entity(self):
@@ -270,39 +285,25 @@ class MultiGenericEntityFieldTestCase(FieldTestCase):
         value = '[{"ctype":"%s","entity":"%s"}, {"ctype":"%s","entity":"%s"}]' % (contact_ctype.pk, contact.pk,
                                                                                   organisation_ctype.pk, contact2.pk)
 
+        self.assertFieldValidationError(MultiGenericEntityField, 'doesnotexist', field.clean, value)
+
+    def test_clean_entities(self):
+        self.populate('creme_core', 'persons')
+
+        field = MultiGenericEntityField(models=[Organisation, Contact])
+
+        contact_ctype, contact = get_field_entry_pair(Contact, Contact)
+        organisation_ctype, organisation = get_field_entry_pair(Organisation, Organisation)
+
+        value = '[{"ctype":"%s","entity":"%s"}, {"ctype":"%s","entity":"%s"}]' % (contact_ctype.pk, contact.pk,
+                                                                                  organisation_ctype.pk, organisation.pk)
+
         entities = field.clean(value)
 
-        self.assertEquals(1, len(entities))
+        self.assertEquals(2, len(entities))
+
         self.assertEquals(contact, entities[0])
-
-    # data injection : two Contact entries, removed (not in field list).
-    # so the result list is empty and cause validation error.
-    def test_clean_all_unknown_ctype_required(self):
-        self.populate('creme_core', 'persons')
-
-        field = MultiGenericEntityField(models=[Organisation, Address], required=True)
-
-        contact_ctype, contact = get_field_entry_pair(Contact, Contact)
-
-        value = '[{"ctype":"%s","entity":"%s"}, {"ctype":"%s","entity":"%s"}]' % (contact_ctype.pk, contact.pk,
-                                                                                  contact_ctype.pk, contact.pk)
-
-        self.assertFieldValidationError(MultiGenericEntityField, 'required', field.clean, value)
-
-    # data injection : two Contact entries, removed (not in field list).
-    def test_clean_all_unknown_ctype_not_required(self):
-        self.populate('creme_core', 'persons')
-
-        field = MultiGenericEntityField(models=[Organisation, Address], required=False)
-
-        contact_ctype, contact = get_field_entry_pair(Contact, Contact)
-
-        value = '[{"ctype":"%s","entity":"%s"}, {"ctype":"%s","entity":"%s"}]' % (contact_ctype.pk, contact.pk,
-                                                                                  contact_ctype.pk, contact.pk)
-
-        entities = field.clean(value)
-
-        self.assertEquals(0, len(entities))
+        self.assertEquals(organisation, entities[1])
 
 
 def populate_good_bad_property_entities(user):
@@ -356,6 +357,16 @@ class RelationEntityFieldTestCase(FieldTestCase):
     def test_clean_invalid_data_type(self):
         field = RelationEntityField(required=False)
         self.assertFieldValidationError(RelationEntityField, 'invalidformat', field.clean, '"this is a string"')
+        self.assertFieldValidationError(RelationEntityField, 'invalidformat', field.clean, '"[]"')
+
+    def test_clean_invalid_data(self):
+        field = RelationEntityField(required=False)
+        self.assertFieldValidationError(RelationEntityField, 'invalidformat', field.clean, '{"ctype":"12","entity":"1"}')
+        self.assertFieldValidationError(RelationEntityField, 'invalidformat', field.clean, '{"rtype":"10","entity":"1"}')
+        self.assertFieldValidationError(RelationEntityField, 'invalidformat', field.clean, '{"rtype":"10", ctype":"12"}')
+        self.assertFieldValidationError(RelationEntityField, 'invalidformat', field.clean, '{"rtype":"notanumber", ctype":"12","entity":"1"}')
+        self.assertFieldValidationError(RelationEntityField, 'invalidformat', field.clean, '{"rtype":"10", ctype":"notanumber","entity":"1"}')
+        self.assertFieldValidationError(RelationEntityField, 'invalidformat', field.clean, '{"rtype":"10", "ctype":"12","entity":"notanumber"}')
 
     # data injection : use a correct content entry (content type and id), but relation type not in database...
     def test_clean_unknown_rtype(self):
@@ -505,7 +516,17 @@ class MultiRelationEntityFieldTestCase(FieldTestCase):
     def test_clean_invalid_data_type(self):
         field = MultiRelationEntityField(required=False)
         self.assertFieldValidationError(MultiRelationEntityField, 'invalidformat', field.clean, '"this is a string"')
+        self.assertFieldValidationError(MultiRelationEntityField, 'invalidformat', field.clean, '"{}"')
         self.assertFieldValidationError(MultiRelationEntityField, 'invalidformat', field.clean, '{"rtype":"10", "ctype":"12","entity":"1"}')
+
+    def test_clean_invalid_data(self):
+        field = MultiRelationEntityField(required=False)
+        self.assertFieldValidationError(MultiRelationEntityField, 'invalidformat', field.clean, '[{"ctype":"12","entity":"1"}]')
+        self.assertFieldValidationError(MultiRelationEntityField, 'invalidformat', field.clean, '[{"rtype":"10","entity":"1"}]')
+        self.assertFieldValidationError(MultiRelationEntityField, 'invalidformat', field.clean, '[{"rtype":"10", ctype":"12"}]')
+        self.assertFieldValidationError(MultiRelationEntityField, 'invalidformat', field.clean, '[{"rtype":"notanumber", ctype":"12","entity":"1"}]')
+        self.assertFieldValidationError(MultiRelationEntityField, 'invalidformat', field.clean, '[{"rtype":"10", ctype":"notanumber","entity":"1"}]')
+        self.assertFieldValidationError(MultiRelationEntityField, 'invalidformat', field.clean, '[{"rtype":"10", "ctype":"12","entity":"notanumber"}]')
 
     # data injection : use a correct content entry (content type and id), but content type not in field list...
     def test_clean_unknown_rtype(self):
