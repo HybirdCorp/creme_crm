@@ -20,7 +20,7 @@ creme.activities = {};
 
 creme.activities.ajax = {};
 
-creme.activities.select_one = function(url) {
+creme.activities.select_one = function(url, ct_id) {
     var me = this;
 
     this.okDialogHandler = function(ui) {
@@ -30,7 +30,7 @@ creme.activities.select_one = function(url) {
         window.location.href=url;
     }
 
-    creme.ajax.json.get('/activities/get_entity_relation_choices_for_activity', {},
+    creme.ajax.json.post('/activities/get_entity_relation_choices_for_activity', {'ct_id': ct_id},
         function(data) {
             var options = creme.forms.Select.optionsFromData(data, 'predicate', 'pk');
             var $select = creme.forms.Select.fill($('<select/>'), options, options[0][0]);

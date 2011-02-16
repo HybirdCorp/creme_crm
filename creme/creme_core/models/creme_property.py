@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.db.models import CharField, ForeignKey, ManyToManyField, BooleanField
+from django.db.models import CharField, ForeignKey, ManyToManyField, BooleanField, Q
 from django.utils.encoding import force_unicode
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.contenttypes.models import ContentType
@@ -68,6 +68,9 @@ class CremePropertyType(CremeModel):
 
         return property_type
 
+    @staticmethod
+    def get_compatible_ones(ct):
+        return CremePropertyType.objects.filter(Q(subject_ctypes=ct) | Q(subject_ctypes__isnull=True))
 
 class CremePropertyText_i18n(CremeModel):
     property_type = ForeignKey(CremePropertyType, related_name='property_i18n_set')

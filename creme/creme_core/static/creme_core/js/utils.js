@@ -364,9 +364,10 @@ creme.utils.showInnerPopup = function(url, options, div_id) {
         $(document.body).append($div);
     }
     url += (url.indexOf('?') != -1) ? '&whoami='+div_id: '?whoami='+div_id;
-    $.get(
-        url,
-        function(data) {
+    $.ajax({
+        url: url,
+        type: "GET",
+        success: function(data) {
             //var data = $(data).remove('meta,title,html');
             /*$(document.body).append($('<div id="temp"></div>').append(data))
             var $temp = $('#temp');
@@ -448,8 +449,15 @@ creme.utils.showInnerPopup = function(url, options, div_id) {
                                        //help_text : "Touche Echap pour fermer."
                                    },options), div_id
            );
+        },
+        error : function(req, status, error){
+            if(!req.responseText || req.responseText == "") {
+                creme.utils.showDialog(gettext("Error during loading the page."));
+            } else {
+                creme.utils.showDialog(req.responseText);
+            }
         }
-    );
+    });
     return div_id;
 }
 
@@ -687,71 +695,6 @@ creme.utils.multiDeleteFromListView = function(lv_selector, delete_url) {
     //TODO: gettext("Are you sure ?") useless ??
     creme.utils.ajaxDelete(delete_url, {'ids' : $(lv_selector).list_view('getSelectedEntities')}, ajax_opts, gettext("Are you sure ?"));
 }
-
-//TODO: move to properties.js ???
-creme.utils.multiAddPropertyFromListView = function(lv_selector, url, ct_id) {
-    if($(lv_selector).list_view('countEntities') == 0) {
-        creme.utils.showDialog(gettext("Please select at least one entity."));
-        return;
-    }
-
-    var types = creme.properties.get_types(ct_id);//TODO: Cache vs Integrity ?
-
-    $(lv_selector).list_view('option', 'entity_separator', ',');
-
-    var content = '<p>' + gettext("Select") + ' : <select name="property">';
-    for(var i in types) {
-        var type = types[i];
-        content += '<option value="' + type.pk + '">' + type.text + '</option>';
-    }
-    content += '</select></p>';
-
-    var buttons = {};
-
-    buttons[gettext("Ok")] = function() {
-            var type_id = $('select[name=property]', this).val();
-
-            if(!type_id || type_id == "") {
-                creme.utils.showDialog(gettext("Please select at least one entity."));
-                return;
-            }
-
-            $.ajax({
-                url : url,
-                data : {
-                    'ids': $(lv_selector).list_view('getSelectedEntities'),
-                    'type_id' : type_id
-                },
-                beforeSend : function(req) {
-                    creme.utils.loading('loading', false);
-                },
-                success : function(data, status, req){
-                    creme.utils.showDialog(gettext("Process done"));
-                },
-                error : function(req, status, error) {
-                    if(!req.responseText || req.responseText == "") {
-                        creme.utils.showDialog(gettext("Error"));
-                    } else {
-                        creme.utils.showDialog(req.responseText);
-                    }
-                },
-                complete : function(request, textStatus) {
-                    $(lv_selector).list_view('reload');
-                    creme.utils.loading('loading', true);
-                },
-                sync : false,
-                type: "POST"
-            });
-            $(this).dialog("destroy");
-            $(this).remove();
-        }
-    buttons[gettext("Cancel")] = function() {
-            $(this).dialog("destroy");
-            $(this).remove();
-        }
-
-    creme.utils.showDialog(content, {buttons: buttons});
-};
 
 creme.utils.autoCheckallState = function(from, select_all_selector, checkboxes_selector) {
     var $select_all = $(select_all_selector);
