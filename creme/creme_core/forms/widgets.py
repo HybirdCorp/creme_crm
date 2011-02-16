@@ -190,7 +190,7 @@ class EntitySelector(TextInput):
 
 
 class CTEntitySelector(ChainedInput):
-    def __init__(self, content_types, attrs=None):
+    def __init__(self, content_types, attrs=None, multiple=False):
         super(CTEntitySelector, self).__init__(attrs)
 
         if content_types.__class__ == str:
@@ -199,13 +199,13 @@ class CTEntitySelector(ChainedInput):
             ctype = ChainedInput.Model(widget=DynamicSelect, attrs={'auto':False}, options=content_types)
 
         self.set(ctype=ctype,
-                 entity=ChainedInput.Model(widget=EntitySelector, attrs={'auto':False}));
+                 entity=ChainedInput.Model(widget=EntitySelector, attrs={'auto':False, 'multiple':multiple}));
 
     def render(self, name, value, attrs=None):
         return super(CTEntitySelector, self).render(name, value, attrs)
 
 class RelationSelector(ChainedInput):
-    def __init__(self, relation_types, content_types, attrs=None):
+    def __init__(self, relation_types, content_types, attrs=None, multiple=False):
         super(RelationSelector, self).__init__(attrs)
 
         if relation_types.__class__ == str:
@@ -220,10 +220,10 @@ class RelationSelector(ChainedInput):
 
         self.set(rtype=rtype,
                  ctype=ctype,
-                 entity=ChainedInput.Model(widget=EntitySelector, attrs={'auto':False}));
+                 entity=ChainedInput.Model(widget=EntitySelector, attrs={'auto':False, 'multiple':multiple}));
 
     def render(self, name, value, attrs=None):
-        return super(CTEntitySelector, self).render(name, value, attrs)
+        return super(RelationSelector, self).render(name, value, attrs)
 
 #TODO: unused ??
 class EntitySelectorList(SelectorList):

@@ -176,7 +176,7 @@ def json_entity_predicates(request, id):
     try:
         predicates = __get_entity_predicates(request, id)
         parameters = __json_parse_select_request(request.GET, JSON_PREDICATE_FIELDS)
-        return HttpResponse(__json_select(predicates, *parameters))
+        return HttpResponse(__json_select(predicates, *parameters), mimetype="text/javascript")
     except JSONSelectError, err:
         return HttpResponse(err.message, mimetype="text/javascript", status=err.status)
     except Http404, err:
@@ -205,7 +205,7 @@ def json_predicate_content_types(request, id):
             return HttpResponse(__json_select(content_types, fields, range, sort))
 
         #return HttpResponse(__json_select(ContentType.objects.filter(pk__in=content_type_ids), fields, range, sort, use_columns))
-        return HttpResponse(__json_select(content_types, fields, range, sort, use_columns))
+        return HttpResponse(__json_select(content_types, fields, range, sort, use_columns), mimetype="text/javascript")
     except JSONSelectError, err:
         return HttpResponse(err.message, mimetype="text/javascript", status=err.status)
     except Http404, err:

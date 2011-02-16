@@ -66,7 +66,7 @@ class BaseEditForm(CremeEntityForm):
 
             if received_relation:
                 self.received_relation = received_relation
-                self.fields['target'].initial = received_relation.object_entity_id
+                self.fields['target'].initial = received_relation.object_entity
 
     def save(self):
         instance = super(BaseEditForm, self).save()
