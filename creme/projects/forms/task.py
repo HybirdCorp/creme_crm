@@ -51,9 +51,9 @@ class TaskEditForm(CremeEntityForm):
 
 
 class TaskCreateForm(TaskEditForm):
-    def __init__(self, project, *args, **kwargs):
+    def __init__(self, entity, *args, **kwargs):
         super(TaskCreateForm, self).__init__(*args, **kwargs)
-        self._project = project
+        self._project = entity
 
     def save(self, *args, **kwargs):
         instance = self.instance

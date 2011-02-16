@@ -38,7 +38,8 @@ class UserRoleTestCase(TestCase):
         except Exception, e:
             pass
         else:
-            self.fail(errors)
+            if errors:
+                self.fail(errors)
 
     def test_create01(self):
         response = self.client.get('/creme_config/role/add/')
@@ -58,10 +59,6 @@ class UserRoleTestCase(TestCase):
                                    )
         self.assertNoFormError(response)
         self.assertEqual(200, response.status_code)
-
-        redirect_chain = response.redirect_chain
-        self.assertEqual(1, len(redirect_chain))
-        self.assert_(redirect_chain[0][0].endswith('/creme_config/role/portal/'))
 
         try:
             role = UserRole.objects.get(name=name)
@@ -91,6 +88,8 @@ class UserRoleTestCase(TestCase):
                                             'can_view':   True,
                                             'can_change': False,
                                             'can_delete': False,
+                                            'can_link':   False,
+                                            'can_unlink': False,
                                             'set_type':   SetCredentials.ESET_ALL,
                                          }
                                    )
@@ -227,6 +226,8 @@ class UserRoleTestCase(TestCase):
         self.failIf(defcreds.can_view())
         self.failIf(defcreds.can_change())
         self.failIf(defcreds.can_delete())
+        self.failIf(defcreds.can_link())
+        self.failIf(defcreds.can_unlink())
 
         response = self.client.get('/creme_config/role/set_default_creds/')
         self.assertEqual(200, response.status_code)
@@ -236,6 +237,8 @@ class UserRoleTestCase(TestCase):
                                             'can_view':   True,
                                             'can_change': True,
                                             'can_delete': True,
+                                            'can_link':   True,
+                                            'can_unlink': True,
                                          }
                                    )
         self.assertEqual(200, response.status_code)
@@ -244,6 +247,8 @@ class UserRoleTestCase(TestCase):
         self.assert_(defcreds.can_view())
         self.assert_(defcreds.can_change())
         self.assert_(defcreds.can_delete())
+        self.assert_(defcreds.can_link())
+        self.assert_(defcreds.can_unlink())
 
     def test_portal(self):
         response = self.client.get('/creme_config/role/portal/')
@@ -275,7 +280,8 @@ class UserTestCase(TestCase):
         except Exception, e:
             pass
         else:
-            self.fail(errors)
+            if errors:
+                self.fail(errors)
 
     def test_create01(self):
         response = self.client.get('/creme_config/user/add/')
@@ -404,6 +410,7 @@ class UserTestCase(TestCase):
                                             'password_2':   password,
                                           }
                                    )
+        self.assertNoFormError(response)
         self.assertEqual(200, response.status_code)
 
         other_user = User.objects.get(pk=other_user.pk)
@@ -412,3 +419,126 @@ class UserTestCase(TestCase):
     def test_portal(self):
         response = self.client.get('/creme_config/user/portal/')
         self.assertEqual(200, response.status_code)
+
+    def test_team_create(self):
+        response = self.client.get('/creme_config/team/add/')
+        self.assertEqual(200, response.status_code)
+
+        create_user = User.objects.create_user
+        user01 = create_user('Shogun', 'shogun@century.jp', 'uselesspw')
+        user02 = create_user('Yoshitsune', 'yoshitsune@century.jp', 'uselesspw')
+
+        username   = 'Team-A'
+        response = self.client.post('/creme_config/team/add/', follow=True,
+                                    data={
+                                            'username':     username,
+                                            'teammates':    [user01.id, user02.id],
+                                         }
+                                   )
+        self.assertNoFormError(response)
+        self.assertEqual(200, response.status_code)
+
+        teams = User.objects.filter(is_team=True)
+        self.assertEqual(1, len(teams))
+
+        team = teams[0]
+        self.failIf(team.is_superuser)
+        self.assertEqual('',  team.first_name)
+        self.assertEqual('',  team.last_name)
+        self.assertEqual('',  team.email)
+
+        teammates = team.teammates
+        self.assertEqual(2, len(teammates))
+        self.assert_(user01.id in teammates)
+        self.assert_(user02.id in teammates)
+
+    def _create_team(self, name, teammates):
+        team = User.objects.create(username=name, is_team=True, role=None)
+
+        team.teammates = teammates
+
+        return team
+
+    def test_team_edit(self):
+        role = UserRole(name='Role')
+        role.allowed_apps = ['creme_core']
+        role.save()
+        SetCredentials.objects.create(role=role, value=SetCredentials.CRED_VIEW,
+                                      set_type=SetCredentials.ESET_OWN)
+
+        def create_user(name, email):
+            user = User.objects.create_user(name, email, 'uselesspw')
+            user.role = role
+            user.save()
+
+            return user
+
+        user01 = create_user('Maruo',   'maruo@century.jp')
+        user02 = create_user('Yokiji',  'yokiji@century.jp')
+        user03 = create_user('Koizumi', 'koizumi@century.jp')
+
+        response = self.client.get('/creme_config/team/edit/%s' % user01.id)
+        self.assertEqual(404, response.status_code)
+
+        teamname = 'Teamee'
+        team = self._create_team(teamname, [user01, user02])
+
+        entity = CremeEntity.objects.create(user=team)
+        self.assert_(entity.can_view(user01))
+        self.assert_(entity.can_view(user02))
+        self.failIf(entity.can_view(user03))
+
+        response = self.client.get('/creme_config/team/edit/%s' % team.id)
+        self.assertEqual(200, response.status_code)
+
+        teamname += '_edited'
+        response = self.client.post('/creme_config/team/edit/%s' % team.id, follow=True,
+                                    data={
+                                            'username':     teamname,
+                                            'teammates':    [user02.id, user03.id],
+                                         }
+                                   )
+        self.assertNoFormError(response)
+        self.assertEqual(200, response.status_code)
+
+        team = User.objects.get(pk=team.id) #refresh
+        self.assertEqual(teamname, team.username)
+
+        teammates = team.teammates
+        self.assertEqual(2, len(teammates))
+        self.assert_(user02.id in teammates)
+        self.assert_(user03.id in teammates)
+        self.failIf(user01.id in teammates)
+
+        #credentials have been updated ?
+        entity = CremeEntity.objects.get(pk=entity.id)
+        self.failIf(entity.can_view(user01))
+        self.assert_(entity.can_view(user02))
+        self.assert_(entity.can_view(user03))
+
+    def test_team_delete01(self):
+        user = User.objects.create_user('Maruo', 'maruo@century.jp', 'uselesspw')
+        team = self._create_team('Teamee', [])
+
+        response = self.client.post('/creme_config/team/delete', data={'id': user.id})
+        self.assertEqual(404, response.status_code)
+
+        response = self.client.post('/creme_config/team/delete', data={'id': team.id})
+        self.assertEqual(200, response.status_code)
+        self.assertEqual(0,   User.objects.filter(pk=team.id).count())
+
+    def test_team_delete02(self):
+        user = User.objects.create_user('Maruo', 'maruo@century.jp', 'uselesspw')
+        team = self._create_team('Teamee', [user])
+
+        response = self.client.post('/creme_config/team/delete', data={'id': team.id})
+        self.assertEqual(403, response.status_code)
+        self.assertEqual(1, User.objects.filter(pk=team.id).count())
+
+    def test_team_delete03(self):
+        team = self._create_team('Teamee', [])
+        CremeEntity.objects.create(user=team)
+
+        response = self.client.post('/creme_config/team/delete', data={'id': team.id})
+        self.assertEqual(403, response.status_code)
+        self.assertEqual(1, User.objects.filter(pk=team.id).count())

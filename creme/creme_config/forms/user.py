@@ -22,15 +22,16 @@ import re
 from logging import debug
 
 from django.utils.safestring import mark_safe
-from django.forms import CharField, ModelChoiceField, ValidationError
+from django.forms import CharField, ModelChoiceField, ModelMultipleChoiceField, ValidationError
 from django.forms.widgets import PasswordInput
 from django.utils.translation import ugettext_lazy as _, ugettext
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 
-from creme_core.models import Relation, RelationType, UserRole
+from creme_core.models import CremeEntity, Relation, RelationType, UserRole
 from creme_core.forms import CremeForm, CremeModelForm
 from creme_core.forms.fields import CremeEntityField
+from creme_core.forms.widgets import UnorderedMultipleChoiceWidget
 
 from persons.models import Contact, Organisation #TODO: can the 'persons' app hook this form instead of this 'bad' dependence ??
 
@@ -96,7 +97,9 @@ class UserAddForm(CremeModelForm):
         contact.is_user = user
         contact.save()
 
-        Relation.create(contact, cleaned['relation'].id, cleaned['organisation'])
+        Relation.objects.create(subject_entity=contact, type=cleaned['relation'],
+                                object_entity=cleaned['organisation'], user=user,
+                               )
 
         user.update_credentials()
 
@@ -140,6 +143,10 @@ class UserChangePwForm(CremeForm):
     password_1 = CharField(label=_(u"Password"), min_length=6, widget=PasswordInput())
     password_2 = CharField(label=_(u"Confirm password"), min_length=6, widget=PasswordInput())
 
+    def __init__(self, *args, **kwargs):
+        self.user2edit = kwargs.pop('instance')
+        super(UserChangePwForm, self).__init__(*args, **kwargs)
+
     def clean_password_2(self):
         data = self.data
         pw2  = data['password_2']
@@ -150,9 +157,34 @@ class UserChangePwForm(CremeForm):
         return pw2
 
     def save(self):
-        user = self.initial.get('user')
-        pw   = self.cleaned_data.get('password_1')
+        user = self.user2edit
+        user.set_password(self.cleaned_data.get('password_1'))
+        user.save()
 
-        if user and pw:
-            user.set_password(pw)
-            user.save()
+
+class TeamCreateForm(CremeModelForm):
+    teammates = ModelMultipleChoiceField(queryset=User.objects.filter(is_team=False),
+                                         widget=UnorderedMultipleChoiceWidget,
+                                         label=_(u"Teammates"), required=False)
+
+    class Meta:
+        model = User
+        fields = ('username',)
+
+    def __init__(self, *args, **kwargs):
+        super(TeamCreateForm, self).__init__(*args, **kwargs)
+        self.fields['username'].label = ugettext('Team name')
+
+    def save(self, *args, **kwargs):
+        team = self.instance
+
+        team.is_team = True
+        super(TeamCreateForm, self).save(*args, **kwargs)
+
+        team.teammates = self.cleaned_data['teammates']
+
+
+class TeamEditForm(TeamCreateForm):
+    def __init__(self, *args, **kwargs):
+        super(TeamEditForm, self).__init__(*args, **kwargs)
+        self.fields['teammates'].initial = self.instance.teammates.iterkeys()

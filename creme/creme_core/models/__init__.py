@@ -14,7 +14,7 @@ from header_filter import HeaderFilterItem, HeaderFilter, HeaderFilterList
 from list_view_filter import Filter, FilterCondition, FilterType, FilterValue, ConditionChildType
 from list_view_state import ListViewState #TODO: move to gui ?
 
-from auth import EntityCredentials, UserRole, SetCredentials, UserProfile
+from auth import EntityCredentials, UserRole, SetCredentials, UserProfile, TeamM2M
 
 from lock import Lock
 

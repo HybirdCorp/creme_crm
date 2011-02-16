@@ -24,12 +24,11 @@ from django.template import RequestContext
 from django.contrib.auth.decorators import login_required, permission_required
 
 from creme_core.models import RelationType
-from creme_core.views.generic import view_real_entity_with_template, add_entity, inner_popup, list_view
+from creme_core.views.generic import view_real_entity, add_entity, inner_popup, list_view
 from creme_core.utils import get_ct_or_404, get_from_GET_or_404
-#from creme_core.gui.last_viewed import change_page_for_last_viewed
 
 from activities.models import Activity
-from activities.forms import*
+from activities.forms import *
 from activities.utils import get_ical
 from activities.constants import ACTIVITYTYPE_INDISPO
 
@@ -41,33 +40,30 @@ def add_indisponibility(request):
     return add_entity(request, IndisponibilityCreateForm, '/activities/calendar/user')
 
 def _add_activity(request, class_form, **form_args):
-    POST = request.POST
-
-    if POST:
-        activity_form = class_form(current_user=request.user, data=POST, **form_args)
+    if request.method == 'POST':
+        activity_form = class_form(user=request.user, data=request.POST, **form_args)
 
         if activity_form.is_valid():
             activity_form.save()
 
             return  HttpResponseRedirect('/activities/calendar/my')
     else:
-        activity_form = class_form(current_user=request.user, initial = {'user': request.user.id}, **form_args)
+        activity_form = class_form(user=request.user, **form_args)
 
     return render_to_response('creme_core/generics/blockform/add.html',
                               {'form': activity_form},
                               context_instance=RequestContext(request))
 
 _forms_map = {
-        "meeting":   (RelatedMeetingCreateForm,   MeetingCreateWithoutRelationForm),
-        "task":      (RelatedTaskCreateForm,      TaskCreateWithoutRelationForm),
-        "phonecall": (RelatedPhoneCallCreateForm, PhoneCallCreateWithoutRelationForm),
+        "meeting":   (RelatedMeetingCreateForm,   MeetingCreateForm),
+        "task":      (RelatedTaskCreateForm,      TaskCreateForm),
+        "phonecall": (RelatedPhoneCallCreateForm, PhoneCallCreateForm),
     }
 
 @login_required
 @permission_required('activities')
 @permission_required('activities.add_activity')
 def add_with_relation(request, act_type):
-    #change_page_for_last_viewed(request) #TODO: works ???
     GET = request.GET
     ct_id     = get_from_GET_or_404(GET, 'ct_entity_for_relation')
     entity_id = get_from_GET_or_404(GET, 'id_entity_for_relation')
@@ -77,7 +73,7 @@ def add_with_relation(request, act_type):
     entity        = get_object_or_404(model_class, pk=entity_id)
     relation_type = get_object_or_404(RelationType, pk=rtype_id)
 
-    #TODO: credentials ??
+    entity.can_link_or_die(request.user)
 
     #TODO: move to a RelationType method...
     subject_ctypes = frozenset(relation_type.subject_ctypes.values_list('id', flat=True))
@@ -130,16 +126,12 @@ def edit(request, activity_id):
 @login_required
 @permission_required('activities')
 def detailview(request, activity_id):
-    return view_real_entity_with_template(request, activity_id,
-                                          '/activities/activity',
-                                          'activities/view_activity.html')
+    return view_real_entity(request, activity_id, '/activities/activity', 'activities/view_activity.html')
 
 @login_required
 @permission_required('activities')
 def popupview(request, activity_id):
-    return view_real_entity_with_template(request, activity_id,
-                                          '/activities/activity',
-                                          'activities/view_activity_popup.html')
+    return view_real_entity(request, activity_id, '/activities/activity', 'activities/view_activity_popup.html')
 
 @login_required
 @permission_required('activities')

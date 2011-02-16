@@ -32,24 +32,29 @@ from billing.models import Quote
 from opportunities.models import Opportunity
 
 
-#TODO: use POST ??
+#TODO: use POST
+#TODO: use ajax
 @login_required
 @permission_required('opportunities')
 def set_current_quote(request, opp_id, quote_id):
+    #NB: we do not check if the realtion to the current quote (if it exists) can be deleted (can_unlink_or_die())
     opp = get_object_or_404(Opportunity, pk=opp_id)
+    user = request.user
 
-    opp.can_change_or_die(request.user)
+    opp.can_link_or_die(user)
 
     quote = get_object_or_404(Quote, pk=quote_id)
-    #TODO: credential for quote ??? link credential instead ?????
+    quote.can_link_or_die(user)
 
     #TODO: modify the existing relation instead of delete it ???
     ct = ContentType.objects.get_for_model(Quote)
 
     #TODO. delete() directly on the filter ????
-    for relation in Relation.objects.filter(object_entity=opp, type=REL_SUB_CURRENT_DOC, subject_entity__entity_type=ct):
+    for relation in Relation.objects.filter(object_entity=opp.id, type=REL_SUB_CURRENT_DOC, subject_entity__entity_type=ct):
         relation.delete()
 
-    Relation.create(quote, REL_SUB_CURRENT_DOC, opp)
+    Relation.objects.create(subject_entity=quote, type_id=REL_SUB_CURRENT_DOC,
+                            object_entity=opp, user=user
+                           )
 
     return HttpResponseRedirect(opp.get_absolute_url())

@@ -39,19 +39,20 @@ class FromEmailCRUDRegistry(object):
         self._updates = {}
         self._delete  = {}
 
+    #TODO: use a 'static' map + getattr
     def register(self, key, to_register):
         {
             CREATE: self.register_creates,
-            
+
         }[key](*to_register)
 
     def register_creates(self, *backends):
         creates = self._creates
-        
+
         for name, backend in backends:
             if not issubclass(backend.__class__, CreateFromEmailBackend):
                 raise NotValidFromEmailCRUDBackend("%r has to subclass CreateFromEmailBackend" % backend)#assert ?
-            
+
             if creates.has_key(name):
                 if name == "*":
                     raise NotValidFromEmailCRUDBackend("Only one fallback backend allowed")
@@ -66,7 +67,7 @@ class FromEmailCRUDRegistry(object):
     def get(self, type, key):
         return {
             CREATE: self.get_create
-            
+
         }.get(type, lambda x:None)(key)
 
     def iteritems(self):

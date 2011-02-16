@@ -11,8 +11,9 @@ from django.contrib.contenttypes.models import ContentType
 from creme_core.populate import DATE_RANGE_FILTER
 from creme_core.models import Filter
 from creme_core.forms.list_view_filter import ListViewFilterForm
-from creme_core.utils import get_ct_or_404
-from creme_core.views.generic import list_view_popup, list_view_popup_from_widget
+from creme_core.utils import get_ct_or_404, jsonify, get_from_POST_or_404
+from creme_core.utils.meta import get_flds_with_fk_flds
+from creme_core.views.generic import list_view_popup_from_widget
 
 
 @login_required
@@ -183,3 +184,40 @@ def get_filters_4_ct(request, content_type_id):
 
     data = serializers.serialize('json', filters, fields=fields)
     return HttpResponse(data, mimetype="text/javascript")
+
+
+@jsonify
+@login_required
+def field_has_n_get_fk(request):
+    """
+    To verify if a field is a foreign key for a model
+    and if it is get related field (in JSON format)
+    """
+
+    fieldname = get_from_POST_or_404(request.POST, 'fieldname')
+    ct_id     = get_from_POST_or_404(request.POST, 'ct_id')
+    klass     = get_ct_or_404(ct_id).model_class()
+
+    
+    field = [f for f in klass._meta.fields + klass._meta.many_to_many if f.name == fieldname]
+    data  = []
+    
+    if field and field[0].get_internal_type() == 'ForeignKey':
+        data = [(u'%s' % f.name, u'%s' % f.verbose_name) for f in get_flds_with_fk_flds(field[0].rel.to, 0)]
+        
+    elif field and field[0].get_internal_type() == 'ManyToManyField':
+        data = []
+
+        for f in get_flds_with_fk_flds(field[0].rel.to, 0):
+            _field_internal_type = f.get_internal_type()
+
+            if _field_internal_type == 'ManyToManyField':
+                continue
+
+            if _field_internal_type != 'ForeignKey':
+                data.append((u'%s' % f.name, u'%s' % f.verbose_name))
+                
+            if _field_internal_type == 'ForeignKey':
+                data.extend(((u'%s__%s' % (f.name, sub_f.name), u'%s - %s' % (f.verbose_name, sub_f.verbose_name)) for sub_f in get_flds_with_fk_flds(f.rel.to, 0)))
+        
+    return data

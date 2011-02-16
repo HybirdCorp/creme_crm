@@ -23,11 +23,11 @@ from itertools import chain
 
 from django.http import HttpResponseRedirect, Http404
 from django.shortcuts import render_to_response, get_object_or_404
-from django.utils.translation import ugettext
+from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required, permission_required
 
 from creme_core.models import Relation
-from creme_core.views.generic import add_entity, edit_entity, view_entity_with_template, list_view
+from creme_core.views.generic import add_entity, edit_entity, view_entity, list_view
 from creme_core.utils import get_ct_or_404
 
 from persons.models import Organisation
@@ -53,19 +53,21 @@ def add(request):
 @permission_required('opportunities.add_opportunity')
 def add_to_orga(request, orga_id):
     orga = get_object_or_404(Organisation, pk=orga_id)
+    orga.can_link_or_die(request.user) #TODO: test the link creds with the future opp in the form.clean()
 
     return add_entity(request, OpportunityCreateForm, extra_initial={"target_orga": orga_id})
 
+@login_required
+@permission_required('opportunities')
 def edit(request, opp_id):
-    return edit_entity(request, opp_id, Opportunity, OpportunityEditForm, 'opportunities')
+    return edit_entity(request, opp_id, Opportunity, OpportunityEditForm)
 
 @login_required
 @permission_required('opportunities')
 def detailview(request, opp_id):
-    return view_entity_with_template(request, opp_id, Opportunity,
-                                     '/opportunities/opportunity',
-                                     'opportunities/view_opportunity.html',
-                                     )
+    return view_entity(request, opp_id, Opportunity, '/opportunities/opportunity',
+                       'opportunities/view_opportunity.html',
+                      )
 
 @login_required
 @permission_required('opportunities')
@@ -85,25 +87,32 @@ _CURRENT_DOC_DICT = {
         }
 
 #TODO: use a POST instead ??
-#TODO: credentials
 @login_required
 @permission_required('opportunities')
 def generate_new_doc(request, opp_id, ct_id):
     ct_doc = get_ct_or_404(ct_id)
     opp    = get_object_or_404(Opportunity, id=opp_id)
+    user   = request.user
+
+    opp.can_link_or_die(user)
+
+    #TODO: link credentials on the future doc too....
 
     klass = ct_doc.model_class()
-    document = klass()
+
+    user.has_perm_to_create_or_die(klass)
+
+    document = klass() #TODO: use klass.objects.create
     document.user = opp.user
     document.issuing_date = datetime.now()
-    document.comment = ugettext(u"Generated from the opportunity «%s»") % opp
+    document.comment = _(u"Generated from the opportunity «%s»") % opp
     document.status_id = 1
     document.save()
 
-    create_relation = Relation.create
-    create_relation(document, REL_SUB_BILL_ISSUED,    opp.get_emit_orga())
-    create_relation(document, REL_SUB_BILL_RECEIVED,  opp.get_target_orga())
-    create_relation(opp,      _RELATIONS_DICT[klass], document)
+    create_relation = Relation.objects.create
+    create_relation(subject_entity=document, type_id=REL_SUB_BILL_ISSUED,    object_entity=opp.get_emit_orga(),   user=request.user) #TODO: request.user ??
+    create_relation(subject_entity=document, type_id=REL_SUB_BILL_RECEIVED,  object_entity=opp.get_target_orga(), user=request.user)
+    create_relation(subject_entity=opp,      type_id=_RELATIONS_DICT[klass], object_entity=document,              user=request.user)
 
     document.generate_number() #Need the relation with emitter orga
     document.name = u'%s(%s)' % (document.number, opp.name)
@@ -114,10 +123,10 @@ def generate_new_doc(request, opp_id, ct_id):
         new_line.document = document
         new_line.save()
 
-    for relation in Relation.objects.filter(object_entity=opp, type=REL_SUB_CURRENT_DOC, subject_entity__entity_type=ct_doc):
+    for relation in Relation.objects.filter(object_entity=opp.id, type=REL_SUB_CURRENT_DOC, subject_entity__entity_type=ct_doc):
         relation.delete()
 
     if _CURRENT_DOC_DICT[klass]:
-        create_relation(document, REL_SUB_CURRENT_DOC, opp)
+        create_relation(subject_entity=document, type_id=REL_SUB_CURRENT_DOC, object_entity=opp, user=request.user)
 
     return HttpResponseRedirect(opp.get_absolute_url())

@@ -17,11 +17,13 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
+
 from django.contrib.auth.models import User
 
 from creme_core.forms.base import CremeModelForm
 
 from activities.models.activity import Calendar
+
 
 class _CalendarForm(CremeModelForm):
     class Meta:
@@ -36,24 +38,25 @@ class _CalendarForm(CremeModelForm):
             Calendar.objects.filter(user=self.cleaned_data['user']).update(is_default=False)
 
         super(_CalendarForm, self).save()
+
         return instance
 
 
 class CalendarForm(_CalendarForm):
-
     def __init__(self, user=None, *args, **kwargs):
         super(CalendarForm, self).__init__(*args, **kwargs)
         if user is not None:
-            self.fields['user'].queryset = User.objects.filter(pk=user.pk)
-            self.fields['user'].initial  = user.pk
-            self.fields['user'].empty_label  = None
+            user_field = self.fields['user']
+            user_field.queryset    = User.objects.filter(pk=user.pk)
+            user_field.initial     = user.pk
+            user_field.empty_label = None
 
+    #TODO: useless
     def save(self):
         super(CalendarForm, self).save()
 
-
+#TODO: useless
 class CalendarConfigForm(_CalendarForm):
-
     def __init__(self, *args, **kwargs):
         super(CalendarConfigForm, self).__init__(*args, **kwargs)
 
