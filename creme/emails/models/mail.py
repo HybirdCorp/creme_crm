@@ -198,9 +198,6 @@ class EntityEmail(_Email, CremeEntity):
     def get_lv_absolute_url():
         return "/emails/mails"
 
-    def get_delete_absolute_url(self):
-        return u"/emails/entitymail/delete/%s" % self.id
-
     @staticmethod
     def create_n_send_mail(sender, recipient, subject, user_pk, body_html=u"", signature=None, attachments=None):
         email           = EntityEmail()
@@ -216,14 +213,3 @@ class EntityEmail(_Email, CremeEntity):
             email.save()
         email.send()
         return email
-
-    #COMMENTED on 25 oct 2010
-    #def get_entity_actions(self):
-        #ctx = {
-            #'actions' : [
-                    #(self.get_absolute_url(),        ugettext(u"See"),    mark_safe(flatatt({})), "%s/images/view_16.png" % settings.MEDIA_URL),
-                    #(self.get_delete_absolute_url(), ugettext(u"Delete"), mark_safe(flatatt({'class': 'confirm_delete'})), "%s/images/delete_16.png"  % settings.MEDIA_URL)
-            #],
-            #'id': self.id,
-        #}
-        #return render_to_string("creme_core/frags/actions.html", ctx)

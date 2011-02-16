@@ -5,11 +5,13 @@ from datetime import datetime
 from django.test import TestCase
 from django.forms.util import ValidationError
 from django.contrib.auth.models import User
+from django.contrib.contenttypes.models import ContentType
 
-from creme_core.models import RelationType, Relation
+from creme_core.models import RelationType, Relation, UserRole, SetCredentials
 from creme_core.management.commands.creme_populate import Command as PopulateCommand
+from creme_core.constants import REL_SUB_RELATED_TO
 
-from persons.models import Contact
+from persons.models import Contact, Organisation
 
 from activities.models import *
 from activities.constants import *
@@ -17,15 +19,25 @@ from activities.forms.activity import _check_activity_collisions
 
 
 class ActivitiesTestCase(TestCase):
-    def login(self):
-        if not self.user:
-            user = User.objects.create(username='Kay')
-            user.set_password(self.password)
-            user.is_superuser = True
-            user.save()
-            self.user = user
+    def login(self, is_superuser=True):
+        password = 'test'
 
-        logged = self.client.login(username=self.user.username, password=self.password)
+        superuser = User.objects.create(username='Kirika')
+        superuser.set_password(password)
+        superuser.is_superuser = True
+        superuser.save()
+
+        role = UserRole.objects.create(name='Basic')
+        role.allowed_apps = ['activities'] #'creme_core'
+        role.save()
+        basic_user = User.objects.create(username='Mireille', role=role)
+        basic_user.set_password(password)
+        basic_user.save()
+
+        self.user, self.other_user = (superuser, basic_user) if is_superuser else \
+                                     (basic_user, superuser)
+
+        logged = self.client.login(username=self.user.username, password=password)
         self.assert_(logged, 'Not logged in')
 
     def setUp(self):
@@ -49,7 +61,8 @@ class ActivitiesTestCase(TestCase):
         except Exception, e:
             pass
         else:
-            self.fail(errors)
+            if errors:
+                self.fail(errors)
 
     def test_activity_createview01(self):
         self.login()
@@ -89,8 +102,8 @@ class ActivitiesTestCase(TestCase):
 
         start = task.start
         self.assertEqual(2010, start.year)
-        self.assertEqual(1,   start.month)
-        self.assertEqual(10,    start.day)
+        self.assertEqual(1,    start.month)
+        self.assertEqual(10,   start.day)
 
         self.assertEqual(2, Relation.objects.count())
 
@@ -196,8 +209,8 @@ class ActivitiesTestCase(TestCase):
             c1 = Contact.objects.create(user=self.user, first_name='first_name1', last_name='last_name1')
             c2 = Contact.objects.create(user=self.user, first_name='first_name2', last_name='last_name2')
 
-            Relation.create(c1, REL_SUB_PART_2_ACTIVITY, act01, user_id=self.user.id)
-            Relation.create(c1, REL_SUB_PART_2_ACTIVITY, act02, user_id=self.user.id)
+            Relation.objects.create(subject_entity=c1, type_id=REL_SUB_PART_2_ACTIVITY, object_entity=act01, user=self.user)
+            Relation.objects.create(subject_entity=c1, type_id=REL_SUB_PART_2_ACTIVITY, object_entity=act02, user=self.user)
         except Exception, e:
             self.fail(str(e))
 
@@ -244,3 +257,120 @@ class ActivitiesTestCase(TestCase):
                           activity_start=datetime(year=2010, month=10, day=1, hour=11, minute=0),
                           activity_end=datetime(year=2010, month=10, day=1, hour=13, minute=30),
                           participants=[c1, c2])
+
+    def _create_meeting(self):
+        return Meeting.objects.create(user=self.user, title='meet01',
+                                      start=datetime(year=2011, month=2, day=1, hour=14, minute=0),
+                                      end=datetime(year=2011,   month=2, day=1, hour=15, minute=0)
+                                     )
+
+    def test_unlink01(self):
+        self.login()
+
+        activity = self._create_meeting()
+        contact = Contact.objects.create(user=self.user, first_name='Musashi', last_name='Miyamoto')
+
+        create_rel = Relation.objects.create
+        r1 = create_rel(subject_entity=contact, type_id=REL_SUB_PART_2_ACTIVITY,   object_entity=activity, user=self.user)
+        r2 = create_rel(subject_entity=contact, type_id=REL_SUB_ACTIVITY_SUBJECT,  object_entity=activity, user=self.user)
+        r3 = create_rel(subject_entity=contact, type_id=REL_SUB_LINKED_2_ACTIVITY, object_entity=activity, user=self.user)
+        r4 = create_rel(subject_entity=contact, type_id=REL_SUB_RELATED_TO,        object_entity=activity, user=self.user)
+        self.assertEqual(3, contact.relations.filter(pk__in=[r1.id, r2.id, r3.id]).count())
+
+        post = self.client.post
+
+        self.assertEqual(200, post('/activities/linked_activity/unlink', data={'id': activity.id, 'object_id': contact.id}).status_code)
+        self.assertEqual(0,   contact.relations.filter(pk__in=[r1.id, r2.id, r3.id]).count())
+        self.assertEqual(1,   contact.relations.filter(pk=r4.id).count())
+
+        #errors
+        self.assertEqual(404, post('/activities/linked_activity/unlink', data={'id':        activity.id}).status_code)
+        self.assertEqual(404, post('/activities/linked_activity/unlink', data={'object_id': contact.id}).status_code)
+        self.assertEqual(404, post('/activities/linked_activity/unlink').status_code)
+        self.assertEqual(404, post('/activities/linked_activity/unlink', data={'id': 1024,        'object_id': contact.id}).status_code)
+        self.assertEqual(404, post('/activities/linked_activity/unlink', data={'id': activity.id, 'object_id': 1024}).status_code)
+
+    def test_unlink02(self): #can not unlink the activity
+        self.login(is_superuser=False)
+        SetCredentials.objects.create(role=self.user.role,
+                                      value=SetCredentials.CRED_VIEW   | \
+                                            SetCredentials.CRED_CHANGE | \
+                                            SetCredentials.CRED_DELETE | \
+                                            SetCredentials.CRED_LINK,
+                                      set_type=SetCredentials.ESET_OWN)
+
+        activity = self._create_meeting()
+        contact = Contact.objects.create(user=self.user, first_name='Musashi', last_name='Miyamoto')
+        relation = Relation.objects.create(subject_entity=contact, type_id=REL_SUB_PART_2_ACTIVITY, object_entity=activity, user=self.user)
+
+        self.assertEqual(403, self.client.post('/activities/linked_activity/unlink', data={'id': activity.id, 'object_id': contact.id}).status_code)
+        self.assertEqual(1,   contact.relations.filter(pk=relation.id).count())
+
+    def test_unlink03(self): #can not unlink the contact
+        self.login(is_superuser=False)
+
+        SetCredentials.objects.create(role=self.user.role,
+                                      value=SetCredentials.CRED_VIEW   | \
+                                            SetCredentials.CRED_CHANGE | \
+                                            SetCredentials.CRED_DELETE | \
+                                            SetCredentials.CRED_LINK   | \
+                                            SetCredentials.CRED_UNLINK,
+                                      set_type=SetCredentials.ESET_OWN)
+        SetCredentials.objects.create(role=self.user.role,
+                                      value=SetCredentials.CRED_VIEW   | \
+                                            SetCredentials.CRED_CHANGE | \
+                                            SetCredentials.CRED_DELETE | \
+                                            SetCredentials.CRED_LINK,
+                                      set_type=SetCredentials.ESET_ALL)
+
+        activity = self._create_meeting()
+        contact = Contact.objects.create(user=self.other_user, first_name='Musashi', last_name='Miyamoto')
+        relation = Relation.objects.create(subject_entity=contact, type_id=REL_SUB_PART_2_ACTIVITY, object_entity=activity, user=self.user)
+
+        self.assertEqual(403, self.client.post('/activities/linked_activity/unlink', data={'id': activity.id, 'object_id': contact.id}).status_code)
+        self.assertEqual(1,   contact.relations.filter(pk=relation.id).count())
+
+    def test_add_participants(self):
+        self.login()
+
+        activity = self._create_meeting()
+        contact01 = Contact.objects.create(user=self.user, first_name='Musashi', last_name='Miyamoto')
+        contact02 = Contact.objects.create(user=self.user, first_name='Kojiro',  last_name='Sasaki')
+        ids = (contact01.id, contact02.id)
+
+        uri = '/activities/activity/%s/participant/add' % activity.id
+        self.assertEqual(200, self.client.get(uri).status_code)
+
+        response = self.client.post(uri, data={'participants': '%s,%s' % ids})
+        self.assertNoFormError(response)
+        self.assertEqual(200, response.status_code)
+
+        relations = Relation.objects.filter(subject_entity=activity.id, type=REL_OBJ_PART_2_ACTIVITY)
+        self.assertEqual(2, len(relations))
+        self.assertEqual(set(ids), set(r.object_entity_id for r in relations))
+
+    def test_add_subjects(self):
+        self.login()
+
+        activity = self._create_meeting()
+        orga = Organisation.objects.create(user=self.user, name='Ghibli')
+
+        uri = '/activities/activity/%s/subject/add' % activity.id
+        self.assertEqual(200, self.client.get(uri).status_code)
+
+        response = self.client.post(uri,
+                                    data={'subjects': '(%s,%s,%s);' % (
+                                                REL_OBJ_ACTIVITY_SUBJECT,
+                                                ContentType.objects.get_for_model(Organisation).id,
+                                                orga.id,
+                                               )
+                                         }
+                                   )
+        self.assertNoFormError(response)
+        self.assertEqual(200, response.status_code)
+
+        relations = Relation.objects.filter(subject_entity=activity.id, type=REL_OBJ_ACTIVITY_SUBJECT)
+        self.assertEqual(1, len(relations))
+        self.assertEqual(orga.id, relations[0].object_entity_id)
+
+#TODO: complete test case

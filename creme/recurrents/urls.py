@@ -17,10 +17,6 @@ urlpatterns = patterns('recurrents.views',
     (r'^generator/(?P<generator_id>\d+)$',        'recurrentgenerator.detailview'),
 )
 
-urlpatterns += patterns('creme_core.views.generic',
-    (r'^generator/delete/(?P<object_id>\d+)$', 'delete_entity'),
-)
-
 
 for app in settings.INSTALLED_APPS:
     try:

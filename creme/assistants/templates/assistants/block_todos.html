@@ -55,7 +55,7 @@
                     <td class="{{row_color}}" align="center" valign="center" style="width:10%;">
                         {% has_perm_to change todo.creme_entity as has_perm %}
                         {% get_line_editor at_url '/assistants/todo/edit/{{todo.id}}/' with_perms has_perm %}
-                        {% get_line_deletor2 at_url '/assistants/todo/delete' with_args "{'id' : {{todo.id}} }" with_perms has_perm %}
+                        {% get_line_deletor2 at_url '/creme_core/entity/delete_related/{{ct_id}}' with_args "{'id' : {{todo.id}} }" with_perms has_perm %}
                     </td>
                 </tr>
             {% endfor %}

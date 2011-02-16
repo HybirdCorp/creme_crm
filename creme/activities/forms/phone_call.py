@@ -26,7 +26,7 @@ from django.utils.translation import ugettext_lazy as _, ugettext
 from creme_core.forms import CremeDateTimeField, CremeTimeField
 
 from activities.models import PhoneCall, PhoneCallType
-from activity import ActivityCreateForm, RelatedActivityCreateForm
+from activity import RelatedActivityCreateForm, ActivityCreateForm
 
 
 def _init_fields(fields):
@@ -42,7 +42,6 @@ class RelatedPhoneCallCreateForm(RelatedActivityCreateForm):
         model = PhoneCall
         exclude = RelatedActivityCreateForm.Meta.exclude + ('type', )
 
-
     def __init__(self, *args, **kwargs):
         super(RelatedPhoneCallCreateForm, self).__init__(*args, **kwargs)
 
@@ -50,12 +49,13 @@ class RelatedPhoneCallCreateForm(RelatedActivityCreateForm):
             _init_fields(self.fields)
 
 
-class PhoneCallCreateWithoutRelationForm(ActivityCreateForm):
+
+class PhoneCallCreateForm(ActivityCreateForm):
     class Meta(ActivityCreateForm.Meta):
         model = PhoneCall
         exclude = ActivityCreateForm.Meta.exclude + ('type',)
 
     def __init__(self, *args, **kwargs):
-        super(PhoneCallCreateWithoutRelationForm, self).__init__(*args, **kwargs)
+        super(PhoneCallCreateForm, self).__init__(*args, **kwargs)
 
         _init_fields(self.fields)

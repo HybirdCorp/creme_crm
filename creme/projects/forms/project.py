@@ -22,13 +22,14 @@ from django.forms.widgets import HiddenInput
 from django.forms import DateTimeField
 from django.utils.translation import ugettext_lazy as _
 
-from creme_core.forms import CremeEntityForm
-from creme_core.forms.fields import MultiCremeEntityField
+from creme_core.models import CremeEntity, Relation
+from creme_core.forms import CremeEntityForm, MultiCremeEntityField
 from creme_core.forms.widgets import DateTimeWidget
 
 from persons.models import Contact
 
 from projects.models import Project
+from projects.constants import REL_OBJ_PROJECT_MANAGER
 
 
 class ProjectEditForm(CremeEntityForm):
@@ -45,5 +46,16 @@ class ProjectCreateForm(ProjectEditForm):
                                         required=True, model=Contact)
 
     def save(self):
-        super(ProjectCreateForm, self).save()
-        self.instance.add_responsibles(self.cleaned_data['responsibles'])
+        cleaned_data = self.cleaned_data
+        instance = super(ProjectCreateForm, self).save()
+        create_relation = Relation.objects.create
+        user = cleaned_data['user']
+
+        for contact in self.cleaned_data['responsibles']:
+            create_relation(subject_entity=instance,
+                            type_id=REL_OBJ_PROJECT_MANAGER,
+                            object_entity=contact,
+                            user=user
+                           )
+
+        return instance

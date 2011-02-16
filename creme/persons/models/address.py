@@ -58,6 +58,9 @@ class Address(CremeModel):
     def __unicode__(self):
         return force_unicode('%s %s %s %s' % (self.address, self.zipcode, self.city, self.department))#force_unicode ?
 
+    def get_related_entity(self): #for generic views
+        return self.owner
+
     @staticmethod
     def inject_fields(form, suffix=""):
         if not isinstance(form, ModelForm):

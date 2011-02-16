@@ -79,9 +79,6 @@ class Image(CremeEntity):
     def get_edit_absolute_url(self):
         return "/media_managers/image/edit/%s" % self.id
 
-    def get_delete_absolute_url(self):
-        return "/media_managers/image/delete/%s" % self.id
-
     def get_image_file(self):
 #        return (self.image.file,  'image/jpeg')#mimetypes.guess_type(self.image.path))
         self.image.file.open()

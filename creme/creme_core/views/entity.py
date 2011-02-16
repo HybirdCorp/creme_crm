@@ -47,11 +47,11 @@ def get_entity_repr(request):
     return HttpResponse(JSONEncoder().encode({field: get_field_infos(entity, field)[1]}), mimetype="text/javascript")
 
 @login_required
-def get_creme_entity_repr(request, creme_entity_id):
-    entity = get_object_or_404(CremeEntity, pk=creme_entity_id).get_real_entity()
+def get_creme_entity_repr(request, entity_id):
+    entity = get_object_or_404(CremeEntity, pk=entity_id)
     entity.can_view_or_die(request.user)
 
-    return HttpResponse(entity.get_entity_summary(), mimetype="text/javascript")
+    return HttpResponse(entity.get_real_entity().get_entity_summary(), mimetype="text/javascript")
 
 #TODO: seems useless (used only by one unused js function)
 #      if not unit tests (+ templates todo below) ; use ContentType id

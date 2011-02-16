@@ -36,50 +36,45 @@ from graphs.forms.root_node import AddRootNodesForm, EditRootNodeForm
 @permission_required('graphs')
 def add(request, graph_id):
     graph = get_object_or_404(Graph, pk=graph_id)
+    user = request.user
 
-    graph.can_change_or_die(request.user)
+    graph.can_change_or_die(user)
 
-    if request.POST:
-        nodes_form = AddRootNodesForm(graph, request.POST)
+    if request.method == 'POST':
+        nodes_form = AddRootNodesForm(graph=graph, user=user, data=request.POST)
 
         if nodes_form.is_valid():
             nodes_form.save()
-
-            return HttpResponseRedirect(graph.get_absolute_url()) ###
     else:
-        nodes_form = AddRootNodesForm(graph=graph)
+        nodes_form = AddRootNodesForm(graph=graph, user=user)
 
-    #return inner_popup(request, 'creme_core/generics/blockform/add_popup2.html',
-                       #{
-                        #'form':   nodes_form,
-                        #'title':  _(u'Add root nodes'),
-                       #},
-                       #is_valid=nodes_form.is_valid(),
-                       #reload=False,
-                       #delegate_reload=True,
-                       #context_instance=RequestContext(request))
-
-    return render_to_response('creme_core/generics/blockform/add.html',
-                              {
-                                'form': nodes_form,
-                              },
-                              context_instance=RequestContext(request))
+    return inner_popup(request, 'creme_core/generics/blockform/add_popup2.html',
+                       {
+                        'form':   nodes_form,
+                        'title':  _(u'Add root nodes'),
+                       },
+                       is_valid=nodes_form.is_valid(),
+                       reload=False,
+                       delegate_reload=True,
+                       context_instance=RequestContext(request)
+                      )
 
 @login_required
 @permission_required('graphs')
 def edit(request, root_id):
     root_node = get_object_or_404(RootNode, pk=root_id)
     graph     = root_node.graph
+    user      = request.user
 
-    graph.can_change_or_die(request.user)
+    graph.can_change_or_die(user)
 
-    if request.POST:
-        nodes_form = EditRootNodeForm(request.POST, instance=root_node)
+    if request.method == 'POST':
+        nodes_form = EditRootNodeForm(user=user, data=request.POST, instance=root_node)
 
         if nodes_form.is_valid():
             nodes_form.save()
     else:
-        nodes_form = EditRootNodeForm(instance=root_node)
+        nodes_form = EditRootNodeForm(user=user, instance=root_node)
 
     return inner_popup(request, 'creme_core/generics/blockform/edit_popup.html',
                        {
@@ -89,7 +84,8 @@ def edit(request, root_id):
                        is_valid=nodes_form.is_valid(),
                        reload=False,
                        delegate_reload=True,
-                       context_instance=RequestContext(request))
+                       context_instance=RequestContext(request)
+                      )
 
 @login_required
 @permission_required('graphs')
@@ -97,7 +93,6 @@ def delete(request):
     root_node = get_object_or_404(RootNode, pk=get_from_POST_or_404(request.POST, 'id'))
 
     root_node.graph.can_change_or_die(request.user)
-
     root_node.delete()
 
     return HttpResponse("", mimetype="text/javascript")

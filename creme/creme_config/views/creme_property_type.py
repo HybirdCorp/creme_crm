@@ -21,21 +21,20 @@
 from django.http import HttpResponseRedirect, HttpResponse, Http404
 from django.shortcuts import get_object_or_404, render_to_response
 from django.template.context import RequestContext
+from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required, permission_required
 
 from creme_core.models import CremePropertyType
-from creme_core.views.generic import add_entity
+from creme_core.views.generic import add_model_with_popup, inner_popup
 from creme_core.utils import get_from_POST_or_404
 
 from creme_config.forms.creme_property_type import CremePropertyTypeEditForm, CremePropertyTypeAddForm
 
 
-portal_url = '/creme_config/property_type/portal/'
-
 @login_required
 @permission_required('creme_config.can_admin')
 def add(request):
-    return add_entity(request, CremePropertyTypeAddForm, portal_url, 'creme_core/generics/form/add.html')
+    return add_model_with_popup(request, CremePropertyTypeAddForm, _(u'New custom type of property'))
 
 @login_required
 @permission_required('creme_config.can_admin')
@@ -45,18 +44,25 @@ def edit(request, property_type_id):
     if not property_type.is_custom:
         raise Http404("Can't edit a standard PropertyType") #TODO: 403 instead ?
 
-    if request.POST :
+    if request.method == 'POST':
         property_type_form = CremePropertyTypeEditForm(property_type, request.POST)
 
         if property_type_form.is_valid():
             property_type_form.save()
-            return HttpResponseRedirect(portal_url)
     else:
         property_type_form = CremePropertyTypeEditForm(property_type)
 
-    return render_to_response('creme_core/generics/form/edit.html',
-                              {'form': property_type_form},
-                              context_instance=RequestContext(request))
+    return inner_popup(request,
+                       'creme_core/generics/blockform/edit_popup.html',
+                       {
+                        'form':  property_type_form,
+                        'title': _(u'Edit the type "%s"') % property_type,
+                       },
+                       is_valid=property_type_form.is_valid(),
+                       reload=False,
+                       delegate_reload=True,
+                       context_instance=RequestContext(request)
+                      )
 
 @login_required
 @permission_required('creme_config')

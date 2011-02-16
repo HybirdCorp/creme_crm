@@ -24,7 +24,7 @@ from django.template import RequestContext
 from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required, permission_required
 
-from creme_core.views.generic import add_entity, add_to_entity, edit_entity, view_entity_with_template, list_view
+from creme_core.views.generic import add_entity, add_to_entity, edit_entity, view_entity, list_view
 from creme_core.utils import get_from_POST_or_404
 
 from sms.models import MessagingList
@@ -37,24 +37,29 @@ from sms.forms.messaging_list import MessagingListForm, AddContactsForm, AddCont
 def add(request):
     return add_entity(request, MessagingListForm)
 
+@login_required
+@permission_required('sms')
 def edit(request, mlist_id):
-    return edit_entity(request, mlist_id, MessagingList, MessagingListForm, 'sms')
+    return edit_entity(request, mlist_id, MessagingList, MessagingListForm)
 
 @login_required
 @permission_required('sms')
 def detailview(request, mlist_id):
-    return view_entity_with_template(request, mlist_id, MessagingList,
-                                     '/sms/messaging_list', 'sms/view_messaginglist.html')
+    return view_entity(request, mlist_id, MessagingList, '/sms/messaging_list', 'sms/view_messaginglist.html')
 
 @login_required
 @permission_required('sms')
 def listview(request):
     return list_view(request, MessagingList, extra_dict={'add_url': '/sms/messaging_list/add'})
 
+@login_required
+@permission_required('sms')
 def add_contacts(request, mlist_id):
     return add_to_entity(request, mlist_id, AddContactsForm,
                          _('New contacts for <%s>'), entity_class=MessagingList)
 
+@login_required
+@permission_required('sms')
 def add_contacts_from_filter(request, mlist_id):
     return add_to_entity(request, mlist_id, AddContactsFromFilterForm,
                          _('New contacts for <%s>'), entity_class=MessagingList)
