@@ -12,7 +12,7 @@ from creme_core.models.header_filter import HFI_FIELD
 from creme_core.management.commands.creme_populate import Command as PopulateCommand
 
 from persons.models import Contact, Organisation #TODO: find a way to create model that inherit CremeEntity in the unit tests ??
-
+from persons.constants import REL_OBJ_CUSTOMER_OF, REL_OBJ_EMPLOYED_BY
 
 class ViewsTestCase(TestCase):
     def login(self, is_superuser=True):
@@ -42,6 +42,9 @@ class ViewsTestCase(TestCase):
 
         logged = self.client.login(username=self.user.username, password=password)
         self.assert_(logged, 'Not logged in')
+
+    def populate(self, *args): #TODO: use more or remove
+        PopulateCommand().handle(application=args)
 
     def assertNoFormError(self, response): #TODO: move in a CremeTestCase ??? (copied from creme_config)
         try:
@@ -446,7 +449,6 @@ class ViewsTestCase(TestCase):
         self.assertEntityHasProperty(ptype01,   entity04)
         self.assertEntityHasProperty(ptype02,   entity04)
 
-
     def test_add_properties_bulk03(self):
         self.login(is_superuser=False)
 
@@ -502,6 +504,23 @@ class ViewsTestCase(TestCase):
         self.assertEqual(1, len(form.errors.get('__all__', [])))
 
     ############################################################################
+
+    def test_get_ctypes_of_relation(self):
+        self.login()
+        self.populate('creme_core', 'persons')
+
+        response = self.client.get('/creme_core/relation/predicate/%s/content_types/json' % REL_OBJ_CUSTOMER_OF,
+                                   data={'fields': ['id', 'unicode']})
+
+        self.assertEqual(200, response.status_code)
+        self.assertEqual('text/javascript', response['Content-Type'])
+
+        json_data = simplejson.loads(response.content)
+        get_ct = ContentType.objects.get_for_model
+        self.assertEqual(json_data, [[get_ct(Contact).id, Contact._meta.verbose_name],
+                                     [get_ct(Organisation).id, Organisation._meta.verbose_name]
+                                    ]
+                        )
 
     def _aux_test_add_relations(self, is_superuser=True):
         self.login(is_superuser)
