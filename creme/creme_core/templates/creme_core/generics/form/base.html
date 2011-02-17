@@ -55,6 +55,10 @@
                 </tbody>
             </table>
         {% endif %}
-        <input type="submit" value="{% trans "Submit" %}" />
+        {% block submit_buttons %}
+            {% if not hide_submit %}
+                <input type="submit" value="{% trans "Submit"%}" />
+            {% endif %}
+        {% endblock %}
     </form>
 </div>
