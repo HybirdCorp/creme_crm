@@ -1,7 +1,5 @@
-{% load i18n %}
-{% load media %}
+{% load i18n %}{% load media %}
 {% load creme_block %}
-{% with 1 as has_perm %}
 <table class="table_detail_view ui-corner-all" id={{block_name}}>
     {% get_block_header colspan=11 %}
         <th style="width: 80%;" class="collapser" align="left">{% get_block_title  _('%s User') _('%s Users') %}</th>
@@ -10,7 +8,7 @@
     <tbody class="collapsable">
         <tr>
             <th class="block_header_line_light" style="font-size:14px;" align="left" colspan="100">
-                {% get_line_adder at_url '/creme_config/user/add/' with_label _("New user") with_perms has_perm %}
+                {% get_line_adder at_url '/creme_config/user/add/' with_label _("New user") with_perms 1 %}
             </th>
         </tr>
         <tr>
@@ -38,15 +36,14 @@
                 <td class="{{row_color}}">{{user.last_login}}</td>
                 <td class="{{row_color}}">{{user.date_joined}}</td>
                 <td class="{{row_color}}">
-                    {% get_line_editor at_url '/creme_config/user/edit/{{user.id}}' with_perms has_perm %}
-                    {% get_line_deletor at_url '/creme_config/user/delete' with_args "{'id':'{{user.id}}'}" %}
+                    {% get_line_editor at_url '/creme_config/user/edit/{{user.id}}' with_perms 1 %}
+                    {% get_line_deletor2 at_url '/creme_config/user/delete' with_args "{'id':'{{user.id}}'}" with_perms 1 %}
                 </td>
                 <td class="{{row_color}}">
-                    {% get_line_editor at_url '/creme_config/user/edit/password/{{user.id}}' with_perms has_perm %}
+                    {% get_line_editor at_url '/creme_config/user/edit/password/{{user.id}}' with_perms 1 %}
                 </td>
             </tr>
         {% endfor %}
     </tbody>
     {% include 'creme_core/templatetags/widgets/block_footer.html' %}
 </table>
-{% endwith %}
