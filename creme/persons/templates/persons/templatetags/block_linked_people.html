@@ -54,9 +54,7 @@
                         {% else %}
                             <img class="forbidden" src="{% media_url 'images/edit_22.png' %}" border="0" title="{% trans "Can't edit" %}" alt="{% trans "Can't edit" %}" />
                         {% endif %}
-                        {% with unlink_perm|and_op:people_unlink_perm as has_perm %}
-                            {% get_line_deletor2 at_url '/creme_core/relation/delete/similar' with_args "{ 'subject_id':{{object.pk}}, 'type':'{{rtype_id}}', 'object_id':{{people.pk}} }" with_perms has_perm %}
-                        {% endwith %}
+                        {% get_line_deletor2 at_url '/creme_core/relation/delete/similar' with_args "{ 'subject_id':{{object.pk}}, 'type':'{{rtype_id}}', 'object_id':{{people.pk}} }" with_perms unlink_perm|and_op:people_unlink_perm %}
                     </td>
                 </tr>
             {% endfor %}

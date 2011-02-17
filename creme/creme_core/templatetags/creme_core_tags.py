@@ -332,7 +332,7 @@ def _can_create(model_or_ct, user):
 
     return user.has_perm('%s.add_%s' % (ct.app_label, ct.model))
 
-_perms_funcs = {
+_PERMS_FUNCS = {
         'create': _can_create,
         'view':   lambda entity, user: entity.can_view(user),
         'change': lambda entity, user: entity.can_change(user),
@@ -347,7 +347,7 @@ def do_has_perm_to(parser, token):
     eg: {% has_perm_to change action.creme_entity as has_perm %}
 
     TYPE: in ('create', 'view','change', 'delete', 'link', 'unlink')
-    OBJECT: must be a CremeEntity, for ('view','change', 'delete') types
+    OBJECT: must be a CremeEntity, for ('view','change', 'delete', 'link', 'unlink') types
             and a class inheriting from CremeEntity OR a ContentType instance for 'create' type.
     """
     try:
@@ -362,7 +362,7 @@ def do_has_perm_to(parser, token):
 
     perm_type, entity_path, var_name = match.groups()
 
-    perm_func = _perms_funcs.get(perm_type)
+    perm_func = _PERMS_FUNCS.get(perm_type)
     if not perm_func:
         raise template.TemplateSyntaxError, "%r invalid permission tag: %r" % (tag_name, perm_type)
 

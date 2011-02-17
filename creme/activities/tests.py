@@ -349,7 +349,7 @@ class ActivitiesTestCase(TestCase):
         self.assertEqual(2, len(relations))
         self.assertEqual(set(ids), set(r.object_entity_id for r in relations))
 
-    def test_add_subjects(self):
+    def test_add_subjects01(self):
         self.login()
 
         activity = self._create_meeting()
@@ -358,16 +358,7 @@ class ActivitiesTestCase(TestCase):
         uri = '/activities/activity/%s/subject/add' % activity.id
         self.assertEqual(200, self.client.get(uri).status_code)
 
-        from creme_core.models import CremeEntity
-        print 'CREMEENTITY:', [(e.entity_type_id, e.id) for e in CremeEntity.objects.all()]
-
         response = self.client.post(uri,
-                                    #data={'subjects': '(%s,%s,%s);' % (
-                                                #REL_OBJ_ACTIVITY_SUBJECT,
-                                                #ContentType.objects.get_for_model(Organisation).id,
-                                                #orga.id,
-                                               #)
-                                         #}
                                      data={'subjects': '[{"ctype":"%s", "entity":"%s"}]' % (
                                                 ContentType.objects.get_for_model(Organisation).id,
                                                 orga.id,

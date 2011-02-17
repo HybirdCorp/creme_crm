@@ -23,6 +23,7 @@ from django.forms.models import modelform_factory
 from django.contrib.contenttypes.models import ContentType
 
 from creme_core.registry import creme_registry
+from creme_core.forms import CremeModelForm
 
 from creme_config.utils import generate_portal_url
 
@@ -47,7 +48,7 @@ class ModelConfig(object):
             else:
                 exclude = ('is_custom',)
 
-            self._form_class = modelform_factory(self.model, exclude=exclude)
+            self._form_class = modelform_factory(self.model, form=CremeModelForm, exclude=exclude)
 
         return self._form_class
 

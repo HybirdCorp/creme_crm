@@ -44,9 +44,7 @@
                     <td class="{{row_color}}"><a href="{{order.get_absolute_url}}">{{order.name}}</a></td>
                     <td class="{{row_color}}" align="center" valign="center" style="width:10%;">
                         {% has_perm_to unlink order as order_unlink_perm %}
-                        {% with unlink_perm|and_op:order_unlink_perm as has_perm %}
-                            {% get_line_deletor2 at_url '/creme_core/relation/delete/similar' with_args "{'subject_id':{{object.pk}}, 'type':'{{predicate_id}}', 'object_id':{{order.pk}} }" with_perms has_perm %}
-                        {% endwith %}
+                        {% get_line_deletor2 at_url '/creme_core/relation/delete/similar' with_args "{'subject_id':{{object.pk}}, 'type':'{{predicate_id}}', 'object_id':{{order.pk}} }" with_perms unlink_perm|and_op:order_unlink_perm %}
                     </td>
                 </tr>
             {% endfor %}

@@ -42,15 +42,15 @@ def edit(request, property_type_id):
     property_type = get_object_or_404(CremePropertyType, pk=property_type_id)
 
     if not property_type.is_custom:
-        raise Http404("Can't edit a standard PropertyType") #TODO: 403 instead ?
+        raise Http404("Can't edit a standard PropertyType")
 
     if request.method == 'POST':
-        property_type_form = CremePropertyTypeEditForm(property_type, request.POST)
+        property_type_form = CremePropertyTypeEditForm(property_type, user=request.user, data=request.POST)
 
         if property_type_form.is_valid():
             property_type_form.save()
     else:
-        property_type_form = CremePropertyTypeEditForm(property_type)
+        property_type_form = CremePropertyTypeEditForm(property_type, user=request.user)
 
     return inner_popup(request,
                        'creme_core/generics/blockform/edit_popup.html',
@@ -77,7 +77,7 @@ def delete(request):
     property_type = get_object_or_404(CremePropertyType, pk=get_from_POST_or_404(request.POST, 'id'))
 
     if not property_type.is_custom:
-        raise Http404("Can't delete a standard PropertyType") #TODO: 403 instead ?
+        raise Http404("Can't delete a standard PropertyType")
 
     property_type.delete()
 
