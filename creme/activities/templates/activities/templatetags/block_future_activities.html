@@ -67,9 +67,7 @@
                     </td>
                     <td class="{{row_color}}" align="center" valign="center" style="width:10%;">
                         {% has_perm_to unlink activity as activity_unlink_perm %}
-                        {% with unlink_perm|and_op:activity_unlink_perm as has_perm %}
-                            {% get_line_deletor2 at_url '/activities/linked_activity/unlink' with_args "{'id':{{activity.pk}}, 'object_id':{{object.pk}} }" with_perms has_perm %}
-                        {% endwith %}
+                        {% get_line_deletor2 at_url '/activities/linked_activity/unlink' with_args "{'id':{{activity.pk}}, 'object_id':{{object.pk}} }" with_perms unlink_perm|and_op:activity_unlink_perm %}
                     </td>
                 </tr>
             {% endfor %}

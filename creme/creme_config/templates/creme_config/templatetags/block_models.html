@@ -1,7 +1,6 @@
 {% load i18n %}{% load media %}
 {% load creme_core_tags %}{% load creme_block %}
 {% load creme_config_tags %}
-{% with 1 as has_perm %}
 <table class="table_detail_view ui-corner-all" id={{block_name}}>
     <thead>
         <tr>
@@ -17,7 +16,7 @@
     <tbody class="collapsable">
         <tr>
             <th colspan="100" class="block_header_line_dark" align="left">
-                {% get_line_adder at_url '/creme_config/{{app_name}}/{{model_name}}/add/' with_label _("New value") with_perms has_perm %}
+                {% get_line_adder at_url '/creme_config/{{app_name}}/{{model_name}}/add/' with_label _("New value") with_perms 1 %}
             </th>
         </tr>
         {% if page.paginator.count %}
@@ -35,8 +34,7 @@
                     <th class="block_header_line_light">{% trans "Edit" %}</th>
                     <th class="block_header_line_light">{% trans "Delete" %}</th>
                 </tr>
-                {% for object in page.object_list %}
-                    <!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
+                {% for object in page.object_list %}<!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
                     <tr>
                         {% for f in fields %}
                             {% if f.name != 'is_custom' %}
@@ -47,11 +45,11 @@
                             <td class="{{row_color}}">{{object|get_html_field_value:f.name}}</td>
                         {% endfor %}
                         <td class="{{row_color}}">
-                            {% get_line_editor at_url '/creme_config/{{app_name}}/{{model_name}}/edit/{{object.id}}' with_perms has_perm %}
+                            {% get_line_editor at_url '/creme_config/{{app_name}}/{{model_name}}/edit/{{object.id}}' with_perms 1 %}
                         </td>
                         <td class="{{row_color}}">
                             {% if object|is_custom %}
-                                {% get_line_deletor at_url '/creme_config/{{app_name}}/{{model_name}}/delete' with_args "{'id':'{{object.pk}}'}" %}
+                                {% get_line_deletor2 at_url '/creme_config/{{app_name}}/{{model_name}}/delete' with_args "{'id':'{{object.pk}}'}" with_perms 1 %}
                             {% else %}
                                 <em>{% trans "(no deletable)" %}</em>
                             {% endif %}
@@ -67,4 +65,3 @@
     </tbody>
     {% include 'creme_core/templatetags/widgets/block_footer.html' %}
 </table>
-{% endwith %}

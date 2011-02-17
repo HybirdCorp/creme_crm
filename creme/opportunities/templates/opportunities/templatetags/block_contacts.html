@@ -31,9 +31,7 @@
                     <td class="{{row_color}}"><a href="{{contact.get_absolute_url}}">{{contact}}</a></td>
                     <td class="{{row_color}}" align="center" valign="center" style="width:10%;">
                         {% has_perm_to unlink contact as contact_unlink_perm %}
-                        {% with unlink_perm|and_op:contact_unlink_perm as has_perm %}
-                            {% get_line_deletor2 at_url '/creme_core/relation/delete/similar' with_args "{'subject_id':{{object.pk}}, 'type':'{{predicate_id}}', 'object_id':{{contact.pk}} }" with_perms has_perm %}
-                        {% endwith %}
+                        {% get_line_deletor2 at_url '/creme_core/relation/delete/similar' with_args "{'subject_id':{{object.pk}}, 'type':'{{predicate_id}}', 'object_id':{{contact.pk}} }" with_perms unlink_perm|and_op:contact_unlink_perm %}
                     </td>
                 </tr>
             {% endfor %}

@@ -3,7 +3,6 @@
 {% if not request.is_ajax %}
     <div class="help_box">{% trans 'Delete a property type, will delete associated properties' %}</div>
 {% endif %}
-{% with 1 as has_perm %}
 <table class="table_detail_view ui-corner-all" id={{block_name}}>
     {% get_block_header colspan=4 %}
         <th style="width: 80%;" class="collapser" align="left">{% get_block_title _('%s Type of property') _('%s Types of property') %}</th>
@@ -12,7 +11,7 @@
     <tbody class="collapsable">
         <tr>
             <th colspan="4" class="block_header_line_dark" align="left">
-                {% get_line_adder at_url '/creme_config/property_type/add/' with_label _("New custom type of property") with_perms has_perm %}
+                {% get_line_adder at_url '/creme_config/property_type/add/' with_label _("New custom type of property") with_perms 1 %}
             </th>
         </tr>
         {% if page.paginator.count %}
@@ -29,10 +28,10 @@
                         {% widget_select_or_msg prop_type.subject_ctypes.all _('No related type of resource') %}
                     </td>
                     <td class="{{row_color}}">
-                        {% if prop_type.is_custom %}{% get_line_editor at_url '/creme_config/property_type/edit/{{prop_type.id}}' with_perms has_perm %}{% endif %}
+                        {% if prop_type.is_custom %}{% get_line_editor at_url '/creme_config/property_type/edit/{{prop_type.id}}' with_perms 1 %}{% endif %}
                     </td>
                     <td class="{{row_color}}">
-                        {% if prop_type.is_custom %}{% get_line_deletor at_url '/creme_config/property_type/delete' with_args "{'id': '{{prop_type.pk}}'}" %}{% endif %}
+                        {% if prop_type.is_custom %}{% get_line_deletor2 at_url '/creme_config/property_type/delete' with_args "{'id': '{{prop_type.pk}}'}" with_perms 1 %}{% endif %}
                     </td>
                 </tr>
             {% endfor %}
@@ -44,4 +43,3 @@
     </tbody>
     {% include 'creme_core/templatetags/widgets/block_footer.html' %}
 </table>
-{% endwith %}

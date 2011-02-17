@@ -9,9 +9,7 @@
     <tbody class="collapsable">
         <tr>
             <th class="block_header_line_light" style="font-size:14px;" align="left" colspan="3">
-                {% with 1 as has_perm %}
-                    {% get_line_adder at_url '/creme_config/custom_fields/ct/add/' with_label _("New custom field configuration") with_perms has_perm %}
-                {% endwith %}
+                {% get_line_adder at_url '/creme_config/custom_fields/ct/add/' with_label _("New custom field configuration") with_perms 1 %}
             </th>
         </tr>
         {% if page.paginator.count %}
@@ -29,7 +27,7 @@
                         </a>
                     </td>
                     <td class="{{row_color}}">
-                        {% get_line_deletor at_url '/creme_config/custom_fields/ct/delete' with_args "{'id': '{{ct.id}}'}" %}
+                        {% get_line_deletor2 at_url '/creme_config/custom_fields/ct/delete' with_args "{'id': '{{ct.id}}'}" with_perms 1 %}
                     </td>
                 </tr>
             {% endfor %}
