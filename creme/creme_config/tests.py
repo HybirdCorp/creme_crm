@@ -14,23 +14,18 @@ from persons.constants import REL_SUB_EMPLOYED_BY, REL_SUB_MANAGES
 #TODO: test views are allowed to admin only...
 
 
-class UserRoleTestCase(TestCase):
+class CremeConfigTestCase(TestCase):
     def login(self):
-        if not self.user:
-            user = User.objects.create(username='Mireille')
-            user.set_password(self.password)
-            user.is_superuser = True
-            user.save()
-            self.user = user
+        self.password = 'test'
+
+        user = User.objects.create(username='Mireille')
+        user.set_password(self.password)
+        user.is_superuser = True
+        user.save()
+        self.user = user
 
         logged = self.client.login(username=self.user.username, password=self.password)
         self.assert_(logged, 'Not logged in')
-
-    def setUp(self):
-        self.password = 'test'
-        self.user = None
-
-        self.login()
 
     def assertNoFormError(self, response): #move in a CremeTestCase ???
         try:
@@ -40,6 +35,14 @@ class UserRoleTestCase(TestCase):
         else:
             if errors:
                 self.fail(errors)
+
+
+class UserRoleTestCase(CremeConfigTestCase):
+    def setUp(self):
+        self.login()
+
+    def test_portal(self):
+        self.assertEqual(200, self.client.get('/creme_config/role/portal/').status_code)
 
     def test_create01(self):
         response = self.client.get('/creme_config/role/add/')
@@ -255,33 +258,13 @@ class UserRoleTestCase(TestCase):
         self.assertEqual(200, response.status_code)
 
 
-class UserTestCase(TestCase):
-    def login(self):
-        if not self.user:
-            user = User.objects.create(username='Mireille')
-            user.set_password(self.password)
-            user.is_superuser = True
-            user.save()
-            self.user = user
-
-        logged = self.client.login(username=self.user.username, password=self.password)
-        self.assert_(logged, 'Not logged in')
-
+class UserTestCase(CremeConfigTestCase):
     def setUp(self):
         PopulateCommand().handle(application=['persons']) #'creme_core'
-        self.password = 'test'
-        self.user = None
-
         self.login()
 
-    def assertNoFormError(self, response): #move in a CremeTestCase ???
-        try:
-            errors = response.context['form'].errors
-        except Exception, e:
-            pass
-        else:
-            if errors:
-                self.fail(errors)
+    def test_portal(self):
+        self.assertEqual(200, self.client.get('/creme_config/user/portal/').status_code)
 
     def test_create01(self):
         response = self.client.get('/creme_config/user/add/')
@@ -542,3 +525,188 @@ class UserTestCase(TestCase):
         response = self.client.post('/creme_config/team/delete', data={'id': team.id})
         self.assertEqual(403, response.status_code)
         self.assertEqual(1, User.objects.filter(pk=team.id).count())
+
+
+class PropertyTypeTestCase(CremeConfigTestCase):
+    def setUp(self):
+        self.login()
+
+    def test_portal(self):
+        self.assertEqual(200, self.client.get('/creme_config/property_type/portal/').status_code)
+
+    def test_create01(self):
+        url = '/creme_config/property_type/add/'
+        self.assertEqual(200, self.client.get(url).status_code)
+
+        self.assertEqual(0, CremePropertyType.objects.count())
+
+        text = 'is beautiful'
+        response = self.client.post(url, data={'text': text})
+        self.assertNoFormError(response)
+        self.assertEqual(200, response.status_code)
+
+        prop_types = CremePropertyType.objects.all()
+        self.assertEqual(1, len(prop_types))
+
+        prop_type = prop_types[0]
+        self.assertEqual(text, prop_type.text)
+        self.assertEqual(0,    prop_type.subject_ctypes.count())
+
+    def test_create02(self):
+        get_ct = ContentType.objects.get_for_model
+        ct_ids = [get_ct(Contact).id, get_ct(Organisation).id]
+        text   = 'is beautiful'
+        response = self.client.post('/creme_config/property_type/add/',
+                                    data={
+                                            'text':           text,
+                                            'subject_ctypes': ct_ids,
+                                         }
+                                   )
+        self.assertNoFormError(response)
+        self.assertEqual(200, response.status_code)
+
+        prop_type = CremePropertyType.objects.all()[0]
+        self.assertEqual(text, prop_type.text)
+
+        ctypes = prop_type.subject_ctypes.all()
+        self.assertEqual(2,           len(ctypes))
+        self.assertEqual(set(ct_ids), set(ct.id for ct in ctypes))
+
+    def test_edit01(self):
+        get_ct = ContentType.objects.get_for_model
+        pt = CremePropertyType.create('test-foobar', 'is beautiful', [get_ct(Contact)], is_custom=False)
+
+        self.assertEqual(404, self.client.get('/creme_config/property_type/edit/%s' % pt.id).status_code)
+
+    def test_edit02(self):
+        get_ct = ContentType.objects.get_for_model
+        pt = CremePropertyType.create('test-foobar', 'is beautiful', [get_ct(Contact)], is_custom=True)
+        uri = '/creme_config/property_type/edit/%s' % pt.id
+        self.assertEqual(200, self.client.get(uri).status_code)
+
+        ct_orga = get_ct(Organisation)
+        text   = 'is very beautiful'
+        response = self.client.post(uri,
+                                    data={
+                                            'text':           text,
+                                            'subject_ctypes': [ct_orga.id],
+                                         }
+                                   )
+        self.assertNoFormError(response)
+        self.assertEqual(200, response.status_code)
+
+        prop_type = CremePropertyType.objects.get(pk=pt.id)
+        self.assertEqual(text,         prop_type.text)
+        self.assertEqual([ct_orga.id], [ct.id for ct in prop_type.subject_ctypes.all()])
+
+    def test_delete01(self):
+        pt = CremePropertyType.create('test-foobar', 'is beautiful', [], is_custom=False)
+        self.assertEqual(404, self.client.post('/creme_config/property_type/delete', data={'id': pt.id}).status_code)
+
+    def test_delete02(self):
+        pt = CremePropertyType.create('test-foobar', 'is beautiful', [], is_custom=True)
+        self.assertEqual(200, self.client.post('/creme_config/property_type/delete', data={'id': pt.id}).status_code)
+        self.assertEqual(0,   CremePropertyType.objects.filter(pk=pt.id).count())
+
+
+class RelationTypeTestCase(CremeConfigTestCase):
+    def setUp(self): #in CremeConfigTestCase ??
+        self.login()
+
+    def test_portal(self):
+        self.assertEqual(200, self.client.get('/creme_config/relation_type/portal/').status_code)
+
+    def test_create01(self):
+        url = '/creme_config/relation_type/add/'
+        self.assertEqual(200, self.client.get(url).status_code)
+
+        self.assertEqual(0, RelationType.objects.count())
+
+        subject_pred = 'loves'
+        object_pred  = 'is loved by'
+        response = self.client.post(url, data={
+                                                'subject_predicate': subject_pred,
+                                                'object_predicate':  object_pred,
+                                              }
+                                   )
+        self.assertNoFormError(response)
+        self.assertEqual(200, response.status_code)
+
+        rel_types = RelationType.objects.all()
+        self.assertEqual(2, len(rel_types))
+
+        rel_type = rel_types[0]
+        self.assertEqual(subject_pred, rel_type.predicate)
+        self.assert_(rel_type.is_custom)
+        self.assertEqual(object_pred, rel_type.symmetric_type.predicate)
+        self.assertEqual(0,           rel_type.subject_ctypes.count())
+        self.assertEqual(0,           rel_type.object_ctypes.count())
+        self.assertEqual(0,           rel_type.subject_properties.count())
+        self.assertEqual(0,           rel_type.object_properties.count())
+
+    def test_create02(self):
+        pt_sub = CremePropertyType.create('test-pt_sub', 'has cash',  [Organisation])
+        pt_obj = CremePropertyType.create('test-pt_sub', 'need cash', [Contact])
+
+        get_ct     = ContentType.objects.get_for_model
+        ct_orga    = get_ct(Organisation)
+        ct_contact = get_ct(Contact)
+
+        response = self.client.post('/creme_config/relation_type/add/',
+                                    data={
+                                            'subject_predicate':  'employs',
+                                            'object_predicate':   'is employed by',
+                                            'subject_ctypes':     [ct_orga.id],
+                                            'subject_properties': [pt_sub.id],
+                                            'object_ctypes':      [ct_contact.id],
+                                            'object_properties':  [pt_obj.id],
+                                          }
+                                   )
+        self.assertNoFormError(response)
+        self.assertEqual(200, response.status_code)
+
+        rel_type = RelationType.objects.all()[0]
+        self.assertEqual([ct_orga.id],    [ct.id for ct in rel_type.subject_ctypes.all()])
+        self.assertEqual([ct_contact.id], [ct.id for ct in rel_type.object_ctypes.all()])
+        self.assertEqual([pt_sub.id],     [pt.id for pt in rel_type.subject_properties.all()])
+        self.assertEqual([pt_obj.id],     [pt.id for pt in rel_type.object_properties.all()])
+
+    def test_edit01(self):
+        rt, srt = RelationType.create(('test-subfoo', 'subject_predicate'),
+                                      ('test-objfoo', 'object_predicate'), is_custom=False
+                                     )
+        self.assertEqual(404, self.client.get('/creme_config/relation_type/edit/%s' % rt.id).status_code)
+
+    def test_edit02(self):
+        rt, srt = RelationType.create(('test-subfoo', 'subject_predicate'),
+                                      ('test-objfoo', 'object_predicate'),
+                                      is_custom=True
+                                     )
+        url = '/creme_config/relation_type/edit/%s' % rt.id
+        self.assertEqual(200, self.client.get(url).status_code)
+
+        subject_pred = 'loves'
+        object_pred  = 'is loved by'
+        response = self.client.post(url,
+                                    data={
+                                            'subject_predicate': subject_pred,
+                                            'object_predicate':  object_pred,
+                                          }
+                                   )
+        self.assertNoFormError(response)
+        self.assertEqual(200, response.status_code)
+
+        rel_type = RelationType.objects.get(pk=rt.id)
+        self.assertEqual(subject_pred, rel_type.predicate)
+        self.assertEqual(object_pred,  rel_type.symmetric_type.predicate)
+
+    def test_delete01(self):
+        rt, srt = RelationType.create(('test-subfoo', 'subject_predicate'), ('test-subfoo', 'object_predicate'), is_custom=False)
+        self.assertEqual(404, self.client.post('/creme_config/relation_type/delete', data={'id': rt.id}).status_code)
+
+    def test_delete02(self):
+        rt, srt = RelationType.create(('test-subfoo', 'subject_predicate'), ('test-subfoo', 'object_predicate'), is_custom=True)
+        self.assertEqual(200, self.client.post('/creme_config/relation_type/delete', data={'id': rt.id}).status_code)
+        self.assertEqual(0,   RelationType.objects.filter(pk__in=[rt.id, srt.id]).count())
+
+#TODO: complete test cases...

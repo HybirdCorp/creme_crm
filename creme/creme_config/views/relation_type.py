@@ -51,15 +51,15 @@ def edit(request, relation_type_id):
     relation_type = get_object_or_404(RelationType, pk=relation_type_id)
 
     if not relation_type.is_custom: #TODO: in a generic method (can_edit or die() ?) and use edit_model_with_popup() ?
-        raise Http404("Can't edit a standard RelationType") #TODO: 403 instead ?
+        raise Http404("Can't edit a standard RelationType")
 
     if request.method == 'POST':
-        form = RelationTypeEditForm(relation_type, request.POST)
+        form = RelationTypeEditForm(relation_type, user=request.user, data=request.POST)
 
         if form.is_valid():
             form.save()
     else:
-        form = RelationTypeEditForm(instance=relation_type)
+        form = RelationTypeEditForm(instance=relation_type, user=request.user)
 
     return inner_popup(request,
                        'creme_core/generics/blockform/edit_popup.html',

@@ -48,9 +48,6 @@ def _get_modelconf(app_config, model_name):
 
     raise Http404('Unknown model')
 
-#def _get_model_portal_url(app_name, model_name):
-    #return '/creme_config/%s/%s/portal/' % (app_name, model_name)
-
 def _can_config_or_die(request, app_name):
     if not request.user.has_perm('%s.can_admin' % app_name):
         raise PermissionDenied('You are not allowed to configure this app: %s' % app_name)
@@ -89,7 +86,7 @@ def delete_model(request, app_name, model_name):
     object_ = get_object_or_404(model, pk=get_from_POST_or_404(request.POST, 'id'))
 
     if not getattr(object_, 'is_custom', True):
-        raise Http404 #403 ??
+        raise Http404('Can not delete (is not custom)')
 
     object_.delete()
 
