@@ -33,9 +33,7 @@
                         </td>
                         <td class="{{row_color}}" align="center" valign="center" style="width:10%;">
                             {% has_perm_to unlink participant as participant_unlink_perm %}
-                            {% with activity_unlink_perm|and_op:participant_unlink_perm as has_perm %}
-                                {% get_line_deletor2 at_url '/creme_core/relation/delete' with_args "{'id':{{relation.pk}} }" with_perms has_perm %}
-                            {% endwith %}
+                            {% get_line_deletor2 at_url '/creme_core/relation/delete' with_args "{'id':{{relation.pk}} }" with_perms activity_unlink_perm|and_op:participant_unlink_perm %}
                         </td>
                     </tr>
                 {% endwith %}
