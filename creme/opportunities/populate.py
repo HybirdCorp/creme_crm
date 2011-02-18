@@ -45,7 +45,7 @@ class Populator(BasePopulator):
 
     def populate(self, *args, **kwargs):
         RelationType.create((REL_SUB_TARGETS_ORGA,      _(u'targets the organisation'),          [Opportunity]),
-                            (REL_OBJ_TARGETS_ORGA,      _(u"targeted by the opportunity")), is_internal=True)
+                            (REL_OBJ_TARGETS_ORGA,      _(u"targeted by the opportunity")),      is_internal=True)
         RelationType.create((REL_SUB_LINKED_PRODUCT,    _(u"is linked to the opportunity"),      [Product]),
                             (REL_OBJ_LINKED_PRODUCT,    _(u"concerns the product"),              [Opportunity]))
         RelationType.create((REL_SUB_LINKED_SERVICE,    _(u"is linked to the opportunity"),      [Service]),

@@ -39,11 +39,11 @@ class AddRelationTypesForm(CremeForm):
                                               queryset=RelationType.objects.all(),
                                               widget=UnorderedMultipleChoiceWidget)
 
-    def __init__(self, graph, *args, **kwargs):
+    def __init__(self, entity, *args, **kwargs):
         super(AddRelationTypesForm, self).__init__(*args, **kwargs)
-        self.graph = graph
+        self.graph = entity
 
-        self.fields['relation_types'].queryset = RelationType.objects.exclude(pk__in=graph.orbital_relation_types.all())
+        self.fields['relation_types'].queryset = RelationType.objects.exclude(pk__in=entity.orbital_relation_types.all())
 
     def save(self):
         relation_types = self.graph.orbital_relation_types

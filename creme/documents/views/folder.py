@@ -26,7 +26,6 @@ from django.contrib.contenttypes.models import ContentType
 
 from creme_core.views.generic import add_entity, edit_entity, view_entity
 from creme_core.views.generic.list_entities import list_entities ##
-from creme_core.gui.last_viewed import change_page_for_last_item_viewed ##
 
 from documents.models import Folder
 from documents.forms.folder import FolderForm
@@ -38,28 +37,19 @@ from documents.forms.folder import FolderForm
 def add(request):
     return add_entity(request, FolderForm)
 
+@login_required
+@permission_required('documents')
 def edit(request, folder_id):
-    return edit_entity(request, folder_id, Folder, FolderForm, 'documents')
+    return edit_entity(request, folder_id, Folder, FolderForm)
 
 @login_required
 @permission_required('documents')
-def detailview(request, object_id):
-    """
-        @Permissions : Acces or Admin to document app & Read on current Folder object
-        TODO : Use generic view_entity_with_template
-    """
-    folder = view_entity(request, object_id, Folder)
-
-    folder.can_view_or_die(request.user)
-
-    return render_to_response('creme_core/generics/view_entity.html',
-                              {'object': folder, 'path': '/documents/folder'},
-                              context_instance=RequestContext(request))
+def detailview(request, folder_id):
+    return view_entity(request, folder_id, Folder, '/documents/folder')
 
 #TODO: use new list view ????
 @login_required
 @permission_required('documents')
-@change_page_for_last_item_viewed
 def listview(request):
     list_field = [
                     ('title',         True, 'title'),

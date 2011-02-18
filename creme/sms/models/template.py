@@ -47,8 +47,5 @@ class MessageTemplate(CremeEntity):
     def get_lv_absolute_url():
         return "/sms/templates"
 
-    def get_delete_absolute_url(self):
-        return "/sms/template/delete/%s" % self.id
-
     def resolve(self, date):
         return self.subject + ' : ' + self.body

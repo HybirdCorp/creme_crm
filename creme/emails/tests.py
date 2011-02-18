@@ -5,6 +5,7 @@ from StringIO import StringIO
 
 from django.test import TestCase
 from django.contrib.auth.models import User
+from django.contrib.contenttypes.models import ContentType
 
 from creme_core.management.commands.creme_populate import Command as PopulateCommand
 
@@ -125,10 +126,8 @@ class EmailsTestCase(TestCase):
 
         #################
         recipient = mlist.emailrecipient_set.all()[0]
-
-        response = self.client.post('/emails/mailing_list/recipient/delete',
-                                    follow=True, data={'id': recipient.id}
-                                   )
+        ct = ContentType.objects.get_for_model(EmailRecipient)
+        response = self.client.post('/creme_core/entity/delete_related/%s' % ct.id, follow=True, data={'id': recipient.id})
         self.assertEqual(response.status_code, 200)
 
         addresses = set(r.address for r in mlist.emailrecipient_set.all())

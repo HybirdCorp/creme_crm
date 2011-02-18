@@ -23,14 +23,14 @@ from django.utils.translation import ugettext_lazy as _
 
 from creme_core.models import RelationType
 from creme_core.forms import CremeForm, CremeModelForm
-from creme_core.forms.fields import GenericEntitiesField
+from creme_core.forms.fields import MultiGenericEntityField
 from creme_core.forms.widgets import UnorderedMultipleChoiceWidget
 
 from graphs.models import RootNode
 
 
 class AddRootNodesForm(CremeForm):
-    entities       = GenericEntitiesField(label=_(u'Root entities'))
+    entities       = MultiGenericEntityField(label=_(u'Root entities'))
     relation_types = ModelMultipleChoiceField(label=_('Related types of relations'),
                                               queryset=RelationType.objects.all(),
                                               widget=UnorderedMultipleChoiceWidget)

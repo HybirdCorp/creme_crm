@@ -43,9 +43,6 @@ class MailingList(CremeEntity):
     def get_absolute_url(self):
         return "/emails/mailing_list/%s" % self.id
 
-    def get_delete_absolute_url(self):
-        return "/emails/mailing_list/delete/%s" % self.id
-
     def get_edit_absolute_url(self):
         return "/emails/mailing_list/edit/%s" % self.id
 

@@ -18,6 +18,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from datetime import datetime
+
 from django.db.models import CharField, BooleanField, TextField, DateTimeField, BooleanField, ForeignKey, PositiveIntegerField
 from django.db.models.signals import pre_delete
 from django.utils.translation import ugettext_lazy as _, ugettext
@@ -71,6 +73,25 @@ class UserMessage(CremeModel):
     @staticmethod
     def get_messages_for_ctypes(ct_ids, user):
         return UserMessage.objects.filter(entity_content_type__in=ct_ids, recipient=user).select_related('sender')
+
+    @staticmethod
+    def create_messages(users, title, body, priority_id, sender, entity):
+        """@param users A sequence of User objects. Team are treated as several Users. Duplicates are removed.
+        """
+        users_map = {}
+        for user in users:
+            if user.is_team:
+                users_map.update(user.teammates)
+            else:
+                users_map[user.id] = user
+
+        now = datetime.now()
+
+        for user in users_map.itervalues():
+            msg = UserMessage(title=title, body=body, creation_date=now, priority_id=priority_id,
+                              sender=sender, recipient=user, email_sent=False)
+            msg.creme_entity = entity
+            msg.save()
 
     @staticmethod
     def send_mails():

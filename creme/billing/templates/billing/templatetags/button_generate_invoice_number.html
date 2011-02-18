@@ -1,8 +1,9 @@
 {% load i18n %}{% load media %}
 {% if has_perm %}
-    <a class="menu_button" href="/billing/invoice/generate_number/{{object.id}}">
+    <a class="menu_button" onclick="$('#id_invoice_gen_number', $(this)).submit();">
         <img src="{% media_url 'images/invoice_48.png' %}" border="0" title="{% trans "Invoice number" %}" alt="{% trans "Invoice number" %}" />
         {% trans "Generate the number of the Invoice" %}
+        <div style="display:none;"><form id="id_invoice_gen_number" method="POST" action="/billing/invoice/generate_number/{{object.id}}">{% csrf_token %}</form></div>
     </a>
 {% else %}
     <span class="menu_button forbidden" title="{% trans "forbidden" %}">

@@ -20,7 +20,7 @@
 
 from django.contrib.auth.decorators import login_required, permission_required
 
-from creme_core.views.generic import add_entity, edit_entity, view_entity_with_template, list_view
+from creme_core.views.generic import add_entity, edit_entity, view_entity, list_view
 
 from products.models import Product
 from products.forms.product import ProductCreateForm
@@ -32,13 +32,15 @@ from products.forms.product import ProductCreateForm
 def add(request):
     return add_entity(request, ProductCreateForm)
 
+@login_required
+@permission_required('products')
 def edit(request, product_id):
-    return edit_entity(request, product_id, Product, ProductCreateForm, 'products')
+    return edit_entity(request, product_id, Product, ProductCreateForm)
 
 @login_required
 @permission_required('products')
 def detailview(request, product_id):
-    return view_entity_with_template(request, product_id, Product, '/products/product', 'products/view_product.html')
+    return view_entity(request, product_id, Product, '/products/product', 'products/view_product.html')
 
 @login_required
 @permission_required('products')

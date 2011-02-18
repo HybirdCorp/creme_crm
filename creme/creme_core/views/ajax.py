@@ -22,15 +22,12 @@ from logging import debug
 
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse, Http404
-from django.contrib.auth.admin import get_object_or_404
 from django.utils.simplejson import JSONEncoder
-from django.db.models import Q
-from django.contrib.auth.models import ContentType
 
 from creme_core.models import CremeEntity
 from creme_core.models.custom_field import CustomField
-from creme_core.registry import creme_registry, NotRegistered
-from creme_core.utils.meta import get_flds_with_fk_flds, get_flds_with_fk_flds_str
+from creme_core.registry import creme_registry
+from creme_core.utils.meta import get_flds_with_fk_flds_str
 from creme_core.utils import get_ct_or_404, get_from_POST_or_404
 #from creme.creme_utils.views import handle_uploaded_file
 
@@ -82,37 +79,6 @@ def edit_js(request):
         #debug('\n2')
         raise Http404
 
-
-#TODO: rename to field_has_n_get_fk
-#TODO: refactor ("datas"->"data", code could be simplified etc...)
-@login_required
-def fieldHasNGetFK(request):
-    """
-    To verify if a field is a foreign key for a model
-    and if it is get related field (in JSON format)
-    """
-    fieldname = request.POST.get('fieldname')
-    ct_id = request.POST.get('ct_id')
-
-    if fieldname and ct_id:
-        klass = get_object_or_404(ContentType, pk=ct_id).model_class()
-        field = [f for f in klass._meta.fields + klass._meta.many_to_many if f.name == fieldname]
-        if field and field[0].get_internal_type() == 'ForeignKey':
-            datas = [(u'%s' % f.name, u'%s' % f.verbose_name) for f in get_flds_with_fk_flds(field[0].rel.to, 0)]
-        elif field and field[0].get_internal_type() == 'ManyToManyField':
-            datas = []
-            for f in get_flds_with_fk_flds(field[0].rel.to, 0):
-                #TODO;  factorise "if f.get_internal_type() != 'ManyToManyField'"
-                if f.get_internal_type() != 'ManyToManyField' and f.get_internal_type() != 'ForeignKey':
-                    datas.append((u'%s' % f.name, u'%s' % f.verbose_name))
-                #TODO: stupid ?? (if == 'ForeignKey' => != 'ManyToManyField' of course !!)
-                if f.get_internal_type() != 'ManyToManyField' and f.get_internal_type() == 'ForeignKey':
-                    #TODO: use generator expression
-                    datas.extend([(u'%s__%s' % (f.name, sub_f.name), u'%s - %s' % (f.verbose_name, sub_f.verbose_name)) for sub_f in get_flds_with_fk_flds(f.rel.to, 0)])
-        else:
-            datas = []
-        return HttpResponse(JSONEncoder().encode(datas), mimetype="text/javascript")
-    return HttpResponse('', mimetype="text/javascript", status=400)
 
 @login_required
 def get_fields(request):
