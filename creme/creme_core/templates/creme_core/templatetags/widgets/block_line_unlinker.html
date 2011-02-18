@@ -1,7 +1,7 @@
 {% load i18n %}{% load media %}
 {% load creme_block %}
-{% if unlink_line_perm %}
-    <a onclick="creme.utils.ajaxDelete('{{unlink_url}}', {{post_args}}, {complete:function(req, st){if(st!='error'){creme.utils.loadBlock({% get_block_reload_uri %});}creme.utils.loading('loading', true);}});">
+{% if line_perm %}
+    <a onclick="creme.utils.ajaxDelete('{{action_url}}', {{post_args}}, {complete:function(req, st){if(st!='error'){creme.utils.loadBlock({% get_block_reload_uri %});}creme.utils.loading('loading', true);}});">
         <img src="{% media_url 'images/unlink_22.png' %}" border="0" title="{% trans "Unlink" %}" alt="{% trans "Unlink" %}">
     </a>
 {% else %}
