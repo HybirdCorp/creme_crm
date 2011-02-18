@@ -29,6 +29,8 @@ from creme_core.models import CremeEntity, Relation, RelationType
 from creme_core.forms import CremeForm
 from creme_core.forms.fields import RelatedEntitiesField
 from creme_core.forms.widgets import Label
+from creme_core.forms.validators import validate_linkable_entities
+from creme_core.utils import entities2unicode
 
 
 class RelationCreateForm(CremeForm):
@@ -45,12 +47,6 @@ class RelationCreateForm(CremeForm):
             relations_types = RelationType.get_compatible_ones(subject.entity_type).values_list('id', flat=True)
 
         self.fields['relations'].relation_types = relations_types
-
-    @staticmethod
-    def _entities2unicode(entities, user): #TODO: move to creme_core.utils ?
-        return u', '.join(unicode(entity) if entity.can_view(user) else ugettext(u'Entity #%s (not viewable)') % entity.id
-                              for entity in entities
-                         )
 
     def clean(self):
         if self._errors:
@@ -70,13 +66,7 @@ class RelationCreateForm(CremeForm):
         if RelationType.objects.filter(pk__in=relation_type_ids).count() < len(relation_type_ids):
             raise ValidationError(ugettext(u"Some predicates doesn't not exist"))
 
-        user = self.user
-        entities = [entity for rt_id, entity in relations]
-        CremeEntity.populate_credentials(entities, user)
-
-        unlinkable = self._entities2unicode((e for e in entities if not e.can_link(user)) , user)
-        if unlinkable:
-            raise ValidationError(ugettext(u"Some entities are not linkable: %s") % unlinkable)
+        validate_linkable_entities([entity for rt_id, entity in relations], self.user)
 
         #TODO: remove when this checking is done is the field
         for rtype in RelationType.objects.filter(pk__in=relation_type_ids, is_internal=True): #TODO: query for all RelationTypes already done
@@ -101,12 +91,12 @@ class MultiEntitiesRelationCreateForm(RelationCreateForm):
         self.subjects = subjects
         self.user = user
 
-        self.fields['entities_lbl'].initial = self._entities2unicode(subjects, user) if subjects else ugettext(u'NONE !')
+        self.fields['entities_lbl'].initial = entities2unicode(subjects, user) if subjects else ugettext(u'NONE !')
 
         if forbidden_subjects:
             self.fields['bad_entities_lbl'] = CharField(label=ugettext(u"Unlinkable entities"),
                                                         widget=Label,
-                                                        initial=self._entities2unicode(forbidden_subjects, user)
+                                                        initial=entities2unicode(forbidden_subjects, user)
                                                        )
 
     @staticmethod

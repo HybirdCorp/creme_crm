@@ -69,19 +69,23 @@ def add_entity(request, form_class, url_redirect='', template='creme_core/generi
                               context_instance=RequestContext(request))
 
 def add_to_entity(request, entity_id, form_class, title, entity_class=None, initial=None,
-                  template='creme_core/generics/blockform/add_popup2.html'):
+                  template='creme_core/generics/blockform/add_popup2.html', link_perm=False):
     """ Add models related to one CremeEntity (eg: a CremeProperty)
     @param entity_id Id of a CremeEntity.
     @param form_class Form which __init__'s method MUST HAVE an argument caled 'entity' (the related CremeEntity).
     @param title Title of the Inner Popup: Must be a format string with one arg: the related entity.
     @param entity_class If given, it's the entity's class (else it could be any class inheriting CremeEntity)
     @param initial classical 'initial' of Forms
+    @param link_perm use LINK permission instead of CHANGE permission (default=False)
     """
     entity = get_object_or_404(entity_class, pk=entity_id) if entity_class else \
              get_object_or_404(CremeEntity, pk=entity_id).get_real_entity()
     user = request.user
 
-    entity.can_change_or_die(user)
+    if link_perm:
+        entity.can_link_or_die(user)
+    else:
+        entity.can_change_or_die(user)
 
     if request.method == 'POST':
         form = form_class(entity=entity, user=user, data=request.POST, files=request.FILES or None, initial=initial)

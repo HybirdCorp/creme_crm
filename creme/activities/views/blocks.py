@@ -36,7 +36,7 @@ from activities.constants import REL_SUB_PART_2_ACTIVITY, REL_SUB_ACTIVITY_SUBJE
 def add_participant(request, activity_id):
     return add_to_entity(request, activity_id, ParticipantCreateForm,
                          _(u'Adding participants to activity <%s>'),
-                         entity_class=Activity
+                         entity_class=Activity, link_perm=True
                         )
 
 @login_required
@@ -44,7 +44,7 @@ def add_participant(request, activity_id):
 def add_subject(request, activity_id):
     return add_to_entity(request, activity_id, SubjectCreateForm,
                          _(u'Adding subjects to activity <%s>'),
-                         entity_class=Activity
+                         entity_class=Activity, link_perm=True
                         )
 
 @login_required
