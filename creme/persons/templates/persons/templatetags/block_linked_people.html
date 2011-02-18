@@ -20,7 +20,7 @@
                 {% block add_title %}{% trans "Create a contact" %}{% endblock %}
                 {% if creation_perm %}</a>{% else %}</span>{% endif %}
                 <a class="link" onclick="creme.relations.handleAddFromPredicateEntity('/creme_core/relation/add/from/predicate/{{predicate_id}}/entity/{{object.id}}/{{ct.id}}', '{{predicate_id}}', '{{object.id}}', {% get_block_reload_uri %});">
-                    <img src="{% media_url 'images/relations_22.png' %}" border="0" title="{% trans "Link to an existing contact" %}" alt="{% trans "Link to an existing contact" %}" />
+                    <img src="{% media_url 'images/link_22.png' %}" border="0" title="{% trans "Link to an existing contact" %}" alt="{% trans "Link to an existing contact" %}" />
                     {% trans "Link to an existing contact" %}
                 </a>
             </div>
@@ -46,7 +46,7 @@
                         <a href="{{people.get_edit_absolute_url}}">
                             <img src="{% media_url 'images/edit_22.png' %}" border="0">
                         </a>
-                        {% get_line_deletor at_url '/creme_core/relation/delete/similar' with_args "{ 'subject_id':{{object.pk}}, 'type':'{{predicate_id}}', 'object_id':{{people.pk}} }" %}
+                        {% get_line_unlinker at_url '/creme_core/relation/delete/similar' with_args "{ 'subject_id':{{object.pk}}, 'type':'{{predicate_id}}', 'object_id':{{people.pk}} }" with_perms 1 %}
                     </td>
                 </tr>
             {% endfor %}
