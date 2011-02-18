@@ -5,13 +5,9 @@
 <head>
     <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
     <title>Creme CRM - {{object}}</title>
-    {% comment %}<link rel='stylesheet' type='text/css' href='{{MEDIA_URL}}css/jquery-css/creme-theme/jquery-ui-1.7.2.custom.css' />{% endcomment %}
-    {% comment %}<link rel="stylesheet" type="text/css" href="{{MEDIA_URL}}css{{CSS_THEME_NAME}}creme.css" />{% endcomment %}
-    {% comment %}<link rel="stylesheet" type="text/css" href="{{MEDIA_URL}}css/creme-ui.css" />{% endcomment %}
     {% include_media 'main.css' %}
     {% include "creme_core/frags/js_header.html" %}
     <link rel="shortcut icon" href="{% media_url 'images/favicon.ico' %}" type="image/x-icon" />
-    {% comment %}{% include "creme_core/frags/header_js_minimum.html" %}{% endcomment %}
     <script type="text/javascript">
         $(document).ready(function() {
             creme.utils.bindShowHideTbody();
@@ -31,16 +27,13 @@
                 <h1>{{object|get_meta_value:"verbose_name"|title}} : {{object|title}}</h1>
             </td>
             <td width="25%" align="right">
-                <span>
+                {% comment %}<span>
                     {% if path %}
                         <a href="{{path}}/edit/{{object.id}}">
                             <img src="{% media_url 'images/edit_64.png' %}" title="Éditer '{{object}}'" alt="Éditer"/>
-                        </a>&nbsp;
-                        <a href="{{path}}/delete/{{object.id}}" onclick="creme.utils.confirmDelete(event, this);">
-                            <img src="{% media_url 'images/delete_64.png' %}" title="Supprimer '{{object}}'" alt="Supprimer" />
                         </a>
                     {% endif %}
-                </span>
+                </span>{% endcomment %}
             </td>
         </tr>
     </table>

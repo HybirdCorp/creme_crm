@@ -25,17 +25,17 @@ from django.forms.widgets import Select
 from django.utils.translation import ugettext_lazy as _, ugettext
 
 from creme_core.models import Relation
-from creme_core.forms import CremeEntityForm, CremeEntityField, CremeDateField
+from creme_core.forms import CremeEntityForm, CremeEntityField, CremeDateField, GenericEntityField
 from creme_core.utils import find_first
 
-from persons.models.organisation import Organisation, Address
+from persons.models.organisation import Organisation, Address, Contact
 
 from billing.constants import REL_SUB_BILL_ISSUED, REL_SUB_BILL_RECEIVED
 
 
 class BaseEditForm(CremeEntityForm):
     source = CremeEntityField(label=_(u"Source organisation"), model=Organisation)
-    target = CremeEntityField(label=_(u"Target organisation"), model=Organisation)
+    target = GenericEntityField(label=_(u"Target organisation"), models=[Organisation, Contact], required=True)
 
     issuing_date    = CremeDateField(label=_(u"Issuing date"), required=False)
     expiration_date = CremeDateField(label=_(u"Expiration date"))
@@ -66,7 +66,7 @@ class BaseEditForm(CremeEntityForm):
 
             if received_relation:
                 self.received_relation = received_relation
-                self.fields['target'].initial = received_relation.object_entity_id
+                self.fields['target'].initial = received_relation.object_entity
 
     def save(self):
         instance = super(BaseEditForm, self).save()
@@ -74,16 +74,25 @@ class BaseEditForm(CremeEntityForm):
         cleaned_data = self.cleaned_data
         source = cleaned_data['source']
         target = cleaned_data['target']
+        user   = cleaned_data['user']
 
         if self.issued_relation:
             self.issued_relation.update_links(object_entity=source, save=True)
         else:
-            Relation.create(instance, REL_SUB_BILL_ISSUED, source)
+            Relation.objects.create(subject_entity=instance,
+                                    type_id=REL_SUB_BILL_ISSUED,
+                                    object_entity=source,
+                                    user=user
+                                   )
 
         if self.received_relation:
             self.received_relation.update_links(object_entity=target, save=True)
         else:
-            Relation.create(instance, REL_SUB_BILL_RECEIVED, target)
+            Relation.objects.create(subject_entity=instance,
+                                    type_id=REL_SUB_BILL_RECEIVED,
+                                    object_entity=target,
+                                    user=user
+                                   )
 
         return instance
 

@@ -56,9 +56,6 @@ class Document(CremeEntity):
         """url for list_view """
         return "/documents/documents"
 
-    def get_delete_absolute_url(self):
-        return "/documents/document/delete/%s" % self.id
-
     @staticmethod
     def get_linkeddoc_relations(entity):
         #TODO: return Document(relations__object_entity=entity, relations__type__id=REL_OBJ_RELATED_2_DOC) instead ????

@@ -28,12 +28,11 @@
                 <th class="block_header_line_dark">{% trans "Address" %}</th>
                 <th class="block_header_line_dark">{% trans "Delete" %}</th>
             </tr>
-            {% for recipient in page.object_list %}
-                <!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
+            {% for recipient in page.object_list %}<!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
                 <tr>
                     <td class="{{row_color}}">{{recipient.address}}</td>
                     <td class="{{row_color}}" align="center" valign="center" style="width:10%;">
-                        {% get_line_deletor2 at_url '/emails/mailing_list/recipient/delete' with_args "{'id':{{recipient.pk}} }" with_perms has_perm %}
+                        {% get_line_deletor2 at_url '/creme_core/entity/delete_related/{{ct_id}}' with_args "{'id':{{recipient.pk}} }" with_perms has_perm %}
                     </td>
                 </tr>
             {% endfor %}

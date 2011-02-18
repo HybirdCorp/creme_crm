@@ -103,10 +103,10 @@ class HeaderFilterForm(CremeModelForm):
         fields    = cleaned_data['fields']
         cfs       = cleaned_data['custom_fields']
         relations = cleaned_data['relations']
-        functions =cleaned_data['functions']
+        functions = cleaned_data['functions']
 
         if not (fields or cfs or relations or functions):
-            raise ValidationError(ugettext(u"You have to choose at least one element in avalaible lists."))
+            raise ValidationError(ugettext(u"You have to choose at least one element in available lists."))
 
         return cleaned_data
 
@@ -135,7 +135,7 @@ class HeaderFilterForm(CremeModelForm):
             try:
                 field_infos = get_model_field_infos(model_klass, field)
                 field_obj   = field_infos[0]['field']
-                
+
                 pattern = "%s__icontains"
 
                 if isinstance(field_obj, models.ForeignKey) :

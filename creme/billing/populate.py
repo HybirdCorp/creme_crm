@@ -26,7 +26,7 @@ from creme_core.models.header_filter import HeaderFilterItem, HeaderFilter, HFI_
 from creme_core.models import RelationType, SearchConfigItem, ButtonMenuItem
 from creme_core.management.commands.creme_populate import BasePopulator
 
-from persons.models import Organisation
+from persons.models import Organisation, Contact
 
 from billing.models import *
 from billing.constants import *
@@ -40,7 +40,7 @@ class Populator(BasePopulator):
         RelationType.create((REL_SUB_BILL_ISSUED,   _(u"issued by")),   #[Invoice, Quote, SalesOrder]
                             (REL_OBJ_BILL_ISSUED,   _(u"has issued"),   [Organisation]))
         RelationType.create((REL_SUB_BILL_RECEIVED, _(u"received by")), #[Invoice, Quote, SalesOrder]
-                            (REL_OBJ_BILL_RECEIVED, _(u"has received"), [Organisation]))
+                            (REL_OBJ_BILL_RECEIVED, _(u"has received"), [Organisation, Contact]))
 
 
         #NB: pk=1 --> default status (used when a quote is converted in invoice for example)

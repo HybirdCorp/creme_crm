@@ -31,10 +31,13 @@ class Recipient(CremeModel):
     messaging_list = ForeignKey(MessagingList, verbose_name=_(u'Related messaging list'))
     phone          = CharField(_(u'Number'), max_length=100, blank=True, null=True)
 
-    def __unicode__(self):
-        return self.address
-
     class Meta:
         app_label = "sms"
         verbose_name = _(u'Recipient')
         verbose_name_plural = _(u'Recipients')
+
+    def __unicode__(self):
+        return self.address
+
+    def get_related_entity(self): #for generic views
+        return self.messaging_list

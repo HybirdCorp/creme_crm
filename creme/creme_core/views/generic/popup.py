@@ -21,33 +21,29 @@
 from logging import debug
 
 from django.http import HttpResponse
-from django.utils.safestring import mark_safe
 from django.template.loader import render_to_string
+from django.utils.safestring import mark_safe
 from django.utils.simplejson.encoder import JSONEncoder
 
 
-def inner_popup(request, template, template_dict, context_instance, is_valid=True, html=None, callback_url='', reload=True, delegate_reload=False, *args, **kwargs):
-    debug("###___ inner_popup ___###")
+def inner_popup(request, template, template_dict, context_instance, is_valid=True,
+                html=None, callback_url='', reload=True, delegate_reload=False, *args, **kwargs):
+    debug("Inner_popup for: %s", request.path)
 
-    template_dict.update({'hide_submit': True})
+    template_dict['hide_submit'] = True
+    html = mark_safe(html) if html else render_to_string(template, template_dict, context_instance, *args, **kwargs)
 
-    if not html:
-        html = render_to_string(template, template_dict, context_instance, *args, **kwargs)
-    else:
-        html = mark_safe(html)
-
-    enc = JSONEncoder()
-
-    inner_popup_html = render_to_string('creme_core/generics/inner_popup.html',
-                                        {
-                                            'html':     html,
-                                            'from_url': request.path,
-                                            'is_valid': is_valid,
-                                            'whoami':   request.REQUEST.get('whoami'),
-                                            'callback_url' : callback_url,
-                                            'reload' : enc.encode(reload),
-                                            'delegate_reload': delegate_reload
-                                        },
-                                        context_instance, *args, **kwargs)
-
-    return HttpResponse(inner_popup_html, mimetype = "text/html")
+    return HttpResponse(render_to_string('creme_core/generics/inner_popup.html',
+                                         {
+                                            'html':            html,
+                                            'from_url':        request.path,
+                                            'is_valid':        is_valid,
+                                            'whoami':          request.REQUEST.get('whoami'),
+                                            'callback_url':    callback_url,
+                                            'reload':          JSONEncoder().encode(reload),
+                                            'delegate_reload': delegate_reload,
+                                         },
+                                         context_instance, *args, **kwargs
+                                        ),
+                        mimetype="text/html"
+                       )

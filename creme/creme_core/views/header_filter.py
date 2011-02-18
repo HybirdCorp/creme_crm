@@ -56,28 +56,30 @@ def add(request, content_type_id, extra_template_dict=None):
                       template='creme_core/header_filters.html',
                       extra_initial={'content_type': ct_entity},
                       extra_template_dict=extra_template_dict or {},
-                      function_post_save=lambda r, i: _set_current_hf(r, callback_url, i))
+                      function_post_save=lambda r, i: _set_current_hf(r, callback_url, i)
+                     )
 
 @login_required
 def edit(request, header_filter_id):
     hf = get_object_or_404(HeaderFilter, pk=header_filter_id)
 
     if not hf.is_custom:
-        raise Http404("Non editable HeaderFilter")  #TODO: 403 instead
+        raise Http404("Non editable HeaderFilter")
 
     if request.POST:
-        hf_form = HeaderFilterForm(request.POST, instance=hf)
+        hf_form = HeaderFilterForm(user=request.user, data=request.POST, instance=hf)
 
         if hf_form.is_valid():
             hf_form.save()
 
             return HttpResponseRedirect(hf.entity_type.model_class().get_lv_absolute_url())
     else:
-        hf_form = HeaderFilterForm(instance=hf)
+        hf_form = HeaderFilterForm(user=request.user, instance=hf)
 
     return render_to_response('creme_core/header_filters.html',
                               {'form': hf_form},
-                              context_instance=RequestContext(request))
+                              context_instance=RequestContext(request)
+                             )
 
 @login_required
 def delete(request):

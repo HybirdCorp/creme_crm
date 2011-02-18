@@ -1,0 +1,100 @@
+/* 
+    Document   : navit
+    Created on : 1 févr. 2011, 10:38:41
+    Author     : raph
+    Description:
+        Purpose of the stylesheet follows.
+*/
+
+
+.entity_menu
+{
+    /*list-style: none outside none;*/
+/*    margin: 0;*/
+    padding: 0;
+    width: auto;
+    float: left;
+/*    position: absolute;*/
+    position: relative;
+    font-size: 1em;
+    height: 20px;
+    text-align: left;
+
+}
+
+.entity_menu li
+{
+    list-style: none outside none;
+}
+
+.entity_menu ul
+{
+/*    padding-right: 30px;*/
+/*    padding-bottom: 5px;*/
+/*    padding: 0.4em;*/
+}
+
+.entity_menu ul li
+{
+    font-size: 1em;
+    padding: 0.5em;
+    margin: 0 0 0 -3em;
+}
+
+
+.entity_menu ul li a
+{
+    color: #22439F !important;
+    text-decoration: none;
+}
+
+
+.navit-item-top, .navit-horiz-item-top {
+/*    padding-right: 30px;*/
+    min-width: 100px;
+}
+
+.navit-horiz-item {
+    background-repeat: no-repeat;
+    cursor: pointer;
+    display: inline;
+    float: left;
+    line-height: 27px;
+    margin: 0 0 -1px;
+    text-align: center;
+    width: 160px;
+}
+
+.navit-item-top .navit-down, .navit-horiz-item-top .navit-down {
+    background-image: url('images/small_down_arrow_16.png');
+    background-repeat: no-repeat;
+}
+
+.navit-down {
+    color: #FFFFFF;
+    cursor: pointer;
+    display: inline;
+    float: right;
+    font-size: 60%;
+    height: 22px;
+    margin: 2px;
+    padding: 0 !important;
+    width: 22px;
+}
+
+.navit-down:hover {
+    opacity: 0.8;
+}
+
+
+.navit-item a{
+    padding: 0.3em 3%;
+}
+
+.navit-item a:hover{
+    border: 1px solid #6eaac4; background: #f7d6d2 url(./jquery-css/creme-theme/images/ui-bg_glass_75_f7d6d2_1x400.png) 50% 50% repeat-x; font-weight: bold; color: #212121; outline: none;
+    -moz-border-radius: 4px;
+    -webkit-border-radius: 4px;
+    border-radius: 4px;
+    color: #22439F;
+}
