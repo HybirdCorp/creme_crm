@@ -25,7 +25,7 @@
                             {% if participant.is_user %}({{participant.is_user}} -> {{participant.calendar_cache}}){% endif %}
                         </td>
                         <td class="{{row_color}}" align="center" valign="center" style="width:10%;">
-                            {% get_line_deletor at_url '/creme_core/relation/delete' with_args "{'id':{{relation.pk}}, 'object_id':{{object.pk}} }" %}
+                            {% get_line_unlinker at_url '/creme_core/relation/delete' with_args "{'id':{{relation.pk}}, 'object_id':{{object.pk}} }" with_perms 1 %}
                         </td>
                     </tr>
                 {% endwith %}
