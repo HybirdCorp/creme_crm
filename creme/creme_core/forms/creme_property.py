@@ -18,7 +18,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from creme.creme_core.models.entity import CremeEntity
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import Q
 from django.forms import ModelMultipleChoiceField, CharField, ValidationError
@@ -29,7 +28,8 @@ from creme_core.models import CremePropertyType, CremeProperty
 from creme_core.forms import CremeForm
 from creme_core.forms.widgets import UnorderedMultipleChoiceWidget, Label
 from creme_core.forms.fields import MultiCremeEntityField
-from creme_core.forms.relation import RelationCreateForm #
+from creme_core.forms.validators import validate_editable_entities
+from creme_core.utils import entities2unicode
 
 
 class AddPropertiesForm(CremeForm):
@@ -71,14 +71,12 @@ class AddPropertiesBulkForm(CremeForm):
         fields['entities'].initial = ','.join([str(e.id) for e in entities])
 
         fields['types'].queryset = CremePropertyType.get_compatible_ones(ct)#TODO:Sort?
-
-        #TODO: move this RelationCreateForm._entities2unicode method !
-        fields['entities_lbl'].initial = RelationCreateForm._entities2unicode(entities, self.user) if entities else ugettext(u'NONE !')
+        fields['entities_lbl'].initial = entities2unicode(entities, self.user) if entities else ugettext(u'NONE !')
 
         if forbidden_entities:
             self.fields['bad_entities_lbl'] = CharField(label=ugettext(u"Uneditable entities"),
                                                         widget=Label,
-                                                        initial=RelationCreateForm._entities2unicode(forbidden_entities, self.user)
+                                                        initial=entities2unicode(forbidden_entities, self.user)
                                                        )
 
     def clean(self):
@@ -95,13 +93,7 @@ class AddPropertiesBulkForm(CremeForm):
         if CremePropertyType.objects.filter(pk__in=types_ids).count() < len(types_ids):
             raise ValidationError(ugettext(u"Some property types doesn't not exist"))
 
-        entities = cleaned_data['entities']
-        user = self.user
-        CremeEntity.populate_credentials(entities, user)
-
-        uneditable = RelationCreateForm._entities2unicode((e for e in entities if not e.can_change(user)) , user)
-        if uneditable:
-            raise ValidationError(ugettext(u"Some entities are not editable: %s") % uneditable)
+        validate_editable_entities(cleaned_data['entities'], self.user)
 
         return cleaned_data
 

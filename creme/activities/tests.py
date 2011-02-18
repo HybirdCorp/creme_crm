@@ -28,7 +28,7 @@ class ActivitiesTestCase(TestCase):
         superuser.save()
 
         role = UserRole.objects.create(name='Basic')
-        role.allowed_apps = ['activities'] #'creme_core'
+        role.allowed_apps = ['activities', 'persons'] #'creme_core'
         role.save()
         basic_user = User.objects.create(username='Mireille', role=role)
         basic_user.set_password(password)
@@ -63,6 +63,10 @@ class ActivitiesTestCase(TestCase):
         else:
             if errors:
                 self.fail(errors)
+
+    def test_portal(self):
+        self.login()
+        self.assertEqual(200, self.client.get('/activities/').status_code)
 
     def test_activity_createview01(self):
         self.login()
@@ -195,6 +199,8 @@ class ActivitiesTestCase(TestCase):
         response = self.client.get('/activities/activity/add-with-relation/foobar?' + args)
         self.assertEqual(response.status_code, 404)
 
+    #TODO: def test_activity_createview04(self): #creds errors
+
     def test_collision01(self):
         self.login()
 
@@ -264,6 +270,18 @@ class ActivitiesTestCase(TestCase):
                                       end=datetime(year=2011,   month=2, day=1, hour=15, minute=0)
                                      )
 
+    def test_listview(self):
+        self.login()
+
+        PhoneCall.objects.create(user=self.user, title='call01', call_type=PhoneCallType.objects.all()[0],
+                                 start=datetime(year=2010, month=10, day=1, hour=12, minute=0),
+                                 end=datetime(year=2010, month=10, day=1, hour=13, minute=0))
+        Meeting.objects.create(user=self.user, title='meet01',
+                               start=datetime(year=2010, month=10, day=1, hour=14, minute=0),
+                               end=datetime(year=2010, month=10, day=1, hour=15, minute=0))
+
+        self.assertEqual(200, self.client.get('/activities/activities').status_code)
+
     def test_unlink01(self):
         self.login()
 
@@ -330,7 +348,7 @@ class ActivitiesTestCase(TestCase):
         self.assertEqual(403, self.client.post('/activities/linked_activity/unlink', data={'id': activity.id, 'object_id': contact.id}).status_code)
         self.assertEqual(1,   contact.relations.filter(pk=relation.id).count())
 
-    def test_add_participants(self):
+    def test_add_participants01(self):
         self.login()
 
         activity = self._create_meeting()
@@ -348,6 +366,60 @@ class ActivitiesTestCase(TestCase):
         relations = Relation.objects.filter(subject_entity=activity.id, type=REL_OBJ_PART_2_ACTIVITY)
         self.assertEqual(2, len(relations))
         self.assertEqual(set(ids), set(r.object_entity_id for r in relations))
+
+    def test_add_participants02(self): #credentials error with the activity
+        self.login(is_superuser=False)
+        SetCredentials.objects.create(role=self.user.role,
+                                      value=SetCredentials.CRED_VIEW   | \
+                                            SetCredentials.CRED_CHANGE | \
+                                            SetCredentials.CRED_DELETE | \
+                                            SetCredentials.CRED_UNLINK,
+                                      set_type=SetCredentials.ESET_OWN)
+
+        activity = self._create_meeting()
+        self.assert_(activity.can_change(self.user))
+        self.failIf(activity.can_link(self.user))
+        self.assertEqual(403, self.client.get('/activities/activity/%s/participant/add' % activity.id).status_code)
+
+    def _aux_build_setcreds(self):
+        role = self.user.role
+        SetCredentials.objects.create(role=role,
+                                      value=SetCredentials.CRED_LINK,
+                                      set_type=SetCredentials.ESET_OWN
+                                     )
+        SetCredentials.objects.create(role=role,
+                                      value=SetCredentials.CRED_VIEW   | \
+                                            SetCredentials.CRED_CHANGE | \
+                                            SetCredentials.CRED_DELETE | \
+                                            SetCredentials.CRED_UNLINK,
+                                      set_type=SetCredentials.ESET_ALL
+                                     )
+
+    def test_add_participants03(self): #credentials error with selected subjects
+        self.login(is_superuser=False)
+        self._aux_build_setcreds()
+
+        activity = self._create_meeting()
+        self.assert_(activity.can_link(self.user))
+
+        contact = Contact.objects.create(user=self.other_user, first_name='Musashi', last_name='Miyamoto')
+        self.assert_(contact.can_change(self.user))
+        self.failIf(contact.can_link(self.user))
+
+        uri = '/activities/activity/%s/participant/add' % activity.id
+        self.assertEqual(200, self.client.get(uri).status_code)
+
+        response = self.client.post(uri, data={'participants': contact.id})
+        self.assertEqual(200, response.status_code)
+
+        try:
+            errors = response.context['form'].errors
+        except Exception, e:
+            self.fail(str(e))
+
+        self.assert_(errors)
+        self.assertEqual(['participants'], errors.keys())
+        self.assertEqual(0, Relation.objects.filter(subject_entity=activity.id, type=REL_OBJ_PART_2_ACTIVITY).count())
 
     def test_add_subjects01(self):
         self.login()
@@ -372,6 +444,50 @@ class ActivitiesTestCase(TestCase):
         self.assertEqual(1, len(relations))
         self.assertEqual(orga.id, relations[0].object_entity_id)
 
-    #TODO: def test_add_subjects02(self): #with creds
+    def test_add_subjects02(self): #credentials error with the activity
+        self.login(is_superuser=False)
+        SetCredentials.objects.create(role=self.user.role,
+                                      value=SetCredentials.CRED_VIEW   | \
+                                            SetCredentials.CRED_CHANGE | \
+                                            SetCredentials.CRED_DELETE | \
+                                            SetCredentials.CRED_UNLINK,
+                                      set_type=SetCredentials.ESET_OWN)
+
+        activity = self._create_meeting()
+        self.assert_(activity.can_change(self.user))
+        self.failIf(activity.can_link(self.user))
+        self.assertEqual(403, self.client.get('/activities/activity/%s/subject/add' % activity.id).status_code)
+
+    def test_add_subjects03(self): #credentials error with selected subjects
+        self.login(is_superuser=False)
+        self._aux_build_setcreds()
+
+        activity = self._create_meeting()
+        self.assert_(activity.can_link(self.user))
+
+        orga = Organisation.objects.create(user=self.other_user, name='Ghibli')
+        self.assert_(orga.can_change(self.user))
+        self.failIf(orga.can_link(self.user))
+
+        uri = '/activities/activity/%s/subject/add' % activity.id
+        self.assertEqual(200, self.client.get(uri).status_code)
+
+        response = self.client.post(uri,
+                                     data={'subjects': '[{"ctype":"%s", "entity":"%s"}]' % (
+                                                ContentType.objects.get_for_model(Organisation).id,
+                                                orga.id,
+                                               ),
+                                         }
+                                   )
+        self.assertEqual(200, response.status_code)
+
+        try:
+            errors = response.context['form'].errors
+        except Exception, e:
+            self.fail(str(e))
+
+        self.assert_(errors)
+        self.assertEqual(['subjects'], errors.keys())
+        self.assertEqual(0, Relation.objects.filter(subject_entity=activity.id, type=REL_OBJ_ACTIVITY_SUBJECT).count())
 
 #TODO: complete test case

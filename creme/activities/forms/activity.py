@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2011  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -28,15 +28,15 @@ from django.utils.translation import ugettext_lazy as _, ugettext
 from django.db.models import Q
 from django.contrib.auth.models import User
 
-from creme_core.models import CremeEntity, Relation, RelationType
+from creme_core.models import Relation, RelationType
 from creme_core.forms import CremeForm, CremeEntityForm
 from creme_core.forms.fields import CremeDateTimeField, CremeTimeField, MultiCremeEntityField, MultiGenericEntityField
 from creme_core.forms.widgets import UnorderedMultipleChoiceWidget
+from creme_core.forms.validators import validate_linkable_entities
 
 from persons.models import Contact
 
 from assistants.models.alert import Alert
-
 
 from activities.models import Activity, Calendar, CalendarActivityLink
 from activities.constants import *
@@ -108,12 +108,14 @@ class ParticipantCreateForm(CremeForm):
         existing = Contact.objects.filter(relations__type=REL_SUB_PART_2_ACTIVITY, relations__object_entity=entity.id)
         self.fields['participants'].q_filter = {'~pk__in': [c.id for c in existing]}
 
+    def clean_participants(self):
+        return validate_linkable_entities(self.cleaned_data['participants'], self.user)
+
     def clean(self):
         cleaned_data = self.cleaned_data
 
         if not self._errors:
             activity = self.activity
-
             self.participants += cleaned_data['participants']
 
             if activity.busy:
@@ -142,7 +144,10 @@ class SubjectCreateForm(CremeForm):
         super(SubjectCreateForm, self).__init__(*args, **kwargs)
         self.activity = entity
 
-    def save (self): #TODO: test link creds
+    def clean_subjects(self):
+        return validate_linkable_entities(self.cleaned_data['subjects'], self.user)
+
+    def save (self):
         create_relation = partial(Relation.objects.create, subject_entity=self.activity,
                                   type_id=REL_OBJ_ACTIVITY_SUBJECT, user=self.user
                                  )
