@@ -21,7 +21,7 @@
                     </span>
                 {% endif %}
                 <a class="link" onclick="creme.relations.handleAddFromPredicateEntity('/creme_core/relation/add/from/predicate/{{predicate_id}}/entity/{{object.id}}/{{ct_id}}', '{{predicate_id}}', '{{object.id}}', {% get_block_reload_uri %});">
-                    <img src="{% media_url 'images/relations_22.png' %}" border="0" title="{% trans "Link to a document" %}" alt="{% trans "Link to a document" %}" />
+                    <img src="{% media_url 'images/link_22.png' %}" border="0" title="{% trans "Link to a document" %}" alt="{% trans "Link to a document" %}" />
                     {% trans "Link to an existing document" %}
                 </a>
             </div>
@@ -41,7 +41,7 @@
                             <a href="{{doc.get_absolute_url}}" title="{{doc}}">{{doc}}</a>
                         </td>
                         <td class="{{row_color}}" align="center" valign="center" style="width:10%;">
-                            {% get_line_deletor at_url '/creme_core/relation/delete' with_args "{'id':{{relation.pk}}, 'object_id':{{object.pk}} }" %}
+                            {% get_line_unlinker at_url '/creme_core/relation/delete' with_args "{'id':{{relation.pk}}, 'object_id':{{object.pk}} }" with_perms 1 %}
                         </td>
                     </tr>
                 {% endwith %}
