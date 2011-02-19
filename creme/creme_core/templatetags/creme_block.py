@@ -127,45 +127,55 @@ def get_column_header(context, column_name, field_name):
 
 
 #-------------------------------------------------------------------------------
-_line_adder_re = compile_re(r'at_url (.*?) with_label (.*?) with_perms (.*?)$')
+_line_creator_re = compile_re(r'at_url (.*?) with_label (.*?) with_perms (.*?)$')
 
-@register.tag(name="get_line_adder")
-def do_line_adder(parser, token):
-    """Eg: {% get_line_adder at_url '/assistants/action/add/{{object.id}}/' with_label _("New action") with_perms has_perm %}"""
+def _do_line_creator(parser, token, template_path):
     try:
         tag_name, arg = token.contents.split(None, 1) # Splitting by None == splitting by spaces.
     except ValueError:
         raise TemplateSyntaxError, "%r tag requires arguments" % token.contents.split()[0]
 
-    match = _line_adder_re.search(arg)
+    match = _line_creator_re.search(arg)
     if not match:
         raise TemplateSyntaxError, "%r tag had invalid arguments" % tag_name
 
-    add_url, label_str, perm_str = match.groups()
+    url, label_str, perm_str = match.groups()
 
-    first_char = add_url[0]
-    if not (first_char == add_url[-1] and first_char in ('"', "'")):
+    first_char = url[0]
+    if not (first_char == url[-1] and first_char in ('"', "'")):
         raise TemplateSyntaxError, "%r tag's url argument should be in quotes" % tag_name
 
     compile_filter = parser.compile_filter
-    return LineAdderNode(add_url[1:-1],
-                         TemplateLiteral(compile_filter(label_str), label_str),
-                         TemplateLiteral(compile_filter(perm_str), perm_str),
-                        )
 
-class LineAdderNode(TemplateNode):
-    def __init__(self, add_url,  label_var, perm_var):
-        self.adder_tpl = get_template('creme_core/templatetags/widgets/block_line_adder.html')
-        self.url_tpl   = Template(add_url)
-        self.perm_var = perm_var
+    return LineCreatorNode(url=url[1:-1],
+                           label_var=TemplateLiteral(compile_filter(label_str), label_str),
+                           perm_var=TemplateLiteral(compile_filter(perm_str), perm_str),
+                           template_path=template_path
+                          )
+
+class LineCreatorNode(TemplateNode):
+    def __init__(self, url,  label_var, perm_var, template_path):
+        self.template  = get_template(template_path)
+        self.url_tpl   = Template(url)
+        self.perm_var  = perm_var
         self.label_var = label_var
 
     def render(self, context):
-        context['add_url'] = self.url_tpl.render(context)
-        context['label'] = self.label_var.eval(context)
-        context['add_line_perm'] = self.perm_var.eval(context)
+        context['action_url'] = self.url_tpl.render(context)
+        context['label']      = self.label_var.eval(context)
+        context['line_perm']  = self.perm_var.eval(context)
 
-        return self.adder_tpl.render(context)
+        return self.template.render(context)
+
+@register.tag(name="get_line_adder")
+def do_line_adder(parser, token):
+    """Eg: {% get_line_adder at_url '/app/model/add/{{object.id}}/' with_label _("New Stuff") with_perms has_perm %}"""
+    return _do_line_creator(parser, token, 'creme_core/templatetags/widgets/block_line_adder.html')
+
+@register.tag(name="get_line_linker")
+def do_line_linker(parser, token):
+    """Eg: {% get_line_linker at_url '/assistants/action/link/{{object.id}}/' with_label _("Link to existing Stuffs") with_perms has_perm %}"""
+    return _do_line_creator(parser, token, 'creme_core/templatetags/widgets/block_line_linker.html')
 
 #-------------------------------------------------------------------------------
 _line_deletor_re = compile_re(r'at_url (.*?) with_args (.*?)$')
