@@ -10,7 +10,7 @@
         <th style="width: 20%;" align="right">
             <div class="buttons">
                 <a class="link" onclick="creme.relations.handleAddFromPredicateEntity('/creme_core/relation/add/from/predicate/{{predicate_id}}/entity/{{object.id}}/{{ct_id}}', '{{predicate_id}}', '{{object.id}}', {% get_block_reload_uri %});">
-                    <img src="{% media_url 'images/relations_22.png' %}" border="0" title="{% trans "Link to an existing quote" %}" alt="{% trans "Link to an existing quote" %}" />
+                    <img src="{% media_url 'images/link_22.png' %}" border="0" title="{% trans "Link to an existing quote" %}" alt="{% trans "Link to an existing quote" %}" />
                     {% trans "Link to an existing quote" %}
                 </a>
                 <a class="add" href="/opportunities/opportunity/generate_new_doc/{{object.id}}/{{ct_id}}">
@@ -26,7 +26,7 @@
                 <th class="block_header_line_dark">{% trans "Number" %}</th>
                 <th class="block_header_line_dark">{% trans "Name" %}</th>
                 <th class="block_header_line_dark">{% trans "Current quote ?" %}</th>
-                <th class="block_header_line_dark">{% trans "Delete" %}</th>
+                <th class="block_header_line_dark">{% trans "Unlink" %}</th>
             </tr>
             {% for quote in page.object_list %}
                 <!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
@@ -45,7 +45,7 @@
                         {% endif %}
                     </td>
                     <td class="{{row_color}}" align="center" valign="center" style="width:10%;">
-                        {% get_line_deletor at_url '/creme_core/relation/delete/similar' with_args "{'subject_id':{{object.pk}}, 'type':'{{predicate_id}}', 'object_id':{{quote.pk}} }" %}
+                        {% get_line_unlinker at_url '/creme_core/relation/delete/similar' with_args "{'subject_id':{{object.pk}}, 'type':'{{predicate_id}}', 'object_id':{{quote.pk}} }" with_perms 1 %}
                     </td>
                 </tr>
             {% endfor %}

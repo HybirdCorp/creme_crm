@@ -16,7 +16,7 @@
         {% if page.paginator.count %}
             <tr>
                 <th class="block_header_line_dark">{% trans "Number" %}</th>
-                <th class="block_header_line_dark">{% trans "Delete" %}</th>
+                <th class="block_header_line_dark">{% trans "Unlink" %}</th>
             </tr>
             {% for contact in page.object_list %}
                 <!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
@@ -31,7 +31,7 @@
                         </a>
                     </td>
                     <td class="{{row_color}}" align="center" valign="center" style="width:10%;">
-                        {% get_line_deletor2 at_url '/sms/messaging_list/{{object.pk}}/contact/delete' with_args "{'id':{{contact.pk}} }" with_perms has_perm %}
+                        {% get_line_unlinker at_url '/sms/messaging_list/{{object.pk}}/contact/delete' with_args "{'id':{{contact.pk}} }" with_perms has_perm %}
                     </td>
                 </tr>
             {% endfor %}

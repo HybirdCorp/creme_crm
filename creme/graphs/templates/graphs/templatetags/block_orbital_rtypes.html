@@ -14,14 +14,14 @@
         {% if page.paginator.count %}
             <tr>
                 <th class="block_header_line_dark">{% trans "Type of relation" %}</th>
-                <th class="block_header_line_dark">{% trans "Delete" %}</th>
+                <th class="block_header_line_dark">{% trans "Unlink" %}</th>
             </tr>
             {% for rtype in page.object_list %}
                 <!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
                 <tr>
                     <td class="{{row_color}}">{{rtype}}</td>
                     <td class="{{row_color}}" align="center" valign="center" style="width:10%;">
-                        {% get_line_deletor2 at_url '/graphs/graph/{{object.pk}}/relation_type/delete' with_args "{'id':'{{rtype.pk}}' }" with_perms has_perm %}
+                        {% get_line_unlinker at_url '/graphs/graph/{{object.pk}}/relation_type/delete' with_args "{'id':'{{rtype.pk}}' }" with_perms has_perm %}
                     </td>
                 </tr>
             {% endfor %}
