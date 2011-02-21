@@ -2,12 +2,11 @@
 
 from datetime import datetime, date
 
-from django.test import TestCase
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 
 from creme_core.models import RelationType, Relation, CremePropertyType, CremeProperty, CremeEntity
-from creme_core.management.commands.creme_populate import Command as PopulateCommand
+from creme_core.tests.base import CremeTestCase
 
 from persons.models import Contact, Organisation
 
@@ -17,22 +16,9 @@ from commercial.models import *
 from commercial.constants import *
 
 
-class CommercialTestCase(TestCase):
-    def login(self):
-        if not self.user:
-            user = User.objects.create(username='Frodo')
-            user.set_password(self.password)
-            user.is_superuser = True
-            user.save()
-            self.user = user
-
-        logged = self.client.login(username=self.user.username, password=self.password)
-        self.assert_(logged, 'Not logged in')
-
+class CommercialTestCase(CremeTestCase):
     def setUp(self):
-        PopulateCommand().handle(application=['creme_core', 'persons', 'commercial'])
-        self.password = 'test'
-        self.user = None
+        self.populate('creme_core', 'persons', 'commercial')
 
     def test_commercial01(self): #populate
         try:
@@ -141,7 +127,7 @@ class CommercialTestCase(TestCase):
         self.assertEqual(response.status_code, 200)
 
     def test_populate(self):
-        PopulateCommand().handle(application=['creme_core', 'persons', 'commercial'])
+        self.populate('creme_core', 'persons', 'commercial')
         self.assertEqual(3, ActType.objects.count())
 
         rtypes = RelationType.objects.filter(pk=REL_SUB_OPPORT_LINKED)
@@ -157,26 +143,9 @@ class CommercialTestCase(TestCase):
         self.assertEqual([get_ct(Act).id], [ct.id for ct in rtypes[0].object_ctypes.all()])
 
 
-class LoggedTestCase(TestCase):
+class LoggedTestCase(CremeTestCase):
     def setUp(self):
-        self.password = 'test'
-
-        user = User.objects.create(username='Bilbo', is_superuser=True)
-        user.set_password(self.password)
-        user.save()
-        self.user = user
-
-        logged = self.client.login(username=user.username, password=self.password)
-        self.assert_(logged, 'Not logged in')
-
-    def assertNoFormError(self, response):
-        try:
-            errors = response.context['form'].errors
-        except Exception, e:
-            pass
-        else:
-            if errors:
-                self.fail(errors)
+        self.login()
 
     def _create_segment(self):
         #TODO: use a true segment creation view ??
@@ -872,7 +841,7 @@ class ActTestCase(LoggedTestCase):
         self.assertEqual(25,   due_date.day)
 
     def test_listview(self):
-        PopulateCommand().handle(application=['creme_core', 'persons', 'commercial'])
+        self.populate('creme_core', 'persons', 'commercial')
 
         atype = ActType.objects.create(title='Show')
         segment = self._create_segment()
@@ -1077,7 +1046,7 @@ class ActTestCase(LoggedTestCase):
         self.assertEqual(-2,  ActObjective.objects.get(pk=objective.id).counter)
 
     def test_count_relations(self):
-        PopulateCommand().handle(application=['commercial']) #'creme_core', 'persons'
+        self.populate('commercial') #'creme_core', 'persons'
         RelationType.objects.get(pk=REL_SUB_COMPLETE_GOAL) #raise exception if error
 
         act = self.create_act()
@@ -1106,7 +1075,7 @@ class ActTestCase(LoggedTestCase):
         self.assert_(objective.reached)
 
     def test_related_opportunities(self):
-        PopulateCommand().handle(application=['commercial']) #'creme_core', 'persons'
+        self.populate('commercial') #'creme_core', 'persons'
         RelationType.objects.get(pk=REL_SUB_OPPORT_LINKED) #raise exception if error
 
         act = self.create_act()
@@ -1205,7 +1174,7 @@ class ActObjectivePatternTestCase(LoggedTestCase):
         self.assertEqual(segment.id,    pattern.segment.id)
 
     def test_listview(self):
-        PopulateCommand().handle(application=['creme_core', 'persons', 'commercial'])
+        self.populate('creme_core', 'persons', 'commercial')
 
         create_patterns = ActObjectivePattern.objects.create
         patterns = [create_patterns(user=self.user,

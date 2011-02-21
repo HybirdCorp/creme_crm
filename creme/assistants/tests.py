@@ -3,45 +3,26 @@
 from datetime import datetime
 
 from django.core.serializers.json import simplejson
-from django.test import TestCase
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 
 from creme_core.models import CremeEntity
-from creme_core.management.commands.creme_populate import Command as PopulateCommand
+from creme_core.tests.base import CremeTestCase
 
 from assistants.models import *
 from assistants.blocks import todos_block
 
 
-class AssistantsAppTestCase(TestCase):
+class AssistantsAppTestCase(CremeTestCase):
     def test_populate(self):
-        PopulateCommand().handle(application=['assistants'])
+        self.populate('assistants')
         self.assertEqual(3, UserMessagePriority.objects.count())
 
 
-class AssistantsTestCase(TestCase):
+class AssistantsTestCase(CremeTestCase):
     def setUp(self):
-        password = 'test'
-        user = User(username='name')
-        user.set_password(password)
-        user.is_superuser = True
-        user.save()
-        self.user = user
-
-        logged = self.client.login(username=user.username, password=password)
-        self.assert_(logged, 'Not logged in')
-
+        self.login()
         self.entity = CremeEntity.objects.create(user=self.user)
-
-    def assertNoFormError(self, response):
-        try:
-            errors = response.context['form'].errors
-        except Exception, e:
-            pass
-        else:
-            if errors:
-                self.fail(errors)
 
 
 class TodoTestCase(AssistantsTestCase):

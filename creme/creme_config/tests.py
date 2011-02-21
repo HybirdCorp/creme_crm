@@ -1,12 +1,11 @@
 # -*- coding: utf-8 -*-
 
-from django.test import TestCase
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 
 from creme_core.models import *
 from creme_core.constants import PROP_IS_MANAGED_BY_CREME
-from creme_core.management.commands.creme_populate import Command as PopulateCommand
+from creme_core.tests.base import CremeTestCase
 
 from persons.models import Contact, Organisation #need CremeEntity
 from persons.constants import REL_SUB_EMPLOYED_BY, REL_SUB_MANAGES
@@ -14,30 +13,7 @@ from persons.constants import REL_SUB_EMPLOYED_BY, REL_SUB_MANAGES
 #TODO: test views are allowed to admin only...
 
 
-class CremeConfigTestCase(TestCase):
-    def login(self):
-        self.password = 'test'
-
-        user = User.objects.create(username='Mireille')
-        user.set_password(self.password)
-        user.is_superuser = True
-        user.save()
-        self.user = user
-
-        logged = self.client.login(username=self.user.username, password=self.password)
-        self.assert_(logged, 'Not logged in')
-
-    def assertNoFormError(self, response): #move in a CremeTestCase ???
-        try:
-            errors = response.context['form'].errors
-        except Exception, e:
-            pass
-        else:
-            if errors:
-                self.fail(errors)
-
-
-class UserRoleTestCase(CremeConfigTestCase):
+class UserRoleTestCase(CremeTestCase):
     def setUp(self):
         self.login()
 
@@ -199,13 +175,13 @@ class UserRoleTestCase(CremeConfigTestCase):
         self.assert_(altena.can_view(other_user))
 
     def test_delete01(self):
-        role = UserRole(name='CEO')
+        role = self.role
         role.allowed_apps = ['persons']
         role.save()
         SetCredentials.objects.create(role=role, value=SetCredentials.CRED_VIEW,
                                       set_type=SetCredentials.ESET_ALL)
 
-        other_user = User.objects.create(username='chloe', role=role)
+        other_user = self.other_user
         yuki = Contact.objects.create(user=self.user, first_name='Yuki', last_name='Kajiura')
         self.assert_(yuki.can_view(other_user))
         self.assertEqual(1, EntityCredentials.objects.count())
@@ -258,9 +234,9 @@ class UserRoleTestCase(CremeConfigTestCase):
         self.assertEqual(200, response.status_code)
 
 
-class UserTestCase(CremeConfigTestCase):
+class UserTestCase(CremeTestCase):
     def setUp(self):
-        PopulateCommand().handle(application=['persons']) #'creme_core'
+        self.populate('persons') #'creme_core'
         self.login()
 
     def test_portal(self):
@@ -527,7 +503,7 @@ class UserTestCase(CremeConfigTestCase):
         self.assertEqual(1, User.objects.filter(pk=team.id).count())
 
 
-class PropertyTypeTestCase(CremeConfigTestCase):
+class PropertyTypeTestCase(CremeTestCase):
     def setUp(self):
         self.login()
 
@@ -609,7 +585,7 @@ class PropertyTypeTestCase(CremeConfigTestCase):
         self.assertEqual(0,   CremePropertyType.objects.filter(pk=pt.id).count())
 
 
-class RelationTypeTestCase(CremeConfigTestCase):
+class RelationTypeTestCase(CremeTestCase):
     def setUp(self): #in CremeConfigTestCase ??
         self.login()
 

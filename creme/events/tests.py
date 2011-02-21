@@ -1,12 +1,11 @@
 # -*- coding: utf-8 -*-
 
-from django.test import TestCase
 from django.utils.translation import ugettext as _
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 
 from creme_core.models import RelationType, Relation
-from creme_core.management.commands.creme_populate import Command as PopulateCommand
+from creme_core.tests.base import CremeTestCase
 
 from persons.models import Contact
 
@@ -14,22 +13,9 @@ from events.models import *
 from events.constants import *
 
 
-class EventsTestCase(TestCase):
-    def login(self):
-        if not self.user:
-            user = User.objects.create(username='Guts')
-            user.set_password(self.password)
-            user.is_superuser = True
-            user.save()
-            self.user = user
-
-        logged = self.client.login(username=self.user.username, password=self.password)
-        self.assert_(logged, 'Not logged in')
-
+class EventsTestCase(CremeTestCase):
     def setUp(self):
-        PopulateCommand().handle(application=['creme_core', 'events']) #'persons'
-        self.password = 'test'
-        self.user = None
+        self.populate('creme_core', 'events') #'persons'
 
     def test_populate(self):
         rtypes_pks = [REL_SUB_IS_INVITED_TO, REL_SUB_ACCEPTED_INVITATION, REL_SUB_REFUSED_INVITATION, REL_SUB_CAME_EVENT, REL_SUB_NOT_CAME_EVENT]
@@ -353,7 +339,7 @@ class EventsTestCase(TestCase):
         self.client.post('/events/event/%s/contact/%s/set_invitation_status' % (event.id, griffith.id),
                          data={'status': str(INV_STATUS_ACCEPTED)})
 
-        PopulateCommand().handle(application=['persons']) #HeaderFilter....
+        self.populate('persons') #HeaderFilter....
 
         response = self.client.get('/events/event/%s/contacts' % event.id)
         self.assertEqual(response.status_code, 200)

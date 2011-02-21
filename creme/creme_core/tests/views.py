@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-from django.test import TestCase
 from django.http import Http404
 from django.core.serializers.json import simplejson
 from django.utils.translation import ugettext as _
@@ -9,52 +8,40 @@ from django.contrib.contenttypes.models import ContentType
 
 from creme_core.models import *
 from creme_core.models.header_filter import HFI_FIELD
-from creme_core.management.commands.creme_populate import Command as PopulateCommand
+from creme_core.tests.base import CremeTestCase
 
 from persons.models import Contact, Organisation #TODO: find a way to create model that inherit CremeEntity in the unit tests ??
 from persons.constants import REL_OBJ_CUSTOMER_OF, REL_OBJ_EMPLOYED_BY
 
-class ViewsTestCase(TestCase):
+
+class ViewsTestCase(CremeTestCase):
     def login(self, is_superuser=True):
-        password = 'test'
+        super(ViewsTestCase, self).login(is_superuser)
 
-        superuser = User.objects.create(username='Kirika')
-        superuser.set_password(password)
-        superuser.is_superuser = True
-        superuser.save()
-
-        role = UserRole.objects.create(name='Basic')
-        role.allowed_apps = ['creme_core']
-        role.save()
-        SetCredentials.objects.create(role=role,
+        SetCredentials.objects.create(role=self.role,
                                       value=SetCredentials.CRED_VIEW   | \
                                             SetCredentials.CRED_CHANGE | \
                                             SetCredentials.CRED_DELETE | \
                                             SetCredentials.CRED_LINK   | \
                                             SetCredentials.CRED_UNLINK,
-                                      set_type=SetCredentials.ESET_OWN)
-        basic_user = User.objects.create(username='Mireille', role=role)
-        basic_user.set_password(password)
-        basic_user.save()
+                                      set_type=SetCredentials.ESET_OWN
+                                     )
 
-        self.user, self.other_user = (superuser, basic_user) if is_superuser else \
-                                     (basic_user, superuser)
+    def _set_all_creds_except_one(self, excluded): #TODO: in CremeTestCase ?
+        value = SetCredentials.CRED_NONE
 
-        logged = self.client.login(username=self.user.username, password=password)
-        self.assert_(logged, 'Not logged in')
+        for cred in (SetCredentials.CRED_VIEW, SetCredentials.CRED_CHANGE,
+                     SetCredentials.CRED_DELETE, SetCredentials.CRED_LINK,
+                     SetCredentials.CRED_UNLINK):
+            if cred != excluded:
+                value |= cred
 
-    def populate(self, *args): #TODO: use more or remove
-        PopulateCommand().handle(application=args)
+        SetCredentials.objects.create(role=self.user.role,
+                                      value=value,
+                                      set_type=SetCredentials.ESET_ALL)
 
-    def assertNoFormError(self, response): #TODO: move in a CremeTestCase ??? (copied from creme_config)
-        try:
-            errors = response.context['form'].errors
-        except Exception, e:
-            pass
-        else:
-            if errors:
-                self.fail(errors)
 
+class MiscViewsTestCase(ViewsTestCase):
     def test_home(self): #TODO: improve test
         self.login()
         self.assertEqual(200, self.client.get('/').status_code)
@@ -74,6 +61,29 @@ class ViewsTestCase(TestCase):
         self.assert_(last[0].endswith('/creme_login/'))
         self.assertEqual(302, last[1])
 
+    def test_csv_export(self): #TODO: test other hfi type...
+        self.login()
+
+        ct = ContentType.objects.get_for_model(Contact)
+        hf = HeaderFilter.objects.create(id='test-hf_contact', name='Contact view', entity_type=ct)
+        create_hfi = HeaderFilterItem.objects.create
+        create_hfi(id='test-hfi_lastname',  order=1, name='last_name',  title='Last name',  type=HFI_FIELD, header_filter=hf, has_a_filter=True, editable=True, filter_string="last_name__icontains")
+        create_hfi(id='test-hfi_firstname', order=2, name='first_name', title='First name', type=HFI_FIELD, header_filter=hf, has_a_filter=True, editable=True, filter_string="first_name__icontains")
+
+        for first_name, last_name in [('Spike', 'Spiegel'), ('Jet', 'Black'), ('Faye', 'Valentine'), ('Edward', 'Wong')]:
+            Contact.objects.create(user=self.user, first_name=first_name, last_name=last_name)
+
+        lv_url = Contact.get_lv_absolute_url()
+        self.assertEqual(200, self.client.get(lv_url).status_code) #set the current list view state...
+
+        response = self.client.get('/creme_core/list_view/dl_csv/%s' % ct.id, data={'list_url': lv_url})
+        self.assertEqual(200, response.status_code)
+        self.assertEqual(['"Last name","First name"', '"Black","Jet"', '"Spiegel","Spike"', '"Valentine","Faye"', '"Wong","Edward"'],
+                         response.content.splitlines()
+                        )
+
+
+class EntityViewsTestCase(ViewsTestCase):
     def test_get_fields(self):
         self.login()
 
@@ -313,8 +323,8 @@ class ViewsTestCase(TestCase):
         self.assertEqual(2,   CremeEntity.objects.filter(pk__in=[entity01.id, entity02.id]).count())
         self.assertEqual(0,   CremeEntity.objects.filter(pk=entity03.id).count())
 
-    ########################### Properties #####################################
 
+class PropertyViewsTestCase(ViewsTestCase):
     def test_add_property(self):
         self.login()
 
@@ -503,8 +513,8 @@ class ViewsTestCase(TestCase):
 
         self.assertEqual(1, len(form.errors.get('__all__', [])))
 
-    ############################################################################
 
+class RelationViewsTestCase(ViewsTestCase):
     def test_get_ctypes_of_relation(self):
         self.login()
         self.populate('creme_core', 'persons')
@@ -539,19 +549,6 @@ class ViewsTestCase(TestCase):
         self.rtype02, srtype02 = RelationType.create(('test-subject_foobar2', 'is hating'),
                                                      ('test-object_foobar2',  'is hated by')
                                                     )
-
-    def _set_all_creds_except_one(self, excluded):
-        value = SetCredentials.CRED_NONE
-
-        for cred in (SetCredentials.CRED_VIEW, SetCredentials.CRED_CHANGE,
-                     SetCredentials.CRED_DELETE, SetCredentials.CRED_LINK,
-                     SetCredentials.CRED_UNLINK):
-            if cred != excluded:
-                value |= cred
-
-        SetCredentials.objects.create(role=self.user.role,
-                                      value=value,
-                                      set_type=SetCredentials.ESET_ALL)
 
     def assertEntiTyHasRelation(self, subject_entity, rtype, object_entity):
         try:
@@ -720,8 +717,7 @@ class ViewsTestCase(TestCase):
         self.assertEqual(1, len(form.errors.get('__all__', [])))
 
     def _aux_relation_objects_to_link_selection(self):
-        PopulateCommand().handle(application=['creme_core', 'persons'])
-
+        self.populate('creme_core', 'persons')
         self.login()
 
         self.assertEqual(1, Contact.objects.count())
@@ -1173,6 +1169,7 @@ class ViewsTestCase(TestCase):
 
     #TODO: test other relation views...
 
+class HeaderFilterViewsTestCase(ViewsTestCase):
     def test_headerfilter_create(self): #TODO: test several HFI, other types of HFI
         self.login()
 
@@ -1289,24 +1286,3 @@ class ViewsTestCase(TestCase):
         self.assertEqual('last_name',  hfitems[1].name)
 
     #TODO: def test_headerfilter_delete(self): #editable and not editable
-
-    def test_csv_export(self): #TODO: test other hfi type...
-        self.login()
-
-        ct = ContentType.objects.get_for_model(Contact)
-        hf = HeaderFilter.objects.create(id='test-hf_contact', name='Contact view', entity_type=ct)
-        create_hfi = HeaderFilterItem.objects.create
-        create_hfi(id='test-hfi_lastname',  order=1, name='last_name',  title='Last name',  type=HFI_FIELD, header_filter=hf, has_a_filter=True, editable=True, filter_string="last_name__icontains")
-        create_hfi(id='test-hfi_firstname', order=2, name='first_name', title='First name', type=HFI_FIELD, header_filter=hf, has_a_filter=True, editable=True, filter_string="first_name__icontains")
-
-        for first_name, last_name in [('Spike', 'Spiegel'), ('Jet', 'Black'), ('Faye', 'Valentine'), ('Edward', 'Wong')]:
-            Contact.objects.create(user=self.user, first_name=first_name, last_name=last_name)
-
-        lv_url = Contact.get_lv_absolute_url()
-        self.assertEqual(200, self.client.get(lv_url).status_code) #set the current list view state...
-
-        response = self.client.get('/creme_core/list_view/dl_csv/%s' % ct.id, data={'list_url': lv_url})
-        self.assertEqual(200, response.status_code)
-        self.assertEqual(['"Last name","First name"', '"Black","Jet"', '"Spiegel","Spike"', '"Valentine","Faye"', '"Wong","Edward"'],
-                         response.content.splitlines()
-                        )

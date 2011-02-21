@@ -1,48 +1,17 @@
 # -*- coding: utf-8 -*-
 
-from django.test import TestCase
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 
 from creme_core.models import RelationType, UserRole
+from creme_core.tests.base import CremeTestCase
 
 from graphs.models import *
 
 
-class PersonsTestCase(TestCase):
+class GraphsTestCase(CremeTestCase):
     def login(self, is_superuser=True):
-        password = 'test'
-
-        superuser = User.objects.create(username='Kirika')
-        superuser.set_password(password)
-        superuser.is_superuser = True
-        superuser.save()
-
-        role = UserRole.objects.create(name='Basic')
-        role.allowed_apps = ['graphs']
-        role.save()
-        basic_user = User.objects.create(username='Mireille', role=role)
-        basic_user.set_password(password)
-        basic_user.save()
-
-        self.user, self.other_user = (superuser, basic_user) if is_superuser else \
-                                     (basic_user, superuser)
-
-        logged = self.client.login(username=self.user.username, password=password)
-        self.assert_(logged, 'Not logged in')
-
-    def setUp(self):
-        self.password = 'test'
-        self.user = None
-
-    def assertNoFormError(self, response): #TODO: move in a CremeTestCase ??? (copied from creme_config)
-        try:
-            errors = response.context['form'].errors
-        except Exception, e:
-            pass
-        else:
-            if errors:
-                self.fail(errors)
+        super(GraphsTestCase, self).login(is_superuser, allowed_apps=['graphs'])
 
     def test_graph_create(self):
         self.login()
