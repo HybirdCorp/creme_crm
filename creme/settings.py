@@ -55,6 +55,7 @@ LANGUAGE_CODE = 'fr' #Choose in the LANGUAGES values
 
 
 DATE_FORMAT         = 'd-m-Y'
+SHORT_DATE_FORMAT         = 'd-m-Y'
 DATE_FORMAT_VERBOSE = _(u'Format : Day-Month-Year (Ex:31-12-2010)')
 DATE_FORMAT_JS      = {
     'd-m-Y': 'dd-mm-yy',
