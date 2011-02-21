@@ -18,6 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from django.core.exceptions import PermissionDenied
 from django.forms.util import ValidationError
 from django.utils.translation import ugettext as _
 
@@ -45,3 +46,11 @@ def validate_linkable_entities(entities, user):
         raise ValidationError(_(u"Some entities are not linkable: %s") % unlinkable)
 
     return entities
+
+def validate_linkable_entity(entity, user):
+    try:
+        entity.can_link_or_die(user)
+    except PermissionDenied, e:
+        raise ValidationError(unicode(e))
+
+    return entity
