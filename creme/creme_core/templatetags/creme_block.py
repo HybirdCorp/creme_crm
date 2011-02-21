@@ -127,7 +127,7 @@ def get_column_header(context, column_name, field_name):
 
 
 #-------------------------------------------------------------------------------
-_line_creator_re = compile_re(r'at_url (.*?) with_label (.*?) with_perms (.*?)$')
+_LINE_CREATOR_RE = compile_re(r'at_url (.*?) with_label (.*?) with_perms (.*?)$')
 
 def _do_line_creator(parser, token, template_path):
     try:
@@ -135,7 +135,7 @@ def _do_line_creator(parser, token, template_path):
     except ValueError:
         raise TemplateSyntaxError, "%r tag requires arguments" % token.contents.split()[0]
 
-    match = _line_creator_re.search(arg)
+    match = _LINE_CREATOR_RE.search(arg)
     if not match:
         raise TemplateSyntaxError, "%r tag had invalid arguments" % tag_name
 
@@ -178,7 +178,50 @@ def do_line_linker(parser, token):
     return _do_line_creator(parser, token, 'creme_core/templatetags/widgets/block_line_linker.html')
 
 #-------------------------------------------------------------------------------
-_line_deletor_re = compile_re(r'at_url (.*?) with_args (.*?)$')
+_LINE_RELATOR_RE = compile_re(r'to_subject (.*?) with_rtype_id (.*?) with_ct_id (.*?) with_label (.*?) with_perms (.*?)$')
+
+@register.tag(name="get_line_relator")
+def do_line_relator(parser, token):
+    """Eg: {% get_line_relator to_object object with_rtype_id predicate_id with_ctype ct with_label _("Link to an existing Stuff") with_perms has_perm %}"""
+    try:
+        tag_name, arg = token.contents.split(None, 1) # Splitting by None == splitting by spaces.
+    except ValueError:
+        raise TemplateSyntaxError, "%r tag requires arguments" % token.contents.split()[0]
+
+    match = _LINE_RELATOR_RE.search(arg)
+    if not match:
+        raise TemplateSyntaxError, "%r tag had invalid arguments" % tag_name
+
+    subject_str, type_id_str, ctype_id_str, label_str, perm_str = match.groups()
+    compile_filter = parser.compile_filter
+
+    return LineRelatorNode(subject_var=TemplateLiteral(compile_filter(subject_str), subject_str),
+                           rtype_id_var=TemplateLiteral(compile_filter(type_id_str), type_id_str),
+                           ctype_id_var=TemplateLiteral(compile_filter(ctype_id_str), ctype_id_str),
+                           label_var=TemplateLiteral(compile_filter(label_str), label_str),
+                           perm_var=TemplateLiteral(compile_filter(perm_str), perm_str)
+                          )
+
+class LineRelatorNode(TemplateNode):
+    def __init__(self, subject_var, rtype_id_var, ctype_id_var, label_var, perm_var):
+        self.template = get_template('creme_core/templatetags/widgets/block_line_relator.html')
+        self.subject_var  = subject_var
+        self.rtype_id_var = rtype_id_var
+        self.ctype_id_var = ctype_id_var
+        self.label_var    = label_var
+        self.perm_var     = perm_var
+
+    def render(self, context):
+        context['subject_id'] = self.subject_var.eval(context).id
+        context['rtype_id']   = self.rtype_id_var.eval(context)
+        context['ct_id']      = self.ctype_id_var.eval(context)
+        context['label']      = self.label_var.eval(context)
+        context['line_perm']  = self.perm_var.eval(context)
+
+        return self.template.render(context)
+
+#-------------------------------------------------------------------------------
+_LINE_DELETOR_RE = compile_re(r'at_url (.*?) with_args (.*?)$')
 
 @register.tag(name="get_line_deletor") #TODO: deprecated (use get_line_deletor2 that manages credentials)
 def do_line_deletor(parser, token):
@@ -189,7 +232,7 @@ def do_line_deletor(parser, token):
     except ValueError:
         raise TemplateSyntaxError, "%r tag requires arguments" % token.contents.split()[0]
 
-    match = _line_deletor_re.search(arg)
+    match = _LINE_DELETOR_RE.search(arg)
     if not match:
         raise TemplateSyntaxError, "%r tag had invalid arguments" % tag_name
 
@@ -216,7 +259,7 @@ class LineDeletorNode(TemplateNode):
         return self.deletor_tpl.render(context)
 
 
-_line_suppr_re = compile_re(r'at_url (.*?) with_args (.*?) with_perms (.*?)$')
+_LINE_SUPPR_RE = compile_re(r'at_url (.*?) with_args (.*?) with_perms (.*?)$')
 
 def _do_line_suppr(parser, token, template_path):
     try:
@@ -225,7 +268,7 @@ def _do_line_suppr(parser, token, template_path):
     except ValueError:
         raise TemplateSyntaxError, "%r tag requires arguments" % token.contents.split()[0]
 
-    match = _line_suppr_re.search(arg)
+    match = _LINE_SUPPR_RE.search(arg)
     if not match:
         raise TemplateSyntaxError, "%r tag had invalid arguments" % tag_name
 
@@ -266,7 +309,7 @@ def do_line_unlinker(parser, token):
     return _do_line_suppr(parser, token, 'creme_core/templatetags/widgets/block_line_unlinker.html')
 
 #-------------------------------------------------------------------------------
-_line_editor_re = compile_re(r'at_url (.*?) with_perms (.*?)$')
+_LINE_EDITOR_RE = compile_re(r'at_url (.*?) with_perms (.*?)$')
 
 @register.tag(name="get_line_editor")
 def do_line_editor(parser, token):
@@ -276,7 +319,7 @@ def do_line_editor(parser, token):
     except ValueError:
         raise TemplateSyntaxError, "%r tag requires arguments" % token.contents.split()[0]
 
-    match = _line_editor_re.search(arg)
+    match = _LINE_EDITOR_RE.search(arg)
     if not match:
         raise TemplateSyntaxError, "%r tag had invalid arguments" % tag_name
 
@@ -290,7 +333,7 @@ def do_line_editor(parser, token):
 
 class LineEditorNode(TemplateNode):
     def __init__(self, edit_url, perm_var):
-        self.editor_tpl = get_template('creme_core/templatetags/widgets/block_line_editor.html')
+        self.template = get_template('creme_core/templatetags/widgets/block_line_editor.html')
         self.url_tpl = Template(edit_url)
         self.perm_var = perm_var
 
@@ -298,11 +341,11 @@ class LineEditorNode(TemplateNode):
         context['edit_url'] = self.url_tpl.render(context)
         context['edit_line_perm'] = self.perm_var.eval(context)
 
-        return self.editor_tpl.render(context)
+        return self.template.render(context)
 
 
 #-------------------------------------------------------------------------------
-_block_importer_re = compile_re(r'from_app (.*?) named (.*?) as (.*?)$')
+_BLOCK_IMPORTER_RE = compile_re(r'from_app (.*?) named (.*?) as (.*?)$')
 
 @register.tag(name="import_block")
 def do_block_importer(parser, token):
@@ -313,7 +356,7 @@ def do_block_importer(parser, token):
     except ValueError:
         raise TemplateSyntaxError, "%r tag requires arguments" % token.contents.split()[0]
 
-    match = _block_importer_re.search(arg)
+    match = _BLOCK_IMPORTER_RE.search(arg)
     if not match:
         raise TemplateSyntaxError, "%r tag had invalid arguments" % tag_name
 

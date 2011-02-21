@@ -6,17 +6,7 @@
         <th style="width: 80%;" class="collapser" align="left">{% get_block_title _('%s Proposed Quote') _('%s Proposed Quotes') 'invoice_48.png' _('Quotes') %}</th>
         <th style="width: 20%;" align="right">
             <div class="buttons">
-                {% if link_perm %}
-                    <a class="link" onclick="creme.relations.handleAddFromPredicateEntity('/creme_core/relation/objects2link/rtype/{{predicate_id}}/entity/{{object.id}}/{{ct.id}}', '{{predicate_id}}', '{{object.id}}', {% get_block_reload_uri %});">
-                        <img src="{% media_url 'images/link_22.png' %}" border="0" title="{% trans "Link to an existing quote" %}" alt="{% trans "Link to an existing quote" %}" />
-                        {% trans "Link to an existing quote" %}
-                    </a>
-                {% else %}
-                    <span class="link forbidden">
-                        <img src="{% media_url 'images/link_22.png' %}" border="0" title="{% trans "Can't link" %}" alt="{% trans "Can't link" %}" />
-                        {% trans "Link to an existing quote" %}
-                    </span>
-                {% endif %}
+                {% get_line_relator to_subject object with_rtype_id predicate_id with_ct_id ct.id with_label _("Link to an existing quote") with_perms link_perm %}
                 {% if creation_perm and link_perm %}
                     <a class="add" href="/opportunities/opportunity/generate_new_doc/{{object.id}}/{{ct.id}}">
                         <img src="{% media_url 'images/add_22.png' %}" border="0" title="{% trans "Generate a new current quote" %}" alt="{% trans "Generate a new current quote" %}" />
