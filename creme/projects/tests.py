@@ -6,7 +6,7 @@ from django.test import TestCase
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 
-from creme_core.models import RelationType, Relation
+from creme_core.models import RelationType, Relation, UserRole, SetCredentials
 from creme_core.management.commands.creme_populate import Command as PopulateCommand
 
 from persons.models import Contact
@@ -16,15 +16,25 @@ from projects.constants import *
 
 
 class ProjectsTestCase(TestCase):
-    def login(self):
-        if not self.user:
-            user = User.objects.create(username='Gally')
-            user.set_password(self.password)
-            user.is_superuser = True
-            user.save()
-            self.user = user
+    def login(self, is_superuser=True):
+        password = 'test'
 
-        logged = self.client.login(username=self.user.username, password=self.password)
+        superuser = User.objects.create(username='Kirika')
+        superuser.set_password(password)
+        superuser.is_superuser = True
+        superuser.save()
+
+        role = UserRole.objects.create(name='Basic')
+        role.allowed_apps = ['projects']
+        role.save()
+        basic_user = User.objects.create(username='Mireille', role=role)
+        basic_user.set_password(password)
+        basic_user.save()
+
+        self.user, self.other_user = (superuser, basic_user) if is_superuser else \
+                                     (basic_user, superuser)
+
+        logged = self.client.login(username=self.user.username, password=password)
         self.assert_(logged, 'Not logged in')
 
     def setUp(self):
@@ -52,6 +62,10 @@ class ProjectsTestCase(TestCase):
 
         self.assert_(TaskStatus.objects.exists())
         self.assert_(ProjectStatus.objects.exists())
+
+    def test_portal(self):
+        self.login()
+        self.assertEqual(200, self.client.get('/projects/').status_code)
 
     def create_project(self, name):
         manager = Contact.objects.create(user=self.user, first_name='Gendo', last_name='Ikari')
@@ -83,6 +97,52 @@ class ProjectsTestCase(TestCase):
 
         project, manager = self.create_project('Eva00')
         self.assertEqual(1, Relation.objects.filter(subject_entity=project, type=REL_OBJ_PROJECT_MANAGER, object_entity=manager).count())
+
+    def test_project_createview02(self):
+        self.login(is_superuser=False)
+
+        role = self.user.role
+        create_sc = SetCredentials.objects.create
+        create_sc(role=role,
+                  value=SetCredentials.CRED_VIEW | SetCredentials.CRED_CHANGE | SetCredentials.CRED_DELETE | SetCredentials.CRED_UNLINK, #no CRED_LINK
+                  set_type=SetCredentials.ESET_ALL
+                 )
+        create_sc(role=role,
+                  value=SetCredentials.CRED_VIEW | SetCredentials.CRED_CHANGE | SetCredentials.CRED_DELETE | SetCredentials.CRED_LINK | SetCredentials.CRED_UNLINK,
+                  set_type=SetCredentials.ESET_OWN
+                 )
+        role.creatable_ctypes = [ContentType.objects.get_for_model(Project)]
+
+        manager = Contact.objects.create(user=self.user, first_name='Gendo', last_name='Ikari')
+        self.failIf(manager.can_link(self.user))
+
+        response = self.client.post('/projects/project/add', follow=True,
+                                    data={
+                                            'user':         self.user.pk,
+                                            'name':         'Eva00',
+                                            'status':       ProjectStatus.objects.all()[0].id,
+                                            'start_date':   '2011-10-11',
+                                            'end_date':     '2011-12-31',
+                                            'responsibles': manager.id,
+                                         }
+                                   )
+        self.assertEqual(200, response.status_code)
+
+        try:
+            errors = response.context['form'].errors
+        except Exception, e:
+            self.fail(str(e))
+
+        self.assert_(errors)
+        self.assert_('responsibles' in errors)
+
+    def test_project_lisview(self):
+        self.login()
+
+        self.create_project('Eva00')
+        self.create_project('Eva01')
+
+        self.assertEqual(200, self.client.get('/projects/projects').status_code)
 
     def test_task_createview01(self):
         self.login()
