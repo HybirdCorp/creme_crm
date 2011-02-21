@@ -140,6 +140,6 @@ class BaseCreateForm(BaseEditForm):
         instance.shipping_address = target.shipping_address
 
         if instance.generate_number_in_create:
-            instance.generate_number()
+            instance.generate_number(source)
 
         return super(BaseCreateForm, self).save()
