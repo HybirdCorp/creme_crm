@@ -18,11 +18,11 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.test import TestCase
-
 from creme_core.models.list_view_state import *
+from creme_core.tests.base import CremeTestCase
 
-class ListViewStateTestCase(TestCase):
+
+class ListViewStateTestCase(CremeTestCase):
     def test_get_field_name_from_pattern(self):
         self.assertEqual('foo__bar__plop', get_field_name_from_pattern('foo__bar__plop__icontains'))
         self.assertEqual('foo__bar',       get_field_name_from_pattern('foo__bar__icontains'))

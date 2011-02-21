@@ -2,32 +2,17 @@
 
 from time import sleep
 
-from django.test import TestCase
 from django.contrib.auth.models import User
 from django.contrib.sessions.models import Session
 
 from creme_core.models import *
 from creme_core.gui.last_viewed import LastViewedItem
+from creme_core.tests.base import CremeTestCase
 
 from persons.models import Contact
 
 
-class GuiTestCase(TestCase):
-    def login(self):
-        if not self.user:
-            user = User.objects.create(username='Guts')
-            user.set_password(self.password)
-            user.is_superuser = True
-            user.save()
-            self.user = user
-
-        logged = self.client.login(username=self.user.username, password=self.password)
-        self.assert_(logged, 'Not logged in')
-
-    def setUp(self):
-        self.password = 'test'
-        self.user = None
-
+class GuiTestCase(CremeTestCase):
     def test_last_viewed_items(self):
         self.login()
 

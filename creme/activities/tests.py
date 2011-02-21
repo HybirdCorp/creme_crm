@@ -2,14 +2,13 @@
 
 from datetime import datetime
 
-from django.test import TestCase
 from django.forms.util import ValidationError
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 
-from creme_core.models import RelationType, Relation, UserRole, SetCredentials
-from creme_core.management.commands.creme_populate import Command as PopulateCommand
+from creme_core.models import RelationType, Relation, SetCredentials
 from creme_core.constants import REL_SUB_RELATED_TO
+from creme_core.tests.base import CremeTestCase
 
 from persons.models import Contact, Organisation
 
@@ -18,32 +17,12 @@ from activities.constants import *
 from activities.forms.activity import _check_activity_collisions
 
 
-class ActivitiesTestCase(TestCase):
+class ActivitiesTestCase(CremeTestCase):
     def login(self, is_superuser=True):
-        password = 'test'
-
-        superuser = User.objects.create(username='Kirika')
-        superuser.set_password(password)
-        superuser.is_superuser = True
-        superuser.save()
-
-        role = UserRole.objects.create(name='Basic')
-        role.allowed_apps = ['activities', 'persons'] #'creme_core'
-        role.save()
-        basic_user = User.objects.create(username='Mireille', role=role)
-        basic_user.set_password(password)
-        basic_user.save()
-
-        self.user, self.other_user = (superuser, basic_user) if is_superuser else \
-                                     (basic_user, superuser)
-
-        logged = self.client.login(username=self.user.username, password=password)
-        self.assert_(logged, 'Not logged in')
+        super(ActivitiesTestCase, self).login(is_superuser, allowed_apps=['activities', 'persons']) #'creme_core'
 
     def setUp(self):
-        PopulateCommand().handle(application=['creme_core', 'activities']) #'persons'
-        self.password = 'test'
-        self.user = None
+        self.populate('creme_core', 'activities') #'persons'
 
     def test_populate(self):
         rtypes_pks = [REL_SUB_LINKED_2_ACTIVITY, REL_SUB_ACTIVITY_SUBJECT, REL_SUB_PART_2_ACTIVITY]
@@ -54,15 +33,6 @@ class ActivitiesTestCase(TestCase):
                         ACTIVITYTYPE_GATHERING, ACTIVITYTYPE_SHOW, ACTIVITYTYPE_DEMO, ACTIVITYTYPE_INDISPO]
         acttypes = ActivityType.objects.filter(pk__in=acttypes_pks)
         self.assertEqual(len(acttypes_pks), len(acttypes))
-
-    def assertNoFormError(self, response): #TODO: move in a CremeTestCase ??? (copied from creme_config)
-        try:
-            errors = response.context['form'].errors
-        except Exception, e:
-            pass
-        else:
-            if errors:
-                self.fail(errors)
 
     def test_portal(self):
         self.login()

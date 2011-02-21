@@ -2,15 +2,15 @@
 
 from datetime import datetime
 
-from django.test import TestCase
 from django.core.exceptions import PermissionDenied
 from django.contrib.auth.models import User, Permission
 from django.contrib.contenttypes.models import ContentType
 
 from creme_core.models import *
+from creme_core.tests.base import CremeTestCase
 
 
-class ModelsTestCase(TestCase):
+class ModelsTestCase(CremeTestCase):
     def setUp(self):
         self.user = User.objects.create(username='name')
 
@@ -38,7 +38,7 @@ class ModelsTestCase(TestCase):
         self.assertEqual(text, ptype.text)
 
 
-class RelationsTestCase(TestCase):
+class RelationsTestCase(CremeTestCase):
     def setUp(self):
         self.user = User.objects.create(username='name')
 
@@ -109,7 +109,7 @@ class RelationsTestCase(TestCase):
         self.assertEqual(entity3.id, sym.object_entity.id)
 
 
-class CredentialsTestCase(TestCase):
+class CredentialsTestCase(CremeTestCase):
     def setUp(self):
         self.password = 'password'
         self.user = User.objects.create_user('Kenji', 'kenji@century.jp', self.password)

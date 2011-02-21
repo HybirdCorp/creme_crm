@@ -1,53 +1,22 @@
 # -*- coding: utf-8 -*-
 
-from django.test import TestCase
-from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 
-from creme_core.models import RelationType, Relation, CremeProperty, UserRole, SetCredentials
-from creme_core.management.commands.creme_populate import Command as PopulateCommand
+from creme_core.models import RelationType, Relation, CremeProperty, SetCredentials
 from creme_core.constants import PROP_IS_MANAGED_BY_CREME
 from creme_core.gui.quick_forms import quickforms_registry
+from creme_core.tests.base import CremeTestCase
 
 from persons.models import *
 from persons.constants import *
 
 
-class PersonsTestCase(TestCase):
+class PersonsTestCase(CremeTestCase):
     def login(self, is_superuser=True):
-        password = 'test'
-
-        superuser = User.objects.create(username='Kirika')
-        superuser.set_password(password)
-        superuser.is_superuser = True
-        superuser.save()
-
-        role = UserRole.objects.create(name='Basic')
-        role.allowed_apps = ['persons']
-        role.save()
-        basic_user = User.objects.create(username='Mireille', role=role)
-        basic_user.set_password(password)
-        basic_user.save()
-
-        self.user, self.other_user = (superuser, basic_user) if is_superuser else \
-                                     (basic_user, superuser)
-
-        logged = self.client.login(username=self.user.username, password=password)
-        self.assert_(logged, 'Not logged in')
+        super(PersonsTestCase, self).login(is_superuser, allowed_apps=['persons'])
 
     def setUp(self):
-        PopulateCommand().handle(application=['creme_core', 'persons'])
-        self.password = 'test'
-        self.user = None
-
-    def assertNoFormError(self, response): #TODO: move in a CremeTestCase ??? (copied from creme_config)
-        try:
-            errors = response.context['form'].errors
-        except Exception, e:
-            pass
-        else:
-            if errors:
-                self.fail(errors)
+        self.populate('creme_core', 'persons')
 
     def test_populate(self): #test relationtype creation with constraints
         def get_relationtype_or_fail(pk):

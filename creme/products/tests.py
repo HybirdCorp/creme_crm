@@ -2,31 +2,16 @@
 
 from decimal import Decimal
 
-from django.test import TestCase
 from django.core.serializers.json import simplejson
-from django.contrib.auth.models import User
 
-from creme_core.management.commands.creme_populate import Command as PopulateCommand
+from creme_core.tests.base import CremeTestCase
 
 from products.models import *
 
 
-class ProductsTestCase(TestCase):
-    def login(self):
-        if not self.user:
-            user = User.objects.create(username='user01')
-            user.set_password(self.password)
-            user.is_superuser = True
-            user.save()
-            self.user = user
-
-        logged = self.client.login(username=self.user.username, password=self.password)
-        self.assert_(logged, 'Not logged in')
-
+class ProductsTestCase(CremeTestCase):
     def setUp(self):
-        PopulateCommand().handle(application=['creme_core', 'products'])
-        self.password = 'test'
-        self.user = None
+        self.populate('creme_core', 'products')
 
     def test_populate(self):
         self.assert_(ServiceCategory.objects.exists())
@@ -299,4 +284,3 @@ class ProductsTestCase(TestCase):
 
         self.assertEqual(2, services_page.paginator.count)
         self.assertEqual(set([serv01.id, serv02.id]), set([s.id for s in services_page.object_list]))
-
