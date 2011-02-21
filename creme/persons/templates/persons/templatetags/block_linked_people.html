@@ -16,17 +16,7 @@
                         <img src="{% media_url 'images/add_22.png' %}" border="0" title="{% trans "Can't add" %}" alt="{% trans "Can't add" %}" />{{add_title}}
                     </span>
                 {% endif %}
-                {% if link_perm %}
-                    <a class="link" onclick="creme.relations.handleAddFromPredicateEntity('/creme_core/relation/objects2link/rtype/{{rtype_id}}/entity/{{object.id}}/{{ct.id}}', '{{rtype_id}}', '{{object.id}}', {% get_block_reload_uri %});">
-                        <img src="{% media_url 'images/link_22.png' %}" border="0" title="{% trans "Link to existing contacts" %}" alt="{% trans "Link to existing contacts" %}" />
-                        {% trans "Link to existing contacts" %}
-                    </a>
-                {% else %}
-                    <span class="link forbidden">
-                        <img src="{% media_url 'images/link_22.png' %}" border="0" title="{% trans "Can't link" %}" alt="{% trans "Can't link" %}" />
-                        {% trans "Link to existing contacts" %}
-                    </span>
-                {% endif %}
+                {% get_line_relator to_subject object with_rtype_id rtype_id with_ct_id ct.id with_label _("Link to existing contacts") with_perms link_perm %}
             </div>
         </th>
     {% end_get_block_header %}

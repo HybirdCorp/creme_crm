@@ -337,6 +337,13 @@ def delete_similar(request):
 
 @login_required
 def objects_to_link_selection(request, rtype_id, subject_id, object_ct_id, o2m=False):
+    """Display an inner popup to select entities to link as relations' objects.
+    @param rtype_id RelationType id of the future relations.
+    @param subject_id Id of the entity used as subject for relations.
+    @param object_ct_id Id of the ContentType of the future relations' objects.
+    @param o2m One-To-Many ; if false, it seems Manay-To-Many => multi selection.
+    Tip: see the js function creme.relations.handleAddFromPredicateEntity()
+    """
     template_dict = {
         'predicate_id': rtype_id,   #TODO: useful ??
         'subject_id':   subject_id, #TODO: useful ??
@@ -365,6 +372,7 @@ def objects_to_link_selection(request, rtype_id, subject_id, object_ct_id, o2m=F
 def add_relations_with_same_type(request):
     """Allow to create from a POST request several relations with the same
     relation type, between a subject and several other entities.
+    Tip: see the js function creme.relations.handleAddFromPredicateEntity()
     """
     user = request.user
     POST = request.POST
