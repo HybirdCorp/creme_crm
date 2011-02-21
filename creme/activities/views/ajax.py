@@ -45,9 +45,9 @@ def get_entity_relation_choices_for_activity(request):
     if ct_id != contact_ct_id:
         choices = (REL_SUB_ACTIVITY_SUBJECT, REL_SUB_LINKED_2_ACTIVITY)
 
-    print choices
-    print ct_id
-    print contact_ct_id
+#    print choices
+#    print ct_id
+#    print contact_ct_id
 
     data = list(RelationType.objects.filter(pk__in=choices).values('pk', 'predicate'))
     return HttpResponse(JSONEncoder().encode(data), mimetype='text/javascript')

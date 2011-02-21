@@ -144,8 +144,8 @@ class InvoicesBlock(_LinkedStuffBlock):
 
 
 #TODO: this block is imported directly by the Organisation's template (because configurable blocks can not be contrained to a CT) => improve....
-class LinkedOpportunitiesBlock(_LinkedStuffBlock):
-    id_           = QuerysetBlock.generate_id('opportunities', 'linked_opportunities')
+class TargetOrganisationsBlock(_LinkedStuffBlock):
+    id_           = QuerysetBlock.generate_id('opportunities', 'target_organisations')
     relation_type_deps = (REL_OBJ_TARGETS_ORGA, )
     verbose_name  = _(u"Opportunities which target the organisation")
     template_name = 'opportunities/templatetags/block_opportunities.html'
@@ -164,5 +164,5 @@ blocks_list = (
     QuotesBlock(),
     SalesOrdersBlock(),
     InvoicesBlock(),
-    LinkedOpportunitiesBlock(),
+    TargetOrganisationsBlock(),
 )
