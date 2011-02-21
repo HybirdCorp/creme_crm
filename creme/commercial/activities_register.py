@@ -31,7 +31,7 @@ from commercial.models import CommercialApproach
 def add_commapp_field(form):
     form.fields['is_comapp'] = BooleanField(required=False, label=_(u"Is a commercial approach ?"),
                                             help_text=_(u"All participants (except users), subjects and linked entities will be linked to a commercial approach."),
-                                           )
+                                           initial=True)
 
 def save_commapp_field(form):
     cleaned_data = form.cleaned_data

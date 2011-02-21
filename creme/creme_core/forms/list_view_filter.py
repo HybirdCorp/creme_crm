@@ -268,7 +268,7 @@ class ListViewFilterForm(forms.Form):
                 logging.debug("###\n\n\nException : %s" % e)
                 continue
 
-        print "\nids_date_fields : %s\n" % ids_date_fields
+
         for id in ids_date_fields :
             if not id:
                 continue

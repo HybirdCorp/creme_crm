@@ -11,10 +11,10 @@ msgstr ""
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: \n"
 
 #: blocks.py:37 forms/activity.py:101 forms/activity.py:180
 msgid "Participants"
@@ -52,7 +52,7 @@ msgstr "Ajouter un appel téléphonique"
 msgid "Add a task"
 msgstr "Ajouter une tâche"
 
-#: creme_core_register.py:33 models/activity.py:122
+#: creme_core_register.py:33 models/activity.py:130
 #: templates/activities/portal.html:6
 msgid "Activities"
 msgstr "Activités"
@@ -186,14 +186,14 @@ msgid "Activity view"
 msgstr "Vue d'Activité"
 
 #: populate.py:73 models/activity.py:35 models/activity.py:75
-#: models/activity.py:91
+#: models/activity.py:98
 #: templates/activities/templatetags/block_future_activities.html:39
 #: templates/activities/templatetags/block_user_calendars.html:22
 msgid "Name"
 msgstr "Nom"
 
 #: populate.py:74 forms/activity.py:159 forms/activity.py:301
-#: forms/indisponibility.py:33 models/activity.py:106
+#: forms/indisponibility.py:33 models/activity.py:113
 msgid "Start"
 msgstr "Début"
 
@@ -217,11 +217,11 @@ msgstr "L'heure de fin est avant le début"
 #: forms/activity.py:89
 #, python-format
 msgid ""
-"%(participant)s already participates to the activity «%(activity)s» between %"
-"(start)s and %(end)s."
+"%(participant)s already participates to the activity «%(activity)s» between "
+"%(start)s and %(end)s."
 msgstr ""
-"%(participant)s participe déjà à l'activité «%(activity)s» entre %(start)s et "
-"%(end)s."
+"%(participant)s participe déjà à l'activité «%(activity)s» entre %(start)s "
+"et %(end)s."
 
 #: forms/activity.py:160 forms/activity.py:302
 msgid "Start time"
@@ -231,7 +231,7 @@ msgstr "Heure de début"
 msgid "End time"
 msgstr "Heure de fin"
 
-#: forms/activity.py:164
+#: forms/activity.py:163
 msgid "Do I participate to this meeting ?"
 msgstr "Est-ce que je participe à ce rendez-vous ?"
 
@@ -306,28 +306,28 @@ msgstr "Propriétaire du calendrier"
 msgid "Calendars"
 msgstr "Calendriers"
 
-#: models/activity.py:66
+#: models/activity.py:73
 #, python-format
 msgid "Default %(user)s's calendar"
 msgstr "Calendrier de %(user)s par défaut"
 
-#: models/activity.py:76
+#: models/activity.py:83
 msgid "Color"
 msgstr "Couleur"
 
-#: models/activity.py:77
+#: models/activity.py:84
 msgid "Default day duration"
 msgstr "Durée en jours par défaut"
 
-#: models/activity.py:78
+#: models/activity.py:85
 msgid "Default hour duration"
 msgstr "Durée en heures/minutes/secondes par défaut"
 
-#: models/activity.py:86 models/activity.py:109
+#: models/activity.py:93 models/activity.py:117
 msgid "Activity type"
 msgstr "Type d'activité"
 
-#: models/activity.py:87
+#: models/activity.py:94
 msgid "Activity types"
 msgstr "Types d'activité"
 
@@ -335,24 +335,28 @@ msgstr "Types d'activité"
 msgid "Description"
 msgstr "Description"
 
-#: models/activity.py:99 models/activity.py:100 models/activity.py:112
+#: models/activity.py:106 models/activity.py:107 models/activity.py:120
 #: templates/activities/templatetags/block_future_activities.html:38
 msgid "Status"
 msgstr "Statut"
 
-#: models/activity.py:105
+#: models/activity.py:112
 msgid "Title"
 msgstr "Titre"
 
-#: models/activity.py:111
+#: models/activity.py:116
+msgid "Minutes"
+msgstr "Bilan"
+
+#: models/activity.py:119
 msgid "All day ?"
 msgstr "Jour entier ?"
 
-#: models/activity.py:113
+#: models/activity.py:121
 msgid "Busy ?"
 msgstr "Occupé ?"
 
-#: models/activity.py:121
+#: models/activity.py:129
 msgid "Activity"
 msgstr "Activité"
 
@@ -686,9 +690,8 @@ msgid "Related to"
 msgstr "Relié(s)"
 
 #: templates/activities/templatetags/block_future_activities.html:44
-#: templates/activities/templatetags/block_user_calendars.html:26
-msgid "Delete"
-msgstr "Supprimer"
+msgid "Unlink"
+msgstr ""
 
 #: templates/activities/templatetags/block_future_activities.html:79
 #: templates/activities/templatetags/block_user_calendars.html:47
@@ -788,6 +791,10 @@ msgstr "Par défaut ?"
 msgid "Edit"
 msgstr "Éditer"
 
+#: templates/activities/templatetags/block_user_calendars.html:26
+msgid "Delete"
+msgstr "Supprimer"
+
 #: templates/activities/templatetags/block_user_calendars.html:36
 msgid "Edit calendar"
 msgstr "Éditer calendrier"
@@ -827,8 +834,8 @@ msgstr "Nombre d'activité(s)"
 #~ msgstr "Alerte d'appel téléphonique"
 
 #~ msgid ""
-#~ "Do the responsable of this file participate to this meeting ? (Currently %"
-#~ "s)"
+#~ "Do the responsable of this file participate to this meeting ? (Currently "
+#~ "%s)"
 #~ msgstr ""
 #~ "Est-ce que le responsable de cette fiche participe à ce rendez-vous ? "
 #~ "(Actuellement %s)"
