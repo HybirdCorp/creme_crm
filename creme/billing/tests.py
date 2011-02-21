@@ -5,34 +5,45 @@ from decimal import Decimal
 
 from django.test import TestCase
 from django.contrib.auth.models import User
+from django.contrib.contenttypes.models import ContentType
 
-from creme_core.models import RelationType, Relation, CremePropertyType, CremeProperty
+from creme_core.models import RelationType, Relation, CremePropertyType, CremeProperty, UserRole, SetCredentials
 from creme_core.management.commands.creme_populate import Command as PopulateCommand
 from creme_core.constants import PROP_IS_MANAGED_BY_CREME
 
 from persons.models import Organisation, Address
 
-from products.models import *
+from products.models import Product, Service, ServiceCategory, Category, SubCategory
 
 from billing.models import *
 from billing.constants import *
 
 
 class BillingTestCase(TestCase):
-    def login(self):
-        if not self.user:
-            user = User.objects.create(username='Ryoga')
-            user.set_password(self.password)
-            user.is_superuser = True
-            user.save()
-            self.user = user
+    def login(self, is_superuser=True):
+        password = 'test'
 
-        logged = self.client.login(username=self.user.username, password=self.password)
+        superuser = User.objects.create(username='Kirika')
+        superuser.set_password(password)
+        superuser.is_superuser = True
+        superuser.save()
+
+        role = UserRole.objects.create(name='Basic')
+        role.allowed_apps = ['billing']
+        role.save()
+        basic_user = User.objects.create(username='Mireille', role=role)
+        basic_user.set_password(password)
+        basic_user.save()
+
+        self.user, self.other_user = (superuser, basic_user) if is_superuser else \
+                                     (basic_user, superuser)
+
+        logged = self.client.login(username=self.user.username, password=password)
         self.assert_(logged, 'Not logged in')
 
     def setUp(self):
         PopulateCommand().handle(application=['creme_core', 'billing'])
-        self.password = 'test'
+        #self.password = 'test'
         self.user = None
 
     def assertNoFormError(self, response): #move in a CremeTestCase ???
@@ -55,6 +66,10 @@ class BillingTestCase(TestCase):
         self.assertEqual(1, CreditNoteStatus.objects.filter(pk=1).count())
 
         self.assertEqual(1, CremePropertyType.objects.filter(pk=PROP_IS_MANAGED_BY_CREME).count())
+
+    def test_portal(self):
+        self.login()
+        self.assertEqual(self.client.get('/billing/').status_code, 200)
 
     def genericfield_format_entity(self, entity):
         return '{"ctype":"%s", "entity":"%s"}' % (entity.entity_type_id, entity.id)
@@ -87,8 +102,7 @@ class BillingTestCase(TestCase):
     def test_invoice_createview01(self):
         self.login()
 
-        response = self.client.get('/billing/invoice/add')
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(self.client.get('/billing/invoice/add').status_code, 200)
 
         name = 'Invoice001'
         source = Organisation.objects.create(user=self.user, name='Source Orga')
@@ -145,6 +159,69 @@ class BillingTestCase(TestCase):
         self.assertEqual('/billing/invoice/%s' % invoice.id, url)
         self.assertEqual(200, self.client.get(url).status_code)
 
+    def test_invoice_createview03(self): #creds errors with Organisation
+        self.login(is_superuser=False)
+
+        role = self.user.role
+        create_sc = SetCredentials.objects.create
+        create_sc(role=role,
+                  value=SetCredentials.CRED_VIEW | SetCredentials.CRED_CHANGE | SetCredentials.CRED_DELETE | SetCredentials.CRED_UNLINK, #no CRED_LINK
+                  set_type=SetCredentials.ESET_ALL
+                 )
+        create_sc(role=role,
+                  value=SetCredentials.CRED_VIEW | SetCredentials.CRED_CHANGE | SetCredentials.CRED_DELETE | SetCredentials.CRED_LINK | SetCredentials.CRED_UNLINK,
+                  set_type=SetCredentials.ESET_OWN
+                 )
+        role.creatable_ctypes = [ContentType.objects.get_for_model(Invoice)]
+
+        source = Organisation.objects.create(user=self.other_user, name='Source Orga')
+        self.failIf(source.can_link(self.user))
+
+        target = Organisation.objects.create(user=self.other_user, name='Target Orga')
+        self.failIf(target.can_link(self.user))
+
+        response = self.client.get('/billing/invoice/add', follow=True)
+        try:
+            form = response.context['form']
+        except Exception, e:
+            self.fail(str(e))
+
+        self.assert_('source' in form.fields, 'Bad form ?!')
+
+        response = self.client.post('/billing/invoice/add', follow=True,
+                            data={
+                                    'user':            self.user.pk,
+                                    'name':            'Invoice001',
+                                    'issuing_date':    '2011-9-7',
+                                    'expiration_date': '2011-10-13',
+                                    'status':          1,
+                                    'source':          source.id,
+                                    'target':          self.genericfield_format_entity(target),
+                                    }
+                           )
+        self.assertEqual(200, response.status_code)
+
+        try:
+            errors = response.context['form'].errors
+        except Exception, e:
+            self.fail(str(e))
+
+        self.assert_(errors)
+        self.assert_('source' in errors)
+        self.assert_('target' in errors)
+
+    def test_invoice_listview(self):
+        self.login()
+
+        create = Organisation.objects.create
+        source = create(user=self.user, name='Source Orga')
+        target = create(user=self.user, name='Target Orga')
+
+        self.create_invoice('invoice 01', source, target)
+        self.create_invoice('invoice 02', source, target)
+
+        self.assertEqual(200, self.client.get('/billing/invoices').status_code)
+
     def test_invoice_editview01(self):
         self.login()
 
@@ -153,8 +230,7 @@ class BillingTestCase(TestCase):
                                          expiration_date=date(year=2010, month=12, day=31),
                                          status_id=1, number='INV0001')
 
-        response = self.client.get('/billing/invoice/edit/%s' % invoice.id)
-        self.assertEqual(200, response.status_code)
+        self.assertEqual(200, self.client.get('/billing/invoice/edit/%s' % invoice.id).status_code)
 
     def test_invoice_editview02(self):
         self.login()
@@ -164,8 +240,7 @@ class BillingTestCase(TestCase):
                                          expiration_date=date(year=2010, month=12, day=31),
                                          status_id=1, number='INV0001')
 
-        response = self.client.get('/billing/invoice/edit/%s' % invoice.id)
-        self.assertEqual(200, response.status_code)
+        self.assertEqual(200, self.client.get('/billing/invoice/edit/%s' % invoice.id).status_code)
 
     def create_invoice_n_orgas(self, name):
         create = Organisation.objects.create
@@ -182,8 +257,8 @@ class BillingTestCase(TestCase):
         name = 'Invoice001'
         invoice, source, target = self.create_invoice_n_orgas(name)
 
-        response = self.client.get('/billing/invoice/edit/%s' % invoice.id)
-        self.assertEqual(200, response.status_code)
+        url = '/billing/invoice/edit/%s' % invoice.id
+        self.assertEqual(200, self.client.get(url).status_code)
 
         name += '_edited'
 
@@ -191,7 +266,7 @@ class BillingTestCase(TestCase):
         source = create_orga(user=self.user, name='Source Orga 2')
         target = create_orga(user=self.user, name='Target Orga 2')
 
-        response = self.client.post('/billing/invoice/edit/%s' % invoice.id, follow=True,
+        response = self.client.post(url, follow=True,
                                     data={
                                             'user':            self.user.pk,
                                             'name':            name,
@@ -223,8 +298,8 @@ class BillingTestCase(TestCase):
         self.login()
 
         invoice  = self.create_invoice_n_orgas('Invoice001')[0]
-        response = self.client.get('/billing/%s/product_line/add' % invoice.id)
-        self.assertEqual(200, response.status_code)
+        url = '/billing/%s/product_line/add' % invoice.id
+        self.assertEqual(200, self.client.get(url).status_code)
 
         unit_price = Decimal('1.0')
         cat     = Category.objects.create(name='Cat', description='DESCRIPTION')
@@ -233,7 +308,7 @@ class BillingTestCase(TestCase):
                                          unit_price=unit_price, description='Drug',
                                          category=cat, sub_category=subcat)
 
-        response = self.client.post('/billing/%s/product_line/add' % invoice.id,
+        response = self.client.post(url,
                                     data={
                                             'user':         self.user.pk,
                                             'related_item': product.id,
@@ -247,9 +322,8 @@ class BillingTestCase(TestCase):
                                    )
         self.assertNoFormError(response)
         self.assertEqual(200, response.status_code)
-        #self.failIf(response.context['form'].errors)
 
-        self.assertEqual(1, len(invoice.get_product_lines()))
+        self.assertEqual(1,          len(invoice.get_product_lines()))
         self.assertEqual(unit_price, invoice.get_total())
         self.assertEqual(unit_price, invoice.get_total_with_tax())
 
@@ -257,12 +331,12 @@ class BillingTestCase(TestCase):
         self.login()
 
         invoice  = self.create_invoice_n_orgas('Invoice001')[0]
-        response = self.client.get('/billing/%s/product_line/add_on_the_fly' % invoice.id)
-        self.assertEqual(200, response.status_code)
+        url = '/billing/%s/product_line/add_on_the_fly' % invoice.id
+        self.assertEqual(200, self.client.get(url).status_code)
 
         unit_price = Decimal('1.0')
         name = 'Awesomo'
-        response = self.client.post('/billing/%s/product_line/add_on_the_fly' % invoice.id,
+        response = self.client.post(url,
                                     data={
                                             'user':            self.user.pk,
                                             'on_the_fly_item': name,
@@ -290,8 +364,8 @@ class BillingTestCase(TestCase):
         self.login()
 
         invoice = self.create_invoice_n_orgas('Invoice001')[0]
-        response = self.client.get('/billing/%s/service_line/add' % invoice.id)
-        self.assertEqual(200, response.status_code)
+        url = '/billing/%s/service_line/add' % invoice.id
+        self.assertEqual(200, self.client.get(url).status_code)
 
         self.failIf(invoice.get_service_lines())
 
@@ -301,7 +375,7 @@ class BillingTestCase(TestCase):
                                          unit_price=unit_price, description='Wooot', countable=False,
                                          category=cat)
 
-        response = self.client.post('/billing/%s/service_line/add' % invoice.id,
+        response = self.client.post(url,
                                     data={
                                             'user':         self.user.pk,
                                             'related_item': service.id,
@@ -317,7 +391,7 @@ class BillingTestCase(TestCase):
         self.assertEqual(200, response.status_code)
 
         invoice = Invoice.objects.get(pk=invoice.id) #refresh (line cache)
-        self.assertEqual(1, len(invoice.get_service_lines()))
+        self.assertEqual(1,               len(invoice.get_service_lines()))
         self.assertEqual(Decimal('2.66'), invoice.get_total()) # 2 * 1.33
         self.assertEqual(Decimal('3.19'), invoice.get_total_with_tax()) #2.66 * 1.196 == 3.18136
 
@@ -325,12 +399,12 @@ class BillingTestCase(TestCase):
         self.login()
 
         invoice = self.create_invoice_n_orgas('Invoice001')[0]
-        uri = '/billing/%s/service_line/add_on_the_fly' % invoice.id
-        self.assertEqual(200, self.client.get(uri).status_code)
+        url = '/billing/%s/service_line/add_on_the_fly' % invoice.id
+        self.assertEqual(200, self.client.get(url).status_code)
 
         unit_price = Decimal('1.33')
         name = 'Car wash'
-        response = self.client.post(uri, data={
+        response = self.client.post(url, data={
                                                 'user':            self.user.pk,
                                                 'on_the_fly_item': name,
                                                 'comment':         'no comment !',
@@ -345,12 +419,12 @@ class BillingTestCase(TestCase):
         self.assertEqual(200, response.status_code)
 
         invoice = Invoice.objects.get(pk=invoice.id) #refresh (line cache)
-
         lines = invoice.get_service_lines()
         self.assertEqual(1, len(lines))
         self.assertEqual(name, lines[0].on_the_fly_item)
 
     #TODO: on-the-fly that creates a true service
+    #TODO: edit lines
 
     def test_generate_number01(self):
         self.login()
@@ -361,23 +435,19 @@ class BillingTestCase(TestCase):
         issuing_date = invoice.issuing_date
         self.assert_(issuing_date)
 
-        response = self.client.get('/billing/invoice/generate_number/%s' % invoice.id, follow=True)
-        self.assertEqual(404, response.status_code)
+        url = '/billing/invoice/generate_number/%s' % invoice.id
+        self.assertEqual(404, self.client.get(url, follow=True).status_code)
 
-        response = self.client.post('/billing/invoice/generate_number/%s' % invoice.id, follow=True)
-        self.assertEqual(200, response.status_code)
-
+        self.assertEqual(200, self.client.post(url, follow=True).status_code)
         invoice = Invoice.objects.get(pk=invoice.id)
         number    = invoice.number
         status_id = invoice.status_id
         self.assert_(number)
-        self.assertEqual(2, status_id)
+        self.assertEqual(2,            status_id)
         self.assertEqual(issuing_date, invoice.issuing_date)
 
         #already generated
-        response = self.client.post('/billing/invoice/generate_number/%s' % invoice.id, follow=True)
-        self.assertEqual(404, response.status_code)
-
+        self.assertEqual(404, self.client.post(url, follow=True).status_code)
         invoice = Invoice.objects.get(pk=invoice.id)
         self.assertEqual(number,    invoice.number)
         self.assertEqual(status_id, invoice.status_id)
@@ -389,9 +459,7 @@ class BillingTestCase(TestCase):
         invoice.issuing_date = None
         invoice.save()
 
-        response = self.client.post('/billing/invoice/generate_number/%s' % invoice.id, follow=True)
-        self.assertEqual(200, response.status_code)
-
+        self.assertEqual(200, self.client.post('/billing/invoice/generate_number/%s' % invoice.id, follow=True).status_code)
         invoice = Invoice.objects.get(pk=invoice.id)
         self.assert_(invoice.issuing_date)
         self.assertEqual(date.today(), invoice.issuing_date) #NB this test can fail if run at midnight...

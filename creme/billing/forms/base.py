@@ -26,6 +26,7 @@ from django.utils.translation import ugettext_lazy as _, ugettext
 
 from creme_core.models import Relation
 from creme_core.forms import CremeEntityForm, CremeEntityField, CremeDateField, GenericEntityField
+from creme_core.forms.validators import validate_linkable_entity
 from creme_core.utils import find_first
 
 from persons.models.organisation import Organisation, Address, Contact
@@ -67,6 +68,12 @@ class BaseEditForm(CremeEntityForm):
             if received_relation:
                 self.received_relation = received_relation
                 self.fields['target'].initial = received_relation.object_entity
+
+    def clean_source(self):
+        return validate_linkable_entity(self.cleaned_data['source'], self.user)
+
+    def clean_target(self):
+        return validate_linkable_entity(self.cleaned_data['target'], self.user)
 
     def save(self):
         instance = super(BaseEditForm, self).save()
