@@ -95,10 +95,11 @@ class Base(CremeEntity):
             self.source = None
             self.target = None
 
-    def generate_number(self):
+    def generate_number(self,source=None):
         from billing.registry import algo_registry #lazy loading of number generators
 
-        source = self.get_source()
+        if source is None:
+            source = self.get_source()
         self.number = 0
 
         if source:
