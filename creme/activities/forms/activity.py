@@ -315,10 +315,10 @@ class RelatedActivityCreateForm(ActivityCreateForm):
             else:
                 self.fields['other_participants'].initial = entity_for_relation.id
         elif rtype_id == REL_SUB_ACTIVITY_SUBJECT:
-            self.fields['subjects'].initial = [entity_for_relation.id]
+            self.fields['subjects'].initial = [entity_for_relation]
         else:
             assert rtype_id == REL_SUB_LINKED_2_ACTIVITY
-            self.fields['linked_entities'].initial = [entity_for_relation.id]
+            self.fields['linked_entities'].initial = [entity_for_relation]
 
 
 #TODO: factorise ?? (ex: CreateForm inherits from EditForm....)

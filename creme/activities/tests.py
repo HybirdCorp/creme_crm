@@ -24,7 +24,6 @@ class ActivitiesTestCase(CremeTestCase):
         super(ActivitiesTestCase, self).login(is_superuser, allowed_apps=['activities', 'persons']) #'creme_core'
 
     def _aux_build_setcreds(self):
-        #role = self.user.role
         role = self.role
         SetCredentials.objects.create(role=role,
                                       value=SetCredentials.CRED_LINK,
@@ -108,79 +107,7 @@ class ActivitiesTestCase(CremeTestCase):
         self.assertEqual(1, count_relations(type_id=REL_SUB_ACTIVITY_SUBJECT,  subject_id=ranma.id))
         self.assertEqual(1, count_relations(type_id=REL_SUB_LINKED_2_ACTIVITY, subject_id=dojo.id))
 
-    def test_activity_createview02(self):
-        self.login()
-
-        user = self.user
-        other_user = User.objects.create_user('akane', 'akane@tendo.jp')
-
-        contact01 = Contact.objects.create(user=user, first_name='Ryoga', last_name='Hibiki')
-        contact02 = Contact.objects.create(user=user, first_name='Akane', last_name='Tendo', is_user=other_user)
-
-        args = '&'.join(['ct_entity_for_relation=%s' % contact01.entity_type_id,
-                         'id_entity_for_relation=%s' % contact01.id,
-                         'entity_relation_type=%s' % REL_SUB_PART_2_ACTIVITY
-                        ])
-        uri = '/activities/activity/add_related/meeting?' + args
-
-        response = self.client.get(uri)
-        self.assertEqual(response.status_code, 200)
-
-        title  = 'my_meeting'
-        response = self.client.post(uri, follow=True,
-                                    data={
-                                            'user':                user.pk,
-                                            'title':               title,
-                                            'start':               '2010-1-10',
-                                            'start_time':          '17:30:00',
-                                            'end_time':            '18:30:00',
-                                            'participating_users': other_user.pk,
-                                         }
-                                    )
-        self.assertNoFormError(response)
-        self.assertEqual(200, response.status_code)
-        self.assert_(response.redirect_chain)
-
-        try:
-            meeting = Meeting.objects.get(title=title)
-        except Exception, e:
-            self.fail(str(e))
-
-        start = meeting.start
-        self.assertEqual(2010,  start.year)
-        self.assertEqual(1,     start.month)
-        self.assertEqual(10,    start.day)
-        self.assertEqual(17,    start.hour)
-        self.assertEqual(30,    start.minute)
-
-        self.assertEqual(2, Relation.objects.count())
-
-        relations = Relation.objects.filter(type=REL_SUB_PART_2_ACTIVITY)
-        self.assertEqual(1, len(relations))
-
-        relation = relations[0]
-        self.assertEqual(contact02.id, relation.subject_entity_id)
-        self.assertEqual(meeting.id,   relation.object_entity_id)
-
-    def test_activity_createview03(self):
-        self.login()
-
-        self.assertEqual(200, self.client.get('/activities/activity/add/meeting').status_code)
-        self.assertEqual(200, self.client.get('/activities/activity/add/phonecall').status_code)
-        self.assertEqual(404, self.client.get('/activities/activity/add/foobar').status_code)
-
-        c = Contact.objects.create(user=self.user, first_name='first_name', last_name='last_name')
-        args = {
-                'ct_entity_for_relation': c.entity_type_id,
-                'id_entity_for_relation': c.id,
-                'entity_relation_type':   REL_SUB_LINKED_2_ACTIVITY,
-               }
-
-        self.assertEqual(200, self.client.get('/activities/activity/add_related/meeting', data=args).status_code)
-        self.assertEqual(200, self.client.get('/activities/activity/add_related/phonecall', data=args).status_code)
-        self.assertEqual(404, self.client.get('/activities/activity/add_related/foobar', data=args).status_code)
-
-    def test_activity_createview04(self): #creds errors
+    def test_activity_createview02(self): #creds errors
         self.login(is_superuser=False)
         self._aux_build_setcreds()
         self.role.creatable_ctypes = [ContentType.objects.get_for_model(Activity)]
@@ -221,6 +148,147 @@ class ActivitiesTestCase(CremeTestCase):
         self.assertEqual(set(['my_participation', 'participating_users', 'other_participants', 'subjects', 'linked_entities']),
                          set(errors.keys())
                         )
+
+    def test_activity_createview_related01(self):
+        self.login()
+
+        user = self.user
+        other_user = self.other_user
+
+        contact01 = Contact.objects.create(user=user, first_name='Ryoga', last_name='Hibiki')
+        contact02 = Contact.objects.create(user=user, first_name='Akane', last_name='Tendo', is_user=other_user)
+
+        args = '&'.join(['ct_entity_for_relation=%s' % contact01.entity_type_id,
+                         'id_entity_for_relation=%s' % contact01.id,
+                         'entity_relation_type=%s' % REL_SUB_PART_2_ACTIVITY
+                        ])
+        uri = '/activities/activity/add_related/meeting?' + args
+
+        response = self.client.get(uri)
+        self.assertEqual(response.status_code, 200)
+
+        try:
+            other_participants = response.context['form'].fields['other_participants']
+        except Exception, e:
+            self.fail(str(e))
+        self.assertEqual(contact01.id, other_participants.initial)
+
+        title  = 'my_meeting'
+        response = self.client.post(uri, follow=True,
+                                    data={
+                                            'user':                user.pk,
+                                            'title':               title,
+                                            'start':               '2010-1-10',
+                                            'start_time':          '17:30:00',
+                                            'end_time':            '18:30:00',
+                                            'participating_users': other_user.pk,
+                                         }
+                                    )
+        self.assertNoFormError(response)
+        self.assertEqual(200, response.status_code)
+        self.assert_(response.redirect_chain)
+
+        try:
+            meeting = Meeting.objects.get(title=title)
+        except Exception, e:
+            self.fail(str(e))
+
+        start = meeting.start
+        self.assertEqual(2010,  start.year)
+        self.assertEqual(1,     start.month)
+        self.assertEqual(10,    start.day)
+        self.assertEqual(17,    start.hour)
+        self.assertEqual(30,    start.minute)
+
+        self.assertEqual(2, Relation.objects.count())
+
+        relations = Relation.objects.filter(type=REL_SUB_PART_2_ACTIVITY)
+        self.assertEqual(1, len(relations))
+
+        relation = relations[0]
+        self.assertEqual(contact02.id, relation.subject_entity_id)
+        self.assertEqual(meeting.id,   relation.object_entity_id)
+
+    def test_activity_createview_related02(self):
+        self.login()
+
+        user = self.user
+        ryoga = Contact.objects.create(user=user, first_name='Ryoga', last_name='Hibiki', is_user=self.other_user)
+        response = self.client.get('/activities/activity/add_related/phonecall',
+                                  data={
+                                          'ct_entity_for_relation': ryoga.entity_type_id,
+                                          'id_entity_for_relation': ryoga.id,
+                                          'entity_relation_type':   REL_SUB_PART_2_ACTIVITY,
+                                       }
+                                  )
+        self.assertEqual(response.status_code, 200)
+
+        try:
+            users = response.context['form'].fields['participating_users']
+        except Exception, e:
+            self.fail(str(e))
+
+        self.assertEqual([self.other_user.id], [e.id for e in users.initial])
+
+    def test_activity_createview_related03(self):
+        self.login()
+
+        user = self.user
+        ryoga = Contact.objects.create(user=user, first_name='Ryoga', last_name='Hibiki')
+        response = self.client.get('/activities/activity/add_related/phonecall',
+                                  data={
+                                          'ct_entity_for_relation': ryoga.entity_type_id,
+                                          'id_entity_for_relation': ryoga.id,
+                                          'entity_relation_type':   REL_SUB_ACTIVITY_SUBJECT,
+                                       }
+                                  )
+        self.assertEqual(response.status_code, 200)
+
+        try:
+            subjects = response.context['form'].fields['subjects']
+        except Exception, e:
+            self.fail(str(e))
+
+        self.assertEqual([ryoga.id], [e.id for e in subjects.initial])
+
+    def test_activity_createview_related04(self):
+        self.login()
+
+        user = self.user
+        ryoga = Contact.objects.create(user=user, first_name='Ryoga', last_name='Hibiki')
+        response = self.client.get('/activities/activity/add_related/phonecall?',
+                                   data={
+                                           'ct_entity_for_relation': ryoga.entity_type_id,
+                                           'id_entity_for_relation': ryoga.id,
+                                           'entity_relation_type':   REL_SUB_LINKED_2_ACTIVITY,
+                                        }
+                                  )
+        self.assertEqual(200, response.status_code)
+
+        try:
+            linked_entities = response.context['form'].fields['linked_entities']
+        except Exception, e:
+            self.fail(str(e))
+
+        self.assertEqual([ryoga.id], [e.id for e in linked_entities.initial])
+
+    def test_activity_createview_404(self):
+        self.login()
+
+        self.assertEqual(200, self.client.get('/activities/activity/add/meeting').status_code)
+        self.assertEqual(200, self.client.get('/activities/activity/add/phonecall').status_code)
+        self.assertEqual(404, self.client.get('/activities/activity/add/foobar').status_code)
+
+        c = Contact.objects.create(user=self.user, first_name='first_name', last_name='last_name')
+        args = {
+                'ct_entity_for_relation': c.entity_type_id,
+                'id_entity_for_relation': c.id,
+                'entity_relation_type':   REL_SUB_LINKED_2_ACTIVITY,
+               }
+
+        self.assertEqual(200, self.client.get('/activities/activity/add_related/meeting', data=args).status_code)
+        self.assertEqual(200, self.client.get('/activities/activity/add_related/phonecall', data=args).status_code)
+        self.assertEqual(404, self.client.get('/activities/activity/add_related/foobar', data=args).status_code)
 
     def test_activity_editview01(self):
         self.login()
