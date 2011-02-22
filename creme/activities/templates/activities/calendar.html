@@ -222,24 +222,45 @@ $(document).ready(function() {
 <div class="full-calendar-header">
     <div class="full-calendar-buttons">
         <ul class="button_list hbox">
-            <li>
-                <a class="menu_button" href="/activities/activity/add/meeting" >
-                    <img src="{% media_url 'images/map_32.png' %}" border="0" title="{% trans "Meeting" %}" alt="{% trans "Meeting" %}" />
-                    {% trans "Create a meeting" %}
-                </a>
-            </li>
-            <li>
-                <a class="menu_button" href="/activities/activity/add/phonecall">
-                    <img src="{% media_url 'images/phone_32.png' %}" border="0" title="{% trans "Phone call" %}" alt="{% trans "Phone call" %}" />
-                    {% trans "Create a phone call" %}
-                </a>
-            </li>
-            <li>
-                <a class="menu_button" href="/activities/activity/add/task">
-                    <img src="{% media_url 'images/task_32.png' %}" border="0" title="{% trans "Task" %}" alt="{% trans "Task" %}" />
-                    {% trans "Create a task" %}
-                </a>
-            </li>
+            {% if creation_perm %}
+                <li>
+                    <a class="menu_button" href="/activities/activity/add/meeting" >
+                        <img src="{% media_url 'images/map_32.png' %}" border="0" title="{% trans "Meeting" %}" alt="{% trans "Meeting" %}" />
+                        {% trans "Create a meeting" %}
+                    </a>
+                </li>
+                <li>
+                    <a class="menu_button" href="/activities/activity/add/phonecall">
+                        <img src="{% media_url 'images/phone_32.png' %}" border="0" title="{% trans "Phone call" %}" alt="{% trans "Phone call" %}" />
+                        {% trans "Create a phone call" %}
+                    </a>
+                </li>
+                <li>
+                    <a class="menu_button" href="/activities/activity/add/task">
+                        <img src="{% media_url 'images/task_32.png' %}" border="0" title="{% trans "Task" %}" alt="{% trans "Task" %}" />
+                        {% trans "Create a task" %}
+                    </a>
+                </li>
+            {% else %}
+                <li>
+                    <span class="menu_button forbidden" title="{% trans "forbidden" %}">
+                        <img src="{% media_url 'images/map_32.png' %}" border="0" title="{% trans "Meeting" %}" alt="{% trans "Meeting" %}" />
+                        {% trans "Create a meeting" %}
+                    </span>
+                </li>
+                <li>
+                    <span class="menu_button forbidden" title="{% trans "forbidden" %}">
+                        <img src="{% media_url 'images/phone_32.png' %}" border="0" title="{% trans "Phone call" %}" alt="{% trans "Phone call" %}" />
+                        {% trans "Create a phone call" %}
+                    </span>
+                </li>
+                <li>
+                    <span class="menu_button forbidden" title="{% trans "forbidden" %}">
+                        <img src="{% media_url 'images/task_32.png' %}" border="0" title="{% trans "Task" %}" alt="{% trans "Task" %}" />
+                        {% trans "Create a task" %}
+                    </span>
+                </li>
+            {% endif %}
         </ul>
         <form action="" method="POST" name="user_choice">{% csrf_token %}
             <table width="100%">
