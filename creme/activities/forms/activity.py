@@ -200,11 +200,12 @@ class ActivityCreateForm(CremeEntityForm):
         fields['my_calendar'].queryset = Calendar.objects.filter(user=user)
         fields['my_calendar'].initial  = my_default_calendar
 
-        #TODO: refactor this with a smart widget that manages dependencies
-        data = kwargs.get('data') or {}
+
+#        data = kwargs.get('data') or {}
 #        if not data.get('my_participation', False):
 #            fields['my_calendar'].widget.attrs['disabled']  = 'disabled'
-#        fields['my_participation'].widget.attrs['onclick'] = "if($(this).is(':checked')){$('#id_my_calendar').removeAttr('disabled');}else{$('#id_my_calendar').attr('disabled', 'disabled');}"
+        #TODO: refactor this with a smart widget that manages dependencies
+        fields['my_participation'].widget.attrs['onclick'] = "if($(this).is(':checked')){$('#id_my_calendar').removeAttr('disabled');}else{$('#id_my_calendar').attr('disabled', 'disabled');}"
 
         fields['participating_users'].queryset = User.objects.exclude(pk=user.id)
         fields['other_participants'].q_filter = {'is_user__isnull': True}
