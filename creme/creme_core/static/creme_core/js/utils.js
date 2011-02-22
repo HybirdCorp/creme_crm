@@ -16,13 +16,13 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *******************************************************************************/
 
-function openWindow(url, name, params) {
+function openWindow(url, name, params) { //TODO: creme.utils.openWindow
     if(!params || params == '' || typeof(params) == "undefined")
         params = 'menubar=no, status=no, scrollbars=yes, menubar=no, width=800, height=600';
     window[name] = window.open(url,name,params);
 }
 
-function reload(w) {
+function reload(w) { //TODO: creme.utils.reload
     w.location.href = w.location.href;
 }
 
@@ -66,23 +66,26 @@ creme.utils.loading = function(div_id, is_loaded, params) {
 }
 
 creme.utils.showDialog = function(text, options, div_id) {
-    var $div = $('#'+div_id);
+    var $div = $('#' + div_id);
+
     if($div.size() == 0) {
         var d = new Date();
-        div_id = d.getTime().toString()+Math.ceil(Math.random()*1000000);
-        $div = $('<div id="'+div_id+'"  style="display:none;"></div>');
+        div_id = d.getTime().toString() + Math.ceil(Math.random() * 1000000);
+        $div = $('<div id="' + div_id + '"  style="display:none;"></div>');
         $(document.body).append($div);
     }
     $div.html(text);
     //$div.append($('<input type="hidden"/>').attr('id','dialog_id').val(div_id));
+
+    buttons = {};
+    buttons[gettext("Ok")] = function() {
+            $(this).dialog("close");
+            /*$(this).dialog("destroy");
+            $(this).remove();*/
+        }
+
     $div.dialog(jQuery.extend({
-        buttons: {
-            "Ok": function() {
-                $(this).dialog("close");
-                /*$(this).dialog("destroy");
-                $(this).remove();*/
-            }
-        },
+        buttons: buttons,
         closeOnEscape: false,
         hide: 'slide',
         show: 'slide',
@@ -112,7 +115,7 @@ creme.utils.showDialog = function(text, options, div_id) {
  * http://www.asp-php.net/ressources/codes/JavaScript-Supprimer+les+doublons+d%27un+tableau+en+javascript.aspx
  *
  */
-creme.utils.hasDoublons = function(TabInit) {
+creme.utils.hasDoublons = function(TabInit) { //TODO: remove ??
     var q = 0;
     var LnChaine = TabInit.length;
     for(x = 0; x < LnChaine; x++) {
@@ -168,45 +171,46 @@ creme.utils.bindShowHideTbody = function() {
     $('.table_detail_view').find('.collapser').each(function() {creme.utils.bindToggle($(this));});
 }
 
-//TODO: Remove evt argument, a argument?
-creme.utils.confirmDelete = function(evt, a, msg, ajax, ajax_options) {
-    evt.preventDefault();
+// COMMENTED on 19 january 2011
+// //TODO: Remove evt argument, a argument?
+// creme.utils.confirmDelete = function(evt, a, msg, ajax, ajax_options) {
+//     evt.preventDefault();
+//
+//     var href = $(a).attr('href');
+//     var buttons = {};
+//
+//     buttons[gettext("Ok")] = function() {
+//             if (typeof(ajax)!="undefined" && ajax==true) {
+//                 //$.get(href);
+//                 var defOpts = jQuery.extend({
+//                     url : href,
+//                     data : {},
+//                     success : function(data, status, req){
+//                         creme.utils.showDialog(gettext("Suppression done"));
+//                     },
+//                     error : function(req, status, error){
+//                         creme.utils.showDialog(gettext("Error"));
+//                     },
+//                     complete : function(request, textStatus){},
+//                     sync : false,
+//                     method:"GET",
+//                     parameters : undefined
+//                 }, ajax_options);
+//
+//                 $.ajax(defOpts);
+//                 //creme.ajax.json.send(href, defOpts.data, defOpts.success_cb, defOpts.error_cb, defOpts.sync,defOpts.method,defOpts.parameters);
+//                 $(this).dialog("destroy");
+//                 $(this).remove();
+//             } else {
+//                 window.location.href = href;
+//             }
+//         }
+//     buttons[gettext("Cancel")] = function() {$(this).dialog("destroy");$(this).remove();}
+//
+//     creme.utils.showDialog(msg || gettext("Are you sure ?"), {buttons: buttons});
+// }
 
-    var href = $(a).attr('href');
-    var buttons = {};
-
-    buttons[gettext("Ok")] = function() {
-            if (typeof(ajax)!="undefined" && ajax==true) {
-                //$.get(href);
-                var defOpts = jQuery.extend({
-                    url : href,
-                    data : {},
-                    success : function(data, status, req){
-                        creme.utils.showDialog(gettext("Suppression done"));
-                    },
-                    error : function(req, status, error){
-                        creme.utils.showDialog(gettext("Error"));
-                    },
-                    complete : function(request, textStatus){},
-                    sync : false,
-                    method:"GET",
-                    parameters : undefined
-                }, ajax_options);
-
-                $.ajax(defOpts);
-                //creme.ajax.json.send(href, defOpts.data, defOpts.success_cb, defOpts.error_cb, defOpts.sync,defOpts.method,defOpts.parameters);
-                $(this).dialog("destroy");
-                $(this).remove();
-            } else {
-                window.location.href = href;
-            }
-        }
-    buttons[gettext("Cancel")] = function() {$(this).dialog("destroy");$(this).remove();}
-
-    creme.utils.showDialog(msg || gettext("Are you sure ?"), {buttons: buttons});
-}
-
-creme.utils.confirmDelete2 = function(url, msg, ajax, ajax_options) {
+creme.utils.confirmBeforeGo = function(url, ajax, ajax_options) { //TODO: rename ? factorise (see ajaxDelete()) ??
     var buttons = {};
 
     buttons[gettext("Ok")] = function() {
@@ -215,15 +219,20 @@ creme.utils.confirmDelete2 = function(url, msg, ajax, ajax_options) {
                 var defOpts = jQuery.extend({
                     url : url,
                     data : {},
-                    success : function(data, status, req){
-                        creme.utils.showDialog("Suppression done");
+                    success : function(data, status, req) {
+                        //creme.utils.showDialog(gettext("Operation done"));
+                        reload(window); //TODO: reload listview content instead (so rename the function)
                     },
-                    error : function(req, status, error){
-                        creme.utils.showDialog("Error");
+                    error : function(req, status, error) { //TODO factorise
+                        if(!req.responseText || req.responseText == "") {
+                            creme.utils.showDialog(gettext("Error"));
+                        } else {
+                            creme.utils.showDialog(req.responseText);
+                        }
                     },
-                    complete : function(request, textStatus){},
+                    complete : function(request, textStatus) {},
                     sync : false,
-                    method: "GET",
+                    //method: "GET",
                     parameters : undefined
                 }, ajax_options);
 
@@ -236,7 +245,20 @@ creme.utils.confirmDelete2 = function(url, msg, ajax, ajax_options) {
         }
     buttons[gettext("Cancel")] = function() {$(this).dialog("destroy");$(this).remove();}
 
-    creme.utils.showDialog(msg || gettext("Are you sure ?"), {buttons: buttons});
+    //creme.utils.showDialog(msg || gettext("Are you sure ?"), {buttons: buttons});
+    creme.utils.showDialog(gettext("Are you sure ?"), {buttons: buttons});
+}
+
+creme.utils.deleteEntity = function(atag) {
+    var buttons = {};
+
+    buttons[gettext("Ok")] = function() {
+                    $('form', $(atag)).submit();
+                    $(this).dialog("destroy");
+                    $(this).remove();
+                }
+
+    creme.utils.showDialog(gettext("Are you sure ?"), {buttons: buttons});
 }
 
 creme.utils.changeOtherNodes = function (from_id, arrayNodesIds, callback) {
@@ -255,7 +277,7 @@ creme.utils.fillNode = function(from_node, to_node) {
         type: "POST",
         data: {'model': to_node.model, 'pk': from_node.val(), 'field': to_node.field},
         dataType: "json",
-        success: function(data){
+        success: function(data) {
             $('#' + to_node.id).val(data[to_node.field]);
         }
     });
@@ -342,9 +364,10 @@ creme.utils.showInnerPopup = function(url, options, div_id) {
         $(document.body).append($div);
     }
     url += (url.indexOf('?') != -1) ? '&whoami='+div_id: '?whoami='+div_id;
-    $.get(
-        url,
-        function(data){
+    $.ajax({
+        url: url,
+        type: "GET",
+        success: function(data) {
             //var data = $(data).remove('meta,title,html');
             /*$(document.body).append($('<div id="temp"></div>').append(data))
             var $temp = $('#temp');
@@ -426,8 +449,15 @@ creme.utils.showInnerPopup = function(url, options, div_id) {
                                        //help_text : "Touche Echap pour fermer."
                                    },options), div_id
            );
+        },
+        error : function(req, status, error){
+            if(!req.responseText || req.responseText == "") {
+                creme.utils.showDialog(gettext("Error during loading the page."));
+            } else {
+                creme.utils.showDialog(req.responseText);
+            }
         }
-    );
+    });
     return div_id;
 }
 
@@ -438,9 +468,10 @@ creme.utils.handleDialogSubmit = function(dialog) {
     var post_data = {}
     var post_url = $('[name=inner_header_from_url]',dialog).val();
 
-    $form.find('input[name!=], select[name!=], button[name!=], textarea[name!=]').each(function(){
+    $form.find('input[name!=], select[name!=], button[name!=], textarea[name!=]').each(function() {
        var $node = $(this);
        var $node_value = $node.val();
+       if($node.is(':select') && $node.is('[multiple=true]') && $node_value == null) return;
        if(!$node.is(':checkbox')) post_data[$node.attr('name')] = (!$node_value || $node_value==null)? "" : $node_value;
        if($node.is(':checked')) post_data[$node.attr('name')] = $node.is(':checked'); //Works if the checkbox is not required in form (99% of cases)
     });
@@ -450,7 +481,7 @@ creme.utils.handleDialogSubmit = function(dialog) {
           type: $form.attr('method'),
           url: post_url,
           data : post_data,
-          beforeSend : function(request){
+          beforeSend : function(request) {
               creme.utils.loading('loading', false, {});
           },
           success: function(data, status) {
@@ -458,7 +489,6 @@ creme.utils.handleDialogSubmit = function(dialog) {
               $('[name=inner_body]','#'+div_id).html(data);
           },
           error: function(request, status, error) {
-//                 creme.utils.showDialog("<p><b>Erreur !</b></p><p>La page va être rechargée!</p>", {'title': gettext("Error")});
                 creme.utils.showDialog('<p><b>' + gettext("Error !") + '</b></p><p>' + gettext("The page will be reload !") + '</p>',
                                        {'title': gettext("Error")});
                 creme.utils.sleep("reload(window)");
@@ -541,12 +571,12 @@ creme.utils.reloadDialog = function(dial) {
     );
 }
 
-creme.utils.sleep = function(fn, time){
+creme.utils.sleep = function(fn, time) {
     var time = time || 3000;
     setTimeout(fn, time);
 }
 
-creme.utils.appendInUrl = function(url, strToAppend){
+creme.utils.appendInUrl = function(url, strToAppend) {
     var index_get = url.indexOf('?');
     var get = "", anchor = "";
 
@@ -580,17 +610,17 @@ creme.utils.ajaxDelete = function(url, _data, ajax_params, msg) {
                 beforeSend : function(req) {
                     creme.utils.loading('loading', false);
                 },
-                success: function(data, status, req){
+                success: function(data, status, req) {
                     creme.utils.showDialog(gettext("Suppression done"));
                 },
-                error: function(req, status, error){
+                error: function(req, status, error) {
                     if(!req.responseText || req.responseText == "") {
-                        creme.utils.showDialog("Erreur");
+                        creme.utils.showDialog(gettext("Error"));
                     } else {
                         creme.utils.showDialog(req.responseText);
                     }
                 },
-                complete: function(request, textStatus){
+                complete: function(request, textStatus) {
                     creme.utils.loading('loading', true);
                 },
                 sync: false,
@@ -662,75 +692,11 @@ creme.utils.multiDeleteFromListView = function(lv_selector, delete_url) {
                             creme.utils.loading('loading', true);
                     }
     };
+    //TODO: gettext("Are you sure ?") useless ??
     creme.utils.ajaxDelete(delete_url, {'ids' : $(lv_selector).list_view('getSelectedEntities')}, ajax_opts, gettext("Are you sure ?"));
 }
 
-//TODO: move to properties.js ???
-creme.utils.multiAddPropertyFromListView = function(lv_selector, url, ct_id) {
-    if($(lv_selector).list_view('countEntities') == 0) {
-        creme.utils.showDialog(gettext("Please select at least one entity."));
-        return;
-    }
-
-    var types = creme.properties.get_types(ct_id);//TODO: Cache vs Integrity ?
-
-    $(lv_selector).list_view('option', 'entity_separator', ',');
-
-    var content = '<p>' + gettext("Select") + ' : <select name="property">';
-    for(var i in types) {
-        var type = types[i];
-        content += '<option value="' + type.pk + '">' + type.text + '</option>';
-    }
-    content += '</select></p>';
-
-    var buttons = {};
-
-    buttons[gettext("Ok")] = function() {
-            var type_id = $('select[name=property]', this).val();
-
-            if(!type_id || type_id == "") {
-                creme.utils.showDialog(gettext("Please select at least one entity."));
-                return;
-            }
-
-            $.ajax({
-                url : url,
-                data : {
-                    'ids': $(lv_selector).list_view('getSelectedEntities'),
-                    'type_id' : type_id
-                },
-                beforeSend : function(req){
-                    creme.utils.loading('loading', false);
-                },
-                success : function(data, status, req){
-                    creme.utils.showDialog(gettext("Process done"));
-                },
-                error : function(req, status, error){
-                    if(!req.responseText || req.responseText == "") {
-                        creme.utils.showDialog(gettext("Error"));
-                    } else {
-                        creme.utils.showDialog(req.responseText);
-                    }
-                },
-                complete : function(request, textStatus){
-                    $(lv_selector).list_view('reload');
-                    creme.utils.loading('loading', true);
-                },
-                sync : false,
-                type: "POST"
-            });
-            $(this).dialog("destroy");
-            $(this).remove();
-        }
-    buttons[gettext("Cancel")] = function() {
-            $(this).dialog("destroy");
-            $(this).remove();
-        }
-
-    creme.utils.showDialog(content, {buttons: buttons});
-};
-
-creme.utils.autoCheckallState = function(from, select_all_selector, checkboxes_selector){
+creme.utils.autoCheckallState = function(from, select_all_selector, checkboxes_selector) {
     var $select_all = $(select_all_selector);
 
     if(!$(from).is(':checked')) {
@@ -739,7 +705,7 @@ creme.utils.autoCheckallState = function(from, select_all_selector, checkboxes_s
     }
 
     var all_checked = true;
-    $(checkboxes_selector).each(function(){
+    $(checkboxes_selector).each(function() {
         all_checked = all_checked & $(this).is(':checked');
     });
 
@@ -758,6 +724,7 @@ creme.utils.toggleCheckallState = function(select_all, checkboxes_selector) {
     }
 };
 
+//TODO: rename (goTo ??)
 creme.utils.go_to = function(url, ajax, ajax_options) {
     if(typeof(ajax) != "undefined" && ajax) {
         if(typeof(ajax_options) != "undefined" && ajax_options) {

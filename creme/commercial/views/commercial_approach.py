@@ -19,11 +19,13 @@
 ################################################################################
 
 from django.utils.translation import ugettext as _
+from django.contrib.auth.decorators import login_required
 
 from creme_core.views.generic import add_to_entity
 
 from commercial.forms.commercial_approach import ComAppCreateForm
 
 
+@login_required
 def add(request, entity_id):
     return add_to_entity(request, entity_id, ComAppCreateForm, _(u"New commercial approach for <%s>"))

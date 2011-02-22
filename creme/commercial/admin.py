@@ -6,7 +6,7 @@ from commercial.models import *
 
 
 class ActAdmin(admin.ModelAdmin):
-    list_display = ('name', 'ca_expected', 'cost', 'target', 'goal', 'aim', 'due_date')
+    list_display = ('name', 'expected_sales', 'cost', 'goal', 'start', 'due_date')
 
 
 class ApproachAdmin(admin.ModelAdmin):

@@ -106,7 +106,7 @@ class GraphInstanceBlockForm(CremeForm):
         graph = self.graph
         volatil_column = get_data('volatil_column', '')
 
-        try:
+        try: #TODO: use filter().exists() instead
             InstanceBlockConfigItem.objects.get(block_id=ReportGraphBlock.generate_id('creme_config', u"%s_%s" % (graph.id, volatil_column)))
         except InstanceBlockConfigItem.DoesNotExist:
             return cleaned_data
@@ -119,7 +119,7 @@ class GraphInstanceBlockForm(CremeForm):
         report_model = graph.report.ct.model_class()
         volatil_column = cleaned_data.get('volatil_column', '')
 
-        instance = InstanceBlockConfigItem()
+        instance = InstanceBlockConfigItem() #TODO: use InstanceBlockConfigItem.objects.create()
         instance.entity = graph
         instance.block_id = ReportGraphBlock.generate_id('creme_config', u"%s_%s" % (graph.id, volatil_column))
         instance.data = volatil_column

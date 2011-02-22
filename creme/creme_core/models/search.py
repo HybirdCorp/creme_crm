@@ -18,8 +18,7 @@
 ################################################################################
 
 from django.db.models import CharField, ForeignKey, PositiveIntegerField
-from django.utils.translation import ugettext_lazy as _
-#from django.utils.encoding import force_unicode
+from django.utils.translation import ugettext_lazy as _, ugettext
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 
@@ -41,6 +40,12 @@ class SearchConfigItem(CremeModel):
         app_label = 'creme_core'
         verbose_name = _(u'Search')
         verbose_name_plural = _(u'Searches')
+
+    def __unicode__(self):
+        return ugettext(u'Search configuration of "%(user)s" for "%(type)s"') % {
+                    'user': self.user or ugettext(u'all users'),
+                    'type': self.content_type,
+                }
 
     def get_fields(self):
         if self._searchfields is None:
@@ -86,5 +91,4 @@ class SearchField(CremeModel):
         verbose_name_plural = _(u'Search fields')
 
     def __unicode__(self):
-        #return force_unicode(self.field_verbose_name)
         return self.field_verbose_name

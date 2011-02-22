@@ -55,6 +55,3 @@ class EmailTemplate(CremeEntity):
     @staticmethod
     def get_lv_absolute_url():
         return "/emails/templates"
-
-    def get_delete_absolute_url(self):
-        return "/emails/template/delete/%s" % self.id

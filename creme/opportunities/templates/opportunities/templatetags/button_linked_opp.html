@@ -1,5 +1,6 @@
 {% load i18n %}{% load media %}
-{% if has_perm %}
+{% load creme_core_tags %}{% has_perm_to link object as link_perm %}
+{% if has_perm and link_perm %}
     <a class="menu_button" href="/opportunities/opportunity/add_to_orga/{{object.id}}">
         <img src="{% media_url 'images/opportunity_32.png' %}" border="0" title="{% trans "Opportunity" %}" alt="{% trans "Opportunity" %}" />
         {% trans "Create a linked opportunity" %}

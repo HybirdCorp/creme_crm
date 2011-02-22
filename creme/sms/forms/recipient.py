@@ -37,9 +37,9 @@ class MessagingListAddRecipientsForm(CremeForm):
 
     blocks = FieldBlockManager(('general', _(u'Recipients'), '*'))
 
-    def __init__(self, messaging_list, *args, **kwargs):
+    def __init__(self, entity, *args, **kwargs):
         super(MessagingListAddRecipientsForm, self).__init__(*args, **kwargs)
-        self.messaging_list = messaging_list
+        self.messaging_list = entity
 
     def save(self):
         messaging_list = self.messaging_list
@@ -59,9 +59,9 @@ _HELP = _(u"A text file where each line contains digits (which can be separated 
 class MessagingListAddCSVForm(CremeForm):
     recipients = FileField(label=_(u'Recipients'), help_text=_HELP)
 
-    def __init__(self, messaging_list, *args, **kwargs):
+    def __init__(self, entity, *args, **kwargs):
         super(MessagingListAddCSVForm, self).__init__(*args, **kwargs)
-        self.messaging_list = messaging_list
+        self.messaging_list = entity
 
     def save(self):
         targets = chunktools.iter_splitchunks(self.cleaned_data['recipients'].chunks(), '\n', PhoneField.filternumbers)

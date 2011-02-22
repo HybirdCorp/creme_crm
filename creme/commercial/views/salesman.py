@@ -18,13 +18,12 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from logging import debug
+#from logging import debug
 
 from django.db.models import Q
 from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required, permission_required
 
-from creme_core.gui.last_viewed import change_page_for_last_item_viewed
 from creme_core.views.generic import add_entity, list_view
 
 from persons.models import Contact
@@ -43,7 +42,6 @@ def add(request):
 #      problem: list_view can accept to filter on a property (register a filtered view in the menu etc...)
 @login_required
 @permission_required('persons')
-@change_page_for_last_item_viewed #useful ??
 def listview(request):
     return list_view(request, Contact,
                      extra_dict={

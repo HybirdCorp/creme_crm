@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2011  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -28,10 +28,11 @@ from django.utils.translation import ugettext_lazy as _, ugettext
 from django.db.models import Q
 from django.contrib.auth.models import User
 
-from creme_core.models import CremeEntity, Relation, RelationType
+from creme_core.models import Relation, RelationType
 from creme_core.forms import CremeForm, CremeEntityForm
-from creme_core.forms.fields import RelatedEntitiesField, CremeDateTimeField, CremeTimeField, MultiCremeEntityField, GenericEntitiesField
+from creme_core.forms.fields import CremeDateTimeField, CremeTimeField, MultiCremeEntityField, MultiGenericEntityField
 from creme_core.forms.widgets import UnorderedMultipleChoiceWidget
+from creme_core.forms.validators import validate_linkable_entities, validate_linkable_entity
 
 from persons.models import Contact
 
@@ -99,20 +100,22 @@ def _check_activity_collisions(activity_start, activity_end, participants, exclu
 class ParticipantCreateForm(CremeForm):
     participants = MultiCremeEntityField(label=_(u'Participants'), model=Contact)
 
-    def __init__(self, activity, *args, **kwargs):
+    def __init__(self, entity, *args, **kwargs):
         super(ParticipantCreateForm, self).__init__(*args, **kwargs)
-        self.activity = activity
+        self.activity = entity
         self.participants = []
 
-        existing = Contact.objects.filter(relations__type=REL_SUB_PART_2_ACTIVITY, relations__object_entity=activity.id)
+        existing = Contact.objects.filter(relations__type=REL_SUB_PART_2_ACTIVITY, relations__object_entity=entity.id)
         self.fields['participants'].q_filter = {'~pk__in': [c.id for c in existing]}
+
+    def clean_participants(self):
+        return validate_linkable_entities(self.cleaned_data['participants'], self.user)
 
     def clean(self):
         cleaned_data = self.cleaned_data
 
         if not self._errors:
             activity = self.activity
-
             self.participants += cleaned_data['participants']
 
             if activity.busy:
@@ -135,19 +138,22 @@ class ParticipantCreateForm(CremeForm):
 
 
 class SubjectCreateForm(CremeForm):
-    subjects = RelatedEntitiesField(relation_types=[REL_SUB_ACTIVITY_SUBJECT], label=_(u'Subjects'), required=False)
-    #subjects = GenericEntitiesField(label=_(u'Subjects')) #TODO: use when bug with innerpopup is fixed ; filter already linked
+    subjects = MultiGenericEntityField(label=_(u'Subjects')) #TODO: qfilter to exclude current subjects
 
-    def __init__(self, activity, *args, **kwargs):
+    def __init__(self, entity, *args, **kwargs):
         super(SubjectCreateForm, self).__init__(*args, **kwargs)
-        self.activity = activity
+        self.activity = entity
+
+    def clean_subjects(self):
+        return validate_linkable_entities(self.cleaned_data['subjects'], self.user)
 
     def save (self):
-        activity = self.activity
-        create_relation = partial(Relation.objects.create, object_entity=activity, user=activity.user)
+        create_relation = partial(Relation.objects.create, subject_entity=self.activity,
+                                  type_id=REL_OBJ_ACTIVITY_SUBJECT, user=self.user
+                                 )
 
-        for relationtype_id, entity in self.cleaned_data['subjects']:
-            create_relation(subject_entity=entity, type_id=relationtype_id)
+        for entity in self.cleaned_data['subjects']:
+            create_relation(object_entity=entity)
 
 
 class ActivityCreateForm(CremeEntityForm):
@@ -159,9 +165,6 @@ class ActivityCreateForm(CremeEntityForm):
     start_time = CremeTimeField(label=_(u'Start time'), required=False)
     end_time   = CremeTimeField(label=_(u'End time'), required=False)
 
-    is_comapp = BooleanField(required=False, label=_(u"Is a commercial approach ?"),
-                             help_text=_(u"All participants (except users), subjects and linked entities will be linked to a commercial approach."),
-                             initial=True)
 
     my_participation    = BooleanField(required=False, label=_(u"Do I participate to this meeting ?"),initial=True)
     my_calendar         = ModelChoiceField(queryset=Calendar.objects.none(), required=False, label=_(u"On which of my calendar this activity will appears?"), empty_label=None)
@@ -169,8 +172,8 @@ class ActivityCreateForm(CremeEntityForm):
                                                    required=False, widget=UnorderedMultipleChoiceWidget
                                                   )
     other_participants  = MultiCremeEntityField(label=_(u'Other participants'), model=Contact, required=False)
-    subjects            = GenericEntitiesField(label=_(u'Subjects'), required=False)
-    linked_entities     = GenericEntitiesField(label=_(u'Entities linked to this activity'), required=False)
+    subjects            = MultiGenericEntityField(label=_(u'Subjects'), required=False)
+    linked_entities     = MultiGenericEntityField(label=_(u'Entities linked to this activity'), required=False)
 
 
     generate_alert   = BooleanField(label=_(u"Do you want to generate an alert or a reminder ?"), required=False)
@@ -183,18 +186,18 @@ class ActivityCreateForm(CremeEntityForm):
                 ('alert_datetime', _(u'Generate an alert or a reminder'), ['generate_alert', 'alert_day', 'alert_start_time']),
             )
 
-    def __init__(self, current_user, *args, **kwargs):
+    def __init__(self, *args, **kwargs):
         super(ActivityCreateForm, self).__init__(*args, **kwargs)
-        self.current_user = current_user
-        self.participants = []
+        self.participants = [] #all Contacts who participate: me, other users, other contacts
 
+        user =  self.user
         fields = self.fields
 
         fields['start_time'].initial = time(9, 0)
         fields['end_time'].initial   = time(18, 0)
 
-        my_default_calendar = Calendar.get_user_default_calendar(current_user)
-        fields['my_calendar'].queryset = Calendar.objects.filter(user=current_user)
+        my_default_calendar = Calendar.get_user_default_calendar(user) #TODO: variable used once...
+        fields['my_calendar'].queryset = Calendar.objects.filter(user=user)
         fields['my_calendar'].initial  = my_default_calendar
 
         #TODO: refactor this with a smart widget that manages dependencies
@@ -203,30 +206,49 @@ class ActivityCreateForm(CremeEntityForm):
 #            fields['my_calendar'].widget.attrs['disabled']  = 'disabled'
 #        fields['my_participation'].widget.attrs['onclick'] = "if($(this).is(':checked')){$('#id_my_calendar').removeAttr('disabled');}else{$('#id_my_calendar').attr('disabled', 'disabled');}"
 
-        fields['participating_users'].queryset = User.objects.exclude(pk=current_user.id)
+        fields['participating_users'].queryset = User.objects.exclude(pk=user.id)
         fields['other_participants'].q_filter = {'is_user__isnull': True}
+
+    def clean_my_participation(self):
+        my_participation = self.cleaned_data.get('my_participation', False)
+        user = self.user
+
+        try:
+            user_contact = Contact.objects.get(is_user=user)
+        except Contact.DoesNotExist:
+            debug('No Contact linked to this user: %s', user)
+        else:
+            self.participants.append(validate_linkable_entity(user_contact, user))
+
+        return my_participation
+
+    def clean_participating_users(self):
+        users = self.cleaned_data['participating_users']
+        self.participants.extend(validate_linkable_entities(Contact.objects.filter(is_user__in=users), self.user))
+        return users
+
+    def clean_other_participants(self):
+        participants = self.cleaned_data['other_participants']
+        self.participants.extend(validate_linkable_entities(participants, self.user))
+        return participants
+
+    def clean_subjects(self):
+        return validate_linkable_entities(self.cleaned_data['subjects'], self.user)
+
+    def clean_linked_entities(self):
+        return validate_linkable_entities(self.cleaned_data['linked_entities'], self.user)
 
     def clean(self):
         cleaned_data = self.cleaned_data
 
-        if self._errors:
-            return cleaned_data
+        if not self._errors:
+            _clean_interval(cleaned_data)
 
-        _clean_interval(cleaned_data)
-
-        users = list(cleaned_data['participating_users'])
-
-        if cleaned_data.get('my_participation'):
-            if not cleaned_data.get('my_calendar'):
+            if cleaned_data['my_participation'] and not cleaned_data.get('my_calendar'):
                 self.errors['my_calendar'] = ErrorList([_(u"If you participe, you have to choose one of your calendars.")])
-            else:
-                users.append(self.current_user)
 
-        self.participants.extend(Contact.objects.filter(is_user__in=users))
-        self.participants += cleaned_data['other_participants']
-
-        if cleaned_data['busy']:
-            _check_activity_collisions(cleaned_data['start'], cleaned_data['end'], self.participants)
+            if cleaned_data['busy']:
+                _check_activity_collisions(cleaned_data['start'], cleaned_data['end'], self.participants)
 
         return cleaned_data
 
@@ -238,7 +260,6 @@ class ActivityCreateForm(CremeEntityForm):
         super(ActivityCreateForm, self).save()
 
         self._generate_alert()
-        self._create_commercial_approach()
 
         create_link = CalendarActivityLink.objects.get_or_create
 
@@ -277,34 +298,6 @@ class ActivityCreateForm(CremeEntityForm):
                                  title=ugettext(u"Alert of activity"),
                                  description=ugettext(u'Alert related to %s') % activity,
                                 )
-
-    #TODO: inject from 'commercial' app instead ??
-    def _create_commercial_approach(self):
-        from commercial.models import CommercialApproach
-
-        cleaned_data = self.cleaned_data
-
-        if not cleaned_data.get('is_comapp', False):
-            return
-
-        comapp_subjects = list(cleaned_data['other_participants'])
-        comapp_subjects += cleaned_data['subjects']
-        comapp_subjects += cleaned_data['linked_entities']
-
-        if not comapp_subjects:
-            return
-
-        now = datetime.now()
-        instance = self.instance
-        create_comapp = CommercialApproach.objects.create
-
-        for entity in comapp_subjects:
-            create_comapp(title=instance.title,
-                          description=instance.description,
-                          creation_date=now,
-                          creme_entity=entity,
-                          related_activity_id=instance.id,
-                         )
 
 
 class RelatedActivityCreateForm(ActivityCreateForm):
