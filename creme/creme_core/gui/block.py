@@ -305,7 +305,9 @@ class SpecificRelationsBlock(QuerysetBlock):
                                              )
 
         #NB: DB optimisation
-        Relation.populate_real_object_entities(btc['page'].object_list)
+        relations = btc['page'].object_list
+        Relation.populate_real_object_entities(relations)
+        CremeEntity.populate_credentials([r.object_entity.get_real_entity() for r in relations], context['user'])
 
         return self._render(btc)
 

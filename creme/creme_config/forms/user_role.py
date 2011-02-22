@@ -99,9 +99,11 @@ class UserRoleEditForm(UserRoleCreateForm):
 
 
 class AddCredentialsForm(CremeModelForm):
-    can_view   = BooleanField(label=_(u'Can view'), required=False)
+    can_view   = BooleanField(label=_(u'Can view'),   required=False)
     can_change = BooleanField(label=_(u'Can change'), required=False)
     can_delete = BooleanField(label=_(u'Can delete'), required=False)
+    can_link   = BooleanField(label=_(u'Can link'),   required=False, help_text=_(u'You must have the permission to link on 2 entities to create a relationship between them.'))
+    can_unlink = BooleanField(label=_(u'Can unlink'), required=False, help_text=_(u'You must have the permission to unlink on 2 entities to delete a relationship between them.'))
     set_type   = ChoiceField(label=_(u'Type of entities set'), choices=SetCredentials.ESET_MAP.items())
 
     class Meta:
@@ -118,7 +120,9 @@ class AddCredentialsForm(CremeModelForm):
         role     = self.role
 
         instance.role = role
-        instance.set_value(get_data('can_view'), get_data('can_change'), get_data('can_delete'))
+        instance.set_value(get_data('can_view'), get_data('can_change'), get_data('can_delete'),
+                           get_data('can_link'), get_data('can_unlink')
+                          )
 
         super(AddCredentialsForm, self).save(*args, **kwargs)
 
@@ -130,9 +134,11 @@ class AddCredentialsForm(CremeModelForm):
 
 
 class DefaultCredsForm(CremeForm):
-    can_view   = BooleanField(label=_(u'Can view'), required=False)
+    can_view   = BooleanField(label=_(u'Can view'),   required=False)
     can_change = BooleanField(label=_(u'Can change'), required=False)
     can_delete = BooleanField(label=_(u'Can delete'), required=False)
+    can_link   = BooleanField(label=_(u'Can link'),   required=False)
+    can_unlink = BooleanField(label=_(u'Can unlink'), required=False)
 
     def __init__(self, *args, **kwargs):
         super(DefaultCredsForm, self).__init__(*args, **kwargs)
@@ -143,9 +149,14 @@ class DefaultCredsForm(CremeForm):
         fields['can_view'].initial   = defcreds.can_view()
         fields['can_change'].initial = defcreds.can_change()
         fields['can_delete'].initial = defcreds.can_delete()
+        fields['can_link'].initial   = defcreds.can_link()
+        fields['can_unlink'].initial = defcreds.can_unlink()
 
     def save(self):
         get_data = self.cleaned_data.get
         EntityCredentials.set_default_perms(view=get_data('can_view'),
                                             change=get_data('can_change'),
-                                            delete=get_data('can_delete'))
+                                            delete=get_data('can_delete'),
+                                            link=get_data('can_link'),
+                                            unlink=get_data('can_unlink'),
+                                           )

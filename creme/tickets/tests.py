@@ -1,30 +1,14 @@
 # -*- coding: utf-8 -*-
 
-from django.test import TestCase
-from django.contrib.auth.models import User
-
-from creme_core.management.commands.creme_populate import Command as PopulateCommand
+from creme_core.tests.base import CremeTestCase
 
 from tickets.models import *
 from tickets.models.status import BASE_STATUS, OPEN_PK, CLOSED_PK, INVALID_PK
 
 
-class TicketTestCase(TestCase):
-    def login(self):
-        if not self.user:
-            user = User.objects.create(username='Sam')
-            user.set_password(self.password)
-            user.is_superuser = True
-            user.save()
-            self.user = user
-
-        logged = self.client.login(username=self.user.username, password=self.password)
-        self.assert_(logged, 'Not logged in')
-
+class TicketTestCase(CremeTestCase):
     def setUp(self):
-        PopulateCommand().handle(application=['creme_core', 'tickets'])
-        self.password = 'test'
-        self.user = None
+        self.populate('creme_core', 'tickets')
 
     def test_status_n_friends(self):
         for pk, name in BASE_STATUS:
@@ -235,7 +219,7 @@ class TicketTestCase(TestCase):
                                        criticity=Criticity.objects.all()[0],
                                       )
 
-        response = self.client.post('/tickets/ticket/delete/%s' % ticket.pk, follow=True)
+        response = self.client.post('/creme_core/entity/delete/%s' % ticket.pk, follow=True)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.redirect_chain), 1)
         self.assert_(response.redirect_chain[0][0].endswith('/tickets/tickets'))

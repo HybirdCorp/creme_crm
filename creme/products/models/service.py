@@ -55,11 +55,7 @@ class Service(CremeEntity):
 
     @staticmethod
     def get_lv_absolute_url():
-        """url for list_view """
         return "/products/services"
-
-    def get_delete_absolute_url(self):
-        return "/products/service/delete/%s" % self.id
 
     class Meta:
         app_label = 'products'

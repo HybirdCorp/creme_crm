@@ -43,21 +43,6 @@ urlpatterns = patterns('billing.views',
     (r'^(?P<document_id>\d+)/service_line/add$',            'line.add_service_line'),
     (r'^(?P<document_id>\d+)/service_line/add_on_the_fly$', 'line.add_service_line_on_the_fly'),
     (r'^line/(?P<line_id>\d+)/update$',                     'line.update'),
-    (r'^line/delete$',                                      'line.delete'),
     (r'^productline/(?P<line_id>\d+)/edit$',                'line.edit_productline'),
     (r'^serviceline/(?P<line_id>\d+)/edit$',                'line.edit_serviceline'),
-)
-
-urlpatterns += patterns('creme_core.views',
-    (r'^invoice/edit_js/$',                                'ajax.edit_js'),
-    (r'^invoice/delete/(?P<object_id>\d+)$',               'generic.delete_entity'),
-    (r'^invoice/delete_js/(?P<entities_ids>([\d]+[,])+)$', 'generic.delete_entities_js'),
-
-    (r'^quote/edit_js/$',                                'ajax.edit_js'),
-    (r'^quote/delete/(?P<object_id>\d+)$',               'generic.delete_entity'),
-    (r'^quote/delete_js/(?P<entities_ids>([\d]+[,])+)$', 'generic.delete_entities_js'),
-
-    (r'^sales_order/edit_js/$',                                'ajax.edit_js'),
-    (r'^sales_order/delete/(?P<object_id>\d+)$',               'generic.delete_entity'),
-    (r'^sales_order/delete_js/(?P<entities_ids>([\d]+[,])+)$', 'generic.delete_entities_js'),
 )

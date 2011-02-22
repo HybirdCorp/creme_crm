@@ -36,9 +36,9 @@ class MailingListAddRecipientsForm(CremeForm):
 
     blocks = FieldBlockManager(('general', _(u'Recipients'), '*'))
 
-    def __init__(self, ml, *args, **kwargs):
+    def __init__(self, entity, *args, **kwargs):
         super(MailingListAddRecipientsForm, self).__init__(*args, **kwargs)
-        self.ml = ml
+        self.ml = entity
 
     def clean_recipients(self):
         recipients = self.cleaned_data['recipients'].split()
@@ -66,9 +66,9 @@ class MailingListAddCSVForm(CremeForm):
 
     blocks = FieldBlockManager(('general', _(u'CSV file'), '*'))
 
-    def __init__(self, ml, *args, **kwargs):
+    def __init__(self, entity, *args, **kwargs):
         super(MailingListAddCSVForm, self).__init__(*args, **kwargs)
-        self.ml = ml
+        self.ml = entity
 
     @staticmethod
     def filter_mail_chunk(value):

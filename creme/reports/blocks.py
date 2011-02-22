@@ -27,7 +27,7 @@ from creme_core.gui.block import Block, QuerysetBlock, list4url
 from creme_core.models.block import InstanceBlockConfigItem
 from creme_core.models.relation import RelationType
 
-from reports.models import Field, report_template_dir
+from reports.models import Field
 from reports.models.graph import ReportGraph, verbose_report_graph_types, fetch_graph_from_instance_block
 
 
@@ -35,12 +35,11 @@ class ReportFieldsBlock(Block):
     id_           = Block.generate_id('reports', 'fields')
     dependencies  = (Field,)
     verbose_name  = _(u"Columns of the report")
-    template_name = '%s/templatetags/block_report_fields.html' % report_template_dir
+    template_name = 'reports/templatetags/block_report_fields.html'
 
     def detailview_display(self, context):
         object = context['object']
         return self._render(self.get_block_template_context(context,
-                                                            #update_url='%s/%s/fields_block/reload/' % (report_prefix_url, object.id),
                                                             update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, object.pk),
                                                             HFI_FIELD=HFI_FIELD,
                                                             HFI_RELATION=HFI_RELATION)
@@ -50,7 +49,7 @@ class ReportGraphsBlock(QuerysetBlock):
     id_           = QuerysetBlock.generate_id('reports', 'graphs')
     dependencies  = (ReportGraph,)
     verbose_name  = _(u"Report's graphs")
-    template_name = '%s/templatetags/block_report_graphs.html' % report_template_dir
+    template_name = 'reports/templatetags/block_report_graphs.html'
     order_by      = 'name'
 
     def detailview_display(self, context):
@@ -69,7 +68,7 @@ class ReportGraphBlock(Block):
 #    id_           = Block.generate_id('reports', 'graph')
     dependencies  = (ReportGraph,)
     verbose_name  = _(u"Report's graphs")
-    template_name = '%s/templatetags/block_report_graph.html' % report_template_dir
+    template_name = 'reports/templatetags/block_report_graph.html'
     order_by      = 'name'
 
     def __init__(self, id_, instance_block_config):
@@ -93,7 +92,7 @@ class ReportGraphBlock(Block):
         entity  = context['object']
         request = context['request']
         graph   = self.graph
-        
+
         x, y = fetch_graph_from_instance_block(self.instance_block_config, entity, order='ASC')
 
         return self._render(self.get_block_template_context(context,

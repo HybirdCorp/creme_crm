@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-11-25 16:18+0100\n"
+"POT-Creation-Date: 2010-12-14 13:45+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -15,6 +15,36 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Language: \n"
+
+#: activities_register.py:37
+msgid "Users"
+msgstr "Utilisateurs"
+
+#: activities_register.py:39
+msgid "Users to keep informed"
+msgstr "Les utilisateurs à tenir informés"
+
+#: activities_register.py:61
+#, python-format
+msgid "[Creme] Activity created: %s"
+msgstr "[Creme] Activité créée: %s"
+
+#: activities_register.py:62
+#, python-format
+msgid ""
+"A new activity has been created: %(activity)s.\n"
+"    Description: %(description)s.\n"
+"    Start: %(start)s.\n"
+"    End: %(end)s.\n"
+"    Subjects: %(subjects)s.\n"
+"    Participants: %(participants)s."
+msgstr ""
+"Une nouvelle activité a été créée: %(activity)s.\n"
+"    Description: %(description)s.\n"
+"    Début: %(start)s.\n"
+"    Fin: %(end)s.\n"
+"    Sujets: %(subjects)s.\n"
+"    Participants: %(participants)s."
 
 #: blocks.py:99 models/todo.py:47
 msgid "Todos"
@@ -40,21 +70,21 @@ msgstr "Réactions hors délais"
 msgid "User messages"
 msgstr "Messages utilisateur"
 
-#: creme_core_register.py:29
-msgid "Assistants (Todos, Memo, ...)"
-msgstr "Assistants (Todos, Mémo, ...)"
-
-#: populate.py:35
+#: constants.py:10
 msgid "Important"
 msgstr "Important"
 
-#: populate.py:35
+#: constants.py:11
 msgid "Very important"
 msgstr "Très important"
 
-#: populate.py:35
+#: constants.py:12
 msgid "Not important"
 msgstr "Pas important"
+
+#: creme_core_register.py:29
+msgid "Assistants (Todos, Memo, ...)"
+msgstr "Assistants (Todos, Mémo, ...)"
 
 #: reminders.py:37
 #, python-format
@@ -88,7 +118,7 @@ msgstr "Rappel concernant une todo Crème CRM à propos de %s"
 msgid ""
 "This mail is automatically sent by Crème CRM to remind you that a todo "
 "concerning %(entity)s will expire.\n"
-"            Todo : %(title)s. \n"
+"            Todo : %(title)s.\n"
 "            which description is : %(description)s.\n"
 "\n"
 "             which is related to the entity : %(entity)s"
@@ -115,9 +145,17 @@ msgstr "Heure"
 msgid "Trigger date"
 msgstr "Date de déclenchement de l'alerte"
 
-#: forms/user_message.py:36
+#: forms/user_message.py:34
 msgid "Recipients"
 msgstr "Destinataires"
+
+#: forms/user_message.py:36
+msgid ""
+"Each time a team is selected, a message is sent to each teammate (do not "
+"worry, there can not be any duplicate)."
+msgstr ""
+"Lorsque vous sélectionnez une équipe, une message est envoyé à chacun des "
+"membres de l'équipe (pas de souci, les doublons sont éliminés)."
 
 #: models/action.py:32 models/todo.py:32 models/user_message.py:32
 #: models/user_message.py:45 templates/assistants/block_actions_it.html:19
@@ -227,12 +265,12 @@ msgstr "Destinataire"
 msgid "User message"
 msgstr "Message utilisateur"
 
-#: models/user_message.py:77
+#: models/user_message.py:81
 #, python-format
 msgid "User message from Creme: %s"
 msgstr "Message utilisateur de Creme: %s"
 
-#: models/user_message.py:78
+#: models/user_message.py:82
 #, python-format
 msgid ""
 "%(user)s send you the following message:\n"

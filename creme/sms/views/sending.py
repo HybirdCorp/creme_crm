@@ -34,6 +34,8 @@ from sms.blocks import messages_block
 #from sms.webservice.backend import WSException
 
 
+@login_required
+@permission_required('sms')
 def add(request,campaign_id):
     return add_to_entity(request, campaign_id, SendingCreateForm,
                          _('New sending for <%s>'), entity_class=SMSCampaign)

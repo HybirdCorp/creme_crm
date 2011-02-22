@@ -20,17 +20,60 @@
 
 from django.db.models import Q
 from django.http import HttpResponse#, Http404
-from django.shortcuts import get_object_or_404, render_to_response
+from django.shortcuts import get_object_or_404, render_to_response, get_list_or_404
 from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required
 from django.contrib.contenttypes.models import ContentType
+from django.template.context import RequestContext
 
 from creme_core.models import CremeEntity, CremePropertyType, CremeProperty
-from creme_core.views.generic import add_to_entity as generic_add_to_entity
-from creme_core.forms.creme_property import AddPropertiesForm
+from creme_core.views import generic
+from creme_core.forms.creme_property import AddPropertiesForm, AddPropertiesBulkForm
+from creme.creme_core.views.generic.popup import inner_popup
 from creme_core.utils import get_ct_or_404, get_from_POST_or_404
 
+@login_required
+def add_properties_bulk(request, ct_id, ids):
+    user     = request.user
+    model    = get_ct_or_404(ct_id).model_class()
+    entities = get_list_or_404(model, pk__in=[id for id in ids.split(',') if id])
 
+    CremeEntity.populate_real_entities(entities)
+    CremeEntity.populate_credentials(entities, user)
+
+    filtered = {True: [], False: []}
+    for entity in entities:
+        filtered[entity.can_change(user)].append(entity)
+
+    if request.method == 'POST':
+        form = AddPropertiesBulkForm(model=model,
+                                     entities=filtered[True],
+                                     forbidden_entities=filtered[False],
+                                     user=request.user,
+                                     data=request.POST
+                                     )
+
+        if form.is_valid():
+            form.save()
+    else:
+        form = AddPropertiesBulkForm(model=model,
+                                     entities=filtered[True],
+                                     forbidden_entities=filtered[False],
+                                     user=request.user
+                                    )
+
+    return inner_popup(request, 'creme_core/generics/blockform/add_popup2.html',
+                       {
+                        'form':  form,
+                        'title': _(u'Multiple adding of relations'),
+                       },
+                       is_valid=form.is_valid(),
+                       reload=False,
+                       delegate_reload=True,
+                       context_instance=RequestContext(request))
+
+#TODO: use  a true form (like the bulk) relation adding
+#TODO: Remove me ?
 @login_required
 def add_to_entities(request):
     POST          = request.POST
@@ -50,7 +93,7 @@ def add_to_entities(request):
             continue
 
         if not id.isdigit():
-            debug('not digit ?!')
+#            debug('not digit ?!')
             continue
 
         if not has_perm('creme_core.change_entity', entity):
@@ -69,32 +112,17 @@ def add_to_entities(request):
 
     return HttpResponse(return_str, mimetype="text/javascript", status=return_status)
 
+#TODO: Remove me ?
 @login_required
 def get_property_types_for_ct(request):
     ct = get_ct_or_404(get_from_POST_or_404(request.POST, 'ct_id'))
-    property_types = CremePropertyType.objects.filter(Q(subject_ctypes=ct) | Q(subject_ctypes__isnull=True))
+    property_types = CremePropertyType.objects.filter(Q(subject_ctypes=ct) | Q(subject_ctypes__isnull=True)) #TODO: in a CremeProperty method ??
 
     from django.core import serializers
     data = serializers.serialize('json', property_types, fields=('text',))
 
     return HttpResponse(data, mimetype='text/javascript')
 
-def add_to_entity(request, entity_id):
-    return generic_add_to_entity(request, entity_id, AddPropertiesForm, _('New properties for <%s>'))
-
 @login_required
-def delete(request):
-    """
-        @Permissions : Edit on property's linked object
-    """
-    POST        = request.POST
-    entity_id   = get_from_POST_or_404(POST, 'object_id')
-    property_id = get_from_POST_or_404(POST, 'id')
-    entity      = get_object_or_404(CremeEntity, pk=entity_id).get_real_entity()
-
-    entity.can_change_or_die(request.user)
-
-    property_ = get_object_or_404(CremeProperty, pk=property_id)
-    property_.delete()
-
-    return HttpResponse("")
+def add_to_entity(request, entity_id):
+    return generic.add_to_entity(request, entity_id, AddPropertiesForm, _('New properties for <%s>'))

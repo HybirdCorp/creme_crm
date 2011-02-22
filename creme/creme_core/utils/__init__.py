@@ -24,6 +24,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models.query_utils import Q
 from django.http import HttpResponse, Http404
+from django.utils.translation import ugettext as _
 
 from django.utils.simplejson import JSONEncoder
 
@@ -68,17 +69,26 @@ def jsonify(func): ##
         return HttpResponse(JSONEncoder().encode(rendered), mimetype="text/javascript")
     return _aux
 
-def get_from_GET_or_404(GET, key):
+def get_from_GET_or_404(GET, key): #TODO: factorise with get_from_POST_or_404()
     try:
         return GET[key]
     except KeyError:
         raise Http404('No GET argument with this key: %s' % key)
 
-def get_from_POST_or_404(POST, key):
+def get_from_POST_or_404(POST, key, cast=None):
+    """@param cast A function that cast the return value, and raise an Exception if it is not possible (eg: int)
+    """
     try:
-        return POST[key]
+        value = POST[key]
+
+        if cast:
+            value = cast(value)
     except KeyError:
         raise Http404('No POST argument with this key: %s' % key)
+    except Exception, e:
+        raise Http404('Problen with argument "%s" : it can not be coerced (%s)' % (key, str(e)))
+
+    return value
 
 def find_first(iterable, function, *default):
     """
@@ -92,3 +102,12 @@ def find_first(iterable, function, *default):
         return default[0]
 
     raise IndexError
+
+def entities2unicode(entities, user):
+    """Return a unicdde objects representing a sequence of CremeEntities,
+    with care of permissions.
+    Tips: for permormance, call "CremeEntity.populate_credentials(entities, user)" before.
+    """
+    return u', '.join(unicode(entity) if entity.can_view(user) else _(u'Entity #%s (not viewable)') % entity.id
+                          for entity in entities
+                     )

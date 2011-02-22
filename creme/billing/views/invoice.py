@@ -18,18 +18,17 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-import datetime
+from datetime import date
 
 from django.shortcuts import get_object_or_404
 from django.http import HttpResponseRedirect, Http404
 from django.contrib.auth.decorators import login_required, permission_required
 
-from creme_core.views.generic import add_entity, edit_entity, list_view
+from creme_core.views.generic import add_entity, edit_entity, list_view, view_entity
 
 from billing.constants import DEFAULT_INVOICE_STATUS
 from billing.models import Invoice, InvoiceStatus
 from billing.forms.invoice import InvoiceCreateForm, InvoiceEditForm
-from billing.views.base import view_billing_entity
 
 
 @login_required
@@ -38,14 +37,17 @@ from billing.views.base import view_billing_entity
 def add(request):
     return add_entity(request, InvoiceCreateForm)
 
+@login_required
+@permission_required('billing')
 def edit(request, invoice_id):
-    return edit_entity(request, invoice_id, Invoice, InvoiceEditForm, 'billing')
+    return edit_entity(request, invoice_id, Invoice, InvoiceEditForm)
 
 @login_required
 @permission_required('billing')
 def detailview(request, invoice_id):
-    invoice = get_object_or_404(Invoice, pk=invoice_id)
-    return view_billing_entity(request, invoice, '/billing/invoice')
+    return view_entity(request, invoice_id, Invoice, '/billing/invoice',
+                       'billing/view_billing.html', {'can_download': True},
+                       )
 
 @login_required
 @permission_required('billing')
@@ -55,10 +57,14 @@ def listview(request):
 @login_required
 @permission_required('billing')
 def generate_number(request, invoice_id):
+    if request.method != 'POST':
+        raise Http404('This view uses POST method.')
+
     invoice = get_object_or_404(Invoice, pk=invoice_id)
 
     invoice.can_change_or_die(request.user)
 
+    #TODO: move in model ???
     if not invoice.number:
         status = get_object_or_404(InvoiceStatus, pk=DEFAULT_INVOICE_STATUS)
 
@@ -66,8 +72,10 @@ def generate_number(request, invoice_id):
         invoice.status = status
 
         if not invoice.issuing_date:
-            invoice.issuing_date = datetime.now()
+            invoice.issuing_date = date.today()
 
         invoice.save()
+    else:
+        raise Http404('This invoice has already a number: %s.' % invoice)
 
     return HttpResponseRedirect(invoice.get_absolute_url())

@@ -1,25 +1,20 @@
 {% load i18n %}
-{% load media %}
 {% load creme_core_tags %}{% load creme_block %}
 {% regroup page.object_list by type as predicate_list %}
+{% has_perm_to link object as subject_link_perm %}{% has_perm_to unlink object as subject_unlink_perm %}
 <table class="table_detail_view ui-corner-all" id={{block_name}}>
     {% get_block_header colspan=2 %}
         <th style="width: 80%;" class="collapser">{% get_block_title _('%s Relation') _('%s Relations') 'relations_48.png' _('Relation') %}</th>
         <th style="width: 20%;" align="right">
             <div class="buttons">
-                <a class="link" onclick="creme.utils.innerPopupNReload('/creme_core/relation/add/{{object.id}}', {% get_block_reload_uri %});">
-                    <img src="{% media_url 'images/link_22.png' %}" border="0" title="{% trans "New relations" %}" alt="{% trans "New relations" %}" />
-                    {% trans "New relations" %}
-                </a>
+                {% get_line_linker at_url '/creme_core/relation/add/{{object.id}}' with_label _("New relations") with_perms subject_link_perm %}
             </div>
         </th>
     {% end_get_block_header %}
     <tbody class="collapsable">
         {% if page.paginator.count %}
             {% for predicate in predicate_list %}
-                <tr>
-                    <th class="{% cycle "block_header_line_dark" "block_header_line_light" %}" colspan="2">{{predicate.grouper}}</th>
-                </tr>
+                <tr><th class="{% cycle "block_header_line_dark" "block_header_line_light" %}" colspan="2">{{predicate.grouper}}</th></tr>
                 {% for relation in predicate.list %}
                     {% with relation.object_entity.get_real_entity as entity_obj %}
                         <tr>
@@ -28,7 +23,8 @@
                             </td>
                             <td class="{% cycle "block_line_dark" "block_line_light" %}" align="center" valign="center" style="width:10%;">
                                 {% if not relation.type.is_internal %}
-                                    {% get_line_unlinker at_url '/creme_core/relation/delete' with_args "{'id':{{relation.pk}}, 'object_id':{{object.pk}} }" with_perms 1 %}
+                                    {% has_perm_to unlink entity_obj as object_unlink_perm %}
+                                    {% get_line_unlinker at_url '/creme_core/relation/delete' with_args "{'id':{{relation.pk}} }" with_perms subject_unlink_perm|and_op:object_unlink_perm %}
                                 {% endif %}
                             </td>
                         </tr>

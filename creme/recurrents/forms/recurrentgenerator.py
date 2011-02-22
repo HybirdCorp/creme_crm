@@ -30,6 +30,8 @@ from recurrents.models import RecurrentGenerator
 from recurrents.registry import recurrent_registry
 
 
+#TODO: need rework (other wizard app ??)
+
 class _RecurrentGeneratorForm(CremeEntityForm):
     first_generation = DateTimeField(label=_(u'Date of the first generation'),
                                      required=True, widget=DateTimeWidget())
@@ -50,6 +52,10 @@ class RecurrentGeneratorCreateForm(_RecurrentGeneratorForm):
     class Meta(_RecurrentGeneratorForm.Meta):
         exclude = _RecurrentGeneratorForm.Meta.exclude + ('last_generation', 'template', 'is_working')
 
+    def __init__(self, *args, **kwargs):
+        kwargs['user'] = kwargs['initial']['user']
+        super(RecurrentGeneratorCreateForm, self).__init__(data=args[0], **kwargs)
+
     def save(self):
         instance = self.instance
         instance.last_generation = instance.first_generation
@@ -57,6 +63,8 @@ class RecurrentGeneratorCreateForm(_RecurrentGeneratorForm):
         return super(RecurrentGeneratorCreateForm, self).save()
 
 
+#TODO: it there  a problem: we create _one_ instance of RecurrentGeneratorWizard (so attributes are 'global'),
+#      and we set the form_list[1] to different values ??? (Django wizrd modify self.step itself...)
 class RecurrentGeneratorWizard(FormWizard):
     def __init__(self):
         # The second form of the wizard is set to None because it will be determined at execution
@@ -76,18 +84,37 @@ class RecurrentGeneratorWizard(FormWizard):
 
         return HttpResponseRedirect(resource_form.instance.get_absolute_url())
 
+    #def process_step(self, request, form, step):
+        #if step == 0 and form.is_valid():
+            #self.form_list[1] = recurrent_registry.get_form_of_template(form.cleaned_data['ct'])
     def process_step(self, request, form, step):
         if step == 0 and form.is_valid():
-            self.form_list[1] = recurrent_registry.get_form_of_template(form.cleaned_data['ct'])
+            base_class = recurrent_registry.get_form_of_template(form.cleaned_data['ct'])
 
+            class _TemplateClass(base_class):
+                def __init__(self, *args, **kwargs):
+                    kwargs['user'] = kwargs['initial']['user']
+                    base_class.__init__(self, data=args[0], **kwargs)
+
+            self.form_list[1] = _TemplateClass
+
+    #def parse_params(self, request, *args, **kwargs):
+        #current_step = self.determine_step(request, *args, **kwargs)
+
+        #if request.method == 'POST':
+            #form = self.get_form(0, request.POST)
+
+            #if form.is_valid():
+                #self.initial[1] = {'ct': form.cleaned_data['ct'].id}
     def parse_params(self, request, *args, **kwargs):
-        current_step = self.determine_step(request, *args, **kwargs)
+        self.initial[0] = {'user': request.user}
+        self.initial[1] = {'user': request.user}
 
         if request.method == 'POST':
             form = self.get_form(0, request.POST)
 
             if form.is_valid():
-                self.initial[1] = {'ct': form.cleaned_data['ct'].id}
+                self.initial[1].update(ct=form.cleaned_data['ct'].id)
 
     def get_template(self, step):
         return 'recurrents/wizard_generator.html'
