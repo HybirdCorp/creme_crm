@@ -1,0 +1,13 @@
+{% load i18n %}{% load media %}
+{% load creme_core_tags %}{% has_perm_to link object as link_perm %}
+{% if has_perm and link_perm %}
+    <a class="menu_button" onclick="creme.relations.handleAddFromPredicateEntity('/creme_core/relation/objects2link/rtype/{{predicate_id}}/entity/{{object.id}}/{{act_ct.id}}', '{{predicate_id}}', '{{object.id}}');">
+        <img src="{% media_url 'images/commercial_32.png' %}" border="0" title="{% trans "Commercial Action " %}" alt="{% trans "Commercial Action" %}" />
+        {% trans "Completes a goal" %}
+    </a>
+{% else %}
+    <span class="menu_button forbidden" title="{% trans "forbidden" %}">
+        <img src="{% media_url 'images/commercial_32.png' %}" border="0" title="{% trans "Commercial Action " %}" alt="{% trans "Commercial Action" %}" />
+        {% trans "Completes a goal" %}
+    </span>
+{% endif %}

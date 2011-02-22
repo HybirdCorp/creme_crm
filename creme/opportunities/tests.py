@@ -2,19 +2,16 @@
 
 from datetime import date
 
-from django.test import TestCase
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 
 from creme_core.models import RelationType, Relation, CremeProperty
-from creme_core.management.commands.creme_populate import Command as PopulateCommand
 from creme_core.constants import REL_SUB_RELATED_TO, REL_OBJ_RELATED_TO, PROP_IS_MANAGED_BY_CREME
+from creme_core.tests.base import CremeTestCase
 
 from documents.constants import REL_SUB_CURRENT_DOC
 
 from persons.models import Organisation
-
-#from products.models import *
 
 from billing.models import Quote
 from billing.constants import REL_SUB_BILL_ISSUED, REL_SUB_BILL_RECEIVED
@@ -23,22 +20,9 @@ from opportunities.models import *
 from opportunities.constants import *
 
 
-class OpportunitiesTestCase(TestCase):
-    def login(self):
-        if not self.user:
-            user = User.objects.create(username='Gally')
-            user.set_password(self.password)
-            user.is_superuser = True
-            user.save()
-            self.user = user
-
-        logged = self.client.login(username=self.user.username, password=self.password)
-        self.assert_(logged, 'Not logged in')
-
+class OpportunitiesTestCase(CremeTestCase):
     def setUp(self):
-        PopulateCommand().handle(application=['creme_core', 'documents', 'billing', 'opportunities'])
-        self.password = 'test'
-        self.user = None
+        self.populate('creme_core', 'documents', 'billing', 'opportunities')
 
     def test_populate(self): #test get_compatible_ones() too
         ct = ContentType.objects.get_for_model(Opportunity)
@@ -165,6 +149,8 @@ class OpportunitiesTestCase(TestCase):
         self.assertEqual(1, filter_(subject_entity=quote1, type=REL_SUB_LINKED_QUOTE,  object_entity=opportunity).count())
         self.assertEqual(0, filter_(subject_entity=quote1, type=REL_SUB_CURRENT_DOC,   object_entity=opportunity).count())
 
+    #def test_opportunity_generate_new_doc02(self): #TODO test with credentials problems
+
     def test_set_current_quote(self):
         self.login()
 
@@ -190,3 +176,5 @@ class OpportunitiesTestCase(TestCase):
         self.assertEqual(1, filter_(subject_entity=quote1, type=REL_SUB_BILL_RECEIVED, object_entity=target).count())
         self.assertEqual(1, filter_(subject_entity=quote1, type=REL_SUB_LINKED_QUOTE,  object_entity=opportunity).count())
         self.assertEqual(1, filter_(subject_entity=quote1, type=REL_SUB_CURRENT_DOC,   object_entity=opportunity).count())
+
+#TODO: test add_to_orga (with bad creds etc...)

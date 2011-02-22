@@ -51,9 +51,9 @@ class SendingCreateForm(CremeModelForm):
         model   = EmailSending
         exclude = ('campaign', 'state', 'subject', 'body', 'signature', 'attachments')
 
-    def __init__(self, campaign, *args, **kwargs):
+    def __init__(self, entity, *args, **kwargs):
         super(SendingCreateForm, self).__init__(*args, **kwargs)
-        self.campaign = campaign
+        self.campaign = entity
 
     def clean(self):
         cleaned_data = self.cleaned_data

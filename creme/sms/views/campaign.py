@@ -23,7 +23,7 @@ from django.shortcuts import get_object_or_404
 from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required, permission_required
 
-from creme_core.views.generic import add_entity, add_to_entity, edit_entity, view_entity_with_template, list_view
+from creme_core.views.generic import add_entity, add_to_entity, edit_entity, view_entity, list_view
 
 from sms.models import SMSCampaign
 from sms.forms.campaign import CampaignCreateForm, CampaignEditForm, CampaignAddListForm
@@ -35,14 +35,16 @@ from sms.forms.campaign import CampaignCreateForm, CampaignEditForm, CampaignAdd
 def add(request):
     return add_entity(request, CampaignCreateForm)
 
+@login_required
+@permission_required('sms')
 def edit(request, campaign_id):
-    return edit_entity(request, campaign_id, SMSCampaign, CampaignEditForm, 'sms')
+    return edit_entity(request, campaign_id, SMSCampaign, CampaignEditForm)
 
 # TODO : perhaps more reliable to forbid delete for campaigns with sendings.
 @login_required
 @permission_required('sms')
-def delete(request, id): 
-    campaign = get_object_or_404(SMSCampaign, pk=id).get_real_entity()
+def delete(request, id):
+    campaign = get_object_or_404(SMSCampaign, pk=id)
     campaign.can_delete_or_die(request.user)
 
     callback_url = campaign.get_lv_absolute_url()
@@ -54,14 +56,15 @@ def delete(request, id):
 @login_required
 @permission_required('sms')
 def detailview(request, campaign_id):
-    return view_entity_with_template(request, campaign_id, SMSCampaign,
-                                     '/sms/campaign', 'sms/view_campaign.html')
+    return view_entity(request, campaign_id, SMSCampaign, '/sms/campaign', 'sms/view_campaign.html')
 
 @login_required
 @permission_required('sms')
 def listview(request):
     return list_view(request, SMSCampaign, extra_dict={'add_url': '/sms/campaign/add'})
 
+@login_required
+@permission_required('sms')
 def add_messaging_list(request, campaign_id):
     return add_to_entity(request, campaign_id, CampaignAddListForm,
                          _(u'New messaging lists for <%s>'), entity_class=SMSCampaign)

@@ -31,10 +31,13 @@ class EmailRecipient(CremeModel):
     ml      = ForeignKey(MailingList, verbose_name=_(u'Related mailing list'))
     address = CharField(_(u'Email address'), max_length=100, blank=True, null=True)
 
-    def __unicode__(self):
-        return self.address
-
     class Meta:
         app_label = "emails"
         verbose_name = _(u'Recipient')
         verbose_name_plural = _(u'Recipients')
+
+    def __unicode__(self):
+        return self.address
+
+    def get_related_entity(self): #for generic views
+        return self.ml

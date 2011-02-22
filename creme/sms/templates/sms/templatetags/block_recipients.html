@@ -34,7 +34,7 @@
                 <tr>
                     <td class="{{row_color}}">{{recipient.phone|formatphone}}</td>
                     <td class="{{row_color}}" align="center" valign="center" style="width:10%;">
-                        {% get_line_deletor2 at_url '/sms/messaging_list/recipient/delete' with_args "{'id':{{recipient.pk}} }" with_perms has_perm %}
+                        {% get_line_deletor2 at_url '/creme_core/entity/delete_related/{{ct_id}}' with_args "{'id':{{recipient.pk}} }" with_perms has_perm %}
                     </td>
                 </tr>
             {% endfor %}

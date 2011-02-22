@@ -3,10 +3,10 @@
 from datetime import datetime
 from StringIO import StringIO
 
-from django.test import TestCase
 from django.contrib.auth.models import User
+from django.contrib.contenttypes.models import ContentType
 
-from creme_core.management.commands.creme_populate import Command as PopulateCommand
+from creme_core.tests.base import CremeTestCase
 
 from persons.models import Contact, Organisation
 
@@ -14,23 +14,9 @@ from emails.models import *
 from emails.models.sending import SENDING_TYPE_IMMEDIATE, SENDING_TYPE_DEFERRED
 
 
-class EmailsTestCase(TestCase):
-    def login(self):
-        if not self.user:
-            user = User.objects.create(username='Tetsuo')
-            user.set_password(self.password)
-            user.is_superuser = True
-            user.save()
-            self.user = user
-
-        logged = self.client.login(username=self.user.username, password=self.password)
-        self.assert_(logged, 'Not logged in')
-
+class EmailsTestCase(CremeTestCase):
     def setUp(self):
-        PopulateCommand().handle(application=['creme_core', 'emails'])
-        self.password = 'test'
-        self.user = None
-
+        self.populate('creme_core', 'emails')
         self.login()
 
     def test_campaign_createview01(self):
@@ -125,10 +111,8 @@ class EmailsTestCase(TestCase):
 
         #################
         recipient = mlist.emailrecipient_set.all()[0]
-
-        response = self.client.post('/emails/mailing_list/recipient/delete',
-                                    follow=True, data={'id': recipient.id}
-                                   )
+        ct = ContentType.objects.get_for_model(EmailRecipient)
+        response = self.client.post('/creme_core/entity/delete_related/%s' % ct.id, follow=True, data={'id': recipient.id})
         self.assertEqual(response.status_code, 200)
 
         addresses = set(r.address for r in mlist.emailrecipient_set.all())
