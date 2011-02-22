@@ -33,7 +33,7 @@ urlpatterns = patterns('activities.views',
 
     (r'^indisponibility/add$', 'activity.add_indisponibility'), #TODO: use activity/add-(?P<type>.*) ?? with a factory type-based ?
 
-    (r'^get_entity_relation_choices_for_activity$', 'ajax.get_entity_relation_choices_for_activity'),
+    (r'^get_relationtype_choices$', 'ajax.get_relationtype_choices'),
 )
 
 find_n_import("activities_register", [])
