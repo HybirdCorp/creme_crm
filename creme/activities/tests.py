@@ -21,6 +21,20 @@ class ActivitiesTestCase(CremeTestCase):
     def login(self, is_superuser=True):
         super(ActivitiesTestCase, self).login(is_superuser, allowed_apps=['activities', 'persons']) #'creme_core'
 
+    def _aux_build_setcreds(self):
+        #role = self.user.role
+        role = self.role
+        SetCredentials.objects.create(role=role,
+                                      value=SetCredentials.CRED_LINK,
+                                      set_type=SetCredentials.ESET_OWN
+                                     )
+        SetCredentials.objects.create(role=role,
+                                      value=SetCredentials.CRED_VIEW   | \
+                                            SetCredentials.CRED_CHANGE | \
+                                            SetCredentials.CRED_DELETE | \
+                                            SetCredentials.CRED_UNLINK,
+                                      set_type=SetCredentials.ESET_ALL
+                                     )
     def setUp(self):
         self.populate('creme_core', 'activities') #'persons'
 
@@ -43,23 +57,28 @@ class ActivitiesTestCase(CremeTestCase):
 
         user = self.user
         me = Contact.objects.create(user=user, is_user=user, first_name='Ryoga', last_name='Hibiki')
+        ranma = Contact.objects.create(user=user, first_name='Ranma', last_name='Saotome')
+        genma = Contact.objects.create(user=user, first_name='Genma', last_name='Saotome')
+        dojo = Organisation.objects.create(user=user, name='Dojo')
 
-        response = self.client.get('/activities/activity/add-without-relation/task')
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(200, self.client.get('/activities/activity/add-without-relation/task').status_code)
 
         title  = 'my_task'
         status = Status.objects.all()[0]
         my_calendar = Calendar.get_user_default_calendar(self.user)
-
+        field_format = '[{"ctype":"%s", "entity":"%s"}]'
         response = self.client.post('/activities/activity/add-without-relation/task',
                                     follow=True,
                                     data={
-                                            'user':             user.pk,
-                                            'title':            title,
-                                            'status':           status.pk,
-                                            'start':            '2010-1-10',
-                                            'my_participation': True,
-                                            'my_calendar':      my_calendar.pk,
+                                            'user':               user.pk,
+                                            'title':              title,
+                                            'status':             status.pk,
+                                            'start':              '2010-1-10',
+                                            'my_participation':   True,
+                                            'my_calendar':        my_calendar.pk,
+                                            'other_participants': genma.id,
+                                            'subjects':           field_format % (ranma.entity_type_id, ranma.id),
+                                            'linked_entities':    field_format % (dojo.entity_type_id, dojo.id),
                                          }
                                    )
         self.assertNoFormError(response)
@@ -79,14 +98,13 @@ class ActivitiesTestCase(CremeTestCase):
         self.assertEqual(1,    start.month)
         self.assertEqual(10,   start.day)
 
-        self.assertEqual(2, Relation.objects.count())
+        self.assertEqual(4*2, Relation.objects.count()) # * 2: relations have their symmetric ones
 
-        relations = Relation.objects.filter(type=REL_SUB_PART_2_ACTIVITY)
-        self.assertEqual(1, len(relations))
-
-        relation = relations[0]
-        self.assertEqual(me.id,   relation.subject_entity_id)
-        self.assertEqual(task.id, relation.object_entity_id)
+        count_relations = lambda type_id, subject_id: Relation.objects.filter(type=type_id, subject_entity=subject_id, object_entity=task.id).count()
+        self.assertEqual(1, count_relations(type_id=REL_SUB_PART_2_ACTIVITY,   subject_id=me.id))
+        self.assertEqual(1, count_relations(type_id=REL_SUB_PART_2_ACTIVITY,   subject_id=genma.id))
+        self.assertEqual(1, count_relations(type_id=REL_SUB_ACTIVITY_SUBJECT,  subject_id=ranma.id))
+        self.assertEqual(1, count_relations(type_id=REL_SUB_LINKED_2_ACTIVITY, subject_id=dojo.id))
 
     def test_activity_createview02(self):
         self.login()
@@ -145,31 +163,62 @@ class ActivitiesTestCase(CremeTestCase):
     def test_activity_createview03(self):
         self.login()
 
-        response = self.client.get('/activities/activity/add-without-relation/meeting')
-        self.assertEqual(response.status_code, 200)
-
-        response = self.client.get('/activities/activity/add-without-relation/phonecall')
-        self.assertEqual(response.status_code, 200)
-
-        response = self.client.get('/activities/activity/add-without-relation/foobar')
-        self.assertEqual(response.status_code, 404)
+        self.assertEqual(200, self.client.get('/activities/activity/add-without-relation/meeting').status_code)
+        self.assertEqual(200, self.client.get('/activities/activity/add-without-relation/phonecall').status_code)
+        self.assertEqual(404, self.client.get('/activities/activity/add-without-relation/foobar').status_code)
 
         c = Contact.objects.create(user=self.user, first_name='first_name', last_name='last_name')
-        args = '&'.join(['ct_entity_for_relation=%s' % c.entity_type_id,
-                         'id_entity_for_relation=%s' % c.id,
-                         'entity_relation_type=%s' % REL_SUB_LINKED_2_ACTIVITY
-                        ])
+        args = {
+                'ct_entity_for_relation': c.entity_type_id,
+                'id_entity_for_relation': c.id,
+                'entity_relation_type':   REL_SUB_LINKED_2_ACTIVITY,
+               }
 
-        response = self.client.get('/activities/activity/add-with-relation/meeting?' + args)
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(200, self.client.get('/activities/activity/add-with-relation/meeting', data=args).status_code)
+        self.assertEqual(200, self.client.get('/activities/activity/add-with-relation/phonecall', data=args).status_code)
+        self.assertEqual(404, self.client.get('/activities/activity/add-with-relation/foobar', data=args).status_code)
 
-        response = self.client.get('/activities/activity/add-with-relation/phonecall?' + args)
-        self.assertEqual(response.status_code, 200)
+    def test_activity_createview04(self): #creds errors
+        self.login(is_superuser=False)
+        self._aux_build_setcreds()
+        self.role.creatable_ctypes = [ContentType.objects.get_for_model(Activity)]
 
-        response = self.client.get('/activities/activity/add-with-relation/foobar?' + args)
-        self.assertEqual(response.status_code, 404)
+        user = self.user
+        other_user = self.other_user
 
-    #TODO: def test_activity_createview04(self): #creds errors
+        Contact.objects.create(user=other_user, is_user=user, first_name='Ryoga', last_name='Hibiki')
+        my_calendar = Calendar.get_user_default_calendar(user)
+
+        Contact.objects.create(user=other_user, is_user=other_user, first_name='Ranma', last_name='Saotome')
+        genma = Contact.objects.create(user=other_user, first_name='Genma', last_name='Saotome')
+        akane = Contact.objects.create(user=other_user, first_name='Akane', last_name='Tendo')
+        dojo = Organisation.objects.create(user=other_user, name='Dojo')
+
+        field_format = '[{"ctype":"%s", "entity":"%s"}]'
+        response = self.client.post('/activities/activity/add-without-relation/meeting', follow=True,
+                                    data={
+                                            'user':                user.pk,
+                                            'title':               'Fight !!',
+                                            'start':               '2011-2-22',
+                                            'my_participation':    True,
+                                            'my_calendar':         my_calendar.pk,
+                                            'participating_users': other_user.pk,
+                                            'other_participants':  genma.id,
+                                            'subjects':            field_format % (akane.entity_type_id, akane.id),
+                                            'linked_entities':     field_format % (dojo.entity_type_id, dojo.id),
+                                         }
+                                   )
+        self.assertEqual(200, response.status_code)
+
+        try:
+            errors = response.context['form'].errors
+        except Exception, e:
+            self.fail(str(e))
+
+        self.assert_(errors)
+        self.assertEqual(set(['my_participation', 'participating_users', 'other_participants', 'subjects', 'linked_entities']),
+                         set(errors.keys())
+                        )
 
     def test_collision01(self):
         self.login()
@@ -351,20 +400,6 @@ class ActivitiesTestCase(CremeTestCase):
         self.failIf(activity.can_link(self.user))
         self.assertEqual(403, self.client.get('/activities/activity/%s/participant/add' % activity.id).status_code)
 
-    def _aux_build_setcreds(self):
-        role = self.user.role
-        SetCredentials.objects.create(role=role,
-                                      value=SetCredentials.CRED_LINK,
-                                      set_type=SetCredentials.ESET_OWN
-                                     )
-        SetCredentials.objects.create(role=role,
-                                      value=SetCredentials.CRED_VIEW   | \
-                                            SetCredentials.CRED_CHANGE | \
-                                            SetCredentials.CRED_DELETE | \
-                                            SetCredentials.CRED_UNLINK,
-                                      set_type=SetCredentials.ESET_ALL
-                                     )
-
     def test_add_participants03(self): #credentials error with selected subjects
         self.login(is_superuser=False)
         self._aux_build_setcreds()
@@ -400,13 +435,7 @@ class ActivitiesTestCase(CremeTestCase):
         uri = '/activities/activity/%s/subject/add' % activity.id
         self.assertEqual(200, self.client.get(uri).status_code)
 
-        response = self.client.post(uri,
-                                     data={'subjects': '[{"ctype":"%s", "entity":"%s"}]' % (
-                                                ContentType.objects.get_for_model(Organisation).id,
-                                                orga.id,
-                                               ),
-                                         }
-                                   )
+        response = self.client.post(uri, data={'subjects': '[{"ctype":"%s", "entity":"%s"}]' % (orga.entity_type_id, orga.id)})
         self.assertNoFormError(response)
         self.assertEqual(200, response.status_code)
 
@@ -442,13 +471,7 @@ class ActivitiesTestCase(CremeTestCase):
         uri = '/activities/activity/%s/subject/add' % activity.id
         self.assertEqual(200, self.client.get(uri).status_code)
 
-        response = self.client.post(uri,
-                                     data={'subjects': '[{"ctype":"%s", "entity":"%s"}]' % (
-                                                ContentType.objects.get_for_model(Organisation).id,
-                                                orga.id,
-                                               ),
-                                         }
-                                   )
+        response = self.client.post(uri, data={'subjects': '[{"ctype":"%s", "entity":"%s"}]' % (orga.entity_type_id, orga.id)})
         self.assertEqual(200, response.status_code)
 
         try:
