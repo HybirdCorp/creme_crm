@@ -128,6 +128,7 @@ class Activity(CremeEntity):
         app_label = 'activities'
         verbose_name = _(u'Activity')
         verbose_name_plural = _(u'Activities')
+        ordering =('-start',)
 
     def as_ical_event(self):
         """Return a normalized iCalendar event string
