@@ -61,13 +61,13 @@ class ActivitiesTestCase(CremeTestCase):
         genma = Contact.objects.create(user=user, first_name='Genma', last_name='Saotome')
         dojo = Organisation.objects.create(user=user, name='Dojo')
 
-        self.assertEqual(200, self.client.get('/activities/activity/add-without-relation/task').status_code)
+        self.assertEqual(200, self.client.get('/activities/activity/add/task').status_code)
 
         title  = 'my_task'
         status = Status.objects.all()[0]
         my_calendar = Calendar.get_user_default_calendar(self.user)
         field_format = '[{"ctype":"%s", "entity":"%s"}]'
-        response = self.client.post('/activities/activity/add-without-relation/task',
+        response = self.client.post('/activities/activity/add/task',
                                     follow=True,
                                     data={
                                             'user':               user.pk,
@@ -119,7 +119,7 @@ class ActivitiesTestCase(CremeTestCase):
                          'id_entity_for_relation=%s' % contact01.id,
                          'entity_relation_type=%s' % REL_SUB_PART_2_ACTIVITY
                         ])
-        uri = '/activities/activity/add-with-relation/meeting?' + args
+        uri = '/activities/activity/add_related/meeting?' + args
 
         response = self.client.get(uri)
         self.assertEqual(response.status_code, 200)
@@ -163,9 +163,9 @@ class ActivitiesTestCase(CremeTestCase):
     def test_activity_createview03(self):
         self.login()
 
-        self.assertEqual(200, self.client.get('/activities/activity/add-without-relation/meeting').status_code)
-        self.assertEqual(200, self.client.get('/activities/activity/add-without-relation/phonecall').status_code)
-        self.assertEqual(404, self.client.get('/activities/activity/add-without-relation/foobar').status_code)
+        self.assertEqual(200, self.client.get('/activities/activity/add/meeting').status_code)
+        self.assertEqual(200, self.client.get('/activities/activity/add/phonecall').status_code)
+        self.assertEqual(404, self.client.get('/activities/activity/add/foobar').status_code)
 
         c = Contact.objects.create(user=self.user, first_name='first_name', last_name='last_name')
         args = {
@@ -174,9 +174,9 @@ class ActivitiesTestCase(CremeTestCase):
                 'entity_relation_type':   REL_SUB_LINKED_2_ACTIVITY,
                }
 
-        self.assertEqual(200, self.client.get('/activities/activity/add-with-relation/meeting', data=args).status_code)
-        self.assertEqual(200, self.client.get('/activities/activity/add-with-relation/phonecall', data=args).status_code)
-        self.assertEqual(404, self.client.get('/activities/activity/add-with-relation/foobar', data=args).status_code)
+        self.assertEqual(200, self.client.get('/activities/activity/add_related/meeting', data=args).status_code)
+        self.assertEqual(200, self.client.get('/activities/activity/add_related/phonecall', data=args).status_code)
+        self.assertEqual(404, self.client.get('/activities/activity/add_related/foobar', data=args).status_code)
 
     def test_activity_createview04(self): #creds errors
         self.login(is_superuser=False)
@@ -195,7 +195,7 @@ class ActivitiesTestCase(CremeTestCase):
         dojo = Organisation.objects.create(user=other_user, name='Dojo')
 
         field_format = '[{"ctype":"%s", "entity":"%s"}]'
-        response = self.client.post('/activities/activity/add-without-relation/meeting', follow=True,
+        response = self.client.post('/activities/activity/add/meeting', follow=True,
                                     data={
                                             'user':                user.pk,
                                             'title':               'Fight !!',

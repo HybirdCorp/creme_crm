@@ -28,21 +28,21 @@ _PERMISSION = 'activities.add_activity'
 class AddMeetingButton(Button):
     id_           = Button.generate_id('activities', 'add_meeting')
     verbose_name  = _(u'Add a meeting')
-    template_name = 'activities/templatetags/button_add_meeting.html'
+    template_name = 'activities/templatetags/button_add_related_meeting.html'
     permission    = _PERMISSION
 
 
 class AddPhoneCallButton(Button):
     id_           = Button.generate_id('activities', 'add_phonecall')
     verbose_name  = _(u'Add a phone call')
-    template_name = 'activities/templatetags/button_add_phonecall.html'
+    template_name = 'activities/templatetags/button_add_related_phonecall.html'
     permission    = _PERMISSION
 
 
 class AddTaskButton(Button):
     id_           = Button.generate_id('activities', 'add_task')
     verbose_name  = _(u'Add a task')
-    template_name = 'activities/templatetags/button_add_task.html'
+    template_name = 'activities/templatetags/button_add_related_task.html'
     permission    = _PERMISSION
 
 

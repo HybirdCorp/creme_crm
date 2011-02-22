@@ -63,7 +63,7 @@ _forms_map = {
 @login_required
 @permission_required('activities')
 @permission_required('activities.add_activity')
-def add_with_relation(request, act_type):
+def add_related(request, act_type):
     GET = request.GET
     ct_id     = get_from_GET_or_404(GET, 'ct_entity_for_relation')
     entity_id = get_from_GET_or_404(GET, 'id_entity_for_relation')
@@ -90,7 +90,7 @@ def add_with_relation(request, act_type):
 @login_required
 @permission_required('activities')
 @permission_required('activities.add_activity')
-def add_without_relation(request, act_type):
+def add(request, act_type):
     form_class = _forms_map.get(act_type)
 
     if not form_class:
@@ -98,6 +98,7 @@ def add_without_relation(request, act_type):
 
     return _add_activity(request, form_class[1])
 
+#TODO: use edit_entity()
 @login_required
 @permission_required('activities')
 def edit(request, activity_id):
@@ -139,8 +140,8 @@ def listview(request):
     return list_view(request, Activity,
                      extra_dict={'extra_bt_templates':
                                     ('activities/frags/ical_list_view_button.html',
-                                     'activities/frags/button_add_meeting_without_relation.html',
-                                     'activities/frags/button_add_phonecall_without_relation.html') #TODO: add Task too ??
+                                     'activities/frags/button_add_meeting.html',
+                                     'activities/frags/button_add_phonecall.html') #TODO: add Task too ??
                                 }
                     )
 
