@@ -220,6 +220,37 @@ class ActivitiesTestCase(CremeTestCase):
                          set(errors.keys())
                         )
 
+    def test_activity_editview01(self):
+        self.login()
+
+        title = 'meet01'
+        activity = Meeting.objects.create(user=self.user, title=title,
+                                          start=datetime(year=2010, month=10, day=1, hour=14, minute=0),
+                                          end=datetime(year=2010, month=10, day=1, hour=15, minute=0)
+                                         )
+        url = '/activities/activity/edit/%s' % activity.id
+
+        self.assertEqual(200, self.client.get(url).status_code)
+
+        title += '_edited'
+        response = self.client.post(url, follow=True,
+                                    data={
+                                            'user':  self.user.pk,
+                                            'title': title,
+                                            'start': '2011-2-22',
+                                         }
+                                   )
+        self.assertNoFormError(response)
+        self.assertEqual(200, response.status_code)
+
+        activity = Meeting.objects.get(pk=activity.id) #refresh
+        self.assertEqual(title, activity.title)
+
+        start = activity.start
+        self.assertEqual(2011, start.year)
+        self.assertEqual(2,    start.month)
+        self.assertEqual(22,   start.day)
+
     def test_collision01(self):
         self.login()
 

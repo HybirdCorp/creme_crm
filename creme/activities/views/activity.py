@@ -98,7 +98,7 @@ def add(request, act_type):
 
     return _add_activity(request, form_class[1])
 
-#TODO: use edit_entity()
+#TODO: use edit_entity() ? (problem additionnal get_real_entity())
 @login_required
 @permission_required('activities')
 def edit(request, activity_id):
@@ -108,14 +108,14 @@ def edit(request, activity_id):
 
     form_class = ActivityEditForm if activity.type_id != ACTIVITYTYPE_INDISPO else IndisponibilityCreateForm
 
-    if request.POST:
-        form = form_class(request.POST, instance=activity)
+    if request.method == 'POST':
+        form = form_class(user=request.user, data=request.POST, instance=activity)
 
         if form.is_valid():
             form.save()
             return HttpResponseRedirect('/activities/activity/%s' % activity_id)
     else:
-        form = form_class(instance=activity)
+        form = form_class(instance=activity, user=request.user)
 
     return render_to_response('creme_core/generics/blockform/edit.html',
                               {
