@@ -3,6 +3,8 @@
 from datetime import datetime
 
 from django.forms.util import ValidationError
+from django.core.serializers.json import simplejson
+from django.utils.translation import ugettext as _
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 
@@ -513,5 +515,29 @@ class ActivitiesTestCase(CremeTestCase):
         self.assert_(errors)
         self.assertEqual(['subjects'], errors.keys())
         self.assertEqual(0, Relation.objects.filter(subject_entity=activity.id, type=REL_OBJ_ACTIVITY_SUBJECT).count())
+
+    def test_get_entity_relation_choices(self):
+        self.login()
+
+        self.assertEqual(404, self.client.post('/activities/get_relationtype_choices').status_code)
+        self.assertEqual(404, self.client.post('/activities/get_relationtype_choices', data={'ct_id': 'blubkluk'}).status_code)
+
+        get_ct = ContentType.objects.get_for_model
+        response = self.client.post('/activities/get_relationtype_choices', data={'ct_id': get_ct(Contact).id})
+        self.assertEqual(200, response.status_code)
+        self.assertEqual([{"pk": REL_SUB_ACTIVITY_SUBJECT,  "predicate": _(u"is subject of the activity")},
+                          {"pk": REL_SUB_LINKED_2_ACTIVITY, "predicate": _(u"related to the activity")},
+                          {"pk": REL_SUB_PART_2_ACTIVITY,   "predicate": _(u"participates to the activity")}
+                         ],
+                         simplejson.loads(response.content)
+                        )
+
+        response = self.client.post('/activities/get_relationtype_choices', data={'ct_id': get_ct(Organisation).id})
+        self.assertEqual(200, response.status_code)
+        self.assertEqual([{"pk": REL_SUB_ACTIVITY_SUBJECT,  "predicate": _(u"is subject of the activity")},
+                          {"pk": REL_SUB_LINKED_2_ACTIVITY, "predicate": _(u"related to the activity")},
+                         ],
+                         simplejson.loads(response.content)
+                        )
 
 #TODO: complete test case
