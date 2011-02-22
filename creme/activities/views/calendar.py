@@ -55,6 +55,7 @@ def get_users_calendar(request, usernames, calendars_ids):
                                 'current_users': User.objects.filter(username__in=usernames),
                                 'my_calendars' : Calendar.objects.filter(user=user),
                                 'current_calendars': cal_ids,
+                                'creation_perm':     user.has_perm('activities.add_activity'),
                               },
                               context_instance=RequestContext(request))
 
