@@ -32,7 +32,7 @@ from creme_core.models import Relation, RelationType
 from creme_core.forms import CremeForm, CremeEntityForm
 from creme_core.forms.fields import CremeDateTimeField, CremeTimeField, MultiCremeEntityField, MultiGenericEntityField
 from creme_core.forms.widgets import UnorderedMultipleChoiceWidget
-from creme_core.forms.validators import validate_linkable_entities
+from creme_core.forms.validators import validate_linkable_entities, validate_linkable_entity
 
 from persons.models import Contact
 
@@ -188,7 +188,7 @@ class ActivityCreateForm(CremeEntityForm):
 
     def __init__(self, *args, **kwargs):
         super(ActivityCreateForm, self).__init__(*args, **kwargs)
-        self.participants = []
+        self.participants = [] #all Contacts who participate: me, other users, other contacts
 
         user =  self.user
         fields = self.fields
@@ -209,27 +209,46 @@ class ActivityCreateForm(CremeEntityForm):
         fields['participating_users'].queryset = User.objects.exclude(pk=user.id)
         fields['other_participants'].q_filter = {'is_user__isnull': True}
 
+    def clean_my_participation(self):
+        my_participation = self.cleaned_data.get('my_participation', False)
+        user = self.user
+
+        try:
+            user_contact = Contact.objects.get(is_user=user)
+        except Contact.DoesNotExist:
+            debug('No Contact linked to this user: %s', user)
+        else:
+            self.participants.append(validate_linkable_entity(user_contact, user))
+
+        return my_participation
+
+    def clean_participating_users(self):
+        users = self.cleaned_data['participating_users']
+        self.participants.extend(validate_linkable_entities(Contact.objects.filter(is_user__in=users), self.user))
+        return users
+
+    def clean_other_participants(self):
+        participants = self.cleaned_data['other_participants']
+        self.participants.extend(validate_linkable_entities(participants, self.user))
+        return participants
+
+    def clean_subjects(self):
+        return validate_linkable_entities(self.cleaned_data['subjects'], self.user)
+
+    def clean_linked_entities(self):
+        return validate_linkable_entities(self.cleaned_data['linked_entities'], self.user)
+
     def clean(self):
         cleaned_data = self.cleaned_data
 
-        if self._errors:
-            return cleaned_data
+        if not self._errors:
+            _clean_interval(cleaned_data)
 
-        _clean_interval(cleaned_data)
-
-        users = list(cleaned_data['participating_users'])
-
-        if cleaned_data.get('my_participation'):
-            if not cleaned_data.get('my_calendar'):
+            if cleaned_data['my_participation'] and not cleaned_data.get('my_calendar'):
                 self.errors['my_calendar'] = ErrorList([_(u"If you participe, you have to choose one of your calendars.")])
-            else:
-                users.append(self.user)
 
-        self.participants.extend(Contact.objects.filter(is_user__in=users))
-        self.participants += cleaned_data['other_participants']
-
-        if cleaned_data['busy']:
-            _check_activity_collisions(cleaned_data['start'], cleaned_data['end'], self.participants)
+            if cleaned_data['busy']:
+                _check_activity_collisions(cleaned_data['start'], cleaned_data['end'], self.participants)
 
         return cleaned_data
 
