@@ -26,7 +26,7 @@ from django.contrib.auth.decorators import login_required, permission_required
 
 from creme_core.models.entity import EntityAction
 from creme_core.models.header_filter import HeaderFilterItem, HFI_RELATION, HFI_VOLATILE
-from creme_core.views.generic import add_entity, edit_entity, view_entity_with_template, list_view
+from creme_core.views.generic import add_entity, edit_entity, view_entity, list_view
 
 from persons.models import Contact
 
@@ -41,15 +41,15 @@ from events.constants import *
 def add(request):
     return add_entity(request, EventForm)
 
+@login_required
+@permission_required('events')
 def edit(request, event_id):
-    return edit_entity(request, event_id, Event, EventForm, 'events')
+    return edit_entity(request, event_id, Event, EventForm)
 
 @login_required
 @permission_required('events')
 def detailview(request, event_id):
-    return view_entity_with_template(request, event_id, Event, '/events/event',
-                                     'events/view_event.html'
-                                    )
+    return view_entity(request, event_id, Event, '/events/event', 'events/view_event.html')
 
 @login_required
 @permission_required('events')
@@ -195,7 +195,7 @@ def list_contacts(request, event_id):
 @login_required
 @permission_required('events')
 def link_contacts(request, event_id):
-    return edit_entity(request, event_id, Event, AddContactsToEventForm, 'events')
+    return edit_entity(request, event_id, Event, AddContactsToEventForm)
 
 def _get_status(request, valid_status):
     try:

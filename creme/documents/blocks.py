@@ -21,7 +21,7 @@
 from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import ugettext_lazy as _
 
-from creme_core.models import Relation
+from creme_core.models import CremeEntity, Relation
 from creme_core.gui.block import QuerysetBlock
 
 from models import Document
@@ -38,14 +38,23 @@ class LinkedDocsBlock(QuerysetBlock):
 
     def detailview_display(self, context):
         entity = context['object']
+        user   = context['user']
+        btc = self.get_block_template_context(context,
+                                              Document.get_linkeddoc_relations(entity),
+                                              update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, entity.id),
+                                              predicate_id=REL_SUB_RELATED_2_DOC,
+                                              ct_id=ContentType.objects.get_for_model(Document).id,
+                                              has_creation_perm=user.has_perm_to_create(Document),
+                                             )
+        relations = btc['page'].object_list
+        docs = dict((c.id, c) for c in Document.objects.filter(pk__in=[r.object_entity_id for r in relations]).select_related('folder'))
 
-        return self._render(self.get_block_template_context(context,
-                                                            Document.get_linkeddoc_relations(entity),
-                                                            update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, entity.id),
-                                                            predicate_id=REL_SUB_RELATED_2_DOC,
-                                                            ct_id=ContentType.objects.get_for_model(Document).id,
-                                                            has_creation_perm=context['request'].user.has_perm('documents.add_document'),
-                                                            ))
+        CremeEntity.populate_credentials(docs.values(), user)
+
+        for relation in relations:
+            relation.object_entity = docs[relation.object_entity_id]
+
+        return self._render(btc)
 
 
 linked_docs_block = LinkedDocsBlock()

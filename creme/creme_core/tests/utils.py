@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-from django.test import TestCase
 from django.db.models import fields
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
@@ -8,9 +7,10 @@ from django.contrib.contenttypes.models import ContentType
 from creme_core import models
 from creme_core.utils import *
 from creme_core.utils import meta, chunktools
+from creme_core.tests.base import CremeTestCase
 
 
-class MiscTestCase(TestCase):
+class MiscTestCase(CremeTestCase):
     def test_find_first(self):
         class Info(object):
             def __init__(self, data): self.data = data
@@ -26,7 +26,7 @@ class MiscTestCase(TestCase):
         self.assertRaises(IndexError, find_first, l, lambda i: i.data == 12)
 
 
-class MetaTestCase(TestCase):
+class MetaTestCase(CremeTestCase):
     def test_get_field_infos(self):
         text = 'TEXT'
 
@@ -114,7 +114,7 @@ class MetaTestCase(TestCase):
     #TODO: test get_flds_with_fk_flds etc...
 
 
-class ChunkToolsTestCase(TestCase):
+class ChunkToolsTestCase(CremeTestCase):
     data = """04 05 99 66 54
 055 6 5322 1 2
 

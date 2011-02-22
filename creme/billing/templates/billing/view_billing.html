@@ -1,13 +1,7 @@
 {% extends "creme_core/generics/view_entity.html" %}
-
 {% load i18n %}
 {% load media %}
 {% load creme_block %}
-
-{% comment %}{% block extrahead %}
-    {{block.super}}
-    {% if can_download %}<script type="text/javascript" src="{{MEDIA_URL}}js/export.js"></script>{% endif %}
-{% endblock %}{% endcomment %}
 
 {% block logo %}<img src="{% media_url 'images/invoice_64.png' %}" alt=""/>{% endblock %}
 

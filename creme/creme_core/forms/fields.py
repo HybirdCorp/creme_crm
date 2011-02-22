@@ -22,6 +22,7 @@ from collections import defaultdict
 from re import compile as re_compile
 from logging import debug
 
+from django.core.exceptions import PermissionDenied
 from django.forms import Field, CharField, MultipleChoiceField, ChoiceField, ModelChoiceField, DateField, TimeField, DateTimeField
 from django.forms.util import ValidationError
 from django.forms.fields import EMPTY_VALUES
@@ -31,33 +32,95 @@ from django.utils.simplejson.encoder import JSONEncoder
 from django.utils.encoding import smart_unicode
 from django.contrib.contenttypes.models import ContentType
 
-from creme_core.models import RelationType, CremeEntity
+from creme_core.models import RelationType, CremeEntity, Relation
 from creme_core.utils import creme_entity_content_types
 from creme_core.utils.queries import get_q_from_dict
-from creme_core.forms.widgets import CTEntitySelector, SelectorList, ListViewWidget, ListEditionWidget, RelationListWidget, CalendarWidget, TimeWidget
+from creme_core.forms.widgets import CTEntitySelector, SelectorList, RelationSelector, ListViewWidget, ListEditionWidget, RelationListWidget, CalendarWidget, TimeWidget
 from creme_core.constants import REL_SUB_RELATED_TO, REL_SUB_HAS
 
 
-__all__ = ('GenericEntitiesField', 'RelatedEntitiesField', 'CremeEntityField', 'MultiCremeEntityField',
+__all__ = ('MultiGenericEntityField', 'GenericEntityField',
+           'MultiRelationEntityField', 'RelationEntityField',
+           'RelatedEntitiesField', # TODO : remove this
+           'CremeEntityField', 'MultiCremeEntityField',
            'ListEditionField',
            'AjaxChoiceField', 'AjaxMultipleChoiceField', 'AjaxModelChoiceField',
            'CremeTimeField', 'CremeDateField', 'CremeDateTimeField')
 
-def get_entity_ctypes_options(): #TODO: staticmethod ??
-    return ((ctype.pk, ctype.__unicode__()) for ctype in creme_entity_content_types())
 
-
-class GenericEntitiesField(CharField):
+class JSONField(CharField):
     default_error_messages = {
         'invalidformat': _(u'Invalid format'),
     }
 
-    def __init__(self, ctypes=None, *args, **kwargs):
-        super(GenericEntitiesField, self).__init__(*args, **kwargs)
-        self.ctypes = ctypes
-        self.widget = SelectorList(CTEntitySelector(get_entity_ctypes_options() if not ctypes else ctypes))
-         # TODO : wait for django 1.2 and new widget api to remove this hack
+    def __init(self, *args, **kwargs):
+        super(JSONField, self).__init__(*args, **kwargs)
+
+    def clean_value(self, data, name, type):
+        if not data:
+            raise ValidationError(self.error_messages['invalidformat'])
+
+        if not isinstance(data, dict):
+            raise ValidationError(self.error_messages['invalidformat'])
+
+        value = data.get(name)
+
+        if not value:
+            raise ValidationError(self.error_messages['invalidformat'])
+
+        if isinstance(value, type):
+            return value
+
+        try:
+            return type(value)
+        except:
+            raise ValidationError(self.error_messages['invalidformat'])
+
+    def clean_json(self, value):
+        if not value:
+            if self.required:
+                raise ValidationError(self.error_messages['required'])
+
+            return None
+
+        try:
+            data = jsonloads(value)
+        except:
+            raise ValidationError(self.error_messages['invalidformat'])
+
+        return data
+
+    def format_json(self, value):
+        return JSONEncoder().encode(value)
+
+    def from_python(self, value):
+        return self.format_json(value)
+
+    def clean(self, value):
+        return self.clean_json(value)
+
+    def _create_widget(self):
+        pass
+
+    def _build_widget(self):
+        self.widget = self._create_widget()
+        # TODO : wait for django 1.2 and new widget api to remove this hack
         self.widget.from_python = lambda v: self.from_python(v)
+
+
+class GenericEntityField(JSONField):
+    default_error_messages = {
+        'ctypenotallowed' : _(u"This content type is not allowed."),
+        'doesnotexist' : _(u"This entity doesn't exist."),
+    }
+
+    def __init__(self, models=None, *args, **kwargs):
+        super(GenericEntityField, self).__init__(models, *args, **kwargs)
+        self.allowed_models = models if models else list()
+        self._build_widget()
+
+    def _create_widget(self):
+        return CTEntitySelector(self._get_ctypes_options(self.get_ctypes()))
 
     # TODO : wait for django 1.2 and new widget api to remove this hack
     def from_python(self, value):
@@ -67,24 +130,385 @@ class GenericEntitiesField(CharField):
         if isinstance(value, basestring):
             return value
 
-        entities = [{'ctype':ctype, 'entity':pk} for ctype, pk in CremeEntity.objects.filter(pk__in=value).values_list('entity_type', 'pk')]
-        return JSONEncoder().encode(entities)
+        if isinstance(value, CremeEntity):
+            ctype, pk = value.entity_type.id, value.id
+        else:
+            ctype = value['ctype']
+            pk = value['entity']
+
+        entity = {'ctype': ctype, 'entity': pk}
+
+        return self.format_json(entity)
 
     def clean(self, value):
+        data = self.clean_json(value)
+
+        if data is not None and not isinstance(data, dict):
+            raise ValidationError(self.error_messages['invalidformat'])
+
+        if not data:
+            if self.required:
+                raise ValidationError(self.error_messages['required'])
+
+            return None
+
+        ctype_pk, entity_pk = self.clean_value(data, 'ctype', int), self.clean_value(data, 'entity', int)
+
+        return self.clean_entity(ctype_pk, entity_pk)
+
+    def clean_entity(self, ctype_pk, entity_pk):
+        ctype = self.clean_ctype(ctype_pk)
+        model = ctype.model_class()
+
+        try:
+            #return CremeEntity.objects.get(pk=data['entity']).get_real_entity()
+            entity = model.objects.get(pk=entity_pk)
+
+            #entity.can_view_or_die(user) TODO: user not reachable from field --> forbidden id can be forged...
+        except model.DoesNotExist, PermissionDenied:
+            if self.required:
+                raise ValidationError(self.error_messages['doesnotexist'])
+
+        #print 'GenericEntityField.clean_entity(ctype=%s, entity=%s) > %s' % (ctype_pk, entity_pk, entity)
+        return entity
+
+    def clean_ctype(self, ctype_pk):
+        # check ctype in allowed ones
+        for ct in (ct for ct in self.get_ctypes() if ct.pk == ctype_pk):
+            return ct
+
+        raise ValidationError(self.error_messages['ctypenotallowed'])
+
+    def clean_rtype(self, rtype_pk):
+        # is relation type allowed
+        if rtype_pk not in self.allowed_rtypes:
+            raise ValidationError(self.error_messages['rtypenotallowed'], params={'rtype':rtype_pk})
+
+        try:
+            return RelationType.objects.get(pk=rtype_pk)
+        except RelationType.DoesNotExist, PermissionDenied:
+            raise ValidationError(self.error_messages['rtypedoesnotexist'], params={'rtype':rtype_pk})
+
+    def _get_ctypes_options(self, ctypes):
+        return ((ctype.pk, unicode(ctype)) for ctype in ctypes)
+
+    def get_ctypes(self):
+        get_ct = ContentType.objects.get_for_model
+        return [get_ct(model) for model in self.allowed_models] if self.allowed_models else list(creme_entity_content_types())
+
+    def set_allowed_models(self, models=None):
+        self.allowed_models = models if models else list()
+        self._build_widget()
+
+
+#TODO: Add a q_filter, see utilization in EntityEmailForm
+class MultiGenericEntityField(GenericEntityField):
+    def __init__(self, models=None, *args, **kwargs):
+        super(MultiGenericEntityField, self).__init__(models, *args, **kwargs)
+#        self.widget = SelectorList(self.widget)
+        # TODO : wait for django 1.2 and new widget api to remove this hack
+#        self.widget.from_python = lambda v: self.from_python(v)
+
+    def _create_widget(self):
+        return SelectorList(CTEntitySelector(self._get_ctypes_options(self.get_ctypes()), multiple=True));
+
+    # TODO : wait for django 1.2 and new widget api to remove this hack
+    def from_python(self, value):
         if not value:
+            return ''
+
+        if isinstance(value, basestring):
+            return value
+
+        entities = []
+
+        for entry in value:
+            if isinstance(entry, CremeEntity):
+                ctype, pk = entry.entity_type.id, entry.id
+                entry = {'ctype': ctype, 'entity': pk}
+
+            entities.append(entry)
+
+        #entities = [{'ctype':ctype, 'entity':pk} for ctype, pk in CremeEntity.objects.filter(pk__in=value).values_list('entity_type', 'pk')]
+        return self.format_json(entities)
+
+    def clean(self, value):
+        data = self.clean_json(value)
+
+        if data is not None and not isinstance(data, list):
+            raise ValidationError(self.error_messages['invalidformat'])
+
+        if not data:
             if self.required:
                 raise ValidationError(self.error_messages['required'])
 
             return []
 
+        entities_map = defaultdict(list)
+        clean_value = self.clean_value
+
+        # TODO : the entities order can be lost, see for refactor.
+        # build a dictionnary of entity pks by content type (ignore invalid entries)
+        for entry in data:
+            try:
+                entities_map[clean_value(entry, 'ctype', int)].append(clean_value(entry, 'entity', int))
+            except Exception, e:
+                raise ValidationError(self.error_messages['invalidformat'])
+
+        entities = []
+
+        # build the list of entities (ignore invalid entries)
+        for ct_id, entity_pks in entities_map.iteritems():
+            ctype = self.clean_ctype(ct_id)
+            ctype_entities = dict((entity.pk, entity) for entity in ctype.model_class().objects.filter(pk__in=entity_pks))
+
+            if not all(entity_pk in ctype_entities for entity_pk in entity_pks):
+                raise ValidationError(self.error_messages['doesnotexist'])
+
+            entities.extend(ctype_entities.values())
+
+        return entities
+
+        #return CremeEntity.objects.filter(pk__in=[entry['entity'] for entry in data if entry['entity'] != 'null'])
+
+
+class RelationEntityField(JSONField):
+    default_error_messages = {
+        'rtypedoesnotexist' : _(u"This relation type doesn't exist."),
+        'rtypenotallowed' : _(u"This relation type cause constraint error."),
+        'ctypenotallowed' : _(u"This content type cause constraint error with relation type."),
+        'doesnotexist' : _(u"This entity doesn't exist."),
+        'nopropertymatch' : _(u"This entity has no property that matches relation type constraints")
+    }
+
+    def __init__(self, relations=(REL_SUB_RELATED_TO, REL_SUB_HAS), *args, **kwargs):
+        super(RelationEntityField, self).__init__(*args, **kwargs)
+        self.allowed_rtypes = frozenset(relations)
+        self._build_widget()
+
+    def _create_widget(self):
+        return RelationSelector(self._get_options(self.get_rtypes()),
+                                '/creme_core/relation/predicate/${rtype}/content_types/json')
+
+    # TODO : wait for django 1.2 and new widget api to remove this hack
+    def from_python(self, value):
+        if not value:
+            return ''
+
+        if isinstance(value, basestring):
+            return value
+
+        rtype, entity = value
+        relation = {'rtype':rtype.pk, 'ctype':entity.entity_type, 'entity':entity.pk}
+
+        return self.format_json(relation)
+
+    def clean(self, value):
+        data = self.clean_json(value)
+
+        if not data:
+            if self.required:
+                raise ValidationError(self.error_messages['required'])
+
+            return None
+
+        clean_value = self.clean_value
+
+        rtype_pk, ctype_pk, entity_pk = clean_value(data, 'rtype', str), \
+                                        clean_value(data, 'ctype', int), \
+                                        clean_value(data, 'entity', int)
+
+        rtype = self.clean_rtype(rtype_pk)
+
+        self.validate_ctype_constraints(rtype, ctype_pk)
+
+        entity = self.clean_entity(ctype_pk, entity_pk)
+        self.validate_properties_constraints(rtype, entity)
+
+        return (rtype, entity)
+
+    def validate_ctype_constraints(self, rtype, ctype_pk):
+        rtype_ctypes = rtype.object_ctypes.values_list('pk', flat=True)
+
+        # is relation type accepts content type
+        if rtype_ctypes and ctype_pk not in rtype_ctypes:
+            raise ValidationError(self.error_messages['ctypenotallowed'], params={'ctype':ctype_pk})
+
+    def validate_properties_constraints(self, rtype, entity):
+        rtype_properties = frozenset(rtype.object_properties.values_list('id', flat=True))
+
+        if rtype_properties and not any(p.type_id in rtype_properties for p in entity.get_properties()):
+            raise ValidationError(self.error_messages['nopropertymatch'])
+
+    def clean_rtype(self, rtype_pk):
+        # is relation type allowed
+        if rtype_pk not in self.allowed_rtypes:
+            raise ValidationError(self.error_messages['rtypenotallowed'], params={'rtype':rtype_pk})
+
         try:
-            data = jsonloads(value)
-        except:
+            return RelationType.objects.get(pk=rtype_pk)
+        except RelationType.DoesNotExist, PermissionDenied:
+            raise ValidationError(self.error_messages['rtypedoesnotexist'], params={'rtype':rtype_pk})
+
+    def clean_entity(self, ctype_pk, entity_pk):
+        ctype = ContentType.objects.get_for_id(ctype_pk)
+        model = ctype.model_class()
+
+        try:
+            #return CremeEntity.objects.get(pk=data['entity']).get_real_entity()
+            entity = model.objects.get(pk=entity_pk)
+
+            #entity.can_view_or_die(user) TODO: user not reachable from field --> forbidden id can be forged...
+        except model.DoesNotExist, PermissionDenied:
+            if self.required:
+                raise ValidationError(self.error_messages['doesnotexist'], params={'ctype':ctype_pk, 'entity':entity_pk})
+
+        #print 'GenericEntityField.clean_entity(ctype=%s, entity=%s) > %s' % (ctype_pk, entity_pk, entity)
+        return entity
+
+    def _get_options(self, entity):
+        return ((entity.pk, unicode(entity)) for entity in entity)
+
+    def get_rtypes(self):
+        return RelationType.objects.filter(id__in=self.allowed_rtypes) if self.allowed_rtypes else RelationType.objects.all()
+
+    def set_allowed_rtypes(self, allowed=(REL_SUB_RELATED_TO, REL_SUB_HAS)):
+        self.allowed_rtypes = frozenset(allowed)
+        self._build_widget()
+
+
+class MultiRelationEntityField(RelationEntityField):
+    def __init__(self, relations=(REL_SUB_RELATED_TO, REL_SUB_HAS), *args, **kwargs):
+        super(MultiRelationEntityField, self).__init__(relations, *args, **kwargs)
+#        self.widget = SelectorList(self.widget)
+
+        # TODO : wait for django 1.2 and new widget api to remove this hack
+#        self.widget.from_python = lambda v: self.from_python(v)
+
+    def _create_widget(self):
+        return SelectorList(RelationSelector(self._get_options(self.get_rtypes()),
+                                             '/creme_core/relation/predicate/${rtype}/content_types/json',
+                                             multiple=True))
+
+    # TODO : wait for django 1.2 and new widget api to remove this hack
+    def from_python(self, value):
+        if not value:
+            return ''
+
+        if isinstance(value, basestring):
+            return value
+
+        entities = []
+
+        for rtype, entity in value:
+            entities.append({'rtype':rtype.pk, 'ctype':entity.entity_type, 'entity':entity.pk})
+
+        return self.format_json(entities)
+
+    def _build_rtype_cache(self, rtype_pk):
+        try:
+            rtype = RelationType.objects.get(pk=rtype_pk)
+        except RelationType.DoesNotExist, PermissionDenied:
+            raise ValidationError(self.error_messages['rtypedoesnotexist'], params={'rtype':rtype_pk})
+
+        rtype_allowed_ctypes     = frozenset(ct.pk for ct in rtype.object_ctypes.all())
+        rtype_allowed_properties = frozenset(rtype.object_properties.values_list('id', flat=True))
+
+        return (rtype, rtype_allowed_ctypes, rtype_allowed_properties)
+
+    def _build_ctype_cache(self, ctype_pk):
+        ctype = ContentType.objects.get_for_id(ctype_pk)
+
+        if not ctype:
+            raise ValidationError(self.error_messages['ctypedoesnotexist'], params={'ctype':ctype_pk})
+
+        return (ctype, list())
+
+    def _get_cache(self, entries, key, build_func):
+        cache = entries.get(key)
+
+        if not cache:
+            cache = build_func(key)
+            entries[key] = cache
+
+        return cache
+
+    def clean(self, value):
+        data = self.clean_json(value)
+
+        if not data:
+            if self.required:
+                raise ValidationError(self.error_messages['required'])
+
+            return []
+
+        if not isinstance(data, list):
             raise ValidationError(self.error_messages['invalidformat'])
 
-        return list(CremeEntity.objects.filter(pk__in=[entry['entity'] for entry in data if entry['entity'] != 'null']))
+        clean_value = self.clean_value
+
+        cleaned_entries = [(clean_value(entry, 'rtype', str), \
+                            clean_value(entry, 'ctype', int), \
+                            clean_value(entry, 'entity', int)) for entry in data]
+
+        rtypes_cache = dict()
+        ctypes_cache = dict()
+
+        need_property_validation = False
+
+        for rtype_pk, ctype_pk, entity_pk in cleaned_entries:
+            # check if relation type is allowed
+            if rtype_pk not in self.allowed_rtypes:
+                raise ValidationError(self.error_messages['rtypenotallowed'], params={'rtype':rtype_pk, 'ctype':ctype_pk})
+
+            rtype, rtype_allowed_ctypes, rtype_allowed_properties = self._get_cache(rtypes_cache, rtype_pk, self._build_rtype_cache)
+
+            if rtype_allowed_properties:
+                need_property_validation = True
+
+            # check if content type is allowed by relation type
+            if rtype_allowed_ctypes and ctype_pk not in rtype_allowed_ctypes:
+                raise ValidationError(self.error_messages['ctypenotallowed'], params={'ctype':ctype_pk})
+
+            ctype, ctype_entity_pks = self._get_cache(ctypes_cache, ctype_pk, self._build_ctype_cache)
+            ctype_entity_pks.append(entity_pk)
+
+        entities_cache = dict()
+
+        # build real entity cache and check both entity id exists and in correct content type
+        for ctype, entity_pks in ctypes_cache.values():
+            ctype_entities = dict((entity.pk, entity) for entity in ctype.model_class().objects.filter(pk__in=entity_pks))
+
+            if not all(entity_pk in ctype_entities for entity_pk in entity_pks):
+                raise ValidationError(self.error_messages['doesnotexist'])
+
+            entities_cache.update(ctype_entities)
+
+        relations = []
+
+        # build cache for validation of properties constraint between relationtypes and entities
+        if need_property_validation:
+            CremeEntity.populate_properties(entities_cache.values())
+
+        for rtype_pk, ctype_pk, entity_pk in cleaned_entries:
+            rtype, rtype_allowed_ctypes, rtype_allowed_properties = rtypes_cache.get(rtype_pk)
+            entity = entities_cache.get(entity_pk)
+
+            if rtype_allowed_properties and not any(p.type_id in rtype_allowed_properties for p in entity.get_properties()):
+                raise ValidationError(self.error_messages['nopropertymatch'])
+
+            relations.append((rtype, entity))
+
+        if not relations:
+            if self.required:
+                raise ValidationError(self.error_messages['required'])
+
+            return None
+
+        return relations
 
 
+# TODO: remove this field when refactor of activity and event forms will be done.
 class RelatedEntitiesField(CharField):
     default_error_messages = {
         'invalidformat': _(u'Invalid format'),

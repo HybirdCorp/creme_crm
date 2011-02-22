@@ -4,9 +4,6 @@
 {% load creme_core_tags %}
 {% block page_title %} - {% trans "Calendars" %}{% endblock %}
 {% block extrahead %}
-{% comment %} <link rel='stylesheet' type='text/css' href='{{MEDIA_URL}}css/fullcalendar-1.4.5/fullcalendar.css' /> {% endcomment %}
-{% comment %} <script type='text/javascript' src='{{MEDIA_URL}}js/datejs/date-fr-FR.js'></script> {% endcomment %}
-{% comment %} <script type='text/javascript' src='{{MEDIA_URL}}js/jquery/extensions/fullcalendar-1.4.5/prod/fullcalendar.js'></script> {% endcomment %}
 <script type='text/javascript'>
 $(document).ready(function() {
     function updater(event, dayDelta, minuteDelta, allDay, revertFunc, jsEvent, ui, view){

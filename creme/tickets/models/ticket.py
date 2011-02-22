@@ -68,9 +68,6 @@ class Ticket(CremeEntity):
         """url for list_view """
         return "/tickets/tickets"
 
-    def get_delete_absolute_url(self):
-        return "/tickets/ticket/delete/%s" % self.id
-
     def get_resolving_duration(self):
         if self.status.pk == CLOSED_PK: #status_id == CLOSED_PK instead ???
             return  timedelta_pprint(self.closing_date - self.created)

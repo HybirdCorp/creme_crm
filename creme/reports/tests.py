@@ -2,37 +2,21 @@
 
 from datetime import datetime
 
-from django.test import TestCase
-from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 
 from creme_core.models import CremePropertyType, CremeProperty, RelationType, Relation
 from creme_core.models.header_filter import HeaderFilterItem, HeaderFilter, HFI_FIELD, HFI_RELATION, HFI_FUNCTION
-from creme_core.management.commands.creme_populate import Command as PopulateCommand
 from creme_core.constants import REL_SUB_RELATED_TO
+from creme_core.tests.base import CremeTestCase
 
 from persons.models import Contact, Organisation
 
 from reports.models import *
 
 
-class ReportsTestCase(TestCase):
-    def login(self):
-        if not self.user:
-            user = User.objects.create(username='Shinji')
-            user.set_password(self.password)
-            user.is_superuser = True
-            user.save()
-            self.user = user
-
-        logged = self.client.login(username=self.user.username, password=self.password)
-        self.assert_(logged, 'Not logged in')
-
+class ReportsTestCase(CremeTestCase):
     def setUp(self):
-        PopulateCommand().handle(application=['creme_core', 'reports'])
-        self.password = 'test'
-        self.user = None
-
+        self.populate('creme_core', 'reports')
         self.login()
 
     def test_report_createview01(self):
@@ -199,9 +183,9 @@ class ReportsTestCase(TestCase):
         content = [s for s in response.content.split('\r\n') if s]
         self.assertEqual(4, len(content))
         self.assertEqual('Last name;User;Related to;Properties',     content[0])
-        self.assertEqual('Ayanami;Shinji;;<ul><li>Kawaii</li></ul>', content[1]) #alphabetical ordering ??
-        self.assertEqual('Katsuragi;Shinji;Nerv;<ul></ul>',          content[2])
-        self.assertEqual('Langley;Shinji;;<ul></ul>',                content[3])
+        self.assertEqual('Ayanami;Kirika;;<ul><li>Kawaii</li></ul>', content[1]) #alphabetical ordering ??
+        self.assertEqual('Katsuragi;Kirika;Nerv;<ul></ul>',          content[2])
+        self.assertEqual('Langley;Kirika;;<ul></ul>',                content[3])
 
     def test_report_csv03(self): #with date filter
         self.create_contacts()
@@ -217,8 +201,8 @@ class ReportsTestCase(TestCase):
 
         content = [s for s in response.content.split('\r\n') if s]
         self.assertEqual(3, len(content))
-        self.assertEqual('Ayanami;Shinji;;<ul><li>Kawaii</li></ul>', content[1])
-        self.assertEqual('Langley;Shinji;;<ul></ul>',                content[2])
+        self.assertEqual('Ayanami;Kirika;;<ul><li>Kawaii</li></ul>', content[1])
+        self.assertEqual('Langley;Kirika;;<ul></ul>',                content[2])
 
     def test_report_csv04(self):
         report = self.create_report('trinita')

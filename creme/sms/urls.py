@@ -34,7 +34,6 @@ urlpatterns = patterns('sms.views',
     #Mailing list: recipients block
     (r'^messaging_list/(?P<mlist_id>\d+)/recipient/add$',     'recipient.add'),
     (r'^messaging_list/(?P<mlist_id>\d+)/recipient/add_csv$', 'recipient.add_from_csv'),
-    (r'^messaging_list/recipient/delete$',                    'recipient.delete'),
 
     #Mailing list: contacts block
     (r'^messaging_list/(?P<mlist_id>\d+)/contact/add$',             'messaging_list.add_contacts'),
@@ -45,10 +44,4 @@ urlpatterns = patterns('sms.views',
     (r'^template/add$',                       'template.add'),
     (r'^template/edit/(?P<template_id>\d+)$', 'template.edit'),
     (r'^template/(?P<template_id>\d+)$',      'template.detailview'),
-)
-
-urlpatterns += patterns('creme_core.views.generic',
-    (r'^campaign/delete/(?P<object_id>\d+)$',       'delete_entity'),
-    (r'^messaging_list/delete/(?P<object_id>\d+)$', 'delete_entity'),
-    (r'^template/delete/(?P<object_id>\d+)$',       'delete_entity'),
 )

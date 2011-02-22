@@ -25,21 +25,19 @@ from django.shortcuts import get_object_or_404
 from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required
 
-from creme_core.views.generic import add_to_entity
+from creme_core.views.generic import add_to_entity, edit_related_to_entity
 
 from assistants.models import Action
 from assistants.forms.action import ActionCreateForm, ActionEditForm
-from utils import generic_edit, generic_delete
 
 
+@login_required
 def add(request, entity_id):
     return add_to_entity(request, entity_id, ActionCreateForm, _(u'New action for <%s>'), initial = {'user': request.user.id})
 
+@login_required
 def edit(request, action_id):
-    return generic_edit(request, action_id, Action, ActionEditForm, _(u"Action for <%s>"))
-
-def delete(request):
-    return generic_delete(request, Action)
+    return edit_related_to_entity(request, action_id, Action, ActionEditForm, _(u"Action for <%s>"))
 
 #TODO: credentials ?????
 @login_required

@@ -19,6 +19,7 @@
 ################################################################################
 
 from django.utils.translation import ugettext_lazy as _
+from django.contrib.contenttypes.models import ContentType
 
 from creme_core.gui.block import Block, PaginatedBlock
 from creme_core.models import CremeEntity
@@ -38,7 +39,8 @@ class ProductLinesBlock(PaginatedBlock):
         document = context['object']
         return self._render(self.get_block_template_context(context, document.get_product_lines(),
                                                             update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, document.pk),
-                                                            ))
+                                                            ct_id=ContentType.objects.get_for_model(ProductLine).id,
+                                                           ))
 
 
 class  ServiceLinesBlock(PaginatedBlock):
@@ -51,6 +53,7 @@ class  ServiceLinesBlock(PaginatedBlock):
         document = context['object']
         return self._render(self.get_block_template_context(context, document.get_service_lines(),
                                                             update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, document.pk),
+                                                            ct_id=ContentType.objects.get_for_model(ServiceLine).id,
                                                             ))
 
 
