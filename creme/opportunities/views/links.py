@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.http import HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect, Http404
 from django.shortcuts import get_object_or_404
 from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.contenttypes.models import ContentType
@@ -32,12 +32,13 @@ from billing.models import Quote
 from opportunities.models import Opportunity
 
 
-#TODO: use POST
-#TODO: use ajax
 @login_required
 @permission_required('opportunities')
 def set_current_quote(request, opp_id, quote_id):
-    #NB: we do not check if the realtion to the current quote (if it exists) can be deleted (can_unlink_or_die())
+    if request.method != 'POST':
+        raise Http404('This view accepts only POST method')
+
+    #NB: we do not check if the relation to the current quote (if it exists) can be deleted (can_unlink_or_die())
     opp = get_object_or_404(Opportunity, pk=opp_id)
     user = request.user
 
@@ -56,5 +57,8 @@ def set_current_quote(request, opp_id, quote_id):
     Relation.objects.create(subject_entity=quote, type_id=REL_SUB_CURRENT_DOC,
                             object_entity=opp, user=user
                            )
+
+    if request.is_ajax():
+        return HttpResponse("", mimetype="text/javascript")
 
     return HttpResponseRedirect(opp.get_absolute_url())

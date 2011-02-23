@@ -41,11 +41,7 @@
                                 <strong>{% trans "Yes" %}</strong>
                             {% else %}
                                 {% has_perm_to link quote as quote_link_perm %}
-                                {% if link_perm and quote_link_perm %}
-                                    <a href="/opportunities/opportunity/{{object.pk}}/linked/quote/{{quote.pk}}/set_current/">{% trans "Become" %}</a>
-                                {% else %}
-                                    {% trans "Become (fordidden)" %}
-                                {% endif %}
+                                <button type="button" {% if not link_perm or not quote_link_perm %}disabled="true"{% else %}onclick="creme.opportunities.set_current_quote('/opportunities/opportunity/{{object.pk}}/linked/quote/{{quote.pk}}/set_current/', {% get_block_reload_uri %})"{% endif %} name="set_current_quote{{quote.id}}">{% trans "Become" %}</button>
                             {% endif %}
                         </td>
                         <td class="{{row_color}}" align="center" valign="center" style="width:10%;">
