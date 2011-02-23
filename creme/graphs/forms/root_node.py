@@ -35,9 +35,9 @@ class AddRootNodesForm(CremeForm):
                                               queryset=RelationType.objects.all(),
                                               widget=UnorderedMultipleChoiceWidget)
 
-    def __init__(self, graph, *args, **kwargs):
+    def __init__(self, entity, *args, **kwargs):
         super(AddRootNodesForm, self).__init__(*args, **kwargs)
-        self.graph = graph
+        self.graph = entity
 
     def save(self):
         graph = self.graph
@@ -59,3 +59,7 @@ class EditRootNodeForm(CremeModelForm):
     class Meta:
         model = RootNode
         exclude = ('graph', 'entity')
+
+    def __init__(self, entity, *args, **kwargs): #NB only useful for the generic view edit_related_to_entity()
+        super(EditRootNodeForm, self).__init__(*args, **kwargs)
+        self.graph = entity
