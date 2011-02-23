@@ -52,9 +52,11 @@ def get_listview_filters(context):
 @register.inclusion_tag('creme_core/templatetags/listview_headerfilters.html', takes_context=True)
 def get_listview_headerfilters(context):
     hfilters = context['header_filters']
+    hfilter  = hfilters.selected
 
+    context['hfilter'] = hfilter
+    context['can_edit_or_delete'] = hfilter.can_edit_or_delete(context['request'].user)[0]
     context['select_values'] = [{'value': hfilter.id, 'text': hfilter.name} for hfilter in hfilters]
-    context['hfilter']       = hfilters.selected
 
     return context
 
