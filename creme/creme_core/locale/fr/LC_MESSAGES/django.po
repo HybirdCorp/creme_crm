@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-02-23 13:10+0100\n"
+"POT-Creation-Date: 2011-02-23 17:23+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -352,7 +352,7 @@ msgstr "Champs personnalisés"
 msgid "Functions"
 msgstr "Fonctions"
 
-#: forms/header_filter.py:58
+#: forms/header_filter.py:58 forms/list_view_filter.py:42
 msgid "All users"
 msgstr "Tous les utilisateurs"
 
@@ -360,17 +360,17 @@ msgstr "Tous les utilisateurs"
 msgid "You have to choose at least one element in available lists."
 msgstr "Vous devez choisir au moins un élément dans les listes disponibles"
 
-#: forms/list_view_filter.py:57 templates/creme_core/filters.html:558
+#: forms/list_view_filter.py:59 templates/creme_core/filters.html:558
 #: templates/creme_core/filters.html:561
 #: templates/creme_core/templatetags/listview_filters.html:5
 msgid "Filter"
 msgstr "Filtre"
 
-#: forms/list_view_filter.py:58 templates/creme_core/filters.html:652
+#: forms/list_view_filter.py:60 templates/creme_core/filters.html:653
 msgid "Begin date"
 msgstr "Date de début"
 
-#: forms/list_view_filter.py:59 templates/creme_core/filters.html:653
+#: forms/list_view_filter.py:61 templates/creme_core/filters.html:654
 msgid "End date"
 msgstr "Date de fin"
 
@@ -411,9 +411,9 @@ msgstr "Vider"
 
 #: forms/widgets.py:146 forms/widgets.py:284
 #: templates/creme_core/detailview.html:31
-#: templates/creme_core/filters.html:574 templates/creme_core/filters.html:575
-#: templates/creme_core/filters.html:576 templates/creme_core/filters.html:577
-#: templates/creme_core/filters.html:578
+#: templates/creme_core/filters.html:575 templates/creme_core/filters.html:576
+#: templates/creme_core/filters.html:577 templates/creme_core/filters.html:578
+#: templates/creme_core/filters.html:579
 #: templates/creme_core/generics/blockform/add.html:5
 #: templates/creme_core/generics/blockform/add.html:8
 #: templates/creme_core/generics/blockform/add_popup.html:25
@@ -478,9 +478,9 @@ msgid "Change"
 msgstr "Modifier"
 
 #: models/auth.py:345 models/entity.py:255
-#: templates/creme_core/filters.html:614 templates/creme_core/filters.html:624
-#: templates/creme_core/filters.html:640 templates/creme_core/filters.html:646
-#: templates/creme_core/filters.html:654
+#: templates/creme_core/filters.html:615 templates/creme_core/filters.html:625
+#: templates/creme_core/filters.html:641 templates/creme_core/filters.html:647
+#: templates/creme_core/filters.html:655
 #: templates/creme_core/templatetags/block_specific_relations.html:19
 #: templates/creme_core/templatetags/widgets/block_line_deletor.html:5
 #: templates/creme_core/templatetags/widgets/block_line_deletor2.html:5
@@ -639,11 +639,11 @@ msgstr "Date"
 msgid "Boolean (2 values: Yes/No)"
 msgstr "Booléen (2 valeurs: Oui/Non)"
 
-#: models/custom_field.py:236 templatetags/creme_listview.py:71
+#: models/custom_field.py:236 templatetags/creme_listview.py:76
 msgid "Yes"
 msgstr "Oui"
 
-#: models/custom_field.py:236 templatetags/creme_listview.py:75
+#: models/custom_field.py:236 templatetags/creme_listview.py:80
 msgid "No"
 msgstr "Non"
 
@@ -703,7 +703,8 @@ msgstr "Éditer"
 msgid "Name of the view"
 msgstr "Nom de la vue"
 
-#: models/header_filter.py:75
+#: models/header_filter.py:75 models/list_view_filter.py:144
+#: templates/creme_core/filters.html:570
 msgid "Owner"
 msgstr "Propriétaire"
 
@@ -732,6 +733,14 @@ msgstr "Langue"
 #: models/i18n.py:36
 msgid "Languages"
 msgstr "Langues"
+
+#: models/list_view_filter.py:194
+msgid "This filter can't be edited/deleted"
+msgstr "Ce filtre ne peut être modifié/effacé"
+
+#: models/list_view_filter.py:205
+msgid "You are not allowed to edit/delete this filter"
+msgstr "Vous n'êtes pas autorisé à modifier/supprimer ce filtre"
 
 #: models/prefered_menu.py:28
 msgid "Label"
@@ -913,53 +922,53 @@ msgstr "création"
 msgid "Name of the filter"
 msgstr "Nom du filtre"
 
-#: templates/creme_core/filters.html:574
+#: templates/creme_core/filters.html:575
 msgid "Add a condition"
 msgstr "Ajouter une condition"
 
-#: templates/creme_core/filters.html:575
+#: templates/creme_core/filters.html:576
 msgid "Add an existing filter as condition"
 msgstr "Ajouter un filtre existant en tant que condition"
 
-#: templates/creme_core/filters.html:576
+#: templates/creme_core/filters.html:577
 msgid "Add a filter on a relation"
 msgstr "Ajouter un filtre sur une relation"
 
-#: templates/creme_core/filters.html:577
+#: templates/creme_core/filters.html:578
 msgid "Add a filter on a property"
 msgstr "Ajouter un filtre sur une propriété"
 
-#: templates/creme_core/filters.html:578
+#: templates/creme_core/filters.html:579
 msgid "Add a filter on a date field"
 msgstr "Ajouter un filtre sur un champ date"
 
-#: templates/creme_core/filters.html:586
+#: templates/creme_core/filters.html:587
 msgid "Global test"
 msgstr "Test global"
 
-#: templates/creme_core/filters.html:587
+#: templates/creme_core/filters.html:588
 msgid "Fields"
 msgstr "Champs"
 
-#: templates/creme_core/filters.html:588
+#: templates/creme_core/filters.html:589
 msgid "Test"
 msgstr "Test"
 
-#: templates/creme_core/filters.html:589
+#: templates/creme_core/filters.html:590
 msgid "Values"
 msgstr "Valeurs"
 
-#: templates/creme_core/filters.html:616
+#: templates/creme_core/filters.html:617
 msgid "Values (comma-separated)"
 msgstr "Valeurs (séparées par des virgules)"
 
-#: templates/creme_core/filters.html:637
+#: templates/creme_core/filters.html:638
 msgid "Leave empty values to filter all entities having the selected relation."
 msgstr ""
 "Laissez les valeurs vides pour filtrer toutes les entités ayant la relation "
 "sélectionnée."
 
-#: templates/creme_core/filters.html:664
+#: templates/creme_core/filters.html:665
 #: templates/creme_core/generics/blockform/base.html:53
 #: templates/creme_core/generics/blockformset/base.html:61
 #: templates/creme_core/generics/form/base.html:60
@@ -1206,11 +1215,11 @@ msgstr "Afficher uniquement les colonnes désirées"
 msgid "Create a custom view"
 msgstr "Créer une vue personnalisée"
 
-#: templates/creme_core/templatetags/listview_headerfilters.html:50
+#: templates/creme_core/templatetags/listview_headerfilters.html:48
 msgid "Edit custom view"
 msgstr "Éditer la vue personnalisée"
 
-#: templates/creme_core/templatetags/listview_headerfilters.html:53
+#: templates/creme_core/templatetags/listview_headerfilters.html:51
 msgid "Delete custom view"
 msgstr "Supprimer vue personnalisée"
 
