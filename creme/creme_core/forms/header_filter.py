@@ -55,6 +55,8 @@ class HeaderFilterForm(CremeModelForm):
         instance = self.instance
         fields   = self.fields
 
+        fields['user'].empty_label = ugettext(u'All users')
+
         if instance.id:
             ct = ContentType.objects.get_for_id(instance.entity_type_id)
         else:
