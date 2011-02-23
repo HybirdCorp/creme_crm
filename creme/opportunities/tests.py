@@ -163,8 +163,9 @@ class OpportunitiesTestCase(CremeTestCase):
         self.client.get('/opportunities/opportunity/generate_new_doc/%s/%s' % (opportunity.id, ct.id))
         quote2 = Quote.objects.exclude(pk=quote1.id)[0]
 
-        response = self.client.get('/opportunities/opportunity/%s/linked/quote/%s/set_current/' % (opportunity.id, quote1.id), follow=True)
-        self.assertEqual(200, response.status_code)
+        url = '/opportunities/opportunity/%s/linked/quote/%s/set_current/' % (opportunity.id, quote1.id)
+        self.assertEqual(404, self.client.get(url).status_code)
+        self.assertEqual(200, self.client.post(url, follow=True).status_code)
 
         filter_ = Relation.objects.filter
         self.assertEqual(1, filter_(subject_entity=quote2, type=REL_SUB_BILL_ISSUED,   object_entity=emitter).count())
