@@ -141,3 +141,6 @@ class RootNode(CremeModel):
 
     class Meta:
         app_label = 'graphs'
+
+    def get_related_entity(self): #for generic views (edit_related_to_entity)
+        return self.graph

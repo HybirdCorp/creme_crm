@@ -18,74 +18,29 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.template import RequestContext
-from django.http import HttpResponseRedirect, HttpResponse
+from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, render_to_response
 from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required, permission_required
 
-from creme_core.views.generic import inner_popup
+from creme_core.views.generic import add_to_entity, edit_related_to_entity
 from creme_core.utils import get_from_POST_or_404
 
 from graphs.models import Graph, RootNode
 from graphs.forms.root_node import AddRootNodesForm, EditRootNodeForm
 
 
- #TODO: no inner_popup because GenericEntitiesField doesn't work with inner_popup ;(
 @login_required
 @permission_required('graphs')
 def add(request, graph_id):
-    graph = get_object_or_404(Graph, pk=graph_id)
-    user = request.user
-
-    graph.can_change_or_die(user)
-
-    if request.method == 'POST':
-        nodes_form = AddRootNodesForm(graph=graph, user=user, data=request.POST)
-
-        if nodes_form.is_valid():
-            nodes_form.save()
-    else:
-        nodes_form = AddRootNodesForm(graph=graph, user=user)
-
-    return inner_popup(request, 'creme_core/generics/blockform/add_popup2.html',
-                       {
-                        'form':   nodes_form,
-                        'title':  _(u'Add root nodes'),
-                       },
-                       is_valid=nodes_form.is_valid(),
-                       reload=False,
-                       delegate_reload=True,
-                       context_instance=RequestContext(request)
-                      )
+    return add_to_entity(request, graph_id, AddRootNodesForm,
+                         _(u'Add root nodes to <%s>'), entity_class=Graph
+                        )
 
 @login_required
 @permission_required('graphs')
 def edit(request, root_id):
-    root_node = get_object_or_404(RootNode, pk=root_id)
-    graph     = root_node.graph
-    user      = request.user
-
-    graph.can_change_or_die(user)
-
-    if request.method == 'POST':
-        nodes_form = EditRootNodeForm(user=user, data=request.POST, instance=root_node)
-
-        if nodes_form.is_valid():
-            nodes_form.save()
-    else:
-        nodes_form = EditRootNodeForm(user=user, instance=root_node)
-
-    return inner_popup(request, 'creme_core/generics/blockform/edit_popup.html',
-                       {
-                        'form':   nodes_form,
-                        'title':  _(u'Edit root node for <%s>') % graph,
-                       },
-                       is_valid=nodes_form.is_valid(),
-                       reload=False,
-                       delegate_reload=True,
-                       context_instance=RequestContext(request)
-                      )
+    return edit_related_to_entity(request, root_id, RootNode, EditRootNodeForm, _(u'Edit root node for <%s>'))
 
 @login_required
 @permission_required('graphs')

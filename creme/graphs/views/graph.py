@@ -29,7 +29,6 @@ from creme_core.views.generic import add_entity, add_to_entity, view_entity, edi
 from creme_core.utils import get_from_POST_or_404
 
 from graphs.models import Graph
-
 from graphs.forms.graph import GraphForm, AddRelationTypesForm
 
 
@@ -50,8 +49,9 @@ def dl_png(request, graph_id):
         return graph.generate_png()
     except Graph.GraphException:
         return render_to_response("graphs/graph_error.html",
-                                 {'error_message': _(u"This graph is too big!")},
-                                 context_instance=RequestContext(request))
+                                  {'error_message': _(u"This graph is too big!")},
+                                  context_instance=RequestContext(request)
+                                 )
 
 @login_required
 @permission_required('graphs')
