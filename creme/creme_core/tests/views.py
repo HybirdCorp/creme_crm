@@ -325,7 +325,7 @@ class EntityViewsTestCase(ViewsTestCase):
 
 
 class PropertyViewsTestCase(ViewsTestCase):
-    def test_add_property(self):
+    def test_add(self):
         self.login()
 
         ptype01 = CremePropertyType.create(str_pk='test-prop_foobar01', text='wears strange hats')
@@ -345,7 +345,7 @@ class PropertyViewsTestCase(ViewsTestCase):
         self.assertEqual(2, len(properties))
         self.assertEqual(set([ptype01.id, ptype02.id]), set(p.type_id for p in properties))
 
-    def test_delete_property(self):
+    def test_delete(self):
         self.login()
 
         ptype  = CremePropertyType.create(str_pk='test-prop_foobar', text='hairy')
@@ -361,7 +361,7 @@ class PropertyViewsTestCase(ViewsTestCase):
 
     def assertEntityHasProperty(self, ptype, entity):
         try:
-            property = entity.properties.get(type=ptype)
+            entity.properties.get(type=ptype)
         except Exception, e:
             self.fail(str(e))
 
@@ -734,7 +734,7 @@ class RelationViewsTestCase(ViewsTestCase):
                                                     ('test-object_foobar',  'is loved by', [Contact])
                                                    )
 
-    def test_relation_objects_to_link_selection01(self):
+    def test_objects_to_link_selection01(self):
         self._aux_relation_objects_to_link_selection()
 
         response = self.client.get('/creme_core/relation/objects2link/rtype/%s/entity/%s/%s' % \
@@ -754,7 +754,7 @@ class RelationViewsTestCase(ViewsTestCase):
                          set(c.id for c in contacts)
                         )
 
-    def test_relation_objects_to_link_selection02(self):
+    def test_objects_to_link_selection02(self):
         self._aux_relation_objects_to_link_selection()
 
         #contact03 will not be proposed by the listview
@@ -769,7 +769,7 @@ class RelationViewsTestCase(ViewsTestCase):
         self.assertEqual(2, len(contacts))
         self.assertEqual(set([self.contact01.id, self.contact02.id]), set(c.id for c in contacts))
 
-    def test_relation_objects_to_link_selection03(self):
+    def test_objects_to_link_selection03(self):
         self._aux_relation_objects_to_link_selection()
 
         ptype01 = CremePropertyType.create(str_pk='test-prop_foobar01', text='Is lovable')
@@ -797,7 +797,7 @@ class RelationViewsTestCase(ViewsTestCase):
         self.assertEqual(3, len(contacts))
         self.assertEqual(set([self.contact01.id, self.contact03.id, contact04.id]), set(c.id for c in contacts))
 
-    def test_relation_objects_to_link_selection04(self):
+    def test_objects_to_link_selection04(self):
         self.login()
 
         subject = CremeEntity.objects.create(user=self.user)
@@ -1035,7 +1035,7 @@ class RelationViewsTestCase(ViewsTestCase):
         self.assertEqual(404, response.status_code)
         self.assertEqual(0,   Relation.objects.filter(type=rtype.id).count())
 
-    def test_relation_delete01(self):
+    def test_delete01(self):
         self.login()
 
         subject_entity = CremeEntity.objects.create(user=self.user)
@@ -1051,7 +1051,7 @@ class RelationViewsTestCase(ViewsTestCase):
 
         self.assertEqual(0, Relation.objects.filter(pk__in=[relation.pk, sym_relation.pk]).count())
 
-    def test_relation_delete02(self):
+    def test_delete02(self):
         self.login(is_superuser=False)
 
         self._set_all_creds_except_one(excluded=SetCredentials.CRED_UNLINK)
@@ -1068,7 +1068,7 @@ class RelationViewsTestCase(ViewsTestCase):
         self.assertEqual(403, self.client.post('/creme_core/relation/delete', data={'id': relation.id}).status_code)
         self.assertEqual(1,   Relation.objects.filter(pk=relation.pk).count())
 
-    def test_relation_delete03(self): #is internal
+    def test_delete03(self): #is internal
         self.login()
 
         subject_entity = CremeEntity.objects.create(user=self.user)
@@ -1083,7 +1083,7 @@ class RelationViewsTestCase(ViewsTestCase):
         self.assertEqual(404, self.client.post('/creme_core/relation/delete', data={'id': relation.id}).status_code)
         self.assertEqual(1, Relation.objects.filter(pk=relation.pk).count())
 
-    def test_relation_delete_similar01(self):
+    def test_delete_similar01(self):
         self.login()
 
         subject_entity01 = CremeEntity.objects.create(user=self.user)
@@ -1117,7 +1117,7 @@ class RelationViewsTestCase(ViewsTestCase):
         self.assertEqual(0,   Relation.objects.filter(pk__in=[relation01.pk, relation02.pk]).count())
         self.assertEqual(3,   Relation.objects.filter(pk__in=[relation03.pk, relation04.pk, relation05.pk]).count())
 
-    def test_relation_delete_similar02(self):
+    def test_delete_similar02(self):
         self.login(is_superuser=False)
         self._set_all_creds_except_one(excluded=SetCredentials.CRED_UNLINK)
 
@@ -1149,7 +1149,7 @@ class RelationViewsTestCase(ViewsTestCase):
         self.assertEqual(403, response.status_code)
         self.assertEqual(4,   Relation.objects.count())
 
-    def test_relation_delete_similar03(self): #is internal
+    def test_delete_similar03(self): #is internal
         self.login()
 
         subject_entity = CremeEntity.objects.create(user=self.user)
@@ -1170,7 +1170,7 @@ class RelationViewsTestCase(ViewsTestCase):
     #TODO: test other relation views...
 
 class HeaderFilterViewsTestCase(ViewsTestCase):
-    def test_headerfilter_create01(self): #TODO: test several HFI, other types of HFI
+    def test_create01(self): #TODO: test several HFI, other types of HFI
         self.login()
 
         ct = ContentType.objects.get_for_model(CremeEntity)
@@ -1220,7 +1220,7 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
         self.assertEqual('created__range', hfitem.filter_string)
         self.failIf(hfitem.is_hidden)
 
-    def test_headerfilter_create02(self):
+    def test_create02(self):
         self.login()
 
         ct = ContentType.objects.get_for_model(CremeEntity)
@@ -1253,7 +1253,7 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
         self.assertEqual(1,            len(hfilters))
         self.assertEqual(self.user.id, hfilters[0].user_id)
 
-    def test_headerfilter_edit01(self): #not editable
+    def test_edit01(self): #not editable
         self.login()
 
         ct = ContentType.objects.get_for_model(CremeEntity)
@@ -1265,7 +1265,7 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
 
         self.assertEqual(404, self.client.get('/creme_core/header_filter/edit/%s' % hf.id).status_code)
 
-    def test_headerfilter_edit02(self):
+    def test_edit02(self):
         self.login()
 
         ct = ContentType.objects.get_for_model(Contact)
@@ -1317,7 +1317,7 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
         self.assertEqual('first_name', hfitems[0].name)
         self.assertEqual('last_name',  hfitems[1].name)
 
-    def test_headerfilter_edit03(self):
+    def test_edit03(self):
         self.login()
 
         ct = ContentType.objects.get_for_model(CremeEntity)
@@ -1327,7 +1327,7 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
                                         )
         self.assertEqual(404, self.client.get('/creme_core/header_filter/edit/%s' % hf.id).status_code)
 
-    def test_headerfilter_delete01(self):
+    def test_delete01(self):
         self.login()
 
         ct = ContentType.objects.get_for_model(Contact)
@@ -1345,7 +1345,7 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
         self.assertEqual(0, HeaderFilter.objects.filter(pk=hf.id).count())
         self.assertEqual(0, HeaderFilterItem.objects.filter(header_filter=hf.id).count())
 
-    def test_headerfilter_delete02(self): #not custom -> undeletable
+    def test_delete02(self): #not custom -> undeletable
         self.login()
 
         ct = ContentType.objects.get_for_model(Contact)
@@ -1353,7 +1353,7 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
         self.client.post('/creme_core/header_filter/delete', data={'id': hf.id})
         self.assertEqual(1, HeaderFilter.objects.filter(pk=hf.id).count())
 
-    def test_headerfilter_delete03(self): #belongs to another user
+    def test_delete03(self): #belongs to another user
         self.login()
 
         ct = ContentType.objects.get_for_model(Contact)
@@ -1363,7 +1363,7 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
         self.client.post('/creme_core/header_filter/delete', data={'id': hf.id})
         self.assertEqual(1, HeaderFilter.objects.filter(pk=hf.id).count())
 
-    def test_headerfilter_delete04(self): #belongs to my team -> ok
+    def test_delete04(self): #belongs to my team -> ok
         self.login()
 
         my_team = User.objects.create(username='TeamTitan', is_team=True)
@@ -1379,7 +1379,7 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
                         )
         self.assertEqual(0, HeaderFilter.objects.filter(pk=hf.id).count())
 
-    def test_headerfilter_delete05(self): #belongs to a team (not mine) -> ko
+    def test_delete05(self): #belongs to a team (not mine) -> ko
         self.login()
 
         a_team = User.objects.create(username='TeamTitan', is_team=True)
@@ -1391,3 +1391,77 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
                                         )
         self.client.post('/creme_core/header_filter/delete', data={'id': hf.id}, follow=True)
         self.assertEqual(1, HeaderFilter.objects.filter(pk=hf.id).count())
+
+
+class ListViewFilterViewsTestCase(ViewsTestCase):
+    def setUp(self):
+        self.ct = ContentType.objects.get_for_model(Contact)
+
+    def test_edit01(self):
+        self.login()
+
+        lv_filter = Filter.objects.create(name='Filter01', model_ct=self.ct, is_custom=True)
+        url = '/creme_core/filter/edit/%s/%s' % (self.ct.id, lv_filter.id)
+        self.assertEqual(200, self.client.get(url).status_code)
+        #TODO: complete this test
+
+    def test_edit02(self): #not custom -> can not edit
+        self.login()
+
+        lv_filter = Filter.objects.create(name='Filter01', model_ct=self.ct, is_custom=False)
+        url = '/creme_core/filter/edit/%s/%s' % (self.ct.id, lv_filter.id)
+        self.assertEqual(404, self.client.get(url).status_code)
+
+    def test_delete01(self):
+        self.login()
+
+        lv_filter = Filter.objects.create(name='Filter01', model_ct=self.ct, is_custom=True)
+        response = self.client.post('/creme_core/filter/delete', data={'id': lv_filter.id}, follow=True)
+        self.assertEqual(200, response.status_code)
+        self.assert_(response.redirect_chain)
+        self.assert_(response.redirect_chain[-1][0].endswith(Contact.get_lv_absolute_url()))
+        self.assertEqual(0, Filter.objects.filter(pk=lv_filter.id).count())
+
+    def test_delete02(self): #not custom -> can not delete
+        self.login()
+
+        lv_filter = Filter.objects.create(name='Filter01', model_ct=self.ct, is_custom=False)
+        response = self.client.post('/creme_core/filter/delete', data={'id': lv_filter.id})
+        self.assertEqual(404, response.status_code)
+        self.assertEqual(1, Filter.objects.filter(pk=lv_filter.id).count())
+
+    def test_delete03(self): #belongs to another user
+        self.login()
+
+        lv_filter = Filter.objects.create(name='Filter01', model_ct=self.ct, is_custom=True, user=self.other_user)
+        response = self.client.post('/creme_core/filter/delete', data={'id': lv_filter.id})
+        self.assertEqual(404, response.status_code)
+        self.assertEqual(1, Filter.objects.filter(pk=lv_filter.id).count())
+
+    def test_delete04(self): #belongs to my team -> ok
+        self.login()
+
+        my_team = User.objects.create(username='TeamTitan', is_team=True)
+        my_team.teammates = [self.user]
+        lv_filter = Filter.objects.create(name='Filter01', model_ct=self.ct, is_custom=True, user=my_team)
+        self.assertEqual(200, self.client.post('/creme_core/filter/delete', data={'id': lv_filter.id}, follow=True).status_code)
+        self.assertEqual(0,   Filter.objects.filter(pk=lv_filter.id).count())
+
+    def test_delete05(self): #belongs to a team (not mine) -> ko
+        self.login()
+
+        a_team = User.objects.create(username='TeamTitan', is_team=True)
+        a_team.teammates = [self.other_user]
+        lv_filter = Filter.objects.create(name='Filter01', model_ct=self.ct, is_custom=True, user=a_team)
+        self.assertEqual(404, self.client.post('/creme_core/filter/delete', data={'id': lv_filter.id}).status_code)
+        self.assertEqual(1, Filter.objects.filter(pk=lv_filter.id).count())
+
+    #TODO: test other views....
+    #(r'^add/(?P<ct_id>\d+)$',                           'add'),
+    #(r'^edit/(?P<ct_id>\d+)/(?P<filter_id>\d+)$',       'edit'),
+    #(r'^field_has_n_get_fk$',                           'field_has_n_get_fk'),
+    #(r'^register/(?P<filter_id>\d*)/(?P<ct_id>\d+)$',   'register_in_session'),
+    #(r'^get_session_filter_id/(?P<ct_id>\d+)$',         'get_session_filter_id'),
+    #(r'^select_entity_popup/(?P<content_type_id>\d+)$', 'get_list_view_popup_from_ct'),
+    #(r'^get_4_ct/(?P<content_type_id>\d+)$',            'get_filters_4_ct'),
+

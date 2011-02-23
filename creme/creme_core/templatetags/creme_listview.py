@@ -39,14 +39,19 @@ def get_listview_filters(context):
     #TODO: Make the same manner as hf
     filter_id = context['filter_id']
     selected = None
+    perm = False
+
     if filter_id:
         try:
             selected = filters.get(pk=filter_id)
         except Filter.DoesNotExist:
             pass
+        else:
+            perm = selected.can_edit_or_delete(context['request'].user)[0]
 
     context['select_values'] = [{'value': filter_.id, 'text': filter_.name} for filter_ in filters] #TODO: use queryset.values('id', 'name') ??
     context['filter']        = selected
+    context['can_edit_or_delete'] = perm
     return context
 
 @register.inclusion_tag('creme_core/templatetags/listview_headerfilters.html', takes_context=True)

@@ -18,11 +18,12 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-import logging
+#import logging
 
-from django.db.models import Model, CharField, BooleanField, ForeignKey, ManyToManyField
+from django.db.models import Model, CharField, BooleanField, ForeignKey, ManyToManyField, Q
+from django.utils.translation import ugettext_lazy as _, ugettext
 from django.contrib.contenttypes.models import ContentType
-from django.db.models import Q
+from django.contrib.auth.models import User
 
 #TODO: a FilterList class like the HeaderFilterList ???
 
@@ -34,7 +35,7 @@ class ConditionChildType(Model):
 
     def __unicode__(self):
         return self.type
-    
+
 
 class FilterValue(Model):
     value = CharField(max_length=100)
@@ -140,6 +141,7 @@ class Filter(Model):
 #    parent_filter = ForeignKey('self', blank = True, null = True)
     parent_filters = ManyToManyField('self', blank=True, null=True, symmetrical=False)
     name           = CharField(max_length=50)
+    user           = ForeignKey(User, verbose_name=_(u'Owner'), blank=True, null=True)
     conditions     = ManyToManyField(FilterCondition)#, related_name='filter_conditions')
     model_ct       = ForeignKey(ContentType)
     is_or_for_all  = BooleanField(default=False)
@@ -186,6 +188,21 @@ class Filter(Model):
 #                maxi_q = cond.get_q()
 #        logging.debug('retour : %s' % maxi_q)
 #        return maxi_q
+
+    def can_edit_or_delete(self, user):
+        if not self.is_custom:
+            return (False, ugettext(u"This filter can't be edited/deleted"))
+
+        if not self.user_id: #all users allowed
+            return (True, 'OK')
+
+        if not self.user.is_team:
+            if self.user_id == user.id:
+                return (True, 'OK')
+        elif user.team_m2m.filter(teammate=user).exists(): #TODO: move in a User method ??
+            return (True, 'OK')
+
+        return (False, ugettext(u"You are not allowed to edit/delete this filter"))
 
     def get_q(self):
         maxi_q = Q()
