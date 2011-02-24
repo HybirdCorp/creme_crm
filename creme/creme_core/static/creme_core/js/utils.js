@@ -637,6 +637,7 @@ creme.utils.ajaxDelete = function(url, _data, ajax_params, msg) {
     creme.utils.showDialog(msg || gettext("Are you sure ?"), {buttons: buttons});
 }
 
+//TODO: move to a block.py (and postNReload() etc...)???
 creme.utils.innerPopupNReload = function(url, reload_url) {
     creme.utils.showInnerPopup(url,
                               {
@@ -644,6 +645,15 @@ creme.utils.innerPopupNReload = function(url, reload_url) {
                                                     creme.utils.loadBlock(reload_url);
                                                 }
                               });
+}
+
+creme.utils.postNReload = function(url, reload_url) {
+    creme.ajax.post({
+                'url': url,
+                'success': function(data, status) {
+                      creme.utils.loadBlock(reload_url);
+                    }
+            });
 }
 
 creme.utils.handleResearch = function(url, target_node_id, scope) {

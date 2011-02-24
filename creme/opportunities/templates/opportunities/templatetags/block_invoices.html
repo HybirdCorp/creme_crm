@@ -7,17 +7,9 @@
         <th style="width: 20%;" align="right">
             <div class="buttons">
                 {% get_line_relator to_subject object with_rtype_id predicate_id with_ct_id ct.id with_label _("Link to an existing invoice") with_perms link_perm %}
-                {% if creation_perm and link_perm %}
-                    <a class="add" href="/opportunities/opportunity/generate_new_doc/{{object.id}}/{{ct.id}}">
-                        <img src="{% media_url 'images/add_22.png' %}" border="0" title="{% trans "Generate an invoice" %}" alt="{% trans "Generate an invoice" %}" />
-                        {% trans "Generate an invoice" %}
-                    </a>
-                {% else %}
-                    <span class="add forbidden">
-                        <img src="{% media_url 'images/add_22.png' %}" border="0" title="{% trans "Can't add" %}" alt="{% trans "Can't add" %}" />
-                        {% trans "Generate an invoice" %}
-                    </span>
-                {% endif %}
+                {% with _("Generate an invoice") as newdoc_title %}
+                    {% include 'opportunities/templatetags/block_line_newdoc.html' %}
+                {% endwith %}
             </div>
         </th>
     {% end_get_block_header %}

@@ -1,0 +1,12 @@
+{% load i18n %}{% load media %}
+{% load creme_core_tags %}{% load creme_block %}
+{% has_perm_to create ct as creation_perm %}
+{% if creation_perm and link_perm %}
+    <a class="add" onclick="creme.utils.postNReload('/opportunities/opportunity/generate_new_doc/{{object.id}}/{{ct.id}}', {% get_block_reload_uri %})">
+        <img src="{% media_url 'images/add_22.png' %}" border="0" title="{{newdoc_title}}" alt="{{newdoc_title}}" />{{newdoc_title}}
+    </a>
+{% else %}
+    <span class="add forbidden">
+        <img src="{% media_url 'images/add_22.png' %}" border="0" title="{% trans "Can't add" %}" alt="{% trans "Can't add" %}" />{{newdoc_title}}
+    </span>
+{% endif %}

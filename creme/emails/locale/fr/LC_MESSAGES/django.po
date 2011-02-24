@@ -805,7 +805,7 @@ msgstr "Ajouter à partir d'un fichier CSV"
 
 #: templates/emails/templatetags/block_recipients.html:18
 msgid "Can't add"
-msgstr "Ne peux ajouter"
+msgstr "Ajout interdit"
 
 #: templates/emails/templatetags/block_recipients.html:42
 msgid "No unlinked recipient for the moment"

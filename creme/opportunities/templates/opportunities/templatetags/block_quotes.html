@@ -1,23 +1,15 @@
-{% load i18n %}{% load media %}
+{% load i18n %}{% comment %}{% load media %}{% endcomment %}
 {% load creme_core_tags %}{% load creme_block %}
-{% has_perm_to link object as link_perm %}{% has_perm_to unlink object as unlink_perm %}{% has_perm_to create ct as creation_perm %}
+{% has_perm_to link object as link_perm %}{% has_perm_to unlink object as unlink_perm %}{% comment %}{% has_perm_to create ct as creation_perm %}{% endcomment %}
 <table  class="table_detail_view ui-corner-all" id={{block_name}}>
     {% get_block_header colspan=4 %}
         <th style="width: 80%;" class="collapser" align="left">{% get_block_title _('%s Proposed Quote') _('%s Proposed Quotes') 'invoice_48.png' _('Quotes') %}</th>
         <th style="width: 20%;" align="right">
             <div class="buttons">
                 {% get_line_relator to_subject object with_rtype_id predicate_id with_ct_id ct.id with_label _("Link to an existing quote") with_perms link_perm %}
-                {% if creation_perm and link_perm %}
-                    <a class="add" href="/opportunities/opportunity/generate_new_doc/{{object.id}}/{{ct.id}}">
-                        <img src="{% media_url 'images/add_22.png' %}" border="0" title="{% trans "Generate a new current quote" %}" alt="{% trans "Generate a new current quote" %}" />
-                        {% trans "Generate a new current quote" %}
-                    </a>
-                {% else %}
-                    <span class="add forbidden">
-                        <img src="{% media_url 'images/add_22.png' %}" border="0" title="{% trans "Can't add" %}" alt="{% trans "Can't add" %}" />
-                        {% trans "Generate a new current quote" %}
-                    </span>
-                {% endif %}
+                {% with _("Generate a new current quote") as newdoc_title %}
+                    {% include 'opportunities/templatetags/block_line_newdoc.html' %}
+                {% endwith %}
             </div>
         </th>
     {% end_get_block_header %}
@@ -41,7 +33,7 @@
                                 <strong>{% trans "Yes" %}</strong>
                             {% else %}
                                 {% has_perm_to link quote as quote_link_perm %}
-                                <button type="button" {% if not link_perm or not quote_link_perm %}disabled="true"{% else %}onclick="creme.opportunities.set_current_quote('/opportunities/opportunity/{{object.pk}}/linked/quote/{{quote.pk}}/set_current/', {% get_block_reload_uri %})"{% endif %} name="set_current_quote{{quote.id}}">{% trans "Become" %}</button>
+                                <button type="button" {% if not link_perm or not quote_link_perm %}disabled="true"{% else %}onclick="creme.utils.postNReload('/opportunities/opportunity/{{object.pk}}/linked/quote/{{quote.pk}}/set_current/', {% get_block_reload_uri %})"{% endif %} name="set_current_quote{{quote.id}}">{% trans "Become" %}</button>
                             {% endif %}
                         </td>
                         <td class="{{row_color}}" align="center" valign="center" style="width:10%;">

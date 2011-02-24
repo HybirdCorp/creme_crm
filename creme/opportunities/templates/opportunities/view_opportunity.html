@@ -5,27 +5,6 @@
 
 {% block logo %}<img src="{% media_url 'images/opportunity_64.png' %}" alt=""/>{% endblock %}
 
-{% block extrahead %}
-    <script type="text/javascript">
-        $(document).ready(function() {
-            creme.utils.bindShowHideTbody();
-        });
-
-        //TODO: move to an opportunities.js file
-        creme.opportunities = {};
-
-        //TODO: generalize: post and reload ??
-        creme.opportunities.set_current_quote = function(url, reload_url) {
-            creme.ajax.post({
-                        'url': url,
-                        'success': function(data, status) {
-                              creme.utils.loadBlock(reload_url);
-                            }
-                    });
-        }
-    </script>
-{% endblock %}
-
 {% block creme_blocks_import %}
     {{block.super}}
 
