@@ -150,15 +150,19 @@ class Populator(BasePopulator):
         managed_orga_filter.save()
 
 
-        admin = User.objects.get(pk=1) #TODO: use constant ?????
+        admin = User.objects.get(pk=1)
 
-        admin_contact = create(Contact, first_name='Fulbert', last_name='Creme', civility_id=mister.pk, description="Creme master", user_id=admin.pk, is_user_id=admin.pk)
+        if not Contact.objects.filter(is_user=admin).exists():
+            Contact.objects.create(first_name='Fulbert', last_name='Creme',
+                                   civility_id=mister.pk, description="Creme master",
+                                   user=admin, is_user=admin
+                                  )
 
         #TODO: add relation to admin ????
-        orga = create(Organisation, name=_("ReplaceByYourSociety"), user_id=admin.pk)
-        managed_by_creme = CremePropertyType.objects.get(pk=PROP_IS_MANAGED_BY_CREME)
-        property_ = CremeProperty(type=managed_by_creme, creme_entity=orga)
-        property_.save()
+        if not Organisation.objects.exists():
+            orga = Organisation.objects.create(user=admin, name=_("ReplaceByYourSociety"))
+            managed_by_creme = CremePropertyType.objects.get(pk=PROP_IS_MANAGED_BY_CREME)
+            CremeProperty.objects.create(type=managed_by_creme, creme_entity=orga)
 
         SearchConfigItem.create(Contact, ['first_name', 'last_name', 'landline', 'mobile', 'email'])
         SearchConfigItem.create(Organisation, ['name', 'phone', 'email', 'sector__sector_name', 'legal_form__legal_form_name'])
