@@ -55,6 +55,19 @@ class RelationBlockItem(CremeModel):
 
         super(RelationBlockItem, self).delete()
 
+    @staticmethod
+    def create(relation_type_id):
+        try:
+            rbi = RelationBlockItem.objects.get(relation_type=relation_type_id)
+        except RelationBlockItem.DoesNotExist:
+            from creme_core.gui.block import SpecificRelationsBlock
+            rbi = RelationBlockItem.objects.create(block_id=SpecificRelationsBlock.generate_id('creme_config', relation_type_id),
+                                                   relation_type_id=REL_OBJ_LINKED_2_TICKET
+                                                  )
+
+        return rbi
+
+
 class InstanceBlockConfigItem(CremeModel):
     block_id = CharField(_(u"Block ID"), max_length=300, blank=False, null=False)
     entity   = ForeignKey(CremeEntity, verbose_name=_(u"Block related entity"))

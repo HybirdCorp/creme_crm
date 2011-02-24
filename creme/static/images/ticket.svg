@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!-- Created with Inkscape (http://www.inkscape.org/) -->
+
 <svg
    xmlns:dc="http://purl.org/dc/elements/1.1/"
    xmlns:cc="http://creativecommons.org/ns#"
@@ -13,13 +14,23 @@
    height="128"
    id="svg2"
    sodipodi:version="0.32"
-   inkscape:version="0.46"
+   inkscape:version="0.47 r22583"
    version="1.0"
-   sodipodi:docname="tickets.svg"
+   sodipodi:docname="ticket.svg"
    inkscape:output_extension="org.inkscape.output.svg.inkscape"
-   style="display:inline">
+   style="display:inline"
+   inkscape:export-filename="ticket_32.png"
+   inkscape:export-xdpi="22.5"
+   inkscape:export-ydpi="22.5">
   <defs
      id="defs4">
+    <inkscape:perspective
+       sodipodi:type="inkscape:persp3d"
+       inkscape:vp_x="0 : 64 : 1"
+       inkscape:vp_y="0 : 1000 : 0"
+       inkscape:vp_z="128 : 64 : 1"
+       inkscape:persp3d-origin="64 : 42.666667 : 1"
+       id="perspective174" />
     <linearGradient
        id="linearGradient4227">
       <stop
@@ -632,12 +643,13 @@
      inkscape:document-units="px"
      inkscape:current-layer="layer4"
      showgrid="false"
-     inkscape:window-width="1440"
-     inkscape:window-height="825"
+     inkscape:window-width="1434"
+     inkscape:window-height="824"
      inkscape:window-x="0"
      inkscape:window-y="25"
      showguides="true"
-     inkscape:guide-bbox="true" />
+     inkscape:guide-bbox="true"
+     inkscape:window-maximized="0" />
   <metadata
      id="metadata7">
     <rdf:RDF>
@@ -646,6 +658,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -948,7 +961,7 @@
          style="fill:url(#linearGradient4497);fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;marker:none;marker-start:none;marker-mid:none;marker-end:none;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;visibility:visible;display:inline;overflow:visible;enable-background:accumulate" />
       <path
          transform="matrix(0.8267738,-0.7557975,0.9444123,1.0335296,-38.383764,-52.570631)"
-         d="M -1.5,52.875 A 4.25,1.75 0 1 1 -10,52.875 A 4.25,1.75 0 1 1 -1.5,52.875 z"
+         d="m -1.5,52.875 c 0,0.966498 -1.9027898,1.75 -4.25,1.75 -2.3472102,0 -4.25,-0.783502 -4.25,-1.75 0,-0.966498 1.9027898,-1.75 4.25,-1.75 2.3472102,0 4.25,0.783502 4.25,1.75 z"
          sodipodi:ry="1.75"
          sodipodi:rx="4.25"
          sodipodi:cy="52.875"
@@ -964,7 +977,7 @@
          sodipodi:cy="52.875"
          sodipodi:rx="4.25"
          sodipodi:ry="1.6441138"
-         d="M -1.5,52.875 A 4.25,1.6441138 0 1 1 -10,52.875 A 4.25,1.6441138 0 1 1 -1.5,52.875 z"
+         d="m -1.5,52.875 c 0,0.908019 -1.9027898,1.644114 -4.25,1.644114 -2.3472102,0 -4.25,-0.736095 -4.25,-1.644114 0,-0.908019 1.9027898,-1.644114 4.25,-1.644114 2.3472102,0 4.25,0.736095 4.25,1.644114 z"
          transform="matrix(0.7054917,-0.6472461,0.8058735,0.8850889,-31.714153,-44.128913)" />
       <path
          d="M 10.311876,3.2109431 C 11.224178,4.2093326 10.39042,6.4586583 8.4508085,8.2317592 C 6.5111972,10.00486 4.1966006,10.633611 3.2842984,9.6352218 M 5.148497,4.6297011 C 3.2088859,6.4028008 2.366915,8.6517603 3.2792172,9.6501494 L 7.034814,13.340179 C 7.9362307,14.327111 10.096596,13.728664 12.013827,11.975219 C 13.931061,10.221771 14.891643,7.9794286 13.990225,6.9924986 L 10.302719,3.2021888 C 8.4864887,2.0772789 6.628869,3.4549907 5.148497,4.6297011 z"
