@@ -62,7 +62,7 @@ class RelationBlockItem(CremeModel):
         except RelationBlockItem.DoesNotExist:
             from creme_core.gui.block import SpecificRelationsBlock
             rbi = RelationBlockItem.objects.create(block_id=SpecificRelationsBlock.generate_id('creme_config', relation_type_id),
-                                                   relation_type_id=REL_OBJ_LINKED_2_TICKET
+                                                   relation_type_id=relation_type_id
                                                   )
 
         return rbi

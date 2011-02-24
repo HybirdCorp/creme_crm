@@ -55,7 +55,7 @@ LANGUAGE_CODE = 'fr' #Choose in the LANGUAGES values
 
 
 DATE_FORMAT         = 'd-m-Y'
-SHORT_DATE_FORMAT         = 'd-m-Y'
+SHORT_DATE_FORMAT   = 'd-m-Y'
 DATE_FORMAT_VERBOSE = _(u'Format : Day-Month-Year (Ex:31-12-2010)')
 DATE_FORMAT_JS      = {
     'd-m-Y': 'dd-mm-yy',
@@ -321,7 +321,7 @@ CREME_CORE_JS = ('main.js',
                     'creme_core/js/lib/graphael/g.bar.js',
                     'creme_core/js/lib/graphael/g.line.js',
                     'creme_core/js/lib/graphael/g.pie.js',
-                    
+
                     'creme_core/js/lib/jquery.navIt.0.0.6.js',
 
                     'creme_core/js/utils.js',

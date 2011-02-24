@@ -12,8 +12,8 @@ from creme_core.utils import create_or_update_models_instance as create
 from creme_core.utils.id_generator import generate_string_id_and_save
 from creme_core.management.commands.creme_populate import BasePopulator
 
-from tickets.models import Ticket, Priority, Criticity
-from tickets.models.status import Status, BASE_STATUS
+from tickets.models import *
+from tickets.models.status import BASE_STATUS
 from tickets.constants import REL_SUB_LINKED_2_TICKET, REL_OBJ_LINKED_2_TICKET
 
 
@@ -37,13 +37,20 @@ class Populator(BasePopulator):
         get_ct = ContentType.objects.get_for_model
         ct_ticket = get_ct(Ticket)
 
-        hf_id = create(HeaderFilter, 'tickets-hf', name=_(u'Ticket view'), entity_type_id=ct_ticket.id, is_custom=False).id
-        pref = 'tickets-hfi_'
+        hf_id = create(HeaderFilter, 'tickets-hf_ticket', name=_(u'Ticket view'), entity_type_id=ct_ticket.id, is_custom=False).id
+        pref = 'tickets-hfi_ticket_'
         create(HeaderFilterItem, pref + 'title',     order=1, name='title',           title=_(u'Title'),            type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True, editable=True, sortable=True, filter_string="title__icontains")
         create(HeaderFilterItem, pref + 'status',    order=2, name='status__name',    title=_(u'Status - Name'),    type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True, editable=True, sortable=True, filter_string="status__name__icontains")
         create(HeaderFilterItem, pref + 'priority',  order=3, name='priority__name',  title=_(u'Priority - Name'),  type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True, editable=True, sortable=True, filter_string="priority__name__icontains")
         create(HeaderFilterItem, pref + 'criticity', order=4, name='criticity__name', title=_(u'Criticity - Name'), type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True, editable=True, sortable=True, filter_string="criticity__name__icontains")
         create(HeaderFilterItem, pref + 'cdate',     order=5, name='closing_date',    title=_(u'Closing date'),     type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True, editable=True, sortable=True, filter_string="closing_date__range")
+
+        hf_id = create(HeaderFilter, 'tickets-hf_template', name=_(u'Ticket template view'), entity_type_id=get_ct(TicketTemplate).id, is_custom=False).id
+        pref = 'tickets-hfi_template_'
+        create(HeaderFilterItem, pref + 'title',     order=1, name='title',           title=_(u'Title'),            type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True, editable=True, sortable=True, filter_string="title__icontains")
+        create(HeaderFilterItem, pref + 'status',    order=2, name='status__name',    title=_(u'Status - Name'),    type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True, editable=True, sortable=True, filter_string="status__name__icontains")
+        create(HeaderFilterItem, pref + 'priority',  order=3, name='priority__name',  title=_(u'Priority - Name'),  type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True, editable=True, sortable=True, filter_string="priority__name__icontains")
+        create(HeaderFilterItem, pref + 'criticity', order=4, name='criticity__name', title=_(u'Criticity - Name'), type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True, editable=True, sortable=True, filter_string="criticity__name__icontains")
 
         SearchConfigItem.create(Ticket, ['title', 'description', 'status__name', 'priority__name', 'criticity__name'])
 
