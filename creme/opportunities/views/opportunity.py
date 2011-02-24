@@ -21,7 +21,7 @@
 from datetime import datetime
 from itertools import chain
 
-from django.http import HttpResponseRedirect, Http404
+from django.http import HttpResponse, HttpResponseRedirect, Http404
 from django.shortcuts import render_to_response, get_object_or_404
 from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required, permission_required
@@ -86,10 +86,12 @@ _CURRENT_DOC_DICT = {
             SalesOrder: False
         }
 
-#TODO: use a POST instead ??
 @login_required
 @permission_required('opportunities')
 def generate_new_doc(request, opp_id, ct_id):
+    if request.method != 'POST':
+        raise Http404('This view accepts only POST method')
+
     ct_doc = get_ct_or_404(ct_id)
     opp    = get_object_or_404(Opportunity, id=opp_id)
     user   = request.user
@@ -102,17 +104,14 @@ def generate_new_doc(request, opp_id, ct_id):
 
     user.has_perm_to_create_or_die(klass)
 
-    document = klass() #TODO: use klass.objects.create
-    document.user = opp.user
-    document.issuing_date = datetime.now()
-    document.comment = _(u"Generated from the opportunity «%s»") % opp
-    document.status_id = 1
-    document.save()
+    document = klass.objects.create(user=user, issuing_date=datetime.now(), status_id=1,
+                                    comment=_(u"Generated from the opportunity «%s»") % opp
+                                   )
 
     create_relation = Relation.objects.create
-    create_relation(subject_entity=document, type_id=REL_SUB_BILL_ISSUED,    object_entity=opp.get_emit_orga(),   user=request.user) #TODO: request.user ??
-    create_relation(subject_entity=document, type_id=REL_SUB_BILL_RECEIVED,  object_entity=opp.get_target_orga(), user=request.user)
-    create_relation(subject_entity=opp,      type_id=_RELATIONS_DICT[klass], object_entity=document,              user=request.user)
+    create_relation(subject_entity=document, type_id=REL_SUB_BILL_ISSUED,    object_entity=opp.get_emit_orga(),   user=user)
+    create_relation(subject_entity=document, type_id=REL_SUB_BILL_RECEIVED,  object_entity=opp.get_target_orga(), user=user)
+    create_relation(subject_entity=opp,      type_id=_RELATIONS_DICT[klass], object_entity=document,              user=user)
 
     document.generate_number() #Need the relation with emitter orga
     document.name = u'%s(%s)' % (document.number, opp.name)
@@ -127,6 +126,9 @@ def generate_new_doc(request, opp_id, ct_id):
         relation.delete()
 
     if _CURRENT_DOC_DICT[klass]:
-        create_relation(subject_entity=document, type_id=REL_SUB_CURRENT_DOC, object_entity=opp, user=request.user)
+        create_relation(subject_entity=document, type_id=REL_SUB_CURRENT_DOC, object_entity=opp, user=user)
+
+    if request.is_ajax():
+        return HttpResponse("", mimetype="text/javascript")
 
     return HttpResponseRedirect(opp.get_absolute_url())
