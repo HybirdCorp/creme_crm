@@ -18,32 +18,25 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-
 from django.contrib.auth.decorators import login_required, permission_required
 
-from creme_core.views.generic import add_entity, edit_entity, view_entity, list_view
+from creme_core.views.generic import edit_entity, view_entity, list_view
 
-from tickets.models.ticket import Ticket
-from tickets.forms.ticket import TicketCreateForm, TicketEditForm
+from tickets.models import TicketTemplate
+from tickets.forms.template import TicketTemplateForm
 
-
-@login_required
-@permission_required('tickets')
-@permission_required('tickets.add_ticket')
-def add(request):
-    return add_entity(request, TicketCreateForm)
 
 @login_required
 @permission_required('tickets')
-def edit(request, ticket_id):
-    return edit_entity(request, ticket_id, Ticket, TicketEditForm)
+def edit(request, template_id):
+    return edit_entity(request, template_id, TicketTemplate, TicketTemplateForm)
 
 @login_required
 @permission_required('tickets')
-def detailview(request, ticket_id):
-    return view_entity(request, ticket_id, Ticket, '/tickets/ticket', 'tickets/view_ticket.html')
+def detailview(request, template_id):
+    return view_entity(request, template_id, TicketTemplate, '/tickets/template', 'tickets/view_template.html')
 
 @login_required
 @permission_required('tickets')
 def listview(request):
-    return list_view(request, Ticket, extra_dict={'add_url': '/tickets/ticket/add'})
+    return list_view(request, TicketTemplate)

@@ -9,4 +9,8 @@ urlpatterns = patterns('tickets.views',
     (r'^ticket/add$',                     'ticket.add'),
     (r'^ticket/edit/(?P<ticket_id>\d+)$', 'ticket.edit'),
     (r'^ticket/(?P<ticket_id>\d+)$',      'ticket.detailview'),
+
+    (r'^templates$',                          'template.listview'),
+    (r'^template/edit/(?P<template_id>\d+)$', 'template.edit'),
+    (r'^template/(?P<template_id>\d+)$',      'template.detailview'),
 )
