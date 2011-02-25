@@ -102,40 +102,43 @@ class CremeEntity(CremeAbstractEntity):
 
         return unicode(real_entity)
 
+    def allowed_unicode(self, user):
+        return unicode(self) if self.can_view(user) else ugettext(u'Entity #%s (not viewable)') % self.id
+
     def can_change(self, user):
         return self.get_credentials(user).can_change()
 
     def can_change_or_die(self, user):
         if not self.can_change(user):
-            raise PermissionDenied(ugettext(u'You are not allowed to edit this entity: %s') % self)
+            raise PermissionDenied(ugettext(u'You are not allowed to edit this entity: %s') % self.allowed_unicode(user))
 
     def can_delete(self, user):
         return self.get_credentials(user).can_delete()
 
     def can_delete_or_die(self, user):
         if not self.can_delete(user):
-            raise PermissionDenied(ugettext(u'You are not allowed to delete this entity: %s') % self)
+            raise PermissionDenied(ugettext(u'You are not allowed to delete this entity: %s') % self.allowed_unicode(user))
 
     def can_link(self, user):
         return self.get_credentials(user).can_link()
 
     def can_link_or_die(self, user):
         if not self.can_link(user):
-            raise PermissionDenied(ugettext(u'You are not allowed to link this entity: %s') % self)
+            raise PermissionDenied(ugettext(u'You are not allowed to link this entity: %s') % self.allowed_unicode(user))
 
     def can_unlink(self, user):
         return self.get_credentials(user).can_unlink()
 
     def can_unlink_or_die(self, user):
         if not self.can_unlink(user):
-            raise PermissionDenied(ugettext(u'You are not allowed to unlink this entity: %s') % self)
+            raise PermissionDenied(ugettext(u'You are not allowed to unlink this entity: %s') % self.allowed_unicode(user))
 
     def can_view(self, user):
         return self.get_credentials(user).can_view()
 
     def can_view_or_die(self, user):
         if not self.can_view(user):
-            raise PermissionDenied(ugettext(u'You are not allowed to view this entity: %s') % self)
+            raise PermissionDenied(ugettext(u'You are not allowed to view this entity: %s') % self.allowed_unicode(user))
 
     def get_credentials(self, user): #private ??
         from auth import EntityCredentials

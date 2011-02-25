@@ -16,7 +16,7 @@
                 {% with relation.object_entity as participant %}
                     <tr>
                         <td class="{{row_color}}">
-                            <a href="{{participant.get_absolute_url}}">{{participant}}</a>
+                            <a href="{{participant.get_absolute_url}}">{{participant|allowed_unicode:user}}</a>
                         </td>
                         <td class="{{row_color}}">
                             {% if participant.is_user %}({{participant.is_user}} -> {{participant.calendar_cache}}){% endif %}

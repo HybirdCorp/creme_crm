@@ -25,9 +25,7 @@
                 {% for quote in page.object_list %}<!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
                     <tr>
                         <td class="{{row_color}}">{{quote.number}}</td>
-                        <td class="{{row_color}}">
-                            <a href="{{quote.get_absolute_url}}">{{quote.name}}</a>
-                        </td>
+                        <td class="{{row_color}}"><a href="{{quote.get_absolute_url}}">{{quote|allowed_unicode:user}}</a></td>
                         <td class="{{row_color}}">
                             {% if quote.pk == current_quote_id %}
                                 <strong>{% trans "Yes" %}</strong>

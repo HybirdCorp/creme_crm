@@ -31,7 +31,7 @@
                 {% with relation.object_entity as doc %}<!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
                     <tr>
                         <td class="{{row_color}}">
-                            <a href="{{doc.get_absolute_url}}" title="{{doc}}">{{doc}}</a>
+                            <a href="{{doc.get_absolute_url}}" title="{{doc}}">{{doc|allowed_unicode:user}}</a>
                         </td>
                         <td class="{{row_color}}" align="center" valign="center" style="width:10%;">
                             {% has_perm_to unlink doc as doc_unlink_perm %}

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2011  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -162,7 +162,8 @@ class Opportunity(CremeEntity):
 
     def get_current_quote_id(self):
         ct        = ContentType.objects.get_for_model(Quote)
-        quote_ids = Relation.objects.filter(object_entity=self, type__id=REL_SUB_CURRENT_DOC, subject_entity__entity_type=ct).values_list('subject_entity_id', flat=True)
+        quote_ids = Relation.objects.filter(object_entity=self.id, type=REL_SUB_CURRENT_DOC, subject_entity__entity_type=ct) \
+                                    .values_list('subject_entity_id', flat=True)
 
         if len(quote_ids) > 1:
             error('Several current quotes for opportunity: %s', self)

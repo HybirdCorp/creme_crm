@@ -24,7 +24,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models.query_utils import Q
 from django.http import HttpResponse, Http404
-from django.utils.translation import ugettext as _
+#from django.utils.translation import ugettext as _
 
 from django.utils.simplejson import JSONEncoder
 
@@ -106,8 +106,6 @@ def find_first(iterable, function, *default):
 def entities2unicode(entities, user):
     """Return a unicdde objects representing a sequence of CremeEntities,
     with care of permissions.
-    Tips: for permormance, call "CremeEntity.populate_credentials(entities, user)" before.
+    Tips: for performance, call "CremeEntity.populate_credentials(entities, user)" before.
     """
-    return u', '.join(unicode(entity) if entity.can_view(user) else _(u'Entity #%s (not viewable)') % entity.id
-                          for entity in entities
-                     )
+    return u', '.join(entity.allowed_unicode(user) for entity in entities)

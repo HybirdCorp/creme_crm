@@ -141,7 +141,7 @@ class EntityCredentials(Model):
         return queryset
 
     @staticmethod
-    def filter_relations(user, queryset): #give wanted perm ???
+    def filter_relations(user, queryset): #TODO: no more used
         """Filter a Queryset of Relation with their objects' "view" credentials.
         @param queryset A Queryset on Relation models (better if not yet retrieved).
         @return A new Queryset on Relation, more selective (not retrieved).

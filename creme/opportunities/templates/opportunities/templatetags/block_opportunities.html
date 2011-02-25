@@ -31,7 +31,7 @@
             </tr>
             {% for opportunity in page.object_list %}<!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
                 <tr>
-                    <td class="{{row_color}}"><a href="{{opportunity.get_absolute_url}}">{{opportunity.name}}</a></td>
+                    <td class="{{row_color}}"><a href="{{opportunity.get_absolute_url}}">{{opportunity|allowed_unicode:user}}</a></td>
                     <td class="{{row_color}}">{{opportunity.estimated_sales}}</td>
                     <td class="{{row_color}}">{{opportunity.made_sales}}</td>
                     <td class="{{row_color}}">{{opportunity.sales_phase}}</td>

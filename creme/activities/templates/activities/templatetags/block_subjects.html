@@ -16,7 +16,7 @@
                 {% with relation.object_entity.get_real_entity as subject %}
                     <tr>
                         <td class="{{row_color}}">
-                            <a href="{{subject.get_absolute_url}}">{{subject}}</a>
+                            <a href="{{subject.get_absolute_url}}">{{subject|allowed_unicode:user}}</a>
                         </td>
                         <td class="{{row_color}}" align="center" valign="center" style="width:10%;">
                             {% has_perm_to unlink subject as subject_unlink_perm %}
