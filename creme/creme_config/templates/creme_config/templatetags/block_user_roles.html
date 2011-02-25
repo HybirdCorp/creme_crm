@@ -21,8 +21,7 @@
                 <th class="block_header_line_light">{% trans "Administrated applications" %}</th>
                 <th class="block_header_line_light">{% trans "Creation credentials" %}</th>
                 <th class="block_header_line_light">{% trans "Entities credentials" %}</th>
-                <th class="block_header_line_light">{% trans "Edit" %}</th>
-                <th class="block_header_line_light">{% trans "Delete" %}</th>
+                <th class="block_header_line_light">{% trans "Actions" %}</th>
             </tr>
             {% for role in page.object_list %}<!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
                 <tr>
@@ -37,8 +36,10 @@
                             {% trans "New credentials" %}
                         </a>
                     </td>
-                    <td class="{{row_color}}">{% get_line_editor at_url '/creme_config/role/edit/{{role.id}}' with_perms 1 %}</td>
-                    <td class="{{row_color}}">{% get_line_deletor2 at_url '/creme_config/role/delete' with_args "{'id': '{{role.pk}}'}" with_perms 1 %}</td>
+                    <td class="{{row_color}}">
+                        {% get_line_editor at_url '/creme_config/role/edit/{{role.id}}' with_perms 1 %}
+                        {% get_line_deletor2 at_url '/creme_config/role/delete' with_args "{'id': '{{role.pk}}'}" with_perms 1 %}
+                    </td>
                 </tr>
             {% endfor %}
         {% else %}
