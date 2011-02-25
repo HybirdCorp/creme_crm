@@ -24,7 +24,7 @@
                 <tr>
                     <td class="{{row_color}}">{{invoice.number}}</td>
                     <td class="{{row_color}}">
-                        <a href="{{invoice.get_absolute_url}}">{{invoice.name}}</a>
+                        <a href="{{invoice.get_absolute_url}}">{{invoice|allowed_unicode:user}}</a>
                     </td>
                     <td class="{{row_color}}" align="center" valign="center" style="width:10%;">
                         {% has_perm_to unlink invoice as invoice_unlink_perm %}

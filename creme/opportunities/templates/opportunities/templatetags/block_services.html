@@ -18,7 +18,7 @@
             </tr>
             {% for service in page.object_list %}<!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
                 <tr>
-                    <td class="{{row_color}}"><a href="{{service.get_absolute_url}}">{{service}}</a></td>
+                    <td class="{{row_color}}"><a href="{{service.get_absolute_url}}">{{service|allowed_unicode:user}}</a></td>
                     <td class="{{row_color}}" align="center" valign="center" style="width:10%;">
                         {% has_perm_to unlink service as service_unlink_perm %}
                         {% get_line_unlinker at_url '/creme_core/relation/delete/similar' with_args "{'subject_id':{{object.pk}}, 'type':'{{predicate_id}}', 'object_id':{{service.pk}} }" with_perms unlink_perm|and_op:service_unlink_perm %}

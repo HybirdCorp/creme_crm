@@ -31,7 +31,7 @@
             </tr>
             {% for people in page.object_list %}<!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
                 <tr>
-                    <td class="{{row_color}}"><a href="{{people.get_absolute_url}}">{{people}}</a></td>
+                    <td class="{{row_color}}"><a href="{{people.get_absolute_url}}">{{people|allowed_unicode:user}}</a></td>
                     <td class="{{row_color}}">{{people.landline}}</td>
                     <td class="{{row_color}}">{{people.mobile}}</td>
                     <td class="{{row_color}}">{{people.email}}</td>

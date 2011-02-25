@@ -19,7 +19,7 @@
             </tr>
             {% for opp in page.object_list %}<!--{% cycle row_color %}-->
                 <tr>
-                    <td class="{{row_color}}"><a href="{{opp.get_absolute_url}}">{{opp}}</a></td>
+                    <td class="{{row_color}}"><a href="{{opp.get_absolute_url}}">{{opp|allowed_unicode:user}}</a></td>
                     <td class="{{row_color}}">{{opp.made_sales}}</td>
                     <td class="{{row_color}}" align="center" valign="center" style="width:10%;">
                         {% has_perm_to unlink opp as opp_unlink_perm %}

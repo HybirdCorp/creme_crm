@@ -19,7 +19,7 @@
                     {% with relation.object_entity.get_real_entity as entity_obj %}
                         <tr>
                             <td class="{% cycle "block_line_dark" "block_line_light" %}">
-                                <a href="{{entity_obj.get_absolute_url}}">{{entity_obj}}</a>
+                                <a href="{{entity_obj.get_absolute_url}}">{{entity_obj|allowed_unicode:user}}</a>
                             </td>
                             <td class="{% cycle "block_line_dark" "block_line_light" %}" align="center" valign="center" style="width:10%;">
                                 {% if not relation.type.is_internal %}

@@ -21,7 +21,7 @@
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.contenttypes.models import ContentType
 
-from creme_core.models import CremeEntity, Relation, CremeProperty, EntityCredentials
+from creme_core.models import CremeEntity, Relation, CremeProperty #EntityCredentials
 from creme_core.gui.block import QuerysetBlock, BlocksManager
 
 
@@ -51,7 +51,7 @@ class RelationsBlock(QuerysetBlock):
         entity = context['object']
         user   = context['user']
         relations = entity.relations.select_related('type', 'type__symmetric_type', 'object_entity')
-        relations = EntityCredentials.filter_relations(user, relations)
+        #relations = EntityCredentials.filter_relations(user, relations)
         excluded_types = BlocksManager.get(context).get_used_relationtypes_ids()
 
         if excluded_types:

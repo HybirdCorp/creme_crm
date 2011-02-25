@@ -387,3 +387,7 @@ class HasPermToNode(template.Node):
         context[self.var_name] = self.perm_func(var, user)
 
         return ''
+
+@register.filter(name="allowed_unicode")
+def allowed_unicode(entity, user):
+    return entity.allowed_unicode(user)
