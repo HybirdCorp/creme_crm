@@ -220,6 +220,50 @@ class CredentialsTestCase(CremeTestCase):
         qs = EntityCredentials.filter(self.user, self.build_qs())
         self.assertEqual([self.entity1.id, self.entity2.id], self.ids_list(qs))
 
+    def build_subject_n_relations(self):
+        subject = CremeEntity.objects.create(user=self.user)
+        rtype, srtype = RelationType.create(('test-subject_foobar', 'loves'), ('test-object_foobar',  'is loved by'))
+
+        create_relation = lambda obj: Relation.objects.create(subject_entity=subject, object_entity=obj, type=rtype, user=self.user)
+        r1 = create_relation(self.entity1)
+        r2 = create_relation(self.entity2)
+
+        return (subject, r1, r2)
+
+    def test_filter_relations01(self): #filter with default credentials OK
+        EntityCredentials.set_default_perms(view=True)
+
+        subject, r1, r2 = self.build_subject_n_relations()
+        ids = [r1.id, r2.id]
+        qs = EntityCredentials.filter_relations(self.user, Relation.objects.filter(pk__in=ids))
+        self.assertEqual(ids, self.ids_list(qs))
+
+    def test_filter_relations02(self): #filter with default credentials KO
+        subject, r1, r2 = self.build_subject_n_relations()
+        ids = [r1.id, r2.id]
+        qs1 = Relation.objects.filter(pk__in=ids)
+        qs2 = EntityCredentials.filter_relations(self.user, qs1)
+
+        self.assert_(qs1._result_cache is None)
+        self.failIf(qs2)
+
+    def test_filter_relations03(self):  #filter with all credentials set
+        EntityCredentials.set_entity_perms(self.user, self.entity1, view=False)
+        EntityCredentials.set_entity_perms(self.user, self.entity2, view=True)
+
+        subject, r1, r2 = self.build_subject_n_relations()
+        ids = [r1.id, r2.id]
+        qs = EntityCredentials.filter_relations(self.user, Relation.objects.filter(pk__in=ids))
+        self.assertEqual([r2.id], self.ids_list(qs))
+
+    def test_filter_relations04(self): #super-user
+        self.user.is_superuser = True
+
+        subject, r1, r2 = self.build_subject_n_relations()
+        ids = [r1.id, r2.id]
+        qs = EntityCredentials.filter_relations(self.user, Relation.objects.filter(pk__in=ids))
+        self.assertEqual(ids, self.ids_list(qs))
+
     def test_regularperms01(self): #regular perms not used
         ct = ContentType.objects.get_for_model(CremeProperty)
 

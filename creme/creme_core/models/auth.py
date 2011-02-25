@@ -125,12 +125,33 @@ class EntityCredentials(Model):
 
     @staticmethod
     def filter(user, queryset): #give wanted perm ???
+        """Filter a Queryset of CremeEntities with their 'view' credentials.
+        @param queryset A Queryset on CremeEntity models (better if not yet retrieved).
+        @return A new Queryset on CremeEntity, more selective (not retrieved).
+        """
         if not user.is_superuser:
             query = Q(credentials__user=user, credentials__value__contains=VIEW)
 
             default = EntityCredentials.get_default_creds() #cache ???
             if default.has_perm('creme_core.view_entity'):
                 query |= Q(credentials__isnull=True)
+
+            queryset = queryset.filter(query)
+
+        return queryset
+
+    @staticmethod
+    def filter_relations(user, queryset): #give wanted perm ???
+        """Filter a Queryset of Relation with their objects' "view" credentials.
+        @param queryset A Queryset on Relation models (better if not yet retrieved).
+        @return A new Queryset on Relation, more selective (not retrieved).
+        """
+        if not user.is_superuser:
+            query = Q(object_entity__credentials__user=user, object_entity__credentials__value__contains=VIEW)
+
+            default = EntityCredentials.get_default_creds() #cache ???
+            if default.has_perm('creme_core.view_entity'):
+                query |= Q(object_entity__credentials__isnull=True)
 
             queryset = queryset.filter(query)
 
@@ -443,7 +464,7 @@ class UserProfile(Model):
 
         return teammates
 
-    #NB notice that cache and credentails are well updated when using this property
+    #NB notice that cache and credentials are well updated when using this property
     teammates = property(_get_teammates, _set_teammates); del (_get_teammates, _set_teammates)
 
     def has_perm_to_create(self, model_or_entity):
