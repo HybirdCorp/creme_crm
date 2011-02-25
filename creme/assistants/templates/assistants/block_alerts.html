@@ -1,5 +1,4 @@
-{% load i18n %}
-{% load media %}
+{% load i18n %}{% load media %}
 {% load creme_core_tags %}{% load creme_block %}
 <table class="table_detail_view ui-corner-all" id={{block_name}}>
     {% get_block_header colspan=7 %}
@@ -26,13 +25,12 @@
                 <th class="block_header_line_dark">{% trans "Treated ?" %}</th>
                 <th class="block_header_line_dark">{% trans "Actions" %}</th>
             </tr>
-            {% for alert in page.object_list %}
-                <!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
+            {% for alert in page.object_list %}<!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
                 <tr>
                     <td class="{{row_color}}"><strong>{{alert.title}}</strong></td>
                     {% if not object %}
                         <td class="{{row_color}}">
-                            <a href="{{alert.creme_entity.get_absolute_url}}">{{alert.creme_entity}}</a>
+                            <a href="{{alert.creme_entity.get_absolute_url}}">{{alert.creme_entity|allowed_unicode:user}}</a>
                         </td>
                     {% endif %}
                     <td class="{{row_color}}">{{alert.for_user}}</td>

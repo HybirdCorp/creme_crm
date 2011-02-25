@@ -1,5 +1,4 @@
-{% load i18n %}
-{% load media %}
+{% load i18n %}{% load media %}
 {% load creme_core_tags %}{% load creme_block %}
 <table class="table_detail_view ui-corner-all" id={{block_name}}>
     {% get_block_header colspan=6 %}
@@ -29,7 +28,13 @@
                 <tr>
                     {% if not object %}
                         <td class="{{row_color}}">
-                            <a href="{{message.creme_entity.get_absolute_url}}">{{message.creme_entity|default:_('(None)')}}</a>
+                            {% with message.creme_entity as creme_entity%}
+                                {% if creme_entity %}
+                                    <a href="{{creme_entity.get_absolute_url}}">{{creme_entity|allowed_unicode:user}}</a>
+                                {% else %}
+                                    {% trans "(None)" %}
+                                {% endif %}
+                            {% endwith %}
                         </td>
                     {% endif %}
                     <td class="{{row_color}}">{{message.sender}}</td>
