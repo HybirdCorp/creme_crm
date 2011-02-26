@@ -255,13 +255,18 @@ class Relation(CremeAbstractEntity):
         return self._get_real_entity(Relation)
 
     @staticmethod
-    def populate_real_object_entities(relations):
+    def populate_real_object_entities(relations, user=None):
         """Faster than call get_real_entity() on each relation.object_entity.
         @param relations Iterable of Relation objects.
+        @param user If given, real entities are poulated with credebntials related to this user.
         tips: better if object_entity attribute is already populated
         -> (eg: use select_related('object_entity') on the queryset)
         """
-        CremeAbstractEntity.populate_real_entities([relation.object_entity for relation in relations])
+        entities = [relation.object_entity for relation in relations]
+        CremeEntity.populate_real_entities(entities)
+
+        if user:
+            CremeEntity.populate_credentials([e.get_real_entity() for e in entities], user)
 
     @staticmethod
     def filter_in(model, filter_predicate, value_for_filter):
@@ -275,21 +280,6 @@ class Relation(CremeAbstractEntity):
 #        list_pk_f = model.objects.filter(relations__type=filter_predicate,
 #                                             relations__object_entity__in=list_entity).values_list('id', flat=True)
 #        return Q(id__in=list_pk_f)
-
-    ##todo: remove (use Relation.objects.create() instead) ; user_id=1 is BAD !!!
-    #@staticmethod
-    #def create(subject, relation_type_id, object_, user_id=1): #really useful ??? (only 'user' attr help)
-        ##relation = Relation()
-        ##relation.subject_entity = subject
-        ##relation.type_id = relation_type_id
-        ##relation.object_entity = object_
-        ##relation.user_id = user_id
-        ##relation.save()
-        #return Relation.objects.create(subject_entity=subject,
-                                       #type_id=relation_type_id,
-                                       #object_entity=object_,
-                                       #user_id=user_id,
-                                      #)
 
     def update_links(self, subject_entity=None, object_entity=None, save=False):
         """Beware: use this method if you have to update the related entities of a relation.

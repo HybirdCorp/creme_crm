@@ -201,7 +201,7 @@ class CremeEntity(CremeAbstractEntity):
             relations = self.relations.filter(type=relation_type_id)
 
             if real_obj_entities:
-                relations = relations.select_related('object_entity')
+                relations = list(relations.select_related('object_entity'))
                 Relation.populate_real_object_entities(relations)
 
             self._relations_map[relation_type_id] = relations
@@ -211,10 +211,10 @@ class CremeEntity(CremeAbstractEntity):
         return relations
 
     @staticmethod
-    def populate_relations(entities, relation_type_ids):
+    def populate_relations(entities, relation_type_ids, user):
         relations = Relation.objects.filter(subject_entity__in=[e.id for e in entities], type__in=relation_type_ids)\
                                     .select_related('object_entity')
-        Relation.populate_real_object_entities(relations)
+        Relation.populate_real_object_entities(relations, user)
 
         # { Subject_Entity -> { RelationType ->[Relation list] } }
         relations_map = defaultdict(lambda: defaultdict(list))
