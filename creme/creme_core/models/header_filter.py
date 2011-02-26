@@ -147,7 +147,7 @@ class HeaderFilter(Model): #CremeModel ???
 
         group = hfi_groups[HFI_RELATION]
         if group:
-            CremeEntity.populate_relations(entities, [hfi.relation_predicat_id for hfi in group])
+            CremeEntity.populate_relations(entities, [hfi.relation_predicat_id for hfi in group], user)
 
         group = hfi_groups[HFI_CUSTOM]
         if group:

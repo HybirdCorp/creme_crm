@@ -159,28 +159,28 @@ def get_listview_columns_header(context):
 
 #get_html_output################################################################
 
-def _render_relations(entity, hfi):
+def _render_relations(entity, hfi, user):
     relations_list = ["<ul>"]
-    relations_list.extend(u'<li><a href="%s">%s</a></li>' % (obj.get_absolute_url(), escape(obj))
-                            for obj in entity.get_related_entities(hfi.relation_predicat_id, True))
+    relations_list.extend(u'<li><a href="%s">%s</a></li>' % (e.get_absolute_url(), escape(e.allowed_unicode(user)))
+                            for e in entity.get_related_entities(hfi.relation_predicat_id, True))
     relations_list.append("</ul>")
 
     return u''.join(relations_list)
 
 _RENDER_FUNCS = { #TODO: use a method in HeaderFilterItem ??
-    HFI_FIELD:    lambda entity, hfi: get_html_field_value(entity, hfi.name),
-    HFI_FUNCTION: lambda entity, hfi: getattr(entity, hfi.name)(),
+    HFI_FIELD:    lambda entity, hfi, user: get_html_field_value(entity, hfi.name),
+    HFI_FUNCTION: lambda entity, hfi, user: getattr(entity, hfi.name)(),
     HFI_RELATION: _render_relations,
-    HFI_CUSTOM:   lambda entity, hfi: entity.get_custom_value(hfi.get_customfield()),
-    HFI_VOLATILE: lambda entity, hfi: hfi.volatile_render(entity),
+    HFI_CUSTOM:   lambda entity, hfi, user: entity.get_custom_value(hfi.get_customfield()),
+    HFI_VOLATILE: lambda entity, hfi, user: hfi.volatile_render(entity),
 }
 
-@register.filter(name="hf_get_html_output")
-def get_html_output(hfi, entity):
+@register.simple_tag
+def hf_get_html_output(hfi, entity, user):
     try:
         render_func = _RENDER_FUNCS.get(hfi.type)
         if render_func:
-            return render_func(entity, hfi)
+            return render_func(entity, hfi, user)
     except AttributeError, e:
         debug('Templatetag "hf_get_html_output": %s', e)
 
