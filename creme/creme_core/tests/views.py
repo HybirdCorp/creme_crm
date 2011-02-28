@@ -716,6 +716,79 @@ class RelationViewsTestCase(ViewsTestCase):
 
         self.assertEqual(1, len(form.errors.get('__all__', [])))
 
+    def test_add_relations_bulk05(self):
+        self._aux_test_add_relations()
+
+        #this relation should not be recreated by the view
+        Relation.objects.create(user=self.user,
+                                subject_entity=self.subject02,
+                                type=self.rtype02,
+                                object_entity=self.object02
+                               )
+
+        url = '/creme_core/relation/add_to_entities/%s/%s,%s,/%s,%s,' % (self.ct_id,
+                                                                        self.rtype01.id,
+                                                                        self.rtype02.id,
+                                                                        self.subject01.id,
+                                                                        self.subject02.id)
+        self.assertEqual(200, self.client.get(url).status_code)
+
+        response = self.client.post(url, data={
+                                                'entities_lbl': 'wtf',
+                                                'relations': '(%s,%s,%s);(%s,%s,%s);' % (
+                                                                self.rtype01.id, self.ct_id, self.object01.id,
+                                                                self.rtype02.id, self.ct_id, self.object02.id,
+                                                               ),
+                                              })
+
+        self.assertNoFormError(response)
+        self.assertEqual(200, response.status_code)
+
+        self.assertEqual(2, self.subject01.relations.count())
+        self.assertEntiTyHasRelation(self.subject01, self.rtype01, self.object01)
+        self.assertEntiTyHasRelation(self.subject01, self.rtype02, self.object02)
+
+        self.assertEqual(2, self.subject02.relations.count()) #and not 3
+        self.assertEntiTyHasRelation(self.subject02, self.rtype01, self.object01)
+        self.assertEntiTyHasRelation(self.subject02, self.rtype02, self.object02)
+
+    def test_add_relations_bulk06(self):
+        self._aux_test_add_relations()
+
+        #this relation should not be recreated by the view
+        Relation.objects.create(user=self.user,
+                                subject_entity=self.subject02,
+                                type=self.rtype02,
+                                object_entity=self.object02
+                               )
+
+        url = '/creme_core/relation/add_to_entities/%s/%s/%s,%s,' % (self.ct_id,
+                                                                        self.rtype01.id,
+                                                                        self.subject01.id,
+                                                                        self.subject02.id)
+        self.assertEqual(200, self.client.get(url).status_code)
+
+        response = self.client.post(url, data={
+                                                'entities_lbl': 'wtf',
+                                                'relations': '(%s,%s,%s);(%s,%s,%s);' % (
+                                                                self.rtype02.id, self.ct_id, self.object01.id,
+                                                                self.rtype02.id, self.ct_id, self.object02.id,
+                                                               ),
+                                              })
+
+        self.assertEqual(200, response.status_code)
+
+        try:
+            form = response.context['form']
+        except Exception, e:
+            self.fail('No form in context ? (%s)', str(e))
+
+        if not form.errors:
+            self.fail('Not the excepted error in form.')
+
+        self.assertEqual(1, len(form.errors.get('__all__', [])))
+        
+
     def _aux_relation_objects_to_link_selection(self):
         self.populate('creme_core', 'persons')
         self.login()
