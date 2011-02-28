@@ -24,6 +24,10 @@ from django.db.models import Model, CharField, BooleanField, ForeignKey, ManyToM
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import Q
 
+from creme_core.date_filters_registry import date_filters_registry
+from creme_core.populate import DATE_RANGE_FILTER
+
+
 #TODO: a FilterList class like the HeaderFilterList ???
 
 class ConditionChildType(Model):
@@ -90,9 +94,20 @@ class FilterCondition(Model):
         #Hack for dates
         if pattern_value.find('(%s,%s)') >= 0:
             dates = list(self.values.values_list('value', flat=True))[:2]
-            dates.sort()
+            
+            if _type.id == DATE_RANGE_FILTER:
+                dates.sort()
+                if len(dates) == 1:
+                    dates = [dates[0], dates[0]]
 
-            q = Q(**{key: tuple(dates)})
+                q = Q(**{key: tuple(dates)})
+            else:
+                try:
+                    date_filter_name = dates[0]
+                    df = date_filters_registry.get_filter(date_filter_name)
+                    q = Q(**{key: (df.get_begin(), df.get_end())})
+                except IndexError:
+                    q = Q()
 
             if _type.is_exclude:
                 q.negate()

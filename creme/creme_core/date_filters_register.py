@@ -116,7 +116,7 @@ def next_quarter_end(filter, now):
     return date(year=q3_year, month=q3_month, day=get_month_last_day(q3_year, q3_month))
 
 to_register = (
-    ('customized',   DatetimeFilter('', _(u"Customized"), lambda x,y: "", lambda x,y: "")),
+    ('customized',   DatetimeFilter('customized', _(u"Customized"), lambda x,y: "", lambda x,y: "", is_volatile=False)),
 
     ('last_year',    DatetimeFilter('last_year',    _(u"Last year"),    last_year_beg,    last_year_end)),
     ('current_year', DatetimeFilter('current_year', _(u"Current year"), current_year_beg, current_year_end)),

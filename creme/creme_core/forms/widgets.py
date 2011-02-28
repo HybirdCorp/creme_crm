@@ -712,10 +712,11 @@ class DateFilterWidget(Select):
         def render_option(report_date_filter): #TODO: protected static method instead
             option_value = force_unicode(report_date_filter.name)
             selected_html = (option_value in selected_choices) and u' selected="selected"' or '' #TODO: conditional experession instead
-            return u'<option value="%s"%s begin="%s" end="%s">%s</option>' % ( #TODO: dict instead tuple ??
+            return u'<option value="%s"%s begin="%s" end="%s" is_volatile="%s">%s</option>' % ( #TODO: dict instead tuple ??
                 escape(option_value), selected_html,
                 report_date_filter.get_begin(),
                 report_date_filter.get_end(),
+                int(report_date_filter.is_volatile),
                 conditional_escape(force_unicode(report_date_filter.verbose_name)))
 
         # Normalize to strings.
