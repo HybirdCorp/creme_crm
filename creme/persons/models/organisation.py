@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2011  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,7 +19,7 @@
 ################################################################################
 
 from logging import debug
-from django.utils.encoding import smart_str, force_unicode
+#from django.utils.encoding import smart_str, force_unicode
 
 from django.db.models import ForeignKey, CharField, TextField, PositiveIntegerField, BooleanField, DateField
 from django.utils.translation import ugettext_lazy as _
@@ -76,7 +76,8 @@ class Organisation(CremeEntity):
         super(Organisation, self).save(*args, **kwargs)
 
     def __unicode__(self):
-        return force_unicode (self.name)
+        #return force_unicode (self.name)
+        return self.name
 
     def get_absolute_url(self):
         return "/persons/organisation/%s" % self.id
@@ -89,20 +90,17 @@ class Organisation(CremeEntity):
         """url for list_view """
         return "/persons/organisations"
 
-    def get_delete_absolute_url(self):
-        return "/persons/organisation/delete/%s" % self.id
-
     def get_managers(self):
         return Contact.objects.filter(relations__type=REL_SUB_MANAGES, relations__object_entity=self.id)
 
     def get_employees(self):
         return Contact.objects.filter(relations__type=REL_SUB_EMPLOYED_BY, relations__object_entity=self.id)
 
-    #TODO: used ???
-    def zipcode(self):
-        if self.billing_address is not None:
-            return self.billing_address.zipcode
-        return 'Non renseigné'
+    #COMMENTED on 11 february 2011
+    #def zipcode(self):
+        #if self.billing_address is not None:
+            #return self.billing_address.zipcode
+        #return 'Non renseigné'
 
     @staticmethod
     def get_all_managed_by_creme():

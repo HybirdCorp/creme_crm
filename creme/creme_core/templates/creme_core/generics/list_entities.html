@@ -2,11 +2,6 @@
 
 {% block page_title %} - {{list_title}}{% endblock %}
 
-{% block extrahead %}
-    {% comment %}<link rel="stylesheet" type="text/css" href="{{MEDIA_URL}}css{{CSS_THEME_NAME}}list_view.css" />{% endcomment %}
-    {% comment %}<script type="text/javascript" src="{{MEDIA_URL}}js/models/relations.js"></script>{% endcomment %}
-{% endblock %}
-
 {% block content %}
     {% include list_view_template %}
 {% endblock %}

@@ -24,13 +24,13 @@ creme.activities.select_one = function(url, ct_id) {
     var me = this;
 
     this.okDialogHandler = function(ui) {
-        url+='&entity_relation_type='+$(ui).find('select').val();
+        url += '&entity_relation_type=' + $(ui).find('select').val();
         $(ui).dialog("destroy");
         $(ui).remove();
-        window.location.href=url;
+        window.location.href = url;
     }
 
-    creme.ajax.json.post('/activities/get_entity_relation_choices_for_activity', {'ct_id': ct_id},
+    creme.ajax.json.post('/activities/get_relationtype_choices', {'ct_id': ct_id},
         function(data) {
             var options = creme.forms.Select.optionsFromData(data, 'predicate', 'pk');
             var $select = creme.forms.Select.fill($('<select/>'), options, options[0][0]);

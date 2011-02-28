@@ -1,8 +1,7 @@
-{% load i18n %}
-{% load media %}
+{% load i18n %}{% load media %}
 {% load creme_block %}
-{% if add_line_perm %}
-    <a class="add" onclick="creme.utils.innerPopupNReload('{{add_url}}', {% get_block_reload_uri %});">
+{% if line_perm %}
+    <a class="add" onclick="creme.utils.innerPopupNReload('{{action_url}}', {% get_block_reload_uri %});">
         <img src="{% media_url 'images/add_22.png' %}" border="0" title="{% trans "Add" %}" alt="{% trans "Add" %}" />{{label}}
     </a>
 {% else %}

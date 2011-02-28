@@ -23,12 +23,11 @@
                 {% get_column_header _('Content') 'content' %}
                 <th class="block_header_line_dark">{% trans "Actions" %}</th>
             </tr>
-            {% for memo in page.object_list %}
-                <!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
+            {% for memo in page.object_list %}<!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
                 <tr>
                     {% if not object %}
                         <td class="{{row_color}}">
-                            <a href="{{memo.creme_entity.get_absolute_url}}">{{memo.creme_entity}}</a>
+                            <a href="{{memo.creme_entity.get_absolute_url}}">{{memo.creme_entity|allowed_unicode:user}}</a>
                         </td>
                     {% endif %}
                     <td class="{{row_color}}">{{memo.user}}</td>
@@ -37,7 +36,7 @@
                     <td class="{{row_color}}" align="center" valign="center" style="width:10%;">
                         {% has_perm_to change memo.creme_entity as has_perm %}
                         {% get_line_editor at_url '/assistants/memo/edit/{{memo.id}}/' with_perms has_perm %}
-                        {% get_line_deletor2 at_url '/assistants/memo/delete' with_args "{'id' : {{memo.id}} }" with_perms has_perm %}
+                        {% get_line_deletor2 at_url '/creme_core/entity/delete_related/{{ct_id}}' with_args "{'id' : {{memo.id}} }" with_perms has_perm %}
                     </td>
                 </tr>
             {% endfor %}

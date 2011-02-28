@@ -17,7 +17,7 @@
         <a href="/creme_core/filter/add/{{content_type_id}}">
             <img border="0" src="{% media_url 'images/add_22.png' %}" alt="{% trans "Create a custom filter" %}" title="{% trans "Create a custom filter" %}"/>
         </a>
-        {% if filter_id and filter.is_custom %}
+        {% if can_edit_or_delete %}
             <a href="/creme_core/filter/edit/{{content_type_id}}/{{filter_id}}" id="filter_edit">
                 <img border="0" src="{% media_url 'images/edit_22.png' %}" alt="{% trans "Edit filter" %}" title="{% trans "Edit filter" %}"/>
             </a>

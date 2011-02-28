@@ -23,7 +23,7 @@ from django.shortcuts import get_object_or_404
 from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required, permission_required
 
-from creme_core.views.generic import add_entity, add_to_entity, edit_entity, view_entity_with_template, list_view
+from creme_core.views.generic import add_entity, add_to_entity, edit_entity, view_entity, list_view
 from creme_core.utils import get_from_POST_or_404
 
 from emails.models import EmailTemplate
@@ -36,21 +36,23 @@ from emails.forms.template import TemplateCreateForm, TemplateEditForm, Template
 def add(request):
     return add_entity(request, TemplateCreateForm)
 
+@login_required
+@permission_required('emails')
 def edit(request, template_id):
-    return edit_entity(request, template_id, EmailTemplate, TemplateEditForm, 'emails')
+    return edit_entity(request, template_id, EmailTemplate, TemplateEditForm)
 
 @login_required
 @permission_required('emails')
 def detailview(request, template_id):
-    return view_entity_with_template(request, template_id, EmailTemplate,
-                                     '/emails/template',
-                                     'emails/view_template.html')
+    return view_entity(request, template_id, EmailTemplate, '/emails/template', 'emails/view_template.html')
 
 @login_required
 @permission_required('emails')
 def listview(request):
     return list_view(request, EmailTemplate, extra_dict={'add_url': '/emails/template/add'})
 
+@login_required
+@permission_required('emails')
 def add_attachment(request, template_id):
     return add_to_entity(request, template_id, TemplateAddAttachment,
                          _('New attachments for <%s>'), entity_class=EmailTemplate)

@@ -26,6 +26,7 @@ from django.forms.util import ErrorList
 from django.contrib.contenttypes.models import ContentType
 from django.forms.util import ValidationError
 from django.utils.translation import ugettext_lazy as _
+from django.contrib.auth.models import User
 
 from creme_core.models import RelationType, CremePropertyType, FilterType, FilterCondition, FilterValue, Filter, ConditionChildType
 from creme_core.utils import Q_creme_entity_content_types
@@ -38,6 +39,7 @@ class ListViewFilterForm(forms.Form):
 
     parent_filters = forms.ModelChoiceField(Filter.objects.none(), required=False)
     nom = forms.CharField(required=True)
+    user = forms.ModelChoiceField(User.objects.all(), empty_label=_(u'All users'))
     champs = forms.ChoiceField(choices=[])
     champsfk = forms.ChoiceField(choices=[])
     tests = forms.ChoiceField(choices=[])
@@ -65,7 +67,7 @@ class ListViewFilterForm(forms.Form):
         super (ListViewFilterForm , self ).__init__(data, files, auto_id, prefix,
                  initial, error_class, label_suffix,
                  empty_permitted)
-                 
+
         ct_id = initial.get('content_type_id')
         if ct_id is not None :
             #klass = ContentType.objects.get_for_id(pk=ct_id).model_class()
@@ -98,7 +100,7 @@ class ListViewFilterForm(forms.Form):
         filter_id = initial.get('filter_id')
         if filter_id is not None:
             self.filter_id = filter_id
-            
+
 
     def full_clean(self):
         super (ListViewFilterForm , self ).full_clean()
@@ -118,16 +120,16 @@ class ListViewFilterForm(forms.Form):
         ids_relation = data.get('ids_relations')
         ids_properties = data.get('ids_properties')
         ids_date_fields = data.get('ids_date_fields')
-        
+
         if not ids and not ids_filter and not ids_relation and not ids_properties and not ids_date_fields:
             return
-        
+
         ids = ids.split(',')
         ids_filter=ids_filter.split(',')
         ids_relation=ids_relation.split(',')
         ids_properties=ids_properties.split(',')
         ids_date_fields=ids_date_fields.split(',')
-        
+
         if hasattr(self,'filter_id') and self.filter_id is not None:
             try :
                 f = Filter.objects.get(pk=self.filter_id)
@@ -135,9 +137,10 @@ class ListViewFilterForm(forms.Form):
                 f = Filter()
         else:
             f = Filter()
-            
+
         f.name = data['nom']
-        
+        f.user_id = data['user']
+
         try :
             f.is_or_for_all = True if int(data['global_test'])==1 else False
             f.model_ct = self.ct
@@ -167,7 +170,7 @@ class ListViewFilterForm(forms.Form):
                 champfk = data.get('champsfk_%s' % id)
                 if champfk:
                     condition.champ += "__"+data['champsfk_%s' % id]
-                    
+
                 condition.type = FilterType.objects.get(pk=data['tests_%s' % id])
                 values = []
                 get_filtervalue = FilterValue.objects.get
@@ -191,7 +194,7 @@ class ListViewFilterForm(forms.Form):
         filter_type_getter = FilterType.objects.get
         filter_value_getter = FilterValue.objects.get_or_create
         condition_child_type_getter = ConditionChildType.objects.get_or_create
-        
+
         for id_rel in ids_relation:
             if not id_rel:
                 continue
@@ -240,12 +243,12 @@ class ListViewFilterForm(forms.Form):
             except Exception, e:
                 logging.debug("###\nException : %s" % e)
                 continue
-                
+
         logging.debug("conditions : %s" % conditions)
 
         logging.debug('#{#{#{ids_properties:%s' % ids_properties)
         for id_p in ids_properties:
-            
+
             logging.debug('#{#{#{id_p:%s' % id_p)
 
             if not id_p:
@@ -259,7 +262,7 @@ class ListViewFilterForm(forms.Form):
 
                 condition.save()
                 condition.values = [filter_value_getter(value=data['properties_%s' % id_p])[0]]
-                
+
                 logging.debug('#{#{#{#{ condition.values : %s' % condition.values)
 
                 condition.save()
@@ -305,6 +308,5 @@ class ListViewFilterForm(forms.Form):
         except Exception, e:
             logging.debug('#{#{#{#{#{#Exception sur la sauvegarde : %s' % e)
 
-        
-        
-    
+
+

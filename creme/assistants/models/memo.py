@@ -38,6 +38,11 @@ class Memo(CremeModel):
     entity_id           = PositiveIntegerField()
     creme_entity        = GenericForeignKey(ct_field="entity_content_type", fk_field="entity_id")
 
+    class Meta:
+        app_label = 'assistants'
+        verbose_name = _(u'Memo')
+        verbose_name_plural = _(u'Memos')
+
     @staticmethod
     def get_memos(entity):
         return Memo.objects.filter(entity_id=entity.id).select_related('user')
@@ -50,10 +55,8 @@ class Memo(CremeModel):
     def get_memos_for_ctypes(ct_ids, user):
         return Memo.objects.filter(entity_content_type__in=ct_ids, user=user).select_related('user')
 
-    class Meta:
-        app_label = 'assistants'
-        verbose_name = _(u'Memo')
-        verbose_name_plural = _(u'Memos')
+    def get_related_entity(self): #for generic views
+        return self.creme_entity
 
 
 #TODO: can delete this with  a WeakForeignKey ??

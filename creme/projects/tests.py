@@ -1,13 +1,11 @@
 # -*- coding: utf-8 -*-
 
-#from datetime import date
+from datetime import datetime, date, time
 
-from django.test import TestCase
-from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 
-from creme_core.models import RelationType, Relation
-from creme_core.management.commands.creme_populate import Command as PopulateCommand
+from creme_core.models import RelationType, Relation, SetCredentials
+from creme_core.tests.base import CremeTestCase
 
 from persons.models import Contact
 
@@ -15,31 +13,12 @@ from projects.models import *
 from projects.constants import *
 
 
-class ProjectsTestCase(TestCase):
-    def login(self):
-        if not self.user:
-            user = User.objects.create(username='Gally')
-            user.set_password(self.password)
-            user.is_superuser = True
-            user.save()
-            self.user = user
-
-        logged = self.client.login(username=self.user.username, password=self.password)
-        self.assert_(logged, 'Not logged in')
+class ProjectsTestCase(CremeTestCase):
+    def login(self, is_superuser=True):
+        super(ProjectsTestCase, self).login(is_superuser, allowed_apps=['projects'])
 
     def setUp(self):
-        PopulateCommand().handle(application=['creme_core', 'projects'])
-        self.password = 'test'
-        self.user = None
-
-    def assertNoFormError(self, response): #move in a CremeTestCase ???
-        try:
-            errors = response.context['form'].errors
-        except Exception, e:
-            pass
-        else:
-            if errors:
-                self.fail(errors)
+        self.populate('creme_core', 'projects')
 
     def test_populate(self):
         rtypes = RelationType.objects.filter(pk=REL_SUB_PROJECT_MANAGER)
@@ -52,6 +31,10 @@ class ProjectsTestCase(TestCase):
 
         self.assert_(TaskStatus.objects.exists())
         self.assert_(ProjectStatus.objects.exists())
+
+    def test_portal(self):
+        self.login()
+        self.assertEqual(200, self.client.get('/projects/').status_code)
 
     def create_project(self, name):
         manager = Contact.objects.create(user=self.user, first_name='Gendo', last_name='Ikari')
@@ -83,6 +66,52 @@ class ProjectsTestCase(TestCase):
 
         project, manager = self.create_project('Eva00')
         self.assertEqual(1, Relation.objects.filter(subject_entity=project, type=REL_OBJ_PROJECT_MANAGER, object_entity=manager).count())
+
+    def test_project_createview02(self):
+        self.login(is_superuser=False)
+
+        role = self.user.role
+        create_sc = SetCredentials.objects.create
+        create_sc(role=role,
+                  value=SetCredentials.CRED_VIEW | SetCredentials.CRED_CHANGE | SetCredentials.CRED_DELETE | SetCredentials.CRED_UNLINK, #no CRED_LINK
+                  set_type=SetCredentials.ESET_ALL
+                 )
+        create_sc(role=role,
+                  value=SetCredentials.CRED_VIEW | SetCredentials.CRED_CHANGE | SetCredentials.CRED_DELETE | SetCredentials.CRED_LINK | SetCredentials.CRED_UNLINK,
+                  set_type=SetCredentials.ESET_OWN
+                 )
+        role.creatable_ctypes = [ContentType.objects.get_for_model(Project)]
+
+        manager = Contact.objects.create(user=self.user, first_name='Gendo', last_name='Ikari')
+        self.failIf(manager.can_link(self.user))
+
+        response = self.client.post('/projects/project/add', follow=True,
+                                    data={
+                                            'user':         self.user.pk,
+                                            'name':         'Eva00',
+                                            'status':       ProjectStatus.objects.all()[0].id,
+                                            'start_date':   '2011-10-11',
+                                            'end_date':     '2011-12-31',
+                                            'responsibles': manager.id,
+                                         }
+                                   )
+        self.assertEqual(200, response.status_code)
+
+        try:
+            errors = response.context['form'].errors
+        except Exception, e:
+            self.fail(str(e))
+
+        self.assert_(errors)
+        self.assert_('responsibles' in errors)
+
+    def test_project_lisview(self):
+        self.login()
+
+        self.create_project('Eva00')
+        self.create_project('Eva01')
+
+        self.assertEqual(200, self.client.get('/projects/projects').status_code)
 
     def test_task_createview01(self):
         self.login()
@@ -169,8 +198,9 @@ class ProjectsTestCase(TestCase):
                                         'linked_contact': worker.id,
                                         'hourly_cost':    100,
                                     })
+        self.assertNoFormError(response)
         self.assertEqual(200, response.status_code)
-        self.failIf(response.context['form'].errors)
+        #self.failIf(response.context['form'].errors)
 
         resources = list(task.resources_set.all())
         self.assertEqual(1, len(resources))
@@ -254,5 +284,29 @@ class ProjectsTestCase(TestCase):
 
         wperiod = WorkingPeriod.objects.get(pk=wperiod.id) #refresh
         self.assertEqual(10, wperiod.duration)
+
+    def test_project_close(self):
+        self.login()
+
+        project = self.create_project('Eva01')[0]
+        self.assert_(not project.is_closed)
+        self.assert_(not project.effective_end_date)
+
+        response = self.client.get('/projects/project/%s/close' % project.id)
+        self.assertEqual(404, response.status_code)
+
+        response = self.client.post('/projects/project/%s/close' % project.id, follow=True)
+        self.assertEqual(200, response.status_code)
+
+        project = Project.objects.get(pk=project.id) #refresh
+        self.assert_(project.is_closed)
+        self.assert_(project.effective_end_date)
+
+        delta = datetime.combine(date.today(), time()) - project.effective_end_date
+        self.assert_(delta.seconds < 10)
+
+        #already closed
+        response = self.client.post('/projects/project/%s/close' % project.id, follow=True)
+        self.assertEqual(404, response.status_code)
 
     #TODO: test better get_project_cost(), get_effective_duration(), get_delay()

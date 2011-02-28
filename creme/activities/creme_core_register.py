@@ -25,19 +25,24 @@ from creme_core.gui.menu import creme_menu
 from creme_core.gui.block import block_registry
 from creme_core.gui.button_menu import button_registry
 
-from activities.models import Activity
+from activities.models import Activity, PhoneCall, Meeting
 from activities.blocks import participants_block, subjects_block, future_activities_block, past_activities_block, user_calendars_block
 from activities.buttons import add_meeting_button, add_phonecall_button, add_task_button
 
 
 creme_registry.register_app('activities', _(u'Activities'), '/activities')
 creme_registry.register_entity_models(Activity)
+creme_registry.register_entity_models(PhoneCall)
+creme_registry.register_entity_models(Meeting)
 
 reg_item = creme_menu.register_app('activities', '/activities/').register_item
-reg_item('/activities/',                    _(u'Portal'),                 'activities')
-reg_item('/activities/calendar/user',       _(u'Calendar'),               'activities')
-reg_item('/activities/indisponibility/add', _(u'Add an indisponibility'), 'activities.add_activity')
-reg_item('/activities/activities',          _(u'All activities'),         'activities')
+reg_item('/activities/',                       _(u'Portal'),                 'activities')
+reg_item('/activities/calendar/user',          _(u'Calendar'),               'activities')
+reg_item('/activities/indisponibility/add',    _(u'Add an indisponibility'), 'activities.add_activity')
+reg_item('/activities/activity/add/meeting',   _(u'Add a meeting'),          'activities.add_activity')
+reg_item('/activities/activity/add/phonecall', _(u'Add a phone call'),       'activities.add_activity')
+reg_item('/activities/activity/add/task',      _(u'Add a task'),             'activities.add_activity')
+reg_item('/activities/activities',             _(u'All activities'),         'activities')
 
 block_registry.register(participants_block, subjects_block, future_activities_block, past_activities_block, user_calendars_block)
 

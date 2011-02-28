@@ -1,18 +1,12 @@
-{% load i18n %}
-{% load media %}
-{% load creme_block %}
-{% comment %}<script type="text/javascript">
-    creme.include('{{MEDIA_URL}}js/models/relations.js','js');
-</script>{% endcomment %}
+{% load i18n %}{% load media %}
+{% load creme_core_tags %}{% load creme_block %}
+{% has_perm_to link object as link_perm %}{% has_perm_to unlink object as unlink_perm %}
 <table  class="table_detail_view ui-corner-all" id={{block_name}}>
     {% get_block_header colspan=2 %}
         <th style="width: 80%;" class="collapser" align="left">{% get_block_title _('%s Related Product') _('%s Related Products') 'product_48.png' _('Products') %}</th>
         <th style="width: 20%;" align="right">
             <div class="buttons">
-                <a class="link" onclick="creme.relations.handleAddFromPredicateEntity('/creme_core/relation/add/from/predicate/{{predicate_id}}/entity/{{object.id}}/{{ct_id}}', '{{predicate_id}}', '{{object.id}}', {% get_block_reload_uri %});">
-                    <img src="{% media_url 'images/link_22.png' %}" border="0" title="{% trans "Link to an existing product" %}" alt="{% trans "Link to an existing product" %}" />
-                    {% trans "Link to an existing product" %}
-                </a>
+                {% get_line_relator to_subject object with_rtype_id predicate_id with_ct_id ct.id with_label _("Link to an existing product") with_perms link_perm %}
             </div>
         </th>
     {% end_get_block_header %}
@@ -22,12 +16,12 @@
                 <th class="block_header_line_dark">{% trans "Name" %}</th>
                 <th class="block_header_line_dark">{% trans "Unlink" %}</th>
             </tr>
-            {% for product in page.object_list %}
-                <!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
+            {% for product in page.object_list %}<!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
                 <tr>
-                    <td class="{{row_color}}"><a href="{{product.get_absolute_url}}">{{product}}</a></td>
+                    <td class="{{row_color}}"><a href="{{product.get_absolute_url}}">{{product|allowed_unicode:user}}</a></td>
                     <td class="{{row_color}}" align="center" valign="center" style="width:10%;">
-                        {% get_line_unlinker at_url '/creme_core/relation/delete/similar' with_args "{'subject_id':{{object.pk}}, 'type':'{{predicate_id}}', 'object_id':{{product.pk}} }" with_perms 1 %}
+                        {% has_perm_to unlink product as product_unlink_perm %}
+                        {% get_line_unlinker at_url '/creme_core/relation/delete/similar' with_args "{'subject_id':{{object.pk}}, 'type':'{{predicate_id}}', 'object_id':{{product.pk}} }" with_perms unlink_perm|and_op:product_unlink_perm %}
                     </td>
                 </tr>
             {% endfor %}

@@ -1,15 +1,10 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
 <html xmlns="http://www.w3.org/1999/xhtml" lang="{{ LANGUAGE_CODE }}" xml:lang="{{ LANGUAGE_CODE }}" {% if LANGUAGE_BIDI %}dir="rtl"{% endif %}>
-{% load i18n %}
-{% load media %}
+{% load i18n %}{% load media %}
 {% load creme_menu %}{% load creme_core_tags %}
 <head>
     <title>{{title}}</title>
-    {% comment %}<link rel='stylesheet' type='text/css' href='{{MEDIA_URL}}css/jquery-css/creme-theme/jquery-ui-1.7.2.custom.css' />
-    <link rel="stylesheet" type="text/css" href="{{MEDIA_URL}}css/creme.css" />
-    <link rel="stylesheet" type="text/css" href="{{MEDIA_URL}}css/creme-ui.css" />
-    {% include "creme_core/frags/header_js_minimum.html" %}{% endcomment %}
     {% include_media 'main.css' %}
     {% include "creme_core/frags/js_header.html" %}
     <script language="javascript">

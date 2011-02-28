@@ -2,41 +2,41 @@
 {% load media %}
 <script type="text/javascript">
     $(function() {
-        creme.menu.actions.flatMenu('#actions_button_{{id}}', '#actions_div_{{id}}');
+        creme.menu.HNavIt('#actions_menu_{{id}}');
     });
 </script>
 
-<span class="fg-button fg-button-icon-right ui-widget ui-corner-all ui-state-default">
-    <a href="#actions_div_{{id}}" id="actions_button_{{id}}">
+<ul id="actions_menu_{{id}}" class="entity_menu ui-widget ui-corner-all ui-state-default">
+    <li>
         {% with actions.default as action %}
             {% if action %}
-                <img src="{% media_url 'images/small_down_arrow_16.png' %}"/>
-                </a>|
-                <a href="{{action.url}}" class="default-action">
-                    {% if action.icon %}<img src="{% media_url action.icon %}" />{% endif %}
+                <a href="{{action.url}}">
+                    | {% if action.icon %}<img src="{% media_url action.icon %}" />{% endif %}
                     {{action.text}}
+                </a>
             {% else %}
-                {% trans "Actions" %}
+                <a>{% trans "Actions" %}</a>
             {% endif %}
         {% endwith %}
-    </a>
-</span>
-<div id="actions_div_{{id}}" style="display: none;">
-    <ul>
-        {% for action in actions.others %}
-            <li>
-                {% if action.is_allowed %}
-                    <a href="{{action.url}}" {{action.attrs}}>
-                        {% if action.icon %}<img src="{% media_url action.icon %}" />{% endif %}
-                        {{action.text}}
-                    </a>
-                {% else %}
-                    <span class=" forbidden">
-                        {% if action.icon %}<img src="{% media_url action.icon %}" />{% endif %}
-                        {{action.text}} ({% trans "forbidden" %})
-                    </span>
-                {% endif %}
-            </li>
-        {% endfor %}
-    </ul>
-</div>
+        {% if actions.others %}
+<!--            <ul style="float: left; position: absolute; z-index: 10;" class="ui-widget ui-widget-content ui-corner-all ui-state-default">-->
+            <ul style="float: left; position: absolute; z-index: 10;" class="ui-widget ui-widget-content ui-corner-all">
+                {% for action in actions.others %}
+                    <li>
+                        {% if action.is_allowed %}
+                            <a href="{{action.url}}" {{action.attrs}}>
+                                {% if action.icon %}<img src="{% media_url action.icon %}" />{% endif %}
+                                {{action.text}}
+                            </a>
+                        {% else %}
+                            <span class=" forbidden">
+                                {% if action.icon %}<img src="{% media_url action.icon %}" />{% endif %}
+                                {{action.text}} ({% trans "forbidden" %})
+                            </span>
+                        {% endif %}
+                    </li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+    </li>
+</ul>
