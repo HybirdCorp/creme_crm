@@ -201,7 +201,7 @@ def add_user_calendar(request, calendar_id=None):
     user = request.user
     POST = request.POST
     if POST:
-        cal_form = CalendarForm(user, POST, instance=instance)
+        cal_form = CalendarForm(user=user, data=POST, instance=instance)
 
         if cal_form.is_valid():
             cal_form.save()
