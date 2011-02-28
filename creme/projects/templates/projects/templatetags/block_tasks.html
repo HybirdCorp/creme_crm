@@ -18,33 +18,38 @@
                 <th class="block_header_line_dark">{% trans "Effective duration (hours)" %}</th>
                 <th class="block_header_line_dark">{% trans "Status" %}</th>
                 <th class="block_header_line_dark">{% trans "Parent tasks" %}</th>
-                <th class="block_header_line_dark">{% trans "Delete" %}</th>
                 <th class="block_header_line_dark">{% trans "Cost" %}</th>
+                <th class="block_header_line_dark">{% trans "Delete" %}</th>
             </tr>
-            {% for task in page.object_list %}
-                <!-- {% cycle "block_line_dark" "block_line_light" as row_color %} -->
-                <tr>
+            {% for task in page.object_list %}<!-- {% cycle "block_line_dark" "block_line_light" as row_color %} -->
+                <tr>{% has_perm_to view task as view_perm %}{% has_perm_to change task as change_perm %}
                     <td class="{{row_color}}" align="center">{{task.order}}</td>
-                    <td class="{{row_color}}" align="center">
-                        <a href="/projects/task/{{task.id}}">{{task.title}}</a>
-                    </td>
-                    <td class="{{row_color}}" align="center">{{task.duration}}h</td>
-                    {% include 'projects/frag_task_delay_td.html' %}
-                    <td class="{{row_color}}" align="center">{{task.tstatus}}</td>
-                    <td class="{{row_color}}">
-                        {% for parent in task.get_parents %}
-                            <a href="/projects/task/{{parent.id}}">{{parent.title}}</a>
-                            {% has_perm_to change task as change_perm %}
-                            {% get_line_deletor2 at_url '/projects/task/parent/delete' with_args "{ 'id':{{task.pk}}, 'parent_id': {{parent.id}} }" with_perms change_perm %}
-                        {% empty %}
-                            {% trans "No parent task" %}
-                        {% endfor %}
-                    </td>
+                    {% if view_perm %}
+                        <td class="{{row_color}}" align="center"><a href="{{task.get_absolute_url}}">{{task}}</a></td>
+                        <td class="{{row_color}}" align="center">{{task.duration}}h</td>
+                        {% include 'projects/frag_task_delay_td.html' %}
+                        <td class="{{row_color}}" align="center">{{task.tstatus}}</td>
+                        <td class="{{row_color}}">
+                            {% for parent in task.get_parents %}
+                                <a href="/projects/task/{{parent.id}}">{{parent.title}}</a>
+                                {% get_line_deletor2 at_url '/projects/task/parent/delete' with_args "{ 'id':{{task.pk}}, 'parent_id': {{parent.id}} }" with_perms change_perm %}
+                            {% empty %}
+                                {% trans "No parent task" %}
+                            {% endfor %}
+                        </td>
+                        <td class="{{row_color}}" align="right">{{task.get_task_cost}} €</td>
+                    {% else %}
+                        <td class="{{row_color}}" align="center">{{task|allowed_unicode:user}}</td>
+                        <td class="{{row_color}}" align="center">?? h</td>
+                        <td class="{{row_color}}" align="center">?? h</td>
+                        <td class="{{row_color}}" align="center">??</td>
+                        <td class="{{row_color}}" align="center">??</td>
+                        <td class="{{row_color}}" align="right">?? €</td>
+                    {% endif %}
                     <td class="{{row_color}}" align="center" valign="center" style="width:10%;">
                         {% has_perm_to delete task as delete_perm %}
                         {% get_line_deletor2 at_url '/projects/task/delete' with_args "{'id' : {{task.pk}} }" with_perms delete_perm %}
                     </td>
-                    <td class="{{row_color}}" align="right">{{task.get_task_cost}} €</td>
                 </tr>
             {% endfor %}
         {% else %}

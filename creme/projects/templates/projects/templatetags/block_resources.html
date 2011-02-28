@@ -1,5 +1,5 @@
 {% load i18n %}
-{% load creme_core_tags %}{% load creme_block %}
+{% load creme_core_tags %}{% load creme_block %}{% load creme_widgets %}
 {% has_perm_to change object as task_change_perm %}
 <table class="table_detail_view ui-corner-all" id={{block_name}}>
     {% get_block_header colspan=3 %}
@@ -7,7 +7,6 @@
         <th style="width: 20%;" align="right">
             <div class="buttons">
                 {% if object.is_alive %}
-                    {% comment %}{% get_line_adder at_url '/projects/task/{{object.id}}/resource/add' with_label _("Add a resource from an existing contact") with_perms creation_perm %}{% endcomment %}
                     {% get_line_adder at_url '/projects/task/{{object.id}}/resource/add' with_label _("Add a resource from an existing contact") with_perms task_change_perm %}
                 {% endif %}
             </div>
@@ -27,15 +26,10 @@
                 <th class="block_header_line_dark">{% trans "Hourly cost" %}</th>
                 <th class="block_header_line_dark">{% trans "Actions" %}</th>
             </tr>
-            {% for resource in page.object_list %}
-                <!-- {% cycle "block_line_dark" "block_line_light" as row_color %} -->
+            {% for resource in page.object_list %}<!-- {% cycle "block_line_dark" "block_line_light" as row_color %} -->
                 <tr>
-                    <td class="{{row_color}}" align=center>
-                        <a href="/persons/contact/{{resource.linked_contact.id}}">{{resource.linked_contact}}</a>
-                    </td>
-                    <td class="{{row_color}}" align="center">
-                        {% blocktrans with resource.hourly_cost as cost %}{{cost}} € / hour{% endblocktrans %}
-                    </td>
+                    <td class="{{row_color}}" align="center">{% widget_entity_hyperlink resource.linked_contact user %}</td>
+                    <td class="{{row_color}}" align="center">{% blocktrans with resource.hourly_cost as cost %}{{cost}} € / hour{% endblocktrans %}</td>
                     <td class="{{row_color}}" align="center" valign="center" style="width:10%;">
                         {% comment %}TODO: use {{resource.get_edit_absolute_url}} ?? {% endcomment %}
                         {% get_line_editor at_url '/projects/resource/edit/{{resource.id}}' with_perms task_change_perm %}
