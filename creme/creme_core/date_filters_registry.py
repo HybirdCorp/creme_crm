@@ -24,11 +24,13 @@ from datetime import datetime
 from creme_core.utils.imports import find_n_import
 
 class DatetimeFilter(object):
-    def __init__(self, name, verbose_name, func_beg, func_end):
+    def __init__(self, name, verbose_name, func_beg, func_end, is_volatile=True):
         self.name = name
         self.verbose_name = verbose_name
         self.func_beg = func_beg
         self.func_end = func_end
+        self.is_volatile = is_volatile
+
 
     def get_begin(self):
         return self.func_beg(self, datetime.now())
