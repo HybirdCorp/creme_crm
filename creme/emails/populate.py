@@ -26,6 +26,8 @@ from creme_core.models.header_filter import HeaderFilterItem, HeaderFilter, HFI_
 from creme_core.utils import create_or_update_models_instance as create
 from creme_core.management.commands.creme_populate import BasePopulator
 
+from persons.models import Organisation, Contact
+
 from emails.models import MailingList, EmailCampaign, EmailTemplate, EntityEmail
 from emails.constants import (REL_SUB_MAIL_RECEIVED, REL_OBJ_MAIL_RECEIVED,
                               REL_SUB_MAIL_SENDED, REL_OBJ_MAIL_SENDED)
@@ -38,10 +40,10 @@ class Populator(BasePopulator):
         get_ct = ContentType.objects.get_for_model
 
         RelationType.create((REL_SUB_MAIL_RECEIVED, _(u"(email) received by"), [EntityEmail]),
-                            (REL_OBJ_MAIL_RECEIVED, _(u"received the email")))
+                            (REL_OBJ_MAIL_RECEIVED, _(u"received the email"), [Organisation, Contact]))
 
         RelationType.create((REL_SUB_MAIL_SENDED, _(u"(email) sended"), [EntityEmail]),
-                            (REL_OBJ_MAIL_SENDED, _(u"sended the email")))
+                            (REL_OBJ_MAIL_SENDED, _(u"sended the email"), [Organisation, Contact]))
 
         hf_id = create(HeaderFilter, 'emails-hf_mailinglist', name=_(u'Mailing list view'), entity_type_id=get_ct(MailingList).id, is_custom=False).id
         create(HeaderFilterItem, 'emails-hf_mailinglist_name', order=1, name='name', title=_(u'Name'), type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True, editable=True, filter_string="name__icontains")
