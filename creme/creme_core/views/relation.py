@@ -256,7 +256,7 @@ def add_relations(request, subject_id, relation_type_id=None):
 
 #TODO: use EntityCredentials.filter to filter allowed entities for this user
 @login_required
-def add_relations_bulk(request, model_ct_id, ids):
+def add_relations_bulk(request, model_ct_id, ids, relations_types=None):
     """
         NB: Is internal relation type is verified in MultiEntitiesRelationCreateForm clean
     """
@@ -269,13 +269,17 @@ def add_relations_bulk(request, model_ct_id, ids):
     for entity in entities:
         entity.can_change_or_die(request.user)
 
+    if relations_types is not None:
+        relations_types = relations_types.split(',')
+
     if POST:
-        form = MultiEntitiesRelationCreateForm(entities, request.user.id, None, POST)
+        form = MultiEntitiesRelationCreateForm(entities, request.user.id, None, POST, relations_types)
 
         if form.is_valid():
             form.save()
     else:
-        form = MultiEntitiesRelationCreateForm(subjects=entities, user_id=request.user.id)
+        form = MultiEntitiesRelationCreateForm(subjects=entities, user_id=request.user.id,
+                                               relations_types=relations_types)
 
     return inner_popup(request, 'creme_core/generics/blockform/add_popup2.html',
                        {

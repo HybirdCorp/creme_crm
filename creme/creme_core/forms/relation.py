@@ -86,8 +86,8 @@ class RelationCreateForm(CremeForm):
 class MultiEntitiesRelationCreateForm(RelationCreateForm):
     entities_lbl = CharField(label=_(u"Related entities"), widget=Label())
 
-    def __init__(self, subjects, user_id, *args, **kwargs):
-        super(MultiEntitiesRelationCreateForm, self).__init__(subjects[0], user_id, *args, **kwargs)
+    def __init__(self, subjects, user_id, relations_types=None, *args, **kwargs):
+        super(MultiEntitiesRelationCreateForm, self).__init__(subjects[0], user_id, relations_types, *args, **kwargs)
         self.subjects = subjects
         self.user_id = user_id
 
