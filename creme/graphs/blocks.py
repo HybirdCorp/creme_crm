@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2011  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -20,6 +20,7 @@
 
 from django.utils.translation import ugettext_lazy as _
 
+from creme_core.models import CremeEntity
 from creme_core.gui.block import QuerysetBlock
 
 from graphs.models import RootNode
@@ -33,9 +34,15 @@ class RootNodesBlock(QuerysetBlock):
 
     def detailview_display(self, context):
         graph = context['object']
-        return self._render(self.get_block_template_context(context, graph.roots.all(),
-                                                            update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, graph.pk),
-                                                            ))
+        btc = self.get_block_template_context(context, graph.roots.select_related('entity'),
+                                              update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, graph.pk),
+                                             )
+
+        entities = [node.entity for node in btc['page'].object_list]
+        CremeEntity.populate_real_entities(entities)
+        CremeEntity.populate_credentials(entities, context['user'])
+
+        return self._render(btc)
 
 
 class OrbitalRelationTypesBlock(QuerysetBlock):
@@ -46,9 +53,10 @@ class OrbitalRelationTypesBlock(QuerysetBlock):
 
     def detailview_display(self, context):
         graph = context['object']
-        return self._render(self.get_block_template_context(context, graph.orbital_relation_types.all(),
+        return self._render(self.get_block_template_context(context,
+                                                            graph.orbital_relation_types.select_related('symmetric_type'),
                                                             update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, graph.pk),
-                                                            ))
+                                                           ))
 
 
 root_nodes_block     = RootNodesBlock()

@@ -20,8 +20,8 @@
             </tr>
             {% for rnode in page.object_list %}<!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
                 <tr>
-                    <td class="{{row_color}}"><a href="{{rnode.entity.get_absolute_url}}">{{rnode.entity}}</a></td>
-                    <td class="{{row_color}}">{% widget_select_or_msg rnode.relation_types.all _('No type of relation') %}</td>
+                    <td class="{{row_color}}">{% widget_entity_hyperlink rnode.entity user %}</td>
+                    <td class="{{row_color}}">{% widget_select_or_msg rnode.get_relation_types _('No type of relation') %}</td>
                     <td class="{{row_color}}" align="center" valign="center" style="width:10%;">
                         {% get_line_editor at_url '/graphs/root/edit/{{rnode.id}}/' with_perms has_perm %}
                         {% get_line_unlinker at_url '/graphs/root/delete' with_args "{'id':{{rnode.pk}} }" with_perms has_perm %}

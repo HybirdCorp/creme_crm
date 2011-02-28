@@ -42,11 +42,12 @@ def add(request):
 @permission_required('graphs')
 def dl_png(request, graph_id):
     graph = get_object_or_404(Graph, pk=graph_id)
+    user  = request.user
 
-    graph.can_view_or_die(request.user)
+    graph.can_view_or_die(user)
 
     try:
-        return graph.generate_png()
+        return graph.generate_png(user)
     except Graph.GraphException:
         return render_to_response("graphs/graph_error.html",
                                   {'error_message': _(u"This graph is too big!")},
