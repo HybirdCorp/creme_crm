@@ -1,5 +1,5 @@
 {% load i18n %}{% load media %}
-{% load creme_core_tags %}{% load creme_block %}
+{% load creme_core_tags %}{% load creme_block %}{% load creme_widgets %}
 <table class="table_detail_view ui-corner-all" id={{block_name}}>
     {% get_block_header colspan=6 %}
         <th style="width: 80%;" class="collapser">{% get_block_title _('%s User message') _('%s User messages') 'message_48.png' _('Message') %}</th>
@@ -30,7 +30,7 @@
                         <td class="{{row_color}}">
                             {% with message.creme_entity as creme_entity%}
                                 {% if creme_entity %}
-                                    <a href="{{creme_entity.get_absolute_url}}">{{creme_entity|allowed_unicode:user}}</a>
+                                    {% widget_entity_hyperlink creme_entity user %}
                                 {% else %}
                                     {% trans "(None)" %}
                                 {% endif %}

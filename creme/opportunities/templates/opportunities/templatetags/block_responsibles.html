@@ -1,5 +1,5 @@
 {% load i18n %}{% load media %}
-{% load creme_core_tags %}{% load creme_block %}
+{% load creme_core_tags %}{% load creme_block %}{% load creme_widgets %}
 {% has_perm_to link object as link_perm %}{% has_perm_to unlink object as unlink_perm %}
 <table  class="table_detail_view ui-corner-all" id={{block_name}}>
     {% get_block_header colspan=2 %}
@@ -18,7 +18,7 @@
             </tr>
             {% for resp in page.object_list %}<!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
                 <tr>
-                    <td class="{{row_color}}"><a href="{{resp.get_absolute_url}}">{{resp|allowed_unicode:user}}</a></td>
+                    <td class="{{row_color}}">{% widget_entity_hyperlink resp user %}</td>
                     <td class="{{row_color}}" align="center" valign="center" style="width:10%;">
                         {% has_perm_to unlink resp as resp_unlink_perm %}
                         {% get_line_unlinker at_url '/creme_core/relation/delete/similar' with_args "{'subject_id':{{object.pk}}, 'type':'{{predicate_id}}', 'object_id':{{resp.pk}} }" with_perms unlink_perm|and_op:resp_unlink_perm %}
