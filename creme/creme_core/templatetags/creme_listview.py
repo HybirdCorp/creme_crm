@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2011  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -157,13 +157,19 @@ def get_listview_columns_header(context):
 
     return context
 
-#get_html_output################################################################
+#get_listview_cell##############################################################
 
 def _render_relations(entity, hfi, user):
     relations_list = ["<ul>"]
-    relations_list.extend(u'<li><a href="%s">%s</a></li>' % (e.get_absolute_url(), escape(e.allowed_unicode(user)))
-                            for e in entity.get_related_entities(hfi.relation_predicat_id, True))
-    relations_list.append("</ul>")
+    append = relations_list.append
+
+    for e in entity.get_related_entities(hfi.relation_predicat_id, True):
+        if e.can_view(user):
+            append(u'<li><a href="%s">%s</a></li>' % (e.get_absolute_url(), escape(unicode(e))))
+        else:
+            append(u'<li>%s</li>' % escape(e.allowed_unicode(user)))
+
+    append("</ul>")
 
     return u''.join(relations_list)
 
@@ -176,12 +182,12 @@ _RENDER_FUNCS = { #TODO: use a method in HeaderFilterItem ??
 }
 
 @register.simple_tag
-def hf_get_html_output(hfi, entity, user):
+def get_listview_cell(hfi, entity, user):
     try:
         render_func = _RENDER_FUNCS.get(hfi.type)
         if render_func:
             return render_func(entity, hfi, user)
     except AttributeError, e:
-        debug('Templatetag "hf_get_html_output": %s', e)
+        debug('Templatetag "get_listview_cell": %s', e)
 
     return u""
