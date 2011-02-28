@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2011  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -241,6 +241,48 @@ class LineDeletorNode2(TemplateNode):
         context['delete_line_perm'] = context[self.perm_name]
 
         return self.deletor_tpl.render(context)
+
+#-------------------------------------------------------------------------------
+#TODO: factorise with get_line_deletor2...
+_line_unlinker_re = compile_re(r'at_url (.*?) with_args (.*?) with_perms (.*?)$')
+
+@register.tag(name="get_line_unlinker")
+def do_line_unlinker(parser, token):
+    """Eg: {% get_line_unlinker at_url '/app/model/unlink' with_args "{'id' : {{object.id}} }" with_perms boolean_variable %}"""
+    try:
+        # Splitting by None == splitting by spaces.
+        tag_name, arg = token.contents.split(None, 1)
+    except ValueError:
+        raise TemplateSyntaxError, "%r tag requires arguments" % token.contents.split()[0]
+
+    match = _line_unlinker_re.search(arg)
+    if not match:
+        raise TemplateSyntaxError, "%r tag had invalid arguments" % tag_name
+
+    unlink_url, post_args, perm_str = match.groups()
+
+    for group in (unlink_url, post_args):
+        first_char = group[0]
+        if not (first_char == group[-1] and first_char in ('"', "'")):
+            raise TemplateSyntaxError, "%r tag's argument should be in quotes" % tag_name
+
+    return LineUnlinkerNode(unlink_url[1:-1], post_args[1:-1],
+                            TemplateLiteral(parser.compile_filter(perm_str), perm_str)
+                           )
+
+class LineUnlinkerNode(TemplateNode):
+    def __init__(self, unlink_url, post_args, perm_var):
+        self.unlinker_tpl = get_template('creme_core/templatetags/widgets/block_line_unlinker.html')
+        self.url_tpl = Template(unlink_url)
+        self.args_tpl = Template(post_args)
+        self.perm_var = perm_var
+
+    def render(self, context):
+        context['unlink_url'] = self.url_tpl.render(context)
+        context['post_args'] = self.args_tpl.render(context)
+        context['unlink_line_perm'] = self.perm_var.eval(context)
+
+        return self.unlinker_tpl.render(context)
 
 #-------------------------------------------------------------------------------
 _line_editor_re = compile_re(r'at_url (.*?) with_perms (\w+)$')

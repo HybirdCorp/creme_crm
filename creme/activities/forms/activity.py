@@ -160,10 +160,10 @@ class ActivityCreateForm(CremeEntityForm):
     end_time   = CremeTimeField(label=_(u'End time'), required=False)
 
     is_comapp = BooleanField(required=False, label=_(u"Is a commercial approach ?"),
-                             help_text=_(u"All participants (except users), subjects and linked entities will be linked to a commercial approach.")
-                            )
+                             help_text=_(u"All participants (except users), subjects and linked entities will be linked to a commercial approach."),
+                             initial=True)
 
-    my_participation    = BooleanField(required=False, label=_(u"Do I participate to this meeting ?"))
+    my_participation    = BooleanField(required=False, label=_(u"Do I participate to this meeting ?"),initial=True)
     my_calendar         = ModelChoiceField(queryset=Calendar.objects.none(), required=False, label=_(u"On which of my calendar this activity will appears?"), empty_label=None)
     participating_users = ModelMultipleChoiceField(label=_(u'Other participating users'), queryset=User.objects.all(),
                                                    required=False, widget=UnorderedMultipleChoiceWidget
@@ -199,9 +199,9 @@ class ActivityCreateForm(CremeEntityForm):
 
         #TODO: refactor this with a smart widget that manages dependencies
         data = kwargs.get('data') or {}
-        if not data.get('my_participation', False):
-            fields['my_calendar'].widget.attrs['disabled']  = 'disabled'
-        fields['my_participation'].widget.attrs['onclick'] = "if($(this).is(':checked')){$('#id_my_calendar').removeAttr('disabled');}else{$('#id_my_calendar').attr('disabled', 'disabled');}"
+#        if not data.get('my_participation', False):
+#            fields['my_calendar'].widget.attrs['disabled']  = 'disabled'
+#        fields['my_participation'].widget.attrs['onclick'] = "if($(this).is(':checked')){$('#id_my_calendar').removeAttr('disabled');}else{$('#id_my_calendar').attr('disabled', 'disabled');}"
 
         fields['participating_users'].queryset = User.objects.exclude(pk=current_user.id)
         fields['other_participants'].q_filter = {'is_user__isnull': True}

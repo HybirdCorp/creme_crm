@@ -31,7 +31,7 @@ from creme_core.models.list_view_state import ListViewState
 from creme_core.models.header_filter import HeaderFilter, HeaderFilterList
 from creme_core.forms.header_filter import HeaderFilterForm
 from creme_core.views.generic import add_entity
-from creme_core.utils import get_ct_or_404
+from creme_core.utils import get_ct_or_404, get_from_POST_or_404
 
 
 def _set_current_hf(request, path, hf_instance):
@@ -81,27 +81,19 @@ def edit(request, header_filter_id):
 
 @login_required
 def delete(request):
-    hf           = get_object_or_404(HeaderFilter, pk=request.POST['id'])
+    hf           = get_object_or_404(HeaderFilter, pk=get_from_POST_or_404(request.POST, 'id'))
     callback_url = hf.entity_type.model_class().get_lv_absolute_url()
-    return_msg   = _(u'View sucessfully deleted')
-    status       = 200
-    is_ajax      = request.is_ajax()
 
     if hf.is_custom:
-        #die_status = delete_object_or_die(request, hf) #TODO: credentials on non-entity models ???
-        if die_status:
-            if not is_ajax:
-                return die_status
-            else:
-                return_msg = _(u'Permission denied')
-                status = 400
-        else:
-            hf.delete()
+        hf.delete()
+
+        return_msg = _(u'View sucessfully deleted')
+        status = 200
     else:
         return_msg = _(u"This view can't be deleted")
         status = 400
 
-    if is_ajax:
+    if request.is_ajax():
         return HttpResponse(return_msg, mimetype="text/javascript", status=status)
 
     return HttpResponseRedirect(callback_url)
