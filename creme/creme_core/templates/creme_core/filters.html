@@ -3,7 +3,6 @@
 {% load media %}
 
 {% block extrahead %}
-{% comment %} <script type="text/javascript" src="{{MEDIA_URL}}js/models/filters.js"></script> {% endcomment %}
 {% with 0 as AND %}
 {% with 1 as OR %}
 <script type="text/javascript">
@@ -25,7 +24,7 @@
 
         if($(node).children().length)
             $(node).children().each(function(){replaceAttr($(this), attr, oldvalue, count, is_just_append);})
-            
+
     }
 
     function showErrorDialog(text)
@@ -50,12 +49,12 @@
         var count = $('#line_count').val();
         count = (isNaN(parseInt(count)))?1:(parseInt(count)+1);
         $('#line_count').val(count);
-        
+
         var tr_complet = $('#line_model').clone();
 
         replaceAttr(tr_complet, 'id', 'model', count, false);
         replaceAttr(tr_complet, 'name', '', '_'+count, true);
-        
+
         var tr_test = $('#line_test_model').clone();
         replaceAttr(tr_test, 'id', 'model', count, false);
         replaceAttr(tr_test, 'name', '', '_'+count, true);
@@ -83,39 +82,31 @@
             if(value!="")
             {
                 $.ajax({
-                    url : '/creme_core/filter/getfieldfk/',
+                    url : '/creme_core/filter/field_has_n_get_fk',
                     type : 'POST',
                     async : false,
                     data : {fieldname : ''+value, ct_id : {{content_type_id}} },
                     dataType : "json",
                     error : function(XMLHttpRequest, textStatus, errorThrown)
                     {
-                        
+
                     },
                     success :  function(data, textStatus)
                     {
-                        if(data != "")
+                        select_fk.empty();
+                        for(var couple in data)
                         {
-                            select_fk.empty();
-                            for(var couple in data)
-                            {
-                                var values = data[couple];
-                                select_fk.append(
-                                    $('<option></option>')
-                                        .val(values[0])
-                                        .text(values[1])
-                                );
-                            }
+                            var values = data[couple];
+                            select_fk.append(
+                                $('<option></option>')
+                                    .val(values[0])
+                                    .text(values[1])
+                            );
                         }
-                        else
-                        {
-                            select_fk.empty();
-                        }
-                            
                     },
                     complete : function(XMLHttpRequest, textStatus)
                     {
-                        
+
                     }
                 });
             }
@@ -127,7 +118,7 @@
         if(selected_champ && selected_champ != "")
             select_field.val(selected_champ);
 
-        
+
 
         if(selected_value && selected_value != "")
             $('#id_value_'+count).val(selected_value);
@@ -187,7 +178,7 @@
             var value = already_selected[option];
             select_field.children('[value="'+value+'"]').remove();
         }
-        
+
         if(selected_value && selected_value != "")
             select_field.val(selected_value);
 
@@ -196,13 +187,13 @@
                 var value = $(this).val();
                 $('#table_filter select[id^="id_global_test"]').each(function(){$(this).val(value);})
         });
-        
+
         if(selected_globaltest && selected_globaltest != "")
         {
             $('#id_global_test_filter_'+count).val(selected_globaltest == "True" ? {{OR}} : {{AND}});
             $('#id_global_test_filter_'+count).change();
         }
-        
+
         if(select_field.children().size() > 0)
         {
             $('#ids_filter').val($('#ids_filter').val()+count+',');
@@ -229,7 +220,7 @@
         var tr_relation = $('#relation_model').clone();
         replaceAttr(tr_relation, 'id', 'model', count, false);
         replaceAttr(tr_relation, 'name', '', '_'+count, true);
-        
+
         var tr_test = $('#line_test_model').clone();
         replaceAttr(tr_test, 'id', 'model', 'filter_'+count, false);
         replaceAttr(tr_test, 'name', 'model', 'filter_'+count, false);
@@ -391,7 +382,7 @@
         line.hide('slow');
         line.empty();
         line.remove();
-        
+
         var line_test = $('#line_test_'+id);
         line_test.hide('slow');
         line_test.empty();
@@ -399,7 +390,7 @@
 
         var new_ids = $('#ids').val().replace(id+',','');
         $('#ids').val(new_ids);
-        
+
     }
 
     function removeFilterLine(id)
@@ -576,6 +567,7 @@
     <div id="editforms">
         <form id="filterform" action="" method="POST" {% if form.is_multipart %}enctype="multipart/form-data"{% endif %}>{% csrf_token %}
             <p>{% trans "Name of the filter" %}  : {{form.nom}}</p>
+            <p>{% trans "Owner" %}  : {{form.user}}</p>
 
             <table width="100%">
                 <tbody>

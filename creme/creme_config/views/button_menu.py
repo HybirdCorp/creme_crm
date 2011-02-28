@@ -18,24 +18,24 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.http import HttpResponseRedirect, Http404, HttpResponse
+from django.http import Http404, HttpResponse
 from django.shortcuts import render_to_response
 from django.template.context import RequestContext
+from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required, permission_required
+from django.contrib.contenttypes.models import ContentType
 
 from creme_core.models import ButtonMenuItem
-from creme_core.views.generic import add_entity
+from creme_core.views.generic import add_model_with_popup, inner_popup
 from creme_core.utils import get_from_POST_or_404
 
 from creme_config.forms.button_menu import ButtonMenuAddForm, ButtonMenuEditForm
 
 
-portal_url = '/creme_config/button_menu/portal/'
-
 @login_required
 @permission_required('creme_config.can_admin')
 def add(request):
-    return add_entity(request, ButtonMenuAddForm, portal_url)
+    return add_model_with_popup(request, ButtonMenuAddForm, _(u'New buttons configuration'))
 
 @login_required
 @permission_required('creme_config')
@@ -47,30 +47,34 @@ def portal(request):
 @login_required
 @permission_required('creme_config.can_admin')
 def edit(request, ct_id):
-    ct_id = int(ct_id)
-
-    if not ct_id:
-        bmi = ButtonMenuItem.objects.filter(content_type=None)
-    else:
-        bmi = ButtonMenuItem.objects.filter(content_type__id=ct_id)
-
-    bmi.order_by('order')
+    ct_id = int(ct_id) or None
+    bmi = ButtonMenuItem.objects.filter(content_type=ct_id).order_by('order')
 
     if not bmi:
         raise Http404 #bof bof
 
     if request.method == 'POST':
-        buttons_form = ButtonMenuEditForm(bmi, ct_id, request.POST)
+        buttons_form = ButtonMenuEditForm(bmi, ct_id, user=request.user, data=request.POST)
 
         if buttons_form.is_valid():
             buttons_form.save()
-            return HttpResponseRedirect(portal_url)
     else:
-        buttons_form = ButtonMenuEditForm(bmi, ct_id)
+        buttons_form = ButtonMenuEditForm(bmi, ct_id, user=request.user)
 
-    return render_to_response('creme_core/generics/blockform/edit.html',
-                              {'form': buttons_form},
-                              context_instance=RequestContext(request))
+    title = _(u'Edit configuration for %s') % ContentType.objects.get_for_id(ct_id) if ct_id  else \
+            _(u'Edit default configuration')
+
+    return inner_popup(request,
+                       'creme_core/generics/blockform/edit_popup.html',
+                       {
+                        'form':  buttons_form,
+                        'title': title,
+                       },
+                       is_valid=buttons_form.is_valid(),
+                       reload=False,
+                       delegate_reload=True,
+                       context_instance=RequestContext(request)
+                      )
 
 @login_required
 @permission_required('creme_config.can_admin')

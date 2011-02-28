@@ -35,17 +35,34 @@ creme.widget.DynamicSelect = creme.widget.declare('ui-creme-dselect', {
 
         self._fill(element, opts, cb, error_cb, sync);
     },
+    
+    _staticfill: function(element, data) {
+    	var self = creme.widget.DynamicSelect;
+    	
+    	//console.log('dselect._staticfill > ' + element + ' > ' + data);
+        
+    	creme.forms.Select.fill(element, data);
+    	element.addClass('widget-ready');
+    	
+    	($('option', element).length > 1) ? element.removeAttr('disabled') : element.attr('disabled', 'disabled');
+    },
 
-    _ajaxfill: function(element, source, url, cb, error_cb, sync) {
-        source(url, function(data) {
-            creme.forms.Select.fill(element, data);
-            element.addClass('widget-ready');
-            element.change();
-            if (cb != undefined) cb(element);
-        }, function(error) {
-            element.addClass('widget-ready');
-            if (error_cb != undefined) error_cb(element, error);
-        }, sync);
+    _ajaxfill: function(element, source, url, cb, error_cb, sync) 
+    {
+    	var self = creme.widget.DynamicSelect;
+    	element.removeClass('widget-ready');
+    	
+        source(url,
+        	   function(data) {
+		           self._staticfill(element, data);
+		           if (cb != undefined) cb(element);
+		       },
+			   function(error) {
+		           element.addClass('widget-ready');
+		    	   ($('option', element).length > 1) ? element.removeAttr('disabled') : element.attr('disabled', 'disabled');
+		           if (error_cb != undefined) error_cb(element, error);
+			   }, 
+			   sync);
     },
 
     _fill: function(element, args, cb, error_cb, sync) {
@@ -54,27 +71,30 @@ creme.widget.DynamicSelect = creme.widget.declare('ui-creme-dselect', {
         var url = args['url'];
         var options = args['options'];
 
-        if (options != undefined) {
-            creme.forms.Select.fill(element, options);
-        } else if (url != undefined && url.length > 0) {
+        if (options !== undefined) {
+        	self._staticfill(element, options);
+        } else if (url !== undefined && url.length > 0) {
             self._ajaxfill(element, source, url, cb, error_cb, sync);
+        } else {
+        	element.addClass('widget-ready');
+        	($('option', element).length > 1) ? element.removeAttr('disabled') : element.attr('disabled', 'disabled');
         }
 
         if (cb != undefined) cb(element);
     },
 
     val: function(element, value) {
-        console.log(element, value);
+        //console.log(element, value, element.val());
 
         if (value !== undefined)
             return element.val(value).change();
 
-        return element.val(value);
+        return element.val();
     },
 
     clone: function(element) {
+    	var self = creme.widget.DynamicSelect;
         var copy = creme.widget.clone(element);
-        copy.val(element.val(value));
         return copy;
     }
 });

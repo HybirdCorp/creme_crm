@@ -1,21 +1,9 @@
 {% extends "creme_core/detailview.html" %}
 {% load i18n %}
 {% load media %}
-{% load creme_core_tags %}{% load queryset_tags %}{% load report_tags %}{% load graph_tags %}
+{% load creme_core_tags %}{% load creme_queryset %}{% load report_tags %}{% load graph_tags %}
 
 {% block page_title %} - {% blocktrans %}Rendered {{object}}{% endblocktrans %}{% endblock %}
-
-{% comment %}{% block extrahead %}
-{{block.super}}
-<script type="text/javascript" src="{{MEDIA_URL}}js/libs/graphael/prod/raphael-1.5.2.min.js"></script>
-<script type="text/javascript" src="{{MEDIA_URL}}js/libs/graphael/prod/g.raphael-min.js"></script>
-<script type="text/javascript" src="{{MEDIA_URL}}js/libs/graphael/prod/g.line-min.js"></script>
-<script type="text/javascript" src="{{MEDIA_URL}}js/libs/graphael/prod/g.pie-min.js"></script>
-<script type="text/javascript" src="{{MEDIA_URL}}js/libs/graphael/prod/g.dot-min.js"></script>
-<script type="text/javascript" src="{{MEDIA_URL}}js/libs/graphael/prod/g.bar-min.js"></script>
-<script type='text/javascript' src='{{MEDIA_URL}}js/datejs/date-fr-FR.js'></script>{# TODO: i18n  datejs has 150 availables languages#}
-<script type="text/javascript" src="{{MEDIA_URL}}js/creme/creme.graphael.js"></script>
-{% endblock %}{% endcomment %}
 
 {% block before_content_1 %}
     <table class="table_header" cellpadding="0" cellspacing="0">

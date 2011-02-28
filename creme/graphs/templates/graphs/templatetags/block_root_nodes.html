@@ -7,18 +7,7 @@
         <th style="width: 80%;" class="collapser" align="left">{% get_block_title _('%s Root node') _('%s Root nodes') 'graph_48.png' _('Root nodes') %}</th>
         <th style="width: 20%;" align="right">
             <div class="buttons">
-                {% comment %}{% get_line_adder at_url '/graphs/graph/{{object.pk}}/roots/add' with_label _("Add root nodes from existing entities") with_perms has_perm %}{% endcomment %}
-                {% if has_perm %}
-                    <a class="add" href="/graphs/graph/{{object.pk}}/roots/add">
-                        <img src="{% media_url 'images/add_22.png' %}" border="0" title="{% trans "Add root nodes" %}" alt="{% trans "Add root nodes" %}" />
-                        {% trans "Add root nodes from existing entities" %}
-                    </a>
-                {% else %}
-                    <span class="add forbidden">
-                        <img src="{% media_url 'images/add_22.png' %}" border="0" title="{% trans "Can't add" %}" alt="{% trans "Can't add" %}" />
-                        {% trans "Add root nodes from existing entities" %}
-                    </span>
-                {% endif %}
+                {% get_line_adder at_url '/graphs/graph/{{object.pk}}/roots/add' with_label _("Add root nodes from existing entities") with_perms has_perm %}
             </div>
         </th>
     {% end_get_block_header %}
@@ -29,15 +18,10 @@
                 <th class="block_header_line_dark">{% trans "Types of relation" %}</th>
                 <th class="block_header_line_dark">{% trans "Actions" %}</th>
             </tr>
-            {% for rnode in page.object_list %}
-                <!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
+            {% for rnode in page.object_list %}<!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
                 <tr>
-                    <td class="{{row_color}}">
-                        <a href="{{rnode.entity.get_absolute_url}}">{{rnode.entity}}</a>
-                    </td>
-                    <td class="{{row_color}}">
-                        {% widget_select_or_msg rnode.relation_types.all _('No type of relation') %}
-                    </td>
+                    <td class="{{row_color}}"><a href="{{rnode.entity.get_absolute_url}}">{{rnode.entity}}</a></td>
+                    <td class="{{row_color}}">{% widget_select_or_msg rnode.relation_types.all _('No type of relation') %}</td>
                     <td class="{{row_color}}" align="center" valign="center" style="width:10%;">
                         {% get_line_editor at_url '/graphs/root/edit/{{rnode.id}}/' with_perms has_perm %}
                         {% get_line_unlinker at_url '/graphs/root/delete' with_args "{'id':{{rnode.pk}} }" with_perms has_perm %}

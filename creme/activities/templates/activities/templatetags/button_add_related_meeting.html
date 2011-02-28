@@ -1,0 +1,13 @@
+{% load i18n %}{% load media %}
+{% load creme_core_tags %}{% has_perm_to link object as link_perm %}
+{% if has_perm and link_perm %}
+    <a class="menu_button" onclick="creme.activities.select_one('/activities/activity/add_related/meeting?id_entity_for_relation={{object.id}};ct_entity_for_relation={{object.entity_type_id}}', '{{object.entity_type_id}}');">
+        <img src="{% media_url 'images/map_32.png' %}" border="0" title="{% trans "Meeting" %}" alt="{% trans "Meeting" %}" />
+        {% trans "Create a meeting" %}
+    </a>
+{% else %}
+    <span class="menu_button forbidden" title="{% trans "forbidden" %}">
+        <img src="{% media_url 'images/map_32.png' %}" border="0" title="{% trans "Meeting" %}" alt="{% trans "Meeting" %}" />
+        {% trans "Create a meeting" %}
+    </span>
+{% endif %}

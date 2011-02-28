@@ -31,7 +31,6 @@ from django.contrib.contenttypes.models import ContentType
 
 from creme_core.models import CremeEntity, Filter, ListViewState, EntityCredentials
 from creme_core.models.header_filter import HeaderFilterList
-from creme_core.gui.last_viewed import change_page_for_last_item_viewed
 from creme_core.utils.queries import get_q_from_dict
 from popup import inner_popup
 
@@ -75,8 +74,7 @@ def _build_entities_page(request, list_view_state, queryset, size):
 
     return entities_page
 
-@login_required
-@change_page_for_last_item_viewed
+@login_required #TODO: remove ??
 def list_view(request, model, hf_pk='', extra_dict=None, template='creme_core/generics/list_entities.html', show_actions=True, extra_q=None, o2m=False, post_process=None):
     """ Generic list_view wrapper / generator
     Accept only CremeEntity model and subclasses
@@ -184,6 +182,7 @@ def list_view_popup_from_widget(request, ct_id, o2m, *args, **kwargs):
     o2m = bool(int(o2m))
 
     json_str_q_filter = str(req_get('q_filter', {}))
+    show_actions      = bool(int(req_get('sa', False)))
 
     extra_dict = {
                     'list_view_template': 'creme_core/frags/list_view_popup.html',
@@ -212,6 +211,6 @@ def list_view_popup_from_widget(request, ct_id, o2m, *args, **kwargs):
     if supplied_extra_q:
         extra_q &= supplied_extra_q
 
-    response = list_view_popup(request, model, extra_dict=extra_dict, o2m=o2m, extra_q=extra_q, *args, **kwargs)
+    response = list_view_popup(request, model, extra_dict=extra_dict, o2m=o2m, extra_q=extra_q, show_actions=show_actions, *args, **kwargs)
 
     return inner_popup(request, '', {}, is_valid=False, html=response._get_content(), context_instance=RequestContext(request))

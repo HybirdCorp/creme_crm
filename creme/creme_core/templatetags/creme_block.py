@@ -127,48 +127,103 @@ def get_column_header(context, column_name, field_name):
 
 
 #-------------------------------------------------------------------------------
-_line_adder_re = compile_re(r'at_url (.*?) with_label (.*?) with_perms (\w+)$')
+_LINE_CREATOR_RE = compile_re(r'at_url (.*?) with_label (.*?) with_perms (.*?)$')
 
-@register.tag(name="get_line_adder")
-def do_line_adder(parser, token):
-    """Eg: {% get_line_adder at_url '/assistants/action/add/{{object.id}}/' with_label _("New action") with_perms has_perm %}"""
+def _do_line_creator(parser, token, template_path):
     try:
         tag_name, arg = token.contents.split(None, 1) # Splitting by None == splitting by spaces.
     except ValueError:
         raise TemplateSyntaxError, "%r tag requires arguments" % token.contents.split()[0]
 
-    match = _line_adder_re.search(arg)
+    match = _LINE_CREATOR_RE.search(arg)
     if not match:
         raise TemplateSyntaxError, "%r tag had invalid arguments" % tag_name
 
-    add_url, label_str, perm_name = match.groups()
+    url, label_str, perm_str = match.groups()
 
-    first_char = add_url[0]
-    if not (first_char == add_url[-1] and first_char in ('"', "'")):
+    first_char = url[0]
+    if not (first_char == url[-1] and first_char in ('"', "'")):
         raise TemplateSyntaxError, "%r tag's url argument should be in quotes" % tag_name
 
-    label_var = TemplateLiteral(parser.compile_filter(label_str), label_str)
+    compile_filter = parser.compile_filter
 
-    return LineAdderNode(add_url[1:-1], label_var, perm_name)
+    return LineCreatorNode(url=url[1:-1],
+                           label_var=TemplateLiteral(compile_filter(label_str), label_str),
+                           perm_var=TemplateLiteral(compile_filter(perm_str), perm_str),
+                           template_path=template_path
+                          )
 
-class LineAdderNode(TemplateNode):
-    def __init__(self, add_url,  label_var, perm_name):
-        self.adder_tpl = get_template('creme_core/templatetags/widgets/block_line_adder.html')
-        self.url_tpl   = Template(add_url)
-        self.perm_name = perm_name
+class LineCreatorNode(TemplateNode):
+    def __init__(self, url,  label_var, perm_var, template_path):
+        self.template  = get_template(template_path)
+        self.url_tpl   = Template(url)
+        self.perm_var  = perm_var
         self.label_var = label_var
 
     def render(self, context):
-        context['add_url'] = self.url_tpl.render(context)
-        context['label'] = self.label_var.eval(context)
-        context['add_line_perm'] = context[self.perm_name]
+        context['action_url'] = self.url_tpl.render(context)
+        context['label']      = self.label_var.eval(context)
+        context['line_perm']  = self.perm_var.eval(context)
 
-        return self.adder_tpl.render(context)
+        return self.template.render(context)
+
+@register.tag(name="get_line_adder")
+def do_line_adder(parser, token):
+    """Eg: {% get_line_adder at_url '/app/model/add/{{object.id}}/' with_label _("New Stuff") with_perms has_perm %}"""
+    return _do_line_creator(parser, token, 'creme_core/templatetags/widgets/block_line_adder.html')
+
+@register.tag(name="get_line_linker")
+def do_line_linker(parser, token):
+    """Eg: {% get_line_linker at_url '/assistants/action/link/{{object.id}}/' with_label _("Link to existing Stuffs") with_perms has_perm %}"""
+    return _do_line_creator(parser, token, 'creme_core/templatetags/widgets/block_line_linker.html')
 
 #-------------------------------------------------------------------------------
-_line_deletor_re = compile_re(r'at_url (.*?) with_args (.*?)$')
+_LINE_RELATOR_RE = compile_re(r'to_subject (.*?) with_rtype_id (.*?) with_ct_id (.*?) with_label (.*?) with_perms (.*?)$')
 
-@register.tag(name="get_line_deletor")
+@register.tag(name="get_line_relator")
+def do_line_relator(parser, token):
+    """Eg: {% get_line_relator to_object object with_rtype_id predicate_id with_ctype ct with_label _("Link to an existing Stuff") with_perms has_perm %}"""
+    try:
+        tag_name, arg = token.contents.split(None, 1) # Splitting by None == splitting by spaces.
+    except ValueError:
+        raise TemplateSyntaxError, "%r tag requires arguments" % token.contents.split()[0]
+
+    match = _LINE_RELATOR_RE.search(arg)
+    if not match:
+        raise TemplateSyntaxError, "%r tag had invalid arguments" % tag_name
+
+    subject_str, type_id_str, ctype_id_str, label_str, perm_str = match.groups()
+    compile_filter = parser.compile_filter
+
+    return LineRelatorNode(subject_var=TemplateLiteral(compile_filter(subject_str), subject_str),
+                           rtype_id_var=TemplateLiteral(compile_filter(type_id_str), type_id_str),
+                           ctype_id_var=TemplateLiteral(compile_filter(ctype_id_str), ctype_id_str),
+                           label_var=TemplateLiteral(compile_filter(label_str), label_str),
+                           perm_var=TemplateLiteral(compile_filter(perm_str), perm_str)
+                          )
+
+class LineRelatorNode(TemplateNode):
+    def __init__(self, subject_var, rtype_id_var, ctype_id_var, label_var, perm_var):
+        self.template = get_template('creme_core/templatetags/widgets/block_line_relator.html')
+        self.subject_var  = subject_var
+        self.rtype_id_var = rtype_id_var
+        self.ctype_id_var = ctype_id_var
+        self.label_var    = label_var
+        self.perm_var     = perm_var
+
+    def render(self, context):
+        context['subject_id'] = self.subject_var.eval(context).id
+        context['rtype_id']   = self.rtype_id_var.eval(context)
+        context['ct_id']      = self.ctype_id_var.eval(context)
+        context['label']      = self.label_var.eval(context)
+        context['line_perm']  = self.perm_var.eval(context)
+
+        return self.template.render(context)
+
+#-------------------------------------------------------------------------------
+_LINE_DELETOR_RE = compile_re(r'at_url (.*?) with_args (.*?)$')
+
+@register.tag(name="get_line_deletor") #TODO: deprecated (use get_line_deletor2 that manages credentials)
 def do_line_deletor(parser, token):
     """Eg: {% get_line_deletor at_url '/app/model/delete' with_args "{'id' : {{object.id}} }" %}"""
     try:
@@ -177,7 +232,7 @@ def do_line_deletor(parser, token):
     except ValueError:
         raise TemplateSyntaxError, "%r tag requires arguments" % token.contents.split()[0]
 
-    match = _line_deletor_re.search(arg)
+    match = _LINE_DELETOR_RE.search(arg)
     if not match:
         raise TemplateSyntaxError, "%r tag had invalid arguments" % tag_name
 
@@ -204,88 +259,57 @@ class LineDeletorNode(TemplateNode):
         return self.deletor_tpl.render(context)
 
 
-_line_deletor_re2 = compile_re(r'at_url (.*?) with_args (.*?) with_perms (\w+)$')
+_LINE_SUPPR_RE = compile_re(r'at_url (.*?) with_args (.*?) with_perms (.*?)$')
 
-@register.tag(name="get_line_deletor2")
-def do_line_deletor2(parser, token):
-    """Eg: {% get_line_deletor2 at_url '/app/model/delete' with_args "{'id' : {{object.id}} }" with_perms boolean_variable %}"""
+def _do_line_suppr(parser, token, template_path):
     try:
         # Splitting by None == splitting by spaces.
         tag_name, arg = token.contents.split(None, 1)
     except ValueError:
         raise TemplateSyntaxError, "%r tag requires arguments" % token.contents.split()[0]
 
-    match = _line_deletor_re2.search(arg)
+    match = _LINE_SUPPR_RE.search(arg)
     if not match:
         raise TemplateSyntaxError, "%r tag had invalid arguments" % tag_name
 
-    delete_url, post_args, perm_name = match.groups()
+    suppr_url, post_args, perm_str = match.groups()
 
-    for group in (delete_url, post_args):
+    for group in (suppr_url, post_args):
         first_char = group[0]
         if not (first_char == group[-1] and first_char in ('"', "'")):
             raise TemplateSyntaxError, "%r tag's argument should be in quotes" % tag_name
 
-    return LineDeletorNode2(delete_url[1:-1], post_args[1:-1], perm_name)
+    return LineSuppressorNode(url=suppr_url[1:-1], post_args=post_args[1:-1],
+                              perm_var=TemplateLiteral(parser.compile_filter(perm_str), perm_str),
+                              template_path=template_path
+                             )
 
-class LineDeletorNode2(TemplateNode):
-    def __init__(self, delete_url, post_args, perm_name):
-        self.deletor_tpl = get_template('creme_core/templatetags/widgets/block_line_deletor2.html')
-        self.url_tpl = Template(delete_url)
-        self.args_tpl = Template(post_args)
-        self.perm_name = perm_name
-
-    def render(self, context):
-        context['delete_url'] = self.url_tpl.render(context)
-        context['post_args'] = self.args_tpl.render(context)
-        context['delete_line_perm'] = context[self.perm_name]
-
-        return self.deletor_tpl.render(context)
-
-#-------------------------------------------------------------------------------
-#TODO: factorise with get_line_deletor2...
-_line_unlinker_re = compile_re(r'at_url (.*?) with_args (.*?) with_perms (.*?)$')
-
-@register.tag(name="get_line_unlinker")
-def do_line_unlinker(parser, token):
-    """Eg: {% get_line_unlinker at_url '/app/model/unlink' with_args "{'id' : {{object.id}} }" with_perms boolean_variable %}"""
-    try:
-        # Splitting by None == splitting by spaces.
-        tag_name, arg = token.contents.split(None, 1)
-    except ValueError:
-        raise TemplateSyntaxError, "%r tag requires arguments" % token.contents.split()[0]
-
-    match = _line_unlinker_re.search(arg)
-    if not match:
-        raise TemplateSyntaxError, "%r tag had invalid arguments" % tag_name
-
-    unlink_url, post_args, perm_str = match.groups()
-
-    for group in (unlink_url, post_args):
-        first_char = group[0]
-        if not (first_char == group[-1] and first_char in ('"', "'")):
-            raise TemplateSyntaxError, "%r tag's argument should be in quotes" % tag_name
-
-    return LineUnlinkerNode(unlink_url[1:-1], post_args[1:-1],
-                            TemplateLiteral(parser.compile_filter(perm_str), perm_str)
-                           )
-
-class LineUnlinkerNode(TemplateNode):
-    def __init__(self, unlink_url, post_args, perm_var):
-        self.unlinker_tpl = get_template('creme_core/templatetags/widgets/block_line_unlinker.html')
-        self.url_tpl = Template(unlink_url)
+class LineSuppressorNode(TemplateNode):
+    def __init__(self, url, post_args, perm_var, template_path):
+        self.template = get_template(template_path)
+        self.url_tpl  = Template(url)
         self.args_tpl = Template(post_args)
         self.perm_var = perm_var
 
     def render(self, context):
-        context['unlink_url'] = self.url_tpl.render(context)
-        context['post_args'] = self.args_tpl.render(context)
-        context['unlink_line_perm'] = self.perm_var.eval(context)
+        context['action_url'] = self.url_tpl.render(context)
+        context['post_args']  = self.args_tpl.render(context)
+        context['line_perm']  = self.perm_var.eval(context)
 
-        return self.unlinker_tpl.render(context)
+        return self.template.render(context)
+
+@register.tag(name="get_line_deletor2")
+def do_line_deletor2(parser, token):
+    """Eg: {% get_line_deletor2 at_url '/app/model/delete' with_args "{'id' : {{object.id}} }" with_perms boolean_variable %}"""
+    return _do_line_suppr(parser, token, 'creme_core/templatetags/widgets/block_line_deletor2.html')
+
+@register.tag(name="get_line_unlinker")
+def do_line_unlinker(parser, token):
+    """Eg: {% get_line_unlinker at_url '/app/model/unlink' with_args "{'id' : {{object.id}} }" with_perms boolean_variable %}"""
+    return _do_line_suppr(parser, token, 'creme_core/templatetags/widgets/block_line_unlinker.html')
 
 #-------------------------------------------------------------------------------
-_line_editor_re = compile_re(r'at_url (.*?) with_perms (\w+)$')
+_LINE_EDITOR_RE = compile_re(r'at_url (.*?) with_perms (.*?)$')
 
 @register.tag(name="get_line_editor")
 def do_line_editor(parser, token):
@@ -295,33 +319,33 @@ def do_line_editor(parser, token):
     except ValueError:
         raise TemplateSyntaxError, "%r tag requires arguments" % token.contents.split()[0]
 
-    match = _line_editor_re.search(arg)
+    match = _LINE_EDITOR_RE.search(arg)
     if not match:
         raise TemplateSyntaxError, "%r tag had invalid arguments" % tag_name
 
-    edit_url, perm_name = match.groups()
+    edit_url, perm_str = match.groups()
 
     first_char = edit_url[0]
     if not (first_char == edit_url[-1] and first_char in ('"', "'")):
         raise TemplateSyntaxError, "%r tag's url argument should be in quotes" % tag_name
 
-    return LineEditorNode(edit_url[1:-1], perm_name)
+    return LineEditorNode(edit_url[1:-1], TemplateLiteral(parser.compile_filter(perm_str), perm_str))
 
 class LineEditorNode(TemplateNode):
-    def __init__(self, edit_url, perm_name):
-        self.editor_tpl = get_template('creme_core/templatetags/widgets/block_line_editor.html')
+    def __init__(self, edit_url, perm_var):
+        self.template = get_template('creme_core/templatetags/widgets/block_line_editor.html')
         self.url_tpl = Template(edit_url)
-        self.perm_name = perm_name
+        self.perm_var = perm_var
 
     def render(self, context):
         context['edit_url'] = self.url_tpl.render(context)
-        context['edit_line_perm'] = context[self.perm_name]
+        context['edit_line_perm'] = self.perm_var.eval(context)
 
-        return self.editor_tpl.render(context)
+        return self.template.render(context)
 
 
 #-------------------------------------------------------------------------------
-_block_importer_re = compile_re(r'from_app (.*?) named (.*?) as (.*?)$')
+_BLOCK_IMPORTER_RE = compile_re(r'from_app (.*?) named (.*?) as (.*?)$')
 
 @register.tag(name="import_block")
 def do_block_importer(parser, token):
@@ -332,7 +356,7 @@ def do_block_importer(parser, token):
     except ValueError:
         raise TemplateSyntaxError, "%r tag requires arguments" % token.contents.split()[0]
 
-    match = _block_importer_re.search(arg)
+    match = _BLOCK_IMPORTER_RE.search(arg)
     if not match:
         raise TemplateSyntaxError, "%r tag had invalid arguments" % tag_name
 

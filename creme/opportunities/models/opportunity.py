@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2011  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -108,9 +108,6 @@ class Opportunity(CremeEntity):
     def get_edit_absolute_url(self):
         return "/opportunities/opportunity/edit/%s" % self.id
 
-    def get_delete_absolute_url(self):
-        return "/opportunities/opportunity/delete/%s" % self.id
-
     @staticmethod
     def get_lv_absolute_url():
         """url for list_view """
@@ -165,7 +162,8 @@ class Opportunity(CremeEntity):
 
     def get_current_quote_id(self):
         ct        = ContentType.objects.get_for_model(Quote)
-        quote_ids = Relation.objects.filter(object_entity=self, type__id=REL_SUB_CURRENT_DOC, subject_entity__entity_type=ct).values_list('subject_entity_id', flat=True)
+        quote_ids = Relation.objects.filter(object_entity=self.id, type=REL_SUB_CURRENT_DOC, subject_entity__entity_type=ct) \
+                                    .values_list('subject_entity_id', flat=True)
 
         if len(quote_ids) > 1:
             error('Several current quotes for opportunity: %s', self)
@@ -198,7 +196,11 @@ class Opportunity(CremeEntity):
         return Invoice.objects.filter(relations__object_entity=self.id, relations__type=REL_SUB_LINKED_INVOICE)
 
     def link_to_target_orga(self, orga):
-        Relation.create(orga, REL_OBJ_TARGETS_ORGA, self)
+        Relation.objects.create(subject_entity=orga, type_id=REL_OBJ_TARGETS_ORGA,
+                                object_entity=self, user=self.user
+                               )
 
     def link_to_emit_orga(self, orga):
-        Relation.create(orga, REL_SUB_EMIT_ORGA, self)
+        Relation.objects.create(subject_entity=orga, type_id=REL_SUB_EMIT_ORGA,
+                                object_entity=self, user=self.user
+                               )

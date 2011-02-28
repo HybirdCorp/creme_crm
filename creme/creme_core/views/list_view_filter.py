@@ -2,7 +2,7 @@
 
 from django.core import serializers
 from django.db.models.query_utils import Q
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect, Http404
 from django.shortcuts import get_object_or_404, render_to_response
 from django.template import RequestContext
 from django.contrib.auth.decorators import login_required
@@ -11,8 +11,9 @@ from django.contrib.contenttypes.models import ContentType
 from creme_core.populate import DATE_RANGE_FILTER
 from creme_core.models import Filter
 from creme_core.forms.list_view_filter import ListViewFilterForm
-from creme_core.utils import get_ct_or_404
-from creme_core.views.generic import list_view_popup, list_view_popup_from_widget
+from creme_core.utils import get_ct_or_404, jsonify, get_from_POST_or_404
+from creme_core.utils.meta import get_flds_with_fk_flds
+from creme_core.views.generic import list_view_popup_from_widget
 
 
 @login_required
@@ -21,11 +22,13 @@ from creme_core.views.generic import list_view_popup, list_view_popup_from_widge
 def add(request, ct_id):
     if request.POST:
         #beware: we doesn't test the form validity voluntarily
-        filterform = ListViewFilterForm(request.POST, initial={'user': request.user.id, 'content_type_id': ct_id})
+        #filterform = ListViewFilterForm(request.POST, initial={'user': request.user.id, 'content_type_id': ct_id})
+        filterform = ListViewFilterForm(request.POST, initial={'content_type_id': ct_id})
         filterform.save()
         return HttpResponseRedirect(ContentType.objects.get_for_id(ct_id).model_class().get_lv_absolute_url())
 
-    filterform = ListViewFilterForm(initial={'user': request.user.id, 'content_type_id': ct_id})
+    #filterform = ListViewFilterForm(initial={'user': request.user.id, 'content_type_id': ct_id})
+    filterform = ListViewFilterForm(initial={'content_type_id': ct_id})
 
     return render_to_response('creme_core/filters.html',
                               {'form': filterform, 'mode': 'add', 'content_type_id': ct_id},
@@ -65,15 +68,14 @@ def get_session_filter_id(request, ct_id):
 
 @login_required
 def delete(request):
-    filter_ = get_object_or_404(Filter, pk=request.POST['id'])
-    ct_id   = filter_.model_ct_id
+    lv_filter = get_object_or_404(Filter, pk=get_from_POST_or_404(request.POST, 'id'))
+    ct_id = lv_filter.model_ct_id
+    allowed, msg = lv_filter.can_edit_or_delete(request.user)
 
-    #TODO: credentials
-    #die_status = delete_object_or_die(request, filter_)
-    #if die_status:
-        #return die_status
+    if not allowed:
+        raise Http404(msg)
 
-    filter_.delete()
+    lv_filter.delete()
 
     return HttpResponseRedirect(ContentType.objects.get_for_id(ct_id).model_class().get_lv_absolute_url())
 
@@ -89,18 +91,20 @@ def edit(request, ct_id, filter_id):
     current_filter = get_object_or_404(Filter, pk=filter_id)
     model_klass = ContentType.objects.get_for_id(ct_id).model_class()
 
-    #TODO: credentials
-    #die_status = edit_object_or_die(request, current_filter)
-    #if die_status:
-        #return die_status
+    allowed, msg = current_filter.can_edit_or_delete(request.user)
+    if not allowed:
+        raise Http404(msg)
 
-    if request.POST :
-        filterform = ListViewFilterForm(request.POST, initial={'user': request.user.id, 'content_type_id': ct_id, 'filter_id': filter_id})
+    if request.method == 'POST':
+        #filterform = ListViewFilterForm(request.POST, initial={'user': request.user.id, 'content_type_id': ct_id, 'filter_id': filter_id})
+        filterform = ListViewFilterForm(request.POST, initial={'content_type_id': ct_id, 'filter_id': filter_id})
         filterform.save()
         return HttpResponseRedirect(model_klass.get_lv_absolute_url())
 
-    filterform = ListViewFilterForm(initial={'user': request.user.id, 'content_type_id': ct_id})
+    #filterform = ListViewFilterForm(initial={'user': request.user.id, 'content_type_id': ct_id})
+    filterform = ListViewFilterForm(initial={'content_type_id': ct_id})
     filterform.fields['nom'].initial = current_filter.name
+    filterform.fields['user'].initial = current_filter.user_id
 
     edit_dict_condition = []
 
@@ -183,3 +187,40 @@ def get_filters_4_ct(request, content_type_id):
 
     data = serializers.serialize('json', filters, fields=fields)
     return HttpResponse(data, mimetype="text/javascript")
+
+
+@jsonify
+@login_required
+def field_has_n_get_fk(request):
+    """
+    To verify if a field is a foreign key for a model
+    and if it is get related field (in JSON format)
+    """
+
+    fieldname = get_from_POST_or_404(request.POST, 'fieldname')
+    ct_id     = get_from_POST_or_404(request.POST, 'ct_id')
+    klass     = get_ct_or_404(ct_id).model_class()
+
+
+    field = [f for f in klass._meta.fields + klass._meta.many_to_many if f.name == fieldname]
+    data  = []
+
+    if field and field[0].get_internal_type() == 'ForeignKey':
+        data = [(u'%s' % f.name, u'%s' % f.verbose_name) for f in get_flds_with_fk_flds(field[0].rel.to, 0)]
+
+    elif field and field[0].get_internal_type() == 'ManyToManyField':
+        data = []
+
+        for f in get_flds_with_fk_flds(field[0].rel.to, 0):
+            _field_internal_type = f.get_internal_type()
+
+            if _field_internal_type == 'ManyToManyField':
+                continue
+
+            if _field_internal_type != 'ForeignKey':
+                data.append((u'%s' % f.name, u'%s' % f.verbose_name))
+
+            if _field_internal_type == 'ForeignKey':
+                data.extend(((u'%s__%s' % (f.name, sub_f.name), u'%s - %s' % (f.verbose_name, sub_f.verbose_name)) for sub_f in get_flds_with_fk_flds(f.rel.to, 0)))
+
+    return data

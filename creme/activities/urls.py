@@ -2,14 +2,16 @@
 
 from django.conf.urls.defaults import patterns
 
+from creme_core.utils.imports import find_n_import
+
 
 urlpatterns = patterns('activities.views',
     (r'^$', 'portal.portal'),
 
     (r'^activities$',                                      'activity.listview'),
     (r'^activities/(?P<ids>([\d][,]*)+)/ical$',            'activity.download_ical'),
-    (r'^activity/add-with-relation/(?P<act_type>\w+)$',    'activity.add_with_relation'),
-    (r'^activity/add-without-relation/(?P<act_type>\w+)$', 'activity.add_without_relation'),
+    (r'^activity/add/(?P<act_type>\w+)$',                  'activity.add'),
+    (r'^activity/add_related/(?P<act_type>\w+)$',          'activity.add_related'),
     (r'^activity/edit/(?P<activity_id>\d+)$',              'activity.edit'),
     (r'^activity/(?P<activity_id>\d+)$',                   'activity.detailview'),
     (r'^activity/(?P<activity_id>\d+)/popup$',             'activity.popupview'),
@@ -31,14 +33,7 @@ urlpatterns = patterns('activities.views',
 
     (r'^indisponibility/add$', 'activity.add_indisponibility'), #TODO: use activity/add-(?P<type>.*) ?? with a factory type-based ?
 
-    (r'^get_entity_relation_choices_for_activity$', 'ajax.get_entity_relation_choices_for_activity'),
-
-
-
+    (r'^get_relationtype_choices$', 'ajax.get_relationtype_choices'),
 )
 
-urlpatterns += patterns('creme_core.views.generic',
-    #(r'^edit_js/$', 'creme_core.views.edit_js'),
-    (r'^activity/delete/(?P<object_id>\d+)$',               'delete_entity'),
-    (r'^activity/delete_js/(?P<entities_ids>([\d]+[,])+)$', 'delete_entities_js'),
-)
+find_n_import("activities_register", [])

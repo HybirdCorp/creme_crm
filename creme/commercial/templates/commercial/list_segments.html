@@ -1,0 +1,11 @@
+{% extends "creme_core/base.html" %}
+{% load i18n %}
+{% load creme_block %}
+
+{% block page_title %} - {% trans "List of Market Segments" %}{% endblock %}
+
+{% block content %}
+    {% import_block from_app 'commercial' named 'segments' as 'segments_block' %}
+    {% display_block_detailview 'segments_block' %}
+    {% get_blocks_dependencies %}
+{% endblock %}

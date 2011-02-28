@@ -59,7 +59,7 @@ class BecomeCustomerButton(CrmButton):
     verbose_name     = _(u'Transform into a customer')
     relation_type_id = REL_SUB_CUSTOMER_OF
     what = "customer"
-    become_url = "/persons/%s/become_customer/"
+    become_url = "/persons/%s/become_customer"
 
 
 class BecomeProspectButton(CrmButton):
@@ -67,7 +67,7 @@ class BecomeProspectButton(CrmButton):
     verbose_name     = _(u'Transform into a prospect')
     relation_type_id = REL_SUB_PROSPECT
     what = "prospect"
-    become_url = "/persons/%s/become_prospect/"
+    become_url = "/persons/%s/become_prospect"
 
 
 class BecomeSuspectButton(CrmButton):
@@ -75,7 +75,7 @@ class BecomeSuspectButton(CrmButton):
     verbose_name     = _(u'Transform into a suspect')
     relation_type_id = REL_SUB_SUSPECT
     what = "suspect"
-    become_url = "/persons/%s/become_suspect/"
+    become_url = "/persons/%s/become_suspect"
 
 
 class BecomeInactiveButton(CrmButton):
@@ -83,7 +83,7 @@ class BecomeInactiveButton(CrmButton):
     verbose_name     = _(u'Transform into an inactive customer')
     relation_type_id = REL_SUB_INACTIVE
     what = "inactive_customer"
-    become_url = "/persons/%s/become_inactive_customer/"
+    become_url = "/persons/%s/become_inactive_customer"
 
 
 class BecomeSupplierButton(CrmButton):
@@ -91,7 +91,7 @@ class BecomeSupplierButton(CrmButton):
     verbose_name     = _(u'Transform into a supplier')
     relation_type_id = REL_SUB_SUPPLIER
     what = "supplier"
-    become_url = "/persons/%s/become_supplier/"
+    become_url = "/persons/%s/become_supplier"
 
     def get_ctypes(self):
         return (Organisation,)

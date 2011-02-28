@@ -17,7 +17,3 @@ urlpatterns = patterns('events.views',
     (r'^event/(?P<event_id>\d+)/contact/(?P<contact_id>\d+)/set_presence_status$',   'event.set_presence_status'),
     (r'^event/(?P<event_id>\d+)/add_opportunity_with/(?P<contact_id>\d+)$',          'event.add_opportunity'),
 )
-
-urlpatterns += patterns('creme_core.views',
-    (r'^event/delete/(?P<object_id>\d+)$', 'generic.delete_entity'),
-)

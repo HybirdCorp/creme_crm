@@ -34,7 +34,7 @@ creme.widget.EntitySelector = creme.widget.declare('ui-creme-entityselector', {
             self._select(element, $(this));
         });
 
-        self.val(element, self.val(element));
+        //self.val(element, self.val(element));
         element.addClass('widget-ready');
     },
 
@@ -43,17 +43,33 @@ creme.widget.EntitySelector = creme.widget.declare('ui-creme-entityselector', {
         self.val(element, null);
         element.data('popup', url);
     },
+    
+    is_multiple: function(element) {
+    	return creme.widget.options($(element))['multiple'] === '1';
+    },
 
     _update: function(element, values) {
         var self = creme.widget.EntitySelector;
         self.val(element, values[0]);
+        
+        // TODO : hack that automatically add lines when multiselection is enabled
+        if (self.is_multiple(element) && (values.length > 1)) {
+        	var selector_list = element.parents('.ui-creme-selectorlist');
+        	var selector = element.parents('.ui-creme-chainedselect');
+        	
+        	for(var index = 1; index < values.length; ++index) {
+        		var new_selector = selector_list.data('widget').append_selector(selector_list);
+        		var new_entity_selector = $('.ui-creme-widget.ui-creme-entityselector', new_selector);
+        		new_entity_selector.data('widget').val(new_entity_selector, values[index]);
+        	}
+        }
     },
 
     _select: function(element, content_type, cb) {
-        console.log(element.data('popup'), element);
+        //console.log(element.data('popup'), element);
 
-        var self = creme.widget.EntitySelector
-        var o2m = (creme.widget.options($(element))['multiple'] === '1') ? '0' : '1'
+        var self = creme.widget.EntitySelector;
+        var o2m = self.is_multiple(element) ? '0' : '1';
         var url = $(element).data('popup') + '/' + o2m;
 
         creme.utils.showInnerPopup(url, {
@@ -74,6 +90,8 @@ creme.widget.EntitySelector = creme.widget.declare('ui-creme-entityselector', {
     },
 
     val: function(element, value) {
+    	//console.log(element, value);
+    	
         if (value !== undefined) {
             var input = creme.widget.input(element);
             var button = $('button', element);
@@ -104,7 +122,7 @@ creme.widget.EntitySelector = creme.widget.declare('ui-creme-entityselector', {
     clone: function(element) {
         var self = creme.widget.EntitySelector;
         var copy = creme.widget.clone(element);
-        copy.val(element.val(value));
+        //copy.val(element.val(value));
         return copy;
     }
 });

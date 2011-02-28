@@ -1,5 +1,4 @@
-{% load i18n %}
-{% load media %}
+{% load i18n %}{% load media %}
 {% with hfilter.id as hfilter_id %}
     <script type="text/javascript">
         function lv_hf_delete(a) {
@@ -44,7 +43,7 @@
             <a href="/creme_core/header_filter/add/{{content_type_id}}">
                 <img border="0" src="{% media_url 'images/add_22.png' %}" alt="{% trans "Create a custom view" %}" title="{% trans "Create a custom view" %}"/>
             </a>
-            {% if hfilter.is_custom %}
+            {% if can_edit_or_delete %}
                 <a href="/creme_core/header_filter/edit/{{hfilter_id}}" id="header_filter_edit">
                     <img border="0" src="{% media_url 'images/edit_22.png' %}" alt="{% trans "Edit custom view" %}" title="{% trans "Edit custom view" %}"/>
                 </a>
