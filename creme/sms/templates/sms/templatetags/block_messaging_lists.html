@@ -14,7 +14,7 @@
         {% if page.paginator.count %}
             <tr>
                 <th class="block_header_line_dark">{% trans "Name of the list" %}</th>
-                <th class="block_header_line_dark">{% trans "Delete" %}</th>
+                <th class="block_header_line_dark">{% trans "Unlink" %}</th>
             </tr>
             {% for mlist in page.object_list %}
                 <!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
@@ -23,7 +23,7 @@
                         <a href="{{mlist.get_absolute_url}}">{{mlist.name}}</a>
                     </td>
                     <td class="{{row_color}}" align="center" valign="center" style="width:10%;">
-                        {% get_line_deletor2 at_url '/sms/campaign/{{object.pk}}/messaging_list/delete' with_args "{'id': '{{mlist.id}}'}" with_perms has_perm %}
+                        {% get_line_unlinker at_url '/sms/campaign/{{object.pk}}/messaging_list/delete' with_args "{'id': '{{mlist.id}}'}" with_perms has_perm %}
                     </td>
                 </tr>
             {% endfor %}

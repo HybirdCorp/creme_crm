@@ -331,7 +331,7 @@ class SetCredentials(Model):
             perms.append(ugettext('Can view'))
         if value & SetCredentials.CRED_CHANGE:
             perms.append(ugettext('Can change'))
-        if value & SetCredentials.CRED_CHANGE:
+        if value & SetCredentials.CRED_DELETE:
             perms.append(ugettext('Can delete'))
 
         if not perms:

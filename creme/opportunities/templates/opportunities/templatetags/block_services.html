@@ -12,7 +12,7 @@
         <th style="width: 20%;" align="right">
             <div class="buttons">
                 <a class="link" onclick="creme.relations.handleAddFromPredicateEntity('/creme_core/relation/add/from/predicate/{{predicate_id}}/entity/{{object.id}}/{{ct_id}}', '{{predicate_id}}', '{{object.id}}', {% get_block_reload_uri %});">
-                    <img src="{% media_url 'images/relations_22.png' %}" border="0" title="{% trans "Link to an existing service" %}" alt="{% trans "Link to an existing service" %}" />
+                    <img src="{% media_url 'images/link_22.png' %}" border="0" title="{% trans "Link to an existing service" %}" alt="{% trans "Link to an existing service" %}" />
                     {% trans "Link to an existing service" %}
                 </a>
             </div>
@@ -22,14 +22,14 @@
         {% if page.paginator.count %}
             <tr>
                 <th class="block_header_line_dark">{% trans "Name" %}</th>
-                <th class="block_header_line_dark">{% trans "Delete" %}</th>
+                <th class="block_header_line_dark">{% trans "Unlink" %}</th>
             </tr>
             {% for service in page.object_list %}
                 <!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
                 <tr>
                     <td class="{{row_color}}"><a href="{{service.get_absolute_url}}">{{service}}</a></td>
                     <td class="{{row_color}}" align="center" valign="center" style="width:10%;">
-                        {% get_line_deletor at_url '/creme_core/relation/delete/similar' with_args "{'subject_id':{{object.pk}}, 'type':'{{predicate_id}}', 'object_id':{{service.pk}} }" %}
+                        {% get_line_unlinker at_url '/creme_core/relation/delete/similar' with_args "{'subject_id':{{object.pk}}, 'type':'{{predicate_id}}', 'object_id':{{service.pk}} }" with_perms 1 %}
                     </td>
                 </tr>
             {% endfor %}

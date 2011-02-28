@@ -1269,6 +1269,12 @@ msgstr "Liste des %s"
 msgid "You are not allowed to access to the app: %s"
 msgstr "Vous n'avez pas accés à cette application: %s"
 
+msgid "Unlink"
+msgstr "Délier"
+
+msgid "Can't unlink"
+msgstr "Rupture interdite"
+
 #~ msgid "Read"
 #~ msgstr "Lire"
 

@@ -40,7 +40,7 @@
                     </td>
                     <td class="{{row_color}}" align="center" valign="center" style="width:10%;">
                         {% get_line_editor at_url '/graphs/root/edit/{{rnode.id}}/' with_perms has_perm %}
-                        {% get_line_deletor2 at_url '/graphs/root/delete' with_args "{'id':{{rnode.pk}} }" with_perms has_perm %}
+                        {% get_line_unlinker at_url '/graphs/root/delete' with_args "{'id':{{rnode.pk}} }" with_perms has_perm %}
                     </td>
                 </tr>
             {% endfor %}

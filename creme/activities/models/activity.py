@@ -113,6 +113,7 @@ class Activity(CremeEntity):
     start       = DateTimeField(_(u'Start'), blank=True, null=True)
     end         = DateTimeField(_(u'End'), blank=True, null=True)
     description = TextField(_(u'Description'), blank=True, null=True)
+    minutes     = TextField(_(u'Minutes'), blank=True, null=True)
     type        = ForeignKey(ActivityType, verbose_name=_(u"Activity type"))
     #calendar    = ForeignKey(Calendar, verbose_name=_(u"Calendar"))
     is_all_day  = BooleanField(_(u'All day ?'), blank=True, default=False)
@@ -127,6 +128,7 @@ class Activity(CremeEntity):
         app_label = 'activities'
         verbose_name = _(u'Activity')
         verbose_name_plural = _(u'Activities')
+        ordering =('-start',)
 
     def as_ical_event(self):
         """Return a normalized iCalendar event string
@@ -203,19 +205,20 @@ END:VEVENT
 
     @staticmethod
     def get_future_linked(entity, today):
-        return Activity._get_linked_aux(entity).filter(end__gt=today)
+        return Activity._get_linked_aux(entity).filter(end__gt=today).order_by('start')
+
 
     @staticmethod
     def get_future_linked_for_ctypes(ct_ids, today):
-        return Activity._get_linked_for_ctypes_aux(ct_ids).filter(end__gt=today)
+        return Activity._get_linked_for_ctypes_aux(ct_ids).filter(end__gt=today).order_by('start')
 
     @staticmethod
     def get_past_linked(entity, today):
-        return Activity._get_linked_aux(entity).filter(end__lte=today)
+        return Activity._get_linked_aux(entity).filter(end__lte=today).order_by('-start')
 
     @staticmethod
     def get_past_linked_for_ctypes(ct_ids, today):
-        return Activity._get_linked_for_ctypes_aux(ct_ids).filter(end__lte=today)
+        return Activity._get_linked_for_ctypes_aux(ct_ids).filter(end__lte=today).order_by('-start')
 
     def handle_all_day(self):
         if self.is_all_day:

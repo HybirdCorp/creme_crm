@@ -44,7 +44,7 @@ class OpportunitiesTestCase(TestCase):
         ct = ContentType.objects.get_for_model(Opportunity)
         relation_types = dict((rtype.id, rtype) for rtype in RelationType.get_compatible_ones(ct))
 
-        self.assert_(REL_SUB_TARGETS_ORGA in relation_types)
+        self.failIf(REL_SUB_TARGETS_ORGA in relation_types)
 
         self.assert_(REL_OBJ_LINKED_PRODUCT in relation_types)
         self.failIf(REL_SUB_LINKED_PRODUCT in relation_types)
