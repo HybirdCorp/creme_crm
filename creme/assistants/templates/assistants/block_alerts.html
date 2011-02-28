@@ -1,5 +1,5 @@
 {% load i18n %}{% load media %}
-{% load creme_core_tags %}{% load creme_block %}
+{% load creme_core_tags %}{% load creme_block %}{% load creme_widgets %}
 <table class="table_detail_view ui-corner-all" id={{block_name}}>
     {% get_block_header colspan=7 %}
         <th style="width: 80%;" class="collapser">{% get_block_title _('%s Alert') _('%s Alerts') 'bell_48.png' _('Alert') %}</th>
@@ -29,9 +29,7 @@
                 <tr>
                     <td class="{{row_color}}"><strong>{{alert.title}}</strong></td>
                     {% if not object %}
-                        <td class="{{row_color}}">
-                            <a href="{{alert.creme_entity.get_absolute_url}}">{{alert.creme_entity|allowed_unicode:user}}</a>
-                        </td>
+                        <td class="{{row_color}}">{% widget_entity_hyperlink alert.creme_entity user %}</td>
                     {% endif %}
                     <td class="{{row_color}}">{{alert.for_user}}</td>
                     <td class="{{row_color}}">{{alert.trigger_date}}</td>

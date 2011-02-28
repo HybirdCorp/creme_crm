@@ -1,5 +1,5 @@
-{% load i18n %}{% comment %}{% load media %}{% endcomment %}
-{% load creme_core_tags %}{% load creme_block %}
+{% load i18n %}
+{% load creme_core_tags %}{% load creme_block %}{% load creme_widgets %}
 {% has_perm_to link object as link_perm %}{% has_perm_to unlink object as unlink_perm %}{% comment %}{% has_perm_to create ct as creation_perm %}{% endcomment %}
 <table  class="table_detail_view ui-corner-all" id={{block_name}}>
     {% get_block_header colspan=4 %}
@@ -25,7 +25,7 @@
                 {% for quote in page.object_list %}<!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
                     <tr>
                         <td class="{{row_color}}">{{quote.number}}</td>
-                        <td class="{{row_color}}"><a href="{{quote.get_absolute_url}}">{{quote|allowed_unicode:user}}</a></td>
+                        <td class="{{row_color}}">{% widget_entity_hyperlink quote user %}</td>
                         <td class="{{row_color}}">
                             {% if quote.pk == current_quote_id %}
                                 <strong>{% trans "Yes" %}</strong>
