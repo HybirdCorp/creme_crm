@@ -31,7 +31,7 @@ from creme_core.models import RelationType, CremePropertyType, FilterType, Filte
 from creme_core.utils import Q_creme_entity_content_types
 from creme_core.utils.meta import get_flds_with_fk_flds, get_date_fields
 from creme_core.forms.widgets import DateFilterWidget, CalendarWidget
-from creme_core.populate import DATE_RANGE_FILTER#Waiting for filters refactor
+from creme_core.populate import DATE_RANGE_FILTER, DATE_RANGE_FILTER_VOLATILE#Waiting for filters refactor
 from creme_core.date_filters_registry import date_filters_registry
 
 class ListViewFilterForm(forms.Form):
@@ -269,26 +269,40 @@ class ListViewFilterForm(forms.Form):
                 continue
 
         print "\nids_date_fields : %s\n" % ids_date_fields
+        get_date_filter = date_filters_registry.get_filter
         for id in ids_date_fields :
             if not id:
                 continue
 
             try:
+                date_filter = get_date_filter(data['date_filters_%s' % id])
+                filtertype_pk = DATE_RANGE_FILTER_VOLATILE if date_filter.is_volatile else DATE_RANGE_FILTER
+
                 condition = FilterCondition()
                 condition.champ = data['date_fields_%s' % id]
 
-                condition.type = FilterType.objects.get(pk=DATE_RANGE_FILTER)
+                condition.type = FilterType.objects.get(pk=filtertype_pk)
                 values = []
                 get_filtervalue = FilterValue.objects.get
-                for value in [data['begin_date_%s' % id], data['end_date_%s' % id]]:
-                    if value:
-                        try:
-                            #values.append(FilterValue.objects.get(value=value))
-                            values.append(get_filtervalue(value=value))
-                        except:
-                            value = FilterValue(value=value)
-                            value.save()
-                            values.append(value)
+
+                if not date_filter.is_volatile:
+                    for value in [data['begin_date_%s' % id], data['end_date_%s' % id]]:
+                        if value:
+                            try:
+                                #values.append(FilterValue.objects.get(value=value))
+                                values.append(get_filtervalue(value=value))
+                            except:
+                                value = FilterValue(value=value)
+                                value.save()
+                                values.append(value)
+                else:
+                   value = date_filter.name
+                   try:
+                        values.append(get_filtervalue(value=value))
+                   except:
+                        value = FilterValue(value=value)
+                        value.save()
+                        values.append(value)
                 condition.save()
                 condition.values = values
                 condition.save()

@@ -28,6 +28,7 @@ from creme_core.management.commands.creme_populate import BasePopulator
 
 
 DATE_RANGE_FILTER = 23
+DATE_RANGE_FILTER_VOLATILE = 24
 
 class Populator(BasePopulator):
     def populate(self, *args, **kwargs):
@@ -55,6 +56,7 @@ class Populator(BasePopulator):
         create(FilterType, 21, name=_(u"Is empty"),                               pattern_key='%s__isnull',       pattern_value='%s',      is_exclude=False, type_champ="CharField", value_field_type='textfield')
         create(FilterType, 22, name=_(u"Is not empty"),                           pattern_key='%s__isnull',       pattern_value='%s',      is_exclude=True,  type_champ="CharField", value_field_type='textfield')
         create(FilterType, DATE_RANGE_FILTER, name=_(u"Date range"),              pattern_key='%s__range',        pattern_value='(%s,%s)', is_exclude=False, type_champ="CharField", value_field_type='textfield')
+        create(FilterType, DATE_RANGE_FILTER_VOLATILE, name=_(u"Date range"),     pattern_key='%s__range',        pattern_value='(%s,%s)', is_exclude=False, type_champ="CharField", value_field_type='textfield')
 
         create(Language, 1, name=_(u'French'),  code='FRA')
         create(Language, 2, name=_(u'English'), code='EN')
