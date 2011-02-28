@@ -31,10 +31,18 @@
             </tr>
             {% for opportunity in page.object_list %}<!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
                 <tr>
-                    <td class="{{row_color}}"><a href="{{opportunity.get_absolute_url}}">{{opportunity|allowed_unicode:user}}</a></td>
-                    <td class="{{row_color}}">{{opportunity.estimated_sales}}</td>
-                    <td class="{{row_color}}">{{opportunity.made_sales}}</td>
-                    <td class="{{row_color}}">{{opportunity.sales_phase}}</td>
+                    {% has_perm_to view opportunity as opp_view_perm %}
+                    {% if opp_view_perm %}
+                        <td class="{{row_color}}"><a href="{{opportunity.get_absolute_url}}">{{opportunity}}</a></td>
+                        <td class="{{row_color}}">{{opportunity.estimated_sales}}</td>
+                        <td class="{{row_color}}">{{opportunity.made_sales}}</td>
+                        <td class="{{row_color}}">{{opportunity.sales_phase}}</td>
+                    {% else %}
+                        <td class="{{row_color}}">{{opportunity|allowed_unicode:user}}</td>
+                        <td class="{{row_color}}">??</td>
+                        <td class="{{row_color}}">??</td>
+                        <td class="{{row_color}}">??</td>
+                    {% endif %}
                     <td class="{{row_color}}" align="center" valign="center" style="width:10%;">
                         {% has_perm_to unlink opportunity as opp_unlink_perm %}
                         {% get_line_deletor2 at_url '/creme_core/delete_js' with_args "{'ids': [{{opportunity.pk}}] }" with_perms unlink_perm|and_op:opp_unlink_perm %}
