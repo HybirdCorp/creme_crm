@@ -18,10 +18,10 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from datetime import date
+from datetime import date, MAXYEAR
 from calendar import monthrange
 
-from django.utils.translation import ugettext as _
+from django.utils.translation import ugettext_lazy as _
 
 from creme_core.date_filters_registry import DatetimeFilter
 
@@ -115,6 +115,13 @@ def next_quarter_end(filter, now):
     q3_year = now.year if q3_month > now.month else now.year-1
     return date(year=q3_year, month=q3_month, day=get_month_last_day(q3_year, q3_month))
 
+def in_future_beg(filter, now):
+    return now
+
+def in_future_end(filter, now):
+    return date(year=MAXYEAR, month=12, day=31)
+
+
 to_register = (
     ('customized',   DatetimeFilter('customized', _(u"Customized"), lambda x,y: "", lambda x,y: "", is_volatile=False)),
 
@@ -129,6 +136,7 @@ to_register = (
     ('last_quarter',    DatetimeFilter('last_quarter',    _(u"Last quarter"),    last_quarter_beg,    last_quarter_end)),
     ('current_quarter', DatetimeFilter('current_quarter', _(u"Current quarter"), current_quarter_beg, current_quarter_end)),
     ('next_quarter',    DatetimeFilter('next_quarter',    _(u"Next quarter"),    next_quarter_beg,    next_quarter_end)),
+    ('in_future',       DatetimeFilter('in_future',       _(u"In the future"),    in_future_beg,    in_future_end)),
 
 )
 
