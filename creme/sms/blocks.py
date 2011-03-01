@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2011  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,10 +19,12 @@
 ################################################################################
 
 from django.http import HttpResponse
+from django.template.context import RequestContext
 from django.utils.simplejson import JSONEncoder
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.contenttypes.models import ContentType
 
+from creme_core.models import CremeEntity
 from creme_core.gui.block import QuerysetBlock
 from creme_core.utils import jsonify
 
@@ -31,17 +33,35 @@ from persons.models import Contact
 from sms.models import Recipient, Sending, Message, MessagingList
 
 
-class MessagingListsBlock(QuerysetBlock):
+#TODO: move populate_credentials() code to a Block class in creme_core ???
+class _RelatedEntitesBlock(QuerysetBlock):
+    #id_           = 'SET ME'
+    #dependencies  = 'SET ME'
+    #verbose_name  = 'SET ME'
+    #template_name = 'SET ME'
+
+    def _get_queryset(self, entity): #OVERLOAD ME
+        raise NotImplementedError
+
+    def detailview_display(self, context):
+        entity = context['object']
+        btc = self.get_block_template_context(context, self._get_queryset(entity),
+                                              update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, entity.pk),
+                                             )
+
+        CremeEntity.populate_credentials(btc['page'].object_list, context['user'])
+
+        return self._render(btc)
+
+
+class MessagingListsBlock(_RelatedEntitesBlock):
     id_           = QuerysetBlock.generate_id('sms', 'messaging_lists')
     dependencies  = (MessagingList,)
     verbose_name  = _(u'Messaging lists')
     template_name = 'sms/templatetags/block_messaging_lists.html'
 
-    def detailview_display(self, context):
-        campaign = context['object']
-        return self._render(self.get_block_template_context(context, campaign.lists.all(),
-                                                            update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, campaign.pk),
-                                                            ))
+    def _get_queryset(self, entity): #entity=campaign
+        return entity.lists.all()
 
 
 class RecipientsBlock(QuerysetBlock):
@@ -58,19 +78,17 @@ class RecipientsBlock(QuerysetBlock):
                                                            ))
 
 
-class ContactsBlock(QuerysetBlock):
+class ContactsBlock(_RelatedEntitesBlock):
     id_           = QuerysetBlock.generate_id('sms', 'contacts')
     dependencies  = (Contact,)
     verbose_name  = _(u'Contacts recipients')
     template_name = 'sms/templatetags/block_contacts.html'
 
-    def detailview_display(self, context):
-        mlist = context['object']
-        return self._render(self.get_block_template_context(context, mlist.contacts.all(),
-                                                            update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, mlist.pk),
-                                                            ))
+    def _get_queryset(self, entity): #entity=mlist
+        return entity.contacts.all()
 
 
+#TODO: improve credentials (see emails.blocks.MailsBlock) ; must and related entity in Message model
 class MessagesBlock(QuerysetBlock):
     id_           = QuerysetBlock.generate_id('sms', 'messages')
     dependencies  = (Message,)
@@ -87,12 +105,10 @@ class MessagesBlock(QuerysetBlock):
     #Useful method because EmailSending is not a CremeEntity (should be ?) --> generic view in creme_core (problems with credemtials ?) ??
     @jsonify
     def detailview_ajax(self, request, entity_id):
-        from creme_core.gui.block import BlocksManager
-        context = {
-                'request':              request,
-                'object':               Sending.objects.get(id=entity_id),
-                BlocksManager.var_name: BlocksManager(),
-            }
+        context = RequestContext(request)
+        context.update({
+                'object': Sending.objects.get(id=entity_id),
+            })
 
         return [(self.id_, self.detailview_display(context))]
 
