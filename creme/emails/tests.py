@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from datetime import datetime
+from datetime import datetime, timedelta
 from StringIO import StringIO
 
 from django.contrib.auth.models import User
@@ -398,7 +398,7 @@ class EmailsTestCase(CremeTestCase):
         addr_set = set(mail.recipient for mail in mails)
         self.assert_(all(address in addr_set for address in addresses))
 
-        related_set = set(mail.recipient_id for mail in mails)
+        related_set = set(mail.recipient_entity_id for mail in mails)
         self.assert_(all(c.id in related_set for c in contacts))
         self.assert_(all(o.id in related_set for o in orgas))
 
@@ -482,10 +482,10 @@ class EmailsTestCase(CremeTestCase):
 
         response = self.client.post('/emails/campaign/%s/sending/add' % camp.id,
                                     data = {
-                                            'sender':   'vicious@reddragons.mrs',
-                                            'type':     SENDING_TYPE_DEFERRED,
-                                            'template': template.id,
-                                            'sending_date': now.replace(day=now.day - 1).strftime('%Y-%m-%d'), #past: KO
+                                            'sender':       'vicious@reddragons.mrs',
+                                            'type':         SENDING_TYPE_DEFERRED,
+                                            'template':     template.id,
+                                            'sending_date': (now - timedelta(days=1)).strftime('%Y-%m-%d'), #past: KO
                                     }
                                    )
         self.assert_(response.context['form'].errors)

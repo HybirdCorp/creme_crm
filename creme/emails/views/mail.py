@@ -127,6 +127,7 @@ def waiting(request):
 @jsonify
 @permission_required('emails')
 def reload_sync_blocks(request):
+    #TODO: why this specific view ? why not importing blocks singletons ?
     waiting_block = WaitingSynchronizationMailsBlock()
     spam_block    = SpamSynchronizationMailsBlock()
     ctx = RequestContext(request)

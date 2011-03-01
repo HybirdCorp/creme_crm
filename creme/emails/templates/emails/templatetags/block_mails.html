@@ -1,6 +1,6 @@
 {% load i18n %}
 {% load creme_core_tags %}{% load creme_block %}
-{% has_perm_to change object.campaign as has_perm %}
+{% has_perm_to change object.campaign as delete_perm %}
 <table class="table_detail_view ui-corner-all" id={{block_name}}>
     {% get_block_header colspan=3 %}
         <th style="width: 80%;" class="collapser" align="left">{% get_block_title _('%s Email') _('%s Emails') 'email_48.png' _('Emails') %}</th>
@@ -15,10 +15,19 @@
             </tr>
             {% for mail in page.object_list %}<!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
                 <tr>
-                    <td class="{{row_color}}">{{mail.recipient}}</td>
+                    {% if mail.recipient_entity %}
+                        {% has_perm_to view mail.recipient_entity as view_address_perm %}
+                        {% if view_address_perm %}
+                            <td class="{{row_color}}">{{mail.recipient}}</td>
+                        {% else %}
+                            <td class="{{row_color}} forbidden">{% trans 'Address of non viewable Entity' %}</td>
+                        {% endif %}
+                    {% else %}
+                        <td class="{{row_color}}">{{mail.recipient}}</td>
+                    {% endif %}
                     <td class="{{row_color}}">{{mail.get_status_str}}</td>
                     <td class="{{row_color}}" align="center" valign="center" style="width:10%;">
-                        {% get_line_deletor2 at_url '/creme_core/entity/delete_related/{{ct_id}}' with_args "{'id':'{{mail.pk}}'}" with_perms has_perm %}
+                        {% get_line_deletor2 at_url '/creme_core/entity/delete_related/{{ct_id}}' with_args "{'id':'{{mail.pk}}'}" with_perms delete_perm %}
                     </td>
                 </tr>
             {% endfor %}

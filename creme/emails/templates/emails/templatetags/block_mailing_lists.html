@@ -1,5 +1,5 @@
 {% load i18n %}
-{% load creme_core_tags %}{% load creme_block %}
+{% load creme_core_tags %}{% load creme_block %}{% load creme_widgets %}
 {% has_perm_to change object as has_perm %}
 <table class="table_detail_view ui-corner-all" id={{block_name}}>
     {% get_block_header colspan=2 %}
@@ -18,9 +18,7 @@
             </tr>
             {% for ml in page.object_list %}<!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
                 <tr>
-                    <td class="{{row_color}}">
-                        <a href="{{ml.get_absolute_url}}">{{ml.name}}</a>
-                    </td>
+                    <td class="{{row_color}}">{% widget_entity_hyperlink ml user %}</td>
                     <td class="{{row_color}}" align="center" valign="center" style="width:10%;">
                         {% get_line_unlinker at_url '/emails/campaign/{{object.pk}}/mailing_list/delete' with_args "{'id':{{ml.pk}} }" with_perms has_perm %}
                     </td>

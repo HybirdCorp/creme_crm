@@ -382,7 +382,7 @@ class HasPermToNode(template.Node):
 
     def render(self, context):
         var  = self.entity_var.eval(context) #can raise template.VariableDoesNotExist...
-        user = context['request'].user
+        user = context['request'].user #TODO: context['user'] ???
 
         context[self.var_name] = self.perm_func(var, user)
 

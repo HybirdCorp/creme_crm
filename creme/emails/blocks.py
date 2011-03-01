@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2011  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -20,11 +20,10 @@
 
 from django.http import HttpResponse
 from django.template.context import RequestContext
-from django.utils.simplejson import JSONEncoder
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.contenttypes.models import ContentType
 
-from creme_core.models.relation import Relation
+from creme_core.models import Relation, CremeEntity
 from creme_core.gui.block import QuerysetBlock
 from creme_core.utils import jsonify
 
@@ -37,22 +36,35 @@ from emails.models import EmailRecipient, EmailSending, LightWeightEmail, Mailin
 from emails.models.mail import MAIL_STATUS_SYNCHRONIZED_SPAM, MAIL_STATUS_SYNCHRONIZED_WAITING, MAIL_STATUS, MAIL_STATUS_SENT
 
 
-__all__ = ['mailing_lists_block', 'recipients_block', 'contacts_block', 'organisations_block',
-           'child_lists_block', 'parent_lists_block', 'attachments_block', 'sendings_block',
-           'mails_block', 'mails_history_block', 'mail_waiting_sync_block', 'mail_spam_sync_block',
-           'lw_mails_history_block']
+#TODO: move populate_credentials() code to a Block class in creme_core ???
+class _RelatedEntitesBlock(QuerysetBlock):
+    #id_           = 'SET ME'
+    #dependencies  = 'SET ME'
+    #verbose_name  = 'SET ME'
+    #template_name = 'SET ME'
 
-class MailingListsBlock(QuerysetBlock):
+    def _get_queryset(self, entity): #OVERLOAD ME
+        raise NotImplementedError
+
+    def detailview_display(self, context):
+        entity = context['object']
+        btc = self.get_block_template_context(context, self._get_queryset(entity),
+                                              update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, entity.pk),
+                                             )
+
+        CremeEntity.populate_credentials(btc['page'].object_list, context['user'])
+
+        return self._render(btc)
+
+
+class MailingListsBlock(_RelatedEntitesBlock):
     id_           = QuerysetBlock.generate_id('emails', 'mailing_lists')
     dependencies  = (MailingList,)
     verbose_name  = _(u'Mailing lists')
     template_name = 'emails/templatetags/block_mailing_lists.html'
 
-    def detailview_display(self, context):
-        campaign = context['object']
-        return self._render(self.get_block_template_context(context, campaign.mailing_lists.all(),
-                                                            update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, campaign.pk),
-                                                            ))
+    def _get_queryset(self, entity): #entity=campaign
+        return entity.mailing_lists.all()
 
 
 class EmailRecipientsBlock(QuerysetBlock):
@@ -63,75 +75,60 @@ class EmailRecipientsBlock(QuerysetBlock):
 
     def detailview_display(self, context):
         mailing_list = context['object']
-        return self._render(self.get_block_template_context(context, EmailRecipient.objects.filter(ml=mailing_list), #get_recipients() ???
+        return self._render(self.get_block_template_context(context, EmailRecipient.objects.filter(ml=mailing_list.id), #get_recipients() ???
                                                             update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, mailing_list.pk),
                                                             ct_id=ContentType.objects.get_for_model(EmailRecipient).id,
                                                            ))
 
 
-class ContactsBlock(QuerysetBlock):
+class ContactsBlock(_RelatedEntitesBlock):
     id_           = QuerysetBlock.generate_id('emails', 'contacts')
     dependencies  = (Contact,)
     verbose_name  = _(u'Contacts recipients')
     template_name = 'emails/templatetags/block_contacts.html'
 
-    def detailview_display(self, context):
-        mailing_list = context['object']
-        return self._render(self.get_block_template_context(context, mailing_list.contacts.all(),
-                                                            update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, mailing_list.pk),
-                                                           ))
+    def _get_queryset(self, entity): #entity=mailing_list
+        return entity.contacts.select_related('civility')
 
 
-class OrganisationsBlock(QuerysetBlock):
+class OrganisationsBlock(_RelatedEntitesBlock):
     id_           = QuerysetBlock.generate_id('emails', 'organisations')
     dependencies  = (Organisation,)
     verbose_name  = _(u'Organisations recipients')
     template_name = 'emails/templatetags/block_organisations.html'
 
-    def detailview_display(self, context):
-        mailing_list = context['object']
-        return self._render(self.get_block_template_context(context, mailing_list.organisations.all(),
-                                                            update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, mailing_list.pk),
-                                                           ))
+    def _get_queryset(self, entity): #entity=mailing_list
+        return entity.organisations.all()
 
 
-class ChildListsBlock(QuerysetBlock):
+class ChildListsBlock(_RelatedEntitesBlock):
     id_           = QuerysetBlock.generate_id('emails', 'child_lists')
     dependencies  = (MailingList,)
     verbose_name  = _(u'Child mailing lists')
     template_name = 'emails/templatetags/block_child_lists.html'
 
-    def detailview_display(self, context):
-        mailing_list = context['object']
-        return self._render(self.get_block_template_context(context, mailing_list.children.all(),
-                                                            update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, mailing_list.pk),
-                                                           ))
+    def _get_queryset(self, entity): #entity=mailing_list
+        return entity.children.all()
 
 
-class ParentListsBlock(QuerysetBlock):
+class ParentListsBlock(_RelatedEntitesBlock):
     id_           = QuerysetBlock.generate_id('emails', 'parent_lists')
     dependencies  = (MailingList,)
     verbose_name  = _(u'Parent mailing lists')
     template_name = 'emails/templatetags/block_parent_lists.html'
 
-    def detailview_display(self, context):
-        mailing_list = context['object']
-        return self._render(self.get_block_template_context(context, mailing_list.parents_set.all(),
-                                                            update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, mailing_list.pk),
-                                                           ))
+    def _get_queryset(self, entity): #entity=mailing_list
+        return entity.parents_set.all()
 
 
-class AttachmentsBlock(QuerysetBlock):
+class AttachmentsBlock(_RelatedEntitesBlock):
     id_           = QuerysetBlock.generate_id('emails', 'attachments')
     dependencies  = (Document,)
     verbose_name  = _(u'Attachments')
     template_name = 'emails/templatetags/block_attachments.html'
 
-    def detailview_display(self, context):
-        template = context['object']
-        return self._render(self.get_block_template_context(context, template.attachments.all(),
-                                                            update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, template.pk),
-                                                           ))
+    def _get_queryset(self, entity): #entity=mailtemplate
+        return entity.attachments.all()
 
 
 class SendingsBlock(QuerysetBlock):
@@ -143,7 +140,7 @@ class SendingsBlock(QuerysetBlock):
 
     def detailview_display(self, context):
         campaign = context['object']
-        return self._render(self.get_block_template_context(context, EmailSending.objects.filter(campaign=campaign), #TODO: use related_name
+        return self._render(self.get_block_template_context(context, EmailSending.objects.filter(campaign=campaign.id), #TODO: use related_name
                                                             update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, campaign.pk),
                                                             ct_id=ContentType.objects.get_for_model(EmailSending).id,
                                                            ))
@@ -158,10 +155,16 @@ class MailsBlock(QuerysetBlock):
 
     def detailview_display(self, context):
         sending = context['object']
-        return self._render(self.get_block_template_context(context, sending.get_mails(),
-                                                            update_url='/emails/campaign/sending/%s/mails/reload/' % sending.pk,
-                                                            ct_id=ContentType.objects.get_for_model(LightWeightEmail).id,
-                                                           ))
+        btc = self.get_block_template_context(context, sending.get_mails().select_related('recipient_entity'),
+                                              update_url='/emails/campaign/sending/%s/mails/reload/' % sending.pk,
+                                              ct_id=ContentType.objects.get_for_model(LightWeightEmail).id,
+                                             )
+
+        CremeEntity.populate_credentials([mail.recipient_entity for mail in btc['page'].object_list if mail.recipient_entity],
+                                         context['user']
+                                        )
+
+        return self._render(btc)
 
     #Useful method because EmailSending is not a CremeEntity (should be ?) --> generic view in creme_core (problems with credemtials ?) ??
     @jsonify
@@ -204,7 +207,7 @@ class LwMailsHistoryBlock(QuerysetBlock):
 
     def detailview_display(self, context):
         pk = context['object'].pk
-        return self._render(self.get_block_template_context(context, LightWeightEmail.objects.filter(recipient_id=pk),
+        return self._render(self.get_block_template_context(context, LightWeightEmail.objects.filter(recipient_entity=pk),
                                                             update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, pk), #TODO: test me!!!
                                                             ))
 
@@ -213,13 +216,13 @@ class _SynchronizationMailsBlock(QuerysetBlock):
     dependencies  = (EntityEmail,)
     order_by      = '-reception_date'
 
-    def __init__(self, *args, **kwargs):
-        super(_SynchronizationMailsBlock, self).__init__()
+    #def __init__(self, *args, **kwargs):
+        #super(_SynchronizationMailsBlock, self).__init__()
 
     @jsonify
     def detailview_ajax(self, request):
         context = RequestContext(request)
-        context.update({
+        context.update({ #TODO: useless (already in detailview_display)
             'MAIL_STATUS': MAIL_STATUS,
             'entityemail_ct_id': ContentType.objects.get_for_model(EntityEmail).id,
         })
@@ -237,6 +240,7 @@ class WaitingSynchronizationMailsBlock(_SynchronizationMailsBlock):
         return self._render(self.get_block_template_context(context, EntityEmail.objects.filter(status=MAIL_STATUS_SYNCHRONIZED_WAITING),
 #                                                            update_url='/creme_core/blocks/reload/basic/%s/' % self.id_
                                                             update_url='/emails/sync_blocks/reload'
+                                                            #MAIL_STATUS=MAIL_STATUS #TODO
                                                             ))
 
 
@@ -253,16 +257,22 @@ class SpamSynchronizationMailsBlock(_SynchronizationMailsBlock):
                                                             ))
 
 
-mailing_lists_block     = MailingListsBlock()
-recipients_block        = EmailRecipientsBlock()
-contacts_block          = ContactsBlock()
-organisations_block     = OrganisationsBlock()
-child_lists_block       = ChildListsBlock()
-parent_lists_block      = ParentListsBlock()
-attachments_block       = AttachmentsBlock()
-sendings_block          = SendingsBlock()
-mails_block             = MailsBlock()
-mails_history_block     = MailsHistoryBlock()
-lw_mails_history_block  = LwMailsHistoryBlock()
-mail_waiting_sync_block = WaitingSynchronizationMailsBlock()
-mail_spam_sync_block    = SpamSynchronizationMailsBlock()
+mails_block = MailsBlock()
+#mail_waiting_sync_block = WaitingSynchronizationMailsBlock()
+#mail_spam_sync_block    = SpamSynchronizationMailsBlock()
+
+blocks_list = (
+        MailingListsBlock(),
+        EmailRecipientsBlock(),
+        ContactsBlock(),
+        OrganisationsBlock(),
+        ChildListsBlock(),
+        ParentListsBlock(),
+        AttachmentsBlock(),
+        SendingsBlock(),
+        mails_block,
+        MailsHistoryBlock(),
+        LwMailsHistoryBlock(),
+        WaitingSynchronizationMailsBlock(), #mail_waiting_sync_block
+        SpamSynchronizationMailsBlock(), #mail_spam_sync_bloc
+    )

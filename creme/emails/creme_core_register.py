@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2011  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -25,7 +25,7 @@ from creme_core.gui.menu import creme_menu
 from creme_core.gui.block import block_registry
 
 from emails.models import EmailCampaign, MailingList, EmailTemplate, EntityEmail
-from emails.blocks import * #TODO: blocks_list ??
+from emails.blocks import blocks_list
 
 
 creme_registry.register_entity_models(EmailCampaign, MailingList, EmailTemplate, EntityEmail)
@@ -42,7 +42,4 @@ reg_item('/emails/template/add',     _(u'Add an email template'),              '
 reg_item('/emails/mails',            _(u'All emails'),                         'emails')
 reg_item('/emails/synchronization',  _(u'Synchronization of incoming emails'), 'emails')
 
-block_registry.register(mailing_lists_block, recipients_block, contacts_block, organisations_block,
-                        child_lists_block, parent_lists_block, attachments_block, sendings_block,
-                        mails_block, mails_history_block, mail_waiting_sync_block, mail_spam_sync_block,
-                        lw_mails_history_block)
+block_registry.register(*blocks_list)
