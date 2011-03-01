@@ -95,16 +95,19 @@ def set_emails_status(request, status):
     _set_emails_status(request, status)
     return HttpResponse()
 
-@login_required
-@permission_required('emails')
-def delete(request):
-    #TODO: There no verifications because email is not a CremeEntity!!!
-    #TODO: regroup queries
-    for id in _retrieve_emails_ids(request):
-        email = get_object_or_404(EntityEmail, pk=id)
-        email.delete()
-
-    return HttpResponse()
+#Commented 1 march 2011
+#@login_required
+#@permission_required('emails')
+#def delete(request):
+#    #TODO: There no verifications because email is not a CremeEntity!!!
+#    #TODO: regroup queries
+#    user = request.user
+#    for id in _retrieve_emails_ids(request):
+#        email = get_object_or_404(EntityEmail, pk=id)
+#        email.can_delete_or_die(user)
+#        email.delete()
+#
+#    return HttpResponse()
 
 @login_required
 @permission_required('emails')
