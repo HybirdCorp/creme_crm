@@ -30,13 +30,13 @@ from creme_config.forms.prefered_menu import PreferedMenuForm
 @permission_required('creme_config.can_admin')
 def edit(request):
     if request.POST:
-        form = PreferedMenuForm(None, request.POST)
+        form = PreferedMenuForm(user2edit=None, user=request.user, data=request.POST)
 
         if form.is_valid():
             form.save()
             return HttpResponseRedirect('/creme_config/')
     else:
-        form = PreferedMenuForm(user=None)
+        form = PreferedMenuForm(user2edit=None, user=request.user)
 
     return render_to_response('creme_core/generics/blockform/edit.html',
                               {'form': form},

@@ -1,116 +1,68 @@
-{% extends "creme_core/base.html" %}
+{% extends "creme_core/generics/view_entity.html" %}
 {% load i18n %}
 {% load media %}
-{% load creme_core_tags %}{% load creme_block %}{% load creme_menu %}
+{% load creme_core_tags %}{% load creme_block %}{% load creme_menu %}{% load creme_widgets %}
 {% load email_tags %}
 
-{% block page_title %} - {{object}}{% endblock %}
+{% block logo %}<img src="{% media_url 'images/email_64.png' %}" alt=""/>{% endblock %}
 
-{% block extrahead %}
-    <script type="text/javascript">
-        $(document).ready(function() {
-            creme.utils.bindShowHideTbody();
-        });
-    </script>
-    {% comment %}<script type="text/javascript">
-        creme.include('{{MEDIA_URL}}js/models/emails.js','js');
-    </script>{% endcomment %}
-{% endblock %}
-
-{% block content %}
-    <table class="table_header" cellpadding="0" cellspacing="0">
-        <tr>
-            <td width="5%"><img src="{% media_url 'images/email_64.png' %}" title="{% trans "Email" %}" alt="{% trans "Email" %}"/></td>
-            <td width="70%">
-                <h1>
-                    {% block title %}
-                        {{object|get_meta_value:"verbose_name"|title}} : {{object|title}}
-                    {% endblock %}
-                </h1>
-            </td>
-            <td width="25%" align="right">
-                <span>
-                    {% if object.status != sent_status %}
-                        <a onclick="creme.emails.resend('/emails/mail/resend', ['{{object.pk}}'], undefined, function(){reload(window);});">{# TODO: Reload only object_as_table when it'll be a block #}
-                            <img src="{% media_url 'images/refresh_64.png' %}" title="{% trans "Re-send" %}" alt="{% trans "Re-send" %}" />
-                        </a>
-                    {% endif %}
-                    <a href="/emails/entitymail/delete/{{object.id}}" onclick="creme.utils.confirmDelete(event, this);">
-                        <img src="{% media_url 'images/delete_64.png' %}" title="{% blocktrans %}Delete '{{object}}'{% endblocktrans %}" alt="{% trans "Delete" %}" />
-                    </a>
-                </span>
-            </td>
-        </tr>
+{% block detail_view_left_1 %}
+    <table class="table_detail_view ui-corner-all">
+        {% get_block_header colspan=2 %}
+            {% with object|get_meta_value:"verbose_name" as tmp %}{% with tmp|format:_("Information %s") as title %}
+                <th style="width: 80%;" class="collapser">{% get_basic_block_header title 'infos_48.png' _('Information') %}</th>
+                <th style="width: 20%;" align="right"></th>
+            {% endwith %} {% endwith %}
+        {% end_get_block_header %}
+        <tbody class="collapsable">
+            <tr>
+                <th class="th_info {% cycle "block_header_line_dark" "block_header_line_light" %}">{% trans "User" %}</th>
+                <td class="td_info {% cycle "block_line_dark" "block_line_light" %}">{{object|get_html_field_value:"user"}}</td>
+            </tr>
+            <tr>
+                <th class="th_info {% cycle "block_header_line_dark" "block_header_line_light" %}">{% trans "Number of reads" %}</th>
+                <td class="td_info {% cycle "block_line_dark" "block_line_light" %}">{{object|get_html_field_value:"reads"}}</td>
+            </tr>
+            <tr>
+                <th class="th_info {% cycle "block_header_line_dark" "block_header_line_light" %}">{% trans "Status" %}</th>
+                <td class="td_info {% cycle "block_line_dark" "block_line_light" %}">{{object.get_status_str}}</td>
+            </tr>
+            <tr>
+                <th class="th_info {% cycle "block_header_line_dark" "block_header_line_light" %}">{% trans "Sender" %}</th>
+                <td class="td_info {% cycle "block_line_dark" "block_line_light" %}">{{object|get_html_field_value:"sender"}}</td>
+            </tr>
+            <tr>
+                <th class="th_info {% cycle "block_header_line_dark" "block_header_line_light" %}">{% trans "Recipient" %}</th>
+                <td class="td_info {% cycle "block_line_dark" "block_line_light" %}">{{object|get_html_field_value:"recipient"}}</td>
+            </tr>
+            <tr>
+                <th class="th_info {% cycle "block_header_line_dark" "block_header_line_light" %}">{% trans "Subject" %}</th>
+                <td class="td_info {% cycle "block_line_dark" "block_line_light" %}">{{object|get_html_field_value:"subject"}}</td>
+            </tr>
+            <tr>
+                <th class="th_info {% cycle "block_header_line_dark" "block_header_line_light" %}">{% trans "Reception date" %}</th>
+                <td class="td_info {% cycle "block_line_dark" "block_line_light" %}">{{object|get_html_field_value:"reception_date"}}</td>
+            </tr>
+            <tr>
+                <th class="th_info {% cycle "block_header_line_dark" "block_header_line_light" %}">{% trans "Attachments" %}</th>
+                <td class="td_info {% cycle "block_line_dark" "block_line_light" %}">
+                    <ul>
+                        {% for doc in object.attachments.all %}
+                            <li>
+                                <a href="{{doc.get_absolute_url}}">{{doc}}</a>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </td>
+            </tr>
+            <tr>
+                <th class="th_info {% cycle "block_header_line_dark" "block_header_line_light" %}">{% trans "Email body" %}</th>
+                <td class="td_info">
+                    {{object|get_email_body}}
+                </td>
+            </tr>
+        </tbody>
     </table>
-
-    {% import_block from_app 'creme_core' named 'relations' as 'relations_block' %}
-    {% import_block from_app 'creme_core' named 'properties' as 'properties_block' %}
-
-    <div style="float:left;width:49.9%;margin-left:0px;">
-        <table class="table_detail_view ui-corner-all">
-            {% get_block_header colspan=2 %}
-                {% with object|get_meta_value:"verbose_name" as tmp %}{% with tmp|format:_("Information %s") as title %}
-                    <th style="width: 80%;" class="collapser">{% get_basic_block_header title 'infos_48.png' _('Information') %}</th>
-                    <th style="width: 20%;" align="right"></th>
-                {% endwith %} {% endwith %}
-            {% end_get_block_header %}
-            <tbody class="collapsable">
-                <tr>
-                    <th class="{% cycle "block_header_line_dark" "block_header_line_light" %}">{% trans "User" %}</th>
-                    <td class="{% cycle "block_line_dark" "block_line_light" %}">{{object|get_html_field_value:"user"}}</td>
-                </tr>
-                <tr>
-                    <th class="{% cycle "block_header_line_dark" "block_header_line_light" %}">{% trans "Number of reads" %}</th>
-                    <td class="{% cycle "block_line_dark" "block_line_light" %}">{{object|get_html_field_value:"reads"}}</td>
-                </tr>
-                <tr>
-                    <th class="{% cycle "block_header_line_dark" "block_header_line_light" %}">{% trans "Status" %}</th>
-                    <td class="{% cycle "block_line_dark" "block_line_light" %}">{{object.get_status_str}}</td>
-                </tr>
-                <tr>
-                    <th class="{% cycle "block_header_line_dark" "block_header_line_light" %}">{% trans "Sender" %}</th>
-                    <td class="{% cycle "block_line_dark" "block_line_light" %}">{{object|get_html_field_value:"sender"}}</td>
-                </tr>
-                <tr>
-                    <th class="{% cycle "block_header_line_dark" "block_header_line_light" %}">{% trans "Recipient" %}</th>
-                    <td class="{% cycle "block_line_dark" "block_line_light" %}">{{object|get_html_field_value:"recipient"}}</td>
-                </tr>
-                <tr>
-                    <th class="{% cycle "block_header_line_dark" "block_header_line_light" %}">{% trans "Subject" %}</th>
-                    <td class="{% cycle "block_line_dark" "block_line_light" %}">{{object|get_html_field_value:"subject"}}</td>
-                </tr>
-                <tr>
-                    <th class="{% cycle "block_header_line_dark" "block_header_line_light" %}">{% trans "Reception date" %}</th>
-                    <td class="{% cycle "block_line_dark" "block_line_light" %}">{{object|get_html_field_value:"reception_date"}}</td>
-                </tr>
-                <tr>
-                    <th class="{% cycle "block_header_line_dark" "block_header_line_light" %}">{% trans "Attachments" %}</th>
-                    <td class="{% cycle "block_line_dark" "block_line_light" %}">
-                        <ul>
-                            {% for doc in object.attachments.all %}
-                                <li>
-                                    <a href="{{doc.get_absolute_url}}">{{doc}}</a>
-                                </li>
-                            {% endfor %}
-                        </ul>
-                    </td>
-                </tr>
-                <tr>
-                    <th class="{% cycle "block_header_line_dark" "block_header_line_light" %}">{% trans "Email body" %}</th>
-                    <td>
-                        {{object|get_email_body}}
-                    </td>
-                </tr>
-            </tbody>
-        </table>
-        {% include "creme_core/customfields_as_table.html" %}
-        {% display_block_detailview 'properties_block' %}
-        {% display_block_detailview 'relations_block' %}
-    </div>
-    <div style="float:right;width:49.9%;margin-right:0px;">
-        {% import_detailview_blocks %}
-        {% display_detailview_blocks %}
-    </div>
-
-    {% get_blocks_dependencies %}
+    {% display_block_detailview 'properties_block' %}
+    {% display_block_detailview 'relations_block' %}
 {% endblock %}

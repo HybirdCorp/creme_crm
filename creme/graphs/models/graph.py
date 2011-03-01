@@ -52,9 +52,6 @@ class Graph(CremeEntity):
     def get_lv_absolute_url():
         return "/graphs/graphs"
 
-    def get_delete_absolute_url(self):
-        return "/graphs/graph/delete/%s" % self.id
-
     def generate_png(self):
         from os.path import join, exists
         from os import makedirs
@@ -144,3 +141,6 @@ class RootNode(CremeModel):
 
     class Meta:
         app_label = 'graphs'
+
+    def get_related_entity(self): #for generic views (edit_related_to_entity)
+        return self.graph

@@ -18,11 +18,14 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from django.shortcuts import get_object_or_404
 from django.contrib.auth.decorators import login_required, permission_required
 
-from creme_core.views.generic import add_entity, edit_entity, view_entity_with_template, list_view
+from creme_core.models import CremeEntity
+from creme_core.views.generic import add_entity, edit_entity, view_entity, list_view
+from creme_core.utils import get_from_GET_or_404
 
-from documents.models.document import Document
+from documents.models import Document
 from documents.forms.document import DocumentCreateForm, DocumentCreateViewForm, DocumentEditForm
 
 
@@ -36,21 +39,24 @@ def add(request):
 @permission_required('documents')
 @permission_required('documents.add_document')
 def add_from_detailview(request):
-    req_get = request.REQUEST.get
+    GET = request.GET
+    entity = get_object_or_404(CremeEntity, pk=get_from_GET_or_404(GET, 'entity_id'))
 
-    #TODO: credentials on linked entity ??
+    entity.can_link_or_die(request.user)
 
-    return add_entity(request, DocumentCreateViewForm, req_get('callback_url'),
-                      extra_initial={'entity_id': req_get('entity_id')})
+    return add_entity(request, DocumentCreateViewForm, GET.get('callback_url'),
+                      extra_initial={'entity': entity}
+                     )
 
+@login_required
+@permission_required('documents')
 def edit(request, document_id):
-    return edit_entity(request, document_id, Document, DocumentEditForm, 'documents')
+    return edit_entity(request, document_id, Document, DocumentEditForm)
 
 @login_required
 @permission_required('documents')
 def detailview(request, object_id):
-    return view_entity_with_template(request, object_id, Document,
-                                     '/documents/document', 'documents/view_document.html')
+    return view_entity(request, object_id, Document, '/documents/document', 'documents/view_document.html')
 
 @login_required
 @permission_required('documents')

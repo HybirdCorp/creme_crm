@@ -35,10 +35,11 @@ from creme_core.utils.meta import get_flds_with_fk_flds
 from reports.report_aggregation_registry import field_aggregation_registry
 from reports.models.graph import ReportGraph, RGT_FK, RGT_RANGE
 
+#TODO: in capital letters ?? begin with a '_' ??
 authorized_aggregate_fields = field_aggregation_registry.authorized_fields
 authorized_abscissa_types = (models.DateField, models.DateTimeField, models.ForeignKey)
 
-
+#TODO: hide the report's' >select> ??
 class ReportGraphAddForm(CremeEntityForm):
     aggregates        = ChoiceField(label=_(u'Ordinate aggregate'), choices=[(aggregate.name, aggregate.title) for aggregate in field_aggregation_registry.itervalues()])
     aggregates_fields = ChoiceField(label=_(u'Ordinate aggregate field'), choices=())
@@ -49,16 +50,17 @@ class ReportGraphAddForm(CremeEntityForm):
     is_count = BooleanField(label=_(u'Entities count'), help_text=_(u'Make a count instead of aggregate ?'), required=False, widget=CheckboxInput(attrs={'onchange': "creme.reports.graphs.toggleDisableOthers(this, ['#id_aggregates', '#id_aggregates_fields']);"}))
 
     blocks = CremeEntityForm.blocks.new(
-                ('abscissa',       _(u'Abscissa informations'), ['abscissa_fields', 'abscissa_group_by', 'days']),
-                ('ordinate',   _(u'Ordinates informations'),    ['is_count', 'aggregates', 'aggregates_fields']),
+                ('abscissa', _(u'Abscissa informations'),  ['abscissa_fields', 'abscissa_group_by', 'days']),
+                ('ordinate', _(u'Ordinates informations'), ['is_count', 'aggregates', 'aggregates_fields']),
             )
 
     class Meta:
         model = ReportGraph
         exclude = CremeEntityForm.Meta.exclude + ('ordinate', 'abscissa', 'type')
 
-    def __init__(self, report, data=None, *args, **kwargs):
-        super(ReportGraphAddForm, self).__init__(data, *args,  **kwargs)
+    #TODO: create shorcuts variable for fields['foobar']
+    def __init__(self, report, *args, **kwargs):
+        super(ReportGraphAddForm, self).__init__(*args,  **kwargs)
         self.report = report
         report_ct = report.ct
         model = report_ct.model_class()
@@ -69,18 +71,21 @@ class ReportGraphAddForm(CremeEntityForm):
 
         fields['aggregates_fields'].choices = [(f.name, unicode(f.verbose_name)) for f in get_flds_with_fk_flds(model, deep=0) if isinstance(f, authorized_aggregate_fields)]
         if not fields['aggregates_fields'].choices:
-             fields['aggregates_fields'].choices = [(f.name, unicode(f.verbose_name)) for f in get_flds_with_fk_flds(model, deep=0) if isinstance(f, authorized_aggregate_fields)]
+             #NB: WTF !!?? this line is exactly the same than previous one (Commented on 9 december 2010)
+             #fields['aggregates_fields'].choices = [(f.name, unicode(f.verbose_name)) for f in get_flds_with_fk_flds(model, deep=0) if isinstance(f, authorized_aggregate_fields)]
              fields['aggregates_fields'].required = False
 
         fields['abscissa_fields'].choices   = [(f.name, unicode(f.verbose_name)) for f in get_flds_with_fk_flds(model, deep=0) if isinstance(f, authorized_abscissa_types)]
         fields['abscissa_fields'].widget.target_url += str(report_ct.id) #Bof but when DependentSelect will be refactored improve here too
 
-        if data is not None:
+        data = self.data
+
+        if data:
             fields['abscissa_fields'].widget.set_source(data.get('abscissa_fields'))
             fields['abscissa_fields'].widget.set_target(data.get('abscissa_group_by'))
 
         instance = self.instance
-        if instance.pk is not None and data is None:
+        if (instance.pk is not None) and not data:
             ordinate, sep, aggregate = instance.ordinate.rpartition('__')
             fields['aggregates'].initial        = aggregate
             fields['aggregates_fields'].initial = ordinate
@@ -91,7 +96,7 @@ class ReportGraphAddForm(CremeEntityForm):
     def clean(self):
         cleaned_data = self.cleaned_data
         get_data     = cleaned_data.get
-        model = self.report.ct.model_class()
+        model = self.report.ct.model_class() #TODO: want we several Report classes ?? If not, simply replace by 'Report'
 
         try:
             abscissa_group_by = int(get_data('abscissa_group_by'))
@@ -129,18 +134,18 @@ class ReportGraphAddForm(CremeEntityForm):
 
     def save(self):
         get_data = self.cleaned_data.get
-        
+
         graph =  self.instance# or ReportGraph()
         graph.user     = get_data('user')
         graph.name     = get_data('name')
         graph.report   = self.report
         graph.abscissa = get_data('abscissa_fields')
-        
-        if get_data('aggregates_fields'):
+
+        if get_data('aggregates_fields'): #TODO: put get_data('aggregates_fields') in a variable...
             graph.ordinate = '%s__%s' % (get_data('aggregates_fields'), get_data('aggregates'))
         else:
             graph.ordinate = u""
-            
+
         graph.type     = get_data('abscissa_group_by')
         graph.is_count = get_data('is_count')
         graph.days     = get_data('days')

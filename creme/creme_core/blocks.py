@@ -19,8 +19,9 @@
 ################################################################################
 
 from django.utils.translation import ugettext_lazy as _
+from django.contrib.contenttypes.models import ContentType
 
-from creme_core.models import Relation, CremeProperty
+from creme_core.models import CremeEntity, Relation, CremeProperty #EntityCredentials
 from creme_core.gui.block import QuerysetBlock, BlocksManager
 
 
@@ -34,7 +35,8 @@ class PropertiesBlock(QuerysetBlock):
         entity = context['object']
         return self._render(self.get_block_template_context(context, entity.properties.select_related('type'),
                                                             update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, entity.pk),
-                                                            ))
+                                                            ct_id=ContentType.objects.get_for_model(CremeProperty).id,
+                                                           ))
 
 
 class RelationsBlock(QuerysetBlock):
@@ -47,7 +49,9 @@ class RelationsBlock(QuerysetBlock):
 
     def detailview_display(self, context):
         entity = context['object']
-        relations = entity.relations.select_related('type', 'object_entity')
+        user   = context['user']
+        relations = entity.relations.select_related('type', 'type__symmetric_type', 'object_entity')
+        #relations = EntityCredentials.filter_relations(user, relations)
         excluded_types = BlocksManager.get(context).get_used_relationtypes_ids()
 
         if excluded_types:
@@ -59,7 +63,9 @@ class RelationsBlock(QuerysetBlock):
         btc = self.get_block_template_context(context, relations, update_url=update_url)
 
         #NB: DB optimisation
-        Relation.populate_real_object_entities(btc['page'].object_list)
+        relations = btc['page'].object_list
+        Relation.populate_real_object_entities(relations)
+        CremeEntity.populate_credentials([r.object_entity.get_real_entity() for r in relations], user)
 
         return self._render(btc)
 

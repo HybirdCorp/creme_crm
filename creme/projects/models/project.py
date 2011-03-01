@@ -18,13 +18,14 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from datetime import date
+
 from django.db.models import CharField, TextField, ForeignKey, DateTimeField, Max
 from django.utils.translation import ugettext_lazy as _
 
-from creme_core.models import CremeEntity, Relation
+from creme_core.models import CremeEntity
 
 from projects.models import ProjectStatus
-from projects.constants import REL_OBJ_PROJECT_MANAGER
 
 
 class Project(CremeEntity):
@@ -55,9 +56,6 @@ class Project(CremeEntity):
     def get_lv_absolute_url():
         return "/projects/projects"
 
-    def get_delete_absolute_url(self):
-        return "/projects/project/delete/%s" % self.id
-
     ##### ------------------ #####
     ##### Business functions #####
     ##### ------------------ #####
@@ -66,10 +64,6 @@ class Project(CremeEntity):
         for task in self.get_tasks():
             task.delete()
         super(Project, self).delete()
-
-    def add_responsibles(self, responsibles_list):
-        for responsible in responsibles_list:
-            Relation.create(self, REL_OBJ_PROJECT_MANAGER, responsible)
 
     def get_tasks(self):
         if self.tasks_list is None:
@@ -91,3 +85,17 @@ class Project(CremeEntity):
 
     def get_delay(self):
         return sum(max(0, task.get_delay()) for task in self.get_tasks())
+
+    def close(self):
+        """@return Boolean -> False means the project has not been closed (because it is already closed)."""
+        if self.effective_end_date:
+            already_closed = False
+        else:
+            already_closed = True
+            self.effective_end_date = date.today()
+
+        return already_closed
+
+    @property
+    def is_closed(self):
+        return bool(self.effective_end_date)

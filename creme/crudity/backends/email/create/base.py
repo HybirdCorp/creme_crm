@@ -31,6 +31,7 @@ from crudity.blocks import WaitingActionBlock
 from crudity.utils import strip_html, strip_html_
 
 passwd_pattern = re.compile(r'password=(?P<password>\w+)')
+re_html_br     = re.compile(r'<br[/\s]*>')
 
 class CreateFromEmailBackend(object):
     password       = u""  #Password in body to verify permission
@@ -55,12 +56,14 @@ class CreateFromEmailBackend(object):
         if self.authorize_senders(email.senders):
             password = self.password
             body = email.body_html or email.body
-            
+
             if email.body_html:
                 #TODO: Not really good to have parse twice to strip...
+                body = re.sub(re_html_br, '\n', body)
                 body = strip_html(body)
                 body = strip_html_(body)
 
+            body = body.replace('\r', '')
             splited_body = [line for line in body.split('\n') if line.strip()]
             bodyc= splited_body
             bodyp = [line.replace(' ', '') for line in splited_body]

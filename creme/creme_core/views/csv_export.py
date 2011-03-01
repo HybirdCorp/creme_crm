@@ -72,7 +72,6 @@ def dl_listview_as_csv(request, ct_id):
         entities = entities.filter(current_lvs.extra_q)
 
     entities = entities.filter(current_lvs.get_q_with_research(model))
-    #entities = filter_RUD_objects(request, entities).distinct().order_by("%s%s" % (sort_order, sort_field))
     entities = EntityCredentials.filter(request.user, entities)
     entities = entities.distinct().order_by("%s%s" % (sort_order, sort_field)) #distinct ???
     entities = hf.improve_queryset(entities) #optimisation time !!!

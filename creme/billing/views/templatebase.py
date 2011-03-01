@@ -22,21 +22,22 @@ from django.shortcuts import get_object_or_404
 from django.contrib.auth.decorators import login_required, permission_required
 from django.http import HttpResponseRedirect
 
-from creme_core.views.generic import edit_entity, list_view
+from creme_core.views.generic import edit_entity, list_view, view_entity
 
 from billing.models import TemplateBase
 from billing.forms.templatebase import TemplateBaseEditForm
-from billing.views.base import view_billing_entity
 
 
+@login_required
+@permission_required('billing')
 def edit(request, template_id):
-    return edit_entity(request, template_id, TemplateBase, TemplateBaseEditForm, 'billing')
+    return edit_entity(request, template_id, TemplateBase, TemplateBaseEditForm)
 
 @login_required
 @permission_required('recurrents')
 def detailview(request, template_id):
-    template = get_object_or_404(TemplateBase, pk=template_id)
-    return view_billing_entity(request, template, '/billing/template', 'billing/view_template.html', can_download=False)
+    return view_entity(request, template_id, TemplateBase, '/billing/template',
+                       'billing/view_template.html', {'can_download': False})
 
 @login_required
 @permission_required('billing')

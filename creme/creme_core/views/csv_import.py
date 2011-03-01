@@ -35,25 +35,26 @@ def csv_import(request, ct_id):
     if request.method == 'POST':
         POST = request.POST
         step = int(POST.get('csv_step', 0))
-        form = CSVUploadForm(request, POST)
+        form = CSVUploadForm(user=request.user, data=POST)
 
         if step == 0:
             if form.is_valid():
                 cleaned_data = form.cleaned_data
 
                 CSVImportForm = form_factory(ct, form.csv_header)
-                form = CSVImportForm(request,
+                form = CSVImportForm(user=request.user,
                                      initial={
                                                 'csv_step':       1,
                                                 'csv_document':   cleaned_data['csv_document'].id,
                                                 'csv_has_header': cleaned_data['csv_has_header'],
-                                             })
+                                             }
+                                    )
         else:
             assert step == 1
             form.is_valid() #clean fields
 
             CSVImportForm = form_factory(ct, form.csv_header)
-            form = CSVImportForm(request, POST)
+            form = CSVImportForm(user=request.user, data=POST)
 
             if form.is_valid():
                 form.save()
@@ -62,10 +63,12 @@ def csv_import(request, ct_id):
                                             'form':     form,
                                             'back_url': request.GET['list_url'],
                                           },
-                                          context_instance=RequestContext(request))
+                                          context_instance=RequestContext(request)
+                                         )
     else:
-        form = CSVUploadForm(request, initial={'csv_step': 0})
+        form = CSVUploadForm(user=request.user, initial={'csv_step': 0})
 
     return render_to_response('creme_core/generics/blockform/add.html',
-                              { 'form': form},
-                              context_instance=RequestContext(request))
+                              {'form': form},
+                              context_instance=RequestContext(request)
+                             )

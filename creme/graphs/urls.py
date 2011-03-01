@@ -18,7 +18,3 @@ urlpatterns = patterns('graphs.views',
     (r'^root/edit/(?P<root_id>\d+)/',        'root_node.edit'),
     (r'^root/delete$',                       'root_node.delete'),
 )
-
-urlpatterns += patterns('creme_core.views.generic',
-    (r'^graph/delete/(?P<object_id>\d+)$',  'delete_entity'),
-)

@@ -24,13 +24,14 @@ from django.template import RequestContext
 from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required, permission_required
 
-from creme_core.views.generic import add_to_entity, view_entity_with_template, edit_entity
+from creme_core.views.generic import add_to_entity, view_entity, edit_entity
 from creme_core.utils import get_from_POST_or_404
 
 from projects.models import Project, ProjectTask
 from projects.forms.task import TaskCreateForm, TaskEditForm
 
 
+@login_required
 @permission_required('projects.add_projecttask')
 def add(request, project_id):
     return add_to_entity(request, project_id, TaskCreateForm,
@@ -39,14 +40,12 @@ def add(request, project_id):
 @login_required
 @permission_required('projects')
 def detailview(request, object_id):
-    return view_entity_with_template(request, object_id, ProjectTask,
-                                     '/projects/task',
-                                     'projects/view_task.html')
+    return view_entity(request, object_id, ProjectTask, '/projects/task', 'projects/view_task.html')
 
 @login_required
 @permission_required('projects')
 def edit(request, task_id):
-    return edit_entity(request, task_id, ProjectTask, TaskEditForm, 'projects')
+    return edit_entity(request, task_id, ProjectTask, TaskEditForm)
 
 @login_required
 @permission_required('projects')

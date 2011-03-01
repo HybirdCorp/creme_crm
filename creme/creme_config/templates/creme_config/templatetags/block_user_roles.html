@@ -1,5 +1,4 @@
-{% load i18n %}
-{% load media %}
+{% load i18n %}{% load media %}
 {% load creme_widgets %}{% load creme_block %}
 {% if not request.is_ajax %}
     <div class="help_box">{% trans 'Remember that if you delete a role, all associated users will have the default credentials.' %}</div>
@@ -12,11 +11,7 @@
     <tbody class="collapsable">
         <tr>
             <th colspan="7" class="block_header_line_dark" align="left">
-                {% comment %}<a class="button_link" onclick="creme.utils.innerPopupNReload('/creme_config/role/add/', {% get_block_reload_uri %});">{% endcomment %}
-                <a class="button_link" href="/creme_config/role/add/">
-                    <img src="{% media_url 'images/add_22.png' %}" border="0" alt="{% trans "New role" %}" title="{% trans "New role" %}"/>
-                    {% trans "New role" %}
-                </a>
+                {% get_line_adder at_url '/creme_config/role/add/' with_label _("New role") with_perms 1 %}
             </th>
         </tr>
         {% if page.paginator.count %}
@@ -26,22 +21,14 @@
                 <th class="block_header_line_light">{% trans "Administrated applications" %}</th>
                 <th class="block_header_line_light">{% trans "Creation credentials" %}</th>
                 <th class="block_header_line_light">{% trans "Entities credentials" %}</th>
-                <th class="block_header_line_light">{% trans "Edit" %}</th>
-                <th class="block_header_line_light">{% trans "Delete" %}</th>
+                <th class="block_header_line_light">{% trans "Actions" %}</th>
             </tr>
-            {% for role in page.object_list %}
-                <!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
+            {% for role in page.object_list %}<!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
                 <tr>
                     <td class="{{row_color}}">{{role.name}}</td>
-                    <td class="{{row_color}}">
-                        {% widget_select_or_msg role.get_allowed_apps_verbose _('No allowed application') %}
-                    </td>
-                    <td class="{{row_color}}">
-                        {% widget_select_or_msg role.get_admin_4_apps_verbose _('No administrated application') %}
-                    </td>
-                    <td class="{{row_color}}">
-                        {% widget_select_or_msg role.creatable_ctypes.all _('No creation credential') %}
-                    </td>
+                    <td class="{{row_color}}">{% widget_select_or_msg role.get_allowed_apps_verbose _('No allowed application') %}</td>
+                    <td class="{{row_color}}">{% widget_select_or_msg role.get_admin_4_apps_verbose _('No administrated application') %}</td>
+                    <td class="{{row_color}}">{% widget_select_or_msg role.creatable_ctypes.all _('No creation credential') %}</td>
                     <td class="{{row_color}}">
                         {% widget_select_or_msg role.credentials.all _('No credential') %}
                         <a class="button_link" onclick="creme.utils.innerPopupNReload('/creme_config/role/add_credentials/{{role.id}}', {% get_block_reload_uri %});">
@@ -50,13 +37,8 @@
                         </a>
                     </td>
                     <td class="{{row_color}}">
-                        {% comment %}<a class="button_link" onclick="creme.utils.innerPopupNReload('/creme_config/role/edit/{{role.id}}', {% get_block_reload_uri %});">{% endcomment %}
-                        <a class="button_link" href="/creme_config/role/edit/{{role.id}}">
-                            <img src="{% media_url 'images/edit_22.png' %}" border="0" alt="{% trans "Edit" %}" title="{% trans "Edit" %}">
-                        </a>
-                    </td>
-                    <td class="{{row_color}}">
-                        {% get_line_deletor at_url '/creme_config/role/delete' with_args "{'id': '{{role.pk}}'}" %}
+                        {% get_line_editor at_url '/creme_config/role/edit/{{role.id}}' with_perms 1 %}
+                        {% get_line_deletor2 at_url '/creme_config/role/delete' with_args "{'id': '{{role.pk}}'}" with_perms 1 %}
                     </td>
                 </tr>
             {% endfor %}

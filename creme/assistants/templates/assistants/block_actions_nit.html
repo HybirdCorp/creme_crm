@@ -1,5 +1,4 @@
-{% load i18n %}
-{% load media %}
+{% load i18n %}{% load media %}
 {% load creme_core_tags %}{% load creme_block %}
 <table class="table_detail_view ui-corner-all" id={{block_name}}>
     {% get_block_header colspan=9 %}
@@ -20,13 +19,12 @@
                 <th class="block_header_line_dark">{% trans "OK ?" %}</th>
                 <th class="block_header_line_dark">{% trans "Actions" %}</th>
             </tr>
-            {% for action in page.object_list %}
+            {% for action in page.object_list %}<!--{% cycle "block_line_dark" "block_line_light" as row_color%}-->
                 <tr>
-                    <!--{% cycle "block_line_dark" "block_line_light" as row_color%}-->
                     <td class="{{row_color}}"><strong>{{action.title}}</strong></td>
                     {% if not object %}
                         <td class="{{row_color}}">
-                            <a href="{{action.creme_entity.get_absolute_url}}">{{action.creme_entity}}</a>
+                            <a href="{{action.creme_entity.get_absolute_url}}">{{action.creme_entity|allowed_unicode:user}}</a>
                         </td>
                     {% endif %}
                     <td class="{{row_color}}">{{action.description}}</td>
@@ -45,7 +43,7 @@
                     <td class="{{row_color}}" align="center" valign="center" style="width:10%;">
                         {% has_perm_to change action.creme_entity as has_perm %}
                         {% get_line_editor at_url '/assistants/action/edit/{{action.id}}/' with_perms has_perm %}
-                        {% get_line_deletor2 at_url '/assistants/action/delete' with_args "{'id' : {{action.id}} }" with_perms has_perm %}
+                        {% get_line_deletor2 at_url '/creme_core/entity/delete_related/{{ct_id}}' with_args "{'id' : {{action.id}} }" with_perms has_perm %}
                     </td>
                 </tr>
             {% endfor %}

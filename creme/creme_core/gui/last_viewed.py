@@ -27,11 +27,14 @@ from creme_core.models import CremeEntity
 #TODO: in settings ???
 MAX_LAST_ITEMS = 9
 
-class ItemLastViewed(object):
-    def __init__ (self, entity):
+
+class LastViewedItem(object):
+    def __init__ (self, request, entity):
         self.pk = entity.pk
         self.url = entity.get_absolute_url()
         self.update(entity)
+
+        self.__add(request)
 
     def __repr__ (self):
         return self.name
@@ -43,72 +46,52 @@ class ItemLastViewed(object):
         self.name = unicode(entity)
         self.modified = entity.modified
 
+    def __add(self, request):
+        debug('LastViewedItem.add: %s', self)
+        session = request.session
+        #TODO: in python 2.6 ->
+        #      last_viewed_items = session.get('last_viewed_items', deque(maxlen=MAX_LAST_ITEMS))
+        last_viewed_items = session.get('last_viewed_items', deque())
 
-def change_page_for_last_item_viewed(func):
-    def decorator_func(request, *args, **kwargs):
-        change_page_for_last_viewed(request)
-        return func(request, *args, **kwargs)
+        if last_viewed_items and last_viewed_items[0] == self:
+            return
 
-    return decorator_func
+        try:
+            last_viewed_items.remove(self)
+        except ValueError:
+            debug('%s not in last_viewed', self)
 
-def __add_item_in_last_viewed(request, item):
-    debug('__add_item_in_last_viewed: %s', item)
-    session = request.session
-#todo , in python 2.6
-#    last_viewed_items = session.get('last_viewed_items', deque(maxlen=MAX_LAST_ITEMS))
-    last_viewed_items = session.get('last_viewed_items', deque())
+        last_viewed_items.appendleft(self)
+        #TODO: comment these 2 lines with python 2.6
+        while len(last_viewed_items) > MAX_LAST_ITEMS:
+            last_viewed_items.pop()
 
-    try:
-        last_viewed_items.remove(item)
-    except ValueError:
-        debug('%s not in last_viewed', item)
+        session['last_viewed_items'] = last_viewed_items
 
-    last_viewed_items.appendleft(item)
-    #for python 2.5
-    while len(last_viewed_items) > MAX_LAST_ITEMS:
-        last_viewed_items.pop()
+    #TODO: use the future entitiy representation table
+    @staticmethod
+    def get_all(request):
+        session = request.session
+        old_items = session.get('last_viewed_items')
 
-    session['last_viewed_items'] = last_viewed_items
+        if not old_items:
+            return ()
 
-def change_page_for_last_viewed(request):
-    current_page_viewed = request.session.pop('current_viewed_item', None)
+        entities = dict((e.id, e) for e in CremeEntity.objects.filter(pk__in=[item.pk for item in old_items]))
+        items = []
+        updated = (len(old_items) != len(entities)) #if any entitiy has been deleted -> must update
 
-    if current_page_viewed is not None:
-        __add_item_in_last_viewed(request, current_page_viewed)
+        for item in old_items:
+            entity = entities.get(item.pk)
 
-def add_item_in_last_viewed(request, entity):
-    session = request.session
-    current_item = session.get('current_viewed_item')
+            if entity:
+                if entity.modified > item.modified:
+                    updated = True
+                    item.update(entity.get_real_entity()) #TODO: use CremeEntity.populate_real_entities()
 
-    if current_item is not None and current_item.pk == entity.pk:
-        return
+                items.append(item)
 
-    item = ItemLastViewed(entity)
-    __add_item_in_last_viewed(request, item)
-    session['current_viewed_item'] = item
+        if updated:
+            session['last_viewed_items'] = deque(items)
 
-def last_viewed_items(request):
-    session = request.session
-    old_items = session.get('last_viewed_items')
-
-    if not old_items:
-        return ()
-
-    entities = dict((e.id, e) for e in CremeEntity.objects.filter(pk__in=[item.pk for item in old_items]))
-    items = []
-    updated = (len(old_items) != len(entities))
-
-    for item in old_items:
-        entity = entities.get(item.pk)
-
-        if entity:
-            if entity.modified > item.modified:
-                updated = True
-                item.update(entity.get_real_entity())
-
-            items.append(item)
-
-    if updated:
-        session['last_viewed_items'] = deque(items)
-
-    return items
+        return items

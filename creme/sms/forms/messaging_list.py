@@ -43,9 +43,9 @@ class AddContactsForm(CremeForm):
 
     blocks = FieldBlockManager(('general', _(u'Contacts recipients'), '*'))
 
-    def __init__(self, messaging_list, *args, **kwargs):
+    def __init__(self, entity, *args, **kwargs):
         super(AddContactsForm, self).__init__(*args, **kwargs)
-        self.messaging_list = messaging_list
+        self.messaging_list = entity
 
     def save(self):
         contacts = self.messaging_list.contacts
@@ -61,9 +61,9 @@ class AddPersonsFromFilterForm(CremeForm): #private class ???
 
     person_model = None #Contact/Organisation
 
-    def __init__(self, messaging_list, *args, **kwargs):
+    def __init__(self, entity, *args, **kwargs):
         super(AddPersonsFromFilterForm, self).__init__(*args, **kwargs)
-        self.messaging_list = messaging_list
+        self.messaging_list = entity
 
         choices = [(0, _(u'All'))]
 
@@ -73,7 +73,7 @@ class AddPersonsFromFilterForm(CremeForm): #private class ???
         self.fields['filters'].choices = choices
 
     def get_persons_m2m(self):
-        raise NotImplementedError 
+        raise NotImplementedError
 
     def save(self):
         persons   = self.get_persons_m2m()

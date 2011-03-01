@@ -19,19 +19,20 @@
 creme.widget.SelectorList = creme.widget.declare('ui-creme-selectorlist', {
     options: {},
 
-    _create: function(element, options) {
+    _create: function(element, options) 
+    {
         var self = creme.widget.SelectorList;
-        //var opts = (options != undefined) ? $.extend(this.options, options) : this.options;
 
         $('div.add', element).click(function() {
-            self.appendSelector(element);
+            self.append_selector(element);
         });
 
-        self.val(element, self.val(element));
+        self._update_selectors(element, self.val(element));
         element.addClass('widget-ready');
     },
 
-    _getSelector: function(element, selector) {
+    _get_selector: function(element, selector) 
+    {
         var self = creme.widget.SelectorList;
 
         if (selector === undefined) {
@@ -42,16 +43,17 @@ creme.widget.SelectorList = creme.widget.declare('ui-creme-selectorlist', {
             }
 
             selector = model.data('widget').clone(model);
+            selector.data('widget').init(selector);
         }
 
-        selector.data('widget').init(selector);
         return selector;
     },
 
-    appendSelector: function(element, selector) {
+    append_selector: function(element, selector) 
+    {
         var self = creme.widget.SelectorList;
 
-        var selector = self._getSelector(element, selector);
+        var selector = self._get_selector(element, selector);
         selector.addClass('selector').attr('style', 'display:inline;');
 
         var selector_item = $('<ul>').addClass('ui-layout hbox').css('display', 'block');
@@ -59,7 +61,8 @@ creme.widget.SelectorList = creme.widget.declare('ui-creme-selectorlist', {
         var delete_button = $('<img/>').attr('src', media_url('images/delete_22.png'))
                                        .attr('alt', gettext("Delete"))
                                        .attr('title', gettext("Delete"))
-                                       .attr('style', 'position:absolute;top:0.1em;left:0.1em;')
+                                       .attr('style', 'vertical-align:middle;')
+                                       .addClass('delete')
                                        .click(function() {
                                             selector_item.remove();
                                             self._update(element);
@@ -80,30 +83,41 @@ creme.widget.SelectorList = creme.widget.declare('ui-creme-selectorlist', {
         return selector;
     },
 
-    _update: function(element) {
+    _update: function(element) 
+    {
         var self = creme.widget.SelectorList;
         var values = creme.widget.val($('ul.selectors .selector', element));
         creme.widget.input(element).val('[' + values.join(',') + ']');
     },
 
-    val: function(element, value) {
-        var self = creme.widget.SelectorList;
-        var values = creme.widget.parseval(value, creme.ajax.json.parse);
+    _update_selectors: function(element, value)
+    {
+    	var self = creme.widget.SelectorList;
+    	var values = creme.widget.parseval(value, creme.ajax.json.parse);
 
-        if (values !== undefined) {
-            $('ul.selectors', element).empty();
+        if (values === undefined)
+        	return;
+        
+        $('ul.selectors', element).empty();
 
-            if (values === null)
-                return;
+        if (values === null)
+            return;
 
-            for(var i = 0; i < values.length; ++i) {
-                var selector = self.appendSelector(element);
-                selector.data('widget').val(selector, values[i]);
-            }
-
-            creme.widget.input(element).val(value);
+        for (var i = 0; i < values.length; ++i) 
+        {
+            var selector = self.append_selector(element);
+            selector.data('widget').val(selector, values[i]);
         }
-
-        return creme.widget.input(element).val();
+    },
+    
+    val: function(element, value) 
+    {
+        var self = creme.widget.SelectorList;
+        
+        if (value === undefined)
+        	return creme.widget.input(element).val();
+        
+        self._update_selectors(value);
+       	creme.widget.input(element).val(value);
     }
 });

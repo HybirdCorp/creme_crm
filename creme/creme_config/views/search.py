@@ -20,23 +20,22 @@
 
 from django.http import HttpResponseRedirect, HttpResponse
 from django.template.context import RequestContext
+from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required, permission_required
 from django.shortcuts import get_object_or_404, render_to_response
 from django.conf import settings
 
-from creme_core.views.generic import add_entity
+from creme_core.views.generic import add_model_with_popup, edit_model_with_popup
 from creme_core.models import SearchConfigItem, SearchField
 from creme_core.utils import get_from_POST_or_404
 
 from creme_config.forms.search import SearchEditForm, SearchAddForm
 
 
-portal_url = '/creme_config/search/portal/'
-
 @login_required
 @permission_required('creme_config.can_admin')
 def add(request):
-    return add_entity(request, SearchAddForm, portal_url)
+    return add_model_with_popup(request, SearchAddForm, _(u'New search configuration'))
 
 @login_required
 @permission_required('creme_config')
@@ -48,20 +47,7 @@ def portal(request):
 @login_required
 @permission_required('creme_config.can_admin')
 def edit(request, search_config_id):
-    search_config = get_object_or_404(SearchConfigItem, pk=search_config_id)
-
-    if request.POST:
-        search_cfg_form = SearchEditForm(search_config, request.POST)
-
-        if search_cfg_form.is_valid():
-            search_cfg_form.save()
-            return HttpResponseRedirect(portal_url)
-    else:
-        search_cfg_form = SearchEditForm(search_config)
-
-    return render_to_response('creme_core/generics/blockform/edit.html',
-                              {'form': search_cfg_form},
-                              context_instance=RequestContext(request))
+    return edit_model_with_popup(request, {'pk': search_config_id}, SearchConfigItem, SearchEditForm)
 
 @login_required
 @permission_required('creme_config.can_admin')

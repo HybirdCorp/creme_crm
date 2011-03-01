@@ -18,6 +18,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from logging import info
+
 from django.utils.translation import ugettext as _
 from django.contrib.auth.models import User
 
@@ -78,7 +80,7 @@ class Populator(BasePopulator):
             root.set_password(password)
             root.save()
 
-            print 'A super-user has been created with login="%(login)s" and password="%(password)s".' % {
+            info('A super-user has been created with login="%(login)s" and password="%(password)s".' % {
                             'login':    login,
                             'password': password,
-                        }
+                        })
