@@ -28,11 +28,17 @@ class CalendarForm(CremeModelWithUserForm):
         model = Calendar
         exclude = ('id', 'is_custom')
 
+    def __init__(self, *args, **kwargs):
+        super(CalendarForm, self).__init__(*args, **kwargs)
+        if self.instance.pk:
+            del self.fields['user']
+        
+
     def save(self):
         instance = self.instance
         instance.is_custom = True
 
-        user = self.cleaned_data['user']
+        user = self.cleaned_data.get('user', instance.user)
 
         if instance.is_default:
             Calendar.objects.filter(user=user).update(is_default=False)
