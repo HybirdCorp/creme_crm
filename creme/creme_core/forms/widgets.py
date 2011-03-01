@@ -658,7 +658,7 @@ class Label(TextInput):
         return mark_safe(u"""%(input)s<span %(attrs)s>%(content)s</span>""" % {
                 'input':   super(Label, self).render(name, value, {'style': 'display:none;'}),
                 'attrs':   flatatt(self.build_attrs(attrs, name=name)),
-                'content': value,
+                'content': conditional_escape(force_unicode(value)),
             })
 
 
