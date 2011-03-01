@@ -32,7 +32,7 @@ from projects.models import Resource
 
 @login_required
 @permission_required('projects')
-@permission_required('projects.add_resource')
+#@permission_required('projects.add_resource') #resource not registered as CremeEntity
 def add(request, task_id):
     return _add_generic(request, ResourceCreateForm, task_id, _(u"Allocation of a new resource"))
 

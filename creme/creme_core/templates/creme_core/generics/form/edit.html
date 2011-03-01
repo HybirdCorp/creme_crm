@@ -1,5 +1,19 @@
-{% extends "creme_core/generics/form/base.html" %}
+{% extends "creme_core/base.html" %}
 {% load i18n %}
-{% load media %}
-{% block logo %}<img src="{% media_url 'images/edit_64.png' %}" alt="{% trans "Edit" %}"/>{% endblock %}
-{% block title %}{% trans "Edit" %}{% endblock %}
+
+{% block page_title %}
+    {% if object %}
+        - {% blocktrans %}Modify {{object}}{% endblocktrans  %}
+    {% else %}
+        - {% trans "Edit" %}
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+    {% with 'images/edit_64.png' as logo %}
+    {% comment %}{% templatize "Éditer: {{object}}" as title %} TODO {% endcomment %}
+    {% with _("Edit") as title %}
+        {% include "creme_core/generics/form/base.html" %}
+    {% endwith %}
+    {% endwith %}
+{% endblock %}

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2011  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -22,13 +22,15 @@ from django.forms.widgets import HiddenInput
 from django.forms import DateTimeField
 from django.utils.translation import ugettext_lazy as _
 
-from creme_core.forms import CremeEntityForm
-from creme_core.forms.fields import MultiCremeEntityField
+from creme_core.models import CremeEntity, Relation
+from creme_core.forms import CremeEntityForm, MultiCremeEntityField
 from creme_core.forms.widgets import DateTimeWidget
+from creme_core.forms.validators import validate_linkable_entities
 
 from persons.models import Contact
 
 from projects.models import Project
+from projects.constants import REL_OBJ_PROJECT_MANAGER
 
 
 class ProjectEditForm(CremeEntityForm):
@@ -44,6 +46,20 @@ class ProjectCreateForm(ProjectEditForm):
     responsibles = MultiCremeEntityField(label=_(u'Project leaders'),
                                         required=True, model=Contact)
 
+    def clean_responsibles(self):
+        return validate_linkable_entities(self.cleaned_data['responsibles'], self.user)
+
     def save(self):
-        super(ProjectCreateForm, self).save()
-        self.instance.add_responsibles(self.cleaned_data['responsibles'])
+        cleaned_data = self.cleaned_data
+        instance = super(ProjectCreateForm, self).save()
+        create_relation = Relation.objects.create
+        user = cleaned_data['user']
+
+        for contact in self.cleaned_data['responsibles']:
+            create_relation(subject_entity=instance,
+                            type_id=REL_OBJ_PROJECT_MANAGER,
+                            object_entity=contact,
+                            user=user
+                           )
+
+        return instance

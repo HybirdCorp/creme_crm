@@ -2,19 +2,16 @@
 
 from datetime import date
 
-from django.test import TestCase
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 
 from creme_core.models import RelationType, Relation, CremeProperty
-from creme_core.management.commands.creme_populate import Command as PopulateCommand
 from creme_core.constants import REL_SUB_RELATED_TO, REL_OBJ_RELATED_TO, PROP_IS_MANAGED_BY_CREME
+from creme_core.tests.base import CremeTestCase
 
 from documents.constants import REL_SUB_CURRENT_DOC
 
 from persons.models import Organisation
-
-#from products.models import *
 
 from billing.models import Quote
 from billing.constants import REL_SUB_BILL_ISSUED, REL_SUB_BILL_RECEIVED
@@ -23,22 +20,9 @@ from opportunities.models import *
 from opportunities.constants import *
 
 
-class OpportunitiesTestCase(TestCase):
-    def login(self):
-        if not self.user:
-            user = User.objects.create(username='Gally')
-            user.set_password(self.password)
-            user.is_superuser = True
-            user.save()
-            self.user = user
-
-        logged = self.client.login(username=self.user.username, password=self.password)
-        self.assert_(logged, 'Not logged in')
-
+class OpportunitiesTestCase(CremeTestCase):
     def setUp(self):
-        PopulateCommand().handle(application=['creme_core', 'documents', 'billing', 'opportunities'])
-        self.password = 'test'
-        self.user = None
+        self.populate('creme_core', 'documents', 'billing', 'opportunities')
 
     def test_populate(self): #test get_compatible_ones() too
         ct = ContentType.objects.get_for_model(Opportunity)
@@ -117,26 +101,29 @@ class OpportunitiesTestCase(TestCase):
     def test_opportunity_generate_new_doc01(self):
         self.login()
 
-        self.failIf(Quote.objects.all())
+        self.failIf(Quote.objects.count())
 
         opportunity, target, emitter = self.create_opportunity('Opportunity01')
         ct = ContentType.objects.get_for_model(Quote)
+        url = '/opportunities/opportunity/generate_new_doc/%s/%s' % (opportunity.id, ct.id)
 
-        response = self.client.get('/opportunities/opportunity/generate_new_doc/%s/%s' % (opportunity.id, ct.id), follow=True)
-        self.assertEqual(200, response.status_code)
+        self.assertEqual(404, self.client.get(url).status_code)
+        self.assertEqual(200, self.client.post(url, follow=True).status_code)
 
         quotes = Quote.objects.all()
-        self.assertEqual(1 , len(quotes))
+        self.assertEqual(1, len(quotes))
 
         quote = quotes[0]
         self.assert_((date.today() - quote.issuing_date).seconds < 10)
         self.assertEqual(1, quote.status_id)
 
-        filter_ = Relation.objects.filter
-        self.assertEqual(1, filter_(subject_entity=quote, type=REL_SUB_BILL_ISSUED,   object_entity=emitter).count())
-        self.assertEqual(1, filter_(subject_entity=quote, type=REL_SUB_BILL_RECEIVED, object_entity=target).count())
-        self.assertEqual(1, filter_(subject_entity=quote, type=REL_SUB_LINKED_QUOTE,  object_entity=opportunity).count())
-        self.assertEqual(1, filter_(subject_entity=quote, type=REL_SUB_CURRENT_DOC,   object_entity=opportunity).count())
+        def count_relations(type_id, object_id):
+            return Relation.objects.filter(subject_entity=quote, type=type_id, object_entity=object_id).count()
+
+        self.assertEqual(1, count_relations(type_id=REL_SUB_BILL_ISSUED,   object_id=emitter))
+        self.assertEqual(1, count_relations(type_id=REL_SUB_BILL_RECEIVED, object_id=target))
+        self.assertEqual(1, count_relations(type_id=REL_SUB_LINKED_QUOTE,  object_id=opportunity))
+        self.assertEqual(1, count_relations(type_id=REL_SUB_CURRENT_DOC,   object_id=opportunity))
 
     def test_opportunity_generate_new_doc02(self):
         self.login()
@@ -144,11 +131,10 @@ class OpportunitiesTestCase(TestCase):
         opportunity, target, emitter = self.create_opportunity('Opportunity01')
         ct = ContentType.objects.get_for_model(Quote)
 
-        self.client.get('/opportunities/opportunity/generate_new_doc/%s/%s' % (opportunity.id, ct.id))
+        self.client.post('/opportunities/opportunity/generate_new_doc/%s/%s' % (opportunity.id, ct.id))
         quote1 = Quote.objects.all()[0]
 
-        self.client.get('/opportunities/opportunity/generate_new_doc/%s/%s' % (opportunity.id, ct.id))
-
+        self.client.post('/opportunities/opportunity/generate_new_doc/%s/%s' % (opportunity.id, ct.id))
         quotes = Quote.objects.exclude(pk=quote1.id)
         self.assertEqual(1, len(quotes))
 
@@ -165,20 +151,24 @@ class OpportunitiesTestCase(TestCase):
         self.assertEqual(1, filter_(subject_entity=quote1, type=REL_SUB_LINKED_QUOTE,  object_entity=opportunity).count())
         self.assertEqual(0, filter_(subject_entity=quote1, type=REL_SUB_CURRENT_DOC,   object_entity=opportunity).count())
 
+    #def test_opportunity_generate_new_doc03(self): #TODO test with credentials problems
+
     def test_set_current_quote(self):
         self.login()
 
         opportunity, target, emitter = self.create_opportunity('Opportunity01')
         ct = ContentType.objects.get_for_model(Quote)
+        gen_quote = lambda: self.client.post('/opportunities/opportunity/generate_new_doc/%s/%s' % (opportunity.id, ct.id))
 
-        self.client.get('/opportunities/opportunity/generate_new_doc/%s/%s' % (opportunity.id, ct.id))
+        gen_quote()
         quote1 = Quote.objects.all()[0]
 
-        self.client.get('/opportunities/opportunity/generate_new_doc/%s/%s' % (opportunity.id, ct.id))
+        gen_quote()
         quote2 = Quote.objects.exclude(pk=quote1.id)[0]
 
-        response = self.client.get('/opportunities/opportunity/%s/linked/quote/%s/set_current/' % (opportunity.id, quote1.id), follow=True)
-        self.assertEqual(200, response.status_code)
+        url = '/opportunities/opportunity/%s/linked/quote/%s/set_current/' % (opportunity.id, quote1.id)
+        self.assertEqual(404, self.client.get(url).status_code)
+        self.assertEqual(200, self.client.post(url, follow=True).status_code)
 
         filter_ = Relation.objects.filter
         self.assertEqual(1, filter_(subject_entity=quote2, type=REL_SUB_BILL_ISSUED,   object_entity=emitter).count())
@@ -190,3 +180,5 @@ class OpportunitiesTestCase(TestCase):
         self.assertEqual(1, filter_(subject_entity=quote1, type=REL_SUB_BILL_RECEIVED, object_entity=target).count())
         self.assertEqual(1, filter_(subject_entity=quote1, type=REL_SUB_LINKED_QUOTE,  object_entity=opportunity).count())
         self.assertEqual(1, filter_(subject_entity=quote1, type=REL_SUB_CURRENT_DOC,   object_entity=opportunity).count())
+
+#TODO: test add_to_orga (with bad creds etc...)

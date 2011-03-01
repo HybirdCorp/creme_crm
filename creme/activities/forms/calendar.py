@@ -17,45 +17,36 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
-from django.contrib.auth.models import User
 
-from creme_core.forms.base import CremeModelForm
+from creme_core.forms.base import CremeModelWithUserForm
 
 from activities.models.activity import Calendar
 
-class _CalendarForm(CremeModelForm):
+
+class CalendarForm(CremeModelWithUserForm):
     class Meta:
         model = Calendar
         exclude = ('id', 'is_custom')
+
+    def __init__(self, *args, **kwargs):
+        super(CalendarForm, self).__init__(*args, **kwargs)
+        if self.instance.pk:
+            del self.fields['user']
+        
 
     def save(self):
         instance = self.instance
         instance.is_custom = True
 
+        user = self.cleaned_data.get('user', instance.user)
+
         if instance.is_default:
-            Calendar.objects.filter(user=self.cleaned_data['user']).update(is_default=False)
-
-        super(_CalendarForm, self).save()
-        return instance
-
-
-class CalendarForm(_CalendarForm):
-
-    def __init__(self, user=None, *args, **kwargs):
-        super(CalendarForm, self).__init__(*args, **kwargs)
-        if user is not None:
-            self.fields['user'].queryset = User.objects.filter(pk=user.pk)
-            self.fields['user'].initial  = user.pk
-            self.fields['user'].empty_label  = None
-
-    def save(self):
+            Calendar.objects.filter(user=user).update(is_default=False)
+            
         super(CalendarForm, self).save()
 
+        if Calendar.objects.filter(user=user, is_default=True).count() == 0:
+           instance.is_default = True
+           instance.save()
 
-class CalendarConfigForm(_CalendarForm):
-
-    def __init__(self, *args, **kwargs):
-        super(CalendarConfigForm, self).__init__(*args, **kwargs)
-
-    def save(self):
-        super(CalendarConfigForm, self).save()
+        return instance

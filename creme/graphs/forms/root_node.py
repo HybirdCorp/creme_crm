@@ -23,21 +23,21 @@ from django.utils.translation import ugettext_lazy as _
 
 from creme_core.models import RelationType
 from creme_core.forms import CremeForm, CremeModelForm
-from creme_core.forms.fields import GenericEntitiesField
+from creme_core.forms.fields import MultiGenericEntityField
 from creme_core.forms.widgets import UnorderedMultipleChoiceWidget
 
 from graphs.models import RootNode
 
 
 class AddRootNodesForm(CremeForm):
-    entities       = GenericEntitiesField(label=_(u'Root entities'))
+    entities       = MultiGenericEntityField(label=_(u'Root entities'))
     relation_types = ModelMultipleChoiceField(label=_('Related types of relations'),
                                               queryset=RelationType.objects.all(),
                                               widget=UnorderedMultipleChoiceWidget)
 
-    def __init__(self, graph, *args, **kwargs):
+    def __init__(self, entity, *args, **kwargs):
         super(AddRootNodesForm, self).__init__(*args, **kwargs)
-        self.graph = graph
+        self.graph = entity
 
     def save(self):
         graph = self.graph
@@ -59,3 +59,7 @@ class EditRootNodeForm(CremeModelForm):
     class Meta:
         model = RootNode
         exclude = ('graph', 'entity')
+
+    def __init__(self, entity, *args, **kwargs): #NB only useful for the generic view edit_related_to_entity()
+        super(EditRootNodeForm, self).__init__(*args, **kwargs)
+        self.graph = entity

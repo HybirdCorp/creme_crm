@@ -25,11 +25,10 @@ from django.shortcuts import get_object_or_404, render_to_response
 from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required, permission_required
 
-from creme_core.views.generic import add_entity, add_to_entity, view_entity_with_template, edit_entity, list_view
+from creme_core.views.generic import add_entity, add_to_entity, view_entity, edit_entity, list_view
 from creme_core.utils import get_from_POST_or_404
 
 from graphs.models import Graph
-
 from graphs.forms.graph import GraphForm, AddRelationTypesForm
 
 
@@ -50,22 +49,27 @@ def dl_png(request, graph_id):
         return graph.generate_png()
     except Graph.GraphException:
         return render_to_response("graphs/graph_error.html",
-                                 {'error_message': _(u"This graph is too big!")},
-                                 context_instance=RequestContext(request))
+                                  {'error_message': _(u"This graph is too big!")},
+                                  context_instance=RequestContext(request)
+                                 )
 
+@login_required
+@permission_required('graphs')
 def edit(request, graph_id):
-    return edit_entity(request, graph_id, Graph, GraphForm, 'graphs')
+    return edit_entity(request, graph_id, Graph, GraphForm)
 
 @login_required
 @permission_required('graphs')
 def detailview(request, graph_id):
-    return view_entity_with_template(request, graph_id, Graph, '/graphs/graph', 'graphs/view_graph.html')
+    return view_entity(request, graph_id, Graph, '/graphs/graph', 'graphs/view_graph.html')
 
 @login_required
 @permission_required('graphs')
 def listview(request):
-    return list_view(request, Graph, extra_dict={'add_url':'/graphs/graph/add'})
+    return list_view(request, Graph, extra_dict={'add_url': '/graphs/graph/add'})
 
+@login_required
+@permission_required('graphs')
 def add_relation_types(request, graph_id):
     return add_to_entity(request, graph_id, AddRelationTypesForm,
                          _(u'Add relation types to <%s>'), entity_class=Graph)
@@ -77,7 +81,6 @@ def delete_relation_type(request, graph_id):
     graph     = get_object_or_404(Graph, pk=graph_id)
 
     graph.can_change_or_die(request.user)
-
     graph.orbital_relation_types.remove(rtypes_id)
 
     return HttpResponse("", mimetype="text/javascript")

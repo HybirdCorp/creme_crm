@@ -18,28 +18,22 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-
-from django.db.models.fields import (FieldDoesNotExist, DateField, DateTimeField)
-from django.db.models.fields.related import ForeignKey
+from django.db.models import FieldDoesNotExist, DateField, DateTimeField, ForeignKey
 from django.contrib.auth.decorators import login_required, permission_required
 from django.shortcuts import get_object_or_404
 from django.template.context import RequestContext
 from django.utils.translation import ugettext_lazy as _
 
-from creme_core.views.generic.popup import inner_popup
-from creme_core.views.generic.detailview import view_entity_with_template
+from creme_core.views.generic import inner_popup, view_entity
+from creme_core.models import CremeEntity, InstanceBlockConfigItem
 from creme_core.utils import jsonify, get_ct_or_404
-from creme_core.models.entity import CremeEntity
-from creme_core.models.block import InstanceBlockConfigItem
 
-from reports.models.report import Report, report_prefix_url, report_template_dir
+from reports.models.report import Report
 from reports.models.graph import (ReportGraph, verbose_report_graph_types,
                                   RGT_FK, RGT_RANGE, RGT_YEAR, RGT_MONTH, RGT_DAY,
                                   fetch_graph_from_instance_block)
 from reports.forms.graph import ReportGraphAddForm
 
-
-#report_graph_app = ReportGraph._meta.app_label #TODO: use a contant REPORTS instead
 
 #TODO: use add_to_entity() generic view
 @login_required
@@ -49,14 +43,17 @@ def add(request, report_id):
 
     report.can_change_or_die(request.user)
 
-    POST = request.POST
-    if POST:
-        graph_form = ReportGraphAddForm(report, POST)
+    #POST = request.POST
+    #if POST:
+    if request.method == 'POST':
+        #graph_form = ReportGraphAddForm(report, POST)
+        graph_form = ReportGraphAddForm(report=report, user=request.user, data=request.POST)
 
         if graph_form.is_valid():
             graph_form.save()
     else:
-        graph_form = ReportGraphAddForm(report=report)
+        #graph_form = ReportGraphAddForm(report=report)
+        graph_form = ReportGraphAddForm(report=report, user=request.user)
 
     return inner_popup(request, 'creme_core/generics/blockform/add_popup2.html',
                        {
@@ -68,6 +65,7 @@ def add(request, report_id):
                        delegate_reload=True,
                        context_instance=RequestContext(request))
 
+#TODO: use edit_related_to_entity() generic view
 @login_required
 @permission_required('reports')
 def edit(request, graph_id):
@@ -75,14 +73,13 @@ def edit(request, graph_id):
 
     graph.can_change_or_die(request.user)
 
-    POST = request.POST
-    if POST:
-        graph_form = ReportGraphAddForm(graph.report, POST, instance=graph)
+    if request.method == 'POST':
+        graph_form = ReportGraphAddForm(report=graph.report, user=request.user, data=request.POST, instance=graph)
 
         if graph_form.is_valid():
             graph_form.save()
     else:
-        graph_form = ReportGraphAddForm(report=graph.report, instance=graph)
+        graph_form = ReportGraphAddForm(report=graph.report, user=request.user, instance=graph)
 
     return inner_popup(request, 'creme_core/generics/blockform/add_popup2.html',
                        {
@@ -92,16 +89,15 @@ def edit(request, graph_id):
                        is_valid=graph_form.is_valid(),
                        reload=False,
                        delegate_reload=True,
-                       context_instance=RequestContext(request))
-
+                       context_instance=RequestContext(request)
+                      )
 
 @login_required
 @permission_required('reports')
 def detailview(request, graph_id):
-    return view_entity_with_template(request, graph_id, ReportGraph,
-                                     '%s/report' % report_prefix_url,
-                                     '%s/view_graph.html' % report_template_dir,
-                                     extra_template_dict={'verbose_report_graph_types': verbose_report_graph_types})
+    return view_entity(request, graph_id, ReportGraph, '/reports/report', 'reports/view_graph.html',
+                       extra_template_dict={'verbose_report_graph_types': verbose_report_graph_types}
+                      )
 
 @jsonify
 #@permission_required('reports') ??

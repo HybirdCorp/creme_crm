@@ -16,8 +16,7 @@
                 <th class="block_header_line_dark">{% trans "Type of relation" %}</th>
                 <th class="block_header_line_dark">{% trans "Unlink" %}</th>
             </tr>
-            {% for rtype in page.object_list %}
-                <!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
+            {% for rtype in page.object_list %}<!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
                 <tr>
                     <td class="{{row_color}}">{{rtype}}</td>
                     <td class="{{row_color}}" align="center" valign="center" style="width:10%;">

@@ -25,19 +25,13 @@ from django.contrib.auth.models import User
 
 from creme_core import autodiscover as creme_core_autodiscover
 from creme_core.models.header_filter import HeaderFilterItem, HeaderFilter, HFI_FIELD, HFI_RELATION
-
-from creme_core.models import (RelationType, CremeProperty, CremePropertyType, ButtonMenuItem, 
+from creme_core.models import (RelationType, CremeProperty, CremePropertyType, ButtonMenuItem,
                               SearchConfigItem, RelationBlockItem, BlockConfigItem)
 from creme_core.models.list_view_filter import FilterCondition, FilterValue, Filter
-
-
 from creme_core.constants import PROP_IS_MANAGED_BY_CREME, FILTER_TYPE_EQUALS
 from creme_core.utils import create_or_update_models_instance as create
 from creme_core.utils.id_generator import generate_string_id_and_save
-
 from creme_core.gui.block import block_registry
-from creme_core.gui.block import SpecificRelationsBlock
-
 from creme_core.management.commands.creme_populate import BasePopulator
 
 from assistants.blocks import *
@@ -156,29 +150,32 @@ class Populator(BasePopulator):
         managed_orga_filter.save()
 
 
-        admin = User.objects.get(pk=1) #TODO: use constant ?????
+        admin = User.objects.get(pk=1)
 
-        admin_contact = create(Contact, first_name='Fulbert', last_name='Creme', civility_id=mister.pk, description="Creme master", user_id=admin.pk, is_user_id=admin.pk)
+        if not Contact.objects.filter(is_user=admin).exists():
+            Contact.objects.create(first_name='Fulbert', last_name='Creme',
+                                   civility_id=mister.pk, description="Creme master",
+                                   user=admin, is_user=admin
+                                  )
 
         #TODO: add relation to admin ????
-        orga = create(Organisation, name=_("ReplaceByYourSociety"), user_id=admin.pk)
-        managed_by_creme = CremePropertyType.objects.get(pk=PROP_IS_MANAGED_BY_CREME)
-        property_ = CremeProperty(type=managed_by_creme, creme_entity=orga)
-        property_.save()
+        if not Organisation.objects.exists():
+            orga = Organisation.objects.create(user=admin, name=_("ReplaceByYourSociety"))
+            managed_by_creme = CremePropertyType.objects.get(pk=PROP_IS_MANAGED_BY_CREME)
+            CremeProperty.objects.create(type=managed_by_creme, creme_entity=orga)
 
         SearchConfigItem.create(Contact, ['first_name', 'last_name', 'landline', 'mobile', 'email'])
         SearchConfigItem.create(Organisation, ['name', 'phone', 'email', 'sector__sector_name', 'legal_form__legal_form_name'])
 
         #Populate blocks
-        rbi_1 = create(RelationBlockItem, block_id=SpecificRelationsBlock.generate_id('creme_config', REL_SUB_CUSTOMER_OF), relation_type_id=REL_SUB_CUSTOMER_OF)
-        rbi_2 = create(RelationBlockItem, block_id=SpecificRelationsBlock.generate_id('creme_config', REL_OBJ_CUSTOMER_OF), relation_type_id=REL_OBJ_CUSTOMER_OF)
+        rbi_1 = RelationBlockItem.create(REL_SUB_CUSTOMER_OF)
+        rbi_2 = RelationBlockItem.create(REL_OBJ_CUSTOMER_OF)
 
         blocks_2_save = [
             BlockConfigItem(content_type_id=orga_ct_id, block_id=rbi_1.block_id, order=1, on_portal=False),
             BlockConfigItem(content_type_id=orga_ct_id, block_id=rbi_2.block_id, order=2, on_portal=False),
         ]
 
-#        blocks = (ActionsITBlock, ActionsNITBlock, AlertsBlock, TodosBlock, MemosBlock, )
         creme_core_autodiscover()
         block_ids = [id_ for id_, block in block_registry if block.configurable]
         for i, block_id in enumerate(block_ids):

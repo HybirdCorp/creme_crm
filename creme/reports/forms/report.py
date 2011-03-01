@@ -125,11 +125,14 @@ def get_hfi_calculated(columns_get, calculated_column, aggregate, model, order):
     return f
 
 def get_aggregate_custom_fields(model, aggregate_pattern):
-    cfs = CustomField.objects.filter(content_type=ContentType.objects.get_for_model(model), field_type__in=[CustomField.INT,CustomField.FLOAT])
+    cfs = CustomField.objects.filter(content_type=ContentType.objects.get_for_model(model),
+                                     field_type__in=[CustomField.INT, CustomField.FLOAT]
+                                    )
     choices = []
     for cf in cfs:
         choices = [(u"cf__%s__%s" % (cf.field_type, aggregate_pattern % cf.id), cf.name)]
     return choices
+    #TODO: return [blablabla (ie list comprehension !!!)]
 
 
 def get_aggregate_fields(fields, model, initial_data=None):

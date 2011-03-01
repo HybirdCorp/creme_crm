@@ -21,16 +21,11 @@
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, render_to_response
 from django.template.context import RequestContext
-from django.template.loader import render_to_string
 from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.contenttypes.models import ContentType
-from django.utils.translation import ugettext_lazy as _
 
-from creme_core.views.generic import (view_entity_with_template, list_view,
-                                      inner_popup, add_entity, add_to_entity,
-                                      view_real_entity_with_template)
-
+from creme_core.views import generic
 from creme_core.utils import jsonify, get_from_POST_or_404
 
 from crudity.views.email import fetch_emails
@@ -62,11 +57,10 @@ def view_lightweight_mail(request, mail_id):
     ctx_dict = {'mail': email, 'title': _(u'Details of the mail')}
 
     if request.is_ajax():
-        return inner_popup(request, template,
-                           ctx_dict,
-                           is_valid=False,
-                           reload=False,
-                           context_instance=RequestContext(request))
+        return generic.inner_popup(request, template, ctx_dict,
+                                   is_valid=False, reload=False,
+                                   context_instance=RequestContext(request)
+                                  )
 
     return render_to_response(template, ctx_dict,
                               context_instance=RequestContext(request))
@@ -101,16 +95,19 @@ def set_emails_status(request, status):
     _set_emails_status(request, status)
     return HttpResponse()
 
-@login_required
-@permission_required('emails')
-def delete(request):
-    #TODO: There no verifications because email is not a CremeEntity!!!
-    #TODO: regroup queries
-    for id in _retrieve_emails_ids(request):
-        email = get_object_or_404(EntityEmail, pk=id)
-        email.delete()
-
-    return HttpResponse()
+#Commented 1 march 2011
+#@login_required
+#@permission_required('emails')
+#def delete(request):
+#    #TODO: There no verifications because email is not a CremeEntity!!!
+#    #TODO: regroup queries
+#    user = request.user
+#    for id in _retrieve_emails_ids(request):
+#        email = get_object_or_404(EntityEmail, pk=id)
+#        email.can_delete_or_die(user)
+#        email.delete()
+#
+#    return HttpResponse()
 
 @login_required
 @permission_required('emails')
@@ -145,32 +142,29 @@ def reload_sync_blocks(request):
 @login_required
 @permission_required('emails')
 def detailview(request, mail_id):
-    return view_entity_with_template(request, mail_id, EntityEmail,
-                                     '/emails/mail', 'emails/view_entity_mail.html',
-                                     extra_template_dict={'sent_status': MAIL_STATUS_SENT})
+    return generic.view_entity(request, mail_id, EntityEmail, '/emails/mail',
+                               'emails/view_entity_mail.html',
+                               extra_template_dict={'sent_status': MAIL_STATUS_SENT}
+                              )
 
 @login_required
 @permission_required('emails')
 def listview(request):
-    return list_view(request, EntityEmail)
-
+    return generic.list_view(request, EntityEmail)
 
 @login_required
 @permission_required('emails')
 def create_n_send(request, entity_id):
-    return add_to_entity(request,
-                         entity_id,
-                         EntityEmailForm,
-                         title=_(u'Sending an email to <%s>'),
-                         initial={'current_user': request.user}
-                        )
+    return generic.add_to_entity(request, entity_id, EntityEmailForm,
+                                 title=_(u'Sending an email to <%s>'),
+                                 initial={'current_user': request.user}
+                                )
 
 @jsonify
 @login_required
 @permission_required('emails')
 def resend_mails(request):
-    _ids = get_from_POST_or_404(request.POST, 'ids')
-    ids = _ids.split(',')
+    ids = get_from_POST_or_404(request.POST, 'ids').split(',')
 
     #TODO: regroup queries
     for id in ids:
@@ -182,9 +176,6 @@ def resend_mails(request):
     return {}
 
 @login_required
-@permission_required('activities')
+@permission_required('emails')
 def popupview(request, mail_id):
-    return view_real_entity_with_template(request, mail_id,
-                                          '/emails/mail',
-                                          'emails/view_entity_mail_popup.html')
-
+    return generic.view_real_entity(request, mail_id, '/emails/mail', 'emails/view_entity_mail_popup.html')

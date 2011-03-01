@@ -24,7 +24,7 @@ from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.contenttypes.models import ContentType
 
-from creme_core.views.generic import add_entity, add_to_entity, edit_entity, view_entity_with_template, list_view
+from creme_core.views.generic import add_entity, add_to_entity, edit_entity, view_entity, list_view
 from creme_core.utils import get_from_POST_or_404
 
 from emails.models import EmailCampaign
@@ -37,21 +37,23 @@ from emails.forms.campaign import CampaignCreateForm, CampaignEditForm, Campaign
 def add(request):
     return add_entity(request, CampaignCreateForm)
 
+@login_required
+@permission_required('emails')
 def edit(request, campaign_id):
-    return edit_entity(request, campaign_id, EmailCampaign, CampaignEditForm, 'emails')
+    return edit_entity(request, campaign_id, EmailCampaign, CampaignEditForm)
 
 @login_required
 @permission_required('emails')
 def detailview(request, campaign_id):
-    return view_entity_with_template(request, campaign_id, EmailCampaign,
-                                     '/emails/campaign',
-                                     'emails/view_campaign.html')
+    return view_entity(request, campaign_id, EmailCampaign, '/emails/campaign', 'emails/view_campaign.html')
 
 @login_required
 @permission_required('emails')
 def listview(request):
     return list_view(request, EmailCampaign, extra_dict={'add_url': '/emails/campaign/add'})
 
+@login_required
+@permission_required('emails')
 def add_ml(request, campaign_id):
     return add_to_entity(request, campaign_id, CampaignAddMLForm,
                          _('New mailing lists for <%s>'), entity_class=EmailCampaign)
