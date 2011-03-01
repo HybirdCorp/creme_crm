@@ -107,7 +107,15 @@ class PopFrontend(object):
             from_emails = [addr for name, addr in getaddresses(get_all('from', []))]
             cc_emails   = [addr for name, addr in getaddresses(get_all('cc', []))]
 
-            subject    = email_message.get('subject', [])#TODO: Verify utf-8
+            subject    = email_message.get('subject', [])
+
+            decode_subject = []
+            for s, enc in email.Header.decode_header(subject):
+                if enc is not None:
+                    s = s.decode(enc)
+                decode_subject.append(s)
+
+            subject    = ''.join(decode_subject)
 
             dates = []
             for d in get_all('date', []):
