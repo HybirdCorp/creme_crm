@@ -26,6 +26,7 @@ from creme_core.models.header_filter import HFI_FIELD, HFI_RELATION
 from creme_core.gui.block import Block, QuerysetBlock, list4url
 from creme_core.models.block import InstanceBlockConfigItem
 from creme_core.models.relation import RelationType
+from creme_core.models.entity import CremeEntity
 
 from reports.models import Field
 from reports.models.graph import ReportGraph, verbose_report_graph_types, fetch_graph_from_instance_block
@@ -56,12 +57,15 @@ class ReportGraphsBlock(QuerysetBlock):
         report = context['object']
         request = context['request']
 
-        return self._render(self.get_block_template_context(context, ReportGraph.objects.filter(report=report),
-                                                            update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, report.pk),
-                                                            verbose_report_graph_types=verbose_report_graph_types,
-                                                            is_ajax=request.is_ajax()
-                                                            )
-                            )
+        btc = self.get_block_template_context(context, ReportGraph.objects.filter(report=report),
+                                                       update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, report.pk),
+                                                       verbose_report_graph_types=verbose_report_graph_types,
+                                                       is_ajax=request.is_ajax()
+                                             )
+
+        CremeEntity.populate_credentials(btc['page'].object_list, context['user'])
+
+        return self._render(btc)
 
 
 class ReportGraphBlock(Block):
