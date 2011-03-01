@@ -1,0 +1,13 @@
+{% load i18n media creme_core_tags %}{% has_perm_to link object as link_perm %}
+{% if link_perm %}
+    <a class="menu_button" onclick="creme.utils.innerPopupNReload('/creme_core/relation/add_to_entities/{{entity_email_ct_id}}/{{rtypes}}/{{object.pk}}');">
+        <img src="{% media_url 'images/link_32.png' %}" border="0" title="{% trans "Link to" %}" alt="{% trans "Link to" %}" />
+        {% trans "Link to" %}
+    </a>
+{% else %}
+    <span class="menu_button forbidden" title="{% trans "forbidden" %}">
+        <img src="{% media_url 'images/link_32.png' %}" border="0" title="{% trans "Link to" %}" alt="{% trans "Link to" %}" />
+        {% trans "Link to" %}
+    </span>
+{% endif %}
+
