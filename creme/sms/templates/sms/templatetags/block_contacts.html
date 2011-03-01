@@ -21,13 +21,17 @@
             {% for contact in page.object_list %}<!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
                 <tr>
                     <td class="{{row_color}}">
-                        <a href="{{contact.get_absolute_url}}">
-                            {% if contact.mobile %}
-                                {{contact.mobile|phonenumber|formatphone}}
-                            {% else %}
-                                {% blocktrans %}{{contact}} : no number.{% endblocktrans %}
-                            {% endif %}
-                        </a>
+                        {% has_perm_to view contact as contact_perm %}
+                        {% if contact_perm %}
+                            <a href="{{contact.get_absolute_url}}">{{contact}}</a>&nbsp;:&nbsp;
+                                {% if contact.mobile %}
+                                    {{contact.mobile|phonenumber|formatphone}}
+                                {% else %}
+                                    {% trans 'no number' %}
+                                {% endif %}
+                        {% else %}
+                            {{contact|allowed_unicode:user}}
+                        {% endif %}
                     </td>
                     <td class="{{row_color}}" align="center" valign="center" style="width:10%;">
                         {% get_line_unlinker at_url '/sms/messaging_list/{{object.pk}}/contact/delete' with_args "{'id':{{contact.pk}} }" with_perms has_perm %}
