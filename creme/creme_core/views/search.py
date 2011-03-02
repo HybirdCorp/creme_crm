@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2011  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,6 +18,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from functools import partial
+
 from django.http import HttpResponse
 from django.db.models import Q
 #from django.shortcuts import render_to_response
@@ -27,6 +29,7 @@ from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required
 from django.contrib.contenttypes.models import ContentType
 
+from creme_core.models import EntityCredentials
 from creme_core.models.search import SearchConfigItem, SearchField, DEFAULT_PATTERN
 from creme_core.registry import creme_registry
 from creme_core.utils.meta import get_flds_with_fk_flds_str
@@ -37,6 +40,7 @@ from creme_config.forms.search import EXCLUDED_FIELDS_TYPES #humm...
 
 BASE_Q = Q(is_deleted=False)
 
+#TODO: move as SearchConfigItem method ??
 def _build_q_research(model, research, fields, is_or=True):
     """Build a Q with all params fields"""
     q = Q()
@@ -50,6 +54,7 @@ def _build_q_research(model, research, fields, is_or=True):
 
     return BASE_Q & q
 
+#TODO: move as SearchConfigItem method ??
 def _get_research_fields(model, user):
     ct_get_for_model = ContentType.objects.get_for_model
     SCI_get = SearchConfigItem.objects.get
@@ -83,10 +88,9 @@ def _get_research_fields(model, user):
 
 @login_required
 def search(request):
-    POST = request.POST
-
-    research = POST.get('research')
-    ct_id = POST.get('ct_id')
+    post_get = request.POST.get
+    research = post_get('research')
+    ct_id    = post_get('ct_id')
 
     t_ctx   = {}
     scope   = []
@@ -107,12 +111,14 @@ def search(request):
             scope.append(get_ct_or_404(ct_id).model_class())
 
         user = request.user
+        filter_viewable = partial(EntityCredentials.filter, user=user)
 
         for model in scope:
-            model_filter = model.objects.filter(BASE_Q).filter
-
-            fields   = _get_research_fields(model, user)
-            entities = model_filter(_build_q_research(model, research, fields)).distinct()
+            fields   = _get_research_fields(model, user) #TODO: regroup queries ??
+            entities = filter_viewable(queryset=model.objects.filter(BASE_Q)
+                                                             .filter(_build_q_research(model, research, fields))
+                                                             .distinct()
+                                      )
             total   += len(entities)
 
             results.append({
