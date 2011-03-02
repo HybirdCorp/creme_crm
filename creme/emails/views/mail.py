@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2011  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -30,20 +30,16 @@ from creme_core.utils import jsonify, get_from_POST_or_404
 
 from crudity.views.email import fetch_emails
 
-#from emails.blocks import mails_history_block
+from emails.models import LightWeightEmail
 from emails.models.mail import (EntityEmail,
                                 MAIL_STATUS_SENT,
                                 MAIL_STATUS_SYNCHRONIZED_SPAM,
                                 MAIL_STATUS_SYNCHRONIZED,
                                 MAIL_STATUS_SYNCHRONIZED_WAITING)
 from emails.blocks import SpamSynchronizationMailsBlock, WaitingSynchronizationMailsBlock
-from emails.models import LightWeightEmail
 
 from emails.forms.mail import EntityEmailForm
 
-#@login_required
-#def reload_block_mails_history(request, entity_id):
-    #return mails_history_block.detailview_ajax(request, entity_id)
 
 @login_required
 @permission_required('emails')
