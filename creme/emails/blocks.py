@@ -212,9 +212,10 @@ class LwMailsHistoryBlock(QuerysetBlock):
 
     def detailview_display(self, context):
         pk = context['object'].pk
-        return self._render(self.get_block_template_context(context, LightWeightEmail.objects.filter(recipient_entity=pk),
-                                                            update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, pk), #TODO: test me!!!
-                                                            ))
+        return self._render(self.get_block_template_context(context,
+                                                            LightWeightEmail.objects.filter(recipient_entity=pk).select_related('sending'),
+                                                            update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, pk),
+                                                           ))
 
 
 class _SynchronizationMailsBlock(QuerysetBlock):
