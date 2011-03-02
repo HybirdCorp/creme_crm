@@ -608,4 +608,68 @@ class ActivitiesTestCase(CremeTestCase):
                          simplejson.loads(response.content)
                         )
 
+
+    def assertUserHasDefaultCalendar(self, user):
+        try:
+            return Calendar.objects.get(is_default=True, user=user)
+        except Exception, e:
+            self.fail(str(e))
+
+    def test_user_default_calendar(self):
+        self.login()
+        user = self.user
+        def_cal = Calendar.get_user_default_calendar(self.user)
+        def_cal2 = self.assertUserHasDefaultCalendar(user)
+        self.assertEqual(def_cal.id, def_cal2.id)
+
+    def test_add_user_calendar01(self):
+        self.login()
+        user = self.user
+        url = '/activities/calendar/add'
+
+        response = self.client.get(url)
+        self.assertEqual(200, response.status_code)
+
+        response = self.client.post(url,
+                                    data={
+                                            'name': 'whatever',
+                                            'user': user.id
+                                         }
+                                   )
+                                   
+        self.assertNoFormError(response)
+        self.assertEqual(1, Calendar.objects.filter(user=user).count())
+
+        self.assertUserHasDefaultCalendar(user)
+
+    #TODO: If we change the user, may the first user will have a default calendar?
+    def test_edit_user_calendar01(self):
+        self.login()
+        user = self.user
+
+        cal = Calendar.get_user_default_calendar(self.user)
+        cal_name = "My calendar"
+        
+        url = '/activities/calendar/%s/edit' % cal.id
+
+        response = self.client.get(url)
+        self.assertEqual(200, response.status_code)
+
+        response = self.client.post(url,
+                                    data={
+                                            'name': cal_name,
+                                            'user': user.id
+                                         }
+                                   )
+
+        try:
+            cal2 = Calendar.objects.get(pk=cal.id)
+        except Exception, e:
+            self.fail(str(e))
+
+        self.assertNoFormError(response)
+        self.assertEqual(1, Calendar.objects.filter(user=user).count())
+        self.assertEqual(cal_name, cal2.name)
+
+        self.assertUserHasDefaultCalendar(user)
 #TODO: complete test case

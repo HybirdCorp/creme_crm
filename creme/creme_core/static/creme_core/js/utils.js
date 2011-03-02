@@ -257,6 +257,7 @@ creme.utils.deleteEntity = function(atag) {
                     $(this).dialog("destroy");
                     $(this).remove();
                 }
+    buttons[gettext("Cancel")] = function() {$(this).dialog("destroy");$(this).remove();}
 
     creme.utils.showDialog(gettext("Are you sure ?"), {buttons: buttons});
 }

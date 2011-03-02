@@ -8,7 +8,7 @@ from django.template import RequestContext
 from django.contrib.auth.decorators import login_required
 from django.contrib.contenttypes.models import ContentType
 
-from creme_core.populate import DATE_RANGE_FILTER
+from creme_core.populate import DATE_RANGE_FILTER, DATE_RANGE_FILTER_VOLATILE
 from creme_core.models import Filter
 from creme_core.forms.list_view_filter import ListViewFilterForm
 from creme_core.utils import get_ct_or_404, jsonify, get_from_POST_or_404
@@ -110,7 +110,7 @@ def edit(request, ct_id, filter_id):
 
     model_klass_has_attr = hasattr(model_klass, 'extra_filter_fields')
 
-    for condition in current_filter.conditions.filter(~Q(champ__contains='relations') & ~Q(champ__contains='properties') & ~Q(type__pk=DATE_RANGE_FILTER)):
+    for condition in current_filter.conditions.filter(~Q(champ__contains='relations') & ~Q(champ__contains='properties') & ~Q(type__pk__in=[DATE_RANGE_FILTER, DATE_RANGE_FILTER_VOLATILE])):
         text_values = ",".join([value.value for value in condition.values.all()])
 
         if model_klass_has_attr and condition.champ in (f['name'] for f in model_klass.extra_filter_fields):
@@ -161,8 +161,20 @@ def edit(request, ct_id, filter_id):
     date_filters_conditions = []
     for condition in current_filter.conditions.filter(Q(type__pk=DATE_RANGE_FILTER)):
         dates = list(condition.values.values_list('value', flat=True))
+
+        if len(dates) == 1:#case of there is only one value because begin==end
+            dates.append(dates[0])
+
         dates.sort()
-        date_filters_conditions.append({'date_field': condition.champ, 'begin_date': dates[0], 'end_date':dates[1]})
+        date_filters_conditions.append({'date_field': condition.champ, 'begin_date': dates[0], 'end_date':dates[1], 'date_filter':'customized'})
+
+    for condition in current_filter.conditions.filter(Q(type__pk=DATE_RANGE_FILTER_VOLATILE)):
+        try:
+            date_filter_name = list(condition.values.values_list('value', flat=True))[0]
+        except IndexError:
+            date_filter_name = None
+
+        date_filters_conditions.append({'date_field': condition.champ, 'date_filter': date_filter_name, 'begin_date': '', 'end_date':''})
 
     return render_to_response('creme_core/filters.html',
                               {'form': filterform,

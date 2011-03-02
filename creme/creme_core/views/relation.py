@@ -256,7 +256,7 @@ def add_relations(request, subject_id, relation_type_id=None):
                       )
 
 @login_required
-def add_relations_bulk(request, model_ct_id, ids):
+def add_relations_bulk(request, model_ct_id, ids, relations_types=None):
     user = request.user
     model    = get_object_or_404(ContentType, pk=model_ct_id).model_class()
     entities = get_list_or_404(model, pk__in=[id for id in ids.split(',') if id])
@@ -268,11 +268,15 @@ def add_relations_bulk(request, model_ct_id, ids):
     for entity in entities:
         filtered[entity.can_link(user)].append(entity)
 
+    if relations_types is not None:
+        relations_types = [rt for rt in relations_types.split(',') if rt]
+
     if request.method == 'POST':
         form = MultiEntitiesRelationCreateForm(subjects=filtered[True],
                                                forbidden_subjects=filtered[False],
                                                user=request.user,
-                                               data=request.POST
+                                               data=request.POST,
+                                               relations_types=relations_types,
                                               )
 
         if form.is_valid():
@@ -280,7 +284,8 @@ def add_relations_bulk(request, model_ct_id, ids):
     else:
         form = MultiEntitiesRelationCreateForm(subjects=filtered[True],
                                                forbidden_subjects=filtered[False],
-                                               user=request.user
+                                               user=request.user,
+                                               relations_types=relations_types,
                                               )
 
     return inner_popup(request, 'creme_core/generics/blockform/add_popup2.html',

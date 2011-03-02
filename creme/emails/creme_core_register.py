@@ -22,10 +22,12 @@ from django.utils.translation import ugettext_lazy as _
 
 from creme_core.registry import creme_registry
 from creme_core.gui.menu import creme_menu
+from creme_core.gui.button_menu import button_registry
 from creme_core.gui.block import block_registry
 
 from emails.models import EmailCampaign, MailingList, EmailTemplate, EntityEmail
 from emails.blocks import blocks_list
+from emails.buttons import *
 
 
 creme_registry.register_entity_models(EmailCampaign, MailingList, EmailTemplate, EntityEmail)
@@ -41,5 +43,7 @@ reg_item('/emails/templates',        _(u'All email templates'),                '
 reg_item('/emails/template/add',     _(u'Add an email template'),              'emails.add_emailtemplate')
 reg_item('/emails/mails',            _(u'All emails'),                         'emails')
 reg_item('/emails/synchronization',  _(u'Synchronization of incoming emails'), 'emails')
+
+button_registry.register(entityemail_link_button)
 
 block_registry.register(*blocks_list)
