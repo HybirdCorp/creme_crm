@@ -35,7 +35,10 @@
                             <a href="{{mail.get_absolute_url}}">
                                 <img src="{% media_url 'images/view_22.png' %}" border="0" title="{% trans "See the entity" %}" alt="{% trans "See the entity" %}" />
                             </a>
-                            {% get_line_deletor at_url '/emails/mail/delete' with_args "{'ids': ['{{mail.pk}}'] }" %}
+                            {# get_line_deletor at_url '/emails/mail/delete' with_args "{'ids': ['{{mail.pk}}'] }" #}
+                            {# TODO: Populate credentials in blocks.py #}
+                            {% has_perm_to delete mail as delete_perm %}
+                            {% get_line_deletor2 at_url '/creme_core/delete_js' with_args "{'ids': ['{{mail.pk}}'] }" with_perms delete_perm %}
                         </td>
                     </tr>
                 {% endfor %}

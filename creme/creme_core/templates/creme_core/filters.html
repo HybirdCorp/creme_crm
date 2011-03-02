@@ -316,7 +316,7 @@
         $(tr_test).show();
     }
 
-    function addDateFilterLine(date_field, begin_date, end_date, selected_globaltest)
+    function addDateFilterLine(date_field, begin_date, end_date, date_filter, selected_globaltest)
     {
         var $counter = $('#date_fields_count');
         var count = $counter.val();
@@ -349,12 +349,28 @@
             $('#id_global_test_filter_'+count).change();
         }
 
-        if(date_field && begin_date && end_date)
+        
+
+        if(date_field)
         {
             tr_model.find('select[id^="id_date_fields_"]').val(date_field);
-            //tr_model.find('select[id^="id_date_filters_"]').val(date_filter);
-            tr_model.find('input[id^="id_begin_date_"]').val(begin_date);
-            tr_model.find('input[id^="id_end_date_"]').val(end_date);
+            tr_model.find('select[id^="id_date_filters_"]').val(date_filter);
+//            if(date_filter != "")
+//            {
+//                tr_model.find('input[id^="id_begin_date_"]').parent('td').hide();
+//                tr_model.find('input[id^="id_end_date_"]').parent('td').hide();
+//            }
+
+            if(begin_date && end_date){
+                tr_model.find('input[id^="id_begin_date_"]').val(begin_date);
+                tr_model.find('input[id^="id_end_date_"]').val(end_date);
+            }
+        }
+
+        if($('#id_date_filters_'+count).find(':selected').attr('is_volatile') == 1)
+        {
+            tr_model.find('input[id^="id_begin_date_"]').parent('td').hide();
+            tr_model.find('input[id^="id_end_date_"]').parent('td').hide();
         }
 
         $("#id_begin_date_"+count).datepicker({dateFormat: "yy-mm-dd", showOn: "button", buttonImage: "{% media_url 'images/icon_calendar.gif' %}", buttonImageOnly: true });
@@ -365,8 +381,18 @@
             var $me = $(this);
             var $selected = $(this).find(':selected');
 
-            $("#"+$me.attr('start_date_id')).val($selected.attr('begin'));
-            $("#"+$me.attr('end_date_id')).val($selected.attr('end'));
+            if($selected.attr('is_volatile') == 0)
+            {
+                $("#"+$me.attr('start_date_id')).val($selected.attr('begin')).parent('td').show();
+                $("#"+$me.attr('end_date_id')).val($selected.attr('end')).parent('td').show();
+            }
+            else
+            {
+                $("#"+$me.attr('start_date_id')).val(' ').parent('td').hide();
+                $("#"+$me.attr('end_date_id')).val(' ').parent('td').hide();
+            }
+
+            
         });
 
 
@@ -470,7 +496,7 @@
         $('#add_date_filter').click(function(e){addDateFilterLine();});
         $('#filterform').submit(function(){
             var is_valid = true;
-            $('#table_filter > tbody input[readonly!="true"]').each(function(){
+            $('#table_filter > tbody input[readonly!="true"]:visible').each(function(){
                 if($(this).val() == "" && $(this).attr('type') != "hidden")
                 {
                     $(this).focus();
@@ -542,7 +568,7 @@
                     addPropertyLine('{{property.property_id.0}}', {{property.has_property}} ,'{{edit_dict.is_or_for_all}}');
                 {% endfor %}
                 {% for dt_filter in date_filters_conditions %}
-                    addDateFilterLine('{{dt_filter.date_field}}', '{{dt_filter.begin_date}}', '{{dt_filter.end_date}}', '{{edit_dict.is_or_for_all}}');
+                    addDateFilterLine('{{dt_filter.date_field}}', '{{dt_filter.begin_date}}', '{{dt_filter.end_date}}', '{{dt_filter.date_filter}}', '{{edit_dict.is_or_for_all}}');
                 {% endfor %}
             {% endif %}
         {% endif %}

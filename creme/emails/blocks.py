@@ -23,6 +23,7 @@ from django.template.context import RequestContext
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.contenttypes.models import ContentType
 
+from creme_core.constants import REL_SUB_RELATED_TO, REL_OBJ_RELATED_TO
 from creme_core.models import Relation, CremeEntity
 from creme_core.gui.block import QuerysetBlock
 from creme_core.utils import jsonify
@@ -31,7 +32,7 @@ from persons.models import Contact, Organisation
 
 from documents.models import Document
 
-from emails.constants import REL_SUB_MAIL_SENDED, REL_SUB_MAIL_RECEIVED
+from emails.constants import *
 from emails.models import EmailRecipient, EmailSending, LightWeightEmail, MailingList, EntityEmail
 from emails.models.mail import MAIL_STATUS_SYNCHRONIZED_SPAM, MAIL_STATUS_SYNCHRONIZED_WAITING, MAIL_STATUS, MAIL_STATUS_SENT
 
@@ -186,15 +187,19 @@ class MailsHistoryBlock(QuerysetBlock):
     configurable  = True
 
     def detailview_display(self, context):
-        pk = context['object'].pk
+        object = context['object']
+        pk = object.pk
 
-        #TODO: improve query.....
-        entityemail_pk = Relation.objects.filter(type__pk__in=[REL_SUB_MAIL_SENDED, REL_SUB_MAIL_RECEIVED], object_entity=pk).values_list('subject_entity', flat=True).distinct()
+        rtypes = [REL_OBJ_MAIL_SENDED, REL_OBJ_MAIL_RECEIVED, REL_OBJ_RELATED_TO]
+
+        entityemail_pk = Relation.objects.filter(type__pk__in=[REL_SUB_MAIL_SENDED, REL_SUB_MAIL_RECEIVED, REL_SUB_RELATED_TO], object_entity=pk).values_list('subject_entity', flat=True).distinct()
 
         return self._render(self.get_block_template_context(context,
                                                             EntityEmail.objects.filter(pk__in=entityemail_pk),
                                                             update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, pk),
                                                             sent_status=MAIL_STATUS_SENT,
+                                                            rtypes=','.join(rtypes),
+                                                            entity_email_ct_id=ContentType.objects.get_for_model(object).id
                                                             ))
 
 class LwMailsHistoryBlock(QuerysetBlock):
@@ -236,7 +241,7 @@ class WaitingSynchronizationMailsBlock(_SynchronizationMailsBlock):
     template_name = 'emails/templatetags/block_synchronization.html'
 
     def detailview_display(self, context):
-        context.update({'MAIL_STATUS': MAIL_STATUS, 'entityemail_ct_id': ContentType.objects.get_for_model(EntityEmail).id})
+        context.update({'MAIL_STATUS': MAIL_STATUS, 'entityemail_ct_id': ContentType.objects.get_for_model(EntityEmail).id, 'rtypes': ','.join([REL_SUB_MAIL_SENDED, REL_SUB_MAIL_RECEIVED, REL_SUB_RELATED_TO])})
         return self._render(self.get_block_template_context(context, EntityEmail.objects.filter(status=MAIL_STATUS_SYNCHRONIZED_WAITING),
 #                                                            update_url='/creme_core/blocks/reload/basic/%s/' % self.id_
                                                             update_url='/emails/sync_blocks/reload'

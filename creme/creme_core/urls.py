@@ -16,6 +16,7 @@ relation_patterns = patterns('creme_core.views.relation',
     (r'^add/(?P<subject_id>\d+)$',                                                                         'add_relations'),
     (r'^add/(?P<subject_id>\d+)/(?P<relation_type_id>[\w-]+)$',                                            'add_relations'),
     (r'^add_from_predicate/save$',                                                                         'add_relations_with_same_type'),
+    (r'^add_to_entities/(?P<model_ct_id>\d+)/(?P<relations_types>([-_\w]+[,]*)+)/(?P<ids>([\d]+[,]*)+)$',  'add_relations_bulk'),#Beware of the order!!!
     (r'^add_to_entities/(?P<model_ct_id>\d+)/(?P<ids>([\d]+[,])+)$',                                       'add_relations_bulk'),
      #TODO: 'simple' param as GET param ??
     (r'^objects2link/rtype/(?P<rtype_id>[\w-]+)/entity/(?P<subject_id>\d+)/(?P<object_ct_id>\d+)$',        'objects_to_link_selection'),

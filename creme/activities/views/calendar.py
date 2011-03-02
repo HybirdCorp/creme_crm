@@ -26,7 +26,7 @@ from django.http import HttpResponse
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext
 from django.utils.simplejson import JSONEncoder, JSONDecoder
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import ugettext_lazy as _, ugettext
 from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth.models import User
 
@@ -201,7 +201,7 @@ def add_user_calendar(request, calendar_id=None):
     user = request.user
     POST = request.POST
     if POST:
-        cal_form = CalendarForm(user, POST, instance=instance)
+        cal_form = CalendarForm(user=user, data=POST, instance=instance)
 
         if cal_form.is_valid():
             cal_form.save()
@@ -223,5 +223,15 @@ def add_user_calendar(request, calendar_id=None):
 def delete_user_calendar(request):
     #TODO: Adding the possibility to transfert activities
     calendar = get_object_or_404(Calendar, pk=get_from_POST_or_404(request.POST, 'id'))
-    calendar.delete()
-    return HttpResponse("", mimetype="text/javascript")
+
+    status, msg = 200, ""
+
+    user = request.user
+    
+    if user.is_superuser or calendar.user == user:
+        calendar.delete()
+    else:
+        status = 403
+        msg = ugettext(u"You are not allowed to delete this calendar.")
+
+    return HttpResponse(msg, mimetype="text/javascript", status=status)
