@@ -81,16 +81,8 @@ class Block(object):
     def generate_id(app_name, name): #### _generate_id ????
         return u'block_%s-%s' % (app_name, name)
 
-    def __init__(self):
-        self._template = None
-
-    def _render(self, dictionary):
-        if settings.DEBUG:
-            self._template = get_template(self.template_name)
-        else: #use a cache when debug is False
-            self._template = self._template or get_template(self.template_name)
-
-        return self._template.render(Context(dictionary))
+    def _render(self, template_context):
+        return get_template(self.template_name).render(Context(template_context))
 
     def detailview_display(self, context):
         """Overload this method to display a specific block (like Todo etc...) """

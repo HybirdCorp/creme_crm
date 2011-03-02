@@ -15,7 +15,7 @@
             <div class="buttons">
                 {% block activities_add %}
                     {% if object %}
-                        {% has_perm_to link object as link_perm %}{% has_perm_to unlink object as unlink_perm %}{% comment %}BEWARE unlink_perm used after...{% endcomment %}
+                        {% has_perm_to link object as link_perm %}
                         {% get_line_relator to_subject object with_rtype_id predicate_id with_ct_id ct_id with_label _("Link to an activity") with_perms link_perm %}
                     {% endif %}
                 {% endblock %}
@@ -34,9 +34,15 @@
                 {% if object %}<th class="block_header_line_dark">{% trans "Unlink" %}</th>{% endif %}
             </tr>
             {% for activity in page.object_list %}<!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
-                <tr>
-                    <td class="{{row_color}}">{{activity.status}}</td>
-                    <td class="{{row_color}}"><a href="{{activity.get_absolute_url}}">{{activity}}</a></td>
+                <tr>{% has_perm_to view activity as activity_view_perm %}
+                    {% if activity_view_perm %}
+                        <td class="{{row_color}}">{{activity.status|default:''}}</td>
+                        <td class="{{row_color}}"><a href="{{activity.get_absolute_url}}">{{activity}}</a></td>
+                    {% else  %}
+                        <td class="{{row_color}}">??</td>
+                        <td class="{{row_color}}">{{activity|allowed_unicode:user}}</td>
+                    {% endif %}
+
                     <td class="{{row_color}}">
                         <a href="{{activity.get_absolute_url}}">{% include 'activities/templatetags/activity_date.html' %}</a>
                     </td>
@@ -57,7 +63,7 @@
                     </td>
                     {% if object %}
                         <td class="{{row_color}}" align="center" valign="center" style="width:10%;">
-                            {% has_perm_to unlink activity as activity_unlink_perm %}
+                            {% has_perm_to unlink object as unlink_perm %}{% has_perm_to unlink activity as activity_unlink_perm %}
                             {% get_line_unlinker at_url '/activities/linked_activity/unlink' with_args "{'id':{{activity.pk}}, 'object_id':{{object.pk}} }" with_perms unlink_perm|and_op:activity_unlink_perm %}
                         </td>
                     {% endif %}

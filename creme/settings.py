@@ -287,6 +287,7 @@ CREME_CORE_CSS = ('main.css',
 
                     #APPS
                     'activities/css/fullcalendar.css',
+                    'activities/css/activities.css',
                     'commercial/css/commercial.css',
                  )
 

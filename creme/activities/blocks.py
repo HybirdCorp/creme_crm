@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2011  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -92,17 +92,27 @@ class FutureActivitiesBlock(QuerysetBlock):
     template_name = 'activities/templatetags/block_future_activities.html'
     configurable  = True
 
+    _RTYPES_2_POP = (REL_OBJ_PART_2_ACTIVITY, REL_OBJ_ACTIVITY_SUBJECT, REL_OBJ_LINKED_2_ACTIVITY)
+
     def _get_queryset_for_entity(self, entity, context):
         return Activity.get_future_linked(entity, context['today'])
 
     def _get_queryset_for_ctypes(self, ct_ids, context):
         return Activity.get_future_linked_for_ctypes(ct_ids, context['today'])
 
+    def _render(self, template_context):
+        #optimisations
+        activities = template_context['page'].object_list
+        user       = template_context['user']
+        CremeEntity.populate_relations(activities, self._RTYPES_2_POP, user)
+        CremeEntity.populate_credentials(activities, user)
+
+        return super(FutureActivitiesBlock, self)._render(template_context)
+
     def detailview_display(self, context):
         entity = context['object']
-
         return self._render(self.get_block_template_context(context,
-                                                            self._get_queryset_for_entity(entity, context),
+                                                            self._get_queryset_for_entity(entity, context).select_related('status'),
                                                             update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, entity.id),
                                                             predicate_id=REL_SUB_LINKED_2_ACTIVITY,
                                                             ct_id=ContentType.objects.get_for_model(Activity).id,
@@ -110,7 +120,7 @@ class FutureActivitiesBlock(QuerysetBlock):
 
     def portal_display(self, context, ct_ids):
         return self._render(self.get_block_template_context(context,
-                                                            self._get_queryset_for_ctypes(ct_ids, context),
+                                                            self._get_queryset_for_ctypes(ct_ids, context).select_related('status'),
                                                             update_url='/creme_core/blocks/reload/portal/%s/%s/' % (self.id_, list4url(ct_ids)),
                                                            ))
 
@@ -123,7 +133,7 @@ class FutureActivitiesBlock(QuerysetBlock):
             context['user_contact'] = entity = Contact.objects.get(is_user=user)
 
         return self._render(self.get_block_template_context(context,
-                                                            self._get_queryset_for_entity(entity, context),
+                                                            self._get_queryset_for_entity(entity, context).select_related('status'),
                                                             update_url='/creme_core/blocks/reload/home/%s/' % self.id_,
                                                             is_home=True
                                                            ))
