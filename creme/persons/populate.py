@@ -18,7 +18,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-
 from django.utils.translation import ugettext as _
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.auth.models import User
@@ -94,11 +93,8 @@ class Populator(BasePopulator):
         create(StaffSize, 5, employees="100 - 500")
         create(StaffSize, 6, employees="> 500")
 
-        get_ct = ContentType.objects.get_for_model
-        contact_ct = get_ct(Contact)
-
-        hf = create(HeaderFilter, 'persons-hf_contact', name=_(u'Contact view'), entity_type=contact_ct, is_custom=False)
-        pref  = 'persons-hfi_contact_'
+        hf   = HeaderFilter.create(pk='persons-hf_contact', name=_(u'Contact view'), model=Contact)
+        pref = 'persons-hfi_contact_'
         create(HeaderFilterItem, pref + 'lastname',  order=1, name='last_name',        title=_(u'Last name'),       type=HFI_FIELD,    header_filter=hf, has_a_filter=True, editable=True,  filter_string="last_name__icontains")
         create(HeaderFilterItem, pref + 'firstname', order=2, name='first_name',       title=_(u'First name'),      type=HFI_FIELD,    header_filter=hf, has_a_filter=True, editable=True,  filter_string="first_name__icontains")
         create(HeaderFilterItem, pref + 'landline',  order=3, name='landline',         title=_(u'Landline'),        type=HFI_FIELD,    header_filter=hf, has_a_filter=True, editable=True,  filter_string="landline__icontains")
@@ -106,10 +102,8 @@ class Populator(BasePopulator):
         create(HeaderFilterItem, pref + 'user',      order=5, name='user__username',   title=_(u'User - Username'), type=HFI_FIELD,    header_filter=hf, has_a_filter=True, editable=True,  filter_string="user__username__icontains")
         create(HeaderFilterItem, pref + 'employee',  order=6, name='est_salarie_chez', title=_(u'Employed by'),     type=HFI_RELATION, header_filter=hf, has_a_filter=True, editable=False, filter_string="", relation_predicat_id=REL_SUB_EMPLOYED_BY)
 
-        orga_ct  = get_ct(Organisation)
-
-        hf = create(HeaderFilter, 'persons-hf_leadcustomer', name=_(u"Prospect/Suspect view"), entity_type=orga_ct, is_custom=False)
-        pref  = 'persons-hfi_leadcustomer_'
+        hf   = HeaderFilter.create(pk='persons-hf_leadcustomer', name=_(u'Prospect/Suspect view'), model=Organisation)
+        pref = 'persons-hfi_leadcustomer_'
         create(HeaderFilterItem, pref + 'name',      order=1, name='name',                title=_(u'Name'),                 type=HFI_FIELD,    header_filter=hf, has_a_filter=True, editable=True,  filter_string="name__icontains")
         create(HeaderFilterItem, pref + 'sector',    order=2, name='sector__sector_name', title=_(u'Sector - Sector name'), type=HFI_FIELD,    header_filter=hf, has_a_filter=True, editable=True,  filter_string="sector__sector_name__icontains")
         create(HeaderFilterItem, pref + 'phone',     order=3, name='phone',               title=_(u'Phone'),                type=HFI_FIELD,    header_filter=hf, has_a_filter=True, editable=True,  filter_string="phone__icontains")
@@ -119,12 +113,16 @@ class Populator(BasePopulator):
         create(HeaderFilterItem, pref + 'prospect',  order=7, name='est_prospect_de',     title=_(u'Prospect of'),          type=HFI_RELATION, header_filter=hf, has_a_filter=True, editable=False, filter_string="", relation_predicat_id=REL_SUB_PROSPECT)
         create(HeaderFilterItem, pref + 'suspect',   order=8, name='est_suspect_de',      title=_(u'Suspect of'),           type=HFI_RELATION, header_filter=hf, has_a_filter=True, editable=False, filter_string="", relation_predicat_id=REL_SUB_SUSPECT)
 
-        hf = create(HeaderFilter, 'persons-hf_organisation', name=_(u"Organisation view"), entity_type=orga_ct, is_custom=False)
-        pref  = 'persons-hfi_organisation_'
+        hf   = HeaderFilter.create(pk='persons-hf_organisation', name=_(u'Organisation view'), model=Organisation)
+        pref = 'persons-hfi_organisation_'
         create(HeaderFilterItem, pref + 'name',  order=1, name='name',               title=_(u'Name'),            type=HFI_FIELD,    header_filter=hf, has_a_filter=True, editable=True, filter_string="name__icontains")
         create(HeaderFilterItem, pref + 'phone', order=2, name='phone',              title=_(u'Landline'),        type=HFI_FIELD,    header_filter=hf, has_a_filter=True, editable=True, filter_string="phone__icontains")
         create(HeaderFilterItem, pref + 'user',  order=3, name='user__username',     title=_(u'User - Username'), type=HFI_FIELD,    header_filter=hf, has_a_filter=True, editable=True, filter_string="user__username__icontains")
         create(HeaderFilterItem, pref + 'resp',  order=4, name='object_responsable', title=_(u'Managed by'),      type=HFI_RELATION, header_filter=hf, has_a_filter=True, editable=False, filter_string="", relation_predicat_id=REL_OBJ_MANAGES)
+
+        get_ct = ContentType.objects.get_for_model
+        contact_ct = get_ct(Contact)
+        orga_ct    = get_ct(Organisation)
 
         create(ButtonMenuItem, 'persons-customer_contact_button', content_type=contact_ct, button_id=become_customer_button.id_, order=20)
         create(ButtonMenuItem, 'persons-prospect_contact_button', content_type=contact_ct, button_id=become_prospect_button.id_, order=21)

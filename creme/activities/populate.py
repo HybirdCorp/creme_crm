@@ -19,7 +19,6 @@
 ################################################################################
 
 from django.utils.translation import ugettext as _
-from django.contrib.contenttypes.models import ContentType
 
 from creme_core.models.header_filter import HeaderFilterItem, HeaderFilter, HFI_FIELD
 from creme_core.models import RelationType, BlockConfigItem, ButtonMenuItem, SearchConfigItem
@@ -68,7 +67,7 @@ class Populator(BasePopulator):
         create(ActivityType, ACTIVITYTYPE_DEMO,      name=_(u"Demonstration"),   color="4EEF65", default_day_duration=0, default_hour_duration="01:00:00", is_custom=False)
         create(ActivityType, ACTIVITYTYPE_INDISPO,   name=_(u"Indisponibility"), color="CC0000", default_day_duration=1, default_hour_duration="00:00:00", is_custom=False)
 
-        hf = create(HeaderFilter, 'activities-hf', name=_(u"Activity view"), entity_type=ContentType.objects.get_for_model(Activity), is_custom=False)
+        hf   = HeaderFilter.create(pk='activities-hf', name=_(u'Activity view'), model=Activity)
         pref = 'activities-hfi_'
         create(HeaderFilterItem, pref + 'title', order=1, name='title',        title=_(u'Name'),          type=HFI_FIELD, header_filter=hf, has_a_filter=True, editable=True, sortable=True, filter_string="title__icontains")
         create(HeaderFilterItem, pref + 'start', order=2, name='start',        title=_(u'Start'),         type=HFI_FIELD, header_filter=hf, has_a_filter=True, editable=True, sortable=True, filter_string="start__range")

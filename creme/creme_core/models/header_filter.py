@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2011  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -106,6 +106,19 @@ class HeaderFilter(Model): #CremeModel ???
             return (True, 'OK')
 
         return (False, ugettext(u"You are not allowed to edit/delete this view"))
+
+    @staticmethod
+    def create(pk, name, model, is_custom=False, user=None):
+        """Creation helper ; useful for populate.py scripts.
+        It clean old HeaderFilterItems.
+        """
+        from creme_core.utils import create_or_update
+        hf = create_or_update(HeaderFilter, pk=pk,
+                              name=name, is_custom=is_custom, user=user,
+                              entity_type=ContentType.objects.get_for_model(model)
+                             )
+        HeaderFilterItem.objects.filter(header_filter=pk).delete()
+        return hf
 
     @property
     def items(self):

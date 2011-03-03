@@ -39,32 +39,30 @@ class Populator(BasePopulator):
     dependencies = ['creme.creme_core']
 
     def populate(self, *args, **kwargs):
-        get_ct = ContentType.objects.get_for_model
-
         RelationType.create((REL_SUB_MAIL_RECEIVED, _(u"(email) received by"), [EntityEmail]),
                             (REL_OBJ_MAIL_RECEIVED, _(u"received the email"), [Organisation, Contact]))
 
         RelationType.create((REL_SUB_MAIL_SENDED, _(u"(email) sended"), [EntityEmail]),
                             (REL_OBJ_MAIL_SENDED, _(u"sended the email"), [Organisation, Contact]))
 
-        hf = create(HeaderFilter, 'emails-hf_mailinglist', name=_(u'Mailing list view'), entity_type=get_ct(MailingList), is_custom=False)
+        hf = HeaderFilter.create(pk='emails-hf_mailinglist', name=_(u"Mailing list view"), model=MailingList)
         create(HeaderFilterItem, 'emails-hfi_mailinglist_name', order=1, name='name', title=_(u'Name'), type=HFI_FIELD, header_filter=hf, has_a_filter=True, editable=True, filter_string="name__icontains")
 
-        hf = create(HeaderFilter, 'emails-hf_campaign', name=_(u'Campaign view'), entity_type=get_ct(EmailCampaign), is_custom=False)
+        hf = HeaderFilter.create(pk='emails-hf_campaign', name=_(u"Campaign view"), model=EmailCampaign)
         create(HeaderFilterItem, 'emails-hfi_campaign_name', order=1, name='name', title=_(u'Name'), type=HFI_FIELD, header_filter=hf, has_a_filter=True, editable=True, filter_string="name__icontains")
 
-        hf = create(HeaderFilter, 'emails-hf_template', name=_(u'Email template view'), entity_type=get_ct(EmailTemplate), is_custom=False)
+        hf   = HeaderFilter.create(pk='emails-hf_template', name=_(u"Email template view"), model=EmailTemplate)
         pref = 'emails-hfi_template'
         create(HeaderFilterItem, pref + 'name',    order=1, name='name',    title=_(u'Name'),    type=HFI_FIELD, header_filter=hf, has_a_filter=True, editable=True, filter_string="name__icontains")
         create(HeaderFilterItem, pref + 'subject', order=2, name='subject', title=_(u'Subject'), type=HFI_FIELD, header_filter=hf, has_a_filter=True, editable=True, filter_string="subject__icontains")
 
-        hf = create(HeaderFilter, 'emails-hf_email', name=_(u'Email view'), entity_type=get_ct(EntityEmail), is_custom=False)
+        hf   = HeaderFilter.create(pk='emails-hf_email', name=_(u"Email view"), model=EntityEmail)
         pref = 'emails-hfi_email_'
         create(HeaderFilterItem, pref + 'sender',    order=1, name='sender',    title=_(u'Sender'),    type=HFI_FIELD, header_filter=hf, has_a_filter=True, editable=True, filter_string="sender__icontains")
         create(HeaderFilterItem, pref + 'recipient', order=2, name='recipient', title=_(u'Recipient'), type=HFI_FIELD, header_filter=hf, has_a_filter=True, editable=True, filter_string="recipient__icontains")
         create(HeaderFilterItem, pref + 'subject',   order=3, name='subject',   title=_(u'Subject'),   type=HFI_FIELD, header_filter=hf, has_a_filter=True, editable=True, filter_string="subject__icontains")
 
-        create(ButtonMenuItem, 'emails-entity_email_link_button', content_type=get_ct(EntityEmail), button_id=entityemail_link_button.id_, order=20)
+        create(ButtonMenuItem, 'emails-entity_email_link_button', content_type=ContentType.objects.get_for_model(EntityEmail), button_id=entityemail_link_button.id_, order=20)
 
         SearchConfigItem.create(EmailCampaign, ['name', 'mailing_lists__name'])
         SearchConfigItem.create(MailingList,   ['name', 'children__name', 'contacts__first_name', 'contacts__last_name', 'organisations__name'])

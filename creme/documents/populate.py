@@ -19,7 +19,6 @@
 ################################################################################
 
 from django.utils.translation import ugettext as _
-from django.contrib.contenttypes.models import ContentType
 
 from creme_core.models.header_filter import HeaderFilterItem, HeaderFilter, HFI_FIELD
 from creme_core.models import RelationType, BlockConfigItem, SearchConfigItem
@@ -45,8 +44,8 @@ class Populator(BasePopulator):
 
         create(Folder, title="Creme", description=_(u"Folder containing all the documents related to entities"), category=category_entities, user_id=1)
 
-        hf = create(HeaderFilter, 'documents-hf', name=_(u'Document view'), entity_type=ContentType.objects.get_for_model(Document), is_custom=False)
-        pref  = 'documents-hfi_'
+        hf   = HeaderFilter.create(pk='documents-hf', name=_(u"Document view"), model=Document)
+        pref = 'documents-hfi_'
         create(HeaderFilterItem, pref + 'title',  order=1, name='title',         title=_(u'Title'),          type=HFI_FIELD, header_filter=hf, has_a_filter=True, editable=True, sortable=True, filter_string="title__icontains")
         create(HeaderFilterItem, pref + 'folder', order=2, name='folder__title', title=_(u'Folder - Title'), type=HFI_FIELD, header_filter=hf, has_a_filter=True, editable=True, sortable=True, filter_string="folder__title__icontains")
 
