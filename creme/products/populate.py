@@ -47,7 +47,7 @@ class Populator(BasePopulator):
         create(HeaderFilterItem, pref + 'user',   order=4, name='user__username', title=_(u'User - Username'), type=HFI_FIELD, header_filter=hf, has_a_filter=True, editable=True,  sortable=True,  filter_string="user__username__icontains")
 
 
-        #TODO: move to client's populate.py ??
+        #TODO: move to customer's populate.py ??
         create(ServiceCategory, 1, name=_(u"Category 1"), description=_(u"Description of 'category 1'"))
         create(ServiceCategory, 2, name=_(u"Category 2"), description=_(u"Description of 'category 2'"))
 

@@ -167,14 +167,15 @@ class Populator(BasePopulator):
         rbi_1 = RelationBlockItem.create(REL_SUB_CUSTOMER_OF)
         rbi_2 = RelationBlockItem.create(REL_OBJ_CUSTOMER_OF)
 
-        blocks_2_save = [
-            BlockConfigItem(content_type=orga_ct, block_id=rbi_1.block_id, order=1, on_portal=False),
-            BlockConfigItem(content_type=orga_ct, block_id=rbi_2.block_id, order=2, on_portal=False),
-        ]
+        if not BlockConfigItem.objects.filter(content_type=orga_ct):
+            blocks_2_save = [
+                BlockConfigItem(content_type=orga_ct, block_id=rbi_1.block_id, order=1, on_portal=False),
+                BlockConfigItem(content_type=orga_ct, block_id=rbi_2.block_id, order=2, on_portal=False),
+            ]
 
-        creme_core_autodiscover()
-        block_ids = [id_ for id_, block in block_registry if block.configurable]
-        for i, block_id in enumerate(block_ids):
-            blocks_2_save.append(BlockConfigItem(content_type=orga_ct, block_id=block_id, order=i+3, on_portal=False))
+            creme_core_autodiscover()
+            block_ids = [id_ for id_, block in block_registry if block.configurable]
+            for i, block_id in enumerate(block_ids):
+                blocks_2_save.append(BlockConfigItem(content_type=orga_ct, block_id=block_id, order=i+3, on_portal=False))
 
-        generate_string_id_and_save(BlockConfigItem, blocks_2_save, 'creme_config-userbci')
+            generate_string_id_and_save(BlockConfigItem, blocks_2_save, 'creme_config-userbci')

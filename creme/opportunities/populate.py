@@ -84,10 +84,10 @@ class Populator(BasePopulator):
 
         hf   = HeaderFilter.create(pk='opportunities-hf', name=_(u'Opportunity view'), model=Opportunity)
         pref = 'opportunities-hfi_'
-        create(HeaderFilterItem, pref + 'name',    order=1, name='name',              title=_(u'Name'),                type=HFI_FIELD, header_filter=hf, has_a_filter=True, editable=True, sortable=True, filter_string="name__icontains")
-        create(HeaderFilterItem, pref + 'ref',     order=2, name='reference',         title=_(u'Reference'),           type=HFI_FIELD, header_filter=hf, has_a_filter=True, editable=True, sortable=True, filter_string="reference__icontains")
-        create(HeaderFilterItem, pref + 'phase',   order=3, name='sales_phase__name', title=_(u'Sales phase - Name'),  type=HFI_FIELD, header_filter=hf, has_a_filter=True, editable=True, sortable=True, filter_string="sales_phase__name__icontains")
-        create(HeaderFilterItem, pref + 'expdate', order=4, name='closing_date',      title=_(u'Closing date'),        type=HFI_FIELD, header_filter=hf, has_a_filter=True, editable=True, sortable=True, filter_string="closing_date__range")
+        create(HeaderFilterItem, pref + 'name',    order=1, name='name',              title=_(u'Name'),               type=HFI_FIELD, header_filter=hf, has_a_filter=True, editable=True, sortable=True, filter_string="name__icontains")
+        create(HeaderFilterItem, pref + 'ref',     order=2, name='reference',         title=_(u'Reference'),          type=HFI_FIELD, header_filter=hf, has_a_filter=True, editable=True, sortable=True, filter_string="reference__icontains")
+        create(HeaderFilterItem, pref + 'phase',   order=3, name='sales_phase__name', title=_(u'Sales phase - Name'), type=HFI_FIELD, header_filter=hf, has_a_filter=True, editable=True, sortable=True, filter_string="sales_phase__name__icontains")
+        create(HeaderFilterItem, pref + 'expdate', order=4, name='closing_date',      title=_(u'Closing date'),       type=HFI_FIELD, header_filter=hf, has_a_filter=True, editable=True, sortable=True, filter_string="closing_date__range")
 
         ButtonMenuItem.create(pk='opportunities-linked_opp_button', model=Organisation, button=linked_opportunity_button, order=30)
 

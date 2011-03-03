@@ -27,7 +27,7 @@ from creme_core.models import CremeModel
 
 class ButtonMenuItem(CremeModel):
     id           = CharField(primary_key=True, max_length=100)
-    content_type = ForeignKey(ContentType, verbose_name=_(u"Related type"), null=True) #null means: all ContentType ar accepted.
+    content_type = ForeignKey(ContentType, verbose_name=_(u"Related type"), null=True) #null means: all ContentTypes are accepted.
     button_id    = CharField(_(u"Button ID"), max_length=100, blank=False, null=False)
     order        = PositiveIntegerField(_(u"Priority"))
 
