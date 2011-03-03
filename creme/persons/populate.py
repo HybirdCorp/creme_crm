@@ -120,21 +120,19 @@ class Populator(BasePopulator):
         create(HeaderFilterItem, pref + 'user',  order=3, name='user__username',     title=_(u'User - Username'), type=HFI_FIELD,    header_filter=hf, has_a_filter=True, editable=True, filter_string="user__username__icontains")
         create(HeaderFilterItem, pref + 'resp',  order=4, name='object_responsable', title=_(u'Managed by'),      type=HFI_RELATION, header_filter=hf, has_a_filter=True, editable=False, filter_string="", relation_predicat_id=REL_OBJ_MANAGES)
 
-        get_ct = ContentType.objects.get_for_model
-        contact_ct = get_ct(Contact)
-        orga_ct    = get_ct(Organisation)
+        ButtonMenuItem.create(pk='persons-customer_contact_button', model=Contact, button=become_customer_button, order=20)
+        ButtonMenuItem.create(pk='persons-prospect_contact_button', model=Contact, button=become_prospect_button, order=21)
+        ButtonMenuItem.create(pk='persons-suspect_contact_button',  model=Contact, button=become_suspect_button,  order=22)
+        ButtonMenuItem.create(pk='persons-inactive_contact_button', model=Contact, button=become_inactive_button, order=24)
 
-        create(ButtonMenuItem, 'persons-customer_contact_button', content_type=contact_ct, button_id=become_customer_button.id_, order=20)
-        create(ButtonMenuItem, 'persons-prospect_contact_button', content_type=contact_ct, button_id=become_prospect_button.id_, order=21)
-        create(ButtonMenuItem, 'persons-suspect_contact_button',  content_type=contact_ct, button_id=become_suspect_button.id_,  order=22)
-        create(ButtonMenuItem, 'persons-inactive_contact_button', content_type=contact_ct, button_id=become_inactive_button.id_, order=24)
+        ButtonMenuItem.create(pk='persons-customer_orga_button',  model=Organisation, button=become_customer_button,    order=20)
+        ButtonMenuItem.create(pk='persons-prospect_orga_button',  model=Organisation, button=become_prospect_button,    order=21)
+        ButtonMenuItem.create(pk='persons-suspect_orga_button',   model=Organisation, button=become_suspect_button,     order=22)
+        ButtonMenuItem.create(pk='persons-inactive_orga_button',  model=Organisation, button=become_inactive_button,    order=23)
+        ButtonMenuItem.create(pk='persons-supplier_button',       model=Organisation, button=become_supplier_button,    order=24)
+        ButtonMenuItem.create(pk='persons-linked_contact_button', model=Organisation, button=add_linked_contact_button, order=25)
 
-        create(ButtonMenuItem, 'persons-customer_orga_button',  content_type=orga_ct, button_id=become_customer_button.id_,    order=20)
-        create(ButtonMenuItem, 'persons-prospect_orga_button',  content_type=orga_ct, button_id=become_prospect_button.id_,    order=21)
-        create(ButtonMenuItem, 'persons-suspect_orga_button',   content_type=orga_ct, button_id=become_suspect_button.id_,     order=22)
-        create(ButtonMenuItem, 'persons-inactive_orga_button',  content_type=orga_ct, button_id=become_inactive_button.id_,    order=23)
-        create(ButtonMenuItem, 'persons-supplier_button',       content_type=orga_ct, button_id=become_supplier_button.id_,    order=24)
-        create(ButtonMenuItem, 'persons-linked_contact_button', content_type=orga_ct, button_id=add_linked_contact_button.id_, order=25)
+        orga_ct = ContentType.objects.get_for_model(Organisation)
 
         #Create a list view filter to use it in the report
         managed_orga_filter = create(Filter, name=_(u"Managed by creme"), model_ct=orga_ct, is_custom=False)

@@ -34,10 +34,7 @@ class Populator(BasePopulator):
         for i, name in enumerate((_('Minor'), _('Major'), _('Feature'), _('Critical'), _('Enhancement'), _('Error'))):
             create(Criticity, i + 1, name=name)
 
-        get_ct = ContentType.objects.get_for_model
-        ct_ticket = get_ct(Ticket)
-
-        hf = create(HeaderFilter, 'tickets-hf_ticket', name=_(u'Ticket view'), entity_type=ct_ticket, is_custom=False)
+        hf = HeaderFilter.create(pk='tickets-hf_ticket', name=_(u'Ticket view'), model=Ticket)
         pref = 'tickets-hfi_ticket_'
         create(HeaderFilterItem, pref + 'title',     order=1, name='title',           title=_(u'Title'),            type=HFI_FIELD, header_filter=hf, has_a_filter=True, editable=True, sortable=True, filter_string="title__icontains")
         create(HeaderFilterItem, pref + 'status',    order=2, name='status__name',    title=_(u'Status - Name'),    type=HFI_FIELD, header_filter=hf, has_a_filter=True, editable=True, sortable=True, filter_string="status__name__icontains")
@@ -45,7 +42,7 @@ class Populator(BasePopulator):
         create(HeaderFilterItem, pref + 'criticity', order=4, name='criticity__name', title=_(u'Criticity - Name'), type=HFI_FIELD, header_filter=hf, has_a_filter=True, editable=True, sortable=True, filter_string="criticity__name__icontains")
         create(HeaderFilterItem, pref + 'cdate',     order=5, name='closing_date',    title=_(u'Closing date'),     type=HFI_FIELD, header_filter=hf, has_a_filter=True, editable=True, sortable=True, filter_string="closing_date__range")
 
-        hf = create(HeaderFilter, 'tickets-hf_template', name=_(u'Ticket template view'), entity_type=get_ct(TicketTemplate), is_custom=False)
+        hf = HeaderFilter.create(pk='tickets-hf_template', name=_(u'Ticket template view'), model=TicketTemplate)
         pref = 'tickets-hfi_template_'
         create(HeaderFilterItem, pref + 'title',     order=1, name='title',           title=_(u'Title'),            type=HFI_FIELD, header_filter=hf, has_a_filter=True, editable=True, sortable=True, filter_string="title__icontains")
         create(HeaderFilterItem, pref + 'status',    order=2, name='status__name',    title=_(u'Status - Name'),    type=HFI_FIELD, header_filter=hf, has_a_filter=True, editable=True, sortable=True, filter_string="status__name__icontains")
@@ -56,7 +53,7 @@ class Populator(BasePopulator):
 
         #TODO: helper code in creme_config ??? (see 'persons' app)
         rbi = RelationBlockItem.create(REL_OBJ_LINKED_2_TICKET)
-        bci = BlockConfigItem(content_type=ct_ticket, block_id=rbi.block_id, order=1, on_portal=False)
+        bci = BlockConfigItem(content_type=ContentType.objects.get_for_model(Ticket), block_id=rbi.block_id, order=1, on_portal=False)
         generate_string_id_and_save(BlockConfigItem, [bci], 'creme_config-userbci')
 
         if 'creme.persons' in settings.INSTALLED_APPS:
@@ -67,8 +64,7 @@ class Populator(BasePopulator):
             else:
                 from tickets.buttons import linked_2_ticket_button
 
-                button_id = linked_2_ticket_button.id_
-                create(ButtonMenuItem, 'tickets-linked_contact_button', content_type=get_ct(Contact),      button_id=button_id, order=50)
-                create(ButtonMenuItem, 'tickets-linked_orga_button',    content_type=get_ct(Organisation), button_id=button_id, order=50)
+                ButtonMenuItem.create(pk='tickets-linked_contact_button', model=Contact,      button=linked_2_ticket_button, order=50)
+                ButtonMenuItem.create(pk='tickets-linked_orga_button',    model=Organisation, button=linked_2_ticket_button, order=50)
 
                 info("'Persons' app is installed => add button 'Linked to a ticket' to Contact & Organisation")

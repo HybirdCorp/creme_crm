@@ -78,8 +78,8 @@ class Populator(BasePopulator):
         create(BlockConfigItem, 'activities-future_activities_block', content_type=None, block_id=future_activities_block.id_, order=20, on_portal=False)
         create(BlockConfigItem, 'activities-past_activities_block',   content_type=None, block_id=past_activities_block.id_,   order=21, on_portal=False)
 
-        create(ButtonMenuItem, 'activities-add_meeting_button',   content_type=None, button_id=add_meeting_button.id_,   order=10)
-        create(ButtonMenuItem, 'activities-add_phonecall_button', content_type=None, button_id=add_phonecall_button.id_, order=11)
-        create(ButtonMenuItem, 'activities-add_task_button',      content_type=None, button_id=add_task_button.id_,      order=12)
+        ButtonMenuItem.create('activities-add_meeting_button',   model=None, button=add_meeting_button,   order=10)
+        ButtonMenuItem.create('activities-add_phonecall_button', model=None, button=add_phonecall_button, order=11)
+        ButtonMenuItem.create('activities-add_task_button',      model=None, button=add_task_button,      order=12)
 
         SearchConfigItem.create(Activity, ['title', 'description', 'type__name'])

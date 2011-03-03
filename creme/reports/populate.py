@@ -24,15 +24,13 @@ from django.contrib.contenttypes.models import ContentType
 from django.contrib.auth.models import User
 
 from creme_core import autodiscover as creme_core_autodiscover
-from creme_core.models import SearchConfigItem
+from creme_core.models import SearchConfigItem, RelationType, InstanceBlockConfigItem, BlockConfigItem
 from creme_core.models.header_filter import HeaderFilterItem, HeaderFilter, HFI_FIELD, HFI_RELATION
-from creme_core.models.relation import RelationType
-from creme_core.models.block import InstanceBlockConfigItem, BlockConfigItem
 from creme_core.gui.block import block_registry
 from creme_core.utils import create_or_update as create
-from creme_core.management.commands.creme_populate import BasePopulator
 from creme_core.utils.meta import get_verbose_field_name
 from creme_core.utils.id_generator import generate_string_id_and_save
+from creme_core.management.commands.creme_populate import BasePopulator
 
 from models import Report, Field, ReportGraph
 from models.graph import RGT_FK, RGT_RANGE

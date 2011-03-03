@@ -19,7 +19,6 @@
 ################################################################################
 
 from django.utils.translation import ugettext as _
-from django.contrib.contenttypes.models import ContentType
 
 from creme_core.models.header_filter import HeaderFilterItem, HeaderFilter, HFI_FIELD
 from creme_core.models import RelationType, BlockConfigItem, ButtonMenuItem, SearchConfigItem, SearchField
@@ -90,6 +89,6 @@ class Populator(BasePopulator):
         create(HeaderFilterItem, pref + 'phase',   order=3, name='sales_phase__name', title=_(u'Sales phase - Name'),  type=HFI_FIELD, header_filter=hf, has_a_filter=True, editable=True, sortable=True, filter_string="sales_phase__name__icontains")
         create(HeaderFilterItem, pref + 'expdate', order=4, name='closing_date',      title=_(u'Closing date'),        type=HFI_FIELD, header_filter=hf, has_a_filter=True, editable=True, sortable=True, filter_string="closing_date__range")
 
-        create(ButtonMenuItem, 'opportunities-linked_opp_button', content_type=ContentType.objects.get_for_model(Organisation), button_id=linked_opportunity_button.id_, order=30)
+        ButtonMenuItem.create(pk='opportunities-linked_opp_button', model=Organisation, button=linked_opportunity_button, order=30)
 
         SearchConfigItem.create(Opportunity, ['name', 'made_sales', 'sales_phase__name', 'origin__name'])

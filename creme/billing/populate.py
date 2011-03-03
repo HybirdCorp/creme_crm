@@ -19,7 +19,6 @@
 ################################################################################
 
 from django.utils.translation import ugettext as _
-from django.contrib.contenttypes.models import ContentType
 
 from creme_core.utils import create_or_update as create
 from creme_core.models.header_filter import HeaderFilterItem, HeaderFilter, HFI_FIELD
@@ -72,7 +71,7 @@ class Populator(BasePopulator):
         create(CreditNoteStatus, 1, name=_(u"Draft"),  is_custom=False)
         create(CreditNoteStatus, 2, name=_(u"Issued"), is_custom=True)
 
-        create(ButtonMenuItem, 'billing-generate_invoice_number', content_type=ContentType.objects.get_for_model(Invoice), button_id=generate_invoice_number_button.id_, order=0)
+        ButtonMenuItem.create(pk='billing-generate_invoice_number', model=Invoice, button=generate_invoice_number_button, order=0)
 
         def create_hf(hf_pk, hfi_pref, name, model):
             hf = HeaderFilter.create(pk=hf_pk, name=name, model=model)

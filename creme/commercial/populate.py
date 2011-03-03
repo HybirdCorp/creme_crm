@@ -66,7 +66,7 @@ class Populator(BasePopulator):
         create(HeaderFilterItem, pref + 'name',    order=1, name='name',    title=_(u'Name'),    type=HFI_FIELD, header_filter=hf, has_a_filter=True, editable=True, sortable=True, filter_string="name__icontains")
         create(HeaderFilterItem, pref + 'segment', order=2, name='segment', title=_(u'Segment'), type=HFI_FIELD, header_filter=hf, has_a_filter=True, editable=True, sortable=True, filter_string="segment__name__icontains")
 
-        create(ButtonMenuItem, 'commercial-complete_goal_button', button_id=complete_goal_button.id_, order=60)
+        ButtonMenuItem.create(pk='commercial-complete_goal_button', model=None, button=complete_goal_button, order=60)
 
         SearchConfigItem.create(Act, ['name', 'expected_sales', 'cost', 'goal'])
         SearchConfigItem.create(Strategy, ['name'])
