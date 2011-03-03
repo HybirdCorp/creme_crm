@@ -23,7 +23,6 @@ from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 
 from creme_core.models import CremeModel
-from creme_core.utils import create_or_update
 from creme_core.utils.meta import get_verbose_field_name
 
 
@@ -69,16 +68,22 @@ class SearchConfigItem(CremeModel):
             sfci._searchfields = sfci_dict[sfci.id]
 
     @staticmethod
-    def create(model, fields):
-        """Create a config item & his fields
+    def create(model, fields, user=None):
+        """Create a config item & its fields
         SearchConfigItem.create(SomeDjangoModel, ['SomeDjangoModel_field1', 'SomeDjangoModel_field2', ..])
         """
-        sci = create_or_update(SearchConfigItem, content_type_id=ContentType.objects.get_for_model(model).id)
-        SCI_pk = sci.pk
+        ct = ContentType.objects.get_for_model(model)
+
+        SearchConfigItem.objects.filter(content_type=ct, user=user).delete()
+
+        sci = SearchConfigItem.objects.create(content_type=ct, user=user)
+        create_sf = SearchField.objects.create
+
         for i, field in enumerate(fields):
-            create_or_update(SearchField, field=field, field_verbose_name=get_verbose_field_name(model, field), order=i, search_config_item_id=SCI_pk)
+            create_sf(field=field, field_verbose_name=get_verbose_field_name(model, field), order=i, search_config_item=sci)
 
 
+#TODO: is this model ereally useful ??? (store fields in a textfield in SearchConfigItem ?)
 class SearchField(CremeModel):
     field              = CharField(_(u"Field"), max_length=100)
     field_verbose_name = CharField(_(u"Field (long name)"), max_length=100)
