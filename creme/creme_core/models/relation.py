@@ -91,7 +91,7 @@ class RelationType(CremeModel):
         @param object_desc See subject_desc
         @param generate_pk If True, 'string_pk' args are used as prefix to generate pks.
         """
-        from creme_core.utils import create_or_update_models_instance as create
+        from creme_core.utils import create_or_update
 
         padding       = ((), ()) #in case sequence_of_cremeEntityClasses or sequence_of_propertyType not given
         subject_desc += padding
@@ -103,8 +103,8 @@ class RelationType(CremeModel):
         pred_object  = object_desc[1]
 
         if not generate_pk:
-            sub_relation_type = create(RelationType, pk_subject, predicate=pred_subject, is_custom=is_custom, is_internal=is_internal)
-            obj_relation_type = create(RelationType, pk_object,  predicate=pred_object,  is_custom=is_custom, is_internal=is_internal)
+            sub_relation_type = create_or_update(RelationType, pk_subject, predicate=pred_subject, is_custom=is_custom, is_internal=is_internal)
+            obj_relation_type = create_or_update(RelationType, pk_object,  predicate=pred_object,  is_custom=is_custom, is_internal=is_internal)
         else:
             from creme_core.utils.id_generator import generate_string_id_and_save
 
@@ -117,8 +117,8 @@ class RelationType(CremeModel):
         #TODO: i18n.....
         sub_relation_type.predicate_i18n_set.all().delete()
         obj_relation_type.predicate_i18n_set.all().delete()
-        create(RelationPredicate_i18n, relation_type_id=pk_subject, language_code='FRA', text=pred_subject)
-        create(RelationPredicate_i18n, relation_type_id=pk_subject, language_code='FRA', text=pred_subject)
+        create_or_update(RelationPredicate_i18n, relation_type_id=pk_subject, language_code='FRA', text=pred_subject)
+        create_or_update(RelationPredicate_i18n, relation_type_id=pk_subject, language_code='FRA', text=pred_subject)
 
 
         sub_relation_type.symmetric_type = obj_relation_type

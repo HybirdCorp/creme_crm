@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2011  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -24,7 +24,7 @@ from django.contrib.contenttypes.models import ContentType
 from creme_core.models import (RelationType, BlockConfigItem, CremePropertyType,
                                SearchConfigItem, ButtonMenuItem)
 from creme_core.models.header_filter import HeaderFilterItem, HeaderFilter, HFI_FIELD
-from creme_core.utils import create_or_update_models_instance as create
+from creme_core.utils import create_or_update as create
 from creme_core.management.commands.creme_populate import BasePopulator
 
 from opportunities.models import Opportunity
@@ -55,22 +55,21 @@ class Populator(BasePopulator):
 
         get_ct = ContentType.objects.get_for_model
 
-        hf_id = create(HeaderFilter, 'commercial-hf_act', name=_(u"Com Action view"), entity_type_id=get_ct(Act).id, is_custom=False).id
+        hf = create(HeaderFilter, 'commercial-hf_act', name=_(u"Com Action view"), entity_type=get_ct(Act), is_custom=False)
         pref  = 'commercial-hfi_act_'
-        create(HeaderFilterItem, pref + 'name',           order=1, name='name',           title=_(u'Name'),           type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True, editable=True, sortable=True, filter_string="name__icontains")
-        create(HeaderFilterItem, pref + 'expected_sales', order=2, name='expected_sales', title=_(u'Expected sales'), type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True, editable=True, sortable=True, filter_string="expected_sales__icontains")
-        create(HeaderFilterItem, pref + 'due_date',       order=3, name='due_date',       title=_(u'Due date'),       type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True, editable=True, sortable=True, filter_string="due_date__range")
+        create(HeaderFilterItem, pref + 'name',           order=1, name='name',           title=_(u'Name'),           type=HFI_FIELD, header_filter=hf, has_a_filter=True, editable=True, sortable=True, filter_string="name__icontains")
+        create(HeaderFilterItem, pref + 'expected_sales', order=2, name='expected_sales', title=_(u'Expected sales'), type=HFI_FIELD, header_filter=hf, has_a_filter=True, editable=True, sortable=True, filter_string="expected_sales__icontains")
+        create(HeaderFilterItem, pref + 'due_date',       order=3, name='due_date',       title=_(u'Due date'),       type=HFI_FIELD, header_filter=hf, has_a_filter=True, editable=True, sortable=True, filter_string="due_date__range")
 
-        hf_id = create(HeaderFilter, 'commercial-hf_strategy', name=_(u"Strategy view"), entity_type_id=get_ct(Strategy).id, is_custom=False).id
-        create(HeaderFilterItem, 'commercial-hfi_strategy_name', order=1, name='name', title=_(u'Name'), type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True, editable=True, sortable=True, filter_string="name__icontains")
+        hf = create(HeaderFilter, 'commercial-hf_strategy', name=_(u"Strategy view"), entity_type=get_ct(Strategy), is_custom=False)
+        create(HeaderFilterItem, 'commercial-hfi_strategy_name', order=1, name='name', title=_(u'Name'), type=HFI_FIELD, header_filter=hf, has_a_filter=True, editable=True, sortable=True, filter_string="name__icontains")
 
-        hf_id = create(HeaderFilter, 'commercial-hf_objpattern', name=_(u"Objective pattern view"), entity_type_id=get_ct(ActObjectivePattern).id, is_custom=False).id
+        hf = create(HeaderFilter, 'commercial-hf_objpattern', name=_(u"Objective pattern view"), entity_type=get_ct(ActObjectivePattern), is_custom=False)
         pref  = 'commercial-hfi_objpattern_'
-        create(HeaderFilterItem, pref + 'name',    order=1, name='name',    title=_(u'Name'),    type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True, editable=True, sortable=True, filter_string="name__icontains")
-        create(HeaderFilterItem, pref + 'segment', order=2, name='segment', title=_(u'Segment'), type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True, editable=True, sortable=True, filter_string="segment__name__icontains")
+        create(HeaderFilterItem, pref + 'name',    order=1, name='name',    title=_(u'Name'),    type=HFI_FIELD, header_filter=hf, has_a_filter=True, editable=True, sortable=True, filter_string="name__icontains")
+        create(HeaderFilterItem, pref + 'segment', order=2, name='segment', title=_(u'Segment'), type=HFI_FIELD, header_filter=hf, has_a_filter=True, editable=True, sortable=True, filter_string="segment__name__icontains")
 
-
-        create(ButtonMenuItem, 'commercial-complete_goal_button', button_id=complete_goal_button.id_,   order=60)
+        create(ButtonMenuItem, 'commercial-complete_goal_button', button_id=complete_goal_button.id_, order=60)
 
         SearchConfigItem.create(Act, ['name', 'expected_sales', 'cost', 'goal'])
         SearchConfigItem.create(Strategy, ['name'])

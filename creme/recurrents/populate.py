@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2011  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -21,7 +21,7 @@
 from django.utils.translation import ugettext as _
 from django.contrib.contenttypes.models import ContentType
 
-from creme_core.utils import create_or_update_models_instance as create
+from creme_core.utils import create_or_update as create
 from creme_core.models import SearchConfigItem
 from creme_core.models.header_filter import HeaderFilterItem, HeaderFilter, HFI_FIELD
 from creme_core.management.commands.creme_populate import BasePopulator
@@ -40,9 +40,9 @@ class Populator(BasePopulator):
         create(Periodicity, 5, name=_(u'Biannual'),  value_in_days=180, description=_(u'Every semester'))
         create(Periodicity, 6, name=_(u'Annual'),    value_in_days=365, description=_(u'Every year'))
 
-        hf_id = create(HeaderFilter, 'recurrents-hf', name=_(u'Generator view'), entity_type_id=ContentType.objects.get_for_model(RecurrentGenerator).id, is_custom=False).id
+        hf = create(HeaderFilter, 'recurrents-hf', name=_(u'Generator view'), entity_type=ContentType.objects.get_for_model(RecurrentGenerator), is_custom=False)
         pref = 'recurrents-hfi_'
-        create(HeaderFilterItem, pref + 'name', order=1, name='name', title=_(u'Name'), type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True, editable=True, sortable=True, filter_string="name__icontains")
+        create(HeaderFilterItem, pref + 'name', order=1, name='name', title=_(u'Name'), type=HFI_FIELD, header_filter=hf, has_a_filter=True, editable=True, sortable=True, filter_string="name__icontains")
 
         SearchConfigItem.create(RecurrentGenerator, ['name', 'description', 'periodicity__name', 'ct__name'])
 

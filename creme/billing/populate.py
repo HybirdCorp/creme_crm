@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2011  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -21,7 +21,7 @@
 from django.utils.translation import ugettext as _
 from django.contrib.contenttypes.models import ContentType
 
-from creme_core.utils import create_or_update_models_instance as create
+from creme_core.utils import create_or_update as create
 from creme_core.models.header_filter import HeaderFilterItem, HeaderFilter, HFI_FIELD
 from creme_core.models import RelationType, SearchConfigItem, ButtonMenuItem
 from creme_core.management.commands.creme_populate import BasePopulator
@@ -53,7 +53,7 @@ class Populator(BasePopulator):
         create(PaymentTerms, 2, name=_(u"Cash"))
         create(PaymentTerms, 3, name=_(u"45 days"))
         create(PaymentTerms, 4, name=_(u"60 days"))
-        create(PaymentTerms, 5, name=_(u"30 days, end month the 10")) 
+        create(PaymentTerms, 5, name=_(u"30 days, end month the 10"))
 
         create(SalesOrderStatus, 1, name=_(u"Issued"),   is_custom=False) #default status
         create(SalesOrderStatus, 2, name=_(u"Accepted"), is_custom=True)
@@ -73,18 +73,16 @@ class Populator(BasePopulator):
         create(CreditNoteStatus, 2, name=_(u"Issued"), is_custom=True)
 
         get_ct = ContentType.objects.get_for_model
-        invoice_ct_id = get_ct(Invoice).id
-        create(ButtonMenuItem, 'billing-generate_invoice_number',
-                                content_type_id=invoice_ct_id, button_id=generate_invoice_number_button.id_,
-                                order=0)
+
+        create(ButtonMenuItem, 'billing-generate_invoice_number', content_type=get_ct(Invoice), button_id=generate_invoice_number_button.id_, order=0)
 
         def create_hf(hf_pk, hfi_pref, name, model):
-            hf_id = create(HeaderFilter, hf_pk, name=name, entity_type_id=get_ct(model).id, is_custom=False).id
-            create(HeaderFilterItem, hfi_pref + 'name',    order=1, name='name',            title=_(u'Name'),            type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True, editable=True, sortable=True, filter_string="name__icontains")
-            create(HeaderFilterItem, hfi_pref + 'number',  order=2, name='number',          title=_(u'Number'),          type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True, editable=True, sortable=True, filter_string="number__icontains")
-            create(HeaderFilterItem, hfi_pref + 'issdate', order=3, name='issuing_date',    title=_(u"Issuing date"),    type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True, editable=True, sortable=True, filter_string="issuing_date__range")
-            create(HeaderFilterItem, hfi_pref + 'expdate', order=4, name='expiration_date', title=_(u"Expiration date"), type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True, editable=True, sortable=True, filter_string="expiration_date__range")
-            create(HeaderFilterItem, hfi_pref + 'status',  order=5, name='status__name',    title=_(u'Status - Name'),   type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True, editable=True, sortable=True, filter_string="status__name__icontains")
+            hf = create(HeaderFilter, hf_pk, name=name, entity_type=get_ct(model), is_custom=False)
+            create(HeaderFilterItem, hfi_pref + 'name',    order=1, name='name',            title=_(u'Name'),            type=HFI_FIELD, header_filter=hf, has_a_filter=True, editable=True, sortable=True, filter_string="name__icontains")
+            create(HeaderFilterItem, hfi_pref + 'number',  order=2, name='number',          title=_(u'Number'),          type=HFI_FIELD, header_filter=hf, has_a_filter=True, editable=True, sortable=True, filter_string="number__icontains")
+            create(HeaderFilterItem, hfi_pref + 'issdate', order=3, name='issuing_date',    title=_(u"Issuing date"),    type=HFI_FIELD, header_filter=hf, has_a_filter=True, editable=True, sortable=True, filter_string="issuing_date__range")
+            create(HeaderFilterItem, hfi_pref + 'expdate', order=4, name='expiration_date', title=_(u"Expiration date"), type=HFI_FIELD, header_filter=hf, has_a_filter=True, editable=True, sortable=True, filter_string="expiration_date__range")
+            create(HeaderFilterItem, hfi_pref + 'status',  order=5, name='status__name',    title=_(u'Status - Name'),   type=HFI_FIELD, header_filter=hf, has_a_filter=True, editable=True, sortable=True, filter_string="status__name__icontains")
 
         create_hf('billing-hf_invoice',    'billing-hfi_invoice_',    _(u'Invoice view'),     Invoice)
         create_hf('billing-hf_quote',      'billing-hfi_quote_',      _(u'Quote view'),       Quote)
