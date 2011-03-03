@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2011  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -21,7 +21,7 @@
 from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import ugettext as _
 
-from creme_core.utils import create_or_update_models_instance as create
+from creme_core.utils import create_or_update as create
 from creme_core.models.header_filter import HeaderFilterItem, HeaderFilter, HFI_FIELD
 from creme_core.models import RelationType, SearchConfigItem
 from creme_core.management.commands.creme_populate import BasePopulator
@@ -52,22 +52,22 @@ class Populator(BasePopulator):
 
         get_ct = ContentType.objects.get_for_model
 
-        hf_id = create(HeaderFilter, 'projects-hf_project', name=_(u'Project view'), entity_type_id=get_ct(Project).id, is_custom=False).id
+        hf = create(HeaderFilter, 'projects-hf_project', name=_(u'Project view'), entity_type=get_ct(Project), is_custom=False)
         pref  = 'projects-hfi_project_'
-        create(HeaderFilterItem, pref + 'name', order=1, name='name',        title=_(u'Name'),        type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True, editable=True, sortable=True, filter_string="name__icontains")
-        create(HeaderFilterItem, pref + 'desc', order=2, name='description', title=_(u'Description'), type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True, editable=True, sortable=True, filter_string="description__icontains")
+        create(HeaderFilterItem, pref + 'name', order=1, name='name',        title=_(u'Name'),        type=HFI_FIELD, header_filter=hf, has_a_filter=True, editable=True, sortable=True, filter_string="name__icontains")
+        create(HeaderFilterItem, pref + 'desc', order=2, name='description', title=_(u'Description'), type=HFI_FIELD, header_filter=hf, has_a_filter=True, editable=True, sortable=True, filter_string="description__icontains")
 
         #used in form
-        hf_id = create(HeaderFilter, 'projects-hf_task', name=_(u'Task view'), entity_type_id=get_ct(ProjectTask).id, is_custom=False).id
+        hf = create(HeaderFilter, 'projects-hf_task', name=_(u'Task view'), entity_type=get_ct(ProjectTask), is_custom=False)
         pref  = 'projects-hfi_task_'
-        create(HeaderFilterItem, pref + 'title', order=1, name='title',       title=_(u'Name of the task'),        type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True, editable=True, sortable=True, filter_string="title__icontains")
-        create(HeaderFilterItem, pref + 'desc',  order=2, name='description', title=_(u'Description of the task'), type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True, editable=True, sortable=True, filter_string="description__icontains")
+        create(HeaderFilterItem, pref + 'title', order=1, name='title',       title=_(u'Name of the task'),        type=HFI_FIELD, header_filter=hf, has_a_filter=True, editable=True, sortable=True, filter_string="title__icontains")
+        create(HeaderFilterItem, pref + 'desc',  order=2, name='description', title=_(u'Description of the task'), type=HFI_FIELD, header_filter=hf, has_a_filter=True, editable=True, sortable=True, filter_string="description__icontains")
 
         #used in form
-        hf_id = create(HeaderFilter, 'projects-hf_resource', name=_(u'Resource view'), entity_type_id=get_ct(Resource).id, is_custom=False).id
+        hf = create(HeaderFilter, 'projects-hf_resource', name=_(u'Resource view'), entity_type=get_ct(Resource), is_custom=False)
         pref  = 'projects-hfi_resource_'
-        create(HeaderFilterItem, pref + 'contact', order=1, name='linked_contact', title=_(u'Name of the resource'), type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True, editable=True, sortable=True, filter_string="linked_contact__icontains")
-        create(HeaderFilterItem, pref + 'cost',    order=2, name='hourly_cost',    title=_(u'Hourly cost'),          type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True, editable=True, sortable=True, filter_string="hourly_cost__icontains")
+        create(HeaderFilterItem, pref + 'contact', order=1, name='linked_contact', title=_(u'Name of the resource'), type=HFI_FIELD, header_filter=hf, has_a_filter=True, editable=True, sortable=True, filter_string="linked_contact__icontains")
+        create(HeaderFilterItem, pref + 'cost',    order=2, name='hourly_cost',    title=_(u'Hourly cost'),          type=HFI_FIELD, header_filter=hf, has_a_filter=True, editable=True, sortable=True, filter_string="hourly_cost__icontains")
 
         SearchConfigItem.create(Project,     ['name', 'description', 'status__name'])
         SearchConfigItem.create(Resource,    ['linked_contact__first_name', 'linked_contact__last_name', 'hourly_cost'])

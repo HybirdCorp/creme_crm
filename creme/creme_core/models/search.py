@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2011  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -23,7 +23,7 @@ from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 
 from creme_core.models import CremeModel
-from creme_core.utils import create_or_update_models_instance
+from creme_core.utils import create_or_update
 from creme_core.utils.meta import get_verbose_field_name
 
 
@@ -73,10 +73,10 @@ class SearchConfigItem(CremeModel):
         """Create a config item & his fields
         SearchConfigItem.create(SomeDjangoModel, ['SomeDjangoModel_field1', 'SomeDjangoModel_field2', ..])
         """
-        sci = create_or_update_models_instance(SearchConfigItem, content_type_id=ContentType.objects.get_for_model(model).id)
+        sci = create_or_update(SearchConfigItem, content_type_id=ContentType.objects.get_for_model(model).id)
         SCI_pk = sci.pk
         for i, field in enumerate(fields):
-            create_or_update_models_instance(SearchField, field=field, field_verbose_name=get_verbose_field_name(model, field), order=i, search_config_item_id=SCI_pk)
+            create_or_update(SearchField, field=field, field_verbose_name=get_verbose_field_name(model, field), order=i, search_config_item_id=SCI_pk)
 
 
 class SearchField(CremeModel):

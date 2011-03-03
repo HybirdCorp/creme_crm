@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2011  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -53,8 +53,8 @@ class CremePropertyType(CremeModel):
         @param generate_pk If True, str_pk is used as prefix to generate pk.
         """
         if not generate_pk:
-            from creme_core.utils import create_or_update_models_instance as create
-            property_type = create(CremePropertyType, str_pk, text=text, is_custom=is_custom)
+            from creme_core.utils import create_or_update
+            property_type = create_or_update(CremePropertyType, str_pk, text=text, is_custom=is_custom)
         else:
             from creme_core.utils.id_generator import generate_string_id_and_save
             property_type = CremePropertyType(text=text, is_custom=is_custom)
