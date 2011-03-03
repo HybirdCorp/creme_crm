@@ -19,7 +19,6 @@
 ################################################################################
 
 from django.utils.translation import ugettext as _
-from django.contrib.contenttypes.models import ContentType
 
 from creme_core.models import SearchConfigItem
 from creme_core.models.header_filter import HeaderFilterItem, HeaderFilter, HFI_FIELD
@@ -33,9 +32,7 @@ class Populator(BasePopulator):
     dependencies = ['creme.creme_core']
 
     def populate(self, *args, **kwargs):
-        get_ct = ContentType.objects.get_for_model
-
-        hf = create(HeaderFilter, 'graphs-hf', name=_(u'Graph view'), entity_type=get_ct(Graph), is_custom=False)
+        hf = HeaderFilter.create(pk='graphs-hf', name=_(u'Graph view'), model=Graph)
         pref  = 'graphs-hfi_graph_'
         create(HeaderFilterItem, pref + 'name', order=1, name='name', title=_(u'Name'), type=HFI_FIELD, header_filter=hf, has_a_filter=True, editable=True, sortable=True, filter_string="name__icontains")
 

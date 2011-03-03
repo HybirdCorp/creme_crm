@@ -19,7 +19,6 @@
 ################################################################################
 
 from django.utils.translation import ugettext as _
-from django.contrib.contenttypes.models import ContentType
 
 from creme_core.models import SearchConfigItem
 from creme_core.models.header_filter import HeaderFilterItem, HeaderFilter, HFI_FIELD
@@ -38,7 +37,7 @@ class Populator(BasePopulator):
         create(MediaCategory, name=_(u"Organisation logo"),  is_custom=False)
         create(MediaCategory, name=_(u"Contact photograph"), is_custom=False)
 
-        hf = create(HeaderFilter, 'media_managers-hf_image', name=_(u"Image view"), entity_type=ContentType.objects.get_for_model(Image), is_custom=False)
+        hf = HeaderFilter.create(pk='media_managers-hf_image', name=_(u'Image view'), model=Image)
         pref  = 'media_managers-hfi_image_'
         create(HeaderFilterItem, pref + 'name',  order=1, name='name',           title=_(u'Name'),            type=HFI_FIELD, header_filter=hf, has_a_filter=True,  editable=True, filter_string="name__icontains" )
         create(HeaderFilterItem, pref + 'image', order=2, name='image',          title=_(u'Image'),           type=HFI_FIELD, header_filter=hf, has_a_filter=False, editable=False)

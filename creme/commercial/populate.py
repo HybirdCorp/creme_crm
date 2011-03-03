@@ -19,7 +19,6 @@
 ################################################################################
 
 from django.utils.translation import ugettext as _
-from django.contrib.contenttypes.models import ContentType
 
 from creme_core.models import (RelationType, BlockConfigItem, CremePropertyType,
                                SearchConfigItem, ButtonMenuItem)
@@ -53,19 +52,17 @@ class Populator(BasePopulator):
 
         create(BlockConfigItem, 'commercial-approaches_block', content_type=None, block_id=approaches_block.id_, order=10,  on_portal=False)
 
-        get_ct = ContentType.objects.get_for_model
-
-        hf = create(HeaderFilter, 'commercial-hf_act', name=_(u"Com Action view"), entity_type=get_ct(Act), is_custom=False)
-        pref  = 'commercial-hfi_act_'
+        hf   = HeaderFilter.create(pk='commercial-hf_act', name=_(u"Com Action view"), model=Act)
+        pref = 'commercial-hfi_act_'
         create(HeaderFilterItem, pref + 'name',           order=1, name='name',           title=_(u'Name'),           type=HFI_FIELD, header_filter=hf, has_a_filter=True, editable=True, sortable=True, filter_string="name__icontains")
         create(HeaderFilterItem, pref + 'expected_sales', order=2, name='expected_sales', title=_(u'Expected sales'), type=HFI_FIELD, header_filter=hf, has_a_filter=True, editable=True, sortable=True, filter_string="expected_sales__icontains")
         create(HeaderFilterItem, pref + 'due_date',       order=3, name='due_date',       title=_(u'Due date'),       type=HFI_FIELD, header_filter=hf, has_a_filter=True, editable=True, sortable=True, filter_string="due_date__range")
 
-        hf = create(HeaderFilter, 'commercial-hf_strategy', name=_(u"Strategy view"), entity_type=get_ct(Strategy), is_custom=False)
+        hf = HeaderFilter.create(pk='commercial-hf_strategy', name=_(u"Strategy view"), model=Strategy)
         create(HeaderFilterItem, 'commercial-hfi_strategy_name', order=1, name='name', title=_(u'Name'), type=HFI_FIELD, header_filter=hf, has_a_filter=True, editable=True, sortable=True, filter_string="name__icontains")
 
-        hf = create(HeaderFilter, 'commercial-hf_objpattern', name=_(u"Objective pattern view"), entity_type=get_ct(ActObjectivePattern), is_custom=False)
-        pref  = 'commercial-hfi_objpattern_'
+        hf   = HeaderFilter.create(pk='commercial-hf_objpattern', name=_(u"Objective pattern view"), model=ActObjectivePattern)
+        pref = 'commercial-hfi_objpattern_'
         create(HeaderFilterItem, pref + 'name',    order=1, name='name',    title=_(u'Name'),    type=HFI_FIELD, header_filter=hf, has_a_filter=True, editable=True, sortable=True, filter_string="name__icontains")
         create(HeaderFilterItem, pref + 'segment', order=2, name='segment', title=_(u'Segment'), type=HFI_FIELD, header_filter=hf, has_a_filter=True, editable=True, sortable=True, filter_string="segment__name__icontains")
 

@@ -72,12 +72,10 @@ class Populator(BasePopulator):
         create(CreditNoteStatus, 1, name=_(u"Draft"),  is_custom=False)
         create(CreditNoteStatus, 2, name=_(u"Issued"), is_custom=True)
 
-        get_ct = ContentType.objects.get_for_model
-
-        create(ButtonMenuItem, 'billing-generate_invoice_number', content_type=get_ct(Invoice), button_id=generate_invoice_number_button.id_, order=0)
+        create(ButtonMenuItem, 'billing-generate_invoice_number', content_type=ContentType.objects.get_for_model(Invoice), button_id=generate_invoice_number_button.id_, order=0)
 
         def create_hf(hf_pk, hfi_pref, name, model):
-            hf = create(HeaderFilter, hf_pk, name=name, entity_type=get_ct(model), is_custom=False)
+            hf = HeaderFilter.create(pk=hf_pk, name=name, model=model)
             create(HeaderFilterItem, hfi_pref + 'name',    order=1, name='name',            title=_(u'Name'),            type=HFI_FIELD, header_filter=hf, has_a_filter=True, editable=True, sortable=True, filter_string="name__icontains")
             create(HeaderFilterItem, hfi_pref + 'number',  order=2, name='number',          title=_(u'Number'),          type=HFI_FIELD, header_filter=hf, has_a_filter=True, editable=True, sortable=True, filter_string="number__icontains")
             create(HeaderFilterItem, hfi_pref + 'issdate', order=3, name='issuing_date',    title=_(u"Issuing date"),    type=HFI_FIELD, header_filter=hf, has_a_filter=True, editable=True, sortable=True, filter_string="issuing_date__range")

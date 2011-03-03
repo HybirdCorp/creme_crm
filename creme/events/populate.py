@@ -19,7 +19,6 @@
 ################################################################################
 
 from django.utils.translation import ugettext as _
-from django.contrib.contenttypes.models import ContentType
 
 from creme_core.models import SearchConfigItem, RelationType
 from creme_core.models.header_filter import HeaderFilterItem, HeaderFilter, HFI_FIELD
@@ -56,7 +55,7 @@ class Populator(BasePopulator):
         for i, name in enumerate((_('Show'), _('Conference'), _('Breakfast'), _('Brunch'))):
             create(EventType, i + 1, name=name)
 
-        hf = create(HeaderFilter, 'events-hf', name=_(u'Event view'), entity_type=ContentType.objects.get_for_model(Event), is_custom=False)
+        hf = HeaderFilter.create(pk='events-hf', name=_(u'Event view'), model=Event)
         pref = 'events-hfi_'
         create(HeaderFilterItem, pref + 'name',       order=1, name='name',       title=_(u'Name'),        type=HFI_FIELD, header_filter=hf, has_a_filter=True, editable=True, sortable=True, filter_string="name__icontains")
         create(HeaderFilterItem, pref + 'type',       order=2, name='type__name', title=_(u'Type - Name'), type=HFI_FIELD, header_filter=hf, has_a_filter=True, editable=True, sortable=True, filter_string="type__name__icontains")

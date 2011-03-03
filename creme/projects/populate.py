@@ -18,7 +18,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import ugettext as _
 
 from creme_core.utils import create_or_update as create
@@ -50,22 +49,20 @@ class Populator(BasePopulator):
         for pk, statusdesc in TASK_STATUS.iteritems():
             create(TaskStatus, pk, name=unicode(statusdesc.name), description=unicode(statusdesc.verbose_name), is_custom=False)
 
-        get_ct = ContentType.objects.get_for_model
-
-        hf = create(HeaderFilter, 'projects-hf_project', name=_(u'Project view'), entity_type=get_ct(Project), is_custom=False)
-        pref  = 'projects-hfi_project_'
+        hf   = HeaderFilter.create(pk='projects-hf_project', name=_(u'Project view'), model=Project)
+        pref = 'projects-hfi_project_'
         create(HeaderFilterItem, pref + 'name', order=1, name='name',        title=_(u'Name'),        type=HFI_FIELD, header_filter=hf, has_a_filter=True, editable=True, sortable=True, filter_string="name__icontains")
         create(HeaderFilterItem, pref + 'desc', order=2, name='description', title=_(u'Description'), type=HFI_FIELD, header_filter=hf, has_a_filter=True, editable=True, sortable=True, filter_string="description__icontains")
 
         #used in form
-        hf = create(HeaderFilter, 'projects-hf_task', name=_(u'Task view'), entity_type=get_ct(ProjectTask), is_custom=False)
-        pref  = 'projects-hfi_task_'
+        hf   = HeaderFilter.create(pk='projects-hf_task', name=_(u'Task view'), model=ProjectTask)
+        pref = 'projects-hfi_task_'
         create(HeaderFilterItem, pref + 'title', order=1, name='title',       title=_(u'Name of the task'),        type=HFI_FIELD, header_filter=hf, has_a_filter=True, editable=True, sortable=True, filter_string="title__icontains")
         create(HeaderFilterItem, pref + 'desc',  order=2, name='description', title=_(u'Description of the task'), type=HFI_FIELD, header_filter=hf, has_a_filter=True, editable=True, sortable=True, filter_string="description__icontains")
 
         #used in form
-        hf = create(HeaderFilter, 'projects-hf_resource', name=_(u'Resource view'), entity_type=get_ct(Resource), is_custom=False)
-        pref  = 'projects-hfi_resource_'
+        hf   = HeaderFilter.create(pk='projects-hf_resource', name=_(u'Resource view'), model=Resource)
+        pref = 'projects-hfi_resource_'
         create(HeaderFilterItem, pref + 'contact', order=1, name='linked_contact', title=_(u'Name of the resource'), type=HFI_FIELD, header_filter=hf, has_a_filter=True, editable=True, sortable=True, filter_string="linked_contact__icontains")
         create(HeaderFilterItem, pref + 'cost',    order=2, name='hourly_cost',    title=_(u'Hourly cost'),          type=HFI_FIELD, header_filter=hf, has_a_filter=True, editable=True, sortable=True, filter_string="hourly_cost__icontains")
 

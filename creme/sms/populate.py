@@ -19,7 +19,6 @@
 ################################################################################
 
 from django.utils.translation import ugettext as _
-from django.contrib.contenttypes.models import ContentType
 
 from creme_core.models import SearchConfigItem
 from creme_core.models.header_filter import HeaderFilterItem, HeaderFilter, HFI_FIELD
@@ -33,15 +32,13 @@ class Populator(BasePopulator):
     dependencies = ['creme.creme_core']
 
     def populate(self, *args, **kwargs):
-        get_ct = ContentType.objects.get_for_model
-
-        hf = create(HeaderFilter, 'sms-hf_mlist', name=_(u'Messaging list view'), entity_type=get_ct(MessagingList), is_custom=False)
+        hf = HeaderFilter.create(pk='sms-hf_mlist', name=_(u'Messaging list view'), model=MessagingList)
         create(HeaderFilterItem, 'sms-hf_sendlist_name', order=1, name='name', title=_(u'Name'), type=HFI_FIELD, header_filter=hf, has_a_filter=True, editable=True, filter_string="name__icontains")
 
-        hf = create(HeaderFilter, 'sms-hf_campaign', name=_(u'Campaign view'), entity_type=get_ct(SMSCampaign), is_custom=False)
+        hf = HeaderFilter.create(pk='sms-hf_campaign', name=_(u'Campaign view'), model=SMSCampaign)
         create(HeaderFilterItem, 'sms-hf_campaign_name', order=1, name='name', title=_(u'Name'), type=HFI_FIELD, header_filter=hf, has_a_filter=True, editable=True, filter_string="name__icontains")
 
-        hf = create(HeaderFilter, 'sms-hf_template', name=_(u'Message template view'), entity_type=get_ct(MessageTemplate), is_custom=False)
+        hf = HeaderFilter.create(pk='sms-hf_template', name=_(u'Message template view'), model=MessageTemplate)
         create(HeaderFilterItem, 'sms-hf_template_name', order=1, name='name', title=_(u'Name'), type=HFI_FIELD, header_filter=hf, has_a_filter=True, editable=True, filter_string="name__icontains")
 
         SearchConfigItem.create(SMSCampaign, ['name'])
