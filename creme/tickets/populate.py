@@ -9,7 +9,6 @@ from django.contrib.contenttypes.models import ContentType
 from creme_core.models import RelationType, SearchConfigItem, BlockConfigItem, RelationBlockItem, ButtonMenuItem
 from creme_core.models.header_filter import HeaderFilterItem, HeaderFilter, HFI_FIELD
 from creme_core.utils import create_or_update as create
-from creme_core.utils.id_generator import generate_string_id_and_save
 from creme_core.management.commands.creme_populate import BasePopulator
 
 from tickets.models import *
@@ -53,8 +52,7 @@ class Populator(BasePopulator):
 
         #TODO: helper code in creme_config ??? (see 'persons' app)
         rbi = RelationBlockItem.create(REL_OBJ_LINKED_2_TICKET)
-        bci = BlockConfigItem(content_type=ContentType.objects.get_for_model(Ticket), block_id=rbi.block_id, order=1, on_portal=False)
-        generate_string_id_and_save(BlockConfigItem, [bci], 'creme_config-userbci')
+        create(BlockConfigItem, 'tickets-linked2_block',  content_type=ContentType.objects.get_for_model(Ticket), block_id=rbi.block_id, order=1, on_portal=False)
 
         if 'creme.persons' in settings.INSTALLED_APPS:
             try:

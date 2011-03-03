@@ -18,7 +18,10 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from logging import info
+
 from django.utils.translation import ugettext as _
+from django.contrib.auth.models import User
 
 from creme_core.models.header_filter import HeaderFilterItem, HeaderFilter, HFI_FIELD
 from creme_core.models import RelationType, BlockConfigItem, SearchConfigItem
@@ -42,7 +45,11 @@ class Populator(BasePopulator):
         category_entities = create(FolderCategory, DOCUMENTS_FROM_ENTITIES, name=_(u"Documents related to entities"))
         create(FolderCategory, DOCUMENTS_FROM_EMAILS, name=_(u"Documents received by email"))
 
-        create(Folder, title="Creme", description=_(u"Folder containing all the documents related to entities"), category=category_entities, user_id=1)
+        if not Folder.objects.filter(title="Creme"):
+            user = User.objects.get(pk=1)
+            create(Folder, title="Creme", description=_(u"Folder containing all the documents related to entities"), category=category_entities, user=user)
+        else:
+            info("A Folder with title 'Creme' already exists => no re-creation")
 
         hf   = HeaderFilter.create(pk='documents-hf', name=_(u"Document view"), model=Document)
         pref = 'documents-hfi_'
