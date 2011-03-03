@@ -19,10 +19,8 @@
 ################################################################################
 
 from django.utils.translation import ugettext as _
-from django.contrib.contenttypes.models import ContentType
 
-from creme_core.models import SearchConfigItem, RelationType
-from creme_core.models.button_menu import ButtonMenuItem
+from creme_core.models import RelationType, SearchConfigItem, ButtonMenuItem
 from creme_core.models.header_filter import HeaderFilterItem, HeaderFilter, HFI_FIELD
 from creme_core.utils import create_or_update as create
 from creme_core.management.commands.creme_populate import BasePopulator
@@ -40,9 +38,9 @@ class Populator(BasePopulator):
 
     def populate(self, *args, **kwargs):
         RelationType.create((REL_SUB_MAIL_RECEIVED, _(u"(email) received by"), [EntityEmail]),
-                            (REL_OBJ_MAIL_RECEIVED, _(u"received the email"), [Organisation, Contact]))
+                            (REL_OBJ_MAIL_RECEIVED, _(u"received the email"),  [Organisation, Contact]))
 
-        RelationType.create((REL_SUB_MAIL_SENDED, _(u"(email) sended"), [EntityEmail]),
+        RelationType.create((REL_SUB_MAIL_SENDED, _(u"(email) sended"),   [EntityEmail]),
                             (REL_OBJ_MAIL_SENDED, _(u"sended the email"), [Organisation, Contact]))
 
         hf = HeaderFilter.create(pk='emails-hf_mailinglist', name=_(u"Mailing list view"), model=MailingList)
@@ -62,7 +60,7 @@ class Populator(BasePopulator):
         create(HeaderFilterItem, pref + 'recipient', order=2, name='recipient', title=_(u'Recipient'), type=HFI_FIELD, header_filter=hf, has_a_filter=True, editable=True, filter_string="recipient__icontains")
         create(HeaderFilterItem, pref + 'subject',   order=3, name='subject',   title=_(u'Subject'),   type=HFI_FIELD, header_filter=hf, has_a_filter=True, editable=True, filter_string="subject__icontains")
 
-        create(ButtonMenuItem, 'emails-entity_email_link_button', content_type=ContentType.objects.get_for_model(EntityEmail), button_id=entityemail_link_button.id_, order=20)
+        ButtonMenuItem.create(pk='emails-entity_email_link_button', model=EntityEmail, button=entityemail_link_button, order=20)
 
         SearchConfigItem.create(EmailCampaign, ['name', 'mailing_lists__name'])
         SearchConfigItem.create(MailingList,   ['name', 'children__name', 'contacts__first_name', 'contacts__last_name', 'organisations__name'])
