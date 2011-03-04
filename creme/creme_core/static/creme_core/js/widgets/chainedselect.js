@@ -108,7 +108,7 @@ creme.widget.ChainedSelect = creme.widget.declare('ui-creme-chainedselect', {
     {
         var self = creme.widget.ChainedSelect;
         
-        $('.ui-creme-widget', element).unbind('change', self._dependency_change);
+        //$('.ui-creme-widget', element).unbind('change', self._dependency_change);
         
         var item = $('li[chained-name="' + name + '"] .ui-creme-widget.widget-active', element);
         //console.log('chainedselect._reload_dependencies > ' + name + ':', item);
@@ -121,7 +121,7 @@ creme.widget.ChainedSelect = creme.widget.declare('ui-creme-chainedselect', {
              dep.data('widget').reload(dep, url, undefined, undefined, true);
          });
         
-        $('.ui-creme-widget', element).bind('change', self._dependency_change);
+        //$('.ui-creme-widget', element).bind('change', self._dependency_change);
     },
 
     reset: function(element) {
