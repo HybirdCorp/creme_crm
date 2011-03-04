@@ -53,7 +53,7 @@ class Organisation(CremeEntity):
     tvaintra        = CharField(_(u'VAT number'), max_length=100, blank=True, null=True)
     subject_to_vat  = BooleanField(_(u'Subject to VAT'), default=True)
     legal_form      = ForeignKey(LegalForm, verbose_name=_(u'Legal form'), blank=True, null=True)
-    employees       = ForeignKey(StaffSize, verbose_name=_(u'Staff size'), blank=True, null=True)
+    staff_size      = ForeignKey(StaffSize, verbose_name=_(u'Staff size'), blank=True, null=True)
     billing_address  = ForeignKey(Address, verbose_name=_(u'Billing address'), blank=True, null=True, related_name='AdressefactuOrganisation_set')
     shipping_address = ForeignKey(Address, verbose_name=_(u'Shipping address'), blank=True, null=True, related_name='AdresselivraisonOrganisation_set')
     annual_revenue  = CharField(_(u'Annual revenue'), max_length=100, blank=True, null=True)
@@ -95,12 +95,6 @@ class Organisation(CremeEntity):
 
     def get_employees(self):
         return Contact.objects.filter(relations__type=REL_SUB_EMPLOYED_BY, relations__object_entity=self.id)
-
-    #COMMENTED on 11 february 2011
-    #def zipcode(self):
-        #if self.billing_address is not None:
-            #return self.billing_address.zipcode
-        #return 'Non renseigné'
 
     @staticmethod
     def get_all_managed_by_creme():

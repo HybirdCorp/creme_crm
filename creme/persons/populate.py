@@ -65,33 +65,33 @@ class Populator(BasePopulator):
                             (REL_OBJ_SUBSIDIARY,  _(u"is a subsidiary of"),         [Organisation]))
 
 
-        create(Civility, 1, civility_name=_(u"Mrs."))
-        create(Civility, 2, civility_name=_(u"Miss"))
-        mister = create(Civility, 3, civility_name=_(u"Mr."))
-        create(Civility, 4, civility_name=_(u"Unknown"))
+        create(Civility, 1, title=_(u"Mrs."))
+        create(Civility, 2, title=_(u"Miss"))
+        mister = create(Civility, 3, title=_(u"Mr."))
+        create(Civility, 4, title=_(u"Unknown"))
 
-        create(PeopleFunction, 1, function_name=_(u"CEO"))
-        create(PeopleFunction, 2, function_name=_(u"Secretary"))
-        create(PeopleFunction, 3, function_name=_(u"Technician"))
+        create(Position, 1, title=_(u"CEO"))
+        create(Position, 2, title=_(u"Secretary"))
+        create(Position, 3, title=_(u"Technician"))
 
-        create(Sector, 1, sector_name=_(u"Food Industry"))
-        create(Sector, 2, sector_name=_(u"Industry"))
-        create(Sector, 3, sector_name=_(u"Informatic"))
-        create(Sector, 4, sector_name=_(u"Telecom"))
-        create(Sector, 5, sector_name=_(u"Restoration"))
+        create(Sector, 1, title=_(u"Food Industry"))
+        create(Sector, 2, title=_(u"Industry"))
+        create(Sector, 3, title=_(u"Informatic"))
+        create(Sector, 4, title=_(u"Telecom"))
+        create(Sector, 5, title=_(u"Restoration"))
 
         #TODO: depend on the country no ??
-        create(LegalForm, 1, legal_form_name=u"SARL")
-        create(LegalForm, 2, legal_form_name=u"Association loi 1901")
-        create(LegalForm, 3, legal_form_name=u"SA")
-        create(LegalForm, 4, legal_form_name=u"SAS")
+        create(LegalForm, 1, title=u"SARL")
+        create(LegalForm, 2, title=u"Association loi 1901")
+        create(LegalForm, 3, title=u"SA")
+        create(LegalForm, 4, title=u"SAS")
 
-        create(StaffSize, 1, employees="1 - 5")
-        create(StaffSize, 2, employees="6 - 10")
-        create(StaffSize, 3, employees="11 - 50")
-        create(StaffSize, 4, employees="51 - 100")
-        create(StaffSize, 5, employees="100 - 500")
-        create(StaffSize, 6, employees="> 500")
+        create(StaffSize, 1, size="1 - 5")
+        create(StaffSize, 2, size="6 - 10")
+        create(StaffSize, 3, size="11 - 50")
+        create(StaffSize, 4, size="51 - 100")
+        create(StaffSize, 5, size="100 - 500")
+        create(StaffSize, 6, size="> 500")
 
         hf   = HeaderFilter.create(pk='persons-hf_contact', name=_(u'Contact view'), model=Contact)
         pref = 'persons-hfi_contact_'
@@ -104,21 +104,21 @@ class Populator(BasePopulator):
 
         hf   = HeaderFilter.create(pk='persons-hf_leadcustomer', name=_(u'Prospect/Suspect view'), model=Organisation)
         pref = 'persons-hfi_leadcustomer_'
-        create(HeaderFilterItem, pref + 'name',      order=1, name='name',                title=_(u'Name'),                 type=HFI_FIELD,    header_filter=hf, has_a_filter=True, editable=True,  filter_string="name__icontains")
-        create(HeaderFilterItem, pref + 'sector',    order=2, name='sector__sector_name', title=_(u'Sector - Sector name'), type=HFI_FIELD,    header_filter=hf, has_a_filter=True, editable=True,  filter_string="sector__sector_name__icontains")
-        create(HeaderFilterItem, pref + 'phone',     order=3, name='phone',               title=_(u'Phone'),                type=HFI_FIELD,    header_filter=hf, has_a_filter=True, editable=True,  filter_string="phone__icontains")
-        create(HeaderFilterItem, pref + 'email',     order=4, name='email',               title=_(u'E-mail'),               type=HFI_FIELD,    header_filter=hf, has_a_filter=True, editable=True,  filter_string="email__icontains")
-        create(HeaderFilterItem, pref + 'user',      order=5, name='user__username',      title=_(u'User - Username'),      type=HFI_FIELD,    header_filter=hf, has_a_filter=True, editable=True,  filter_string="user__username__icontains")
-        create(HeaderFilterItem, pref + 'customer',  order=6, name='est_client_de',       title=_(u'Customer of'),          type=HFI_RELATION, header_filter=hf, has_a_filter=True, editable=False, filter_string="", relation_predicat_id=REL_SUB_CUSTOMER_OF)
-        create(HeaderFilterItem, pref + 'prospect',  order=7, name='est_prospect_de',     title=_(u'Prospect of'),          type=HFI_RELATION, header_filter=hf, has_a_filter=True, editable=False, filter_string="", relation_predicat_id=REL_SUB_PROSPECT)
-        create(HeaderFilterItem, pref + 'suspect',   order=8, name='est_suspect_de',      title=_(u'Suspect of'),           type=HFI_RELATION, header_filter=hf, has_a_filter=True, editable=False, filter_string="", relation_predicat_id=REL_SUB_SUSPECT)
+        create(HeaderFilterItem, pref + 'name',      order=1, name='name',           title=_(u'Name'),                 type=HFI_FIELD,    header_filter=hf, has_a_filter=True, editable=True,  filter_string="name__icontains")
+        create(HeaderFilterItem, pref + 'sector',    order=2, name='sector__title',  title=_(u'Sector - Sector name'), type=HFI_FIELD,    header_filter=hf, has_a_filter=True, editable=True,  filter_string="sector__title__icontains")
+        create(HeaderFilterItem, pref + 'phone',     order=3, name='phone',          title=_(u'Phone'),                type=HFI_FIELD,    header_filter=hf, has_a_filter=True, editable=True,  filter_string="phone__icontains")
+        create(HeaderFilterItem, pref + 'email',     order=4, name='email',          title=_(u'E-mail'),               type=HFI_FIELD,    header_filter=hf, has_a_filter=True, editable=True,  filter_string="email__icontains")
+        create(HeaderFilterItem, pref + 'user',      order=5, name='user__username', title=_(u'User - Username'),      type=HFI_FIELD,    header_filter=hf, has_a_filter=True, editable=True,  filter_string="user__username__icontains")
+        create(HeaderFilterItem, pref + 'customer',  order=6, name='is_cusomer_of',  title=_(u'Customer of'),          type=HFI_RELATION, header_filter=hf, has_a_filter=True, editable=False, filter_string="", relation_predicat_id=REL_SUB_CUSTOMER_OF)
+        create(HeaderFilterItem, pref + 'prospect',  order=7, name='is_prospect_of', title=_(u'Prospect of'),          type=HFI_RELATION, header_filter=hf, has_a_filter=True, editable=False, filter_string="", relation_predicat_id=REL_SUB_PROSPECT)
+        create(HeaderFilterItem, pref + 'suspect',   order=8, name='is_suspect_of',  title=_(u'Suspect of'),           type=HFI_RELATION, header_filter=hf, has_a_filter=True, editable=False, filter_string="", relation_predicat_id=REL_SUB_SUSPECT)
 
         hf   = HeaderFilter.create(pk='persons-hf_organisation', name=_(u'Organisation view'), model=Organisation)
         pref = 'persons-hfi_organisation_'
-        create(HeaderFilterItem, pref + 'name',  order=1, name='name',               title=_(u'Name'),            type=HFI_FIELD,    header_filter=hf, has_a_filter=True, editable=True, filter_string="name__icontains")
-        create(HeaderFilterItem, pref + 'phone', order=2, name='phone',              title=_(u'Landline'),        type=HFI_FIELD,    header_filter=hf, has_a_filter=True, editable=True, filter_string="phone__icontains")
-        create(HeaderFilterItem, pref + 'user',  order=3, name='user__username',     title=_(u'User - Username'), type=HFI_FIELD,    header_filter=hf, has_a_filter=True, editable=True, filter_string="user__username__icontains")
-        create(HeaderFilterItem, pref + 'resp',  order=4, name='object_responsable', title=_(u'Managed by'),      type=HFI_RELATION, header_filter=hf, has_a_filter=True, editable=False, filter_string="", relation_predicat_id=REL_OBJ_MANAGES)
+        create(HeaderFilterItem, pref + 'name',  order=1, name='name',           title=_(u'Name'),            type=HFI_FIELD,    header_filter=hf, has_a_filter=True, editable=True, filter_string="name__icontains")
+        create(HeaderFilterItem, pref + 'phone', order=2, name='phone',          title=_(u'Landline'),        type=HFI_FIELD,    header_filter=hf, has_a_filter=True, editable=True, filter_string="phone__icontains")
+        create(HeaderFilterItem, pref + 'user',  order=3, name='user__username', title=_(u'User - Username'), type=HFI_FIELD,    header_filter=hf, has_a_filter=True, editable=True, filter_string="user__username__icontains")
+        create(HeaderFilterItem, pref + 'resp',  order=4, name='managed_by',     title=_(u'Managed by'),      type=HFI_RELATION, header_filter=hf, has_a_filter=True, editable=False, filter_string="", relation_predicat_id=REL_OBJ_MANAGES)
 
         ButtonMenuItem.create(pk='persons-customer_contact_button', model=Contact, button=become_customer_button, order=20)
         ButtonMenuItem.create(pk='persons-prospect_contact_button', model=Contact, button=become_prospect_button, order=21)
@@ -161,7 +161,7 @@ class Populator(BasePopulator):
             CremeProperty.objects.create(type=managed_by_creme, creme_entity=orga)
 
         SearchConfigItem.create(Contact, ['first_name', 'last_name', 'landline', 'mobile', 'email'])
-        SearchConfigItem.create(Organisation, ['name', 'phone', 'email', 'sector__sector_name', 'legal_form__legal_form_name'])
+        SearchConfigItem.create(Organisation, ['name', 'phone', 'email', 'sector__title', 'legal_form__title'])
 
         #Populate blocks
         rbi_1 = RelationBlockItem.create(REL_SUB_CUSTOMER_OF)
