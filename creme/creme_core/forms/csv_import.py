@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2011  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,6 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from functools import partial
 from itertools import chain
 from logging import info
 
@@ -34,7 +35,7 @@ from django.contrib.auth.models import User
 
 from creme_core.models import CremePropertyType, CremeProperty, RelationType, Relation, CremeEntity
 from base import CremeForm, CremeModelForm, FieldBlockManager
-from fields import RelatedEntitiesField, CremeEntityField
+from fields import MultiRelationEntityField, CremeEntityField
 from widgets import UnorderedMultipleChoiceWidget
 
 from documents.models import Document
@@ -332,17 +333,16 @@ class CSVImportForm(CremeModelForm):
 
 
 class CSVImportForm4CremeEntity(CSVImportForm):
-    user = ModelChoiceField(label=_('User'), queryset=User.objects.all(), empty_label=None)
+    user           = ModelChoiceField(label=_('User'), queryset=User.objects.all(), empty_label=None)
+    property_types = ModelMultipleChoiceField(label=_(u'Properties'), required=False,
+                                              queryset=CremePropertyType.objects.none(),
+                                              widget=UnorderedMultipleChoiceWidget)
+    relations      = MultiRelationEntityField(label=_(u'Relations'), required=False)
 
     blocks = FieldBlockManager(('general',    _(u'Generic information'),  '*'),
                                ('properties', _(u'Related properties'),   ('property_types',)),
                                ('relations',  _(u'Associated relations'), ('relations',)),
                               )
-
-    property_types = ModelMultipleChoiceField(label=_(u'Properties'), required=False,
-                                              queryset=CremePropertyType.objects.none(),
-                                              widget=UnorderedMultipleChoiceWidget)
-    relations      = RelatedEntitiesField(label=_(u'Relations'), required=False)
 
     class Meta:
         exclude = ('is_deleted', 'is_actived')
@@ -354,7 +354,7 @@ class CSVImportForm4CremeEntity(CSVImportForm):
         ct     = ContentType.objects.get_for_model(self._meta.model)
 
         fields['property_types'].queryset = CremePropertyType.objects.filter(Q(subject_ctypes=ct) | Q(subject_ctypes__isnull=True))
-        fields['relations'].relation_types = RelationType.get_compatible_ones(ct)
+        fields['relations'].set_allowed_rtypes(rtype.id for rtype in RelationType.get_compatible_ones(ct))
         fields['user'].initial = self.user.id
 
     def _post_instance_creation(self, instance):
@@ -363,15 +363,10 @@ class CSVImportForm4CremeEntity(CSVImportForm):
         for prop_type in cleaned_data['property_types']:
             CremeProperty(type=prop_type, creme_entity=instance).save()
 
-        user_id = instance.user.id
+        create_relation = partial(Relation.objects.create, user=instance.user, subject_entity=instance)
 
-        for relationtype_id, entity in cleaned_data['relations']:
-            relation = Relation() #TODO: use Relation.object.create, and even functoold.partial
-            relation.user_id = user_id
-            relation.type_id = relationtype_id
-            relation.subject_entity = instance
-            relation.object_entity_id = entity.id
-            relation.save()
+        for relationtype, entity in cleaned_data['relations']:
+            create_relation(type=relationtype, object_entity=entity)
 
 
 #NB: we use ModelForm to get the all the django machinery to build a form from a model
