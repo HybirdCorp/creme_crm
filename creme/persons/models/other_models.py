@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2011  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -26,11 +26,13 @@ from creme_core.models import CremeModel
 from media_managers.models import Image
 
 
+__all__ = ('Civility', 'Position', 'StaffSize', 'LegalForm', 'Sector', 'MailSignature')
+
 class Civility(CremeModel):
-    civility_name = CharField(_(u'Title'), max_length=100)
+    title = CharField(_(u'Title'), max_length=100)
 
     def __unicode__(self):
-        return self.civility_name
+        return self.title
 
     class Meta:
         app_label = "persons"
@@ -38,11 +40,11 @@ class Civility(CremeModel):
         verbose_name_plural = _(u'Civilities')
 
 
-class PeopleFunction(CremeModel):
-    function_name = CharField(_(u'Title'), max_length=100)
+class Position(CremeModel):
+    title = CharField(_(u'Title'), max_length=100)
 
     def __unicode__(self):
-        return self.function_name
+        return self.title
 
     class Meta:
         app_label = "persons"
@@ -51,10 +53,10 @@ class PeopleFunction(CremeModel):
 
 
 class Sector(CremeModel):
-    sector_name = CharField(_(u'Title'), max_length=100)#Todo: Rename into 'name' ?
+    title = CharField(_(u'Title'), max_length=100)
 
     def __unicode__(self):
-        return self.sector_name
+        return self.title
 
     class Meta:
         app_label = "persons"
@@ -63,10 +65,10 @@ class Sector(CremeModel):
 
 
 class LegalForm(CremeModel):
-    legal_form_name = CharField(_(u'Title'), max_length=100)
+    title = CharField(_(u'Title'), max_length=100)
 
     def __unicode__(self):
-        return self.legal_form_name
+        return self.title
 
     class Meta:
         app_label = "persons"
@@ -75,10 +77,10 @@ class LegalForm(CremeModel):
 
 
 class StaffSize(CremeModel):
-    employees = CharField(_(u'Title'), max_length=100)
+    size = CharField(_(u'Size'), max_length=100)
 
     def __unicode__(self):
-        return self.employees
+        return self.size
 
     class Meta:
         app_label = "persons"

@@ -31,7 +31,7 @@ from creme_core.models.i18n import Language
 from media_managers.models import Image
 
 from address import Address
-from other_models import Civility, PeopleFunction, Sector
+from other_models import Civility, Position, Sector
 
 from persons.constants import REL_OBJ_EMPLOYED_BY
 
@@ -45,7 +45,7 @@ class Contact(CremeEntity):
     landline        = CharField(_(u'Landline'), max_length=100, blank=True, null=True)
     mobile          = CharField(_(u'Mobile'), max_length=100, blank=True, null=True)
     fax             = CharField(_(u'Fax'), max_length=100 , blank=True, null=True)
-    function        = ForeignKey(PeopleFunction, verbose_name=_(u'Position'), blank=True, null=True)
+    position        = ForeignKey(Position, verbose_name=_(u'Position'), blank=True, null=True)
     sector          = ForeignKey(Sector, verbose_name=_(u'Line of business'), blank=True, null=True)
     email           = CharField(_(u'Email'), max_length=100, blank=True, null=True)
     url_site        = CharField(_(u'Web Site'), max_length=100, blank=True, null=True)
