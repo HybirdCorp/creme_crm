@@ -79,7 +79,9 @@
         <tr class="columns_top">
             {% if not o2m %}<th>&nbsp;</th>{% endif %}
             {% for column in columns %}
-                {% if not column.is_hidden and column.type %}
+                {% if column.is_hidden %}
+                    <th style="display:none;"></th>
+                {% else %}{% if column.type %}
                     <th {% if column.name in current_research_fields %}class="search"{% endif %}>
                         <button type="button" {% if column.sortable %}title="{% blocktrans with column.title as col_title %}Sort by {{col_title}}{% endblocktrans %}" onclick="creme.utils.handleSort('#sort_field', '#sort_order', '{{column.name}}', this, $(this.form).list_view('getSubmit'));"{% else %} disabled="true" {% endif %}>
                             {{column.title}}
@@ -87,7 +89,7 @@
                     </th>
                 {% else %}
                     <th></th>
-                {% endif %}
+                {% endif %}{% endif %}
             {% endfor %}
         </tr>
         {% get_listview_columns_header %}
