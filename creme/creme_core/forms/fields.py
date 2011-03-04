@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2011  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -131,14 +131,13 @@ class GenericEntityField(JSONField):
             return value
 
         if isinstance(value, CremeEntity):
-            ctype, pk = value.entity_type.id, value.id
+            ctype = value.entity_type_id
+            pk = value.id
         else:
             ctype = value['ctype']
             pk = value['entity']
 
-        entity = {'ctype': ctype, 'entity': pk}
-
-        return self.format_json(entity)
+        return self.format_json({'ctype': ctype, 'entity': pk})
 
     def clean(self, value):
         data = self.clean_json(value)
@@ -152,24 +151,18 @@ class GenericEntityField(JSONField):
 
             return None
 
-        ctype_pk, entity_pk = self.clean_value(data, 'ctype', int), self.clean_value(data, 'entity', int)
-
-        return self.clean_entity(ctype_pk, entity_pk)
+        return self.clean_entity(self.clean_value(data, 'ctype', int), self.clean_value(data, 'entity', int))
 
     def clean_entity(self, ctype_pk, entity_pk):
         ctype = self.clean_ctype(ctype_pk)
         model = ctype.model_class()
 
         try:
-            #return CremeEntity.objects.get(pk=data['entity']).get_real_entity()
             entity = model.objects.get(pk=entity_pk)
-
-            #entity.can_view_or_die(user) TODO: user not reachable from field --> forbidden id can be forged...
         except model.DoesNotExist, PermissionDenied:
             if self.required:
                 raise ValidationError(self.error_messages['doesnotexist'])
 
-        #print 'GenericEntityField.clean_entity(ctype=%s, entity=%s) > %s' % (ctype_pk, entity_pk, entity)
         return entity
 
     def clean_ctype(self, ctype_pk):
@@ -197,7 +190,7 @@ class GenericEntityField(JSONField):
         return [get_ct(model) for model in self.allowed_models] if self.allowed_models else list(creme_entity_content_types())
 
     def set_allowed_models(self, models=None):
-        self.allowed_models = models if models else list()
+        self.allowed_models = models or []
         self._build_widget()
 
 
@@ -220,17 +213,10 @@ class MultiGenericEntityField(GenericEntityField):
         if isinstance(value, basestring):
             return value
 
-        entities = []
-
-        for entry in value:
-            if isinstance(entry, CremeEntity):
-                ctype, pk = entry.entity_type.id, entry.id
-                entry = {'ctype': ctype, 'entity': pk}
-
-            entities.append(entry)
-
-        #entities = [{'ctype':ctype, 'entity':pk} for ctype, pk in CremeEntity.objects.filter(pk__in=value).values_list('entity_type', 'pk')]
-        return self.format_json(entities)
+        return self.format_json([entry if not isinstance(entry, CremeEntity) else {'ctype': entry.entity_type_id, 'entity': entry.id}
+                                    for entry in value
+                                ]
+                               )
 
     def clean(self, value):
         data = self.clean_json(value)
@@ -265,7 +251,7 @@ class MultiGenericEntityField(GenericEntityField):
             if not all(entity_pk in ctype_entities for entity_pk in entity_pks):
                 raise ValidationError(self.error_messages['doesnotexist'])
 
-            entities.extend(ctype_entities.values())
+            entities.extend(ctype_entities.itervalues())
 
         return entities
 
@@ -281,10 +267,11 @@ class RelationEntityField(JSONField):
         'nopropertymatch' : _(u"This entity has no property that matches relation type constraints")
     }
 
+    #TODO: def __init__(self, allowed_rtypes=(REL_SUB_RELATED_TO, REL_SUB_HAS), *args, **kwargs):
     def __init__(self, relations=(REL_SUB_RELATED_TO, REL_SUB_HAS), *args, **kwargs):
         super(RelationEntityField, self).__init__(*args, **kwargs)
         self.allowed_rtypes = frozenset(relations)
-        self._build_widget()
+        self._build_widget() #TODO: remove when 'allowed_rtypes' property OK
 
     def _create_widget(self):
         return RelationSelector(self._get_options(self.get_rtypes()),
@@ -313,13 +300,11 @@ class RelationEntityField(JSONField):
             return None
 
         clean_value = self.clean_value
-
-        rtype_pk, ctype_pk, entity_pk = clean_value(data, 'rtype', str), \
-                                        clean_value(data, 'ctype', int), \
-                                        clean_value(data, 'entity', int)
+        rtype_pk  = clean_value(data, 'rtype', str)
+        ctype_pk  = clean_value(data, 'ctype', int)
+        entity_pk = clean_value(data, 'entity', int)
 
         rtype = self.clean_rtype(rtype_pk)
-
         self.validate_ctype_constraints(rtype, ctype_pk)
 
         entity = self.clean_entity(ctype_pk, entity_pk)
@@ -373,8 +358,10 @@ class RelationEntityField(JSONField):
         return RelationType.objects.filter(id__in=self.allowed_rtypes) if self.allowed_rtypes else RelationType.objects.all()
 
     def set_allowed_rtypes(self, allowed=(REL_SUB_RELATED_TO, REL_SUB_HAS)):
-        self.allowed_rtypes = frozenset(allowed)
+        self.allowed_rtypes = frozenset(allowed) #TODO: rename _allowed_rtypes
         self._build_widget()
+
+    #TODO: allowed_rtypes = property(lambda self: self.allowed_rtypes, set_allowed_rtypes); del set_allowed_rtypes
 
 
 class MultiRelationEntityField(RelationEntityField):
@@ -420,9 +407,9 @@ class MultiRelationEntityField(RelationEntityField):
         ctype = ContentType.objects.get_for_id(ctype_pk)
 
         if not ctype:
-            raise ValidationError(self.error_messages['ctypedoesnotexist'], params={'ctype':ctype_pk})
+            raise ValidationError(self.error_messages['ctypedoesnotexist'], params={'ctype': ctype_pk})
 
-        return (ctype, list())
+        return (ctype, [])
 
     def _get_cache(self, entries, key, build_func):
         cache = entries.get(key)
@@ -447,19 +434,19 @@ class MultiRelationEntityField(RelationEntityField):
 
         clean_value = self.clean_value
 
-        cleaned_entries = [(clean_value(entry, 'rtype', str), \
-                            clean_value(entry, 'ctype', int), \
+        cleaned_entries = [(clean_value(entry, 'rtype', str),
+                            clean_value(entry, 'ctype', int),
                             clean_value(entry, 'entity', int)) for entry in data]
 
-        rtypes_cache = dict()
-        ctypes_cache = dict()
+        rtypes_cache = {}
+        ctypes_cache = {}
 
         need_property_validation = False
 
         for rtype_pk, ctype_pk, entity_pk in cleaned_entries:
             # check if relation type is allowed
             if rtype_pk not in self.allowed_rtypes:
-                raise ValidationError(self.error_messages['rtypenotallowed'], params={'rtype':rtype_pk, 'ctype':ctype_pk})
+                raise ValidationError(self.error_messages['rtypenotallowed'], params={'rtype': rtype_pk, 'ctype': ctype_pk})
 
             rtype, rtype_allowed_ctypes, rtype_allowed_properties = self._get_cache(rtypes_cache, rtype_pk, self._build_rtype_cache)
 
@@ -473,7 +460,7 @@ class MultiRelationEntityField(RelationEntityField):
             ctype, ctype_entity_pks = self._get_cache(ctypes_cache, ctype_pk, self._build_ctype_cache)
             ctype_entity_pks.append(entity_pk)
 
-        entities_cache = dict()
+        entities_cache = {}
 
         # build real entity cache and check both entity id exists and in correct content type
         for ctype, entity_pks in ctypes_cache.values():
@@ -508,7 +495,7 @@ class MultiRelationEntityField(RelationEntityField):
         return relations
 
 
-# TODO: remove this field when refactor of activity and event forms will be done.
+#TODO: remove this field when refactor of activity and event forms will be done.
 class RelatedEntitiesField(CharField):
     default_error_messages = {
         'invalidformat': _(u'Invalid format'),
