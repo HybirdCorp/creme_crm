@@ -358,24 +358,28 @@ class EventsTestCase(CremeTestCase):
                                     .values_list('type_id', flat=True))
 
     def test_link_contacts01(self):
+        self.populate('creme_core', 'events')
         self.login()
 
         event = self.create_event('Eclipse', EventType.objects.all()[0])
         casca = Contact.objects.create(user=self.user, first_name='Casca', last_name='Miura')
 
-        response = self.client.get('/events/event/%s/link_contacts' % event.id)
-        self.assertEqual(response.status_code, 200)
+        url = '/events/event/%s/link_contacts' % event.id
+        self.assertEqual(200, self.client.get(url).status_code)
 
-        response = self.client.post('/events/event/%s/link_contacts' % event.id, follow=True,
+        response = self.client.post(url, follow=True,
                                     data= {
-                                            "related_contacts": '(%s,%s,%s);' % (REL_OBJ_CAME_EVENT, ContentType.objects.get_for_model(Contact).id, casca.id),
+                                            "related_contacts": '[{"rtype":"%s","ctype":"%s","entity":"%s"}]' % \
+                                                                    (REL_OBJ_CAME_EVENT, casca.entity_type_id, casca.id),
                                           }
                                    )
         self.assertEqual(200, response.status_code)
+        self.assertNoFormError(response)
         self.assertEqual([REL_SUB_CAME_EVENT], self.relations_types(casca, event))
 
     def test_link_contacts02(self):
         self.login()
+        self.populate('creme_core', 'events')
 
         event = self.create_event('Eclipse', EventType.objects.all()[0])
 
@@ -390,7 +394,11 @@ class EventsTestCase(CremeTestCase):
 
         response = self.client.post('/events/event/%s/link_contacts' % event.id, follow=True,
                                     data= {
-                                            "related_contacts": '(%s,%s,%s);(%s,%s,%s);(%s,%s,%s);(%s,%s,%s);(%s,%s,%s);' % \
+                                            "related_contacts": """[{"rtype":"%s","ctype":"%s","entity":"%s"},
+                                                                    {"rtype":"%s","ctype":"%s","entity":"%s"},
+                                                                    {"rtype":"%s","ctype":"%s","entity":"%s"},
+                                                                    {"rtype":"%s","ctype":"%s","entity":"%s"},
+                                                                    {"rtype":"%s","ctype":"%s","entity":"%s"}]""" % \
                                                 (REL_OBJ_IS_INVITED_TO,  ct_id, casca.id,
                                                  REL_OBJ_CAME_EVENT,     ct_id, judo.id,
                                                  REL_OBJ_NOT_CAME_EVENT, ct_id, griffith.id,
@@ -400,6 +408,7 @@ class EventsTestCase(CremeTestCase):
                                           }
                                    )
         self.assertEqual(200, response.status_code)
+        self.assertNoFormError(response)
 
         rel_filter = Relation.objects.filter
 
@@ -411,7 +420,11 @@ class EventsTestCase(CremeTestCase):
 
         response = self.client.post('/events/event/%s/link_contacts' % event.id, follow=True,
                                     data= {
-                                            "related_contacts": '(%s,%s,%s);(%s,%s,%s);(%s,%s,%s);(%s,%s,%s);(%s,%s,%s);' % \
+                                            "related_contacts": """[{"rtype":"%s","ctype":"%s","entity":"%s"},
+                                                                    {"rtype":"%s","ctype":"%s","entity":"%s"},
+                                                                    {"rtype":"%s","ctype":"%s","entity":"%s"},
+                                                                    {"rtype":"%s","ctype":"%s","entity":"%s"},
+                                                                    {"rtype":"%s","ctype":"%s","entity":"%s"}]""" % \
                                                 (REL_OBJ_IS_INVITED_TO,  ct_id, casca.id,
                                                  REL_OBJ_NOT_CAME_EVENT, ct_id, judo.id,
                                                  REL_OBJ_CAME_EVENT,     ct_id, griffith.id,
@@ -421,6 +434,7 @@ class EventsTestCase(CremeTestCase):
                                           }
                                    )
         self.assertEqual(200, response.status_code)
+        self.assertNoFormError(response)
 
         self.assertEqual([REL_SUB_IS_INVITED_TO],  self.relations_types(casca, event))
         self.assertEqual([REL_SUB_NOT_CAME_EVENT], self.relations_types(judo, event))
@@ -430,6 +444,7 @@ class EventsTestCase(CremeTestCase):
 
     def test_link_contacts03(self):
         self.login()
+        self.populate('creme_core', 'events')
 
         event = self.create_event('Eclipse', EventType.objects.all()[0])
         casca = Contact.objects.create(user=self.user, first_name='Casca', last_name='Miura')
@@ -437,10 +452,11 @@ class EventsTestCase(CremeTestCase):
 
         response = self.client.post('/events/event/%s/link_contacts' % event.id, follow=True,
                                     data= {
-                                            "related_contacts": '(%s,%s,%s);(%s,%s,%s);' % \
-                                                (REL_OBJ_IS_INVITED_TO,  ct_id, casca.id,
-                                                 REL_OBJ_CAME_EVENT,     ct_id, casca.id,
-                                                ),
+                                            "related_contacts": """[{"rtype":"%s","ctype":"%s","entity":"%s"},
+                                                                    {"rtype":"%s","ctype":"%s","entity":"%s"}]""" % \
+                                                                    (REL_OBJ_IS_INVITED_TO,  ct_id, casca.id,
+                                                                     REL_OBJ_CAME_EVENT,     ct_id, casca.id,
+                                                                    ),
                                           }
                                    )
         self.assertEqual(200, response.status_code)
