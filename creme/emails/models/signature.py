@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2011  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,24 +18,29 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.forms import ModelForm, CharField
+from django.db.models import CharField, TextField, ManyToManyField, ForeignKey
+from django.utils.translation import ugettext_lazy as _
+from django.contrib.auth.models import User
 
-from creme_core.forms.fields import MultiCremeEntityField
-from creme_core.forms.widgets import RTEWidget
+from creme_core.models import CremeModel
 
-from persons.models.other_models import MailSignature
-
-from media_managers.models.image import Image
-from media_managers.forms.widgets import ImageM2MWidget
+from media_managers.models import Image
 
 
-class MailSignatureForm(ModelForm):
-    corpse = CharField(widget=RTEWidget())
-    images = MultiCremeEntityField(required=False, model=Image,
-                                   widget=ImageM2MWidget())
+class EmailSignature(CremeModel):
+    name   = CharField(_(u'Name'), max_length=100)
+    user   = ForeignKey(User, verbose_name=_(u'User'))
+    body   = TextField(_(u'Body'))
+    images = ManyToManyField(Image, verbose_name=_(u'Images'), blank=True, null=True)
 
-    #def __init__(self, *args, **kwargs):
-        #super(MailSignatureForm, self).__init__(*args, **kwargs)
+    def __unicode__(self):
+        return self.name
 
     class Meta:
-        model = MailSignature
+        app_label = "emails"
+        verbose_name = _(u"Email signature")
+        verbose_name_plural = _(u"Email signatures")
+        ordering = ('name',)
+
+    def can_change_or_delete(self, user):
+        return self.user_id == user.id or user.is_superuser

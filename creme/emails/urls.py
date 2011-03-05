@@ -67,4 +67,9 @@ urlpatterns = patterns('emails.views',
     (r'^mails$',                          'mail.listview'),
     (r'^synchronization$',                'mail.synchronisation'),
     (r'^sync_blocks/reload$',             'mail.reload_sync_blocks'),
+
+    #Signatures
+    (r'^signature/add$',                        'signature.add'),
+    (r'^signature/edit/(?P<signature_id>\d+)$', 'signature.edit'),
+    (r'^signature/delete$',                     'signature.delete'),
 )

@@ -84,8 +84,9 @@ def delete_entity(request, entity_id, callback_url=None):
     if request.method != 'POST':
         raise Http404('Use POST method for this view')
 
+    user = request.user
     entity = get_object_or_404(CremeEntity, pk=entity_id)
-    entity.can_delete_or_die(request.user)
+    entity.can_delete_or_die(user)
     entity = entity.get_real_entity()
 
     if callback_url is None: #TODO: useful ??
@@ -95,10 +96,10 @@ def delete_entity(request, entity_id, callback_url=None):
         entity.delete()
     except CremeEntity.CanNotBeDeleted, e:
         if request.is_ajax():
-            return HttpResponse(unicode(e), mimetype="text/javascript", status=400)
+            return HttpResponse(e.allowed_unicode(user), mimetype="text/javascript", status=400)
 
         return render_to_response("creme_core/forbidden.html",
-                                  {'error_message': unicode(e)},
+                                  {'error_message': e.allowed_unicode(user)},
                                   context_instance=RequestContext(request)
                                  )
 
