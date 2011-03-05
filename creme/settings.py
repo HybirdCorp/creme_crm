@@ -346,7 +346,6 @@ CREME_CORE_JS = ('main.js',
                     'creme_core/js/export.js',
 
                     #OTHER APPS (mandatory ones)
-                    'creme_config/js/creme_config.js',
                     'activities/js/activities.js',
                     'documents/js/folders.js',
                     'media_managers/js/media_managers.js',

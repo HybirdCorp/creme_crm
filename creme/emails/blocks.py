@@ -25,7 +25,7 @@ from django.contrib.contenttypes.models import ContentType
 
 from creme_core.constants import REL_SUB_RELATED_TO, REL_OBJ_RELATED_TO
 from creme_core.models import Relation, CremeEntity
-from creme_core.gui.block import QuerysetBlock
+from creme_core.gui.block import QuerysetBlock#, list4url
 from creme_core.utils import jsonify
 
 from persons.models import Contact, Organisation
@@ -33,7 +33,7 @@ from persons.models import Contact, Organisation
 from documents.models import Document
 
 from emails.constants import *
-from emails.models import EmailRecipient, EmailSending, LightWeightEmail, MailingList, EntityEmail
+from emails.models import *
 from emails.models.mail import MAIL_STATUS_SYNCHRONIZED_SPAM, MAIL_STATUS_SYNCHRONIZED_WAITING, MAIL_STATUS, MAIL_STATUS_SENT
 
 
@@ -263,6 +263,19 @@ class SpamSynchronizationMailsBlock(_SynchronizationMailsBlock):
                                                             ))
 
 
+class SignaturesBlock(QuerysetBlock):
+    id_           = QuerysetBlock.generate_id('emails', 'signatures')
+    dependencies  = (EmailSignature,)
+    order_by      = 'name'
+    verbose_name  = u'Email signatures'
+    template_name = 'emails/templatetags/block_signatures.html'
+
+    def detailview_display(self, context): #NB: indeed, it is displayed on portal of persons
+        return self._render(self.get_block_template_context(context, EmailSignature.objects.filter(user=context['user']),
+                                                            update_url='/creme_core/blocks/reload/basic/%s/' % self.id_
+                                                           ))
+
+
 mails_block = MailsBlock()
 #mail_waiting_sync_block = WaitingSynchronizationMailsBlock()
 #mail_spam_sync_block    = SpamSynchronizationMailsBlock()
@@ -281,4 +294,5 @@ blocks_list = (
         LwMailsHistoryBlock(),
         WaitingSynchronizationMailsBlock(), #mail_waiting_sync_block
         SpamSynchronizationMailsBlock(), #mail_spam_sync_bloc
+        SignaturesBlock(),
     )

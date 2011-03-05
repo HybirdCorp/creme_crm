@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2011  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -23,9 +23,9 @@ from django.utils.translation import ugettext_lazy as _
 
 from creme_core.models import CremeEntity
 
-from persons.models import MailSignature
-
 from documents.models import Document
+
+from signature import EmailSignature
 
 
 class EmailTemplate(CremeEntity):
@@ -33,7 +33,7 @@ class EmailTemplate(CremeEntity):
     subject     = CharField(_(u'Subject'), max_length=100)
     body        = TextField(_(u"Body"))
     use_rte     = BooleanField(_(u"Use rich text editor"))
-    signature   = ForeignKey(MailSignature, verbose_name=_(u'Signature'), blank=True, null=True)
+    signature   = ForeignKey(EmailSignature, verbose_name=_(u'Signature'), blank=True, null=True)
     attachments = ManyToManyField(Document, verbose_name=_(u'Attachments'))
 
     excluded_fields_in_html_output = CremeEntity.excluded_fields_in_html_output + ['use_rte'] #body too ???

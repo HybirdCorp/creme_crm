@@ -72,12 +72,6 @@ urlpatterns = patterns('creme_config.views',
     (r'^button_menu/edit/(?P<ct_id>\d+)$', 'button_menu.edit'),
     (r'^button_menu/delete$',              'button_menu.delete'),
 
-    #MailSignature
-    (r'^mailsignature/portal/$',                          'mail_signature.portal'),
-    (r'^mailsignature/add/$',                             'mail_signature.add'),
-    (r'^mailsignature/edit/(?P<mailsignature_id>\d*)$',   'mail_signature.edit'),
-    (r'^mailsignature/delete/(?P<mailsignature_id>\d*)$', 'mail_signature.delete'),
-
     #Search
     (r'^search/portal/$',                        'search.portal'),
     (r'^search/add/$',                           'search.add'),

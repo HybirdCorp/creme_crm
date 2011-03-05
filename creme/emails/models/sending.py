@@ -37,11 +37,10 @@ from creme_core.models import CremeModel, CremeEntity
 from emails.models.mail import _Email, ID_LENGTH, MAIL_STATUS_SENT
 from emails.utils import generate_id
 
-from persons.models import MailSignature
-
 from documents.models import Document
 
 from campaign import EmailCampaign
+from signature import EmailSignature
 
 
 SENDING_TYPE_IMMEDIATE = 1
@@ -72,7 +71,7 @@ class EmailSending(CremeModel):
 
     subject     = CharField(_(u'Subject'), max_length=100)
     body        = TextField(_(u"Body"))
-    signature   = ForeignKey(MailSignature, verbose_name=_(u'Signature'), blank=True, null=True)
+    signature   = ForeignKey(EmailSignature, verbose_name=_(u'Signature'), blank=True, null=True)
     attachments = ManyToManyField(Document, verbose_name=_(u'Attachments'))
 
     class Meta:
@@ -124,7 +123,7 @@ class EmailSending(CremeModel):
             #body += '<img src="http://minimails.hybird.org/emails/stats/bbm/%s" />' % mail.ident
 
             if signature:
-                body += signature.corpse #'corpse' berkkkkk
+                body += signature.body
 
                 for signature_img in signature_images:
                     body += '<img src="cid:img_%s" /><br/>' % signature_img.id

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2011  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,6 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from django.core.exceptions import PermissionDenied
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render_to_response
 from django.template import RequestContext
@@ -27,13 +28,7 @@ from django.utils.translation import ugettext as _
 from creme_core.views.generic.popup import inner_popup
 
 
-#@login_required
-#def edit_entity(request, object_id, model, edit_form, app_name, template='creme_core/generics/blockform/edit.html'):
 def edit_entity(request, object_id, model, edit_form, template='creme_core/generics/blockform/edit.html'):
-    #if not request.user.has_perm(app_name):
-        #from django.core.exceptions import PermissionDenied
-        #raise PermissionDenied("You don't have access to the app: %s" % app_name)
-
     entity = get_object_or_404(model, pk=object_id)
     user = request.user
 
@@ -88,14 +83,19 @@ def edit_related_to_entity(request, pk, model, form_class, title_format):
                        context_instance=RequestContext(request)
                       )
 
-def edit_model_with_popup(request, query_dict, model, form_class, title_format=None,
+def edit_model_with_popup(request, query_dict, model, form_class,
+                          title_format=None, can_change=None,
                           template='creme_core/generics/blockform/edit_popup.html'):
     """
     @param query_dict A dictionary that represnts the query to retrieve the edited instance (eg: {'pk': 12})
     @param model A django model class that implements the method get_related_entity().
     @param model title_format A format unicode with an arg (for the edited instance).
+    @param can_change A function with instance and user as paramaters, which return a Boolean: False causes a 403 error.
     """
     instance = get_object_or_404(model, **query_dict)
+
+    if can_change and not can_change(instance, request.user):
+        raise PermissionDenied(_(u'You can not edit this model'))
 
     if request.method == 'POST':
         edit_form = form_class(user=request.user, data=request.POST, files=request.FILES or None, instance=instance)
