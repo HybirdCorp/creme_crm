@@ -154,7 +154,6 @@ creme.forms.TimePicker.set = function(self, hour, minute) {
 /*
  * DateTimePicker widget
  */
-
 creme.forms.DateTimePicker = {}
 creme.forms.DateTimePicker.init = function(self) {
     var datetime = creme.forms.DateTimePicker.datetimeval(self);
@@ -226,8 +225,9 @@ creme.forms.DateTimePicker.set = function(self, year, month, day, hour, minute) 
  * RelationSelector widget
  */
 
+//TODO: still used in creme.reports.link_relation_report => see creme.forms.RelationSelector.contentTypeRequest(..)
 creme.forms.RelationSelector = {}
-
+/*
 creme.forms.RelationSelector.openEntityInnerPopup = function(self, list) {
     var content_type = $('select[name="content_type"]', self).find('option:selected').val();
     var o2m = 0;
@@ -388,7 +388,9 @@ creme.forms.RelationSelector.updateContentTypeSelect = function(self) {
             content_type_select.change();
         });
 }
+*/
 
+//TODO: still used in creme.reports.link_relation_report
 creme.forms.RelationSelector.contentTypeRequest = function(predicate, success_cb, error_cb) {
     creme.ajax.json.get('/creme_core/relation/predicate/' + predicate + '/content_types/json',
             {
@@ -397,6 +399,7 @@ creme.forms.RelationSelector.contentTypeRequest = function(predicate, success_cb
             }, success_cb, error_cb);
 }
 
+/*
 creme.forms.RelationSelector.predicateRequest = function(subject, success_cb, error_cb, sync) {
     creme.ajax.json.get('/creme_core/relation/entity/' + subject + '/predicates/json',
             {
@@ -404,10 +407,13 @@ creme.forms.RelationSelector.predicateRequest = function(subject, success_cb, er
                 sort:'unicode'
             }, success_cb, error_cb, sync);
 }
-
+*/
 /*
  * RelationList widget
  */
+
+//TODO: remove when RelatedEntitiesField is removed
+/*
 creme.forms.RelationList = {}
 creme.forms.RelationList.update = function(self) {
     var list_input = creme.forms.RelationList.input(self);
@@ -459,11 +465,9 @@ creme.forms.RelationList.__getPredicates = function(self) {
             predicates.push([$(this).val(), $(this).text()]);
         });
 
-/*
-    predicates.sort(function(a, b) {
-            return (a[1] > b[1]) ? 1 : ((a[1] < b[1]) ? -1 : 0);
-        });
-*/
+//    predicates.sort(function(a, b) {
+//            return (a[1] > b[1]) ? 1 : ((a[1] < b[1]) ? -1 : 0);
+//        });
 
     return predicates;
 }
@@ -510,7 +514,7 @@ creme.forms.RelationList.appendSelector = function(self) {
         creme.forms.RelationList.addSelector(self);
     }
 }
-
+*/
 //TODO: refactor in order the widget can be properly reload (see report.js)
 creme.forms._toDualColumnMultiSelect = function(store_id, use_order, buildColumns, refreshStore) {
     //Containers
