@@ -19,10 +19,9 @@
 ################################################################################
 
 from collections import defaultdict
-from re import compile as re_compile
+#from re import compile as re_compile
 from logging import debug
 
-from django.core.exceptions import PermissionDenied
 from django.forms import Field, CharField, MultipleChoiceField, ChoiceField, ModelChoiceField, DateField, TimeField, DateTimeField
 from django.forms.util import ValidationError
 from django.forms.fields import EMPTY_VALUES
@@ -41,7 +40,7 @@ from creme_core.constants import REL_SUB_RELATED_TO, REL_SUB_HAS
 
 __all__ = ('MultiGenericEntityField', 'GenericEntityField',
            'MultiRelationEntityField', 'RelationEntityField',
-           'RelatedEntitiesField', # TODO : remove this
+           #'RelatedEntitiesField',
            'CremeEntityField', 'MultiCremeEntityField',
            'ListEditionField',
            'AjaxChoiceField', 'AjaxMultipleChoiceField', 'AjaxModelChoiceField',
@@ -104,7 +103,7 @@ class JSONField(CharField):
 
     def _build_widget(self):
         self.widget = self._create_widget()
-        # TODO : wait for django 1.2 and new widget api to remove this hack
+        #TODO : wait for django 1.2 and new widget api to remove this hack
         self.widget.from_python = lambda v: self.from_python(v)
 
 
@@ -122,7 +121,7 @@ class GenericEntityField(JSONField):
     def _create_widget(self):
         return CTEntitySelector(self._get_ctypes_options(self.get_ctypes()))
 
-    # TODO : wait for django 1.2 and new widget api to remove this hack
+    #TODO : wait for django 1.2 and new widget api to remove this hack
     def from_python(self, value):
         if not value:
             return ''
@@ -159,7 +158,7 @@ class GenericEntityField(JSONField):
 
         try:
             entity = model.objects.get(pk=entity_pk)
-        except model.DoesNotExist, PermissionDenied:
+        except model.DoesNotExist:
             if self.required:
                 raise ValidationError(self.error_messages['doesnotexist'])
 
@@ -179,7 +178,7 @@ class GenericEntityField(JSONField):
 
         try:
             return RelationType.objects.get(pk=rtype_pk)
-        except RelationType.DoesNotExist, PermissionDenied:
+        except RelationType.DoesNotExist:
             raise ValidationError(self.error_messages['rtypedoesnotexist'], params={'rtype':rtype_pk})
 
     def _get_ctypes_options(self, ctypes):
@@ -332,7 +331,7 @@ class RelationEntityField(JSONField):
 
         try:
             return RelationType.objects.get(pk=rtype_pk)
-        except RelationType.DoesNotExist, PermissionDenied:
+        except RelationType.DoesNotExist:
             raise ValidationError(self.error_messages['rtypedoesnotexist'], params={'rtype':rtype_pk})
 
     def clean_entity(self, ctype_pk, entity_pk):
@@ -340,15 +339,11 @@ class RelationEntityField(JSONField):
         model = ctype.model_class()
 
         try:
-            #return CremeEntity.objects.get(pk=data['entity']).get_real_entity()
             entity = model.objects.get(pk=entity_pk)
-
-            #entity.can_view_or_die(user) TODO: user not reachable from field --> forbidden id can be forged...
-        except model.DoesNotExist, PermissionDenied:
+        except model.DoesNotExist:
             if self.required:
                 raise ValidationError(self.error_messages['doesnotexist'], params={'ctype':ctype_pk, 'entity':entity_pk})
 
-        #print 'GenericEntityField.clean_entity(ctype=%s, entity=%s) > %s' % (ctype_pk, entity_pk, entity)
         return entity
 
     def _get_options(self, entity):
@@ -365,7 +360,7 @@ class RelationEntityField(JSONField):
 
 
 class MultiRelationEntityField(RelationEntityField):
-    def __init__(self, relations=(REL_SUB_RELATED_TO, REL_SUB_HAS), *args, **kwargs):
+    def __init__(self, relations=(REL_SUB_RELATED_TO, REL_SUB_HAS), *args, **kwargs): #TODO: useless
         super(MultiRelationEntityField, self).__init__(relations, *args, **kwargs)
 #        self.widget = SelectorList(self.widget)
 
@@ -377,7 +372,7 @@ class MultiRelationEntityField(RelationEntityField):
                                              '/creme_core/relation/predicate/${rtype}/content_types/json',
                                              multiple=True))
 
-    # TODO : wait for django 1.2 and new widget api to remove this hack
+    #TODO : wait for django 1.2 and new widget api to remove this hack
     def from_python(self, value):
         if not value:
             return ''
@@ -395,7 +390,7 @@ class MultiRelationEntityField(RelationEntityField):
     def _build_rtype_cache(self, rtype_pk):
         try:
             rtype = RelationType.objects.get(pk=rtype_pk)
-        except RelationType.DoesNotExist, PermissionDenied:
+        except RelationType.DoesNotExist:
             raise ValidationError(self.error_messages['rtypedoesnotexist'], params={'rtype':rtype_pk})
 
         rtype_allowed_ctypes     = frozenset(ct.pk for ct in rtype.object_ctypes.all())
@@ -494,56 +489,55 @@ class MultiRelationEntityField(RelationEntityField):
 
         return relations
 
-
-#TODO: remove this field when refactor of activity and event forms will be done.
-class RelatedEntitiesField(CharField):
-    default_error_messages = {
-        'invalidformat': _(u'Invalid format'),
-    }
-    widget = RelationListWidget
-
-    regex = re_compile('^(\([\w-]+,[\d]+,[\d]+\);)*$')
-
-    def __init__(self, relation_types=(REL_SUB_RELATED_TO, REL_SUB_HAS), *args, **kwargs):
-        """
-        @param relation_types Sequence of RelationTypes' id if you want to narrow to these RelationTypes.
-        """
-        super(RelatedEntitiesField, self).__init__(*args, **kwargs)
-        self.relation_types = relation_types
-
-    def _set_relation_types(self, relation_types):
-        rtypes = RelationType.objects.filter(pk__in=relation_types)
-        self._relation_types = rtypes
-        self.widget.relation_types = rtypes
-
-    relation_types = property(lambda self: self._relation_types, _set_relation_types)
-
-    def clean(self, value):
-        value = value or ''
-
-        if not value and self.required:
-            raise ValidationError(self.error_messages['required'])
-
-        if not self.regex.match(value):
-            raise ValidationError(self.error_messages['invalidformat'])
-
-        allowed_rtypes = set(rtype.id for rtype in self.relation_types)
-
-        rawdata = [(relationtype_pk, int(content_type_pk), int(pk))
-                        for relationtype_pk, content_type_pk, pk in (entry.strip('()').split(',') for entry in value.split(';')[:-1])
-                            if relationtype_pk in allowed_rtypes]
-
-        ct_map = defaultdict(list)
-        for relationtype_id, ct_id, entity_id in rawdata:
-            ct_map[ct_id].append(entity_id)
-
-        entities = {}
-        get_ct   = ContentType.objects.get_for_id
-
-        for ct_id, entity_ids in ct_map.iteritems():
-            entities.update(get_ct(ct_id).model_class().objects.in_bulk(entity_ids))
-
-        return [(relationtype_id, entities[entity_id]) for relationtype_id, ct_id, entity_id in rawdata]
+#COMMENTED on 5 march 2011
+#class RelatedEntitiesField(CharField):
+#    default_error_messages = {
+#        'invalidformat': _(u'Invalid format'),
+#    }
+#    widget = RelationListWidget
+#
+#    regex = re_compile('^(\([\w-]+,[\d]+,[\d]+\);)*$')
+#
+#    def __init__(self, relation_types=(REL_SUB_RELATED_TO, REL_SUB_HAS), *args, **kwargs):
+#        """
+#        @param relation_types Sequence of RelationTypes' id if you want to narrow to these RelationTypes.
+#        """
+#        super(RelatedEntitiesField, self).__init__(*args, **kwargs)
+#        self.relation_types = relation_types
+#
+#    def _set_relation_types(self, relation_types):
+#        rtypes = RelationType.objects.filter(pk__in=relation_types)
+#        self._relation_types = rtypes
+#        self.widget.relation_types = rtypes
+#
+#    relation_types = property(lambda self: self._relation_types, _set_relation_types)
+#
+#    def clean(self, value):
+#        value = value or ''
+#
+#        if not value and self.required:
+#            raise ValidationError(self.error_messages['required'])
+#
+#        if not self.regex.match(value):
+#            raise ValidationError(self.error_messages['invalidformat'])
+#
+#        allowed_rtypes = set(rtype.id for rtype in self.relation_types)
+#
+#        rawdata = [(relationtype_pk, int(content_type_pk), int(pk))
+#                        for relationtype_pk, content_type_pk, pk in (entry.strip('()').split(',') for entry in value.split(';')[:-1])
+#                            if relationtype_pk in allowed_rtypes]
+#
+#        ct_map = defaultdict(list)
+#        for relationtype_id, ct_id, entity_id in rawdata:
+#            ct_map[ct_id].append(entity_id)
+#
+#        entities = {}
+#        get_ct   = ContentType.objects.get_for_id
+#
+#        for ct_id, entity_ids in ct_map.iteritems():
+#            entities.update(get_ct(ct_id).model_class().objects.in_bulk(entity_ids))
+#
+#        return [(relationtype_id, entities[entity_id]) for relationtype_id, ct_id, entity_id in rawdata]
 
 
 class _CommaMultiValueField(CharField): #TODO: Charfield and not Field ??!!
