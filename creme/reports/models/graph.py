@@ -75,6 +75,9 @@ class ReportGraph(CremeEntity):
     def get_edit_absolute_url(self):
         return "/reports/graph/edit/%s" % self.id
 
+    def get_related_entity(self):
+        return self.report
+
     def fetch(self, extra_q=None, order='ASC'):
         assert order=='ASC' or order=='DESC'
         report        = self.report

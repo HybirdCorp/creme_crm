@@ -24,7 +24,7 @@ from django.shortcuts import get_object_or_404
 from django.template.context import RequestContext
 from django.utils.translation import ugettext_lazy as _
 
-from creme_core.views.generic import inner_popup, view_entity
+from creme_core.views.generic import inner_popup, view_entity, add_to_entity, edit_related_to_entity
 from creme_core.models import CremeEntity, InstanceBlockConfigItem
 from creme_core.utils import jsonify, get_ct_or_404
 
@@ -34,69 +34,24 @@ from reports.models.graph import (ReportGraph, verbose_report_graph_types,
                                   fetch_graph_from_instance_block)
 from reports.forms.graph import ReportGraphAddForm
 
-
-#TODO: use add_to_entity() generic view
 @login_required
 @permission_required('reports')
 def add(request, report_id):
-    report = get_object_or_404(Report, pk=report_id)
+    return add_to_entity(request, report_id, ReportGraphAddForm,
+                             _(u'Add a graph for <%s>'),
+                            )
 
-    report.can_change_or_die(request.user)
-
-    #POST = request.POST
-    #if POST:
-    if request.method == 'POST':
-        #graph_form = ReportGraphAddForm(report, POST)
-        graph_form = ReportGraphAddForm(report=report, user=request.user, data=request.POST)
-
-        if graph_form.is_valid():
-            graph_form.save()
-    else:
-        #graph_form = ReportGraphAddForm(report=report)
-        graph_form = ReportGraphAddForm(report=report, user=request.user)
-
-    return inner_popup(request, 'creme_core/generics/blockform/add_popup2.html',
-                       {
-                        'form':   graph_form,
-                        'title': _(u'Add a graph for <%s>') % report,
-                       },
-                       is_valid=graph_form.is_valid(),
-                       reload=False,
-                       delegate_reload=True,
-                       context_instance=RequestContext(request))
-
-#TODO: use edit_related_to_entity() generic view
 @login_required
 @permission_required('reports')
 def edit(request, graph_id):
-    graph = get_object_or_404(ReportGraph, pk=graph_id)
-
-    graph.can_change_or_die(request.user)
-
-    if request.method == 'POST':
-        graph_form = ReportGraphAddForm(report=graph.report, user=request.user, data=request.POST, instance=graph)
-
-        if graph_form.is_valid():
-            graph_form.save()
-    else:
-        graph_form = ReportGraphAddForm(report=graph.report, user=request.user, instance=graph)
-
-    return inner_popup(request, 'creme_core/generics/blockform/add_popup2.html',
-                       {
-                        'form':   graph_form,
-                        'title': _(u'Edit a graph for <%s>') % graph.report,
-                       },
-                       is_valid=graph_form.is_valid(),
-                       reload=False,
-                       delegate_reload=True,
-                       context_instance=RequestContext(request)
-                      )
+    return edit_related_to_entity(request, graph_id, ReportGraph, ReportGraphAddForm, _(u'Edit a graph for <%s>'))
 
 @login_required
 @permission_required('reports')
 def detailview(request, graph_id):
     return view_entity(request, graph_id, ReportGraph, '/reports/report', 'reports/view_graph.html',
-                       extra_template_dict={'verbose_report_graph_types': verbose_report_graph_types}
+                       extra_template_dict={'verbose_report_graph_types': verbose_report_graph_types,
+                                            'user_can_admin_report': request.user.has_perm('reports.can_admin')}
                       )
 
 @jsonify

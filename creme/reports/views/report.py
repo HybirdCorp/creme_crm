@@ -30,9 +30,10 @@ from django.utils.simplejson import JSONEncoder
 from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.contenttypes.models import ContentType
 
-from creme_core.views.generic import add_entity, edit_entity, view_entity, list_view, inner_popup
+from creme_core.views.generic import (add_entity, edit_entity, view_entity,
+                                      list_view, inner_popup, add_to_entity)
 from creme_core.utils.meta import get_model_field_infos, get_flds_with_fk_flds, get_date_fields, is_date_field
-from creme_core.utils import get_ct_or_404, get_from_GET_or_404
+from creme_core.utils import get_ct_or_404, get_from_GET_or_404, get_from_POST_or_404
 from creme_core.date_filters_registry import date_filters_registry
 
 from reports.models import Report, Field
@@ -71,14 +72,26 @@ def listview(request):
 @permission_required('reports')
 def unlink_report(request):
     field = get_object_or_404(Field, pk=request.POST.get('field_id'))
-    field.report   = None
-    field.selected = False
-    field.save()
+    user  = request.user
+
+    current_report = None
+    try:
+        current_report = field.report_columns_set.all()[0]
+        current_report.can_unlink_or_die(user)#User can unlink on current report
+    except IndexError:
+        pass#Should never get here...
+
+    if current_report is not None:
+        field.report.can_unlink_or_die(user)#User can unlink on sub report
+
+        field.report   = None
+        field.selected = False
+        field.save()
 
     return HttpResponse("", mimetype="text/javascript")
 
 def __link_report(request, report, field, ct):
-    report.can_change_or_die(request.user)
+    report.can_link_or_die(request.user)
 
     #POST = request.POST
     #if POST:
@@ -132,31 +145,13 @@ def link_relation_report(request, report_id, field_id, ct_id):
 
     return __link_report(request, report, field, ct)
 
-#TODO: use add_to_entity() generic view
+
 @login_required
 @permission_required('reports')
 def add_field(request, report_id):
-    report = get_object_or_404(Report, pk=report_id)
-
-    report.can_change_or_die(request.user)
-
-    if request.method == 'POST':
-        add_field_form = AddFieldToReportForm(report=report, user=request.user, data=request.POST)
-
-        if add_field_form.is_valid():
-            add_field_form.save()
-    else:
-        add_field_form = AddFieldToReportForm(report=report, user=request.user)
-
-    return inner_popup(request, 'creme_core/generics/blockform/add_popup2.html',
-                       {
-                        'form':   add_field_form,
-                        'title': _(u'Adding column to <%s>') % report,
-                       },
-                       is_valid=add_field_form.is_valid(),
-                       reload=False,
-                       delegate_reload=True,
-                       context_instance=RequestContext(request))
+    return add_to_entity(request, report_id, AddFieldToReportForm,
+                             _(u'Adding column to <%s>'),
+                            )
 
 _order_direction = {
     'up':   -1,
@@ -167,8 +162,8 @@ _order_direction = {
 @permission_required('reports')
 def change_field_order(request):
     POST = request.POST
-    report = get_object_or_404(Report, pk=POST.get('report_id')) #TODO: use get_from_POST_or_404
-    field  = get_object_or_404(Field,  pk=POST.get('field_id'))
+    report = get_object_or_404(Report, pk=get_from_POST_or_404(POST,'report_id')) 
+    field  = get_object_or_404(Field,  pk=get_from_POST_or_404(POST,'field_id'))
     direction = POST.get('direction', 'up')
 
     report.can_change_or_die(request.user)
@@ -190,6 +185,7 @@ def change_field_order(request):
 @permission_required('reports')
 def preview(request, report_id):
     report = get_object_or_404(Report, pk=report_id)
+    report.can_view_or_die(request.user)
 
     extra_q_filter = Q()
 
@@ -224,6 +220,8 @@ def set_selected(request):
     report = get_object_or_404(Report, pk=POST.get('report_id')) #TODO: use get_from_POST_or_404()
     field  = get_object_or_404(Field,  pk=POST.get('field_id'))
 
+    report.can_change_or_die(request.user)
+
     try:
         checked = int(POST.get('checked', 0))
     except ValueError:
@@ -248,7 +246,9 @@ def csv(request, report_id):
     csv_backend = report_backend_registry.get_backend('CSV')
     GET = request.GET
 
-    if GET: #TODO: request.method == 'GET'
+    report.can_view_or_die(request.user)
+
+    if GET: #TODO: request.method == 'GET' => Post TODO: Doesn't work
         field_name = get_from_GET_or_404(GET, 'field')
         try:
             if not is_date_field(report.ct.model_class()._meta.get_field(field_name)):
@@ -274,7 +274,7 @@ def csv(request, report_id):
 def get_aggregate_fields(request):
     POST_get = request.POST.get
     aggregate_name = POST_get('aggregate_name')
-    ct = get_ct_or_404(POST_get('ct_id')) #TODO: use get_from_POST_or_404()
+    ct = get_ct_or_404(get_from_POST_or_404(request.POST, 'ct_id'))
     model = ct.model_class()
     authorized_fields = field_aggregation_registry.authorized_fields
     choices = []

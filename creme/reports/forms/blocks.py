@@ -119,9 +119,9 @@ class GraphInstanceBlockForm(CremeForm):
         report_model = graph.report.ct.model_class()
         volatil_column = cleaned_data.get('volatil_column', '')
 
-        instance = InstanceBlockConfigItem() #TODO: use InstanceBlockConfigItem.objects.create()
-        instance.entity = graph
-        instance.block_id = ReportGraphBlock.generate_id('creme_config', u"%s_%s" % (graph.id, volatil_column))
-        instance.data = volatil_column
-        instance.verbose = u"%s - %s" % (graph, _get_volatile_column_verbose(report_model, volatil_column) or _(u'None'))
-        instance.save()
+        InstanceBlockConfigItem.objects.create(
+            entity = graph,
+            block_id = ReportGraphBlock.generate_id('creme_config', u"%s_%s" % (graph.id, volatil_column)),
+            data = volatil_column,
+            verbose = u"%s - %s" % (graph, _get_volatile_column_verbose(report_model, volatil_column) or _(u'None'))
+        )

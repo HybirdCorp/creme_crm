@@ -74,9 +74,13 @@
                                             </a>
                                         </td>
                                         <td>
-                                            <a onclick="creme.utils.innerPopupNReload('/reports/graph/{{graph.id}}/block/add', {% get_block_reload_uri %});">
-                                                <img src="{% media_url 'images/add_22.png' %}" alt="{% trans 'Create a block' %}" title="{% trans 'Create a block with this graph' %}" />
-                                            </a>
+                                            {% if user_can_admin_report %}
+                                                <a onclick="creme.utils.innerPopupNReload('/reports/graph/{{graph.id}}/block/add', {% get_block_reload_uri %});">
+                                                    <img src="{% media_url 'images/add_22.png' %}" alt="{% trans 'Create a block' %}" title="{% trans 'Create a block with this graph' %}" />
+                                                </a>
+                                            {% else %}
+                                                <img class="forbidden" src="{% media_url 'images/add_22.png' %}" alt="{% trans "Can't add" %}" title="{% trans "Can't add" %}" />
+                                            {% endif %}
                                         </td>
                                     </tr>
                                 </tbody>

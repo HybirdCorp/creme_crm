@@ -43,8 +43,7 @@ from reports.report_aggregation_registry import field_aggregation_registry
 
 
 def _save_field(name, title, order, type):
-    f = Field(name=name, title=title, order=order, type=type) #TODO: use create()
-    f.save()
+    f = Field.objects.create(name=name, title=title, order=order, type=type)
     return f
 
 def save_hfi_field(model, column, order):
@@ -323,10 +322,10 @@ class AddFieldToReportForm(CremeForm):
         ('aggregates_block', _(u'Calculated values'), [aggregate.name for aggregate in field_aggregation_registry.itervalues()]),
     )
 
-    def __init__(self, report, *args, **kwargs):
-        self.report = report
+    def __init__(self, entity, *args, **kwargs):
+        self.report = entity
         super(AddFieldToReportForm, self).__init__(*args, **kwargs)
-        ct = report.ct
+        ct = entity.ct
         model = ct.model_class()
 
         fields = self.fields
@@ -338,7 +337,7 @@ class AddFieldToReportForm(CremeForm):
 
         initial_data = defaultdict(list)
 
-        for f in report.columns.all():
+        for f in entity.columns.all():
             initial_data[f.type].append(f)
 
         fields['columns'].initial       = [f.name for f in initial_data[HFI_FIELD]]
