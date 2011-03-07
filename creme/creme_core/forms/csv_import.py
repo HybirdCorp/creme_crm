@@ -354,7 +354,7 @@ class CSVImportForm4CremeEntity(CSVImportForm):
         ct     = ContentType.objects.get_for_model(self._meta.model)
 
         fields['property_types'].queryset = CremePropertyType.objects.filter(Q(subject_ctypes=ct) | Q(subject_ctypes__isnull=True))
-        fields['relations'].set_allowed_rtypes(rtype.id for rtype in RelationType.get_compatible_ones(ct))
+        fields['relations'].set_allowed_rtypes(rtype.id for rtype in RelationType.get_compatible_ones(ct)) #TODO: use values_list('id', flat=True)
         fields['user'].initial = self.user.id
 
     def _post_instance_creation(self, instance):
