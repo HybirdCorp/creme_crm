@@ -96,10 +96,10 @@ def delete_entity(request, entity_id, callback_url=None):
         entity.delete()
     except CremeEntity.CanNotBeDeleted, e:
         if request.is_ajax():
-            return HttpResponse(e.allowed_unicode(user), mimetype="text/javascript", status=400)
+            return HttpResponse(unicode(e), mimetype="text/javascript", status=400)
 
         return render_to_response("creme_core/forbidden.html",
-                                  {'error_message': e.allowed_unicode(user)},
+                                  {'error_message': unicode(e)},
                                   context_instance=RequestContext(request)
                                  )
 
