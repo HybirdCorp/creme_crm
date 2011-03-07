@@ -57,12 +57,14 @@
             var logo_container_height = $('#logo_container').outerHeight();
             //var max_menu_height = content_height - logo_container_height;
 
+            var height = $('#menu_expanded').height();
+
             $('#menu').menu({
                 content: $('#tree_menu2').html(),
                 flyOut: false,
                 backLink: false,
                 alwaysOpen:true,
-                maxHeight: "100%",
+                maxHeight: height,
                 crumbDefaultText : '{% trans "Menu" %}',
                 topLinkText : '{% trans "Back to Top" %}'
             });

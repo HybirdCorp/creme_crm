@@ -331,8 +331,8 @@ Menu.prototype.flyout = function(container, options) {
 
 
 Menu.prototype.drilldown = function(container, options) {
-	var menu = this;	
-	var topList = container.find('.fg-menu');	
+	var menu = this;
+	var topList = container.find('.fg-menu');
 	var breadcrumb = $('<ul class="fg-menu-breadcrumb ui-widget-header ui-corner-all ui-helper-clearfix"></ul>');
 	var crumbDefaultHeader = $('<li class="fg-menu-breadcrumb-text">'+options.crumbDefaultText+'</li>');
 	var firstCrumbText = (options.backLink) ? options.backLinkText : options.topLinkText;
@@ -349,7 +349,8 @@ Menu.prototype.drilldown = function(container, options) {
 	
 	var checkMenuHeight = function(el){
 		if (el.height() > options.maxHeight) {el.addClass('fg-menu-scroll')};	
-		el.css({height: options.maxHeight});
+		//el.css({height: options.maxHeight});
+                topList.css({height: $('.fg-menu-current').height()});
 	};
 	
 	var resetChildMenu = function(el){el.removeClass('fg-menu-scroll').removeClass('fg-menu-current').height('auto');};
@@ -361,12 +362,12 @@ Menu.prototype.drilldown = function(container, options) {
 				$(this).hide();
 				resetChildMenu($(this));				
 			});
-			topList.addClass('fg-menu-current');			
+			topList.addClass('fg-menu-current');
 		});		
 		$('.fg-menu-all-lists').find('span').remove();	
 		breadcrumb.empty().append(crumbDefaultHeader);		
 		$('.fg-menu-footer').empty().hide();	
-		checkMenuHeight(topList);		
+		checkMenuHeight(topList);
 	};
 	
 	topList
@@ -396,7 +397,7 @@ Menu.prototype.drilldown = function(container, options) {
 		    		checkMenuHeight(nextList);
 					topList.animate({left: nextLeftVal}, options.crossSpeed);						
 		    		nextList.show().addClass('fg-menu-current').attr('aria-expanded', 'true');    
-		    		
+		    		checkMenuHeight(nextList);
 		    		var setPrevMenu = function(backlink){
 		    			var b = backlink;
 		    			var c = $('.fg-menu-current');
