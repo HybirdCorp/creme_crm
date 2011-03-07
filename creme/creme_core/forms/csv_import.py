@@ -37,6 +37,7 @@ from creme_core.models import CremePropertyType, CremeProperty, RelationType, Re
 from base import CremeForm, CremeModelForm, FieldBlockManager
 from fields import MultiRelationEntityField, CremeEntityField
 from widgets import UnorderedMultipleChoiceWidget
+from validators import validate_linkable_entities
 
 from documents.models import Document
 
@@ -356,6 +357,15 @@ class CSVImportForm4CremeEntity(CSVImportForm):
         fields['property_types'].queryset = CremePropertyType.objects.filter(Q(subject_ctypes=ct) | Q(subject_ctypes__isnull=True))
         fields['relations'].set_allowed_rtypes(rtype.id for rtype in RelationType.get_compatible_ones(ct)) #TODO: use values_list('id', flat=True)
         fields['user'].initial = self.user.id
+
+    def clean_relations(self):
+        relations = self.cleaned_data['relations']
+        user = self.user
+
+        #TODO: self._check_duplicates(relations, user) #see RelationCreateForm
+        validate_linkable_entities([entity for rt_id, entity in relations], user)
+
+        return relations
 
     def _post_instance_creation(self, instance):
         cleaned_data = self.cleaned_data
