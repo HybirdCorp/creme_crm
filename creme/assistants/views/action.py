@@ -33,7 +33,7 @@ from assistants.forms.action import ActionCreateForm, ActionEditForm
 
 @login_required
 def add(request, entity_id):
-    return add_to_entity(request, entity_id, ActionCreateForm, _(u'New action for <%s>'), initial = {'user': request.user.id})
+    return add_to_entity(request, entity_id, ActionCreateForm, _(u'New action for <%s>'), initial = {'user': request.user.id})#TODO: Remove initial? User is set in CremeModelWithUserForm
 
 @login_required
 def edit(request, action_id):

@@ -35,6 +35,7 @@ from creme_core.utils import Q_creme_entity_content_types
 
 _ALL_APPS = [(app.name, app.verbose_name) for app in creme_registry.iter_apps()]
 
+#TODO: Sort (user-friendly) those 3 "MultipleChoiceField"
 class UserRoleCreateForm(CremeModelForm):
     creatable_ctypes = ModelMultipleChoiceField(label=_(u'Creatable resources'),
                                                 queryset=Q_creme_entity_content_types(),
