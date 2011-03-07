@@ -4,6 +4,8 @@
 {% load report_tags %}
 {% with 6 as colspan %}
 {% has_perm_to change object as has_perm %}
+{% has_perm_to link object as link_perm %}
+{% has_perm_to unlink object as unlink_perm %}
 <table class="table_detail_view ui-corner-all" id={{block_name}}>
     <thead>
         <tr>
@@ -59,30 +61,32 @@
                                     <td style="width: 66%;">
                                         {% if HFI_FIELD == column.type %}
                                             {% if column.report %}
-                                                {% if has_perm %}
+                                                {% has_perm_to unlink column.report as unlink_sub_report_perm %}
+                                                {% if unlink_perm and unlink_sub_report_perm %}
                                                     <a onclick="creme.reports.unlink_report('{{column.pk}}', '{{update_url}}');">{% trans 'Unlink the report' %}</a>
                                                 {% else %}
                                                     <span class="forbidden">{% trans 'Unlink the report' %}</span>
                                                 {% endif %}
                                             {% else %}
                                                     {% if column|is_field_is_linkable:object.ct %}
-                                                        {% if has_perm %}
+                                                        {% if link_perm %}
                                                             <a onclick="creme.reports.link_report('{{object.id}}', '{{column.pk}}', {% get_block_reload_uri %});">{% trans 'Link a report' %}</a>
                                                         {% else %}
                                                             <span class="forbidden">{% trans 'Link a report' %}</span>
                                                         {% endif %}
                                                     {% endif %}
                                             {% endif %}
-                                        {% endif %}
-                                        {% if HFI_RELATION == column.type %}{% comment %}TODO use "else"{% endcomment %}
+                                        {#% endif %#}
+                                        {% else %}{% comment %}{% if HFI_RELATION == column.type %}{# else until we have 2 column.type #}{% endcomment %}
                                             {% if column.report %}
-                                                {% if has_perm %}
+                                                {% has_perm_to unlink column.report as unlink_sub_report_perm %}
+                                                {% if unlink_perm and unlink_sub_report_perm %}
                                                     <a onclick="creme.reports.unlink_report('{{column.pk}}', {% get_block_reload_uri %});">{% trans 'Unlink the report' %}</a>
                                                 {% else %}
                                                     <span class="forbidden">{% trans 'Unlink the report' %}</span>
                                                 {% endif %}
                                             {% else %}
-                                                {% if has_perm %}
+                                                {% if link_perm %}
                                                     <a onclick="creme.reports.link_relation_report('{{object.id}}', '{{column.pk}}', '{{column.name}}', {% get_block_reload_uri %});">{% trans 'Link a report' %}</a>
                                                 {% else %}
                                                     <span class="forbidden">{% trans 'Link a report' %}</span>

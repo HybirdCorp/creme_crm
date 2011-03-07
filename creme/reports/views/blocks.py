@@ -28,11 +28,11 @@ from reports.forms.blocks import GraphInstanceBlockForm
 from reports.models.graph import ReportGraph
 
 
-#TODO: use add_to_entity() generic view
+#TODO: use add_to_entity() generic view => Post TODO: Doesn't fit to the needs (credential admin instead of change/link)
 
 @login_required
 @permission_required('reports')
-#@permission_required('reports.add_reportgraph')
+@permission_required('reports.can_admin')
 def add_graph_instance_block(request, graph_id):
     graph = get_object_or_404(ReportGraph, pk=graph_id)
 

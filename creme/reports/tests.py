@@ -223,5 +223,37 @@ class ReportsTestCase(CremeTestCase):
         assert_csv_error(field='idontexist', start=date_str1, end=date_str2)
         assert_csv_error(field='first_name', start=date_str1, end=date_str2) #not a datefield
 
+    def test_report_field_add01(self):
+        report = self.create_report('trinita')
+        url = '/reports/report/%s/field/add' % report.id
+        
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+
+        try:
+            form = response.context['form']
+            fields_columns = form.fields['columns']
+        except KeyError, e:
+            self.fail(str(e))
+
+        for i, (fname, fvname) in enumerate(fields_columns.choices):
+            if fname == 'last_name': created_index = i; break
+        else:
+            self.fail('No "last_name" field')
+
+        response = self.client.post(url,
+                                    data={
+                                            'user': self.user.pk,
+                                            'columns_check_%s' % created_index: 'on',
+                                            'columns_value_%s' % created_index: 'last_name',
+                                            'columns_order_%s' % created_index: 1,
+                                         }
+                                   )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertNoFormError(response)
+        self.assertEqual(1, report.columns.count())
+
+
 
 #TODO: test with subreports, expanding etc...

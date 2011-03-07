@@ -23,24 +23,24 @@ from django.db import models
 from django.db.models.fields.related import ForeignKey
 from django.db.models.fields import FieldDoesNotExist, DateTimeField, DateField
 from django.forms.util import ValidationError
-from django.forms.fields import ChoiceField, BooleanField
-from django.forms.widgets import Select, CheckboxInput
+from django.forms.fields import ChoiceField, BooleanField, CharField
+from django.forms.widgets import Select, CheckboxInput, HiddenInput
 from django.utils.translation import ugettext_lazy as _, ugettext
 
 from creme_core.forms.base import CremeEntityForm
-from creme_core.forms.widgets import DependentSelect
+from creme_core.forms.widgets import DependentSelect, Label
 from creme_core.forms.fields import AjaxChoiceField
 from creme_core.utils.meta import get_flds_with_fk_flds
 
 from reports.report_aggregation_registry import field_aggregation_registry
 from reports.models.graph import ReportGraph, RGT_FK, RGT_RANGE
 
-#TODO: in capital letters ?? begin with a '_' ??
-authorized_aggregate_fields = field_aggregation_registry.authorized_fields
-authorized_abscissa_types = (models.DateField, models.DateTimeField, models.ForeignKey)
+AUTHORIZED_AGGREGATE_FIELDS = field_aggregation_registry.authorized_fields
+AUTHORIZED_ABSCISSA_TYPES = (models.DateField, models.DateTimeField, models.ForeignKey)
 
-#TODO: hide the report's' >select> ??
 class ReportGraphAddForm(CremeEntityForm):
+    report_lbl        = CharField(label=_(u'Report'), widget=Label)
+
     aggregates        = ChoiceField(label=_(u'Ordinate aggregate'), choices=[(aggregate.name, aggregate.title) for aggregate in field_aggregation_registry.itervalues()])
     aggregates_fields = ChoiceField(label=_(u'Ordinate aggregate field'), choices=())
 
@@ -56,42 +56,44 @@ class ReportGraphAddForm(CremeEntityForm):
 
     class Meta:
         model = ReportGraph
-        exclude = CremeEntityForm.Meta.exclude + ('ordinate', 'abscissa', 'type')
+        exclude = CremeEntityForm.Meta.exclude + ('ordinate', 'abscissa', 'type', 'report')
 
-    #TODO: create shorcuts variable for fields['foobar']
-    def __init__(self, report, *args, **kwargs):
+    def __init__(self, entity, *args, **kwargs):
         super(ReportGraphAddForm, self).__init__(*args,  **kwargs)
-        self.report = report
-        report_ct = report.ct
+        self.report = entity
+        report_ct = entity.ct
         model = report_ct.model_class()
 
         fields = self.fields
-        fields['report'].choices = [(report.id, unicode(report))]
-        fields['report'].initial = report.id
+        
+        fields['report_lbl'].initial = unicode(entity)
+        aggregates_fields = fields['aggregates_fields']
+        abscissa_fields   = fields['abscissa_fields']
 
-        fields['aggregates_fields'].choices = [(f.name, unicode(f.verbose_name)) for f in get_flds_with_fk_flds(model, deep=0) if isinstance(f, authorized_aggregate_fields)]
-        if not fields['aggregates_fields'].choices:
+        aggregates_fields.choices = [(f.name, unicode(f.verbose_name)) for f in get_flds_with_fk_flds(model, deep=0) if isinstance(f, AUTHORIZED_AGGREGATE_FIELDS)]
+        if not aggregates_fields.choices:
              #NB: WTF !!?? this line is exactly the same than previous one (Commented on 9 december 2010)
-             #fields['aggregates_fields'].choices = [(f.name, unicode(f.verbose_name)) for f in get_flds_with_fk_flds(model, deep=0) if isinstance(f, authorized_aggregate_fields)]
-             fields['aggregates_fields'].required = False
+             #aggregates_fields.choices = [(f.name, unicode(f.verbose_name)) for f in get_flds_with_fk_flds(model, deep=0) if isinstance(f, authorized_aggregate_fields)]
+             aggregates_fields.required = False
 
-        fields['abscissa_fields'].choices   = [(f.name, unicode(f.verbose_name)) for f in get_flds_with_fk_flds(model, deep=0) if isinstance(f, authorized_abscissa_types)]
-        fields['abscissa_fields'].widget.target_url += str(report_ct.id) #Bof but when DependentSelect will be refactored improve here too
+        abscissa_fields.choices   = [(f.name, unicode(f.verbose_name)) for f in get_flds_with_fk_flds(model, deep=0) if isinstance(f, AUTHORIZED_ABSCISSA_TYPES)]
+        abscissa_fields.widget.target_url += str(report_ct.id) #Bof but when DependentSelect will be refactored improve here too
 
         data = self.data
 
         if data:
-            fields['abscissa_fields'].widget.set_source(data.get('abscissa_fields'))
-            fields['abscissa_fields'].widget.set_target(data.get('abscissa_group_by'))
+            abscissa_fields.widget.set_source(data.get('abscissa_fields'))
+            abscissa_fields.widget.set_target(data.get('abscissa_group_by'))
 
         instance = self.instance
         if (instance.pk is not None) and not data:
-            ordinate, sep, aggregate = instance.ordinate.rpartition('__')
-            fields['aggregates'].initial        = aggregate
-            fields['aggregates_fields'].initial = ordinate
-            fields['abscissa_fields'].initial = instance.abscissa
-            fields['abscissa_fields'].widget.set_source(instance.abscissa)
-            fields['abscissa_fields'].widget.set_target(instance.type)
+            ordinate, sep, aggregate     = instance.ordinate.rpartition('__')
+            fields['aggregates'].initial = aggregate
+            aggregates_fields.initial    = ordinate
+            abscissa_fields.initial      = instance.abscissa
+            
+            abscissa_fields.widget.set_source(instance.abscissa)
+            abscissa_fields.widget.set_target(instance.type)
 
     def clean(self):
         cleaned_data = self.cleaned_data
@@ -100,7 +102,7 @@ class ReportGraphAddForm(CremeEntityForm):
 
         try:
             abscissa_group_by = int(get_data('abscissa_group_by'))
-        except: #TODO: better exception
+        except (ValueError, TypeError):
             abscissa_group_by = None
 
         abscissa_fields = get_data('abscissa_fields')
@@ -141,8 +143,10 @@ class ReportGraphAddForm(CremeEntityForm):
         graph.report   = self.report
         graph.abscissa = get_data('abscissa_fields')
 
-        if get_data('aggregates_fields'): #TODO: put get_data('aggregates_fields') in a variable...
-            graph.ordinate = '%s__%s' % (get_data('aggregates_fields'), get_data('aggregates'))
+        aggregates_fields = get_data('aggregates_fields')
+
+        if aggregates_fields:
+            graph.ordinate = '%s__%s' % (aggregates_fields, get_data('aggregates'))
         else:
             graph.ordinate = u""
 

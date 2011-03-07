@@ -54,16 +54,20 @@ class ReportGraphsBlock(QuerysetBlock):
     order_by      = 'name'
 
     def detailview_display(self, context):
-        report = context['object']
+        report  = context['object']
         request = context['request']
+        user    = context['user']
+
+        user_can_admin = user.has_perm('reports.can_admin')
 
         btc = self.get_block_template_context(context, ReportGraph.objects.filter(report=report),
                                                        update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, report.pk),
                                                        verbose_report_graph_types=verbose_report_graph_types,
-                                                       is_ajax=request.is_ajax()
+                                                       is_ajax=request.is_ajax(),
+                                                       user_can_admin_report=user_can_admin
                                              )
 
-        CremeEntity.populate_credentials(btc['page'].object_list, context['user'])
+        CremeEntity.populate_credentials(btc['page'].object_list, user)
 
         return self._render(btc)
 
