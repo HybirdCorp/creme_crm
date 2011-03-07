@@ -78,7 +78,7 @@ class CremeEntity(CremeAbstractEntity):
 
         if settings.TRUE_DELETE:
             if not self.can_be_deleted():
-                raise CremeEntity.CanNotBeDeleted(ugettext(u'%s can not be deleted because of its dependencies.') % self)
+                raise CremeEntity.CanNotBeDeleted(ugettext(u'Entity#%s can not be deleted because of its dependencies.') % self.id)
 
             for relation in self.relations.all():
                 relation.delete()
@@ -91,7 +91,7 @@ class CremeEntity(CremeAbstractEntity):
 
             super(CremeEntity, self).delete()
         else:
-            self.is_deleted = True #TODO: custom_fields and credentials are deleted anyway ??
+            self.is_deleted = True
             self.save()
 
     def __unicode__(self):
