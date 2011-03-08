@@ -244,9 +244,10 @@ def set_selected(request):
 def csv(request, report_id):
     report = get_object_or_404(Report, pk=report_id)
     csv_backend = report_backend_registry.get_backend('CSV')
-    GET = request.GET
+    GET  = request.GET
+    user = request.user
 
-    report.can_view_or_die(request.user)
+    report.can_view_or_die(user)
 
     if GET: #TODO: request.method == 'GET' => Post TODO: Doesn't work
         field_name = get_from_GET_or_404(GET, 'field')
@@ -267,7 +268,7 @@ def csv(request, report_id):
     else:
         extra_q_filter = Q()
 
-    return csv_backend(report, extra_q_filter).render_to_response()
+    return csv_backend(report, extra_q_filter, user).render_to_response()
 
 @login_required
 #@permission_required('reports') ??

@@ -30,6 +30,7 @@ from creme_core.forms import CremeModelForm
 from creme_core.forms.fields import ListEditionField
 from creme_core.utils import creme_entity_content_types
 
+#TODO: User friendly order in choices fields
 
 class CustomFieldsBaseForm(CremeModelForm):
     field_type  = TypedChoiceField(label=_(u'Type of field'), choices=[(i, klass.verbose_name) for i, klass in _TABLES.iteritems()], coerce=int)

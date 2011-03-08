@@ -33,6 +33,7 @@ class HtmlReportBackend(ReportBackend):
         self.extra_fetch_q = extra_fetch_q
 
     def render(self):
+        user = self.context_instance['user']
 #        return render_to_string(self.template, {'backend': self, 'lines':self.report.fetch_all_lines(limit_to=self.limit_to)}, context_instance=self.context_instance)
-        return render_to_string(self.template, {'backend': self, 'lines':self.report.fetch_all_lines(limit_to=self.limit_to, extra_q=self.extra_fetch_q)}, context_instance=self.context_instance)
+        return render_to_string(self.template, {'backend': self, 'lines':self.report.fetch_all_lines(limit_to=self.limit_to, extra_q=self.extra_fetch_q, user=user)}, context_instance=self.context_instance)
 

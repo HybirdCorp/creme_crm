@@ -19,6 +19,7 @@
 ################################################################################
 
 from django.contrib.contenttypes.models import ContentType
+from django.conf import settings
 from django.db.models.fields.related import ManyToManyField, ForeignKey
 from django.db.models.fields import CharField, PositiveIntegerField, PositiveSmallIntegerField, BooleanField
 from django.utils.translation import ugettext_lazy as _
@@ -134,12 +135,14 @@ class Field(CremeModel):
 
         return field_dict
 
-    def get_value(self, entity=None, selected=None, query=None):
+    def get_value(self, entity=None, selected=None, query=None, user=None):
         column_type = self.type
         column_name = self.name
         report = self.report
         selected = selected or self.selected
         empty_value = u""
+        HIDDEN_VALUE = settings.HIDDEN_VALUE
+        check_user = user is not None and not user.is_superuser#Don't check for superuser
 
         if column_type == HFI_FIELD:
             if entity is None and report and selected:
@@ -149,7 +152,7 @@ class Field(CremeModel):
 
             fields_through = [f['field'].__class__ for f in get_model_field_infos(entity.__class__, column_name)]
             if ManyToManyField in fields_through:
-                if report and selected:
+                if report and selected:#The sub report generates new lines
                     res = []
 
                     if report.filter is not None:
@@ -159,11 +162,11 @@ class Field(CremeModel):
 
                     for m2m_entity in m2m_entities:
                         sub_res = []
-                        self._handle_report_values(sub_res, m2m_entity)
+                        self._handle_report_values(sub_res, m2m_entity, user=user)
                         res.append(sub_res)
 
                     if not m2m_entities:
-                        self._handle_report_values(res)
+                        self._handle_report_values(res, user=user)
                         res = [res]
 
                     return res
@@ -171,19 +174,24 @@ class Field(CremeModel):
                     return get_m2m_entities(entity, self.name, True)
 
             elif ForeignKey in fields_through and report and selected:
-                fk_entity = get_fk_entity(entity, self.name)
-
+                fk_entity = get_fk_entity(entity, self.name, user=user)
+                
                 if (report.filter is not None and
                     fk_entity not in report.ct.model_class().objects.filter(report.filter.get_q())):
                         raise DropLine
 
                 res = []
-                self._handle_report_values(res, fk_entity)
+                self._handle_report_values(res, fk_entity, user=user)
 
                 return FkClass(res)
 
             model_field, value = get_field_infos(entity, column_name)
-            return unicode(value or empty_value)#Maybe format map (i.e : datetime...)
+#            return unicode(value or empty_value)#Maybe format map (i.e : datetime...)
+
+            if value and check_user:
+                return unicode(value) if entity.can_view(user) else HIDDEN_VALUE
+            
+            return unicode(value or empty_value)
 
         elif column_type == HFI_CUSTOM:
             if entity is None:
@@ -193,7 +201,12 @@ class Field(CremeModel):
                 cf = CustomField.objects.get(name=column_name, content_type=entity.entity_type)
             except CustomField.DoesNotExist:
                 return empty_value
-            return entity.get_custom_value(cf)
+
+            value = entity.get_custom_value(cf)
+            if value and check_user and not entity.can_view(user):
+                return HIDDEN_VALUE
+            
+            return value
 
         elif column_type == HFI_RELATION:
             related_entities = entity.get_related_entities(column_name, True) if entity is not None else []
@@ -209,28 +222,35 @@ class Field(CremeModel):
                 res = []
                 for rel_entity in scope:
                     rel_entity_res = []
-                    self._handle_report_values(rel_entity_res, rel_entity)
+                    self._handle_report_values(rel_entity_res, rel_entity, user=user)
                     res.append(rel_entity_res)
 
                 if not scope:#We have to keep columns' consistance and pad with blank values
-                    self._handle_report_values(res)
+                    self._handle_report_values(res, user=user)
                     res = [res]
 
                 return res
 
             if selected:
 #                return related_entities
+                if check_user:
+                    return [[related_entity.allowed_unicode(user)] for related_entity in related_entities]
                 return [[unicode(related_entity)] for related_entity in related_entities]
 
+            if check_user:
+                return u", ".join(related_entity.allowed_unicode(user) for related_entity in related_entities) or empty_value
             return u", ".join(unicode(related_entity) for related_entity in related_entities) or empty_value
 
         elif column_type == HFI_FUNCTION:
             try:
+                if check_user and not entity.can_view(user):
+                    return HIDDEN_VALUE
                 return getattr(entity, column_name)()
             except AttributeError:
                 pass
 
         elif column_type == HFI_CALCULATED and query is not None:
+            #No credential check
             field_name, sep, aggregate = column_name.rpartition('__')
             aggregation = field_aggregation_registry.get(aggregate)
 
@@ -238,8 +258,8 @@ class Field(CremeModel):
 
             if aggregation is not None:
                 if cfs_info[0] == 'cf':
-                    cf_id   = cfs_info[1]
-                    cf_type = cfs_info[2]
+                    cf_id   = cfs_info[2]
+                    cf_type = cfs_info[1]
                     cfs = _TABLES[int(cf_type)].objects.filter(custom_field__id=cf_id, entity__id__in=query.values_list('id', flat=True))
                     return cfs.aggregate(aggregation.func('value')).get('value__%s' % aggregate)
                 else:
@@ -247,9 +267,9 @@ class Field(CremeModel):
 
         return empty_value
 
-    def _handle_report_values(self, container, entity=None):
+    def _handle_report_values(self, container, entity=None, user=None):
         for c in self.report.columns.all():
-            sub_val = c.get_value(entity)
+            sub_val = c.get_value(entity, user=user)
             if isinstance(sub_val, FkClass):
                 container.extend(sub_val)
             else:
@@ -293,7 +313,7 @@ class Report(CremeEntity):
 
         return set(asc_reports)
 
-    def fetch(self, limit_to=None, extra_q=None):
+    def fetch(self, limit_to=None, extra_q=None, user=None):
         lines   = []
         ct    = self.ct
         model = ct.model_class()
@@ -308,22 +328,29 @@ class Report(CremeEntity):
         if extra_q is not None:
             entities = entities.filter(extra_q)
 
-        for entity in entities[:limit_to]:
+        entities_with_limit = entities[:limit_to]
+        if user is not None:
+            model.populate_credentials(entities_with_limit, user)
+
+        lines_append = lines.append
+        
+        for entity in entities_with_limit:
             entity_line = []
+            entity_line_append = entity_line.append
 
             try:
                 for column in columns:
                     field = column.get('field')
-                    entity_line.append(field.get_value(entity, query=entities))
+                    entity_line_append(field.get_value(entity, query=entities, user=user))#TODO: %s/entities/entities_with_limit ??
 
-                lines.append(entity_line)
+                lines_append(entity_line)
             except DropLine:
                 pass
 
         return lines
 
-    def fetch_all_lines(self, limit_to=None, extra_q=None):
-        tree = self.fetch(limit_to=limit_to, extra_q=extra_q)
+    def fetch_all_lines(self, limit_to=None, extra_q=None, user=None):
+        tree = self.fetch(limit_to=limit_to, extra_q=extra_q, user=user)
         lines = []
 
         class ReportTree(object):
