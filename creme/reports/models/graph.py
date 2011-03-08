@@ -30,24 +30,27 @@ from django.utils.translation import ugettext_lazy as _
 from creme_core.models.entity import CremeEntity
 from creme_core.models.relation import RelationType
 from creme_core.models.header_filter import HFI_RELATION, HFI_FIELD
+from creme_core.models.relation import Relation
 
 from reports.models.report import Report
 from reports.report_aggregation_registry import field_aggregation_registry
 
 
 #ReportGraph types
-RGT_DAY    = 1
-RGT_MONTH  = 2
-RGT_YEAR   = 3
-RGT_RANGE  = 4
-RGT_FK     = 5
+RGT_DAY      = 1
+RGT_MONTH    = 2
+RGT_YEAR     = 3
+RGT_RANGE    = 4
+RGT_FK       = 5
+RGT_RELATION = 6
 
 verbose_report_graph_types = {
-    RGT_DAY    : _(u"By days"),
-    RGT_MONTH  : _(u"By months"),
-    RGT_YEAR   : _(u"By years"),
-    RGT_RANGE  : _(u"By X days"),
-    RGT_FK     : _(u"By values"),
+    RGT_DAY      : _(u"By days"),
+    RGT_MONTH    : _(u"By months"),
+    RGT_YEAR     : _(u"By years"),
+    RGT_RANGE    : _(u"By X days"),
+    RGT_FK       : _(u"By values"),
+    RGT_RELATION : _(u"By values"),
 }
 
 
@@ -84,7 +87,7 @@ class ReportGraph(CremeEntity):
         ct            = report.ct
         model         = ct.model_class()
         model_manager = model.objects
-        type          = self.type
+        gtype         = self.type
         abscissa      = self.abscissa
         ordinate      = self.ordinate
         is_count      = self.is_count
@@ -105,16 +108,16 @@ class ReportGraph(CremeEntity):
 
         x, y = [], []
 
-        if type == RGT_DAY:
+        if gtype == RGT_DAY:
             x, y = _get_dates_values(entities, abscissa, ordinate, ordinate_col, aggregate_func, entities_filter, 'day', q_func=lambda date: Q(**{str('%s__year' % abscissa): date.year}) & Q(**{str('%s__month' % abscissa): date.month})  & Q(**{str('%s__day' % abscissa): date.day}), date_format="%d/%m/%Y", order=order, is_count=is_count)
 
-        elif type == RGT_MONTH:
+        elif gtype == RGT_MONTH:
             x, y = _get_dates_values(entities, abscissa, ordinate, ordinate_col, aggregate_func, entities_filter, 'month', q_func=lambda date: Q(**{str('%s__year' % abscissa): date.year}) & Q(**{str('%s__month' % abscissa): date.month}), date_format="%m/%Y", order=order, is_count=is_count)
 
-        elif type == RGT_YEAR:
+        elif gtype == RGT_YEAR:
             x, y = _get_dates_values(entities, abscissa, ordinate, ordinate_col, aggregate_func, entities_filter, 'year', q_func=lambda date: Q(**{str('%s__year' % abscissa): date.year}), date_format="%Y", order=order, is_count=is_count)
 
-        elif type == RGT_RANGE:
+        elif gtype == RGT_RANGE:
             min_date = entities.aggregate(min_date=Min(abscissa)).get('min_date')
             max_date = entities.aggregate(max_date=Max(abscissa)).get('max_date')
             days = timedelta(self.days or 1)
@@ -145,7 +148,7 @@ class ReportGraph(CremeEntity):
                             y.append(sub_entities.aggregate(aggregate_col).get(ordinate))
                         max_date = end
 
-        elif type == RGT_FK:
+        elif gtype == RGT_FK:
             fk_ids = set(entities.values_list(abscissa, flat=True))#.distinct()
             _fks = entities.model._meta.get_field(abscissa).rel.to.objects.filter(pk__in=fk_ids)
 
@@ -160,6 +163,28 @@ class ReportGraph(CremeEntity):
                     y.append(sub_entities.count())
                 else:
                     y.append(sub_entities.aggregate(aggregate_col).get(ordinate))
+
+        elif gtype == RGT_RELATION:
+            #TODO: Optimize !
+            rt = RelationType.objects.get(pk=abscissa)#TODO: try except ?
+            relations = Relation.objects.filter(type=rt, subject_entity__entity_type=ct)
+
+            obj_ids = set(relations.values_list('object_entity__id', flat=True))
+
+            for obj_id in obj_ids:
+                try:
+                    x.append(unicode(CremeEntity.objects.get(pk=obj_id).get_real_entity()))
+                except CremeEntity.DoesNotExist:
+                    continue
+
+                sub_relations = relations.filter(Q(object_entity__id=obj_id))
+
+                if is_count:
+                    y.append(sub_relations.count())
+                else:
+                    sub_entities = model.objects.filter(pk__in=sub_relations.values_list('subject_entity__id'))
+                    y.append(sub_entities.aggregate(aggregate_col).get(ordinate))
+
 
         for i, item in enumerate(y):
             if item is None:

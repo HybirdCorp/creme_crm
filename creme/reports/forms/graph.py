@@ -27,13 +27,14 @@ from django.forms.fields import ChoiceField, BooleanField, CharField
 from django.forms.widgets import Select, CheckboxInput, HiddenInput
 from django.utils.translation import ugettext_lazy as _, ugettext
 
+from creme_core.models.relation import RelationType
 from creme_core.forms.base import CremeEntityForm
 from creme_core.forms.widgets import DependentSelect, Label
 from creme_core.forms.fields import AjaxChoiceField
 from creme_core.utils.meta import get_flds_with_fk_flds
 
 from reports.report_aggregation_registry import field_aggregation_registry
-from reports.models.graph import ReportGraph, RGT_FK, RGT_RANGE
+from reports.models.graph import ReportGraph, RGT_FK, RGT_RANGE, RGT_RELATION
 
 AUTHORIZED_AGGREGATE_FIELDS = field_aggregation_registry.authorized_fields
 AUTHORIZED_ABSCISSA_TYPES = (models.DateField, models.DateTimeField, models.ForeignKey)
@@ -76,7 +77,13 @@ class ReportGraphAddForm(CremeEntityForm):
              #aggregates_fields.choices = [(f.name, unicode(f.verbose_name)) for f in get_flds_with_fk_flds(model, deep=0) if isinstance(f, authorized_aggregate_fields)]
              aggregates_fields.required = False
 
-        abscissa_fields.choices   = [(f.name, unicode(f.verbose_name)) for f in get_flds_with_fk_flds(model, deep=0) if isinstance(f, AUTHORIZED_ABSCISSA_TYPES)]
+
+        abscissa_predicates     = [(rtype.id, rtype.predicate) for rtype in RelationType.get_compatible_ones(report_ct).order_by('predicate')]#Relation type as abscissa
+        abscissa_model_fields   = [(f.name, unicode(f.verbose_name)) for f in get_flds_with_fk_flds(model, deep=0) if isinstance(f, AUTHORIZED_ABSCISSA_TYPES)]#One field of the model as abscissa
+        abscissa_model_fields.sort(key=lambda x: x[1])
+        
+        abscissa_fields.choices = ((_(u"Fields"), abscissa_model_fields), (_(u"Relations"), abscissa_predicates))
+
         abscissa_fields.widget.target_url += str(report_ct.id) #Bof but when DependentSelect will be refactored improve here too
 
         data = self.data
@@ -114,10 +121,18 @@ class ReportGraphAddForm(CremeEntityForm):
         #TODO: method instead ?
         val_err = ValidationError(self.fields['abscissa_group_by'].error_messages['invalid_choice'] % {'value': abscissa_fields})
 
+        is_abscissa_group_by_is_RGT_RELATION = abscissa_group_by == RGT_RELATION
+
         try:
             abscissa_field = model._meta.get_field(abscissa_fields)
         except FieldDoesNotExist:
-            raise val_err
+            if not is_abscissa_group_by_is_RGT_RELATION:
+                raise val_err
+            else:
+                try:
+                    rt = RelationType.objects.get(pk=abscissa_fields)
+                except Exception, e:
+                    raise val_err
 
         is_abscissa_group_by_is_RGT_FK = abscissa_group_by == RGT_FK
 

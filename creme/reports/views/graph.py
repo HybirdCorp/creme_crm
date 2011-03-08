@@ -22,16 +22,16 @@ from django.db.models import FieldDoesNotExist, DateField, DateTimeField, Foreig
 from django.contrib.auth.decorators import login_required, permission_required
 from django.shortcuts import get_object_or_404
 from django.template.context import RequestContext
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import ugettext_lazy as _, ugettext
 
 from creme_core.views.generic import inner_popup, view_entity, add_to_entity, edit_related_to_entity
-from creme_core.models import CremeEntity, InstanceBlockConfigItem
+from creme_core.models import CremeEntity, InstanceBlockConfigItem, RelationType
 from creme_core.utils import jsonify, get_ct_or_404
 
 from reports.models.report import Report
 from reports.models.graph import (ReportGraph, verbose_report_graph_types,
                                   RGT_FK, RGT_RANGE, RGT_YEAR, RGT_MONTH, RGT_DAY,
-                                  fetch_graph_from_instance_block)
+                                  RGT_RELATION, fetch_graph_from_instance_block)
 from reports.forms.graph import ReportGraphAddForm
 
 @login_required
@@ -63,7 +63,7 @@ def get_available_report_graph_types(request, ct_id):
     abscissa_field = request.POST.get('record_id')
 
     field = None
-    result = [{'id': '', 'text': _(u'Choose an abscissa field')}]
+    result = [{'id': '', 'text': ugettext(u'Choose an abscissa field')}]
 
     try:
         field = model._meta.get_field(abscissa_field)
@@ -71,11 +71,20 @@ def get_available_report_graph_types(request, ct_id):
         pass
 
     #TODO: factorise 'if field'
-    if field and isinstance(field, (DateField, DateTimeField)):
-        verbose_report_graph_types_get = verbose_report_graph_types.get
-        result = [{'id': type_id, 'text': unicode(verbose_report_graph_types_get(type_id))} for type_id in [RGT_DAY, RGT_MONTH, RGT_YEAR, RGT_RANGE]]
-    elif field and isinstance(field, ForeignKey):
-        result = [{'id': RGT_FK, 'text': unicode(verbose_report_graph_types.get(RGT_FK))}]
+    if field:
+        if isinstance(field, (DateField, DateTimeField)):
+            verbose_report_graph_types_get = verbose_report_graph_types.get
+            result = [{'id': type_id, 'text': unicode(verbose_report_graph_types_get(type_id))} for type_id in [RGT_DAY, RGT_MONTH, RGT_YEAR, RGT_RANGE]]
+        elif isinstance(field, ForeignKey):
+            result = [{'id': RGT_FK, 'text': unicode(verbose_report_graph_types.get(RGT_FK))}]
+
+    else:
+        #Assume the field is a relation
+        try:
+            rt = RelationType.objects.get(pk=abscissa_field)
+            result = [{'id': RGT_RELATION, 'text': unicode(verbose_report_graph_types.get(RGT_RELATION))}]
+        except RelationType.DoesNotExist:
+            pass
 
     return {'result': result}
 
