@@ -22,10 +22,13 @@ from django.utils.translation import ugettext_lazy as _
 from django.contrib.contenttypes.models import ContentType
 
 from creme_core.models import Relation
-from creme_core.gui.block import Block, QuerysetBlock
+from creme_core.gui.block import Block, PaginatedBlock, QuerysetBlock
 
-from persons.models import Contact, Address
-from persons.constants import REL_OBJ_MANAGES, REL_OBJ_EMPLOYED_BY
+from activities.models import Activity
+from activities.constants import REL_SUB_PART_2_ACTIVITY, REL_SUB_ACTIVITY_SUBJECT, REL_SUB_LINKED_2_ACTIVITY, REL_OBJ_PART_2_ACTIVITY
+
+from persons.models import Contact, Organisation, Address
+from persons.constants import *
 
 
 class ManagersBlock(QuerysetBlock):
@@ -64,6 +67,57 @@ class EmployeesBlock(QuerysetBlock):
                                                             ))
 
 
+class NeglectedOrganisationsBlock(PaginatedBlock):
+    """Customers/propsects organisations that have no Activity in the future."""
+    id_           = QuerysetBlock.generate_id('persons', 'neglected_orgas')
+    dependencies  = (Activity,)
+    verbose_name  = u"Neglected organisations"
+    template_name = 'persons/templatetags/block_neglected_orgas.html'
+
+    def _get_neglected(self, now):
+        user_contacts     = Contact.objects.filter(is_user__isnull=False).values_list('id', flat=True)
+        future_activities = list(Activity.objects.filter(start__gte=now,
+                                                         relations__type=REL_OBJ_PART_2_ACTIVITY,
+                                                         relations__object_entity__in=user_contacts) \
+                                                 .values_list('id', flat=True)
+                                )
+        neglected_orgas_qs = Organisation.objects.filter(relations__type__in=(REL_SUB_CUSTOMER_OF, REL_SUB_PROSPECT),
+                                                         relations__object_entity__in=Organisation.get_all_managed_by_creme()) \
+                                                 .distinct()
+
+        if not future_activities:
+            return neglected_orgas_qs #no need to rerieve it & transform into a list (good idea ??)
+
+        neglected_orgas = list(neglected_orgas_qs.exclude(relations__object_entity__in=future_activities,
+                                                          relations__type__in=(REL_SUB_ACTIVITY_SUBJECT, REL_SUB_LINKED_2_ACTIVITY)
+                                                         )
+                              )
+
+        if neglected_orgas:
+            linked_people_map = dict(Relation.objects.filter(type__in=(REL_SUB_MANAGES, REL_SUB_EMPLOYED_BY),
+                                                             object_entity__in=[o.id for o in neglected_orgas]) \
+                                                     .values_list('subject_entity_id', 'object_entity_id')
+                                    )
+            activity_links = Relation.objects.filter(type__in=(REL_SUB_PART_2_ACTIVITY, REL_SUB_ACTIVITY_SUBJECT, REL_SUB_LINKED_2_ACTIVITY),
+                                                     subject_entity__in=linked_people_map.keys(),
+                                                     object_entity__in=future_activities,
+                                                    )
+
+            neglected_map = dict((orga.id, True) for orga in neglected_orgas) #True means 'neglected'
+            for rel in activity_links:
+                neglected_map[linked_people_map[rel.subject_entity_id]] = False
+
+            neglected_orgas = [orga for orga in neglected_orgas if neglected_map[orga.id]]
+
+        return neglected_orgas
+
+    def detailview_display(self, context): #indeed it is displayed on portal of 'persons'
+        return self._render(self.get_block_template_context(context,
+                                                            self._get_neglected(context['today']),
+                                                            update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
+                                                          ))
+
+
 class AddressBlock(Block):
     id_           = Block.generate_id('persons', 'address')
     dependencies  = (Address,)
@@ -98,3 +152,4 @@ address_block = AddressBlock ()
 other_address_block = OtherAddressBlock ()
 managers_block  = ManagersBlock()
 employees_block = EmployeesBlock()
+neglected_orgas_block = NeglectedOrganisationsBlock()

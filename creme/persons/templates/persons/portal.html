@@ -1,7 +1,18 @@
 {% extends "creme_core/generics/portal.html" %}
 {% load i18n %}
 {% load media %}
+{% load creme_block %}
+
 {% block logo %}<img src="{% media_url 'images/contacts_64.png' %}" alt="{% trans "Contact" %}"/>{% endblock %}
 {% block title %}{% trans "Accounts & contacts portal" %}{% endblock %}
 {% block list_url %}/persons/contacts{% endblock %}
 {% block list_msg %}{% trans "List of contacts" %}{% endblock %}
+
+{% block creme_blocks_import %}
+    {{block.super}}
+    {% import_block from_app 'persons' named 'neglected_orgas' as 'neglected_orgas_block' %}
+{% endblock %}
+
+{% block before_statistics %}
+    {% display_block_detailview 'neglected_orgas_block' %}
+{% endblock %}

@@ -1,0 +1,27 @@
+{% load i18n %}{% load media %}
+{% load creme_core_tags %}{% load creme_block %}
+<table  class="table_detail_view ui-corner-all" id={{block_name}}>
+    {% get_block_header colspan=1 %}
+        <th style="width: 80%;" class="collapser" align="left">{% get_block_title _("%s Neglected organisation") _("%s Neglected organisations") 'organisation_48.png' _('Neglected organisation') %}</th>
+        <th style="width: 20%;" align="right"></th>
+    {% end_get_block_header %}
+    <tbody class="collapsable">
+        {% if page.paginator.count %}
+            <tr>
+                <th class="block_header_line_dark">{% trans "Name" %}</th>
+            </tr>
+            {% for orga in page.object_list %}
+                <tr>
+                    <td class="{% cycle "block_line_dark" "block_line_light" %}"><a href="{{orga.get_absolute_url}}">{{orga}}</a></td>
+                </tr>
+            {% endfor %}
+        {% else %}
+            <tr>
+                <td class="block_line_dark">
+                    {% block empty_msg %}{% trans "No neglected organisation for the moment" %}{% endblock %}
+                </td>
+            </tr>
+        {% endif %}
+    </tbody>
+    {% include 'creme_core/templatetags/widgets/block_footer.html' %}
+</table>
