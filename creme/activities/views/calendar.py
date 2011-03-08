@@ -35,7 +35,7 @@ from creme_core.views.generic.popup import inner_popup
 from creme_core.utils import get_from_POST_or_404
 
 from activities.models import Activity, Calendar
-from activities.utils import get_last_day_of_a_month
+from activities.utils import get_last_day_of_a_month, check_activity_collisions
 from activities.forms.calendar import CalendarForm
 from activities.constants import ACTIVITYTYPE_INDISPO
 
@@ -59,13 +59,15 @@ def get_users_calendar(request, usernames, calendars_ids):
                               },
                               context_instance=RequestContext(request))
 
-def getFormattedDictFromAnActivity(activity):
+def getFormattedDictFromAnActivity(activity, user):
     start = activity.start
     end   = activity.end
     is_all_day = activity.is_all_day
 
     if start == end and not is_all_day:
         end += timedelta(seconds=1)
+
+    is_editable = activity.can_change(user)
 
     return {
             "id" :          int(activity.pk),
@@ -74,7 +76,8 @@ def getFormattedDictFromAnActivity(activity):
             "end":          end.isoformat(),
             "url":          "/activities/activity/%s/popup" % activity.pk,
             "entity_color": "#%s" % (activity.type.color or "C1D9EC"),
-            "allDay" :      is_all_day
+            "allDay" :      is_all_day,
+            "editable":     is_editable
             }
 
 @login_required
@@ -152,7 +155,7 @@ def get_users_activities(request, usernames, calendars_ids):
 #    #list_activities = filter_can_read_objects(request, list_activities)
     list_activities = EntityCredentials.filter(request.user, list_activities)
 
-    return HttpResponse(JSONEncoder().encode([getFormattedDictFromAnActivity(activity) for activity in list_activities]),
+    return HttpResponse(JSONEncoder().encode([getFormattedDictFromAnActivity(activity, request.user) for activity in list_activities]),
                         mimetype="text/javascript")
 
 @login_required
@@ -172,7 +175,7 @@ def update_activity_date(request):
         activity = get_object_or_404(Activity, pk=id_)
 
         #if not user_has_edit_permission_for_an_object(request, activity, 'activities'):
-        if not request.user.has_perm('creme_core.change_entity', activity):
+        if not activity.can_change(request.user):
             return HttpResponse("forbidden", mimetype="text/javascript", status=403)
 
         try:
@@ -183,6 +186,11 @@ def update_activity_date(request):
                 activity.handle_all_day()
         except ValueError:
             return HttpResponse("error", mimetype="text/javascript", status=400)
+
+        participants = [act.object_entity for act in activity.get_participant_relations()]
+        collisions = check_activity_collisions(activity.start, activity.end, participants)
+        if collisions:
+            return HttpResponse(JSONEncoder().encode(u", ".join(collisions)), mimetype="text/javascript", status=409)
 
         activity.save()
 

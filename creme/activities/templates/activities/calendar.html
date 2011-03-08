@@ -16,7 +16,11 @@ $(document).ready(function() {
                         alert("{% trans "You do not have permission, the change will not be saved." %}");
                         revertFunc();
                       }
-                      if(request.status >= 300 || request.status == 0){
+                      else if(request.status == 409){
+                        creme.utils.showDialog(unescape(request.responseText));
+                        revertFunc();
+                      }
+                      else if(request.status >= 300 || request.status == 0){
                           alert("{% trans "Error, please reload the page." %}");
                           revertFunc();
                       }
