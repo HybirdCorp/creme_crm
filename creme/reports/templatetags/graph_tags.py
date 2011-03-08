@@ -21,14 +21,23 @@
 from django.template import Library
 from django.utils.translation import ugettext_lazy as _
 
-from reports.report_aggregation_registry import field_aggregation_registry
 from creme_core.utils.meta import get_verbose_field_name
+from creme_core.models.relation import RelationType
+
+from reports.models.graph import RGT_RELATION
+from reports.report_aggregation_registry import field_aggregation_registry
 
 
 register = Library()
 
 @register.filter(name="verbose_abscissa")
 def get_verbose_abscissa(report_graph, graph_abscissa):
+    if report_graph.type == RGT_RELATION:
+        try:
+            return RelationType.objects.get(pk=graph_abscissa).predicate
+        except RelationType.DoesNotExist:
+            return u""
+
     return get_verbose_field_name(report_graph.report.ct.model_class(), graph_abscissa)
 
 @register.filter(name="verbose_ordinate")
