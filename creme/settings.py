@@ -259,6 +259,8 @@ BLOCK_SIZE = 10 #Lines number in common blocks
 #Show or not help messages in all the application
 SHOW_HELP = True
 
+HIDDEN_VALUE = u"??"
+
 #GUI [END]######################################################################
 
 

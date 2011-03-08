@@ -22,6 +22,9 @@ from django.db import models
 from django.db.models.fields.related import ForeignKey, ManyToManyField
 from django.db.models.base import ModelBase
 from django.db.models import Field, FieldDoesNotExist
+from django.conf import settings
+
+from creme_core.models.entity import CremeEntity
 
 
 class NotDjangoModel(Exception):
@@ -189,38 +192,68 @@ def _get_entity_column(entity, column_name, field_class):
 
     return ('__'.join(fields_names), cols[len(cols)-i-1:])
 
-def get_fk_entity(entity, column_name, get_value=False):
+def get_fk_entity(entity, column_name, get_value=False, user=None):
     """Get the first foreign key entity found in the column_name path
         entity=Contact(), column_name='photo__name' returns entity.photo
         if get_value returns the value i.e : entity.photo.name
+        if get_value and user returns the value if the user can read it else settings.HIDDEN_VALUE
+            NB: If not get_value the fk is returned no matter what
     """
     fk_column, rest = _get_entity_column(entity, column_name, ForeignKey)
     if get_value:
-        return getattr(getattr(entity, fk_column), '__'.join(rest))
+        fk = getattr(entity, fk_column)
+        
+        has_to_check_view_perms = issubclass(fk.__class__, CremeEntity) and user is not None
+        if has_to_check_view_perms and not fk.can_view(user):
+            return settings.HIDDEN_VALUE
+        
+        return getattr(fk, '__'.join(rest))
     
     return getattr(entity, fk_column)
 
-def get_m2m_entities(entity, column_name, get_value=False, q_filter=None, get_value_func=lambda values:", ".join(values)):
+def get_m2m_entities(entity, column_name, get_value=False, q_filter=None, get_value_func=lambda values:", ".join(values), user=None):
     """Get the first many to many entity found in the column_name path
         entity=Contact(), column_name='photos__name' returns entity.photos.all()
         if get_value returns the values i.e : [e.name for e in entity.photos.all()]
+
+        if get_value and user returns the values and replaces values that the user can't view by settings.HIDDEN_VALUE
+            NB: If not get_value, entities are NOT filtered by credentials => TODO/Usefull?
     """
     m2m_column, rest = _get_entity_column(entity, column_name, ManyToManyField)
 
+    m2m_field = getattr(entity, m2m_column)
+
     if q_filter is not None:
-        m2m_entities = getattr(entity, m2m_column).filter(q_filter)
+        m2m_entities = m2m_field.filter(q_filter)
     else:
-        m2m_entities = getattr(entity, m2m_column).all()
+        m2m_entities = m2m_field.all()
 
     if get_value:
+        m2m_field_model = m2m_field.model
+        has_to_check_view_perms = issubclass(m2m_field_model, CremeEntity) and user is not None
+        
         rest = u'__'.join(rest)
 
         values = []
-        for m in m2m_entities:
-            attr = getattr(m, rest, u"")
-            if attr is None:
-                attr = u""
-            values.append(u"%s" % attr)
+        if has_to_check_view_perms:
+            m2m_field_model.populate_credentials(m2m_entities, user)
+            HIDDEN_VALUE = settings.HIDDEN_VALUE
+
+            for m in m2m_entities:
+                if m.can_view(user):
+                    attr = getattr(m, rest, u"")
+                    if attr is None:
+                        attr = u""
+                else:
+                    attr = HIDDEN_VALUE
+                values.append(u"%s" % attr)
+        else:
+            for m in m2m_entities:
+                attr = getattr(m, rest, u"")
+                if attr is None:
+                    attr = u""
+                values.append(u"%s" % attr)
+            
         return get_value_func(values)
 #        return ", ".join(values)
 #            return ",".join([getattr(m, rest, u"") for m in getattr(entity, m2m_column).all()])

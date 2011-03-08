@@ -27,9 +27,10 @@ from base import ReportBackend
 
 
 class CsvReportBackend(ReportBackend):
-    def __init__(self, report, extra_q_filter):
+    def __init__(self, report, extra_q_filter, user):
         super(CsvReportBackend, self).__init__(report)
         self.extra_q_filter = extra_q_filter
+        self.user = user
 
     def render_to_response(self):
         report = self.report
@@ -43,7 +44,7 @@ class CsvReportBackend(ReportBackend):
 
         writerow([smart_str(column.title) for column in report.get_children_fields_flat()])
 
-        for line in report.fetch_all_lines(extra_q=self.extra_q_filter):
+        for line in report.fetch_all_lines(extra_q=self.extra_q_filter, user=self.user):
             writerow([smart_str(value) for value in line])
 
         return response
