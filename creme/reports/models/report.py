@@ -171,7 +171,7 @@ class Field(CremeModel):
 
                     return res
                 else:
-                    return get_m2m_entities(entity, self.name, True)
+                    return get_m2m_entities(entity, self.name, True, user=user)
 
             elif ForeignKey in fields_through and report and selected:
                 fk_entity = get_fk_entity(entity, self.name, user=user)
