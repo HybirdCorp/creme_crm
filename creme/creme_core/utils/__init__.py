@@ -26,7 +26,8 @@ from django.db.models.query_utils import Q
 from django.http import HttpResponse, Http404
 #from django.utils.translation import ugettext as _
 
-from django.utils.simplejson import JSONEncoder
+#from django.utils.simplejson import JSONEncoder
+from django.core.serializers.json import DjangoJSONEncoder as JSONEncoder
 
 from creme_core.registry import creme_registry
 
