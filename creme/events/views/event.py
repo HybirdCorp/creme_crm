@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2011  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -24,6 +24,7 @@ from django.shortcuts import get_object_or_404
 from django.utils.translation import ugettext_lazy as _, ugettext
 from django.contrib.auth.decorators import login_required, permission_required
 
+from creme_core.models import CremeEntity
 from creme_core.models.entity import EntityAction
 from creme_core.models.header_filter import HeaderFilterItem, HFI_RELATION, HFI_VOLATILE
 from creme_core.views.generic import add_entity, edit_entity, view_entity, list_view
@@ -78,7 +79,7 @@ def build_get_actions(event, entity):
                 'default': EntityAction(entity.get_absolute_url(), ugettext(u"See"), entity.can_view(user), icon="images/view_16.png"),
                 'others':  [EntityAction('/events/event/%s/add_opportunity_with/%s' % (event.id, entity.id),
                                          ugettext(u"Create an opportunity"),
-                                         user.has_perm('opportunities.add_opportunity'), #TODO: other credentials ??
+                                         user.has_perm('opportunities.add_opportunity') and event.can_link(user),
                                          icon="images/opportunity_16.png",
                                         ),
                            ]
@@ -88,8 +89,10 @@ def build_get_actions(event, entity):
 class ListViewPostProcessor(object):
     def __init__(self, event):
         self.event = event
+        self.user = None
 
-    def __call__(self, context):
+    def __call__(self, context, request):
+        self.user = request.user
         hfitems = context['header_filters'].selected.items
 
         #NB: add relations items to use the pre-cache system of HeaderFilter (TO: problem: retrieve other related events too)
@@ -119,9 +122,10 @@ class ListViewPostProcessor(object):
         id_ = self.event.id
         return any(id_ == relation.object_entity_id for relation in entity.get_relations(rtype_id))
 
-    #TODO: credentials ???
     def invitation_render(self, entity):
         has_relation = self.has_relation
+        event = self.event
+        user = self.user
 
         if not has_relation(entity, REL_SUB_IS_INVITED_TO):
             current_status = INV_STATUS_NOT_INVITED
@@ -132,8 +136,8 @@ class ListViewPostProcessor(object):
         else:
             current_status = INV_STATUS_NO_ANSWER
 
-        select = ["""<select onchange="post_contact_status('/events/event/%s/contact/%s/set_invitation_status', this);">""" % \
-                    (self.event.id, entity.id)
+        select = ["""<select onchange="post_contact_status('/events/event/%s/contact/%s/set_invitation_status', this);" %s>""" % \
+                    (event.id, entity.id, '' if event.can_link(user) and entity.can_link(user) else 'disabled="True"')
                  ]
         select.extend(u'<option value="%s" %s>%s</option>' % (
                             status,
@@ -147,6 +151,8 @@ class ListViewPostProcessor(object):
 
     def presence_render(self, entity):
         has_relation = self.has_relation
+        event = self.event
+        user = self.user
 
         if has_relation(entity, REL_SUB_CAME_EVENT):
             current_status = PRES_STATUS_COME
@@ -155,8 +161,8 @@ class ListViewPostProcessor(object):
         else:
             current_status = PRES_STATUS_DONT_KNOW
 
-        select = ["""<select onchange="post_contact_status('/events/event/%s/contact/%s/set_presence_status', this);">""" % \
-                    (self.event.id, entity.id)
+        select = ["""<select onchange="post_contact_status('/events/event/%s/contact/%s/set_presence_status', this);" %s>""" % \
+                    (event.id, entity.id, '' if event.can_link(user) and entity.can_link(user) else 'disabled="True"')
                  ]
         select.extend(u'<option value="%s" %s>%s</option>' % (
                             status,
@@ -208,27 +214,36 @@ def _get_status(request, valid_status):
 
     return status
 
-#TODO: credentials ???
+def _get_event_n_contact(event_id, contact_id, user):
+    event   = get_object_or_404(Event, pk=event_id)
+    contact = get_object_or_404(Contact, pk=contact_id)
+
+    CremeEntity.populate_credentials([event, contact], user) #optimisation
+    event.can_link_or_die(user)
+    contact.can_link_or_die(user)
+
+    return event, contact
+
+#TODO: use jsonify ??
 @login_required
 @permission_required('events')
 def set_invitation_status(request, event_id, contact_id):
-    status  = _get_status(request, INV_STATUS_MAP)
-    event   = get_object_or_404(Event, pk=event_id)
-    contact = get_object_or_404(Contact, pk=contact_id)
+    status = _get_status(request, INV_STATUS_MAP)
+    user = request.user
+    event, contact = _get_event_n_contact(event_id, contact_id, user)
 
-    event.set_invitation_status(contact, status, request.user)
+    event.set_invitation_status(contact, status, user)
 
     return HttpResponse('', mimetype='text/javascript')
 
-#TODO: credentials ???
 @login_required
 @permission_required('events')
 def set_presence_status(request, event_id, contact_id):
-    status  = _get_status(request, PRES_STATUS_MAP)
-    event   = get_object_or_404(Event, pk=event_id)
-    contact = get_object_or_404(Contact, pk=contact_id)
+    status = _get_status(request, PRES_STATUS_MAP)
+    user  = request.user
+    event, contact = _get_event_n_contact(event_id, contact_id, user)
 
-    event.set_presence_status(contact, status, request.user)
+    event.set_presence_status(contact, status, user)
 
     return HttpResponse('', mimetype='text/javascript')
 
@@ -240,6 +255,6 @@ def add_opportunity(request, event_id, contact_id):
     event   = get_object_or_404(Event, pk=event_id)
     contact = get_object_or_404(Contact, pk=contact_id)
 
-    #TODO: link credentials ??
+    event.can_link_or_die(request.user)
 
     return add_entity(request, RelatedOpportunityCreateForm, extra_initial={'event': event, 'contact': contact})

@@ -78,7 +78,7 @@ def _build_entities_page(request, list_view_state, queryset, size):
 def list_view(request, model, hf_pk='', extra_dict=None, template='creme_core/generics/list_entities.html', show_actions=True, extra_q=None, o2m=False, post_process=None):
     """ Generic list_view wrapper / generator
     Accept only CremeEntity model and subclasses
-    @param post_process Function that takes the template context as parameter (so you can modify it).
+    @param post_process Function that takes the template context and the request as parameters (so you can modify the context).
     """
     assert issubclass(model, CremeEntity), '%s is not a subclass of CremeEntity' % model
 
@@ -154,7 +154,7 @@ def list_view(request, model, hf_pk='', extra_dict=None, template='creme_core/ge
         template = 'creme_core/frags/list_view_content.html'
 
     if post_process:
-        post_process(template_dict)
+        post_process(template_dict, request)
 
     #optimisation time !!
     hf.populate_entities(entities.object_list, request.user)

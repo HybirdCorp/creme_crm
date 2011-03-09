@@ -26,6 +26,7 @@ from django.utils.translation import ugettext_lazy as _, ugettext
 from creme_core.models import Relation
 from creme_core.forms import CremeEntityForm, CremeForm, MultiRelationEntityField
 from creme_core.forms.widgets import DateTimeWidget
+from creme_core.forms.validators import validate_linkable_entities
 from creme_core.utils import find_first
 
 from persons.models import Organisation
@@ -69,6 +70,8 @@ class AddContactsToEventForm(CremeForm):
                 raise ValidationError(ugettext(u'Contact %s is present twice.') % contact)
 
             contacts_set.add(contact.id)
+
+        validate_linkable_entities([contact for relationtype, contact in related_contacts], self.user)
 
         return related_contacts
 
@@ -132,7 +135,7 @@ class RelatedOpportunityCreateForm(OpportunityCreateForm):
     def save(self, *args, **kwargs):
         opp = super(RelatedOpportunityCreateForm, self).save(*args, **kwargs)
 
-        Relation.objects.create(user=self.cleaned_data['user'], subject_entity=opp,
+        Relation.objects.create(user=self.user, subject_entity=opp,
                                 type_id=REL_SUB_GEN_BY_EVENT, object_entity=self.event
                                )
 
