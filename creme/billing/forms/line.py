@@ -38,7 +38,7 @@ from creme import form_post_save #TODO: move in creme_core ??
 default_decimal = Decimal()
 
 
-class LineCreateForm(CremeModelWithUserForm): #TODO: rename (LineForm) and other ones too
+class LineForm(CremeModelWithUserForm):
     blocks = FieldBlockManager(('general', _(u'Line information'), ['related_item', 'comment', 'quantity', 'unit_price',
                                                                     'discount', 'credit', 'total_discount', 'vat', 'user'])
                               )
@@ -47,7 +47,7 @@ class LineCreateForm(CremeModelWithUserForm): #TODO: rename (LineForm) and other
         exclude = ('document', 'is_paid')
 
     def __init__(self, entity, *args, **kwargs):
-        super(LineCreateForm, self).__init__(*args, **kwargs)
+        super(LineForm, self).__init__(*args, **kwargs)
         self.document = entity
 
     def save(self):
@@ -55,23 +55,27 @@ class LineCreateForm(CremeModelWithUserForm): #TODO: rename (LineForm) and other
         created = not bool(instance.pk)
         instance.document = self.document
         instance.is_paid = False
-        super(LineCreateForm, self).save()
+        super(LineForm, self).save()
 
         form_post_save.send(sender=self.instance.__class__, instance=self.instance, created=created)
 
         return instance
 
 
-class ProductLineCreateForm(LineCreateForm):
+class ProductLineForm(LineForm):
     related_item = CremeEntityField(label=_("Product"), model=Product,
-                                    widget=ListViewWidget(attrs={'selection_cb':'creme.product_line.auto_populate_selection','selection_cb_args':{'attr':'name','values':['unit_price']}}))
+                                    widget=ListViewWidget(attrs={'selection_cb':      'creme.billing.lineAutoPopulateSelection',
+                                                                 'selection_cb_args': {'attr': 'name', 'values': ['unit_price']},
+                                                                }
+                                                          )
+                                   )
 
     class Meta:
         model = ProductLine
-        exclude = LineCreateForm.Meta.exclude + ('on_the_fly_item',)
+        exclude = LineForm.Meta.exclude + ('on_the_fly_item',)
 
 
-class ProductLineOnTheFlyCreateForm(LineCreateForm):
+class ProductLineOnTheFlyForm(LineForm):
     has_to_register_as = BooleanField(label=_(u"Save as product ?"), required=False,
                                       help_text=_(u"Here you can save a on-the-fly Product as a true Product ; in this case, category and sub-category are required."))
     category           = ModelChoiceField(queryset=Category.objects.all(), label=_(u'Category'),
@@ -91,10 +95,10 @@ class ProductLineOnTheFlyCreateForm(LineCreateForm):
 
     class Meta:
         model = ProductLine
-        exclude = LineCreateForm.Meta.exclude + ('related_item',)
+        exclude = LineForm.Meta.exclude + ('related_item',)
 
     def __init__(self, *args, **kwargs):
-        super(ProductLineOnTheFlyCreateForm, self).__init__(*args, **kwargs)
+        super(ProductLineOnTheFlyForm, self).__init__(*args, **kwargs)
 
         if self.instance.pk is not None:
             self.blocks = FieldBlockManager(
@@ -127,38 +131,42 @@ class ProductLineOnTheFlyCreateForm(LineCreateForm):
                                              sub_category=get_data('sub_category'),
                                             )
 
-            plcf = ProductLineCreateForm(entity=self.document, user=self.user,
-                                         data={
-                                                'related_item':   '%s,' % product.pk,
-                                                'quantity':       get_data('quantity', 0),
-                                                'unit_price':     get_data('unit_price', default_decimal),
-                                                'credit':         get_data('credit', default_decimal),
-                                                'discount':       get_data('discount', default_decimal),
-                                                'total_discount': get_data('total_discount', False),
-                                                'vat':            get_data('vat', DEFAULT_VAT),
-                                                'user':           product.user_id,
-                                                'comment':        get_data('comment', '')
-                                              }
-                                        )
+            plcf = ProductLineForm(entity=self.document, user=self.user,
+                                   data={
+                                          'related_item':   '%s,' % product.pk,
+                                          'quantity':       get_data('quantity', 0),
+                                          'unit_price':     get_data('unit_price', default_decimal),
+                                          'credit':         get_data('credit', default_decimal),
+                                          'discount':       get_data('discount', default_decimal),
+                                          'total_discount': get_data('total_discount', False),
+                                          'vat':            get_data('vat', DEFAULT_VAT),
+                                          'user':           product.user_id,
+                                          'comment':        get_data('comment', '')
+                                        }
+                                  )
 
             if plcf.is_valid():
                 instance = plcf.save()
         else:
-            instance = super(ProductLineOnTheFlyCreateForm, self).save()
+            instance = super(ProductLineOnTheFlyForm, self).save()
 
         return instance
 
 
-class ServiceLineCreateForm(LineCreateForm):
-    related_item = CremeEntityField(label=_("Service"), model=Service, widget=ListViewWidget(attrs={'selection_cb':'creme.product_line.auto_populate_selection','selection_cb_args':{'attr':'name','values':['unit_price']}}))
-    #selection_cb uses the same callback than ProductLineCreateForm so if there is no Product line block on the Service line block page => Error. Implements its onw function when it'll be necessary
+class ServiceLineForm(LineForm):
+    related_item = CremeEntityField(label=_("Service"), model=Service,
+                                    widget=ListViewWidget(attrs={'selection_cb':      'creme.billing.lineAutoPopulateSelection',
+                                                                 'selection_cb_args': {'attr': 'name', 'values': ['unit_price']},
+                                                                }
+                                                         )
+                                   )
 
     class Meta:
         model = ServiceLine
-        exclude = LineCreateForm.Meta.exclude + ('on_the_fly_item',)
+        exclude = LineForm.Meta.exclude + ('on_the_fly_item',)
 
 
-class ServiceLineOnTheFlyCreateForm(LineCreateForm):
+class ServiceLineOnTheFlyForm(LineForm):
     has_to_register_as = BooleanField(label=_(u"Save as service ?"), required=False,
                                       help_text=_(u"Here you can save a on-the-fly Service as a true Service ; in this case, category is required."))
     category           = ModelChoiceField(queryset=ServiceCategory.objects.all(), label=_(u'Service category'),
@@ -172,10 +180,10 @@ class ServiceLineOnTheFlyCreateForm(LineCreateForm):
 
     class Meta:
         model = ServiceLine
-        exclude = LineCreateForm.Meta.exclude + ('related_item',)
+        exclude = LineForm.Meta.exclude + ('related_item',)
 
     def __init__(self, *args, **kwargs):
-        super(ServiceLineOnTheFlyCreateForm, self).__init__(*args, **kwargs)
+        super(ServiceLineOnTheFlyForm, self).__init__(*args, **kwargs)
 
         if self.instance.pk is not None:
             #TODO: remove the block 'additionnal' instead ??
@@ -204,23 +212,23 @@ class ServiceLineOnTheFlyCreateForm(LineCreateForm):
                                              unit_price=get_data('unit_price', 0),
                                             )
 
-            slcf = ServiceLineCreateForm(entity=self.document, user=self.user,
-                                         data={
-                                                'related_item':   '%s,' % service.pk,
-                                                'quantity':       get_data('quantity', 0),
-                                                'unit_price':     get_data('unit_price', default_decimal),
-                                                'credit':         get_data('credit', default_decimal),
-                                                'discount':       get_data('discount', default_decimal),
-                                                'total_discount': get_data('total_discount', False),
-                                                'vat':            get_data('vat', DEFAULT_VAT),
-                                                'user':           service.user_id,
-                                                'comment':        get_data('comment', ''),
-                                              }
-                                        )
+            slcf = ServiceLineForm(entity=self.document, user=self.user,
+                                   data={
+                                          'related_item':   '%s,' % service.pk,
+                                          'quantity':       get_data('quantity', 0),
+                                          'unit_price':     get_data('unit_price', default_decimal),
+                                          'credit':         get_data('credit', default_decimal),
+                                          'discount':       get_data('discount', default_decimal),
+                                          'total_discount': get_data('total_discount', False),
+                                          'vat':            get_data('vat', DEFAULT_VAT),
+                                          'user':           service.user_id,
+                                          'comment':        get_data('comment', ''),
+                                        }
+                                  )
 
             if slcf.is_valid():
                 instance = slcf.save()
         else:
-            instance = super(ServiceLineOnTheFlyCreateForm, self).save()
+            instance = super(ServiceLineOnTheFlyForm, self).save()
 
         return instance

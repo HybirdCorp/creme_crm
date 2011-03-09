@@ -355,6 +355,7 @@ CREME_CORE_JS = ('main.js',
                 )
 
 CREME_OPT_JS = ( #OPTIONNAL APPS
+                'billing/js/billing.js',
                 'reports/js/reports.js',
                 'emails/js/emails.js',
                )

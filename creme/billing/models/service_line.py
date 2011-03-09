@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2011  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -40,12 +40,12 @@ class ServiceLine(Line):
         return u"On the fly service '%s'" % self.on_the_fly_item
 
     def get_edit_form (self):
-        from billing.forms.line import ServiceLineCreateForm, ServiceLineOnTheFlyCreateForm
+        from billing.forms.line import ServiceLineForm, ServiceLineOnTheFlyForm
 
         if self.related_item is not None:
-            return ServiceLineCreateForm
+            return ServiceLineForm
         else:
-            return ServiceLineOnTheFlyCreateForm
+            return ServiceLineOnTheFlyForm
 
     def clone(self):
         sl = super(ServiceLine, self).clone()
