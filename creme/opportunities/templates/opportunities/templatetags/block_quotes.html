@@ -1,22 +1,15 @@
 {% load i18n %}
-{% load media %}
-{% load creme_block %}
-{% comment %}<script type="text/javascript">
-    creme.include('{{MEDIA_URL}}js/models/relations.js', 'js');
-</script>{% endcomment %}
+{% load creme_core_tags %}{% load creme_block %}{% load creme_widgets %}
+{% has_perm_to link object as link_perm %}{% has_perm_to unlink object as unlink_perm %}{% comment %}{% has_perm_to create ct as creation_perm %}{% endcomment %}
 <table  class="table_detail_view ui-corner-all" id={{block_name}}>
     {% get_block_header colspan=4 %}
         <th style="width: 80%;" class="collapser" align="left">{% get_block_title _('%s Proposed Quote') _('%s Proposed Quotes') 'invoice_48.png' _('Quotes') %}</th>
         <th style="width: 20%;" align="right">
             <div class="buttons">
-                <a class="link" onclick="creme.relations.handleAddFromPredicateEntity('/creme_core/relation/add/from/predicate/{{predicate_id}}/entity/{{object.id}}/{{ct_id}}', '{{predicate_id}}', '{{object.id}}', {% get_block_reload_uri %});">
-                    <img src="{% media_url 'images/link_22.png' %}" border="0" title="{% trans "Link to an existing quote" %}" alt="{% trans "Link to an existing quote" %}" />
-                    {% trans "Link to an existing quote" %}
-                </a>
-                <a class="add" href="/opportunities/opportunity/generate_new_doc/{{object.id}}/{{ct_id}}">
-                    <img src="{% media_url 'images/add_22.png' %}" border="0" title="{% trans "Generate a new current quote" %}" alt="{% trans "Generate a new current quote" %}" />
-                    {% trans "Generate a new current quote" %}
-                </a>
+                {% get_line_relator to_subject object with_rtype_id predicate_id with_ct_id ct.id with_label _("Link to an existing quote") with_perms link_perm %}
+                {% with _("Generate a new current quote") as newdoc_title %}
+                    {% include 'opportunities/templatetags/block_line_newdoc.html' %}
+                {% endwith %}
             </div>
         </th>
     {% end_get_block_header %}
@@ -28,27 +21,26 @@
                 <th class="block_header_line_dark">{% trans "Current quote ?" %}</th>
                 <th class="block_header_line_dark">{% trans "Unlink" %}</th>
             </tr>
-            {% for quote in page.object_list %}
-                <!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
-                <tr>
-                    <td class="{{row_color}}">{{quote.number}}</td>
-                    <td class="{{row_color}}">
-                        <a href="{{quote.get_absolute_url}}">{{quote.name}}</a>
-                    </td>
-                    <td class="{{row_color}}">
-                        {% if quote.pk == current_quote_id %}
-                            <strong>Oui</strong>
-                        {% else %}
-                            <a href="/opportunities/opportunity/{{object.pk}}/linked/quote/{{quote.pk}}/set_current/">
-                                {% trans "Become" %}
-                            </a>
-                        {% endif %}
-                    </td>
-                    <td class="{{row_color}}" align="center" valign="center" style="width:10%;">
-                        {% get_line_unlinker at_url '/creme_core/relation/delete/similar' with_args "{'subject_id':{{object.pk}}, 'type':'{{predicate_id}}', 'object_id':{{quote.pk}} }" with_perms 1 %}
-                    </td>
-                </tr>
-            {% endfor %}
+            {% with object.get_current_quote_id as current_quote_id %}
+                {% for quote in page.object_list %}<!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
+                    <tr>
+                        <td class="{{row_color}}">{{quote.number}}</td>
+                        <td class="{{row_color}}">{% widget_entity_hyperlink quote user %}</td>
+                        <td class="{{row_color}}">
+                            {% if quote.pk == current_quote_id %}
+                                <strong>{% trans "Yes" %}</strong>
+                            {% else %}
+                                {% has_perm_to link quote as quote_link_perm %}
+                                <button type="button" {% if not link_perm or not quote_link_perm %}disabled="true"{% else %}onclick="creme.utils.postNReload('/opportunities/opportunity/{{object.pk}}/linked/quote/{{quote.pk}}/set_current/', {% get_block_reload_uri %})"{% endif %} name="set_current_quote{{quote.id}}">{% trans "Become" %}</button>
+                            {% endif %}
+                        </td>
+                        <td class="{{row_color}}" align="center" valign="center" style="width:10%;">
+                            {% has_perm_to unlink quote as quote_unlink_perm %}{% comment %}TODO: specilized view to delete 'current doc' relation too ??{% endcomment %}
+                            {% get_line_unlinker at_url '/creme_core/relation/delete/similar' with_args "{'subject_id':{{object.pk}}, 'type':'{{predicate_id}}', 'object_id':{{quote.pk}} }" with_perms unlink_perm|and_op:quote_unlink_perm %}
+                        </td>
+                    </tr>
+                {% endfor %}
+            {% endwith %}
         {% else %}
             <tr>
                 <td class="block_line_dark">{% trans "No quote for the moment" %}</td>

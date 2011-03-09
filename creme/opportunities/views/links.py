@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.http import HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect, Http404
 from django.shortcuts import get_object_or_404
 from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.contenttypes.models import ContentType
@@ -32,24 +32,33 @@ from billing.models import Quote
 from opportunities.models import Opportunity
 
 
-#TODO: use POST ??
 @login_required
 @permission_required('opportunities')
 def set_current_quote(request, opp_id, quote_id):
-    opp = get_object_or_404(Opportunity, pk=opp_id)
+    if request.method != 'POST':
+        raise Http404('This view accepts only POST method')
 
-    opp.can_change_or_die(request.user)
+    #NB: we do not check if the relation to the current quote (if it exists) can be deleted (can_unlink_or_die())
+    opp = get_object_or_404(Opportunity, pk=opp_id)
+    user = request.user
+
+    opp.can_link_or_die(user)
 
     quote = get_object_or_404(Quote, pk=quote_id)
-    #TODO: credential for quote ??? link credential instead ?????
+    quote.can_link_or_die(user)
 
     #TODO: modify the existing relation instead of delete it ???
     ct = ContentType.objects.get_for_model(Quote)
 
     #TODO. delete() directly on the filter ????
-    for relation in Relation.objects.filter(object_entity=opp, type=REL_SUB_CURRENT_DOC, subject_entity__entity_type=ct):
+    for relation in Relation.objects.filter(object_entity=opp.id, type=REL_SUB_CURRENT_DOC, subject_entity__entity_type=ct):
         relation.delete()
 
-    Relation.create(quote, REL_SUB_CURRENT_DOC, opp)
+    Relation.objects.create(subject_entity=quote, type_id=REL_SUB_CURRENT_DOC,
+                            object_entity=opp, user=user
+                           )
+
+    if request.is_ajax():
+        return HttpResponse("", mimetype="text/javascript")
 
     return HttpResponseRedirect(opp.get_absolute_url())

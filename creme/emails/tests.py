@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 
-from datetime import datetime
+from datetime import datetime, timedelta
 from StringIO import StringIO
 
-from django.test import TestCase
 from django.contrib.auth.models import User
+from django.contrib.contenttypes.models import ContentType
 
-from creme_core.management.commands.creme_populate import Command as PopulateCommand
+from creme_core.tests.base import CremeTestCase
 
 from persons.models import Contact, Organisation
 
@@ -14,79 +14,105 @@ from emails.models import *
 from emails.models.sending import SENDING_TYPE_IMMEDIATE, SENDING_TYPE_DEFERRED
 
 
-class EmailsTestCase(TestCase):
-    def login(self):
-        if not self.user:
-            user = User.objects.create(username='Tetsuo')
-            user.set_password(self.password)
-            user.is_superuser = True
-            user.save()
-            self.user = user
-
-        logged = self.client.login(username=self.user.username, password=self.password)
-        self.assert_(logged, 'Not logged in')
-
+class CampaignTestCase(CremeTestCase):
     def setUp(self):
-        PopulateCommand().handle(application=['creme_core', 'emails'])
-        self.password = 'test'
-        self.user = None
-
+        #self.populate('creme_core', 'emails')
         self.login()
 
-    def test_campaign_createview01(self):
-        response = self.client.get('/emails/campaign/add')
-        self.assertEqual(response.status_code, 200)
+    def test_create(self):
+        url = '/emails/campaign/add'
+        self.assertEqual(200, self.client.get(url).status_code)
 
         name     = 'my_campaign'
-        response = self.client.post('/emails/campaign/add',
-                                    follow=True,
+        response = self.client.post(url, follow=True,
                                     data={
                                             'user': self.user.pk,
                                             'name': name,
                                          }
                                    )
-        self.assertEqual(response.status_code, 200)
+        self.assertNoFormError(response)
+        self.assertEqual(200, response.status_code)
 
         try:
             EmailCampaign.objects.get(name=name)
         except Exception, e:
             self.fail(str(e))
 
-    def test_ml_createview01(self):
-        response = self.client.get('/emails/mailing_list/add')
-        self.assertEqual(response.status_code, 200)
+    def test_edit(self):
+        name = 'my_campaign'
+        camp = EmailCampaign.objects.create(user=self.user, name=name)
 
-        name     = 'my_mailinglist'
-        response = self.client.post('/emails/mailing_list/add',
-                                    follow=True,
+        url = '/emails/campaign/edit/%s' % camp.id
+        self.assertEqual(200, self.client.get(url).status_code)
+
+        name += '_edited'
+        response = self.client.post(url, follow=True,
                                     data={
                                             'user': self.user.pk,
                                             'name': name,
                                          }
                                    )
-        self.assertEqual(response.status_code, 200)
+        self.assertNoFormError(response)
+        self.assertEqual(200,  response.status_code)
+        self.assertEqual(name, EmailCampaign.objects.get(pk=camp.id).name)
+
+    #TODO: test portal, listviews
+
+class MailingListsTestCase(CremeTestCase):
+    def setUp(self):
+        self.login()
+
+    def test_create01(self):
+        url = '/emails/mailing_list/add'
+        self.assertEqual(200, self.client.get(url).status_code)
+
+        name     = 'my_mailinglist'
+        response = self.client.post(url, follow=True,
+                                    data={
+                                            'user': self.user.pk,
+                                            'name': name,
+                                         }
+                                   )
+        self.assertNoFormError(response)
+        self.assertEqual(200, response.status_code)
 
         try:
             MailingList.objects.get(name=name)
         except Exception, e:
             self.fail(str(e))
 
+    def test_edit(self):
+        name = 'my_mailinglist'
+        mlist = MailingList.objects.create(user=self.user,   name=name)
+        url = '/emails/mailing_list/edit/%s' % mlist.id
+        self.assertEqual(200, self.client.get(url).status_code)
+
+        name += '_edited'
+        response = self.client.post(url, follow=True,
+                                    data={
+                                            'user': self.user.pk,
+                                            'name': name,
+                                         }
+                                   )
+        self.assertNoFormError(response)
+        self.assertEqual(200, response.status_code)
+        self.assertEqual(name, MailingList.objects.get(pk=mlist.id).name)
+
     def test_ml_and_campaign(self):
         campaign = EmailCampaign.objects.create(user=self.user, name='camp01')
         mlist    = MailingList.objects.create(user=self.user,   name='ml01')
-
         self.failIf(campaign.mailing_lists.all())
 
-        response = self.client.get('/emails/campaign/%s/mailing_list/add' % campaign.id)
-        self.assertEqual(response.status_code, 200)
+        url = '/emails/campaign/%s/mailing_list/add' % campaign.id
+        self.assertEqual(200, self.client.get(url).status_code)
 
-        response = self.client.post('/emails/campaign/%s/mailing_list/add' % campaign.id,
-                                    follow=True,
+        response = self.client.post(url, follow=True,
                                     data={
                                             'mailing_lists': '%s,' % mlist.id, #see MultiCremeEntityField
                                          }
                                    )
-        self.assertEqual(response.status_code, 200)
+        self.assertNoFormError(response)
+        self.assertEqual(200, response.status_code)
 
         try:
             campaign.mailing_lists.filter(pk=mlist.id)[0]
@@ -96,21 +122,19 @@ class EmailsTestCase(TestCase):
         response = self.client.post('/emails/campaign/%s/mailing_list/delete' % campaign.id,
                                     follow=True, data={'id': mlist.id}
                                    )
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(200, response.status_code)
         self.failIf(campaign.mailing_lists.all())
 
     def test_recipients01(self):
         mlist = MailingList.objects.create(user=self.user, name='ml01')
         self.failIf(mlist.emailrecipient_set.all())
 
-        response = self.client.get('/emails/mailing_list/%s/recipient/add' % mlist.id)
-        self.assertEqual(response.status_code, 200)
+        url = '/emails/mailing_list/%s/recipient/add' % mlist.id
+        self.assertEqual(200, self.client.get(url).status_code)
 
         recipients = ['spike.spiegel@bebop.com', 'jet.black@bebop.com']
-        response = self.client.post('/emails/mailing_list/%s/recipient/add' % mlist.id,
-                                    follow=True, data={'recipients': '\n'.join(recipients)}
-                                   )
-        self.assertEqual(response.status_code, 200)
+        response = self.client.post(url, follow=True, data={'recipients': '\n'.join(recipients)})
+        self.assertEqual(200, response.status_code)
         self.assertEqual(set(recipients), set(r.address for r in mlist.emailrecipient_set.all()))
 
         #################
@@ -125,11 +149,9 @@ class EmailsTestCase(TestCase):
 
         #################
         recipient = mlist.emailrecipient_set.all()[0]
-
-        response = self.client.post('/emails/mailing_list/recipient/delete',
-                                    follow=True, data={'id': recipient.id}
-                                   )
-        self.assertEqual(response.status_code, 200)
+        ct = ContentType.objects.get_for_model(EmailRecipient)
+        response = self.client.post('/creme_core/entity/delete_related/%s' % ct.id, follow=True, data={'id': recipient.id})
+        self.assertEqual(200, response.status_code)
 
         addresses = set(r.address for r in mlist.emailrecipient_set.all())
         self.assertEqual(len(recipients) - 1, len(addresses))
@@ -137,40 +159,34 @@ class EmailsTestCase(TestCase):
 
     def test_recipients02(self):
         mlist = MailingList.objects.create(user=self.user, name='ml01')
-
-        response = self.client.get('/emails/mailing_list/%s/recipient/add_csv' % mlist.id)
-        self.assertEqual(response.status_code, 200)
+        url = '/emails/mailing_list/%s/recipient/add_csv' % mlist.id
+        self.assertEqual(200, self.client.get(url).status_code)
 
         recipients = ['spike.spiegel@bebop.com', 'jet.black@bebop.com']
 
         csvfile = StringIO('\n'.join(recipients))
         csvfile.name = 'recipients.csv' #Django uses this
 
-        response = self.client.post('/emails/mailing_list/%s/recipient/add_csv' % mlist.id,
-                                    data={'recipients': csvfile}
-                                   )
-        self.failIf(response.context['form'].errors)
+        response = self.client.post(url, data={'recipients': csvfile})
+        self.assertNoFormError(response)
         self.assertEqual(set(recipients), set(r.address for r in mlist.emailrecipient_set.all()))
 
         csvfile.close()
 
     def test_ml_contacts01(self):
         mlist = MailingList.objects.create(user=self.user, name='ml01')
-
-        response = self.client.get('/emails/mailing_list/%s/contact/add' % mlist.id)
-        self.assertEqual(response.status_code, 200)
+        url = '/emails/mailing_list/%s/contact/add' % mlist.id
+        self.assertEqual(200, self.client.get(url).status_code)
 
         create = Contact.objects.create
-        recipients = [
-                        create(user=self.user, first_name='Spike', last_name='Spiegel', email='spike.spiegel@bebop.com'),
-                        create(user=self.user, first_name='Jet',   last_name='Black',   email='jet.black@bebop.com')
+        recipients = [create(user=self.user, first_name='Spike', last_name='Spiegel', email='spike.spiegel@bebop.com'),
+                      create(user=self.user, first_name='Jet',   last_name='Black',   email='jet.black@bebop.com'),
                      ]
-        response = self.client.post('/emails/mailing_list/%s/contact/add' % mlist.id,
-                                    data={
+        response = self.client.post(url, data={
                                             'recipients': ','.join(str(c.id) for c in recipients) #see MultiCremeEntityField
                                          }
                                    )
-        self.failIf(response.context['form'].errors)
+        self.assertNoFormError(response)
         self.assertEqual(set(c.id for c in recipients), set(c.id for c in mlist.contacts.all()))
 
         ################
@@ -183,42 +199,40 @@ class EmailsTestCase(TestCase):
         self.assertEqual(len(recipients) -1, len(contacts))
         self.assert_(contact_to_del not in contacts)
 
-    def test_ml_contacts02(self): #TODO test with a True filter too
+    def test_ml_contacts_filter01(self): #TODO test with a True filter too
         mlist = MailingList.objects.create(user=self.user, name='ml01')
-
-        response = self.client.get('/emails/mailing_list/%s/contact/add_from_filter' % mlist.id)
-        self.assertEqual(response.status_code, 200)
+        url ='/emails/mailing_list/%s/contact/add_from_filter' % mlist.id
+        self.assertEqual(200, self.client.get(url).status_code)
 
         create = Contact.objects.create
         recipients = [
                         create(user=self.user, first_name='Spike', last_name='Spiegel', email='spike.spiegel@bebop.com'),
                         create(user=self.user, first_name='Jet',   last_name='Black',   email='jet.black@bebop.com')
                      ]
-        response = self.client.post('/emails/mailing_list/%s/contact/add_from_filter' % mlist.id,
+        response = self.client.post(url,
                                     data={
                                             'filters': 0, #means 'All'
                                          }
                                    )
-        self.failIf(response.context['form'].errors)
+        self.assertNoFormError(response)
         self.assertEqual(set(c.id for c in recipients), set(c.id for c in mlist.contacts.all()))
 
     def test_ml_orgas01(self):
         mlist = MailingList.objects.create(user=self.user, name='ml01')
-
-        response = self.client.get('/emails/mailing_list/%s/organisation/add' % mlist.id)
-        self.assertEqual(response.status_code, 200)
+        url = '/emails/mailing_list/%s/organisation/add' % mlist.id
+        self.assertEqual(200, self.client.get(url).status_code)
 
         create = Organisation.objects.create
         recipients = [
                         create(user=self.user, name='NERV',  email='contact@nerv.jp'),
                         create(user=self.user, name='Seele', email='contact@seele.jp')
                      ]
-        response = self.client.post('/emails/mailing_list/%s/organisation/add' % mlist.id,
+        response = self.client.post(url,
                                     data={
                                             'recipients': ','.join(str(c.id) for c in recipients) #see MultiCremeEntityField
                                          }
                                    )
-        self.failIf(response.context['form'].errors)
+        self.assertNoFormError(response)
         self.assertEqual(set(c.id for c in recipients), set(c.id for c in mlist.organisations.all()))
 
         ################
@@ -228,26 +242,26 @@ class EmailsTestCase(TestCase):
                                    )
 
         orgas = set(mlist.organisations.all())
-        self.assertEqual(len(recipients) -1, len(orgas))
+        self.assertEqual(len(recipients) - 1, len(orgas))
         self.assert_(orga_to_del not in orgas)
 
-    def test_ml_orgas02(self): #TODO test with a True filter too
+    def test_ml_orgas_filter01(self): #TODO test with a True filter too
         mlist = MailingList.objects.create(user=self.user, name='ml01')
 
-        response = self.client.get('/emails/mailing_list/%s/organisation/add_from_filter' % mlist.id)
-        self.assertEqual(response.status_code, 200)
+        url = '/emails/mailing_list/%s/organisation/add_from_filter' % mlist.id
+        self.assertEqual(200, self.client.get(url).status_code)
 
         create = Organisation.objects.create
         recipients = [
                         create(user=self.user, name='NERV',  email='contact@nerv.jp'),
                         create(user=self.user, name='Seele', email='contact@seele.jp')
                      ]
-        response = self.client.post('/emails/mailing_list/%s/organisation/add_from_filter' % mlist.id,
+        response = self.client.post(url,
                                     data={
                                             'filters': 0, #means 'All'
                                          }
                                    )
-        self.failIf(response.context['form'].errors)
+        self.assertNoFormError(response)
         self.assertEqual(set(c.id for c in recipients), set(c.id for c in mlist.organisations.all()))
 
     def test_ml_tree01(self):
@@ -258,12 +272,10 @@ class EmailsTestCase(TestCase):
         self.failIf(mlist01.children.all())
         self.failIf(mlist02.children.all())
 
-        response = self.client.get('/emails/mailing_list/%s/child/add' % mlist01.id)
-        self.assertEqual(response.status_code, 200)
+        url = '/emails/mailing_list/%s/child/add' % mlist01.id
+        self.assertEqual(200, self.client.get(url).status_code)
 
-        response = self.client.post('/emails/mailing_list/%s/child/add' % mlist01.id,
-                                    data={'child': mlist02.id}
-                                   )
+        self.assertEqual(200, self.client.post(url, data={'child': mlist02.id}).status_code)
         self.assertEqual([mlist02.id], [ml.id for ml in mlist01.children.all()])
         self.failIf(mlist02.children.all())
 
@@ -271,7 +283,7 @@ class EmailsTestCase(TestCase):
         response = self.client.post('/emails/mailing_list/%s/child/delete' % mlist01.id,
                                     data={'id': mlist02.id}, follow=True
                                    )
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(200, response.status_code)
         self.failIf(mlist01.children.all())
         self.failIf(mlist02.children.all())
 
@@ -304,14 +316,19 @@ class EmailsTestCase(TestCase):
                                    )
         self.assert_(response.context['form'].errors)
 
-    def test_template_createview01(self): #TODO: test attachments too
-        response = self.client.get('/emails/template/add')
-        self.assertEqual(response.status_code, 200)
+
+class TemplatesTestCase(CremeTestCase):
+    def setUp(self):
+        self.login()
+
+    def test_createview01(self): #TODO: test attachments too
+        url = '/emails/template/add'
+        self.assertEqual(200, self.client.get(url).status_code)
 
         name    = 'my_template'
         subject = 'Insert a joke *here*'
         body    = 'blablabla'
-        response = self.client.post('/emails/template/add', follow=True,
+        response = self.client.post(url, follow=True,
                                     data={
                                             'user':    self.user.pk,
                                             'name':    name,
@@ -319,7 +336,8 @@ class EmailsTestCase(TestCase):
                                             'body':    body,
                                          }
                                    )
-        self.assertEqual(response.status_code, 200)
+        self.assertNoFormError(response)
+        self.assertEqual(200, response.status_code)
 
         try:
             template = EmailTemplate.objects.get(name=name)
@@ -329,7 +347,12 @@ class EmailsTestCase(TestCase):
         self.assertEqual(subject, template.subject)
         self.assertEqual(body,    template.body)
 
-    def test_sending01(self):
+
+class SendingsTestCase(CremeTestCase):
+    def setUp(self):
+        self.login()
+
+    def test_create01(self):
         # We create voluntarily duplicates (recipients taht have same addresses
         # than Contact/Organisation, MailingList that contain the same addresses)
         # EmailSending should not contain duplicates.
@@ -364,9 +387,8 @@ class EmailsTestCase(TestCase):
         create_recipient(ml=mlist03, address=addresses[6])
 
         create_contact = Contact.objects.create
-        contacts = [
-                    create_contact(user=self.user, first_name='Spike', last_name='Spiegel', email=addresses[0]),
-                    create_contact(user=self.user, first_name='Jet',   last_name='Black',   email=addresses[1])
+        contacts = [create_contact(user=self.user, first_name='Spike', last_name='Spiegel', email=addresses[0]),
+                    create_contact(user=self.user, first_name='Jet',   last_name='Black',   email=addresses[1]),
                    ]
 
         mlist01.contacts.add(contacts[0])
@@ -374,10 +396,9 @@ class EmailsTestCase(TestCase):
         mlist02.contacts.add(contacts[1])
 
         create_orga = Organisation.objects.create
-        orgas = [
-                        create_orga(user=self.user, name='NERV',  email=addresses[5]),
-                        create_orga(user=self.user, name='Seele', email=addresses[6])
-                     ]
+        orgas = [create_orga(user=self.user, name='NERV',  email=addresses[5]),
+                 create_orga(user=self.user, name='Seele', email=addresses[6]),
+                ]
 
         mlist02.organisations.add(orgas[0])
         mlist03.organisations.add(orgas[0])
@@ -414,13 +435,13 @@ class EmailsTestCase(TestCase):
         addr_set = set(mail.recipient for mail in mails)
         self.assert_(all(address in addr_set for address in addresses))
 
-        related_set = set(mail.recipient_id for mail in mails)
+        related_set = set(mail.recipient_entity_id for mail in mails)
         self.assert_(all(c.id in related_set for c in contacts))
         self.assert_(all(o.id in related_set for o in orgas))
 
         #TODO: use the Django fake email framework to test even better
 
-    def test_sending02(self): #test template
+    def test_create02(self): #test template
         first_name = 'Spike'
         last_name  = 'Spiegel'
 
@@ -442,8 +463,8 @@ class EmailsTestCase(TestCase):
                                             'template': template.id,
                                     }
                                    )
-        self.failIf(response.context['form'].errors)
-        self.assertEqual(response.status_code, 200)
+        self.assertNoFormError(response)
+        self.assertEqual(200, response.status_code)
 
         try:
             sending = EmailCampaign.objects.get(pk=camp.id).sendings_set.all()[0]
@@ -459,7 +480,7 @@ class EmailsTestCase(TestCase):
 
         self.assertEqual('Your name is: %s %s !' % (first_name, last_name), mail.get_body())
 
-    def test_sending03(self): #test deferred
+    def test_create03(self): #test deferred
         camp     = EmailCampaign.objects.create(user=self.user, name='camp01')
         template = EmailTemplate.objects.create(user=self.user, name='name', subject='subject', body='body')
 
@@ -476,8 +497,8 @@ class EmailsTestCase(TestCase):
                                             'minute':       sending_date.minute,
                                     }
                                    )
-        self.failIf(response.context['form'].errors)
-        self.assertEqual(response.status_code, 200)
+        self.assertNoFormError(response)
+        self.assertEqual(200, response.status_code)
 
         try:
             sending = EmailCampaign.objects.get(pk=camp.id).sendings_set.all()[0]
@@ -498,10 +519,118 @@ class EmailsTestCase(TestCase):
 
         response = self.client.post('/emails/campaign/%s/sending/add' % camp.id,
                                     data = {
-                                            'sender':   'vicious@reddragons.mrs',
-                                            'type':     SENDING_TYPE_DEFERRED,
-                                            'template': template.id,
-                                            'sending_date': now.replace(day=now.day - 1).strftime('%Y-%m-%d'), #past: KO
+                                            'sender':       'vicious@reddragons.mrs',
+                                            'type':         SENDING_TYPE_DEFERRED,
+                                            'template':     template.id,
+                                            'sending_date': (now - timedelta(days=1)).strftime('%Y-%m-%d'), #past: KO
                                     }
                                    )
         self.assert_(response.context['form'].errors)
+
+
+class SignaturesTestCase(CremeTestCase):
+    #def setUp(self):
+        #self.login()
+
+    def login(self, is_superuser=True):
+        super(SignaturesTestCase, self).login(is_superuser, allowed_apps=['emails'])
+
+    def test_create01(self):
+        self.login()
+        self.failIf(EmailSignature.objects.count())
+
+        url = '/emails/signature/add'
+        self.assertEqual(200, self.client.get(url).status_code)
+
+        name = 'Polite signature'
+        body = 'I love you'
+        response = self.client.post(url, data = {
+                                                    'name': name,
+                                                    'body': body,
+                                                }
+                                   )
+        self.assertNoFormError(response)
+        self.assertEqual(200, response.status_code)
+
+        try:
+            signature = EmailSignature.objects.get(name=name)
+        except Exception, e:
+            self.fail(str(e))
+
+        self.assertEqual(body,         signature.body)
+        self.assertEqual(self.user.id, signature.user_id)
+        self.failIf(signature.images.count())
+
+    #TODO: create with images....
+
+    def test_edit01(self):
+        self.login()
+
+        name = 'Funny signature'
+        body = 'I love you... not'
+        signature = EmailSignature.objects.create(user=self.user, name=name, body=body)
+
+        url = '/emails/signature/edit/%s' % signature.id
+        self.assertEqual(200, self.client.get(url).status_code)
+
+        name += '_edited'
+        body += '_edited'
+        response = self.client.post(url, data = {
+                                                    'name': name,
+                                                    'body': body,
+                                                }
+                                   )
+        self.assertNoFormError(response)
+        self.assertEqual(200, response.status_code)
+
+        signature = EmailSignature.objects.get(pk=signature.id) #refresh
+        self.assertEqual(name,         signature.name)
+        self.assertEqual(body,         signature.body)
+        self.assertEqual(self.user.id, signature.user_id)
+        self.failIf(signature.images.count())
+
+    #TODO: edit with images....
+
+    def test_edit02(self): #'perm' error
+        self.login(is_superuser=False)
+
+        signature = EmailSignature.objects.create(user=self.other_user, name='Funny signature', body='I love you... not')
+        self.assertEqual(403, self.client.get('/emails/signature/edit/%s' % signature.id).status_code)
+
+    def test_edit03(self): #superuser can delete all signatures
+        self.login()
+
+        signature = EmailSignature.objects.create(user=self.other_user, name='Funny signature', body='I love you... not')
+        self.assertEqual(200, self.client.get('/emails/signature/edit/%s' % signature.id).status_code)
+
+    def test_delete01(self):
+        self.login()
+
+        signature = EmailSignature.objects.create(user=self.user, name="Spike's one", body='See U space cowboy')
+        self.assertEqual(200, self.client.post('/emails/signature/delete', data={'id': signature.id}, follow=True).status_code)
+        self.failIf(EmailSignature.objects.filter(pk=signature.id).count())
+
+    def test_delete02(self): #'perm' error
+        self.login(is_superuser=False)
+
+        signature = EmailSignature.objects.create(user=self.other_user, name="Spike's one", body='See U space cowboy')
+        self.assertEqual(403, self.client.post('/emails/signature/delete', data={'id': signature.id}, follow=True).status_code)
+        self.assertEqual(1, EmailSignature.objects.filter(pk=signature.id).count())
+
+    def test_delete03(self): #deps
+        self.login()
+
+        signature = EmailSignature.objects.create(user=self.user, name="Spike's one", body='See U space cowboy')
+        template  = EmailTemplate.objects.create(user=self.user, name='name', signature=signature,
+                                                 subject='Hello', body='Do you know the real folk blues ?'
+                                                )
+
+        self.assertEqual(200, self.client.post('/emails/signature/delete', data={'id': signature.id}, follow=True).status_code)
+        self.failIf(EmailSignature.objects.filter(pk=signature.id).count())
+
+        try:
+            template = EmailTemplate.objects.get(pk=template.id)
+        except Exception, e:
+            self.fail(str(e))
+
+        self.assert_(template.signature is None)

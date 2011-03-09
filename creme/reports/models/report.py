@@ -31,9 +31,6 @@ from creme_core.models.header_filter import HFI_FUNCTION, HFI_RELATION, HFI_FIEL
 
 from reports.report_aggregation_registry import field_aggregation_registry
 
-report_prefix_url   = '/reports'
-report_template_dir = 'reports'
-
 
 class DropLine(Exception):
     pass
@@ -76,7 +73,7 @@ class Field(CremeModel):
     @staticmethod
     def get_instance_from_hf_item(hf_item):
         """
-            @Returns : A Field instance (not saved !) built from an HeaderFilterItem instance
+            @returns : A Field instance (not saved !) built from an HeaderFilterItem instance
         """
         if hf_item.type == HFI_RELATION:
             return Field(name=hf_item.relation_predicat_id, title=hf_item.title, order=hf_item.order, type=hf_item.type)
@@ -98,7 +95,7 @@ class Field(CremeModel):
 
     def get_children_fields_with_hierarchy(self):
         """
-            @Returns: A "hierarchical" dict in the format :
+            @return: A "hierarchical" dict in the format :
             {'children': [{'children': [], 'field': <Field: Prénom>, 'report': None},
                           {'children': [],
                            'field': <Field: Fonction - Intitulé>,
@@ -275,18 +272,14 @@ class Report(CremeEntity):
         return self.name
 
     def get_absolute_url(self):
-        return "%s/report/%s" % (report_prefix_url, self.id)
+        return "/reports/report/%s" % self.id
 
     def get_edit_absolute_url(self):
-        return "%s/report/edit/%s" % (report_prefix_url, self.id)
+        return "/reports/report/edit/%s" % self.id
 
     @staticmethod
     def get_lv_absolute_url():
-        """url for list_view """
-        return "%s/reports" % report_prefix_url
-
-    def get_delete_absolute_url(self):
-        return "%s/report/delete/%s" % (report_prefix_url, self.id)
+        return "/reports/reports"
 
     def get_ascendants_reports(self):
         fields = Field.objects.filter(report__id=self.id) #TODO: use related name ?
@@ -406,7 +399,7 @@ class Report(CremeEntity):
     def get_children_fields_with_hierarchy(self):
         return [c.get_children_fields_with_hierarchy() for c in self.columns.all()]
 
-    def get_children_fields_flat(self):
+    def get_children_fields_flat(self): #TODO: use itertools.chain ??
         children = []
 
         for c in self.columns.all():

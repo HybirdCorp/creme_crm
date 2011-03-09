@@ -28,7 +28,7 @@ from django.db.models import Q
 
 from creme_core.models import PreferedMenuItem, ButtonMenuItem
 from creme_core.gui.menu import creme_menu, new_creme_menu
-from creme_core.gui.last_viewed import last_viewed_items
+from creme_core.gui.last_viewed import LastViewedItem
 from creme_core.gui.button_menu import button_registry
 
 
@@ -106,7 +106,7 @@ def get_prefered_menu(request):
 
 @register.inclusion_tag('creme_core/templatetags/last_items_menu.html')
 def get_last_items_menu(request):
-    return {'items': last_viewed_items(request)}
+    return {'items': LastViewedItem.get_all(request)}
 
 @register.inclusion_tag('creme_core/templatetags/menu_buttons.html', takes_context=True)
 def get_button_menu(context):

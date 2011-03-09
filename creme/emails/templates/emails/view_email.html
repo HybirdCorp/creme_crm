@@ -18,8 +18,7 @@
             </th>
         </tr>
     </thead>
-    <tbody class="collapsable">
-        <!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
+    <tbody class="collapsable"><!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
         <tr>
             <th class="block_header_line_dark">{% trans "Recipient" %}</th>
             <td class="{{row_color}}">{{mail|get_html_field_value:"recipient"}}</td>
@@ -42,7 +41,7 @@
         </tr>
         <tr>
             <th class="block_header_line_dark">{% trans "Subject" %}</th>
-            <td class="{{row_color}}">{{mail|get_html_field_value:"subject"}}</td>
+            <td class="{{row_color}}">{{mail.sending|get_html_field_value:"subject"}}</td>
         </tr>
         <tr>
             <th class="block_header_line_dark">{% trans "Body" %}</th>

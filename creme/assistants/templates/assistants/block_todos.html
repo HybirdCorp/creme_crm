@@ -1,6 +1,5 @@
-{% load i18n %}
-{% load media %}
-{% load creme_core_tags %}{% load creme_block %}
+{% load i18n %}{% load media %}
+{% load creme_core_tags %}{% load creme_block %}{% load creme_widgets %}
 <table class="table_detail_view ui-corner-all" id={{block_name}}>
     {% get_block_header colspan=8 %}
         <th style="width: 80%;" class="collapser">{% get_block_title _('%s Todo') _('%s Todos') 'memo_48.png' _('Todo') %}</th>
@@ -27,13 +26,10 @@
                 <th class="block_header_line_dark">{% trans "Validate" %}</th>
                 <th class="block_header_line_dark">{% trans "Actions" %}</th>
             </tr>
-            {% for todo in page.object_list %}
-                <!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
+            {% for todo in page.object_list %}<!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
                 <tr>
                     {% if not object %}
-                        <td class="{{row_color}}">
-                            <a href="{{todo.creme_entity.get_absolute_url}}">{{todo.creme_entity}}</a>
-                        </td>
+                        <td class="{{row_color}}">{% widget_entity_hyperlink todo.creme_entity user %}</td>
                     {% endif %}
                     <td class="{{row_color}}">{{todo.for_user}}</td>
                     <td class="{{row_color}}">{{todo.creation_date|date:"d/m/y"}}</td>
@@ -55,7 +51,7 @@
                     <td class="{{row_color}}" align="center" valign="center" style="width:10%;">
                         {% has_perm_to change todo.creme_entity as has_perm %}
                         {% get_line_editor at_url '/assistants/todo/edit/{{todo.id}}/' with_perms has_perm %}
-                        {% get_line_deletor2 at_url '/assistants/todo/delete' with_args "{'id' : {{todo.id}} }" with_perms has_perm %}
+                        {% get_line_deletor2 at_url '/creme_core/entity/delete_related/{{ct_id}}' with_args "{'id' : {{todo.id}} }" with_perms has_perm %}
                     </td>
                 </tr>
             {% endfor %}

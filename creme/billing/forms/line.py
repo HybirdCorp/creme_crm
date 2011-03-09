@@ -46,14 +46,14 @@ class LineCreateForm(CremeModelWithUserForm):
     class Meta:
         exclude = ('document', 'is_paid')
 
-    def __init__(self, document, *args, **kwargs):
+    def __init__(self, entity, *args, **kwargs):
         super(LineCreateForm, self).__init__(*args, **kwargs)
-        self.document = document
+        self.document = entity
 
     def save(self):
         instance = self.instance
         created = not bool(instance.pk)
-        instance.document = self.document #TODO: see if 'document.id' avoid a query
+        instance.document = self.document
         instance.is_paid = False
         super(LineCreateForm, self).save()
 
@@ -93,8 +93,9 @@ class ProductLineOnTheFlyCreateForm(LineCreateForm):
         model = ProductLine
         exclude = LineCreateForm.Meta.exclude + ('related_item',)
 
-    def __init__(self, document, *args, **kwargs):
-        super(ProductLineOnTheFlyCreateForm, self).__init__(document, *args, **kwargs)
+    def __init__(self, *args, **kwargs):
+        super(ProductLineOnTheFlyCreateForm, self).__init__(*args, **kwargs)
+
         if self.instance.pk is not None:
             self.blocks = FieldBlockManager(
                     ('general', ugettext(u'Line information'), ['on_the_fly_item', 'comment', 'quantity', 'unit_price',
@@ -172,8 +173,9 @@ class ServiceLineOnTheFlyCreateForm(LineCreateForm):
         model = ServiceLine
         exclude = LineCreateForm.Meta.exclude + ('related_item',)
 
-    def __init__(self, document, *args, **kwargs):
-        super(ServiceLineOnTheFlyCreateForm, self).__init__(document, *args, **kwargs)
+    def __init__(self, *args, **kwargs):
+        super(ServiceLineOnTheFlyCreateForm, self).__init__(*args, **kwargs)
+
         if self.instance.pk is not None:
             #TODO: remove the block 'additionnal' instead ??
             self.blocks = FieldBlockManager(

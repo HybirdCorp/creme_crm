@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2011  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -21,7 +21,7 @@
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.contenttypes.models import ContentType
 
-from creme_core.models import Relation
+from creme_core.models import CremeEntity, Relation
 from creme_core.gui.block import QuerysetBlock, list4url
 
 from persons.models import Contact
@@ -37,11 +37,6 @@ class ParticipantsBlock(QuerysetBlock):
     verbose_name  = _(u'Participants')
     template_name = 'activities/templatetags/block_participants.html'
 
-    #def detailview_display(self, context):
-        #activity = context['object']
-        #return self._render(self.get_block_template_context(context, activity.get_participant_relations(),
-                                                            #update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, activity.pk),
-                                                           #))
     def detailview_display(self, context):
         activity = context['object']
         btc = self.get_block_template_context(context,
@@ -49,7 +44,11 @@ class ParticipantsBlock(QuerysetBlock):
                                               update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, activity.pk),
                                              )
         relations = btc['page'].object_list
-        contacts = dict((c.id, c) for c in Contact.objects.filter(pk__in=[r.object_entity_id for r in relations]).select_related('user'))
+        #TODO: select_related(depth=1) ?? remove civility with better entity repr system ??
+        #TODO: move in Relation.populate_real_objects() (with new arg for fixed model) ???
+        contacts = dict((c.id, c) for c in Contact.objects.filter(pk__in=[r.object_entity_id for r in relations]).select_related('user', 'is_user', 'civility'))
+
+        CremeEntity.populate_credentials(contacts.values(), context['user'])
 
         for relation in relations:
             relation.object_entity = contacts[relation.object_entity_id]
@@ -69,12 +68,18 @@ class SubjectsBlock(QuerysetBlock):
     verbose_name  = _(u'Subjects')
     template_name = 'activities/templatetags/block_subjects.html'
 
-    #TODO: optimise (Relation.populate_real_object_entities)
     def detailview_display(self, context):
         activity = context['object']
-        return self._render(self.get_block_template_context(context, activity.get_subject_relations(),
-                                                            update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, activity.pk),
-                                                            ))
+        btc = self.get_block_template_context(context,
+                                              activity.relations.filter(type=REL_OBJ_ACTIVITY_SUBJECT).select_related('type', 'object_entity'),
+                                              update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, activity.pk),
+                                             )
+
+        relations = btc['page'].object_list
+        Relation.populate_real_object_entities(relations)
+        CremeEntity.populate_credentials([r.object_entity.get_real_entity() for r in relations], context['user'])
+
+        return self._render(btc)
 
 
 #TODO: need query optimisations (retrieve all relations in one query,
@@ -87,18 +92,27 @@ class FutureActivitiesBlock(QuerysetBlock):
     template_name = 'activities/templatetags/block_future_activities.html'
     configurable  = True
 
+    _RTYPES_2_POP = (REL_OBJ_PART_2_ACTIVITY, REL_OBJ_ACTIVITY_SUBJECT, REL_OBJ_LINKED_2_ACTIVITY)
+
     def _get_queryset_for_entity(self, entity, context):
         return Activity.get_future_linked(entity, context['today'])
 
     def _get_queryset_for_ctypes(self, ct_ids, context):
         return Activity.get_future_linked_for_ctypes(ct_ids, context['today'])
 
+    def _render(self, template_context):
+        #optimisations
+        activities = template_context['page'].object_list
+        user       = template_context['user']
+        CremeEntity.populate_relations(activities, self._RTYPES_2_POP, user)
+        CremeEntity.populate_credentials(activities, user)
+
+        return super(FutureActivitiesBlock, self)._render(template_context)
 
     def detailview_display(self, context):
         entity = context['object']
-
         return self._render(self.get_block_template_context(context,
-                                                            self._get_queryset_for_entity(entity, context),
+                                                            self._get_queryset_for_entity(entity, context).select_related('status'),
                                                             update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, entity.id),
                                                             predicate_id=REL_SUB_LINKED_2_ACTIVITY,
                                                             ct_id=ContentType.objects.get_for_model(Activity).id,
@@ -106,7 +120,7 @@ class FutureActivitiesBlock(QuerysetBlock):
 
     def portal_display(self, context, ct_ids):
         return self._render(self.get_block_template_context(context,
-                                                            self._get_queryset_for_ctypes(ct_ids, context),
+                                                            self._get_queryset_for_ctypes(ct_ids, context).select_related('status'),
                                                             update_url='/creme_core/blocks/reload/portal/%s/%s/' % (self.id_, list4url(ct_ids)),
                                                            ))
 
@@ -119,7 +133,7 @@ class FutureActivitiesBlock(QuerysetBlock):
             context['user_contact'] = entity = Contact.objects.get(is_user=user)
 
         return self._render(self.get_block_template_context(context,
-                                                            self._get_queryset_for_entity(entity, context),
+                                                            self._get_queryset_for_entity(entity, context).select_related('status'),
                                                             update_url='/creme_core/blocks/reload/home/%s/' % self.id_,
                                                             is_home=True
                                                            ))

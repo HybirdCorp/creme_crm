@@ -43,7 +43,7 @@ class Reminder(object):
     def generate_id(app_name, name):
         return u'reminder_%s-%s' % (app_name, name)
 
-    def get_emails(self,object):
+    def get_emails(self, object):
         return [getattr(settings, 'DEFAULT_EMAIL_FOR_REMIND', None)]
 
     def generate_email_subject (self, object):
@@ -72,7 +72,7 @@ class Reminder(object):
         if not self.ok_for_continue():
             return
 
-        model_ = self.__class__.model_
+        model_ = self.__class__.model_ #TODO: why not self.model_ ???
         objects = model_.objects.filter(self.get_Q_filter())
         object_ct = ContentType.objects.get_for_model(model_)
         now = datetime.now().replace(microsecond=0, second=0)

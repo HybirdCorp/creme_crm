@@ -46,7 +46,6 @@ class Product(CremeEntity):
 
     research_fields = CremeEntity.research_fields + ['name', 'code', 'description', 'sub_category__name', 'category__name', 'images']
 
-
     def __unicode__(self):
         return self.name
 
@@ -60,9 +59,6 @@ class Product(CremeEntity):
     def get_lv_absolute_url():
         """url for list_view """
         return "/products/products"
-
-    def get_delete_absolute_url(self):
-        return "/products/product/delete/%s" % self.id
 
     def get_entity_summary(self):
         return_str = "%s<br />" % escape(self.name)

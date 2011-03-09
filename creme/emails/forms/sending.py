@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2011  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -51,9 +51,9 @@ class SendingCreateForm(CremeModelForm):
         model   = EmailSending
         exclude = ('campaign', 'state', 'subject', 'body', 'signature', 'attachments')
 
-    def __init__(self, campaign, *args, **kwargs):
+    def __init__(self, entity, *args, **kwargs):
         super(SendingCreateForm, self).__init__(*args, **kwargs)
-        self.campaign = campaign
+        self.campaign = entity
 
     def clean(self):
         cleaned_data = self.cleaned_data
@@ -94,30 +94,25 @@ class SendingCreateForm(CremeModelForm):
         varlist = [varnode.filter_expression.var.var for varnode in Template(template.body).nodelist.get_nodes_by_type(VariableNode)]
 
         for address, recipient_entity in instance.campaign.all_recipients():
-            mail = LightWeightEmail()
-            mail.sending = instance
-            mail.reads = 0
-            mail.status = MAIL_STATUS_NOTSENT
-            mail.sender = instance.sender
-            mail.recipient = address
-            mail.sending_date = instance.sending_date
+            mail = LightWeightEmail(sending=instance,
+                                    reads=0,
+                                    status=MAIL_STATUS_NOTSENT,
+                                    sender=instance.sender,
+                                    recipient=address,
+                                    sending_date=instance.sending_date,
+                                    recipient_entity=recipient_entity,
+                                   )
 
             if recipient_entity:
-                entity = recipient_entity[1]
-                mail.recipient_ct = recipient_entity[0]
-                mail.recipient_id = entity.id
-
                 context = {}
+
                 for varname in varlist:
-                    val = getattr(entity, varname, None)
+                    val = getattr(recipient_entity, varname, None)
                     if val:
                         context[varname] = val.encode('utf-8')
 
                 if context:
                     mail.body = dumps(context)
-            else:
-                mail.recipient_ct = None
-                mail.recipient_id = None
 
             mail.genid_n_save()
 

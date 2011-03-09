@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2011  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -52,10 +52,7 @@ class Graph(CremeEntity):
     def get_lv_absolute_url():
         return "/graphs/graphs"
 
-    def get_delete_absolute_url(self):
-        return "/graphs/graph/delete/%s" % self.id
-
-    def generate_png(self):
+    def generate_png(self, user):
         from os.path import join, exists
         from os import makedirs
 
@@ -75,24 +72,34 @@ class Graph(CremeEntity):
 
         #TODO: entity cache ? regroups relations by type ? ...
 
-        CremeEntity.populate_real_entities([root.entity for root in roots]) #small optimisation
+        CremeEntity.populate_credentials([root.entity for root in roots], user)
+        CremeEntity.populate_real_entities([root.entity for root in roots if root.entity.can_view(user)]) #small optimisation
 
         for root in roots:
-            add_node(unicode(root.entity), shape='box')
-            #add_node('filled box',    shape='box', style='filled', color='#FF00FF')
-            #add_node('filled box v2', shape='box', style='filled', fillcolor='#FF0000', color='#0000FF', penwidth='2.0') #default pensize="1.0"
+            if root.entity.can_view(user):
+                add_node(unicode(root.entity), shape='box')
+                #add_node('filled box',    shape='box', style='filled', color='#FF00FF')
+                #add_node('filled box v2', shape='box', style='filled', fillcolor='#FF0000', color='#0000FF', penwidth='2.0') #default pensize="1.0"
 
         orbital_nodes = {} #cache
 
         for root in roots:
-            subject     = root.entity
+            subject = root.entity
+            if not subject.can_view(user):
+                continue
+
             str_subject = unicode(subject).encode('utf-8')
-            relations   = subject.relations.filter(type__in=root.relation_types.all()).select_related('object_entity', 'type')
+            relations   = subject.relations.filter(type__in=root.relation_types.all())\
+                                           .select_related('object_entity', 'type')
 
             Relation.populate_real_object_entities(relations) #small optimisation
+            CremeEntity.populate_credentials([r.object_entity for r in relations], user)
 
             for relation in relations:
-                object_    = relation.object_entity
+                object_ = relation.object_entity
+                if not object_.can_view(user):
+                    continue
+
                 uni_object = unicode(object_)
                 str_object = uni_object.encode('utf-8')
 
@@ -144,3 +151,9 @@ class RootNode(CremeModel):
 
     class Meta:
         app_label = 'graphs'
+
+    def get_related_entity(self): #for generic views (edit_related_to_entity)
+        return self.graph
+
+    def get_relation_types(self):
+        return self.relation_types.select_related('symmetric_type')

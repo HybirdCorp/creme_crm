@@ -46,10 +46,6 @@ from creme_core.views.file_handling import handle_uploaded_file
 
 from crudity.frontends.pop import pop_frontend
 
-from emails.utils import generate_id#, get_unicode_decoded_str
-
-from persons.models import MailSignature
-
 from documents.models import Document, Folder, FolderCategory
 from documents.constants import REL_OBJ_RELATED_2_DOC
 
@@ -60,6 +56,10 @@ from creme_settings import (CREME_GET_EMAIL_SERVER,
                             CREME_GET_EMAIL_SSL,
                             CREME_GET_EMAIL_SSL_KEYFILE,
                             CREME_GET_EMAIL_SSL_CERTFILE)
+
+from emails.utils import generate_id#, get_unicode_decoded_str
+from emails.models import EmailSignature
+
 
 MAIL_STATUS_SENT                    = 1
 MAIL_STATUS_NOTSENT                 = 2
@@ -91,7 +91,7 @@ class _Email(CremeModel):
     body           = TextField()
     sending_date   = DateTimeField(_(u"Sending date"), blank=True, null=True)
     reception_date = DateTimeField(_(u"Reception date"), blank=True, null=True)
-    signature      = ForeignKey(MailSignature, verbose_name=_(u'Signature'), blank=True, null=True) ##merge with body ????
+    signature      = ForeignKey(EmailSignature, verbose_name=_(u'Signature'), blank=True, null=True) ##merge with body ????
     attachments    = ManyToManyField(Document, verbose_name=_(u'Attachments'))
 
     class Meta:
@@ -124,7 +124,7 @@ class _Email(CremeModel):
         signature_images = signature.images.all() if signature else ()
 
         if signature:
-            body += signature.corpse #'corpse' berkkkkk
+            body += signature.body
 
             for signature_img in signature_images:
                 body += '<img src="cid:img_%s" /><br/>' % signature_img.id
@@ -198,9 +198,6 @@ class EntityEmail(_Email, CremeEntity):
     def get_lv_absolute_url():
         return "/emails/mails"
 
-    def get_delete_absolute_url(self):
-        return u"/emails/entitymail/delete/%s" % self.id
-
     @staticmethod
     def create_n_send_mail(sender, recipient, subject, user_pk, body_html=u"", signature=None, attachments=None):
         email           = EntityEmail()
@@ -216,14 +213,3 @@ class EntityEmail(_Email, CremeEntity):
             email.save()
         email.send()
         return email
-
-    #COMMENTED on 25 oct 2010
-    #def get_entity_actions(self):
-        #ctx = {
-            #'actions' : [
-                    #(self.get_absolute_url(),        ugettext(u"See"),    mark_safe(flatatt({})), "%s/images/view_16.png" % settings.MEDIA_URL),
-                    #(self.get_delete_absolute_url(), ugettext(u"Delete"), mark_safe(flatatt({'class': 'confirm_delete'})), "%s/images/delete_16.png"  % settings.MEDIA_URL)
-            #],
-            #'id': self.id,
-        #}
-        #return render_to_string("creme_core/frags/actions.html", ctx)

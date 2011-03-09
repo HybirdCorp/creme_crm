@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2011  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -20,6 +20,7 @@
 
 from django.utils.translation import ugettext_lazy as _
 
+from creme_core.models import CremeEntity
 from creme_core.gui.block import Block, QuerysetBlock
 
 from projects.models import ProjectTask, Resource, WorkingPeriod
@@ -55,12 +56,17 @@ class ProjectTaskBlock(QuerysetBlock):
 
     def detailview_display(self, context):
         project = context['object']
-        user    = context['request'].user
+        user    = context['user']
         creation_perm = user.has_perm('projects.add_projecttask') and project.can_change(user)
-        return self._render(self.get_block_template_context(context, project.get_tasks(),
-                                                            update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, project.pk),
-                                                            creation_perm=creation_perm, #TODO: use a tempatetag instead ??
-                                                            ))
+        btc = self.get_block_template_context(context, project.get_tasks(),
+                                              update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, project.pk),
+                                              creation_perm=creation_perm, #TODO: use a tempatetag instead ??
+                                             )
+
+        CremeEntity.populate_credentials(btc['page'].object_list, user)
+
+        return self._render(btc)
+
 
 class ResourceTaskBlock(QuerysetBlock):
     id_           = QuerysetBlock.generate_id('projects', 'resources')
@@ -70,12 +76,16 @@ class ResourceTaskBlock(QuerysetBlock):
 
     def detailview_display(self, context):
         task = context['object']
-        user = context['request'].user
-        creation_perm = task.can_change(user) and user.has_perm_to_create(Resource)
-        return self._render(self.get_block_template_context(context, task.get_resources(),
-                                                            update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, task.pk),
-                                                            creation_perm=creation_perm, #TODO: templatetag instead ??
-                                                           ))
+        btc = self.get_block_template_context(context,
+                                              task.get_resources().select_related('linked_contact'),
+                                              update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, task.pk),
+                                             )
+
+        CremeEntity.populate_credentials([r.linked_contact for r in  btc['page'].object_list],
+                                         context['user']
+                                        )
+
+        return self._render(btc)
 
 
 class WorkingPeriodTaskBlock(QuerysetBlock):

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2011  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -24,8 +24,9 @@ from django.forms import DateTimeField, ModelChoiceField, ValidationError
 from django.utils.translation import ugettext_lazy as _, ugettext
 
 from creme_core.models import Relation
-from creme_core.forms import CremeEntityForm, CremeForm, RelatedEntitiesField
+from creme_core.forms import CremeEntityForm, CremeForm, MultiRelationEntityField
 from creme_core.forms.widgets import DateTimeWidget
+from creme_core.forms.validators import validate_linkable_entities
 from creme_core.utils import find_first
 
 from persons.models import Organisation
@@ -53,7 +54,7 @@ _SYMMETRICS = {
 _TYPES = [REL_OBJ_IS_INVITED_TO, REL_OBJ_CAME_EVENT, REL_OBJ_NOT_CAME_EVENT]
 
 class AddContactsToEventForm(CremeForm):
-    related_contacts = RelatedEntitiesField(relation_types=_TYPES, label=_(u'Related contacts'))
+    related_contacts = MultiRelationEntityField(relations=_TYPES, label=_(u'Related contacts'))
 
     def __init__(self, *args, **kwargs):
         self.event = kwargs.pop('instance')
@@ -64,11 +65,13 @@ class AddContactsToEventForm(CremeForm):
         related_contacts = self.cleaned_data['related_contacts']
         contacts_set = set()
 
-        for relationtype_id, contact in related_contacts:
+        for relationtype, contact in related_contacts:
             if contact.id in contacts_set:
                 raise ValidationError(ugettext(u'Contact %s is present twice.') % contact)
 
             contacts_set.add(contact.id)
+
+        validate_linkable_entities([contact for relationtype, contact in related_contacts], self.user)
 
         return related_contacts
 
@@ -77,7 +80,7 @@ class AddContactsToEventForm(CremeForm):
         #        we avoid several 'REL_OBJ_IS_INVITED_TO' relations,
         #        'REL_OBJ_CAME_EVENT' override existing 'REL_OBJ_NOT_CAME_EVENT' relations etc...
         event = self.event
-        user  = event.user #TODO: retrieve request's user ??
+        user  = self.user
         relations = Relation.objects
         create_relation = relations.create
 
@@ -86,12 +89,13 @@ class AddContactsToEventForm(CremeForm):
         #NB: queries are regrouped to optimise
         relations_map = defaultdict(list) #per contact relations lists
         for relation in relations.filter(subject_entity=event.id, type__in=_TYPES,
-                                         object_entity__in=[contact.id for relationtype_id, contact in related_contacts]):
+                                         object_entity__in=[contact.id for relationtype, contact in related_contacts]):
             relations_map[relation.object_entity_id].append(relation)
 
         relations2del = []
 
-        for relationtype_id, contact in related_contacts:
+        for relationtype, contact in related_contacts:
+            relationtype_id = relationtype.id
             contact_relations = relations_map.get(contact.id, ())
 
             if relationtype_id != REL_OBJ_IS_INVITED_TO: # => REL_OBJ_CAME_EVENT or REL_OBJ_NOT_CAME_EVENT
@@ -102,7 +106,7 @@ class AddContactsToEventForm(CremeForm):
                     relations2del.append(rel2del.id)
 
             if find_first(contact_relations, lambda relation: relation.type_id == relationtype_id, None) is None:
-                create_relation(subject_entity=event, type_id=relationtype_id, object_entity=contact, user=user)
+                create_relation(subject_entity=event, type=relationtype, object_entity=contact, user=user)
 
         if relations2del:
             relations.filter(pk__in=relations2del).delete()
@@ -129,9 +133,10 @@ class RelatedOpportunityCreateForm(OpportunityCreateForm):
             fields['target_orga'] = ModelChoiceField(label=ugettext(u"Target organisation"), queryset=qs, empty_label=None)
 
     def save(self, *args, **kwargs):
-        opp   = super(RelatedOpportunityCreateForm, self).save(*args, **kwargs)
+        opp = super(RelatedOpportunityCreateForm, self).save(*args, **kwargs)
 
-        Relation.objects.create(user=self.cleaned_data['user'], subject_entity=opp,
-                                type_id=REL_SUB_GEN_BY_EVENT, object_entity=self.event)
+        Relation.objects.create(user=self.user, subject_entity=opp,
+                                type_id=REL_SUB_GEN_BY_EVENT, object_entity=self.event
+                               )
 
         return opp

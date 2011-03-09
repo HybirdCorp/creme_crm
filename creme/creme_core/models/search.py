@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2011  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,13 +18,11 @@
 ################################################################################
 
 from django.db.models import CharField, ForeignKey, PositiveIntegerField
-from django.utils.translation import ugettext_lazy as _
-#from django.utils.encoding import force_unicode
+from django.utils.translation import ugettext_lazy as _, ugettext
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 
 from creme_core.models import CremeModel
-from creme_core.utils import create_or_update_models_instance
 from creme_core.utils.meta import get_verbose_field_name
 
 
@@ -41,6 +39,12 @@ class SearchConfigItem(CremeModel):
         app_label = 'creme_core'
         verbose_name = _(u'Search')
         verbose_name_plural = _(u'Searches')
+
+    def __unicode__(self):
+        return ugettext(u'Search configuration of "%(user)s" for "%(type)s"') % {
+                    'user': self.user or ugettext(u'all users'),
+                    'type': self.content_type,
+                }
 
     def get_fields(self):
         if self._searchfields is None:
@@ -64,16 +68,22 @@ class SearchConfigItem(CremeModel):
             sfci._searchfields = sfci_dict[sfci.id]
 
     @staticmethod
-    def create(model, fields):
-        """Create a config item & his fields
+    def create(model, fields, user=None):
+        """Create a config item & its fields
         SearchConfigItem.create(SomeDjangoModel, ['SomeDjangoModel_field1', 'SomeDjangoModel_field2', ..])
         """
-        sci = create_or_update_models_instance(SearchConfigItem, content_type_id=ContentType.objects.get_for_model(model).id)
-        SCI_pk = sci.pk
+        ct = ContentType.objects.get_for_model(model)
+
+        SearchConfigItem.objects.filter(content_type=ct, user=user).delete()
+
+        sci = SearchConfigItem.objects.create(content_type=ct, user=user)
+        create_sf = SearchField.objects.create
+
         for i, field in enumerate(fields):
-            create_or_update_models_instance(SearchField, field=field, field_verbose_name=get_verbose_field_name(model, field), order=i, search_config_item_id=SCI_pk)
+            create_sf(field=field, field_verbose_name=get_verbose_field_name(model, field), order=i, search_config_item=sci)
 
 
+#TODO: is this model ereally useful ??? (store fields in a textfield in SearchConfigItem ?)
 class SearchField(CremeModel):
     field              = CharField(_(u"Field"), max_length=100)
     field_verbose_name = CharField(_(u"Field (long name)"), max_length=100)
@@ -86,5 +96,4 @@ class SearchField(CremeModel):
         verbose_name_plural = _(u'Search fields')
 
     def __unicode__(self):
-        #return force_unicode(self.field_verbose_name)
         return self.field_verbose_name

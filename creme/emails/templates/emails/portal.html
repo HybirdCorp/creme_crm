@@ -1,7 +1,19 @@
 {% extends "creme_core/generics/portal.html" %}
 {% load i18n %}
 {% load media %}
+{% load creme_block %}
+
 {% block logo %}<img src="{% media_url 'images/email_64.png' %}" alt="{% trans "Emails" %}"/>{% endblock %}
 {% block title %}{% trans "Emails & Campaigns portal" %}{% endblock %}
 {% block list_url %}/emails/campaigns{% endblock %}
 {% block list_msg %}{% trans "List of campaigns" %}{% endblock %}
+
+{% block creme_blocks_import %}
+    {% comment %}{% import_portal_blocks ct_ids %}{% endcomment %}
+    {{block.super}}
+    {% import_block from_app 'emails' named 'signatures' as 'signatures_block' %}
+{% endblock %}
+
+{% block before_statistics %}
+    {% display_block_detailview 'signatures_block' %}
+{% endblock %}

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2011  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.db.models import CharField, ForeignKey, ManyToManyField, BooleanField
+from django.db.models import CharField, ForeignKey, ManyToManyField, BooleanField, Q
 from django.utils.encoding import force_unicode
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.contenttypes.models import ContentType
@@ -53,8 +53,8 @@ class CremePropertyType(CremeModel):
         @param generate_pk If True, str_pk is used as prefix to generate pk.
         """
         if not generate_pk:
-            from creme_core.utils import create_or_update_models_instance as create
-            property_type = create(CremePropertyType, str_pk, text=text, is_custom=is_custom)
+            from creme_core.utils import create_or_update
+            property_type = create_or_update(CremePropertyType, str_pk, text=text, is_custom=is_custom)
         else:
             from creme_core.utils.id_generator import generate_string_id_and_save
             property_type = CremePropertyType(text=text, is_custom=is_custom)
@@ -68,6 +68,9 @@ class CremePropertyType(CremeModel):
 
         return property_type
 
+    @staticmethod
+    def get_compatible_ones(ct):
+        return CremePropertyType.objects.filter(Q(subject_ctypes=ct) | Q(subject_ctypes__isnull=True))
 
 class CremePropertyText_i18n(CremeModel):
     property_type = ForeignKey(CremePropertyType, related_name='property_i18n_set')
@@ -88,5 +91,7 @@ class CremeProperty(CremeModel):
         verbose_name_plural = _(u'Properties')
 
     def __unicode__(self):
-        #return force_unicode(u"%s a la propriété: %s" % (self.creme_entity, self.type)) #causes too much  queries...
         return unicode(self.type)
+
+    def get_related_entity(self): #for generic views
+        return self.creme_entity

@@ -42,9 +42,6 @@ def _set_current_hf(request, path, hf_instance):
 
 @login_required
 def add(request, content_type_id, extra_template_dict=None):
-    """
-        @Permissions : to be set
-    """
     ct_entity = get_ct_or_404(content_type_id)
 
     try:
@@ -56,41 +53,46 @@ def add(request, content_type_id, extra_template_dict=None):
                       template='creme_core/header_filters.html',
                       extra_initial={'content_type': ct_entity},
                       extra_template_dict=extra_template_dict or {},
-                      function_post_save=lambda r, i: _set_current_hf(r, callback_url, i))
+                      function_post_save=lambda r, i: _set_current_hf(r, callback_url, i)
+                     )
 
 @login_required
 def edit(request, header_filter_id):
     hf = get_object_or_404(HeaderFilter, pk=header_filter_id)
+    user = request.user
+    allowed, msg = hf.can_edit_or_delete(user)
 
-    if not hf.is_custom:
-        raise Http404("Non editable HeaderFilter")  #TODO: 403 instead
+    if not allowed:
+        raise Http404(msg)
 
-    if request.POST:
-        hf_form = HeaderFilterForm(request.POST, instance=hf)
+    if request.method == 'POST':
+        hf_form = HeaderFilterForm(user=user, data=request.POST, instance=hf)
 
         if hf_form.is_valid():
             hf_form.save()
 
             return HttpResponseRedirect(hf.entity_type.model_class().get_lv_absolute_url())
     else:
-        hf_form = HeaderFilterForm(instance=hf)
+        hf_form = HeaderFilterForm(user=user, instance=hf)
 
     return render_to_response('creme_core/header_filters.html',
                               {'form': hf_form},
-                              context_instance=RequestContext(request))
+                              context_instance=RequestContext(request)
+                             )
 
 @login_required
 def delete(request):
     hf           = get_object_or_404(HeaderFilter, pk=get_from_POST_or_404(request.POST, 'id'))
     callback_url = hf.entity_type.model_class().get_lv_absolute_url()
+    allowed, msg = hf.can_edit_or_delete(request.user)
 
-    if hf.is_custom:
+    if allowed:
         hf.delete()
 
         return_msg = _(u'View sucessfully deleted')
         status = 200
     else:
-        return_msg = _(u"This view can't be deleted")
+        return_msg = msg
         status = 400
 
     if request.is_ajax():
@@ -100,9 +102,7 @@ def delete(request):
 
 @login_required
 def get_hfs_4_ct(request, content_type_id):
-    """
-        @Returns header filters' json list
-    """
+    """@return A JSON list of the HeaderFilters for the given ContentType"""
     ct = get_ct_or_404(content_type_id)
     hfl = HeaderFilterList(ct)
     fields = request.GET.getlist('fields') or ('name', )
