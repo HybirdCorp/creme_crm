@@ -292,7 +292,13 @@ class BillingTestCase(CremeTestCase):
         self.assertNoFormError(response)
         self.assertEqual(200, response.status_code)
 
-        self.assertEqual(1,          len(invoice.get_product_lines()))
+        lines = invoice.get_product_lines()
+        self.assertEqual(1, len(lines))
+
+        line = lines[0]
+        self.assertEqual(product.id, line.related_item_id)
+        self.assertEqual(unit_price, line.unit_price)
+
         self.assertEqual(unit_price, invoice.get_total())
         self.assertEqual(unit_price, invoice.get_total_with_tax())
 
@@ -327,7 +333,85 @@ class BillingTestCase(CremeTestCase):
         self.assertEqual(unit_price, invoice.get_total())
         self.assertEqual(unit_price, invoice.get_total_with_tax())
 
-    #TODO: on-the-fly that creates a true product
+    def test_invoice_add_product_lines03(self): #on-the-fly + product creation
+        self.login()
+
+        self.failIf(Product.objects.count())
+
+        invoice  = self.create_invoice_n_orgas('Invoice001')[0]
+        unit_price = Decimal('1.0')
+        name    = 'Awesomo'
+        cat     = Category.objects.create(name='Cat', description='DESCRIPTION')
+        subcat  = SubCategory.objects.create(name='Cat', description='DESCRIPTION', category=cat)
+        response = self.client.post('/billing/%s/product_line/add_on_the_fly' % invoice.id,
+                                    data={
+                                            'user':                self.user.pk,
+                                            'on_the_fly_item':     name,
+                                            'comment':             'no comment !',
+                                            'quantity':            1,
+                                            'unit_price':          unit_price,
+                                            'discount':            Decimal(),
+                                            'vat':                 Decimal(),
+                                            'credit':              Decimal(),
+                                            'has_to_register_as':  'on',
+                                            'category':            cat.id,
+                                            'sub_category':        subcat.id,
+                                         }
+                                   )
+        self.assertNoFormError(response)
+        self.assertEqual(200, response.status_code)
+
+        try:
+            product = Product.objects.get(name=name)
+        except Exception, e:
+            self.fail(str(e))
+
+        self.assertEqual(cat.id,     product.category_id)
+        self.assertEqual(subcat.id,  product.sub_category_id)
+        self.assertEqual(unit_price, product.unit_price)
+
+        lines = invoice.get_product_lines()
+        self.assertEqual(1, len(lines))
+
+        line = lines[0]
+        self.failIf(line.on_the_fly_item)
+        self.assertEqual(product.id, line.related_item_id)
+
+    def test_invoice_edit_product_lines01(self):
+        self.login()
+
+        name = 'Stuff'
+        unit_price = Decimal('42.0')
+        quantity = 1
+        invoice  = self.create_invoice_n_orgas('Invoice001')[0]
+        line = ProductLine.objects.create(on_the_fly_item=name, document=invoice, quantity=quantity,
+                                          unit_price=unit_price, is_paid=False
+                                         )
+
+        url = '/billing/productline/%s/edit' % line.id
+        self.assertEqual(200, self.client.get(url).status_code)
+
+        name += '_edited'
+        unit_price += Decimal('1.0')
+        quantity *= 2
+        response = self.client.post(url, data={
+                                                'user':            self.user.pk,
+                                                'on_the_fly_item': name,
+                                                'comment':         'no comment !',
+                                                'quantity':        quantity,
+                                                'unit_price':      unit_price,
+                                                'discount':        Decimal(),
+                                                'vat':             Decimal(),
+                                                'credit':          Decimal(),
+                                              }
+                                   )
+        self.assertNoFormError(response)
+        self.assertEqual(200, response.status_code)
+
+        line = ProductLine.objects.get(pk=line.id) #refresh
+        self.assertEqual(name,       line.on_the_fly_item)
+        self.assertEqual(unit_price, line.unit_price)
+        self.assertEqual(quantity,   line.quantity)
 
     def test_invoice_add_service_lines01(self):
         self.login()
@@ -364,7 +448,7 @@ class BillingTestCase(CremeTestCase):
         self.assertEqual(Decimal('2.66'), invoice.get_total()) # 2 * 1.33
         self.assertEqual(Decimal('3.19'), invoice.get_total_with_tax()) #2.66 * 1.196 == 3.18136
 
-    def test_invoice_add_service_lines02(self):
+    def test_invoice_add_service_lines02(self): #on-the-fly
         self.login()
 
         invoice = self.create_invoice_n_orgas('Invoice001')[0]
@@ -392,8 +476,83 @@ class BillingTestCase(CremeTestCase):
         self.assertEqual(1, len(lines))
         self.assertEqual(name, lines[0].on_the_fly_item)
 
-    #TODO: on-the-fly that creates a true service
-    #TODO: edit lines
+    def test_invoice_add_service_lines03(self): #on-the-fly + Service creation
+        self.login()
+
+        self.failIf(Service.objects.count())
+
+        invoice = self.create_invoice_n_orgas('Invoice001')[0]
+        unit_price = Decimal('1.33')
+        name = 'Car wash'
+        cat  = ServiceCategory.objects.create(name='Cat', description='DESCRIPTION')
+        response = self.client.post('/billing/%s/service_line/add_on_the_fly' % invoice.id,
+                                    data={
+                                            'user':               self.user.pk,
+                                            'on_the_fly_item':    name,
+                                            'comment':            'no comment !',
+                                            'quantity':           2,
+                                            'unit_price':         unit_price,
+                                            'discount':           Decimal(),
+                                            'vat':                Decimal('19.6'),
+                                            'credit':             Decimal(),
+                                            'has_to_register_as': 'on',
+                                            'category':           cat.id,
+                                         }
+                                   )
+        self.assertNoFormError(response)
+        self.assertEqual(200, response.status_code)
+
+        try:
+            service = Service.objects.get(name=name)
+        except Exception, e:
+            self.fail(str(e))
+
+        self.assertEqual(cat.id,     service.category_id)
+        self.assertEqual(unit_price, service.unit_price)
+
+        invoice = Invoice.objects.get(pk=invoice.id) #refresh (line cache)
+        lines = invoice.get_service_lines()
+        self.assertEqual(1, len(lines))
+
+        line = lines[0]
+        self.failIf(line.on_the_fly_item)
+        self.assertEqual(service.id, line.related_item_id)
+
+    def test_invoice_edit_service_lines01(self):
+        self.login()
+
+        name = 'Stuff'
+        unit_price = Decimal('42.0')
+        quantity = 1
+        invoice  = self.create_invoice_n_orgas('Invoice001')[0]
+        line = ServiceLine.objects.create(on_the_fly_item=name, document=invoice, quantity=quantity,
+                                          unit_price=unit_price, is_paid=False
+                                         )
+
+        url = '/billing/serviceline/%s/edit' % line.id
+        self.assertEqual(200, self.client.get(url).status_code)
+
+        name += '_edited'
+        unit_price += Decimal('1.0')
+        quantity *= 2
+        response = self.client.post(url, data={
+                                                'user':            self.user.pk,
+                                                'on_the_fly_item': name,
+                                                'comment':         'no comment !',
+                                                'quantity':        quantity,
+                                                'unit_price':      unit_price,
+                                                'discount':        Decimal(),
+                                                'vat':             Decimal(),
+                                                'credit':          Decimal(),
+                                              }
+                                   )
+        self.assertNoFormError(response)
+        self.assertEqual(200, response.status_code)
+
+        line = ServiceLine.objects.get(pk=line.id) #refresh
+        self.assertEqual(name,       line.on_the_fly_item)
+        self.assertEqual(unit_price, line.unit_price)
+        self.assertEqual(quantity,   line.quantity)
 
     def test_generate_number01(self):
         self.login()

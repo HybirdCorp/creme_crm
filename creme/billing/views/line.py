@@ -54,18 +54,19 @@ def add_service_line_on_the_fly(request, document_id):
 def _edit_line(request, line_model, line_id):
     line     = get_object_or_404(line_model, pk=line_id)
     document = line.document
+    user = request.user
 
-    document.can_change_or_die(request.user)
+    document.can_change_or_die(user)
 
     form_class = line.get_edit_form()
 
-    if request.POST:
-        line_form = form_class(document, request.POST, instance=line)
+    if request.method == 'POST':
+        line_form = form_class(entity=document, user=user, data=request.POST, instance=line)
 
         if line_form.is_valid():
             line_form.save()
     else:
-        line_form = form_class(document, instance=line)
+        line_form = form_class(entity=document, user=user, instance=line)
 
     return inner_popup(request, 'creme_core/generics/blockform/edit_popup.html',
                        {
@@ -75,7 +76,8 @@ def _edit_line(request, line_model, line_id):
                        is_valid=line_form.is_valid(),
                        reload=False,
                        delegate_reload=True,
-                       context_instance=RequestContext(request))
+                       context_instance=RequestContext(request)
+                      )
 
 def edit_productline(request, line_id):
     return _edit_line(request, ProductLine, line_id)
@@ -83,6 +85,7 @@ def edit_productline(request, line_id):
 def edit_serviceline(request, line_id):
     return _edit_line(request, ServiceLine, line_id)
 
+#TODO: use POST
 @login_required
 @permission_required('billing')
 def update(request, line_id):
