@@ -17,11 +17,9 @@ urlpatterns = patterns('emails.views',
 
     #Campaign: sending block
     (r'^campaign/(?P<campaign_id>\d+)/sending/add$', 'sending.add'),
-    (r'^campaign/sending/delete$',                   'sending.delete'),
 
-    #Campaign: sending details block
+    #Campaign: sending details block (TODO: remove campaign/ from url ??)
     (r'^campaign/sending/(?P<sending_id>\d+)$',               'sending.detailview'),
-    (r'^campaign/sending/mail/delete$',                       'sending.delete_mail'),
     (r'^campaign/sending/(?P<sending_id>\d+)/mails/reload/$', 'sending.reload_block_mails'),
 
     (r'^mailing_lists$',                    'mailing_list.listview'),
@@ -32,7 +30,6 @@ urlpatterns = patterns('emails.views',
     #Mailing list: recipients block
     (r'^mailing_list/(?P<ml_id>\d+)/recipient/add$',     'recipient.add'),
     (r'^mailing_list/(?P<ml_id>\d+)/recipient/add_csv$', 'recipient.add_from_csv'),
-    (r'^mailing_list/recipient/delete$',                 'recipient.delete'),
 
     #Mailing list: contacts block
     (r'^mailing_list/(?P<ml_id>\d+)/contact/add$',             'mailing_list.add_contacts'),
@@ -58,24 +55,21 @@ urlpatterns = patterns('emails.views',
     (r'^template/(?P<template_id>\d+)/attachment/delete$', 'template.delete_attachment'),
 
     #mails history block
-    #(r'^entity/(?P<entity_id>\d+)/mails_history/reload/$', 'mail.reload_block_mails_history'),
-    (r'^mails_history/(?P<mail_id>\w+)$',                  'mail.view_lightweight_mail'),
-    (r'^mail/add/(?P<entity_id>\w+)$',                     'mail.create_n_send'),
-    (r'^mail/resend$',                                     'mail.resend_mails'),
-    (r'^mail/delete$',                                     'mail.delete'),
-    (r'^mail/spam$',                                       'mail.spam'),
-    (r'^mail/validated$',                                  'mail.validated'),
-    (r'^mail/waiting$',                                    'mail.waiting'),
-    (r'^mail/(?P<mail_id>\w+)$',                           'mail.detailview'),
-    (r'^mail/(?P<mail_id>\w+)/popup$',                     'mail.popupview'),
-    (r'^mails$',                                           'mail.listview'),
-    (r'^synchronization$',                                 'mail.synchronisation'),
-    (r'^sync_blocks/reload$',                              'mail.reload_sync_blocks'),
-)
+    (r'^mails_history/(?P<mail_id>\w+)$', 'mail.view_lightweight_mail'),
+    (r'^mail/add/(?P<entity_id>\w+)$',    'mail.create_n_send'),
+    (r'^mail/resend$',                    'mail.resend_mails'),
+#    (r'^mail/delete$',                    'mail.delete'),
+    (r'^mail/spam$',                      'mail.spam'),
+    (r'^mail/validated$',                 'mail.validated'),
+    (r'^mail/waiting$',                   'mail.waiting'),
+    (r'^mail/(?P<mail_id>\w+)$',          'mail.detailview'),
+    (r'^mail/(?P<mail_id>\w+)/popup$',    'mail.popupview'),
+    (r'^mails$',                          'mail.listview'),
+    (r'^synchronization$',                'mail.synchronisation'),
+    (r'^sync_blocks/reload$',             'mail.reload_sync_blocks'),
 
-urlpatterns += patterns('creme_core.views.generic',
-    (r'^entitymail/delete/(?P<object_id>\d+)$',   'delete_entity'),
-    (r'^campaign/delete/(?P<object_id>\d+)$',     'delete_entity'),
-    (r'^mailing_list/delete/(?P<object_id>\d+)$', 'delete_entity'),
-    (r'^template/delete/(?P<object_id>\d+)$',     'delete_entity'),
+    #Signatures
+    (r'^signature/add$',                        'signature.add'),
+    (r'^signature/edit/(?P<signature_id>\d+)$', 'signature.edit'),
+    (r'^signature/delete$',                     'signature.delete'),
 )

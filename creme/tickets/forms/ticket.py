@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2011  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -22,27 +22,27 @@ from datetime import datetime
 
 from creme_core.forms import CremeEntityForm
 
-from tickets.models.ticket import Ticket
+from tickets.models import Ticket
 from tickets.models.status import OPEN_PK, CLOSED_PK
 
 
-class CreateForm(CremeEntityForm):
+class TicketCreateForm(CremeEntityForm):
     class Meta:
         model = Ticket
         exclude = CremeEntityForm.Meta.exclude + ('status', 'closing_date')
 
     def save(self):
         self.instance.status_id = OPEN_PK
-        return super(CreateForm, self).save()
+        return super(TicketCreateForm, self).save()
 
 
-class EditForm(CremeEntityForm):
+class TicketEditForm(CremeEntityForm):
     class Meta:
         model = Ticket
         exclude = CremeEntityForm.Meta.exclude + ('closing_date', )
 
     def __init__(self, *args, **kwargs):
-        super(EditForm, self).__init__(*args, **kwargs)
+        super(TicketEditForm, self).__init__(*args, **kwargs)
         self.old_status_id = self.instance.status_id
 
     def save(self):
@@ -51,4 +51,4 @@ class EditForm(CremeEntityForm):
         if (instance.status_id == CLOSED_PK) and (self.old_status_id != CLOSED_PK):
             instance.closing_date = datetime.now()
 
-        return super(EditForm, self).save()
+        return super(TicketEditForm, self).save()

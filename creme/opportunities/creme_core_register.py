@@ -27,7 +27,7 @@ from creme_core.gui.block import block_registry
 
 from opportunities.models import Opportunity
 from opportunities.buttons import linked_opportunity_button
-from opportunities.blocks import *
+from opportunities.blocks import blocks_list
 
 
 creme_registry.register_app('opportunities', _(u'Opportunities'), '/opportunities')
@@ -40,6 +40,4 @@ reg_item('/opportunities/opportunity/add', _(u'Add an opportunity'), 'opportunit
 
 button_registry.register(linked_opportunity_button)
 
-block_registry.register(linked_contacts_block, linked_products_block, linked_services_block,
-                        responsibles_block, quotes_block, sales_orders_block, invoices_block,
-                        target_organisation_block)
+block_registry.register(*blocks_list)

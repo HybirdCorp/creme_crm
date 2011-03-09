@@ -47,9 +47,9 @@ class CampaignAddListForm(CremeForm):
 
     blocks = FieldBlockManager(('general', _(u'Messaging lists'), '*'))
 
-    def __init__(self, campaign, *args, **kwargs):
+    def __init__(self, entity, *args, **kwargs):
         super(CampaignAddListForm, self).__init__(*args, **kwargs)
-        self.campaign = campaign
+        self.campaign = entity
 
     #in fact duplicate is not a problem with django's m2m
     def clean_lists(self):

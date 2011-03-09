@@ -34,15 +34,13 @@ from assistants.forms.user_message import UserMessageForm
 
 @login_required
 def add(request):
-    initial = {'user': request.user}
-
     if request.method == 'POST':
-        message_form = UserMessageForm(None, request.POST, initial=initial)
+        message_form = UserMessageForm(entity=None, user=request.user, data=request.POST)
 
         if message_form.is_valid():
             message_form.save()
     else:
-        message_form = UserMessageForm(None, initial=initial)
+        message_form = UserMessageForm(entity=None, user=request.user)
 
     return inner_popup(request, 'creme_core/generics/blockform/add_popup2.html',
                        {
@@ -52,12 +50,12 @@ def add(request):
                        is_valid=message_form.is_valid(),
                        reload=False,
                        delegate_reload=True,
-                       context_instance=RequestContext(request))
+                       context_instance=RequestContext(request)
+                      )
 
+@login_required
 def add_to_entity(request, entity_id):
-    return generic_add_to_entity(request, entity_id, UserMessageForm,
-                                 _(u'New message about <%s>'),
-                                 initial={'user': request.user})
+    return generic_add_to_entity(request, entity_id, UserMessageForm, _(u'New message about <%s>'))
 
 @login_required
 def delete(request):

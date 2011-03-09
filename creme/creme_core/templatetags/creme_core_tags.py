@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2011  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -240,6 +240,10 @@ def range_timestamp(date1, date2):
 def sub(object1, object2):
     return object1 - object2
 
+@register.filter(name="and_op")
+def and_op(object1, object2):
+    return bool(object1 and object2)
+
 @register.filter(name="str")
 def _str(object1):
     return str(object1)
@@ -328,11 +332,13 @@ def _can_create(model_or_ct, user):
 
     return user.has_perm('%s.add_%s' % (ct.app_label, ct.model))
 
-_perms_funcs = {
+_PERMS_FUNCS = {
         'create': _can_create,
         'view':   lambda entity, user: entity.can_view(user),
         'change': lambda entity, user: entity.can_change(user),
         'delete': lambda entity, user: entity.can_delete(user),
+        'link':   lambda entity, user: entity.can_link(user),
+        'unlink': lambda entity, user: entity.can_unlink(user),
     }
 
 @register.tag(name="has_perm_to")
@@ -340,8 +346,8 @@ def do_has_perm_to(parser, token):
     """{% has_perm_to TYPE OBJECT as VAR %}
     eg: {% has_perm_to change action.creme_entity as has_perm %}
 
-    TYPE: in ('create', 'view','change', 'delete')
-    OBJECT: must be a CremeEntity, for ('view','change', 'delete') types
+    TYPE: in ('create', 'view','change', 'delete', 'link', 'unlink')
+    OBJECT: must be a CremeEntity, for ('view','change', 'delete', 'link', 'unlink') types
             and a class inheriting from CremeEntity OR a ContentType instance for 'create' type.
     """
     try:
@@ -356,11 +362,11 @@ def do_has_perm_to(parser, token):
 
     perm_type, entity_path, var_name = match.groups()
 
-    perm_func = _perms_funcs.get(perm_type)
+    perm_func = _PERMS_FUNCS.get(perm_type)
     if not perm_func:
         raise template.TemplateSyntaxError, "%r invalid permission tag: %r" % (tag_name, perm_type)
 
-    #TODO: don't attacks defaulttags but parser api ??
+    #TODO: don't attack defaulttags but parser api ??
     entity_var = template.defaulttags.TemplateLiteral(parser.compile_filter(entity_path), entity_path)
 
     return HasPermToNode(perm_func, entity_var, var_name)
@@ -376,8 +382,12 @@ class HasPermToNode(template.Node):
 
     def render(self, context):
         var  = self.entity_var.eval(context) #can raise template.VariableDoesNotExist...
-        user = context['request'].user
+        user = context['request'].user #TODO: context['user'] ???
 
         context[self.var_name] = self.perm_func(var, user)
 
         return ''
+
+@register.filter(name="allowed_unicode")
+def allowed_unicode(entity, user):
+    return entity.allowed_unicode(user)

@@ -70,3 +70,11 @@ creme.persons.copyTo = function (from_id, to_id) {
 //         });
 //     }
 // }
+
+creme.persons.post_become = function(atag, id_value) {
+    $form = $('form', $(atag));
+    $input = $('#id_become' , $form);
+    $input.attr('value', id_value);
+
+    $form.submit();
+}

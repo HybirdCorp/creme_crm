@@ -26,7 +26,7 @@ from django.http import HttpResponse
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext
 from django.utils.simplejson import JSONEncoder, JSONDecoder
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import ugettext_lazy as _, ugettext
 from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth.models import User
 
@@ -46,7 +46,7 @@ def get_users_calendar(request, usernames, calendars_ids):
     user = request.user
     if user.username not in usernames:
         calendars_ids = []
-        
+
     cal_ids = [str(id) for id in calendars_ids]
     return render_to_response('activities/calendar.html',
                               {
@@ -55,15 +55,15 @@ def get_users_calendar(request, usernames, calendars_ids):
                                 'current_users': User.objects.filter(username__in=usernames),
                                 'my_calendars' : Calendar.objects.filter(user=user),
                                 'current_calendars': cal_ids,
+                                'creation_perm':     user.has_perm('activities.add_activity'),
                               },
                               context_instance=RequestContext(request))
 
 def getFormattedDictFromAnActivity(activity):
-
     start = activity.start
     end   = activity.end
     is_all_day = activity.is_all_day
-    
+
     if start == end and not is_all_day:
         end += timedelta(seconds=1)
 
@@ -92,7 +92,7 @@ def user_calendar(request):
     if not calendars_ids:
         calendars_ids = [Calendar.get_user_default_calendar(user).pk]
 
-    return get_users_calendar(request, 
+    return get_users_calendar(request,
                               POST_getlist('user_selected') or [request.user.username],#usernames,
                               POST_getlist('calendar_selected') or calendars_ids)#[Calendar.get_user_default_calendar(user).pk])
 
@@ -114,7 +114,6 @@ def get_users_activities(request, usernames, calendars_ids):
                 cals_ids.append(long(cal_id))
             except ValueError:
                 continue
-
 
     users_cal_ids  = set(Calendar.objects.filter(is_public=True, user__in=users.filter(~Q(pk=request.user.pk))).values_list('id', flat=True))
     users_cal_ids |= set(cals_ids)
@@ -194,15 +193,15 @@ def update_activity_date(request):
 @login_required
 @permission_required('activities')
 def add_user_calendar(request, calendar_id=None):
-
-    instance = None
-    if calendar_id is not None:
-        instance = get_object_or_404(Calendar, pk=calendar_id)
+    #instance = None
+    #if calendar_id is not None:
+        #instance = get_object_or_404(Calendar, pk=calendar_id)
+    instance = get_object_or_404(Calendar, pk=calendar_id) if calendar_id is not None else None
 
     user = request.user
     POST = request.POST
     if POST:
-        cal_form = CalendarForm(user, POST, instance=instance)
+        cal_form = CalendarForm(user=user, data=POST, instance=instance)
 
         if cal_form.is_valid():
             cal_form.save()
@@ -224,5 +223,15 @@ def add_user_calendar(request, calendar_id=None):
 def delete_user_calendar(request):
     #TODO: Adding the possibility to transfert activities
     calendar = get_object_or_404(Calendar, pk=get_from_POST_or_404(request.POST, 'id'))
-    calendar.delete()
-    return HttpResponse("", mimetype="text/javascript")
+
+    status, msg = 200, ""
+
+    user = request.user
+    
+    if user.is_superuser or calendar.user == user:
+        calendar.delete()
+    else:
+        status = 403
+        msg = ugettext(u"You are not allowed to delete this calendar.")
+
+    return HttpResponse(msg, mimetype="text/javascript", status=status)

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2011  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,12 +19,12 @@
 ################################################################################
 
 from django.utils.translation import ugettext as _
-from django.contrib.contenttypes.models import ContentType
 
 from creme_core.models.header_filter import HeaderFilterItem, HeaderFilter, HFI_FIELD
 from creme_core.models import RelationType, BlockConfigItem, ButtonMenuItem, SearchConfigItem
-from creme_core.utils import create_or_update_models_instance as create
+from creme_core.utils import create_or_update as create
 from creme_core.management.commands.creme_populate import BasePopulator
+from persons.models import Contact
 
 from persons.models import Contact
 
@@ -67,22 +67,19 @@ class Populator(BasePopulator):
         create(ActivityType, ACTIVITYTYPE_DEMO,      name=_(u"Demonstration"),   color="4EEF65", default_day_duration=0, default_hour_duration="01:00:00", is_custom=False)
         create(ActivityType, ACTIVITYTYPE_INDISPO,   name=_(u"Indisponibility"), color="CC0000", default_day_duration=1, default_hour_duration="00:00:00", is_custom=False)
 
-        hf_id = create(HeaderFilter, 'activities-hf', name=_(u"Activity view"), entity_type_id=ContentType.objects.get_for_model(Activity).id, is_custom=False).id
+        hf   = HeaderFilter.create(pk='activities-hf', name=_(u'Activity view'), model=Activity)
         pref = 'activities-hfi_'
-        create(HeaderFilterItem, pref + 'title', order=1, name='title', title=_(u'Name'),  type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True, editable=True, sortable=True, filter_string="title__icontains")
-        create(HeaderFilterItem, pref + 'start', order=2, name='start', title=_(u'Start'), type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True, editable=True, sortable=True, filter_string="start__range")
-        create(HeaderFilterItem, pref + 'end',   order=3, name='end',   title=_(u'End'),   type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True, editable=True, sortable=True, filter_string="end__range")
-        create(HeaderFilterItem, pref + 'type',  order=5, name='type__name',  title=_(u'Type - Name'),  type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True, editable=True, sortable=True, filter_string="type__name__icontains")
-        create(HeaderFilterItem, pref + 'type',  order=4, name='status__name',  title=_(u'Status - Name'),  type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True, editable=True, sortable=True, filter_string="status__name__icontains")
+        create(HeaderFilterItem, pref + 'title', order=1, name='title',        title=_(u'Name'),          type=HFI_FIELD, header_filter=hf, has_a_filter=True, editable=True, sortable=True, filter_string="title__icontains")
+        create(HeaderFilterItem, pref + 'start', order=2, name='start',        title=_(u'Start'),         type=HFI_FIELD, header_filter=hf, has_a_filter=True, editable=True, sortable=True, filter_string="start__range")
+        create(HeaderFilterItem, pref + 'end',   order=3, name='end',          title=_(u'End'),           type=HFI_FIELD, header_filter=hf, has_a_filter=True, editable=True, sortable=True, filter_string="end__range")
+        create(HeaderFilterItem, pref + 'type',  order=5, name='type__name',   title=_(u'Type - Name'),   type=HFI_FIELD, header_filter=hf, has_a_filter=True, editable=True, sortable=True, filter_string="type__name__icontains")
+        create(HeaderFilterItem, pref + 'type',  order=4, name='status__name', title=_(u'Status - Name'), type=HFI_FIELD, header_filter=hf, has_a_filter=True, editable=True, sortable=True, filter_string="status__name__icontains")
 
         create(BlockConfigItem, 'activities-future_activities_block', content_type=None, block_id=future_activities_block.id_, order=20, on_portal=False)
         create(BlockConfigItem, 'activities-past_activities_block',   content_type=None, block_id=past_activities_block.id_,   order=21, on_portal=False)
 
-        create(ButtonMenuItem, 'activities-add_meeting_button',   content_type=None, button_id=add_meeting_button.id_,   order=10)
-        create(ButtonMenuItem, 'activities-add_phonecall_button', content_type=None, button_id=add_phonecall_button.id_, order=11)
-        create(ButtonMenuItem, 'activities-add_task_button', content_type=None, button_id=add_task_button.id_, order=12)
+        ButtonMenuItem.create('activities-add_meeting_button',   model=None, button=add_meeting_button,   order=10)
+        ButtonMenuItem.create('activities-add_phonecall_button', model=None, button=add_phonecall_button, order=11)
+        ButtonMenuItem.create('activities-add_task_button',      model=None, button=add_task_button,      order=12)
 
         SearchConfigItem.create(Activity, ['title', 'description', 'type__name'])
-
-
-

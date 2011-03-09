@@ -19,7 +19,7 @@
         </th>
         <th style="width: 10%;" align="right">
             <div class="buttons">
-                <a class="negative" onclick="creme.emails.mass_action('/emails/mail/delete', '[name=select_one]:checked', {% get_block_reload_uri %});">
+                <a class="negative" onclick="creme.emails.mass_action('/creme_core/delete_js', '[name=select_one]:checked', {% get_block_reload_uri %});">
                     <img src="{% media_url 'images/delete_22.png' %}" border="0" title="{% trans "Delete" %}" alt="{% trans "Delete" %}" />
                     {% trans "Delete" %}
                 </a>

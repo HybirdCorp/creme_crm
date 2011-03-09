@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2011  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -20,7 +20,6 @@
 
 from django.db.models import CharField, ManyToManyField
 from django.utils.translation import ugettext_lazy as _
-from django.contrib.contenttypes.models import ContentType
 
 from creme_core.models import CremeEntity
 
@@ -52,12 +51,9 @@ class EmailCampaign(CremeEntity):
     def get_lv_absolute_url():
         return "/emails/campaigns"
 
-    def get_delete_absolute_url(self):
-        return "/emails/campaign/delete/%s" % self.id
-
     def delete(self):
         for sending in self.sendings_set.all():
-            sending.mails_set.all().delete() #use CremeModel delete() ??
+            sending.mails_set.all().delete() #TODO: useful (already done in Sending.delete()) ??  #use CremeModel delete() ??
             sending.delete()
 
         super(EmailCampaign, self).delete()
@@ -66,17 +62,13 @@ class EmailCampaign(CremeEntity):
         #merge all the mailing_lists and their children
         lists = dict(pk_ml for ml in self.mailing_lists.all() for pk_ml in ml.get_family().iteritems()).values()
 
-        get_ct = ContentType.objects.get_for_model
-
         #manual recipients
-        recipients = dict((addr, None) for addr in EmailRecipient.objects.filter(ml__id__in=[ml.id for ml in lists]).values_list('address', flat=True))
+        recipients = dict((addr, None) for addr in EmailRecipient.objects.filter(ml__in=[ml.id for ml in lists]) \
+                                                                         .values_list('address', flat=True)
+                         )
 
-        #contacts recipients
-        ct = get_ct(Contact)
-        recipients.update((contact.email, (ct, contact)) for ml in lists for contact in ml.contacts.all() if contact.email)
-
-        #organisations recipients
-        ct = get_ct(Organisation)
-        recipients.update((orga.email, (ct, orga)) for ml in lists for orga in ml.organisations.all() if orga.email)
+        #contacts & organisations recipients
+        recipients.update((contact.email, contact) for ml in lists for contact in ml.contacts.all()      if contact.email)
+        recipients.update((orga.email,    orga)    for ml in lists for orga    in ml.organisations.all() if orga.email)
 
         return recipients.iteritems()

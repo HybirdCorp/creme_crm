@@ -26,7 +26,7 @@ from django.utils.translation import ugettext_lazy as _
 from creme_core.views.generic.popup import inner_popup
 from reports.forms.blocks import GraphInstanceBlockForm
 from reports.models.graph import ReportGraph
-#from reports.views.graph import report_graph_app, report_graph_ct
+
 
 #TODO: use add_to_entity() generic view
 
@@ -35,14 +35,14 @@ from reports.models.graph import ReportGraph
 #@permission_required('reports.add_reportgraph')
 def add_graph_instance_block(request, graph_id):
     graph = get_object_or_404(ReportGraph, pk=graph_id)
-    POST = request.POST
-    if POST:
-        graph_form = GraphInstanceBlockForm(graph, POST)
+
+    if request.method == 'POST':
+        graph_form = GraphInstanceBlockForm(graph=graph, user=request.user, data=request.POST)
 
         if graph_form.is_valid():
             graph_form.save()
     else:
-        graph_form = GraphInstanceBlockForm(graph=graph)
+        graph_form = GraphInstanceBlockForm(graph=graph, user=request.user)
 
     return inner_popup(request, 'creme_core/generics/blockform/add_popup2.html',
                        {
@@ -52,4 +52,5 @@ def add_graph_instance_block(request, graph_id):
                        is_valid=graph_form.is_valid(),
                        reload=False,
                        delegate_reload=True,
-                       context_instance=RequestContext(request))
+                       context_instance=RequestContext(request)
+                      )

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2011  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -176,22 +176,19 @@ END:VEVENT
     def get_edit_absolute_url(self):
         return "/activities/activity/edit/%s" % self.id
 
-    def get_delete_absolute_url(self):
-        return "/activities/activity/delete/%s" % self.id
-
     @staticmethod
     def get_lv_absolute_url():
         """url for list_view """
         return "/activities/activities"
 
     def get_participant_relations(self):
-        return Relation.objects.filter(object_entity=self.id, type=REL_SUB_PART_2_ACTIVITY)
+        return self.get_relations(REL_OBJ_PART_2_ACTIVITY, real_obj_entities=True)
 
     def get_subject_relations(self):
-        return Relation.objects.filter(object_entity=self.id, type=REL_SUB_ACTIVITY_SUBJECT)
+        return self.get_relations(REL_OBJ_ACTIVITY_SUBJECT, real_obj_entities=True)
 
     def get_linkedto_relations(self):
-        return Relation.objects.filter(object_entity=self.id, type=REL_SUB_LINKED_2_ACTIVITY)
+        return self.get_relations(REL_OBJ_LINKED_2_ACTIVITY, real_obj_entities=True)
 
     @staticmethod
     def _get_linked_aux(entity):
@@ -206,7 +203,6 @@ END:VEVENT
     @staticmethod
     def get_future_linked(entity, today):
         return Activity._get_linked_aux(entity).filter(end__gt=today).order_by('start')
-
 
     @staticmethod
     def get_future_linked_for_ctypes(ct_ids, today):

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2011  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,14 +19,13 @@
 ################################################################################
 
 from django.utils.translation import ugettext as _
-from django.contrib.contenttypes.models import ContentType
 
-from creme_core.utils import create_or_update_models_instance as create
+from creme_core.utils import create_or_update as create
 from creme_core.models.header_filter import HeaderFilterItem, HeaderFilter, HFI_FIELD
 from creme_core.models import RelationType, SearchConfigItem, ButtonMenuItem
 from creme_core.management.commands.creme_populate import BasePopulator
 
-from persons.models import Organisation
+from persons.models import Organisation, Contact
 
 from billing.models import *
 from billing.constants import *
@@ -40,7 +39,7 @@ class Populator(BasePopulator):
         RelationType.create((REL_SUB_BILL_ISSUED,   _(u"issued by")),   #[Invoice, Quote, SalesOrder]
                             (REL_OBJ_BILL_ISSUED,   _(u"has issued"),   [Organisation]))
         RelationType.create((REL_SUB_BILL_RECEIVED, _(u"received by")), #[Invoice, Quote, SalesOrder]
-                            (REL_OBJ_BILL_RECEIVED, _(u"has received"), [Organisation]))
+                            (REL_OBJ_BILL_RECEIVED, _(u"has received"), [Organisation, Contact]))
 
 
         #NB: pk=1 --> default status (used when a quote is converted in invoice for example)
@@ -53,7 +52,7 @@ class Populator(BasePopulator):
         create(PaymentTerms, 2, name=_(u"Cash"))
         create(PaymentTerms, 3, name=_(u"45 days"))
         create(PaymentTerms, 4, name=_(u"60 days"))
-        create(PaymentTerms, 5, name=_(u"30 days, end month the 10")) 
+        create(PaymentTerms, 5, name=_(u"30 days, end month the 10"))
 
         create(SalesOrderStatus, 1, name=_(u"Issued"),   is_custom=False) #default status
         create(SalesOrderStatus, 2, name=_(u"Accepted"), is_custom=True)
@@ -72,19 +71,15 @@ class Populator(BasePopulator):
         create(CreditNoteStatus, 1, name=_(u"Draft"),  is_custom=False)
         create(CreditNoteStatus, 2, name=_(u"Issued"), is_custom=True)
 
-        get_ct = ContentType.objects.get_for_model
-        invoice_ct_id = get_ct(Invoice).id
-        create(ButtonMenuItem, 'billing-generate_invoice_number',
-                                content_type_id=invoice_ct_id, button_id=generate_invoice_number_button.id_,
-                                order=0)
+        ButtonMenuItem.create(pk='billing-generate_invoice_number', model=Invoice, button=generate_invoice_number_button, order=0)
 
         def create_hf(hf_pk, hfi_pref, name, model):
-            hf_id = create(HeaderFilter, hf_pk, name=name, entity_type_id=get_ct(model).id, is_custom=False).id
-            create(HeaderFilterItem, hfi_pref + 'name',    order=1, name='name',            title=_(u'Name'),            type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True, editable=True, sortable=True, filter_string="name__icontains")
-            create(HeaderFilterItem, hfi_pref + 'number',  order=2, name='number',          title=_(u'Number'),          type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True, editable=True, sortable=True, filter_string="number__icontains")
-            create(HeaderFilterItem, hfi_pref + 'issdate', order=3, name='issuing_date',    title=_(u"Issuing date"),    type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True, editable=True, sortable=True, filter_string="issuing_date__range")
-            create(HeaderFilterItem, hfi_pref + 'expdate', order=4, name='expiration_date', title=_(u"Expiration date"), type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True, editable=True, sortable=True, filter_string="expiration_date__range")
-            create(HeaderFilterItem, hfi_pref + 'status',  order=5, name='status__name',    title=_(u'Status - Name'),   type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True, editable=True, sortable=True, filter_string="status__name__icontains")
+            hf = HeaderFilter.create(pk=hf_pk, name=name, model=model)
+            create(HeaderFilterItem, hfi_pref + 'name',    order=1, name='name',            title=_(u'Name'),            type=HFI_FIELD, header_filter=hf, has_a_filter=True, editable=True, sortable=True, filter_string="name__icontains")
+            create(HeaderFilterItem, hfi_pref + 'number',  order=2, name='number',          title=_(u'Number'),          type=HFI_FIELD, header_filter=hf, has_a_filter=True, editable=True, sortable=True, filter_string="number__icontains")
+            create(HeaderFilterItem, hfi_pref + 'issdate', order=3, name='issuing_date',    title=_(u"Issuing date"),    type=HFI_FIELD, header_filter=hf, has_a_filter=True, editable=True, sortable=True, filter_string="issuing_date__range")
+            create(HeaderFilterItem, hfi_pref + 'expdate', order=4, name='expiration_date', title=_(u"Expiration date"), type=HFI_FIELD, header_filter=hf, has_a_filter=True, editable=True, sortable=True, filter_string="expiration_date__range")
+            create(HeaderFilterItem, hfi_pref + 'status',  order=5, name='status__name',    title=_(u'Status - Name'),   type=HFI_FIELD, header_filter=hf, has_a_filter=True, editable=True, sortable=True, filter_string="status__name__icontains")
 
         create_hf('billing-hf_invoice',    'billing-hfi_invoice_',    _(u'Invoice view'),     Invoice)
         create_hf('billing-hf_quote',      'billing-hfi_quote_',      _(u'Quote view'),       Quote)

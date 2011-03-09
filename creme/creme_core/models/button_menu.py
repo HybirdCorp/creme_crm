@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2011  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -27,7 +27,7 @@ from creme_core.models import CremeModel
 
 class ButtonMenuItem(CremeModel):
     id           = CharField(primary_key=True, max_length=100)
-    content_type = ForeignKey(ContentType, verbose_name=_(u"Related type"), null=True)
+    content_type = ForeignKey(ContentType, verbose_name=_(u"Related type"), null=True) #null means: all ContentTypes are accepted.
     button_id    = CharField(_(u"Button ID"), max_length=100, blank=False, null=False)
     order        = PositiveIntegerField(_(u"Priority"))
 
@@ -35,3 +35,12 @@ class ButtonMenuItem(CremeModel):
         app_label = 'creme_core'
         verbose_name = _(u'Button to display')
         verbose_name_plural = _(u'Buttons to display')
+
+    @staticmethod
+    def create(pk, model, button, order):
+        """Creation helper ; useful for populate.py scripts.
+        @param model Can be None for 'all models'
+        """
+        from creme_core.utils import create_or_update
+        ct = ContentType.objects.get_for_model(model) if model else None
+        return create_or_update(ButtonMenuItem, pk, content_type=ct, button_id=button.id_, order=order)

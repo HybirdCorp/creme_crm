@@ -42,9 +42,9 @@ class AddContactsForm(CremeForm):
 
     blocks = FieldBlockManager(('general', _(u'Contacts recipients'), '*'))
 
-    def __init__(self, ml, *args, **kwargs):
+    def __init__(self, entity, *args, **kwargs):
         super(AddContactsForm, self).__init__(*args, **kwargs)
-        self.ml = ml
+        self.ml = entity
 
     def save(self):
         contacts = self.ml.contacts
@@ -54,14 +54,14 @@ class AddContactsForm(CremeForm):
             contacts.add(contact)
 
 
-class AddOrganisationsForm(CremeForm):
+class AddOrganisationsForm(CremeForm): #TODO: factorise
     recipients = MultiCremeEntityField(label=_(u'Organisations'), required=False, model=Organisation) # other filter (name + email)??
 
     blocks = FieldBlockManager(('general', _(u'Organisations recipients'), '*'))
 
-    def __init__(self, ml, *args, **kwargs):
+    def __init__(self, entity, *args, **kwargs):
         super(AddOrganisationsForm, self).__init__(*args, **kwargs)
-        self.ml = ml
+        self.ml = entity
 
     def save(self):
         organisations = self.ml.organisations
@@ -77,9 +77,9 @@ class AddPersonsFromFilterForm(CremeForm): #private class ???
 
     person_model = None #Contact/Organisation
 
-    def __init__(self, ml, *args, **kwargs):
+    def __init__(self, entity, *args, **kwargs):
         super(AddPersonsFromFilterForm, self).__init__(*args, **kwargs)
-        self.ml = ml
+        self.ml = entity
 
         choices = [(0, _(u'All'))]
 
@@ -89,7 +89,7 @@ class AddPersonsFromFilterForm(CremeForm): #private class ???
         self.fields['filters'].choices = choices
 
     def get_persons_m2m(self):
-        raise NotImplementedError 
+        raise NotImplementedError
 
     def save(self):
         persons   = self.get_persons_m2m()
@@ -129,9 +129,9 @@ class AddChildForm(CremeForm):
 
     blocks = FieldBlockManager(('general', _(u'Child mailing list'), '*'))
 
-    def __init__(self, ml, *args, **kwargs):
+    def __init__(self, entity, *args, **kwargs):
         super(AddChildForm, self).__init__(*args, **kwargs)
-        self.ml = ml
+        self.ml = entity
 
     def clean_child(self):
         child = self.cleaned_data['child']

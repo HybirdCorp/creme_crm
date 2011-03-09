@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2011  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,13 +18,14 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from logging import info
+
 from django.utils.translation import ugettext as _
-from django.contrib.contenttypes.models import ContentType
+from django.conf import settings
 
 from creme_core.models.header_filter import HeaderFilterItem, HeaderFilter, HFI_FIELD
 from creme_core.models import RelationType, BlockConfigItem, ButtonMenuItem, SearchConfigItem, SearchField
-from creme_core.utils import create_or_update_models_instance as create
-from creme_core.utils.meta import get_verbose_field_name
+from creme_core.utils import create_or_update as create
 from creme_core.management.commands.creme_populate import BasePopulator
 
 from creme_config.models import CremeKVConfig
@@ -45,7 +46,7 @@ class Populator(BasePopulator):
 
     def populate(self, *args, **kwargs):
         RelationType.create((REL_SUB_TARGETS_ORGA,      _(u'targets the organisation'),          [Opportunity]),
-                            (REL_OBJ_TARGETS_ORGA,      _(u"targeted by the opportunity")), is_internal=True)
+                            (REL_OBJ_TARGETS_ORGA,      _(u"targeted by the opportunity")),      is_internal=True)
         RelationType.create((REL_SUB_LINKED_PRODUCT,    _(u"is linked to the opportunity"),      [Product]),
                             (REL_OBJ_LINKED_PRODUCT,    _(u"concerns the product"),              [Opportunity]))
         RelationType.create((REL_SUB_LINKED_SERVICE,    _(u"is linked to the opportunity"),      [Service]),
@@ -83,15 +84,109 @@ class Populator(BasePopulator):
         create(Origin, 8, name=_(u"Partner"),          description="...")
         create(Origin, 9, name=_(u"Other"),            description="...")
 
-        get_ct = ContentType.objects.get_for_model
+        hf   = HeaderFilter.create(pk='opportunities-hf', name=_(u'Opportunity view'), model=Opportunity)
+        pref = 'opportunities-hfi_'
+        create(HeaderFilterItem, pref + 'name',    order=1, name='name',              title=_(u'Name'),               type=HFI_FIELD, header_filter=hf, has_a_filter=True, editable=True, sortable=True, filter_string="name__icontains")
+        create(HeaderFilterItem, pref + 'ref',     order=2, name='reference',         title=_(u'Reference'),          type=HFI_FIELD, header_filter=hf, has_a_filter=True, editable=True, sortable=True, filter_string="reference__icontains")
+        create(HeaderFilterItem, pref + 'phase',   order=3, name='sales_phase__name', title=_(u'Sales phase - Name'), type=HFI_FIELD, header_filter=hf, has_a_filter=True, editable=True, sortable=True, filter_string="sales_phase__name__icontains")
+        create(HeaderFilterItem, pref + 'expdate', order=4, name='closing_date',      title=_(u'Closing date'),       type=HFI_FIELD, header_filter=hf, has_a_filter=True, editable=True, sortable=True, filter_string="closing_date__range")
 
-        hf_id = create(HeaderFilter, 'opportunities-hf', name=_(u"Opportunity view"), entity_type_id=get_ct(Opportunity).id, is_custom=False).id
-        pref  = 'opportunities-hfi_'
-        create(HeaderFilterItem, pref + 'name',    order=1, name='name',              title=_(u'Name'),                type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True, editable=True, sortable=True, filter_string="name__icontains")
-        create(HeaderFilterItem, pref + 'ref',     order=2, name='reference',         title=_(u'Reference'),           type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True, editable=True, sortable=True, filter_string="reference__icontains")
-        create(HeaderFilterItem, pref + 'phase',   order=3, name='sales_phase__name', title=_(u'Sales phase - Name'),  type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True, editable=True, sortable=True, filter_string="sales_phase__name__icontains")
-        create(HeaderFilterItem, pref + 'expdate', order=4, name='closing_date',      title=_(u'Closing date'),        type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True, editable=True, sortable=True, filter_string="closing_date__range")
-
-        create(ButtonMenuItem, 'opportunities-linked_opp_button', content_type_id=get_ct(Organisation).id, button_id=linked_opportunity_button.id_, order=30)
+        ButtonMenuItem.create(pk='opportunities-linked_opp_button', model=Organisation, button=linked_opportunity_button, order=30)
 
         SearchConfigItem.create(Opportunity, ['name', 'made_sales', 'sales_phase__name', 'origin__name'])
+
+        if 'creme.reports' in settings.INSTALLED_APPS:
+            info('Reports app is installed => we create an Opportunity report, with 2 graphs, and related blocks')
+            self.create_reports()
+
+    def create_reports(self):
+        from django.contrib.contenttypes.models import ContentType
+        from django.contrib.auth.models import User
+
+        from creme_core import autodiscover as creme_core_autodiscover
+        from creme_core.models import BlockConfigItem, InstanceBlockConfigItem
+        from creme_core.models.list_view_filter import Filter, FilterCondition, FilterValue
+        from creme_core.models.header_filter import HFI_RELATION
+        from creme_core.gui.block import block_registry
+        from creme_core.utils.meta import get_verbose_field_name
+        from creme_core.utils.id_generator import generate_string_id_and_save
+        from creme_core.constants import FILTER_TYPE_EQUALS
+
+        from reports.models import Report, Field, ReportGraph
+        from reports.models.graph import RGT_FK, RGT_RANGE
+        from reports.blocks import ReportGraphBlock
+
+        #Create the report 'Opportunities generated by organisation managed by Creme'
+
+        opp_ct = ContentType.objects.get_for_model(Opportunity)
+
+        #Create a list view filter to use it in the report
+        opp_filter = create(Filter, name=_(u"Generated by a creme managed organisation"), model_ct=opp_ct, is_custom=False)
+        opp_filter_cond  = create(FilterCondition, type_id=FILTER_TYPE_EQUALS, champ='relations__type__id')
+        opp_filter_value = create(FilterValue, value=REL_OBJ_EMIT_ORGA)
+
+        opp_filter_cond.values = [opp_filter_value]
+        opp_filter_cond.save()
+
+        opp_filter.conditions = [opp_filter_cond]
+        opp_filter.save()
+
+        admin = User.objects.get(pk=1)
+
+        #Create the report
+        opp_report = create(Report, name=_(u"Opportunities generated by a creme managed organisation"), ct=opp_ct, filter=opp_filter, user=admin)
+        opp_report_columns = []
+
+        try:
+            #Create fields of the report
+            rt = RelationType.objects.get(pk=REL_OBJ_EMIT_ORGA)
+            opp_report_columns.append(create(Field, name='name',              title=get_verbose_field_name(Opportunity, 'name'),              order=1, type=HFI_FIELD))
+            opp_report_columns.append(create(Field, name='estimated_sales',   title=get_verbose_field_name(Opportunity, 'estimated_sales'),   order=2, type=HFI_FIELD))
+            opp_report_columns.append(create(Field, name='made_sales',        title=get_verbose_field_name(Opportunity, 'made_sales'),        order=3, type=HFI_FIELD))
+            opp_report_columns.append(create(Field, name='sales_phase__name', title=get_verbose_field_name(Opportunity, 'sales_phase__name'), order=4, type=HFI_FIELD))
+            opp_report_columns.append(create(Field, name=REL_OBJ_EMIT_ORGA,   title=unicode(rt),                                              order=5, type=HFI_RELATION))
+        except RelationType.DoesNotExist:
+            if kwargs.get('verbose', False):
+                print "%s does not exist. Have you done Opportunies populates?" % REL_OBJ_EMIT_ORGA
+
+        opp_report.columns = opp_report_columns
+        opp_report.save()
+
+        #Create 2 graphs
+        graph_name_1 = _(u"Sum %(estimated_sales)s / %(sales_phase)s") % {
+                            'estimated_sales': get_verbose_field_name(Opportunity, 'estimated_sales'),
+                            'sales_phase':     get_verbose_field_name(Opportunity, 'sales_phase'),
+                        }
+        graph_name_2 = _(u"Sum %(estimated_sales)s / Quarter (90 days on %(closing_date)s)") % {
+                            'estimated_sales': get_verbose_field_name(Opportunity, 'estimated_sales'),
+                            'closing_date':    get_verbose_field_name(Opportunity, 'closing_date'),
+                        }
+        opp_report_graph_1 = create(ReportGraph, name=graph_name_1, report=opp_report, abscissa='sales_phase',  ordinate='estimated_sales__sum', type=RGT_FK,    is_count=False, user=admin)
+        opp_report_graph_2 = create(ReportGraph, name=graph_name_2, report=opp_report, abscissa='closing_date', ordinate='estimated_sales__sum', type=RGT_RANGE, is_count=False, user=admin, days=90)
+
+
+        old_bci = BlockConfigItem.objects.filter(content_type=opp_ct)
+        if old_bci:
+            info('Delete the old block config for Opportunies')
+            old_bci.delete()
+
+        #Create 2 instance block items for the 2 graphs
+#            opp_rgraph1_vcolumn = '%s#%s' % (REL_OBJ_EMIT_ORGA, HFI_RELATION)
+        rgraph_1_instance_block = create(InstanceBlockConfigItem, entity=opp_report_graph_1, block_id=ReportGraphBlock.generate_id('creme_config', u"%s_" % (opp_report_graph_1.id, )), verbose = u"%s - %s" % (opp_report_graph_1, _(u'None')), data='')
+        rgraph_2_instance_block = create(InstanceBlockConfigItem, entity=opp_report_graph_2, block_id=ReportGraphBlock.generate_id('creme_config', u"%s_" % (opp_report_graph_2.id, )), verbose = u"%s - %s" % (opp_report_graph_2, _(u'None')), data='')
+
+        rgraph_1_instance_block_id = rgraph_1_instance_block.block_id
+        rgraph_2_instance_block_id = rgraph_2_instance_block.block_id
+
+        blocks_to_save = [
+            BlockConfigItem(content_type=opp_ct, block_id=rgraph_1_instance_block_id, order=1, on_portal=True),
+            BlockConfigItem(content_type=opp_ct, block_id=rgraph_2_instance_block_id, order=2, on_portal=True)
+        ]
+
+        creme_core_autodiscover()
+        block_ids = [id_ for id_, block in block_registry if block.configurable]
+        for i, block_id in enumerate(block_ids):
+            blocks_to_save.append(BlockConfigItem(content_type=opp_ct, block_id=block_id, order=i+3, on_portal=False))
+
+        #Set instance graphs on opportunity portal
+        generate_string_id_and_save(BlockConfigItem, blocks_to_save, 'creme_config-userbci')

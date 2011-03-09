@@ -28,9 +28,9 @@ from creme_core.utils import chunktools
 from sms.models.campaign import SMSCampaign
 from sms.models.template import MessageTemplate
 
-from sms.webservice.samoussa import (SamoussaBackEnd, 
-                                     SAMOUSSA_STATUS_ACCEPT, 
-                                     SAMOUSSA_STATUS_WAITING, 
+from sms.webservice.samoussa import (SamoussaBackEnd,
+                                     SAMOUSSA_STATUS_ACCEPT,
+                                     SAMOUSSA_STATUS_WAITING,
                                      SAMOUSSA_STATUS_SENT,
                                      SAMOUSSA_STATUS_ERROR,)
 from sms.webservice.backend import WSException
@@ -80,6 +80,7 @@ class Sending(CremeModel):
         return super(Sending, self).delete()
 
 
+#TODO: keep the related entity (to hide the number when the entity is not viewable)
 class Message(CremeModel):
     sending = ForeignKey(Sending, verbose_name=_(u'Sending'), related_name='messages')
     phone  = CharField(_(u'Number'), max_length=100)
@@ -146,10 +147,10 @@ class Message(CremeModel):
                 res = ws.send_messages(content, list(numbers), sending_id)
                 not_accepted = res.get('not_accepted', [])
             except WSException, err:
-                Message.objects.filter(pk__in=pks).update(status_message=unicode(err)) 
+                Message.objects.filter(pk__in=pks).update(status_message=unicode(err))
 
             for phone, status, status_message in not_accepted:
-                Message.objects.filter(phone=phone, sending__id=sending_id).update(status=status, 
+                Message.objects.filter(phone=phone, sending__id=sending_id).update(status=status,
                                                                                    status_message=status_message)
 
             Message.objects.filter(status=MESSAGE_STATUS_NOTSENT).update(status=MESSAGE_STATUS_ACCEPT, status_message='')
@@ -173,7 +174,7 @@ class Message(CremeModel):
             print res
 
             for phone, status, status_message in res:
-                Message.objects.filter(phone=phone, sending__id=sending_id).update(status=status, 
+                Message.objects.filter(phone=phone, sending__id=sending_id).update(status=status,
                                                                                    status_message=status_message)
 
         Message._do_action(sending, messages, action, 256)
@@ -198,7 +199,7 @@ class Message(CremeModel):
 #    def syncs(request):
 #        messages = dict((str(message.pk) + '-' + str(message.sending_id), message) for message in request)
 #        samoussa = SamoussaBackEnd().connect()
-#        
+#
 #        for entry in samoussa.messages(user_data=messages.iterkeys()):
 #            message = messages.get(entry.get('user_data'))
 #            message.status = entry.get('status')

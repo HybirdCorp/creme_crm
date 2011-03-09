@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2011  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -21,7 +21,7 @@
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.contenttypes.models import ContentType
 
-from creme_core.models import Relation
+from creme_core.models import CremeEntity, Relation
 from creme_core.gui.block import Block, PaginatedBlock, QuerysetBlock
 
 from activities.models import Activity
@@ -38,33 +38,38 @@ class ManagersBlock(QuerysetBlock):
     verbose_name  = _(u"Organisation managers")
     template_name = 'persons/templatetags/block_managers.html'
 
+    def _get_people_qs(self, orga):
+        return orga.get_managers()
+
+    def _get_add_title(self):
+        return _(u'Create a manager') #lazy -> translated only if used
+
     def detailview_display(self, context):
         orga = context['object']
+        btc = self.get_block_template_context(context,
+                                              self._get_people_qs(orga).select_related('civility'),
+                                              update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, orga.pk),
+                                              rtype_id=self.relation_type_deps[0],
+                                              ct=ContentType.objects.get_for_model(Contact),
+                                              add_title=self._get_add_title(),
+                                             )
 
-        return self._render(self.get_block_template_context(context,
-                                                            orga.get_managers(),
-                                                            update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, orga.pk),
-                                                            predicate_id=REL_OBJ_MANAGES,
-                                                            ct=ContentType.objects.get_for_model(Contact),
-                                                            ))
+        CremeEntity.populate_credentials(btc['page'].object_list, context['user'])
 
-#TODO factorise with ManagersBlock ??
-class EmployeesBlock(QuerysetBlock):
+        return self._render(btc)
+
+
+class EmployeesBlock(ManagersBlock):
     id_           = QuerysetBlock.generate_id('persons', 'employees')
-    dependencies  = (Relation,) #Contact
     relation_type_deps = (REL_OBJ_EMPLOYED_BY, )
     verbose_name  = _(u"Organisation employees")
     template_name = 'persons/templatetags/block_employees.html'
 
-    def detailview_display(self, context):
-        orga = context['object']
+    def _get_people_qs(self, orga):
+        return orga.get_employees()
 
-        return self._render(self.get_block_template_context(context,
-                                                            orga.get_employees(),
-                                                            update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, orga.pk),
-                                                            predicate_id=REL_OBJ_EMPLOYED_BY,
-                                                            ct=ContentType.objects.get_for_model(Contact),
-                                                            ))
+    def _get_add_title(self):
+        return _(u'Create an employee') #lazy -> translated only if used
 
 
 class NeglectedOrganisationsBlock(PaginatedBlock):
@@ -112,10 +117,14 @@ class NeglectedOrganisationsBlock(PaginatedBlock):
         return neglected_orgas
 
     def detailview_display(self, context): #indeed it is displayed on portal of 'persons'
-        return self._render(self.get_block_template_context(context,
-                                                            self._get_neglected(context['today']),
-                                                            update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
-                                                          ))
+        btc = self.get_block_template_context(context,
+                                              self._get_neglected(context['today']),
+                                              update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
+                                             )
+
+        CremeEntity.populate_credentials(btc['page'].object_list, context['user'])
+
+        return self._render(btc)
 
 
 class AddressBlock(Block):
@@ -125,9 +134,9 @@ class AddressBlock(Block):
     template_name = 'persons/templatetags/block_address.html'
 
     def detailview_display(self, context):
-        object = context['object']
-        return self._render(self.get_block_template_context(context ,
-                            update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, object.pk)))
+        return self._render(self.get_block_template_context(context,
+                                                            update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, context['object'].pk),
+                                                           ))
 
 
 class OtherAddressBlock(QuerysetBlock):
@@ -139,17 +148,17 @@ class OtherAddressBlock(QuerysetBlock):
 
     def detailview_display(self, context):
         person = context['object']
-
         l_pk = [address.pk for address in (person.billing_address, person.shipping_address) if address]
-        q_address = Address.objects.filter(object_id=person.id).exclude(pk__in=l_pk)
 
-        return self._render(self.get_block_template_context(context, q_address,
-                                                            update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, person.pk)
+        return self._render(self.get_block_template_context(context,
+                                                            Address.objects.filter(object_id=person.id).exclude(pk__in=l_pk),
+                                                            update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, person.pk),
+                                                            ct_id=ContentType.objects.get_for_model(Address).id,
                                                            ))
 
 
-address_block = AddressBlock ()
-other_address_block = OtherAddressBlock ()
+address_block = AddressBlock()
+other_address_block = OtherAddressBlock()
 managers_block  = ManagersBlock()
 employees_block = EmployeesBlock()
 neglected_orgas_block = NeglectedOrganisationsBlock()

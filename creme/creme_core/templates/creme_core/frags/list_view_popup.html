@@ -1,29 +1,27 @@
 {% extends "creme_core/frags/list_view.html" %}
 
 {% block extrahead %}
-<script type="text/javascript">
-    $('[name=inner_body] form', '#{{whoami}}').list_view('setSubmit', function(input){
+    <script type="text/javascript">
+        $('[name=inner_body] form', '#{{whoami}}').list_view('setSubmit', function(input) {
+            var url = creme.utils.appendInUrl($('[name="inner_header_from_url"]', $('#{{whoami}}')).val(), '?ajax=true');
 
-        var url = creme.utils.appendInUrl($('[name="inner_header_from_url"]', $('#{{whoami}}')).val(), '?ajax=true');
-        
-        $(input.form).list_view('setReloadUrl', url);
+            $(input.form).list_view('setReloadUrl', url);
 
-        var options = {
-                        'action': url,
-                        'success': function(data, status){
-                            data += '<input type="hidden" name="whoami" value="{{whoami}}"/>'
-                            $('[name=inner_body] form', '#{{whoami}}').html(data);
-                        }
-                      };
+            var options = {
+                            'action': url,
+                            'success': function(data, status) {
+                                data += '<input type="hidden" name="whoami" value="{{whoami}}"/>'
+                                $('[name=inner_body] form', '#{{whoami}}').html(data);
+                            }
+                          };
 
-        $(input.form).list_view(
-            'handleSubmit',
-            input.form,
-            options,
-            input,
-            {'whoami':'{{whoami}}'}
-        );
-    });
-</script>
+            $(input.form).list_view(
+                'handleSubmit',
+                input.form,
+                options,
+                input,
+                {'whoami':'{{whoami}}'}
+            );
+        });
+    </script>
 {% endblock %}
-

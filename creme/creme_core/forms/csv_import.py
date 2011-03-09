@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2011  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,6 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from functools import partial
 from itertools import chain
 from logging import info
 
@@ -34,8 +35,9 @@ from django.contrib.auth.models import User
 
 from creme_core.models import CremePropertyType, CremeProperty, RelationType, Relation, CremeEntity
 from base import CremeForm, CremeModelForm, FieldBlockManager
-from fields import RelatedEntitiesField, CremeEntityField
+from fields import MultiRelationEntityField, CremeEntityField
 from widgets import UnorderedMultipleChoiceWidget
+from validators import validate_linkable_entities
 
 from documents.models import Document
 
@@ -53,10 +55,11 @@ class CSVUploadForm(CremeForm):
     csv_has_header = BooleanField(label=_(u'Header present ?'), required=False,
                                   help_text=_(u"""Does the first line of the line contain the header of the columns (eg: "Last name","First name") ?"""))
 
-    def __init__(self, request, *args, **kwargs):
+    #def __init__(self, request, *args, **kwargs):
+    def __init__(self, *args, **kwargs):
         super(CSVUploadForm, self).__init__(*args, **kwargs)
         #self._request    = request
-        self._user = request.user #TODO: 'user' instead of 'request' as arg
+        #self._user = request.user #TODO: 'user' instead of 'request' as arg
         self._csv_header = None
 
     @property
@@ -67,7 +70,8 @@ class CSVUploadForm(CremeForm):
         cleaned_data = self.cleaned_data
         csv_document = cleaned_data['csv_document']
 
-        if not self._user.has_perm('creme_core.view_entity', csv_document):
+        #if not self._user.has_perm('creme_core.view_entity', csv_document):
+        if not self.user.has_perm('creme_core.view_entity', csv_document):
             raise ValidationError(ugettext("You have not the credentials to read this document."))
 
         if cleaned_data['csv_has_header']:
@@ -248,10 +252,8 @@ class CSVImportForm(CremeModelForm):
 
     blocks = FieldBlockManager(('general', _(u'Importing from a CSV file'), '*'))
 
-    def __init__(self, request, *args, **kwargs):
+    def __init__(self, *args, **kwargs):
         super(CSVImportForm, self).__init__(*args, **kwargs)
-        #self._request = request
-        self._user = request.user #TODO: 'user' instead of 'request' as arg
         self.import_errors = LimitedList(50)
         self.imported_objects_count = 0
 
@@ -267,7 +269,7 @@ class CSVImportForm(CremeModelForm):
         except Document.DoesNotExist:
             raise ValidationError(ugettext("This document doesn't exist or doesn't exist any more."))
 
-        if not self._user.has_perm('creme_core.view_entity', csv_document):
+        if not self.user.has_perm('creme_core.view_entity', csv_document):
             raise ValidationError(ugettext("You have not the credentials to read this document."))
 
         return csv_document
@@ -332,17 +334,16 @@ class CSVImportForm(CremeModelForm):
 
 
 class CSVImportForm4CremeEntity(CSVImportForm):
-    user = ModelChoiceField(label=_('User'), queryset=User.objects.all(), empty_label=None)
+    user           = ModelChoiceField(label=_('User'), queryset=User.objects.all(), empty_label=None)
+    property_types = ModelMultipleChoiceField(label=_(u'Properties'), required=False,
+                                              queryset=CremePropertyType.objects.none(),
+                                              widget=UnorderedMultipleChoiceWidget)
+    relations      = MultiRelationEntityField(label=_(u'Relations'), required=False)
 
     blocks = FieldBlockManager(('general',    _(u'Generic information'),  '*'),
                                ('properties', _(u'Related properties'),   ('property_types',)),
                                ('relations',  _(u'Associated relations'), ('relations',)),
                               )
-
-    property_types = ModelMultipleChoiceField(label=_(u'Properties'), required=False,
-                                              queryset=CremePropertyType.objects.none(),
-                                              widget=UnorderedMultipleChoiceWidget)
-    relations      = RelatedEntitiesField(label=_(u'Relations'), required=False)
 
     class Meta:
         exclude = ('is_deleted', 'is_actived')
@@ -354,7 +355,17 @@ class CSVImportForm4CremeEntity(CSVImportForm):
         ct     = ContentType.objects.get_for_model(self._meta.model)
 
         fields['property_types'].queryset = CremePropertyType.objects.filter(Q(subject_ctypes=ct) | Q(subject_ctypes__isnull=True))
-        fields['relations'].relation_types = RelationType.get_compatible_ones(ct)
+        fields['relations'].set_allowed_rtypes(rtype.id for rtype in RelationType.get_compatible_ones(ct)) #TODO: use values_list('id', flat=True)
+        fields['user'].initial = self.user.id
+
+    def clean_relations(self):
+        relations = self.cleaned_data['relations']
+        user = self.user
+
+        #TODO: self._check_duplicates(relations, user) #see RelationCreateForm
+        validate_linkable_entities([entity for rt_id, entity in relations], user)
+
+        return relations
 
     def _post_instance_creation(self, instance):
         cleaned_data = self.cleaned_data
@@ -362,15 +373,10 @@ class CSVImportForm4CremeEntity(CSVImportForm):
         for prop_type in cleaned_data['property_types']:
             CremeProperty(type=prop_type, creme_entity=instance).save()
 
-        user_id = instance.user.id
+        create_relation = partial(Relation.objects.create, user=instance.user, subject_entity=instance)
 
-        for relationtype_id, entity in cleaned_data['relations']:
-            relation = Relation()
-            relation.user_id = user_id
-            relation.type_id = relationtype_id
-            relation.subject_entity = instance
-            relation.object_entity_id = entity.id
-            relation.save()
+        for relationtype, entity in cleaned_data['relations']:
+            create_relation(type=relationtype, object_entity=entity)
 
 
 #NB: we use ModelForm to get the all the django machinery to build a form from a model
@@ -401,8 +407,10 @@ def form_factory(ct, header):
         if selected_column is None:
             selected_column = header_dict.get(modelfield.name.lower(), 0)
 
-        return CSVExtractorField(choices, modelfield, formfield, label=modelfield.verbose_name,
-                                 initial={'selected_column': selected_column})
+        return CSVExtractorField(choices, modelfield, formfield,
+                                 label=modelfield.verbose_name,
+                                 initial={'selected_column': selected_column}
+                                )
 
 
     model_class = ct.model_class()

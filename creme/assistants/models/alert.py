@@ -42,6 +42,11 @@ class Alert(CremeModel):
 
     for_user            = ForeignKey(User, verbose_name=_(u'Assigned to'), blank=True, null=True, related_name='user_alert_assigned_set')
 
+    class Meta:
+        app_label = 'assistants'
+        verbose_name = _('Alert')
+        verbose_name_plural = _(u'Alerts')
+
     @staticmethod
     def get_alerts(entity):
         return Alert.objects.filter(is_validated=False, entity_id=entity.id).select_related('for_user')
@@ -54,10 +59,8 @@ class Alert(CremeModel):
     def get_alerts_for_ctypes(ct_ids, user):
         return Alert.objects.filter(entity_content_type__in=ct_ids, for_user=user).select_related('for_user')
 
-    class Meta:
-        app_label = 'assistants'
-        verbose_name = _('Alert')
-        verbose_name_plural = _(u'Alerts')
+    def get_related_entity(self): #for generic views
+        return self.creme_entity
 
 
 #TODO: can delete this with  a WeakForeignKey ??

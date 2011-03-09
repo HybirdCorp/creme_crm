@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2011  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,11 +19,10 @@
 ################################################################################
 
 from django.utils.translation import ugettext as _
-from django.contrib.contenttypes.models import ContentType
 
 from creme_core.models import SearchConfigItem
 from creme_core.models.header_filter import HeaderFilterItem, HeaderFilter, HFI_FIELD
-from creme_core.utils import create_or_update_models_instance as create
+from creme_core.utils import create_or_update as create
 from creme_core.management.commands.creme_populate import BasePopulator
 
 from models import Graph
@@ -33,11 +32,9 @@ class Populator(BasePopulator):
     dependencies = ['creme.creme_core']
 
     def populate(self, *args, **kwargs):
-        get_ct = ContentType.objects.get_for_model
-
-        hf_id = create(HeaderFilter, 'graphs-hf', name=_(u'Graph view'), entity_type_id=get_ct(Graph).id, is_custom=False).id
+        hf = HeaderFilter.create(pk='graphs-hf', name=_(u'Graph view'), model=Graph)
         pref  = 'graphs-hfi_graph_'
-        create(HeaderFilterItem, pref + 'name', order=1, name='name', title=_(u'Name'), type=HFI_FIELD, header_filter_id=hf_id, has_a_filter=True, editable=True, sortable=True, filter_string="name__icontains")
+        create(HeaderFilterItem, pref + 'name', order=1, name='name', title=_(u'Name'), type=HFI_FIELD, header_filter=hf, has_a_filter=True, editable=True, sortable=True, filter_string="name__icontains")
 
         SearchConfigItem.create(Graph, ['name'])
-        
+

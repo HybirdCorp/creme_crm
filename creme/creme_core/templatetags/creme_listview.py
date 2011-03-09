@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2011  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -39,75 +39,77 @@ def get_listview_filters(context):
     #TODO: Make the same manner as hf
     filter_id = context['filter_id']
     selected = None
+    perm = False
+
     if filter_id:
         try:
             selected = filters.get(pk=filter_id)
         except Filter.DoesNotExist:
             pass
+        else:
+            perm = selected.can_edit_or_delete(context['request'].user)[0]
 
     context['select_values'] = [{'value': filter_.id, 'text': filter_.name} for filter_ in filters] #TODO: use queryset.values('id', 'name') ??
     context['filter']        = selected
+    context['can_edit_or_delete'] = perm
     return context
 
 @register.inclusion_tag('creme_core/templatetags/listview_headerfilters.html', takes_context=True)
 def get_listview_headerfilters(context):
     hfilters = context['header_filters']
+    hfilter  = hfilters.selected
 
+    context['hfilter'] = hfilter
+    context['can_edit_or_delete'] = hfilter.can_edit_or_delete(context['request'].user)[0]
     context['select_values'] = [{'value': hfilter.id, 'text': hfilter.name} for hfilter in hfilters]
-    context['hfilter']       = hfilters.selected
 
     return context
 
-def _build_bool_search_widget(item_ctx, search_value):
+#get_listview_columns_header####################################################
+
+def _build_bool_search_widget(widget_ctx, search_value):
     #TODO : Hack or not ? / Remember selected value ?
     selected_value = search_value[0] if search_value else None
-    item_ctx['type'] = 'checkbox'
-    item_ctx['values'] = [{
-                            'value':    '1',
-                            'text':     _("Yes"),
-                            'selected': 'selected' if selected_value == '1' else ''
-                           }, {
-                            'value':    '0',
-                            'text':     _("No"),
-                            'selected': 'selected' if selected_value == '0' else ''
-                           }
-                ]
+    widget_ctx['type'] = 'checkbox'
+    widget_ctx['values'] = [{
+                                'value':    '1',
+                                'text':     _("Yes"),
+                                'selected': 'selected' if selected_value == '1' else ''
+                            }, {
+                                'value':    '0',
+                                'text':     _("No"),
+                                'selected': 'selected' if selected_value == '0' else ''
+                            }
+                           ]
 
-def _build_date_search_widget(item_ctx, search_value):
+def _build_date_search_widget(widget_ctx, search_value):
     #TODO: Needs datetime validation
-    item_ctx['type'] = 'datefield'
+    widget_ctx['type'] = 'datefield'
     if search_value:
-        if len(search_value) > 1:
-            item_ctx['values'] = {'start': search_value[0], 'end': search_value[1]}
-        elif len(search_value) == 1:
-            item_ctx['values'] = {'start': search_value[0], 'end': search_value[0]}
+        widget_ctx['values'] = {'start': search_value[0], 'end': search_value[-1]}
 
-def _build_select_search_widget(item_ctx, search_value, choices):
+def _build_select_search_widget(widget_ctx, search_value, choices):
     selected_value = unicode(search_value[0].decode('utf-8')) if search_value else None #bof bof
-    item_ctx['type'] = 'select'
-    item_ctx['values'] = [{
-                            'value':    id_,
-                            'text':     unicode(val),
-                            'selected': 'selected' if selected_value == unicode(id_) else ''
-                          } for id_, val in choices
-                         ]
+    widget_ctx['type'] = 'select'
+    widget_ctx['values'] = [{
+                                'value':    id_,
+                                'text':     unicode(val),
+                                'selected': 'selected' if selected_value == unicode(id_) else ''
+                            } for id_, val in choices
+                           ]
 
 @register.inclusion_tag('creme_core/templatetags/listview_columns_header.html', takes_context=True)
 def get_listview_columns_header(context):
-    model               = context['model']
-    list_view_state     = context['list_view_state']
-    header_filter_items = context['columns']
-
-    header_searches = dict((name_attribut, value) for (name_attribut, pk, type, pattern, value) in list_view_state.research)
-    header_ctx = {}
+    model           = context['model']
+    header_searches = dict((attr_name, value) for (attr_name, pk, type, pattern, value) in context['list_view_state'].research)
     get_model_field = model._meta.get_field
 
-    for item in header_filter_items:
+    for item in context['columns']:
         if not item.has_a_filter:
             continue
 
-        item_value = header_searches.get(item.name, '') #TODO: rename....
-        item_dict = {'value': item_value, 'type': 'text'}
+        item_value = header_searches.get(item.name, '')
+        widget_ctx = {'value': item_value, 'type': 'text'}
         item_type = item.type
 
         if item_type == HFI_FIELD:
@@ -120,72 +122,72 @@ def get_listview_columns_header(context):
                         field = sub_field_obj
                 else:
                     field = get_model_field(field_name)
-
             except models.FieldDoesNotExist:
                 continue
 
             if isinstance(field, models.ForeignKey):
-                _build_select_search_widget(item_dict, item_value,
+                _build_select_search_widget(widget_ctx, item_value,
                                             ((o.id, o) for o in field.rel.to.objects.distinct().order_by(*field.rel.to._meta.ordering) if unicode(o) != ""))
             elif isinstance(field, models.BooleanField):
-                _build_bool_search_widget(item_dict, item_value)
+                _build_bool_search_widget(widget_ctx, item_value)
             elif isinstance(field, (models.DateField, models.DateTimeField)):
-                _build_date_search_widget(item_dict, item_value)
-            #elif hasattr(item_value, '__iter__') and len(item_value) >= 1: #TODO: "elif item_value"
+                _build_date_search_widget(widget_ctx, item_value)
             elif item_value:
-                item_dict['value'] = item_value[0]
+                widget_ctx['value'] = item_value[0]
         elif item_type == HFI_FUNCTION:
-            #if hasattr(item_value, '__iter__') and len(item_value) >= 1:
             if item_value:
-                item_dict['value'] = item_value[0]
+                widget_ctx['value'] = item_value[0]
         elif item_type == HFI_RELATION:
-            #if hasattr(item_value, '__iter__') and len(item_value) >= 1:
             if item_value:
-                item_dict['value'] = item_value[0]
+                widget_ctx['value'] = item_value[0]
         elif item_type == HFI_CUSTOM:
             cf = item.get_customfield()
             field_type = cf.field_type
 
             if field_type in (CustomField.ENUM, CustomField.MULTI_ENUM):
-                _build_select_search_widget(item_dict, item_value, cf.customfieldenumvalue_set.values_list('id', 'value'))
+                _build_select_search_widget(widget_ctx, item_value, cf.customfieldenumvalue_set.values_list('id', 'value'))
             elif field_type == CustomField.DATE:
-                _build_date_search_widget(item_dict, item_value)
+                _build_date_search_widget(widget_ctx, item_value)
             elif field_type == CustomField.BOOL:
-                _build_bool_search_widget(item_dict, item_value)
+                _build_bool_search_widget(widget_ctx, item_value)
             elif item_value:
-                item_dict['value'] = item_value[0]
+                widget_ctx['value'] = item_value[0]
 
-        header_ctx.update({item.name: item_dict})
-
-    context['columns_values'] = header_ctx
+        item.widget_ctx = widget_ctx
 
     return context
 
-#TODO: use a map ?? a method in HeaderFilterItem ??
-@register.filter(name="hf_get_html_output")
-def get_html_output(hfi, entity):
-    hfi_type = hfi.type
+#get_listview_cell##############################################################
 
+def _render_relations(entity, hfi, user):
+    relations_list = ["<ul>"]
+    append = relations_list.append
+
+    for e in entity.get_related_entities(hfi.relation_predicat_id, True):
+        if e.can_view(user):
+            append(u'<li><a href="%s">%s</a></li>' % (e.get_absolute_url(), escape(unicode(e))))
+        else:
+            append(u'<li>%s</li>' % escape(e.allowed_unicode(user)))
+
+    append("</ul>")
+
+    return u''.join(relations_list)
+
+_RENDER_FUNCS = { #TODO: use a method in HeaderFilterItem ??
+    HFI_FIELD:    lambda entity, hfi, user: get_html_field_value(entity, hfi.name),
+    HFI_FUNCTION: lambda entity, hfi, user: getattr(entity, hfi.name)(),
+    HFI_RELATION: _render_relations,
+    HFI_CUSTOM:   lambda entity, hfi, user: entity.get_custom_value(hfi.get_customfield()),
+    HFI_VOLATILE: lambda entity, hfi, user: hfi.volatile_render(entity),
+}
+
+@register.simple_tag
+def get_listview_cell(hfi, entity, user):
     try:
-        if hfi_type == HFI_FIELD:
-            return get_html_field_value(entity, hfi.name)
-
-        if hfi_type == HFI_FUNCTION:
-            return getattr(entity, hfi.name)()
-
-        if hfi_type == HFI_RELATION:
-            relations_list = ["<ul>"]
-            relations_list.extend(u'<li><a href="%s">%s</a></li>' % (obj.get_absolute_url(), escape(obj))
-                                    for obj in entity.get_related_entities(hfi.relation_predicat_id, True))
-            relations_list.append("</ul>")
-
-            return u''.join(relations_list)
-
-        if hfi_type == HFI_CUSTOM:
-            return entity.get_custom_value(hfi.get_customfield())
-
-        if hfi_type == HFI_VOLATILE:
-            return hfi.volatile_render(entity)
+        render_func = _RENDER_FUNCS.get(hfi.type)
+        if render_func:
+            return render_func(entity, hfi, user)
     except AttributeError, e:
-        debug('Templatetag "hf_get_html_output": %s', e)
-        return u""
+        debug('Templatetag "get_listview_cell": %s', e)
+
+    return u""

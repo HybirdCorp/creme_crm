@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2011  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -24,26 +24,23 @@ from email.mime.image import MIMEImage
 from os.path import join, basename
 from pickle import loads
 
-from django.contrib.contenttypes.generic import GenericForeignKey
 from django.db import IntegrityError
 from django.db.models import (ForeignKey, DateTimeField, PositiveSmallIntegerField,
-                              EmailField, CharField, TextField, ManyToManyField, PositiveIntegerField)
+                              EmailField, CharField, TextField, ManyToManyField)
 from django.core.mail import EmailMultiAlternatives
 from django.template import Template, Context
 from django.conf import settings
-from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import ugettext_lazy as _, ugettext
 
-from creme_core.models import CremeModel
+from creme_core.models import CremeModel, CremeEntity
 
 from emails.models.mail import _Email, ID_LENGTH, MAIL_STATUS_SENT
 from emails.utils import generate_id
 
-from persons.models import MailSignature
-
 from documents.models import Document
 
 from campaign import EmailCampaign
+from signature import EmailSignature
 
 
 SENDING_TYPE_IMMEDIATE = 1
@@ -74,7 +71,7 @@ class EmailSending(CremeModel):
 
     subject     = CharField(_(u'Subject'), max_length=100)
     body        = TextField(_(u"Body"))
-    signature   = ForeignKey(MailSignature, verbose_name=_(u'Signature'), blank=True, null=True)
+    signature   = ForeignKey(EmailSignature, verbose_name=_(u'Signature'), blank=True, null=True)
     attachments = ManyToManyField(Document, verbose_name=_(u'Attachments'))
 
     class Meta:
@@ -90,7 +87,7 @@ class EmailSending(CremeModel):
         super(EmailSending, self).delete()
 
     def get_mails(self):
-        return LightWeightEmail.objects.filter(sending=self)
+        return self.mails_set.all()
 
     def get_state_str(self):
         return SENDING_STATES[self.state]
@@ -100,6 +97,9 @@ class EmailSending(CremeModel):
 
     def get_absolute_url(self):
         return self.campaign.get_absolute_url()
+
+    def get_related_entity(self): #for generic views
+        return self.campaign
 
     def send_mails(self):
 #        mails = Email.objects.filter(sending=self)
@@ -123,7 +123,7 @@ class EmailSending(CremeModel):
             #body += '<img src="http://minimails.hybird.org/emails/stats/bbm/%s" />' % mail.ident
 
             if signature:
-                body += signature.corpse #'corpse' berkkkkk
+                body += signature.body
 
                 for signature_img in signature_images:
                     body += '<img src="cid:img_%s" /><br/>' % signature_img.id
@@ -174,16 +174,12 @@ class EmailSending(CremeModel):
 
 
 class LightWeightEmail(_Email):
-    """Used by campaigns
+    """Used by campaigns.
     id is a unique generated string in order to avoid stats hacking.
     """
-    id           = CharField(_(u'Email ID'), primary_key=True, max_length=ID_LENGTH)
-    sending      = ForeignKey(EmailSending, null=True, verbose_name=_(u"Related sending"), related_name='mails_set') #TODO: null=True useful ??
-
-    recipient_ct = ForeignKey(ContentType, null=True) #useful ?????
-    recipient_id = PositiveIntegerField(null=True)
-
-    recipient_entity = GenericForeignKey(ct_field="recipient_ct", fk_field="recipient_id")
+    id               = CharField(_(u'Email ID'), primary_key=True, max_length=ID_LENGTH)
+    sending          = ForeignKey(EmailSending, null=True, verbose_name=_(u"Related sending"), related_name='mails_set') #TODO: null=True useful ??
+    recipient_entity = ForeignKey(CremeEntity, null=True, related_name='received_lw_mails')
 
     class Meta:
         app_label = "emails"
@@ -199,6 +195,9 @@ class LightWeightEmail(_Email):
             return body_template.render(Context(loads(self.body.encode('utf-8')) if self.body else {}))
         except:#Pickle raise too much differents exceptions...Catch'em all ?
             return ""
+
+    def get_related_entity(self): #for generic views
+        return self.sending.campaign
 
     def genid_n_save(self):
         #BEWARE: manage manually

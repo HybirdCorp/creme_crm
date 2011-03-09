@@ -1,10 +1,5 @@
 {% extends "creme_core/base.html" %}
-
 {% load i18n %}
-
-{% comment %}{% block extrahead %}
-    <script type="text/javascript" src="{{MEDIA_URL}}js/models/folders.js" />
-{% endblock %}{% endcomment %}
 
 {% block content %}
     {% regroup list_objects.object_list|dictsort:"category" by category as list_object %}

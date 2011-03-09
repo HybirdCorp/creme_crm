@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+from signature import EmailSignature
 from template import EmailTemplate
 from mailing_list import MailingList
 from recipient import EmailRecipient
