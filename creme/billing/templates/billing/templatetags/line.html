@@ -48,7 +48,7 @@
                     <td class="{{row_color}}">
                         <form method="POST" action="/billing/line/{{line.id}}/update" id="updateStatus{{line.id}}">{% csrf_token %}
                             <input type="checkbox" name="paid" {% if line.is_paid %}checked{% endif %}>
-                            <a onclick="update('{{line.id}}')">
+                            <a onclick="$('#updateStatus{{line.id}}').submit();">
                                 <img src="{% media_url 'images/refresh_16.png' %}" width="16" height="14" border="0">
                             </a>
                         </form>

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2011  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -20,7 +20,7 @@
 
 from logging import debug
 
-from django.http import HttpResponseRedirect, HttpResponse
+from django.http import HttpResponseRedirect, HttpResponse, Http404
 from django.shortcuts import get_object_or_404
 from django.template import RequestContext
 from django.utils.translation import ugettext as _
@@ -29,7 +29,7 @@ from django.contrib.auth.decorators import login_required, permission_required
 from creme_core.views.generic import add_to_entity, inner_popup
 
 from billing.models import Line, ProductLine, ServiceLine
-from billing.forms.line import ProductLineCreateForm, ProductLineOnTheFlyCreateForm, ServiceLineCreateForm, ServiceLineOnTheFlyCreateForm
+from billing.forms.line import ProductLineForm, ProductLineOnTheFlyForm, ServiceLineForm, ServiceLineOnTheFlyForm
 
 
 @login_required
@@ -38,16 +38,16 @@ def _add_line(request, form_class, document_id):
     return add_to_entity(request, document_id, form_class, _(u"New line in the document <%s>"))
 
 def add_product_line(request, document_id):
-    return _add_line(request, ProductLineCreateForm, document_id)
+    return _add_line(request, ProductLineForm, document_id)
 
 def add_product_line_on_the_fly(request, document_id):
-    return _add_line(request, ProductLineOnTheFlyCreateForm, document_id)
+    return _add_line(request, ProductLineOnTheFlyForm, document_id)
 
 def add_service_line(request, document_id):
-    return _add_line(request, ServiceLineCreateForm, document_id)
+    return _add_line(request, ServiceLineForm, document_id)
 
 def add_service_line_on_the_fly(request, document_id):
-    return _add_line(request, ServiceLineOnTheFlyCreateForm, document_id)
+    return _add_line(request, ServiceLineOnTheFlyForm, document_id)
 
 @login_required
 @permission_required('billing')
@@ -85,10 +85,13 @@ def edit_productline(request, line_id):
 def edit_serviceline(request, line_id):
     return _edit_line(request, ServiceLine, line_id)
 
-#TODO: use POST
+#TODO: use Ajax reloading
 @login_required
 @permission_required('billing')
 def update(request, line_id):
+    if request.method != 'POST':
+        raise Http404('This view uses POST method')
+
     line     = get_object_or_404(Line, pk=line_id)
     document = line.document
 

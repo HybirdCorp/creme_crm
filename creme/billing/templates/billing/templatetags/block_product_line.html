@@ -3,31 +3,6 @@
 {% load creme_core_tags %}{% load creme_block %}
 
 {% block header %}
-{% comment %}   TODO: in a billing.js file ?  {% endcomment %}
-    <script type="text/javascript">
-        if(!creme.product_line) creme.product_line = {}
-        creme.product_line.auto_populate_selection = function(id, targetInputId, nodesToPopulate) {
-            var $form = $('#' + targetInputId).parents('form');
-            var fields = nodesToPopulate.values;
-
-            creme.ajax.json.post(
-                '/creme_core/entity/json',
-                {
-                    pk:id[0],
-                    fields:fields
-                },
-                function(data){
-                    for(var i in fields) {
-                        var field = nodesToPopulate.values[i];
-                        var node = $form.find('[' + nodesToPopulate.attr + '=' + field + ']');
-                        if(node.size() > 0) {
-                            node.val(data[0].fields[field]);
-                        }
-                    }
-                }
-            );
-        }
-    </script>
     {% get_block_title _('%s related Product') _('%s related Products') 'product_48.png' _('Product') %}
 {% endblock %}
 
