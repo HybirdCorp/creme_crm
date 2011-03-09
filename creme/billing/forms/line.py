@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2011  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -38,7 +38,7 @@ from creme import form_post_save #TODO: move in creme_core ??
 default_decimal = Decimal()
 
 
-class LineCreateForm(CremeModelWithUserForm):
+class LineCreateForm(CremeModelWithUserForm): #TODO: rename (LineForm) and other ones too
     blocks = FieldBlockManager(('general', _(u'Line information'), ['related_item', 'comment', 'quantity', 'unit_price',
                                                                     'discount', 'credit', 'total_discount', 'vat', 'user'])
                               )
@@ -123,22 +123,23 @@ class ProductLineOnTheFlyCreateForm(LineCreateForm):
                                              user=get_data('user'),
                                              code=0,
                                              unit_price=get_data('unit_price', 0),
-                                             category=get_data('category', 0),
-                                             sub_category=get_data('sub_category', 0),
+                                             category=get_data('category'),
+                                             sub_category=get_data('sub_category'),
                                             )
 
-            plcf = ProductLineCreateForm(self.document,
-                                         {
-                                            'related_item':   '%s,' % product.pk,
-                                            'quantity':       get_data('quantity', 0),
-                                            'unit_price':     get_data('unit_price', default_decimal),
-                                            'credit':         get_data('credit', default_decimal),
-                                            'discount':       get_data('discount', default_decimal),
-                                            'total_discount': get_data('total_discount', False),
-                                            'vat':            get_data('vat', DEFAULT_VAT),
-                                            'user':           product.user_id,
-                                            'comment':        get_data('comment', '')
-                                        })
+            plcf = ProductLineCreateForm(entity=self.document, user=self.user,
+                                         data={
+                                                'related_item':   '%s,' % product.pk,
+                                                'quantity':       get_data('quantity', 0),
+                                                'unit_price':     get_data('unit_price', default_decimal),
+                                                'credit':         get_data('credit', default_decimal),
+                                                'discount':       get_data('discount', default_decimal),
+                                                'total_discount': get_data('total_discount', False),
+                                                'vat':            get_data('vat', DEFAULT_VAT),
+                                                'user':           product.user_id,
+                                                'comment':        get_data('comment', '')
+                                              }
+                                        )
 
             if plcf.is_valid():
                 instance = plcf.save()
@@ -150,7 +151,7 @@ class ProductLineOnTheFlyCreateForm(LineCreateForm):
 
 class ServiceLineCreateForm(LineCreateForm):
     related_item = CremeEntityField(label=_("Service"), model=Service, widget=ListViewWidget(attrs={'selection_cb':'creme.product_line.auto_populate_selection','selection_cb_args':{'attr':'name','values':['unit_price']}}))
-    #selection_cb uses the same callback than ProductLineCreateForm so is there no Product line block on the Service line block page => Error. Implements its onw function when it'll be necessary
+    #selection_cb uses the same callback than ProductLineCreateForm so if there is no Product line block on the Service line block page => Error. Implements its onw function when it'll be necessary
 
     class Meta:
         model = ServiceLine
@@ -203,18 +204,19 @@ class ServiceLineOnTheFlyCreateForm(LineCreateForm):
                                              unit_price=get_data('unit_price', 0),
                                             )
 
-            slcf = ServiceLineCreateForm(self.document,
-                                         {
-                                            'related_item':   '%s,' % service.pk,
-                                            'quantity':       get_data('quantity', 0),
-                                            'unit_price':     get_data('unit_price', default_decimal),
-                                            'credit':         get_data('credit', default_decimal),
-                                            'discount':       get_data('discount', default_decimal),
-                                            'total_discount': get_data('total_discount', False),
-                                            'vat':            get_data('vat', DEFAULT_VAT),
-                                            'user':           service.user_id,
-                                            'comment':        get_data('comment', ''),
-                                         })
+            slcf = ServiceLineCreateForm(entity=self.document, user=self.user,
+                                         data={
+                                                'related_item':   '%s,' % service.pk,
+                                                'quantity':       get_data('quantity', 0),
+                                                'unit_price':     get_data('unit_price', default_decimal),
+                                                'credit':         get_data('credit', default_decimal),
+                                                'discount':       get_data('discount', default_decimal),
+                                                'total_discount': get_data('total_discount', False),
+                                                'vat':            get_data('vat', DEFAULT_VAT),
+                                                'user':           service.user_id,
+                                                'comment':        get_data('comment', ''),
+                                              }
+                                        )
 
             if slcf.is_valid():
                 instance = slcf.save()
