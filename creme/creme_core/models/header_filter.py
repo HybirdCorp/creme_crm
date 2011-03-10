@@ -126,23 +126,23 @@ class HeaderFilter(Model): #CremeModel ???
             self.build_items()
         return self._items
 
-    def improve_queryset(self, entities_qs):
-        """Add a select_related() call to the queryset in order to improve the
-        queries of a listview that uses this HeaderFilter.
-        """
-        assert entities_qs._result_cache is None #ensure optimisation of global level
+    #def improve_queryset(self, entities_qs):
+        #"""Add a select_related() call to the queryset in order to improve the
+        #queries of a listview that uses this HeaderFilter.
+        #"""
+        #assert entities_qs._result_cache is None #ensure optimisation of global level
 
-        fnames = [hfi.name for hfi in self.items if hfi.type == HFI_FIELD]
+        #fnames = [hfi.name for hfi in self.items if hfi.type == HFI_FIELD]
 
-        if fnames:
-            get_field = entities_qs.model._meta.get_field_by_name
-            fk_list   = [fname for fname in fnames if isinstance(get_field(fname.partition('__')[0])[0], ForeignKey)]
+        #if fnames:
+            #get_field = entities_qs.model._meta.get_field_by_name
+            #fk_list   = [fname for fname in fnames if isinstance(get_field(fname.partition('__')[0])[0], ForeignKey)]
 
-            if fk_list:
-                debug("HeaderFilter.improve_queryset(): select_related() on %s", fk_list)
-                entities_qs = entities_qs.select_related(*fk_list) #queryset has not been retrieved yet
+            #if fk_list:
+                #debug("HeaderFilter.improve_queryset(): select_related() on %s", fk_list)
+                #entities_qs = entities_qs.select_related(*fk_list) #queryset has not been retrieved yet
 
-        return entities_qs
+        #return entities_qs
 
     def populate_entities(self, entities, user):
         """Fill caches of CremeEntity objects, related to the columns that will
@@ -157,6 +157,10 @@ class HeaderFilter(Model): #CremeModel ???
         group = hfi_groups[HFI_ACTIONS]
         if group:
             CremeEntity.populate_credentials(entities, user)
+
+        group = hfi_groups[HFI_FIELD]
+        if group:
+            CremeEntity.populate_fk_fields(entities, [hfi.name.partition('__')[0] for hfi in group])
 
         group = hfi_groups[HFI_RELATION]
         if group:

@@ -21,6 +21,7 @@
 from collections import defaultdict
 from logging import debug
 
+from django.db.models import ForeignKey
 from django.core.exceptions import PermissionDenied
 from django.utils.encoding import force_unicode
 from django.utils.html import escape
@@ -28,8 +29,8 @@ from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _, ugettext
 from django.conf import settings
 from django.forms.util import flatatt
-from django.contrib.contenttypes.models import ContentType
 from django.template.loader import render_to_string
+from django.contrib.contenttypes.models import ContentType
 
 from base import CremeAbstractEntity
 from function_field import FunctionField
@@ -308,6 +309,33 @@ class CremeEntity(CremeAbstractEntity):
             entity_id = entity.id
             debug(u'Fill properties cache entity_id=%s', entity_id)
             entity._properties = properties_map[entity_id]
+
+    @staticmethod
+    def populate_fk_fields(entities, field_names):
+        """@param entities Sequence of CremeEntity (iterated several times -> not an iterator)
+                           with the _same_ ContentType.
+        """
+        if not entities:
+            return
+
+        get_field = entities[0]._meta.get_field_by_name
+
+        for fname in field_names:
+            field = get_field(fname)[0]
+
+            if isinstance(field, ForeignKey):
+                ids = set()
+                for entity in entities:
+                    attr_id = getattr(entity, fname + '_id')
+                    if attr_id:
+                        ids.add(attr_id)
+
+                attr_values = dict((o.id, o) for o in field.rel.to.objects.filter(pk__in=ids))
+
+                for entity in entities:
+                    attr_id = getattr(entity, fname + '_id')
+                    if attr_id:
+                        setattr(entity, fname, attr_values[attr_id])
 
     def save(self, *args, **kwargs):
         created = bool(self.pk is None)
