@@ -3,13 +3,14 @@
 from datetime import date
 from decimal import Decimal
 
+from django.utils.translation import ugettext as _
 from django.contrib.contenttypes.models import ContentType
 
 from creme_core.models import RelationType, Relation, CremePropertyType, CremeProperty, SetCredentials
 from creme_core.constants import PROP_IS_MANAGED_BY_CREME
 from creme_core.tests.base import CremeTestCase
 
-from persons.models import Organisation, Address
+from persons.models import Contact, Organisation, Address
 
 from products.models import Product, Service, ServiceCategory, Category, SubCategory
 
@@ -377,6 +378,46 @@ class BillingTestCase(CremeTestCase):
         self.failIf(line.on_the_fly_item)
         self.assertEqual(product.id, line.related_item_id)
 
+    def test_invoice_add_product_lines04(self): #on-the-fly + product creation + no creation creds
+        self.login(is_superuser=False)
+
+        user = self.user
+        role = user.role
+
+        role.allowed_apps = ['persons', 'billing']
+        role.save()
+
+        SetCredentials.objects.create(role=role,
+                                      value=SetCredentials.CRED_VIEW   | SetCredentials.CRED_CHANGE | \
+                                            SetCredentials.CRED_DELETE | SetCredentials.CRED_LINK | SetCredentials.CRED_UNLINK,
+                                      set_type=SetCredentials.ESET_OWN)
+
+        get_ct = ContentType.objects.get_for_model
+        role.creatable_ctypes = [get_ct(Invoice), get_ct(Contact), get_ct(Organisation)] #not 'Product'
+
+        invoice  = self.create_invoice_n_orgas('Invoice001')[0]
+        cat    = Category.objects.create(name='Cat', description='DESCRIPTION')
+        subcat = SubCategory.objects.create(name='Cat', description='DESCRIPTION', category=cat)
+        response = self.client.post('/billing/%s/product_line/add_on_the_fly' % invoice.id,
+                                    data={
+                                            'user':                self.user.pk,
+                                            'on_the_fly_item':     'Awesomo',
+                                            'comment':             'no comment !',
+                                            'quantity':            1,
+                                            'unit_price':          Decimal('1.0'),
+                                            'discount':            Decimal(),
+                                            'vat':                 Decimal(),
+                                            'credit':              Decimal(),
+                                            'has_to_register_as':  'on',
+                                            'category':            cat.id,
+                                            'sub_category':        subcat.id,
+                                         }
+                                   )
+        self.assertEqual(200, response.status_code)
+        self.assertFormError(response, 'form', 'has_to_register_as', [_(u'You are not allowed to create Products')])
+        self.failIf(invoice.get_product_lines())
+        self.failIf(Product.objects.count())
+
     def test_invoice_edit_product_lines01(self):
         self.login()
 
@@ -517,6 +558,44 @@ class BillingTestCase(CremeTestCase):
         line = lines[0]
         self.failIf(line.on_the_fly_item)
         self.assertEqual(service.id, line.related_item_id)
+
+    def test_invoice_add_service_lines04(self): #on-the-fly + service creation + no creation creds
+        self.login(is_superuser=False)
+
+        user = self.user
+        role = user.role
+
+        role.allowed_apps = ['persons', 'billing']
+        role.save()
+
+        SetCredentials.objects.create(role=role,
+                                      value=SetCredentials.CRED_VIEW   | SetCredentials.CRED_CHANGE | \
+                                            SetCredentials.CRED_DELETE | SetCredentials.CRED_LINK | SetCredentials.CRED_UNLINK,
+                                      set_type=SetCredentials.ESET_OWN)
+
+        get_ct = ContentType.objects.get_for_model
+        role.creatable_ctypes = [get_ct(Invoice), get_ct(Contact), get_ct(Organisation)] #not 'Service'
+
+        invoice  = self.create_invoice_n_orgas('Invoice001')[0]
+        cat = ServiceCategory.objects.create(name='Cat', description='DESCRIPTION')
+        response = self.client.post('/billing/%s/service_line/add_on_the_fly' % invoice.id,
+                                    data={
+                                            'user':               self.user.pk,
+                                            'on_the_fly_item':    'Car wash',
+                                            'comment':            'no comment !',
+                                            'quantity':           2,
+                                            'unit_price':         Decimal('1.33'),
+                                            'discount':           Decimal(),
+                                            'vat':                Decimal('19.6'),
+                                            'credit':             Decimal(),
+                                            'has_to_register_as': 'on',
+                                            'category':           cat.id,
+                                         }
+                                   )
+        self.assertEqual(200, response.status_code)
+        self.assertFormError(response, 'form', 'has_to_register_as', [_(u'You are not allowed to create Services')])
+        self.failIf(invoice.get_service_lines())
+        self.failIf(Service.objects.count())
 
     def test_invoice_edit_service_lines01(self):
         self.login()

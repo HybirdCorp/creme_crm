@@ -7,34 +7,34 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-01-18 10:33+0100\n"
+"POT-Creation-Date: 2011-03-10 10:11+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
-"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Language: \n"
 
-#: blocks.py:34 models/product_line.py:35
+#: blocks.py:35 models/product_line.py:35
 msgid "Product lines"
 msgstr "Lignes produit"
 
-#: blocks.py:47 models/service_line.py:35
+#: blocks.py:49 models/service_line.py:35
 msgid "Service lines"
 msgstr "Lignes service"
 
-#: blocks.py:60
+#: blocks.py:63
 msgid "Total"
 msgstr "Total"
 
-#: blocks.py:71
+#: blocks.py:74
 msgid "Target Organisation"
 msgstr "Société cible"
 
 #: buttons.py:28
 #: templates/billing/templatetags/button_generate_invoice_number.html:5
-#: templates/billing/templatetags/button_generate_invoice_number.html:10
+#: templates/billing/templatetags/button_generate_invoice_number.html:11
 msgid "Generate the number of the Invoice"
 msgstr "Générer le numéro de facture"
 
@@ -78,166 +78,173 @@ msgstr "Ajouter un avoir"
 msgid "All credit notes"
 msgstr "Lister les avoirs"
 
-#: populate.py:40
+#: populate.py:39
 msgid "issued by"
 msgstr "a été émis(e) par"
 
-#: populate.py:41
+#: populate.py:40
 msgid "has issued"
 msgstr "a émis"
 
-#: populate.py:42
+#: populate.py:41
 msgid "received by"
 msgstr "a été reçu(e) par"
 
-#: populate.py:43
+#: populate.py:42
 msgid "has received"
 msgstr "a reçu"
 
-#: populate.py:47
+#: populate.py:46
 msgid "Pending"
 msgstr "En attente"
 
-#: populate.py:48 populate.py:59
+#: populate.py:47 populate.py:58
 msgid "Accepted"
 msgstr "Accepté"
 
-#: populate.py:49 populate.py:60
+#: populate.py:48 populate.py:59
 msgid "Rejected"
 msgstr "Rejeté"
 
-#: populate.py:50 populate.py:61
+#: populate.py:49 populate.py:60
 msgid "Created"
 msgstr "Créé"
 
-#: populate.py:52
+#: populate.py:51
 msgid "30 days"
 msgstr "à 30 jours"
 
-#: populate.py:53
+#: populate.py:52
 msgid "Cash"
 msgstr "Comptant"
 
-#: populate.py:54
+#: populate.py:53
 msgid "45 days"
 msgstr "à 45 jours"
 
-#: populate.py:55
+#: populate.py:54
 msgid "60 days"
 msgstr "à 60 jours"
 
-#: populate.py:56
+#: populate.py:55
 msgid "30 days, end month the 10"
 msgstr "à 30 jours, fin de mois le 10"
 
-#: populate.py:58 populate.py:73
+#: populate.py:57 populate.py:72
 msgid "Issued"
 msgstr "Émis"
 
-#: populate.py:63 populate.py:72
+#: populate.py:62 populate.py:71
 msgid "Draft"
 msgstr "Brouillon"
 
-#: populate.py:64
+#: populate.py:63
 msgid "To be sent"
 msgstr "À envoyer"
 
-#: populate.py:65
+#: populate.py:64
 msgid "Sent"
 msgstr "Envoyée"
 
-#: populate.py:66
+#: populate.py:65
 msgid "Resulted"
 msgstr "Soldée"
 
-#: populate.py:67
+#: populate.py:66
 msgid "Partly resulted"
 msgstr "Partiellement soldée"
 
-#: populate.py:68
+#: populate.py:67
 msgid "Collection"
 msgstr "Recouvrement"
 
-#: populate.py:69
+#: populate.py:68
 msgid "Resulted collection"
 msgstr "Recouvrement soldé"
 
-#: populate.py:70
+#: populate.py:69
 msgid "Canceled"
 msgstr "Annulée"
 
-#: populate.py:83 models/base.py:38
+#: populate.py:78 models/base.py:38
 msgid "Name"
 msgstr "Nom"
 
-#: populate.py:84 models/base.py:39
+#: populate.py:79 models/base.py:39
 msgid "Number"
 msgstr "Numéro"
 
-#: populate.py:85 forms/base.py:40 models/base.py:40
+#: populate.py:80 forms/base.py:41 models/base.py:40
 msgid "Issuing date"
 msgstr "Date d'émission"
 
-#: populate.py:86 forms/base.py:41 models/base.py:41
+#: populate.py:81 forms/base.py:42 models/base.py:41
 msgid "Expiration date"
 msgstr "Échéance"
 
-#: populate.py:87
-#, fuzzy
+#: populate.py:82
 msgid "Status - Name"
-msgstr "Statut du devis"
+msgstr "Statut - Nom"
 
-#: populate.py:89
+#: populate.py:84
 msgid "Invoice view"
 msgstr "Vue de Facture"
 
-#: populate.py:90
+#: populate.py:85
 msgid "Quote view"
 msgstr "Vue de Devis"
 
-#: populate.py:91
+#: populate.py:86
 msgid "Sales order view"
 msgstr "Vue de Bon de Commande"
 
-#: populate.py:92
+#: populate.py:87
 msgid "Credit note view"
 msgstr "Vue des Avoirs"
 
-#: forms/base.py:37 templates/billing/templatetags/block_target.html:14
+#: tests.py:417 forms/line.py:111 forms/line.py:120
+msgid "You are not allowed to create Products"
+msgstr "Vous n'êtes pas authorisé à créer des Produits"
+
+#: tests.py:596 forms/line.py:212 forms/line.py:220
+msgid "You are not allowed to create Services"
+msgstr "Vous n'êtes pas authorisé à créer des Services"
+
+#: forms/base.py:38 templates/billing/templatetags/block_target.html:14
 msgid "Source organisation"
 msgstr "Société émettrice"
 
-#: forms/base.py:38 templates/billing/templatetags/block_target.html:10
+#: forms/base.py:39 templates/billing/templatetags/block_target.html:10
 msgid "Target organisation"
 msgstr "Société réceptrice"
 
-#: forms/base.py:44 models/algo.py:34 models/algo.py:43
+#: forms/base.py:45 models/algo.py:34 models/algo.py:43
 msgid "Organisation"
 msgstr "Société"
 
-#: forms/base.py:111 models/base.py:44
+#: forms/base.py:127 models/base.py:44
 msgid "Shipping address"
 msgstr "Adresse de livraison"
 
-#: forms/base.py:116 models/base.py:43
+#: forms/base.py:132 models/base.py:43
 msgid "Billing address"
 msgstr "Adresse de facturation"
 
-#: forms/line.py:42 forms/line.py:87 forms/line.py:100 forms/line.py:166
-#: forms/line.py:180
+#: forms/line.py:42 forms/line.py:91 forms/line.py:105 forms/line.py:191
+#: forms/line.py:206
 msgid "Line information"
 msgstr "Informations sur la ligne"
 
-#: forms/line.py:66 templates/billing/templatetags/block_product_line.html:31
-#: templates/billing/templatetags/block_product_line.html:40
+#: forms/line.py:66 templates/billing/templatetags/block_product_line.html:6
+#: templates/billing/templatetags/block_product_line.html:15
 msgid "Product"
 msgstr "Produit"
 
-#: forms/line.py:75
+#: forms/line.py:79
 msgid "Save as product ?"
 msgstr "Enregistrer en tant que produit ?"
 
-#: forms/line.py:76
+#: forms/line.py:80
 msgid ""
 "Here you can save a on-the-fly Product as a true Product ; in this case, "
 "category and sub-category are required."
@@ -246,38 +253,38 @@ msgstr ""
 "part entière, dans ce cas là, la catégorie et sous-catégorie sont "
 "obligatoires."
 
-#: forms/line.py:77
+#: forms/line.py:81
 msgid "Category"
 msgstr "Catégorie"
 
-#: forms/line.py:82
+#: forms/line.py:86
 msgid "Sub-category"
 msgstr "Sous-catégorie"
 
-#: forms/line.py:89 forms/line.py:168
+#: forms/line.py:93 forms/line.py:193
 msgid "Additional features"
 msgstr "Fonctionnalités supplémentaires"
 
-#: forms/line.py:111
+#: forms/line.py:131
 msgid "Category is required if you want to save as a true product."
 msgstr ""
 "Catégorie obligatoire si vous souhaitez enregistrer en tant que produit."
 
-#: forms/line.py:113
+#: forms/line.py:133
 msgid "Sub-category is required if you want to save as a true product."
 msgstr ""
 "Sous-catégorie obligatoire si vous souhaitez enregistrer en tant que produit."
 
-#: forms/line.py:151 templates/billing/templatetags/block_service_line.html:6
+#: forms/line.py:172 templates/billing/templatetags/block_service_line.html:6
 #: templates/billing/templatetags/block_service_line.html:15
 msgid "Service"
 msgstr "Service"
 
-#: forms/line.py:160
+#: forms/line.py:185
 msgid "Save as service ?"
 msgstr "Enregistrer en tant que service ?"
 
-#: forms/line.py:161
+#: forms/line.py:186
 msgid ""
 "Here you can save a on-the-fly Service as a true Service ; in this case, "
 "category is required."
@@ -285,11 +292,11 @@ msgstr ""
 "Ceci vous permer d'enregistrer un service à la volée en tant que service à "
 "part entière (dans ce cas la cégorie est obligatoire)."
 
-#: forms/line.py:162
+#: forms/line.py:187
 msgid "Service category"
 msgstr "Catégorie de service"
 
-#: forms/line.py:189
+#: forms/line.py:229
 msgid "Category is required if you want to save as a true service."
 msgstr ""
 "Catégorie obligatoire si vous souhaitez enregistrer en tant que service."
@@ -335,11 +342,11 @@ msgstr "Total HT"
 msgid "Status of credit note"
 msgstr "Statut de l'avoir"
 
-#: models/credit_note.py:56
+#: models/credit_note.py:53
 msgid "Credit note"
 msgstr "Avoir"
 
-#: models/credit_note.py:57
+#: models/credit_note.py:54
 msgid "Credit notes"
 msgstr "Avoirs"
 
@@ -431,11 +438,11 @@ msgstr "Ligne produit"
 msgid "Status of quote"
 msgstr "Statut du devis"
 
-#: models/quote.py:56
+#: models/quote.py:53
 msgid "Quote"
 msgstr "Devis"
 
-#: models/quote.py:57
+#: models/quote.py:54
 msgid "Quotes"
 msgstr "Devis"
 
@@ -475,7 +482,7 @@ msgstr "Portail Facturation"
 msgid "List of invoices"
 msgstr "Liste des factures"
 
-#: templates/billing/view_billing.html:27
+#: templates/billing/view_billing.html:21
 #, python-format
 msgid "Download '%(object)s' to the desired format"
 msgstr "Télécharger '%(object)s' au format voulu"
@@ -491,26 +498,26 @@ msgstr "Convertir en Bon de Commande"
 msgid "Convert to Invoice"
 msgstr "Convertir en Facture"
 
-#: templates/billing/templatetags/block_product_line.html:31
+#: templates/billing/templatetags/block_product_line.html:6
 #, python-format
 msgid "%s related Product"
 msgstr "%s Produit relatif"
 
-#: templates/billing/templatetags/block_product_line.html:31
+#: templates/billing/templatetags/block_product_line.html:6
 #, python-format
 msgid "%s related Products"
 msgstr "%s Produits relatifs"
 
-#: templates/billing/templatetags/block_product_line.html:36
+#: templates/billing/templatetags/block_product_line.html:11
 msgid "Add from an existing Product"
 msgstr "Ajouter depuis un Produit existant"
 
-#: templates/billing/templatetags/block_product_line.html:37
+#: templates/billing/templatetags/block_product_line.html:12
 #: templates/billing/templatetags/block_service_line.html:12
 msgid "Add a line on the fly"
 msgstr "Ajouter une ligne à la volée"
 
-#: templates/billing/templatetags/block_product_line.html:42
+#: templates/billing/templatetags/block_product_line.html:17
 msgid "No product in this document"
 msgstr "Aucun produit dans ce document"
 
@@ -551,11 +558,11 @@ msgid "Total (inclusive of tax)"
 msgstr "Total TTC"
 
 #: templates/billing/templatetags/button_generate_invoice_number.html:4
-#: templates/billing/templatetags/button_generate_invoice_number.html:9
+#: templates/billing/templatetags/button_generate_invoice_number.html:10
 msgid "Invoice number"
 msgstr "Numéro de Facture"
 
-#: templates/billing/templatetags/button_generate_invoice_number.html:8
+#: templates/billing/templatetags/button_generate_invoice_number.html:9
 msgid "forbidden"
 msgstr "interdit"
 
@@ -577,12 +584,12 @@ msgstr "%(src)s (converti en patron de <%(dest)s>)"
 msgid "%(src)s (converted into  %(dest)s)"
 msgstr "%(src)s (converti en %(dest)s)"
 
-#: views/line.py:42
+#: views/line.py:38
 #, python-format
 msgid "New line in the document <%s>"
 msgstr "Ajout d'une ligne dans le document <%s>"
 
-#: views/line.py:86
+#: views/line.py:74
 #, python-format
 msgid "Edition of a line in the document <%s>"
 msgstr "Édition d'une ligne dans le document <%s>"

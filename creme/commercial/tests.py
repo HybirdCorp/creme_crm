@@ -1103,7 +1103,7 @@ class ActTestCase(LoggedTestCase):
 
 
 class ActObjectivePatternTestCase(LoggedTestCase):
-    def assertFormError(self, response):
+    def assertFormContainsError(self, response):
         try:
             errors = response.context['form'].errors
         except Exception, e:
@@ -1351,21 +1351,21 @@ class ActObjectivePatternTestCase(LoggedTestCase):
 
     def test_add_pattern_component_errors(self):
         pattern = self._create_pattern()
-        self.assertFormError(self.client.post('/commercial/objective_pattern/%s/add_component' % pattern.id,
-                                              data={
-                                                    'name':         'Signed opportunities',
-                                                    'success_rate': 0, #minimunm is 1
-                                                   }
-                                             )
-                            )
+        self.assertFormContainsError(self.client.post('/commercial/objective_pattern/%s/add_component' % pattern.id,
+                                                      data={
+                                                            'name':         'Signed opportunities',
+                                                            'success_rate': 0, #minimunm is 1
+                                                           }
+                                                     )
+                                    )
 
-        self.assertFormError(self.client.post('/commercial/objective_pattern/%s/add_component' % pattern.id,
-                                              data={
-                                                    'name':         'Signed opportunities',
-                                                    'success_rate': 101, #maximum is 100
-                                                   }
-                                             )
-                            )
+        self.assertFormContainsError(self.client.post('/commercial/objective_pattern/%s/add_component' % pattern.id,
+                                                      data={
+                                                            'name':         'Signed opportunities',
+                                                            'success_rate': 101, #maximum is 100
+                                                           }
+                                                     )
+                                    )
 
     def test_get_component_tree(self):
         pattern = self._create_pattern()
