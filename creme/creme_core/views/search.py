@@ -56,26 +56,12 @@ def _build_q_research(model, research, fields, is_or=True):
 
 #TODO: move as SearchConfigItem method ??
 def _get_research_fields(model, user):
-    ct_get_for_model = ContentType.objects.get_for_model
-    SCI_get = SearchConfigItem.objects.get
+    sc_items = SearchConfigItem.objects.filter(content_type=ContentType.objects.get_for_model(model)) \
+                                       .filter(Q(user=user) | Q(user__isnull=True)) \
+                                       .order_by('-user') #config of the user has higher priority than default one
 
-    try:
-        #Trying to catch the user's research config for this model
-        sci = SCI_get(content_type=ct_get_for_model(model), user=user)
-    except SearchConfigItem.DoesNotExist:
-        pass
-    else:
-        fields  = sci.get_fields()
-        if fields:
-            return fields
-
-    try:
-        #Trying to catch the model's research config
-        sci = SCI_get(content_type=ct_get_for_model(model))
-    except SearchConfigItem.DoesNotExist:
-        pass
-    else:
-        fields  = sci.get_fields()
+    for sc_item in sc_items:
+        fields  = sc_item.get_fields()
         if fields:
             return fields
 
