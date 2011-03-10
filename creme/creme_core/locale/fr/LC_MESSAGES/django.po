@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-03-07 00:03+0100\n"
+"POT-Creation-Date: 2011-03-10 12:26+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -16,12 +16,12 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Language: \n"
 
-#: blocks.py:31 forms/csv_import.py:337 models/creme_property.py:91
+#: blocks.py:31 forms/csv_import.py:338 models/creme_property.py:91
 #: models/entity.py:49 tests/views.py:126
 msgid "Properties"
 msgstr "Propriétés"
 
-#: blocks.py:47 forms/csv_import.py:340 forms/header_filter.py:46
+#: blocks.py:47 forms/csv_import.py:341 forms/header_filter.py:46
 #: forms/relation.py:35 gui/block.py:273 models/relation.py:187
 msgid "Relations"
 msgstr "Relations"
@@ -199,7 +199,7 @@ msgstr "appartient à"
 msgid "General information"
 msgstr "Informations générales"
 
-#: forms/base.py:201 forms/csv_import.py:336 models/base.py:177
+#: forms/base.py:201 forms/csv_import.py:337 models/base.py:177
 #: models/prefered_menu.py:27 tests/views.py:99 tests/views.py:100
 #: tests/views.py:101
 msgid "User"
@@ -230,11 +230,11 @@ msgstr "Pas de type de propriété"
 msgid "Some property types doesn't not exist"
 msgstr "Certains types de propriété n'existent pas"
 
-#: forms/csv_import.py:52
+#: forms/csv_import.py:53
 msgid "CSV file"
 msgstr "Fichier CSV"
 
-#: forms/csv_import.py:53
+#: forms/csv_import.py:54
 msgid ""
 "A file that contains the fields values of an entity on each line, separated "
 "by commas and each surrounded by quotation marks \"."
@@ -242,11 +242,11 @@ msgstr ""
 "Un fichier contenant les valeurs des champs d'une fiche sur chaque ligne, "
 "séparées par des virgules et chacune entourée par des guillemets \"."
 
-#: forms/csv_import.py:54
+#: forms/csv_import.py:55
 msgid "Header present ?"
 msgstr "Entête présent ?"
 
-#: forms/csv_import.py:55
+#: forms/csv_import.py:56
 msgid ""
 "Does the first line of the line contain the header of the columns (eg: "
 "\"Last name\",\"First name\") ?"
@@ -254,53 +254,53 @@ msgstr ""
 "La 1ère ligne du fichier contient-il l'entête des colonnes de valeurs (ex: "
 "\"Nom\",\"Prénom\") ?"
 
-#: forms/csv_import.py:74 forms/csv_import.py:272
+#: forms/csv_import.py:75 forms/csv_import.py:273
 msgid "You have not the credentials to read this document."
 msgstr "Vous n'avez pas les droits pour lire ce document."
 
-#: forms/csv_import.py:82
+#: forms/csv_import.py:83
 #, python-format
 msgid "Error reading document: %s."
 msgstr "Erreur lors de la lecture du document: %s."
 
-#: forms/csv_import.py:187
+#: forms/csv_import.py:188
 msgid "Search by:"
 msgstr "Chercher selon:"
 
-#: forms/csv_import.py:194
+#: forms/csv_import.py:195
 msgid "Default value"
 msgstr "Valeur par défaut"
 
-#: forms/csv_import.py:252
+#: forms/csv_import.py:253
 msgid "Importing from a CSV file"
 msgstr "Import depuis un fichier CSV"
 
-#: forms/csv_import.py:269
+#: forms/csv_import.py:270
 msgid "This document doesn't exist or doesn't exist any more."
 msgstr "Ce document n'existe pas/plus."
 
-#: forms/csv_import.py:342
+#: forms/csv_import.py:343
 msgid "Generic information"
 msgstr "Infos génériques"
 
-#: forms/csv_import.py:343
+#: forms/csv_import.py:344
 msgid "Related properties"
 msgstr "Propriétés associées"
 
-#: forms/csv_import.py:344
+#: forms/csv_import.py:345
 msgid "Associated relations"
 msgstr "Relations associées"
 
-#: forms/csv_import.py:376
+#: forms/csv_import.py:386
 msgid "Not in the CSV file"
 msgstr "Pas dans le CSV"
 
-#: forms/csv_import.py:380
+#: forms/csv_import.py:390
 #, python-format
 msgid "Column %(index)s - %(name)s"
 msgstr "Colonne %(index)s - %(name)s"
 
-#: forms/csv_import.py:387
+#: forms/csv_import.py:397
 #, python-format
 msgid "Column %i"
 msgstr "Colonne %i"
@@ -469,13 +469,13 @@ msgstr "Voir"
 msgid "Change"
 msgstr "Modifier"
 
-#: models/auth.py:366 models/entity.py:258
+#: models/auth.py:366 models/entity.py:266
 #: templates/creme_core/filters.html:641 templates/creme_core/filters.html:651
 #: templates/creme_core/filters.html:667 templates/creme_core/filters.html:673
 #: templates/creme_core/filters.html:681
 #: templates/creme_core/templatetags/widgets/block_line_deletor.html:5
 #: templates/creme_core/templatetags/widgets/block_line_deletor2.html:5
-#: templates/creme_core/templatetags/widgets/delete_button.html:4
+#: templates/creme_core/templatetags/widgets/delete_button.html:5
 msgid "Delete"
 msgstr "Supprimer"
 
@@ -682,11 +682,7 @@ msgstr "Vous n'êtes pas autorisé à délier cette fiche: %s"
 msgid "You are not allowed to view this entity: %s"
 msgstr "Vous n'êtes pas autorisé à voir cette fiche: %s"
 
-#: models/entity.py:256
-msgid "See"
-msgstr "Voir"
-
-#: models/entity.py:257 templates/creme_core/detailview.html:59
+#: models/entity.py:259 templates/creme_core/detailview.html:59
 #: templates/creme_core/generics/blockform/edit.html:9
 #: templates/creme_core/generics/blockform/edit.html:16
 #: templates/creme_core/generics/form/edit.html:8
@@ -695,6 +691,10 @@ msgstr "Voir"
 #: templates/creme_core/templatetags/widgets/edit_button.html:4
 msgid "Edit"
 msgstr "Éditer"
+
+#: models/entity.py:274
+msgid "See"
+msgstr "Voir"
 
 #: models/header_filter.py:74
 msgid "Name of the view"
@@ -827,27 +827,27 @@ msgstr "Champ de recherche"
 msgid "Search fields"
 msgstr "Champs de recherche"
 
-#: templates/creme_core/base.html:66
+#: templates/creme_core/base.html:68
 msgid "Menu"
 msgstr "Menu"
 
-#: templates/creme_core/base.html:67
+#: templates/creme_core/base.html:69
 msgid "Back to Top"
 msgstr "Revenir au début"
 
-#: templates/creme_core/base.html:267
+#: templates/creme_core/base.html:269
 msgid "Welcome,"
 msgstr "Bienvenue, "
 
-#: templates/creme_core/base.html:269
+#: templates/creme_core/base.html:271
 msgid "My settings"
 msgstr "Ma configuration"
 
-#: templates/creme_core/base.html:270
+#: templates/creme_core/base.html:272
 msgid "Log out"
 msgstr "Se déconnecter"
 
-#: templates/creme_core/base.html:319
+#: templates/creme_core/base.html:321
 msgid "About Hybird"
 msgstr "À propos d'Hybird"
 
@@ -1269,7 +1269,7 @@ msgid "Go to page"
 msgstr "Aller à la page"
 
 #: templates/creme_core/templatetags/widgets/block_line_deletor2.html:8
-#: templates/creme_core/templatetags/widgets/delete_button.html:8
+#: templates/creme_core/templatetags/widgets/delete_button.html:9
 msgid "Can't delete"
 msgstr "Suppression interdite"
 
@@ -1287,12 +1287,12 @@ msgstr "Liaison interdite"
 msgid "Can't unlink"
 msgstr "Rupture interdite"
 
-#: templates/creme_core/templatetags/widgets/delete_button.html:4
+#: templates/creme_core/templatetags/widgets/delete_button.html:5
 #, python-format
 msgid "Delete '%(object)s'"
 msgstr "Supprimer '%(object)s'"
 
-#: templates/creme_core/templatetags/widgets/delete_button.html:8
+#: templates/creme_core/templatetags/widgets/delete_button.html:9
 #, python-format
 msgid "You can't delete '%(object)s'"
 msgstr "Vous ne pouvez pas supprimer '%(object)s'"
@@ -1391,7 +1391,7 @@ msgstr "Il manque une propriété compatible pour l'entité objet avec l'id=%s"
 msgid "Permission denied to entity with id=%s"
 msgstr "Permission refusée pour l'entité avec l'id=%s"
 
-#: views/relation.py:450 views/generic/delete.py:75
+#: views/relation.py:450 views/generic/delete.py:79
 msgid "Operation successfully completed"
 msgstr "Opération déroulée avec succès"
 
@@ -1406,6 +1406,15 @@ msgstr "Veuillez entrer au moins 3 caractères"
 #: views/generic/delete.py:46
 msgid "No selected entities"
 msgstr "Aucune entitée séléctionnée"
+
+#: views/generic/delete.py:69
+#, python-format
+msgid "%s does not use the generic deletion view."
+msgstr "%s n'utilise pas la vue de suppresion générique."
+
+#: views/generic/delete.py:94
+msgid "This model does not use the generic deletion view."
+msgstr "Ce modèle n'utilise pas la vue de suppresion générique."
 
 #: views/generic/edit.py:98
 msgid "You can not edit this model"

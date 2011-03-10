@@ -187,11 +187,15 @@ class CremeEntity(CremeAbstractEntity):
         return "/creme_core/entity/edit/%s" % self.id
 
     def get_delete_absolute_url(self):
+        """Return the url of the deletion view (should use POST method) for this model.
+        If '' (void string) is returned, the model can not be deleted diretcly.
+        """
         return "/creme_core/entity/delete/%s" % self.id
 
     def get_related_entities(self, relation_type_id, real_entities=True):
         return [relation.object_entity.get_real_entity()
-                    for relation in self.get_relations(relation_type_id, real_entities)]
+                    for relation in self.get_relations(relation_type_id, real_entities)
+               ]
 
     def get_relations(self, relation_type_id, real_obj_entities=False):
         relations = self._relations_map.get(relation_type_id)
@@ -252,11 +256,23 @@ class CremeEntity(CremeAbstractEntity):
         return escape(unicode(self))
 
     def get_actions(self, user): #TODO: improve icon/css class management....
+        actions = [EntityAction(self.get_edit_absolute_url(), ugettext(u"Edit"),
+                                self.can_change(user), icon="images/edit_16.png"
+                               )
+                  ]
+
+        delete_url = self.get_delete_absolute_url()
+        if delete_url:
+            actions.append(EntityAction(delete_url, ugettext(u"Delete"),
+                                        self.can_delete(user),
+                                        icon="images/delete_16.png",
+                                        attrs={'class': 'confirm post ajax lv_reload'}
+                                       )
+                                )
+
         return {
                 'default': EntityAction(self.get_absolute_url(), ugettext(u"See"), True, icon="images/view_16.png"),
-                'others':  [EntityAction(self.get_edit_absolute_url(),   ugettext(u"Edit"),   self.can_change(user), icon="images/edit_16.png"),
-                            EntityAction(self.get_delete_absolute_url(), ugettext(u"Delete"), self.can_delete(user), icon="images/delete_16.png", attrs={'class': 'confirm post ajax lv_reload'}),
-                           ]
+                'others':  actions,
                }
 
     def get_custom_fields_n_values(self):

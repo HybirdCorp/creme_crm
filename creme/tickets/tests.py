@@ -342,3 +342,14 @@ class TicketTemplateTestCase(CremeTestCase):
             self.fail(str(e))
 
         self.assertEqual(2, Ticket.objects.count())
+
+    def test_multi_delete(self): #should not delete
+        self.login()
+
+        template01 = self.create_template('Title01')
+        template02 = self.create_template('Title02')
+        self.assertEqual(404, self.client.post('/creme_core/delete_js',
+                                               data={'ids': '%s,%s,' % (template01.id, template02.id)}
+                                              ).status_code
+                        )
+        self.assertEqual(2, TicketTemplate.objects.filter(pk__in=[template01.id, template02.id]).count())

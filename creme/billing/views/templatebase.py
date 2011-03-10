@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2011  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,9 +18,9 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.shortcuts import get_object_or_404
+#from django.shortcuts import get_object_or_404
 from django.contrib.auth.decorators import login_required, permission_required
-from django.http import HttpResponseRedirect
+#from django.http import HttpResponseRedirect
 
 from creme_core.views.generic import edit_entity, list_view, view_entity
 
@@ -44,20 +44,19 @@ def detailview(request, template_id):
 def listview(request):
     return list_view(request, TemplateBase, extra_dict={'add_url': '/recurrents/generator/add'})
 
-#TODO: use POST
-@login_required
-@permission_required('recurrents')
-def delete(request, template_id):
-    user = request.user
+#@login_required
+#@permission_required('recurrents')
+#def delete(request, template_id):
+    #user = request.user
 
-    template = get_object_or_404(TemplateBase, pk=template_id)
-    template.can_delete_or_die(user)
+    #template = get_object_or_404(TemplateBase, pk=template_id)
+    #template.can_delete_or_die(user)
 
-    generator = template.get_generator()
-    generator.can_delete_or_die(user)
+    #generator = template.get_generator()
+    #generator.can_delete_or_die(user)
 
-    if generator: # WTF ??
-        generator.delete()
-    template.delete()
+    #if generator: # WTF ??
+        #generator.delete()
+    #template.delete()
 
-    return HttpResponseRedirect('/recurrents/generators')
+    #return HttpResponseRedirect('/recurrents/generators')

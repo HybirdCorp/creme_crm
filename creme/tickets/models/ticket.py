@@ -93,6 +93,9 @@ class TicketTemplate(AbstractTicket):
     def get_edit_absolute_url(self):
         return "/tickets/template/edit/%s" % self.id
 
+    def get_delete_absolute_url(self):
+        return '' #means that TicketTemplate can not be deleted directly (because it is closely linked to its RecurrentGenerator)
+
     @staticmethod
     def get_lv_absolute_url():
         return "/tickets/templates"
