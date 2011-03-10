@@ -105,6 +105,21 @@ class ProductLineOnTheFlyForm(LineForm):
                     ('general', ugettext(u'Line information'), ['on_the_fly_item', 'comment', 'quantity', 'unit_price',
                                                                 'discount', 'credit', 'total_discount', 'vat', 'user']),
                 )
+        elif not self.user.has_perm_to_create(Product):
+            fields = self.fields
+            has_to_register_as = fields['has_to_register_as']
+            has_to_register_as.help_text = ugettext(u'You are not allowed to create Products')
+            has_to_register_as.widget.attrs     = {'disabled': True}
+            fields['category'].widget.attrs     = {'disabled': True}
+            fields['sub_category'].widget.attrs = {'disabled': True}
+
+    def clean_has_to_register_as(self):
+        create_product = self.cleaned_data.get('has_to_register_as', False)
+
+        if create_product and not self.user.has_perm_to_create(Product):
+            raise ValidationError(ugettext(u'You are not allowed to create Products'))
+
+        return create_product
 
     def clean(self):
         cleaned_data = self.cleaned_data
@@ -191,6 +206,20 @@ class ServiceLineOnTheFlyForm(LineForm):
                     ('general', _(u'Line information'), ['on_the_fly_item', 'comment', 'quantity', 'unit_price',
                                                          'discount', 'credit', 'total_discount', 'vat', 'user']),
                 )
+        elif not self.user.has_perm_to_create(Service):
+            fields = self.fields
+            has_to_register_as = fields['has_to_register_as']
+            has_to_register_as.help_text = ugettext(u'You are not allowed to create Services')
+            has_to_register_as.widget.attrs = {'disabled': True}
+            fields['category'].widget.attrs = {'disabled': True}
+
+    def clean_has_to_register_as(self):
+        create_service = self.cleaned_data.get('has_to_register_as', False)
+
+        if create_service and not self.user.has_perm_to_create(Service):
+            raise ValidationError(ugettext(u'You are not allowed to create Services'))
+
+        return create_service
 
     def clean(self):
         cleaned_data = self.cleaned_data
