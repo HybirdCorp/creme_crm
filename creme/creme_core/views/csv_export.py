@@ -74,7 +74,7 @@ def dl_listview_as_csv(request, ct_id):
     entities = entities.filter(current_lvs.get_q_with_research(model))
     entities = EntityCredentials.filter(request.user, entities)
     entities = entities.distinct().order_by("%s%s" % (sort_order, sort_field)) #distinct ???
-    entities = hf.improve_queryset(entities) #optimisation time !!!
+    #entities = hf.improve_queryset(entities) #optimisation time !!!
 
     #TODO: move to a template ???
     writer = csv.writer(response, quoting=csv.QUOTE_ALL)

@@ -125,7 +125,7 @@ def list_view(request, model, hf_pk='', extra_dict=None, template='creme_core/ge
     current_lvs.sort_order = POST_get('sort_order', current_lvs.sort_order or '')
 
     entities = _build_entity_queryset(request, model, current_lvs, extra_q)
-    entities = hf.improve_queryset(entities) #optimisation time !!!
+    #entities = hf.improve_queryset(entities) #optimisation time !!!
     entities = _build_entities_page(request, current_lvs, entities, rows)
 
     current_lvs.register_in_session(request)
