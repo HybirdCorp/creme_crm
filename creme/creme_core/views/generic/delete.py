@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2011  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -60,10 +60,14 @@ def delete_entities(request):
 
     for entity in entities:
         if not entity.can_delete(user):
-            errors[403].append(_(u'%s : <b>Permission denied</b>,') % entity)
+            errors[403].append(_(u'%s : <b>Permission denied</b>,') % entity.allowed_unicode(user))
             continue
 
         entity = entity.get_real_entity()
+
+        if entity.get_delete_absolute_url() != CremeEntity.get_delete_absolute_url(entity):
+            errors[404].append(_('%s does not use the generic deletion view.') % entity.allowed_unicode(user))
+            continue
 
         try:
             entity.delete()
@@ -84,10 +88,12 @@ def delete_entity(request, entity_id, callback_url=None):
     if request.method != 'POST':
         raise Http404('Use POST method for this view')
 
-    user = request.user
-    entity = get_object_or_404(CremeEntity, pk=entity_id)
-    entity.can_delete_or_die(user)
-    entity = entity.get_real_entity()
+    entity = get_object_or_404(CremeEntity, pk=entity_id).get_real_entity()
+
+    if entity.get_delete_absolute_url() != CremeEntity.get_delete_absolute_url(entity):
+        raise Http404(_(u'This model does not use the generic deletion view.'))
+
+    entity.can_delete_or_die(request.user)
 
     if callback_url is None: #TODO: useful ??
         callback_url = entity.get_lv_absolute_url()

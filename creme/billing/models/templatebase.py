@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2011  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -45,6 +45,9 @@ class TemplateBase(Base):
 
     def get_edit_absolute_url(self):
         return "/billing/template/edit/%s" % self.id
+
+    def get_delete_absolute_url(self):
+        return '' #means that TemplateBase can not be deleted directly (because it is closely linked to its RecurrentGenerator)
 
     @staticmethod
     def get_lv_absolute_url():

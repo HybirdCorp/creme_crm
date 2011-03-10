@@ -13,7 +13,7 @@ urlpatterns = patterns('billing.views',
     (r'^templates$',                            'templatebase.listview'),
     (r'^template/edit/(?P<template_id>\d+)$',   'templatebase.edit'),
     (r'^template/(?P<template_id>\d+)$',        'templatebase.detailview'),
-    (r'^template/delete/(?P<template_id>\d+)$', 'templatebase.delete'), #TODO: WTF ??
+    #(r'^template/delete/(?P<template_id>\d+)$', 'templatebase.delete'),
 
     (r'^sales_orders$',                       'sales_order.listview'),
     (r'^sales_order/add$',                    'sales_order.add'),
