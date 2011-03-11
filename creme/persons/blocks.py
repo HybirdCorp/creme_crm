@@ -18,11 +18,12 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from django.core.exceptions import PermissionDenied
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.contenttypes.models import ContentType
 
 from creme_core.models import CremeEntity, Relation
-from creme_core.gui.block import Block, PaginatedBlock, QuerysetBlock
+from creme_core.gui.block import Block, PaginatedBlock, QuerysetBlock, list4url
 
 from activities.models import Activity
 from activities.constants import REL_SUB_PART_2_ACTIVITY, REL_SUB_ACTIVITY_SUBJECT, REL_SUB_LINKED_2_ACTIVITY, REL_OBJ_PART_2_ACTIVITY
@@ -78,7 +79,6 @@ class NeglectedOrganisationsBlock(PaginatedBlock):
     dependencies  = (Activity,)
     verbose_name  = u"Neglected organisations"
     template_name = 'persons/templatetags/block_neglected_orgas.html'
-    permission    = 'persons' #NB: used by the view creme_core.views.blocks.reload_basic
 
     def _get_neglected(self, now):
         user_contacts     = Contact.objects.filter(is_user__isnull=False).values_list('id', flat=True)
@@ -117,10 +117,13 @@ class NeglectedOrganisationsBlock(PaginatedBlock):
 
         return neglected_orgas
 
-    def detailview_display(self, context): #indeed it is displayed on portal of 'persons'
+    def portal_display(self, context, ct_ids):
+        if not context['user'].has_perm('persons'):
+            raise PermissionDenied('Error: you are not allowed to view this block: %s' % self.id_)
+
         btc = self.get_block_template_context(context,
                                               self._get_neglected(context['today']),
-                                              update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
+                                              update_url='/creme_core/blocks/reload/portal/%s/%s/' % (self.id_, list4url(ct_ids)),
                                              )
 
         CremeEntity.populate_credentials(btc['page'].object_list, context['user'])
