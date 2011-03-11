@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2011  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -29,7 +29,7 @@ from creme_config.forms.prefered_menu import PreferedMenuForm
 @login_required
 @permission_required('creme_config.can_admin')
 def edit(request):
-    if request.POST:
+    if request.method == 'POST':
         form = PreferedMenuForm(user2edit=None, user=request.user, data=request.POST)
 
         if form.is_valid():
@@ -40,4 +40,5 @@ def edit(request):
 
     return render_to_response('creme_core/generics/blockform/edit.html',
                               {'form': form},
-                              context_instance=RequestContext(request))
+                              context_instance=RequestContext(request)
+                             )

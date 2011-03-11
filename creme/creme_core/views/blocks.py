@@ -40,15 +40,24 @@ def _get_depblock_ids(request, block_id):
 
     return ids
 
-def _build_blocks_render(request, block_id, blocks_manager, block_render_function):
-    blocks = []
+def _build_blocks_render(request, block_id, blocks_manager, block_render_function, check_permission=False):
+    block_renders = []
 
-    for block in block_registry.get_blocks(_get_depblock_ids(request, block_id)):
+    blocks = block_registry.get_blocks(_get_depblock_ids(request, block_id))
+
+    if check_permission:
+        has_perm = request.user.has_perm
+        for block in blocks:
+            permission = block.permission #'crash' if the coder forgot to set a 'permission' attribute -> OK :)
+            if permission is not None and not has_perm(permission):
+                raise PermissionDenied('Error: you are not allowed to view this block: %s' % block.id_)
+
+    for block in blocks:
         block_id = block.id_
         blocks_manager.add_group(block_id, block)
-        blocks.append((block_id, block_render_function(block)))
+        block_renders.append((block_id, block_render_function(block)))
 
-    return blocks
+    return block_renders
 
 @login_required
 @jsonify
@@ -92,11 +101,18 @@ def reload_portal(request, block_id, ct_ids):
 @login_required
 @jsonify
 def reload_basic(request, block_id):
+    """Blocks that uses this reloading view must have an attribute 'permission',
+    which contains the string corresponding to the permission to view this block,
+    eg: permission = "creme_config.can_admin"
+    'permission = None' means 'no permission required' ; use with caution :)
+    """
     context = RequestContext(request)
     blocks_manager = BlocksManager.get(context)
 
     return _build_blocks_render(request, block_id, blocks_manager,
-                                lambda block: block.detailview_display(context))
+                                lambda block: block.detailview_display(context),
+                                check_permission=True
+                               )
 
 @login_required
 @jsonify

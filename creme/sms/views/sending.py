@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2011  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -25,7 +25,7 @@ from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required, permission_required
 
 from creme_core.views.generic import add_to_entity
-from creme_core.utils import get_from_POST_or_404
+from creme_core.utils import get_from_POST_or_404, jsonify
 
 from sms.models import SMSCampaign, Sending, Message
 from sms.forms.message import SendingCreateForm
@@ -107,7 +107,20 @@ def delete_message(request, id):
     #TODO: better with a named url.....
     return HttpResponseRedirect('/sms/campaign/sending/%s' % message.sending_id)
 
+#@login_required
+#@permission_required('sms')
+#def reload_block_messages(request, id):
+    #return messages_block.detailview_ajax(request, id)
+
+#Useful method because EmailSending is not a CremeEntity (should be ?)
+@jsonify
 @login_required
 @permission_required('sms')
 def reload_block_messages(request, id):
-    return messages_block.detailview_ajax(request, id)
+    sending  = get_object_or_404(Sending, pk=id)
+    sending.campaign.can_view_or_die(request.user)
+
+    context = RequestContext(request)
+    context['object'] = sending
+
+    return [(messages_block.id_, messages_block.detailview_display(context))]

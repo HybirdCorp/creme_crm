@@ -45,6 +45,7 @@ def history(request):
     return render_to_response("crudity/history.html", {'blocks': blocks}, context_instance=context)
 
 @jsonify
+@login_required
 @permission_required('crudity')
 def reload(request, ct_id, type):
     block = HistoryBlock(get_ct_or_404(ct_id), type)

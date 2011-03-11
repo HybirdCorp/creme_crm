@@ -87,11 +87,12 @@ class SegmentsBlock(QuerysetBlock):
     order_by      = 'name'
     verbose_name  = _(u'Market segments')
     template_name = 'commercial/templatetags/block_segments.html'
+    permission    = 'commercial' #NB: used by the view creme_core.views.blocks.reload_basic
 
     def detailview_display(self, context):
         return self._render(self.get_block_template_context(context, MarketSegment.objects.all(),
                                                             update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
-                                                            has_perm=context['request'].user.has_perm('commercial'), #TODO: better credentials
+                                                            #has_perm=context['request'].user.has_perm('commercial'), #todo: better credentials ?
                                                            ))
 
 
