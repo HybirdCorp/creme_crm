@@ -131,16 +131,21 @@ def delete_evalorga(request, strategy_id):
 
     return HttpResponseRedirect(strategy.get_absolute_url())
 
-@login_required
-@permission_required('commercial')
-def _orga_view(request, strategy_id, orga_id, template):
+def _get_strategy_n_orga(request, strategy_id, orga_id):
     user = request.user
 
     strategy = get_object_or_404(Strategy, pk=strategy_id)
     strategy.can_view_or_die(user)
 
     orga = get_object_or_404(Organisation, pk=orga_id)
-    #orga.can_view_or_die(user) #TODO: improve template ?? (deactivate <a> tag)
+    orga.can_view_or_die(user)
+
+    return strategy, orga
+
+@login_required
+@permission_required('commercial')
+def _orga_view(request, strategy_id, orga_id, template):
+    strategy, orga = _get_strategy_n_orga(request, strategy_id, orga_id)
 
     if not strategy.evaluated_orgas.filter(pk=orga_id).exists():
         raise Http404(_(u'This organisation <%(orga)s> is not (no more ?) evaluated by the strategy %(strategy)s') % {
@@ -204,11 +209,10 @@ def set_segment_category(request, strategy_id):
 @permission_required('commercial')
 @jsonify
 def _reload_matrix(request, strategy_id, orga_id, block):
-    strategy = get_object_or_404(Strategy, pk=strategy_id)
-    strategy.can_view_or_die(request.user)
+    strategy, orga = _get_strategy_n_orga(request, strategy_id, orga_id)
 
     context = RequestContext(request)
-    context['orga']     = get_object_or_404(Organisation, pk=orga_id)
+    context['orga']     = orga
     context['strategy'] = strategy
 
     return [(block.id_, block.detailview_display(context))]

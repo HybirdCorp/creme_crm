@@ -1,5 +1,5 @@
 {% load i18n %}
-{% load creme_core_tags %}{% load creme_block %}
+{% load creme_core_tags %}{% load creme_block %}{% load creme_widgets %}
 <table class="table_detail_view ui-corner-all" id={{block_name}}>
     {% get_block_header colspan=4 %}
         <th style="width: 80%;" class="collapser">{% get_block_title _('%s Commercial approach') _('%s Commercial approaches') 'commercial_48.png' _('Comapp') %}</th>
@@ -22,19 +22,14 @@
                 {% get_column_header _('Details') 'description' %}
                 <th class="block_header_line_dark">{% trans "Generate from" %}</th>
             </tr>
-            {% for approach in page.object_list %}
-                <!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
+            {% for approach in page.object_list %}<!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
                 <tr>
                     <td class="{{row_color}}"><strong>{{approach.title}}</strong></td>
                     {% if not object %}
-                        <td class="{{row_color}}">
-                            <a href="{{approach.creme_entity.get_absolute_url}}">{{approach.creme_entity}}</a>
-                        </td>
+                        <td class="{{row_color}}">{% widget_entity_hyperlink approach.creme_entity user %}</td>
                     {% endif %}
                     <td class="{{row_color}}"><em>{{approach.description}}</em></td>
-                    <td class="{{row_color}}">
-                        <em>{{approach.related_activity|default:_("Nothing")}}</em>
-                    </td>
+                    <td class="{{row_color}}"><em>{{approach.related_activity|default:_("Nothing")}}</em></td>
                 </tr>
             {% endfor %}
         {% else %}
