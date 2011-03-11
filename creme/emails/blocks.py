@@ -25,8 +25,8 @@ from django.contrib.contenttypes.models import ContentType
 
 from creme_core.constants import REL_SUB_RELATED_TO, REL_OBJ_RELATED_TO
 from creme_core.models import Relation, CremeEntity
-from creme_core.gui.block import QuerysetBlock#, list4url
-from creme_core.utils import jsonify
+from creme_core.gui.block import QuerysetBlock
+from creme_core.utils import jsonify #
 
 from persons.models import Contact, Organisation
 
@@ -167,16 +167,6 @@ class MailsBlock(QuerysetBlock):
 
         return self._render(btc)
 
-    #Useful method because EmailSending is not a CremeEntity (should be ?) --> generic view in creme_core (problems with credemtials ?) ??
-    @jsonify
-    def detailview_ajax(self, request, entity_id):
-        context = RequestContext(request)
-        context.update({
-                'object': EmailSending.objects.get(id=entity_id),
-            })
-
-        return [(self.id_, self.detailview_display(context))]
-
 
 class MailsHistoryBlock(QuerysetBlock):
     id_           = QuerysetBlock.generate_id('emails', 'mails_history')
@@ -187,19 +177,19 @@ class MailsHistoryBlock(QuerysetBlock):
     configurable  = True
 
     def detailview_display(self, context):
-        object = context['object']
-        pk = object.pk
-
+        entity = context['object']
+        pk = entity.pk
         rtypes = [REL_OBJ_MAIL_SENDED, REL_OBJ_MAIL_RECEIVED, REL_OBJ_RELATED_TO]
-
-        entityemail_pk = Relation.objects.filter(type__pk__in=[REL_SUB_MAIL_SENDED, REL_SUB_MAIL_RECEIVED, REL_SUB_RELATED_TO], object_entity=pk).values_list('subject_entity', flat=True).distinct()
+        entityemail_pk = Relation.objects.filter(type__pk__in=[REL_SUB_MAIL_SENDED, REL_SUB_MAIL_RECEIVED, REL_SUB_RELATED_TO], object_entity=pk) \
+                                         .values_list('subject_entity', flat=True) \
+                                         .distinct()
 
         return self._render(self.get_block_template_context(context,
                                                             EntityEmail.objects.filter(pk__in=entityemail_pk),
                                                             update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, pk),
                                                             sent_status=MAIL_STATUS_SENT,
                                                             rtypes=','.join(rtypes),
-                                                            entity_email_ct_id=ContentType.objects.get_for_model(object).id
+                                                            entity_email_ct_id=ContentType.objects.get_for_model(entity).id
                                                             ))
 
 class LwMailsHistoryBlock(QuerysetBlock):
@@ -242,6 +232,8 @@ class WaitingSynchronizationMailsBlock(_SynchronizationMailsBlock):
     template_name = 'emails/templatetags/block_synchronization.html'
 
     def detailview_display(self, context):
+        #TODO: for security add this: if not context['user'].has_perm('crudity'): raise PermissionDenied(....)
+
         context.update({'MAIL_STATUS': MAIL_STATUS, 'entityemail_ct_id': ContentType.objects.get_for_model(EntityEmail).id, 'rtypes': ','.join([REL_SUB_MAIL_SENDED, REL_SUB_MAIL_RECEIVED, REL_SUB_RELATED_TO])})
         return self._render(self.get_block_template_context(context, EntityEmail.objects.filter(status=MAIL_STATUS_SYNCHRONIZED_WAITING),
 #                                                            update_url='/creme_core/blocks/reload/basic/%s/' % self.id_
@@ -256,11 +248,14 @@ class SpamSynchronizationMailsBlock(_SynchronizationMailsBlock):
     template_name = 'emails/templatetags/block_synchronization_spam.html'
 
     def detailview_display(self, context):
+        #TODO: for security add this: if not context['user'].has_perm('crudity'): raise PermissionDenied(....)
+
         context.update({'MAIL_STATUS': MAIL_STATUS, 'entityemail_ct_id': ContentType.objects.get_for_model(EntityEmail).id})
         return self._render(self.get_block_template_context(context, EntityEmail.objects.filter(status=MAIL_STATUS_SYNCHRONIZED_SPAM),
 #                                                            update_url='/creme_core/blocks/reload/basic/%s/' % self.id_
                                                             update_url='/emails/sync_blocks/reload'
-                                                            ))
+                                                            #MAIL_STATUS=MAIL_STATUS #TODO
+                                                           ))
 
 
 class SignaturesBlock(QuerysetBlock):
@@ -269,6 +264,7 @@ class SignaturesBlock(QuerysetBlock):
     order_by      = 'name'
     verbose_name  = u'Email signatures'
     template_name = 'emails/templatetags/block_signatures.html'
+    permission    = 'emails' #NB: used by the view creme_core.views.blocks.reload_basic
 
     def detailview_display(self, context): #NB: indeed, it is displayed on portal of persons
         return self._render(self.get_block_template_context(context, EmailSignature.objects.filter(user=context['user']),

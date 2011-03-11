@@ -78,6 +78,7 @@ class NeglectedOrganisationsBlock(PaginatedBlock):
     dependencies  = (Activity,)
     verbose_name  = u"Neglected organisations"
     template_name = 'persons/templatetags/block_neglected_orgas.html'
+    permission    = 'persons' #NB: used by the view creme_core.views.blocks.reload_basic
 
     def _get_neglected(self, now):
         user_contacts     = Contact.objects.filter(is_user__isnull=False).values_list('id', flat=True)

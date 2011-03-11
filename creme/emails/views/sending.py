@@ -25,6 +25,7 @@ from django.template import RequestContext
 from django.contrib.auth.decorators import login_required, permission_required
 
 from creme_core.views.generic import add_to_entity
+from creme_core.utils import jsonify
 
 from emails.models import EmailCampaign, EmailSending, LightWeightEmail
 from emails.forms.sending import SendingCreateForm
@@ -35,21 +36,31 @@ from emails.blocks import mails_block
 @permission_required('emails')
 def add(request, campaign_id):
     return add_to_entity(request, campaign_id, SendingCreateForm,
-                         _('New sending for <%s>'), entity_class=EmailCampaign)
+                         _('New sending for <%s>'), entity_class=EmailCampaign
+                        )
 
-@login_required
-@permission_required('emails')
-def detailview(request, sending_id):
+def _get_sending(request, sending_id):
     sending  = get_object_or_404(EmailSending, pk=sending_id)
     campaign = sending.campaign
 
     campaign.can_view_or_die(request.user)
 
-    return render_to_response('emails/popup_sending.html',
-                              {'object': sending},
-                              context_instance=RequestContext(request))
+    return sending
 
 @login_required
 @permission_required('emails')
+def detailview(request, sending_id):
+    return render_to_response('emails/popup_sending.html',
+                              {'object': _get_sending(request, sending_id)},
+                              context_instance=RequestContext(request)
+                             )
+
+#Useful method because EmailSending is not a CremeEntity (should be ?)
+@jsonify
+@login_required
+@permission_required('emails')
 def reload_block_mails(request, sending_id):
-    return mails_block.detailview_ajax(request, sending_id)
+    context = RequestContext(request)
+    context['object'] = _get_sending(request, sending_id)
+
+    return [(mails_block.id_, mails_block.detailview_display(context))]

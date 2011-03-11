@@ -157,9 +157,10 @@ class UserCalendars(QuerysetBlock):
     verbose_name  = _(u'My calendars')
     template_name = 'activities/templatetags/block_user_calendars.html'
     order_by      = 'name'
+    permission    = None #NB: used by the view creme_core.views.blocks.reload_basic ; None means 'No special permission required'
 
     def detailview_display(self, context):
-        model = Calendar
+        #NB: credentials are OK : we retrieve only Calendars related of the user
         user = context['request'].user
         return self._render(self.get_block_template_context(context,
                                                             Calendar.objects.filter(user=user),

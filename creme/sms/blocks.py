@@ -19,14 +19,14 @@
 ################################################################################
 
 from django.http import HttpResponse
-from django.template.context import RequestContext
+#from django.template.context import RequestContext
 from django.utils.simplejson import JSONEncoder
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.contenttypes.models import ContentType
 
 from creme_core.models import CremeEntity
 from creme_core.gui.block import QuerysetBlock
-from creme_core.utils import jsonify
+#from creme_core.utils import jsonify
 
 from persons.models import Contact
 
@@ -102,15 +102,15 @@ class MessagesBlock(QuerysetBlock):
                                                             update_url='/sms/campaign/sending/%s/messages/reload/' % sending.pk
                                                             ))
 
-    #Useful method because EmailSending is not a CremeEntity (should be ?) --> generic view in creme_core (problems with credemtials ?) ??
-    @jsonify
-    def detailview_ajax(self, request, entity_id):
-        context = RequestContext(request)
-        context.update({
-                'object': Sending.objects.get(id=entity_id),
-            })
+    ##Useful method because EmailSending is not a CremeEntity (should be ?) --> generic view in creme_core (problems with credemtials ?) ??
+    #@jsonify
+    #def detailview_ajax(self, request, entity_id):
+        #context = RequestContext(request)
+        #context.update({
+                #'object': Sending.objects.get(id=entity_id),
+            #})
 
-        return [(self.id_, self.detailview_display(context))]
+        #return [(self.id_, self.detailview_display(context))]
 
 
 class SendingsBlock(QuerysetBlock):

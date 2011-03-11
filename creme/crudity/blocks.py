@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2011  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -22,8 +22,8 @@ from django.utils.translation import ugettext_lazy as _
 
 from creme_core.gui.block import QuerysetBlock
 
-from crudity.models.actions import WaitingAction
-from crudity.models.history import History
+from crudity.models import WaitingAction, History
+
 
 class WaitingActionBlock(QuerysetBlock):
     dependencies  = ()
@@ -38,9 +38,9 @@ class WaitingActionBlock(QuerysetBlock):
 
     def generate_id(self):
         return 'block_crudity-%s-%s' % (self.ct.id, self.type)
-    
 
     def detailview_display(self, context):
+        #TODO: check if user.has_perm('crudity') -> PermissionDenied
         type = self.type
         ct   = self.ct
         return self._render(self.get_block_template_context(context,
@@ -48,7 +48,8 @@ class WaitingActionBlock(QuerysetBlock):
                                                             waiting_type=type,
                                                             waiting_ct=ct,
                                                             update_url='/crudity/waiting_actions_blocks/%s/reload' % (self.id_,),
-                                                            ))
+                                                           ))
+
 
 class HistoryBlock(QuerysetBlock):
     dependencies  = ()
@@ -64,8 +65,8 @@ class HistoryBlock(QuerysetBlock):
     def generate_id(self):
         return 'block_crudity-%s-%s' % (self.ct.id, self.type)
 
-
     def detailview_display(self, context):
+        #TODO: check if user.has_perm('crudity') -> PermissionDenied
         type = self.type
         ct   = self.ct
         return self._render(self.get_block_template_context(context,
@@ -73,7 +74,5 @@ class HistoryBlock(QuerysetBlock):
                                                             type=type,
                                                             ct=ct,
                                                             update_url='/crudity/history_block/%s/reload' % (self.id_,),
-                                                            ))
-
-
+                                                           ))
 

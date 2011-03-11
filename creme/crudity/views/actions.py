@@ -69,6 +69,6 @@ def reload(request, ct_id, waiting_type):
     block = WaitingActionBlock(ct, waiting_type)
 
     ctx = RequestContext(request)
-    ctx.update({'waiting_type_verbose': VERBOSE_CRUD, 'waiting_ct': ct, 'waiting_type': waiting_type})
+    ctx.update({'waiting_type_verbose': VERBOSE_CRUD, 'waiting_ct': ct, 'waiting_type': waiting_type}) #TODO: useful ?? (already set in the context by 'detailview_display')
 
     return [(block.id_, block.detailview_display(ctx))]

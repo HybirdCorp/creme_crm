@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2011  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -25,7 +25,7 @@ from django.contrib.auth.decorators import login_required, permission_required
 
 from creme_core.models import CustomField
 from creme_core.views.generic import add_model_with_popup, edit_model_with_popup
-from creme_core.utils import get_ct_or_404, get_from_POST_or_404
+from creme_core.utils import get_ct_or_404, get_from_POST_or_404, jsonify
 
 from creme_config.forms.custom_fields import CustomFieldsCTAddForm, CustomFieldsAddForm, CustomFieldsEditForm
 from creme_config.blocks import custom_fields_block
@@ -86,7 +86,11 @@ def delete(request):
 
     return HttpResponse()
 
+@jsonify
 @login_required
-@permission_required('creme_config')
+@permission_required('creme_config.can_admin')
 def reload_block(request, ct_id):
-    return custom_fields_block.detailview_ajax(request, ct_id)
+    context = RequestContext(request)
+    context['content_type'] = get_ct_or_404(ct_id)
+
+    return [(custom_fields_block.id_, custom_fields_block.detailview_display(context))]
