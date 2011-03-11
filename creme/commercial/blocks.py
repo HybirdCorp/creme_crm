@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2011  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -56,6 +56,8 @@ class ApproachesBlock(QuerysetBlock):
 
         for comapp in comapps:
             comapp.creme_entity = entities_map[comapp.entity_id]
+
+        CremeEntity.populate_credentials(entities_map.values(), user) #beware: values() and not itervalues()
 
     def detailview_display(self, context):
         pk = context['object'].pk
@@ -148,9 +150,14 @@ class EvaluatedOrgasBlock(QuerysetBlock):
 
     def detailview_display(self, context):
         strategy = context['object']
-        return self._render(self.get_block_template_context(context, strategy.evaluated_orgas.all(),
-                                                            update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, strategy.pk),
-                                                           ))
+        btc = self.get_block_template_context(context, strategy.evaluated_orgas.all(),
+                                              update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, strategy.pk),
+                                             )
+
+        CremeEntity.populate_credentials(btc['page'].object_list, context['user'])
+
+        return self._render(btc)
+
 
 class AssetsMatrixBlock(Block):
     id_           = Block.generate_id('commercial', 'assets_matrix')
@@ -159,6 +166,7 @@ class AssetsMatrixBlock(Block):
     template_name = 'commercial/templatetags/block_assets_matrix.html'
 
     def detailview_display(self, context):
+        #NB: credentials are OK : we are sure to use the custom relaod view if 'strategy' & 'orga' are in the context
         strategy = context['strategy']
         orga = context['orga']
         return self._render(self.get_block_template_context(context,
@@ -176,6 +184,7 @@ class CharmsMatrixBlock(Block):
     template_name = 'commercial/templatetags/block_charms_matrix.html'
 
     def detailview_display(self, context):
+        #NB: credentials are OK : we are sure to use the custom relaod view if 'strategy' & 'orga' are in the context
         strategy = context['strategy']
         orga = context['orga']
         return self._render(self.get_block_template_context(context,
@@ -192,6 +201,7 @@ class AssetsCharmsMatrixBlock(Block):
     template_name = 'commercial/templatetags/block_assets_charms_matrix.html'
 
     def detailview_display(self, context):
+        #NB: credentials are OK : we are sure to use the custom relaod view if 'strategy' & 'orga' are in the context
         strategy = context['strategy']
         orga = context['orga']
         return self._render(self.get_block_template_context(context,
