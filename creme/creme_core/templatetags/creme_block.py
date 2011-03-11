@@ -385,15 +385,7 @@ class BlockImporterNode(TemplateNode):
 
 
 #-------------------------------------------------------------------------------
-@register.tag(name="display_block_detailview")
-def do_block_detailviewer(parser, token):
-    """Eg: {% display_block_detailview 'relations_block' %} %}"""
-    try:
-        # Splitting by None == splitting by spaces.
-        tag_name, block_alias = token.contents.split(None, 1)
-    except ValueError:
-        raise TemplateSyntaxError, "%r tag requires one argument" % token.contents.split()[0]
-
+def _parse_block_alias(block_alias):
     first_char = block_alias[0]
     if not (first_char == block_alias[-1] and first_char in ('"', "'")):
         raise TemplateSyntaxError, "%r tag's argument should be in quotes" % tag_name
@@ -403,9 +395,20 @@ def do_block_detailviewer(parser, token):
     if any(not char.isalnum() and char not in ('-', '_') for char in block_alias):
         raise TemplateSyntaxError, "%r tag's argument should be be composed with chars in {[A-Za-z][0-9]-_}" % tag_name
 
-    return BlockDetailviewerNode(block_alias)
+    return block_alias
 
-class BlockDetailviewerNode(TemplateNode):
+@register.tag(name="display_block_detailview")
+def do_block_detailviewer(parser, token):
+    """Eg: {% display_block_detailview 'relations_block' %}"""
+    try:
+        # Splitting by None == splitting by spaces.
+        tag_name, block_alias = token.contents.split(None, 1)
+    except ValueError:
+        raise TemplateSyntaxError, "%r tag requires one argument" % token.contents.split()[0]
+
+    return BlockDetailViewerNode(_parse_block_alias(block_alias))
+
+class BlockDetailViewerNode(TemplateNode):
     def __init__(self, block_alias):
         self.alias = block_alias #name of the block in this template
 
@@ -433,6 +436,7 @@ class DetailviewBlocksImporterNode(TemplateNode):
 
         return ''
 
+
 @register.tag(name="display_detailview_blocks")
 def do_detailview_blocks_displayer(parser, token):
     return DetailviewBlocksDisplayerNode()
@@ -442,6 +446,29 @@ class DetailviewBlocksDisplayerNode(TemplateNode):
         blocks = BlocksManager.get(context).pop_group('detailview_blocks')
 
         return ''.join(block.detailview_display(context) for block in blocks)
+
+
+@register.tag(name="display_block_portal")
+def do_block_portalviewer(parser, token):
+    """Eg: {% display_block_portal 'stuffs_block' ct_ids %}"""
+    try:
+        # Splitting by None == splitting by spaces.
+        tag_name, block_alias, ct_ids_varname = token.contents.split(None)
+    except ValueError:
+        raise TemplateSyntaxError, "%r tag requires two arguments" % token.contents.split()[0]
+
+    return BlockPortalViewerNode(_parse_block_alias(block_alias), ct_ids_varname)
+
+class BlockPortalViewerNode(TemplateNode):
+    def __init__(self, block_alias, ct_ids_varname):
+        self.alias = block_alias #name of the block in this template
+        self.ct_ids_varname = ct_ids_varname
+
+    def render(self, context):
+        block = BlocksManager.get(context).pop_group(self.alias)[0]
+        ct_ids = context[self.ct_ids_varname] #TODO: inline
+
+        return block.portal_display(context, ct_ids)
 
 
 def _parse_one_var_tag(token): #TODO: move in creme_core.utils

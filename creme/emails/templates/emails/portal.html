@@ -9,11 +9,10 @@
 {% block list_msg %}{% trans "List of campaigns" %}{% endblock %}
 
 {% block creme_blocks_import %}
-    {% comment %}{% import_portal_blocks ct_ids %}{% endcomment %}
     {{block.super}}
     {% import_block from_app 'emails' named 'signatures' as 'signatures_block' %}
 {% endblock %}
 
 {% block before_statistics %}
-    {% display_block_detailview 'signatures_block' %}
+    {% display_block_portal 'signatures_block' ct_ids %}
 {% endblock %}

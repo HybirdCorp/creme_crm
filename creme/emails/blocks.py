@@ -18,14 +18,15 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from django.core.exceptions import PermissionDenied
 from django.http import HttpResponse
-from django.template.context import RequestContext
+from django.template.context import RequestContext #
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.contenttypes.models import ContentType
 
 from creme_core.constants import REL_SUB_RELATED_TO, REL_OBJ_RELATED_TO
 from creme_core.models import Relation, CremeEntity
-from creme_core.gui.block import QuerysetBlock
+from creme_core.gui.block import QuerysetBlock, list4url
 from creme_core.utils import jsonify #
 
 from persons.models import Contact, Organisation
@@ -264,11 +265,13 @@ class SignaturesBlock(QuerysetBlock):
     order_by      = 'name'
     verbose_name  = u'Email signatures'
     template_name = 'emails/templatetags/block_signatures.html'
-    permission    = 'emails' #NB: used by the view creme_core.views.blocks.reload_basic
 
-    def detailview_display(self, context): #NB: indeed, it is displayed on portal of persons
+    def portal_display(self, context, ct_ids):
+        if not context['user'].has_perm('emails'):
+            raise PermissionDenied('Error: you are not allowed to view this block: %s' % self.id_)
+
         return self._render(self.get_block_template_context(context, EmailSignature.objects.filter(user=context['user']),
-                                                            update_url='/creme_core/blocks/reload/basic/%s/' % self.id_
+                                                            update_url='/creme_core/blocks/reload/portal/%s/%s/' % (self.id_, list4url(ct_ids)),
                                                            ))
 
 
