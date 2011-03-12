@@ -36,7 +36,6 @@ def _retrieve_actions_ids(request):
 @login_required
 @permission_required('crudity')
 def delete(request):
-    #TODO: There no verifications because email is not a CremeEntity!!!
     for id in _retrieve_actions_ids(request):
         action = get_object_or_404(WaitingAction, pk=id)
         action.delete()

@@ -19,8 +19,7 @@
                     <th class="{% cycle "block_header_line_dark" "block_header_line_light" %}">{% trans "Description" %}</th>
                     <th class="{% cycle "block_header_line_dark" "block_header_line_light" %}">{% trans "View entity's file" %}</th>
                 </tr>
-                {% for history in page.object_list %}
-                    <!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
+                {% for history in page.object_list %}<!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
                     <tr>
                         {% with history.get_entity as history_entity %}
                             <td class="{{row_color}}">{{history_entity}}</td>
