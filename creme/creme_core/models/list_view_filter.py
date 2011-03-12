@@ -95,7 +95,7 @@ class FilterCondition(Model):
         #Hack for dates
         if pattern_value.find('(%s,%s)') >= 0:
             dates = list(self.values.values_list('value', flat=True))[:2]
-            
+
             if _type.id == DATE_RANGE_FILTER:
                 dates.sort()
                 if len(dates) == 1:
@@ -210,6 +210,12 @@ class Filter(Model):
 
         if not self.user_id: #all users allowed
             return (True, 'OK')
+
+        if user.is_superuser:
+            return (True, 'OK')
+
+        if not user.has_perm(self.model_ct.app_label):
+            return (False, ugettext(u"You are not allowed to acceed to this app"))
 
         if not self.user.is_team:
             if self.user_id == user.id:

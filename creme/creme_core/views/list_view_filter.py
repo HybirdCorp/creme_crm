@@ -1,10 +1,29 @@
 # -*- coding: utf-8 -*-
 
+################################################################################
+#    Creme is a free/open-source Customer Relationship Management software
+#    Copyright (C) 2009-2011  Hybird
+#
+#    This program is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU Affero General Public License as published by
+#    the Free Software Foundation, either version 3 of the License, or
+#    (at your option) any later version.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU Affero General Public License for more details.
+#
+#    You should have received a copy of the GNU Affero General Public License
+#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+################################################################################
+
 from django.core import serializers
 from django.db.models.query_utils import Q
 from django.http import HttpResponse, HttpResponseRedirect, Http404
 from django.shortcuts import get_object_or_404, render_to_response
 from django.template import RequestContext
+from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required
 from django.contrib.contenttypes.models import ContentType
 
@@ -16,16 +35,23 @@ from creme_core.utils.meta import get_flds_with_fk_flds
 from creme_core.views.generic import list_view_popup_from_widget
 
 
+#TODO: all this code must be heavily refactored....
+
 @login_required
 #@add_view_or_die(ContentType.objects.get_for_model(Filter), app_name="all_creme_apps")
-#TODO: @permission_required('creme_core') ??
 def add(request, ct_id):
-    if request.POST:
+    ct = get_ct_or_404(ct_id)
+
+    if not request.user.has_perm(ct.app_label):
+        raise Http404(_(u"You are not allowed to acceed to this app"))
+
+    if request.method == 'POST':
         #beware: we doesn't test the form validity voluntarily
         #filterform = ListViewFilterForm(request.POST, initial={'user': request.user.id, 'content_type_id': ct_id})
         filterform = ListViewFilterForm(request.POST, initial={'content_type_id': ct_id})
         filterform.save()
-        return HttpResponseRedirect(ContentType.objects.get_for_id(ct_id).model_class().get_lv_absolute_url())
+        #return HttpResponseRedirect(ContentType.objects.get_for_id(ct_id).model_class().get_lv_absolute_url())
+        return HttpResponseRedirect(ct.model_class().get_lv_absolute_url())
 
     #filterform = ListViewFilterForm(initial={'user': request.user.id, 'content_type_id': ct_id})
     filterform = ListViewFilterForm(initial={'content_type_id': ct_id})

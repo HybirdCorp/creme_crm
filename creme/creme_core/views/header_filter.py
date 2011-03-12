@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2011  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -43,6 +43,9 @@ def _set_current_hf(request, path, hf_instance):
 @login_required
 def add(request, content_type_id, extra_template_dict=None):
     ct_entity = get_ct_or_404(content_type_id)
+
+    if not request.user.has_perm(ct_entity.app_label):
+        raise Http404(_(u"You are not allowed to acceed to this app"))
 
     try:
         callback_url = ct_entity.model_class().get_lv_absolute_url()
