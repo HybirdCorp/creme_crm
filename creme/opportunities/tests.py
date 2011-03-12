@@ -5,7 +5,7 @@ from datetime import date
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 
-from creme_core.models import RelationType, Relation, CremeProperty
+from creme_core.models import RelationType, Relation, CremeProperty, SetCredentials
 from creme_core.constants import REL_SUB_RELATED_TO, REL_OBJ_RELATED_TO, PROP_IS_MANAGED_BY_CREME
 from creme_core.tests.base import CremeTestCase
 
@@ -77,6 +77,7 @@ class OpportunitiesTestCase(CremeTestCase):
                                             'emit_orga':    emitter.id,
                                     }
                                    )
+        self.assertNoFormError(response)
         self.assertEqual(200, response.status_code)
 
         try:
@@ -97,6 +98,56 @@ class OpportunitiesTestCase(CremeTestCase):
         filter_ = Relation.objects.filter
         self.assertEqual(1, filter_(subject_entity=target,  type=REL_OBJ_TARGETS_ORGA, object_entity=opportunity).count())
         self.assertEqual(1, filter_(subject_entity=emitter, type=REL_SUB_EMIT_ORGA,    object_entity=opportunity).count())
+
+    def test_add_to_orga01(self):
+        self.login()
+
+        create_orga = Organisation.objects.create
+        target  = create_orga(user=self.user, name='Target renegade')
+        emitter = create_orga(user=self.user, name='My society')
+
+        CremeProperty.objects.create(type_id=PROP_IS_MANAGED_BY_CREME, creme_entity=emitter)
+
+        url = '/opportunities/opportunity/add_to_orga/%s' % target.id
+        self.assertEqual(200, self.client.get(url).status_code)
+
+        salesphase_id = SalesPhase.objects.all()[0].id
+        name = 'Opportunity linked to %s' % target
+        response = self.client.post(url, data={
+                                                'user':         self.user.pk,
+                                                'name':         name,
+                                                'sales_phase':  salesphase_id,
+                                                'closing_date': '2011-03-12',
+                                                'target_orga':  target.id,
+                                                'emit_orga':    emitter.id,
+                                              }
+                                   )
+        self.assertNoFormError(response)
+        self.assertEqual(200, response.status_code)
+
+        try:
+            opportunity = Opportunity.objects.get(name=name)
+        except Exception, e:
+            self.fail(str(e))
+
+        self.assertEqual(salesphase_id, opportunity.sales_phase_id)
+
+    def test_add_to_orga02(self): #with bad creds
+        self.login(is_superuser=False, allowed_apps=['opportunities'])
+
+        SetCredentials.objects.create(role=self.role,
+                                      value=SetCredentials.CRED_VIEW   | SetCredentials.CRED_CHANGE | \
+                                            SetCredentials.CRED_DELETE | SetCredentials.CRED_UNLINK, #no CRED_LINK
+                                      set_type=SetCredentials.ESET_OWN)
+        self.role.creatable_ctypes = [ContentType.objects.get_for_model(Opportunity)]
+
+        create_orga = Organisation.objects.create
+        target  = create_orga(user=self.user, name='Target renegade')
+        emitter = create_orga(user=self.user, name='My society')
+
+        CremeProperty.objects.create(type_id=PROP_IS_MANAGED_BY_CREME, creme_entity=emitter)
+
+        self.assertEqual(403, self.client.get('/opportunities/opportunity/add_to_orga/%s' % target.id).status_code)
 
     def test_opportunity_generate_new_doc01(self):
         self.login()
@@ -180,5 +231,3 @@ class OpportunitiesTestCase(CremeTestCase):
         self.assertEqual(1, filter_(subject_entity=quote1, type=REL_SUB_BILL_RECEIVED, object_entity=target).count())
         self.assertEqual(1, filter_(subject_entity=quote1, type=REL_SUB_LINKED_QUOTE,  object_entity=opportunity).count())
         self.assertEqual(1, filter_(subject_entity=quote1, type=REL_SUB_CURRENT_DOC,   object_entity=opportunity).count())
-
-#TODO: test add_to_orga (with bad creds etc...)

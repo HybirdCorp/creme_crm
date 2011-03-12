@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2011  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -27,7 +27,7 @@ from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required, permission_required
 
 from creme_core.models import Relation
-from creme_core.views.generic import add_entity, edit_entity, view_entity, list_view
+from creme_core.views.generic import add_entity, add_model_with_popup, edit_entity, view_entity, list_view
 from creme_core.utils import get_ct_or_404
 
 from persons.models import Organisation
@@ -53,9 +53,14 @@ def add(request):
 @permission_required('opportunities.add_opportunity')
 def add_to_orga(request, orga_id):
     orga = get_object_or_404(Organisation, pk=orga_id)
-    orga.can_link_or_die(request.user) #TODO: test the link creds with the future opp in the form.clean()
+    user = request.user
 
-    return add_entity(request, OpportunityCreateForm, extra_initial={"target_orga": orga_id})
+    orga.can_link_or_die(user) #TODO: test the link creds with the future opp in the form.clean()
+
+    return add_model_with_popup(request, OpportunityCreateForm,
+                                title=_(u'New opportunity related to <%s>') % orga.allowed_unicode(user),
+                                initial={"target_orga": orga_id},
+                               )
 
 @login_required
 @permission_required('opportunities')
