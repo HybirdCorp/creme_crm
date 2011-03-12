@@ -32,8 +32,7 @@
                     <th class="{% cycle "block_header_line_dark" "block_header_line_light" %}">{% trans "Data" %}</th>
                     <th class="{% cycle "block_header_line_dark" "block_header_line_light" %}">{% trans "Actions" %}</th>
                 </tr>
-                {% for waiting_action in page.object_list %}
-                    <!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
+                {% for waiting_action in page.object_list %}<!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
                     <tr>
                         <td class="{{row_color}}">
                             <center><input name="select_one" value="{{waiting_action.pk}}" type="checkbox" onclick="creme.utils.autoCheckallState (this, '#{{block_name}} [name=select_all]', '#{{block_name}} [name=select_one]');"/></center>
@@ -52,7 +51,7 @@
                             {% endfor %}
                         </td>
                         <td class="{{row_color}}" align="center" valign="center" style="width:10%;">
-                            {% get_line_deletor at_url '/crudity/waiting_actions/delete' with_args "{'ids': ['{{waiting_action.pk}}'] }" %}
+                            {% get_line_deletor2 at_url '/crudity/waiting_actions/delete' with_args "{'ids': ['{{waiting_action.pk}}'] }" with_perms 1 %}
                         </td>
                     </tr>
                 {% endfor %}

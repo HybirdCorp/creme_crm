@@ -40,7 +40,7 @@ class WaitingActionBlock(QuerysetBlock):
         return 'block_crudity-%s-%s' % (self.ct.id, self.type)
 
     def detailview_display(self, context):
-        #TODO: check if user.has_perm('crudity') -> PermissionDenied
+        #credentials are OK: block is not registered in block registry, so reloading is necessarily done with the custom view
         type = self.type
         ct   = self.ct
         return self._render(self.get_block_template_context(context,
@@ -66,7 +66,7 @@ class HistoryBlock(QuerysetBlock):
         return 'block_crudity-%s-%s' % (self.ct.id, self.type)
 
     def detailview_display(self, context):
-        #TODO: check if user.has_perm('crudity') -> PermissionDenied
+        #credentials are OK: block is not registered in block registry, so reloading is necessarily done with the custom view
         type = self.type
         ct   = self.ct
         return self._render(self.get_block_template_context(context,
