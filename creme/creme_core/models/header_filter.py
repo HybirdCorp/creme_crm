@@ -92,12 +92,19 @@ class HeaderFilter(Model): #CremeModel ???
 
         self._items = items
 
+    #TODO: factorise with Filter.can_edit_or_delete ???
     def can_edit_or_delete(self, user):
         if not self.is_custom:
             return (False, ugettext(u"This view can't be edited/deleted"))
 
         if not self.user_id: #all users allowed
             return (True, 'OK')
+
+        if user.is_superuser:
+            return (True, 'OK')
+
+        if not user.has_perm(self.entity_type.app_label):
+            return (False, ugettext(u"You are not allowed to acceed to this app"))
 
         if not self.user.is_team:
             if self.user_id == user.id:

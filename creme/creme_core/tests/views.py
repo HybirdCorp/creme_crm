@@ -1363,6 +1363,18 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
         self.assertEqual(1,            len(hfilters))
         self.assertEqual(self.user.id, hfilters[0].user_id)
 
+    def test_create03(self): #check app credentials
+        self.login(is_superuser=False)
+
+        ct = ContentType.objects.get_for_model(Contact)
+        uri = '/creme_core/header_filter/add/%s' % ct.id
+        self.assertEqual(404, self.client.get(uri).status_code)
+
+        self.role.allowed_apps = ['persons']
+        self.role.save()
+
+        self.assertEqual(200, self.client.get(uri).status_code)
+
     def test_edit01(self): #not editable
         self.login()
 
@@ -1427,13 +1439,23 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
         self.assertEqual('first_name', hfitems[0].name)
         self.assertEqual('last_name',  hfitems[1].name)
 
-    def test_edit03(self):
-        self.login()
+    def test_edit03(self): #can not edit HeaderFilter that belongs to another user
+        self.login(is_superuser=False)
 
         ct = ContentType.objects.get_for_model(CremeEntity)
         hf = HeaderFilter.objects.create(pk='tests-hf_contact', name='Contact view',
                                          entity_type_id=ct.id, is_custom=True,
                                          user=self.other_user
+                                        )
+        self.assertEqual(404, self.client.get('/creme_core/header_filter/edit/%s' % hf.id).status_code)
+
+    def test_edit04(self): #user do not have the app credentials
+        self.login(is_superuser=False)
+
+        ct = ContentType.objects.get_for_model(Contact)
+        hf = HeaderFilter.objects.create(pk='tests-hf_contact', name='Contact view',
+                                         entity_type_id=ct.id, is_custom=True,
+                                         user=self.user
                                         )
         self.assertEqual(404, self.client.get('/creme_core/header_filter/edit/%s' % hf.id).status_code)
 
@@ -1464,7 +1486,10 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
         self.assertEqual(1, HeaderFilter.objects.filter(pk=hf.id).count())
 
     def test_delete03(self): #belongs to another user
-        self.login()
+        self.login(is_superuser=False)
+
+        self.role.allowed_apps = ['persons']
+        self.role.save()
 
         ct = ContentType.objects.get_for_model(Contact)
         hf = HeaderFilter.objects.create(pk='tests-hf_contact', name='Contact view',
@@ -1490,7 +1515,10 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
         self.assertEqual(0, HeaderFilter.objects.filter(pk=hf.id).count())
 
     def test_delete05(self): #belongs to a team (not mine) -> ko
-        self.login()
+        self.login(is_superuser=False)
+
+        self.role.allowed_apps = ['persons']
+        self.role.save()
 
         a_team = User.objects.create(username='TeamTitan', is_team=True)
         a_team.teammates = [self.other_user]
@@ -1502,10 +1530,33 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
         self.client.post('/creme_core/header_filter/delete', data={'id': hf.id}, follow=True)
         self.assertEqual(1, HeaderFilter.objects.filter(pk=hf.id).count())
 
+    def test_delete06(self): #logged as super user
+        self.login()
+
+        ct = ContentType.objects.get_for_model(Contact)
+        hf = HeaderFilter.objects.create(pk='tests-hf_contact', name='Contact view',
+                                         entity_type_id=ct.id, is_custom=True, user=self.other_user
+                                        )
+        self.client.post('/creme_core/header_filter/delete', data={'id': hf.id})
+        self.assertEqual(0, HeaderFilter.objects.filter(pk=hf.id).count())
+
 
 class ListViewFilterViewsTestCase(ViewsTestCase):
     def setUp(self):
         self.ct = ContentType.objects.get_for_model(Contact)
+
+    def test_create01(self): #check app credentials
+        self.login(is_superuser=False)
+
+        ct = ContentType.objects.get_for_model(Contact)
+        uri = '/creme_core/filter/add/%s' % ct.id
+        self.assertEqual(404, self.client.get(uri).status_code)
+
+        self.role.allowed_apps = ['persons']
+        self.role.save()
+        self.assertEqual(200, self.client.get(uri).status_code)
+
+    #def test_create02(self): #TODO: to finish
 
     def test_edit01(self):
         self.login()
@@ -1519,6 +1570,23 @@ class ListViewFilterViewsTestCase(ViewsTestCase):
         self.login()
 
         lv_filter = Filter.objects.create(name='Filter01', model_ct=self.ct, is_custom=False)
+        url = '/creme_core/filter/edit/%s/%s' % (self.ct.id, lv_filter.id)
+        self.assertEqual(404, self.client.get(url).status_code)
+
+    def test_edit03(self): #can not edit Filter that belongs to another user
+        self.login(is_superuser=False)
+
+        self.role.allowed_apps = ['persons']
+        self.role.save()
+
+        lv_filter = Filter.objects.create(name='Filter01', user=self.other_user, model_ct=self.ct, is_custom=True)
+        url = '/creme_core/filter/edit/%s/%s' % (self.ct.id, lv_filter.id)
+        self.assertEqual(404, self.client.get(url).status_code)
+
+    def test_edit04(self): #user do not have the app credentials
+        self.login(is_superuser=False)
+
+        lv_filter = Filter.objects.create(name='Filter01', user=self.user, model_ct=self.ct, is_custom=True)
         url = '/creme_core/filter/edit/%s/%s' % (self.ct.id, lv_filter.id)
         self.assertEqual(404, self.client.get(url).status_code)
 
@@ -1541,30 +1609,44 @@ class ListViewFilterViewsTestCase(ViewsTestCase):
         self.assertEqual(1, Filter.objects.filter(pk=lv_filter.id).count())
 
     def test_delete03(self): #belongs to another user
-        self.login()
+        self.login(is_superuser=False)
 
         lv_filter = Filter.objects.create(name='Filter01', model_ct=self.ct, is_custom=True, user=self.other_user)
-        response = self.client.post('/creme_core/filter/delete', data={'id': lv_filter.id})
-        self.assertEqual(404, response.status_code)
-        self.assertEqual(1, Filter.objects.filter(pk=lv_filter.id).count())
+        self.assertEqual(404, self.client.post('/creme_core/filter/delete', data={'id': lv_filter.id}).status_code)
+        self.assertEqual(1,   Filter.objects.filter(pk=lv_filter.id).count())
 
     def test_delete04(self): #belongs to my team -> ok
-        self.login()
+        self.login(is_superuser=False)
+
+        self.role.allowed_apps = ['persons']
+        self.role.save()
 
         my_team = User.objects.create(username='TeamTitan', is_team=True)
         my_team.teammates = [self.user]
+
         lv_filter = Filter.objects.create(name='Filter01', model_ct=self.ct, is_custom=True, user=my_team)
         self.assertEqual(200, self.client.post('/creme_core/filter/delete', data={'id': lv_filter.id}, follow=True).status_code)
         self.assertEqual(0,   Filter.objects.filter(pk=lv_filter.id).count())
 
     def test_delete05(self): #belongs to a team (not mine) -> ko
-        self.login()
+        self.login(is_superuser=False)
+
+        self.role.allowed_apps = ['persons']
+        self.role.save()
 
         a_team = User.objects.create(username='TeamTitan', is_team=True)
         a_team.teammates = [self.other_user]
+
         lv_filter = Filter.objects.create(name='Filter01', model_ct=self.ct, is_custom=True, user=a_team)
         self.assertEqual(404, self.client.post('/creme_core/filter/delete', data={'id': lv_filter.id}).status_code)
         self.assertEqual(1, Filter.objects.filter(pk=lv_filter.id).count())
+
+    def test_delete06(self): #logged as superuser
+        self.login()
+
+        lv_filter = Filter.objects.create(name='Filter01', model_ct=self.ct, is_custom=True, user=self.other_user)
+        self.assertEqual(200, self.client.post('/creme_core/filter/delete', data={'id': lv_filter.id}, follow=True).status_code)
+        self.failIf(Filter.objects.filter(pk=lv_filter.id).count())
 
     #TODO: test other views....
     #(r'^add/(?P<ct_id>\d+)$',                           'add'),
