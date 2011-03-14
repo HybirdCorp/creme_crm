@@ -18,6 +18,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from functools import partial
+
 from django.forms.widgets import HiddenInput
 from django.forms import DateTimeField
 from django.utils.translation import ugettext_lazy as _
@@ -34,32 +36,28 @@ from projects.constants import REL_OBJ_PROJECT_MANAGER
 
 
 class ProjectEditForm(CremeEntityForm):
-    start_date          = DateTimeField(label=_(u'Start date'), required=True, widget=DateTimeWidget())
-    end_date            = DateTimeField(label=_(u'End date'), required=True, widget=DateTimeWidget())
-    effective_end_date  = DateTimeField(widget=HiddenInput(), required=False)
+    start_date         = DateTimeField(label=_(u'Start date'), required=True, widget=DateTimeWidget())
+    end_date           = DateTimeField(label=_(u'End date'), required=True, widget=DateTimeWidget())
+    effective_end_date = DateTimeField(widget=HiddenInput(), required=False)
 
     class Meta(CremeEntityForm.Meta):
         model = Project
 
 
 class ProjectCreateForm(ProjectEditForm):
-    responsibles = MultiCremeEntityField(label=_(u'Project leaders'),
-                                        required=True, model=Contact)
+    responsibles = MultiCremeEntityField(label=_(u'Project leaders'), required=True, model=Contact)
 
     def clean_responsibles(self):
         return validate_linkable_entities(self.cleaned_data['responsibles'], self.user)
 
     def save(self):
-        cleaned_data = self.cleaned_data
         instance = super(ProjectCreateForm, self).save()
-        create_relation = Relation.objects.create
-        user = cleaned_data['user']
+        cleaned_data = self.cleaned_data
+        create_relation = partial(Relation.objects.create, user=cleaned_data['user'],
+                                  type_id=REL_OBJ_PROJECT_MANAGER, subject_entity=instance
+                                 )
 
-        for contact in self.cleaned_data['responsibles']:
-            create_relation(subject_entity=instance,
-                            type_id=REL_OBJ_PROJECT_MANAGER,
-                            object_entity=contact,
-                            user=user
-                           )
+        for contact in cleaned_data['responsibles']:
+            create_relation(object_entity=contact)
 
         return instance
