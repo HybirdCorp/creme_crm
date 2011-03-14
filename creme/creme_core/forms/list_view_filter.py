@@ -192,7 +192,12 @@ class ListViewFilterForm(forms.Form):
                 continue
 
         filter_type_getter = FilterType.objects.get
-        filter_value_getter = FilterValue.objects.get_or_create
+#        filter_value_getter = FilterValue.objects.get_or_create
+        
+        def filter_value_getter(value):
+            values = FilterValue.objects.filter(value=value)[:1]
+            return  values[0] if values else FilterValue.objects.create(value=value)
+
         condition_child_type_getter = ConditionChildType.objects.get_or_create
 
         for id_rel in ids_relation:
@@ -210,7 +215,7 @@ class ListViewFilterForm(forms.Form):
                 condition.type = filter_type_getter(pattern_key='%s__exact',is_exclude=bool(int(data['has_predicate_%s' % id_rel])))
 #                condition.type = filter_type_getter(pattern_key='%s__exact',is_exclude=has_or_not)
                 condition.save()
-                condition.values = [filter_value_getter(value=data['predicates_%s' % id_rel])[0]]
+                condition.values = [filter_value_getter(value=data['predicates_%s' % id_rel])]
                 condition.save()
 
                 target_entity = data.get('relation_entity_id_%s' % id_rel)
@@ -222,7 +227,7 @@ class ListViewFilterForm(forms.Form):
                     condition_entity_ct.type = filter_type_getter(pattern_key='%s__exact',is_exclude=bool(int(data['has_predicate_%s' % id_rel])))
                     condition_entity_ct.child_type = condition_child_type_getter(type="content_type")[0]
                     condition_entity_ct.save()
-                    condition_entity_ct.values = [filter_value_getter(value=target_entity_ct)[0]]
+                    condition_entity_ct.values = [filter_value_getter(value=target_entity_ct)]
                     condition_entity_ct.save()
 
                     condition_entity = FilterCondition()
@@ -231,7 +236,7 @@ class ListViewFilterForm(forms.Form):
                     condition_entity.type = filter_type_getter(pattern_key='%s__exact',is_exclude=bool(int(data['has_predicate_%s' % id_rel])))
                     condition_entity.child_type = condition_child_type_getter(type="object_id")[0]
                     condition_entity.save()
-                    condition_entity.values = [filter_value_getter(value=target_entity)[0]]
+                    condition_entity.values = [filter_value_getter(value=target_entity)]
                     condition_entity.save()
 
                     conditions.append(condition_entity)
@@ -261,7 +266,7 @@ class ListViewFilterForm(forms.Form):
                 logging.debug('#{#{#{# condition.type : %s' % condition.type)
 
                 condition.save()
-                condition.values = [filter_value_getter(value=data['properties_%s' % id_p])[0]]
+                condition.values = [filter_value_getter(value=data['properties_%s' % id_p])]
 
                 logging.debug('#{#{#{#{ condition.values : %s' % condition.values)
 
