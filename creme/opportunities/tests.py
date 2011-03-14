@@ -99,6 +99,41 @@ class OpportunitiesTestCase(CremeTestCase):
         self.assertEqual(1, filter_(subject_entity=target,  type=REL_OBJ_TARGETS_ORGA, object_entity=opportunity).count())
         self.assertEqual(1, filter_(subject_entity=emitter, type=REL_SUB_EMIT_ORGA,    object_entity=opportunity).count())
 
+    def test_opportunity_createview02(self): #link creds error
+        self.login(is_superuser=False, allowed_apps=['opportunities'])
+
+        SetCredentials.objects.create(role=self.role,
+                                      value=SetCredentials.CRED_VIEW   | SetCredentials.CRED_CHANGE | \
+                                            SetCredentials.CRED_DELETE | SetCredentials.CRED_UNLINK, #no CRED_LINK
+                                      set_type=SetCredentials.ESET_OWN)
+        self.role.creatable_ctypes = [ContentType.objects.get_for_model(Opportunity)]
+
+        create_orga = Organisation.objects.create
+        target  = create_orga(user=self.user, name='Target renegade')
+        emitter = create_orga(user=self.user, name='My society')
+
+        CremeProperty.objects.create(type_id=PROP_IS_MANAGED_BY_CREME, creme_entity=emitter)
+
+        response = self.client.post('/opportunities/opportunity/add', follow=True,
+                                    data={
+                                            'user':         self.user.pk,
+                                            'name':         'My opportunity',
+                                            'sales_phase':  SalesPhase.objects.all()[0].id,
+                                            'closing_date': '2011-03-14',
+                                            'target_orga':  target.id,
+                                            'emit_orga':    emitter.id,
+                                    }
+                                   )
+        self.assertEqual(200, response.status_code)
+
+        try:
+            form = response.context['form']
+        except Exception, e:
+            self.fail(str(e))
+
+        self.assert_(form.errors)
+        self.assertEqual(['target_orga', 'emit_orga'], form.errors.keys())
+
     def test_add_to_orga01(self):
         self.login()
 
