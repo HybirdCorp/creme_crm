@@ -2,7 +2,7 @@
 
 {% block extrahead %}
 <script type="text/javascript">
-    $('[name=inner_body] form', '#{{whoami}}').list_view('setSubmit', function(input){
+    $('[name=inner_body] form', '#{{whoami}}').list_view('setSubmit', function(input, extra_data){
 
         var url = creme.utils.appendInUrl($('[name="inner_header_from_url"]', $('#{{whoami}}')).val(), '?ajax=true');
         
@@ -21,7 +21,7 @@
             input.form,
             options,
             input,
-            {'whoami':'{{whoami}}'}
+            $.extend({'whoami':'{{whoami}}'}, extra_data)
         );
     });
 </script>
