@@ -1,6 +1,11 @@
 {% load i18n %}
 {% load media %}
 {% load creme_core_tags %}
+<script type="text/javascript">
+    $(document).ready(function(){
+        $('div.research_box input[name=research]').bind('keydown',function(e){creme.utils.handleResearchKd(e, '/creme_core/search','{{target_node_id}}', {'from':$(this).parent('span').parent('.research_box'), 'targets':['ct_id','research']});});
+    });
+</script>
 <div class="research_box">
     <span>
         <img border="0" title="{% trans "Search" %}" alt="{% trans "Search" %}" src="{% media_url 'images/looking_glass_22.png' %}" align="top">
