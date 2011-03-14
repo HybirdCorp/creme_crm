@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2011  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -90,12 +90,12 @@ def get_ical_date(dateTime):
         'second'  : dateTime.second
     }
 
-def get_ical(events):
+def get_ical(activities):
     """Return a normalized iCalendar string
     /!\ Each parameter has to be separated by \n ONLY no spaces allowed!
     Example : BEGIN:VCALENDAR\nVERSION:2.0"""
     return """BEGIN:VCALENDAR
 VERSION:2.0
 PRODID:-//CremeCRM//CremeCRM//EN
-%(events)s
-END:VCALENDAR"""  % {'events' : "".join([ev.as_ical_event() for ev in events])}
+%s
+END:VCALENDAR"""  % "".join(a.as_ical_event() for a in activities)

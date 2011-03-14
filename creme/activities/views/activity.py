@@ -23,7 +23,7 @@ from django.shortcuts import get_object_or_404, render_to_response
 from django.template import RequestContext
 from django.contrib.auth.decorators import login_required, permission_required
 
-from creme_core.models import RelationType
+from creme_core.models import RelationType, EntityCredentials
 from creme_core.views.generic import view_real_entity, add_entity, inner_popup, list_view
 from creme_core.utils import get_ct_or_404, get_from_GET_or_404
 
@@ -148,7 +148,10 @@ def listview(request):
 @login_required
 @permission_required('activities')
 def download_ical(request, ids):
-    activities = Activity.objects.filter(pk__in=ids.split(',')) #TODO: credentials
+    activities = EntityCredentials.filter(queryset=Activity.objects.filter(pk__in=ids.split(',')),
+                                          user=request.user
+                                         )
     response = HttpResponse(get_ical(activities), mimetype="text/calendar")
     response['Content-Disposition'] = "attachment; filename=Calendar.ics"
+
     return response
