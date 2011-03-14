@@ -22,6 +22,7 @@ from django.forms import ModelChoiceField
 from django.utils.translation import ugettext_lazy as _
 
 from creme_core.forms import CremeEntityForm, CremeEntityField, CremeDateTimeField
+from creme_core.forms.validators import validate_linkable_entity
 
 from persons.models import Organisation
 
@@ -43,7 +44,13 @@ class OpportunityCreateForm(OpportunityEditForm):
 
     def __init__(self, *args, **kwargs):
         super(OpportunityCreateForm, self).__init__(*args, **kwargs)
-        self.fields['emit_orga'].queryset = Organisation.get_all_managed_by_creme()
+        self.fields['emit_orga'].queryset = Organisation.get_all_managed_by_creme() #TODO: can we move the quetyset in the field directly ??
+
+    def clean_target_orga(self):
+        return validate_linkable_entity(self.cleaned_data['target_orga'], self.user)
+
+    def clean_emit_orga(self):
+        return validate_linkable_entity(self.cleaned_data['emit_orga'], self.user)
 
     def save(self, *args, **kwargs):
         instance = self.instance
