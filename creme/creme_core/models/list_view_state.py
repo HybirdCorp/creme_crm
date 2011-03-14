@@ -19,12 +19,15 @@
 ################################################################################
 
 from collections import defaultdict
-from datetime import date, time, datetime
 from logging import debug
+#from datetime import date, time, datetime
+from datetime import date, datetime
+import time
 
 from django.db.models import Q
 from django.db.models.sql.constants import QUERY_TERMS
 from django.utils.encoding import smart_str
+from django.utils import formats
 from django.shortcuts import get_object_or_404
 
 from creme_core.models import Relation, CustomField, CustomFieldEnumValue
@@ -52,13 +55,11 @@ def range_value(value):
     """
     if hasattr(value, '__iter__'):
         if len(value) == 1 or len(value) == 2:
-            try: #TODO: use value[-1] ???
-                return (datetime.strptime(value[0], "%Y-%m-%d %H:%M:%S"), datetime.strptime(value[len(value)-1], "%Y-%m-%d %H:%M:%S"))
-            except ValueError:
+            for format in formats.get_format('DATETIME_INPUT_FORMATS'):
                 try:
-                    return (datetime.strptime(value[0], "%Y-%m-%d"), datetime.strptime(value[len(value)-1], "%Y-%m-%d").replace(hour=23,minute=59,second=59))
+                    return (datetime(*time.strptime(value[0], format)[:6]), datetime(*time.strptime(value[-1], format)[:6]))
                 except ValueError:
-                    pass
+                    continue
         return value
     return []
 
