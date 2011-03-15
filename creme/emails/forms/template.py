@@ -25,7 +25,7 @@ from django.utils.translation import ugettext_lazy as _, ugettext
 
 from creme_core.forms import CremeEntityForm, CremeForm, FieldBlockManager
 from creme_core.forms.fields import MultiCremeEntityField
-from creme_core.forms.widgets import RTEWidget
+from creme_core.forms.widgets import TinyMCEEditor
 
 from documents.models import Document
 
@@ -39,20 +39,20 @@ def _get_vars_help():
 
 
 class TemplateEditForm(CremeEntityForm):
-    body        = CharField(label=_(u'Body'), widget=RTEWidget(),
-                            help_text=_(u'You can use variables: %s') % _get_vars_help())
+    body        = CharField(label=_(u'Body'), widget=TinyMCEEditor(), help_text=_(u'You can use variables: %s') % _get_vars_help())
     attachments = MultiCremeEntityField(label=_(u'Attachments'), required=False, model=Document)
 
     class Meta(CremeEntityForm.Meta):
         model   = EmailTemplate
         exclude = CremeEntityForm.Meta.exclude + ('use_rte',)
 
-    def __init__(self, *args, **kwargs):
-        super(TemplateEditForm, self).__init__(*args, **kwargs)
-
-        instance = self.instance
-        if instance.id and not instance.use_rte:
-            self.fields['body'].widget = Textarea()
+#TODO: Plain text needed ?
+#    def __init__(self, *args, **kwargs):
+#        super(TemplateEditForm, self).__init__(*args, **kwargs)
+#
+#        instance = self.instance
+#        if instance.id and not instance.use_rte:
+#            self.fields['body'].widget = Textarea()
 
     def clean_body(self):
         body = self.cleaned_data['body']
@@ -70,10 +70,13 @@ class TemplateEditForm(CremeEntityForm):
 
 
 class TemplateCreateForm(TemplateEditForm):
-    def save(self):
-        #TODO: hackish --> create a real RTEField that return (boolean, string) ? indicates to the widget an hidden input's id ??
-        self.instance.use_rte = self.data.has_key('body_is_rte_enabled')
-        super(TemplateCreateForm, self).save()
+#TODO: Plain text needed ?
+#    def save(self):
+#        #TODO: hackish --> create a real RTEField that return (boolean, string) ? indicates to the widget an hidden input's id ??
+#        self.instance.use_rte = self.data.has_key('body_is_rte_enabled')
+#        super(TemplateCreateForm, self).save()
+    pass
+
 
 
 class TemplateAddAttachment(CremeForm):
