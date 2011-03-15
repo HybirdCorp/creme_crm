@@ -88,7 +88,7 @@
             </tr>
             <tr>
                 <th class="{% cycle header_color %} th_info">{% trans "E-mail" %}</th>
-                <td class="{% cycle row_color %} td_info">{{object.email}}</td>
+                <td class="{% cycle row_color %} td_info">{{object|get_html_field_value:"email"}}</td>
             </tr>
             <tr>
                 <th class="{% cycle header_color %} th_info">{% trans "Web Site" %}</th>

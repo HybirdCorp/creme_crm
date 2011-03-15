@@ -35,7 +35,7 @@
                         <td class="{{row_color}}"><a href="{{people.get_absolute_url}}">{{people}}</a></td>
                         <td class="{{row_color}}">{{people.landline|default:''}}</td>
                         <td class="{{row_color}}">{{people.mobile|default:''}}</td>
-                        <td class="{{row_color}}">{{people.email|default:''}}</td>
+                        <td class="{{row_color}}">{{people|get_html_field_value:"email"}}</td>
                     {% else %}
                         <td class="{{row_color}}">{{people|allowed_unicode:user}}</td>
                         <td class="{{row_color}}">??</td>
