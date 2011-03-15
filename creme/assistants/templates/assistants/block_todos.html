@@ -27,7 +27,7 @@
                 <th class="block_header_line_dark">{% trans "Actions" %}</th>
             </tr>
             {% for todo in page.object_list %}<!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
-                <tr>
+                <tr>{% has_perm_to change todo.creme_entity as has_perm %}
                     {% if not object %}
                         <td class="{{row_color}}">{% widget_entity_hyperlink todo.creme_entity user %}</td>
                     {% endif %}
@@ -39,17 +39,18 @@
                     <td class="{{row_color}}">
                         {% if todo.is_ok %}
                             {% trans "The Todo is validated." %}
-                        {% else %}
+                        {% else %}{% if has_perm %}
                             <form method="post" action="/assistants/todo/validate/{{todo.id}}/">{% csrf_token %}
                                 <input type="checkbox" name="checked_todo{{todo.id}}" id="checked_todo{{todo.id}}" />
                                 <button type="button" onclick="creme.utils.validateEntity(this.form, 'checked_todo{{todo.id}}', {% get_block_reload_uri %});" style="background:transparent; cursor:pointer;border:0px;">
                                     <img src="{% media_url 'images/refresh_16.png' %}" width="16" height="16" border="0" alt="{% trans "Submit" %}">
                                 </button>
                             </form>
-                        {% endif %}
+                        {% else %}
+                            <input type="checkbox" disabled="true" />
+                        {% endif %}{% endif %}
                     </td>
                     <td class="{{row_color}}" align="center" valign="center" style="width:10%;">
-                        {% has_perm_to change todo.creme_entity as has_perm %}
                         {% get_line_editor at_url '/assistants/todo/edit/{{todo.id}}/' with_perms has_perm %}
                         {% get_line_deletor2 at_url '/creme_core/entity/delete_related/{{ct_id}}' with_args "{'id' : {{todo.id}} }" with_perms has_perm %}
                     </td>

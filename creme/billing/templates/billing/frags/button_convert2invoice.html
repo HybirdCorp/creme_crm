@@ -1,0 +1,13 @@
+{% load i18n %}
+{% if has_perm %}
+    <a class="menu_button" onclick="$('#id_convert2invoice', $(this)).submit();">
+        {% trans "Convert to Invoice" %}
+        <div style="display:none;">
+            <form id="id_convert2invoice" method="POST" action="/billing/{{object.id}}/convert/">{% csrf_token %}
+                <input type="hidden" name="type" value="invoice" />
+            </form>
+        </div>
+    </a>
+{% else %}
+    <span class="menu_button forbidden" title="{% trans "forbidden" %}">{% trans "Convert to Invoice" %}</span>
+{% endif %}
