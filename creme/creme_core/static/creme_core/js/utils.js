@@ -679,6 +679,12 @@ creme.utils.handleResearch = function(url, target_node_id, scope) {
     });
 }
 
+creme.utils.handleResearchKd = function(e, url, target_node_id, scope) {
+    if (e.keyCode == '13'){
+        creme.utils.handleResearch(url, target_node_id, scope);
+    }
+}
+
 creme.utils.handleQuickForms = function(url, $scope_from, targets) {
     var uri = url;
 
