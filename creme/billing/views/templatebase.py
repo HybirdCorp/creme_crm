@@ -36,8 +36,16 @@ def edit(request, template_id):
 @login_required
 @permission_required('recurrents')
 def detailview(request, template_id):
+    has_perm = request.user.has_perm
+
     return view_entity(request, template_id, TemplateBase, '/billing/template',
-                       'billing/view_template.html', {'can_download': False})
+                       'billing/view_template.html',
+                       {
+                           'can_download':       False,
+                           'can_create_order':   has_perm('billing.add_salesorder'),
+                           'can_create_invoice': has_perm('billing.add_invoice'),
+                       }
+                      )
 
 @login_required
 @permission_required('billing')

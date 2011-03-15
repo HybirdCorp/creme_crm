@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2011  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -41,11 +41,18 @@ def edit(request, quote_id):
 @login_required
 @permission_required('billing')
 def detailview(request, quote_id):
+    has_perm = request.user.has_perm
+
     return view_entity(request, quote_id, Quote, '/billing/quote',
-                       'billing/view_quote.html', {'can_download': True},
+                       'billing/view_quote.html',
+                       {
+                           'can_download':       True,
+                           'can_create_order':   has_perm('billing.add_salesorder'),
+                           'can_create_invoice': has_perm('billing.add_invoice'),
+                       },
                       )
 
 @login_required
 @permission_required('billing')
 def listview(request):
-    return list_view(request, Quote, extra_dict={'add_url':'/billing/quote/add'})
+    return list_view(request, Quote, extra_dict={'add_url': '/billing/quote/add'})
