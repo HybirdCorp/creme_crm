@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from datetime import date
+from datetime import date, datetime, timedelta
 from decimal import Decimal
 
 from django.utils.translation import ugettext as _
@@ -19,8 +19,8 @@ from billing.constants import *
 
 
 class BillingTestCase(CremeTestCase):
-    def login(self, is_superuser=True):
-        super(BillingTestCase, self).login(is_superuser, allowed_apps=['billing'])
+    def login(self, is_superuser=True, allowed_apps=None):
+        super(BillingTestCase, self).login(is_superuser, allowed_apps=allowed_apps or ['billing'])
 
     def setUp(self):
         self.populate('creme_core', 'billing')
@@ -670,5 +670,137 @@ class BillingTestCase(CremeTestCase):
         invoice = Invoice.objects.get(pk=invoice.id)
         self.assert_(invoice.issuing_date)
         self.assertEqual(date.today(), invoice.issuing_date) #NB this test can fail if run at midnight...
+
+    def create_quote(self, name, source, target):
+        response = self.client.post('/billing/quote/add', follow=True,
+                                    data={
+                                            'user':            self.user.pk,
+                                            'name':            name,
+                                            'issuing_date':    '2011-3-15',
+                                            'expiration_date': '2012-4-22',
+                                            'status':          1,
+                                            'source':          source.id,
+                                            'target':          self.genericfield_format_entity(target),
+                                            }
+                                   )
+        self.assertNoFormError(response)
+        self.assertEqual(200, response.status_code)
+        self.assertEqual(1,   len(response.redirect_chain))
+
+        try:
+            quote = Quote.objects.get(name=name)
+        except Exception, e:
+            self.fail(str(e))
+
+        self.assert_(response.redirect_chain[0][0].endswith('/billing/quote/%s' % quote.id))
+
+        return quote
+
+    def create_quote_n_orgas(self, name):
+        create = Organisation.objects.create
+        source = create(user=self.user, name='Source Orga')
+        target = create(user=self.user, name='Target Orga')
+
+        quote = self.create_quote(name, source, target)
+
+        return quote, source, target
+
+    def test_quote_createview01(self):
+        self.login()
+
+        quote, source, target = self.create_quote_n_orgas('My Quote')
+
+        exp_date = quote.expiration_date
+        self.assertEqual(2012, exp_date.year)
+        self.assertEqual(4,    exp_date.month)
+        self.assertEqual(22,   exp_date.day)
+
+        rel_filter = Relation.objects.filter
+        self.assertEqual(1, rel_filter(subject_entity=quote, type=REL_SUB_BILL_ISSUED,   object_entity=source).count())
+        self.assertEqual(1, rel_filter(subject_entity=quote, type=REL_SUB_BILL_RECEIVED, object_entity=target).count())
+
+    def test_convert01(self):
+        self.login()
+
+        quote, source, target = self.create_quote_n_orgas('My Quote')
+        self.failIf(Invoice.objects.count())
+
+        response = self.client.post('/billing/%s/convert/' % quote.id,
+                                    data={'type': 'invoice'}, follow=True
+                                   )
+        self.assertEqual(200, response.status_code)
+
+        invoices = Invoice.objects.all()
+        self.assertEqual(1, len(invoices))
+
+        invoice = invoices[0]
+        self.assertEqual(quote.issuing_date,    invoice.issuing_date)
+        self.assertEqual(quote.expiration_date, invoice.expiration_date)
+        self.assertEqual(quote.discount,        invoice.discount)
+        self.assertEqual(quote.total_vat,       invoice.total_vat)
+        self.assertEqual(quote.total_no_vat,    invoice.total_no_vat)
+
+        rel_filter = Relation.objects.filter
+        self.assertEqual(1, rel_filter(subject_entity=invoice, type=REL_SUB_BILL_ISSUED,   object_entity=source).count())
+        self.assertEqual(1, rel_filter(subject_entity=invoice, type=REL_SUB_BILL_RECEIVED, object_entity=target).count())
+
+        #TODO: test with lines
+
+    def test_convert02(self): #SalesOrder + not superuser
+        self.login(is_superuser=False, allowed_apps=['billing', 'persons'])
+
+        get_ct = ContentType.objects.get_for_model
+        self.role.creatable_ctypes = [get_ct(Quote), get_ct(SalesOrder)]
+        SetCredentials.objects.create(role=self.role,
+                                      value=SetCredentials.CRED_VIEW | SetCredentials.CRED_CHANGE | \
+                                            SetCredentials.CRED_DELETE | \
+                                            SetCredentials.CRED_LINK | SetCredentials.CRED_UNLINK,
+                                      set_type=SetCredentials.ESET_OWN
+                                     )
+
+        quote = self.create_quote_n_orgas('My Quote')[0]
+
+        response = self.client.post('/billing/%s/convert/' % quote.id, data={'type': 'sales_order'}, follow=True)
+        self.assertEqual(200, response.status_code)
+        self.assertEqual(0, Invoice.objects.count())
+        self.assertEqual(1, SalesOrder.objects.count())
+
+    def test_convert03(self): #creds (creation) errors
+        self.login(is_superuser=False, allowed_apps=['billing', 'persons'])
+
+        get_ct = ContentType.objects.get_for_model
+        self.role.creatable_ctypes = [get_ct(Quote)] #not get_ct(Invoice)
+        SetCredentials.objects.create(role=self.role,
+                                      value=SetCredentials.CRED_VIEW | SetCredentials.CRED_CHANGE | \
+                                            SetCredentials.CRED_DELETE | \
+                                            SetCredentials.CRED_LINK | SetCredentials.CRED_UNLINK,
+                                      set_type=SetCredentials.ESET_OWN
+                                     )
+
+        quote = self.create_quote_n_orgas('My Quote')[0]
+        self.assertEqual(403, self.client.post('/billing/%s/convert/' % quote.id, data={'type': 'invoice'}).status_code)
+        self.assertEqual(0, Invoice.objects.count())
+
+    def test_convert04(self): #creds (view) errors
+        self.login(is_superuser=False, allowed_apps=['billing', 'persons'])
+
+        get_ct = ContentType.objects.get_for_model
+        self.role.creatable_ctypes = [get_ct(Quote), get_ct(Invoice)]
+        SetCredentials.objects.create(role=self.role,
+                                      value=SetCredentials.CRED_VIEW | SetCredentials.CRED_CHANGE | \
+                                            SetCredentials.CRED_DELETE | \
+                                            SetCredentials.CRED_LINK | SetCredentials.CRED_UNLINK,
+                                      set_type=SetCredentials.ESET_OWN
+                                     )
+
+        quote = Quote.objects.create(user=self.other_user, name='My Quote',
+                                     issuing_date=datetime.now(),
+                                     expiration_date=datetime.now() + timedelta(days=10),
+                                     status=QuoteStatus.objects.all()[0],
+                                     )
+        self.failIf(quote.can_view(self.user))
+
+        self.assertEqual(403, self.client.post('/billing/%s/convert/' % quote.id, data={'type': 'invoice'}).status_code)
+        self.assertEqual(0, Invoice.objects.count())
 
 #TODO: add tests for other billing document (Quote, SalesOrder, CreditNote)
