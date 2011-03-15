@@ -19,6 +19,8 @@ creme/_generated_media_names.py
 #netbeans users
 nbproject/*
 
+.idea/*
+
 \.orig\..*$
 \.orig$
 \.chg\..*$

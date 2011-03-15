@@ -8,7 +8,7 @@
                 {% with column.widget_ctx as widget_ctx %}
                     {% with widget_ctx.type as widget_type %}
                         {% if widget_type == "select" %}
-                            <select name="{{column.name}}" title="{{column.title}}">
+                            <select name="{{column.name}}" title="{{column.title}}" onkeydown="$(this.form).list_view('getKdSubmit')(event, this, {'_search': 1});">
                                 <option value="">{% trans "Select" %}</option>
                                 {% for options in widget_ctx.values %}
                                     <option value="{{options.value}}" {% if search %}{{options.selected}}{% endif %}>
@@ -17,7 +17,7 @@
                                 {% endfor %}
                             </select>
                         {% else %}{% if widget_type == "checkbox" %}
-                            <select name="{{column.name}}" title="{{column.title}}">
+                            <select name="{{column.name}}" title="{{column.title}}" onkeydown="$(this.form).list_view('getKdSubmit')(event, this, {'_search': 1});">
                                 <option value="">{% trans "Select" %}</option>
                                 {% for options in widget_ctx.values %}
                                     <option value="{{options.value}}" {% if search %}{{options.selected}}{% endif %}>
@@ -28,18 +28,20 @@
                         {% else %}{% if widget_type == "datefield" %}
                             <span>
                                 {% trans "Between" %}
-                                <input name="{{column.name}}" id="id_{{column.name}}" title="{{column.title}}" type="{{widget_type}}"
-                                       style="width:80px" value="{% if search %}{{widget_ctx.values.start}}{% endif %}"/>
+                                <input name="{{column.name}}" id="id_{{column.name}}{{whoami}}" title="{{column.title}}" type="{{widget_type}}"
+                                       style="width:80px" value="{% if search %}{{widget_ctx.values.start}}{% endif %}"
+                                       onkeydown="$(this.form).list_view('getKdSubmit')(event, this, {'_search': 1});"/>
                                 &nbsp;{% trans "and" %}&nbsp;
-                                <input name="{{column.name}}" id="id_{{column.name}}_2" title="{{column.title}}" type="{{widget_type}}"
-                                       style="width:80px" value="{% if search %}{{widget_ctx.values.end}}{% endif %}"/>
+                                <input name="{{column.name}}" id="id_{{column.name}}{{whoami}}_2" title="{{column.title}}" type="{{widget_type}}"
+                                       style="width:80px" value="{% if search %}{{widget_ctx.values.end}}{% endif %}" 
+                                       onkeydown="$(this.form).list_view('getKdSubmit')(event, this, {'_search': 1});"/>
                             </span>
                             <script type="text/javascript">
-                                $("#id_{{column.name}}").datepicker({dateFormat:   "yy-mm-dd", showOn: "button", buttonImage: "{% media_url 'images/icon_calendar.gif' %}", buttonImageOnly: true, onSelect: function(dateText, inst){$('#id_{{column.name}}_2').val(dateText);}});
-                                $("#id_{{column.name}}_2").datepicker({dateFormat: "yy-mm-dd", showOn: "button", buttonImage: "{% media_url 'images/icon_calendar.gif' %}", buttonImageOnly: true });
+                                $("#id_{{column.name}}{{ whoami }}").datepicker({dateFormat:   "yy-mm-dd", showOn: "button", buttonImage: "{% media_url 'images/icon_calendar.gif' %}", buttonImageOnly: true, onSelect: function(dateText, inst){$('#id_{{column.name}}{{ whoami }}_2').val(dateText);}});
+                                $("#id_{{column.name}}{{ whoami }}_2").datepicker({dateFormat: "yy-mm-dd", showOn: "button", buttonImage: "{% media_url 'images/icon_calendar.gif' %}", buttonImageOnly: true });
                             </script>
                         {% else %}{% if widget_type == "text" %}
-                            <input name="{{column.name}}" title="{{column.title}}" type="text" value="{% if search %}{{widget_ctx.value}}{% endif %}"/>
+                            <input name="{{column.name}}" title="{{column.title}}" type="text" value="{% if search %}{{widget_ctx.value}}{% endif %}" onkeydown="$(this.form).list_view('getKdSubmit')(event, this, {'_search': 1});"/>
                         {% endif %}{% endif %}{% endif %}{% endif %}
                     {% endwith %}
                 {% endwith %}
