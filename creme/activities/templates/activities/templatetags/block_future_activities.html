@@ -38,14 +38,14 @@
                     {% if activity_view_perm %}
                         <td class="{{row_color}}">{{activity.status|default:''}}</td>
                         <td class="{{row_color}}"><a href="{{activity.get_absolute_url}}">{{activity}}</a></td>
+                        <td class="{{row_color}}"> {% comment %}need a <a> tag ??{% endcomment %}
+                            <a href="{{activity.get_absolute_url}}">{% include 'activities/templatetags/activity_date.html' %}</a>
+                        </td>
                     {% else  %}
                         <td class="{{row_color}}">??</td>
                         <td class="{{row_color}}">{{activity|allowed_unicode:user}}</td>
+                        <td class="{{row_color}}">??</td>
                     {% endif %}
-
-                    <td class="{{row_color}}">
-                        <a href="{{activity.get_absolute_url}}">{% include 'activities/templatetags/activity_date.html' %}</a>
-                    </td>
                     <td class="{{row_color}}">
                         {% with activity.get_subject_relations as relations %}
                             {% include 'activities/templatetags/activity_relations_field.html' %}

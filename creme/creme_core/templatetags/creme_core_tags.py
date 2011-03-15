@@ -125,7 +125,7 @@ classes = {
      models.DateField:                  print_date,
      models.DateTimeField:              print_datetime,
      models.DecimalField:               simple_print,
-     models.EmailField:                 simple_print,
+     models.EmailField:                 lambda a: '<a href="mailto:%s">%s</a>' % (a, a) if a else '',
      models.FileField:                  simple_print,
      models.FilePathField:              simple_print,
      models.FloatField:                 simple_print,

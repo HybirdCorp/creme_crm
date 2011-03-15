@@ -89,8 +89,7 @@ def search(request):
         t_ctx['error_message'] = _(u"Please enter at least 3 characters")
     else:
         if not ct_id:
-            scope = creme_registry.iter_entity_models()
-            scope = list(scope)#Beurk ?
+            scope = list(creme_registry.iter_entity_models())
             scope.sort(key=lambda m: m._meta.verbose_name)
         else:
 #            scope.append(ContentType.objects.get_for_id(ct_id).model_class())

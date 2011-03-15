@@ -5,11 +5,9 @@
 
 {% block extra_menu_buttons %}
     {% if object.ct.model == 'quote' %}
-        <li><a class="menu_button" href="/billing/{{object.id}}/convert/?type=sales_order" >{% trans "Convert to Salesorder" %}</a></li>
-        <li><a class="menu_button" href="/billing/{{object.id}}/convert/?type=invoice" >{% trans "Convert to Invoice" %}</a></li>
-    {% else %}
-        {% if object.ct.model == 'salesorder' %}
-            <li><a class="menu_button" href="/billing/{{object.id}}/convert/?type=invoice" >{% trans "Convert to Invoice" %}</a></li>
-        {% endif %}
-    {% endif %}
+        <li>{% with can_create_order as has_perm %}{% include "billing/frags/button_convert2order.html" %}{% endwith %}</li>
+        <li>{% with can_create_invoice as has_perm %}{% include "billing/frags/button_convert2invoice.html" %}{% endwith %}</li>
+    {% else %}{% if object.ct.model == 'salesorder' %}
+        <li>{% with can_create_invoice as has_perm %}{% include "billing/frags/button_convert2invoice.html" %}{% endwith %}</li>
+    {% endif %}{% endif %}
 {% endblock %}

@@ -82,8 +82,6 @@ class SubjectsBlock(QuerysetBlock):
         return self._render(btc)
 
 
-#TODO: need query optimisations (retrieve all relations in one query,
-#      retrieve subjects (real entities) of relations by grouping them)
 class FutureActivitiesBlock(QuerysetBlock):
     id_           = QuerysetBlock.generate_id('activities', 'future_activities')
     dependencies  = (Relation,) #Activity

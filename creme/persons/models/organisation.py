@@ -18,16 +18,13 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from logging import debug
-#from django.utils.encoding import smart_str, force_unicode
+#from logging import debug
 
-from django.db.models import ForeignKey, CharField, TextField, PositiveIntegerField, BooleanField, DateField
+from django.db.models import ForeignKey, CharField, TextField, PositiveIntegerField, BooleanField, DateField, EmailField, URLField
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.contenttypes.models import ContentType
-from django.contrib.contenttypes.generic import GenericRelation
-from django.contrib.auth.models import User
 
-from creme_core.models import CremeEntity, Relation, CremePropertyType, CremeProperty
+from creme_core.models import CremeEntity
 from creme_core.constants import PROP_IS_MANAGED_BY_CREME
 
 from media_managers.models import Image
@@ -42,8 +39,8 @@ class Organisation(CremeEntity):
     name            = CharField(_(u'Name'), max_length=100)
     phone           = CharField(_(u'Phone number'), max_length=100 , blank=True, null=True)
     fax             = CharField(_(u'Fax'), max_length=100 , blank=True, null=True)
-    email           = CharField(_(u'Email'), max_length=100 , blank=True, null=True)
-    url_site        = CharField(_(u'Web Site'), max_length=100, blank=True, null=True)
+    email           = EmailField(_(u'Email'), max_length=100 , blank=True, null=True)
+    url_site        = URLField(_(u'Web Site'), max_length=100, blank=True, null=True, verify_exists=False)
     sector          = ForeignKey(Sector, verbose_name=_(u'Sector'), blank=True, null=True)
     capital         = PositiveIntegerField(_(u'Capital'), blank=True, null=True)
     siren           = CharField(_(u'SIREN'), max_length=100, blank=True, null=True)
@@ -76,7 +73,6 @@ class Organisation(CremeEntity):
         super(Organisation, self).save(*args, **kwargs)
 
     def __unicode__(self):
-        #return force_unicode (self.name)
         return self.name
 
     def get_absolute_url(self):

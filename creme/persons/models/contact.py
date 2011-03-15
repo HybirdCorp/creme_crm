@@ -20,7 +20,7 @@
 
 from logging import debug
 
-from django.db.models import ForeignKey, CharField, TextField, ManyToManyField, DateField
+from django.db.models import ForeignKey, CharField, TextField, ManyToManyField, DateField, EmailField
 from django.utils.translation import ugettext_lazy as _, ugettext
 #from django.utils.encoding import force_unicode
 from django.contrib.auth.models import User
@@ -47,7 +47,7 @@ class Contact(CremeEntity):
     fax             = CharField(_(u'Fax'), max_length=100 , blank=True, null=True)
     position        = ForeignKey(Position, verbose_name=_(u'Position'), blank=True, null=True)
     sector          = ForeignKey(Sector, verbose_name=_(u'Line of business'), blank=True, null=True)
-    email           = CharField(_(u'Email'), max_length=100, blank=True, null=True)
+    email           = EmailField(_(u'Email'), max_length=100, blank=True, null=True)
     url_site        = CharField(_(u'Web Site'), max_length=100, blank=True, null=True)
     language        = ManyToManyField(Language, verbose_name=_(u'Spoken language(s)'), blank=True, null=True)
     billing_address  = ForeignKey(Address, verbose_name=_(u'Billing address'), blank=True, null=True, related_name='billing_addresses_set')

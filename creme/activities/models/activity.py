@@ -155,16 +155,6 @@ END:VEVENT
                 }
 
     def get_title_for_calendar(self):
-        type_name = self.type.name
-
-        #TODO: beuark (use a registry instead ??)
-
-        if type_name == 'Formation':
-            return self.trainingdate.get_title_for_calendar()
-
-        if type_name == 'Indisponible':
-            return  'Indisponible %s  %s' % (self.title, self.user.username)
-
         return  '%s  %s' % (self.title, self.user.username)
 
     def __unicode__(self):
