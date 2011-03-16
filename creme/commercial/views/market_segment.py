@@ -23,32 +23,15 @@ from django.shortcuts import render_to_response
 from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required, permission_required
 
-from creme_core.views.generic import inner_popup
+from creme_core.views.generic import add_model_with_popup
 
 from commercial.forms.market_segment import MarketSegmentForm
 
 
-#TODO: generic view: add_model_with_popup ???
 @login_required
 @permission_required('commercial')
 def add(request):
-    if request.method == 'POST':
-        segment_form = MarketSegmentForm(user=request.user, data=request.POST)
-
-        if segment_form.is_valid():
-            segment_form.save()
-    else:
-        segment_form = MarketSegmentForm(user=request.user)
-
-    return inner_popup(request, 'creme_core/generics/blockform/add_popup2.html',
-                       {
-                        'form':   segment_form,
-                        'title':  _(u'New market segment'),
-                       },
-                       is_valid=segment_form.is_valid(),
-                       reload=False,
-                       delegate_reload=True,
-                       context_instance=RequestContext(request))
+    return add_model_with_popup(request, MarketSegmentForm, title=_(u'New market segment'))
 
 @login_required
 @permission_required('commercial')
