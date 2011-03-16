@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2011  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -21,10 +21,11 @@
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.contenttypes.models import ContentType
 
-from creme_core.gui.block import Block, PaginatedBlock
-from creme_core.models import CremeEntity
+from creme_core.gui.block import Block, PaginatedBlock, QuerysetBlock
+from creme_core.models import CremeEntity, Relation
 
 from billing.models import ProductLine, ServiceLine, Invoice, SalesOrder, Quote
+from billing.constants import REL_OBJ_BILL_RECEIVED, REL_SUB_BILL_RECEIVED
 
 
 #NB PaginatedBlock and not QuerysetBlock to avoid the retrieving of a sliced
@@ -79,7 +80,29 @@ class TargetBlock(Block):
         return self._render(self.get_block_template_context(context))
 
 
-product_lines_block = ProductLinesBlock()
-service_lines_block = ServiceLinesBlock()
-total_block         = TotalBlock()
-target_block        = TargetBlock()
+#TODO: this block is imported directly by the templates of Organisation/Contact (because configurable blocks can not be contrained to a CT) => improve....
+class ReceivedInvoicesBlock(QuerysetBlock):
+    id_           = QuerysetBlock.generate_id('billing', 'received_invoices')
+    dependencies  = (Relation,) #Invoice
+    relation_type_deps = (REL_OBJ_BILL_RECEIVED, )
+    verbose_name  = _(u"Received invoices")
+    template_name = 'billing/templatetags/block_received_invoices.html'
+
+    def detailview_display(self, context):
+        person = context['object']
+
+        btc= self.get_block_template_context(context,
+                                             Invoice.objects.filter(relations__object_entity=person.id, relations__type=REL_SUB_BILL_RECEIVED),
+                                             update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, person.pk),
+                                            )
+
+        CremeEntity.populate_credentials(btc['page'].object_list, context['user'])
+
+        return self._render(btc)
+
+
+product_lines_block     = ProductLinesBlock()
+service_lines_block     = ServiceLinesBlock()
+total_block             = TotalBlock()
+target_block            = TargetBlock()
+received_invoices_block = ReceivedInvoicesBlock()

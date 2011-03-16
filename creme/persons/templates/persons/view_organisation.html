@@ -20,6 +20,7 @@
     {% import_block from_app 'persons' named 'employees' as 'employees_block' %}
     {% import_block from_app 'persons' named 'managers' as 'managers_block' %}
     {% import_block from_app 'opportunities' named 'target_organisations' as 'target_organisations_block' %}
+    {% import_block from_app 'billing' named 'received_invoices' as 'received_invoices_block' %}
 {% endblock %}
 
 {% block detail_view_left_1 %}
@@ -152,5 +153,5 @@
 
 {% block detail_view_right_1 %}
     {% display_block_detailview 'target_organisations_block' %}
-
+    {% display_block_detailview 'received_invoices_block' %}
 {% endblock %}
