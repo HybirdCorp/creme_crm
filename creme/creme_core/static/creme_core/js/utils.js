@@ -210,6 +210,22 @@ creme.utils.bindShowHideTbody = function() {
 //     creme.utils.showDialog(msg || gettext("Are you sure ?"), {buttons: buttons});
 // }
 
+creme.utils.simpleConfirm = function(cb, msg)
+{
+    var buttons = {};
+    buttons[gettext("Ok")] = function() {
+        if(typeof(cb) != "undefined" && $.isFunction(cb))
+        {
+            cb();
+            $(this).dialog("destroy");
+            $(this).remove();
+        }
+    }
+    buttons[gettext("Cancel")] = function() {$(this).dialog("destroy");$(this).remove();}
+
+    creme.utils.showDialog(msg || gettext("Are you sure ?"), {buttons: buttons});
+}
+
 creme.utils.confirmBeforeGo = function(url, ajax, ajax_options) { //TODO: rename ? factorise (see ajaxDelete()) ??
     var buttons = {};
 

@@ -506,7 +506,7 @@ class UploadedFileWidget(FileInput):
         input = super(UploadedFileWidget, self).render(name, value, attrs)
         return mark_safe(input + visual)
 
-
+#TODO: Delete me
 class RTEWidget(Textarea):
     def render(self, name, value, attrs=None):
         attrs = self.build_attrs(attrs, name=name)
@@ -521,6 +521,35 @@ class RTEWidget(Textarea):
                     'name':     attrs['name'],
                     'textarea': super(RTEWidget, self).render(name, value, attrs),
                 })
+
+
+
+class TinyMCEEditor(Textarea):
+
+    def render(self, name, value, attrs=None):
+        rendered = super(TinyMCEEditor, self).render(name, value, attrs)
+#        extended_valid_elements : "a[name|href|target|title|onclick]",
+#        script_url : '%(MEDIA_URL)stiny_mce/tiny_mce_src.js',
+        return mark_safe(u'''%(input)s
+                            <script type="text/javascript" src="%(MEDIA_URL)stiny_mce/jquery.tinymce.js"></script>
+                            <script type="text/javascript">
+                                jQuery('#id_%(name)s').tinymce({
+                                    mode : "textareas",
+                                    script_url : '%(MEDIA_URL)stiny_mce/tiny_mce.js',
+                                    convert_urls : false,
+                                    theme : "advanced",
+                                    height: 300,
+                                    plugins : "spellchecker,pagebreak,style,layer,table,save,advhr,advimage,advlink,emotions,iespell,inlinepopups,insertdatetime,preview,media,searchreplace,print,contextmenu,paste,directionality,fullscreen,noneditable,visualchars,nonbreaking,xhtmlxtras,template",
+                                    theme_advanced_buttons1 : "save,newdocument,|,bold,italic,underline,strikethrough,|,justifyleft,justifycenter,justifyright,justifyfull,|,styleselect,formatselect,fontselect,fontsizeselect",
+                                    theme_advanced_buttons2 : "cut,copy,paste,pastetext,pasteword,|,search,replace,|,bullist,numlist,|,outdent,indent,blockquote,|,undo,redo,|,link,unlink,anchor,image,cleanup,code,|,insertdate,inserttime,preview,|,forecolor,backcolor",
+                                    theme_advanced_buttons3 : "tablecontrols,|,hr,removeformat,visualaid,|,sub,sup,|,charmap,emotions,iespell,media,advhr,|,print,|,ltr,rtl,|,fullscreen",
+                                    theme_advanced_buttons4 : "insertlayer,moveforward,movebackward,absolute,|,styleprops,spellchecker,|,cite,abbr,acronym,del,ins,attribs,|,visualchars,nonbreaking,blockquote,pagebreak,|,insertfile,insertimage",
+                                    theme_advanced_toolbar_location : "top",
+                                    theme_advanced_toolbar_align : "left",
+                                    theme_advanced_path_location : "bottom",
+                                    theme_advanced_resizing : true
+                                });
+                            </script>''' % {'MEDIA_URL' :settings.MEDIA_URL, 'name': name, 'input': rendered})
 
 
 class ColorPickerWidget(TextInput):
