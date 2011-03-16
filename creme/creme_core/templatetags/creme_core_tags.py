@@ -116,8 +116,8 @@ def print_datetime(x):
 def print_date(x):
     return date_format(x, 'DATE_FORMAT') if x else ''
 
-#TODO: remove all avlue with simple_print => classes.get(KEY, simple_print) ??
-classes = {
+#TODO: remove all values with simple_print => _FIELD_PRINTERS.get(KEY, simple_print) ??
+_FIELD_PRINTERS = {
      models.AutoField:                  simple_print,
      models.BooleanField:               lambda x: '<input type="checkbox" value="%s" %s disabled/>' % (escape(x), 'checked' if x else ''),
      models.CharField:                  simple_print,
@@ -159,7 +159,7 @@ def get_html_field_value(obj, field_name):
         if models.ManyToManyField in fields_through:
             return get_m2m_entities(obj, field_name, get_value=True, get_value_func=lambda values: ", ".join([val for val in values if val]))
 
-    print_func = classes.get(field_class)
+    print_func = _FIELD_PRINTERS.get(field_class)
     if print_func is not None:
         return mark_safe(print_func(field_value))
     return field_value

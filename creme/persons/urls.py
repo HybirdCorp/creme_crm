@@ -25,8 +25,6 @@ urlpatterns = patterns('persons.views',
     (r'^(?P<entity_id>\d+)/become_inactive_customer$', 'crud_relations.become_inactive'),
     (r'^(?P<entity_id>\d+)/become_supplier$',          'crud_relations.become_supplier'),
 
-    #(r'^address/from_organisation$',         'address.get_org_addresses'), #Commented on 3 Decemeber 2010
-    #(r'^address/add$',                       'address.add'), #Commented on 3 Decemeber 2010    (else: specify Organisation or Contact ??)
-    (r'^address/ip_add/(?P<entity_id>\d+)$', 'address.ipopup_add_adress'), #TODO: rename url and view
-    (r'^address/edit/(?P<address_id>\d+)',   'address.edit'),
+    (r'^address/add/(?P<entity_id>\d+)$',  'address.add'),
+    (r'^address/edit/(?P<address_id>\d+)', 'address.edit'),
 )

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2011  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,7 +19,7 @@
 ################################################################################
 
 from django.http import Http404, HttpResponse
-from django.shortcuts import render_to_response
+from django.shortcuts import render_to_response, get_object_or_404
 from django.template.context import RequestContext
 from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required, permission_required
@@ -56,7 +56,7 @@ def _edit(request, ct_id, form_class, portal):
     bci = BlockConfigItem.objects.filter(content_type=ct_id or None).order_by('order')
 
     if not bci:
-        raise Http404 #bof bof
+        raise Http404('This configuration does not exist (any more ?)')
 
     if request.POST:
         blocks_form = form_class(block_config_items=bci, user=request.user, data=request.POST)
@@ -95,8 +95,8 @@ def edit_portal(request, ct_id):
 def delete(request):
     ct_id = get_from_POST_or_404(request.POST, 'id')
 
-    if not ct_id: #default config can't be deleted
-        raise Http404 #bof
+    if not ct_id:
+        raise Http404('Default config can not be deleted')
 
     BlockConfigItem.objects.filter(content_type=ct_id).delete()
 
@@ -105,17 +105,13 @@ def delete(request):
 @login_required
 @permission_required('creme_config.can_admin')
 def delete_relation_block(request):
-    rbi = RelationBlockItem.objects.get(pk=get_from_POST_or_404(request.POST, 'id')) #TODO: get_object_or_404 ??
-
-    rbi.delete()
+    get_object_or_404(RelationBlockItem, pk=get_from_POST_or_404(request.POST, 'id')).delete()
 
     return HttpResponse()
 
 @login_required
 @permission_required('creme_config.can_admin')
 def delete_instance_block(request):
-    ibi = InstanceBlockConfigItem.objects.get(pk=get_from_POST_or_404(request.POST, 'id')) #TODO: get_object_or_404 ??
-
-    ibi.delete()
+    get_object_or_404(InstanceBlockConfigItem, pk=get_from_POST_or_404(request.POST, 'id')).delete()
 
     return HttpResponse()

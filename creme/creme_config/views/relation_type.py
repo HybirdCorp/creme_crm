@@ -79,7 +79,7 @@ def delete(request):
     relation_type = get_object_or_404(RelationType, pk=get_from_POST_or_404(request.POST, 'id'))
 
     if not relation_type.is_custom:
-        raise Http404("Can't delete a standard RelationType") #TODO: 403 instead ?
+        raise Http404("Can't delete a standard RelationType")
 
     relation_type.delete()
 
