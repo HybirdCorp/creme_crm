@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2011  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -35,7 +35,6 @@ from creme_core.registry import creme_registry
 from creme_core.views.generic import inner_popup, list_view_popup_from_widget
 from creme_core.utils import get_ct_or_404, get_from_POST_or_404
 
-#JSON_OPS = frozenset(('gt', 'lt', 'in'))
 
 class JSONSelectError(Exception):
     def __init__(self, message, status):
@@ -62,34 +61,9 @@ def __json_select(query, fields, range, sort_field=None, use_columns=False):
             flat = len(fields) == 1
             result = list(query.values_list(flat=flat, *fields)[start:end])
 
-        return JSONEncoder().encode(result) #TODO: move out tre 'try' block
+        return JSONEncoder().encode(result) #TODO: move out the 'try' block
     except Exception, err:
         raise JSONSelectError(unicode(err), 500)
-
-# TODO (refs 293) : unused tool. remove it !
-#def __json_parse_filter(filter, allowed_filters, allowed_ops):
-#    field = str(filter[0])
-#    size = len(filter)
-#
-#    if field not in allowed_filters:
-#        raise JSONSelectError("forbidden filter '%s'" % field, 403)
-#
-#    if size == 2:
-#        return (field, filter[1])
-#
-#    op = str(filter[-1])
-#
-#    if op not in allowed_ops:
-#        raise JSONSelectError("forbidden op '%s'" % op, 403)
-#
-#    if size == 3:
-#        return (field + '__' + op, filter[1])
-#
-#    return (field + '__' + op, [v for v in filter[1:-1]])
-#
-#def __json_parse_filters(filters, allowed_filters, allowed_ops):
-#    filter_entries = (filter.split(',') for filter in filters if len(filter) > 1)
-#    return dict(__json_parse_filter(entry, allowed_filters, allowed_ops) for entry in filter_entries)
 
 def __json_parse_field(field, allowed_fields, use_columns=False):
     if field not in allowed_fields.keys():
@@ -111,21 +85,6 @@ def __json_parse_fields(fields, allowed_fields, use_columns=False):
 
     return list(__json_parse_field(field, allowed_fields, use_columns) for field in fields) #TODO: list comprehension ??
 
-# TODO (refs 293) : unused tool. remove it !
-#def __json_parse_filtered_select_request(request, allowed_filters, allowed_ops, allowed_fields):
-#    if not request:
-#        raise JSONSelectError("not such parameter", 400)
-#
-#    use_columns = bool(request.get('value_list', 0))
-#    range = [int(i) if i is not None else None for i in (request.get('start'), request.get('end'))]
-#
-#    filters = __json_parse_filters(request.getlist('filters'), allowed_filters, allowed_ops)
-#    fields = __json_parse_fields(request.getlist('fields'), allowed_fields, use_columns)
-#    sort = request.get('sort')
-#    sort = __json_parse_field(sort, allowed_fields, use_columns) if sort is not None else None
-#
-#    return (filters, fields, range, sort, use_columns)
-
 def __json_parse_select_request(request, allowed_fields):
     if not request:
         raise JSONSelectError("not such parameter", 400)
@@ -138,29 +97,16 @@ def __json_parse_select_request(request, allowed_fields):
 
     return (fields, range, sort, use_columns)
 
-#JSON_ENTITY_FILTERS = frozenset(('id', 'entity_type'))
-
 JSON_ENTITY_FIELDS = {
                         'unicode':     unicode,
                         'id':          lambda e: e.id,
                         'entity_type': lambda e: e.entity_type_id
                      }
 
-#TODO: unused tool. remove it !
-#@login_required
-#def json_entity_select(request):
-#    try:
-#        filters, fields, range, sort, use_columns = __json_parse_filtered_select_request(request.GET, JSON_ENTITY_FILTERS, JSON_OPS, JSON_ENTITY_FIELDS)
-#        query = filter_RUD_objects(request, CremeEntity.objects.filter(**filters))
-#        return HttpResponse(__json_select(query, fields, range, sort, use_columns), mimetype="text/javascript")
-#    except JSONSelectError, err:
-#        return HttpResponse(err.message, mimetype="text/javascript", status=err.status)
-
 @login_required
 def json_entity_get(request, id):
     try:
         fields, range, sort, use_columns = __json_parse_select_request(request.GET, JSON_ENTITY_FIELDS)
-        #query = filter_RUD_objects(request, CremeEntity.objects.filter(pk=id))
         query = EntityCredentials.filter(request.user, CremeEntity.objects.filter(pk=id))
         return HttpResponse(__json_select(query, fields, (0, 1), sort, use_columns), mimetype="text/javascript") #TODO: move out the 'try' block
     except JSONSelectError, err:
@@ -193,18 +139,14 @@ JSON_CONTENT_TYPE_FIELDS = {
 @login_required
 def json_predicate_content_types(request, id):
     try:
-        #content_type_ids = get_object_or_404(RelationType, pk=id).object_range_ctype.all()
         content_types = get_object_or_404(RelationType, pk=id).object_ctypes.all()
-
         fields, range, sort, use_columns = __json_parse_select_request(request.GET, JSON_CONTENT_TYPE_FIELDS)
 
-        #if not content_type_ids:
         if not content_types:
             content_type_from_model = ContentType.objects.get_for_model
             content_types = [content_type_from_model(model) for model in creme_registry.iter_entity_models()]
             return HttpResponse(__json_select(content_types, fields, range, sort))
 
-        #return HttpResponse(__json_select(ContentType.objects.filter(pk__in=content_type_ids), fields, range, sort, use_columns))
         return HttpResponse(__json_select(content_types, fields, range, sort, use_columns), mimetype="text/javascript")
     except JSONSelectError, err:
         return HttpResponse(err.message, mimetype="text/javascript", status=err.status)
@@ -216,7 +158,7 @@ def json_predicate_content_types(request, id):
 def __get_entity_predicates(request, id):
     entity = get_object_or_404(CremeEntity, pk=id).get_real_entity() #TODO: useful 'get_real_entity() ??'
 
-    entity.can_view_or_die(request.user) #TODO: remove
+    entity.can_view_or_die(request.user)
 
     predicates = RelationType.objects.filter(is_internal=False).order_by('predicate')
 

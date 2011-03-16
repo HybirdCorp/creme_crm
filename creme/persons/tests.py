@@ -391,7 +391,7 @@ class PersonsTestCase(CremeTestCase):
         self.assertEqual(0, response.context['entities'].paginator.count)
 
     def _create_address(self, orga, name, address, po_box, city, state, zipcode, country, department):
-        response = self.client.post('/persons/address/ip_add/%s' % orga.id,
+        response = self.client.post('/persons/address/add/%s' % orga.id,
                                     data={
                                             'name':       name,
                                             'address':    address,
@@ -411,7 +411,7 @@ class PersonsTestCase(CremeTestCase):
 
         self.assertEqual(0, Address.objects.filter(object_id=orga.id).count())
 
-        response = self.client.get('/persons/address/ip_add/%s' % orga.id)
+        response = self.client.get('/persons/address/add/%s' % orga.id)
         self.assertEqual(response.status_code, 200)
 
         name = 'Address#1'

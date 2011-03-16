@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2011  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -49,11 +49,10 @@ def add_with_relation(request, orga_id, predicate_id=None):
     initial = {'linked_orga': linked_orga}
 
     if predicate_id:
-        rtype = get_object_or_404(RelationType, symmetric_type=predicate_id)
-        initial.update(relation_type=rtype) #TODO: inline ,??
+        initial['relation_type'] = get_object_or_404(RelationType, symmetric_type=predicate_id)
 
     return add_entity(request, ContactWithRelationForm,
-                      request.REQUEST.get('callback_url'), #TODO: request.GET ??
+                      request.REQUEST.get('callback_url'),
                       'persons/add_contact_form.html', extra_initial=initial
                      )
 

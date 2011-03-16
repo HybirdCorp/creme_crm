@@ -26,18 +26,18 @@ from creme_core.forms import CremeModelForm
 from persons.models import Address
 
 
-class AddressWithEntityForm(CremeModelForm):
+class AddressForm(CremeModelForm):
     class Meta:
         model = Address
         exclude = ('content_type', 'object_id')
 
     def __init__(self, entity, *args, **kwargs):
-        super(AddressWithEntityForm, self).__init__(*args, **kwargs)
+        super(AddressForm, self).__init__(*args, **kwargs)
         self._entity = entity
 
     def save(self):
         self.instance.owner = self._entity
-        return super(AddressWithEntityForm, self).save()
+        return super(AddressForm, self).save()
 
 
 def clean_address(address_id):

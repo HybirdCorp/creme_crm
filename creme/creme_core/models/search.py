@@ -83,7 +83,7 @@ class SearchConfigItem(CremeModel):
             create_sf(field=field, field_verbose_name=get_verbose_field_name(model, field), order=i, search_config_item=sci)
 
 
-#TODO: is this model ereally useful ??? (store fields in a textfield in SearchConfigItem ?)
+#TODO: is this model really useful ??? (store fields in a textfield in SearchConfigItem ?)
 class SearchField(CremeModel):
     field              = CharField(_(u"Field"), max_length=100)
     field_verbose_name = CharField(_(u"Field (long name)"), max_length=100)

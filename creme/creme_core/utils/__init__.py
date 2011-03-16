@@ -68,8 +68,7 @@ def create_or_update(model, pk=None, **attrs):
 
     return instance
 
-#TODO: Use DjangoJSONEncoder ?
-def jsonify(func): ##
+def jsonify(func):
     def _aux(*args, **kwargs):
         rendered = func(*args, **kwargs)
         return HttpResponse(JSONEncoder().encode(rendered), mimetype="text/javascript")

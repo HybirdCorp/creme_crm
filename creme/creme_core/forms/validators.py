@@ -29,10 +29,10 @@ from creme_core.utils import entities2unicode
 def validate_editable_entities(entities, user):
     CremeEntity.populate_credentials(entities, user)
 
-    unlinkable = entities2unicode((e for e in entities if not e.can_change(user)), user)
+    uneditable = entities2unicode((e for e in entities if not e.can_change(user)), user)
 
-    if unlinkable:
-        raise ValidationError(_(u"Some entities are not editable: %s") % unlinkable)
+    if uneditable:
+        raise ValidationError(_(u"Some entities are not editable: %s") % uneditable)
 
     return entities
 

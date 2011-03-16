@@ -67,7 +67,7 @@ class Contact(CremeEntity):
     def __unicode__(self):
         #try:
             #return force_unicode(u'%s %s %s' % (self.civility or "" , self.first_name, self.last_name))
-        #except Exception, e: #TODO: useful ??
+        #except Exception, e:
             #debug('Exception in Contact.__unicode__: %s', e)
         if self.civility:
             return u'%s %s %s' % (self.civility, self.first_name, self.last_name)
