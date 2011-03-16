@@ -35,7 +35,8 @@ from documents.models import Document
 
 from emails.constants import *
 from emails.models import *
-from emails.models.mail import MAIL_STATUS_SYNCHRONIZED_SPAM, MAIL_STATUS_SYNCHRONIZED_WAITING, MAIL_STATUS, MAIL_STATUS_SENT
+from emails.models.mail import (MAIL_STATUS_SYNCHRONIZED_SPAM, MAIL_STATUS_SYNCHRONIZED_WAITING, MAIL_STATUS,\
+                                MAIL_STATUS_SENT, MAIL_STATUS_SYNCHRONIZED)
 
 
 #TODO: move populate_credentials() code to a Block class in creme_core ???
@@ -189,6 +190,7 @@ class MailsHistoryBlock(QuerysetBlock):
                                                             EntityEmail.objects.filter(pk__in=entityemail_pk),
                                                             update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, pk),
                                                             sent_status=MAIL_STATUS_SENT,
+                                                            sync_statuses=[MAIL_STATUS_SYNCHRONIZED, MAIL_STATUS_SYNCHRONIZED_SPAM, MAIL_STATUS_SYNCHRONIZED_WAITING],
                                                             rtypes=','.join(rtypes),
                                                             entity_email_ct_id=ContentType.objects.get_for_model(entity).id
                                                             ))

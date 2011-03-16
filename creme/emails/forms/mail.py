@@ -22,13 +22,14 @@ from itertools import chain
 
 from django.core.exceptions import ValidationError
 from django.core.validators import validate_email
-from django.forms.fields import EmailField, BooleanField
+from django.forms.fields import EmailField, BooleanField, CharField
 from django.forms.util import ErrorList
 from django.utils.translation import ugettext_lazy as _, ugettext
 
 from creme_core.models.relation import Relation
 from creme_core.forms.fields import MultiCremeEntityField, CremeEntityField
 from creme_core.forms.base import CremeEntityForm, FieldBlockManager
+from creme_core.forms.widgets import TinyMCEEditor
 
 from documents.models import Document
 
@@ -50,7 +51,7 @@ class EntityEmailForm(CremeEntityForm):
     c_recipients = MultiCremeEntityField(label=_(u'Contacts'),      required=False, model=Contact,      q_filter={'email__isnull': False})
     o_recipients = MultiCremeEntityField(label=_(u'Organisations'), required=False, model=Organisation, q_filter={'email__isnull': False})
 
-#    body_html    = CharField(label=_(u'Body'), widget=RTEWidget())
+#    body_html    = CharField(label=_(u'Body'), widget=TinyMCEEditor())
 
     attachments  = MultiCremeEntityField(label=_(u'Attachments'), required=False, model=Document)
     send_me      = BooleanField(label=_(u'Send me a copy of this mail'), required=False)
