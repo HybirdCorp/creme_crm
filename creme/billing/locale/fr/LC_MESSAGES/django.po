@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-03-10 10:11+0100\n"
+"POT-Creation-Date: 2011-03-16 11:34+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -16,21 +16,25 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Language: \n"
 
-#: blocks.py:35 models/product_line.py:35
+#: blocks.py:36 models/product_line.py:35
 msgid "Product lines"
 msgstr "Lignes produit"
 
-#: blocks.py:49 models/service_line.py:35
+#: blocks.py:50 models/service_line.py:35
 msgid "Service lines"
 msgstr "Lignes service"
 
-#: blocks.py:63
+#: blocks.py:64
 msgid "Total"
 msgstr "Total"
 
-#: blocks.py:74
+#: blocks.py:75
 msgid "Target Organisation"
 msgstr "Société cible"
+
+#: blocks.py:88
+msgid "Received invoices"
+msgstr "Factures reçues"
 
 #: buttons.py:28
 #: templates/billing/templatetags/button_generate_invoice_number.html:5
@@ -167,6 +171,7 @@ msgid "Canceled"
 msgstr "Annulée"
 
 #: populate.py:78 models/base.py:38
+#: templates/billing/templatetags/block_received_invoices.html:10
 msgid "Name"
 msgstr "Nom"
 
@@ -179,6 +184,7 @@ msgid "Issuing date"
 msgstr "Date d'émission"
 
 #: populate.py:81 forms/base.py:42 models/base.py:41
+#: templates/billing/templatetags/block_received_invoices.html:11
 msgid "Expiration date"
 msgstr "Échéance"
 
@@ -304,6 +310,7 @@ msgstr ""
 #: forms/templatebase.py:31 models/other_models.py:44
 #: models/other_models.py:57 models/other_models.py:70
 #: models/other_models.py:83
+#: templates/billing/templatetags/block_received_invoices.html:12
 msgid "Status"
 msgstr "Statut"
 
@@ -331,6 +338,7 @@ msgid "Comment"
 msgstr "Remarques"
 
 #: models/base.py:46
+#: templates/billing/templatetags/block_received_invoices.html:13
 msgid "Total with VAT"
 msgstr "Total avec TVA"
 
@@ -359,6 +367,7 @@ msgid "Payment terms"
 msgstr "Réglement"
 
 #: models/invoice.py:41
+#: templates/billing/templatetags/block_received_invoices.html:5
 msgid "Invoice"
 msgstr "Facture"
 
@@ -487,16 +496,21 @@ msgstr "Liste des factures"
 msgid "Download '%(object)s' to the desired format"
 msgstr "Télécharger '%(object)s' au format voulu"
 
-#: templates/billing/view_quote.html:4 templates/billing/view_template.html:8
-msgid "Convert to Salesorder"
-msgstr "Convertir en Bon de Commande"
-
-#: templates/billing/view_quote.html:5
-#: templates/billing/view_sales_order.html:4
-#: templates/billing/view_template.html:9
-#: templates/billing/view_template.html:12
+#: templates/billing/frags/button_convert2invoice.html:4
+#: templates/billing/frags/button_convert2invoice.html:12
 msgid "Convert to Invoice"
 msgstr "Convertir en Facture"
+
+#: templates/billing/frags/button_convert2invoice.html:12
+#: templates/billing/frags/button_convert2order.html:12
+#: templates/billing/templatetags/button_generate_invoice_number.html:9
+msgid "forbidden"
+msgstr "interdit"
+
+#: templates/billing/frags/button_convert2order.html:4
+#: templates/billing/frags/button_convert2order.html:12
+msgid "Convert to Salesorder"
+msgstr "Convertir en Bon de Commande"
 
 #: templates/billing/templatetags/block_product_line.html:6
 #, python-format
@@ -520,6 +534,20 @@ msgstr "Ajouter une ligne à la volée"
 #: templates/billing/templatetags/block_product_line.html:17
 msgid "No product in this document"
 msgstr "Aucun produit dans ce document"
+
+#: templates/billing/templatetags/block_received_invoices.html:5
+#, python-format
+msgid "%s Received invoice"
+msgstr "%s Facture reçue"
+
+#: templates/billing/templatetags/block_received_invoices.html:5
+#, python-format
+msgid "%s Received invoices"
+msgstr "%s Factures reçues"
+
+#: templates/billing/templatetags/block_received_invoices.html:33
+msgid "No received invoice for the moment"
+msgstr "Aucune facture reçue pour le moment"
 
 #: templates/billing/templatetags/block_service_line.html:6
 #, python-format
@@ -562,10 +590,6 @@ msgstr "Total TTC"
 msgid "Invoice number"
 msgstr "Numéro de Facture"
 
-#: templates/billing/templatetags/button_generate_invoice_number.html:9
-msgid "forbidden"
-msgstr "interdit"
-
 #: templates/billing/templatetags/line.html:17
 msgid "Total discount"
 msgstr "Remise globale"
@@ -574,12 +598,12 @@ msgstr "Remise globale"
 msgid "Actions"
 msgstr "Actions"
 
-#: views/convert.py:49
+#: views/convert.py:55
 #, python-format
 msgid "%(src)s (converted into template of <%(dest)s>)"
 msgstr "%(src)s (converti en patron de <%(dest)s>)"
 
-#: views/convert.py:58
+#: views/convert.py:64
 #, python-format
 msgid "%(src)s (converted into  %(dest)s)"
 msgstr "%(src)s (converti en %(dest)s)"

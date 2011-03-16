@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2011  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -26,7 +26,7 @@ from creme_core.gui.button_menu import button_registry
 from creme_core.gui.block import block_registry
 
 from billing.models import Invoice, Quote, SalesOrder, CreditNote
-from billing.blocks import product_lines_block, service_lines_block, total_block, target_block
+from billing.blocks import product_lines_block, service_lines_block, total_block, target_block, received_invoices_block
 from billing.buttons import generate_invoice_number_button
 
 
@@ -44,9 +44,9 @@ reg_item('/billing/quotes',          _(u'All quotes'),        'billing')
 reg_item('/billing/credit_note/add', _(u'Add a credit note'), 'billing.add_creditnote')
 reg_item('/billing/credit_note',     _(u'All credit notes'),  'billing')
 
-block_registry.register(product_lines_block, service_lines_block, total_block, target_block)
+block_registry.register(product_lines_block, service_lines_block, total_block, target_block, received_invoices_block)
 button_registry.register(generate_invoice_number_button)
 
 from signals import connect_to_signals
 
-connect_to_signals ()
+connect_to_signals()
