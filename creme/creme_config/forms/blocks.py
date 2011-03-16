@@ -77,7 +77,7 @@ class DetailviewBlocksForm(CremeForm):
                 if block_id in blocks_to_add:
                     blocks_2_save.append(BlockConfigItem(content_type=ct, block_id=block_id, order=i + 1, on_portal=False))
                 else:
-                    bci = BlockConfigItem.objects.get(content_type=ct, block_id=block_id)
+                    bci = BlockConfigItem.objects.get(content_type=ct, block_id=block_id) #TODO: queries could be regrouped...
 
                     if bci.order != i + 1:
                         bci.order = i + 1

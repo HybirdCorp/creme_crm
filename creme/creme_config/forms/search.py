@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2011  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -22,8 +22,9 @@ from django.forms import ChoiceField, ModelChoiceField, CharField, MultipleChoic
 from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import ugettext_lazy as _, ugettext
 from django.contrib.auth.models import User
+from django.contrib.contenttypes.models import ContentType
 
-from creme_core.forms import CremeForm
+from creme_core.forms import CremeModelForm, CremeForm
 from creme_core.forms.widgets import OrderedMultipleChoiceWidget, Label
 from creme_core.registry import creme_registry
 from creme_core.utils.meta import get_flds_with_fk_flds_str
@@ -32,9 +33,13 @@ from creme_core.models import SearchConfigItem, SearchField
 
 EXCLUDED_FIELDS_TYPES = frozenset(['AutoField', 'DateTimeField', 'DateField', 'FileField', 'ImageField', 'OneToOneField'])
 
-class SearchAddForm(CremeForm):
-    ct_id  = ChoiceField(label=_(u'Related resource'), choices=(), required=True)
+class SearchAddForm(CremeModelForm):
+    ct_id  = ChoiceField(label=_(u'Related resource'), choices=(), required=True) #TODO: ContentTypeChoiceField
     user   = ModelChoiceField(label=_(u'User'), queryset=User.objects.all(), empty_label=_(u"All users"), required=False)
+
+    class Meta:
+        model = SearchConfigItem
+        exclude = ('content_type',)
 
     def __init__(self, *args, **kwargs):
         super(SearchAddForm, self).__init__(*args, **kwargs)
@@ -45,82 +50,56 @@ class SearchAddForm(CremeForm):
         self.fields['ct_id'].choices = models
 
     def clean(self):
-        cleaned_data = self.cleaned_data
-        get_data     = cleaned_data.get
+        cdata = self.cleaned_data
 
-        ct_id = get_data('ct_id')
-        user  = get_data('user')
-
-        if SearchConfigItem.objects.filter(content_type__id=ct_id, user=user).count() > 0:
+        if SearchConfigItem.objects.filter(content_type=cdata['ct_id'], user=cdata.get('user')).exists():
             raise ValidationError(ugettext(u'The pair search configuration/user(s) already exists !'))
 
-        return cleaned_data
+        return cdata
 
-    def save(self):
-        cleaned_data  = self.cleaned_data
-        ct_id = cleaned_data['ct_id']
-        user  = cleaned_data['user']
-        sfi = SearchConfigItem(content_type_id=ct_id, user=user)
-        sfi.save()
+    def save(self, *args, **kwargs):
+        self.instance.content_type_id = self.cleaned_data['ct_id']
+        return super(SearchAddForm, self).save(*args, **kwargs)
 
 
-class SearchEditForm(CremeForm): #TODO: why not CremeModel form ??
-    ct     = CharField(label=_(u"Related resource"),  widget=Label())
+class SearchEditForm(CremeForm):
     fields = MultipleChoiceField(label=_(u'Concerned fields'), required=False,
                                  choices=(), widget=OrderedMultipleChoiceWidget)
-    user   = ModelChoiceField(label=_(u'User'), queryset=User.objects.all(),
-                              empty_label=_(u"All users"), required=False)
 
     def __init__(self, *args, **kwargs):
         self.search_cfg_itm = search_cfg_itm = kwargs.pop('instance')
         super(SearchEditForm, self).__init__(*args, **kwargs)
 
-        fields = self.fields
         target_model = search_cfg_itm.content_type.model_class()
-
-        fields['ct'].initial = target_model._meta.verbose_name
 
         #For the moment the research is only done with icontains so we avoid so field's type
         model_fields = get_flds_with_fk_flds_str(target_model, 1, exclude_func=lambda f: f.get_internal_type() in EXCLUDED_FIELDS_TYPES)
-
         self._model_fields = dict((f_name, f_verbose_name) for f_name, f_verbose_name in model_fields)
 
-
-        search_cfg_fields = [f.field for f in search_cfg_itm.get_fields()]
-
-        fields['fields'].choices = model_fields
-        fields['fields'].initial = search_cfg_fields
-
-        if search_cfg_itm.user: #TODO: search_cfg_itm.user_id ??
-            fields['user'].initial = search_cfg_itm.user.pk
+        fields_f = self.fields['fields']
+        fields_f.choices = model_fields
+        fields_f.initial = [f.field for f in search_cfg_itm.get_fields()]
 
     def save(self):
-        cleaned_data  = self.cleaned_data
         search_cfg_itm = self.search_cfg_itm
         model_fields = self._model_fields
-        SF_filter = SearchField.objects.filter
-
-        fields = cleaned_data['fields']
-        user   = cleaned_data['user']
-
-        search_cfg_itm.user = user
-        search_cfg_itm.save()
+        fields = self.cleaned_data['fields']
 
         if not fields:
-            SF_filter(search_config_item__id=search_cfg_itm.id).delete() #TODO: remove '__id'
+            SearchField.objects.filter(search_config_item=search_cfg_itm).delete()
         else:
             old_ids = set(search_cfg_itm.get_fields().values_list('field', flat=True))
             new_ids = set(fields)
             fields_to_del = old_ids - new_ids
             fields_to_add = new_ids - old_ids
 
-            SF_filter(search_config_item__id=search_cfg_itm.id, field__in=fields_to_del).delete()
+            SearchField.objects.filter(search_config_item=search_cfg_itm, field__in=fields_to_del).delete()
 
             for i, field in enumerate(fields):
                 if field in fields_to_add:
-                    SearchField.objects.create(search_config_item_id=search_cfg_itm.id, field=field, order=i, field_verbose_name=model_fields[field])
+                    SearchField.objects.create(search_config_item=search_cfg_itm, field=field, order=i, field_verbose_name=model_fields[field])
                 else:
-                    sf = SearchField.objects.get(search_config_item__id=search_cfg_itm.id, field=field)
+                    sf = SearchField.objects.get(search_config_item=search_cfg_itm, field=field) #TODO: queries could be regrouped...
 
                     if sf.order != i:
                         sf.order = i
