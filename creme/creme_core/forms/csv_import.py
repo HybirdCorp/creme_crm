@@ -45,7 +45,7 @@ from documents.models import Document
 def _csv_to_list(line_str):
     #TODO: improve the 'parsing' method ?? (what about a',' between the "" ??)
     #      factorise with csv export ??? use csv.Sniffer class to guess csv format ??
-    return [word.strip('"').strip() for word in smart_unicode(line_str).split(',')]
+    return [word.strip('"').strip() for word in smart_unicode(line_str.strip()).split(',')]
 
 
 class CSVUploadForm(CremeForm):
@@ -116,22 +116,38 @@ class CSVExtractor(object):
         self._subfield_search = None
         self._fk_model = None
         self._m2m = None
+        self._fk_form = None
 
-    def set_subfield_search(self, subfield_search, subfield_model, multiple):
+    def set_subfield_search(self, subfield_search, subfield_model, multiple, create_if_unfound):
         self._subfield_search = str(subfield_search)
         self._fk_model  = subfield_model
         self._m2m = multiple
+        self._fk_form = modelform_factory(subfield_model)
 
     def extract_value(self, line):
         if self._column_index: #0 -> not in csv
             value = line[self._column_index - 1]
 
             if self._subfield_search:
+                data = {self._subfield_search: value}
+
                 try:
                     retriever = self._fk_model.objects.filter if self._m2m else self._fk_model.objects.get
-                    return retriever(**{self._subfield_search: value})
-                except Exception, e: #TODO: improve exception
-                    info('Exception while extracting value: %s', e) #TODO: log error in errors list shown to user ??
+                    return retriever(**data) #TODO: improve self._value_castor avoid te direct 'return' ?
+                except Exception, e:
+                    fk_form = self._fk_form
+
+                    if fk_form: #try to create the referenced instance
+                        creator = fk_form(data=data)
+
+                        if creator.is_valid():
+                           creator.save()
+                           return creator.instance #TODO: improve self._value_castor avoid te direct 'return' ?
+                        else:
+                            info('Exception while extracting value [%s]: tried to retrieve and then building "%s" on %s', e, value, self._fk_model)
+                    else:
+                        info('Exception while extracting value [%s]: tried to retrieve "%s" on %s', e, value, self._fk_model) #TODO: log error in errors list shown to user ??
+
                     value = None
 
             if not value:
@@ -147,48 +163,57 @@ class CSVExtractorWidget(SelectMultiple):
         super(CSVExtractorWidget, self).__init__(*args, **kwargs)
         self.default_value_widget = None
         self.subfield_select = None
+        self.propose_creation = False
 
-    def _render_select(self, name, choices, sel_idx, attrs=None):
+    def _render_select(self, name, choices, sel_val, attrs=None):
         output = ['<select %s>' % flatatt(self.build_attrs(attrs, name=name))]
 
-        output.extend(u"""<option value="%s" %s>%s</option>""" %
-                        (opt_value, (u'selected="selected"' if sel_idx == i else u''), opt_label)
-                            for i, (opt_value, opt_label) in enumerate(choices))
+        output.extend(u"""<option value="%s" %s>%s</option>""" % (
+                            opt_value, (u'selected="selected"' if sel_val == opt_value else u''), opt_label
+                        ) for opt_value, opt_label in choices
+                     )
 
         output.append('</select>')
 
         return u'\n'.join(output)
 
+
     def render(self, name, value, attrs=None, choices=()):
+        value = value or {}
         attrs = self.build_attrs(attrs, name=name)
         output = [u'<table %s><tbody><tr><td>' % flatatt(attrs)]
-
-        if not value:
-            value = {}
 
         out_append = output.append
         rselect    = self._render_select
 
         out_append(rselect("%s_colselect" % name, choices=chain(self.choices, choices),
-                           sel_idx=int(value.get('selected_column', -1)),
+                           sel_val=int(value.get('selected_column', -1)),
                            attrs={'class': 'csv_col_select'}))
 
         if self.subfield_select:
             out_append(u"""</td>
-                           <td class="csv_subfields_select">%(label)s %(select)s
+                           <td class="csv_subfields_select">%(label)s %(select)s %(check)s
                             <script type="text/javascript">
                                 $(document).ready(function() {
                                     creme.forms.toCSVImportField('%(id)s');
                                 });
                             </script>""" % {
                           'label':  ugettext(u'Search by:'),
-                          'select': rselect("%s_subfield" % name, choices=self.subfield_select, sel_idx=None),
+                          'select': rselect("%s_subfield" % name, choices=self.subfield_select, sel_val=value.get('subfield_search')),
+                          'check':  '' if not self.propose_creation else \
+                                    '&nbsp;%s <input type="checkbox" name="%s_create" %s>' % (
+                                           ugettext(u'Create if not found ?'),
+                                           name,
+                                           'checked' if value.get('subfield_create') else '',
+                                        ),
                           'id':     attrs['id'],
                         })
 
-
-        out_append(u"""</td><td>&nbsp;%s:%s</td></tr></tbody></table>""" %
-                        (ugettext(u"Default value"), self.default_value_widget.render("%s_defval" % name, value.get('default_value'))))
+        out_append(u"""</td><td>&nbsp;%s:%s</td></tr></tbody></table>""" % (
+                        ugettext(u"Default value"),
+                        self.default_value_widget.render("%s_defval" % name, value.get('default_value')),
+                    )
+                  )
 
         return mark_safe(u'\n'.join(output))
 
@@ -197,6 +222,7 @@ class CSVExtractorWidget(SelectMultiple):
         return {
                 'selected_column':  get("%s_colselect" % name),
                 'subfield_search':  get("%s_subfield" % name),
+                'subfield_create':  get("%s_create" % name, False),
                 'default_value':    self.default_value_widget.value_from_datadict(data, files, "%s_defval" % name)
                }
 
@@ -211,6 +237,7 @@ class CSVExtractorField(Field):
         super(CSVExtractorField, self).__init__(self, widget=CSVExtractorWidget, *args, **kwargs)
         self.required = modelform_field.required
         self._modelfield = modelfield
+        self._can_create = False #if True and field is a FK/M2M -> the referenced model can be created
 
         widget = self.widget
 
@@ -222,10 +249,13 @@ class CSVExtractorField(Field):
 
         if modelfield.rel:
             klass = modelfield.rel.to
-            ffilter = (lambda fieldname: fieldname not in self._EXCLUDED_SUBFIELDS) if issubclass(klass, CremeEntity) else \
+            is_entity = issubclass(klass, CremeEntity)
+            ffilter = (lambda fieldname: fieldname not in self._EXCLUDED_SUBFIELDS) if is_entity else \
                        lambda fieldname: fieldname != 'id'
 
-            widget.subfield_select = [(field.name, field.verbose_name) for field in klass._meta.fields if ffilter(field.name)]
+            sf_choices = [(field.name, field.verbose_name) for field in klass._meta.fields if ffilter(field.name)]
+            widget.subfield_select = sf_choices
+            widget.propose_creation = self._can_create = (not is_entity) and (len(sf_choices) == 1) #TODO: creation creds too...
 
     def clean(self, value):
         col_index = int(value['selected_column'])
@@ -235,14 +265,24 @@ class CSVExtractorField(Field):
             if not def_value:
                 raise ValidationError(self.error_messages['required'])
 
-            self._original_field.clean(def_value) #to raise ValidationError in needed
+            self._original_field.clean(def_value) #to raise ValidationError if needed
+
+        #TODO: check that col_index is in self._choices ???
+
+        subfield_create = value['subfield_create']
+
+        if not self._can_create and subfield_create:
+            raise ValidationError("You can not create: %s" % self._modelfield)
 
         extractor = CSVExtractor(col_index, def_value, self._original_field.clean)
 
         subfield_search = value['subfield_search']
         if subfield_search:
             modelfield = self._modelfield
-            extractor.set_subfield_search(subfield_search, modelfield.rel.to, isinstance(modelfield, ManyToManyField))
+            extractor.set_subfield_search(subfield_search, modelfield.rel.to,
+                                          multiple=isinstance(modelfield, ManyToManyField),
+                                          create_if_unfound=subfield_create,
+                                         )
 
         return extractor
 

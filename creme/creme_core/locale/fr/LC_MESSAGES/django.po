@@ -1,5 +1,5 @@
 # FR LOCALISATION OF 'CREME_CORE' APP
-# Copyright (C) 2010 Hybird
+# Copyright (C) 2011 Hybird
 # This file is distributed under the same license as the Creme package.
 #
 #, fuzzy
@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-03-10 12:26+0100\n"
+"POT-Creation-Date: 2011-03-17 17:42+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -16,12 +16,12 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Language: \n"
 
-#: blocks.py:31 forms/csv_import.py:338 models/creme_property.py:91
-#: models/entity.py:49 tests/views.py:126
+#: blocks.py:31 forms/csv_import.py:380 models/creme_property.py:91
+#: models/entity.py:50 tests/views.py:126
 msgid "Properties"
 msgstr "Propriétés"
 
-#: blocks.py:47 forms/csv_import.py:341 forms/header_filter.py:46
+#: blocks.py:47 forms/csv_import.py:383 forms/header_filter.py:46
 #: forms/relation.py:35 gui/block.py:273 models/relation.py:187
 msgid "Relations"
 msgstr "Relations"
@@ -199,7 +199,7 @@ msgstr "appartient à"
 msgid "General information"
 msgstr "Informations générales"
 
-#: forms/base.py:201 forms/csv_import.py:337 models/base.py:177
+#: forms/base.py:201 forms/csv_import.py:379 models/base.py:177
 #: models/prefered_menu.py:27 tests/views.py:99 tests/views.py:100
 #: tests/views.py:101
 msgid "User"
@@ -254,53 +254,57 @@ msgstr ""
 "La 1ère ligne du fichier contient-il l'entête des colonnes de valeurs (ex: "
 "\"Nom\",\"Prénom\") ?"
 
-#: forms/csv_import.py:75 forms/csv_import.py:273
+#: forms/csv_import.py:71 forms/csv_import.py:315
 msgid "You have not the credentials to read this document."
 msgstr "Vous n'avez pas les droits pour lire ce document."
 
-#: forms/csv_import.py:83
+#: forms/csv_import.py:79
 #, python-format
 msgid "Error reading document: %s."
 msgstr "Erreur lors de la lecture du document: %s."
 
-#: forms/csv_import.py:188
+#: forms/csv_import.py:201
 msgid "Search by:"
 msgstr "Chercher selon:"
 
-#: forms/csv_import.py:195
+#: forms/csv_import.py:205
+msgid "Create if not found ?"
+msgstr "Créer si non trouvé ?"
+
+#: forms/csv_import.py:213
 msgid "Default value"
 msgstr "Valeur par défaut"
 
-#: forms/csv_import.py:253
+#: forms/csv_import.py:295
 msgid "Importing from a CSV file"
 msgstr "Import depuis un fichier CSV"
 
-#: forms/csv_import.py:270
+#: forms/csv_import.py:312
 msgid "This document doesn't exist or doesn't exist any more."
 msgstr "Ce document n'existe pas/plus."
 
-#: forms/csv_import.py:343
+#: forms/csv_import.py:385
 msgid "Generic information"
 msgstr "Infos génériques"
 
-#: forms/csv_import.py:344
+#: forms/csv_import.py:386
 msgid "Related properties"
 msgstr "Propriétés associées"
 
-#: forms/csv_import.py:345
+#: forms/csv_import.py:387
 msgid "Associated relations"
 msgstr "Relations associées"
 
-#: forms/csv_import.py:386
+#: forms/csv_import.py:428
 msgid "Not in the CSV file"
 msgstr "Pas dans le CSV"
 
-#: forms/csv_import.py:390
+#: forms/csv_import.py:432
 #, python-format
 msgid "Column %(index)s - %(name)s"
 msgstr "Colonne %(index)s - %(name)s"
 
-#: forms/csv_import.py:397
+#: forms/csv_import.py:439
 #, python-format
 msgid "Column %i"
 msgstr "Colonne %i"
@@ -469,7 +473,7 @@ msgstr "Voir"
 msgid "Change"
 msgstr "Modifier"
 
-#: models/auth.py:366 models/entity.py:266
+#: models/auth.py:366 models/entity.py:267
 #: templates/creme_core/filters.html:641 templates/creme_core/filters.html:651
 #: templates/creme_core/filters.html:667 templates/creme_core/filters.html:673
 #: templates/creme_core/filters.html:681
@@ -647,42 +651,42 @@ msgstr "Liste de choix"
 msgid "List of choices (multi sélection)"
 msgstr "Liste de choix (multi sélection)"
 
-#: models/entity.py:81
+#: models/entity.py:82
 #, python-format
 msgid "Entity#%s can not be deleted because of its dependencies."
 msgstr "La fiche#%s ne peut être effacé à cause des ses dépendances."
 
-#: models/entity.py:106
+#: models/entity.py:107
 #, python-format
 msgid "Entity #%s (not viewable)"
 msgstr "Fiche #%s (non visible)"
 
-#: models/entity.py:113
+#: models/entity.py:114
 #, python-format
 msgid "You are not allowed to edit this entity: %s"
 msgstr "Vous n'êtes pas autorisé à modifier cette fiche: %s"
 
-#: models/entity.py:120
+#: models/entity.py:121
 #, python-format
 msgid "You are not allowed to delete this entity: %s"
 msgstr "Vous n'êtes pas autorisé à supprimer cette fiche: %s"
 
-#: models/entity.py:127
+#: models/entity.py:128
 #, python-format
 msgid "You are not allowed to link this entity: %s"
 msgstr "Vous n'êtes pas autorisé à relier cette fiche: %s"
 
-#: models/entity.py:134
+#: models/entity.py:135
 #, python-format
 msgid "You are not allowed to unlink this entity: %s"
 msgstr "Vous n'êtes pas autorisé à délier cette fiche: %s"
 
-#: models/entity.py:141
+#: models/entity.py:142
 #, python-format
 msgid "You are not allowed to view this entity: %s"
 msgstr "Vous n'êtes pas autorisé à voir cette fiche: %s"
 
-#: models/entity.py:259 templates/creme_core/detailview.html:59
+#: models/entity.py:260 templates/creme_core/detailview.html:59
 #: templates/creme_core/generics/blockform/edit.html:9
 #: templates/creme_core/generics/blockform/edit.html:16
 #: templates/creme_core/generics/form/edit.html:8
@@ -692,7 +696,7 @@ msgstr "Vous n'êtes pas autorisé à voir cette fiche: %s"
 msgid "Edit"
 msgstr "Éditer"
 
-#: models/entity.py:274
+#: models/entity.py:275
 msgid "See"
 msgstr "Voir"
 
@@ -705,16 +709,21 @@ msgstr "Nom de la vue"
 msgid "Owner"
 msgstr "Propriétaire"
 
-#: models/header_filter.py:97
+#: models/header_filter.py:98
 msgid "This view can't be edited/deleted"
 msgstr "Cette vue ne peut être modifiée/effacée"
 
-#: models/header_filter.py:108
+#: models/header_filter.py:107 models/list_view_filter.py:218
+#: views/header_filter.py:48 views/list_view_filter.py:46
+msgid "You are not allowed to acceed to this app"
+msgstr "Vous n'êtes autorisé à accéder à cette application: %s"
+
+#: models/header_filter.py:115
 msgid "You are not allowed to edit/delete this view"
 msgstr "Vous n'êtes pas autorisé à modifier/supprimer cette vue"
 
-#: models/header_filter.py:227
-#: templates/creme_core/templatetags/listview_columns_header.html:55
+#: models/header_filter.py:238
+#: templates/creme_core/templatetags/listview_columns_header.html:57
 #: templates/creme_core/templatetags/widgets/entity_actions.html:18
 msgid "Actions"
 msgstr "Actions"
@@ -735,7 +744,7 @@ msgstr "Langues"
 msgid "This filter can't be edited/deleted"
 msgstr "Ce filtre ne peut être modifié/effacé"
 
-#: models/list_view_filter.py:220
+#: models/list_view_filter.py:226
 msgid "You are not allowed to edit/delete this filter"
 msgstr "Vous n'êtes pas autorisé à modifier/supprimer ce filtre"
 
@@ -790,7 +799,7 @@ msgid "Related user"
 msgstr "Utilisateur associé"
 
 #: models/search.py:40 templates/creme_core/search_results.html:11
-#: templates/creme_core/templatetags/search_panel.html:6
+#: templates/creme_core/templatetags/search_panel.html:11
 msgid "Search"
 msgstr "Recherche"
 
@@ -894,7 +903,7 @@ msgstr "Retour à la liste"
 
 #: templates/creme_core/customfields_as_table.html:7
 #: templates/creme_core/object_as_table.html:7
-#: templates/creme_core/generics/portal.html:54
+#: templates/creme_core/generics/portal.html:59
 msgid "Information"
 msgstr "Informations"
 
@@ -1036,7 +1045,7 @@ msgid "Clean the search"
 msgstr "Effacer la recherche"
 
 #: templates/creme_core/frags/list_view_content.html:60
-#: templates/creme_core/templatetags/search_panel.html:15
+#: templates/creme_core/templatetags/search_panel.html:20
 msgid "Research"
 msgstr "Rechercher"
 
@@ -1076,10 +1085,17 @@ msgstr "Aller à la liste"
 
 #: templates/creme_core/generics/portal.html:36
 #: templates/creme_core/generics/portal.html:37
+#: templates/creme_core/generics/portal.html:41
+#: templates/creme_core/generics/portal.html:42
 msgid "Configure"
 msgstr "Configurer"
 
-#: templates/creme_core/generics/portal.html:54
+#: templates/creme_core/generics/portal.html:40
+#: templates/creme_core/templatetags/widgets/entity_actions.html:34
+msgid "forbidden"
+msgstr "interdit"
+
+#: templates/creme_core/generics/portal.html:59
 msgid "Statistics"
 msgstr "Statistiques"
 
@@ -1167,19 +1183,19 @@ msgstr "Sélectionnez"
 msgid "Between"
 msgstr "Entre"
 
-#: templates/creme_core/templatetags/listview_columns_header.html:33
+#: templates/creme_core/templatetags/listview_columns_header.html:34
 msgid "and"
 msgstr "et"
 
-#: templates/creme_core/templatetags/listview_columns_header.html:59
+#: templates/creme_core/templatetags/listview_columns_header.html:61
 msgid "Multiple deletion"
 msgstr "Suppression multiple"
 
-#: templates/creme_core/templatetags/listview_columns_header.html:64
+#: templates/creme_core/templatetags/listview_columns_header.html:66
 msgid "Multiple property adding"
 msgstr "Ajout de propriété multiple"
 
-#: templates/creme_core/templatetags/listview_columns_header.html:69
+#: templates/creme_core/templatetags/listview_columns_header.html:71
 msgid "Multiple relation adding"
 msgstr "Ajout de relation multiple"
 
@@ -1192,7 +1208,7 @@ msgid "Filters"
 msgstr "Filtres"
 
 #: templates/creme_core/templatetags/listview_filters.html:9
-#: templates/creme_core/templatetags/search_panel.html:8
+#: templates/creme_core/templatetags/search_panel.html:13
 msgid "All"
 msgstr "Tout"
 
@@ -1302,10 +1318,6 @@ msgstr "Vous ne pouvez pas supprimer '%(object)s'"
 msgid "You can't edit '%(object)s'"
 msgstr "Vous ne pouvez pas éditer '%(object)s'"
 
-#: templates/creme_core/templatetags/widgets/entity_actions.html:34
-msgid "forbidden"
-msgstr "interdit"
-
 #: templatetags/creme_date.py:33
 #, python-format
 msgid "%s day(s)"
@@ -1338,26 +1350,16 @@ msgstr "Prénom"
 msgid "Last name"
 msgstr "Prénom"
 
-#: views/creme_property.py:68 views/relation.py:294
+#: views/creme_property.py:67 views/relation.py:236
 msgid "Multiple adding of relations"
 msgstr "Ajout multiple de relations"
 
-#: views/creme_property.py:100 views/generic/delete.py:63
-#, python-format
-msgid "%s : <b>Permission denied</b>,"
-msgstr "%s : <b>Permission refusée</b>,"
-
-#: views/creme_property.py:108
-#, python-format
-msgid "%(entity)s has already the property %(property)s,"
-msgstr "%(entity)s a déjà la propriété %(property)s,"
-
-#: views/creme_property.py:128
+#: views/creme_property.py:124
 #, python-format
 msgid "New properties for <%s>"
 msgstr "Nouvelles propriétés pour <%s>"
 
-#: views/header_filter.py:92
+#: views/header_filter.py:95
 msgid "View sucessfully deleted"
 msgstr "Vue supprimée avec succès"
 
@@ -1366,46 +1368,51 @@ msgstr "Vue supprimée avec succès"
 msgid "Quick creation of <%s>"
 msgstr "Création rapide de <%s>"
 
-#: views/relation.py:250
+#: views/relation.py:192
 #, python-format
 msgid "Relations for <%s>"
 msgstr "Relations pour <%s>"
 
-#: views/relation.py:419 views/generic/delete.py:56
+#: views/relation.py:361 views/generic/delete.py:56
 #, python-format
 msgid "%s entities doesn't exist / doesn't exist any more"
 msgstr "%s entité(s) n'existe(nt) pas ou plus"
 
-#: views/relation.py:440
+#: views/relation.py:382
 #, python-format
 msgid "Incompatible type for object entity with id=%s"
 msgstr "Type incompatible pour l'entité objet avec l'id=%s"
 
-#: views/relation.py:442
+#: views/relation.py:384
 #, python-format
 msgid "Missing compatible property for object entity with id=%s"
 msgstr "Il manque une propriété compatible pour l'entité objet avec l'id=%s"
 
-#: views/relation.py:444
+#: views/relation.py:386
 #, python-format
 msgid "Permission denied to entity with id=%s"
 msgstr "Permission refusée pour l'entité avec l'id=%s"
 
-#: views/relation.py:450 views/generic/delete.py:79
+#: views/relation.py:392 views/generic/delete.py:79
 msgid "Operation successfully completed"
 msgstr "Opération déroulée avec succès"
 
-#: views/search.py:101
+#: views/search.py:87
 msgid "Empty search..."
 msgstr "Recherche vide..."
 
-#: views/search.py:103
+#: views/search.py:89
 msgid "Please enter at least 3 characters"
 msgstr "Veuillez entrer au moins 3 caractères"
 
 #: views/generic/delete.py:46
 msgid "No selected entities"
 msgstr "Aucune entitée séléctionnée"
+
+#: views/generic/delete.py:63
+#, python-format
+msgid "%s : <b>Permission denied</b>,"
+msgstr "%s : <b>Permission refusée</b>,"
 
 #: views/generic/delete.py:69
 #, python-format
@@ -1438,6 +1445,9 @@ msgstr "Liste des %s"
 #, python-format
 msgid "You are not allowed to access to the app: %s"
 msgstr "Vous n'avez pas accés à cette application: %s"
+
+#~ msgid "%(entity)s has already the property %(property)s,"
+#~ msgstr "%(entity)s a déjà la propriété %(property)s,"
 
 #~ msgid "Some predicates doesn't not exist"
 #~ msgstr "Certains prédicats n'existent pas"
