@@ -55,11 +55,8 @@ class CSVUploadForm(CremeForm):
     csv_has_header = BooleanField(label=_(u'Header present ?'), required=False,
                                   help_text=_(u"""Does the first line of the line contain the header of the columns (eg: "Last name","First name") ?"""))
 
-    #def __init__(self, request, *args, **kwargs):
     def __init__(self, *args, **kwargs):
         super(CSVUploadForm, self).__init__(*args, **kwargs)
-        #self._request    = request
-        #self._user = request.user #TODO: 'user' instead of 'request' as arg
         self._csv_header = None
 
     @property
@@ -70,7 +67,6 @@ class CSVUploadForm(CremeForm):
         cleaned_data = self.cleaned_data
         csv_document = cleaned_data['csv_document']
 
-        #if not self._user.has_perm('creme_core.view_entity', csv_document):
         if not self.user.has_perm('creme_core.view_entity', csv_document):
             raise ValidationError(ugettext("You have not the credentials to read this document."))
 
@@ -209,6 +205,8 @@ class CSVExtractorField(Field):
     default_error_messages = {
     }
 
+    _EXCLUDED_SUBFIELDS = frozenset(('id', 'entity_type', 'is_deleted', 'is_actived', 'cremeentity_ptr', 'header_filter_search_field'))
+
     def __init__(self, choices, modelfield, modelform_field, *args, **kwargs):
         super(CSVExtractorField, self).__init__(self, widget=CSVExtractorWidget, *args, **kwargs)
         self.required = modelform_field.required
@@ -223,7 +221,11 @@ class CSVExtractorField(Field):
         widget.default_value_widget = modelform_field.widget
 
         if modelfield.rel:
-            widget.subfield_select = [(field.name, field.verbose_name) for field in modelfield.rel.to._meta.fields]
+            klass = modelfield.rel.to
+            ffilter = (lambda fieldname: fieldname not in self._EXCLUDED_SUBFIELDS) if issubclass(klass, CremeEntity) else \
+                       lambda fieldname: fieldname != 'id'
+
+            widget.subfield_select = [(field.name, field.verbose_name) for field in klass._meta.fields if ffilter(field.name)]
 
     def clean(self, value):
         col_index = int(value['selected_column'])
@@ -355,7 +357,7 @@ class CSVImportForm4CremeEntity(CSVImportForm):
         ct     = ContentType.objects.get_for_model(self._meta.model)
 
         fields['property_types'].queryset = CremePropertyType.objects.filter(Q(subject_ctypes=ct) | Q(subject_ctypes__isnull=True))
-        fields['relations'].set_allowed_rtypes(rtype.id for rtype in RelationType.get_compatible_ones(ct)) #TODO: use values_list('id', flat=True)
+        fields['relations'].set_allowed_rtypes(RelationType.get_compatible_ones(ct).values_list('id', flat=True))
         fields['user'].initial = self.user.id
 
     def clean_relations(self):
