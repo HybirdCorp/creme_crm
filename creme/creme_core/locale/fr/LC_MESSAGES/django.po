@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-03-17 17:42+0100\n"
+"POT-Creation-Date: 2011-03-18 23:36+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -230,17 +230,19 @@ msgstr "Pas de type de propriété"
 msgid "Some property types doesn't not exist"
 msgstr "Certains types de propriété n'existent pas"
 
-#: forms/csv_import.py:53
+#: forms/csv_import.py:49
 msgid "CSV file"
 msgstr "Fichier CSV"
 
-#: forms/csv_import.py:54
+#: forms/csv_import.py:50
 msgid ""
 "A file that contains the fields values of an entity on each line, separated "
-"by commas and each surrounded by quotation marks \"."
+"by commas and each one ca be surrounded by quotation marks \" (to protect a "
+"value containing a comma for example)."
 msgstr ""
 "Un fichier contenant les valeurs des champs d'une fiche sur chaque ligne, "
-"séparées par des virgules et chacune entourée par des guillemets \"."
+"séparées par des virgules et chacune pouvant être entourée par des "
+"guillemets \" (pour protégér une valuer contenant une virgule par exemple)."
 
 #: forms/csv_import.py:55
 msgid "Header present ?"
@@ -254,32 +256,32 @@ msgstr ""
 "La 1ère ligne du fichier contient-il l'entête des colonnes de valeurs (ex: "
 "\"Nom\",\"Prénom\") ?"
 
-#: forms/csv_import.py:71 forms/csv_import.py:315
+#: forms/csv_import.py:71 forms/csv_import.py:316
 msgid "You have not the credentials to read this document."
 msgstr "Vous n'avez pas les droits pour lire ce document."
 
-#: forms/csv_import.py:79
+#: forms/csv_import.py:80
 #, python-format
 msgid "Error reading document: %s."
 msgstr "Erreur lors de la lecture du document: %s."
 
-#: forms/csv_import.py:201
+#: forms/csv_import.py:202
 msgid "Search by:"
 msgstr "Chercher selon:"
 
-#: forms/csv_import.py:205
+#: forms/csv_import.py:206
 msgid "Create if not found ?"
 msgstr "Créer si non trouvé ?"
 
-#: forms/csv_import.py:213
+#: forms/csv_import.py:214
 msgid "Default value"
 msgstr "Valeur par défaut"
 
-#: forms/csv_import.py:295
+#: forms/csv_import.py:296
 msgid "Importing from a CSV file"
 msgstr "Import depuis un fichier CSV"
 
-#: forms/csv_import.py:312
+#: forms/csv_import.py:313
 msgid "This document doesn't exist or doesn't exist any more."
 msgstr "Ce document n'existe pas/plus."
 
@@ -295,16 +297,16 @@ msgstr "Propriétés associées"
 msgid "Associated relations"
 msgstr "Relations associées"
 
-#: forms/csv_import.py:428
+#: forms/csv_import.py:444
 msgid "Not in the CSV file"
 msgstr "Pas dans le CSV"
 
-#: forms/csv_import.py:432
+#: forms/csv_import.py:448
 #, python-format
 msgid "Column %(index)s - %(name)s"
 msgstr "Colonne %(index)s - %(name)s"
 
-#: forms/csv_import.py:439
+#: forms/csv_import.py:455
 #, python-format
 msgid "Column %i"
 msgstr "Colonne %i"
