@@ -34,6 +34,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.contrib.auth.models import User
 
 from creme_core.models import CremePropertyType, CremeProperty, RelationType, Relation, CremeEntity
+from creme_core.gui.csv_import import csv_form_registry
 from base import CremeForm, CremeModelForm, FieldBlockManager
 from fields import MultiRelationEntityField, CremeEntityField
 from widgets import UnorderedMultipleChoiceWidget
@@ -316,7 +317,7 @@ class CSVImportForm(CremeModelForm):
 
         return csv_document
 
-    def _post_instance_creation(self, instance): #overload me
+    def _post_instance_creation(self, instance, line): #overload me
         pass
 
     def save(self):
@@ -362,7 +363,7 @@ class CSVImportForm(CremeModelForm):
                 instance.save()
                 self.imported_objects_count += 1
 
-                self._post_instance_creation(instance)
+                self._post_instance_creation(instance, line)
 
                 for m2m in self._meta.model._meta.many_to_many:
                     extractor = get_cleaned(m2m.name) #can be a regular_field ????
@@ -409,7 +410,7 @@ class CSVImportForm4CremeEntity(CSVImportForm):
 
         return relations
 
-    def _post_instance_creation(self, instance):
+    def _post_instance_creation(self, instance, line):
         cleaned_data = self.cleaned_data
 
         for prop_type in cleaned_data['property_types']:
@@ -419,6 +420,22 @@ class CSVImportForm4CremeEntity(CSVImportForm):
 
         for relationtype, entity in cleaned_data['relations']:
             create_relation(type=relationtype, object_entity=entity)
+
+
+def extractorfield_factory(modelfield, header_dict, choices):
+    formfield = modelfield.formfield()
+
+    if not formfield: #happens for crementity_ptr (OneToOneField)
+        return None
+
+    selected_column = header_dict.get(modelfield.verbose_name.lower())
+    if selected_column is None:
+        selected_column = header_dict.get(modelfield.name.lower(), 0)
+
+    return CSVExtractorField(choices, modelfield, formfield,
+                             label=modelfield.verbose_name,
+                             initial={'selected_column': selected_column}
+                            )
 
 
 #NB: we use ModelForm to get the all the django machinery to build a form from a model
@@ -439,23 +456,16 @@ def form_factory(ct, header):
         fstring = ugettext(u'Column %i')
         choices.extend((i, fstring % i) for i in xrange(1, 21))
 
-    def formfield_factory(modelfield):
-        formfield = modelfield.formfield()
-
-        if not formfield: #happens for crementity_ptr (OneToOneField)
-            return None
-
-        selected_column = header_dict.get(modelfield.verbose_name.lower())
-        if selected_column is None:
-            selected_column = header_dict.get(modelfield.name.lower(), 0)
-
-        return CSVExtractorField(choices, modelfield, formfield,
-                                 label=modelfield.verbose_name,
-                                 initial={'selected_column': selected_column}
-                                )
-
-
     model_class = ct.model_class()
-    base_form_class = CSVImportForm4CremeEntity if issubclass(model_class, CremeEntity) else CSVImportForm
+    customform_factory = csv_form_registry.get(ct)
 
-    return modelform_factory(model_class, form=base_form_class, formfield_callback=formfield_factory)
+    if customform_factory:
+        base_form_class = customform_factory(header_dict, choices)
+    elif issubclass(model_class, CremeEntity):
+        base_form_class = CSVImportForm4CremeEntity
+    else:
+        base_form_class = CSVImportForm
+
+    return modelform_factory(model_class, form=base_form_class,
+                             formfield_callback=partial(extractorfield_factory, header_dict=header_dict, choices=choices)
+                            )

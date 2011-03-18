@@ -44,7 +44,7 @@ class ContactForm(CremeEntityForm):
     image    = CremeEntityField(label=_('Image'), required=False, model=Image, widget=ImageM2MWidget())
 
     blocks = CremeEntityForm.blocks.new(
-                ('coordinates',      _(u'Coordinates'),      ['skype', 'landline', 'mobile', 'fax','email', 'url_site']),
+                ('coordinates',      _(u'Coordinates'),      ['skype', 'landline', 'mobile', 'fax', 'email', 'url_site']),
                 ('billing_address',  _(u'Billing address'),  ['name_billing', 'address_billing', 'po_box_billing',
                                                               'city_billing', 'state_billing', 'zipcode_billing', 'country_billing', 'department_billing']),
                 ('shipping_address', _(u'Shipping address'), ['name_shipping', 'address_shipping', 'po_box_shipping',
