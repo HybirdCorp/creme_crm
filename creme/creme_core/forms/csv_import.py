@@ -35,6 +35,7 @@ from django.contrib.auth.models import User
 
 from creme_core.models import CremePropertyType, CremeProperty, RelationType, Relation, CremeEntity
 from creme_core.gui.csv_import import csv_form_registry
+from creme_core.utils.unicode_csv import UnicodeReader #TODO: use csv.Sniffer class to guess csv format ??
 from base import CremeForm, CremeModelForm, FieldBlockManager
 from fields import MultiRelationEntityField, CremeEntityField
 from widgets import UnorderedMultipleChoiceWidget
@@ -43,16 +44,14 @@ from validators import validate_linkable_entities
 from documents.models import Document
 
 
-def _csv_to_list(line_str):
-    #TODO: improve the 'parsing' method ?? (what about a',' between the "" ??)
-    #      factorise with csv export ??? use csv.Sniffer class to guess csv format ??
-    return [word.strip('"').strip() for word in smart_unicode(line_str.strip()).split(',')]
-
-
 class CSVUploadForm(CremeForm):
     csv_step       = IntegerField(widget=HiddenInput)
     csv_document   = CremeEntityField(label=_(u'CSV file'), model=Document,
-                                      help_text=_(u"""A file that contains the fields values of an entity on each line, separated by commas and each surrounded by quotation marks "."""))
+                                      help_text=_(u"""A file that contains the fields values of an entity on each line, """
+                                                   """separated by commas and each one ca be surrounded by quotation marks " """
+                                                   """(to protect a value containing a comma for example)."""
+                                                 )
+                                     )
     csv_has_header = BooleanField(label=_(u'Header present ?'), required=False,
                                   help_text=_(u"""Does the first line of the line contain the header of the columns (eg: "Last name","First name") ?"""))
 
@@ -72,10 +71,11 @@ class CSVUploadForm(CremeForm):
             raise ValidationError(ugettext("You have not the credentials to read this document."))
 
         if cleaned_data['csv_has_header']:
+            filedata = csv_document.filedata
+
             try:
-                filedata = csv_document.filedata
                 filedata.open()
-                self._csv_header = _csv_to_list(filedata.readline())
+                self._csv_header = UnicodeReader(filedata).next()
             except Exception, e:
                 raise ValidationError(ugettext("Error reading document: %s.") % e)
             finally:
@@ -343,15 +343,14 @@ class CSVImportForm(CremeModelForm):
 
         filedata = self.cleaned_data['csv_document'].filedata
         filedata.open()
-        lines = filedata.xreadlines()
+
+        lines = UnicodeReader(filedata)
 
         if get_cleaned('csv_has_header'):
             lines.next()
 
-        for file_line in lines:
+        for line in lines:
             try:
-                line = _csv_to_list(file_line)
-
                 instance = model_class()
 
                 for name, cleaned_field in regular_fields:
