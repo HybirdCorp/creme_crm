@@ -43,7 +43,7 @@
         {% endif %}
 
         {% block main_content %}
-            {% for form_block in form.get_blocks %}
+            {% for form_block in form.get_blocks.itervalues %}
                 {% include "creme_core/generics/blockform/content.html" %}
             {% endfor %}
         {% endblock %}

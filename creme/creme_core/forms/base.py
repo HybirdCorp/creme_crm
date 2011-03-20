@@ -94,24 +94,24 @@ class FieldBlockManager(object):
         @return A list of block descriptors. A blocks descriptor is a tuple
                (block_verbose_name, [list of tuples (BoundField, fiels_is_required)]).
         """
-        result = []
-        wildcard_index = None
+        result = OrderedDict()
+        wildcard_cat = None
         field_set = set()
 
-        for i, block in enumerate(self.__blocks.itervalues()):
+        for cat, block in self.__blocks.iteritems():
             field_names = block.field_names
 
             if field_names == '*': #wildcard
-                result.append(block.name)
-                assert wildcard_index is None, 'Only one wildcard is allowed: %s' % str(form)
-                wildcard_index = i
+                result[cat] = block.name
+                assert wildcard_cat is None, 'Only one wildcard is allowed: %s' % str(form)
+                wildcard_cat = cat
             else:
                 field_set |= set(field_names)
-                result.append((block.name, [(form[fn], form.fields[fn].required) for fn in field_names]))
+                result[cat] = (block.name, [(form[fn], form.fields[fn].required) for fn in field_names])
 
-        if wildcard_index is not None:
-            block_name = result[wildcard_index]
-            result[wildcard_index] = (block_name, [(form[name], field.required) for name, field in form.fields.iteritems() if name not in field_set])
+        if wildcard_cat is not None:
+            block_name = result[wildcard_cat]
+            result[wildcard_cat] = (block_name, [(form[name], field.required) for name, field in form.fields.iteritems() if name not in field_set])
 
         return result
 
