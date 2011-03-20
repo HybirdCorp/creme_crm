@@ -2,22 +2,22 @@
 
 {% block main_content %}
     {% with form.get_blocks as blocks %}
-        {% with blocks.0 as form_block %}
+        {% with blocks.general as form_block %}
             {% include "creme_core/generics/blockform/content.html" %}
         {% endwith %}
-        {% with blocks.1 as form_block %}
+        {% with blocks.coordinates as form_block %}
             {% include "creme_core/generics/blockform/content.html" %}
         {% endwith %}
         <table style="width: 100%;">
             <tbody>
                 <tr>
                     <td style="width: 50%;">
-                        {% with blocks.2 as form_block %}
+                        {% with blocks.billing_address as form_block %}
                             {% include "persons/frags/billing_block.html" %}
                         {% endwith %}
                     </td>
                     <td style="width: 50%;">
-                        {% with blocks.3 as form_block %}
+                        {% with blocks.shipping_address as form_block %}
                             {% include "persons/frags/shipping_block.html" %}
                         {% endwith %}
                     </td>
