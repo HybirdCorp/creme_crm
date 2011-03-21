@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2011  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -23,8 +23,8 @@ import logging
 from django.db.models import Model, CharField, TextField, ForeignKey, PositiveIntegerField
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.generic import GenericForeignKey
-from django.utils.encoding import force_unicode
-from django.utils.translation import ugettext_lazy as _, ugettext
+#from django.utils.encoding import force_unicode
+from django.utils.translation import ugettext_lazy as _
 from django import forms
 from django.forms import ModelForm
 
@@ -47,34 +47,25 @@ class Address(CremeModel):
 
     research_fields = CremeEntity.research_fields + ['address', 'po_box', 'city', 'state', 'zipcode', 'country', 'department']
     header_filter_exclude_fields = CremeEntity.header_filter_exclude_fields + ['object_id', ]
+
     class Meta:
         app_label = 'persons'
         verbose_name = _(u'Address')
         verbose_name_plural = _(u'Addresses')
 
-    def __str__(self): #useful ????
-        return '%s %s %s %s' % (self.address, self.zipcode, self.city, self.department)
+    #COMMENTED on 21 march 2011
+    #def __str__(self):
+        #return '%s %s %s %s' % (self.address, self.zipcode, self.city, self.department)
 
     def __unicode__(self):
-        return force_unicode('%s %s %s %s' % (self.address, self.zipcode, self.city, self.department))#force_unicode ?
+        #return force_unicode('%s %s %s %s' % (self.address, self.zipcode, self.city, self.department)) #COMMENTED on 21 march 2011
+        return u'%s %s %s %s' % (self.address, self.zipcode, self.city, self.department)
 
     def get_related_entity(self): #for generic views
         return self.owner
 
-    @staticmethod
-    def inject_fields(form, suffix=""):
-        if not isinstance(form, ModelForm):
-            raise Exception("This is not a form.ModelForm instance")
+    _INFO_FIELD_NAMES = ('name', 'address', 'po_box', 'city', 'state', 'zipcode', 'country', 'department')
 
-        #TODO: use a true form to generate automatically fields ????
-        fields = form.fields
-        CharField = forms.CharField
-        _ = ugettext
-        fields['name' + suffix]    = CharField(label=_(u"Address name"), max_length=100, required=False)
-        fields['address' + suffix] = CharField(label=_(u"Address"), max_length=100, widget=forms.Textarea, required=False)
-        fields['po_box' + suffix]  = CharField(label=_(u"PO box"), max_length=50, required=False)
-        fields['city' + suffix]    = CharField(label=_(u"City"), max_length=100, required=False)
-        fields['state' + suffix]   = CharField(label=_(u"State"), max_length=100, required=False)
-        fields['zipcode' + suffix] = CharField(label=_(u"Zip code"), max_length=20, required=False)
-        fields['country' + suffix] = CharField(label=_(u"Country"), max_length=40, required=False)
-        fields['department' + suffix] = CharField(label=_(u"Department"), max_length=100, required=False)
+    #TODO: unitest ??
+    def __nonzero__(self): #used by forms to detect empty addresses
+        return any(getattr(self, fname) for fname in self._INFO_FIELD_NAMES)

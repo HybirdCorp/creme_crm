@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2011  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,9 +18,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.utils.translation import ugettext as _
-from django.forms.util import ValidationError
-
 from creme_core.forms import CremeModelForm
 
 from persons.models import Address
@@ -35,15 +32,6 @@ class AddressForm(CremeModelForm):
         super(AddressForm, self).__init__(*args, **kwargs)
         self._entity = entity
 
-    def save(self):
+    def save(self, *args, **kwargs):
         self.instance.owner = self._entity
-        return super(AddressForm, self).save()
-
-
-def clean_address(address_id):
-    try:
-        address = Address.objects.get(pk=address_id)
-    except Address.DoesNotExist:
-        raise ValidationError(_(u"This address doesn't exist or doesn't exist any more"))
-
-    return address
+        return super(AddressForm, self).save(*args, **kwargs)

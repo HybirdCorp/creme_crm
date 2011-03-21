@@ -49,19 +49,7 @@ class PersonsTestCase(CremeTestCase):
         self.assertEqual(ct_id_set, set(ct.id for ct in rel_sub_customer.subject_ctypes.all()))
         self.assertEqual(ct_id_set, set(ct.id for ct in rel_obj_customer.subject_ctypes.all()))
 
-    def create_contact(self, first_name, last_name): #useful ??
-        response = self.client.post('/persons/contact/add', follow=True,
-                                    data={
-                                            'user':       self.user.pk,
-                                            'first_name': first_name,
-                                            'last_name':  last_name,
-                                         }
-                                   )
-        self.assertEqual(response.status_code, 200)
-
-        return response
-
-    def test_contact_createview(self):
+    def test_contact_createview01(self):
         self.login()
 
         response = self.client.get('/persons/contact/add')
@@ -70,7 +58,14 @@ class PersonsTestCase(CremeTestCase):
         count = Contact.objects.count()
         first_name = 'Spike'
         last_name  = 'Spiegel'
-        response = self.create_contact(first_name, last_name)
+        response = self.client.post('/persons/contact/add', follow=True,
+                            data={
+                                    'user':       self.user.pk,
+                                    'first_name': first_name,
+                                    'last_name':  last_name,
+                                 }
+                           )
+        self.assertEqual(200, response.status_code)
         self.assertEqual(count + 1, Contact.objects.count())
 
         try:
@@ -78,6 +73,8 @@ class PersonsTestCase(CremeTestCase):
         except Exception, e:
             self.fail(str(e))
         self.assertEqual(last_name,  contact.last_name)
+        self.assert_(contact.billing_address is None)
+        self.assert_(contact.shipping_address is None)
 
         self.assert_(response.redirect_chain)
         self.assertEqual(len(response.redirect_chain), 1)
@@ -86,27 +83,90 @@ class PersonsTestCase(CremeTestCase):
         response = self.client.get('/persons/contact/%s' % contact.id)
         self.assertEqual(response.status_code, 200)
 
-    def test_contact_editview(self):
+    def test_contact_createview02(self): # addresses
+        self.login()
+
+        first_name = 'Spike'
+        b_address = 'In the Bebop.'
+        s_address = 'In the Bebop (bis).'
+        response = self.client.post('/persons/contact/add', follow=True,
+                                    data={
+                                            'user':                     self.user.pk,
+                                            'first_name':               first_name,
+                                            'last_name':                'Spiegel',
+                                            'billing_address-address':  b_address,
+                                            'shipping_address-address': s_address,
+                                         }
+                                   )
+        self.assertEqual(200, response.status_code)
+
+        contact = Contact.objects.get(first_name=first_name)
+        self.assert_(contact.billing_address is not None)
+        self.assertEqual(b_address, contact.billing_address.address)
+
+        self.assert_(contact.shipping_address is not None)
+        self.assertEqual(s_address, contact.shipping_address.address)
+
+    def test_contact_editview01(self):
         self.login()
         first_name = 'Faye'
         contact = Contact.objects.create(user=self.user, first_name=first_name, last_name='Valentine')
 
-        response = self.client.get('/persons/contact/edit/%s' % contact.id)
-        self.assertEqual(response.status_code, 200)
+        url = '/persons/contact/edit/%s' % contact.id
+        self.assertEqual(200, self.client.get(url).status_code)
 
         last_name = 'Spiegel'
-        response = self.client.post('/persons/contact/edit/%s' % contact.id, follow=True,
+        response = self.client.post(url, follow=True,
                                     data={
                                             'user':       self.user.pk,
                                             'first_name': first_name,
                                             'last_name':  last_name,
                                          }
                                    )
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(200, response.status_code)
         self.assert_(response.redirect_chain[0][0].endswith('/persons/contact/%s' % contact.id))
 
         contact = Contact.objects.get(pk=contact.id)
         self.assertEqual(last_name, contact.last_name)
+        self.assert_(contact.billing_address is None)
+        self.assert_(contact.shipping_address is None)
+
+    def test_contact_editview02(self):
+        self.login()
+        first_name = 'Faye'
+        last_name  = 'Valentine'
+        response = self.client.post('/persons/contact/add', follow=True,
+                                    data={
+                                            'user':                     self.user.pk,
+                                            'first_name':               first_name,
+                                            'last_name':                last_name,
+                                            'billing_address-address':  'In the Bebop.',
+                                            'shipping_address-address': 'In the Bebop. (bis)',
+                                         }
+                                   )
+        contact = Contact.objects.get(first_name=first_name)
+        billing_address_id  = contact.billing_address_id
+        shipping_address_id = contact.shipping_address_id
+
+        state   = 'Solar system'
+        country = 'Mars'
+        response = self.client.post('/persons/contact/edit/%s' % contact.id, follow=True,
+                                    data={
+                                            'user':                     self.user.pk,
+                                            'first_name':               first_name,
+                                            'last_name':                last_name,
+                                            'billing_address-state':    state,
+                                            'shipping_address-country': country,
+                                         }
+                                   )
+        self.assertEqual(200, response.status_code)
+
+        contact = Contact.objects.get(pk=contact.id) #refresh object
+        self.assertEqual(billing_address_id,  contact.billing_address_id)
+        self.assertEqual(shipping_address_id, contact.shipping_address_id)
+
+        self.assertEqual(state,   contact.billing_address.state)
+        self.assertEqual(country, contact.shipping_address.country)
 
     def test_contact_listview(self):
         self.login()
@@ -115,7 +175,7 @@ class PersonsTestCase(CremeTestCase):
         spike = Contact.objects.create(user=self.user, first_name='Spike', last_name='Spiegel')
 
         response = self.client.get('/persons/contacts')
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(200, response.status_code)
 
         try:
             contacts_page = response.context['entities']
@@ -205,20 +265,20 @@ class PersonsTestCase(CremeTestCase):
     def test_orga_createview01(self):
         self.login()
 
-        response = self.client.get('/persons/organisation/add')
-        self.assertEqual(response.status_code, 200)
+        url = '/persons/organisation/add'
+        self.assertEqual(200, self.client.get(url).status_code)
 
         count = Organisation.objects.count()
         name  = 'Spectre'
         description = 'DESCRIPTION'
-        response = self.client.post('/persons/organisation/add', follow=True,
+        response = self.client.post(url, follow=True,
                                     data={
                                             'user':        self.user.pk,
                                             'name':        name,
                                             'description': description,
                                          }
                                    )
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(200, response.status_code)
         self.assertEqual(count + 1, Organisation.objects.count())
 
         try:
@@ -226,35 +286,39 @@ class PersonsTestCase(CremeTestCase):
         except Exception, e:
             self.fail(str(e))
         self.assertEqual(description,  orga.description)
+        self.assert_(orga.billing_address is None)
+        self.assert_(orga.shipping_address is None)
 
         self.assert_(response.redirect_chain)
         self.assertEqual(len(response.redirect_chain), 1)
         self.assert_(response.redirect_chain[0][0].endswith('/persons/organisation/%s' % orga.id))
 
-        response = self.client.get('/persons/organisation/%s' % orga.id)
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(200, self.client.get('/persons/organisation/%s' % orga.id).status_code)
 
     def test_orga_editview01(self):
         self.login()
 
         name = 'Bebop'
         orga = Organisation.objects.create(user=self.user, name=name)
-
-        response = self.client.get('/persons/organisation/edit/%s' % orga.id)
-        self.assertEqual(response.status_code, 200)
+        url = '/persons/organisation/edit/%s' % orga.id
+        self.assertEqual(200, self.client.get(url).status_code)
 
         name += '_edited'
-        response = self.client.post('/persons/organisation/edit/%s' % orga.id, follow=True,
+        zipcode = '123456'
+        response = self.client.post(url, follow=True,
                                     data={
-                                            'user': self.user.pk,
-                                            'name': name,
+                                            'user':                    self.user.pk,
+                                            'name':                    name,
+                                            'billing_address-zipcode': zipcode,
                                          }
                                    )
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(200, response.status_code)
         self.assert_(response.redirect_chain)
 
         edited_orga = Organisation.objects.get(pk=orga.id)
         self.assertEqual(name, edited_orga.name)
+        self.assert_(edited_orga.billing_address is not None)
+        self.assertEqual(zipcode, edited_orga.billing_address.zipcode)
 
     def test_orga_listview(self):
         self.login()
@@ -270,7 +334,7 @@ class PersonsTestCase(CremeTestCase):
         except KeyError, e:
             self.fail(str(e))
 
-        self.assertEqual(3, orgas_page.paginator.count) #3: default orga
+        self.assertEqual(3, orgas_page.paginator.count) #3: our 2 orgas + default orga
 
         orgas_set = set(orga.id for orga in orgas_page.object_list)
         self.assert_(nerv.id in orgas_set)
