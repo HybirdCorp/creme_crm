@@ -51,16 +51,23 @@ def add(request):
 @login_required
 @permission_required('opportunities')
 @permission_required('opportunities.add_opportunity')
-def add_to_orga(request, orga_id):
+def add_to_orga(request, orga_id, inner_popup=False):
     orga = get_object_or_404(Organisation, pk=orga_id)
     user = request.user
 
     orga.can_link_or_die(user) #TODO: test the link creds with the future opp in the form.clean()
 
-    return add_model_with_popup(request, OpportunityCreateForm,
-                                title=_(u'New opportunity related to <%s>') % orga.allowed_unicode(user),
-                                initial={"target_orga": orga_id},
-                               )
+    initial = {"target_orga": orga_id}
+
+    if inner_popup:
+        response = add_model_with_popup(request, OpportunityCreateForm,
+                                    title=_(u'New opportunity related to <%s>') % orga.allowed_unicode(user),
+                                    initial=initial,
+                                   )
+    else:
+        response = add_entity(request, OpportunityCreateForm, extra_initial=initial)
+
+    return response
 
 @login_required
 @permission_required('opportunities')

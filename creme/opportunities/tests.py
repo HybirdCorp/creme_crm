@@ -158,6 +158,39 @@ class OpportunitiesTestCase(CremeTestCase):
                                               }
                                    )
         self.assertNoFormError(response)
+        self.assertEqual(302, response.status_code)
+
+        try:
+            opportunity = Opportunity.objects.get(name=name)
+        except Exception, e:
+            self.fail(str(e))
+
+        self.assertEqual(salesphase_id, opportunity.sales_phase_id)
+
+    def test_add_to_orga02(self):
+        self.login()
+
+        create_orga = Organisation.objects.create
+        target  = create_orga(user=self.user, name='Target renegade')
+        emitter = create_orga(user=self.user, name='My society')
+
+        CremeProperty.objects.create(type_id=PROP_IS_MANAGED_BY_CREME, creme_entity=emitter)
+
+        url = '/opportunities/opportunity/add_to_orga/%s/popup' % target.id
+        self.assertEqual(200, self.client.get(url).status_code)
+
+        salesphase_id = SalesPhase.objects.all()[0].id
+        name = 'Opportunity linked to %s' % target
+        response = self.client.post(url, data={
+                                                'user':         self.user.pk,
+                                                'name':         name,
+                                                'sales_phase':  salesphase_id,
+                                                'closing_date': '2011-03-12',
+                                                'target_orga':  target.id,
+                                                'emit_orga':    emitter.id,
+                                              }
+                                   )
+        self.assertNoFormError(response)
         self.assertEqual(200, response.status_code)
 
         try:
@@ -167,7 +200,7 @@ class OpportunitiesTestCase(CremeTestCase):
 
         self.assertEqual(salesphase_id, opportunity.sales_phase_id)
 
-    def test_add_to_orga02(self): #with bad creds
+    def test_add_to_orga03(self): #with bad creds
         self.login(is_superuser=False, allowed_apps=['opportunities'])
 
         SetCredentials.objects.create(role=self.role,
