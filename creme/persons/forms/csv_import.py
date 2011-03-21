@@ -54,7 +54,7 @@ def get_csv_form_builder(header_dict, choices):
         shipping_department = extractorfield_factory(f_dpt,     header_dict, choices)
 
         class Meta(CSVImportForm4CremeEntity.Meta):
-            exclude = CSVImportForm4CremeEntity.Meta.exclude + ('billing_address', 'shipping_address')
+            exclude = CSVImportForm4CremeEntity.Meta.exclude + ('billing_address', 'shipping_address', 'language', 'is_user')
 
         blocks = CSVImportForm4CremeEntity.blocks.new(
                         ('billing_address', _(u'Billing address'), ['billing_address', 'billing_po_box', 'billing_city',
@@ -79,7 +79,7 @@ def get_csv_form_builder(header_dict, choices):
                             'department': cleaned_data[prefix + 'department'].extract_value(line),
                            }
 
-            if any(address_dict.itervalues()): #TODO: copy this way for regular addresses :)
+            if any(address_dict.itervalues()):
                 address_dict['owner'] = contact
                 setattr(contact, attr_name, Address.objects.create(**address_dict))
                 return True
