@@ -123,7 +123,9 @@ class CSVExtractor(object):
         self._subfield_search = str(subfield_search)
         self._fk_model  = subfield_model
         self._m2m = multiple
-        self._fk_form = modelform_factory(subfield_model)
+
+        if create_if_unfound:
+            self._fk_form = modelform_factory(subfield_model)
 
     def extract_value(self, line):
         if self._column_index: #0 -> not in csv
