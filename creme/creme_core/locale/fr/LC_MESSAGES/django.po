@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-03-18 23:36+0100\n"
+"POT-Creation-Date: 2011-03-23 17:53+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -16,13 +16,13 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Language: \n"
 
-#: blocks.py:31 forms/csv_import.py:380 models/creme_property.py:91
+#: blocks.py:31 forms/csv_import.py:561 models/creme_property.py:91
 #: models/entity.py:50 tests/views.py:126
 msgid "Properties"
 msgstr "Propriétés"
 
-#: blocks.py:47 forms/csv_import.py:383 forms/header_filter.py:46
-#: forms/relation.py:35 gui/block.py:273 models/relation.py:187
+#: blocks.py:47 forms/header_filter.py:46 forms/relation.py:35
+#: gui/block.py:273 models/relation.py:187
 msgid "Relations"
 msgstr "Relations"
 
@@ -199,7 +199,7 @@ msgstr "appartient à"
 msgid "General information"
 msgstr "Informations générales"
 
-#: forms/base.py:201 forms/csv_import.py:379 models/base.py:177
+#: forms/base.py:201 forms/csv_import.py:560 models/base.py:177
 #: models/prefered_menu.py:27 tests/views.py:99 tests/views.py:100
 #: tests/views.py:101
 msgid "User"
@@ -230,11 +230,11 @@ msgstr "Pas de type de propriété"
 msgid "Some property types doesn't not exist"
 msgstr "Certains types de propriété n'existent pas"
 
-#: forms/csv_import.py:49
+#: forms/csv_import.py:50
 msgid "CSV file"
 msgstr "Fichier CSV"
 
-#: forms/csv_import.py:50
+#: forms/csv_import.py:51
 msgid ""
 "A file that contains the fields values of an entity on each line, separated "
 "by commas and each one ca be surrounded by quotation marks \" (to protect a "
@@ -244,11 +244,11 @@ msgstr ""
 "séparées par des virgules et chacune pouvant être entourée par des "
 "guillemets \" (pour protégér une valuer contenant une virgule par exemple)."
 
-#: forms/csv_import.py:55
+#: forms/csv_import.py:56
 msgid "Header present ?"
 msgstr "Entête présent ?"
 
-#: forms/csv_import.py:56
+#: forms/csv_import.py:57
 msgid ""
 "Does the first line of the line contain the header of the columns (eg: "
 "\"Last name\",\"First name\") ?"
@@ -256,57 +256,82 @@ msgstr ""
 "La 1ère ligne du fichier contient-il l'entête des colonnes de valeurs (ex: "
 "\"Nom\",\"Prénom\") ?"
 
-#: forms/csv_import.py:71 forms/csv_import.py:316
+#: forms/csv_import.py:72 forms/csv_import.py:497
 msgid "You have not the credentials to read this document."
 msgstr "Vous n'avez pas les droits pour lire ce document."
 
-#: forms/csv_import.py:80
+#: forms/csv_import.py:81
 #, python-format
 msgid "Error reading document: %s."
 msgstr "Erreur lors de la lecture du document: %s."
 
-#: forms/csv_import.py:202
+#: forms/csv_import.py:208
 msgid "Search by:"
 msgstr "Chercher selon:"
 
-#: forms/csv_import.py:206
+#: forms/csv_import.py:212
 msgid "Create if not found ?"
 msgstr "Créer si non trouvé ?"
 
-#: forms/csv_import.py:214
+#: forms/csv_import.py:220
 msgid "Default value"
 msgstr "Valeur par défaut"
 
-#: forms/csv_import.py:296
+#: forms/csv_import.py:377
+msgid "Create entities if they are not found ?"
+msgstr "Créer les fiches si elle ne sont pas trouvées ?"
+
+#: forms/csv_import.py:390
+msgid "This field doesn't exist in this ContentType."
+msgstr "Ce champ n'existe pas dans ce type de fiche."
+
+#: forms/csv_import.py:391
+msgid "This column is not a valid choice."
+msgstr "Cette colonne n'est pas un choix valide'."
+
+#: forms/csv_import.py:477
 msgid "Importing from a CSV file"
 msgstr "Import depuis un fichier CSV"
 
-#: forms/csv_import.py:313
+#: forms/csv_import.py:494
 msgid "This document doesn't exist or doesn't exist any more."
 msgstr "Ce document n'existe pas/plus."
 
-#: forms/csv_import.py:385
+#: forms/csv_import.py:564
+msgid "Fixed relations"
+msgstr "Relations fixes"
+
+#: forms/csv_import.py:565
+msgid "Relations from CSV"
+msgstr "Relations depuis le CSV"
+
+#: forms/csv_import.py:567
 msgid "Generic information"
 msgstr "Infos génériques"
 
-#: forms/csv_import.py:386
+#: forms/csv_import.py:568
 msgid "Related properties"
 msgstr "Propriétés associées"
 
-#: forms/csv_import.py:387
+#: forms/csv_import.py:569
 msgid "Associated relations"
 msgstr "Relations associées"
 
-#: forms/csv_import.py:444
+#: forms/csv_import.py:609 models/auth.py:478
+#, python-format
+msgid "You are not allowed to create: %s"
+msgstr "Vous n'avez pas la permission de créer: %s"
+
+#: forms/csv_import.py:648
 msgid "Not in the CSV file"
 msgstr "Pas dans le CSV"
 
-#: forms/csv_import.py:448
+#: forms/csv_import.py:652
 #, python-format
 msgid "Column %(index)s - %(name)s"
 msgstr "Colonne %(index)s - %(name)s"
 
-#: forms/csv_import.py:455
+#: forms/csv_import.py:659
 #, python-format
 msgid "Column %i"
 msgstr "Colonne %i"
@@ -319,7 +344,7 @@ msgstr "Format invalide"
 msgid "This content type is not allowed."
 msgstr "Ce type de resource n'est pas autorisé'."
 
-#: forms/fields.py:113 forms/fields.py:265 forms/fields.py:617
+#: forms/fields.py:113 forms/fields.py:265 forms/fields.py:618
 msgid "This entity doesn't exist."
 msgstr "Cette entité n'existe pas."
 
@@ -343,7 +368,7 @@ msgstr ""
 "Cette fiche n'a aucune propriété qui convient avec les contrainte de type de "
 "relation"
 
-#: forms/fields.py:571
+#: forms/fields.py:572
 #, python-format
 msgid "Select a valid choice. %(value)s is not an available choice."
 msgstr ""
@@ -407,7 +432,7 @@ msgstr "Certaines fiches ne sont pas reliables: %s"
 msgid "Reset"
 msgstr "Vider"
 
-#: forms/widgets.py:146 forms/widgets.py:284
+#: forms/widgets.py:146 forms/widgets.py:285
 #: templates/creme_core/detailview.html:31
 #: templates/creme_core/filters.html:601 templates/creme_core/filters.html:602
 #: templates/creme_core/filters.html:603 templates/creme_core/filters.html:604
@@ -426,27 +451,27 @@ msgstr "Ajouter"
 msgid "Select..."
 msgstr "Sélectionner..."
 
-#: forms/widgets.py:323
+#: forms/widgets.py:324
 msgid "On"
 msgstr "Le"
 
-#: forms/widgets.py:324
+#: forms/widgets.py:325
 msgid "at"
 msgstr "à"
 
-#: forms/widgets.py:325 forms/widgets.py:350
+#: forms/widgets.py:326 forms/widgets.py:351
 msgid "h"
 msgstr "h"
 
-#: forms/widgets.py:328
+#: forms/widgets.py:329
 msgid "Clean"
 msgstr "Effacer"
 
-#: forms/widgets.py:329 forms/widgets.py:353
+#: forms/widgets.py:330 forms/widgets.py:354
 msgid "Now"
 msgstr "Maintenant"
 
-#: forms/widgets.py:399
+#: forms/widgets.py:400
 msgid "Today"
 msgstr "Aujourd'hui"
 
@@ -517,11 +542,6 @@ msgstr "Est une équipe ?"
 #, python-format
 msgid "%s (team)"
 msgstr "%s (équipe)"
-
-#: models/auth.py:478
-#, python-format
-msgid "You are not allowed to create: %s"
-msgstr "Vous n'avez pas la permission de créer: %s"
 
 #: models/base.py:169 tests/views.py:97
 msgid "Creation date"
