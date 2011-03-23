@@ -183,7 +183,6 @@ class CSVExtractorWidget(SelectMultiple):
 
         return u'\n'.join(output)
 
-
     def render(self, name, value, attrs=None, choices=()):
         value = value or {}
         attrs = self.build_attrs(attrs, name=name)
@@ -337,6 +336,8 @@ class CSVRelationExtractor(object):
                 return
 
             object_entity = creator.save()
+        else:
+            return
 
         return (self._rtype, object_entity)
 
@@ -352,21 +353,36 @@ class CSVMultiRelationsExtractor(object):
         return iter(self._extractors)
 
 
-class RelationExtractorSelector(ChainedInput):
+class RelationExtractorSelector(SelectorList):
     def __init__(self, columns, relation_types, attrs=None):
-        super(RelationExtractorSelector, self).__init__(attrs)
-
+        chained_input = ChainedInput(attrs)
         InputModel = ChainedInput.Model
-        attrs= {'auto': False}
+        attrs = {'auto': False}
 
-        self.set(column=InputModel(widget=DynamicSelect, attrs=attrs, options=columns),
-                 rtype=InputModel(widget=DynamicSelect, attrs=attrs, options=relation_types),
-                 ctype=InputModel(widget=DynamicSelect, attrs=attrs, url='/creme_core/relation/predicate/${rtype}/content_types/json'),
-                 searchfield=InputModel(widget=DynamicSelect, attrs=attrs, url='/creme_core/entity/get_info_fields/${ctype}/json'),
-                )
+        chained_input.set(column=InputModel(widget=DynamicSelect, attrs=attrs, options=columns),
+                          rtype=InputModel(widget=DynamicSelect, attrs=attrs, options=relation_types),
+                          ctype=InputModel(widget=DynamicSelect, attrs=attrs, url='/creme_core/relation/predicate/${rtype}/content_types/json'),
+                          searchfield=InputModel(widget=DynamicSelect, attrs=attrs, url='/creme_core/entity/get_info_fields/${ctype}/json'),
+                         )
 
-    #def render(self, name, value, attrs=None):
-        #return super(RelationSelector, self).render(name, value, attrs)
+        super(RelationExtractorSelector, self).__init__(chained_input)
+
+    def render(self, name, value, attrs=None):
+        value = value or {}
+
+        return mark_safe("""<input type="checkbox" name="%(name)s_can_create" %(checked)s/>%(label)s"""
+                         """%(super)s""" % {
+                        'name':    name,
+                        'checked': 'checked' if value.get('can_create') else '',
+                        'label':   ugettext(u'Create entities if they are not found ?'),
+                        'super':   super(RelationExtractorSelector, self).render(name, value.get('selectorlist'), attrs),
+                    })
+
+    def value_from_datadict(self, data, files, name):
+        return {
+                'selectorlist': super(RelationExtractorSelector, self).value_from_datadict(data, files, name),
+                'can_create':   data.get('%s_can_create' % name, False),
+            }
 
 
 class RelationExtractorField(MultiRelationEntityField):
@@ -380,10 +396,9 @@ class RelationExtractorField(MultiRelationEntityField):
         super(RelationExtractorField, self).__init__(*args, **kwargs)
 
     def _create_widget(self):
-        return SelectorList(RelationExtractorSelector(columns=self._columns,
-                                                      relation_types=self._get_options(self.get_rtypes()),
-                                                     )
-                           )
+        return RelationExtractorSelector(columns=self._columns,
+                                         relation_types=self._get_options(self.get_rtypes()),
+                                        )
 
     def _set_columns(self, columns):
         self._columns = columns
@@ -392,15 +407,16 @@ class RelationExtractorField(MultiRelationEntityField):
     columns = property(lambda self: self._columns, _set_columns); del _set_columns
 
     def clean(self, value):
-        data = self.clean_json(value)
+        checked = value['can_create']
+        selector_data = self.clean_json(value['selectorlist'])
 
-        if not data:
+        if not selector_data:
             if self.required:
                 raise ValidationError(self.error_messages['required'])
 
             return []
 
-        if not isinstance(data, list):
+        if not isinstance(selector_data, list):
             raise ValidationError(self.error_messages['invalidformat'])
 
         clean_value = self.clean_value
@@ -408,7 +424,7 @@ class RelationExtractorField(MultiRelationEntityField):
                             clean_value(entry, 'ctype',       int),
                             clean_value(entry, 'column',      int),
                             clean_value(entry, 'searchfield', str)
-                           ) for entry in data
+                           ) for entry in selector_data
                           ]
 
         extractors = []
@@ -444,7 +460,7 @@ class RelationExtractorField(MultiRelationEntityField):
                                                    rtype=rtype,
                                                    subfield_search=searchfield,
                                                    related_model=model,
-                                                   create_if_unfound=True, #TODO: read checkbox !!!!!!!
+                                                   create_if_unfound=checked,
                                                   )
                              )
 
