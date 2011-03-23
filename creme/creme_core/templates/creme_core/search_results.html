@@ -34,54 +34,42 @@
     {% endif %}
     <br/>
     {% for result in results %}
-        {% with result.fields as fields %}
         {% with result.entities as entities %}
-        <table class="table_detail_view ui-corner-all">
-            <thead>
-                <tr>
-                    <th colspan="{{fields|length|add:1}}" valign="middle" align="left">
-                        {{entities|length}}
-                        {% if entities|length == 1 %}
-                            {{result.model|get_meta_value:"verbose_name"}}
-                        {% else %}
-                            {{result.model|get_meta_value:"verbose_name_plural"}}
-                        {% endif %}
-                    </th>
-                </tr>
-            </thead>
-            <tbody class="collapsable">
-                {% if entities %}
-                    <tr>
-                        <th class="{% cycle "block_header_line_dark" "block_header_line_light" %}">
-                            {% trans 'Action' %}
-                        </th>
-                    {% for field in fields %}
-                        <th class="{% cycle "block_header_line_dark" "block_header_line_light" %}">
-                            {{field.field_verbose_name}}
-                        </th>
-                    {% endfor %}
-                    </tr>
-                    {% for res in entities %}
-                        <tr class="{% cycle "block_line_dark" "block_line_light" %}">
-                            <td>
-                                <a href="{{res.get_absolute_url}}">{% trans 'Go to the page' %}</a>
-                            </td>
-                            {% for field in fields %}
-                                <td>
-                                    {{res|get_html_field_value:field.field}}
-                                </td>
+            {% if entities %}
+                {% with result.fields as fields %}
+                    <table class="table_detail_view ui-corner-all">
+                        <thead>
+                            <tr>
+                                <th colspan="{{fields|length|add:1}}" valign="middle" align="left">
+                                    {{entities|length}}
+                                    {% if entities|length == 1 %}
+                                        {{result.model|get_meta_value:"verbose_name"}}
+                                    {% else %}
+                                        {{result.model|get_meta_value:"verbose_name_plural"}}
+                                    {% endif %}
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody class="collapsable">
+                            <tr>
+                                <th class="{% cycle "block_header_line_dark" "block_header_line_light" %}">{% trans 'Action' %}</th>
+                                {% for field in fields %}
+                                    <th class="{% cycle "block_header_line_dark" "block_header_line_light" %}">{{field.field_verbose_name}}</th>
+                                {% endfor %}
+                            </tr>
+                            {% for res in entities %}
+                                <tr class="{% cycle "block_line_dark" "block_line_light" %}">
+                                    <td><a href="{{res.get_absolute_url}}">{% trans 'Go to the page' %}</a></td>
+                                    {% for field in fields %}
+                                        <td>{{res|get_html_field_value:field.field}}</td>
+                                    {% endfor %}
+                                </tr>
                             {% endfor %}
-                        </tr>
-                    {% endfor %}
-                {% else %}
-                <tr>
-                     <td class="{% cycle "block_line_dark" "block_line_light" %}">{% trans 'No match' %}</td>
-                </tr>
-                {% endif %}
-            </tbody>
-        </table>
-        <br />
-        {% endwith %}
+                        </tbody>
+                    </table>
+                    <br />
+                {% endwith %}
+            {% endif %}
         {% endwith %}
     {% endfor %}
 
