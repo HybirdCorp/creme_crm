@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2011  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -28,6 +28,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.contrib.auth.decorators import login_required
 
 from creme_core.models.entity import CremeEntity
+from creme_core.utils import get_ct_or_404, jsonify
 from creme_core.utils.meta import get_field_infos
 
 
@@ -90,3 +91,20 @@ def get_creme_entity_as_json(request):
                 status = 200
 
     return HttpResponse(serializers.serialize('json', data, fields=fields), mimetype="text/javascript", status=status)
+
+
+EXCLUDED_FIELDS = frozenset(('id', 'entity_type', 'is_deleted', 'is_actived', 'cremeentity_ptr', 'header_filter_search_field'))
+
+@jsonify
+@login_required
+def get_info_fields(request, ct_id):
+    ct = get_ct_or_404(ct_id)
+    model = ct.model_class()
+
+    if not issubclass(model, CremeEntity):
+        raise Http404('No a CremeEntity subclass: %s' % model)
+
+    return [(field.name, unicode(field.verbose_name))
+                for field in model._meta.fields
+                    if field.name not in EXCLUDED_FIELDS
+           ]

@@ -80,6 +80,7 @@ def edit_js(request):
         raise Http404
 
 
+#TODO: why POST ???
 @login_required
 def get_fields(request):
     """@return Fields for a model [('field1', 'field1_verbose_name'),...]"""

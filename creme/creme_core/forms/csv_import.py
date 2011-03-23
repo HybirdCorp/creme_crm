@@ -23,22 +23,23 @@ from itertools import chain
 from logging import info
 
 from django.db.models import Q, ManyToManyField
+from django.db.models.fields import FieldDoesNotExist
 from django.forms.models import modelform_factory
 from django.forms import Field, BooleanField, ModelChoiceField, ModelMultipleChoiceField, ValidationError, IntegerField
 from django.forms.widgets import SelectMultiple, HiddenInput
 from django.forms.util import flatatt
 from django.utils.translation import ugettext_lazy as _, ugettext
 from django.utils.safestring import mark_safe
-from django.utils.encoding import smart_unicode
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.auth.models import User
 
-from creme_core.models import CremePropertyType, CremeProperty, RelationType, Relation, CremeEntity
+from creme_core.models import CremePropertyType, CremeProperty, RelationType, Relation, CremeEntity, EntityCredentials
 from creme_core.gui.csv_import import csv_form_registry
 from creme_core.utils.unicode_csv import UnicodeReader #TODO: use csv.Sniffer class to guess csv format ??
+from creme_core.views.entity import EXCLUDED_FIELDS
 from base import CremeForm, CremeModelForm, FieldBlockManager
 from fields import MultiRelationEntityField, CremeEntityField
-from widgets import UnorderedMultipleChoiceWidget
+from widgets import UnorderedMultipleChoiceWidget, ChainedInput, SelectorList, DynamicSelect
 from validators import validate_linkable_entities
 
 from documents.models import Document
@@ -108,6 +109,8 @@ class LimitedList(object):
     def __iter__(self):
         return iter(self._data)
 
+
+#Extractors (and related field/widget) for regular model's fields---------------
 
 class CSVExtractor(object):
     def __init__(self, column_index, default_value, value_castor):
@@ -191,7 +194,9 @@ class CSVExtractorWidget(SelectMultiple):
 
         out_append(rselect("%s_colselect" % name, choices=chain(self.choices, choices),
                            sel_val=int(value.get('selected_column', -1)),
-                           attrs={'class': 'csv_col_select'}))
+                           attrs={'class': 'csv_col_select'}
+                          )
+                  )
 
         if self.subfield_select:
             out_append(u"""</td>
@@ -234,8 +239,6 @@ class CSVExtractorField(Field):
     default_error_messages = {
     }
 
-    _EXCLUDED_SUBFIELDS = frozenset(('id', 'entity_type', 'is_deleted', 'is_actived', 'cremeentity_ptr', 'header_filter_search_field'))
-
     def __init__(self, choices, modelfield, modelform_field, *args, **kwargs):
         super(CSVExtractorField, self).__init__(self, widget=CSVExtractorWidget, *args, **kwargs)
         self.required = modelform_field.required
@@ -253,7 +256,7 @@ class CSVExtractorField(Field):
         if modelfield.rel:
             klass = modelfield.rel.to
             is_entity = issubclass(klass, CremeEntity)
-            ffilter = (lambda fieldname: fieldname not in self._EXCLUDED_SUBFIELDS) if is_entity else \
+            ffilter = (lambda fieldname: fieldname not in EXCLUDED_FIELDS) if is_entity else \
                        lambda fieldname: fieldname != 'id'
 
             sf_choices = [(field.name, field.verbose_name) for field in klass._meta.fields if ffilter(field.name)]
@@ -288,6 +291,166 @@ class CSVExtractorField(Field):
                                          )
 
         return extractor
+
+
+#Extractors (and related field/widget) for relations----------------------------
+
+class CSVRelationExtractor(object):
+    def __init__(self, column_index, rtype, subfield_search, related_model, create_if_unfound):
+        self._column_index    = column_index
+        self._rtype           = rtype
+        self._subfield_search = str(subfield_search)
+        self._related_model   = related_model
+        self._related_form    = modelform_factory(related_model) if create_if_unfound else None
+
+    related_model = property(lambda self: self._related_model)
+
+    def create_if_unfound(self):
+        return self._related_form is not None
+
+    #TODO: link credentials
+    #TODO: constraint on properties for relationtypes (wait for cache in RelationType)
+    def extract_value(self, line, user):
+        value = line[self._column_index - 1]
+
+        if not value:
+            return
+
+        data = {self._subfield_search: value}
+
+        try:
+            object_entities = EntityCredentials.filter(user, self._related_model.objects.filter(**data))[:1]
+        except Exception, e:
+            info('Exception while extracting value (%s) to build a Relation: tried to retrieve %s="%s" on %s',
+                 e, self._subfield_search, value, self._related_model
+                )
+            return
+
+        if object_entities:
+            object_entity = object_entities[0]
+        elif self._related_form: #try to create the referenced instance
+            data['user'] = user.id
+            creator = self._related_form(data=data)
+
+            if not creator.is_valid():
+                info('Exception while extracting value: tried to build  %s with data=%s => errors=%s', self._related_model, data, creator.errors)
+                return
+
+            object_entity = creator.save()
+
+        return (self._rtype, object_entity)
+
+
+class CSVMultiRelationsExtractor(object):
+    def __init__(self, extractors):
+        self._extractors = extractors
+
+    def extract_value(self, line, user):
+        return filter(None, (extractor.extract_value(line, user) for extractor in self._extractors))
+
+    def __iter__(self):
+        return iter(self._extractors)
+
+
+class RelationExtractorSelector(ChainedInput):
+    def __init__(self, columns, relation_types, attrs=None):
+        super(RelationExtractorSelector, self).__init__(attrs)
+
+        InputModel = ChainedInput.Model
+        attrs= {'auto': False}
+
+        self.set(column=InputModel(widget=DynamicSelect, attrs=attrs, options=columns),
+                 rtype=InputModel(widget=DynamicSelect, attrs=attrs, options=relation_types),
+                 ctype=InputModel(widget=DynamicSelect, attrs=attrs, url='/creme_core/relation/predicate/${rtype}/content_types/json'),
+                 searchfield=InputModel(widget=DynamicSelect, attrs=attrs, url='/creme_core/entity/get_info_fields/${ctype}/json'),
+                )
+
+    #def render(self, name, value, attrs=None):
+        #return super(RelationSelector, self).render(name, value, attrs)
+
+
+class RelationExtractorField(MultiRelationEntityField):
+    default_error_messages = {
+        'fielddoesnotexist': _(u"This field doesn't exist in this ContentType."),
+        'invalidcolunm':     _(u"This column is not a valid choice."),
+    }
+
+    def __init__(self, columns=(), *args, **kwargs):
+        self._columns = columns
+        super(RelationExtractorField, self).__init__(*args, **kwargs)
+
+    def _create_widget(self):
+        return SelectorList(RelationExtractorSelector(columns=self._columns,
+                                                      relation_types=self._get_options(self.get_rtypes()),
+                                                     )
+                           )
+
+    def _set_columns(self, columns):
+        self._columns = columns
+        self._build_widget()
+
+    columns = property(lambda self: self._columns, _set_columns); del _set_columns
+
+    def clean(self, value):
+        data = self.clean_json(value)
+
+        if not data:
+            if self.required:
+                raise ValidationError(self.error_messages['required'])
+
+            return []
+
+        if not isinstance(data, list):
+            raise ValidationError(self.error_messages['invalidformat'])
+
+        clean_value = self.clean_value
+        cleaned_entries = [(clean_value(entry, 'rtype',       str),
+                            clean_value(entry, 'ctype',       int),
+                            clean_value(entry, 'column',      int),
+                            clean_value(entry, 'searchfield', str)
+                           ) for entry in data
+                          ]
+
+        extractors = []
+        rtypes_cache = {}
+        need_property_validation = False
+        allowed_columns = frozenset(c[0] for c in self._columns)
+
+        for rtype_pk, ctype_pk, column, searchfield in cleaned_entries:
+            if column not in allowed_columns:
+                raise ValidationError(self.error_messages['invalidcolunm'], params={'column': column})
+
+            if rtype_pk not in self.allowed_rtypes:
+                raise ValidationError(self.error_messages['rtypenotallowed'], params={'rtype': rtype_pk, 'ctype': ctype_pk})
+
+            rtype, rtype_allowed_ctypes, rtype_allowed_properties = self._get_cache(rtypes_cache, rtype_pk, self._build_rtype_cache)
+
+            if rtype_allowed_properties:
+                need_property_validation = True
+
+            if rtype_allowed_ctypes and ctype_pk not in rtype_allowed_ctypes:
+                raise ValidationError(self.error_messages['ctypenotallowed'], params={'ctype': ctype_pk})
+
+            try:
+                ct = ContentType.objects.get_for_id(ctype_pk)
+                model = ct.model_class()
+                field = model._meta.get_field_by_name(searchfield)
+            except ContentType.DoesNotExist:
+                raise ValidationError(self.error_messages['ctypedoesnotexist'], params={'ctype': ctype_pk})
+            except FieldDoesNotExist:
+                raise ValidationError(self.error_messages['fielddoesnotexist'], params={'field': searchfield})
+
+            extractors.append(CSVRelationExtractor(column_index=column,
+                                                   rtype=rtype,
+                                                   subfield_search=searchfield,
+                                                   related_model=model,
+                                                   create_if_unfound=True, #TODO: read checkbox !!!!!!!
+                                                  )
+                             )
+
+        return CSVMultiRelationsExtractor(extractors)
+
+#-------------------------------------------------------------------------------
 
 
 class CSVImportForm(CremeModelForm):
@@ -378,16 +541,19 @@ class CSVImportForm(CremeModelForm):
 
 
 class CSVImportForm4CremeEntity(CSVImportForm):
-    user           = ModelChoiceField(label=_('User'), queryset=User.objects.all(), empty_label=None)
-    property_types = ModelMultipleChoiceField(label=_(u'Properties'), required=False,
-                                              queryset=CremePropertyType.objects.none(),
-                                              widget=UnorderedMultipleChoiceWidget)
-    relations      = MultiRelationEntityField(label=_(u'Relations'), required=False)
+    user            = ModelChoiceField(label=_('User'), queryset=User.objects.all(), empty_label=None)
+    property_types  = ModelMultipleChoiceField(label=_(u'Properties'), required=False,
+                                               queryset=CremePropertyType.objects.none(),
+                                               widget=UnorderedMultipleChoiceWidget)
+    fixed_relations = MultiRelationEntityField(label=_(u'Fixed relations'), required=False)
+    dyn_relations   = RelationExtractorField(label=_(u'Relations from CSV'), required=False)
 
     blocks = FieldBlockManager(('general',    _(u'Generic information'),  '*'),
                                ('properties', _(u'Related properties'),   ('property_types',)),
-                               ('relations',  _(u'Associated relations'), ('relations',)),
+                               ('relations',  _(u'Associated relations'), ('fixed_relations', 'dyn_relations')),
                               )
+
+    columns4dynrelations = [(i, 'Colunmn %s' % i) for i in xrange(1, 21)]
 
     class Meta:
         exclude = ('is_deleted', 'is_actived')
@@ -399,17 +565,34 @@ class CSVImportForm4CremeEntity(CSVImportForm):
         ct     = ContentType.objects.get_for_model(self._meta.model)
 
         fields['property_types'].queryset = CremePropertyType.objects.filter(Q(subject_ctypes=ct) | Q(subject_ctypes__isnull=True))
-        fields['relations'].set_allowed_rtypes(RelationType.get_compatible_ones(ct).values_list('id', flat=True))
+
+        rtype_ids = list(RelationType.get_compatible_ones(ct).values_list('id', flat=True))
+        fields['fixed_relations'].set_allowed_rtypes(rtype_ids)
+
+        fdyn_relations = fields['dyn_relations']
+        fdyn_relations.set_allowed_rtypes(rtype_ids)
+        fdyn_relations.columns = self.columns4dynrelations
+
         fields['user'].initial = self.user.id
 
-    def clean_relations(self):
-        relations = self.cleaned_data['relations']
+    def clean_fixed_relations(self):
+        relations = self.cleaned_data['fixed_relations']
         user = self.user
 
         #TODO: self._check_duplicates(relations, user) #see RelationCreateForm
         validate_linkable_entities([entity for rt_id, entity in relations], user)
 
         return relations
+
+    def clean_dyn_relations(self):
+        extractors = self.cleaned_data['dyn_relations']
+        can_create = self.user.has_perm_to_create
+
+        for extractor in extractors:
+            if extractor.create_if_unfound and not can_create(extractor.related_model):
+                raise ValidationError(_('You are not allowed to create: %s') % extractor.related_model._meta.verbose_name)
+
+        return extractors
 
     def _post_instance_creation(self, instance, line):
         cleaned_data = self.cleaned_data
@@ -419,7 +602,10 @@ class CSVImportForm4CremeEntity(CSVImportForm):
 
         create_relation = partial(Relation.objects.create, user=instance.user, subject_entity=instance)
 
-        for relationtype, entity in cleaned_data['relations']:
+        for relationtype, entity in cleaned_data['fixed_relations']:
+            create_relation(type=relationtype, object_entity=entity)
+
+        for relationtype, entity in cleaned_data['dyn_relations'].extract_value(line, cleaned_data['user']):
             create_relation(type=relationtype, object_entity=entity)
 
 
@@ -467,6 +653,9 @@ def form_factory(ct, header):
     else:
         base_form_class = CSVImportForm
 
-    return modelform_factory(model_class, form=base_form_class,
-                             formfield_callback=partial(extractorfield_factory, header_dict=header_dict, choices=choices)
-                            )
+    modelform = modelform_factory(model_class, form=base_form_class,
+                                  formfield_callback=partial(extractorfield_factory, header_dict=header_dict, choices=choices)
+                                 )
+    modelform.columns4dynrelations = choices[1:]
+
+    return modelform

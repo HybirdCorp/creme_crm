@@ -4,12 +4,13 @@ from django.conf.urls.defaults import patterns, include
 
 
 entity_patterns = patterns('creme_core.views', #TODO: move delete* to entity.py
-    (r'^delete/(?P<entity_id>\d+)$',     'generic.delete.delete_entity'),
-    (r'^delete_related/(?P<ct_id>\d+)$', 'generic.delete.delete_related_to_entity'),
-    (r'^get_repr/$',                     'entity.get_entity_repr'),
-    (r'^get_repr/(?P<entity_id>\d+)$',   'entity.get_creme_entity_repr'),
-    (r'^render$',                        'entity.render_entity'),
-    (r'^json$',                          'entity.get_creme_entity_as_json'),
+    (r'^delete/(?P<entity_id>\d+)$',           'generic.delete.delete_entity'),
+    (r'^delete_related/(?P<ct_id>\d+)$',       'generic.delete.delete_related_to_entity'),
+    (r'^get_repr/$',                           'entity.get_entity_repr'),
+    (r'^get_repr/(?P<entity_id>\d+)$',         'entity.get_creme_entity_repr'),
+    (r'^render$',                              'entity.render_entity'),
+    (r'^json$',                                'entity.get_creme_entity_as_json'),
+    (r'^get_info_fields/(?P<ct_id>\d+)/json$', 'entity.get_info_fields'),
 )
 
 relation_patterns = patterns('creme_core.views.relation',
@@ -23,8 +24,6 @@ relation_patterns = patterns('creme_core.views.relation',
     (r'^objects2link/rtype/(?P<rtype_id>[\w-]+)/entity/(?P<subject_id>\d+)/(?P<object_ct_id>\d+)/simple$', 'objects_to_link_selection', {'o2m': True}),
     (r'^delete$',                                                                                          'delete'),
     (r'^delete/similar$',                                                                                  'delete_similar'),
-    #TODO: unused tool. remove it !
-    #(r'^entity/select/json$',                                                                              'json_entity_select'),
     (r'^entity/(?P<id>\d+)/json$',                                                                         'json_entity_get'),
     (r'^entity/(?P<id>\d+)/predicates/json$',                                                              'json_entity_predicates'),
     (r'^predicate/(?P<id>[\w-]+)/content_types/json$',                                                     'json_predicate_content_types'),
@@ -81,7 +80,7 @@ creme_core_patterns = patterns('creme_core.views',
     (r'^list_view/dl_csv/(?P<ct_id>\d+)$',     'csv_export.dl_listview_as_csv'),
 
     # Popup helper
-    (r'^nothing/$', 'nothing.get_nothing'),
+    (r'^nothing/$', 'nothing.get_nothing'), #TODO: to be deleted
 
     #Research
     (r'^search$', 'search.search'),
