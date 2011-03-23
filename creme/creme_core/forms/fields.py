@@ -285,7 +285,7 @@ class RelationEntityField(JSONField):
             return value
 
         rtype, entity = value
-        relation = {'rtype':rtype.pk, 'ctype':entity.entity_type, 'entity':entity.pk}
+        relation = {'rtype': rtype.pk, 'ctype': entity.entity_type, 'entity': entity.pk}
 
         return self.format_json(relation)
 
@@ -316,7 +316,7 @@ class RelationEntityField(JSONField):
 
         # is relation type accepts content type
         if rtype_ctypes and ctype_pk not in rtype_ctypes:
-            raise ValidationError(self.error_messages['ctypenotallowed'], params={'ctype':ctype_pk})
+            raise ValidationError(self.error_messages['ctypenotallowed'], params={'ctype': ctype_pk})
 
     def validate_properties_constraints(self, rtype, entity):
         rtype_properties = frozenset(rtype.object_properties.values_list('id', flat=True))
@@ -327,12 +327,12 @@ class RelationEntityField(JSONField):
     def clean_rtype(self, rtype_pk):
         # is relation type allowed
         if rtype_pk not in self.allowed_rtypes:
-            raise ValidationError(self.error_messages['rtypenotallowed'], params={'rtype':rtype_pk})
+            raise ValidationError(self.error_messages['rtypenotallowed'], params={'rtype': rtype_pk})
 
         try:
             return RelationType.objects.get(pk=rtype_pk)
         except RelationType.DoesNotExist:
-            raise ValidationError(self.error_messages['rtypedoesnotexist'], params={'rtype':rtype_pk})
+            raise ValidationError(self.error_messages['rtypedoesnotexist'], params={'rtype': rtype_pk})
 
     def clean_entity(self, ctype_pk, entity_pk):
         ctype = ContentType.objects.get_for_id(ctype_pk)
@@ -342,12 +342,12 @@ class RelationEntityField(JSONField):
             entity = model.objects.get(pk=entity_pk)
         except model.DoesNotExist:
             if self.required:
-                raise ValidationError(self.error_messages['doesnotexist'], params={'ctype':ctype_pk, 'entity':entity_pk})
+                raise ValidationError(self.error_messages['doesnotexist'], params={'ctype': ctype_pk, 'entity': entity_pk})
 
         return entity
 
-    def _get_options(self, entity):
-        return ((entity.pk, unicode(entity)) for entity in entity)
+    def _get_options(self, models):
+        return ((model.pk, unicode(model)) for model in models)
 
     def get_rtypes(self):
         return RelationType.objects.filter(id__in=self.allowed_rtypes) if self.allowed_rtypes else RelationType.objects.all()
@@ -380,10 +380,11 @@ class MultiRelationEntityField(RelationEntityField):
         if isinstance(value, basestring):
             return value
 
+        #TODO: use list comprehension
         entities = []
 
         for rtype, entity in value:
-            entities.append({'rtype':rtype.pk, 'ctype':entity.entity_type, 'entity':entity.pk})
+            entities.append({'rtype': rtype.pk, 'ctype': entity.entity_type, 'entity': entity.pk})
 
         return self.format_json(entities)
 
@@ -391,7 +392,7 @@ class MultiRelationEntityField(RelationEntityField):
         try:
             rtype = RelationType.objects.get(pk=rtype_pk)
         except RelationType.DoesNotExist:
-            raise ValidationError(self.error_messages['rtypedoesnotexist'], params={'rtype':rtype_pk})
+            raise ValidationError(self.error_messages['rtypedoesnotexist'], params={'rtype': rtype_pk})
 
         rtype_allowed_ctypes     = frozenset(ct.pk for ct in rtype.object_ctypes.all())
         rtype_allowed_properties = frozenset(rtype.object_properties.values_list('id', flat=True))
