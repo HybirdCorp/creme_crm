@@ -208,7 +208,7 @@ class RelationSelector(ChainedInput):
     def __init__(self, relation_types, content_types, attrs=None, multiple=False):
         super(RelationSelector, self).__init__(attrs)
 
-        if relation_types.__class__ == str:
+        if relation_types.__class__ == str: #TODO: isinstance....
             rtype = ChainedInput.Model(widget=DynamicSelect, attrs={'auto':False}, url=relation_types)
         else:
             rtype = ChainedInput.Model(widget=DynamicSelect, attrs={'auto':False}, options=relation_types)
@@ -220,9 +220,10 @@ class RelationSelector(ChainedInput):
 
         self.set(rtype=rtype,
                  ctype=ctype,
-                 entity=ChainedInput.Model(widget=EntitySelector, attrs={'auto':False, 'multiple':multiple}));
+                 entity=ChainedInput.Model(widget=EntitySelector, attrs={'auto':False, 'multiple':multiple})
+                )
 
-    def render(self, name, value, attrs=None):
+    def render(self, name, value, attrs=None): #TODO: useful ??
         return super(RelationSelector, self).render(name, value, attrs)
 
 #TODO: unused ??
