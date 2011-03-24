@@ -24,7 +24,7 @@
         {% if page.paginator.count %}
             <tr>
                 <th class="block_header_line_dark">{% trans "Name" %}</th>
-                <th class="block_header_line_dark">{% trans "Landline" %}</th>
+                <th class="block_header_line_dark">{% trans "Phone" %}</th>
                 <th class="block_header_line_dark">{% trans "Mobile" %}</th>
                 <th class="block_header_line_dark">{% trans "Email" %}</th>
                 <th class="block_header_line_dark">{% trans "Actions" %}</th>
@@ -33,7 +33,7 @@
                 <tr>{% has_perm_to view people as people_view_perm %}{% has_perm_to change people as people_edit_perm %}{% has_perm_to unlink people as people_unlink_perm %}
                     {% if people_view_perm %}
                         <td class="{{row_color}}"><a href="{{people.get_absolute_url}}">{{people}}</a></td>
-                        <td class="{{row_color}}">{{people.landline|default:''}}</td>
+                        <td class="{{row_color}}">{{people.phone|default:''}}</td>
                         <td class="{{row_color}}">{{people.mobile|default:''}}</td>
                         <td class="{{row_color}}">{{people|get_html_field_value:"email"}}</td>
                     {% else %}

@@ -42,7 +42,7 @@ class Contact(CremeEntity):
     last_name       = CharField(_(u'Last name'), max_length=100)
     description     = TextField(_(u'Description'), blank=True, null=True)
     skype           = CharField('Skype', max_length=100, blank=True, null=True)
-    landline        = CharField(_(u'Landline'), max_length=100, blank=True, null=True)
+    phone           = CharField(_(u'Phone number'), max_length=100, blank=True, null=True)
     mobile          = CharField(_(u'Mobile'), max_length=100, blank=True, null=True)
     fax             = CharField(_(u'Fax'), max_length=100 , blank=True, null=True)
     position        = ForeignKey(Position, verbose_name=_(u'Position'), blank=True, null=True)
