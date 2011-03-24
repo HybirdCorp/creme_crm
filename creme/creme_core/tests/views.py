@@ -323,6 +323,125 @@ class EntityViewsTestCase(ViewsTestCase):
         self.assertEqual(2,   CremeEntity.objects.filter(pk__in=[entity01.id, entity02.id]).count())
         self.assertEqual(0,   CremeEntity.objects.filter(pk=entity03.id).count())
 
+    def _assert_detailview(self, response, entity):
+        self.assertEqual(200, response.status_code)
+        self.assertEqual(1,   len(response.redirect_chain))
+        self.assert_(response.redirect_chain[0][0].endswith(entity.get_absolute_url()))
+
+    def test_search_and_view01(self):
+        self.login()
+
+        phone = '123456789'
+        url = '/creme_core/entity/search_n_view'
+        data = {
+                'models': 'persons-contact',
+                'fields': 'phone',
+                'value':  phone,
+               }
+        self.assertEqual(404, self.client.get(url, data=data).status_code)
+
+        create_contact = Contact.objects.create
+        onizuka = create_contact(user=self.user, first_name='Eikichi', last_name='Onizuka')
+        ryuji   = create_contact(user=self.user, first_name='Ryuji',   last_name='Danma', phone='987654', mobile=phone)
+        self.assertEqual(404, self.client.get(url, data=data).status_code)
+
+        onizuka.phone = phone
+        onizuka.save()
+        self._assert_detailview(self.client.get(url, data=data, follow=True), onizuka)
+
+    def test_search_and_view02(self):
+        self.login()
+
+        phone = '999999999'
+        url = '/creme_core/entity/search_n_view'
+        data = {
+                'models': 'persons-contact',
+                'fields': 'phone,mobile',
+                'value':  phone,
+               }
+        self.assertEqual(404, self.client.get(url, data=data).status_code)
+
+        create_contact = Contact.objects.create
+        onizuka  = create_contact(user=self.user, first_name='Eikichi', last_name='Onizuka', mobile=phone)
+        ryuji    = create_contact(user=self.user, first_name='Ryuji',   last_name='Danma', phone='987654')
+        self._assert_detailview(self.client.get(url, data=data, follow=True), onizuka)
+
+    def test_search_and_view03(self):
+        self.login()
+
+        phone = '696969'
+        url = '/creme_core/entity/search_n_view'
+        data = {
+                'models':  'persons-contact,persons-organisation',
+                'fields': 'phone,mobile',
+                'value': phone,
+               }
+        self.assertEqual(404, self.client.get(url, data=data).status_code)
+
+        create_contact = Contact.objects.create
+        onizuka = create_contact(user=self.user, first_name='Eikichi', last_name='Onizuka', mobile='55555')
+        ryuji   = create_contact(user=self.user, first_name='Ryuji',   last_name='Danma', phone='987654')
+        onibaku = Organisation.objects.create(user=self.user, name='Onibaku', phone=phone)
+        self._assert_detailview(self.client.get(url, data=data, follow=True), onibaku)
+
+        onizuka.mobile = phone
+        onizuka.save()
+        self._assert_detailview(self.client.get(url, data=data, follow=True), onizuka)
+
+    def test_search_and_view04(self): #errors
+        self.login()
+
+        url = '/creme_core/entity/search_n_view'
+        base_data = {
+                        'models':  'persons-contact,persons-organisation',
+                        'fields': 'mobile,phone',
+                        'value': '696969',
+                    }
+        create_contact = Contact.objects.create
+        onizuka = create_contact(user=self.user, first_name='Eikichi', last_name='Onizuka', mobile='55555')
+        ryuji   = create_contact(user=self.user, first_name='Ryuji',   last_name='Danma', phone='987654')
+        onibaku = Organisation.objects.create(user=self.user, name='Onibaku', phone='54631357')
+
+        data = dict(base_data); data['models'] = 'foo-bar'
+        self.assertEqual(404, self.client.get(url, data=data).status_code)
+
+        data = dict(base_data); data['models'] = 'foobar'
+        self.assertEqual(404, self.client.get(url, data=data).status_code)
+
+        data = dict(base_data); data['values'] = ''
+        self.assertEqual(404, self.client.get(url, data=data).status_code)
+
+        data = dict(base_data); data['models'] = ''
+        self.assertEqual(404, self.client.get(url, data=data).status_code)
+
+        data = dict(base_data); data['fields'] = ''
+        self.assertEqual(404, self.client.get(url, data=data).status_code)
+
+        data = dict(base_data); data['models'] = 'persons-civility' #not CremeEntity
+        self.assertEqual(404, self.client.get(url, data=data).status_code)
+
+    def test_search_and_view05(self): #creds
+        self.login(is_superuser=False)
+        self.role.allowed_apps = ['creme_core', 'persons']
+        self.role.save()
+
+        phone = '44444'
+        url = '/creme_core/entity/search_n_view'
+        data = {
+                'models':  'persons-contact,persons-organisation',
+                'fields': 'phone,mobile',
+                'value': phone,
+               }
+        user = self.user
+        create_contact = Contact.objects.create
+        onizuka = create_contact(user=self.other_user, first_name='Eikichi', last_name='Onizuka', mobile=phone) #phone Ok and but not readable
+        ryuji   = create_contact(user=user,            first_name='Ryuji',   last_name='Danma',   phone='987654') #phone KO
+        onibaku = Organisation.objects.create(user=user, name='Onibaku', phone=phone) #phone Ok and readable
+
+        self.failIf(onizuka.can_view(user))
+        self.assert_(ryuji.can_view(user))
+        self.assert_(onibaku.can_view(user))
+        self._assert_detailview(self.client.get(url, data=data, follow=True), onibaku)
 
 class PropertyViewsTestCase(ViewsTestCase):
     def test_add(self):

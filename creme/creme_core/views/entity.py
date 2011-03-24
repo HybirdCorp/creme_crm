@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2011  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,16 +18,20 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.http import HttpResponse
+from django.db.models import Q
+from django.db.models.fields import FieldDoesNotExist
+from django.http import HttpResponse, HttpResponseRedirect, Http404
 from django.shortcuts import get_object_or_404
 from django.utils.simplejson import JSONEncoder
+from django.utils.translation import ugettext as _
 from django.template.loader import render_to_string
 from django.template.context import RequestContext
 from django.core import serializers
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.auth.decorators import login_required
 
-from creme_core.models.entity import CremeEntity
+from creme_core.models import CremeEntity, EntityCredentials
+from creme_core.utils import get_from_GET_or_404
 from creme_core.utils.meta import get_field_infos
 
 
@@ -90,3 +94,49 @@ def get_creme_entity_as_json(request):
                 status = 200
 
     return HttpResponse(serializers.serialize('json', data, fields=fields), mimetype="text/javascript", status=status)
+
+@login_required
+def search_and_view(request):
+    GET = request.GET
+    model_ids = get_from_GET_or_404(GET, 'models').split(',')
+    fields    = get_from_GET_or_404(GET, 'fields').split(',')
+    value     = get_from_GET_or_404(GET, 'value')
+
+    if not value: #avoid useless queries
+        raise Http404(u'Void "value" arg')
+
+    #TODO: creds.... (use apps creds too)
+
+    models = []
+    for model_id in model_ids:
+        try:
+            model = ContentType.objects.get_by_natural_key(*model_id.split('-')).model_class()
+        except (ContentType.DoesNotExist, TypeError):
+            raise Http404(u'These model does not exist: %s' % model_id)
+
+        if issubclass(model, CremeEntity):
+            models.append(model)
+
+    if not models:
+        raise Http404(u'No valid models')
+
+    user = request.user
+
+    for model in models:
+        query = Q()
+
+        for field in fields:
+            try:
+                model._meta.get_field_by_name(field)
+            except FieldDoesNotExist, e:
+                pass
+            else:
+                query |= Q(**{field: value})
+
+        if query: #avoid useless query
+            #found = model.objects.filter(query)[:1]
+            found = EntityCredentials.filter(user, model.objects.filter(query))[:1]
+            if found:
+                return HttpResponseRedirect(found[0].get_absolute_url())
+
+    raise Http404(_(u'No entity corresponding to your search was found.'))
