@@ -19,6 +19,7 @@
         {% with form|get_meta_value:'model'|get_meta_value:'verbose_name' as verbose_name %}
             {% blocktrans count form.imported_objects_count as counter %}{{counter}} entity with type "{{verbose_name}}" has been sucessfully imported.{% plural %}{{counter}} entities with type "{{verbose_name}}" have been sucessfully imported.{% endblocktrans %}
         {% endwith %}
+        <br/>{% blocktrans count form.lines_count as counter %}({{counter}} line in the CSV file.){% plural %}({{counter}} lines in the CSV file.){% endblocktrans %}
     </p>
 
     {% with form.import_errors as errors %}
@@ -26,7 +27,7 @@
             {% with errors|length as count %}
                 <table class="table_detail_view ui-corner-all">
                     {% get_block_header colspan=2 %}
-                        <th style="width: 80%;" class="collapser" align="left">{% get_block_title  '%s Erreur' '%s Erreurs' 'infos_48.png' 'Infos' count %}</th>{# TODO: i18n #}
+                        <th style="width: 80%;" class="collapser" align="left">{% get_block_title  _('%s Error') _('%s Errors') 'infos_48.png' 'Infos' count %}</th>{# TODO: i18n #}
                         <th style="width: 20%;" align="right"></th>
                     {% end_get_block_header %}
                     <tbody class="collapsable">
@@ -42,7 +43,6 @@
                             </tr>
                         {% endfor %}
                     </tbody>
-                    {% comment %}{% if count|gt:errors.max_size %}{% endcomment %}
                     {% if count > errors.max_size %}
                         <tfooter class="collapsable">
                             <tr>
