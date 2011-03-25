@@ -25,6 +25,7 @@ from django.utils.translation import ugettext_lazy as _
 from django.contrib.contenttypes.models import ContentType
 
 from creme_core.models import CremeEntity
+from creme_core.models.fields import PhoneField
 from creme_core.constants import PROP_IS_MANAGED_BY_CREME
 
 from media_managers.models import Image
@@ -37,7 +38,7 @@ from persons.constants import REL_SUB_EMPLOYED_BY, REL_SUB_MANAGES
 
 class Organisation(CremeEntity):
     name            = CharField(_(u'Name'), max_length=100)
-    phone           = CharField(_(u'Phone number'), max_length=100 , blank=True, null=True)
+    phone           = PhoneField(_(u'Phone number'), max_length=100 , blank=True, null=True)
     fax             = CharField(_(u'Fax'), max_length=100 , blank=True, null=True)
     email           = EmailField(_(u'Email'), max_length=100 , blank=True, null=True)
     url_site        = URLField(_(u'Web Site'), max_length=100, blank=True, null=True, verify_exists=False)

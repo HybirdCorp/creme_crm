@@ -24,10 +24,14 @@ from logging import debug
 
 from django.db import models
 from django import template
+from django.utils.translation import ugettext as _
 from django.utils.safestring import mark_safe
 from django.utils.html import escape
 from django.utils.formats import date_format
+from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
+
+from mediagenerator.utils import media_url
 
 from creme_core.models import CremeEntity
 from creme_core.models import fields
@@ -116,6 +120,20 @@ def print_datetime(x):
 def print_date(x):
     return date_format(x, 'DATE_FORMAT') if x else ''
 
+if settings.USE_ASTERISK:
+    def print_phone(x):
+        if not x:
+            return simple_print(x)
+
+        return """%(number)s&nbsp;<a href="%(url)s/?n_tel=%(number)s">%(label)s<img src="%(img)s" alt="%(label)s"/></a>""" % {
+                'url':    settings.ABCTI_URL,
+                'number': x,
+                'label':  _(u'Call'),
+                'img':   media_url('images/phone_22.png'),
+            }
+else:
+    print_phone = simple_print
+
 #TODO: remove all values with simple_print => _FIELD_PRINTERS.get(KEY, simple_print) ??
 _FIELD_PRINTERS = {
      models.AutoField:                  simple_print,
@@ -145,6 +163,7 @@ _FIELD_PRINTERS = {
      models.ManyToManyField:            get_m2m_popup_str,
      models.OneToOneField:              get_foreign_key_popup_str,
 
+     fields.PhoneField:                 print_phone,
      fields.ModificationDateTimeField:  print_datetime,
      fields.CreationDateTimeField :     print_datetime,
      #fields.AutoSlugField:              simple_print,
