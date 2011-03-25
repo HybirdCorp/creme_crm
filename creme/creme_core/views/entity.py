@@ -51,7 +51,6 @@ def get_entity_repr(request):
 
     return HttpResponse(JSONEncoder().encode({field: get_field_infos(entity, field)[1]}), mimetype="text/javascript")
 
-#TODO: use jsonify ??
 @login_required
 def get_creme_entity_repr(request, entity_id):
     entity = get_object_or_404(CremeEntity, pk=entity_id)

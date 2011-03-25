@@ -162,7 +162,7 @@ _order_direction = {
 @permission_required('reports')
 def change_field_order(request):
     POST = request.POST
-    report = get_object_or_404(Report, pk=get_from_POST_or_404(POST,'report_id')) 
+    report = get_object_or_404(Report, pk=get_from_POST_or_404(POST,'report_id'))
     field  = get_object_or_404(Field,  pk=get_from_POST_or_404(POST,'field_id'))
     direction = POST.get('direction', 'up')
 
@@ -270,6 +270,7 @@ def csv(request, report_id):
 
     return csv_backend(report, extra_q_filter, user).render_to_response()
 
+#TODO: use @jsonify ?
 @login_required
 #@permission_required('reports') ??
 def get_aggregate_fields(request):

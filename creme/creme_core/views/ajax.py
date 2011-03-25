@@ -80,6 +80,7 @@ def edit_js(request):
         raise Http404
 
 
+#TODO: use jsonify (and remove Exception handling)
 #TODO: why POST ???
 @login_required
 def get_fields(request):
