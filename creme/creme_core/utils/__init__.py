@@ -21,7 +21,7 @@
 from logging import debug
 
 from django.contrib.contenttypes.models import ContentType
-from django.core.exceptions import ObjectDoesNotExist
+from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
 from django.db.models.query_utils import Q
 from django.http import HttpResponse, Http404
 #from django.utils.translation import ugettext as _
@@ -70,8 +70,23 @@ def create_or_update(model, pk=None, **attrs):
 
 def jsonify(func):
     def _aux(*args, **kwargs):
-        rendered = func(*args, **kwargs)
-        return HttpResponse(JSONEncoder().encode(rendered), mimetype="text/javascript")
+        status = 200
+
+        try:
+            rendered = func(*args, **kwargs)
+        except Http404, e:
+            rendered = unicode(e)
+            status = 404
+        except PermissionDenied, e:
+            rendered = unicode(e)
+            status = 403
+        except Exception, e:
+            debug('Exception in @jsonify(%s): %s', func.__name__, e)
+            rendered = unicode(e)
+            status = 400
+
+        return HttpResponse(JSONEncoder().encode(rendered), mimetype="text/javascript", status=status)
+
     return _aux
 
 def get_from_GET_or_404(GET, key): #TODO: factorise with get_from_POST_or_404()
