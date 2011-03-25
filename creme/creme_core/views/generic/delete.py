@@ -72,7 +72,7 @@ def delete_entities(request):
         try:
             entity.delete()
         except CremeEntity.CanNotBeDeleted, e:
-            errors[400].append(unicode(e))
+            errors[400].append(_(u'"%s" can not be deleted because of its dependencies.') % entity.allowed_unicode(user))
 
     if not errors:
         status = 200
