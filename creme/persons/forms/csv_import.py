@@ -68,15 +68,16 @@ def get_csv_form_builder(header_dict, choices):
                     )
 
         def _save_address(self, attr_name, prefix, contact, cleaned_data, line):
+            import_errors = self.import_errors
             address_dict = {
                             'name':       attr_name,
-                            'address':    cleaned_data[prefix + 'address'].extract_value(line),
-                            'po_box':     cleaned_data[prefix + 'po_box'].extract_value(line),
-                            'city':       cleaned_data[prefix + 'city'].extract_value(line),
-                            'state':      cleaned_data[prefix + 'state'].extract_value(line),
-                            'zipcode':    cleaned_data[prefix + 'zipcode'].extract_value(line),
-                            'country':    cleaned_data[prefix + 'country'].extract_value(line),
-                            'department': cleaned_data[prefix + 'department'].extract_value(line),
+                            'address':    cleaned_data[prefix + 'address'].extract_value(line, import_errors),
+                            'po_box':     cleaned_data[prefix + 'po_box'].extract_value(line, import_errors),
+                            'city':       cleaned_data[prefix + 'city'].extract_value(line, import_errors),
+                            'state':      cleaned_data[prefix + 'state'].extract_value(line, import_errors),
+                            'zipcode':    cleaned_data[prefix + 'zipcode'].extract_value(line, import_errors),
+                            'country':    cleaned_data[prefix + 'country'].extract_value(line, import_errors),
+                            'department': cleaned_data[prefix + 'department'].extract_value(line, import_errors),
                            }
 
             if any(address_dict.itervalues()):

@@ -130,7 +130,7 @@ class CSVExtractor(object):
         if create_if_unfound:
             self._fk_form = modelform_factory(subfield_model)
 
-    def extract_value(self, line):
+    def extract_value(self, line, import_errors):
         if self._column_index: #0 -> not in csv
             value = line[self._column_index - 1]
 
@@ -150,9 +150,19 @@ class CSVExtractor(object):
                            creator.save()
                            return creator.instance #TODO: improve self._value_castor avoid te direct 'return' ?
                         else:
-                            info('Exception while extracting value [%s]: tried to retrieve and then building "%s" on %s', e, value, self._fk_model)
+                            import_errors.append((line, ugettext(u'Error while extracting value [%(raw_error)s]: tried to retrieve and then build "%(value)s" on %(model)s') % {
+                                                                'raw_error': e,
+                                                                'value': value,
+                                                                'model': self._fk_model._meta.verbose_name,
+                                                            }
+                                                ))
                     else:
-                        info('Exception while extracting value [%s]: tried to retrieve "%s" on %s', e, value, self._fk_model) #TODO: log error in errors list shown to user ??
+                        import_errors.append((line, ugettext(u'Error while extracting value [%(raw_error)s]: tried to retrieve "%(value)s" on %(model)s') % {
+                                                            'raw_error': e,
+                                                            'value':     value,
+                                                            'model':     self._fk_model._meta.verbose_name,
+                                                        }
+                                            ))
 
                     value = None
 
@@ -309,7 +319,7 @@ class CSVRelationExtractor(object):
 
     #TODO: link credentials
     #TODO: constraint on properties for relationtypes (wait for cache in RelationType)
-    def extract_value(self, line, user):
+    def extract_value(self, line, user, import_errors):
         value = line[self._column_index - 1]
 
         if not value:
@@ -320,9 +330,13 @@ class CSVRelationExtractor(object):
         try:
             object_entities = EntityCredentials.filter(user, self._related_model.objects.filter(**data))[:1]
         except Exception, e:
-            info('Exception while extracting value (%s) to build a Relation: tried to retrieve %s="%s" on %s',
-                 e, self._subfield_search, value, self._related_model
-                )
+            import_errors.append((line, ugettext('Error while extracting value (%(raw_error)s) to build a Relation: tried to retrieve %(field)s="%(value)s" on %(model)s') %{
+                                                'raw_error': e,
+                                                'field':     self._subfield_search,
+                                                'value':     value,
+                                                'model':     self._related_model._meta.verbose_name,
+                                            }
+                                ))
             return
 
         if object_entities:
@@ -332,11 +346,22 @@ class CSVRelationExtractor(object):
             creator = self._related_form(data=data)
 
             if not creator.is_valid():
-                info('Exception while extracting value: tried to build  %s with data=%s => errors=%s', self._related_model, data, creator.errors)
+                import_errors.append((line, ugettext('Error while extracting value: tried to build  %(model)s with data=%(data)s => errors=%(errors)s') %{
+                                                    'model':  self._related_model._meta.verbose_name,
+                                                    'data':   data,
+                                                    'errors': creator.errors
+                                                }
+                                    ))
                 return
 
             object_entity = creator.save()
         else:
+            import_errors.append((line, ugettext('Error while extracting value to build a Relation: tried to retrieve %(field)s="%(value)s" on %(model)s') % {
+                                                 'field': self._subfield_search,
+                                                 'value': value,
+                                                 'model': self._related_model._meta.verbose_name,
+                                             }
+                                ))
             return
 
         return (self._rtype, object_entity)
@@ -346,8 +371,8 @@ class CSVMultiRelationsExtractor(object):
     def __init__(self, extractors):
         self._extractors = extractors
 
-    def extract_value(self, line, user):
-        return filter(None, (extractor.extract_value(line, user) for extractor in self._extractors))
+    def extract_value(self, line, user, import_errors):
+        return filter(None, (extractor.extract_value(line, user, import_errors) for extractor in self._extractors))
 
     def __iter__(self):
         return iter(self._extractors)
@@ -480,6 +505,7 @@ class CSVImportForm(CremeModelForm):
         super(CSVImportForm, self).__init__(*args, **kwargs)
         self.import_errors = LimitedList(50)
         self.imported_objects_count = 0
+        self.lines_count = 0
 
     #NB: hack to bypass the model validation (see form_factory() comment)
     def _post_clean(self):
@@ -530,7 +556,7 @@ class CSVImportForm(CremeModelForm):
         if get_cleaned('csv_has_header'):
             lines.next()
 
-        for line in lines:
+        for i, line in enumerate(lines):
             try:
                 instance = model_class()
 
@@ -538,7 +564,7 @@ class CSVImportForm(CremeModelForm):
                     setattr(instance, name, cleaned_field)
 
                 for name, cleaned_field in extractor_fields:
-                    setattr(instance, name, cleaned_field.extract_value(line))
+                    setattr(instance, name, cleaned_field.extract_value(line, self.import_errors))
 
                 instance.save()
                 self.imported_objects_count += 1
@@ -548,10 +574,12 @@ class CSVImportForm(CremeModelForm):
                 for m2m in self._meta.model._meta.many_to_many:
                     extractor = get_cleaned(m2m.name) #can be a regular_field ????
                     if extractor:
-                        setattr(instance, m2m.name, extractor.extract_value(line))
+                        setattr(instance, m2m.name, extractor.extract_value(line, self.import_errors))
             except Exception, e:
                 self.import_errors.append((line, str(e)))
                 info('Exception in CSV importing: %s (%s)', e, type(e))
+        else:
+            self.lines_count = i + 1
 
         filedata.close()
 
@@ -621,7 +649,7 @@ class CSVImportForm4CremeEntity(CSVImportForm):
         for relationtype, entity in cleaned_data['fixed_relations']:
             create_relation(type=relationtype, object_entity=entity)
 
-        for relationtype, entity in cleaned_data['dyn_relations'].extract_value(line, cleaned_data['user']):
+        for relationtype, entity in cleaned_data['dyn_relations'].extract_value(line, cleaned_data['user'], self.import_errors):
             create_relation(type=relationtype, object_entity=entity)
 
 

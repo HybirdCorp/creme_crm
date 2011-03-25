@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-03-23 17:53+0100\n"
+"POT-Creation-Date: 2011-03-25 14:53+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -16,7 +16,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Language: \n"
 
-#: blocks.py:31 forms/csv_import.py:561 models/creme_property.py:91
+#: blocks.py:31 forms/csv_import.py:593 models/creme_property.py:91
 #: models/entity.py:50 tests/views.py:126
 msgid "Properties"
 msgstr "Propriétés"
@@ -199,7 +199,7 @@ msgstr "appartient à"
 msgid "General information"
 msgstr "Informations générales"
 
-#: forms/base.py:201 forms/csv_import.py:560 models/base.py:177
+#: forms/base.py:201 forms/csv_import.py:592 models/base.py:177
 #: models/prefered_menu.py:27 tests/views.py:99 tests/views.py:100
 #: tests/views.py:101
 msgid "User"
@@ -256,7 +256,7 @@ msgstr ""
 "La 1ère ligne du fichier contient-il l'entête des colonnes de valeurs (ex: "
 "\"Nom\",\"Prénom\") ?"
 
-#: forms/csv_import.py:72 forms/csv_import.py:497
+#: forms/csv_import.py:72 forms/csv_import.py:525
 msgid "You have not the credentials to read this document."
 msgstr "Vous n'avez pas les droits pour lire ce document."
 
@@ -265,73 +265,122 @@ msgstr "Vous n'avez pas les droits pour lire ce document."
 msgid "Error reading document: %s."
 msgstr "Erreur lors de la lecture du document: %s."
 
-#: forms/csv_import.py:208
+#: forms/csv_import.py:153
+#, python-format
+msgid ""
+"Error while extracting value [%(raw_error)s]: tried to retrieve and then "
+"build \"%(value)s\" on %(model)s"
+msgstr ""
+"Erreur lors de l'extraction de valeur [%(raw_error)s]: a essayé de retrouver "
+"et puis de construire \"%(value)s\" sur %(model)s"
+
+#: forms/csv_import.py:160
+#, python-format
+msgid ""
+"Error while extracting value [%(raw_error)s]: tried to retrieve \"%(value)s"
+"\" on %(model)s"
+msgstr ""
+"Erreur lors de l'extraction de valeur [%(raw_error)s]: a essayé de retrouver "
+"\"%(value)s\" sur %(model)s"
+
+#: forms/csv_import.py:218
 msgid "Search by:"
 msgstr "Chercher selon:"
 
-#: forms/csv_import.py:212
+#: forms/csv_import.py:222
 msgid "Create if not found ?"
 msgstr "Créer si non trouvé ?"
 
-#: forms/csv_import.py:220
+#: forms/csv_import.py:230
 msgid "Default value"
 msgstr "Valeur par défaut"
 
-#: forms/csv_import.py:377
-msgid "Create entities if they are not found ?"
-msgstr "Créer les fiches si elle ne sont pas trouvées ?"
+#: forms/csv_import.py:333
+#, python-format
+msgid ""
+"Error while extracting value (%(raw_error)s) to build a Relation: tried to "
+"retrieve %(field)s=\"%(value)s\" on %(model)s"
+msgstr ""
+"Erreur lors de l'extraction de valeur (%(raw_error)s) pour construire une "
+"Relation: a essayé de retrouver %(field)s=\"%(value)s\" sur %(model)s"
 
-#: forms/csv_import.py:390
+#: forms/csv_import.py:349
+#, python-format
+msgid ""
+"Error while extracting value: tried to build  %(model)s with data=%(data)s "
+"=> errors=%(errors)s"
+msgstr ""
+"Erreur lors de l'extraction  de valeur: a essayé de construire %(model)s "
+"avec données=%(data)s => errors=%(errors)s"
+
+#: forms/csv_import.py:359
+#, python-format
+msgid ""
+"Error while extracting value to build a Relation: tried to retrieve %(field)"
+"s=\"%(value)s\" on %(model)s"
+msgstr ""
+"Erreur lors de l'extraction de valeur pour construire une Relation: a essayé "
+"de retrouver %(field)s=\"%(value)s\" sur %(model)s"
+
+#: forms/csv_import.py:404
+msgid ""
+"Create entities if they are not found ? (only fields followed by [CREATION] "
+"allows you to create, if they exist)"
+msgstr ""
+"Créer les fiches si elle ne sont pas trouvées ? (seuls les champs suivi de "
+"[CRÉATION] vous permettent de créer, si ils existent)"
+
+#: forms/csv_import.py:417
 msgid "This field doesn't exist in this ContentType."
 msgstr "Ce champ n'existe pas dans ce type de fiche."
 
-#: forms/csv_import.py:391
+#: forms/csv_import.py:418
 msgid "This column is not a valid choice."
 msgstr "Cette colonne n'est pas un choix valide'."
 
-#: forms/csv_import.py:477
+#: forms/csv_import.py:504
 msgid "Importing from a CSV file"
 msgstr "Import depuis un fichier CSV"
 
-#: forms/csv_import.py:494
+#: forms/csv_import.py:522
 msgid "This document doesn't exist or doesn't exist any more."
 msgstr "Ce document n'existe pas/plus."
 
-#: forms/csv_import.py:564
+#: forms/csv_import.py:596
 msgid "Fixed relations"
 msgstr "Relations fixes"
 
-#: forms/csv_import.py:565
+#: forms/csv_import.py:597
 msgid "Relations from CSV"
 msgstr "Relations depuis le CSV"
 
-#: forms/csv_import.py:567
+#: forms/csv_import.py:599
 msgid "Generic information"
 msgstr "Infos génériques"
 
-#: forms/csv_import.py:568
+#: forms/csv_import.py:600
 msgid "Related properties"
 msgstr "Propriétés associées"
 
-#: forms/csv_import.py:569
+#: forms/csv_import.py:601
 msgid "Associated relations"
 msgstr "Relations associées"
 
-#: forms/csv_import.py:609 models/auth.py:478
+#: forms/csv_import.py:641 models/auth.py:478
 #, python-format
 msgid "You are not allowed to create: %s"
 msgstr "Vous n'avez pas la permission de créer: %s"
 
-#: forms/csv_import.py:648
+#: forms/csv_import.py:681
 msgid "Not in the CSV file"
 msgstr "Pas dans le CSV"
 
-#: forms/csv_import.py:652
+#: forms/csv_import.py:685
 #, python-format
 msgid "Column %(index)s - %(name)s"
 msgstr "Colonne %(index)s - %(name)s"
 
-#: forms/csv_import.py:659
+#: forms/csv_import.py:692
 #, python-format
 msgid "Column %i"
 msgstr "Colonne %i"
@@ -477,6 +526,7 @@ msgstr "Aujourd'hui"
 
 #: models/auth.py:216 models/i18n.py:27
 #: templates/creme_core/templatetags/block_specific_relations.html:18
+#: tests/views.py:364
 msgid "Name"
 msgstr "Nom"
 
@@ -900,11 +950,28 @@ msgstr[1] ""
 "%(counter)s entités de type \"%(verbose_name)s\" ont été importées avec "
 "succés."
 
-#: templates/creme_core/csv_importing_report.html:34
+#: templates/creme_core/csv_importing_report.html:22
+#, python-format
+msgid "(%(counter)s line in the CSV file.)"
+msgid_plural "(%(counter)s lines in the CSV file.)"
+msgstr[0] "(%(counter)s ligne dans le fichier CSV.)"
+msgstr[1] "(%(counter)s lignes dans le fichier CSV.)"
+
+#: templates/creme_core/csv_importing_report.html:30
+#, python-format
+msgid "%s Error"
+msgstr "%s Erreur"
+
+#: templates/creme_core/csv_importing_report.html:30
+#, python-format
+msgid "%s Errors"
+msgstr "%s Erreurs"
+
+#: templates/creme_core/csv_importing_report.html:35
 msgid "Line of the CSV file"
 msgstr "Ligne du fichier CSV"
 
-#: templates/creme_core/csv_importing_report.html:35
+#: templates/creme_core/csv_importing_report.html:36
 msgid "Induced error"
 msgstr "Erreur provoquée"
 
@@ -1042,17 +1109,13 @@ msgstr "Votre recherche : "
 msgid "Concerned types : "
 msgstr "Types concernés : "
 
-#: templates/creme_core/search_results.html:56
+#: templates/creme_core/search_results.html:55
 msgid "Action"
 msgstr "Action"
 
-#: templates/creme_core/search_results.html:67
+#: templates/creme_core/search_results.html:62
 msgid "Go to the page"
 msgstr "Aller sur la fiche"
-
-#: templates/creme_core/search_results.html:78
-msgid "No match"
-msgstr "Aucune correspondance"
 
 #: templates/creme_core/frags/list_view_content.html:51
 msgid "Download CSV"
@@ -1381,6 +1444,11 @@ msgstr "Ajout multiple de relations"
 msgid "New properties for <%s>"
 msgstr "Nouvelles propriétés pour <%s>"
 
+#: views/entity.py:116
+#, python-format
+msgid "%s [CREATION]"
+msgstr "%s [CRÉATION]"
+
 #: views/header_filter.py:95
 msgid "View sucessfully deleted"
 msgstr "Vue supprimée avec succès"
@@ -1467,6 +1535,9 @@ msgstr "Liste des %s"
 #, python-format
 msgid "You are not allowed to access to the app: %s"
 msgstr "Vous n'avez pas accés à cette application: %s"
+
+#~ msgid "No match"
+#~ msgstr "Aucune correspondance"
 
 #~ msgid "%(entity)s has already the property %(property)s,"
 #~ msgstr "%(entity)s a déjà la propriété %(property)s,"
