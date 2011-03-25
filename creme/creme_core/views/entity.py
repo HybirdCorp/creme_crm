@@ -18,16 +18,20 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from django.db.models import ForeignKey
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django.utils.simplejson import JSONEncoder
 from django.template.loader import render_to_string
 from django.template.context import RequestContext
+from django.forms.models import modelform_factory
 from django.core import serializers
+from django.utils.translation import ugettext as _
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.auth.decorators import login_required
 
 from creme_core.models.entity import CremeEntity
+from creme_core.forms import CremeEntityForm
 from creme_core.utils import get_ct_or_404, jsonify
 from creme_core.utils.meta import get_field_infos
 
@@ -104,7 +108,15 @@ def get_info_fields(request, ct_id):
     if not issubclass(model, CremeEntity):
         raise Http404('No a CremeEntity subclass: %s' % model)
 
-    return [(field.name, unicode(field.verbose_name))
-                for field in model._meta.fields
-                    if field.name not in EXCLUDED_FIELDS
-           ]
+    form = modelform_factory(model, CremeEntityForm)(user=request.user)
+    required_fields = [name for name, field in form.fields.iteritems() if field.required and name != 'user']
+
+    if len(required_fields) == 1:
+        required_field = required_fields[0]
+        format  = _(u'%s [CREATION]')
+        printer = lambda field: unicode(field.verbose_name) if field.name != required_field else \
+                                format % field.verbose_name
+    else:
+        printer = lambda field: unicode(field.verbose_name)
+
+    return [(field.name, printer(field)) for field in model._meta.fields if field.name not in EXCLUDED_FIELDS and not isinstance(field, ForeignKey)]

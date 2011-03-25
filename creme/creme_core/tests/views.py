@@ -323,6 +323,48 @@ class EntityViewsTestCase(ViewsTestCase):
         self.assertEqual(2,   CremeEntity.objects.filter(pk__in=[entity01.id, entity02.id]).count())
         self.assertEqual(0,   CremeEntity.objects.filter(pk=entity03.id).count())
 
+    def test_get_info_fields01(self):
+        self.login()
+
+        furl = '/creme_core/entity/get_info_fields/%s/json'
+        ct = ContentType.objects.get_for_model(Contact)
+        response = self.client.get(furl % ct.id)
+        self.assertEqual(200, response.status_code)
+
+        json_data = simplejson.loads(response.content)
+        #print json_data
+        self.assert_(isinstance(json_data, list))
+        self.assert_(all(isinstance(elt, list) for elt in json_data))
+        self.assert_(all(len(elt) == 2 for elt in json_data))
+
+        names = ['created', 'modified', 'first_name', 'last_name', 'description',
+                 'skype', 'landline', 'mobile', 'fax', 'email', 'url_site', 'birthday'
+                ]
+        diff = set(names) - set(name for name, vname in json_data)
+        self.failIf(diff, diff)
+
+        self.assertEqual(len(names), len(json_data))
+
+    def test_get_info_fields02(self):
+        self.login()
+
+        furl = '/creme_core/entity/get_info_fields/%s/json'
+        ct = ContentType.objects.get_for_model(Organisation)
+        json_data = simplejson.loads(self.client.get(furl % ct.id).content)
+        #print json_data
+
+        names = ['created', 'modified', 'name', 'description', 'annual_revenue',
+                 'url_site', 'fax', 'naf', 'siren', 'phone', 'siret', 'rcs', 'email',
+                 'creation_date',  'tvaintra', 'subject_to_vat', 'capital'
+                ]
+        self.assertEqual(set(names), set(name for name, vname in json_data))
+        self.assertEqual(len(names), len(json_data))
+
+        json_dict = dict(json_data)
+        translation = _(u'Name')
+        self.assert_(json_dict['name'].startswith(translation))
+        self.assertNotEqual(translation, json_dict['name'])
+
 
 class PropertyViewsTestCase(ViewsTestCase):
     def test_add(self):

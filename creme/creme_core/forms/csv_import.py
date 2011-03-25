@@ -374,7 +374,7 @@ class RelationExtractorSelector(SelectorList):
                          """%(super)s""" % {
                         'name':    name,
                         'checked': 'checked' if value.get('can_create') else '',
-                        'label':   ugettext(u'Create entities if they are not found ?'),
+                        'label':   ugettext(u'Create entities if they are not found ? (only fields followed by [CREATION] allows you to create, if they exist)'),
                         'super':   super(RelationExtractorSelector, self).render(name, value.get('selectorlist'), attrs),
                     })
 
