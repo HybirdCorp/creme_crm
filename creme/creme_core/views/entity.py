@@ -131,7 +131,7 @@ def search_and_view(request):
             except FieldDoesNotExist, e:
                 pass
             else:
-                query |= Q(**{field: value})
+                query |= Q(**{str(field): value})
 
         if query: #avoid useless query
             #found = model.objects.filter(query)[:1]
