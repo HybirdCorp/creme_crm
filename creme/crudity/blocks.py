@@ -17,6 +17,7 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
+from django.core.exceptions import PermissionDenied
 
 from django.utils.translation import ugettext_lazy as _
 
@@ -25,7 +26,16 @@ from creme_core.gui.block import QuerysetBlock
 from crudity.models import WaitingAction, History
 
 
-class WaitingActionBlock(QuerysetBlock):
+class CrudityQuerysetBlock(QuerysetBlock):
+    def __init__(self, *args, **kwargs):
+        super(CrudityQuerysetBlock, self).__init__()
+
+    def detailview_display(self, context):
+        if not context['user'].has_perm('crudity'):
+            raise PermissionDenied(_('Error: you are not allowed to view this block: %s' % self.id_))
+
+
+class WaitingActionBlock(CrudityQuerysetBlock):
     dependencies  = ()
     verbose_name  = _(u'Waiting actions')
     template_name = 'crudity/templatetags/block_waiting_action.html'
@@ -41,6 +51,7 @@ class WaitingActionBlock(QuerysetBlock):
 
     def detailview_display(self, context):
         #credentials are OK: block is not registered in block registry, so reloading is necessarily done with the custom view
+        super(WaitingActionBlock, self).detailview_display(context)
         type = self.type
         ct   = self.ct
         return self._render(self.get_block_template_context(context,
@@ -51,7 +62,7 @@ class WaitingActionBlock(QuerysetBlock):
                                                            ))
 
 
-class HistoryBlock(QuerysetBlock):
+class HistoryBlock(CrudityQuerysetBlock):
     dependencies  = ()
     verbose_name  = _(u'History')
     template_name = 'crudity/templatetags/block_history.html'
@@ -67,6 +78,7 @@ class HistoryBlock(QuerysetBlock):
 
     def detailview_display(self, context):
         #credentials are OK: block is not registered in block registry, so reloading is necessarily done with the custom view
+        super(HistoryBlock, self).detailview_display(context)
         type = self.type
         ct   = self.ct
         return self._render(self.get_block_template_context(context,

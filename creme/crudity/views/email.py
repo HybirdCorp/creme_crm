@@ -57,14 +57,16 @@ def fetch_emails(request, template="crudity/waiting_actions.html", ajax_template
     message_count = _fetch_emails(request.user)
 
     blocks = []
+    blocks_append = blocks.append
 
     ct_get_for_model = ContentType.objects.get_for_model
     for name, backend in create_be.items():
-        model = backend.model
-        type  = backend.type
-        if backend.type and backend.model:
+        model    = backend.model
+        be_type  = backend.type
+
+        if be_type and model:
             for be_block in backend.blocks:
-                blocks.append(be_block(ct_get_for_model(model), type).detailview_display(context))
+                blocks_append(be_block(ct_get_for_model(model), be_type).detailview_display(context))
 
     tpl_dict = {'blocks': blocks, 'frontend_verbose': _(u"Emails"), 'messages_count': message_count}
 
