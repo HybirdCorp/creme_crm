@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
-from algos import SimpleAlgo
+from billing.models import SimpleBillingAlgo
+from billing.algos import SimpleAlgo
 
 
-to_register = (('SIMPLE_ALGO', SimpleAlgo),)
+to_register = ((SimpleBillingAlgo.ALGO_NAME, SimpleAlgo),)

@@ -45,7 +45,7 @@ class Base(CremeEntity):
     comment          = CharField(_(u'Comment'), max_length=500, blank=True, null=True)
     total_vat        = DecimalField(_(u'Total with VAT'),    max_digits=14, decimal_places=2, blank=True, null=True, editable=False, default=0)
     total_no_vat     = DecimalField(_(u'Total without VAT'), max_digits=14, decimal_places=2, blank=True, null=True, editable=False, default=0)
-    
+
     research_fields = CremeEntity.research_fields + ['name']
     excluded_fields_in_html_output = CremeEntity.excluded_fields_in_html_output + ['total_vat', 'total_no_vat']
 
@@ -95,7 +95,7 @@ class Base(CremeEntity):
             self.source = None
             self.target = None
 
-    def generate_number(self,source=None):
+    def generate_number(self, source=None):
         from billing.registry import algo_registry #lazy loading of number generators
 
         if source is None:
