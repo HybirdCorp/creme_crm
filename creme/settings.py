@@ -383,6 +383,11 @@ COPY_MEDIA_FILETYPES = ('gif', 'jpg', 'jpeg', 'png', 'ico', 'cur')
 DEFAULT_TIME_ALERT_REMIND = 10
 DEFAULT_TIME_TODO_REMIND = 120
 
+#BILLING -----------------------------------------------------------------------
+QUOTE_NUMBER_PREFIX = "DE"
+INVOICE_NUMBER_PREFIX = "FA"
+SALESORDER_NUMBER_PREFIX = "BC"
+
 #APPS CONFIGURATION [END]#######################################################
 
 

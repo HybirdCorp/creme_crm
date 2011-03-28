@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.db.models import Model, CharField, BooleanField
+from django.db.models import CharField, BooleanField
 from django.utils.translation import ugettext_lazy as _, ugettext
 
 from creme_core.models import CremeModel
