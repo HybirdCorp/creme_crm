@@ -17,16 +17,20 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
+from django.http import HttpResponse
 
-from django.template import RequestContext
-from django.shortcuts import render_to_response
+from django.template import RequestContext, Template
+from django.shortcuts import render_to_response, get_object_or_404
+from django.conf import settings
 from django.contrib.auth.decorators import login_required, permission_required
+from django.contrib.contenttypes.models import ContentType
 
-from creme_core.views.generic import add_entity, edit_entity, list_view, view_entity
+from creme_core.views.generic import add_entity, edit_entity, list_view, view_entity, list_view_popup_from_widget
 #from creme_core.templatetags.creme_core_tags import image_size #TODO: move to media_managers ???
 
 from media_managers.models import Image
 from media_managers.forms.image import ImageForm
+from creme.creme_core.utils import jsonify
 
 
 @login_required
@@ -71,3 +75,30 @@ def popupview(request, image_id):
 @permission_required('media_managers')
 def listview(request):
     return list_view(request, Image, extra_dict={'add_url': '/media_managers/image/add'})
+
+@login_required
+@permission_required('media_managers')
+def listview_popup(request):
+    return list_view_popup_from_widget(request, ContentType.objects.get_for_model(Image).id, True)
+
+@login_required
+@permission_required('media_managers')
+def select_image_tiny_mce(request):
+    content = ""
+
+    try:
+        f = open("%s/tiny_mce/plugins/advimage/image.htm" % settings.MEDIA_ROOT, "r")
+        content = f.read()
+        f.close()
+    except:
+        pass
+
+    return HttpResponse(Template(content).render(RequestContext(request, {})))
+
+@jsonify
+@login_required
+@permission_required('media_managers')
+def get_url(request, image_id):
+    image = get_object_or_404(Image, pk=image_id)
+    image.can_view_or_die(request.user)
+    return {'url': image.get_image_url()}

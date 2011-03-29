@@ -17,11 +17,18 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
+import re
+import os
+
+from django.conf import settings
+from django.core.exceptions import PermissionDenied
 
 from django.forms import CharField, ValidationError
 from django.forms.widgets import Textarea
 from django.template import Template, VariableNode
 from django.utils.translation import ugettext_lazy as _, ugettext
+
+from creme_core.models.entity import CremeEntity
 
 from creme_core.forms import CremeEntityForm, CremeForm, FieldBlockManager
 from creme_core.forms.fields import MultiCremeEntityField
@@ -56,6 +63,7 @@ class TemplateEditForm(CremeEntityForm):
 
     def clean_body(self):
         body = self.cleaned_data['body']
+        user = self.user
         invalid_vars = []
 
         for varnode in Template(body).nodelist.get_nodes_by_type(VariableNode):
@@ -65,6 +73,36 @@ class TemplateEditForm(CremeEntityForm):
 
         if invalid_vars:
             raise ValidationError(ugettext(u'The following variables are invalid: %s') % invalid_vars)
+
+        ####  Image credentials ####
+        #TODO: Add and handle a M2M for embedded images after Document & Image merge
+        
+        img_pattern = re.compile(r'<img.*src[\s]*[=]{1,1}["\']{1,1}(?P<img_src>[\d\w:/?\=.]*)["\']{1,1}')
+        sources     = re.findall(img_pattern, body)
+
+        doesnt_exist_ve = lambda f: ValidationError(ugettext(u"The image «%s» no longer exists or isn't valid.") % f)
+        
+        path_exists = os.path.exists
+        path_join   = os.path.join
+        MEDIA_ROOT  = settings.MEDIA_ROOT
+        creme_entity_get = CremeEntity.objects.get
+        
+        for src in sources:
+            filename = src.rpartition('/')[2]
+            if not path_exists(path_join(MEDIA_ROOT, "upload", "images", filename)):
+                raise doesnt_exist_ve(filename)
+
+            names = filename.split('_')
+            if names:
+                try:
+                    img = creme_entity_get(pk=int(names[0]))
+                    img.can_view_or_die(user)
+                except (ValueError, CremeEntity.DoesNotExist):
+                    raise doesnt_exist_ve(filename)
+                except PermissionDenied, pde:
+                    raise ValidationError(pde)
+                
+        ####  End image credentials ####
 
         return body
 
