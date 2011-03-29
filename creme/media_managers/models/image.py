@@ -63,7 +63,7 @@ class Image(CremeEntity):
         return self.get_image_name()
 
     def get_image_url(self):
-        return "%s/%s" % (MEDIA_URL, self.image)
+        return "%s%s" % (MEDIA_URL, self.image)
 
     def get_entity_summary(self):
         from creme_core.templatetags.creme_core_tags import image_size #TODO: move this templatetag to 'media_managers' ????

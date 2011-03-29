@@ -232,6 +232,8 @@ REMOTE_DJANGO = False
 
 CREME_EMAIL = "to"
 
+DEFAULT_USER_EMAIL = ""#Email used in case the user doesn't have filled his email
+
 #EMAILS [END] ###################################################################
 
 
