@@ -485,12 +485,14 @@ creme.utils.handleDialogSubmit = function(dialog) {
     var post_data = {}
     var post_url = $('[name=inner_header_from_url]',dialog).val();
 
+    //TODO: use jquery.serialise
     $form.find('input[name!=], select[name!=], button[name!=], textarea[name!=]').each(function() {
        var $node = $(this);
        var $node_value = $node.val();
        if($node.is(':select') && $node.is('[multiple=true]') && $node_value == null) return;
-       if(!$node.is(':checkbox')) post_data[$node.attr('name')] = (!$node_value || $node_value==null)? "" : $node_value;
-       if($node.is(':checked')) post_data[$node.attr('name')] = $node.is(':checked'); //Works if the checkbox is not required in form (99% of cases)
+       if(!$node.is(':checkbox') && !$node.is(':radio')) post_data[$node.attr('name')] = (!$node_value || $node_value==null)? "" : $node_value;
+       if($node.is(':checked') && $node.is(':radio')) post_data[$node.attr('name')] = (!$node_value || $node_value==null)? "" : $node_value;
+       if($node.is(':checked') && !$node.is(':radio')) post_data[$node.attr('name')] = $node.is(':checked'); //Works if the checkbox is not required in form (99% of cases)
     });
     post_data['whoami'] = div_id;
 
