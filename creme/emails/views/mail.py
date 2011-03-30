@@ -40,6 +40,13 @@ from emails.blocks import SpamSynchronizationMailsBlock, WaitingSynchronizationM
 
 from emails.forms.mail import EntityEmailForm
 
+@login_required
+@permission_required('emails')
+def get_lightweight_mail_body(request, entity_id):
+    """Used to show an html document in an iframe """
+    email = get_object_or_404(LightWeightEmail, pk=entity_id)
+    email.sending.campaign.can_view_or_die(request.user)
+    return HttpResponse(email.get_body())
 
 @login_required
 @permission_required('emails')

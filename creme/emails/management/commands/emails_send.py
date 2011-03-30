@@ -55,9 +55,9 @@ class Command(BaseCommand):
 #                            from emails.utils.remoteutils import populate_minicreme #broken
 #                            populate_minicreme(sending)
 
-                        sending.send_mails()
+                        status = sending.send_mails()
 
-                        sending.state = SENDING_STATE_DONE
+                        sending.state = status or SENDING_STATE_DONE
                         sending.save()
             finally:
                 lock.delete()

@@ -19,6 +19,8 @@
 ################################################################################
 
 from logging import error, debug
+import os
+import re
 from time import sleep
 from email.mime.image import MIMEImage
 from os.path import join, basename
@@ -27,14 +29,15 @@ from pickle import loads
 from django.db import IntegrityError
 from django.db.models import (ForeignKey, DateTimeField, PositiveSmallIntegerField,
                               EmailField, CharField, TextField, ManyToManyField)
-from django.core.mail import EmailMultiAlternatives
+from django.core.mail import EmailMultiAlternatives, send_mail
 from django.template import Template, Context
 from django.conf import settings
-from django.utils.translation import ugettext_lazy as _, ugettext
+from django.utils.translation import ugettext_lazy as _, ugettext, activate
+
 
 from creme_core.models import CremeModel, CremeEntity
 
-from emails.models.mail import _Email, ID_LENGTH, MAIL_STATUS_SENT
+from emails.models.mail import _Email, ID_LENGTH, MAIL_STATUS_SENT, MAIL_STATUS_NOTSENT, MAIL_STATUS_SENDINGERROR
 from emails.utils import generate_id
 
 from documents.models import Document
@@ -54,11 +57,13 @@ SENDING_TYPES = {
 SENDING_STATE_DONE       = 1
 SENDING_STATE_INPROGRESS = 2
 SENDING_STATE_PLANNED    = 3
+SENDING_STATE_ERROR      = 4
 
 SENDING_STATES = {
                     SENDING_STATE_DONE:       _(u"Done"),
                     SENDING_STATE_INPROGRESS: _(u"In progress"),
                     SENDING_STATE_PLANNED:    _(u"Planned"),
+                    SENDING_STATE_ERROR:      _(u"Error during sending"),
                  }
 
 
@@ -89,6 +94,9 @@ class EmailSending(CremeModel):
     def get_mails(self):
         return self.mails_set.all()
 
+    def get_unsent_mails_count(self):
+        return self.mails_set.filter(status__in=[MAIL_STATUS_NOTSENT, MAIL_STATUS_SENDINGERROR]).count()
+
     def get_state_str(self):
         return SENDING_STATES[self.state]
 
@@ -112,7 +120,50 @@ class EmailSending(CremeModel):
         img_cache = {}
         signature = self.signature
         signature_images = signature.images.all() if signature else ()
-        body_template = Template(self.body)
+
+        img_pattern   = re.compile(r'<img.*src[\s]*[=]{1,1}["\']{1,1}(?P<img_src>[\d\w:/?\=.]*)["\']{1,1}')
+        img_sources   = re.findall(img_pattern, self.body)
+        imgs_to_embbed = []
+        path_exists = os.path.exists
+        path_join   = os.path.join
+        MEDIA_ROOT  = settings.MEDIA_ROOT
+        creme_entity_get = CremeEntity.objects.get
+
+        body = self.body
+
+        #Replacing image sources with embbeded images
+        for src in img_sources:
+            filename = basename(src)
+            
+            if not path_exists(path_join(MEDIA_ROOT, "upload", "images", filename)):
+                activate(settings.LANGUAGE_CODE)
+                err_msg = _("Emails in the sending of the campaign <%(campaign)s> on %(date)s weren't sent because the image <%(image)s> is no longer available in the template.") % {'campaign': self.campaign, 'date': self.sending_date, 'image': filename}
+                send_mail(_('[CremeCRM] Campaign email sending error.'), err_msg, settings.EMAIL_HOST_USER, [self.campaign.user.email or settings.DEFAULT_USER_EMAIL], fail_silently=False)
+                return SENDING_STATE_ERROR
+
+            names = filename.split('_')
+            if names:
+                try:
+                    img = creme_entity_get(pk=int(names[0])).get_real_entity()
+                except (ValueError, CremeEntity.DoesNotExist):
+                    continue
+                else:
+                    try:
+                        img_file = img.image.file
+                        img_file.open()
+                        mime_img = MIMEImage(img_file.read())
+                        mime_img.add_header('Content-ID','<img_%s>' % img.id)
+                        mime_img.add_header('Content-Disposition', 'inline', filename=basename(img_file.name))
+                        img_file.close()
+                    except IOError:
+                        continue
+                    else:
+                        imgs_to_embbed.append(mime_img)
+                        body = body.replace(src, 'cid:img_%s' % img.id)
+
+        body_template = Template(body)
+        mails_statuses = []#Stack for checking if the sending succeed
+        mails_statuses_append = mails_statuses.append
 
         for mail in mails:
             if mail.status == MAIL_STATUS_SENT:
@@ -130,6 +181,8 @@ class EmailSending(CremeModel):
 
             msg = EmailMultiAlternatives(self.subject, body, mail.sender, [mail.recipient])
             msg.attach_alternative(body, "text/html")
+            for img_to_embbed in imgs_to_embbed:
+                msg.attach(img_to_embbed)
 
             for signature_img in signature_images:
                 name = signature_img.image.name
@@ -159,9 +212,11 @@ class EmailSending(CremeModel):
             except Exception, e: #better exception ??
                 error("Sending: error during sending mail.")
                 mail.status = MAIL_STATUS_SENDINGERROR
+                mails_statuses_append(True)
             else:
                 mail.status = MAIL_STATUS_SENT
                 mails_count += 1
+                mails_statuses_append(False)
 
             mail.save()
             debug("Mail sent to %s", mail.recipient)
@@ -172,6 +227,8 @@ class EmailSending(CremeModel):
                 mails_count = 0
                 sleep(SLEEP_TIME) #avoiding the mail to be classed as spam
 
+        if all(mails_statuses):#If no mail have been sent the sending fail
+            return SENDING_STATE_ERROR
 
 class LightWeightEmail(_Email):
     """Used by campaigns.

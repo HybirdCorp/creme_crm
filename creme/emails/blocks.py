@@ -38,6 +38,7 @@ from emails.models import *
 from emails.models.mail import (MAIL_STATUS_SYNCHRONIZED_SPAM, MAIL_STATUS_SYNCHRONIZED_WAITING, MAIL_STATUS,\
                                 MAIL_STATUS_SENT, MAIL_STATUS_SYNCHRONIZED)
 
+from crudity.blocks import CrudityQuerysetBlock
 
 #TODO: move populate_credentials() code to a Block class in creme_core ???
 class _RelatedEntitesBlock(QuerysetBlock):
@@ -211,12 +212,9 @@ class LwMailsHistoryBlock(QuerysetBlock):
                                                            ))
 
 
-class _SynchronizationMailsBlock(QuerysetBlock):
+class _SynchronizationMailsBlock(CrudityQuerysetBlock):
     dependencies  = (EntityEmail,)
     order_by      = '-reception_date'
-
-    #def __init__(self, *args, **kwargs):
-        #super(_SynchronizationMailsBlock, self).__init__()
 
     @jsonify
     def detailview_ajax(self, request):
@@ -235,8 +233,7 @@ class WaitingSynchronizationMailsBlock(_SynchronizationMailsBlock):
     template_name = 'emails/templatetags/block_synchronization.html'
 
     def detailview_display(self, context):
-        #TODO: for security add this: if not context['user'].has_perm('crudity'): raise PermissionDenied(....)
-
+        super(WaitingSynchronizationMailsBlock, self).detailview_display(context)
         context.update({'MAIL_STATUS': MAIL_STATUS, 'entityemail_ct_id': ContentType.objects.get_for_model(EntityEmail).id, 'rtypes': ','.join([REL_SUB_MAIL_SENDED, REL_SUB_MAIL_RECEIVED, REL_SUB_RELATED_TO])})
         return self._render(self.get_block_template_context(context, EntityEmail.objects.filter(status=MAIL_STATUS_SYNCHRONIZED_WAITING),
 #                                                            update_url='/creme_core/blocks/reload/basic/%s/' % self.id_
@@ -251,8 +248,7 @@ class SpamSynchronizationMailsBlock(_SynchronizationMailsBlock):
     template_name = 'emails/templatetags/block_synchronization_spam.html'
 
     def detailview_display(self, context):
-        #TODO: for security add this: if not context['user'].has_perm('crudity'): raise PermissionDenied(....)
-
+        super(SpamSynchronizationMailsBlock, self).detailview_display(context)
         context.update({'MAIL_STATUS': MAIL_STATUS, 'entityemail_ct_id': ContentType.objects.get_for_model(EntityEmail).id})
         return self._render(self.get_block_template_context(context, EntityEmail.objects.filter(status=MAIL_STATUS_SYNCHRONIZED_SPAM),
 #                                                            update_url='/creme_core/blocks/reload/basic/%s/' % self.id_

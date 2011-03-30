@@ -27,7 +27,7 @@
                     <td class="{{row_color}}">{{sending.sending_date}}</td>
                     <td class="{{row_color}}">{{sending.get_type_str}}</td>
                     <td class="{{row_color}}">{{sending.get_state_str}}</td>
-                    <td class="{{row_color}}">{{sending.get_mails.count}}</td>
+                    <td class="{{row_color}}">{{sending.get_mails.count}}{% if sending.get_unsent_mails_count %} / <span class="errorlist">{{ sending.get_unsent_mails_count }} {% trans "not sent" %}{% endif %}</span></td>
                     <td class="{{row_color}}" align="center" valign="center" style="width:10%;">
                         <a class="button_link" onclick="creme.utils.showInnerPopup('/emails/campaign/sending/{{sending.pk}}')">
                             <img src="{% media_url 'images/view_22.png' %}" border="0" title="{% trans "Details" %}" alt="{% trans "Details" %}" />

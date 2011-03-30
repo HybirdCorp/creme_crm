@@ -45,7 +45,7 @@
         </tr>
         <tr>
             <th class="block_header_line_dark">{% trans "Body" %}</th>
-            <td class="{{row_color}}">{{mail.get_body}}</td>
+            <td class="{{row_color}}"><iframe frameborder="0" src="/emails/mail/get_body/{{ mail.id }}" width="100%" height="100%" style="min-height:350px"></iframe></td>
         </tr>
         <tr>
             <th class="block_header_line_dark">{% trans "Sending date" %}</th>
