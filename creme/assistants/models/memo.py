@@ -31,8 +31,8 @@ from creme_core.models import CremeModel, CremeEntity
 class Memo(CremeModel):
     content       = TextField(_(u'Content'), blank=True, null=True)
     on_homepage   = BooleanField(_(u"Displayed on homepage"), blank=True, default=False)
-    creation_date = DateTimeField(_(u'Creation date'), blank=True, null=True)
-    user          = ForeignKey(User, verbose_name=_(u'Assigned to'), blank=True, null=True, related_name='user_memo_assigned_set')
+    creation_date = DateTimeField(_(u'Creation date'))
+    user          = ForeignKey(User, verbose_name=_(u'Assigned to'), related_name='user_memo_assigned_set')
 
     entity_content_type = ForeignKey(ContentType, related_name="memo_entity_set")
     entity_id           = PositiveIntegerField()

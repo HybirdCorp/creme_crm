@@ -26,16 +26,16 @@ from django.contrib.auth.decorators import login_required
 from creme_core.views.generic import add_to_entity, edit_related_to_entity
 
 from assistants.models import Alert
-from assistants.forms.alert import AlertCreateForm, AlertEditForm
+from assistants.forms.alert import AlertForm
 
 
 @login_required
 def add(request, entity_id):
-    return add_to_entity(request, entity_id, AlertCreateForm, _(u'New alert for <%s>'), initial = {'user': request.user.id})#TODO: Remove initial? User is set in CremeModelWithUserForm
+    return add_to_entity(request, entity_id, AlertForm, _(u'New alert for <%s>'))
 
 @login_required
 def edit(request, alert_id):
-    return edit_related_to_entity(request, alert_id, Alert, AlertEditForm, _(u"Alert for <%s>"))
+    return edit_related_to_entity(request, alert_id, Alert, AlertForm, _(u"Alert for <%s>"))
 
 @login_required
 def validate(request, alert_id):
