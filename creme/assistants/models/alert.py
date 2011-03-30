@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2011  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -34,13 +34,13 @@ class Alert(CremeModel):
     title               = CharField(max_length=200)
     description         = TextField(_(u'Description'), blank=True, null=True)
     is_validated        = BooleanField(_('Validated'))
-    trigger_date        = DateTimeField(_(u"Trigger date"), blank=True, null=True)
+    trigger_date        = DateTimeField(_(u"Trigger date"))
 
     entity_content_type = ForeignKey(ContentType, related_name="alert_entity_set")
     entity_id           = PositiveIntegerField()
     creme_entity        = GenericForeignKey(ct_field="entity_content_type", fk_field="entity_id")
 
-    for_user            = ForeignKey(User, verbose_name=_(u'Assigned to'), blank=True, null=True, related_name='user_alert_assigned_set')
+    for_user            = ForeignKey(User, verbose_name=_(u'Assigned to'), related_name='user_alert_assigned_set')
 
     class Meta:
         app_label = 'assistants'
