@@ -149,7 +149,16 @@ class ReportGraph(CremeEntity):
                         max_date = end
 
         elif gtype == RGT_FK:
-            fk_ids = set(entities.values_list(abscissa, flat=True))#.distinct()
+            #TODO: There is a problem with values_list and inheritance
+#            fk_ids = set(entities.values_list(abscissa, flat=True))#.distinct()
+            fk_ids = set()
+            fk_ids_add = fk_ids.add
+
+            for entity in entities:
+                try:
+                    fk_ids_add(getattr(entity, abscissa).id)
+                except AttributeError:
+                    pass
             _fks = entities.model._meta.get_field(abscissa).rel.to.objects.filter(pk__in=fk_ids)
 
             if order == 'DESC':
