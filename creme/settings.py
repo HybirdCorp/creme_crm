@@ -183,6 +183,7 @@ INSTALLED_APPS = (
     'creme.sms',
     'creme.projects',
     'creme.tickets',
+    #'creme.cti',
 )
 
 from django.conf.global_settings import TEMPLATE_CONTEXT_PROCESSORS
@@ -233,13 +234,6 @@ REMOTE_DJANGO = False
 CREME_EMAIL = "to"
 
 #EMAILS [END] ###################################################################
-
-#VoIP ##########################################################################
-
-USE_ASTERISK = False
-ABCTI_URL = 'http://127.0.0.1:8087'  #Used only if USE_ASTERISK == True
-
-#VoIP [END] ####################################################################
 
 #LOGS ##########################################################################
 
@@ -388,6 +382,10 @@ COPY_MEDIA_FILETYPES = ('gif', 'jpg', 'jpeg', 'png', 'ico', 'cur')
 #ASSISTANTS --------------------------------------------------------------------
 DEFAULT_TIME_ALERT_REMIND = 10
 DEFAULT_TIME_TODO_REMIND = 120
+
+#CTI ---------------------------------------------------------------------------
+ABCTI_URL = 'http://127.0.0.1:8087'
+
 
 #APPS CONFIGURATION [END]#######################################################
 
