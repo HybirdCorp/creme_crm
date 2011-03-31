@@ -134,8 +134,8 @@ def search_and_view(request):
                 query |= Q(**{str(field): value})
 
         if query: #avoid useless query
-            #found = model.objects.filter(query)[:1]
             found = EntityCredentials.filter(user, model.objects.filter(query))[:1]
+
             if found:
                 return HttpResponseRedirect(found[0].get_absolute_url())
 

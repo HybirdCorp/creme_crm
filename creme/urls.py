@@ -41,6 +41,7 @@ urlpatterns = patterns('',
     (r'^sms/',            include('creme.sms.urls')),
     (r'^projects/',       include('creme.projects.urls')),
     (r'^tickets/',        include('creme.tickets.urls')),
+    (r'^cti/',            include('creme.cti.urls')),
 
     (r'^admin/(.*)', admin.site.root),
 )
