@@ -24,6 +24,8 @@ from django.contrib.contenttypes.models import ContentType
 from creme_core.gui.block import Block, PaginatedBlock, QuerysetBlock
 from creme_core.models import CremeEntity, Relation
 
+from persons.models import Contact, Organisation
+
 from billing.models import ProductLine, ServiceLine, Invoice, SalesOrder, Quote
 from billing.constants import REL_OBJ_BILL_RECEIVED, REL_SUB_BILL_RECEIVED
 
@@ -80,13 +82,14 @@ class TargetBlock(Block):
         return self._render(self.get_block_template_context(context))
 
 
-#TODO: this block is imported directly by the templates of Organisation/Contact (because configurable blocks can not be contrained to a CT) => improve....
 class ReceivedInvoicesBlock(QuerysetBlock):
     id_           = QuerysetBlock.generate_id('billing', 'received_invoices')
     dependencies  = (Relation,) #Invoice
     relation_type_deps = (REL_OBJ_BILL_RECEIVED, )
     verbose_name  = _(u"Received invoices")
     template_name = 'billing/templatetags/block_received_invoices.html'
+    configurable  = True
+    target_ctypes = (Contact, Organisation)
 
     def detailview_display(self, context):
         person = context['object']
