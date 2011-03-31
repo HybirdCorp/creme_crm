@@ -34,9 +34,9 @@ class Populator(BasePopulator):
         for pk, title in USERMESSAGE_PRIORITIES.iteritems():
             create(UserMessagePriority, pk, title=unicode(title), is_custom=False)
 
-        create(BlockConfigItem, 'assistants-todos_block',       content_type=None, block_id=todos_block.id_,       order=100, on_portal=False)
-        create(BlockConfigItem, 'assistants-memos_block',       content_type=None, block_id=memos_block.id_,       order=200, on_portal=True)
-        create(BlockConfigItem, 'assistants-alerts_block',      content_type=None, block_id=alerts_block.id_,      order=300, on_portal=True)
-        create(BlockConfigItem, 'assistants-actions_it_block',  content_type=None, block_id=actions_it_block.id_,  order=400, on_portal=True)
-        create(BlockConfigItem, 'assistants-actions_nit_block', content_type=None, block_id=actions_nit_block.id_, order=410, on_portal=True)
-        create(BlockConfigItem, 'assistants-messages_block',    content_type=None, block_id=messages_block.id_,    order=500, on_portal=True)
+        BlockConfigItem.create(pk='assistants-todos_block',       block_id=todos_block.id_,       order=100, on_portal=False)
+        BlockConfigItem.create(pk='assistants-memos_block',       block_id=memos_block.id_,       order=200, on_portal=True)
+        BlockConfigItem.create(pk='assistants-alerts_block',      block_id=alerts_block.id_,      order=300, on_portal=True)
+        BlockConfigItem.create(pk='assistants-actions_it_block',  block_id=actions_it_block.id_,  order=400, on_portal=True)
+        BlockConfigItem.create(pk='assistants-actions_nit_block', block_id=actions_nit_block.id_, order=410, on_portal=True)
+        BlockConfigItem.create(pk='assistants-messages_block',    block_id=messages_block.id_,    order=500, on_portal=True)
