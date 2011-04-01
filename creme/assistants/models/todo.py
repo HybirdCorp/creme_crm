@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2011  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -31,11 +31,11 @@ from creme_core.models import CremeEntity, CremeModel
 class ToDo(CremeModel):
     title         = CharField(_(u'Title'), max_length=200)
     is_ok         = BooleanField(_("Done ?"), editable=False)
-    has_deadline  = BooleanField(editable=False) #useful ??? (deadline can be NULL)
+    has_deadline  = BooleanField(editable=False) #TODO: useful ??? (deadline can be NULL)
     description   = TextField(_(u'Description'), blank=True, null=True)
-    creation_date = DateTimeField(_(u'Creation date'), blank=False, null=False)
+    creation_date = DateTimeField(_(u'Creation date'))
     deadline      = DateTimeField(_(u"Deadline"), blank=True, null=True)
-    for_user      = ForeignKey(User, verbose_name=_(u'Assigned to'), blank=True, null=True, related_name='user_todo_assigned_set')
+    for_user      = ForeignKey(User, verbose_name=_(u'Assigned to'), related_name='user_todo_assigned_set')
 
     entity_content_type = ForeignKey(ContentType, related_name="todo_entity_set")
     entity_id           = PositiveIntegerField()

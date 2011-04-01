@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2011  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -27,7 +27,7 @@ from creme_core.forms import CremeModelWithUserForm, CremeDateTimeField, CremeTi
 from assistants.models import Alert
 
 
-class AlertEditForm(CremeModelWithUserForm):
+class AlertForm(CremeModelWithUserForm):
     trigger_date = CremeDateTimeField(label=_(u'Trigger date'))
     trigger_time = CremeTimeField(label=_(u'Hour'), required=False)
 
@@ -36,7 +36,7 @@ class AlertEditForm(CremeModelWithUserForm):
         exclude = ('entity_content_type', 'is_validated', 'entity_id', 'for_user')
 
     def __init__(self, entity, *args, **kwargs):
-        super(AlertEditForm, self).__init__(*args, **kwargs)
+        super(AlertForm, self).__init__(*args, **kwargs)
         self.entity = entity
 
         trigger_date = self.instance.trigger_date
@@ -52,13 +52,9 @@ class AlertEditForm(CremeModelWithUserForm):
 
         return cleaned_data
 
-    def save(self):
+    def save(self, *args, **kwargs):
         instance = self.instance
         instance.creme_entity = self.entity
         instance.for_user = self.cleaned_data['user']
 
-        return super(AlertEditForm, self).save()
-
-
-class AlertCreateForm(AlertEditForm): #useful ??
-    pass
+        return super(AlertForm, self).save(*args, **kwargs)

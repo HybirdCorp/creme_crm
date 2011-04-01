@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2011  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -76,6 +76,7 @@ class Block(object):
     template_name = 'OVERLOAD_ME.html' #used to render the block of course
     context_class = _BlockContext      #store the context in the session.
     configurable  = False              #True: the Block can be add/removed to detailview/portal by configuration (see creme_config)
+    target_ctypes = ()                 #Tuple of CremeEntity classes that can have this type of block. Empty tuple means that all types are ok. eg: (Contact, Organisation)
 
     @staticmethod
     def generate_id(app_name, name): #### _generate_id ????
@@ -473,6 +474,14 @@ class _BlockRegistry(object):
                 blocks.append(self.get_block(id_))
 
         return blocks
+
+    def get_compatible_blocks(self, model=None):
+        """Returns the list of registered blocks that are configurable and compatible with the given ContentType.
+        @param model Constraint on a CremeEntity class ; means blocks must be compatible with all kind of CremeEntity
+        """
+        return (block for block in self._blocks.itervalues()
+                        if block.configurable and (not block.target_ctypes or model in block.target_ctypes)
+               )
 
 
 block_registry = _BlockRegistry()

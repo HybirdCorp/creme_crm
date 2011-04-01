@@ -4,7 +4,6 @@ from logging import info
 
 from django.utils.translation import ugettext as _
 from django.conf import settings
-from django.contrib.contenttypes.models import ContentType
 
 from creme_core.models import RelationType, SearchConfigItem, BlockConfigItem, RelationBlockItem, ButtonMenuItem
 from creme_core.models.header_filter import HeaderFilterItem, HeaderFilter, HFI_FIELD
@@ -52,7 +51,7 @@ class Populator(BasePopulator):
 
         #TODO: helper code in creme_config ??? (see 'persons' app)
         rbi = RelationBlockItem.create(REL_OBJ_LINKED_2_TICKET)
-        create(BlockConfigItem, 'tickets-linked2_block',  content_type=ContentType.objects.get_for_model(Ticket), block_id=rbi.block_id, order=1, on_portal=False)
+        BlockConfigItem.create(pk='tickets-linked2_block',  model=Ticket, block_id=rbi.block_id, order=1, on_portal=False)
 
         if 'creme.persons' in settings.INSTALLED_APPS:
             try:

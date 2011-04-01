@@ -56,7 +56,7 @@ class Populator(BasePopulator):
         create(HeaderFilterItem, pref + 'title',  order=1, name='title',         title=_(u'Title'),          type=HFI_FIELD, header_filter=hf, has_a_filter=True, editable=True, sortable=True, filter_string="title__icontains")
         create(HeaderFilterItem, pref + 'folder', order=2, name='folder__title', title=_(u'Folder - Title'), type=HFI_FIELD, header_filter=hf, has_a_filter=True, editable=True, sortable=True, filter_string="folder__title__icontains")
 
-        create(BlockConfigItem, 'documents-linked_docs_block', content_type=None, block_id=linked_docs_block.id_, order=1000, on_portal=False)
+        BlockConfigItem.create(pk='documents-linked_docs_block', block_id=linked_docs_block.id_, order=1000, on_portal=False)
 
         SearchConfigItem.create(Document, ['title', 'description', 'folder__title'])
         SearchConfigItem.create(Folder,   ['title', 'description', 'category__name'])

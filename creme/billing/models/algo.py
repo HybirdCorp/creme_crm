@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2011  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -22,6 +22,7 @@
 from django.db.models import Model, CharField, ForeignKey, IntegerField
 from django.db.models.signals import post_save
 from django.utils.translation import ugettext_lazy as _
+from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 
 from creme_core.models import CremeModel, CremeProperty
@@ -45,6 +46,8 @@ class SimpleBillingAlgo(Model):
     prefix       = CharField(_(u'Invoice prefix'), max_length=400)
     ct           = ForeignKey(ContentType)
 
+    ALGO_NAME = "SIMPLE_ALGO"
+
     class Meta:
         app_label = 'billing'
         unique_together = ("organisation", "last_number", "ct")
@@ -60,14 +63,16 @@ def simple_conf_billing_for_org_managed_by_creme(sender, instance, created, **kw
 
     get_ct = ContentType.objects.get_for_model
 
-    if instance.type_id == PROP_IS_MANAGED_BY_CREME and instance.creme_entity.entity_type == get_ct(Organisation):
+    if instance.type_id == PROP_IS_MANAGED_BY_CREME and instance.creme_entity.entity_type_id == get_ct(Organisation).id:
         org = instance.creme_entity.get_real_entity()
 
         if not ConfigBillingAlgo.objects.filter(organisation=org):
-            for model, prefix in [(Quote, "DE"), (Invoice, "FA"), (SalesOrder, "BC")]: #TODO: prefixes in config....
+            for model, prefix in [(Quote, settings.QUOTE_NUMBER_PREFIX),
+                                  (Invoice, settings.INVOICE_NUMBER_PREFIX),
+                                  (SalesOrder, settings.SALESORDER_NUMBER_PREFIX)]:
                 ct = get_ct(model)
-                ConfigBillingAlgo(organisation=org, name_algo="SIMPLE_ALGO", ct=ct).save() #TODO: SIMPLE_ALGO -> SimpleBillingAlgo attr ??
-                SimpleBillingAlgo(organisation=org, last_number=0, prefix=prefix, ct=ct).save()
+                ConfigBillingAlgo.objects.create(organisation=org, name_algo=SimpleBillingAlgo.ALGO_NAME, ct=ct)
+                SimpleBillingAlgo.objects.create(organisation=org, last_number=0, prefix=prefix, ct=ct)
 
 
 post_save.connect(simple_conf_billing_for_org_managed_by_creme, sender=CremeProperty)
