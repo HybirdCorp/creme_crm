@@ -50,7 +50,6 @@ class CreateFromEmailBackend(object):
         return not self.limit_froms or set(senders) & set(self.limit_froms)
     
     def create(self, email, request=None):
-        from django.utils.html import escape
         data = self.body_map.copy()
 
         if self.authorize_senders(email.senders):

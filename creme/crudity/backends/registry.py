@@ -23,45 +23,52 @@ from logging import warning
 
 from creme_core.utils.imports import find_n_import
 
-from crudity import CREATE
+from crudity import CREATE, READ, UPDATE, DELETE
 from crudity.backends.email import CreateFromEmailBackend
 
 class NotValidFromEmailCRUDBackend(Exception):
     pass
 
 #TODO: FromEmailBackends have (crud) type so register by [type][name] and derivate from a FromEmailBackend class ?
+#To TODO: For now, only create backends are created and they have to derivate from CreateFromEmailBackend
 class FromEmailCRUDRegistry(object):
-#    __slots__ = ('_creates', '_reads', '_updates', '_delete')
+#    __slots__ = ('_registry', '_registers)
 
     def __init__(self):
-        self._creates = {}
-        self._reads   = {}
-        self._updates = {}
-        self._delete  = {}
-
-    #TODO: use a 'static' map + getattr
-    def register(self, key, to_register):
-        {
+        self._registers = {
             CREATE: self.register_creates,
+        }
 
-        }[key](*to_register)
+        self._registry = {
+            CREATE: {},
+            READ  : {},
+            UPDATE: {},
+            DELETE: {}
+
+        }
+
+    def register(self, key, to_register):
+        crud_registry = self._registers.get(key)
+        
+        if crud_registry is not None:
+            crud_registry(*to_register)
 
     def register_creates(self, *backends):
-        creates = self._creates
+        creates = self._registry[CREATE]
 
         for name, backend in backends:
-            if not issubclass(backend.__class__, CreateFromEmailBackend):
-                raise NotValidFromEmailCRUDBackend("%r has to subclass CreateFromEmailBackend" % backend)#assert ?
-
+            assert issubclass(backend.__class__, CreateFromEmailBackend)
             if creates.has_key(name):
                 if name == "*":
                     raise NotValidFromEmailCRUDBackend("Only one fallback backend allowed")
                 else:
                     warning("Duplicate create CRUD backend or backend registered twice : %s", name) #exception instead ???
+                    
             creates[name] = backend
 
+            
     def get_create(self, name):
-        return self._creates.get(name)
+        return self._registry[CREATE].get(name)
 
 
     def get(self, type, key):
@@ -71,16 +78,16 @@ class FromEmailCRUDRegistry(object):
         }.get(type, lambda x:None)(key)
 
     def iteritems(self):
-        return chain(self._creates.iteritems(),
-                     self._reads.iteritems(),
-                     self._updates.iteritems(),
-                     self._delete.iteritems(),)
+        return chain(self._registry[CREATE].iteritems(),
+                     self._registry[READ].iteritems(),
+                     self._registry[UPDATE].iteritems(),
+                     self._registry[DELETE].iteritems(),)
 
     def iter_creates_values(self):
-        return self._creates.itervalues()
+        return self._registry[CREATE].itervalues()
 
     def get_creates(self):
-        return self._creates
+        return self._registry[CREATE]
 
 
 from_email_crud_registry = FromEmailCRUDRegistry()

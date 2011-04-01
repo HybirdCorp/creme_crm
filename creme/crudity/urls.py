@@ -4,7 +4,6 @@ from django.conf.urls.defaults import patterns
 
 
 urlpatterns = patterns('crudity.views',
-#    (r'^$', 'portal.portal'),#TODO
     (r'^email/waiting_actions$', 'email.fetch_emails'),
 
     (r'^waiting_actions/delete$',   'actions.delete'),
