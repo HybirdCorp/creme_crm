@@ -33,7 +33,7 @@
                     <td class="{{row_color}}">{{line|get_html_field_value:"total_discount"}}</td>
                     <td class="{{row_color}}">{{line.discount}}</td>
                     <td class="{{row_color}}">{{line.credit}}</td>
-                    <td class="{{row_color}}">{{line.comment}}</td>
+                    <td class="{{row_color}}">{{line|get_html_field_value:"comment"}}</td>
                     <td class="{{row_color}}">{{line.unit_price}}</td>
                     <td class="{{row_color}}">
                         {% if line.related_item %}

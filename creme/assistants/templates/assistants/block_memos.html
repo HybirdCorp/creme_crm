@@ -28,7 +28,7 @@
                     {% if not object %}
                         <td class="{{row_color}}">{% widget_entity_hyperlink memo.creme_entity user %}</td>
                     {% endif %}
-                    <td class="{{row_color}}">{{memo.user}}</td>
+                    <td class="{{row_color}}">{{memo|get_html_field_value:"user"}}</td>
                     <td class="{{row_color}}">{{memo.creation_date|date:"d/m/y"}}</td>
                     <td class="{{row_color}}">{{memo|get_html_field_value:"content"}}</td>
                     <td class="{{row_color}}" align="center" valign="center" style="width:10%;">
