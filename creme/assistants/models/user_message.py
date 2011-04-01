@@ -95,26 +95,27 @@ class UserMessage(CremeModel):
 
     @staticmethod
     def send_mails():
-        from django.core.mail import EmailMessage, SMTPConnection
-        from creme_settings import CREME_EMAIL, CREME_EMAIL_PASSWORD, CREME_EMAIL_SERVER, CREME_EMAIL_PORT, CREME_EMAIL_USERNAME
+        from django.core.mail import EmailMessage, get_connection
+        from django.conf import settings
 
         usermessages = list(UserMessage.objects.filter(email_sent=False))
         subject_format = ugettext(u'User message from Creme: %s')
         body_format    = ugettext(u'%(user)s send you the following message:\n%(body)s')
+        EMAIL_SENDER   = settings.EMAIL_SENDER
+
         messages = [EmailMessage(subject_format % msg.title,
                                  body_format % {'user': msg.sender, 'body': msg.body},
-                                 CREME_EMAIL, [msg.recipient.email]
+                                 EMAIL_SENDER, [msg.recipient.email]
                                 )
                         for msg in usermessages if msg.recipient.email
                    ]
 
         try:
-            SMTPConnection(host=CREME_EMAIL_SERVER,
-                           port=CREME_EMAIL_PORT,
-                           username=CREME_EMAIL_USERNAME,
-                           password=CREME_EMAIL_PASSWORD,
-                           use_tls=True
-                          ).send_messages(messages)
+            connection = get_connection()
+            connection.open()
+            connection.send_messages(messages)
+            connection.close()
+
         except Exception, e:
             raise e
 

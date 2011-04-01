@@ -29,11 +29,12 @@ from pickle import loads
 from django.db import IntegrityError
 from django.db.models import (ForeignKey, DateTimeField, PositiveSmallIntegerField,
                               EmailField, CharField, TextField, ManyToManyField)
-from django.core.mail import EmailMultiAlternatives, send_mail
+from django.core.mail import EmailMultiAlternatives, send_mail, SMTPConnection
 from django.template import Template, Context
 from django.conf import settings
 from django.utils.translation import ugettext_lazy as _, ugettext, activate
 
+from creme_settings import CREME_EMAIL, CREME_EMAIL_PASSWORD, CREME_EMAIL_SERVER, CREME_EMAIL_PORT, CREME_EMAIL_USERNAME
 
 from creme_core.models import CremeModel, CremeEntity
 
@@ -165,6 +166,12 @@ class EmailSending(CremeModel):
         mails_statuses = []#Stack for checking if the sending succeed
         mails_statuses_append = mails_statuses.append
 
+        #SMTPConnection is deprecated but with mail.get_connection() we can't specify other settings than django settings
+        #TODO: Write a custom e-mail backend: http://docs.djangoproject.com/en/1.3/topics/email/#topic-custom-email-backend
+        con = SMTPConnection(host=CREME_EMAIL_SERVER, port=CREME_EMAIL_PORT,
+                             username=CREME_EMAIL_USERNAME, password=CREME_EMAIL_PASSWORD,
+                             use_tls=True)
+        
         for mail in mails:
             if mail.status == MAIL_STATUS_SENT:
                 error('Mail already sent to the recipient')
@@ -179,7 +186,7 @@ class EmailSending(CremeModel):
                 for signature_img in signature_images:
                     body += '<img src="cid:img_%s" /><br/>' % signature_img.id
 
-            msg = EmailMultiAlternatives(self.subject, body, mail.sender, [mail.recipient])
+            msg = EmailMultiAlternatives(self.subject, body, mail.sender, [mail.recipient], connection=con)
             msg.attach_alternative(body, "text/html")
             for img_to_embbed in imgs_to_embbed:
                 msg.attach(img_to_embbed)

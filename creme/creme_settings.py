@@ -1,10 +1,12 @@
 # -*- coding: utf-8 -*-
 
+#Settings used in emails-sending (campaigns)
 CREME_EMAIL = "" 
 CREME_EMAIL_SERVER  = "" 
 CREME_EMAIL_USERNAME  = ""
 CREME_EMAIL_PASSWORD  = ""
 CREME_EMAIL_PORT = 25
+#############################################
 
 CREME_SAMOUSSA_URL = 'http://localhost:8001/'
 CREME_SAMOUSSA_USERNAME = 'compte21'
