@@ -27,8 +27,8 @@ from django.utils.translation import ugettext as _
 
 from creme_core.models.header_filter import HFI_FIELD, HFI_RELATION, HFI_FUNCTION, HFI_CUSTOM, HFI_VOLATILE
 from creme_core.models import Filter, CustomField
-from creme_core.templatetags.creme_core_tags import get_html_field_value
 from creme_core.utils.meta import get_model_field_infos
+from creme_core.gui.field_printers import field_printers_registry
 
 register = template.Library()
 
@@ -173,8 +173,10 @@ def _render_relations(entity, hfi, user):
 
     return u''.join(relations_list)
 
+_GET_HTML_FIELD_VALUE = field_printers_registry.get_html_field_value
+
 _RENDER_FUNCS = { #TODO: use a method in HeaderFilterItem ??
-    HFI_FIELD:    lambda entity, hfi, user: get_html_field_value(entity, hfi.name),
+    HFI_FIELD:    lambda entity, hfi, user: _GET_HTML_FIELD_VALUE(entity, hfi.name),
     HFI_FUNCTION: lambda entity, hfi, user: getattr(entity, hfi.name)(),
     HFI_RELATION: _render_relations,
     HFI_CUSTOM:   lambda entity, hfi, user: entity.get_custom_value(hfi.get_customfield()),

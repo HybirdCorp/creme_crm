@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-03-31 14:34+0200\n"
+"POT-Creation-Date: 2011-04-01 18:50+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,6 +17,23 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n>1;\n"
 
-#: creme_core_register.py:7
+#: creme_core_register.py:12
 msgid "Computer Telephony Integration"
 msgstr "Couplage Téléphonique Informatique"
+
+#: utils.py:37
+msgid "Call"
+msgstr "Appeler"
+
+#: views.py:52
+#, python-format
+msgid "Call to %s"
+msgstr "Appel à %s"
+
+#: views.py:53
+msgid "Automatically created by CTI"
+msgstr "Créé automatiquement par CTI"
+
+#: views.py:75
+msgid "Phone call successfully created."
+msgstr "Appel téléphonique créé avec succés."

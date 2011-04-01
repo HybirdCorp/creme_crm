@@ -21,16 +21,19 @@
 from django.utils.translation import ugettext as _
 from django.conf import settings
 
+from creme_core.gui.field_printers import simple_print
+
 from mediagenerator.utils import media_url
 
 
-def print_phone(x):
-    if not x:
-        return simple_print(x)
+def print_phone(entity, fval):
+    if not fval:
+        return simple_print(entity, fval)
 
-    return """%(number)s&nbsp;<a href="%(url)s/?n_tel=%(number)s">%(label)s<img src="%(img)s" alt="%(label)s"/></a>""" % {
+    return """%(number)s&nbsp;<a onclick="creme.cti.phoneCall('%(url)s', '%(number)s', %(id)s);">%(label)s<img src="%(img)s" alt="%(label)s"/></a>""" % {
             'url':    settings.ABCTI_URL,
-            'number': x,
+            'number': fval,
+            'id':     entity.id,
             'label':  _(u'Call'),
-            'img':   media_url('images/phone_22.png'),
+            'img':    media_url('images/phone_22.png'),
         }

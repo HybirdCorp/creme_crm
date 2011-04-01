@@ -22,13 +22,9 @@ from time import mktime
 from re import compile as compile_re
 from logging import debug
 
-from django.db.models import ManyToManyField
 from django import template
-from django.utils.safestring import mark_safe
 from django.contrib.contenttypes.models import ContentType
 
-from creme_core.models import CremeEntity
-from creme_core.utils.meta import get_field_infos, get_model_field_infos, get_m2m_entities
 from creme_core.gui.field_printers import field_printers_registry
 
 
@@ -36,20 +32,7 @@ register = template.Library()
 
 @register.filter(name="get_html_field_value")
 def get_html_field_value(obj, field_name):
-    field_class, field_value = get_field_infos(obj, field_name)
-
-    if field_class is None:
-        fields_through = [f['field'].__class__ for f in get_model_field_infos(obj.__class__, field_name)]
-
-        if ManyToManyField in fields_through:
-            return get_m2m_entities(obj, field_name, get_value=True, get_value_func=lambda values: ", ".join([val for val in values if val])) #TODO: use (i)filter
-
-    print_func = field_printers_registry.get(field_class)
-
-    if print_func is not None:
-        return mark_safe(print_func(field_value))
-
-    return field_value
+    return  field_printers_registry.get_html_field_value(obj, field_name)
 
 @register.filter(name="get_value")
 def get_value(dic, key, default=''):
