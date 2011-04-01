@@ -216,10 +216,11 @@ ALLOWED_EXTENSIONS = [
 #EMAILS ########################################################################
 
 # For module emailing campaign
-EMAIL_HOST = 'mail_server'
-EMAIL_HOST_USER = 'mail_user'
+EMAIL_SENDER        = 'sender@domain.org'#This is a creme parameter which specify from_email (sender) when sending email
+EMAIL_HOST          = 'mail_server'
+EMAIL_HOST_USER     = 'mail_user'
 EMAIL_HOST_PASSWORD = 'mail_password'
-EMAIL_USE_TLS = True
+EMAIL_USE_TLS       = True
 
 CMP_EMAILS = 40
 REMOTE_DJANGO = False

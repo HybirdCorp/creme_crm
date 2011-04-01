@@ -21,11 +21,9 @@
 from datetime import datetime
 from logging import warning
 
-from django.core.mail import EmailMessage, SMTPConnection
+from django.core.mail import EmailMessage, SMTPConnection, get_connection
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
-
-from creme_settings import CREME_EMAIL, CREME_EMAIL_PASSWORD, CREME_EMAIL_SERVER, CREME_EMAIL_PORT, CREME_EMAIL_USERNAME
 
 from creme_core.models import DateReminder
 
@@ -61,12 +59,19 @@ class Reminder(object):
     def send_mails(self, object):
         body     = self.generate_email_body(object)
         subject  = self.generate_email_subject(object)
-        messages = [EmailMessage(subject, body, CREME_EMAIL, [email]) for email in self.get_emails(object)]
 
-        con = SMTPConnection(host=CREME_EMAIL_SERVER, port=CREME_EMAIL_PORT,
-                             username=CREME_EMAIL_USERNAME, password=CREME_EMAIL_PASSWORD,
-                             use_tls=True)
-        con.send_messages(messages)
+        EMAIL_SENDER = settings.EMAIL_SENDER
+        messages = [EmailMessage(subject, body, EMAIL_SENDER, [email]) for email in self.get_emails(object)]
+
+        try:
+            connection = get_connection()
+            connection.open()
+            connection.send_messages(messages)
+            connection.close()
+
+        except Exception, e:
+            pass
+
 
     def execute(self):
         if not self.ok_for_continue():
