@@ -72,15 +72,13 @@ class CreateEntityEmailFromEmail(CreateFromEmailBackend):
                                                                user=current_user,
                                                                category=folder_cat)
 
-        mail = EntityEmail() #TODO: EntityEmail(status=MAIL_STATUS_SYNCHRONIZED_WAITING, body=...)
-        mail.status = MAIL_STATUS_SYNCHRONIZED_WAITING
-
-        mail.body      = email.body.encode('utf-8')
-        mail.body_html = email.body_html.encode('utf-8')
-        mail.sender    = u', '.join(set(email.senders))
-        mail.recipient = u', '.join(set(chain(email.tos, email.ccs)))
-        mail.subject   = email.subject
-        mail.user_id   = current_user_id
+        mail = EntityEmail(status = MAIL_STATUS_SYNCHRONIZED_WAITING,
+                           body   = email.body.encode('utf-8'),
+                           body_html = email.body_html.encode('utf-8'),
+                           sender    = u', '.join(set(email.senders)),
+                           recipient = u', '.join(set(chain(email.tos, email.ccs))),
+                           subject   = email.subject,
+                           user_id   = current_user_id)
         if email.dates:
             mail.reception_date = email.dates[0]
         mail.genid_n_save()
@@ -88,26 +86,29 @@ class CreateEntityEmailFromEmail(CreateFromEmailBackend):
         attachment_path = self.attachment_path
         create_relation = Relation.objects.create
 
+        doc_description = _(u"Received with the mail %s") % (mail, )
+
         for attachment in email.attachments:
             filename, file = attachment
             path = handle_uploaded_file(file, path=attachment_path, name=filename)
-            doc = Document() #TODO: Document.objects.create(title=...)
-            doc.title = u"%s (mail %s)" % (path.rpartition(os.sep)[2], mail.id)
-            doc.description = _(u"Received with the mail %s") % (mail, ) #TODO: call _() before the loop...
-            doc.filedata = path
-            doc.user_id = current_user_id
-            doc.folder = folder
-            doc.save()
+            doc = Document.objects.create(
+                    title = u"%s (mail %s)" % (path.rpartition(os.sep)[2], mail.id),
+                    description =  doc_description,
+                    filedata = path,
+                    user_id = current_user_id,
+                    folder = folder
+            )
+
             #Relation.create(doc, REL_OBJ_RELATED_2_DOC, mail)
             create_relation(subject_entity=doc, type_id=REL_OBJ_RELATED_2_DOC,
                             object_entity=mail, user_id=current_user_id
                            )
 
-        history = History() #TODO: history = History.objects.create(entity=mail, type=....)
-        history.entity = mail
-        history.type = self.type
-        history.description = _(u"Creation of %(entity)s") % {'entity': mail}
-        history.save()
+        history = History.objects.create(
+            entity = mail,
+            type = self.type,
+            description = _(u"Creation of %(entity)s") % {'entity': mail}
+        )
 
 
 crud_register = {

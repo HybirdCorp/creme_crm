@@ -23,6 +23,7 @@ from django.forms import CharField, ValidationError, FileField
 from django.forms.widgets import Textarea
 from django.utils.translation import ugettext_lazy as _
 from django.utils.encoding import smart_unicode
+from creme_core.forms.fields import MultiEmailField
 
 from creme_core.utils import chunktools
 from creme_core.forms import CremeForm, FieldBlockManager
@@ -31,8 +32,8 @@ from emails.models import EmailRecipient
 
 
 class MailingListAddRecipientsForm(CremeForm):
-    #TODO: true multi-emailfield ???
-    recipients = CharField(widget=Textarea(), label=_(u'Recipients'), help_text=_(u'Write a valid e-mail address per line.'))
+    recipients = MultiEmailField(label=_(u'Recipients'), help_text=_(u'Write a valid e-mail address per line.'))
+#    recipients = CharField(widget=Textarea(), label=_(u'Recipients'), help_text=_(u'Write a valid e-mail address per line.'))
 
     blocks = FieldBlockManager(('general', _(u'Recipients'), '*'))
 
@@ -40,13 +41,14 @@ class MailingListAddRecipientsForm(CremeForm):
         super(MailingListAddRecipientsForm, self).__init__(*args, **kwargs)
         self.ml = entity
 
-    def clean_recipients(self):
-        recipients = self.cleaned_data['recipients'].split()
-
-        for address in recipients:
-            validate_email(address)
-
-        return recipients
+#Commented 01 apr 2011
+#    def clean_recipients(self):
+#        recipients = self.cleaned_data['recipients'].split()
+#
+#        for address in recipients:
+#            validate_email(address)
+#
+#        return recipients
 
     def save(self):
         ml = self.ml

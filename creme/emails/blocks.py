@@ -144,7 +144,7 @@ class SendingsBlock(QuerysetBlock):
 
     def detailview_display(self, context):
         campaign = context['object']
-        return self._render(self.get_block_template_context(context, EmailSending.objects.filter(campaign=campaign.id), #TODO: use related_name
+        return self._render(self.get_block_template_context(context, EmailSending.objects.filter(campaign=campaign.id), #TODO: use related_name i.e:campaign.sendings_set.all()
                                                             update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, campaign.pk),
                                                             ct_id=ContentType.objects.get_for_model(EmailSending).id,
                                                            ))
@@ -219,11 +219,6 @@ class _SynchronizationMailsBlock(CrudityQuerysetBlock):
     @jsonify
     def detailview_ajax(self, request):
         context = RequestContext(request)
-        context.update({ #TODO: useless (already in detailview_display)
-            'MAIL_STATUS': MAIL_STATUS,
-            'entityemail_ct_id': ContentType.objects.get_for_model(EntityEmail).id,
-        })
-
         return [(self.id_, self.detailview_display(context))]
 
 
@@ -238,7 +233,6 @@ class WaitingSynchronizationMailsBlock(_SynchronizationMailsBlock):
         return self._render(self.get_block_template_context(context, EntityEmail.objects.filter(status=MAIL_STATUS_SYNCHRONIZED_WAITING),
 #                                                            update_url='/creme_core/blocks/reload/basic/%s/' % self.id_
                                                             update_url='/emails/sync_blocks/reload'
-                                                            #MAIL_STATUS=MAIL_STATUS #TODO
                                                             ))
 
 
@@ -253,7 +247,6 @@ class SpamSynchronizationMailsBlock(_SynchronizationMailsBlock):
         return self._render(self.get_block_template_context(context, EntityEmail.objects.filter(status=MAIL_STATUS_SYNCHRONIZED_SPAM),
 #                                                            update_url='/creme_core/blocks/reload/basic/%s/' % self.id_
                                                             update_url='/emails/sync_blocks/reload'
-                                                            #MAIL_STATUS=MAIL_STATUS #TODO
                                                            ))
 
 

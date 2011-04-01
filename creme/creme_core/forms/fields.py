@@ -30,6 +30,8 @@ from django.utils.simplejson import loads as jsonloads
 from django.utils.simplejson.encoder import JSONEncoder
 from django.utils.encoding import smart_unicode
 from django.contrib.contenttypes.models import ContentType
+from django.core.validators import validate_email
+from django.forms.widgets import Textarea
 
 from creme_core.models import RelationType, CremeEntity, Relation
 from creme_core.utils import creme_entity_content_types
@@ -773,3 +775,29 @@ class CremeDateField(DateField):
 
 class CremeDateTimeField(DateTimeField):
     widget = CalendarWidget
+
+
+class MultiEmailField(Field):
+    #Original code at http://docs.djangoproject.com/en/1.3/ref/forms/validation/#form-field-default-cleaning
+    widget = Textarea
+
+    def __init__(self, sep="\n", *args, **kwargs):
+        super(MultiEmailField, self).__init__(*args, **kwargs)
+        self.sep = sep
+
+    def to_python(self, value):
+        "Normalize data to a list of strings."
+
+        # Return an empty list if no input was given.
+        if not value:
+            return []
+        return [v for v in value.split(self.sep) if v]#Remove empty values but the validation is more flexible
+
+    def validate(self, value):
+        "Check if value consists only of valid emails."
+
+        # Use the parent's handling of required fields, etc.
+        super(MultiEmailField, self).validate(value)
+
+        for email in value:
+            validate_email(email)

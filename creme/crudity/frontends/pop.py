@@ -135,12 +135,13 @@ class PopFrontend(object):
 
                     mct = part.get_content_maintype()
                     cst = part.get_content_subtype()
-                    
+
                     if mct == 'multipart':
                         continue
 
-                    if mct != 'text' or (mct=='text' and cst not in ['plain','html']):
-                        filename = part.get_filename()
+                    filename = part.get_filename()
+
+                    if mct != 'text' or (mct=='text' and filename is not None):
                         attachments.append((filename, SimpleUploadedFile(filename, payload, content_type=part.get_content_type())))
 
                     else:
