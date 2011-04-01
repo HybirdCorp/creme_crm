@@ -25,7 +25,6 @@ from django.template.context import RequestContext
 
 from creme_core.utils import get_ct_or_404, jsonify
 
-from crudity import VERBOSE_CRUD
 from crudity.models.actions import WaitingAction
 from crudity.backends.registry import from_email_crud_registry
 from crudity.blocks import WaitingActionBlock
@@ -68,6 +67,5 @@ def reload(request, ct_id, waiting_type):
     block = WaitingActionBlock(ct, waiting_type)
 
     ctx = RequestContext(request)
-    ctx.update({'waiting_type_verbose': VERBOSE_CRUD, 'waiting_ct': ct, 'waiting_type': waiting_type}) #TODO: useful ?? (already set in the context by 'detailview_display')
 
     return [(block.id_, block.detailview_display(ctx))]

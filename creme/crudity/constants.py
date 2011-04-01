@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2011  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,17 +18,4 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.utils.translation import ugettext_lazy as _
-
-from creme_core.registry import creme_registry
-from creme_core.gui.menu import creme_menu
-
-from constants import CRUDITY_APP_NAME
-
-creme_registry.register_app(CRUDITY_APP_NAME, _(u'External data management'), '/crudity')
-
-reg_item = creme_menu.register_app(CRUDITY_APP_NAME, '/crudity/').register_item
-#reg_item('/crudity/',                       _(u'Portal'))
-reg_item('/crudity/email/waiting_actions',  _(u'Email waiting actions'), 'crudity')
-reg_item('/crudity/history',                _(u'History'),               'crudity')
-
+CRUDITY_APP_NAME = 'crudity' #In case crudity doesn't have to have his own menu
