@@ -18,10 +18,10 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.management.base import BaseCommand
 
-from creme_settings import CREME_GET_EMAIL_JOB_USER_ID
 from creme_core.models import Lock
 from crudity.views.email import _fetch_emails
 
@@ -42,7 +42,7 @@ class Command(BaseCommand):
                 lock.save()
 
                 try:
-                    user = User.objects.get(pk=CREME_GET_EMAIL_JOB_USER_ID)
+                    user = User.objects.get(pk=settings.CREME_GET_EMAIL_JOB_USER_ID)
                     print "There are %s new message(s)" % _fetch_emails(user)
 
                 except User.DoesNotExist:

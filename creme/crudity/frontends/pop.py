@@ -28,15 +28,18 @@ from logging import debug
 
 from django.core.files.uploadedfile import SimpleUploadedFile
 
-from creme_settings import (CREME_GET_EMAIL_SERVER,
-                            CREME_GET_EMAIL_USERNAME,
-                            CREME_GET_EMAIL_PASSWORD,
-                            CREME_GET_EMAIL_PORT,
-                            CREME_GET_EMAIL_SSL,
-                            CREME_GET_EMAIL_SSL_KEYFILE,
-                            CREME_GET_EMAIL_SSL_CERTFILE)
+from django.conf import settings
 
 from crudity.utils import get_unicode_decoded_str
+
+CREME_GET_EMAIL_SERVER       = settings.CREME_GET_EMAIL_SERVER
+CREME_GET_EMAIL_USERNAME     = settings.CREME_GET_EMAIL_USERNAME
+CREME_GET_EMAIL_PASSWORD     = settings.CREME_GET_EMAIL_PASSWORD
+CREME_GET_EMAIL_PORT         = settings.CREME_GET_EMAIL_PORT
+CREME_GET_EMAIL_SSL          = settings.CREME_GET_EMAIL_SSL
+CREME_GET_EMAIL_SSL_KEYFILE  = settings.CREME_GET_EMAIL_SSL_KEYFILE
+CREME_GET_EMAIL_SSL_CERTFILE = settings.CREME_GET_EMAIL_SSL_CERTFILE
+
 
 class PopEmail(object):
     def __init__(self, body=u"", body_html=u"", senders=(), tos=(), ccs=(), subject=None, dates=(), attachments=()):

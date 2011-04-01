@@ -26,7 +26,7 @@ from django.utils.translation import ugettext as _
 from creme_core.models import Relation
 from creme_core.views.file_handling import handle_uploaded_file
 
-from creme_settings import EMAILS_ENTITYEMAIL_FROM_EMAIL
+from django.conf import settings
 
 from crudity.models import History
 from crudity import CREATE
@@ -39,7 +39,7 @@ from emails.models.mail import EntityEmail, MAIL_STATUS_SYNCHRONIZED_WAITING
 from emails.blocks import WaitingSynchronizationMailsBlock, SpamSynchronizationMailsBlock
 
 
-create_email_settings = EMAILS_ENTITYEMAIL_FROM_EMAIL.get(CREATE)
+create_email_settings = settings.EMAILS_ENTITYEMAIL_FROM_EMAIL.get(CREATE)
 
 CREATE_ENTITYEMAIL_LIMIT_FROMS = create_email_settings.get("limit_froms")
 CREATE_ENTITYEMAIL_IN_SANDBOX  = create_email_settings.get("in_sandbox", True)

@@ -231,9 +231,15 @@ REMOTE_DJANGO = False
 #EMAIL_HOST = 'localhost'
 #EMAIL_PORT = 1025
 
-CREME_EMAIL = "to"
-
 DEFAULT_USER_EMAIL = ""#Email used in case the user doesn't have filled his email
+
+#Settings used in emails-sending (campaigns)
+CREME_EMAIL           = ""
+CREME_EMAIL_SERVER    = ""
+CREME_EMAIL_USERNAME  = ""
+CREME_EMAIL_PASSWORD  = ""
+CREME_EMAIL_PORT      = 25
+
 
 #EMAILS [END] ###################################################################
 
@@ -390,6 +396,46 @@ DEFAULT_TIME_TODO_REMIND = 120
 QUOTE_NUMBER_PREFIX = "DE"
 INVOICE_NUMBER_PREFIX = "FA"
 SALESORDER_NUMBER_PREFIX = "BC"
+
+#SAMOUSSA ----------------------------------------------------------------------
+CREME_SAMOUSSA_URL = 'http://localhost:8001/'
+CREME_SAMOUSSA_USERNAME = 'compte21'
+CREME_SAMOUSSA_PASSWORD = 'compte21'
+
+#CRUDITY ------------------------------------------------------------------------
+#Mail parameters to sync external email in creme
+CREME_GET_EMAIL              = "" #Creme get email e.g : creme@cremecrm.org
+CREME_GET_EMAIL_SERVER       = "" #Creme get server e.g : pop.cremecrm.org (only pop supported for now)
+CREME_GET_EMAIL_USERNAME     = "" #user
+CREME_GET_EMAIL_PASSWORD     = "" #pass
+CREME_GET_EMAIL_PORT         = 110
+CREME_GET_EMAIL_SSL          = False #True or False #Not used for the moment
+CREME_GET_EMAIL_SSL_KEYFILE  = "" #Not used for the moment
+CREME_GET_EMAIL_SSL_CERTFILE = "" #Not used for the moment
+CREME_GET_EMAIL_JOB_USER_ID  = None #Only for job. Default user id which will handle the synchronization
+
+CREME_GET_EMAIL_JOB_USER_ID  = 1#User used to synchronize mails with management command
+
+from crudity import CREATE
+
+PERSONS_CONTACT_FROM_EMAIL = {
+    CREATE: {
+        "password"   : u"",  #Password to be authorized in backend
+        "limit_froms": (),   #If recipient email's address not in this drop email, let empty to allow all email addresses
+        "in_sandbox" : True, #True : Show in sandbox & history, False show only in history (/!\ creation will be automatic if False)
+        "body_map"   : {     #Allowed keys format : "key": "default value"
+        },
+        "subject": u""       #Target subject, nb: in the subject all spaces will be deleted, and it'll be converted to uppercase
+    }
+}
+
+EMAILS_ENTITYEMAIL_FROM_EMAIL = {
+    CREATE: {
+        "limit_froms": (),   #If recipient email's address not in this drop email, let empty to allow all email addresses
+        "in_sandbox" : True, #True : Show in sandbox & history, False show only in history (/!\ creation will be automatic if False)
+    }
+}
+
 
 #APPS CONFIGURATION [END]#######################################################
 
