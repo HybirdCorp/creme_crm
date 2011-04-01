@@ -49,14 +49,6 @@ from crudity.frontends.pop import pop_frontend
 from documents.models import Document, Folder, FolderCategory
 from documents.constants import REL_OBJ_RELATED_2_DOC
 
-from creme_settings import (CREME_GET_EMAIL_SERVER,
-                            CREME_GET_EMAIL_USERNAME,
-                            CREME_GET_EMAIL_PASSWORD,
-                            CREME_GET_EMAIL_PORT,
-                            CREME_GET_EMAIL_SSL,
-                            CREME_GET_EMAIL_SSL_KEYFILE,
-                            CREME_GET_EMAIL_SSL_CERTFILE)
-
 from emails.utils import generate_id#, get_unicode_decoded_str
 from emails.models import EmailSignature
 

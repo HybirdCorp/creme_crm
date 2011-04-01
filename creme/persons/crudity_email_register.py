@@ -18,14 +18,14 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from creme_settings import PERSONS_CONTACT_FROM_EMAIL
+from django.conf import settings
 
 from crudity import CREATE
 from crudity.backends.email import CreateFromEmailBackend
 
 from persons.models.contact import Contact
 
-create_contact_settings = PERSONS_CONTACT_FROM_EMAIL.get(CREATE)
+create_contact_settings = settings.PERSONS_CONTACT_FROM_EMAIL.get(CREATE)
 
 CREATE_CONTACT_PASSWORD    = create_contact_settings.get("password")
 CREATE_CONTACT_LIMIT_FROMS = create_contact_settings.get("limit_froms")

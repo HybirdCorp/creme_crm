@@ -34,8 +34,6 @@ from django.template import Template, Context
 from django.conf import settings
 from django.utils.translation import ugettext_lazy as _, ugettext, activate
 
-from creme_settings import CREME_EMAIL, CREME_EMAIL_PASSWORD, CREME_EMAIL_SERVER, CREME_EMAIL_PORT, CREME_EMAIL_USERNAME
-
 from creme_core.models import CremeModel, CremeEntity
 
 from emails.models.mail import _Email, ID_LENGTH, MAIL_STATUS_SENT, MAIL_STATUS_NOTSENT, MAIL_STATUS_SENDINGERROR
@@ -168,8 +166,8 @@ class EmailSending(CremeModel):
 
         #SMTPConnection is deprecated but with mail.get_connection() we can't specify other settings than django settings
         #TODO: Write a custom e-mail backend: http://docs.djangoproject.com/en/1.3/topics/email/#topic-custom-email-backend
-        con = SMTPConnection(host=CREME_EMAIL_SERVER, port=CREME_EMAIL_PORT,
-                             username=CREME_EMAIL_USERNAME, password=CREME_EMAIL_PASSWORD,
+        con = SMTPConnection(host=settings.CREME_EMAIL_SERVER, port=settings.CREME_EMAIL_PORT,
+                             username=settings.CREME_EMAIL_USERNAME, password=settings.CREME_EMAIL_PASSWORD,
                              use_tls=True)
         
         for mail in mails:

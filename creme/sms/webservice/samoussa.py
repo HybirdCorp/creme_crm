@@ -17,12 +17,9 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
-
+from django.conf import settings
 from django.utils.simplejson import loads
 from sms.webservice.backend import WSBackEnd
-
-import creme_settings as settings
-
 
 SAMOUSSA_STATUS_WAITING = 'wait'
 SAMOUSSA_STATUS_ACCEPT = 'accept'
