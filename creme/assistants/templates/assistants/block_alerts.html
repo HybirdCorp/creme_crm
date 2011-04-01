@@ -27,13 +27,13 @@
             </tr>
             {% for alert in page.object_list %}<!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
                 <tr>{% has_perm_to change alert.creme_entity as has_perm %}
-                    <td class="{{row_color}}"><strong>{{alert.title}}</strong></td>
+                    <td class="{{row_color}}"><strong>{{alert|get_html_field_value:"title"}}</strong></td>
                     {% if not object %}
                         <td class="{{row_color}}">{% widget_entity_hyperlink alert.creme_entity user %}</td>
                     {% endif %}
-                    <td class="{{row_color}}">{{alert.for_user}}</td>
-                    <td class="{{row_color}}">{{alert.trigger_date}}</td>
-                    <td class="{{row_color}}"><em>{{alert.description}}</em></td>
+                    <td class="{{row_color}}">{{alert|get_html_field_value:"for_user"}}</td>
+                    <td class="{{row_color}}">{{alert|get_html_field_value:"trigger_date"}}</td>
+                    <td class="{{row_color}}"><em>{{alert|get_html_field_value:"description"}}</em></td>
                     <td class="{{row_color}}">
                         {% if has_perm %}
                             <form method="post" action="/assistants/alert/validate/{{alert.id}}/">{% csrf_token %}

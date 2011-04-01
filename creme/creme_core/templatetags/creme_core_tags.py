@@ -28,6 +28,7 @@ from django.utils.safestring import mark_safe
 from django.utils.html import escape
 from django.utils.formats import date_format
 from django.contrib.contenttypes.models import ContentType
+from django.template.defaultfilters import linebreaks
 
 from creme_core.models import CremeEntity
 from creme_core.models import fields
@@ -107,6 +108,8 @@ def print_imagefield(x):
             (url, url, image_size(x), url)
 
 def print_urlfield(x):
+    if not x:
+        return ""
     esc_x = escape(x)
     return '<a href="%s" target="_blank">%s</a>' % (esc_x, esc_x)
 
@@ -116,7 +119,13 @@ def print_datetime(x):
 def print_date(x):
     return date_format(x, 'DATE_FORMAT') if x else ''
 
+def print_textfield(x):
+    if not x:
+        return ""
+    return linebreaks(x)
+
 #TODO: remove all values with simple_print => _FIELD_PRINTERS.get(KEY, simple_print) ??
+#TODO: Do more specific fields (i.e: phone field, currency field....) ?
 _FIELD_PRINTERS = {
      models.AutoField:                  simple_print,
      models.BooleanField:               lambda x: '<input type="checkbox" value="%s" %s disabled/>' % (escape(x), 'checked' if x else ''),
@@ -137,7 +146,7 @@ _FIELD_PRINTERS = {
      models.PositiveSmallIntegerField:  simple_print,
      models.SlugField:                  simple_print,
      models.SmallIntegerField:          simple_print,
-     models.TextField:                  simple_print,
+     models.TextField:                  print_textfield,
      models.TimeField:                  simple_print,
      models.URLField:                   print_urlfield,
      models.XMLField:                   simple_print,

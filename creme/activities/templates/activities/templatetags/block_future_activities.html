@@ -36,7 +36,7 @@
             {% for activity in page.object_list %}<!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
                 <tr>{% has_perm_to view activity as activity_view_perm %}
                     {% if activity_view_perm %}
-                        <td class="{{row_color}}">{{activity.status|default:''}}</td>
+                        <td class="{{row_color}}">{{activity|get_html_field_value:"status"}}</td>
                         <td class="{{row_color}}"><a href="{{activity.get_absolute_url}}">{{activity}}</a></td>
                         <td class="{{row_color}}"> {% comment %}need a <a> tag ??{% endcomment %}
                             <a href="{{activity.get_absolute_url}}">{% include 'activities/templatetags/activity_date.html' %}</a>
