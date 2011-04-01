@@ -358,6 +358,7 @@ CREME_OPT_JS = ( #OPTIONNAL APPS
                 'billing/js/billing.js',
                 'reports/js/reports.js',
                 'emails/js/emails.js',
+                'cti/js/cti.js',
                )
 
 MEDIA_BUNDLES = (CREME_CORE_CSS, CREME_I18N_JS, CREME_CORE_JS + CREME_OPT_JS)

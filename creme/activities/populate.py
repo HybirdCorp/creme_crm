@@ -49,15 +49,15 @@ class Populator(BasePopulator):
         RelationType.create((REL_SUB_PART_2_ACTIVITY,  _(u"participates to the activity"), [Contact]),
                             (REL_OBJ_PART_2_ACTIVITY,  _(u'has as participant')))
 
-        create(PhoneCallType, 1, name=_(u"Incoming"), description=_(u"Incoming call"))
-        create(PhoneCallType, 2, name=_(u"Outgoing"), description=_(u"Outgoing call"))
-        create(PhoneCallType, 3, name=_(u"Other"),    description=_(u"Example: a conference"))
+        create(PhoneCallType, PHONECALLTYPE_INCOMING, name=_(u"Incoming"), description=_(u"Incoming call"))
+        create(PhoneCallType, PHONECALLTYPE_OUTGOING, name=_(u"Outgoing"), description=_(u"Outgoing call"))
+        create(PhoneCallType, PHONECALLTYPE_OTHER,    name=_(u"Other"),    description=_(u"Example: a conference"))
 
-        create(Status, 1, name=_(u"Planned"),     description=_(u"Planned"))
-        create(Status, 2, name=_(u"In progress"), description=_(u"In progress"))
-        create(Status, 3, name=_(u"Done"),        description=_(u"Done"))
-        create(Status, 4, name=_(u"Delayed"),     description=_(u"Delayed"))
-        create(Status, 5, name=_(u"Cancelled"),     description=_(u"Cancelled"))
+        create(Status, STATUS_PLANNED,     name=_(u"Planned"),     description=_(u"Planned"))
+        create(Status, STATUS_IN_PROGRESS, name=_(u"In progress"), description=_(u"In progress"))
+        create(Status, STATUS_DONE,        name=_(u"Done"),        description=_(u"Done"))
+        create(Status, STATUS_DELAYED,     name=_(u"Delayed"),     description=_(u"Delayed"))
+        create(Status, STATUS_CANCELLED,   name=_(u"Cancelled"),   description=_(u"Cancelled"))
 
         create(ActivityType, ACTIVITYTYPE_TASK,      name=_(u"Task"),            color="987654", default_day_duration=0, default_hour_duration="00:15:00", is_custom=False)
         create(ActivityType, ACTIVITYTYPE_MEETING,   name=_(u"Meeting"),         color="456FFF", default_day_duration=0, default_hour_duration="00:15:00", is_custom=False)
