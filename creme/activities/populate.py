@@ -75,8 +75,8 @@ class Populator(BasePopulator):
         create(HeaderFilterItem, pref + 'type',  order=5, name='type__name',   title=_(u'Type - Name'),   type=HFI_FIELD, header_filter=hf, has_a_filter=True, editable=True, sortable=True, filter_string="type__name__icontains")
         create(HeaderFilterItem, pref + 'type',  order=4, name='status__name', title=_(u'Status - Name'), type=HFI_FIELD, header_filter=hf, has_a_filter=True, editable=True, sortable=True, filter_string="status__name__icontains")
 
-        create(BlockConfigItem, 'activities-future_activities_block', content_type=None, block_id=future_activities_block.id_, order=20, on_portal=False)
-        create(BlockConfigItem, 'activities-past_activities_block',   content_type=None, block_id=past_activities_block.id_,   order=21, on_portal=False)
+        BlockConfigItem.create(pk='activities-future_activities_block', block_id=future_activities_block.id_, order=20, on_portal=False)
+        BlockConfigItem.create(pk='activities-past_activities_block',   block_id=past_activities_block.id_,   order=21, on_portal=False)
 
         ButtonMenuItem.create('activities-add_meeting_button',   model=None, button=add_meeting_button,   order=10)
         ButtonMenuItem.create('activities-add_phonecall_button', model=None, button=add_phonecall_button, order=11)

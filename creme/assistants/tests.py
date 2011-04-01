@@ -55,6 +55,9 @@ class TodoTestCase(AssistantsTestCase):
         self.assertEqual(1, len(todos))
 
         todo = todos[0]
+        self.assertEqual(self.entity.id,             todo.entity_id)
+        self.assertEqual(self.entity.entity_type_id, todo.entity_content_type_id)
+
         self.assertEqual(title,       todo.title)
         self.assertEqual(description, todo.description)
 

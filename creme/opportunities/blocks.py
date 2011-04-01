@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2011  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -24,14 +24,14 @@ from django.contrib.contenttypes.models import ContentType
 from creme_core.models import CremeEntity, Relation
 from creme_core.gui.block import QuerysetBlock
 
-from persons.models import Contact
+from persons.models import Contact, Organisation
 
 from products.models import Product, Service
 
 from billing.models import Quote, Invoice, SalesOrder
 
-from constants import *
-from models import Opportunity
+from opportunities.constants import *
+from opportunities.models import Opportunity
 
 
 _get_ct = ContentType.objects.get_for_model
@@ -143,18 +143,21 @@ class InvoicesBlock(_LinkedStuffBlock):
         return entity.get_invoices()
 
 
-#TODO: this block is imported directly by the Organisation's template (because configurable blocks can not be contrained to a CT) => improve....
 class TargetOrganisationsBlock(_LinkedStuffBlock):
     id_           = QuerysetBlock.generate_id('opportunities', 'target_organisations')
     relation_type_deps = (REL_OBJ_TARGETS_ORGA, )
     verbose_name  = _(u"Opportunities which target the organisation")
     template_name = 'opportunities/templatetags/block_opportunities.html'
+    configurable  = True
+    target_ctypes = (Organisation,)
 
     _ct = _get_ct(Opportunity)
 
     def _get_queryset(self, entity):
         return Opportunity.objects.filter(relations__object_entity=entity.id, relations__type=REL_SUB_TARGETS_ORGA)
 
+
+target_organisations_block = TargetOrganisationsBlock()
 
 blocks_list = (
     LinkedContactsBlock(),
@@ -164,5 +167,5 @@ blocks_list = (
     QuotesBlock(),
     SalesOrdersBlock(),
     InvoicesBlock(),
-    TargetOrganisationsBlock(),
+    target_organisations_block,
 )

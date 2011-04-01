@@ -443,10 +443,19 @@ def do_detailview_blocks_displayer(parser, token):
     return DetailviewBlocksDisplayerNode()
 
 class DetailviewBlocksDisplayerNode(TemplateNode):
-    def render(self, context):
-        blocks = BlocksManager.get(context).pop_group('detailview_blocks')
+    def block_outputs(self, context):
+        model = context['object'].__class__
 
-        return ''.join(block.detailview_display(context) for block in blocks)
+        for block in BlocksManager.get(context).pop_group('detailview_blocks'):
+            target_ctypes = block.target_ctypes
+
+            if target_ctypes and not model in target_ctypes:
+                yield "THIS BLOCK CAN'T BE DISPLAY ON THIS CONTENT TYPE (YOU HAVE A CONFIG PROBLEM): %s" % block.id_
+            else:
+                 yield block.detailview_display(context)
+
+    def render(self, context):
+        return ''.join(op for op in self.block_outputs(context))
 
 
 @register.tag(name="display_block_portal")
@@ -529,20 +538,20 @@ class PortalBlocksDisplayerNode(TemplateNode):
     def __init__(self, ct_ids_varname):
         self.ct_ids_varname = ct_ids_varname
 
-    def render(self, context):
+    def block_outputs(self, context):
         blocks = BlocksManager.get(context).pop_group('portal_blocks')
         ct_ids = context[self.ct_ids_varname]
 
-        blocks_output = []
         for block in blocks:
             portal_display = getattr(block, 'portal_display', None)
 
             if portal_display is not None:
-                blocks_output.append(portal_display(context, ct_ids))
+                yield portal_display(context, ct_ids)
             else:
-                blocks_output.append("THIS BLOCK CAN'T BE DISPLAY ON PORTAL (YOU HAVE A CONFIG PROBLEM): %s" % block.id_)
+                yield "THIS BLOCK CAN'T BE DISPLAY ON PORTAL (YOU HAVE A CONFIG PROBLEM): %s" % block.id_
 
-        return ''.join(blocks_output)
+    def render(self, context):
+        return ''.join(op for op in self.block_outputs(context))
 
 
 @register.tag(name="import_home_blocks")
@@ -563,19 +572,17 @@ def do_home_blocks_displayer(parser, token):
     return HomeBlocksDisplayerNode()
 
 class HomeBlocksDisplayerNode(TemplateNode):
-    def render(self, context):
-        blocks = BlocksManager.get(context).pop_group('home_blocks') #TODO: use CONSTANT
-
-        blocks_output = []
-        for block in blocks:
+    def block_outputs(self, context):
+        for block in BlocksManager.get(context).pop_group('home_blocks'): #TODO: use CONSTANT
             home_display = getattr(block, 'home_display', None)
 
             if home_display is not None:
-                blocks_output.append(home_display(context))
+                yield home_display(context)
             else:
-                blocks_output.append("THIS BLOCK CAN'T BE DISPLAY ON HOME (YOU HAVE A CONFIG PROBLEM): %s" % block.id_)
+                yield "THIS BLOCK CAN'T BE DISPLAY ON HOME (YOU HAVE A CONFIG PROBLEM): %s" % block.id_
 
-        return ''.join(blocks_output)
+    def render(self, context):
+        return ''.join(op for op in self.block_outputs(context))
 
 
 @register.inclusion_tag('creme_core/templatetags/blocks_dependencies.html', takes_context=True)

@@ -74,7 +74,7 @@ class Command(BaseCommand):
         self._do_populate_action(action, is_verbose, app, *args, **options)
 
     def _depencies_sort(self, a, b):
-        a_depends_of_b = b.app in a.dependencies if hasattr(a, 'dependencies') else False
+        a_depends_of_b = b.app in a.dependencies if hasattr(a, 'dependencies') else False #TODO: a_depends_of_b = b.app in getattr(a, 'dependencies', ())
         b_depends_of_a = a.app in b.dependencies if hasattr(b, 'dependencies') else False
 
         if a_depends_of_b and b_depends_of_a or not a_depends_of_b and not b_depends_of_a:
@@ -104,7 +104,7 @@ class Command(BaseCommand):
                 if is_verbose:
                     print 'disable populate for "' + app + '" :', err
 
-        populates.sort(cmp=lambda a, b:self._depencies_sort(a, b))
+        populates.sort(cmp=lambda a, b: self._depencies_sort(a, b))
 
         for populate in populates:
             if is_verbose:

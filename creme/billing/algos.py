@@ -30,11 +30,13 @@ class SimpleAlgo(Algo):
     def generate_number(self, organisation, ct, *args, **kwargs):
         while True:
             old_conf = max(SimpleBillingAlgo.objects.filter(organisation=organisation, ct=ct),
-                        key=lambda algo: algo.last_number)
+                           key=lambda algo: algo.last_number
+                          )
             conf     = SimpleBillingAlgo(organisation=old_conf.organisation,
                                          ct=old_conf.ct,
                                          prefix=old_conf.prefix,
-                                         last_number=old_conf.last_number + 1)
+                                         last_number=old_conf.last_number + 1,
+                                        )
 
             try:
                 # remember the <unique_together = ("organisation", "last_number", "ct")> in SimpleBillingAlgo.Meta

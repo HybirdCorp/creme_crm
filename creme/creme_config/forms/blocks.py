@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2011  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -22,11 +22,10 @@ from logging import debug
 
 from django.forms import IntegerField, MultipleChoiceField, ChoiceField
 from django.forms.widgets import HiddenInput
-from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import ugettext_lazy as _, ugettext
+from django.contrib.contenttypes.models import ContentType
 
-from creme_core.models import (RelationType, BlockConfigItem, RelationBlockItem,
-                               InstanceBlockConfigItem)
+from creme_core.models import RelationType, BlockConfigItem, RelationBlockItem, InstanceBlockConfigItem
 from creme_core.forms import CremeForm, CremeModelForm
 from creme_core.forms.widgets import OrderedMultipleChoiceWidget
 from creme_core.gui.block import block_registry, SpecificRelationsBlock
@@ -34,20 +33,26 @@ from creme_core.utils import creme_entity_content_types
 from creme_core.utils.id_generator import generate_string_id_and_save
 
 
-class DetailviewBlocksForm(CremeForm):
+class _DetailviewBlocksForm(CremeForm):
     ct_id     = ChoiceField(label=_(u'Related resource'), choices=(), required=True)
     block_ids = MultipleChoiceField(label=_(u'Block to display'), required=False,
                                     choices=(),
                                     widget=OrderedMultipleChoiceWidget)
 
-    def __init__(self, *args, **kwargs):
-        super(DetailviewBlocksForm, self).__init__(*args, **kwargs)
+    _configured_model = None
 
-        choices = [(id_, block.verbose_name) for id_, block in block_registry if block.configurable]
+    def __init__(self, *args, **kwargs):
+        super(_DetailviewBlocksForm, self).__init__(*args, **kwargs)
+
+        choices = [(block.id_, block.verbose_name)
+                        for block in block_registry.get_compatible_blocks(model=self._configured_model)
+                  ]
         choices.extend((rbi.block_id, ugettext(u'Relation block: %s') % rbi.relation_type.predicate)
-                            for rbi in RelationBlockItem.objects.all()) #TODO: filter compatible relation types
+                            for rbi in RelationBlockItem.objects.all()
+                      ) #TODO: filter compatible relation types
         choices.extend((ibi.block_id, ugettext(u"Instance's block: %s") % ibi)
-                            for ibi in InstanceBlockConfigItem.objects.all())
+                            for ibi in InstanceBlockConfigItem.objects.all()
+                      )
 
         self.fields['block_ids'].choices = choices
 
@@ -74,28 +79,36 @@ class DetailviewBlocksForm(CremeForm):
             BCI_filter(content_type=ct, block_id__in=blocks_to_del).delete()
 
             for i, block_id in enumerate(block_ids):
+                order = i + 1 #TODO: use 'start' arg in enumerate with Python 2.6
+
                 if block_id in blocks_to_add:
-                    blocks_2_save.append(BlockConfigItem(content_type=ct, block_id=block_id, order=i + 1, on_portal=False))
+                    blocks_2_save.append(BlockConfigItem(content_type=ct, block_id=block_id, order=order, on_portal=False))
                 else:
                     bci = BlockConfigItem.objects.get(content_type=ct, block_id=block_id) #TODO: queries could be regrouped...
 
-                    if bci.order != i + 1:
-                        bci.order = i + 1
+                    if bci.order != order:
+                        bci.order = order
                         bci.save()
 
         generate_string_id_and_save(BlockConfigItem, blocks_2_save, 'creme_config-userbci')
 
 
-class BlocksEditForm(DetailviewBlocksForm):
+class BlocksEditForm(_DetailviewBlocksForm):
     ct_id = IntegerField(widget=HiddenInput())
 
-    def __init__(self, block_config_items, *args, **kwargs):
+    def __init__(self, ct_id, block_config_items, *args, **kwargs):
+        #NB: before super's __init__ (used for block_registry.get_compatible_blocks())
+        if ct_id:
+            self._configured_model = ContentType.objects.get_for_id(ct_id).model_class()
+
         super(BlocksEditForm, self).__init__(*args, **kwargs)
 
-        self.fields['block_ids'].initial = [bci.block_id for bci in block_config_items]
+        fields = self.fields
+        fields['ct_id'].initial = ct_id
+        fields['block_ids'].initial = [bci.block_id for bci in block_config_items]
 
 
-class BlocksAddForm(DetailviewBlocksForm):
+class BlocksAddForm(_DetailviewBlocksForm):
     def __init__(self, *args, **kwargs):
         super(BlocksAddForm, self).__init__(*args, **kwargs)
 
@@ -109,21 +122,24 @@ class BlocksPortalEditForm(CremeForm):
     block_ids = MultipleChoiceField(label=_(u'Blocks to display on the portal'), required=False,
                                     choices=(), widget=OrderedMultipleChoiceWidget)
 
-    def __init__(self, block_config_items, *args, **kwargs):
+    def __init__(self, ct_id, block_config_items, *args, **kwargs):
         super(BlocksPortalEditForm, self).__init__(*args, **kwargs)
-
         self._block_config_items = block_config_items
 
-        block_ids = self.fields['block_ids']
+        fields = self.fields
+        fields['ct_id'].initial = ct_id
+
         get_block = block_registry.get_block
         choices   = []
 
         for bci in block_config_items:
             id_   = bci.block_id
             block = get_block(id_)
+
             if hasattr(block, 'portal_display'):
                 choices.append((id_, block.verbose_name))
 
+        block_ids = fields['block_ids']
         block_ids.choices = choices
         block_ids.initial = [bci.block_id for bci in block_config_items if bci.on_portal]
 

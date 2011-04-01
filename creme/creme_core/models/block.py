@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2011  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -39,6 +39,17 @@ class BlockConfigItem(CremeModel):
         app_label = 'creme_core'
         verbose_name = _(u'Block to display')
         verbose_name_plural = _(u'Blocks to display')
+
+    @staticmethod
+    def create(pk, block_id, order, on_portal, model=None):
+        kwargs = {
+                'content_type': ContentType.objects.get_for_model(model) if model else None,
+                'block_id':     block_id
+            }
+
+        if not BlockConfigItem.objects.filter(**kwargs).exists():
+            kwargs.update(pk=pk, order=order, on_portal=on_portal)
+            BlockConfigItem.objects.create(**kwargs)
 
 
 class RelationBlockItem(CremeModel):
