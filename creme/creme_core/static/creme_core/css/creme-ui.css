@@ -41,3 +41,12 @@ ul.ui-layout.vbox li { position:relative; display:block; }
 /*----------------------------------*/
 .ui-creme-chainedselect img.reset { border:0; vertical-align:middle; }
 .ui-creme-chainedselect img.reset:hover { cursor:pointer; }
+
+/*----------------------------------*/
+.ui-creme-chainedselect li .ui-creme-dselect { width:20em; }
+.ui-creme-chainedselect li .ui-creme-entityselector button { width:auto; }
+
+.ui-creme-chainedselect li[chained-name="rtype"] .ui-creme-dselect { width:22em; }
+.ui-creme-chainedselect li[chained-name="ctype"] .ui-creme-dselect { width:18em; }
+.ui-creme-chainedselect li[chained-name="column"] .ui-creme-dselect { width:auto; }
+.ui-creme-chainedselect li[chained-name="searchfield"] .ui-creme-dselect { width:14em; }
