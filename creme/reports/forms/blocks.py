@@ -106,9 +106,7 @@ class GraphInstanceBlockForm(CremeForm):
         graph = self.graph
         volatil_column = get_data('volatil_column', '')
 
-        try: #TODO: use filter().exists() instead
-            InstanceBlockConfigItem.objects.get(block_id=ReportGraphBlock.generate_id('creme_config', u"%s_%s" % (graph.id, volatil_column)))
-        except InstanceBlockConfigItem.DoesNotExist:
+        if not InstanceBlockConfigItem.objects.filter(block_id=ReportGraphBlock.generate_id('creme_config', u"%s_%s" % (graph.id, volatil_column))).exists():
             return cleaned_data
 
         raise ValidationError(ugettext(u'The instance block for %(graph)s with %(column)s already exists !') % {'graph': graph, 'column': volatil_column.split('#')[0] or _('None')})

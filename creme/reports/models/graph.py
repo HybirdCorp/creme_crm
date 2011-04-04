@@ -107,6 +107,8 @@ class ReportGraph(CremeEntity):
         entities_filter = entities.filter
 
         x, y = [], []
+        x_append = x.append
+        y_append = y.append
 
         if gtype == RGT_DAY:
             x, y = _get_dates_values(entities, abscissa, ordinate, ordinate_col, aggregate_func, entities_filter, 'day', q_func=lambda date: Q(**{str('%s__year' % abscissa): date.year}) & Q(**{str('%s__month' % abscissa): date.month})  & Q(**{str('%s__day' % abscissa): date.day}), date_format="%d/%m/%Y", order=order, is_count=is_count)
@@ -127,25 +129,25 @@ class ReportGraph(CremeEntity):
                     while min_date <= max_date:
                         begin = min_date
                         end   = min_date + days
-                        x.append("%s-%s" % (begin.strftime("%d/%m/%Y"), end.strftime("%d/%m/%Y")))
+                        x_append("%s-%s" % (begin.strftime("%d/%m/%Y"), end.strftime("%d/%m/%Y")))
 
                         sub_entities = entities_filter(Q(**{str('%s__range' % abscissa): (begin, end)}))
                         if is_count:
-                            y.append(sub_entities.count())
+                            y_append(sub_entities.count())
                         else:
-                            y.append(sub_entities.aggregate(aggregate_col).get(ordinate))
+                            y_append(sub_entities.aggregate(aggregate_col).get(ordinate))
                         min_date = end
                 else:
                     while(max_date >= min_date):
                         begin = max_date
                         end   = max_date - days
-                        x.append("%s-%s" % (begin.strftime("%d/%m/%Y"), end.strftime("%d/%m/%Y")))
+                        x_append("%s-%s" % (begin.strftime("%d/%m/%Y"), end.strftime("%d/%m/%Y")))
 
                         sub_entities = entities_filter(Q(**{str('%s__range' % abscissa): (end, begin)}))
                         if is_count:
-                            y.append(sub_entities.count())
+                            y_append(sub_entities.count())
                         else:
-                            y.append(sub_entities.aggregate(aggregate_col).get(ordinate))
+                            y_append(sub_entities.aggregate(aggregate_col).get(ordinate))
                         max_date = end
 
         elif gtype == RGT_FK:
@@ -166,33 +168,40 @@ class ReportGraph(CremeEntity):
             fks = dict((rel.id, unicode(rel)) for rel in _fks)
 
             for fk_id in fk_ids:
-                x.append(fks.get(fk_id, ''))
+                x_append(fks.get(fk_id, ''))
                 sub_entities = entities_filter(Q(**{str('%s' % abscissa): fk_id}))
                 if is_count:
-                    y.append(sub_entities.count())
+                    y_append(sub_entities.count())
                 else:
-                    y.append(sub_entities.aggregate(aggregate_col).get(ordinate))
+                    y_append(sub_entities.aggregate(aggregate_col).get(ordinate))
 
         elif gtype == RGT_RELATION:
             #TODO: Optimize !
-            rt = RelationType.objects.get(pk=abscissa)#TODO: try except ?
-            relations = Relation.objects.filter(type=rt, subject_entity__entity_type=ct)
+            try:
+                rt = RelationType.objects.get(pk=abscissa)
+            except RelationType.DoesNotExist:
+                pass
+            else:
+                relations = Relation.objects.filter(type=rt, subject_entity__entity_type=ct)
 
-            obj_ids = set(relations.values_list('object_entity__id', flat=True))
+                obj_ids = set(relations.values_list('object_entity__id', flat=True))
 
-            for obj_id in obj_ids:
-                try:
-                    x.append(unicode(CremeEntity.objects.get(pk=obj_id).get_real_entity()))
-                except CremeEntity.DoesNotExist:
-                    continue
+                ce_objects_get = CremeEntity.objects.get
+                model_objects_filter = model.objects.filter
 
-                sub_relations = relations.filter(Q(object_entity__id=obj_id))
+                for obj_id in obj_ids:
+                    try:
+                        x_append(unicode(ce_objects_get(pk=obj_id).get_real_entity()))
+                    except CremeEntity.DoesNotExist:
+                        continue
 
-                if is_count:
-                    y.append(sub_relations.count())
-                else:
-                    sub_entities = model.objects.filter(pk__in=sub_relations.values_list('subject_entity__id'))
-                    y.append(sub_entities.aggregate(aggregate_col).get(ordinate))
+                    sub_relations = relations.filter(Q(object_entity__id=obj_id))
+
+                    if is_count:
+                        y_append(sub_relations.count())
+                    else:
+                        sub_entities = model_objects_filter(pk__in=sub_relations.values_list('subject_entity__id'))
+                        y_append(sub_entities.aggregate(aggregate_col).get(ordinate))
 
 
         for i, item in enumerate(y):

@@ -17,12 +17,17 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
+import datetime, time
 
 import re
 
 from django.db import IntegrityError
 from django.contrib.contenttypes.models import ContentType
+from django.db.models.fields import FieldDoesNotExist
 from django.utils.translation import ugettext as _
+from django.utils import formats
+
+from creme_core.utils.meta import is_date_field
 
 from crudity import CREATE
 from crudity.models.actions import WaitingAction
@@ -105,6 +110,21 @@ class CreateFromEmailBackend(object):
 
     def _create_instance_n_history(self, data):
         instance = self.model()
+
+        model_get_field = self.model._meta.get_field
+
+        for field_name, field_value in data.iteritems():
+            try:
+                if is_date_field(model_get_field(field_name)):
+                    for format in formats.get_format('DATETIME_INPUT_FORMATS'):#TODO: Extract this into a method?
+                        try:
+                            data[field_name] = datetime.datetime(*time.strptime(field_value, format)[:6])
+                            break
+                        except ValueError:
+                            continue
+            except FieldDoesNotExist:
+                continue
+
         instance.__dict__.update(data)
         is_created = True
         try:
