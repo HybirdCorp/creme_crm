@@ -45,9 +45,9 @@ def add_relation_block(request):
 @login_required
 @permission_required('creme_config.can_admin')
 def portal(request):
-    return render_to_response('creme_config/blocks_portal.html',
-                              {},
-                              context_instance=RequestContext(request))
+    return render_to_response('creme_config/blocks_portal.html', {},
+                              context_instance=RequestContext(request)
+                             )
 
 @login_required
 @permission_required('creme_config.can_admin')
@@ -55,7 +55,7 @@ def _edit(request, ct_id, form_class, portal):
     ct_id = int(ct_id)
     bci = BlockConfigItem.objects.filter(content_type=ct_id or None).order_by('order')
 
-    if not bci:
+    if not bci: #TODO: a default config must exist (it works for now because there is always 'assistants' app)
         raise Http404('This configuration does not exist (any more ?)')
 
     if request.method == 'POST':
@@ -93,7 +93,7 @@ def edit_portal(request, ct_id):
 @login_required
 @permission_required('creme_config.can_admin')
 def delete(request):
-    ct_id = get_from_POST_or_404(request.POST, 'id')
+    ct_id = get_from_POST_or_404(request.POST, 'id', int)
 
     if not ct_id:
         raise Http404('Default config can not be deleted')
