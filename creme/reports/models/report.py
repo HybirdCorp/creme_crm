@@ -17,6 +17,7 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
+from itertools import chain
 
 from django.contrib.contenttypes.models import ContentType
 from django.conf import settings
@@ -341,7 +342,7 @@ class Report(CremeEntity):
             try:
                 for column in columns:
                     field = column.get('field')
-                    entity_line_append(field.get_value(entity, query=entities, user=user))#TODO: %s/entities/entities_with_limit ??
+                    entity_line_append(field.get_value(entity, query=entities, user=user))#TODO: %s/entities/entities_with_limit ?? => Not mysql 5.1 compliant
 
                 lines_append(entity_line)
             except DropLine:
@@ -426,10 +427,11 @@ class Report(CremeEntity):
     def get_children_fields_with_hierarchy(self):
         return [c.get_children_fields_with_hierarchy() for c in self.columns.all()]
 
-    def get_children_fields_flat(self): #TODO: use itertools.chain ??
-        children = []
-
-        for c in self.columns.all():
-            children.extend(c.get_children_fields_flat())
-
-        return children
+    def get_children_fields_flat(self):
+        return chain.from_iterable(c.get_children_fields_flat() for c in self.columns.all())
+#        children = []
+#
+#        for c in self.columns.all():
+#            children.extend(c.get_children_fields_flat())
+#
+#        return children
