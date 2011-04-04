@@ -402,9 +402,9 @@ class MultiRelationEntityField(RelationEntityField):
         return (rtype, rtype_allowed_ctypes, rtype_allowed_properties)
 
     def _build_ctype_cache(self, ctype_pk):
-        ctype = ContentType.objects.get_for_id(ctype_pk)
-
-        if not ctype:
+        try:
+            ctype = ContentType.objects.get_for_id(ctype_pk)
+        except ContentType.DoesNotExist:
             raise ValidationError(self.error_messages['ctypedoesnotexist'], params={'ctype': ctype_pk})
 
         return (ctype, [])

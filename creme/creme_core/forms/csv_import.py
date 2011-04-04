@@ -383,12 +383,18 @@ class RelationExtractorSelector(SelectorList):
         chained_input = ChainedInput(attrs)
         InputModel = ChainedInput.Model
         attrs = {'auto': False}
+        
+        chained_input.add_dselect("column", options=columns, attrs=attrs)
+        chained_input.add_dselect("rtype", options=relation_types, attrs=attrs)
+        chained_input.add_dselect("ctype", options='/creme_core/relation/predicate/${rtype}/content_types/json', attrs=attrs)
+        chained_input.add_dselect("searchfield", options='/creme_core/entity/get_info_fields/${ctype}/json', attrs=attrs)
 
-        chained_input.set(column=InputModel(widget=DynamicSelect, attrs=attrs, options=columns),
-                          rtype=InputModel(widget=DynamicSelect, attrs=attrs, options=relation_types),
-                          ctype=InputModel(widget=DynamicSelect, attrs=attrs, url='/creme_core/relation/predicate/${rtype}/content_types/json'),
-                          searchfield=InputModel(widget=DynamicSelect, attrs=attrs, url='/creme_core/entity/get_info_fields/${ctype}/json'),
-                         )
+        # chained input API changes.
+#        chained_input.set(column=InputModel(widget=DynamicSelect, attrs=attrs, options=columns),
+#                          rtype=InputModel(widget=DynamicSelect, attrs=attrs, options=relation_types),
+#                          ctype=InputModel(widget=DynamicSelect, attrs=attrs, url='/creme_core/relation/predicate/${rtype}/content_types/json'),
+#                          searchfield=InputModel(widget=DynamicSelect, attrs=attrs, url='/creme_core/entity/get_info_fields/${ctype}/json'),
+#                         )
 
         super(RelationExtractorSelector, self).__init__(chained_input)
 
