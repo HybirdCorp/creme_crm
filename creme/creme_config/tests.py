@@ -685,4 +685,117 @@ class RelationTypeTestCase(CremeTestCase):
         self.assertEqual(200, self.client.post('/creme_config/relation_type/delete', data={'id': rt.id}).status_code)
         self.assertEqual(0,   RelationType.objects.filter(pk__in=[rt.id, srt.id]).count())
 
+
+class BlocksConfigTestCase(CremeTestCase):
+    def setUp(self):
+        self.login()
+
+    def test_portal(self):
+        self.assertEqual(200, self.client.get('/creme_config/blocks/portal/').status_code)
+
+    def test_add_config(self):
+        url = '/creme_config/blocks/add/'
+        self.assertEqual(200, self.client.get(url).status_code)
+
+        ct = ContentType.objects.get_for_model(Contact)
+        self.failIf(BlockConfigItem.objects.filter(content_type=ct).count())
+
+        response = self.client.post(url, data={'ct_id': ct.id})
+        self.assertNoFormError(response)
+        self.assertEqual(200, response.status_code)
+
+        bc_items = BlockConfigItem.objects.filter(content_type=ct)
+        self.assertEqual(1, len(bc_items))
+
+        bc_item = bc_items[0]
+        self.assertEqual('', bc_item.block_id)
+        self.assertEqual(1, bc_item.order)
+        self.failIf(bc_item.on_portal)
+
+        response = self.client.get(url)
+
+        try:
+            choices = response.context['form'].fields['ct_id'].choices
+        except Exception, e:
+            self.fail(str(e))
+
+        self.assert_(ct.id not in (ct_id for ct_id, ctype in choices))
+
+    def test_edit(self):
+        ct = ContentType.objects.get_for_model(Contact)
+        url = '/creme_config/blocks/edit/%s' % ct.id
+        self.assertEqual(404, self.client.get(url).status_code)
+
+        BlockConfigItem.objects.create(pk='bci01', content_type=ct, block_id='', order=1, on_portal=False)
+        self.assertEqual(200, self.client.get(url).status_code)
+
+        #TODO: complete
+
+    def test_edit_default(self):
+        url = '/creme_config/blocks/edit/0'
+        self.assertEqual(404, self.client.get(url).status_code)
+
+        BlockConfigItem.objects.create(pk='bci01', content_type=None, block_id='', order=1, on_portal=False)
+        self.assertEqual(200, self.client.get(url).status_code)
+
+        #TODO: complete
+
+    def test_edit_portal(self):
+        ct = ContentType.objects.get_for_model(Contact)
+        url = '/creme_config/blocks/edit/%s/portal/' % ct.id
+        self.assertEqual(404, self.client.get(url).status_code)
+
+        BlockConfigItem.objects.create(pk='bci01', content_type=ct, block_id='', order=1, on_portal=False)
+        self.assertEqual(200, self.client.get(url).status_code)
+
+        #TODO: complete
+
+    def test_edit_home(self):
+        url = '/creme_config/blocks/edit/0/portal/'
+        self.assertEqual(404, self.client.get(url).status_code)
+
+        BlockConfigItem.objects.create(pk='bci01', content_type=None, block_id='', order=1, on_portal=False)
+        self.assertEqual(200, self.client.get(url).status_code)
+
+        #TODO: complete
+
+    def test_delete(self):
+        BlockConfigItem.objects.create(pk='bci01', content_type=None, block_id='', order=1, on_portal=False)
+        url = '/creme_config/blocks/delete'
+        self.assertEqual(404, self.client.post(url, data={'id': 0}).status_code)
+
+        ct = ContentType.objects.get_for_model(Contact)
+        bci = BlockConfigItem.objects.create(pk='bci02', content_type=ct, block_id='', order=1, on_portal=False)
+        self.assertEqual(200, self.client.post(url, data={'id': ct.id}).status_code)
+
+        self.failIf(BlockConfigItem.objects.filter(pk=bci.pk).count())
+
+    def test_add_relationblock(self):
+        rt, srt = RelationType.create(('test-subfoo', 'subject_predicate'),
+                                      ('test-objfoo', 'object_predicate'), is_custom=False
+                                     )
+        self.failIf(RelationBlockItem.objects.count())
+
+        url = '/creme_config/relation_block/add/'
+        self.assertEqual(200, self.client.get(url).status_code)
+
+        response = self.client.post(url, data={'relation_type': rt.id})
+        self.assertNoFormError(response)
+        self.assertEqual(200, response.status_code)
+
+        rbi = RelationBlockItem.objects.all()
+        self.assertEqual(1,     len(rbi))
+        self.assertEqual(rt.id, rbi[0].relation_type.id)
+
+    def test_delete_relationblock(self):
+        rt, srt = RelationType.create(('test-subfoo', 'subject_predicate'),
+                                      ('test-objfoo', 'object_predicate'), is_custom=False
+                                     )
+        rbi = RelationBlockItem.objects.create(block_id='foobarid', relation_type=rt)
+
+        self.assertEqual(200, self.client.post('/creme_config/relation_block/delete', data={'id': rbi.id}).status_code)
+        self.failIf(RelationBlockItem.objects.filter(pk=rbi.pk).count())
+
+    #(r'^instance_block/delete$',  'blocks.delete_instance_block'),
+
 #TODO: complete test cases...
