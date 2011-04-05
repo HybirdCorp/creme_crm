@@ -33,9 +33,9 @@ class Populator(BasePopulator):
 
     def populate(self, *args, **kwargs):
         #TODO: created by 'products' & 'persons' app ?? (pk_string)
-        create(MediaCategory, name=_(u"Product image"),      is_custom=False)
-        create(MediaCategory, name=_(u"Organisation logo"),  is_custom=False)
-        create(MediaCategory, name=_(u"Contact photograph"), is_custom=False)
+        create(MediaCategory, pk=1, name=_(u"Product image"),      is_custom=False)
+        create(MediaCategory, pk=2, name=_(u"Organisation logo"),  is_custom=False)
+        create(MediaCategory, pk=3, name=_(u"Contact photograph"), is_custom=False)
 
         hf = HeaderFilter.create(pk='media_managers-hf_image', name=_(u'Image view'), model=Image)
         pref  = 'media_managers-hfi_image_'
