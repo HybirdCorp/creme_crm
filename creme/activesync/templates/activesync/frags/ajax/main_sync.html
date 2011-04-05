@@ -48,6 +48,7 @@
                 <th class="th_info">{% trans "Last synchronization" %}:</th>
                 <td class="td_info">{{last_sync|default:_("Never")}}</td>
             </tr>
+            {% comment %}
             <tr>
                 <th class="th_info">{% trans "Status" %}</th>
                 <td class="td_info">
@@ -74,9 +75,70 @@
                     {% endif %}
                 </td>
             </tr>
+            {% endcomment %}
         </tbody>
     </table>
 </div>
+
+<table class="table_detail_view ui-corner-all">
+    <thead>
+        <tr>
+            <th class="th_info" colspan="2">{% trans "Results of the synchronisation" %}</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% if error_messages %}
+            <tr>
+                <th class="th_info">{% trans "Errors" %}</th>
+            </tr>
+            {% for message in error_messages %}
+                <tr>
+                    <td class="td_info">
+                        <ul class="errorlist">
+                            <li>{{message}}</li>
+                        </ul>
+                    </td>
+                </tr>
+            {% endfor %}
+        {% endif %}
+        {% if info_messages %}
+            <tr>
+                <th class="th_info">{% trans "Informations" %}</th>
+            </tr>
+            {% for message in info_messages %}
+                <tr>
+                    <td class="td_info">
+                        <ul class="infolist">
+                            <li>{{message}}</li>
+                        </ul>
+                    </td>
+                </tr>
+            {% empty %}
+                <tr>
+                    <td class="td_info"></td>
+                </tr>
+            {% endfor %}
+        {% endif %}
+        {% if success_messages %}
+            <tr>
+                <th class="th_info">{% trans "Successes" %}</th>
+            </tr>
+            {% for message in success_messages %}
+                <tr>
+                    <td class="td_info">
+                        <ul class="successlist">
+                            <li>{{message}}</li>
+                        </ul>
+                    </td>
+                </tr>
+            {% empty %}
+                <tr>
+                    <td class="td_info"></td>
+                </tr>
+            {% endfor %}
+        {% endif %}
+    </tbody>
+</table>
 
 {% if ACTIVE_SYNC_DEBUG %}
     {% for x in xml %}

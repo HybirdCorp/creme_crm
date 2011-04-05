@@ -20,14 +20,14 @@
 
 from django.test import TestCase
 
-from xml.etree.ElementTree import XML
+from xml.etree.ElementTree import XML, tostring
 
-from activesync.wbxml.dtd import AirsyncDTD_Reverse
+from activesync.wbxml.dtd import AirsyncDTD_Reverse, AirsyncDTD_Forward
 from activesync.wbxml.codec2 import WBXMLEncoder, WBXMLDecoder
 
-class ReportsTestCase(TestCase):
+class ActiveSyncTestCase(TestCase):
     def setUp(self):
-        pass
+        self.decoder = WBXMLDecoder(AirsyncDTD_Forward)
     
     def test_encoder01(self):
         xml_str1 = '<?xml version="1.0" encoding="UTF-8"?><FolderSync xmlns="FolderHierarchy:"><SyncKey>0</SyncKey></FolderSync>'
@@ -72,5 +72,31 @@ class ReportsTestCase(TestCase):
         encoded = WBXMLEncoder(AirsyncDTD_Reverse).encode(xml)
         self.assertEqual(encoded, wbxml)
 
+    ################ Decoder tests #################
     def test_decoder01(self):
-        pass
+        wbxml_str = '\x03\x01j\x00\x00\x07VR\x030\x00\x01\x01'
+        decoded   = self.decoder.decode(wbxml_str)
+        xml_str   = '<?xml version="1.0" encoding="UTF-8"?><FolderSync xmlns="FolderHierarchy:"><SyncKey>0</SyncKey></FolderSync>'
+
+        self.assertEqual(tostring(decoded), xml_str)
+
+    def test_decoder02(self):
+        wbxml_str = '\x03\x01j\x00\x00\x07VL\x031\x00\x01R\x03{112ef5a8-47fb-44ca-94e2-d0770e6d7c6b}1\x00\x01NW\x0312\x00\x01OH\x032e9ce20a99cc4bc39804d5ee956855310d00000000000000\x00\x01I\x030\x00\x01G\x03Inbox\x00\x01J\x032\x00\x01\x01OH\x032e9ce20a99cc4bc39804d5ee956855310e00000000000000\x00\x01I\x030\x00\x01G\x03Outbox\x00\x01J\x036\x00\x01\x01OH\x032e9ce20a99cc4bc39804d5ee956855310f00000000000000\x00\x01I\x030\x00\x01G\x03Deleted Items\x00\x01J\x034\x00\x01\x01OH\x032e9ce20a99cc4bc39804d5ee956855311000000000000000\x00\x01I\x030\x00\x01G\x03Sent Items\x00\x01J\x035\x00\x01\x01OH\x032e9ce20a99cc4bc39804d5ee956855311100000000000000\x00\x01I\x030\x00\x01G\x03Contacts\x00\x01J\x039\x00\x01\x01OH\x032e9ce20a99cc4bc39804d5ee956855311200000000000000\x00\x01I\x030\x00\x01G\x03Calendar\x00\x01J\x038\x00\x01\x01OH\x032e9ce20a99cc4bc39804d5ee956855311300000000000000\x00\x01I\x030\x00\x01G\x03Drafts\x00\x01J\x033\x00\x01\x01OH\x032e9ce20a99cc4bc39804d5ee956855311400000000000000\x00\x01I\x030\x00\x01G\x03Journal\x00\x01J\x0311\x00\x01\x01OH\x032e9ce20a99cc4bc39804d5ee956855311500000000000000\x00\x01I\x030\x00\x01G\x03Notes\x00\x01J\x0310\x00\x01\x01OH\x032e9ce20a99cc4bc39804d5ee956855311600000000000000\x00\x01I\x030\x00\x01G\x03Tasks\x00\x01J\x037\x00\x01\x01OH\x032e9ce20a99cc4bc39804d5ee956855311700000000000000\x00\x01I\x030\x00\x01G\x03Junk E-mail\x00\x01J\x0312\x00\x01\x01OH\x032e9ce20a99cc4bc39804d5ee956855311b00000000000000\x00\x01I\x030\x00\x01G\x03RSS Feeds\x00\x01J\x031\x00\x01\x01\x01\x01'
+        decoded   = self.decoder.decode(wbxml_str)
+        xml_str   = """<?xml version="1.0"?><FolderSync xmlns="FolderHierarchy:"><Status xmlns="FolderHierarchy:">1</Status><SyncKey xmlns="FolderHierarchy:">{112ef5a8-47fb-44ca-94e2-d0770e6d7c6b}1</SyncKey><Changes xmlns="FolderHierarchy:"><Count xmlns="FolderHierarchy:">12</Count><Add xmlns="FolderHierarchy:"><ServerId xmlns="FolderHierarchy:">2e9ce20a99cc4bc39804d5ee956855310d00000000000000</ServerId><ParentId xmlns="FolderHierarchy:">0</ParentId><DisplayName xmlns="FolderHierarchy:">Inbox</DisplayName><Type xmlns="FolderHierarchy:">2</Type></Add><Add xmlns="FolderHierarchy:"><ServerId xmlns="FolderHierarchy:">2e9ce20a99cc4bc39804d5ee956855310e00000000000000</ServerId><ParentId xmlns="FolderHierarchy:">0</ParentId><DisplayName xmlns="FolderHierarchy:">Outbox</DisplayName><Type xmlns="FolderHierarchy:">6</Type></Add><Add xmlns="FolderHierarchy:"><ServerId xmlns="FolderHierarchy:">2e9ce20a99cc4bc39804d5ee956855310f00000000000000</ServerId><ParentId xmlns="FolderHierarchy:">0</ParentId><DisplayName xmlns="FolderHierarchy:">Deleted Items</DisplayName><Type xmlns="FolderHierarchy:">4</Type></Add><Add xmlns="FolderHierarchy:"><ServerId xmlns="FolderHierarchy:">2e9ce20a99cc4bc39804d5ee956855311000000000000000</ServerId><ParentId xmlns="FolderHierarchy:">0</ParentId><DisplayName xmlns="FolderHierarchy:">Sent Items</DisplayName><Type xmlns="FolderHierarchy:">5</Type></Add><Add xmlns="FolderHierarchy:"><ServerId xmlns="FolderHierarchy:">2e9ce20a99cc4bc39804d5ee956855311100000000000000</ServerId><ParentId xmlns="FolderHierarchy:">0</ParentId><DisplayName xmlns="FolderHierarchy:">Contacts</DisplayName><Type xmlns="FolderHierarchy:">9</Type></Add><Add xmlns="FolderHierarchy:"><ServerId xmlns="FolderHierarchy:">2e9ce20a99cc4bc39804d5ee956855311200000000000000</ServerId><ParentId xmlns="FolderHierarchy:">0</ParentId><DisplayName xmlns="FolderHierarchy:">Calendar</DisplayName><Type xmlns="FolderHierarchy:">8</Type></Add><Add xmlns="FolderHierarchy:"><ServerId xmlns="FolderHierarchy:">2e9ce20a99cc4bc39804d5ee956855311300000000000000</ServerId><ParentId xmlns="FolderHierarchy:">0</ParentId><DisplayName xmlns="FolderHierarchy:">Drafts</DisplayName><Type xmlns="FolderHierarchy:">3</Type></Add><Add xmlns="FolderHierarchy:"><ServerId xmlns="FolderHierarchy:">2e9ce20a99cc4bc39804d5ee956855311400000000000000</ServerId><ParentId xmlns="FolderHierarchy:">0</ParentId><DisplayName xmlns="FolderHierarchy:">Journal</DisplayName><Type xmlns="FolderHierarchy:">11</Type></Add><Add xmlns="FolderHierarchy:"><ServerId xmlns="FolderHierarchy:">2e9ce20a99cc4bc39804d5ee956855311500000000000000</ServerId><ParentId xmlns="FolderHierarchy:">0</ParentId><DisplayName xmlns="FolderHierarchy:">Notes</DisplayName><Type xmlns="FolderHierarchy:">10</Type></Add><Add xmlns="FolderHierarchy:"><ServerId xmlns="FolderHierarchy:">2e9ce20a99cc4bc39804d5ee956855311600000000000000</ServerId><ParentId xmlns="FolderHierarchy:">0</ParentId><DisplayName xmlns="FolderHierarchy:">Tasks</DisplayName><Type xmlns="FolderHierarchy:">7</Type></Add><Add xmlns="FolderHierarchy:"><ServerId xmlns="FolderHierarchy:">2e9ce20a99cc4bc39804d5ee956855311700000000000000</ServerId><ParentId xmlns="FolderHierarchy:">0</ParentId><DisplayName xmlns="FolderHierarchy:">Junk E-mail</DisplayName><Type xmlns="FolderHierarchy:">12</Type></Add><Add xmlns="FolderHierarchy:"><ServerId xmlns="FolderHierarchy:">2e9ce20a99cc4bc39804d5ee956855311b00000000000000</ServerId><ParentId xmlns="FolderHierarchy:">0</ParentId><DisplayName xmlns="FolderHierarchy:">RSS Feeds</DisplayName><Type xmlns="FolderHierarchy:">1</Type></Add></Changes></FolderSync>"""
+
+        self.assertEqual(tostring(decoded), xml_str)
+
+    def test_decoder03(self):
+        wbxml_str = '\x03\x01j\x00E\\OK\x030\x00\x01R\x032e9ce20a99cc4bc39804d5ee956855311500000000000000\x00\x01`\x00\x01(\x1a\x01\x01\x01\x01'
+        decoded   = self.decoder.decode(wbxml_str)
+        xml_str   = """<?xml version="1.0" encoding="utf-8"?><Sync xmlns="AirSync:" xmlns:A1="Contacts:"><Collections><Collection><SyncKey>0</SyncKey><CollectionId>2e9ce20a99cc4bc39804d5ee956855311500000000000000</CollectionId><Supported><A1:JobTitle/><A1:Department/></Supported></Collection></Collections></Sync>"""
+
+        self.assertEqual(tostring(decoded), xml_str)
+
+    def test_decoder04(self):
+        wbxml_str = '\x03\x01j\x00E\\OP\x03Contacts\x00\x01K\x030\x00\x01R\x032e9ce20a99cc4bc39804d5ee956855311b00000000000000\x00\x01\x1e\x13\x01\x01\x01'
+        decoded   = self.decoder.decode(wbxml_str)
+        xml_str   = """<?xml version="1.0" encoding="utf-8"?><Sync xmlns="AirSync:" xmlns:A1="Contacts:"><Collections><Collection><Class>Contacts</Class><SyncKey>0</SyncKey><CollectionId>2e9ce20a99cc4bc39804d5ee956855311b00000000000000</CollectionId><DeletesAsMoves/><GetChanges/></Collection></Collections></Sync>"""
+
+        self.assertEqual(tostring(decoded), xml_str)

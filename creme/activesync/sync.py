@@ -200,6 +200,7 @@ class Synchronization(object):
             as_ = self._sync(policy_key, serverid, sync_key, True, user=user)
 
             client.sync_key = as_.last_synckey
+            print "client.sync_key :", client.sync_key
 
             c_x_mapping_manager = CremeExchangeMapping.objects
             create = c_x_mapping_manager.create

@@ -56,9 +56,21 @@ EN_FLAGS_ATTRIBUTES = 2
 
 WBXML_DEBUG         = True
 ################################################################################
+# Pretty printing util found on http://www.doughellmann.com/PyMOTW/xml/etree/ElementTree/create.html
+def prettify(elem):
+    """Return a pretty-printed XML string for the Element.
+    """
+    from xml.etree import ElementTree
+    from xml.dom import minidom
+
+    rough_string = ElementTree.tostring(elem, 'utf-8')
+    reparsed = minidom.parseString(rough_string)
+    return reparsed.toprettyxml(indent="  ")
+################################################################################
+
 
 import StringIO
-from xml.etree.ElementTree import fromstring, XML, Element, _ElementInterface
+from xml.etree.ElementTree import fromstring, XML, Element, _ElementInterface, SubElement, ElementTree
 
 #DEBUG = True
 DEBUG = False
@@ -88,7 +100,7 @@ class WBXMLEncoder(object):
         True
     """
     def __init__(self, dtd):
-        self._out    = StringIO.StringIO()
+        self._out    = StringIO.StringIO()#TODO: Init this into encode ?
         self._dtd    = dtd
         self._tagcp  = 0
         self._attrcp = 0
@@ -329,9 +341,421 @@ class WBXMLEncoder(object):
 ################################################################################
 
 class WBXMLDecoder(object):
+    """
+        Decode wbxml to xml
+
+        import doctest
+        import creme.activesync.wbxml.codec2
+        doctest.testmod(creme.activesync.wbxml.codec2)
+
+        >>> from creme.activesync.wbxml.dtd import AirsyncDTD_Forward
+        >>> from xml.etree.ElementTree import tostring
+        >>> xml_str = '<?xml version="1.0" encoding="UTF-8"?><FolderSync xmlns="FolderHierarchy:"><SyncKey>0</SyncKey></FolderSync>'
+        >>> wbxml   = '\x03\x01j\x00\x00\x07VR\x030\x00\x01\x01'
+        >>> decoder = WBXMLDecoder(AirsyncDTD_Forward)
+        >>> tostring(decoder.decode(wbxml)) == xml_str
+        True
+    """
+
+    input          = None
+    output         = None
+    version        = None
+    publicid       = None
+    publicstringid = None
+    charsetid      = None
+    string_table   = None
+
+    tagcp  = 0
+    attrcp = 0
+
+    unget_buffer = None
+
+    log_stack = []
 
     def __init__(self, dtd):
-        pass
+        self._dtd   = dtd
 
     def decode(self, to_decode):
-        pass
+        self.input    =  StringIO.StringIO(to_decode)
+        self.version  = self.get_byte()
+        self.publicid = self.get_mbuint()
+
+        if self.publicid == 0:
+            self.publicstringid = self.get_mbuint()
+
+        self.charsetid    = self.get_mbuint()
+        self.string_table = self.get_string_table()
+
+        
+
+    def get_element(self):
+        """Pull down the element at this point in the WBXML stream"""
+        element = self.get_token()
+
+        if element.has_key(EN_TYPE):
+
+            if element[EN_TYPE] == EN_TYPE_STARTTAG:
+                return element
+
+            elif element[EN_TYPE] == EN_TYPE_ENDTAG:
+                return element
+
+            elif element[EN_TYPE] == EN_TYPE_CONTENT:
+                get_token     = self.get_token
+                unget_element = self.unget_element
+
+                while True:
+                    next = get_token()
+
+                    if next == False:#TODO: not next ?
+                        break
+
+                    elif next[EN_TYPE] == EN_CONTENT:
+                        element[EN_CONTENT] += next[EN_CONTENT]
+
+                    else:
+                        unget_element(next)
+                        break;
+
+                return element
+        return False
+
+    def peek(self):
+        """Return the next element without changing the position in the
+           input byte stream."""
+
+        element = self.get_element()
+        self.unget_element(element)
+
+        return element
+
+    def get_element_start_tag(self, tag):
+        """Return the start tag for a given tag - or return false if no match"""
+        element = self.get_token()
+
+        if element[EN_TYPE] == EN_TYPE_STARTTAG and element[EN_TAG] == tag:
+            return element
+        else:
+            self.unget_element(element)
+
+        return False
+
+    def get_element_end_tag(self):
+        """Return the end tag."""
+
+        element = self.get_token()
+
+        if element[EN_TYPE] == EN_TYPE_ENDTAG:
+            return element
+        else:
+            self.unget_element(element)
+
+        return False
+
+    def get_element_content(self):
+        """Return the content of an element"""
+
+        element = self.get_token()
+
+        if element[EN_TYPE] == EN_TYPE_CONTENT:
+            return element
+        else:
+            self.unget_element(element)
+
+        return False
+
+    def get_token(self):
+        """Return the next token in the stream"""
+
+        if self.unget_buffer:
+            element           = self.unget_buffer
+            self.unget_buffer = False
+            return element
+
+        el = self._get_token()
+
+        return el
+
+    def _get_token(self):
+        """Low level call to retrieve a token from the wbxml stream"""
+
+        element = {}
+
+        get_attributes = self.get_attributes
+        get_byte       = self.get_byte
+        get_mbuint     = self.get_mbuint
+        get_term_str   = self.get_term_str
+        get_opaque     = self.get_opaque
+        get_mapping    = self.get_mapping
+
+        while True:
+            byte = get_byte()
+
+            if byte == None:
+                break
+
+            if byte == WBXML_SWITCH_PAGE:
+                self.tagcp = get_byte()
+                continue
+
+            elif byte == WBXML_END:
+                element[EN_TYPE] = EN_TYPE_ENDTAG
+                return element
+
+            elif byte == WBXML_ENTITY:
+                entity              = get_mbuint()
+                element[EN_TYPE]    = EN_TYPE_CONTENT
+                element[EN_CONTENT] = self.EntityToCharset(entity)
+                return element
+
+            elif byte == WBXML_STR_I:
+                element[EN_TYPE]    = EN_TYPE_CONTENT
+                element[EN_CONTENT] = get_term_str()
+                return element
+
+            elif byte == WBXML_LITERAL:
+                element[EN_TYPE]  = EN_TYPE_STARTTAG
+                element[EN_TAG]   = self.GetStringTableEntry(get_mbuint())
+                element[EN_FLAGS] = 0
+                return element
+
+            elif byte in (WBXML_EXT_I_0, WBXML_EXT_I_1, WBXML_EXT_I_2):
+                get_term_str()
+                continue
+
+            elif byte == WBXML_PI:
+                get_attributes()
+                continue
+
+            elif byte == WBXML_LITERAL_C:
+                element[EN_TYPE]  = EN_TYPE_STARTTAG
+                element[EN_TAG]   = self.GetStringTableEntry(get_mbuint())
+                element[EN_FLAGS] = EN_FLAGS_CONTENT
+                return element
+
+            elif byte in (WBXML_EXT_T_0, WBXML_EXT_T_1, WBXML_EXT_T_2):
+                get_mbuint()
+                continue
+
+            elif byte == WBXML_STR_T:
+                element[EN_TYPE]    = EN_TYPE_CONTENT
+                element[EN_CONTENT] = self.GetStringTableEntry(get_mbuint())
+                return element
+
+            elif byte == WBXML_LITERAL_A:
+                element[EN_TYPE]       = EN_TYPE_STARTTAG
+                element[EN_TAG]        = self.GetStringTableEntry(get_mbuint())
+                element[EN_ATTRIBUTES] = get_attributes()
+                element[EN_FLAGS]      = EN_FLAGS_ATTRIBUTES
+                return element
+
+            elif byte in (WBXML_EXT_0, WBXML_EXT_1):
+                continue
+
+            elif byte == WBXML_OPAQUE:
+                length              = get_mbuint()
+                element[EN_TYPE]    = EN_TYPE_CONTENT
+                element[EN_CONTENT] = get_opaque(length)
+                return element
+
+            elif byte == WBXML_LITERAL_AC:
+                element[EN_TYPE]       = EN_TYPE_STARTTAG
+                element[EN_TAG]        = self.GetStringTableEntry(get_mbuint())
+                element[EN_ATTRIBUTES] = get_attributes()
+                element[EN_FLAGS]      = EN_FLAGS_ATTRIBUTES | EN_FLAGS_CONTENT
+                return element
+
+            else:
+                element[EN_TYPE] = EN_TYPE_STARTTAG
+                element[EN_TAG]  = get_mapping(self.tagcp, byte & 0x3F)
+
+                if byte & 0x80:
+                    flag1 = EN_FLAGS_ATTRIBUTES
+                else:
+                    flag1 = 0
+
+                if byte & 0x40:
+                    flag2 = EN_FLAGS_CONTENT
+                else:
+                    flag2 = 0
+
+                element[EN_FLAGS] = flag1 | flag2
+
+                if byte & 0x80:
+                    element[EN_ATTRIBUTES] = get_attributes()
+
+                return element
+
+        return element
+
+
+    def unget_element(self, element):
+        """Put it back if we do not use it"""
+
+        if self.unget_buffer:
+            pass
+
+        self.unget_buffer = element
+
+
+    def get_attributes(self):
+        """Retrieve a list of attributes for a given tag"""
+        attributes = []
+        attributes_append = attributes.append
+        attr = ''
+
+        get_byte        = self.get_byte
+        split_attribute = self.split_attribute
+        get_mbuint      = self.get_mbuint
+        EntityToCharset = self.EntityToCharset
+        get_term_str    = self.get_term_str
+        get_opaque      = self.get_opaque
+        get_mapping     = self.get_mapping
+
+        while True:
+            byte = get_byte()
+
+            if len(byte) == 0:
+                    break
+
+            if byte == WBXML_SWITCH_PAGE:
+                self.attrcp = get_byte()
+                break
+
+            elif byte == WBXML_END:
+                if attr != '':
+                    attributes_append(split_attribute(attr))
+                return attributes
+
+            elif byte == WBXML_ENTITY:
+                entity = get_mbuint()
+                attr  += EntityToCharset(entity)
+#				return element
+
+            elif byte == WBXML_STR_I:
+                attr += get_term_str()
+#				return element
+
+            elif byte == WBXML_LITERAL:
+                if attr != '':
+                    attributes_append(split_attribute(attr))
+                attr = self.GetStringTableEntry(get_mbuint())
+#				return element
+
+            elif byte in (WBXML_EXT_I_0, WBXML_EXT_I_1, WBXML_EXT_I_2):
+                get_term_str()
+                continue
+
+            elif byte in (WBXML_PI, WBXML_LITERAL_C):
+                return False
+
+            elif byte in (WBXML_EXT_T_0, WBXML_EXT_T_1, WBXML_EXT_T_2):
+                get_mbuint()
+                continue
+
+            elif byte == WBXML_STR_T:
+                attr += self.GetStringTableEntry(get_mbuint())
+#                    return element
+
+            elif byte == WBXML_LITERAL_A:
+                return False
+
+            elif byte in (WBXML_EXT_0, WBXML_EXT_1, WBXML_EXT_2):
+                continue
+
+            elif byte == WBXML_OPAQUE:
+                length = get_mbuint()
+                attr  += get_opaque(length)
+#                    return element
+
+            elif byte == WBXML_LITERAL_AC:
+                return False
+
+            else:
+                if byte < 128 and attr != '':
+                    attributes_append(split_attribute(attr))
+                    attr = ''
+
+                attr += get_mapping(self.attrcp, byte)
+                break
+
+        return attributes
+
+    def split_attribute(self, attr):
+        """Split attribute into name and content"""
+        pos = attr.find(chr(61))#TODO: chr(61) == '=' => Replace with?
+
+        if pos:
+            attribute = (attr[0:pos], attr[(pos+1):])
+        else:
+            attribute = (attr,None)
+
+        return attribute
+
+    def get_term_str(self):
+        """Return a string up until the next null"""
+        str = ''
+        get_byte = self.get_byte
+        while True:
+            input = get_byte()
+
+            if input == 0:
+                break
+            else:
+                str += chr(input)
+        return str
+
+
+    def get_opaque(self, len):
+        """Return up to len bytes from the input"""
+        return self.input.read(len)
+
+    def get_byte(self):
+        """Retrieve a byte from the input stream"""
+        ch = self.input.read(1)
+        if len(ch) > 0:
+            return ord(ch)
+        else:
+            return None
+
+
+    def get_mbuint(self):
+
+        uint = 0
+        get_byte = self.get_byte
+        while True:
+            byte = get_byte()
+            uint |= byte & 0x7f
+            if byte & 0x80:
+                uint = uint << 7
+            else:
+                break
+
+        return uint
+
+    def get_string_table(self):
+        """Read and return the string table"""
+        string_table = ''
+
+        length = self.get_mbuint()
+
+        if length > 0:
+            string_table = self.input.read(length)
+
+        return string_table
+
+    def get_mapping(self, cp, id):
+        """Interrogate the DTD for tag and namespace code pairs"""
+
+        dtd = self.dtd
+        dtd_codes_cp = dtd['codes'][cp]
+
+        if not (dtd_codes_cp and dtd_codes_cp[id]):
+            return False
+        elif dtd['namespaces'][cp]:
+            return (dtd['namespaces'][cp], dtd_codes_cp[id])
+        else:
+            return (None, dtd_codes_cp[id])
+
+################################################################################
+
