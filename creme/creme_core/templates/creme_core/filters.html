@@ -271,6 +271,84 @@
         $(tr_test).show();
     }
 
+    function addRelationFilterLine(selected_predicate, has_predicate ,selected_globaltest, ct_id, object_id)
+    {
+        var count = $('#relations_filter_count').val();
+        count = (isNaN(parseInt(count)))?1:(parseInt(count)+1);
+        $('#relations_filter_count').val(count);
+
+        var tr_relation = $('#relation_filters_model').clone();
+        replaceAttr(tr_relation, 'id', 'model', count, false);
+        replaceAttr(tr_relation, 'name', '', '_'+count, true);
+
+        var tr_test = $('#line_test_model').clone();
+        replaceAttr(tr_test, 'id', 'model', 'filter_'+count, false);
+        replaceAttr(tr_test, 'name', 'model', 'filter_'+count, false);
+
+        $('#ids_relations_filters').val($('#ids_relations_filters').val()+count+',')
+
+        var table = $('#table_filter > tbody');
+        table.append(tr_relation);
+        table.append(tr_test);
+
+        $('#current_relation_id_'+count).val(count);
+
+        $('#line_test_filter_'+count+' select').change(function(){
+                var value = $(this).val();
+                $('#table_filter select[id^="id_global_test"]').each(function(){$(this).val(value);})
+        });
+
+        if(selected_globaltest && selected_globaltest != "")
+        {
+            $('#id_global_test_filter_'+count).val(selected_globaltest == "True" ? {{OR}} : {{AND}}).change();
+        }
+
+        if(selected_predicate)
+        {
+            tr_relation.find('select[id^="id_predicates_"]').val(selected_predicate);
+            tr_relation.find('select[id^="id_has_predicate_"]').val(has_predicate);
+        }
+
+
+        $('#id_content_types_filters_'+count).change(function(){
+            var _ct_id = $(this).val();
+
+            if(!_ct_id || _ct_id == "")
+            {
+                $('#id_other_filters_'+count).empty();
+                return;
+            }
+
+            $.ajax({
+              type: 'POST',
+              async:false,
+              url: '/creme_core/filter/get_4_ct/'+_ct_id,
+              data: {},
+              success: function(data){
+                        var opts = [];
+                        for(var i=0; i < data.length; i++)
+                        {
+                            opts.push([data[i].pk, data[i].fields.name]);
+                        }
+
+                        creme.forms.Select.fill($('#id_other_filters_'+count), opts);
+                    },
+              dataType: "json"
+            });
+        });
+
+        if(ct_id && object_id)
+        {
+            $('#id_content_types_filters_'+count).val(ct_id).change();
+            $('#id_other_filters_'+count).val(object_id);
+        }
+
+        //$(tr_relation).show('slow');
+        $(tr_relation).show();
+        //$(tr_test).show('slow');
+        $(tr_test).show();
+    }
+
     function addPropertyLine(selected_value, has_this ,selected_globaltest)
     {
         var $counter = $('#properties_count');
@@ -492,6 +570,7 @@
         $('#add').click(function(e){addLine();});
         $('#add_filter').click(function(e){addFilterLine();});
         $('#add_relation').click(function(e){addRelationLine();});
+        $('#add_relations_filter').click(function(e){addRelationFilterLine();});
         $('#add_property').click(function(e){addPropertyLine();});
         $('#add_date_filter').click(function(e){addDateFilterLine();});
         $('#filterform').submit(function(){
@@ -506,7 +585,7 @@
                 }
                 //is_valid=true;
             });
-            if($('#ids').val()=="" && $('#ids_filter').val()=="" && $('#ids_relations').val()=="" && $('#ids_properties').val()=="" && $('#ids_date_fields').val()=="")
+            if($('#ids').val()=="" && $('#ids_filter').val()=="" && $('#ids_relations').val()=="" && $('#ids_properties').val()=="" && $('#ids_date_fields').val()=="" && $('#ids_relations_filters').val()=="")
             {
                 is_valid=false;
                 showErrorDialog('<p>Veuillez créer au moins une condition</p><p>Ou sélectionnez au moins un filtre existant</p>');
@@ -564,6 +643,11 @@
                         addRelationLine('{{relation.predicate_id.0}}', {{relation.has_predicate}} ,'{{edit_dict.is_or_for_all}}', {{relation.content_type_id|default_if_none:"null"}}, {{relation.object_id|default_if_none:"null"}} );
                     {% endif %}
                 {% endfor %}
+                {% for relation in relations_filters_conditions %}
+                    {% if not relation.is_child %}
+                        addRelationFilterLine('{{relation.predicate_id.0}}', {{relation.has_predicate}} ,'{{edit_dict.is_or_for_all}}', {{relation.content_type_id|default_if_none:"null"}}, {{relation.object_id|default_if_none:"null"}} );
+                    {% endif %}
+                {% endfor %}
                 {% for property in properties_conditions %}
                     addPropertyLine('{{property.property_id.0}}', {{property.has_property}} ,'{{edit_dict.is_or_for_all}}');
                 {% endfor %}
@@ -603,6 +687,7 @@
                         <td><button type="button" id="add_relation"><img src="{% media_url 'images/add_22.png' %}" alt="{% trans "Add" %}"/>{% trans "Add a filter on a relation" %}</button></td>
                         <td><button type="button" id="add_property"><img src="{% media_url 'images/add_22.png' %}" alt="{% trans "Add" %}"/>{% trans "Add a filter on a property" %}</button></td>
                         <td><button type="button" id="add_date_filter"><img src="{% media_url 'images/add_22.png' %}" alt="{% trans "Add" %}"/>{% trans "Add a filter on a date field" %}</button></td>
+                        <td><button type="button" id="add_relations_filter"><img src="{% media_url 'images/add_22.png' %}" alt="{% trans "Add" %}"/>{% trans "Add a filter on a relation which results come from another filter" %}</button></td>
                     </tr>
                 </tbody>
             </table>
@@ -619,11 +704,13 @@
                         <th style="display:none;"><input name="relation_count" id="relation_count" type="hidden" value="0" /></th>
                         <th style="display:none;"><input name="properties_count" id="properties_count" type="hidden" value="0" /></th>
                         <th style="display:none;"><input name="date_fields_count" id="date_fields_count" type="hidden" value="0" /></th>
+                        <th style="display:none;"><input name="relations_filter_count" id="relations_filter_count" type="hidden" value="0" /></th>
                         <th style="display:none;"><input name="ids" id="ids" type="hidden" value="" /></th>
                         <th style="display:none;"><input name="ids_filter" id="ids_filter" type="hidden" value="" /></th>
                         <th style="display:none;"><input name="ids_relations" id="ids_relations" type="hidden" value="" /></th>
                         <th style="display:none;"><input name="ids_properties" id="ids_properties" type="hidden" value="" /></th>
                         <th style="display:none;"><input name="ids_date_fields" id="ids_date_fields" type="hidden" value="" /></th>
+                        <th style="display:none;"><input name="ids_relations_filters" id="ids_relations_filters" type="hidden" value="" /></th>
                     </tr>
                     <tr id="line_test_model" style="display:none;">
                         <th>{{form.global_test}}</th>
@@ -665,6 +752,16 @@
                             </span>
                         </td>
                         <td><img src="{% media_url 'images/delete_22.png' %}" alt="{% trans "Delete" %}" id="model" onclick="deleteLine(this.id,'relation_'+this.id, 'ids_relations');"/></td>
+                    </tr>
+                    <tr id="relation_filters_model" style="display:none;">
+                        <td>&nbsp;</td>
+                        <td>{{form.has_predicate}} {% trans "the relation" %}</td> 
+                        <td>{{form.predicates}}</td>
+                        <td class="ui-state-highlight ui-corner-all">
+                            {{form.content_types_filters}}
+                            {{form.other_filters}}
+                        </td>
+                        <td><img src="{% media_url 'images/delete_22.png' %}" alt="{% trans "Delete" %}" id="model" onclick="deleteLine(this.id,'relation_filters_'+this.id, 'ids_relations_filters');"/></td>
                     </tr>
                     <tr id="properties_model" style="display:none;">
                         <td>&nbsp;</td>

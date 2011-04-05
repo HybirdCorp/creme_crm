@@ -27,7 +27,7 @@ from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required
 from django.contrib.contenttypes.models import ContentType
 
-from creme_core.populate import DATE_RANGE_FILTER, DATE_RANGE_FILTER_VOLATILE
+from creme_core.populate import DATE_RANGE_FILTER, DATE_RANGE_FILTER_VOLATILE, FROM_FILTER_RESULTS
 from creme_core.models import Filter
 from creme_core.forms.list_view_filter import ListViewFilterForm
 from creme_core.utils import get_ct_or_404, jsonify, get_from_POST_or_404
@@ -161,7 +161,7 @@ def edit(request, ct_id, filter_id):
                 }
 
     rel_conditions = []
-    for condition in current_filter.conditions.filter(Q(champ__contains='relations')):
+    for condition in current_filter.conditions.filter(Q(champ__contains='relations') & ~Q(type__id=FROM_FILTER_RESULTS)):
         dict_conditions = {
             'predicate_id':  condition.values.all(),
             'has_predicate': int(condition.type.is_exclude),
@@ -179,6 +179,25 @@ def edit(request, ct_id, filter_id):
 
         rel_conditions.append(dict_conditions)
 
+
+    rel_filter_conditions = []
+    for condition in current_filter.conditions.filter(Q(champ__contains='relations') & Q(type__id=FROM_FILTER_RESULTS)):
+        dict_conditions = {
+            'predicate_id':  condition.values.all(),
+            'has_predicate': int(condition.type.is_exclude),
+            'is_child':      bool(condition.child_type)
+        }
+
+        try:
+            get_children = condition.childs.filter
+            dict_conditions.update(
+                content_type_id=get_children(child_type__type="content_type")[0].values.all()[0],
+                object_id=get_children(child_type__type="object_id")[0].values.all()[0],
+            )
+        except IndexError:
+            dict_conditions.update(content_type_id=None, object_id=None)
+
+        rel_filter_conditions.append(dict_conditions)
 
     prop_conditions = [{'property_id': condition.values.all(), 'has_property': int(condition.type.is_exclude)}
                             for condition in current_filter.conditions.filter(champ__contains='properties')
@@ -209,7 +228,8 @@ def edit(request, ct_id, filter_id):
                                'content_type_id': ct_id,
                                'relations_conditions': rel_conditions,
                                'properties_conditions': prop_conditions,
-                               'date_filters_conditions': date_filters_conditions
+                               'date_filters_conditions': date_filters_conditions,
+                               'relations_filters_conditions': rel_filter_conditions
                               },
                               context_instance=RequestContext(request))
 
