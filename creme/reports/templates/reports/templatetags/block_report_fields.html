@@ -76,8 +76,8 @@
                                                         {% endif %}
                                                     {% endif %}
                                             {% endif %}
-                                        {#% endif %#}
-                                        {% else %}{% comment %}{% if HFI_RELATION == column.type %}{# else until we have 2 column.type #}{% endcomment %}
+                                        {% endif %}
+                                        {% if HFI_RELATION == column.type %}
                                             {% if column.report %}
                                                 {% has_perm_to unlink column.report as unlink_sub_report_perm %}
                                                 {% if unlink_perm and unlink_sub_report_perm %}

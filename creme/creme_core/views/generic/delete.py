@@ -22,6 +22,7 @@ from collections import defaultdict
 from logging import debug
 
 from django.utils.translation import ugettext as _
+from django.utils.encoding import smart_unicode
 from django.http import Http404, HttpResponse, HttpResponseRedirect
 from django.template.context import RequestContext
 from django.shortcuts import get_object_or_404, render_to_response
@@ -102,7 +103,7 @@ def delete_entity(request, entity_id, callback_url=None):
         entity.delete()
     except CremeEntity.CanNotBeDeleted, e:
         if request.is_ajax():
-            return HttpResponse(unicode(e), mimetype="text/javascript", status=400)
+            return HttpResponse(smart_unicode(e), mimetype="text/javascript", status=400)
 
         return render_to_response("creme_core/forbidden.html",
                                   {'error_message': unicode(e)},
