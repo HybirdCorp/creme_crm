@@ -467,6 +467,13 @@ class UserProfile(Model):
     #NB notice that cache and credentials are well updated when using this property
     teammates = property(_get_teammates, _set_teammates); del (_get_teammates, _set_teammates)
 
+    def has_perm_to_admin(self, app_name):
+        return self.has_perm('%s.can_admin' % app_name)
+
+    def has_perm_to_admin_or_die(self, app_name):
+        if not self.has_perm_to_admin(app_name):
+            raise PermissionDenied(ugettext('You are not allowed to configure this app: %s') % app_name)
+
     def has_perm_to_create(self, model_or_entity):
         """Helper for has_perm( method)
         eg: user.has_perm('myapp.add_mymodel') => user.has_perm_to_create(MyModel)"""

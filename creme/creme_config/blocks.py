@@ -27,6 +27,7 @@ from creme_core.models import *
 from creme_core.gui.block import Block, QuerysetBlock, BlocksManager
 from creme_core.utils import jsonify
 
+from creme_config.models import  SettingValue
 from creme_config.registry import config_registry
 
 _PAGE_SIZE = 12
@@ -68,6 +69,24 @@ class GenericModelsBlock(QuerysetBlock):
             })
 
         return [(self.id_, self.detailview_display(context))]
+
+
+class SettingsBlock(QuerysetBlock):
+    id_           = QuerysetBlock.generate_id('creme_config', 'settings')
+    dependencies  = (SettingValue,)
+    page_size     = _PAGE_SIZE
+    verbose_name  = u'App settings'
+    template_name = 'creme_config/templatetags/block_settings.html'
+
+    def detailview_display(self, context):
+        app_name = context['app_name']
+
+        return self._render(self.get_block_template_context(context,
+                                                            SettingValue.objects.filter(key__app_label=app_name, key__hidden=False, user=None),
+                                                            update_url='/creme_config/settings/%s/reload/' % app_name,
+                                                            app_name=app_name,
+                                                           )
+                           )
 
 
 class _ConfigAdminBlock(QuerysetBlock):
@@ -291,10 +310,12 @@ class UserPreferedMenusBlock(QuerysetBlock):
                                                            ))
 
 generic_models_block = GenericModelsBlock()
+settings_block       = SettingsBlock()
 custom_fields_block  = CustomFieldsBlock()
 
 blocks_list = (
         generic_models_block,
+        settings_block,
         PropertyTypesBlock(),
         RelationTypesBlock(),
         CustomRelationTypesBlock(),

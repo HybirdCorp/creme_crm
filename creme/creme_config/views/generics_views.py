@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2011  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,7 +18,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.core.exceptions import PermissionDenied
 from django.http import HttpResponseRedirect, Http404, HttpResponse
 from django.shortcuts import get_object_or_404, render_to_response
 from django.template.context import RequestContext
@@ -48,13 +47,9 @@ def _get_modelconf(app_config, model_name):
 
     raise Http404('Unknown model')
 
-def _can_config_or_die(request, app_name):
-    if not request.user.has_perm('%s.can_admin' % app_name):
-        raise PermissionDenied('You are not allowed to configure this app: %s' % app_name)
-
 @login_required
 def add_model(request, app_name, model_name):
-    _can_config_or_die(request, app_name)
+    request.user.has_perm_to_admin_or_die(app_name)
 
     return add_model_with_popup(request,
                                 _get_modelconf(_get_appconf(app_name), model_name).model_form,
@@ -64,7 +59,7 @@ def add_model(request, app_name, model_name):
 
 @login_required
 def portal_model(request, app_name, model_name):
-    _can_config_or_die(request, app_name)
+    request.user.has_perm_to_admin_or_die(app_name)
 
     app_config = _get_appconf(app_name)
     model      = _get_modelconf(app_config, model_name).model
@@ -80,7 +75,7 @@ def portal_model(request, app_name, model_name):
 
 @login_required
 def delete_model(request, app_name, model_name):
-    _can_config_or_die(request, app_name)
+    request.user.has_perm_to_admin_or_die(app_name)
 
     model   = _get_modelconf(_get_appconf(app_name), model_name).model
     object_ = get_object_or_404(model, pk=get_from_POST_or_404(request.POST, 'id'))
@@ -94,7 +89,7 @@ def delete_model(request, app_name, model_name):
 
 @login_required
 def edit_model(request, app_name, model_name, object_id):
-    _can_config_or_die(request, app_name)
+    request.user.has_perm_to_admin_or_die(app_name)
 
     modelconf = _get_modelconf(_get_appconf(app_name), model_name)
 
@@ -107,7 +102,7 @@ def edit_model(request, app_name, model_name, object_id):
 
 @login_required
 def portal_app(request, app_name):
-    _can_config_or_die(request, app_name)
+    request.user.has_perm_to_admin_or_die(app_name)
 
     app_config = _get_appconf(app_name)
 
@@ -125,7 +120,6 @@ def reload_block(request, ct_id):
     model = get_ct_or_404(ct_id).model_class()
     app_name = model._meta.app_label
 
-    _can_config_or_die(request, app_name)
+    request.user.has_perm_to_admin_or_die(app_name)
 
     return generic_models_block.detailview_ajax(request, ct_id, model, app_name)
-
