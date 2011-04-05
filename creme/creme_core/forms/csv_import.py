@@ -19,7 +19,7 @@
 ################################################################################
 
 from functools import partial
-from itertools import chain
+from itertools import chain, ifilter
 from logging import info
 
 from django.db.models import Q, ManyToManyField
@@ -383,7 +383,7 @@ class RelationExtractorSelector(SelectorList):
         chained_input = ChainedInput(attrs)
         InputModel = ChainedInput.Model
         attrs = {'auto': False}
-        
+
         chained_input.add_dselect("column", options=columns, attrs=attrs)
         chained_input.add_dselect("rtype", options=relation_types, attrs=attrs)
         chained_input.add_dselect("ctype", options='/creme_core/relation/predicate/${rtype}/content_types/json', attrs=attrs)
@@ -445,7 +445,7 @@ class RelationExtractorField(MultiRelationEntityField):
             if self.required:
                 raise ValidationError(self.error_messages['required'])
 
-            return []
+            return CSVMultiRelationsExtractor([])
 
         if not isinstance(selector_data, list):
             raise ValidationError(self.error_messages['invalidformat'])
@@ -562,7 +562,7 @@ class CSVImportForm(CremeModelForm):
         if get_cleaned('csv_has_header'):
             lines.next()
 
-        for i, line in enumerate(lines):
+        for i, line in enumerate(ifilter(None, lines)):
             try:
                 instance = model_class()
 
