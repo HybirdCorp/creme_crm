@@ -34,7 +34,7 @@
                     <td class="{{row_color}}">{{todo|get_html_field_value:"for_user"}}</td>
                     <td class="{{row_color}}">{{todo.creation_date|date:"d/m/y"}}</td>
                     <td class="{{row_color}}">{{todo|get_html_field_value:"title"}}</td>
-                    <td class="{{row_color}}">{{todo|get_html_field_value:"description"}}</td>
+                    <td class="{{row_color}}">{{todo|get_html_field_value:"description"|linebreaks}}</td>
                     <td class="{{row_color}}">{{todo.deadline|date:"d/m/y"}}</td>
                     <td class="{{row_color}}">
                         {% if todo.is_ok %}
