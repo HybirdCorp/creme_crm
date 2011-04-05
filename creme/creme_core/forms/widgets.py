@@ -21,7 +21,7 @@
 from datetime import datetime
 from itertools import chain
 
-from django.forms.widgets import Widget, Textarea, Select, SelectMultiple, FileInput, TextInput
+from django.forms.widgets import Widget, Textarea, Select, SelectMultiple, FileInput, TextInput, Input
 from django.forms.util import flatatt
 from django.utils.html import conditional_escape, escape
 from django.utils.translation import ugettext as _
@@ -35,30 +35,40 @@ from mediagenerator.utils import media_url
 
 #from django.template.loader import render_to_string
 
+def widget_render_input(klass, widget, name, value, context, **kwargs):
+    input_attrs = {
+                     'class':' '.join(['ui-creme-input', context.get('css')]),
+                     'widget':context.get('typename'),
+                  }
+    input_attrs.update(kwargs)
 
-def widget_render_context(klass, widget, name, value, attrs, css='', typename='', noinput=False, **kwargs):
-    id = attrs.get('id')
+    return klass.render(widget, name, value, input_attrs)
+
+def widget_render_hidden_input(widget, name, value, context):
+    input_attrs = {'class':' '.join(['ui-creme-input', context.get('typename')]),
+                   'type':'hidden'}
+
+    return Input.render(widget, name, value, input_attrs)
+
+def widget_render_context(typename, attrs, css='', **kwargs):
+    id   = attrs.get('id')
     auto = attrs.pop('auto', True)
     css = ' '.join((css, 'ui-creme-widget widget-auto' if auto else 'ui-creme-widget', typename))
-    attrs['class'] = ' '.join([attrs.get('class', ''), 'ui-creme-input', typename])
+    
     context = {
-                'input':      super(klass, widget).render(name, value, attrs) if not noinput else '',
-                #'id':         id + '-' + typename if id else '',
-                'script':     '',
                 'style':      '',
                 'typename':   typename,
-                'css':        css
+                'css':        css,
+                'auto':       auto,
+                'id':         id,
              }
 
-#    if auto:
-#        context['script'] = """<script type="text/javascript">creme.widget.ready();</script>"""
-
     context.update(kwargs)
-
     return context
 
-def widget_render_context_addclass(context, *args):
-    context['class'] = ' '.join([context.get('class', '')] + args)
+# TODO : unused remove it !
+#def widget_render_context_addclass(context, *args):
+#    context['class'] = ' '.join([context.get('class', '')] + args)
 
 
 class DynamicSelect(Select):
@@ -68,58 +78,60 @@ class DynamicSelect(Select):
 
     def render(self, name, value, attrs=None):
         attrs = self.build_attrs(attrs, name=name)
-        attrs['url'] = self.url
-        typename='ui-creme-dselect'
-        context = widget_render_context(DynamicSelect, self, name, value, attrs,
-                                        typename=typename,
-                                        noinput=True)
-        attrs['class'] = context.get('css', '')
-        attrs['widget'] = typename
-        context['input'] = super(DynamicSelect, self).render(name, value, attrs)
 
-        return mark_safe(u"%(input)s%(script)s" % context)
+        context = widget_render_context('ui-creme-dselect', attrs)
+        input = widget_render_input(Select, self, name, value, context, url=self.url)
+
+        return mark_safe(input)
 
 
 class ChainedInput(TextInput):
     class Model(object):
-        def __init__(self, widget=DynamicSelect, attrs=None, **kwargs):
+        def __init__(self, name='', widget=DynamicSelect, attrs=None, **kwargs):
+            self.name = name
             self.kwargs = kwargs
             self.attrs = attrs
             self.widget = widget
 
-    def __init__(self, attrs=None, **kwargs):
+    def __init__(self, attrs=None, *args):
         super(ChainedInput, self).__init__(attrs)
-        self.inputs = {}
-        self.set(**kwargs)
+        self.inputs = []
+        self.set_inputs(*args)
         self.from_python = None # TODO : wait for django 1.2 and new widget api to remove this hack
 
     def render(self, name, value, attrs=None):
         value = self.from_python(value) if self.from_python is not None else value # TODO : wait for django 1.2 and new widget api to remove this hack
         attrs = self.build_attrs(attrs, name=name, type='hidden')
 
-        context = widget_render_context(ChainedInput, self, name, value, attrs,
-                                        typename='ui-creme-chainedselect',
+        context = widget_render_context('ui-creme-chainedselect', attrs,
                                         style=attrs.pop('style', ''),
                                         selects=self._render_inputs(attrs))
-
+        
+        context['input'] = widget_render_hidden_input(self, name, value, context)
+        
         return mark_safe("""<div class="%(css)s" style="%(style)s" widget="%(typename)s">
-                %(input)s
-                %(selects)s
-                %(script)s
-            </div>""" % context)
+                                %(input)s
+                                %(selects)s
+                            </div>""" % context)
 
-    def set(self, **kwargs):
-        for name, input in kwargs.iteritems():
-            self.put(name, input.widget, input.attrs, **input.kwargs)
+    def set_inputs(self, *args):
+        for input in args:
+            self.add_input(input.name, input.widget, input.attrs, **input.kwargs)
 
-    def put(self, name, widget=DynamicSelect, attrs=None, **kwargs):
-        self.inputs[name] = widget(attrs=attrs, **kwargs)
+    def add_dselect(self, name, options=None, attrs=None, **kwargs):
+        if isinstance(options, basestring):
+            self.add_input(name, widget=DynamicSelect, attrs=attrs, url=options, **kwargs)
+        else:
+            self.add_input(name, widget=DynamicSelect, attrs=attrs, options=options, **kwargs)
+
+    def add_input(self, name, widget, attrs=None, **kwargs):
+        self.inputs.append((name, widget(attrs=attrs, **kwargs)))
 
     def _render_inputs(self, attrs): #TODO: use join() ??
         output = ['<ul class="ui-layout hbox">']
 
         output.extend('<li chained-name="%s">%s</li>' % (name, input.render('', ''))
-                         for name, input in self.inputs.iteritems()
+                         for name, input in self.inputs
                      )
 
         if attrs.pop('reset', True):
@@ -141,24 +153,24 @@ class SelectorList(TextInput):
         value = self.from_python(value) if self.from_python is not None else value # TODO : wait for django 1.2 and new widget api to remove this hack
         attrs = self.build_attrs(attrs, name=name, type='hidden')
 
-        context = widget_render_context(SelectorList, self, name, value, attrs,
-                                        typename='ui-creme-selectorlist',
+        context = widget_render_context('ui-creme-selectorlist', attrs,
                                         add=_(u'Add'),
                                         selector=self.selector.render('', '', {'auto':False,'reset':False}))
+        
+        context['input'] = widget_render_hidden_input(self, name, value, context)
         context['img_url'] = media_url('images/add_16.png')
 
         return mark_safe("""<div class="%(css)s" style="%(style)s" widget="%(typename)s">
-                %(input)s
-                <div class="inner-selector-model" style="display:none;">%(selector)s</div>
-                <ul class="selectors ui-layout"></ul>
-                <div class="add">
-                    <ul class="ui-layout hbox">
-                        <li><img src="%(img_url)s" alt="%(add)s" title="%(add)s"/></li>
-                        <li><span>%(add)s</span></li>
-                    </ul>
-                </div>
-                %(script)s
-            </div>""" % context)
+                                %(input)s
+                                <div class="inner-selector-model" style="display:none;">%(selector)s</div>
+                                <ul class="selectors ui-layout"></ul>
+                                <div class="add">
+                                    <ul class="ui-layout hbox">
+                                        <li><img src="%(img_url)s" alt="%(add)s" title="%(add)s"/></li>
+                                        <li><span>%(add)s</span></li>
+                                    </ul>
+                                </div>
+                            </div>""" % context)
 
 
 class EntitySelector(TextInput):
@@ -170,19 +182,19 @@ class EntitySelector(TextInput):
     def render(self, name, value, attrs=None):
         attrs = self.build_attrs(attrs, name=name, type='hidden')
 
-        context = widget_render_context(EntitySelector, self, name, value, attrs,
-                                        typename='ui-creme-entityselector',
+        context = widget_render_context('ui-creme-entityselector', attrs,
                                         url=self.url,
                                         text_url=self.text_url,
                                         multiple='1' if attrs.pop('multiple', False) else '0',
                                         style=attrs.pop('style', ''),
                                         label=_(u'Select...'))
-
+        
+        context['input'] = widget_render_hidden_input(self, name, value, context)
+        
         html_output = """
             <span class="%(css)s" style="%(style)s" widget="%(typename)s" url="%(url)s" multiple="%(multiple)s">
                 %(input)s
                 <button type="button" url="%(text_url)s" label="%(label)s">%(label)s</button>
-                %(script)s
             </span>
         """ % context;
 
@@ -193,38 +205,22 @@ class CTEntitySelector(ChainedInput):
     def __init__(self, content_types, attrs=None, multiple=False):
         super(CTEntitySelector, self).__init__(attrs)
 
-        if content_types.__class__ == str:
-            ctype = ChainedInput.Model(widget=DynamicSelect, attrs={'auto':False}, url=content_types)
-        else:
-            ctype = ChainedInput.Model(widget=DynamicSelect, attrs={'auto':False}, options=content_types)
+        self.add_dselect("ctype", options=content_types, attrs={'auto':False})
+        self.add_input("entity", widget=EntitySelector, attrs={'auto':False, 'multiple':multiple})
 
-        self.set(ctype=ctype,
-                 entity=ChainedInput.Model(widget=EntitySelector, attrs={'auto':False, 'multiple':multiple}));
-
-    def render(self, name, value, attrs=None):
-        return super(CTEntitySelector, self).render(name, value, attrs)
+#    def render(self, name, value, attrs=None):
+#        return super(CTEntitySelector, self).render(name, value, attrs)
 
 class RelationSelector(ChainedInput):
     def __init__(self, relation_types, content_types, attrs=None, multiple=False):
         super(RelationSelector, self).__init__(attrs)
 
-        if relation_types.__class__ == str: #TODO: isinstance....
-            rtype = ChainedInput.Model(widget=DynamicSelect, attrs={'auto':False}, url=relation_types)
-        else:
-            rtype = ChainedInput.Model(widget=DynamicSelect, attrs={'auto':False}, options=relation_types)
+        self.add_dselect("rtype", options=relation_types, attrs={'auto':False})
+        self.add_dselect("ctype", options=content_types, attrs={'auto':False})
+        self.add_input("entity", widget=EntitySelector, attrs={'auto':False, 'multiple':multiple})
 
-        if content_types.__class__ == str:
-            ctype = ChainedInput.Model(widget=DynamicSelect, attrs={'auto':False}, url=content_types)
-        else:
-            ctype = ChainedInput.Model(widget=DynamicSelect, attrs={'auto':False}, options=content_types)
-
-        self.set(rtype=rtype,
-                 ctype=ctype,
-                 entity=ChainedInput.Model(widget=EntitySelector, attrs={'auto':False, 'multiple':multiple})
-                )
-
-    def render(self, name, value, attrs=None): #TODO: useful ??
-        return super(RelationSelector, self).render(name, value, attrs)
+#    def render(self, name, value, attrs=None): #TODO: useful ??
+#        return super(RelationSelector, self).render(name, value, attrs)
 
 #TODO: unused ??
 class EntitySelectorList(SelectorList):
@@ -235,10 +231,11 @@ class EntitySelectorList(SelectorList):
     def render(self, name, value, attrs=None):
         attrs = self.build_attrs(attrs, name=name, type='hidden')
 
-        context = widget_render_context(self, name, value, attrs,
-                                        typename='ui-creme-selectorlist',
+        context = widget_render_context('ui-creme-selectorlist', attrs,
                                         add='Ajouter',
                                         selector=self.selector.render(name, value, {'auto':False,}))
+        
+        context['input'] = widget_render_hidden_input(self, name, value, context)
         context['img_url'] = media_url('images/add_16.png')
 
         return mark_safe("""

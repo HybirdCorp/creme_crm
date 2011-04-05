@@ -105,7 +105,7 @@ class ReportGraphAddForm(CremeEntityForm):
     def clean(self):
         cleaned_data = self.cleaned_data
         get_data     = cleaned_data.get
-        model = self.report.ct.model_class() #TODO: want we several Report classes ?? If not, simply replace by 'Report'
+        model = self.report.ct.model_class() #TODO: want we several Report classes ?? If not, simply replace by 'Report' #Post TODO: What?? Each report target a different CT (Report of opportunity, of contacts...)
 
         try:
             abscissa_group_by = int(get_data('abscissa_group_by'))
@@ -117,9 +117,8 @@ class ReportGraphAddForm(CremeEntityForm):
         aggregates_fields = get_data('aggregates_fields')
         is_count = get_data('is_count')
 
-
-        #TODO: method instead ?
-        val_err = ValidationError(self.fields['abscissa_group_by'].error_messages['invalid_choice'] % {'value': abscissa_fields})
+        def val_err():
+            return ValidationError(self.fields['abscissa_group_by'].error_messages['invalid_choice'] % {'value': abscissa_fields})
 
         is_abscissa_group_by_is_RGT_RELATION = abscissa_group_by == RGT_RELATION
 
@@ -127,19 +126,19 @@ class ReportGraphAddForm(CremeEntityForm):
             abscissa_field = model._meta.get_field(abscissa_fields)
         except FieldDoesNotExist:
             if not is_abscissa_group_by_is_RGT_RELATION:
-                raise val_err
+                raise val_err()
             else:
                 try:
                     rt = RelationType.objects.get(pk=abscissa_fields)
                 except Exception, e:
-                    raise val_err
+                    raise val_err()
 
         is_abscissa_group_by_is_RGT_FK = abscissa_group_by == RGT_FK
 
         if isinstance(abscissa_field, ForeignKey) and not is_abscissa_group_by_is_RGT_FK:
-            raise val_err
+            raise val_err()
         if isinstance(abscissa_field, (DateField, DateTimeField)) and is_abscissa_group_by_is_RGT_FK:
-            raise val_err
+            raise val_err()
 
         if abscissa_group_by == RGT_RANGE and not cleaned_data.get('days'):
             raise ValidationError(ugettext(u"You have to specify a day range if you use 'by X days'"))
