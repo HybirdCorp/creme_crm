@@ -25,7 +25,7 @@ from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required, permission_required
 
 from creme_core.views.generic import add_model_with_popup, edit_model_with_popup
-from creme_core.utils import get_from_POST_or_404, get_ct_or_404
+from creme_core.utils import get_from_POST_or_404, get_ct_or_404, jsonify
 
 from creme_config.registry import config_registry
 from creme_config.blocks import generic_models_block
@@ -112,9 +112,11 @@ def portal_app(request, app_name):
                                 'app_verbose_name': app_config.verbose_name,
                                 'app_config':       list(app_config.models()), #list-> have the length in the template
                               },
-                              context_instance=RequestContext(request))
+                              context_instance=RequestContext(request)
+                             )
 
 @login_required
+@jsonify
 def reload_block(request, ct_id):
     ct_id = int(ct_id)
     model = get_ct_or_404(ct_id).model_class()
@@ -122,4 +124,11 @@ def reload_block(request, ct_id):
 
     request.user.has_perm_to_admin_or_die(app_name)
 
-    return generic_models_block.detailview_ajax(request, ct_id, model, app_name)
+    context = RequestContext(request)
+    context.update({
+            'model':      model,
+            'model_name': config_registry.get_app(app_name).get_model_conf(ct_id).name_in_url,
+            'app_name':   app_name,
+        })
+
+    return [(generic_models_block.id_, generic_models_block.detailview_display(context))]

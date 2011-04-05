@@ -25,7 +25,6 @@ from django.contrib.contenttypes.models import ContentType
 
 from creme_core.models import *
 from creme_core.gui.block import Block, QuerysetBlock, BlocksManager
-from creme_core.utils import jsonify
 
 from creme_config.models import  SettingValue
 from creme_config.registry import config_registry
@@ -57,18 +56,6 @@ class GenericModelsBlock(QuerysetBlock):
                                                             model_name=context['model_name'],
                                                             app_name=context['app_name']
                                                            ))
-
-    #TODO: move to view ??
-    @jsonify
-    def detailview_ajax(self, request, ct_id, model, app_name):
-        context = RequestContext(request)
-        context.update({
-                'model':      model,
-                'model_name': config_registry.get_app(app_name).get_model_conf(ct_id).name_in_url,
-                'app_name':   app_name,
-            })
-
-        return [(self.id_, self.detailview_display(context))]
 
 
 class SettingsBlock(QuerysetBlock):
