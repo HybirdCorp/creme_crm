@@ -1,0 +1,36 @@
+{% load i18n %}
+{% comment %}{% load creme_widgets %}{% endcomment %}{% load creme_block %}
+<table class="table_detail_view ui-corner-all" id={{block_name}}>
+    {% get_block_header colspan=4 %}
+        <th style="width: 80%;" class="collapser" align="left">{% get_block_title _('%s Setting value') _('%s Setting values') %}</th>
+        <th style="width: 20%;" align="right"></th>
+    {% end_get_block_header %}
+    <tbody class="collapsable">
+        {% comment %}<tr>
+            <th colspan="4" class="block_header_line_dark" align="left">
+                {% get_line_adder at_url '/creme_config/property_type/add/' with_label _("New custom type of property") with_perms 1 %}
+            </th>
+        </tr>{% endcomment %}
+        {% if page.paginator.count %}
+            <tr>
+                <th class="block_header_line_light">{% trans "Description" %}</th>
+                <th class="block_header_line_light">{% trans "Value" %}</th>
+                <th class="block_header_line_light">{% trans "Edit" %}</th>
+            </tr>
+            {% for setting_value in page.object_list %}<!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
+                <tr>
+                    <td class="{{row_color}}">{{setting_value.key.description}}</td>
+                    <td class="{{row_color}}">{{setting_value.value}}</td>
+                    <td class="{{row_color}}">
+                        {% get_line_editor at_url '/creme_config/setting/edit/{{setting_value.id}}' with_perms 1 %}
+                    </td>
+                </tr>
+            {% endfor %}
+        {% else %}
+            <tr>
+                <td colspan="4" class="block_line_dark">{% trans "No setting value for this app" %}</td>
+            </tr>
+        {% endif %}
+    </tbody>
+    {% include 'creme_core/templatetags/widgets/block_footer.html' %}
+</table>

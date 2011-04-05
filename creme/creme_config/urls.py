@@ -78,6 +78,10 @@ urlpatterns = patterns('creme_config.views',
     (r'^search/edit/(?P<search_config_id>\d+)$', 'search.edit'),
     (r'^search/delete$',                         'search.delete'),
 
+    #Settings
+    (r'^setting/edit/(?P<svalue_id>\d+)$',    'setting.edit'),
+    (r'^settings/(?P<app_name>\w+)/reload/$', 'setting.reload_block'),
+
     #Generic portal config
     (r'^models/(?P<ct_id>\d+)/reload/$',                                      'generics_views.reload_block'),
     (r'^(?P<app_name>\w+)/portal/$',                                          'generics_views.portal_app'),

@@ -153,17 +153,3 @@ def incr_objective_counter(request, objective_id): #TODO: test if relation Objec
     objective.save()
 
     return HttpResponse()
-
-__B2S_MAP = {
-        'true':  True,
-        'false': False,
-    }
-
-#TODO: move in creme_core ??
-def bool_from_str(string):
-    b = __B2S_MAP.get(string)
-
-    if b is not None:
-        return b
-
-    raise ValueError('Can not be coerced to a boolean value: %s' % str(string))

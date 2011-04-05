@@ -9,6 +9,8 @@ from creme_core.models import RelationType, Relation, CremeProperty, SetCredenti
 from creme_core.constants import REL_SUB_RELATED_TO, REL_OBJ_RELATED_TO, PROP_IS_MANAGED_BY_CREME
 from creme_core.tests.base import CremeTestCase
 
+from creme_config.models import SettingKey, SettingValue
+
 from documents.constants import REL_SUB_CURRENT_DOC
 
 from persons.models import Organisation
@@ -59,6 +61,10 @@ class OpportunitiesTestCase(CremeTestCase):
 
         self.assert_(SalesPhase.objects.exists())
         self.assert_(Origin.objects.exists())
+
+        keys = SettingKey.objects.filter(pk=SETTING_USE_LINES)
+        self.assertEqual(1, len(keys))
+        self.assertEqual(1, SettingValue.objects.filter(key=keys[0]).count())
 
     def create_opportunity(self, name):
         create_orga = Organisation.objects.create

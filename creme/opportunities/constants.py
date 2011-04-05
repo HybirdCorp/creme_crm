@@ -26,3 +26,5 @@ REL_OBJ_LINKED_QUOTE = 'opportunities-object_linked_quote'
 
 REL_SUB_RESPONSIBLE = 'opportunities-subject_responsible'
 REL_OBJ_RESPONSIBLE = 'opportunities-object_responsible'
+
+SETTING_USE_LINES = 'opportunities-use_lines'

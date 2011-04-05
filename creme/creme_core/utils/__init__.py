@@ -129,3 +129,16 @@ def entities2unicode(entities, user):
     Tips: for performance, call "CremeEntity.populate_credentials(entities, user)" before.
     """
     return u', '.join(entity.allowed_unicode(user) for entity in entities)
+
+__B2S_MAP = {
+        'true':  True,
+        'false': False,
+    }
+
+def bool_from_str(string):
+    b = __B2S_MAP.get(string.lower())
+
+    if b is not None:
+        return b
+
+    raise ValueError('Can not be coerced to a boolean value: %s' % str(string))

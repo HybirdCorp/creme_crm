@@ -27,7 +27,7 @@ from django.contrib.contenttypes.models import ContentType
 
 from creme_core.models import CremeEntity, CremeModel, Relation, FunctionField
 
-from creme_config.models import CremeKVConfig
+from creme_config.models import SettingValue
 
 from persons.models import Contact, Organisation
 
@@ -119,7 +119,7 @@ class Opportunity(CremeEntity):
     @property
     def use_lines(self):
         if self._use_lines is None:
-            self._use_lines = (CremeKVConfig.objects.get(id="LINE_IN_OPPORTUNITIES").value == "1")
+            self._use_lines = SettingValue.objects.get(key=SETTING_USE_LINES).value
         return self._use_lines
 
     @property
