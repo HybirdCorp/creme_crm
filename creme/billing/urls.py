@@ -6,9 +6,7 @@ from django.conf.urls.defaults import patterns
 urlpatterns = patterns('billing.views',
     (r'^$', 'portal.portal'),
 
-    (r'^odt/(?P<base_id>\d+)$',          'export.export_odt'), #TODO: delete ??
-    (r'^pdf/(?P<base_id>\d+)$',          'export.export_pdf'), #TODO: delete ??
-    (r'^generate_pdf/(?P<base_id>\d+)$', 'export.export_pdf_by_latex'),
+    (r'^generate_pdf/(?P<base_id>\d+)$', 'export.export_as_pdf'),
 
     (r'^templates$',                            'templatebase.listview'),
     (r'^template/edit/(?P<template_id>\d+)$',   'templatebase.edit'),
