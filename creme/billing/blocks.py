@@ -40,7 +40,7 @@ class ProductLinesBlock(PaginatedBlock):
 
     def detailview_display(self, context):
         document = context['object']
-        return self._render(self.get_block_template_context(context, document.get_product_lines(),
+        return self._render(self.get_block_template_context(context, document.product_lines,
                                                             update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, document.pk),
                                                             ct_id=ContentType.objects.get_for_model(ProductLine).id,
                                                            ))
@@ -54,7 +54,7 @@ class  ServiceLinesBlock(PaginatedBlock):
 
     def detailview_display(self, context):
         document = context['object']
-        return self._render(self.get_block_template_context(context, document.get_service_lines(),
+        return self._render(self.get_block_template_context(context, document.service_lines,
                                                             update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, document.pk),
                                                             ct_id=ContentType.objects.get_for_model(ServiceLine).id,
                                                             ))

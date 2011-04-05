@@ -293,7 +293,7 @@ class BillingTestCase(CremeTestCase):
         self.assertNoFormError(response)
         self.assertEqual(200, response.status_code)
 
-        lines = invoice.get_product_lines()
+        lines = invoice.product_lines
         self.assertEqual(1, len(lines))
 
         line = lines[0]
@@ -327,7 +327,7 @@ class BillingTestCase(CremeTestCase):
         self.assertNoFormError(response)
         self.assertEqual(200, response.status_code)
 
-        lines = invoice.get_product_lines()
+        lines = invoice.product_lines
         self.assertEqual(1, len(lines))
         self.assertEqual(name, lines[0].on_the_fly_item)
 
@@ -371,7 +371,7 @@ class BillingTestCase(CremeTestCase):
         self.assertEqual(subcat.id,  product.sub_category_id)
         self.assertEqual(unit_price, product.unit_price)
 
-        lines = invoice.get_product_lines()
+        lines = invoice.product_lines
         self.assertEqual(1, len(lines))
 
         line = lines[0]
@@ -415,7 +415,7 @@ class BillingTestCase(CremeTestCase):
                                    )
         self.assertEqual(200, response.status_code)
         self.assertFormError(response, 'form', 'has_to_register_as', [_(u'You are not allowed to create Products')])
-        self.failIf(invoice.get_product_lines())
+        self.failIf(invoice.product_lines)
         self.failIf(Product.objects.count())
 
     def test_invoice_edit_product_lines01(self):
@@ -461,7 +461,7 @@ class BillingTestCase(CremeTestCase):
         url = '/billing/%s/service_line/add' % invoice.id
         self.assertEqual(200, self.client.get(url).status_code)
 
-        self.failIf(invoice.get_service_lines())
+        self.failIf(invoice.service_lines)
 
         unit_price = Decimal('1.33')
         cat     = ServiceCategory.objects.create(name='Cat', description='DESCRIPTION')
@@ -485,7 +485,7 @@ class BillingTestCase(CremeTestCase):
         self.assertEqual(200, response.status_code)
 
         invoice = Invoice.objects.get(pk=invoice.id) #refresh (line cache)
-        self.assertEqual(1,               len(invoice.get_service_lines()))
+        self.assertEqual(1,               len(invoice.service_lines))
         self.assertEqual(Decimal('2.66'), invoice.get_total()) # 2 * 1.33
         self.assertEqual(Decimal('3.19'), invoice.get_total_with_tax()) #2.66 * 1.196 == 3.18136
 
@@ -513,7 +513,7 @@ class BillingTestCase(CremeTestCase):
         self.assertEqual(200, response.status_code)
 
         invoice = Invoice.objects.get(pk=invoice.id) #refresh (line cache)
-        lines = invoice.get_service_lines()
+        lines = invoice.service_lines
         self.assertEqual(1, len(lines))
         self.assertEqual(name, lines[0].on_the_fly_item)
 
@@ -552,7 +552,7 @@ class BillingTestCase(CremeTestCase):
         self.assertEqual(unit_price, service.unit_price)
 
         invoice = Invoice.objects.get(pk=invoice.id) #refresh (line cache)
-        lines = invoice.get_service_lines()
+        lines = invoice.service_lines
         self.assertEqual(1, len(lines))
 
         line = lines[0]
@@ -594,7 +594,7 @@ class BillingTestCase(CremeTestCase):
                                    )
         self.assertEqual(200, response.status_code)
         self.assertFormError(response, 'form', 'has_to_register_as', [_(u'You are not allowed to create Services')])
-        self.failIf(invoice.get_service_lines())
+        self.failIf(invoice.service_lines)
         self.failIf(Service.objects.count())
 
     def test_invoice_edit_service_lines01(self):
