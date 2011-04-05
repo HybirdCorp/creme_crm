@@ -75,8 +75,8 @@ def export_pdf_by_latex(request, base_id):
 
     t = loader.get_template(template_file)
     context = Context({
-            'plines':        entity.get_product_lines(),
-            'slines':        entity.get_service_lines(),
+            'plines':        entity.product_lines,
+            'slines':        entity.service_lines,
             'source':        source,
             'target':        target,
             'object':        entity,

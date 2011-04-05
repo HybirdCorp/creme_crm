@@ -112,7 +112,8 @@ class Base(CremeEntity):
             except Exception, e:
                 debug('Exception during billing.generate_number(): %s', e)
 
-    def get_product_lines(self):
+    @property
+    def product_lines(self):
         if self._productlines_cache is None:
              #force the retrieving all all lines (no slice)
             self._productlines_cache = list(ProductLine.objects.filter(document=self.id)) #NB: 'document=self.id' instead of 'document=self' avoids a weird query
@@ -121,7 +122,8 @@ class Base(CremeEntity):
 
         return self._productlines_cache
 
-    def get_service_lines(self):
+    @property
+    def service_lines(self):
         if self._servicelines_cache is None:
             self._servicelines_cache = list(ServiceLine.objects.filter(document=self.id))
         else:
@@ -134,16 +136,16 @@ class Base(CremeEntity):
         return klass.objects.filter(document=self)
 
     def get_product_lines_total_price_exclusive_of_tax(self):
-        return round_to_2(sum(l.get_price_exclusive_of_tax() for l in self.get_product_lines()))
+        return round_to_2(sum(l.get_price_exclusive_of_tax() for l in self.product_lines))
 
     def get_product_lines_total_price_inclusive_of_tax(self):
-        return round_to_2(sum(l.get_price_inclusive_of_tax() for l in self.get_product_lines()))
+        return round_to_2(sum(l.get_price_inclusive_of_tax() for l in self.product_lines))
 
     def get_service_lines_total_price_exclusive_of_tax(self):
-        return round_to_2(sum(l.get_price_exclusive_of_tax() for l in self.get_service_lines()))
+        return round_to_2(sum(l.get_price_exclusive_of_tax() for l in self.service_lines))
 
     def get_service_lines_total_price_inclusive_of_tax(self):
-        return round_to_2(sum(l.get_price_inclusive_of_tax() for l in self.get_service_lines()))
+        return round_to_2(sum(l.get_price_inclusive_of_tax() for l in self.service_lines))
 
     def get_total(self):
         return self.get_service_lines_total_price_exclusive_of_tax() + self.get_product_lines_total_price_exclusive_of_tax()
