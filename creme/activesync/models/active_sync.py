@@ -24,10 +24,12 @@ from django.db.models.signals import post_save, post_delete
 from django.utils.translation import ugettext_lazy as _
 
 from creme_core.models import CremeModel, CremeEntity
+from creme_core.models.fields import CreationDateTimeField
 
 from persons.models.contact import Contact
 
 from activesync.utils import generate_guid
+from activesync.config import LIMIT_SYNC_KEY_HISTORY
 
 class CremeExchangeMapping(CremeModel):
     creme_entity_id    = models.IntegerField(u'Creme entity pk', unique=True)
@@ -75,6 +77,46 @@ class CremeClient(CremeModel):
         app_label = 'activesync'
         verbose_name = u""
         verbose_name_plural = u""
+
+
+class SyncKeyHistory(CremeModel):
+    client   = models.ForeignKey(CremeClient, verbose_name=u'client')
+    sync_key = models.CharField(u'sync key', max_length=200, default=None, blank=True, null=True)
+    created  = CreationDateTimeField(_('Creation date'))
+
+    class Meta:
+        app_label = 'activesync'
+        verbose_name = u""
+        verbose_name_plural = u""
+
+    def save(self, *args, **kwargs):
+        client_synckeys = SyncKeyHistory.objects.filter(client=self.client)
+        client_synckeys_count = client_synckeys.count()
+        if client_synckeys_count > LIMIT_SYNC_KEY_HISTORY:
+            ids_to_delete = client_synckeys.order_by('created')[:client_synckeys_count-LIMIT_SYNC_KEY_HISTORY].values_list('id',flat=True)
+            SyncKeyHistory.objects.filter(id__in=ids_to_delete).delete()
+
+        super(SyncKeyHistory, self).save(*args, **kwargs)
+
+
+    @staticmethod
+    def _get_previous_key(client):
+        keys = SyncKeyHistory.objects.filter(client=client).order_by('-created')[:2]
+
+        if keys:
+            keys[0].delete()
+            if len(keys) == 2:
+                return keys[1]
+        return 0
+
+    @staticmethod
+    def back_to_previous_key(client):
+        client.sync_key = SyncKeyHistory._get_previous_key(client)
+        client.save()
+
+    def __unicode__(self):
+        return u"<SyncKeyHistory for <%s>, key=<%s>, created=<%s>>" % (self.client, self.sync_key, self.created)
+
 
 from activesync.signals import post_save_activesync_handler, post_delete_activesync_handler
 post_save.connect(post_save_activesync_handler,     sender=Contact)

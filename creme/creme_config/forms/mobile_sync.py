@@ -26,6 +26,7 @@ from creme_core.forms.base import CremeForm
 from creme_config.constants import MAPI_SERVER_URL, MAPI_DOMAIN, MAPI_SERVER_SSL
 from creme_config.models.config_models import CremeKVConfig
 
+#TODO: Move to active_sync & make a registry in creme_config for non-model forms
 class MobileSyncForm(CremeForm):
 
     url    = URLField(label=_(u"Server url"), required=False)

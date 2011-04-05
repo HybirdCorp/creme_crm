@@ -28,6 +28,7 @@ from activesync.forms.user_settings import UserSettingsConfigForm
 
 @login_required
 def edit_own_mobile_settings(request):
+#TODO: If user change his email, all already synced items to be resync with the new email address
 
     POST = request.POST
     if POST:

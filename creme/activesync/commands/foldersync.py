@@ -84,7 +84,7 @@ class FolderSync(Base):
                     })
 
         print "[FolderSync] (end) Status :", self.status
-        self.add_info_message("[FolderSync] (end) Status : %s" % self.status)
+#        self.add_info_message("[FolderSync] (end) Status : %s" % self.status)
 
         
 

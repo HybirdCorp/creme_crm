@@ -31,9 +31,9 @@ from base import Base
 
 from activesync.contacts import (serialize_contact, CREME_CONTACT_MAPPING,
                                  save_contact, update_contact)
-from activesync.models.active_sync import CremeExchangeMapping
+from activesync.models.active_sync import CremeExchangeMapping, CremeClient, SyncKeyHistory
 from activesync import config
-from activesync.constants import CONFLICT_SERVER_MASTER, SYNC_AIRSYNC_STATUS_SUCCESS
+from activesync.constants import CONFLICT_SERVER_MASTER, SYNC_AIRSYNC_STATUS_SUCCESS, SYNC_AIRSYNC_STATUS_INVALID_SYNCKEY
 
 from persons.models.contact import Contact
 
@@ -69,6 +69,8 @@ class AirSync(Base):
         CONFLICT_MODE = config.CONFLICT_MODE
         IS_SERVER_MASTER = True if CONFLICT_MODE==CONFLICT_SERVER_MASTER else False
 
+        client = CremeClient.objects.get(user=user)
+
         options = {
             'Conflict': CONFLICT_MODE,
         }
@@ -102,6 +104,8 @@ class AirSync(Base):
             self.status       = collection_find('%(ns0)sStatus' % d_ns).text
             server_id         = collection_find('%(ns0)sCollectionId' % d_ns).text
 
+            SyncKeyHistory.objects.create(client=client, sync_key=self.last_synckey)
+
             try:
                 self.status = int(self.status)
             except ValueError:
@@ -129,13 +133,18 @@ class AirSync(Base):
             self.last_synckey = xml2_collection_find('%(ns0)sSyncKey' % d_ns).text
             self.status       = xml2_collection_find('%(ns0)sStatus' % d_ns).text
 
+            SyncKeyHistory.objects.create(client=client, sync_key=self.last_synckey)
+
             try:
                 self.status = int(self.status)
             except ValueError:
                 pass
 
+            #TODO: Factorise
             if self.status != SYNC_AIRSYNC_STATUS_SUCCESS:
                 self.add_error_message(_(u"There was an error during synchronization phase. Try again later."))
+                if self.status == SYNC_AIRSYNC_STATUS_INVALID_SYNCKEY:
+                    SyncKeyHistory.back_to_previous_key(client)
                 return
 
 #            commands_node = xml2.find('%(ns0)sCollections/%(ns0)sCollection/%(ns0)sCommands' % d_ns)
@@ -179,7 +188,7 @@ class AirSync(Base):
                     create(creme_entity_id=contact.id, exchange_entity_id=server_id_pk, synced=True, user=user)
                     self.add_success_message(_(u"Successfully created %s") % contact)
                 except IntegrityError:
-                    error(u"Contact : %s (pk=%s) created twice and only one in the mapping", contact, contact.pk)
+                    error(u"Contact : %s (pk=%s) created twice and only one in the mapping", contact, contact.pk)#TODO:Make a merge UI?
                     self.add_error_message(u"TODO: REMOVE ME : Contact : %s (pk=%s) created twice and only one in the mapping" % (contact, contact.pk))
 
 #                create(creme_entity_id=contact.id, exchange_entity_id=server_id_pk, synced=True, user=user)
@@ -248,57 +257,77 @@ class AirSync(Base):
 
         objects = list(chain(get_add_objects(reverse_ns, user, self), get_change_objects(reverse_ns, user, self), get_deleted_objects(user, self)))
 
-        xml3 = super(AirSync, self).send({'class':     "Contacts",
-                                          'synckey':   self.last_synckey,
-                                          'server_id': server_id,
-                                          'fetch':     False,
-                                          'objects':   objects,
-                                          'extra_ns':  extra_ns
-                                          },
-                                          headers={
-                                            "X-Ms-Policykey": policy_key
-                                          })
-                                          
-        xml3_collection = xml3.find('%(ns0)sCollections/%(ns0)sCollection' % d_ns)
-        xml3_collection_find = xml3_collection.find
+        if objects:#No need to send empty sync
+            xml3 = super(AirSync, self).send({'class':     "Contacts",
+                                              'synckey':   self.last_synckey,
+                                              'server_id': server_id,
+                                              'fetch':     False,
+                                              'objects':   objects,
+                                              'extra_ns':  extra_ns
+                                              },
+                                              headers={
+                                                "X-Ms-Policykey": policy_key
+                                              })
 
-#        print "\n\n xml3 :", tostring(xml3), "\n\n"
+            xml_err_status = xml3.find('%(ns0)sStatus' % d_ns)#If status is present here there is an error
+            if xml_err_status is not None:
+                self.add_error_message(_(u"There was an error during synchronization phase. Try again later. (%s)") % xml_err_status.text)
 
-        self.last_synckey = xml3_collection_find('%(ns0)sSyncKey' % d_ns).text
-        self.status       = xml3_collection_find('%(ns0)sStatus' % d_ns).text
-        responses         = xml3_collection_find('%(ns0)sResponses' % d_ns)
+                try:
+                    err_status = int(xml_err_status.text)
+                except:
+                    err_status = 0
 
-        try:
-            self.status = int(self.status)
-        except ValueError:
-            pass
+                if err_status == SYNC_AIRSYNC_STATUS_INVALID_SYNCKEY:
+                    SyncKeyHistory.back_to_previous_key(client)
+                return
 
-        if self.status != SYNC_AIRSYNC_STATUS_SUCCESS:
-            self.add_error_message(_(u"There was an error during synchronization phase. Try again later."))
-            return
 
-        if responses is not None:
-            add_nodes = responses.findall('%(ns0)sAdd' % d_ns)#Present if the "Add" operation succeeded
-            add_stack = self.synced['Add']
-            add_stack_append = add_stack.append
+            xml3_collection = xml3.find('%(ns0)sCollections/%(ns0)sCollection' % d_ns)
+            xml3_collection_find = xml3_collection.find
 
-            for add_node in add_nodes:
-                add_node_find = add_node.find
-                add_stack_append({
-                    'client_id' : add_node_find('%(ns0)sClientId' % d_ns).text, #Creme PK
-                    'server_id' : add_node_find('%(ns0)sServerId' % d_ns).text, #Server PK
-                    'status'    : add_node_find('%(ns0)sStatus'   % d_ns).text,
-                })
+    #        print "\n\n xml3 :", tostring(xml3), "\n\n"
 
-            change_nodes = responses.findall('%(ns0)sChange' % d_ns)#Present if the "Change" operation failed
-            change_stack = self.synced['Change']
-            change_stack_append = change_stack.append
-            for change_node in change_nodes:
-                change_node_find = change_node.find
-                change_stack_append({
-                    'server_id' : change_node_find('%(ns0)sServerId' % d_ns).text, #Server PK
-                    'status'    : change_node_find('%(ns0)sStatus'   % d_ns).text, #Error status
-                })
+            self.last_synckey = xml3_collection_find('%(ns0)sSyncKey' % d_ns).text
+            self.status       = xml3_collection_find('%(ns0)sStatus' % d_ns).text
+            responses         = xml3_collection_find('%(ns0)sResponses' % d_ns)
+
+            SyncKeyHistory.objects.create(client=client, sync_key=self.last_synckey)
+
+            try:
+                self.status = int(self.status)
+            except ValueError:
+                pass
+
+            #TODO: Factorise
+            if self.status != SYNC_AIRSYNC_STATUS_SUCCESS:
+                self.add_error_message(_(u"There was an error during synchronization phase. Try again later."))
+                if self.status == SYNC_AIRSYNC_STATUS_INVALID_SYNCKEY:
+                    SyncKeyHistory.back_to_previous_key(client)
+                return
+
+            if responses is not None:
+                add_nodes = responses.findall('%(ns0)sAdd' % d_ns)#Present if the "Add" operation succeeded
+                add_stack = self.synced['Add']
+                add_stack_append = add_stack.append
+
+                for add_node in add_nodes:
+                    add_node_find = add_node.find
+                    add_stack_append({
+                        'client_id' : add_node_find('%(ns0)sClientId' % d_ns).text, #Creme PK
+                        'server_id' : add_node_find('%(ns0)sServerId' % d_ns).text, #Server PK
+                        'status'    : add_node_find('%(ns0)sStatus'   % d_ns).text,
+                    })
+
+                change_nodes = responses.findall('%(ns0)sChange' % d_ns)#Present if the "Change" operation failed
+                change_stack = self.synced['Change']
+                change_stack_append = change_stack.append
+                for change_node in change_nodes:
+                    change_node_find = change_node.find
+                    change_stack_append({
+                        'server_id' : change_node_find('%(ns0)sServerId' % d_ns).text, #Server PK
+                        'status'    : change_node_find('%(ns0)sStatus'   % d_ns).text, #Error status
+                    })
 
             
 def add_object(o, serializer):
