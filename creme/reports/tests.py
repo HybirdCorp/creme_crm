@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from datetime import datetime
+from itertools import chain
 
 from django.contrib.contenttypes.models import ContentType
 
@@ -59,6 +60,17 @@ class ReportsTestCase(CremeTestCase):
             self.fail('report not created ?!')
 
         return report
+
+    def create_simple_report(self, name):
+        ct = ContentType.objects.get_for_model(Contact)
+        report = Report.objects.create(name=name, ct=ct, user=self.user)
+        field_id=Field.objects.create(name=u'id', title=u'Id', order=1, type=HFI_FIELD)
+        report.columns.add(field_id)
+        return report
+
+    def create_simple_contact(self):
+        return Contact.objects.create(user=self.user)
+
 
     def get_field(self, report, field_name):
         try:
@@ -253,6 +265,14 @@ class ReportsTestCase(CremeTestCase):
         self.assertEqual(response.status_code, 200)
         self.assertNoFormError(response)
         self.assertEqual(1, report.columns.count())
+
+
+    def test_report_fetch01(self):
+        report = self.create_simple_report("Contacts report")
+        contact_ids = set([str(self.create_simple_contact().id) for i in xrange(10)])
+
+        self.assertEqual(contact_ids, set(chain.from_iterable(report.fetch())))
+
 
 
 
