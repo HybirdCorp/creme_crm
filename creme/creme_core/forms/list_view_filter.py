@@ -32,7 +32,7 @@ from creme_core.models import RelationType, CremePropertyType, FilterType, Filte
 from creme_core.utils import Q_creme_entity_content_types
 from creme_core.utils.meta import get_flds_with_fk_flds, get_date_fields
 from creme_core.forms.widgets import DateFilterWidget, CalendarWidget
-from creme_core.populate import DATE_RANGE_FILTER, DATE_RANGE_FILTER_VOLATILE#Waiting for filters refactor
+from creme_core.populate import DATE_RANGE_FILTER, DATE_RANGE_FILTER_VOLATILE, FROM_FILTER_RESULTS#Waiting for filters refactor
 from creme_core.date_filters_registry import date_filters_registry
 
 class ListViewFilterForm(forms.Form):
@@ -59,6 +59,11 @@ class ListViewFilterForm(forms.Form):
     date_filters = forms.ChoiceField(label=_(u'Filter'), required=False, choices=(), widget=DateFilterWidget(attrs={'id': 'id_date_filters_model'}))
     begin_date   = forms.DateField(label=_(u'Begin date'), required=False)
     end_date     = forms.DateField(label=_(u'End date'), required=False)
+
+
+    content_types_filters = forms.ModelChoiceField(Q_creme_entity_content_types(), required=False)#Content types for filters (used for results from filters)
+    other_filters = forms.ModelChoiceField(Filter.objects.none(), required=False)
+
 
     def __init__(self, data=None, files=None, auto_id='id_%s_model', prefix=None,
                  initial=None, error_class=ErrorList, label_suffix=':',
@@ -118,15 +123,17 @@ class ListViewFilterForm(forms.Form):
         ids = data.get('ids')
         ids_filter = data.get('ids_filter')
         ids_relation = data.get('ids_relations')
+        ids_relation_filters = data.get('ids_relations_filters')
         ids_properties = data.get('ids_properties')
         ids_date_fields = data.get('ids_date_fields')
 
-        if not ids and not ids_filter and not ids_relation and not ids_properties and not ids_date_fields:
+        if not ids and not ids_filter and not ids_relation and not ids_properties and not ids_date_fields and not ids_relation_filters:
             return
 
         ids = ids.split(',')
         ids_filter=ids_filter.split(',')
         ids_relation=ids_relation.split(',')
+        ids_relation_filters=ids_relation_filters.split(',')
         ids_properties=ids_properties.split(',')
         ids_date_fields=ids_date_fields.split(',')
 
@@ -250,6 +257,66 @@ class ListViewFilterForm(forms.Form):
                 continue
 
         logging.debug("conditions : %s" % conditions)
+
+        logging.debug("\n######### RELATION FILTERS ##########################")
+        logging.debug("ids_relation_filters : %s" % ids_relation_filters)
+
+        for id_rel_filter in ids_relation_filters:
+            if not id_rel_filter:
+                continue
+            try:
+                logging.debug('###\n\nA na PA : %s' % bool(int(data['has_predicate_%s' % id_rel_filter])))
+                logging.debug('###\n\nA na PA : %s' % data['has_predicate_%s' % id_rel_filter])
+#                has_or_not = False
+#                if int(data['has_predicate_%s' % id_rel_filter])==1:
+#                    has_or_not=True
+
+                condition = FilterCondition()
+                condition.champ = 'relations__type__id'
+                condition.type = filter_type_getter(pk=FROM_FILTER_RESULTS)
+#                condition.type = filter_type_getter(pattern_key='%s__exact',is_exclude=bool(int(data['has_predicate_%s' % id_rel_filter])))
+#                condition.type = filter_type_getter(pattern_key='%s__exact',is_exclude=has_or_not)
+                condition.save()
+                condition.values = [filter_value_getter(value=data['predicates_%s' % id_rel_filter])]
+                condition.save()
+
+                target_entity = data.get('other_filters_%s' % id_rel_filter)
+                target_entity_ct = data.get('content_types_filters_%s' % id_rel_filter)
+
+                logging.debug("target_entity : %s" % target_entity)
+                logging.debug("target_entity_ct : %s" % target_entity_ct)
+
+                if(target_entity is not None and target_entity != "" and target_entity_ct is not None and target_entity_ct != ""):
+                    condition_entity_ct = FilterCondition()
+                    #condition_entity_ct.champ = 'new_relations__object_content_type__id'
+                    condition_entity_ct.champ = 'relations__object_entity__entity_type__id'
+                    condition_entity_ct.type = filter_type_getter(pattern_key='%s__exact',is_exclude=bool(int(data['has_predicate_%s' % id_rel_filter])))
+                    condition_entity_ct.child_type = condition_child_type_getter(type="content_type")[0]
+                    condition_entity_ct.save()
+                    condition_entity_ct.values = [filter_value_getter(value=target_entity_ct)]
+                    condition_entity_ct.save()
+
+                    condition_entity = FilterCondition()
+                    #condition_entity.champ = 'new_relations__object_id'
+                    condition_entity.champ = 'relations__object_entity__id'
+                    condition_entity.type = filter_type_getter(pattern_key='%s__exact',is_exclude=bool(int(data['has_predicate_%s' % id_rel_filter])))
+                    condition_entity.child_type = condition_child_type_getter(type="object_id")[0]
+                    condition_entity.save()
+                    condition_entity.values = [filter_value_getter(value=target_entity)]
+                    condition_entity.save()
+
+                    conditions.append(condition_entity)
+                    conditions.append(condition_entity_ct)
+
+                    condition.childs = [condition_entity_ct, condition_entity]
+
+                conditions.append(condition)
+            except Exception, e:
+                logging.debug("###\nException : %s" % e)
+                continue
+
+        logging.debug("conditions rel filter : %s" % conditions)
+        logging.debug("######### END RELATION FILTERS ##########################\n")
 
         logging.debug('#{#{#{ids_properties:%s' % ids_properties)
         for id_p in ids_properties:

@@ -26,7 +26,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.contrib.auth.models import User
 
 from creme_core.date_filters_registry import date_filters_registry
-from creme_core.populate import DATE_RANGE_FILTER
+from creme_core.populate import DATE_RANGE_FILTER, FROM_FILTER_RESULTS
 
 
 #TODO: a FilterList class like the HeaderFilterList ???
@@ -91,6 +91,29 @@ class FilterCondition(Model):
         _type = self.type
         key = str(_type.pattern_key % self.champ)
         pattern_value = _type.pattern_value
+
+        #HACK for super big Q
+        if self.type.id == FROM_FILTER_RESULTS:
+            rel_value = self.values.all()[0].value
+
+            c_content_type = self.childs.filter(child_type__id=1)[0]
+            pk_content_type = c_content_type.values.all()[0].value
+
+            ct = ContentType.objects.get(pk=pk_content_type)
+            model_class = ct.model_class()
+
+            c_pk_filter = self.childs.filter(child_type__id=2)[0]
+            pk_filter = c_pk_filter.values.all()[0]
+
+            f = Filter.objects.get(pk=pk_filter.value)
+            l_pk_entity = model_class.objects.filter(f.get_q()).values_list('id', flat=True)
+
+            bigq = Q(**{key: [pattern_value % rel_value]})
+            bigq &= Q(relations__object_entity__entity_type__id=ct.id,relations__object_entity__id__in=l_pk_entity)
+
+            return bigq
+        #FIN HACK for super big Q
+
 
         #Hack for dates
         if pattern_value.find('(%s,%s)') >= 0:
