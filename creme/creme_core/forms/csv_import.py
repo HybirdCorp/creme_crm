@@ -66,21 +66,23 @@ class CSVUploadForm(CremeForm):
 
     def clean(self):
         cleaned_data = self.cleaned_data
-        csv_document = cleaned_data['csv_document']
 
-        if not self.user.has_perm('creme_core.view_entity', csv_document):
-            raise ValidationError(ugettext("You have not the credentials to read this document."))
+        if not self._errors:
+            csv_document = cleaned_data['csv_document']
 
-        if cleaned_data['csv_has_header']:
-            filedata = csv_document.filedata
+            if not self.user.has_perm('creme_core.view_entity', csv_document):
+                raise ValidationError(ugettext("You have not the credentials to read this document."))
 
-            try:
-                filedata.open()
-                self._csv_header = UnicodeReader(filedata).next()
-            except Exception, e:
-                raise ValidationError(ugettext("Error reading document: %s.") % e)
-            finally:
-                filedata.close()
+            if cleaned_data['csv_has_header']:
+                filedata = csv_document.filedata
+
+                try:
+                    filedata.open()
+                    self._csv_header = UnicodeReader(filedata).next()
+                except Exception, e:
+                    raise ValidationError(ugettext("Error reading document: %s.") % e)
+                finally:
+                    filedata.close()
 
         return cleaned_data
 
