@@ -7,32 +7,32 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-03-16 11:34+0100\n"
+"POT-Creation-Date: 2011-04-06 11:23+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: \n"
 
-#: blocks.py:36 models/product_line.py:35
+#: blocks.py:38 models/product_line.py:35
 msgid "Product lines"
 msgstr "Lignes produit"
 
-#: blocks.py:50 models/service_line.py:35
+#: blocks.py:52 models/service_line.py:35
 msgid "Service lines"
 msgstr "Lignes service"
 
-#: blocks.py:64
+#: blocks.py:66
 msgid "Total"
 msgstr "Total"
 
-#: blocks.py:75
+#: blocks.py:77
 msgid "Target Organisation"
 msgstr "Société cible"
 
-#: blocks.py:88
+#: blocks.py:89
 msgid "Received invoices"
 msgstr "Factures reçues"
 
@@ -102,15 +102,15 @@ msgstr "a reçu"
 msgid "Pending"
 msgstr "En attente"
 
-#: populate.py:47 populate.py:58
+#: populate.py:47 populate.py:62
 msgid "Accepted"
 msgstr "Accepté"
 
-#: populate.py:48 populate.py:59
+#: populate.py:48 populate.py:63
 msgid "Rejected"
 msgstr "Rejeté"
 
-#: populate.py:49 populate.py:60
+#: populate.py:49 populate.py:64
 msgid "Created"
 msgstr "Créé"
 
@@ -134,77 +134,94 @@ msgstr "à 60 jours"
 msgid "30 days, end month the 10"
 msgstr "à 30 jours, fin de mois le 10"
 
-#: populate.py:57 populate.py:72
+#: populate.py:57
+msgid "Deposit"
+msgstr "Accompte"
+
+#: populate.py:57
+#, python-format
+msgid "20% deposit will be required"
+msgstr "20% d'acompte sera demandé"
+
+#: populate.py:59
+msgid "Trainer accreditation"
+msgstr "Agrément formateur"
+
+#: populate.py:59
+msgid "being certified trainer courses could be supported by your OPCA"
+msgstr "étant agrée formateur les formations pourront être prises en charge par votre OPCA"
+
+#: populate.py:61 populate.py:76
 msgid "Issued"
 msgstr "Émis"
 
-#: populate.py:62 populate.py:71
+#: populate.py:66 populate.py:75
 msgid "Draft"
 msgstr "Brouillon"
 
-#: populate.py:63
+#: populate.py:67
 msgid "To be sent"
 msgstr "À envoyer"
 
-#: populate.py:64
+#: populate.py:68
 msgid "Sent"
 msgstr "Envoyée"
 
-#: populate.py:65
+#: populate.py:69
 msgid "Resulted"
 msgstr "Soldée"
 
-#: populate.py:66
+#: populate.py:70
 msgid "Partly resulted"
 msgstr "Partiellement soldée"
 
-#: populate.py:67
+#: populate.py:71
 msgid "Collection"
 msgstr "Recouvrement"
 
-#: populate.py:68
+#: populate.py:72
 msgid "Resulted collection"
 msgstr "Recouvrement soldé"
 
-#: populate.py:69
+#: populate.py:73
 msgid "Canceled"
 msgstr "Annulée"
 
-#: populate.py:78 models/base.py:38
+#: populate.py:82 models/base.py:39 models/other_models.py:95
 #: templates/billing/templatetags/block_received_invoices.html:10
 msgid "Name"
 msgstr "Nom"
 
-#: populate.py:79 models/base.py:39
+#: populate.py:83 models/base.py:40
 msgid "Number"
 msgstr "Numéro"
 
-#: populate.py:80 forms/base.py:41 models/base.py:40
+#: populate.py:84 forms/base.py:41 models/base.py:41
 msgid "Issuing date"
 msgstr "Date d'émission"
 
-#: populate.py:81 forms/base.py:42 models/base.py:41
+#: populate.py:85 forms/base.py:42 models/base.py:42
 #: templates/billing/templatetags/block_received_invoices.html:11
 msgid "Expiration date"
 msgstr "Échéance"
 
-#: populate.py:82
+#: populate.py:86
 msgid "Status - Name"
 msgstr "Statut - Nom"
 
-#: populate.py:84
+#: populate.py:88
 msgid "Invoice view"
 msgstr "Vue de Facture"
 
-#: populate.py:85
+#: populate.py:89
 msgid "Quote view"
 msgstr "Vue de Devis"
 
-#: populate.py:86
+#: populate.py:90
 msgid "Sales order view"
 msgstr "Vue de Bon de Commande"
 
-#: populate.py:87
+#: populate.py:91
 msgid "Credit note view"
 msgstr "Vue des Avoirs"
 
@@ -224,15 +241,15 @@ msgstr "Société émettrice"
 msgid "Target organisation"
 msgstr "Société réceptrice"
 
-#: forms/base.py:45 models/algo.py:34 models/algo.py:43
+#: forms/base.py:45 models/algo.py:35 models/algo.py:44
 msgid "Organisation"
 msgstr "Société"
 
-#: forms/base.py:127 models/base.py:44
+#: forms/base.py:127 models/base.py:45
 msgid "Shipping address"
 msgstr "Adresse de livraison"
 
-#: forms/base.py:132 models/base.py:43
+#: forms/base.py:132 models/base.py:44
 msgid "Billing address"
 msgstr "Adresse de facturation"
 
@@ -319,32 +336,40 @@ msgstr "Statut"
 msgid "Status of %s"
 msgstr "Statut de %s"
 
-#: models/algo.py:35
+#: models/algo.py:36
 msgid "Algo name"
 msgstr "Nom de l'algo"
 
-#: models/algo.py:45
+#: models/algo.py:46
 msgid "Invoice prefix"
 msgstr "Préfixe de la facture"
 
-#: models/base.py:42 models/line.py:43
+#: models/base.py:43 models/line.py:43
 #: templates/billing/templatetags/line.html:18
 msgid "Discount"
 msgstr "Remise"
 
-#: models/base.py:45 models/line.py:40
+#: models/base.py:46 models/line.py:40
 #: templates/billing/templatetags/line.html:20
 msgid "Comment"
 msgstr "Remarques"
 
-#: models/base.py:46
+#: models/base.py:47
 #: templates/billing/templatetags/block_received_invoices.html:13
 msgid "Total with VAT"
 msgstr "Total avec TVA"
 
-#: models/base.py:47
+#: models/base.py:48
 msgid "Total without VAT"
 msgstr "Total HT"
+
+#: models/base.py:49
+msgid "Additional Information"
+msgstr "Informations supplémentaires"
+
+#: models/base.py:50
+msgid "Payment Terms"
+msgstr "Conditions de réglement"
 
 #: models/credit_note.py:29
 msgid "Status of credit note"
@@ -363,15 +388,16 @@ msgid "Status of invoice"
 msgstr "Statut de la facture"
 
 #: models/invoice.py:32 models/other_models.py:27 models/other_models.py:34
-msgid "Payment terms"
-msgstr "Réglement"
+#: models/other_models.py:35
+msgid "Settlement terms"
+msgstr "Conditions de règlement"
 
-#: models/invoice.py:41
+#: models/invoice.py:42
 #: templates/billing/templatetags/block_received_invoices.html:5
 msgid "Invoice"
 msgstr "Facture"
 
-#: models/invoice.py:42
+#: models/invoice.py:43
 msgid "Invoices"
 msgstr "Factures"
 
@@ -415,10 +441,6 @@ msgstr "Ligne"
 msgid "Lines"
 msgstr "Lignes"
 
-#: models/other_models.py:35
-msgid "Payments terms"
-msgstr "Réglement"
-
 #: models/other_models.py:52 models/other_models.py:53
 msgid "Invoice status"
 msgstr "Statut(s) de facture"
@@ -434,6 +456,22 @@ msgstr "Statut(s) de bon de commande"
 #: models/other_models.py:91 models/other_models.py:92
 msgid "Credit note status"
 msgstr "Status d'avoir"
+
+#: models/other_models.py:96 models/other_models.py:110
+msgid "Description"
+msgstr "Description"
+
+#: models/other_models.py:104 models/other_models.py:105
+msgid "Additional information"
+msgstr "Informations additionelles"
+
+#: models/other_models.py:109 models/other_models.py:118
+msgid "Payment terms"
+msgstr "Condition de réglement"
+
+#: models/other_models.py:119
+msgid "Payments terms"
+msgstr "Conditions de réglement"
 
 #: models/product_line.py:30
 msgid "Related to product"

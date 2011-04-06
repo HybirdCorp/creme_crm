@@ -54,6 +54,10 @@ class Populator(BasePopulator):
         create(SettlementTerms, 4, name=_(u"60 days"))
         create(SettlementTerms, 5, name=_(u"30 days, end month the 10"))
 
+        create(PaymentTerms, 1, name=_(u"Deposit"), description=_(u"20% deposit will be required"), is_custom=False)
+        
+        create(AdditionalInformation, 1, name=_(u"Trainer accreditation"), description=_(u"being certified trainer courses could be supported by your OPCA"), is_custom=False)
+
         create(SalesOrderStatus, 1, name=_(u"Issued"),   is_custom=False) #default status
         create(SalesOrderStatus, 2, name=_(u"Accepted"), is_custom=True)
         create(SalesOrderStatus, 3, name=_(u"Rejected"), is_custom=True)

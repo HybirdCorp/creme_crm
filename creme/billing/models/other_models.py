@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.db.models import CharField, BooleanField
+from django.db.models import CharField, BooleanField, TextField
 from django.utils.translation import ugettext_lazy as _
 
 from creme_core.models import CremeModel
@@ -90,3 +90,30 @@ class CreditNoteStatus(CremeModel):
         app_label = 'billing'
         verbose_name = _(u"Credit note status")
         verbose_name_plural = _(u"Credit note status")
+
+class AdditionalInformation(CremeModel):
+    name        = CharField(_(u'Name'), max_length=100)
+    description = TextField(verbose_name=_(u"Description"), blank=True, null=True)
+    is_custom   = BooleanField(default=True) #used by creme_config
+
+    def __unicode__(self):
+        return self.name
+
+    class Meta:
+        app_label = 'billing'
+        verbose_name = _(u"Additional information")
+        verbose_name_plural = _(u"Additional information")
+
+
+class PaymentTerms(CremeModel):
+    name        = CharField(_(u'Payment terms'), max_length=100)
+    description = TextField(verbose_name=_(u"Description"), blank=True, null=True)
+    is_custom   = BooleanField(default=True) #used by creme_config
+    
+    def __unicode__(self):
+        return self.name
+
+    class Meta:
+        app_label = 'billing'
+        verbose_name = _(u'Payment terms')
+        verbose_name_plural = _(u'Payments terms')
