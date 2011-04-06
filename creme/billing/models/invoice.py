@@ -22,14 +22,14 @@ from django.db.models import ForeignKey
 from django.utils.translation import ugettext_lazy as _
 
 from base import Base
-from other_models import InvoiceStatus, PaymentTerms
+from other_models import InvoiceStatus, SettlementTerms
 from product_line import ProductLine
 from service_line import ServiceLine
 
 
 class Invoice(Base):
     status       = ForeignKey(InvoiceStatus, verbose_name=_(u'Status of invoice'), blank=False, null=False)
-    payment_type = ForeignKey(PaymentTerms, verbose_name=_(u'Payment terms'), blank=True, null=True)
+    payment_type = ForeignKey(SettlementTerms, verbose_name=_(u'Settlement terms'), blank=True, null=True)
 
     research_fields = Base.research_fields + ['status__name']
     excluded_fields_in_html_output = Base.excluded_fields_in_html_output + ['base_ptr']
