@@ -75,7 +75,7 @@ class Base(CremeEntity):
         return super(Base, self).save(*args, **kwargs)
 
     #TODO: factorise with get_target()
-    #TODO: return an Organisation instead of a CremeEntity ??
+    #TODO: return an Organisation instead of a CremeEntity ?? <- If doing this check calls to .get_source().get_real_entity()
     def get_source(self):
         try:
             return Relation.objects.get(subject_entity=self, type=REL_SUB_BILL_ISSUED).object_entity if self.id else None

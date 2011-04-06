@@ -20,14 +20,16 @@
 
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.contenttypes.models import ContentType
+from creme_config.models.setting import SettingValue
 
 from creme_core.gui.block import Block, PaginatedBlock, QuerysetBlock
 from creme_core.models import CremeEntity, Relation
+from creme_core.constants import PROP_IS_MANAGED_BY_CREME
 
 from persons.models import Contact, Organisation
 
-from billing.models import ProductLine, ServiceLine, Invoice, SalesOrder, Quote
-from billing.constants import REL_OBJ_BILL_RECEIVED, REL_SUB_BILL_RECEIVED
+from billing.models import ProductLine, ServiceLine, Invoice, SalesOrder, Quote, PaymentInformation
+from billing.constants import REL_OBJ_BILL_RECEIVED, REL_SUB_BILL_RECEIVED, REL_SUB_BILL_ISSUED, REL_OBJ_BILL_ISSUED, DISPLAY_PAYMENT_INFO_ONLY_CREME_ORGA
 
 
 #NB PaginatedBlock and not QuerysetBlock to avoid the retrieving of a sliced
@@ -104,8 +106,75 @@ class ReceivedInvoicesBlock(QuerysetBlock):
         return self._render(btc)
 
 
-product_lines_block     = ProductLinesBlock()
-service_lines_block     = ServiceLinesBlock()
-total_block             = TotalBlock()
-target_block            = TargetBlock()
-received_invoices_block = ReceivedInvoicesBlock()
+class PaymentInformationBlock(QuerysetBlock):
+    id_           = QuerysetBlock.generate_id('billing', 'payment_information')
+    verbose_name  = _(u"Payment information")
+    template_name = "billing/templatetags/block_payment_information.html"
+    configurable  = True
+    target_ctypes = (Organisation, )
+    order_by      = 'name'
+
+    def detailview_display(self, context):
+        organisation = context['object']
+
+        has_to_be_displayed = True
+        try:
+            has_to_be_displayed_cfg = SettingValue.objects.get(key__id=DISPLAY_PAYMENT_INFO_ONLY_CREME_ORGA).value
+            is_managed_by_creme     = organisation.properties.filter(type=PROP_IS_MANAGED_BY_CREME)
+
+            if has_to_be_displayed_cfg and not is_managed_by_creme:
+                    has_to_be_displayed = False
+
+        except SettingValue.DoesNotExist:
+            #Populate error ?
+            pass
+
+        if not has_to_be_displayed:
+            return ""
+
+        
+        btc= self.get_block_template_context(context,
+                                             PaymentInformation.objects.filter(organisation=organisation),
+                                             update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, organisation.pk),
+                                             ct_id=ContentType.objects.get_for_model(PaymentInformation).id
+                                            )
+
+        return self._render(btc)
+
+
+class InvoicePaymentInformationBlock(QuerysetBlock):
+    id_           = QuerysetBlock.generate_id('billing', 'invoice_payment_information')
+    verbose_name  = _(u"Default payment information")
+    template_name = "billing/templatetags/block_invoice_payment_information.html"
+    configurable  = False
+    target_ctypes = (Invoice, )
+    dependencies  = (Relation, )
+    relation_type_deps = (REL_OBJ_BILL_ISSUED, REL_SUB_BILL_ISSUED, REL_OBJ_BILL_RECEIVED, REL_SUB_BILL_RECEIVED)
+    order_by      = 'name'
+
+    def detailview_display(self, context):
+        invoice = context['object']
+        organisation = invoice.get_source()
+
+        if organisation is not None:
+            pi_qs = PaymentInformation.objects.filter(organisation=organisation)
+        else:
+            pi_qs = PaymentInformation.objects.none()
+
+        btc= self.get_block_template_context(context,
+                                             pi_qs,
+                                             update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, invoice.pk),
+                                             ct_id=ContentType.objects.get_for_model(PaymentInformation).id,
+                                             organisation=organisation,
+                                            )
+
+        return self._render(btc)
+
+
+product_lines_block                = ProductLinesBlock()
+service_lines_block                = ServiceLinesBlock()
+total_block                        = TotalBlock()
+target_block                       = TargetBlock()
+received_invoices_block            = ReceivedInvoicesBlock()
+payment_information_block          = PaymentInformationBlock()
+invoice_payment_information_block = InvoicePaymentInformationBlock()
