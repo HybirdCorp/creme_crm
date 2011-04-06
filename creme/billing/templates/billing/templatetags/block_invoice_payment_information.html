@@ -1,0 +1,52 @@
+{% load i18n %}{% load media %}
+{% load creme_core_tags creme_block %}
+<table  class="table_detail_view ui-corner-all" id={{block_name}}>
+    {% get_block_header colspan=3 %}
+        <th style="width: 80%;" class="collapser" align="left">{% get_block_title _('%s Payment information') _('%s Payments information') 'money_info_48.png' _('Payment information') %}</th>
+        <th style="width: 20%;" align="right">
+            <div class="buttons">
+                {% has_perm_to change object as has_perm %}
+                {% if organisation %}
+                    {% has_perm_to change organisation as has_perm_organisation %}
+                    {% get_line_adder at_url '/billing/payment_information/add/{{ organisation.id }}' with_label _("Add a payment information") with_perms has_perm_organisation %}
+                {% else %}
+                    {% get_line_adder at_url '' with_label _("Add a payment information (no source organisation)") with_perms 0 %}
+                {% endif %}
+            </div>
+        </th>
+    {% end_get_block_header %}
+    <tbody class="collapsable">
+        {% if page.paginator.count %}
+            <tr>
+                {% get_column_header _('Name') 'name' %}
+                <th class="block_header_line_dark">&nbsp;</th>
+                <th class="block_header_line_dark">{% trans "Selected by default in this invoice" %}</th>
+            </tr>
+            {% for payment_info in page.object_list %}<!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
+                <tr>
+                    <td class="{{row_color}}">{{payment_info.name}}</td>
+                    <td class="{{row_color}}">
+                        <table>
+                            <tr>
+                                <th class="th_info">{% trans "RIB" %}</th>
+                                <td class="td_info">{{payment_info.bank_code}}-{{payment_info.counter_code}}-{{payment_info.account_number}}-{{payment_info.rib_key}}</td>
+                            </tr>
+                            <tr>
+                                <th class="th_info">{% trans "Banking domiciliation" %}</th>
+                                <td class="td_info">{{payment_info.banking_domiciliation}}</td>
+                            </tr>
+                        </table>
+                    </td>
+                    <td class="{{row_color}}">
+                        <input type="checkbox" {% if payment_info == object.payment_info %} checked="true"{% endif %} onclick="creme.billing.setDefaultPaymentInformation('{{ payment_info.id }}', '{{ object.id }}', {% get_block_reload_uri %});"/>
+                    </td>
+                </tr>
+            {% endfor %}
+        {% else %}
+            <tr>
+                <td class="block_line_dark">{% trans "No payment information for the moment" %}</td>
+            </tr>
+        {% endif %}
+    </tbody>
+    {% include 'creme_core/templatetags/widgets/block_footer.html' %}
+</table>

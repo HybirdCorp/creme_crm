@@ -19,6 +19,7 @@
 ################################################################################
 
 from django.utils.translation import ugettext as _
+from creme_config.models.setting import SettingKey, SettingKey, SettingValue, SettingValue
 
 from creme_core.utils import create_or_update as create
 from creme_core.models.header_filter import HeaderFilterItem, HeaderFilter, HFI_FIELD
@@ -56,7 +57,7 @@ class Populator(BasePopulator):
 
         create(PaymentTerms, 1, name=_(u"Deposit"), description=_(u"20% deposit will be required"), is_custom=False)
         
-        create(AdditionalInformation, 1, name=_(u"Trainer accreditation"), description=_(u"being certified trainer courses could be supported by your OPCA"), is_custom=False)
+        create(AdditionalInformation, 1, name=_(u"Trainer accreditation"), description=_(u"being certified trainer courses could be supported by your OPCA"), )
 
         create(SalesOrderStatus, 1, name=_(u"Issued"),   is_custom=False) #default status
         create(SalesOrderStatus, 2, name=_(u"Accepted"), is_custom=True)
@@ -92,3 +93,9 @@ class Populator(BasePopulator):
 
         for model in (Invoice, CreditNote, Quote, SalesOrder):
             SearchConfigItem.create(model, ['name', 'number', 'status__name'])
+
+        sk = SettingKey.create(pk=DISPLAY_PAYMENT_INFO_ONLY_CREME_ORGA,
+                               description=_(u"Display payment information bloc only on creme managed organisations' detailview"),
+                               app_label='billing', type=SettingKey.BOOL
+                      )
+        SettingValue.objects.create(key=sk, user=None, value=True)

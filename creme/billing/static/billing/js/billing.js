@@ -43,3 +43,8 @@ creme.billing.lineAutoPopulateSelection = function(id, targetInputId, nodesToPop
         }
     );
 }
+
+creme.billing.setDefaultPaymentInformation = function(payment_info_id, invoice_id, reload_url)
+{
+    creme.utils.postNReload('/billing/payment_information/set_default/'+payment_info_id+'/'+invoice_id, reload_url);
+}
