@@ -16,3 +16,5 @@ REL_OBJ_BILL_RECEIVED = 'billing-object_bill_received'
 
 DEFAULT_DRAFT_INVOICE_STATUS = 1
 DEFAULT_INVOICE_STATUS = 2
+
+DISPLAY_PAYMENT_INFO_ONLY_CREME_ORGA = 'billing-display_payment_info_only_creme_orga'
