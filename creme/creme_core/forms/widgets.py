@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2011  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -33,20 +33,21 @@ from django.conf import settings
 
 from mediagenerator.utils import media_url
 
-#from django.template.loader import render_to_string
 
 def widget_render_input(klass, widget, name, value, context, **kwargs):
     input_attrs = {
-                     'class':' '.join(['ui-creme-input', context.get('css')]),
-                     'widget':context.get('typename'),
+                     'class':  ' '.join(['ui-creme-input', context.get('css')]),
+                     'widget': context.get('typename'),
                   }
     input_attrs.update(kwargs)
 
     return klass.render(widget, name, value, input_attrs)
 
 def widget_render_hidden_input(widget, name, value, context):
-    input_attrs = {'class':' '.join(['ui-creme-input', context.get('typename')]),
-                   'type':'hidden'}
+    input_attrs = {
+                    'class': ' '.join(['ui-creme-input', context.get('typename')]),
+                    'type':  'hidden',
+                   }
 
     return Input.render(widget, name, value, input_attrs)
 
@@ -54,7 +55,6 @@ def widget_render_context(typename, attrs, css='', **kwargs):
     id   = attrs.get('id')
     auto = attrs.pop('auto', True)
     css = ' '.join((css, 'ui-creme-widget widget-auto' if auto else 'ui-creme-widget', typename))
-    
     context = {
                 'style':      '',
                 'typename':   typename,
@@ -64,11 +64,8 @@ def widget_render_context(typename, attrs, css='', **kwargs):
              }
 
     context.update(kwargs)
-    return context
 
-# TODO : unused remove it !
-#def widget_render_context_addclass(context, *args):
-#    context['class'] = ' '.join([context.get('class', '')] + args)
+    return context
 
 
 class DynamicSelect(Select):
@@ -78,11 +75,9 @@ class DynamicSelect(Select):
 
     def render(self, name, value, attrs=None):
         attrs = self.build_attrs(attrs, name=name)
-
         context = widget_render_context('ui-creme-dselect', attrs)
-        input = widget_render_input(Select, self, name, value, context, url=self.url)
 
-        return mark_safe(input)
+        return mark_safe(widget_render_input(Select, self, name, value, context, url=self.url))
 
 
 class ChainedInput(TextInput):
@@ -97,7 +92,7 @@ class ChainedInput(TextInput):
         super(ChainedInput, self).__init__(attrs)
         self.inputs = []
         self.set_inputs(*args)
-        self.from_python = None # TODO : wait for django 1.2 and new widget api to remove this hack
+        self.from_python = None #TODO : wait for django 1.2 and new widget api to remove this hack
 
     def render(self, name, value, attrs=None):
         value = self.from_python(value) if self.from_python is not None else value # TODO : wait for django 1.2 and new widget api to remove this hack
@@ -106,9 +101,9 @@ class ChainedInput(TextInput):
         context = widget_render_context('ui-creme-chainedselect', attrs,
                                         style=attrs.pop('style', ''),
                                         selects=self._render_inputs(attrs))
-        
+
         context['input'] = widget_render_hidden_input(self, name, value, context)
-        
+
         return mark_safe("""<div class="%(css)s" style="%(style)s" widget="%(typename)s">
                                 %(input)s
                                 %(selects)s
@@ -127,7 +122,7 @@ class ChainedInput(TextInput):
     def add_input(self, name, widget, attrs=None, **kwargs):
         self.inputs.append((name, widget(attrs=attrs, **kwargs)))
 
-    def _render_inputs(self, attrs): #TODO: use join() ??
+    def _render_inputs(self, attrs):
         output = ['<ul class="ui-layout hbox">']
 
         output.extend('<li chained-name="%s">%s</li>' % (name, input.render('', ''))
@@ -140,6 +135,7 @@ class ChainedInput(TextInput):
                              </li>""" % (media_url('images/delete_22.png'), _(u'Reset'), _(u'Reset')))
 
         output.append('</ul>')
+
         return '\n'.join(output)
 
 
@@ -147,7 +143,7 @@ class SelectorList(TextInput):
     def __init__(self, selector, attrs=None):
         super(SelectorList, self).__init__(attrs)
         self.selector = selector
-        self.from_python = None # TODO : wait for django 1.2 and new widget api to remove this hack
+        self.from_python = None #TODO : wait for django 1.2 and new widget api to remove this hack
 
     def render(self, name, value, attrs=None):
         value = self.from_python(value) if self.from_python is not None else value # TODO : wait for django 1.2 and new widget api to remove this hack
@@ -156,7 +152,7 @@ class SelectorList(TextInput):
         context = widget_render_context('ui-creme-selectorlist', attrs,
                                         add=_(u'Add'),
                                         selector=self.selector.render('', '', {'auto':False,'reset':False}))
-        
+
         context['input'] = widget_render_hidden_input(self, name, value, context)
         context['img_url'] = media_url('images/add_16.png')
 
@@ -188,9 +184,9 @@ class EntitySelector(TextInput):
                                         multiple='1' if attrs.pop('multiple', False) else '0',
                                         style=attrs.pop('style', ''),
                                         label=_(u'Select...'))
-        
+
         context['input'] = widget_render_hidden_input(self, name, value, context)
-        
+
         html_output = """
             <span class="%(css)s" style="%(style)s" widget="%(typename)s" url="%(url)s" multiple="%(multiple)s">
                 %(input)s
@@ -222,79 +218,79 @@ class RelationSelector(ChainedInput):
 #    def render(self, name, value, attrs=None): #TODO: useful ??
 #        return super(RelationSelector, self).render(name, value, attrs)
 
-#TODO: unused ??
-class EntitySelectorList(SelectorList):
-    def __init__(self, attrs=None):
-        super(EntitySelectorList, self).__init__(attrs)
-        self.selector = EntitySelector
+#COMMENTED on 6 april 2011
+#class EntitySelectorList(SelectorList):
+#    def __init__(self, attrs=None):
+#        super(EntitySelectorList, self).__init__(attrs)
+#        self.selector = EntitySelector
+#
+#    def render(self, name, value, attrs=None):
+#        attrs = self.build_attrs(attrs, name=name, type='hidden')
+#
+#        context = widget_render_context('ui-creme-selectorlist', attrs,
+#                                        add='Ajouter',
+#                                        selector=self.selector.render(name, value, {'auto':False,}))
+#
+#        context['input'] = widget_render_hidden_input(self, name, value, context)
+#        context['img_url'] = media_url('images/add_16.png')
+#
+#        return mark_safe("""
+#            <div id="%(id)s" class="%(css)s" style="%(style)s" widget="%(typename)s">
+#                %(input)s
+#                <div class="inner-selector-model" style="display:none;">%(selector)s</div>
+#                <ul class="selectors ui-layout"></ul>
+#                <div class="add">
+#                    <img src="%(img_url)s" alt="%(add)s" title="%(add)s"/>
+#                    %(add)s
+#                </div>
+#                %(script)s
+#            </div>
+#        """ % context)
 
-    def render(self, name, value, attrs=None):
-        attrs = self.build_attrs(attrs, name=name, type='hidden')
 
-        context = widget_render_context('ui-creme-selectorlist', attrs,
-                                        add='Ajouter',
-                                        selector=self.selector.render(name, value, {'auto':False,}))
-        
-        context['input'] = widget_render_hidden_input(self, name, value, context)
-        context['img_url'] = media_url('images/add_16.png')
-
-        return mark_safe("""
-            <div id="%(id)s" class="%(css)s" style="%(style)s" widget="%(typename)s">
-                %(input)s
-                <div class="inner-selector-model" style="display:none;">%(selector)s</div>
-                <ul class="selectors ui-layout"></ul>
-                <div class="add">
-                    <img src="%(img_url)s" alt="%(add)s" title="%(add)s"/>
-                    %(add)s
-                </div>
-                %(script)s
-            </div>
-        """ % context)
-
-
-#TODO: deprecated -> rewrite this with Selector system....
-class RelationListWidget(TextInput):
-    def __init__(self, attrs=None, relation_types=()):
-        super(RelationListWidget, self).__init__(attrs)
-        self.relation_types = relation_types
-
-    def render(self, name, value, attrs=None):
-        attrs = self.build_attrs(attrs, name=name, type='hidden')
-
-        self.relation_types = sorted(self.relation_types, key=lambda k: k.predicate)#TODO: Replace with _(k.predicate) when predicate will be traducted
-
-        html_output = """%(input)s
-            <div id="%(id)s_list" class="ui-creme-rel-selector-list" widget-input="%(id)s">
-                %(predicates)s
-                <div class="list"></div>
-                <div onclick="creme.forms.RelationList.appendSelector($('#%(id)s_list'));" class="add">
-                    <img src="%(img_url)s" alt="%(title)s" title="%(title)s"/>
-                    %(title)s
-                </div>
-            </div>
-            <script type="text/javascript">
-                $('.ui-creme-rel-selector-list#%(id)s_list').each(function() {
-                    creme.forms.RelationList.init($(this));
-                });
-            </script>""" % {
-                'img_url':   media_url('images/add_16.png'),
-                'input':      super(RelationListWidget, self).render(name, value, attrs),
-                'title':      _(u'Add'),
-                'id':         attrs['id'],
-                'predicates': self.render_options('predicates'),
-              }
-
-        return mark_safe(html_output)
-
-    def render_options(self, css):
-        output = ['<select style="display:none;" class="%s">' % css]
-        output.extend(u'<option value="%s">%s</option>' % (rt.id, rt.predicate) for rt in self.relation_types)
-        output.append('</select>')
-
-        return u''.join(output)
-
-    def set_predicates(self, predicates):
-        self.predicates = predicates
+#COMMENTED on 6 april 2011
+#class RelationListWidget(TextInput):
+#    def __init__(self, attrs=None, relation_types=()):
+#        super(RelationListWidget, self).__init__(attrs)
+#        self.relation_types = relation_types
+#
+#    def render(self, name, value, attrs=None):
+#        attrs = self.build_attrs(attrs, name=name, type='hidden')
+#
+#        self.relation_types = sorted(self.relation_types, key=lambda k: k.predicate)#TODO: Replace with _(k.predicate) when predicate will be traducted
+#
+#        html_output = """%(input)s
+#            <div id="%(id)s_list" class="ui-creme-rel-selector-list" widget-input="%(id)s">
+#                %(predicates)s
+#                <div class="list"></div>
+#                <div onclick="creme.forms.RelationList.appendSelector($('#%(id)s_list'));" class="add">
+#                    <img src="%(img_url)s" alt="%(title)s" title="%(title)s"/>
+#                    %(title)s
+#                </div>
+#            </div>
+#            <script type="text/javascript">
+#                $('.ui-creme-rel-selector-list#%(id)s_list').each(function() {
+#                    creme.forms.RelationList.init($(this));
+#                });
+#            </script>""" % {
+#                'img_url':   media_url('images/add_16.png'),
+#                'input':      super(RelationListWidget, self).render(name, value, attrs),
+#                'title':      _(u'Add'),
+#                'id':         attrs['id'],
+#                'predicates': self.render_options('predicates'),
+#              }
+#
+#        return mark_safe(html_output)
+#
+#    def render_options(self, css):
+#        output = ['<select style="display:none;" class="%s">' % css]
+#        output.extend(u'<option value="%s">%s</option>' % (rt.id, rt.predicate) for rt in self.relation_types)
+#        output.append('</select>')
+#
+#        return u''.join(output)
+#
+#    def set_predicates(self, predicates):
+#        self.predicates = predicates
 
 
 class DateTimeWidget(TextInput):
@@ -504,7 +500,7 @@ class UploadedFileWidget(FileInput):
         input = super(UploadedFileWidget, self).render(name, value, attrs)
         return mark_safe(input + visual)
 
-#TODO: Delete me
+#TODO: Delete me (delete related js too)
 class RTEWidget(Textarea):
     def render(self, name, value, attrs=None):
         attrs = self.build_attrs(attrs, name=name)
@@ -521,9 +517,7 @@ class RTEWidget(Textarea):
                 })
 
 
-
 class TinyMCEEditor(Textarea):
-
     def render(self, name, value, attrs=None):
         rendered = super(TinyMCEEditor, self).render(name, value, attrs)
 #        extended_valid_elements : "a[name|href|target|title|onclick]",
@@ -547,7 +541,7 @@ class TinyMCEEditor(Textarea):
                                     theme_advanced_path_location : "bottom",
                                     theme_advanced_resizing : true
                                 });
-                            </script>''' % {'MEDIA_URL' :settings.MEDIA_URL, 'name': name, 'input': rendered})
+                            </script>''' % {'MEDIA_URL': settings.MEDIA_URL, 'name': name, 'input': rendered})
 
 
 class ColorPickerWidget(TextInput):
@@ -602,8 +596,7 @@ class ListViewWidget(TextInput):
                         creme.lv_widget.init_widget('%(id)s','%(qfilter)s', %(js_attrs)s);
                         creme.lv_widget.handleSelection(%(value)s, '%(id)s');
                     });
-                </script>
-            """ % {
+                </script>""" % {
                     'input':    super(ListViewWidget, self).render(name, "", self.attrs),
                     'id':       id_input,
                     'qfilter':  encode(self.q_filter),
@@ -621,8 +614,7 @@ class UnorderedMultipleChoiceWidget(SelectMultiple):
                         $(document).ready(function() {
                             creme.forms.toUnorderedMultiSelect('%(id)s');
                         });
-                     </script>
-                 """ % {
+                     </script>""" % {
                         'select': super(UnorderedMultipleChoiceWidget, self).render(name, value, attrs=attrs, choices=choices),
                         'id':     attrs['id'],
                      })
