@@ -19,9 +19,11 @@
 ################################################################################
 
 from django.db.models import CharField, BooleanField, TextField
+from django.db.models.fields.related import ForeignKey
 from django.utils.translation import ugettext_lazy as _
 
 from creme_core.models import CremeModel
+from persons.models.organisation import Organisation
 
 class SettlementTerms(CremeModel):
     name = CharField(_(u'Settlement terms'), max_length=100)
@@ -117,3 +119,56 @@ class PaymentTerms(CremeModel):
         app_label = 'billing'
         verbose_name = _(u'Payment terms')
         verbose_name_plural = _(u'Payments terms')
+
+
+
+class PaymentInformation(CremeModel):
+    name                  = CharField(_(u'Name'), max_length=200)
+
+    bank_code             = CharField(_(u'Bank code'), max_length=12, blank=True, null=True)
+    counter_code          = CharField(_(u'Counter code'), max_length=12, blank=True, null=True)
+    account_number        = CharField(_(u'Account number'), max_length=12, blank=True, null=True)
+    rib_key               = CharField(_(u'RIB key'), max_length=12, blank=True, null=True)
+    banking_domiciliation = CharField(_(u'Banking domiciliation'), max_length=200, blank=True, null=True)
+
+    iban                  = CharField(_(u'IBAN'), max_length=100, blank=True, null=True)
+    bic                   = CharField(_(u'BIC'), max_length=100, blank=True, null=True)
+
+    is_default            = BooleanField(default=False)
+    organisation          = ForeignKey(Organisation, verbose_name=_(u'Target organisation'), related_name='PaymentInformationOrganisation_set')
+
+    def __unicode__(self):
+        return self.name
+
+    class Meta:
+        app_label = 'billing'
+        verbose_name = _(u'Payment information')
+        verbose_name_plural = _(u'Payments information')
+
+
+    def save(self, *args, **kwargs):
+        #Don't factorise the count query!!
+
+        if self.is_default or PaymentInformation.objects.filter(organisation=self.organisation, is_default=True).count() > 1:
+            PaymentInformation.objects.filter(organisation=self.organisation).update(is_default=False)
+            self.is_default = True
+
+        if not self.is_default and PaymentInformation.objects.filter(organisation=self.organisation, is_default=True).exclude(pk=self.id).count() == 0:
+            self.is_default = True
+            
+        super(PaymentInformation, self).save(*args, **kwargs)
+
+    def delete(self, *args, **kwargs):
+        
+        if self.is_default:
+            existing_pi = PaymentInformation.objects.filter(organisation=self.organisation).exclude(id=self.id)
+
+            if existing_pi:
+                first_pi = existing_pi[0]
+                first_pi.is_default=True
+                first_pi.save()
+            
+        super(PaymentInformation, self).delete(*args, **kwargs)
+
+    def get_related_entity(self):
+        return self.organisation    

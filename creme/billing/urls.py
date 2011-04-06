@@ -34,6 +34,11 @@ urlpatterns = patterns('billing.views',
     (r'^invoice/generate_number/(?P<invoice_id>\d+)$', 'invoice.generate_number'),
     (r'^invoice/(?P<invoice_id>\d+)$',                 'invoice.detailview'),
 
+    (r'^payment_information/add/(?P<entity_id>\d+)$',                                           'payment_information.add'),
+    (r'^payment_information/edit/(?P<payment_information_id>\d+)$',                             'payment_information.edit'),
+    (r'^payment_information/set_default/(?P<payment_information_id>\d+)/(?P<invoice_id>\d+)$',  'payment_information.set_default'),
+
+
     (r'^(?P<document_id>\d+)/convert/$', 'convert.convert'),
 
     (r'^(?P<document_id>\d+)/product_line/add$',            'line.add_product_line'),
