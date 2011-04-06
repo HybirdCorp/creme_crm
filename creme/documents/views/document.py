@@ -38,7 +38,7 @@ def add(request):
 @login_required
 @permission_required('documents')
 @permission_required('documents.add_document')
-def add_from_detailview(request):
+def add_related(request):
     GET = request.GET
     entity = get_object_or_404(CremeEntity, pk=get_from_GET_or_404(GET, 'entity_id'))
 
