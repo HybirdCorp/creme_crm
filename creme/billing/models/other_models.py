@@ -23,16 +23,16 @@ from django.utils.translation import ugettext_lazy as _
 
 from creme_core.models import CremeModel
 
-class PaymentTerms(CremeModel):
-    name = CharField(_(u'Payment terms'), max_length=100)
+class SettlementTerms(CremeModel):
+    name = CharField(_(u'Settlement terms'), max_length=100)
 
     def __unicode__(self):
         return self.name
 
     class Meta:
         app_label = 'billing'
-        verbose_name = _(u'Payment terms')
-        verbose_name_plural = _(u'Payments terms')
+        verbose_name = _(u'Settlement terms')
+        verbose_name_plural = _(u'Settlement terms')
 
 
 
