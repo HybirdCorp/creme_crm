@@ -7,7 +7,7 @@
         <th style="width: 20%;" align="right">
             <div class="buttons">
                 {% if has_creation_perm and link_perm %}
-                    <a class="add" href="/documents/document/add_from_detailview?callback_url={{object.get_absolute_url}}&entity_id={{object.id}}">
+                    <a class="add" href="/documents/document/add_related?callback_url={{object.get_absolute_url}}&entity_id={{object.id}}">
                         <img src="{% media_url 'images/add_22.png' %}" border="0" title="{% trans "Add a document" %}" alt="{% trans "Add a document" %}" />
                         {% trans "Add a document" %}
                     </a>

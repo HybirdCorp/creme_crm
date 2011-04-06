@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2011  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -35,6 +35,11 @@ class Folder(CremeEntity):
 
     research_fields = CremeEntity.research_fields + ['title', 'description', 'parent_folder__title', 'category__name']
 
+    class Meta:
+        app_label = 'documents'
+        verbose_name = _(u'Folder')
+        verbose_name_plural = _(u'Folders')
+
     def __unicode__(self):
         return self.title
 
@@ -48,8 +53,3 @@ class Folder(CremeEntity):
     def get_lv_absolute_url():
         """url for list_view """
         return "/documents/folders"
-
-    class Meta:
-        app_label = 'documents'
-        verbose_name = _(u'Folder')
-        verbose_name_plural = _(u'Folders')

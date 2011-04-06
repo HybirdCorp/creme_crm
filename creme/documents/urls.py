@@ -16,7 +16,7 @@ urlpatterns = patterns('documents.views',
 
     (r'^documents$',                          'document.listview'),
     (r'^document/add$',                       'document.add'),
-    (r'^document/add_from_detailview$',       'document.add_from_detailview'),
+    (r'^document/add_related',                'document.add_related'),
     (r'^document/edit/(?P<document_id>\d+)$', 'document.edit'),
     (r'^document/(?P<object_id>\d+)$',        'document.detailview'),
 )

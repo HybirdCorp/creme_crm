@@ -139,9 +139,6 @@ MIDDLEWARE_CLASSES = (
     #'creme.creme_core.middleware.module_logger.LogImportedModulesMiddleware', #debuging purpose
 )
 
-#Principal template directory, note the tail slash
-MANDATORY_TEMPLATE = join(CREME_ROOT, "templates")
-
 TEMPLATE_DIRS = (
     join(CREME_ROOT, "templates"),
     # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
