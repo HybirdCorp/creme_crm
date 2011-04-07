@@ -45,16 +45,3 @@ class InvoiceEditForm(BaseEditForm):
         self.fields['status'].queryset = InvoiceStatus.objects.exclude(pk=DEFAULT_DRAFT_INVOICE_STATUS) if self.instance.number else \
                                          InvoiceStatus.objects.filter(pk=DEFAULT_DRAFT_INVOICE_STATUS)
 
-    def save(self):
-        instance = self.instance
-
-        src          = self.cleaned_data['source']
-        payment_info = instance.payment_info
-
-        org_src = src.get_real_entity() if src else None
-        org_payment_info = payment_info.get_related_entity() if payment_info else None
-
-        if org_src != org_payment_info:
-            instance.payment_info = None
-
-        super(InvoiceEditForm, self).save()

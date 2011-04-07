@@ -28,7 +28,7 @@ from creme_core.constants import PROP_IS_MANAGED_BY_CREME
 
 from persons.models import Contact, Organisation
 
-from billing.models import ProductLine, ServiceLine, Invoice, SalesOrder, Quote, PaymentInformation
+from billing.models import ProductLine, ServiceLine, Invoice, SalesOrder, Quote, PaymentInformation, Base
 from billing.constants import REL_OBJ_BILL_RECEIVED, REL_SUB_BILL_RECEIVED, REL_SUB_BILL_ISSUED, REL_OBJ_BILL_ISSUED, DISPLAY_PAYMENT_INFO_ONLY_CREME_ORGA
 
 
@@ -142,19 +142,19 @@ class PaymentInformationBlock(QuerysetBlock):
         return self._render(btc)
 
 
-class InvoicePaymentInformationBlock(QuerysetBlock):
-    id_           = QuerysetBlock.generate_id('billing', 'invoice_payment_information')
+class BillingPaymentInformationBlock(QuerysetBlock):
+    id_           = QuerysetBlock.generate_id('billing', 'billing_payment_information')
     verbose_name  = _(u"Default payment information")
-    template_name = "billing/templatetags/block_invoice_payment_information.html"
+    template_name = "billing/templatetags/block_billing_payment_information.html"
     configurable  = False
-    target_ctypes = (Invoice, )
+    target_ctypes = (Base, )
     dependencies  = (Relation, )
     relation_type_deps = (REL_OBJ_BILL_ISSUED, REL_SUB_BILL_ISSUED, REL_OBJ_BILL_RECEIVED, REL_SUB_BILL_RECEIVED)
     order_by      = 'name'
 
     def detailview_display(self, context):
-        invoice = context['object']
-        organisation = invoice.get_source()
+        billing = context['object']
+        organisation = billing.get_source()
 
         if organisation is not None:
             pi_qs = PaymentInformation.objects.filter(organisation=organisation)
@@ -163,7 +163,7 @@ class InvoicePaymentInformationBlock(QuerysetBlock):
 
         btc= self.get_block_template_context(context,
                                              pi_qs,
-                                             update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, invoice.pk),
+                                             update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, billing.pk),
                                              ct_id=ContentType.objects.get_for_model(PaymentInformation).id,
                                              organisation=organisation,
                                             )
@@ -177,4 +177,4 @@ total_block                        = TotalBlock()
 target_block                       = TargetBlock()
 received_invoices_block            = ReceivedInvoicesBlock()
 payment_information_block          = PaymentInformationBlock()
-invoice_payment_information_block = InvoicePaymentInformationBlock()
+billing_payment_information_block  = BillingPaymentInformationBlock()

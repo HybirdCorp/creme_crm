@@ -22,7 +22,7 @@ from django.db.models import ForeignKey
 from django.utils.translation import ugettext_lazy as _
 
 from base import Base
-from other_models import InvoiceStatus, SettlementTerms, PaymentInformation
+from other_models import InvoiceStatus, SettlementTerms
 from product_line import ProductLine
 from service_line import ServiceLine
 
@@ -30,10 +30,9 @@ from service_line import ServiceLine
 class Invoice(Base):
     status       = ForeignKey(InvoiceStatus, verbose_name=_(u'Status of invoice'), blank=False, null=False)
     payment_type = ForeignKey(SettlementTerms, verbose_name=_(u'Settlement terms'), blank=True, null=True)
-    payment_info = ForeignKey(PaymentInformation, verbose_name=_(u'Payment information'), blank=True, null=True, editable=False)
 
     research_fields = Base.research_fields + ['status__name']
-    excluded_fields_in_html_output = Base.excluded_fields_in_html_output + ['base_ptr', 'payment_info']
+    excluded_fields_in_html_output = Base.excluded_fields_in_html_output + ['base_ptr']
     header_filter_exclude_fields = Base.header_filter_exclude_fields + ['base_ptr'] #TODO: use a set() ??
 
     generate_number_in_create = False

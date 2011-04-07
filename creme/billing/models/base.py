@@ -31,7 +31,7 @@ from product_line import ProductLine
 from service_line import ServiceLine
 from algo import ConfigBillingAlgo
 from billing.constants import REL_SUB_BILL_ISSUED, REL_SUB_BILL_RECEIVED
-from billing.models.other_models import AdditionalInformation, PaymentTerms
+from billing.models.other_models import AdditionalInformation, PaymentTerms, PaymentInformation
 from billing.utils import round_to_2
 
 
@@ -48,9 +48,10 @@ class Base(CremeEntity):
     total_no_vat     = DecimalField(_(u'Total without VAT'), max_digits=14, decimal_places=2, blank=True, null=True, editable=False, default=0)
     additional_info  = ForeignKey(AdditionalInformation, verbose_name=_(u'Additional Information'), related_name='AdditionalInformation_set', blank=True, null=True)
     payment_terms    = ForeignKey(PaymentTerms,          verbose_name=_(u'Payment Terms'),          related_name='PaymentTerms_set',          blank=True, null=True)
+    payment_info     = ForeignKey(PaymentInformation, verbose_name=_(u'Payment information'), blank=True, null=True, editable=False)
 
     research_fields = CremeEntity.research_fields + ['name']
-    excluded_fields_in_html_output = CremeEntity.excluded_fields_in_html_output + ['total_vat', 'total_no_vat']
+    excluded_fields_in_html_output = CremeEntity.excluded_fields_in_html_output + ['total_vat', 'total_no_vat', 'payment_info']
 
     generate_number_in_create = True
 

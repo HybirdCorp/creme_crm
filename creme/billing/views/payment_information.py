@@ -29,7 +29,7 @@ from creme_core.views.generic.edit import edit_related_to_entity
 
 from billing.forms.payment_information import PaymentInformationCreateForm, PaymentInformationEditForm
 from billing.models.other_models import PaymentInformation
-from billing.models.invoice import Invoice
+from billing.models import Base
 
 
 @login_required
@@ -45,22 +45,22 @@ def edit(request, payment_information_id):
 @jsonify
 @login_required
 @permission_required('billing')
-def set_default(request, payment_information_id, invoice_id):
+def set_default(request, payment_information_id, billing_id):
     pi      = get_object_or_404(PaymentInformation, pk=payment_information_id)
-    invoice = get_object_or_404(Invoice, pk=invoice_id)
+    billing_doc = get_object_or_404(Base, pk=billing_id)
     user    = request.user
 
     organisation = pi.get_related_entity()
     organisation.can_view_or_die(user)
 
-    invoice.can_change_or_die(user)
+    billing_doc.can_change_or_die(user)
 
-    inv_orga_source = invoice.get_source().get_real_entity()
+    inv_orga_source = billing_doc.get_source().get_real_entity()
     if not inv_orga_source or inv_orga_source != organisation:
         raise Http404('No organisation in this invoice.')
 
-    invoice.payment_info = pi
-    invoice.save()
+    billing_doc.payment_info = pi
+    billing_doc.save()
     
     return {}
 

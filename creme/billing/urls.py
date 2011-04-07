@@ -36,7 +36,7 @@ urlpatterns = patterns('billing.views',
 
     (r'^payment_information/add/(?P<entity_id>\d+)$',                                           'payment_information.add'),
     (r'^payment_information/edit/(?P<payment_information_id>\d+)$',                             'payment_information.edit'),
-    (r'^payment_information/set_default/(?P<payment_information_id>\d+)/(?P<invoice_id>\d+)$',  'payment_information.set_default'),
+    (r'^payment_information/set_default/(?P<payment_information_id>\d+)/(?P<billing_id>\d+)$',  'payment_information.set_default'),
 
 
     (r'^(?P<document_id>\d+)/convert/$', 'convert.convert'),

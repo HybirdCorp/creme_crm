@@ -76,12 +76,21 @@ class BaseEditForm(CremeEntityForm):
         return validate_linkable_entity(self.cleaned_data['target'], self.user)
 
     def save(self):
-        instance = super(BaseEditForm, self).save()
+        instance = self.instance
 
         cleaned_data = self.cleaned_data
         source = cleaned_data['source']
         target = cleaned_data['target']
         user   = cleaned_data['user']
+
+        payment_info = instance.payment_info
+        org_payment_info = payment_info.get_related_entity() if payment_info else None
+
+        if source != org_payment_info:
+            instance.payment_info = None
+
+        instance = super(BaseEditForm, self).save()
+
 
         if self.issued_relation:
             self.issued_relation.update_links(object_entity=source, save=True)

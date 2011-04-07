@@ -20,7 +20,7 @@
             <tr>
                 {% get_column_header _('Name') 'name' %}
                 <th class="block_header_line_dark">&nbsp;</th>
-                <th class="block_header_line_dark">{% trans "Selected by default in this invoice" %}</th>
+                <th class="block_header_line_dark">{% trans "Selected by default in this document" %}</th>
             </tr>
             {% for payment_info in page.object_list %}<!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
                 <tr>
