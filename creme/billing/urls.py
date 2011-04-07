@@ -30,6 +30,7 @@ urlpatterns = patterns('billing.views',
 
     (r'^invoices$',                                    'invoice.listview'),
     (r'^invoice/add$',                                 'invoice.add'),
+    (r'^invoice/add/(?P<entity_id>\d+)$',              'invoice.add_from_detailview'),
     (r'^invoice/edit/(?P<invoice_id>\d+)$',            'invoice.edit'),
     (r'^invoice/generate_number/(?P<invoice_id>\d+)$', 'invoice.generate_number'),
     (r'^invoice/(?P<invoice_id>\d+)$',                 'invoice.detailview'),

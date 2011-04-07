@@ -23,8 +23,11 @@ from datetime import date
 from django.shortcuts import get_object_or_404
 from django.http import HttpResponseRedirect, Http404
 from django.contrib.auth.decorators import login_required, permission_required
+from django.shortcuts import render_to_response
+from django.utils.translation import ugettext_lazy as _
 
-from creme_core.views.generic import add_entity, edit_entity, list_view, view_entity
+from creme_core.models.entity import CremeEntity
+from creme_core.views.generic import add_entity, edit_entity, list_view, view_entity, add_model_with_popup
 
 from billing.constants import DEFAULT_INVOICE_STATUS
 from billing.models import Invoice, InvoiceStatus
@@ -36,6 +39,14 @@ from billing.forms.invoice import InvoiceCreateForm, InvoiceEditForm
 @permission_required('billing.add_invoice')
 def add(request):
     return add_entity(request, InvoiceCreateForm)
+
+@login_required
+@permission_required('billing')
+def add_from_detailview(request, entity_id):
+    entity = get_object_or_404(CremeEntity, pk=entity_id).get_real_entity()
+    entity.can_change_or_die(request.user)
+    return add_model_with_popup(request, InvoiceCreateForm, title=_(u"Add an invoice for <%s>") % entity, initial={'target': entity})
+
 
 @login_required
 @permission_required('billing')

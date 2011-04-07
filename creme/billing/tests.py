@@ -982,8 +982,46 @@ class BillingTestCase(CremeTestCase):
         self.assertEqual(None, invoice.payment_info)
 
 
+    def test_create_invoice_from_a_detailview01(self):
+        self.login()
 
-    #Tester de set un pi d'une orga ds une invoice de changer l'orga de l'invoice et de voir si c'est tjs le même pi ou pas
+        name = 'Invoice001'
+
+        source = Organisation.objects.create(user=self.user, name='Source Orga')
+        CremeProperty.objects.create(type_id=PROP_IS_MANAGED_BY_CREME, creme_entity=source)
+
+        target = Organisation.objects.create(user=self.user, name='Target Orga')
+
+        url = '/billing/invoice/add/%s' % target.id
+
+        response = self.client.get(url)
+
+        self.assertEqual(source.id, response.context['form']['source'].field.initial)
+#        self.assertEqual(target.id, response.context['form']['target'].field.initial) #Why doesn't work ?
+
+        self.assertEqual(200, response.status_code)
+
+        response = self.client.post(url, follow=True,
+                                    data={
+                                            'user':            self.user.pk,
+                                            'name':            name,
+                                            'issuing_date':    '2010-9-7',
+                                            'expiration_date': '2010-10-13',
+                                            'status':          1,
+                                            'source':          source.id,
+                                            'target':          self.genericfield_format_entity(target),
+                                            }
+                                   )
+        self.assertNoFormError(response)
+        self.assertEqual(200, response.status_code)
+
+        try:
+            invoice = Invoice.objects.get(name=name)
+        except Exception, e:
+            self.fail(str(e))
+
+        self.assertEqual(target, invoice.get_target().get_real_entity())
+
 
 #TODO: add tests for other billing document (Quote, SalesOrder, CreditNote)
 
