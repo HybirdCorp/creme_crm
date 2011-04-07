@@ -23,6 +23,7 @@ from datetime import datetime
 
 from django.db.models import CharField, IntegerField, TimeField, DateTimeField, TextField, ForeignKey, BooleanField, PositiveIntegerField
 from django.contrib.auth.models import User
+from django.db.models.fields.related import ManyToManyField
 from django.utils.translation import ugettext_lazy as _
 
 from creme_core.models import CremeEntity, CremeModel, Relation
@@ -46,10 +47,6 @@ class Calendar(CremeModel):
 
     def __unicode__(self):
         return self.name
-
-    def delete(self):
-        CalendarActivityLink.objects.filter(calendar=self).delete()#TODO: Hum what happens if the super refuses the deletion ?
-        super(Calendar, self).delete()#TODO: Verify self is not the last calendar? transfert is_default on another cal?
 
     @staticmethod
     def get_user_calendars(user, get_default_if_none=True):
@@ -115,7 +112,7 @@ class Activity(CremeEntity):
     description = TextField(_(u'Description'), blank=True, null=True)
     minutes     = TextField(_(u'Minutes'), blank=True, null=True)
     type        = ForeignKey(ActivityType, verbose_name=_(u"Activity type"))
-    #calendar    = ForeignKey(Calendar, verbose_name=_(u"Calendar"))
+    calendars   = ManyToManyField(Calendar, verbose_name=_(u"Calendars"), blank=True, null=True)
     is_all_day  = BooleanField(_(u'All day ?'), blank=True, default=False)
     status      = ForeignKey(Status, verbose_name=_(u'Status'), blank=True, null=True)
     busy        = BooleanField(_(u'Busy ?'), default=False)
@@ -265,13 +262,3 @@ class PhoneCall(Activity):
         verbose_name = _(u'Phone call')
         verbose_name_plural = _(u'Phone calls')
 
-
-class CalendarActivityLink(CremeModel):
-    calendar = ForeignKey(Calendar, verbose_name=_(u"Selected Calendar"))
-    activity = ForeignKey(Activity, verbose_name=_(u"Selected Activity"))
-
-    class Meta:
-        app_label = 'activities'
-        verbose_name = _(u'Calendar activity link')
-        verbose_name_plural = _(u'Calendars activities links')
-        unique_together = ("calendar", "activity")

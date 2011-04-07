@@ -38,7 +38,7 @@ from persons.models import Contact
 
 from assistants.models.alert import Alert
 
-from activities.models import Activity, Calendar, CalendarActivityLink
+from activities.models import Activity, Calendar#, CalendarActivityLink
 from activities.constants import *
 from activities.utils import check_activity_collisions
 
@@ -95,14 +95,13 @@ class ParticipantCreateForm(CremeForm):
 
     def save(self):
         activity = self.activity
-        create_link = CalendarActivityLink.objects.get_or_create
         create_relation = partial(Relation.objects.create, object_entity=activity,
                                   type_id=REL_SUB_PART_2_ACTIVITY, user=activity.user
                                  )
 
         for participant in self.participants:
             if participant.is_user:
-                create_link(calendar=Calendar.get_user_default_calendar(participant.is_user), activity=activity)
+                activity.calendars.add(Calendar.get_user_default_calendar(participant.is_user))
 
             create_relation(subject_entity=participant)
 
@@ -129,7 +128,7 @@ class SubjectCreateForm(CremeForm):
 class ActivityCreateForm(CremeEntityForm):
     class Meta(CremeEntityForm.Meta):
         model = Activity
-        exclude = CremeEntityForm.Meta.exclude + ('end',)
+        exclude = CremeEntityForm.Meta.exclude + ('end', 'calendars')
 
     start      = CremeDateTimeField(label=_(u'Start'))
     start_time = CremeTimeField(label=_(u'Start time'), required=False)
@@ -232,14 +231,12 @@ class ActivityCreateForm(CremeEntityForm):
 
         self._generate_alert()
 
-        create_link = CalendarActivityLink.objects.get_or_create
-
         if cleaned_data['my_participation']:
-            create_link(calendar=cleaned_data['my_calendar'], activity=instance)
+            instance.calendars.add(cleaned_data['my_calendar'])
 
         for part_user in cleaned_data['participating_users']:
             #TODO: regroup queries ??
-            create_link(calendar=Calendar.get_user_default_calendar(part_user), activity=instance)
+            instance.calendars.add(Calendar.get_user_default_calendar(part_user))
 
         create_relation = partial(Relation.objects.create, object_entity=instance, user=instance.user)
 
@@ -299,7 +296,7 @@ class ActivityEditForm(CremeEntityForm):
 
     class Meta(CremeEntityForm.Meta):
         model = Activity
-        exclude = CremeEntityForm.Meta.exclude + ('end', 'type')
+        exclude = CremeEntityForm.Meta.exclude + ('end', 'type', 'calendars')
 
     def __init__(self, *args, **kwargs):
         super(ActivityEditForm, self).__init__(*args, **kwargs)

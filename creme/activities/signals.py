@@ -17,16 +17,27 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
+from django.db.models.signals import post_delete
 
-from django import template
+from creme_core.models.relation import Relation
+
+from activities.models.activity import Calendar
+
+from constants import REL_SUB_PART_2_ACTIVITY, REL_OBJ_PART_2_ACTIVITY
+
+def set_null_calendar_on_delete_participant(sender, instance, **kwargs):
+    contact = None
+    if instance.type.id == REL_SUB_PART_2_ACTIVITY:
+        contact  = instance.subject_entity.get_real_entity()
+        activity = instance.object_entity.get_real_entity()
+
+    if instance.type.id == REL_OBJ_PART_2_ACTIVITY:
+        contact  = instance.object_entity.get_real_entity()
+        activity = instance.subject_entity.get_real_entity()
+
+    if contact and contact.is_user:
+        activity.calendars.remove(Calendar.get_user_default_calendar(contact.is_user))
 
 
-register = template.Library()
-
-#TODO: unused ???
-@register.filter(name="get_activity_calendars")
-def get_activity_calendars(activity, only_publics=False):
-    calendars = activity.calendars.all()
-    if only_publics:
-        calendars = calendars.filter(is_public=True)
-    return calendars
+def connect_to_signals():
+    post_delete.connect(set_null_calendar_on_delete_participant, sender=Relation)
