@@ -8,12 +8,15 @@
     <tbody class="collapsable">
         <tr>
              <th class="block_header_line_dark th_info" align="center" valign="center"><h1>{% trans "Target organisation" %}</h1></th>
-             <td class="block_line_dark td_info" text-align="center" valign="center"><h1>{{object.get_target}}</h1></td>
+            {% with object.get_target as target %}
+                <td class="block_line_dark td_info" text-align="center" valign="center"><h1>{% if target %}<a href="{{target.get_absolute_url}}">{{target}}</a>{% endif %}</h1></td>
+            {% endwith %}
         </tr>
         <tr>
              <th class="block_header_line_dark th_info" align="center" valign="center"><h3>{% trans "Source organisation" %}</h3></th>
-             <td class="block_line_dark td_info" text-align="center" valign="center"><h3>{{object.get_source}}</h3></td>
+            {% with object.get_source as source %}
+                <td class="block_line_dark td_info" text-align="center" valign="center"><h3>{% if source %}<a href="{{source.get_absolute_url}}">{{source}}</a>{% endif %}</h3></td>
+            {% endwith %}
         </tr>
-
     </tbody>
 </table>
