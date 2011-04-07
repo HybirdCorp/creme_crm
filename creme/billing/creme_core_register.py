@@ -27,7 +27,7 @@ from creme_core.gui.block import block_registry
 
 from billing.models import Invoice, Quote, SalesOrder, CreditNote
 from billing.blocks import (product_lines_block, service_lines_block, total_block, target_block, received_invoices_block,
-                            payment_information_block, invoice_payment_information_block)
+                            payment_information_block, billing_payment_information_block)
 from billing.buttons import generate_invoice_number_button
 
 
@@ -46,7 +46,7 @@ reg_item('/billing/credit_note/add', _(u'Add a credit note'), 'billing.add_credi
 reg_item('/billing/credit_note',     _(u'All credit notes'),  'billing')
 
 block_registry.register(product_lines_block, service_lines_block, total_block, target_block, received_invoices_block,
-                        payment_information_block, invoice_payment_information_block)
+                        payment_information_block, billing_payment_information_block)
 button_registry.register(generate_invoice_number_button)
 
 from signals import connect_to_signals

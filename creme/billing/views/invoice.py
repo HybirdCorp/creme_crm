@@ -46,7 +46,7 @@ def edit(request, invoice_id):
 @permission_required('billing')
 def detailview(request, invoice_id):
     return view_entity(request, invoice_id, Invoice, '/billing/invoice',
-                       'billing/view_invoice.html', {'can_download': True},
+                       'billing/view_billing.html', {'can_download': True},
                        )
 
 @login_required
