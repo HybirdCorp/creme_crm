@@ -25,7 +25,7 @@ from django.db.utils import IntegrityError
 
 from creme.persons.models.contact import Contact
 
-from activities.models.activity import Calendar, Activity, CalendarActivityLink
+from activities.models.activity import Calendar, Activity
 from activities.constants import REL_OBJ_ACTIVITY_SUBJECT, REL_OBJ_PART_2_ACTIVITY#, REL_OBJ_LINKED_2_ACTIVITY
 
 class Command(BaseCommand):
@@ -35,7 +35,6 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         contacts_get                  = Contact.objects.get
         activities_filter             = Activity.objects.filter
-        calendar_activity_link_create = CalendarActivityLink.objects.create
         calendar_get_default_calendar = Calendar.get_user_default_calendar
 
         for user in User.objects.all():
@@ -56,7 +55,7 @@ class Command(BaseCommand):
             
             for activity in activities_filter(q_filter).distinct():
                 try:
-                    calendar_activity_link_create(calendar=user_calendar, activity=activity)
+                    activity.calendars.add(user_calendar)
                     print "Link %s (pk=%s) to calendar : %s" % (activity, activity.pk, user_calendar)
                 except IntegrityError:
                     pass
