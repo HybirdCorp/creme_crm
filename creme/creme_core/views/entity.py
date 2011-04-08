@@ -36,21 +36,6 @@ from creme_core.utils import get_ct_or_404, jsonify
 from creme_core.utils.meta import get_field_infos
 
 
-#TODO: seems useless (used only by one unused js function)
-#      if not: rename (url too) ; use ContentType id ; unit test as others views
-@login_required
-def get_entity_repr(request):
-    POST = request.POST
-
-    model = POST.get('model')
-    pk    = POST.get('pk')
-    field = POST.get('field')
-
-    entity = get_object_or_404(get_object_or_404(ContentType, model=model).model_class(), pk=pk)
-    entity.can_view_or_die(request.user)
-
-    return HttpResponse(JSONEncoder().encode({field: get_field_infos(entity, field)[1]}), mimetype="text/javascript")
-
 @login_required
 def get_creme_entity_repr(request, entity_id):
     entity = get_object_or_404(CremeEntity, pk=entity_id)
