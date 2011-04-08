@@ -43,22 +43,6 @@ def get_creme_entity_repr(request, entity_id):
 
     return HttpResponse(entity.get_real_entity().get_entity_summary(), mimetype="text/javascript")
 
-#TODO: seems useless (used only by one unused js function)
-#      if not unit tests (+ templates todo below) ; use ContentType id
-@login_required
-def render_entity(request):
-    POST = request.POST
-    model    = POST.get('model')
-    pk       = POST.get('pk')
-    template = POST.get('template') #TODO: check in a list of allowed templates ??
-
-    entity = get_object_or_404(get_object_or_404(ContentType, model=model).model_class(), pk=pk)
-    entity.can_view_or_die(request.user)
-
-    data = render_to_string(template, RequestContext(request, {'object':entity}))
-
-    return HttpResponse(JSONEncoder().encode(data), mimetype="text/javascript")
-
 @login_required
 def get_creme_entity_as_json(request):
     POST   = request.POST
