@@ -25,7 +25,7 @@ creme.media_managers = {};
 
 
 creme.media_managers.createImageM2MWidget = function(url, name) {
-    openWindow(url, 'create_image');
+    creme.utils.openWindow(url, 'create_image');
 
     if(window[name]) {
         var popup_url = window[name].location.href;

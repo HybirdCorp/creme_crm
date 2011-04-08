@@ -19,21 +19,16 @@
 ################################################################################
 
 from django.db.models import ForeignKey
-from django.http import HttpResponse
+from django.http import HttpResponse, Http404
 from django.shortcuts import get_object_or_404
-from django.utils.simplejson import JSONEncoder
-from django.template.loader import render_to_string
-from django.template.context import RequestContext
 from django.forms.models import modelform_factory
 from django.core import serializers
 from django.utils.translation import ugettext as _
-from django.contrib.contenttypes.models import ContentType
 from django.contrib.auth.decorators import login_required
 
 from creme_core.models.entity import CremeEntity
 from creme_core.forms import CremeEntityForm
 from creme_core.utils import get_ct_or_404, jsonify
-from creme_core.utils.meta import get_field_infos
 
 
 @login_required

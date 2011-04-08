@@ -10,7 +10,7 @@
     <script language="javascript">
         function handleValidation(form) {
             {% if form.is_valid %}
-                if (window.opener) reload(window.opener);
+                if (window.opener) creme.utils.reload(window.opener);
                 $(window).unload(function(){window.close();});
                 window.close();
                 return true;

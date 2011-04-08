@@ -61,7 +61,6 @@ creme.filters.getListViewFromCt = function(select) {
                       'send_button_label': gettext("Validate the selection")
                     }
     creme.utils.showInnerPopup('/creme_core/filter/select_entity_popup/'+ct_id, options);//+'/'+relation_line_id, options);
-    //openWindow('/creme_core/filter/select_entity_popup/'+ct_id+'/'+relation_line_id, 'select_entity_'+relation_line_id);
 
 //    window['select_entity'].relation_line_id = relation_line_id;
 }

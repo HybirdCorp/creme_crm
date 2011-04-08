@@ -69,7 +69,7 @@ class Image(CremeEntity):
         from creme_core.templatetags.creme_core_tags import image_size #TODO: move this templatetag to 'media_managers' ????
         url = self.get_image_url()
         name = escape(self.get_image_name())
-        return mark_safe("""<a href="javascript:openWindow('%s','image_popup');"><img src="%s" %s alt="%s" title="%s"/></a>""" % \
+        return mark_safe("""<a href="javascript:creme.utils.openWindow('%s','image_popup');"><img src="%s" %s alt="%s" title="%s"/></a>""" % \
             (url, url, image_size(self, 150, 150), name, name))
 
     @staticmethod

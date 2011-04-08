@@ -16,16 +16,6 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *******************************************************************************/
 
-function openWindow(url, name, params) { //TODO: creme.utils.openWindow
-    if(!params || params == '' || typeof(params) == "undefined")
-        params = 'menubar=no, status=no, scrollbars=yes, menubar=no, width=800, height=600';
-    window[name] = window.open(url,name,params);
-}
-
-function reload(w) { //TODO: creme.utils.reload
-    w.location.href = w.location.href;
-}
-
 //if(typeof(creme)==undefined) creme = {};
 
 creme.utils = {};
@@ -42,6 +32,16 @@ creme.utils = {};
 //        reload(something);
 //    }
 //}
+creme.utils.openWindow = function (url, name, params) { //TODO: creme.utils.openWindow
+    if(!params || params == '' || typeof(params) == "undefined")
+        params = 'menubar=no, status=no, scrollbars=yes, menubar=no, width=800, height=600';
+    window[name] = window.open(url,name,params);
+}
+
+
+creme.utils.reload = function (w) {
+    w.location.href = w.location.href;
+}
 
 creme.utils.loading = function(div_id, is_loaded, params) {
     var $div = $('#'+div_id);
@@ -171,44 +171,6 @@ creme.utils.bindShowHideTbody = function() {
     $('.table_detail_view').find('.collapser').each(function() {creme.utils.bindToggle($(this));});
 }
 
-// COMMENTED on 19 january 2011
-// //TODO: Remove evt argument, a argument?
-// creme.utils.confirmDelete = function(evt, a, msg, ajax, ajax_options) {
-//     evt.preventDefault();
-//
-//     var href = $(a).attr('href');
-//     var buttons = {};
-//
-//     buttons[gettext("Ok")] = function() {
-//             if (typeof(ajax)!="undefined" && ajax==true) {
-//                 //$.get(href);
-//                 var defOpts = jQuery.extend({
-//                     url : href,
-//                     data : {},
-//                     success : function(data, status, req){
-//                         creme.utils.showDialog(gettext("Suppression done"));
-//                     },
-//                     error : function(req, status, error){
-//                         creme.utils.showDialog(gettext("Error"));
-//                     },
-//                     complete : function(request, textStatus){},
-//                     sync : false,
-//                     method:"GET",
-//                     parameters : undefined
-//                 }, ajax_options);
-//
-//                 $.ajax(defOpts);
-//                 //creme.ajax.json.send(href, defOpts.data, defOpts.success_cb, defOpts.error_cb, defOpts.sync,defOpts.method,defOpts.parameters);
-//                 $(this).dialog("destroy");
-//                 $(this).remove();
-//             } else {
-//                 window.location.href = href;
-//             }
-//         }
-//     buttons[gettext("Cancel")] = function() {$(this).dialog("destroy");$(this).remove();}
-//
-//     creme.utils.showDialog(msg || gettext("Are you sure ?"), {buttons: buttons});
-// }
 
 creme.utils.simpleConfirm = function(cb, msg)
 {
@@ -237,7 +199,7 @@ creme.utils.confirmBeforeGo = function(url, ajax, ajax_options) { //TODO: rename
                     data : {},
                     success : function(data, status, req) {
                         //creme.utils.showDialog(gettext("Operation done"));
-                        reload(window); //TODO: reload listview content instead (so rename the function)
+                        creme.utils.reload(window); //TODO: reload listview content instead (so rename the function)
                     },
                     error : function(req, status, error) { //TODO factorise
                         if(!req.responseText || req.responseText == "") {
@@ -479,7 +441,7 @@ creme.utils.handleDialogSubmit = function(dialog) {
           error: function(request, status, error) {
                 creme.utils.showDialog('<p><b>' + gettext("Error !") + '</b></p><p>' + gettext("The page will be reload !") + '</p>',
                                        {'title': gettext("Error")});
-                creme.utils.sleep("reload(window)");
+                creme.utils.sleep("creme.utils.reload(window)");
           },
           complete:function (XMLHttpRequest, textStatus) {
               creme.utils.loading('loading', true, {});
@@ -534,7 +496,7 @@ creme.utils.reloadDialog = function(dial) {
 //    console.log("creme.utils.reloadDialog("+dial+")");
     //if(dial==window) return;//reload(window);
     if(dial == window) {
-        reload(window);
+        creme.utils.reload(window);
         return;
     }
 
