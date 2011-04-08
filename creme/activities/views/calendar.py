@@ -144,7 +144,7 @@ def get_users_activities(request, usernames, calendars_ids):
 
 #    user_activities = Q(user__in=users)
 
-    list_activities = Activity.objects.filter(calendaractivitylink__calendar__in=users_cal_ids)
+    list_activities = Activity.objects.filter(calendars__pk__in=users_cal_ids)
 #    list_activities = list_activities.filter(current_activities | overlap_activities & overlap_activities2)
     list_activities = list_activities.filter(time_range)
     list_activities = list_activities.filter(Q(is_deleted=False))
