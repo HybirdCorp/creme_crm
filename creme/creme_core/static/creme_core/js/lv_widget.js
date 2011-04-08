@@ -61,7 +61,6 @@ creme.lv_widget.init_widget = function(id, q_filter, extra_attrs) {
                           'send_button_label': gettext("Validate the selection")
                         }
 //                        var params='menubar=no, status=no, scrollbars=yes, height=800';
-                        //openWindow('/creme_core/lv_popup/'+e.data.input.attr('ct_id')+'/'+e.data.input.attr('o2m')+'?js_handler=window.opener.lv_widget.handleSelection&js_arguments=ids,"'+e.data.input_id+'"&q_filter='+q_filter, 'select_multiple_entity', params);
                         var dialog_id = creme.utils.showInnerPopup('/creme_core/lv_popup/' + e.data.input.attr('ct_id') + '/' + e.data.input.attr('o2m') + '?q_filter=' + q_filter, options);
                   }
             )

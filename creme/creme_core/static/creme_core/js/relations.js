@@ -46,7 +46,7 @@ creme.relations.handleAddFromPredicateEntity = function(url, predicate_id, subje
                                         $(this).remove();
                                         creme.utils.loadBlock(block_reload_url);
                                     } else {
-                                        reload(window);
+                                        creme.utils.reload(window);
                                     }
                                 }
                             var infoBoxOptions = {buttons: buttons};

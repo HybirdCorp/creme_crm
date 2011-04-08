@@ -104,7 +104,7 @@ def simple_print(x):
 
 def print_imagefield(x):
     url = x.url
-    return """<a href="javascript:openWindow('%s','image_popup');"><img src="%s" %s alt="%s"/></a>""" % \
+    return """<a href="javascript:creme.utils.openWindow('%s','image_popup');"><img src="%s" %s alt="%s"/></a>""" % \
             (url, url, image_size(x), url)
 
 def print_urlfield(x):
