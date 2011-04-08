@@ -7,7 +7,6 @@ entity_patterns = patterns('creme_core.views', #TODO: move delete* to entity.py
     (r'^delete/(?P<entity_id>\d+)$',           'generic.delete.delete_entity'),
     (r'^delete_related/(?P<ct_id>\d+)$',       'generic.delete.delete_related_to_entity'),
     (r'^get_repr/(?P<entity_id>\d+)$',         'entity.get_creme_entity_repr'),
-    (r'^render$',                              'entity.render_entity'),
     (r'^json$',                                'entity.get_creme_entity_as_json'),
     (r'^get_info_fields/(?P<ct_id>\d+)/json$', 'entity.get_info_fields'),
 )

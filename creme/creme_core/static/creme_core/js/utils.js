@@ -287,24 +287,6 @@ creme.utils.changeOtherNodes = function (from_id, arrayNodesIds, callback) {
     );
 }
 
-//TODO: seems useless (remove the view too)
-creme.utils.renderEntity = function(from_node, to_node) {
-    var pk = from_node.val();
-    if(pk && !isNaN(parseInt(pk)) && pk!=0)
-    $.ajax({
-        url: "/creme_core/entity/render",
-        type: "POST",
-        data: {'model': to_node.model, 'pk': pk, 'template':to_node.template},
-        dataType: "json",
-        success: function(datas){
-            from_node.parent().find('div').remove();
-            var $div = $('<div></div>');
-            $div.append($(datas));
-            from_node.parent().append($div);
-        }
-    });
-}
-
 //TODO: move to assistants.js ??
 creme.utils.validateEntity = function(form, checkbox_id, reload_url) {
     var checked = document.getElementById(checkbox_id);
