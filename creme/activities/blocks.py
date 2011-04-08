@@ -55,7 +55,7 @@ class ParticipantsBlock(QuerysetBlock):
 
         users_contacts = dict((contact.is_user_id, contact) for contact in contacts.itervalues() if contact.is_user_id)
 
-        for calendar in Calendar.objects.filter(user__in=users_contacts.keys(), calendaractivitylink__activity=activity.id):
+        for calendar in Calendar.objects.filter(user__in=users_contacts.keys(), activity=activity.id):
             users_contacts[calendar.user_id].calendar_cache = calendar
 
         return self._render(btc)
