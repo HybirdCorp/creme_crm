@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+from tempfile import NamedTemporaryFile
+
 from django.http import Http404
 from django.core.serializers.json import simplejson
 from django.utils.translation import ugettext as _
@@ -10,8 +12,10 @@ from creme_core.models import *
 from creme_core.models.header_filter import HFI_FIELD
 from creme_core.tests.base import CremeTestCase
 
-from persons.models import Contact, Organisation #TODO: find a way to create model that inherit CremeEntity in the unit tests ??
+from persons.models import Contact, Organisation, Position, Sector
 from persons.constants import REL_OBJ_CUSTOMER_OF, REL_OBJ_EMPLOYED_BY
+
+from documents.models import Document, Folder, FolderCategory #for CSV importing
 
 
 class ViewsTestCase(CremeTestCase):
@@ -1845,3 +1849,364 @@ class SearchViewTestCase(ViewsTestCase):
                                          }
                                    )
         self.assertEqual(0, response.context['total'])
+
+
+class CSVImportViewsTestCase(ViewsTestCase):
+    def _build_doc(self, lines):
+        content = '\n'.join(','.join('"%s"' % item for item in line) for line in lines)
+
+        tmpfile = NamedTemporaryFile()
+        tmpfile.write(content)
+        tmpfile.flush()
+
+        tmpfile.file.seek(0)
+
+        category = FolderCategory.objects.create(id=10, name=u'Test category')
+        folder = Folder.objects.create(user=self.user, title=u'Test folder',
+                                       parent_folder=None,
+                                       category=category,
+                                      )
+
+        title = 'Test doc'
+        response = self.client.post('/documents/document/add', follow=True,
+                                    data={
+                                            'user':        self.user.id,
+                                            'title':       title,
+                                            'description': 'CSV file for contacts',
+                                            'filedata':    tmpfile.file,
+                                            'folder':      folder.id,
+                                         }
+                                   )
+        self.assertNoFormError(response)
+        self.assertEqual(200, response.status_code)
+
+        try:
+            doc = Document.objects.get(title=title)
+        except Exception, e:
+            self.fail(str(e))
+
+        return doc
+
+    def test_import01(self):
+        self.login()
+
+        self.failIf(Contact.objects.exists())
+
+        lines = [("Ayanami", "Rei"),
+                 ("Asuka",   "Langley"),
+                ]
+
+        doc = self._build_doc(lines)
+
+        ct = ContentType.objects.get_for_model(Contact)
+        url = '/creme_core/list_view/import_csv/%s?list_url=%s' % (ct.id, Contact.get_lv_absolute_url())
+        response = self.client.get(url)
+        self.assertEqual(200, response.status_code)
+
+        try:
+            response.context['form']
+        except Exception, e:
+            self.fail(str(e))
+
+        response = self.client.post(url, data={
+                                                'csv_step':     0,
+                                                'csv_document': doc.id,
+                                                #csv_has_header
+                                              }
+                                   )
+        self.assertEqual(200, response.status_code)
+
+        try:
+            form = response.context['form']
+        except Exception, e:
+            self.fail(str(e))
+
+        self.assert_('value="1"' in unicode(form['csv_step']))
+
+        response = self.client.post(url, data={
+                                                'csv_step':     1,
+                                                'csv_document': doc.id,
+                                                #csv_has_header
+
+                                                'user': self.user.id,
+
+                                                'civility_colselect':  0,
+
+                                                'first_name_colselect': 1,
+                                                'last_name_colselect':  2,
+
+                                                'description_colselect': 0,
+                                                'skype_colselect':       0,
+                                                'landline_colselect':    0,
+                                                'mobile_colselect':      0,
+                                                'fax_colselect':         0,
+                                                'position_colselect':    0,
+                                                'sector_colselect':      0,
+                                                'email_colselect':       0,
+                                                'url_site_colselect':    0,
+                                                'birthday_colselect':    0,
+                                                'image_colselect':       0,
+
+                                                #'property_types',
+                                                #'fixed_relations',
+                                                #'dyn_relations',
+
+                                                'billing_address_colselect':    0,
+                                                'billing_po_box_colselect':     0,
+                                                'billing_city_colselect':       0,
+                                                'billing_state_colselect':      0,
+                                                'billing_zipcode_colselect':    0,
+                                                'billing_country_colselect':    0,
+                                                'billing_department_colselect': 0,
+
+                                                'shipping_address_colselect':    0,
+                                                'shipping_po_box_colselect':     0,
+                                                'shipping_city_colselect':       0,
+                                                'shipping_state_colselect':      0,
+                                                'shipping_zipcode_colselect':    0,
+                                                'shipping_country_colselect':    0,
+                                                'shipping_department_colselect': 0,
+                                              }
+                                   )
+        self.assertEqual(200, response.status_code)
+
+        try:
+            form = response.context['form']
+        except Exception, e:
+            self.fail(str(e))
+
+        self.assertEqual(0,          len(form.import_errors))
+        self.assertEqual(len(lines), form.imported_objects_count)
+        self.assertEqual(len(lines), form.lines_count)
+
+        self.assertEqual(len(lines), Contact.objects.count())
+
+        for first_name, last_name in lines:
+            try:
+                contact = Contact.objects.get(first_name=first_name, last_name=last_name)
+            except Exception, e:
+                self.fail(str(e))
+
+            self.assertEqual(self.user.id, contact.user_id)
+            #self.assert_(contact.billing_address is None) #TODO: fail ?!
+
+    def test_import02(self): #use header, default value, model search and create, properties, fixed and dynamic relations
+        self.login()
+
+        self.failIf(Position.objects.exists())
+        self.failIf(Sector.objects.exists())
+
+        ptype = CremePropertyType.create(str_pk='test-prop_cute', text='Really cure in her suit')
+
+        employed, _srt = RelationType.create(('persons-subject_employed_by', 'is an employee of'),
+                                             ('persons-object_employed_by',  'employs')
+                                            )
+        loves, _srt    = RelationType.create(('test-subject_loving', 'is loving'),
+                                             ('test-object_loving',  'is loved by')
+                                            )
+
+        nerv = Organisation.objects.create(user=self.user, name='Nerv')
+        shinji = Contact.objects.create(user=self.user, first_name='Shinji', last_name='Ikari')
+
+        pos_title = 'Pilot'
+        city = 'Tokyo'
+        lines = [('First name', 'Last name', 'Position', 'Sector', 'City', 'Organisation'),
+                 ('Ayanami',    'Rei',       pos_title,  'Army',   city,   nerv.name),
+                 ('Asuka',      'Langley',   pos_title,  'Army',   '',     nerv.name),
+                ]
+
+        doc = self._build_doc(lines)
+        ct = ContentType.objects.get_for_model(Contact)
+        url = '/creme_core/list_view/import_csv/%s?list_url=%s' % (ct.id, Contact.get_lv_absolute_url())
+        response = self.client.post(url, data={
+                                                'csv_step':       0,
+                                                'csv_document':   doc.id,
+                                                'csv_has_header': True,
+                                              }
+                                   )
+        self.assertEqual(200, response.status_code)
+
+        form = response.context['form']
+        self.assert_('value="1"' in unicode(form['csv_step']))
+        self.assert_('value="True"' in unicode(form['csv_has_header']))
+
+        default_descr = 'A cute pilot'
+        response = self.client.post(url, data={
+                                                'csv_step':       1,
+                                                'csv_document':   doc.id,
+                                                'csv_has_header': True,
+
+                                                'user': self.user.id,
+
+                                                'civility_colselect': 0,
+
+                                                'first_name_colselect': 1,
+                                                'last_name_colselect':  2,
+
+                                                'description_colselect': 0,
+                                                'description_defval':    default_descr,
+
+                                                'skype_colselect':       0,
+                                                'landline_colselect':    0,
+                                                'mobile_colselect':      0,
+                                                'fax_colselect':         0,
+
+                                                'position_colselect': 3,
+                                                'position_subfield':  'title',
+                                                'position_create':    True,
+
+                                                'sector_colselect': 4,
+                                                'sector_subfield':  'title',
+                                                #'sector_create':    False,
+
+                                                'email_colselect':       0,
+                                                'url_site_colselect':    0,
+                                                'birthday_colselect':    0,
+                                                'image_colselect':       0,
+
+                                                'property_types':  [ptype.id],
+                                                'fixed_relations': '[{"rtype":"%s","ctype":"%s","entity":"%s"}]'  % (
+                                                                            loves.id, shinji.entity_type_id, shinji.id
+                                                                        ),
+                                                'dyn_relations':    '[{"rtype":"%(rtype)s","ctype":"%(ctype)s","column":"%(column)s","searchfield":"%(search)s"}]'  % {
+                                                                            'rtype': employed.id,
+                                                                            'ctype': ContentType.objects.get_for_model(Organisation).id,
+                                                                            'column': 6,
+                                                                            'search': 'name',
+                                                                        },
+
+                                                'billing_address_colselect':    0,
+                                                'billing_po_box_colselect':     0,
+                                                'billing_city_colselect':       5,
+                                                'billing_state_colselect':      0,
+                                                'billing_zipcode_colselect':    0,
+                                                'billing_country_colselect':    0,
+                                                'billing_department_colselect': 0,
+
+                                                'shipping_address_colselect':    0,
+                                                'shipping_po_box_colselect':     0,
+                                                'shipping_city_colselect':       0,
+                                                'shipping_state_colselect':      0,
+                                                'shipping_zipcode_colselect':    0,
+                                                'shipping_country_colselect':    0,
+                                                'shipping_department_colselect': 0,
+                                              }
+                                   )
+        self.assertEqual(200, response.status_code)
+
+        try:
+            form = response.context['form']
+        except Exception, e:
+            self.fail(str(e))
+
+        count = len(lines) - 1 # '-1' for header
+        self.assertEqual(count,     len(form.import_errors)) #sector not found
+        self.assertEqual(count,     form.imported_objects_count)
+        self.assertEqual(count,     form.lines_count)
+        self.assertEqual(count + 1, Contact.objects.count()) #+ 1 : because of shinji
+
+        positions = Position.objects.all()
+        self.assertEqual(1, len(positions))
+
+        position = positions[0]
+        self.assertEqual(pos_title, position.title)
+
+        self.failIf(Sector.objects.exists())
+
+        for first_name, last_name, pos_title, sector_title, city_name, orga_name in lines[1:]:
+            try:
+                contact = Contact.objects.get(first_name=first_name, last_name=last_name)
+            except Exception, e:
+                self.fail(str(e))
+
+            self.assertEqual(default_descr, contact.description)
+            self.assertEqual(position.id,   contact.position.id)
+            self.assertEqual(1,             CremeProperty.objects.filter(type=ptype, creme_entity=contact.id).count())
+            self.assertEqual(1,             Relation.objects.filter(subject_entity=contact, type=loves, object_entity=shinji).count())
+            self.assertEqual(1,             Relation.objects.filter(subject_entity=contact, type=employed, object_entity=nerv).count())
+
+
+        rei = Contact.objects.get(first_name=lines[1][0])
+        self.assertEqual(city, rei.billing_address.city)
+
+    def test_import03(self): #create entities to link with them
+        self.login()
+
+        self.failIf(Organisation.objects.exists())
+
+        employed, _srt = RelationType.create(('persons-subject_employed_by', 'is an employee of'),
+                                             ('persons-object_employed_by',  'employs')
+                                            )
+        orga_name = 'Nerv'
+
+        doc = self._build_doc([('Ayanami', 'Rei', orga_name)])
+        get_ct = ContentType.objects.get_for_model
+
+        response = self.client.post('/creme_core/list_view/import_csv/%s?list_url=%s' % (get_ct(Contact).id, Contact.get_lv_absolute_url()),
+                                    data={
+                                            'csv_step':       1,
+                                            'csv_document':   doc.id,
+                                            #'csv_has_header': True,
+
+                                            'user': self.user.id,
+
+                                            'civility_colselect': 0,
+
+                                            'first_name_colselect': 1,
+                                            'last_name_colselect':  2,
+
+                                            'description_colselect': 0,
+                                            'skype_colselect':       0,
+                                            'landline_colselect':    0,
+                                            'mobile_colselect':      0,
+                                            'fax_colselect':         0,
+                                            'position_colselect':    0,
+                                            'sector_colselect':      0,
+                                            'email_colselect':       0,
+                                            'url_site_colselect':    0,
+                                            'birthday_colselect':    0,
+                                            'image_colselect':       0,
+
+                                            #'property_types':,
+                                            #'fixed_relations':,
+                                            'dyn_relations':    '[{"rtype":"%(rtype)s","ctype":"%(ctype)s","column":"%(column)s","searchfield":"%(search)s"}]'  % {
+                                                                        'rtype': employed.id,
+                                                                        'ctype': get_ct(Organisation).id,
+                                                                        'column': 3,
+                                                                        'search': 'name',
+                                                                    },
+                                            'dyn_relations_can_create': True,
+
+                                            'billing_address_colselect':    0,
+                                            'billing_po_box_colselect':     0,
+                                            'billing_city_colselect':       0,
+                                            'billing_state_colselect':      0,
+                                            'billing_zipcode_colselect':    0,
+                                            'billing_country_colselect':    0,
+                                            'billing_department_colselect': 0,
+
+                                            'shipping_address_colselect':    0,
+                                            'shipping_po_box_colselect':     0,
+                                            'shipping_city_colselect':       0,
+                                            'shipping_state_colselect':      0,
+                                            'shipping_zipcode_colselect':    0,
+                                            'shipping_country_colselect':    0,
+                                            'shipping_department_colselect': 0,
+                                         }
+                                   )
+        self.assertEqual(200, response.status_code)
+
+        form = response.context['form']
+        self.assertEqual(0, len(form.import_errors)) #sector not found
+        self.assertEqual(1, form.imported_objects_count)
+
+        contacts = Contact.objects.all()
+        self.assertEqual(1, len(contacts))
+
+        rei = contacts[0]
+        relations = Relation.objects.filter(subject_entity=rei, type=employed)
+        self.assertEqual(1, len(relations))
+
+        employer = relations[0].object_entity.get_real_entity()
+        self.assert_(isinstance(employer, Organisation))
+        self.assertEqual(orga_name, employer.name)
