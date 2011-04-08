@@ -288,19 +288,6 @@ creme.utils.changeOtherNodes = function (from_id, arrayNodesIds, callback) {
 }
 
 //TODO: seems useless (remove the view too)
-creme.utils.fillNode = function(from_node, to_node) {
-    $.ajax({
-        url: "/creme_core/entity/get_repr/",
-        type: "POST",
-        data: {'model': to_node.model, 'pk': from_node.val(), 'field': to_node.field},
-        dataType: "json",
-        success: function(data) {
-            $('#' + to_node.id).val(data[to_node.field]);
-        }
-    });
-}
-
-//TODO: seems useless (remove the view too)
 creme.utils.renderEntity = function(from_node, to_node) {
     var pk = from_node.val();
     if(pk && !isNaN(parseInt(pk)) && pk!=0)
