@@ -19,9 +19,11 @@
 ################################################################################
 
 from collections import defaultdict
+from itertools import chain
 
 from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import ugettext_lazy as _
+from creme_config.models.setting import SettingValue
 
 from creme_core.models import CremeEntity, Relation
 from creme_core.gui.block import Block, PaginatedBlock, QuerysetBlock, list4url
@@ -29,8 +31,11 @@ from creme_core.gui.block import Block, PaginatedBlock, QuerysetBlock, list4url
 from opportunities.models import Opportunity
 
 from commercial.models import *
-from commercial.constants import REL_OBJ_OPPORT_LINKED
+from commercial.constants import REL_OBJ_OPPORT_LINKED, DISPLAY_ONLY_ORGA_COM_APPROACH_ON_ORGA_DETAILVIEW
 
+from persons.models.organisation import Organisation
+
+from opportunities.constants import REL_SUB_TARGETS_ORGA
 
 class ApproachesBlock(QuerysetBlock):
     id_           = QuerysetBlock.generate_id('commercial', 'approaches')
@@ -60,8 +65,22 @@ class ApproachesBlock(QuerysetBlock):
         CremeEntity.populate_credentials(entities_map.values(), user) #beware: values() and not itervalues()
 
     def detailview_display(self, context):
-        pk = context['object'].pk
-        return self._render(self.get_block_template_context(context, CommercialApproach.get_approaches(pk),
+        object = context['object']
+        pk = object.pk
+
+        if not SettingValue.objects.get(key__id=DISPLAY_ONLY_ORGA_COM_APPROACH_ON_ORGA_DETAILVIEW).value and object.entity_type == ContentType.objects.get_for_model(Organisation):
+            managers_ids      = object.get_managers().values_list('id',flat=True)
+            employees_ids     = object.get_employees().values_list('id',flat=True)
+            opportunities_ids = Opportunity.objects.filter(relations__type=REL_SUB_TARGETS_ORGA, relations__object_entity=object).values_list('id',flat=True)
+
+            approaches = CommercialApproach.objects.filter(ok_or_in_futur=False, entity_id__in=chain([pk], managers_ids, employees_ids, opportunities_ids)).select_related('creme_entity')
+
+        else:
+            approaches = CommercialApproach.get_approaches(pk)
+
+
+
+        return self._render(self.get_block_template_context(context, approaches,
                                                             update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, pk),
                                                            ))
 
