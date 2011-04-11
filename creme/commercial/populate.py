@@ -19,6 +19,7 @@
 ################################################################################
 
 from django.utils.translation import ugettext as _
+from creme_config.models.setting import SettingKey, SettingValue
 
 from creme_core.models import (RelationType, BlockConfigItem, CremePropertyType,
                                SearchConfigItem, ButtonMenuItem)
@@ -70,3 +71,15 @@ class Populator(BasePopulator):
 
         SearchConfigItem.create(Act, ['name', 'expected_sales', 'cost', 'goal'])
         SearchConfigItem.create(Strategy, ['name'])
+
+        sk_com_app_email = SettingKey.create(pk=IS_COMMERCIAL_APPROACH_EMAIL_NOTIFICATION_ENABLED,
+                               description=_(u"Enable email reminder for commercial approaches"),
+                               app_label='commercial', type=SettingKey.BOOL
+                               )
+        SettingValue.objects.create(key=sk_com_app_email, user=None, value=True)
+
+        sk_com_app_only_orga = SettingKey.create(pk=DISPLAY_ONLY_ORGA_COM_APPROACH_ON_ORGA_DETAILVIEW,
+                               description=_(u"Display only organisations' commercial approaches on organisations' file. (Otherwise, display organisations', managers', employees', related opportunities' commercial approaches)"),
+                               app_label='commercial', type=SettingKey.BOOL
+                               )
+        SettingValue.objects.create(key=sk_com_app_only_orga, user=None, value=True)
