@@ -7,14 +7,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-03-11 19:23+0100\n"
+"POT-Creation-Date: 2011-04-11 11:32+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: \n"
 
 #: activities_register.py:32
 msgid "Is a commercial approach ?"
@@ -100,51 +100,51 @@ msgstr "Lister les commerciaux"
 msgid "Add a salesman"
 msgstr "Ajouter un commercial"
 
-#: populate.py:41
+#: populate.py:42
 msgid "has sold"
 msgstr "a vendu"
 
-#: populate.py:42
+#: populate.py:43
 msgid "has been sold by"
 msgstr "a été vendu par"
 
-#: populate.py:43
+#: populate.py:44
 msgid "is related to the commercial action"
 msgstr "est lié à l'action commerciale"
 
-#: populate.py:44
+#: populate.py:45
 msgid "is related to the opportunity"
 msgstr "est lié à l'opportunité"
 
-#: populate.py:45
+#: populate.py:46
 msgid "completes a goal of the commercial action"
 msgstr "remplit un but de l'action commerciale"
 
-#: populate.py:46
+#: populate.py:47
 msgid "is completed thanks to"
 msgstr "est remplie grace à"
 
-#: populate.py:48
+#: populate.py:49
 msgid "is a salesman"
 msgstr "est un commercial"
 
-#: populate.py:50
+#: populate.py:51
 msgid "Phone calls"
 msgstr "Appels téléphoniques"
 
-#: populate.py:50
+#: populate.py:51
 msgid "Show"
 msgstr "Salon"
 
-#: populate.py:50
+#: populate.py:51
 msgid "Demo"
 msgstr "Démo"
 
-#: populate.py:55
+#: populate.py:56
 msgid "Com Action view"
 msgstr "Vue d'Action Com"
 
-#: populate.py:57 populate.py:62 populate.py:66 forms/strategy.py:74
+#: populate.py:58 populate.py:63 populate.py:67 forms/strategy.py:74
 #: models/act.py:95 models/act.py:130 models/act.py:180
 #: models/market_segment.py:29 models/strategy.py:46 models/strategy.py:322
 #: models/strategy.py:352
@@ -158,25 +158,39 @@ msgstr "Vue d'Action Com"
 msgid "Name"
 msgstr "Nom"
 
-#: populate.py:58 models/act.py:51
+#: populate.py:59 models/act.py:51
 msgid "Expected sales"
 msgstr "CA espéré"
 
-#: populate.py:59 forms/act.py:34 models/act.py:55
+#: populate.py:60 forms/act.py:34 models/act.py:55
 msgid "Due date"
 msgstr "Échéance"
 
-#: populate.py:61
+#: populate.py:62
 msgid "Strategy view"
 msgstr "Vue de stratégie"
 
-#: populate.py:64
+#: populate.py:65
 msgid "Objective pattern view"
 msgstr "Vue de Modèle d'objectif"
 
-#: populate.py:67
+#: populate.py:68
 msgid "Segment"
 msgstr "Segment"
+
+#: populate.py:76
+msgid "Enable email reminder for commercial approaches"
+msgstr "Activer le rappel pour les approches commerciales"
+
+#: populate.py:82
+msgid ""
+"Display only organisations' commercial approaches on organisations' file. "
+"(Otherwise, display organisations', managers', employees', related "
+"opportunities' commercial approaches)"
+msgstr ""
+"Afficher uniquement les approches commerciales des organisations sur les "
+"fiches des organisations. (Dans le cas contraire, afficher également celles "
+"des responsables, employés et opportunités reliées à l'organisation"
 
 #: forms/act.py:33 models/act.py:54
 msgid "Start"
@@ -214,6 +228,18 @@ msgstr "Informations Générales"
 #: templates/commercial/templatetags/block_evalorgas.html:6
 msgid "Organisations"
 msgstr "Sociétés"
+
+#: management/commands/com_approaches_emails_send.py:100
+#, python-format
+msgid "[CremeCRM] The organisation <%s> seems neglected"
+msgstr "[CremeCRM] L'organisation <%s> semble délaissée"
+
+#: management/commands/com_approaches_emails_send.py:101
+#, python-format
+msgid ""
+"It seems you haven't created a commercial approach for the organisation <%s> "
+"since 30 days."
+msgstr "Il semblerait que vous n'ayez pas crée d'approche commerciale pour l'organisation <%s> depuis 30 jours"
 
 #: models/act.py:37 models/commercial_approach.py:35
 #: templates/commercial/templatetags/block_approaches.html:18
@@ -791,7 +817,7 @@ msgstr "Objectif pour <%s>"
 msgid "New commercial approach for <%s>"
 msgstr "Nouvelle démarche commerciale pour <%s>"
 
-#: views/market_segment.py:46
+#: views/market_segment.py:34
 msgid "New market segment"
 msgstr "Nouveau segment de marché"
 
@@ -838,11 +864,11 @@ msgstr "Atout pour <%s>"
 msgid "Charm for <%s>"
 msgstr "Attrait pour <%s>"
 
-#: views/strategy.py:146
+#: views/strategy.py:151
 #, python-format
 msgid ""
-"This organisation <%(orga)s> is not (no more ?) evaluated by the strategy %"
-"(strategy)s"
+"This organisation <%(orga)s> is not (no more ?) evaluated by the strategy "
+"%(strategy)s"
 msgstr ""
 "Cette société <%(orga)s> n'est pas (n'est plus ?) évaluée par le plan "
 "commercial %(strategy)s"

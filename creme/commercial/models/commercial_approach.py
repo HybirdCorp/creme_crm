@@ -33,7 +33,7 @@ from activities.models import Activity
 
 class CommercialApproach(CremeModel):
     title               = CharField(_(u'Title'), max_length=200)
-    ok_or_in_futur      = BooleanField(_("Done ?"), editable=False)
+    ok_or_in_futur      = BooleanField(_("Done ?"), editable=False)#TODO: Future ?
     description         = TextField(_(u'Description'), blank=True, null=True)
     creation_date       = DateTimeField(_(u'Creation date'), blank=False, null=False)
 
