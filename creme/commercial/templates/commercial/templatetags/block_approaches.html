@@ -29,7 +29,7 @@
                         <td class="{{row_color}}">{% widget_entity_hyperlink approach.creme_entity user %}</td>
                     {% endif %}
                     <td class="{{row_color}}"><em>{{approach|get_html_field_value:"description"}}</em></td>
-                    <td class="{{row_color}}"><em>{{approach.related_activity|default:_("Nothing")}}</em></td>
+                    <td class="{{row_color}}"><em><a href="{{approach.related_activity.get_absolute_url|default:approach.creme_entity.get_absolute_url}}">{{approach.related_activity|default:approach.creme_entity|default:_("Nothing")}}</a></em></td>
                 </tr>
             {% endfor %}
         {% else %}
