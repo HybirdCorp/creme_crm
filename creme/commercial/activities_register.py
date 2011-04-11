@@ -23,7 +23,7 @@ from datetime import datetime
 from django.utils.translation import ugettext as _
 from django.forms import BooleanField
 
-from activities.forms.activity import ActivityCreateForm
+from activities.forms.activity import ActivityCreateForm, ActivityEditForm
 
 from commercial.models import CommercialApproach
 
@@ -58,5 +58,11 @@ def save_commapp_field(form):
                       related_activity_id=instance.id,
                      )
 
+def update_commapp(form):
+    instance = form.instance
+    CommercialApproach.objects.filter(related_activity=instance).update(title=instance.title)
+
 ActivityCreateForm.add_post_init_callback(add_commapp_field)
 ActivityCreateForm.add_post_save_callback(save_commapp_field)
+
+ActivityEditForm.add_post_save_callback(update_commapp)
