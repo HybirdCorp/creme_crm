@@ -19,7 +19,7 @@
 ################################################################################
 from django.http import HttpResponse
 from django.template.context import RequestContext
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, permission_required
 from django.template.loader import render_to_string
 from django.shortcuts import render_to_response
 
@@ -27,34 +27,41 @@ from activesync.sync import Synchronization
 from activesync.config import ACTIVE_SYNC_DEBUG
 from activesync.errors import CremeActiveSyncError
 
-#TODO: Credentials onMerge with trunk
 @login_required
+@permission_required('activesync')
 def main_sync(request):
-    sync = Synchronization(request.user)
-
-    error_messages = sync.get_error_messages()
 
     try:
-        sync.synchronize()
+        sync = Synchronization(request.user)
+        
     except CremeActiveSyncError, err:
-        error_messages.extend(err)
+        tpl_dict = {'error_messages'   :  [err]}
+    else:
+        error_messages = sync.get_error_messages()
 
-    tpl_dict = {
-        'server_url': sync.server_url,
-        'login':      sync.login,
-        'domain':     sync.domain,
-        'server_ssl': sync.server_ssl,
-        'last_sync':  sync.last_sync,
+        try:
+            sync.synchronize()
+        except CremeActiveSyncError, err:
+            error_messages.extend(err)
 
-        'info_messages'    :  sync.get_info_messages(),
-        'success_messages' :  sync.get_success_messages(),
-        'error_messages'   :  error_messages,
+        tpl_dict = {
+            'server_url': sync.server_url,
+            'login':      sync.login,
+            'domain':     sync.domain,
+            'server_ssl': sync.server_ssl,
+            'last_sync':  sync.last_sync,
+
+            'info_messages'    :  sync.get_info_messages(),
+            'success_messages' :  sync.get_success_messages(),
+            'error_messages'   :  error_messages,
 
 
-        #DEBUG
-        'xml':        sync._data['debug']['xml'],
-        'ACTIVE_SYNC_DEBUG': ACTIVE_SYNC_DEBUG,
-    }
+            #DEBUG
+            'xml':        sync._data['debug']['xml'],
+            'debug_info': sync._data['debug']['info'],
+            'ACTIVE_SYNC_DEBUG': ACTIVE_SYNC_DEBUG,
+        }
+
     context = RequestContext(request)
 
 

@@ -1,8 +1,5 @@
 Due to merge:
 
- * create(CremeKVConfig, id=MAPI_SERVER_SSL, value="0") => SettingValue.objects.create(key=sk_mapi_ssl, user=None, value=False)
-   so check the cast
-
  * view todo in creme_config/forms/mobile_sync.py
 
 ------------
