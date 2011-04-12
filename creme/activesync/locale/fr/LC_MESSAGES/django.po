@@ -1,0 +1,264 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2011-04-12 13:52+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n>1;\n"
+
+#: blocks.py:35 templates/activesync/main_sync.html:4
+#: templates/activesync/frags/ajax/main_sync.html:8
+msgid "Mobile synchronization"
+msgstr "Synchronisation mobile"
+
+#: blocks.py:42 forms/user_settings.py:60
+msgid "Undefined"
+msgstr "Non-défini"
+
+#: blocks.py:43
+msgid "Default configuration"
+msgstr "Configuration par défaut"
+
+#: creme_core_register.py:31
+msgid "Contact synchronisation"
+msgstr "Synchronisation de contact"
+
+#: errors.py:33
+msgid "Wrong username and/or password"
+msgstr "Mauvais nom d'utilisateur et/ou mot de passe"
+
+#: errors.py:34
+msgid ""
+"No server url, please fill in information in global settings configuration "
+"or in your own settings"
+msgstr ""
+"Aucune url de serveur, veuillez remplir les informations dans la "
+"configuration globale ou dans votre configuration"
+
+#: errors.py:35
+msgid "No login, please fill in information in your own settings"
+msgstr ""
+"Aucun nom d'utilisateur, veuillez remplir les informations dans votre "
+"configuration"
+
+#: errors.py:36
+msgid "No password, please fill in information in your own settings"
+msgstr ""
+"Aucun mot de passe, veuillez remplir les informations dans votre "
+"configuration"
+
+#: errors.py:37
+msgid "There was an error during synchronization"
+msgstr "Il y a eu une erreur pendant la synchronisation"
+
+#: errors.py:38
+msgid "It seems there no available connection"
+msgstr "Il semble qu'il n'y ait pas de connection internet"
+
+#: sync.py:291
+msgid "There is a server error, please try again later..."
+msgstr "Il y a une erreur sur le serveur, veuillez essayer plus tard..."
+
+#: commands/airsync.py:97
+#, python-format
+msgid "There was an error during synchronization phase. Error code : %s"
+msgstr ""
+"Il y a eu une erreur pendant la phase de synchronisation. Code erreur : %s"
+
+#: commands/airsync.py:116 commands/airsync.py:145 commands/airsync.py:304
+msgid "There was an error during synchronization phase. Try again later."
+msgstr ""
+"Il y a eu une erreur pendant la phase de synchronisation. Essayez plus tard."
+
+#: commands/airsync.py:159
+#, python-format
+msgid "There is %s new items from the server"
+msgstr "%s éléments ont été créés par rapport au serveur"
+
+#: commands/airsync.py:160
+#, python-format
+msgid "There is %s changed items from the server"
+msgstr "%s éléments ont été modifiés par rapport au serveur"
+
+#: commands/airsync.py:161
+#, python-format
+msgid "There is %s deleted items from the server"
+msgstr "%s éléments ont été effacés par rapport au serveur"
+
+#: commands/airsync.py:189
+#, python-format
+msgid "Successfully created %s"
+msgstr "%s créé avec succès"
+
+#: commands/airsync.py:227
+#, python-format
+msgid "Successfully updated %(contact)s with %(data)s"
+msgstr "%(contact)s mis à jour avec succès avec les données : %(data)s"
+
+#: commands/airsync.py:252
+#, python-format
+msgid "Successfully deleted %s"
+msgstr "%s effacé avec succès"
+
+#: commands/airsync.py:274
+#, python-format
+msgid "There was an error during synchronization phase. Try again later. (%s)"
+msgstr ""
+"Il y a eu une erreur pendant la phase de synchronisation. Essayez plus tard. "
+"(%s)"
+
+#: commands/airsync.py:341
+#, python-format
+msgid "Adding %s on the server"
+msgstr "Ajout de %s sur le serveur"
+
+#: commands/airsync.py:362
+#, python-format
+msgid "Sending changes of %s on the server"
+msgstr "Envoi des changements de %s sur le serveur"
+
+#: commands/airsync.py:382
+#, python-format
+msgid "Deleting %s on the server"
+msgstr "Effacement de %s sur le serveur"
+
+#: forms/user_settings.py:41 templates/activesync/frags/ajax/main_sync.html:32
+#: templates/activesync/templatetags/block_user_mobile_sync.html:21
+msgid "Server url"
+msgstr "Url du serveur"
+
+#: forms/user_settings.py:41 forms/user_settings.py:42
+#, python-format
+msgid "Let empty to get the default configuration (currently '%s')."
+msgstr ""
+"Laissez vide pour obtenir la configuration par défaut actuellement (%s)."
+
+#: forms/user_settings.py:42 templates/activesync/frags/ajax/main_sync.html:40
+#: templates/activesync/templatetags/block_user_mobile_sync.html:25
+msgid "Domain"
+msgstr "Domaine"
+
+#: forms/user_settings.py:43
+#: templates/activesync/templatetags/block_user_mobile_sync.html:29
+msgid "Is secure"
+msgstr "Est sécurisé"
+
+#: forms/user_settings.py:43
+#, python-format
+msgid "Let default to get the default configuration  (currently '%s')."
+msgstr "Laissez pour obtenir la configuration par défaut (actuellement '%s')"
+
+#: forms/user_settings.py:43
+msgid "Default"
+msgstr "Défaut"
+
+#: forms/user_settings.py:43 forms/user_settings.py:98
+msgid "Yes"
+msgstr "Oui"
+
+#: forms/user_settings.py:43 forms/user_settings.py:98
+msgid "No"
+msgstr "Non"
+
+#: forms/user_settings.py:44 templates/activesync/frags/ajax/main_sync.html:36
+msgid "Login"
+msgstr "Nom d'utilisateur"
+
+#: forms/user_settings.py:45
+#: templates/activesync/templatetags/block_user_mobile_sync.html:37
+msgid "Password"
+msgstr "Mot de passe"
+
+#: forms/user_settings.py:48
+msgid "Mobile synchronization configuration"
+msgstr "Configuration de synchronisation mobile"
+
+#: models/active_sync.py:73
+msgid "Last sync"
+msgstr "Dernière synchronisation"
+
+#: models/active_sync.py:87
+msgid "Creation date"
+msgstr "Date de création"
+
+#: templates/activesync/frags/ajax/main_sync.html:7
+#: templates/activesync/templatetags/block_user_mobile_sync.html:8
+msgid "Phone synchronization"
+msgstr "Synchronisation de téléphone"
+
+#: templates/activesync/frags/ajax/main_sync.html:12
+msgid "Edit your mobile configuration"
+msgstr "Éditez votre configuration mobile"
+
+#: templates/activesync/frags/ajax/main_sync.html:16
+msgid "Refresh"
+msgstr "Rafraîchir"
+
+#: templates/activesync/frags/ajax/main_sync.html:27
+msgid "Your current parameters :"
+msgstr "Vos paramètres actuels"
+
+#: templates/activesync/frags/ajax/main_sync.html:44
+msgid "Is secure (SSL)"
+msgstr "Est sécurisé (SSL)"
+
+#: templates/activesync/frags/ajax/main_sync.html:48
+msgid "Last synchronization"
+msgstr "Dernière synchronisation"
+
+#: templates/activesync/frags/ajax/main_sync.html:49
+msgid "Never"
+msgstr "Jamais"
+
+#: templates/activesync/frags/ajax/main_sync.html:53
+msgid "Status"
+msgstr "Statut"
+
+#: templates/activesync/frags/ajax/main_sync.html:86
+msgid "Results of the synchronization"
+msgstr "Résultats de la synchronisation"
+
+#: templates/activesync/frags/ajax/main_sync.html:92
+msgid "Errors"
+msgstr "Erreurs"
+
+#: templates/activesync/frags/ajax/main_sync.html:106
+msgid "Information"
+msgstr "Informations"
+
+#: templates/activesync/frags/ajax/main_sync.html:124
+msgid "Successes"
+msgstr "Succès"
+
+#: templates/activesync/templatetags/block_user_mobile_sync.html:8
+msgid "Your mobile synchronization configuration"
+msgstr "Votre configuration de synchronisation mobile"
+
+#: templates/activesync/templatetags/block_user_mobile_sync.html:15
+#: templates/activesync/templatetags/block_user_mobile_sync.html:16
+msgid "Edit"
+msgstr "Éditer"
+
+#: templates/activesync/templatetags/block_user_mobile_sync.html:33
+msgid "Username"
+msgstr "Nom d'utilisateur"
+
+#: templates/activesync/templatetags/block_user_mobile_sync.html:38
+msgid "Not filled in"
+msgstr "Non-renseigné"
+
+#: views/user_settings.py:45
+msgid "Edit your mobile synchronization configuration"
+msgstr "Éditer votre configuration de synchronisation mobile"

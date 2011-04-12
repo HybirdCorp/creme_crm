@@ -7,74 +7,79 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-04-05 14:53+0200\n"
+"POT-Creation-Date: 2011-04-12 13:55+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: \n"
 
-#: blocks.py:41
+#: blocks.py:40
 msgid "Model configuration"
 msgstr "Configuration de modèle"
 
-#: blocks.py:101
+#: blocks.py:88
 msgid "Property types configuration"
 msgstr "Configuration des types de propriété"
 
-#: blocks.py:113
+#: blocks.py:100
 msgid "List of standard relation types"
 msgstr "Liste des types de relation standard"
 
-#: blocks.py:126
+#: blocks.py:113
 msgid "Custom relation types configuration"
 msgstr "Configuration des types de relation personnalisés"
 
-#: blocks.py:139
+#: blocks.py:126
 msgid "General configuration of custom fields"
 msgstr "Configuration générale des champs personnalisés"
 
-#: blocks.py:154
+#: blocks.py:141
 msgid "Custom fields configuration"
 msgstr "Configuration des champs personnalisés"
 
-#: blocks.py:171
+#: blocks.py:158
 msgid "Users configuration"
 msgstr "Configuration des utilisateurs"
 
-#: blocks.py:197
+#: blocks.py:184
 msgid "Blocks configuration"
 msgstr "Configuration des blocs"
 
-#: blocks.py:211
+#: blocks.py:198
 msgid "Relation blocks configuration"
 msgstr "Configuration des blocs de relation"
 
-#: blocks.py:225
+#: blocks.py:212
 msgid "Instance blocks configuration"
 msgstr "Configuration des blocs d'instance"
 
-#: blocks.py:238
+#: blocks.py:225
 msgid "Button menu configuration"
 msgstr "Configuration du menu bouton"
 
-#: blocks.py:252
+#: blocks.py:239
 msgid "Search configuration"
 msgstr "Configuration de la recherche"
 
-#: blocks.py:271
+#: blocks.py:258
 msgid "User roles configuration"
 msgstr "Configuration des rôles utilisateurs"
 
-#: blocks.py:283
+#: blocks.py:270
 msgid "Default credentials"
 msgstr "Droits par défaut"
 
-#: blocks.py:297
+#: blocks.py:284
 msgid "My prefered menus"
 msgstr "Mes menus préférés"
+
+#: blocks.py:302 templates/creme_config/mobile_sync/portal.html:5
+#: templates/creme_config/mobile_sync/portal.html:8
+msgid "Mobile synchronization"
+msgstr "Synchronisation d'appareil mobile"
 
 #: creme_core_register.py:30
 msgid "General configuration"
@@ -112,11 +117,11 @@ msgstr "Gestion du menu bouton"
 msgid "Search settings"
 msgstr "Gestion de la recherche"
 
-#: creme_core_register.py:41 templates/creme_config/portal.html:53
+#: creme_core_register.py:41 templates/creme_config/portal.html:56
 msgid "Users settings"
 msgstr "Gestion des utilisateurs"
 
-#: creme_core_register.py:42 templates/creme_config/portal.html:56
+#: creme_core_register.py:42 templates/creme_config/portal.html:59
 msgid "Roles and credentials settings"
 msgstr "Gestion des rôles et des droits"
 
@@ -223,6 +228,21 @@ msgstr "Nouveaux choix de la liste"
 msgid "Give the new possible choices (one per line)."
 msgstr "Rentrez les nouveaux choix possibles (un par ligne)."
 
+#: forms/mobile_sync.py:32
+#: templates/creme_config/templatetags/block_mobile_sync.html:21
+msgid "Server url"
+msgstr "Url du serveur"
+
+#: forms/mobile_sync.py:33
+#: templates/creme_config/templatetags/block_mobile_sync.html:25
+msgid "Domain"
+msgstr "Domaine"
+
+#: forms/mobile_sync.py:34
+#: templates/creme_config/templatetags/block_mobile_sync.html:29
+msgid "Is secure"
+msgstr "Est sécurisé ?"
+
 #: forms/prefered_menu.py:34
 msgid "Menu entries"
 msgstr "Entrées du menu"
@@ -259,7 +279,7 @@ msgstr "Verbe/Prédicat"
 msgid "Object"
 msgstr "Objet"
 
-#: forms/search.py:38 templates/creme_config/profile_portal.html:43
+#: forms/search.py:38
 #: templates/creme_config/templatetags/block_searchconfig.html:19
 msgid "User"
 msgstr "Utilisateur"
@@ -293,7 +313,6 @@ msgid "Confirm password"
 msgstr "Confirmation du mot de passe"
 
 #: forms/user.py:45 forms/user.py:111
-#: templates/creme_config/profile_portal.html:44
 #: templates/creme_config/templatetags/block_users.html:18
 msgid "Role"
 msgstr "Rôle"
@@ -412,7 +431,6 @@ msgstr "Type d'ensemble de fiches"
 #: templates/creme_config/blocks_portal.html:6
 #: templates/creme_config/button_menu_portal.html:6
 #: templates/creme_config/portal.html:4
-#: templates/creme_config/profile_portal.html:7
 #: templates/creme_config/property_type_portal.html:6
 #: templates/creme_config/relation_type_portal.html:6
 #: templates/creme_config/search_portal.html:6
@@ -424,6 +442,8 @@ msgstr "Type d'ensemble de fiches"
 #: templates/creme_config/generics/app_portal.html:6
 #: templates/creme_config/generics/model_portal.html:6
 #: templates/creme_config/generics/model_portal.html:9
+#: templates/creme_config/mobile_sync/portal.html:5
+#: templates/creme_config/mobile_sync/portal.html:8
 msgid "Configuration"
 msgstr "Configuration"
 
@@ -443,83 +463,26 @@ msgstr "Portail de Configuration de Creme"
 msgid "General"
 msgstr "Général"
 
-#: templates/creme_config/portal.html:47
+#: templates/creme_config/portal.html:42
+msgid "Default mobile synchonisation settings"
+msgstr "Configurations de synchronisation mobile par défaut"
+
+#: templates/creme_config/portal.html:50
 msgid "Credentials management"
 msgstr "Gestion des droits"
 
-#: templates/creme_config/portal.html:64
+#: templates/creme_config/portal.html:67
 msgid "Applications portals"
 msgstr "Portails des applications"
 
-#: templates/creme_config/portal.html:72
+#: templates/creme_config/portal.html:75
 #, python-format
 msgid "%(app_name)s configuration portal"
 msgstr "Portail configuration %(app_name)s"
 
-#: templates/creme_config/portal.html:77
+#: templates/creme_config/portal.html:80
 msgid "No application requires configuration"
 msgstr "Aucune application ne nécessite de configuration"
-
-#: templates/creme_config/profile_portal.html:7
-msgid "Profiles"
-msgstr "Profils"
-
-#: templates/creme_config/profile_portal.html:14
-msgid "See only the roles :"
-msgstr "Voir uniquement les rôles :"
-
-#: templates/creme_config/profile_portal.html:16
-#: templates/creme_config/templatetags/block_searchconfig.html:26
-msgid "All"
-msgstr "Tous"
-
-#: templates/creme_config/profile_portal.html:28
-#, python-format
-msgid "%(counter)s Profile"
-msgid_plural "%(counter)s Profiles"
-msgstr[0] "%(counter)s Profil"
-msgstr[1] "%(counter)s Profils"
-
-#: templates/creme_config/profile_portal.html:36
-#: templates/creme_config/profile_portal.html:37
-msgid "New profile"
-msgstr "Nouveau profil"
-
-#: templates/creme_config/profile_portal.html:45
-msgid "Contact page of the user"
-msgstr "Fiche contact de l'utilisateur"
-
-#: templates/creme_config/profile_portal.html:46
-#: templates/creme_config/profile_portal.html:67
-#: templates/creme_config/templatetags/block_blocksconfig.html:16
-#: templates/creme_config/templatetags/block_button_menu.html:16
-#: templates/creme_config/templatetags/block_custom_fields.html:18
-#: templates/creme_config/templatetags/block_custom_fields_portal.html:26
-#: templates/creme_config/templatetags/block_default_credentials.html:14
-#: templates/creme_config/templatetags/block_models.html:34
-#: templates/creme_config/templatetags/block_property_types.html:21
-#: templates/creme_config/templatetags/block_searchconfig.html:20
-#: templates/creme_config/templatetags/block_settings.html:18
-msgid "Edit"
-msgstr "Éditer"
-
-#: templates/creme_config/profile_portal.html:47
-#: templates/creme_config/profile_portal.html:72
-#: templates/creme_config/templatetags/block_blocksconfig.html:18
-#: templates/creme_config/templatetags/block_button_menu.html:17
-#: templates/creme_config/templatetags/block_custom_fields.html:19
-#: templates/creme_config/templatetags/block_custom_fields_portal.html:19
-#: templates/creme_config/templatetags/block_instanceblocksconfig.html:12
-#: templates/creme_config/templatetags/block_models.html:35
-#: templates/creme_config/templatetags/block_property_types.html:22
-#: templates/creme_config/templatetags/block_relationblocksconfig.html:17
-#: templates/creme_config/templatetags/block_searchconfig.html:21
-msgid "Delete"
-msgstr "Supprimer"
-
-#: templates/creme_config/profile_portal.html:79
-msgid "No profile for the moment"
-msgstr "Aucun profil enregistré pour le moment"
 
 #: templates/creme_config/property_type_portal.html:6
 msgid "Types of property"
@@ -599,6 +562,15 @@ msgstr "Aucun type ne nécessite de configuration"
 msgid "Type : %(model_name)s"
 msgstr "Type : %(model_name)s"
 
+#: templates/creme_config/mobile_sync/portal.html:12
+msgid ""
+"Here you set the default configuration for mobile synchronization. Each user "
+"get this config until he override it in his own settings."
+msgstr ""
+"Ici vous renseignez la configuration de synchronisation mobile par défaut. "
+"Chaque utilisateur héritera de cette configuration jusqu'à ce qu'il la "
+"surcharge dans ses propres configurations"
+
 #: templates/creme_config/templatetags/block_blocksconfig.html:5
 #: templates/creme_config/templatetags/block_button_menu.html:5
 #: templates/creme_config/templatetags/block_custom_fields.html:5
@@ -630,9 +602,35 @@ msgstr "Nouvelle configuration de blocs"
 msgid "Type"
 msgstr "Type"
 
+#: templates/creme_config/templatetags/block_blocksconfig.html:16
+#: templates/creme_config/templatetags/block_button_menu.html:16
+#: templates/creme_config/templatetags/block_custom_fields.html:18
+#: templates/creme_config/templatetags/block_custom_fields_portal.html:26
+#: templates/creme_config/templatetags/block_default_credentials.html:14
+#: templates/creme_config/templatetags/block_mobile_sync.html:15
+#: templates/creme_config/templatetags/block_mobile_sync.html:16
+#: templates/creme_config/templatetags/block_models.html:34
+#: templates/creme_config/templatetags/block_property_types.html:21
+#: templates/creme_config/templatetags/block_searchconfig.html:20
+#: templates/creme_config/templatetags/block_settings.html:18
+msgid "Edit"
+msgstr "Éditer"
+
 #: templates/creme_config/templatetags/block_blocksconfig.html:17
 msgid "Edit portal"
 msgstr "Éditer le portail"
+
+#: templates/creme_config/templatetags/block_blocksconfig.html:18
+#: templates/creme_config/templatetags/block_button_menu.html:17
+#: templates/creme_config/templatetags/block_custom_fields.html:19
+#: templates/creme_config/templatetags/block_custom_fields_portal.html:19
+#: templates/creme_config/templatetags/block_instanceblocksconfig.html:12
+#: templates/creme_config/templatetags/block_models.html:35
+#: templates/creme_config/templatetags/block_property_types.html:22
+#: templates/creme_config/templatetags/block_relationblocksconfig.html:17
+#: templates/creme_config/templatetags/block_searchconfig.html:21
+msgid "Delete"
+msgstr "Supprimer"
 
 #: templates/creme_config/templatetags/block_blocksconfig.html:21
 #: templates/creme_config/templatetags/block_button_menu.html:21
@@ -719,6 +717,14 @@ msgstr "Relatif à l'entité"
 #: templates/creme_config/templatetags/block_instanceblocksconfig.html:27
 msgid "No type of instance block created for the moment"
 msgstr "Aucun bloc d'instance créé pour le moment"
+
+#: templates/creme_config/templatetags/block_mobile_sync.html:8
+msgid "Phone synchronization"
+msgstr "Synchronisation d'appareil mobile"
+
+#: templates/creme_config/templatetags/block_mobile_sync.html:8
+msgid "Default mobile synchronization configuration"
+msgstr "Configuration de synchronisation mobile par défaut"
 
 #: templates/creme_config/templatetags/block_models.html:19
 #: views/generics_views.py:56
@@ -859,6 +865,10 @@ msgstr "Recherche"
 #: views/search.py:38
 msgid "New search configuration"
 msgstr "Nouvelle configuration de recherche"
+
+#: templates/creme_config/templatetags/block_searchconfig.html:26
+msgid "All"
+msgstr "Tous"
 
 #: templates/creme_config/templatetags/block_searchconfig.html:35
 msgid "No search configuration for the moment"
@@ -1056,6 +1066,10 @@ msgstr "Éditer la configuration par défaut"
 msgid "Edit the type \"%s\""
 msgstr "Éditer le type \"%s\""
 
+#: views/mobile_sync.py:75
+msgid "Edit default mobile synchronization configuration"
+msgstr "Éditer la configuration de synchronisation mobile par défaut"
+
 #: views/setting.py:61
 #, python-format
 msgid "Edit \"%s\""
@@ -1080,8 +1094,55 @@ msgstr "Ajouter des droits à <%s>"
 msgid "Edit default credentials"
 msgstr "Éditer les droits par défaut"
 
+#~ msgid "Let empty to get the default configuration (currently '%s')."
+#~ msgstr ""
+#~ "Laissez vide pour utiliser la configuration par défaut (actuellement %s)"
+
+#~ msgid "Let default to get the default configuration  (currently '%s')."
+#~ msgstr ""
+#~ "Laissez 'Par défaut' pour utiliser la configuration par défaut "
+#~ "(actuellement %s)"
+
+#~ msgid "Default"
+#~ msgstr "Par défaut"
+
+#~ msgid "Yes"
+#~ msgstr "Oui"
+
+#~ msgid "No"
+#~ msgstr "Non"
+
+#~ msgid "Login"
+#~ msgstr "Nom d'utilisateur"
+
+#~ msgid "Generic information"
+#~ msgstr "Information générale"
+
+#~ msgid "Mobile synchronisation configuration"
+#~ msgstr "Configuration de synchronisation mobile"
+
 #~ msgid "Key"
 #~ msgstr "Clé"
+
+#~ msgid "Profiles"
+#~ msgstr "Profils"
+
+#~ msgid "See only the roles :"
+#~ msgstr "Voir uniquement les rôles :"
+
+#~ msgid "%(counter)s Profile"
+#~ msgid_plural "%(counter)s Profiles"
+#~ msgstr[0] "%(counter)s Profil"
+#~ msgstr[1] "%(counter)s Profils"
+
+#~ msgid "New profile"
+#~ msgstr "Nouveau profil"
+
+#~ msgid "Contact page of the user"
+#~ msgstr "Fiche contact de l'utilisateur"
+
+#~ msgid "No profile for the moment"
+#~ msgstr "Aucun profil enregistré pour le moment"
 
 #~ msgid "Edit '%(object)s'"
 #~ msgstr "Éditer '%(object)s'"
