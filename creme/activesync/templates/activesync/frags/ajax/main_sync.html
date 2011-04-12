@@ -144,6 +144,11 @@
     {% for x in xml %}
         {{x}}<br/><br/>
     {% endfor %}
+    <br/>
+    <br/>
+    {% for x in debug_info %}
+        {{x}}<br/><br/>
+    {% endfor %}
 {% endif %}
 
 {% get_blocks_dependencies %}

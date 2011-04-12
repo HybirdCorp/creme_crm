@@ -22,9 +22,13 @@ from django.utils.translation import ugettext_lazy as _
 
 from creme_core.gui.block import block_registry
 from creme_core.gui.menu import creme_menu
+from creme_core.registry import creme_registry
+
 from activesync.blocks import user_mobile_sync_config_block
 
 block_registry.register(user_mobile_sync_config_block)
+
+creme_registry.register_app('activesync', _(u'Mobile synchronization') , None)
 
 try:
     reg_item = creme_menu.get_app_item('persons').register_item

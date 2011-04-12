@@ -28,6 +28,7 @@ SYNC_ERR_WRONG_CFG_NO_LOGIN      = 1
 SYNC_ERR_WRONG_CFG_NO_PWD        = 2
 SYNC_ERR_ABORTED                 = 3
 SYNC_ERR_CONNECTION              = 4
+SYNC_ERR_NOT_FOUND               = 5
 
 SYNC_ERR_VERBOSE = {
     SYNC_ERR_FORBIDDEN: _(u"Wrong username and/or password"),
@@ -36,6 +37,7 @@ SYNC_ERR_VERBOSE = {
     SYNC_ERR_WRONG_CFG_NO_PWD: _(u"No password, please fill in information in your own settings"),
     SYNC_ERR_ABORTED: _(u"There was an error during synchronization"),
     SYNC_ERR_CONNECTION: _(u"It seems there no available connection"),
+    SYNC_ERR_NOT_FOUND: _(u"Wrong configuration (wrong server url?)"),
 }
 
 class CremeActiveSyncError(Exception):

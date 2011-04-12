@@ -23,7 +23,7 @@ import restkit.errors
 from xml.etree.ElementTree import fromstring, tostring
 from httplib import socket
 
-from activesync.errors import SYNC_ERR_FORBIDDEN, CremeActiveSyncError, SYNC_ERR_CONNECTION
+from activesync.errors import SYNC_ERR_FORBIDDEN, CremeActiveSyncError, SYNC_ERR_CONNECTION, SYNC_ERR_NOT_FOUND
 from activesync.wbxml.dtd import AirsyncDTD_Reverse
 from activesync.wbxml.codec2 import WBXMLEncoder
 from activesync.config import ACTIVE_SYNC_DEBUG
@@ -122,9 +122,12 @@ class Base(object):
         except restkit.errors.Unauthorized, err:
             self._data['debug']['errors'].append(err.msg)
             raise CremeActiveSyncError(SYNC_ERR_FORBIDDEN)
-        except (socket.gaierror, socket.error):
+        except (socket.gaierror, socket.error), err:
+            self._data['debug']['errors'].append(err.msg)
             raise CremeActiveSyncError(SYNC_ERR_CONNECTION)
-
+        except restkit.errors.ResourceNotFound, err:
+            self._data['debug']['errors'].append(err.msg)
+            raise CremeActiveSyncError(SYNC_ERR_NOT_FOUND)
 
     def send(self, template_dict, *args, **kwargs):
         content = render_to_string(self.template_name, template_dict)

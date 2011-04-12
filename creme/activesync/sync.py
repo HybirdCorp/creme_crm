@@ -64,6 +64,7 @@ class Synchronization(object):
             'debug': {
                 'xml': [],
                 'errors': [],
+                'info': [],
             },
         }
 
@@ -74,8 +75,6 @@ class Synchronization(object):
                             SUCCESS: [],
                         }
                         
-        user_id = user.id
-
         sv_get = SettingValue.objects.get
         sv_doesnotexist = SettingValue.DoesNotExist
 
@@ -171,7 +170,7 @@ class Synchronization(object):
         client     = self.client
         user       = self.user
 
-        print "Begin with policy_key :", policy_key
+        self._data['debug']['info'].append("Begin with policy_key :%s" % policy_key)
 
         _fs = self._folder_sync(policy_key, folder_sync_key)#Try to sync server folders
         fs  = self._handle_folder_sync(_fs)
@@ -191,7 +190,7 @@ class Synchronization(object):
 
         if serverid:
             client.contact_folder_id = serverid
-            print "----CONTACT FOLDER :", serverid
+            self._data['debug']['info'].append("CONTACT FOLDER : %s" % serverid)
 
 #            if provisionned:
 #                as_ = self._sync(policy_key, serverid, None, True, user=user)
@@ -201,7 +200,7 @@ class Synchronization(object):
             as_ = self._sync(policy_key, serverid, sync_key, True, user=user)
 
             client.sync_key = as_.last_synckey
-            print "client.sync_key :", client.sync_key
+            self._data['debug']['info'].append("client.sync_key : %s" % client.sync_key)
 
             c_x_mapping_manager = CremeExchangeMapping.objects
             create = c_x_mapping_manager.create
@@ -258,7 +257,7 @@ class Synchronization(object):
             return folder_sync
 
         if folder_sync.status == as_constants.SYNC_NEED_CURRENT_POLICY:
-            debug("SYNC_NEED_CURRENT_POLICY")
+            self._data['debug']['info'].append("SYNC_NEED_CURRENT_POLICY")
             #Permission denied we need a new policy_key
 #            provisionned = True
             provision = Provision(*self.params)
@@ -268,13 +267,13 @@ class Synchronization(object):
             if ACTIVE_SYNC_DEBUG:
                 self._data['debug']['xml'].extend(provision._data['debug']['xml'])
 
-            print "policy_key :", policy_key
+            self._data['debug']['info'].append("policy_key : %s" % policy_key)
 
             #Trying again to sync folders
             _fs = self._folder_sync(policy_key, folder_sync.sync_key)
             fs  = self._handle_folder_sync(_fs)
 
-            print "policy_key :", policy_key
+            self._data['debug']['info'].append("policy_key : %s" % policy_key)
             return fs
 
         if folder_sync.status == as_constants.SYNC_FOLDER_STATUS_INVALID_SYNCKEY:
