@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xs:schema
+        xmlns:tns="Provision:"
+        attributeFormDefault="unqualified"
+        elementFormDefault="qualified"
+        targetNamespace="Provision:"
+        xmlns:xs="http://www.w3.org/2001/XMLSchema"
+        xmlns:settings="Settings:">
+
+    <xs:import namespace="Settings:"/>
+
+    <xs:element name="Provision">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element ref="settings:DeviceInformation" minOccurs="0" />
+                <xs:element name="Policies" minOccurs="0">
+                    <xs:complexType>
+                        <xs:sequence>
+                            <xs:element name="Policy">
+                                <xs:complexType>
+                                    <xs:sequence>
+                                        <xs:element name="PolicyType" type="xs:string" />
+                                        <xs:element name="PolicyKey" type="xs:string" minOccurs="0" />
+                                        <xs:element name="Status" type="xs:string" minOccurs="0" />
+                                    </xs:sequence>
+                                </xs:complexType>
+                            </xs:element>
+                        </xs:sequence>
+                    </xs:complexType>
+                </xs:element>
+                <xs:element name="RemoteWipe" minOccurs="0">
+                    <xs:complexType>
+                        <xs:sequence>
+                            <xs:element name="Status" type="xs:string" />
+                        </xs:sequence>
+                    </xs:complexType>
+                </xs:element>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+</xs:schema>

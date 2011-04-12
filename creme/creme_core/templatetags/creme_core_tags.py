@@ -119,6 +119,10 @@ def print_datetime(x):
 def print_date(x):
     return date_format(x, 'DATE_FORMAT') if x else ''
 
+@register.filter(name="print_boolean")
+def print_boolean(x):
+    return mark_safe('<input type="checkbox" value="%s" %s disabled/>' % (escape(x), 'checked' if x else ''))#Potentially double safe marked
+
 def print_textfield(x):
     if not x:
         return ""
@@ -128,7 +132,7 @@ def print_textfield(x):
 #TODO: Do more specific fields (i.e: phone field, currency field....) ?
 _FIELD_PRINTERS = {
      models.AutoField:                  simple_print,
-     models.BooleanField:               lambda x: '<input type="checkbox" value="%s" %s disabled/>' % (escape(x), 'checked' if x else ''),
+     models.BooleanField:               print_boolean,
      models.CharField:                  simple_print,
      models.CommaSeparatedIntegerField: simple_print,
      models.DateField:                  print_date,

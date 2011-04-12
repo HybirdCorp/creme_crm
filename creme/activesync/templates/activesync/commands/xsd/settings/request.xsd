@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xs:schema
+        xmlns:tns="Settings:"
+        attributeFormDefault="unqualified"
+        elementFormDefault="qualified"
+        targetNamespace="Settings:"
+        xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+<xs:simpleType name="NonEmptyStringType">
+    <xs:restriction base="xs:string">
+        <xs:minLength value="1"/>
+    </xs:restriction>
+</xs:simpleType>
+
+<xs:complexType name="EmptyTag" />
+
+<xs:simpleType name="DeviceInformationStringType">
+    <xs:restriction base="xs:string">
+        <xs:maxLength value="1024"/>
+    </xs:restriction>
+</xs:simpleType>
+
+
+    <xs:element name="DeviceInformation">
+        <xs:complexType>
+            <xs:choice>
+                <xs:element name="Set">
+                    <xs:complexType>
+                        <xs:all>
+                            <xs:element name="Model" type="tns:DeviceInformationStringType" minOccurs="0"/>
+                            <xs:element name="IMEI" type="tns:DeviceInformationStringType" minOccurs="0"/>
+                            <xs:element name="FriendlyName" type="tns:DeviceInformationStringType" minOccurs="0"/>
+                            <xs:element name="OS" type="tns:DeviceInformationStringType" minOccurs="0"/>
+                            <xs:element name="OSLanguage" type="tns:DeviceInformationStringType" minOccurs="0"/>
+                            <xs:element name="PhoneNumber" type="tns:DeviceInformationStringType" minOccurs="0"/>
+                            <xs:element name="UserAgent" type="tns:DeviceInformationStringType" minOccurs="0"/>
+                            <xs:element name="EnableOutboundSMS" minOccurs="0">
+                                <xs:simpleType>
+                                    <xs:restriction base="xs:integer">
+                                        <xs:minInclusive value="0"/>
+                                        <xs:maxInclusive value="1"/>
+                                    </xs:restriction>
+                                </xs:simpleType>
+                            </xs:element>
+                            <xs:element name="MobileOperator" type="tns:DeviceInformationStringType" minOccurs="0"/>
+                        </xs:all>
+                    </xs:complexType>
+                </xs:element>
+            </xs:choice>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="Settings">
+        <xs:complexType>
+            <xs:all>
+                <xs:element name="RightsManagementInformation" minOccurs="0">
+                    <xs:complexType>
+                        <xs:sequence>
+                            <xs:element name="Get" type="tns:EmptyTag"/>
+                        </xs:sequence>
+                    </xs:complexType>
+                </xs:element>
+                <xs:element name="Oof" minOccurs="0">
+                    <xs:complexType>
+                        <xs:choice>
+                            <xs:element name="Get" minOccurs="0">
+                                <xs:complexType>
+                                    <xs:sequence>
+                                        <xs:element name="BodyType" type="tns:NonEmptyStringType"/>
+                                    </xs:sequence>
+                                </xs:complexType>
+                            </xs:element>
+                            <xs:element name="Set">
+                                <xs:complexType>
+                                    <xs:sequence>
+                                        <xs:element name="OofState" type="tns:NonEmptyStringType" minOccurs="0"/>
+                                        <xs:element name="StartTime" type="tns:NonEmptyStringType" minOccurs="0"/>
+                                        <xs:element name="EndTime" type="tns:NonEmptyStringType" minOccurs="0"/>
+                                        <xs:element name="OofMessage" minOccurs="0" maxOccurs="3">
+                                            <xs:complexType>
+                                                <xs:all>
+                                                    <xs:element name="AppliesToInternal" type="tns:EmptyTag" minOccurs="0"/>
+                                                    <xs:element name="AppliesToExternalKnown" type="tns:EmptyTag" minOccurs="0"/>
+                                                    <xs:element name="AppliesToExternalUnknown" type="tns:EmptyTag" minOccurs="0"/>
+                                                    <xs:element name="Enabled" type="tns:NonEmptyStringType" minOccurs="0"/>
+                                                    <xs:element name="ReplyMessage" type="xs:string" minOccurs="0"/>
+                                                    <xs:element name="BodyType" type="tns:NonEmptyStringType" minOccurs="0"/>
+                                                </xs:all>
+                                            </xs:complexType>
+                                        </xs:element>
+                                    </xs:sequence>
+                                </xs:complexType>
+                            </xs:element>
+                        </xs:choice>
+                    </xs:complexType>
+                </xs:element>
+                <xs:element name="DevicePassword" minOccurs="0">
+                    <xs:complexType>
+                        <xs:choice>
+                            <xs:element name="Set">
+                                <xs:complexType>
+                                    <xs:sequence>
+                                        <xs:element name="Password" >
+                                           <xs:simpleType>
+                                              <xs:restriction base="xs:string">
+                                                 <xs:maxLength value="255"/>
+                                              </xs:restriction>
+                                           </xs:simpleType>
+                                        </xs:element>
+                                    </xs:sequence>
+                                </xs:complexType>
+                            </xs:element>
+                        </xs:choice>
+                    </xs:complexType>
+                </xs:element>
+                <xs:element ref="tns:DeviceInformation" minOccurs="0"/>
+                <xs:element name="UserInformation" minOccurs="0">
+                    <xs:complexType>
+                        <xs:choice>
+                            <xs:element name="Get" type="tns:EmptyTag"/>
+                        </xs:choice>
+                    </xs:complexType>
+                </xs:element>
+            </xs:all>
+        </xs:complexType>
+    </xs:element>
+</xs:schema>
