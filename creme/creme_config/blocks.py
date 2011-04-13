@@ -27,8 +27,6 @@ from creme_core.gui.block import Block, QuerysetBlock
 
 from creme_config.models import  SettingValue
 
-from activesync.constants import MAPI_SERVER_URL, MAPI_DOMAIN, MAPI_SERVER_SSL
-
 _PAGE_SIZE = 12
 
 
@@ -296,28 +294,6 @@ class UserPreferedMenusBlock(QuerysetBlock):
                                                             update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
                                                            ))
 
-class MobileSyncConfigBlock(Block):
-    id_           = Block.generate_id('creme_config', 'mobile_sync')
-    dependencies  = ()
-    verbose_name  = _(u'Mobile synchronization')
-    template_name = 'creme_config/templatetags/block_mobile_sync.html'
-    permission    = 'creme_config.can_admin'
-
-    def detailview_display(self, context):
-
-        sv_get = SettingValue.objects.get
-
-        #Nb: Those values had been populated
-        server_url    = sv_get(key__id=MAPI_SERVER_URL).value
-        server_domain = sv_get(key__id=MAPI_DOMAIN).value
-        server_ssl    = sv_get(key__id=MAPI_SERVER_SSL).value
-
-        return self._render(self.get_block_template_context(context,
-                                                            url=server_url,
-                                                            domain=server_domain,
-                                                            ssl=server_ssl,
-                                                            update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,))
-
 generic_models_block = GenericModelsBlock()
 settings_block       = SettingsBlock()
 custom_fields_block  = CustomFieldsBlock()
@@ -340,5 +316,4 @@ blocks_list = (
         UserRolesBlock(),
         DefaultCredentialsBlock(),
         UserPreferedMenusBlock(),
-        MobileSyncConfigBlock(),
     )

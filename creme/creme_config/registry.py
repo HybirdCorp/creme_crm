@@ -17,6 +17,7 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
+from itertools import chain
 
 from django.db.models import FieldDoesNotExist
 from django.forms.models import modelform_factory
@@ -63,6 +64,7 @@ class AppConfigRegistry(object):
         self.name = name
         self.verbose_name = verbose_name
         self._models = {}
+        self._blocks = []
 
     @property
     def portal_url(self):
@@ -84,6 +86,12 @@ class AppConfigRegistry(object):
 
     def models(self):
         return self._models.itervalues()
+
+    def register_block(self, block):
+        self._blocks.append(block)
+
+    def blocks(self):
+        return self._blocks
 
 
 class _ConfigRegistry(object):
@@ -110,6 +118,18 @@ class _ConfigRegistry(object):
 
     def apps(self):
         return self._apps.itervalues()
+
+
+    def register_blocks(self, *blocks_to_register):
+        app_registries = self._apps
+        
+        for app_name, block in blocks_to_register:
+            app_conf = app_registries.get(app_name)
+
+            if app_conf is None:
+                app_registries[app_name] = app_conf = AppConfigRegistry(app_name, creme_registry.get_app(app_name).verbose_name)
+
+            app_conf.register_block(block)
 
 
 config_registry = _ConfigRegistry()

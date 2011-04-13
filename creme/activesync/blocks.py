@@ -96,4 +96,28 @@ class UserMobileSyncConfigBlock(Block):
                                                             password=password,
                                                             update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,))
 
+class MobileSyncConfigBlock(Block):
+    id_           = Block.generate_id('activesync', 'mobile_sync_config')
+    dependencies  = ()
+    verbose_name  = _(u'Mobile synchronization')
+    template_name = 'activesync/templatetags/block_mobile_sync_config.html'
+    permission    = 'activesync.can_admin'
+
+    def detailview_display(self, context):
+
+        sv_get = SettingValue.objects.get
+
+        #Nb: Those values had been populated
+        server_url    = sv_get(key__id=MAPI_SERVER_URL).value
+        server_domain = sv_get(key__id=MAPI_DOMAIN).value
+        server_ssl    = sv_get(key__id=MAPI_SERVER_SSL).value
+
+        return self._render(self.get_block_template_context(context,
+                                                            url=server_url,
+                                                            domain=server_domain,
+                                                            ssl=server_ssl,
+                                                            update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,))
+
+
 user_mobile_sync_config_block = UserMobileSyncConfigBlock()
+mobile_sync_config_block      = MobileSyncConfigBlock()
