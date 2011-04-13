@@ -108,9 +108,10 @@ def portal_app(request, app_name):
 
     return render_to_response('creme_config/generics/app_portal.html',
                               {
-                                'app_name':         app_name,
-                                'app_verbose_name': app_config.verbose_name,
-                                'app_config':       list(app_config.models()), #list-> have the length in the template
+                                'app_name':          app_name,
+                                'app_verbose_name':  app_config.verbose_name,
+                                'app_config':        list(app_config.models()), #list-> have the length in the template
+                                'app_config_blocks': app_config.blocks(),#Get config registered blocks
                               },
                               context_instance=RequestContext(request)
                              )

@@ -24,9 +24,9 @@ from creme_core.gui.block import block_registry
 from creme_core.gui.menu import creme_menu
 from creme_core.registry import creme_registry
 
-from activesync.blocks import user_mobile_sync_config_block
+from activesync.blocks import user_mobile_sync_config_block, mobile_sync_config_block
 
-block_registry.register(user_mobile_sync_config_block)
+block_registry.register(user_mobile_sync_config_block, mobile_sync_config_block)
 
 creme_registry.register_app('activesync', _(u'Mobile synchronization') , None)
 
