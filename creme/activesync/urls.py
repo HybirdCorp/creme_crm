@@ -10,7 +10,8 @@ urlpatterns = patterns('activesync.views',
 
     (r'^sync$', 'sync.main_sync'),
 
-
+    #Mobile synchronization configuration
+    (r'^mobile_synchronization/edit$',    'mobile_sync.edit'),
 
 )
 

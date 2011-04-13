@@ -109,7 +109,7 @@ class WBXMLEncoder(object):
     def encode(self, to_encode):
         _debuglog('Enter encode')
 
-        if isinstance(to_encode, (unicode, basestring)):
+        if isinstance(to_encode, basestring):
             self.xml = XML(to_encode)
         elif isinstance(to_encode, (_ElementInterface, )):
             self.xml = to_encode
