@@ -19,41 +19,19 @@
 ################################################################################
 
 from django.contrib.auth.decorators import login_required, permission_required
-
-from django.template.context import RequestContext
-from django.shortcuts import get_object_or_404, render_to_response
+from django.shortcuts import get_object_or_404
 from django.utils.translation import ugettext_lazy as _
+
+from creme_core.views.generic.add import add_model_with_popup
+
 from creme_config.models.setting import SettingValue
-
-from creme_core.views.generic.popup import inner_popup
-
 from creme_config.forms.mobile_sync import MobileSyncForm
 
 from activesync.constants import MAPI_SERVER_URL, MAPI_DOMAIN, MAPI_SERVER_SSL
 
-
-portal_url = "/creme_config/mobile_synchronization/portal/"
-
-@login_required
-@permission_required('creme_config.can_admin')
-def portal(request):
-    """
-        @Permissions : Acces OR Admin to creme_config app
-    """
-    return render_to_response('creme_config/mobile_sync/portal.html',
-                              {
-                                
-                              },
-                              context_instance=RequestContext(request))
-
-
-#TODO: Use a generic view ?
 @login_required
 @permission_required('creme_config.can_admin')
 def edit(request):
-    """
-        @Permissions : Admin to creme_config app
-    """
     #TODO: Why 404???
     server_url    = get_object_or_404(SettingValue, key__id=MAPI_SERVER_URL)
     server_domain = get_object_or_404(SettingValue, key__id=MAPI_DOMAIN)
@@ -61,20 +39,7 @@ def edit(request):
 
     initial = {'url': server_url.value, 'domain': server_domain.value, 'ssl': server_ssl.value}
 
-    if request.POST :
-        mobile_sync_form = MobileSyncForm(user=request.user, data=request.POST, initial=initial)
+    return add_model_with_popup(request, MobileSyncForm,
+                                title=_(u'Edit default mobile synchronization configuration'),
+                                initial=initial)
 
-        if mobile_sync_form.is_valid():
-            mobile_sync_form.save()
-    else:
-        mobile_sync_form = MobileSyncForm(user=request.user, initial=initial)
-
-    return inner_popup(request, 'creme_core/generics/blockform/add_popup2.html',
-                       {
-                         'form': mobile_sync_form,
-                         'title': _(u'Edit default mobile synchronization configuration'),
-                       },
-                       is_valid=mobile_sync_form.is_valid(),
-                       reload=False,
-                       delegate_reload=True,
-                       context_instance=RequestContext(request))
