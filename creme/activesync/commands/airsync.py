@@ -26,6 +26,7 @@ from django.db.models import Q
 from django.contrib.auth.models import User
 from django.utils.translation import ugettext_lazy as _
 from django.db.utils import IntegrityError
+from activesync.messages import MessageSucceedContactAdd, MessageSucceedContactUpdate, MessageInfoContactAdd
 
 from base import Base
 
@@ -34,6 +35,8 @@ from activesync.contacts import (serialize_contact, CREME_CONTACT_MAPPING,
 from activesync.models.active_sync import CremeExchangeMapping, CremeClient, SyncKeyHistory
 from activesync import config
 from activesync.constants import CONFLICT_SERVER_MASTER, SYNC_AIRSYNC_STATUS_SUCCESS, SYNC_AIRSYNC_STATUS_INVALID_SYNCKEY
+from activesync.errors import (SYNC_ERR_VERBOSE, SYNC_ERR_CREME_PERMISSION_DENIED_CREATE,
+                               SYNC_ERR_CREME_PERMISSION_DENIED_CHANGE_SPECIFIC, SYNC_ERR_CREME_PERMISSION_DENIED_DELETE_SPECIFIC)
 
 from persons.models.contact import Contact
 
@@ -160,40 +163,39 @@ class AirSync(Base):
             self.add_info_message(_(u"There is %s changed items from the server") % len(change_nodes))
             self.add_info_message(_(u"There is %s deleted items from the server") % len(delete_nodes))
 
-            #Can be usefull for IHM ?
-            print "##Ajouts      : len(add_nodes) :",    len(add_nodes)
-            print "##Changements : len(change_nodes) :", len(change_nodes)
-            print "##Delete      : len(delete_nodes) :", len(delete_nodes)
+            if user.has_perm_to_create(Contact):
+                for add_node in add_nodes:
+                    add_node_find = add_node.find
 
-            for add_node in add_nodes:
-                add_node_find = add_node.find
-                
-                server_id_pk  = add_node_find('%(ns0)sServerId' % d_ns).text#This is the object pk on the server map it whith cremepk
-                app_data      = add_node_find('%(ns0)sApplicationData' % d_ns)
-                app_data_find = app_data.find
+                    server_id_pk  = add_node_find('%(ns0)sServerId' % d_ns).text#This is the object pk on the server map it whith cremepk
+                    app_data      = add_node_find('%(ns0)sApplicationData' % d_ns)
+                    app_data_find = app_data.find
 
-                data = {'user': user}
-                for ns, field_dict in CREME_CONTACT_MAPPING.iteritems():
-                    for c_field, x_field in field_dict.iteritems():
-                        d = app_data_find('{%s}%s' % (ns, x_field))
-                        if d is not None:
-                            if callable(c_field):
-                                c_field = c_field(needs_attr=True)
+                    data = {'user': user}
+                    for ns, field_dict in CREME_CONTACT_MAPPING.iteritems():
+                        for c_field, x_field in field_dict.iteritems():
+                            d = app_data_find('{%s}%s' % (ns, x_field))
+                            if d is not None:
+                                if callable(c_field):
+                                    c_field = c_field(needs_attr=True)
 
-                            if c_field and c_field.strip() != '':
-                                data[c_field] = d.text
+                                if c_field and c_field.strip() != '':
+                                    data[c_field] = d.text
 
-                contact = save_contact(data, user)
-                try:
-                    create(creme_entity_id=contact.id, exchange_entity_id=server_id_pk, synced=True, user=user)
-                    self.add_success_message(_(u"Successfully created %s") % contact)
-                except IntegrityError:
-                    error(u"Contact : %s (pk=%s) created twice and only one in the mapping", contact, contact.pk)#TODO:Make a merge UI?
-                    self.add_error_message(u"TODO: REMOVE ME : Contact : %s (pk=%s) created twice and only one in the mapping" % (contact, contact.pk))
+                    contact = save_contact(data, user)
+                    try:
+                        create(creme_entity_id=contact.id, exchange_entity_id=server_id_pk, synced=True, user=user)
+                        self.add_message(MessageSucceedContactAdd(contact=contact, message=_(u"Successfully created %s") % contact))
+                    except IntegrityError:
+                        error(u"Contact : %s (pk=%s) created twice and only one in the mapping", contact, contact.pk)#TODO:Make a merge UI?
+                        self.add_error_message(u"TODO: REMOVE ME : Contact : %s (pk=%s) created twice and only one in the mapping" % (contact, contact.pk))
 
-#                create(creme_entity_id=contact.id, exchange_entity_id=server_id_pk, synced=True, user=user)
-##                debug("Create a contact: %s", contact)
-#                self.add_success_message(_(u"Successfully created %s") % contact)
+    #                create(creme_entity_id=contact.id, exchange_entity_id=server_id_pk, synced=True, user=user)
+    ##                debug("Create a contact: %s", contact)
+    #                self.add_success_message(_(u"Successfully created %s") % contact)
+            else:
+                self.add_error_message(SYNC_ERR_VERBOSE[SYNC_ERR_CREME_PERMISSION_DENIED_CREATE])
+
 
             for change_node in change_nodes:
                 c_server_id = change_node.find('%(ns0)sServerId' % d_ns).text
@@ -207,6 +209,10 @@ class AirSync(Base):
                     continue #TODO: Think about creating it ? / got a mapping issue ?
 
                 if contact is not None:
+                    if not contact.can_change(user):
+                        self.add_error_message(SYNC_ERR_VERBOSE[SYNC_ERR_CREME_PERMISSION_DENIED_CHANGE_SPECIFIC] % contact)
+                        continue
+
                     if not IS_SERVER_MASTER and contact_mapping.is_creme_modified:
                         #We don't update the contact because creme modified it and it's the master
                         continue
@@ -223,8 +229,8 @@ class AirSync(Base):
                                 update_data[c_field] = node.text
 
                     debug("Update %s with %s", contact, update_data)
-                    update_contact(contact, update_data)
-                    self.add_success_message(_(u"Successfully updated %(contact)s with %(data)s") % {'contact': contact, 'data':update_data})#TODO: Format update_data
+                    update_contact(contact, update_data, user)
+                    self.add_message(MessageSucceedContactUpdate(contact, _(u"Successfully updated %(contact)s") % {'contact': contact}, update_data))
 
                     #Server is the master so we unset the creme flag to prevent creme modifications
                     contact_mapping.is_creme_modified = False
@@ -243,6 +249,10 @@ class AirSync(Base):
                     continue #TODO: Think about creating it ? / got a mapping issue ?
 
                 if contact is not None:
+                    if not contact.can_delete(user):
+                        self.add_error_message(SYNC_ERR_VERBOSE[SYNC_ERR_CREME_PERMISSION_DENIED_DELETE_SPECIFIC] % contact)
+                        continue
+
                     if not IS_SERVER_MASTER and c_x_mapping.is_creme_modified:
                         #We don't delete the contact because creme modified it and it's the master
                         debug("Creme modified %s, when the server deletes it", contact)
@@ -336,11 +346,18 @@ def add_object(o, serializer):
 def get_add_objects(reverse_ns, user, msg_stack):
     q_not_synced = ~Q(pk__in=CremeExchangeMapping.objects.filter(synced=True).values_list('creme_entity_id', flat=True))
     objects = []
-    
+
+    add_message      = msg_stack.add_message
+    add_info_message = msg_stack.add_info_message
+    objects_append   = objects.append
+
     for contact in Contact.objects.filter(q_not_synced & Q(is_deleted=False, user=user)):
-        msg_stack.add_info_message(_(u"Adding %s on the server") % contact)
-        objects.append(add_object(contact, lambda cc: serialize_contact(cc, reverse_ns)))
-        
+        if contact.can_view(user):
+            add_message(MessageInfoContactAdd(contact, _(u"Adding %s on the server") % contact))
+            objects_append(add_object(contact, lambda cc: serialize_contact(cc, reverse_ns)))
+        else:
+            add_info_message(_(u"The contact <%s> was not added on the server because you haven't the right to view it") % contact.allowed_unicode(user))
+
     return objects
 #    return map(lambda c:  add_object(c, lambda cc: serialize_contact(cc, reverse_ns)), Contact.objects.filter(q_not_synced & Q(is_deleted=False)))
 
@@ -358,9 +375,15 @@ def get_change_objects(reverse_ns, user, msg_stack):
 
     debug(u"Change object ids : %s", modified_ids)
 
+    add_info_message = msg_stack.add_info_message
+    objects_append   = objects.append
+
     for contact in Contact.objects.filter(id__in=modified_ids.keys()):
-        msg_stack.add_info_message(_(u"Sending changes of %s on the server") % contact)
-        objects.append(change_object(modified_ids[contact.id], contact, lambda cc: serialize_contact(cc, reverse_ns)))#Naive version send all attribute even it's not modified
+        if contact.can_view(user):
+            add_info_message(_(u"Sending changes of %s on the server") % contact)
+            objects_append(change_object(modified_ids[contact.id], contact, lambda cc: serialize_contact(cc, reverse_ns)))#Naive version send all attribute even it's not modified
+        else:
+            add_info_message(_(u"The contact <%s> was not updated on the server because you haven't the right to view it") % contact.allowed_unicode(user))
 
     debug(u"Change object : %s", objects)
 
@@ -377,10 +400,13 @@ def get_deleted_objects(user, msg_stack):
 #    for server_id in deleted_ids:
 #        objects.append(delete_object(server_id))
 
+    add_info_message = msg_stack.add_info_message
+    objects_append   = objects.append
+
     for server_id, entity_repr in deleted_ids:
         if entity_repr is not None:
-            msg_stack.add_info_message(_(u"Deleting %s on the server") % entity_repr)
-        objects.append(delete_object(server_id))
+            add_info_message(_(u"Deleting %s on the server") % entity_repr)
+        objects_append(delete_object(server_id))
         
     return objects
 

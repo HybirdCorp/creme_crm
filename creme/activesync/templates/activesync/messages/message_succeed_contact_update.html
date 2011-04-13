@@ -1,0 +1,9 @@
+{% extends "activesync/messages/message_succeed.html" %}
+{% load i18n %}
+
+{% block message %}
+    {{ message }} - <a href="{{ contact.get_absolute_url }}">{% trans "View" %}</a>
+    {% for k, v in data.iteritems %}
+        <p>{{ k }} = {{ v }}</p>{# TODO: Verbose field names #}
+    {% endfor %}
+{% endblock %}

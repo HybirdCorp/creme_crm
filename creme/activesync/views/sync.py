@@ -37,12 +37,11 @@ def main_sync(request):
     except CremeActiveSyncError, err:
         tpl_dict = {'error_messages'   :  [err]}
     else:
-        error_messages = sync.get_error_messages()
 
         try:
             sync.synchronize()
         except CremeActiveSyncError, err:
-            error_messages.extend(err)
+            sync.add_error_message(err)
 
         tpl_dict = {
             'server_url': sync.server_url,
@@ -51,9 +50,7 @@ def main_sync(request):
             'server_ssl': sync.server_ssl,
             'last_sync':  sync.last_sync,
 
-            'info_messages'    :  sync.get_info_messages(),
-            'success_messages' :  sync.get_success_messages(),
-            'error_messages'   :  error_messages,
+            'all_messages'    :  sync.messages(),
 
 
             #DEBUG

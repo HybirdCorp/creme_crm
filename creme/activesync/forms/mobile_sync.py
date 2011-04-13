@@ -17,21 +17,23 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
+from itertools import chain
 
-from django.forms.fields import URLField, CharField, BooleanField
+from django.forms.fields import URLField, CharField, BooleanField, ChoiceField
+from django.forms.widgets import Select
 from django.utils.translation import ugettext_lazy as _
 from creme_config.models.setting import SettingValue
 
 from creme_core.forms.base import CremeForm
 
-from activesync.constants import MAPI_SERVER_URL, MAPI_DOMAIN, MAPI_SERVER_SSL
+from activesync.constants import MAPI_SERVER_URL, MAPI_DOMAIN, MAPI_SERVER_SSL, COMMONS_SERVER_URL_CFG
 
-#TODO: Move to activesync & make a registry in creme_config for non-model forms
 class MobileSyncForm(CremeForm):
 
-    url    = URLField(label=_(u"Server url"), required=False)
-    domain = CharField(label=_(u"Domain"), required=False)
-    ssl    = BooleanField(label=_(u"Is secure"), required=False)
+    url_examples = ChoiceField(label=_(u"Server url examples"), required=False, help_text=_(u"Some common configurations"), choices=chain((("", ""),), COMMONS_SERVER_URL_CFG), widget=Select(attrs={'onchange':'this.form.url.value=$(this).val();'}) )
+    url    = URLField(label=_(u"Server url"),                   required=False)
+    domain = CharField(label=_(u"Domain"),                      required=False)
+    ssl    = BooleanField(label=_(u"Is secure"),                required=False)
 
     def save(self):
         clean_get = self.cleaned_data.get

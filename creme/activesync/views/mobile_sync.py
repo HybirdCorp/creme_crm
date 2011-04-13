@@ -25,7 +25,7 @@ from django.utils.translation import ugettext_lazy as _
 from creme_core.views.generic.add import add_model_with_popup
 
 from creme_config.models.setting import SettingValue
-from creme_config.forms.mobile_sync import MobileSyncForm
+from activesync.forms.mobile_sync import MobileSyncForm
 
 from activesync.constants import MAPI_SERVER_URL, MAPI_DOMAIN, MAPI_SERVER_SSL
 

@@ -17,9 +17,10 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
+from itertools import chain
 
 from django.forms.fields import ChoiceField, CharField, URLField
-from django.forms.widgets import PasswordInput
+from django.forms.widgets import PasswordInput, Select
 from django.utils.translation import ugettext_lazy as _, ugettext
 from creme_config.models.setting import SettingValue
 
@@ -33,19 +34,21 @@ from activesync.constants import (USER_MOBILE_SYNC_SERVER_URL,
                                     USER_MOBILE_SYNC_SERVER_PWD,
                                     MAPI_SERVER_URL,
                                     MAPI_DOMAIN,
-                                    MAPI_SERVER_SSL)
+                                    MAPI_SERVER_SSL,
+                                    COMMONS_SERVER_URL_CFG)
 
 
 class UserSettingsConfigForm(CremeForm):
 
-    url      = URLField(    label=_(u"Server url"),   required=False, help_text=_(u"Let empty to get the default configuration (currently '%s')."))
-    domain   = CharField(   label=_(u"Domain"),       required=False, help_text=_(u"Let empty to get the default configuration (currently '%s')."))
-    ssl      = ChoiceField( label=_(u"Is secure"),    required=False, help_text=_(u"Let default to get the default configuration  (currently '%s')."), choices=(('', _('Default')) ,('1', _('Yes')), ('0', _('No'))) )
-    login    = CharField(   label=_(u"Login"),        required=False)
-    password = CharField(   label=_(u"Password"),     required=False, widget=PasswordInput)
+    url_examples = ChoiceField( label=_(u"Server url examples"), required=False, help_text=_(u"Some common configurations"), choices=chain((("", ""),), COMMONS_SERVER_URL_CFG), widget=Select(attrs={'onchange':'this.form.url.value=$(this).val();'}) )
+    url          = URLField(    label=_(u"Server url"),          required=False, help_text=_(u"Let empty to get the default configuration (currently '%s')."))
+    domain       = CharField(   label=_(u"Domain"),              required=False, help_text=_(u"Let empty to get the default configuration (currently '%s')."))
+    ssl          = ChoiceField( label=_(u"Is secure"),           required=False, help_text=_(u"Let default to get the default configuration  (currently '%s')."), choices=(('', _('Default')) ,('1', _('Yes')), ('0', _('No'))) )
+    login        = CharField(   label=_(u"Login"),               required=False)
+    password     = CharField(   label=_(u"Password"),            required=False, widget=PasswordInput)
 
     blocks = FieldBlockManager(#('general',    _(u'Generic information'),  '*'),
-                               ('mobile_sync', _(u'Mobile synchronization configuration'),   ('url', 'domain', 'ssl', 'login', 'password')),
+                               ('mobile_sync', _(u'Mobile synchronization configuration'),   ('url', 'url_examples', 'domain', 'ssl', 'login', 'password')),
                               )
 
     def __init__(self, user, *args, **kwargs):

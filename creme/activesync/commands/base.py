@@ -17,6 +17,7 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
+from collections import defaultdict
 
 import libxml2
 import restkit.errors
@@ -33,9 +34,7 @@ from django.template.loader import render_to_string
 from activesync.connection import Connection
 from activesync.wbxml.converters import XMLToWBXML, WBXMLToXML
 
-_INFO    = 'info'
-_ERROR   = 'error'
-_SUCCESS = 'success'
+from activesync.messages import _INFO, _ERROR, _SUCCESS, MessageInfo, MessageSucceed, MessageError
 
 class Base(object):
     template_name = u"overloadme.xml" #XML template to send to the server
@@ -55,33 +54,26 @@ class Base(object):
                 'errors': [],
             },
         }
-        self._messages = {
-                    _INFO   : [],
-                    _ERROR  : [],
-                    _SUCCESS: [],
-                }
+        self._messages = defaultdict(list)
 
     ###### UI helpers #######
-    def add_message(self, level, msg):
-        try:
-            self._messages[level].append(msg)
-        except KeyError:
-            pass
+    def add_message(self, msg):
+        self._messages[msg.type].append(msg)
 
-    def add_info_message(self, msg):
-        self._messages[_INFO].append(msg)
+    def add_info_message(self, msg, **kwargs):
+        self._messages[_INFO].append(MessageInfo(message=msg, **kwargs))
 
-    def add_success_message(self, msg):
-        self._messages[_SUCCESS].append(msg)
+    def add_success_message(self, msg, **kwargs):
+        self._messages[_SUCCESS].append(MessageSucceed(message=msg, **kwargs))
 
-    def add_error_message(self, msg):
-        self._messages[_ERROR].append(msg)
+    def add_error_message(self, msg, **kwargs):
+        self._messages[_ERROR].append(MessageError(message=msg, **kwargs))
 
     def get_messages(self, level):
-        try:
-            return self._messages[level]
-        except KeyError:
-            return []
+        return self._messages[level]
+
+    def messages(self):
+        return self._messages.iteritems()
 
     def get_info_messages(self):
         return self._messages[_INFO]
