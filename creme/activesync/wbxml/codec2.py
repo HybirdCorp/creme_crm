@@ -1,20 +1,28 @@
 # -*- coding: utf-8 -*-
 
 ################################################################################
+#    This file is a modified version of codec.py from SynCE project
+#    Original file located at http://synce.svn.sourceforge.net/viewvc/synce/trunk/sync-engine/SyncEngine/wbxml/codec.py
+################################################################################
+
+################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#
+#    Copyright (c) 2006 Ole André Vadla Ravnås <oleavr@gmail.com>
+#    Copyright (c) 2007 Dr J A Gow <J.A.Gow@furrybubble.co.uk>
+#    Copyright (C) 2009-2011  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
-#    it under the terms of the GNU Affero General Public License as published by
+#    it under the terms of the GNU General Public License as published by
 #    the Free Software Foundation, either version 3 of the License, or
 #    (at your option) any later version.
 #
 #    This program is distributed in the hope that it will be useful,
 #    but WITHOUT ANY WARRANTY; without even the implied warranty of
 #    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#    GNU Affero General Public License for more details.
+#    GNU General Public License for more details.
 #
-#    You should have received a copy of the GNU Affero General Public License
+#    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
