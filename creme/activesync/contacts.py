@@ -186,7 +186,7 @@ def save_contact(data, user):
     
     return c
 
-def update_contact(contact, data):
+def update_contact(contact, data, user):
     """Update a contact instance from a updated data dict
         @Returns : A saved contact instance
     """

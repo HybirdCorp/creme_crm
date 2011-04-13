@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 ################################################################################
 #    This file is a modified version of converters.py from SynCE project
 #    Original file located at http://synce.svn.sourceforge.net/viewvc/synce/trunk/sync-engine/SyncEngine/wbxml/converters.py

@@ -1,7 +1,5 @@
 {% load i18n %}
-{% load media %}
-{% load creme_block %}
-{% load creme_core_tags %}
+{% load media creme_block creme_core_tags activesync_tags %}
 <table class="table_header" cellpadding="0" cellspacing="0">
     <tr>
         <td width="5%"><img src="{% media_url 'images/phone_sync_48.png' %}" alt="{% trans 'Phone synchronization' %}" title="{% trans 'Phone synchronization' %}"/></td>
@@ -48,34 +46,6 @@
                 <th class="th_info">{% trans "Last synchronization" %}:</th>
                 <td class="td_info">{{last_sync|default:_("Never")}}</td>
             </tr>
-            {% comment %}
-            <tr>
-                <th class="th_info">{% trans "Status" %}</th>
-                <td class="td_info">
-                    {% if error_messages %}
-                        <ul class="errorlist">
-                            {% for message in error_messages %}
-                                <li>{{message}}</li>
-                            {% endfor %}
-                        </ul>
-                    {% endif %}
-                    {% if info_messages %}
-                        <ul class="infolist">
-                            {% for message in info_messages %}
-                                <li>{{message}}</li>
-                            {% endfor %}
-                        </ul>
-                    {% endif %}
-                    {% if success_messages %}
-                        <ul class="successlist">
-                            {% for message in success_messages %}
-                                <li>{{message}}</li>
-                            {% endfor %}
-                        </ul>
-                    {% endif %}
-                </td>
-            </tr>
-            {% endcomment %}
         </tbody>
     </table>
 </div>
@@ -87,56 +57,18 @@
         </tr>
     </thead>
     <tbody>
-        {% if error_messages %}
+{#            <tr>#}
+{#                <th class="th_info">{% trans "Errors" %}</th>#} {#TODO Verbose message.type#}
+{#            </tr>#}
+        {% for type, messages in all_messages %}
+            {% for message in messages %}
             <tr>
-                <th class="th_info">{% trans "Errors" %}</th>
+                <td class="td_info">
+                    {% render_message message %}
+                </td>
             </tr>
-            {% for message in error_messages %}
-                <tr>
-                    <td class="td_info">
-                        <ul class="errorlist">
-                            <li>{{message}}</li>
-                        </ul>
-                    </td>
-                </tr>
             {% endfor %}
-        {% endif %}
-        {% if info_messages %}
-            <tr>
-                <th class="th_info">{% trans "Information" %}</th>
-            </tr>
-            {% for message in info_messages %}
-                <tr>
-                    <td class="td_info">
-                        <ul class="infolist">
-                            <li>{{message}}</li>
-                        </ul>
-                    </td>
-                </tr>
-            {% empty %}
-                <tr>
-                    <td class="td_info"></td>
-                </tr>
-            {% endfor %}
-        {% endif %}
-        {% if success_messages %}
-            <tr>
-                <th class="th_info">{% trans "Successes" %}</th>
-            </tr>
-            {% for message in success_messages %}
-                <tr>
-                    <td class="td_info">
-                        <ul class="successlist">
-                            <li>{{message}}</li>
-                        </ul>
-                    </td>
-                </tr>
-            {% empty %}
-                <tr>
-                    <td class="td_info"></td>
-                </tr>
-            {% endfor %}
-        {% endif %}
+        {% endfor %}
     </tbody>
 </table>
 

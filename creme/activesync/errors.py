@@ -30,14 +30,28 @@ SYNC_ERR_ABORTED                 = 3
 SYNC_ERR_CONNECTION              = 4
 SYNC_ERR_NOT_FOUND               = 5
 
+SYNC_ERR_CREME_PERMISSION_DENIED_CREATE          =  6
+SYNC_ERR_CREME_PERMISSION_DENIED_CREATE_SPECIFIC =  7
+SYNC_ERR_CREME_PERMISSION_DENIED_CHANGE          =  8
+SYNC_ERR_CREME_PERMISSION_DENIED_CHANGE_SPECIFIC =  9
+SYNC_ERR_CREME_PERMISSION_DENIED_DELETE          = 10
+SYNC_ERR_CREME_PERMISSION_DENIED_DELETE_SPECIFIC = 11
+
 SYNC_ERR_VERBOSE = {
-    SYNC_ERR_FORBIDDEN: _(u"Wrong username and/or password"),
+    SYNC_ERR_FORBIDDEN:               _(u"Wrong username and/or password"),
     SYNC_ERR_WRONG_CFG_NO_SERVER_URL: _(u"No server url, please fill in information in global settings configuration or in your own settings"),
-    SYNC_ERR_WRONG_CFG_NO_LOGIN: _(u"No login, please fill in information in your own settings"),
-    SYNC_ERR_WRONG_CFG_NO_PWD: _(u"No password, please fill in information in your own settings"),
-    SYNC_ERR_ABORTED: _(u"There was an error during synchronization"),
-    SYNC_ERR_CONNECTION: _(u"It seems there no available connection"),
-    SYNC_ERR_NOT_FOUND: _(u"Wrong configuration (wrong server url?)"),
+    SYNC_ERR_WRONG_CFG_NO_LOGIN:      _(u"No login, please fill in information in your own settings"),
+    SYNC_ERR_WRONG_CFG_NO_PWD:        _(u"No password, please fill in information in your own settings"),
+    SYNC_ERR_ABORTED:                 _(u"There was an error during synchronization"),
+    SYNC_ERR_CONNECTION:              _(u"It seems there no available connection"),
+    SYNC_ERR_NOT_FOUND:               _(u"Wrong configuration (wrong server url?)"),
+    
+    SYNC_ERR_CREME_PERMISSION_DENIED_CREATE:          _(u"You haven't the right to create contacts in Creme"),
+    SYNC_ERR_CREME_PERMISSION_DENIED_CREATE_SPECIFIC: _(u"You haven't the right to create contact <%s> in Creme"),#Useful?
+    SYNC_ERR_CREME_PERMISSION_DENIED_CHANGE:          _(u"You haven't the right to change contacts in Creme"),
+    SYNC_ERR_CREME_PERMISSION_DENIED_CHANGE_SPECIFIC: _(u"You haven't the right to change the contact <%s> in Creme"),
+    SYNC_ERR_CREME_PERMISSION_DENIED_DELETE:          _(u"You haven't the right to delete contacts in Creme"),
+    SYNC_ERR_CREME_PERMISSION_DENIED_DELETE_SPECIFIC: _(u"You haven't the right to delete the contact <%s> in Creme"),
 }
 
 class CremeActiveSyncError(Exception):

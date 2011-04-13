@@ -1,0 +1,5 @@
+{% extends "activesync/messages/message_info.html" %}
+{% load i18n %}
+
+
+{% block message %}{{ message }} - <a href="{{ contact.get_absolute_url }}">{% trans "View" %}{#TODO icon#}</a>{% endblock %}

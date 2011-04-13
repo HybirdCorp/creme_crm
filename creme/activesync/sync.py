@@ -17,7 +17,7 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
-from logging import debug
+from collections import defaultdict
 from datetime import datetime
 
 from django.db.models import Q
@@ -38,6 +38,8 @@ from activesync.errors import (CremeActiveSyncError,
                                SYNC_ERR_WRONG_CFG_NO_LOGIN,
                                SYNC_ERR_WRONG_CFG_NO_PWD,
                                SYNC_ERR_ABORTED)#TODO: * ?
+from activesync.messages import MessageInfo, MessageSucceed, MessageError, _INFO, _ERROR, _SUCCESS
+
                                
 from activesync.models.active_sync import CremeClient, CremeExchangeMapping
 from activesync.commands import FolderSync, Provision, AirSync
@@ -69,11 +71,7 @@ class Synchronization(object):
         }
 
         #TODO: If messages will be used somewhere else activate the django messaging system
-        self.messages = {
-                            INFO   : [],
-                            ERROR  : [],
-                            SUCCESS: [],
-                        }
+        self._messages = defaultdict(list)
                         
         sv_get = SettingValue.objects.get
         sv_doesnotexist = SettingValue.DoesNotExist
@@ -123,40 +121,35 @@ class Synchronization(object):
 
     ###### UI helpers #######
     def add_message(self, level, msg):
-        try:
-            self.messages[level].append(msg)
-        except KeyError:
-            pass
+        self._messages[msg.type].append(msg)
 
-    def add_info_message(self, msg):
-        self.messages[INFO].append(msg)
+    def add_info_message(self, msg, **kwargs):
+        self._messages[_INFO].append(MessageInfo(message=msg, **kwargs))
 
-    def add_success_message(self, msg):
-        self.messages[SUCCESS].append(msg)
+    def add_success_message(self, msg, **kwargs):
+        self._messages[_SUCCESS].append(MessageSucceed(message=msg, **kwargs))
 
-    def add_error_message(self, msg):
-        self.messages[ERROR].append(msg)
+    def add_error_message(self, msg, **kwargs):
+        self._messages[_ERROR].append(MessageError(message=msg, **kwargs))
+
+    def messages(self):
+        return self._messages.iteritems()
 
     def get_messages(self, level):
-        try:
-            return self.messages[level]
-        except KeyError:
-            return []
+        return self._messages[level]
 
     def get_info_messages(self):
-        return self.messages[INFO]
+        return self._messages[INFO]
 
     def get_success_messages(self):
-        return self.messages[SUCCESS]
+        return self._messages[SUCCESS]
 
     def get_error_messages(self):
-        return self.messages[ERROR]
+        return self._messages[ERROR]
 
     def merge_command_messages(self, cmd):
-        self.messages[INFO].extend(cmd.get_info_messages())
-        self.messages[SUCCESS].extend(cmd.get_success_messages())
-        self.messages[ERROR].extend(cmd.get_error_messages())
-
+        for type, messages in cmd.messages():
+            self._messages[type].extend(messages)
     ###### End UI helpers #######
 
 

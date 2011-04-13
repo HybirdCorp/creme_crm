@@ -87,3 +87,9 @@ SYNC_AIRSYNC_STATUS_INVALID_SYNC_CMD     = 15 # Too many collections are include
 SYNC_AIRSYNC_STATUS_RETRY                = 16 # Something on the server caused a retriable error
 
 ################################################################################
+#Helpers
+
+COMMONS_SERVER_URL_CFG = (
+    ('https://m.google.com/Microsoft-Server-ActiveSync',  'Gmail'),
+    ('https://m.hotmail.com/Microsoft-Server-ActiveSync', 'Hotmail'),
+)
