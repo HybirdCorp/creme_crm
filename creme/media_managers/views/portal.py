@@ -33,7 +33,9 @@ def portal_media_managers(request):
                 (_("Number of images"),  Image.objects.all().count()),
             )
 
+    limit_to = 5
+
     return app_portal(request, 'media_managers/', 'media_managers/portal.html',
                       Image, stats,
-                      extra_template_dict={'objects_list':Image.objects.all().order_by('created')[:5]})
+                      extra_template_dict={'objects_list':Image.objects.all().order_by('created')[:limit_to], 'limit_to':limit_to})
 
