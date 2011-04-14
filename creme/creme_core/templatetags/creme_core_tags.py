@@ -32,7 +32,7 @@ from django.template.defaultfilters import linebreaks
 
 from creme_core.models import CremeEntity
 from creme_core.models import fields
-from creme_core.utils.meta import get_field_infos, get_model_field_infos, get_m2m_entities
+from creme_core.utils.meta import get_field_infos, get_model_field_infos, get_m2m_entities, get_verbose_field_name
 
 from media_managers.models import Image
 
@@ -210,6 +210,10 @@ def get_related_entities(entity, relation_type_id):
 @register.filter(name="get_extra_field_value")
 def get_extra_field_value(object, field_name):
     return object.__getattribute__(field_name)() #TODO: use getattr() ??
+
+@register.simple_tag
+def get_field_verbose_name(model_or_entity, field_name):
+    return get_verbose_field_name(model_or_entity, field_name)
 
 @register.filter(name="is_date_gte")
 def is_date_gte(date1, date2):
