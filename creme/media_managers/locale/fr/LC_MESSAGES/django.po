@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-01-18 10:36+0100\n"
+"POT-Creation-Date: 2011-04-12 13:56+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -32,42 +32,42 @@ msgstr "Ajouter une image"
 msgid "All images"
 msgstr "Lister les images"
 
-#: populate.py:37
+#: populate.py:36
 msgid "Product image"
 msgstr "Image de produit"
 
-#: populate.py:38
+#: populate.py:37
 msgid "Organisation logo"
 msgstr "Logo de société"
 
-#: populate.py:39
+#: populate.py:38
 msgid "Contact photograph"
 msgstr "Photo de contact"
 
-#: populate.py:41
+#: populate.py:40
 msgid "Image view"
 msgstr "Vue d'Image"
 
-#: populate.py:43 models/image.py:36
+#: populate.py:42 models/image.py:42
 #: templates/media_managers/image_as_table.html:17
 msgid "Name"
 msgstr "Nom"
 
-#: populate.py:44 models/image.py:40 models/image.py:49
+#: populate.py:43 models/image.py:46 models/image.py:59
 #: templates/media_managers/portal.html:49
 msgid "Image"
 msgstr "Image"
 
-#: populate.py:45 models/image.py:37
+#: populate.py:44 models/image.py:43
 #: templates/media_managers/image_as_table.html:21
 msgid "Description"
 msgstr "Description"
 
-#: populate.py:46
+#: populate.py:45
 msgid "User - Username"
 msgstr "Utilisateur - Nom d'utilisateur"
 
-#: populate.py:47 models/image.py:42
+#: populate.py:46 models/image.py:48
 #: templates/media_managers/image_as_table.html:33
 msgid "Categories"
 msgstr "Catégories"
@@ -76,15 +76,15 @@ msgstr "Catégories"
 msgid "Add image"
 msgstr "Ajouter image"
 
-#: models/image.py:38 templates/media_managers/image_as_table.html:25
+#: models/image.py:44 templates/media_managers/image_as_table.html:25
 msgid "Height"
 msgstr "Hauteur"
 
-#: models/image.py:39 templates/media_managers/image_as_table.html:29
+#: models/image.py:45 templates/media_managers/image_as_table.html:29
 msgid "Width"
 msgstr "Largueur"
 
-#: models/image.py:50
+#: models/image.py:60
 msgid "Images"
 msgstr "Images"
 

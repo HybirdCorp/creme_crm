@@ -32,7 +32,7 @@ from django.template.defaultfilters import linebreaks
 
 from creme_core.models import CremeEntity
 from creme_core.models import fields
-from creme_core.utils.meta import get_field_infos, get_model_field_infos, get_m2m_entities
+from creme_core.utils.meta import get_field_infos, get_model_field_infos, get_m2m_entities, get_verbose_field_name
 
 from media_managers.models import Image
 
@@ -119,6 +119,10 @@ def print_datetime(x):
 def print_date(x):
     return date_format(x, 'DATE_FORMAT') if x else ''
 
+@register.filter(name="print_boolean")
+def print_boolean(x):
+    return mark_safe('<input type="checkbox" value="%s" %s disabled/>' % (escape(x), 'checked' if x else ''))#Potentially double safe marked
+
 def print_textfield(x):
     if not x:
         return ""
@@ -128,7 +132,7 @@ def print_textfield(x):
 #TODO: Do more specific fields (i.e: phone field, currency field....) ?
 _FIELD_PRINTERS = {
      models.AutoField:                  simple_print,
-     models.BooleanField:               lambda x: '<input type="checkbox" value="%s" %s disabled/>' % (escape(x), 'checked' if x else ''),
+     models.BooleanField:               print_boolean,
      models.CharField:                  simple_print,
      models.CommaSeparatedIntegerField: simple_print,
      models.DateField:                  print_date,
@@ -206,6 +210,10 @@ def get_related_entities(entity, relation_type_id):
 @register.filter(name="get_extra_field_value")
 def get_extra_field_value(object, field_name):
     return object.__getattribute__(field_name)() #TODO: use getattr() ??
+
+@register.simple_tag
+def get_field_verbose_name(model_or_entity, field_name):
+    return get_verbose_field_name(model_or_entity, field_name)
 
 @register.filter(name="is_date_gte")
 def is_date_gte(date1, date2):

@@ -18,16 +18,14 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.template import RequestContext
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 
 from creme_core.models import *
-from creme_core.gui.block import Block, QuerysetBlock, BlocksManager
+from creme_core.gui.block import Block, QuerysetBlock
 
 from creme_config.models import  SettingValue
-from creme_config.registry import config_registry
 
 _PAGE_SIZE = 12
 

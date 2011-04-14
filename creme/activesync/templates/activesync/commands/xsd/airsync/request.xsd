@@ -1,0 +1,443 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xs:schema
+        xmlns:tns="AirSync:"
+        attributeFormDefault="unqualified"
+        elementFormDefault="qualified"
+        targetNamespace="AirSync:"
+        xmlns:xs="http://www.w3.org/2001/XMLSchema"
+        xmlns:contacts="Contacts:"
+        xmlns:contacts2="Contacts2:"
+        xmlns:calendar="Calendar:"
+        xmlns:email="Email:"
+        xmlns:airsyncbase="AirSyncBase:"
+        xmlns:tasks="Tasks:"
+        xmlns:notes="Notes:"
+        xmlns:rm="RightsManagement:">
+
+
+        <xs:import namespace="Contacts2:"/>
+        <xs:import namespace="Contacts:"/>
+        <xs:import namespace="Email:"/>
+        <xs:import namespace="Calendar:"/>
+        <xs:import namespace="AirSyncBase:"/>
+        <xs:import namespace="Tasks:"/>
+        <xs:import namespace="Notes:"/>
+        <xs:import namespace="RightsManagement:"/>
+
+
+<xs:complexType name="EmptyTag" />
+
+  <xs:element name="Sync">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="Collections" minOccurs="0">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element maxOccurs="unbounded" name="Collection">
+                <xs:complexType>
+                  <xs:sequence>
+                    <xs:element name="SyncKey">
+                      <xs:simpleType>
+                        <xs:restriction base="xs:string">
+                          <xs:maxLength value="64"/>
+                        </xs:restriction>
+                      </xs:simpleType>
+                    </xs:element>
+                    <xs:element name="CollectionId">
+                      <xs:simpleType>
+                        <xs:restriction base="xs:string">
+                          <xs:maxLength value="64"/>
+                        </xs:restriction>
+                      </xs:simpleType>
+                    </xs:element>
+                    <xs:element minOccurs="0" name="Supported">
+                      <xs:complexType mixed="true">
+                        <xs:sequence minOccurs="0">
+                          <xs:choice maxOccurs="unbounded">
+                            <xs:group ref="contacts:GhostingProps"/>
+                            <xs:group ref="contacts2:GhostingProps"/>
+                            <xs:group ref="calendar:GhostingProps"/>
+                          </xs:choice>
+                        </xs:sequence>
+                      </xs:complexType>
+                    </xs:element>
+                    <xs:element minOccurs="0" name="DeletesAsMoves" type="xs:boolean"/>
+                    <xs:element minOccurs="0" name="GetChanges" type="xs:boolean"/>
+                    <xs:element minOccurs="0" name="WindowSize">
+                      <xs:simpleType>
+                        <xs:restriction base="xs:integer">
+                          <xs:minInclusive value="0"/>
+                          <xs:maxInclusive value="512"/>
+                        </xs:restriction>
+                      </xs:simpleType>
+                    </xs:element>
+                    <xs:element name="ConversationMode" minOccurs="0" type="xs:boolean"/>
+                    <xs:element minOccurs="0" maxOccurs="2" name="Options">
+                      <xs:complexType>
+                        <xs:choice maxOccurs="unbounded">
+                          <xs:element name="FilterType" minOccurs="0">
+                            <xs:simpleType>
+                              <xs:restriction base="xs:unsignedByte">
+                                <xs:minInclusive value="0"/>
+                                <xs:maxInclusive value="8"/>
+                              </xs:restriction>
+                            </xs:simpleType>
+                          </xs:element>
+                          <xs:element name="Class" type="xs:string" minOccurs="0"/>
+                          <xs:element ref="airsyncbase:BodyPreference" minOccurs="0" maxOccurs="unbounded" />
+                          <xs:element ref="airsyncbase:BodyPartPreference" minOccurs="0"/>
+                          <xs:element minOccurs="0" name="Conflict" type="xs:unsignedByte">
+                              <xs:simpleType>
+                                  <xs:restriction base="xs:unsignedByte">
+|                                      <xs:minInclusive value="0"/>
+                                      <xs:maxInclusive value="1"/>
+                                  </xs:restriction>
+                              </xs:simpleType>
+                          </xs:element>
+                          <xs:element minOccurs="0" name="MIMESupport">
+                            <xs:simpleType>
+                              <xs:restriction base="xs:unsignedByte">
+                                <xs:minInclusive value="0" />
+                                <xs:maxInclusive value="2" />
+                              </xs:restriction>
+                            </xs:simpleType>
+                          </xs:element>
+                          <xs:element minOccurs="0" name="MIMETruncation">
+                            <xs:simpleType>
+                              <xs:restriction base="xs:unsignedByte">
+                                <xs:minInclusive value="0" />
+                                <xs:maxInclusive value="8" />
+                              </xs:restriction>
+                            </xs:simpleType>
+                          </xs:element>
+                          <xs:element name="MaxItems" minOccurs="0">
+                            <xs:simpleType>
+                              <xs:restriction base="xs:integer">
+                                <xs:minInclusive value="1"/>
+                              </xs:restriction>
+                            </xs:simpleType>
+                          </xs:element>
+                          <xs:element ref="rm:RightsManagementSupport" minOccurs="0" />
+                        </xs:choice>
+                      </xs:complexType>
+                    </xs:element>
+                    <xs:element minOccurs="0" name="Commands">
+                      <xs:complexType>
+                        <xs:choice maxOccurs="unbounded">
+                          <xs:element minOccurs="0" maxOccurs="unbounded" name="Change">
+                            <xs:complexType>
+                              <xs:sequence>
+                                <xs:element name="ServerId">
+                                  <xs:simpleType>
+                                    <xs:restriction base="xs:string">
+                                      <xs:maxLength value="64"/>
+                                    </xs:restriction>
+                                  </xs:simpleType>
+                                </xs:element>
+                                <xs:element name="ApplicationData">
+                                  <xs:complexType>
+                                    <xs:sequence>
+                                      <xs:choice maxOccurs="unbounded">
+                                        <xs:element ref="email:Flag"/>
+                                        <xs:element ref="email:Read"/>
+                                        <xs:element ref="email:Categories"/>
+                                        <xs:element ref="calendar:OrganizerName"/>
+                                        <xs:element ref="calendar:OrganizerEmail"/>
+                                        <xs:element ref="calendar:Exceptions"/>
+                                        <xs:element ref="calendar:Attendees"/>
+                                        <xs:element ref="calendar:DisallowNewTimeProposal"/>
+                                        <xs:element ref="calendar:ResponseRequested"/>
+                                        <xs:element ref="calendar:TimeZone"/>
+                                        <xs:element ref="calendar:AllDayEvent"/>
+                                        <xs:element ref="airsyncbase:NativeBodyType"/>
+                                        <xs:element ref="airsyncbase:Body"/>
+                                        <xs:element ref="calendar:BusyStatus"/>
+                                        <xs:element ref="calendar:Categories"/>
+                                        <xs:element ref="calendar:DtStamp"/>
+                                        <xs:element ref="calendar:EndTime"/>
+                                        <xs:element ref="calendar:Location"/>
+                                        <xs:element ref="calendar:MeetingStatus"/>
+                                        <xs:element ref="calendar:Reminder"/>
+                                        <xs:element ref="calendar:Sensitivity"/>
+                                        <xs:element ref="calendar:Subject"/>
+                                        <xs:element ref="calendar:StartTime"/>
+                                        <xs:element ref="calendar:UID"/>
+                                        <xs:element ref="calendar:Recurrence"/>
+                                        <xs:element ref="contacts:Anniversary"/>
+                                        <xs:element ref="contacts:AssistantName"/>
+                                        <xs:element ref="contacts:AssistantPhoneNumber"/>
+                                        <xs:element ref="contacts:AssistnamePhoneNumber"/>
+                                        <xs:element ref="contacts:Birthday"/>
+                                        <xs:element ref="contacts:Business2PhoneNumber"/>
+                                        <xs:element ref="contacts:BusinessAddressCity"/>
+                                        <xs:element ref="contacts:BusinessAddressCountry"/>
+                                        <xs:element ref="contacts:BusinessAddressPostalCode"/>
+                                        <xs:element ref="contacts:BusinessAddressState"/>
+                                        <xs:element ref="contacts:BusinessAddressStreet"/>
+                                        <xs:element ref="contacts:BusinessFaxNumber"/>
+                                        <xs:element ref="contacts:BusinessPhoneNumber"/>
+                                        <xs:element ref="contacts:CarPhoneNumber"/>
+                                        <xs:element ref="contacts:Categories"/>
+                                        <xs:element ref="contacts:Children"/>
+                                        <xs:element ref="contacts:CompanyName"/>
+                                        <xs:element ref="contacts:Department"/>
+                                        <xs:element ref="contacts:Email1Address"/>
+                                        <xs:element ref="contacts:Email2Address"/>
+                                        <xs:element ref="contacts:Email3Address"/>
+                                        <xs:element ref="contacts:FileAs"/>
+                                        <xs:element ref="contacts:FirstName"/>
+                                        <xs:element ref="contacts:MiddleName"/>
+                                        <xs:element ref="contacts:Home2PhoneNumber"/>
+                                        <xs:element ref="contacts:HomeAddressCity"/>
+                                        <xs:element ref="contacts:HomeAddressCountry"/>
+                                        <xs:element ref="contacts:HomeAddressPostalCode"/>
+                                        <xs:element ref="contacts:HomeAddressState"/>
+                                        <xs:element ref="contacts:HomeAddressStreet"/>
+                                        <xs:element ref="contacts:HomeFaxNumber"/>
+                                        <xs:element ref="contacts:HomePhoneNumber"/>
+                                        <xs:element ref="contacts:JobTitle"/>
+                                        <xs:element ref="contacts:LastName"/>
+                                        <xs:element ref="contacts:MobilePhoneNumber"/>
+                                        <xs:element ref="contacts:OfficeLocation"/>
+                                        <xs:element ref="contacts:OtherAddressCity"/>
+                                        <xs:element ref="contacts:OtherAddressCountry"/>
+                                        <xs:element ref="contacts:OtherAddressPostalCode"/>
+                                        <xs:element ref="contacts:OtherAddressState"/>
+                                        <xs:element ref="contacts:OtherAddressStreet"/>
+                                        <xs:element ref="contacts:PagerNumber"/>
+                                        <xs:element ref="contacts:RadioPhoneNumber"/>
+                                        <xs:element ref="contacts:Spouse"/>
+                                        <xs:element ref="contacts:Suffix"/>
+                                        <xs:element ref="contacts:Title"/>
+                                        <xs:element ref="contacts:WebPage"/>
+                                        <xs:element ref="contacts:YomiCompanyName"/>
+                                        <xs:element ref="contacts:YomiFirstName"/>
+                                        <xs:element ref="contacts:Picture"/>
+                                        <xs:element ref="contacts2:CustomerId"/>
+                                        <xs:element ref="contacts2:GovernmentId"/>
+                                        <xs:element ref="contacts2:IMAddress"/>
+                                        <xs:element ref="contacts2:IMAddress2"/>
+                                        <xs:element ref="contacts2:IMAddress3"/>
+                                        <xs:element ref="contacts2:ManagerName"/>
+                                        <xs:element ref="contacts2:CompanyMainPhone"/>
+                                        <xs:element ref="contacts2:AccountName"/>
+                                        <xs:element ref="contacts2:NickName"/>
+                                        <xs:element ref="contacts2:MMS"/>
+                                        <xs:element ref="contacts:YomiLastName"/>
+                                        <xs:element ref="tasks:Complete"/>
+                                        <xs:element ref="tasks:Subject"/>
+                                        <xs:element ref="tasks:Categories"/>
+                                        <xs:element ref="tasks:DateCompleted"/>
+                                        <xs:element ref="tasks:DueDate"/>
+                                        <xs:element ref="tasks:UtcDueDate"/>
+                                        <xs:element ref="tasks:Importance"/>
+                                        <xs:element ref="tasks:Recurrence"/>
+                                        <xs:element ref="tasks:ReminderSet"/>
+                                        <xs:element ref="tasks:ReminderTime"/>
+                                        <xs:element ref="tasks:Sensitivity"/>
+                                        <xs:element ref="tasks:StartDate"/>
+                                        <xs:element ref="tasks:UtcStartDate"/>
+                                        <xs:element ref="notes:Subject"/>
+                                        <xs:element ref="notes:MessageClass"/>
+                                        <xs:element ref="notes:LastModifiedDate"/>
+                                        <xs:element ref="notes:Categories"/>
+                                      </xs:choice>
+                                    </xs:sequence>
+                                  </xs:complexType>
+                                </xs:element>
+                              </xs:sequence>
+                            </xs:complexType>
+                          </xs:element>
+                          <xs:element minOccurs="0" maxOccurs="unbounded" name="Delete">
+                            <xs:complexType>
+                              <xs:sequence>
+                                <xs:element name="ServerId">
+                                  <xs:simpleType>
+                                    <xs:restriction base="xs:string">
+                                      <xs:maxLength value="64"/>
+                                    </xs:restriction>
+                                  </xs:simpleType>
+                                </xs:element>
+                              </xs:sequence>
+                            </xs:complexType>
+                          </xs:element>
+                          <xs:element minOccurs="0" maxOccurs="unbounded" name="Add">
+                            <xs:complexType>
+                              <xs:sequence>
+                                <xs:element name="Class" type="xs:string" minOccurs="0" />
+                                <xs:element name="ClientId">
+                                  <xs:simpleType>
+                                    <xs:restriction base="xs:string">
+                                      <xs:maxLength value="64"/>
+                                    </xs:restriction>
+                                  </xs:simpleType>
+                                </xs:element>
+                                <xs:element name="ApplicationData">
+                                  <xs:complexType>
+                                    <xs:sequence>
+                                      <xs:choice maxOccurs="unbounded">
+                                        <xs:element ref="calendar:OrganizerName"/>
+                                        <xs:element ref="calendar:OrganizerEmail"/>
+                                        <xs:element ref="calendar:Exceptions"/>
+                                        <xs:element ref="calendar:Attendees"/>
+                                        <xs:element ref="calendar:DisallowNewTimeProposal"/>
+                                        <xs:element ref="calendar:ResponseRequested"/>
+                                        <xs:element ref="calendar:TimeZone"/>
+                                        <xs:element ref="calendar:AllDayEvent"/>
+                                        <xs:element ref="airsyncbase:NativeBodyType"/>
+                                        <xs:element ref="airsyncbase:Body"/>
+                                        <xs:element ref="calendar:BusyStatus"/>
+                                        <xs:element ref="calendar:Categories"/>
+                                        <xs:element ref="calendar:DtStamp"/>
+                                        <xs:element ref="calendar:EndTime"/>
+                                        <xs:element ref="calendar:Location"/>
+                                        <xs:element ref="calendar:MeetingStatus"/>
+                                        <xs:element ref="calendar:Reminder"/>
+                                        <xs:element ref="calendar:Sensitivity"/>
+                                        <xs:element ref="calendar:Subject"/>
+                                        <xs:element ref="calendar:StartTime"/>
+                                        <xs:element ref="calendar:UID"/>
+                                        <xs:element ref="calendar:Recurrence"/>
+                                        <xs:element ref="contacts:Anniversary"/>
+                                        <xs:element ref="contacts:AssistantName"/>
+                                        <xs:element ref="contacts:AssistantPhoneNumber"/>
+                                        <xs:element ref="contacts:AssistnamePhoneNumber"/>
+                                        <xs:element ref="contacts:Birthday"/>
+                                        <xs:element ref="contacts:Business2PhoneNumber"/>
+                                        <xs:element ref="contacts:BusinessAddressCity"/>
+                                        <xs:element ref="contacts:BusinessAddressCountry"/>
+                                        <xs:element ref="contacts:BusinessAddressPostalCode"/>
+                                        <xs:element ref="contacts:BusinessAddressState"/>
+                                        <xs:element ref="contacts:BusinessAddressStreet"/>
+                                        <xs:element ref="contacts:BusinessFaxNumber"/>
+                                        <xs:element ref="contacts:BusinessPhoneNumber"/>
+                                        <xs:element ref="contacts:CarPhoneNumber"/>
+                                        <xs:element ref="contacts:Categories"/>
+                                        <xs:element ref="contacts:Children"/>
+                                        <xs:element ref="contacts:CompanyName"/>
+                                        <xs:element ref="contacts:Department"/>
+                                        <xs:element ref="contacts:Email1Address"/>
+                                        <xs:element ref="contacts:Email2Address"/>
+                                        <xs:element ref="contacts:Email3Address"/>
+                                        <xs:element ref="contacts:FileAs"/>
+                                        <xs:element ref="contacts:FirstName"/>
+                                        <xs:element ref="contacts:MiddleName"/>
+                                        <xs:element ref="contacts:Home2PhoneNumber"/>
+                                        <xs:element ref="contacts:HomeAddressCity"/>
+                                        <xs:element ref="contacts:HomeAddressCountry"/>
+                                        <xs:element ref="contacts:HomeAddressPostalCode"/>
+                                        <xs:element ref="contacts:HomeAddressState"/>
+                                        <xs:element ref="contacts:HomeAddressStreet"/>
+                                        <xs:element ref="contacts:HomeFaxNumber"/>
+                                        <xs:element ref="contacts:HomePhoneNumber"/>
+                                        <xs:element ref="contacts:JobTitle"/>
+                                        <xs:element ref="contacts:LastName"/>
+                                        <xs:element ref="contacts:MobilePhoneNumber"/>
+                                        <xs:element ref="contacts:OfficeLocation"/>
+                                        <xs:element ref="contacts:OtherAddressCity"/>
+                                        <xs:element ref="contacts:OtherAddressCountry"/>
+                                        <xs:element ref="contacts:OtherAddressPostalCode"/>
+                                        <xs:element ref="contacts:OtherAddressState"/>
+                                        <xs:element ref="contacts:OtherAddressStreet"/>
+                                        <xs:element ref="contacts:PagerNumber"/>
+                                        <xs:element ref="contacts:RadioPhoneNumber"/>
+                                        <xs:element ref="contacts:Spouse"/>
+                                        <xs:element ref="contacts:Suffix"/>
+                                        <xs:element ref="contacts:Title"/>
+                                        <xs:element ref="contacts:WebPage"/>
+                                        <xs:element ref="contacts:YomiCompanyName"/>
+                                        <xs:element ref="contacts:YomiFirstName"/>
+                                        <xs:element ref="contacts:YomiLastName"/>
+                                        <xs:element ref="contacts:Picture"/>
+                                        <xs:element ref="contacts2:CustomerId"/>
+                                        <xs:element ref="contacts2:GovernmentId"/>
+                                        <xs:element ref="contacts2:IMAddress"/>
+                                        <xs:element ref="contacts2:IMAddress2"/>
+                                        <xs:element ref="contacts2:IMAddress3"/>
+                                        <xs:element ref="contacts2:ManagerName"/>
+                                        <xs:element ref="contacts2:CompanyMainPhone"/>
+                                        <xs:element ref="contacts2:AccountName"/>
+                                        <xs:element ref="contacts2:NickName"/>
+                                        <xs:element ref="contacts2:MMS"/>
+                                        <xs:element ref="tasks:Complete"/>
+                                        <xs:element ref="tasks:Subject"/>
+                                        <xs:element ref="tasks:Categories"/>
+                                        <xs:element ref="tasks:DateCompleted"/>
+                                        <xs:element ref="tasks:DueDate"/>
+                                        <xs:element ref="tasks:UtcDueDate"/>
+                                        <xs:element ref="tasks:Importance"/>
+                                        <xs:element ref="tasks:Recurrence"/>
+                                        <xs:element ref="tasks:ReminderSet"/>
+                                        <xs:element ref="tasks:ReminderTime"/>
+                                        <xs:element ref="tasks:Sensitivity"/>
+                                        <xs:element ref="tasks:StartDate"/>
+                                        <xs:element ref="tasks:UtcStartDate"/>
+                                        <xs:element ref="notes:Subject"/>
+                                        <xs:element ref="notes:MessageClass"/>
+                                        <xs:element ref="notes:LastModifiedDate"/>
+                                        <xs:element ref="notes:Categories"/>
+                                        <xs:element ref="email:To"/>
+                                        <xs:element ref="email:From"/>
+                                        <xs:element ref="email:DateReceived"/>
+                                        <xs:element ref="email:InternetCPID"/>
+                                        <xs:element ref="email:Importance"/>
+                                        <xs:element ref="email:Flag"/>
+                                        <xs:element ref="email:Read"/>
+                                      </xs:choice>
+                                    </xs:sequence>
+                                  </xs:complexType>
+                                </xs:element>
+                              </xs:sequence>
+                            </xs:complexType>
+                          </xs:element>
+                          <xs:element minOccurs="0" maxOccurs="unbounded" name="Fetch">
+                            <xs:complexType>
+                              <xs:sequence>
+                                <xs:element name="ServerId">
+                                  <xs:simpleType>
+                                    <xs:restriction base="xs:string">
+                                      <xs:maxLength value="64"/>
+                                    </xs:restriction>
+                                  </xs:simpleType>
+                                </xs:element>
+                              </xs:sequence>
+                            </xs:complexType>
+                          </xs:element>
+                        </xs:choice>
+                      </xs:complexType>
+                    </xs:element>
+                  </xs:sequence>
+                </xs:complexType>
+              </xs:element>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="Wait" minOccurs="0">
+          <xs:simpleType>
+            <xs:restriction base="xs:integer">
+              <xs:minInclusive value="1"/>
+              <xs:maxInclusive value="59"/>
+            </xs:restriction>
+          </xs:simpleType>
+        </xs:element>
+        <xs:element name="HeartbeatInterval" minOccurs="0">
+           <xs:simpleType>
+            <xs:restriction base="xs:integer">
+              <xs:minInclusive value="60"/>
+              <xs:maxInclusive value="3540"/>
+            </xs:restriction>
+          </xs:simpleType>
+        </xs:element>
+        <xs:element name="WindowSize" minOccurs="0">
+          <xs:simpleType>
+            <xs:restriction base="xs:integer">
+              <xs:minInclusive value="0"/>
+              <xs:maxInclusive value="512"/>
+            </xs:restriction>
+          </xs:simpleType>
+        </xs:element>
+        <xs:element name="Partial" type="tns:EmptyTag" minOccurs="0" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>

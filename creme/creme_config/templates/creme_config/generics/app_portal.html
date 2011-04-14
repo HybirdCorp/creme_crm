@@ -8,6 +8,7 @@
 
 {% block creme_blocks_import %}
     {% import_block from_app 'creme_config' named 'settings' as 'settings_block' %}
+    {% import_blocks app_config_blocks as 'extra_config_blocks' %}
 {% endblock %}
 
 {% block before_statistics %}
@@ -36,4 +37,7 @@
     </table>
 
     {% display_block_detailview 'settings_block' %}
+
+    {% display_blocks 'extra_config_blocks' %}
+
 {% endblock before_statistics %}
