@@ -40,7 +40,7 @@ def _arg_in_quotes_or_die(arg, tag_name):
 #-------------------------------------------------------------------------------
 _COLSPAN_ARG = 'colspan='
 
-@register.tag(name="get_block_header")
+@register.tag(name="get_block_header")#TODO: 'templatize' colspan argument
 def do_block_header(parser, token):
     """Eg:{% get_block_header colspan=8 %}
             <th style="width: 80%;" class="collapser">My title</th>
