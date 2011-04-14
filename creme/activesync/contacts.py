@@ -19,13 +19,17 @@
 ################################################################################
 import base64
 from random import randint
+import datetime
+import time
 
 from django.contrib.contenttypes.models import ContentType
 from django.core.files.base import ContentFile
+from django.utils import formats
+from django.db import models
 
 from activesync.config import IS_ZPUSH
 from creme_core.models.relation import Relation, RelationType
-from creme_core.utils.meta import get_field_infos
+from creme_core.utils.meta import get_field_infos, is_date_field
 from creme_core.views.file_handling import handle_uploaded_file, MAXINT
 from persons.models import Position, Contact, Civility, Address
 from media_managers.models.image import Image
@@ -185,6 +189,21 @@ def create_image_from_b64(contact, d, user):
         img_entity.save()
         contact.image = img_entity
 ###
+def _format_data(model_or_entity, data):
+    for field_name, value in data.iteritems():
+        field_class, field_value = get_field_infos(model_or_entity, field_name)
+        if field_class is not None and issubclass(field_class, (models.DateTimeField, models.DateField)):
+            datetime_formatted = False
+            for format in formats.get_format('DATETIME_INPUT_FORMATS'):
+                try:
+                    data[field_name] = datetime.datetime(*time.strptime(value, format)[:6])
+                    datetime_formatted = True
+                except ValueError:
+                    continue
+
+            if not datetime_formatted:
+                data[field_name] = None
+
 
 def save_contact(data, user):
     """Save a contact from a populated data dict
@@ -216,6 +235,9 @@ def save_contact(data, user):
     create_image_from_b64(c, data, user)
         
     c.user = user
+
+    _format_data(c, data)
+
     c.__dict__.update(data)
     c.save()
 
@@ -248,7 +270,9 @@ def update_contact(contact, data, user):
 
     create_or_update_organisation(contact, data, user)
 
-    contact.__dict__.update(data)
+    _format_data(contact, data)
+                
+    contact.__dict__.update(data)#TODO: setattr better ?
     contact.save()
     return contact
 

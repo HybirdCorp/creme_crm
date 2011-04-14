@@ -77,6 +77,8 @@ DATETIME_INPUT_FORMATS  = (
     '%m/%d/%y %H:%M:%S', '%m/%d/%y %H:%M', '%m/%d/%y',
     '%d-%m-%Y %H:%M:%S', '%d/%m/%Y %H:%M:%S',
     '%d-%m-%Y %H:%M',    '%d/%m/%Y %H:%M',
+    '%Y-%m-%dT%H:%M:%S.%fZ',#Needed for some activesync servers (/!\ %f python >=2.6)
+    
 )
 
 #I18N / L10N [END]##############################################################
