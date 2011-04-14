@@ -22,6 +22,7 @@ from django.template.context import RequestContext
 from django.contrib.auth.decorators import login_required, permission_required
 from django.template.loader import render_to_string
 from django.shortcuts import render_to_response
+from activesync.messages import MessageError, _ERROR
 
 from activesync.sync import Synchronization
 from activesync.config import ACTIVE_SYNC_DEBUG
@@ -35,9 +36,10 @@ def main_sync(request):
         sync = Synchronization(request.user)
         
     except CremeActiveSyncError, err:
-        tpl_dict = {'error_messages'   :  [err]}
+#        raise Exception(err)
+        tpl_dict = {'all_messages': {_ERROR: [MessageError(message=err)]}.iteritems()}#TODO:Bof
+        
     else:
-
         try:
             sync.synchronize()
         except CremeActiveSyncError, err:

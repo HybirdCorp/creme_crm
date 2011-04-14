@@ -180,7 +180,11 @@ class AirSync(Base):
                                     c_field = c_field(needs_attr=True)
 
                                 if c_field and c_field.strip() != '':
+                                    print u"%s" % d.text
                                     data[c_field] = d.text
+                                print
+                                print
+                                print
 
                     contact = save_contact(data, user)
                     try:

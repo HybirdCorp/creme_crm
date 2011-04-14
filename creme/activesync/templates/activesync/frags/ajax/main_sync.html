@@ -57,10 +57,10 @@
         </tr>
     </thead>
     <tbody>
-{#            <tr>#}
-{#                <th class="th_info">{% trans "Errors" %}</th>#} {#TODO Verbose message.type#}
-{#            </tr>#}
         {% for type, messages in all_messages %}
+            <tr>
+                <th class="th_info">{% with messages|length as messages_length%}{{ messages_length }} {% get_verbose_message_type type messages_length %}{% endwith %}</th>
+            </tr>
             {% for message in messages %}
             <tr>
                 <td class="td_info">

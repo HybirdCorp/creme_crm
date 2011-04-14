@@ -56,7 +56,7 @@ class SettingKey(Model):
 
         return sk
 
-
+#TODO: Add a nulll and blank attribute ??
 class SettingValue(Model):
     key       = ForeignKey(SettingKey)
     user      = ForeignKey(User, blank=True, null=True)

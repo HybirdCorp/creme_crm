@@ -24,6 +24,8 @@ from django.template import TemplateSyntaxError, Node as TemplateNode
 from django.template.defaulttags import TemplateLiteral
 from django.template import Library
 
+from activesync.messages import MESSAGE_TYPES_VERBOSE
+
 register = Library()
 
 _MESSAGE_RENDER_RE = compile_re(r'(.*?)$')
@@ -51,3 +53,7 @@ class MessageRenderNode(TemplateNode):
 
     def render(self, context):
         return self.message_var.eval(context).render(context)
+
+@register.simple_tag
+def get_verbose_message_type(type, count=1):
+    return MESSAGE_TYPES_VERBOSE.get(type, lambda count: "")(count)
