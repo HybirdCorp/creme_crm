@@ -45,7 +45,7 @@
     </table>
 
     <table class="table_detail_view ui-corner-all">
-        {% get_block_header colspan=1 %}
+        {% get_block_header colspan=5%}{# TODO: { % get_block_header colspan=limit_to% } when get_block_header will handle template vars #}
             <th style="width: 80%;" class="collapser">{% get_basic_block_header _('Last added Images') 'image_48.png' _('Image') %}</th>
             <th style="width: 20%;" align="right"></th>
         {% end_get_block_header %}

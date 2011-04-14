@@ -1,0 +1,15 @@
+
+* Deleted images are not sended from creme to as
+
+* BIG TODO: When a user changes his (server) username reset the binding
+
+* Transform IS_ZPUSH into a AS-Version verification => A2:Body doesn't seems to work with AS version > 2.5
+
+* Make the wbxml decoder and remove the hack
+* Verify all todos in the code
+* Make ui/views for sync - Make a sandbox
+* Make/Set an history of modifications to pass to the UI
+* Test with ssl / Don't let to set the http://
+
+https://m.google.com/Microsoft-Server-ActiveSync
+https://m.hotmail.com/Microsoft-Server-ActiveSync

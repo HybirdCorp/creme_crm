@@ -26,20 +26,21 @@ from django.template.defaulttags import TemplateLiteral
 from django.template.loader import get_template
 from django.template import Library, Template
 from django.utils.translation import ugettext, ungettext
-from django.contrib.contenttypes.models import ContentType
 
 from creme_core.models import BlockConfigItem
 from creme_core.gui.block import Block, block_registry, BlocksManager
-from creme_core.blocks import properties_block, relations_block
-
 
 register = Library()
 
+def _arg_in_quotes_or_die(arg, tag_name):
+    first_char = arg[0]
+    if not (first_char == arg[-1] and first_char in ('"', "'")):
+        raise TemplateSyntaxError, "%r tag's argument should be in quotes" % tag_name
 
 #-------------------------------------------------------------------------------
 _COLSPAN_ARG = 'colspan='
 
-@register.tag(name="get_block_header")
+@register.tag(name="get_block_header")#TODO: 'templatize' colspan argument
 def do_block_header(parser, token):
     """Eg:{% get_block_header colspan=8 %}
             <th style="width: 80%;" class="collapser">My title</th>
@@ -593,3 +594,70 @@ def get_blocks_dependencies(context):
             'deps_map':         blocks_manager.get_dependencies_map(),
             'remaining_groups': blocks_manager.get_remaining_groups(),
            }
+
+#-------------------------------------------------------------------------------
+_BLOCKS_IMPORTER_RE = compile_re(r'(.*?) as (.*?)$')
+
+@register.tag(name="import_blocks")
+def do_blocks_importer(parser, token):
+    #{% import_blocks blocks as 'my_blocks' %} with blocks a list of registered blocks
+    try:
+        tag_name, arg = token.contents.split(None, 1) # Splitting by None == splitting by spaces.
+    except ValueError:
+        raise TemplateSyntaxError, "%r tag requires arguments" % token.contents.split()[0]
+
+    match = _BLOCKS_IMPORTER_RE.search(arg)
+    if not match:
+        raise TemplateSyntaxError, "%r tag had invalid arguments" % tag_name
+
+    blocks_str, alias =  match.groups()
+
+    _arg_in_quotes_or_die(alias, tag_name)
+
+    compile_filter = parser.compile_filter
+
+    return BlocksImporterNode(blocks_var=TemplateLiteral(compile_filter(blocks_str), blocks_str),
+                              alias=alias[1:-1])
+
+
+class BlocksImporterNode(TemplateNode):
+    def __init__(self, blocks_var, alias):
+        self.blocks_var = blocks_var
+        self.alias      = alias
+
+    def render(self, context):
+        BlocksManager.get(context).add_group(self.alias, *self.blocks_var.eval(context))
+        return ""
+
+#-------------------------------------------------------------------------------
+_BLOCKS_DISPLAYER_RE = compile_re(r'(.*?)$')
+
+@register.tag(name="display_blocks")
+def do_blocks_displayer(parser, token):
+    #{% display_blocks 'my_blocks' %} #Nb my_blocks previously imported with import_blocks
+    try:
+        tag_name, arg = token.contents.split(None, 1) # Splitting by None == splitting by spaces.
+    except ValueError:
+        raise TemplateSyntaxError, "%r tag requires arguments" % token.contents.split()[0]
+
+    match = _BLOCKS_DISPLAYER_RE.search(arg)
+    if not match:
+        raise TemplateSyntaxError, "%r tag had invalid arguments" % tag_name
+
+    alias =  match.groups()[0]
+
+    _arg_in_quotes_or_die(alias, tag_name)
+
+    return BlocksDisplayerNode(alias=alias[1:-1])
+
+
+class BlocksDisplayerNode(TemplateNode):
+    def __init__(self, alias):
+        self.alias = alias
+
+    def block_outputs(self, context):
+        for block in BlocksManager.get(context).pop_group(self.alias):
+            yield block.detailview_display(context)
+
+    def render(self, context):
+        return ''.join(op for op in self.block_outputs(context))

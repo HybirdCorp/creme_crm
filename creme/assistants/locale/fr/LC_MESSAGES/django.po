@@ -7,29 +7,29 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-12-14 13:45+0100\n"
+"POT-Creation-Date: 2011-04-12 13:53+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: \n"
 
-#: activities_register.py:37
+#: activities_register.py:38
 msgid "Users"
 msgstr "Utilisateurs"
 
-#: activities_register.py:39
+#: activities_register.py:40
 msgid "Users to keep informed"
 msgstr "Les utilisateurs à tenir informés"
 
-#: activities_register.py:61
+#: activities_register.py:63
 #, python-format
 msgid "[Creme] Activity created: %s"
 msgstr "[Creme] Activité créée: %s"
 
-#: activities_register.py:62
+#: activities_register.py:64
 #, python-format
 msgid ""
 "A new activity has been created: %(activity)s.\n"
@@ -46,39 +46,39 @@ msgstr ""
 "    Sujets: %(subjects)s.\n"
 "    Participants: %(participants)s."
 
-#: blocks.py:99 models/todo.py:47
+#: blocks.py:106 models/todo.py:47
 msgid "Todos"
 msgstr "Todos"
 
-#: blocks.py:116 models/memo.py:56
+#: blocks.py:123 models/memo.py:44
 msgid "Memos"
 msgstr "Mémos"
 
-#: blocks.py:133 models/alert.py:60
+#: blocks.py:140 models/alert.py:48
 msgid "Alerts"
 msgstr "Alertes"
 
-#: blocks.py:150
+#: blocks.py:157
 msgid "Actions in time"
 msgstr "Actions dans les délais"
 
-#: blocks.py:167
+#: blocks.py:174
 msgid "Reactions not in time"
 msgstr "Réactions hors délais"
 
-#: blocks.py:184 models/user_message.py:61
+#: blocks.py:191 models/user_message.py:63
 msgid "User messages"
 msgstr "Messages utilisateur"
 
-#: constants.py:10
+#: constants.py:11
 msgid "Important"
 msgstr "Important"
 
-#: constants.py:11
+#: constants.py:12
 msgid "Very important"
 msgstr "Très important"
 
-#: constants.py:12
+#: constants.py:13
 msgid "Not important"
 msgstr "Pas important"
 
@@ -131,9 +131,9 @@ msgstr ""
 "            qui est rattachée à la fiche : %(entity)s"
 
 #: forms/action.py:31 forms/todo.py:31 models/action.py:37 models/todo.py:37
-#: templates/assistants/block_actions_it.html:27
-#: templates/assistants/block_actions_nit.html:19
-#: templates/assistants/block_todos.html:26
+#: templates/assistants/block_actions_it.html:26
+#: templates/assistants/block_actions_nit.html:18
+#: templates/assistants/block_todos.html:25
 msgid "Deadline"
 msgstr "Échéance"
 
@@ -145,11 +145,11 @@ msgstr "Heure"
 msgid "Trigger date"
 msgstr "Date de déclenchement de l'alerte"
 
-#: forms/user_message.py:34
+#: forms/user_message.py:32
 msgid "Recipients"
 msgstr "Destinataires"
 
-#: forms/user_message.py:36
+#: forms/user_message.py:34
 msgid ""
 "Each time a team is selected, a message is sent to each teammate (do not "
 "worry, there can not be any duplicate)."
@@ -157,12 +157,12 @@ msgstr ""
 "Lorsque vous sélectionnez une équipe, une message est envoyé à chacun des "
 "membres de l'équipe (pas de souci, les doublons sont éliminés)."
 
-#: models/action.py:32 models/todo.py:32 models/user_message.py:32
-#: models/user_message.py:45 templates/assistants/block_actions_it.html:19
-#: templates/assistants/block_actions_nit.html:11
-#: templates/assistants/block_alerts.html:19
-#: templates/assistants/block_messages.html:25
-#: templates/assistants/block_todos.html:24
+#: models/action.py:32 models/todo.py:32 models/user_message.py:34
+#: models/user_message.py:47 templates/assistants/block_actions_it.html:18
+#: templates/assistants/block_actions_nit.html:10
+#: templates/assistants/block_alerts.html:18
+#: templates/assistants/block_messages.html:23
+#: templates/assistants/block_todos.html:23
 msgid "Title"
 msgstr "Titre"
 
@@ -175,7 +175,7 @@ msgid "Source action"
 msgstr "Action source"
 
 #: models/action.py:35 models/memo.py:34 models/todo.py:36
-#: models/user_message.py:47
+#: models/user_message.py:49
 msgid "Creation date"
 msgstr "Date de création"
 
@@ -191,21 +191,21 @@ msgstr "Date de validation"
 msgid "Assigned to"
 msgstr "Assigné à"
 
-#: models/action.py:48 templates/assistants/block_actions_it.html:6
+#: models/action.py:48 templates/assistants/block_actions_it.html:5
 msgid "Action"
 msgstr "Action"
 
-#: models/action.py:49 templates/assistants/block_actions_it.html:29
-#: templates/assistants/block_actions_nit.html:21
-#: templates/assistants/block_alerts.html:27
+#: models/action.py:49 templates/assistants/block_actions_it.html:28
+#: templates/assistants/block_actions_nit.html:20
+#: templates/assistants/block_alerts.html:26
 #: templates/assistants/block_memos.html:24
-#: templates/assistants/block_todos.html:28
+#: templates/assistants/block_todos.html:27
 msgid "Actions"
 msgstr "Actions"
 
 #: models/alert.py:35 models/todo.py:35
-#: templates/assistants/block_actions_it.html:23
-#: templates/assistants/block_actions_nit.html:15
+#: templates/assistants/block_actions_it.html:22
+#: templates/assistants/block_actions_nit.html:14
 msgid "Description"
 msgstr "Description"
 
@@ -213,7 +213,7 @@ msgstr "Description"
 msgid "Validated"
 msgstr "Validée"
 
-#: models/alert.py:59 templates/assistants/block_alerts.html:6
+#: models/alert.py:47 templates/assistants/block_alerts.html:5
 msgid "Alert"
 msgstr "Alerte"
 
@@ -225,7 +225,7 @@ msgstr "Contenu"
 msgid "Displayed on homepage"
 msgstr "Affiché en page d'accueil"
 
-#: models/memo.py:55 templates/assistants/block_memos.html:5
+#: models/memo.py:43 templates/assistants/block_memos.html:5
 msgid "Memo"
 msgstr "Mémo"
 
@@ -233,44 +233,44 @@ msgstr "Mémo"
 msgid "Done ?"
 msgstr "Faite ?"
 
-#: models/todo.py:46 templates/assistants/block_todos.html:6
+#: models/todo.py:46 templates/assistants/block_todos.html:5
 msgid "Todo"
 msgstr "Todo"
 
-#: models/user_message.py:37
+#: models/user_message.py:39
 msgid "Priority of user message"
 msgstr "Priorité de message utilisateur"
 
-#: models/user_message.py:38
+#: models/user_message.py:40
 msgid "Priorities of user message"
 msgstr "Priorités de message utilisateur"
 
-#: models/user_message.py:46
+#: models/user_message.py:48
 msgid "Message body"
 msgstr "Corps de message"
 
-#: models/user_message.py:48
+#: models/user_message.py:50
 msgid "Priority"
 msgstr "Priorité"
 
-#: models/user_message.py:49 templates/assistants/block_messages.html:23
+#: models/user_message.py:51 templates/assistants/block_messages.html:21
 msgid "Sender"
 msgstr "Émetteur"
 
-#: models/user_message.py:50
+#: models/user_message.py:52
 msgid "Recipient"
 msgstr "Destinataire"
 
-#: models/user_message.py:60
+#: models/user_message.py:62
 msgid "User message"
 msgstr "Message utilisateur"
 
-#: models/user_message.py:81
+#: models/user_message.py:102
 #, python-format
 msgid "User message from Creme: %s"
 msgstr "Message utilisateur de Creme: %s"
 
-#: models/user_message.py:82
+#: models/user_message.py:103
 #, python-format
 msgid ""
 "%(user)s send you the following message:\n"
@@ -279,105 +279,105 @@ msgstr ""
 "%(user)s vous a envoyé le message suivant:\n"
 "%(body)s"
 
-#: templates/assistants/block_actions_it.html:6
+#: templates/assistants/block_actions_it.html:5
 #, python-format
 msgid "%s Action in time"
 msgstr "%s Action dans les délais"
 
-#: templates/assistants/block_actions_it.html:6
+#: templates/assistants/block_actions_it.html:5
 #, python-format
 msgid "%s Actions in time"
 msgstr "%s Actions dans les délais"
 
-#: templates/assistants/block_actions_it.html:11
+#: templates/assistants/block_actions_it.html:10
 msgid "New action"
 msgstr "Nouvelle action"
 
-#: templates/assistants/block_actions_it.html:21
-#: templates/assistants/block_actions_nit.html:13
-#: templates/assistants/block_alerts.html:21
+#: templates/assistants/block_actions_it.html:20
+#: templates/assistants/block_actions_nit.html:12
+#: templates/assistants/block_alerts.html:20
 #: templates/assistants/block_memos.html:19
-#: templates/assistants/block_messages.html:22
-#: templates/assistants/block_todos.html:20
+#: templates/assistants/block_messages.html:20
+#: templates/assistants/block_todos.html:19
 msgid "Concerned entity"
 msgstr "Fiche concernée"
 
-#: templates/assistants/block_actions_it.html:24
-#: templates/assistants/block_actions_nit.html:16
-#: templates/assistants/block_alerts.html:23
+#: templates/assistants/block_actions_it.html:23
+#: templates/assistants/block_actions_nit.html:15
+#: templates/assistants/block_alerts.html:22
 #: templates/assistants/block_memos.html:21
-#: templates/assistants/block_todos.html:22
+#: templates/assistants/block_todos.html:21
 msgid "User"
 msgstr "Utilisateur"
 
-#: templates/assistants/block_actions_it.html:25
-#: templates/assistants/block_actions_nit.html:17
+#: templates/assistants/block_actions_it.html:24
+#: templates/assistants/block_actions_nit.html:16
 msgid "Creation"
 msgstr "Création"
 
-#: templates/assistants/block_actions_it.html:26
-#: templates/assistants/block_actions_nit.html:18
+#: templates/assistants/block_actions_it.html:25
+#: templates/assistants/block_actions_nit.html:17
 msgid "Expected action"
 msgstr "Action attendue"
 
-#: templates/assistants/block_actions_it.html:28
-#: templates/assistants/block_actions_nit.html:20
+#: templates/assistants/block_actions_it.html:27
+#: templates/assistants/block_actions_nit.html:19
 msgid "OK ?"
 msgstr "OK ?"
 
-#: templates/assistants/block_actions_it.html:50
+#: templates/assistants/block_actions_it.html:47
 msgid "Edit"
 msgstr "Éditer"
 
-#: templates/assistants/block_actions_it.html:63
+#: templates/assistants/block_actions_it.html:62
 msgid "No action in time"
 msgstr "Aucune action dans les délais"
 
-#: templates/assistants/block_actions_nit.html:6
+#: templates/assistants/block_actions_nit.html:5
 #, python-format
 msgid "%s Reaction not in time"
 msgstr "%s Réaction en retard"
 
-#: templates/assistants/block_actions_nit.html:6
+#: templates/assistants/block_actions_nit.html:5
 #, python-format
 msgid "%s Reactions not in time"
 msgstr "%s Réactions en retard"
 
-#: templates/assistants/block_actions_nit.html:6
+#: templates/assistants/block_actions_nit.html:5
 msgid "Reaction"
 msgstr "Réaction"
 
-#: templates/assistants/block_actions_nit.html:54
+#: templates/assistants/block_actions_nit.html:53
 msgid "No reaction not in time"
 msgstr "Aucune réaction hors délais"
 
-#: templates/assistants/block_alerts.html:6
+#: templates/assistants/block_alerts.html:5
 #, python-format
 msgid "%s Alert"
 msgstr "%s Alerte"
 
-#: templates/assistants/block_alerts.html:6
+#: templates/assistants/block_alerts.html:5
 #, python-format
 msgid "%s Alerts"
 msgstr "%s Alertes"
 
-#: templates/assistants/block_alerts.html:11
+#: templates/assistants/block_alerts.html:10
 msgid "New alert"
 msgstr "Nouvelle alerte"
 
-#: templates/assistants/block_alerts.html:24
+#: templates/assistants/block_alerts.html:23
 msgid "Triggering"
 msgstr "Déclenchement"
 
-#: templates/assistants/block_alerts.html:25
+#: templates/assistants/block_alerts.html:24
 msgid "Details"
 msgstr "Détails"
 
-#: templates/assistants/block_alerts.html:26
+#: templates/assistants/block_alerts.html:25
 msgid "Treated ?"
 msgstr "Traitée ?"
 
-#: templates/assistants/block_alerts.html:58
+#: templates/assistants/block_alerts.html:57
 msgid "No alert for the moment"
 msgstr "Aucune alerte enregistrée pour le moment"
 
@@ -396,84 +396,84 @@ msgid "New memo"
 msgstr "Nouveau mémo"
 
 #: templates/assistants/block_memos.html:22
-#: templates/assistants/block_messages.html:24
-#: templates/assistants/block_todos.html:23
+#: templates/assistants/block_messages.html:22
+#: templates/assistants/block_todos.html:22
 msgid "Created"
 msgstr "Crée le"
 
-#: templates/assistants/block_memos.html:46
+#: templates/assistants/block_memos.html:43
 msgid "No memo for the moment"
 msgstr "Aucun mémo enregistré pour le moment"
 
-#: templates/assistants/block_messages.html:7
+#: templates/assistants/block_messages.html:5
 #, python-format
 msgid "%s User message"
 msgstr "%s Message utilisateur"
 
-#: templates/assistants/block_messages.html:7
+#: templates/assistants/block_messages.html:5
 #, python-format
 msgid "%s User messages"
 msgstr "%s Messages utilisateur"
 
-#: templates/assistants/block_messages.html:7
+#: templates/assistants/block_messages.html:5
 msgid "Message"
 msgstr "Message"
 
-#: templates/assistants/block_messages.html:12
+#: templates/assistants/block_messages.html:10
 msgid "Send a new message"
 msgstr "Envoyer un nouveau message"
 
-#: templates/assistants/block_messages.html:14 views/user_message.py:50
+#: templates/assistants/block_messages.html:12 views/user_message.py:48
 msgid "New message"
 msgstr "Nouveau message"
 
-#: templates/assistants/block_messages.html:26
+#: templates/assistants/block_messages.html:24
 msgid "Body"
 msgstr "Corps"
 
-#: templates/assistants/block_messages.html:27
+#: templates/assistants/block_messages.html:25
 msgid "Delete"
 msgstr "Supprimer"
 
-#: templates/assistants/block_messages.html:33
+#: templates/assistants/block_messages.html:35
 msgid "(None)"
 msgstr "(Aucune)"
 
-#: templates/assistants/block_messages.html:47
+#: templates/assistants/block_messages.html:51
 msgid "No received message for the moment"
 msgstr "Aucun message reçu pour le moment"
 
-#: templates/assistants/block_todos.html:6
+#: templates/assistants/block_todos.html:5
 #, python-format
 msgid "%s Todo"
 msgstr "%s Todo"
 
-#: templates/assistants/block_todos.html:6
+#: templates/assistants/block_todos.html:5
 #, python-format
 msgid "%s Todos"
 msgstr "%s Todos"
 
-#: templates/assistants/block_todos.html:11
+#: templates/assistants/block_todos.html:10
 msgid "New todo"
 msgstr "Nouveau todo"
 
-#: templates/assistants/block_todos.html:25
+#: templates/assistants/block_todos.html:24
 msgid "Todo text"
 msgstr "Texte du Todo"
 
-#: templates/assistants/block_todos.html:27
+#: templates/assistants/block_todos.html:26
 msgid "Validate"
 msgstr "Valider"
 
-#: templates/assistants/block_todos.html:45
+#: templates/assistants/block_todos.html:41
 msgid "The Todo is validated."
 msgstr "Le Todo est validé."
 
-#: templates/assistants/block_todos.html:50
+#: templates/assistants/block_todos.html:46
 msgid "Submit"
 msgstr "Envoyer"
 
-#: templates/assistants/block_todos.html:64
+#: templates/assistants/block_todos.html:61
 msgid "No Todo for the moment"
 msgstr "Aucun Todo enregistré pour le moment"
 
@@ -482,7 +482,7 @@ msgstr "Aucun Todo enregistré pour le moment"
 msgid "New action for <%s>"
 msgstr "Nouvelle action pour <%s>"
 
-#: views/action.py:39
+#: views/action.py:40
 #, python-format
 msgid "Action for <%s>"
 msgstr "Action pour <%s>"
@@ -492,7 +492,7 @@ msgstr "Action pour <%s>"
 msgid "New alert for <%s>"
 msgstr "Nouvelle alerte pour <%s>"
 
-#: views/alert.py:37
+#: views/alert.py:38
 #, python-format
 msgid "Alert for <%s>"
 msgstr "Alerte pour <%s>"
@@ -502,7 +502,7 @@ msgstr "Alerte pour <%s>"
 msgid "New Memo for <%s>"
 msgstr "Nouveau Mémo pour <%s>"
 
-#: views/memo.py:35
+#: views/memo.py:36
 #, python-format
 msgid "Memo for <%s>"
 msgstr "Mémo pour <%s>"
@@ -512,17 +512,17 @@ msgstr "Mémo pour <%s>"
 msgid "New Todo for <%s>"
 msgstr "Nouveau Todo pour <%s>"
 
-#: views/todo.py:37
+#: views/todo.py:38
 #, python-format
 msgid "Todo for <%s>"
 msgstr "Todo pour <%s>"
 
-#: views/user_message.py:59
+#: views/user_message.py:58
 #, python-format
 msgid "New message about <%s>"
 msgstr "Nouveau message à propos de <%s>"
 
-#: views/user_message.py:67
+#: views/user_message.py:65
 #, python-format
 msgid "You are not allowed to delete this message: %s"
 msgstr "Vous n'êtes pas autorisé à supprimer ce message: %s"

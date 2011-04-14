@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-04-11 11:32+0200\n"
+"POT-Creation-Date: 2011-04-12 13:53+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -28,27 +28,27 @@ msgstr ""
 "Tous les participants (sauf les utilisateurs), les sujets et fiches reliées "
 "seront liés à une démarche commerciale"
 
-#: blocks.py:39 models/commercial_approach.py:49
+#: blocks.py:44 models/commercial_approach.py:49
 msgid "Commercial approaches"
 msgstr "Démarches commerciales"
 
-#: blocks.py:90 models/market_segment.py:35
+#: blocks.py:109 models/market_segment.py:35
 msgid "Market segments"
 msgstr "Segments de marché"
 
-#: blocks.py:104 models/strategy.py:301
+#: blocks.py:123 models/strategy.py:301
 msgid "Market segment descriptions"
 msgstr "descriptions de segment de marché"
 
-#: blocks.py:119 models/strategy.py:328
+#: blocks.py:138 models/strategy.py:328
 msgid "Commercial assets"
 msgstr "Atouts commerciaux"
 
-#: blocks.py:133 models/strategy.py:358
+#: blocks.py:152 models/strategy.py:358
 msgid "Segment charms"
 msgstr "Attraits de segment"
 
-#: blocks.py:148
+#: blocks.py:167
 msgid "Evaluated organisations"
 msgstr "Sociétés évaluées"
 
@@ -229,17 +229,19 @@ msgstr "Informations Générales"
 msgid "Organisations"
 msgstr "Sociétés"
 
-#: management/commands/com_approaches_emails_send.py:100
+#: management/commands/com_approaches_emails_send.py:107
 #, python-format
 msgid "[CremeCRM] The organisation <%s> seems neglected"
 msgstr "[CremeCRM] L'organisation <%s> semble délaissée"
 
-#: management/commands/com_approaches_emails_send.py:101
+#: management/commands/com_approaches_emails_send.py:108
 #, python-format
 msgid ""
 "It seems you haven't created a commercial approach for the organisation <%s> "
 "since 30 days."
-msgstr "Il semblerait que vous n'ayez pas crée d'approche commerciale pour l'organisation <%s> depuis 30 jours"
+msgstr ""
+"Il semblerait que vous n'ayez pas crée d'approche commerciale pour "
+"l'organisation <%s> depuis 30 jours"
 
 #: models/act.py:37 models/commercial_approach.py:35
 #: templates/commercial/templatetags/block_approaches.html:18

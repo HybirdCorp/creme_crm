@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-01-18 10:34+0100\n"
+"POT-Creation-Date: 2011-04-12 13:55+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -33,9 +33,9 @@ msgid "All documents"
 msgstr "Lister les documents"
 
 #: creme_core_register.py:37
-#: templates/documents/templatetags/block_linked_docs.html:14
-#: templates/documents/templatetags/block_linked_docs.html:15
-#: templates/documents/templatetags/block_linked_docs.html:20
+#: templates/documents/templatetags/block_linked_docs.html:11
+#: templates/documents/templatetags/block_linked_docs.html:12
+#: templates/documents/templatetags/block_linked_docs.html:17
 msgid "Add a document"
 msgstr "Ajouter un document"
 
@@ -47,43 +47,43 @@ msgstr "Lister les classeurs"
 msgid "Add a folder"
 msgstr "Ajouter un classeur"
 
-#: populate.py:38
+#: populate.py:40
 msgid "related to the document"
 msgstr "concerne le document"
 
-#: populate.py:39
+#: populate.py:41
 msgid "document related to"
 msgstr "document concerné par"
 
-#: populate.py:40
+#: populate.py:42
 msgid "is the current document of"
 msgstr "est le document courant de"
 
-#: populate.py:41
+#: populate.py:43
 msgid "has as current document"
 msgstr "a comme document courant"
 
-#: populate.py:43
+#: populate.py:45
 msgid "Documents related to entities"
 msgstr "Documents crées à partir des fiches"
 
-#: populate.py:44
+#: populate.py:46
 msgid "Documents received by email"
 msgstr "Documents reçus par email"
 
-#: populate.py:46
+#: populate.py:50
 msgid "Folder containing all the documents related to entities"
 msgstr "Classeur contenant tous les documents créés à partir des fiches"
 
-#: populate.py:48
+#: populate.py:54
 msgid "Document view"
 msgstr "Vue de Document"
 
-#: populate.py:50 models/document.py:33 models/folder.py:31
+#: populate.py:56 models/document.py:33 models/folder.py:31
 msgid "Title"
 msgstr "Titre"
 
-#: populate.py:51
+#: populate.py:57
 msgid "Folder - Title"
 msgstr "Classeur - Titre"
 
@@ -100,12 +100,12 @@ msgstr "Description"
 msgid "File"
 msgstr "Fichier"
 
-#: models/document.py:36 models/folder.py:54
+#: models/document.py:36 models/folder.py:40
 msgid "Folder"
 msgstr "Classeur"
 
 #: models/document.py:42
-#: templates/documents/templatetags/block_linked_docs.html:9
+#: templates/documents/templatetags/block_linked_docs.html:6
 msgid "Document"
 msgstr "Document"
 
@@ -117,7 +117,7 @@ msgstr "Classeur parent"
 msgid "Category"
 msgstr "Catégorie"
 
-#: models/folder.py:55
+#: models/folder.py:41
 msgid "Folders"
 msgstr "Classeurs"
 
@@ -133,7 +133,7 @@ msgstr "Catégorie de classeur"
 msgid "Folder categories"
 msgstr "Catégories de classeur"
 
-#: templates/documents/list_folders.html:12
+#: templates/documents/list_folders.html:7
 msgid "No category"
 msgstr "Aucune catégorie"
 
@@ -154,37 +154,33 @@ msgstr "Télécharger '%(object)s'"
 msgid "Download"
 msgstr "Télécharger"
 
-#: templates/documents/templatetags/block_linked_docs.html:9
+#: templates/documents/templatetags/block_linked_docs.html:6
 #, python-format
 msgid "%s linked Document"
 msgstr "%s Document lié"
 
-#: templates/documents/templatetags/block_linked_docs.html:9
+#: templates/documents/templatetags/block_linked_docs.html:6
 #, python-format
 msgid "%s linked Documents"
 msgstr "%s Documents liés"
 
-#: templates/documents/templatetags/block_linked_docs.html:19
+#: templates/documents/templatetags/block_linked_docs.html:16
 msgid "Can't add"
 msgstr "Impossible d'ajouter"
 
-#: templates/documents/templatetags/block_linked_docs.html:24
-msgid "Link to a document"
-msgstr "Lier à un document"
-
-#: templates/documents/templatetags/block_linked_docs.html:25
+#: templates/documents/templatetags/block_linked_docs.html:20
 msgid "Link to an existing document"
 msgstr "Lier à un document existant"
 
-#: templates/documents/templatetags/block_linked_docs.html:33
+#: templates/documents/templatetags/block_linked_docs.html:27
 msgid "Name"
 msgstr "Nom"
 
-#: templates/documents/templatetags/block_linked_docs.html:34
+#: templates/documents/templatetags/block_linked_docs.html:28
 msgid "Delete"
 msgstr "Supprimer"
 
-#: templates/documents/templatetags/block_linked_docs.html:52
+#: templates/documents/templatetags/block_linked_docs.html:43
 msgid "No linked document"
 msgstr "Aucun document lié"
 
@@ -195,3 +191,6 @@ msgstr "Nombre de document(s)"
 #: views/portal.py:33
 msgid "Number of folders"
 msgstr "Nombre de classeur(s)"
+
+#~ msgid "Link to a document"
+#~ msgstr "Lier à un document"
