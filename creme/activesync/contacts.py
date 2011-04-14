@@ -24,17 +24,24 @@ from django.contrib.contenttypes.models import ContentType
 from django.core.files.base import ContentFile
 
 from activesync.config import IS_ZPUSH
+from creme_core.models.relation import Relation, RelationType
 from creme_core.utils.meta import get_field_infos
 from creme_core.views.file_handling import handle_uploaded_file, MAXINT
 from persons.models import Position, Contact, Civility, Address
 from media_managers.models.image import Image
+from persons.models.organisation import Organisation
+from persons.constants import REL_SUB_EMPLOYED_BY
 
 def get_encoded_contact_img(contact=None, needs_attr=False, *args, **kwargs):
     if needs_attr:
         return 'image'
     encoded_img = None
-    if contact and contact.image is not None:
-        encoded_img = contact.image.get_encoded(encoding="base64")
+#    if contact and contact.image is not None:
+    if contact:
+        if contact.image is not None:
+            encoded_img = contact.image.get_encoded(encoding="base64")
+        else:
+            encoded_img = ""
     return encoded_img
 
 def get_repr(contact=None, needs_attr=False, *args, **kwargs):
@@ -42,10 +49,24 @@ def get_repr(contact=None, needs_attr=False, *args, **kwargs):
         return ''
     return unicode(contact)
 
+def get_organisation(contact=None, needs_attr=False, *args, **kwargs):
+    if needs_attr:
+        return 'organisation'
+
+    organisation = ""
+
+    relations = Relation.objects.filter(subject_entity=contact,
+                                       type=REL_SUB_EMPLOYED_BY)
+
+    if relations:
+        organisation = unicode(relations[0].object_entity.get_real_entity())
+
+    return organisation
+
 CREME_CONTACT_MAPPING = {
     'Contacts:':
     {
-        'civility__civility_name' : 'Title',
+        'civility__title' : 'Title',
         'first_name'              : 'FirstName',
         'last_name'               : 'LastName',
         'skype'                   : 'Home2PhoneNumber',
@@ -67,7 +88,7 @@ CREME_CONTACT_MAPPING = {
         'shipping_address__address': 'OtherStreet',
         'birthday'                : 'Birthday',
         get_encoded_contact_img   : 'Picture',#'image'
-#        ''                        : 'CompanyName',
+        get_organisation          : 'CompanyName',
         get_repr                  : 'FileAs',
     },
     'AirSyncBase:':
@@ -86,6 +107,23 @@ if not IS_ZPUSH:
 
 
 ### Contact helpers
+def create_or_update_organisation(contact, d, user):
+    organisation = d.pop('organisation', None)
+
+    if organisation is not None:
+        try:
+            org = Organisation.objects.get(name__iexact=organisation, user=user)
+        except Organisation.DoesNotExist:
+            org = Organisation.objects.create(name=organisation, user=user)
+        except Organisation.MultipleObjectsReturned:
+            org = Organisation.objects.filter(name__iexact=organisation, user=user)[0]
+
+        Relation.objects.get_or_create(subject_entity=contact,
+                                       type=RelationType.objects.get(pk=REL_SUB_EMPLOYED_BY),
+                                       object_entity=org,
+                                       user=user)
+
+
 def create_or_update_address(contact, prefix, d):
     dpop_ = d.pop
     address = getattr(contact, '%s_address' % prefix)#if exception happens means model change
@@ -123,24 +161,29 @@ def create_or_update_address(contact, prefix, d):
         setattr(contact, '%s_address' % prefix, c_address)
 
 def create_or_update_civility(contact, d):
-    civility_name = d.pop('civility__civility_name', None)
-    if civility_name is not None:
-        contact.civility = Civility.objects.get_or_create(civility_name=civility_name)[0]
+    civility_title = d.pop('civility__title', None)
+    if civility_title is not None:
+        contact.civility = Civility.objects.get_or_create(title=civility_title)[0]
 
 def create_or_update_function(contact, d):
     position_title = d.pop('position__title', None)
     if position_title is not None:
-        contact.function = Position.objects.get_or_create(title=position_title)[0]
+        contact.position = Position.objects.get_or_create(title=position_title)[0]
 
 def create_image_from_b64(contact, d, user):
     image_b64 = d.pop('image', None)
     if image_b64 is not None:
+        if contact.image is not None:
+            img_entity = contact.image
+            img_entity.image.delete()#Deleting the old file
+        else:
+            img_entity = Image()
+            
         image_format = Image.get_image_format(image_b64)
-        i = Image()
-        i.image = handle_uploaded_file(ContentFile(base64.decodestring(image_b64)), path=['upload','images'], name='file_%08x.%s' % (randint(0, MAXINT), image_format))
-        i.user = user
-        i.save()
-        contact.image = i
+        img_entity.image = handle_uploaded_file(ContentFile(base64.decodestring(image_b64)), path=['upload','images'], name='file_%08x.%s' % (randint(0, MAXINT), image_format))
+        img_entity.user = user
+        img_entity.save()
+        contact.image = img_entity
 ###
 
 def save_contact(data, user):
@@ -176,6 +219,8 @@ def save_contact(data, user):
     c.__dict__.update(data)
     c.save()
 
+    create_or_update_organisation(c, data, user)
+
     b_address.content_type = ct_contact
     b_address.object_id = c.id
     b_address.save()
@@ -200,6 +245,8 @@ def update_contact(contact, data, user):
     create_or_update_address(contact, 'shipping', data)
 
     create_image_from_b64(contact, data, contact.user)
+
+    create_or_update_organisation(contact, data, user)
 
     contact.__dict__.update(data)
     contact.save()

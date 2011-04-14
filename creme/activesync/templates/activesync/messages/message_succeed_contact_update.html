@@ -1,9 +1,9 @@
 {% extends "activesync/messages/message_succeed.html" %}
-{% load i18n %}
+{% load i18n media creme_core_tags %}
 
 {% block message %}
-    {{ message }} - <a href="{{ contact.get_absolute_url }}">{% trans "View" %}</a>
+    {{ message }} - <a href="{{ contact.get_absolute_url }}"><img src="{% media_url 'images/view_22.png' %}" border="0" title="{% blocktrans %}View '{{contact}}' details{% endblocktrans %}" alt="{% trans "View" %}" />{% trans "View" %}</a>
     {% for k, v in data.iteritems %}
-        <p>{{ k }} = {{ v }}</p>{# TODO: Verbose field names #}
+        <p>{% get_field_verbose_name contact k %} = {{ v }}</p>{# TODO: Verbose field names #}
     {% endfor %}
 {% endblock %}

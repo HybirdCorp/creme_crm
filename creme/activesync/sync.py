@@ -22,6 +22,8 @@ from datetime import datetime
 
 from django.db.models import Q
 from django.utils.translation import ugettext_lazy as _
+from django.core.exceptions import ValidationError
+from django.core import validators
 
 from creme_config.models.setting import SettingValue
 
@@ -37,7 +39,8 @@ from activesync.errors import (CremeActiveSyncError,
                                SYNC_ERR_WRONG_CFG_NO_SERVER_URL,
                                SYNC_ERR_WRONG_CFG_NO_LOGIN,
                                SYNC_ERR_WRONG_CFG_NO_PWD,
-                               SYNC_ERR_ABORTED)#TODO: * ?
+                               SYNC_ERR_ABORTED,
+                               SYNC_ERR_WRONG_CFG_INVALID_SERVER_URL)#TODO: * ?
 from activesync.messages import MessageInfo, MessageSucceed, MessageError, _INFO, _ERROR, _SUCCESS
 
                                
@@ -48,6 +51,8 @@ from activesync import constants as as_constants
 INFO    = 'info'
 ERROR   = 'error'
 SUCCESS = 'success'
+
+url_validator = validators.URLValidator()
 
 class Synchronization(object):
     """
@@ -78,13 +83,21 @@ class Synchronization(object):
 
         try:
             self.server_url = sv_get(key__id=USER_MOBILE_SYNC_SERVER_URL, user=user).value
-            if self.server_url.strip() == u"":
-                raise sv_doesnotexist
         except sv_doesnotexist:
             try:
                 self.server_url = sv_get(key__id=MAPI_SERVER_URL).value
             except sv_doesnotexist:
                 raise CremeActiveSyncError(SYNC_ERR_WRONG_CFG_NO_SERVER_URL)
+
+
+        if self.server_url.strip() == u"":
+            raise CremeActiveSyncError(SYNC_ERR_WRONG_CFG_NO_SERVER_URL)
+
+        try:
+            url_validator(self.server_url)
+        except ValidationError:
+            raise CremeActiveSyncError(SYNC_ERR_WRONG_CFG_INVALID_SERVER_URL)
+
 
         try:
             self.domain = sv_get(key__id=USER_MOBILE_SYNC_SERVER_DOMAIN, user=user).value

@@ -17,13 +17,21 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
-from django.template import Template
+
 from django.template.loader import get_template
+from django.utils.translation import ugettext_lazy as _, ungettext
 
 _BASE    = 'base'
 _INFO    = 'info'
 _ERROR   = 'error'
 _SUCCESS = 'success'
+
+MESSAGE_TYPES_VERBOSE = {
+    _BASE:    lambda count: u"",
+    _INFO:    lambda count: ungettext(u"Information", u"Information", count),
+    _ERROR:   lambda count: ungettext(u"Error", u"Errors", count),
+    _SUCCESS: lambda count: ungettext(u"Success", u"Successes", count),
+}
 
 class Message(object):
     template = "activesync/messages/message_base.html"
@@ -52,11 +60,12 @@ class MessageError(Message):
 
 
 class MessageContact(MessageSucceed):
-    def __init__(self, contact, message="", **kwargs):
+    def __init__(self, contact, message=u"", **kwargs):
         super(MessageContact, self).__init__(contact=contact, message=message, **kwargs)
 
 class MessageInfoContactAdd(MessageContact):
     template = "activesync/messages/message_info_contact_add.html"
+    type     = _INFO
 
 class MessageSucceedContactAdd(MessageContact):
     template = "activesync/messages/message_succeed_contact_add.html"
@@ -64,7 +73,7 @@ class MessageSucceedContactAdd(MessageContact):
 class MessageSucceedContactUpdate(MessageContact):
     template = "activesync/messages/message_succeed_contact_update.html"
 
-    def __init__(self, contact, message="", data=None, **kwargs):
+    def __init__(self, contact, message=u"", data=None, **kwargs):
         super(MessageSucceedContactUpdate, self).__init__(contact, message, data=data, **kwargs)
 
     

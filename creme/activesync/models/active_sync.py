@@ -80,6 +80,11 @@ class CremeClient(CremeModel):
         verbose_name = u""
         verbose_name_plural = u""
 
+    def purge(self):
+        SyncKeyHistory.objects.filter(client=self).delete()
+        CremeExchangeMapping.objects.filter(user=self.user).delete()
+        self.delete()
+
 
 class SyncKeyHistory(CremeModel):
     client   = models.ForeignKey(CremeClient, verbose_name=u'client')
@@ -96,6 +101,9 @@ class SyncKeyHistory(CremeModel):
         client_synckeys_count = client_synckeys.count()
         if client_synckeys_count > LIMIT_SYNC_KEY_HISTORY:
             ids_to_delete = client_synckeys.order_by('created')[:client_synckeys_count-LIMIT_SYNC_KEY_HISTORY].values_list('id',flat=True)
+
+            ids_to_delete = list(ids_to_delete)#Forcing the retrieve for MySQL v5.1.49 which "doesn't yet support 'LIMIT & IN/ALL/ANY/SOME subquery"
+
             SyncKeyHistory.objects.filter(id__in=ids_to_delete).delete()
 
         super(SyncKeyHistory, self).save(*args, **kwargs)

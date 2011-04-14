@@ -1,8 +1,7 @@
-Due to merge:
 
- * view todo in creme_config/forms/mobile_sync.py
+* Deleted images are not sended from creme to as
 
-------------
+* BIG TODO: When a user changes his (server) username reset the binding
 
 * Transform IS_ZPUSH into a AS-Version verification => A2:Body doesn't seems to work with AS version > 2.5
 
