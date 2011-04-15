@@ -35,7 +35,7 @@
                     {% endif %}
                     <td class="{{row_color}}" align="center" valign="center" style="width:10%;">
                         {% has_perm_to unlink opportunity as opp_unlink_perm %}
-                        {% get_line_deletor2 at_url '/creme_core/delete_js' with_args "{'ids': [{{opportunity.pk}}] }" with_perms unlink_perm|and_op:opp_unlink_perm %}
+                        {% get_line_deletor at_url '/creme_core/delete_js' with_args "{'ids': [{{opportunity.pk}}] }" with_perms unlink_perm|and_op:opp_unlink_perm %}
                     </td>
                 </tr>
             {% endfor %}
