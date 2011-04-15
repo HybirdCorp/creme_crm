@@ -44,6 +44,7 @@ blocks_patterns = patterns('creme_core.views.blocks',
     (r'^basic/(?P<block_id>[\w-]+)/$',                                        'reload_basic'), #most of blocks in creme_config for example
 )
 
+#TODO: remove (end views too)
 filter_patterns = patterns('creme_core.views.list_view_filter',
     (r'^add/(?P<ct_id>\d+)$',                           'add'),
     (r'^edit/(?P<ct_id>\d+)/(?P<filter_id>\d+)$',       'edit'), #TODO: ct_id useful ????
@@ -53,6 +54,12 @@ filter_patterns = patterns('creme_core.views.list_view_filter',
     (r'^get_session_filter_id/(?P<ct_id>\d+)$',         'get_session_filter_id'),
     (r'^select_entity_popup/(?P<content_type_id>\d+)$', 'get_list_view_popup_from_ct'),
     (r'^get_4_ct/(?P<content_type_id>\d+)$',            'get_filters_4_ct'),
+)
+
+entity_filter_patterns = patterns('creme_core.views.entity_filter',
+    (r'^add/(?P<ct_id>\d+)$',          'add'),
+    (r'^edit/(?P<efilter_id>[\w-]+)$', 'edit'),
+    (r'^delete',                       'delete'),
 )
 
 headerfilter_patterns = patterns('creme_core.views.header_filter',
@@ -67,7 +74,8 @@ creme_core_patterns = patterns('creme_core.views',
     (r'^relation/',      include(relation_patterns)),
     (r'^property/',      include(property_patterns)),
     (r'^blocks/reload/', include(blocks_patterns)),
-    (r'^filter/',        include(filter_patterns)),
+    (r'^filter/',        include(filter_patterns)), #TODO: remove
+    (r'^entity_filter/', include(entity_filter_patterns)),
     (r'^header_filter/', include(headerfilter_patterns)),
 
     #(r'^edit_js$', 'ajax.edit_js'), #TODO: commented on 5 january 2011 (delete view too)

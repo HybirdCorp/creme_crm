@@ -29,24 +29,30 @@ from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required
 from django.contrib.contenttypes.models import ContentType
 
-from creme_core.models import CremeEntity, Filter, ListViewState, EntityCredentials
+from creme_core.models import CremeEntity, ListViewState, EntityCredentials #Filter
 from creme_core.models.header_filter import HeaderFilterList
+from creme_core.models.entity_filter import EntityFilterList
 from creme_core.utils.queries import get_q_from_dict
 from popup import inner_popup
 
 
-def _build_entity_queryset(request, model, list_view_state, extra_q):
-    query = Q(is_deleted=False) | Q(is_deleted=None)
+#def _build_entity_queryset(request, model, list_view_state, extra_q):
+def _build_entity_queryset(request, model, list_view_state, extra_q, entity_filter):
+    #query = Q(is_deleted=False) | Q(is_deleted=None)
 
-    try:
-        filter_ = Filter.objects.get(pk=int(request.POST.get('filter', list_view_state.filter_id or '')))
-    except (Filter.DoesNotExist, ValueError), e:
-        list_view_state.filter_id = None
-    else:
-        list_view_state.filter_id = filter_.id
-        query &= filter_.get_q()
+    #try:
+        #filter_ = Filter.objects.get(pk=int(request.POST.get('filter', list_view_state.filter_id or '')))
+    #except (Filter.DoesNotExist, ValueError), e:
+        #list_view_state.filter_id = None
+    #else:
+        #list_view_state.filter_id = filter_.id
+        #query &= filter_.get_q()
 
-    queryset = model.objects.filter(query)
+    #queryset = model.objects.filter(query)
+    queryset = model.objects.filter(Q(is_deleted=False) | Q(is_deleted=None))
+
+    if entity_filter:
+        queryset = entity_filter.filter(queryset)
 
     if extra_q:
         queryset = queryset.filter(extra_q)
@@ -124,7 +130,12 @@ def list_view(request, model, hf_pk='', extra_dict=None, template='creme_core/ge
     current_lvs.sort_field = POST_get('sort_field', current_lvs.sort_field or default_model_ordering)
     current_lvs.sort_order = POST_get('sort_order', current_lvs.sort_order or '')
 
-    entities = _build_entity_queryset(request, model, current_lvs, extra_q)
+    entity_filters = EntityFilterList(ct)
+    efilter = entity_filters.select_by_id(POST_get('filter', -1), current_lvs.entity_filter_id)
+    current_lvs.entity_filter_id = efilter.id if efilter else None
+
+    #entities = _build_entity_queryset(request, model, current_lvs, extra_q)
+    entities = _build_entity_queryset(request, model, current_lvs, extra_q, efilter)
     #entities = hf.improve_queryset(entities) #optimisation time !!!
     entities = _build_entities_page(request, current_lvs, entities, rows)
 
@@ -134,10 +145,11 @@ def list_view(request, model, hf_pk='', extra_dict=None, template='creme_core/ge
         'model':              model,
         'list_title':         _(u"List of %s") % unicode(model._meta.verbose_name_plural),
         'header_filters':     header_filters,
+        'entity_filters':     entity_filters,
         'entities':           entities,
         'list_view_state':    current_lvs,
         'content_type_id':    ct.id,
-        'filter_id' :         current_lvs.filter_id or '',
+        #'filter_id' :         current_lvs.filter_id or '',
         'search':             _search,
         'list_view_template': 'creme_core/frags/list_view.html',
         'o2m':                o2m,

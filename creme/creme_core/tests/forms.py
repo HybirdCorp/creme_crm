@@ -9,6 +9,7 @@ from django.contrib.contenttypes.models import ContentType
 
 from creme.creme_core import autodiscover
 from creme.creme_core.forms.fields import JSONField, GenericEntityField, MultiGenericEntityField, RelationEntityField, MultiRelationEntityField
+from creme_core.forms.entity_filter import EntityFilterConditionsField
 from creme.creme_core.utils import creme_entity_content_types
 from creme.creme_core.models import RelationType, CremePropertyType, CremeEntity, CremeProperty
 from creme.creme_core.constants import REL_SUB_RELATED_TO, REL_SUB_HAS
@@ -692,3 +693,36 @@ class MultiRelationEntityFieldTestCase(FieldTestCase):
         self.assertEquals((RelationType.objects.get(pk=rtype.pk), good_object), relations[1])
         self.assertEquals((RelationType.objects.get(pk=REL_SUB_HAS), contact), relations[2])
         self.assertEquals((RelationType.objects.get(pk=REL_SUB_RELATED_TO), orga), relations[3])
+
+
+class EntityFilterConditionsFieldTestCase(FieldTestCase):
+    def test_clean_empty_required(self):
+        field = EntityFilterConditionsField(required=True)
+        self.assertFieldValidationError(EntityFilterConditionsField, 'required', field.clean, None)
+        self.assertFieldValidationError(EntityFilterConditionsField, 'required', field.clean, "")
+        self.assertFieldValidationError(EntityFilterConditionsField, 'required', field.clean, "[]")
+
+    def test_clean_empty_not_required(self):
+        field = EntityFilterConditionsField(required=False)
+
+        try:
+            field.clean(None)
+        except Exception, e:
+            self.fail(str(e))
+
+    def test_clean_invalid_data_type(self):
+        field = EntityFilterConditionsField()
+        self.assertFieldValidationError(EntityFilterConditionsField, 'invalidformat', field.clean, '"this is a string"')
+        self.assertFieldValidationError(EntityFilterConditionsField, 'invalidformat', field.clean, '"{}"')
+        self.assertFieldValidationError(EntityFilterConditionsField, 'invalidformat', field.clean, '{"foobar":{"type":"3","name":"first_name","value":"Rei"}}')
+
+    def test_clean_invalid_data(self):
+        field = EntityFilterConditionsField(model=Contact)
+        self.assertFieldValidationError(EntityFilterConditionsField, 'invalidformat', field.clean, '[{"type":"3","name":"first_name"}]')
+        self.assertFieldValidationError(EntityFilterConditionsField, 'invalidformat', field.clean, '[{"type":"3","value":"Rei"}]')
+        self.assertFieldValidationError(EntityFilterConditionsField, 'invalidformat', field.clean, '[{"name":"first_name","value":"Rei"}]')
+        self.assertFieldValidationError(EntityFilterConditionsField, 'invalidformat', field.clean, '[{"type":"notanumber","name":"first_name","value":"Rei"}]')
+
+    def test_unknown_modelfield(self):
+        field = EntityFilterConditionsField(model=Contact)
+        self.assertFieldValidationError(EntityFilterConditionsField, 'invalidfield', field.clean, '[{"type":"1","name":"boobies_size","value":"90"}]')

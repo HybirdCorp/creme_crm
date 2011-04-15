@@ -1,6 +1,7 @@
 {% load i18n %}{% load media %}
 {% with hfilter.id as hfilter_id %}
     <script type="text/javascript">
+        //TODO: move to a js file...
         function lv_hf_delete(a) {
             creme.utils.ajaxDelete('/creme_core/header_filter/delete',
                                    {'id': '{{hfilter_id}}'},
@@ -11,6 +12,7 @@
                                                var lv_form = hf_delete.parents('form');
 
                                                lv_form.list_view('reload');
+                                                //TODO: $(a).parents('form').list_view('reload');
 
                                                /*var submit_opts = {
                                                        'action':'?ajax=true',

@@ -27,7 +27,8 @@ from django.shortcuts import get_object_or_404
 from django.utils.encoding import smart_str
 from django.contrib.auth.decorators import login_required
 
-from creme_core.models import Filter, ListViewState, EntityCredentials
+#from creme_core.models import Filter, ListViewState, EntityCredentials
+from creme_core.models import EntityFilter, ListViewState, EntityCredentials
 from creme_core.models.header_filter import HeaderFilter, HFI_FIELD, HFI_RELATION, HFI_FUNCTION, HFI_CUSTOM
 from creme_core.utils import get_ct_or_404
 from creme_core.utils.meta import get_field_infos
@@ -60,13 +61,19 @@ def dl_listview_as_csv(request, ct_id):
         except IndexError:
             sort_field = 'id'
 
-    q_is_deleted = Q(is_deleted=False) | Q(is_deleted=None)
+    #q_is_deleted = Q(is_deleted=False) | Q(is_deleted=None)
 
-    if current_lvs.filter_id:
-        filter_ = Filter.objects.get(pk=current_lvs.filter_id)
-        entities = model.objects.filter(q_is_deleted & filter_.get_q())
-    else:
-        entities = model.objects.filter(q_is_deleted)
+    #if current_lvs.filter_id:
+        #filter_ = Filter.objects.get(pk=current_lvs.filter_id)
+        #entities = model.objects.filter(q_is_deleted & filter_.get_q())
+    #else:
+        #entities = model.objects.filter(q_is_deleted)
+    entities = model.objects.filter(Q(is_deleted=False) | Q(is_deleted=None))
+    efilter_id = current_lvs.entity_filter_id
+
+    if efilter_id:
+        efilter = EntityFilter.objects.get(pk=efilter_id)
+        entities = efilter.filter(entities)
 
     if current_lvs.extra_q:
         entities = entities.filter(current_lvs.extra_q)

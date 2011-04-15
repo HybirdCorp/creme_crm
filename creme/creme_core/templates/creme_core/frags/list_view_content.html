@@ -30,7 +30,8 @@
                     <tbody>
                         <tr>
                             <th align="left" valign="baseline" width="50%">
-                                {% get_listview_filters %}
+                                {% comment %}{% get_listview_filters %}{% endcomment %}
+                                {% get_listview_entity_filters %}
                             </th>
                             <th align="right" valign="baseline" width="50%">
                                 {% get_listview_headerfilters %}
