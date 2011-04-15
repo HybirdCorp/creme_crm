@@ -263,7 +263,7 @@ class LineSuppressorNode(TemplateNode):
 @register.tag(name="get_line_deletor")
 def do_line_deletor(parser, token):
     """Eg: {% get_line_deletor at_url '/app/model/delete' with_args "{'id' : {{object.id}} }" with_perms boolean_variable %}"""
-    return _do_line_suppr(parser, token, 'creme_core/templatetags/widgets/block_line_deletor2.html')
+    return _do_line_suppr(parser, token, 'creme_core/templatetags/widgets/block_line_deletor.html')
 
 @register.tag(name="get_line_unlinker")
 def do_line_unlinker(parser, token):
