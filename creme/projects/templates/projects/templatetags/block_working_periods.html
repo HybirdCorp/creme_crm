@@ -39,7 +39,7 @@
                     </td>
                     <td class="{{row_color}}" align="center" valign="center" style="width:10%;">
                         {% get_line_editor at_url '/projects/period/edit/{{period.id}}' with_perms task_change_perm %}
-                        {% get_line_deletor2 at_url '/projects/period/delete' with_args "{'id': {{period.pk}} }" with_perms task_change_perm %}
+                        {% get_line_deletor at_url '/projects/period/delete' with_args "{'id': {{period.pk}} }" with_perms task_change_perm %}
                     </td>
                 </tr>
             {% endfor %}

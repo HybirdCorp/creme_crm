@@ -39,7 +39,7 @@ from creme_core.utils.unicode_csv import UnicodeReader #TODO: use csv.Sniffer cl
 from creme_core.views.entity import EXCLUDED_FIELDS
 from base import CremeForm, CremeModelForm, FieldBlockManager
 from fields import MultiRelationEntityField, CremeEntityField
-from widgets import UnorderedMultipleChoiceWidget, ChainedInput, SelectorList, DynamicSelect
+from widgets import UnorderedMultipleChoiceWidget, ChainedInput, SelectorList #, DynamicSelect
 from validators import validate_linkable_entities
 
 from documents.models import Document
@@ -383,7 +383,7 @@ class CSVMultiRelationsExtractor(object):
 class RelationExtractorSelector(SelectorList):
     def __init__(self, columns, relation_types, attrs=None):
         chained_input = ChainedInput(attrs)
-        InputModel = ChainedInput.Model
+        #InputModel = ChainedInput.Model
         attrs = {'auto': False}
 
         chained_input.add_dselect("column", options=columns, attrs=attrs)

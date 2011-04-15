@@ -27,7 +27,7 @@
                     {% comment %}<td class="{{row_color}}">{{search_item.role|default:"All roles"}}</td>{% endcomment %}
                     <td class="{{row_color}}">{{search_item.user|default:_("All users")}}</td>
                     <td class="{{row_color}}">{% get_line_editor at_url '/creme_config/search/edit/{{search_item.id}}' with_perms 1 %}</td>
-                    <td class="{{row_color}}">{% get_line_deletor2 at_url '/creme_config/search/delete' with_args "{'id': '{{search_item.id}}'}" with_perms 1 %}</td>
+                    <td class="{{row_color}}">{% get_line_deletor at_url '/creme_config/search/delete' with_args "{'id': '{{search_item.id}}'}" with_perms 1 %}</td>
                 </tr>
             {% endfor %}
         {% else %}

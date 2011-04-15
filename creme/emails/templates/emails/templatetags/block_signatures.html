@@ -24,7 +24,7 @@
                     <td class="{{row_color}}">{{signature.images.count}}</td>
                     <td class="{{row_color}}" align="center" valign="center" style="width:10%;">
                         {% get_line_editor at_url '/emails/signature/edit/{{signature.id}}' with_perms 1 %}
-                        {% get_line_deletor2 at_url '/emails/signature/delete' with_args "{'id' : {{signature.id}} }" with_perms 1 %}
+                        {% get_line_deletor at_url '/emails/signature/delete' with_args "{'id' : {{signature.id}} }" with_perms 1 %}
                     </td>
                 </tr>
             {% endfor %}
