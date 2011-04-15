@@ -861,8 +861,7 @@ class CredentialsTestCase(CremeTestCase):
 
 
 class EntityFiltersTestCase(CremeTestCase):
-    def setUp(self): #TODO: ???
-    #def _build_contacts(self):
+    def setUp(self):
         self.login()
 
         create = Contact.objects.create
@@ -886,8 +885,6 @@ class EntityFiltersTestCase(CremeTestCase):
             create(user=user, first_name=u'Genji',  last_name=u'Ikaru'),     #10 NB: startswith 'Gen'
             create(user=user, first_name=u'Risato', last_name=u'Katsuragu'), #11 NB contains 'isat' like #5
         ]
-
-        #self.ct = ContentType.objects.get_for_model(Contact)
 
     def assertExpectedFiltered(self, efilter, model, ids, case_insensitive=False):
         msg = '(NB: maybe you have case sensitive problems with your DB configuration).' if case_insensitive else ''
@@ -1244,9 +1241,36 @@ class EntityFiltersTestCase(CremeTestCase):
         self.assertEqual('"%s"' % kwargs1['value'], condition.value)
         self.assertEqual(old_id,                    condition.id)
 
+    def test_multi_conditions_and01(self):
+        efilter = EntityFilter.create(pk='test-filter01', name='is not null', model=Contact)
+        build_cond = EntityFilterCondition.build
+        efilter.set_conditions([build_cond(model=Contact,
+                                          type=EntityFilterCondition.EQUALS,
+                                          name='last_name', value='Ikari'
+                                         ),
+                                build_cond(model=Contact,
+                                          type=EntityFilterCondition.STARTSWITH,
+                                          name='first_name', value='Shin'
+                                         )
+                               ])
+        self.assertExpectedFiltered(efilter, Contact, [self.contacts[7].id])
+
+    def test_multi_conditions_or01(self):
+        efilter = EntityFilter.create(pk='test-filter01', name='is not null', model=Contact, use_or=True)
+        build_cond = EntityFilterCondition.build
+        efilter.set_conditions([build_cond(model=Contact,
+                                          type=EntityFilterCondition.EQUALS,
+                                          name='last_name', value='Spiegel'
+                                         ),
+                                build_cond(model=Contact,
+                                          type=EntityFilterCondition.STARTSWITH,
+                                          name='first_name', value='Shin'
+                                         )
+                               ])
+        self.assertExpectedFiltered(efilter, Contact, [self.contacts[0].id, self.contacts[7].id])
+
         #TODO: multivalue
         #TODO: field in fk, M2M
-        #TODO: multicondition
 
         #TODO:
         #DATE_RANGE_FILTER_VOLATILE, name=_(u"Date range"),        pattern_key='%s__range', pattern_value='(%s,%s)', is_exclude=False, type_champ="CharField", value_field_type='textfield')

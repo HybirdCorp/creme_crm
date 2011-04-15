@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.db.models import Model, CharField, TextField, PositiveSmallIntegerField, BooleanField, ForeignKey
+from django.db.models import Model, CharField, TextField, PositiveSmallIntegerField, BooleanField, ForeignKey, Q
 from django.db.models.fields import FieldDoesNotExist
 from django.core.exceptions import ValidationError
 from django.utils.translation import ugettext_lazy as _, ugettext
@@ -64,10 +64,13 @@ class EntityFilter(Model): #CremeModel ???
     name        = CharField(max_length=100, verbose_name=_('Name'))
     user        = ForeignKey(User, verbose_name=_(u'Owner'), blank=True, null=True)
     entity_type = ForeignKey(ContentType, editable=False)
-    is_custom   = BooleanField(blank=False, editable=False, default=True)
+    is_custom   = BooleanField(editable=False, default=True)
+    use_or      = BooleanField(verbose_name=_(u'Use "OR"'), default=False)
 
     class Meta:
         app_label = 'creme_core'
+        verbose_name = _(u'Filter of Entity')
+        verbose_name_plural = _(u'Filters of Entity')
 
     def can_edit_or_delete(self, user):
         if not self.is_custom:
@@ -91,13 +94,13 @@ class EntityFilter(Model): #CremeModel ???
         return (False, ugettext(u"You are not allowed to edit/delete this filter"))
 
     @staticmethod
-    def create(pk, name, model, is_custom=False, user=None):
+    def create(pk, name, model, is_custom=False, user=None, use_or=False):
         """Creation helper ; useful for populate.py scripts.
         """
         from creme_core.utils import create_or_update
 
         ef = create_or_update(EntityFilter, pk=pk,
-                              name=name, is_custom=is_custom, user=user,
+                              name=name, is_custom=is_custom, user=user, use_or=use_or,
                               entity_type=ContentType.objects.get_for_model(model)
                              )
         #TODO: use set_conditions() ???
@@ -105,8 +108,15 @@ class EntityFilter(Model): #CremeModel ???
         return ef
 
     def filter(self, qs):
-        #conditions = self.conditions.all() #TODO
-        return self.conditions.all()[0].filter_qs(qs)
+        query = Q()
+
+        for condition in self.conditions.all():
+            if self.use_or:
+                query |= condition.get_q()
+            else:
+                query &= condition.get_q()
+
+        return qs.filter(query)
 
     def set_conditions(self, conditions):
         old_conditions = EntityFilterCondition.objects.filter(filter=self)
@@ -232,11 +242,14 @@ class EntityFilterCondition(Model):
     def decoded_value(self):
         return jsonloads(self.value)
 
-    def filter_qs(self, qs):
+    def get_q(self):
         operator = EntityFilterCondition._OPERATOR_MAP[self.type]
-        func = qs.filter if not operator.exclude else qs.exclude
+        query    = Q(**{operator.key_pattern % self.name: self.decoded_value})
 
-        return func(**{operator.key_pattern % self.name: self.decoded_value})
+        if operator.exclude:
+            query.negate()
+
+        return query
 
     def update(self, other_condition):
         """Fill a condition with the content a another one (in order to reuse the old instance if possible).
