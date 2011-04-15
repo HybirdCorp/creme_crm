@@ -340,6 +340,7 @@ CREME_CORE_JS = ('main.js',
                     'creme_core/js/menu.js',
 
                     'creme_core/js/widgets/base.js',
+                    'creme_core/js/widgets/dinput.js',
                     'creme_core/js/widgets/dselect.js',
                     'creme_core/js/widgets/chainedselect.js',
                     'creme_core/js/widgets/selectorlist.js',

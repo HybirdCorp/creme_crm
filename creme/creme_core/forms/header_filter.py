@@ -48,7 +48,7 @@ class HeaderFilterForm(CremeModelForm):
 
     class Meta:
         model = HeaderFilter
-        exclude = ('id', 'is_custom')
+        exclude = ('id', 'is_custom') #TODO: use editable=False in model instead ???
 
     def __init__(self, *args, **kwargs):
         super(HeaderFilterForm, self).__init__(*args, **kwargs)
@@ -211,3 +211,5 @@ class HeaderFilterForm(CremeModelForm):
 
         generate_string_id_and_save(HeaderFilterItem, items_2_save,
                                     'creme_core-userhfi_%s-%s' % (ct.app_label, ct.model))
+
+        #TODO: return instance

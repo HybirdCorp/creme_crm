@@ -151,7 +151,8 @@ def _map_patterns(custom_pattern):
 class ListViewState(object):
     def __init__(self, **kwargs):
         get_arg = kwargs.get
-        self.filter_id = get_arg('filter')
+        #self.filter_id = get_arg('filter')
+        self.entity_filter_id = get_arg('filter')
         self.header_filter_id = get_arg('hfilter')
         self.page = get_arg('page')
         self.rows = get_arg('rows')
@@ -173,8 +174,10 @@ class ListViewState(object):
         session[self.url] = self
 
     def __repr__(self):
-        return u'<ListViewState: (filter_id=%s, header_filter_id=%s, page=%s, rows=%s, _search=%s, sort=%s%s, url=%s, research=%s)>' % \
-               (self.filter_id, self.header_filter_id, self.page, self.rows, self._search, self.sort_order, self.sort_field, self.url, self.research)
+        #return u'<ListViewState: (filter_id=%s, header_filter_id=%s, page=%s, rows=%s, _search=%s, sort=%s%s, url=%s, research=%s)>' % \
+               #(self.filter_id, self.header_filter_id, self.page, self.rows, self._search, self.sort_order, self.sort_field, self.url, self.research)
+        return u'<ListViewState: (efilter_id=%s, hfilter_id=%s, page=%s, rows=%s, _search=%s, sort=%s%s, url=%s, research=%s)>' % \
+               (self.entity_filter_id, self.header_filter_id, self.page, self.rows, self._search, self.sort_order, self.sort_field, self.url, self.research)
 
     @staticmethod
     def get_state(request, url=None):

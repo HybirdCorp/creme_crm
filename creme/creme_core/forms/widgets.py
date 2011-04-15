@@ -67,10 +67,22 @@ def widget_render_context(typename, attrs, css='', **kwargs):
 
     return context
 
+#TODO: to be improved....
+class DynamicInput(TextInput):
+    #def __init__(self, attrs=None, options=None, url=''):
+        #super(DynamicInput, self).__init__(attrs, options or ())
+        #self.url = url
+
+    def render(self, name, value, attrs=None):
+        attrs = self.build_attrs(attrs, name=name)
+        context = widget_render_context('ui-creme-dinput', attrs)
+
+        return mark_safe(widget_render_input(TextInput, self, name, value, context)) #, url=self.url
+
 
 class DynamicSelect(Select):
     def __init__(self, attrs=None, options=None, url=''):
-        super(DynamicSelect, self).__init__(attrs, options if options else ())
+        super(DynamicSelect, self).__init__(attrs, options if options else ()) #TODO: options or ()
         self.url = url
 
     def render(self, name, value, attrs=None):

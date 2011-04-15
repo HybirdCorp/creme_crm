@@ -32,6 +32,7 @@ from creme_core.utils.meta import get_model_field_infos
 
 register = template.Library()
 
+#TODO: remove (template too)
 @register.inclusion_tag('creme_core/templatetags/listview_filters.html', takes_context=True)
 def get_listview_filters(context):
     filters = Filter.objects.filter(model_ct=context['content_type_id']).order_by('name') #TODO: retrieve in a cache...
@@ -52,6 +53,26 @@ def get_listview_filters(context):
     context['select_values'] = [{'value': filter_.id, 'text': filter_.name} for filter_ in filters] #TODO: use queryset.values('id', 'name') ??
     context['filter']        = selected
     context['can_edit_or_delete'] = perm
+    return context
+
+@register.inclusion_tag('creme_core/templatetags/listview_entityfilters.html', takes_context=True)
+def get_listview_entity_filters(context):
+    efilters = context['entity_filters']
+    efilter  = efilters.selected
+
+    context['efilter'] = efilter
+
+    if efilter:
+        efilter_id = efilter.id
+        permission = efilter.can_edit_or_delete(context['request'].user)[0]
+    else:
+        efilter_id = 0
+        permission = False
+
+    context['efilter_id'] = efilter_id
+    context['can_edit_or_delete'] = permission
+    context['select_values'] = [{'value': efilter.id, 'text': efilter.name} for efilter in efilters]
+
     return context
 
 @register.inclusion_tag('creme_core/templatetags/listview_headerfilters.html', takes_context=True)

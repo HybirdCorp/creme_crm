@@ -1694,14 +1694,211 @@ class ListViewFilterViewsTestCase(ViewsTestCase):
         self.assertEqual(200, self.client.post('/creme_core/filter/delete', data={'id': lv_filter.id}, follow=True).status_code)
         self.failIf(Filter.objects.filter(pk=lv_filter.id).count())
 
-    #TODO: test other views....
-    #(r'^add/(?P<ct_id>\d+)$',                           'add'),
-    #(r'^edit/(?P<ct_id>\d+)/(?P<filter_id>\d+)$',       'edit'),
-    #(r'^field_has_n_get_fk$',                           'field_has_n_get_fk'),
-    #(r'^register/(?P<filter_id>\d*)/(?P<ct_id>\d+)$',   'register_in_session'),
-    #(r'^get_session_filter_id/(?P<ct_id>\d+)$',         'get_session_filter_id'),
-    #(r'^select_entity_popup/(?P<content_type_id>\d+)$', 'get_list_view_popup_from_ct'),
-    #(r'^get_4_ct/(?P<content_type_id>\d+)$',            'get_filters_4_ct'),
+
+class EntityFilterViewsTestCase(ViewsTestCase):
+    def test_create01(self): #check app credentials
+        self.login(is_superuser=False)
+
+        ct = ContentType.objects.get_for_model(Contact)
+        self.failIf(EntityFilter.objects.filter(entity_type=ct).count())
+
+        uri = '/creme_core/entity_filter/add/%s' % ct.id
+        self.assertEqual(404, self.client.get(uri).status_code)
+
+        self.role.allowed_apps = ['persons']
+        self.role.save()
+        self.assertEqual(200, self.client.get(uri).status_code)
+
+        name = 'Filter 01'
+        cond_type = EntityFilterCondition.IEQUALS
+        field_name = 'last_name'
+        value = 'Ikari'
+        response = self.client.post(uri, follow=True,
+                                    data={
+                                            'name':       name,
+                                            'conditions': """[{"type":"%(type)s","name":"%(name)s","value":"%(value)s"}]""" % {
+                                                                    'type':   cond_type,
+                                                                    'name':  field_name,
+                                                                    'value': value,
+                                                                },
+                                         }
+                                   )
+        self.assertNoFormError(response)
+        self.assertEqual(200, response.status_code)
+
+        efilters = EntityFilter.objects.filter(entity_type=ct)
+        self.assertEqual(1, len(efilters))
+
+        efilter = efilters[0]
+        self.assertEqual(name, efilter.name)
+        self.assert_(efilter.is_custom)
+        self.assert_(efilter.user is None)
+
+        conditions = efilter.conditions.all()
+        self.assertEqual(1, len(conditions))
+
+        condition = conditions[0]
+        self.assertEqual(cond_type, condition.type)
+        self.assertEqual(field_name, condition.name)
+        self.assertEqual('"%s"' % value, condition.value)
+
+    def test_create02(self):
+        self.login()
+
+        ct = ContentType.objects.get_for_model(Organisation)
+        name = 'Filter 01'
+        cond_type = EntityFilterCondition.CONTAINS
+        field_name = 'name'
+        value = 'NERV'
+        response = self.client.post('/creme_core/entity_filter/add/%s' % ct.id,
+                                    data={
+                                            'name':       name,
+                                            'user':       self.user.id,
+                                            'conditions': """[{"type":"%(type)s","name":"%(name)s","value":"%(value)s"}]""" % {
+                                                                    'type':  cond_type,
+                                                                    'name':  field_name,
+                                                                    'value': value,
+                                                                },
+                                         }
+                                   )
+        self.assertNoFormError(response)
+
+        try:
+            efilter = EntityFilter.objects.get(name=name)
+        except Exception, e:
+            self.fail(str(e))
+
+        self.assert_(self.user.id, efilter.user.id)
+
+        conditions = efilter.conditions.all()
+        self.assertEqual(1, len(conditions))
+
+        condition = conditions[0]
+        self.assertEqual(cond_type, condition.type)
+        self.assertEqual(field_name, condition.name)
+        self.assertEqual('"%s"' % value, condition.value)
+
+    def test_edit01(self):
+        self.login()
+
+        name = 'Filter 01'
+        efilter = EntityFilter.create('test-filter01', name, Contact, is_custom=True)
+        efilter.set_conditions([EntityFilterCondition.build(model=Contact,
+                                                            type=EntityFilterCondition.CONTAINS,
+                                                            name='first_name', value='Atom'
+                                                           )
+                               ])
+
+        url = '/creme_core/entity_filter/edit/%s' % efilter.id
+        self.assertEqual(200, self.client.get(url).status_code)
+
+        name += ' (edited)'
+        cond_type = EntityFilterCondition.IEQUALS
+        field_name = 'last_name'
+        value = 'Ikari'
+        response = self.client.post(url, follow=True,
+                                    data={
+                                            'name':       name,
+                                            'conditions': """[{"type":"%(type)s","name":"%(name)s","value":"%(value)s"}]""" % {
+                                                                    'type':  cond_type,
+                                                                    'name':  field_name,
+                                                                    'value': value,
+                                                                },
+                                         }
+                                   )
+        self.assertNoFormError(response)
+        self.assertEqual(200, response.status_code)
+
+        efilter = EntityFilter.objects.get(pk=efilter.id) #refresh
+        self.assertEqual(name, efilter.name)
+        self.assert_(efilter.is_custom)
+        self.assert_(efilter.user is None)
+
+        conditions = efilter.conditions.all()
+        self.assertEqual(1, len(conditions))
+
+        condition = conditions[0]
+        self.assertEqual(cond_type,  condition.type)
+        self.assertEqual(field_name, condition.name)
+        self.assertEqual('"%s"' % value, condition.value)
+
+    def test_edit02(self): #not custom -> can not edit
+        self.login()
+
+        efilter = EntityFilter.create('test-filter01', 'Filter01', Contact, is_custom=False)
+        self.assertEqual(404, self.client.get('/creme_core/entity_filter/edit/%s' % efilter.id).status_code)
+
+    def test_edit03(self): #can not edit Filter that belongs to another user
+        self.login(is_superuser=False)
+
+        self.role.allowed_apps = ['persons']
+        self.role.save()
+
+        efilter = EntityFilter.create('test-filter01', 'Filter01', Contact, user=self.other_user, is_custom=True)
+        self.assertEqual(404, self.client.get('/creme_core/entity_filter/edit/%s' % efilter.id).status_code)
+
+    def test_edit04(self): #user do not have the app credentials
+        self.login(is_superuser=False)
+
+        efilter = EntityFilter.create('test-filter01', 'Filter01', Contact, user=self.user, is_custom=True)
+        self.assertEqual(404, self.client.get('/creme_core/entity_filter/edit/%s' % efilter.id).status_code)
+
+    def test_delete01(self):
+        self.login()
+
+        efilter = EntityFilter.create('test-filter01', 'Filter 01', Contact, is_custom=True)
+        response = self.client.post('/creme_core/entity_filter/delete', data={'id': efilter.id}, follow=True)
+        self.assertEqual(200, response.status_code)
+        self.assert_(response.redirect_chain)
+        self.assert_(response.redirect_chain[-1][0].endswith(Contact.get_lv_absolute_url()))
+        self.assertEqual(0, EntityFilter.objects.filter(pk=efilter.id).count())
+
+    def test_delete02(self): #not custom -> can not delete
+        self.login()
+
+        efilter = EntityFilter.create(pk='test-filter01', name='Filter01', model=Contact, is_custom=False)
+        self.client.post('/creme_core/entity_filter/delete', data={'id': efilter.id})
+        self.assertEqual(1, EntityFilter.objects.filter(pk=efilter.id).count())
+
+    def test_delete03(self): #belongs to another user
+        self.login(is_superuser=False)
+
+        efilter = EntityFilter.create('test-filter01', 'Filter01', Contact, is_custom=True, user=self.other_user)
+        self.client.post('/creme_core/entity_filter/delete', data={'id': efilter.id})
+        self.assertEqual(1, EntityFilter.objects.filter(pk=efilter.id).count())
+
+    def test_delete04(self): #belongs to my team -> ok
+        self.login(is_superuser=False)
+
+        self.role.allowed_apps = ['persons']
+        self.role.save()
+
+        my_team = User.objects.create(username='TeamTitan', is_team=True)
+        my_team.teammates = [self.user]
+
+        efilter = EntityFilter.create('test-filter01', 'Filter01', Contact, is_custom=True, user=my_team)
+        self.client.post('/creme_core/entity_filter/delete', data={'id': efilter.id})
+        self.assertEqual(0, EntityFilter.objects.filter(pk=efilter.id).count())
+
+    def test_delete05(self): #belongs to a team (not mine) -> ko
+        self.login(is_superuser=False)
+
+        self.role.allowed_apps = ['persons']
+        self.role.save()
+
+        a_team = User.objects.create(username='TeamTitan', is_team=True)
+        a_team.teammates = [self.other_user]
+
+        efilter = EntityFilter.create('test-filter01', 'Filter01', Contact, is_custom=True, user=a_team)
+        self.client.post('/creme_core/entity_filter/delete', data={'id': efilter.id})
+        self.assertEqual(1, EntityFilter.objects.filter(pk=efilter.id).count())
+
+    def test_delete06(self): #logged as superuser
+        self.login()
+
+        efilter = EntityFilter.create('test-filter01', 'Filter01', Contact, is_custom=True, user=self.other_user)
+        self.client.post('/creme_core/entity_filter/delete', data={'id': efilter.id})
+        self.failIf(EntityFilter.objects.filter(pk=efilter.id).count())
 
 
 class SearchViewTestCase(ViewsTestCase):
