@@ -120,7 +120,9 @@ class _EntityFilterForm(CremeModelForm):
 
     def __init__(self, *args, **kwargs):
         super(_EntityFilterForm, self).__init__(*args, **kwargs)
-        self.fields['user'].empty_label = ugettext(u'All users')
+        fields = self.fields
+        fields['user'].empty_label = ugettext(u'All users')
+        fields['use_or'].help_text = ugettext(u'Use "OR" between the conditions (else "AND" is used).')
 
 
 class EntityFilterCreateForm(_EntityFilterForm):

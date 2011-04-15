@@ -1733,6 +1733,7 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         self.assertEqual(name, efilter.name)
         self.assert_(efilter.is_custom)
         self.assert_(efilter.user is None)
+        self.failIf(efilter.use_or)
 
         conditions = efilter.conditions.all()
         self.assertEqual(1, len(conditions))
@@ -1754,6 +1755,7 @@ class EntityFilterViewsTestCase(ViewsTestCase):
                                     data={
                                             'name':       name,
                                             'user':       self.user.id,
+                                            'use_or':     True,
                                             'conditions': """[{"type":"%(type)s","name":"%(name)s","value":"%(value)s"}]""" % {
                                                                     'type':  cond_type,
                                                                     'name':  field_name,
@@ -1768,7 +1770,8 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         except Exception, e:
             self.fail(str(e))
 
-        self.assert_(self.user.id, efilter.user.id)
+        self.assertEqual(self.user.id, efilter.user.id)
+        self.assert_(efilter.use_or)
 
         conditions = efilter.conditions.all()
         self.assertEqual(1, len(conditions))
