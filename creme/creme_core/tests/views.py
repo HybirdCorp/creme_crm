@@ -1716,11 +1716,11 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         response = self.client.post(uri, follow=True,
                                     data={
                                             'name':       name,
-                                            'conditions': """[{"type":"%(type)s","name":"%(name)s","value":"%(value)s"}]""" % {
-                                                                    'type':   cond_type,
-                                                                    'name':  field_name,
-                                                                    'value': value,
-                                                                },
+                                            'fields_conditions': """[{"type":"%(type)s","name":"%(name)s","value":"%(value)s"}]""" % {
+                                                                        'type':   cond_type,
+                                                                        'name':  field_name,
+                                                                        'value': value,
+                                                                    },
                                          }
                                    )
         self.assertNoFormError(response)
@@ -1746,21 +1746,36 @@ class EntityFilterViewsTestCase(ViewsTestCase):
     def test_create02(self):
         self.login()
 
+        #Bad subfilter (bad content type)
+        EntityFilter.create('test-filter01', 'Filter 01', Contact, is_custom=True)
+
+        subfilter = EntityFilter.create('test-filter02', 'Filter 02', Organisation, is_custom=True)
+        subfilter.set_conditions([EntityFilterCondition.build(model=Organisation,
+                                                            type=EntityFilterCondition.GT,
+                                                            name='capital', value=10000
+                                                           )
+                               ])
+
         ct = ContentType.objects.get_for_model(Organisation)
-        name = 'Filter 01'
+        url = '/creme_core/entity_filter/add/%s' % ct.id
+        form = self.client.get(url).context['form']
+        self.assertEqual([subfilter.id], [f.id for f in form.fields['subfilters_conditions'].queryset])
+
+        name = 'Filter 03'
         cond_type = EntityFilterCondition.CONTAINS
         field_name = 'name'
         value = 'NERV'
-        response = self.client.post('/creme_core/entity_filter/add/%s' % ct.id,
+        response = self.client.post(url,
                                     data={
                                             'name':       name,
                                             'user':       self.user.id,
                                             'use_or':     True,
-                                            'conditions': """[{"type":"%(type)s","name":"%(name)s","value":"%(value)s"}]""" % {
-                                                                    'type':  cond_type,
-                                                                    'name':  field_name,
-                                                                    'value': value,
-                                                                },
+                                            'fields_conditions': """[{"type":"%(type)s","name":"%(name)s","value":"%(value)s"}]""" % {
+                                                                        'type':  cond_type,
+                                                                        'name':  field_name,
+                                                                        'value': value,
+                                                                    },
+                                            'subfilters_conditions': [subfilter.id],
                                          }
                                    )
         self.assertNoFormError(response)
@@ -1774,26 +1789,60 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         self.assert_(efilter.use_or)
 
         conditions = efilter.conditions.all()
-        self.assertEqual(1, len(conditions))
+        self.assertEqual(2, len(conditions))
 
         condition = conditions[0]
         self.assertEqual(cond_type, condition.type)
         self.assertEqual(field_name, condition.name)
         self.assertEqual('"%s"' % value, condition.value)
 
+        condition = conditions[1]
+        self.assertEqual(EntityFilterCondition.SUBFILTER, condition.type)
+        self.failIf(condition.name)
+        self.assertEqual(u'"%s"' % subfilter.id, condition.value)
+
+    def test_create03(self): #error: no conditions of any type
+        self.login()
+
+        ct = ContentType.objects.get_for_model(Organisation)
+        response = self.client.post('/creme_core/entity_filter/add/%s' % ct.id,
+                                    data={
+                                            'name':       'Filter 01',
+                                            'user':       self.user.id,
+                                         }
+                                   )
+        self.assertFormError(response, 'form', field=None, errors=_('The filter must have at least one condition.'))
+
     def test_edit01(self):
         self.login()
 
-        name = 'Filter 01'
-        efilter = EntityFilter.create('test-filter01', name, Contact, is_custom=True)
+        EntityFilter.create('test-filter01', 'Filter 01', Organisation, is_custom=True)        #Bad subfilter (bad content type)
+        subfilter = EntityFilter.create('test-filter02', 'Filter 02', Contact, is_custom=True)
+
+        name = 'Filter 03'
+        efilter = EntityFilter.create('test-filter03', name, Contact, is_custom=True)
         efilter.set_conditions([EntityFilterCondition.build(model=Contact,
                                                             type=EntityFilterCondition.CONTAINS,
                                                             name='first_name', value='Atom'
-                                                           )
+                                                           ),
+                                EntityFilterCondition.build(model=Contact,
+                                                            type=EntityFilterCondition.SUBFILTER,
+                                                            value=subfilter
+                                                           ),
                                ])
 
+        parent_filter = EntityFilter.create('test-filter04', 'Filter 04', Contact, is_custom=True)
+        parent_filter.set_conditions([EntityFilterCondition.build(model=Contact,
+                                                                 type=EntityFilterCondition.SUBFILTER,
+                                                                 value=efilter
+                                                           ),
+                                     ])
+
         url = '/creme_core/entity_filter/edit/%s' % efilter.id
-        self.assertEqual(200, self.client.get(url).status_code)
+        response = self.client.get(url)
+        self.assertEqual(200, response.status_code)
+
+        self.assertEqual([subfilter.id], [f.id for f in response.context['form'].fields['subfilters_conditions'].queryset])
 
         name += ' (edited)'
         cond_type = EntityFilterCondition.IEQUALS
@@ -1802,11 +1851,12 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         response = self.client.post(url, follow=True,
                                     data={
                                             'name':       name,
-                                            'conditions': """[{"type":"%(type)s","name":"%(name)s","value":"%(value)s"}]""" % {
-                                                                    'type':  cond_type,
-                                                                    'name':  field_name,
-                                                                    'value': value,
-                                                                },
+                                            'fields_conditions': """[{"type":"%(type)s","name":"%(name)s","value":"%(value)s"}]""" % {
+                                                                        'type':  cond_type,
+                                                                        'name':  field_name,
+                                                                        'value': value,
+                                                                    },
+                                            'subfilters_conditions': [subfilter.id],
                                          }
                                    )
         self.assertNoFormError(response)
@@ -1818,12 +1868,17 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         self.assert_(efilter.user is None)
 
         conditions = efilter.conditions.all()
-        self.assertEqual(1, len(conditions))
+        self.assertEqual(2, len(conditions))
 
         condition = conditions[0]
         self.assertEqual(cond_type,  condition.type)
         self.assertEqual(field_name, condition.name)
         self.assertEqual('"%s"' % value, condition.value)
+
+        condition = conditions[1]
+        self.assertEqual(EntityFilterCondition.SUBFILTER, condition.type)
+        self.failIf(condition.name)
+        self.assertEqual('"%s"' % subfilter.id, condition.value)
 
     def test_edit02(self): #not custom -> can not edit
         self.login()

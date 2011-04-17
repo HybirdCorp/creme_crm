@@ -20,13 +20,13 @@
 
 #from logging import debug
 
-from django.forms import ValidationError
+from django.forms import ModelMultipleChoiceField, ValidationError
 from django.utils.translation import ugettext_lazy as _, ugettext
 
 from creme_core.models import CremeEntity, EntityFilter, EntityFilterCondition
 from creme_core.forms import CremeModelForm
 from creme_core.forms.fields import JSONField
-from creme_core.forms.widgets import DynamicInput, SelectorList, ChainedInput
+from creme_core.forms.widgets import DynamicInput, SelectorList, ChainedInput, UnorderedMultipleChoiceWidget
 from creme_core.utils.id_generator import generate_string_id_and_save
 from creme_core.utils.meta import is_date_field
 
@@ -113,7 +113,12 @@ class EntityFilterConditionsField(JSONField):
 
 
 class _EntityFilterForm(CremeModelForm):
-    conditions = EntityFilterConditionsField(label=_(u'Conditions'))
+    fields_conditions     = EntityFilterConditionsField(label=_(u'On regular fields'), required=False)
+    subfilters_conditions = ModelMultipleChoiceField(label=_(u'Sub-filters'), required=False,
+                                                     queryset=EntityFilter.objects.none(),
+                                                     widget=UnorderedMultipleChoiceWidget)
+
+    blocks = CremeModelForm.blocks.new(('conditions', _(u'Conditions'), ('fields_conditions', 'subfilters_conditions')))
 
     class Meta:
         model = EntityFilter
@@ -124,13 +129,32 @@ class _EntityFilterForm(CremeModelForm):
         fields['user'].empty_label = ugettext(u'All users')
         fields['use_or'].help_text = ugettext(u'Use "OR" between the conditions (else "AND" is used).')
 
+    def _build_subfilters(self, model):
+        build_cond = EntityFilterCondition.build
+        SUBFILTER = EntityFilterCondition.SUBFILTER
+
+        return [build_cond(model=model, type=SUBFILTER, value=subfilter)
+                     for subfilter in self.cleaned_data['subfilters_conditions']
+               ]
+
+    def clean(self):
+        cdata = self.cleaned_data
+
+        if not cdata['fields_conditions'] and not cdata['subfilters_conditions']:
+            raise ValidationError(ugettext(u'The filter must have at least one condition.'))
+
+        return cdata
+
 
 class EntityFilterCreateForm(_EntityFilterForm):
     def __init__(self, *args, **kwargs):
         super(EntityFilterCreateForm, self).__init__(*args, **kwargs)
         ct = self.initial['content_type']
         self._entity_type = ct
-        self.fields['conditions'].model = ct.model_class()
+
+        fields = self.fields
+        fields['fields_conditions'].model = ct.model_class()
+        fields['subfilters_conditions'].queryset = EntityFilter.objects.filter(entity_type=ct)
 
     def save(self, *args, **kwargs):
         instance = self.instance
@@ -142,7 +166,9 @@ class EntityFilterCreateForm(_EntityFilterForm):
         super(EntityFilterCreateForm, self).save(commit=False, *args, **kwargs)
         generate_string_id_and_save(EntityFilter, [instance], 'creme_core-userfilter_%s-%s' % (ct.app_label, ct.model))
 
-        instance.set_conditions(self.cleaned_data['conditions'])
+        instance.set_conditions(self.cleaned_data['fields_conditions'] + self._build_subfilters(ct.model_class()),
+                                check_cycles=False
+                               )
 
         return instance
 
@@ -151,13 +177,27 @@ class EntityFilterEditForm(_EntityFilterForm):
     def __init__(self, *args, **kwargs):
         super(EntityFilterEditForm, self).__init__(*args, **kwargs)
 
-        conditions_field = self.fields['conditions']
+        fields = self.fields
         instance = self.instance
-        conditions_field.model   = instance.entity_type.model_class()
-        conditions_field.initial = instance.conditions.all()
+        ct = instance.entity_type
+
+        conditions = instance.conditions.all()
+        SUBFILTER = EntityFilterCondition.SUBFILTER
+
+        fconditions_field = fields['fields_conditions']
+        fconditions_field.model   = ct.model_class()
+        fconditions_field.initial = [c for c in conditions if c.type != SUBFILTER]
+
+        sf_conditions_field = fields['subfilters_conditions']
+        sf_conditions_field.queryset = EntityFilter.objects.filter(entity_type=ct)\
+                                                           .exclude(pk__in=instance.get_connected_filter_ids())
+        sf_conditions_field.initial = [c.decoded_value for c in conditions if c.type == SUBFILTER]
 
     def save(self, *args, **kwargs):
         instance = super(EntityFilterEditForm, self).save(*args, **kwargs)
-        instance.set_conditions(self.cleaned_data['conditions'])
+        instance.set_conditions(self.cleaned_data['fields_conditions'] +
+                                   self._build_subfilters(instance.entity_type.model_class()),
+                                check_cycles=False
+                               )
 
         return instance
