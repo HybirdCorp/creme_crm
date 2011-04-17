@@ -61,7 +61,7 @@ class EntityFilter(Model): #CremeModel ???
      TODO: COMPLETE
     """
     id          = CharField(primary_key=True, max_length=100, editable=False)
-    name        = CharField(max_length=100, verbose_name=_('Name'))
+    name        = CharField(max_length=100, verbose_name=_('Name'), blank=True, null=True)
     user        = ForeignKey(User, verbose_name=_(u'Owner'), blank=True, null=True)
     entity_type = ForeignKey(ContentType, editable=False)
     is_custom   = BooleanField(editable=False, default=True)
@@ -71,6 +71,12 @@ class EntityFilter(Model): #CremeModel ???
         app_label = 'creme_core'
         verbose_name = _(u'Filter of Entity')
         verbose_name_plural = _(u'Filters of Entity')
+
+    class CycleError(Exception):
+        pass
+
+    def __unicode__(self):
+        return self.name
 
     def can_edit_or_delete(self, user):
         if not self.is_custom:
@@ -93,10 +99,21 @@ class EntityFilter(Model): #CremeModel ???
 
         return (False, ugettext(u"You are not allowed to edit/delete this filter"))
 
+    def check_cycle(self, conditions):
+        SUBFILTER = EntityFilterCondition.SUBFILTER
+
+        #Ids of Filters that are referenced by these conditions
+        ref_filter_ids = set(cond.decoded_value for cond in conditions if cond.type == SUBFILTER)
+
+        if self.id in ref_filter_ids:
+            raise EntityFilter.CycleError('A condition can not reference its own filter.')
+
+        if self.get_connected_filter_ids() & ref_filter_ids: #TODO: method intersection not null
+            raise EntityFilter.CycleError('There is a cycle with a subfilter')
+
     @staticmethod
     def create(pk, name, model, is_custom=False, user=None, use_or=False):
-        """Creation helper ; useful for populate.py scripts.
-        """
+        """Creation helper ; useful for populate.py scripts."""
         from creme_core.utils import create_or_update
 
         ef = create_or_update(EntityFilter, pk=pk,
@@ -107,18 +124,47 @@ class EntityFilter(Model): #CremeModel ???
 
         return ef
 
-    def filter(self, qs):
+    def filter(self, qs): #TODO: still useful ???
+        return qs.filter(self.get_q())
+
+    def get_connected_filter_ids(self):
+        #NB: 'level' means a level of filters connected to this filter :
+        #  - 1rst level is 'self'.
+        #  - 2rst level is filters with a sub-filter conditions relative to 'self'.
+        #  - 3rd level  is filters with a sub-filter conditions relative to a filter of the 2nd level.
+        # etc....
+        connected = level_ids = set((self.id,))
+
+        #Sub-filters conditions
+        sf_conds = [(cond, cond.decoded_value)
+                        for cond in EntityFilterCondition.objects.filter(type=EntityFilterCondition.SUBFILTER)
+                   ]
+
+        while level_ids:
+            level_ids = set(cond.filter_id
+                                for cond, decoded_value in sf_conds
+                                    if cond.decoded_value in level_ids
+                           )
+            connected.update(level_ids)
+
+        return connected
+
+    def get_q(self):
         query = Q()
 
-        for condition in self.conditions.all():
-            if self.use_or:
+        if self.use_or:
+            for condition in self.conditions.all():
                 query |= condition.get_q()
-            else:
+        else:
+            for condition in self.conditions.all():
                 query &= condition.get_q()
 
-        return qs.filter(query)
+        return query
 
-    def set_conditions(self, conditions):
+    def set_conditions(self, conditions, check_cycles=True): #TODO: check_cycles=False in form.save()
+        if check_cycles:
+            self.check_cycle(conditions)
+
         old_conditions = EntityFilterCondition.objects.filter(filter=self)
         conds2del = []
 
@@ -128,7 +174,7 @@ class EntityFilter(Model): #CremeModel ???
             elif not old_condition:
                 condition.filter = self
                 condition.save()
-            elif old_condition.update(condition): #TODO: test ??
+            elif old_condition.update(condition):
                 old_condition.save()
 
         if conds2del:
@@ -161,29 +207,31 @@ class EntityFilterCondition(Model):
     name   = CharField(max_length=100)
     value  = TextField()
 
-    EQUALS          = 1
-    IEQUALS         = 2
-    EQUALS_NOT      = 3
-    IEQUALS_NOT     = 4
-    CONTAINS        = 5
-    ICONTAINS       = 6
-    CONTAINS_NOT    = 7
-    ICONTAINS_NOT   = 8
-    GT              = 9
-    GTE             = 10
-    LT              = 11
-    LTE             = 12
-    STARTSWITH      = 13
-    ISTARTSWITH     = 14
-    STARTSWITH_NOT  = 15
-    ISTARTSWITH_NOT = 16
-    ENDSWITH        = 17
-    IENDSWITH       = 18
-    ENDSWITH_NOT    = 19
-    IENDSWITH_NOT   = 20
-    ISNULL          = 21
-    ISNULL_NOT      = 22
-    RANGE           = 23
+    SUBFILTER       = 1
+
+    EQUALS          = 10
+    IEQUALS         = 11
+    EQUALS_NOT      = 12
+    IEQUALS_NOT     = 13
+    CONTAINS        = 14
+    ICONTAINS       = 15
+    CONTAINS_NOT    = 16
+    ICONTAINS_NOT   = 17
+    GT              = 18
+    GTE             = 19
+    LT              = 20
+    LTE             = 21
+    STARTSWITH      = 22
+    ISTARTSWITH     = 23
+    STARTSWITH_NOT  = 24
+    ISTARTSWITH_NOT = 25
+    ENDSWITH        = 26
+    IENDSWITH       = 27
+    ENDSWITH_NOT    = 28
+    IENDSWITH_NOT   = 29
+    ISNULL          = 30
+    ISNULL_NOT      = 31
+    RANGE           = 32
 
     _OPERATOR_MAP = {
             #value means (exclude_mode, query_key_pattern)
@@ -218,36 +266,62 @@ class EntityFilterCondition(Model):
     class ValueError(Exception):
         pass
 
-    @staticmethod
-    def build(model, type, name, value):
-        try:
-            field = model._meta.get_field_by_name(name)[0]
-            operator = EntityFilterCondition._OPERATOR_MAP[type] #TODO: only raise??
+    def __repr__(self):
+        return u'EntityFilterCondition(filter=%(filter)s, type=%(type)s, name=%(name)s, value=%(value)s)' % {
+                    'filter': self.filter,
+                    'type':   self.type,
+                    'name':   self.name or 'None',
+                    'value':  self.value,
+                }
 
+    @staticmethod
+    def build(model, type, name=None, value=None):
+        try:
             #TODO: method 'operator.clean()' ??
-            if type in (EntityFilterCondition.ISNULL, EntityFilterCondition.ISNULL_NOT):
-                if not isinstance(value, bool): raise ValueError('A bool is expected for ISNULL(_NOT) condition')
-            elif type == EntityFilterCondition.RANGE:
-                clean = field.formfield().clean
-                clean(value[0])
-                clean(value[1])
+            if type == EntityFilterCondition.SUBFILTER:
+                name = ''
+
+                if not isinstance(value, EntityFilter):
+                    raise TypeError('Subfilter need an EntityFilter instance')
+
+                value = value.id
             else:
-                field.formfield().clean(value)
+                operator = EntityFilterCondition._OPERATOR_MAP[type] #TODO: only raise??
+                field = model._meta.get_field_by_name(name)[0]
+
+                if type in (EntityFilterCondition.ISNULL, EntityFilterCondition.ISNULL_NOT):
+                    if not isinstance(value, bool): raise ValueError('A bool is expected for ISNULL(_NOT) condition')
+                elif type == EntityFilterCondition.RANGE:
+                    clean = field.formfield().clean
+                    clean(value[0])
+                    clean(value[1])
+                else:
+                    field.formfield().clean(value)
         except Exception, e:
             raise EntityFilterCondition.ValueError(str(e))
 
-        return EntityFilterCondition(type=type, name=name, value=jsondumps(value))
+        return EntityFilterCondition(type=type, name=name, value=EntityFilterCondition.encode_value(value))
 
     @property
     def decoded_value(self):
         return jsonloads(self.value)
 
-    def get_q(self):
-        operator = EntityFilterCondition._OPERATOR_MAP[self.type]
-        query    = Q(**{operator.key_pattern % self.name: self.decoded_value})
+    @staticmethod
+    def encode_value(value):
+        return jsondumps(value)
 
-        if operator.exclude:
-            query.negate()
+    def get_q(self):
+        cond_type = self.type
+
+        if cond_type == EntityFilterCondition.SUBFILTER:
+            efilter = EntityFilter.objects.get(id=self.decoded_value)
+            query = efilter.get_q()
+        else:
+            operator = EntityFilterCondition._OPERATOR_MAP[cond_type]
+            query    = Q(**{operator.key_pattern % self.name: self.decoded_value})
+
+            if operator.exclude:
+                query.negate()
 
         return query
 
