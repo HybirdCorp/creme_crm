@@ -9,9 +9,9 @@ from django.contrib.contenttypes.models import ContentType
 
 from creme.creme_core import autodiscover
 from creme.creme_core.forms.fields import JSONField, GenericEntityField, MultiGenericEntityField, RelationEntityField, MultiRelationEntityField
-from creme_core.forms.entity_filter import EntityFilterConditionsField
+from creme_core.forms.entity_filter import RegularFieldsConditionsField, PropertiesConditionsField
 from creme.creme_core.utils import creme_entity_content_types
-from creme.creme_core.models import RelationType, CremePropertyType, CremeEntity, CremeProperty
+from creme.creme_core.models import *
 from creme.creme_core.constants import REL_SUB_RELATED_TO, REL_SUB_HAS
 from creme.creme_core.tests.base import CremeTestCase
 
@@ -695,15 +695,15 @@ class MultiRelationEntityFieldTestCase(FieldTestCase):
         self.assertEquals((RelationType.objects.get(pk=REL_SUB_RELATED_TO), orga), relations[3])
 
 
-class EntityFilterConditionsFieldTestCase(FieldTestCase):
+class RegularFieldsConditionsFieldTestCase(FieldTestCase):
     def test_clean_empty_required(self):
-        field = EntityFilterConditionsField(required=True)
-        self.assertFieldValidationError(EntityFilterConditionsField, 'required', field.clean, None)
-        self.assertFieldValidationError(EntityFilterConditionsField, 'required', field.clean, "")
-        self.assertFieldValidationError(EntityFilterConditionsField, 'required', field.clean, "[]")
+        field = RegularFieldsConditionsField(required=True)
+        self.assertFieldValidationError(RegularFieldsConditionsField, 'required', field.clean, None)
+        self.assertFieldValidationError(RegularFieldsConditionsField, 'required', field.clean, "")
+        self.assertFieldValidationError(RegularFieldsConditionsField, 'required', field.clean, "[]")
 
     def test_clean_empty_not_required(self):
-        field = EntityFilterConditionsField(required=False)
+        field = RegularFieldsConditionsField(required=False)
 
         try:
             field.clean(None)
@@ -711,18 +711,70 @@ class EntityFilterConditionsFieldTestCase(FieldTestCase):
             self.fail(str(e))
 
     def test_clean_invalid_data_type(self):
-        field = EntityFilterConditionsField()
-        self.assertFieldValidationError(EntityFilterConditionsField, 'invalidformat', field.clean, '"this is a string"')
-        self.assertFieldValidationError(EntityFilterConditionsField, 'invalidformat', field.clean, '"{}"')
-        self.assertFieldValidationError(EntityFilterConditionsField, 'invalidformat', field.clean, '{"foobar":{"type":"3","name":"first_name","value":"Rei"}}')
+        field = RegularFieldsConditionsField()
+        self.assertFieldValidationError(RegularFieldsConditionsField, 'invalidformat', field.clean, '"this is a string"')
+        self.assertFieldValidationError(RegularFieldsConditionsField, 'invalidformat', field.clean, '"{}"')
+        self.assertFieldValidationError(RegularFieldsConditionsField, 'invalidformat', field.clean, '{"foobar":{"type":"3","name":"first_name","value":"Rei"}}')
 
     def test_clean_invalid_data(self):
-        field = EntityFilterConditionsField(model=Contact)
-        self.assertFieldValidationError(EntityFilterConditionsField, 'invalidformat', field.clean, '[{"type":"3","name":"first_name"}]')
-        self.assertFieldValidationError(EntityFilterConditionsField, 'invalidformat', field.clean, '[{"type":"3","value":"Rei"}]')
-        self.assertFieldValidationError(EntityFilterConditionsField, 'invalidformat', field.clean, '[{"name":"first_name","value":"Rei"}]')
-        self.assertFieldValidationError(EntityFilterConditionsField, 'invalidformat', field.clean, '[{"type":"notanumber","name":"first_name","value":"Rei"}]')
+        field = RegularFieldsConditionsField(model=Contact)
+        self.assertFieldValidationError(RegularFieldsConditionsField, 'invalidformat', field.clean, '[{"type":"3","name":"first_name"}]')
+        self.assertFieldValidationError(RegularFieldsConditionsField, 'invalidformat', field.clean, '[{"type":"3","value":"Rei"}]')
+        self.assertFieldValidationError(RegularFieldsConditionsField, 'invalidformat', field.clean, '[{"name":"first_name","value":"Rei"}]')
+        self.assertFieldValidationError(RegularFieldsConditionsField, 'invalidformat', field.clean, '[{"type":"notanumber","name":"first_name","value":"Rei"}]')
 
     def test_unknown_modelfield(self):
-        field = EntityFilterConditionsField(model=Contact)
-        self.assertFieldValidationError(EntityFilterConditionsField, 'invalidfield', field.clean, '[{"type":"1","name":"boobies_size","value":"90"}]')
+        field = RegularFieldsConditionsField(model=Contact)
+        self.assertFieldValidationError(RegularFieldsConditionsField, 'invalidfield', field.clean, '[{"type":"1","name":"boobies_size","value":"90"}]')
+
+
+class PropertiesConditionsFieldTestCase(FieldTestCase):
+    def setUp(self):
+        self.ptype01 = CremePropertyType.create('test-prop_active', 'Is active')
+        self.ptype02 = CremePropertyType.create('test-prop_cute',   'Is cute', (Contact,))
+        self.ptype03 = CremePropertyType.create('test-prop_evil',   'Is evil', (Organisation,))
+
+    def test_clean_empty_required(self):
+        field = PropertiesConditionsField(required=True)
+        self.assertFieldValidationError(PropertiesConditionsField, 'required', field.clean, None)
+        self.assertFieldValidationError(PropertiesConditionsField, 'required', field.clean, "")
+        self.assertFieldValidationError(PropertiesConditionsField, 'required', field.clean, "[]")
+
+    def test_clean_empty_not_required(self):
+        field = PropertiesConditionsField(required=False)
+
+        try:
+            field.clean(None)
+        except Exception, e:
+            self.fail(str(e))
+
+    def test_clean_invalid_data_type(self):
+        field = PropertiesConditionsField(model=Contact)
+        self.assertFieldValidationError(PropertiesConditionsField, 'invalidformat', field.clean, '"this is a string"')
+        self.assertFieldValidationError(PropertiesConditionsField, 'invalidformat', field.clean, '"{}"')
+        self.assertFieldValidationError(PropertiesConditionsField, 'invalidformat', field.clean, '{"foobar":{"ptype":"test-foobar","has":"true"}}')
+
+    def test_clean_invalid_data(self):
+        field = PropertiesConditionsField(model=Contact)
+        self.assertFieldValidationError(PropertiesConditionsField, 'invalidformat', field.clean, '[{"ptype":"%s"}]' % self.ptype01.id)
+        self.assertFieldValidationError(PropertiesConditionsField, 'invalidformat', field.clean, '[{"has":"true"}]')
+        self.assertFieldValidationError(PropertiesConditionsField, 'invalidformat', field.clean, '[{"ptype":"%s","has":"not a boolean"}]' % self.ptype02.id)
+
+    def test_unknown_ptype(self):
+        field = PropertiesConditionsField(model=Contact)
+        self.assertFieldValidationError(PropertiesConditionsField, 'invalidptype', field.clean, '[{"ptype":"%s","has":"true"}]' % self.ptype03.id)
+
+    def test_ok(self):
+        field = PropertiesConditionsField(model=Contact)
+        conditions = field.clean('[{"ptype":"%s","has":"true"}, {"ptype":"%s","has":"false"}]' % (self.ptype01.id, self.ptype02.id))
+        self.assertEqual(2, len(conditions))
+
+        condition = conditions[0]
+        self.assertEqual(EntityFilterCondition.PROPERTY, condition.type)
+        self.assertEqual(self.ptype01.id, condition.name)
+        self.assert_(condition.decoded_value is True)
+
+        condition = conditions[1]
+        self.assertEqual(EntityFilterCondition.PROPERTY, condition.type)
+        self.assertEqual(self.ptype02.id, condition.name)
+        self.assert_(condition.decoded_value is False)
