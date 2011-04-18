@@ -209,6 +209,8 @@ class EntityFilterCondition(Model):
 
     SUBFILTER       = 1
 
+    PROPERTY        = 3
+
     EQUALS          = 10
     IEQUALS         = 11
     EQUALS_NOT      = 12
@@ -285,6 +287,8 @@ class EntityFilterCondition(Model):
                     raise TypeError('Subfilter need an EntityFilter instance')
 
                 value = value.id
+            elif type == EntityFilterCondition.PROPERTY:
+                assert isinstance(value, bool)
             else:
                 operator = EntityFilterCondition._OPERATOR_MAP[type] #TODO: only raise??
                 field = model._meta.get_field_by_name(name)[0]
@@ -316,6 +320,11 @@ class EntityFilterCondition(Model):
         if cond_type == EntityFilterCondition.SUBFILTER:
             efilter = EntityFilter.objects.get(id=self.decoded_value)
             query = efilter.get_q()
+        elif cond_type == EntityFilterCondition.PROPERTY:
+            query = Q(properties__type=self.name)
+
+            if not self.decoded_value: #is a boolean indicating if got or has not got the property type
+                query.negate()
         else:
             operator = EntityFilterCondition._OPERATOR_MAP[cond_type]
             query    = Q(**{operator.key_pattern % self.name: self.decoded_value})

@@ -1357,9 +1357,32 @@ class EntityFiltersTestCase(CremeTestCase):
         self.assertRaises(EntityFilter.CycleError, efilter01.check_cycle, conds)
         self.assertRaises(EntityFilter.CycleError, efilter01.set_conditions, conds)
 
+    def test_properties01(self):
+        ptype = CremePropertyType.create(str_pk='test-prop_kawaii', text=u'Kawaii')
+        cute_ones = (2, 4, 5, 6)
+
+        for girl_id in cute_ones:
+            CremeProperty.objects.create(type=ptype, creme_entity=self.contacts[girl_id])
+
+        efilter = EntityFilter.create(pk='test-filter01', name='Filter01', model=Contact)
+        efilter.set_conditions([EntityFilterCondition.build(model=Contact,
+                                                            type=EntityFilterCondition.PROPERTY,
+                                                            name=ptype.id,
+                                                            value=True #entities that has got a property with this type
+                                                           )
+                               ])
+        self.assertExpectedFiltered(efilter, Contact, [self.contacts[i].id for i in cute_ones])
+
+        efilter.set_conditions([EntityFilterCondition.build(model=Contact,
+                                                            type=EntityFilterCondition.PROPERTY,
+                                                            name=ptype.id,
+                                                            value=False #entities that does not have a property with this type
+                                                           )
+                               ])
+        self.assertExpectedFiltered(efilter, Contact, [c.id for i, c in enumerate(self.contacts) if i not in cute_ones])
+
         #TODO: multivalue
         #TODO: field in fk, M2M
-        #TODO: properties
         #TODO: relations
 
         #TODO:

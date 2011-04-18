@@ -1756,6 +1756,8 @@ class EntityFilterViewsTestCase(ViewsTestCase):
                                                            )
                                ])
 
+        ptype = CremePropertyType.create(str_pk='test-prop_kawaii', text=u'Kawaii')
+
         ct = ContentType.objects.get_for_model(Organisation)
         url = '/creme_core/entity_filter/add/%s' % ct.id
         form = self.client.get(url).context['form']
@@ -1775,6 +1777,7 @@ class EntityFilterViewsTestCase(ViewsTestCase):
                                                                         'name':  field_name,
                                                                         'value': value,
                                                                     },
+                                            'properties_conditions': """[{"has":"true","ptype":"%s"}]""" % (ptype.id),
                                             'subfilters_conditions': [subfilter.id],
                                          }
                                    )
@@ -1789,7 +1792,7 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         self.assert_(efilter.use_or)
 
         conditions = efilter.conditions.all()
-        self.assertEqual(2, len(conditions))
+        self.assertEqual(3, len(conditions))
 
         condition = conditions[0]
         self.assertEqual(cond_type, condition.type)
@@ -1797,6 +1800,11 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         self.assertEqual('"%s"' % value, condition.value)
 
         condition = conditions[1]
+        self.assertEqual(EntityFilterCondition.PROPERTY, condition.type)
+        self.assertEqual(ptype.id, condition.name)
+        self.assertEqual(u'true', condition.value)
+
+        condition = conditions[2]
         self.assertEqual(EntityFilterCondition.SUBFILTER, condition.type)
         self.failIf(condition.name)
         self.assertEqual(u'"%s"' % subfilter.id, condition.value)
@@ -1807,8 +1815,8 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         ct = ContentType.objects.get_for_model(Organisation)
         response = self.client.post('/creme_core/entity_filter/add/%s' % ct.id,
                                     data={
-                                            'name':       'Filter 01',
-                                            'user':       self.user.id,
+                                            'name': 'Filter 01',
+                                            'user': self.user.id,
                                          }
                                    )
         self.assertFormError(response, 'form', field=None, errors=_('The filter must have at least one condition.'))
@@ -1818,6 +1826,8 @@ class EntityFilterViewsTestCase(ViewsTestCase):
 
         EntityFilter.create('test-filter01', 'Filter 01', Organisation, is_custom=True)        #Bad subfilter (bad content type)
         subfilter = EntityFilter.create('test-filter02', 'Filter 02', Contact, is_custom=True)
+
+        ptype = CremePropertyType.create(str_pk='test-prop_kawaii', text=u'Kawaii')
 
         name = 'Filter 03'
         efilter = EntityFilter.create('test-filter03', name, Contact, is_custom=True)
@@ -1857,6 +1867,7 @@ class EntityFilterViewsTestCase(ViewsTestCase):
                                                                         'value': value,
                                                                     },
                                             'subfilters_conditions': [subfilter.id],
+                                            'properties_conditions': """[{"has":"false","ptype":"%s"}]""" % (ptype.id),
                                          }
                                    )
         self.assertNoFormError(response)
@@ -1868,7 +1879,7 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         self.assert_(efilter.user is None)
 
         conditions = efilter.conditions.all()
-        self.assertEqual(2, len(conditions))
+        self.assertEqual(3, len(conditions))
 
         condition = conditions[0]
         self.assertEqual(cond_type,  condition.type)
@@ -1876,6 +1887,11 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         self.assertEqual('"%s"' % value, condition.value)
 
         condition = conditions[1]
+        self.assertEqual(EntityFilterCondition.PROPERTY, condition.type)
+        self.assertEqual(ptype.id,                       condition.name)
+        self.assert_(condition.decoded_value is False)
+
+        condition = conditions[2]
         self.assertEqual(EntityFilterCondition.SUBFILTER, condition.type)
         self.failIf(condition.name)
         self.assertEqual('"%s"' % subfilter.id, condition.value)
