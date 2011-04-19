@@ -32,3 +32,7 @@ CONFLICT_MODE = 1 #0 Client object replaces server object. / 1 Server object rep
 ACTIVE_SYNC_DEBUG = True #Make appears some debug informations on the UI
 
 LIMIT_SYNC_KEY_HISTORY = 50 #Number of sync_keys kept in db by user
+
+CONNECTION_TIMEOUT = 150
+
+PICTURE_LIMIT_SIZE = 55000 #E.g: 55Ko Active sync servers don't handle pictures > to this size
