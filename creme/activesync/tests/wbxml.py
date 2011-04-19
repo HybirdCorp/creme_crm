@@ -25,7 +25,7 @@ from xml.etree.ElementTree import XML, tostring
 from activesync.wbxml.dtd import AirsyncDTD_Reverse, AirsyncDTD_Forward
 from activesync.wbxml.codec2 import WBXMLEncoder, WBXMLDecoder
 
-class ActiveSyncTestCase(TestCase):
+class ActiveSyncWbxmlTestCase(TestCase):
     def setUp(self):
         self.decoder = WBXMLDecoder(AirsyncDTD_Forward)
     
@@ -100,3 +100,4 @@ class ActiveSyncTestCase(TestCase):
         xml_str   = """<?xml version="1.0" encoding="utf-8"?><Sync xmlns="AirSync:" xmlns:A1="Contacts:"><Collections><Collection><Class>Contacts</Class><SyncKey>0</SyncKey><CollectionId>2e9ce20a99cc4bc39804d5ee956855311b00000000000000</CollectionId><DeletesAsMoves/><GetChanges/></Collection></Collections></Sync>"""
 
         self.assertEqual(tostring(decoded), xml_str)
+

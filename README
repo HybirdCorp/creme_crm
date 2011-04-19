@@ -13,6 +13,7 @@ DEPENDENCIES:
 - pdflatex (if you use the app creme.billing and want PDF export)
 - pygraphviz (if you use the app creme.graphs and want graph export)
 - Java >= 1.4 (only needed to build the compressed version of CSS and JavaScript files at installation time)
+- PIL >= 1.1.7 (for activesync)
 
 RECOMMENDATIONS
 It's recommended to use a database engine that supports transactions.

@@ -115,7 +115,7 @@ class Base(object):
             self._data['debug']['errors'].append(err.msg)
             raise CremeActiveSyncError(SYNC_ERR_FORBIDDEN)
         except (socket.gaierror, socket.error), err:
-            self._data['debug']['errors'].append(err.msg)
+            self._data['debug']['errors'].append(err.strerror)
             raise CremeActiveSyncError(SYNC_ERR_CONNECTION)
         except restkit.errors.ResourceNotFound, err:
             self._data['debug']['errors'].append(err.msg)

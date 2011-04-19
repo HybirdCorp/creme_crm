@@ -18,16 +18,19 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 import base64
+import os
 from random import randint
 import datetime
 import time
+from PIL import Image as PILImage
 
 from django.contrib.contenttypes.models import ContentType
 from django.core.files.base import ContentFile
 from django.utils import formats
 from django.db import models
 
-from activesync.config import IS_ZPUSH
+from activesync.config import IS_ZPUSH, PICTURE_LIMIT_SIZE
+from activesync.utils import get_b64encoded_img_of_max_weight
 from creme_core.models.relation import Relation, RelationType
 from creme_core.utils.meta import get_field_infos, is_date_field
 from creme_core.views.file_handling import handle_uploaded_file, MAXINT
@@ -43,7 +46,12 @@ def get_encoded_contact_img(contact=None, needs_attr=False, *args, **kwargs):
 #    if contact and contact.image is not None:
     if contact:
         if contact.image is not None:
-            encoded_img = contact.image.get_encoded(encoding="base64")
+            image_path = str(contact.image.image.file)
+            file_size = os.path.getsize(image_path)
+            if file_size > PICTURE_LIMIT_SIZE:
+                encoded_img = get_b64encoded_img_of_max_weight(image_path, PICTURE_LIMIT_SIZE)
+            else:
+                encoded_img = contact.image.get_encoded(encoding="base64")
         else:
             encoded_img = ""
     return encoded_img
@@ -70,7 +78,7 @@ def get_organisation(contact=None, needs_attr=False, *args, **kwargs):
 CREME_CONTACT_MAPPING = {
     'Contacts:':
     {
-        'civility__title' : 'Title',
+        'civility__title'         : 'Title',
         'first_name'              : 'FirstName',
         'last_name'               : 'LastName',
         'skype'                   : 'Home2PhoneNumber',
