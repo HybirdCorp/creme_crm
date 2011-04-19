@@ -20,9 +20,11 @@
 
 import libxml2
 from restkit import Resource, BasicAuth, set_logging
+
+from django.conf import settings
+
 from wbxml.converters import XMLToWBXML, WBXMLToXML
 
-from activesync.config import CONNECTION_TIMEOUT
 #set_logging("debug")
 set_logging("error")
 #set_logging("info")
@@ -32,7 +34,7 @@ class Connection(Resource):
         super(Connection, self).__init__(url, follow_redirect=True,
                                         max_follow_redirect=10,
                                         pool_instance=pool_instance,
-                                        timeout=CONNECTION_TIMEOUT,
+                                        timeout=settings.CONNECTION_TIMEOUT,
                                         **kwargs)
 
     def post(self, path=None, payload=None, headers=None, cmd="", device_id=None, device_type="SmartPhone", **params):

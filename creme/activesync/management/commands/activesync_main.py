@@ -17,12 +17,41 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
+import sys
+from optparse import make_option, OptionParser
+from django.contrib.auth.models import User
 
 from django.core.management.base import BaseCommand
 
-from activesync.main import main
+from activesync.sync import Synchronization
 
 class Command(BaseCommand):
+    option_list = BaseCommand.option_list + (
+        make_option("-u", "--user_id", action="store", dest="user_id"),
+    )
+
+    def create_parser(self, prog_name, subcommand):
+        """
+        Create and return the ``OptionParser`` which will be used to
+        parse the arguments to this command.
+        """
+        return OptionParser(prog=prog_name,
+                            usage=self.usage(subcommand),
+                            version=self.get_version(),
+                            option_list=self.option_list,
+                            conflict_handler="resolve")
 
     def handle(self, *args, **options):
-        main()
+        user_id = options.get('user_id')
+        if not user_id:
+            print "A user_id is required"
+            sys.exit(2)
+
+        try:
+            user = User.objects.get(pk=user_id)
+        except:
+            print "%s is not a valid user_id." % user_id
+            sys.exit(2)
+        else:
+            sync = Synchronization(user)
+            sync.synchronize()

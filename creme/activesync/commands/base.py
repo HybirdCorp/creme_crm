@@ -24,17 +24,19 @@ import restkit.errors
 from xml.etree.ElementTree import fromstring, tostring
 from httplib import socket
 
+from django.conf import settings
+from django.template.loader import render_to_string
+
 from activesync.errors import SYNC_ERR_FORBIDDEN, CremeActiveSyncError, SYNC_ERR_CONNECTION, SYNC_ERR_NOT_FOUND
 from activesync.wbxml.dtd import AirsyncDTD_Reverse
 from activesync.wbxml.codec2 import WBXMLEncoder
-from activesync.config import ACTIVE_SYNC_DEBUG
-
-from django.template.loader import render_to_string
 
 from activesync.connection import Connection
 from activesync.wbxml.converters import XMLToWBXML, WBXMLToXML
 
 from activesync.messages import _INFO, _ERROR, _SUCCESS, MessageInfo, MessageSucceed, MessageError
+
+ACTIVE_SYNC_DEBUG = settings.ACTIVE_SYNC_DEBUG
 
 class Base(object):
     template_name = u"overloadme.xml" #XML template to send to the server

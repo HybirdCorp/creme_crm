@@ -435,6 +435,20 @@ EMAILS_ENTITYEMAIL_FROM_EMAIL = {
     }
 }
 
+#ACTIVESYNC ------------------------------------------------------------------------
+#TODO: Rename and transform this into an AS-Version verification => A2:Body doesn't seems to work with AS version > 2.5
+IS_ZPUSH = True
+
+CONFLICT_MODE = 1 #0 Client object replaces server object. / 1 Server object replaces client object.
+
+ACTIVE_SYNC_DEBUG = DEBUG #Make appears some debug informations on the UI
+
+LIMIT_SYNC_KEY_HISTORY = 50 #Number of sync_keys kept in db by user
+
+CONNECTION_TIMEOUT = 150
+
+PICTURE_LIMIT_SIZE = 55000 #E.g: 55Ko Active sync servers don't handle pictures > to this size
+
 
 #APPS CONFIGURATION [END]#######################################################
 

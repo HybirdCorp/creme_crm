@@ -22,8 +22,10 @@ from os.path import dirname, join, abspath
 import base64
 
 from django.test import TestCase
+from django.conf import settings
+
 from activesync.utils import get_b64encoded_img_of_max_weight
-from activesync.config import PICTURE_LIMIT_SIZE
+
 
 class ActiveSyncImageTestCase(TestCase):
     def setUp(self):
@@ -36,9 +38,9 @@ class ActiveSyncImageTestCase(TestCase):
             self.fail(u"You have to install PIL to use correctly activesync features")
 
     def test_get_b64encoded_img_of_max_weight01(self):
-        b64_content = get_b64encoded_img_of_max_weight(self.image_path, PICTURE_LIMIT_SIZE)
+        b64_content = get_b64encoded_img_of_max_weight(self.image_path, settings.PICTURE_LIMIT_SIZE)
 
-        self.assertTrue(len(b64_content) < PICTURE_LIMIT_SIZE)
+        self.assertTrue(len(b64_content) < settings.PICTURE_LIMIT_SIZE)
 
         image = open(self.image_path, 'r')
         image_str = StringIO()

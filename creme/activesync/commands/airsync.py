@@ -23,7 +23,7 @@ from logging import debug, error
 from xml.etree.ElementTree import tostring
 
 from django.db.models import Q
-from django.contrib.auth.models import User
+from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
 from django.db.utils import IntegrityError
 from activesync.messages import MessageSucceedContactAdd, MessageSucceedContactUpdate, MessageInfoContactAdd
@@ -33,7 +33,6 @@ from base import Base
 from activesync.contacts import (serialize_contact, CREME_CONTACT_MAPPING,
                                  save_contact, update_contact)
 from activesync.models.active_sync import CremeExchangeMapping, CremeClient, SyncKeyHistory
-from activesync import config
 from activesync.constants import CONFLICT_SERVER_MASTER, SYNC_AIRSYNC_STATUS_SUCCESS, SYNC_AIRSYNC_STATUS_INVALID_SYNCKEY
 from activesync.errors import (SYNC_ERR_VERBOSE, SYNC_ERR_CREME_PERMISSION_DENIED_CREATE,
                                SYNC_ERR_CREME_PERMISSION_DENIED_CHANGE_SPECIFIC, SYNC_ERR_CREME_PERMISSION_DENIED_DELETE_SPECIFIC)
@@ -69,7 +68,7 @@ class AirSync(Base):
         exch_map_manager_get = exch_map_manager.get
         contact_getter = Contact.objects.get
         self.last_synckey = synckey
-        CONFLICT_MODE = config.CONFLICT_MODE
+        CONFLICT_MODE = settings.CONFLICT_MODE
         IS_SERVER_MASTER = True if CONFLICT_MODE==CONFLICT_SERVER_MASTER else False
 
         client = CremeClient.objects.get(user=user)
@@ -180,11 +179,7 @@ class AirSync(Base):
                                     c_field = c_field(needs_attr=True)
 
                                 if c_field and c_field.strip() != '':
-                                    print u"%s" % d.text
                                     data[c_field] = d.text
-                                print
-                                print
-                                print
 
                     contact = save_contact(data, user)
                     try:
@@ -413,72 +408,6 @@ def get_deleted_objects(user, msg_stack):
         objects_append(delete_object(server_id))
         
     return objects
-
-#<ns0:Sync xmlns:ns0="AirSync:">
-#    <ns0:Collections>
-#        <ns0:Collection>
-#        <ns0:Class>Contacts</ns0:Class>
-#        <ns0:SyncKey>{c10d700e-2a23-41ef-b27a-c060dc781684}3</ns0:SyncKey>
-#        <ns0:CollectionId>2e9ce20a99cc4bc39804d5ee956855311100000000000000</ns0:CollectionId>
-#        <ns0:Status>1</ns0:Status>
-#        <ns0:Responses>
-#            <ns0:Add>
-#                <ns0:ClientId>16</ns0:ClientId>
-#                <ns0:ServerId>2e9ce20a99cc4bc39804d5ee956855319700000000000000</ns0:ServerId>
-#                <ns0:Status>1</ns0:Status>
-#            </ns0:Add>
-#        </ns0:Responses></ns0:Collection></ns0:Collections></ns0:Sync>
-
-#<Add>...</Add>
-#<Delete>...</Delete>
-#<Change>...</Change>
-#<Fetch>...</Fetch>
-
-#<Commands>
-#    <Add>
-#        <ClientId>123</ClientId>
-#        <ApplicationData>
-#            <contacts:Email1Address>schai@fourthcoffee.com</contacts:Email1Address>
-#            <contacts:FirstName>Sean</contacts:FirstName>
-#            <contacts:MiddleName>W</contacts:MiddleName>
-#            <contacts:LastName>Chai</contacts:LastName>
-#            <contacts:Title>Sr Marketing Manager</contacts:Title>
-#        </ApplicationData>
-#    </Add>
-#</Commands
-
-
-#<Change>
-#    <ServerId>3:1</ServerId>
-#    <ApplicationData>
-#        <contacts:Email1Address>jsmith@fourthcoffee.com</contacts:Email1Address>
-#        <contacts:FirstName>Jeff</contacts:FirstName>
-#    </ApplicationData>
-#</Change>
-
-#Img >~ 200Ko
-# xml3: <ns0:Sync xmlns:ns0="AirSync:">
-#<ns0:Collections>
-#    <ns0:Collection>
-#        <ns0:Class>Contacts</ns0:Class>
-#        <ns0:SyncKey>{6dcd97d8-b1f2-4ef6-80e1-c46f69fcdfc5}3</ns0:SyncKey>
-#        <ns0:CollectionId>2e9ce20a99cc4bc39804d5ee956855311100000000000000</ns0:CollectionId>
-#        <ns0:Status>1</ns0:Status>
-#        <ns0:Responses>
-#            <ns0:Add>
-#                <ns0:ClientId>4</ns0:ClientId>
-#                <ns0:ServerId>2e9ce20a99cc4bc39804d5ee956855318701000000000000</ns0:ServerId>
-#                <ns0:Status>1</ns0:Status>
-#            </ns0:Add>
-#            <ns0:Add>
-#                <ns0:ClientId>16</ns0:ClientId>
-#                <ns0:ServerId>2e9ce20a99cc4bc39804d5ee956855318801000000000000</ns0:ServerId>
-#                <ns0:Status>1</ns0:Status>
-#            </ns0:Add>
-#        </ns0:Responses>
-#    </ns0:Collection>
-#</ns0:Collections>
-#</ns0:Sync>
 
 
 

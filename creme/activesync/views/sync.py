@@ -22,10 +22,10 @@ from django.template.context import RequestContext
 from django.contrib.auth.decorators import login_required, permission_required
 from django.template.loader import render_to_string
 from django.shortcuts import render_to_response
-from activesync.messages import MessageError, _ERROR
+from django.conf import settings
 
+from activesync.messages import MessageError, _ERROR
 from activesync.sync import Synchronization
-from activesync.config import ACTIVE_SYNC_DEBUG
 from activesync.errors import CremeActiveSyncError
 
 @login_required
@@ -58,7 +58,7 @@ def main_sync(request):
             #DEBUG
             'xml':        sync._data['debug']['xml'],
             'debug_info': sync._data['debug']['info'],
-            'ACTIVE_SYNC_DEBUG': ACTIVE_SYNC_DEBUG,
+            'ACTIVE_SYNC_DEBUG': settings.ACTIVE_SYNC_DEBUG,
         }
 
     context = RequestContext(request)

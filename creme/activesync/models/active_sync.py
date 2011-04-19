@@ -22,7 +22,7 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.db.models.signals import post_save, post_delete
 from django.utils.translation import ugettext_lazy as _
-from creme_config.models.setting import SettingKey
+from django.conf import settings
 
 from creme_core.models import CremeModel, CremeEntity
 from creme_core.models.fields import CreationDateTimeField
@@ -30,8 +30,8 @@ from creme_core.models.fields import CreationDateTimeField
 from persons.models.contact import Contact
 
 from activesync.utils import generate_guid
-from activesync.config import LIMIT_SYNC_KEY_HISTORY
-from activesync.constants import USER_MOBILE_SYNC_SERVER_URL
+
+LIMIT_SYNC_KEY_HISTORY = settings.LIMIT_SYNC_KEY_HISTORY
 
 class CremeExchangeMapping(CremeModel):
     creme_entity_id    = models.IntegerField(u'Creme entity pk', unique=True)
