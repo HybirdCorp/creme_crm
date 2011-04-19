@@ -37,7 +37,7 @@
                 <td class="{{row_color}}">{{user.date_joined}}</td>
                 <td class="{{row_color}}">
                     {% get_line_editor at_url '/creme_config/user/edit/{{user.id}}' with_perms 1 %}
-                    {% get_line_deletor2 at_url '/creme_config/user/delete' with_args "{'id':'{{user.id}}'}" with_perms 1 %}
+                    {% get_line_deletor at_url '/creme_config/user/delete' with_args "{'id':'{{user.id}}'}" with_perms 1 %}
                 </td>
                 <td class="{{row_color}}">
                     {% get_line_editor at_url '/creme_config/user/edit/password/{{user.id}}' with_perms 1 %}

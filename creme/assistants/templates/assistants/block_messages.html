@@ -42,7 +42,7 @@
                     <td class="{{row_color}}">{{message|get_html_field_value:"title"}}</td>
                     <td class="{{row_color}}">{{message|get_html_field_value:"body"}}</td>
                     <td class="{{row_color}}" align="center" valign="center" style="width:10%;">
-                        {% get_line_deletor2 at_url '/assistants/message/delete' with_args "{'id' : {{message.id}} }" with_perms 1 %}
+                        {% get_line_deletor at_url '/assistants/message/delete' with_args "{'id' : {{message.id}} }" with_perms 1 %}
                     </td>
                 </tr>
             {% endfor %}

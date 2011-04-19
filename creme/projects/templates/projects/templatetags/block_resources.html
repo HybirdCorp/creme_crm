@@ -33,7 +33,7 @@
                     <td class="{{row_color}}" align="center" valign="center" style="width:10%;">
                         {% comment %}TODO: use {{resource.get_edit_absolute_url}} ?? {% endcomment %}
                         {% get_line_editor at_url '/projects/resource/edit/{{resource.id}}' with_perms task_change_perm %}
-                        {% get_line_deletor2 at_url '/projects/resource/delete' with_args "{'id': {{resource.pk}} }" with_perms task_change_perm %}
+                        {% get_line_deletor at_url '/projects/resource/delete' with_args "{'id': {{resource.pk}} }" with_perms task_change_perm %}
                     </td>
                 </tr>
             {% endfor %}

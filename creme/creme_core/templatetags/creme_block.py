@@ -222,45 +222,6 @@ class LineRelatorNode(TemplateNode):
         return self.template.render(context)
 
 #-------------------------------------------------------------------------------
-#COMMENTED on 12 march 2011
-#_LINE_DELETOR_RE = compile_re(r'at_url (.*?) with_args (.*?)$')
-
-#@register.tag(name="get_line_deletor")
-#def do_line_deletor(parser, token):
-    #"""Eg: {% get_line_deletor at_url '/app/model/delete' with_args "{'id' : {{object.id}} }" %}"""
-    #try:
-        ## Splitting by None == splitting by spaces.
-        #tag_name, arg = token.contents.split(None, 1)
-    #except ValueError:
-        #raise TemplateSyntaxError, "%r tag requires arguments" % token.contents.split()[0]
-
-    #match = _LINE_DELETOR_RE.search(arg)
-    #if not match:
-        #raise TemplateSyntaxError, "%r tag had invalid arguments" % tag_name
-
-    #groups = match.groups()
-
-    #for group in groups:
-        #first_char = group[0]
-        #if not (first_char == group[-1] and first_char in ('"', "'")):
-            #raise TemplateSyntaxError, "%r tag's argument should be in quotes" % tag_name
-
-    #delete_url, post_args = groups
-
-    #return LineDeletorNode(delete_url[1:-1], post_args[1:-1])
-
-#class LineDeletorNode(TemplateNode):
-    #def __init__(self, delete_url, post_args):
-        #self.deletor_tpl = get_template('creme_core/templatetags/widgets/block_line_deletor.html')
-        #self.url_tpl     = Template(delete_url)
-        #self.args_tpl    = Template(post_args)
-
-    #def render(self, context):
-        #context['delete_url'] = self.url_tpl.render(context)
-        #context['post_args']  = self.args_tpl.render(context)
-        #return self.deletor_tpl.render(context)
-
-
 _LINE_SUPPR_RE = compile_re(r'at_url (.*?) with_args (.*?) with_perms (.*?)$')
 
 def _do_line_suppr(parser, token, template_path):
@@ -300,10 +261,10 @@ class LineSuppressorNode(TemplateNode):
 
         return self.template.render(context)
 
-@register.tag(name="get_line_deletor2")
-def do_line_deletor2(parser, token):
-    """Eg: {% get_line_deletor2 at_url '/app/model/delete' with_args "{'id' : {{object.id}} }" with_perms boolean_variable %}"""
-    return _do_line_suppr(parser, token, 'creme_core/templatetags/widgets/block_line_deletor2.html')
+@register.tag(name="get_line_deletor")
+def do_line_deletor(parser, token):
+    """Eg: {% get_line_deletor at_url '/app/model/delete' with_args "{'id' : {{object.id}} }" with_perms boolean_variable %}"""
+    return _do_line_suppr(parser, token, 'creme_core/templatetags/widgets/block_line_deletor.html')
 
 @register.tag(name="get_line_unlinker")
 def do_line_unlinker(parser, token):

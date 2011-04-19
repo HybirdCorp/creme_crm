@@ -42,7 +42,7 @@
                     {% if custom %}
                         <td class="{{row_color}}">
                             {% get_line_editor at_url '/creme_config/relation_type/edit/{{relation_type.id}}' with_perms 1 %}
-                            {% get_line_deletor2 at_url '/creme_config/relation_type/delete' with_args "{'id':'{{relation_type.pk}}'}" with_perms 1 %}
+                            {% get_line_deletor at_url '/creme_config/relation_type/delete' with_args "{'id':'{{relation_type.pk}}'}" with_perms 1 %}
                         </td>
                     {% endif %}
                 </tr>
