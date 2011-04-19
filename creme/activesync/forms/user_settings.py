@@ -22,11 +22,12 @@ from itertools import chain
 from django.forms.fields import ChoiceField, CharField, URLField
 from django.forms.widgets import PasswordInput, Select
 from django.utils.translation import ugettext_lazy as _, ugettext
+
 from creme_config.models.setting import SettingValue
-
 from creme_core.forms.base import FieldBlockManager, CremeForm
+from creme_core.forms.widgets import Label
 
-
+from activesync.models.active_sync import CremeClient
 from activesync.constants import (USER_MOBILE_SYNC_SERVER_URL,
                                     USER_MOBILE_SYNC_SERVER_DOMAIN,
                                     USER_MOBILE_SYNC_SERVER_SSL,
@@ -39,7 +40,7 @@ from activesync.constants import (USER_MOBILE_SYNC_SERVER_URL,
 
 
 class UserSettingsConfigForm(CremeForm):
-
+    help         = CharField(   label=_(u"NB"),                  required=False, initial=_(u"Note that if you change your server url or your login, synchronization will be reset. You will not loose all your synchronized contacts but there will be all added on the 'new' account at next synchronization."), widget=Label)
     url_examples = ChoiceField( label=_(u"Server url examples"), required=False, help_text=_(u"Some common configurations"), choices=chain((("", ""),), COMMONS_SERVER_URL_CFG), widget=Select(attrs={'onchange':'this.form.url.value=$(this).val();'}) )
     url          = URLField(    label=_(u"Server url"),          required=False, help_text=_(u"Let empty to get the default configuration (currently '%s')."))
     domain       = CharField(   label=_(u"Domain"),              required=False, help_text=_(u"Let empty to get the default configuration (currently '%s')."))
@@ -48,7 +49,7 @@ class UserSettingsConfigForm(CremeForm):
     password     = CharField(   label=_(u"Password"),            required=False, widget=PasswordInput)
 
     blocks = FieldBlockManager(#('general',    _(u'Generic information'),  '*'),
-                               ('mobile_sync', _(u'Mobile synchronization configuration'),   ('url', 'url_examples', 'domain', 'ssl', 'login', 'password')),
+                               ('mobile_sync', _(u'Mobile synchronization configuration'),   ('url', 'url_examples', 'domain', 'ssl', 'login', 'password', 'help')),
                               )
 
     def __init__(self, user, *args, **kwargs):
@@ -112,16 +113,17 @@ class UserSettingsConfigForm(CremeForm):
 #        super(UserSettingsConfigForm, self).save()
 
         user = self.user
-        user_id = self.user.id
 
         clean_get = self.cleaned_data.get
 
         sv_get_or_create = SettingValue.objects.get_or_create
         sv_filter        = SettingValue.objects.filter
+        url_is_created   = False
+        login_is_created = False
 
         url = clean_get('url')
         if url:
-            user_url_cfg, is_created = sv_get_or_create(key_id=USER_MOBILE_SYNC_SERVER_URL, user=user)
+            user_url_cfg, url_is_created = sv_get_or_create(key_id=USER_MOBILE_SYNC_SERVER_URL, user=user)
             user_url_cfg.value = url
             user_url_cfg.save()
         else:
@@ -135,7 +137,6 @@ class UserSettingsConfigForm(CremeForm):
         else:
             sv_filter(key__id=USER_MOBILE_SYNC_SERVER_DOMAIN, user=user).delete()
 
-
         ssl = clean_get('ssl')
         if ssl:
             user_ssl_cfg, is_created = sv_get_or_create(key_id=USER_MOBILE_SYNC_SERVER_SSL, user=user)
@@ -146,7 +147,7 @@ class UserSettingsConfigForm(CremeForm):
 
         login = clean_get('login')
         if login:
-            user_login_cfg, is_created = sv_get_or_create(key_id=USER_MOBILE_SYNC_SERVER_LOGIN, user=user)
+            user_login_cfg, login_is_created = sv_get_or_create(key_id=USER_MOBILE_SYNC_SERVER_LOGIN, user=user)
             user_login_cfg.value = login
             user_login_cfg.save()
         else:
@@ -159,6 +160,9 @@ class UserSettingsConfigForm(CremeForm):
             user_password_cfg.save()#TODO: Needs to be crypted ?
         else:
             sv_filter(key__id=USER_MOBILE_SYNC_SERVER_PWD, user=user).delete()
+
+        if url_is_created or login_is_created:
+            CremeClient.purge()#NB: If server_url or login have changed, we reset all mapping & clientdef
 
 
 

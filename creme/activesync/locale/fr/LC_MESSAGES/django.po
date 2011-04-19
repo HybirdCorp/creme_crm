@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-04-14 11:22+0200\n"
+"POT-Creation-Date: 2011-04-19 15:38+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -24,7 +24,7 @@ msgstr ""
 msgid "Mobile synchronization"
 msgstr "Synchronisation mobile"
 
-#: blocks.py:42 forms/user_settings.py:63
+#: blocks.py:42 forms/user_settings.py:68
 msgid "Undefined"
 msgstr "Non-défini"
 
@@ -36,11 +36,11 @@ msgstr "Configuration par défaut"
 msgid "Contact synchronisation"
 msgstr "Synchronisation de contact"
 
-#: errors.py:41
+#: errors.py:43
 msgid "Wrong username and/or password"
 msgstr "Mauvais nom d'utilisateur et/ou mot de passe"
 
-#: errors.py:42
+#: errors.py:44
 msgid ""
 "No server url, please fill in information in global settings configuration "
 "or in your own settings"
@@ -48,53 +48,57 @@ msgstr ""
 "Aucune url de serveur, veuillez remplir les informations dans la "
 "configuration globale ou dans votre configuration"
 
-#: errors.py:43
+#: errors.py:45
+msgid "Invalid server url, please check it in your settings"
+msgstr "Url de serveur invalide, veuillez la vérifier dans votre configuration"
+
+#: errors.py:46
 msgid "No login, please fill in information in your own settings"
 msgstr ""
 "Aucun nom d'utilisateur, veuillez remplir les informations dans votre "
 "configuration"
 
-#: errors.py:44
+#: errors.py:47
 msgid "No password, please fill in information in your own settings"
 msgstr ""
 "Aucun mot de passe, veuillez remplir les informations dans votre "
 "configuration"
 
-#: errors.py:45
+#: errors.py:48
 msgid "There was an error during synchronization"
 msgstr "Il y a eu une erreur pendant la synchronisation"
 
-#: errors.py:46
+#: errors.py:49
 msgid "It seems there no available connection"
 msgstr "Il semble qu'il n'y ait pas de connection internet"
 
-#: errors.py:47
+#: errors.py:50
 msgid "Wrong configuration (wrong server url?)"
 msgstr "Mauvaise configuration (url du serveur erronée?)"
 
-#: errors.py:49
+#: errors.py:52
 msgid "You haven't the right to create contacts in Creme"
 msgstr "Vous n'avez pas le droit de créer des contacts dans Crème"
 
-#: errors.py:50
+#: errors.py:53
 #, python-format
 msgid "You haven't the right to create contact <%s> in Creme"
 msgstr "Vous n'avez pas le droit de créer le contact <%s> dans Crème"
 
-#: errors.py:51
+#: errors.py:54
 msgid "You haven't the right to change contacts in Creme"
 msgstr "Vous n'avez pas le droit d'éditer des contacts dans Crème"
 
-#: errors.py:52
+#: errors.py:55
 #, python-format
 msgid "You haven't the right to change the contact <%s> in Creme"
 msgstr "Vous n'avez pas le droit d'éditer le contact <%s> dans Crème"
 
-#: errors.py:53
+#: errors.py:56
 msgid "You haven't the right to delete contacts in Creme"
 msgstr "Vous n'avez pas le droit d'effacer des contacts dans Crème"
 
-#: errors.py:54
+#: errors.py:57
 #, python-format
 msgid "You haven't the right to delete the contact <%s> in Creme"
 msgstr "Vous n'avez pas le droit d'effacer le contact <%s> dans Crème"
@@ -117,7 +121,7 @@ msgid_plural "Successes"
 msgstr[0] "Succès"
 msgstr[1] "Succès"
 
-#: sync.py:283
+#: sync.py:296
 msgid "There is a server error, please try again later..."
 msgstr "Il y a une erreur sur le serveur, veuillez essayer plus tard..."
 
@@ -202,67 +206,82 @@ msgstr ""
 msgid "Deleting %s on the server"
 msgstr "Effacement de %s sur le serveur"
 
-#: forms/mobile_sync.py:33 forms/user_settings.py:43
+#: forms/mobile_sync.py:33 forms/user_settings.py:48
 msgid "Server url examples"
 msgstr "Exemples d'url de serveurs"
 
-#: forms/mobile_sync.py:33 forms/user_settings.py:43
+#: forms/mobile_sync.py:33 forms/user_settings.py:48
 msgid "Some common configurations"
 msgstr "Configurations communes"
 
-#: forms/mobile_sync.py:34 forms/user_settings.py:44
+#: forms/mobile_sync.py:34 forms/user_settings.py:49
 #: templates/activesync/frags/ajax/main_sync.html:30
-#: templates/activesync/templatetags/block_mobile_sync_config.html:22
-#: templates/activesync/templatetags/block_user_mobile_sync.html:21
+#: templates/activesync/templatetags/block_mobile_sync_config.html:20
+#: templates/activesync/templatetags/block_user_mobile_sync.html:19
 msgid "Server url"
 msgstr "Url du serveur"
 
-#: forms/mobile_sync.py:35 forms/user_settings.py:45
+#: forms/mobile_sync.py:35 forms/user_settings.py:50
 #: templates/activesync/frags/ajax/main_sync.html:38
-#: templates/activesync/templatetags/block_mobile_sync_config.html:26
-#: templates/activesync/templatetags/block_user_mobile_sync.html:25
+#: templates/activesync/templatetags/block_mobile_sync_config.html:24
+#: templates/activesync/templatetags/block_user_mobile_sync.html:23
 msgid "Domain"
 msgstr "Domaine"
 
-#: forms/mobile_sync.py:36 forms/user_settings.py:46
-#: templates/activesync/templatetags/block_mobile_sync_config.html:30
-#: templates/activesync/templatetags/block_user_mobile_sync.html:29
+#: forms/mobile_sync.py:36 forms/user_settings.py:51
+#: templates/activesync/templatetags/block_mobile_sync_config.html:28
+#: templates/activesync/templatetags/block_user_mobile_sync.html:27
 msgid "Is secure"
 msgstr "Est sécurisé"
 
-#: forms/user_settings.py:44 forms/user_settings.py:45
+#: forms/user_settings.py:47
+msgid "NB"
+msgstr "N.B."
+
+#: forms/user_settings.py:47
+msgid ""
+"Note that if you change your server url or your login, synchronization will "
+"be reset. You will not loose all your synchronized contacts but there will "
+"be all added on the 'new' account at next synchronization."
+msgstr ""
+"Notez que si vous changez l'url du serveur ou votre nom d'utilisateur "
+"(login), la synchronisation sera remise à zéro. Vous ne perdrez pas vos "
+"contacts synchronisés mais ils seront de nouveau ajoutés sur votre "
+"'nouveau' compte à la prochaine synchronisation."
+
+#: forms/user_settings.py:49 forms/user_settings.py:50
 #, python-format
 msgid "Let empty to get the default configuration (currently '%s')."
 msgstr ""
 "Laissez vide pour obtenir la configuration par défaut actuellement (%s)."
 
-#: forms/user_settings.py:46
+#: forms/user_settings.py:51
 #, python-format
 msgid "Let default to get the default configuration  (currently '%s')."
 msgstr "Laissez pour obtenir la configuration par défaut (actuellement '%s')"
 
-#: forms/user_settings.py:46
+#: forms/user_settings.py:51
 msgid "Default"
 msgstr "Défaut"
 
-#: forms/user_settings.py:46 forms/user_settings.py:101
+#: forms/user_settings.py:51 forms/user_settings.py:106
 msgid "Yes"
 msgstr "Oui"
 
-#: forms/user_settings.py:46 forms/user_settings.py:101
+#: forms/user_settings.py:51 forms/user_settings.py:106
 msgid "No"
 msgstr "Non"
 
-#: forms/user_settings.py:47 templates/activesync/frags/ajax/main_sync.html:34
+#: forms/user_settings.py:52 templates/activesync/frags/ajax/main_sync.html:34
 msgid "Login"
 msgstr "Nom d'utilisateur"
 
-#: forms/user_settings.py:48
-#: templates/activesync/templatetags/block_user_mobile_sync.html:37
+#: forms/user_settings.py:53
+#: templates/activesync/templatetags/block_user_mobile_sync.html:35
 msgid "Password"
 msgstr "Mot de passe"
 
-#: forms/user_settings.py:51
+#: forms/user_settings.py:56
 msgid "Mobile synchronization configuration"
 msgstr "Configuration de synchronisation mobile"
 
@@ -270,13 +289,13 @@ msgstr "Configuration de synchronisation mobile"
 msgid "Last sync"
 msgstr "Dernière synchronisation"
 
-#: models/active_sync.py:87
+#: models/active_sync.py:92
 msgid "Creation date"
 msgstr "Date de création"
 
 #: templates/activesync/frags/ajax/main_sync.html:5
-#: templates/activesync/templatetags/block_mobile_sync_config.html:9
-#: templates/activesync/templatetags/block_user_mobile_sync.html:8
+#: templates/activesync/templatetags/block_mobile_sync_config.html:7
+#: templates/activesync/templatetags/block_user_mobile_sync.html:6
 msgid "Phone synchronization"
 msgstr "Synchronisation de téléphone"
 
@@ -321,7 +340,7 @@ msgstr "Voir les détails de '%(contact)s'"
 msgid "View"
 msgstr "Voir"
 
-#: templates/activesync/templatetags/block_mobile_sync_config.html:5
+#: templates/activesync/templatetags/block_mobile_sync_config.html:3
 msgid ""
 "Here you set the default configuration for mobile synchronization. Each user "
 "get this config until he override it in his own settings."
@@ -330,26 +349,26 @@ msgstr ""
 "Chaque utilisateur héritera de cette configuration jusqu'à ce qu'il la "
 "surcharge dans ses propres configurations"
 
-#: templates/activesync/templatetags/block_mobile_sync_config.html:9
+#: templates/activesync/templatetags/block_mobile_sync_config.html:7
 msgid "Default mobile synchronization configuration"
 msgstr "Configuration de synchronisation mobile par défaut"
 
-#: templates/activesync/templatetags/block_mobile_sync_config.html:16
-#: templates/activesync/templatetags/block_mobile_sync_config.html:17
-#: templates/activesync/templatetags/block_user_mobile_sync.html:15
-#: templates/activesync/templatetags/block_user_mobile_sync.html:16
+#: templates/activesync/templatetags/block_mobile_sync_config.html:14
+#: templates/activesync/templatetags/block_mobile_sync_config.html:15
+#: templates/activesync/templatetags/block_user_mobile_sync.html:13
+#: templates/activesync/templatetags/block_user_mobile_sync.html:14
 msgid "Edit"
 msgstr "Éditer"
 
-#: templates/activesync/templatetags/block_user_mobile_sync.html:8
+#: templates/activesync/templatetags/block_user_mobile_sync.html:6
 msgid "Your mobile synchronization configuration"
 msgstr "Votre configuration de synchronisation mobile"
 
-#: templates/activesync/templatetags/block_user_mobile_sync.html:33
+#: templates/activesync/templatetags/block_user_mobile_sync.html:31
 msgid "Username"
 msgstr "Nom d'utilisateur"
 
-#: templates/activesync/templatetags/block_user_mobile_sync.html:38
+#: templates/activesync/templatetags/block_user_mobile_sync.html:36
 msgid "Not filled in"
 msgstr "Non-renseigné"
 

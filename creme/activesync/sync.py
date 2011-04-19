@@ -24,6 +24,7 @@ from django.db.models import Q
 from django.utils.translation import ugettext_lazy as _
 from django.core.exceptions import ValidationError
 from django.core import validators
+from django.conf import settings
 
 from creme_config.models.setting import SettingValue
 
@@ -34,7 +35,6 @@ from activesync.constants import (MAPI_DOMAIN, MAPI_SERVER_SSL, MAPI_SERVER_URL,
                                     USER_MOBILE_SYNC_SERVER_SSL,
                                     USER_MOBILE_SYNC_SERVER_URL)#TODO: * ?
 
-from activesync.config import ACTIVE_SYNC_DEBUG
 from activesync.errors import (CremeActiveSyncError,
                                SYNC_ERR_WRONG_CFG_NO_SERVER_URL,
                                SYNC_ERR_WRONG_CFG_NO_LOGIN,
@@ -53,6 +53,8 @@ ERROR   = 'error'
 SUCCESS = 'success'
 
 url_validator = validators.URLValidator()
+
+ACTIVE_SYNC_DEBUG = settings.ACTIVE_SYNC_DEBUG
 
 class Synchronization(object):
     """

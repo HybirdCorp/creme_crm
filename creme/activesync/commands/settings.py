@@ -18,21 +18,12 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-#SERVER_URL = "http://127.0.0.1/Microsoft-Server-ActiveSync"
-#USER = "raph"
-#PWD  = "raph"
-#CLIENT_ID = "64F55E2D0EE7A12E717863BA8048BED1"
+from base import Base
 
-#TODO: Delete this
-IS_ZPUSH = True
-#IS_ZPUSH = False
+class Settings(Base):
+    template_name = "activesync/commands/xml/settings/request_min.xml"
+    command       = "Settings"
 
-CONFLICT_MODE = 1 #0 Client object replaces server object. / 1 Server object replaces client object.
-
-ACTIVE_SYNC_DEBUG = True #Make appears some debug informations on the UI
-
-LIMIT_SYNC_KEY_HISTORY = 50 #Number of sync_keys kept in db by user
-
-CONNECTION_TIMEOUT = 150
-
-PICTURE_LIMIT_SIZE = 55000 #E.g: 55Ko Active sync servers don't handle pictures > to this size
+    def __init__(self, *args, **kwargs):
+        super(Settings, self).__init__(*args, **kwargs)
+        self._create_connection()

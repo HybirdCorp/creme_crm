@@ -28,8 +28,8 @@ from django.contrib.contenttypes.models import ContentType
 from django.core.files.base import ContentFile
 from django.utils import formats
 from django.db import models
+from django.conf import settings
 
-from activesync.config import IS_ZPUSH, PICTURE_LIMIT_SIZE
 from activesync.utils import get_b64encoded_img_of_max_weight
 from creme_core.models.relation import Relation, RelationType
 from creme_core.utils.meta import get_field_infos, is_date_field
@@ -48,8 +48,8 @@ def get_encoded_contact_img(contact=None, needs_attr=False, *args, **kwargs):
         if contact.image is not None:
             image_path = str(contact.image.image.file)
             file_size = os.path.getsize(image_path)
-            if file_size > PICTURE_LIMIT_SIZE:
-                encoded_img = get_b64encoded_img_of_max_weight(image_path, PICTURE_LIMIT_SIZE)
+            if file_size > settings.PICTURE_LIMIT_SIZE:
+                encoded_img = get_b64encoded_img_of_max_weight(image_path, settings.PICTURE_LIMIT_SIZE)
             else:
                 encoded_img = contact.image.get_encoded(encoding="base64")
         else:
@@ -114,7 +114,7 @@ CREME_CONTACT_MAPPING = {
 
 }
 
-if not IS_ZPUSH:
+if not settings.IS_ZPUSH:
     CREME_CONTACT_MAPPING['AirSyncBase:'].update({'description': 'Body'})
 
 

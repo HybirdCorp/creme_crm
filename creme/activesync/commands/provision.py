@@ -18,8 +18,9 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from creme.activesync.contacts import IS_ZPUSH
-from activesync.constants import SYNC_PROVISION_RWSTATUS_NA, SYNC_PROVISION_RWSTATUS_WIPED
+from django.conf import settings
+
+from activesync.constants import SYNC_PROVISION_RWSTATUS_NA, SYNC_PROVISION_RWSTATUS_WIPED, SYNC_PROVISION_STATUS_SUCCESS
 
 from base import Base
 
@@ -27,12 +28,14 @@ class Provision(Base):
 
     template_name = "activesync/commands/xml/provision/request_min.xml"
     command       = "Provision"
+    ns            = "{Provision:}"
 
     def __init__(self, *args, **kwargs):
         super(Provision, self).__init__(*args, **kwargs)
         self._create_connection()
 
     def send(self, policy_key=0, remote_wipe=False):
+        ns = self.ns
         policy_type = 'MS-EAS-Provisioning-WBXML'
         
         #Seems to be policy_type = 'MS-EAS-Provisioning-WBXML' for AS version >=12.0
@@ -43,42 +46,42 @@ class Provision(Base):
             self.policy_key = self.get_policy_key(xml)
             return
 
-        settings = True
-        if IS_ZPUSH:
-            settings = False
+        include_settings = True
+        if settings.IS_ZPUSH:
+            include_settings = False
             policy_type = 'MS-WAP-Provisioning-XML'
 
         if policy_key == 0:
-            xml = super(Provision, self).send({'settings': settings, 'policy_type': policy_type}, headers={"X-Ms-Policykey": policy_key})
+            xml = super(Provision, self).send({'settings': include_settings, 'policy_type': policy_type}, headers={"X-Ms-Policykey": policy_key})
             self.policy_key = self.get_policy_key(xml)
             policy_key= self.policy_key
-            settings = False
+            include_settings = False
 
-        xml = super(Provision, self).send({'settings': settings, 'policy_type': policy_type, 'policy_key': policy_key, 'policy_status': 1}, headers={"X-Ms-Policykey": policy_key})#TODO:Make constant with the 1
+        xml = super(Provision, self).send({'settings': include_settings, 'policy_type': policy_type, 'policy_key': policy_key, 'policy_status': 1}, headers={"X-Ms-Policykey": policy_key})#TODO:Make constant with the 1
 #        xml = super(Provision, self).send({'rw_status': SYNC_PROVISION_RWSTATUS_NA}, headers={"X-Ms-Policykey": policy_key})
+
+        direct_status = xml.find('%(ns)sStatus' % {'ns': ns})
+        if direct_status is not None and direct_status.text != SYNC_PROVISION_STATUS_SUCCESS:
+            return #TODO
+
 
         self.policy_key = self.get_policy_key(xml)
         self.status = self.get_status(xml)
-#        ns = "{Provision:}"
-#        policy_node = xml.find('%sPolicies/%sPolicy' % (ns, ns))
-        
-#        self.status     = policy_node.find('%sStatus' % ns).text
-#        self.policy_key = policy_node.find('%sPolicyKey' % ns).text
 
 
     def get_policy_key(self, xml):
-        ns = "{Provision:}"
+        ns = self.ns
         policy_node = xml.find('%(ns)sPolicies/%(ns)sPolicy' % {'ns': ns})
-
+        
         policy_key = policy_node.find('%sPolicyKey' % ns)
         if policy_key is not None:
             policy_key = policy_key.text
 
         return policy_key
-#        return policy_node.find('%sPolicyKey' % ns).text
 
+    
     def get_status(self, xml):
-        ns = "{Provision:}"
+        ns = self.ns
         policy_node = xml.find('%(ns)sPolicies/%(ns)sPolicy' % {'ns': ns})
         status = policy_node.find('%sStatus' % ns)
         if status is not None:
