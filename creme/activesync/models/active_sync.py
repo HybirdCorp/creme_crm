@@ -19,6 +19,8 @@
 ################################################################################
 
 from datetime import datetime
+import pickle
+from django.contrib.contenttypes.models import ContentType
 
 from django.db import models
 from django.contrib.auth.models import User
@@ -157,7 +159,7 @@ class UserSynchronizationHistory(CremeModel):
     entity_repr    = models.CharField(u'Entity', max_length=200, default=None, blank=True, null=True)#Saving the representation of the entity in case it was deleted
     entity_pk      = models.IntegerField(u'Entity pk', max_length=50, blank=True, null=True)#Saving the pk of the entity
     created        = CreationDateTimeField(_('Creation date'), default=lambda: datetime.now())
-    entity_changes = models.TextField(_(u'Entity changes'), blank=True, null=True)#Format them?
+    entity_changes = models.TextField(_(u'Entity changes'), default=lambda: pickle.dumps({}))
     type           = models.IntegerField(u'', max_length=1, choices=USER_HISTORY_TYPE)
     where          = models.IntegerField(u'', max_length=1, choices=USER_HISTORY_WHERE)
 
@@ -181,10 +183,52 @@ class UserSynchronizationHistory(CremeModel):
 
     entity = property(_get_entity, _set_entity); del _get_entity, _set_entity
 
+    #TODO: Optimize db queries
+    def _get_changes(self):
+        changes = pickle.loads(self.entity_changes.encode('utf-8'))
+        get_for_id = ContentType.objects.get_for_id
+        
+        for k, v in changes.iteritems():
+            if isinstance(v, dict):
+                model_class = get_for_id(v['ct_id']).model_class()
+                try:
+                    changes[k] = model_class._default_manager.get(pk=v['pk'])
+                except model_class.DoesNotExist:
+                    changes[k] = _(u"This entity doesn't exist anymore")
+        return changes
+
+
+    def _set_changes(self, entity_changes):
+        """ Set changes in self.entity_changes
+            @params entity_changes has to be an iterable of (key, value) => [('a',1),...] or .iteritems(), etc.
+            if a value is None the key is deleted
+            if a value is a django 'Model' it will be transformed into a dict {'ct_id': ContentType id, 'pk': Its pk}
+        """
+        changes = self.changes
+        
+        get_for_model = ContentType.objects.get_for_model
+        django_model = models.Model
+
+        for k_change, v_change in entity_changes:
+            if v_change is not None:
+                if isinstance(v_change, django_model):
+                    v_change = {'ct_id': get_for_model(v_change).id, 'pk': v_change.pk}
+                changes[k_change] = v_change
+                
+            elif changes.has_key(k_change):
+                del changes[k_change]
+
+        self.entity_changes = pickle.dumps(changes)
+
+    changes = property(_get_changes, _set_changes); del _get_changes, _set_changes
+
     @staticmethod
     def _add(user, entity, where, type, entity_changes=None):
-        ush = UserSynchronizationHistory(user=user, where=where, type=type, entity_changes=entity_changes)
-        
+        ush = UserSynchronizationHistory(user=user, where=where, type=type)
+
+        if entity_changes is not None:
+            ush.changes = entity_changes
+
         if isinstance(entity, CremeEntity):
             ush.entity = entity
         else:

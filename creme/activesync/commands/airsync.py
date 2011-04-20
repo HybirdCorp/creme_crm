@@ -231,8 +231,14 @@ class AirSync(Base):
                                 update_data[c_field] = node.text
 
                     debug("Update %s with %s", contact, update_data)
-                    update_contact(contact, update_data, user)
-                    self.add_history_update_in_creme(contact, update_data)
+
+                    history = self.add_history_update_in_creme(contact, None)
+
+                    update_contact(contact, update_data, user, history)
+
+#                    history.changes = update_data.iteritems()
+#                    history.save()
+#                    self.add_history_update_in_creme(contact, update_data)
                     self.add_message(MessageSucceedContactUpdate(contact, _(u"Successfully updated %(contact)s") % {'contact': contact}, update_data))
 
                     #Server is the master so we unset the creme flag to prevent creme modifications

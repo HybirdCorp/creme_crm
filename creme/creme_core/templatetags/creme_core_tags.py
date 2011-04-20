@@ -213,7 +213,7 @@ def get_extra_field_value(object, field_name):
 
 @register.simple_tag
 def get_field_verbose_name(model_or_entity, field_name):
-    return get_verbose_field_name(model_or_entity, field_name)
+    return get_verbose_field_name(model_or_entity, field_name) or field_name
 
 @register.filter(name="is_date_gte")
 def is_date_gte(date1, date2):

@@ -9,7 +9,9 @@
 * Make/Set an history of modifications to pass to the UI
 * Test with ssl / Don't let to set the http://
 
-* Verify contact address & dual mapping
+* Verify dual mapping
+* Chopper le signal de créer/suppression de relation est salarié pour setter l'organisation sur le serveur
+#TODO:Use create_or_update_address
 
 https://m.google.com/Microsoft-Server-ActiveSync
 https://m.hotmail.com/Microsoft-Server-ActiveSync
