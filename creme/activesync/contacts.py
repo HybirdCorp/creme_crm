@@ -29,6 +29,7 @@ from django.core.files.base import ContentFile
 from django.utils import formats
 from django.db import models
 from django.conf import settings
+from django.utils.translation import ugettext_lazy as _, ugettext
 
 from activesync.utils import get_b64encoded_img_of_max_weight
 from creme_core.models.relation import Relation, RelationType
@@ -119,7 +120,7 @@ if not settings.IS_ZPUSH:
 
 
 ### Contact helpers
-def create_or_update_organisation(contact, d, user):
+def create_or_update_organisation(contact, d, user, history=None):
     organisation = d.pop('organisation', None)
 
     if organisation is not None:
@@ -127,6 +128,8 @@ def create_or_update_organisation(contact, d, user):
             org = Organisation.objects.get(name__iexact=organisation, user=user)
         except Organisation.DoesNotExist:
             org = Organisation.objects.create(name=organisation, user=user)
+            if history is not None:
+                history.changes = [(_(u"Contact's organisation created"), org)]
         except Organisation.MultipleObjectsReturned:
             org = Organisation.objects.filter(name__iexact=organisation, user=user)[0]
 
@@ -136,51 +139,78 @@ def create_or_update_organisation(contact, d, user):
                                        user=user)
 
 
-def create_or_update_address(contact, prefix, d):
-    dpop_ = d.pop
+def create_or_update_address(contact, prefix, data, history=None):
+    dpop_ = data.pop
     address = getattr(contact, '%s_address' % prefix)#if exception happens means model change
+
+    city            = dpop_('%s_address__city'    % prefix, None)
+    state           = dpop_('%s_address__state'   % prefix, None)
+    country         = dpop_('%s_address__country' % prefix, None)
+    po_box          = dpop_('%s_address__po_box'  % prefix, None)
+    address_content = dpop_('%s_address__address' % prefix, None)
+
+    changes = []
+
     if address is not None:
-        city = dpop_('%s_address__city' % prefix, None)
+
         if city:
             address.city = city
+            changes.append(('%s_address__city'    % prefix, city))
 
-        state = dpop_('%s_address__state' % prefix, None)
         if state:
             address.state = state
+            changes.append(('%s_address__state'   % prefix, state))
 
-        country = dpop_('%s_address__country' % prefix, None)
         if country:
             address.country = country
+            changes.append(('%s_address__country' % prefix, country))
 
-        po_box = dpop_('%s_address__po_box' % prefix, None)
         if po_box:
             address.po_box = po_box
+            changes.append(('%s_address__po_box'  % prefix, po_box))
 
-        _address = dpop_('%s_address__address' % prefix, None)
-        if _address:
-            address.address = _address
+        if address_content:
+            address.address = address_content
+            changes.append(('%s_address__address' % prefix, address_content))
 
         address.save()
     else:
-        c_address = Address(city=dpop_('%s_address__city' % prefix, None),
-                    state=dpop_('%s_address__state' % prefix, None),
-                    country=dpop_('%s_address__country' % prefix, None),
-                    po_box=dpop_('%s_address__po_box' % prefix, None),
-                    address=dpop_('%s_address__address' % prefix, None))
+        c_address = Address(city=city,
+                    state=state,
+                    country=country,
+                    po_box=po_box,
+                    address=address_content)
+
         c_address.content_type = ContentType.objects.get_for_model(Contact)
         c_address.object_id = contact.id
         c_address.save()
         setattr(contact, '%s_address' % prefix, c_address)
+        changes.append(('%s_address' % prefix, c_address))
 
-def create_or_update_civility(contact, d):
+    if history is not None:
+        history.changes = changes
+
+
+def create_or_update_civility(contact, d, history=None):
     civility_title = d.pop('civility__title', None)
     if civility_title is not None:
+        old_civility = contact.civility
         contact.civility = Civility.objects.get_or_create(title=civility_title)[0]
 
-def create_or_update_function(contact, d):
+        if history is not None and contact.civility != old_civility:
+            history.changes = [('civility__title', contact.civility)]
+
+
+#TODO: Rename create_or_update_position
+def create_or_update_function(contact, d, history=None):
     position_title = d.pop('position__title', None)
     if position_title is not None:
+        old_position = contact.position
         contact.position = Position.objects.get_or_create(title=position_title)[0]
+
+        if history is not None and contact.position != old_position:
+            history.changes = [('position__title', contact.position)]
+            
 
 def create_image_from_b64(contact, d, user):
     image_b64 = d.pop('image', None)
@@ -226,6 +256,7 @@ def save_contact(data, user):
     create_or_update_civility(c, data)
     create_or_update_function(c, data)
 
+    #TODO:Use create_or_update_address
     b_address = Address(city=pop_('billing_address__city', None),
                         state=pop_('billing_address__state', None),
                         country=pop_('billing_address__country', None),
@@ -233,6 +264,7 @@ def save_contact(data, user):
                         address=pop_('billing_address__address', None))
     c.billing_address  = b_address
 
+    #TODO:Use create_or_update_address
     s_address = Address(city=pop_('shipping_address__city', None),
                         state=pop_('shipping_address__state', None),
                         country=pop_('shipping_address__country', None),
@@ -261,28 +293,43 @@ def save_contact(data, user):
     
     return c
 
-def update_contact(contact, data, user):
+def update_contact(contact, data, user, history):
     """Update a contact instance from a updated data dict
         @Returns : A saved contact instance
     """
     pop_ = data.pop
     pop_('', None)
     
-    create_or_update_civility(contact, data)
-    create_or_update_function(contact, data)
+    create_or_update_civility(contact, data, history)
+    create_or_update_function(contact, data, history)
 
-    create_or_update_address(contact, 'billing',  data)
-    create_or_update_address(contact, 'shipping', data)
+    create_or_update_address(contact, 'billing',  data, history)
+    create_or_update_address(contact, 'shipping', data, history)
 
     create_image_from_b64(contact, data, contact.user)
 
-    create_or_update_organisation(contact, data, user)
+    create_or_update_organisation(contact, data, user, history)
 
     _format_data(contact, data)
-                
+
+    write_simple_history(history, data)
+
     contact.__dict__.update(data)#TODO: setattr better ?
     contact.save()
+    
+    history.save()
     return contact
+
+def write_simple_history(history, data):
+    changes = []
+    for ns, fields in CREME_CONTACT_MAPPING.iteritems():
+        for creme_field in fields.iterkeys():
+            updated = data.get(creme_field)
+            if updated is not None:
+                changes.append((creme_field, updated.encode('utf-8')))#Adding changes to the history
+            #else tell the attr was emptied?
+
+    history.changes = changes
 
 def serialize_contact(contact, namespaces):
     """Serialize a contact in xml respecting namespaces prefixes

@@ -27,7 +27,13 @@
                     {% else %}
                         <td class="{{row_color}}">{{history.entity_repr}}</td>
                     {% endif %}
-                    <td class="{{row_color}}">{{ history.entity_changes }}</td>
+                    <td class="{{row_color}}">
+                    {% for k, v in history.changes.iteritems %}
+                            <p>{% get_field_verbose_name contact_klass k %} : {% if v.get_absolute_url %}<a href="{{ v.get_absolute_url }}">{{ v }}</a>{% else %}{{ v }}{% endif %}</p>
+                        {% empty %}
+                            &nbsp;
+                        {% endfor %}
+                    </td>
                     <td class="{{row_color}}">{{ history_where_verbose|get_value:history.where}}</td>
                 </tr>
             {% endfor %}

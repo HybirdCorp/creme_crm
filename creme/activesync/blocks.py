@@ -30,6 +30,7 @@ from activesync.constants import (USER_MOBILE_SYNC_SERVER_URL, MAPI_SERVER_URL, 
                                   USER_MOBILE_SYNC_SERVER_LOGIN, USER_MOBILE_SYNC_SERVER_PWD
                                   )
 from creme_core.models.entity import CremeEntity
+from persons.models.contact import Contact
 
 class UserMobileSyncConfigBlock(Block):
     id_           = Block.generate_id('activesync', 'user_mobile_sync')
@@ -126,7 +127,7 @@ class UserSynchronizationHistoryBlock(QuerysetBlock):
     dependencies  = (UserSynchronizationHistory,)
     verbose_name  = _(u'User synchronization history')
     template_name = 'activesync/templatetags/block_user_synchronization_history.html'
-    order_by      = 'created'
+    order_by      = '-created'
 
     def detailview_display(self, context):
         user = context['user']
@@ -134,6 +135,7 @@ class UserSynchronizationHistoryBlock(QuerysetBlock):
                                               UserSynchronizationHistory.objects.filter(user=user),
                                               history_type_verbose=USER_HISTORY_TYPE_VERBOSE,
                                               history_where_verbose=USER_HISTORY_WHERE_VERBOSE,
+                                              contact_klass=Contact,
                                               update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, user.pk))
 
         

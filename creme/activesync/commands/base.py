@@ -91,7 +91,7 @@ class Base(object):
 
     #History helpers
     def _add_history(self, entity, where, type, entity_changes=None):
-        return UserSynchronizationHistory._add(self.user, entity, where, type)
+        return UserSynchronizationHistory._add(self.user, entity, where, type, entity_changes)
 
     def add_history_create_in_creme(self, entity):
         return self._add_history(entity, IN_CREME, CREATE)
