@@ -430,7 +430,7 @@ class RelationExtractorField(MultiRelationEntityField):
 
     def _create_widget(self):
         return RelationExtractorSelector(columns=self._columns,
-                                         relation_types=self._get_options(self.get_rtypes()),
+                                         relation_types=self._get_options(self._get_allowed_rtypes_objects()),
                                         )
 
     def _set_columns(self, columns):
@@ -619,10 +619,10 @@ class CSVImportForm4CremeEntity(CSVImportForm):
         fields['property_types'].queryset = CremePropertyType.objects.filter(Q(subject_ctypes=ct) | Q(subject_ctypes__isnull=True))
 
         rtype_ids = list(RelationType.get_compatible_ones(ct).values_list('id', flat=True))
-        fields['fixed_relations'].set_allowed_rtypes(rtype_ids)
+        fields['fixed_relations'].allowed_rtypes = rtype_ids
 
         fdyn_relations = fields['dyn_relations']
-        fdyn_relations.set_allowed_rtypes(rtype_ids)
+        fdyn_relations.allowed_rtypes = rtype_ids
         fdyn_relations.columns = self.columns4dynrelations
 
         fields['user'].initial = self.user.id

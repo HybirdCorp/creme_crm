@@ -197,9 +197,7 @@ class GenericEntityField(JSONField):
 class MultiGenericEntityField(GenericEntityField):
     def __init__(self, models=None, *args, **kwargs):
         super(MultiGenericEntityField, self).__init__(models, *args, **kwargs)
-#        self.widget = SelectorList(self.widget)
         # TODO : wait for django 1.2 and new widget api to remove this hack
-#        self.widget.from_python = lambda v: self.from_python(v)
 
     def _create_widget(self):
         return SelectorList(CTEntitySelector(self._get_ctypes_options(self.get_ctypes()), multiple=True))
@@ -266,14 +264,12 @@ class RelationEntityField(JSONField):
         'nopropertymatch' : _(u"This entity has no property that matches relation type constraints")
     }
 
-    #TODO: def __init__(self, allowed_rtypes=(REL_SUB_RELATED_TO, REL_SUB_HAS), *args, **kwargs):
-    def __init__(self, relations=(REL_SUB_RELATED_TO, REL_SUB_HAS), *args, **kwargs):
+    def __init__(self, allowed_rtypes=(REL_SUB_RELATED_TO, REL_SUB_HAS), *args, **kwargs):
         super(RelationEntityField, self).__init__(*args, **kwargs)
-        self.allowed_rtypes = frozenset(relations)
-        self._build_widget() #TODO: remove when 'allowed_rtypes' property OK
+        self._allowed_rtypes = frozenset(allowed_rtypes)
 
     def _create_widget(self):
-        return RelationSelector(self._get_options(self.get_rtypes()),
+        return RelationSelector(self._get_options(self._get_allowed_rtypes_objects()),
                                 '/creme_core/relation/predicate/${rtype}/content_types/json')
 
     # TODO : wait for django 1.2 and new widget api to remove this hack
@@ -326,7 +322,7 @@ class RelationEntityField(JSONField):
 
     def clean_rtype(self, rtype_pk):
         # is relation type allowed
-        if rtype_pk not in self.allowed_rtypes:
+        if rtype_pk not in self._allowed_rtypes:
             raise ValidationError(self.error_messages['rtypenotallowed'], params={'rtype': rtype_pk})
 
         try:
@@ -349,26 +345,23 @@ class RelationEntityField(JSONField):
     def _get_options(self, models):
         return ((model.pk, unicode(model)) for model in models)
 
-    def get_rtypes(self):
-        return RelationType.objects.filter(id__in=self.allowed_rtypes) if self.allowed_rtypes else RelationType.objects.all()
+    def _get_allowed_rtypes_objects(self):
+        return RelationType.objects.filter(id__in=self._allowed_rtypes) if self._allowed_rtypes else RelationType.objects.all()
 
-    def set_allowed_rtypes(self, allowed=(REL_SUB_RELATED_TO, REL_SUB_HAS)):
-        self.allowed_rtypes = frozenset(allowed) #TODO: rename _allowed_rtypes
+    def _set_allowed_rtypes(self, allowed=(REL_SUB_RELATED_TO, REL_SUB_HAS)):
+        self._allowed_rtypes = frozenset(allowed)
         self._build_widget()
 
-    #TODO: allowed_rtypes = property(lambda self: self.allowed_rtypes, set_allowed_rtypes); del set_allowed_rtypes
+    allowed_rtypes = property(lambda self: self._allowed_rtypes, _set_allowed_rtypes); del _set_allowed_rtypes
 
 
 class MultiRelationEntityField(RelationEntityField):
-    def __init__(self, relations=(REL_SUB_RELATED_TO, REL_SUB_HAS), *args, **kwargs): #TODO: useless
-        super(MultiRelationEntityField, self).__init__(relations, *args, **kwargs)
+#    def __init__(self, allowed_rtypes=(REL_SUB_RELATED_TO, REL_SUB_HAS), *args, **kwargs):
+#        super(MultiRelationEntityField, self).__init__(allowed_rtypes, *args, **kwargs)
 #        self.widget = SelectorList(self.widget)
 
-        # TODO : wait for django 1.2 and new widget api to remove this hack
-#        self.widget.from_python = lambda v: self.from_python(v)
-
     def _create_widget(self):
-        return SelectorList(RelationSelector(self._get_options(self.get_rtypes()),
+        return SelectorList(RelationSelector(self._get_options(self._get_allowed_rtypes_objects()),
                                              '/creme_core/relation/predicate/${rtype}/content_types/json',
                                              multiple=True))
 
