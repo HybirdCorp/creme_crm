@@ -28,7 +28,7 @@ from django.db.models.signals import post_save, post_delete
 from django.utils.translation import ugettext_lazy as _
 from django.conf import settings
 
-from creme_core.models import CremeModel, CremeEntity
+from creme_core.models import CremeModel, CremeEntity, Relation
 from creme_core.models.fields import CreationDateTimeField
 
 from persons.models.contact import Contact
@@ -250,7 +250,10 @@ class UserSynchronizationHistory(CremeModel):
         return UserSynchronizationHistory._add(user, entity, where, DELETE)
     
 
-from activesync.signals import post_save_activesync_handler, post_delete_activesync_handler
+from activesync.signals import post_save_activesync_handler, post_delete_activesync_handler, post_save_relation_employed_by, post_delete_relation_employed_by
 post_save.connect(post_save_activesync_handler,     sender=Contact)
 post_delete.connect(post_delete_activesync_handler, sender=Contact)
+
+post_save.connect(post_save_relation_employed_by, sender=Relation)
+post_delete.connect(post_delete_relation_employed_by, sender=Relation)
 

@@ -10,7 +10,6 @@
 * Test with ssl / Don't let to set the http://
 
 * Verify dual mapping
-* Chopper le signal de créer/suppression de relation est salarié pour setter l'organisation sur le serveur
 #TODO:Use create_or_update_address
 
 https://m.google.com/Microsoft-Server-ActiveSync
