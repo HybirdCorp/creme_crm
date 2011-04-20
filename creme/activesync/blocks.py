@@ -19,8 +19,9 @@
 ################################################################################
 
 from django.utils.translation import ugettext_lazy as _
+from activesync.models.active_sync import UserSynchronizationHistory, USER_HISTORY_TYPE_VERBOSE, USER_HISTORY_WHERE_VERBOSE
 
-from creme_core.gui.block import Block
+from creme_core.gui.block import Block, QuerysetBlock
 
 from creme_config.models.setting import SettingValue
 
@@ -28,6 +29,7 @@ from activesync.constants import (USER_MOBILE_SYNC_SERVER_URL, MAPI_SERVER_URL, 
                                   MAPI_DOMAIN, USER_MOBILE_SYNC_SERVER_SSL, MAPI_SERVER_SSL,
                                   USER_MOBILE_SYNC_SERVER_LOGIN, USER_MOBILE_SYNC_SERVER_PWD
                                   )
+from creme_core.models.entity import CremeEntity
 
 class UserMobileSyncConfigBlock(Block):
     id_           = Block.generate_id('activesync', 'user_mobile_sync')
@@ -119,5 +121,26 @@ class MobileSyncConfigBlock(Block):
                                                             update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,))
 
 
-user_mobile_sync_config_block = UserMobileSyncConfigBlock()
-mobile_sync_config_block      = MobileSyncConfigBlock()
+class UserSynchronizationHistoryBlock(QuerysetBlock):
+    id_           = QuerysetBlock.generate_id('activesync', 'user_synchronization_history')
+    dependencies  = (UserSynchronizationHistory,)
+    verbose_name  = _(u'User synchronization history')
+    template_name = 'activesync/templatetags/block_user_synchronization_history.html'
+    order_by      = 'created'
+
+    def detailview_display(self, context):
+        user = context['user']
+        btc = self.get_block_template_context(context,
+                                              UserSynchronizationHistory.objects.filter(user=user),
+                                              history_type_verbose=USER_HISTORY_TYPE_VERBOSE,
+                                              history_where_verbose=USER_HISTORY_WHERE_VERBOSE,
+                                              update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, user.pk))
+
+        
+        return self._render(btc)
+
+
+
+user_mobile_sync_config_block      = UserMobileSyncConfigBlock()
+mobile_sync_config_block           = MobileSyncConfigBlock()
+user_synchronization_history_block = UserSynchronizationHistoryBlock()

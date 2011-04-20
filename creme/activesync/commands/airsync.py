@@ -32,7 +32,8 @@ from base import Base
 
 from activesync.contacts import (serialize_contact, CREME_CONTACT_MAPPING,
                                  save_contact, update_contact)
-from activesync.models.active_sync import CremeExchangeMapping, CremeClient, SyncKeyHistory
+
+from activesync.models import (CremeExchangeMapping, CremeClient, SyncKeyHistory)
 from activesync.constants import CONFLICT_SERVER_MASTER, SYNC_AIRSYNC_STATUS_SUCCESS, SYNC_AIRSYNC_STATUS_INVALID_SYNCKEY
 from activesync.errors import (SYNC_ERR_VERBOSE, SYNC_ERR_CREME_PERMISSION_DENIED_CREATE,
                                SYNC_ERR_CREME_PERMISSION_DENIED_CHANGE_SPECIFIC, SYNC_ERR_CREME_PERMISSION_DENIED_DELETE_SPECIFIC)
@@ -48,14 +49,14 @@ class AirSync(Base):
         super(AirSync, self).__init__(*args, **kwargs)
         self._create_connection()
 
-    def send(self, policy_key, server_id, synckey=None, fetch=True, user=None):
+    def send(self, policy_key, server_id, synckey=None, fetch=True):
         """
             @param policy_key string set in the header to be authorized
             @param server_id
             @param synckey None to fetch all server changes or last synckey supplied by server
             @param fetch True for fetching changes False for current pushing changes
-            @param user to retrieve mapping, create objects...
         """
+        user = self.user
         print "AirSync policy_key:%s, server_id: %s, synckey=%s, fetch=%s, user=%s" % (policy_key, server_id, synckey, fetch, user)
         extra_ns = {'A1': 'Contacts:', 'A2': 'AirSyncBase:', 'A3': 'Contacts2:'}
         reverse_ns = dict((v,k) for k, v in extra_ns.iteritems())
@@ -182,6 +183,8 @@ class AirSync(Base):
                                     data[c_field] = d.text
 
                     contact = save_contact(data, user)
+                    self.add_history_create_in_creme(contact)
+
                     try:
                         create(creme_entity_id=contact.id, exchange_entity_id=server_id_pk, synced=True, user=user)
                         self.add_message(MessageSucceedContactAdd(contact=contact, message=_(u"Successfully created %s") % contact))
@@ -229,6 +232,7 @@ class AirSync(Base):
 
                     debug("Update %s with %s", contact, update_data)
                     update_contact(contact, update_data, user)
+                    self.add_history_update_in_creme(contact, update_data)
                     self.add_message(MessageSucceedContactUpdate(contact, _(u"Successfully updated %(contact)s") % {'contact': contact}, update_data))
 
                     #Server is the master so we unset the creme flag to prevent creme modifications
@@ -258,6 +262,7 @@ class AirSync(Base):
                     else:
                         debug("Deleting %s", contact)
                         contact.delete()
+                        self.add_history_delete_in_creme(contact)
                         self.add_success_message(_(u"Successfully deleted %s") % contact)
                     c_x_mapping.delete()
 
@@ -342,17 +347,19 @@ class AirSync(Base):
 def add_object(o, serializer):
     return "<Add><ClientId>%s</ClientId><ApplicationData>%s</ApplicationData></Add>" % (o.id, serializer(o))
 
-def get_add_objects(reverse_ns, user, msg_stack):
+def get_add_objects(reverse_ns, user, airsync_cmd):
     q_not_synced = ~Q(pk__in=CremeExchangeMapping.objects.filter(synced=True).values_list('creme_entity_id', flat=True))
     objects = []
 
-    add_message      = msg_stack.add_message
-    add_info_message = msg_stack.add_info_message
+    add_message      = airsync_cmd.add_message
+    add_info_message = airsync_cmd.add_info_message
     objects_append   = objects.append
+    add_history_create_on_server = airsync_cmd.add_history_create_on_server
 
     for contact in Contact.objects.filter(q_not_synced & Q(is_deleted=False, user=user)):
         if contact.can_view(user):
             add_message(MessageInfoContactAdd(contact, _(u"Adding %s on the server") % contact))
+            add_history_create_on_server(contact)
             objects_append(add_object(contact, lambda cc: serialize_contact(cc, reverse_ns)))
         else:
             add_info_message(_(u"The contact <%s> was not added on the server because you haven't the right to view it") % contact.allowed_unicode(user))
@@ -364,7 +371,7 @@ def get_add_objects(reverse_ns, user, msg_stack):
 def change_object(server_id, o, serializer):
     return "<Change><ServerId>%s</ServerId><ApplicationData>%s</ApplicationData></Change>" % (server_id, serializer(o))
 
-def get_change_objects(reverse_ns, user, msg_stack):
+def get_change_objects(reverse_ns, user, airsync_cmd):
 #    modified_ids = CremeExchangeMapping.objects.filter(is_creme_modified=True, user=user).values_list('creme_entity_id', flat=True)
 
     #modified_ids a dict with creme_entity_id value as key and corresponding exchange_entity_id as value
@@ -374,12 +381,15 @@ def get_change_objects(reverse_ns, user, msg_stack):
 
     debug(u"Change object ids : %s", modified_ids)
 
-    add_info_message = msg_stack.add_info_message
+    add_info_message = airsync_cmd.add_info_message
     objects_append   = objects.append
+    add_history_update_on_server = airsync_cmd.add_history_update_on_server
+
 
     for contact in Contact.objects.filter(id__in=modified_ids.keys()):
         if contact.can_view(user):
             add_info_message(_(u"Sending changes of %s on the server") % contact)
+            add_history_update_on_server(contact, None)#TODO: Add update information....
             objects_append(change_object(modified_ids[contact.id], contact, lambda cc: serialize_contact(cc, reverse_ns)))#Naive version send all attribute even it's not modified
         else:
             add_info_message(_(u"The contact <%s> was not updated on the server because you haven't the right to view it") % contact.allowed_unicode(user))
@@ -391,7 +401,7 @@ def get_change_objects(reverse_ns, user, msg_stack):
 def delete_object(server_id):
     return "<Delete><ServerId>%s</ServerId></Delete>" % server_id
 
-def get_deleted_objects(user, msg_stack):
+def get_deleted_objects(user, airsync_cmd):
 #    deleted_ids = CremeExchangeMapping.objects.filter(was_deleted=True, user=user).values_list('exchange_entity_id', flat=True)
     deleted_ids = CremeExchangeMapping.objects.filter(was_deleted=True, user=user).values_list('exchange_entity_id', 'creme_entity_repr')
     objects = []
@@ -399,11 +409,13 @@ def get_deleted_objects(user, msg_stack):
 #    for server_id in deleted_ids:
 #        objects.append(delete_object(server_id))
 
-    add_info_message = msg_stack.add_info_message
+    add_info_message = airsync_cmd.add_info_message
     objects_append   = objects.append
+    add_history_delete_on_server = airsync_cmd.add_history_delete_on_server
 
     for server_id, entity_repr in deleted_ids:
         if entity_repr is not None:
+            add_history_delete_on_server(entity_repr)
             add_info_message(_(u"Deleting %s on the server") % entity_repr)
         objects_append(delete_object(server_id))
         

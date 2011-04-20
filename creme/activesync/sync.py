@@ -131,7 +131,7 @@ class Synchronization(object):
         except sv_doesnotexist:
             raise CremeActiveSyncError(SYNC_ERR_WRONG_CFG_NO_PWD)
 
-        self.params = (self.server_url, self.login, self.pwd, self.client_id)
+        self.params = (self.server_url, self.login, self.pwd, self.client_id, self.user)
 
 
     ###### UI helpers #######
@@ -205,7 +205,7 @@ class Synchronization(object):
 #            else:
 #            as_ = self._sync(policy_key, serverid, fs.synckey, True, user=user)
 #            as_ = self._sync(policy_key, serverid, None, True, user=user)
-            as_ = self._sync(policy_key, serverid, sync_key, True, user=user)
+            as_ = self._sync(policy_key, serverid, sync_key, True)
 
             client.sync_key = as_.last_synckey
             self._data['debug']['info'].append("client.sync_key : %s" % client.sync_key)
@@ -235,9 +235,9 @@ class Synchronization(object):
         client.last_sync  = datetime.now()
         client.save()
 
-    def _sync(self, policy_key, serverid, synckey=None, fetch=True, user=None):
+    def _sync(self, policy_key, serverid, synckey=None, fetch=True):
         as_ = AirSync(*self.params)
-        as_.send(policy_key, serverid, synckey, fetch, user)
+        as_.send(policy_key, serverid, synckey, fetch)
 
         self.merge_command_messages(as_)
 

@@ -37,9 +37,8 @@ def post_save_activesync_handler(sender, instance, created, **kwargs):
 
 
 def post_delete_activesync_handler(sender, instance, **kwargs):
-    print "In post_delete_activesync_handler with ", sender, ",", instance
     c_x_mapping = _get_mapping_from_creme_entity_id(instance.pk)
-    print "c_x_mapping:", c_x_mapping
+
     if c_x_mapping is not None:
         c_x_mapping.creme_entity_repr = unicode(instance)
         c_x_mapping.was_deleted = True
