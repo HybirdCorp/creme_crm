@@ -83,4 +83,8 @@
     {% endfor %}
 {% endif %}
 
+{% import_block from_app 'activesync' named 'user_synchronization_history' as 'user_synchronization_history_block' %}
+
+{% display_block_detailview 'user_synchronization_history_block' %}
+
 {% get_blocks_dependencies %}

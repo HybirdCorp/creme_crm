@@ -162,7 +162,12 @@ class UserSettingsConfigForm(CremeForm):
             sv_filter(key__id=USER_MOBILE_SYNC_SERVER_PWD, user=user).delete()
 
         if url_is_created or login_is_created:
-            CremeClient.purge()#NB: If server_url or login have changed, we reset all mapping & clientdef
+            try:
+                as_client = CremeClient.objects.get(user=user)
+            except CremeClient.DoesNotExist:
+                pass
+            else:
+                as_client.purge()#NB: If server_url or login have changed, we reset all mapping & clientdef
 
 
 

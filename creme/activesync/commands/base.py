@@ -28,6 +28,7 @@ from django.conf import settings
 from django.template.loader import render_to_string
 
 from activesync.errors import SYNC_ERR_FORBIDDEN, CremeActiveSyncError, SYNC_ERR_CONNECTION, SYNC_ERR_NOT_FOUND
+from activesync.models.active_sync import UserSynchronizationHistory, CREATE, UPDATE, DELETE, IN_CREME, ON_SERVER
 from activesync.wbxml.dtd import AirsyncDTD_Reverse
 from activesync.wbxml.codec2 import WBXMLEncoder
 
@@ -45,9 +46,10 @@ class Base(object):
     encoder       = lambda s, x : WBXMLEncoder(AirsyncDTD_Reverse).encode(x) # xml to wbxml encoder
     decoder       = lambda s, x : WBXMLToXML(x) # wbxml to xml decoder
 
-    def __init__(self, url, user, pwd, device_id):
+    def __init__(self, url, login, pwd, device_id, user):
         self.url       = url
         self.user      = user
+        self.login  = login
         self.password  = pwd
         self.device_id = device_id
         self._data     = {
@@ -87,8 +89,31 @@ class Base(object):
         return self._messages[_ERROR]
     ###### End UI helpers #######
 
+    #History helpers
+    def _add_history(self, entity, where, type, entity_changes=None):
+        return UserSynchronizationHistory._add(self.user, entity, where, type)
+
+    def add_history_create_in_creme(self, entity):
+        return self._add_history(entity, IN_CREME, CREATE)
+
+    def add_history_create_on_server(self, entity):
+        return self._add_history(entity, ON_SERVER, CREATE)
+
+    def add_history_update_in_creme(self, entity, entity_changes):
+        return self._add_history(entity, IN_CREME, UPDATE, entity_changes)
+
+    def add_history_update_on_server(self, entity, entity_changes):
+        return self._add_history(entity, ON_SERVER, UPDATE, entity_changes)
+
+    def add_history_delete_in_creme(self, entity):
+        return self._add_history(entity, IN_CREME, DELETE)
+
+    def add_history_delete_on_server(self, entity):
+        return self._add_history(entity, ON_SERVER, DELETE)
+    #End history helpers
+
     def _create_connection(self, *args, **kwargs):
-        self.connection = Connection.create(self.url, self.user, self.password, *args, **kwargs)
+        self.connection = Connection.create(self.url, self.login, self.password, *args, **kwargs)
 
     def _encode(self, content):
         print "\n==Request==\n",content,"\n"
