@@ -19,6 +19,9 @@
 ################################################################################
 from logging import error
 
+from persons.constants import REL_SUB_EMPLOYED_BY
+from persons.models.contact import Contact
+
 def _get_mapping_from_creme_entity_id(id_):
     from activesync.models.active_sync import CremeExchangeMapping
     try:
@@ -43,3 +46,17 @@ def post_delete_activesync_handler(sender, instance, **kwargs):
         c_x_mapping.creme_entity_repr = unicode(instance)
         c_x_mapping.was_deleted = True
         c_x_mapping.save()
+
+
+#Catching the save of the relation between a Contact and his employer
+def post_save_relation_employed_by(sender, instance, **kwargs):
+    if instance.type.id == REL_SUB_EMPLOYED_BY:
+        contact = instance.subject_entity
+        post_save_activesync_handler(Contact, contact, False)
+
+#Catching the delete of the relation between a Contact and his employer
+def post_delete_relation_employed_by(sender, instance, **kwargs):
+    if instance.type.id == REL_SUB_EMPLOYED_BY:
+        contact = instance.subject_entity
+        #We just say to the mapping that the contact was modified so we use the post_save_activesync_handler and not the delete one
+        post_save_activesync_handler(Contact, contact, False)

@@ -2,4 +2,5 @@
 
 from wbxml import *
 from image import *
+from models import *
   
