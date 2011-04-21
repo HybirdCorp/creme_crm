@@ -7,14 +7,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-02-24 18:17+0100\n"
+"POT-Creation-Date: 2011-04-12 13:57+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: \n"
 
 #: buttons.py:32
 msgid "Is linked to a ticket"
@@ -36,83 +36,83 @@ msgstr "Lister les tickets"
 msgid "Add a ticket"
 msgstr "Ajouter un ticket"
 
-#: populate.py:24
+#: populate.py:22
 msgid "is linked to the ticket"
 msgstr "est lié au ticket"
 
-#: populate.py:25
+#: populate.py:23
 msgid "(tiket) linked to the entitity"
 msgstr "(tiket) lié à la fiche"
 
-#: populate.py:31
+#: populate.py:29
 msgid "Low"
 msgstr "Basse"
 
-#: populate.py:31
+#: populate.py:29
 msgid "Normal"
 msgstr "Normale"
 
-#: populate.py:31
+#: populate.py:29
 msgid "High"
 msgstr "Haute"
 
-#: populate.py:31
+#: populate.py:29
 msgid "Urgent"
 msgstr "Urgente"
 
-#: populate.py:31
+#: populate.py:29
 msgid "Blocking"
 msgstr "Bloquante"
 
-#: populate.py:34
+#: populate.py:32
 msgid "Minor"
 msgstr "Mineure"
 
-#: populate.py:34
+#: populate.py:32
 msgid "Major"
 msgstr "Majeure"
 
-#: populate.py:34
+#: populate.py:32
 msgid "Feature"
 msgstr "Fonctionnalité"
 
-#: populate.py:34
+#: populate.py:32
 msgid "Critical"
 msgstr "Critique"
 
-#: populate.py:34
+#: populate.py:32
 msgid "Enhancement"
 msgstr "Amélioration"
 
-#: populate.py:34
+#: populate.py:32
 msgid "Error"
 msgstr "Erreur"
 
-#: populate.py:40
+#: populate.py:35
 msgid "Ticket view"
 msgstr "Vue de Ticket"
 
-#: populate.py:42 populate.py:50 models/ticket.py:41
+#: populate.py:37 populate.py:45 models/ticket.py:41
 msgid "Title"
 msgstr "Titre"
 
-#: populate.py:43 populate.py:51
+#: populate.py:38 populate.py:46
 msgid "Status - Name"
 msgstr "Statut - Nom"
 
-#: populate.py:44 populate.py:52
+#: populate.py:39 populate.py:47
 msgid "Priority - Name"
 msgstr "Priorité - Nom"
 
-#: populate.py:45 populate.py:53
+#: populate.py:40 populate.py:48
 msgid "Criticity - Name"
 msgstr "Criticité - Nom"
 
-#: populate.py:46 models/ticket.py:57
+#: populate.py:41 models/ticket.py:57
 msgid "Closing date"
 msgstr "Date de clôture"
 
-#: populate.py:48
+#: populate.py:43
 msgid "Ticket template view"
 msgstr "Vue de patron de ticket"
 
@@ -160,7 +160,7 @@ msgstr "Ne sera pas corrigé"
 msgid "Ticket status"
 msgstr "Statut(s) de ticket"
 
-#: models/ticket.py:38 templates/tickets/view_ticket.html:16
+#: models/ticket.py:37 templates/tickets/view_ticket.html:16
 msgid "Resolving duration"
 msgstr "Temps de résolution"
 

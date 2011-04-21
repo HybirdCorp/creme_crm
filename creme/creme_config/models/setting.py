@@ -48,15 +48,15 @@ class SettingKey(Model):
         return self._CASTORS[self.type](value_str)
 
     @staticmethod
-    def create(pk, description, app_label, type):
+    def create(pk, description, app_label, type, hidden=False):
         from creme_core.utils import create_or_update
 
-        sk = create_or_update(SettingKey, pk=pk, description=description, app_label=app_label, type=type)
+        sk = create_or_update(SettingKey, pk=pk, description=description, app_label=app_label, type=type, hidden=hidden)
         sk.settingvalue_set.all().delete()
 
         return sk
 
-
+#TODO: Add a nulll and blank attribute ??
 class SettingValue(Model):
     key       = ForeignKey(SettingKey)
     user      = ForeignKey(User, blank=True, null=True)
@@ -70,5 +70,4 @@ class SettingValue(Model):
 
     def _set_value(self, value):
         self.value_str = value
-
     value = property(_get_value, _set_value); del _get_value, _set_value

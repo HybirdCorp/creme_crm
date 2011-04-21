@@ -1,0 +1,16 @@
+
+* Deleted images are not sended from creme to as
+
+* Transform IS_ZPUSH into a AS-Version verification => A2:Body doesn't seems to work with AS version > 2.5
+
+* Make the wbxml decoder and remove the hack
+* Verify all todos in the code
+* Make a sandbox ?
+* Make/Set an history of modifications to pass to the UI
+* Test with ssl / Don't let to set the http://
+
+* Verify dual mapping
+#TODO:Use create_or_update_address
+
+https://m.google.com/Microsoft-Server-ActiveSync
+https://m.hotmail.com/Microsoft-Server-ActiveSync

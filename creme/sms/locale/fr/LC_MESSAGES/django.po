@@ -7,29 +7,29 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-03-01 17:55+0100\n"
+"POT-Creation-Date: 2011-04-12 13:57+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: \n"
 
-#: blocks.py:38 forms/campaign.py:48
+#: blocks.py:60 forms/campaign.py:48
 msgid "Messaging lists"
 msgstr "Listes de diffusion"
 
-#: blocks.py:51
+#: blocks.py:70
 msgid "Unlinked recipients"
 msgstr "Destinataires manuels"
 
-#: blocks.py:76 forms/messaging_list.py:44 forms/messaging_list.py:94
+#: blocks.py:84 forms/messaging_list.py:44 forms/messaging_list.py:94
 #: models/messaging_list.py:31
 msgid "Contacts recipients"
 msgstr "Contacts destinataires"
 
-#: blocks.py:94
+#: blocks.py:96
 msgid "Sent messages"
 msgstr "Messages envoyés"
 
@@ -69,20 +69,20 @@ msgstr "Lister les patrons de message"
 msgid "Add a message template"
 msgstr "Ajouter un patron de message"
 
-#: populate.py:38
+#: populate.py:35
 msgid "Messaging list view"
 msgstr "Vue de Liste de Diffusion"
 
-#: populate.py:39 populate.py:42 populate.py:45 models/account.py:31
+#: populate.py:36 populate.py:39 populate.py:42 models/account.py:31
 #: models/template.py:28
 msgid "Name"
 msgstr "Nom"
 
-#: populate.py:41
+#: populate.py:38
 msgid "Campaign view"
 msgstr "Vue de Campagne"
 
-#: populate.py:44
+#: populate.py:41
 msgid "Message template view"
 msgstr "Vue de patron de message"
 
@@ -148,7 +148,7 @@ msgstr ""
 " Attention, l'en-tête compte (+ 3 caractères) et les caractères suivant "
 "comptent double: %s"
 
-#: forms/template.py:38 models/message.py:94
+#: forms/template.py:38 models/message.py:95
 msgid "Message"
 msgstr "Message"
 
@@ -221,31 +221,31 @@ msgstr "Campagne associée"
 msgid "Generated message"
 msgstr "Message généré"
 
-#: models/message.py:63 models/message.py:84
+#: models/message.py:63 models/message.py:85
 #: templates/sms/templatetags/block_sendings.html:17
 msgid "Sending"
 msgstr "Envoi"
 
-#: models/message.py:85 models/recipient.py:32
+#: models/message.py:86 models/recipient.py:32
 #: templates/sms/templatetags/block_contacts.html:18
 #: templates/sms/templatetags/block_messages.html:69
 #: templates/sms/templatetags/block_recipients.html:29
 msgid "Number"
 msgstr "Numéro"
 
-#: models/message.py:86
+#: models/message.py:87
 msgid "State"
 msgstr "État"
 
-#: models/message.py:87
+#: models/message.py:88
 msgid "Full state"
 msgstr "État détaillé"
 
-#: models/message.py:95 templates/sms/templatetags/block_messages.html:41
+#: models/message.py:96 templates/sms/templatetags/block_messages.html:41
 msgid "Messages"
 msgstr "Messages"
 
-#: models/message.py:99
+#: models/message.py:100
 msgid "Unknown"
 msgstr "Inconnu"
 
@@ -399,7 +399,7 @@ msgstr "Ajouter des listes de diffusion existantes"
 msgid "Name of the list"
 msgstr "Nom de la liste"
 
-#: templates/sms/templatetags/block_messaging_lists.html:31
+#: templates/sms/templatetags/block_messaging_lists.html:29
 msgid "No related messaging list for the moment"
 msgstr "Aucune liste de diffusion associée pour le moment"
 
