@@ -18,7 +18,13 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+import base64
 import mimetypes
+
+try:
+    from PIL import ImageFile as PILImageFile
+except ImportError:
+    import ImageFile as PILImageFile #TODO: Verify on other distributions
 
 from django.db.models import CharField, TextField, ImageField, ManyToManyField
 from django.utils.translation import ugettext_lazy as _
@@ -43,6 +49,10 @@ class Image(CremeEntity):
                                  related_name="Image_media_category_set", blank=True, null=True)
 
     research_fields = CremeEntity.research_fields + ['description', 'name', 'image']
+
+    encodings = {
+        "base64": lambda x: base64.b64encode(x),
+    }
 
     class Meta:
         app_label = 'media_managers'
@@ -84,5 +94,19 @@ class Image(CremeEntity):
         self.image.file.open()
         #return (self.image.file, "image/gif")
         return (self.image.file, mimetypes.guess_type(self.image.path)[0])
+
+    def get_encoded(self, encoding="base64"):
+        encoded = u""
+        encoder = self.encodings.get(encoding, "base64")
+        for ch in self.image.file.chunks():
+            encoded += encoder(ch)
+        return encoded
+
+    @staticmethod
+    def get_image_format(image_base64_str):
+        p = PILImageFile.Parser()
+        p.feed(base64.decodestring(image_base64_str))
+        return p.close().format
+
 
 #    image_file = property(get_image_file)

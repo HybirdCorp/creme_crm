@@ -152,10 +152,10 @@ class OtherAddressBlock(QuerysetBlock):
 
     def detailview_display(self, context):
         person = context['object']
-        l_pk = [address.pk for address in (person.billing_address, person.shipping_address) if address]
+        excluded_addresses_pk = filter(None, [person.billing_address_id, person.shipping_address_id])
 
         return self._render(self.get_block_template_context(context,
-                                                            Address.objects.filter(object_id=person.id).exclude(pk__in=l_pk),
+                                                            Address.objects.filter(object_id=person.id).exclude(pk__in=excluded_addresses_pk),
                                                             update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, person.pk),
                                                             ct_id=ContentType.objects.get_for_model(Address).id,
                                                            ))

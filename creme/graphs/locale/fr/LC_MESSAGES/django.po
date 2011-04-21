@@ -7,20 +7,20 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-02-23 19:09+0100\n"
+"POT-Creation-Date: 2011-04-12 13:56+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: \n"
 
-#: blocks.py:31
+#: blocks.py:32
 msgid "Roots nodes of a graph"
 msgstr "Nœuds racines d'un graphe"
 
-#: blocks.py:44
+#: blocks.py:51
 msgid "Peripheral types of relation of a graph"
 msgstr "Types de relation périphériques d'un graphe"
 
@@ -40,11 +40,11 @@ msgstr "Liste des graphes"
 msgid "Add a graph"
 msgstr "Ajouter un graphe"
 
-#: populate.py:38
+#: populate.py:35
 msgid "Graph view"
 msgstr "Vue de Graphe"
 
-#: populate.py:40
+#: populate.py:37
 msgid "Name"
 msgstr "Nom"
 
@@ -112,7 +112,7 @@ msgstr "Type de relation"
 msgid "Unlink"
 msgstr "Délier"
 
-#: templates/graphs/templatetags/block_orbital_rtypes.html:30
+#: templates/graphs/templatetags/block_orbital_rtypes.html:29
 msgid "No type of relation for the moment"
 msgstr "Pas de type de relation pour le moment"
 
@@ -130,45 +130,35 @@ msgstr "%s Nœuds racines"
 msgid "Root nodes"
 msgstr "Nœuds racines"
 
-#: templates/graphs/templatetags/block_root_nodes.html:11
-#: templates/graphs/templatetags/block_root_nodes.html:15
-#: templates/graphs/templatetags/block_root_nodes.html:21
+#: templates/graphs/templatetags/block_root_nodes.html:10
 msgid "Add root nodes from existing entities"
 msgstr "Ajouter des nœuds racines depuis des entités existantes"
 
-#: templates/graphs/templatetags/block_root_nodes.html:14
-msgid "Add root nodes"
-msgstr "Ajouter des nœuds racines"
-
-#: templates/graphs/templatetags/block_root_nodes.html:20
-msgid "Can't add"
-msgstr "Ajout interdit"
-
-#: templates/graphs/templatetags/block_root_nodes.html:30
+#: templates/graphs/templatetags/block_root_nodes.html:17
 msgid "Entity"
 msgstr "Entité"
 
-#: templates/graphs/templatetags/block_root_nodes.html:31
+#: templates/graphs/templatetags/block_root_nodes.html:18
 msgid "Types of relation"
 msgstr "Types de relation"
 
-#: templates/graphs/templatetags/block_root_nodes.html:32
+#: templates/graphs/templatetags/block_root_nodes.html:19
 msgid "Actions"
 msgstr "Actions"
 
-#: templates/graphs/templatetags/block_root_nodes.html:41
+#: templates/graphs/templatetags/block_root_nodes.html:24
 msgid "No type of relation"
 msgstr "Pas de type de relation"
 
-#: templates/graphs/templatetags/block_root_nodes.html:51
+#: templates/graphs/templatetags/block_root_nodes.html:33
 msgid "No root node for the moment"
 msgstr "Pas de nœud racine pour le moment"
 
-#: views/graph.py:52
+#: views/graph.py:53
 msgid "This graph is too big!"
 msgstr "Ce graphique est trop gros!"
 
-#: views/graph.py:75
+#: views/graph.py:76
 #, python-format
 msgid "Add relation types to <%s>"
 msgstr "Ajouter des types de relation à <%s>"
@@ -186,6 +176,12 @@ msgstr "Ajouter des nœuds racines à <%s>"
 #, python-format
 msgid "Edit root node for <%s>"
 msgstr "Éditer le nœud racine pour <%s>"
+
+#~ msgid "Add root nodes"
+#~ msgstr "Ajouter des nœuds racines"
+
+#~ msgid "Can't add"
+#~ msgstr "Ajout interdit"
 
 #~ msgid "Add types of relation"
 #~ msgstr "Ajouter des types de relation"

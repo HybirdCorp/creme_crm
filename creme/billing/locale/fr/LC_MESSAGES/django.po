@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-04-07 10:44+0200\n"
+"POT-Creation-Date: 2011-04-12 13:53+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -61,6 +61,7 @@ msgid "Portal"
 msgstr "Portail"
 
 #: creme_core_register.py:39
+#: templates/billing/templatetags/block_received_invoices.html:9
 msgid "Add an invoice"
 msgstr "Ajouter une facture"
 
@@ -203,7 +204,7 @@ msgstr "Annulée"
 #: models/other_models.py:126
 #: templates/billing/templatetags/block_billing_payment_information.html:21
 #: templates/billing/templatetags/block_payment_information.html:16
-#: templates/billing/templatetags/block_received_invoices.html:10
+#: templates/billing/templatetags/block_received_invoices.html:16
 msgid "Name"
 msgstr "Nom"
 
@@ -216,7 +217,7 @@ msgid "Issuing date"
 msgstr "Date d'émission"
 
 #: populate.py:86 forms/base.py:42 models/base.py:42
-#: templates/billing/templatetags/block_received_invoices.html:11
+#: templates/billing/templatetags/block_received_invoices.html:17
 msgid "Expiration date"
 msgstr "Échéance"
 
@@ -256,7 +257,7 @@ msgstr "Vous n'êtes pas authorisé à créer des Produits"
 msgid "You are not allowed to create Services"
 msgstr "Vous n'êtes pas authorisé à créer des Services"
 
-#: forms/base.py:38 templates/billing/templatetags/block_target.html:14
+#: forms/base.py:38 templates/billing/templatetags/block_target.html:16
 msgid "Source organisation"
 msgstr "Société émettrice"
 
@@ -351,7 +352,7 @@ msgstr ""
 #: forms/templatebase.py:31 models/other_models.py:46
 #: models/other_models.py:59 models/other_models.py:72
 #: models/other_models.py:85
-#: templates/billing/templatetags/block_received_invoices.html:12
+#: templates/billing/templatetags/block_received_invoices.html:18
 msgid "Status"
 msgstr "Statut"
 
@@ -379,7 +380,7 @@ msgid "Comment"
 msgstr "Remarques"
 
 #: models/base.py:47
-#: templates/billing/templatetags/block_received_invoices.html:13
+#: templates/billing/templatetags/block_received_invoices.html:19
 msgid "Total with VAT"
 msgstr "Total avec TVA"
 
@@ -694,7 +695,7 @@ msgstr "%s Facture reçue"
 msgid "%s Received invoices"
 msgstr "%s Factures reçues"
 
-#: templates/billing/templatetags/block_received_invoices.html:33
+#: templates/billing/templatetags/block_received_invoices.html:39
 msgid "No received invoice for the moment"
 msgstr "Aucune facture reçue pour le moment"
 
@@ -752,6 +753,11 @@ msgstr "%(src)s (converti en patron de <%(dest)s>)"
 #, python-format
 msgid "%(src)s (converted into  %(dest)s)"
 msgstr "%(src)s (converti en %(dest)s)"
+
+#: views/invoice.py:48
+#, fuzzy, python-format
+msgid "Add an invoice for <%s>"
+msgstr "Ajouter une facture"
 
 #: views/line.py:38
 #, python-format

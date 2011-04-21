@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xs:schema
+xmlns:tns="FolderHierarchy:"
+attributeFormDefault="unqualified"
+elementFormDefault="qualified"
+targetNamespace="FolderHierarchy:"
+xmlns:xs="http://www.w3.org/2001/XMLSchema">
+    <xs:element name="FolderSync">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="SyncKey">
+                    <xs:simpleType>
+                        <xs:restriction base="xs:string">
+                        <xs:maxLength value="64"/>
+                    </xs:restriction>
+                    </xs:simpleType>
+                </xs:element>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+</xs:schema>
