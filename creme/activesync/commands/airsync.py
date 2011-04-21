@@ -37,6 +37,7 @@ from activesync.models import (CremeExchangeMapping, CremeClient, SyncKeyHistory
 from activesync.constants import CONFLICT_SERVER_MASTER, SYNC_AIRSYNC_STATUS_SUCCESS, SYNC_AIRSYNC_STATUS_INVALID_SYNCKEY
 from activesync.errors import (SYNC_ERR_VERBOSE, SYNC_ERR_CREME_PERMISSION_DENIED_CREATE,
                                SYNC_ERR_CREME_PERMISSION_DENIED_CHANGE_SPECIFIC, SYNC_ERR_CREME_PERMISSION_DENIED_DELETE_SPECIFIC)
+from creme_core.models.entity import CremeEntity
 
 from persons.models.contact import Contact
 
@@ -265,12 +266,18 @@ class AirSync(Base):
                     if not IS_SERVER_MASTER and c_x_mapping.is_creme_modified:
                         #We don't delete the contact because creme modified it and it's the master
                         debug("Creme modified %s, when the server deletes it", contact)
+                        self.add_info_message(_(u"The server deletes the contact but Creme modified it, so it will be synced at the next synchronization."))
                     else:
                         debug("Deleting %s", contact)
-                        contact.delete()
-                        self.add_history_delete_in_creme(contact)
-                        self.add_success_message(_(u"Successfully deleted %s") % contact)
+                        try:
+                            contact.delete()
+                        except Contact.CanNotBeDeleted, err:
+                            self.add_error_message(_(u"%s. For keeping a consistent state between Creme and the server, this contact have be added again on the server. If you want to avoid this, delete the contact in Creme and synchronize again.") % err)
+                        else:
+                            self.add_history_delete_in_creme(contact)
+                            self.add_success_message(_(u"Successfully deleted %s") % contact)
                     c_x_mapping.delete()
+
 
 #        q_not_synced = ~Q(pk__in=exch_map_manager.filter(synced=True).values_list('creme_entity_id', flat=True))
 #        add_objects = map(lambda c:  add_object(c, lambda cc: serialize_contact(cc, reverse_ns)), Contact.objects.filter(q_not_synced & Q(is_deleted=False)))
