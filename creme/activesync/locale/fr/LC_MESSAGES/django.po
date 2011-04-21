@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-04-20 18:01+0200\n"
+"POT-Creation-Date: 2011-04-21 10:52+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -133,60 +133,77 @@ msgstr[1] "Succès"
 msgid "There is a server error, please try again later..."
 msgstr "Il y a une erreur sur le serveur, veuillez essayer plus tard..."
 
-#: commands/airsync.py:100
+#: commands/airsync.py:101
 #, python-format
 msgid "There was an error during synchronization phase. Error code : %s"
 msgstr ""
 "Il y a eu une erreur pendant la phase de synchronisation. Code erreur : %s"
 
-#: commands/airsync.py:119 commands/airsync.py:148 commands/airsync.py:324
+#: commands/airsync.py:120 commands/airsync.py:149 commands/airsync.py:331
 msgid "There was an error during synchronization phase. Try again later."
 msgstr ""
 "Il y a eu une erreur pendant la phase de synchronisation. Essayez plus tard."
 
-#: commands/airsync.py:162
+#: commands/airsync.py:163
 #, python-format
 msgid "There is %s new items from the server"
 msgstr "%s éléments ont été créés par rapport au serveur"
 
-#: commands/airsync.py:163
+#: commands/airsync.py:164
 #, python-format
 msgid "There is %s changed items from the server"
 msgstr "%s éléments ont été modifiés par rapport au serveur"
 
-#: commands/airsync.py:164
+#: commands/airsync.py:165
 #, python-format
 msgid "There is %s deleted items from the server"
 msgstr "%s éléments ont été effacés par rapport au serveur"
 
-#: commands/airsync.py:190
+#: commands/airsync.py:191
 #, python-format
 msgid "Successfully created %s"
 msgstr "%s créé avec succès"
 
-#: commands/airsync.py:242
+#: commands/airsync.py:243
 #, python-format
 msgid "Successfully updated %(contact)s"
 msgstr "%(contact)s mis à jour avec succès"
 
-#: commands/airsync.py:272
+#: commands/airsync.py:269
+msgid ""
+"The server deletes the contact but Creme modified it, so it will be synced "
+"at the next synchronization."
+msgstr ""
+
+#: commands/airsync.py:275
+#, python-format
+msgid ""
+"%s. For keeping a consistent state between Creme and the server, this "
+"contact have be added again on the server. If you want to avoid this, delete "
+"the contact in Creme and synchronize again."
+msgstr ""
+"%s. Pour maintenir un état cohérent entre Creme et le serveur, ce contact "
+"a été ajouté de nouveau sur le serveur. Si vous voulez "
+"éviter cela, supprimez le contact dans Creme avant la prochaine synchronisation."
+
+#: commands/airsync.py:278
 #, python-format
 msgid "Successfully deleted %s"
 msgstr "%s effacé avec succès"
 
-#: commands/airsync.py:294
+#: commands/airsync.py:301
 #, python-format
 msgid "There was an error during synchronization phase. Try again later. (%s)"
 msgstr ""
 "Il y a eu une erreur pendant la phase de synchronisation. Essayez plus tard. "
 "(%s)"
 
-#: commands/airsync.py:367
+#: commands/airsync.py:374
 #, python-format
 msgid "Adding %s on the server"
 msgstr "Ajout de %s sur le serveur"
 
-#: commands/airsync.py:371
+#: commands/airsync.py:378
 #, python-format
 msgid ""
 "The contact <%s> was not added on the server because you haven't the right "
@@ -195,12 +212,12 @@ msgstr ""
 "Le contact <%s> n'a pas été ajouté sur le serveur car vous n'avez pas le "
 "droit de le voir"
 
-#: commands/airsync.py:397
+#: commands/airsync.py:404
 #, python-format
 msgid "Sending changes of %s on the server"
 msgstr "Envoi des changements de %s sur le serveur"
 
-#: commands/airsync.py:401
+#: commands/airsync.py:408
 #, python-format
 msgid ""
 "The contact <%s> was not updated on the server because you haven't the right "
@@ -209,7 +226,7 @@ msgstr ""
 "Le contact <%s> n'a pas été mis à jour sur le serveur car vous n'avez pas le "
 "droit de le voir"
 
-#: commands/airsync.py:425
+#: commands/airsync.py:432
 #, python-format
 msgid "Deleting %s on the server"
 msgstr "Effacement de %s sur le serveur"

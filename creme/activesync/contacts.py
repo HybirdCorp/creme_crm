@@ -174,7 +174,7 @@ def create_or_update_address(contact, prefix, data, history=None):
             changes.append(('%s_address__address' % prefix, address_content))
 
         address.save()
-    else:
+    elif any([city, state, country, po_box, address_content]):
         c_address = Address(city=city,
                     state=state,
                     country=country,
