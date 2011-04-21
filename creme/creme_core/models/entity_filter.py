@@ -50,6 +50,7 @@ class EntityFilterList(list):
 
         return self._selected
 
+#TODO: use a JSONField ?
 
 class EntityFilter(Model): #CremeModel ???
     """A model that contains conditions that filter queries on CremeEntity objects.
@@ -61,7 +62,7 @@ class EntityFilter(Model): #CremeModel ???
      TODO: COMPLETE
     """
     id          = CharField(primary_key=True, max_length=100, editable=False)
-    name        = CharField(max_length=100, verbose_name=_('Name'), blank=True, null=True)
+    name        = CharField(max_length=100, verbose_name=_('Name'))
     user        = ForeignKey(User, verbose_name=_(u'Owner'), blank=True, null=True)
     entity_type = ForeignKey(ContentType, editable=False)
     is_custom   = BooleanField(editable=False, default=True)
@@ -208,7 +209,7 @@ class EntityFilterCondition(Model):
     value  = TextField()
 
     SUBFILTER       = 1
-
+    RELATION        = 2
     PROPERTY        = 3
 
     EQUALS          = 10
@@ -270,7 +271,7 @@ class EntityFilterCondition(Model):
 
     def __repr__(self):
         return u'EntityFilterCondition(filter=%(filter)s, type=%(type)s, name=%(name)s, value=%(value)s)' % {
-                    'filter': self.filter,
+                    'filter': self.filter_id,
                     'type':   self.type,
                     'name':   self.name or 'None',
                     'value':  self.value,
@@ -280,14 +281,14 @@ class EntityFilterCondition(Model):
     def build(model, type, name=None, value=None):
         try:
             #TODO: method 'operator.clean()' ??
-            if type == EntityFilterCondition.SUBFILTER:
+            if type == EntityFilterCondition.SUBFILTER: #TODO: build_4_subfilter method ???
                 name = ''
 
                 if not isinstance(value, EntityFilter):
                     raise TypeError('Subfilter need an EntityFilter instance')
 
                 value = value.id
-            elif type == EntityFilterCondition.PROPERTY:
+            elif type == EntityFilterCondition.PROPERTY: #TODO: build_4_property method ???
                 assert isinstance(value, bool)
             else:
                 operator = EntityFilterCondition._OPERATOR_MAP[type] #TODO: only raise??
@@ -306,6 +307,20 @@ class EntityFilterCondition(Model):
 
         return EntityFilterCondition(type=type, name=name, value=EntityFilterCondition.encode_value(value))
 
+    @staticmethod
+    def build_4_relation(model, rtype, has=True, ct=None, entity=None): #, object
+        value = {'has': bool(has)}
+
+        if entity:
+            value['entity_id'] = entity.id
+        elif ct:
+            value['ct_id'] = ct.id
+
+        return EntityFilterCondition(type=EntityFilterCondition.RELATION,
+                                     name=rtype.id,
+                                     value=EntityFilterCondition.encode_value(value)
+                                    )
+
     @property
     def decoded_value(self):
         return jsonloads(self.value)
@@ -314,25 +329,50 @@ class EntityFilterCondition(Model):
     def encode_value(value):
         return jsondumps(value)
 
-    def get_q(self):
-        cond_type = self.type
+    def _get_q_relation(self):
+        kwargs = {'relations__type': self.name}
+        value = self.decoded_value
 
-        if cond_type == EntityFilterCondition.SUBFILTER:
-            efilter = EntityFilter.objects.get(id=self.decoded_value)
-            query = efilter.get_q()
-        elif cond_type == EntityFilterCondition.PROPERTY:
-            query = Q(properties__type=self.name)
+        for key, query_key in (('entity_id', 'relations__object_entity'), ('ct_id', 'relations__object_entity__entity_type')):
+            arg = value.get(key)
 
-            if not self.decoded_value: #is a boolean indicating if got or has not got the property type
-                query.negate()
-        else:
-            operator = EntityFilterCondition._OPERATOR_MAP[cond_type]
-            query    = Q(**{operator.key_pattern % self.name: self.decoded_value})
+            if arg:
+                kwargs[query_key] = arg
+                break
 
-            if operator.exclude:
-                query.negate()
+        query = Q(**kwargs)
+
+        if not value['has']:
+            query.negate()
 
         return query
+
+    def _get_q_property(self):
+        query = Q(properties__type=self.name)
+
+        if not self.decoded_value: #is a boolean indicating if got or has not got the property type
+            query.negate()
+
+        return query
+
+    def _get_q_regularfields(self):
+        operator = EntityFilterCondition._OPERATOR_MAP[self.type]
+        query    = Q(**{operator.key_pattern % self.name: self.decoded_value})
+
+        if operator.exclude:
+            query.negate()
+
+        return query
+
+    _GET_Q_FUNCS = {
+            SUBFILTER: lambda self: EntityFilter.objects.get(id=self.decoded_value).get_q(),
+            RELATION:  _get_q_relation,
+            PROPERTY:  _get_q_property,
+        }
+
+    def get_q(self):
+        func = EntityFilterCondition._GET_Q_FUNCS.get(self.type, EntityFilterCondition._get_q_regularfields)
+        return func(self)
 
     def update(self, other_condition):
         """Fill a condition with the content a another one (in order to reuse the old instance if possible).

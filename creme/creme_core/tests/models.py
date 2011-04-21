@@ -1381,9 +1381,59 @@ class EntityFiltersTestCase(CremeTestCase):
                                ])
         self.assertExpectedFiltered(efilter, Contact, [c.id for i, c in enumerate(self.contacts) if i not in cute_ones])
 
+    def _aux_test_relations(self):
+        loves, loved = RelationType.create(('test-subject_love', u'Is loving'),
+                                           ('test-object_love',  u'Is loved by')
+                                          )
+
+        bebop = Organisation.objects.create(user=self.user, name='Bebop')
+
+        c = self.contacts
+        create = Relation.objects.create
+        create(subject_entity=c[2], type=loves, object_entity=c[0],  user=self.user)
+        create(subject_entity=c[7], type=loves, object_entity=c[4],  user=self.user)
+        create(subject_entity=c[9], type=loves, object_entity=c[4],  user=self.user)
+        create(subject_entity=c[1], type=loves, object_entity=bebop, user=self.user)
+
+        return loves
+
+    def test_relations01(self): #no ct/entity
+        loves = self._aux_test_relations()
+        in_love = [self.contacts[2].id, self.contacts[7].id, self.contacts[9].id, self.contacts[1].id]
+
+        efilter = EntityFilter.create(pk='test-filter01', name='Filter01', model=Contact)
+        efilter.set_conditions([EntityFilterCondition.build_4_relation(model=Contact, rtype=loves, has=True)])
+        self.assertExpectedFiltered(efilter, Contact, in_love)
+
+        efilter.set_conditions([EntityFilterCondition.build_4_relation(model=Contact, rtype=loves, has=False)])
+        self.assertExpectedFiltered(efilter, Contact, [c.id for c in self.contacts if c.id not in in_love])
+
+    def test_relations02(self): #wanted ct
+        loves = self._aux_test_relations()
+        ct = ContentType.objects.get_for_model(Contact)
+        in_love = [self.contacts[2].id, self.contacts[7].id, self.contacts[9].id] # not 'jet' ('bebop' not is a Contact)
+
+        efilter = EntityFilter.create(pk='test-filter01', name='Filter01', model=Contact)
+        efilter.set_conditions([EntityFilterCondition.build_4_relation(model=Contact, rtype=loves, has=True, ct=ct)])
+        self.assertExpectedFiltered(efilter, Contact, in_love)
+
+        efilter.set_conditions([EntityFilterCondition.build_4_relation(model=Contact, rtype=loves, has=False, ct=ct)])
+        self.assertExpectedFiltered(efilter, Contact, [c.id for c in self.contacts if c.id not in in_love])
+
+    def test_relations03(self): #wanted entity
+        loves = self._aux_test_relations()
+        in_love = [self.contacts[7].id, self.contacts[9].id]
+        rei = self.contacts[4]
+
+        efilter = EntityFilter.create(pk='test-filter01', name='Filter 01', model=Contact)
+        efilter.set_conditions([EntityFilterCondition.build_4_relation(model=Contact, rtype=loves, has=True, entity=rei)])
+        self.assertExpectedFiltered(efilter, Contact, in_love)
+
+        efilter.set_conditions([EntityFilterCondition.build_4_relation(model=Contact, rtype=loves, has=False, entity=rei)])
+        self.assertExpectedFiltered(efilter, Contact, [c.id for c in self.contacts if c.id not in in_love])
+
         #TODO: multivalue
         #TODO: field in fk, M2M
-        #TODO: relations
 
         #TODO:
         #DATE_RANGE_FILTER_VOLATILE, name=_(u"Date range"),        pattern_key='%s__range', pattern_value='(%s,%s)', is_exclude=False, type_champ="CharField", value_field_type='textfield')

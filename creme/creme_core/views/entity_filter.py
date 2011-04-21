@@ -25,12 +25,13 @@ from django.shortcuts import get_object_or_404, render_to_response
 from django.template.context import RequestContext
 from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required
+from django.contrib.contenttypes.models import ContentType
 
-from creme_core.models import EntityFilter
+from creme_core.models import EntityFilter, RelationType
 from creme_core.models.list_view_state import ListViewState
 from creme_core.forms.entity_filter import EntityFilterCreateForm, EntityFilterEditForm
 from creme_core.views.generic import add_entity
-from creme_core.utils import get_ct_or_404, get_from_POST_or_404
+from creme_core.utils import get_ct_or_404, get_from_POST_or_404, jsonify, creme_entity_content_types
 
 #TODO: factorise with HeaderFilter ??
 
@@ -102,3 +103,14 @@ def delete(request):
         return HttpResponse(return_msg, mimetype="text/javascript", status=status)
 
     return HttpResponseRedirect(callback_url)
+
+#TODO: factorise with views.relations.json_predicate_content_types  ???
+@login_required
+@jsonify
+def get_content_types(request, rtype_id):
+    content_types = get_object_or_404(RelationType, pk=rtype_id).object_ctypes.all() or creme_entity_content_types()
+
+    choices = [(0, _(u'All'))]
+    choices.extend((ct.id, unicode(ct)) for ct in content_types)
+
+    return choices

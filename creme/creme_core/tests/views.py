@@ -1756,6 +1756,9 @@ class EntityFilterViewsTestCase(ViewsTestCase):
                                                            )
                                ])
 
+        rtype, srtype = RelationType.create(('test-subject_love', u'Is loving'),
+                                            ('test-object_love',  u'Is loved by')
+                                           )
         ptype = CremePropertyType.create(str_pk='test-prop_kawaii', text=u'Kawaii')
 
         ct = ContentType.objects.get_for_model(Organisation)
@@ -1777,7 +1780,8 @@ class EntityFilterViewsTestCase(ViewsTestCase):
                                                                         'name':  field_name,
                                                                         'value': value,
                                                                     },
-                                            'properties_conditions': """[{"has":"true","ptype":"%s"}]""" % (ptype.id),
+                                            'relations_conditions':  """[{"has":"true", "rtype":"%s", "ctype":"0", "entity":null}]""" % (rtype.id),
+                                            'properties_conditions': """[{"has":"true", "ptype":"%s"}]""" % (ptype.id),
                                             'subfilters_conditions': [subfilter.id],
                                          }
                                    )
@@ -1792,22 +1796,27 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         self.assert_(efilter.use_or)
 
         conditions = efilter.conditions.all()
-        self.assertEqual(3, len(conditions))
+        self.assertEqual(4, len(conditions))
 
         condition = conditions[0]
         self.assertEqual(cond_type, condition.type)
         self.assertEqual(field_name, condition.name)
-        self.assertEqual('"%s"' % value, condition.value)
+        self.assertEqual(value, condition.decoded_value)
 
         condition = conditions[1]
-        self.assertEqual(EntityFilterCondition.PROPERTY, condition.type)
-        self.assertEqual(ptype.id, condition.name)
-        self.assertEqual(u'true', condition.value)
+        self.assertEqual(EntityFilterCondition.RELATION, condition.type)
+        self.assertEqual(rtype.id, condition.name)
+        self.assertEqual({'has': True}, condition.decoded_value)
 
         condition = conditions[2]
+        self.assertEqual(EntityFilterCondition.PROPERTY, condition.type)
+        self.assertEqual(ptype.id, condition.name)
+        self.assert_(condition.decoded_value is True)
+
+        condition = conditions[3]
         self.assertEqual(EntityFilterCondition.SUBFILTER, condition.type)
         self.failIf(condition.name)
-        self.assertEqual(u'"%s"' % subfilter.id, condition.value)
+        self.assertEqual(subfilter.id, condition.decoded_value)
 
     def test_create03(self): #error: no conditions of any type
         self.login()
@@ -1827,6 +1836,9 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         EntityFilter.create('test-filter01', 'Filter 01', Organisation, is_custom=True)        #Bad subfilter (bad content type)
         subfilter = EntityFilter.create('test-filter02', 'Filter 02', Contact, is_custom=True)
 
+        rtype, srtype = RelationType.create(('test-subject_love', u'Is loving'),
+                                            ('test-object_love',  u'Is loved by')
+                                           )
         ptype = CremePropertyType.create(str_pk='test-prop_kawaii', text=u'Kawaii')
 
         name = 'Filter 03'
@@ -1834,6 +1846,12 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         efilter.set_conditions([EntityFilterCondition.build(model=Contact,
                                                             type=EntityFilterCondition.CONTAINS,
                                                             name='first_name', value='Atom'
+                                                           ),
+                                EntityFilterCondition.build_4_relation(model=Contact, rtype=rtype, has=True),
+                                EntityFilterCondition.build(model=Contact,
+                                                            type=EntityFilterCondition.PROPERTY,
+                                                            name=ptype.id,
+                                                            value=True
                                                            ),
                                 EntityFilterCondition.build(model=Contact,
                                                             type=EntityFilterCondition.SUBFILTER,
@@ -1866,8 +1884,9 @@ class EntityFilterViewsTestCase(ViewsTestCase):
                                                                         'name':  field_name,
                                                                         'value': value,
                                                                     },
+                                            'relations_conditions':  """[{"has":"true", "rtype":"%s", "ctype":"0", "entity":null}]""" % rtype.id,
+                                            'properties_conditions': """[{"has":"false","ptype":"%s"}]""" % ptype.id,
                                             'subfilters_conditions': [subfilter.id],
-                                            'properties_conditions': """[{"has":"false","ptype":"%s"}]""" % (ptype.id),
                                          }
                                    )
         self.assertNoFormError(response)
@@ -1879,22 +1898,27 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         self.assert_(efilter.user is None)
 
         conditions = efilter.conditions.all()
-        self.assertEqual(3, len(conditions))
+        self.assertEqual(4, len(conditions))
 
         condition = conditions[0]
         self.assertEqual(cond_type,  condition.type)
         self.assertEqual(field_name, condition.name)
-        self.assertEqual('"%s"' % value, condition.value)
+        self.assertEqual(value, condition.decoded_value)
 
         condition = conditions[1]
+        self.assertEqual(EntityFilterCondition.RELATION, condition.type)
+        self.assertEqual(rtype.id, condition.name)
+        self.assertEqual({'has': True}, condition.decoded_value)
+
+        condition = conditions[2]
         self.assertEqual(EntityFilterCondition.PROPERTY, condition.type)
         self.assertEqual(ptype.id,                       condition.name)
         self.assert_(condition.decoded_value is False)
 
-        condition = conditions[2]
+        condition = conditions[3]
         self.assertEqual(EntityFilterCondition.SUBFILTER, condition.type)
         self.failIf(condition.name)
-        self.assertEqual('"%s"' % subfilter.id, condition.value)
+        self.assertEqual(subfilter.id, condition.decoded_value)
 
     def test_edit02(self): #not custom -> can not edit
         self.login()
@@ -1973,6 +1997,38 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         efilter = EntityFilter.create('test-filter01', 'Filter01', Contact, is_custom=True, user=self.other_user)
         self.client.post('/creme_core/entity_filter/delete', data={'id': efilter.id})
         self.failIf(EntityFilter.objects.filter(pk=efilter.id).count())
+
+    def test_get_content_types01(self):
+        self.login()
+
+        rtype, srtype = RelationType.create(('test-subject_love', u'Is loving'),
+                                            ('test-object_love',  u'Is loved by')
+                                           )
+
+        response = self.client.get('/creme_core/entity_filter/rtype/%s/content_types' % rtype.id)
+        self.assertEqual(200, response.status_code)
+
+        content = simplejson.loads(response.content)
+        self.assert_(isinstance(content, list))
+        self.assert_(len(content) > 1)
+        self.assert_(all(len(t) == 2 for t in content))
+        self.assert_(all(isinstance(t[0], int) for t in content))
+        self.assertEqual([0, _(u'All')], content[0])
+
+    def test_get_content_types02(self):
+        self.login()
+
+        rtype, srtype = RelationType.create(('test-subject_love', u'Is loving',),
+                                            ('test-object_love',  u'Is loved by', (Contact,))
+                                           )
+
+        response = self.client.get('/creme_core/entity_filter/rtype/%s/content_types' % rtype.id)
+        self.assertEqual(200, response.status_code)
+
+        ct = ContentType.objects.get_for_model(Contact)
+        self.assertEqual([[0, _(u'All')], [ct.id, unicode(ct)]],
+                         simplejson.loads(response.content)
+                        )
 
 
 class SearchViewTestCase(ViewsTestCase):

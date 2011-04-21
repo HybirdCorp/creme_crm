@@ -9,7 +9,7 @@ from django.contrib.contenttypes.models import ContentType
 
 from creme.creme_core import autodiscover
 from creme.creme_core.forms.fields import JSONField, GenericEntityField, MultiGenericEntityField, RelationEntityField, MultiRelationEntityField
-from creme_core.forms.entity_filter import RegularFieldsConditionsField, PropertiesConditionsField
+from creme_core.forms.entity_filter import RegularFieldsConditionsField, PropertiesConditionsField, RelationsConditionsField
 from creme.creme_core.utils import creme_entity_content_types
 from creme.creme_core.models import *
 from creme.creme_core.constants import REL_SUB_RELATED_TO, REL_SUB_HAS
@@ -778,3 +778,110 @@ class PropertiesConditionsFieldTestCase(FieldTestCase):
         self.assertEqual(EntityFilterCondition.PROPERTY, condition.type)
         self.assertEqual(self.ptype02.id, condition.name)
         self.assert_(condition.decoded_value is False)
+
+
+class RelationsConditionsFieldTestCase(FieldTestCase):
+    def setUp(self):
+        create = RelationType.create
+        self.rtype01, self.rtype02 = create(('test-subject_love', u'Is loving', (Contact,)),
+                                            ('test-object_love',  u'Is loved by')
+                                           )
+        self.rtype03, self.srtype04 = create(('test-subject_belong', u'(orga) belongs to (orga)', (Organisation,)),
+                                             ('test-object_belong',  u'(orga) has (orga)',        (Organisation,))
+                                            )
+
+    def test_clean_empty_required(self):
+        field = RelationsConditionsField(required=True)
+        self.assertFieldValidationError(RelationsConditionsField, 'required', field.clean, None)
+        self.assertFieldValidationError(RelationsConditionsField, 'required', field.clean, "")
+        self.assertFieldValidationError(RelationsConditionsField, 'required', field.clean, "[]")
+
+    def test_clean_empty_not_required(self):
+        field = RelationsConditionsField(required=False)
+
+        try:
+            field.clean(None)
+        except Exception, e:
+            self.fail(str(e))
+
+    def test_clean_invalid_data_type(self):
+        clean = RelationsConditionsField(model=Contact).clean
+        self.assertFieldValidationError(RelationsConditionsField, 'invalidformat', clean, '"this is a string"')
+        self.assertFieldValidationError(RelationsConditionsField, 'invalidformat', clean, '"{}"')
+        self.assertFieldValidationError(RelationsConditionsField, 'invalidformat', clean, '{"foobar":{"rtype":"test-foobar","has":"true"}}')
+
+    def test_clean_invalid_data(self):
+        clean = RelationsConditionsField(model=Contact).clean
+        self.assertFieldValidationError(RelationsConditionsField, 'invalidformat', clean, '[{"rtype":"%s"}]' % self.rtype01.id)
+        self.assertFieldValidationError(RelationsConditionsField, 'invalidformat', clean, '[{"has":"true"}]')
+        self.assertFieldValidationError(RelationsConditionsField, 'invalidformat', clean, '[{"rtype":"%s","has":"not a boolean"}]' % self.rtype01.id)
+        self.assertFieldValidationError(RelationsConditionsField, 'invalidformat', clean, '[{"rtype":"%s","has":"true", "ctype":"not an int"}]' % self.rtype01.id)
+        self.assertFieldValidationError(RelationsConditionsField, 'invalidformat', clean, '[{"rtype":"%s","has":"true", "entity":"not an int"}]' % self.rtype01.id)
+
+    def test_unknown_ct(self):
+        clean = RelationsConditionsField(model=Contact).clean
+        self.assertFieldValidationError(RelationsConditionsField, 'invalidct', clean, '[{"rtype":"%s","has":"true", "ctype":"2121545"}]' % self.rtype01.id)
+
+    def test_unknown_entity(self):
+        clean = RelationsConditionsField(model=Contact).clean
+        self.assertFieldValidationError(RelationsConditionsField, 'invalidentity', clean,
+                                        '[{"rtype":"%s","has":"true","ctype":"1","entity":"2121545"}]' % self.rtype01.id
+                                       )
+
+    def test_ok01(self): #no ct, no object entity
+        field = RelationsConditionsField(model=Contact)
+        conditions = field.clean('[{"rtype":"%s","has":"true","ctype":"0","entity":null}, {"rtype":"%s","has":"false","ctype":"0","entity":null}]' % (
+                                    self.rtype01.id, self.rtype02.id)
+                                )
+        self.assertEqual(2, len(conditions))
+
+        condition = conditions[0]
+        self.assertEqual(EntityFilterCondition.RELATION, condition.type)
+        self.assertEqual(self.rtype01.id, condition.name)
+        self.assertEqual({'has': True}, condition.decoded_value)
+
+        condition = conditions[1]
+        self.assertEqual(EntityFilterCondition.RELATION, condition.type)
+        self.assertEqual(self.rtype02.id, condition.name)
+        self.assertEqual({'has': False}, condition.decoded_value)
+
+    def test_ok02(self): #wanted ct
+        field = RelationsConditionsField(model=Contact)
+        ct = ContentType.objects.get_for_model(Contact)
+        conditions = field.clean("""[{"rtype":"%(rtype01)s", "has":"true",  "ctype":"%(ct)s","entity":null},
+                                     {"rtype":"%(rtype02)s", "has":"false", "ctype":"%(ct)s"}]""" % {
+                                        'rtype01': self.rtype01.id,
+                                        'rtype02': self.rtype02.id,
+                                        'ct':      ct.id,
+                                    }
+                                )
+        self.assertEqual(2, len(conditions))
+
+        condition = conditions[0]
+        self.assertEqual(EntityFilterCondition.RELATION, condition.type)
+        self.assertEqual(self.rtype01.id, condition.name)
+        self.assertEqual({'has': True, 'ct_id': ct.id}, condition.decoded_value)
+
+        condition = conditions[1]
+        self.assertEqual(EntityFilterCondition.RELATION, condition.type)
+        self.assertEqual(self.rtype02.id, condition.name)
+        self.assertEqual({'has': False, 'ct_id': ct.id}, condition.decoded_value)
+
+    def test_ok03(self): #wanted entity
+        self.login()
+
+        naru = Contact.objects.create(user=self.user, first_name='Naru', last_name='Narusegawa')
+        field = RelationsConditionsField(model=Contact)
+        ct = ContentType.objects.get_for_model(Contact)
+        conditions = field.clean('[{"rtype":"%(rtype)s", "has":"true", "ctype":"%(ct)s", "entity":"%(entity)s"}]' % {
+                                        'rtype':  self.rtype01.id,
+                                        'ct':     ct.id,
+                                        'entity': naru.id,
+                                    }
+                                )
+        self.assertEqual(1, len(conditions))
+
+        condition = conditions[0]
+        self.assertEqual(EntityFilterCondition.RELATION, condition.type)
+        self.assertEqual(self.rtype01.id, condition.name)
+        self.assertEqual({'has': True, 'entity_id': naru.id}, condition.decoded_value)
