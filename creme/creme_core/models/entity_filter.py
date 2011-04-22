@@ -310,7 +310,7 @@ class EntityFilterCondition(Model):
         return EntityFilterCondition(type=type, name=name, value=EntityFilterCondition.encode_value(value))
 
     @staticmethod
-    def build_4_relation(model, rtype, has=True, ct=None, entity=None): #, object
+    def build_4_relation(model, rtype, has=True, ct=None, entity=None):
         value = {'has': bool(has)}
 
         if entity:
