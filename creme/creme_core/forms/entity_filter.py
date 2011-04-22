@@ -19,6 +19,7 @@
 ################################################################################
 
 #from logging import debug
+from functools import partial
 
 from django.forms import ModelMultipleChoiceField, ValidationError
 from django.utils.translation import ugettext_lazy as _, ugettext
@@ -150,6 +151,12 @@ class _ConditionsField(JSONField):
 
         return self._conditions_from_dicts(data)
 
+    def initialize(self, ctype, conditions=None, efilter=None):
+        self.model = ctype.model_class()
+
+        if conditions:
+            self._set_initial_conditions(conditions)
+
 
 class RegularFieldsConditionsField(_ConditionsField):
     default_error_messages = {
@@ -188,6 +195,10 @@ class RegularFieldsConditionsField(_ConditionsField):
             raise ValidationError(self.error_messages['invalidfield'])
 
         return conditions
+
+    def _set_initial_conditions(self, conditions):
+        OPERATOR_MAP = EntityFilterCondition._OPERATOR_MAP
+        self.initial = [c for c in conditions if c.type in OPERATOR_MAP]
 
 
 class RelationsConditionsField(_ConditionsField):
@@ -287,11 +298,15 @@ class RelationsConditionsField(_ConditionsField):
         build_condition = EntityFilterCondition.build_4_relation
 
         try:
-            conditions = [build_condition(model=self.model, **kwargs) for kwargs in all_kwargs]
+            conditions = [build_condition(**kwargs) for kwargs in all_kwargs]
         except EntityFilterCondition.ValueError, e:
             raise ValidationError(str(e))
 
         return conditions
+
+    def _set_initial_conditions(self, conditions):
+        RELATION = EntityFilterCondition.RELATION
+        self.initial = [c for c in conditions if c.type == RELATION]
 
 
 class RelationSubfiltersConditionsField(RelationsConditionsField):
@@ -336,11 +351,15 @@ class RelationSubfiltersConditionsField(RelationsConditionsField):
         build_condition = EntityFilterCondition.build_4_relation_subfilter
 
         try:
-             conditions = [build_condition(model=self.model, **kwargs) for kwargs in all_kwargs]
+             conditions = [build_condition(**kwargs) for kwargs in all_kwargs]
         except EntityFilterCondition.ValueError, e:
             raise ValidationError(str(e))
 
         return conditions
+
+    def _set_initial_conditions(self, conditions):
+        RELATION_SUBFILTER = EntityFilterCondition.RELATION_SUBFILTER
+        self.initial = [c for c in conditions if c.type == RELATION_SUBFILTER]
 
 
 class PropertiesConditionsField(_ConditionsField):
@@ -398,6 +417,37 @@ class PropertiesConditionsField(_ConditionsField):
 
         return conditions
 
+    def _set_initial_conditions(self, conditions):
+        PROPERTY = EntityFilterCondition.PROPERTY
+        self.initial = [c for c in conditions if c.type == PROPERTY]
+
+
+class SubfiltersConditionsField(ModelMultipleChoiceField):
+    widget = UnorderedMultipleChoiceWidget
+
+    def __init__(self, model=None, *args, **kwargs):
+        super(SubfiltersConditionsField, self).__init__(queryset=EntityFilter.objects.none(), *args, **kwargs)
+        self.model = model or CremeEntity #TODO: remove
+
+    def clean(self, value):
+        subfilters = super(SubfiltersConditionsField, self).clean(value)
+        build_cond = partial(EntityFilterCondition.build, type=EntityFilterCondition.SUBFILTER, model=self.model)
+
+        return [build_cond(value=subfilter) for subfilter in subfilters]
+
+    def initialize(self, ctype, conditions=None, efilter=None):
+        qs = EntityFilter.objects.filter(entity_type=ctype)
+
+        if efilter:
+            qs = qs.exclude(pk__in=efilter.get_connected_filter_ids())
+
+        self.queryset = qs
+
+        if conditions:
+            SUBFILTER = EntityFilterCondition.SUBFILTER
+            self.initial = [c.decoded_value for c in conditions if c.type == SUBFILTER]
+
+
 #Forms--------------------------------------------------------------------------
 
 class _EntityFilterForm(CremeModelForm):
@@ -407,9 +457,7 @@ class _EntityFilterForm(CremeModelForm):
                                                         )
     relsubfilfers_conditions = RelationSubfiltersConditionsField(label=_(u'On relations with results of other filters'), required=False)
     properties_conditions    = PropertiesConditionsField(label=_(u'On properties'), required=False)
-    subfilters_conditions    = ModelMultipleChoiceField(label=_(u'Sub-filters'), required=False,
-                                                     queryset=EntityFilter.objects.none(),
-                                                     widget=UnorderedMultipleChoiceWidget) #TODO: create a SubfiltersConditionsField (-> lots of factorisation become possible)
+    subfilters_conditions    = SubfiltersConditionsField(label=_(u'Sub-filters'), required=False)
 
     _CONDITIONS_FIELD_NAMES = ('fields_conditions',
                                'relations_conditions', 'relsubfilfers_conditions',
@@ -427,20 +475,14 @@ class _EntityFilterForm(CremeModelForm):
         fields['user'].empty_label = ugettext(u'All users')
         fields['use_or'].help_text = ugettext(u'Use "OR" between the conditions (else "AND" is used).')
 
-    def _build_subfilters(self, model):
-        build_cond = EntityFilterCondition.build
-        SUBFILTER = EntityFilterCondition.SUBFILTER
-
-        return [build_cond(model=model, type=SUBFILTER, value=subfilter)
-                     for subfilter in self.cleaned_data['subfilters_conditions']
-               ]
-
     def get_cleaned_conditions(self):
         cdata = self.cleaned_data
+        conditions = []
 
-        return cdata['fields_conditions'] + cdata['relations_conditions'] + \
-               cdata['relsubfilfers_conditions'] + cdata['properties_conditions'] + \
-               self._build_subfilters(self.instance.entity_type.model_class())
+        for fname in self._CONDITIONS_FIELD_NAMES:
+            conditions.extend(cdata[fname])
+
+        return conditions
 
     def clean(self):
         cdata = self.cleaned_data
@@ -455,16 +497,11 @@ class _EntityFilterForm(CremeModelForm):
 class EntityFilterCreateForm(_EntityFilterForm):
     def __init__(self, *args, **kwargs):
         super(EntityFilterCreateForm, self).__init__(*args, **kwargs)
-        ct = self.initial['content_type']
-        self._entity_type = ct #TODO: remove this attr ??
-
+        self._entity_type = ct = self.initial['content_type']
         fields = self.fields
-        model = ct.model_class()
-        fields['fields_conditions'].model = model
-        fields['relations_conditions'].model = model
-        fields['relsubfilfers_conditions'].model = model
-        fields['properties_conditions'].model = model
-        fields['subfilters_conditions'].queryset = EntityFilter.objects.filter(entity_type=ct)
+
+        for field_name in self._CONDITIONS_FIELD_NAMES:
+            fields[field_name].initialize(ct)
 
     def save(self, *args, **kwargs):
         instance = self.instance
@@ -487,35 +524,10 @@ class EntityFilterEditForm(_EntityFilterForm):
 
         fields = self.fields
         instance = self.instance
-        ct = instance.entity_type
-        model = ct.model_class()
-        conditions = instance.conditions.all()
+        args = (instance.entity_type, instance.conditions.all(), instance)
 
-        OPERATOR_MAP = EntityFilterCondition._OPERATOR_MAP
-        field = fields['fields_conditions']
-        field.model   = model
-        field.initial = [c for c in conditions if c.type in OPERATOR_MAP]
-
-        RELATION = EntityFilterCondition.RELATION
-        field = fields['relations_conditions']
-        field.model = model
-        field.initial = [c for c in conditions if c.type == RELATION]
-
-        RELATION_SUBFILTER = EntityFilterCondition.RELATION_SUBFILTER
-        field = fields['relsubfilfers_conditions']
-        field.model = model
-        field.initial = [c for c in conditions if c.type == RELATION_SUBFILTER]
-
-        PROPERTY = EntityFilterCondition.PROPERTY
-        field = fields['properties_conditions']
-        field.model = model
-        field.initial = [c for c in conditions if c.type == PROPERTY]
-
-        SUBFILTER = EntityFilterCondition.SUBFILTER
-        field = fields['subfilters_conditions']
-        field.queryset = EntityFilter.objects.filter(entity_type=ct)\
-                                             .exclude(pk__in=instance.get_connected_filter_ids())
-        field.initial = [c.decoded_value for c in conditions if c.type == SUBFILTER]
+        for field_name in self._CONDITIONS_FIELD_NAMES:
+            fields[field_name].initialize(*args)
 
     def clean(self):
         cdata = super(EntityFilterEditForm, self).clean()

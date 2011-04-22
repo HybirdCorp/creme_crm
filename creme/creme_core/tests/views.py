@@ -1859,8 +1859,8 @@ class EntityFilterViewsTestCase(ViewsTestCase):
                                                             type=EntityFilterCondition.CONTAINS,
                                                             name='first_name', value='Atom'
                                                            ),
-                                EntityFilterCondition.build_4_relation(model=Contact, rtype=rtype, has=True),
-                                EntityFilterCondition.build_4_relation_subfilter(model=Contact, rtype=srtype, has=True, subfilter=relsubfilfer),
+                                EntityFilterCondition.build_4_relation(rtype=rtype, has=True),
+                                EntityFilterCondition.build_4_relation_subfilter(rtype=srtype, has=True, subfilter=relsubfilfer),
                                 EntityFilterCondition.build(model=Contact,
                                                             type=EntityFilterCondition.PROPERTY,
                                                             name=ptype.id,
