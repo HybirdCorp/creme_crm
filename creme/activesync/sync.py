@@ -44,7 +44,7 @@ from activesync.errors import (CremeActiveSyncError,
 from activesync.messages import MessageInfo, MessageSucceed, MessageError, _INFO, _ERROR, _SUCCESS
 
                                
-from activesync.models.active_sync import CremeClient, CremeExchangeMapping
+from activesync.models.active_sync import CremeClient, CremeExchangeMapping, AS_Folder
 from activesync.commands import FolderSync, Provision, AirSync
 from activesync import constants as as_constants
 
@@ -174,30 +174,42 @@ class Synchronization(object):
         policy_key = self.policy_key
         folder_sync_key = self.folder_sync_key or 0
         sync_key   = self.sync_key or 0
-        contacts   = []
+        folders   = []
+        folders_append = folders.append
+
         client     = self.client
         user       = self.user
-
+        
         self._data['debug']['info'].append("Begin with policy_key :%s" % policy_key)
 
         _fs = self._folder_sync(policy_key, folder_sync_key)#Try to sync server folders
         fs  = self._handle_folder_sync(_fs)
 
-        #For the moment we fetch only the contacts folder
-        contacts = filter(lambda x: int(x['type']) == as_constants.SYNC_FOLDER_TYPE_CONTACT, fs.add)
 
-#        client.sync_key = fs.synckey
+        as_folder_get_or_create = AS_Folder.objects.get_or_create
+        for added_folder in fs.add:
+            folder = as_folder_get_or_create(client=client,
+                                             server_id=added_folder.get('serverid'),
+                                             type = added_folder.get('type'))[0]
+
+            folder.parent_id=added_folder.get('parentid')
+            folder.display_name=added_folder.get('displayname')
+            folder.save()
+            folders_append(folder)
+
+
         client.folder_sync_key = fs.synckey
         
-        if contacts:#The contact folder exists
-            contact_folder = contacts[0]
-            serverid       = contact_folder.get('serverid')#Contact folder id
+        if not folders:
+            folders = AS_Folder.objects.filter(client=client)
 
-        if self.contact_folder_id:
-            serverid = self.contact_folder_id
+        for as_folder in folders:
+            if as_folder.type != as_constants.SYNC_FOLDER_TYPE_CONTACT:#TODO: Hack, we handling only contacts for now
+                continue
 
-        if serverid:
-            client.contact_folder_id = serverid
+            serverid = as_folder.server_id
+            
+            client.contact_folder_id = serverid#TODO: Remove me in the model
             self._data['debug']['info'].append("CONTACT FOLDER : %s" % serverid)
 
 #            if provisionned:
@@ -205,7 +217,9 @@ class Synchronization(object):
 #            else:
 #            as_ = self._sync(policy_key, serverid, fs.synckey, True, user=user)
 #            as_ = self._sync(policy_key, serverid, None, True, user=user)
-            as_ = self._sync(policy_key, serverid, sync_key, True)
+            
+#            as_ = self._sync(policy_key, serverid, sync_key, True)
+            as_ = self._sync(policy_key, as_folder, sync_key, True)
 
             client.sync_key = as_.last_synckey
             self._data['debug']['info'].append("client.sync_key : %s" % client.sync_key)
@@ -217,7 +231,6 @@ class Synchronization(object):
                 client_id = added.get('client_id')
                 server_id = added.get('server_id')
                 create(creme_entity_id=client_id, exchange_entity_id=server_id, synced=True, user=user)#Create objects
-
 
             unchanged_server_id = [change.get('server_id') for change in as_synced['Change']]
 
@@ -235,9 +248,10 @@ class Synchronization(object):
         client.last_sync  = datetime.now()
         client.save()
 
-    def _sync(self, policy_key, serverid, synckey=None, fetch=True):
+    def _sync(self, policy_key, as_folder, synckey=None, fetch=True):
+        
         as_ = AirSync(*self.params)
-        as_.send(policy_key, serverid, synckey, fetch)
+        as_.send(policy_key, as_folder, synckey, fetch)
 
         self.merge_command_messages(as_)
 

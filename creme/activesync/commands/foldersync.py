@@ -73,15 +73,18 @@ class FolderSync(Base):
 
                 self.add = []
                 add_append = self.add.append
-                add_nodes = xml.findall('%sChanges/%sAdd' % (ns,ns))
+                add_nodes = xml.findall('%sChanges/%sAdd' % (ns,ns))#Todo: Handle: Changes / Delete ?
 
                 for add_node in add_nodes:
-                    add_append({
-                        'serverid'    : add_node.find("%sServerId" % ns).text,
-                        'parentid'    : add_node.find("%sParentId" % ns).text,
-                        'displayname' : add_node.find("%sDisplayName" % ns).text,
-                        'type'        : add_node.find("%sType" % ns).text,
-                    })
+                    try:
+                        add_append({
+                            'serverid'    : add_node.find("%sServerId" % ns).text,
+                            'parentid'    : add_node.find("%sParentId" % ns).text,
+                            'displayname' : add_node.find("%sDisplayName" % ns).text,
+                            'type'        : int(add_node.find("%sType" % ns).text),
+                        })
+                    except (ValueError, TypeError), e:
+                        continue
 
         print "[FolderSync] (end) Status :", self.status
 #        self.add_info_message("[FolderSync] (end) Status : %s" % self.status)

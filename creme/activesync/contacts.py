@@ -118,7 +118,6 @@ CREME_CONTACT_MAPPING = {
 if not settings.IS_ZPUSH:
     CREME_CONTACT_MAPPING['AirSyncBase:'].update({'description': 'Body'})
 
-
 ### Contact helpers
 def create_or_update_organisation(contact, d, user, history=None):
     organisation = d.pop('organisation', None)
