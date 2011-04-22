@@ -8,8 +8,8 @@ from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 
 from creme.creme_core import autodiscover
-from creme.creme_core.forms.fields import JSONField, GenericEntityField, MultiGenericEntityField, RelationEntityField, MultiRelationEntityField
-from creme_core.forms.entity_filter import RegularFieldsConditionsField, PropertiesConditionsField, RelationsConditionsField
+from creme.creme_core.forms.fields import *
+from creme_core.forms.entity_filter import *
 from creme.creme_core.utils import creme_entity_content_types
 from creme.creme_core.models import *
 from creme.creme_core.constants import REL_SUB_RELATED_TO, REL_SUB_HAS
@@ -885,3 +885,73 @@ class RelationsConditionsFieldTestCase(FieldTestCase):
         self.assertEqual(EntityFilterCondition.RELATION, condition.type)
         self.assertEqual(self.rtype01.id, condition.name)
         self.assertEqual({'has': True, 'entity_id': naru.id}, condition.decoded_value)
+
+
+class RelationSubfiltersConditionsFieldTestCase(FieldTestCase):
+    def setUp(self):
+        create = RelationType.create
+        self.rtype01, self.rtype02 = create(('test-subject_love', u'Is loving', (Contact,)),
+                                            ('test-object_love',  u'Is loved by')
+                                           )
+        self.rtype03, self.srtype04 = create(('test-subject_belong', u'(orga) belongs to (orga)', (Organisation,)),
+                                             ('test-object_belong',  u'(orga) has (orga)',        (Organisation,))
+                                            )
+
+        self.sub_efilter01 = EntityFilter.create(pk='test-filter01', name='Filter 01', model=Contact)
+        self.sub_efilter02 = EntityFilter.create(pk='test-filter02', name='Filter 02', model=Organisation)
+
+    def test_clean_empty_required(self):
+        field = RelationsConditionsField(required=True)
+        self.assertFieldValidationError(RelationSubfiltersConditionsField, 'required', field.clean, None)
+        self.assertFieldValidationError(RelationSubfiltersConditionsField, 'required', field.clean, "")
+        self.assertFieldValidationError(RelationSubfiltersConditionsField, 'required', field.clean, "[]")
+
+    def test_clean_invalid_data(self):
+        clean = RelationSubfiltersConditionsField(model=Contact).clean
+        self.assertFieldValidationError(RelationSubfiltersConditionsField, 'invalidformat', clean, '[{"rtype":"%s"}]' % self.rtype01.id)
+        self.assertFieldValidationError(RelationSubfiltersConditionsField, 'invalidformat', clean, '[{"has":"true"}]')
+        self.assertFieldValidationError(RelationSubfiltersConditionsField, 'invalidformat', clean,
+                                        '[{"rtype": "%(rtype)s", "has": "not a boolean", "ctype": "%(ct)s", "filter":"%(filter)s"}]' % {
+                                                'rtype':  self.rtype01.id,
+                                                'ct':     ContentType.objects.get_for_model(Contact).id,
+                                                'filter': self.sub_efilter01.id,
+                                            }
+                                       )
+
+    def test_unknown_filter(self):
+        clean = RelationSubfiltersConditionsField(model=Contact).clean
+        self.assertFieldValidationError(RelationSubfiltersConditionsField, 'invalidfilter', clean,
+                                        '[{"rtype": "%(rtype)s", "has": "false", "ctype": "%(ct)s", "filter":"%(filter)s"}]' % {
+                                                'rtype':  self.rtype01.id,
+                                                'ct':     ContentType.objects.get_for_model(Contact).id,
+                                                'filter': 3213213543,
+                                            }
+                                       )
+
+    def test_ok(self):
+        get_ct = ContentType.objects.get_for_model
+        ct_contact = get_ct(Contact)
+        ct_orga    = get_ct(Organisation)
+
+        field = RelationSubfiltersConditionsField(model=Contact)
+        conditions = field.clean('[{"rtype": "%(rtype01)s", "has": "true",  "ctype": "%(ct_contact)s", "filter":"%(filter01)s"},'
+                                 ' {"rtype": "%(rtype02)s", "has": "false", "ctype": "%(ct_orga)s",    "filter":"%(filter02)s"}]' % {
+                                        'rtype01':    self.rtype01.id,
+                                        'rtype02':    self.rtype02.id,
+                                        'ct_contact': ct_contact,
+                                        'ct_orga':    ct_orga,
+                                        'filter01':   self.sub_efilter01.id,
+                                        'filter02':   self.sub_efilter02.id,
+                                    }
+                                )
+        self.assertEqual(2, len(conditions))
+
+        condition = conditions[0]
+        self.assertEqual(EntityFilterCondition.RELATION_SUBFILTER, condition.type)
+        self.assertEqual(self.rtype01.id, condition.name)
+        self.assertEqual({'has': True, 'filter_id': self.sub_efilter01.id}, condition.decoded_value)
+
+        condition = conditions[1]
+        self.assertEqual(EntityFilterCondition.RELATION_SUBFILTER, condition.type)
+        self.assertEqual(self.rtype02.id, condition.name)
+        self.assertEqual({'has': False, 'filter_id': self.sub_efilter02.id}, condition.decoded_value)

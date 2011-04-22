@@ -87,6 +87,25 @@ class RelationsConditionsWidget(SelectorList):
         super(RelationsConditionsWidget, self).__init__(chained_input)
 
 
+class RelationSubfiltersConditionsWidget(SelectorList):
+    def __init__(self, rtypes, attrs=None):
+        chained_input = ChainedInput(attrs)
+        attrs = {'auto': False}
+
+        rtype_name = 'rtype'
+        ctype_name = 'ctype'
+        ctype_url  = '/creme_core/relation/predicate/${%s}/content_types/json' % rtype_name
+        filter_url = '/creme_core/entity_filter/get_for_ctype/${%s}' % ctype_name
+
+        add_dselect = chained_input.add_dselect
+        add_dselect('has', options=_HAS_RELATION_OPTIONS.iteritems(), attrs=attrs)
+        add_dselect(rtype_name, options=rtypes, attrs=attrs)
+        add_dselect(ctype_name, options=ctype_url, attrs=attrs)
+        add_dselect("filter", options=filter_url, attrs=attrs)
+
+        super(RelationSubfiltersConditionsWidget, self).__init__(chained_input)
+
+
 class PropertiesConditionsWidget(SelectorList):
     def __init__(self, ptypes, attrs=None):
         chained_input = ChainedInput(attrs)
@@ -199,7 +218,6 @@ class RelationsConditionsField(_ConditionsField):
 
     #TODO: test with deleted entity ??
     def _conditions_to_dicts(self, conditions):
-        print '_CONDITIONS_2_DICTS'
         return map(self._condition_to_dict, conditions)
 
     def _clean_has(self, entry):
@@ -253,6 +271,50 @@ class RelationsConditionsField(_ConditionsField):
                                           has=self._clean_has(entry),
                                           ct=self._clean_ct(entry),
                                           entity=self._clean_entity(entry),
+                                         )
+                                for entry in data
+                         ]
+        except EntityFilterCondition.ValueError, e:
+            raise ValidationError(str(e))
+
+        return conditions
+
+
+class RelationSubfiltersConditionsField(RelationsConditionsField):
+    default_error_messages = {
+        'invalidfilter': _(u"This filter is invalid."),
+    }
+
+    def _create_widget(self):
+        return RelationSubfiltersConditionsWidget(self._rtypes.iteritems())
+
+    def _condition_to_dict(self, condition):
+        value = condition.decoded_value
+
+        return {'rtype':  condition.name,
+                'has':    boolean_str(value['has']),
+                'filter': value['filter_id'],
+               }
+
+    def _clean_subfilter(self, entry):
+        filter_id = self.clean_value(entry, 'filter', str)
+
+        try:
+            subfilter = EntityFilter.objects.get(pk=filter_id)
+        except EntityFilter.DoesNotExist:
+            raise ValidationError(self.error_messages['invalidfilter'])
+
+        return subfilter
+
+    #TODO: regroup queries
+    def _conditions_from_dicts(self, data):
+        build_condition = EntityFilterCondition.build_4_relation_subfilter
+
+        try:
+            conditions = [build_condition(model=self.model,
+                                          rtype=self._clean_rtype(entry),
+                                          has=self._clean_has(entry),
+                                          subfilter=self._clean_subfilter(entry),
                                          )
                                 for entry in data
                          ]
@@ -320,19 +382,22 @@ class PropertiesConditionsField(_ConditionsField):
 #Forms--------------------------------------------------------------------------
 
 class _EntityFilterForm(CremeModelForm):
-    fields_conditions     = RegularFieldsConditionsField(label=_(u'On regular fields'), required=False)
-    relations_conditions  = RelationsConditionsField(label=_(u'On relations'), required=False, help_text=_(u'Do not select any entity if you want to match them all.'))
-    properties_conditions = PropertiesConditionsField(label=_(u'On properties'), required=False)
-    subfilters_conditions = ModelMultipleChoiceField(label=_(u'Sub-filters'), required=False,
+    fields_conditions        = RegularFieldsConditionsField(label=_(u'On regular fields'), required=False)
+    relations_conditions     = RelationsConditionsField(label=_(u'On relations'), required=False,
+                                                         help_text=_(u'Do not select any entity if you want to match them all.')
+                                                        )
+    relsubfilfers_conditions = RelationSubfiltersConditionsField(label=_(u'On relations with results of other filters'), required=False)
+    properties_conditions    = PropertiesConditionsField(label=_(u'On properties'), required=False)
+    subfilters_conditions    = ModelMultipleChoiceField(label=_(u'Sub-filters'), required=False,
                                                      queryset=EntityFilter.objects.none(),
-                                                     widget=UnorderedMultipleChoiceWidget)
+                                                     widget=UnorderedMultipleChoiceWidget) #TODO: create a SubfiltersConditionsField (-> lots of factorisation become possible)
 
-    blocks = CremeModelForm.blocks.new(('conditions', _(u'Conditions'), ('fields_conditions',
-                                                                         'relations_conditions',
-                                                                         'properties_conditions',
-                                                                         'subfilters_conditions',
-                                                                        )
-                                      ))
+    _CONDITIONS_FIELD_NAMES = ('fields_conditions',
+                               'relations_conditions', 'relsubfilfers_conditions',
+                               'properties_conditions', 'subfilters_conditions',
+                             )
+
+    blocks = CremeModelForm.blocks.new(('conditions', _(u'Conditions'), _CONDITIONS_FIELD_NAMES))
 
     class Meta:
         model = EntityFilter
@@ -351,21 +416,18 @@ class _EntityFilterForm(CremeModelForm):
                      for subfilter in self.cleaned_data['subfilters_conditions']
                ]
 
-    def set_conditions(self):
-        efilter = self.instance
-        cdata   = self.cleaned_data
-        efilter.set_conditions(cdata['fields_conditions']
-                                + cdata['relations_conditions']
-                                + cdata['properties_conditions']
-                                + self._build_subfilters(efilter.entity_type.model_class()),
-                               check_cycles=False
-                              )
+    def get_cleaned_conditions(self):
+        cdata = self.cleaned_data
+
+        return cdata['fields_conditions'] + cdata['relations_conditions'] + \
+               cdata['relsubfilfers_conditions'] + cdata['properties_conditions'] + \
+               self._build_subfilters(self.instance.entity_type.model_class())
 
     def clean(self):
         cdata = self.cleaned_data
 
-        #TODO: get fields names from the block
-        if not self._errors and not any(cdata[f] for f in ('fields_conditions', 'relations_conditions', 'properties_conditions', 'subfilters_conditions')):
+        #TODO: get fields names from the block instead ??
+        if not self._errors and not any(cdata[f] for f in self._CONDITIONS_FIELD_NAMES):
             raise ValidationError(ugettext(u'The filter must have at least one condition.'))
 
         return cdata
@@ -381,6 +443,7 @@ class EntityFilterCreateForm(_EntityFilterForm):
         model = ct.model_class()
         fields['fields_conditions'].model = model
         fields['relations_conditions'].model = model
+        fields['relsubfilfers_conditions'].model = model
         fields['properties_conditions'].model = model
         fields['subfilters_conditions'].queryset = EntityFilter.objects.filter(entity_type=ct)
 
@@ -394,7 +457,7 @@ class EntityFilterCreateForm(_EntityFilterForm):
         super(EntityFilterCreateForm, self).save(commit=False, *args, **kwargs)
         generate_string_id_and_save(EntityFilter, [instance], 'creme_core-userfilter_%s-%s' % (ct.app_label, ct.model))
 
-        self.set_conditions()
+        instance.set_conditions(self.get_cleaned_conditions(), check_cycles=False)
 
         return instance
 
@@ -419,6 +482,11 @@ class EntityFilterEditForm(_EntityFilterForm):
         field.model = model
         field.initial = [c for c in conditions if c.type == RELATION]
 
+        RELATION_SUBFILTER = EntityFilterCondition.RELATION_SUBFILTER
+        field = fields['relsubfilfers_conditions']
+        field.model = model
+        field.initial = [c for c in conditions if c.type == RELATION_SUBFILTER]
+
         PROPERTY = EntityFilterCondition.PROPERTY
         field = fields['properties_conditions']
         field.model = model
@@ -430,8 +498,23 @@ class EntityFilterEditForm(_EntityFilterForm):
                                              .exclude(pk__in=instance.get_connected_filter_ids())
         field.initial = [c.decoded_value for c in conditions if c.type == SUBFILTER]
 
+    def clean(self):
+        cdata = super(EntityFilterEditForm, self).clean()
+
+        if not self.errors:
+            conditions = self.get_cleaned_conditions()
+
+            try:
+                self.instance.check_cycle(conditions)
+            except EntityFilter.CycleError, e:
+                 raise ValidationError(e)
+
+            cdata['all_conditions'] = conditions
+
+        return cdata
+
     def save(self, *args, **kwargs):
         instance = super(EntityFilterEditForm, self).save(*args, **kwargs)
-        self.set_conditions()
+        instance.set_conditions(self.cleaned_data['all_conditions'], check_cycles=False)
 
         return instance
