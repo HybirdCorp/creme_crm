@@ -28,7 +28,7 @@ from django.template.loader import render_to_string
 from activesync.errors import SYNC_ERR_FORBIDDEN, CremeActiveSyncError, SYNC_ERR_CONNECTION, SYNC_ERR_NOT_FOUND
 from activesync.models.active_sync import UserSynchronizationHistory, CREATE, UPDATE, DELETE, IN_CREME, ON_SERVER
 from activesync.wbxml.dtd import AirsyncDTD_Reverse, AirsyncDTD_Forward
-from activesync.wbxml.codec2 import WBXMLEncoder, WBXMLDecoder, prettify
+from activesync.wbxml.codec import WBXMLEncoder, WBXMLDecoder, prettify
 
 from activesync.connection import Connection
 

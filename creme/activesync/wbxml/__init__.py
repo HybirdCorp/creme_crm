@@ -12,4 +12,4 @@ import dtd
 
 dtd.InitializeDTD()
 
-from codec2 import WBXMLEncoder, WBXMLDecoder, WrongXMLType, WrongWBXMLType, prettify
+from codec import WBXMLEncoder, WBXMLDecoder, WrongXMLType, WrongWBXMLType, prettify

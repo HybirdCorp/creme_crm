@@ -27,7 +27,7 @@ from xml.parsers import expat
 
 
 from activesync.wbxml.dtd import AirsyncDTD_Reverse, AirsyncDTD_Forward
-from activesync.wbxml.codec2 import WBXMLEncoder, WBXMLDecoder, WrongXMLType
+from activesync.wbxml.codec import WBXMLEncoder, WBXMLDecoder, WrongXMLType
 
 from django.core.files import File
 
