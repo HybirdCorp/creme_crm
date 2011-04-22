@@ -18,6 +18,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from itertools import ifilter
+
 from django.db.models import Model, CharField, TextField, PositiveSmallIntegerField, BooleanField, ForeignKey, Q
 from django.db.models.fields import FieldDoesNotExist
 from django.core.exceptions import ValidationError
@@ -101,16 +103,14 @@ class EntityFilter(Model): #CremeModel ???
         return (False, ugettext(u"You are not allowed to edit/delete this filter"))
 
     def check_cycle(self, conditions):
-        SUBFILTER = EntityFilterCondition.SUBFILTER
-
-        #Ids of Filters that are referenced by these conditions
-        ref_filter_ids = set(cond.decoded_value for cond in conditions if cond.type == SUBFILTER)
+        #Ids of EntityFilters that are referenced by these conditions
+        ref_filter_ids = set(ifilter(None, (cond._get_subfilter_id() for cond in conditions)))
 
         if self.id in ref_filter_ids:
-            raise EntityFilter.CycleError('A condition can not reference its own filter.')
+            raise EntityFilter.CycleError(ugettext(u'A condition can not reference its own filter.'))
 
         if self.get_connected_filter_ids() & ref_filter_ids: #TODO: method intersection not null
-            raise EntityFilter.CycleError('There is a cycle with a subfilter')
+            raise EntityFilter.CycleError(ugettext(u'There is a cycle with a subfilter.'))
 
     @staticmethod
     def create(pk, name, model, is_custom=False, user=None, use_or=False):
@@ -137,15 +137,15 @@ class EntityFilter(Model): #CremeModel ???
         connected = level_ids = set((self.id,))
 
         #Sub-filters conditions
-        sf_conds = [(cond, cond.decoded_value)
-                        for cond in EntityFilterCondition.objects.filter(type=EntityFilterCondition.SUBFILTER)
+        sf_conds = [(cond, cond._get_subfilter_id())
+                        for cond in EntityFilterCondition.objects.filter(type__in=(EntityFilterCondition.SUBFILTER,
+                                                                                   EntityFilterCondition.RELATION_SUBFILTER
+                                                                                  )
+                                                                        )
                    ]
 
         while level_ids:
-            level_ids = set(cond.filter_id
-                                for cond, decoded_value in sf_conds
-                                    if cond.decoded_value in level_ids
-                           )
+            level_ids = set(cond.filter_id for cond, filter_id in sf_conds if filter_id in level_ids)
             connected.update(level_ids)
 
         return connected
@@ -162,7 +162,7 @@ class EntityFilter(Model): #CremeModel ???
 
         return query
 
-    def set_conditions(self, conditions, check_cycles=True): #TODO: check_cycles=False in form.save()
+    def set_conditions(self, conditions, check_cycles=True):
         if check_cycles:
             self.check_cycle(conditions)
 
@@ -208,9 +208,12 @@ class EntityFilterCondition(Model):
     name   = CharField(max_length=100)
     value  = TextField()
 
-    SUBFILTER       = 1
-    RELATION        = 2
-    PROPERTY        = 3
+    SUBFILTER = 1
+
+    RELATION           = 2
+    RELATION_SUBFILTER = 3
+
+    PROPERTY = 5
 
     EQUALS          = 10
     IEQUALS         = 11
@@ -237,7 +240,6 @@ class EntityFilterCondition(Model):
     RANGE           = 32
 
     _OPERATOR_MAP = {
-            #value means (exclude_mode, query_key_pattern)
             EQUALS:          _ConditionOperator(_(u'Equals'),                                 '%s__exact'),
             IEQUALS:         _ConditionOperator(_(u'Equals (case insensitive)'),              '%s__iexact'),
             EQUALS_NOT:      _ConditionOperator(_(u"Does not equal"),                         '%s__exact', exclude=True),
@@ -321,6 +323,13 @@ class EntityFilterCondition(Model):
                                      value=EntityFilterCondition.encode_value(value)
                                     )
 
+    @staticmethod
+    def build_4_relation_subfilter(model, rtype, subfilter, has=True):
+        return EntityFilterCondition(type=EntityFilterCondition.RELATION_SUBFILTER,
+                                     name=rtype.id,
+                                     value=EntityFilterCondition.encode_value({'has': bool(has), 'filter_id': subfilter.id})
+                                    )
+
     @property
     def decoded_value(self):
         return jsonloads(self.value)
@@ -347,6 +356,18 @@ class EntityFilterCondition(Model):
 
         return query
 
+    def _get_q_relation_subfilter(self):
+        #TODO: can the filter be deleted ???
+        value = self.decoded_value
+        subfilter = EntityFilter.objects.get(pk=value['filter_id'])
+        excluded = subfilter.filter(subfilter.entity_type.model_class().objects.all()).values_list('id', flat=True)
+        query = Q(relations__type=self.name, relations__object_entity__in=excluded)
+
+        if not value['has']:
+            query.negate()
+
+        return query
+
     def _get_q_property(self):
         query = Q(properties__type=self.name)
 
@@ -365,14 +386,23 @@ class EntityFilterCondition(Model):
         return query
 
     _GET_Q_FUNCS = {
-            SUBFILTER: lambda self: EntityFilter.objects.get(id=self.decoded_value).get_q(),
-            RELATION:  _get_q_relation,
-            PROPERTY:  _get_q_property,
+            SUBFILTER:          lambda self: EntityFilter.objects.get(id=self.decoded_value).get_q(),
+            RELATION:           _get_q_relation,
+            RELATION_SUBFILTER: _get_q_relation_subfilter,
+            PROPERTY:           _get_q_property,
         }
 
     def get_q(self):
         func = EntityFilterCondition._GET_Q_FUNCS.get(self.type, EntityFilterCondition._get_q_regularfields)
         return func(self)
+
+    def _get_subfilter_id(self):
+        type = self.type
+
+        if type == self.SUBFILTER:
+            return self.decoded_value
+        elif type == self.RELATION_SUBFILTER:
+            return self.decoded_value['filter_id']
 
     def update(self, other_condition):
         """Fill a condition with the content a another one (in order to reuse the old instance if possible).

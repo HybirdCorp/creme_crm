@@ -20,6 +20,7 @@
 
 from logging import debug
 
+from django.core.exceptions import PermissionDenied
 from django.http import HttpResponse, HttpResponseRedirect, Http404
 from django.shortcuts import get_object_or_404, render_to_response
 from django.template.context import RequestContext
@@ -114,3 +115,13 @@ def get_content_types(request, rtype_id):
     choices.extend((ct.id, unicode(ct)) for ct in content_types)
 
     return choices
+
+@login_required
+@jsonify
+def get_for_ctype(request, ct_id):
+    ct = get_ct_or_404(ct_id)
+
+    if not request.user.has_perm(ct.app_label): #TODO: helper in auth.py ??
+        raise PermissionDenied(_(u"You are not allowed to acceed to this app"))
+
+    return list(EntityFilter.objects.filter(entity_type=ct).values_list('id', 'name'))
