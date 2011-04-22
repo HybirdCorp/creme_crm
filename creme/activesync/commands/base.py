@@ -19,9 +19,7 @@
 ################################################################################
 from collections import defaultdict
 
-import libxml2
 import restkit.errors
-from xml.etree.ElementTree import fromstring, tostring
 from httplib import socket
 
 from django.conf import settings
@@ -29,11 +27,10 @@ from django.template.loader import render_to_string
 
 from activesync.errors import SYNC_ERR_FORBIDDEN, CremeActiveSyncError, SYNC_ERR_CONNECTION, SYNC_ERR_NOT_FOUND
 from activesync.models.active_sync import UserSynchronizationHistory, CREATE, UPDATE, DELETE, IN_CREME, ON_SERVER
-from activesync.wbxml.dtd import AirsyncDTD_Reverse
-from activesync.wbxml.codec2 import WBXMLEncoder
+from activesync.wbxml.dtd import AirsyncDTD_Reverse, AirsyncDTD_Forward
+from activesync.wbxml.codec2 import WBXMLEncoder, WBXMLDecoder, prettify
 
 from activesync.connection import Connection
-from activesync.wbxml.converters import XMLToWBXML, WBXMLToXML
 
 from activesync.messages import _INFO, _ERROR, _SUCCESS, MessageInfo, MessageSucceed, MessageError
 
@@ -42,9 +39,8 @@ ACTIVE_SYNC_DEBUG = settings.ACTIVE_SYNC_DEBUG
 class Base(object):
     template_name = u"overloadme.xml" #XML template to send to the server
     command       = u"OVERLOADME"     #Associated command
-#    encoder       = lambda s, x : XMLToWBXML(x) # xml to wbxml encoder
     encoder       = lambda s, x : WBXMLEncoder(AirsyncDTD_Reverse).encode(x) # xml to wbxml encoder
-    decoder       = lambda s, x : WBXMLToXML(x) # wbxml to xml decoder
+    decoder       = lambda s, x : WBXMLDecoder(AirsyncDTD_Forward).decode(x) # wbxml to xml decoder
 
     def __init__(self, url, login, pwd, device_id, user):
         self.url       = url
@@ -116,24 +112,17 @@ class Base(object):
         self.connection = Connection.create(self.url, self.login, self.password, *args, **kwargs)
 
     def _encode(self, content):
-        print "\n==Request==\n",content,"\n"
-        
         if ACTIVE_SYNC_DEBUG:
             self._data['debug']['xml'].append(u"Request: %s" % content)
 
         return self.encoder(str(content.encode('utf-8')))#TODO: Verify side effects
-#        return self.encoder(content)
-#        return self.encoder(libxml2.parseDoc(content))
 
     def _decode(self, content):
-#        return self.decoder(content)
-        print "\n==Response==\n",str(self.decoder(content)),"\n"
-
         if ACTIVE_SYNC_DEBUG:
-            self._data['debug']['xml'].append(u"Response: %s" % str(self.decoder(content)))
+            self._data['debug']['xml'].append(u"Response: %s" % prettify(self.decoder(content)))
 
-#        print "\n==Response==\n",tostring(fromstring(str(self.decoder(content)))),"\n"
-        return fromstring(str(self.decoder(content)))#Trick to use ElementTree instead of libxml2 in waiting for own ElementTree parser
+        return self.decoder(content)
+#        return fromstring(str(self.decoder(content)))#Trick to use ElementTree instead of libxml2 in waiting for own ElementTree parser
 
     def _send(self, encoded_content, *args, **kwargs):
         try:
@@ -150,8 +139,6 @@ class Base(object):
 
     def send(self, template_dict, *args, **kwargs):
         content = render_to_string(self.template_name, template_dict)
-#        print "xml sended :\n", content,"\n\n"
         encoded_content = self._encode(content)
         response = self._send(encoded_content, *args, **kwargs)
-#        print "wbxml received:\n", response,"\n\n"
         return self._decode(response)

@@ -362,11 +362,11 @@ class WBXMLDecoder(object):
         doctest.testmod(creme.activesync.wbxml.codec2)
 
         >>> from creme.activesync.wbxml.dtd import AirsyncDTD_Forward
-        >>> from xml.etree.ElementTree import tostring
+        >>> from xml.etree.ElementTree import tostring, XML
         >>> xml_str = '<?xml version="1.0" encoding="UTF-8"?><FolderSync xmlns="FolderHierarchy:"><SyncKey>0</SyncKey></FolderSync>'
         >>> wbxml   = '\x03\x01j\x00\x00\x07VR\x030\x00\x01\x01'
         >>> decoder = WBXMLDecoder(AirsyncDTD_Forward)
-        >>> tostring(decoder.decode(wbxml)) == xml_str
+        >>> tostring(decoder.decode(wbxml)) == tostring(XML(xml_str))
         True
     """
 
@@ -387,8 +387,6 @@ class WBXMLDecoder(object):
 
         self.charsetid    = self.get_mbuint()
         self.string_table = self.get_string_table()
-
-    #newChild(self, ns, name, content): Element("{ns}name").text = content
 
     def _format_name(self, name, ns):
         return "%s%s" % ("{%s}" % ns if ns is not None else "", name)
@@ -419,7 +417,7 @@ class WBXMLDecoder(object):
 
                 else:
                     node = Element(_format_name(name, ns))
-                    node.parent = curTag# #ElementTree doesn't store the parent..
+                    node.parent = curTag#ElementTree doesn't store the parent..
                     curTag.append(node)
                     curTag = node
 
@@ -544,6 +542,7 @@ class WBXMLDecoder(object):
         """Low level call to retrieve a token from the wbxml stream"""
 
         element = {}
+
         get_attributes = self.get_attributes
         get_byte       = self.get_byte
         get_mbuint     = self.get_mbuint
@@ -568,6 +567,8 @@ class WBXMLDecoder(object):
             elif byte == WBXML_ENTITY:
                 entity              = get_mbuint()
                 element[EN_TYPE]    = EN_TYPE_CONTENT
+                #This function doesn't seem defined neither in original code nor in Z-push implementation
+                #Active sync doesn't need this part ???
                 element[EN_CONTENT] = self.EntityToCharset(entity)
                 return element
 
