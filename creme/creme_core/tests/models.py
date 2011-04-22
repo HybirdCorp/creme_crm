@@ -1331,6 +1331,7 @@ class EntityFiltersTestCase(CremeTestCase):
         conds = [build_cond(model=Contact, type=EntityFilterCondition.CONTAINS,   value='Faye', name='first_name'),
                  build_cond(model=Contact, type=EntityFilterCondition.SUBFILTER,  value=efilter02),
                 ]
+        efilter01 = EntityFilter.objects.get(pk=efilter01.pk) #refresh
         self.assertEqual(set([efilter01.id, efilter02.id]), efilter01.get_connected_filter_ids())
         self.assertRaises(EntityFilter.CycleError, efilter01.check_cycle, conds)
         self.assertRaises(EntityFilter.CycleError, efilter01.set_conditions, conds)
@@ -1354,6 +1355,7 @@ class EntityFiltersTestCase(CremeTestCase):
         conds = [build_cond(model=Contact, type=EntityFilterCondition.EQUALS, name='last_name', value='Spiegel'),
                  build_cond(model=Contact, type=EntityFilterCondition.SUBFILTER,  value=efilter03),
                 ]
+        efilter01 = EntityFilter.objects.get(pk=efilter01.pk) #refresh
         self.assertRaises(EntityFilter.CycleError, efilter01.check_cycle, conds)
         self.assertRaises(EntityFilter.CycleError, efilter01.set_conditions, conds)
 
@@ -1407,10 +1409,10 @@ class EntityFiltersTestCase(CremeTestCase):
         in_love = [self.contacts[2].id, self.contacts[7].id, self.contacts[9].id, self.contacts[1].id]
 
         efilter = EntityFilter.create(pk='test-filter01', name='Filter01', model=Contact)
-        efilter.set_conditions([EntityFilterCondition.build_4_relation(model=Contact, rtype=loves, has=True)])
+        efilter.set_conditions([EntityFilterCondition.build_4_relation(rtype=loves, has=True)])
         self.assertExpectedFiltered(efilter, Contact, in_love)
 
-        efilter.set_conditions([EntityFilterCondition.build_4_relation(model=Contact, rtype=loves, has=False)])
+        efilter.set_conditions([EntityFilterCondition.build_4_relation(rtype=loves, has=False)])
         self.assertExpectedFiltered(efilter, Contact, [c.id for c in self.contacts if c.id not in in_love])
 
     def test_relations02(self): #wanted ct
@@ -1419,10 +1421,10 @@ class EntityFiltersTestCase(CremeTestCase):
         in_love = [self.contacts[2].id, self.contacts[7].id, self.contacts[9].id] # not 'jet' ('bebop' not is a Contact)
 
         efilter = EntityFilter.create(pk='test-filter01', name='Filter01', model=Contact)
-        efilter.set_conditions([EntityFilterCondition.build_4_relation(model=Contact, rtype=loves, has=True, ct=ct)])
+        efilter.set_conditions([EntityFilterCondition.build_4_relation(rtype=loves, has=True, ct=ct)])
         self.assertExpectedFiltered(efilter, Contact, in_love)
 
-        efilter.set_conditions([EntityFilterCondition.build_4_relation(model=Contact, rtype=loves, has=False, ct=ct)])
+        efilter.set_conditions([EntityFilterCondition.build_4_relation(rtype=loves, has=False, ct=ct)])
         self.assertExpectedFiltered(efilter, Contact, [c.id for c in self.contacts if c.id not in in_love])
 
     def test_relations03(self): #wanted entity
@@ -1431,10 +1433,10 @@ class EntityFiltersTestCase(CremeTestCase):
         rei = self.contacts[4]
 
         efilter = EntityFilter.create(pk='test-filter01', name='Filter 01', model=Contact)
-        efilter.set_conditions([EntityFilterCondition.build_4_relation(model=Contact, rtype=loves, has=True, entity=rei)])
+        efilter.set_conditions([EntityFilterCondition.build_4_relation(rtype=loves, has=True, entity=rei)])
         self.assertExpectedFiltered(efilter, Contact, in_love)
 
-        efilter.set_conditions([EntityFilterCondition.build_4_relation(model=Contact, rtype=loves, has=False, entity=rei)])
+        efilter.set_conditions([EntityFilterCondition.build_4_relation(rtype=loves, has=False, entity=rei)])
         self.assertExpectedFiltered(efilter, Contact, [c.id for c in self.contacts if c.id not in in_love])
 
     def test_relations_subfilter01(self):
@@ -1449,7 +1451,7 @@ class EntityFiltersTestCase(CremeTestCase):
         self.assertExpectedFiltered(sub_efilter, Contact, [self.contacts[4].id])
 
         efilter = EntityFilter.create(pk='test-filter02', name='Filter Rei lovers', model=Contact)
-        conds = [EntityFilterCondition.build_4_relation_subfilter(model=Contact, rtype=loves, has=True, subfilter=sub_efilter)]
+        conds = [EntityFilterCondition.build_4_relation_subfilter(rtype=loves, has=True, subfilter=sub_efilter)]
 
         try:
             efilter.check_cycle(conds)
@@ -1459,14 +1461,14 @@ class EntityFiltersTestCase(CremeTestCase):
         efilter.set_conditions(conds)
         self.assertExpectedFiltered(efilter, Contact, in_love)
 
-        efilter.set_conditions([EntityFilterCondition.build_4_relation_subfilter(model=Contact, rtype=loves, has=False, subfilter=sub_efilter)])
+        efilter.set_conditions([EntityFilterCondition.build_4_relation_subfilter(rtype=loves, has=False, subfilter=sub_efilter)])
         self.assertExpectedFiltered(efilter, Contact, [c.id for c in self.contacts if c.id not in in_love])
 
     def test_relations_subfilter02(self): #cycle error (lenght = 0)
         loves = self._aux_test_relations()
 
         efilter = EntityFilter.create(pk='test-filter01', name='Filter Rei lovers', model=Contact)
-        conds = [EntityFilterCondition.build_4_relation_subfilter(model=Contact, rtype=loves, has=True, subfilter=efilter)]
+        conds = [EntityFilterCondition.build_4_relation_subfilter(rtype=loves, has=True, subfilter=efilter)]
 
         self.assertRaises(EntityFilter.CycleError, efilter.check_cycle, conds)
         self.assertRaises(EntityFilter.CycleError, efilter.set_conditions, conds)
@@ -1478,9 +1480,10 @@ class EntityFiltersTestCase(CremeTestCase):
         efilter01.set_conditions([EntityFilterCondition.build(model=Contact, type=EntityFilterCondition.EQUALS, name='last_name', value='Ayanami')])
 
         efilter02 = EntityFilter.create(pk='test-filter02', name='Filter 02', model=Contact)
-        efilter02.set_conditions([EntityFilterCondition.build_4_relation_subfilter(model=Contact, rtype=loves, has=True, subfilter=efilter01)])
+        efilter02.set_conditions([EntityFilterCondition.build_4_relation_subfilter(rtype=loves, has=True, subfilter=efilter01)])
 
-        conds = [EntityFilterCondition.build_4_relation_subfilter(model=Contact, rtype=self.hates, has=False, subfilter=efilter02)]
+        conds = [EntityFilterCondition.build_4_relation_subfilter(rtype=self.hates, has=False, subfilter=efilter02)]
+        efilter01 = EntityFilter.objects.get(pk=efilter01.pk) #refresh
         self.assertRaises(EntityFilter.CycleError, efilter01.check_cycle, conds)
         self.assertRaises(EntityFilter.CycleError, efilter01.set_conditions, conds)
 

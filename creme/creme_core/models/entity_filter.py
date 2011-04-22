@@ -70,6 +70,8 @@ class EntityFilter(Model): #CremeModel ???
     is_custom   = BooleanField(editable=False, default=True)
     use_or      = BooleanField(verbose_name=_(u'Use "OR"'), default=False)
 
+    _connected_filter_cache = None
+
     class Meta:
         app_label = 'creme_core'
         verbose_name = _(u'Filter of Entity')
@@ -134,7 +136,10 @@ class EntityFilter(Model): #CremeModel ???
         #  - 2rst level is filters with a sub-filter conditions relative to 'self'.
         #  - 3rd level  is filters with a sub-filter conditions relative to a filter of the 2nd level.
         # etc....
-        connected = level_ids = set((self.id,))
+        if self._connected_filter_cache:
+            return self._connected_filter_cache
+
+        self._connected_filter_cache = connected = level_ids = set((self.id,))
 
         #Sub-filters conditions
         sf_conds = [(cond, cond._get_subfilter_id())
@@ -310,7 +315,7 @@ class EntityFilterCondition(Model):
         return EntityFilterCondition(type=type, name=name, value=EntityFilterCondition.encode_value(value))
 
     @staticmethod
-    def build_4_relation(model, rtype, has=True, ct=None, entity=None):
+    def build_4_relation(rtype, has=True, ct=None, entity=None):
         value = {'has': bool(has)}
 
         if entity:
@@ -324,7 +329,7 @@ class EntityFilterCondition(Model):
                                     )
 
     @staticmethod
-    def build_4_relation_subfilter(model, rtype, subfilter, has=True):
+    def build_4_relation_subfilter(rtype, subfilter, has=True):
         return EntityFilterCondition(type=EntityFilterCondition.RELATION_SUBFILTER,
                                      name=rtype.id,
                                      value=EntityFilterCondition.encode_value({'has': bool(has), 'filter_id': subfilter.id})
