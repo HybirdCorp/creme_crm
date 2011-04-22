@@ -66,7 +66,7 @@ WBXML_DEBUG         = False
 ################################################################################
 # Pretty printing util found on http://www.doughellmann.com/PyMOTW/xml/etree/ElementTree/create.html
 def prettify(elem):
-    """Return a pretty-printed XML string for the Element.
+    """Return a pretty-printed XML string for the Element (etree._ElementInterface).
     """
     from xml.etree import ElementTree
     from xml.dom import minidom

@@ -9,7 +9,7 @@
 ###############################################################################
 
 import dtd
-from converters import WBXMLToXML, XMLToWBXML
-
 
 dtd.InitializeDTD()
+
+from codec2 import WBXMLEncoder, WBXMLDecoder, WrongXMLType, WrongWBXMLType, prettify
