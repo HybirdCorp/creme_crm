@@ -62,7 +62,7 @@ EN_TYPE_CONTENT     = 3
 EN_FLAGS_CONTENT    = 1
 EN_FLAGS_ATTRIBUTES = 2
 
-WBXML_DEBUG         = True
+WBXML_DEBUG         = False
 ################################################################################
 # Pretty printing util found on http://www.doughellmann.com/PyMOTW/xml/etree/ElementTree/create.html
 def prettify(elem):
@@ -78,16 +78,20 @@ def prettify(elem):
 
 
 import StringIO
-from xml.etree.ElementTree import fromstring, XML, Element, _ElementInterface, SubElement, ElementTree
+from xml.etree.ElementTree import fromstring, XML, Element, _ElementInterface, SubElement, ElementTree, _ElementInterface, tostring
 
 #DEBUG = True
-DEBUG = False
+DEBUG = WBXML_DEBUG
+
 
 def _debuglog(*msg):
     if DEBUG:
         print msg
 
 class WrongXMLType(Exception):
+    pass
+
+class WrongWBXMLType(Exception):
     pass
 
 class WBXMLEncoder(object):
@@ -108,14 +112,15 @@ class WBXMLEncoder(object):
         True
     """
     def __init__(self, dtd):
-        self._out    = StringIO.StringIO()#TODO: Init this into encode ?
         self._dtd    = dtd
-        self._tagcp  = 0
-        self._attrcp = 0
-        self._stack  = []
 
     def encode(self, to_encode):
         _debuglog('Enter encode')
+
+        self._out    = StringIO.StringIO()
+        self._tagcp  = 0
+        self._attrcp = 0
+        self._stack  = []
 
         if isinstance(to_encode, basestring):
             self.xml = XML(to_encode)
@@ -132,9 +137,9 @@ class WBXMLEncoder(object):
 
         #Get the stream value
         out = self._out.getvalue()
-        
+
         self._out.close()
-        
+
         _debuglog('Exit encode with', out)
         return out
 
@@ -167,7 +172,7 @@ class WBXMLEncoder(object):
         if children:
             for child in children:
                 self._encode_node(child)
-                
+
         elif node_text:
             self.content(node_text)
 
@@ -212,7 +217,7 @@ class WBXMLEncoder(object):
             stackelem['nocontent'] = nocontent
             stackelem['sent'] = False
             self._stack.append(stackelem)
-            
+
         else:
             self._output_stack()
             self._start_tag(tag, attributes, nocontent)
@@ -365,25 +370,14 @@ class WBXMLDecoder(object):
         True
     """
 
-    input          = None
-    output         = None
-    version        = None
-    publicid       = None
-    publicstringid = None
-    charsetid      = None
-    string_table   = None
-
-    tagcp  = 0
-    attrcp = 0
-
-    unget_buffer = None
-
-    log_stack = []
-
     def __init__(self, dtd):
         self._dtd   = dtd
 
-    def decode(self, to_decode):
+    def _decode(self, to_decode):
+        self.tagcp  = 0
+        self.attrcp = 0
+        self.unget_buffer = None
+
         self.input    =  StringIO.StringIO(to_decode)
         self.version  = self.get_byte()
         self.publicid = self.get_mbuint()
@@ -394,7 +388,69 @@ class WBXMLDecoder(object):
         self.charsetid    = self.get_mbuint()
         self.string_table = self.get_string_table()
 
-        
+    #newChild(self, ns, name, content): Element("{ns}name").text = content
+
+    def _format_name(self, name, ns):
+        return "%s%s" % ("{%s}" % ns if ns is not None else "", name)
+
+    def decode(self, to_decode):
+
+        if to_decode in (None, ''):
+            raise WrongWBXMLType(u"Empty wbxml is invalid")
+
+        self._decode(to_decode)
+        root   = None
+        curTag = None
+
+        _format_name = self._format_name
+
+        while True:
+            e = self.get_element()
+
+            if not e:
+                break
+
+            if e[EN_TYPE] == EN_TYPE_STARTTAG:
+                ns, name = e[EN_TAG]
+
+                if root is None:
+                    root = curTag = Element(_format_name(name, ns))
+                    root.parent = None
+
+                else:
+                    node = Element(_format_name(name, ns))
+                    node.parent = curTag# #ElementTree doesn't store the parent..
+                    curTag.append(node)
+                    curTag = node
+
+                if e[EN_FLAGS]&2:
+                    _debuglog("must get attrs, %s" % e[EN_FLAGS]&2)#WTF?
+
+                if not (e[EN_FLAGS]&1):
+                    curTag = curTag.parent
+
+
+            elif e[EN_TYPE] == EN_TYPE_ENDTAG:
+                curTag = curTag.parent if curTag is not None else None
+#                if curTag is not None:
+#                    curTag = curTag.parent
+#                else:
+#                    curTag = None
+#                    _debuglog("error: no parent")
+
+
+            elif e[EN_TYPE] == EN_TYPE_CONTENT and curTag is not None:
+                curTag.text = e[EN_CONTENT]
+#
+#            elif e[EN_TYPE] == EN_TYPE_CONTENT:
+#                if curTag is not None:
+#                    curTag.text = e[EN_CONTENT]
+#                else:
+#                    _debuglog("error: no node")
+
+        self.input.close()
+        return root
+
 
     def get_element(self):
         """Pull down the element at this point in the WBXML stream"""
@@ -423,7 +479,7 @@ class WBXMLDecoder(object):
 
                     else:
                         unget_element(next)
-                        break;
+                        break
 
                 return element
         return False
@@ -488,7 +544,6 @@ class WBXMLDecoder(object):
         """Low level call to retrieve a token from the wbxml stream"""
 
         element = {}
-
         get_attributes = self.get_attributes
         get_byte       = self.get_byte
         get_mbuint     = self.get_mbuint
@@ -754,8 +809,7 @@ class WBXMLDecoder(object):
 
     def get_mapping(self, cp, id):
         """Interrogate the DTD for tag and namespace code pairs"""
-
-        dtd = self.dtd
+        dtd = self._dtd
         dtd_codes_cp = dtd['codes'][cp]
 
         if not (dtd_codes_cp and dtd_codes_cp[id]):

@@ -29,7 +29,7 @@ from activesync.utils import get_b64encoded_img_of_max_weight
 
 class ActiveSyncImageTestCase(TestCase):
     def setUp(self):
-        self.image_path = join(dirname(abspath(__file__)), 'data/creme.png')
+        self.image_path = join(dirname(abspath(__file__)), 'data', 'creme.png')
 
     def test_PIL(self):
         try:
