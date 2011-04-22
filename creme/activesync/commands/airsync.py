@@ -50,7 +50,7 @@ class AirSync(Base):
         super(AirSync, self).__init__(*args, **kwargs)
         self._create_connection()
 
-    def send(self, policy_key, server_id, synckey=None, fetch=True):
+    def send(self, policy_key, as_folder, synckey=None, fetch=True):
         """
             @param policy_key string set in the header to be authorized
             @param server_id
@@ -58,6 +58,8 @@ class AirSync(Base):
             @param fetch True for fetching changes False for current pushing changes
         """
         user = self.user
+        server_id = as_folder.server_id
+        
         print "AirSync policy_key:%s, server_id: %s, synckey=%s, fetch=%s, user=%s" % (policy_key, server_id, synckey, fetch, user)
         extra_ns = {'A1': 'Contacts:', 'A2': 'AirSyncBase:', 'A3': 'Contacts2:'}
         reverse_ns = dict((v,k) for k, v in extra_ns.iteritems())

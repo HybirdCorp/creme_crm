@@ -91,7 +91,7 @@ class CremeExchangeMapping(CremeModel):
 
 class CremeClient(CremeModel):
     user               = models.ForeignKey(User, verbose_name=u'Assigned to', unique=True)
-    client_id          = models.CharField(u'Creme Client ID',   max_length=32,  default=generate_guid(), unique=True)
+    client_id          = models.CharField(u'Creme Client ID',   max_length=32,  default=lambda :generate_guid(), unique=True)
     policy_key         = models.CharField(u'Last policy key',   max_length=200, default=0)
     sync_key           = models.CharField(u'Last sync key',     max_length=200, default=None, blank=True, null=True)
     folder_sync_key    = models.CharField(u'Last folder sync key', max_length=200, default=None, blank=True, null=True)
@@ -109,6 +109,7 @@ class CremeClient(CremeModel):
     def purge(self):
         SyncKeyHistory.objects.filter(client=self).delete()
         CremeExchangeMapping.objects.filter(user=self.user).delete()
+        AS_Folder.objects.filter(client=self).delete()
         self.delete()
 
 
@@ -158,6 +159,7 @@ class UserSynchronizationHistory(CremeModel):
     user           = models.ForeignKey(User, verbose_name=u'user')
     entity_repr    = models.CharField(u'Entity', max_length=200, default=None, blank=True, null=True)#Saving the representation of the entity in case it was deleted
     entity_pk      = models.IntegerField(u'Entity pk', max_length=50, blank=True, null=True)#Saving the pk of the entity
+    entity_ct      = models.ForeignKey(ContentType, verbose_name=u'What', null=True, blank=True)
     created        = CreationDateTimeField(_('Creation date'), default=lambda: datetime.now())
     entity_changes = models.TextField(_(u'Entity changes'), default=lambda: pickle.dumps({}))
     type           = models.IntegerField(u'', max_length=1, choices=USER_HISTORY_TYPE)
@@ -180,6 +182,7 @@ class UserSynchronizationHistory(CremeModel):
     def _set_entity(self, entity):
         self.entity_pk = entity.pk
         self.entity_repr = unicode(entity)
+        self.entity_ct = entity.entity_type
 
     entity = property(_get_entity, _set_entity); del _get_entity, _set_entity
 
@@ -249,6 +252,33 @@ class UserSynchronizationHistory(CremeModel):
     def add_delete(user, entity, where):
         return UserSynchronizationHistory._add(user, entity, where, DELETE)
     
+
+class AS_Folder(CremeModel):
+    client       = models.ForeignKey(CremeClient, verbose_name=u'client')
+    server_id    = models.CharField(u'Server id',    max_length=200)#Folder id on server
+    parent_id    = models.CharField(u'Server id',    max_length=200, blank=True, null=True)#Parent id of this folder on the server
+    display_name = models.CharField(u'Display name', max_length=200, default="")
+    type         = models.IntegerField(u'Type',      max_length=2)
+
+    def __unicode__(self):
+        return u"<AS_Forlder for <%s> >" % self.client.user
+
+    class Meta:
+        app_label = 'activesync'
+        verbose_name = u""
+        verbose_name_plural = u""
+
+    def get_parent(self):
+        if self.parent_id is not None:
+            return None
+
+        try:
+            return AS_Folder.objects.get(server_id=self.parent_id)
+        except:
+            return None
+
+
+
 
 from activesync.signals import post_save_activesync_handler, post_delete_activesync_handler, post_save_relation_employed_by, post_delete_relation_employed_by
 post_save.connect(post_save_activesync_handler,     sender=Contact)
