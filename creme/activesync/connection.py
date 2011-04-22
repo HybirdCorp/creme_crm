@@ -18,12 +18,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-import libxml2
-from restkit import Resource, BasicAuth, set_logging
-
 from django.conf import settings
-
-from wbxml.converters import XMLToWBXML, WBXMLToXML
+from restkit import Resource, BasicAuth, set_logging
 
 #set_logging("debug")
 set_logging("error")
@@ -67,10 +63,4 @@ class Connection(Resource):
 
     def send(self, cmd, content, device_id, *args, **kwargs):
         return self.post(cmd=cmd, payload=content, device_id=device_id, *args, **kwargs).body_string()
-
-def request(url, user, pwd, cmd, content):
-    return Connection.create(url, user, pwd).send(cmd, content)
-
-def request_xml(url, device_id, user, pwd, cmd, str_xml):
-    return WBXMLToXML(Connection.create(url, user, pwd).send(cmd, XMLToWBXML(libxml2.parseDoc(str_xml)), device_id))
 
