@@ -239,18 +239,14 @@ class RelationsConditionsField(_ConditionsField):
 
             return ct
 
-    def _clean_entity(self, entry):
-        entity_id = entry.get('entity')
+    def _clean_entity_id(self, entry):
+        entity_id = entry.get('entity') #TODO: improve clean_value with default value ???
 
         if entity_id:
             try:
-                entity = CremeEntity.objects.get(pk=int(entity_id))
+                return int(entity_id)
             except ValueError:
                 raise ValidationError(self.error_messages['invalidformat'])
-            except CremeEntity.DoesNotExist:
-                raise ValidationError(self.error_messages['invalidentity'])
-
-            return entity
 
     def _clean_rtype(self, entry):
         rtype_id = self.clean_value(entry, 'rtype', str)
@@ -261,19 +257,37 @@ class RelationsConditionsField(_ConditionsField):
 
         return rtype
 
-    #TODO: regroup queries
     def _conditions_from_dicts(self, data):
+        all_kwargs = []
+        entity_ids = set() #the queries on CremeEntity are grouped.
+
+        for entry in data:
+            kwargs = {
+                        'rtype': self._clean_rtype(entry),
+                        'has':   self._clean_has(entry),
+                        'ct':    self._clean_ct(entry),
+                     }
+            entity_id = self._clean_entity_id(entry)
+
+            if entity_id:
+                entity_ids.add(entity_id)
+                kwargs['entity'] = entity_id
+
+            all_kwargs.append(kwargs)
+
+        if entity_ids:
+            entities = dict((e.id, e) for e in CremeEntity.objects.filter(pk__in=entity_ids))
+
+            if len(entities) != len(entity_ids):
+                raise ValidationError(self.error_messages['invalidentity'])
+
+            for kwargs in all_kwargs:
+                kwargs['entity'] = entities.get(kwargs['entity'])
+
         build_condition = EntityFilterCondition.build_4_relation
 
         try:
-            conditions = [build_condition(model=self.model,
-                                          rtype=self._clean_rtype(entry),
-                                          has=self._clean_has(entry),
-                                          ct=self._clean_ct(entry),
-                                          entity=self._clean_entity(entry),
-                                         )
-                                for entry in data
-                         ]
+            conditions = [build_condition(model=self.model, **kwargs) for kwargs in all_kwargs]
         except EntityFilterCondition.ValueError, e:
             raise ValidationError(str(e))
 
@@ -296,28 +310,33 @@ class RelationSubfiltersConditionsField(RelationsConditionsField):
                 'filter': value['filter_id'],
                }
 
-    def _clean_subfilter(self, entry):
-        filter_id = self.clean_value(entry, 'filter', str)
-
-        try:
-            subfilter = EntityFilter.objects.get(pk=filter_id)
-        except EntityFilter.DoesNotExist:
-            raise ValidationError(self.error_messages['invalidfilter'])
-
-        return subfilter
-
-    #TODO: regroup queries
     def _conditions_from_dicts(self, data):
+        all_kwargs = []
+        filter_ids = set() #the queries on EntityFilter are grouped.
+
+        for entry in data:
+            kwargs    = {'rtype': self._clean_rtype(entry), 'has': self._clean_has(entry)}
+            filter_id = self.clean_value(entry, 'filter', str)
+
+            if filter_id:
+                filter_ids.add(filter_id)
+                kwargs['subfilter'] = filter_id
+
+            all_kwargs.append(kwargs)
+
+        if filter_ids:
+            filters = dict((f.id, f) for f in EntityFilter.objects.filter(pk__in=filter_ids))
+
+            if len(filters) != len(filter_ids):
+                raise ValidationError(self.error_messages['invalidfilter'])
+
+            for kwargs in all_kwargs:
+                kwargs['subfilter'] = filters.get(kwargs['subfilter'])
+
         build_condition = EntityFilterCondition.build_4_relation_subfilter
 
         try:
-            conditions = [build_condition(model=self.model,
-                                          rtype=self._clean_rtype(entry),
-                                          has=self._clean_has(entry),
-                                          subfilter=self._clean_subfilter(entry),
-                                         )
-                                for entry in data
-                         ]
+             conditions = [build_condition(model=self.model, **kwargs) for kwargs in all_kwargs]
         except EntityFilterCondition.ValueError, e:
             raise ValidationError(str(e))
 
