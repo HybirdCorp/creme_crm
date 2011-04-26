@@ -43,6 +43,12 @@ def get_quarter_dates(year, quarter):
 
 
 class DateRange(object):
+    name = 'base_date_range' #overload
+    verbose_name = u'Date range' #overload
+
+    def __unicode__(self):
+        return unicode(self.verbose_name)
+
     def get_dates(self, today):
         raise NotImplementedError
 
@@ -216,6 +222,9 @@ class DateRangeRegistry(object):
     def __init__(self, *dranges):
         self._ranges = {}
         self.register(*dranges)
+
+    def choices(self):
+        return self._ranges.iteritems()
 
     def register(self, *dranges):
         ranges_map = self._ranges

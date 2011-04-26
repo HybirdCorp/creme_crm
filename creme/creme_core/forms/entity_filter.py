@@ -32,6 +32,7 @@ from creme_core.forms.widgets import DynamicInput, SelectorList, ChainedInput, E
 from creme_core.utils import bool_from_str
 from creme_core.utils.id_generator import generate_string_id_and_save
 from creme_core.utils.meta import is_date_field
+from creme_core.utils.date_range import date_range_registry
 
 
 TRUE = 'true'
@@ -69,6 +70,19 @@ class RegularFieldsConditionsWidget(SelectorList):
         chained_input.add_input('value', DynamicInput, attrs=attrs)
 
         super(RegularFieldsConditionsWidget, self).__init__(chained_input)
+
+
+class DateFieldsConditionsWidget(SelectorList):
+    def __init__(self, date_fields, attrs=None):
+        chained_input = ChainedInput(attrs)
+        attrs = {'auto': False}
+
+        chained_input.add_dselect('name', options=[(fname, f.verbose_name) for fname, f in date_fields], attrs=attrs)
+        chained_input.add_dselect('type', options=date_range_registry.choices(), attrs=attrs)
+
+        #TODO: start  / begin
+
+        super(DateFieldsConditionsWidget, self).__init__(chained_input)
 
 
 class RelationsConditionsWidget(SelectorList):
@@ -199,6 +213,70 @@ class RegularFieldsConditionsField(_ConditionsField):
     def _set_initial_conditions(self, conditions):
         OPERATOR_MAP = EntityFilterCondition._OPERATOR_MAP
         self.initial = [c for c in conditions if c.type in OPERATOR_MAP]
+
+
+class DateFieldsConditionsField(_ConditionsField):
+    default_error_messages = {
+        'invalidfield':     _(u"This field is not a date field for this model."),
+        'invaliddaterange': _(u"This date range is invalid."),
+    }
+
+    def _set_model(self, model):
+        self._model = model
+        self._fields = dict((field.name, field) for field in model._meta.fields if is_date_field(field))
+        self._build_widget()
+
+    model = property(lambda self: self._model, _set_model); del _set_model
+
+    def _create_widget(self):
+        return DateFieldsConditionsWidget(self._fields.iteritems())
+
+    def _conditions_to_dicts(self, conditions):
+        return [{'name':  condition.name,
+                 'type':  condition.decoded_value['name'],
+                 #'value': condition.decoded_value, #TODO start/end
+                } for condition in conditions
+               ]
+
+    def _clean_date_range(self, entry):
+        drange = self.clean_value(entry, 'type', str)
+
+        if not date_range_registry.get_range(name=drange):
+            raise ValidationError(self.error_messages['invaliddaterange'])
+
+        return drange
+
+    def _clean_field_name(self, entry):
+        fname = self.clean_value(entry, 'name', str)
+
+        if not fname in self._fields:
+            raise ValidationError(self.error_messages['invalidfield'])
+
+        return fname
+
+    def _conditions_from_dicts(self, data):
+        build_condition = EntityFilterCondition.build_4_date
+        model = self.model
+        clean_field_name = self._clean_field_name
+        clean_date_range = self._clean_date_range
+
+        try:
+            conditions = [build_condition(model=model,
+                                          name=clean_field_name(entry),
+                                          date_range=clean_date_range(entry),
+                                          #start=None, #TODO
+                                          #end=None    #TODO
+                                         )
+                                for entry in data
+                         ]
+        except EntityFilterCondition.ValueError, e:
+            raise ValidationError(str(e))
+
+        return conditions
+
+    def _set_initial_conditions(self, conditions):
+        DATE = EntityFilterCondition.DATE
+        self.initial = [c for c in conditions if c.type == DATE]
 
 
 class RelationsConditionsField(_ConditionsField):
@@ -452,14 +530,15 @@ class SubfiltersConditionsField(ModelMultipleChoiceField):
 
 class _EntityFilterForm(CremeModelForm):
     fields_conditions        = RegularFieldsConditionsField(label=_(u'On regular fields'), required=False)
+    datefields_conditions    = DateFieldsConditionsField(label=_(u'On date fields'), required=False)
     relations_conditions     = RelationsConditionsField(label=_(u'On relations'), required=False,
-                                                         help_text=_(u'Do not select any entity if you want to match them all.')
-                                                        )
+                                                        help_text=_(u'Do not select any entity if you want to match them all.')
+                                                       )
     relsubfilfers_conditions = RelationSubfiltersConditionsField(label=_(u'On relations with results of other filters'), required=False)
     properties_conditions    = PropertiesConditionsField(label=_(u'On properties'), required=False)
     subfilters_conditions    = SubfiltersConditionsField(label=_(u'Sub-filters'), required=False)
 
-    _CONDITIONS_FIELD_NAMES = ('fields_conditions',
+    _CONDITIONS_FIELD_NAMES = ('fields_conditions', 'datefields_conditions',
                                'relations_conditions', 'relsubfilfers_conditions',
                                'properties_conditions', 'subfilters_conditions',
                              )

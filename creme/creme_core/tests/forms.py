@@ -728,6 +728,40 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
         self.assertFieldValidationError(RegularFieldsConditionsField, 'invalidfield', field.clean, '[{"type":"1","name":"boobies_size","value":"90"}]')
 
 
+class DateFieldsConditionsFieldTestCase(FieldTestCase):
+    def test_clean_invalid_data(self):
+        field = DateFieldsConditionsField(model=Contact)
+        self.assertFieldValidationError(DateFieldsConditionsField, 'invalidfield',     field.clean, '[{"name":"first_name"}]')
+        self.assertFieldValidationError(DateFieldsConditionsField, 'invaliddaterange', field.clean, '[{"name":"birthday", "type":"unknow_range"}]')
+
+    def test_ok01(self):
+        field = DateFieldsConditionsField(model=Contact)
+        type01 = 'current_year'
+        name01 = 'created'
+        type02 = 'next_quarter'
+        name02 = 'birthday'
+        conditions = field.clean('[{"type": "%(type01)s", "name": "%(name01)s"}, {"type": "%(type02)s","name": "%(name02)s"}]' % {
+                                        'type01': type01,
+                                        'name01': name01,
+                                        'type02': type02,
+                                        'name02': name02,
+                                    }
+                                )
+        self.assertEqual(2, len(conditions))
+
+        condition = conditions[0]
+        self.assertEqual(EntityFilterCondition.DATE, condition.type)
+        self.assertEqual(name01, condition.name)
+        self.assertEqual({'name': type01}, condition.decoded_value)
+
+        condition = conditions[1]
+        self.assertEqual(EntityFilterCondition.DATE, condition.type)
+        self.assertEqual(name02, condition.name)
+        self.assertEqual({'name': type02}, condition.decoded_value)
+
+    #def test_ok02(self): #TODO start/end
+
+
 class PropertiesConditionsFieldTestCase(FieldTestCase):
     def setUp(self):
         self.ptype01 = CremePropertyType.create('test-prop_active', 'Is active')

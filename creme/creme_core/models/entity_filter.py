@@ -18,6 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from datetime import date
 from itertools import ifilter
 
 from django.db.models import Model, CharField, TextField, PositiveSmallIntegerField, BooleanField, ForeignKey, Q
@@ -27,6 +28,13 @@ from django.utils.translation import ugettext_lazy as _, ugettext
 from django.utils.simplejson import loads as jsonloads, dumps as jsondumps
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.auth.models import User
+
+from creme_core.utils.meta import is_date_field
+from creme_core.utils.date_range import date_range_registry
+
+
+def date_2_dict(d): #move to utils ???
+    return {'year': d.year, 'month': d.month, 'day': d.day}
 
 
 class EntityFilterList(list):
@@ -58,9 +66,11 @@ class EntityFilter(Model): #CremeModel ???
     """A model that contains conditions that filter queries on CremeEntity objects.
     They are principally used in the list views.
     Conditions can be :
-     - On regular fields (eg: CharField, IntegerField)
+     - On regular fields (eg: CharField, IntegerField) with a special behaviour for date fields.
      - On related fields (throught ForeignKey or Many2Many)
      - An other EntityFilter
+     - The existence (or the not existence) of a kind of Relationship.
+     - The holding (or the not holding) of a kind of CremeProperty
      TODO: COMPLETE
     """
     id          = CharField(primary_key=True, max_length=100, editable=False)
@@ -220,6 +230,8 @@ class EntityFilterCondition(Model):
 
     PROPERTY = 5
 
+    DATE = 7
+
     EQUALS          = 10
     IEQUALS         = 11
     EQUALS_NOT      = 12
@@ -315,6 +327,34 @@ class EntityFilterCondition(Model):
         return EntityFilterCondition(type=type, name=name, value=EntityFilterCondition.encode_value(value))
 
     @staticmethod
+    def build_4_date(model, name, date_range=None, start=None, end=None):
+        try:
+            field = model._meta.get_field_by_name(name)[0]
+        except FieldDoesNotExist, e:
+            raise EntityFilterCondition.ValueError(str(e))
+
+        if not is_date_field(field):
+            raise EntityFilterCondition.ValueError('build_4_date(): field must be a date field.')
+
+        value = {}
+
+        if date_range:
+            if not date_range_registry.get_range(date_range):
+                raise EntityFilterCondition.ValueError('build_4_date(): invalid date range.')
+
+            value['name'] = date_range
+        else:
+            if start: value['start'] = date_2_dict(start)
+            if end:   value['end']   = date_2_dict(end)
+
+        if not value:
+            raise EntityFilterCondition.ValueError('build_4_date(): date_range or start/end must be given.')
+
+        return EntityFilterCondition(type=EntityFilterCondition.DATE, name=name,
+                                     value=EntityFilterCondition.encode_value(value)
+                                    )
+
+    @staticmethod
     def build_4_relation(rtype, has=True, ct=None, entity=None):
         value = {'has': bool(has)}
 
@@ -342,6 +382,17 @@ class EntityFilterCondition(Model):
     @staticmethod
     def encode_value(value):
         return jsondumps(value)
+
+    def _get_q_date(self):
+        kwargs = self.decoded_value
+
+        for key in ('start', 'end'):
+            val = kwargs.get(key)
+            if val: kwargs[key] = date(**val)
+
+        date_range = date_range_registry.get_range(**kwargs)
+
+        return Q(**date_range.get_q_dict(field=self.name, today=date.today()))
 
     def _get_q_relation(self):
         kwargs = {'relations__type': self.name}
@@ -395,6 +446,7 @@ class EntityFilterCondition(Model):
             RELATION:           _get_q_relation,
             RELATION_SUBFILTER: _get_q_relation_subfilter,
             PROPERTY:           _get_q_property,
+            DATE:               _get_q_date,
         }
 
     def get_q(self):
