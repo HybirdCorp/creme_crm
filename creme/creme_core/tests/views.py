@@ -1769,7 +1769,9 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         name = 'Filter 03'
         cond_type = EntityFilterCondition.CONTAINS
         field_name = 'name'
-        value = 'NERV'
+        field_value = 'NERV'
+        date_field_name = 'creation_date'
+        daterange_type = 'current_year'
         response = self.client.post(url,
                                     data={
                                             'name':       name,
@@ -1778,7 +1780,11 @@ class EntityFilterViewsTestCase(ViewsTestCase):
                                             'fields_conditions':        '[{"type":"%(type)s","name":"%(name)s","value":"%(value)s"}]' % {
                                                                                 'type':  cond_type,
                                                                                 'name':  field_name,
-                                                                                'value': value,
+                                                                                'value': field_value,
+                                                                            },
+                                            'datefields_conditions':    '[{"type":"%(type)s","name":"%(name)s"}]' % {
+                                                                                'type': daterange_type,
+                                                                                'name': date_field_name,
                                                                             },
                                             'relations_conditions':     '[{"has":"true", "rtype":"%s", "ctype":"0", "entity":null}]' % (rtype.id),
                                             'relsubfilfers_conditions': '[{"rtype": "%(rtype)s", "has": "false", "ctype": "%(ct)s", "filter":"%(filter)s"}]' % {
@@ -1801,29 +1807,34 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         self.assert_(efilter.use_or)
 
         conditions = efilter.conditions.all()
-        self.assertEqual(5, len(conditions))
+        self.assertEqual(6, len(conditions))
 
         condition = conditions[0]
         self.assertEqual(cond_type, condition.type)
         self.assertEqual(field_name, condition.name)
-        self.assertEqual(value, condition.decoded_value)
+        self.assertEqual(field_value, condition.decoded_value)
 
         condition = conditions[1]
+        self.assertEqual(EntityFilterCondition.DATE, condition.type)
+        self.assertEqual(date_field_name, condition.name)
+        self.assertEqual({'name': daterange_type}, condition.decoded_value)
+
+        condition = conditions[2]
         self.assertEqual(EntityFilterCondition.RELATION, condition.type)
         self.assertEqual(rtype.id, condition.name)
         self.assertEqual({'has': True}, condition.decoded_value)
 
-        condition = conditions[2]
+        condition = conditions[3]
         self.assertEqual(EntityFilterCondition.RELATION_SUBFILTER, condition.type)
         self.assertEqual(srtype.id, condition.name)
         self.assertEqual({'has': False, 'filter_id': relsubfilfer.id}, condition.decoded_value)
 
-        condition = conditions[3]
+        condition = conditions[4]
         self.assertEqual(EntityFilterCondition.PROPERTY, condition.type)
         self.assertEqual(ptype.id, condition.name)
         self.assert_(condition.decoded_value is True)
 
-        condition = conditions[4]
+        condition = conditions[5]
         self.assertEqual(EntityFilterCondition.SUBFILTER, condition.type)
         self.failIf(condition.name)
         self.assertEqual(subfilter.id, condition.decoded_value)
@@ -1859,6 +1870,8 @@ class EntityFilterViewsTestCase(ViewsTestCase):
                                                             type=EntityFilterCondition.CONTAINS,
                                                             name='first_name', value='Atom'
                                                            ),
+                                EntityFilterCondition.build_4_date(model=Contact, name='birthday', date_range='previous_year'),
+                                #EntityFilterCondition.build_4_date(model=Contact, name='birthday', date_range='previous_year'), #TODO: with start/begin ???
                                 EntityFilterCondition.build_4_relation(rtype=rtype, has=True),
                                 EntityFilterCondition.build_4_relation_subfilter(rtype=srtype, has=True, subfilter=relsubfilfer),
                                 EntityFilterCondition.build(model=Contact,
@@ -1893,15 +1906,21 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         name += ' (edited)'
         cond_type = EntityFilterCondition.IEQUALS
         field_name = 'last_name'
-        value = 'Ikari'
+        field_value = 'Ikari'
+        date_field_name = 'birthday'
+        daterange_type = 'previous_year' #TODO: start begin instead ????
         response = self.client.post(url, follow=True,
                                     data={
                                             'name':       name,
                                             'fields_conditions': """[{"type":"%(type)s","name":"%(name)s","value":"%(value)s"}]""" % {
                                                                         'type':  cond_type,
                                                                         'name':  field_name,
-                                                                        'value': value,
+                                                                        'value': field_value,
                                                                     },
+                                            'datefields_conditions':    '[{"type":"%(type)s","name":"%(name)s"}]' % {
+                                                                                'type': daterange_type,
+                                                                                'name': date_field_name,
+                                                                            },
                                             'relations_conditions':  """[{"has":"true", "rtype":"%s", "ctype":"0", "entity":null}]""" % rtype.id,
                                             'relsubfilfers_conditions': '[{"rtype": "%(rtype)s", "has": "false", "ctype": "%(ct)s", "filter":"%(filter)s"}]' % {
                                                                                 'rtype':  srtype.id,
@@ -1921,29 +1940,34 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         self.assert_(efilter.user is None)
 
         conditions = efilter.conditions.all()
-        self.assertEqual(5, len(conditions))
+        self.assertEqual(6, len(conditions))
 
         condition = conditions[0]
         self.assertEqual(cond_type,  condition.type)
         self.assertEqual(field_name, condition.name)
-        self.assertEqual(value, condition.decoded_value)
+        self.assertEqual(field_value, condition.decoded_value)
 
         condition = conditions[1]
+        self.assertEqual(EntityFilterCondition.DATE, condition.type)
+        self.assertEqual(date_field_name, condition.name)
+        self.assertEqual({'name': daterange_type}, condition.decoded_value)
+
+        condition = conditions[2]
         self.assertEqual(EntityFilterCondition.RELATION, condition.type)
         self.assertEqual(rtype.id, condition.name)
         self.assertEqual({'has': True}, condition.decoded_value)
 
-        condition = conditions[2]
+        condition = conditions[3]
         self.assertEqual(EntityFilterCondition.RELATION_SUBFILTER, condition.type)
         self.assertEqual(srtype.id, condition.name)
         self.assertEqual({'has': False, 'filter_id': relsubfilfer.id}, condition.decoded_value)
 
-        condition = conditions[3]
+        condition = conditions[4]
         self.assertEqual(EntityFilterCondition.PROPERTY, condition.type)
         self.assertEqual(ptype.id,                       condition.name)
         self.assert_(condition.decoded_value is False)
 
-        condition = conditions[4]
+        condition = conditions[5]
         self.assertEqual(EntityFilterCondition.SUBFILTER, condition.type)
         self.failIf(condition.name)
         self.assertEqual(subfilter.id, condition.decoded_value)

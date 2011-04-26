@@ -979,7 +979,7 @@ class EntityFiltersTestCase(CremeTestCase):
                                ])
         self.assertExpectedFiltered(efilter, Contact, [c.id for i, c in enumerate(self.contacts) if i not in (5, 11)], True)
 
-    def test_filter_field_gt01(self):
+    def test_filter_field_gt(self):
         efilter = EntityFilter.create(pk='test-filter01', name='> Yua', model=Contact)
         efilter.set_conditions([EntityFilterCondition.build(model=Contact,
                                                             type=EntityFilterCondition.GT,
@@ -987,15 +987,6 @@ class EntityFiltersTestCase(CremeTestCase):
                                                            )
                                ])
         self.assertExpectedFiltered(efilter, Contact, [self.contacts[8].id])
-
-    def test_filter_field_gt02(self): #date
-        efilter = EntityFilter.create('test-filter01', '> Yua', Contact)
-        efilter.set_conditions([EntityFilterCondition.build(model=Contact,
-                                                            type=EntityFilterCondition.GT,
-                                                            name='birthday', value='2000-1-1'
-                                                           )
-                               ])
-        self.assertExpectedFiltered(efilter, Contact, [self.contacts[6].id, self.contacts[7].id])
 
     def test_filter_field_gte(self):
         efilter = EntityFilter.create('test-filter01', '>= Spike', Contact)
@@ -1116,7 +1107,7 @@ class EntityFiltersTestCase(CremeTestCase):
                                ])
         self.assertExpectedFiltered(efilter, Contact, [self.contacts[2].id])
 
-    def test_filter_field_range01(self):
+    def test_filter_field_range(self):
         create = Organisation.objects.create
         user = self.user
         orga01 = create(user=user, name='Bebop & cie', capital=1000)
@@ -1130,15 +1121,6 @@ class EntityFiltersTestCase(CremeTestCase):
                                           )
         efilter.set_conditions([cond])
         self.assertExpectedFiltered(efilter, Organisation, [orga02.id, orga03.id])
-
-    def test_filter_field_range02(self): #date
-        efilter = EntityFilter.create('test-filter01', name='is not null', model=Contact)
-        efilter.set_conditions([EntityFilterCondition.build(model=Contact,
-                                                            type=EntityFilterCondition.RANGE,
-                                                            name='birthday', value=('2001-1-1', '2001-12-1')
-                                                           )
-                               ])
-        self.assertExpectedFiltered(efilter, Contact, [self.contacts[7].id])
 
     def test_build_condition(self): #errors
         self.assertRaises(EntityFilterCondition.ValueError,
@@ -1487,8 +1469,62 @@ class EntityFiltersTestCase(CremeTestCase):
         self.assertRaises(EntityFilter.CycleError, efilter01.check_cycle, conds)
         self.assertRaises(EntityFilter.CycleError, efilter01.set_conditions, conds)
 
+    def test_date01(self): # GTE operator
+        efilter = EntityFilter.create('test-filter01', 'After 2000-1-1', Contact)
+        efilter.set_conditions([EntityFilterCondition.build_4_date(model=Contact, name='birthday',
+                                                                   start=date(year=2000, month=1, day=1),
+                                                                  )
+                               ])
+        self.assertExpectedFiltered(efilter, Contact, [self.contacts[6].id, self.contacts[7].id])
+
+    def test_date02(self): # LTE operator
+        efilter = EntityFilter.create('test-filter01', 'Before 1999-12-31', Contact)
+        efilter.set_conditions([EntityFilterCondition.build_4_date(model=Contact, name='birthday',
+                                                                   end=date(year=1999, month=12, day=31),
+                                                                  )
+                               ])
+        self.assertExpectedFiltered(efilter, Contact, [self.contacts[5].id])
+
+    def test_date03(self): #range
+        efilter = EntityFilter.create('test-filter01', name='Between 2001-1-1 & 2001-12-1', model=Contact)
+        efilter.set_conditions([EntityFilterCondition.build_4_date(model=Contact, name='birthday',
+                                                                   start=date(year=2001, month=1, day=1),
+                                                                   end=date(year=2001, month=12, day=1),
+                                                                  )
+                               ])
+        self.assertExpectedFiltered(efilter, Contact, [self.contacts[7].id])
+
+    def test_date04(self): #relative to now
+        faye = self.contacts[2]
+        future = date.today()
+        future = future.replace(year=future.year + 100)
+        faye.birthday = future
+        faye.save()
+
+        efilter = EntityFilter.create('test-filter01', name='In the future', model=Contact)
+        efilter.set_conditions([EntityFilterCondition.build_4_date(model=Contact, name='birthday',
+                                                                   date_range='in_future',
+                                                                  )
+                               ])
+        self.assertExpectedFiltered(efilter, Contact, [faye.id])
+
+    def test_build_date(self): #errors
+        self.assertRaises(EntityFilterCondition.ValueError,
+                          EntityFilterCondition.build_4_date,
+                          model=Contact, name='unknown_field', start=date(year=2001, month=1, day=1)
+                         )
+        self.assertRaises(EntityFilterCondition.ValueError,
+                          EntityFilterCondition.build_4_date,
+                          model=Contact, name='first_name', start=date(year=2001, month=1, day=1) #not a date
+                         )
+        self.assertRaises(EntityFilterCondition.ValueError,
+                          EntityFilterCondition.build_4_date,
+                          model=Contact, name='birthday' #no date
+                         )
+        self.assertRaises(EntityFilterCondition.ValueError,
+                          EntityFilterCondition.build_4_date,
+                          model=Contact, name='birthday', date_range='unknown_range',
+                         )
+
         #TODO: multivalue
         #TODO: field in fk, M2M
-
-        #TODO:
-        #DATE_RANGE_FILTER_VOLATILE, name=_(u"Date range"),        pattern_key='%s__range', pattern_value='(%s,%s)', is_exclude=False, type_champ="CharField", value_field_type='textfield')

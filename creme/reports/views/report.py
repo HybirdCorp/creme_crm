@@ -207,8 +207,8 @@ def preview(request, report_id):
                                 'object':        report,
                                 'html_backend':  html_backend,
                                 'limit_to':      LIMIT_TO,
-                                'date_filters':  date_filters_registry.itervalues(),
-                                'date_fields':   [(field.name, field.verbose_name) for field in get_date_fields(report.ct.model_class())],
+                                'date_filters':  date_filters_registry.itervalues(), #TODO: used ??
+                                'date_fields':   [(field.name, field.verbose_name) for field in get_date_fields(report.ct.model_class())], #TODO: used ??
                                 'form':          filter_form,
                               },
                               context_instance=req_ctx)
