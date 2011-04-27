@@ -18,6 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 from logging import error
+from django.contrib.contenttypes.models import ContentType
 
 from persons.constants import REL_SUB_EMPLOYED_BY
 from persons.models.contact import Contact
@@ -44,6 +45,7 @@ def post_delete_activesync_handler(sender, instance, **kwargs):
 
     if c_x_mapping is not None:
         c_x_mapping.creme_entity_repr = unicode(instance)
+        c_x_mapping.creme_entity_ct = ContentType.objects.get_for_model(instance)
         c_x_mapping.was_deleted = True
         c_x_mapping.save()
 

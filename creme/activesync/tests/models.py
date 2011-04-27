@@ -17,7 +17,9 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
+from django.contrib.contenttypes.models import ContentType
 from activesync.models.active_sync import CremeExchangeMapping
+from activities.models.activity import Meeting
 from creme_core.models.relation import Relation
 
 from creme_core.tests.base import CremeTestCase
@@ -34,10 +36,11 @@ class ActiveSyncModelsTestCase(CremeTestCase):
     def test_mapping_update_contact01(self):
         user = self.user
         contact = Contact.objects.create(user=user, first_name='Mario', last_name='Bros')
+        ct_contact = ContentType.objects.get_for_model(contact)
 
         self.assertEqual(0, CremeExchangeMapping.objects.filter(user=user).count())
 
-        CremeExchangeMapping.objects.create(user=user, synced=False, creme_entity_id=contact.pk, exchange_entity_id="fake id")
+        CremeExchangeMapping.objects.create(user=user, synced=False, creme_entity_id=contact.pk, exchange_entity_id="fake id", creme_entity_ct=ct_contact)
 
         contact.email = 'mario@bros.com'
         contact.save()
@@ -52,7 +55,9 @@ class ActiveSyncModelsTestCase(CremeTestCase):
     def test_mapping_delete_contact01(self):
         user = self.user
         contact = Contact.objects.create(user=user, first_name='Mario', last_name='Bros')
-        map = CremeExchangeMapping.objects.create(user=user, synced=False, creme_entity_id=contact.pk, exchange_entity_id="fake id")
+        ct_contact = ContentType.objects.get_for_model(contact)
+
+        map = CremeExchangeMapping.objects.create(user=user, synced=False, creme_entity_id=contact.pk, exchange_entity_id="fake id", creme_entity_ct=ct_contact)
 
         self.assertFalse(map.was_deleted)
 
@@ -65,9 +70,11 @@ class ActiveSyncModelsTestCase(CremeTestCase):
     def test_mapping_create_relation_contact_orga01(self):
         user = self.user
         contact = Contact.objects.create(user=user, first_name='Mario', last_name='Bros')
+        ct_contact = ContentType.objects.get_for_model(contact)
+        
         orga = Organisation.objects.create(user=user, name='Nintendo')
         
-        map = CremeExchangeMapping.objects.create(user=user, synced=False, creme_entity_id=contact.pk, exchange_entity_id="fake id")
+        map = CremeExchangeMapping.objects.create(user=user, synced=False, creme_entity_id=contact.pk, exchange_entity_id="fake id", creme_entity_ct=ct_contact)
 
         self.assertFalse(map.is_creme_modified)
         self.assertEqual(0, Relation.objects.filter(subject_entity=contact, object_entity=orga, type__id=REL_SUB_EMPLOYED_BY).count())
@@ -83,9 +90,11 @@ class ActiveSyncModelsTestCase(CremeTestCase):
     def test_mapping_delete_relation_contact_orga01(self):
         user = self.user
         contact = Contact.objects.create(user=user, first_name='Mario', last_name='Bros')
+        ct_contact = ContentType.objects.get_for_model(contact)
+        
         orga = Organisation.objects.create(user=user, name='Nintendo')
 
-        map = CremeExchangeMapping.objects.create(user=user, synced=False, creme_entity_id=contact.pk, exchange_entity_id="fake id")
+        map = CremeExchangeMapping.objects.create(user=user, synced=False, creme_entity_id=contact.pk, exchange_entity_id="fake id", creme_entity_ct=ct_contact)
 
         self.assertFalse(map.is_creme_modified)
         self.assertEqual(0, Relation.objects.filter(subject_entity=contact, object_entity=orga, type__id=REL_SUB_EMPLOYED_BY).count())
@@ -104,5 +113,35 @@ class ActiveSyncModelsTestCase(CremeTestCase):
         self.assertTrue(map.is_creme_modified)
 
 
+    def test_mapping_update_meeting01(self):
+        user = self.user
+        meeting = Meeting.objects.create(user=user, title="Meeting with Peach")
+        ct_meeting = ContentType.objects.get_for_model(meeting)
+
+        self.assertEqual(0, CremeExchangeMapping.objects.filter(user=user).count())
+
+        CremeExchangeMapping.objects.create(user=user, synced=False, creme_entity_id=meeting.pk, exchange_entity_id="fake id", creme_entity_ct=ct_meeting)
+
+        meeting.place = 'Mushroom castle'
+        meeting.save()
+
+        self.assertEqual(1, CremeExchangeMapping.objects.filter(user=user, creme_entity_id=meeting.id).count())
+
+        map = CremeExchangeMapping.objects.get(user=user, creme_entity_id=meeting.id)
+
+        self.assertTrue(map.is_creme_modified)
 
 
+    def test_mapping_delete_meeting01(self):
+        user = self.user
+        meeting = Meeting.objects.create(user=user, title="Meeting with Peach")
+        ct_meeting = ContentType.objects.get_for_model(meeting)
+
+        map = CremeExchangeMapping.objects.create(user=user, synced=False, creme_entity_id=meeting.pk, exchange_entity_id="fake id", creme_entity_ct=ct_meeting)
+
+        self.assertFalse(map.was_deleted)
+
+        meeting.delete()
+        map = CremeExchangeMapping.objects.get(pk=map.id)#Refresh
+
+        self.assertTrue(map.was_deleted)

@@ -22,7 +22,6 @@ import os
 from random import randint
 import datetime
 import time
-from PIL import Image as PILImage
 
 from django.contrib.contenttypes.models import ContentType
 from django.core.files.base import ContentFile
@@ -244,7 +243,7 @@ def _format_data(model_or_entity, data):
             data[field_name] = value.decode('utf-8')
 
 
-def save_contact(data, user):
+def save_contact(data, user, *args, **kwargs):
     """Save a contact from a populated data dict
         @Returns : A saved contact instance
     """
@@ -294,7 +293,7 @@ def save_contact(data, user):
     
     return c
 
-def update_contact(contact, data, user, history):
+def update_contact(contact, data, user, history, *args, **kwargs):
     """Update a contact instance from a updated data dict
         @Returns : A saved contact instance
     """

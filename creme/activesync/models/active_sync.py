@@ -18,10 +18,11 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from datetime import datetime
 import pickle
-from django.contrib.contenttypes.models import ContentType
 
+from datetime import datetime
+
+from django.contrib.contenttypes.models import ContentType
 from django.db import models
 from django.contrib.auth.models import User
 from django.db.models.signals import post_save, post_delete
@@ -30,6 +31,8 @@ from django.conf import settings
 
 from creme_core.models import CremeModel, CremeEntity, Relation
 from creme_core.models.fields import CreationDateTimeField
+
+from activities.models import Meeting
 
 from persons.models.contact import Contact
 
@@ -61,6 +64,7 @@ USER_HISTORY_WHERE_VERBOSE = dict(USER_HISTORY_WHERE)
 
 class CremeExchangeMapping(CremeModel):
     creme_entity_id    = models.IntegerField(u'Creme entity pk', unique=True)
+    creme_entity_ct    = models.ForeignKey(ContentType, verbose_name=u'Creme entity ct')#For filtering when the entity was deleted
     exchange_entity_id = models.CharField(u'Exchange entity pk', max_length=64, unique=True)
     synced             = models.BooleanField(u'Already synced on server', default=False)
     is_creme_modified  = models.BooleanField(u'Modified by creme?',       default=False)
@@ -259,9 +263,12 @@ class AS_Folder(CremeModel):
     parent_id    = models.CharField(u'Server id',    max_length=200, blank=True, null=True)#Parent id of this folder on the server
     display_name = models.CharField(u'Display name', max_length=200, default="")
     type         = models.IntegerField(u'Type',      max_length=2)
+    sync_key     = models.CharField(u'sync key',     max_length=200, default=None, blank=True, null=True)
+    as_class     = models.CharField(u'class',        max_length=25, default=None, blank=True, null=True)
+    entity_id    = models.CharField(u'Entity id',    max_length=200, default=None, blank=True, null=True)#A reference to something in Creme (currently used for Calendars mapping)
 
     def __unicode__(self):
-        return u"<AS_Forlder for <%s> >" % self.client.user
+        return u"<AS_Folder for <%s> >" % self.client.user
 
     class Meta:
         app_label = 'activesync'
@@ -282,7 +289,9 @@ class AS_Folder(CremeModel):
 
 from activesync.signals import post_save_activesync_handler, post_delete_activesync_handler, post_save_relation_employed_by, post_delete_relation_employed_by
 post_save.connect(post_save_activesync_handler,     sender=Contact)
+post_save.connect(post_save_activesync_handler,     sender=Meeting)
 post_delete.connect(post_delete_activesync_handler, sender=Contact)
+post_delete.connect(post_delete_activesync_handler, sender=Meeting)
 
 post_save.connect(post_save_relation_employed_by, sender=Relation)
 post_delete.connect(post_delete_relation_employed_by, sender=Relation)

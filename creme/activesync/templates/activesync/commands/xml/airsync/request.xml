@@ -2,12 +2,12 @@
 <Sync xmlns="AirSync:"{% for pref, ns in extra_ns.iteritems %} xmlns:{{pref}}="{{ns}}"{% endfor %}>
     <Collections>
         <Collection>
-            <Class>{{class}}</Class>
+            <Class>{{folder.as_class}}</Class>
             <SyncKey>{{synckey}}</SyncKey>
-            <CollectionId>{{server_id}}</CollectionId>
+            <CollectionId>{{folder.server_id}}</CollectionId>
             {% if synckey == 0 %}
             <Supported>
-                {% for tag in supported %}
+                {% for tag in folder.supported %}
                     {{tag|safe}}
                 {% endfor %}
             </Supported>
@@ -21,9 +21,9 @@
                     </Options>
                 {% endif %}
             {% endif %}
-            {% if not fetch and objects %}
+            {% if not fetch and folder.entities %}
             <Commands>
-                {% for obj in objects %}
+                {% for obj in folder.entities %}
                     {{obj|safe}}
                 {% endfor %}
             </Commands>
