@@ -731,8 +731,30 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
 class DateFieldsConditionsFieldTestCase(FieldTestCase):
     def test_clean_invalid_data(self):
         field = DateFieldsConditionsField(model=Contact)
-        self.assertFieldValidationError(DateFieldsConditionsField, 'invalidfield',     field.clean, '[{"name":"first_name"}]')
-        self.assertFieldValidationError(DateFieldsConditionsField, 'invaliddaterange', field.clean, '[{"name":"birthday", "type":"unknow_range"}]')
+        self.assertFieldValidationError(DateFieldsConditionsField, 'invalidfield', field.clean,
+                                        '[{"name":"first_name", "range": {"type": "next_quarter", "start": "2011-5-12"}}]'
+                                       )
+        self.assertFieldValidationError(DateFieldsConditionsField, 'invalidformat', field.clean,
+                                        '[{"name":"birthday", "range":"not a dict"}]'
+                                       )
+        self.assertFieldValidationError(DateFieldsConditionsField, 'invaliddaterange', field.clean,
+                                       '[{"name":"birthday", "range": {"type":"unknow_range"}}]' #TODO: "start": '' ???
+                                       )
+
+        self.assertFieldValidationError(DateFieldsConditionsField, 'emptydates', field.clean,
+                                       '[{"name":"birthday", "range": {"type":""}}]'
+                                       )
+        self.assertFieldValidationError(DateFieldsConditionsField, 'emptydates', field.clean,
+                                       '[{"name":"birthday", "range": {"type":"", "start": "", "end": ""}}]'
+                                       )
+
+        try:   field.clean('[{"name":"created", "range": {"type": "", "start": "not a date"}}]')
+        except ValidationError: pass
+        else:  self.fail('No ValidationError')
+
+        try:   field.clean('[{"name":"created", "range": {"type": "", "end": "2011-2-30"}}]') #30 february !!
+        except ValidationError: pass
+        else:  self.fail('No ValidationError')
 
     def test_ok01(self):
         field = DateFieldsConditionsField(model=Contact)
@@ -740,7 +762,8 @@ class DateFieldsConditionsFieldTestCase(FieldTestCase):
         name01 = 'created'
         type02 = 'next_quarter'
         name02 = 'birthday'
-        conditions = field.clean('[{"type": "%(type01)s", "name": "%(name01)s"}, {"type": "%(type02)s","name": "%(name02)s"}]' % {
+        conditions = field.clean('[{"name": "%(name01)s", "range": {"type": "%(type01)s"}},'
+                                 ' {"name": "%(name02)s", "range": {"type": "%(type02)s"}}]' % {
                                         'type01': type01,
                                         'name01': name01,
                                         'type02': type02,
@@ -759,7 +782,40 @@ class DateFieldsConditionsFieldTestCase(FieldTestCase):
         self.assertEqual(name02, condition.name)
         self.assertEqual({'name': type02}, condition.decoded_value)
 
-    #def test_ok02(self): #TODO start/end
+    def test_ok02(self): #start/end
+        field = DateFieldsConditionsField(model=Contact)
+        name01 = 'created'
+        name02 = 'birthday'
+        conditions = field.clean('[{"name": "%(name01)s", "range": {"type": "", "start": "2011-5-12"}},'
+                                 ' {"name": "%(name02)s", "range": {"type": "", "end": "2012-6-13"}}]' % {
+                                        'name01': name01,
+                                        'name02': name02,
+                                    }
+                                )
+        self.assertEqual(2, len(conditions))
+
+        condition = conditions[0]
+        self.assertEqual(EntityFilterCondition.DATE, condition.type)
+        self.assertEqual(name01, condition.name)
+        self.assertEqual({'start': {'year': 2011, 'month': 5, 'day': 12}}, condition.decoded_value)
+
+        condition = conditions[1]
+        self.assertEqual(EntityFilterCondition.DATE, condition.type)
+        self.assertEqual(name02, condition.name)
+        self.assertEqual({'end': {'year': 2012, 'month': 6, 'day': 13}}, condition.decoded_value)
+
+    def test_ok03(self): #start + end
+        clean = DateFieldsConditionsField(model=Contact).clean
+        name = 'modified'
+        conditions = clean('[{"name": "%s", "range": {"type": "", "start": "2010-3-24", "end": "2011-7-25"}}]' % name)
+        self.assertEqual(1, len(conditions))
+
+        condition = conditions[0]
+        self.assertEqual(EntityFilterCondition.DATE, condition.type)
+        self.assertEqual(name, condition.name)
+        self.assertEqual({'start': {'year': 2010, 'month': 3, 'day': 24}, 'end': {'year': 2011, 'month': 7, 'day': 25}},
+                         condition.decoded_value
+                        )
 
 
 class PropertiesConditionsFieldTestCase(FieldTestCase):

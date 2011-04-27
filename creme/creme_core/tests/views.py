@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+from datetime import date
 from tempfile import NamedTemporaryFile
 
 from django.http import Http404
@@ -1782,7 +1783,7 @@ class EntityFilterViewsTestCase(ViewsTestCase):
                                                                                 'name':  field_name,
                                                                                 'value': field_value,
                                                                             },
-                                            'datefields_conditions':    '[{"type":"%(type)s","name":"%(name)s"}]' % {
+                                            'datefields_conditions':    '[{"range": {"type": "%(type)s", "start": "", "end": ""}, "name": "%(name)s"}]' % {
                                                                                 'type': daterange_type,
                                                                                 'name': date_field_name,
                                                                             },
@@ -1870,8 +1871,10 @@ class EntityFilterViewsTestCase(ViewsTestCase):
                                                             type=EntityFilterCondition.CONTAINS,
                                                             name='first_name', value='Atom'
                                                            ),
-                                EntityFilterCondition.build_4_date(model=Contact, name='birthday', date_range='previous_year'),
-                                #EntityFilterCondition.build_4_date(model=Contact, name='birthday', date_range='previous_year'), #TODO: with start/begin ???
+                                EntityFilterCondition.build_4_date(model=Contact, name='birthday',
+                                                                   start=date(year=2001, month=1, day=1),
+                                                                   end=date(year=2010, month=12, day=31),
+                                                                  ),
                                 EntityFilterCondition.build_4_relation(rtype=rtype, has=True),
                                 EntityFilterCondition.build_4_relation_subfilter(rtype=srtype, has=True, subfilter=relsubfilfer),
                                 EntityFilterCondition.build(model=Contact,
@@ -1908,7 +1911,6 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         field_name = 'last_name'
         field_value = 'Ikari'
         date_field_name = 'birthday'
-        daterange_type = 'previous_year' #TODO: start begin instead ????
         response = self.client.post(url, follow=True,
                                     data={
                                             'name':       name,
@@ -1917,10 +1919,7 @@ class EntityFilterViewsTestCase(ViewsTestCase):
                                                                         'name':  field_name,
                                                                         'value': field_value,
                                                                     },
-                                            'datefields_conditions':    '[{"type":"%(type)s","name":"%(name)s"}]' % {
-                                                                                'type': daterange_type,
-                                                                                'name': date_field_name,
-                                                                            },
+                                            'datefields_conditions': '[{"range": {"type": "", "start": "2011-5-23", "end": "2012-6-27"}, "name": "%s"}]' % date_field_name,
                                             'relations_conditions':  """[{"has":"true", "rtype":"%s", "ctype":"0", "entity":null}]""" % rtype.id,
                                             'relsubfilfers_conditions': '[{"rtype": "%(rtype)s", "has": "false", "ctype": "%(ct)s", "filter":"%(filter)s"}]' % {
                                                                                 'rtype':  srtype.id,
@@ -1950,7 +1949,9 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         condition = conditions[1]
         self.assertEqual(EntityFilterCondition.DATE, condition.type)
         self.assertEqual(date_field_name, condition.name)
-        self.assertEqual({'name': daterange_type}, condition.decoded_value)
+        self.assertEqual({'start': {'year': 2011, u'month': 5, 'day': 23}, 'end': {'year': 2012, 'month': 6, 'day': 27}},
+                         condition.decoded_value
+                        )
 
         condition = conditions[2]
         self.assertEqual(EntityFilterCondition.RELATION, condition.type)
