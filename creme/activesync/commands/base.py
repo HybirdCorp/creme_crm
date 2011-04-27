@@ -113,12 +113,14 @@ class Base(object):
 
     def _encode(self, content):
         if ACTIVE_SYNC_DEBUG:
+            print u"Request: %s" % content
             self._data['debug']['xml'].append(u"Request: %s" % content)
 
         return self.encoder(str(content.encode('utf-8')))#TODO: Verify side effects
 
     def _decode(self, content):
         if ACTIVE_SYNC_DEBUG:
+            print u"Response: %s" % prettify(self.decoder(content))
             self._data['debug']['xml'].append(u"Response: %s" % prettify(self.decoder(content)))
 
         return self.decoder(content)

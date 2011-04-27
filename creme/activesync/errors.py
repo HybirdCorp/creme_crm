@@ -48,7 +48,8 @@ SYNC_ERR_VERBOSE = {
     SYNC_ERR_ABORTED:                      _(u"There was an error during synchronization"),
     SYNC_ERR_CONNECTION:                   _(u"It seems there no available connection"),
     SYNC_ERR_NOT_FOUND:                    _(u"Wrong configuration (wrong server url?)"),
-    
+
+    #TODO:%s/contact/entity
     SYNC_ERR_CREME_PERMISSION_DENIED_CREATE:          _(u"You haven't the right to create contacts in Creme"),
     SYNC_ERR_CREME_PERMISSION_DENIED_CREATE_SPECIFIC: _(u"You haven't the right to create contact <%s> in Creme"),#Useful?
     SYNC_ERR_CREME_PERMISSION_DENIED_CHANGE:          _(u"You haven't the right to change contacts in Creme"),

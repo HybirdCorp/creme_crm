@@ -59,6 +59,7 @@ class MessageError(Message):
     type     = _ERROR
 
 
+#TODO: %s/Contact/Entity & %s/contact=/entity=
 class MessageContact(MessageSucceed):
     def __init__(self, contact, message=u"", **kwargs):
         super(MessageContact, self).__init__(contact=contact, message=message, **kwargs)

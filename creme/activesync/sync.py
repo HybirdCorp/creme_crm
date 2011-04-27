@@ -44,9 +44,11 @@ from activesync.errors import (CremeActiveSyncError,
 from activesync.messages import MessageInfo, MessageSucceed, MessageError, _INFO, _ERROR, _SUCCESS
 
                                
-from activesync.models.active_sync import CremeClient, CremeExchangeMapping, AS_Folder
+from activesync.models.active_sync import CremeClient, AS_Folder
 from activesync.commands import FolderSync, Provision, AirSync
 from activesync import constants as as_constants
+
+from activesync.mappings import FOLDERS_TYPES_CREME_TYPES_MAPPING, CREME_AS_MAPPING
 
 INFO    = 'info'
 ERROR   = 'error'
@@ -194,54 +196,29 @@ class Synchronization(object):
 
             folder.parent_id=added_folder.get('parentid')
             folder.display_name=added_folder.get('displayname')
+            
+            creme_model = FOLDERS_TYPES_CREME_TYPES_MAPPING.get(folder.type)
+            creme_model_AS_values = CREME_AS_MAPPING.get(creme_model)
+            if creme_model_AS_values is not None:
+                folder.as_class = creme_model_AS_values['class']
+
             folder.save()
             folders_append(folder)
 
 
         client.folder_sync_key = fs.synckey
-        
+
         if not folders:
             folders = AS_Folder.objects.filter(client=client)
 
-        for as_folder in folders:
-            if as_folder.type != as_constants.SYNC_FOLDER_TYPE_CONTACT:#TODO: Hack, we handling only contacts for now
-                continue
+        ## Synchronizing entities
+        as_ = self._sync(policy_key, folders, sync_key, True)
+        client.sync_key = as_.last_synckey
+        self._data['debug']['info'].append("client.sync_key : %s" % client.sync_key)
 
-            serverid = as_folder.server_id
-            
-            client.contact_folder_id = serverid#TODO: Remove me in the model
-            self._data['debug']['info'].append("CONTACT FOLDER : %s" % serverid)
-
-#            if provisionned:
-#                as_ = self._sync(policy_key, serverid, None, True, user=user)
-#            else:
-#            as_ = self._sync(policy_key, serverid, fs.synckey, True, user=user)
-#            as_ = self._sync(policy_key, serverid, None, True, user=user)
-            
-#            as_ = self._sync(policy_key, serverid, sync_key, True)
-            as_ = self._sync(policy_key, as_folder, sync_key, True)
-
-            client.sync_key = as_.last_synckey
-            self._data['debug']['info'].append("client.sync_key : %s" % client.sync_key)
-
-            c_x_mapping_manager = CremeExchangeMapping.objects
-            create = c_x_mapping_manager.create
-            as_synced = as_.synced
-            for added in as_synced['Add']:
-                client_id = added.get('client_id')
-                server_id = added.get('server_id')
-                create(creme_entity_id=client_id, exchange_entity_id=server_id, synced=True, user=user)#Create objects
-
-            unchanged_server_id = [change.get('server_id') for change in as_synced['Change']]
-
-            #Updating mapping only for entities actually changed on the server
-            #Ensure we actually update for the right(current) user
-            #TODO: Yet, we "just" send again next sync time so needed to handle status and act accordingly
-            c_x_mapping_manager.filter(Q(is_creme_modified=True, user=user) & ~Q(exchange_entity_id__in=unchanged_server_id)).update(is_creme_modified=False)
-
-            #We delete the mapping for deleted entities
-            #TODO: Verify the status ?
-            c_x_mapping_manager.filter(was_deleted=True, user=user).delete()
+#        #We delete the mapping for deleted entities
+#        #TODO: Verify the status ?
+#        CremeExchangeMapping.objects.filter(was_deleted=True, user=user).delete()
 
         #TODO: Try except and put this in the else
         client.policy_key = policy_key

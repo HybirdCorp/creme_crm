@@ -22,6 +22,7 @@ import random
 import base64
 
 from PIL import Image
+from datetime import datetime
 
 try:
     from cStringIO import StringIO
@@ -34,11 +35,6 @@ from django.core.files.base import File
 DEFAULT_CHUNK_SIZE = File.DEFAULT_CHUNK_SIZE
 KNOW_BASE64_INCREASE = 1.33
 
-
-def generate_id():
-    w1 = random.randint(0x0, 0xFFFF)
-    w2 = random.randint(0x0, 0xFFFF)
-    return (w1 << 16) | w2
 
 def generate_guid():
     d1 = random.randint(0, 0xFFFFFFFF)
@@ -54,22 +50,6 @@ def generate_guid():
 
     return guid
 
-def generate_guid2():
-    d1 = random.randint(0, 0xFFFFFFFF)
-    d2 = random.randint(0, 0xFFFF)
-    d3 = random.randint(0, 0xFFFF)
-    d4 = []
-    for i in range(8):
-        d4.append(random.randint(0, 0xFF))
-
-    guid = "{%08X-%04X-%04X-" % (d1, d2, d3)
-    for i in xrange(len(d4)):
-        guid += "%02X" % d4[i]
-        if i == 1:
-            guid += "-"
-    guid += "}"
-
-    return guid
 
 def b64_encode_file(file_path):
     """Get a file path
@@ -126,4 +106,20 @@ def get_b64encoded_img_of_max_weight(image_file_path, max_weight):
         content_size, content = b64_from_pil_image(im, reduce_by=.5)
 
     return content
+
+def get_dt_to_iso8601_str(dt):
+    """Returns the datetime to a string in iso8601 format without any separators
+        >>> get_dt_to_iso8601_str(datetime.datetime(2011, 4, 27, 10, 9, 54))
+        '20110427T100954Z'
+    """
+    return "%sZ" % dt.isoformat().replace('-', '').replace(':', '')
+
+
+def get_dt_from_iso8601_str(dt_str):
+    """
+        Returns an iso8601 formatted string without any separators from a datetime
+        >>>get_dt_from_iso8601_str("20110427T100954Z")
+        datetime.datetime(2011, 4, 27, 10, 9, 54)
+    """
+    return datetime.strptime(dt_str,"%Y%m%dT%H%M%SZ")
 
