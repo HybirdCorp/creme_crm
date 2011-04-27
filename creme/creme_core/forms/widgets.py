@@ -33,6 +33,8 @@ from django.conf import settings
 
 from mediagenerator.utils import media_url
 
+from creme_core.utils.date_range import date_range_registry
+
 
 def widget_render_input(klass, widget, name, value, context, **kwargs):
     input_attrs = {
@@ -90,6 +92,38 @@ class DynamicSelect(Select):
         context = widget_render_context('ui-creme-dselect', attrs)
 
         return mark_safe(widget_render_input(Select, self, name, value, context, url=self.url))
+
+
+class DateRangeSelect(TextInput):
+    def __init__(self, attrs=None):
+        super(DateRangeSelect, self).__init__(attrs)
+
+        choices = [('', _("Customized"))]
+        choices.extend(date_range_registry.choices())
+        self.choices = choices
+
+    def render(self, name, value, attrs=None):
+        attrs = self.build_attrs(attrs, name=name, type='hidden')
+        context = widget_render_context('ui-creme-daterange', attrs)
+
+        date_range = ['<select name="type">']
+        date_range.extend(u'<option value="%s">%s</option>' % (name, verb_name) for name, verb_name in self.choices)
+        date_range.append('</select>')
+
+        context['input'] = widget_render_hidden_input(self, name, value, context)
+        context['select'] = '\n'.join(date_range)
+        context['start'] = '<input type="text" name="start"></input>'
+        context['end']   = '<input type="text" name="end"></input>'
+        context['from']  = _(u'From')
+        context['to']    = _(u'To')
+        context['date_format'] = settings.DATE_FORMAT_JS.get(settings.DATE_FORMAT)
+
+        return mark_safe("""<span class="%(css)s" style="%(style)s" widget="%(typename)s" date_format="%(date_format)s">
+                                %(input)s
+                                %(select)s
+                               <span class="daterange-inputs"> %(from)s%(start)s&nbsp;%(to)s%(end)s</span>
+                            </span>""" % context
+                        )
 
 
 class ChainedInput(TextInput):

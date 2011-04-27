@@ -19,16 +19,19 @@
 ################################################################################
 
 #from logging import debug
+from datetime import date
+
 from functools import partial
 
-from django.forms import ModelMultipleChoiceField, ValidationError
+from django.forms import ModelMultipleChoiceField, DateField, ValidationError
 from django.utils.translation import ugettext_lazy as _, ugettext
+from django.utils.formats import date_format
 from django.contrib.contenttypes.models import ContentType
 
 from creme_core.models import CremeEntity, EntityFilter, EntityFilterCondition, RelationType, CremePropertyType
 from creme_core.forms import CremeModelForm
 from creme_core.forms.fields import JSONField
-from creme_core.forms.widgets import DynamicInput, SelectorList, ChainedInput, EntitySelector, UnorderedMultipleChoiceWidget
+from creme_core.forms.widgets import DynamicInput, SelectorList, ChainedInput, EntitySelector, UnorderedMultipleChoiceWidget, DateRangeSelect
 from creme_core.utils import bool_from_str
 from creme_core.utils.id_generator import generate_string_id_and_save
 from creme_core.utils.meta import is_date_field
@@ -78,9 +81,7 @@ class DateFieldsConditionsWidget(SelectorList):
         attrs = {'auto': False}
 
         chained_input.add_dselect('name', options=[(fname, f.verbose_name) for fname, f in date_fields], attrs=attrs)
-        chained_input.add_dselect('type', options=date_range_registry.choices(), attrs=attrs)
-
-        #TODO: start  / begin
+        chained_input.add_input('range', DateRangeSelect, attrs=attrs)
 
         super(DateFieldsConditionsWidget, self).__init__(chained_input)
 
@@ -219,6 +220,7 @@ class DateFieldsConditionsField(_ConditionsField):
     default_error_messages = {
         'invalidfield':     _(u"This field is not a date field for this model."),
         'invaliddaterange': _(u"This date range is invalid."),
+        'emptydates':       _(u"Please enter a start date and/or a end date."),
     }
 
     def _set_model(self, model):
@@ -231,20 +233,54 @@ class DateFieldsConditionsField(_ConditionsField):
     def _create_widget(self):
         return DateFieldsConditionsWidget(self._fields.iteritems())
 
+    def _format_date(self, date_dict):
+        """@param date_dict dict or None; if not None => {"year": 2011, "month": 7, "day": 25}"""
+        return date_format(date(**date_dict), 'DATE_FORMAT') if date_dict else ''
+
     def _conditions_to_dicts(self, conditions):
-        return [{'name':  condition.name,
-                 'type':  condition.decoded_value['name'],
-                 #'value': condition.decoded_value, #TODO start/end
-                } for condition in conditions
-               ]
+        dicts = []
+        format = self._format_date
+
+        for condition in conditions:
+            get = condition.decoded_value.get
+
+            dicts.append({'name':  condition.name,
+                          'range': {'type':  get('name', ''),
+                                    'start': format(get('start')),
+                                    'end':   format(get('end'))
+                                   }
+                         })
+
+        return dicts
 
     def _clean_date_range(self, entry):
-        drange = self.clean_value(entry, 'type', str)
+        range_info = entry.get('range')
 
-        if not date_range_registry.get_range(name=drange):
+        if not isinstance(range_info, dict):
+            raise ValidationError(self.error_messages['invalidformat'])
+
+        range_type = range_info.get('type') or None
+        start = None
+        end   = None
+
+        if not range_type:
+            start_str = range_info.get('start')
+            end_str   = range_info.get('end')
+
+            if not start_str and not end_str:
+                raise ValidationError(self.error_messages['emptydates'])
+
+            clean_date = DateField().clean
+
+            if start_str:
+                start = clean_date(start_str)
+
+            if end_str:
+                end = clean_date(end_str)
+        elif not date_range_registry.get_range(name=range_type):
             raise ValidationError(self.error_messages['invaliddaterange'])
 
-        return drange
+        return (range_type, start, end)
 
     def _clean_field_name(self, entry):
         fname = self.clean_value(entry, 'name', str)
@@ -259,16 +295,15 @@ class DateFieldsConditionsField(_ConditionsField):
         model = self.model
         clean_field_name = self._clean_field_name
         clean_date_range = self._clean_date_range
+        conditions = []
 
         try:
-            conditions = [build_condition(model=model,
-                                          name=clean_field_name(entry),
-                                          date_range=clean_date_range(entry),
-                                          #start=None, #TODO
-                                          #end=None    #TODO
-                                         )
-                                for entry in data
-                         ]
+            for entry in data:
+                date_range, start, end = clean_date_range(entry)
+                conditions.append(build_condition(model=model, name=clean_field_name(entry),
+                                                  date_range=date_range, start=start, end=end
+                                                 )
+                                 )
         except EntityFilterCondition.ValueError, e:
             raise ValidationError(str(e))
 

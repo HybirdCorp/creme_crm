@@ -21,7 +21,7 @@ creme.widget.DynamicInput = creme.widget.declare('ui-creme-dinput', {
     },
 
     _create: function(element, options, cb, sync) {
-    element.addClass('widget-ready');
+        element.addClass('widget-ready');
     },
 
     reload: function(element, url, cb, error_cb, sync) {
