@@ -17,5 +17,8 @@
 
 * Don't send ghosted properties
 
+* Handle when a user edit calendar name (either in creme or on the server)
+* In AS all day activities have to have a start time equals to 00h00 and the same for end time, but in creme an all day activity has to begin at 00h00 and end at 23h59
+
 https://m.google.com/Microsoft-Server-ActiveSync
 https://m.hotmail.com/Microsoft-Server-ActiveSync

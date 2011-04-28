@@ -17,14 +17,22 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
+from activesync.models.other_models import EntityASData
+from activesync.utils import get_dt_to_iso8601_str
 from creme_core.utils.meta import get_field_infos
 
-from django.db.models import BooleanField
+from django.db import models
 
 def _format_value_for_AS(field_class, field_value):
     if field_class is not None:
-        if issubclass(field_class, BooleanField):
+        if issubclass(field_class, models.BooleanField):
             return 1 if field_value else 0
+
+        if issubclass(field_class, (models.DateTimeField, models.DateField)):
+            return get_dt_to_iso8601_str(field_value) if field_value else None
+
+        
+    return field_value
 
 
 def serialize_entity(entity, mapping):
@@ -41,13 +49,21 @@ def serialize_entity(entity, mapping):
     for ns, values in mapping.iteritems():
         prefix = namespaces.get(ns)
         for c_field, xml_field in values.iteritems():
-            value = None
+            value   = None
+            f_class = None
+            
             if callable(c_field):
                 value = c_field(entity)
             else:
                 f_class, value = get_field_infos(entity, c_field)
 
             value = _format_value_for_AS(f_class, value)
+
+            if value in (None, ''):
+                try:
+                    value = EntityASData.objects.get(entity=entity, field_name=xml_field).field_value
+                except EntityASData.DoesNotExist:
+                    pass
 
             if value:
                 xml_append("<%(prefix)s%(tag)s>%(value)s</%(prefix)s%(tag)s>" %
