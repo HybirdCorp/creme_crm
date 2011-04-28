@@ -236,7 +236,7 @@ def delete_user_calendar(request):
 
     user = request.user
     
-    if user.is_superuser or calendar.user == user:
+    if (user.is_superuser or calendar.user == user) and calendar.is_custom:
         calendar.delete()
     else:
         status = 403

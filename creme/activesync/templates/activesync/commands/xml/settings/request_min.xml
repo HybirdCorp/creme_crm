@@ -1,2 +1,2 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Settings xmlns="Settings:"><DeviceInformation><Set><Model>CremeMobile</Model><FriendlyName>Creme Mobile</FriendlyName><OS>Creme/Python 2.6.6/Django 1.2.3</OS><OSLanguage>Python</OSLanguage><UserAgent>CremeCRM/1.0</UserAgent></Set></DeviceInformation></Settings>
+<Settings xmlns="Settings:">{% if get_user_infos %}<UserInformation><Get/></UserInformation>{% endif %}{% if set_device_infos %}<DeviceInformation><Set><Model>CremeMobile</Model><FriendlyName>Creme Mobile</FriendlyName><OS>Creme/Python 2.6.6/Django 1.2.3</OS><OSLanguage>Python</OSLanguage><UserAgent>CremeCRM/1.0</UserAgent></Set></DeviceInformation>{% endif %}</Settings>

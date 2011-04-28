@@ -37,7 +37,9 @@
                         </a>
                     </td>
                     <td class="{{row_color}}" align="center" valign="center" style="width:10%;">
-                        {% get_line_deletor at_url '/activities/calendar/delete' with_args "{'id': '{{calendar.id}}'}" with_perms 1 %}
+                        {% if calendar.is_custom %}
+                            {% get_line_deletor at_url '/activities/calendar/delete' with_args "{'id': '{{calendar.id}}'}" with_perms 1 %}
+                        {% endif %}
                     </td>
                 </tr>
             {% endfor %}

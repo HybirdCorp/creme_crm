@@ -27,3 +27,13 @@ class Settings(Base):
     def __init__(self, *args, **kwargs):
         super(Settings, self).__init__(*args, **kwargs)
         self._create_connection()
+
+    def send(self, *args, **kwargs):
+
+        xml = super(Settings, self).send({'get_user_infos': True, 'set_device_infos':False}, headers={})
+
+        ns = "{Settings:}"
+
+        if xml is not None:
+            status = xml.find('%sStatus' % ns).text
+            smtp_address = xml.find('%(ns0)sUserInformation/%(ns0)sGet/%(ns0)sEmailAddresses/%(ns0)sSmtpAddress' % {'ns0': ns}).text

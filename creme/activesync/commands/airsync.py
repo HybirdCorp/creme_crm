@@ -31,8 +31,6 @@ from activesync.messages import MessageSucceedContactAdd, MessageSucceedContactU
 
 from base import Base
 
-from activesync.mappings.contact import (serialize_contact, CREME_CONTACT_MAPPING,
-                                 save_contact, update_contact)
 
 from activesync.mappings import CREME_AS_MAPPING, FOLDERS_TYPES_CREME_TYPES_MAPPING
 
@@ -42,7 +40,6 @@ from activesync.errors import (SYNC_ERR_VERBOSE, SYNC_ERR_CREME_PERMISSION_DENIE
                                SYNC_ERR_CREME_PERMISSION_DENIED_CHANGE_SPECIFIC, SYNC_ERR_CREME_PERMISSION_DENIED_DELETE_SPECIFIC)
 from creme_core.models.entity import CremeEntity
 
-from persons.models.contact import Contact
 
 class AirSync(Base):
 
@@ -88,6 +85,7 @@ class AirSync(Base):
         creme_model_verbose_name = creme_model._meta.verbose_name
         ct_creme_model = ContentType.objects.get_for_model(creme_model)
         mapping = creme_model_AS_values['mapping']
+        add_error_message = self.add_error_message
 
         options = {
             'Conflict': CONFLICT_MODE,
@@ -128,7 +126,7 @@ class AirSync(Base):
             err_status_xml = xml.find('%(ns0)sStatus' % d_ns)
             if err_status_xml:
                 #If the status is at the root it seems there is an error
-                self.add_error_message(_(u"There was an error during synchronization phase. Error code : %s") % err_status_xml.text)
+                add_error_message(_(u"There was an error during synchronization phase. Error code : %s") % err_status_xml.text)
                 return
 
             collection = xml.find('%(ns0)sCollections/%(ns0)sCollection' % d_ns)
@@ -147,7 +145,7 @@ class AirSync(Base):
 
 
             if self.status != SYNC_AIRSYNC_STATUS_SUCCESS:
-                self.add_error_message(_(u"There was an error during synchronization phase. Try again later."))
+                add_error_message(_(u"There was an error during synchronization phase. Try again later."))
                 return
 
         if fetch:
@@ -176,7 +174,7 @@ class AirSync(Base):
 
             #TODO: Factorise
             if self.status != SYNC_AIRSYNC_STATUS_SUCCESS:
-                self.add_error_message(_(u"There was an error during synchronization phase. Try again later."))
+                add_error_message(_(u"There was an error during synchronization phase. Try again later."))
                 if self.status == SYNC_AIRSYNC_STATUS_INVALID_SYNCKEY:
                     SyncKeyHistory.back_to_previous_key(client)
                 return
@@ -221,13 +219,13 @@ class AirSync(Base):
                         self.add_message(MessageSucceedContactAdd(contact=entity, message=_(u"Successfully created %s") % entity))
                     except IntegrityError:
                         error(u"Entity : %s (pk=%s) created twice and only one in the mapping", entity, entity.pk)#TODO:Make a merge UI?
-                        self.add_error_message(u"TODO: REMOVE ME : Entity : %s (pk=%s) created twice and only one in the mapping" % (entity, entity.pk))
+                        add_error_message(u"TODO: REMOVE ME : Entity : %s (pk=%s) created twice and only one in the mapping" % (entity, entity.pk))
 
     #                create(creme_entity_id=entity.id, exchange_entity_id=server_id_pk, synced=True, user=user)
     ##                debug("Create a entity: %s", entity)
     #                self.add_success_message(_(u"Successfully created %s") % entity)
             else:
-                self.add_error_message(SYNC_ERR_VERBOSE[SYNC_ERR_CREME_PERMISSION_DENIED_CREATE])
+                add_error_message(SYNC_ERR_VERBOSE[SYNC_ERR_CREME_PERMISSION_DENIED_CREATE])
 
 
             update_entity = creme_model_AS_values['update']
@@ -244,7 +242,7 @@ class AirSync(Base):
 
                 if entity is not None:
                     if not entity.can_change(user):
-                        self.add_error_message(SYNC_ERR_VERBOSE[SYNC_ERR_CREME_PERMISSION_DENIED_CHANGE_SPECIFIC] % entity)
+                        add_error_message(SYNC_ERR_VERBOSE[SYNC_ERR_CREME_PERMISSION_DENIED_CHANGE_SPECIFIC] % entity)
                         continue
 
                     if not IS_SERVER_MASTER and entity_mapping.is_creme_modified:
@@ -291,7 +289,7 @@ class AirSync(Base):
 
                 if entity is not None:
                     if not entity.can_delete(user):
-                        self.add_error_message(SYNC_ERR_VERBOSE[SYNC_ERR_CREME_PERMISSION_DENIED_DELETE_SPECIFIC] % entity)
+                        add_error_message(SYNC_ERR_VERBOSE[SYNC_ERR_CREME_PERMISSION_DENIED_DELETE_SPECIFIC] % entity)
                         continue
 
                     if not IS_SERVER_MASTER and c_x_mapping.is_creme_modified:
@@ -302,16 +300,14 @@ class AirSync(Base):
                         debug("Deleting %s", entity)
                         try:
                             entity.delete()
-                        except Contact.CanNotBeDeleted, err:
-                            self.add_error_message(_(u"%(error)s. For keeping a consistent state between Creme and the server, this %(model_verbose)s have be added again on the server. If you want to avoid this, delete the %(model_verbose)s in Creme and synchronize again.") % {'error': err, 'model_verbose': creme_model_verbose_name})
+                        except creme_model.CanNotBeDeleted, err:
+                            add_error_message(_(u"%(error)s. For keeping a consistent state between Creme and the server, this %(model_verbose)s have be added again on the server. If you want to avoid this, delete the %(model_verbose)s in Creme and synchronize again.") % {'error': err, 'model_verbose': creme_model_verbose_name})
                         else:
                             self.add_history_delete_in_creme(entity)
                             self.add_success_message(_(u"Successfully deleted %s") % entity)
                     c_x_mapping.delete()
 
 
-#        q_not_synced = ~Q(pk__in=exch_map_manager.filter(synced=True).values_list('creme_entity_id', flat=True))
-#        add_objects = map(lambda c:  add_object(c, lambda cc: serialize_contact(cc, reverse_ns)), Contact.objects.filter(q_not_synced & Q(is_deleted=False)))
         serializer = creme_model_AS_values['serializer']
         folder.entities = list(
                                 chain(get_add_objects(reverse_ns, user, self, creme_model, serializer, mapping),
@@ -331,7 +327,7 @@ class AirSync(Base):
 
             xml_err_status = xml3.find('%(ns0)sStatus' % d_ns)#If status is present here there is an error
             if xml_err_status is not None:
-                self.add_error_message(_(u"There was an error during synchronization phase. Try again later. (%s)") % xml_err_status.text)
+                add_error_message(_(u"There was an error during synchronization phase. Try again later. (%s)") % xml_err_status.text)
 
                 try:
                     err_status = int(xml_err_status.text)
@@ -361,29 +357,34 @@ class AirSync(Base):
 
             #TODO: Factorise
             if self.status != SYNC_AIRSYNC_STATUS_SUCCESS:
-                self.add_error_message(_(u"There was an error during synchronization phase. Try again later."))
+                add_error_message(_(u"There was an error during synchronization phase. Try again later."))
                 if self.status == SYNC_AIRSYNC_STATUS_INVALID_SYNCKEY:
                     SyncKeyHistory.back_to_previous_key(client)
                 return
 
             if responses is not None:
-                rejected_ids = []
-                rejected_ids_append = rejected_ids.append
+                ########################################################
+                # Response from server for confirm / invalidate changes
+                ########################################################
+
+                ## Add part
+                rejected_add_ids = []
+                rejected_add_ids_append = rejected_add_ids.append
                 add_nodes = responses.findall('%(ns0)sAdd' % d_ns)#Present if the "Add" operation succeeded
 
-                ## Registering added entities
+                ### Registering added entities
                 for add_node in add_nodes:
                     add_node_find = add_node.find
                     creme_entity_id = add_node_find('%(ns0)sClientId' % d_ns).text
-                    item_status = 1
+                    item_status = SYNC_AIRSYNC_STATUS_SUCCESS
 
                     try:
                         item_status = int(add_node_find('%(ns0)sStatus' % d_ns).text)
                     except (ValueError, TypeError):
-                        continue
+                        continue#If there is no status there was an error
 
                     if item_status == SYNC_AIRSYNC_STATUS_CLIENT_SERV_CONV_ERR:
-                        rejected_ids_append(creme_entity_id)
+                        rejected_add_ids_append(creme_entity_id)
                         continue
 
                     exch_map_manager_create(creme_entity_id=creme_entity_id, #Creme PK
@@ -391,33 +392,57 @@ class AirSync(Base):
                                             synced=True,
                                             user=user,
                                             creme_entity_ct=ct_creme_model)#Create object mapping
-                    
 
+                ###Error messages
+                entities = CremeEntity.objects.filter(pk__in=rejected_add_ids)
+                for entity in entities:
+                    add_error_message(_(u"The server has denied to add <%s>. (It happens for example for activities which are on a read-only calendar)") % (entity))
+
+
+                ## Change part
                 change_nodes = responses.findall('%(ns0)sChange' % d_ns)#Present if the "Change" operation failed
                 change_stack = []
                 change_stack_append = change_stack.append
+                rejected_change_ids = []
+                rejected_change_ids_append = rejected_change_ids.append
 
                 for change_node in change_nodes:
                     change_node_find = change_node.find
+
+                    server_id = change_node_find('%(ns0)sServerId' % d_ns).text #Server PK
+
+                    item_status = SYNC_AIRSYNC_STATUS_SUCCESS
+
+                    try:
+                        item_status = int(change_node_find('%(ns0)sStatus'   % d_ns).text)
+                    except (ValueError, TypeError):
+                        continue#If there is no status there was an error
+
+
+                    if item_status == SYNC_AIRSYNC_STATUS_CLIENT_SERV_CONV_ERR:
+                        rejected_change_ids_append(server_id)
+                        continue
+
                     change_stack_append({
-                        'server_id' : change_node_find('%(ns0)sServerId' % d_ns).text, #Server PK
+                        'server_id' : server_id,
                         'status'    : change_node_find('%(ns0)sStatus'   % d_ns).text, #Error status#TODO: Check the status to exclude refused entities
                     })
 
-                #Updating mapping only for entities actually changed on the server
-                #Ensure we actually update for the right(current) user
-                #TODO: Yet, we "just" send again next sync time so needed to handle status and act accordingly
+                ### Updating mapping only for entities actually changed on the server
+                ### Ensure we actually update for the right(current) user
                 unchanged_server_id = [change.get('server_id') for change in change_stack]
                 exch_map_manager.filter(Q(is_creme_modified=True, user=user) & ~Q(exchange_entity_id__in=unchanged_server_id)).update(is_creme_modified=False)
+                unchanged_entities = CremeEntity.objects.filter(pk__in=exch_map_manager.filter(exchange_entity_id__in=rejected_change_ids).values_list('creme_entity_id', flat=True))
 
-                #We delete the mapping for deleted entities
-                #TODO: Verify the status ?
+                ### Error messages
+                for unchanged_entity in unchanged_entities:
+                    add_error_message(_(u"The server has denied changes on <%s>. (It happens for example for activities which are on a read-only calendar)") % (unchanged_entity))
+
+                ## Delete part
+                ### We delete the mapping for deleted entities
+                ### TODO: Verify the status ?
                 CremeExchangeMapping.objects.filter(was_deleted=True, user=user).delete()
 
-                add_error_message = self.add_error_message
-                entities = CremeEntity.objects.filter(pk__in=rejected_ids)
-                for entity in entities:
-                    add_error_message(_(u"The server has denied <%s>. (It happens for example for activities which are on a read-only calendar)") % (entity))#TODO: Better error message
 
                 
             
@@ -443,7 +468,7 @@ def get_add_objects(reverse_ns, user, airsync_cmd, creme_model, serializer, mapp
             add_info_message(_(u"The entity <%s> was not added on the server because you haven't the right to view it") % entity.allowed_unicode(user))
 
     return objects
-#    return map(lambda c:  add_object(c, lambda cc: serialize_contact(cc, reverse_ns)), Contact.objects.filter(q_not_synced & Q(is_deleted=False)))
+
 
 
 def change_object(server_id, o, serializer):
@@ -467,7 +492,13 @@ def get_change_objects(reverse_ns, user, airsync_cmd, creme_model, serializer, m
         if entity.can_view(user):
             add_info_message(_(u"Sending changes of %s on the server") % entity)
             add_history_update_on_server(entity, None)#TODO: Add update information....
-#            objects_append(change_object(modified_ids[entity.id], entity, lambda cc: serializer(cc, reverse_ns)))#Naive version send all attribute even it's not modified
+
+            print
+            print "Entity ", entity
+            print
+            print "change_object(modified_ids[entity.id], entity, lambda cc: serializer(cc, mapping)) ", change_object(modified_ids[entity.id], entity, lambda cc: serializer(cc, mapping))
+            print
+            
             objects_append(change_object(modified_ids[entity.id], entity, lambda cc: serializer(cc, mapping)))#Naive version send all attribute even it's not modified
         else:
             add_info_message(_(u"The entity <%s> was not updated on the server because you haven't the right to view it") % entity.allowed_unicode(user))
