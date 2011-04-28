@@ -19,10 +19,10 @@
 ################################################################################
 
 from django.utils.translation import ugettext_lazy as _, ugettext
-from django.forms import ChoiceField, ValidationError
+from django.forms import ModelChoiceField, ValidationError
 from django.contrib.contenttypes.models import ContentType
 
-from creme_core.models import Filter
+from creme_core.models import EntityFilter
 from creme_core.forms import CremeEntityForm, CremeForm, FieldBlockManager
 from creme_core.forms.fields import MultiCremeEntityField, CremeEntityField
 
@@ -71,42 +71,35 @@ class AddOrganisationsForm(CremeForm): #TODO: factorise
             organisations.add(organisation)
 
 
-class AddPersonsFromFilterForm(CremeForm): #private class ???
-    #NB: it seems empty_value can not be set to 'All' with a ModelChoiceField --> ChoiceField
-    filters = ChoiceField(label=_(u'Filters'), choices=())
+class _AddPersonsFromFilterForm(CremeForm):
+    filters = ModelChoiceField(label=_(u'Filters'), queryset=EntityFilter.objects.none(), empty_label=_(u'All'), required=False)
 
     person_model = None #Contact/Organisation
 
     def __init__(self, entity, *args, **kwargs):
-        super(AddPersonsFromFilterForm, self).__init__(*args, **kwargs)
+        super(_AddPersonsFromFilterForm, self).__init__(*args, **kwargs)
         self.ml = entity
 
-        choices = [(0, _(u'All'))]
-
         ct = ContentType.objects.get_for_model(self.person_model)
-        choices.extend(Filter.objects.filter(model_ct=ct).values_list('id', 'name'))
-
-        self.fields['filters'].choices = choices
+        self.fields['filters'].queryset = EntityFilter.objects.filter(entity_type=ct)
 
     def get_persons_m2m(self):
         raise NotImplementedError
 
     def save(self):
-        persons   = self.get_persons_m2m()
-        filter_id = int(self.cleaned_data['filters'])
+        persons = self.get_persons_m2m()
+        efilter = self.cleaned_data['filters']
+        new_persons = self.person_model.objects.all()
 
-        if filter_id:
-            filter_  = Filter.objects.get(pk=filter_id)
-            new_persons = self.person_model.objects.filter(filter_.get_q())
-        else:
-            new_persons = self.person_model.objects.all()
+        if efilter:
+            new_persons = efilter.filter(new_persons)
 
         #TODO: check if email if ok ????
         for person in new_persons:
             persons.add(person)
 
 
-class AddContactsFromFilterForm(AddPersonsFromFilterForm):
+class AddContactsFromFilterForm(_AddPersonsFromFilterForm):
     blocks = FieldBlockManager(('general', _(u'Contacts recipients'), '*'))
 
     person_model = Contact
@@ -115,7 +108,7 @@ class AddContactsFromFilterForm(AddPersonsFromFilterForm):
         return self.ml.contacts
 
 
-class AddOrganisationsFromFilterForm(AddPersonsFromFilterForm):
+class AddOrganisationsFromFilterForm(_AddPersonsFromFilterForm):
     blocks = FieldBlockManager(('general', _(u'Organisations recipients'), '*'))
 
     person_model = Organisation
