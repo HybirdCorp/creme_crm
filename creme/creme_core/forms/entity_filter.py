@@ -28,7 +28,7 @@ from django.utils.translation import ugettext_lazy as _, ugettext
 from django.utils.formats import date_format
 from django.contrib.contenttypes.models import ContentType
 
-from creme_core.models import CremeEntity, EntityFilter, EntityFilterCondition, RelationType, CremePropertyType
+from creme_core.models import CremeEntity, EntityFilter, EntityFilterCondition, RelationType, CremePropertyType, CustomField
 from creme_core.forms import CremeModelForm
 from creme_core.forms.fields import JSONField
 from creme_core.forms.widgets import DynamicInput, SelectorList, ChainedInput, EntitySelector, UnorderedMultipleChoiceWidget, DateRangeSelect
@@ -84,6 +84,18 @@ class DateFieldsConditionsWidget(SelectorList):
         chained_input.add_input('range', DateRangeSelect, attrs=attrs)
 
         super(DateFieldsConditionsWidget, self).__init__(chained_input)
+
+
+class CustomFieldsConditionsWidget(SelectorList): #TODO: factorise with RegularFieldsConditionsWidget ???
+    def __init__(self, cfields, attrs=None):
+        chained_input = ChainedInput(attrs)
+        attrs = {'auto': False}
+
+        chained_input.add_dselect('cfield', options=cfields.iteritems(), attrs=attrs)
+        chained_input.add_dselect('type', options=EntityFilterCondition._OPERATOR_MAP.iteritems(), attrs=attrs)
+        chained_input.add_input('value', DynamicInput, attrs=attrs)
+
+        super(CustomFieldsConditionsWidget, self).__init__(chained_input)
 
 
 class RelationsConditionsWidget(SelectorList):
@@ -312,6 +324,69 @@ class DateFieldsConditionsField(_ConditionsField):
     def _set_initial_conditions(self, conditions):
         DATE = EntityFilterCondition.DATE
         self.initial = [c for c in conditions if c.type == DATE]
+
+
+class CustomFieldsConditionsField(_ConditionsField):
+    default_error_messages = {
+        'invalidfield': _(u"This custom field is invalid with this model."),
+        'invalidtype':  _(u"This operator is invalid."),
+    }
+
+    _ACCEPTED_TYPES = frozenset((CustomField.INT, CustomField.FLOAT, CustomField.STR)) #TODO: "!= DATE" instead
+
+    def _set_model(self, model):
+        self._model = model
+        self._cfields = dict((cf.id, cf) for cf in CustomField.objects.filter(content_type=ContentType.objects.get_for_model(model),
+                                                                              field_type__in=self._ACCEPTED_TYPES
+                                                                             )
+                            )
+        self._build_widget()
+
+    model = property(lambda self: self._model, _set_model); del _set_model
+
+    def _create_widget(self):
+        return CustomFieldsConditionsWidget(self._cfields)
+
+    def _conditions_to_dicts(self, conditions):
+        dicts = []
+
+        for condition in conditions:
+            search_info = condition.decoded_value
+            dicts.append({'cfield': condition.name,
+                          'type':   search_info['operator'],
+                          'value':  search_info['value'],
+                         })
+
+        return dicts
+
+    def _clean_custom_field(self, entry):
+        cfield_id = self.clean_value(entry, 'cfield', int)
+        cf = self._cfields.get(cfield_id)
+
+        if not cf:
+            raise ValidationError(self.error_messages['invalidfield'])
+
+        return cf
+
+    def _conditions_from_dicts(self, data):
+        build_condition = EntityFilterCondition.build_4_customfield
+        clean_value = self.clean_value
+        clean_cfield = self._clean_custom_field
+
+        try:
+            conditions = [build_condition(custom_field=clean_cfield(entry),
+                                          operator=clean_value(entry, 'type', int),
+                                          value=clean_value(entry, 'value', unicode)
+                                         ) for entry in data
+                         ]
+        except EntityFilterCondition.ValueError, e:
+            raise ValidationError(self.error_messages['invalidtype'])
+
+        return conditions
+
+    def _set_initial_conditions(self, conditions):
+        CUSTOMFIELD = EntityFilterCondition.CUSTOMFIELD
+        self.initial = [c for c in conditions if c.type == CUSTOMFIELD]
 
 
 class RelationsConditionsField(_ConditionsField):
@@ -566,6 +641,7 @@ class SubfiltersConditionsField(ModelMultipleChoiceField):
 class _EntityFilterForm(CremeModelForm):
     fields_conditions        = RegularFieldsConditionsField(label=_(u'On regular fields'), required=False)
     datefields_conditions    = DateFieldsConditionsField(label=_(u'On date fields'), required=False)
+    customfields_conditions  = CustomFieldsConditionsField(label=_(u'On custom fields'), required=False, help_text=u'(Only integer, string and decimal for now)')
     relations_conditions     = RelationsConditionsField(label=_(u'On relations'), required=False,
                                                         help_text=_(u'Do not select any entity if you want to match them all.')
                                                        )
@@ -574,6 +650,7 @@ class _EntityFilterForm(CremeModelForm):
     subfilters_conditions    = SubfiltersConditionsField(label=_(u'Sub-filters'), required=False)
 
     _CONDITIONS_FIELD_NAMES = ('fields_conditions', 'datefields_conditions',
+                               'customfields_conditions',
                                'relations_conditions', 'relsubfilfers_conditions',
                                'properties_conditions', 'subfilters_conditions',
                              )

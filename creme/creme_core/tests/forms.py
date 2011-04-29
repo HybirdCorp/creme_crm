@@ -818,6 +818,42 @@ class DateFieldsConditionsFieldTestCase(FieldTestCase):
                         )
 
 
+class CustomFieldsConditionsFieldTestCase(FieldTestCase):
+    def setUp(self):
+        ct = ContentType.objects.get_for_model(Contact)
+        self.custom_field = CustomField.objects.create(name='Size', content_type=ct, field_type=CustomField.INT)
+
+    def test_clean_invalid_data(self):
+        field = CustomFieldsConditionsField(model=Contact)
+        self.assertFieldValidationError(CustomFieldsConditionsField, 'invalidfield', field.clean,
+                                         '[{"cfield": "2054", "type": "%(type)s", "value":"170"}]' % {
+                                                'type': EntityFilterCondition.EQUALS,
+                                             }
+                                       )
+        self.assertFieldValidationError(CustomFieldsConditionsField, 'invalidtype', field.clean,
+                                         '[{"cfield": "%(cfield)s", "type": "121266", "value":"170"}]' % {
+                                                'cfield': self.custom_field.id,
+                                             }
+                                       )
+
+    def test_ok(self):
+        clean = CustomFieldsConditionsField(model=Contact).clean
+        cond_type = EntityFilterCondition.EQUALS
+        value = 180
+        conditions = clean('[{"cfield":"%(cfield)s", "type":"%(type)s", "value":"%(value)s"}]' % {
+                                'cfield': self.custom_field.id,
+                                'type':   cond_type,
+                                'value':  value,
+                              }
+                          )
+        self.assertEqual(1, len(conditions))
+
+        condition = conditions[0]
+        self.assertEqual(EntityFilterCondition.CUSTOMFIELD, condition.type)
+        self.assertEqual(str(self.custom_field.id), condition.name)
+        self.assertEqual({'operator': cond_type, 'value': unicode(value)}, condition.decoded_value)
+
+
 class PropertiesConditionsFieldTestCase(FieldTestCase):
     def setUp(self):
         self.ptype01 = CremePropertyType.create('test-prop_active', 'Is active')
