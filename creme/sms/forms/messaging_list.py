@@ -19,10 +19,10 @@
 ################################################################################
 
 from django.utils.translation import ugettext_lazy as _
-from django.forms import ChoiceField, ValidationError
+from django.forms import ModelChoiceField, ValidationError
 from django.contrib.contenttypes.models import ContentType
 
-from creme_core.models import Filter
+from creme_core.models import EntityFilter
 from creme_core.forms import CremeEntityForm, CremeForm, FieldBlockManager
 from creme_core.forms.fields import MultiCremeEntityField, CremeEntityField
 
@@ -56,8 +56,7 @@ class AddContactsForm(CremeForm):
 
 
 class AddPersonsFromFilterForm(CremeForm): #private class ???
-    #NB: itseems empty_value can not be set to 'All' with a ModelChoiceField --> ChoiceField
-    filters = ChoiceField(label=_(u'Filters'), choices=())
+    filters = ModelChoiceField(label=_(u'Filters'), queryset=EntityFilter.objects.none(), empty_label=_(u'All'), required=False)
 
     person_model = None #Contact/Organisation
 
@@ -65,25 +64,19 @@ class AddPersonsFromFilterForm(CremeForm): #private class ???
         super(AddPersonsFromFilterForm, self).__init__(*args, **kwargs)
         self.messaging_list = entity
 
-        choices = [(0, _(u'All'))]
-
         ct = ContentType.objects.get_for_model(self.person_model)
-        choices.extend(Filter.objects.filter(model_ct=ct).values_list('id', 'name'))
-
-        self.fields['filters'].choices = choices
+        self.fields['filters'].queryset = EntityFilter.objects.filter(entity_type=ct)
 
     def get_persons_m2m(self):
         raise NotImplementedError
 
     def save(self):
         persons   = self.get_persons_m2m()
-        filter_id = int(self.cleaned_data['filters'])
+        efilter = self.cleaned_data['filters']
+        new_persons = self.person_model.objects.all()
 
-        if filter_id:
-            filter_  = Filter.objects.get(pk=filter_id)
-            new_persons = self.person_model.objects.filter(filter_.get_q())
-        else:
-            new_persons = self.person_model.objects.all()
+        if efilter:
+            new_persons = efilter.filter(new_persons)
 
         #TODO: check if phone number is ok ????
         for person in new_persons:
