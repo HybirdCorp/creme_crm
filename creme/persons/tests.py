@@ -4,7 +4,8 @@ from datetime import datetime, timedelta
 
 from django.contrib.contenttypes.models import ContentType
 
-from creme_core.models import RelationType, Relation, CremeProperty, SetCredentials
+from creme_core.models import (RelationType, Relation, CremeProperty, SetCredentials,
+                               EntityFilter, EntityFilterCondition)
 from creme_core.constants import PROP_IS_MANAGED_BY_CREME
 from creme_core.gui.quick_forms import quickforms_registry
 from creme_core.tests.base import CremeTestCase
@@ -48,6 +49,15 @@ class PersonsTestCase(CremeTestCase):
         ct_id_set = set((ct_id_contact, ct_id_orga))
         self.assertEqual(ct_id_set, set(ct.id for ct in rel_sub_customer.subject_ctypes.all()))
         self.assertEqual(ct_id_set, set(ct.id for ct in rel_obj_customer.subject_ctypes.all()))
+
+        try:
+            efilter = EntityFilter.objects.get(pk=FILTER_MANAGED_ORGA)
+        except EntityFilter.DoesNotExist:
+            self.fail('Managed organisations filter does not exist')
+
+        self.failIf(efilter.is_custom)
+        self.assertEqual(ct_id_orga, efilter.entity_type_id)
+        self.assertEqual([EntityFilterCondition.PROPERTY], [c.type for c in efilter.conditions.all()])
 
     def test_contact_createview01(self):
         self.login()

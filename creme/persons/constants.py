@@ -26,3 +26,5 @@ REL_OBJ_INACTIVE = 'persons-object_inactive_customer'
 
 REL_SUB_SUBSIDIARY = 'persons-subject_subsidiary'
 REL_OBJ_SUBSIDIARY = 'persons-object_subsidiary'
+
+FILTER_MANAGED_ORGA = 'persons-managed_organisations'
