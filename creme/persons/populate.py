@@ -24,9 +24,9 @@ from django.contrib.auth.models import User
 
 from creme_core import autodiscover as creme_core_autodiscover
 from creme_core.models.header_filter import HeaderFilterItem, HeaderFilter, HFI_FIELD, HFI_RELATION
-from creme_core.models import (RelationType, CremeProperty, CremePropertyType, ButtonMenuItem,
-                              SearchConfigItem, RelationBlockItem, BlockConfigItem)
-from creme_core.models.list_view_filter import FilterCondition, FilterValue, Filter
+from creme_core.models import (RelationType, CremeProperty, CremePropertyType,
+                               EntityFilter, EntityFilterCondition,
+                               ButtonMenuItem, SearchConfigItem, RelationBlockItem, BlockConfigItem)
 from creme_core.constants import PROP_IS_MANAGED_BY_CREME, FILTER_TYPE_EQUALS
 from creme_core.utils import create_or_update as create
 from creme_core.utils.id_generator import generate_string_id_and_save
@@ -134,17 +134,13 @@ class Populator(BasePopulator):
 
         orga_ct = ContentType.objects.get_for_model(Organisation)
 
-        #Create a list view filter to use it in the report
-        managed_orga_filter = create(Filter, name=_(u"Managed by creme"), model_ct=orga_ct, is_custom=False)
-        managed_orga_filter_cond  = create(FilterCondition, type_id=FILTER_TYPE_EQUALS, champ='properties__type__id')
-        managed_orga_filter_value = create(FilterValue, value=PROP_IS_MANAGED_BY_CREME)
-
-        managed_orga_filter_cond.values = [managed_orga_filter_value]
-        managed_orga_filter_cond.save()
-
-        managed_orga_filter.conditions = [managed_orga_filter_cond]
-        managed_orga_filter.save()
-
+        efilter = EntityFilter.create(FILTER_MANAGED_ORGA, name=_(u"Managed by creme"), model=Organisation)
+        efilter.set_conditions([EntityFilterCondition.build(model=Organisation,
+                                                            type=EntityFilterCondition.PROPERTY,
+                                                            name=PROP_IS_MANAGED_BY_CREME,
+                                                            value=True #entities that has got a property with this type
+                                                           )
+                               ])
 
         admin = User.objects.get(pk=1)
 
