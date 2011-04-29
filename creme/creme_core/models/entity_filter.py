@@ -29,6 +29,7 @@ from django.utils.simplejson import loads as jsonloads, dumps as jsondumps
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.auth.models import User
 
+from creme_core.models import CustomField
 from creme_core.utils.meta import is_date_field
 from creme_core.utils.date_range import date_range_registry
 
@@ -231,6 +232,7 @@ class EntityFilterCondition(Model):
     PROPERTY = 5
 
     DATE = 7
+    CUSTOMFIELD = 8
 
     EQUALS          = 10
     IEQUALS         = 11
@@ -327,6 +329,17 @@ class EntityFilterCondition(Model):
         return EntityFilterCondition(type=type, name=name, value=EntityFilterCondition.encode_value(value))
 
     @staticmethod
+    def build_4_customfield(custom_field, operator, value):
+        if not EntityFilterCondition._OPERATOR_MAP.get(operator):
+            raise EntityFilterCondition.ValueError('build_4_customfield(): unknown operator: %s', operator)
+
+        #TODO: check value???? (problem with CONTAINS if we do)
+        return EntityFilterCondition(type=EntityFilterCondition.CUSTOMFIELD,
+                                     name=str(custom_field.id),
+                                     value=EntityFilterCondition.encode_value({'operator': operator, 'value': value})
+                                    )
+
+    @staticmethod
     def build_4_date(model, name, date_range=None, start=None, end=None):
         try:
             field = model._meta.get_field_by_name(name)[0]
@@ -382,6 +395,26 @@ class EntityFilterCondition(Model):
     @staticmethod
     def encode_value(value):
         return jsondumps(value)
+
+    def _get_q_customfield(self):
+        #NB: Sadly we retrieve the ids of the entity that match with this condition
+        #    instead of use a 'JOIN', in order to avoid the interaction between
+        #    several conditions on the same type of CustomField (ie: same table).
+        cf = CustomField.objects.get(pk=int(self.name))
+        search_info = self.decoded_value
+        searched_val = search_info['value']
+        operator = EntityFilterCondition._OPERATOR_MAP[search_info['operator']]
+        related_name = cf.get_value_class().get_related_name()
+        fname = '%s__value' % related_name
+        query = Q(**{'%s__custom_field' % related_name: cf,
+                     operator.key_pattern % fname:      searched_val,
+                    }
+                 )
+
+        if operator.exclude:
+            query.negate()
+
+        return Q(pk__in=self.filter.entity_type.model_class().objects.filter(query).values_list('id', flat=True))
 
     def _get_q_date(self):
         kwargs = self.decoded_value
@@ -447,6 +480,7 @@ class EntityFilterCondition(Model):
             RELATION_SUBFILTER: _get_q_relation_subfilter,
             PROPERTY:           _get_q_property,
             DATE:               _get_q_date,
+            CUSTOMFIELD:        _get_q_customfield,
         }
 
     def get_q(self):
