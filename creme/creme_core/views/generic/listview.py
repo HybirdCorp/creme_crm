@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2011  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -131,7 +131,7 @@ def list_view(request, model, hf_pk='', extra_dict=None, template='creme_core/ge
     current_lvs.sort_order = POST_get('sort_order', current_lvs.sort_order or '')
 
     entity_filters = EntityFilterList(ct)
-    efilter = entity_filters.select_by_id(POST_get('filter', -1), current_lvs.entity_filter_id)
+    efilter = entity_filters.select_by_id(POST_get('filter', current_lvs.entity_filter_id))
     current_lvs.entity_filter_id = efilter.id if efilter else None
 
     #entities = _build_entity_queryset(request, model, current_lvs, extra_q)
