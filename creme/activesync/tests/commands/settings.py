@@ -17,28 +17,23 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
+from os.path import join, dirname, abspath
 
-from base import Base
+from activesync.commands.settings import Settings
+from activesync.connection import Connection
+from activesync.tests.commands.base import BaseASTestCase
 
-class Settings(Base):
-    template_name = "activesync/commands/xml/settings/request_min.xml"
-    command       = "Settings"
 
-    def __init__(self, *args, **kwargs):
-        super(Settings, self).__init__(*args, **kwargs)
-        self._create_connection()
+class SettingsASTestCase(BaseASTestCase):
+    def setUp(self):
+        super(SettingsASTestCase, self).setUp()
+        self.test_files_path = join(dirname(abspath(__file__)), '..', 'data', 'commands', 'settings')
+        self.test_files = ['response_1.xml', ]
+        self.test_files_paths = [join(self.test_files_path, f) for f in self.test_files]
 
-    def send(self, headers=None, *args, **kwargs):
+    def test_settings01(self):
+        s = Settings(*self.params)
+        s.send(headers={'test_files': ";".join(self.test_files_paths)})
+        self.assertEqual('raphael.beck01@gmail.com', s.smtp_address)
 
-        settings_headers={}
-        if headers:
-            settings_headers.update(headers)
-
-        xml = super(Settings, self).send({'get_user_infos': True, 'set_device_infos':False}, headers=headers)
-
-        ns = "{Settings:}"
-
-        self.smtp_address = None
-        if xml is not None:
-            status = xml.find('%sStatus' % ns).text
-            self.smtp_address = xml.find('%(ns0)sUserInformation/%(ns0)sGet/%(ns0)sEmailAddresses/%(ns0)sSmtpAddress' % {'ns0': ns}).text
+    

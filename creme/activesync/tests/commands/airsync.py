@@ -18,27 +18,19 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from base import Base
+from os.path import join, dirname, abspath
+from activesync.commands.airsync import AirSync
 
-class Settings(Base):
-    template_name = "activesync/commands/xml/settings/request_min.xml"
-    command       = "Settings"
+from activesync.tests.commands.base import BaseASTestCase
 
-    def __init__(self, *args, **kwargs):
-        super(Settings, self).__init__(*args, **kwargs)
-        self._create_connection()
+#TODO: tests!!
+class AirSyncASTestCase(BaseASTestCase):
+    def setUp(self):
+        super(AirSyncASTestCase, self).setUp()
+        self.test_files_path = join(dirname(abspath(__file__)), '..', 'data', 'commands', 'airsync')
+        self.test_files = []
+        self.test_files_paths = [join(self.test_files_path, f) for f in self.test_files]
 
-    def send(self, headers=None, *args, **kwargs):
-
-        settings_headers={}
-        if headers:
-            settings_headers.update(headers)
-
-        xml = super(Settings, self).send({'get_user_infos': True, 'set_device_infos':False}, headers=headers)
-
-        ns = "{Settings:}"
-
-        self.smtp_address = None
-        if xml is not None:
-            status = xml.find('%sStatus' % ns).text
-            self.smtp_address = xml.find('%(ns0)sUserInformation/%(ns0)sGet/%(ns0)sEmailAddresses/%(ns0)sSmtpAddress' % {'ns0': ns}).text
+#    def test_airsync01(self):
+#        as_ = AirSync(*self.params)
+#        as_.send(headers={'test_files': ";".join(self.test_files_paths) })

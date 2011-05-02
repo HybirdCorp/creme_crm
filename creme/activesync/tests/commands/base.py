@@ -18,27 +18,27 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from base import Base
+from threading import Thread
+from django.contrib.auth.models import User
 
-class Settings(Base):
-    template_name = "activesync/commands/xml/settings/request_min.xml"
-    command       = "Settings"
+from django.test import TestCase
 
-    def __init__(self, *args, **kwargs):
-        super(Settings, self).__init__(*args, **kwargs)
-        self._create_connection()
+from activesync.tests.commands.fake_server import SimpleASHTTPServer
 
-    def send(self, headers=None, *args, **kwargs):
+def start_server(port):
+    SimpleASHTTPServer(port).run()
 
-        settings_headers={}
-        if headers:
-            settings_headers.update(headers)
+class BaseASTestCase(TestCase):
 
-        xml = super(Settings, self).send({'get_user_infos': True, 'set_device_infos':False}, headers=headers)
+    def setUp(self):
+        self.port  = 8003
+        self.url   = 'http://127.0.0.1:%s' % self.port
+        self.thread_httpd = Thread(target=start_server, kwargs={'port': self.port})
+        print "Starting server"
+        self.thread_httpd.start()
+        self.user = User.objects.create(username='name')
+        self.params = (self.url, '', '', 1, self.user)
 
-        ns = "{Settings:}"
-
-        self.smtp_address = None
-        if xml is not None:
-            status = xml.find('%sStatus' % ns).text
-            self.smtp_address = xml.find('%(ns0)sUserInformation/%(ns0)sGet/%(ns0)sEmailAddresses/%(ns0)sSmtpAddress' % {'ns0': ns}).text
+    def tearDown(self):
+        print "Ending server"
+        self.thread_httpd._Thread__stop()
