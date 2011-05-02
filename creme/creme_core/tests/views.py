@@ -1763,7 +1763,9 @@ class EntityFilterViewsTestCase(ViewsTestCase):
                                            )
         ptype = CremePropertyType.create(str_pk='test-prop_kawaii', text=u'Kawaii')
 
-        custom_field = CustomField.objects.create(name='Profits', content_type=ct, field_type=CustomField.INT)
+        create_cf = CustomField.objects.create
+        custom_field = create_cf(name='Profits',        field_type=CustomField.INT,  content_type=ct)
+        datecfield   = create_cf(name='Last gathering', field_type=CustomField.DATE, content_type=ct)
 
         url = '/creme_core/entity_filter/add/%s' % ct.id
         form = self.client.get(url).context['form']
@@ -1777,33 +1779,38 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         daterange_type = 'current_year'
         cfield_cond_type = EntityFilterCondition.GT
         cfield_cond_value = 10000
+        datecfield_rtype = 'previous_quarter'
         response = self.client.post(url,
                                     data={
-                                            'name':       name,
-                                            'user':       self.user.id,
-                                            'use_or':     True,
-                                            'fields_conditions':        '[{"type":"%(type)s","name":"%(name)s","value":"%(value)s"}]' % {
-                                                                                'type':  cond_type,
-                                                                                'name':  field_name,
-                                                                                'value': field_value,
-                                                                            },
-                                            'datefields_conditions':    '[{"range": {"type": "%(type)s", "start": "", "end": ""}, "name": "%(name)s"}]' % {
-                                                                                'type': daterange_type,
-                                                                                'name': date_field_name,
-                                                                            },
-                                            'customfields_conditions':  '[{"cfield":"%(cfield)s", "type":"%(type)s", "value":"%(value)s"}]' % {
-                                                                                'cfield': custom_field.id,
-                                                                                'type':   cfield_cond_type,
-                                                                                'value':  cfield_cond_value,
-                                                                            },
-                                            'relations_conditions':     '[{"has":"true", "rtype":"%s", "ctype":"0", "entity":null}]' % (rtype.id),
-                                            'relsubfilfers_conditions': '[{"rtype": "%(rtype)s", "has": "false", "ctype": "%(ct)s", "filter":"%(filter)s"}]' % {
-                                                                                'rtype':  srtype.id,
-                                                                                'ct':     ContentType.objects.get_for_model(Contact).id,
-                                                                                'filter': relsubfilfer.id,
-                                                                            },
-                                            'properties_conditions':    '[{"has":"true", "ptype":"%s"}]' % (ptype.id),
-                                            'subfilters_conditions':    [subfilter.id],
+                                            'name':   name,
+                                            'user':   self.user.id,
+                                            'use_or': True,
+                                            'fields_conditions':            '[{"type":"%(type)s","name":"%(name)s","value":"%(value)s"}]' % {
+                                                                                    'type':  cond_type,
+                                                                                    'name':  field_name,
+                                                                                    'value': field_value,
+                                                                                },
+                                            'datefields_conditions':        '[{"range": {"type": "%(type)s", "start": "", "end": ""}, "field": "%(name)s"}]' % {
+                                                                                    'type': daterange_type,
+                                                                                    'name': date_field_name,
+                                                                                },
+                                            'customfields_conditions':      '[{"field":"%(cfield)s", "type":"%(type)s", "value":"%(value)s"}]' % {
+                                                                                    'cfield': custom_field.id,
+                                                                                    'type':   cfield_cond_type,
+                                                                                    'value':  cfield_cond_value,
+                                                                                },
+                                            'datecustomfields_conditions':  '[{"field": "%(cfield)s", "range": {"type": "%(type)s"}}]' % {
+                                                                                    'cfield': datecfield.id,
+                                                                                    'type':   datecfield_rtype,
+                                                                                },
+                                            'relations_conditions':         '[{"has":"true", "rtype":"%s", "ctype":"0", "entity":null}]' % (rtype.id),
+                                            'relsubfilfers_conditions':     '[{"rtype": "%(rtype)s", "has": "false", "ctype": "%(ct)s", "filter":"%(filter)s"}]' % {
+                                                                                    'rtype':  srtype.id,
+                                                                                    'ct':     ContentType.objects.get_for_model(Contact).id,
+                                                                                    'filter': relsubfilfer.id,
+                                                                                },
+                                            'properties_conditions':        '[{"has":"true", "ptype":"%s"}]' % (ptype.id),
+                                            'subfilters_conditions':        [subfilter.id],
                                          }
                                    )
         self.assertNoFormError(response)
@@ -1817,41 +1824,49 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         self.assert_(efilter.use_or)
 
         conditions = efilter.conditions.all()
-        self.assertEqual(7, len(conditions))
+        self.assertEqual(8, len(conditions))
+        iter_conds = iter(conditions)
 
-        condition = conditions[0]
+        condition = iter_conds.next()
         self.assertEqual(cond_type, condition.type)
         self.assertEqual(field_name, condition.name)
         self.assertEqual(field_value, condition.decoded_value)
 
-        condition = conditions[1]
+        condition = iter_conds.next()
         self.assertEqual(EntityFilterCondition.DATE, condition.type)
         self.assertEqual(date_field_name, condition.name)
         self.assertEqual({'name': daterange_type}, condition.decoded_value)
 
-        condition = conditions[2]
+        condition = iter_conds.next()
         self.assertEqual(EntityFilterCondition.CUSTOMFIELD, condition.type)
         self.assertEqual(str(custom_field.id), condition.name)
-        self.assertEqual({'operator': cfield_cond_type, 'value': unicode(cfield_cond_value)},
+        self.assertEqual({'operator': cfield_cond_type, 'rname': u'customfieldinteger', 'value': unicode(cfield_cond_value)},
                          condition.decoded_value
                         )
 
-        condition = conditions[3]
+        condition = iter_conds.next()
+        self.assertEqual(EntityFilterCondition.DATECUSTOMFIELD, condition.type)
+        self.assertEqual(str(datecfield.id), condition.name)
+        self.assertEqual({'rname': 'customfielddatetime', 'name': datecfield_rtype},
+                         condition.decoded_value
+                        )
+
+        condition = iter_conds.next()
         self.assertEqual(EntityFilterCondition.RELATION, condition.type)
         self.assertEqual(rtype.id, condition.name)
         self.assertEqual({'has': True}, condition.decoded_value)
 
-        condition = conditions[4]
+        condition = iter_conds.next()
         self.assertEqual(EntityFilterCondition.RELATION_SUBFILTER, condition.type)
         self.assertEqual(srtype.id, condition.name)
         self.assertEqual({'has': False, 'filter_id': relsubfilfer.id}, condition.decoded_value)
 
-        condition = conditions[5]
+        condition = iter_conds.next()
         self.assertEqual(EntityFilterCondition.PROPERTY, condition.type)
         self.assertEqual(ptype.id, condition.name)
         self.assert_(condition.decoded_value is True)
 
-        condition = conditions[6]
+        condition = iter_conds.next()
         self.assertEqual(EntityFilterCondition.SUBFILTER, condition.type)
         self.failIf(condition.name)
         self.assertEqual(subfilter.id, condition.decoded_value)
@@ -1881,9 +1896,10 @@ class EntityFilterViewsTestCase(ViewsTestCase):
                                            )
         ptype = CremePropertyType.create(str_pk='test-prop_kawaii', text=u'Kawaii')
 
-        custom_field = CustomField.objects.create(name='Nickname', field_type=CustomField.STR,
-                                                  content_type=ContentType.objects.get_for_model(Contact)
-                                                 )
+        create_cf = CustomField.objects.create
+        contact_ct = ContentType.objects.get_for_model(Contact)
+        custom_field = create_cf(name='Nickname',      field_type=CustomField.STR,  content_type=contact_ct)
+        datecfield   = create_cf(name='First meeting', field_type=CustomField.DATE, content_type=contact_ct)
 
         name = 'Filter 03'
         efilter = EntityFilter.create('test-filter03', name, Contact, is_custom=True)
@@ -1899,6 +1915,9 @@ class EntityFilterViewsTestCase(ViewsTestCase):
                                                                           operator=EntityFilterCondition.ICONTAINS,
                                                                           value='Ed'
                                                                          ),
+                                EntityFilterCondition.build_4_datecustomfield(custom_field=datecfield,
+                                                                              start=date(year=2010, month=1, day=1),
+                                                                             ),
                                 EntityFilterCondition.build_4_relation(rtype=rtype, has=True),
                                 EntityFilterCondition.build_4_relation_subfilter(rtype=srtype, has=True, subfilter=relsubfilfer),
                                 EntityFilterCondition.build(model=Contact,
@@ -1937,28 +1956,33 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         date_field_name = 'birthday'
         cfield_cond_type = EntityFilterCondition.CONTAINS
         cfield_cond_value = 'Vicious'
+        datecfield_rtype = 'previous_year'
         response = self.client.post(url, follow=True,
                                     data={
-                                            'name':       name,
-                                            'fields_conditions':        '[{"type":"%(type)s","name":"%(name)s","value":"%(value)s"}]' % {
-                                                                                'type':  cond_type,
-                                                                                'name':  field_name,
-                                                                                'value': field_value,
-                                                                            },
-                                            'datefields_conditions':    '[{"range": {"type": "", "start": "2011-5-23", "end": "2012-6-27"}, "name": "%s"}]' % date_field_name,
-                                            'customfields_conditions':  '[{"cfield":"%(cfield)s", "type":"%(type)s", "value":"%(value)s"}]' % {
-                                                                                'cfield': custom_field.id,
-                                                                                'type':   cfield_cond_type,
-                                                                                'value':  cfield_cond_value,
-                                                                            },
-                                            'relations_conditions':     '[{"has":"true", "rtype":"%s", "ctype":"0", "entity":null}]' % rtype.id,
-                                            'relsubfilfers_conditions': '[{"rtype": "%(rtype)s", "has": "false", "ctype": "%(ct)s", "filter":"%(filter)s"}]' % {
-                                                                                'rtype':  srtype.id,
-                                                                                'ct':     ContentType.objects.get_for_model(Organisation).id,
-                                                                                'filter': relsubfilfer.id,
-                                                                            },
-                                            'properties_conditions':    '[{"has":"false","ptype":"%s"}]' % ptype.id,
-                                            'subfilters_conditions':    [subfilter.id],
+                                            'name':                         name,
+                                            'fields_conditions':            '[{"type":"%(type)s","name":"%(name)s","value":"%(value)s"}]' % {
+                                                                                    'type':  cond_type,
+                                                                                    'name':  field_name,
+                                                                                    'value': field_value,
+                                                                                },
+                                            'datefields_conditions':        '[{"range": {"type": "", "start": "2011-5-23", "end": "2012-6-27"}, "field": "%s"}]' % date_field_name,
+                                            'customfields_conditions':      '[{"field":"%(cfield)s", "type":"%(type)s", "value":"%(value)s"}]' % {
+                                                                                    'cfield': custom_field.id,
+                                                                                    'type':   cfield_cond_type,
+                                                                                    'value':  cfield_cond_value,
+                                                                                },
+                                            'datecustomfields_conditions':  '[{"field": "%(cfield)s", "range": {"type": "%(type)s"}}]' % {
+                                                                                    'cfield': datecfield.id,
+                                                                                    'type':   datecfield_rtype,
+                                                                                },
+                                            'relations_conditions':         '[{"has":"true", "rtype":"%s", "ctype":"0", "entity":null}]' % rtype.id,
+                                            'relsubfilfers_conditions':     '[{"rtype": "%(rtype)s", "has": "false", "ctype": "%(ct)s", "filter":"%(filter)s"}]' % {
+                                                                                    'rtype':  srtype.id,
+                                                                                    'ct':     ContentType.objects.get_for_model(Organisation).id,
+                                                                                    'filter': relsubfilfer.id,
+                                                                                },
+                                            'properties_conditions':        '[{"has":"false","ptype":"%s"}]' % ptype.id,
+                                            'subfilters_conditions':        [subfilter.id],
                                          }
                                    )
         self.assertNoFormError(response)
@@ -1970,43 +1994,51 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         self.assert_(efilter.user is None)
 
         conditions = efilter.conditions.all()
-        self.assertEqual(7, len(conditions))
+        self.assertEqual(8, len(conditions))
+        iter_conds = iter(conditions)
 
-        condition = conditions[0]
+        condition = iter_conds.next()
         self.assertEqual(cond_type,  condition.type)
         self.assertEqual(field_name, condition.name)
         self.assertEqual(field_value, condition.decoded_value)
 
-        condition = conditions[1]
+        condition = iter_conds.next()
         self.assertEqual(EntityFilterCondition.DATE, condition.type)
         self.assertEqual(date_field_name, condition.name)
         self.assertEqual({'start': {'year': 2011, u'month': 5, 'day': 23}, 'end': {'year': 2012, 'month': 6, 'day': 27}},
                          condition.decoded_value
                         )
 
-        condition = conditions[2]
+        condition = iter_conds.next()
         self.assertEqual(EntityFilterCondition.CUSTOMFIELD, condition.type)
         self.assertEqual(str(custom_field.id), condition.name)
-        self.assertEqual({'operator': cfield_cond_type, 'value': unicode(cfield_cond_value)},
+        self.assertEqual({u'operator': cfield_cond_type, u'rname': u'customfieldstring', 'value': unicode(cfield_cond_value)},
                          condition.decoded_value
                         )
 
-        condition = conditions[3]
+        condition = iter_conds.next()
+        self.assertEqual(EntityFilterCondition.DATECUSTOMFIELD, condition.type)
+        self.assertEqual(str(datecfield.id), condition.name)
+        self.assertEqual({'rname': 'customfielddatetime', 'name': datecfield_rtype},
+                         condition.decoded_value
+                        )
+
+        condition = iter_conds.next()
         self.assertEqual(EntityFilterCondition.RELATION, condition.type)
         self.assertEqual(rtype.id, condition.name)
         self.assertEqual({'has': True}, condition.decoded_value)
 
-        condition = conditions[4]
+        condition = iter_conds.next()
         self.assertEqual(EntityFilterCondition.RELATION_SUBFILTER, condition.type)
         self.assertEqual(srtype.id, condition.name)
         self.assertEqual({'has': False, 'filter_id': relsubfilfer.id}, condition.decoded_value)
 
-        condition = conditions[5]
+        condition = iter_conds.next()
         self.assertEqual(EntityFilterCondition.PROPERTY, condition.type)
         self.assertEqual(ptype.id,                       condition.name)
         self.assert_(condition.decoded_value is False)
 
-        condition = conditions[6]
+        condition = iter_conds.next()
         self.assertEqual(EntityFilterCondition.SUBFILTER, condition.type)
         self.failIf(condition.name)
         self.assertEqual(subfilter.id, condition.decoded_value)
