@@ -76,11 +76,11 @@ class RegularFieldsConditionsWidget(SelectorList):
 
 
 class DateFieldsConditionsWidget(SelectorList):
-    def __init__(self, date_fields, attrs=None):
+    def __init__(self, date_fields_options, attrs=None):
         chained_input = ChainedInput(attrs)
         attrs = {'auto': False}
 
-        chained_input.add_dselect('name', options=[(fname, f.verbose_name) for fname, f in date_fields], attrs=attrs)
+        chained_input.add_dselect('field', options=date_fields_options, attrs=attrs)
         chained_input.add_input('range', DateRangeSelect, attrs=attrs)
 
         super(DateFieldsConditionsWidget, self).__init__(chained_input)
@@ -91,7 +91,7 @@ class CustomFieldsConditionsWidget(SelectorList): #TODO: factorise with RegularF
         chained_input = ChainedInput(attrs)
         attrs = {'auto': False}
 
-        chained_input.add_dselect('cfield', options=cfields.iteritems(), attrs=attrs)
+        chained_input.add_dselect('field', options=cfields.iteritems(), attrs=attrs)
         chained_input.add_dselect('type', options=EntityFilterCondition._OPERATOR_MAP.iteritems(), attrs=attrs)
         chained_input.add_input('value', DynamicInput, attrs=attrs)
 
@@ -243,7 +243,7 @@ class DateFieldsConditionsField(_ConditionsField):
     model = property(lambda self: self._model, _set_model); del _set_model
 
     def _create_widget(self):
-        return DateFieldsConditionsWidget(self._fields.iteritems())
+        return DateFieldsConditionsWidget([(fname, f.verbose_name) for fname, f in self._fields.iteritems()])
 
     def _format_date(self, date_dict):
         """@param date_dict dict or None; if not None => {"year": 2011, "month": 7, "day": 25}"""
@@ -256,7 +256,7 @@ class DateFieldsConditionsField(_ConditionsField):
         for condition in conditions:
             get = condition.decoded_value.get
 
-            dicts.append({'name':  condition.name,
+            dicts.append({'field':  condition.name,
                           'range': {'type':  get('name', ''),
                                     'start': format(get('start')),
                                     'end':   format(get('end'))
@@ -295,7 +295,7 @@ class DateFieldsConditionsField(_ConditionsField):
         return (range_type, start, end)
 
     def _clean_field_name(self, entry):
-        fname = self.clean_value(entry, 'name', str)
+        fname = self.clean_value(entry, 'field', str)
 
         if not fname in self._fields:
             raise ValidationError(self.error_messages['invalidfield'])
@@ -328,8 +328,8 @@ class DateFieldsConditionsField(_ConditionsField):
 
 class CustomFieldsConditionsField(_ConditionsField):
     default_error_messages = {
-        'invalidfield': _(u"This custom field is invalid with this model."),
-        'invalidtype':  _(u"This operator is invalid."),
+        'invalidcustomfield': _(u"This custom field is invalid with this model."),
+        'invalidtype':        _(u"This operator is invalid."),
     }
 
     _ACCEPTED_TYPES = frozenset((CustomField.INT, CustomField.FLOAT, CustomField.STR)) #TODO: "!= DATE" instead
@@ -360,11 +360,11 @@ class CustomFieldsConditionsField(_ConditionsField):
         return dicts
 
     def _clean_custom_field(self, entry):
-        cfield_id = self.clean_value(entry, 'cfield', int)
+        cfield_id = self.clean_value(entry, 'field', int)
         cf = self._cfields.get(cfield_id)
 
         if not cf:
-            raise ValidationError(self.error_messages['invalidfield'])
+            raise ValidationError(self.error_messages['invalidcustomfield'])
 
         return cf
 
@@ -387,6 +387,50 @@ class CustomFieldsConditionsField(_ConditionsField):
     def _set_initial_conditions(self, conditions):
         CUSTOMFIELD = EntityFilterCondition.CUSTOMFIELD
         self.initial = [c for c in conditions if c.type == CUSTOMFIELD]
+
+
+class DateCustomFieldsConditionsField(CustomFieldsConditionsField, DateFieldsConditionsField):
+    default_error_messages = {
+        'invalidcustomfield':     _(u"This date custom field is invalid with this model."),
+    }
+
+    def _set_model(self, model):
+        self._model = model
+        self._cfields = dict((cf.id, cf) for cf in CustomField.objects.filter(content_type=ContentType.objects.get_for_model(model),
+                                                                              field_type=CustomField.DATE
+                                                                             )
+                            )
+        self._build_widget()
+
+    model = property(lambda self: self._model, _set_model); del _set_model
+
+    def _create_widget(self):
+        return DateFieldsConditionsWidget(self._cfields.iteritems())
+
+    def _conditions_to_dicts(self, conditions):
+        return DateFieldsConditionsField._conditions_to_dicts(self, conditions)
+
+    def _conditions_from_dicts(self, data):
+        build_condition = EntityFilterCondition.build_4_datecustomfield
+        clean_cfield = self._clean_custom_field
+        clean_date_range = self._clean_date_range
+        conditions = []
+
+        try:
+            for entry in data:
+                date_range, start, end = clean_date_range(entry)
+                conditions.append(build_condition(custom_field=clean_cfield(entry),
+                                                  date_range=date_range, start=start, end=end
+                                                 )
+                                 )
+        except EntityFilterCondition.ValueError, e:
+            raise ValidationError(str(e))
+
+        return conditions
+
+    def _set_initial_conditions(self, conditions):
+        DATECUSTOMFIELD = EntityFilterCondition.DATECUSTOMFIELD
+        self.initial = [c for c in conditions if c.type == DATECUSTOMFIELD]
 
 
 class RelationsConditionsField(_ConditionsField):
@@ -639,21 +683,22 @@ class SubfiltersConditionsField(ModelMultipleChoiceField):
 #Forms--------------------------------------------------------------------------
 
 class _EntityFilterForm(CremeModelForm):
-    fields_conditions        = RegularFieldsConditionsField(label=_(u'On regular fields'), required=False)
-    datefields_conditions    = DateFieldsConditionsField(label=_(u'On date fields'), required=False)
-    customfields_conditions  = CustomFieldsConditionsField(label=_(u'On custom fields'), required=False, help_text=u'(Only integer, string and decimal for now)')
-    relations_conditions     = RelationsConditionsField(label=_(u'On relations'), required=False,
-                                                        help_text=_(u'Do not select any entity if you want to match them all.')
-                                                       )
-    relsubfilfers_conditions = RelationSubfiltersConditionsField(label=_(u'On relations with results of other filters'), required=False)
-    properties_conditions    = PropertiesConditionsField(label=_(u'On properties'), required=False)
-    subfilters_conditions    = SubfiltersConditionsField(label=_(u'Sub-filters'), required=False)
+    fields_conditions           = RegularFieldsConditionsField(label=_(u'On regular fields'), required=False)
+    datefields_conditions       = DateFieldsConditionsField(label=_(u'On date fields'), required=False)
+    customfields_conditions     = CustomFieldsConditionsField(label=_(u'On custom fields'), required=False, help_text=u'(Only integer, string and decimal for now)')
+    datecustomfields_conditions = DateCustomFieldsConditionsField(label=_(u'On date custom fields'), required=False)
+    relations_conditions        = RelationsConditionsField(label=_(u'On relations'), required=False,
+                                                           help_text=_(u'Do not select any entity if you want to match them all.')
+                                                          )
+    relsubfilfers_conditions    = RelationSubfiltersConditionsField(label=_(u'On relations with results of other filters'), required=False)
+    properties_conditions       = PropertiesConditionsField(label=_(u'On properties'), required=False)
+    subfilters_conditions       = SubfiltersConditionsField(label=_(u'Sub-filters'), required=False)
 
     _CONDITIONS_FIELD_NAMES = ('fields_conditions', 'datefields_conditions',
-                               'customfields_conditions',
+                               'customfields_conditions', 'datecustomfields_conditions',
                                'relations_conditions', 'relsubfilfers_conditions',
                                'properties_conditions', 'subfilters_conditions',
-                             )
+                              )
 
     blocks = CremeModelForm.blocks.new(('conditions', _(u'Conditions'), _CONDITIONS_FIELD_NAMES))
 

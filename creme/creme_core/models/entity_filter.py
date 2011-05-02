@@ -232,7 +232,9 @@ class EntityFilterCondition(Model):
     PROPERTY = 5
 
     DATE = 7
-    CUSTOMFIELD = 8
+
+    CUSTOMFIELD     = 8
+    DATECUSTOMFIELD = 9
 
     EQUALS          = 10
     IEQUALS         = 11
@@ -333,11 +335,37 @@ class EntityFilterCondition(Model):
         if not EntityFilterCondition._OPERATOR_MAP.get(operator):
             raise EntityFilterCondition.ValueError('build_4_customfield(): unknown operator: %s', operator)
 
+        if custom_field.field_type == CustomField.DATE:
+            raise EntityFilterCondition.ValueError('build_4_customfield(): does not manage DATE CustomFields')
+
         #TODO: check value???? (problem with CONTAINS if we do)
+        value = {'operator': operator,
+                 'value':    value,
+                 'rname':    custom_field.get_value_class().get_related_name(),
+                }
+
         return EntityFilterCondition(type=EntityFilterCondition.CUSTOMFIELD,
                                      name=str(custom_field.id),
-                                     value=EntityFilterCondition.encode_value({'operator': operator, 'value': value})
+                                     value=EntityFilterCondition.encode_value(value)
                                     )
+
+    @staticmethod
+    def _build_daterange_dict(date_range=None, start=None, end=None):
+        range_dict = {}
+
+        if date_range:
+            if not date_range_registry.get_range(date_range):
+                raise EntityFilterCondition.ValueError('build_4_date(): invalid date range.')
+
+            range_dict['name'] = date_range
+        else:
+            if start: range_dict['start'] = date_2_dict(start)
+            if end:   range_dict['end']   = date_2_dict(end)
+
+        if not range_dict:
+            raise EntityFilterCondition.ValueError('date_range or start/end must be given.')
+
+        return range_dict
 
     @staticmethod
     def build_4_date(model, name, date_range=None, start=None, end=None):
@@ -349,22 +377,21 @@ class EntityFilterCondition(Model):
         if not is_date_field(field):
             raise EntityFilterCondition.ValueError('build_4_date(): field must be a date field.')
 
-        value = {}
-
-        if date_range:
-            if not date_range_registry.get_range(date_range):
-                raise EntityFilterCondition.ValueError('build_4_date(): invalid date range.')
-
-            value['name'] = date_range
-        else:
-            if start: value['start'] = date_2_dict(start)
-            if end:   value['end']   = date_2_dict(end)
-
-        if not value:
-            raise EntityFilterCondition.ValueError('build_4_date(): date_range or start/end must be given.')
-
         return EntityFilterCondition(type=EntityFilterCondition.DATE, name=name,
-                                     value=EntityFilterCondition.encode_value(value)
+                                     value=EntityFilterCondition.encode_value(EntityFilterCondition._build_daterange_dict(date_range, start, end))
+                                    )
+
+    @staticmethod
+    def build_4_datecustomfield(custom_field, date_range=None, start=None, end=None):
+        if not custom_field.field_type == CustomField.DATE:
+            raise EntityFilterCondition.ValueError('build_4_datecustomfield(): not a date custom field.')
+
+        value = EntityFilterCondition._build_daterange_dict(date_range, start, end)
+        value['rname'] = custom_field.get_value_class().get_related_name()
+
+        return EntityFilterCondition(type=EntityFilterCondition.DATECUSTOMFIELD,
+                                     name=str(custom_field.id),
+                                     value=EntityFilterCondition.encode_value(value),
                                     )
 
     @staticmethod
@@ -400,14 +427,12 @@ class EntityFilterCondition(Model):
         #NB: Sadly we retrieve the ids of the entity that match with this condition
         #    instead of use a 'JOIN', in order to avoid the interaction between
         #    several conditions on the same type of CustomField (ie: same table).
-        cf = CustomField.objects.get(pk=int(self.name))
         search_info = self.decoded_value
-        searched_val = search_info['value']
         operator = EntityFilterCondition._OPERATOR_MAP[search_info['operator']]
-        related_name = cf.get_value_class().get_related_name()
+        related_name = search_info['rname']
         fname = '%s__value' % related_name
-        query = Q(**{'%s__custom_field' % related_name: cf,
-                     operator.key_pattern % fname:      searched_val,
+        query = Q(**{'%s__custom_field' % related_name: int(self.name),
+                     operator.key_pattern % fname:      search_info['value'],
                     }
                  )
 
@@ -416,16 +441,27 @@ class EntityFilterCondition(Model):
 
         return Q(pk__in=self.filter.entity_type.model_class().objects.filter(query).values_list('id', flat=True))
 
-    def _get_q_date(self):
-        kwargs = self.decoded_value
+    def _load_daterange(self, decoded_value):
+        get = decoded_value.get
+        kwargs = {'name': get('name')}
 
         for key in ('start', 'end'):
-            val = kwargs.get(key)
-            if val: kwargs[key] = date(**val)
+            date_kwargs = get(key)
+            if date_kwargs:
+                kwargs[key] = date(**date_kwargs)
 
-        date_range = date_range_registry.get_range(**kwargs)
+        return date_range_registry.get_range(**kwargs)
 
-        return Q(**date_range.get_q_dict(field=self.name, today=date.today()))
+    def _get_q_datecustomfield(self):
+        #NB: see _get_q_customfield() remark
+        search_info = self.decoded_value
+        related_name = search_info['rname']
+        fname = '%s__value' % related_name
+
+        q_dict = self._load_daterange(search_info).get_q_dict(field=fname, today=date.today())
+        q_dict['%s__custom_field' % related_name] = int(self.name)
+
+        return Q(pk__in=self.filter.entity_type.model_class().objects.filter(**q_dict).values_list('id', flat=True))
 
     def _get_q_relation(self):
         kwargs = {'relations__type': self.name}
@@ -475,12 +511,13 @@ class EntityFilterCondition(Model):
         return query
 
     _GET_Q_FUNCS = {
-            SUBFILTER:          lambda self: EntityFilter.objects.get(id=self.decoded_value).get_q(),
+            SUBFILTER:          (lambda self: EntityFilter.objects.get(id=self.decoded_value).get_q()),
             RELATION:           _get_q_relation,
             RELATION_SUBFILTER: _get_q_relation_subfilter,
             PROPERTY:           _get_q_property,
-            DATE:               _get_q_date,
+            DATE:               (lambda self: Q(**self._load_daterange(self.decoded_value).get_q_dict(field=self.name, today=date.today()))),
             CUSTOMFIELD:        _get_q_customfield,
+            DATECUSTOMFIELD:    _get_q_datecustomfield,
         }
 
     def get_q(self):
