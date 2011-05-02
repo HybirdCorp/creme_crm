@@ -52,17 +52,18 @@ class AirSync(Base):
         super(AirSync, self).__init__(*args, **kwargs)
         self._create_connection()
 
-    def send(self, policy_key, folders, synckey=None, fetch=True):
+    def send(self, policy_key, folders, synckey=None, fetch=True, headers=None):
         for folder in folders:
-            self.send_for_folder(policy_key, folder, synckey, fetch)
+            self.send_for_folder(policy_key, folder, synckey, fetch, headers)
             folder.save()
 
-    def send_for_folder(self, policy_key, folder, synckey=None, fetch=True):
+    def send_for_folder(self, policy_key, folder, synckey=None, fetch=True, headers=None):
         """
             @param policy_key string set in the header to be authorized
             @param folder AS_Folder folder which will be synchronized
             @param synckey None to fetch all server changes or last synckey supplied by server
             @param fetch True for fetching changes False for current pushing changes
+            @param header a dict of extra http header parameters
         """
 
         creme_model = FOLDERS_TYPES_CREME_TYPES_MAPPING.get(folder.type)
@@ -86,6 +87,10 @@ class AirSync(Base):
         ct_creme_model = ContentType.objects.get_for_model(creme_model)
         mapping = creme_model_AS_values['mapping']
         add_error_message = self.add_error_message
+
+        http_headers = {"X-Ms-Policykey": policy_key}
+        if headers is not None:
+            http_headers.update(headers)
 
         options = {
             'Conflict': CONFLICT_MODE,
@@ -121,7 +126,7 @@ class AirSync(Base):
 #                    ns_prefix = reverse_ns_get(prefix)
 #                    supported_append("<%s%s/>" % ('%s:' % ns_prefix if ns_prefix else '', item))
 
-            xml = super(AirSync, self).send({'folder': folder, 'synckey': 0, 'extra_ns': extra_ns}, headers={"X-Ms-Policykey": policy_key})
+            xml = super(AirSync, self).send({'folder': folder, 'synckey': 0, 'extra_ns': extra_ns}, headers=http_headers)
 
             err_status_xml = xml.find('%(ns0)sStatus' % d_ns)
             if err_status_xml:
@@ -152,7 +157,7 @@ class AirSync(Base):
             ################
             ##SERVER PART ##
             ################
-            xml2 = super(AirSync, self).send({'folder': folder, 'synckey': self.last_synckey, 'fetch': True, 'extra_ns': extra_ns, 'options': options}, headers={"X-Ms-Policykey": policy_key})
+            xml2 = super(AirSync, self).send({'folder': folder, 'synckey': self.last_synckey, 'fetch': True, 'extra_ns': extra_ns, 'options': options}, headers=http_headers)
 
 #            print "\n\n xml2 :", tostring(xml2), "\n\n"
 
@@ -321,9 +326,7 @@ class AirSync(Base):
                                               'fetch':     False,
                                               'extra_ns':  extra_ns
                                               },
-                                              headers={
-                                                "X-Ms-Policykey": policy_key
-                                              })
+                                              headers=http_headers)
 
             xml_err_status = xml3.find('%(ns0)sStatus' % d_ns)#If status is present here there is an error
             if xml_err_status is not None:

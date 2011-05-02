@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 from activesync.models.other_models import EntityASData
-from activesync.utils import get_dt_to_iso8601_str
+from creme_core.utils.dates import get_utc_dt_from_creme_dt, get_dt_to_iso8601_str
 from creme_core.utils.meta import get_field_infos
 
 from django.db import models
@@ -29,9 +29,11 @@ def _format_value_for_AS(field_class, field_value):
             return 1 if field_value else 0
 
         if issubclass(field_class, (models.DateTimeField, models.DateField)):
-            return get_dt_to_iso8601_str(field_value) if field_value else None
+            if field_value:
+                field_value = get_utc_dt_from_creme_dt(field_value)
+                return get_dt_to_iso8601_str(field_value)
+            return None
 
-        
     return field_value
 
 

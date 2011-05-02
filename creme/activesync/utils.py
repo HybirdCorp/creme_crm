@@ -17,6 +17,7 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
+from struct import unpack
 import os
 import random
 import base64
@@ -107,19 +108,47 @@ def get_b64encoded_img_of_max_weight(image_file_path, max_weight):
 
     return content
 
-def get_dt_to_iso8601_str(dt):
-    """Returns the datetime to a string in iso8601 format without any separators
-        >>> get_dt_to_iso8601_str(datetime.datetime(2011, 4, 27, 10, 9, 54))
-        '20110427T100954Z'
-    """
-    return "%sZ" % dt.isoformat().replace('-', '').replace(':', '')
 
+def decode_AS_timezone(tz):
+    #http://msdn.microsoft.com/en-us/library/ms725481(VS.85).aspx
+#    typedef struct _TIME_ZONE_INFORMATION {
+#      LONG       Bias;
+#      WCHAR      StandardName[32];
+#      SYSTEMTIME StandardDate;
+#      LONG       StandardBias;
+#      WCHAR      DaylightName[32];
+#      SYSTEMTIME DaylightDate;
+#      LONG       DaylightBias;
+#    } TIME_ZONE_INFORMATION, *PTIME_ZONE_INFORMATION;
+    tz_infos_keys = (
+     'bias',
+     'standard_name',
+     'standard_year',
+     'standard_month',
+     'standard_day_of_week',
+     'standard_day',
+     'standard_hour',
+     'standard_minute',
+     'standard_second',
+     'standard_milliseconds',
+     'standard_bias',
+     'daylight_name',
+     'daylight_year',
+     'daylight_month',
+     'daylight_day_of_week',
+     'daylight_day',
+     'daylight_hour',
+     'daylight_minute',
+     'daylight_second',
+     'daylight_milliseconds',
+     'daylight_bias'
+    )
+    
+#    unpack('cxcxc59x' daylightName standardName
+    tz_dict = dict(zip(tz_infos_keys, unpack('l64s8hl64s8hl', base64.b64decode(tz))))
 
-def get_dt_from_iso8601_str(dt_str):
-    """
-        Returns an iso8601 formatted string without any separators from a datetime
-        >>>get_dt_from_iso8601_str("20110427T100954Z")
-        datetime.datetime(2011, 4, 27, 10, 9, 54)
-    """
-    return datetime.strptime(dt_str,"%Y%m%dT%H%M%SZ")
+    tz_dict['daylight_name'] = "".join(unpack('cxcxc59x', tz_dict['daylight_name']))
+    tz_dict['standard_name'] = "".join(unpack('cxcxc59x', tz_dict['standard_name']))
+
+    return tz_dict
 
