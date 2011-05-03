@@ -24,7 +24,7 @@ creme.widget.ChainedSelect = creme.widget.declare('ui-creme-chainedselect', {
     _create: function(element, options) {
         var self = creme.widget.ChainedSelect;
 
-        $('.ui-creme-widget', element).each(function() {
+        $('.ui-creme-chainedselect-item > .ui-creme-widget', element).each(function() {
             $(this).data('widget').init($(this), {url:''}, undefined, true);
         });
 
@@ -34,7 +34,7 @@ creme.widget.ChainedSelect = creme.widget.declare('ui-creme-chainedselect', {
             self._update(element);
         };
 
-        $('.ui-creme-widget', element).bind('change', self._dependency_change);
+        $('.ui-creme-chainedselect-item > .ui-creme-widget', element).bind('change', self._dependency_change);
 
         $('img.reset', element).bind('click', function() {
             self.reset(element);
@@ -51,22 +51,18 @@ creme.widget.ChainedSelect = creme.widget.declare('ui-creme-chainedselect', {
         element.addClass('widget-ready');
     },
 
-    _update: function(element) {
+    _update: function(element)
+    {
         var self = creme.widget.ChainedSelect;
         var values = []
 
-        $('.ui-creme-widget.widget-active', element).each(function() {
-            var value = $(this).data('widget').val($(this));
-            var name = $(this).parent().attr('chained-name');
+        $('.ui-creme-chainedselect-item > .ui-creme-widget.widget-active', element).each(function() 
+        {
+        	var value = $(this).data('widget').jsonval($(this));
+        	var name = $(this).parent().attr('chained-name');
 
-            if (typeof value === 'string') {
-                var jsonvalue = creme.widget.parseval(value, creme.ajax.json.parse);
-                value = jsonvalue !== null ? value : '"' + value + '"';
-            } else {
-                value = '"' + value + '"';
-            }
-
-            values.push('"' + name + '":' + value);
+        	//console.log('chainedselect._update > value="' + name + '", type=' + value);
+        	values.push('"' + name + '":' + value);
         });
 
         creme.widget.input(element).val('{' + values.join(',') + '}');
@@ -92,17 +88,17 @@ creme.widget.ChainedSelect = creme.widget.declare('ui-creme-chainedselect', {
 
         var values = (typeof value !== 'object') ? creme.widget.parseval(value, creme.ajax.json.parse) : value;
 
-        //console.log("ChainedSelect._update_selectors > values : " + values + " [type:" + (typeof values) + ", value : '" + value + "' [type:" + (typeof values) + "]");
+        //console.log("ChainedSelect._update_selectors > values : " + values + " [type:" + (typeof values) + ", value : '" + $.toJSON(value) + "' [type:" + (typeof values) + "]");
 
         if (values === null || typeof values !== 'object')
         	return;
 
-        $('.ui-creme-widget', element).each(function() {
+        $('.ui-creme-chainedselect-item > .ui-creme-widget', element).each(function() {
         	var item = $(this);
-            var itemval = (values) ? values[item.parent().attr('chained-name')] : null;
-            itemval = (itemval) ? itemval : '';
+        	var itemname = item.parent().attr('chained-name');
+            var itemval = (values) ? values[itemname] : null;
 
-            //console.log("ChainedSelect._update_selectors >", item, " > ", itemval);
+            //console.log("ChainedSelect._update_selectors > ", item, " > [" + itemname + "] =", itemval);
 
             item.data('widget').val(item, itemval);
         });
@@ -117,7 +113,7 @@ creme.widget.ChainedSelect = creme.widget.declare('ui-creme-chainedselect', {
         var item = $('li[chained-name="' + name + '"] .ui-creme-widget.widget-active', element);
         //console.log('chainedselect._reload_dependencies > ' + name + ':', item);
 
-        $('.ui-creme-widget[url*="${' + name + '}"]', element).each(function() {
+        $('.ui-creme-chainedselect-item > .ui-creme-widget[url*="${' + name + '}"]', element).each(function() {
              var dep = $(this);
              var url = self._buildurl(item, dep.attr('url'));
 

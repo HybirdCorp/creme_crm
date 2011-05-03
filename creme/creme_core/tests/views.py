@@ -1717,7 +1717,7 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         response = self.client.post(uri, follow=True,
                                     data={
                                             'name':       name,
-                                            'fields_conditions': """[{"type":"%(type)s","name":"%(name)s","value":"%(value)s"}]""" % {
+                                            'fields_conditions': """[{"type":"%(type)s","name":"%(name)s","value":{"type":"%(type)s","value":"%(value)s"}}]""" % {
                                                                         'type':   cond_type,
                                                                         'name':  field_name,
                                                                         'value': value,
@@ -1785,10 +1785,15 @@ class EntityFilterViewsTestCase(ViewsTestCase):
                                             'name':   name,
                                             'user':   self.user.id,
                                             'use_or': True,
-                                            'fields_conditions':            '[{"type":"%(type)s","name":"%(name)s","value":"%(value)s"}]' % {
-                                                                                    'type':  cond_type,
-                                                                                    'name':  field_name,
-                                                                                    'value': field_value,
+#                                            'fields_conditions':            '[{"type":"%(type)s","name":"%(name)s","value":"%(value)s"}]' % {
+#                                                                                    'type':  cond_type,
+#                                                                                    'name':  field_name,
+#                                                                                    'value': field_value,
+#                                                                                },
+                                            'fields_conditions':             '[{"type":"%(type)s","name":"%(name)s","value":{"type":"%(type)s","value":"%(value)s"}}]' % {
+                                                                                     'type':  cond_type,
+                                                                                     'name':  field_name,
+                                                                                     'value': field_value,
                                                                                 },
                                             'datefields_conditions':        '[{"range": {"type": "%(type)s", "start": "", "end": ""}, "field": "%(name)s"}]' % {
                                                                                     'type': daterange_type,
@@ -1960,11 +1965,16 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         response = self.client.post(url, follow=True,
                                     data={
                                             'name':                         name,
-                                            'fields_conditions':            '[{"type":"%(type)s","name":"%(name)s","value":"%(value)s"}]' % {
-                                                                                    'type':  cond_type,
-                                                                                    'name':  field_name,
-                                                                                    'value': field_value,
-                                                                                },
+#                                            'fields_conditions':            '[{"type":"%(type)s","name":"%(name)s","value":"%(value)s"}]' % {
+#                                                                                    'type':  cond_type,
+#                                                                                    'name':  field_name,
+#                                                                                    'value': field_value,
+#                                                                                },
+                                            'fields_conditions':             '[{"type":"%(type)s","name":"%(name)s","value":{"type":"%(type)s","value":"%(value)s"}}]' % {
+                                                                                     'type':  cond_type,
+                                                                                     'name':  field_name,
+                                                                                     'value': field_value,
+                                                                                 },
                                             'datefields_conditions':        '[{"range": {"type": "", "start": "2011-5-23", "end": "2012-6-27"}, "field": "%s"}]' % date_field_name,
                                             'customfields_conditions':      '[{"field":"%(cfield)s", "type":"%(type)s", "value":"%(value)s"}]' % {
                                                                                     'cfield': custom_field.id,
