@@ -195,7 +195,8 @@ class ProductsTestCase(CremeTestCase):
         try:
             form = response.context['form']
         except Exception, e:
-            print 'Exception', e
+            #print 'Exception', e
+            pass
         else:
             self.fail(form.errors)
 
@@ -304,7 +305,8 @@ class ProductsTestCase(CremeTestCase):
         try:
             form = response.context['form']
         except Exception, e:
-            print 'Exception', e
+            #print 'Exception', e
+            pass
         else:
             self.fail(form.errors)
 
@@ -357,7 +359,8 @@ class ProductsTestCase(CremeTestCase):
         try:
             form = response.context['form']
         except Exception, e:
-            print 'Exception', e
+            #print 'Exception', e
+            pass
         else:
             self.fail(form.errors)
 
