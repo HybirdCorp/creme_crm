@@ -20,7 +20,8 @@
 
 #from logging import debug
 
-from django.core import serializers
+#from django.core import serializers
+from django.core.exceptions import PermissionDenied
 from django.http import HttpResponse, HttpResponseRedirect, Http404
 from django.shortcuts import get_object_or_404, render_to_response
 from django.template.context import RequestContext
@@ -31,7 +32,7 @@ from creme_core.models.list_view_state import ListViewState
 from creme_core.models.header_filter import HeaderFilter, HeaderFilterList
 from creme_core.forms.header_filter import HeaderFilterForm
 from creme_core.views.generic import add_entity
-from creme_core.utils import get_ct_or_404, get_from_POST_or_404
+from creme_core.utils import get_ct_or_404, get_from_POST_or_404, jsonify
 
 
 def _set_current_hf(request, path, hf_instance):
@@ -103,12 +104,22 @@ def delete(request):
 
     return HttpResponseRedirect(callback_url)
 
-@login_required
-def get_hfs_4_ct(request, content_type_id):
-    """@return A JSON list of the HeaderFilters for the given ContentType"""
-    ct = get_ct_or_404(content_type_id)
-    hfl = HeaderFilterList(ct)
-    fields = request.GET.getlist('fields') or ('name', )
+#@login_required
+#def get_hfs_4_ct(request, content_type_id):
+    #"""@return A JSON list of the HeaderFilters for the given ContentType"""
+    #ct = get_ct_or_404(content_type_id)
+    #hfl = HeaderFilterList(ct)
+    #fields = request.GET.getlist('fields') or ('name', )
 
-    data = serializers.serialize('json', hfl, fields=fields)
-    return HttpResponse(data, mimetype="text/javascript")
+    #data = serializers.serialize('json', hfl, fields=fields)
+    #return HttpResponse(data, mimetype="text/javascript")
+
+@login_required
+@jsonify
+def get_for_ctype(request, ct_id):
+    ct = get_ct_or_404(ct_id)
+
+    if not request.user.has_perm(ct.app_label): #TODO: helper in auth.py ??
+        raise PermissionDenied(_(u"You are not allowed to acceed to this app"))
+
+    return list(HeaderFilter.objects.filter(entity_type=ct).values_list('id', 'name'))
