@@ -23,7 +23,7 @@ creme.widget.SelectorList = creme.widget.declare('ui-creme-selectorlist', {
     {
         var self = creme.widget.SelectorList;
 
-        $('div.add', element).click(function() {
+        $('div.add ul', element).click(function() {
             self.append_selector(element);
         });
 
