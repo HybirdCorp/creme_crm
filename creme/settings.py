@@ -346,6 +346,7 @@ CREME_CORE_JS = ('main.js',
                     'creme_core/js/widgets/chainedselect.js',
                     'creme_core/js/widgets/selectorlist.js',
                     'creme_core/js/widgets/entityselector.js',
+                    'creme_core/js/widgets/pselect.js',
                     'creme_core/js/widgets/rte.js',
 
                     'creme_core/js/filters.js',

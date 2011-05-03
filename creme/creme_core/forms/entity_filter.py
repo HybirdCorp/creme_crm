@@ -29,9 +29,11 @@ from django.utils.formats import date_format
 from django.contrib.contenttypes.models import ContentType
 
 from creme_core.models import CremeEntity, EntityFilter, EntityFilterCondition, RelationType, CremePropertyType, CustomField
+from creme_core.models.entity_filter import _ConditionBooleanOperator
+
 from creme_core.forms import CremeModelForm
 from creme_core.forms.fields import JSONField
-from creme_core.forms.widgets import DynamicInput, SelectorList, ChainedInput, EntitySelector, UnorderedMultipleChoiceWidget, DateRangeSelect
+from creme_core.forms.widgets import DynamicInput, SelectorList, ChainedInput, EntitySelector, UnorderedMultipleChoiceWidget, DateRangeSelect, DynamicSelect, PolymorphicInput
 from creme_core.utils import bool_from_str
 from creme_core.utils.id_generator import generate_string_id_and_save
 from creme_core.utils.meta import is_date_field
@@ -49,6 +51,12 @@ _HAS_PROPERTY_OPTIONS = {
 _HAS_RELATION_OPTIONS = {
         TRUE:  _(u'Has the relation'),
         FALSE: _(u'Does not have the relation'),
+    }
+
+_CONDITION_INPUT_TYPE_MAP = {
+        _ConditionBooleanOperator: (DynamicSelect,
+                                    {'auto': False},
+                                    {'options': ((TRUE, "true"), (FALSE, "false"))}),
     }
 
 #Form Widgets-------------------------------------------------------------------
@@ -70,7 +78,23 @@ class RegularFieldsConditionsWidget(SelectorList):
 
         chained_input.add_dselect('name', options=model_fields, attrs=attrs)
         chained_input.add_dselect('type', options=EntityFilterCondition._OPERATOR_MAP.iteritems(), attrs=attrs)
-        chained_input.add_input('value', DynamicInput, attrs=attrs)
+        #chained_input.add_input('value', DynamicInput, attrs=attrs)
+
+        pinput = PolymorphicInput(url='${type}', attrs={'auto': False})
+
+        pinput.set_default_input(widget=DynamicInput, attrs={'auto': False})
+
+        for optype, operator in EntityFilterCondition._OPERATOR_MAP.iteritems():
+            op_input = _CONDITION_INPUT_TYPE_MAP.get(type(operator))
+
+            if op_input:
+                input_widget, input_attrs, input_kwargs = op_input
+                pinput.add_input(str(optype), widget=input_widget, attrs=input_attrs, **input_kwargs)
+
+        chained_input.add_input('value', pinput, attrs=attrs)
+
+#        input.add_input("str", widget=DynamicInput, attrs={'auto':False})
+#        input.add_dselect("bool", options=((True, "true"), (False, "false")), attrs={'auto':False})
 
         super(RegularFieldsConditionsWidget, self).__init__(chained_input)
 
@@ -202,7 +226,7 @@ class RegularFieldsConditionsField(_ConditionsField):
     def _conditions_to_dicts(self, conditions):
         return [{'type':  condition.type,
                  'name':  condition.name,
-                 'value': condition.decoded_value,
+                 'value': {'type':condition.type, 'value':condition.decoded_value},
                 } for condition in conditions
                ]
 
@@ -214,7 +238,7 @@ class RegularFieldsConditionsField(_ConditionsField):
             conditions = [build_condition(model=self.model,
                                           type=clean_value(entry, 'type', int),
                                           name=clean_value(entry, 'name', str),
-                                          value=clean_value(entry, 'value', unicode),
+                                          value=clean_value(clean_value(entry, 'value', dict), 'value', object),
                                          )
                                 for entry in data
                          ]

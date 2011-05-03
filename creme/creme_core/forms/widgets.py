@@ -36,14 +36,14 @@ from mediagenerator.utils import media_url
 from creme_core.utils.date_range import date_range_registry
 
 
-def widget_render_input(klass, widget, name, value, context, **kwargs):
+def widget_render_input(renderer, widget, name, value, context, **kwargs):
     input_attrs = {
                      'class':  ' '.join(['ui-creme-input', context.get('css')]),
                      'widget': context.get('typename'),
                   }
     input_attrs.update(kwargs)
 
-    return klass.render(widget, name, value, input_attrs)
+    return renderer(widget, name, value, input_attrs)
 
 def widget_render_hidden_input(widget, name, value, context):
     input_attrs = {
@@ -56,7 +56,7 @@ def widget_render_hidden_input(widget, name, value, context):
 def widget_render_context(typename, attrs, css='', **kwargs):
     id   = attrs.get('id')
     auto = attrs.pop('auto', True)
-    css = ' '.join((css, 'ui-creme-widget widget-auto' if auto else 'ui-creme-widget', typename))
+    css = ' '.join((css, 'ui-creme-widget widget-auto' if auto else 'ui-creme-widget', typename)).strip()
     context = {
                 'style':      '',
                 'typename':   typename,
@@ -71,16 +71,15 @@ def widget_render_context(typename, attrs, css='', **kwargs):
 
 #TODO: to be improved....
 class DynamicInput(TextInput):
-    #def __init__(self, attrs=None, options=None, url=''):
-        #super(DynamicInput, self).__init__(attrs, options or ())
-        #self.url = url
+    def __init__(self, type='text', attrs=None):
+        super(DynamicInput, self).__init__(attrs)
+        self.type = type
 
     def render(self, name, value, attrs=None):
         attrs = self.build_attrs(attrs, name=name)
-        context = widget_render_context('ui-creme-dinput', attrs)
+        context = widget_render_context('ui-creme-dinput', attrs, type=self.type)
 
-        return mark_safe(widget_render_input(TextInput, self, name, value, context)) #, url=self.url
-
+        return mark_safe(widget_render_input(TextInput.render, self, name, value, context)) #, url=self.url
 
 class DynamicSelect(Select):
     def __init__(self, attrs=None, options=None, url=''):
@@ -91,7 +90,69 @@ class DynamicSelect(Select):
         attrs = self.build_attrs(attrs, name=name)
         context = widget_render_context('ui-creme-dselect', attrs)
 
-        return mark_safe(widget_render_input(Select, self, name, value, context, url=self.url))
+        return mark_safe(widget_render_input(Select.render, self, name, value, context, url=self.url))
+
+class PolymorphicInput(TextInput):
+    class Model(object):
+        def __init__(self, name='', widget=DynamicInput, attrs=None, **kwargs):
+            self.name = name
+            self.kwargs = kwargs
+            self.attrs = attrs
+            self.widget = widget
+
+    def __init__(self, attrs=None, url='', *args):
+        super(PolymorphicInput, self).__init__(attrs)
+        self.url = url
+        self.inputs = []
+        self.default_input = None
+        self.set_inputs(*args)
+        self.from_python = None #TODO : wait for django 1.2 and new widget api to remove this hack
+
+    def render(self, name, value, attrs=None):
+        value = self.from_python(value) if self.from_python is not None else value # TODO : wait for django 1.2 and new widget api to remove this hack
+        attrs = self.build_attrs(attrs, name=name, type='hidden')
+
+        context = widget_render_context('ui-creme-polymorphicselect', attrs,
+                                        style=attrs.pop('style', ''),
+                                        selects=self._render_inputs(attrs),
+                                        url=self.url)
+
+        context['input'] = widget_render_hidden_input(self, name, value, context)
+
+        return mark_safe("""<span class="%(css)s" style="%(style)s" widget="%(typename)s" url="%(url)s">
+                                %(input)s
+                                %(selects)s
+                            </span>""" % context)
+
+    def set_inputs(self, *args):
+        for input in args:
+            self.add_input(input.name, input.widget, input.attrs, **input.kwargs)
+
+    def add_dselect(self, name, options=None, attrs=None, **kwargs):
+        if isinstance(options, basestring):
+            self.add_input(name, widget=DynamicSelect, attrs=attrs, url=options, **kwargs)
+        else:
+            self.add_input(name, widget=DynamicSelect, attrs=attrs, options=options, **kwargs)
+
+    def add_input(self, name, widget, attrs=None, **kwargs):
+        self.inputs.append((name, widget(attrs=attrs, **kwargs) if isinstance(widget, type) else widget))
+
+    def set_default_input(self, widget, attrs=None, **kwargs):
+        self.default_input = widget(attrs=attrs, **kwargs) if isinstance(widget, type) else widget
+
+    def _render_inputs(self, attrs):
+        output = ['<ul style="display:none;" class="inner-polymorphicselect-model">']
+
+        output.extend('<li input-type="%s">%s</li>' % (name, input.render('', ''))
+                         for name, input in self.inputs
+                     )
+
+        if self.default_input:
+            output.append('<li class="default">%s</li>' % (self.default_input.render('', '')))
+
+        output.append('</ul>')
+
+        return '\n'.join(output)
 
 
 class DateRangeSelect(TextInput):
@@ -166,12 +227,12 @@ class ChainedInput(TextInput):
             self.add_input(name, widget=DynamicSelect, attrs=attrs, options=options, **kwargs)
 
     def add_input(self, name, widget, attrs=None, **kwargs):
-        self.inputs.append((name, widget(attrs=attrs, **kwargs)))
+        self.inputs.append((name, widget(attrs=attrs, **kwargs) if isinstance(widget, type) else widget))
 
     def _render_inputs(self, attrs):
         output = ['<ul class="ui-layout hbox">']
 
-        output.extend('<li chained-name="%s">%s</li>' % (name, input.render('', ''))
+        output.extend('<li chained-name="%s" class="ui-creme-chainedselect-item">%s</li>' % (name, input.render('', ''))
                          for name, input in self.inputs
                      )
 

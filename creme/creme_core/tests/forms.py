@@ -725,7 +725,7 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
 
     def test_unknown_modelfield(self):
         field = RegularFieldsConditionsField(model=Contact)
-        self.assertFieldValidationError(RegularFieldsConditionsField, 'invalidfield', field.clean, '[{"type":"1","name":"boobies_size","value":"90"}]')
+        self.assertFieldValidationError(RegularFieldsConditionsField, 'invalidfield', field.clean, '[{"type":"1","name":"boobies_size","value":{"type":"1","value":"90"}}]')
 
 
 class DateFieldsConditionsFieldTestCase(FieldTestCase):
