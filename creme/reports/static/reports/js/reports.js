@@ -84,7 +84,9 @@ creme.reports.__loadFilters = function(url, ct_id, $target_select, parameters) {
 
         for(var i in data) {
             var d = data[i];
-            $target_select.append($('<option value="'+d.pk+'">'+d.fields.name+'</option>'));
+//             $target_select.append($('<option value="'+d.pk+'">'+d.fields.name+'</option>'));
+            $target_select.append($('<option value="' + d[0] + '">' + d[1] + '</option>'));
+//             $target_select.append($('<option></option>').attr('value', d[0]).append(d[1]));
         }
     };
 
@@ -100,7 +102,8 @@ creme.reports.__loadFilters = function(url, ct_id, $target_select, parameters) {
 }
 
 creme.reports.loadHeaderFilters = function(ct_id, $target_select) {
-    var url = '/creme_core/header_filter/get_4_ct/' + ct_id;
+//     var url = '/creme_core/header_filter/get_4_ct/' + ct_id;
+    var url = '/creme_core/header_filter/get_for_ctype/' + ct_id;
     var params = {
         'always_option': $('<option value="">' + gettext("No selected view") + '</option>')
     };
@@ -108,7 +111,8 @@ creme.reports.loadHeaderFilters = function(ct_id, $target_select) {
 }
 
 creme.reports.loadFilters = function(ct_id, $target_select) {
-    var url = '/creme_core/filter/get_4_ct/' + ct_id;
+//     var url = '/creme_core/filter/get_4_ct/' + ct_id;
+    var url = '/creme_core/entity_filter/get_for_ctype/' + ct_id;
     var $all_opt = $('<option value="">' + gettext("All") + '</option>');
 
     var params = {

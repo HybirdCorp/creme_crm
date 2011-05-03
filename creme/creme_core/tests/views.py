@@ -1587,6 +1587,40 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
         self.client.post('/creme_core/header_filter/delete', data={'id': hf.id})
         self.assertEqual(0, HeaderFilter.objects.filter(pk=hf.id).count())
 
+    def test_hfilters_for_ctype01(self):
+        self.login()
+
+        ct = ContentType.objects.get_for_model(Contact)
+        response = self.client.get('/creme_core/header_filter/get_for_ctype/%s' % ct.id)
+        self.assertEqual(200, response.status_code)
+
+        content = simplejson.loads(response.content)
+        self.assert_(isinstance(content, list))
+        self.failIf(content)
+
+    def test_hfilters_for_ctype02(self):
+        self.login()
+
+        ct_contact = ContentType.objects.get_for_model(Contact)
+        ct_orga    = ContentType.objects.get_for_model(Organisation)
+        create_hf = HeaderFilter.objects.create
+        name01 = 'Contact view01'
+        name02 = 'Contact view02'
+        hf01 = create_hf(pk='tests-hf_contact01', name=name01,      entity_type_id=ct_contact.id, is_custom=False)
+        hf02 = create_hf(pk='tests-hf_contact02', name=name02,      entity_type_id=ct_contact.id, is_custom=True)
+        hf03 = create_hf(pk='tests-hf_orga01',    name='Orga view', entity_type_id=ct_orga.id,    is_custom=True)
+
+        response = self.client.get('/creme_core/header_filter/get_for_ctype/%s' % ct_contact.id)
+        self.assertEqual(200, response.status_code)
+        self.assertEqual([[hf01.id, name01], [hf02.id, name02]], simplejson.loads(response.content))
+
+    def test_hfilters_for_ctype03(self):
+        self.login(is_superuser=False)
+
+        ct = ContentType.objects.get_for_model(Contact)
+        response = self.client.get('/creme_core/header_filter/get_for_ctype/%s' % ct.id)
+        self.assertEqual(403, response.status_code)
+
 
 class ListViewFilterViewsTestCase(ViewsTestCase):
     def setUp(self):
@@ -2206,8 +2240,6 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         ct = ContentType.objects.get_for_model(Contact)
         response = self.client.get('/creme_core/entity_filter/get_for_ctype/%s' % ct.id)
         self.assertEqual(200, response.status_code)
-
-        ct = ContentType.objects.get_for_model(Contact)
         self.assertEqual([[efilter01.id, 'Filter 01'], [efilter02.id, 'Filter 02']],
                          simplejson.loads(response.content)
                         )

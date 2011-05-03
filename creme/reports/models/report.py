@@ -25,7 +25,8 @@ from django.db.models.fields.related import ManyToManyField, ForeignKey
 from django.db.models.fields import CharField, PositiveIntegerField, PositiveSmallIntegerField, BooleanField
 from django.utils.translation import ugettext_lazy as _
 
-from creme_core.models import CremeEntity, Filter, CremeModel
+#from creme_core.models import CremeEntity, Filter, CremeModel
+from creme_core.models import CremeModel, CremeEntity, EntityFilter
 from creme_core.models.custom_field import CustomField, _TABLES
 from creme_core.utils.meta import (get_field_infos, get_model_field_infos,
                                    filter_entities_on_ct, get_fk_entity, get_m2m_entities)
@@ -176,7 +177,7 @@ class Field(CremeModel):
 
             elif ForeignKey in fields_through and report and selected:
                 fk_entity = get_fk_entity(entity, self.name, user=user)
-                
+
                 if (report.filter is not None and
                     fk_entity not in report.ct.model_class().objects.filter(report.filter.get_q())):
                         raise DropLine
@@ -191,7 +192,7 @@ class Field(CremeModel):
 
             if value and check_user:
                 return unicode(value) if entity.can_view(user) else HIDDEN_VALUE
-            
+
             return unicode(value or empty_value)
 
         elif column_type == HFI_CUSTOM:
@@ -206,7 +207,7 @@ class Field(CremeModel):
             value = entity.get_custom_value(cf)
             if value and check_user and not entity.can_view(user):
                 return HIDDEN_VALUE
-            
+
             return value
 
         elif column_type == HFI_RELATION:
@@ -281,7 +282,8 @@ class Report(CremeEntity):
     name    = CharField(_(u'Name of the report'), max_length=100)
     ct      = ForeignKey(ContentType, verbose_name=_(u"Entity type"))
     columns = ManyToManyField(Field, verbose_name=_(u"Displayed columns"), related_name='report_columns_set') #TODO: use a One2Many instead....
-    filter  = ForeignKey(Filter, verbose_name=_(u'Filter'), blank=True, null=True)
+    #filter  = ForeignKey(Filter, verbose_name=_(u'Filter'), blank=True, null=True)
+    filter  = ForeignKey(EntityFilter, verbose_name=_(u'Filter'), blank=True, null=True)
 
     class Meta:
         app_label = 'reports'
@@ -334,7 +336,7 @@ class Report(CremeEntity):
             model.populate_credentials(entities_with_limit, user)
 
         lines_append = lines.append
-        
+
         for entity in entities_with_limit:
             entity_line = []
             entity_line_append = entity_line.append

@@ -32,7 +32,8 @@ from creme_core.registry import creme_registry
 from creme_core.forms import CremeEntityForm, CremeForm
 from creme_core.forms.widgets import OrderedMultipleChoiceWidget, ListViewWidget, CalendarWidget, DateFilterWidget
 from creme_core.forms.fields import AjaxMultipleChoiceField, AjaxModelChoiceField, CremeEntityField, AjaxChoiceField
-from creme_core.models import Filter, RelationType, CustomField
+#from creme_core.models import Filter, RelationType, CustomField
+from creme_core.models import EntityFilter, RelationType, CustomField
 from creme_core.models.header_filter import HeaderFilter, HeaderFilterItem, HFI_FIELD, HFI_RELATION, HFI_CUSTOM, HFI_FUNCTION, HFI_CALCULATED
 from creme_core.utils.meta import (get_verbose_field_name, get_function_field_verbose_name, get_flds_with_fk_flds_str, get_flds_with_fk_flds,
                                    get_date_fields)
@@ -151,7 +152,8 @@ def get_aggregate_fields(fields, model, initial_data=None):
 
 class CreateForm(CremeEntityForm):
     hf     = AjaxModelChoiceField(label=_(u"Existing view"), queryset=HeaderFilter.objects.none(), required=False)
-    filter = AjaxModelChoiceField(label=_(u"Filter"), queryset=Filter.objects.none(), required=False)
+    #filter = AjaxModelChoiceField(label=_(u"Filter"), queryset=Filter.objects.none(), required=False)
+    filter = AjaxModelChoiceField(label=_(u"Filter"), queryset=EntityFilter.objects.none(), required=False)
 
     columns       = AjaxMultipleChoiceField(label=_(u'Regular fields'),required=False, choices=(), widget=OrderedMultipleChoiceWidget)
     custom_fields = AjaxMultipleChoiceField(label=_(u'Custom fields'), required=False, choices=(), widget=OrderedMultipleChoiceWidget)
@@ -284,7 +286,8 @@ class EditForm(CremeEntityForm):
         fields = self.fields
 
         base_filter = [('', ugettext(u'All'))]
-        base_filter.extend(Filter.objects.filter(model_ct=instance.ct).values_list('id','name'))
+        #base_filter.extend(Filter.objects.filter(model_ct=instance.ct).values_list('id','name'))
+        base_filter.extend(EntityFilter.objects.filter(entity_type=instance.ct).values_list('id', 'name'))
         fields['filter'].choices = base_filter
         fields['filter'].initial = instance.ct.id
 

@@ -24,7 +24,7 @@ from opportunities.constants import *
 
 class OpportunitiesTestCase(CremeTestCase):
     def setUp(self):
-        self.populate('creme_core', 'documents', 'billing', 'opportunities')
+        self.populate('creme_core', 'documents', 'persons', 'billing', 'opportunities')
 
     def test_populate(self): #test get_compatible_ones() too
         ct = ContentType.objects.get_for_model(Opportunity)

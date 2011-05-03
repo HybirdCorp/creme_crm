@@ -68,7 +68,8 @@ headerfilter_patterns = patterns('creme_core.views.header_filter',
     (r'^add/(?P<content_type_id>\d+)$',      'add'),
     (r'^delete',                             'delete'),
     (r'^edit/(?P<header_filter_id>[\w-]+)$', 'edit'),
-    (r'^get_4_ct/(?P<content_type_id>\d+)$', 'get_hfs_4_ct'),
+    #(r'^get_4_ct/(?P<content_type_id>\d+)$', 'get_hfs_4_ct'),
+    (r'^get_for_ctype/(?P<ct_id>\d+)$',      'get_for_ctype'),
 )
 
 creme_core_patterns = patterns('creme_core.views',
