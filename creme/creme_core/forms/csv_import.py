@@ -607,8 +607,8 @@ class CSVImportForm4CremeEntity(CSVImportForm):
 
     columns4dynrelations = [(i, 'Colunmn %s' % i) for i in xrange(1, 21)]
 
-    class Meta:
-        exclude = ('is_deleted', 'is_actived')
+    #class Meta:
+        #exclude = ('is_deleted', 'is_actived')
 
     def __init__(self, *args, **kwargs):
         super(CSVImportForm4CremeEntity, self).__init__(*args, **kwargs)
