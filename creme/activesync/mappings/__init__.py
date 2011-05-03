@@ -23,8 +23,8 @@ from activities.models import Meeting, Task
 from persons.models import Contact
 
 from activesync.constants import SYNC_FOLDER_TYPE_CONTACT, SYNC_FOLDER_TYPE_APPOINTMENT, SYNC_FOLDER_TYPE_TASK
-from activesync.mappings.contact import CREME_CONTACT_MAPPING, save_contact, update_contact, serialize_contact
-from activesync.mappings.activity import CREME_MEETING_MAPPING, save_meeting, update_meeting
+from activesync.mappings.contact import CREME_CONTACT_MAPPING, save_contact, update_contact, serialize_contact, pre_serialize_contact
+from activesync.mappings.activity import CREME_MEETING_MAPPING, save_meeting, update_meeting, pre_serialize_meeting
 from activesync.mappings.utils import serialize_entity
 #Mapping between AS folder types and creme types
 FOLDERS_TYPES_CREME_TYPES_MAPPING = {
@@ -53,6 +53,7 @@ CREME_AS_MAPPING = {
 #        'serializer': serialize_contact,
         'serializer': serialize_entity,
         'type': SYNC_FOLDER_TYPE_CONTACT,
+        'pre_serialization': pre_serialize_contact,
     },
     Meeting:{
         'mapping': CREME_MEETING_MAPPING,
@@ -61,5 +62,6 @@ CREME_AS_MAPPING = {
         'update': update_meeting,
         'serializer': serialize_entity,
         'type': SYNC_FOLDER_TYPE_APPOINTMENT,
+        'pre_serialization': pre_serialize_meeting,#Method called before each field serialization
     }
 }

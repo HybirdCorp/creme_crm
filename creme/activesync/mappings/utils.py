@@ -17,6 +17,7 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
+from datetime import datetime
 from activesync.models.other_models import EntityASData
 from creme_core.utils.dates import get_utc_dt_from_creme_dt, get_dt_to_iso8601_str
 from creme_core.utils.meta import get_field_infos
@@ -27,6 +28,11 @@ def _format_value_for_AS(field_class, field_value):
     if field_class is not None:
         if issubclass(field_class, models.BooleanField):
             return 1 if field_value else 0
+
+        if issubclass(field_class, models.DateField):
+            if field_value:
+                field_value = datetime(*field_value.timetuple()[:6])
+                field_class = models.DateTimeField
 
         if issubclass(field_class, (models.DateTimeField, models.DateField)):
             if field_value:
@@ -42,11 +48,14 @@ def serialize_entity(entity, mapping):
        TODO/NB: Need to send an empty value when the entity hasn't a value ?
        TODO: Add the possibility to subset entity fields ?
     """
+    from activesync.mappings import CREME_AS_MAPPING#TODO: Remove the cyclic import
     xml = []
     xml_append = xml.append
 
     reverse_ns   = dict((v, "A%s" % i) for i, v in enumerate(mapping.keys()))
     namespaces = reverse_ns
+
+    pre_serialization = CREME_AS_MAPPING[entity.__class__]['pre_serialization']
 
     for ns, values in mapping.iteritems():
         prefix = namespaces.get(ns)
@@ -66,6 +75,9 @@ def serialize_entity(entity, mapping):
                     value = EntityASData.objects.get(entity=entity, field_name=xml_field).field_value
                 except EntityASData.DoesNotExist:
                     pass
+
+            value = pre_serialization(value, c_field, xml_field, f_class, entity)
+
 
             if value:
                 xml_append("<%(prefix)s%(tag)s>%(value)s</%(prefix)s%(tag)s>" %

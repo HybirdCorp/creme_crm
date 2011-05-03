@@ -395,12 +395,10 @@ class AirSync(Base):
                                             synced=True,
                                             user=user,
                                             creme_entity_ct=ct_creme_model)#Create object mapping
-
                 ###Error messages
                 entities = CremeEntity.objects.filter(pk__in=rejected_add_ids)
                 for entity in entities:
                     add_error_message(_(u"The server has denied to add <%s>. (It happens for example for activities which are on a read-only calendar)") % (entity))
-
 
                 ## Change part
                 change_nodes = responses.findall('%(ns0)sChange' % d_ns)#Present if the "Change" operation failed
@@ -440,11 +438,11 @@ class AirSync(Base):
                 ### Error messages
                 for unchanged_entity in unchanged_entities:
                     add_error_message(_(u"The server has denied changes on <%s>. (It happens for example for activities which are on a read-only calendar)") % (unchanged_entity))
-
-                ## Delete part
-                ### We delete the mapping for deleted entities
-                ### TODO: Verify the status ?
-                CremeExchangeMapping.objects.filter(was_deleted=True, user=user).delete()
+                
+            ## Delete part
+            ### We delete the mapping for deleted entities
+            ### TODO: Verify the status ?
+            CremeExchangeMapping.objects.filter(was_deleted=True, user=user, creme_entity_ct=ct_creme_model).delete()
 
 
                 
@@ -481,7 +479,7 @@ def get_change_objects(reverse_ns, user, airsync_cmd, creme_model, serializer, m
 #    modified_ids = CremeExchangeMapping.objects.filter(is_creme_modified=True, user=user).values_list('creme_entity_id', flat=True)
 
     #modified_ids a dict with creme_entity_id value as key and corresponding exchange_entity_id as value
-    modified_ids = dict(CremeExchangeMapping.objects.filter(is_creme_modified=True, user=user).values_list('creme_entity_id', 'exchange_entity_id'))
+    modified_ids = dict(CremeExchangeMapping.objects.filter(is_creme_modified=True, user=user, was_deleted=False).values_list('creme_entity_id', 'exchange_entity_id'))
 
     objects = []
 
@@ -495,13 +493,6 @@ def get_change_objects(reverse_ns, user, airsync_cmd, creme_model, serializer, m
         if entity.can_view(user):
             add_info_message(_(u"Sending changes of %s on the server") % entity)
             add_history_update_on_server(entity, None)#TODO: Add update information....
-
-            print
-            print "Entity ", entity
-            print
-            print "change_object(modified_ids[entity.id], entity, lambda cc: serializer(cc, mapping)) ", change_object(modified_ids[entity.id], entity, lambda cc: serializer(cc, mapping))
-            print
-            
             objects_append(change_object(modified_ids[entity.id], entity, lambda cc: serializer(cc, mapping)))#Naive version send all attribute even it's not modified
         else:
             add_info_message(_(u"The entity <%s> was not updated on the server because you haven't the right to view it") % entity.allowed_unicode(user))
@@ -518,9 +509,6 @@ def get_deleted_objects(user, airsync_cmd, creme_model):
     ct = ContentType.objects.get_for_model(creme_model)
     deleted_ids = CremeExchangeMapping.objects.filter(was_deleted=True, user=user, creme_entity_ct=ct).values_list('exchange_entity_id', 'creme_entity_repr')
     objects = []
-    
-#    for server_id in deleted_ids:
-#        objects.append(delete_object(server_id))
 
     add_info_message = airsync_cmd.add_info_message
     objects_append   = objects.append
@@ -528,7 +516,7 @@ def get_deleted_objects(user, airsync_cmd, creme_model):
 
     for server_id, entity_repr in deleted_ids:
         if entity_repr is not None:
-            add_history_delete_on_server(entity_repr)
+            add_history_delete_on_server((entity_repr, ct))
             add_info_message(_(u"Deleting %s on the server") % entity_repr)
         objects_append(delete_object(server_id))
         

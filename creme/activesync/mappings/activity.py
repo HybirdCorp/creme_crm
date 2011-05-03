@@ -24,7 +24,7 @@ from django.conf import settings
 from activesync.models.active_sync import AS_Folder
 from activesync.models.other_models import EntityASData
 
-from activesync.utils import generate_guid
+from activesync.utils import generate_guid, encode_AS_timezone
 from activities.models.activity import Meeting, Calendar
 from creme_core.utils.dates import get_utc_dt_from_creme_dt, get_utc_now, get_creme_dt_from_utc_dt, get_dt_to_iso8601_str, get_dt_from_iso8601_str, get_naive_dt_from_tzdate
 
@@ -163,8 +163,8 @@ def _set_meeting_from_data(meeting, data, user, folder):
 
     meeting.is_all_day = is_all_day
 
-    start = data_pop('end', None)
-    end   = data_pop('start', None)
+    start = data_pop('start', None)
+    end   = data_pop('end', None)
     modified = data_pop('modified', None)
 
 #    if not is_all_day:
@@ -180,7 +180,6 @@ def _set_meeting_from_data(meeting, data, user, folder):
 
 #    else:
     #is_all_day or not if a meeting hasn't a start and/or end it last one day
-    
     if meeting.start is None and meeting.end is None:
         meeting.start = meeting.end = get_utc_now()#Don't use meeting.handle_all_day AS semantic is different
         meeting.end  += ONE_DAY_TD
@@ -258,5 +257,15 @@ def update_meeting(meeting, data, user, history, folder, *args, **kwargs):
     meeting.save()
     #TODO: Fill the history
     return meeting
+
+
+def pre_serialize_meeting(value, c_field, xml_field, f_class, entity):
+    if value not in (None, ''):
+        return value
+
+    if c_field == "Timezone":
+        return encode_AS_timezone(settings.TIME_ZONE) #In case of adding from Creme
+
+
 
 
