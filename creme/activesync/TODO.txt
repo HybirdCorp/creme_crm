@@ -20,5 +20,9 @@
 * Handle when a user edit calendar name (either in creme or on the server)
 * In AS all day activities have to have a start time equals to 00h00 and the same for end time, but in creme an all day activity has to begin at 00h00 and end at 23h59
 
+* EntityASData prevents from deleting an entity. Change that !
+* SyncKeyHistory.back_to_previous_key(client) => folderize
+* do the function encode_AS_timezone (for now just handle Europe/Paris)
+
 https://m.google.com/Microsoft-Server-ActiveSync
 https://m.hotmail.com/Microsoft-Server-ActiveSync

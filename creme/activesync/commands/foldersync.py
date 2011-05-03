@@ -36,16 +36,19 @@ class FolderSync(Base):
         super(FolderSync, self).__init__(*args, **kwargs)
         self._create_connection()
 
-    def send(self, policy_key, sync_key=0):
+    def send(self, policy_key, sync_key=0, headers=None):
         xml = None
         self.synckey = sync_key
         self.status  = -1
 
+        http_headers = {"X-Ms-Policykey": policy_key}
+
+        if headers:
+            http_headers.update(headers)
+
         try:
-            xml = super(FolderSync, self).send({'synckey': sync_key}, headers={"X-Ms-Policykey": policy_key})
+            xml = super(FolderSync, self).send({'synckey': sync_key}, headers=http_headers)
         except restkit.errors.RequestFailed, r:
-            print "Error:" ,r.response.status
-            print "Error:" ,r.response.__dict__
             if r.status_int == 449:
                 self.status = SYNC_NEED_CURRENT_POLICY
             elif r.status_int >= 400 and r.status_int < 500:

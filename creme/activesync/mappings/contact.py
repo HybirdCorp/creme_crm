@@ -356,3 +356,6 @@ def serialize_contact(contact, namespaces):
                             }
                            )
     return "".join(xml)      
+
+def pre_serialize_contact(value, c_field, xml_field, f_class, entity):
+    return value

@@ -239,7 +239,9 @@ class UserSynchronizationHistory(CremeModel):
         if isinstance(entity, CremeEntity):
             ush.entity = entity
         else:
-            ush.entity_repr = unicode(entity)
+            repr, ct = entity
+            ush.entity_repr = unicode(repr)
+            ush.entity_ct   = ct
 
         ush.save()
         return ush
