@@ -64,7 +64,8 @@ class JSONField(CharField):
 
         value = data.get(name)
 
-        if not value:
+        # value can be "False" if a boolean value is expected.
+        if value is None:
             raise ValidationError(self.error_messages['invalidformat'])
 
         if isinstance(value, type):

@@ -37,6 +37,10 @@ creme.widget.DynamicInput = creme.widget.declare('ui-creme-dinput', {
         return element.val();
     },
 
+    jsonval: function(element) {
+    	return '"' + element.val() + '"';
+    },
+
     clone: function(element) {
         var self = creme.widget.DynamicInput;
         var copy = creme.widget.clone(element);

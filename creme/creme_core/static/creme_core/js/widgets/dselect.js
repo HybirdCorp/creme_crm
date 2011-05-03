@@ -86,10 +86,13 @@ creme.widget.DynamicSelect = creme.widget.declare('ui-creme-dselect', {
     val: function(element, value) {
         //console.log(element, value, element.val());
 
-        if (value !== undefined)
-            return element.val(value).change();
+        if (value === undefined)
+        	return element.val();
 
-        return element.val();
+        if (typeof value !== 'string')
+    		value = $.toJSON(value);
+
+        return element.val(value).change();
     },
 
     clone: function(element) {

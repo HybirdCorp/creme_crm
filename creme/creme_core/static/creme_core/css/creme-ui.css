@@ -30,8 +30,8 @@ ul.ui-layout.hbox li { position:relative; display:inline; }
 ul.ui-layout.vbox li { position:relative; display:block; }
 
 /*----------------------------------*/
-.ui-creme-selectorlist > div.add { margin-top:0.2em; margin-bottom:0.2em; }
-.ui-creme-selectorlist > div.add:hover { cursor:pointer; }
+.ui-creme-selectorlist > div.add ul { margin-top:0.2em; margin-bottom:0.2em; }
+.ui-creme-selectorlist > div.add ul:hover { cursor:pointer; }
 .ui-creme-selectorlist > div.add ul li { height:1em; vertical-align:middle; }
 .ui-creme-selectorlist > div.add ul li img { position:relative; top:0.2em; }
 

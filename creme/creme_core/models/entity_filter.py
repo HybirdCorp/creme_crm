@@ -217,6 +217,8 @@ class _ConditionOperator(object):
     def __unicode__(self):
         return unicode(self.name)
 
+class _ConditionBooleanOperator(_ConditionOperator):
+    pass
 
 class EntityFilterCondition(Model):
     filter = ForeignKey(EntityFilter, related_name='conditions')
@@ -281,8 +283,8 @@ class EntityFilterCondition(Model):
             IENDSWITH:       _ConditionOperator(_(u"Ends with (case insensitive)"),           '%s__iendswith'),
             ENDSWITH_NOT:    _ConditionOperator(_(u"Does not end with"),                      '%s__endswith', exclude=True),
             IENDSWITH_NOT:   _ConditionOperator(_(u"Does not end with (case insensitive)"),   '%s__iendswith', exclude=True),
-            ISNULL:          _ConditionOperator(_(u"Is empty"),                               '%s__isnull'),
-            ISNULL_NOT:      _ConditionOperator(_(u"Is not empty"),                           '%s__isnull', exclude=True),
+            ISNULL:          _ConditionBooleanOperator(_(u"Is empty"),                        '%s__isnull'),
+            ISNULL_NOT:      _ConditionBooleanOperator(_(u"Is not empty"),                    '%s__isnull', exclude=True),
             RANGE:           _ConditionOperator(_(u"Range"),                                  '%s__range'),
         }
 

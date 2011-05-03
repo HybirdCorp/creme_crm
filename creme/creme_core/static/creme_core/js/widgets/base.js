@@ -49,9 +49,9 @@ creme.widget = {
             return;
 
         //if (force)
-        //    console.log('force activation', element);
+        //console.log('activation >', element, ' >', widget);
 
-        if (element.data('widget') == undefined) {
+        if (element.data('widget') === undefined) {
             element.data('widget', widget);
             element.data('widget-options', creme.widget.parseopt(element, widget.options, {}));
             element.addClass('widget-active');
@@ -116,15 +116,38 @@ creme.widget = {
         return opts;
     },
 
-    declare: function(name, parent, object) {
-        res = (parent != undefined) ? $.extend(parent, object, true) : object;
+    declare: function(name, object, parent)
+    {
+    	var base = {};
 
-        res.init = function(element, options, cb, sync) {
+    	base.init = function(element, options, cb, sync) {
             var opts = creme.widget.parseopt(element, element.data('widget').options, options);
             element.data('widget-options', opts);
             element.data('widget')._create(element, opts, cb, sync);
+        };
+
+        base.jsonval = function(element) {
+        	var value = element.data('widget').val(element);
+
+//        	console.log("jsonval > " + value);
+
+        	if (typeof value === 'string') {
+        		var jsonvalue = creme.widget.parseval(value, creme.ajax.json.parse);
+        		return (jsonvalue != null) ? value : '"' + value + '"';
+        	}
+
+        	if (typeof value === 'object') {
+        		return $.toJSON(value);
+        	}
+
+        	return null;
+        };
+
+        if (parent !== undefined) {
+        	base = $.extend(base, parent, true);
         }
 
+        var res = $.extend(base, object, true);
         creme.widget.register(name, res);
         return res;
     },
@@ -135,6 +158,15 @@ creme.widget = {
         }
 
         return value;
+    },
+
+    cleanval: function(value, default_value, parser)
+    {
+    	var cleanparser = (parser !== undefined) ? parser : creme.ajax.json.parse;
+
+    	var result = (typeof value === 'object') ? value : creme.widget.parseval(value, cleanparser);
+
+    	return (result !== null) ? result : default_value;
     },
 
     val: function(elements, values, parser) {
@@ -171,8 +203,32 @@ creme.widget = {
         return element.data('widget-options');
     },
 
-    get: function(element) {
+    option: function(element, key, value)
+    {
+    	if (creme.widget.is_valid(element))
+    		return;
+
+    	if (value === undefined)
+    		return element.data('widget-options')[key];
+
+    	element.data('widget-options')[key] = value;
+    },
+
+    get: function(element)
+    {
+    	if (!creme.widget.is_valid(element))
+    		return;
+
         return element.data('widget');
+    },
+
+    is_valid: function(element)
+    {
+    	if (element === undefined || element === null || element.length === 0)
+    		return false;
+
+    	var widget = element.data('widget');
+    	return widget !== undefined && widget !== null;
     }
 }
 
