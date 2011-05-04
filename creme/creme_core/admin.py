@@ -19,17 +19,10 @@ register(UserRole)
 register(EntityCredentials)
 register(SetCredentials)
 
-#register(CustomFields)
-#register(ValueOfCustomFieldsList)
-#register(CustomFieldsValue, CustomFieldsValueAdmin)
-
 register(HeaderFilterItem)
 register(HeaderFilter)
 
-register(FilterType)
-register(FilterCondition)
-register(Filter)
-register(FilterValue)
+register(EntityFilter)
 
 register(Language)
 

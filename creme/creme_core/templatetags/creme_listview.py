@@ -26,34 +26,12 @@ from django.utils.html import escape
 from django.utils.translation import ugettext as _
 
 from creme_core.models.header_filter import HFI_FIELD, HFI_RELATION, HFI_FUNCTION, HFI_CUSTOM, HFI_VOLATILE
-from creme_core.models import Filter, CustomField
+from creme_core.models import CustomField
 from creme_core.templatetags.creme_core_tags import get_html_field_value
 from creme_core.utils.meta import get_model_field_infos
 
 register = template.Library()
 
-#TODO: remove (template too)
-@register.inclusion_tag('creme_core/templatetags/listview_filters.html', takes_context=True)
-def get_listview_filters(context):
-    filters = Filter.objects.filter(model_ct=context['content_type_id']).order_by('name') #TODO: retrieve in a cache...
-
-    #TODO: Make the same manner as hf
-    filter_id = context['filter_id']
-    selected = None
-    perm = False
-
-    if filter_id:
-        try:
-            selected = filters.get(pk=filter_id)
-        except Filter.DoesNotExist:
-            pass
-        else:
-            perm = selected.can_edit_or_delete(context['request'].user)[0]
-
-    context['select_values'] = [{'value': filter_.id, 'text': filter_.name} for filter_ in filters] #TODO: use queryset.values('id', 'name') ??
-    context['filter']        = selected
-    context['can_edit_or_delete'] = perm
-    return context
 
 @register.inclusion_tag('creme_core/templatetags/listview_entityfilters.html', takes_context=True)
 def get_listview_entity_filters(context):
