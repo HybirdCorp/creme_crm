@@ -17,18 +17,22 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
+from django.contrib.contenttypes.models import ContentType
 
 from django.db.models import ForeignKey
 from django.http import HttpResponse, Http404
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, get_list_or_404
 from django.forms.models import modelform_factory
 from django.core import serializers
+from django.template.context import RequestContext
 from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required
+from creme_core.forms.bulk import EntitiesBulkUpdateForm
 
 from creme_core.models.entity import CremeEntity
 from creme_core.forms import CremeEntityForm
 from creme_core.utils import get_ct_or_404, jsonify
+from creme_core.views.generic.popup import inner_popup
 
 
 @login_required
@@ -83,3 +87,42 @@ def get_info_fields(request, ct_id):
         printer = lambda field: unicode(field.verbose_name)
 
     return [(field.name, printer(field)) for field in model._meta.fields if field.name not in EXCLUDED_FIELDS and not isinstance(field, ForeignKey)]
+
+@login_required
+def bulk_update(request, ct_id, ids):
+    user = request.user
+    model    = get_object_or_404(ContentType, pk=ct_id).model_class()
+    entities = get_list_or_404(model, pk__in=[id for id in ids.split(',') if id])
+
+    CremeEntity.populate_real_entities(entities)
+    CremeEntity.populate_credentials(entities, user)
+
+    filtered = {True: [], False: []}
+    for entity in entities:
+        filtered[entity.can_change(user)].append(entity)
+
+
+    if request.method == 'POST':
+        form = EntitiesBulkUpdateForm(model=model,
+                                      subjects=filtered[True],
+                                      forbidden_subjects=filtered[False],
+                                      user=request.user,
+                                      data=request.POST)
+
+        if form.is_valid():
+            form.save()
+    else:
+        form = EntitiesBulkUpdateForm(model=model,
+                                      subjects=filtered[True],
+                                      forbidden_subjects=filtered[False],
+                                      user=request.user)
+
+    return inner_popup(request, 'creme_core/generics/blockform/edit_popup.html',#TODO:Edit icon
+                       {
+                        'form':  form,
+                        'title': _(u'Multiple update'),
+                       },
+                       is_valid=form.is_valid(),
+                       reload=False,
+                       delegate_reload=True,
+                       context_instance=RequestContext(request))
