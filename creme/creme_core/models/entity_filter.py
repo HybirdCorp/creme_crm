@@ -261,8 +261,7 @@ class EntityFilterCondition(Model):
     ENDSWITH_NOT    = 28
     IENDSWITH_NOT   = 29
     ISNULL          = 30
-    ISNULL_NOT      = 31
-    RANGE           = 32
+    RANGE           = 31
 
     _OPERATOR_MAP = {
             EQUALS:          _ConditionOperator(_(u'Equals'),                                 '%s__exact'),
@@ -286,7 +285,6 @@ class EntityFilterCondition(Model):
             ENDSWITH_NOT:    _ConditionOperator(_(u"Does not end with"),                      '%s__endswith', exclude=True),
             IENDSWITH_NOT:   _ConditionOperator(_(u"Does not end with (case insensitive)"),   '%s__iendswith', exclude=True),
             ISNULL:          _ConditionBooleanOperator(_(u"Is empty"),                        '%s__isnull'),
-            ISNULL_NOT:      _ConditionBooleanOperator(_(u"Is not empty"),                    '%s__isnull', exclude=True),
             RANGE:           _ConditionOperator(_(u"Range"),                                  '%s__range'),
         }
 
@@ -311,8 +309,9 @@ class EntityFilterCondition(Model):
             operator = EntityFilterCondition._OPERATOR_MAP[type] #TODO: only raise??
             field = model._meta.get_field_by_name(name)[0]
 
-            if type in (EntityFilterCondition.ISNULL, EntityFilterCondition.ISNULL_NOT):
-                if not isinstance(value, bool): raise ValueError('A bool is expected for ISNULL(_NOT) condition')
+            #if type == EntityFilterCondition.ISNULL:
+            if isinstance(operator, _ConditionBooleanOperator):
+                if not isinstance(value, bool): raise ValueError('A bool is expected for condition %s' % operator.name)
             elif type == EntityFilterCondition.RANGE:
                 clean = field.formfield().clean
                 clean(value[0])
