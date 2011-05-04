@@ -11,6 +11,7 @@ from django.contrib.contenttypes.models import ContentType
 from creme_core.models import *
 from creme_core.models.header_filter import HFI_FIELD
 from creme_core.tests.base import CremeTestCase
+from creme_core.gui.bulk_update import bulk_update_registry
 
 from persons.models import Contact, Organisation, Position, Sector
 from persons.constants import REL_OBJ_CUSTOMER_OF, REL_OBJ_EMPLOYED_BY
@@ -19,8 +20,8 @@ from documents.models import Document, Folder, FolderCategory #for CSV importing
 
 
 class ViewsTestCase(CremeTestCase):
-    def login(self, is_superuser=True):
-        super(ViewsTestCase, self).login(is_superuser)
+    def login(self, is_superuser=True, *args, **kwargs):
+        super(ViewsTestCase, self).login(is_superuser, *args, **kwargs)
 
         SetCredentials.objects.create(role=self.role,
                                       value=SetCredentials.CRED_VIEW   | \
@@ -368,6 +369,205 @@ class EntityViewsTestCase(ViewsTestCase):
         translation = _(u'Name')
         self.assert_(json_dict['name'].startswith(translation))
         self.assertNotEqual(translation, json_dict['name'])
+
+    def test_edit_entities_bulk01(self):
+        self.login()
+        contact_ct_id = ContentType.objects.get_for_model(Contact).id
+        
+        response = self.client.get('/creme_core/entity/bulk_update/%s/'  % contact_ct_id)
+        self.assertEqual(404, response.status_code)
+
+        response = self.client.get('/creme_core/entity/bulk_update/%s/%s' % (contact_ct_id, 0))
+        self.assertEqual(404, response.status_code)
+
+        response = self.client.get('/creme_core/entity/bulk_update/%s/%s' % (contact_ct_id, ",".join([str(i) for i in xrange(10)])))
+        self.assertEqual(404, response.status_code)
+
+        mario = Contact.objects.create(user=self.user, first_name="Mario", last_name="Bros")
+        response = self.client.get('/creme_core/entity/bulk_update/%s/%s' % (contact_ct_id, mario.id))
+        self.assertEqual(200, response.status_code)
+        
+
+    def test_edit_entities_bulk02(self):
+        self.login()
+        contact_ct_id = ContentType.objects.get_for_model(Contact).id
+
+        unemployed   = Position.objects.create(title='unemployed')
+        plumber      = Position.objects.create(title='plumber')
+        ghost_hunter = Position.objects.create(title='ghost hunter')
+
+        mario = Contact.objects.create(user=self.user, first_name="Mario", last_name="Bros", position=plumber)
+        luigi = Contact.objects.create(user=self.user, first_name="Luigi", last_name="Bros", position=ghost_hunter)
+
+        comma_sep_ids = ",".join([str(mario.id), str(luigi.id)])
+
+        url = '/creme_core/entity/bulk_update/%s/%s' % (contact_ct_id, comma_sep_ids)
+
+        response = self.client.get(url)
+        self.assertEqual(200, response.status_code)
+
+        response = self.client.post(url,
+                            data={
+                                'field_name': 'position',
+                                'field_value': unemployed.id,
+                                'entities_lbl': 'whatever',
+                            }
+                           )
+        self.assertNoFormError(response)
+
+        mario = Contact.objects.get(pk=mario.pk)#Refresh
+        luigi = Contact.objects.get(pk=luigi.pk)#Refresh
+
+        self.assertEqual(unemployed, mario.position)
+        self.assertEqual(unemployed, luigi.position)
+
+    def test_edit_entities_bulk03(self):
+        self.login()
+        contact_ct_id = ContentType.objects.get_for_model(Contact).id
+
+        plumbing    = Sector.objects.create(title='Plumbing')
+        games       = Sector.objects.create(title='Games')
+
+        mario = Contact.objects.create(user=self.user, first_name="Mario", last_name="Bros", sector=games)
+        luigi = Contact.objects.create(user=self.user, first_name="Luigi", last_name="Bros", sector=games)
+        nintendo = Organisation.objects.create(user=self.user, name='Nintendo', sector=games)
+
+        comma_sep_ids = ",".join([str(mario.id), str(luigi.id), str(nintendo.id)])
+
+        url = '/creme_core/entity/bulk_update/%s/%s' % (contact_ct_id, comma_sep_ids)
+
+        response = self.client.get(url)
+        self.assertEqual(200, response.status_code)
+
+        response = self.client.post(url,
+                            data={
+                                'field_name': 'sector',
+                                'field_value': plumbing.id,
+                                'entities_lbl': 'whatever',
+                            }
+                           )
+        self.assertNoFormError(response)
+
+        mario    = Contact.objects.get(pk=mario.pk)#Refresh
+        luigi    = Contact.objects.get(pk=luigi.pk)#Refresh
+        self.assertEqual(plumbing, mario.sector)
+        self.assertEqual(plumbing, luigi.sector)
+
+        nintendo = Organisation.objects.get(pk=nintendo.pk)#Refresh
+        self.assertEqual(games, nintendo.sector)
+
+    def test_edit_entities_bulk04(self):
+        self.login()
+        contact_ct_id = ContentType.objects.get_for_model(Contact).id
+
+        mario = Contact.objects.create(user=self.user, first_name="Mario", last_name="Bros")
+        luigi = Contact.objects.create(user=self.user, first_name="Luigi", last_name="Bros")
+
+        comma_sep_ids = ",".join([str(mario.id), str(luigi.id)])
+        url = '/creme_core/entity/bulk_update/%s/%s' % (contact_ct_id, comma_sep_ids)
+
+        response = self.client.get(url)
+        self.assertEqual(200, response.status_code)
+
+        response = self.client.post(url,
+                    data={
+                        'field_name':   'last_name',
+                        'field_value':  '',
+                        'entities_lbl': 'whatever',
+                    }
+                   )
+
+        self.assertFormError(response, 'form', None, [_(u'This field is required.')])
+
+    def test_edit_entities_bulk05(self):
+        self.login()
+        contact_ct_id = ContentType.objects.get_for_model(Contact).id
+
+        bulk_update_registry.register((Contact, ['position', ]))
+
+        unemployed   = Position.objects.create(title='unemployed')
+
+        mario = Contact.objects.create(user=self.user, first_name="Mario", last_name="Bros")
+        luigi = Contact.objects.create(user=self.user, first_name="Luigi", last_name="Bros")
+
+        comma_sep_ids = ",".join([str(mario.id), str(luigi.id)])
+        url = '/creme_core/entity/bulk_update/%s/%s' % (contact_ct_id, comma_sep_ids)
+
+        response = self.client.get(url)
+        self.assertEqual(200, response.status_code)
+
+        response = self.client.post(url,
+                    data={
+                        'field_name':   'position',
+                        'field_value':  unemployed.id,
+                        'entities_lbl': 'whatever',
+                    }
+                   )
+
+        self.assert_(response.context['form'].errors)
+#        self.assertFormError(response, 'form', 'field_name', [_(u'Select a valid choice. %s is not one of the available choices.') % 'position'])
+
+    def test_edit_entities_bulk06(self):
+        self.login()
+        contact_ct_id = ContentType.objects.get_for_model(Contact).id
+
+        mario = Contact.objects.create(user=self.user, first_name="Mario", last_name="Bros", description="Luigi's brother")
+        luigi = Contact.objects.create(user=self.user, first_name="Luigi", last_name="Bros", description="Mario's brother")
+
+        comma_sep_ids = ",".join([str(mario.id), str(luigi.id)])
+
+        url = '/creme_core/entity/bulk_update/%s/%s' % (contact_ct_id, comma_sep_ids)
+
+        response = self.client.get(url)
+        self.assertEqual(200, response.status_code)
+
+        response = self.client.post(url,
+                            data={
+                                'field_name':      'description',
+                                'field_value':     '',
+                                'entities_lbl':    'whatever',
+                                'bad_entities_lbl':'whatever',
+                            }
+                           )
+        self.assertNoFormError(response)
+
+        mario    = Contact.objects.get(pk=mario.pk)#Refresh
+        luigi    = Contact.objects.get(pk=luigi.pk)#Refresh
+        self.assertEqual('', mario.description)
+        self.assertEqual('', luigi.description)
+
+
+    def test_edit_entities_bulk07(self):
+        self.login(is_superuser=False, allowed_apps=('creme_core', 'persons'))
+        contact_ct_id = ContentType.objects.get_for_model(Contact).id
+
+        mario_desc = u"Luigi's brother"
+        mario = Contact.objects.create(user=self.other_user, first_name="Mario", last_name="Bros", description=mario_desc)
+        luigi = Contact.objects.create(user=self.user,       first_name="Luigi", last_name="Bros", description="Mario's brother")
+
+        comma_sep_ids = ",".join([str(mario.id), str(luigi.id)])
+
+        url = '/creme_core/entity/bulk_update/%s/%s' % (contact_ct_id, comma_sep_ids)
+
+        response = self.client.get(url)
+        self.assertEqual(200, response.status_code)
+
+        response = self.client.post(url,
+                            data={
+                                'field_name':      'description',
+                                'field_value':     '',
+                                'entities_lbl':    'whatever',
+                                'bad_entities_lbl':'whatever',
+                            }
+                           )
+        self.assertNoFormError(response)
+
+        mario    = Contact.objects.get(pk=mario.pk)#Refresh
+        luigi    = Contact.objects.get(pk=luigi.pk)#Refresh
+        
+        self.assertEqual(mario_desc, mario.description)
+        self.assertEqual('',         luigi.description)
+
 
 
 class PropertyViewsTestCase(ViewsTestCase):
