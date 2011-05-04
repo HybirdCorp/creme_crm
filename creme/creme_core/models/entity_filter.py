@@ -217,8 +217,10 @@ class _ConditionOperator(object):
     def __unicode__(self):
         return unicode(self.name)
 
+
 class _ConditionBooleanOperator(_ConditionOperator):
     pass
+
 
 class EntityFilterCondition(Model):
     filter = ForeignKey(EntityFilter, related_name='conditions')
@@ -306,27 +308,17 @@ class EntityFilterCondition(Model):
     def build(model, type, name=None, value=None):
         try:
             #TODO: method 'operator.clean()' ??
-            if type == EntityFilterCondition.SUBFILTER: #TODO: build_4_subfilter method ???
-                name = ''
+            operator = EntityFilterCondition._OPERATOR_MAP[type] #TODO: only raise??
+            field = model._meta.get_field_by_name(name)[0]
 
-                if not isinstance(value, EntityFilter):
-                    raise TypeError('Subfilter need an EntityFilter instance')
-
-                value = value.id
-            elif type == EntityFilterCondition.PROPERTY: #TODO: build_4_property method ???
-                assert isinstance(value, bool)
+            if type in (EntityFilterCondition.ISNULL, EntityFilterCondition.ISNULL_NOT):
+                if not isinstance(value, bool): raise ValueError('A bool is expected for ISNULL(_NOT) condition')
+            elif type == EntityFilterCondition.RANGE:
+                clean = field.formfield().clean
+                clean(value[0])
+                clean(value[1])
             else:
-                operator = EntityFilterCondition._OPERATOR_MAP[type] #TODO: only raise??
-                field = model._meta.get_field_by_name(name)[0]
-
-                if type in (EntityFilterCondition.ISNULL, EntityFilterCondition.ISNULL_NOT):
-                    if not isinstance(value, bool): raise ValueError('A bool is expected for ISNULL(_NOT) condition')
-                elif type == EntityFilterCondition.RANGE:
-                    clean = field.formfield().clean
-                    clean(value[0])
-                    clean(value[1])
-                else:
-                    field.formfield().clean(value)
+                field.formfield().clean(value)
         except Exception, e:
             raise EntityFilterCondition.ValueError(str(e))
 
@@ -397,6 +389,12 @@ class EntityFilterCondition(Model):
                                     )
 
     @staticmethod
+    def build_4_property(ptype, has=True):
+        return EntityFilterCondition(type=EntityFilterCondition.PROPERTY, name=ptype.id,
+                                     value=EntityFilterCondition.encode_value(bool(has))
+                                    )
+
+    @staticmethod
     def build_4_relation(rtype, has=True, ct=None, entity=None):
         value = {'has': bool(has)}
 
@@ -416,6 +414,11 @@ class EntityFilterCondition(Model):
                                      name=rtype.id,
                                      value=EntityFilterCondition.encode_value({'has': bool(has), 'filter_id': subfilter.id})
                                     )
+
+    @staticmethod
+    def build_4_subfilter(subfilter):
+        assert isinstance(subfilter, EntityFilter)
+        return EntityFilterCondition(type=EntityFilterCondition.SUBFILTER, name=subfilter.id)
 
     @property
     def decoded_value(self):
@@ -513,7 +516,7 @@ class EntityFilterCondition(Model):
         return query
 
     _GET_Q_FUNCS = {
-            SUBFILTER:          (lambda self: EntityFilter.objects.get(id=self.decoded_value).get_q()),
+            SUBFILTER:          (lambda self: EntityFilter.objects.get(id=self.name).get_q()),
             RELATION:           _get_q_relation,
             RELATION_SUBFILTER: _get_q_relation_subfilter,
             PROPERTY:           _get_q_property,
@@ -530,7 +533,7 @@ class EntityFilterCondition(Model):
         type = self.type
 
         if type == self.SUBFILTER:
-            return self.decoded_value
+            return self.name
         elif type == self.RELATION_SUBFILTER:
             return self.decoded_value['filter_id']
 
