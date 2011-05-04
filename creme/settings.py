@@ -167,6 +167,7 @@ INSTALLED_APPS = (
     'creme.assistants',
     'creme.activities',
     'creme.persons',
+    'creme.activesync',
 
     #CREME OPTIONNAL APPS (can be safely commented)
     'creme.graphs',
