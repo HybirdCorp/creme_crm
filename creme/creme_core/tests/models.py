@@ -1088,7 +1088,7 @@ class EntityFiltersTestCase(CremeTestCase):
                                ])
         self.assertExpectedFiltered(efilter, Contact, [c.id for i, c in enumerate(self.contacts) if i not in (5, 11)])
 
-    def test_filter_field_isnull(self):
+    def test_filter_field_isnull01(self):
         efilter = EntityFilter.create(pk='test-filter01', name='is null', model=Contact)
         efilter.set_conditions([EntityFilterCondition.build(model=Contact,
                                            type=EntityFilterCondition.ISNULL,
@@ -1096,16 +1096,16 @@ class EntityFiltersTestCase(CremeTestCase):
                                           )
                                ])
         self.assertEqual(1, efilter.conditions.count())
-
         self.assertExpectedFiltered(efilter, Contact, [c.id for i, c in enumerate(self.contacts) if i != 2])
 
-    def test_filter_field_isnull_not(self):
+    def test_filter_field_isnull02(self):
         efilter = EntityFilter.create('test-filter01', 'is not null', Contact)
         efilter.set_conditions([EntityFilterCondition.build(model=Contact,
-                                                            type=EntityFilterCondition.ISNULL_NOT,
-                                                            name='description', value=True
-                                                           )
+                                           type=EntityFilterCondition.ISNULL,
+                                           name='description', value=False
+                                          )
                                ])
+        self.assertEqual(1, efilter.conditions.count())
         self.assertExpectedFiltered(efilter, Contact, [self.contacts[2].id])
 
     def test_filter_field_range(self):
@@ -1135,10 +1135,6 @@ class EntityFiltersTestCase(CremeTestCase):
         self.assertRaises(EntityFilterCondition.ValueError,
                           EntityFilterCondition.build,
                           model=Contact, type=EntityFilterCondition.ISNULL, name='description', value='Not a boolean', #ISNULL => boolean
-                         )
-        self.assertRaises(EntityFilterCondition.ValueError,
-                          EntityFilterCondition.build,
-                          model=Contact, type=EntityFilterCondition.ISNULL_NOT, name='description', value='Not a boolean', #ISNULL_NOT => boolean
                          )
 
     def test_condition_update(self):
