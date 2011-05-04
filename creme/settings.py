@@ -349,7 +349,6 @@ CREME_CORE_JS = ('main.js',
                     'creme_core/js/widgets/pselect.js',
                     'creme_core/js/widgets/rte.js',
 
-                    'creme_core/js/filters.js',
                     'creme_core/js/properties.js',
                     'creme_core/js/relations.js',
                     'creme_core/js/list_view.core.js',

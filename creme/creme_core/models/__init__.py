@@ -11,7 +11,6 @@ from custom_field import *
 from function_field import FunctionField, FunctionFieldsManager
 
 from header_filter import HeaderFilter, HeaderFilterItem
-from list_view_filter import Filter, FilterCondition, FilterType, FilterValue, ConditionChildType
 from entity_filter import EntityFilter, EntityFilterCondition
 from list_view_state import ListViewState #TODO: move to gui ?
 
