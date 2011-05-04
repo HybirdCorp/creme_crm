@@ -1,0 +1,51 @@
+{% load i18n %}
+{% load media %}
+{% load creme_block creme_core_tags creme_widgets %}
+<table  class="table_detail_view ui-corner-all" id={{block_name}}>
+    {% get_block_header colspan=6 %}
+        <th style="width: 80%;" class="collapser" align="left">
+            {% get_block_title _('%s History entry') _('%s History entries') %}
+        </th>
+        <th style="width: 20%;" align="right"></th>
+    {% end_get_block_header %}
+    <tbody class="collapsable">
+        {% if page.paginator.count %}
+            <tr>
+                {% get_column_header _('Type') 'type' %}
+                {% get_column_header _('Created') 'created' %}
+                {% get_column_header _('What') 'entity_ct' %}
+                <th class="block_header_line_dark">{% trans "Entity" %}</th>
+                <th class="block_header_line_dark">{% trans "Changes" %}</th>
+                {% get_column_header _('Where') 'where' %}
+            </tr>
+            {% for history in page.object_list %}
+                <!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
+                <tr>
+                    <td class="{{row_color}}">{{history_type_verbose|get_value:history.type}}</td>
+                    <td class="{{row_color}}">{{history|get_html_field_value:"created"}}</td>
+                    <td class="{{row_color}}">{{history.entity_ct}}</td>
+                    {% if history.entity %}
+                        <td class="{{row_color}}">{% widget_entity_hyperlink history.entity user %}</td>
+                    {% else %}
+                        <td class="{{row_color}}">{{history.entity_repr}}</td>{# Can't check if the user had the right view on the deleted entity... #}
+                    {% endif %}
+                    <td class="{{row_color}}">
+                    {% for k, v in history.changes.iteritems %}
+                            <p>{% get_field_verbose_name contact_klass k %} : {% if v.get_absolute_url %}<a href="{{ v.get_absolute_url }}">{{ v }}</a>{% else %}{{ v }}{% endif %}</p>
+                        {% empty %}
+                            &nbsp;
+                        {% endfor %}
+                    </td>
+                    <td class="{{row_color}}">{{ history_where_verbose|get_value:history.where}}</td>
+                </tr>
+            {% endfor %}
+        {% else %}
+            <tr>
+                <td class="block_line_dark">
+                    {% block activities_empty %}{% trans "Empty history for the moment" %}{% endblock %}
+                </td>
+            </tr>
+        {% endif %}
+    </tbody>
+    {% include 'creme_core/templatetags/widgets/block_footer.html' %}
+</table>

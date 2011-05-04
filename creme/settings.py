@@ -77,6 +77,8 @@ DATETIME_INPUT_FORMATS  = (
     '%m/%d/%y %H:%M:%S', '%m/%d/%y %H:%M', '%m/%d/%y',
     '%d-%m-%Y %H:%M:%S', '%d/%m/%Y %H:%M:%S',
     '%d-%m-%Y %H:%M',    '%d/%m/%Y %H:%M',
+    '%Y-%m-%dT%H:%M:%S.%fZ',#Needed for some activesync servers (/!\ %f python >=2.6)
+    
 )
 
 #I18N / L10N [END]##############################################################
@@ -432,6 +434,20 @@ EMAILS_ENTITYEMAIL_FROM_EMAIL = {
         "in_sandbox" : True, #True : Show in sandbox & history, False show only in history (/!\ creation will be automatic if False)
     }
 }
+
+#ACTIVESYNC ------------------------------------------------------------------------
+#TODO: Rename and transform this into an AS-Version verification => A2:Body doesn't seems to work with AS version > 2.5
+IS_ZPUSH = True
+
+CONFLICT_MODE = 1 #0 Client object replaces server object. / 1 Server object replaces client object.
+
+ACTIVE_SYNC_DEBUG = DEBUG #Make appears some debug informations on the UI
+
+LIMIT_SYNC_KEY_HISTORY = 50 #Number of sync_keys kept in db by user
+
+CONNECTION_TIMEOUT = 150
+
+PICTURE_LIMIT_SIZE = 55000 #E.g: 55Ko Active sync servers don't handle pictures > to this size
 
 
 #APPS CONFIGURATION [END]#######################################################

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-01-18 10:43+0100\n"
+"POT-Creation-Date: 2011-04-12 13:57+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -40,127 +40,127 @@ msgstr "Lister les services"
 msgid "Add a service"
 msgstr "Ajouter un service"
 
-#: populate.py:38
+#: populate.py:35
 msgid "Product view"
 msgstr "Vue de Produit"
 
-#: populate.py:40 populate.py:47
+#: populate.py:37 populate.py:44
 msgid "Images - Name"
 msgstr "Images - Nom"
 
-#: populate.py:41 populate.py:48 models/product.py:35 models/service.py:34
+#: populate.py:38 populate.py:45 models/product.py:35 models/service.py:34
 msgid "Name"
 msgstr "Nom"
 
-#: populate.py:42 models/product.py:36
+#: populate.py:39 models/product.py:36
 msgid "Code"
 msgstr "Code"
 
-#: populate.py:43 populate.py:50
+#: populate.py:40 populate.py:47
 msgid "User - Username"
 msgstr "Utilisateur - Nom d'utilisateur"
 
-#: populate.py:45
+#: populate.py:42
 msgid "Service view"
 msgstr "Vue de Service"
 
-#: populate.py:49 models/service.py:36
+#: populate.py:46 models/service.py:36
 msgid "Reference"
 msgstr "Référence"
 
-#: populate.py:54
+#: populate.py:51
 msgid "Category 1"
 msgstr "Catégorie 1"
 
-#: populate.py:54
+#: populate.py:51
 msgid "Description of 'category 1'"
 msgstr "Description de 'catégorie 1'"
 
-#: populate.py:55
+#: populate.py:52
 msgid "Category 2"
 msgstr "Catégorie 2"
 
-#: populate.py:55
+#: populate.py:52
 msgid "Description of 'category 2'"
 msgstr "Description de 'catégorie 2'"
 
-#: populate.py:57
+#: populate.py:54
 msgid "Cooking"
 msgstr "Cuisine"
 
-#: populate.py:57
+#: populate.py:54
 msgid "Items for the kitchen"
 msgstr "Articles pour la cuisine"
 
-#: populate.py:58
+#: populate.py:55
 msgid "Fruit/vegetables"
 msgstr "Primeurs"
 
-#: populate.py:58
+#: populate.py:55
 msgid "Early fruit and vegetables"
 msgstr "Fruits, légumes, ..."
 
-#: populate.py:59
+#: populate.py:56
 msgid "Informatic"
 msgstr "Informatique"
 
-#: populate.py:59
+#: populate.py:56
 msgid "Geeks' sideline"
 msgstr "La gamme des geeks"
 
-#: populate.py:61
+#: populate.py:58
 msgid "Oven"
 msgstr "Four"
 
-#: populate.py:61
+#: populate.py:58
 msgid "Gas oven"
 msgstr "Four à gaz"
 
-#: populate.py:62
+#: populate.py:59
 msgid "Pans"
 msgstr "Casseroles"
 
-#: populate.py:62
+#: populate.py:59
 msgid "To cook"
 msgstr "Pour faire la cuisine"
 
-#: populate.py:63
+#: populate.py:60
 msgid "Laptops"
 msgstr "Portables"
 
-#: populate.py:63
+#: populate.py:60
 msgid "Laptops, netbooks"
 msgstr "Les PC portables"
 
-#: populate.py:64
+#: populate.py:61
 msgid "Desktops"
 msgstr "Bureau"
 
-#: populate.py:64
+#: populate.py:61
 msgid "Home computers"
 msgstr "Les PC de salon"
 
-#: populate.py:65
+#: populate.py:62
 msgid "Accessories"
 msgstr "Accessoires"
 
-#: populate.py:65
+#: populate.py:62
 msgid "Accessories for desktops/laptops"
 msgstr "Accessoires pour PC fixes/portables"
 
-#: populate.py:66
+#: populate.py:63
 msgid "Fruits"
 msgstr "Fruits"
 
-#: populate.py:66
+#: populate.py:63
 msgid "Bananas, apples..."
 msgstr "Bananes, pommes..."
 
-#: populate.py:67
+#: populate.py:64
 msgid "Vegetables"
 msgstr "Légumes"
 
-#: populate.py:67
+#: populate.py:64
 msgid "Carrots, potatoes..."
 msgstr "Carottes, patates..."
 
@@ -238,11 +238,11 @@ msgstr "Quantité/Stock"
 msgid "Web Site"
 msgstr "Site Web"
 
-#: models/product.py:76 templates/products/view_product.html:5
+#: models/product.py:72 templates/products/view_product.html:5
 msgid "Product"
 msgstr "Produit"
 
-#: models/product.py:77
+#: models/product.py:73
 msgid "Products"
 msgstr "Produits"
 
@@ -254,11 +254,11 @@ msgstr "Dénombrable"
 msgid "Unit"
 msgstr "Unité"
 
-#: models/service.py:66 templates/products/view_service.html:4
+#: models/service.py:62 templates/products/view_service.html:4
 msgid "Service"
 msgstr "Service"
 
-#: models/service.py:67
+#: models/service.py:63
 msgid "Services"
 msgstr "Services"
 

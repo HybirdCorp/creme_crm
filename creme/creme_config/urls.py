@@ -98,5 +98,10 @@ for app in settings.INSTALLED_APPS:
     except ImportError, e:
         # there is no app creme_config.py, skip it
         continue
-    config_import = __import__("%s.creme_config_register" % app , globals(), locals(), ['to_register'], -1)
-    config_registry.register(*config_import.to_register)
+    config_import = __import__("%s.creme_config_register" % app , globals(), locals(), ['to_register', 'blocks_to_register'], -1)
+    config_registry.register(*getattr(config_import, "to_register", ()))
+    config_registry.register_blocks(*getattr(config_import, "blocks_to_register", ()))
+
+
+#    if hasattr(config_import, 'blocks_to_register'):
+#        config_registry.register_blocks(*config_import.blocks_to_register)
