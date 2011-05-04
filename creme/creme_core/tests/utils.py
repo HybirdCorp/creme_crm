@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+import pytz
+from datetime import datetime
 
 from django.db.models import fields
 from django.contrib.auth.models import User
@@ -8,6 +10,7 @@ from creme_core import models
 from creme_core.utils import *
 from creme_core.utils import meta, chunktools
 from creme_core.tests.base import CremeTestCase
+from creme_core.utils.dates import get_dt_from_iso8601_str, get_dt_from_iso8601_str, get_dt_to_iso8601_str, get_naive_dt_from_tzdate, get_creme_dt_from_utc_dt, get_utc_dt_from_creme_dt
 
 
 class MiscTestCase(CremeTestCase):
@@ -224,3 +227,24 @@ s556"""
         entries = list(chunktools.iter_splitchunks(self.chunks(chunk_size), '\n', ChunkToolsTestCase.filter))
 
         self.assert_entries(entries)
+
+        
+class DatesTestCase(CremeTestCase):
+
+    def test_get_dt_from_iso8601_str_01(self):
+        dt = get_dt_from_iso8601_str('20110522T223000Z')
+        self.assertEqual(datetime(2011, 05, 22, 22, 30, 00), dt)
+
+    def test_get_dt_to_iso8601_str_01(self):
+        dt = datetime(2011, 05, 22, 22, 30, 00)
+        self.assertEqual('20110522T223000Z', get_dt_to_iso8601_str(dt))
+
+    def test_get_naive_dt_from_tzdate_01(self):
+        dt_localized = pytz.utc.localize(datetime(2011, 05, 22, 22, 30, 00))
+        dt = get_naive_dt_from_tzdate(dt_localized)
+        self.assertEqual(datetime(2011, 05, 22, 22, 30, 00), dt)
+
+    def test_get_creme_dt_from_utc_dt_01(self):
+        dt_localized = pytz.utc.localize(datetime(2011, 05, 22, 22, 30, 00))
+        utc_dt = get_utc_dt_from_creme_dt(get_creme_dt_from_utc_dt(dt_localized))
+        self.assertEqual(dt_localized, utc_dt)

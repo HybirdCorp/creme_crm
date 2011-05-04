@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2011  Hybird
+#    Copyright (C) 2009-2010  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,12 +18,19 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from creme_core.management.commands.creme_populate import BasePopulator
+from os.path import join, dirname, abspath
+from activesync.commands.airsync import AirSync
 
-from creme_config.models import *
+from activesync.tests.commands.base import BaseASTestCase
 
-#TODO: remove this file ???
+#TODO: tests!!
+class AirSyncASTestCase(BaseASTestCase):
+    def setUp(self):
+        super(AirSyncASTestCase, self).setUp()
+        self.test_files_path = join(dirname(abspath(__file__)), '..', 'data', 'commands', 'airsync')
+        self.test_files = []
+        self.test_files_paths = [join(self.test_files_path, f) for f in self.test_files]
 
-class Populator(BasePopulator):
-    def populate(self, *args, **kwargs):
-        pass
+#    def test_airsync01(self):
+#        as_ = AirSync(*self.params)
+#        as_.send(headers={'test_files': ";".join(self.test_files_paths) })

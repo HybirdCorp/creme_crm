@@ -7,12 +7,14 @@ You can find more information on Creme on its official web site: http://cremecrm
 
 
 DEPENDENCIES:
-- Python 2.5
+- Python 2.6
 - Django 1.2.5
 - Django-mediagenerator 1.8
 - pdflatex (if you use the app creme.billing and want PDF export)
 - pygraphviz (if you use the app creme.graphs and want graph export)
 - Java >= 1.4 (only needed to build the compressed version of CSS and JavaScript files at installation time)
+- PIL >= 1.1.7 (for activesync)
+- pytz-2011e
 
 RECOMMENDATIONS
 It's recommended to use a database engine that supports transactions.

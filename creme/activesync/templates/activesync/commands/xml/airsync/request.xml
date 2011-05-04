@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Sync xmlns="AirSync:"{% for pref, ns in extra_ns.iteritems %} xmlns:{{pref}}="{{ns}}"{% endfor %}>
+    <Collections>
+        <Collection>
+            <Class>{{folder.as_class}}</Class>
+            <SyncKey>{{synckey}}</SyncKey>
+            <CollectionId>{{folder.server_id}}</CollectionId>
+            {% if synckey == 0 %}
+            <Supported>
+                {% for tag in folder.supported %}
+                    {{tag|safe}}
+                {% endfor %}
+            </Supported>
+            {% endif %}
+            {% if fetch %}
+            <DeletesAsMoves/>
+            <GetChanges/>
+                {% if options %}
+                    <Options>
+                        {% for tag, value in options.iteritems %}<{{tag}}>{{value}}</{{tag}}>{% endfor %}
+                    </Options>
+                {% endif %}
+            {% endif %}
+            {% if not fetch and folder.entities %}
+            <Commands>
+                {% for obj in folder.entities %}
+                    {{obj|safe}}
+                {% endfor %}
+            </Commands>
+            {% endif %}
+        </Collection>
+    </Collections>
+</Sync>
+
