@@ -1253,13 +1253,14 @@ class EntityFiltersTestCase(CremeTestCase):
 
     def test_subfilter01(self):
         build_cond = EntityFilterCondition.build
+        build_sf   = EntityFilterCondition.build_4_subfilter
         sub_efilter = EntityFilter.create(pk='test-filter01', name='Filter01', model=Contact, use_or=True)
         sub_efilter.set_conditions([build_cond(model=Contact, type=EntityFilterCondition.EQUALS,     name='last_name',  value='Spiegel'),
                                     build_cond(model=Contact, type=EntityFilterCondition.STARTSWITH, name='first_name', value='Shin')
                                    ])
         efilter = EntityFilter.create(pk='test-filter02', name='Filter02', model=Contact, use_or=False)
         conds = [build_cond(model=Contact, type=EntityFilterCondition.STARTSWITH, name='first_name', value='Spi'),
-                 build_cond(model=Contact, type=EntityFilterCondition.SUBFILTER,  value=sub_efilter),
+                 build_sf(sub_efilter),
                 ]
         try:
             efilter.check_cycle(conds)
@@ -1276,7 +1277,7 @@ class EntityFiltersTestCase(CremeTestCase):
                                        ])
 
         conds = [build_cond(model=Contact, type=EntityFilterCondition.STARTSWITH, name='first_name', value='Spi'),
-                 build_cond(model=Contact, type=EntityFilterCondition.SUBFILTER,  value=sub_sub_efilter),
+                 build_sf(sub_sub_efilter),
                 ]
         try:
             sub_efilter.check_cycle(conds)
@@ -1285,21 +1286,17 @@ class EntityFiltersTestCase(CremeTestCase):
 
     def test_subfilter02(self): #cycle error (lenght = 0)
         efilter = EntityFilter.create(pk='test-filter02', name='Filter01', model=Contact, use_or=False)
-        build_cond = EntityFilterCondition.build
-        conds = [build_cond(model=Contact,
-                            type=EntityFilterCondition.STARTSWITH,
-                            name='first_name', value='Spi'
-                           ),
-                 build_cond(model=Contact,
-                            type=EntityFilterCondition.SUBFILTER,
-                            value=efilter
-                           ),
+        conds = [EntityFilterCondition.build(model=Contact, type=EntityFilterCondition.STARTSWITH,
+                                             name='first_name', value='Spi'
+                                            ),
+                 EntityFilterCondition.build_4_subfilter(efilter),
                 ]
         self.assertRaises(EntityFilter.CycleError, efilter.check_cycle, conds)
         self.assertRaises(EntityFilter.CycleError, efilter.set_conditions, conds)
 
     def test_subfilter03(self): #cycle error (lenght = 1)
         build_cond = EntityFilterCondition.build
+        build_sf = EntityFilterCondition.build_4_subfilter
 
         efilter01 = EntityFilter.create(pk='test-filter01', name='Filter01', model=Contact, use_or=True)
         efilter01.set_conditions([build_cond(model=Contact, type=EntityFilterCondition.EQUALS, name='last_name', value='Spiegel')])
@@ -1308,11 +1305,11 @@ class EntityFiltersTestCase(CremeTestCase):
         self.assertEqual(set([efilter02.id]), efilter02.get_connected_filter_ids())
 
         efilter02.set_conditions([build_cond(model=Contact, type=EntityFilterCondition.STARTSWITH, value='Spi', name='first_name'),
-                                  build_cond(model=Contact, type=EntityFilterCondition.SUBFILTER,  value=efilter01),
+                                  build_sf(efilter01),
                                  ])
 
-        conds = [build_cond(model=Contact, type=EntityFilterCondition.CONTAINS,   value='Faye', name='first_name'),
-                 build_cond(model=Contact, type=EntityFilterCondition.SUBFILTER,  value=efilter02),
+        conds = [build_cond(model=Contact, type=EntityFilterCondition.CONTAINS, value='Faye', name='first_name'),
+                 build_sf(efilter02),
                 ]
         efilter01 = EntityFilter.objects.get(pk=efilter01.pk) #refresh
         self.assertEqual(set([efilter01.id, efilter02.id]), efilter01.get_connected_filter_ids())
@@ -1321,22 +1318,23 @@ class EntityFiltersTestCase(CremeTestCase):
 
     def test_subfilter04(self): #cycle error (lenght = 2)
         build_cond = EntityFilterCondition.build
+        build_sf = EntityFilterCondition.build_4_subfilter
 
         efilter01 = EntityFilter.create(pk='test-filter01', name='Filter01', model=Contact, use_or=True)
         efilter01.set_conditions([build_cond(model=Contact, type=EntityFilterCondition.EQUALS, name='last_name', value='Spiegel')])
 
         efilter02 = EntityFilter.create(pk='test-filter02', name='Filter02', model=Contact, use_or=False)
         efilter02.set_conditions([build_cond(model=Contact, type=EntityFilterCondition.STARTSWITH, value='Spi', name='first_name'),
-                                  build_cond(model=Contact, type=EntityFilterCondition.SUBFILTER,  value=efilter01),
+                                  build_sf(efilter01),
                                  ])
 
         efilter03 = EntityFilter.create(pk='test-filter03', name='Filter03', model=Contact, use_or=False)
         efilter03.set_conditions([build_cond(model=Contact, type=EntityFilterCondition.ISTARTSWITH, value='Misa', name='first_name'),
-                                  build_cond(model=Contact, type=EntityFilterCondition.SUBFILTER,  value=efilter02),
+                                  build_sf(efilter02),
                                  ])
 
         conds = [build_cond(model=Contact, type=EntityFilterCondition.EQUALS, name='last_name', value='Spiegel'),
-                 build_cond(model=Contact, type=EntityFilterCondition.SUBFILTER,  value=efilter03),
+                 build_sf(efilter03),
                 ]
         efilter01 = EntityFilter.objects.get(pk=efilter01.pk) #refresh
         self.assertRaises(EntityFilter.CycleError, efilter01.check_cycle, conds)
@@ -1350,20 +1348,10 @@ class EntityFiltersTestCase(CremeTestCase):
             CremeProperty.objects.create(type=ptype, creme_entity=self.contacts[girl_id])
 
         efilter = EntityFilter.create(pk='test-filter01', name='Filter01', model=Contact)
-        efilter.set_conditions([EntityFilterCondition.build(model=Contact,
-                                                            type=EntityFilterCondition.PROPERTY,
-                                                            name=ptype.id,
-                                                            value=True #entities that has got a property with this type
-                                                           )
-                               ])
+        efilter.set_conditions([EntityFilterCondition.build_4_property(ptype=ptype, has=True)])
         self.assertExpectedFiltered(efilter, Contact, [self.contacts[i].id for i in cute_ones])
 
-        efilter.set_conditions([EntityFilterCondition.build(model=Contact,
-                                                            type=EntityFilterCondition.PROPERTY,
-                                                            name=ptype.id,
-                                                            value=False #entities that does not have a property with this type
-                                                           )
-                               ])
+        efilter.set_conditions([EntityFilterCondition.build_4_property(ptype=ptype, has=False)])
         self.assertExpectedFiltered(efilter, Contact, [c.id for i, c in enumerate(self.contacts) if i not in cute_ones])
 
     def _aux_test_relations(self):

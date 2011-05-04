@@ -21,8 +21,6 @@
 #from logging import debug
 from datetime import date
 
-from functools import partial
-
 from django.forms import ModelMultipleChoiceField, DateField, ValidationError
 from django.utils.translation import ugettext_lazy as _, ugettext
 from django.utils.formats import date_format
@@ -415,7 +413,7 @@ class CustomFieldsConditionsField(_ConditionsField):
 
 class DateCustomFieldsConditionsField(CustomFieldsConditionsField, DateFieldsConditionsField):
     default_error_messages = {
-        'invalidcustomfield':     _(u"This date custom field is invalid with this model."),
+        'invalidcustomfield': _(u"This date custom field is invalid with this model."),
     }
 
     def _set_model(self, model):
@@ -648,30 +646,19 @@ class PropertiesConditionsField(_ConditionsField):
         return bool_from_str(has)
 
     def _clean_ptype(self, entry):
-        ptype_id = self.clean_value(entry, 'ptype', str)
+        ptype = self._ptypes.get(self.clean_value(entry, 'ptype', str))
 
-        if ptype_id not in self._ptypes:
+        if not ptype:
             raise ValidationError(self.error_messages['invalidptype'])
 
-        return ptype_id
+        return ptype
 
     def _conditions_from_dicts(self, data):
-        build_condition = EntityFilterCondition.build
+        build = EntityFilterCondition.build_4_property
         clean_has   = self._clean_has
         clean_ptype = self._clean_ptype
 
-        try:
-            conditions = [build_condition(model=self.model,
-                                          type=EntityFilterCondition.PROPERTY,
-                                          name=clean_ptype(entry),
-                                          value=clean_has(entry),
-                                         )
-                                for entry in data
-                         ]
-        except EntityFilterCondition.ValueError, e:
-            raise ValidationError(str(e))
-
-        return conditions
+        return [build(ptype=clean_ptype(entry), has=clean_has(entry)) for entry in data]
 
     def _set_initial_conditions(self, conditions):
         PROPERTY = EntityFilterCondition.PROPERTY
@@ -686,10 +673,9 @@ class SubfiltersConditionsField(ModelMultipleChoiceField):
         self.model = model or CremeEntity #TODO: remove
 
     def clean(self, value):
-        subfilters = super(SubfiltersConditionsField, self).clean(value)
-        build_cond = partial(EntityFilterCondition.build, type=EntityFilterCondition.SUBFILTER, model=self.model)
+        build_cond = EntityFilterCondition.build_4_subfilter
 
-        return [build_cond(value=subfilter) for subfilter in subfilters]
+        return [build_cond(subfilter) for subfilter in super(SubfiltersConditionsField, self).clean(value)]
 
     def initialize(self, ctype, conditions=None, efilter=None):
         qs = EntityFilter.objects.filter(entity_type=ctype)
@@ -701,7 +687,7 @@ class SubfiltersConditionsField(ModelMultipleChoiceField):
 
         if conditions:
             SUBFILTER = EntityFilterCondition.SUBFILTER
-            self.initial = [c.decoded_value for c in conditions if c.type == SUBFILTER]
+            self.initial = [c.name for c in conditions if c.type == SUBFILTER]
 
 
 #Forms--------------------------------------------------------------------------
@@ -747,7 +733,6 @@ class _EntityFilterForm(CremeModelForm):
     def clean(self):
         cdata = self.cleaned_data
 
-        #TODO: get fields names from the block instead ??
         if not self._errors and not any(cdata[f] for f in self._CONDITIONS_FIELD_NAMES):
             raise ValidationError(ugettext(u'The filter must have at least one condition.'))
 

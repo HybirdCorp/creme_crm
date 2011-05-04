@@ -134,13 +134,10 @@ class Populator(BasePopulator):
 
         orga_ct = ContentType.objects.get_for_model(Organisation)
 
+        managed_by_creme = CremePropertyType.objects.get(pk=PROP_IS_MANAGED_BY_CREME)
+
         efilter = EntityFilter.create(FILTER_MANAGED_ORGA, name=_(u"Managed by creme"), model=Organisation)
-        efilter.set_conditions([EntityFilterCondition.build(model=Organisation,
-                                                            type=EntityFilterCondition.PROPERTY,
-                                                            name=PROP_IS_MANAGED_BY_CREME,
-                                                            value=True #entities that has got a property with this type
-                                                           )
-                               ])
+        efilter.set_conditions([EntityFilterCondition.build_4_property(ptype=managed_by_creme, has=True)])
 
         admin = User.objects.get(pk=1)
 
@@ -153,7 +150,6 @@ class Populator(BasePopulator):
         #TODO: add relation to admin ????
         if not Organisation.objects.exists():
             orga = Organisation.objects.create(user=admin, name=_("ReplaceByYourSociety"))
-            managed_by_creme = CremePropertyType.objects.get(pk=PROP_IS_MANAGED_BY_CREME)
             CremeProperty.objects.create(type=managed_by_creme, creme_entity=orga)
 
         SearchConfigItem.create(Contact, ['first_name', 'last_name', 'landline', 'mobile', 'email'])

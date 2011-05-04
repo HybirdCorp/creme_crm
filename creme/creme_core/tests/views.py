@@ -1907,8 +1907,7 @@ class EntityFilterViewsTestCase(ViewsTestCase):
 
         condition = iter_conds.next()
         self.assertEqual(EntityFilterCondition.SUBFILTER, condition.type)
-        self.failIf(condition.name)
-        self.assertEqual(subfilter.id, condition.decoded_value)
+        self.assertEqual(subfilter.id, condition.name)
 
     def test_create03(self): #error: no conditions of any type
         self.login()
@@ -1959,23 +1958,12 @@ class EntityFilterViewsTestCase(ViewsTestCase):
                                                                              ),
                                 EntityFilterCondition.build_4_relation(rtype=rtype, has=True),
                                 EntityFilterCondition.build_4_relation_subfilter(rtype=srtype, has=True, subfilter=relsubfilfer),
-                                EntityFilterCondition.build(model=Contact,
-                                                            type=EntityFilterCondition.PROPERTY,
-                                                            name=ptype.id,
-                                                            value=True
-                                                           ),
-                                EntityFilterCondition.build(model=Contact,
-                                                            type=EntityFilterCondition.SUBFILTER,
-                                                            value=subfilter
-                                                           ),
+                                EntityFilterCondition.build_4_property(ptype, True),
+                                EntityFilterCondition.build_4_subfilter(subfilter),
                                ])
 
         parent_filter = EntityFilter.create('test-filter04', 'Filter 04', Contact, is_custom=True)
-        parent_filter.set_conditions([EntityFilterCondition.build(model=Contact,
-                                                                 type=EntityFilterCondition.SUBFILTER,
-                                                                 value=efilter
-                                                           ),
-                                     ])
+        parent_filter.set_conditions([EntityFilterCondition.build_4_subfilter(efilter)])
 
         url = '/creme_core/entity_filter/edit/%s' % efilter.id
         response = self.client.get(url)
@@ -2084,8 +2072,7 @@ class EntityFilterViewsTestCase(ViewsTestCase):
 
         condition = iter_conds.next()
         self.assertEqual(EntityFilterCondition.SUBFILTER, condition.type)
-        self.failIf(condition.name)
-        self.assertEqual(subfilter.id, condition.decoded_value)
+        self.assertEqual(subfilter.id, condition.name)
 
     def test_edit02(self): #not custom -> can not edit
         self.login()
@@ -2122,11 +2109,7 @@ class EntityFilterViewsTestCase(ViewsTestCase):
                                ])
 
         parent_filter = EntityFilter.create('test-filter02', 'Filter 02', Contact, is_custom=True)
-        parent_filter.set_conditions([EntityFilterCondition.build(model=Contact,
-                                                                 type=EntityFilterCondition.SUBFILTER,
-                                                                 value=efilter
-                                                           ),
-                                     ])
+        parent_filter.set_conditions([EntityFilterCondition.build_4_subfilter(efilter)])
 
         response = self.client.post('/creme_core/entity_filter/edit/%s' % efilter.id, follow=True,
                                     data={
