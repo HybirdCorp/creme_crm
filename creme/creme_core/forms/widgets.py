@@ -167,14 +167,14 @@ class DateRangeSelect(TextInput):
         attrs = self.build_attrs(attrs, name=name, type='hidden')
         context = widget_render_context('ui-creme-daterange', attrs)
 
-        date_range = ['<select name="type">']
+        date_range = ['<select class="daterange-input range-type">']
         date_range.extend(u'<option value="%s">%s</option>' % (name, verb_name) for name, verb_name in self.choices)
         date_range.append('</select>')
 
         context['input'] = widget_render_hidden_input(self, name, value, context)
         context['select'] = '\n'.join(date_range)
-        context['start'] = '<input type="text" name="start"></input>'
-        context['end']   = '<input type="text" name="end"></input>'
+        context['start'] = '<input type="text" class="daterange-input date-start"></input>'
+        context['end']   = '<input type="text" class="daterange-input date-end"></input>'
         context['from']  = _(u'From')
         context['to']    = _(u'To')
         context['date_format'] = settings.DATE_FORMAT_JS.get(settings.DATE_FORMAT)
