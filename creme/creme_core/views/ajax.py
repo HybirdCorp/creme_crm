@@ -17,18 +17,22 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
+from itertools import chain
 
 from logging import debug
 
 from django.contrib.auth.decorators import login_required
+from django.db.models.fields.related import ForeignKey, ManyToManyField
 from django.http import HttpResponse, Http404
 from django.utils.simplejson import JSONEncoder
+from django.utils.translation import ugettext_lazy as _
 
 from creme_core.models import CremeEntity
+from creme_core.models.auth import EntityCredentials
 from creme_core.models.custom_field import CustomField
 from creme_core.registry import creme_registry
 from creme_core.utils.meta import get_flds_with_fk_flds_str
-from creme_core.utils import get_ct_or_404, get_from_POST_or_404
+from creme_core.utils import get_ct_or_404, get_from_POST_or_404, jsonify
 #from creme.creme_utils.views import handle_uploaded_file
 
 
@@ -127,3 +131,25 @@ def get_function_fields(request):
     """@return functions fields for a model [('func_name', 'func_verbose_name'), ...]"""
     return _get_ct_info(request,
                         lambda ct: [(f_field.name, unicode(f_field.verbose_name)) for f_field in ct.model_class().function_fields])
+
+
+@jsonify
+def get_widget(request, ct_id):
+    model             = get_ct_or_404(ct_id).model_class()
+    field_name        = get_from_POST_or_404(request.POST, 'field_name')
+    field_value_name  = get_from_POST_or_404(request.POST, 'field_value_name')
+    model_field       = model._meta.get_field(field_name)
+
+    form_field = model_field.formfield()
+    if isinstance(model_field, (ForeignKey, ManyToManyField)) and issubclass(model_field.rel.to, CremeEntity):
+        fk_entities = model_field.rel.to._default_manager.filter(pk__in=[id_ for id_, text in form_field.choices if id_])
+
+        form_field.choices = ((e.id, e) for e in EntityCredentials.filter(request.user, fk_entities))
+
+        if model_field.null and isinstance(model_field, ForeignKey):
+            form_field.choices = chain([(u"", _(u"None"))], form_field.choices)
+
+    return {
+        'rendered': form_field.widget.render(name=field_value_name, value=None, attrs=None)
+    }
+

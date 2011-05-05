@@ -348,6 +348,7 @@ CREME_CORE_JS = ('main.js',
                     'creme_core/js/widgets/selectorlist.js',
                     'creme_core/js/widgets/entityselector.js',
                     'creme_core/js/widgets/rte.js',
+                    'creme_core/js/widgets/adaptivewidget.js',
 
                     'creme_core/js/filters.js',
                     'creme_core/js/properties.js',

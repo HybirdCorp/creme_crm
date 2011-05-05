@@ -91,6 +91,7 @@ creme_core_patterns = patterns('creme_core.views',
     (r'^get_fields$',          'ajax.get_fields'),
     (r'^get_custom_fields$',   'ajax.get_custom_fields'),
     (r'^get_function_fields$', 'ajax.get_function_fields'),
+    (r'^get_widget/(?P<ct_id>\d+)', 'ajax.get_widget'),
 )
 
 creme_core_patterns += patterns('creme_core.views.generic',

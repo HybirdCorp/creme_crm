@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from datetime import date
 
 from tempfile import NamedTemporaryFile
 
@@ -7,11 +8,13 @@ from django.core.serializers.json import simplejson
 from django.utils.translation import ugettext as _
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
+from django.conf import settings
 
 from creme_core.models import *
 from creme_core.models.header_filter import HFI_FIELD
 from creme_core.tests.base import CremeTestCase
 from creme_core.gui.bulk_update import bulk_update_registry
+from media_managers.models.image import Image
 
 from persons.models import Contact, Organisation, Position, Sector
 from persons.constants import REL_OBJ_CUSTOMER_OF, REL_OBJ_EMPLOYED_BY
@@ -568,7 +571,89 @@ class EntityViewsTestCase(ViewsTestCase):
         self.assertEqual(mario_desc, mario.description)
         self.assertEqual('',         luigi.description)
 
+    def test_edit_entities_bulk08(self):
+        self.login()
+        contact_ct_id = ContentType.objects.get_for_model(Contact).id
 
+        mario = Contact.objects.create(user=self.user, first_name="Mario", last_name="Bros")
+        luigi = Contact.objects.create(user=self.user, first_name="Luigi", last_name="Bros")
+
+        comma_sep_ids = ",".join([str(mario.id), str(luigi.id)])
+        url = '/creme_core/entity/bulk_update/%s/%s' % (contact_ct_id, comma_sep_ids)
+
+        response = self.client.get(url)
+        self.assertEqual(200, response.status_code)
+
+        response = self.client.post(url,
+                    data={
+                        'field_name':   'birthday',
+                        'field_value':  'bad date',
+                        'entities_lbl': 'whatever',
+                    }
+                   )
+
+        self.assert_(response.context['form'].errors)
+
+        settings.DATE_INPUT_FORMATS += ("-%dT%mU%Y-",) #This weird format have few chances to be present in settings
+        response = self.client.post(url,
+            data={
+                'field_name':   'birthday',
+                'field_value':  '-31T01U2000-',
+                'entities_lbl': 'whatever',
+            }
+           )
+
+        mario    = Contact.objects.get(pk=mario.pk)#Refresh
+        luigi    = Contact.objects.get(pk=luigi.pk)#Refresh
+
+        birthday = date(2000, 01, 31)
+
+        self.assertEqual(birthday, mario.birthday)
+        self.assertEqual(birthday, luigi.birthday)
+
+    def test_edit_entities_bulk09(self):
+        self.login(is_superuser=False, allowed_apps=('creme_core', 'persons', 'media_managers'))
+        contact_ct_id = ContentType.objects.get_for_model(Contact).id
+
+        mario_desc = u"Luigi's brother"
+        mario = Contact.objects.create(user=self.other_user, first_name="Mario", last_name="Bros", description=mario_desc)
+        luigi = Contact.objects.create(user=self.user,       first_name="Luigi", last_name="Bros", description="Mario's brother")
+
+        unallowed = Image.objects.create(user=self.other_user)
+        allowed   = Image.objects.create(user=self.user)
+
+        comma_sep_ids = ",".join([str(mario.id), str(luigi.id)])
+
+        url = '/creme_core/entity/bulk_update/%s/%s' % (contact_ct_id, comma_sep_ids)
+
+        response = self.client.get(url)
+        self.assertEqual(200, response.status_code)
+
+        response = self.client.post(url,
+                            data={
+                                'field_name':      'image',
+                                'field_value':     unallowed.id,
+                                'entities_lbl':    'whatever',
+                                'bad_entities_lbl':'whatever',
+                            }
+                           )
+
+        self.assert_(response.context['form'].errors)
+
+        response = self.client.post(url,
+                    data={
+                        'field_name':      'image',
+                        'field_value':     allowed.id,
+                        'entities_lbl':    'whatever',
+                        'bad_entities_lbl':'whatever',
+                    }
+                   )
+
+        mario    = Contact.objects.get(pk=mario.pk)#Refresh
+        luigi    = Contact.objects.get(pk=luigi.pk)#Refresh
+
+        self.assertNotEqual(allowed, mario.image)
+        self.assertEqual(allowed,    luigi.image)
 
 class PropertyViewsTestCase(ViewsTestCase):
     def test_add(self):
