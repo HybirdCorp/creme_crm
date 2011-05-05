@@ -22,40 +22,39 @@ creme.widget.DateRange = creme.widget.declare('ui-creme-daterange', {
     },
 
     _get_end: function(element) {
-        return $('[name="end"]', element);
+        return $('.date-end', element);
     },
 
     _get_start: function(element) {
-        return $('[name="start"]', element);
+        return $('.date-start', element);
     },
 
     _get_type: function(element) {
-        return $('[name="type"]', element);
+        return $('.range-type', element);
     },
 
     _create: function(element, options, cb, sync) {
         var self = creme.widget.DateRange;
         var value = self.val(element);
-
-        console.log('OPTIONS:', options);
-
-        datepicker_options = {dateFormat: options['date_format'],
-                              showOn: "button",
-                              buttonImage: media_url("images/icon_calendar.gif"),
-                              buttonImageOnly: true
-                             }
-        self._get_start(element).datepicker(datepicker_options);
-        self._get_end(element).datepicker(datepicker_options);
+        var $datespan = $('span.daterange-inputs', element);
+        var datepicker_options = {dateFormat:      options['date_format'],
+                                  showOn:          "button",
+                                  buttonImage:     media_url("images/icon_calendar.gif"),
+                                  buttonImageOnly: true
+                                 }
 
         self._get_type(element).bind('change', function() {
-                var $span = $('span.daterange-inputs', element);
-
                 if ($(this).val()) {
-                    $span.hide();
+                    $datespan.hide();
                 } else {
-                    $span.show();
+                    $datespan.show();
                 }
+
+                self._update(element);
             });
+
+        $('.daterange-input', $datespan).bind('change', function() {self._update(element);})
+                                        .datepicker(datepicker_options);
 
         if (!value) {
             self._update(element);
@@ -81,8 +80,8 @@ creme.widget.DateRange = creme.widget.declare('ui-creme-daterange', {
 
         if (type !== undefined) {
             self._get_type(element).val(type).change();
-            self._get_start(element).val(value['start']);
-            self._get_end(element).val(value['end']);
+            self._get_start(element).val(value['start']).change();
+            self._get_end(element).val(value['end']).change();
         }
     },
 

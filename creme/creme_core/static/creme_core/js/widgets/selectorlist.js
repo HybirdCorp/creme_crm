@@ -1,6 +1,6 @@
 /*******************************************************************************
     Creme is a free/open-source Customer Relationship Management software
-    Copyright (C) 2009-2010  Hybird
+    Copyright (C) 2009-2011  Hybird
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -19,8 +19,7 @@
 creme.widget.SelectorList = creme.widget.declare('ui-creme-selectorlist', {
     options: {},
 
-    _create: function(element, options) 
-    {
+    _create: function(element, options) {
         var self = creme.widget.SelectorList;
 
         $('div.add ul', element).click(function() {
@@ -31,8 +30,7 @@ creme.widget.SelectorList = creme.widget.declare('ui-creme-selectorlist', {
         element.addClass('widget-ready');
     },
 
-    _get_selector: function(element, selector) 
-    {
+    _get_selector: function(element, selector) {
         var self = creme.widget.SelectorList;
 
         if (selector === undefined) {
@@ -49,8 +47,7 @@ creme.widget.SelectorList = creme.widget.declare('ui-creme-selectorlist', {
         return selector;
     },
 
-    append_selector: function(element, selector) 
-    {
+    append_selector: function(element, selector) {
         var self = creme.widget.SelectorList;
 
         var selector = self._get_selector(element, selector);
@@ -83,41 +80,37 @@ creme.widget.SelectorList = creme.widget.declare('ui-creme-selectorlist', {
         return selector;
     },
 
-    _update: function(element) 
-    {
+    _update: function(element) {
         var self = creme.widget.SelectorList;
         var values = creme.widget.val($('ul.selectors .selector', element));
         creme.widget.input(element).val('[' + values.join(',') + ']');
     },
 
-    _update_selectors: function(element, value)
-    {
-    	var self = creme.widget.SelectorList;
-    	var values = creme.widget.parseval(value, creme.ajax.json.parse);
+    _update_selectors: function(element, value) {
+        var self = creme.widget.SelectorList;
+        var values = creme.widget.parseval(value, creme.ajax.json.parse);
 
         if (values === undefined)
-        	return;
-        
+            return;
+
         $('ul.selectors', element).empty();
 
         if (values === null)
             return;
 
-        for (var i = 0; i < values.length; ++i) 
-        {
+        for (var i = 0; i < values.length; ++i) {
             var selector = self.append_selector(element);
             selector.data('widget').val(selector, values[i]);
         }
     },
-    
-    val: function(element, value) 
-    {
+
+    val: function(element, value) {
         var self = creme.widget.SelectorList;
-        
+
         if (value === undefined)
-        	return creme.widget.input(element).val();
-        
+            return creme.widget.input(element).val();
+
         self._update_selectors(value);
-       	creme.widget.input(element).val(value);
+           creme.widget.input(element).val(value);
     }
 });
