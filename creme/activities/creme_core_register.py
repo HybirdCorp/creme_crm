@@ -24,6 +24,7 @@ from creme_core.registry import creme_registry
 from creme_core.gui.menu import creme_menu
 from creme_core.gui.block import block_registry
 from creme_core.gui.button_menu import button_registry
+from creme_core.gui.bulk_update import bulk_update_registry
 
 from activities.models import Activity, PhoneCall, Meeting
 from activities.blocks import participants_block, subjects_block, future_activities_block, past_activities_block, user_calendars_block
@@ -50,4 +51,6 @@ block_registry.register(participants_block, subjects_block, future_activities_bl
 
 button_registry.register(add_meeting_button, add_phonecall_button, add_task_button)
 
-
+bulk_update_registry.register(
+    (Activity, ['type', 'start_date', 'end_date', 'busy', 'is_all_day']),
+)

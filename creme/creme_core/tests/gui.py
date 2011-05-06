@@ -4,15 +4,21 @@ from time import sleep
 
 from django.contrib.auth.models import User
 from django.contrib.sessions.models import Session
+from activities.models.activity import Meeting, Activity
 
 from creme_core.models import *
 from creme_core.gui.last_viewed import LastViewedItem
 from creme_core.tests.base import CremeTestCase
+from creme_core.gui.bulk_update import BulkUpdateRegistry
 
 from persons.models import Contact
+from persons.models.organisation import Organisation
 
 
 class GuiTestCase(CremeTestCase):
+    def setUp(self):
+        self.bulk_update_registry = BulkUpdateRegistry()
+
     def test_last_viewed_items(self):
         self.login()
 
@@ -60,3 +66,72 @@ class GuiTestCase(CremeTestCase):
         self.assertEqual(0, CremeEntity.objects.filter(pk=contact03.id).count())
         self.assertEqual(200, self.client.get(Contact.get_lv_absolute_url()).status_code)
         self.assertEqual([contact02.pk, contact01.pk], [i.pk for i in get_items()])
+
+    def test_bulk_update_registry01(self):
+        bulk_update_registry = self.bulk_update_registry
+
+        contact_excluded_fields = ['position', 'first_name']
+        ce_excluded_fields = ['created']
+
+        bulk_update_registry.register((Contact, contact_excluded_fields))
+
+        self.assertEqual(bulk_update_registry.get_excluded_fields(Contact), set(contact_excluded_fields))
+
+        bulk_update_registry.register((CremeEntity, ce_excluded_fields))
+
+        self.assertEqual(bulk_update_registry.get_excluded_fields(Contact), set(contact_excluded_fields) | set(ce_excluded_fields))
+
+
+    def test_bulk_update_registry02(self):
+        bulk_update_registry = self.bulk_update_registry
+
+        contact_excluded_fields  = ['position', 'first_name']
+        orga_excluded_fields     = ['sector', 'name']
+        ce_excluded_fields       = ['created']
+
+        bulk_update_registry.register(
+                                        (Contact,      contact_excluded_fields),
+                                        (CremeEntity,  ce_excluded_fields),
+                                        (Organisation, orga_excluded_fields),
+                                     )
+
+        self.assertEqual(bulk_update_registry.get_excluded_fields(Contact),      set(contact_excluded_fields)   | set(ce_excluded_fields))
+        self.assertEqual(bulk_update_registry.get_excluded_fields(Organisation), set(orga_excluded_fields)      | set(ce_excluded_fields))
+
+    def test_bulk_update_registry03(self):
+        bulk_update_registry = self.bulk_update_registry
+
+        contact_excluded_fields  = ['position', 'first_name']
+        orga_excluded_fields     = ['sector', 'name']
+        ce_excluded_fields       = ['created']
+        activity_excluded_fields = ['title']
+        meeting_excluded_fields  = ['place']
+
+        bulk_update_registry.register(
+                                        (Contact,      contact_excluded_fields),
+                                        (CremeEntity,  ce_excluded_fields),
+                                        (Organisation, orga_excluded_fields),
+                                        (Meeting,      meeting_excluded_fields),
+                                        (Activity,     activity_excluded_fields),
+                                     )
+        
+        meeting_excluded_fields_expected = set(activity_excluded_fields)   | set(ce_excluded_fields) | set(meeting_excluded_fields)
+        self.assertEqual(bulk_update_registry.get_excluded_fields(Meeting), meeting_excluded_fields_expected)
+
+        
+        bulk_update_registry.register((Activity, ['status']))
+
+        activity_excluded_fields_expected = set(activity_excluded_fields)   | set(ce_excluded_fields) | set(['status'])
+
+        self.assertEqual(bulk_update_registry.get_excluded_fields(Activity), activity_excluded_fields_expected)
+
+    def test_bulk_update_registry04(self):
+        bulk_update_registry = self.bulk_update_registry
+        
+        ce_excluded_fields       = ['created']
+
+        bulk_update_registry.register(
+                                        (CremeEntity,  ce_excluded_fields),
+                                     )
+
+        self.assertEqual(bulk_update_registry.get_excluded_fields(Contact), set(ce_excluded_fields))
