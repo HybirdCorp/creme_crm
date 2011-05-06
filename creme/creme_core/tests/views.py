@@ -1729,13 +1729,13 @@ class EntityFilterViewsTestCase(ViewsTestCase):
                                                                                     'cfield': datecfield.id,
                                                                                     'type':   datecfield_rtype,
                                                                                 },
-                                            'relations_conditions':         '[{"has":"true", "rtype":"%s", "ctype":"0", "entity":null}]' % (rtype.id),
-                                            'relsubfilfers_conditions':     '[{"rtype": "%(rtype)s", "has": "false", "ctype": "%(ct)s", "filter":"%(filter)s"}]' % {
+                                            'relations_conditions':         '[{"has": true, "rtype": "%s", "ctype": "0", "entity": null}]' % (rtype.id),
+                                            'relsubfilfers_conditions':     '[{"rtype": "%(rtype)s", "has": false, "ctype": "%(ct)s", "filter": "%(filter)s"}]' % {
                                                                                     'rtype':  srtype.id,
                                                                                     'ct':     ContentType.objects.get_for_model(Contact).id,
                                                                                     'filter': relsubfilfer.id,
                                                                                 },
-                                            'properties_conditions':        '[{"has":"true", "ptype":"%s"}]' % (ptype.id),
+                                            'properties_conditions':        '[{"has": true, "ptype":"%s"}]' % (ptype.id),
                                             'subfilters_conditions':        [subfilter.id],
                                          }
                                    )
@@ -1889,13 +1889,13 @@ class EntityFilterViewsTestCase(ViewsTestCase):
                                                                                     'cfield': datecfield.id,
                                                                                     'type':   datecfield_rtype,
                                                                                 },
-                                            'relations_conditions':         '[{"has":"true", "rtype":"%s", "ctype":"0", "entity":null}]' % rtype.id,
-                                            'relsubfilfers_conditions':     '[{"rtype": "%(rtype)s", "has": "false", "ctype": "%(ct)s", "filter":"%(filter)s"}]' % {
+                                            'relations_conditions':         '[{"has": true, "rtype": "%s", "ctype": "0", "entity": null}]' % rtype.id,
+                                            'relsubfilfers_conditions':     '[{"rtype": "%(rtype)s", "has": false, "ctype": "%(ct)s", "filter": "%(filter)s"}]' % {
                                                                                     'rtype':  srtype.id,
                                                                                     'ct':     ContentType.objects.get_for_model(Organisation).id,
                                                                                     'filter': relsubfilfer.id,
                                                                                 },
-                                            'properties_conditions':        '[{"has":"false","ptype":"%s"}]' % ptype.id,
+                                            'properties_conditions':        '[{"has": false, "ptype": "%s"}]' % ptype.id,
                                             'subfilters_conditions':        [subfilter.id],
                                          }
                                    )
@@ -1997,7 +1997,7 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         response = self.client.post('/creme_core/entity_filter/edit/%s' % efilter.id, follow=True,
                                     data={
                                             'name':                     efilter.name,
-                                            'relsubfilfers_conditions': '[{"rtype": "%(rtype)s", "has": "false", "ctype": "%(ct)s", "filter":"%(filter)s"}]' % {
+                                            'relsubfilfers_conditions': '[{"rtype": "%(rtype)s", "has": false, "ctype": "%(ct)s", "filter": "%(filter)s"}]' % {
                                                                                 'rtype':  rtype.id,
                                                                                 'ct':     ContentType.objects.get_for_model(Contact).id,
                                                                                 'filter': parent_filter.id, #PROBLEM IS HERE !!!

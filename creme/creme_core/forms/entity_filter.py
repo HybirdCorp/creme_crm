@@ -531,14 +531,6 @@ class RelationsConditionsField(_ConditionsField):
     def _conditions_to_dicts(self, conditions):
         return map(self._condition_to_dict, conditions)
 
-    def _clean_has(self, entry):
-        has = self.clean_value(entry, 'has', str)
-
-        if has not in _HAS_RELATION_OPTIONS:
-            raise ValidationError(self.error_messages['invalidformat'])
-
-        return bool_from_str(has)
-
     def _clean_ct(self, entry):
         ct_id = self.clean_value(entry, 'ctype', int)
 
@@ -575,7 +567,7 @@ class RelationsConditionsField(_ConditionsField):
         for entry in data:
             kwargs = {
                         'rtype': self._clean_rtype(entry),
-                        'has':   self._clean_has(entry),
+                        'has':   self.clean_value(entry, 'has', bool),
                         'ct':    self._clean_ct(entry),
                      }
             entity_id = self._clean_entity_id(entry)
@@ -630,7 +622,7 @@ class RelationSubfiltersConditionsField(RelationsConditionsField):
         filter_ids = set() #the queries on EntityFilter are grouped.
 
         for entry in data:
-            kwargs    = {'rtype': self._clean_rtype(entry), 'has': self._clean_has(entry)}
+            kwargs    = {'rtype': self._clean_rtype(entry), 'has': self.clean_value(entry, 'has', bool)}
             filter_id = self.clean_value(entry, 'filter', str)
 
             if filter_id:
@@ -683,14 +675,6 @@ class PropertiesConditionsField(_ConditionsField):
                 } for condition in conditions
                ]
 
-    def _clean_has(self, entry):
-        has = self.clean_value(entry, 'has', str)
-
-        if has not in _HAS_PROPERTY_OPTIONS:
-            raise ValidationError(self.error_messages['invalidformat'])
-
-        return bool_from_str(has)
-
     def _clean_ptype(self, entry):
         ptype = self._ptypes.get(self.clean_value(entry, 'ptype', str))
 
@@ -701,10 +685,10 @@ class PropertiesConditionsField(_ConditionsField):
 
     def _conditions_from_dicts(self, data):
         build = EntityFilterCondition.build_4_property
-        clean_has   = self._clean_has
         clean_ptype = self._clean_ptype
+        clean_value = self.clean_value
 
-        return [build(ptype=clean_ptype(entry), has=clean_has(entry)) for entry in data]
+        return [build(ptype=clean_ptype(entry), has=clean_value(entry, 'has', bool)) for entry in data]
 
     def _set_initial_conditions(self, conditions):
         PROPERTY = EntityFilterCondition.EFC_PROPERTY
