@@ -9,7 +9,7 @@ from django.contrib.contenttypes.models import ContentType
 from creme_core.models import *
 from creme_core.tests.base import CremeTestCase
 
-from persons.models import Contact, Organisation
+from persons.models import Contact, Organisation, Civility
 
 
 class ModelsTestCase(CremeTestCase):
@@ -867,10 +867,13 @@ class EntityFiltersTestCase(CremeTestCase):
         create = Contact.objects.create
         user = self.user
 
+        self.civ_miss   = miss   = Civility.objects.create(title='Miss')
+        self.civ_mister = mister = Civility.objects.create(title='Mister')
+
         self.contacts = [
-            create(user=user, first_name=u'Spike',  last_name=u'Spiegel'),   #0
-            create(user=user, first_name=u'Jet',    last_name=u'Black'),     #1
-            create(user=user, first_name=u'Faye',   last_name=u'Valentine',
+            create(user=user, first_name=u'Spike',  last_name=u'Spiegel',   civility=mister), #0
+            create(user=user, first_name=u'Jet',    last_name=u'Black',     civility=mister), #1
+            create(user=user, first_name=u'Faye',   last_name=u'Valentine', civility=miss,
                    description=u'Sexiest woman is the universe'),            #2
             create(user=user, first_name=u'Ed',     last_name=u'Wong'),      #3
             create(user=user, first_name=u'Rei',    last_name=u'Ayanami'),   #4
@@ -1116,12 +1119,38 @@ class EntityFiltersTestCase(CremeTestCase):
         orga03 = create(user=user, name='Seele',       capital=100000)
 
         efilter = EntityFilter.create('test-filter01', name='is not null', model=Organisation)
-        cond = EntityFilterCondition.build(model=Organisation,
-                                           type=EntityFilterCondition.RANGE,
-                                           name='capital', value=(5000, 500000)
-                                          )
-        efilter.set_conditions([cond])
+        efilter.set_conditions([EntityFilterCondition.build(model=Organisation,
+                                                            type=EntityFilterCondition.RANGE,
+                                                            name='capital', value=(5000, 500000)
+                                                           )
+                               ])
         self.assertExpectedFiltered(efilter, Organisation, [orga02.id, orga03.id])
+
+    def test_filter_fk01(self):
+        efilter = EntityFilter.create('test-filter01', 'Misters', Contact)
+        efilter.set_conditions([EntityFilterCondition.build(model=Contact,
+                                                            type=EntityFilterCondition.EQUALS,
+                                                            name='civility', value=self.civ_mister.id #TODO: "self.mister" ??
+                                                           )
+                               ])
+        self.assertExpectedFiltered(efilter, Contact, [self.contacts[0].id, self.contacts[1].id])
+
+        efilter = EntityFilter.create('test-filter01', 'Not Misses', Contact)
+        efilter.set_conditions([EntityFilterCondition.build(model=Contact,
+                                                            type=EntityFilterCondition.EQUALS_NOT,
+                                                            name='civility', value=self.civ_miss.id
+                                                           )
+                               ])
+        self.assertExpectedFiltered(efilter, Contact, [c.id for i, c in enumerate(self.contacts) if i != 2])
+
+    def test_filter_fk02(self):
+        efilter = EntityFilter.create('test-filter01', 'Mist..', Contact)
+        efilter.set_conditions([EntityFilterCondition.build(model=Contact,
+                                                            type=EntityFilterCondition.ISTARTSWITH,
+                                                            name='civility__title', value='Mist'
+                                                           )
+                               ])
+        self.assertExpectedFiltered(efilter, Contact, [self.contacts[0].id, self.contacts[1].id])
 
     def test_build_condition(self): #errors
         self.assertRaises(EntityFilterCondition.ValueError,
@@ -1135,6 +1164,10 @@ class EntityFiltersTestCase(CremeTestCase):
         self.assertRaises(EntityFilterCondition.ValueError,
                           EntityFilterCondition.build,
                           model=Contact, type=EntityFilterCondition.ISNULL, name='description', value='Not a boolean', #ISNULL => boolean
+                         )
+        self.assertRaises(EntityFilterCondition.ValueError,
+                          EntityFilterCondition.build,
+                          model=Contact, type=EntityFilterCondition.STARTSWITH, name='civility__unknown', value='Mist'
                          )
 
     def test_condition_update(self):
