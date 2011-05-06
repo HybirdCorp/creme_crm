@@ -17,7 +17,7 @@ from creme_core.gui.bulk_update import bulk_update_registry
 from media_managers.models.image import Image
 
 from persons.models import Contact, Organisation, Position, Sector
-from persons.constants import REL_OBJ_CUSTOMER_OF, REL_OBJ_EMPLOYED_BY
+from persons.constants import REL_OBJ_CUSTOMER_OF
 
 from documents.models import Document, Folder, FolderCategory #for CSV importing
 
@@ -619,8 +619,12 @@ class EntityViewsTestCase(ViewsTestCase):
         mario = Contact.objects.create(user=self.other_user, first_name="Mario", last_name="Bros", description=mario_desc)
         luigi = Contact.objects.create(user=self.user,       first_name="Luigi", last_name="Bros", description="Mario's brother")
 
-        unallowed = Image.objects.create(user=self.other_user)
-        allowed   = Image.objects.create(user=self.user)
+        tmpfile = NamedTemporaryFile()
+        tmpfile.width = tmpfile.height = 0
+        tmpfile._committed = True
+
+        unallowed = Image.objects.create(user=self.other_user, image=tmpfile)
+        allowed   = Image.objects.create(user=self.user, image=tmpfile)
 
         comma_sep_ids = ",".join([str(mario.id), str(luigi.id)])
 

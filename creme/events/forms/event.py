@@ -40,7 +40,7 @@ from events.constants import *
 
 class EventForm(CremeEntityForm):
     start_date = DateTimeField(label=_(u'Start date'), widget=DateTimeWidget)
-    end_date   = DateTimeField(label=_(u'End date'), required=False, widget=DateTimeWidget)
+    end_date   = DateTimeField(label=_(u'End date'), required=False, widget=DateTimeWidget)#TODO: start_date > end_date ?
 
     class Meta(CremeEntityForm.Meta):
         model = Event

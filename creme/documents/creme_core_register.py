@@ -23,6 +23,7 @@ from django.utils.translation import ugettext_lazy as _
 from creme_core.registry import creme_registry
 from creme_core.gui.menu import creme_menu
 from creme_core.gui.block import block_registry
+from creme_core.gui.bulk_update import bulk_update_registry
 
 from documents.models import Document, Folder
 from documents.blocks import linked_docs_block
@@ -39,3 +40,8 @@ reg_item('/documents/folders',      _(u'All folders'),   'documents')
 reg_item('/documents/folder/add',   _('Add a folder'),   'documents.add_folder')
 
 block_registry.register(linked_docs_block)
+
+bulk_update_registry.register(
+    (Document, ['filedata']),
+    (Folder, ['parent_folder', 'category']),#Even if Folders haven't currently a list_view
+)
