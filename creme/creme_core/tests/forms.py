@@ -723,9 +723,83 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
         self.assertFieldValidationError(RegularFieldsConditionsField, 'invalidformat', field.clean, '[{"name":"first_name","value":"Rei"}]')
         self.assertFieldValidationError(RegularFieldsConditionsField, 'invalidformat', field.clean, '[{"type":"notanumber","name":"first_name","value":"Rei"}]')
 
-    def test_unknown_modelfield(self):
-        field = RegularFieldsConditionsField(model=Contact)
-        self.assertFieldValidationError(RegularFieldsConditionsField, 'invalidfield', field.clean, '[{"type":"1","name":"boobies_size","value":{"type":"1","value":"90"}}]')
+    def test_clean_invalid_field(self):
+        clean = RegularFieldsConditionsField(model=Contact).clean
+        format_str = '[{"name": "%(name)s", "type": "%(type)s", "value": {"type": "%(type)s", "value": "%(value)s"}}]'
+
+        self.assertFieldValidationError(RegularFieldsConditionsField, 'invalidfield', clean,
+                                        format_str % {'type':  EntityFilterCondition.EQUALS,
+                                                      'name':  'boobies_size', #<---
+                                                      'value': '90',
+                                         })
+        self.assertFieldValidationError(RegularFieldsConditionsField, 'invalidfield', clean,
+                                        format_str % {'type':  EntityFilterCondition.IEQUALS,
+                                                      'name':  'is_deleted',
+                                                      'value': 'Faye',
+                                         })
+        self.assertFieldValidationError(RegularFieldsConditionsField, 'invalidfield', clean,
+                                        format_str % {'type':  EntityFilterCondition.IEQUALS,
+                                                      'name':  'created',
+                                                      'value': '2011-5-12',
+                                         })
+        self.assertFieldValidationError(RegularFieldsConditionsField, 'invalidfield', clean,
+                                        format_str % {'type':  EntityFilterCondition.IEQUALS,
+                                                      'name':  'civility__id',
+                                                      'value': '5',
+                                         })
+        self.assertFieldValidationError(RegularFieldsConditionsField, 'invalidfield', clean,
+                                        format_str % {'type':  EntityFilterCondition.IEQUALS,
+                                                      'name':  'image__id',
+                                                      'value': '5',
+                                         })
+        self.assertFieldValidationError(RegularFieldsConditionsField, 'invalidfield', clean,
+                                        format_str % {'type':  EntityFilterCondition.IEQUALS,
+                                                      'name':  'image__is_deleted',
+                                                      'value': '5',
+                                         })
+        self.assertFieldValidationError(RegularFieldsConditionsField, 'invalidfield', clean,
+                                        format_str % {'type':  EntityFilterCondition.IEQUALS,
+                                                      'name':  'image__modified',
+                                                      'value': '2011-5-12',
+                                         })
+
+    def test_ok01(self):
+        clean = RegularFieldsConditionsField(model=Contact).clean
+
+        name = 'modified'
+        cond_type = EntityFilterCondition.IEQUALS
+        name = 'first_name'
+        value = 'Faye'
+        conditions = clean('[{"name": "%(name)s", "type": "%(type)s", "value": {"type": "%(type)s", "value": "%(value)s"}}]' % {
+                                 'type':  cond_type,
+                                 'name':  name,
+                                 'value': value,
+                             })
+        self.assertEqual(1, len(conditions))
+
+        condition = conditions[0]
+        self.assertEqual(cond_type, condition.type)
+        self.assertEqual(name, condition.name)
+        self.assertEqual(value, condition.decoded_value)
+
+    def test_ok02(self):
+        clean = RegularFieldsConditionsField(model=Contact).clean
+
+        name = 'modified'
+        cond_type = EntityFilterCondition.ISTARTSWITH
+        name = 'civility__title'
+        value = 'Miss'
+        conditions = clean('[{"name": "%(name)s", "type": "%(type)s", "value": {"type": "%(type)s", "value": "%(value)s"}}]' % {
+                                 'type':  cond_type,
+                                 'name':  name,
+                                 'value': value,
+                             })
+        self.assertEqual(1, len(conditions))
+
+        condition = conditions[0]
+        self.assertEqual(cond_type, condition.type)
+        self.assertEqual(name,      condition.name)
+        self.assertEqual(value,     condition.decoded_value)
 
 
 class DateFieldsConditionsFieldTestCase(FieldTestCase):

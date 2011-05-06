@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2011  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -30,7 +30,7 @@ from creme_core.models.entity import CremeEntity
 class NotDjangoModel(Exception):
     pass
 
-#TODO: rename to get_object_field_infos
+#TODO: rename to get_object_field_info
 def get_field_infos(obj, field_name):
     """ For a field_name 'att1__att2__att3', it searchs and returns the tuple
         (obj.att1.att2.att3, obj.att1.att2._meta.att3
@@ -50,6 +50,7 @@ def get_field_infos(obj, field_name):
     except (AttributeError, FieldDoesNotExist), e:
         return None, ''
 
+#TODO: rename get_model_field_info()
 def get_model_field_infos(model, field_name):
     """ For a field_name 'att1__att2__att3', it returns the list of dicts
         [
@@ -59,21 +60,21 @@ def get_model_field_infos(model, field_name):
         ]
     """
     subfield_names = field_name.split('__')
-    infos = []
+    info = []
 
     try:
         for subfield_name in subfield_names[:-1]:
             field = model._meta.get_field(subfield_name)
             model = field.rel.to
-            infos.append({'field': field, 'model': model})
+            info.append({'field': field, 'model': model})
 
         field = model._meta.get_field(subfield_names[-1])
         model = None if not field.get_internal_type() == 'ForeignKey' else field.rel.to
-        infos.append({'field': field, 'model': model})
+        info.append({'field': field, 'model': model})
     except (AttributeError, FieldDoesNotExist), e:
         pass
 
-    return infos
+    return info
 
 #TODO: rename to 'get_field_verbose_name'
 def get_verbose_field_name(model, field_name, separator=" - "):
@@ -151,7 +152,7 @@ def get_flds_with_fk_flds_str(model_klass, deep=1, prefix=None, exclude_func=Non
                 for sub_field in field.rel.to._meta.fields:
                     if exclude_func is not None and exclude_func(sub_field):
                         continue
-                        
+
                     if  sub_field.get_internal_type() in ('ForeignKey', 'ManyToManyField'):
                         continue
 
@@ -162,7 +163,7 @@ def get_flds_with_fk_flds_str(model_klass, deep=1, prefix=None, exclude_func=Non
                                     '%s__%s' % (unicode(field.name), unicode(sub_field.name)),
                                     '%s - %s' % (unicode(field.verbose_name).capitalize(), unicode(sub_field.verbose_name).capitalize())
                                   ))
-                                  
+
             else: #deep > 1:
                 fields += get_flds_with_fk_flds_str(field.rel.to, deep - 1,
                                                     prefix={'name': '%s' % unicode(field.name), 'verbose_name': '%s' % unicode(field.verbose_name).capitalize()},
@@ -202,13 +203,13 @@ def get_fk_entity(entity, column_name, get_value=False, user=None):
     fk_column, rest = _get_entity_column(entity, column_name, ForeignKey)
     if get_value:
         fk = getattr(entity, fk_column)
-        
+
         has_to_check_view_perms = issubclass(fk.__class__, CremeEntity) and user is not None
         if has_to_check_view_perms and not fk.can_view(user):
             return settings.HIDDEN_VALUE
-        
+
         return getattr(fk, '__'.join(rest))
-    
+
     return getattr(entity, fk_column)
 
 def get_m2m_entities(entity, column_name, get_value=False, q_filter=None, get_value_func=lambda values:", ".join(values), user=None):
@@ -231,7 +232,7 @@ def get_m2m_entities(entity, column_name, get_value=False, q_filter=None, get_va
     if get_value:
         m2m_field_model = m2m_field.model
         has_to_check_view_perms = issubclass(m2m_field_model, CremeEntity) and user is not None
-        
+
         rest = u'__'.join(rest)
 
         values = []
@@ -253,7 +254,7 @@ def get_m2m_entities(entity, column_name, get_value=False, q_filter=None, get_va
                 if attr is None:
                     attr = u""
                 values.append(u"%s" % attr)
-            
+
         return get_value_func(values)
 #        return ", ".join(values)
 #            return ",".join([getattr(m, rest, u"") for m in getattr(entity, m2m_column).all()])

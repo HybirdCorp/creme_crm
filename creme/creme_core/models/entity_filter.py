@@ -30,7 +30,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.contrib.auth.models import User
 
 from creme_core.models import CustomField
-from creme_core.utils.meta import is_date_field
+from creme_core.utils.meta import is_date_field, get_model_field_infos
 from creme_core.utils.date_range import date_range_registry
 
 
@@ -303,11 +303,18 @@ class EntityFilterCondition(Model):
                 }
 
     @staticmethod
-    def build(model, type, name=None, value=None):
+    def build(model, type, name, value): #TODO: rename build_4_field() ? rename args ???
         try:
             #TODO: method 'operator.clean()' ??
             operator = EntityFilterCondition._OPERATOR_MAP[type] #TODO: only raise??
-            field = model._meta.get_field_by_name(name)[0]
+
+            #field = model._meta.get_field_by_name(name)[0]
+            finfo =  get_model_field_infos(model, name)
+
+            if not finfo:
+                raise Exception('%s: no field named: %s', model, name)
+
+            field = finfo[-1]['field']
 
             #if type == EntityFilterCondition.ISNULL:
             if isinstance(operator, _ConditionBooleanOperator):

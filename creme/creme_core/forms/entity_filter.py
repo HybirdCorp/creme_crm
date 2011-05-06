@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-#from logging import debug
+from collections import defaultdict
 from datetime import date
 
 from django.forms import ModelMultipleChoiceField, DateField, ValidationError
@@ -54,7 +54,7 @@ _HAS_RELATION_OPTIONS = {
 _CONDITION_INPUT_TYPE_MAP = {
         _ConditionBooleanOperator: (DynamicSelect,
                                     {'auto': False},
-                                    {'options': ((TRUE, "true"), (FALSE, "false"))}),
+                                    {'options': ((TRUE, _("True")), (FALSE, _("False")))}),
     }
 
 #Form Widgets-------------------------------------------------------------------
@@ -63,24 +63,15 @@ boolean_str = lambda val: TRUE if val else FALSE
 
 
 class RegularFieldsConditionsWidget(SelectorList):
-    def __init__(self, model, attrs=None):
+    def __init__(self, fields, attrs=None):
         chained_input = ChainedInput(attrs)
         attrs = {'auto': False}
 
-        excluded = model.header_filter_exclude_fields
-        model_fields = [(f.name, f.verbose_name) for f in model._meta.fields #TODO: move to field ???
-                            if f.name not in excluded and
-                               not is_date_field(f) and
-                               not f.get_internal_type() == 'ForeignKey'
-                       ]
-
-        chained_input.add_dselect('name', options=model_fields, attrs=attrs)
+        chained_input.add_dselect('name', options=self._build_fieldchoices(fields), attrs=attrs)
         chained_input.add_dselect('type', options=EntityFilterCondition._OPERATOR_MAP.iteritems(), attrs=attrs)
-        #chained_input.add_input('value', DynamicInput, attrs=attrs)
 
-        pinput = PolymorphicInput(url='${type}', attrs={'auto': False})
-
-        pinput.set_default_input(widget=DynamicInput, attrs={'auto': False})
+        pinput = PolymorphicInput(url='${type}', attrs=attrs)
+        pinput.set_default_input(widget=DynamicInput, attrs=attrs)
 
         for optype, operator in EntityFilterCondition._OPERATOR_MAP.iteritems():
             op_input = _CONDITION_INPUT_TYPE_MAP.get(type(operator))
@@ -91,10 +82,18 @@ class RegularFieldsConditionsWidget(SelectorList):
 
         chained_input.add_input('value', pinput, attrs=attrs)
 
-#        input.add_input("str", widget=DynamicInput, attrs={'auto':False})
-#        input.add_dselect("bool", options=((True, "true"), (False, "false")), attrs={'auto':False})
-
         super(RegularFieldsConditionsWidget, self).__init__(chained_input)
+
+    def _build_fieldchoices(self, fields):
+        fields_by_cat = defaultdict(list) #fields grouped by category (a category by FK)
+
+        for fname, fieldlist in fields.iteritems():
+            key = '' if len(fieldlist) == 1 else unicode(fieldlist[0].verbose_name) # == 1 -> not a FK
+            fields_by_cat[key].append((fname, fieldlist[-1].verbose_name))
+
+        return [(cat, sorted(fields_by_cat[cat], key=lambda item: item[1]))
+                    for cat in sorted(fields_by_cat.keys())
+               ]
 
 
 class DateFieldsConditionsWidget(SelectorList):
@@ -214,12 +213,34 @@ class RegularFieldsConditionsField(_ConditionsField):
 
     def _set_model(self, model):
         self._model = model
+        self._fields = fields = {}
+
+        excluded = model.header_filter_exclude_fields
+
+        for field in model._meta.fields:
+            fname = field.name
+
+            if fname not in excluded and not is_date_field(field):
+               if field.get_internal_type() == 'ForeignKey':
+                    related_model = field.rel.to
+                    rel_excluded = set(related_model.header_filter_exclude_fields if issubclass(related_model, CremeEntity) else
+                                       ('id',)
+                                      )
+
+                    for subfield in related_model._meta.fields:
+                        sfname = subfield.name
+
+                        if sfname not in rel_excluded and not is_date_field(subfield):
+                            fields['%s__%s' % (fname, sfname)] =  [field, subfield]
+               else:
+                   fields[fname] = [field]
+
         self._build_widget()
 
     model = property(lambda self: self._model, _set_model); del _set_model #TODO: lazy_property
 
     def _create_widget(self):
-        return RegularFieldsConditionsWidget(self.model)
+        return RegularFieldsConditionsWidget(self._fields)
 
     def _conditions_to_dicts(self, conditions):
         return [{'type':  condition.type,
@@ -228,20 +249,29 @@ class RegularFieldsConditionsField(_ConditionsField):
                 } for condition in conditions
                ]
 
+    def _clean_fieldname(self, entry):
+        fname = self.clean_value(entry, 'name', str)
+
+        if fname not in self._fields:
+            raise ValidationError(self.error_messages['invalidfield'])
+
+        return fname
+
     def _conditions_from_dicts(self, data):
         build_condition = EntityFilterCondition.build
         clean_value = self.clean_value
+        clean_fieldname = self._clean_fieldname
 
         try:
             conditions = [build_condition(model=self.model,
                                           type=clean_value(entry, 'type', int),
-                                          name=clean_value(entry, 'name', str),
+                                          name=clean_fieldname(entry),
                                           value=clean_value(clean_value(entry, 'value', dict), 'value', object),
                                          )
                                 for entry in data
                          ]
-        except EntityFilterCondition.ValueError:
-            raise ValidationError(self.error_messages['invalidfield'])
+        except EntityFilterCondition.ValueError, e:
+            raise ValidationError(str(e))
 
         return conditions
 
