@@ -222,10 +222,10 @@ class MailingListsTestCase(CremeTestCase):
         expected_ids = set([recipients[0].id, recipients[1].id])
 
         efilter = EntityFilter.create('test-filter01', 'Saotome', Contact)
-        efilter.set_conditions([EntityFilterCondition.build(model=Contact,
-                                                            type=EntityFilterCondition.IEQUALS,
-                                                            name='last_name', value='Saotome'
-                                                           )
+        efilter.set_conditions([EntityFilterCondition.build_4_field(model=Contact,
+                                                                    operator=EntityFilterCondition.IEQUALS,
+                                                                    name='last_name', value='Saotome'
+                                                                   )
                                ])
         self.assertEqual(expected_ids, set(c.id for c in efilter.filter(Contact.objects.all())))
 
@@ -298,10 +298,10 @@ class MailingListsTestCase(CremeTestCase):
         expected_ids = set([recipients[0].id, recipients[1].id])
 
         efilter = EntityFilter.create('test-filter01', 'Has email', Organisation)
-        efilter.set_conditions([EntityFilterCondition.build(model=Organisation,
-                                                            type=EntityFilterCondition.ISNULL,
-                                                            name='email', value=False
-                                                           )
+        efilter.set_conditions([EntityFilterCondition.build_4_field(model=Organisation,
+                                                                    operator=EntityFilterCondition.ISNULL,
+                                                                    name='email', value=False
+                                                                   )
                                ])
         self.assertEqual(expected_ids, set(c.id for c in efilter.filter(Organisation.objects.all())))
 

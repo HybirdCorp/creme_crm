@@ -154,8 +154,8 @@ class EntityFilter(Model): #CremeModel ???
 
         #Sub-filters conditions
         sf_conds = [(cond, cond._get_subfilter_id())
-                        for cond in EntityFilterCondition.objects.filter(type__in=(EntityFilterCondition.SUBFILTER,
-                                                                                   EntityFilterCondition.RELATION_SUBFILTER
+                        for cond in EntityFilterCondition.objects.filter(type__in=(EntityFilterCondition.EFC_SUBFILTER,
+                                                                                   EntityFilterCondition.EFC_RELATION_SUBFILTER
                                                                                   )
                                                                         )
                    ]
@@ -223,45 +223,44 @@ class _ConditionBooleanOperator(_ConditionOperator):
 
 
 class EntityFilterCondition(Model):
+    """Tip: Use the helper methods build_4_* instead of calling constructor."""
     filter = ForeignKey(EntityFilter, related_name='conditions')
-    type   = PositiveSmallIntegerField()
+    type   = PositiveSmallIntegerField() #NB: see EFC_*
     name   = CharField(max_length=100)
     value  = TextField()
 
-    SUBFILTER = 1
+    EFC_SUBFILTER          = 1
+    EFC_FIELD              = 5
+    EFC_DATEFIELD          = 6
+    EFC_RELATION           = 10
+    EFC_RELATION_SUBFILTER = 11
+    EFC_PROPERTY           = 15
+    EFC_CUSTOMFIELD        = 20
+    EFC_DATECUSTOMFIELD    = 21
 
-    RELATION           = 2
-    RELATION_SUBFILTER = 3
-
-    PROPERTY = 5
-
-    DATE = 7
-
-    CUSTOMFIELD     = 8
-    DATECUSTOMFIELD = 9
-
-    EQUALS          = 10
-    IEQUALS         = 11
-    EQUALS_NOT      = 12
-    IEQUALS_NOT     = 13
-    CONTAINS        = 14
-    ICONTAINS       = 15
-    CONTAINS_NOT    = 16
-    ICONTAINS_NOT   = 17
-    GT              = 18
-    GTE             = 19
-    LT              = 20
-    LTE             = 21
-    STARTSWITH      = 22
-    ISTARTSWITH     = 23
-    STARTSWITH_NOT  = 24
-    ISTARTSWITH_NOT = 25
-    ENDSWITH        = 26
-    IENDSWITH       = 27
-    ENDSWITH_NOT    = 28
-    IENDSWITH_NOT   = 29
-    ISNULL          = 30
-    RANGE           = 31
+    #OPERATORS (fields, custom_fields)
+    EQUALS          =  1
+    IEQUALS         =  2
+    EQUALS_NOT      =  3
+    IEQUALS_NOT     =  4
+    CONTAINS        =  5
+    ICONTAINS       =  6
+    CONTAINS_NOT    =  7
+    ICONTAINS_NOT   =  8
+    GT              =  9
+    GTE             = 10
+    LT              = 11
+    LTE             = 12
+    STARTSWITH      = 13
+    ISTARTSWITH     = 14
+    STARTSWITH_NOT  = 15
+    ISTARTSWITH_NOT = 16
+    ENDSWITH        = 17
+    IENDSWITH       = 18
+    ENDSWITH_NOT    = 19
+    IENDSWITH_NOT   = 20
+    ISNULL          = 21
+    RANGE           = 22
 
     _OPERATOR_MAP = {
             EQUALS:          _ConditionOperator(_(u'Equals'),                                 '%s__exact'),
@@ -303,34 +302,6 @@ class EntityFilterCondition(Model):
                 }
 
     @staticmethod
-    def build(model, type, name, value): #TODO: rename build_4_field() ? rename args ???
-        try:
-            #TODO: method 'operator.clean()' ??
-            operator = EntityFilterCondition._OPERATOR_MAP[type] #TODO: only raise??
-
-            #field = model._meta.get_field_by_name(name)[0]
-            finfo =  get_model_field_infos(model, name)
-
-            if not finfo:
-                raise Exception('%s: no field named: %s', model, name)
-
-            field = finfo[-1]['field']
-
-            #if type == EntityFilterCondition.ISNULL:
-            if isinstance(operator, _ConditionBooleanOperator):
-                if not isinstance(value, bool): raise ValueError('A bool is expected for condition %s' % operator.name)
-            elif type == EntityFilterCondition.RANGE:
-                clean = field.formfield().clean
-                clean(value[0])
-                clean(value[1])
-            else:
-                field.formfield().clean(value)
-        except Exception, e:
-            raise EntityFilterCondition.ValueError(str(e))
-
-        return EntityFilterCondition(type=type, name=name, value=EntityFilterCondition.encode_value(value))
-
-    @staticmethod
     def build_4_customfield(custom_field, operator, value):
         if not EntityFilterCondition._OPERATOR_MAP.get(operator):
             raise EntityFilterCondition.ValueError('build_4_customfield(): unknown operator: %s', operator)
@@ -344,7 +315,7 @@ class EntityFilterCondition(Model):
                  'rname':    custom_field.get_value_class().get_related_name(),
                 }
 
-        return EntityFilterCondition(type=EntityFilterCondition.CUSTOMFIELD,
+        return EntityFilterCondition(type=EntityFilterCondition.EFC_CUSTOMFIELD,
                                      name=str(custom_field.id),
                                      value=EntityFilterCondition.encode_value(value)
                                     )
@@ -377,7 +348,7 @@ class EntityFilterCondition(Model):
         if not is_date_field(field):
             raise EntityFilterCondition.ValueError('build_4_date(): field must be a date field.')
 
-        return EntityFilterCondition(type=EntityFilterCondition.DATE, name=name,
+        return EntityFilterCondition(type=EntityFilterCondition.EFC_DATEFIELD, name=name,
                                      value=EntityFilterCondition.encode_value(EntityFilterCondition._build_daterange_dict(date_range, start, end))
                                     )
 
@@ -389,14 +360,43 @@ class EntityFilterCondition(Model):
         value = EntityFilterCondition._build_daterange_dict(date_range, start, end)
         value['rname'] = custom_field.get_value_class().get_related_name()
 
-        return EntityFilterCondition(type=EntityFilterCondition.DATECUSTOMFIELD,
+        return EntityFilterCondition(type=EntityFilterCondition.EFC_DATECUSTOMFIELD,
                                      name=str(custom_field.id),
                                      value=EntityFilterCondition.encode_value(value),
                                     )
 
     @staticmethod
+    def build_4_field(model, name, operator, value):
+        operator_obj = EntityFilterCondition._OPERATOR_MAP.get(operator)
+        if not operator_obj:
+            raise EntityFilterCondition.ValueError('Unknown operator: %s' % operator)
+
+        finfo = get_model_field_infos(model, name)
+        if not finfo:
+            raise EntityFilterCondition.ValueError('%s: no field named: %s', model, name)
+
+        #field = model._meta.get_field_by_name(name)[0]
+        field = finfo[-1]['field']
+
+        try: #TODO: method 'operator_obj.clean()' ??
+            if isinstance(operator_obj, _ConditionBooleanOperator):
+                if not isinstance(value, bool): raise ValueError('A bool is expected for condition %s' % operator_obj.name)
+            elif operator == EntityFilterCondition.RANGE:
+                clean = field.formfield().clean
+                clean(value[0])
+                clean(value[1])
+            else:
+                field.formfield().clean(value)
+        except Exception, e:
+            raise EntityFilterCondition.ValueError(str(e))
+
+        return EntityFilterCondition(type=EntityFilterCondition.EFC_FIELD,
+                                     name=name, value=EntityFilterCondition.encode_value({'operator': operator, 'value': value})
+                                    )
+
+    @staticmethod
     def build_4_property(ptype, has=True):
-        return EntityFilterCondition(type=EntityFilterCondition.PROPERTY, name=ptype.id,
+        return EntityFilterCondition(type=EntityFilterCondition.EFC_PROPERTY, name=ptype.id,
                                      value=EntityFilterCondition.encode_value(bool(has))
                                     )
 
@@ -409,14 +409,14 @@ class EntityFilterCondition(Model):
         elif ct:
             value['ct_id'] = ct.id
 
-        return EntityFilterCondition(type=EntityFilterCondition.RELATION,
+        return EntityFilterCondition(type=EntityFilterCondition.EFC_RELATION,
                                      name=rtype.id,
                                      value=EntityFilterCondition.encode_value(value)
                                     )
 
     @staticmethod
     def build_4_relation_subfilter(rtype, subfilter, has=True):
-        return EntityFilterCondition(type=EntityFilterCondition.RELATION_SUBFILTER,
+        return EntityFilterCondition(type=EntityFilterCondition.EFC_RELATION_SUBFILTER,
                                      name=rtype.id,
                                      value=EntityFilterCondition.encode_value({'has': bool(has), 'filter_id': subfilter.id})
                                     )
@@ -424,7 +424,7 @@ class EntityFilterCondition(Model):
     @staticmethod
     def build_4_subfilter(subfilter):
         assert isinstance(subfilter, EntityFilter)
-        return EntityFilterCondition(type=EntityFilterCondition.SUBFILTER, name=subfilter.id)
+        return EntityFilterCondition(type=EntityFilterCondition.EFC_SUBFILTER, name=subfilter.id)
 
     @property
     def decoded_value(self):
@@ -474,6 +474,16 @@ class EntityFilterCondition(Model):
 
         return Q(pk__in=self.filter.entity_type.model_class().objects.filter(**q_dict).values_list('id', flat=True))
 
+    def _get_q_field(self):
+        search_info = self.decoded_value
+        operator = EntityFilterCondition._OPERATOR_MAP[search_info['operator']]
+        query    = Q(**{operator.key_pattern % self.name: search_info['value']})
+
+        if operator.exclude:
+            query.negate()
+
+        return query
+
     def _get_q_relation(self):
         kwargs = {'relations__type': self.name}
         value = self.decoded_value
@@ -512,35 +522,26 @@ class EntityFilterCondition(Model):
 
         return query
 
-    def _get_q_regularfields(self):
-        operator = EntityFilterCondition._OPERATOR_MAP[self.type]
-        query    = Q(**{operator.key_pattern % self.name: self.decoded_value})
-
-        if operator.exclude:
-            query.negate()
-
-        return query
-
     _GET_Q_FUNCS = {
-            SUBFILTER:          (lambda self: EntityFilter.objects.get(id=self.name).get_q()),
-            RELATION:           _get_q_relation,
-            RELATION_SUBFILTER: _get_q_relation_subfilter,
-            PROPERTY:           _get_q_property,
-            DATE:               (lambda self: Q(**self._load_daterange(self.decoded_value).get_q_dict(field=self.name, today=date.today()))),
-            CUSTOMFIELD:        _get_q_customfield,
-            DATECUSTOMFIELD:    _get_q_datecustomfield,
+            EFC_SUBFILTER:          (lambda self: EntityFilter.objects.get(id=self.name).get_q()),
+            EFC_RELATION:           _get_q_relation,
+            EFC_RELATION_SUBFILTER: _get_q_relation_subfilter,
+            EFC_PROPERTY:           _get_q_property,
+            EFC_DATEFIELD:          (lambda self: Q(**self._load_daterange(self.decoded_value).get_q_dict(field=self.name, today=date.today()))),
+            EFC_CUSTOMFIELD:        _get_q_customfield,
+            EFC_DATECUSTOMFIELD:    _get_q_datecustomfield,
         }
 
     def get_q(self):
-        func = EntityFilterCondition._GET_Q_FUNCS.get(self.type, EntityFilterCondition._get_q_regularfields)
+        func = EntityFilterCondition._GET_Q_FUNCS.get(self.type, EntityFilterCondition._get_q_field)
         return func(self)
 
     def _get_subfilter_id(self):
         type = self.type
 
-        if type == self.SUBFILTER:
+        if type == self.EFC_SUBFILTER:
             return self.name
-        elif type == self.RELATION_SUBFILTER:
+        elif type == self.EFC_RELATION_SUBFILTER:
             return self.decoded_value['filter_id']
 
     def update(self, other_condition):

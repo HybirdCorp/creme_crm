@@ -67,10 +67,10 @@ class RegularFieldsConditionsWidget(SelectorList):
         chained_input = ChainedInput(attrs)
         attrs = {'auto': False}
 
-        chained_input.add_dselect('name', options=self._build_fieldchoices(fields), attrs=attrs)
-        chained_input.add_dselect('type', options=EntityFilterCondition._OPERATOR_MAP.iteritems(), attrs=attrs)
+        chained_input.add_dselect('name',     options=self._build_fieldchoices(fields), attrs=attrs)
+        chained_input.add_dselect('operator', options=EntityFilterCondition._OPERATOR_MAP.iteritems(), attrs=attrs)
 
-        pinput = PolymorphicInput(url='${type}', attrs=attrs)
+        pinput = PolymorphicInput(url='${operator}', attrs=attrs)
         pinput.set_default_input(widget=DynamicInput, attrs=attrs)
 
         for optype, operator in EntityFilterCondition._OPERATOR_MAP.iteritems():
@@ -112,8 +112,8 @@ class CustomFieldsConditionsWidget(SelectorList): #TODO: factorise with RegularF
         chained_input = ChainedInput(attrs)
         attrs = {'auto': False}
 
-        chained_input.add_dselect('field', options=cfields.iteritems(), attrs=attrs)
-        chained_input.add_dselect('type', options=EntityFilterCondition._OPERATOR_MAP.iteritems(), attrs=attrs)
+        chained_input.add_dselect('field',    options=cfields.iteritems(), attrs=attrs)
+        chained_input.add_dselect('operator', options=EntityFilterCondition._OPERATOR_MAP.iteritems(), attrs=attrs)
         chained_input.add_input('value', DynamicInput, attrs=attrs)
 
         super(CustomFieldsConditionsWidget, self).__init__(chained_input)
@@ -208,7 +208,8 @@ class _ConditionsField(JSONField):
 
 class RegularFieldsConditionsField(_ConditionsField):
     default_error_messages = {
-        'invalidfield': _(u"This field is invalid with this model."),
+        'invalidfield':    _(u"This field is invalid with this model."),
+        'invalidoperator': _(u"This operator is invalid."),
     }
 
     def _set_model(self, model):
@@ -243,11 +244,18 @@ class RegularFieldsConditionsField(_ConditionsField):
         return RegularFieldsConditionsWidget(self._fields)
 
     def _conditions_to_dicts(self, conditions):
-        return [{'type':  condition.type,
-                 'name':  condition.name,
-                 'value': {'type':condition.type, 'value':condition.decoded_value},
-                } for condition in conditions
-               ]
+        dicts = []
+
+        for condition in conditions:
+            search_info = condition.decoded_value
+            operator = search_info['operator']
+
+            dicts.append({'operator': operator,
+                          'name':     condition.name,
+                          'value':    {'type': operator, 'value': search_info['value']},
+                         })
+
+        return dicts
 
     def _clean_fieldname(self, entry):
         fname = self.clean_value(entry, 'name', str)
@@ -257,18 +265,26 @@ class RegularFieldsConditionsField(_ConditionsField):
 
         return fname
 
+    def _clean_operator(self, entry):
+        operator = self.clean_value(entry, 'operator', int)
+
+        if operator not in EntityFilterCondition._OPERATOR_MAP:
+            raise ValidationError(self.error_messages['invalidoperator'])
+
+        return operator
+
     def _conditions_from_dicts(self, data):
-        build_condition = EntityFilterCondition.build
+        build_4_field = EntityFilterCondition.build_4_field
         clean_value = self.clean_value
         clean_fieldname = self._clean_fieldname
+        clean_operator = self._clean_operator
 
         try:
-            conditions = [build_condition(model=self.model,
-                                          type=clean_value(entry, 'type', int),
-                                          name=clean_fieldname(entry),
-                                          value=clean_value(clean_value(entry, 'value', dict), 'value', object),
-                                         )
-                                for entry in data
+            conditions = [build_4_field(model=self.model,
+                                        name=clean_fieldname(entry),
+                                        operator=clean_operator(entry),
+                                        value=clean_value(clean_value(entry, 'value', dict), 'value', object),
+                                       ) for entry in data
                          ]
         except EntityFilterCondition.ValueError, e:
             raise ValidationError(str(e))
@@ -276,8 +292,8 @@ class RegularFieldsConditionsField(_ConditionsField):
         return conditions
 
     def _set_initial_conditions(self, conditions):
-        OPERATOR_MAP = EntityFilterCondition._OPERATOR_MAP
-        self.initial = [c for c in conditions if c.type in OPERATOR_MAP]
+        FIELD = EntityFilterCondition.EFC_FIELD
+        self.initial = [c for c in conditions if c.type == FIELD]
 
 
 class DateFieldsConditionsField(_ConditionsField):
@@ -374,7 +390,7 @@ class DateFieldsConditionsField(_ConditionsField):
         return conditions
 
     def _set_initial_conditions(self, conditions):
-        DATE = EntityFilterCondition.DATE
+        DATE = EntityFilterCondition.EFC_DATEFIELD
         self.initial = [c for c in conditions if c.type == DATE]
 
 
@@ -404,9 +420,9 @@ class CustomFieldsConditionsField(_ConditionsField):
 
         for condition in conditions:
             search_info = condition.decoded_value
-            dicts.append({'cfield': condition.name,
-                          'type':   search_info['operator'],
-                          'value':  search_info['value'],
+            dicts.append({'field':    condition.name,
+                          'operator': search_info['operator'],
+                          'value':    search_info['value'],
                          })
 
         return dicts
@@ -427,7 +443,7 @@ class CustomFieldsConditionsField(_ConditionsField):
 
         try:
             conditions = [build_condition(custom_field=clean_cfield(entry),
-                                          operator=clean_value(entry, 'type', int),
+                                          operator=clean_value(entry, 'operator', int), #TODO: 'invalidoperator'
                                           value=clean_value(entry, 'value', unicode)
                                          ) for entry in data
                          ]
@@ -437,7 +453,7 @@ class CustomFieldsConditionsField(_ConditionsField):
         return conditions
 
     def _set_initial_conditions(self, conditions):
-        CUSTOMFIELD = EntityFilterCondition.CUSTOMFIELD
+        CUSTOMFIELD = EntityFilterCondition.EFC_CUSTOMFIELD
         self.initial = [c for c in conditions if c.type == CUSTOMFIELD]
 
 
@@ -481,7 +497,7 @@ class DateCustomFieldsConditionsField(CustomFieldsConditionsField, DateFieldsCon
         return conditions
 
     def _set_initial_conditions(self, conditions):
-        DATECUSTOMFIELD = EntityFilterCondition.DATECUSTOMFIELD
+        DATECUSTOMFIELD = EntityFilterCondition.EFC_DATECUSTOMFIELD
         self.initial = [c for c in conditions if c.type == DATECUSTOMFIELD]
 
 
@@ -589,7 +605,7 @@ class RelationsConditionsField(_ConditionsField):
         return conditions
 
     def _set_initial_conditions(self, conditions):
-        RELATION = EntityFilterCondition.RELATION
+        RELATION = EntityFilterCondition.EFC_RELATION
         self.initial = [c for c in conditions if c.type == RELATION]
 
 
@@ -642,7 +658,7 @@ class RelationSubfiltersConditionsField(RelationsConditionsField):
         return conditions
 
     def _set_initial_conditions(self, conditions):
-        RELATION_SUBFILTER = EntityFilterCondition.RELATION_SUBFILTER
+        RELATION_SUBFILTER = EntityFilterCondition.EFC_RELATION_SUBFILTER
         self.initial = [c for c in conditions if c.type == RELATION_SUBFILTER]
 
 
@@ -691,7 +707,7 @@ class PropertiesConditionsField(_ConditionsField):
         return [build(ptype=clean_ptype(entry), has=clean_has(entry)) for entry in data]
 
     def _set_initial_conditions(self, conditions):
-        PROPERTY = EntityFilterCondition.PROPERTY
+        PROPERTY = EntityFilterCondition.EFC_PROPERTY
         self.initial = [c for c in conditions if c.type == PROPERTY]
 
 
@@ -703,9 +719,9 @@ class SubfiltersConditionsField(ModelMultipleChoiceField):
         self.model = model or CremeEntity #TODO: remove
 
     def clean(self, value):
-        build_cond = EntityFilterCondition.build_4_subfilter
+        build = EntityFilterCondition.build_4_subfilter
 
-        return [build_cond(subfilter) for subfilter in super(SubfiltersConditionsField, self).clean(value)]
+        return [build(subfilter) for subfilter in super(SubfiltersConditionsField, self).clean(value)]
 
     def initialize(self, ctype, conditions=None, efilter=None):
         qs = EntityFilter.objects.filter(entity_type=ctype)
@@ -716,7 +732,7 @@ class SubfiltersConditionsField(ModelMultipleChoiceField):
         self.queryset = qs
 
         if conditions:
-            SUBFILTER = EntityFilterCondition.SUBFILTER
+            SUBFILTER = EntityFilterCondition.EFC_SUBFILTER
             self.initial = [c.name for c in conditions if c.type == SUBFILTER]
 
 

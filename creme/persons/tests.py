@@ -57,7 +57,7 @@ class PersonsTestCase(CremeTestCase):
 
         self.failIf(efilter.is_custom)
         self.assertEqual(ct_id_orga, efilter.entity_type_id)
-        self.assertEqual([EntityFilterCondition.PROPERTY], [c.type for c in efilter.conditions.all()])
+        self.assertEqual([EntityFilterCondition.EFC_PROPERTY], [c.type for c in efilter.conditions.all()])
 
     def test_contact_createview01(self):
         self.login()
