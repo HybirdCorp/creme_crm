@@ -1637,16 +1637,16 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         self.assertEqual(200, self.client.get(uri).status_code)
 
         name = 'Filter 01'
-        cond_type = EntityFilterCondition.IEQUALS
+        operator = EntityFilterCondition.IEQUALS
         field_name = 'last_name'
         value = 'Ikari'
         response = self.client.post(uri, follow=True,
                                     data={
                                             'name':       name,
-                                            'fields_conditions': """[{"type":"%(type)s","name":"%(name)s","value":{"type":"%(type)s","value":"%(value)s"}}]""" % {
-                                                                        'type':   cond_type,
-                                                                        'name':  field_name,
-                                                                        'value': value,
+                                            'fields_conditions': '[{"operator": "%(operator)s", "name": "%(name)s", "value": {"type": "%(operator)s", "value": "%(value)s"}}]' % {
+                                                                        'operator': operator,
+                                                                        'name':     field_name,
+                                                                        'value':    value,
                                                                     },
                                          }
                                    )
@@ -1666,9 +1666,9 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         self.assertEqual(1, len(conditions))
 
         condition = conditions[0]
-        self.assertEqual(cond_type, condition.type)
-        self.assertEqual(field_name, condition.name)
-        self.assertEqual(value, condition.decoded_value)
+        self.assertEqual(EntityFilterCondition.EFC_FIELD,        condition.type)
+        self.assertEqual(field_name,                             condition.name)
+        self.assertEqual({'operator': operator, 'value': value}, condition.decoded_value)
 
     def test_create02(self):
         self.login()
@@ -1678,10 +1678,10 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         relsubfilfer = EntityFilter.create('test-filter01', 'Filter 01', Contact, is_custom=True)
 
         subfilter = EntityFilter.create('test-filter02', 'Filter 02', Organisation, is_custom=True)
-        subfilter.set_conditions([EntityFilterCondition.build(model=Organisation,
-                                                              type=EntityFilterCondition.GT,
-                                                              name='capital', value=10000
-                                                             )
+        subfilter.set_conditions([EntityFilterCondition.build_4_field(model=Organisation,
+                                                                      operator=EntityFilterCondition.GT,
+                                                                      name='capital', value=10000
+                                                                     )
                                  ])
 
         rtype, srtype = RelationType.create(('test-subject_love', u'Is loving'),
@@ -1698,37 +1698,32 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         self.assertEqual([subfilter.id], [f.id for f in form.fields['subfilters_conditions'].queryset])
 
         name = 'Filter 03'
-        cond_type = EntityFilterCondition.CONTAINS
+        field_operator = EntityFilterCondition.CONTAINS
         field_name = 'name'
         field_value = 'NERV'
         date_field_name = 'creation_date'
         daterange_type = 'current_year'
-        cfield_cond_type = EntityFilterCondition.GT
-        cfield_cond_value = 10000
+        cfield_operator = EntityFilterCondition.GT
+        cfield_value = 10000
         datecfield_rtype = 'previous_quarter'
         response = self.client.post(url,
                                     data={
                                             'name':   name,
                                             'user':   self.user.id,
                                             'use_or': True,
-#                                            'fields_conditions':            '[{"type":"%(type)s","name":"%(name)s","value":"%(value)s"}]' % {
-#                                                                                    'type':  cond_type,
-#                                                                                    'name':  field_name,
-#                                                                                    'value': field_value,
-#                                                                                },
-                                            'fields_conditions':             '[{"type":"%(type)s","name":"%(name)s","value":{"type":"%(type)s","value":"%(value)s"}}]' % {
-                                                                                     'type':  cond_type,
-                                                                                     'name':  field_name,
-                                                                                     'value': field_value,
+                                            'fields_conditions':             '[{"operator": "%(operator)s", "name": "%(name)s", "value": {"type": "%(operator)s", "value": "%(value)s"}}]' % {
+                                                                                     'operator': field_operator,
+                                                                                     'name':     field_name,
+                                                                                     'value':    field_value,
                                                                                 },
                                             'datefields_conditions':        '[{"range": {"type": "%(type)s", "start": "", "end": ""}, "field": "%(name)s"}]' % {
                                                                                     'type': daterange_type,
                                                                                     'name': date_field_name,
                                                                                 },
-                                            'customfields_conditions':      '[{"field":"%(cfield)s", "type":"%(type)s", "value":"%(value)s"}]' % {
-                                                                                    'cfield': custom_field.id,
-                                                                                    'type':   cfield_cond_type,
-                                                                                    'value':  cfield_cond_value,
+                                            'customfields_conditions':      '[{"field": "%(cfield)s", "operator": "%(operator)s", "value": "%(value)s"}]' % {
+                                                                                    'cfield':   custom_field.id,
+                                                                                    'operator': cfield_operator,
+                                                                                    'value':    cfield_value,
                                                                                 },
                                             'datecustomfields_conditions':  '[{"field": "%(cfield)s", "range": {"type": "%(type)s"}}]' % {
                                                                                     'cfield': datecfield.id,
@@ -1759,47 +1754,47 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         iter_conds = iter(conditions)
 
         condition = iter_conds.next()
-        self.assertEqual(cond_type, condition.type)
-        self.assertEqual(field_name, condition.name)
-        self.assertEqual(field_value, condition.decoded_value)
+        self.assertEqual(EntityFilterCondition.EFC_FIELD,                    condition.type)
+        self.assertEqual(field_name,                                         condition.name)
+        self.assertEqual({'operator': field_operator, 'value': field_value}, condition.decoded_value)
 
         condition = iter_conds.next()
-        self.assertEqual(EntityFilterCondition.DATE, condition.type)
-        self.assertEqual(date_field_name, condition.name)
-        self.assertEqual({'name': daterange_type}, condition.decoded_value)
+        self.assertEqual(EntityFilterCondition.EFC_DATEFIELD, condition.type)
+        self.assertEqual(date_field_name,                     condition.name)
+        self.assertEqual({'name': daterange_type},            condition.decoded_value)
 
         condition = iter_conds.next()
-        self.assertEqual(EntityFilterCondition.CUSTOMFIELD, condition.type)
-        self.assertEqual(str(custom_field.id), condition.name)
-        self.assertEqual({'operator': cfield_cond_type, 'rname': u'customfieldinteger', 'value': unicode(cfield_cond_value)},
+        self.assertEqual(EntityFilterCondition.EFC_CUSTOMFIELD, condition.type)
+        self.assertEqual(str(custom_field.id),                  condition.name)
+        self.assertEqual({'operator': cfield_operator, 'rname': 'customfieldinteger', 'value': unicode(cfield_value)},
                          condition.decoded_value
                         )
 
         condition = iter_conds.next()
-        self.assertEqual(EntityFilterCondition.DATECUSTOMFIELD, condition.type)
-        self.assertEqual(str(datecfield.id), condition.name)
+        self.assertEqual(EntityFilterCondition.EFC_DATECUSTOMFIELD, condition.type)
+        self.assertEqual(str(datecfield.id),                        condition.name)
         self.assertEqual({'rname': 'customfielddatetime', 'name': datecfield_rtype},
                          condition.decoded_value
                         )
 
         condition = iter_conds.next()
-        self.assertEqual(EntityFilterCondition.RELATION, condition.type)
-        self.assertEqual(rtype.id, condition.name)
-        self.assertEqual({'has': True}, condition.decoded_value)
+        self.assertEqual(EntityFilterCondition.EFC_RELATION, condition.type)
+        self.assertEqual(rtype.id,                           condition.name)
+        self.assertEqual({'has': True},                      condition.decoded_value)
 
         condition = iter_conds.next()
-        self.assertEqual(EntityFilterCondition.RELATION_SUBFILTER, condition.type)
-        self.assertEqual(srtype.id, condition.name)
+        self.assertEqual(EntityFilterCondition.EFC_RELATION_SUBFILTER, condition.type)
+        self.assertEqual(srtype.id,                                    condition.name)
         self.assertEqual({'has': False, 'filter_id': relsubfilfer.id}, condition.decoded_value)
 
         condition = iter_conds.next()
-        self.assertEqual(EntityFilterCondition.PROPERTY, condition.type)
-        self.assertEqual(ptype.id, condition.name)
+        self.assertEqual(EntityFilterCondition.EFC_PROPERTY, condition.type)
+        self.assertEqual(ptype.id,                           condition.name)
         self.assert_(condition.decoded_value is True)
 
         condition = iter_conds.next()
-        self.assertEqual(EntityFilterCondition.SUBFILTER, condition.type)
-        self.assertEqual(subfilter.id, condition.name)
+        self.assertEqual(EntityFilterCondition.EFC_SUBFILTER, condition.type)
+        self.assertEqual(subfilter.id,                        condition.name)
 
     def test_create03(self): #error: no conditions of any type
         self.login()
@@ -1833,10 +1828,10 @@ class EntityFilterViewsTestCase(ViewsTestCase):
 
         name = 'Filter 03'
         efilter = EntityFilter.create('test-filter03', name, Contact, is_custom=True)
-        efilter.set_conditions([EntityFilterCondition.build(model=Contact,
-                                                            type=EntityFilterCondition.CONTAINS,
-                                                            name='first_name', value='Atom'
-                                                           ),
+        efilter.set_conditions([EntityFilterCondition.build_4_field(model=Contact,
+                                                                    operator=EntityFilterCondition.CONTAINS,
+                                                                    name='first_name', value='Atom'
+                                                                   ),
                                 EntityFilterCondition.build_4_date(model=Contact, name='birthday',
                                                                    start=date(year=2001, month=1, day=1),
                                                                    end=date(year=2010, month=12, day=31),
@@ -1869,31 +1864,26 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         self.assertEqual([subfilter.id], [f.id for f in formfields['subfilters_conditions'].queryset])
 
         name += ' (edited)'
-        cond_type = EntityFilterCondition.IEQUALS
+        field_operator = EntityFilterCondition.IEQUALS
         field_name = 'last_name'
         field_value = 'Ikari'
         date_field_name = 'birthday'
-        cfield_cond_type = EntityFilterCondition.CONTAINS
-        cfield_cond_value = 'Vicious'
+        cfield_operator = EntityFilterCondition.CONTAINS
+        cfield_value = 'Vicious'
         datecfield_rtype = 'previous_year'
         response = self.client.post(url, follow=True,
                                     data={
-                                            'name':                         name,
-#                                            'fields_conditions':            '[{"type":"%(type)s","name":"%(name)s","value":"%(value)s"}]' % {
-#                                                                                    'type':  cond_type,
-#                                                                                    'name':  field_name,
-#                                                                                    'value': field_value,
-#                                                                                },
-                                            'fields_conditions':             '[{"type":"%(type)s","name":"%(name)s","value":{"type":"%(type)s","value":"%(value)s"}}]' % {
-                                                                                     'type':  cond_type,
-                                                                                     'name':  field_name,
-                                                                                     'value': field_value,
+                                            'name':                          name,
+                                            'fields_conditions':             '[{"operator": "%(operator)s", "name": "%(name)s", "value": {"type": "%(operator)s", "value": "%(value)s"}}]' % {
+                                                                                     'operator': field_operator,
+                                                                                     'name':     field_name,
+                                                                                     'value':    field_value,
                                                                                  },
                                             'datefields_conditions':        '[{"range": {"type": "", "start": "2011-5-23", "end": "2012-6-27"}, "field": "%s"}]' % date_field_name,
-                                            'customfields_conditions':      '[{"field":"%(cfield)s", "type":"%(type)s", "value":"%(value)s"}]' % {
-                                                                                    'cfield': custom_field.id,
-                                                                                    'type':   cfield_cond_type,
-                                                                                    'value':  cfield_cond_value,
+                                            'customfields_conditions':      '[{"field": "%(cfield)s", "operator": "%(operator)s", "value": "%(value)s"}]' % {
+                                                                                    'cfield':   custom_field.id,
+                                                                                    'operator': cfield_operator,
+                                                                                    'value':    cfield_value,
                                                                                 },
                                             'datecustomfields_conditions':  '[{"field": "%(cfield)s", "range": {"type": "%(type)s"}}]' % {
                                                                                     'cfield': datecfield.id,
@@ -1922,49 +1912,49 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         iter_conds = iter(conditions)
 
         condition = iter_conds.next()
-        self.assertEqual(cond_type,  condition.type)
-        self.assertEqual(field_name, condition.name)
-        self.assertEqual(field_value, condition.decoded_value)
+        self.assertEqual(EntityFilterCondition.EFC_FIELD,                    condition.type)
+        self.assertEqual(field_name,                                         condition.name)
+        self.assertEqual({'operator': field_operator, 'value': field_value}, condition.decoded_value)
 
         condition = iter_conds.next()
-        self.assertEqual(EntityFilterCondition.DATE, condition.type)
-        self.assertEqual(date_field_name, condition.name)
+        self.assertEqual(EntityFilterCondition.EFC_DATEFIELD, condition.type)
+        self.assertEqual(date_field_name,                     condition.name)
         self.assertEqual({'start': {'year': 2011, u'month': 5, 'day': 23}, 'end': {'year': 2012, 'month': 6, 'day': 27}},
                          condition.decoded_value
                         )
 
         condition = iter_conds.next()
-        self.assertEqual(EntityFilterCondition.CUSTOMFIELD, condition.type)
-        self.assertEqual(str(custom_field.id), condition.name)
-        self.assertEqual({u'operator': cfield_cond_type, u'rname': u'customfieldstring', 'value': unicode(cfield_cond_value)},
+        self.assertEqual(EntityFilterCondition.EFC_CUSTOMFIELD, condition.type)
+        self.assertEqual(str(custom_field.id),                  condition.name)
+        self.assertEqual({'operator': cfield_operator, 'rname': 'customfieldstring', 'value': unicode(cfield_value)},
                          condition.decoded_value
                         )
 
         condition = iter_conds.next()
-        self.assertEqual(EntityFilterCondition.DATECUSTOMFIELD, condition.type)
-        self.assertEqual(str(datecfield.id), condition.name)
+        self.assertEqual(EntityFilterCondition.EFC_DATECUSTOMFIELD, condition.type)
+        self.assertEqual(str(datecfield.id),                        condition.name)
         self.assertEqual({'rname': 'customfielddatetime', 'name': datecfield_rtype},
                          condition.decoded_value
                         )
 
         condition = iter_conds.next()
-        self.assertEqual(EntityFilterCondition.RELATION, condition.type)
-        self.assertEqual(rtype.id, condition.name)
-        self.assertEqual({'has': True}, condition.decoded_value)
+        self.assertEqual(EntityFilterCondition.EFC_RELATION, condition.type)
+        self.assertEqual(rtype.id,                           condition.name)
+        self.assertEqual({'has': True},                      condition.decoded_value)
 
         condition = iter_conds.next()
-        self.assertEqual(EntityFilterCondition.RELATION_SUBFILTER, condition.type)
-        self.assertEqual(srtype.id, condition.name)
+        self.assertEqual(EntityFilterCondition.EFC_RELATION_SUBFILTER, condition.type)
+        self.assertEqual(srtype.id,                                    condition.name)
         self.assertEqual({'has': False, 'filter_id': relsubfilfer.id}, condition.decoded_value)
 
         condition = iter_conds.next()
-        self.assertEqual(EntityFilterCondition.PROPERTY, condition.type)
-        self.assertEqual(ptype.id,                       condition.name)
+        self.assertEqual(EntityFilterCondition.EFC_PROPERTY, condition.type)
+        self.assertEqual(ptype.id,                           condition.name)
         self.assert_(condition.decoded_value is False)
 
         condition = iter_conds.next()
-        self.assertEqual(EntityFilterCondition.SUBFILTER, condition.type)
-        self.assertEqual(subfilter.id, condition.name)
+        self.assertEqual(EntityFilterCondition.EFC_SUBFILTER, condition.type)
+        self.assertEqual(subfilter.id,                        condition.name)
 
     def test_edit02(self): #not custom -> can not edit
         self.login()
@@ -1995,9 +1985,10 @@ class EntityFilterViewsTestCase(ViewsTestCase):
                                            )
 
         efilter = EntityFilter.create('test-filter01', 'Filter 01', Contact, is_custom=True)
-        efilter.set_conditions([EntityFilterCondition.build(model=Contact, type=EntityFilterCondition.EQUALS,
-                                                            name='first_name', value='Misato'
-                                                           )
+        efilter.set_conditions([EntityFilterCondition.build_4_field(model=Contact,
+                                                                    operator=EntityFilterCondition.EQUALS,
+                                                                    name='first_name', value='Misato'
+                                                                   )
                                ])
 
         parent_filter = EntityFilter.create('test-filter02', 'Filter 02', Contact, is_custom=True)
