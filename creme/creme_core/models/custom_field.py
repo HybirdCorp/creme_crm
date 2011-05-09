@@ -25,6 +25,7 @@ from django import forms
 from django.utils.translation import ugettext, ugettext_lazy as _
 from django.utils.datastructures import SortedDict as OrderedDict #use python2.6 OrderedDict later.....
 from django.contrib.contenttypes.models import ContentType
+from django.core.validators import EMPTY_VALUES
 
 from base import CremeModel
 from entity import CremeEntity
@@ -161,6 +162,27 @@ class CustomFieldValue(CremeModel):
             self.value = value
             self.save()
 
+    @staticmethod
+    def is_empty_value(value):
+        return value in EMPTY_VALUES
+
+    @staticmethod
+    def save_values_for_entities(custom_field, entities, value):
+        cfv_klass = custom_field.get_value_class()
+
+        if CustomFieldValue.is_empty_value(value):
+            cfv_klass.objects.filter(custom_field=custom_field, entity__in=entities).delete()
+
+        else:
+            cfv_get = cfv_klass.objects.get
+            for entity in entities:
+                try:
+                    custom_value = cfv_get(custom_field=custom_field, entity=entity)
+                except cfv_klass.DoesNotExist:
+                    custom_value = cfv_klass(custom_field=custom_field, entity=entity)
+
+                custom_value.set_value_n_save(value)
+
 
 class CustomFieldString(CustomFieldValue):
     value = CharField(max_length=100)
@@ -237,7 +259,7 @@ class CustomFieldBoolean(CustomFieldValue):
 
     @staticmethod
     def _get_formfield(**kwargs):
-        return forms.BooleanField(**kwargs)
+        return forms.NullBooleanField(**kwargs)
 
 
 class CustomFieldEnumValue(CremeModel):

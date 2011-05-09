@@ -29,6 +29,7 @@ from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 
 from creme_core.models import CremeEntity
+from creme_core.models.custom_field import CustomFieldValue
 
 
 __all__ = ('FieldBlockManager', 'CremeForm', 'CremeModelForm', 'CremeModelWithUserForm', 'CremeEntityForm')
@@ -238,15 +239,6 @@ class CremeEntityForm(CremeModelWithUserForm):
 
         for i, (custom_field, custom_value) in enumerate(self._customs):
             value = cleaned_data[_CUSTOM_NAME % i] #TODO: factorize with _build_customfields() ?
-
-            #TODO: in a CustomField method ???
-            if custom_value:
-                if not value:
-                    custom_value.delete()
-                else:
-                    custom_value.set_value_n_save(value)
-            elif value:
-                custom_value = custom_field.get_value_class()(custom_field=custom_field, entity=instance)
-                custom_value.set_value_n_save(value)
+            CustomFieldValue.save_values_for_entities(custom_field, [instance], value)
 
         return instance
