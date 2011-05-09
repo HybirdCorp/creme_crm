@@ -294,7 +294,7 @@ class EntityFilterCondition(Model):
         pass
 
     def __repr__(self):
-        return u'EntityFilterCondition(filter=%(filter)s, type=%(type)s, name=%(name)s, value=%(value)s)' % {
+        return u'EntityFilterCondition(filter_id=%(filter)s, type=%(type)s, name=%(name)s, value=%(value)s)' % {
                     'filter': self.filter_id,
                     'type':   self.type,
                     'name':   self.name or 'None',
@@ -365,8 +365,16 @@ class EntityFilterCondition(Model):
                                      value=EntityFilterCondition.encode_value(value),
                                     )
 
+    #TODO multivalue is stupid for some operator (LT, GT etc...) => improve checking ???
     @staticmethod
-    def build_4_field(model, name, operator, value):
+    def build_4_field(model, name, operator, values):
+        """Search in the values of a model field.
+        @param name Name of the field
+        @param operator Operator ID ; see EntityFilterCondition.EQUALS and friends.
+        @param values List of searched values (logical OR between them).
+                      Exceptions: - RANGE: 'values' is always a list of 2 elements
+                                  - ISNULL: 'values' is a list containing one boolean.
+        """
         operator_obj = EntityFilterCondition._OPERATOR_MAP.get(operator)
         if not operator_obj:
             raise EntityFilterCondition.ValueError('Unknown operator: %s' % operator)
@@ -380,18 +388,25 @@ class EntityFilterCondition(Model):
 
         try: #TODO: method 'operator_obj.clean()' ??
             if isinstance(operator_obj, _ConditionBooleanOperator):
-                if not isinstance(value, bool): raise ValueError('A bool is expected for condition %s' % operator_obj.name)
+                if len(values) != 1 or not isinstance(values[0], bool):
+                    raise ValueError(u'A list with one bool is expected for condition %s' % operator_obj.name)
             elif operator == EntityFilterCondition.RANGE:
+                if len(values) != 2:
+                    raise ValueError(u'A list with 2 elements is expected for condition %s' % operator_obj.name)
+
                 clean = field.formfield().clean
-                clean(value[0])
-                clean(value[1])
+                clean(values[0])
+                clean(values[1])
+                values = [values]
             else:
-                field.formfield().clean(value)
+                clean = field.formfield().clean
+                for value in values:
+                    clean(value)
         except Exception, e:
             raise EntityFilterCondition.ValueError(str(e))
 
         return EntityFilterCondition(type=EntityFilterCondition.EFC_FIELD,
-                                     name=name, value=EntityFilterCondition.encode_value({'operator': operator, 'value': value})
+                                     name=name, value=EntityFilterCondition.encode_value({'operator': operator, 'values': values})
                                     )
 
     @staticmethod
@@ -477,7 +492,12 @@ class EntityFilterCondition(Model):
     def _get_q_field(self):
         search_info = self.decoded_value
         operator = EntityFilterCondition._OPERATOR_MAP[search_info['operator']]
-        query    = Q(**{operator.key_pattern % self.name: search_info['value']})
+
+        key = operator.key_pattern % self.name
+        query = Q()
+
+        for value in search_info['values']:
+            query |= Q(**{key: value})
 
         if operator.exclude:
             query.negate()

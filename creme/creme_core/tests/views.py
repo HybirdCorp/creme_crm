@@ -1666,9 +1666,9 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         self.assertEqual(1, len(conditions))
 
         condition = conditions[0]
-        self.assertEqual(EntityFilterCondition.EFC_FIELD,        condition.type)
-        self.assertEqual(field_name,                             condition.name)
-        self.assertEqual({'operator': operator, 'value': value}, condition.decoded_value)
+        self.assertEqual(EntityFilterCondition.EFC_FIELD,           condition.type)
+        self.assertEqual(field_name,                                condition.name)
+        self.assertEqual({'operator': operator, 'values': [value]}, condition.decoded_value)
 
     def test_create02(self):
         self.login()
@@ -1680,7 +1680,7 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         subfilter = EntityFilter.create('test-filter02', 'Filter 02', Organisation, is_custom=True)
         subfilter.set_conditions([EntityFilterCondition.build_4_field(model=Organisation,
                                                                       operator=EntityFilterCondition.GT,
-                                                                      name='capital', value=10000
+                                                                      name='capital', values=[10000]
                                                                      )
                                  ])
 
@@ -1754,9 +1754,9 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         iter_conds = iter(conditions)
 
         condition = iter_conds.next()
-        self.assertEqual(EntityFilterCondition.EFC_FIELD,                    condition.type)
-        self.assertEqual(field_name,                                         condition.name)
-        self.assertEqual({'operator': field_operator, 'value': field_value}, condition.decoded_value)
+        self.assertEqual(EntityFilterCondition.EFC_FIELD,                       condition.type)
+        self.assertEqual(field_name,                                            condition.name)
+        self.assertEqual({'operator': field_operator, 'values': [field_value]}, condition.decoded_value)
 
         condition = iter_conds.next()
         self.assertEqual(EntityFilterCondition.EFC_DATEFIELD, condition.type)
@@ -1830,7 +1830,11 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         efilter = EntityFilter.create('test-filter03', name, Contact, is_custom=True)
         efilter.set_conditions([EntityFilterCondition.build_4_field(model=Contact,
                                                                     operator=EntityFilterCondition.CONTAINS,
-                                                                    name='first_name', value='Atom'
+                                                                    name='first_name', values=['Atom']
+                                                                   ),
+                                EntityFilterCondition.build_4_field(model=Contact,
+                                                                    operator=EntityFilterCondition.ISNULL,
+                                                                    name='description', values=[False]
                                                                    ),
                                 EntityFilterCondition.build_4_date(model=Contact, name='birthday',
                                                                    start=date(year=2001, month=1, day=1),
@@ -1912,9 +1916,9 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         iter_conds = iter(conditions)
 
         condition = iter_conds.next()
-        self.assertEqual(EntityFilterCondition.EFC_FIELD,                    condition.type)
-        self.assertEqual(field_name,                                         condition.name)
-        self.assertEqual({'operator': field_operator, 'value': field_value}, condition.decoded_value)
+        self.assertEqual(EntityFilterCondition.EFC_FIELD,                       condition.type)
+        self.assertEqual(field_name,                                            condition.name)
+        self.assertEqual({'operator': field_operator, 'values': [field_value]}, condition.decoded_value)
 
         condition = iter_conds.next()
         self.assertEqual(EntityFilterCondition.EFC_DATEFIELD, condition.type)
@@ -1987,7 +1991,7 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         efilter = EntityFilter.create('test-filter01', 'Filter 01', Contact, is_custom=True)
         efilter.set_conditions([EntityFilterCondition.build_4_field(model=Contact,
                                                                     operator=EntityFilterCondition.EQUALS,
-                                                                    name='first_name', value='Misato'
+                                                                    name='first_name', values=['Misato']
                                                                    )
                                ])
 

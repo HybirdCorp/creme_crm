@@ -775,7 +775,6 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
 
     def test_ok01(self):
         clean = RegularFieldsConditionsField(model=Contact).clean
-
         name = 'modified'
         operator = EntityFilterCondition.IEQUALS
         name = 'first_name'
@@ -788,13 +787,28 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
         self.assertEqual(1, len(conditions))
 
         condition = conditions[0]
-        self.assertEqual(EntityFilterCondition.EFC_FIELD,        condition.type)
-        self.assertEqual(name,                                   condition.name)
-        self.assertEqual({'operator': operator, 'value': value}, condition.decoded_value)
+        self.assertEqual(EntityFilterCondition.EFC_FIELD,           condition.type)
+        self.assertEqual(name,                                      condition.name)
+        self.assertEqual({'operator': operator, 'values': [value]}, condition.decoded_value)
 
-    def test_ok02(self):
+    def test_ok02(self): #ISNULL -> boolean
         clean = RegularFieldsConditionsField(model=Contact).clean
+        name = 'modified'
+        operator = EntityFilterCondition.ISNULL
+        name = 'description'
+        conditions = clean('[{"name": "%(name)s", "operator": "%(operator)s", "value": {"type": "%(operator)s", "value": false}}]' % {
+                                 'operator': operator,
+                                 'name':     name,
+                             })
+        self.assertEqual(1, len(conditions))
 
+        condition = conditions[0]
+        self.assertEqual(EntityFilterCondition.EFC_FIELD,           condition.type)
+        self.assertEqual(name,                                      condition.name)
+        self.assertEqual({'operator': operator, 'values': [False]}, condition.decoded_value)
+
+    def test_ok03(self): #FK field
+        clean = RegularFieldsConditionsField(model=Contact).clean
         name = 'modified'
         operator = EntityFilterCondition.ISTARTSWITH
         name = 'civility__title'
@@ -807,9 +821,27 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
         self.assertEqual(1, len(conditions))
 
         condition = conditions[0]
-        self.assertEqual(EntityFilterCondition.EFC_FIELD,        condition.type)
-        self.assertEqual(name,                                   condition.name)
-        self.assertEqual({'operator': operator, 'value': value}, condition.decoded_value)
+        self.assertEqual(EntityFilterCondition.EFC_FIELD,           condition.type)
+        self.assertEqual(name,                                      condition.name)
+        self.assertEqual({'operator': operator, 'values': [value]}, condition.decoded_value)
+
+    def test_ok04(self):
+        clean = RegularFieldsConditionsField(model=Contact).clean
+        name = 'modified'
+        operator = EntityFilterCondition.IENDSWITH
+        name = 'last_name'
+        values = ['nagi', 'sume']
+        conditions = clean('[{"name": "%(name)s", "operator": "%(operator)s", "value": {"type": "%(operator)s", "value": "%(value)s"}}]' % {
+                                 'operator': operator,
+                                 'name':     name,
+                                 'value':    ','.join(values) + ',',
+                             })
+        self.assertEqual(1, len(conditions))
+
+        condition = conditions[0]
+        self.assertEqual(EntityFilterCondition.EFC_FIELD,          condition.type)
+        self.assertEqual(name,                                     condition.name)
+        self.assertEqual({'operator': operator, 'values': values}, condition.decoded_value)
 
 
 class DateFieldsConditionsFieldTestCase(FieldTestCase):
