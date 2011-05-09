@@ -32,7 +32,7 @@ from creme_core.models.entity_filter import _ConditionBooleanOperator
 from creme_core.forms import CremeModelForm
 from creme_core.forms.fields import JSONField
 from creme_core.forms.widgets import DynamicInput, SelectorList, ChainedInput, EntitySelector, UnorderedMultipleChoiceWidget, DateRangeSelect, DynamicSelect, PolymorphicInput
-from creme_core.utils import bool_from_str
+#from creme_core.utils import bool_from_str
 from creme_core.utils.id_generator import generate_string_id_and_save
 from creme_core.utils.meta import is_date_field
 from creme_core.utils.date_range import date_range_registry
@@ -250,9 +250,15 @@ class RegularFieldsConditionsField(_ConditionsField):
             search_info = condition.decoded_value
             operator = search_info['operator']
 
+            #TODO: use polymorphism instead ??
+            if isinstance(EntityFilterCondition._OPERATOR_MAP.get(operator), _ConditionBooleanOperator):
+                values = search_info['values'][0]
+            else:
+                values = u','.join(search_info['values'])
+
             dicts.append({'operator': operator,
                           'name':     condition.name,
-                          'value':    {'type': operator, 'value': search_info['value']},
+                          'value':    {'type': operator, 'value': values},
                          })
 
         return dicts
@@ -265,27 +271,37 @@ class RegularFieldsConditionsField(_ConditionsField):
 
         return fname
 
-    def _clean_operator(self, entry):
+    def _clean_operator_n_values(self, entry):
+        clean_value =  self.clean_value
         operator = self.clean_value(entry, 'operator', int)
 
-        if operator not in EntityFilterCondition._OPERATOR_MAP:
+        operator_class = EntityFilterCondition._OPERATOR_MAP.get(operator)
+        if not operator_class:
             raise ValidationError(self.error_messages['invalidoperator'])
 
-        return operator
+        value_dict = clean_value(entry, 'value', dict)
+
+        if isinstance(operator_class, _ConditionBooleanOperator):
+            values = [clean_value(value_dict, 'value', bool)]
+        else:
+            values = filter(None, clean_value(value_dict, 'value', unicode).split(','))
+
+        return operator, values
 
     def _conditions_from_dicts(self, data):
         build_4_field = EntityFilterCondition.build_4_field
-        clean_value = self.clean_value
         clean_fieldname = self._clean_fieldname
-        clean_operator = self._clean_operator
+        clean_operator_n_values = self._clean_operator_n_values
 
         try:
-            conditions = [build_4_field(model=self.model,
-                                        name=clean_fieldname(entry),
-                                        operator=clean_operator(entry),
-                                        value=clean_value(clean_value(entry, 'value', dict), 'value', object),
-                                       ) for entry in data
-                         ]
+            conditions = []
+
+            for entry in data:
+                operator, values = clean_operator_n_values(entry)
+                conditions.append(build_4_field(model=self.model, name=clean_fieldname(entry),
+                                                operator=operator, values=values
+                                               )
+                                 )
         except EntityFilterCondition.ValueError, e:
             raise ValidationError(str(e))
 
@@ -723,7 +739,9 @@ class SubfiltersConditionsField(ModelMultipleChoiceField):
 #Forms--------------------------------------------------------------------------
 
 class _EntityFilterForm(CremeModelForm):
-    fields_conditions           = RegularFieldsConditionsField(label=_(u'On regular fields'), required=False)
+    fields_conditions           = RegularFieldsConditionsField(label=_(u'On regular fields'), required=False,
+                                                               help_text=_(u'You can write several values, separated by commas.')
+                                                              )
     datefields_conditions       = DateFieldsConditionsField(label=_(u'On date fields'), required=False)
     customfields_conditions     = CustomFieldsConditionsField(label=_(u'On custom fields'), required=False, help_text=u'(Only integer, string and decimal for now)')
     datecustomfields_conditions = DateCustomFieldsConditionsField(label=_(u'On date custom fields'), required=False)
