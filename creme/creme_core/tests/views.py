@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
-from datetime import date
+from datetime import date, datetime
+from decimal import Decimal
 
 from tempfile import NamedTemporaryFile
 
@@ -12,6 +13,7 @@ from django.conf import settings
 
 from creme_core.models import *
 from creme_core.models.header_filter import HFI_FIELD
+from creme_core.forms.base import _CUSTOM_NAME
 from creme_core.tests.base import CremeTestCase
 from creme_core.gui.bulk_update import bulk_update_registry
 from media_managers.models.image import Image
@@ -658,6 +660,291 @@ class EntityViewsTestCase(ViewsTestCase):
 
         self.assertNotEqual(allowed, mario.image)
         self.assertEqual(allowed,    luigi.image)
+
+
+    def test_edit_entities_bulk10(self):
+        self.login()
+        contact_ct    = ContentType.objects.get_for_model(Contact)
+        contact_ct_id = contact_ct.id
+
+        cf_int        = CustomField.objects.create(name='int',        content_type=contact_ct, field_type=CustomField.INT)
+        cf_float      = CustomField.objects.create(name='float',      content_type=contact_ct, field_type=CustomField.FLOAT)
+        cf_bool       = CustomField.objects.create(name='bool',       content_type=contact_ct, field_type=CustomField.BOOL)
+        cf_str        = CustomField.objects.create(name='str',        content_type=contact_ct, field_type=CustomField.STR)
+        cf_date       = CustomField.objects.create(name='date',       content_type=contact_ct, field_type=CustomField.DATE)
+        cf_enum       = CustomField.objects.create(name='enum',       content_type=contact_ct, field_type=CustomField.ENUM)
+        cf_multi_enum = CustomField.objects.create(name='multi_enum', content_type=contact_ct, field_type=CustomField.MULTI_ENUM)
+
+        enum1 = CustomFieldEnumValue.objects.create(custom_field= cf_enum, value=u"Enum1")
+        enum2 = CustomFieldEnumValue.objects.create(custom_field= cf_enum, value=u"Enum2")
+
+        m_enum1 = CustomFieldEnumValue.objects.create(custom_field= cf_multi_enum, value=u"MEnum1")
+        m_enum2 = CustomFieldEnumValue.objects.create(custom_field= cf_multi_enum, value=u"MEnum2")
+        m_enum3 = CustomFieldEnumValue.objects.create(custom_field= cf_multi_enum, value=u"MEnum3")
+
+        mario = Contact.objects.create(user=self.user, first_name="Mario", last_name="Bros")
+        luigi = Contact.objects.create(user=self.user, first_name="Luigi", last_name="Bros")
+
+        comma_sep_ids = ",".join([str(mario.id), str(luigi.id)])
+
+        url = '/creme_core/entity/bulk_update/%s/%s' % (contact_ct_id, comma_sep_ids)
+
+        response = self.client.get(url)
+        self.assertEqual(200, response.status_code)
+
+        def get_cf_values(cf, entity):
+            return cf.get_value_class().objects.get(custom_field=cf, entity=entity)
+
+        #Int
+        response = self.client.post(url,
+                            data={
+                                'field_name': _CUSTOM_NAME % cf_int.id,
+                                'field_value': 10,
+                                'entities_lbl': 'whatever',
+                            }
+                           )
+        self.assertNoFormError(response)
+
+        mario = Contact.objects.get(pk=mario.pk)#Refresh
+        luigi = Contact.objects.get(pk=luigi.pk)#Refresh
+
+        self.assertEqual(10, get_cf_values(cf_int, mario).value)
+        self.assertEqual(10, get_cf_values(cf_int, luigi).value)
+
+        #Int empty
+        response = self.client.post(url,
+                            data={
+                                'field_name': _CUSTOM_NAME % cf_int.id,
+                                'field_value': '',
+                                'entities_lbl': 'whatever',
+                            }
+                           )
+        self.assertNoFormError(response)
+
+        mario = Contact.objects.get(pk=mario.pk)#Refresh
+        luigi = Contact.objects.get(pk=luigi.pk)#Refresh
+
+        self.assertRaises(CustomFieldInteger.DoesNotExist, get_cf_values, cf_int, mario)
+        self.assertRaises(CustomFieldInteger.DoesNotExist, get_cf_values, cf_int, luigi)
+
+        #Float
+        response = self.client.post(url,
+                            data={
+                                'field_name': _CUSTOM_NAME % cf_float.id,
+                                'field_value': '10.2',
+                                'entities_lbl': 'whatever',
+                            }
+                           )
+        self.assertNoFormError(response)
+
+        mario = Contact.objects.get(pk=mario.pk)#Refresh
+        luigi = Contact.objects.get(pk=luigi.pk)#Refresh
+
+        self.assertEqual(Decimal("10.2"), get_cf_values(cf_float, mario).value)
+        self.assertEqual(Decimal("10.2"), get_cf_values(cf_float, luigi).value)
+
+
+        #Float empty
+        response = self.client.post(url,
+                            data={
+                                'field_name': _CUSTOM_NAME % cf_float.id,
+                                'field_value': '',
+                                'entities_lbl': 'whatever',
+                            }
+                           )
+        self.assertNoFormError(response)
+
+        mario = Contact.objects.get(pk=mario.pk)#Refresh
+        luigi = Contact.objects.get(pk=luigi.pk)#Refresh
+
+        self.assertRaises(CustomFieldFloat.DoesNotExist, get_cf_values, cf_float, mario)
+        self.assertRaises(CustomFieldFloat.DoesNotExist, get_cf_values, cf_float, luigi)
+
+
+        #Bool
+        response = self.client.post(url,
+                            data={
+                                'field_name': _CUSTOM_NAME % cf_bool.id,
+                                'field_value': True,
+                                'entities_lbl': 'whatever',
+                            }
+                           )
+        self.assertNoFormError(response)
+
+        mario = Contact.objects.get(pk=mario.pk)#Refresh
+        luigi = Contact.objects.get(pk=luigi.pk)#Refresh
+
+        self.assertEqual(True, get_cf_values(cf_bool, mario).value)
+        self.assertEqual(True, get_cf_values(cf_bool, luigi).value)
+
+        #Bool false
+        response = self.client.post(url,
+                            data={
+                                'field_name': _CUSTOM_NAME % cf_bool.id,
+                                'field_value': False,
+                                'entities_lbl': 'whatever',
+                            }
+                           )
+        self.assertNoFormError(response)
+
+        mario = Contact.objects.get(pk=mario.pk)#Refresh
+        luigi = Contact.objects.get(pk=luigi.pk)#Refresh
+
+        self.assertEqual(False, get_cf_values(cf_bool, mario).value)
+        self.assertEqual(False, get_cf_values(cf_bool, luigi).value)
+
+        #Bool empty
+        response = self.client.post(url,
+                    data={
+                        'field_name': _CUSTOM_NAME % cf_bool.id,
+                        'field_value': None,
+                        'entities_lbl': 'whatever',
+                    }
+                   )
+        self.assertNoFormError(response)
+
+        mario = Contact.objects.get(pk=mario.pk)#Refresh
+        luigi = Contact.objects.get(pk=luigi.pk)#Refresh
+
+        self.assertRaises(CustomFieldBoolean.DoesNotExist, get_cf_values, cf_bool, mario)
+        self.assertRaises(CustomFieldBoolean.DoesNotExist, get_cf_values, cf_bool, luigi)
+
+
+        #Str
+        response = self.client.post(url,
+                            data={
+                                'field_name': _CUSTOM_NAME % cf_str.id,
+                                'field_value': 'str',
+                                'entities_lbl': 'whatever',
+                            }
+                           )
+        self.assertNoFormError(response)
+
+        mario = Contact.objects.get(pk=mario.pk)#Refresh
+        luigi = Contact.objects.get(pk=luigi.pk)#Refresh
+
+        self.assertEqual('str', get_cf_values(cf_str, mario).value)
+        self.assertEqual('str', get_cf_values(cf_str, luigi).value)
+
+        #Str empty
+        response = self.client.post(url,
+                            data={
+                                'field_name': _CUSTOM_NAME % cf_str.id,
+                                'field_value': '',
+                                'entities_lbl': 'whatever',
+                            }
+                           )
+        self.assertNoFormError(response)
+
+        mario = Contact.objects.get(pk=mario.pk)#Refresh
+        luigi = Contact.objects.get(pk=luigi.pk)#Refresh
+
+        self.assertRaises(CustomFieldString.DoesNotExist, get_cf_values, cf_str, mario)
+        self.assertRaises(CustomFieldString.DoesNotExist, get_cf_values, cf_str, luigi)
+
+        #Date
+        settings.DATETIME_INPUT_FORMATS += ("-%dT%mU%Y-",) #This weird format have few chances to be present in settings
+        response = self.client.post(url,
+                            data={
+                                'field_name': _CUSTOM_NAME % cf_date.id,
+                                'field_value':  '-31T01U2000-',
+                                'entities_lbl': 'whatever',
+                            }
+                           )
+        self.assertNoFormError(response)
+
+        dt = datetime(2000, 01, 31)
+
+        mario = Contact.objects.get(pk=mario.pk)#Refresh
+        luigi = Contact.objects.get(pk=luigi.pk)#Refresh
+
+        self.assertEqual(dt, get_cf_values(cf_date, mario).value)
+        self.assertEqual(dt, get_cf_values(cf_date, luigi).value)
+
+        #Date
+        response = self.client.post(url,
+                            data={
+                                'field_name': _CUSTOM_NAME % cf_date.id,
+                                'field_value':  '',
+                                'entities_lbl': 'whatever',
+                            }
+                           )
+        self.assertNoFormError(response)
+
+        mario = Contact.objects.get(pk=mario.pk)#Refresh
+        luigi = Contact.objects.get(pk=luigi.pk)#Refresh
+
+        self.assertRaises(CustomFieldDateTime.DoesNotExist, get_cf_values, cf_date, mario)
+        self.assertRaises(CustomFieldDateTime.DoesNotExist, get_cf_values, cf_date, luigi)
+
+        #Enum
+        response = self.client.post(url,
+                            data={
+                                'field_name': _CUSTOM_NAME % cf_enum.id,
+                                'field_value':  enum1.id,
+                                'entities_lbl': 'whatever',
+                            }
+                           )
+        self.assertNoFormError(response)
+
+        mario = Contact.objects.get(pk=mario.pk)#Refresh
+        luigi = Contact.objects.get(pk=luigi.pk)#Refresh
+
+        self.assertEqual(enum1, get_cf_values(cf_enum, mario).value)
+        self.assertEqual(enum1, get_cf_values(cf_enum, luigi).value)
+
+        #Enum empty
+        response = self.client.post(url,
+                            data={
+                                'field_name': _CUSTOM_NAME % cf_enum.id,
+                                'field_value':  '',
+                                'entities_lbl': 'whatever',
+                            }
+                           )
+        self.assertNoFormError(response)
+
+        mario = Contact.objects.get(pk=mario.pk)#Refresh
+        luigi = Contact.objects.get(pk=luigi.pk)#Refresh
+
+        self.assertRaises(CustomFieldEnum.DoesNotExist, get_cf_values, cf_enum, mario)
+        self.assertRaises(CustomFieldEnum.DoesNotExist, get_cf_values, cf_enum, luigi)
+
+        #Multi-Enum
+        response = self.client.post(url,
+                            data={
+                                'field_name': _CUSTOM_NAME % cf_multi_enum.id,
+                                'field_value':  [m_enum1.id, m_enum3.id],
+                                'entities_lbl': 'whatever',
+                            }
+                           )
+        self.assertNoFormError(response)
+
+        mario = Contact.objects.get(pk=mario.pk)#Refresh
+        luigi = Contact.objects.get(pk=luigi.pk)#Refresh
+
+
+        self.failUnless(m_enum1.id in get_cf_values(cf_multi_enum, mario).value.values_list('pk', flat=True))
+        self.failUnless(m_enum3.id in get_cf_values(cf_multi_enum, mario).value.values_list('pk', flat=True))
+        
+        self.failUnless(m_enum1.id in get_cf_values(cf_multi_enum, luigi).value.values_list('pk', flat=True))
+        self.failUnless(m_enum3.id in get_cf_values(cf_multi_enum, luigi).value.values_list('pk', flat=True))
+
+        #Multi-Enum empty
+        response = self.client.post(url,
+                            data={
+                                'field_name': _CUSTOM_NAME % cf_multi_enum.id,
+                                'field_value':  [],
+                                'entities_lbl': 'whatever',
+                            }
+                           )
+        self.assertNoFormError(response)
+
+        mario = Contact.objects.get(pk=mario.pk)#Refresh
+        luigi = Contact.objects.get(pk=luigi.pk)#Refresh
+
+        self.assertRaises(CustomFieldMultiEnum.DoesNotExist, get_cf_values, cf_multi_enum, mario)
+        self.assertRaises(CustomFieldMultiEnum.DoesNotExist, get_cf_values, cf_multi_enum, luigi)
+
 
 class PropertyViewsTestCase(ViewsTestCase):
     def test_add(self):

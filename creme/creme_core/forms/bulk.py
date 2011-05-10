@@ -28,25 +28,36 @@ from django.utils.translation import ugettext, ugettext_lazy as _
 from creme_core.models import fields, EntityCredentials, CremeEntity
 
 from creme_core.forms import widgets
-from creme_core.forms.base import CremeForm
+from creme_core.forms.base import CremeForm, _CUSTOM_NAME
 from creme_core.forms.fields import AjaxMultipleChoiceField
+from creme_core.models.custom_field import CustomField, CustomFieldEnumValue, CustomFieldValue, CustomFieldMultiEnum, CustomFieldEnum
 from creme_core.utils import entities2unicode
 from creme_core.utils.meta import get_flds_with_fk_flds_str
 from creme_core.gui.bulk_update import bulk_update_registry
 
 _FIELDS_WIDGETS = {
-    models.DateField: lambda name, choices:widgets.CalendarWidget({'id': 'id_%s' % name}).render(name=name, value=None, attrs=None),
-    models.DateTimeField: lambda name, choices:widgets.DateTimeWidget({'id': 'id_%s' % name}).render(name=name, value=None, attrs=None),
-    models.ManyToManyField: lambda name, choices: widgets.UnorderedMultipleChoiceWidget({'id': 'id_%s' % name}).render(name=name, value=None, attrs=None, choices=choices),
-}
+    models.DateField: lambda name, choices:widgets.CalendarWidget({'id': 'id_%s' % name}).render(name=name, value=None,
+                                                                                                 attrs=None),
+    models.DateTimeField: lambda name, choices:widgets.DateTimeWidget({'id': 'id_%s' % name}).render(name=name,
+                                                                                                     value=None,
+                                                                                                     attrs=None),
+    models.ManyToManyField: lambda name, choices: widgets.UnorderedMultipleChoiceWidget({'id': 'id_%s' % name}).render(
+        name=name, value=None, attrs=None, choices=choices),
+    
+    CustomFieldMultiEnum: lambda name, choices: widgets.UnorderedMultipleChoiceWidget({'id': 'id_%s' % name}).render(
+        name=name, value=None, attrs=None, choices=choices),
+    }
 
-_FIELDS_WIDGETS[fields.CreationDateTimeField] = _FIELDS_WIDGETS[fields.ModificationDateTimeField] = _FIELDS_WIDGETS[models.DateTimeField]
+_FIELDS_WIDGETS[fields.CreationDateTimeField] = _FIELDS_WIDGETS[fields.ModificationDateTimeField] = _FIELDS_WIDGETS[
+                                                                                                    models.DateTimeField]
 
 def _get_choices(model_field, user):
     form_field = model_field.formfield()
     choices = ()
-    if isinstance(model_field, (models.ForeignKey, models.ManyToManyField)) and issubclass(model_field.rel.to, CremeEntity):
-        fk_entities = model_field.rel.to._default_manager.filter(pk__in=[id_ for id_, text in form_field.choices if id_])
+    if isinstance(model_field, (models.ForeignKey, models.ManyToManyField)) and issubclass(model_field.rel.to,
+                                                                                           CremeEntity):
+        fk_entities = model_field.rel.to._default_manager.filter(
+            pk__in=[id_ for id_, text in form_field.choices if id_])
 
         choices = ((e.id, e) for e in EntityCredentials.filter(user, fk_entities))
 
@@ -58,31 +69,61 @@ def _get_choices(model_field, user):
 
     return choices
 
+def cfv_klass_save(cfv_klass, custom_field, entity, field_value):
+    cfv = cfv_klass(custom_field=custom_field, entity=entity, value=field_value)
+    cfv.save()
+
+def cfv_klass_m2m_save(cfv_klass, custom_field, entity, field_value):
+    cfv = cfv_klass(custom_field=custom_field, entity=entity)
+    cfv.save()
+    cfv.value = field_value
+    cfv.save()
+
+
 class EntitiesBulkUpdateForm(CremeForm):
     entities_lbl = CharField(label=_(u"Entities to update"), widget=widgets.Label)
-    field_name   = ChoiceField(label=_(u"Field to update"))
-    field_value  = AjaxMultipleChoiceField(label=_(u"Value"), required=False)
+    field_name = ChoiceField(label=_(u"Field to update"))
+    field_value = AjaxMultipleChoiceField(label=_(u"Value"), required=False)
 
     def __init__(self, model, subjects, forbidden_subjects, user, *args, **kwargs):
         super(EntitiesBulkUpdateForm, self).__init__(user, *args, **kwargs)
         self.subjects = subjects
         self.user = user
         self.model = model
+        self.ct = ContentType.objects.get_for_model(model)
         fields = self.fields
 
         fields['entities_lbl'].initial = entities2unicode(subjects, user) if subjects else ugettext(u'NONE !')
 
-        fields['field_name'].widget = widgets.AdaptiveWidget(ct_id=ContentType.objects.get_for_model(model).id, field_value_name='field_value')
+        fields['field_name'].widget = widgets.AdaptiveWidget(ct_id=self.ct.id, field_value_name='field_value')
 
         if forbidden_subjects:
             fields['bad_entities_lbl'] = CharField(label=ugettext(u"Unchangeable entities"),
-                                                        widget=widgets.Label,
-                                                        initial=entities2unicode(forbidden_subjects, user)
-                                                       )
+                                                   widget=widgets.Label,
+                                                   initial=entities2unicode(forbidden_subjects, user)
+            )
 
-        excluded_fields = bulk_update_registry.get_excluded_fields(model)
-        #TODO: Add customs fields
-        fields['field_name'].choices = sorted(get_flds_with_fk_flds_str(model, deep=0, exclude_func=lambda f: f.name in excluded_fields), key=lambda k: ugettext(k[1]))
+        excluded_fields = bulk_update_registry.get_excluded_fields(model)#Doesn't include cf
+
+        model_fields = sorted(get_flds_with_fk_flds_str(model, deep=0, exclude_func=lambda f: f.name in excluded_fields)
+                              , key=lambda k: ugettext(k[1]))
+        cf_fields = sorted(((_CUSTOM_NAME % cf.id, cf.name) for cf in CustomField.objects.filter(content_type=self.ct)),
+                           key=lambda k: ugettext(k[1]))
+        fields['field_name'].choices = ((_(u"Regular fields"), model_fields), (_(u"Custom fields"), cf_fields))
+
+    def _get_field(self, field_name):
+        if EntitiesBulkUpdateForm.is_custom_field(field_name):
+            return CustomField.objects.get(pk=EntitiesBulkUpdateForm.get_custom_field_id(field_name))
+        else:
+            return self.model._meta.get_field(field_name)
+
+    @staticmethod
+    def is_custom_field(field_name):
+        return field_name.startswith(_CUSTOM_NAME.partition('%s')[0])
+
+    @staticmethod
+    def get_custom_field_id(field_name):
+        return field_name.replace(_CUSTOM_NAME.partition('%s')[0], '')
 
     def clean(self, *args, **kwargs):
         super(EntitiesBulkUpdateForm, self).clean(*args, **kwargs)
@@ -90,65 +131,98 @@ class EntitiesBulkUpdateForm(CremeForm):
 
         if self._errors:
             return cleaned_data
-        
+
         field_value = cleaned_data['field_value']
         field_name  = cleaned_data['field_name']
 
-        field = self.model._meta.get_field(field_name)
-        m2m = True
-
-        if field_value and not isinstance(field, models.ManyToManyField):
-            field_value = field_value[0]
-            m2m = False
-
-        try:
-            field_value = cleaned_data['field_value'] = field.formfield().clean(field_value)
-        except ValidationError, ve:
-            raise ve#For displaying the field error on non-field error
-
-        if isinstance(field_value, CremeEntity) and not field_value.can_view(self.user):
-            raise ValidationError(ugettext(u"You can't view this value, so you can't set it."))
-
-        if field_value is None and not field.null:
-            raise ValidationError(ugettext(u'This field is required.'))
-
-        if not (field_value or field.blank):
-            raise ValidationError(ugettext(u'This field is required.'))
-
-        valid_choices = [entity for id_, entity  in _get_choices(field, self.user)]
-
-        #Checking valid choices & credentials
-        if isinstance(field, (models.ForeignKey, models.ManyToManyField)) and issubclass(field.rel.to, CremeEntity):
-            if m2m:
-                for field_val in field_value:
-                    if field_val not in valid_choices:
-                        raise ValidationError(_(u'Select a valid choice.'))
+        if EntitiesBulkUpdateForm.is_custom_field(field_name):
+            try:
+                field = self._get_field(field_name)
+            except CustomField.DoesNotExist:
+                raise ValidationError(_(u'Select a valid field.'))
             else:
-                if field_value not in valid_choices:
-                    raise ValidationError(_(u'Select a valid choice.'))
+                try:
+                    field_klass = field.get_value_class()
+                    if field_value and not issubclass(field_klass, CustomFieldMultiEnum):
+                        field_value = field_value[0]
 
+                    form_field = field.get_formfield(None)
+                    form_field.initial = field_value
+                    field_value = form_field.widget.value_from_datadict(self.data, self.files, 'field_value')
+                    field_value = cleaned_data['field_value'] = form_field.clean(field_value)
+
+                except ValidationError, ve:
+                    raise ve#For displaying the field error on non-field error
+
+
+                if field_value and issubclass(field_klass, CustomFieldEnum):
+                    try:
+#                        field_value = cleaned_data['field_value'] = CustomFieldEnumValue.objects.get(pk=field_value)
+                        field_value = CustomFieldEnumValue.objects.get(pk=field_value)
+                    except CustomFieldEnumValue.DoesNotExist:
+                        raise ValidationError(_(u'Select a valid choice.'))
+
+        else:
+            field = self._get_field(field_name)
+            m2m = True
+
+            if field_value and not isinstance(field, models.ManyToManyField):
+                field_value = field_value[0]
+                m2m = False
+
+            try:
+                field_value = cleaned_data['field_value'] = field.formfield().clean(field_value)
+            except ValidationError, ve:
+                raise ve#For displaying the field error on non-field error
+
+            if isinstance(field_value, CremeEntity) and not field_value.can_view(self.user):
+                raise ValidationError(ugettext(u"You can't view this value, so you can't set it."))
+
+            if field_value is None and not field.null:
+                raise ValidationError(ugettext(u'This field is required.'))
+
+            if not (field_value or field.blank):
+                raise ValidationError(ugettext(u'This field is required.'))
+
+            valid_choices = [entity for id_, entity  in _get_choices(field, self.user)]
+
+            #Checking valid choices & credentials
+            if isinstance(field, (models.ForeignKey, models.ManyToManyField)) and issubclass(field.rel.to, CremeEntity):
+                if m2m:
+                    for field_val in field_value:
+                        if field_val not in valid_choices:
+                            raise ValidationError(_(u'Select a valid choice.'))
+                else:
+                    if field_value not in valid_choices:
+                        raise ValidationError(_(u'Select a valid choice.'))
 
         return cleaned_data
 
-    
+
     def save(self):
         cleaned_data = self.cleaned_data
 
         field_value = cleaned_data['field_value']
         field_name  = cleaned_data['field_name']
 
-        #.update doesn't either send any signal or call save, and when changing entity's user credentials have to be regenerated
-        # TODO: Override the default manager ?
-        if field_name == "user":
-            for subject in self.subjects:
-                subject.user = field_value
-                subject.save()
+        if EntitiesBulkUpdateForm.is_custom_field(field_name):
+            field = self._get_field(field_name)
+            CustomFieldValue.save_values_for_entities(field, self.subjects, field_value)
+
         else:
-            model_field = self.model._meta.get_field(field_name)
-            if not isinstance(model_field, models.ManyToManyField):
-                self.model.objects.filter(pk__in=self.subjects).update(**{field_name:field_value})#TODO: Doesn't work with m2m
-            else:
+            #.update doesn't either send any signal or call save, and when changing entity's user credentials have to be regenerated
+            # TODO: Override the default manager ?
+            if field_name == "user":
                 for subject in self.subjects:
-                    setattr(subject, field_name, field_value)
+                    subject.user = field_value
                     subject.save()
+            else:
+                model_field = self._get_field(field_name)#self.model._meta.get_field(field_name)
+                if not isinstance(model_field, models.ManyToManyField):
+                    self.model.objects.filter(pk__in=self.subjects).update(
+                        **{field_name: field_value})#TODO: Doesn't work with m2m
+                else:
+                    for subject in self.subjects:
+                        setattr(subject, field_name, field_value)
+                        subject.save()
 
