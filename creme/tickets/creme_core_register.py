@@ -22,5 +22,5 @@ reg_item('/tickets/ticket/add', _(u'Add a ticket'), 'tickets.add_ticket')
 button_registry.register(linked_2_ticket_button)
 
 bulk_update_registry.register(
-    (Ticket, ['title']),
+    (Ticket, ['title', 'status']),
 )
