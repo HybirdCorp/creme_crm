@@ -98,7 +98,7 @@ class EntityViewsTestCase(ViewsTestCase):
         self.login()
 
         ct_id = ContentType.objects.get_for_model(CremeEntity).id
-        response = self.client.post('/creme_core/get_fields', data={'ct_id': ct_id})
+        response = self.client.post('/creme_core/entity/get_fields', data={'ct_id': ct_id})
         self.assertEqual(200,               response.status_code)
         self.assertEqual('text/javascript', response['Content-Type'])
 
@@ -112,15 +112,15 @@ class EntityViewsTestCase(ViewsTestCase):
         self.assertEqual(content[5][0], "user__email")
         self.assertEqual(content[6][0], "user__is_team")
 
-        response = self.client.post('/creme_core/get_fields', data={'ct_id': 0})
+        response = self.client.post('/creme_core/entity/get_fields', data={'ct_id': 0})
         self.assertEqual(404,               response.status_code)
         self.assertEqual('text/javascript', response['Content-Type'])
 
-        response = self.client.post('/creme_core/get_fields', data={'ct_id': 'notint'})
+        response = self.client.post('/creme_core/entity/get_fields', data={'ct_id': 'notint'})
         self.assertEqual(400,               response.status_code)
         self.assertEqual('text/javascript', response['Content-Type'])
 
-        response = self.client.post('/creme_core/get_fields', data={'ct_id': ct_id, 'deep': 'notint'})
+        response = self.client.post('/creme_core/entity/get_fields', data={'ct_id': ct_id, 'deep': 'notint'})
         self.assertEqual(400,               response.status_code)
         self.assertEqual('text/javascript', response['Content-Type'])
 
@@ -128,18 +128,18 @@ class EntityViewsTestCase(ViewsTestCase):
         self.login()
 
         ct_id = ContentType.objects.get_for_model(CremeEntity).id
-        response = self.client.post('/creme_core/get_function_fields', data={'ct_id': ct_id})
+        response = self.client.post('/creme_core/entity/get_function_fields', data={'ct_id': ct_id})
         self.assertEqual(200,               response.status_code)
         self.assertEqual('text/javascript', response['Content-Type'])
 
         content = simplejson.loads(response.content)
         self.assertEqual(content, [['get_pretty_properties', _('Properties')]])
 
-        response = self.client.post('/creme_core/get_function_fields', data={'ct_id': 0})
+        response = self.client.post('/creme_core/entity/get_function_fields', data={'ct_id': 0})
         self.assertEqual(404,               response.status_code)
         self.assertEqual('text/javascript', response['Content-Type'])
 
-        response = self.client.post('/creme_core/get_function_fields', data={'ct_id': 'notint'})
+        response = self.client.post('/creme_core/entity/get_function_fields', data={'ct_id': 'notint'})
         self.assertEqual(400,               response.status_code)
         self.assertEqual('text/javascript', response['Content-Type'])
 
@@ -147,7 +147,7 @@ class EntityViewsTestCase(ViewsTestCase):
         self.login()
 
         ct = ContentType.objects.get_for_model(CremeEntity)
-        response = self.client.post('/creme_core/get_custom_fields', data={'ct_id': ct.id})
+        response = self.client.post('/creme_core/entity/get_custom_fields', data={'ct_id': ct.id})
         self.assertEqual(200,               response.status_code)
         self.assertEqual('text/javascript', response['Content-Type'])
         self.assertEqual([], simplejson.loads(response.content))
@@ -155,14 +155,14 @@ class EntityViewsTestCase(ViewsTestCase):
         CustomField.objects.create(name='cf01', content_type=ct, field_type=CustomField.INT)
         CustomField.objects.create(name='cf02', content_type=ct, field_type=CustomField.FLOAT)
 
-        response = self.client.post('/creme_core/get_custom_fields', data={'ct_id': ct.id})
+        response = self.client.post('/creme_core/entity/get_custom_fields', data={'ct_id': ct.id})
         self.assertEqual([['cf01', 'cf01'], ['cf02', 'cf02']], simplejson.loads(response.content))
 
-        response = self.client.post('/creme_core/get_custom_fields', data={'ct_id': 0})
+        response = self.client.post('/creme_core/entity/get_custom_fields', data={'ct_id': 0})
         self.assertEqual(404,               response.status_code)
         self.assertEqual('text/javascript', response['Content-Type'])
 
-        response = self.client.post('/creme_core/get_custom_fields', data={'ct_id': 'notint'})
+        response = self.client.post('/creme_core/entity/get_custom_fields', data={'ct_id': 'notint'})
         self.assertEqual(400,               response.status_code)
         self.assertEqual('text/javascript', response['Content-Type'])
 
@@ -944,6 +944,26 @@ class EntityViewsTestCase(ViewsTestCase):
 
         self.assertRaises(CustomFieldMultiEnum.DoesNotExist, get_cf_values, cf_multi_enum, mario)
         self.assertRaises(CustomFieldMultiEnum.DoesNotExist, get_cf_values, cf_multi_enum, luigi)
+
+    def test_get_widget(self):
+        self.login()
+
+        ct_id = ContentType.objects.get_for_model(Contact).id
+        url = '/creme_core/entity/get_widget/%s'
+
+        response = self.client.post(url % ct_id, data={'field_name': 'first_name', 'field_value_name':'field_value'})
+        self.assertEqual(200,               response.status_code)
+        self.assertEqual('text/javascript', response['Content-Type'])
+
+        content = simplejson.loads(response.content)
+        self.assert_(content['rendered'])
+
+        response = self.client.post(url % 0, data={})
+        self.assertEqual(404,               response.status_code)
+        self.assertEqual('text/javascript', response['Content-Type'])
+
+        response = self.client.post(url % 'notint', data={})
+        self.assertEqual(404,               response.status_code)
 
 
 class PropertyViewsTestCase(ViewsTestCase):

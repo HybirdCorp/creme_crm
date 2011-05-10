@@ -4,12 +4,16 @@ from django.conf.urls.defaults import patterns, include
 
 
 entity_patterns = patterns('creme_core.views', #TODO: move delete* to entity.py
-    (r'^delete/(?P<entity_id>\d+)$',                       'generic.delete.delete_entity'),
-    (r'^delete_related/(?P<ct_id>\d+)$',                   'generic.delete.delete_related_to_entity'),
-    (r'^get_repr/(?P<entity_id>\d+)$',                     'entity.get_creme_entity_repr'),
-    (r'^json$',                                            'entity.get_creme_entity_as_json'),
-    (r'^get_info_fields/(?P<ct_id>\d+)/json$',             'entity.get_info_fields'),
+    (r'^delete/(?P<entity_id>\d+)$',                        'generic.delete.delete_entity'),
+    (r'^delete_related/(?P<ct_id>\d+)$',                    'generic.delete.delete_related_to_entity'),
+    (r'^get_repr/(?P<entity_id>\d+)$',                      'entity.get_creme_entity_repr'),
+    (r'^json$',                                             'entity.get_creme_entity_as_json'),
+    (r'^get_info_fields/(?P<ct_id>\d+)/json$',              'entity.get_info_fields'),
     (r'^bulk_update/(?P<ct_id>\d+)/(?P<ids>([\d]+[,]*)+)$', 'entity.bulk_update'),
+    (r'^get_fields$',                                       'entity.get_fields'),
+    (r'^get_custom_fields$',                                'entity.get_custom_fields'),
+    (r'^get_function_fields$',                              'entity.get_function_fields'),
+    (r'^get_widget/(?P<ct_id>\d+)',                         'entity.get_widget'),
 )
 
 relation_patterns = patterns('creme_core.views.relation',
@@ -71,7 +75,6 @@ creme_core_patterns = patterns('creme_core.views',
     (r'^filter/',        include(filter_patterns)),
     (r'^header_filter/', include(headerfilter_patterns)),
 
-    #(r'^edit_js$', 'ajax.edit_js'), #TODO: commented on 5 january 2011 (delete view too)
 
     (r'^clean/$', 'clean.clean'),
 
@@ -86,12 +89,7 @@ creme_core_patterns = patterns('creme_core.views',
 
     (r'^quickforms/(?P<ct_id>\d+)/(?P<count>\d)$', 'quick_forms.add'),
 
-    #Ajax helpers
-    #TODO: move to entity.py ?? model.py ??
-    (r'^get_fields$',          'ajax.get_fields'),
-    (r'^get_custom_fields$',   'ajax.get_custom_fields'),
-    (r'^get_function_fields$', 'ajax.get_function_fields'),
-    (r'^get_widget/(?P<ct_id>\d+)', 'ajax.get_widget'),
+
 )
 
 creme_core_patterns += patterns('creme_core.views.generic',

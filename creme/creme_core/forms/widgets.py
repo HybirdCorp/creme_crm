@@ -771,7 +771,7 @@ class AdaptiveWidget(Select):
         super(AdaptiveWidget, self).__init__(attrs, choices)
         self.ct_id = ct_id
         self.field_value_name = field_value_name
-        self.url = "/creme_core/get_widget/%s" % ct_id
+        self.url = "/creme_core/entity/get_widget/%s" % ct_id
 
     def render(self, name, value, attrs=None, choices=()):
         attrs = self.build_attrs(attrs, name=name)
