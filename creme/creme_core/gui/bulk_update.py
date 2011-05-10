@@ -59,8 +59,6 @@ class BulkUpdateRegistry(object):
 
         excluded_fields = self._excluded_fields_names_cache.get(model)
 
-        print "excluded_fields1 ", excluded_fields
-
         if excluded_fields is None:#This model is not registered but its parent class may be
             _cache_get = self._excluded_fields_names_cache.get
             _found = False

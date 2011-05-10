@@ -23,7 +23,7 @@ from django.contrib.auth.decorators import login_required
 
 from django.http import HttpResponse, Http404
 from django.utils.simplejson import JSONEncoder
-from creme_core.forms.bulk import _get_choices
+from creme_core.forms.bulk import _get_choices, EntitiesBulkUpdateForm
 
 from creme_core.models import CremeEntity
 from creme_core.models.custom_field import CustomField
@@ -136,16 +136,22 @@ def get_widget(request, ct_id):
     model             = get_ct_or_404(ct_id).model_class()
     field_name        = get_from_POST_or_404(request.POST, 'field_name')
     field_value_name  = get_from_POST_or_404(request.POST, 'field_value_name')
-    model_field       = model._meta.get_field(field_name)
 
-    widget = _FIELDS_WIDGETS.get(model_field.__class__)
+    if EntitiesBulkUpdateForm.is_custom_field(field_name):
+        model_field = CustomField.objects.get(pk=EntitiesBulkUpdateForm.get_custom_field_id(field_name))
+        form_field  = model_field.get_formfield(None)
+        form_field.choices = form_field.choices if hasattr(form_field, 'choices') else ()
+        widget = _FIELDS_WIDGETS.get(model_field.get_value_class())
+    else:
+        model_field = model._meta.get_field(field_name)
+        form_field = model_field.formfield()
+        form_field.choices = _get_choices(model_field, request.user)
+        widget = _FIELDS_WIDGETS.get(model_field.__class__)
+
     rendered = None
-    form_field = model_field.formfield()
-
-    form_field.choices = _get_choices(model_field, request.user)
 
     if widget is None:
-        rendered = form_field.widget.render(name=field_value_name, value=None, attrs=None)
+        rendered = form_field.widget.render(name=field_value_name, value=None, attrs={'id': 'id_%s' % field_value_name})
         
     else:
         rendered=widget(field_value_name, form_field.choices)
