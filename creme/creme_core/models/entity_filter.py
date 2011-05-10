@@ -22,6 +22,7 @@ from datetime import date
 from itertools import ifilter
 
 from django.db.models import Model, CharField, TextField, PositiveSmallIntegerField, BooleanField, ForeignKey, Q
+from django.db import models
 from django.db.models.fields import FieldDoesNotExist
 from django.core.exceptions import ValidationError
 from django.utils.translation import ugettext_lazy as _, ugettext
@@ -61,18 +62,17 @@ class EntityFilterList(list):
 
         return self._selected
 
-#TODO: use a JSONField ?
 
 class EntityFilter(Model): #CremeModel ???
     """A model that contains conditions that filter queries on CremeEntity objects.
     They are principally used in the list views.
     Conditions can be :
      - On regular fields (eg: CharField, IntegerField) with a special behaviour for date fields.
-     - On related fields (throught ForeignKey or Many2Many)
+     - On related fields (throught ForeignKey or Many2Many).
+     - On CustomFields (with a special behaviour for CustomFields with DATE type).
      - An other EntityFilter
      - The existence (or the not existence) of a kind of Relationship.
      - The holding (or the not holding) of a kind of CremeProperty
-     TODO: COMPLETE
     """
     id          = CharField(primary_key=True, max_length=100, editable=False)
     name        = CharField(max_length=100, verbose_name=_('Name'))
@@ -199,12 +199,13 @@ class EntityFilter(Model): #CremeModel ???
 
 
 class _ConditionOperator(object):
-    __slots__ = ('name', '_key_pattern', '_exclude')
+    __slots__ = ('name', '_accept_subpart', '_exclude', '_key_pattern')
 
-    def __init__(self, name, key_pattern, exclude=False):
-        self._key_pattern = key_pattern
-        self._exclude     = exclude
-        self.name         = name
+    def __init__(self, name, key_pattern, exclude=False, accept_subpart=True):
+        self._key_pattern    = key_pattern
+        self._exclude        = exclude
+        self._accept_subpart = accept_subpart
+        self.name            = name
 
     @property
     def exclude(self):
@@ -213,6 +214,10 @@ class _ConditionOperator(object):
     @property
     def key_pattern(self):
         return self._key_pattern
+
+    @property
+    def accept_subpart(self):
+        return self._accept_subpart
 
     def __unicode__(self):
         return unicode(self.name)
@@ -227,7 +232,7 @@ class EntityFilterCondition(Model):
     filter = ForeignKey(EntityFilter, related_name='conditions')
     type   = PositiveSmallIntegerField() #NB: see EFC_*
     name   = CharField(max_length=100)
-    value  = TextField()
+    value  = TextField() #TODO: use a JSONField ?
 
     EFC_SUBFILTER          = 1
     EFC_FIELD              = 5
@@ -263,10 +268,10 @@ class EntityFilterCondition(Model):
     RANGE           = 22
 
     _OPERATOR_MAP = {
-            EQUALS:          _ConditionOperator(_(u'Equals'),                                 '%s__exact'),
-            IEQUALS:         _ConditionOperator(_(u'Equals (case insensitive)'),              '%s__iexact'),
-            EQUALS_NOT:      _ConditionOperator(_(u"Does not equal"),                         '%s__exact', exclude=True),
-            IEQUALS_NOT:     _ConditionOperator(_(u"Does not equal (case insensitive)"),      '%s__iexact', exclude=True),
+            EQUALS:          _ConditionOperator(_(u'Equals'),                                 '%s__exact', accept_subpart=False),
+            IEQUALS:         _ConditionOperator(_(u'Equals (case insensitive)'),              '%s__iexact', accept_subpart=False),
+            EQUALS_NOT:      _ConditionOperator(_(u"Does not equal"),                         '%s__exact', exclude=True, accept_subpart=False),
+            IEQUALS_NOT:     _ConditionOperator(_(u"Does not equal (case insensitive)"),      '%s__iexact', exclude=True, accept_subpart=False),
             CONTAINS:        _ConditionOperator(_(u"Contains"),                               '%s__contains'),
             ICONTAINS:       _ConditionOperator(_(u"Contains (case insensitive)"),            '%s__icontains'),
             CONTAINS_NOT:    _ConditionOperator(_(u"Does not contain"),                       '%s__contains', exclude=True),
@@ -283,9 +288,12 @@ class EntityFilterCondition(Model):
             IENDSWITH:       _ConditionOperator(_(u"Ends with (case insensitive)"),           '%s__iendswith'),
             ENDSWITH_NOT:    _ConditionOperator(_(u"Does not end with"),                      '%s__endswith', exclude=True),
             IENDSWITH_NOT:   _ConditionOperator(_(u"Does not end with (case insensitive)"),   '%s__iendswith', exclude=True),
-            ISNULL:          _ConditionBooleanOperator(_(u"Is empty"),                        '%s__isnull'),
+            ISNULL:          _ConditionBooleanOperator(_(u"Is empty"),                        '%s__isnull', accept_subpart=False),
             RANGE:           _ConditionOperator(_(u"Range"),                                  '%s__range'),
         }
+
+    #Fields for which the subpart of a valid value is not valid
+    _NO_SUBPART_VALIDATION_FIELDS = set([models.EmailField, models.IPAddressField])
 
     class Meta:
         app_label = 'creme_core'
@@ -394,14 +402,11 @@ class EntityFilterCondition(Model):
                 if len(values) != 2:
                     raise ValueError(u'A list with 2 elements is expected for condition %s' % operator_obj.name)
 
-                clean = field.formfield().clean
-                clean(values[0])
-                clean(values[1])
+                EntityFilterCondition._validate_field_values(field, operator_obj, values)
                 values = [values]
             else:
-                clean = field.formfield().clean
-                for value in values:
-                    clean(value)
+                EntityFilterCondition._validate_field_values(field, operator_obj, values)
+
         except Exception, e:
             raise EntityFilterCondition.ValueError(str(e))
 
@@ -578,3 +583,11 @@ class EntityFilterCondition(Model):
                 changed = True
 
         return changed
+
+    @staticmethod
+    def _validate_field_values(field, operator_obj, values):
+        if not field.__class__ in EntityFilterCondition._NO_SUBPART_VALIDATION_FIELDS or not operator_obj.accept_subpart:
+            clean = field.formfield().clean
+
+            for value in values:
+                clean(value)

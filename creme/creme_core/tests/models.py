@@ -1166,6 +1166,30 @@ class EntityFiltersTestCase(CremeTestCase):
                                ])
         self.assertExpectedFiltered(efilter, Contact, [self.contacts[0].id, self.contacts[1].id])
 
+    def test_problematic_validation_fields(self):
+        efilter = EntityFilter.create('test-filter01', 'Mist..', Contact)
+        build = EntityFilterCondition.build_4_field
+
+        try:
+            #Problem a part of a email address is not a valid email address
+            efilter.set_conditions([build(model=Contact, operator=EntityFilterCondition.ISTARTSWITH, name='email', values=['misato'])])
+        except Exception, e:
+            self.fail(str(e))
+
+        try:
+            efilter.set_conditions([build(model=Contact, operator=EntityFilterCondition.RANGE, name='email', values=['misato', 'yui'])])
+        except Exception, e:
+            self.fail(str(e))
+
+        try:
+            efilter.set_conditions([build(model=Contact, operator=EntityFilterCondition.EQUALS, name='email', values=['misato@nerv.jp'])])
+        except Exception, e:
+            self.fail(str(e))
+
+        self.assertRaises(EntityFilterCondition.ValueError, build,
+                          model=Contact, operator=EntityFilterCondition.EQUALS, name='email', values=['misato'],
+                         )
+
     def test_build_condition(self): #errors
         ValueError = EntityFilterCondition.ValueError
         build_4_field = EntityFilterCondition.build_4_field
