@@ -261,6 +261,11 @@ class CustomFieldBoolean(CustomFieldValue):
     def _get_formfield(**kwargs):
         return forms.NullBooleanField(**kwargs)
 
+    def set_value_n_save(self, value):
+        #Boolean default value is False
+        if value is not None:
+            self.value = value
+            self.save()
 
 class CustomFieldEnumValue(CremeModel):
     custom_field = ForeignKey(CustomField, related_name='customfieldenumvalue_set')
