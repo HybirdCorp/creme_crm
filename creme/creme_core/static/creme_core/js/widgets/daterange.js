@@ -53,6 +53,10 @@ creme.widget.DateRange = creme.widget.declare('ui-creme-daterange', {
                 self._update(element);
             });
 
+        // Some daterange are a clone of an active one and a datepicker is already attached dom element. 
+        // In order to "reuse" the cloned element with another datepicker we need to "remove" it from input
+        self._clean_daterpickers($datespan);
+
         $('.daterange-input', $datespan).bind('change', function() {self._update(element);})
                                         .datepicker(datepicker_options);
 
@@ -65,9 +69,17 @@ creme.widget.DateRange = creme.widget.declare('ui-creme-daterange', {
         element.addClass('widget-ready');
     },
 
+    _clean_daterpickers: function(datespan) 
+    {
+    	$('.daterange-input', datespan).removeAttr('id')
+    								   .removeClass('hasDatepicker');
+
+    	$('img.ui-datepicker-trigger', datespan).remove();
+    },
+    
     _update: function(element) {
         var self = creme.widget.DateRange;
-        creme.widget.input(element).val(self.val(element));
+        creme.widget.input(element).val(self.val(element)).change();
     },
 
     reload: function(element, url, cb, error_cb, sync) {
@@ -77,6 +89,10 @@ creme.widget.DateRange = creme.widget.declare('ui-creme-daterange', {
     _update_inputs: function(element, value) {
         var self = creme.widget.DateRange;
         var type = value['type'];
+
+        // TODO : use this method instead. parse json if value is a string and
+        // a default value if undefined or invalid json.
+        //var values = creme.widget.cleanval(value, {'type':'', 'start':null, 'end':null});
 
         if (type !== undefined) {
             self._get_type(element).val(type).change();
@@ -89,6 +105,9 @@ creme.widget.DateRange = creme.widget.declare('ui-creme-daterange', {
         var self = creme.widget.DateRange;
 
         if (value === undefined) {
+        	// TODO : returns the hidden input value instead. easier for bug detection :))
+        	// var res = creme.widget.input(element).val();
+        	// return (!res) ? null : res;
             return $.toJSON({'type':  self._get_type(element).val(),
                              'start': self._get_start(element).val(),
                              'end':   self._get_end(element).val()
