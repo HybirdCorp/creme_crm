@@ -43,7 +43,7 @@ creme.widget.PolymorphicSelect = creme.widget.declare('ui-creme-polymorphicselec
     _update_selector: function(element, value) {
         var self = creme.widget.PolymorphicSelect;
 
-        values = creme.widget.cleanval(value, {'type':null, 'value':null});
+        var values = creme.widget.cleanval(value, {'type':null, 'value':null});
 
         self._toggle_selector(element, values['type'], values['value'], {});
         self._update(element);
@@ -64,7 +64,7 @@ creme.widget.PolymorphicSelect = creme.widget.declare('ui-creme-polymorphicselec
             value = '{"type":null, "value":null}';
         }
 
-        creme.widget.input(element).val(value);
+        creme.widget.input(element).val(value).change();
     },
 
     _toggle_selector: function(element, type, value, options) {
