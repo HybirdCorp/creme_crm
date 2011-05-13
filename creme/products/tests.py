@@ -4,10 +4,123 @@ from decimal import Decimal
 
 from django.core.serializers.json import simplejson
 
+from creme_core import autodiscover
 from creme_core.tests.base import CremeTestCase
+from creme_core.tests.forms import FieldTestCase
 
-from products.models import *
+from products.models import Category, SubCategory, Product, Service, ServiceCategory
+from products.forms.product import ProductCategoryField
 
+class ProductCategoryFieldTestCase(FieldTestCase):
+    def test_categories(self):
+        cat1 = Category.objects.create(name='cat1', description='description')
+        cat2 = Category.objects.create(name='cat2', description='description')
+
+        field = ProductCategoryField(categories=[cat1.id, cat2.id])
+        self.assertEquals(2, len(field.categories))
+        self.assertEquals(cat1, field._get_categories_objects()[0])
+        self.assertEquals(cat2, field._get_categories_objects()[1])
+
+    def test_default_ctypes(self):
+        autodiscover()
+        self.populate('creme_core', 'products')
+
+        field = ProductCategoryField()
+        self.assertEquals(len(Category.objects.all()), len(field._get_categories_objects()))
+        self.assertEquals(set(c.pk for c in Category.objects.all()), set(c.pk for c in field._get_categories_objects()))
+
+    def test_format_object(self):
+        cat1 = Category.objects.create(name='cat1', description='description')
+        cat11 = SubCategory.objects.create(name='sub11', description='description', category=cat1)
+        cat12 = SubCategory.objects.create(name='sub12', description='description', category=cat1)
+
+        field = ProductCategoryField(categories=[cat1.id])
+        self.assertEquals('{"category": %s, "subcategory": %s}' % (cat1.id, cat11.id), field.from_python((cat1.id, cat11.id)))
+        self.assertEquals('{"category": %s, "subcategory": %s}' % (cat1.id, cat11.id), field.from_python(cat11))
+        self.assertEquals('{"category": %s, "subcategory": %s}' % (cat1.id, cat12.id), field.from_python(cat12))
+
+    def test_clean_empty_required(self):
+        field = ProductCategoryField(required=True)
+        self.assertFieldValidationError(ProductCategoryField, 'required', field.clean, None)
+        self.assertFieldValidationError(ProductCategoryField, 'required', field.clean, "{}")
+
+    def test_clean_empty_not_required(self):
+        field = ProductCategoryField(required=False)
+        field.clean(None)
+
+    def test_clean_invalid_json(self):
+        field = ProductCategoryField(required=False)
+        self.assertFieldValidationError(ProductCategoryField, 'invalidformat', field.clean, '{"category":"12","subcategory":"1"')
+
+    def test_clean_invalid_data_type(self):
+        field = ProductCategoryField(required=False)
+        self.assertFieldValidationError(ProductCategoryField, 'invalidformat', field.clean, '"this is a string"')
+        self.assertFieldValidationError(ProductCategoryField, 'invalidformat', field.clean, "[]")
+
+    def test_clean_invalid_data(self):
+        field = ProductCategoryField(required=False)
+        self.assertFieldValidationError(ProductCategoryField, 'invalidformat', field.clean, '{"category":"1"}')
+        self.assertFieldValidationError(ProductCategoryField, 'invalidformat', field.clean, '{"category":"12"}')
+        self.assertFieldValidationError(ProductCategoryField, 'invalidformat', field.clean, '{"category":"notanumber","subcategory":"1"}')
+        self.assertFieldValidationError(ProductCategoryField, 'invalidformat', field.clean, '{"category":"12","category":"notanumber"}')
+
+    # data injection : unallowed category
+    def test_clean_unallowed_category(self):
+        cat1 = Category.objects.create(name='cat1', description='description')
+
+        cat2 = Category.objects.create(name='cat2', description='description')
+        cat21 = SubCategory.objects.create(name='sub21', description='description', category=cat2)
+
+        field = ProductCategoryField(categories=[cat1.id])
+
+        value = '{"category":"%s","subcategory":"%s"}' % (cat2.id, cat21.id)
+
+        self.assertFieldValidationError(ProductCategoryField, 'categorynotallowed', field.clean, value)
+
+    # data injection : category doesn't exist
+    def test_clean_unknown_category(self):
+        cat1 = Category.objects.create(name='cat1', description='description')
+        cat11 = SubCategory.objects.create(name='sub11', description='description', category=cat1)
+
+        field = ProductCategoryField(categories=[cat1.id, 0])
+
+        value = '{"category":"%s","subcategory":"%s"}' % (0, cat11.id)
+
+        # same error has unallowed, cause unknown category cannot be in list
+        self.assertFieldValidationError(ProductCategoryField, 'categorynotallowed', field.clean, value)
+
+    # data injection : subcategory doesn't exist
+    def test_clean_unknown_subcategory(self):
+        cat1 = Category.objects.create(name='cat1', description='description')
+
+        field = ProductCategoryField(categories=[cat1.id])
+
+        value = '{"category":"%s","subcategory":"%s"}' % (cat1.id, 0)
+
+        self.assertFieldValidationError(ProductCategoryField, 'doesnotexist', field.clean, value)
+
+    # data injection : use incompatible category/subcategory pair
+    def test_clean_invalid_category_pair(self):
+        cat1 = Category.objects.create(name='cat1', description='description')
+
+        cat2 = Category.objects.create(name='cat2', description='description')
+        cat21 = SubCategory.objects.create(name='sub21', description='description', category=cat2)
+
+        field = ProductCategoryField(categories=[cat1.id, cat2.id])
+
+        value = '{"category":"%s","subcategory":"%s"}' % (cat1.id, cat21.id)
+
+        self.assertFieldValidationError(ProductCategoryField, 'subcategorynotallowed', field.clean, value)
+
+    def test_clean(self):
+        cat1 = Category.objects.create(name='cat1', description='description')
+        cat11 = SubCategory.objects.create(name='sub11', description='description', category=cat1)
+
+        field = ProductCategoryField(categories=[cat1.id])
+
+        value = '{"category":"%s","subcategory":"%s"}' % (cat1.id, cat11.id);
+
+        self.assertEquals(cat11, field.clean(value))
 
 class ProductsTestCase(CremeTestCase):
     def setUp(self):
@@ -26,19 +139,19 @@ class ProductsTestCase(CremeTestCase):
     def test_ajaxview01(self):
         self.login()
 
-        response = self.client.post('/products/sub_category/load')
-        self.assertEqual(response.status_code, 200)
+        response = self.client.get('/products/sub_category/0/json')
+        self.assertEqual(response.status_code, 404)
 
         #{'result': [{'text': u'Choose a category', 'id': ''}]}
-        try:
-            content = simplejson.loads(response.content)['result']
-            self.assertEqual(1, len(content))
-
-            dic = content[0]
-            self.assert_(dic['text'])
-            self.failIf(dic['id'])
-        except Exception, e:
-            self.fail(str(e))
+#        try:
+#            content = simplejson.loads(response.content)['result']
+#            self.assertEqual(1, len(content))
+#
+#            dic = content[0]
+#            self.assert_(dic['text'])
+#            self.failIf(dic['id'])
+#        except Exception, e:
+#            self.fail(str(e))
 
         name1 = 'subcat1'
         name2 = 'subcat2'
@@ -46,22 +159,13 @@ class ProductsTestCase(CremeTestCase):
         subcat1 = SubCategory.objects.create(name=name1, description='description', category=cat)
         subcat2 = SubCategory.objects.create(name=name2, description='description', category=cat)
 
-        response = self.client.post('/products/sub_category/load', data={'record_id': cat.id})
+        response = self.client.get('/products/sub_category/%s/json' % cat.id)
         self.assertEqual(200, response.status_code)
 
-        #{'result': [{'text': 'subcat1', 'id': 8}, {'text': 'subcat2', 'id': 9}]}
-        try:
-            content = simplejson.loads(response.content)['result']
-            self.assertEqual(2, len(content))
-            dic = content[0]
-            self.assertEqual(name1,      dic['text'])
-            self.assertEqual(subcat1.id, dic['id'])
+        content = simplejson.loads(response.content)
 
-            dic = content[1]
-            self.assertEqual(name2,      dic['text'])
-            self.assertEqual(subcat2.id, dic['id'])
-        except Exception, e:
-            self.fail(str(e))
+        self.assertEqual(content, [[subcat1.id, name1],
+                                   [subcat2.id, name2]])
 
     def test_product_createview(self):
         self.login()
@@ -84,14 +188,15 @@ class ProductsTestCase(CremeTestCase):
                                             'code':         code,
                                             'description':  description,
                                             'unit_price':   unit_price,
-                                            'category':     cat.id,
-                                            'sub_category': sub_cat.id,
+                                            'sub_category': """{"category":%s, "subcategory":%s}""" % (cat.id,
+                                                                                                       sub_cat.id)
                                          }
                                    )
         try:
             form = response.context['form']
         except Exception, e:
-            print 'Exception', e
+            #print 'Exception', e
+            pass
         else:
             self.fail(form.errors)
 
@@ -137,8 +242,8 @@ class ProductsTestCase(CremeTestCase):
                                             'code':         product.code,
                                             'description':  product.description,
                                             'unit_price':   unit_price,
-                                            'category':     product.category_id,
-                                            'sub_category': product.sub_category_id,
+                                            'sub_category': """{"category":%s, "subcategory":%s}""" % (product.category_id,
+                                                                                                       product.sub_category_id)
                                          }
                                    )
         self.assertEqual(200, response.status_code)
@@ -200,7 +305,8 @@ class ProductsTestCase(CremeTestCase):
         try:
             form = response.context['form']
         except Exception, e:
-            print 'Exception', e
+            #print 'Exception', e
+            pass
         else:
             self.fail(form.errors)
 
@@ -253,7 +359,8 @@ class ProductsTestCase(CremeTestCase):
         try:
             form = response.context['form']
         except Exception, e:
-            print 'Exception', e
+            #print 'Exception', e
+            pass
         else:
             self.fail(form.errors)
 

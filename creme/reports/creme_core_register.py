@@ -23,6 +23,7 @@ from django.utils.translation import ugettext_lazy as _
 from creme_core.registry import creme_registry
 from creme_core.gui.menu import creme_menu
 from creme_core.gui.block import block_registry
+from creme_core.gui.bulk_update import bulk_update_registry
 
 from reports.models import Report
 from reports.blocks import report_fields_block, report_graphs_block
@@ -38,3 +39,7 @@ reg_item('/reports/report/add', _(u'Add a report'), 'reports.add_report')
 
 block_registry.register(report_fields_block)
 block_registry.register(report_graphs_block)
+
+bulk_update_registry.register(
+    (Report, ['ct', 'columns', 'filter']),
+)

@@ -18,32 +18,19 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-import logging
+from os.path import join, dirname, abspath
+from activesync.commands.airsync import AirSync
 
-from django.http import HttpResponse
-from django.core.serializers.json import DjangoJSONEncoder
-from django.utils.translation import ugettext as _
+from activesync.tests.commands.base import BaseASTestCase
 
-from products.models import Category, SubCategory
+#TODO: tests!!
+class AirSyncASTestCase(BaseASTestCase):
+    def setUp(self):
+        super(AirSyncASTestCase, self).setUp()
+        self.test_files_path = join(dirname(abspath(__file__)), '..', 'data', 'commands', 'airsync')
+        self.test_files = []
+        self.test_files_paths = [join(self.test_files_path, f) for f in self.test_files]
 
-
-def _is_valid(category):
-    if not category:
-        return False
-
-    return Category.objects.filter(id=category).exists()
-
-#TODO: use @jsonify ??
-#TODO: use GET instead of POST
-def get_sub_cat_on_cat_change(request):
-    #logging.debug("GET_SUB_CAT_ON_CAT_CHANGE")
-
-    category = request.POST.get('record_id', '')
-
-    if _is_valid(category):
-        #TODO: if it was {'id':..., 'name':..}, we could use values('id', 'name') directly....
-        result = [{'id': id, 'text': name} for id, name in SubCategory.objects.filter(category=category).values_list('id', 'name')]
-    else:
-        result = [{'id': '', 'text': _(u'Choose a category')}]
-
-    return HttpResponse(DjangoJSONEncoder().encode({'result': result}), mimetype='application/javascript')
+#    def test_airsync01(self):
+#        as_ = AirSync(*self.params)
+#        as_.send(headers={'test_files': ";".join(self.test_files_paths) })

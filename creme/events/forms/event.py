@@ -40,7 +40,7 @@ from events.constants import *
 
 class EventForm(CremeEntityForm):
     start_date = DateTimeField(label=_(u'Start date'), widget=DateTimeWidget)
-    end_date   = DateTimeField(label=_(u'End date'), required=False, widget=DateTimeWidget)
+    end_date   = DateTimeField(label=_(u'End date'), required=False, widget=DateTimeWidget)#TODO: start_date > end_date ?
 
     class Meta(CremeEntityForm.Meta):
         model = Event
@@ -54,7 +54,7 @@ _SYMMETRICS = {
 _TYPES = [REL_OBJ_IS_INVITED_TO, REL_OBJ_CAME_EVENT, REL_OBJ_NOT_CAME_EVENT]
 
 class AddContactsToEventForm(CremeForm):
-    related_contacts = MultiRelationEntityField(relations=_TYPES, label=_(u'Related contacts'))
+    related_contacts = MultiRelationEntityField(allowed_rtypes=_TYPES, label=_(u'Related contacts'))
 
     def __init__(self, *args, **kwargs):
         self.event = kwargs.pop('instance')

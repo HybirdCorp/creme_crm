@@ -26,6 +26,8 @@ from creme_core.gui.button_menu import button_registry
 from creme_core.gui.block import block_registry
 from creme_core.gui.quick_forms import quickforms_registry
 from creme_core.gui.csv_import import csv_form_registry
+from creme_core.gui.bulk_update import bulk_update_registry
+
 
 from persons.models import Contact, Organisation
 from persons.buttons import (become_customer_button, become_prospect_button, become_suspect_button,
@@ -59,3 +61,8 @@ reg_qform(Organisation, OrganisationQuickForm)
 register_csv_form = csv_form_registry.register
 register_csv_form(Contact,      get_csv_form_builder)
 register_csv_form(Organisation, get_csv_form_builder)
+
+bulk_update_registry.register(
+    (Contact, ['is_user']),
+    (Organisation, ['siren']),
+)

@@ -872,3 +872,30 @@ class DateFilterWidget(Select):
             output.append(render_option(report_date_filter))
 
         return u'\n'.join(output) #TODO: genexpr
+
+class AdaptiveWidget(Select):
+    def __init__(self, ct_id, field_value_name, attrs=None, choices=()):
+        super(AdaptiveWidget, self).__init__(attrs, choices)
+        self.ct_id = ct_id
+        self.field_value_name = field_value_name
+        self.url = "/creme_core/entity/get_widget/%s" % ct_id
+
+    def render(self, name, value, attrs=None, choices=()):
+        attrs = self.build_attrs(attrs, name=name)
+
+        context = widget_render_context('ui-creme-adaptive-widget', attrs,
+                                url=self.url,
+                                style=attrs.pop('style', ''),
+                                field_value_name=self.field_value_name)
+
+        context['input'] = super(AdaptiveWidget, self).render(name, value, attrs, choices)
+
+        html_output = """
+            <span class="%(css)s" style="%(style)s" widget="%(typename)s" url="%(url)s" field_value_name="%(field_value_name)s">
+                %(input)s
+            </span>
+        """ % context;
+
+        return mark_safe(html_output)
+
+

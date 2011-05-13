@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2011  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -29,6 +29,7 @@ from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 
 from creme_core.models import CremeEntity
+from creme_core.models.custom_field import CustomFieldValue
 
 
 __all__ = ('FieldBlockManager', 'CremeForm', 'CremeModelForm', 'CremeModelWithUserForm', 'CremeEntityForm')
@@ -206,8 +207,8 @@ class CremeModelWithUserForm(CremeModelForm):
 
 
 class CremeEntityForm(CremeModelWithUserForm):
-    class Meta:
-        exclude = ('is_deleted', 'is_actived')
+    class Meta: #TODO: remove ???
+        exclude = () #'is_deleted', 'is_actived'
 
     def __init__(self, *args, **kwargs):
         super(CremeEntityForm, self).__init__(*args, **kwargs)
@@ -238,15 +239,6 @@ class CremeEntityForm(CremeModelWithUserForm):
 
         for i, (custom_field, custom_value) in enumerate(self._customs):
             value = cleaned_data[_CUSTOM_NAME % i] #TODO: factorize with _build_customfields() ?
-
-            #TODO: in a CustomField method ???
-            if custom_value:
-                if not value:
-                    custom_value.delete()
-                else:
-                    custom_value.set_value_n_save(value)
-            elif value:
-                custom_value = custom_field.get_value_class()(custom_field=custom_field, entity=instance)
-                custom_value.set_value_n_save(value)
+            CustomFieldValue.save_values_for_entities(custom_field, [instance], value)
 
         return instance

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2011  Hybird
+#    Copyright (C) 2009-2010  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,12 +18,9 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from creme_core.management.commands.creme_populate import BasePopulator
-
-from creme_config.models import *
-
-#TODO: remove this file ???
-
-class Populator(BasePopulator):
-    def populate(self, *args, **kwargs):
-        pass
+def get_ns(name):
+    """Get the namespace"""
+    ns = None
+    if name[0] == "{":
+        ns, sep, tag = name[1:].rpartition("}")
+    return ns

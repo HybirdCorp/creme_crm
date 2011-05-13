@@ -11,14 +11,13 @@
                 <th class="block_header_line_light">{% trans "Related entity" %}</th>
                 <th class="block_header_line_light">{% trans "Delete" %}</th>
             </tr>
-            {% for block_type in page.object_list %}
-                <!--{% cycle row_color %}-->
+            {% for block_type in page.object_list %}<!--{% cycle row_color %}-->
                 <tr>
                     <td class="{{row_color}}">
                         <a href="{{block_type.entity.get_absolute_url}}">{{block_type}}</a>
                     </td>
                     <td class="{{row_color}}">
-                        {% get_line_deletor2 at_url '/creme_config/instance_block/delete' with_args "{'id': '{{block_type.id}}'}" with_perms 1 %}
+                        {% get_line_deletor at_url '/creme_config/instance_block/delete' with_args "{'id': '{{block_type.id}}'}" with_perms 1 %}
                     </td>
                 </tr>
             {% endfor %}

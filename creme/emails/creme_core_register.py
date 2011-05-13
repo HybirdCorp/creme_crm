@@ -24,8 +24,9 @@ from creme_core.registry import creme_registry
 from creme_core.gui.menu import creme_menu
 from creme_core.gui.button_menu import button_registry
 from creme_core.gui.block import block_registry
+from creme_core.gui.bulk_update import bulk_update_registry
 
-from emails.models import EmailCampaign, MailingList, EmailTemplate, EntityEmail
+from emails.models import EmailCampaign, MailingList, EmailTemplate, EntityEmail, _Email
 from emails.blocks import blocks_list
 from emails.buttons import *
 
@@ -47,3 +48,12 @@ reg_item('/emails/synchronization',  _(u'Synchronization of incoming emails'), '
 button_registry.register(entityemail_link_button)
 
 block_registry.register(*blocks_list)
+
+bulk_update_registry.register(
+    (EmailTemplate, ['use_rte']),
+    (_Email,        ['reads', 'status', 'recipient', 'body_html', 'body', 'sending_date',
+                     'reception_date', 'signature', 'attachments', 'subject',
+                     'sender']),#TODO: Remove bulk update instead of that ?
+    (EntityEmail, ['identifier']),
+)
+

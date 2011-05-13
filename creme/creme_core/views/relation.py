@@ -291,11 +291,12 @@ def objects_to_link_selection(request, rtype_id, subject_id, object_ct_id, o2m=F
     @param o2m One-To-Many ; if false, it seems Manay-To-Many => multi selection.
     Tip: see the js function creme.relations.handleAddFromPredicateEntity()
     """
-    template_dict = {
-        'predicate_id': rtype_id,   #TODO: useful ??
-        'subject_id':   subject_id, #TODO: useful ??
-        'o2m':          o2m
-    }
+    #TODO: COMMENTED on 3 may 2011
+    #template_dict = {
+        #'predicate_id': rtype_id,
+        #'subject_id':   subject_id,
+        #'o2m':          o2m
+    #}
 
     subject = get_object_or_404(CremeEntity, pk=subject_id)
     subject.can_link_or_die(request.user)
@@ -311,7 +312,8 @@ def objects_to_link_selection(request, rtype_id, subject_id, object_ct_id, o2m=F
     if prop_types:
         extra_q &= Q(properties__type__in=prop_types)
 
-    return list_view_popup_from_widget(request, object_ct_id, o2m, extra_dict=template_dict, extra_q=extra_q)
+    #return list_view_popup_from_widget(request, object_ct_id, o2m, extra_dict=template_dict, extra_q=extra_q)
+    return list_view_popup_from_widget(request, object_ct_id, o2m, extra_q=extra_q)
 
 
 #TODO: factorise code (with RelatedEntitiesField for example) ?  With a smart static method method in RelationType ?

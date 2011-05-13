@@ -32,7 +32,7 @@
                         <td class="{{row_color}}">
                             {% for parent in task.get_parents %}
                                 <a href="/projects/task/{{parent.id}}">{{parent.title}}</a>
-                                {% get_line_deletor2 at_url '/projects/task/parent/delete' with_args "{ 'id':{{task.pk}}, 'parent_id': {{parent.id}} }" with_perms change_perm %}
+                                {% get_line_deletor at_url '/projects/task/parent/delete' with_args "{ 'id':{{task.pk}}, 'parent_id': {{parent.id}} }" with_perms change_perm %}
                             {% empty %}
                                 {% trans "No parent task" %}
                             {% endfor %}
@@ -48,7 +48,7 @@
                     {% endif %}
                     <td class="{{row_color}}" align="center" valign="center" style="width:10%;">
                         {% has_perm_to delete task as delete_perm %}
-                        {% get_line_deletor2 at_url '/projects/task/delete' with_args "{'id' : {{task.pk}} }" with_perms delete_perm %}
+                        {% get_line_deletor at_url '/projects/task/delete' with_args "{'id' : {{task.pk}} }" with_perms delete_perm %}
                     </td>
                 </tr>
             {% endfor %}

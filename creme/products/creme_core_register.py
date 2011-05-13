@@ -22,6 +22,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from creme_core.registry import creme_registry
 from creme_core.gui.menu import creme_menu
+from creme_core.gui.bulk_update import bulk_update_registry
 
 from products.models import Product, Service
 
@@ -35,3 +36,7 @@ reg_item('/products/products',    _(u'All products'),  'products')
 reg_item('/products/product/add', _(u'Add a product'), 'products.add_product')
 reg_item('/products/services',    _(u'All services'),  'products')
 reg_item('/products/service/add', _(u'Add a service'), 'products.add_service')
+
+bulk_update_registry.register(
+    (Product, ['category', 'sub_category']),
+)

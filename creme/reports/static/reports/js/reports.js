@@ -161,14 +161,14 @@ creme.reports.__loadOrderedMultiSelect = function(url, pdata, table_id, input_na
 }
 
 creme.reports.loadColumns = function(ct_id, options) {
-    creme.reports.__loadOrderedMultiSelect('/creme_core/get_fields',
+    creme.reports.__loadOrderedMultiSelect('/creme_core/entity/get_fields',
                                            {'ct_id': ct_id},
                                            options.columns.table_id,
                                            options.columns.name);
 }
 
 creme.reports.loadCf = function(ct_id, options) {
-    creme.reports.__loadOrderedMultiSelect('/creme_core/get_custom_fields',
+    creme.reports.__loadOrderedMultiSelect('/creme_core/entity/get_custom_fields',
                                        {'ct_id': ct_id},
                                        options.cf.table_id,
                                        options.cf.name);
@@ -182,7 +182,7 @@ creme.reports.loadRelations = function(ct_id, options) {
 }
 
 creme.reports.loadFunctions = function(ct_id, options) {
-    creme.reports.__loadOrderedMultiSelect('/creme_core/get_function_fields',
+    creme.reports.__loadOrderedMultiSelect('/creme_core/entity/get_function_fields',
                                        {'ct_id': ct_id},
                                        options.functions.table_id,
                                        options.functions.name);

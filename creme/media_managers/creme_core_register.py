@@ -22,6 +22,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from creme_core.registry import creme_registry
 from creme_core.gui.menu import creme_menu
+from creme_core.gui.bulk_update import bulk_update_registry
 
 from media_managers.models import Image
 
@@ -33,3 +34,8 @@ reg_item = creme_menu.register_app('media_managers', '/media_managers/').registe
 reg_item('/media_managers/',          _(u'Portal'),       'media_managers')
 reg_item('/media_managers/image/add', _(u'Add an image'), 'media_managers.add_image')
 reg_item('/media_managers/images',    _(u'All images'),   'media_managers')
+
+
+bulk_update_registry.register(
+    (Image, ['height', 'width', 'image']),
+)

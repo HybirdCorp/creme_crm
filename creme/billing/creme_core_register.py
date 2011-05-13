@@ -24,8 +24,9 @@ from creme_core.registry import creme_registry
 from creme_core.gui.menu import creme_menu
 from creme_core.gui.button_menu import button_registry
 from creme_core.gui.block import block_registry
+from creme_core.gui.bulk_update import bulk_update_registry
 
-from billing.models import Invoice, Quote, SalesOrder, CreditNote
+from billing.models import Invoice, Quote, SalesOrder, CreditNote, Base, TemplateBase
 from billing.blocks import (product_lines_block, service_lines_block, total_block, target_block, received_invoices_block,
                             payment_information_block, billing_payment_information_block)
 from billing.buttons import generate_invoice_number_button
@@ -52,3 +53,13 @@ button_registry.register(generate_invoice_number_button)
 from signals import connect_to_signals
 
 connect_to_signals()
+
+bulk_update_registry.register(
+    (Base, ['number', 'total_vat', 'total_no_vat', 'payment_info']),
+    (CreditNote, ['status']),
+    (Invoice, ['status']),
+    (Quote, ['status']),
+    (SalesOrder, ['status']),
+    (TemplateBase, ['status_id', 'ct', 'base_ptr']),
+
+)

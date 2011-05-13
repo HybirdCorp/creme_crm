@@ -38,7 +38,7 @@
                     </td>
                     <td class="{{row_color}}">
                         {% get_line_editor at_url '/creme_config/role/edit/{{role.id}}' with_perms 1 %}
-                        {% get_line_deletor2 at_url '/creme_config/role/delete' with_args "{'id': '{{role.pk}}'}" with_perms 1 %}
+                        {% get_line_deletor at_url '/creme_config/role/delete' with_args "{'id': '{{role.pk}}'}" with_perms 1 %}
                     </td>
                 </tr>
             {% endfor %}

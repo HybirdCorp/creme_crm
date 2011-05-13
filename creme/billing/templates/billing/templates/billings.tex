@@ -37,14 +37,13 @@
 {{source.name}}
 }
 
-\def\TargetName{% 
-{{target.name}} 
-}
-
 \def\EditDate{%
 {{object.edit_date}}
 }
 
+\def\TargetName{% 
+{{target.name}} 
+}
 
 \def\Number{%
 {% if object.number %} {{object.number}} {%else%} Numéro non généré {%endif%} 
@@ -54,30 +53,32 @@
 {{document_name}} 
 }
 \newcommand{\HyHeader}[1]{
-  \color{white}\begin{center} {#1} \end{center} 
+  \centering{#1}
 }
 
 \newcommand{\HySourceName}[1]{
-{\Large\textbf{\MakeTextUppercase{#1}{% templatetag closevariable %} 
+{\Large\textbf{#1{% templatetag closevariable %}
 }
+
 
 \newcommand{\HyDocName}[1]{
-\color{hydarkblue}{% templatetag openvariable %}\Large\textbf{\MakeTextUppercase{#1}{% templatetag closevariable %}} 
+\color{hydarkblue}{% templatetag openvariable %}\Huge\textbf{\MakeTextUppercase{#1}{% templatetag closevariable %}}
 }
 
-\newcommand{\HyDocumentHeader}[1]{
+\newcommand{\HyInvoiceHeader}[1]{
 
         \begin{tabular}{| c | c |}
         \hline Numéro & {#1} \\
         \hline Date & {\EditDate}\\
+        \hline Réglement & A 30 jours \\
         \hline 
         \end{tabular}
         
 }
 
 \def\TargetAddress{%
-{{target.billing_address.address}} \\
-{{target.billing_address.city}} {{target.billing_address.po_box}} \\
+{{target.billing_address.address|safe}} \\
+{{target.billing_address.city|safe}} {{target.billing_address.po_box|safe}} \\
 }
 
 \cfoot{ SIRET : {{source.siret}} - NAF : {{source.naf}} -  RCS : {{source.rcs}} - N° TVA : {{source.tvaintra}}}
@@ -89,37 +90,60 @@
 
 \begin{tabular}{@{}p{0.5\linewidth}M{0.5\linewidth{% templatetag closevariable %}
 \HySourceName{\SourceName} & \HyDocName{\DocumentName} \tabularnewline
-{{source.billing_address.address}} &  \tabularnewline
-{{source.billing_address.city}} {{source.billing_address.po_box}} &  \tabularnewline
+{{source.billing_address.address|safe}} &  \tabularnewline
+{{source.billing_address.city|safe}} {{source.billing_address.po_box|safe}} &  \tabularnewline
 \end{tabular}
 
+\vspace{1cm}
 
 \begin{tabular}{@{}p{10cm} l }
-\multirow{3}{*} {\HyDocumentHeader{\Number{% templatetag closevariable %} & \textbf{\MakeTextUppercase{\TargetName{% templatetag closevariable %} \\
- & {{target.billing_address.address}} \\
- & {{target.billing_address.city}} {{target.billing_address.po_box}} \\
+\multirow{3}{*} {\HyInvoiceHeader{\Number}} & \textbf{\TargetName} \\
+ & {{target.billing_address.address|safe}} \\
+ & {{target.billing_address.city|safe}} {{target.billing_address.po_box|safe}} \\
 \end{tabular} 
+
+\vspace{2cm}
 
 
 \begin{longtable}
    {|p{0.25\linewidth}|p{0.25\linewidth}|p{0.25\linewidth}|p{0.25\linewidth}|}
    \hline
-    \rowcolor{hydarkblue} \HyHeader{Description} &  \begin{center} \color{white}{Qté} \end{center} &  \begin{center} \color{white}{PU HT} \end{center}&  \begin{center} \color{white}\centering{Montant HT} \end{center}  \endhead
+    \HyHeader{Description} &  \HyHeader{Qté} &  \HyHeader{PU HT} &  \HyHeader{Montant HT}  \endhead
    \hline
    \endfoot
+\hline
+\multicolumn{3}{c} {} \tabularnewline \cline{3-4}
+\multicolumn{2}{c|} {} & \centering{ Total HT } & \centering{ {{object.get_total}} Euros } \tabularnewline \cline{3-4}
+\multicolumn{2}{c|} {} & \centering{ TVA } & \centering{ {{object.get_total_with_tax|sub:object.get_total}} Euros } \tabularnewline \cline{3-4}
+\multicolumn{2}{c|} {} & \centering{ TTC } & \centering{ {{object.get_total_with_tax}} Euros } \tabularnewline \cline{3-4}
+\endlastfoot
    
 {% for line in plines %}
-
-    {% if line.related_item %}{{line.related_item}}{% else %} {{line.on_the_fly_item}}{% endif %} & \cellcolor{hylightblue}{{line.quantity}}  &  {{line.unit_price}} & \cellcolor{hylightblue} {{line.quantity|mult:line.unit_price}}  \\{% if forloop.first %}[10pt]{% endif %}
-   
+   \hline
+    {% if line.related_item %} \centering{ {{line.related_item}} } {% else %} \centering{ {{line.on_the_fly_item}} } {% endif %} & \centering{ {{line.quantity}} } &  \centering{ {{line.unit_price}} } & \centering{ {{line.quantity|mult:line.unit_price}} } \tabularnewline
+   \hline
 {% endfor %}
 
 {% for line in slines %}
 
-    {% if line.related_item %}{{line.related_item}}{% else %} {{line.on_the_fly_item}}{% endif %} & \cellcolor{hylightblue}{{line.quantity}}  &  {{line.unit_price}} & \cellcolor{hylightblue} {{line.quantity|mult:line.unit_price}}  \\{% if forloop.first %}[10pt]{% endif %}
-   
+    {% if line.related_item %}\centering{ {{line.related_item}} } {% else %} \centering{ {{line.on_the_fly_item}} } {% endif %} & \centering{ {{line.quantity}} } &  \centering{ {{line.unit_price}} } & \centering{ {{line.quantity|mult:line.unit_price}} }  \tabularnewline
+   \hline
 {% endfor %}
 \end{longtable}
 
+\vspace{3cm}
 
+{% if object.payment_info %}
+Vous pouvez régler par chéque ou par virement bancaire sur le compte suivant : \\
+\begin{center}
+
+\begin{tabular}{| c | c | c | c | c |  }
+\hline
+Banque & Guichet & Numéro de Compte & Clé RIB & Domiciliation \\
+\hline
+ {{object.payment_info.bank_code}} & {{object.payment_info.counter_code}}  & {{object.payment_info.account_number}} & {{object.payment_info.rib_key}}   & {{object.payment_info.banking_domiciliation}}  \\
+\hline
+\end{tabular}
+\end{center}
+{% endif %}
 \end{document}
