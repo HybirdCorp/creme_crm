@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2011  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -17,6 +17,7 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
+
 from itertools import chain
 
 from django.db import models
@@ -26,7 +27,6 @@ from django.forms.fields import CharField, ChoiceField
 from django.utils.translation import ugettext, ugettext_lazy as _
 
 from creme_core.models import fields, EntityCredentials, CremeEntity
-
 from creme_core.forms import widgets
 from creme_core.forms.base import CremeForm, _CUSTOM_NAME
 from creme_core.forms.fields import AjaxMultipleChoiceField
@@ -34,6 +34,7 @@ from creme_core.models.custom_field import CustomField, CustomFieldEnumValue, Cu
 from creme_core.utils import entities2unicode
 from creme_core.utils.meta import get_flds_with_fk_flds_str
 from creme_core.gui.bulk_update import bulk_update_registry
+
 
 _FIELDS_WIDGETS = {
     models.DateField: lambda name, choices:widgets.CalendarWidget({'id': 'id_%s' % name}).render(name=name, value=None,
@@ -43,7 +44,7 @@ _FIELDS_WIDGETS = {
                                                                                                      attrs=None),
     models.ManyToManyField: lambda name, choices: widgets.UnorderedMultipleChoiceWidget({'id': 'id_%s' % name}).render(
         name=name, value=None, attrs=None, choices=choices),
-    
+
     CustomFieldMultiEnum: lambda name, choices: widgets.UnorderedMultipleChoiceWidget({'id': 'id_%s' % name}).render(
         name=name, value=None, attrs=None, choices=choices),
     }
@@ -68,16 +69,6 @@ def _get_choices(model_field, user):
         choices = form_field.choices
 
     return choices
-
-def cfv_klass_save(cfv_klass, custom_field, entity, field_value):
-    cfv = cfv_klass(custom_field=custom_field, entity=entity, value=field_value)
-    cfv.save()
-
-def cfv_klass_m2m_save(cfv_klass, custom_field, entity, field_value):
-    cfv = cfv_klass(custom_field=custom_field, entity=entity)
-    cfv.save()
-    cfv.value = field_value
-    cfv.save()
 
 
 class EntitiesBulkUpdateForm(CremeForm):
