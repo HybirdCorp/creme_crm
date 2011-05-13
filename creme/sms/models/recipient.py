@@ -37,7 +37,8 @@ class Recipient(CremeModel):
         verbose_name_plural = _(u'Recipients')
 
     def __unicode__(self):
-        return self.address
+        return self.phone
 
     def get_related_entity(self): #for generic views
         return self.messaging_list
+
