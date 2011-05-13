@@ -23,7 +23,7 @@ class PersonsTestCase(CremeTestCase):
         super(PersonsTestCase, self).login(is_superuser, allowed_apps=['persons'])
 
     def setUp(self):
-        self.populate('creme_core', 'persons')
+        self.populate('creme_core', 'persons', 'commercial',)
 
     def test_populate(self): #test relationtype creation with constraints
         def get_relationtype_or_fail(pk):

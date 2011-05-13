@@ -21,24 +21,32 @@
 from logging import debug
 
 from django.db.models import Q
+from django.http import Http404
 from django.core.paginator import Paginator, InvalidPage, EmptyPage
-from django.shortcuts import render_to_response, get_object_or_404
+from django.shortcuts import render_to_response #, get_object_or_404
 from django.template.context import RequestContext
 from django.utils.simplejson import JSONDecoder
 from django.utils.translation import ugettext as _
-from django.contrib.auth.decorators import login_required
+#from django.contrib.auth.decorators import login_required
 from django.contrib.contenttypes.models import ContentType
 
 from creme_core.models import CremeEntity, ListViewState, EntityCredentials #Filter
 from creme_core.models.header_filter import HeaderFilterList
 from creme_core.models.entity_filter import EntityFilterList
+from creme_core.views.header_filter import add as add_header_filter
+from creme_core.utils import get_ct_or_404
 from creme_core.utils.queries import get_q_from_dict
 from popup import inner_popup
+
+
+class NoHeaderFilterAvailable(Exception):
+    pass
 
 
 #def _build_entity_queryset(request, model, list_view_state, extra_q):
 def _build_entity_queryset(request, model, list_view_state, extra_q, entity_filter):
     #query = Q(is_deleted=False) | Q(is_deleted=None)
+
 
     #try:
         #filter_ = Filter.objects.get(pk=int(request.POST.get('filter', list_view_state.filter_id or '')))
@@ -80,8 +88,8 @@ def _build_entities_page(request, list_view_state, queryset, size):
 
     return entities_page
 
-@login_required #TODO: remove ??
-def list_view(request, model, hf_pk='', extra_dict=None, template='creme_core/generics/list_entities.html', show_actions=True, extra_q=None, o2m=False, post_process=None):
+#@login_required #COMMENTED on 3 May 2011
+def list_view_content(request, model, hf_pk='', extra_dict=None, template='creme_core/generics/list_entities.html', show_actions=True, extra_q=None, o2m=False, post_process=None):
     """ Generic list_view wrapper / generator
     Accept only CremeEntity model and subclasses
     @param post_process Function that takes the template context and the request as parameters (so you can modify the context).
@@ -112,11 +120,15 @@ def list_view(request, model, hf_pk='', extra_dict=None, template='creme_core/ge
     #Then try to retrieve the header filter from session, then fallback
     hf = header_filters.select_by_id(POST_get('hfilter', -1), current_lvs.header_filter_id, hf_pk)
 
+    #if hf is None:
+        #from creme_core.views.header_filter import add as add_header_filter
+        #return add_header_filter(request, ct.id, {'help_message': _(u"The desired list does not have any view, please create one.")})
+    #else:
+        #current_lvs.header_filter_id = hf.id
     if hf is None:
-        from creme_core.views.header_filter import add as add_header_filter
-        return add_header_filter(request, ct.id, {'help_message': _(u"The desired list does not have any view, please create one.")})
-    else:
-        current_lvs.header_filter_id = hf.id
+        raise NoHeaderFilterAvailable()
+
+    current_lvs.header_filter_id = hf.id
 
     hf.build_items(show_actions)
     current_lvs.handle_research(request, hf.items)
@@ -171,30 +183,52 @@ def list_view(request, model, hf_pk='', extra_dict=None, template='creme_core/ge
     #optimisation time !!
     hf.populate_entities(entities.object_list, request.user)
 
-    return render_to_response(template, template_dict, context_instance=RequestContext(request))
+    #return render_to_response(template, template_dict, context_instance=RequestContext(request))
+    return template, template_dict
 
-@login_required
-def list_view_popup(request, model, extra_dict=None, o2m=False, extra_q=None, *args, **kwargs):
-    popup_extra_dict = {'is_popup_view': True}
+def list_view(request, model, *args, **kwargs):
+    """See list_view_content() for arguments"""
+    try:
+        template_name, template_dict = list_view_content(request, model, *args, **kwargs)
+    except NoHeaderFilterAvailable:
+        return add_header_filter(request, ContentType.objects.get_for_model(model).id,
+                                 {'help_message': _(u"The desired list does not have any view, please create one.")}
+                                )
 
-    if extra_dict:
-        popup_extra_dict.update(extra_dict)
+    return render_to_response(template_name, template_dict, context_instance=RequestContext(request))
 
-    return list_view(request, model,
-                     template="creme_core/generics/list_entities_popup.html",
-                     extra_dict=popup_extra_dict,
-                     o2m=o2m,
-                     extra_q=extra_q,
-                     *args,
-                     **kwargs)
+#TODO: COMMENTED on 3 May 2011 (remove template too)
+#@login_required
+#def list_view_popup(request, model, extra_dict=None, o2m=False, extra_q=None, *args, **kwargs):
+    ##todo: check app credentials
+    #popup_extra_dict = {'is_popup_view': True}
 
-@login_required
-def list_view_popup_from_widget(request, ct_id, o2m, *args, **kwargs):
+    #if extra_dict:
+        #popup_extra_dict.update(extra_dict)
+
+    #return list_view(request, model,
+                     #template="creme_core/generics/list_entities_popup.html",
+                     #extra_dict=popup_extra_dict,
+                     #o2m=o2m,
+                     #extra_q=extra_q,
+                     #*args,
+                     #**kwargs)
+
+#@login_required
+#def list_view_popup_from_widget(request, ct_id, o2m, *args, **kwargs):
+def list_view_popup_from_widget(request, ct_id, o2m, **kwargs):
+    """@param kwargs See list_view_content()"""
+    ct = get_ct_or_404(ct_id)
+
+    if not request.user.has_perm(ct.app_label):
+        raise Http404(_(u"You are not allowed to acceed to this app"))
+
     req_get = request.REQUEST.get
     o2m = bool(int(o2m))
 
     json_str_q_filter = str(req_get('q_filter', {}))
-    show_actions      = bool(int(req_get('sa', False)))
+    #show_actions      = bool(int(req_get('sa', False)))
+    kwargs['show_actions'] = bool(int(req_get('sa', False)))
 
     extra_dict = {
                     'list_view_template': 'creme_core/frags/list_view_popup.html',
@@ -202,27 +236,34 @@ def list_view_popup_from_widget(request, ct_id, o2m, *args, **kwargs):
                     'js_arguments':       req_get('js_arguments'),
                     'whoami':             req_get('whoami'),
                     'q_filter':           json_str_q_filter,
+                    'is_popup_view':      True,
                  }
 
-    #TODO: Can be improved ?
-    supplied_extra_dict = kwargs.pop('extra_dict', None)
-    if supplied_extra_dict:
-        extra_dict.update(supplied_extra_dict)
+    #supplied_extra_dict = kwargs.pop('extra_dict', None)
+    #if supplied_extra_dict:
+        #extra_dict.update(supplied_extra_dict)
+    extra_dict.update(kwargs.pop('extra_dict', None) or {})
 
-    model = get_object_or_404(ContentType, pk=ct_id).model_class()
+    #model = get_object_or_404(ContentType, pk=ct_id).model_class()
+    extra_q = get_q_from_dict(JSONDecoder().decode(json_str_q_filter) or {})
 
-    extra_q_dict = JSONDecoder().decode(json_str_q_filter) or {}
-#    ex_q_dict = dict((str(k), v) for k, v in extra_q_dict.items())
-#
-#    extra_q = Q(**(ex_q_dict or {}))
-
-    extra_q = get_q_from_dict(extra_q_dict)
-
-    #TODO: Can be improved ?
     supplied_extra_q = kwargs.pop('extra_q', None)
     if supplied_extra_q:
         extra_q &= supplied_extra_q
 
-    response = list_view_popup(request, model, extra_dict=extra_dict, o2m=o2m, extra_q=extra_q, show_actions=show_actions, *args, **kwargs)
+    #response = list_view_popup(request, model, extra_dict=extra_dict, o2m=o2m, extra_q=extra_q, show_actions=show_actions, *args, **kwargs)
+    #return inner_popup(request, '', {}, is_valid=False, html=response._get_content(), context_instance=RequestContext(request))
 
-    return inner_popup(request, '', {}, is_valid=False, html=response._get_content(), context_instance=RequestContext(request))
+    try:
+        template_name, template_dict = list_view_content(request, ct.model_class(), extra_dict=extra_dict,
+                                                         template='creme_core/generics/list_entities_popup.html',
+                                                         extra_q=extra_q, o2m=o2m,
+                                                         **kwargs
+                                                        )
+    except NoHeaderFilterAvailable:
+        #TODO: true HeaderFilter creation in inner popup
+        return inner_popup(request, '', {}, RequestContext(request), is_valid=False,
+                           html=_(u"The desired list does not have any view, please create one.")
+                          )
+
+    return inner_popup(request, template_name, template_dict, RequestContext(request), is_valid=False)

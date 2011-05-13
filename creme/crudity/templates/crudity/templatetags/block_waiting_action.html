@@ -51,7 +51,7 @@
                             {% endfor %}
                         </td>
                         <td class="{{row_color}}" align="center" valign="center" style="width:10%;">
-                            {% get_line_deletor2 at_url '/crudity/waiting_actions/delete' with_args "{'ids': ['{{waiting_action.pk}}'] }" with_perms 1 %}
+                            {% get_line_deletor at_url '/crudity/waiting_actions/delete' with_args "{'ids': ['{{waiting_action.pk}}'] }" with_perms 1 %}
                         </td>
                     </tr>
                 {% endfor %}

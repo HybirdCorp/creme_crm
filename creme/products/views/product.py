@@ -18,13 +18,14 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from django.shortcuts import get_object_or_404
 from django.contrib.auth.decorators import login_required, permission_required
 
 from creme_core.views.generic import add_entity, edit_entity, view_entity, list_view
+from creme_core.utils import jsonify
 
-from products.models import Product
+from products.models import Product, Category, SubCategory
 from products.forms.product import ProductCreateForm
-
 
 @login_required
 @permission_required('products')
@@ -46,3 +47,9 @@ def detailview(request, product_id):
 @permission_required('products')
 def listview(request):
     return list_view(request, Product, extra_dict={'add_url': '/products/product/add'})
+
+@jsonify
+@login_required
+def get_subcategories(request, category_id):
+    get_object_or_404(Category, pk=category_id)
+    return [[id, name] for id, name in SubCategory.objects.filter(category=category_id).values_list('id', 'name')]

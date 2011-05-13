@@ -31,7 +31,7 @@
                         {% if prop_type.is_custom %}{% get_line_editor at_url '/creme_config/property_type/edit/{{prop_type.id}}' with_perms 1 %}{% endif %}
                     </td>
                     <td class="{{row_color}}">
-                        {% if prop_type.is_custom %}{% get_line_deletor2 at_url '/creme_config/property_type/delete' with_args "{'id': '{{prop_type.pk}}'}" with_perms 1 %}{% endif %}
+                        {% if prop_type.is_custom %}{% get_line_deletor at_url '/creme_config/property_type/delete' with_args "{'id': '{{prop_type.pk}}'}" with_perms 1 %}{% endif %}
                     </td>
                 </tr>
             {% endfor %}

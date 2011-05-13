@@ -18,6 +18,9 @@ creme/_generated_media_names.py
 
 #netbeans users
 nbproject/*
+.idea/*
+creme/activesync/SyncEngine/*
+creme/activesync/backup/*
 
 .idea/*
 

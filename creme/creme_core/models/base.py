@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2011  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -104,7 +104,7 @@ Model._can_be_deleted = _can_be_deleted
 Model.can_be_deleted  = can_be_deleted
 
 class CremeModel(Model):
-    
+
     header_filter_exclude_fields = ['id', 'pk']
 
     class Meta:
@@ -172,8 +172,8 @@ class CremeAbstractEntity(CremeModel):
     entity_type = ForeignKey(ContentType, editable=False)
     header_filter_search_field = CharField(max_length=200, editable=False)
 
-    is_deleted = BooleanField(blank=True, default=False)
-    is_actived = BooleanField(blank=True, default=False)
+    is_deleted = BooleanField(blank=True, default=False, editable=False)
+    is_actived = BooleanField(blank=True, default=False, editable=False)
     user       = ForeignKey(User, verbose_name=_(u'User'))
 
     _real_entity = None

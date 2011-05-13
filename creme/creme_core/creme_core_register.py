@@ -21,10 +21,12 @@
 from django.utils.translation import ugettext_lazy as _, ugettext
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
+from creme_core.models.entity import CremeEntity
 
 from creme_core.registry import creme_registry
 from creme_core.gui.menu import creme_menu
 from creme_core.gui.block import block_registry
+from creme_core.gui.bulk_update import bulk_update_registry
 from creme_core.blocks import relations_block, properties_block
 
 
@@ -42,3 +44,7 @@ creme_registry.register_app('creme_core', _(u'Core'), '/')
 creme_menu.register_app('creme_core', '/', _(u'Home'), force_order=0)
 
 block_registry.register(relations_block, properties_block)
+
+bulk_update_registry.register(
+    (CremeEntity, ['created', 'modified']),
+)
