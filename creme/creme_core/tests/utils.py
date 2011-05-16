@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import string
 import pytz
 from datetime import datetime
 
@@ -32,6 +33,23 @@ class MiscTestCase(CremeTestCase):
 
         self.assert_(find_first(l, lambda i: i.data == 12, None) is None)
         self.assertRaises(IndexError, find_first, l, lambda i: i.data == 12)
+
+    def test_truncate_str_01(self):
+        s = string.letters #Assuming len(s) == 52
+        self.assertEqual(50, len(truncate_str(s, 50)))
+        self.assertEqual(s[:-2], truncate_str(s, 50))
+
+        expected = s[:-5] + "012"
+        self.assertEqual(expected, truncate_str(s, 50, suffix="012"))
+        
+        self.assertEqual("",      truncate_str("",        0, suffix="01234"))
+        self.assertEqual("01234", truncate_str("abcdef",  5, suffix="01234"))
+        self.assertEqual("abc",   truncate_str("abcdef",  3, suffix=""))
+        self.assertEqual("",      truncate_str("abcdef", -1, suffix=""))
+        self.assertEqual("",      truncate_str("abcdef", -1, suffix="aaaaaa"))
+        self.assertEqual("a",     truncate_str("b",       1, suffix="a"))
+
+
 
 
 class MetaTestCase(CremeTestCase):

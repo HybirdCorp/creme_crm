@@ -1,0 +1,18 @@
+{% load i18n %}{% load media %}
+{% if can_create %}
+    <a onclick="creme.utils.deleteEntity(this);" class="menu_button">
+        <span>
+            <img src="{% media_url 'images/clone_32.png' %}" title="{% blocktrans %}Clone '{{object}}'{% endblocktrans %}" alt="{% trans "Clone" %}"/>
+            {% trans "Clone" %}
+            <form action="/creme_core/entity/clone" method="POST" style="display:none;">
+                {% csrf_token %}
+                    <input type="hidden" name="id" value="{{object.id}}" />
+            </form>
+        </span>
+    </a>
+{% else %}
+    <span class="menu_button forbidden">
+        <img  src="{% media_url 'images/clone_32.png' %}" title="{% blocktrans %}You can't clone '{{object}}'{% endblocktrans %}" alt="{% trans "Can't clone" %}"/>
+        {% trans "Clone (forbidden)" %}
+    </span>
+{% endif %}

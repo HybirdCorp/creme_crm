@@ -3,6 +3,7 @@
 from tempfile import NamedTemporaryFile
 
 from django.contrib.contenttypes.models import ContentType
+from django.utils.translation import ugettext
 
 from creme_core.models import CremeEntity, RelationType, Relation, HeaderFilter
 from creme_core.tests.base import CremeTestCase
@@ -233,3 +234,21 @@ class DocumentTestCase(CremeTestCase):
         self.assertEqual(category.id, folder.category.id)
 
     #TODO complete
+
+class FolderTestCase(CremeTestCase):
+    def setUp(self):
+        self.populate('creme_core', 'documents')
+
+    def test_folder_clone01(self):
+        self.login()
+        title = 'folder'
+        folder = Folder.objects.create(user=self.user, title=title, description="d")
+
+        stack = [folder]
+        stack_append = stack.append
+
+        for i in xrange(100):
+            clone = folder.clone()
+            self.assertNotEqual(stack[-1].title, clone.title)
+            stack_append(clone)
+

@@ -6,9 +6,10 @@
     {% if path %}
         <li>{% get_add_button object request.user %}</li>
     {% endif %}
+    <li>{% get_clone_button object request.user %}</li>
 {% endblock %}
 
-{% block edit_delete_buttons %}
+{% block entity_buttons %}
     {% if path %}
         {% get_edit_button object request.user %}
         &nbsp;

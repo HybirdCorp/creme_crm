@@ -157,6 +157,16 @@ class Base(CremeEntity):
     def get_total_with_tax(self):
         return self.get_service_lines_total_price_inclusive_of_tax() + self.get_product_lines_total_price_inclusive_of_tax()
 
+    def _pre_save_clone(self, source):
+        if self.generate_number_in_create:
+            self.generate_number(source.get_source())
+        else:
+            self.number = None
+
+    def _post_save_clone(self, source):
+        self._build_lines(source, ProductLine)
+        self._build_lines(source, ServiceLine)
+
     def build(self, template):
         self._build_object(template)
         self._build_lines(template, ProductLine)

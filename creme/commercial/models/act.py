@@ -90,6 +90,15 @@ class Act(CremeEntity):
 
         return relopps
 
+    def _post_save_clone(self, source):
+        ActObjective_create = ActObjective.objects.create
+        for act_objective in ActObjective.objects.filter(act=source):
+            ActObjective_create(name=act_objective.name,
+                                act=self,
+                                counter=act_objective.counter,
+                                counter_goal=act_objective.counter_goal,
+                                ctype=act_objective.ctype)
+
 
 class ActObjective(CremeModel):
     name         = CharField(_(u"Name"), max_length=_NAME_LENGTH)
@@ -173,6 +182,10 @@ class ActObjectivePattern(CremeEntity):
 
         return root_components
 
+    def _post_save_clone(self, source):
+        for pattern_component in source.get_components_tree():
+            pattern_component.clone(self)
+            
 
 class ActObjectivePatternComponent(CremeModel):
     pattern      = ForeignKey(ActObjectivePattern, related_name='components')
@@ -223,3 +236,19 @@ class ActObjectivePatternComponent(CremeModel):
 
     def get_related_entity(self): #NB: see delete_related_to_entity()
         return self.pattern
+
+    def clone(self, pattern, parent=None):
+        """Clone the entire hierarchy of the node wherever is it"""
+        own_parent = None
+        if self.parent and not parent:
+            own_parent = self.parent.clone(pattern)
+
+        me = ActObjectivePatternComponent.objects.create(pattern=pattern,
+                                                   parent=own_parent or parent,
+                                                   name=self.name,
+                                                   ctype=self.ctype,
+                                                   success_rate=self.success_rate)
+
+        for sub_aopc in self.children.all():
+            sub_aopc.clone(pattern, me)
+

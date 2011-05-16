@@ -14,6 +14,7 @@ entity_patterns = patterns('creme_core.views', #TODO: move delete* to entity.py
     (r'^get_custom_fields$',                                'entity.get_custom_fields'),
     (r'^get_function_fields$',                              'entity.get_function_fields'),
     (r'^get_widget/(?P<ct_id>\d+)',                         'entity.get_widget'),
+    (r'^clone',                                             'entity.clone'),
 )
 
 relation_patterns = patterns('creme_core.views.relation',

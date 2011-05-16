@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-04-12 13:57+0200\n"
+"POT-Creation-Date: 2011-05-16 11:04+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -20,19 +20,19 @@ msgstr ""
 msgid "Is linked to a ticket"
 msgstr "Est lié à un ticket"
 
-#: creme_core_register.py:13 models/ticket.py:64
+#: creme_core_register.py:14 models/ticket.py:74
 msgid "Tickets"
 msgstr "Tickets"
 
-#: creme_core_register.py:17
+#: creme_core_register.py:18
 msgid "Portal"
 msgstr "Portail"
 
-#: creme_core_register.py:18
+#: creme_core_register.py:19
 msgid "All tickets"
 msgstr "Lister les tickets"
 
-#: creme_core_register.py:19
+#: creme_core_register.py:20
 msgid "Add a ticket"
 msgstr "Ajouter un ticket"
 
@@ -92,7 +92,7 @@ msgstr "Erreur"
 msgid "Ticket view"
 msgstr "Vue de Ticket"
 
-#: populate.py:37 populate.py:45 models/ticket.py:41
+#: populate.py:37 populate.py:45 models/ticket.py:44
 msgid "Title"
 msgstr "Titre"
 
@@ -108,7 +108,7 @@ msgstr "Priorité - Nom"
 msgid "Criticity - Name"
 msgstr "Criticité - Nom"
 
-#: populate.py:41 models/ticket.py:57
+#: populate.py:41 models/ticket.py:67
 msgid "Closing date"
 msgstr "Date de clôture"
 
@@ -160,42 +160,46 @@ msgstr "Ne sera pas corrigé"
 msgid "Ticket status"
 msgstr "Statut(s) de ticket"
 
-#: models/ticket.py:37 templates/tickets/view_ticket.html:16
+#: models/ticket.py:40 templates/tickets/view_ticket.html:16
 msgid "Resolving duration"
 msgstr "Temps de résolution"
 
-#: models/ticket.py:42
+#: models/ticket.py:45
 msgid "Description"
 msgstr "Description"
 
-#: models/ticket.py:43
+#: models/ticket.py:46
 msgid "Status"
 msgstr "Statut"
 
-#: models/ticket.py:44
+#: models/ticket.py:47
 msgid "Priority"
 msgstr "Priorité"
 
-#: models/ticket.py:45
+#: models/ticket.py:48
 msgid "Criticity"
 msgstr "Criticité"
 
-#: models/ticket.py:46
+#: models/ticket.py:49
 msgid "Solution"
 msgstr "Solution"
 
-#: models/ticket.py:63 templates/tickets/portal.html:4
+#: models/ticket.py:60
+msgid "Copy"
+msgstr "Copie"
+
+#: models/ticket.py:73 templates/tickets/portal.html:4
 #: templates/tickets/view_ticket.html:6
 #: templates/tickets/templatetags/button_linked.html:5
 #: templates/tickets/templatetags/button_linked.html:10
 msgid "Ticket"
 msgstr "Ticket"
 
-#: models/ticket.py:87 templates/tickets/view_template.html:5
+#: models/ticket.py:102 templates/tickets/view_template.html:5
 msgid "Ticket template"
 msgstr "Patron de ticket"
 
-#: models/ticket.py:88
+#: models/ticket.py:103
 msgid "Ticket templates"
 msgstr "Patrons de ticket"
 

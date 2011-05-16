@@ -7,32 +7,32 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-10-26 20:38+0200\n"
+"POT-Creation-Date: 2011-05-16 11:02+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: \n"
 
-#: blocks.py:33
+#: blocks.py:34
 msgid "Extra project information"
 msgstr "Informations supplémentaires sur un projet"
 
-#: blocks.py:43
+#: blocks.py:44
 msgid "Extra project task information"
 msgstr "Informations supplémentaires sur une tâche de projet"
 
-#: blocks.py:53
+#: blocks.py:54
 msgid "Tasks of a project"
 msgstr "Tâches d'un projet"
 
-#: blocks.py:68
+#: blocks.py:74
 msgid "Resources assigned to a task"
 msgstr "Ressource(s) affectée(s) à une tâche"
 
-#: blocks.py:84
+#: blocks.py:94
 msgid "Working periods for this task"
 msgstr "Période(s) travaillée(s) sur cette tâche"
 
@@ -76,134 +76,134 @@ msgstr "Terminée"
 msgid "The task is finished"
 msgstr "La tâche est terminée"
 
-#: creme_core_register.py:31 models/project.py:43
+#: creme_core_register.py:31 models/project.py:44
 msgid "Projects"
 msgstr "Projets"
 
-#: creme_core_register.py:36
+#: creme_core_register.py:35
 msgid "Portal"
 msgstr "Portail"
 
-#: creme_core_register.py:37
+#: creme_core_register.py:36
 msgid "All projects"
 msgstr "Lister les projets"
 
-#: creme_core_register.py:38
+#: creme_core_register.py:37
 msgid "Add a project"
 msgstr "Ajouter un projet"
 
-#: populate.py:39
+#: populate.py:38
 msgid "is one of the leaders of this project"
 msgstr "est un des responsables du projet"
 
-#: populate.py:40
+#: populate.py:39
 msgid "has as leader"
 msgstr "a pour responsable"
 
-#: populate.py:42
+#: populate.py:41
 msgid "Invitation to tender"
 msgstr "Appel d'offre"
 
-#: populate.py:42
+#: populate.py:41
 msgid "Response to an invitation to tender"
 msgstr "Un appel d'offre a été lancé"
 
-#: populate.py:43
+#: populate.py:42
 msgid "Initialization"
 msgstr "Initialisation"
 
-#: populate.py:43
+#: populate.py:42
 msgid "The project is starting"
 msgstr "Le projet démarre"
 
-#: populate.py:44
+#: populate.py:43
 msgid "Preliminary phase"
 msgstr "Avant-phase"
 
-#: populate.py:44
+#: populate.py:43
 msgid "The project is in the process of analysis and design"
 msgstr "Le projet est en phase d'analyse et de conception"
 
-#: populate.py:45
+#: populate.py:44
 msgid "Achievement"
 msgstr "Réalisation"
 
-#: populate.py:45
+#: populate.py:44
 msgid "The project is being implemented"
 msgstr "Le projet est en phase de réalisation"
 
-#: populate.py:46
+#: populate.py:45
 msgid "Tests"
 msgstr "Tests"
 
-#: populate.py:46
+#: populate.py:45
 msgid "The project is in the testing process (unit / integration / functional)"
 msgstr ""
 "Le projet est en phase de tests (unitaires / intégration / fonctionnels)"
 
-#: populate.py:47
+#: populate.py:46
 msgid "User acceptance tests"
 msgstr "Recette"
 
-#: populate.py:47
+#: populate.py:46
 msgid "The project is in the user acceptance testing process"
 msgstr "Le projet est en recette"
 
-#: populate.py:48
+#: populate.py:47
 msgid "Finished"
 msgstr "Terminé"
 
-#: populate.py:48
+#: populate.py:47
 msgid "The project is finished"
 msgstr "Le projet est terminé"
 
-#: populate.py:55
+#: populate.py:52
 msgid "Project view"
 msgstr "Vue de Projet"
 
-#: populate.py:57 models/projectstatus.py:28 models/taskstatus.py:28
+#: populate.py:54 models/projectstatus.py:28 models/taskstatus.py:28
 #: templates/projects/templatetags/block_tasks.html:16
 msgid "Name"
 msgstr "Nom"
 
-#: populate.py:58 models/project.py:32 models/projectstatus.py:30
+#: populate.py:55 models/project.py:33 models/projectstatus.py:30
 #: models/taskstatus.py:30
 msgid "Description"
 msgstr "Description"
 
-#: populate.py:61
+#: populate.py:58
 msgid "Task view"
 msgstr "Vue de Tâche"
 
-#: populate.py:63
+#: populate.py:60
 msgid "Name of the task"
 msgstr "Nom de la tâche"
 
-#: populate.py:64
+#: populate.py:61
 msgid "Description of the task"
 msgstr "Description de la tâche"
 
-#: populate.py:67
+#: populate.py:64
 msgid "Resource view"
 msgstr "Vue de Ressource"
 
-#: populate.py:69
+#: populate.py:66
 msgid "Name of the resource"
 msgstr "Nom de la ressource"
 
-#: populate.py:70 templates/projects/templatetags/block_resources.html:26
+#: populate.py:67 templates/projects/templatetags/block_resources.html:26
 msgid "Hourly cost"
 msgstr "Coût horaire"
 
-#: forms/project.py:35
+#: forms/project.py:39
 msgid "Start date"
 msgstr "Début"
 
-#: forms/project.py:36
+#: forms/project.py:40
 msgid "End date"
 msgstr "Fin du projet"
 
-#: forms/project.py:44
+#: forms/project.py:48
 msgid "Project leaders"
 msgstr "Responsable(s) du projet"
 
@@ -245,29 +245,29 @@ msgstr "Et"
 msgid "Period duration"
 msgstr "Durée de la période"
 
-#: models/project.py:31
+#: models/project.py:32
 msgid "Name of the project"
 msgstr "Nom du projet"
 
-#: models/project.py:33 models/task.py:38
+#: models/project.py:34 models/task.py:37
 #: templates/projects/templatetags/block_tasks.html:19
 msgid "Status"
 msgstr "Statut"
 
-#: models/project.py:34
+#: models/project.py:35
 msgid "Estimated start"
 msgstr "Début prévisionnel"
 
-#: models/project.py:35
+#: models/project.py:36
 msgid "Estimated end"
 msgstr "Fin prévisionnelle"
 
-#: models/project.py:36
+#: models/project.py:37
 msgid "Effective end date"
 msgstr "Fin effective"
 
-#: models/project.py:42 models/task.py:34 templates/projects/portal.html:3
-#: templates/projects/view_project.html:17
+#: models/project.py:43 models/task.py:33 templates/projects/portal.html:4
+#: templates/projects/view_project.html:25
 msgid "Project"
 msgstr "Projet"
 
@@ -301,11 +301,11 @@ msgstr "Ressource de projet"
 msgid "Resources of project"
 msgstr "Ressources de projet"
 
-#: models/task.py:35 templates/projects/templatetags/block_tasks.html:15
+#: models/task.py:34 templates/projects/templatetags/block_tasks.html:15
 msgid "Order"
 msgstr "Ordre"
 
-#: models/task.py:37
+#: models/task.py:36
 msgid "Estimated duration (in hours)"
 msgstr "Durée prévue (en heures)"
 
@@ -348,26 +348,32 @@ msgstr "%(duration)sh: hors délais %(delay)sh"
 msgid "%(duration)sh: remaining time of %(abs_delay)sh"
 msgstr "%(duration)sh: temps restant %(abs_delay)sh"
 
-#: templates/projects/portal.html:4
+#: templates/projects/portal.html:5
 msgid "Projects portal"
 msgstr "Portail Projet"
 
-#: templates/projects/portal.html:6
+#: templates/projects/portal.html:7
 msgid "List of projects"
 msgstr "Liste des projets"
 
-#: templates/projects/view_project.html:10
 #: templates/projects/view_project.html:11
+#: templates/projects/view_project.html:12
+#: templates/projects/view_project.html:17
+#: templates/projects/view_project.html:18
 msgid "Close project"
 msgstr "Clôturer le projet"
 
+#: templates/projects/view_project.html:16
+msgid "forbidden"
+msgstr ""
+
 #: templates/projects/templatetags/block_project_extra_info.html:5
-#: templates/projects/templatetags/block_task_extra_info.html:5
+#: templates/projects/templatetags/block_task_extra_info.html:6
 msgid "Other information"
 msgstr "Informations Supplémentaires"
 
 #: templates/projects/templatetags/block_project_extra_info.html:5
-#: templates/projects/templatetags/block_task_extra_info.html:5
+#: templates/projects/templatetags/block_task_extra_info.html:6
 msgid "Information"
 msgstr "Informations"
 
@@ -404,33 +410,33 @@ msgstr ""
 msgid "Actions"
 msgstr "Actions"
 
-#: templates/projects/templatetags/block_resources.html:36
+#: templates/projects/templatetags/block_resources.html:32
 #, python-format
 msgid "%(cost)s € / hour"
 msgstr "%(cost)s € / heure"
 
-#: templates/projects/templatetags/block_resources.html:47
+#: templates/projects/templatetags/block_resources.html:42
 msgid "No resource assigned to this task"
 msgstr "Aucune ressource n'est affecté à cette tâche"
 
-#: templates/projects/templatetags/block_task_extra_info.html:10
+#: templates/projects/templatetags/block_task_extra_info.html:11
 msgid "Effective duration (in hours)"
 msgstr "Durée effective (en heures)"
 
-#: templates/projects/templatetags/block_task_extra_info.html:14
+#: templates/projects/templatetags/block_task_extra_info.html:15
 msgid "Additional or remaining hours"
 msgstr "Heure(s) supplémentaire(s) ou restante(s)"
 
-#: templates/projects/templatetags/block_task_extra_info.html:20
+#: templates/projects/templatetags/block_task_extra_info.html:21
 msgid "Parent task(s)"
 msgstr "Tâche(s) parente(s)"
 
-#: templates/projects/templatetags/block_task_extra_info.html:25
-#: templates/projects/templatetags/block_tasks.html:21
+#: templates/projects/templatetags/block_task_extra_info.html:27
+#: templates/projects/templatetags/block_tasks.html:22
 msgid "Delete"
 msgstr "Supprimer"
 
-#: templates/projects/templatetags/block_task_extra_info.html:28
+#: templates/projects/templatetags/block_task_extra_info.html:31
 msgid "This task has no parent"
 msgstr "Cette tâche n'a aucun parent"
 
@@ -460,15 +466,15 @@ msgstr "Durée prévue (heures)"
 msgid "Effective duration (hours)"
 msgstr "Durée effective (heures)"
 
-#: templates/projects/templatetags/block_tasks.html:22
+#: templates/projects/templatetags/block_tasks.html:21
 msgid "Cost"
 msgstr "Coût"
 
-#: templates/projects/templatetags/block_tasks.html:40
+#: templates/projects/templatetags/block_tasks.html:37
 msgid "No parent task"
 msgstr "Aucune tâche parente"
 
-#: templates/projects/templatetags/block_tasks.html:52
+#: templates/projects/templatetags/block_tasks.html:57
 msgid "No task in this project for the moment"
 msgstr "Aucune tâche dans ce projet pour le moment"
 
@@ -495,8 +501,8 @@ msgstr "Nouvelle période travaillée"
 #, python-format
 msgid "You can't add a working périod because this task is %(status)s"
 msgstr ""
-"Vous ne pouvez pas ajouter de périodes travaillées car cette tâche est %"
-"(status)s"
+"Vous ne pouvez pas ajouter de périodes travaillées car cette tâche est "
+"%(status)s"
 
 #: templates/projects/templatetags/block_working_periods.html:27
 msgid "Duration (hours)"
@@ -522,16 +528,12 @@ msgstr "Affectation d'une nouvelle ressource"
 msgid "Edition of a resource"
 msgstr "Édition d'une ressource"
 
-#: views/task.py:37
+#: views/task.py:38
 #, python-format
 msgid "Add a task to <%s>"
 msgstr "Ajouter une tâche à <%s>"
 
-#: views/workingperiod.py:41
-msgid "Edition of a working period"
-msgstr "Édition d'une période travaillée"
-
-#: views/utils/utils.py:49
+#: views/utils.py:50
 #, python-format
 msgid ""
 "You can't add a resources or a working period to a task which has status <%s>"
@@ -539,10 +541,12 @@ msgstr ""
 "Vous ne pouvez pas ajouter de ressources ou de périodes travaillées à une "
 "tâche en statut <%s>"
 
-#: views/utils/utils.py:53
-#, python-format
-msgid "You are not allowed to create a %s"
-msgstr "Vous n'êtes pas autorisé à créer une %s"
+#: views/workingperiod.py:41
+msgid "Edition of a working period"
+msgstr "Édition d'une période travaillée"
+
+#~ msgid "You are not allowed to create a %s"
+#~ msgstr "Vous n'êtes pas autorisé à créer une %s"
 
 #~ msgid "Add a resource"
 #~ msgstr "Ajouter une ressource"

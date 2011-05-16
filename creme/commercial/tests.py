@@ -1431,4 +1431,46 @@ class ActObjectivePatternTestCase(LoggedTestCase):
         self.assertEqual(3, len(remaining_ids))
         self.assertEqual(set([comp00.id, comp05.id, comp06.id]), set(remaining_ids))
 
+    def test_actobjectivepattern_clone01(self):
+        pattern  = self._create_pattern()
+        create_comp = ActObjectivePatternComponent.objects.create
+
+        comp1   = create_comp(name='1',       pattern=pattern,                success_rate=1)
+        comp11  =  create_comp(name='1.1',    pattern=pattern, parent=comp1,  success_rate=1)
+        comp111 =   create_comp(name='1.1.1', pattern=pattern,  parent=comp11, success_rate=1)
+        comp112 =   create_comp(name='1.1.2', pattern=pattern,  parent=comp11, success_rate=1)
+        comp12  =  create_comp(name='1.2',    pattern=pattern, parent=comp1,  success_rate=1)
+        comp121 =   create_comp(name='1.2.1', pattern=pattern,  parent=comp12, success_rate=1)
+        comp122 =   create_comp(name='1.2.2', pattern=pattern,  parent=comp12, success_rate=1)
+        comp2   = create_comp(name='2',       pattern=pattern,                success_rate=1)
+        comp21  =  create_comp(name='2.1',    pattern=pattern, parent=comp2,  success_rate=1)
+        comp211 =   create_comp(name='2.1.1', pattern=pattern,  parent=comp21, success_rate=1)
+        comp212 =   create_comp(name='2.1.2', pattern=pattern,  parent=comp21, success_rate=1)
+        comp22  =  create_comp(name='2.2',    pattern=pattern, parent=comp2,  success_rate=1)
+        comp221 =   create_comp(name='2.2.1', pattern=pattern,  parent=comp22, success_rate=1)
+        comp222 =   create_comp(name='2.2.2', pattern=pattern,  parent=comp22, success_rate=1)
+
+        cloned_pattern = pattern.clone()
+
+        self.assertEqual(14, ActObjectivePatternComponent.objects.filter(pattern=cloned_pattern).count())
+
+        self.assertEqual(2, ActObjectivePatternComponent.objects.filter(pattern=cloned_pattern, parent=None).count())
+
+        self.assertEqual(1, ActObjectivePatternComponent.objects.filter(pattern=cloned_pattern, name=comp1.name).count())
+
+        self.assertEqual(set(['1.1', '1.2']),
+                         set(ActObjectivePatternComponent.objects.get(pattern=cloned_pattern, name=comp1.name).children.values_list('name', flat=True)))
+
+        self.assertEqual(set(['1.1.1', '1.1.2', '1.2.1', '1.2.2']),
+                         set(ActObjectivePatternComponent.objects.filter(pattern=cloned_pattern, parent__name__in=['1.1', '1.2']).values_list('name', flat=True)))
+
+
+        self.assertEqual(1, ActObjectivePatternComponent.objects.filter(pattern=cloned_pattern, name=comp2.name).count())
+
+        self.assertEqual(set(['2.1', '2.2']),
+                 set(ActObjectivePatternComponent.objects.get(pattern=cloned_pattern, name=comp2.name).children.values_list('name', flat=True)))
+
+        self.assertEqual(set(['2.1.1', '2.1.2', '2.2.1', '2.2.2']),
+                         set(ActObjectivePatternComponent.objects.filter(pattern=cloned_pattern, parent__name__in=['2.1', '2.2']).values_list('name', flat=True)))
+
 #TODO: (tests SellByRelation)

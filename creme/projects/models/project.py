@@ -99,3 +99,10 @@ class Project(CremeEntity):
     @property
     def is_closed(self):
         return bool(self.effective_end_date)
+
+    def _post_save_clone(self, source):
+        from projects.models.task import ProjectTask
+        ProjectTask.clone_scope(source.get_tasks(), self)
+
+
+
