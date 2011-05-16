@@ -435,3 +435,10 @@ class Report(CremeEntity):
 #            children.extend(c.get_children_fields_flat())
 #
 #        return children
+
+    def _post_save_clone(self, source):
+        for graph in source.reportgraph_set.all():
+            new_graph = graph.clone()
+            new_graph.report = self
+            new_graph.save()
+            

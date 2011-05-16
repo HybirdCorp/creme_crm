@@ -309,4 +309,111 @@ class ProjectsTestCase(CremeTestCase):
         response = self.client.post('/projects/project/%s/close' % project.id, follow=True)
         self.assertEqual(404, response.status_code)
 
+    def _create_task(self, title, project, parents=None):
+        status = TaskStatus.objects.get_or_create(name='status', description="")[0]
+        task = ProjectTask.objects.create(project=project, order=0, duration=0, tstatus=status, user=self.user, title=title)
+        if parents is not None:
+            task.parents_task = parents
+        return task
+
+    def _create_resource(self, contact, task):
+        return Resource.objects.create(linked_contact=contact, user=self.user, task=task)
+
+    def _create_working_period(self, task, resource):
+        return WorkingPeriod.objects.create(task=task, resource=resource)
+
+    def test_project_clone01(self):
+        self.login()
+        self.populate('creme_core', 'activities')
+        user = self.user
+        
+        project, manager = self.create_project('Project')
+
+        task1 = self._create_task('1', project)
+        task11 = self._create_task('1.1', project, [task1])
+        task111 = self._create_task('1.1.1', project, [task11])
+        task1111 = self._create_task('1.1.1.1', project, [task111])
+
+        task_all_1 = self._create_task('all 1', project, [task1, task11, task111, task1111])
+
+        task2 = self._create_task('2', project)
+
+        task_all = self._create_task('all 2', project, [task1, task11, task111, task1111, task2])
+
+        cloned_project = project.clone()
+
+        self.assertEqual(set(['1', '1.1', '1.1.1', '1.1.1.1', 'all 1', '2', 'all 2']), set(cloned_project.get_tasks().values_list('title', flat=True)))
+        self.assertNotEqual(set(project.get_tasks().values_list('pk', flat=True)), set(cloned_project.get_tasks().values_list('pk', flat=True)))
+
+        self.assertFalse(set(project.get_tasks().values_list('pk', flat=True)) & set(cloned_project.get_tasks().values_list('pk', flat=True)))
+
+        c_task1 = cloned_project.get_tasks().get(title='1')
+        c_task11 = cloned_project.get_tasks().get(title='1.1')
+        c_task111 = cloned_project.get_tasks().get(title='1.1.1')
+        c_task1111 = cloned_project.get_tasks().get(title='1.1.1.1')
+
+        c_task_all_1 = cloned_project.get_tasks().get(title='all 1')
+
+        c_task2 = cloned_project.get_tasks().get(title='2')
+
+        c_task_all = cloned_project.get_tasks().get(title='all 2')
+
+        self.assertEqual(set(), set(c_task1.get_parents().values_list('title', flat=True)))
+        self.assertEqual(set(['1']), set(c_task11.get_parents().values_list('title', flat=True)))
+        self.assertEqual(set(['1.1']), set(c_task111.get_parents().values_list('title', flat=True)))
+        self.assertEqual(set(['1.1.1']), set(c_task1111.get_parents().values_list('title', flat=True)))
+
+        self.assertEqual(set(['1', '1.1', '1.1.1', '1.1.1.1']), set(c_task_all_1.get_parents().values_list('title', flat=True)))
+        
+        self.assertEqual(set(), set(c_task2.get_parents().values_list('title', flat=True)))
+
+        self.assertEqual(set(['1', '1.1', '1.1.1', '1.1.1.1', '2']), set(c_task_all.get_parents().values_list('title', flat=True)))
+
+
+    def test_project_clone02(self):
+        self.login()
+        self.populate('creme_core', 'activities')
+        user = self.user
+
+        project, manager = self.create_project('Project')
+        contact1 = Contact.objects.create(user=self.user)
+        contact2 = Contact.objects.create(user=self.user)
+
+        task1 = self._create_task('1', project)
+        resource1 = self._create_resource(contact1, task1)
+        resource2 = self._create_resource(contact2, task1)
+        work_period1 = self._create_working_period(task1, resource1)
+        work_period2 = self._create_working_period(task1, resource2)
+
+        task2 = self._create_task('2', project)
+        resource3 = self._create_resource(contact1, task2)
+        resource4 = self._create_resource(contact2, task2)
+        work_period3 = self._create_working_period(task2, resource3)
+        work_period4 = self._create_working_period(task2, resource4)
+
+        task3 = self._create_task('3', project, [task1, task2])
+        task4 = self._create_task('4', project, [task3])
+
+        cloned_project = project.clone()
+
+        for attr in ['name', 'description', 'status', 'start_date', 'end_date', 'effective_end_date']:
+            self.assertEqual(getattr(project, attr), getattr(cloned_project, attr))
+
+        c_tasks1 = cloned_project.get_tasks().get(title='1')
+        c_tasks2 = cloned_project.get_tasks().get(title='2')
+        c_tasks3 = cloned_project.get_tasks().get(title='3')
+        c_tasks4 = cloned_project.get_tasks().get(title='4')
+        
+        self.assertEqual(set(['1', '2', '3', '4']), set(cloned_project.get_tasks().values_list('title', flat=True)))
+        self.assertNotEqual(set(project.get_tasks().values_list('pk', flat=True)), set(cloned_project.get_tasks().values_list('pk', flat=True)))
+
+        self.assertEqual(set(['1', '2']), set(c_tasks3.get_parents().values_list('title', flat=True)))
+        self.assertEqual(set(['3']), set(c_tasks4.get_parents().values_list('title', flat=True)))
+
+        self.assertEqual(set([contact1.pk, contact2.pk]), set(c_tasks1.get_resources().values_list('linked_contact', flat=True)))
+        self.assertEqual(set([contact1.pk, contact2.pk]), set(c_tasks2.get_resources().values_list('linked_contact', flat=True)))
+
+        self.assertEqual(set([resource1.pk, resource2.pk]), set(c_tasks1.get_working_periods().values_list('resource', flat=True)))
+        self.assertEqual(set([resource3.pk, resource4.pk]), set(c_tasks2.get_working_periods().values_list('resource', flat=True)))
+
     #TODO: test better get_project_cost(), get_effective_duration(), get_delay()

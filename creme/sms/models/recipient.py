@@ -42,3 +42,5 @@ class Recipient(CremeModel):
     def get_related_entity(self): #for generic views
         return self.messaging_list
 
+    def clone(self, messaging_list):
+        return Recipient.objects.create(messaging_list=messaging_list, phone=self.phone)

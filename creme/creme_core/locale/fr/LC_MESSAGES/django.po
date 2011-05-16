@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-05-04 17:46+0200\n"
+"POT-Creation-Date: 2011-05-16 11:00+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 
 #: blocks.py:31 forms/csv_import.py:597 models/creme_property.py:91
-#: models/entity.py:50 tests/views.py:131
+#: models/entity.py:51 tests/views.py:136
 msgid "Properties"
 msgstr "Propriétés"
 
@@ -26,11 +26,11 @@ msgstr "Propriétés"
 msgid "Relations"
 msgstr "Relations"
 
-#: creme_core_register.py:40
+#: creme_core_register.py:42
 msgid "Core"
 msgstr "Cœur"
 
-#: creme_core_register.py:42 templates/creme_core/home.html:17
+#: creme_core_register.py:44 templates/creme_core/home.html:17
 #: templates/creme_core/home.html.py:18
 msgid "Home"
 msgstr "Accueil"
@@ -200,37 +200,63 @@ msgstr "possède"
 msgid "belongs to"
 msgstr "appartient à"
 
-#: forms/base.py:157 forms/base.py:178
+#: forms/base.py:158 forms/base.py:179
 msgid "General information"
 msgstr "Informations générales"
 
-#: forms/base.py:201 forms/csv_import.py:596 models/base.py:177
-#: models/prefered_menu.py:27 tests/views.py:104 tests/views.py:105
-#: tests/views.py:106
+#: forms/base.py:202 forms/csv_import.py:596 models/base.py:177
+#: models/prefered_menu.py:27 tests/views.py:109 tests/views.py:110
+#: tests/views.py:111
 msgid "User"
 msgstr "Utilisateur"
 
-#: forms/bulk.py:30
+#: forms/bulk.py:65
+msgid "None"
+msgstr "Aucun"
+
+#: forms/bulk.py:84
 msgid "Entities to update"
 msgstr "Entités à mettre à jour"
 
-#: forms/bulk.py:31
+#: forms/bulk.py:85
 msgid "Field to update"
 msgstr "Champ à mettre à jour"
 
-#: forms/bulk.py:32
+#: forms/bulk.py:86
 msgid "Value"
 msgstr "Valeur"
 
-#: forms/bulk.py:41 forms/creme_property.py:74 forms/relation.py:118
+#: forms/bulk.py:96 forms/creme_property.py:74 forms/relation.py:118
 msgid "NONE !"
 msgstr "AUCUNE !"
 
-#: forms/bulk.py:44
+#: forms/bulk.py:101
 msgid "Unchangeable entities"
 msgstr "Entités non éditables"
 
-#: forms/bulk.py:66 forms/bulk.py:69 tests/views.py:480
+#: forms/bulk.py:112 forms/header_filter.py:44
+msgid "Regular fields"
+msgstr "Champs normaux"
+
+#: forms/bulk.py:112 forms/header_filter.py:45 models/custom_field.py:59
+#: templates/creme_core/customfields_as_table.html:7
+msgid "Custom fields"
+msgstr "Champs personnalisés"
+
+#: forms/bulk.py:142
+msgid "Select a valid field."
+msgstr "Sélectionnez un champ valide"
+
+#: forms/bulk.py:163 forms/bulk.py:194 forms/bulk.py:197
+msgid "Select a valid choice."
+msgstr "Sélectionnez un choix valide."
+
+#: forms/bulk.py:179
+msgid "You can't view this value, so you can't set it."
+msgstr ""
+"Vous ne pouvez pas voir cette valeur, donc vous ne pouvez pas l'attribuer."
+
+#: forms/bulk.py:182 forms/bulk.py:185 tests/views.py:556
 msgid "This field is required."
 msgstr "Ce champ est obligatoire."
 
@@ -448,15 +474,6 @@ msgid "Select a valid choice. %(value)s is not an available choice."
 msgstr ""
 "Sélectionnez un choix valide. %(value)s n'est pas un des choix disponibles."
 
-#: forms/header_filter.py:44
-msgid "Regular fields"
-msgstr "Champs normaux"
-
-#: forms/header_filter.py:45 models/custom_field.py:58
-#: templates/creme_core/customfields_as_table.html:7
-msgid "Custom fields"
-msgstr "Champs personnalisés"
-
 #: forms/header_filter.py:47
 msgid "Functions"
 msgstr "Fonctions"
@@ -550,7 +567,7 @@ msgstr "Aujourd'hui"
 
 #: models/auth.py:216 models/i18n.py:27
 #: templates/creme_core/templatetags/block_specific_relations.html:18
-#: tests/views.py:369
+#: tests/views.py:374
 msgid "Name"
 msgstr "Nom"
 
@@ -574,7 +591,7 @@ msgstr "Voir"
 msgid "Change"
 msgstr "Modifier"
 
-#: models/auth.py:366 models/entity.py:267
+#: models/auth.py:366 models/entity.py:270
 #: templates/creme_core/filters.html:728 templates/creme_core/filters.html:738
 #: templates/creme_core/filters.html:754 templates/creme_core/filters.html:764
 #: templates/creme_core/filters.html:770 templates/creme_core/filters.html:778
@@ -617,19 +634,19 @@ msgid "%s (team)"
 msgstr "%s (équipe)"
 
 #: models/auth.py:475
-#, fuzzy, python-format
+#, python-format
 msgid "You are not allowed to configure this app: %s"
-msgstr "Vous n'avez pas accés à cette application: %s"
+msgstr "Vous n'êtes pas autorisé à configurer cet app: %s"
 
-#: models/base.py:169 tests/views.py:102
+#: models/base.py:169 tests/views.py:107
 msgid "Creation date"
 msgstr "Date de création"
 
-#: models/base.py:170 tests/views.py:103
+#: models/base.py:170 tests/views.py:108
 msgid "Last modification"
 msgstr "Dernière modification"
 
-#: models/block.py:33 models/button_menu.py:30 models/custom_field.py:49
+#: models/block.py:33 models/button_menu.py:30 models/custom_field.py:50
 #: models/search.py:32
 msgid "Related type"
 msgstr "Type associé"
@@ -703,90 +720,90 @@ msgstr "Types de propriété"
 msgid "Property"
 msgstr "Propriété"
 
-#: models/custom_field.py:48
+#: models/custom_field.py:49
 msgid "Field name"
 msgstr "Nom du champ"
 
-#: models/custom_field.py:50
+#: models/custom_field.py:51
 msgid "Field type"
 msgstr "Type du champ"
 
-#: models/custom_field.py:57
+#: models/custom_field.py:58
 msgid "Custom field"
 msgstr "Champ personnalisé"
 
-#: models/custom_field.py:168
+#: models/custom_field.py:190
 msgid "String"
 msgstr "Chaîne de caractères"
 
-#: models/custom_field.py:184
+#: models/custom_field.py:206
 msgid "Integer"
 msgstr "Nombre entier"
 
-#: models/custom_field.py:200
+#: models/custom_field.py:222
 msgid "Decimal"
 msgstr "Nombre à virgule"
 
-#: models/custom_field.py:216
+#: models/custom_field.py:238
 msgid "Date"
 msgstr "Date"
 
-#: models/custom_field.py:230
+#: models/custom_field.py:252
 msgid "Boolean (2 values: Yes/No)"
 msgstr "Booléen (2 valeurs: Oui/Non)"
 
-#: models/custom_field.py:236 templatetags/creme_listview.py:76
+#: models/custom_field.py:258 templatetags/creme_listview.py:76
 msgid "Yes"
 msgstr "Oui"
 
-#: models/custom_field.py:236 templatetags/creme_listview.py:80
+#: models/custom_field.py:258 templatetags/creme_listview.py:80
 msgid "No"
 msgstr "Non"
 
-#: models/custom_field.py:261
+#: models/custom_field.py:288
 msgid "List of choices"
 msgstr "Liste de choix"
 
-#: models/custom_field.py:293
+#: models/custom_field.py:320
 msgid "List of choices (multi sélection)"
 msgstr "Liste de choix (multi sélection)"
 
-#: models/entity.py:82
+#: models/entity.py:85
 #, python-format
 msgid "Entity#%s can not be deleted because of its dependencies."
 msgstr "La fiche#%s ne peut être effacé à cause des ses dépendances."
 
-#: models/entity.py:107
+#: models/entity.py:110
 #, python-format
 msgid "Entity #%s (not viewable)"
 msgstr "Fiche #%s (non visible)"
 
-#: models/entity.py:114
+#: models/entity.py:117
 #, python-format
 msgid "You are not allowed to edit this entity: %s"
 msgstr "Vous n'êtes pas autorisé à modifier cette fiche: %s"
 
-#: models/entity.py:121
+#: models/entity.py:124
 #, python-format
 msgid "You are not allowed to delete this entity: %s"
 msgstr "Vous n'êtes pas autorisé à supprimer cette fiche: %s"
 
-#: models/entity.py:128
+#: models/entity.py:131
 #, python-format
 msgid "You are not allowed to link this entity: %s"
 msgstr "Vous n'êtes pas autorisé à relier cette fiche: %s"
 
-#: models/entity.py:135
+#: models/entity.py:138
 #, python-format
 msgid "You are not allowed to unlink this entity: %s"
 msgstr "Vous n'êtes pas autorisé à délier cette fiche: %s"
 
-#: models/entity.py:142
+#: models/entity.py:145
 #, python-format
 msgid "You are not allowed to view this entity: %s"
 msgstr "Vous n'êtes pas autorisé à voir cette fiche: %s"
 
-#: models/entity.py:260 templates/creme_core/detailview.html:59
+#: models/entity.py:263 templates/creme_core/detailview.html:59
 #: templates/creme_core/generics/blockform/edit.html:9
 #: templates/creme_core/generics/blockform/edit.html:16
 #: templates/creme_core/generics/form/edit.html:8
@@ -796,7 +813,7 @@ msgstr "Vous n'êtes pas autorisé à voir cette fiche: %s"
 msgid "Edit"
 msgstr "Éditer"
 
-#: models/entity.py:275
+#: models/entity.py:278
 msgid "See"
 msgstr "Voir"
 
@@ -1323,7 +1340,7 @@ msgid "Multiple relation adding"
 msgstr "Ajout de relation multiple"
 
 #: templates/creme_core/templatetags/listview_columns_header.html:76
-#: views/entity.py:123
+#: views/entity.py:131
 msgid "Multiple update"
 msgstr "Edition multiple"
 
@@ -1431,6 +1448,29 @@ msgstr "Liaison interdite"
 msgid "Can't unlink"
 msgstr "Rupture interdite"
 
+#: templates/creme_core/templatetags/widgets/clone_button.html:5
+#, python-format
+msgid "Clone '%(object)s'"
+msgstr "Cloner '%(object)s'"
+
+#: templates/creme_core/templatetags/widgets/clone_button.html:5
+#: templates/creme_core/templatetags/widgets/clone_button.html:6
+msgid "Clone"
+msgstr "Cloner"
+
+#: templates/creme_core/templatetags/widgets/clone_button.html:15
+#, python-format
+msgid "You can't clone '%(object)s'"
+msgstr "Vous ne pouvez pas cloner '%(object)s'"
+
+#: templates/creme_core/templatetags/widgets/clone_button.html:15
+msgid "Can't clone"
+msgstr "Clonage interdit"
+
+#: templates/creme_core/templatetags/widgets/clone_button.html:16
+msgid "Clone (forbidden)"
+msgstr "Cloner (interdit)"
+
 #: templates/creme_core/templatetags/widgets/delete_button.html:5
 #, python-format
 msgid "Delete '%(object)s'"
@@ -1466,15 +1506,15 @@ msgstr "%s minute(s)"
 msgid "%s second(s)"
 msgstr "%s seconde(s)"
 
-#: tests/views.py:104
+#: tests/views.py:109
 msgid "Username"
 msgstr "Nom d'utilisateur"
 
-#: tests/views.py:105
+#: tests/views.py:110
 msgid "First name"
 msgstr "Prénom"
 
-#: tests/views.py:106
+#: tests/views.py:111
 msgid "Last name"
 msgstr "Prénom"
 
@@ -1487,7 +1527,7 @@ msgstr "Ajout multiple de relations"
 msgid "New properties for <%s>"
 msgstr "Nouvelles propriétés pour <%s>"
 
-#: views/entity.py:83
+#: views/entity.py:91
 #, python-format
 msgid "%s [CREATION]"
 msgstr "%s [CRÉATION]"

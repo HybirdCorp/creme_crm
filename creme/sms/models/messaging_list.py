@@ -49,6 +49,10 @@ class MessagingList(CremeEntity):
     def get_lv_absolute_url():
         return "/sms/messaging_lists"
 
+    def _post_save_clone(self, source):
+        for recipient in source.recipient_set.all():
+            recipient.clone(self)
+
 #    def already_in_parents(self, other_ml_id):
 #        parents = self.parents_set.all()
 #

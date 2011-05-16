@@ -151,7 +151,7 @@ creme.graphael.simple_barchart = function(options) {
                 var label = gtext(init_lbl_x, graphael_height + previous_height, lgd+" : "+x[i]);
 
                 label.attr({
-                   x : label.getBBox().x+label.getBBox().width,
+                   x : label.getBBox().x+label.getBBox().width
                 });
 
                 var lbl_dims = label.getBBox();

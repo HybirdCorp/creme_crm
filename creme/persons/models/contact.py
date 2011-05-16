@@ -57,6 +57,7 @@ class Contact(CremeEntity):
     image           = ForeignKey(Image, verbose_name=_(u'Photograph'), blank=True, null=True)
 
     research_fields = CremeEntity.research_fields + ['last_name', 'first_name', 'email']
+    _clone_excluded_fields = CremeEntity._clone_excluded_fields | set(['is_user', 'billing_address', 'shipping_address'])
 
     class Meta:
         app_label = "persons"
@@ -98,3 +99,16 @@ class Contact(CremeEntity):
         #TODO: Make a view to 'say' that can't be deleted  => use an Exception instead ??
         if self.is_user is None:
             super(Contact, self).delete()
+
+    def _post_save_clone(self, source):
+        if source.billing_address is not None:
+            self.billing_address = source.billing_address.clone(self)
+
+        if source.shipping_address is not None:
+            self.shipping_address = source.shipping_address.clone(self)
+
+        self.save()
+
+        excl_source_addr_ids = filter(None, [source.billing_address_id, source.shipping_address_id])
+        for address in Address.objects.filter(object_id=source.id).exclude(pk__in=excl_source_addr_ids):
+            address.clone(self)

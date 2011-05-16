@@ -2,13 +2,14 @@
 
 from django.test import TestCase
 from django.contrib.auth.models import User
+from django.contrib.contenttypes.models import ContentType
 
 from creme_core.models import UserRole
 from creme_core.management.commands.creme_populate import Command as PopulateCommand
 
 
 class CremeTestCase(TestCase):
-    def login(self, is_superuser=True, allowed_apps=('creme_core',)):
+    def login(self, is_superuser=True, allowed_apps=('creme_core',), creatable_models=None):
         password = 'test'
 
         superuser = User.objects.create(username='Kirika')
@@ -19,6 +20,10 @@ class CremeTestCase(TestCase):
         role = UserRole.objects.create(name='Basic')
         role.allowed_apps = allowed_apps
         role.save()
+        
+        if creatable_models is not None:
+            role.creatable_ctypes = [ContentType.objects.get_for_model(model) for model in creatable_models]
+
         self.role = role
         basic_user = User.objects.create(username='Mireille', role=role)
         basic_user.set_password(password)
