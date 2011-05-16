@@ -6,11 +6,17 @@ from django.core.serializers.json import simplejson
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 
-from creme_core.models import CremeEntity
+from creme_core.models import CremeEntity, Relation
 from creme_core.tests.base import CremeTestCase
+
+from persons.models import Contact
+
+from activities.models import Meeting, Calendar
+from activities.constants import REL_SUB_PART_2_ACTIVITY, REL_SUB_ACTIVITY_SUBJECT
 
 from assistants.models import *
 from assistants.blocks import todos_block
+from assistants.constants import PRIO_NOT_IMP_PK
 
 
 class AssistantsAppTestCase(CremeTestCase):
@@ -540,6 +546,68 @@ class UserMessageTestCase(AssistantsTestCase):
         self.assertEqual(302, response.status_code)
         self.assertEqual(0,   UserMessage.objects.count())
 
+    def test_activity_createview01(self): #test activity form hooking
+        user       = self.user
+        other_user = self.other_user
+        self.assertEqual(0, UserMessage.objects.count())
+
+        me    = Contact.objects.create(user=user, is_user=user,       first_name='Ryoga', last_name='Hibiki')
+        ranma = Contact.objects.create(user=user, is_user=other_user, first_name='Ranma', last_name='Saotome')
+        genma = Contact.objects.create(user=user, first_name='Genma', last_name='Saotome')
+        akane = Contact.objects.create(user=user, first_name='Akane', last_name='Tendo')
+
+        url = '/activities/activity/add/meeting'
+        self.assertEqual(200, self.client.get(url).status_code)
+
+        title  = 'Meeting dojo'
+        field_format = '[{"ctype": "%s", "entity": "%s"}]'
+        my_calendar = Calendar.get_user_default_calendar(user)
+        response = self.client.post(url, follow=True,
+                                    data={
+                                            'user':                user.pk,
+                                            'title':               title,
+                                            'start':               '2010-1-10',
+                                            'my_participation':    True,
+                                            'my_calendar':         my_calendar.pk,
+                                            'participating_users': other_user.pk,
+                                            'informed_users':      [user.id, other_user.id],
+                                            'other_participants':  genma.id,
+                                            'subjects':            field_format % (akane.entity_type_id, akane.id),
+                                         }
+                                   )
+        self.assertNoFormError(response)
+        self.assertEqual(200, response.status_code)
+
+        try:
+            meeting = Meeting.objects.get(title=title)
+        except Exception, e:
+            self.fail(str(e))
+
+        count_relations = lambda type_id, subject_id: Relation.objects.filter(type=type_id, subject_entity=subject_id, object_entity=meeting.id).count()
+        self.assertEqual(1, count_relations(type_id=REL_SUB_PART_2_ACTIVITY,   subject_id=me.id))
+        self.assertEqual(1, count_relations(type_id=REL_SUB_PART_2_ACTIVITY,   subject_id=ranma.id))
+        self.assertEqual(1, count_relations(type_id=REL_SUB_PART_2_ACTIVITY,   subject_id=genma.id))
+        self.assertEqual(1, count_relations(type_id=REL_SUB_ACTIVITY_SUBJECT,  subject_id=akane.id))
+
+        messages = UserMessage.objects.all()
+        self.assertEqual(2, len(messages))
+
+        message = messages[0]
+        self.assertEqual(user.id, message.sender_id)
+        self.assertEqual(user.id, message.recipient_id)
+        self.assert_((datetime.now() - message.creation_date).seconds < 10)
+        self.assertEqual(PRIO_NOT_IMP_PK,  message.priority_id)
+        self.failIf(message.email_sent)
+        self.assertEqual(meeting.id,             message.entity_id)
+        self.assertEqual(meeting.entity_type_id, message.entity_content_type_id)
+
+        self.assert_(unicode(meeting) in message.title)
+
+        body = message.body
+        self.assert_(unicode(akane) in body)
+        self.assert_(unicode(me) in body)
+        self.assert_(unicode(ranma) in body)
+
 
 class ActionTestCase(AssistantsTestCase):
     def _create_action(self, deadline, title='TITLE', descr='DESCRIPTION', reaction='REACTION', entity=None, user=None):
@@ -660,5 +728,4 @@ class ActionTestCase(AssistantsTestCase):
         self.assert_(action.is_ok)
         self.assert_((datetime.now() - action.validation_date).seconds < 10)
 
-    #TODO: test usermessage + hook in activity form
     #TODO: improve block reloading tests with several blocks

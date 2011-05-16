@@ -134,7 +134,6 @@ class ActivityCreateForm(CremeEntityForm):
     start_time = CremeTimeField(label=_(u'Start time'), required=False)
     end_time   = CremeTimeField(label=_(u'End time'), required=False)
 
-
     my_participation    = BooleanField(required=False, label=_(u"Do I participate to this meeting ?"),initial=True)
     my_calendar         = ModelChoiceField(queryset=Calendar.objects.none(), required=False, label=_(u"On which of my calendar this activity will appears?"), empty_label=None)
     participating_users = ModelMultipleChoiceField(label=_(u'Other participating users'), queryset=User.objects.all(),
@@ -143,7 +142,6 @@ class ActivityCreateForm(CremeEntityForm):
     other_participants  = MultiCremeEntityField(label=_(u'Other participants'), model=Contact, required=False)
     subjects            = MultiGenericEntityField(label=_(u'Subjects'), required=False)
     linked_entities     = MultiGenericEntityField(label=_(u'Entities linked to this activity'), required=False)
-
 
     generate_alert   = BooleanField(label=_(u"Do you want to generate an alert or a reminder ?"), required=False)
     alert_day        = CremeDateTimeField(label=_(u"Alert day"), required=False)
