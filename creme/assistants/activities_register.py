@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2011  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,14 +18,11 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from collections import defaultdict
-
 from django.utils.translation import ugettext as _
 from django.forms import ModelMultipleChoiceField
 from django.forms.widgets import CheckboxSelectMultiple
 from django.contrib.auth.models import User
 
-from activities.constants import REL_SUB_ACTIVITY_SUBJECT, REL_SUB_PART_2_ACTIVITY
 from activities.forms.activity import ActivityCreateForm
 
 from assistants.constants import PRIO_NOT_IMP_PK
@@ -35,7 +32,8 @@ from assistants.models import UserMessage
 def add_users_field(form):
     form.fields['informed_users'] = ModelMultipleChoiceField(queryset=User.objects.all(),
                                                              widget=CheckboxSelectMultiple(),
-                                                             required=False, label=_(u"Users"))
+                                                             required=False, label=_(u"Users")
+                                                            )
 
     form.blocks = form.blocks.new(('informed_users', _(u'Users to keep informed'), ['informed_users']))
 
@@ -45,19 +43,6 @@ def save_users_field(form):
 
     if not raw_users:
         return
-
-    linked_people = defaultdict(list)
-
-    for rtype_id, entity in cdata['participants']:
-        linked_people[rtype_id].append(entity)
-
-    related_entity = getattr(form, '_entity_for_relation', None)
-
-    if related_entity:
-        relation_type = getattr(form, '_relation_type', None)
-
-        if relation_type:
-            linked_people[relation_type.id].append(related_entity)
 
     activity = form.instance
     title    = _(u'[Creme] Activity created: %s') % activity
@@ -71,8 +56,8 @@ def save_users_field(form):
             'description':  activity.description,
             'start':        activity.start,
             'end':          activity.end,
-            'subjects':     u' / '.join(unicode(e) for e in linked_people[REL_SUB_ACTIVITY_SUBJECT]),
-            'participants': u' / '.join(unicode(e) for e in linked_people[REL_SUB_PART_2_ACTIVITY]),
+            'subjects':     u' / '.join(unicode(e) for e in cdata['subjects']),
+            'participants': u' / '.join(unicode(c) for c in form.participants),
         }
 
     UserMessage.create_messages(raw_users, title, body, PRIO_NOT_IMP_PK, activity.user, activity) #TODO: sender = the real user that created the activity ???
