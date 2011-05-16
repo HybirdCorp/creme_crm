@@ -21,6 +21,7 @@
 from collections import defaultdict
 from logging import debug
 
+from django.db import models
 from django.db.models import ForeignKey
 from django.core.exceptions import PermissionDenied
 from django.utils.encoding import force_unicode
@@ -59,6 +60,8 @@ class CremeEntity(CremeAbstractEntity):
     extra_filter_exclude_fields  = CremeAbstractEntity.extra_filter_exclude_fields + ['id', 'cremeentity_ptr', 'header_filter_search_field']
 
     function_fields = CremeAbstractEntity.function_fields.new(_PrettyPropertiesField)
+
+    _clone_excluded_fields = set(['created', 'modified'])
 
     class Meta:
         app_label = 'creme_core'
@@ -346,6 +349,81 @@ class CremeEntity(CremeAbstractEntity):
         #signal instead ??
         from auth import EntityCredentials
         EntityCredentials.create(self, created)
+
+    def _clone_custom_values(self, source):
+        for custom_field in CustomField.objects.filter(content_type=source.entity_type_id):
+            custom_value_klass = custom_field.get_value_class()
+            try:
+                value = custom_value_klass.objects.get(custom_field=custom_field.id, entity=source.id).value
+            except custom_value_klass.DoesNotExist:
+                continue
+            else:
+                if hasattr(value, 'id'):
+                    value = value.id
+                elif hasattr(value, 'all'):
+                    value = list(value.all())
+                CustomFieldValue.save_values_for_entities(custom_field, [self], value)
+
+
+    def _pre_save_clone(self, source):
+        """Called just before saving the entity which is already populated with source attributes (except m2m)"""
+        pass
+
+    def _post_save_clone(self, source):
+        """Called just after saving the entity (m2m and custom fields are not already cloned & saved)"""
+        pass
+
+    def _clone_m2m(self, source):
+        """Handle the clone of all many to many fields"""
+        for field in source._meta.many_to_many:
+            field_name = field.name
+            setattr(self, field_name, getattr(source, field_name).all())
+
+    def _clone_object(self):
+        """Clone and returns a new saved instance of self
+        NB: Clones also customs values
+        """
+        fields_kv = {}
+
+        for field in self._meta.fields:
+            if isinstance(field, (models.AutoField, models.OneToOneField)) or field.name in self._clone_excluded_fields:
+                continue
+
+            field_value = getattr(self, field.name)
+            fields_kv[field.name] = field_value
+
+        new_entity = self.__class__(**fields_kv)
+        new_entity._pre_save_clone(self)
+        new_entity.save()
+        new_entity._post_save_clone(self)
+
+        new_entity._clone_m2m(self)
+
+        new_entity._clone_custom_values(self)
+        return new_entity
+
+    def _copy_properties(self, source):
+        creme_property_create = CremeProperty.objects.create
+        
+        for type_id in source.properties.values_list('type', flat=True):
+            creme_property_create(type_id=type_id, creme_entity=self)
+
+    def _copy_relations(self, source):
+        relation_create  = Relation.objects.create
+        for user_id, rtype_id, object_entity_id in source.relations.values_list('user', 'type', 'object_entity'):
+            relation_create(user_id=user_id, type_id=rtype_id, object_entity_id=object_entity_id, subject_entity=self)
+
+    def clone(self):
+        """Take an entity and makes it copy.
+        @returns : A new entity (with a different pk) with sames values
+        """
+        self = self.get_real_entity()
+        new_entity = self._clone_object()
+
+        new_entity._copy_properties(self)#TODO: Add which properties types to include ?
+        new_entity._copy_relations(self)#TODO: Add which relations types to include ?
+
+        return new_entity
 
 
 from relation import Relation

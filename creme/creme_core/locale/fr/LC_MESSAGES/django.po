@@ -7,17 +7,17 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-05-13 10:15+0200\n"
+"POT-Creation-Date: 2011-05-16 11:23+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: \n"
 
 #: blocks.py:31 forms/csv_import.py:597 models/creme_property.py:91
-#: models/entity.py:50 tests/views.py:137
+#: models/entity.py:51 tests/views.py:137
 msgid "Properties"
 msgstr "Propriétés"
 
@@ -75,7 +75,7 @@ msgstr "Trimestre courant"
 msgid "Next quarter"
 msgstr "Trimestre suivant"
 
-#: date_filters_register.py:139 tests/utils.py:261 utils/date_range.py:205
+#: date_filters_register.py:139 tests/utils.py:279 utils/date_range.py:205
 msgid "In the future"
 msgstr "Dans le future"
 
@@ -113,52 +113,53 @@ msgstr "Informations générales"
 msgid "User"
 msgstr "Utilisateur"
 
-#: forms/bulk.py:65
+#: forms/bulk.py:66
 msgid "None"
-msgstr "Aucun(e)"
+msgstr "Aucun"
 
-#: forms/bulk.py:84
+#: forms/bulk.py:75
 msgid "Entities to update"
 msgstr "Entités à mettre à jour"
 
-#: forms/bulk.py:85
+#: forms/bulk.py:76
 msgid "Field to update"
 msgstr "Champ à mettre à jour"
 
-#: forms/bulk.py:86
+#: forms/bulk.py:77
 msgid "Value"
 msgstr "Valeur"
 
-#: forms/bulk.py:96 forms/creme_property.py:74 forms/relation.py:118
+#: forms/bulk.py:87 forms/creme_property.py:74 forms/relation.py:118
 msgid "NONE !"
 msgstr "AUCUNE !"
 
-#: forms/bulk.py:101
+#: forms/bulk.py:92
 msgid "Unchangeable entities"
 msgstr "Entités non éditables"
 
-#: forms/bulk.py:112 forms/header_filter.py:44
+#: forms/bulk.py:103 forms/header_filter.py:44
 msgid "Regular fields"
 msgstr "Champs normaux"
 
-#: forms/bulk.py:112 forms/header_filter.py:45 models/custom_field.py:59
+#: forms/bulk.py:103 forms/header_filter.py:45 models/custom_field.py:59
 #: templates/creme_core/customfields_as_table.html:7
 msgid "Custom fields"
 msgstr "Champs personnalisés"
 
-#: forms/bulk.py:142
+#: forms/bulk.py:133
 msgid "Select a valid field."
-msgstr "Sélectionnez un champ valide."
+msgstr "Sélectionnez un champ valide"
 
-#: forms/bulk.py:163 forms/bulk.py:194 forms/bulk.py:197
+#: forms/bulk.py:154 forms/bulk.py:185 forms/bulk.py:188
 msgid "Select a valid choice."
 msgstr "Sélectionnez un choix valide."
 
-#: forms/bulk.py:179
+#: forms/bulk.py:170
 msgid "You can't view this value, so you can't set it."
-msgstr "Vous ne pouvez pas voir cette valeur, donc vous ne pouvez pas la changer."
+msgstr ""
+"Vous ne pouvez pas voir cette valeur, donc vous ne pouvez pas l'attribuer."
 
-#: forms/bulk.py:182 forms/bulk.py:185 tests/views.py:486
+#: forms/bulk.py:173 forms/bulk.py:176 tests/views.py:557
 msgid "This field is required."
 msgstr "Ce champ est obligatoire."
 
@@ -269,8 +270,8 @@ msgstr ""
 #: forms/csv_import.py:361
 #, python-format
 msgid ""
-"Error while extracting value to build a Relation: tried to retrieve %(field)"
-"s=\"%(value)s\" on %(model)s"
+"Error while extracting value to build a Relation: tried to retrieve "
+"%(field)s=\"%(value)s\" on %(model)s"
 msgstr ""
 "Erreur lors de l'extraction de valeur pour construire une Relation: a essayé "
 "de retrouver %(field)s=\"%(value)s\" sur %(model)s"
@@ -462,7 +463,7 @@ msgstr "Tous les utilisateurs"
 msgid "Use \"OR\" between the conditions (else \"AND\" is used)."
 msgstr "Utiliser \"OU\" entre les conditions (sinon \"ET\" est utilisé)."
 
-#: forms/entity_filter.py:785 tests/views.py:2405
+#: forms/entity_filter.py:785 tests/views.py:2476
 msgid "The filter must have at least one condition."
 msgstr "Le filtre doit avoir au moins une condition."
 
@@ -608,7 +609,7 @@ msgstr "Voir"
 msgid "Change"
 msgstr "Modifier"
 
-#: models/auth.py:366 models/entity.py:267
+#: models/auth.py:366 models/entity.py:270
 #: templates/creme_core/templatetags/widgets/block_line_deletor.html:5
 #: templates/creme_core/templatetags/widgets/delete_button.html:5
 msgid "Delete"
@@ -650,7 +651,7 @@ msgstr "%s (équipe)"
 #: models/auth.py:475
 #, python-format
 msgid "You are not allowed to configure this app: %s"
-msgstr "Vous n'êtes pas autorisé à configurer cette application: %s"
+msgstr "Vous n'êtes pas autorisé à configurer cet app: %s"
 
 #: models/base.py:169 tests/views.py:108
 msgid "Creation date"
@@ -782,42 +783,42 @@ msgstr "Liste de choix"
 msgid "List of choices (multi sélection)"
 msgstr "Liste de choix (multi sélection)"
 
-#: models/entity.py:82
+#: models/entity.py:85
 #, python-format
 msgid "Entity#%s can not be deleted because of its dependencies."
 msgstr "La fiche#%s ne peut être effacé à cause de ses dépendances."
 
-#: models/entity.py:107
+#: models/entity.py:110
 #, python-format
 msgid "Entity #%s (not viewable)"
 msgstr "Fiche #%s (non visible)"
 
-#: models/entity.py:114
+#: models/entity.py:117
 #, python-format
 msgid "You are not allowed to edit this entity: %s"
 msgstr "Vous n'êtes pas autorisé à modifier cette fiche: %s"
 
-#: models/entity.py:121
+#: models/entity.py:124
 #, python-format
 msgid "You are not allowed to delete this entity: %s"
 msgstr "Vous n'êtes pas autorisé à supprimer cette fiche: %s"
 
-#: models/entity.py:128
+#: models/entity.py:131
 #, python-format
 msgid "You are not allowed to link this entity: %s"
 msgstr "Vous n'êtes pas autorisé à relier cette fiche: %s"
 
-#: models/entity.py:135
+#: models/entity.py:138
 #, python-format
 msgid "You are not allowed to unlink this entity: %s"
 msgstr "Vous n'êtes pas autorisé à délier cette fiche: %s"
 
-#: models/entity.py:142
+#: models/entity.py:145
 #, python-format
 msgid "You are not allowed to view this entity: %s"
 msgstr "Vous n'êtes pas autorisé à voir cette fiche: %s"
 
-#: models/entity.py:260 templates/creme_core/detailview.html:59
+#: models/entity.py:263 templates/creme_core/detailview.html:59
 #: templates/creme_core/generics/blockform/edit.html:9
 #: templates/creme_core/generics/blockform/edit.html:16
 #: templates/creme_core/generics/form/edit.html:8
@@ -827,7 +828,7 @@ msgstr "Vous n'êtes pas autorisé à voir cette fiche: %s"
 msgid "Edit"
 msgstr "Éditer"
 
-#: models/entity.py:275
+#: models/entity.py:278
 msgid "See"
 msgstr "Voir"
 
@@ -866,7 +867,7 @@ msgstr "Vous n'êtes pas autorisé à modifier/supprimer ce filtre"
 msgid "A condition can not reference its own filter."
 msgstr "Une conditionne peut pas réféerencer son propre filtre."
 
-#: models/entity_filter.py:126 tests/views.py:2607
+#: models/entity_filter.py:126 tests/views.py:2678
 msgid "There is a cycle with a subfilter."
 msgstr "Il y a un cycle avec un sous filtre."
 
@@ -1412,8 +1413,8 @@ msgid "Filters"
 msgstr "Filtres"
 
 #: templates/creme_core/templatetags/listview_entityfilters.html:23
-#: templates/creme_core/templatetags/search_panel.html:13 tests/views.py:2681
-#: tests/views.py:2694 views/entity_filter.py:114
+#: templates/creme_core/templatetags/search_panel.html:13 tests/views.py:2752
+#: tests/views.py:2765 views/entity_filter.py:114
 msgid "All"
 msgstr "Tout"
 
@@ -1507,6 +1508,29 @@ msgstr "Liaison interdite"
 #: templates/creme_core/templatetags/widgets/block_line_unlinker.html:8
 msgid "Can't unlink"
 msgstr "Rupture interdite"
+
+#: templates/creme_core/templatetags/widgets/clone_button.html:5
+#, python-format
+msgid "Clone '%(object)s'"
+msgstr "Cloner '%(object)s'"
+
+#: templates/creme_core/templatetags/widgets/clone_button.html:5
+#: templates/creme_core/templatetags/widgets/clone_button.html:6
+msgid "Clone"
+msgstr "Cloner"
+
+#: templates/creme_core/templatetags/widgets/clone_button.html:15
+#, python-format
+msgid "You can't clone '%(object)s'"
+msgstr "Vous ne pouvez pas cloner '%(object)s'"
+
+#: templates/creme_core/templatetags/widgets/clone_button.html:15
+msgid "Can't clone"
+msgstr "Clonage interdit"
+
+#: templates/creme_core/templatetags/widgets/clone_button.html:16
+msgid "Clone (forbidden)"
+msgstr "Cloner (interdit)"
 
 #: templates/creme_core/templatetags/widgets/delete_button.html:5
 #, python-format

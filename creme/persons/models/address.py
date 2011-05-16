@@ -69,3 +69,10 @@ class Address(CremeModel):
     #TODO: unitest ??
     def __nonzero__(self): #used by forms to detect empty addresses
         return any(getattr(self, fname) for fname in self._INFO_FIELD_NAMES)
+
+    def clone(self, entity):
+        """Returns a new cloned (saved) address for a (saved) entity"""
+        return Address.objects.create(name=self.name, address=self.address, po_box=self.po_box,
+                                      city=self.city, state=self.state, zipcode=self.zipcode,
+                                      country=self.country, department=self.department,
+                                      content_type=ContentType.objects.get_for_model(entity), object_id=entity.id)

@@ -233,6 +233,38 @@ class TicketTestCase(CremeTestCase):
         self.assertEqual(len(response.redirect_chain), 1)
         self.assert_(response.redirect_chain[0][0].endswith('/tickets/tickets'))
 
+    def test_ticket_clone01(self):
+        self.login()
+        title = 'ticket'
+        ticket = Ticket.objects.create(user=self.user, title=title, description="d",
+                                       status=Status.objects.get(pk=OPEN_PK),
+                                       priority=Priority.objects.all()[0],
+                                       criticity=Criticity.objects.all()[0])
+
+        stack = [ticket]
+        stack_append = stack.append
+
+        for i in xrange(100):
+            clone = ticket.clone()
+            ticket = stack[-1]
+            self.assertNotEqual(ticket.title, clone.title)
+            stack_append(clone)
+
+    def test_ticket_clone02(self):
+        self.login()
+        title = 'ticket'
+        ticket = Ticket.objects.create(user=self.user, title=title, description="d",
+                                       status=Status.objects.get(pk=OPEN_PK),
+                                       priority=Priority.objects.all()[0],
+                                       criticity=Criticity.objects.all()[0])
+
+        stack = [ticket]
+        stack_append = stack.append
+
+        for i in xrange(100):
+            clone = ticket.clone()
+            self.assertNotEqual(stack[-1].title, clone.title)
+            stack_append(clone)
 
 class TicketTemplateTestCase(CremeTestCase):
     def setUp(self):

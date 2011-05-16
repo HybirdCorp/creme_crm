@@ -142,3 +142,19 @@ def bool_from_str(string):
         return b
 
     raise ValueError('Can not be coerced to a boolean value: %s' % str(string))
+
+def truncate_str(str, max_length, suffix=""):
+    if max_length <= 0:
+        return ""
+
+    len_str = len(str)
+    if len_str <= max_length and not suffix:
+        return str
+
+    total = max_length-len(suffix)
+    if total > 0:
+        return str[:total] + suffix
+    elif total==0:
+        return suffix
+    else:
+        return str[:total]

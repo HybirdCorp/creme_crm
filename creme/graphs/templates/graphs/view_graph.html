@@ -12,7 +12,7 @@
     {% import_block from_app 'graphs' named 'orbital_rtypes' as 'orbital_rtypes_block' %}
 {% endblock %}
 
-{% block edit_delete_buttons %}
+{% block entity_buttons %}
     <a href="/graphs/graph/{{object.id}}/png">
         <img src="{% media_url 'images/download_64.png' %}" title="{% blocktrans %}Download '{{object}}' as PNG file{% endblocktrans %}" alt="{% trans "Download PNG" %}"/>
     </a>&nbsp;
