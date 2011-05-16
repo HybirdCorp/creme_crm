@@ -17,14 +17,18 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
+from random import randint
+import re
 
 from django.db.models import CharField, TextField, ForeignKey
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import ugettext_lazy as _, ugettext
 
 from creme_core.models import CremeEntity
+from creme_core.utils import truncate_str
 
 from other_models import FolderCategory
 
+MAXINT = 100000
 
 class Folder(CremeEntity):
     """Folder: contains Documents"""
@@ -53,3 +57,12 @@ class Folder(CremeEntity):
     def get_lv_absolute_url():
         """url for list_view """
         return "/documents/folders"
+
+    def _pre_save_clone(self, source):
+        max_length = self._meta.get_field('title').max_length
+        self.title = truncate_str(source.title, max_length, suffix=' (%s %08x)' % (ugettext(u"Copy"), randint(0, MAXINT)))
+
+        while Folder.objects.filter(title=self.title).exists():
+            self._pre_save_clone(source)
+
+

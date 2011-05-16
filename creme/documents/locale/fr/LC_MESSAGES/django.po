@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-04-12 13:55+0200\n"
+"POT-Creation-Date: 2011-05-12 11:36+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -20,30 +20,30 @@ msgstr ""
 msgid "Linked documents"
 msgstr "Documents liés"
 
-#: creme_core_register.py:32 models/document.py:43
+#: creme_core_register.py:33 models/document.py:43
 msgid "Documents"
 msgstr "Documents"
 
-#: creme_core_register.py:35
+#: creme_core_register.py:36
 msgid "Portal"
 msgstr "Portail"
 
-#: creme_core_register.py:36
+#: creme_core_register.py:37
 msgid "All documents"
 msgstr "Lister les documents"
 
-#: creme_core_register.py:37
+#: creme_core_register.py:38
 #: templates/documents/templatetags/block_linked_docs.html:11
 #: templates/documents/templatetags/block_linked_docs.html:12
 #: templates/documents/templatetags/block_linked_docs.html:17
 msgid "Add a document"
 msgstr "Ajouter un document"
 
-#: creme_core_register.py:38
+#: creme_core_register.py:39
 msgid "All folders"
 msgstr "Lister les classeurs"
 
-#: creme_core_register.py:39
+#: creme_core_register.py:40
 msgid "Add a folder"
 msgstr "Ajouter un classeur"
 
@@ -79,7 +79,7 @@ msgstr "Classeur contenant tous les documents créés à partir des fiches"
 msgid "Document view"
 msgstr "Vue de Document"
 
-#: populate.py:56 models/document.py:33 models/folder.py:31
+#: populate.py:56 models/document.py:33 models/folder.py:32
 msgid "Title"
 msgstr "Titre"
 
@@ -92,7 +92,7 @@ msgstr "Classeur - Titre"
 msgid "Folder's category must be the same than its parent's one: %s"
 msgstr "La catégorie du classeur doit être la même que celle du parent: %s"
 
-#: models/document.py:34 models/folder.py:32
+#: models/document.py:34 models/folder.py:33
 msgid "Description"
 msgstr "Description"
 
@@ -100,7 +100,7 @@ msgstr "Description"
 msgid "File"
 msgstr "Fichier"
 
-#: models/document.py:36 models/folder.py:40
+#: models/document.py:36 models/folder.py:41
 msgid "Folder"
 msgstr "Classeur"
 
@@ -109,17 +109,21 @@ msgstr "Classeur"
 msgid "Document"
 msgstr "Document"
 
-#: models/folder.py:33
+#: models/folder.py:34
 msgid "Parent folder"
 msgstr "Classeur parent"
 
-#: models/folder.py:34
+#: models/folder.py:35
 msgid "Category"
 msgstr "Catégorie"
 
-#: models/folder.py:41
+#: models/folder.py:42
 msgid "Folders"
 msgstr "Classeurs"
+
+#: models/folder.py:82
+msgid "Copy"
+msgstr "Copie"
 
 #: models/other_models.py:29
 msgid "Category name"

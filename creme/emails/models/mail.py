@@ -161,7 +161,7 @@ class _Email(CremeModel):
 
 
 class EntityEmail(_Email, CremeEntity):
-    identifier = CharField(_(u'Email ID'), unique=True, max_length=ID_LENGTH, null=False, blank=False, default=generate_id)
+    identifier = CharField(_(u'Email ID'), unique=True, max_length=ID_LENGTH, null=False, blank=False, default=generate_id)#TODO: lambda for this
 
     class Meta:
         app_label = "emails"
@@ -205,3 +205,6 @@ class EntityEmail(_Email, CremeEntity):
             email.save()
         email.send()
         return email
+
+    def _pre_save_clone(self, source):
+        self.genid_n_save()

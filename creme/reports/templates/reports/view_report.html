@@ -17,7 +17,7 @@
     {% display_block_detailview 'graphs_block' %}
 {% endblock %}
 
-{% block edit_delete_buttons %}
+{% block entity_buttons %}
     <a href="/reports/report/{{object.id}}/preview">
         <img src="{% media_url 'images/view_64.png' %}" title="{% blocktrans %}Preview of the report : '{{object}}'{% endblocktrans %}" alt="{% trans "Preview" %}"/>
     </a>&nbsp;

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-04-12 13:57+0200\n"
+"POT-Creation-Date: 2011-05-16 11:02+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -67,31 +67,31 @@ msgstr "Transfomer en fournisseur"
 msgid "Add a related contact"
 msgstr "Ajouter un contact lié"
 
-#: creme_core_register.py:39
+#: creme_core_register.py:41
 msgid "Accounts and Contacts"
 msgstr "Comptes et contacts"
 
-#: creme_core_register.py:42
+#: creme_core_register.py:44
 msgid "Portal"
 msgstr "Portail"
 
-#: creme_core_register.py:43
+#: creme_core_register.py:45
 msgid "All contacts"
 msgstr "Lister les contacts"
 
-#: creme_core_register.py:44
+#: creme_core_register.py:46
 msgid "My customers / prospects / suspects"
 msgstr "Mes clients / prospects / suspects"
 
-#: creme_core_register.py:45
+#: creme_core_register.py:47
 msgid "Add a contact"
 msgstr "Ajouter un contact"
 
-#: creme_core_register.py:46
+#: creme_core_register.py:48
 msgid "All organisations"
 msgstr "Lister les sociétés"
 
-#: creme_core_register.py:47
+#: creme_core_register.py:49
 msgid "Add an organisation"
 msgstr "Ajouter une société"
 
@@ -294,13 +294,13 @@ msgstr "Gérée par creme"
 msgid "ReplaceByYourSociety"
 msgstr "RemplacezParVotreSociété"
 
-#: forms/base.py:42 forms/csv_import.py:60 models/contact.py:53
+#: forms/base.py:42 forms/csv_import.py:62 models/contact.py:53
 #: models/organisation.py:54
 #: templates/persons/templatetags/block_address.html:12
 msgid "Billing address"
 msgstr "Adresse de facturation"
 
-#: forms/base.py:43 forms/csv_import.py:64 models/contact.py:54
+#: forms/base.py:43 forms/csv_import.py:66 models/contact.py:54
 #: models/organisation.py:55
 #: templates/persons/templatetags/block_address.html:13
 msgid "Shipping address"
@@ -439,11 +439,11 @@ msgstr "Est un utilisateur"
 msgid "Photograph"
 msgstr "Photo du contact"
 
-#: models/contact.py:64 templates/persons/portal.html:6
+#: models/contact.py:65 templates/persons/portal.html:6
 msgid "Contact"
 msgstr "Contact"
 
-#: models/contact.py:65
+#: models/contact.py:66
 msgid "Contacts"
 msgstr "Contacts"
 
