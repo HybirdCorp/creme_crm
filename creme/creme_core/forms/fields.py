@@ -268,6 +268,7 @@ class RelationEntityField(JSONField):
     def __init__(self, allowed_rtypes=(REL_SUB_RELATED_TO, REL_SUB_HAS), *args, **kwargs):
         super(RelationEntityField, self).__init__(*args, **kwargs)
         self._allowed_rtypes = frozenset(allowed_rtypes)
+        self._build_widget()
 
     def _create_widget(self):
         return RelationSelector(self._get_options(self._get_allowed_rtypes_objects()),
