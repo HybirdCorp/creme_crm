@@ -178,6 +178,11 @@ def do_line_linker(parser, token):
     """Eg: {% get_line_linker at_url '/assistants/action/link/{{object.id}}/' with_label _("Link to existing Stuffs") with_perms has_perm %}"""
     return _do_line_creator(parser, token, 'creme_core/templatetags/widgets/block_line_linker.html')
 
+@register.tag(name="get_line_viewer")
+def do_line_viewer(parser, token):
+    """Eg: {% get_line_viewer at_url '/assistants/action/link/{{object.id}}/' with_label _("View this object") with_perms has_perm %}"""
+    return _do_line_creator(parser, token, 'creme_core/templatetags/widgets/block_line_viewer.html')
+
 #-------------------------------------------------------------------------------
 _LINE_RELATOR_RE = compile_re(r'to_subject (.*?) with_rtype_id (.*?) with_ct_id (.*?) with_label (.*?) with_perms (.*?)$')
 
