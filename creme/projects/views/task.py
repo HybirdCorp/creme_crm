@@ -90,6 +90,6 @@ def delete_parent(request):
     #task.project.can_change_or_die(user) #beware: modify block_tasks.html template if uncommented....
     task.can_change_or_die(user)
 
-    task.parents_task.remove(parent_id)
+    task.parent_tasks.remove(parent_id)
 
     return HttpResponse("")

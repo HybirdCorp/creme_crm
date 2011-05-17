@@ -55,7 +55,7 @@ class ParentTasksBlock(QuerysetBlock):
     def detailview_display(self, context):
         task = context['object']
         btc = self.get_block_template_context(context,
-                                              task.parents_task.all(),
+                                              task.parent_tasks.all(),
                                               update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, task.pk),
                                              )
 

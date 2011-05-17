@@ -35,17 +35,17 @@ class TaskEditForm(CremeEntityForm):
 
     class Meta:
         model = ProjectTask
-        exclude = CremeEntityForm.Meta.exclude + ('is_all_day', 'type', 'project', 'order', 'status', 'parents_task')
+        exclude = CremeEntityForm.Meta.exclude + ('is_all_day', 'type', 'project', 'order', 'status', 'parent_tasks')
 
 
 class TaskCreateForm(TaskEditForm):
-    parents_task = MultiCremeEntityField(label=_(u'Parent tasks'), required=False, model=ProjectTask)
+    parent_tasks = MultiCremeEntityField(label=_(u'Parent tasks'), required=False, model=ProjectTask)
 
     def __init__(self, entity, *args, **kwargs):
         super(TaskCreateForm, self).__init__(*args, **kwargs)
         self._project = entity
 
-        self.fields['parents_task'].q_filter = {'project': entity.id}
+        self.fields['parent_tasks'].q_filter = {'project': entity.id}
 
     def save(self, *args, **kwargs):
         instance = self.instance
@@ -73,7 +73,7 @@ class TaskAddParentForm(CremeForm):
             }
 
     def save(self, *args, **kwargs):
-        tasks = self.task.parents_task
+        tasks = self.task.parent_tasks
 
         for parent in self.cleaned_data['parents']:
             tasks.add(parent)
