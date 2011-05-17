@@ -19,12 +19,13 @@
 ################################################################################
 
 from collections import defaultdict
+from itertools import chain
 from logging import debug
 
 from django.forms import Field, CharField, MultipleChoiceField, ChoiceField, ModelChoiceField, DateField, TimeField, DateTimeField
 from django.forms.util import ValidationError
 from django.forms.widgets import Textarea
-from django.forms.fields import EMPTY_VALUES
+from django.forms.fields import EMPTY_VALUES, MultiValueField
 from django.utils.translation import ugettext_lazy as _
 from django.utils.simplejson import loads as jsonloads
 from django.utils.simplejson.encoder import JSONEncoder
@@ -35,7 +36,8 @@ from django.core.validators import validate_email
 from creme_core.models import RelationType, CremeEntity, Relation
 from creme_core.utils import creme_entity_content_types
 from creme_core.utils.queries import get_q_from_dict
-from creme_core.forms.widgets import CTEntitySelector, SelectorList, RelationSelector, ListViewWidget, ListEditionWidget, CalendarWidget, TimeWidget
+from creme_core.utils.date_range import date_range_registry
+from creme_core.forms.widgets import CTEntitySelector, SelectorList, RelationSelector, ListViewWidget, ListEditionWidget, CalendarWidget, TimeWidget, DateRangeWidget
 from creme_core.constants import REL_SUB_RELATED_TO, REL_SUB_HAS
 
 
@@ -44,7 +46,8 @@ __all__ = ('MultiGenericEntityField', 'GenericEntityField',
            'CremeEntityField', 'MultiCremeEntityField',
            'ListEditionField',
            'AjaxChoiceField', 'AjaxMultipleChoiceField', 'AjaxModelChoiceField',
-           'CremeTimeField', 'CremeDateField', 'CremeDateTimeField')
+           'CremeTimeField', 'CremeDateField', 'CremeDateTimeField',
+           'DateRangeField',)
 
 
 class JSONField(CharField):
@@ -744,3 +747,49 @@ class MultiEmailField(Field):
 
         for email in value:
             validate_email(email)
+
+class DateRangeField(MultiValueField):
+    """
+    A field which returns a creme_core.utils.DateRange
+    Commonly used with a DateRangeWidget
+    ex:
+        DateRangeField(label=_(u'Date range'))#Use DateRangeWidget with defaults params
+        DateRangeField(label=_(u'Date range'), widget=DateRangeWidget(attrs={'render_as': 'ul'}))#Render DateRangeWidget as ul/li
+        DateRangeField(label=_(u'Date range'), widget=DateRangeWidget(attrs={'render_as': 'table'}))#Render DateRangeWidget as a table
+    """
+    widget = DateRangeWidget
+
+    default_error_messages = {
+        'customized_empty': _(u'If you select customized you have to specify a start date and/or an end date.'),
+        'customized_invalid': _(u'Start date has to be before end date.'),
+    }
+
+    def __init__(self, render_as="table", required=False, *args, **kwargs):
+        self.ranges     = ChoiceField(choices=chain([(u'', _(u'Customized'))], date_range_registry.choices()))
+        self.start_date = DateField()
+        self.end_date   = DateField()
+        self.render_as  = render_as
+
+        fields = self.ranges, self.start_date, self.end_date
+        
+        super(DateRangeField, self).__init__(fields, required=required, *args, **kwargs)
+
+    def compress(self, data_list):
+        if data_list:
+            return data_list[0], data_list[1], data_list[2]
+        return u'', u'', u''
+
+    def clean(self, value):
+        field_name, start, end = super(DateRangeField, self).clean(value)
+
+        if field_name == "":
+            if not (start or end):
+                raise ValidationError(self.error_messages['customized_empty'])
+
+            if start is not None and end is not None and start > end:
+                raise ValidationError(self.error_messages['customized_invalid'])
+
+        return date_range_registry.get_range(field_name, start, end)
+
+    def widget_attrs(self, widget):
+        return {'render_as': self.render_as}

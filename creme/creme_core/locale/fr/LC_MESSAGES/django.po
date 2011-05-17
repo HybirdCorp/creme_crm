@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-05-16 11:23+0200\n"
+"POT-Creation-Date: 2011-05-17 08:26+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -35,7 +35,8 @@ msgstr "Cœur"
 msgid "Home"
 msgstr "Accueil"
 
-#: date_filters_register.py:126 forms/widgets.py:162
+#: date_filters_register.py:126 forms/fields.py:768 forms/widgets.py:162
+#: forms/widgets.py:907
 msgid "Customized"
 msgstr "Personnalisé"
 
@@ -467,43 +468,52 @@ msgstr "Utiliser \"OU\" entre les conditions (sinon \"ET\" est utilisé)."
 msgid "The filter must have at least one condition."
 msgstr "Le filtre doit avoir au moins une condition."
 
-#: forms/fields.py:52
+#: forms/fields.py:55
 msgid "Invalid format"
 msgstr "Format invalide"
 
-#: forms/fields.py:113
+#: forms/fields.py:116
 msgid "This content type is not allowed."
 msgstr "Ce type de resource n'est pas autorisé'."
 
-#: forms/fields.py:114 forms/fields.py:264 forms/fields.py:562
+#: forms/fields.py:117 forms/fields.py:267 forms/fields.py:566
 msgid "This entity doesn't exist."
 msgstr "Cette entité n'existe pas."
 
-#: forms/fields.py:261
+#: forms/fields.py:264
 msgid "This relation type doesn't exist."
 msgstr "Cette relation n'existe pas."
 
-#: forms/fields.py:262
+#: forms/fields.py:265
 msgid "This relation type cause constraint error."
 msgstr "Ce type de relation provoque une erreur de contrainte."
 
-#: forms/fields.py:263
+#: forms/fields.py:266
 msgid "This content type cause constraint error with relation type."
 msgstr ""
 "Ce type de resource provoque une erreur de contrainte avec le type de "
 "relation"
 
-#: forms/fields.py:265
+#: forms/fields.py:268
 msgid "This entity has no property that matches relation type constraints"
 msgstr ""
 "Cette fiche n'a aucune propriété qui convient avec les contrainte de type de "
 "relation"
 
-#: forms/fields.py:516
+#: forms/fields.py:520
 #, python-format
 msgid "Select a valid choice. %(value)s is not an available choice."
 msgstr ""
 "Sélectionnez un choix valide. %(value)s n'est pas un des choix disponibles."
+
+#: forms/fields.py:763
+msgid ""
+"If you select customized you have to specify a start date and/or an end date."
+msgstr "Si vous sélectionnez 'Personnalisé' vous devez spécifier une date de début et/ou une date de fin."
+
+#: forms/fields.py:764
+msgid "Start date has to be before end date."
+msgstr "La date début doit être avant la date de fin."
 
 #: forms/header_filter.py:47
 msgid "Functions"
