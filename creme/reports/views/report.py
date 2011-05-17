@@ -35,7 +35,6 @@ from creme_core.views.generic import (add_entity, edit_entity, view_entity,
                                       list_view, inner_popup, add_to_entity)
 from creme_core.utils.meta import get_model_field_infos, get_flds_with_fk_flds, get_date_fields, is_date_field
 from creme_core.utils import get_ct_or_404, get_from_GET_or_404, get_from_POST_or_404
-from creme_core.date_filters_registry import date_filters_registry
 
 from reports.models import Report, Field
 from reports.forms.report import CreateForm, EditForm, LinkFieldToReportForm, AddFieldToReportForm, get_aggregate_custom_fields, DateReportFilterForm

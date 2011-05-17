@@ -216,25 +216,6 @@ class ReportsTestCase(CremeTestCase):
         self.assertEqual('Ayanami;Kirika;;<ul><li>Kawaii</li></ul>', content[1])
         self.assertEqual('Langley;Kirika;;<ul></ul>',                content[2])
 
-    def test_report_csv04(self):
-        report = self.create_report('trinita')
-
-        def assert_csv_error(**kwargs):
-            response = self.client.get('/reports/report/%s/csv' % report.id, data=kwargs)
-            self.assertEqual(response.status_code, 404)
-
-        date_str1 = datetime(year=1980, month=1, day=1).strftime('%s')
-        date_str2 = datetime(year=2000, month=1, day=1).strftime('%s')
-
-        #assert_csv_error(field='birthday', start=date_str1, end=date_str2) #this works of course :)
-        assert_csv_error(start=date_str1, end=date_str2)    #no 'field'
-        assert_csv_error(field='birthday', end=date_str2)   #no 'start'
-        assert_csv_error(field='birthday', start=date_str1) #no 'end'
-        assert_csv_error(field='birthday', start='poo', end=date_str2)
-        assert_csv_error(field='birthday', start=date_str1, end='pee')
-        assert_csv_error(field='idontexist', start=date_str1, end=date_str2)
-        assert_csv_error(field='first_name', start=date_str1, end=date_str2) #not a datefield
-
     def test_report_field_add01(self):
         report = self.create_report('trinita')
         url = '/reports/report/%s/field/add' % report.id
