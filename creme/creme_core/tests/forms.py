@@ -7,16 +7,16 @@ from django.forms.util import ValidationError
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 
-from creme.creme_core import autodiscover
-from creme.creme_core.forms.fields import *
+from creme_core import autodiscover
+from creme_core.forms.fields import *
 from creme_core.forms.entity_filter import *
-from creme.creme_core.utils import creme_entity_content_types
-from creme.creme_core.models import *
-from creme.creme_core.constants import REL_SUB_RELATED_TO, REL_SUB_HAS
-from creme.creme_core.tests.base import CremeTestCase
+from creme_core.utils import creme_entity_content_types
+from creme_core.models import *
+from creme_core.constants import REL_SUB_RELATED_TO, REL_SUB_HAS
+from creme_core.tests.base import CremeTestCase
 
-from creme.persons.models import Organisation, Contact, Address
-from creme.persons.constants import REL_OBJ_CUSTOMER_OF, REL_OBJ_EMPLOYED_BY, REL_SUB_EMPLOYED_BY
+from persons.models import Organisation, Contact, Address
+from persons.constants import REL_OBJ_CUSTOMER_OF, REL_OBJ_EMPLOYED_BY, REL_SUB_EMPLOYED_BY
 
 
 def format_stack():
@@ -1279,3 +1279,14 @@ class RelationSubfiltersConditionsFieldTestCase(FieldTestCase):
         self.assertEqual(EntityFilterCondition.EFC_RELATION_SUBFILTER,       condition.type)
         self.assertEqual(self.rtype02.id,                                    condition.name)
         self.assertEqual({'has': False, 'filter_id': self.sub_efilter02.id}, condition.decoded_value)
+
+
+class DateRangeFieldTestCase(FieldTestCase):
+    def test_clean_empty_customized(self):
+        field = DateRangeField()
+        self.assertFieldValidationError(DateRangeField, 'customized_empty', field.clean, [u"", u"", u""])
+        self.assertFieldValidationError(DateRangeField, 'customized_empty', field.clean, None)
+
+    def test_start_before_end(self):
+        field = DateRangeField()
+        self.assertFieldValidationError(DateRangeField, 'customized_invalid', field.clean, [u"", u"2011-05-16", u"2011-05-15"])
