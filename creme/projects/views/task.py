@@ -49,6 +49,13 @@ def edit(request, task_id):
 
 @login_required
 @permission_required('projects')
+def edit_popup(request, task_id):
+    return edit_model_with_popup(request, {'pk': task_id}, ProjectTask, TaskEditForm,
+                                 can_change=ProjectTask.can_change
+                                ) #TODO: edit_entity_with_popup ???
+
+@login_required
+@permission_required('projects')
 def add_parent(request, task_id):
     #return edit_entity(request, task_id, ProjectTask, TaskAddParentForm)
     return edit_model_with_popup(request, {'pk': task_id}, ProjectTask, TaskAddParentForm,

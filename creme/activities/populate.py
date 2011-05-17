@@ -17,7 +17,7 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
-
+from django.contrib.auth.models import User
 from django.utils.translation import ugettext as _
 
 from creme_core.models.header_filter import HeaderFilterItem, HeaderFilter, HFI_FIELD
@@ -28,7 +28,7 @@ from persons.models import Contact
 
 from persons.models import Contact
 
-from activities.models import Activity, ActivityType, PhoneCallType, Status
+from activities.models import Activity, ActivityType, PhoneCallType, Status, Calendar
 from activities.blocks import future_activities_block, past_activities_block
 from activities.buttons import add_meeting_button, add_phonecall_button, add_task_button
 from activities.constants import *
@@ -83,3 +83,6 @@ class Populator(BasePopulator):
         ButtonMenuItem.create('activities-add_task_button',      model=None, button=add_task_button,      order=12)
 
         SearchConfigItem.create(Activity, ['title', 'description', 'type__name'])
+
+        for user in User.objects.all():
+            Calendar.get_user_default_calendar(user)

@@ -21,7 +21,7 @@
 from datetime import datetime
 from itertools import chain
 
-from django.forms.widgets import Widget, Textarea, Select, SelectMultiple, FileInput, TextInput, Input
+from django.forms.widgets import Widget, Textarea, Select, SelectMultiple, FileInput, TextInput, Input, MultiWidget
 from django.forms.util import flatatt
 from django.utils.html import conditional_escape, escape
 from django.utils.translation import ugettext as _
@@ -165,7 +165,7 @@ class DateRangeSelect(TextInput):
 
     def render(self, name, value, attrs=None):
         attrs = self.build_attrs(attrs, name=name, type='hidden')
-        context = widget_render_context('ui-creme-daterange', attrs)
+        context = widget_render_context('ui-creme-daterange-selector', attrs)
 
         date_range = ['<select class="daterange-input range-type">']
         date_range.extend(u'<option value="%s">%s</option>' % (name, verb_name) for name, verb_name in self.choices)
@@ -899,3 +899,36 @@ class AdaptiveWidget(Select):
         return mark_safe(html_output)
 
 
+class DateRangeWidget(MultiWidget):
+    def __init__(self, attrs=None):
+        self.render_as = attrs.pop('render_as', 'table') if attrs else 'table'
+
+        widgets = (
+            Select(choices=chain([(u'', _(u'Customized'))], date_range_registry.choices()), attrs={'class': 'range-type'}),
+            CalendarWidget(attrs={'class': 'date-start'}),
+            CalendarWidget(attrs={'class': 'date-end'})
+            )
+        super(DateRangeWidget, self).__init__(widgets, attrs)
+
+    def decompress(self, value):
+        if value:
+            return value[0], value[1], value[2]
+        return None, None, None
+
+    def format_output(self, rendered_widgets):
+        _css_class = "ui-creme-daterange"
+
+        context = widget_render_context('ui-creme-daterange', {})
+
+        if self.render_as == 'table':
+            return u"".join([u"""<table class="%(css)s" style="%(style)s" widget="%(typename)s">""" % context,
+                             u"""<tbody><tr>""",
+                             u''.join(u"<td>%s</td>" % w for w in rendered_widgets),
+                             u"""</tr></tbody></table>"""])
+
+        elif self.render_as == 'ul':
+            return u"".join([u"""<ul class="%(css)s" style="%(style)s" widget="%(typename)s">""" % context,
+                             u''.join(u"<li>%s</li>" % w for w in rendered_widgets),
+                             u"""</ul>"""])
+        
+        return u"""<div class="%s">%s</div>""" % (_css_class, u''.join(u"<div>%s</div>" % w for w in rendered_widgets))

@@ -208,6 +208,10 @@ END:VEVENT
             self.start = self.start.replace(hour=0, minute=0)
             self.end   = self.end.replace(hour=23, minute=59)
 
+    def _pre_save_clone(self, source):
+        #TODO: Explicit this into description ? Move the activity to another time-slot ?
+        if source.busy:
+            self.busy = False
 
 class Meeting(Activity):
     place = CharField(_(u'Meeting place'), max_length=100, blank=True, null=True)

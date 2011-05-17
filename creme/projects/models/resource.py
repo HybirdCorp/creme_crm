@@ -52,5 +52,9 @@ class Resource(CremeEntity): #NB: CremeEntity and not CremeModel because we use 
         WorkingPeriod.objects.filter(task=self.task, resource=self).delete()
         super(Resource, self).delete()
 
+    def clone_for_task(self, task):
+        new_resource = self.clone()
+        new_resource.task = task
+        new_resource.save()
 
 from workingperiod import WorkingPeriod

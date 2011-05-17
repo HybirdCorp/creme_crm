@@ -44,3 +44,10 @@ class WorkingPeriod(CremeModel):
 
     def get_edit_absolute_url(self):
         return "/projects/period/edit/%s" % self.id
+
+    def clone(self, task):
+        return WorkingPeriod.objects.create(start_date=self.start_date,
+                                            end_date=self.end_date,
+                                            duration=self.duration,
+                                            task=task,
+                                            resource=self.resource)

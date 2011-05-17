@@ -376,6 +376,77 @@ class EntityViewsTestCase(ViewsTestCase):
         self.assert_(json_dict['name'].startswith(translation))
         self.assertNotEqual(translation, json_dict['name'])
 
+    def test_clone01(self):
+        self.login()
+        url = '/creme_core/entity/clone'
+
+        mario = Contact.objects.create(user=self.user, first_name="Mario", last_name="Bros")
+
+        response = self.client.post(url, data={'id': mario.id}, follow=True)
+        self.assertEqual(200, response.status_code)
+
+        response = self.client.post(url, data={})
+        self.assertEqual(404, response.status_code)
+
+        response = self.client.post(url, data={'id': 0})
+        self.assertEqual(404, response.status_code)
+
+    def test_clone02(self):
+        self.login(is_superuser=False)
+        url = '/creme_core/entity/clone'
+
+        mario = Contact.objects.create(user=self.other_user, first_name="Mario", last_name="Bros")
+
+        response = self.client.post(url, data={'id': mario.id}, follow=True)
+        self.assertEqual(403, response.status_code)
+
+    def test_clone03(self):
+        self.login(is_superuser=False, creatable_models=[ct.model_class() for ct in ContentType.objects.all()])
+        self._set_all_creds_except_one(SetCredentials.CRED_VIEW)
+        url = '/creme_core/entity/clone'
+
+        mario = Contact.objects.create(user=self.other_user, first_name="Mario", last_name="Bros")
+
+        response = self.client.post(url, data={'id': mario.id}, follow=True)
+        self.assertEqual(403, response.status_code)
+
+    def test_clone04(self):
+        self.login(is_superuser=False, creatable_models=[ct.model_class() for ct in ContentType.objects.all()], allowed_apps=('creme_core', 'persons'))
+        self._set_all_creds_except_one(None)
+        url = '/creme_core/entity/clone'
+
+        mario = Contact.objects.create(user=self.user, first_name="Mario", last_name="Bros")
+
+        response = self.client.post(url, data={'id': mario.id}, follow=True)
+        self.assertEqual(200, response.status_code)
+
+    def test_clone05(self):
+        self.login()
+        url = '/creme_core/entity/clone'
+
+        first_name = "Mario"
+        mario = Contact.objects.create(user=self.other_user, first_name=first_name, last_name="Bros")
+
+        count = Contact.objects.count()
+        response = self.client.post(url, data={'id': mario.id}, follow=True)
+        self.assertEqual(200, response.status_code)
+        self.assertEqual(count + 1, Contact.objects.count())
+
+        try:
+            mario = Contact.objects.filter(first_name=first_name).order_by('created')[0]
+            oiram = Contact.objects.filter(first_name=first_name).order_by('created')[1]
+        except Exception, e:
+            self.fail(str(e))
+
+        self.assertEqual(mario.last_name,  oiram.last_name)
+
+        self.assert_(response.redirect_chain)
+        self.assertEqual(len(response.redirect_chain), 1)
+        self.assert_(response.redirect_chain[0][0].endswith('/persons/contact/%s' % oiram.id))
+
+        response = self.client.get('/persons/contact/%s' % oiram.id)
+        self.assertEqual(response.status_code, 200)
+
     def test_edit_entities_bulk01(self):
         self.login()
         contact_ct_id = ContentType.objects.get_for_model(Contact).id

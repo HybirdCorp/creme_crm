@@ -143,6 +143,10 @@ class Graph(CremeEntity):
 
         return HttpResponseRedirect('/download_file/upload/graphs/' + filename)
 
+    def _post_save_clone(self, source):
+        for node in RootNode.objects.filter(graph=source):
+            rn = RootNode.objects.create(graph=self, entity=node.entity)
+            rn.relation_types = node.relation_types.all()
 
 class RootNode(CremeModel):
     graph          = ForeignKey(Graph, related_name='roots')
@@ -157,3 +161,5 @@ class RootNode(CremeModel):
 
     def get_relation_types(self):
         return self.relation_types.select_related('symmetric_type')
+
+

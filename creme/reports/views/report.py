@@ -29,12 +29,12 @@ from django.utils.translation import ugettext as _
 from django.utils.simplejson import JSONEncoder
 from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.contenttypes.models import ContentType
+from creme_core.utils.date_range import date_range_registry
 
 from creme_core.views.generic import (add_entity, edit_entity, view_entity,
                                       list_view, inner_popup, add_to_entity)
 from creme_core.utils.meta import get_model_field_infos, get_flds_with_fk_flds, get_date_fields, is_date_field
 from creme_core.utils import get_ct_or_404, get_from_GET_or_404, get_from_POST_or_404
-from creme_core.date_filters_registry import date_filters_registry
 
 from reports.models import Report, Field
 from reports.forms.report import CreateForm, EditForm, LinkFieldToReportForm, AddFieldToReportForm, get_aggregate_custom_fields, DateReportFilterForm
@@ -188,12 +188,15 @@ def preview(request, report_id):
     report.can_view_or_die(request.user)
 
     extra_q_filter = Q()
+    start = end = None
 
     if request.method == 'POST':
         filter_form = DateReportFilterForm(report=report, user=request.user, data=request.POST)
 
         if filter_form.is_valid():
-            extra_q_filter = filter_form.get_q()
+            extra_q_filter = Q(**filter_form.get_q_dict())
+            start, end = filter_form.get_dates()
+            
     else:
         filter_form = DateReportFilterForm(report=report, user=request.user)
 
@@ -207,9 +210,10 @@ def preview(request, report_id):
                                 'object':        report,
                                 'html_backend':  html_backend,
                                 'limit_to':      LIMIT_TO,
-                                'date_filters':  date_filters_registry.itervalues(), #TODO: used ??
-                                'date_fields':   [(field.name, field.verbose_name) for field in get_date_fields(report.ct.model_class())], #TODO: used ??
                                 'form':          filter_form,
+                                'start':         start,
+                                'end':           end
+
                               },
                               context_instance=req_ctx)
 
@@ -242,31 +246,37 @@ def set_selected(request):
 @login_required
 @permission_required('reports')
 def csv(request, report_id):
-    report = get_object_or_404(Report, pk=report_id)
-    csv_backend = report_backend_registry.get_backend('CSV')
-    GET  = request.GET
-    user = request.user
+    report         = get_object_or_404(Report, pk=report_id)
+    csv_backend    = report_backend_registry.get_backend('CSV')
+    GET_get        = request.GET.get
+    user           = request.user
+    extra_q_filter = None
 
     report.can_view_or_die(user)
 
-    if GET: #TODO: request.method == 'GET' => Post TODO: Doesn't work
-        field_name = get_from_GET_or_404(GET, 'field')
-        try:
-            if not is_date_field(report.ct.model_class()._meta.get_field(field_name)):
-                raise Http404('%s is not a date field' % field_name)
-        except FieldDoesNotExist, e:
-            raise Http404(str(e))
+    field_name    = GET_get('field')
+    if field_name is not None:
+        dt_range_name = GET_get('range_name')#Empty str should get CustomRange
+        from_ts = lambda s: datetime.fromtimestamp(float(s))
+        start_dt      = GET_get('start')
+        end_dt        = GET_get('end')
 
-        from_ts = lambda s: datetime.fromtimestamp(float(get_from_GET_or_404(GET, s)))
-        try:
-            start_date = from_ts('start')
-            end_date   = from_ts('end')
-        except (ValueError, TypeError), e:
-            raise Http404('Bad date input (%s)' % e)
+        if start_dt is not None:
+            start_dt = from_ts(start_dt)
 
-        extra_q_filter = Q(**{str("%s__range" % field_name): (start_date, end_date)})
-    else:
-        extra_q_filter = Q()
+        if end_dt is not None:
+            end_dt = from_ts(end_dt)
+
+        dt_range = date_range_registry.get_range(dt_range_name, start_dt, end_dt)
+
+        print dt_range_name
+        print dt_range
+        
+        print start_dt
+        print end_dt
+
+        if dt_range is not None:
+            extra_q_filter = Q(**dt_range.get_q_dict(field_name, datetime.now()))
 
     return csv_backend(report, extra_q_filter, user).render_to_response()
 
@@ -297,6 +307,7 @@ def date_filter_form(request, report_id):
     redirect = False
     simple_redirect = False
     valid = False
+    start = end = None
 
     if request.method == 'POST':
         form = DateReportFilterForm(report=report, user=request.user, data=request.POST)
@@ -304,6 +315,8 @@ def date_filter_form(request, report_id):
         valid = True
         if not form.is_valid():
            simple_redirect = True
+        else:
+            start, end = form.get_dates()
     else:
         form = DateReportFilterForm(report=report, user=request.user)
 
@@ -315,6 +328,8 @@ def date_filter_form(request, report_id):
                         'report_id':       report_id,
                         'redirect':        redirect,
                         'simple_redirect': simple_redirect,
+                        'start': start,
+                        'end': end,
                        },
                        is_valid=valid,
                        reload=False,

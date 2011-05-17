@@ -26,7 +26,7 @@ from django.core import serializers
 from django.template.context import RequestContext
 from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required
-from django.http import HttpResponse, Http404
+from django.http import HttpResponse, Http404, HttpResponseRedirect
 from django.utils.simplejson import JSONEncoder
 
 
@@ -214,3 +214,17 @@ def get_widget(request, ct_id):
     return {
         'rendered': rendered
     }
+
+@login_required
+def clone(request):
+    #TODO: Improve credentials ?
+    entity_id = get_from_POST_or_404(request.POST, 'id')
+    entity    = get_object_or_404(CremeEntity, pk=entity_id).get_real_entity()
+
+    user = request.user
+    user.has_perm_to_create_or_die(entity)
+    entity.can_view_or_die(user)
+
+    new_entity = entity.clone()
+
+    return HttpResponseRedirect(new_entity.get_absolute_url())

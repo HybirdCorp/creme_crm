@@ -119,3 +119,52 @@ class ProjectTask(Activity):
 
     def is_alive(self):
         return self.tstatus_id not in (constants.COMPLETED_PK, constants.CANCELED_PK)
+
+    def _clone_m2m(self, source):#Handled manually in clone_scope
+        pass
+
+    def _pre_save_clone(self, source):#Busy hasn't the same semantic here
+        pass
+
+    def _post_save_clone(self, source):
+        for resource in source.get_resources():
+            resource.clone_for_task(self)
+
+        for working_period in source.get_working_periods():
+            working_period.clone(self)
+
+    @staticmethod
+    def clone_scope(tasks, project):
+        """Clone each task in 'tasks',assign them to 'project', and restore links between each task
+        @params tasks : an iterable of ProjectTask
+        @params project : A Project
+        """
+        context = {}
+        new_links = {}
+
+        project_task_filter = ProjectTask.objects.filter
+
+        for task in tasks:
+            new_task = task.clone()
+            new_task.project = project
+            new_task.save()
+
+            context[task.id] = {'new_pk': new_task.id, 'o_children': project_task_filter(parents_task=task.id).values_list('pk', flat=True)}
+#            context[new_task.id] = task.id
+
+        for old_key, values in context.iteritems():
+            new_children_ids = []
+            new_children_ids_append = new_children_ids.append
+            
+            for old_child_id in values['o_children']:
+                new_children_ids_append(context[old_child_id]['new_pk'])
+
+            new_links[values['new_pk']] = new_children_ids #{new pk : new children ids, ...
+
+        for task in project_task_filter(pk__in=new_links.keys()):
+            for sub_task in project_task_filter(pk__in=new_links[task.id]):
+                sub_task.parents_task.add(task)
+
+
+
+

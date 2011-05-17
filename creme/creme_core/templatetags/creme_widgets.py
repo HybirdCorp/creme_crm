@@ -44,6 +44,13 @@ def get_edit_button(context, entity, user):
            })
     return context
 
+@register.inclusion_tag('creme_core/templatetags/widgets/clone_button.html', takes_context=True)
+def get_clone_button(context, entity, user):
+    context.update({
+            'can_create': user.has_perm_to_create(entity),
+           })
+    return context
+
 @register.inclusion_tag('creme_core/templatetags/widgets/entity_actions.html', takes_context=True)
 def get_entity_actions(context, entity):
     user = context['request'].user
