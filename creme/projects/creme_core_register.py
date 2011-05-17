@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2011  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -25,7 +25,7 @@ from creme_core.gui.menu import creme_menu
 from creme_core.gui.block import block_registry
 
 from projects.models import Project, ProjectTask
-from projects.blocks import *
+from projects.blocks import block_list
 
 
 creme_registry.register_app('projects', _(u'Projects'), '/projects')
@@ -36,4 +36,4 @@ reg_item('/projects/',            _('Portal'),        'projects')
 reg_item('/projects/projects',    _('All projects'),  'projects')
 reg_item('/projects/project/add', _('Add a project'), 'projects.add_project')
 
-block_registry.register(project_extra_info, task_extra_info, tasks_block, resources_block, working_periods_block)
+block_registry.register(*block_list)

@@ -2,6 +2,7 @@
 
 from datetime import datetime, date, time
 
+from django.utils.translation import ugettext as _
 from django.contrib.contenttypes.models import ContentType
 
 from creme_core.models import RelationType, Relation, SetCredentials
@@ -118,10 +119,10 @@ class ProjectsTestCase(CremeTestCase):
 
         project = self.create_project('Eva01')[0]
 
-        response = self.client.get('/projects/project/%s/task/add' % project.id)
-        self.assertEqual(200, response.status_code)
+        url = '/projects/project/%s/task/add' % project.id
+        self.assertEqual(200, self.client.get(url).status_code)
 
-        response = self.client.post('/projects/project/%s/task/add' % project.id, follow=True,
+        response = self.client.post(url, follow=True,
                                     data={
                                         'user':     self.user.id,
                                         'title':    'head',
@@ -131,7 +132,7 @@ class ProjectsTestCase(CremeTestCase):
                                         'tstatus':   TaskStatus.objects.all()[0].id,
                                     })
         self.assertEqual(200, response.status_code)
-        self.failIf(response.context['form'].errors)
+        self.assertNoFormError(response)
 
         tasks = ProjectTask.objects.filter(project=project)
         self.assertEqual(1, tasks.count())
@@ -139,7 +140,7 @@ class ProjectsTestCase(CremeTestCase):
         task1 = tasks[0]
         self.assertEqual(1, task1.order)
 
-        response = self.client.post('/projects/project/%s/task/add' % project.id, follow=True,
+        response = self.client.post(url, follow=True,
                                     data={
                                         'user':         self.user.id,
                                         'title':        'torso',
@@ -150,20 +151,135 @@ class ProjectsTestCase(CremeTestCase):
                                         'parents_task': task1.id,
                                     })
         self.assertEqual(200, response.status_code)
-        self.failIf(response.context['form'].errors)
+        self.assertNoFormError(response)
 
         tasks = ProjectTask.objects.filter(project=project)
         self.assertEqual(2, tasks.count())
 
-        task2 = filter(lambda t: t.id != task1.id, tasks)
-        self.assertEqual(1, len(task2))
-
-        task2 = task2[0]
-        self.assertEqual([task1.id], [t.id for t in task2.parents_task.all()])
+        tasks2 = filter(lambda t: t.id != task1.id, tasks)
+        self.assertEqual(1,          len(tasks2))
+        self.assertEqual([task1.id], [t.id for t in tasks2[0].parents_task.all()])
 
         self.assertEqual(list(tasks), list(project.get_tasks()))
+        self.assertEqual(180 + 50,    project.get_expected_duration())
 
-        self.assertEqual(180 + 50, project.get_expected_duration())
+    def test_task_createview02(self): #can be parented with task of an other project
+        self.login()
+
+        project01 = self.create_project('Eva01')[0]
+        project02 = self.create_project('Eva02')[0]
+
+        task01 = self.create_task(project01, 'Title')
+        response = self.client.post('/projects/project/%s/task/add' % project02.id, #follow=True,
+                                    data={
+                                        'user':         self.user.id,
+                                        'title':        'head',
+                                        'start':        '2010-10-11',
+                                        'end':          '2010-10-30',
+                                        'duration':     50,
+                                        'tstatus':      TaskStatus.objects.all()[0].id,
+                                        'parents_task': task01.id,
+                                    })
+        self.assertFormError(response, 'form', 'parents_task',
+                             [_(u'Select a valid choice. %(value)s is not an available choice.') % {'value': task01.id}]
+                            )
+
+    def test_task_editview01(self):
+        self.login()
+
+        project = self.create_project('Eva01')[0]
+        task = self.create_task(project, 'Title')
+        url = '/projects/task/edit/%s' % task.id
+        self.assertEqual(200, self.client.get(url).status_code)
+
+        title = 'Head'
+        duration = 55
+        response = self.client.post(url, follow=True,
+                                    data={
+                                        'user':     self.user.id,
+                                        'title':    title,
+                                        'start':    '2011-5-16',
+                                        'end':      '2012-6-17',
+                                        'duration': duration,
+                                        'tstatus':  TaskStatus.objects.all()[0].id,
+                                    })
+        self.assertNoFormError(response)
+
+        task = ProjectTask.objects.get(pk=task.id) #refresh
+        self.assertEqual(title,    task.title)
+        self.assertEqual(duration, task.duration)
+
+        start = task.start
+        self.assertEqual(2011, start.year)
+        self.assertEqual(5,    start.month)
+        self.assertEqual(16,   start.day)
+
+        end = task.end
+        self.assertEqual(2012, end.year)
+        self.assertEqual(6,    end.month)
+        self.assertEqual(17,   end.day)
+
+    def test_task_add_parent01(self):
+        self.login()
+
+        project = self.create_project('Eva01')[0]
+        task01 = self.create_task(project, 'Parent01')
+        task02 = self.create_task(project, 'Parent02')
+        task03 = self.create_task(project, 'Task')
+
+        url = '/projects/task/%s/parent/add' % task03.id
+        self.assertEqual(200, self.client.get(url).status_code)
+
+        response = self.client.post(url, data={'parents': '%s,%s' % (task01.id, task02.id)})
+        self.assertNoFormError(response)
+        self.assertEqual(set([task01.id, task02.id]), set(t.id for t in task03.parents_task.all()))
+
+        response = self.client.post('/projects/task/parent/delete', data={'id': task03.id, 'parent_id': task01.id})
+        self.assertEqual(200, response.status_code)
+        self.assertEqual(set([task02.id]), set(t.id for t in task03.parents_task.all()))
+
+        #Error: already parent
+        self.assertFormError(self.client.post(url, data={'parents': task02.id}),
+                             'form', 'parents',
+                             [_(u'Select a valid choice. %(value)s is not an available choice.') % {'value': task02.id}]
+                            )
+
+    def test_task_add_parent02(self): #error task that belong to another project
+        self.login()
+
+        project01 = self.create_project('Eva01')[0]
+        project02 = self.create_project('Eva02')[0]
+
+        task01 = self.create_task(project01, 'Task01')
+        task02 = self.create_task(project02, 'Task02')
+
+        response = self.client.post('/projects/task/%s/parent/add' % task02.id,
+                                    data={'parents': task01.id}
+                                   )
+        self.assertFormError(response, 'form', 'parents',
+                             [_(u'Select a valid choice. %(value)s is not an available choice.') % {'value': task01.id}]
+                            )
+
+    def test_task_add_parent03(self): #cycle error
+        self.login()
+
+        project = self.create_project('Eva01')[0]
+        task01 = self.create_task(project, 'Task01')
+        task02 = self.create_task(project, 'Task02')
+        task03 = self.create_task(project, 'Task03')
+
+        self.assertEqual(set([task01.id]), set(t.id for t in task01.get_subtasks()))
+
+        self.assertNoFormError(self.client.post('/projects/task/%s/parent/add' % task02.id, data={'parents': task01.id}))
+        self.assertEqual(set([task01.id, task02.id]), set(t.id for t in task01.get_subtasks()))
+
+        self.assertNoFormError(self.client.post('/projects/task/%s/parent/add' % task03.id, data={'parents': task02.id}))
+        self.assertEqual(set([task01.id, task02.id, task03.id]), set(t.id for t in task01.get_subtasks()))
+
+        response = self.client.post('/projects/task/%s/parent/add' % task01.id, data={'parents': task03.id})
+        self.assertFormError(response, 'form', 'parents',
+                             [_(u'Select a valid choice. %(value)s is not an available choice.') % {'value': task03.id}]
+                            )
 
     def create_task(self, project, title):
         response = self.client.post('/projects/project/%s/task/add' % project.id, follow=True,
@@ -173,7 +289,7 @@ class ProjectsTestCase(CremeTestCase):
                                         'start':    '2010-10-11',
                                         'end':      '2010-10-30',
                                         'duration': 50,
-                                        'tstatus':   TaskStatus.objects.all()[0].id,
+                                        'tstatus':  TaskStatus.objects.all()[0].id,
                                     })
         self.assertEqual(200, response.status_code)
 
@@ -200,7 +316,6 @@ class ProjectsTestCase(CremeTestCase):
                                     })
         self.assertNoFormError(response)
         self.assertEqual(200, response.status_code)
-        #self.failIf(response.context['form'].errors)
 
         resources = list(task.resources_set.all())
         self.assertEqual(1, len(resources))
@@ -216,7 +331,7 @@ class ProjectsTestCase(CremeTestCase):
                                         'duration':   8,
                                     })
         self.assertEqual(200, response.status_code)
-        self.failIf(response.context['form'].errors)
+        self.assertNoFormError(response)
         self.assertEqual(1, resource.workingperiod_set.count())
 
         self.assertEqual(8,   task.get_effective_duration())
@@ -292,11 +407,9 @@ class ProjectsTestCase(CremeTestCase):
         self.assert_(not project.is_closed)
         self.assert_(not project.effective_end_date)
 
-        response = self.client.get('/projects/project/%s/close' % project.id)
-        self.assertEqual(404, response.status_code)
-
-        response = self.client.post('/projects/project/%s/close' % project.id, follow=True)
-        self.assertEqual(200, response.status_code)
+        url = '/projects/project/%s/close' % project.id
+        self.assertEqual(404, self.client.get(url).status_code)
+        self.assertEqual(200, self.client.post(url, follow=True).status_code)
 
         project = Project.objects.get(pk=project.id) #refresh
         self.assert_(project.is_closed)
@@ -306,7 +419,6 @@ class ProjectsTestCase(CremeTestCase):
         self.assert_(delta.seconds < 10)
 
         #already closed
-        response = self.client.post('/projects/project/%s/close' % project.id, follow=True)
-        self.assertEqual(404, response.status_code)
+        self.assertEqual(404, self.client.post(url, follow=True).status_code)
 
     #TODO: test better get_project_cost(), get_effective_duration(), get_delay()

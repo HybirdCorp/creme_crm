@@ -15,11 +15,13 @@ urlpatterns = patterns('projects.views',
 
     #Project: Task block
     (r'^project/(?P<project_id>\d+)/task/add', 'task.add'),
-    (r'^task/delete/(?P<task_id>\d+)$',        'task.delete'),#Keeps detailview delete compatibility
     (r'^task/delete$',                         'task.delete'),
     (r'^task/(?P<object_id>\d+)$',             'task.detailview'),
     (r'^task/edit/(?P<task_id>\d+)$',          'task.edit'),
     (r'^task/parent/delete$',                  'task.delete_parent'),
+
+    #Task: Parent tasks block
+    (r'^task/(?P<task_id>\d+)/parent/add$', 'task.add_parent'),
 
     #Task: Resource block
     (r'^task/(?P<task_id>\d+)/resource/add$',  'resource.add'),

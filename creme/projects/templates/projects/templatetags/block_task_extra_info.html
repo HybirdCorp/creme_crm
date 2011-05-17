@@ -1,5 +1,4 @@
-{% load i18n %}
-{% load media %}
+{% load i18n %}{% load media %}
 {% load creme_block %}
 <table  class="table_detail_view ui-corner-all" id={{block_name}}>
     {% get_block_header colspan=2 %}
@@ -16,19 +15,6 @@
             {% with object as task %}
                 {% include 'projects/frag_task_delay_td.html' %}
             {% endwith %}
-        </tr>
-        <tr>
-            <th class="block_header_line_dark">{% trans "Parent task(s)" %}</th>
-            <td class="block_line_dark" align="center">
-                {% for parent in object.get_parents %}
-                    <a href="{{parent.get_absolute_url}}">{{parent.subject}}</a>
-                    <a href="/projects/task/{{object.id}}/parent/delete/{{parent.id}}">
-                        <img src="{% media_url 'images/delete_22.png' %}" border="0" alt="{% trans "Delete" %}" title="{% trans "Delete" %}"/>
-                    </a>
-                {% empty %}
-                    {% trans "This task has no parent" %}
-                {% endfor %}
-            </td>
         </tr>
     </tbody>
 </table>
