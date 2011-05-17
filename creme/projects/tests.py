@@ -148,7 +148,7 @@ class ProjectsTestCase(CremeTestCase):
                                         'end':          '2010-11-20',
                                         'duration':     180,
                                         'tstatus':       TaskStatus.objects.all()[0].id,
-                                        'parents_task': task1.id,
+                                        'parent_tasks': task1.id,
                                     })
         self.assertEqual(200, response.status_code)
         self.assertNoFormError(response)
@@ -158,7 +158,7 @@ class ProjectsTestCase(CremeTestCase):
 
         tasks2 = filter(lambda t: t.id != task1.id, tasks)
         self.assertEqual(1,          len(tasks2))
-        self.assertEqual([task1.id], [t.id for t in tasks2[0].parents_task.all()])
+        self.assertEqual([task1.id], [t.id for t in tasks2[0].parent_tasks.all()])
 
         self.assertEqual(list(tasks), list(project.get_tasks()))
         self.assertEqual(180 + 50,    project.get_expected_duration())
@@ -178,9 +178,9 @@ class ProjectsTestCase(CremeTestCase):
                                         'end':          '2010-10-30',
                                         'duration':     50,
                                         'tstatus':      TaskStatus.objects.all()[0].id,
-                                        'parents_task': task01.id,
+                                        'parent_tasks': task01.id,
                                     })
-        self.assertFormError(response, 'form', 'parents_task',
+        self.assertFormError(response, 'form', 'parent_tasks',
                              [_(u'Select a valid choice. %(value)s is not an available choice.') % {'value': task01.id}]
                             )
 
@@ -267,11 +267,11 @@ class ProjectsTestCase(CremeTestCase):
 
         response = self.client.post(url, data={'parents': '%s,%s' % (task01.id, task02.id)})
         self.assertNoFormError(response)
-        self.assertEqual(set([task01.id, task02.id]), set(t.id for t in task03.parents_task.all()))
+        self.assertEqual(set([task01.id, task02.id]), set(t.id for t in task03.parent_tasks.all()))
 
         response = self.client.post('/projects/task/parent/delete', data={'id': task03.id, 'parent_id': task01.id})
         self.assertEqual(200, response.status_code)
-        self.assertEqual(set([task02.id]), set(t.id for t in task03.parents_task.all()))
+        self.assertEqual(set([task02.id]), set(t.id for t in task03.parent_tasks.all()))
 
         #Error: already parent
         self.assertFormError(self.client.post(url, data={'parents': task02.id}),
@@ -460,7 +460,7 @@ class ProjectsTestCase(CremeTestCase):
         status = TaskStatus.objects.get_or_create(name='status', description="")[0]
         task = ProjectTask.objects.create(project=project, order=0, duration=0, tstatus=status, user=self.user, title=title)
         if parents is not None:
-            task.parents_task = parents
+            task.parent_tasks = parents
         return task
 
     def _create_resource(self, contact, task):

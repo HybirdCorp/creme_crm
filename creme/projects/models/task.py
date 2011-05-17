@@ -34,7 +34,7 @@ from taskstatus import TaskStatus
 class ProjectTask(Activity):
     project      = ForeignKey(Project, verbose_name=_(u'Project'), related_name='tasks_set')
     order        = PositiveIntegerField(_(u'Order'), blank=True, null=True)
-    parents_task = ManyToManyField("self", blank=True, null=True, symmetrical=False, related_name='children_set') #TODO: rename parent_tasks
+    parent_tasks = ManyToManyField("self", blank=True, null=True, symmetrical=False, related_name='children_set') #TODO: rename parent_tasks
     duration     = PositiveIntegerField(_(u'Estimated duration (in hours)'), blank=False, null=False)
     tstatus      = ForeignKey(TaskStatus, verbose_name=_(u'Status'))
 
@@ -72,7 +72,7 @@ class ProjectTask(Activity):
 
     def get_parents(self):
         if self.parents is None:
-            self.parents = self.parents_task.all()
+            self.parents = self.parent_tasks.all()
         return self.parents
 
     def get_subtasks(self): #store result in a cache ?
@@ -149,13 +149,13 @@ class ProjectTask(Activity):
             new_task.project = project
             new_task.save()
 
-            context[task.id] = {'new_pk': new_task.id, 'o_children': project_task_filter(parents_task=task.id).values_list('pk', flat=True)}
+            context[task.id] = {'new_pk': new_task.id, 'o_children': project_task_filter(parent_tasks=task.id).values_list('pk', flat=True)}
 #            context[new_task.id] = task.id
 
         for old_key, values in context.iteritems():
-            new_children_ids = []
+            new_children_ids = []         #TODO: list comprehension ?? build 'new_links' in one line possible ??
             new_children_ids_append = new_children_ids.append
-            
+
             for old_child_id in values['o_children']:
                 new_children_ids_append(context[old_child_id]['new_pk'])
 
@@ -163,8 +163,4 @@ class ProjectTask(Activity):
 
         for task in project_task_filter(pk__in=new_links.keys()):
             for sub_task in project_task_filter(pk__in=new_links[task.id]):
-                sub_task.parents_task.add(task)
-
-
-
-
+                sub_task.parent_tasks.add(task)
