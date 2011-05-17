@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-04-12 13:56+0200\n"
+"POT-Creation-Date: 2011-05-16 11:00+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -79,7 +79,7 @@ msgstr "Courriels entrants marqués comme spam"
 msgid "Link this email to"
 msgstr "Relier cet email à"
 
-#: creme_core_register.py:34 models/mail.py:169 templates/emails/portal.html:6
+#: creme_core_register.py:35 models/mail.py:169 templates/emails/portal.html:6
 #: templates/emails/frags/ajax/synchronize.html:6
 #: templates/emails/templatetags/block_lw_mails_history.html:6
 #: templates/emails/templatetags/block_mails.html:6
@@ -88,39 +88,39 @@ msgstr "Relier cet email à"
 msgid "Emails"
 msgstr "Courriels"
 
-#: creme_core_register.py:37
+#: creme_core_register.py:38
 msgid "Portal"
 msgstr "Portail"
 
-#: creme_core_register.py:38
+#: creme_core_register.py:39
 msgid "All campaigns"
 msgstr "Lister les campagnes"
 
-#: creme_core_register.py:39
+#: creme_core_register.py:40
 msgid "Add a campaign"
 msgstr "Ajouter une campagne"
 
-#: creme_core_register.py:40
+#: creme_core_register.py:41
 msgid "All mailing lists"
 msgstr "Lister les listes de diffusion"
 
-#: creme_core_register.py:41
+#: creme_core_register.py:42
 msgid "Add a mailing list"
 msgstr "Ajouter une liste de diffusion"
 
-#: creme_core_register.py:42
+#: creme_core_register.py:43
 msgid "All email templates"
 msgstr "Lister les patrons de courriel"
 
-#: creme_core_register.py:43
+#: creme_core_register.py:44
 msgid "Add an email template"
 msgstr "Ajouter un patron de courriel"
 
-#: creme_core_register.py:44
+#: creme_core_register.py:45
 msgid "All emails"
 msgstr "Liste des courriels"
 
-#: creme_core_register.py:45
+#: creme_core_register.py:46
 msgid "Synchronization of incoming emails"
 msgstr "Synchronisation des courriels externes"
 

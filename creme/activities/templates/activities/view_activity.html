@@ -1,9 +1,9 @@
 {% extends "creme_core/generics/view_entity.html" %}
 {% load i18n %}
 {% load media %}
-{% load creme_block %}{% load activities_tags %}
+{% load creme_block creme_widgets %}{% load activities_tags %}
 
-{% block add_new_button %}{% endblock %}
+{% block add_new_button %}<li>{% get_clone_button object request.user %}</li>{% endblock %}
 
 {% block logo %}
     {% if object.type.id == "activities-activitytype_meeting" %}

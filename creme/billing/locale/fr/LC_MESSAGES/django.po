@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-04-12 13:53+0200\n"
+"POT-Creation-Date: 2011-05-16 10:59+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -52,44 +52,44 @@ msgstr "Information de paiement par défaut"
 msgid "Generate the number of the Invoice"
 msgstr "Générer le numéro de facture"
 
-#: creme_core_register.py:34
+#: creme_core_register.py:35
 msgid "Billing"
 msgstr "Facturation"
 
-#: creme_core_register.py:38
+#: creme_core_register.py:39
 msgid "Portal"
 msgstr "Portail"
 
-#: creme_core_register.py:39
+#: creme_core_register.py:40
 #: templates/billing/templatetags/block_received_invoices.html:9
 msgid "Add an invoice"
 msgstr "Ajouter une facture"
 
-#: creme_core_register.py:40
+#: creme_core_register.py:41
 msgid "All invoices"
 msgstr "Lister les factures"
 
-#: creme_core_register.py:41
+#: creme_core_register.py:42
 msgid "Add a sales order"
 msgstr "Ajouter un bon de commande"
 
-#: creme_core_register.py:42
+#: creme_core_register.py:43
 msgid "All sales orders"
 msgstr "Lister les bons de commande"
 
-#: creme_core_register.py:43
+#: creme_core_register.py:44
 msgid "Add a quote"
 msgstr "Ajouter un devis"
 
-#: creme_core_register.py:44
+#: creme_core_register.py:45
 msgid "All quotes"
 msgstr "Lister les devis"
 
-#: creme_core_register.py:45
+#: creme_core_register.py:46
 msgid "Add a credit note"
 msgstr "Ajouter un avoir"
 
-#: creme_core_register.py:46
+#: creme_core_register.py:47
 msgid "All credit notes"
 msgstr "Lister les avoirs"
 

@@ -227,6 +227,7 @@ creme.utils.confirmBeforeGo = function(url, ajax, ajax_options) { //TODO: rename
     creme.utils.showDialog(gettext("Are you sure ?"), {buttons: buttons});
 }
 
+//TODO: Rename this to confirmSubmit ? (used for both delete, clone)
 creme.utils.deleteEntity = function(atag) {
     var buttons = {};
 

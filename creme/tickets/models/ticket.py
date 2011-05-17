@@ -19,18 +19,21 @@
 ################################################################################
 
 from datetime import datetime
+from random import randint
 
 from django.db.models import ForeignKey, CharField, TextField, DateTimeField
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import ugettext_lazy as _, ugettext
 from django.utils.formats import date_format
 
 from creme_core.models import CremeEntity, FunctionField
 from creme_core.templatetags.creme_date import timedelta_pprint
+from creme_core.utils import truncate_str
 
 from status import Status, CLOSED_PK
 from priority import Priority
 from criticity import Criticity
 
+MAXINT = 100000
 
 class _ResolvingDurationField(FunctionField):
     name         = "get_resolving_duration"
@@ -51,6 +54,13 @@ class AbstractTicket(CremeEntity):
 
     def __unicode__(self):
         return self.title
+
+    def _pre_save_clone(self, source):
+        max_length = self._meta.get_field('title').max_length
+        self.title = truncate_str(source.title, max_length, suffix=' (%s %08x)' % (ugettext(u"Copy"), randint(0, MAXINT)))
+
+        while self._default_manager.filter(title=self.title).exists():
+            self._pre_save_clone(source)
 
 
 class Ticket(AbstractTicket):
@@ -78,6 +88,11 @@ class Ticket(AbstractTicket):
             return  timedelta_pprint(self.closing_date - self.created)
 
         return ''
+
+    def _pre_save_clone(self, source):
+        super(Ticket, self)._pre_save_clone(source)
+        if self.status_id == CLOSED_PK:
+            self.closing_date = self.created = self.modified = datetime.now()
 
 
 class TicketTemplate(AbstractTicket):
