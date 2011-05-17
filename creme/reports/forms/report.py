@@ -17,12 +17,11 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
-
+from datetime import datetime
 from collections import defaultdict
 
 from itertools import chain
 from django.db.models.query_utils import Q
-from django.forms import DateField
 from django.forms.fields import MultipleChoiceField, ChoiceField
 from django.forms import ValidationError
 from django.utils.translation import ugettext_lazy as _, ugettext
@@ -30,14 +29,13 @@ from django.contrib.contenttypes.models import ContentType
 
 from creme_core.registry import creme_registry
 from creme_core.forms import CremeEntityForm, CremeForm
-from creme_core.forms.widgets import OrderedMultipleChoiceWidget, ListViewWidget, CalendarWidget, DateFilterWidget
-from creme_core.forms.fields import AjaxMultipleChoiceField, AjaxModelChoiceField, CremeEntityField, AjaxChoiceField
+from creme_core.forms.widgets import OrderedMultipleChoiceWidget, ListViewWidget
+from creme_core.forms.fields import AjaxMultipleChoiceField, AjaxModelChoiceField, CremeEntityField, DateRangeField
 #from creme_core.models import Filter, RelationType, CustomField
 from creme_core.models import EntityFilter, RelationType, CustomField
 from creme_core.models.header_filter import HeaderFilter, HeaderFilterItem, HFI_FIELD, HFI_RELATION, HFI_CUSTOM, HFI_FUNCTION, HFI_CALCULATED
 from creme_core.utils.meta import (get_verbose_field_name, get_function_field_verbose_name, get_flds_with_fk_flds_str, get_flds_with_fk_flds,
                                    get_date_fields)
-from creme_core.date_filters_registry import date_filters_registry
 
 from reports.models import Report, Field
 from reports.report_aggregation_registry import field_aggregation_registry
@@ -388,30 +386,26 @@ class AddFieldToReportForm(CremeForm):
 
 
 class DateReportFilterForm(CremeForm):
-    date_fields  = ChoiceField(label=_(u'Fields'), required=True, choices=())
-    filters      = AjaxChoiceField(label=_(u'Filter'), required=False, choices=(), widget=DateFilterWidget)
-    begin_date   = DateField(label=_(u'Begin date'), required=True, widget=CalendarWidget())
-    end_date     = DateField(label=_(u'End date'), required=True, widget=CalendarWidget())
+    date_fields = ChoiceField(label=_(u'Date fields'), required=True, choices=())
+    date_filter = DateRangeField(label=_(u'Date filters'))
 
     def __init__(self, report, *args, **kwargs):
         super(DateReportFilterForm, self).__init__(*args, **kwargs)
         self.report = report
         fields = self.fields
         fields['date_fields'].choices = [(field.name, field.verbose_name) for field in get_date_fields(report.ct.model_class())]
-#        fields['filters'].choices = [(r.name, r.verbose_name) for r in date_filters_registry.itervalues()]
-        fields['filters'].choices = date_filters_registry.itervalues()
-        fields['filters'].widget.attrs.update({'id': 'id_filters', 'start_date_id': 'id_begin_date', 'end_date_id': 'id_end_date'})
-
-    def save(self):
-        return self.cleaned_data
-
-    def get_q(self):
+        
+    def get_q_dict(self):
         cleaned_data = self.cleaned_data
-
         if cleaned_data:
-            get_data = cleaned_data.get
-            q = Q(**{str("%s__range" % get_data('date_fields')): (get_data('begin_date'), get_data('end_date'))})
-        else:
-            q = Q()
+            return cleaned_data['date_filter'].get_q_dict(cleaned_data['date_fields'], datetime.now())
+        return None
 
-        return q
+    def get_dates(self):
+        cleaned_data = self.cleaned_data
+        if cleaned_data:
+            return cleaned_data['date_filter'].get_dates(datetime.now())
+        return None, None
+
+    def save(self, *args, **kwargs):#TODO: Useful ?
+        return self.cleaned_data
