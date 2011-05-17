@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2011  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,6 +18,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from itertools import chain
+
 from django.db.models import ForeignKey, ManyToManyField, PositiveIntegerField
 from django.utils.translation import ugettext_lazy as _
 
@@ -32,7 +34,7 @@ from taskstatus import TaskStatus
 class ProjectTask(Activity):
     project      = ForeignKey(Project, verbose_name=_(u'Project'), related_name='tasks_set')
     order        = PositiveIntegerField(_(u'Order'), blank=True, null=True)
-    parents_task = ManyToManyField("self", blank=True, null=True, symmetrical=False)
+    parents_task = ManyToManyField("self", blank=True, null=True, symmetrical=False, related_name='children_set') #TODO: rename parent_tasks
     duration     = PositiveIntegerField(_(u'Estimated duration (in hours)'), blank=False, null=False)
     tstatus      = ForeignKey(TaskStatus, verbose_name=_(u'Status'))
 
@@ -72,6 +74,19 @@ class ProjectTask(Activity):
         if self.parents is None:
             self.parents = self.parents_task.all()
         return self.parents
+
+    def get_subtasks(self): #store result in a cache ?
+        """Return all the subtasks in a list.
+        Subtasks include the task itself, all its children, the children of its children etc...
+        """
+        subtasks = level_tasks = [self]
+
+        #TODO: it would be cool if the django ORM allows us to write optimized queries for M2M ....
+        while level_tasks:
+            level_tasks = list(chain.from_iterable(task.children_set.all() for task in level_tasks))
+            subtasks.extend(level_tasks)
+
+        return subtasks
 
     def get_resources(self):
         if self.resources is None:

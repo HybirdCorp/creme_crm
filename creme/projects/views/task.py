@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2011  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -24,11 +24,11 @@ from django.template import RequestContext
 from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required, permission_required
 
-from creme_core.views.generic import add_to_entity, view_entity, edit_entity
+from creme_core.views.generic import add_to_entity, view_entity, edit_entity, edit_model_with_popup
 from creme_core.utils import get_from_POST_or_404
 
 from projects.models import Project, ProjectTask
-from projects.forms.task import TaskCreateForm, TaskEditForm
+from projects.forms.task import TaskCreateForm, TaskEditForm, TaskAddParentForm
 
 
 @login_required
@@ -49,8 +49,16 @@ def edit(request, task_id):
 
 @login_required
 @permission_required('projects')
-def delete(request, task_id=None):
-    task = get_object_or_404(ProjectTask, pk=request.POST.get('id', task_id))
+def add_parent(request, task_id):
+    #return edit_entity(request, task_id, ProjectTask, TaskAddParentForm)
+    return edit_model_with_popup(request, {'pk': task_id}, ProjectTask, TaskAddParentForm,
+                                 can_change=ProjectTask.can_change
+                                ) #TODO: edit_entity_with_popup ???
+
+@login_required
+@permission_required('projects')
+def delete(request):
+    task = get_object_or_404(ProjectTask, pk=request.POST.get('id'))
     project = task.project
     user = request.user
 

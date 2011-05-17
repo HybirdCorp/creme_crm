@@ -26,8 +26,6 @@ from creme_core.gui.block import Block, QuerysetBlock
 from projects.models import ProjectTask, Resource, WorkingPeriod
 
 
-__all__ = ('project_extra_info', 'task_extra_info', 'tasks_block', 'resources_block', 'working_periods_block')
-
 class ProjectExtraInfo(Block):
     id_           = Block.generate_id('projects', 'project_extra_info')
     dependencies  = (ProjectTask,)
@@ -46,6 +44,24 @@ class TaskExtraInfo(Block):
 
     def detailview_display(self, context):
         return self._render(self.get_block_template_context(context)) #TODO: move to Block.detailview_display() ??
+
+
+class ParentTasksBlock(QuerysetBlock):
+    id_           = QuerysetBlock.generate_id('projects', 'parent_tasks')
+    dependencies  = (ProjectTask,)
+    verbose_name  = u'Parents of a Task'
+    template_name = 'projects/templatetags/block_parent_tasks.html'
+
+    def detailview_display(self, context):
+        task = context['object']
+        btc = self.get_block_template_context(context,
+                                              task.parents_task.all(),
+                                              update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, task.pk),
+                                             )
+
+        CremeEntity.populate_credentials(btc['page'].object_list, context['user'])
+
+        return self._render(btc)
 
 
 class ProjectTaskBlock(QuerysetBlock):
@@ -100,8 +116,11 @@ class WorkingPeriodTaskBlock(QuerysetBlock):
                                                             update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, task.pk),
                                                             ))
 
-project_extra_info    = ProjectExtraInfo()
-task_extra_info       = TaskExtraInfo()
-tasks_block           = ProjectTaskBlock()
-resources_block       = ResourceTaskBlock()
-working_periods_block = WorkingPeriodTaskBlock()
+block_list = [
+        ProjectExtraInfo(),
+        TaskExtraInfo(),
+        ProjectTaskBlock(),
+        ResourceTaskBlock(),
+        WorkingPeriodTaskBlock(),
+        ParentTasksBlock(),
+    ]

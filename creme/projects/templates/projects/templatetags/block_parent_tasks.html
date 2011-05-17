@@ -1,0 +1,34 @@
+{% load i18n %}
+{% load creme_core_tags %}{% load creme_block %}{% load creme_widgets %}
+{% has_perm_to change object as has_perm %}
+<table class="table_detail_view ui-corner-all" id={{block_name}}>
+    {% get_block_header colspan=8 %}
+        <th style="width: 80%;" class="collapser" align="left">{% get_block_title  _('%s Parent Task') _('%s Parent Tasks') 'task_48.png' _('Tasks') %}</th>
+        <th style="width: 20%;" align="right">
+            <div class="buttons">
+                {% get_line_linker at_url '/projects/task/{{object.id}}/parent/add' with_label _("Add parent tasks") with_perms has_perm %}
+            </div>
+        </th>
+    {% end_get_block_header %}
+    <tbody class="collapsable">
+        {% if page.paginator.count %}
+            <tr>
+                <th class="block_header_line_dark">{% trans "Name" %}</th>
+                <th class="block_header_line_dark">{% trans "Unlink" %}</th>
+            </tr>
+            {% for task in page.object_list %}<!-- {% cycle "block_line_dark" "block_line_light" as row_color %} -->
+                <tr>
+                    <td class="{{row_color}}">{% widget_entity_hyperlink task user %}</td>
+                    <td class="{{row_color}}" align="center" valign="center" style="width:10%;">
+                        {% get_line_unlinker at_url '/projects/task/parent/delete' with_args "{'id': {{object.pk}}, 'parent_id': {{task.pk}} }" with_perms has_perm %}
+                    </td>
+                </tr>
+            {% endfor %}
+        {% else %}
+            <tr>
+                <td class="block_line_dark">{% trans "No parent task for the moment" %}</td>
+            </tr>
+        {% endif %}
+    </tbody>
+    {% include 'creme_core/templatetags/widgets/block_footer.html' %}
+</table>
