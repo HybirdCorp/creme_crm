@@ -21,7 +21,7 @@
                     </a>&nbsp;
 
                     {% if form.cleaned_data %}
-                        <a href="/reports/report/{{object.id}}/csv?field={{form.cleaned_data.date_fields}}&start={{form.cleaned_data.begin_date|to_timestamp}}&end={{form.cleaned_data.end_date|to_timestamp}}">
+                        <a href="/reports/report/{{object.id}}/csv?field={{form.cleaned_data.date_fields}}&range_name={{ form.cleaned_data.date_filter.name }}{% if start %}&start={{start|to_timestamp}}{% endif %}{% if end %}&end={{end|to_timestamp}}{% endif %}">
                     {% else %}
                         <a href="/reports/report/{{object.id}}/csv">
                     {% endif %}

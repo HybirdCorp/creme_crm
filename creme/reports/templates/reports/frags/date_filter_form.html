@@ -6,7 +6,7 @@
         {% if simple_redirect %}
             creme.utils.go_to("/reports/report/{{report_id}}/csv", false);
         {% else %}
-            creme.utils.go_to("/reports/report/{{report_id}}/csv?field={{form.cleaned_data.date_fields}}&start={{form.cleaned_data.begin_date|to_timestamp}}&end={{form.cleaned_data.end_date|to_timestamp}}", false);
+            creme.utils.go_to("/reports/report/{{report_id}}/csv?field={{form.cleaned_data.date_fields}}&range_name={{ form.cleaned_data.date_filter.name }}{% if start %}&start={{start|to_timestamp}}{% endif %}{% if end %}&end={{end|to_timestamp}}{% endif %}", false);
         {% endif %}
     </script>
 {% endif %}
@@ -18,11 +18,16 @@
             </tr>
         </thead>
         <tbody>
+            {% if form.non_field_errors %}
+                <tr>
+                    <td>{{form.non_field_errors}}</td>
+                </tr>
+            {% endif %}
             <tr>
                 <td>{{form.date_fields.label}}</td>
-                <td>{{form.filters.label}}</td>
-                <td>{{form.begin_date.label}}</td>
-                <td>{{form.end_date.label}}</td>
+                <td>{{form.date_filter.label}}</td>
+{#                <td>{{form.begin_date.label}}</td>#}
+{#                <td>{{form.end_date.label}}</td>#}
                 {% if not inner_popup %}
                     <td rowspan="2">
                         <button type="submit">{% trans 'Generate' %}</button>
@@ -30,10 +35,10 @@
                 {% endif %}
             </tr>
             <tr>
-                <td>{{form.date_fields}}</td>
-                <td>{{form.filters}}</td>
-                <td>{{form.begin_date}}</td>
-                <td>{{form.end_date}}</td>
+                <td>{{form.date_fields.errors}} {{form.date_fields}}</td>
+                <td>{{form.date_filter.errors}} {{form.date_filter}}</td>
+{#                <td>{{form.begin_date}}</td>#}
+{#                <td>{{form.end_date}}</td>#}
             </tr>
         </tbody>
     </table>
