@@ -165,6 +165,53 @@ class ProjectsTestCase(CremeTestCase):
 
         self.assertEqual(180 + 50, project.get_expected_duration())
 
+    def test_task_createview02(self):
+        self.login()
+
+        project  = self.create_project('Eva01')[0]
+        task     = self.create_task(project, 'legs')
+
+        project2  = self.create_project('Eva02')[0]
+        task2     = self.create_task(project2, 'legs')
+
+        response = self.client.post('/projects/project/%s/task/add' % project.id, follow=True,
+                                    data={
+                                        'user':     self.user.id,
+                                        'title':    'head',
+                                        'start':    '2010-10-11',
+                                        'end':      '2010-10-30',
+                                        'duration': 50,
+                                        'tstatus':   TaskStatus.objects.all()[0].id,
+                                        'parents_task': [task2.id]
+                                    })
+        self.assertEqual(200, response.status_code)
+        self.failIf(not response.context['form'].errors)
+
+    def test_task_editview01(self):
+        self.login()
+
+        project  = self.create_project('Eva01')[0]
+        task     = self.create_task(project, 'legs')
+
+        project2  = self.create_project('Eva02')[0]
+        task2     = self.create_task(project2, 'legs')
+
+        response = self.client.get('/projects/task/edit/%s' % task.id)
+        self.assertEqual(200, response.status_code)
+
+        response = self.client.post('/projects/task/edit/%s' % task.id, follow=True,
+                                    data={
+                                        'user':     self.user.id,
+                                        'title':    'head',
+                                        'start':    '2010-10-11',
+                                        'end':      '2010-10-30',
+                                        'duration': 50,
+                                        'tstatus':   TaskStatus.objects.all()[0].id,
+                                        'parents_task': [task2.id]
+                                    })
+        self.assertEqual(200, response.status_code)
+        self.failIf(not response.context['form'].errors)
+
     def create_task(self, project, title):
         response = self.client.post('/projects/project/%s/task/add' % project.id, follow=True,
                                     data={

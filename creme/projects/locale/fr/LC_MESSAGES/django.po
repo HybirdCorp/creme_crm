@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-05-16 11:02+0200\n"
+"POT-Creation-Date: 2011-05-17 12:23+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -223,9 +223,23 @@ msgstr "Fin"
 msgid "Parent tasks"
 msgstr "Tâche(s) parente(s)"
 
-#: forms/task.py:48
+#: forms/task.py:58
 msgid "A task can't be its own parent"
 msgstr "Une tâche ne peut pas être parente d'elle même"
+
+#: forms/task.py:61
+#, python-format
+msgid ""
+"Parent tasks have to be in the same project. «%s» doesn't belong to the same "
+"project."
+msgstr ""
+"Les tâches parents doivent être dans le même projet. «%s» n'appartient pas "
+"au même projet."
+
+#: forms/task.py:64
+#, python-format
+msgid "«%s» is an indirect child of this task."
+msgstr "«%s» est un enfant indirect de cette tâche"
 
 #: forms/workingperiod.py:33
 msgid "Resources allocated to this task"
@@ -406,6 +420,7 @@ msgstr ""
 "Vous ne pouvez pas ajouter de ressources car cette tâche est %(status)s"
 
 #: templates/projects/templatetags/block_resources.html:27
+#: templates/projects/templatetags/block_tasks.html:22
 #: templates/projects/templatetags/block_working_periods.html:29
 msgid "Actions"
 msgstr "Actions"
@@ -432,7 +447,6 @@ msgid "Parent task(s)"
 msgstr "Tâche(s) parente(s)"
 
 #: templates/projects/templatetags/block_task_extra_info.html:27
-#: templates/projects/templatetags/block_tasks.html:22
 msgid "Delete"
 msgstr "Supprimer"
 
@@ -474,7 +488,7 @@ msgstr "Coût"
 msgid "No parent task"
 msgstr "Aucune tâche parente"
 
-#: templates/projects/templatetags/block_tasks.html:57
+#: templates/projects/templatetags/block_tasks.html:63
 msgid "No task in this project for the moment"
 msgstr "Aucune tâche dans ce projet pour le moment"
 
@@ -528,7 +542,7 @@ msgstr "Affectation d'une nouvelle ressource"
 msgid "Edition of a resource"
 msgstr "Édition d'une ressource"
 
-#: views/task.py:38
+#: views/task.py:39
 #, python-format
 msgid "Add a task to <%s>"
 msgstr "Ajouter une tâche à <%s>"
