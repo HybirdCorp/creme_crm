@@ -26,6 +26,7 @@ from django.contrib.auth.decorators import login_required, permission_required
 
 from creme_core.views.generic import add_to_entity, view_entity, edit_entity
 from creme_core.utils import get_from_POST_or_404
+from creme_core.views.generic.edit import edit_model_with_popup
 
 from projects.models import Project, ProjectTask
 from projects.forms.task import TaskCreateForm, TaskEditForm
@@ -46,6 +47,11 @@ def detailview(request, object_id):
 @permission_required('projects')
 def edit(request, task_id):
     return edit_entity(request, task_id, ProjectTask, TaskEditForm)
+
+@login_required
+@permission_required('projects')
+def edit_popup(request, task_id):#TODO: Merge with edit ?
+    return edit_model_with_popup(request, {'pk': task_id}, ProjectTask, TaskEditForm)
 
 @login_required
 @permission_required('projects')

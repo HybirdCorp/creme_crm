@@ -34,6 +34,11 @@ class TaskEditForm(CremeEntityForm):
     end          = DateTimeField(label=_(u'End'), widget=DateTimeWidget(), required=True)
     parents_task = MultiCremeEntityField(label=_(u'Parent tasks'), required=False, model=ProjectTask)
 
+    def __init__(self, *args, **kwargs):
+        super(TaskEditForm, self).__init__(*args, **kwargs)
+        self._project_id = self.instance.project_id
+        self._set_parent_task_q()
+
     class Meta:
         model = ProjectTask
         exclude = CremeEntityForm.Meta.exclude + ('is_all_day', 'type', 'project', 'order', 'status')
@@ -42,18 +47,42 @@ class TaskEditForm(CremeEntityForm):
         parents  = self.cleaned_data['parents_task']
         instance = self.instance
 
+        project_id = self._project_id
+        children_ids = []
+        if instance.pk is not None:
+            children_ids = instance.get_children_ids()
+
         #TODO: use a q_filter to avoid selecting itself; check true cycle
         for parent in parents:
             if parent == instance:
                 raise ValidationError(ugettext(u"A task can't be its own parent"))
 
+            if parent.project_id != project_id:
+                raise ValidationError(ugettext(u"Parent tasks have to be in the same project. «%s» doesn't belong to the same project.") % parent)
+
+            if parent.id in children_ids:
+                raise ValidationError(ugettext(u"«%s» is an indirect child of this task.") % parent)
+
         return parents
 
+    def _set_parent_task_q(self):
+        pk = self.instance.pk
+        children_ids = [pk]
+        
+        if pk is not None:
+            children_ids.extend(self.instance.get_children_ids())
 
+        #NB: Don't exclude current parent tasks, because if the user 'unselected' it without saving,
+        #    he couldn't select it again without closing & re-opening the form
+        self.fields['parents_task'].q_filter = {'project':self._project_id, '~id__in': children_ids, '~parents_task__id':pk}
+
+        
 class TaskCreateForm(TaskEditForm):
     def __init__(self, entity, *args, **kwargs):
         super(TaskCreateForm, self).__init__(*args, **kwargs)
-        self._project = entity
+        self._project    = entity
+        self._project_id = entity.id
+        self._set_parent_task_q()
 
     def save(self, *args, **kwargs):
         instance = self.instance

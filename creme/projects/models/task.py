@@ -73,6 +73,17 @@ class ProjectTask(Activity):
             self.parents = self.parents_task.all()
         return self.parents
 
+    def get_children_ids(self):
+        children = []
+        children_append = children.append
+        children_extend = children.extend
+
+        for child in self.projecttask_set.all():#TODO: Extract in get_children ?
+            children_append(child.id)
+            children_extend(child.projecttask_set.all().values_list('pk', flat=True))
+
+        return set(children)
+
     def get_resources(self):
         if self.resources is None:
             self.resources = self.resources_set.all()

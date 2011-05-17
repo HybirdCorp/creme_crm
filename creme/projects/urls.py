@@ -19,6 +19,7 @@ urlpatterns = patterns('projects.views',
     (r'^task/delete$',                         'task.delete'),
     (r'^task/(?P<object_id>\d+)$',             'task.detailview'),
     (r'^task/edit/(?P<task_id>\d+)$',          'task.edit'),
+    (r'^task/edit/(?P<task_id>\d+)/popup$',    'task.edit_popup'),#TODO: Merge with edit ?
     (r'^task/parent/delete$',                  'task.delete_parent'),
 
     #Task: Resource block
