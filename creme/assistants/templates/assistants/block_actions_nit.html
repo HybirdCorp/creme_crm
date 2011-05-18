@@ -12,7 +12,7 @@
                     <th class="block_header_line_dark">{% trans "Concerned entity" %}</th>
                 {% endif %}
                 {% get_column_header _('Description') 'description' %}
-                {% get_column_header _('User') 'for_user' %}
+                {% get_column_header _('User') 'user' %}
                 {% get_column_header _('Creation') 'creation_date' %}
                 {% get_column_header _('Expected action') 'expected_reaction' %}
                 {% get_column_header _('Deadline') 'deadline' %}
@@ -26,7 +26,7 @@
                         <td class="{{row_color}}">{% widget_entity_hyperlink action.creme_entity user %}</td>
                     {% endif %}
                     <td class="{{row_color}}">{{action|get_html_field_value:"description"}}</td>
-                    <td class="{{row_color}}">{{action|get_html_field_value:"for_user"}}</td>
+                    <td class="{{row_color}}">{{action|get_html_field_value:"user"}}</td>
                     <td class="{{row_color}}">{{action|get_html_field_value:"creation_date"}}</td>
                     <td class="{{row_color}}">{{action|get_html_field_value:"expected_reaction"}}</td>
                     <td class="{{row_color}}">{{action|get_html_field_value:"deadline"}}</td>

@@ -235,9 +235,10 @@ class AlertTestCase(AssistantsTestCase):
         self.assertEqual(1, len(alerts))
 
         alert = alerts[0]
-        self.assertEqual(title,       alert.title)
-        self.assertEqual(description, alert.description)
-        self.assertEqual(False,       alert.is_validated)
+        self.assertEqual(title,        alert.title)
+        self.assertEqual(description,  alert.description)
+        self.assertEqual(False,        alert.is_validated)
+        self.assertEqual(self.user.id, alert.user.id)
 
         self.assertEqual(self.entity.id,             alert.entity_id)
         self.assertEqual(self.entity.entity_type_id, alert.entity_content_type_id)
@@ -645,10 +646,11 @@ class ActionTestCase(AssistantsTestCase):
         self.assertEqual(title,        action.title)
         self.assertEqual(descr,        action.description)
         self.assertEqual(reaction,     action.expected_reaction)
-        self.assertEqual(self.user.id, action.for_user_id)
+        self.assertEqual(self.user.id, action.user.id)
 
         self.assertEqual(self.entity.entity_type_id, action.entity_content_type_id)
         self.assertEqual(self.entity.id,             action.entity_id)
+        self.assertEqual(self.entity.id,             action.creme_entity.id)
 
         self.assert_((datetime.now() - action.creation_date).seconds < 10)
 

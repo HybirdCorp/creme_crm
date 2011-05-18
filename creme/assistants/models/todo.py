@@ -33,12 +33,12 @@ class ToDo(CremeModel):
     is_ok         = BooleanField(_("Done ?"), editable=False)
     has_deadline  = BooleanField(editable=False) #TODO: useful ??? (deadline can be NULL)
     description   = TextField(_(u'Description'), blank=True, null=True)
-    creation_date = DateTimeField(_(u'Creation date'))
+    creation_date = DateTimeField(_(u'Creation date'), editable=False)
     deadline      = DateTimeField(_(u"Deadline"), blank=True, null=True)
-    for_user      = ForeignKey(User, verbose_name=_(u'Assigned to'), related_name='user_todo_assigned_set')
+    user          = ForeignKey(User, verbose_name=_(u'Assigned to'))
 
-    entity_content_type = ForeignKey(ContentType, related_name="todo_entity_set")
-    entity_id           = PositiveIntegerField()
+    entity_content_type = ForeignKey(ContentType, related_name="todo_entity_set", editable=False)
+    entity_id           = PositiveIntegerField(editable=False)
     creme_entity        = GenericForeignKey(ct_field="entity_content_type", fk_field="entity_id")
 
     class Meta:
@@ -57,15 +57,15 @@ class ToDo(CremeModel):
 
     @staticmethod
     def get_todos(entity):
-        return ToDo.objects.filter(entity_id=entity.id).select_related('for_user')
+        return ToDo.objects.filter(entity_id=entity.id).select_related('user')
 
     @staticmethod
     def get_todos_for_home(user):
-        return ToDo.objects.filter(for_user=user).select_related('for_user')
+        return ToDo.objects.filter(user=user).select_related('user')
 
     @staticmethod
     def get_todos_for_ctypes(ct_ids, user):
-        return ToDo.objects.filter(entity_content_type__in=ct_ids, for_user=user).select_related('for_user')
+        return ToDo.objects.filter(entity_content_type__in=ct_ids, user=user).select_related('user')
 
     def get_related_entity(self): #for generic views
         return self.creme_entity

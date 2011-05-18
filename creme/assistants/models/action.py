@@ -32,16 +32,16 @@ class Action(CremeModel):
     title               = CharField(_(u'Title'), max_length=200)
     is_ok               = BooleanField(_('Expected reaction has been done'), editable=False)
     description         = TextField(_(u'Source action'), blank=True, null=True)
-    creation_date       = DateTimeField(_(u'Creation date'))
+    creation_date       = DateTimeField(_(u'Creation date'), editable=False)
     expected_reaction   = TextField(_(u'Target action'), blank=True, null=True)
     deadline            = DateTimeField(_(u"Deadline"))
-    validation_date     = DateTimeField(_(u'Validation date'), blank=True, null=True)
+    validation_date     = DateTimeField(_(u'Validation date'), blank=True, null=True, editable=False)
 
-    entity_content_type = ForeignKey(ContentType, related_name="action_entity_set")
-    entity_id           = PositiveIntegerField()
+    entity_content_type = ForeignKey(ContentType, related_name="action_entity_set", editable=False)
+    entity_id           = PositiveIntegerField(editable=False)
     creme_entity        = GenericForeignKey(ct_field="entity_content_type", fk_field="entity_id")
 
-    for_user            = ForeignKey(User, verbose_name=_(u'Assigned to'), related_name='user_action_assigned_set')
+    user                = ForeignKey(User, verbose_name=_(u'Assigned to'))
 
     class Meta:
         app_label = 'assistants'
@@ -57,32 +57,32 @@ class Action(CremeModel):
     @staticmethod
     def get_actions_it(entity, today):
         return Action.objects.filter(entity_id=entity.id, is_ok=False, deadline__gt=today) \
-                             .select_related('for_user')
+                             .select_related('user')
 
     @staticmethod
     def get_actions_nit(entity, today):
         return Action.objects.filter(entity_id=entity.id, is_ok=False, deadline__lte=today) \
-                             .select_related('for_user')
+                             .select_related('user')
 
     @staticmethod
     def get_actions_it_for_home(user, today):
-        return Action.objects.filter(is_ok=False, deadline__gt=today, for_user=user) \
-                             .select_related('for_user')
+        return Action.objects.filter(is_ok=False, deadline__gt=today, user=user) \
+                             .select_related('user')
 
     @staticmethod
     def get_actions_nit_for_home(user, today):
-        return Action.objects.filter(is_ok=False, deadline__lte=today, for_user=user) \
-                             .select_related('for_user')
+        return Action.objects.filter(is_ok=False, deadline__lte=today, user=user) \
+                             .select_related('user')
 
     @staticmethod
     def get_actions_it_for_ctypes(ct_ids, user, today):
-        return Action.objects.filter(entity_content_type__in=ct_ids, for_user=user, is_ok=False, deadline__gt=today) \
-                             .select_related('for_user')
+        return Action.objects.filter(entity_content_type__in=ct_ids, user=user, is_ok=False, deadline__gt=today) \
+                             .select_related('user')
 
     @staticmethod
     def get_actions_nit_for_ctypes(ct_ids, user, today):
-        return Action.objects.filter(entity_content_type__in=ct_ids, for_user=user, is_ok=False, deadline__lte=today) \
-                             .select_related('for_user')
+        return Action.objects.filter(entity_content_type__in=ct_ids, user=user, is_ok=False, deadline__lte=today) \
+                             .select_related('user')
 
     def get_related_entity(self): #for generic views
         return self.creme_entity

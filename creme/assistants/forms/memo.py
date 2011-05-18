@@ -28,22 +28,17 @@ from assistants.models import Memo
 class MemoEditForm(CremeModelWithUserForm):
     class Meta:
         model = Memo
-        exclude = ('creation_date', 'entity_content_type', 'entity_id')
 
     def __init__(self, entity, *args, **kwargs):
         super(MemoEditForm, self).__init__(*args, **kwargs)
         self.entity = entity
 
     def save (self, *args, **kwargs):
-        instance = self.instance
-        instance.creme_entity = self.entity
-        instance.user = self.cleaned_data['user']
-
+        self.instance.creme_entity = self.entity
         return super(MemoEditForm, self).save(*args, **kwargs)
 
 
 class MemoCreateForm(MemoEditForm):
     def save(self, *args, **kwargs):
         self.instance.creation_date = datetime.now()
-
         return super(MemoCreateForm, self).save(*args, **kwargs)

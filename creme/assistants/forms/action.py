@@ -33,7 +33,6 @@ class ActionEditForm(CremeModelWithUserForm):
 
     class Meta:
         model = Action
-        exclude = ('entity_content_type', 'creation_date', 'validation_date', 'entity_id', 'for_user')
 
     def __init__(self, entity, *args, **kwargs):
         super(ActionEditForm, self).__init__(*args, **kwargs)
@@ -55,15 +54,11 @@ class ActionEditForm(CremeModelWithUserForm):
         return cleaned_data
 
     def save (self, *args, **kwargs):
-        instance = self.instance
-        instance.creme_entity = self.entity
-        instance.for_user     = self.cleaned_data['user']
-
+        self.instance.creme_entity = self.entity
         return super(ActionEditForm, self).save(*args, **kwargs)
 
 
 class ActionCreateForm(ActionEditForm):
     def save (self, *args, **kwargs):
         self.instance.creation_date = datetime.today()
-
         return super(ActionCreateForm, self).save(*args, **kwargs)
