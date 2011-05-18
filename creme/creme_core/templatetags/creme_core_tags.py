@@ -24,6 +24,8 @@ from logging import debug
 
 from django import template
 from django.contrib.contenttypes.models import ContentType
+from django.template.defaultfilters import escape
+from django.utils.safestring import mark_safe
 
 from creme_core.gui.field_printers import field_printers_registry
 from creme_core.utils.meta import get_verbose_field_name
