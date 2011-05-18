@@ -45,7 +45,7 @@ class ReportGraphAddForm(CremeEntityForm):
     aggregates        = ChoiceField(label=_(u'Ordinate aggregate'), choices=[(aggregate.name, aggregate.title) for aggregate in field_aggregation_registry.itervalues()])
     aggregates_fields = ChoiceField(label=_(u'Ordinate aggregate field'), choices=())
 
-    abscissa_fields   = ChoiceField(label=_(u'Abscissa field'), choices=(), widget=DependentSelect(target_id='id_abscissa_group_by', target_url='/reports/graph/get_available_types/'))
+    abscissa_fields   = ChoiceField(label=_(u'Abscissa field'), choices=(), widget=DependentSelect(target_id='id_abscissa_group_by'))#DependentSelect is kept until *Selector widgets accept optgroup
     abscissa_group_by = AjaxChoiceField(label=_(u'Abscissa : Group by'), choices=(), widget=Select(attrs={'id': 'id_abscissa_group_by'}))
 
     is_count = BooleanField(label=_(u'Entities count'), help_text=_(u'Make a count instead of aggregate ?'), required=False, widget=CheckboxInput(attrs={'onchange': "creme.reports.graphs.toggleDisableOthers(this, ['#id_aggregates', '#id_aggregates_fields']);"}))
@@ -66,7 +66,7 @@ class ReportGraphAddForm(CremeEntityForm):
         model = report_ct.model_class()
 
         fields = self.fields
-        
+
         fields['report_lbl'].initial = unicode(entity)
         aggregates_fields = fields['aggregates_fields']
         abscissa_fields   = fields['abscissa_fields']
@@ -81,16 +81,16 @@ class ReportGraphAddForm(CremeEntityForm):
         abscissa_predicates     = [(rtype.id, rtype.predicate) for rtype in RelationType.get_compatible_ones(report_ct).order_by('predicate')]#Relation type as abscissa
         abscissa_model_fields   = [(f.name, unicode(f.verbose_name)) for f in get_flds_with_fk_flds(model, deep=0) if isinstance(f, AUTHORIZED_ABSCISSA_TYPES)]#One field of the model as abscissa
         abscissa_model_fields.sort(key=lambda x: x[1])
-        
+
         abscissa_fields.choices = ((_(u"Fields"), abscissa_model_fields), (_(u"Relations"), abscissa_predicates))
 
-        abscissa_fields.widget.target_url += str(report_ct.id) #Bof but when DependentSelect will be refactored improve here too
+        abscissa_fields.widget.target_url = target_url='/reports/graph/get_available_types/%s' % str(report_ct.id) #Bof
 
         data = self.data
 
         if data:
-            abscissa_fields.widget.set_source(data.get('abscissa_fields'))
-            abscissa_fields.widget.set_target(data.get('abscissa_group_by'))
+            abscissa_fields.widget.source_val = data.get('abscissa_fields')
+            abscissa_fields.widget.target_val = data.get('abscissa_group_by')
 
         instance = self.instance
         if (instance.pk is not None) and not data:
@@ -98,9 +98,9 @@ class ReportGraphAddForm(CremeEntityForm):
             fields['aggregates'].initial = aggregate
             aggregates_fields.initial    = ordinate
             abscissa_fields.initial      = instance.abscissa
-            
-            abscissa_fields.widget.set_source(instance.abscissa)
-            abscissa_fields.widget.set_target(instance.type)
+
+            abscissa_fields.widget.source_val = instance.abscissa
+            abscissa_fields.widget.target_val = instance.type
 
     def clean(self):
         cleaned_data = self.cleaned_data
