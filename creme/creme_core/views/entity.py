@@ -18,29 +18,23 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.contrib.contenttypes.models import ContentType
-from django.db.models import ForeignKey
+from django.db.models import Q, FieldDoesNotExist, ForeignKey
+from django.http import HttpResponse, HttpResponseRedirect, Http404
 from django.shortcuts import get_object_or_404, get_list_or_404
-from django.forms.models import modelform_factory
 from django.core import serializers
+from django.forms.models import modelform_factory
 from django.template.context import RequestContext
 from django.utils.translation import ugettext as _
-from django.contrib.auth.decorators import login_required
-from django.http import HttpResponse, Http404, HttpResponseRedirect
 from django.utils.simplejson import JSONEncoder
+from django.contrib.contenttypes.models import ContentType
+from django.contrib.auth.decorators import login_required
 
-
-from creme_core.models import CremeEntity
-from creme_core.models.custom_field import CustomField
-
-from creme_core.forms.bulk import _get_choices, EntitiesBulkUpdateForm
+from creme_core.models import CremeEntity, CustomField, EntityCredentials
 from creme_core.forms import CremeEntityForm
-from creme_core.forms.bulk import _FIELDS_WIDGETS
-
-from creme_core.utils.meta import get_flds_with_fk_flds_str
-from creme_core.utils import get_ct_or_404, get_from_POST_or_404, jsonify
+from creme_core.forms.bulk import _get_choices, EntitiesBulkUpdateForm, _FIELDS_WIDGETS
 from creme_core.views.generic.popup import inner_popup
-
+from creme_core.utils import get_ct_or_404, get_from_POST_or_404, get_from_GET_or_404, jsonify
+from creme_core.utils.meta import get_flds_with_fk_flds_str
 
 
 @login_required
@@ -228,3 +222,49 @@ def clone(request):
     new_entity = entity.clone()
 
     return HttpResponseRedirect(new_entity.get_absolute_url())
+
+@login_required
+def search_and_view(request):
+    GET = request.GET
+    model_ids = get_from_GET_or_404(GET, 'models').split(',')
+    fields    = get_from_GET_or_404(GET, 'fields').split(',')
+    value     = get_from_GET_or_404(GET, 'value')
+
+    if not value: #avoid useless queries
+        raise Http404(u'Void "value" arg')
+
+    #TODO: creds.... (use apps creds too)
+
+    models = []
+    for model_id in model_ids:
+        try:
+            model = ContentType.objects.get_by_natural_key(*model_id.split('-')).model_class()
+        except (ContentType.DoesNotExist, TypeError):
+            raise Http404(u'These model does not exist: %s' % model_id)
+
+        if issubclass(model, CremeEntity):
+            models.append(model)
+
+    if not models:
+        raise Http404(u'No valid models')
+
+    user = request.user
+
+    for model in models:
+        query = Q()
+
+        for field in fields:
+            try:
+                model._meta.get_field_by_name(field)
+            except FieldDoesNotExist, e:
+                pass
+            else:
+                query |= Q(**{str(field): value})
+
+        if query: #avoid useless query
+            found = EntityCredentials.filter(user, model.objects.filter(query))[:1]
+
+            if found:
+                return HttpResponseRedirect(found[0].get_absolute_url())
+
+    raise Http404(_(u'No entity corresponding to your search was found.'))

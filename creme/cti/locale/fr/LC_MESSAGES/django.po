@@ -1,0 +1,95 @@
+# FR LOCALISATION OF 'CTI' APP
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2011-04-03 12:24+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n>1;\n"
+
+#: creme_core_register.py:12
+msgid "Computer Telephony Integration"
+msgstr "Couplage Téléphonique Informatique"
+
+#: utils.py:37
+msgid "Call"
+msgstr "Appeler"
+
+#: views.py:54
+msgid "Automatically created by CTI"
+msgstr "Créé automatiquement par CTI"
+
+#: views.py:84
+#, python-format
+msgid "Call to %s"
+msgstr "Appel à %s"
+
+#: views.py:88
+msgid "Phone call successfully created."
+msgstr "Appel téléphonique créé avec succés."
+
+#: views.py:137
+#, python-format
+msgid "Call from %s"
+msgstr "Appel de %s"
+
+#: templates/cti/respond_to_a_call.html:11
+#, python-format
+msgid "%s Potential caller"
+msgstr "%s Appelant possible"
+
+#: templates/cti/respond_to_a_call.html:11
+#,  python-format
+msgid "%s Potential callers"
+msgstr "%s Appelants possibles"
+
+#: templates/cti/respond_to_a_call.html:11
+msgid "Caller"
+msgstr "Appelant"
+
+#: templates/cti/respond_to_a_call.html:19
+msgid "Entity"
+msgstr "Fiche"
+
+#: templates/cti/respond_to_a_call.html:20
+msgid "Actions"
+msgstr "Actions"
+
+#: templates/cti/respond_to_a_call.html:28
+msgid "Phone call"
+msgstr "Appel téléphonique"
+
+#: templates/cti/respond_to_a_call.html:29
+#: templates/cti/respond_to_a_call.html:33
+#: templates/cti/respond_to_a_call.html:34
+msgid "Create a phone call"
+msgstr "Créer un appel téléphonique"
+
+#: templates/cti/respond_to_a_call.html:41
+#, python-format
+msgid "No contact/organisation corresponds to this number : %(number)s"
+msgstr "Aucun contact/société ne correspond à ce numéro : %(number)s"
+
+#: templates/cti/respond_to_a_call.html:45
+#: templates/cti/respond_to_a_call.html:46
+#: templates/cti/respond_to_a_call.html:50
+#: templates/cti/respond_to_a_call.html:51
+msgid "Create a contact"
+msgstr "Créer un contact"
+
+#: templates/cti/respond_to_a_call.html:57
+#: templates/cti/respond_to_a_call.html:58
+#: templates/cti/respond_to_a_call.html:62
+#: templates/cti/respond_to_a_call.html:63
+msgid "Create an organisation"
+msgstr "Créer une société"

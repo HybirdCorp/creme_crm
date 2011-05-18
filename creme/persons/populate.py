@@ -97,7 +97,7 @@ class Populator(BasePopulator):
         pref = 'persons-hfi_contact_'
         create(HeaderFilterItem, pref + 'lastname',  order=1, name='last_name',        title=_(u'Last name'),       type=HFI_FIELD,    header_filter=hf, has_a_filter=True, editable=True,  filter_string="last_name__icontains")
         create(HeaderFilterItem, pref + 'firstname', order=2, name='first_name',       title=_(u'First name'),      type=HFI_FIELD,    header_filter=hf, has_a_filter=True, editable=True,  filter_string="first_name__icontains")
-        create(HeaderFilterItem, pref + 'landline',  order=3, name='landline',         title=_(u'Landline'),        type=HFI_FIELD,    header_filter=hf, has_a_filter=True, editable=True,  filter_string="landline__icontains")
+        create(HeaderFilterItem, pref + 'phone',     order=3, name='phone',            title=_(u'Phone'),           type=HFI_FIELD,    header_filter=hf, has_a_filter=True, editable=True,  filter_string="phone__icontains")
         create(HeaderFilterItem, pref + 'email',     order=4, name='email',            title=_(u'E-mail'),          type=HFI_FIELD,    header_filter=hf, has_a_filter=True, editable=True,  filter_string="email__icontains")
         create(HeaderFilterItem, pref + 'user',      order=5, name='user__username',   title=_(u'User - Username'), type=HFI_FIELD,    header_filter=hf, has_a_filter=True, editable=True,  filter_string="user__username__icontains")
         create(HeaderFilterItem, pref + 'employee',  order=6, name='est_salarie_chez', title=_(u'Employed by'),     type=HFI_RELATION, header_filter=hf, has_a_filter=True, editable=False, filter_string="", relation_predicat_id=REL_SUB_EMPLOYED_BY)
@@ -116,7 +116,7 @@ class Populator(BasePopulator):
         hf   = HeaderFilter.create(pk='persons-hf_organisation', name=_(u'Organisation view'), model=Organisation)
         pref = 'persons-hfi_organisation_'
         create(HeaderFilterItem, pref + 'name',  order=1, name='name',           title=_(u'Name'),            type=HFI_FIELD,    header_filter=hf, has_a_filter=True, editable=True, filter_string="name__icontains")
-        create(HeaderFilterItem, pref + 'phone', order=2, name='phone',          title=_(u'Landline'),        type=HFI_FIELD,    header_filter=hf, has_a_filter=True, editable=True, filter_string="phone__icontains")
+        create(HeaderFilterItem, pref + 'phone', order=2, name='phone',          title=_(u'Phone'),        type=HFI_FIELD,    header_filter=hf, has_a_filter=True, editable=True, filter_string="phone__icontains")
         create(HeaderFilterItem, pref + 'user',  order=3, name='user__username', title=_(u'User - Username'), type=HFI_FIELD,    header_filter=hf, has_a_filter=True, editable=True, filter_string="user__username__icontains")
         create(HeaderFilterItem, pref + 'resp',  order=4, name='managed_by',     title=_(u'Managed by'),      type=HFI_RELATION, header_filter=hf, has_a_filter=True, editable=False, filter_string="", relation_predicat_id=REL_OBJ_MANAGES)
 
@@ -152,7 +152,7 @@ class Populator(BasePopulator):
             orga = Organisation.objects.create(user=admin, name=_("ReplaceByYourSociety"))
             CremeProperty.objects.create(type=managed_by_creme, creme_entity=orga)
 
-        SearchConfigItem.create(Contact, ['first_name', 'last_name', 'landline', 'mobile', 'email'])
+        SearchConfigItem.create(Contact, ['first_name', 'last_name', 'phone', 'mobile', 'email'])
         SearchConfigItem.create(Organisation, ['name', 'phone', 'email', 'sector__title', 'legal_form__title'])
 
         #Populate blocks

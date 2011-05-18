@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2011  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -76,9 +76,12 @@ class Image(CremeEntity):
         return "%s%s" % (MEDIA_URL, self.image)
 
     def get_entity_summary(self):
-        from creme_core.templatetags.creme_core_tags import image_size #TODO: move this templatetag to 'media_managers' ????
+        from creme_core.gui.field_printers import image_size #TODO: move when cyclic dependency is removed
+
         url = self.get_image_url()
         name = escape(self.get_image_name())
+
+        #TODO: factorise with creme_core.gui.field_printers.print_image
         return mark_safe("""<a href="javascript:creme.utils.openWindow('%s','image_popup');"><img src="%s" %s alt="%s" title="%s"/></a>""" % \
             (url, url, image_size(self, 150, 150), name, name))
 
