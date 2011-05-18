@@ -183,6 +183,7 @@ INSTALLED_APPS = (
     'creme.sms',
     'creme.projects',
     'creme.tickets',
+    #'creme.cti',
 )
 
 from django.conf.global_settings import TEMPLATE_CONTEXT_PROCESSORS
@@ -242,7 +243,6 @@ CREME_EMAIL_PORT      = 25
 
 
 #EMAILS [END] ###################################################################
-
 
 #LOGS ##########################################################################
 
@@ -370,6 +370,7 @@ CREME_OPT_JS = ( #OPTIONNAL APPS
                 'billing/js/billing.js',
                 'reports/js/reports.js',
                 'emails/js/emails.js',
+                'cti/js/cti.js',
                )
 
 MEDIA_BUNDLES = (CREME_CORE_CSS, CREME_I18N_JS, CREME_CORE_JS + CREME_OPT_JS)
@@ -453,6 +454,8 @@ CONNECTION_TIMEOUT = 150
 
 PICTURE_LIMIT_SIZE = 55000 #E.g: 55Ko Active sync servers don't handle pictures > to this size
 
+#CTI ---------------------------------------------------------------------------
+ABCTI_URL = 'http://127.0.0.1:8087'
 
 #APPS CONFIGURATION [END]#######################################################
 

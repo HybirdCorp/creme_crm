@@ -7,14 +7,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-05-17 08:26+0200\n"
+"POT-Creation-Date: 2011-05-17 18:18+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
-"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Language: \n"
 
 #: blocks.py:31 forms/csv_import.py:597 models/creme_property.py:91
 #: models/entity.py:51 tests/views.py:137
@@ -34,51 +34,6 @@ msgstr "Cœur"
 #: templates/creme_core/home.html.py:18
 msgid "Home"
 msgstr "Accueil"
-
-#: date_filters_register.py:126 forms/fields.py:768 forms/widgets.py:162
-#: forms/widgets.py:907
-msgid "Customized"
-msgstr "Personnalisé"
-
-#: date_filters_register.py:128
-msgid "Last year"
-msgstr "Année dernière"
-
-#: date_filters_register.py:129 utils/date_range.py:90
-msgid "Current year"
-msgstr "Année courante"
-
-#: date_filters_register.py:130 utils/date_range.py:102
-msgid "Next year"
-msgstr "Année suivante"
-
-#: date_filters_register.py:132
-msgid "Last month"
-msgstr "Mois dernier"
-
-#: date_filters_register.py:133 utils/date_range.py:131
-msgid "Current month"
-msgstr "Mois courant"
-
-#: date_filters_register.py:134 utils/date_range.py:142
-msgid "Next month"
-msgstr "Mois suivant"
-
-#: date_filters_register.py:136
-msgid "Last quarter"
-msgstr "Trimestre dernier"
-
-#: date_filters_register.py:137 utils/date_range.py:178
-msgid "Current quarter"
-msgstr "Trimestre courant"
-
-#: date_filters_register.py:138 utils/date_range.py:187
-msgid "Next quarter"
-msgstr "Trimestre suivant"
-
-#: date_filters_register.py:139 tests/utils.py:279 utils/date_range.py:205
-msgid "In the future"
-msgstr "Dans le future"
 
 #: populate.py:34
 msgid "French"
@@ -271,8 +226,8 @@ msgstr ""
 #: forms/csv_import.py:361
 #, python-format
 msgid ""
-"Error while extracting value to build a Relation: tried to retrieve "
-"%(field)s=\"%(value)s\" on %(model)s"
+"Error while extracting value to build a Relation: tried to retrieve %(field)"
+"s=\"%(value)s\" on %(model)s"
 msgstr ""
 "Erreur lors de l'extraction de valeur pour construire une Relation: a essayé "
 "de retrouver %(field)s=\"%(value)s\" sur %(model)s"
@@ -464,7 +419,7 @@ msgstr "Tous les utilisateurs"
 msgid "Use \"OR\" between the conditions (else \"AND\" is used)."
 msgstr "Utiliser \"OU\" entre les conditions (sinon \"ET\" est utilisé)."
 
-#: forms/entity_filter.py:785 tests/views.py:2476
+#: forms/entity_filter.py:785 tests/views.py:2596
 msgid "The filter must have at least one condition."
 msgstr "Le filtre doit avoir au moins une condition."
 
@@ -509,11 +464,17 @@ msgstr ""
 #: forms/fields.py:763
 msgid ""
 "If you select customized you have to specify a start date and/or an end date."
-msgstr "Si vous sélectionnez 'Personnalisé' vous devez spécifier une date de début et/ou une date de fin."
+msgstr ""
+"Si vous sélectionnez 'Personnalisé' vous devez spécifier une date de début "
+"et/ou une date de fin."
 
 #: forms/fields.py:764
 msgid "Start date has to be before end date."
 msgstr "La date début doit être avant la date de fin."
+
+#: forms/fields.py:768 forms/widgets.py:162 forms/widgets.py:907
+msgid "Customized"
+msgstr "Personnalisé"
 
 #: forms/header_filter.py:47
 msgid "Functions"
@@ -612,6 +573,7 @@ msgid "user's own entities"
 msgstr "ses propres fiches"
 
 #: models/auth.py:364
+#: templates/creme_core/templatetags/widgets/block_line_viewer.html:5
 msgid "View"
 msgstr "Voir"
 
@@ -877,7 +839,7 @@ msgstr "Vous n'êtes pas autorisé à modifier/supprimer ce filtre"
 msgid "A condition can not reference its own filter."
 msgstr "Une conditionne peut pas réféerencer son propre filtre."
 
-#: models/entity_filter.py:126 tests/views.py:2678
+#: models/entity_filter.py:126 tests/views.py:2798
 msgid "There is a cycle with a subfilter."
 msgstr "Il y a un cycle avec un sous filtre."
 
@@ -1410,7 +1372,7 @@ msgid "Multiple relation adding"
 msgstr "Ajout de relation multiple"
 
 #: templates/creme_core/templatetags/listview_columns_header.html:76
-#: views/entity.py:131
+#: views/entity.py:137
 msgid "Multiple update"
 msgstr "Edition multiple"
 
@@ -1423,8 +1385,8 @@ msgid "Filters"
 msgstr "Filtres"
 
 #: templates/creme_core/templatetags/listview_entityfilters.html:23
-#: templates/creme_core/templatetags/search_panel.html:13 tests/views.py:2752
-#: tests/views.py:2765 views/entity_filter.py:114
+#: templates/creme_core/templatetags/search_panel.html:13 tests/views.py:2872
+#: tests/views.py:2885 views/entity_filter.py:114
 msgid "All"
 msgstr "Tout"
 
@@ -1519,6 +1481,10 @@ msgstr "Liaison interdite"
 msgid "Can't unlink"
 msgstr "Rupture interdite"
 
+#: templates/creme_core/templatetags/widgets/block_line_viewer.html:9
+msgid "Can't view"
+msgstr "Vue interdite"
+
 #: templates/creme_core/templatetags/widgets/clone_button.html:5
 #, python-format
 msgid "Clone '%(object)s'"
@@ -1577,6 +1543,10 @@ msgstr "%s minute(s)"
 msgid "%s second(s)"
 msgstr "%s seconde(s)"
 
+#: tests/utils.py:279 utils/date_range.py:205
+msgid "In the future"
+msgstr "Dans le future"
+
 #: tests/views.py:110
 msgid "Username"
 msgstr "Nom d'utilisateur"
@@ -1593,13 +1563,37 @@ msgstr "Prénom"
 msgid "Previous year"
 msgstr "Année précédente"
 
+#: utils/date_range.py:90
+msgid "Current year"
+msgstr "Année courante"
+
+#: utils/date_range.py:102
+msgid "Next year"
+msgstr "Année suivante"
+
 #: utils/date_range.py:113
 msgid "Previous month"
 msgstr "Mois précédent"
 
+#: utils/date_range.py:131
+msgid "Current month"
+msgstr "Mois courant"
+
+#: utils/date_range.py:142
+msgid "Next month"
+msgstr "Mois suivant"
+
 #: utils/date_range.py:160
 msgid "Previous quarter"
 msgstr "Trimestre précédent"
+
+#: utils/date_range.py:178
+msgid "Current quarter"
+msgstr "Trimestre courant"
+
+#: utils/date_range.py:187
+msgid "Next quarter"
+msgstr "Trimestre suivant"
 
 #: utils/date_range.py:214
 msgid "In the past"
@@ -1614,10 +1608,14 @@ msgstr "Ajout multiple de relations"
 msgid "New properties for <%s>"
 msgstr "Nouvelles propriétés pour <%s>"
 
-#: views/entity.py:91
+#: views/entity.py:97
 #, python-format
 msgid "%s [CREATION]"
 msgstr "%s [CRÉATION]"
+
+#: views/entity.py:282
+msgid "No entity corresponding to your search was found."
+msgstr "Aucun élément correspondant à votre recherche n'a été trouvé"
 
 #: views/entity_filter.py:97
 msgid "Filter sucessfully deleted"
@@ -1715,6 +1713,9 @@ msgstr "La liste souhaitée n'a aucune vue, veuillez en créer au moins une."
 msgid "You are not allowed to access to the app: %s"
 msgstr "Vous n'avez pas accés à cette application: %s"
 
+#~ msgid "Call"
+#~ msgstr "Appeler"
+
 #~ msgid "Is not empty"
 #~ msgstr "N'est pas vide"
 
@@ -1795,9 +1796,6 @@ msgstr "Vous n'avez pas accés à cette application: %s"
 
 #~ msgid "Permission denied"
 #~ msgstr "Permission refusée"
-
-#~ msgid "Can view"
-#~ msgstr "Peut voir"
 
 #~ msgid "Can delete"
 #~ msgstr "Peut supprimer"

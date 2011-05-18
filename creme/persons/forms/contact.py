@@ -40,7 +40,7 @@ class ContactForm(_BasePersonForm):
     birthday = CremeDateTimeField(label=_('Birthday'), required=False)
     image    = CremeEntityField(label=_('Image'), required=False, model=Image, widget=ImageM2MWidget())
 
-    blocks = _BasePersonForm.blocks.new(('coordinates', _(u'Coordinates'), ['skype', 'landline', 'mobile', 'fax', 'email', 'url_site']))
+    blocks = _BasePersonForm.blocks.new(('coordinates', _(u'Coordinates'), ['skype', 'phone', 'mobile', 'fax', 'email', 'url_site']))
 
     class Meta:
         model = Contact

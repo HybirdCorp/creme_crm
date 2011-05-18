@@ -73,7 +73,7 @@ class MappingTestCase(CremeTestCase):
         contact.last_name  = "Fulbert"
         contact.civility   = civility
         contact.skype      = "skype_number"
-        contact.landline   = "+33 000000000"
+        contact.phone      = "+33 000000000"
         contact.mobile     = "+33 000000001"
         contact.email      = "fulbert@creme.com"
         contact.url_site   = "http://creme.com"
@@ -121,4 +121,3 @@ class MappingTestCase(CremeTestCase):
         #Disabled until a real test is done
 #        self.assertEqual(fulbert_serialized, serialize_entity(contact, CREME_CONTACT_MAPPING))
 
-       

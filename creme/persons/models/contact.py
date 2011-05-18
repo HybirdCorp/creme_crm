@@ -25,8 +25,8 @@ from django.utils.translation import ugettext_lazy as _, ugettext
 #from django.utils.encoding import force_unicode
 from django.contrib.auth.models import User
 
-from creme_core.models.entity import CremeEntity
-from creme_core.models.i18n import Language
+from creme_core.models import CremeEntity, Language
+from creme_core.models.fields import PhoneField
 
 from media_managers.models import Image
 
@@ -42,8 +42,8 @@ class Contact(CremeEntity):
     last_name       = CharField(_(u'Last name'), max_length=100)
     description     = TextField(_(u'Description'), blank=True, null=True)
     skype           = CharField('Skype', max_length=100, blank=True, null=True)
-    landline        = CharField(_(u'Landline'), max_length=100, blank=True, null=True)
-    mobile          = CharField(_(u'Mobile'), max_length=100, blank=True, null=True)
+    phone           = PhoneField(_(u'Phone number'), max_length=100, blank=True, null=True)
+    mobile          = PhoneField(_(u'Mobile'), max_length=100, blank=True, null=True)
     fax             = CharField(_(u'Fax'), max_length=100 , blank=True, null=True)
     position        = ForeignKey(Position, verbose_name=_(u'Position'), blank=True, null=True)
     sector          = ForeignKey(Sector, verbose_name=_(u'Line of business'), blank=True, null=True)

@@ -17,3 +17,13 @@ ACTIVITYTYPE_GATHERING = 'activities-activitytype_gathering'
 ACTIVITYTYPE_SHOW      = 'activities-activitytype_show'
 ACTIVITYTYPE_DEMO      = 'activities-activitytype_demo'
 ACTIVITYTYPE_INDISPO   = 'activities-activitytype_indispo'
+
+STATUS_PLANNED     = 1
+STATUS_IN_PROGRESS = 2
+STATUS_DONE        = 3
+STATUS_DELAYED     = 4
+STATUS_CANCELLED   = 5
+
+PHONECALLTYPE_INCOMING = 1
+PHONECALLTYPE_OUTGOING = 2
+PHONECALLTYPE_OTHER    = 3

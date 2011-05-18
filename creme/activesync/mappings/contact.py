@@ -82,7 +82,7 @@ CREME_CONTACT_MAPPING = {
         'first_name'              : 'FirstName',
         'last_name'               : 'LastName',
         'skype'                   : 'Home2PhoneNumber',
-        'landline'                : 'HomePhoneNumber',
+        'phone'                   : 'HomePhoneNumber',
         'mobile'                  : 'MobilePhoneNumber',
         'position__title'         : 'JobTitle',
 #        'sector__sector_name'     : None,
@@ -208,7 +208,7 @@ def create_or_update_function(contact, d, history=None):
 
         if history is not None and contact.position != old_position:
             history.changes = [('position__title', contact.position)]
-            
+
 
 def create_image_from_b64(contact, d, user):
     image_b64 = d.pop('image', None)
@@ -218,7 +218,7 @@ def create_image_from_b64(contact, d, user):
             img_entity.image.delete()#Deleting the old file
         else:
             img_entity = Image()
-            
+
         image_format = Image.get_image_format(image_b64)
         img_entity.image = handle_uploaded_file(ContentFile(base64.decodestring(image_b64)), path=['upload','images'], name='file_%08x.%s' % (randint(0, MAXINT), image_format))
         img_entity.user = user
@@ -250,7 +250,7 @@ def save_contact(data, user, *args, **kwargs):
     c = Contact()
     ct_contact = ContentType.objects.get_for_model(Contact)
     pop_ = data.pop
-    
+
     pop_('', None)
 
     create_or_update_civility(c, data)
@@ -273,7 +273,7 @@ def save_contact(data, user, *args, **kwargs):
     c.shipping_address = s_address
 
     create_image_from_b64(c, data, user)
-        
+
     c.user = user
 
     _format_data(c, data)
@@ -290,7 +290,7 @@ def save_contact(data, user, *args, **kwargs):
     s_address.content_type = ct_contact
     s_address.object_id = c.id
     s_address.save()
-    
+
     return c
 
 def update_contact(contact, data, user, history, *args, **kwargs):
@@ -299,7 +299,7 @@ def update_contact(contact, data, user, history, *args, **kwargs):
     """
     pop_ = data.pop
     pop_('', None)
-    
+
     create_or_update_civility(contact, data, history)
     create_or_update_function(contact, data, history)
 
@@ -316,7 +316,7 @@ def update_contact(contact, data, user, history, *args, **kwargs):
 
     contact.__dict__.update(data)#TODO: setattr better ?
     contact.save()
-    
+
     history.save()
     return contact
 
@@ -355,7 +355,7 @@ def serialize_contact(contact, namespaces):
                             'value': value #Problems with unicode
                             }
                            )
-    return "".join(xml)      
+    return "".join(xml)
 
 def pre_serialize_contact(value, c_field, xml_field, f_class, entity):
     return value

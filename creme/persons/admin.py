@@ -11,9 +11,9 @@ class OrganisationAdmin(admin.ModelAdmin):
     search_fields = ['name']
 
 class ContactAdmin(admin.ModelAdmin):
-    list_display = ('civility', 'first_name', 'last_name', 'landline', 'mobile', 'skype', 'email', 'sector', 'position')
+    list_display = ('civility', 'first_name', 'last_name', 'phone', 'mobile', 'skype', 'email', 'sector', 'position')
     list_filter = ['civility', 'sector', 'position']
-    search_fields = ['civility', 'sector', 'position', 'first_name', 'last_name', 'landline', 'mobile']
+    search_fields = ['civility', 'sector', 'position', 'first_name', 'last_name', 'phone', 'mobile']
 
 
 register = admin.site.register
