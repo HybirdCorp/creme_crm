@@ -33,14 +33,14 @@ from creme_core.models import CremeModel, CremeEntity
 class Alert(CremeModel):
     title               = CharField(max_length=200)
     description         = TextField(_(u'Description'), blank=True, null=True)
-    is_validated        = BooleanField(_('Validated'))
+    is_validated        = BooleanField(_('Validated'), editable=False)
     trigger_date        = DateTimeField(_(u"Trigger date"))
 
-    entity_content_type = ForeignKey(ContentType, related_name="alert_entity_set")
-    entity_id           = PositiveIntegerField()
+    entity_content_type = ForeignKey(ContentType, related_name="alert_entity_set", editable=False)
+    entity_id           = PositiveIntegerField(editable=False)
     creme_entity        = GenericForeignKey(ct_field="entity_content_type", fk_field="entity_id")
 
-    for_user            = ForeignKey(User, verbose_name=_(u'Assigned to'), related_name='user_alert_assigned_set')
+    user                = ForeignKey(User, verbose_name=_(u'Assigned to'))
 
     class Meta:
         app_label = 'assistants'
@@ -49,15 +49,15 @@ class Alert(CremeModel):
 
     @staticmethod
     def get_alerts(entity):
-        return Alert.objects.filter(is_validated=False, entity_id=entity.id).select_related('for_user')
+        return Alert.objects.filter(is_validated=False, entity_id=entity.id).select_related('user')
 
     @staticmethod
     def get_alerts_for_home(user):
-        return Alert.objects.filter(is_validated=False, for_user=user).select_related('for_user')
+        return Alert.objects.filter(is_validated=False, user=user).select_related('user')
 
     @staticmethod
     def get_alerts_for_ctypes(ct_ids, user):
-        return Alert.objects.filter(entity_content_type__in=ct_ids, for_user=user).select_related('for_user')
+        return Alert.objects.filter(entity_content_type__in=ct_ids, user=user).select_related('user')
 
     def get_related_entity(self): #for generic views
         return self.creme_entity

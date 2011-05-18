@@ -19,7 +19,7 @@
                 {% if not object %}
                     <th class="block_header_line_dark">{% trans "Concerned entity" %}</th>
                 {% endif %}
-                {% get_column_header _('User') 'for_user' %}
+                {% get_column_header _('User') 'user' %}
                 {% get_column_header _("Triggering") 'trigger_date' %}
                 {% get_column_header _('Details') 'description' %}
                 <th class="block_header_line_dark">{% trans "Treated ?" %}</th>
@@ -31,7 +31,7 @@
                     {% if not object %}
                         <td class="{{row_color}}">{% widget_entity_hyperlink alert.creme_entity user %}</td>
                     {% endif %}
-                    <td class="{{row_color}}">{{alert|get_html_field_value:"for_user"}}</td>
+                    <td class="{{row_color}}">{{alert|get_html_field_value:"user"}}</td>
                     <td class="{{row_color}}">{{alert|get_html_field_value:"trigger_date"}}</td>
                     <td class="{{row_color}}"><em>{{alert|get_html_field_value:"description"}}</em></td>
                     <td class="{{row_color}}">

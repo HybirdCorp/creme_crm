@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2011  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -31,11 +31,11 @@ from creme_core.models import CremeModel, CremeEntity
 class Memo(CremeModel):
     content       = TextField(_(u'Content'), blank=True, null=True)
     on_homepage   = BooleanField(_(u"Displayed on homepage"), blank=True, default=False)
-    creation_date = DateTimeField(_(u'Creation date'))
-    user          = ForeignKey(User, verbose_name=_(u'Assigned to'), related_name='user_memo_assigned_set')
+    creation_date = DateTimeField(_(u'Creation date'), editable=False)
+    user          = ForeignKey(User, verbose_name=_(u'Assigned to'))
 
-    entity_content_type = ForeignKey(ContentType, related_name="memo_entity_set")
-    entity_id           = PositiveIntegerField()
+    entity_content_type = ForeignKey(ContentType, related_name="memo_entity_set", editable=False)
+    entity_id           = PositiveIntegerField(editable=False)
     creme_entity        = GenericForeignKey(ct_field="entity_content_type", fk_field="entity_id")
 
     class Meta:

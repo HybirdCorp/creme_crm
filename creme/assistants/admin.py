@@ -10,7 +10,7 @@ class ActionAdmin(admin.ModelAdmin):
 
 
 class AlertAdmin(admin.ModelAdmin):
-    list_display = ('title', 'description', 'trigger_date', 'for_user')
+    list_display = ('title', 'description', 'trigger_date', 'user')
 
 
 class MemoAdmin(admin.ModelAdmin):
@@ -18,7 +18,7 @@ class MemoAdmin(admin.ModelAdmin):
 
 
 class ToDoAdmin(admin.ModelAdmin):
-    list_display = ('title', 'description', 'creation_date', 'deadline', 'for_user')
+    list_display = ('title', 'description', 'creation_date', 'deadline', 'user')
 
 
 class UserMessageAdmin(admin.ModelAdmin):

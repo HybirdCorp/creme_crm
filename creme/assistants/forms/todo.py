@@ -32,22 +32,17 @@ class ToDoEditForm(CremeModelWithUserForm):
 
     class Meta:
         model = ToDo
-        exclude = ('creation_date', 'entity_content_type', 'entity_id', 'for_user')
 
     def __init__(self, entity, *args, **kwargs):
         super(ToDoEditForm, self).__init__(*args, **kwargs)
         self.entity = entity
 
     def save(self, *args, **kwargs):
-        instance = self.instance
-        instance.creme_entity = self.entity
-        instance.for_user = self.cleaned_data['user']
-
+        self.instance.creme_entity = self.entity
         return super(ToDoEditForm, self).save(*args, **kwargs)
 
 
 class ToDoCreateForm(ToDoEditForm):
     def save(self, *args, **kwargs):
         self.instance.creation_date = datetime.now()
-
         return super(ToDoCreateForm, self).save(*args, **kwargs)

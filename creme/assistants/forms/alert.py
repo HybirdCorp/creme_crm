@@ -33,7 +33,6 @@ class AlertForm(CremeModelWithUserForm):
 
     class Meta:
         model = Alert
-        exclude = ('entity_content_type', 'is_validated', 'entity_id', 'for_user')
 
     def __init__(self, entity, *args, **kwargs):
         super(AlertForm, self).__init__(*args, **kwargs)
@@ -53,8 +52,5 @@ class AlertForm(CremeModelWithUserForm):
         return cleaned_data
 
     def save(self, *args, **kwargs):
-        instance = self.instance
-        instance.creme_entity = self.entity
-        instance.for_user = self.cleaned_data['user']
-
+        self.instance.creme_entity = self.entity
         return super(AlertForm, self).save(*args, **kwargs)
