@@ -109,7 +109,7 @@ class ModelsTestCase(CremeTestCase):
         image = Image.objects.create(user=self.user, image=tmpfile)
 
         naruto = Contact.objects.create(civility=civility, first_name=u'Naruto', last_name=u'Uzumaki',
-                                        description=u"Ninja", skype=u"naruto.uzu", landline=u"+81 0 0 0 00 00",
+                                        description=u"Ninja", skype=u"naruto.uzu", phone=u"+81 0 0 0 00 00",
                                         mobile=u"+81 0 0 0 00 01", fax=u"+81 0 0 0 00 02", position=position,
                                         sector=sector, email=u"naruto.uzumaki@konoha.jp",
                                         is_user=self.user, birthday=datetime.now(), image=image, user=self.user)
@@ -147,7 +147,7 @@ class ModelsTestCase(CremeTestCase):
 
         self._test_same_relations_n_properties(naruto, kage_bunshin)
 
-        attrs_to_check = ['civility', 'first_name', 'last_name', 'description', 'skype', 'landline', 'mobile',
+        attrs_to_check = ['civility', 'first_name', 'last_name', 'description', 'skype', 'phone', 'mobile',
                           'fax', 'position', 'sector', 'email', 'birthday', 'image']
 
         for attr in attrs_to_check:
@@ -159,7 +159,7 @@ class ModelsTestCase(CremeTestCase):
         self.assertNotEqual(naruto.shipping_address.object_id, kage_bunshin.shipping_address.object_id)
 
         self.assertEqual(Address.objects.filter(object_id=naruto.id).count(), Address.objects.filter(object_id=kage_bunshin.id).count())
-        
+
 
     def test_clone03(self):
         orga_ct       = ContentType.objects.get_for_model(Organisation)
@@ -200,7 +200,7 @@ class ModelsTestCase(CremeTestCase):
         self.assertEqual(get_cf_values(cf_date, orga).value, get_cf_values(cf_date, clone).value)
 
         self.assertEqual(get_cf_values(cf_enum, orga).value, get_cf_values(cf_enum, clone).value)
-        
+
         self.assert_(get_cf_values(cf_multi_enum, orga).value.all())
         self.assertEqual(set(get_cf_values(cf_multi_enum, orga).value.values_list('pk', flat=True)),
                          set(get_cf_values(cf_multi_enum, clone).value.values_list('pk', flat=True)))

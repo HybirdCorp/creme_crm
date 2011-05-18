@@ -22,160 +22,22 @@ from time import mktime
 from re import compile as compile_re
 from logging import debug
 
-from django.db import models
 from django import template
-from django.utils.safestring import mark_safe
-from django.utils.html import escape
-from django.utils.formats import date_format
 from django.contrib.contenttypes.models import ContentType
-from django.template.defaultfilters import linebreaks
 
-from creme_core.models import CremeEntity
-from creme_core.models import fields
-from creme_core.utils.meta import get_field_infos, get_model_field_infos, get_m2m_entities, get_verbose_field_name
-
-from media_managers.models import Image
+from creme_core.gui.field_printers import field_printers_registry
+from creme_core.utils.meta import get_verbose_field_name
 
 
 register = template.Library()
 
-def get_foreign_key_popup_str(x):
-    if hasattr(x, 'get_absolute_url') and hasattr(x, 'entity_type'):
-        return '<a href="%s"><u>%s</u></a>' % (x.get_absolute_url(), x)
-    return '%s' % x if x else ''
-
-####
-
-IMAGES_ATTRIBUTES = {Image: 'image'}
-
-def get_m2m_popup_str(x):
-    result   = '<ul>'
-    img_attr = IMAGES_ATTRIBUTES.get(x.model)
-
-    if img_attr is not None:
-        for a in x.all():
-            esc_a = escape(a)
-            result += '<li><img src="%s" alt="%s" title="%s" %s class="magnify"/></li>' % \
-                      (a.__getattribute__(img_attr).url, esc_a, esc_a, image_size(a, 80, 80))
-    else:
-        for a in x.all():
-            if hasattr(a, 'get_absolute_url'):
-                result += '<li><a target="_blank" href="%s">%s</li></a>' % (a.get_absolute_url(), escape(a))
-            else:
-                result += '<li>%s</li>' % escape(a)
-    result += '</ul>'
-    return result
-
-####
-
-MAX_HEIGHT = 200
-MAX_WIDTH = 200
-
-@register.filter(name="get_html_image_size")
-def image_size(image, max_h=MAX_HEIGHT, max_w=MAX_WIDTH):
-    debug('image_size')
-
-    if hasattr(image, 'height'):
-        h = image.height
-    elif hasattr(image, 'height_field'):
-        h = image.height_field
-    else:
-        h = max_h
-    if hasattr(image, 'width'):
-        w = image.width
-    elif hasattr(image, 'width_field'):
-        w = image.width_field
-    else:
-        w = max_w
-
-    h = float(h)
-    w = float(w)
-
-    ratio = max(h / max_h, w / max_w)
-    if ratio >= 1.0:
-        h /= ratio
-        w /= ratio
-
-    return "height=%s width=%s" % (h, w)
-####
-
-def simple_print(x):
-    return '%s' % escape(x) if x is not None else ""
-
-def print_imagefield(x):
-    url = x.url
-    return """<a href="javascript:creme.utils.openWindow('%s','image_popup');"><img src="%s" %s alt="%s"/></a>""" % \
-            (url, url, image_size(x), url)
-
-def print_urlfield(x):
-    if not x:
-        return ""
-    esc_x = escape(x)
-    return '<a href="%s" target="_blank">%s</a>' % (esc_x, esc_x)
-
-def print_datetime(x):
-    return date_format(x, 'DATETIME_FORMAT') if x else ''
-
-def print_date(x):
-    return date_format(x, 'DATE_FORMAT') if x else ''
-
-@register.filter(name="print_boolean")
+@register.filter(name="print_boolean") #TODO: factorise with field_printers ?
 def print_boolean(x):
     return mark_safe('<input type="checkbox" value="%s" %s disabled/>' % (escape(x), 'checked' if x else ''))#Potentially double safe marked
 
-def print_textfield(x):
-    if not x:
-        return ""
-    return linebreaks(x)
-
-#TODO: remove all values with simple_print => _FIELD_PRINTERS.get(KEY, simple_print) ??
-#TODO: Do more specific fields (i.e: phone field, currency field....) ?
-_FIELD_PRINTERS = {
-     models.AutoField:                  simple_print,
-     models.BooleanField:               print_boolean,
-     models.CharField:                  simple_print,
-     models.CommaSeparatedIntegerField: simple_print,
-     models.DateField:                  print_date,
-     models.DateTimeField:              print_datetime,
-     models.DecimalField:               simple_print,
-     models.EmailField:                 lambda a: '<a href="mailto:%s">%s</a>' % (a, a) if a else '',
-     models.FileField:                  simple_print,
-     models.FilePathField:              simple_print,
-     models.FloatField:                 simple_print,
-     models.ImageField:                 print_imagefield,
-     models.IntegerField:               simple_print,
-     models.IPAddressField:             simple_print,
-     models.NullBooleanField:           simple_print,
-     models.PositiveIntegerField:       simple_print,
-     models.PositiveSmallIntegerField:  simple_print,
-     models.SlugField:                  simple_print,
-     models.SmallIntegerField:          simple_print,
-     models.TextField:                  print_textfield,
-     models.TimeField:                  simple_print,
-     models.URLField:                   print_urlfield,
-     models.XMLField:                   simple_print,
-     models.ForeignKey:                 get_foreign_key_popup_str,
-     models.ManyToManyField:            get_m2m_popup_str,
-     models.OneToOneField:              get_foreign_key_popup_str,
-
-     fields.ModificationDateTimeField:  print_datetime,
-     fields.CreationDateTimeField :     print_datetime,
-     #fields.AutoSlugField:              simple_print,
-}
-
 @register.filter(name="get_html_field_value")
 def get_html_field_value(obj, field_name):
-    field_class, field_value = get_field_infos(obj, field_name)
-
-    if field_class is None:
-        fields_through = [f['field'].__class__ for f in get_model_field_infos(obj.__class__, field_name)]
-        if models.ManyToManyField in fields_through:
-            return get_m2m_entities(obj, field_name, get_value=True, get_value_func=lambda values: ", ".join([val for val in values if val]))
-
-    print_func = _FIELD_PRINTERS.get(field_class)
-    if print_func is not None:
-        return mark_safe(print_func(field_value))
-    return field_value
+    return field_printers_registry.get_html_field_value(obj, field_name)
 
 @register.filter(name="get_value")
 def get_value(dic, key, default=''):
@@ -192,7 +54,7 @@ def get_value(dic, key, default=''):
   """
   try:
     return dic.get(key, default)
-  except Exception, e: ##USEFUL ???
+  except Exception, e: #TODO: really useful ???
     debug('Exception in get_value(): %s', e)
     return default
 
