@@ -79,6 +79,8 @@ class DocumentTestCase(CremeTestCase):
         filedata.open()
         self.assertEqual([content], filedata.readlines())
 
+        filedata.delete() #clean
+
     def test_edit_document(self):
         self.login()
 
@@ -130,6 +132,8 @@ class DocumentTestCase(CremeTestCase):
         self.assertEqual(description,  doc.description)
         self.assertEqual(folder.id,    doc.folder.id)
 
+        doc.filedata.delete() #clean
+
     def test_add_related_document(self):
         self.login()
 
@@ -161,6 +165,8 @@ class DocumentTestCase(CremeTestCase):
                                                     object_entity=doc)\
                                             .count()
                         )
+
+        doc.filedata.delete() #clean
 
     def test_add_folder(self):
         self.login()
