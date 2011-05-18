@@ -140,7 +140,6 @@ class ProjectTask(Activity):
         @params project : A Project
         """
         context = {}
-        new_links = {}
 
         project_task_filter = ProjectTask.objects.filter
 
@@ -152,14 +151,8 @@ class ProjectTask(Activity):
             context[task.id] = {'new_pk': new_task.id, 'o_children': project_task_filter(parent_tasks=task.id).values_list('pk', flat=True)}
 #            context[new_task.id] = task.id
 
-        for old_key, values in context.iteritems():
-            new_children_ids = []         #TODO: list comprehension ?? build 'new_links' in one line possible ??
-            new_children_ids_append = new_children_ids.append
-
-            for old_child_id in values['o_children']:
-                new_children_ids_append(context[old_child_id]['new_pk'])
-
-            new_links[values['new_pk']] = new_children_ids #{new pk : new children ids, ...
+        new_links = dict((values['new_pk'], [context[old_child_id]['new_pk'] for old_child_id in values['o_children']])
+                          for old_key, values in context.iteritems())
 
         for task in project_task_filter(pk__in=new_links.keys()):
             for sub_task in project_task_filter(pk__in=new_links[task.id]):
