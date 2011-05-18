@@ -17,6 +17,15 @@
     padding : 0px;
 }
 
+.list_view thead .title h2 {
+    padding-top:0.6em;
+    padding-bottom:0.6em;
+}
+
+.list_view thead .sub_title h4, .list_view thead .title h2{
+    height: 1px;
+}
+
 .list_view fieldset {
    border: 1px solid #548295;
    padding:0 10px 2px 10px;
