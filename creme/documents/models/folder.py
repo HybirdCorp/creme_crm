@@ -24,6 +24,7 @@ from django.db.models import CharField, TextField, ForeignKey
 from django.utils.translation import ugettext_lazy as _, ugettext
 
 from creme_core.models import CremeEntity
+from creme_core.models.entity import EntityAction
 from creme_core.utils import truncate_str
 
 from other_models import FolderCategory
@@ -64,5 +65,21 @@ class Folder(CremeEntity):
 
         while Folder.objects.filter(title=self.title).exists():
             self._pre_save_clone(source)
+
+    def get_actions(self, user):
+        actions = super(Folder, self).get_actions(user)
+
+        actions['others'].append(EntityAction('%s?parent_id=%s' % (self.get_lv_absolute_url(), self.id), ugettext(u"Explore"),
+                                        self.can_view(user),
+                                        icon="images/view_16.png"))#TODO: Ajaxify this
+        return actions
+
+    def get_parents(self):
+        parents = []
+        if self.parent_folder:
+            parents.append(self.parent_folder)
+            parents.extend(self.parent_folder.get_parents())
+
+        return parents
 
 

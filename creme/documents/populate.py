@@ -51,10 +51,17 @@ class Populator(BasePopulator):
         else:
             info("A Folder with title 'Creme' already exists => no re-creation")
 
-        hf   = HeaderFilter.create(pk='documents-hf', name=_(u"Document view"), model=Document)
-        pref = 'documents-hfi_'
-        create(HeaderFilterItem, pref + 'title',  order=1, name='title',         title=_(u'Title'),          type=HFI_FIELD, header_filter=hf, has_a_filter=True, editable=True, sortable=True, filter_string="title__icontains")
-        create(HeaderFilterItem, pref + 'folder', order=2, name='folder__title', title=_(u'Folder - Title'), type=HFI_FIELD, header_filter=hf, has_a_filter=True, editable=True, sortable=True, filter_string="folder__title__icontains")
+        hf_doc   = HeaderFilter.create(pk='documents-hf_document', name=_(u"Document view"), model=Document)
+        pref = 'documents-hfi_document_'
+        create(HeaderFilterItem, pref + 'title',  order=1, name='title',         title=_(u'Title'),          type=HFI_FIELD, header_filter=hf_doc, has_a_filter=True, editable=True, sortable=True, filter_string="title__icontains")
+        create(HeaderFilterItem, pref + 'folder', order=2, name='folder__title', title=_(u'Folder - Title'), type=HFI_FIELD, header_filter=hf_doc, has_a_filter=True, editable=True, sortable=True, filter_string="folder__title__icontains")
+
+        hf_folder   = HeaderFilter.create(pk='documents-hf_folder', name=_(u"Folder view"), model=Folder)
+        pref = 'documents-hfi_folder_'
+        create(HeaderFilterItem, pref + 'title',       order=1, name='title',          title=_(u'Title'),           type=HFI_FIELD, header_filter=hf_folder, has_a_filter=True, editable=True, sortable=True, filter_string="title__icontains")
+        create(HeaderFilterItem, pref + 'description', order=2, name='description',    title=_(u'Description'),     type=HFI_FIELD, header_filter=hf_folder, has_a_filter=True, editable=True, sortable=True, filter_string="description__icontains")
+        create(HeaderFilterItem, pref + 'category',    order=3, name='category__name', title=_(u'Category - Name'), type=HFI_FIELD, header_filter=hf_folder, has_a_filter=True, editable=True, sortable=True, filter_string="category__name__icontains")
+
 
         BlockConfigItem.create(pk='documents-linked_docs_block', block_id=linked_docs_block.id_, order=1000, on_portal=False)
 
