@@ -33,8 +33,9 @@ class ImageForm(CremeEntityForm):
 
     def __init__(self, *args, **kwargs):
         super (ImageForm,self ).__init__(*args, **kwargs)
-        if self.instance.image is not None:
-            self.fields['image'].__dict__['widget'] = UploadedFileWidget(url='%s' % (self.instance.image)) #TODO: why not str(self.instance.image) ??
+
+        if str(self.instance.image) != '':
+            self.fields['image'].widget = UploadedFileWidget()
 
     def clean_image(self):
         return str(handle_uploaded_file(self.cleaned_data['image'], path=['upload', 'images']))

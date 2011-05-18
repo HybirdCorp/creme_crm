@@ -29,6 +29,7 @@ from django.utils.encoding import force_unicode
 from django.utils.simplejson.encoder import JSONEncoder
 from django.utils.safestring import mark_safe
 from django.utils.formats import date_format
+from django.core.validators import EMPTY_VALUES
 from django.conf import settings
 
 from mediagenerator.utils import media_url
@@ -551,33 +552,28 @@ class DependentSelect(Select):
         """ % {'input':super(DependentSelect, self).render(name, value, attrs, choices), 'id': id})
 
 
-#TODO: refactor (build_attrs() etc...)
 class UploadedFileWidget(FileInput):
-    def __init__(self, url=None, attrs=None):
-        self.url = url or None #???
+    def __init__(self, attrs=None):
         super(UploadedFileWidget, self).__init__(attrs)
-
-    def original_render(self, name, value, attrs=None):
-        if self.url is not None :
-            input = '<a href="/download_file/%s">%s</a>' % (self.url, self.url)
-#            input = mark_safe(u'<a href="/download_file/%s">%s</a>' % (self.url, self.url))
-#            input = mark_safe(u'<a href="%s">%s</a>' % (url, url))
-        else :
-            input = super(UploadedFileWidget, self).render(name, value)
-        return input
 
     def render(self, name, value, attrs=None):
         visual=''
-        if self.url is not None :
-            visual = '<a href="/download_file/%s">' % (self.url)
-            visual += '<img src="%s%s" alt="%s"/></a>' % (settings.MEDIA_URL, self.url, self.url)
+        attrs = self.build_attrs(attrs, name=name)
 
-            if attrs is not None :
-                attrs['type'] = 'hidden'
-            else :
-                attrs = {'type' : 'hidden'}
+        if value not in EMPTY_VALUES:
+            visual = """
+            <a href="/download_file/%(url)s">
+                <img src="%(media_url)s%(url)s" alt="%(url)s"/>
+            </a>
+            """ % {
+                'url': value,
+                'media_url': settings.MEDIA_URL
+            }
+            attrs['type'] = 'hidden'
+
         input = super(UploadedFileWidget, self).render(name, value, attrs)
         return mark_safe(input + visual)
+
 
 #TODO: Delete me (delete related js too)
 class RTEWidget(Textarea):
