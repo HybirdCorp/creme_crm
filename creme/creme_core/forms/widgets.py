@@ -575,23 +575,6 @@ class UploadedFileWidget(FileInput):
         return mark_safe(input + visual)
 
 
-#TODO: Delete me (delete related js too)
-class RTEWidget(Textarea):
-    def render(self, name, value, attrs=None):
-        attrs = self.build_attrs(attrs, name=name)
-
-        return mark_safe("""<script type="text/javascript">
-                    $(document).ready(function() { $("#%(id)s").rte(); });
-                </script>
-                %(textarea)s
-                <input type="checkbox" id="%(id)s_is_rte_enabled" name="%(name)s_is_rte_enabled" style="display:none;" checked />
-            """ % {
-                    'id':       attrs['id'],
-                    'name':     attrs['name'],
-                    'textarea': super(RTEWidget, self).render(name, value, attrs),
-                })
-
-
 class TinyMCEEditor(Textarea):
     def render(self, name, value, attrs=None):
         rendered = super(TinyMCEEditor, self).render(name, value, attrs)
