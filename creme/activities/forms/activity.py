@@ -38,7 +38,7 @@ from persons.models import Contact
 
 from assistants.models.alert import Alert
 
-from activities.models import Activity, Calendar#, CalendarActivityLink
+from activities.models import Activity, Calendar
 from activities.constants import *
 from activities.utils import check_activity_collisions
 
