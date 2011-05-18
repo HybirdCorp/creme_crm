@@ -71,6 +71,4 @@ urlpatterns = patterns('commercial.views',
     (r'^blocks/assets_matrix/(?P<strategy_id>\d+)/(?P<orga_id>\d+)/$',        'strategy.reload_assets_matrix'),
     (r'^blocks/charms_matrix/(?P<strategy_id>\d+)/(?P<orga_id>\d+)/$',        'strategy.reload_charms_matrix'),
     (r'^blocks/assets_charms_matrix/(?P<strategy_id>\d+)/(?P<orga_id>\d+)/$', 'strategy.reload_assets_charms_matrix'),
-
-    (r'^relsellby/edit/(?P<relation_id>\d+)$', 'sell_by_relation.edit'),
 )
