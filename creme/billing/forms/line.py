@@ -21,13 +21,14 @@
 from decimal import Decimal
 
 from django.utils.translation import ugettext_lazy as _, ugettext
-from django.forms import IntegerField, BooleanField, ModelChoiceField, Select, ValidationError
+from django.forms import  BooleanField, ModelChoiceField, ValidationError
 
 from creme_core.forms import CremeModelWithUserForm, FieldBlockManager
 from creme_core.forms.fields import CremeEntityField
-from creme_core.forms.widgets import ListViewWidget, DependentSelect
+from creme_core.forms.widgets import ListViewWidget
 
-from products.models import Product, Service, Category, SubCategory, ServiceCategory
+from products.models import Product, Service, ServiceCategory
+from products.forms.product import ProductCategoryField
 
 from billing.models import ProductLine, ServiceLine
 from billing.constants import DEFAULT_VAT
@@ -78,19 +79,13 @@ class ProductLineForm(LineForm):
 class ProductLineOnTheFlyForm(LineForm):
     has_to_register_as = BooleanField(label=_(u"Save as product ?"), required=False,
                                       help_text=_(u"Here you can save a on-the-fly Product as a true Product ; in this case, category and sub-category are required."))
-    category           = ModelChoiceField(queryset=Category.objects.all(), label=_(u'Category'),
-                                          widget=DependentSelect(target_id='id_sub_category',
-                                          target_url='/products/sub_category/load'),
-                                          required=False)
-    sub_category       = ModelChoiceField(queryset=SubCategory.objects.all(),
-                                          label=_(u'Sub-category'),
-                                          widget=Select(attrs={'id': 'id_sub_category'}),
-                                          required=False)
+
+    sub_category = ProductCategoryField(label=_(u'Sub-category'), required=False)
 
     blocks = FieldBlockManager(
         ('general',     _(u'Line information'),    ['on_the_fly_item', 'comment', 'quantity', 'unit_price',
                                                     'discount', 'credit', 'total_discount', 'vat', 'user']),
-        ('additionnal', _(u'Additional features'), ['has_to_register_as', 'category', 'sub_category'])
+        ('additionnal', _(u'Additional features'), ['has_to_register_as', 'sub_category'])
      )
 
     class Meta:
@@ -110,7 +105,6 @@ class ProductLineOnTheFlyForm(LineForm):
             has_to_register_as = fields['has_to_register_as']
             has_to_register_as.help_text = ugettext(u'You are not allowed to create Products')
             has_to_register_as.widget.attrs     = {'disabled': True}
-            fields['category'].widget.attrs     = {'disabled': True}
             fields['sub_category'].widget.attrs = {'disabled': True}
 
     def clean_has_to_register_as(self):
@@ -127,10 +121,12 @@ class ProductLineOnTheFlyForm(LineForm):
 
         #TODO: use has_key() ??
         if get_data('has_to_register_as'):
-            if get_data('category') is None:
-                raise ValidationError(ugettext(u'Category is required if you want to save as a true product.'))
-            elif get_data('sub_category') is None:
+            sub_category = get_data('sub_category')
+            if sub_category is None:
                 raise ValidationError(ugettext(u'Sub-category is required if you want to save as a true product.'))
+
+            if sub_category.category is None:
+                raise ValidationError(ugettext(u'Category is required if you want to save as a true product.'))
 
         return cleaned_data
 
@@ -138,12 +134,14 @@ class ProductLineOnTheFlyForm(LineForm):
         get_data = self.cleaned_data.get
 
         if get_data('has_to_register_as'):
+            sub_category = get_data('sub_category')
+
             product = Product.objects.create(name=get_data('on_the_fly_item', ''),
                                              user=get_data('user'),
                                              code=0,
                                              unit_price=get_data('unit_price', 0),
-                                             category=get_data('category'),
-                                             sub_category=get_data('sub_category'),
+                                             category=sub_category.category,
+                                             sub_category=sub_category,
                                             )
 
             plcf = ProductLineForm(entity=self.document, user=self.user,
