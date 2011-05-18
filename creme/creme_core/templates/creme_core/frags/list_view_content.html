@@ -22,8 +22,13 @@
 <table id="list" class="list_view" cellpadding="0" cellspacing="0">
     <thead>
         <tr>
-            <th colspan="{{colspan}}"><h2>{{list_title}}</h2></th>
+            <th colspan="{{colspan}}" class="title"><h2>{{list_title}}</h2></th>
         </tr>
+        {% if list_sub_title %}
+            <tr>
+                <th colspan="{{colspan}}" class="sub_title"><h4>{{list_sub_title}}</h4></th>
+            </tr>
+        {% endif %}
         <tr>
             <th colspan="{{colspan}}">
                 <table width="100%" border="0">

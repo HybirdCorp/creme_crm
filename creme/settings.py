@@ -78,7 +78,7 @@ DATETIME_INPUT_FORMATS  = (
     '%d-%m-%Y %H:%M:%S', '%d/%m/%Y %H:%M:%S',
     '%d-%m-%Y %H:%M',    '%d/%m/%Y %H:%M',
     '%Y-%m-%dT%H:%M:%S.%fZ',#Needed for some activesync servers (/!\ %f python >=2.6)
-    
+
 )
 
 #I18N / L10N [END]##############################################################
@@ -362,7 +362,6 @@ CREME_CORE_JS = ('main.js',
 
                     #OTHER APPS (mandatory ones)
                     'activities/js/activities.js',
-                    'documents/js/folders.js',
                     'media_managers/js/media_managers.js',
                     'persons/js/persons.js',
                 )

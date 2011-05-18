@@ -18,14 +18,13 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.db.models import Q ##
-from django.shortcuts import render_to_response
-from django.template import RequestContext
 from django.contrib.auth.decorators import login_required, permission_required
-from django.contrib.contenttypes.models import ContentType
+from django.db.models.query_utils import Q
+from django.utils.translation import ugettext_lazy as _
+from django.shortcuts import get_object_or_404
 
 from creme_core.views.generic import add_entity, edit_entity, view_entity
-from creme_core.views.generic.list_entities import list_entities ##
+from creme_core.views.generic.listview import list_view
 
 from documents.models import Folder
 from documents.forms.folder import FolderForm
@@ -47,18 +46,39 @@ def edit(request, folder_id):
 def detailview(request, folder_id):
     return view_entity(request, folder_id, Folder, '/documents/folder')
 
-#TODO: use new list view ????
 @login_required
 @permission_required('documents')
 def listview(request):
-    list_field = [
-                    ('title',         True, 'title'),
-                    ('description',   True, 'description'),
-                    ('parent_folder', True, 'parent_folder'),
-                    ('user',          True, 'user__username'),
-            ]
-    page_list_folders = list_entities(request, Folder, list_field, Q(parent_folder__isnull=True), sorder='title')
+    REQUEST_get = request.REQUEST.get
 
-    return render_to_response('documents/list_folders.html',
-                              {'list_objects': page_list_folders},
-                              context_instance=RequestContext(request))
+    parent_id   = REQUEST_get('parent_id')
+    extra_q     = Q(parent_folder__isnull=True)
+    previous_id = None
+    folder      = None
+
+    if parent_id is not None:
+        try:
+            parent_id = int(parent_id)
+        except (ValueError, TypeError):
+            pass
+        else:
+            folder = get_object_or_404(Folder, pk=parent_id)
+            folder.can_view_or_die(request.user)
+            extra_q = Q(parent_folder=folder)
+            previous_id = folder.parent_folder_id
+
+    def post_process(template_dict, request):
+        if folder is not None:
+            parents = folder.get_parents()
+            parents.insert(0, folder)
+            parents.reverse()
+            template_dict['list_title'] = _(u"List sub-folders of %s") % folder
+            template_dict['list_sub_title'] = u" > ".join([f.title for f in parents])
+
+    return list_view(request, Folder, extra_q=extra_q,
+                     extra_dict={'add_url': '/documents/folder/add', 'parent_id': parent_id or "",
+                                 'extra_bt_templates':('documents/frags/previous.html', ),
+                                 'previous_id': previous_id},
+                     post_process=post_process)
+
+
