@@ -909,5 +909,10 @@ class SettingsTestCase(CremeTestCase):
 
         self.assertEqual(404, self.client.get('/creme_config/setting/edit/%s' % sv.id).status_code)
 
+class UserSettingsTestCase(CremeTestCase):
+    def test_user_settings(self):
+        self.login()
+        response = self.client.get('/creme_config/user/view/settings/')
+        self.assertEqual(200, response.status_code)
 
 #TODO: complete test cases...

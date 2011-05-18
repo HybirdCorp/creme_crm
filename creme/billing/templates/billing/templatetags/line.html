@@ -48,7 +48,7 @@
                     <td class="{{row_color}}">
                         <form method="POST" action="/billing/line/{{line.id}}/update" id="updateStatus{{line.id}}">{% csrf_token %}
                             <input type="checkbox" name="paid" {% if line.is_paid %}checked{% endif %}>
-                            <a onclick="$('#updateStatus{{line.id}}').submit();">
+                            <a onclick="$('#updateStatus{{line.id}}').submit();">{# TODO: Ajax with block reload instead of the entire page ? #}
                                 <img src="{% media_url 'images/refresh_16.png' %}" width="16" height="14" border="0">
                             </a>
                         </form>

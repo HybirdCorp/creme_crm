@@ -355,8 +355,7 @@ class BillingTestCase(CremeTestCase):
                                             'vat':                 Decimal(),
                                             'credit':              Decimal(),
                                             'has_to_register_as':  'on',
-                                            'category':            cat.id,
-                                            'sub_category':        subcat.id,
+                                            'sub_category': """{"category":%s, "subcategory":%s}""" % (cat.id, subcat.id)
                                          }
                                    )
         self.assertNoFormError(response)
@@ -973,7 +972,7 @@ class BillingTestCase(CremeTestCase):
                                             'target':          self.genericfield_format_entity(nintendo_target),
                                          }
                                    )
-        
+
         self.assertNoFormError(response)
         self.assertEqual(200, response.status_code)
 
