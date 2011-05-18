@@ -36,26 +36,15 @@ class DocumentCreateForm(CremeEntityForm):
     class Meta(CremeEntityForm.Meta):
         model = Document
 
-    def __init__(self, *args, **kwargs):
-        super(DocumentCreateForm,self ).__init__(* args, **kwargs)
-        if self.instance.filedata is not None : #TODO: useful ???
-            self.fields['filedata'].__dict__['widget'] = UploadedFileWidget(url='%s' % (self.instance.filedata))
-
     def clean_filedata(self):
         return str(handle_uploaded_file(self.cleaned_data['filedata'], path=['upload', 'documents']))
 
 
 class DocumentEditForm(CremeEntityForm):
-    filedata = CharField(required=False) #TODO: useful to see the file (can not change it) ???
+    filedata = CharField(required=False, widget=UploadedFileWidget) #TODO: useful to see the file (can not change it) ???
 
     class Meta(CremeEntityForm.Meta):
         model = Document
-
-    def __init__(self, *args, ** kwargs):
-        super(DocumentEditForm,self ).__init__(*args, ** kwargs)
-        if self.instance.filedata is not None :
-            #TODO: why __dict__['widget'] ??
-            self.fields['filedata'].__dict__['widget'] = UploadedFileWidget(url='%s' % (self.instance.filedata)) #TODO: str(self.instance.filedata)
 
 
 class DocumentCreateViewForm(DocumentCreateForm):
