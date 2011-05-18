@@ -447,595 +447,6 @@ class EntityViewsTestCase(ViewsTestCase):
         response = self.client.get('/persons/contact/%s' % oiram.id)
         self.assertEqual(response.status_code, 200)
 
-    def test_edit_entities_bulk01(self):
-        self.login()
-        contact_ct_id = ContentType.objects.get_for_model(Contact).id
-        
-        response = self.client.get('/creme_core/entity/bulk_update/%s/'  % contact_ct_id)
-        self.assertEqual(404, response.status_code)
-
-        response = self.client.get('/creme_core/entity/bulk_update/%s/%s' % (contact_ct_id, 0))
-        self.assertEqual(404, response.status_code)
-
-        response = self.client.get('/creme_core/entity/bulk_update/%s/%s' % (contact_ct_id, ",".join([str(i) for i in xrange(10)])))
-        self.assertEqual(404, response.status_code)
-
-        mario = Contact.objects.create(user=self.user, first_name="Mario", last_name="Bros")
-        response = self.client.get('/creme_core/entity/bulk_update/%s/%s' % (contact_ct_id, mario.id))
-        self.assertEqual(200, response.status_code)
-        
-
-    def test_edit_entities_bulk02(self):
-        self.login()
-        contact_ct_id = ContentType.objects.get_for_model(Contact).id
-
-        unemployed   = Position.objects.create(title='unemployed')
-        plumber      = Position.objects.create(title='plumber')
-        ghost_hunter = Position.objects.create(title='ghost hunter')
-
-        mario = Contact.objects.create(user=self.user, first_name="Mario", last_name="Bros", position=plumber)
-        luigi = Contact.objects.create(user=self.user, first_name="Luigi", last_name="Bros", position=ghost_hunter)
-
-        comma_sep_ids = ",".join([str(mario.id), str(luigi.id)])
-
-        url = '/creme_core/entity/bulk_update/%s/%s' % (contact_ct_id, comma_sep_ids)
-
-        response = self.client.get(url)
-        self.assertEqual(200, response.status_code)
-
-        response = self.client.post(url,
-                            data={
-                                'field_name': 'position',
-                                'field_value': unemployed.id,
-                                'entities_lbl': 'whatever',
-                            }
-                           )
-        self.assertNoFormError(response)
-
-        mario = Contact.objects.get(pk=mario.pk)#Refresh
-        luigi = Contact.objects.get(pk=luigi.pk)#Refresh
-
-        self.assertEqual(unemployed, mario.position)
-        self.assertEqual(unemployed, luigi.position)
-
-    def test_edit_entities_bulk03(self):
-        self.login()
-        contact_ct_id = ContentType.objects.get_for_model(Contact).id
-
-        plumbing    = Sector.objects.create(title='Plumbing')
-        games       = Sector.objects.create(title='Games')
-
-        mario = Contact.objects.create(user=self.user, first_name="Mario", last_name="Bros", sector=games)
-        luigi = Contact.objects.create(user=self.user, first_name="Luigi", last_name="Bros", sector=games)
-        nintendo = Organisation.objects.create(user=self.user, name='Nintendo', sector=games)
-
-        comma_sep_ids = ",".join([str(mario.id), str(luigi.id), str(nintendo.id)])
-
-        url = '/creme_core/entity/bulk_update/%s/%s' % (contact_ct_id, comma_sep_ids)
-
-        response = self.client.get(url)
-        self.assertEqual(200, response.status_code)
-
-        response = self.client.post(url,
-                            data={
-                                'field_name': 'sector',
-                                'field_value': plumbing.id,
-                                'entities_lbl': 'whatever',
-                            }
-                           )
-        self.assertNoFormError(response)
-
-        mario    = Contact.objects.get(pk=mario.pk)#Refresh
-        luigi    = Contact.objects.get(pk=luigi.pk)#Refresh
-        self.assertEqual(plumbing, mario.sector)
-        self.assertEqual(plumbing, luigi.sector)
-
-        nintendo = Organisation.objects.get(pk=nintendo.pk)#Refresh
-        self.assertEqual(games, nintendo.sector)
-
-    def test_edit_entities_bulk04(self):
-        self.login()
-        contact_ct_id = ContentType.objects.get_for_model(Contact).id
-
-        mario = Contact.objects.create(user=self.user, first_name="Mario", last_name="Bros")
-        luigi = Contact.objects.create(user=self.user, first_name="Luigi", last_name="Bros")
-
-        comma_sep_ids = ",".join([str(mario.id), str(luigi.id)])
-        url = '/creme_core/entity/bulk_update/%s/%s' % (contact_ct_id, comma_sep_ids)
-
-        response = self.client.get(url)
-        self.assertEqual(200, response.status_code)
-
-        response = self.client.post(url,
-                    data={
-                        'field_name':   'last_name',
-                        'field_value':  '',
-                        'entities_lbl': 'whatever',
-                    }
-                   )
-
-        self.assertFormError(response, 'form', None, [_(u'This field is required.')])
-
-    def test_edit_entities_bulk05(self):
-        self.login()
-        contact_ct_id = ContentType.objects.get_for_model(Contact).id
-
-        bulk_update_registry.register((Contact, ['position', ]))
-
-        unemployed   = Position.objects.create(title='unemployed')
-
-        mario = Contact.objects.create(user=self.user, first_name="Mario", last_name="Bros")
-        luigi = Contact.objects.create(user=self.user, first_name="Luigi", last_name="Bros")
-
-        comma_sep_ids = ",".join([str(mario.id), str(luigi.id)])
-        url = '/creme_core/entity/bulk_update/%s/%s' % (contact_ct_id, comma_sep_ids)
-
-        response = self.client.get(url)
-        self.assertEqual(200, response.status_code)
-
-        response = self.client.post(url,
-                    data={
-                        'field_name':   'position',
-                        'field_value':  unemployed.id,
-                        'entities_lbl': 'whatever',
-                    }
-                   )
-
-        self.assert_(response.context['form'].errors)
-#        self.assertFormError(response, 'form', 'field_name', [_(u'Select a valid choice. %s is not one of the available choices.') % 'position'])
-
-    def test_edit_entities_bulk06(self):
-        self.login()
-        contact_ct_id = ContentType.objects.get_for_model(Contact).id
-
-        mario = Contact.objects.create(user=self.user, first_name="Mario", last_name="Bros", description="Luigi's brother")
-        luigi = Contact.objects.create(user=self.user, first_name="Luigi", last_name="Bros", description="Mario's brother")
-
-        comma_sep_ids = ",".join([str(mario.id), str(luigi.id)])
-
-        url = '/creme_core/entity/bulk_update/%s/%s' % (contact_ct_id, comma_sep_ids)
-
-        response = self.client.get(url)
-        self.assertEqual(200, response.status_code)
-
-        response = self.client.post(url,
-                            data={
-                                'field_name':      'description',
-                                'field_value':     '',
-                                'entities_lbl':    'whatever',
-                                'bad_entities_lbl':'whatever',
-                            }
-                           )
-        self.assertNoFormError(response)
-
-        mario    = Contact.objects.get(pk=mario.pk)#Refresh
-        luigi    = Contact.objects.get(pk=luigi.pk)#Refresh
-        self.assertEqual('', mario.description)
-        self.assertEqual('', luigi.description)
-
-
-    def test_edit_entities_bulk07(self):
-        self.login(is_superuser=False, allowed_apps=('creme_core', 'persons'))
-        contact_ct_id = ContentType.objects.get_for_model(Contact).id
-
-        mario_desc = u"Luigi's brother"
-        mario = Contact.objects.create(user=self.other_user, first_name="Mario", last_name="Bros", description=mario_desc)
-        luigi = Contact.objects.create(user=self.user,       first_name="Luigi", last_name="Bros", description="Mario's brother")
-
-        comma_sep_ids = ",".join([str(mario.id), str(luigi.id)])
-
-        url = '/creme_core/entity/bulk_update/%s/%s' % (contact_ct_id, comma_sep_ids)
-
-        response = self.client.get(url)
-        self.assertEqual(200, response.status_code)
-
-        response = self.client.post(url,
-                            data={
-                                'field_name':      'description',
-                                'field_value':     '',
-                                'entities_lbl':    'whatever',
-                                'bad_entities_lbl':'whatever',
-                            }
-                           )
-        self.assertNoFormError(response)
-
-        mario    = Contact.objects.get(pk=mario.pk)#Refresh
-        luigi    = Contact.objects.get(pk=luigi.pk)#Refresh
-        
-        self.assertEqual(mario_desc, mario.description)
-        self.assertEqual('',         luigi.description)
-
-    def test_edit_entities_bulk08(self):
-        self.login()
-        contact_ct_id = ContentType.objects.get_for_model(Contact).id
-
-        mario = Contact.objects.create(user=self.user, first_name="Mario", last_name="Bros")
-        luigi = Contact.objects.create(user=self.user, first_name="Luigi", last_name="Bros")
-
-        comma_sep_ids = ",".join([str(mario.id), str(luigi.id)])
-        url = '/creme_core/entity/bulk_update/%s/%s' % (contact_ct_id, comma_sep_ids)
-
-        response = self.client.get(url)
-        self.assertEqual(200, response.status_code)
-
-        response = self.client.post(url,
-                    data={
-                        'field_name':   'birthday',
-                        'field_value':  'bad date',
-                        'entities_lbl': 'whatever',
-                    }
-                   )
-
-        self.assert_(response.context['form'].errors)
-
-        settings.DATE_INPUT_FORMATS += ("-%dT%mU%Y-",) #This weird format have few chances to be present in settings
-        response = self.client.post(url,
-            data={
-                'field_name':   'birthday',
-                'field_value':  '-31T01U2000-',
-                'entities_lbl': 'whatever',
-            }
-           )
-
-        mario    = Contact.objects.get(pk=mario.pk)#Refresh
-        luigi    = Contact.objects.get(pk=luigi.pk)#Refresh
-
-        birthday = date(2000, 01, 31)
-
-        self.assertEqual(birthday, mario.birthday)
-        self.assertEqual(birthday, luigi.birthday)
-
-    def test_edit_entities_bulk09(self):
-        self.login(is_superuser=False, allowed_apps=('creme_core', 'persons', 'media_managers'))
-        contact_ct_id = ContentType.objects.get_for_model(Contact).id
-
-        mario_desc = u"Luigi's brother"
-        mario = Contact.objects.create(user=self.other_user, first_name="Mario", last_name="Bros", description=mario_desc)
-        luigi = Contact.objects.create(user=self.user,       first_name="Luigi", last_name="Bros", description="Mario's brother")
-
-        tmpfile = NamedTemporaryFile()
-        tmpfile.width = tmpfile.height = 0
-        tmpfile._committed = True
-
-        unallowed = Image.objects.create(user=self.other_user, image=tmpfile)
-        allowed   = Image.objects.create(user=self.user, image=tmpfile)
-
-        comma_sep_ids = ",".join([str(mario.id), str(luigi.id)])
-
-        url = '/creme_core/entity/bulk_update/%s/%s' % (contact_ct_id, comma_sep_ids)
-
-        response = self.client.get(url)
-        self.assertEqual(200, response.status_code)
-
-        response = self.client.post(url,
-                            data={
-                                'field_name':      'image',
-                                'field_value':     unallowed.id,
-                                'entities_lbl':    'whatever',
-                                'bad_entities_lbl':'whatever',
-                            }
-                           )
-
-        self.assert_(response.context['form'].errors)
-
-        response = self.client.post(url,
-                    data={
-                        'field_name':      'image',
-                        'field_value':     allowed.id,
-                        'entities_lbl':    'whatever',
-                        'bad_entities_lbl':'whatever',
-                    }
-                   )
-
-        mario    = Contact.objects.get(pk=mario.pk)#Refresh
-        luigi    = Contact.objects.get(pk=luigi.pk)#Refresh
-
-        self.assertNotEqual(allowed, mario.image)
-        self.assertEqual(allowed,    luigi.image)
-
-
-    def test_edit_entities_bulk10(self):
-        self.login()
-        contact_ct    = ContentType.objects.get_for_model(Contact)
-        contact_ct_id = contact_ct.id
-
-        cf_int        = CustomField.objects.create(name='int',        content_type=contact_ct, field_type=CustomField.INT)
-        cf_float      = CustomField.objects.create(name='float',      content_type=contact_ct, field_type=CustomField.FLOAT)
-        cf_bool       = CustomField.objects.create(name='bool',       content_type=contact_ct, field_type=CustomField.BOOL)
-        cf_str        = CustomField.objects.create(name='str',        content_type=contact_ct, field_type=CustomField.STR)
-        cf_date       = CustomField.objects.create(name='date',       content_type=contact_ct, field_type=CustomField.DATE)
-        cf_enum       = CustomField.objects.create(name='enum',       content_type=contact_ct, field_type=CustomField.ENUM)
-        cf_multi_enum = CustomField.objects.create(name='multi_enum', content_type=contact_ct, field_type=CustomField.MULTI_ENUM)
-
-        enum1 = CustomFieldEnumValue.objects.create(custom_field= cf_enum, value=u"Enum1")
-        enum2 = CustomFieldEnumValue.objects.create(custom_field= cf_enum, value=u"Enum2")
-
-        m_enum1 = CustomFieldEnumValue.objects.create(custom_field= cf_multi_enum, value=u"MEnum1")
-        m_enum2 = CustomFieldEnumValue.objects.create(custom_field= cf_multi_enum, value=u"MEnum2")
-        m_enum3 = CustomFieldEnumValue.objects.create(custom_field= cf_multi_enum, value=u"MEnum3")
-
-        mario = Contact.objects.create(user=self.user, first_name="Mario", last_name="Bros")
-        luigi = Contact.objects.create(user=self.user, first_name="Luigi", last_name="Bros")
-
-        comma_sep_ids = ",".join([str(mario.id), str(luigi.id)])
-
-        url = '/creme_core/entity/bulk_update/%s/%s' % (contact_ct_id, comma_sep_ids)
-
-        response = self.client.get(url)
-        self.assertEqual(200, response.status_code)
-
-        def get_cf_values(cf, entity):
-            return cf.get_value_class().objects.get(custom_field=cf, entity=entity)
-
-        #Int
-        response = self.client.post(url,
-                            data={
-                                'field_name': _CUSTOM_NAME % cf_int.id,
-                                'field_value': 10,
-                                'entities_lbl': 'whatever',
-                            }
-                           )
-        self.assertNoFormError(response)
-
-        mario = Contact.objects.get(pk=mario.pk)#Refresh
-        luigi = Contact.objects.get(pk=luigi.pk)#Refresh
-
-        self.assertEqual(10, get_cf_values(cf_int, mario).value)
-        self.assertEqual(10, get_cf_values(cf_int, luigi).value)
-
-        #Int empty
-        response = self.client.post(url,
-                            data={
-                                'field_name': _CUSTOM_NAME % cf_int.id,
-                                'field_value': '',
-                                'entities_lbl': 'whatever',
-                            }
-                           )
-        self.assertNoFormError(response)
-
-        mario = Contact.objects.get(pk=mario.pk)#Refresh
-        luigi = Contact.objects.get(pk=luigi.pk)#Refresh
-
-        self.assertRaises(CustomFieldInteger.DoesNotExist, get_cf_values, cf_int, mario)
-        self.assertRaises(CustomFieldInteger.DoesNotExist, get_cf_values, cf_int, luigi)
-
-        #Float
-        response = self.client.post(url,
-                            data={
-                                'field_name': _CUSTOM_NAME % cf_float.id,
-                                'field_value': '10.2',
-                                'entities_lbl': 'whatever',
-                            }
-                           )
-        self.assertNoFormError(response)
-
-        mario = Contact.objects.get(pk=mario.pk)#Refresh
-        luigi = Contact.objects.get(pk=luigi.pk)#Refresh
-
-        self.assertEqual(Decimal("10.2"), get_cf_values(cf_float, mario).value)
-        self.assertEqual(Decimal("10.2"), get_cf_values(cf_float, luigi).value)
-
-
-        #Float empty
-        response = self.client.post(url,
-                            data={
-                                'field_name': _CUSTOM_NAME % cf_float.id,
-                                'field_value': '',
-                                'entities_lbl': 'whatever',
-                            }
-                           )
-        self.assertNoFormError(response)
-
-        mario = Contact.objects.get(pk=mario.pk)#Refresh
-        luigi = Contact.objects.get(pk=luigi.pk)#Refresh
-
-        self.assertRaises(CustomFieldFloat.DoesNotExist, get_cf_values, cf_float, mario)
-        self.assertRaises(CustomFieldFloat.DoesNotExist, get_cf_values, cf_float, luigi)
-
-
-        #Bool
-        response = self.client.post(url,
-                            data={
-                                'field_name': _CUSTOM_NAME % cf_bool.id,
-                                'field_value': True,
-                                'entities_lbl': 'whatever',
-                            }
-                           )
-        self.assertNoFormError(response)
-
-        mario = Contact.objects.get(pk=mario.pk)#Refresh
-        luigi = Contact.objects.get(pk=luigi.pk)#Refresh
-
-        self.assertEqual(True, get_cf_values(cf_bool, mario).value)
-        self.assertEqual(True, get_cf_values(cf_bool, luigi).value)
-
-        #Bool false
-        response = self.client.post(url,
-                            data={
-                                'field_name': _CUSTOM_NAME % cf_bool.id,
-                                'field_value': False,
-                                'entities_lbl': 'whatever',
-                            }
-                           )
-        self.assertNoFormError(response)
-
-        mario = Contact.objects.get(pk=mario.pk)#Refresh
-        luigi = Contact.objects.get(pk=luigi.pk)#Refresh
-
-        self.assertEqual(False, get_cf_values(cf_bool, mario).value)
-        self.assertEqual(False, get_cf_values(cf_bool, luigi).value)
-
-        #Bool empty
-        response = self.client.post(url,
-                    data={
-                        'field_name': _CUSTOM_NAME % cf_bool.id,
-                        'field_value': None,
-                        'entities_lbl': 'whatever',
-                    }
-                   )
-        self.assertNoFormError(response)
-
-        mario = Contact.objects.get(pk=mario.pk)#Refresh
-        luigi = Contact.objects.get(pk=luigi.pk)#Refresh
-
-        self.assertRaises(CustomFieldBoolean.DoesNotExist, get_cf_values, cf_bool, mario)
-        self.assertRaises(CustomFieldBoolean.DoesNotExist, get_cf_values, cf_bool, luigi)
-
-
-        #Str
-        response = self.client.post(url,
-                            data={
-                                'field_name': _CUSTOM_NAME % cf_str.id,
-                                'field_value': 'str',
-                                'entities_lbl': 'whatever',
-                            }
-                           )
-        self.assertNoFormError(response)
-
-        mario = Contact.objects.get(pk=mario.pk)#Refresh
-        luigi = Contact.objects.get(pk=luigi.pk)#Refresh
-
-        self.assertEqual('str', get_cf_values(cf_str, mario).value)
-        self.assertEqual('str', get_cf_values(cf_str, luigi).value)
-
-        #Str empty
-        response = self.client.post(url,
-                            data={
-                                'field_name': _CUSTOM_NAME % cf_str.id,
-                                'field_value': '',
-                                'entities_lbl': 'whatever',
-                            }
-                           )
-        self.assertNoFormError(response)
-
-        mario = Contact.objects.get(pk=mario.pk)#Refresh
-        luigi = Contact.objects.get(pk=luigi.pk)#Refresh
-
-        self.assertRaises(CustomFieldString.DoesNotExist, get_cf_values, cf_str, mario)
-        self.assertRaises(CustomFieldString.DoesNotExist, get_cf_values, cf_str, luigi)
-
-        #Date
-        settings.DATETIME_INPUT_FORMATS += ("-%dT%mU%Y-",) #This weird format have few chances to be present in settings
-        response = self.client.post(url,
-                            data={
-                                'field_name': _CUSTOM_NAME % cf_date.id,
-                                'field_value':  '-31T01U2000-',
-                                'entities_lbl': 'whatever',
-                            }
-                           )
-        self.assertNoFormError(response)
-
-        dt = datetime(2000, 01, 31)
-
-        mario = Contact.objects.get(pk=mario.pk)#Refresh
-        luigi = Contact.objects.get(pk=luigi.pk)#Refresh
-
-        self.assertEqual(dt, get_cf_values(cf_date, mario).value)
-        self.assertEqual(dt, get_cf_values(cf_date, luigi).value)
-
-        #Date
-        response = self.client.post(url,
-                            data={
-                                'field_name': _CUSTOM_NAME % cf_date.id,
-                                'field_value':  '',
-                                'entities_lbl': 'whatever',
-                            }
-                           )
-        self.assertNoFormError(response)
-
-        mario = Contact.objects.get(pk=mario.pk)#Refresh
-        luigi = Contact.objects.get(pk=luigi.pk)#Refresh
-
-        self.assertRaises(CustomFieldDateTime.DoesNotExist, get_cf_values, cf_date, mario)
-        self.assertRaises(CustomFieldDateTime.DoesNotExist, get_cf_values, cf_date, luigi)
-
-        #Enum
-        response = self.client.post(url,
-                            data={
-                                'field_name': _CUSTOM_NAME % cf_enum.id,
-                                'field_value':  enum1.id,
-                                'entities_lbl': 'whatever',
-                            }
-                           )
-        self.assertNoFormError(response)
-
-        mario = Contact.objects.get(pk=mario.pk)#Refresh
-        luigi = Contact.objects.get(pk=luigi.pk)#Refresh
-
-        self.assertEqual(enum1, get_cf_values(cf_enum, mario).value)
-        self.assertEqual(enum1, get_cf_values(cf_enum, luigi).value)
-
-        #Enum empty
-        response = self.client.post(url,
-                            data={
-                                'field_name': _CUSTOM_NAME % cf_enum.id,
-                                'field_value':  '',
-                                'entities_lbl': 'whatever',
-                            }
-                           )
-        self.assertNoFormError(response)
-
-        mario = Contact.objects.get(pk=mario.pk)#Refresh
-        luigi = Contact.objects.get(pk=luigi.pk)#Refresh
-
-        self.assertRaises(CustomFieldEnum.DoesNotExist, get_cf_values, cf_enum, mario)
-        self.assertRaises(CustomFieldEnum.DoesNotExist, get_cf_values, cf_enum, luigi)
-
-        #Multi-Enum
-        response = self.client.post(url,
-                            data={
-                                'field_name': _CUSTOM_NAME % cf_multi_enum.id,
-                                'field_value':  [m_enum1.id, m_enum3.id],
-                                'entities_lbl': 'whatever',
-                            }
-                           )
-        self.assertNoFormError(response)
-
-        mario = Contact.objects.get(pk=mario.pk)#Refresh
-        luigi = Contact.objects.get(pk=luigi.pk)#Refresh
-
-
-        self.failUnless(m_enum1.id in get_cf_values(cf_multi_enum, mario).value.values_list('pk', flat=True))
-        self.failUnless(m_enum3.id in get_cf_values(cf_multi_enum, mario).value.values_list('pk', flat=True))
-        
-        self.failUnless(m_enum1.id in get_cf_values(cf_multi_enum, luigi).value.values_list('pk', flat=True))
-        self.failUnless(m_enum3.id in get_cf_values(cf_multi_enum, luigi).value.values_list('pk', flat=True))
-
-        #Multi-Enum empty
-        response = self.client.post(url,
-                            data={
-                                'field_name': _CUSTOM_NAME % cf_multi_enum.id,
-                                'field_value':  [],
-                                'entities_lbl': 'whatever',
-                            }
-                           )
-        self.assertNoFormError(response)
-
-        mario = Contact.objects.get(pk=mario.pk)#Refresh
-        luigi = Contact.objects.get(pk=luigi.pk)#Refresh
-
-        self.assertRaises(CustomFieldMultiEnum.DoesNotExist, get_cf_values, cf_multi_enum, mario)
-        self.assertRaises(CustomFieldMultiEnum.DoesNotExist, get_cf_values, cf_multi_enum, luigi)
-
-    def test_get_widget(self):
-        self.login()
-
-        ct_id = ContentType.objects.get_for_model(Contact).id
-        url = '/creme_core/entity/get_widget/%s'
-
-        response = self.client.post(url % ct_id, data={'field_name': 'first_name', 'field_value_name':'field_value'})
-        self.assertEqual(200,               response.status_code)
-        self.assertEqual('text/javascript', response['Content-Type'])
-
-        content = simplejson.loads(response.content)
-        self.assert_(content['rendered'])
-
-        response = self.client.post(url % 0, data={})
-        self.assertEqual(404,               response.status_code)
-        self.assertEqual('text/javascript', response['Content-Type'])
-
-        response = self.client.post(url % 'notint', data={})
-        self.assertEqual(404,               response.status_code)
 
 
 class PropertyViewsTestCase(ViewsTestCase):
@@ -3305,3 +2716,644 @@ class CSVImportViewsTestCase(ViewsTestCase):
         employer = relations[0].object_entity.get_real_entity()
         self.assert_(isinstance(employer, Organisation))
         self.assertEqual(orga_name, employer.name)
+
+class BulkEditTestCase(ViewsTestCase):
+    def setUp(self):
+        self.contact_ct_id = ContentType.objects.get_for_model(Contact).id
+        self.url = '/creme_core/entity/bulk_update/%s/%s'
+
+    def create_contact(self, user, **kwargs):
+        return Contact.objects.create(user=user, **kwargs)
+
+    def refresh_contact(self, contact_id):
+        return Contact.objects.get(pk=contact_id)
+
+    def get_cf_values(self, cf, entity):
+        return cf.get_value_class().objects.get(custom_field=cf, entity=entity)
+
+    def test_edit_entities_bulk01(self):
+        self.login()
+        contact_ct_id = self.contact_ct_id
+
+        response = self.client.get('/creme_core/entity/bulk_update/%s/'  % contact_ct_id)
+        self.assertEqual(404, response.status_code)
+
+        response = self.client.get('/creme_core/entity/bulk_update/%s/%s' % (contact_ct_id, 0))
+        self.assertEqual(404, response.status_code)
+
+        response = self.client.get('/creme_core/entity/bulk_update/%s/%s' % (contact_ct_id, ",".join([str(i) for i in xrange(10)])))
+        self.assertEqual(404, response.status_code)
+
+        mario = self.create_contact(user=self.user, first_name="Mario", last_name="Bros")
+        response = self.client.get('/creme_core/entity/bulk_update/%s/%s' % (contact_ct_id, mario.id))
+        self.assertEqual(200, response.status_code)
+
+    def test_edit_entities_bulk02(self):
+        self.login()
+        contact_ct_id = self.contact_ct_id
+
+        unemployed   = Position.objects.create(title='unemployed')
+        plumber      = Position.objects.create(title='plumber')
+        ghost_hunter = Position.objects.create(title='ghost hunter')
+
+        mario = self.create_contact(user=self.user, first_name="Mario", last_name="Bros", position=plumber)
+        luigi = self.create_contact(user=self.user, first_name="Luigi", last_name="Bros", position=ghost_hunter)
+
+        comma_sep_ids = ",".join([str(mario.id), str(luigi.id)])
+
+        url = self.url % (contact_ct_id, comma_sep_ids)
+
+        response = self.client.get(url)
+        self.assertEqual(200, response.status_code)
+
+        response = self.client.post(url,
+                            data={
+                                'field_name': 'position',
+                                'field_value': unemployed.id,
+                                'entities_lbl': 'whatever',
+                            }
+                           )
+        self.assertNoFormError(response)
+
+        mario = self.refresh_contact(mario.pk)#Refresh
+        luigi = self.refresh_contact(luigi.pk)#Refresh
+
+        self.assertEqual(unemployed, mario.position)
+        self.assertEqual(unemployed, luigi.position)
+
+    def test_edit_entities_bulk03(self):
+        self.login()
+        contact_ct_id = self.contact_ct_id
+
+        plumbing    = Sector.objects.create(title='Plumbing')
+        games       = Sector.objects.create(title='Games')
+
+        mario = self.create_contact(user=self.user, first_name="Mario", last_name="Bros", sector=games)
+        luigi = self.create_contact(user=self.user, first_name="Luigi", last_name="Bros", sector=games)
+        nintendo = Organisation.objects.create(user=self.user, name='Nintendo', sector=games)
+
+        comma_sep_ids = ",".join([str(mario.id), str(luigi.id), str(nintendo.id)])
+
+        url = self.url % (contact_ct_id, comma_sep_ids)
+
+        response = self.client.get(url)
+        self.assertEqual(200, response.status_code)
+
+        response = self.client.post(url,
+                            data={
+                                'field_name': 'sector',
+                                'field_value': plumbing.id,
+                                'entities_lbl': 'whatever',
+                            }
+                           )
+        self.assertNoFormError(response)
+
+        mario    = self.refresh_contact(mario.pk)#Refresh
+        luigi    = self.refresh_contact(luigi.pk)#Refresh
+        self.assertEqual(plumbing, mario.sector)
+        self.assertEqual(plumbing, luigi.sector)
+
+        nintendo = Organisation.objects.get(pk=nintendo.pk)#Refresh
+        self.assertEqual(games, nintendo.sector)
+
+    def test_edit_entities_bulk04(self):
+        self.login()
+        contact_ct_id = self.contact_ct_id
+
+        mario = self.create_contact(user=self.user, first_name="Mario", last_name="Bros")
+        luigi = self.create_contact(user=self.user, first_name="Luigi", last_name="Bros")
+
+        comma_sep_ids = ",".join([str(mario.id), str(luigi.id)])
+        url = self.url % (contact_ct_id, comma_sep_ids)
+
+        response = self.client.get(url)
+        self.assertEqual(200, response.status_code)
+
+        response = self.client.post(url,
+                    data={
+                        'field_name':   'last_name',
+                        'field_value':  '',
+                        'entities_lbl': 'whatever',
+                    }
+                   )
+
+        self.assertFormError(response, 'form', None, [_(u'This field is required.')])
+
+    def test_edit_entities_bulk05(self):
+        self.login()
+        contact_ct_id = self.contact_ct_id
+
+        bulk_update_registry.register((Contact, ['position', ]))
+
+        unemployed   = Position.objects.create(title='unemployed')
+
+        mario = self.create_contact(user=self.user, first_name="Mario", last_name="Bros")
+        luigi = self.create_contact(user=self.user, first_name="Luigi", last_name="Bros")
+
+        comma_sep_ids = ",".join([str(mario.id), str(luigi.id)])
+        url = self.url % (contact_ct_id, comma_sep_ids)
+
+        response = self.client.get(url)
+        self.assertEqual(200, response.status_code)
+
+        response = self.client.post(url,
+                    data={
+                        'field_name':   'position',
+                        'field_value':  unemployed.id,
+                        'entities_lbl': 'whatever',
+                    }
+                   )
+
+        self.assert_(response.context['form'].errors)
+#        self.assertFormError(response, 'form', 'field_name', [_(u'Select a valid choice. %s is not one of the available choices.') % 'position'])
+
+    def test_edit_entities_bulk06(self):
+        self.login()
+        contact_ct_id = self.contact_ct_id
+
+        mario = self.create_contact(user=self.user, first_name="Mario", last_name="Bros", description="Luigi's brother")
+        luigi = self.create_contact(user=self.user, first_name="Luigi", last_name="Bros", description="Mario's brother")
+
+        comma_sep_ids = ",".join([str(mario.id), str(luigi.id)])
+
+        url = self.url % (contact_ct_id, comma_sep_ids)
+
+        response = self.client.get(url)
+        self.assertEqual(200, response.status_code)
+
+        response = self.client.post(url,
+                            data={
+                                'field_name':      'description',
+                                'field_value':     '',
+                                'entities_lbl':    'whatever',
+                                'bad_entities_lbl':'whatever',
+                            }
+                           )
+        self.assertNoFormError(response)
+
+        mario    = self.refresh_contact(mario.pk)#Refresh
+        luigi    = self.refresh_contact(luigi.pk)#Refresh
+        self.assertEqual('', mario.description)
+        self.assertEqual('', luigi.description)
+
+
+    def test_edit_entities_bulk07(self):
+        self.login(is_superuser=False, allowed_apps=('creme_core', 'persons'))
+        contact_ct_id = self.contact_ct_id
+
+        mario_desc = u"Luigi's brother"
+        mario = self.create_contact(user=self.other_user, first_name="Mario", last_name="Bros", description=mario_desc)
+        luigi = self.create_contact(user=self.user,       first_name="Luigi", last_name="Bros", description="Mario's brother")
+
+        comma_sep_ids = ",".join([str(mario.id), str(luigi.id)])
+
+        url = self.url % (contact_ct_id, comma_sep_ids)
+
+        response = self.client.get(url)
+        self.assertEqual(200, response.status_code)
+
+        response = self.client.post(url,
+                            data={
+                                'field_name':      'description',
+                                'field_value':     '',
+                                'entities_lbl':    'whatever',
+                                'bad_entities_lbl':'whatever',
+                            }
+                           )
+        self.assertNoFormError(response)
+
+        mario    = self.refresh_contact(mario.pk)#Refresh
+        luigi    = self.refresh_contact(luigi.pk)#Refresh
+
+        self.assertEqual(mario_desc, mario.description)
+        self.assertEqual('',         luigi.description)
+
+    def test_edit_entities_bulk08(self):
+        self.login()
+        contact_ct_id = self.contact_ct_id
+
+        mario = self.create_contact(user=self.user, first_name="Mario", last_name="Bros")
+        luigi = self.create_contact(user=self.user, first_name="Luigi", last_name="Bros")
+
+        comma_sep_ids = ",".join([str(mario.id), str(luigi.id)])
+        url = self.url % (contact_ct_id, comma_sep_ids)
+
+        response = self.client.get(url)
+        self.assertEqual(200, response.status_code)
+
+        response = self.client.post(url,
+                    data={
+                        'field_name':   'birthday',
+                        'field_value':  'bad date',
+                        'entities_lbl': 'whatever',
+                    }
+                   )
+
+        self.assert_(response.context['form'].errors)
+
+        settings.DATE_INPUT_FORMATS += ("-%dT%mU%Y-",) #This weird format have few chances to be present in settings
+        response = self.client.post(url,
+            data={
+                'field_name':   'birthday',
+                'field_value':  '-31T01U2000-',
+                'entities_lbl': 'whatever',
+            }
+           )
+
+        mario    = self.refresh_contact(mario.pk)#Refresh
+        luigi    = self.refresh_contact(luigi.pk)#Refresh
+
+        birthday = date(2000, 01, 31)
+
+        self.assertEqual(birthday, mario.birthday)
+        self.assertEqual(birthday, luigi.birthday)
+
+    def test_edit_entities_bulk09(self):
+        self.login(is_superuser=False, allowed_apps=('creme_core', 'persons', 'media_managers'))
+        contact_ct_id = self.contact_ct_id
+
+        mario_desc = u"Luigi's brother"
+        mario = self.create_contact(user=self.other_user, first_name="Mario", last_name="Bros", description=mario_desc)
+        luigi = self.create_contact(user=self.user,       first_name="Luigi", last_name="Bros", description="Mario's brother")
+
+        tmpfile = NamedTemporaryFile()
+        tmpfile.width = tmpfile.height = 0
+        tmpfile._committed = True
+
+        unallowed = Image.objects.create(user=self.other_user, image=tmpfile)
+        allowed   = Image.objects.create(user=self.user, image=tmpfile)
+
+        comma_sep_ids = ",".join([str(mario.id), str(luigi.id)])
+
+        url = self.url % (contact_ct_id, comma_sep_ids)
+
+        response = self.client.get(url)
+        self.assertEqual(200, response.status_code)
+
+        response = self.client.post(url,
+                            data={
+                                'field_name':      'image',
+                                'field_value':     unallowed.id,
+                                'entities_lbl':    'whatever',
+                                'bad_entities_lbl':'whatever',
+                            }
+                           )
+
+        self.assert_(response.context['form'].errors)
+
+        response = self.client.post(url,
+                    data={
+                        'field_name':      'image',
+                        'field_value':     allowed.id,
+                        'entities_lbl':    'whatever',
+                        'bad_entities_lbl':'whatever',
+                    }
+                   )
+
+        mario    = self.refresh_contact(mario.pk)#Refresh
+        luigi    = self.refresh_contact(luigi.pk)#Refresh
+
+        self.assertNotEqual(allowed, mario.image)
+        self.assertEqual(allowed,    luigi.image)
+
+    def get_2_contacts_n_url(self):
+        mario = self.create_contact(user=self.user, first_name="Mario", last_name="Bros")
+        luigi = self.create_contact(user=self.user, first_name="Luigi", last_name="Bros")
+
+        comma_sep_ids = ",".join([str(mario.id), str(luigi.id)])
+
+        url = self.url % (self.contact_ct_id, comma_sep_ids)
+
+        return mario, luigi, url
+
+    def test_edit_entities_bulk_cf01(self):
+        self.login()
+        contact_ct    = ContentType.objects.get_for_id(self.contact_ct_id)
+        get_cf_values = self.get_cf_values
+        cf_int        = CustomField.objects.create(name='int',        content_type=contact_ct, field_type=CustomField.INT)
+        mario, luigi, url = self.get_2_contacts_n_url()
+
+        #Int
+        response = self.client.post(url,
+                            data={
+                                'field_name': _CUSTOM_NAME % cf_int.id,
+                                'field_value': 10,
+                                'entities_lbl': 'whatever',
+                            }
+                           )
+        self.assertNoFormError(response)
+
+        mario = self.refresh_contact(mario.pk)#Refresh
+        luigi = self.refresh_contact(luigi.pk)#Refresh
+
+        self.assertEqual(10, get_cf_values(cf_int, mario).value)
+        self.assertEqual(10, get_cf_values(cf_int, luigi).value)
+
+        #Int empty
+        response = self.client.post(url,
+                            data={
+                                'field_name': _CUSTOM_NAME % cf_int.id,
+                                'field_value': '',
+                                'entities_lbl': 'whatever',
+                            }
+                           )
+        self.assertNoFormError(response)
+
+        mario = self.refresh_contact(mario.pk)#Refresh
+        luigi = self.refresh_contact(luigi.pk)#Refresh
+
+        self.assertRaises(CustomFieldInteger.DoesNotExist, get_cf_values, cf_int, mario)
+        self.assertRaises(CustomFieldInteger.DoesNotExist, get_cf_values, cf_int, luigi)
+
+    def test_edit_entities_bulk_cf02(self):
+        self.login()
+        contact_ct    = ContentType.objects.get_for_id(self.contact_ct_id)
+        get_cf_values = self.get_cf_values
+        mario, luigi, url = self.get_2_contacts_n_url()
+
+        cf_float      = CustomField.objects.create(name='float',      content_type=contact_ct, field_type=CustomField.FLOAT)
+
+        #Float
+        response = self.client.post(url,
+                            data={
+                                'field_name': _CUSTOM_NAME % cf_float.id,
+                                'field_value': '10.2',
+                                'entities_lbl': 'whatever',
+                            }
+                           )
+        self.assertNoFormError(response)
+
+        mario = self.refresh_contact(mario.pk)#Refresh
+        luigi = self.refresh_contact(luigi.pk)#Refresh
+
+        self.assertEqual(Decimal("10.2"), get_cf_values(cf_float, mario).value)
+        self.assertEqual(Decimal("10.2"), get_cf_values(cf_float, luigi).value)
+
+
+        #Float empty
+        response = self.client.post(url,
+                            data={
+                                'field_name': _CUSTOM_NAME % cf_float.id,
+                                'field_value': '',
+                                'entities_lbl': 'whatever',
+                            }
+                           )
+        self.assertNoFormError(response)
+
+        mario = self.refresh_contact(mario.pk)#Refresh
+        luigi = self.refresh_contact(luigi.pk)#Refresh
+
+        self.assertRaises(CustomFieldFloat.DoesNotExist, get_cf_values, cf_float, mario)
+        self.assertRaises(CustomFieldFloat.DoesNotExist, get_cf_values, cf_float, luigi)
+
+    def test_edit_entities_bulk_cf03(self):
+        self.login()
+        contact_ct    = ContentType.objects.get_for_id(self.contact_ct_id)
+        get_cf_values = self.get_cf_values
+        mario, luigi, url = self.get_2_contacts_n_url()
+
+        cf_bool       = CustomField.objects.create(name='bool',       content_type=contact_ct, field_type=CustomField.BOOL)
+
+        #Bool
+        response = self.client.post(url,
+                            data={
+                                'field_name': _CUSTOM_NAME % cf_bool.id,
+                                'field_value': True,
+                                'entities_lbl': 'whatever',
+                            }
+                           )
+        self.assertNoFormError(response)
+
+        mario = self.refresh_contact(mario.pk)#Refresh
+        luigi = self.refresh_contact(luigi.pk)#Refresh
+
+        self.assertEqual(True, get_cf_values(cf_bool, mario).value)
+        self.assertEqual(True, get_cf_values(cf_bool, luigi).value)
+
+        #Bool false
+        response = self.client.post(url,
+                            data={
+                                'field_name': _CUSTOM_NAME % cf_bool.id,
+                                'field_value': False,
+                                'entities_lbl': 'whatever',
+                            }
+                           )
+        self.assertNoFormError(response)
+
+        mario = self.refresh_contact(mario.pk)#Refresh
+        luigi = self.refresh_contact(luigi.pk)#Refresh
+
+        self.assertEqual(False, get_cf_values(cf_bool, mario).value)
+        self.assertEqual(False, get_cf_values(cf_bool, luigi).value)
+
+        #Bool empty
+        response = self.client.post(url,
+                    data={
+                        'field_name': _CUSTOM_NAME % cf_bool.id,
+                        'field_value': None,
+                        'entities_lbl': 'whatever',
+                    }
+                   )
+        self.assertNoFormError(response)
+
+        mario = self.refresh_contact(mario.pk)#Refresh
+        luigi = self.refresh_contact(luigi.pk)#Refresh
+
+        self.assertRaises(CustomFieldBoolean.DoesNotExist, get_cf_values, cf_bool, mario)
+        self.assertRaises(CustomFieldBoolean.DoesNotExist, get_cf_values, cf_bool, luigi)
+
+    def test_edit_entities_bulk_cf04(self):
+        self.login()
+        contact_ct    = ContentType.objects.get_for_id(self.contact_ct_id)
+        get_cf_values = self.get_cf_values
+        mario, luigi, url = self.get_2_contacts_n_url()
+
+        cf_str        = CustomField.objects.create(name='str',        content_type=contact_ct, field_type=CustomField.STR)
+        #Str
+        response = self.client.post(url,
+                            data={
+                                'field_name': _CUSTOM_NAME % cf_str.id,
+                                'field_value': 'str',
+                                'entities_lbl': 'whatever',
+                            }
+                           )
+        self.assertNoFormError(response)
+
+        mario = self.refresh_contact(mario.pk)#Refresh
+        luigi = self.refresh_contact(luigi.pk)#Refresh
+
+        self.assertEqual('str', get_cf_values(cf_str, mario).value)
+        self.assertEqual('str', get_cf_values(cf_str, luigi).value)
+
+        #Str empty
+        response = self.client.post(url,
+                            data={
+                                'field_name': _CUSTOM_NAME % cf_str.id,
+                                'field_value': '',
+                                'entities_lbl': 'whatever',
+                            }
+                           )
+        self.assertNoFormError(response)
+
+        mario = self.refresh_contact(mario.pk)#Refresh
+        luigi = self.refresh_contact(luigi.pk)#Refresh
+
+        self.assertRaises(CustomFieldString.DoesNotExist, get_cf_values, cf_str, mario)
+        self.assertRaises(CustomFieldString.DoesNotExist, get_cf_values, cf_str, luigi)
+
+    def test_edit_entities_bulk_cf05(self):
+        self.login()
+        contact_ct    = ContentType.objects.get_for_id(self.contact_ct_id)
+        get_cf_values = self.get_cf_values
+        mario, luigi, url = self.get_2_contacts_n_url()
+
+        cf_date       = CustomField.objects.create(name='date',       content_type=contact_ct, field_type=CustomField.DATE)
+
+        #Date
+        settings.DATETIME_INPUT_FORMATS += ("-%dT%mU%Y-",) #This weird format have few chances to be present in settings
+        response = self.client.post(url,
+                            data={
+                                'field_name': _CUSTOM_NAME % cf_date.id,
+                                'field_value':  '-31T01U2000-',
+                                'entities_lbl': 'whatever',
+                            }
+                           )
+        self.assertNoFormError(response)
+
+        dt = datetime(2000, 01, 31)
+
+        mario = self.refresh_contact(mario.pk)#Refresh
+        luigi = self.refresh_contact(luigi.pk)#Refresh
+
+        self.assertEqual(dt, get_cf_values(cf_date, mario).value)
+        self.assertEqual(dt, get_cf_values(cf_date, luigi).value)
+
+        #Date
+        response = self.client.post(url,
+                            data={
+                                'field_name': _CUSTOM_NAME % cf_date.id,
+                                'field_value':  '',
+                                'entities_lbl': 'whatever',
+                            }
+                           )
+        self.assertNoFormError(response)
+
+        mario = self.refresh_contact(mario.pk)#Refresh
+        luigi = self.refresh_contact(luigi.pk)#Refresh
+
+        self.assertRaises(CustomFieldDateTime.DoesNotExist, get_cf_values, cf_date, mario)
+        self.assertRaises(CustomFieldDateTime.DoesNotExist, get_cf_values, cf_date, luigi)
+
+    def test_edit_entities_bulk_cf06(self):
+        self.login()
+        contact_ct    = ContentType.objects.get_for_id(self.contact_ct_id)
+        get_cf_values = self.get_cf_values
+        mario, luigi, url = self.get_2_contacts_n_url()
+
+        cf_enum       = CustomField.objects.create(name='enum',       content_type=contact_ct, field_type=CustomField.ENUM)
+        enum1 = CustomFieldEnumValue.objects.create(custom_field= cf_enum, value=u"Enum1")
+        enum2 = CustomFieldEnumValue.objects.create(custom_field= cf_enum, value=u"Enum2")
+
+        #Enum
+        response = self.client.post(url,
+                            data={
+                                'field_name': _CUSTOM_NAME % cf_enum.id,
+                                'field_value':  enum1.id,
+                                'entities_lbl': 'whatever',
+                            }
+                           )
+        self.assertNoFormError(response)
+
+        mario = self.refresh_contact(mario.pk)#Refresh
+        luigi = self.refresh_contact(luigi.pk)#Refresh
+
+        self.assertEqual(enum1, get_cf_values(cf_enum, mario).value)
+        self.assertEqual(enum1, get_cf_values(cf_enum, luigi).value)
+
+        #Enum empty
+        response = self.client.post(url,
+                            data={
+                                'field_name': _CUSTOM_NAME % cf_enum.id,
+                                'field_value':  '',
+                                'entities_lbl': 'whatever',
+                            }
+                           )
+        self.assertNoFormError(response)
+
+        mario = self.refresh_contact(mario.pk)#Refresh
+        luigi = self.refresh_contact(luigi.pk)#Refresh
+
+        self.assertRaises(CustomFieldEnum.DoesNotExist, get_cf_values, cf_enum, mario)
+        self.assertRaises(CustomFieldEnum.DoesNotExist, get_cf_values, cf_enum, luigi)
+
+    def test_edit_entities_bulk_cf07(self):
+        self.login()
+        contact_ct_id = self.contact_ct_id
+        contact_ct    = ContentType.objects.get_for_id(contact_ct_id)
+        get_cf_values = self.get_cf_values
+
+        cf_multi_enum = CustomField.objects.create(name='multi_enum', content_type=contact_ct, field_type=CustomField.MULTI_ENUM)
+
+        m_enum1 = CustomFieldEnumValue.objects.create(custom_field= cf_multi_enum, value=u"MEnum1")
+        m_enum2 = CustomFieldEnumValue.objects.create(custom_field= cf_multi_enum, value=u"MEnum2")
+        m_enum3 = CustomFieldEnumValue.objects.create(custom_field= cf_multi_enum, value=u"MEnum3")
+
+        mario, luigi, url = self.get_2_contacts_n_url()
+
+        response = self.client.get(url)
+        self.assertEqual(200, response.status_code)
+
+        #Multi-Enum
+        response = self.client.post(url,
+                            data={
+                                'field_name': _CUSTOM_NAME % cf_multi_enum.id,
+                                'field_value':  [m_enum1.id, m_enum3.id],
+                                'entities_lbl': 'whatever',
+                            }
+                           )
+        self.assertNoFormError(response)
+
+        mario = self.refresh_contact(mario.pk)#Refresh
+        luigi = self.refresh_contact(luigi.pk)#Refresh
+
+        self.failUnless(m_enum1.id in get_cf_values(cf_multi_enum, mario).value.values_list('pk', flat=True))
+        self.failUnless(m_enum3.id in get_cf_values(cf_multi_enum, mario).value.values_list('pk', flat=True))
+
+        self.failUnless(m_enum1.id in get_cf_values(cf_multi_enum, luigi).value.values_list('pk', flat=True))
+        self.failUnless(m_enum3.id in get_cf_values(cf_multi_enum, luigi).value.values_list('pk', flat=True))
+
+        #Multi-Enum empty
+        response = self.client.post(url,
+                            data={
+                                'field_name': _CUSTOM_NAME % cf_multi_enum.id,
+                                'field_value':  [],
+                                'entities_lbl': 'whatever',
+                            }
+                           )
+        self.assertNoFormError(response)
+
+        mario = self.refresh_contact(mario.pk)#Refresh
+        luigi = self.refresh_contact(luigi.pk)#Refresh
+
+        self.assertRaises(CustomFieldMultiEnum.DoesNotExist, get_cf_values, cf_multi_enum, mario)
+        self.assertRaises(CustomFieldMultiEnum.DoesNotExist, get_cf_values, cf_multi_enum, luigi)
+
+    def test_get_widget(self):#Bulk edition uses this widget
+        self.login()
+
+        ct_id = ContentType.objects.get_for_model(Contact).id
+        url = '/creme_core/entity/get_widget/%s'
+
+        response = self.client.post(url % ct_id, data={'field_name': 'first_name', 'field_value_name':'field_value'})
+        self.assertEqual(200,               response.status_code)
+        self.assertEqual('text/javascript', response['Content-Type'])
+
+        content = simplejson.loads(response.content)
+        self.assert_(content['rendered'])
+
+        response = self.client.post(url % 0, data={})
+        self.assertEqual(404,               response.status_code)
+        self.assertEqual('text/javascript', response['Content-Type'])
+
+        response = self.client.post(url % 'notint', data={})
+        self.assertEqual(404,               response.status_code)
