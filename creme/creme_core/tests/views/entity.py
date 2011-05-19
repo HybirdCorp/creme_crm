@@ -372,7 +372,6 @@ class EntityViewsTestCase(ViewsTestCase):
         response = self.client.get('/persons/contact/%s' % oiram.id)
         self.assertEqual(response.status_code, 200)
 
-
     def _assert_detailview(self, response, entity):
         self.assertEqual(200, response.status_code)
         self.assertEqual(1,   len(response.redirect_chain))
@@ -443,9 +442,9 @@ class EntityViewsTestCase(ViewsTestCase):
 
         url = '/creme_core/entity/search_n_view'
         base_data = {
-                        'models':  'persons-contact,persons-organisation',
+                        'models': 'persons-contact,persons-organisation',
                         'fields': 'mobile,phone',
-                        'value': '696969',
+                        'value':  '696969',
                     }
         create_contact = Contact.objects.create
         onizuka = create_contact(user=self.user, first_name='Eikichi', last_name='Onizuka', mobile='55555')
@@ -478,9 +477,9 @@ class EntityViewsTestCase(ViewsTestCase):
         phone = '44444'
         url = '/creme_core/entity/search_n_view'
         data = {
-                'models':  'persons-contact,persons-organisation',
+                'models': 'persons-contact,persons-organisation',
                 'fields': 'phone,mobile',
-                'value': phone,
+                'value':  phone,
                }
         user = self.user
         create_contact = Contact.objects.create
@@ -492,6 +491,20 @@ class EntityViewsTestCase(ViewsTestCase):
         self.assert_(ryuji.can_view(user))
         self.assert_(onibaku.can_view(user))
         self._assert_detailview(self.client.get(url, data=data, follow=True), onibaku)
+
+    def test_search_and_view06(self): #app creds
+        self.login(is_superuser=False)
+        self.role.allowed_apps = ['creme_core'] #not 'persons'
+        self.role.save()
+
+        phone = '31337'
+        data = {
+                'models': 'persons-contact',
+                'fields': 'phone',
+                'value':  phone,
+               }
+        onizuka = Contact.objects.create(user=self.user, first_name='Eikichi', last_name='Onizuka', phone=phone)#would match if apps was allowed
+        self.assertEqual(403, self.client.get('/creme_core/entity/search_n_view', data=data).status_code)
 
 
 class BulkEditTestCase(ViewsTestCase):
