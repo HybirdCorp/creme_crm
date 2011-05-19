@@ -1,0 +1,310 @@
+# -*- coding: utf-8 -*-
+
+from django.core.serializers.json import simplejson
+from django.contrib.auth.models import User
+from django.contrib.contenttypes.models import ContentType
+
+from creme_core.models import HeaderFilter, HeaderFilterItem, CremeEntity
+from creme_core.models.header_filter import HFI_FIELD
+from creme_core.tests.views.base import ViewsTestCase
+
+from persons.models import Contact, Organisation
+
+
+__all__ = ('HeaderFilterViewsTestCase', )
+
+
+class HeaderFilterViewsTestCase(ViewsTestCase):
+    def test_create01(self): #TODO: test several HFI, other types of HFI
+        self.login()
+
+        ct = ContentType.objects.get_for_model(CremeEntity)
+        self.assertEqual(0, HeaderFilter.objects.filter(entity_type=ct).count())
+
+        uri = '/creme_core/header_filter/add/%s' % ct.id
+        response = self.client.get(uri)
+        self.assertEqual(200, response.status_code)
+
+        try:
+            form = response.context['form']
+            fields_field = form.fields['fields']
+        except KeyError, e:
+            self.fail(str(e))
+
+        for i, (fname, fvname) in enumerate(fields_field.choices):
+            if fname == 'created': created_index = i; break
+        else:
+            self.fail('No "created" field')
+
+        name = 'DefaultHeaderFilter'
+        response = self.client.post(uri,
+                                    data={
+                                            'name':                            name,
+                                            'fields_check_%s' % created_index: 'on',
+                                            'fields_value_%s' % created_index: 'created',
+                                            'fields_order_%s' % created_index: 1,
+                                         }
+                                   )
+        self.assertNoFormError(response)
+        self.assertEqual(302, response.status_code)
+
+        hfilters = HeaderFilter.objects.filter(entity_type=ct)
+        self.assertEqual(1, len(hfilters))
+
+        hfilter = hfilters[0]
+        self.assertEqual(name, hfilter.name)
+        self.assert_(hfilter.user is None)
+
+        hfitems = hfilter.header_filter_items.all()
+        self.assertEqual(1, len(hfitems))
+
+        hfitem = hfitems[0]
+        self.assertEqual('created',        hfitem.name)
+        self.assertEqual(1,                hfitem.order)
+        self.assertEqual(1,                hfitem.type)
+        self.assertEqual('created__range', hfitem.filter_string)
+        self.failIf(hfitem.is_hidden)
+
+    def test_create02(self):
+        self.login()
+
+        ct = ContentType.objects.get_for_model(CremeEntity)
+        uri = '/creme_core/header_filter/add/%s' % ct.id
+        response = self.client.get(uri)
+
+        try:
+            fields_field = response.context['form'].fields['fields']
+        except KeyError, e:
+            self.fail(str(e))
+
+        for i, (fname, fvname) in enumerate(fields_field.choices):
+            if fname == 'created': created_index = i; break
+        else:
+            self.fail('No "created" field')
+
+        name = 'DefaultHeaderFilter'
+        response = self.client.post(uri,
+                                    data={
+                                            'name':                            name,
+                                            'user':                            self.user.id,
+                                            'fields_check_%s' % created_index: 'on',
+                                            'fields_value_%s' % created_index: 'created',
+                                            'fields_order_%s' % created_index: 1,
+                                         }
+                                   )
+        self.assertNoFormError(response)
+
+        hfilters = HeaderFilter.objects.filter(name=name)
+        self.assertEqual(1,            len(hfilters))
+        self.assertEqual(self.user.id, hfilters[0].user_id)
+
+    def test_create03(self): #check app credentials
+        self.login(is_superuser=False)
+
+        ct = ContentType.objects.get_for_model(Contact)
+        uri = '/creme_core/header_filter/add/%s' % ct.id
+        self.assertEqual(404, self.client.get(uri).status_code)
+
+        self.role.allowed_apps = ['persons']
+        self.role.save()
+
+        self.assertEqual(200, self.client.get(uri).status_code)
+
+    def test_edit01(self): #not editable
+        self.login()
+
+        ct = ContentType.objects.get_for_model(CremeEntity)
+        hf = HeaderFilter.objects.create(pk='tests-hf_entity', name='Entity view', entity_type_id=ct.id, is_custom=False)
+        HeaderFilterItem.objects.create(pk='tests-hfi_entity_created', order=1, name='created',
+                                        title='Created', type=HFI_FIELD, header_filter=hf,
+                                        has_a_filter=True, editable=True,  filter_string="created__range"
+                                       )
+
+        self.assertEqual(404, self.client.get('/creme_core/header_filter/edit/%s' % hf.id).status_code)
+
+    def test_edit02(self):
+        self.login()
+
+        ct = ContentType.objects.get_for_model(Contact)
+        hf = HeaderFilter.objects.create(pk='tests-hf_contact', name='Contact view', entity_type_id=ct.id, is_custom=True)
+        HeaderFilterItem.objects.create(pk='tests-hfi_entity_first_name', order=1,
+                                        name='first_name', title='First name',
+                                        type=HFI_FIELD, header_filter=hf,
+                                        filter_string="first_name__icontains"
+                                       )
+
+        uri = '/creme_core/header_filter/edit/%s' % hf.id
+        response = self.client.get(uri)
+        self.assertEqual(200, response.status_code)
+
+        try:
+            fields_field = response.context['form'].fields['fields']
+        except KeyError, e:
+            self.fail(str(e))
+
+        first_name_index  = None
+        last_name_index = None
+        for i, (fname, fvname) in enumerate(fields_field.choices):
+            if   fname == 'first_name': first_name_index = i
+            elif fname == 'last_name':  last_name_index  = i
+
+        if first_name_index is None: self.fail('No "first_name" field')
+        if last_name_index  is None: self.fail('No "last_name" field')
+
+        name = 'Entity view v2'
+        response = self.client.post(uri,
+                                    data={
+                                            'name':                               name,
+                                            'fields_check_%s' % first_name_index: 'on',
+                                            'fields_value_%s' % first_name_index: 'first_name',
+                                            'fields_order_%s' % first_name_index: 1,
+                                            'fields_check_%s' % last_name_index:  'on',
+                                            'fields_value_%s' % last_name_index:  'last_name',
+                                            'fields_order_%s' % last_name_index:  2,
+                                         }
+                                   )
+        self.assertNoFormError(response)
+        self.assertEqual(302, response.status_code)
+
+        hf = HeaderFilter.objects.get(pk=hf.id)
+        self.assertEqual(name, hf.name)
+
+        hfitems = hf.header_filter_items.all()
+        self.assertEqual(2,            len(hfitems))
+        self.assertEqual('first_name', hfitems[0].name)
+        self.assertEqual('last_name',  hfitems[1].name)
+
+    def test_edit03(self): #can not edit HeaderFilter that belongs to another user
+        self.login(is_superuser=False)
+
+        ct = ContentType.objects.get_for_model(CremeEntity)
+        hf = HeaderFilter.objects.create(pk='tests-hf_contact', name='Contact view',
+                                         entity_type_id=ct.id, is_custom=True,
+                                         user=self.other_user
+                                        )
+        self.assertEqual(404, self.client.get('/creme_core/header_filter/edit/%s' % hf.id).status_code)
+
+    def test_edit04(self): #user do not have the app credentials
+        self.login(is_superuser=False)
+
+        ct = ContentType.objects.get_for_model(Contact)
+        hf = HeaderFilter.objects.create(pk='tests-hf_contact', name='Contact view',
+                                         entity_type_id=ct.id, is_custom=True,
+                                         user=self.user
+                                        )
+        self.assertEqual(404, self.client.get('/creme_core/header_filter/edit/%s' % hf.id).status_code)
+
+    def test_delete01(self):
+        self.login()
+
+        ct = ContentType.objects.get_for_model(Contact)
+        hf = HeaderFilter.objects.create(pk='tests-hf_contact', name='Contact view', entity_type_id=ct.id, is_custom=True)
+        HeaderFilterItem.objects.create(pk='tests-hfi_entity_first_name', order=1,
+                                        name='first_name', title='First name',
+                                        type=HFI_FIELD, header_filter=hf,
+                                        filter_string="first_name__icontains"
+                                       )
+
+        self.assertEqual(200, self.client.post('/creme_core/header_filter/delete',
+                                               data={'id': hf.id}, follow=True
+                                              ).status_code
+                        )
+        self.assertEqual(0, HeaderFilter.objects.filter(pk=hf.id).count())
+        self.assertEqual(0, HeaderFilterItem.objects.filter(header_filter=hf.id).count())
+
+    def test_delete02(self): #not custom -> undeletable
+        self.login()
+
+        ct = ContentType.objects.get_for_model(Contact)
+        hf = HeaderFilter.objects.create(pk='tests-hf_contact', name='Contact view', entity_type_id=ct.id, is_custom=False)
+        self.client.post('/creme_core/header_filter/delete', data={'id': hf.id})
+        self.assertEqual(1, HeaderFilter.objects.filter(pk=hf.id).count())
+
+    def test_delete03(self): #belongs to another user
+        self.login(is_superuser=False)
+
+        self.role.allowed_apps = ['persons']
+        self.role.save()
+
+        ct = ContentType.objects.get_for_model(Contact)
+        hf = HeaderFilter.objects.create(pk='tests-hf_contact', name='Contact view',
+                                         entity_type_id=ct.id, is_custom=True, user=self.other_user
+                                        )
+        self.client.post('/creme_core/header_filter/delete', data={'id': hf.id})
+        self.assertEqual(1, HeaderFilter.objects.filter(pk=hf.id).count())
+
+    def test_delete04(self): #belongs to my team -> ok
+        self.login()
+
+        my_team = User.objects.create(username='TeamTitan', is_team=True)
+        my_team.teammates = [self.user]
+
+        ct = ContentType.objects.get_for_model(Contact)
+        hf = HeaderFilter.objects.create(pk='tests-hf_contact', name='Contact view',
+                                         entity_type_id=ct.id, is_custom=True, user=my_team
+                                        )
+        self.assertEqual(200, self.client.post('/creme_core/header_filter/delete',
+                                               data={'id': hf.id}, follow=True
+                                              ).status_code
+                        )
+        self.assertEqual(0, HeaderFilter.objects.filter(pk=hf.id).count())
+
+    def test_delete05(self): #belongs to a team (not mine) -> ko
+        self.login(is_superuser=False)
+
+        self.role.allowed_apps = ['persons']
+        self.role.save()
+
+        a_team = User.objects.create(username='TeamTitan', is_team=True)
+        a_team.teammates = [self.other_user]
+
+        ct = ContentType.objects.get_for_model(Contact)
+        hf = HeaderFilter.objects.create(pk='tests-hf_contact', name='Contact view',
+                                         entity_type_id=ct.id, is_custom=True, user=a_team
+                                        )
+        self.client.post('/creme_core/header_filter/delete', data={'id': hf.id}, follow=True)
+        self.assertEqual(1, HeaderFilter.objects.filter(pk=hf.id).count())
+
+    def test_delete06(self): #logged as super user
+        self.login()
+
+        ct = ContentType.objects.get_for_model(Contact)
+        hf = HeaderFilter.objects.create(pk='tests-hf_contact', name='Contact view',
+                                         entity_type_id=ct.id, is_custom=True, user=self.other_user
+                                        )
+        self.client.post('/creme_core/header_filter/delete', data={'id': hf.id})
+        self.assertEqual(0, HeaderFilter.objects.filter(pk=hf.id).count())
+
+    def test_hfilters_for_ctype01(self):
+        self.login()
+
+        ct = ContentType.objects.get_for_model(Contact)
+        response = self.client.get('/creme_core/header_filter/get_for_ctype/%s' % ct.id)
+        self.assertEqual(200, response.status_code)
+
+        content = simplejson.loads(response.content)
+        self.assert_(isinstance(content, list))
+        self.failIf(content)
+
+    def test_hfilters_for_ctype02(self):
+        self.login()
+
+        ct_contact = ContentType.objects.get_for_model(Contact)
+        ct_orga    = ContentType.objects.get_for_model(Organisation)
+        create_hf = HeaderFilter.objects.create
+        name01 = 'Contact view01'
+        name02 = 'Contact view02'
+        hf01 = create_hf(pk='tests-hf_contact01', name=name01,      entity_type_id=ct_contact.id, is_custom=False)
+        hf02 = create_hf(pk='tests-hf_contact02', name=name02,      entity_type_id=ct_contact.id, is_custom=True)
+        hf03 = create_hf(pk='tests-hf_orga01',    name='Orga view', entity_type_id=ct_orga.id,    is_custom=True)
+
+        response = self.client.get('/creme_core/header_filter/get_for_ctype/%s' % ct_contact.id)
+        self.assertEqual(200, response.status_code)
+        self.assertEqual([[hf01.id, name01], [hf02.id, name02]], simplejson.loads(response.content))
+
+    def test_hfilters_for_ctype03(self):
+        self.login(is_superuser=False)
+
+        ct = ContentType.objects.get_for_model(Contact)
+        response = self.client.get('/creme_core/header_filter/get_for_ctype/%s' % ct.id)
+        self.assertEqual(403, response.status_code)

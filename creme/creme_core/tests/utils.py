@@ -1,9 +1,8 @@
 # -*- coding: utf-8 -*-
+
 import string
 import pytz
-from datetime import datetime
-
-from datetime import date, timedelta
+from datetime import datetime, date, timedelta
 
 from django.db.models import fields
 from django.utils.translation import ugettext as _
@@ -14,9 +13,9 @@ from creme_core import models
 from creme_core.utils import *
 from creme_core.utils import meta, chunktools
 from creme_core.utils.date_range import date_range_registry
-#from creme_core.utils.date import date_range_registry
+from creme_core.utils.dates import(get_dt_from_iso8601_str, get_dt_from_iso8601_str, get_dt_to_iso8601_str,
+                                   get_naive_dt_from_tzdate, get_creme_dt_from_utc_dt, get_utc_dt_from_creme_dt)
 from creme_core.tests.base import CremeTestCase
-from creme_core.utils.dates import get_dt_from_iso8601_str, get_dt_from_iso8601_str, get_dt_to_iso8601_str, get_naive_dt_from_tzdate, get_creme_dt_from_utc_dt, get_utc_dt_from_creme_dt
 
 
 class MiscTestCase(CremeTestCase):
@@ -41,15 +40,13 @@ class MiscTestCase(CremeTestCase):
 
         expected = s[:-5] + "012"
         self.assertEqual(expected, truncate_str(s, 50, suffix="012"))
-        
+
         self.assertEqual("",      truncate_str("",        0, suffix="01234"))
         self.assertEqual("01234", truncate_str("abcdef",  5, suffix="01234"))
         self.assertEqual("abc",   truncate_str("abcdef",  3, suffix=""))
         self.assertEqual("",      truncate_str("abcdef", -1, suffix=""))
         self.assertEqual("",      truncate_str("abcdef", -1, suffix="aaaaaa"))
         self.assertEqual("a",     truncate_str("b",       1, suffix="a"))
-
-
 
 
 class MetaTestCase(CremeTestCase):
@@ -251,7 +248,7 @@ s556"""
 
         self.assert_entries(entries)
 
-        
+
 class DatesTestCase(CremeTestCase):
     def test_get_dt_from_iso8601_str_01(self):
         dt = get_dt_from_iso8601_str('20110522T223000Z')
@@ -270,8 +267,8 @@ class DatesTestCase(CremeTestCase):
         dt_localized = pytz.utc.localize(datetime(2011, 05, 22, 22, 30, 00))
         utc_dt = get_utc_dt_from_creme_dt(get_creme_dt_from_utc_dt(dt_localized))
         self.assertEqual(dt_localized, utc_dt)
-        
-        
+
+
 class DateRangeTestCase(CremeTestCase):
     def test_future(self):
         date_range = date_range_registry.get_range('in_future')
@@ -290,7 +287,7 @@ class DateRangeTestCase(CremeTestCase):
         self.assertEqual({'created__lte': today},
                          date_range.get_q_dict(field='created', today=today)
                         )
-        
+
     def test_custom_start(self):
         today = date.today()
         date_range = date_range_registry.get_range(start=today)

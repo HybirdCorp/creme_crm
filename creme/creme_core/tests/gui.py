@@ -7,12 +7,16 @@ from django.contrib.sessions.models import Session
 from activities.models.activity import Meeting, Activity
 
 from creme_core.models import *
+from creme_core.models.list_view_state import get_field_name_from_pattern
 from creme_core.gui.last_viewed import LastViewedItem
-from creme_core.tests.base import CremeTestCase
 from creme_core.gui.bulk_update import BulkUpdateRegistry
+from creme_core.tests.base import CremeTestCase
 
 from persons.models import Contact
 from persons.models.organisation import Organisation
+
+
+__all__ = ('GuiTestCase', 'ListViewStateTestCase')
 
 
 class GuiTestCase(CremeTestCase):
@@ -114,11 +118,11 @@ class GuiTestCase(CremeTestCase):
                                         (Meeting,      meeting_excluded_fields),
                                         (Activity,     activity_excluded_fields),
                                      )
-        
+
         meeting_excluded_fields_expected = set(activity_excluded_fields)   | set(ce_excluded_fields) | set(meeting_excluded_fields)
         self.assertEqual(bulk_update_registry.get_excluded_fields(Meeting), meeting_excluded_fields_expected)
 
-        
+
         bulk_update_registry.register((Activity, ['status']))
 
         activity_excluded_fields_expected = set(activity_excluded_fields)   | set(ce_excluded_fields) | set(['status'])
@@ -127,7 +131,7 @@ class GuiTestCase(CremeTestCase):
 
     def test_bulk_update_registry04(self):
         bulk_update_registry = self.bulk_update_registry
-        
+
         ce_excluded_fields       = ['created']
 
         bulk_update_registry.register(
@@ -135,3 +139,15 @@ class GuiTestCase(CremeTestCase):
                                      )
 
         self.assertEqual(bulk_update_registry.get_excluded_fields(Contact), set(ce_excluded_fields))
+
+
+class ListViewStateTestCase(CremeTestCase):
+    def test_get_field_name_from_pattern(self):
+        self.assertEqual('foo__bar__plop', get_field_name_from_pattern('foo__bar__plop__icontains'))
+        self.assertEqual('foo__bar',       get_field_name_from_pattern('foo__bar__icontains'))
+        self.assertEqual('foo__bar',       get_field_name_from_pattern('foo__bar__exact'))
+        self.assertEqual('foo__bar',       get_field_name_from_pattern('foo__bar__creme-boolean'))
+        self.assertEqual('foo__bar',       get_field_name_from_pattern('foo__bar__exact'))
+        self.assertEqual('foo__bar',       get_field_name_from_pattern('foo__bar'))
+        self.assertEqual('foo',            get_field_name_from_pattern('foo'))
+        self.assertEqual('foo',            get_field_name_from_pattern('foo__isnull'))
