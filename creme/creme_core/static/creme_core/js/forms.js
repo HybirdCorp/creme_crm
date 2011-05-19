@@ -692,6 +692,15 @@ creme.forms._toDualColumnMultiSelect = function(store_id, use_order, buildColumn
                                               .append($('<td></td>').append($chosen)));
 
     $div.append($store).append($layout);
+
+    //Set the same dimensions for the 2 columns
+    var width = Math.max($available.width(), $chosen.width());
+    $chosen.width(width);
+    $available.width(width);
+
+    var height = Math.max($available.height() + $chosen.height(), $buttons.height());
+    $chosen.height(height);
+    $available.height(height);
 }
 
 creme.forms.toUnorderedMultiSelect = function(select_id) {

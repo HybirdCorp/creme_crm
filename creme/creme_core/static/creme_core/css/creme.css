@@ -754,7 +754,7 @@ textarea:disabled, textarea[readonly] {
     border: 1px solid #6eaac4;
     -moz-border-radius: 4px;
     -webkit-border-radius: 4px;
-    min-height: 200px;
+/*     min-height: 200px; */
     min-width: 100px;
 }
 
