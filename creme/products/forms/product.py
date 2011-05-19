@@ -25,7 +25,6 @@ from django.utils.translation import ugettext_lazy as _
 from creme_core.forms import CremeEntityForm
 from creme_core.forms.fields import MultiCremeEntityField, JSONField
 from creme_core.forms.widgets import ChainedInput
-#from creme_core.forms.widgets import DependentSelect
 
 from media_managers.models import Image
 from media_managers.forms.widgets import ImageM2MWidget
@@ -121,10 +120,6 @@ class ProductCategoryField(JSONField):
 
 
 class ProductCreateForm(CremeEntityForm):
-#    category     = ModelChoiceField(queryset=Category.objects.all(), label=_(u'Category'),
-#                                    widget=DependentSelect(target_id='id_sub_category', target_url='/products/sub_category/load'))
-#    sub_category = ModelChoiceField(queryset=SubCategory.objects.all(), label=_(u'Sub-category'),
-#                                    widget=Select(attrs={'id': 'id_sub_category'}))
     sub_category = ProductCategoryField(label=_(u'Sub-category'))
 
     images       = MultiCremeEntityField(label=_(u'Images'), model=Image, widget=ImageM2MWidget(), required=False)
