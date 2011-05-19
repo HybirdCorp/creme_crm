@@ -21,6 +21,7 @@
 from datetime import datetime
 from itertools import chain
 
+from django.contrib.contenttypes.models import ContentType
 from django.forms.widgets import Widget, Textarea, Select, SelectMultiple, FileInput, TextInput, Input, MultiWidget
 from django.forms.util import flatatt
 from django.utils.html import conditional_escape, escape
@@ -622,31 +623,35 @@ class ListViewWidget(TextInput):
         mailing_list = fields.MultiCremeEntityField(required=False, model=MailingList, q_filter=None)
     @param q_filter Has to be a list of dict => {'pk__in':[1,2], 'name__contains':'toto'} or None
     """
-    def __init__(self, attrs=None, q_filter=None):
+    def __init__(self, attrs=None, q_filter=None, model=None, separator=','):
         super(ListViewWidget, self).__init__(attrs)
-        self.q_filter = q_filter
+        self.q_filter  = q_filter
+        self._o2m      = 1
+        self._model    = model
+        self._ct_id    = None if model is None else ContentType.objects.get_for_model(model).id
+        self.separator = separator
+
+    def _set_o2m(self, o2m):
+        self._o2m = o2m
+
+    o2m = property(lambda self: self._o2m, _set_o2m); del _set_o2m
+
+    def _set_model(self, model):
+        self._model = model
+        if model is not None:
+            self._ct_id = ContentType.objects.get_for_model(model).id
+
+    model = property(lambda self: self._model, _set_model); del _set_model
 
     def render(self, name, value, attrs=None):
-        #TODO: use build_attrs()
-        id_input = self.attrs.get('id')
-        if not id_input:
-            id_input = 'id_%s' % name
-            if not self.attrs:
-                self.attrs = {'id' : id_input}
-            else:
-                self.attrs['id'] = id_input
+        #TODO: Improve ajax request in js
+        attrs = self.build_attrs(attrs, name=name)
+        attrs['o2m']   = self.o2m
+        attrs['ct_id'] = self._ct_id
+
+        id_input = attrs.get('id')
 
         encode = JSONEncoder().encode
-
-        #TODO : Improve me
-        #TODO: factorise 'if value' ; what happens if 'value' is not string neither integer ??
-        #TODO: isinstance(basestring, value) instead
-        if(value and (type(value)==type("") or type(value)==type(u""))):#type(value)!=type([])):
-            value = [v for v in value.split(',') if v]
-
-        #TODO: isinstance(value, (int, long)) instead
-        if(value and (type(value)==type(1) or type(value)==type(1L))):
-            value = [value]
 
         return mark_safe("""%(input)s
                 <script type="text/javascript">
@@ -655,12 +660,20 @@ class ListViewWidget(TextInput):
                         creme.lv_widget.handleSelection(%(value)s, '%(id)s');
                     });
                 </script>""" % {
-                    'input':    super(ListViewWidget, self).render(name, "", self.attrs),
+                    'input':    super(ListViewWidget, self).render(name, "", attrs),
                     'id':       id_input,
                     'qfilter':  encode(self.q_filter),
                     'js_attrs': encode([{'name': k, 'value': v} for k, v in self.attrs.iteritems()]),
                     'value':    encode(value),
                 })
+
+    def value_from_datadict(self, data, files, name):
+        value = data.get(name, None)
+        if value and self.separator in value:
+            return [v for v in data[name].split(self.separator) if v]
+        if value:
+            return [value]
+        return None
 
 
 class UnorderedMultipleChoiceWidget(SelectMultiple):

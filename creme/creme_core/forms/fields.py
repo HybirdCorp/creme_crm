@@ -489,7 +489,7 @@ class MultiRelationEntityField(RelationEntityField):
         return relations
 
 
-class _CommaMultiValueField(CharField): #TODO: Charfield and not Field ??!!
+class _CommaMultiValueField(CharField): #TODO: Charfield and not Field ??!! #TODO2: Remove ?
     """
         An input with comma (or anything) separated values
     """
@@ -510,7 +510,7 @@ class _CommaMultiValueField(CharField): #TODO: Charfield and not Field ??!!
         return []
 
 
-class _EntityField(_CommaMultiValueField):
+class _EntityField(Field):
     """
         Base class for CremeEntityField and MultiCremeEntityField,
         not really usable elsewhere avoid using it
@@ -520,41 +520,48 @@ class _EntityField(_CommaMultiValueField):
         'invalid_choice': _(u"Select a valid choice. %(value)s is not an available choice."),
     }
 
-    o2m = 1
-
-    def _get_model(self):
-        return self._model
+    def __init__(self, model=None, q_filter=None, separator=',', *args, **kwargs):
+        super(_EntityField, self).__init__(*args, **kwargs)
+        self.model     = model
+        self.q_filter  = q_filter
+        self.o2m       = None
+        self.separator = separator
 
     def _set_model(self, model):
         self._model = self.widget.model = model
 
-    model = property(_get_model, _set_model) #TODO: lambda instead of '_get_model' ?? del _set_model ?
-
-    def _get_q_filter(self):
-        return self._q_filter
+    model = property(lambda self: self._model, _set_model); del _set_model
 
     def _set_q_filter(self, q_filter):
         self._q_filter = self.widget.q_filter = q_filter
 
-    q_filter = property(_get_q_filter, _set_q_filter)
+    q_filter = property(lambda self: self._q_filter, _set_q_filter); del _set_q_filter
+
+    def _set_o2m(self, o2m):
+        self._o2m = self.widget.o2m = o2m
+
+    o2m = property(lambda self: self._o2m, _set_o2m); del _set_o2m
+
+    def _set_separator(self, separator):
+        self._separator = self.widget.separator = separator
+
+    separator = property(lambda self: self._separator, _set_separator); del _set_separator
 
     def clean(self, value):
-        if not value and self.required:
-            raise ValidationError(self.error_messages['required'])
+        value = super(_EntityField, self).clean(value)
 
-        clean_ids = super(_EntityField, self).clean(value)
+        if not value:
+            return None
+
+        if isinstance(value, basestring) and self.separator in value:#In case of the widget doesn't make a 'good clean'
+            value = [v for v in value.split(self.separator) if v]
 
         try:
-            clean_ids = map(int, clean_ids)
+            clean_ids = map(int, value)
         except ValueError:
             raise ValidationError(self.error_messages['invalid_choice'] % {'value': value})
 
         return clean_ids
-
-    #TODO: attrs are better for html related properties ==> use setter on the widget directly (as 'choices' for ChoiceField)
-    def widget_attrs(self, widget):
-        if isinstance(widget, (ListViewWidget,)):
-            return {'o2m': self.o2m, 'ct_id': ContentType.objects.get_for_model(self.model).id}
 
 
 class CremeEntityField(_EntityField):
@@ -566,10 +573,9 @@ class CremeEntityField(_EntityField):
         'doesnotexist' : _(u"This entity doesn't exist."),
     }
 
-    def __init__(self, model, q_filter=None, *args, **kwargs):
-        self.model = model
-        super(CremeEntityField, self).__init__(*args, **kwargs)
-        self.q_filter = q_filter
+    def __init__(self, model=CremeEntity, q_filter=None, *args, **kwargs):
+        super(CremeEntityField, self).__init__(model=model, q_filter=q_filter, *args, **kwargs)
+        self.o2m = 1
 
     def clean(self, value):
         clean_id = super(CremeEntityField, self).clean(value)
@@ -594,13 +600,9 @@ class MultiCremeEntityField(_EntityField):
          An input with comma (or anything) separated primary keys
          clean method return a list of real model instances
     """
-    o2m = 0
-
-    def __init__(self, model, separator=',', q_filter=None, *args, **kwargs):
-        self.separator = separator
-        self.model = model
-        super(MultiCremeEntityField, self).__init__(*args, **kwargs)
-        self.q_filter = q_filter
+    def __init__(self, model=CremeEntity, q_filter=None, *args, **kwargs):
+        super(MultiCremeEntityField, self).__init__(model=model, q_filter=q_filter, *args, **kwargs)
+        self.o2m = 0
 
     def clean(self, value):
         cleaned_ids = super(MultiCremeEntityField, self).clean(value)
@@ -614,8 +616,8 @@ class MultiCremeEntityField(_EntityField):
         else:
             entities = self.model.objects.filter(pk__in=cleaned_ids)
 
-        if len(entities) != len(cleaned_ids):
-            raise ValidationError(self.error_messages['invalid_choice'] % {'value': value})
+        if len(entities) != len(cleaned_ids):#entities.count() better ?
+            raise ValidationError(self.error_messages['invalid_choice'] % {'value': ', '.join(str(val) for val in value)})
 
         return entities
 
@@ -771,7 +773,7 @@ class DateRangeField(MultiValueField):
         self.render_as  = render_as
 
         fields = self.ranges, self.start_date, self.end_date
-        
+
         super(DateRangeField, self).__init__(fields, required=required, *args, **kwargs)
 
     def compress(self, data_list):
