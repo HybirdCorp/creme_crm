@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2011  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -44,7 +44,7 @@ def edit(request, folder_id):
 @login_required
 @permission_required('documents')
 def detailview(request, folder_id):
-    return view_entity(request, folder_id, Folder, '/documents/folder')
+    return view_entity(request, folder_id, Folder, '/documents/folder', 'documents/view_folder.html')
 
 @login_required
 @permission_required('documents')

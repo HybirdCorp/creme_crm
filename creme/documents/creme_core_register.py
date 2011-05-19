@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2011  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -26,7 +26,7 @@ from creme_core.gui.block import block_registry
 from creme_core.gui.bulk_update import bulk_update_registry
 
 from documents.models import Document, Folder
-from documents.blocks import linked_docs_block
+from documents.blocks import folder_docs_block, linked_docs_block
 
 
 creme_registry.register_entity_models(Document, Folder)
@@ -39,9 +39,9 @@ reg_item('/documents/document/add', _('Add a document'), 'documents.add_document
 reg_item('/documents/folders',      _(u'All folders'),   'documents')
 reg_item('/documents/folder/add',   _('Add a folder'),   'documents.add_folder')
 
-block_registry.register(linked_docs_block)
+block_registry.register(folder_docs_block, linked_docs_block)
 
 bulk_update_registry.register(
     (Document, ['filedata']),
-    (Folder, ['parent_folder', 'category']),#Even if Folders haven't currently a list_view
+    (Folder,   ['parent_folder', 'category']),
 )
