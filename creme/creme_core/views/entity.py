@@ -36,13 +36,24 @@ from creme_core.views.generic.popup import inner_popup
 from creme_core.utils import get_ct_or_404, get_from_POST_or_404, get_from_GET_or_404, jsonify
 from creme_core.utils.meta import get_flds_with_fk_flds_str
 
+#Commented 19 may 2011 (its url too)
+#@login_required
+#def get_creme_entity_repr(request, entity_id):
+#    entity = get_object_or_404(CremeEntity, pk=entity_id)
+#    entity.can_view_or_die(request.user)
+#
+#    return HttpResponse(entity.get_real_entity().get_entity_summary(), mimetype="text/javascript")
 
 @login_required
-def get_creme_entity_repr(request, entity_id):
-    entity = get_object_or_404(CremeEntity, pk=entity_id)
-    entity.can_view_or_die(request.user)
+@jsonify
+def get_creme_entities_repr(request, entities_ids):
+    entities = CremeEntity.objects.filter(pk__in=[id for id in entities_ids.split(',') if id])
+    user = request.user
 
-    return HttpResponse(entity.get_real_entity().get_entity_summary(), mimetype="text/javascript")
+    return [{'id': entity.id, 'text': entity.get_real_entity().get_entity_summary()
+                                      if entity.can_view(user)
+                                      else ugettext(u'Entity #%s (not viewable)') % entity.id}
+            for entity in entities]
 
 @login_required
 def get_creme_entity_as_json(request):

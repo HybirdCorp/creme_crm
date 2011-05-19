@@ -26,11 +26,12 @@ from django.conf import settings
 class Command(BaseCommand):
     help = 'Run tests for installed apps.'
     args = ''
+    option_list = TestCommand.option_list
 
     def handle(self, *args, **options):
         PREFIX = 'creme.'
         length = len(PREFIX)
         creme_apps = [app[length:] for app in settings.INSTALLED_APPS if app.startswith(PREFIX)]
 
-        TestCommand().handle(*creme_apps)
+        TestCommand().handle(*creme_apps, **options)
 
