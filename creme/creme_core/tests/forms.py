@@ -394,7 +394,7 @@ class RelationEntityFieldTestCase(FieldTestCase):
 
         self.assertFieldValidationError(RelationEntityField, 'doesnotexist', field.clean, value)
 
-    # TODO : complete this test after form right management refactor.
+    #TODO : complete this test after form right management refactor.
 #    def test_clean_unallowed_entity(self):
 #        pass
 

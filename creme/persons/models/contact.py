@@ -107,7 +107,7 @@ class Contact(CremeEntity):
         if source.shipping_address is not None:
             self.shipping_address = source.shipping_address.clone(self)
 
-        self.save()
+        self.save() #TODO: save only if needed ??
 
         excl_source_addr_ids = filter(None, [source.billing_address_id, source.shipping_address_id])
         for address in Address.objects.filter(object_id=source.id).exclude(pk__in=excl_source_addr_ids):
