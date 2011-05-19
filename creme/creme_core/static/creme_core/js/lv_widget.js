@@ -82,8 +82,62 @@ creme.lv_widget.handleSelection = function(ids, targetInputId) {
             $targetInput.val('');
         }
 
-        $targetInput.val($targetInput.val() + ids.join(',') + ',');
+        var currentIds = $targetInput.val().split(',');
 
+        ids = $.grep(ids, function(n, i){
+            return !($.inArray(n, currentIds) > -1);
+        });
+
+        var comma_sep_ids = ids.join(',');
+        $targetInput.val(comma_sep_ids+ ',' + currentIds.join(','));
+        $targetInput.val($targetInput.val().replace(',,',','));
+
+        if(ids.length > 0){
+            $.ajax({
+                    type: "GET",
+                    url: '/creme_core/entity/get_repr/' + comma_sep_ids,
+                    dataType: "json",
+                    async : false,
+                    success: function(data, status) {
+                        if(o2m) {
+                            $targetDiv.children('div').empty();
+    //                                    $targetDivContainer.empty();
+                        }
+
+                        for(var idx in data){
+                            var d = data[idx];
+                            $targetDiv.append(
+                                $('<div></div>')
+
+                                    .append($('<span></span>').html(d.text).append($('<input type="hidden"/>').val(d.id)))
+                                    .append($('<img />').attr('src', media_url("images/delete_22.png"))
+                                                        .attr('alt', gettext("Delete"))
+                                                        .attr('title', gettext("Delete"))
+                                                        .css('cursor', 'pointer')
+                                                        .attr('onclick', 'creme.lv_widget.delete_a_value(this, "' + targetInputId + '")')
+                                    )
+                            );
+                        }
+
+                        var widths = []
+                        $targetDiv.children('div').find('span').each(function(){
+                            widths.push($(this).width());
+                        });
+
+                        if(widths.length > 1){
+                            var maxW = Math.max.apply(Math, widths);
+
+                            $targetDiv.children('div').find('img').each(function(i){
+                                $(this).css('padding-left', maxW-widths[i]);
+                            });
+                        }
+
+                    },
+                    error: function(request, status, error) {}
+            });
+        }
+/**/
+/** /
         //TODO: regroup the requests ???
         for(var i in ids) {
             var id = ids[i];
@@ -112,7 +166,7 @@ creme.lv_widget.handleSelection = function(ids, targetInputId) {
                             error: function(request, status, error) {}
                 });
         }
-
+/ **/
         eval("var selection_cb=" + $targetInput.attr('selection_cb')); //WTF ??
         eval("var selection_cb_args=" + $targetInput.attr('selection_cb_args'));  //WTF ??
         if(selection_cb && $.isFunction(selection_cb)) {

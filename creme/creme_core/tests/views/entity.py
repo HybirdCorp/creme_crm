@@ -155,7 +155,7 @@ class EntityViewsTestCase(ViewsTestCase):
             self.assertEqual(self.user.id, user)
             self.assertEqual(ContentType.objects.get_for_model(CremeEntity).id, entity_type)
 
-    def test_get_creme_entity_repr(self):
+    def test_get_creme_entities_repr(self):
         self.login()
 
         try:
@@ -166,7 +166,8 @@ class EntityViewsTestCase(ViewsTestCase):
         response = self.client.get('/creme_core/entity/get_repr/%s' % entity.id)
         self.assertEqual(200,               response.status_code)
         self.assertEqual('text/javascript', response['Content-Type'])
-        self.assertEqual('Creme entity: %s' % entity.id, response.content)
+        json_data = simplejson.loads(response.content)
+        self.assertEqual('Creme entity: %s' % entity.id, json_data[0]['text'])
 
     def test_delete_entity01(self):
         self.login()
