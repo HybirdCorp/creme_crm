@@ -26,9 +26,10 @@ from creme_core.forms.widgets import ListViewWidget
 
 class ImageM2MWidget(ListViewWidget):
     def render(self, name, value, attrs=None):
+        attrs = self.build_attrs(attrs, name=name)
         html_output = u"""%(input)s<a href="javascript:creme.media_managers.createImageM2MWidget('/media_managers/image/add?popup=true&from_id=%(id)s', 'm2m_%(id)s_popup');">%(label)s</a>""" % {
                     'input':   super(ImageM2MWidget, self).render(name, value, attrs),
-                    'id':      self.attrs['id'],
+                    'id':      attrs['id'],
                     'label':   _(u'Add image'),
                   }
 

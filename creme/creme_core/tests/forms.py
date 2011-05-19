@@ -38,8 +38,9 @@ class FieldTestCase(CremeTestCase):
         self.fail("%s not raised" % exception_name)
 
     def assertFieldValidationError(self, field, key, func, *args, **kwargs):
+        message_args = kwargs.pop('message_args', {})   # pop error message args from kwargs
         err, stack = self.assertFieldRaises(ValidationError, func, *args, **kwargs)
-        message = unicode(field().error_messages[key])
+        message = unicode(field().error_messages[key] % message_args)
 
         if not hasattr(err, 'messages'):
             self.fail('unexpected empty message instead of "%s"\nerror : %s' % (message, stack))
@@ -1290,3 +1291,127 @@ class DateRangeFieldTestCase(FieldTestCase):
     def test_start_before_end(self):
         field = DateRangeField()
         self.assertFieldValidationError(DateRangeField, 'customized_invalid', field.clean, [u"", u"2011-05-16", u"2011-05-15"])
+
+
+class EntityFieldTestCase(FieldTestCase):
+    def test_empty01(self):
+        from creme_core.forms.fields import _EntityField #Not included in __all__
+        field = _EntityField()
+        self.assertFieldValidationError(_EntityField, 'required', field.clean, None)
+
+    def test_properties(self):
+        from creme_core.forms.fields import _EntityField #Not included in __all__
+        field = _EntityField()
+        field.model = Contact
+        self.assertEqual(Contact, field.widget.model)
+
+        field.o2m = True
+        self.assertEqual(1, field.widget.o2m)
+
+    def test_invalid_choice01(self):
+        from creme_core.forms.fields import _EntityField #Not included in __all__
+        field = _EntityField()
+        self.assertFieldValidationError(_EntityField, 'invalid_choice', field.clean, [u''], message_args={"value":[u'']})
+
+    def test_ok01(self):
+        from creme_core.forms.fields import _EntityField #Not included in __all__
+        field = _EntityField()
+        self.assertEqual([1, 2], field.clean([u'1', u'2']))
+
+
+class CremeEntityFieldTestCase(FieldTestCase):
+    def test_empty01(self):
+        field = CremeEntityField()
+        self.assertFieldValidationError(CremeEntityField, 'required', field.clean, None)
+
+    def test_empty02(self):
+        field = CremeEntityField()
+        self.assertFieldValidationError(CremeEntityField, 'required', field.clean, [])
+
+    def test_invalid_choice01(self):
+        field = CremeEntityField()
+        self.assertFieldValidationError(CremeEntityField, 'invalid_choice', field.clean, [u''], message_args={"value":[u'']})
+
+    def test_doesnotexist01(self):
+        field = CremeEntityField()
+        self.assertFieldValidationError(CremeEntityField, 'doesnotexist', field.clean, [u'2'], message_args={"value":[u'2']})
+
+    def test_ok01(self):
+        self.login()
+        field = CremeEntityField()
+        ce = CremeEntity.objects.create(user=self.user)
+        self.assertEqual(ce, field.clean([ce.id]))
+
+    def test_ok02(self):
+        self.login()
+        field = CremeEntityField(required=False)
+        ce = CremeEntity.objects.create(user=self.user)
+        self.assertEqual(None, field.clean([]))
+
+    def test_ok03(self):
+        self.login()
+        field = CremeEntityField(required=False)
+        ce = CremeEntity.objects.create(user=self.user)
+        self.assertEqual(None, field.clean(None))
+
+    def test_q_filter01(self):
+        self.login()
+        ce = CremeEntity.objects.create(user=self.user)
+        field = CremeEntityField(q_filter={'~pk': ce.id})
+
+        self.assertFieldValidationError(CremeEntityField, 'doesnotexist', field.clean, [ce.id], message_args={"value":[ce.id]})
+
+    def test_q_filter02(self):
+        self.login()
+        ce = CremeEntity.objects.create(user=self.user)
+        field = CremeEntityField()
+        field.q_filter={'~pk': ce.id}
+
+        self.assertFieldValidationError(CremeEntityField, 'doesnotexist', field.clean, [ce.id], message_args={"value":[ce.id]})
+
+
+class MultiCremeEntityFieldTestCase(FieldTestCase):
+    def test_empty01(self):
+        field = MultiCremeEntityField()
+        self.assertFieldValidationError(MultiCremeEntityField, 'required', field.clean, None)
+
+    def test_empty02(self):
+        field = MultiCremeEntityField()
+        self.assertFieldValidationError(MultiCremeEntityField, 'required', field.clean, [])
+
+    def test_invalid_choice01(self):
+        field = MultiCremeEntityField()
+        self.assertFieldValidationError(MultiCremeEntityField, 'invalid_choice', field.clean, [u''], message_args={"value":[u'']})
+
+    def test_invalid_choice02(self):
+        field = MultiCremeEntityField()
+        self.assertFieldValidationError(MultiCremeEntityField, 'invalid_choice', field.clean, [u'2', u'3'], message_args={"value":'2, 3'})
+
+    def test_ok01(self):
+        self.login()
+        field = MultiCremeEntityField()
+        ce1 = CremeEntity.objects.create(user=self.user)
+        ce2 = CremeEntity.objects.create(user=self.user)
+        self.assertEqual(set([ce1, ce2]), set(field.clean([ce1.id, ce2.id])))
+
+    def test_ok02(self):
+        self.login()
+        field = MultiCremeEntityField(required=False)
+        self.assertEqual([], field.clean([]))
+
+    def test_q_filter01(self):
+        self.login()
+        ce1 = CremeEntity.objects.create(user=self.user)
+        ce2 = CremeEntity.objects.create(user=self.user)
+        field = MultiCremeEntityField(q_filter={'~pk__in': [ce1.id, ce2.id]})
+
+        self.assertFieldValidationError(MultiCremeEntityField, 'invalid_choice', field.clean, [ce1.id, ce2.id], message_args={"value":'%s, %s' % (ce1.id, ce2.id)})
+
+    def test_q_filter02(self):
+        self.login()
+        ce1 = CremeEntity.objects.create(user=self.user)
+        ce2 = CremeEntity.objects.create(user=self.user)
+        field = MultiCremeEntityField()
+        field.q_filter={'~pk__in': [ce1.id, ce2.id]}
+
+        self.assertFieldValidationError(MultiCremeEntityField, 'invalid_choice', field.clean, [ce1.id, ce2.id], message_args={"value":'%s, %s' % (ce1.id, ce2.id)})
