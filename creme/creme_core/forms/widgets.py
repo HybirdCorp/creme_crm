@@ -29,6 +29,7 @@ from django.utils.encoding import force_unicode
 from django.utils.simplejson.encoder import JSONEncoder
 from django.utils.safestring import mark_safe
 from django.utils.formats import date_format
+from django.core.validators import EMPTY_VALUES
 from django.conf import settings
 
 from mediagenerator.utils import media_url
@@ -504,124 +505,74 @@ class CalendarWidget(TextInput):
                     'img_url':        media_url('images/icon_calendar.gif'),
                   })
 
-
-#TODO: refactor
+#TODO: Only used in reports for now. Kept until *Selector widgets accept optgroup
 class DependentSelect(Select):
-    def __init__(self, target_id, target_url, attrs=None, choices=()):
-        self.target_id = target_id
-        self.target_url = target_url
+    def __init__(self, target_id, attrs=None, choices=()):
+        self.target_id   = target_id
+        self.target_url  = None
+        self._source_val = self._target_val = None
         super(DependentSelect, self).__init__(attrs, choices)
 
-    def set_target(self, target):
-        self.target_val = target
+    def _set_target(self, target):
+        self._target_val = target
+    target_val = property(lambda self: self._target_val, _set_target); del _set_target
 
-    def set_source(self, source):
-        self.source_val = source
+    def _set_source(self, source):
+        self._source_val = source
+    source_val = property(lambda self: self._source_val, _set_source); del _set_source
 
     def render(self, name, value, attrs=None, choices=()):
-        if attrs is not None :
-            if attrs.has_key('id') :
-                id = attrs['id']
-            else :
-                id = "id_%s" % name
-                attrs['id'] = id
-        else :
-            id = "id_%s" % name
-            attrs = {"id" : id}
-        script = '<script>'
-        script += "function change_%s () {" % (id)
-        script += "var source = $('#%s');" % id
-        script += "if(!source || typeof(source) == 'undefined') return;"
-        script += "var target = $('#%s');" % self.target_id
-        script += "if(!target || typeof(target) == 'undefined') return;"
-        script += "$.post('%s', {record_id : source.val()}, " % (self.target_url)
-        script += "      function(data){"
-        script += "         target.empty();"
-        script += "         var result = data['result'];"
-        script += "         for(var option in result)"
-        script += "         {"
-        if not hasattr(self, "source_val") or not hasattr(self, "target_val"): #TODO: un peu beurk...
-            script += "             target.append('<option value='+result[option][\"id\"]+'>'+result[option][\"text\"]+'</option>');"
-        else :
-            script += "             if(result[option]['id'] == %s){" % self.target_val
-            script += "                 target.append('<option selected=\"selected\" value='+result[option][\"id\"]+'>'+result[option][\"text\"]+'</option>');"
-            script += "             }"
-            script += "             else {"
-            script += "                     target.append('<option value='+result[option][\"id\"]+'>'+result[option][\"text\"]+'</option>');"
-            script += "             }"
-        script += "         "
-        script += "         "
-        script += "         }"
-        script += "      }, 'json');"
-        script += '} '
-#        if not hasattr(self, "source_val") or not hasattr(self, "target_val"):
-        script += "$(document).ready(function(){change_%s ();});" % (id)
+        attrs = self.build_attrs(attrs, name=name)
+        id = attrs['id']
+        script = """(function(){
+                        var source = $('#%(id)s');
+                        if(!source || typeof(source) == 'undefined') return;
+                        var target = $('#%(target_id)s');
+                        if(!target || typeof(target) == 'undefined') return;
+                        $.post('%(target_url)s',
+                               {record_id : source.val()},
+                               function(data){
+                                var data = creme.forms.Select.optionsFromData(data.result, 'text', 'id');
+                                creme.forms.Select.fill(target, data, '%(target_val)s');
+                               } , 'json');
+        }());""" % {
+            'id': id,
+            'target_id': self.target_id,
+            'target_url': self.target_url,
+            'target_val': self.target_val
 
-#        if hasattr(self, "source_val") and self.source_val is not None :
-#            logging.debug("\n\n\nid : %s | source_val : %s\n\n\n" % (id,self.source_val))
-#            script += "$(document).ready(function(){"
-#            script += "$('#%s').val('%s');" % (id, self.source_val)
-#            script += "});"
-#        if hasattr(self, "target_val") and self.target_val is not None :
-##            script += "console.log('avant2');"
-##            script += "console.log('%s');" % self.target_val
-#            script += "$(document).ready(function(){"
-#            script += "$('#%s').val('%s');" % (self.target_id, self.target_val)
-#            script += "});"
-##            script += "console.log('apres2');"
-#            logging.debug("\n\n\n id : %s | target_val : %s\n\n\n" % (self.target_id,self.target_val))
+        }
+        attrs['onchange'] = script
+
+        return mark_safe("""
+            <script type="text/javascript">
+                $("#%(id)s").change();
+            </script>
+            %(input)s
+        """ % {'input':super(DependentSelect, self).render(name, value, attrs, choices), 'id': id})
 
 
-        script += '</script>'
-        attrs['onchange'] = "change_%s ();" % (id)
-        select = super(DependentSelect, self).render(name, value, attrs, choices)
-
-        return mark_safe(select + script)
-
-
-#TODO: refactor (build_attrs() etc...)
 class UploadedFileWidget(FileInput):
-    def __init__(self, url=None, attrs=None):
-        self.url = url or None #???
+    def __init__(self, attrs=None):
         super(UploadedFileWidget, self).__init__(attrs)
-
-    def original_render(self, name, value, attrs=None):
-        if self.url is not None :
-            input = '<a href="/download_file/%s">%s</a>' % (self.url, self.url)
-#            input = mark_safe(u'<a href="/download_file/%s">%s</a>' % (self.url, self.url))
-#            input = mark_safe(u'<a href="%s">%s</a>' % (url, url))
-        else :
-            input = super(UploadedFileWidget, self).render(name, value)
-        return input
 
     def render(self, name, value, attrs=None):
         visual=''
-        if self.url is not None :
-            visual = '<a href="/download_file/%s">' % (self.url)
-            visual += '<img src="%s%s" alt="%s"/></a>' % (settings.MEDIA_URL, self.url, self.url)
-
-            if attrs is not None :
-                attrs['type'] = 'hidden'
-            else :
-                attrs = {'type' : 'hidden'}
-        input = super(UploadedFileWidget, self).render(name, value, attrs)
-        return mark_safe(input + visual)
-
-#TODO: Delete me (delete related js too)
-class RTEWidget(Textarea):
-    def render(self, name, value, attrs=None):
         attrs = self.build_attrs(attrs, name=name)
 
-        return mark_safe("""<script type="text/javascript">
-                    $(document).ready(function() { $("#%(id)s").rte(); });
-                </script>
-                %(textarea)s
-                <input type="checkbox" id="%(id)s_is_rte_enabled" name="%(name)s_is_rte_enabled" style="display:none;" checked />
+        if value not in EMPTY_VALUES:
+            visual = """
+            <a href="/download_file/%(url)s">
+                <img src="%(media_url)s%(url)s" alt="%(url)s"/>
+            </a>
             """ % {
-                    'id':       attrs['id'],
-                    'name':     attrs['name'],
-                    'textarea': super(RTEWidget, self).render(name, value, attrs),
-                })
+                'url': value,
+                'media_url': settings.MEDIA_URL
+            }
+            attrs['type'] = 'hidden'
+
+        input = super(UploadedFileWidget, self).render(name, value, attrs)
+        return mark_safe(input + visual)
 
 
 class TinyMCEEditor(Textarea):
@@ -930,5 +881,5 @@ class DateRangeWidget(MultiWidget):
             return u"".join([u"""<ul class="%(css)s" style="%(style)s" widget="%(typename)s">""" % context,
                              u''.join(u"<li>%s</li>" % w for w in rendered_widgets),
                              u"""</ul>"""])
-        
+
         return u"""<div class="%s">%s</div>""" % (_css_class, u''.join(u"<div>%s</div>" % w for w in rendered_widgets))

@@ -293,7 +293,6 @@ CREME_CORE_CSS = ('main.css',
                     'creme_core/css/creme-ui.css',
 
                     'creme_core/css/list_view.css',
-                    'creme_core/css/rte.css',
                     'creme_core/css/navit.css',
 
                     #APPS
@@ -351,7 +350,6 @@ CREME_CORE_JS = ('main.js',
                     'creme_core/js/widgets/selectorlist.js',
                     'creme_core/js/widgets/entityselector.js',
                     'creme_core/js/widgets/pselect.js',
-                    'creme_core/js/widgets/rte.js',
                     'creme_core/js/widgets/adaptivewidget.js',
 
                     'creme_core/js/properties.js',
