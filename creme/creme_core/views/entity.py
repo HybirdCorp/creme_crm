@@ -18,6 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from django.core.exceptions import PermissionDenied
 from django.db.models import Q, FieldDoesNotExist, ForeignKey
 from django.http import HttpResponse, HttpResponseRedirect, Http404
 from django.shortcuts import get_object_or_404, get_list_or_404
@@ -233,22 +234,26 @@ def search_and_view(request):
     if not value: #avoid useless queries
         raise Http404(u'Void "value" arg')
 
-    #TODO: creds.... (use apps creds too)
-
+    user = request.user
+    has_perm = user.has_perm
     models = []
+
     for model_id in model_ids:
         try:
-            model = ContentType.objects.get_by_natural_key(*model_id.split('-')).model_class()
+            ct = ContentType.objects.get_by_natural_key(*model_id.split('-'))
         except (ContentType.DoesNotExist, TypeError):
             raise Http404(u'These model does not exist: %s' % model_id)
+
+        if not has_perm(ct.app_label):
+            raise PermissionDenied(_(u"You are not allowed to acceed to this app"))
+
+        model = ct.model_class()
 
         if issubclass(model, CremeEntity):
             models.append(model)
 
     if not models:
         raise Http404(u'No valid models')
-
-    user = request.user
 
     for model in models:
         query = Q()
