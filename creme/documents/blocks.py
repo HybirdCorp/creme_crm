@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2011  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -20,12 +20,33 @@
 
 from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import ugettext_lazy as _
+from django.utils.simplejson import JSONEncoder
 
 from creme_core.models import CremeEntity, Relation
 from creme_core.gui.block import QuerysetBlock
 
 from models import Document
 from constants import REL_SUB_RELATED_2_DOC
+
+
+class FolderDocsBlock(QuerysetBlock):
+    id_           = QuerysetBlock.generate_id('documents', 'folder_docs')
+    dependencies  = (Document,)
+    verbose_name  = u'Folder documents'
+    template_name = 'documents/templatetags/block_documents.html'
+
+    def detailview_display(self, context):
+        folder = context['object']
+        q_dict = {'folder':  folder.id}
+        btc = self.get_block_template_context(context,
+                                              Document.objects.filter(**q_dict),
+                                              update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, folder.id),
+                                              ct_id=ContentType.objects.get_for_model(Document).id,
+                                              q_filter=JSONEncoder().encode(q_dict),
+                                             )
+        CremeEntity.populate_credentials(btc['page'].object_list, context['user'])
+
+        return self._render(btc)
 
 
 class LinkedDocsBlock(QuerysetBlock):
@@ -57,4 +78,5 @@ class LinkedDocsBlock(QuerysetBlock):
         return self._render(btc)
 
 
+folder_docs_block = FolderDocsBlock()
 linked_docs_block = LinkedDocsBlock()

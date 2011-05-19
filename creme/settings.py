@@ -262,7 +262,6 @@ logging.basicConfig(
 LOGO_URL = 'images/creme_256_cropped.png' #Big image in the side menu
 USE_STRUCT_MENU = True #True = use the per app menu
 
-PAGGING_SIZE = 5 #TODO: remove
 BLOCK_SIZE = 10 #Lines number in common blocks
 
 #Show or not help messages in all the application

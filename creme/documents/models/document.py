@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2011  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -30,10 +30,10 @@ from documents.constants import REL_SUB_RELATED_2_DOC
 
 
 class Document(CremeEntity):
-    title       = CharField(_(u'Title'), max_length=100, blank=False , null=False)
-    description = TextField(_(u'Description'), blank=True , null=True)
+    title       = CharField(_(u'Title'), max_length=100)
+    description = TextField(_(u'Description'), blank=True, null=True)
     filedata    = FileField(_(u'File'), max_length=500, upload_to='upload/documents')
-    folder      = ForeignKey(Folder, verbose_name=_(u'Folder'), blank=False, null=False)
+    folder      = ForeignKey(Folder, verbose_name=_(u'Folder'))
 
     research_fields = CremeEntity.research_fields + ['title', 'description', 'folder__title']
 
@@ -58,5 +58,4 @@ class Document(CremeEntity):
 
     @staticmethod
     def get_linkeddoc_relations(entity):
-        #TODO: return Document(relations__object_entity=entity, relations__type__id=REL_OBJ_RELATED_2_DOC) instead ????
-        return Relation.objects.filter(subject_entity=entity, type__id=REL_SUB_RELATED_2_DOC)
+        return Relation.objects.filter(subject_entity=entity.id, type=REL_SUB_RELATED_2_DOC)
