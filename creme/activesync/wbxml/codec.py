@@ -26,6 +26,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from logging import debug
+
 ################################################################################
 # Low-level WBXML codecs functions
 WBXML_SWITCH_PAGE   = 0x00
@@ -62,7 +64,7 @@ EN_TYPE_CONTENT     = 3
 EN_FLAGS_CONTENT    = 1
 EN_FLAGS_ATTRIBUTES = 2
 
-WBXML_DEBUG         = False
+#WBXML_DEBUG         = False
 ################################################################################
 # Pretty printing util found on http://www.doughellmann.com/PyMOTW/xml/etree/ElementTree/create.html
 def prettify(elem):
@@ -81,12 +83,12 @@ import StringIO
 from xml.etree.ElementTree import fromstring, XML, Element, _ElementInterface, SubElement, ElementTree, _ElementInterface, tostring
 
 #DEBUG = True
-DEBUG = WBXML_DEBUG
+#DEBUG = WBXML_DEBUG
 
 
-def _debuglog(*msg):
-    if DEBUG:
-        print msg
+#def _debuglog(*msg):
+    #if DEBUG:
+        #print msg
 
 class WrongXMLType(Exception):
     pass
@@ -115,7 +117,7 @@ class WBXMLEncoder(object):
         self._dtd    = dtd
 
     def encode(self, to_encode):
-        _debuglog('Enter encode')
+        debug('Enter encode')
 
         self._out    = StringIO.StringIO()
         self._tagcp  = 0
@@ -140,21 +142,21 @@ class WBXMLEncoder(object):
 
         self._out.close()
 
-        _debuglog('Exit encode with', out)
+        debug('Exit encode with %s', out)
         return out
 
     def get_ns(self, name):
         """Get the namespace"""
-        _debuglog('Enter get_ns with', name)
+        debug('Enter get_ns with %s', name)
         ns = None
         if name[0] == "{":
             ns, sep, tag = name[1:].rpartition("}")
-        _debuglog('Exit get_ns with', ns)
+        debug('Exit get_ns with %s', ns)
         return ns
 
     def get_tag(self, tag, ns=None):
-        _debuglog('Enter get_tag with tag:', tag," ns:", ns)
-        _debuglog('Exit get_tag with ', tag.replace('{%s}' % ns, ''))
+        debug('Enter get_tag with tag="%s" ns=%s', tag, ns)
+        debug('Exit get_tag with %s', tag.replace('{%s}' % ns, '')) #TODO: variable for tag.replace(...)
         return tag.replace('{%s}' % ns, '')
 
     def _encode_node(self, node):
@@ -172,7 +174,6 @@ class WBXMLEncoder(object):
         if children:
             for child in children:
                 self._encode_node(child)
-
         elif node_text:
             self.content(node_text)
 
@@ -199,7 +200,7 @@ class WBXMLEncoder(object):
 
     def write_header(self):
         """Write the initial WBXML header"""
-        _debuglog('write_header')
+        debug('write_header')
         self.write_byte(0x03)
         self.write_multi_byte(0x01)
         self.write_multi_byte(106)
@@ -209,7 +210,7 @@ class WBXMLEncoder(object):
         """Call to create a new tag. Pass in a tuple of (ns, name) for tag."""
         stackelem = {}
 
-        _debuglog('Enter start_tag with tag:', tag, " attributes:", attributes, " nocontent:", nocontent)
+        debug('Enter start_tag with tag="%s" attributes=%s nocontent=%s', tag, attributes, nocontent)
 
         if not nocontent:
             stackelem['tag'] = tag
@@ -222,30 +223,25 @@ class WBXMLEncoder(object):
             self._output_stack()
             self._start_tag(tag, attributes, nocontent)
 
-        _debuglog('Exit start_tag')
-
+        debug('Exit start_tag')
 
     def _end_tag(self):
         """Send end tag data to the file"""
-        _debuglog('_end_tag')
+        debug('_end_tag')
         self.write_byte(WBXML_END)
 
     def end_tag(self):
         """Called at end of tag (only one with content)"""
-
-
         stackelem = self._stack.pop()
 
-        _debuglog('end_tag with stackelem:', stackelem)
-
+        debug('end_tag with stackelem: %s', stackelem)
 
         if stackelem['sent']:
             self._end_tag()
 
     def content(self, content):
         """Called to output tag content"""
-
-        _debuglog("Enter content with content :", content)
+        debug("Enter content with content: %s", content)
 
         content = content.replace('\0', '')
 
@@ -255,25 +251,22 @@ class WBXMLEncoder(object):
         self._output_stack()
         self._content(content)
 
-        _debuglog("Exit content")
+        debug("Exit content")
 
     def _output_stack(self):
         """Spool all stacked tags to the output file."""
-
-        _debuglog("Enter _output_stack")
+        debug("Enter _output_stack")
 
         for i in range(len(self._stack)):
             if not self._stack[i]['sent']:
                 self._start_tag(self._stack[i]['tag'], self._stack[i]['attributes'], self._stack[i]['nocontent'])
                 self._stack[i]['sent'] = True
 
-        _debuglog("Exit _output_stack")
+        debug("Exit _output_stack")
 
-
-    def _start_tag(self, tag, attributes = False, nocontent = False):
+    def _start_tag(self, tag, attributes=False, nocontent=False):
         """Set up a new tag and handle the DTD mappings"""
-
-        _debuglog("Enter _start_tag with:", "tag :",tag, " attributes :",attributes , " nocontent :", nocontent)
+        debug('Enter _start_tag with tag="%s" attributes=%s nocontent=%s', tag, attributes, nocontent)
 
         mapping = self.get_mapping(tag)
 
@@ -293,52 +286,49 @@ class WBXMLEncoder(object):
         if code & 0x80:
             self.write_attributes(attributes)
 
-        _debuglog("Exit _start_tag")
+        debug("Exit _start_tag")
 
     def _content(self, content):
         """Send tag content to the file"""
-
-        _debuglog("Enter _content with ", content)
+        debug("Enter _content with %s", content)
 
         self.write_byte(WBXML_STR_I)
         self.write_null_str(content)
 
-        _debuglog("Exit _content")
+        debug("Exit _content")
 
     def write_null_str(self, content):
         """Send a null terminated string to the output stream"""
-        _debuglog("Enter write_null_str")
+        debug("Enter write_null_str")
         self._out.write(content)
         self._out.write(chr(0))
-        _debuglog("Exit write_null_str")
+        debug("Exit write_null_str")
 
     def write_attributes(self):
         """Send attributes to the stream (needs work)"""
-        _debuglog("Enter write_attributes")
+        debug("Enter write_attributes")
         self.write_byte(WBXML_END)
-        _debuglog("Exit write_attributes")
+        debug("Exit write_attributes")
 
     def write_switch_page(self, page):
         """Send a switch page command to the stream"""
-
-        _debuglog("Enter write_switch_page with page:", page)
+        debug("Enter write_switch_page with page: %s", page)
 
         self.write_byte(WBXML_SWITCH_PAGE)
         self.write_byte(page)
 
-        _debuglog("Exit write_switch_page")
-
+        debug("Exit write_switch_page")
 
     def get_mapping(self, tag):
         """Return a mapping between a tag and a DTD code pair
             'tag' is a tuple of (namespace,tagname)
         """
-        _debuglog("Enter get_mapping with tag:", tag)
+        debug('Enter get_mapping with tag="%s"', tag)
         mapping = {}
 
         ns, name = tag
 
-        if ns:
+        if ns: #TODO cp = .. if .. else ..
             cp = self._dtd['namespaces'][ns]
         else:
             cp = 0
@@ -348,7 +338,7 @@ class WBXMLEncoder(object):
         mapping['cp']   = cp
         mapping['code'] = code
 
-        _debuglog("Exit get_mapping with mapping:", mapping)
+        debug("Exit get_mapping with mapping: %s", mapping)
         return mapping
 
 ################################################################################
@@ -392,7 +382,6 @@ class WBXMLDecoder(object):
         return "%s%s" % ("{%s}" % ns if ns is not None else "", name)
 
     def decode(self, to_decode):
-
         if to_decode in (None, ''):
             raise WrongWBXMLType(u"Empty wbxml is invalid")
 
@@ -422,11 +411,10 @@ class WBXMLDecoder(object):
                     curTag = node
 
                 if e[EN_FLAGS]&2:
-                    _debuglog("must get attrs, %s" % e[EN_FLAGS]&2)#WTF?
+                    debug("must get attrs, %s", e[EN_FLAGS]&2)#WTF?
 
                 if not (e[EN_FLAGS]&1):
                     curTag = curTag.parent
-
 
             elif e[EN_TYPE] == EN_TYPE_ENDTAG:
                 curTag = curTag.parent if curTag is not None else None
@@ -434,7 +422,7 @@ class WBXMLDecoder(object):
 #                    curTag = curTag.parent
 #                else:
 #                    curTag = None
-#                    _debuglog("error: no parent")
+#                    debug("error: no parent")
 
 
             elif e[EN_TYPE] == EN_TYPE_CONTENT and curTag is not None:
@@ -444,24 +432,20 @@ class WBXMLDecoder(object):
 #                if curTag is not None:
 #                    curTag.text = e[EN_CONTENT]
 #                else:
-#                    _debuglog("error: no node")
+#                    debug("error: no node")
 
         self.input.close()
         return root
-
 
     def get_element(self):
         """Pull down the element at this point in the WBXML stream"""
         element = self.get_token()
 
         if element.has_key(EN_TYPE):
-
             if element[EN_TYPE] == EN_TYPE_STARTTAG:
                 return element
-
             elif element[EN_TYPE] == EN_TYPE_ENDTAG:
                 return element
-
             elif element[EN_TYPE] == EN_TYPE_CONTENT:
                 get_token     = self.get_token
                 unget_element = self.unget_element
@@ -471,21 +455,19 @@ class WBXMLDecoder(object):
 
                     if next == False:#TODO: not next ?
                         break
-
                     elif next[EN_TYPE] == EN_CONTENT:
                         element[EN_CONTENT] += next[EN_CONTENT]
-
                     else:
                         unget_element(next)
                         break
 
                 return element
+
         return False
 
     def peek(self):
         """Return the next element without changing the position in the
            input byte stream."""
-
         element = self.get_element()
         self.unget_element(element)
 
@@ -504,7 +486,6 @@ class WBXMLDecoder(object):
 
     def get_element_end_tag(self):
         """Return the end tag."""
-
         element = self.get_token()
 
         if element[EN_TYPE] == EN_TYPE_ENDTAG:
@@ -516,7 +497,6 @@ class WBXMLDecoder(object):
 
     def get_element_content(self):
         """Return the content of an element"""
-
         element = self.get_token()
 
         if element[EN_TYPE] == EN_TYPE_CONTENT:
@@ -528,7 +508,6 @@ class WBXMLDecoder(object):
 
     def get_token(self):
         """Return the next token in the stream"""
-
         if self.unget_buffer:
             element           = self.unget_buffer
             self.unget_buffer = False
@@ -540,7 +519,6 @@ class WBXMLDecoder(object):
 
     def _get_token(self):
         """Low level call to retrieve a token from the wbxml stream"""
-
         element = {}
 
         get_attributes = self.get_attributes
@@ -633,12 +611,12 @@ class WBXMLDecoder(object):
                 element[EN_TYPE] = EN_TYPE_STARTTAG
                 element[EN_TAG]  = get_mapping(self.tagcp, byte & 0x3F)
 
-                if byte & 0x80:
+                if byte & 0x80: #TODO: flag1 = .. if .. else ..
                     flag1 = EN_FLAGS_ATTRIBUTES
                 else:
                     flag1 = 0
 
-                if byte & 0x40:
+                if byte & 0x40: #TODO: flag2 = .. if .. else ..
                     flag2 = EN_FLAGS_CONTENT
                 else:
                     flag2 = 0
@@ -652,15 +630,12 @@ class WBXMLDecoder(object):
 
         return element
 
-
     def unget_element(self, element):
         """Put it back if we do not use it"""
-
         if self.unget_buffer:
             pass
 
         self.unget_buffer = element
-
 
     def get_attributes(self):
         """Retrieve a list of attributes for a given tag"""
@@ -682,59 +657,46 @@ class WBXMLDecoder(object):
             if len(byte) == 0:
                     break
 
-            if byte == WBXML_SWITCH_PAGE:
+            if byte == WBXML_SWITCH_PAGE: #TODO: use a dict instead of if elif elif etc...
                 self.attrcp = get_byte()
                 break
-
             elif byte == WBXML_END:
                 if attr != '':
                     attributes_append(split_attribute(attr))
                 return attributes
-
             elif byte == WBXML_ENTITY:
                 entity = get_mbuint()
                 attr  += EntityToCharset(entity)
 #				return element
-
             elif byte == WBXML_STR_I:
                 attr += get_term_str()
 #				return element
-
             elif byte == WBXML_LITERAL:
                 if attr != '':
                     attributes_append(split_attribute(attr))
                 attr = self.GetStringTableEntry(get_mbuint())
 #				return element
-
             elif byte in (WBXML_EXT_I_0, WBXML_EXT_I_1, WBXML_EXT_I_2):
                 get_term_str()
                 continue
-
             elif byte in (WBXML_PI, WBXML_LITERAL_C):
                 return False
-
             elif byte in (WBXML_EXT_T_0, WBXML_EXT_T_1, WBXML_EXT_T_2):
                 get_mbuint()
                 continue
-
             elif byte == WBXML_STR_T:
                 attr += self.GetStringTableEntry(get_mbuint())
 #                    return element
-
             elif byte == WBXML_LITERAL_A:
                 return False
-
             elif byte in (WBXML_EXT_0, WBXML_EXT_1, WBXML_EXT_2):
                 continue
-
             elif byte == WBXML_OPAQUE:
                 length = get_mbuint()
                 attr  += get_opaque(length)
 #                    return element
-
             elif byte == WBXML_LITERAL_AC:
                 return False
-
             else:
                 if byte < 128 and attr != '':
                     attributes_append(split_attribute(attr))
@@ -752,9 +714,9 @@ class WBXMLDecoder(object):
         if pos:
             attribute = (attr[0:pos], attr[(pos+1):])
         else:
-            attribute = (attr,None)
+            attribute = (attr, None)
 
-        return attribute
+        return attribute #TODO: return ... if .. else ...
 
     def get_term_str(self):
         """Return a string up until the next null"""
@@ -767,8 +729,7 @@ class WBXMLDecoder(object):
                 break
             else:
                 str += chr(input)
-        return str
-
+        return str #TODO: use join + genexpr + itertools.takewhile
 
     def get_opaque(self, len):
         """Return up to len bytes from the input"""
@@ -780,11 +741,9 @@ class WBXMLDecoder(object):
         if len(ch) > 0:
             return ord(ch)
         else:
-            return None
-
+            return None #TODO: useless
 
     def get_mbuint(self):
-
         uint = 0
         get_byte = self.get_byte
         while True:
@@ -800,7 +759,6 @@ class WBXMLDecoder(object):
     def get_string_table(self):
         """Read and return the string table"""
         string_table = ''
-
         length = self.get_mbuint()
 
         if length > 0:
@@ -819,6 +777,3 @@ class WBXMLDecoder(object):
             return (dtd['namespaces'][cp], dtd_codes_cp[id])
         else:
             return (None, dtd_codes_cp[id])
-
-################################################################################
-
