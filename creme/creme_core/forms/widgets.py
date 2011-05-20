@@ -608,14 +608,13 @@ class ColorPickerWidget(TextInput):
         attrs = self.build_attrs(attrs, name=name)
 
         return mark_safe("""<script type="text/javascript">
-                    $(document).ready(function() { $("#%(id)s").gccolor(); });
+                    $(document).ready(function() { $("#%(id)s").gccolor()});
                 </script>%(input)s""" % {
                     'id':    attrs['id'],
                     'input': super(ColorPickerWidget, self).render(name, value, attrs),
                 })
 
 
-#TODO: refactor (build_attrs(), model/o2m set by the field etc....)
 class ListViewWidget(TextInput):
     """A list view many-to-many widget
     Examples of usage in a form definition :
@@ -644,7 +643,6 @@ class ListViewWidget(TextInput):
     model = property(lambda self: self._model, _set_model); del _set_model
 
     def render(self, name, value, attrs=None):
-        #TODO: Improve ajax request in js
         attrs = self.build_attrs(attrs, name=name)
         attrs['o2m']   = self.o2m
         attrs['ct_id'] = self._ct_id
@@ -798,44 +796,44 @@ class ListEditionWidget(Widget):
         return [get(prefix_value % i) if has_key(prefix_check % i) else None
                     for i in xrange(len(self.content))]
 
-
-class DateFilterWidget(Select):
-    def render(self, name, value, attrs=None, choices=()):
-        rendered = super(DateFilterWidget, self).render(name, value, attrs=None, choices=())
-        self_id = self.attrs.get('id')
-        if self_id:
-            rendered += """<script type="text/javascript">
-                $(document).ready(function(){
-                    $('#%(self_id)s').change(function(){
-                        var $me = $(this);
-                        var $selected = $(this).find(':selected');
-                        $("#"+$me.attr('start_date_id')).val($selected.attr('begin'));
-                        $("#"+$me.attr('end_date_id')).val($selected.attr('end'));
-                    });
-                });
-            </script>""" % {
-                'self_id' : self_id,
-            }
-        return mark_safe(rendered)
-
-    def render_options(self, choices, selected_choices):
-        def render_option(report_date_filter): #TODO: protected static method instead
-            option_value = force_unicode(report_date_filter.name)
-            selected_html = (option_value in selected_choices) and u' selected="selected"' or '' #TODO: conditional experession instead
-            return u'<option value="%s"%s begin="%s" end="%s" is_volatile="%s">%s</option>' % ( #TODO: dict instead tuple ??
-                escape(option_value), selected_html,
-                report_date_filter.get_begin(),
-                report_date_filter.get_end(),
-                int(report_date_filter.is_volatile),
-                conditional_escape(force_unicode(report_date_filter.verbose_name)))
-
-        # Normalize to strings.
-        selected_choices = set([force_unicode(v) for v in selected_choices])#TODO: genexpr
-        output = []
-        for report_date_filter in chain(self.choices, choices):
-            output.append(render_option(report_date_filter))
-
-        return u'\n'.join(output) #TODO: genexpr
+#Commented 20 may 2011
+#class DateFilterWidget(Select):
+#    def render(self, name, value, attrs=None, choices=()):
+#        rendered = super(DateFilterWidget, self).render(name, value, attrs=None, choices=())
+#        self_id = self.attrs.get('id')
+#        if self_id:
+#            rendered += """<script type="text/javascript">
+#                $(document).ready(function(){
+#                    $('#%(self_id)s').change(function(){
+#                        var $me = $(this);
+#                        var $selected = $(this).find(':selected');
+#                        $("#"+$me.attr('start_date_id')).val($selected.attr('begin'));
+#                        $("#"+$me.attr('end_date_id')).val($selected.attr('end'));
+#                    });
+#                });
+#            </script>""" % {
+#                'self_id' : self_id,
+#            }
+#        return mark_safe(rendered)
+#
+#    def render_options(self, choices, selected_choices):
+#        def render_option(report_date_filter): #TODO: protected static method instead
+#            option_value = force_unicode(report_date_filter.name)
+#            selected_html = (option_value in selected_choices) and u' selected="selected"' or '' #TODO: conditional experession instead
+#            return u'<option value="%s"%s begin="%s" end="%s" is_volatile="%s">%s</option>' % ( #TODO: dict instead tuple ??
+#                escape(option_value), selected_html,
+#                report_date_filter.get_begin(),
+#                report_date_filter.get_end(),
+#                int(report_date_filter.is_volatile),
+#                conditional_escape(force_unicode(report_date_filter.verbose_name)))
+#
+#        # Normalize to strings.
+#        selected_choices = set([force_unicode(v) for v in selected_choices])#TODO: genexpr
+#        output = []
+#        for report_date_filter in chain(self.choices, choices):
+#            output.append(render_option(report_date_filter))
+#
+#        return u'\n'.join(output) #TODO: genexpr
 
 class AdaptiveWidget(Select):
     def __init__(self, ct_id, field_value_name, attrs=None, choices=()):

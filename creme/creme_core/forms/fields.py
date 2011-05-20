@@ -18,6 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+import re
 from collections import defaultdict
 from itertools import chain
 from logging import debug
@@ -25,7 +26,7 @@ from logging import debug
 from django.forms import Field, CharField, MultipleChoiceField, ChoiceField, ModelChoiceField, DateField, TimeField, DateTimeField
 from django.forms.util import ValidationError
 from django.forms.widgets import Textarea
-from django.forms.fields import EMPTY_VALUES, MultiValueField
+from django.forms.fields import EMPTY_VALUES, MultiValueField, RegexField
 from django.utils.translation import ugettext_lazy as _
 from django.utils.simplejson import loads as jsonloads
 from django.utils.simplejson.encoder import JSONEncoder
@@ -37,7 +38,7 @@ from creme_core.models import RelationType, CremeEntity, Relation
 from creme_core.utils import creme_entity_content_types
 from creme_core.utils.queries import get_q_from_dict
 from creme_core.utils.date_range import date_range_registry
-from creme_core.forms.widgets import CTEntitySelector, SelectorList, RelationSelector, ListViewWidget, ListEditionWidget, CalendarWidget, TimeWidget, DateRangeWidget
+from creme_core.forms.widgets import CTEntitySelector, SelectorList, RelationSelector, ListViewWidget, ListEditionWidget, CalendarWidget, TimeWidget, DateRangeWidget, ColorPickerWidget
 from creme_core.constants import REL_SUB_RELATED_TO, REL_SUB_HAS
 
 
@@ -47,7 +48,7 @@ __all__ = ('MultiGenericEntityField', 'GenericEntityField',
            'ListEditionField',
            'AjaxChoiceField', 'AjaxMultipleChoiceField', 'AjaxModelChoiceField',
            'CremeTimeField', 'CremeDateField', 'CremeDateTimeField',
-           'DateRangeField',)
+           'DateRangeField', 'ColorField')
 
 
 class JSONField(CharField):
@@ -795,3 +796,18 @@ class DateRangeField(MultiValueField):
 
     def widget_attrs(self, widget):
         return {'render_as': self.render_as}
+
+
+class ColorField(RegexField):
+    """A Field which handle html colors (e.g: #F2FAB3) without '#' """
+    regex  = re.compile(r'^([0-9a-fA-F]){6}$')
+    widget = ColorPickerWidget
+
+    def __init__(self, *args, **kwargs):
+        super(ColorField, self).__init__(self.regex, max_length=6, min_length=6, *args, **kwargs)
+
+    def clean(self, value):
+        value = super(ColorField, self).clean(value)
+        return value.upper()
+
+
