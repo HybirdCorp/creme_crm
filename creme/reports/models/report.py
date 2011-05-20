@@ -157,10 +157,13 @@ class Field(CremeModel):
                 if report and selected:#The sub report generates new lines
                     res = []
 
-                    if report.filter is not None:
-                        m2m_entities = get_m2m_entities(entity, self.name, False, report.filter.get_q())
-                    else:
-                        m2m_entities = get_m2m_entities(entity, self.name, False)
+                    #if report.filter is not None:
+                        #m2m_entities = get_m2m_entities(entity, self.name, False, report.filter.get_q())
+                    #else:
+                        #m2m_entities = get_m2m_entities(entity, self.name, False)
+                    m2m_entities = get_m2m_entities(entity, self.name, False,
+                                                    q_filter=None if report.filter is None else report.filter.get_q() #TODO: get_q() can return doublons: is it a problem ??
+                                                   )
 
                     for m2m_entity in m2m_entities:
                         sub_res = []
@@ -218,8 +221,9 @@ class Field(CremeModel):
                 scope = filter_entities_on_ct(related_entities, report.ct)
 
                 if report.filter is not None:
-                    scope = report.ct.model_class().objects.filter(pk__in=[e.id for e in scope])
-                    scope = scope.filter(report.filter.get_q())
+                    #scope = report.ct.model_class().objects.filter(pk__in=[e.id for e in scope])
+                    #scope = scope.filter(report.filter.get_q())
+                    scope = report.filter.filter(report.ct.model_class().objects.filter(pk__in=[e.id for e in scope]))
 
                 res = []
                 for rel_entity in scope:
@@ -269,6 +273,7 @@ class Field(CremeModel):
 
         return empty_value
 
+    #TODO: why not this method return directly a _new_ list ??
     def _handle_report_values(self, container, entity=None, user=None):
         for c in self.report.columns.all():
             sub_val = c.get_value(entity, user=user)
@@ -323,10 +328,14 @@ class Report(CremeEntity):
         model_manager = model.objects
         columns = self.get_children_fields_with_hierarchy()
 
+        #if self.filter is not None:
+            #entities = model_manager.filter(self.filter.get_q())
+        #else:
+            #entities = model_manager.all()
+        entities = model_manager.all()
+
         if self.filter is not None:
-            entities = model_manager.filter(self.filter.get_q())
-        else:
-            entities = model_manager.all()
+            entities = self.filter.filter(entities)
 
         if extra_q is not None:
             entities = entities.filter(extra_q)
@@ -443,4 +452,3 @@ class Report(CremeEntity):
             new_graph = graph.clone()
             new_graph.report = self
             new_graph.save()
-            

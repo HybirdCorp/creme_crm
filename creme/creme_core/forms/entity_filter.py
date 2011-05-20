@@ -32,7 +32,6 @@ from creme_core.models.entity_filter import _ConditionBooleanOperator
 from creme_core.forms import CremeModelForm
 from creme_core.forms.fields import JSONField
 from creme_core.forms.widgets import DynamicInput, SelectorList, ChainedInput, EntitySelector, UnorderedMultipleChoiceWidget, DateRangeSelect, DynamicSelect, PolymorphicInput
-#from creme_core.utils import bool_from_str
 from creme_core.utils.id_generator import generate_string_id_and_save
 from creme_core.utils.meta import is_date_field
 from creme_core.utils.date_range import date_range_registry
@@ -212,29 +211,37 @@ class RegularFieldsConditionsField(_ConditionsField):
         'invalidoperator': _(u"This operator is invalid."),
     }
 
+    def _build_related_fields(self, field, fields):
+        fname = field.name
+        related_model = field.rel.to
+        rel_excluded = set(related_model.header_filter_exclude_fields if issubclass(related_model, CremeEntity) else
+                           ('id',)
+                          )
+
+        for subfield in related_model._meta.fields:
+            sfname = subfield.name
+
+            if sfname not in rel_excluded and not is_date_field(subfield):
+                fields['%s__%s' % (fname, sfname)] =  [field, subfield]
+
     def _set_model(self, model):
         self._model = model
         self._fields = fields = {}
 
         excluded = model.header_filter_exclude_fields
 
+        #TODO: move code in meta.utils (and use in HeaderFilter for example) ??
         for field in model._meta.fields:
             fname = field.name
 
             if fname not in excluded and not is_date_field(field):
                if field.get_internal_type() == 'ForeignKey':
-                    related_model = field.rel.to
-                    rel_excluded = set(related_model.header_filter_exclude_fields if issubclass(related_model, CremeEntity) else
-                                       ('id',)
-                                      )
-
-                    for subfield in related_model._meta.fields:
-                        sfname = subfield.name
-
-                        if sfname not in rel_excluded and not is_date_field(subfield):
-                            fields['%s__%s' % (fname, sfname)] =  [field, subfield]
+                    self._build_related_fields(field, fields)
                else:
                    fields[fname] = [field]
+
+        for field in model._meta.many_to_many:
+            self._build_related_fields(field, fields)
 
         self._build_widget()
 

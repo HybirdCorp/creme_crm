@@ -1396,6 +1396,35 @@ class EntityFiltersTestCase(CremeTestCase):
                                ])
         self.assertExpectedFiltered(efilter, Contact, [self.contacts[0].id, self.contacts[1].id])
 
+    def test_filter_m2m(self):
+        l1 = Language.objects.create(name='Japanese', code='JP')
+        l2 = Language.objects.create(name='German',   code='G')
+        l3 = Language.objects.create(name='Engrish',  code='EN')
+
+        jet = self.contacts[1];     jet.language   = [l1, l3]
+        rei = self.contacts[4];     rei.language   = [l1]
+        asuka = self.contacts[6];   asuka.language = [l1, l2, l3]
+
+        self.assertEqual(3, Contact.objects.filter(language__code='JP').count())
+        self.assertEqual(4, Contact.objects.filter(language__name__contains='an').count()) #BEWARE: doublon !!
+        self.assertEqual(3, Contact.objects.filter(language__name__contains='an').distinct().count())
+
+        efilter = EntityFilter.create('test-filter01', 'JP', Contact)
+        efilter.set_conditions([EntityFilterCondition.build_4_field(model=Contact,
+                                                                    operator=EntityFilterCondition.IEQUALS,
+                                                                    name='language__code', values=['JP']
+                                                                   )
+                               ])
+        self.assertExpectedFiltered(efilter, Contact, [jet.id, rei.id, asuka.id])
+
+        efilter = EntityFilter.create('test-filter02', 'lang contains "an"', Contact)
+        efilter.set_conditions([EntityFilterCondition.build_4_field(model=Contact,
+                                                                    operator=EntityFilterCondition.ICONTAINS,
+                                                                    name='language__name', values=['an']
+                                                                   )
+                               ])
+        self.assertExpectedFiltered(efilter, Contact, [jet.id, rei.id, asuka.id])
+
     def test_problematic_validation_fields(self):
         efilter = EntityFilter.create('test-filter01', 'Mist..', Contact)
         build = EntityFilterCondition.build_4_field
@@ -2058,5 +2087,3 @@ class EntityFiltersTestCase(CremeTestCase):
                           EntityFilterCondition.build_4_datecustomfield,
                           custom_field=custom_field, date_range='unknown_range'
                          )
-
-        #TODO: field in M2M

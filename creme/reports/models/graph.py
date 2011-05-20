@@ -96,10 +96,14 @@ class ReportGraph(CremeEntity):
         aggregate_func  = aggregate_field.func if aggregate_field else None#Seems to be a count
         aggregate_col   = aggregate_func(ordinate_col) if aggregate_func else None#Seems to be a count
 
+        #if report.filter is not None:
+            #entities = model_manager.filter(report.filter.get_q())
+        #else:
+            #entities = model_manager.all()
+        entities = model_manager.all()
+
         if report.filter is not None:
-            entities = model_manager.filter(report.filter.get_q())
-        else:
-            entities = model_manager.all()
+            entities = (report.filter.filter(entities))
 
         if extra_q is not None:
             entities = entities.filter(extra_q)

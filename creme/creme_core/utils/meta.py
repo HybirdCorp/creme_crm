@@ -19,9 +19,8 @@
 ################################################################################
 
 from django.db import models
-from django.db.models.fields.related import ForeignKey, ManyToManyField
+from django.db.models import ForeignKey, ManyToManyField, Field, FieldDoesNotExist
 from django.db.models.base import ModelBase
-from django.db.models import Field, FieldDoesNotExist
 from django.conf import settings
 
 from creme_core.models.entity import CremeEntity
@@ -125,8 +124,8 @@ def get_flds_with_fk_flds(model_klass, deep=1):
     return flds
 
 
-#TODO: factoriser avec get_flds_with_fk_flds ?? (visitor ??)
-#TODO: utilisation bizarre de unicode() ??? '%s' % unicode(foobar), unicode('%s' % foobar)
+#TODO: factorise with get_flds_with_fk_flds ?? (visitor ??)
+#TODO: strange usage of unicode() ??? '%s' % unicode(foobar), unicode('%s' % foobar)
 def get_flds_with_fk_flds_str(model_klass, deep=1, prefix=None, exclude_func=None):
     """
         @Return a list of tuple which are ('field_name','field_verbose_name')
