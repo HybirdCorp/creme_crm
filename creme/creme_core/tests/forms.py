@@ -1415,3 +1415,31 @@ class MultiCremeEntityFieldTestCase(FieldTestCase):
         field.q_filter={'~pk__in': [ce1.id, ce2.id]}
 
         self.assertFieldValidationError(MultiCremeEntityField, 'invalid_choice', field.clean, [ce1.id, ce2.id], message_args={"value":'%s, %s' % (ce1.id, ce2.id)})
+
+class ColorFieldTestCase(FieldTestCase):
+    def test_empty01(self):
+        field = ColorField()
+        self.assertFieldValidationError(ColorField, 'required', field.clean, None)
+        self.assertFieldValidationError(ColorField, 'required', field.clean, '')
+        self.assertFieldValidationError(ColorField, 'required', field.clean, [])
+
+    def test_length01(self):
+        field = ColorField()
+        self.assertFieldRaises(ValidationError, field.clean, '1')
+        self.assertFieldRaises(ValidationError, field.clean, '12')
+        self.assertFieldRaises(ValidationError, field.clean, '123')
+        self.assertFieldRaises(ValidationError, field.clean, '1234')
+        self.assertFieldRaises(ValidationError, field.clean, '12345')
+
+    def test_invalid_value01(self):
+        field = ColorField()
+        self.assertFieldValidationError(ColorField, 'invalid', field.clean, 'GGGGGG')
+        self.assertFieldValidationError(ColorField, 'invalid', field.clean, '------')
+
+    def test_ok01(self):
+        field = ColorField()
+        self.assertEqual('AAAAAA', field.clean('AAAAAA'))
+        self.assertEqual('AAAAAA', field.clean('aaaaaa'))
+        self.assertEqual('123456', field.clean('123456'))
+        self.assertEqual('123ABC', field.clean('123ABC'))
+        self.assertEqual('123ABC', field.clean('123abc'))
