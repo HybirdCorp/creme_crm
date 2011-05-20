@@ -18,13 +18,18 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from django.utils.translation import ugettext_lazy as _
+
 from creme_core.forms import CremeModelForm
+from creme_core.forms.fields import ColorField
 from creme_core.utils.id_generator import generate_string_id_and_save
 
 from activities.models import ActivityType
 
 
 class ActivityTypeForm(CremeModelForm):
+    color = ColorField(label=_(u'Color'))
+
     class Meta:
         model = ActivityType
         exclude = ('id', 'is_custom')
