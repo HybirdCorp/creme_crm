@@ -9,7 +9,10 @@
 		var defaults = {
 			onOpen: function () {},
 			onClose: function () {},
-			onChange: function () {},
+			onChange: function ($input, selectedValue) {
+                $input.css('background-color', '#'+selectedValue);
+                changeTextColor($input, selectedValue);
+            },
 			useButton: true,
 			defaultColor: '#FF0000'
 		},
@@ -320,11 +323,21 @@
 				options.onClose(target, $('#gccolor-hex input').val(), cancel);
 			}
 			if (!cancel){
-				$(target).val('#' + $('#gccolor-hex input').val());
+				$(target).val($('#gccolor-hex input').val());
 			}
 			$('#gccolor-dialog').hide();
 			$('#gccolor-dialog').dialog('destroy');
-		};
+		},
+        changeTextColor = function(target, value){
+
+            if (_RGBtoHSB(_HEXtoRGB(value)).b > 60)
+            {
+                target.css('color', 'black');
+            }
+            else{
+                target.css('color', 'white');
+            }
+        };
 
 		return {
 			init : function(options){
@@ -347,12 +360,22 @@
 						$(this).wrap('<span class="gccolor-wrapper"></span>')
 						$(this).after('<a href="Javascript:;" class="gccolor-button">Pick a color!</a>');
 						var button = $(this).next();
-						$(this).width($(this).width() - 22);
-						$(this).css('margin-right', '24px');
-						button.css('left', ($(this).position().left + $(this).outerWidth(true) - 22) + 'px');
+						$(this).width($(this).width() - 24);
+						$(this).css('margin-left', '24px');
+						//button.css('left', ($(this).position().left + $(this).outerWidth(true) - 22) + 'px');
 						button.click(function(){
 							openDialog($(this).prev(), options);
 						});
+                        $(this).css('background-color', '#'+$(this).val());
+                        changeTextColor($(this), $(this).val());
+
+                        $(this).bind('gccolor-input-change', function(){
+                            changeTextColor($(this), $(this).val());
+                            $(this).css('background-color', '#'+$(this).val());
+                        }).bind('change', function(){
+                            $(this).trigger('gccolor-input-change');
+                        });
+
 					} else {
 						$(this).click(function(){
 							openDialog($(this), options);
