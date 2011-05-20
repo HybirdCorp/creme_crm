@@ -138,8 +138,9 @@ class EntityFilter(Model): #CremeModel ???
 
         return ef
 
-    def filter(self, qs): #TODO: still useful ???
-        return qs.filter(self.get_q())
+    def filter(self, qs):
+        #distinct is useful with condition on m2m that can retrieve several times the same Entity
+        return qs.filter(self.get_q()).distinct()
 
     def get_connected_filter_ids(self):
         #NB: 'level' means a level of filters connected to this filter :
