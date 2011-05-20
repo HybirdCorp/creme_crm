@@ -196,7 +196,7 @@ def preview(request, report_id):
         if filter_form.is_valid():
             extra_q_filter = Q(**filter_form.get_q_dict())
             start, end = filter_form.get_dates()
-            
+
     else:
         filter_form = DateReportFilterForm(report=report, user=request.user)
 
@@ -269,12 +269,6 @@ def csv(request, report_id):
 
         dt_range = date_range_registry.get_range(dt_range_name, start_dt, end_dt)
 
-        print dt_range_name
-        print dt_range
-        
-        print start_dt
-        print end_dt
-
         if dt_range is not None:
             extra_q_filter = Q(**dt_range.get_q_dict(field_name, datetime.now()))
 
@@ -328,10 +322,11 @@ def date_filter_form(request, report_id):
                         'report_id':       report_id,
                         'redirect':        redirect,
                         'simple_redirect': simple_redirect,
-                        'start': start,
-                        'end': end,
+                        'start':           start,
+                        'end':             end,
                        },
                        is_valid=valid,
                        reload=False,
                        delegate_reload=True,
-                       context_instance=RequestContext(request))
+                       context_instance=RequestContext(request)
+                      )

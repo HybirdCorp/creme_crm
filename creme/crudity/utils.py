@@ -71,7 +71,6 @@ def unescape(text):
             elif text[1:-1] == "lt":
                text = "&amp;lt;"
             else:
-               print text[1:-1]
                text = unichr(htmlentitydefs.name2codepoint[text[1:-1]])
          except KeyError:
 #            print "keyerror"
