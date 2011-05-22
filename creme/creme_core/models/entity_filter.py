@@ -318,10 +318,19 @@ class EntityFilterCondition(Model):
         if custom_field.field_type == CustomField.DATE:
             raise EntityFilterCondition.ValueError('build_4_customfield(): does not manage DATE CustomFields')
 
-        #TODO: check value???? (problem with CONTAINS if we do)
+        if custom_field.field_type == CustomField.BOOL and operator != EntityFilterCondition.EQUALS:
+            raise EntityFilterCondition.ValueError('build_4_customfield(): BOOL type is only compatible with EQUALS operator')
+
+        cf_value_class = custom_field.get_value_class()
+
+        try:
+            cf_value_class.get_formfield(custom_field, None).clean(value)
+        except ValidationError, e:
+            raise EntityFilterCondition.ValueError(str(e))
+
         value = {'operator': operator,
                  'value':    value,
-                 'rname':    custom_field.get_value_class().get_related_name(),
+                 'rname':    cf_value_class.get_related_name(),
                 }
 
         return EntityFilterCondition(type=EntityFilterCondition.EFC_CUSTOMFIELD,
@@ -407,7 +416,6 @@ class EntityFilterCondition(Model):
                 values = [values]
             else:
                 EntityFilterCondition._validate_field_values(field, operator_obj, values)
-
         except Exception, e:
             raise EntityFilterCondition.ValueError(str(e))
 
