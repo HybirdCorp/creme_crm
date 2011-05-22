@@ -1975,17 +1975,43 @@ class EntityFiltersTestCase(CremeTestCase):
                                ])
         self.assertExpectedFiltered(efilter, Contact, [rei.id])
 
+    def test_customfield07(self): #BOOL
+        rei = self.contacts[4]
+
+        custom_field = CustomField.objects.create(name='cute ??', content_type=self.contact_ct, field_type=CustomField.BOOL)
+        custom_field.get_value_class()(custom_field=custom_field, entity=rei).set_value_n_save(True)
+        custom_field.get_value_class()(custom_field=custom_field, entity=self.contacts[1]).set_value_n_save(False)
+        self.assertEqual(2, CustomFieldBoolean.objects.count())
+
+        efilter = EntityFilter.create('test-filter01', name='Cuties', model=Contact)
+        efilter.set_conditions([EntityFilterCondition.build_4_customfield(custom_field=custom_field,
+                                                                          operator=EntityFilterCondition.EQUALS,
+                                                                          value=True
+                                                                         )
+                               ])
+        self.assertExpectedFiltered(efilter, Contact, [rei.id])
+
     def test_build_customfield(self): #errors
         custom_field = CustomField.objects.create(name='size (cm)', content_type=self.contact_ct, field_type=CustomField.INT)
         self.assertRaises(EntityFilterCondition.ValueError,
                           EntityFilterCondition.build_4_customfield,
                           custom_field=custom_field, operator=1216, value=155 #invalid operator
                          )
+        self.assertRaises(EntityFilterCondition.ValueError,
+                          EntityFilterCondition.build_4_customfield,
+                          custom_field=custom_field, operator=EntityFilterCondition.CONTAINS, value='not an int'
+                         )
 
         custom_field = CustomField.objects.create(name='Day', content_type=self.contact_ct, field_type=CustomField.DATE)
         self.assertRaises(EntityFilterCondition.ValueError,
                           EntityFilterCondition.build_4_customfield,
                           custom_field=custom_field, operator=EntityFilterCondition.EQUALS, value=2011 #DATE
+                         )
+
+        custom_field = CustomField.objects.create(name='Cute ?', content_type=self.contact_ct, field_type=CustomField.BOOL)
+        self.assertRaises(EntityFilterCondition.ValueError,
+                          EntityFilterCondition.build_4_customfield,
+                          custom_field=custom_field, operator=EntityFilterCondition.CONTAINS, value=True #bad operator
                          )
 
     def _aux_test_datecf(self):

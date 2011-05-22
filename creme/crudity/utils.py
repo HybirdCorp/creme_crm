@@ -23,23 +23,24 @@ import htmlentitydefs
 
 html_mark = re.compile(r"""(?P<html>(</|<!|<|&lt;)[-="' ;/.#:@\w]*(>|/>|&gt;))""")
 
-def get_unicode_decoded_str(str, encodings):
+def get_unicode_decoded_str(str, encodings): #TODO: rename 'str'
     for encoding in encodings:
         try:
             return unicode(str, encoding) if not isinstance(str, unicode) else str
         except:
             continue
 
-    return u"".join([i if ord(i) < 128 else '?' for i in str])
+    return u"".join([i if ord(i) < 128 else '?' for i in str]) #TODO: use genexpr
 
-def strip_html_(str):
+def strip_html_(str): #TODO: rename 'str'
     is_html = True
     while is_html:
-        reg=re.search(html_mark, str)
+        reg = re.search(html_mark, str)
         if reg:
-            str=str.replace(reg.groupdict().get('html'), '')
+            str = str.replace(reg.groupdict().get('html'), '')
         else:
-            is_html=False
+            is_html = False
+
     return str
 
 def unescape(text):
@@ -63,7 +64,7 @@ def unescape(text):
             pass
       else:
          # named entity
-         try:
+         try: #TODO: var = text[1:-1]
             if text[1:-1] == "amp":
                text = "&amp;amp;"
             elif text[1:-1] == "gt":
