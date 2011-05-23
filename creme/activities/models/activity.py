@@ -27,6 +27,7 @@ from django.db.models.fields.related import ManyToManyField
 from django.utils.translation import ugettext_lazy as _
 
 from creme_core.models import CremeEntity, CremeModel, Relation
+from creme_core.models.fields import DurationField
 
 from activities.constants import *
 from activities.utils import get_ical_date
@@ -79,7 +80,7 @@ class ActivityType(CremeModel):
     name                  = CharField(_(u'Name'), max_length=100)
     color                 = CharField(_(u'Color'), max_length=100, blank=True, null=True)
     default_day_duration  = IntegerField(_(u'Default day duration'))
-    default_hour_duration = TimeField(_(u'Default hour duration'))
+    default_hour_duration = DurationField(_(u'Default hour duration'), max_length=15)
     is_custom             = BooleanField(default=True) #used by creme_config
 
     def __unicode__(self):
@@ -119,7 +120,8 @@ class Activity(CremeEntity):
 
 
     research_fields = CremeEntity.research_fields + ['title', 'type__name']
-    excluded_fields_in_html_output = CremeEntity.excluded_fields_in_html_output + ['type', 'activity_ptr']
+#    excluded_fields_in_html_output = CremeEntity.excluded_fields_in_html_output + ['type', 'activity_ptr']
+    excluded_fields_in_html_output = CremeEntity.excluded_fields_in_html_output + ['activity_ptr', ]
 
     class Meta:
         app_label = 'activities'
@@ -216,6 +218,8 @@ END:VEVENT
 class Meeting(Activity):
     place = CharField(_(u'Meeting place'), max_length=100, blank=True, null=True)
 
+    excluded_fields_in_html_output = Activity.excluded_fields_in_html_output + ['type']
+
     def __init__(self, *args, **kwargs):
         super(Meeting, self).__init__(*args, **kwargs)
         self.type_id = ACTIVITYTYPE_MEETING
@@ -230,6 +234,8 @@ class Meeting(Activity):
 
 class Task(Activity):
     duration = PositiveIntegerField(_(u'Duration (in hour)'), blank=True, null=True)
+
+    excluded_fields_in_html_output = Activity.excluded_fields_in_html_output + ['type']
 
     def __init__ (self, *args , **kwargs):
         super(Task, self).__init__(*args, **kwargs)
@@ -256,6 +262,8 @@ class PhoneCallType(CremeModel):
 
 class PhoneCall(Activity):
     call_type = ForeignKey(PhoneCallType, verbose_name=_(u"Phonecall type"), blank=True, null=True)
+
+    excluded_fields_in_html_output = Activity.excluded_fields_in_html_output + ['type']
 
     def __init__(self, *args, **kwargs):
         super(PhoneCall, self).__init__(*args, **kwargs)
