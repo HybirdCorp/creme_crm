@@ -23,7 +23,7 @@ from collections import defaultdict
 from itertools import chain
 from logging import debug
 
-from django.forms import Field, CharField, MultipleChoiceField, ChoiceField, ModelChoiceField, DateField, TimeField, DateTimeField
+from django.forms import Field, CharField, MultipleChoiceField, ChoiceField, ModelChoiceField, DateField, TimeField, DateTimeField, IntegerField
 from django.forms.util import ValidationError
 from django.forms.widgets import Textarea
 from django.forms.fields import EMPTY_VALUES, MultiValueField, RegexField
@@ -38,7 +38,8 @@ from creme_core.models import RelationType, CremeEntity, Relation
 from creme_core.utils import creme_entity_content_types
 from creme_core.utils.queries import get_q_from_dict
 from creme_core.utils.date_range import date_range_registry
-from creme_core.forms.widgets import CTEntitySelector, SelectorList, RelationSelector, ListViewWidget, ListEditionWidget, CalendarWidget, TimeWidget, DateRangeWidget, ColorPickerWidget
+from creme_core.forms.widgets import (CTEntitySelector, SelectorList, RelationSelector, ListViewWidget, ListEditionWidget,
+                                      CalendarWidget, TimeWidget, DateRangeWidget, ColorPickerWidget, DurationWidget)
 from creme_core.constants import REL_SUB_RELATED_TO, REL_SUB_HAS
 
 
@@ -48,7 +49,7 @@ __all__ = ('MultiGenericEntityField', 'GenericEntityField',
            'ListEditionField',
            'AjaxChoiceField', 'AjaxMultipleChoiceField', 'AjaxModelChoiceField',
            'CremeTimeField', 'CremeDateField', 'CremeDateTimeField',
-           'DateRangeField', 'ColorField')
+           'DateRangeField', 'ColorField', 'DurationField')
 
 
 class JSONField(CharField):
@@ -59,14 +60,14 @@ class JSONField(CharField):
     def __init(self, *args, **kwargs):
         super(JSONField, self).__init__(*args, **kwargs)
 
-    def clean_value(self, data, name, type):
+    def clean_value(self, data, name, type, default=None):#TODO:Is a 'required' could be better in place of default ?
         if not data:
             raise ValidationError(self.error_messages['invalidformat'])
 
         if not isinstance(data, dict):
             raise ValidationError(self.error_messages['invalidformat'])
 
-        value = data.get(name)
+        value = data.get(name, default)
 
         # value can be "False" if a boolean value is expected.
         if value is None:
@@ -810,4 +811,30 @@ class ColorField(RegexField):
         value = super(ColorField, self).clean(value)
         return value.upper()
 
+
+class DurationField(MultiValueField):
+    widget = DurationWidget
+
+    default_error_messages = {
+        'invalid': _(u'Enter a whole number.'),
+        'min_value': _(u'Ensure this value is greater than or equal to %(limit_value)s.'),
+    }
+
+    def __init__(self, *args, **kwargs):
+        self.hours   = IntegerField(min_value=0)
+        self.minutes = IntegerField(min_value=0)
+        self.seconds = IntegerField(min_value=0)
+
+        fields = self.hours, self.minutes, self.seconds
+
+        super(DurationField, self).__init__(fields=fields, *args, **kwargs)
+
+    def compress(self, data_list):
+        if data_list:
+            return data_list[0], data_list[1], data_list[2]
+        return u'', u'', u''
+
+    def clean(self, value):
+        hours, minutes, seconds = super(DurationField, self).clean(value)
+        return ':'.join([str(hours), str(minutes), str(seconds)])
 

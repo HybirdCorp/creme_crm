@@ -28,6 +28,9 @@ from django.db.models import DateTimeField, CharField
 class PhoneField(CharField):
     pass
 
+#TODO: Make a real api for this
+class DurationField(CharField):
+    pass
 
 # Code copied/modified from django_extensions one:
 #    http://code.google.com/p/django-command-extensions/

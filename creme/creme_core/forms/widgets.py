@@ -856,7 +856,7 @@ class AdaptiveWidget(Select):
             <span class="%(css)s" style="%(style)s" widget="%(typename)s" url="%(url)s" field_value_name="%(field_value_name)s">
                 %(input)s
             </span>
-        """ % context;
+        """ % context
 
         return mark_safe(html_output)
 
@@ -894,3 +894,31 @@ class DateRangeWidget(MultiWidget):
                              u"""</ul>"""])
 
         return u"""<div class="%s">%s</div>""" % (_css_class, u''.join(u"<div>%s</div>" % w for w in rendered_widgets))
+
+
+class DurationWidget(MultiWidget):
+    def __init__(self, attrs=None):
+        widgets = (
+            TextInput(),
+            TextInput(),
+            TextInput()
+            )
+        super(DurationWidget, self).__init__(widgets, attrs)
+
+    def decompress(self, value):
+        if value:
+            return value.split(':')
+        return None, None, None
+
+    def format_output(self, rendered_widgets):
+        hours_widget, minutes_widget, seconds_widget = rendered_widgets
+        return u"""<span>%(hours)s&nbsp;%(hours_label)s&nbsp;
+                         %(minutes)s&nbsp;%(minutes_label)s&nbsp;
+                         %(seconds)s&nbsp;%(seconds_label)s&nbsp;</span>
+                """ % {
+                        'hours': hours_widget, 'hours_label': _(u'Hours'),
+                        'minutes': minutes_widget, 'minutes_label': _(u'Minutes'),
+                        'seconds': seconds_widget, 'seconds_label': _(u'Seconds')
+                      }
+
+

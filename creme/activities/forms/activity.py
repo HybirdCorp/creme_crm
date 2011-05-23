@@ -27,6 +27,7 @@ from django.forms.util import ValidationError, ErrorList
 from django.utils.translation import ugettext_lazy as _, ugettext
 from django.db.models import Q
 from django.contrib.auth.models import User
+from activities.models.activity import ActivityType
 
 from creme_core.models import Relation, RelationType
 from creme_core.forms import CremeForm, CremeEntityForm
@@ -305,6 +306,9 @@ class ActivityEditForm(CremeEntityForm):
         fields['start_time'].initial = instance.start.time()
         fields['end_time'].initial   = instance.end.time()
 
+        if instance.type.is_custom:
+            fields['type'] = instance._meta.get_field('type').formfield(queryset=ActivityType.objects.filter(is_custom=True), initial=instance.type.id)
+
     def clean(self):
         cleaned_data = self.cleaned_data
 
@@ -326,4 +330,26 @@ class ActivityEditForm(CremeEntityForm):
 
     def save(self):
         self.instance.end = self.cleaned_data['end']
+
+        activity_type = self.cleaned_data.get('type')
+        if activity_type is not None and self.instance.type.is_custom:
+            self.instance.type = activity_type
+
         return super(ActivityEditForm, self).save()
+
+class CustomActivityCreateForm(ActivityCreateForm):
+    def __init__(self, *args, **kwargs):
+        super(CustomActivityCreateForm, self).__init__(*args, **kwargs)
+        self.fields['type'].queryset = self.fields['type'].queryset.filter(is_custom=True)
+
+        if self.fields['type'].queryset.count() == 0:
+            self.fields['type'].help_text = _(u"No custom activity type, you should create one in configuration in order to create an activity.")
+
+
+class RelatedCustomActivityCreateForm(RelatedActivityCreateForm):
+    def __init__(self, *args, **kwargs):
+        super(RelatedCustomActivityCreateForm, self).__init__(*args, **kwargs)
+        self.fields['type'].queryset = self.fields['type'].queryset.filter(is_custom=True)
+
+        if self.fields['type'].queryset.count() == 0:
+            self.fields['type'].help_text = _(u"No custom activity type, you should create one in configuration in order to create an activity.")
