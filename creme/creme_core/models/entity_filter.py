@@ -223,9 +223,35 @@ class _ConditionOperator(object):
     def __unicode__(self):
         return unicode(self.name)
 
+    def get_q(self, efcondition, values):
+        key = self.key_pattern % efcondition.name
+        query = Q()
+
+        for value in values:
+            query |= Q(**{key: value})
+
+        return query
+
 
 class _ConditionBooleanOperator(_ConditionOperator):
     pass
+
+
+class _IsEmptyOperator(_ConditionBooleanOperator):
+    def __init__(self, name):
+        super(_IsEmptyOperator, self).__init__(name, '', exclude=False, accept_subpart=False)
+
+    def get_q(self, efcondition, values):
+        field_name = efcondition.name
+        query = Q(**{'%s__isnull' % field_name: True})
+
+        if isinstance(efcondition.filter.entity_type.model_class()._meta.get_field(field_name), (CharField, TextField)):
+            query |= Q(**{field_name: ''})
+
+        if not values[0]:
+            query.negate()
+
+        return query
 
 
 class EntityFilterCondition(Model):
@@ -265,7 +291,7 @@ class EntityFilterCondition(Model):
     IENDSWITH       = 18
     ENDSWITH_NOT    = 19
     IENDSWITH_NOT   = 20
-    ISNULL          = 21
+    ISEMPTY         = 21
     RANGE           = 22
 
     _OPERATOR_MAP = {
@@ -289,7 +315,7 @@ class EntityFilterCondition(Model):
             IENDSWITH:       _ConditionOperator(_(u"Ends with (case insensitive)"),           '%s__iendswith'),
             ENDSWITH_NOT:    _ConditionOperator(_(u"Does not end with"),                      '%s__endswith', exclude=True),
             IENDSWITH_NOT:   _ConditionOperator(_(u"Does not end with (case insensitive)"),   '%s__iendswith', exclude=True),
-            ISNULL:          _ConditionBooleanOperator(_(u"Is empty"),                        '%s__isnull', accept_subpart=False),
+            ISEMPTY:         _IsEmptyOperator(_(u"Is empty")),
             RANGE:           _ConditionOperator(_(u"Range"),                                  '%s__range'),
         }
 
@@ -359,7 +385,7 @@ class EntityFilterCondition(Model):
     @staticmethod
     def build_4_date(model, name, date_range=None, start=None, end=None):
         try:
-            field = model._meta.get_field_by_name(name)[0]
+            field = model._meta.get_field(name)
         except FieldDoesNotExist, e:
             raise EntityFilterCondition.ValueError(str(e))
 
@@ -391,7 +417,7 @@ class EntityFilterCondition(Model):
         @param operator Operator ID ; see EntityFilterCondition.EQUALS and friends.
         @param values List of searched values (logical OR between them).
                       Exceptions: - RANGE: 'values' is always a list of 2 elements
-                                  - ISNULL: 'values' is a list containing one boolean.
+                                  - ISEMPTY: 'values' is a list containing one boolean.
         """
         operator_obj = EntityFilterCondition._OPERATOR_MAP.get(operator)
         if not operator_obj:
@@ -401,7 +427,6 @@ class EntityFilterCondition(Model):
         if not finfo:
             raise EntityFilterCondition.ValueError('%s: no field named: %s', model, name)
 
-        #field = model._meta.get_field_by_name(name)[0]
         field = finfo[-1]['field']
 
         try: #TODO: method 'operator_obj.clean()' ??
@@ -506,12 +531,7 @@ class EntityFilterCondition(Model):
     def _get_q_field(self):
         search_info = self.decoded_value
         operator = EntityFilterCondition._OPERATOR_MAP[search_info['operator']]
-
-        key = operator.key_pattern % self.name
-        query = Q()
-
-        for value in search_info['values']:
-            query |= Q(**{key: value})
+        query = operator.get_q(self, search_info['values'])
 
         if operator.exclude:
             query.negate()
