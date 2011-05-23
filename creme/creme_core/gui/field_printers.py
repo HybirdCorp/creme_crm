@@ -23,6 +23,7 @@ from django.template.defaultfilters import linebreaks
 from django.utils.html import escape
 from django.utils.formats import date_format
 from django.utils.safestring import mark_safe
+from django.utils.translation import ungettext
 
 from creme_core.models import CremeEntity, fields
 from creme_core.utils.meta import get_field_infos, get_model_field_infos, get_m2m_entities
@@ -113,6 +114,25 @@ def get_m2m_popup_str(entity, fval):
 
     return result
 
+def print_duration(entity, fval):
+    try:
+        h, m, s = fval.split(':')
+    except ValueError:
+        return ''
+    else:
+        h = int(h)
+        m = int(m)
+        s = int(s)
+
+        return '%(hour)s %(hour_label)s %(minute)s %(minute_label)s %(second)s %(second_label)s' % {
+            'hour': h,
+            'hour_label': ungettext('hour', 'hours', h),
+            'minute': m,
+            'minute_label': ungettext('minute', 'minutes', m),
+            'second': s,
+            'second_label': ungettext('second', 'seconds', s)
+        }
+
 #TODO: Do more specific fields (i.e: currency field....) ?
 class _FieldPrintersRegistry(object):
     def __init__(self):
@@ -145,6 +165,7 @@ class _FieldPrintersRegistry(object):
             models.OneToOneField:              get_foreign_key_popup_str,
 
             fields.PhoneField:                 simple_print,
+            fields.DurationField:              print_duration,
             fields.ModificationDateTimeField:  print_datetime,
             fields.CreationDateTimeField :     print_datetime,
         }
