@@ -1436,3 +1436,24 @@ class ColorFieldTestCase(FieldTestCase):
         self.assertEqual('123456', field.clean('123456'))
         self.assertEqual('123ABC', field.clean('123ABC'))
         self.assertEqual('123ABC', field.clean('123abc'))
+
+
+class DurationFieldTestCase(FieldTestCase):
+    def test_empty01(self):
+        field = DurationField()
+        self.assertFieldValidationError(DurationField, 'required', field.clean, None)
+        self.assertFieldValidationError(DurationField, 'required', field.clean, '')
+        self.assertFieldValidationError(DurationField, 'required', field.clean, [])
+
+    def test_invalid01(self):
+        field = DurationField()
+        self.assertFieldValidationError(DurationField, 'invalid', field.clean, [u'a', u'b', u'c'])
+
+    def test_positive01(self):
+        field = DurationField()
+        self.assertFieldValidationError(DurationField, 'min_value', field.clean, [u'-1', u'-1', u'-1'], message_args={'limit_value': 0})
+
+    def test_ok01(self):
+        field = DurationField()
+        self.assertEqual('10:2:0', field.clean([u'10', u'2', u'0']))
+        self.assertEqual('10:2:0', field.clean([10, 2, 0]))

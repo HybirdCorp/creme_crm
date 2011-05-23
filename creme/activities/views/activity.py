@@ -58,6 +58,7 @@ _forms_map = {
         "meeting":   (RelatedMeetingCreateForm,   MeetingCreateForm),
         "task":      (RelatedTaskCreateForm,      TaskCreateForm),
         "phonecall": (RelatedPhoneCallCreateForm, PhoneCallCreateForm),
+        "activity":  (RelatedCustomActivityCreateForm, CustomActivityCreateForm),
     }
 
 @login_required
