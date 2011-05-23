@@ -1,6 +1,6 @@
 /*******************************************************************************
     Creme is a free/open-source Customer Relationship Management software
-    Copyright (C) 2009-2010  Hybird
+    Copyright (C) 2009-2011  Hybird
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -694,13 +694,18 @@ creme.forms._toDualColumnMultiSelect = function(store_id, use_order, buildColumn
     $div.append($store).append($layout);
 
     //Set the same dimensions for the 2 columns
-    var width = Math.max($available.width(), $chosen.width());
-    $chosen.width(width);
-    $available.width(width);
-
     var height = Math.max($available.height() + $chosen.height(), $buttons.height());
-    $chosen.height(height);
-    $available.height(height);
+    if (height != 0) { //TODO: Problem with inner popups (computed dimensions are always 0) ....
+        $chosen.height(height);
+        $available.height(height);
+
+        var width = Math.max($available.width(), $chosen.width());
+        $chosen.width(width);
+        $available.width(width);
+    } else {
+        $chosen.css('min-height', 200);
+        $available.css('min-height', 200);
+    }
 }
 
 creme.forms.toUnorderedMultiSelect = function(select_id) {
