@@ -202,6 +202,9 @@ class EntityFilter(Model): #CremeModel ???
 class _ConditionOperator(object):
     __slots__ = ('name', '_accept_subpart', '_exclude', '_key_pattern')
 
+    #Fields for which the subpart of a valid value is not valid
+    _NO_SUBPART_VALIDATION_FIELDS = set([models.EmailField, models.IPAddressField])
+
     def __init__(self, name, key_pattern, exclude=False, accept_subpart=True):
         self._key_pattern    = key_pattern
         self._exclude        = exclude
@@ -232,9 +235,23 @@ class _ConditionOperator(object):
 
         return query
 
+    def validate_field_values(self, field, values):
+        """Raises a ValidationError to notify of a problemn with 'values'."""
+        if not field.__class__ in self._NO_SUBPART_VALIDATION_FIELDS or not self.accept_subpart:
+            clean = field.formfield().clean
+
+            for value in values:
+                clean(value)
+
+        return values
+
 
 class _ConditionBooleanOperator(_ConditionOperator):
-    pass
+    def validate_field_values(self, field, values):
+        if len(values) != 1 or not isinstance(values[0], bool):
+            raise ValueError(u'A list with one bool is expected for condition %s' % self.name)
+
+        return values
 
 
 class _IsEmptyOperator(_ConditionBooleanOperator):
@@ -252,6 +269,17 @@ class _IsEmptyOperator(_ConditionBooleanOperator):
             query.negate()
 
         return query
+
+
+class _RangeOperator(_ConditionOperator):
+    def __init__(self, name):
+        super(_RangeOperator, self).__init__(name, '%s__range')
+
+    def validate_field_values(self, field, values):
+        if len(values) != 2:
+            raise ValueError(u'A list with 2 elements is expected for condition %s' % self.name)
+
+        return [super(_RangeOperator, self).validate_field_values(field, values)]
 
 
 class EntityFilterCondition(Model):
@@ -316,11 +344,8 @@ class EntityFilterCondition(Model):
             ENDSWITH_NOT:    _ConditionOperator(_(u"Does not end with"),                      '%s__endswith', exclude=True),
             IENDSWITH_NOT:   _ConditionOperator(_(u"Does not end with (case insensitive)"),   '%s__iendswith', exclude=True),
             ISEMPTY:         _IsEmptyOperator(_(u"Is empty")),
-            RANGE:           _ConditionOperator(_(u"Range"),                                  '%s__range'),
+            RANGE:           _RangeOperator(_(u"Range")),
         }
-
-    #Fields for which the subpart of a valid value is not valid
-    _NO_SUBPART_VALIDATION_FIELDS = set([models.EmailField, models.IPAddressField])
 
     class Meta:
         app_label = 'creme_core'
@@ -427,20 +452,8 @@ class EntityFilterCondition(Model):
         if not finfo:
             raise EntityFilterCondition.ValueError('%s: no field named: %s', model, name)
 
-        field = finfo[-1]['field']
-
-        try: #TODO: method 'operator_obj.clean()' ??
-            if isinstance(operator_obj, _ConditionBooleanOperator):
-                if len(values) != 1 or not isinstance(values[0], bool):
-                    raise ValueError(u'A list with one bool is expected for condition %s' % operator_obj.name)
-            elif operator == EntityFilterCondition.RANGE:
-                if len(values) != 2:
-                    raise ValueError(u'A list with 2 elements is expected for condition %s' % operator_obj.name)
-
-                EntityFilterCondition._validate_field_values(field, operator_obj, values)
-                values = [values]
-            else:
-                EntityFilterCondition._validate_field_values(field, operator_obj, values)
+        try:
+            values = operator_obj.validate_field_values(finfo[-1]['field'], values)
         except Exception, e:
             raise EntityFilterCondition.ValueError(str(e))
 
@@ -612,11 +625,3 @@ class EntityFilterCondition(Model):
                 changed = True
 
         return changed
-
-    @staticmethod
-    def _validate_field_values(field, operator_obj, values):
-        if not field.__class__ in EntityFilterCondition._NO_SUBPART_VALIDATION_FIELDS or not operator_obj.accept_subpart:
-            clean = field.formfield().clean
-
-            for value in values:
-                clean(value)
