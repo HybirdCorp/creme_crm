@@ -108,6 +108,7 @@ $(document).ready(function() {
             eventAfterRender : function(event, element, view) {
                 $(element).find('a').css('background-color', event.entity_color);
                 $(element).find('.fc-event-time').css('background-color', event.entity_color);
+                creme.activities.calendar.setReadableColor($(element).find('a'), event.entity_color);
             },
             eventDragStart : function(calEvent, domEvent, ui, view)
             {

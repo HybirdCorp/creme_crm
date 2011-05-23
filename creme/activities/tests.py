@@ -11,6 +11,7 @@ from django.contrib.contenttypes.models import ContentType
 from creme_core.models import RelationType, Relation, SetCredentials
 from creme_core.constants import REL_SUB_RELATED_TO
 from creme_core.tests.base import CremeTestCase
+from creme_core.utils import create_or_update
 
 from persons.models import Contact, Organisation
 
@@ -148,6 +149,62 @@ class ActivitiesTestCase(CremeTestCase):
         self.assertEqual(set(['my_participation', 'participating_users', 'other_participants', 'subjects', 'linked_entities']),
                          set(errors.keys())
                         )
+
+    def test_activity_createview03(self):
+        self.login()
+
+        user = self.user
+        me = Contact.objects.create(user=user, is_user=user, first_name='Ryoga', last_name='Hibiki')
+        ranma = Contact.objects.create(user=user, first_name='Ranma', last_name='Saotome')
+        genma = Contact.objects.create(user=user, first_name='Genma', last_name='Saotome')
+        dojo = Organisation.objects.create(user=user, name='Dojo')
+
+        self.assertEqual(200, self.client.get('/activities/activity/add/activity').status_code)
+
+        title  = 'my_task'
+        status = Status.objects.all()[0]
+        my_calendar = Calendar.get_user_default_calendar(self.user)
+        field_format = '[{"ctype":"%s", "entity":"%s"}]'
+        ACTIVITYTYPE_ACTIVITY = 'activities-activity_custom_1'
+        create_or_update(ActivityType, ACTIVITYTYPE_ACTIVITY, name='Karate session', color="FFFFFF", default_day_duration=0, default_hour_duration="00:15:00", is_custom=True)
+
+        response = self.client.post('/activities/activity/add/activity',
+                                    follow=True,
+                                    data={
+                                            'user':               user.pk,
+                                            'title':              title,
+                                            'status':             status.pk,
+                                            'start':              '2010-1-10',
+                                            'my_participation':   True,
+                                            'my_calendar':        my_calendar.pk,
+                                            'other_participants': genma.id,
+                                            'subjects':           field_format % (ranma.entity_type_id, ranma.id),
+                                            'linked_entities':    field_format % (dojo.entity_type_id, dojo.id),
+                                            'type':               ACTIVITYTYPE_ACTIVITY,
+                                         }
+                                   )
+        self.assertNoFormError(response)
+        self.assertEqual(200, response.status_code)
+
+        try:
+            act  = Activity.objects.get(type=ACTIVITYTYPE_ACTIVITY, title=title)
+        except Exception, e:
+            self.fail(str(e))
+
+        self.assertEqual(status.id, act.status_id)
+
+        start = act.start
+        self.assertEqual(2010, start.year)
+        self.assertEqual(1,    start.month)
+        self.assertEqual(10,   start.day)
+
+        self.assertEqual(4*2, Relation.objects.count()) # * 2: relations have their symmetric ones
+
+        count_relations = lambda type_id, subject_id: Relation.objects.filter(type=type_id, subject_entity=subject_id, object_entity=act.id).count()
+        self.assertEqual(1, count_relations(type_id=REL_SUB_PART_2_ACTIVITY,   subject_id=me.id))
+        self.assertEqual(1, count_relations(type_id=REL_SUB_PART_2_ACTIVITY,   subject_id=genma.id))
+        self.assertEqual(1, count_relations(type_id=REL_SUB_ACTIVITY_SUBJECT,  subject_id=ranma.id))
+        self.assertEqual(1, count_relations(type_id=REL_SUB_LINKED_2_ACTIVITY, subject_id=dojo.id))
 
     def test_activity_createview_related01(self):
         self.login()
@@ -320,6 +377,47 @@ class ActivitiesTestCase(CremeTestCase):
         self.assertEqual(2011, start.year)
         self.assertEqual(2,    start.month)
         self.assertEqual(22,   start.day)
+
+    def test_activity_editview02(self):
+        self.login()
+
+        title = 'act01'
+
+        ACTIVITYTYPE_ACTIVITY = 'activities-activity_custom_1'
+        act_type = create_or_update(ActivityType, ACTIVITYTYPE_ACTIVITY, name='Karate session', color="FFFFFF", default_day_duration=0, default_hour_duration="00:15:00", is_custom=True)
+
+        ACTIVITYTYPE_ACTIVITY2 = 'activities-activity_custom_2'
+        create_or_update(ActivityType, ACTIVITYTYPE_ACTIVITY2, name='Karate session', color="FFFFFF", default_day_duration=0, default_hour_duration="00:15:00", is_custom=True)
+
+        activity = Activity.objects.create(user=self.user, title=title,
+                                          start=datetime(year=2010, month=10, day=1, hour=14, minute=0),
+                                          end=datetime(year=2010, month=10, day=1, hour=15, minute=0),
+                                          type=act_type
+                                         )
+        url = '/activities/activity/edit/%s' % activity.id
+
+        self.assertEqual(200, self.client.get(url).status_code)
+
+        title += '_edited'
+        response = self.client.post(url, follow=True,
+                                    data={
+                                            'user':  self.user.pk,
+                                            'title': title,
+                                            'start': '2011-2-22',
+                                            'type' : ACTIVITYTYPE_ACTIVITY2,
+                                         }
+                                   )
+        self.assertNoFormError(response)
+        self.assertEqual(200, response.status_code)
+
+        activity = Activity.objects.get(pk=activity.id) #refresh
+        self.assertEqual(title, activity.title)
+
+        start = activity.start
+        self.assertEqual(2011, start.year)
+        self.assertEqual(2,    start.month)
+        self.assertEqual(22,   start.day)
+        self.assertEqual(ACTIVITYTYPE_ACTIVITY2, activity.type.id)
 
     def test_collision01(self):
         self.login()
@@ -636,7 +734,7 @@ class ActivitiesTestCase(CremeTestCase):
                                             'user': user.id
                                          }
                                    )
-                                   
+
         self.assertNoFormError(response)
         self.assertEqual(1, Calendar.objects.filter(user=user).count())
 
@@ -649,7 +747,7 @@ class ActivitiesTestCase(CremeTestCase):
 
         cal = Calendar.get_user_default_calendar(self.user)
         cal_name = "My calendar"
-        
+
         url = '/activities/calendar/%s/edit' % cal.id
 
         response = self.client.get(url)

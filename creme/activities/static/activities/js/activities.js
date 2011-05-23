@@ -42,4 +42,16 @@ creme.activities.select_one = function(url, ct_id) {
 
             creme.utils.showDialog($select, {title: '', modal: true, buttons: buttons });
          });
+};
+
+creme.activities.calendar = {};
+
+creme.activities.calendar.setReadableColor = function (target, bgColor){
+    if (creme.utils.RGBtoHSB(creme.utils.HEXtoRGB(bgColor)).b > 60)
+    {
+        target.css('color', 'black');
+    }
+    else{
+        target.css('color', 'white');
+    }
 }
