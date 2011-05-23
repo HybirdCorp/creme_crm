@@ -115,7 +115,7 @@ creme.graphael.simple_barchart = function(options) {
         graphael.g.txtattr.font = "12px 'Fontin Sans', Fontin-Sans, sans-serif";
 
         if(x.length==0 || y.length==0) {
-            gtext(graphael_width/2, graphael_height/2, "No data");//TODO: i18n
+            gtext(graphael_width/2, graphael_height/2, gettext("No data"));
             return;
         }
 
@@ -217,7 +217,7 @@ creme.graphael.simple_pie = function(options) {
         var gtext = graphael.g.text;
 
         if(x.length==0 || y.length==0) {
-            gtext(graphael_width/2, graphael_height/2, "No data");//TODO: i18n
+            gtext(graphael_width/2, graphael_height/2, gettext("No data"));
             return;
         }
 

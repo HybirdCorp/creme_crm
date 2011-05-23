@@ -1,6 +1,6 @@
 {% load i18n %}{% load media %}
 {% if can_create %}
-    <a onclick="creme.utils.deleteEntity(this);" class="menu_button">
+    <a onclick="creme.utils.confirmSubmit(this);" class="menu_button">
         <span>
             <img src="{% media_url 'images/clone_32.png' %}" title="{% blocktrans %}Clone '{{object}}'{% endblocktrans %}" alt="{% trans "Clone" %}"/>
             {% trans "Clone" %}

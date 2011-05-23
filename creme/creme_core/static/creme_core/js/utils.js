@@ -32,7 +32,7 @@ creme.utils = {};
 //        reload(something);
 //    }
 //}
-creme.utils.openWindow = function (url, name, params) { //TODO: creme.utils.openWindow
+creme.utils.openWindow = function (url, name, params) {
     if(!params || params == '' || typeof(params) == "undefined")
         params = 'menubar=no, status=no, scrollbars=yes, menubar=no, width=800, height=600';
     window[name] = window.open(url,name,params);
@@ -107,23 +107,6 @@ creme.utils.showDialog = function(text, options, div_id) {
                                        .addClass('ui-icon-info')
                                        .css('margin-right','1em')
     }*/
-}
-
-/* Fonction permettant de
- * rechercher les doublons dans un tableau js a une dimension
- * Code original modifié :
- * http://www.asp-php.net/ressources/codes/JavaScript-Supprimer+les+doublons+d%27un+tableau+en+javascript.aspx
- *
- */
-creme.utils.hasDoublons = function(TabInit) { //TODO: remove ??
-    var q = 0;
-    var LnChaine = TabInit.length;
-    for(x = 0; x < LnChaine; x++) {
-        for(i = 0; i < LnChaine; i++) {
-            if(TabInit[x] == TabInit[i] && x != i) return true;
-        }
-    }
-    return false;
 }
 
 creme.utils.build_q_filter_url = function(q_filter) {
@@ -227,8 +210,7 @@ creme.utils.confirmBeforeGo = function(url, ajax, ajax_options) { //TODO: rename
     creme.utils.showDialog(gettext("Are you sure ?"), {buttons: buttons});
 }
 
-//TODO: Rename this to confirmSubmit ? (used for both delete, clone)
-creme.utils.deleteEntity = function(atag) {
+creme.utils.confirmSubmit = function(atag) {
     var buttons = {};
 
     buttons[gettext("Ok")] = function() {
@@ -440,9 +422,7 @@ creme.utils.handleDialogSubmit = function(dialog) {
               $('[name=inner_body]','#'+div_id).html(data);
           },
           error: function(request, status, error) {
-                creme.utils.showDialog('<p><b>' + gettext("Error !") + '</b></p><p>' + gettext("The page will be reload !") + '</p>',
-                                       {'title': gettext("Error")});
-                creme.utils.sleep("creme.utils.reload(window)");
+            creme.utils.showErrorNReload();
           },
           complete:function (XMLHttpRequest, textStatus) {
               creme.utils.loading('loading', true, {});
@@ -733,4 +713,11 @@ creme.utils.RGBtoHSB = function(rgb){
     else hsb.h = 0;
     hsb.h = Math.round(hsb.h);
     return hsb;
+};
+
+creme.utils.showErrorNReload = function()
+{
+    creme.utils.showDialog('<p><b>' + gettext("Error !") + '</b></p><p>' + gettext("The page will be reload !") + '</p>',
+                                       {'title': gettext("Error")});
+    creme.utils.sleep("creme.utils.reload(window)");
 };

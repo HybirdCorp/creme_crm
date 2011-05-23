@@ -1,7 +1,7 @@
 {% load i18n %}{% load media %}
 {% if object.get_delete_absolute_url %}
     {% if can_delete %}
-        <a onclick="creme.utils.deleteEntity(this);">
+        <a onclick="creme.utils.confirmSubmit(this);">
             <img src="{% media_url 'images/delete_64.png' %}" title="{% blocktrans %}Delete '{{object}}'{% endblocktrans %}" alt="{% trans "Delete" %}" />
             <form method="POST" action="{{object.get_delete_absolute_url}}" style="display:none;">{% csrf_token %}</form>
         </a>

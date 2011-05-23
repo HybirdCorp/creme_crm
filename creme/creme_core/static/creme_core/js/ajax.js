@@ -59,9 +59,7 @@ creme.ajax.submit = function(form, data, options) {
             beforeError : null,
             beforeComplete : null,
             error : function(){
-                creme.utils.showDialog('<p><b>' + gettext("Error !") + '</b></p><p>' +  gettext("The page will be reload !") + '</p>',
-                                       {'title': gettext("Error")});
-                creme.utils.sleep("creme.utils.reload(window)");
+                creme.utils.showErrorNReload();
             },
             afterError : null,
             complete : null
@@ -108,10 +106,7 @@ creme.ajax.ajax = function(options) {
             beforeError : null,
             beforeComplete : null,
             error : function() {
-                //TODO: factorise....
-                creme.utils.showDialog('<p><b>' + gettext("Error !") + '</b></p><p>' +  gettext("The page will be reload !") + '</p>',
-                                       {'title': gettext("Error")});
-                creme.utils.sleep("creme.utils.reload(window)");
+                creme.utils.showErrorNReload();
             },
             afterError : null,
             complete : null
