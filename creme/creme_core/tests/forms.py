@@ -785,9 +785,9 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
         self.assertEqual(name,                                      condition.name)
         self.assertEqual({'operator': operator, 'values': [value]}, condition.decoded_value)
 
-    def test_ok02(self): #ISNULL -> boolean
+    def test_ok02(self): #ISEMPTY -> boolean
         clean = RegularFieldsConditionsField(model=Contact).clean
-        operator = EntityFilterCondition.ISNULL
+        operator = EntityFilterCondition.ISEMPTY
         name = 'description'
         conditions = clean('[{"name": "%(name)s", "operator": "%(operator)s", "value": {"type": "%(operator)s", "value": false}}]' % {
                                  'operator': operator,

@@ -299,7 +299,7 @@ class MailingListsTestCase(CremeTestCase):
 
         efilter = EntityFilter.create('test-filter01', 'Has email', Organisation)
         efilter.set_conditions([EntityFilterCondition.build_4_field(model=Organisation,
-                                                                    operator=EntityFilterCondition.ISNULL,
+                                                                    operator=EntityFilterCondition.ISEMPTY,
                                                                     name='email', values=[False]
                                                                    )
                                ])

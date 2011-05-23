@@ -1104,8 +1104,8 @@ class EntityFiltersTestCase(CremeTestCase):
             create(user=user, first_name=u'Spike',  last_name=u'Spiegel',   civility=mister), #0
             create(user=user, first_name=u'Jet',    last_name=u'Black',     civility=mister), #1
             create(user=user, first_name=u'Faye',   last_name=u'Valentine', civility=miss,
-                   description=u'Sexiest woman is the universe'),            #2
-            create(user=user, first_name=u'Ed',     last_name=u'Wong'),      #3
+                   description=u'Sexiest woman is the universe'),                             #2
+            create(user=user, first_name=u'Ed',     last_name=u'Wong', description=u''),      #3
             create(user=user, first_name=u'Rei',    last_name=u'Ayanami'),   #4
             create(user=user, first_name=u'Misato', last_name=u'Katsuragi',
                   birthday=date(year=1986, month=12, day=8)),                #5
@@ -1338,7 +1338,7 @@ class EntityFiltersTestCase(CremeTestCase):
     def test_filter_field_isnull01(self):
         efilter = EntityFilter.create(pk='test-filter01', name='is null', model=Contact)
         efilter.set_conditions([EntityFilterCondition.build_4_field(model=Contact,
-                                                                    operator=EntityFilterCondition.ISNULL,
+                                                                    operator=EntityFilterCondition.ISEMPTY,
                                                                     name='description', values=[True]
                                                                    )
                                ])
@@ -1348,12 +1348,27 @@ class EntityFiltersTestCase(CremeTestCase):
     def test_filter_field_isnull02(self):
         efilter = EntityFilter.create('test-filter01', 'is not null', Contact)
         efilter.set_conditions([EntityFilterCondition.build_4_field(model=Contact,
-                                                                    operator=EntityFilterCondition.ISNULL,
+                                                                    operator=EntityFilterCondition.ISEMPTY,
                                                                     name='description', values=[False]
                                                                    )
                                ])
         self.assertEqual(1, efilter.conditions.count())
         self.assertExpectedFiltered(efilter, Contact, [self.contacts[2].id])
+
+    def test_filter_field_isnull03(self): #not charfield
+        create = Organisation.objects.create
+        user = self.user
+        orga01 = create(user=user, name='Bebop & cie', capital=None)
+        orga02 = create(user=user, name='Nerv',        capital=10000)
+
+        efilter = EntityFilter.create('test-filter01', 'is not null', Organisation)
+        efilter.set_conditions([EntityFilterCondition.build_4_field(model=Organisation,
+                                                                    operator=EntityFilterCondition.ISEMPTY,
+                                                                    name='capital', values=[False]
+                                                                   )
+                               ])
+        self.assertEqual(1, efilter.conditions.count())
+        self.assertExpectedFiltered(efilter, Organisation, [orga02.id])
 
     def test_filter_field_range(self):
         create = Organisation.objects.create
@@ -1362,7 +1377,7 @@ class EntityFiltersTestCase(CremeTestCase):
         orga02 = create(user=user, name='Nerv',        capital=10000)
         orga03 = create(user=user, name='Seele',       capital=100000)
 
-        efilter = EntityFilter.create('test-filter01', name='is not null', model=Organisation)
+        efilter = EntityFilter.create('test-filter01', name='Between 5K & 500K', model=Organisation)
         efilter.set_conditions([EntityFilterCondition.build_4_field(model=Organisation,
                                                                     operator=EntityFilterCondition.RANGE,
                                                                     name='capital', values=(5000, 500000)
@@ -1460,10 +1475,10 @@ class EntityFiltersTestCase(CremeTestCase):
                           model=Organisation, operator=EntityFilterCondition.GT, name='capital', values=['Not an integer']
                          )
         self.assertRaises(ValueError, build_4_field,
-                          model=Contact, operator=EntityFilterCondition.ISNULL, name='description', values=['Not a boolean'], #ISNULL => boolean
+                          model=Contact, operator=EntityFilterCondition.ISEMPTY, name='description', values=['Not a boolean'], #ISEMPTY => boolean
                          )
         self.assertRaises(ValueError, build_4_field,
-                          model=Contact, operator=EntityFilterCondition.ISNULL, name='description', values=[True, True], #only one boolean is expected
+                          model=Contact, operator=EntityFilterCondition.ISEMPTY, name='description', values=[True, True], #only one boolean is expected
                          )
         self.assertRaises(ValueError, build_4_field,
                           model=Contact, operator=EntityFilterCondition.STARTSWITH, name='civility__unknown', values=['Mist']

@@ -227,7 +227,7 @@ class EntityFilterViewsTestCase(ViewsTestCase):
                                                                     name='first_name', values=['Atom']
                                                                    ),
                                 EntityFilterCondition.build_4_field(model=Contact,
-                                                                    operator=EntityFilterCondition.ISNULL,
+                                                                    operator=EntityFilterCondition.ISEMPTY,
                                                                     name='description', values=[False]
                                                                    ),
                                 EntityFilterCondition.build_4_date(model=Contact, name='birthday',
