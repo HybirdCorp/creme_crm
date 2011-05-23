@@ -712,3 +712,25 @@ creme.utils.range = function(start, end) {
 
     return tab;
 };
+
+creme.utils.HEXtoRGB = function(hex){//Extracted from gccolor-1.0.3 plugin
+    var hex = parseInt(((hex.indexOf('#') > -1) ? hex.substring(1) : hex), 16);
+    return {r: hex >> 16, g: (hex & 0x00FF00) >> 8, b: (hex & 0x0000FF)};
+};
+
+creme.utils.RGBtoHSB = function(rgb){
+    var hsb = {};
+    hsb.b = Math.max(Math.max(rgb.r, rgb.g), rgb.b);
+    hsb.s = (hsb.b <= 0) ? 0 : Math.round(100 * (hsb.b - Math.min(Math.min(rgb.r, rgb.g), rgb.b)) / hsb.b);
+    hsb.b = Math.round((hsb.b / 255) * 100);
+    if((rgb.r == rgb.g) && (rgb.g == rgb.b)) hsb.h = 0;
+    else if(rgb.r >= rgb.g && rgb.g >= rgb.b) hsb.h = 60 * (rgb.g - rgb.b) / (rgb.r - rgb.b);
+    else if(rgb.g >= rgb.r && rgb.r >= rgb.b) hsb.h = 60  + 60 * (rgb.g - rgb.r) / (rgb.g - rgb.b);
+    else if(rgb.g >= rgb.b && rgb.b >= rgb.r) hsb.h = 120 + 60 * (rgb.b - rgb.r) / (rgb.g - rgb.r);
+    else if(rgb.b >= rgb.g && rgb.g >= rgb.r) hsb.h = 180 + 60 * (rgb.b - rgb.g) / (rgb.b - rgb.r);
+    else if(rgb.b >= rgb.r && rgb.r >= rgb.g) hsb.h = 240 + 60 * (rgb.r - rgb.g) / (rgb.b - rgb.g);
+    else if(rgb.r >= rgb.b && rgb.b >= rgb.g) hsb.h = 300 + 60 * (rgb.r - rgb.b) / (rgb.r - rgb.g);
+    else hsb.h = 0;
+    hsb.h = Math.round(hsb.h);
+    return hsb;
+};

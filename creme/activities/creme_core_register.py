@@ -45,6 +45,7 @@ reg_item('/activities/indisponibility/add',    _(u'Add an indisponibility'), 'ac
 reg_item('/activities/activity/add/meeting',   _(u'Add a meeting'),          'activities.add_activity')
 reg_item('/activities/activity/add/phonecall', _(u'Add a phone call'),       'activities.add_activity')
 reg_item('/activities/activity/add/task',      _(u'Add a task'),             'activities.add_activity')
+reg_item('/activities/activity/add/activity',  _(u'Add an activity'),        'activities.add_activity')
 reg_item('/activities/activities',             _(u'All activities'),         'activities')
 
 block_registry.register(participants_block, subjects_block, future_activities_block, past_activities_block, user_calendars_block)
