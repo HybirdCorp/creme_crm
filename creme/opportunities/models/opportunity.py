@@ -31,8 +31,6 @@ from creme_config.models import SettingValue
 
 from persons.models import Contact, Organisation
 
-from documents.constants import REL_SUB_CURRENT_DOC
-
 from products.models import Product, Service
 
 from billing.models import Invoice, SalesOrder, Quote, ProductLine, ServiceLine

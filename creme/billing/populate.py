@@ -37,11 +37,14 @@ class Populator(BasePopulator):
     dependencies = ['creme.creme_core', 'creme.persons']
 
     def populate(self, *args, **kwargs):
-        RelationType.create((REL_SUB_BILL_ISSUED,   _(u"issued by")),   #[Invoice, Quote, SalesOrder]
-                            (REL_OBJ_BILL_ISSUED,   _(u"has issued"),   [Organisation]))
-        RelationType.create((REL_SUB_BILL_RECEIVED, _(u"received by")), #[Invoice, Quote, SalesOrder]
-                            (REL_OBJ_BILL_RECEIVED, _(u"has received"), [Organisation, Contact]))
+        billing_entities = [Invoice, Quote, SalesOrder, CreditNote, TemplateBase]
 
+        RelationType.create((REL_SUB_BILL_ISSUED,   _(u"issued by"),    billing_entities),
+                            (REL_OBJ_BILL_ISSUED,   _(u"has issued"),   [Organisation])
+                           )
+        RelationType.create((REL_SUB_BILL_RECEIVED, _(u"received by"),  billing_entities),
+                            (REL_OBJ_BILL_RECEIVED, _(u"has received"), [Organisation, Contact])
+                           )
 
         #NB: pk=1 --> default status (used when a quote is converted in invoice for example)
         create(QuoteStatus, 1, name=_(u"Pending")) #default status
@@ -56,7 +59,7 @@ class Populator(BasePopulator):
         create(SettlementTerms, 5, name=_(u"30 days, end month the 10"))
 
         create(PaymentTerms, 1, name=_(u"Deposit"), description=_(u"20% deposit will be required"), is_custom=False)
-        
+
         create(AdditionalInformation, 1, name=_(u"Trainer accreditation"), description=_(u"being certified trainer courses could be supported by your OPCA"), )
 
         create(SalesOrderStatus, 1, name=_(u"Issued"),   is_custom=False) #default status

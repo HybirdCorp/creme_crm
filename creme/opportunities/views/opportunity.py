@@ -32,14 +32,12 @@ from creme_core.utils import get_ct_or_404
 
 from persons.models import Organisation
 
-from documents.constants import REL_SUB_CURRENT_DOC
-
 from billing.models import Quote, Invoice, SalesOrder
 from billing.constants import REL_SUB_BILL_ISSUED, REL_SUB_BILL_RECEIVED
 
 from opportunities.models import Opportunity
 from opportunities.forms.opportunity import OpportunityCreateForm, OpportunityEditForm
-from opportunities.constants import REL_OBJ_LINKED_QUOTE, REL_OBJ_LINKED_INVOICE, REL_OBJ_LINKED_SALESORDER
+from opportunities.constants import REL_OBJ_LINKED_QUOTE, REL_OBJ_LINKED_INVOICE, REL_OBJ_LINKED_SALESORDER, REL_SUB_CURRENT_DOC
 
 
 @login_required
