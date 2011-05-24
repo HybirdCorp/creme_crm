@@ -1,5 +1,5 @@
 # FR LOCALISATION OF 'TICKETS' APP
-# Copyright (C) 2010 Hybird
+# Copyright (C) 2011 Hybird
 # This file is distributed under the same license as the Creme package.
 #
 #, fuzzy
@@ -7,14 +7,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-05-16 11:04+0200\n"
+"POT-Creation-Date: 2011-05-23 17:41+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
-"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Language: \n"
 
 #: buttons.py:32
 msgid "Is linked to a ticket"
@@ -41,8 +41,8 @@ msgid "is linked to the ticket"
 msgstr "est lié au ticket"
 
 #: populate.py:23
-msgid "(tiket) linked to the entitity"
-msgstr "(tiket) lié à la fiche"
+msgid "(ticket) linked to the entitity"
+msgstr "(ticket) lié à la fiche"
 
 #: populate.py:29
 msgid "Low"

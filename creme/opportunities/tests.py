@@ -11,8 +11,6 @@ from creme_core.tests.base import CremeTestCase
 
 from creme_config.models import SettingKey, SettingValue
 
-from documents.constants import REL_SUB_CURRENT_DOC
-
 from persons.models import Organisation
 
 from billing.models import Quote
@@ -58,6 +56,8 @@ class OpportunitiesTestCase(CremeTestCase):
 
         self.assert_(REL_SUB_RELATED_TO in relation_types)
         self.assert_(REL_OBJ_RELATED_TO in relation_types)
+
+        self.assert_(RelationType.objects.filter(pk=REL_SUB_CURRENT_DOC).exists())
 
         self.assert_(SalesPhase.objects.exists())
         self.assert_(Origin.objects.exists())

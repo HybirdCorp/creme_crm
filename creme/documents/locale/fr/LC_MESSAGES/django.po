@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-05-19 15:16+0200\n"
+"POT-Creation-Date: 2011-05-23 17:54+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -56,47 +56,39 @@ msgstr "concerne le document"
 msgid "document related to"
 msgstr "document concerné par"
 
-#: populate.py:42
-msgid "is the current document of"
-msgstr "est le document courant de"
-
 #: populate.py:43
-msgid "has as current document"
-msgstr "a comme document courant"
-
-#: populate.py:45
 msgid "Documents related to entities"
 msgstr "Documents crées à partir des fiches"
 
-#: populate.py:46
+#: populate.py:44
 msgid "Documents received by email"
 msgstr "Documents reçus par email"
 
-#: populate.py:50
+#: populate.py:48
 msgid "Folder containing all the documents related to entities"
 msgstr "Classeur contenant tous les documents créés à partir des fiches"
 
-#: populate.py:54
+#: populate.py:52
 msgid "Document view"
 msgstr "Vue de Document"
 
-#: populate.py:56 populate.py:61 models/document.py:33 models/folder.py:36
+#: populate.py:54 populate.py:59 models/document.py:33 models/folder.py:36
 msgid "Title"
 msgstr "Titre"
 
-#: populate.py:57
+#: populate.py:55
 msgid "Folder - Title"
 msgstr "Classeur - Titre"
 
-#: populate.py:59
+#: populate.py:57
 msgid "Folder view"
 msgstr "Vue de Classeur"
 
-#: populate.py:62 models/document.py:34 models/folder.py:37
+#: populate.py:60 models/document.py:34 models/folder.py:37
 msgid "Description"
 msgstr "Description"
 
-#: populate.py:63
+#: populate.py:61
 msgid "Category - Name"
 msgstr "Nom de la catégorie"
 
@@ -196,6 +188,10 @@ msgstr "Nom"
 msgid "Actions"
 msgstr "Actions"
 
+#: templates/documents/templatetags/block_documents.html:29
+msgid "Can't edit"
+msgstr "Modification interdite"
+
 #: templates/documents/templatetags/block_documents.html:39
 msgid "No document in this folder for the moment"
 msgstr "Pas de document dans le classeur pour le moment"
@@ -238,6 +234,12 @@ msgstr "Nombre de document(s)"
 #: views/portal.py:33
 msgid "Number of folders"
 msgstr "Nombre de classeur(s)"
+
+#~ msgid "is the current document of"
+#~ msgstr "est le document courant de"
+
+#~ msgid "has as current document"
+#~ msgstr "a comme document courant"
 
 #~ msgid "No category"
 #~ msgstr "Aucune catégorie"
