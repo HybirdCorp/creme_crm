@@ -72,13 +72,11 @@ creme.lv_widget.handleSelection = function(ids, targetInputId) {
     if(ids) { //TODO: use a guard
         var $targetInput = $('#'+targetInputId);
         var $targetDiv = $('#'+targetInputId+'_div');
-//        $targetDiv.append($('<div></div>').attr('name','container'));
-//        var $targetDivContainer = $targetDiv.find('[name=container]');
 
         var o2m = Boolean(parseInt($targetInput.attr('o2m')));
 
         if(o2m) {
-            //ids = [ids];
+            ids = [ids];
             $targetInput.val('');
         }
 
