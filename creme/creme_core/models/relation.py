@@ -115,10 +115,11 @@ class RelationType(CremeModel):
             generate_string_id_and_save(RelationType, [obj_relation_type], pk_object)
 
         #TODO: i18n.....
-        sub_relation_type.predicate_i18n_set.all().delete()
-        obj_relation_type.predicate_i18n_set.all().delete()
-        create_or_update(RelationPredicate_i18n, relation_type_id=pk_subject, language_code='FRA', text=pred_subject)
-        create_or_update(RelationPredicate_i18n, relation_type_id=pk_subject, language_code='FRA', text=pred_subject)
+        #Commented 24 may 2011
+#        sub_relation_type.predicate_i18n_set.all().delete()
+#        obj_relation_type.predicate_i18n_set.all().delete()
+#        create_or_update(RelationPredicate_i18n, relation_type_id=pk_subject, language_code='FRA', text=pred_subject)
+#        create_or_update(RelationPredicate_i18n, relation_type_id=pk_subject, language_code='FRA', text=pred_subject)
 
 
         sub_relation_type.symmetric_type = obj_relation_type
@@ -164,14 +165,14 @@ class RelationType(CremeModel):
         if self.is_internal:
             raise Http404(ugettext("You can't add/delete the relations with this type (internal type)"))
 
-
-class RelationPredicate_i18n(CremeModel):
-    relation_type = ForeignKey(RelationType, related_name='predicate_i18n_set')
-    language_code = CharField(max_length=5)
-    text          = CharField(max_length=100)
-
-    class Meta:
-        app_label = 'creme_core'
+#Commented 24 may 2011
+#class RelationPredicate_i18n(CremeModel):
+#    relation_type = ForeignKey(RelationType, related_name='predicate_i18n_set')
+#    language_code = CharField(max_length=5)
+#    text          = CharField(max_length=100)
+#
+#    class Meta:
+#        app_label = 'creme_core'
 
 
 #TODO: remove CremeAbstractEntity inheritage (user not useful any more ??) ??

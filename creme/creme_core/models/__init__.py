@@ -5,7 +5,8 @@ from creme_exceptions import NotGoodInstance #TODO: move from models ?
 from base import CremeModel, CremeAbstractEntity
 from entity import CremeEntity
 
-from relation import RelationType, RelationPredicate_i18n, Relation
+#from relation import RelationType, RelationPredicate_i18n, Relation
+from relation import RelationType, Relation
 from creme_property import CremePropertyType, CremePropertyText_i18n, CremeProperty
 from custom_field import *
 from function_field import FunctionField, FunctionFieldsManager
