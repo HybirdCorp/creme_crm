@@ -219,7 +219,7 @@ class ReportsTestCase(CremeTestCase):
     def test_report_field_add01(self):
         report = self.create_report('trinita')
         url = '/reports/report/%s/field/add' % report.id
-        
+
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
 
@@ -247,14 +247,14 @@ class ReportsTestCase(CremeTestCase):
         self.assertNoFormError(response)
         self.assertEqual(1, report.columns.count())
 
-
     def test_report_fetch01(self):
         report = self.create_simple_report("Contacts report")
         contact_ids = set([str(self.create_simple_contact().id) for i in xrange(10)])
 
         self.assertEqual(contact_ids, set(chain.from_iterable(report.fetch())))
 
-
-
+    def test_get_predicates_choices_4_ct(self):
+        response = self.client.post('/reports/get_predicates_choices_4_ct', data={'ct_id': ContentType.objects.get_for_model(Report).id})
+        self.assertEqual(response.status_code, 200)
 
 #TODO: test with subreports, expanding etc...

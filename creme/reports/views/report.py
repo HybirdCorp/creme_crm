@@ -29,12 +29,14 @@ from django.utils.translation import ugettext as _
 from django.utils.simplejson import JSONEncoder
 from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.contenttypes.models import ContentType
+
+from creme_core.models.relation import RelationType
 from creme_core.utils.date_range import date_range_registry
 
 from creme_core.views.generic import (add_entity, edit_entity, view_entity,
                                       list_view, inner_popup, add_to_entity)
 from creme_core.utils.meta import get_model_field_infos, get_flds_with_fk_flds, get_date_fields, is_date_field
-from creme_core.utils import get_ct_or_404, get_from_GET_or_404, get_from_POST_or_404
+from creme_core.utils import get_ct_or_404, get_from_GET_or_404, get_from_POST_or_404, jsonify
 
 from reports.models import Report, Field
 from reports.forms.report import CreateForm, EditForm, LinkFieldToReportForm, AddFieldToReportForm, get_aggregate_custom_fields, DateReportFilterForm
@@ -330,3 +332,10 @@ def date_filter_form(request, report_id):
                        delegate_reload=True,
                        context_instance=RequestContext(request)
                       )
+
+@jsonify
+@login_required
+def get_predicates_choices_4_ct(request):
+    ct = get_ct_or_404(get_from_POST_or_404(request.POST, 'ct_id'))
+    predicates = [(rtype.id, rtype.predicate) for rtype in RelationType.get_compatible_ones(ct).order_by('predicate')]
+    return predicates
