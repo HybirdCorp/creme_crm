@@ -25,11 +25,10 @@ from django.contrib.contenttypes.models import ContentType
 
 from creme_core.models import Relation
 
-from documents.constants import REL_SUB_CURRENT_DOC
-
 from billing.models import Quote
 
 from opportunities.models import Opportunity
+from opportunities.constants import REL_SUB_CURRENT_DOC
 
 
 @login_required

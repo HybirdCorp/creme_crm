@@ -19,7 +19,7 @@ class ProjectsTestCase(CremeTestCase):
         super(ProjectsTestCase, self).login(is_superuser, allowed_apps=['projects'])
 
     def setUp(self):
-        self.populate('creme_core', 'projects')
+        self.populate('creme_core', 'activities', 'projects')
 
     def test_populate(self):
         rtypes = RelationType.objects.filter(pk=REL_SUB_PROJECT_MANAGER)
@@ -30,7 +30,7 @@ class ProjectsTestCase(CremeTestCase):
         self.assertEqual([get_ct(Contact)], list(rtype.subject_ctypes.all()))
         self.assertEqual([get_ct(Project)], list(rtype.object_ctypes.all()))
 
-        self.assert_(TaskStatus.objects.exists())
+        self.assert_(TaskStatus.objects.count() >= 2)
         self.assert_(ProjectStatus.objects.exists())
 
     def test_portal(self):
@@ -194,6 +194,7 @@ class ProjectsTestCase(CremeTestCase):
 
         title = 'Head'
         duration = 55
+        tstatus  = TaskStatus.objects.all()[1]
         response = self.client.post(url, follow=True,
                                     data={
                                         'user':     self.user.id,
@@ -201,13 +202,14 @@ class ProjectsTestCase(CremeTestCase):
                                         'start':    '2011-5-16',
                                         'end':      '2012-6-17',
                                         'duration': duration,
-                                        'tstatus':  TaskStatus.objects.all()[0].id,
+                                        'tstatus':  tstatus.id,
                                     })
         self.assertNoFormError(response)
 
         task = ProjectTask.objects.get(pk=task.id) #refresh
-        self.assertEqual(title,    task.title)
-        self.assertEqual(duration, task.duration)
+        self.assertEqual(title,      task.title)
+        self.assertEqual(duration,   task.duration)
+        self.assertEqual(tstatus.id, task.tstatus.id)
 
         start = task.start
         self.assertEqual(2011, start.year)

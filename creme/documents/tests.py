@@ -18,7 +18,6 @@ class DocumentTestCase(CremeTestCase):
 
     def test_populate(self):
         self.assert_(RelationType.objects.filter(pk=REL_SUB_RELATED_2_DOC).exists())
-        self.assert_(RelationType.objects.filter(pk=REL_SUB_CURRENT_DOC).exists())
 
         get_ct = ContentType.objects.get_for_model
         self.assert_(HeaderFilter.objects.filter(entity_type=get_ct(Document)).exists())
