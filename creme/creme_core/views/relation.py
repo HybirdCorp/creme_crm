@@ -398,10 +398,4 @@ def add_relations_with_same_type(request):
 
     return HttpResponse(message, status=status)
 
-#TODO: use jsonify
-@login_required
-def get_predicates_choices_4_ct(request):
-    ct = get_ct_or_404(get_from_POST_or_404(request.POST, 'ct_id'))
-    predicates = [(rtype.id, rtype.predicate) for rtype in RelationType.get_compatible_ones(ct).order_by('predicate')]
 
-    return HttpResponse(JSONEncoder().encode(predicates), mimetype="text/javascript")

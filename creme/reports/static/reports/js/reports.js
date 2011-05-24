@@ -175,7 +175,7 @@ creme.reports.loadCf = function(ct_id, options) {
 }
 
 creme.reports.loadRelations = function(ct_id, options) {
-    creme.reports.__loadOrderedMultiSelect('/creme_core/relation/get_predicates_choices_4_ct',
+    creme.reports.__loadOrderedMultiSelect('/reports/get_predicates_choices_4_ct',
                                        {'ct_id': ct_id},
                                        options.relations.table_id,
                                        options.relations.name);

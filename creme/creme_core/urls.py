@@ -33,7 +33,6 @@ relation_patterns = patterns('creme_core.views.relation',
     (r'^entity/(?P<id>\d+)/json$',                                                                         'json_entity_get'),
     (r'^entity/(?P<id>\d+)/predicates/json$',                                                              'json_entity_predicates'),
     (r'^predicate/(?P<id>[\w-]+)/content_types/json$',                                                     'json_predicate_content_types'),
-    (r'^get_predicates_choices_4_ct$',                                                                     'get_predicates_choices_4_ct'),
 )
 
 property_patterns = patterns('creme_core.views.creme_property',

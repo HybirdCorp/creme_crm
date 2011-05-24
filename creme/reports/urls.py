@@ -49,4 +49,6 @@ urlpatterns = patterns('reports.views',
     (r'^graph/fetch_from_instance_block/(?P<instance_block_id>\d+)/(?P<entity_id>\d+)/(?P<order>\w+)$', 'graph.fetch_graph_from_instanceblock'),
 
     (r'^graph/(?P<graph_id>\d+)/block/add$', 'blocks.add_graph_instance_block'),
+
+    (r'^get_predicates_choices_4_ct$', 'report.get_predicates_choices_4_ct'),
 )
