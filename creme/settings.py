@@ -364,14 +364,13 @@ CREME_CORE_JS = ('main.js',
                 )
 
 CREME_OPT_JS = ( #OPTIONNAL APPS
-                'billing/js/billing.js',
-                'reports/js/reports.js',
-                'emails/js/emails.js',
-                'cti/js/cti.js',
+                ('creme.billing', 'billing/js/billing.js'),
+                ('creme.reports', 'reports/js/reports.js'),
+                ('creme.emails',  'emails/js/emails.js'),
+                ('creme.cti',     'cti/js/cti.js'),
                )
 
-MEDIA_BUNDLES = (CREME_CORE_CSS, CREME_I18N_JS, CREME_CORE_JS + CREME_OPT_JS)
-
+MEDIA_BUNDLES = (CREME_CORE_CSS, CREME_I18N_JS, CREME_CORE_JS + tuple(js for app, js in CREME_OPT_JS if app in INSTALLED_APPS))
 
 ROOT_MEDIA_FILTERS = {
     'js':  'mediagenerator.filters.yuicompressor.YUICompressor',
