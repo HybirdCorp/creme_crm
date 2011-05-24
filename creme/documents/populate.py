@@ -39,8 +39,6 @@ class Populator(BasePopulator):
     def populate(self, *args, **kwargs):
         RelationType.create((REL_SUB_RELATED_2_DOC, _(u'related to the document')),
                             (REL_OBJ_RELATED_2_DOC, _(u'document related to'),       [Document]))
-        RelationType.create((REL_SUB_CURRENT_DOC,   _(u'is the current document of')), #used for several types of document, not only documents.Document
-                            (REL_OBJ_CURRENT_DOC,   _(u'has as current document')))
 
         category_entities = create(FolderCategory, DOCUMENTS_FROM_ENTITIES, name=_(u"Documents related to entities"))
         create(FolderCategory, DOCUMENTS_FROM_EMAILS, name=_(u"Documents received by email"))

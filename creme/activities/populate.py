@@ -17,6 +17,7 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
+
 from django.contrib.auth.models import User
 from django.utils.translation import ugettext as _
 
@@ -24,11 +25,10 @@ from creme_core.models.header_filter import HeaderFilterItem, HeaderFilter, HFI_
 from creme_core.models import RelationType, BlockConfigItem, ButtonMenuItem, SearchConfigItem
 from creme_core.utils import create_or_update as create
 from creme_core.management.commands.creme_populate import BasePopulator
-from persons.models import Contact
 
 from persons.models import Contact
 
-from activities.models import Activity, ActivityType, PhoneCallType, Status, Calendar
+from activities.models import *
 from activities.blocks import future_activities_block, past_activities_block
 from activities.buttons import add_meeting_button, add_phonecall_button, add_task_button
 from activities.constants import *
@@ -39,15 +39,14 @@ class Populator(BasePopulator):
 
     def populate(self, *args, **kwargs):
         RelationType.create((REL_SUB_LINKED_2_ACTIVITY, _(u"related to the activity")),
-                            (REL_OBJ_LINKED_2_ACTIVITY, _(u"related to"))) #[Activity and inherited klass ??]
-        #RelationType.create((REL_SUB_RDV,              u'prend part au rendez-vous'),
-                            #(REL_OBJ_RDV,              u'a pour participant'))
-        #RelationType.create((REL_SUB_CALL,             u"participe a l'appel"),
-                            #(REL_OBJ_CALL,             u'concerne'))
+                            (REL_OBJ_LINKED_2_ACTIVITY, _(u"(activity) related to"),        [Activity, Meeting, PhoneCall, Task])
+                           )
         RelationType.create((REL_SUB_ACTIVITY_SUBJECT, _(u"is subject of the activity")),
-                            (REL_OBJ_ACTIVITY_SUBJECT, _(u'is to subject')))
-        RelationType.create((REL_SUB_PART_2_ACTIVITY,  _(u"participates to the activity"), [Contact]),
-                            (REL_OBJ_PART_2_ACTIVITY,  _(u'has as participant')))
+                            (REL_OBJ_ACTIVITY_SUBJECT, _(u'(activity) is to subject'),      [Activity, Meeting, PhoneCall, Task])
+                           )
+        RelationType.create((REL_SUB_PART_2_ACTIVITY,  _(u"participates to the activity"),  [Contact]),
+                            (REL_OBJ_PART_2_ACTIVITY,  _(u'(activity) has as participant'), [Activity, Meeting, PhoneCall, Task])
+                           )
 
         create(PhoneCallType, PHONECALLTYPE_INCOMING, name=_(u"Incoming"), description=_(u"Incoming call"))
         create(PhoneCallType, PHONECALLTYPE_OUTGOING, name=_(u"Outgoing"), description=_(u"Outgoing call"))
