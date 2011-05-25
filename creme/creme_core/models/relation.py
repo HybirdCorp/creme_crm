@@ -80,8 +80,11 @@ class RelationType(CremeModel):
         return 'FRA'
 
     @staticmethod
-    def get_compatible_ones(ct):
-        return RelationType.objects.filter((Q(subject_ctypes=ct) | Q(subject_ctypes__isnull=True)) & Q(is_internal=False))
+    def get_compatible_ones(ct, include_internals=False):
+        types = RelationType.objects.filter(Q(subject_ctypes=ct) | Q(subject_ctypes__isnull=True))
+        if not include_internals:
+            types = types.filter(Q(is_internal=False))
+        return types
 
     @staticmethod
     @transaction.commit_manually
