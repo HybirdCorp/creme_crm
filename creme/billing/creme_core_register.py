@@ -26,14 +26,14 @@ from creme_core.gui.button_menu import button_registry
 from creme_core.gui.block import block_registry
 from creme_core.gui.bulk_update import bulk_update_registry
 
-from billing.models import Invoice, Quote, SalesOrder, CreditNote, Base, TemplateBase
+from billing.models import Invoice, Quote, SalesOrder, CreditNote, Base, TemplateBase, Line, ServiceLine, ProductLine
 from billing.blocks import (product_lines_block, service_lines_block, total_block, target_block, received_invoices_block,
                             payment_information_block, billing_payment_information_block)
 from billing.buttons import generate_invoice_number_button
 
 
 creme_registry.register_app('billing', _(u'Billing'), '/billing')
-creme_registry.register_entity_models(Invoice, Quote, SalesOrder, CreditNote)
+creme_registry.register_entity_models(Invoice, Quote, SalesOrder, CreditNote, Line, ServiceLine, ProductLine)
 
 reg_item = creme_menu.register_app('billing', '/billing/').register_item
 reg_item('/billing/',                _(u'Portal'),            'billing')

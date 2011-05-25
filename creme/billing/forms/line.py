@@ -23,14 +23,14 @@ from decimal import Decimal
 from django.utils.translation import ugettext_lazy as _, ugettext
 from django.forms import  BooleanField, ModelChoiceField, ValidationError
 
-from creme_core.forms import CremeModelWithUserForm, FieldBlockManager
+from creme_core.forms import CremeEntityForm, FieldBlockManager
 from creme_core.forms.fields import CremeEntityField
 from creme_core.forms.widgets import ListViewWidget
 
 from products.models import Product, Service
 from products.forms.product import ProductCategoryField
 
-from billing.models import ProductLine, ServiceLine
+from billing.models import ProductLine, ServiceLine, PRODUCT_LINE_TYPE, SERVICE_LINE_TYPE
 from billing.constants import DEFAULT_VAT
 
 from creme import form_post_save #TODO: move in creme_core ??
@@ -39,7 +39,7 @@ from creme import form_post_save #TODO: move in creme_core ??
 default_decimal = Decimal()
 
 
-class LineForm(CremeModelWithUserForm):
+class LineForm(CremeEntityForm):
     blocks = FieldBlockManager(('general', _(u'Line information'), ['related_item', 'comment', 'quantity', 'unit_price',
                                                                     'discount', 'credit', 'total_discount', 'vat', 'user'])
                               )
@@ -75,6 +75,10 @@ class ProductLineForm(LineForm):
         model = ProductLine
         exclude = LineForm.Meta.exclude + ('on_the_fly_item',)
 
+    def __init__(self, entity, *args, **kwargs):
+        super(ProductLineForm, self).__init__(entity, *args, **kwargs)
+        self.instance.type = PRODUCT_LINE_TYPE
+
 
 class ProductLineOnTheFlyForm(LineForm):
     has_to_register_as = BooleanField(label=_(u"Save as product ?"), required=False,
@@ -94,6 +98,7 @@ class ProductLineOnTheFlyForm(LineForm):
 
     def __init__(self, *args, **kwargs):
         super(ProductLineOnTheFlyForm, self).__init__(*args, **kwargs)
+        self.instance.type = PRODUCT_LINE_TYPE
 
         if self.instance.pk is not None:
             self.blocks = FieldBlockManager(
@@ -178,6 +183,10 @@ class ServiceLineForm(LineForm):
         model = ServiceLine
         exclude = LineForm.Meta.exclude + ('on_the_fly_item',)
 
+    def __init__(self, entity, *args, **kwargs):
+        super(ServiceLineForm, self).__init__(entity, *args, **kwargs)
+        self.instance.type = SERVICE_LINE_TYPE
+
 
 class ServiceLineOnTheFlyForm(LineForm):
     has_to_register_as = BooleanField(label=_(u"Save as service ?"), required=False,
@@ -197,6 +206,7 @@ class ServiceLineOnTheFlyForm(LineForm):
 
     def __init__(self, *args, **kwargs):
         super(ServiceLineOnTheFlyForm, self).__init__(*args, **kwargs)
+        self.instance.type = SERVICE_LINE_TYPE
 
         if self.instance.pk is not None:
             #TODO: remove the block 'additionnal' instead ??

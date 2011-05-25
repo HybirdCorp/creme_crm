@@ -20,11 +20,14 @@
 
 #import logging
 from decimal import Decimal
+from django.contrib.contenttypes.generic import GenericForeignKey
+from django.contrib.contenttypes.models import ContentType
 
 from django.db.models import ForeignKey, CharField, IntegerField, DecimalField, BooleanField, TextField
+from django.db.models.fields import PositiveIntegerField
 from django.utils.translation import ugettext_lazy as _
 
-from creme_core.models import CremeEntity, CremeModel
+from creme_core.models import CremeEntity
 
 from billing.constants import DEFAULT_VAT
 from billing.utils import round_to_2
@@ -32,7 +35,15 @@ from billing.utils import round_to_2
 
 default_decimal = Decimal()
 
-class Line(CremeModel):
+PRODUCT_LINE_TYPE = 1
+SERVICE_LINE_TYPE = 2
+
+LINE_TYPES = (
+    (PRODUCT_LINE_TYPE, _(u"Product")),
+    (SERVICE_LINE_TYPE, _(u"Service")),
+)
+
+class Line(CremeEntity):
     on_the_fly_item = CharField(_(u'On-the-fly line'), max_length=100, blank=False, null=True)
 
     document        = ForeignKey(CremeEntity, verbose_name=_(u'Related to'), blank=False, null=False, related_name='billing_lines_set')
@@ -45,6 +56,11 @@ class Line(CremeModel):
     total_discount  = BooleanField(_('Total discount ?'))
     vat             = DecimalField(_(u'VAT'), max_digits=4, decimal_places=2, default=DEFAULT_VAT)
     is_paid         = BooleanField(_(u'Paid ?'))
+    type            = IntegerField(_(u'Type'), blank=False, null=False, choices=LINE_TYPES, editable=False)
+
+    related_item    = ForeignKey(CremeEntity, verbose_name=_(u'Related item'), blank=True, null=True, related_name='related_items_set')
+
+    excluded_fields_in_html_output = CremeEntity.excluded_fields_in_html_output + ['type']
 
     class Meta:
         app_label = 'billing'
@@ -81,4 +97,5 @@ class Line(CremeModel):
         clone.total_discount    = self.total_discount
         clone.vat               = self.vat
         clone.is_paid           = self.is_paid
+        clone.related_item      = self.related_item
         return clone
