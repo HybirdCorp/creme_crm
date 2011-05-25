@@ -418,6 +418,7 @@ class BillingTestCase(CremeTestCase):
         self.failIf(Product.objects.count())
 
     def test_invoice_edit_product_lines01(self):
+#        self.populate('creme_core', 'persons')
         self.login()
 
         name = 'Stuff'
@@ -425,7 +426,7 @@ class BillingTestCase(CremeTestCase):
         quantity = 1
         invoice  = self.create_invoice_n_orgas('Invoice001')[0]
         line = ProductLine.objects.create(on_the_fly_item=name, document=invoice, quantity=quantity,
-                                          unit_price=unit_price, is_paid=False
+                                          unit_price=unit_price, is_paid=False, user=self.user,
                                          )
 
         url = '/billing/productline/%s/edit' % line.id
@@ -610,7 +611,7 @@ class BillingTestCase(CremeTestCase):
         quantity = 1
         invoice  = self.create_invoice_n_orgas('Invoice001')[0]
         line = ServiceLine.objects.create(on_the_fly_item=name, document=invoice, quantity=quantity,
-                                          unit_price=unit_price, is_paid=False
+                                          unit_price=unit_price, is_paid=False, user=self.user,
                                          )
 
         url = '/billing/serviceline/%s/edit' % line.id
