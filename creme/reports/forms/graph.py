@@ -78,7 +78,7 @@ class ReportGraphAddForm(CremeEntityForm):
              aggregates_fields.required = False
 
 
-        abscissa_predicates     = [(rtype.id, rtype.predicate) for rtype in RelationType.get_compatible_ones(report_ct).order_by('predicate')]#Relation type as abscissa
+        abscissa_predicates     = [(rtype.id, rtype.predicate) for rtype in RelationType.get_compatible_ones(report_ct, include_internals=True).order_by('predicate')]#Relation type as abscissa
         abscissa_model_fields   = [(f.name, unicode(f.verbose_name)) for f in get_flds_with_fk_flds(model, deep=0) if isinstance(f, AUTHORIZED_ABSCISSA_TYPES)]#One field of the model as abscissa
         abscissa_model_fields.sort(key=lambda x: x[1])
 

@@ -533,7 +533,7 @@ class RelationsConditionsField(_ConditionsField):
 
     def _set_model(self, model):
         self._model = model
-        self._rtypes = dict((rt.id, rt) for rt in RelationType.get_compatible_ones(ContentType.objects.get_for_model(model)))
+        self._rtypes = dict((rt.id, rt) for rt in RelationType.get_compatible_ones(ContentType.objects.get_for_model(model), include_internals=True))
         self._build_widget()
 
     model = property(lambda self: self._model, _set_model); del _set_model

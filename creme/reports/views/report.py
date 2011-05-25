@@ -337,5 +337,5 @@ def date_filter_form(request, report_id):
 @login_required
 def get_predicates_choices_4_ct(request):
     ct = get_ct_or_404(get_from_POST_or_404(request.POST, 'ct_id'))
-    predicates = [(rtype.id, rtype.predicate) for rtype in RelationType.get_compatible_ones(ct).order_by('predicate')]
+    predicates = [(rtype.id, rtype.predicate) for rtype in RelationType.get_compatible_ones(ct, include_internals=True).order_by('predicate')]
     return predicates
