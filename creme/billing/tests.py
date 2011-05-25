@@ -12,7 +12,7 @@ from creme_core.tests.base import CremeTestCase
 
 from persons.models import Contact, Organisation, Address
 
-from products.models import Product, Service, ServiceCategory, Category, SubCategory
+from products.models import Product, Service, Category, SubCategory
 
 from billing.models import *
 from billing.constants import *
@@ -463,10 +463,12 @@ class BillingTestCase(CremeTestCase):
         self.failIf(invoice.service_lines)
 
         unit_price = Decimal('1.33')
-        cat     = ServiceCategory.objects.create(name='Cat', description='DESCRIPTION')
+        cat     = Category.objects.create(name='Cat', description='DESCRIPTION')
+        sub_cat = SubCategory.objects.create(name='Sub Cat', description='DESCRIPTION', category=cat)
+
         service = Service.objects.create(user=self.user, name='Mushroom hunting', reference='465',
                                          unit_price=unit_price, description='Wooot', countable=False,
-                                         category=cat)
+                                         category=cat, sub_category=sub_cat)
 
         response = self.client.post(url,
                                     data={
@@ -524,7 +526,9 @@ class BillingTestCase(CremeTestCase):
         invoice = self.create_invoice_n_orgas('Invoice001')[0]
         unit_price = Decimal('1.33')
         name = 'Car wash'
-        cat  = ServiceCategory.objects.create(name='Cat', description='DESCRIPTION')
+        cat     = Category.objects.create(name='Cat', description='DESCRIPTION')
+        subcat  = SubCategory.objects.create(name='Cat', description='DESCRIPTION', category=cat)
+
         response = self.client.post('/billing/%s/service_line/add_on_the_fly' % invoice.id,
                                     data={
                                             'user':               self.user.pk,
@@ -536,7 +540,7 @@ class BillingTestCase(CremeTestCase):
                                             'vat':                Decimal('19.6'),
                                             'credit':             Decimal(),
                                             'has_to_register_as': 'on',
-                                            'category':           cat.id,
+                                            'sub_category': """{"category":%s, "subcategory":%s}""" % (cat.id, subcat.id)
                                          }
                                    )
         self.assertNoFormError(response)
@@ -548,6 +552,7 @@ class BillingTestCase(CremeTestCase):
             self.fail(str(e))
 
         self.assertEqual(cat.id,     service.category_id)
+        self.assertEqual(subcat.id,  service.sub_category_id)
         self.assertEqual(unit_price, service.unit_price)
 
         invoice = Invoice.objects.get(pk=invoice.id) #refresh (line cache)
@@ -576,7 +581,8 @@ class BillingTestCase(CremeTestCase):
         role.creatable_ctypes = [get_ct(Invoice), get_ct(Contact), get_ct(Organisation)] #not 'Service'
 
         invoice  = self.create_invoice_n_orgas('Invoice001')[0]
-        cat = ServiceCategory.objects.create(name='Cat', description='DESCRIPTION')
+        cat     = Category.objects.create(name='Cat', description='DESCRIPTION')
+        subcat  = SubCategory.objects.create(name='Cat', description='DESCRIPTION', category=cat)
         response = self.client.post('/billing/%s/service_line/add_on_the_fly' % invoice.id,
                                     data={
                                             'user':               self.user.pk,
@@ -588,7 +594,7 @@ class BillingTestCase(CremeTestCase):
                                             'vat':                Decimal('19.6'),
                                             'credit':             Decimal(),
                                             'has_to_register_as': 'on',
-                                            'category':           cat.id,
+                                            'sub_category': """{"category":%s, "subcategory":%s}""" % (cat.id, subcat.id)
                                          }
                                    )
         self.assertEqual(200, response.status_code)

@@ -25,7 +25,7 @@ from creme_core.models import CremeEntity
 
 from media_managers.models import Image
 
-from other_models import ServiceCategory
+from other_models import Category, SubCategory
 
 
 #TODO: use an abstract base class for Service and Products ??
@@ -34,7 +34,8 @@ class Service(CremeEntity):
     name              = CharField(_(u'Name'), max_length=100)
     description       = CharField(_(u'Description'), max_length=200)
     reference         = CharField(_(u'Reference'), max_length=100)
-    category          = ForeignKey(ServiceCategory, verbose_name=_(u'Category'))
+    category          = ForeignKey(Category, verbose_name=_(u'Category'))
+    sub_category      = ForeignKey(SubCategory, verbose_name=_(u'Sub-category'))
     countable         = BooleanField(_(u'Countable'))
     unit              = CharField(_(u'Unit'), max_length=100)
     quantity_per_unit = IntegerField(_(u'Quantity/Unit'), blank=True, null=True)
@@ -42,7 +43,7 @@ class Service(CremeEntity):
     web_site          = CharField(_(u'Web Site'), max_length=100, blank=True, null=True)
     images            = ManyToManyField(Image, blank=True, null=True, verbose_name=_(u'Images'), related_name='ServiceImages_set' )
 
-    research_fields = CremeEntity.research_fields + ['name', 'reference', 'description']
+    research_fields = CremeEntity.research_fields + ['name', 'reference', 'description', 'sub_category__name', 'category__name']
 
     def __unicode__(self):
         return self.name
