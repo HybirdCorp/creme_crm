@@ -916,9 +916,9 @@ class DurationWidget(MultiWidget):
                          %(minutes)s&nbsp;%(minutes_label)s&nbsp;
                          %(seconds)s&nbsp;%(seconds_label)s&nbsp;</span>
                 """ % {
-                        'hours': hours_widget, 'hours_label': _(u'Hours'),
-                        'minutes': minutes_widget, 'minutes_label': _(u'Minutes'),
-                        'seconds': seconds_widget, 'seconds_label': _(u'Seconds')
+                        'hours': hours_widget, 'hours_label': _(u'Hour(s)'),
+                        'minutes': minutes_widget, 'minutes_label': _(u'Minute(s)'),
+                        'seconds': seconds_widget, 'seconds_label': _(u'Second(s)')
                       }
 
 
