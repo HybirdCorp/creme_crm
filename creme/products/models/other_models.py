@@ -36,8 +36,8 @@ class Category(CremeModel):
 
     class Meta:
         app_label = 'products'
-        verbose_name = _(u'Category of product')
-        verbose_name_plural = _(u'Categories of product')
+        verbose_name = _(u'Category')
+        verbose_name_plural = _(u'Categories')
 
 
 class SubCategory(CremeModel):
@@ -50,18 +50,6 @@ class SubCategory(CremeModel):
 
     class Meta:
         app_label = 'products'
-        verbose_name = _(u'Sub-category of product')
-        verbose_name_plural = _(u'Sub-categories of product')
+        verbose_name = _(u'Sub-category')
+        verbose_name_plural = _(u'Sub-categories')
 
-
-class ServiceCategory(CremeModel):
-    name        = CharField(_(u'Name of the category'), max_length=100)
-    description = CharField(_(u'Description'), max_length=100)
-
-    def __unicode__(self):
-        return self.name
-
-    class Meta:
-        app_label = 'products'
-        verbose_name = _(u'Category of service')
-        verbose_name_plural = _(u'Categories of service')

@@ -8,7 +8,7 @@ from creme_core import autodiscover
 from creme_core.tests.base import CremeTestCase
 from creme_core.tests.forms import FieldTestCase
 
-from products.models import Category, SubCategory, Product, Service, ServiceCategory
+from products.models import Category, SubCategory, Product, Service
 from products.forms.product import ProductCategoryField
 
 class ProductCategoryFieldTestCase(FieldTestCase):
@@ -127,7 +127,6 @@ class ProductsTestCase(CremeTestCase):
         self.populate('creme_core', 'products')
 
     def test_populate(self):
-        self.assert_(ServiceCategory.objects.exists())
         self.assert_(Category.objects.exists())
         self.assert_(SubCategory.objects.exists())
 
@@ -288,7 +287,8 @@ class ProductsTestCase(CremeTestCase):
         name = 'Eva washing'
         description = 'Your Eva is washed by pretty girls'
         reference = '42'
-        cat = ServiceCategory.objects.all()[0]
+        cat = Category.objects.all()[0]
+        sub_cat = SubCategory.objects.all()[0]
         unit = 'A wash'
         unit_price = '1.23'
         response = self.client.post('/products/service/add', follow=True,
@@ -299,7 +299,8 @@ class ProductsTestCase(CremeTestCase):
                                             'description':  description,
                                             'unit':         unit,
                                             'unit_price':   unit_price,
-                                            'category':     cat.id,
+                                            'sub_category': """{"category":%s, "subcategory":%s}""" % (cat.id,
+                                                                                                       sub_cat.id)
                                          }
                                    )
         try:
@@ -320,6 +321,7 @@ class ProductsTestCase(CremeTestCase):
         self.assertEqual(unit,                service.unit)
         self.assertEqual(Decimal(unit_price), service.unit_price)
         self.assertEqual(cat.id,              service.category_id)
+        self.assertEqual(sub_cat.id,          service.sub_category_id)
 
         self.assertEqual(200, response.status_code)
         self.assert_(response.redirect_chain)
@@ -333,10 +335,11 @@ class ProductsTestCase(CremeTestCase):
         self.login()
 
         name = 'Eva washing'
-        cat  = ServiceCategory.objects.all()[0]
+        cat = Category.objects.all()[0]
+        sub_cat = SubCategory.objects.all()[0]
         service = Service.objects.create(user=self.user, name=name, description='Blabla',
                                          unit_price=Decimal('1.23'), reference='42',
-                                         category=cat, unit='A wash')
+                                         category=cat, sub_category=sub_cat, unit='A wash')
 
         response = self.client.get('/products/service/edit/%s' % service.id)
         self.assertEqual(200, response.status_code)
@@ -350,7 +353,8 @@ class ProductsTestCase(CremeTestCase):
                                             'reference':    service.reference,
                                             'description':  service.description,
                                             'unit_price':   unit_price,
-                                            'category':     service.category_id,
+                                            'sub_category': """{"category":%s, "subcategory":%s}""" % (service.category_id,
+                                                                                                       service.sub_category_id),
                                             'unit':         service.unit,
                                          }
                                    )
@@ -371,15 +375,16 @@ class ProductsTestCase(CremeTestCase):
     def test_service_listview(self):
         self.login()
 
-        cat = ServiceCategory.objects.all()[0]
+        cat = Category.objects.all()[0]
+        sub_cat = SubCategory.objects.all()[0]
 
         create_serv = Service.objects.create
         serv01 = create_serv(user=self.user, name='Eva00', description='description#1',
                             unit_price=Decimal('1.23'), reference='42',
-                            category=cat, unit='unit')
+                            category=cat, sub_category=sub_cat, unit='unit')
         serv02 = create_serv(user=self.user, name='Eva01', description='description#2',
                             unit_price=Decimal('6.58'), reference='43',
-                            category=cat, unit='unit')
+                            category=cat, sub_category=sub_cat, unit='unit')
 
         response = self.client.get('/products/services')
         self.assertEqual(200, response.status_code)

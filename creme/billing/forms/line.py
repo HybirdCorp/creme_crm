@@ -27,7 +27,7 @@ from creme_core.forms import CremeModelWithUserForm, FieldBlockManager
 from creme_core.forms.fields import CremeEntityField
 from creme_core.forms.widgets import ListViewWidget
 
-from products.models import Product, Service, ServiceCategory
+from products.models import Product, Service
 from products.forms.product import ProductCategoryField
 
 from billing.models import ProductLine, ServiceLine
@@ -182,13 +182,13 @@ class ServiceLineForm(LineForm):
 class ServiceLineOnTheFlyForm(LineForm):
     has_to_register_as = BooleanField(label=_(u"Save as service ?"), required=False,
                                       help_text=_(u"Here you can save a on-the-fly Service as a true Service ; in this case, category is required."))
-    category           = ModelChoiceField(queryset=ServiceCategory.objects.all(), label=_(u'Service category'),
-                                          required=False)
+
+    sub_category = ProductCategoryField(label=_(u'Sub-category'), required=False)
 
     blocks = FieldBlockManager(
         ('general',     _(u'Line information'),    ['on_the_fly_item', 'comment', 'quantity', 'unit_price',
                                                     'discount', 'credit', 'total_discount', 'vat', 'user']),
-        ('additionnal', _(u'Additional features'), ['has_to_register_as','category'])
+        ('additionnal', _(u'Additional features'), ['has_to_register_as','sub_category'])
      )
 
     class Meta:
@@ -209,7 +209,7 @@ class ServiceLineOnTheFlyForm(LineForm):
             has_to_register_as = fields['has_to_register_as']
             has_to_register_as.help_text = ugettext(u'You are not allowed to create Services')
             has_to_register_as.widget.attrs = {'disabled': True}
-            fields['category'].widget.attrs = {'disabled': True}
+            fields['sub_category'].widget.attrs = {'disabled': True}
 
     def clean_has_to_register_as(self):
         create_service = self.cleaned_data.get('has_to_register_as', False)
@@ -221,10 +221,16 @@ class ServiceLineOnTheFlyForm(LineForm):
 
     def clean(self):
         cleaned_data = self.cleaned_data
-        get_data = cleaned_data.get
+        get_data     = cleaned_data.get
 
-        if get_data('has_to_register_as') and get_data('category') is None:
-            raise ValidationError(ugettext(u'Category is required if you want to save as a true service.'))
+        #TODO: use has_key() ??
+        if get_data('has_to_register_as'):
+            sub_category = get_data('sub_category')
+            if sub_category is None:
+                raise ValidationError(ugettext(u'Sub-category is required if you want to save as a true service.'))
+
+            if sub_category.category is None:
+                raise ValidationError(ugettext(u'Category is required if you want to save as a true service.'))
 
         return cleaned_data
 
@@ -232,10 +238,13 @@ class ServiceLineOnTheFlyForm(LineForm):
         get_data = self.cleaned_data.get
 
         if get_data('has_to_register_as'):
+            sub_category = get_data('sub_category')
+
             service = Service.objects.create(name=get_data('on_the_fly_item', ''),
                                              user=get_data('user'),
                                              reference='',
-                                             category=get_data('category'),
+                                             category=sub_category.category,
+                                             sub_category=sub_category,
                                              unit_price=get_data('unit_price', 0),
                                             )
 
