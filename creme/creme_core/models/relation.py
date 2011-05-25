@@ -67,7 +67,7 @@ class RelationType(CremeModel):
     def delete(self):
         sym_type = self.symmetric_type
 
-        RelationPredicate_i18n.objects.filter(relation_type__in=(self.pk, sym_type.pk)).delete()
+        #RelationPredicate_i18n.objects.filter(relation_type__in=(self.pk, sym_type.pk)).delete()
 
         super(RelationType, sym_type).delete()
         super(RelationType, self).delete()
