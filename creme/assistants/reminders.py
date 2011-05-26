@@ -24,7 +24,7 @@ from django.db.models import Q
 from django.utils.translation import ugettext as _
 from django.conf import settings
 
-from creme_core.reminder import Reminder
+from creme_core.core.reminder import Reminder
 
 from models import Alert, ToDo
 

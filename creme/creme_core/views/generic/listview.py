@@ -30,9 +30,10 @@ from django.utils.translation import ugettext as _
 #from django.contrib.auth.decorators import login_required
 from django.contrib.contenttypes.models import ContentType
 
-from creme_core.models import CremeEntity, ListViewState, EntityCredentials #Filter
+from creme_core.models import CremeEntity, EntityCredentials
 from creme_core.models.header_filter import HeaderFilterList
 from creme_core.models.entity_filter import EntityFilterList
+from creme_core.gui.listview import ListViewState
 from creme_core.views.header_filter import add as add_header_filter
 from creme_core.utils import get_ct_or_404
 from creme_core.utils.queries import get_q_from_dict
@@ -43,20 +44,7 @@ class NoHeaderFilterAvailable(Exception):
     pass
 
 
-#def _build_entity_queryset(request, model, list_view_state, extra_q):
 def _build_entity_queryset(request, model, list_view_state, extra_q, entity_filter):
-    #query = Q(is_deleted=False) | Q(is_deleted=None)
-
-
-    #try:
-        #filter_ = Filter.objects.get(pk=int(request.POST.get('filter', list_view_state.filter_id or '')))
-    #except (Filter.DoesNotExist, ValueError), e:
-        #list_view_state.filter_id = None
-    #else:
-        #list_view_state.filter_id = filter_.id
-        #query &= filter_.get_q()
-
-    #queryset = model.objects.filter(query)
     queryset = model.objects.filter(Q(is_deleted=False) | Q(is_deleted=None))
 
     if entity_filter:
@@ -146,9 +134,7 @@ def list_view_content(request, model, hf_pk='', extra_dict=None, template='creme
     efilter = entity_filters.select_by_id(POST_get('filter', current_lvs.entity_filter_id))
     current_lvs.entity_filter_id = efilter.id if efilter else None
 
-    #entities = _build_entity_queryset(request, model, current_lvs, extra_q)
     entities = _build_entity_queryset(request, model, current_lvs, extra_q, efilter)
-    #entities = hf.improve_queryset(entities) #optimisation time !!!
     entities = _build_entities_page(request, current_lvs, entities, rows)
 
     current_lvs.register_in_session(request)
@@ -162,7 +148,6 @@ def list_view_content(request, model, hf_pk='', extra_dict=None, template='creme
         'entities':           entities,
         'list_view_state':    current_lvs,
         'content_type_id':    ct.id,
-        #'filter_id' :         current_lvs.filter_id or '',
         'search':             _search,
         'list_view_template': 'creme_core/frags/list_view.html',
         'o2m':                o2m,

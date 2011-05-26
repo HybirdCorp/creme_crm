@@ -29,7 +29,7 @@ from django.utils.translation import ugettext_lazy as _
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.auth.models import User
 
-from creme_core.models.function_field import FunctionFieldsManager
+from creme_core.core.function_field import FunctionFieldsManager
 from creme_core.models.fields import CreationDateTimeField, ModificationDateTimeField
 
 

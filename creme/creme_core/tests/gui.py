@@ -7,7 +7,7 @@ from django.contrib.sessions.models import Session
 from activities.models.activity import Meeting, Activity
 
 from creme_core.models import *
-from creme_core.models.list_view_state import get_field_name_from_pattern
+from creme_core.gui.listview import get_field_name_from_pattern
 from creme_core.gui.last_viewed import LastViewedItem
 from creme_core.gui.bulk_update import BulkUpdateRegistry
 from creme_core.tests.base import CremeTestCase
