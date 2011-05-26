@@ -7,6 +7,3 @@ REL_OBJ_RELATED_TO = 'creme_core-object_related_to'
 
 REL_SUB_HAS = 'creme_core-subject_has'
 REL_OBJ_HAS = 'creme_core-object_has'
-
-FILTER_TYPE_EQUALS = 1
-
