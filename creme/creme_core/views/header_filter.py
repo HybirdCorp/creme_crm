@@ -28,10 +28,10 @@ from django.template.context import RequestContext
 from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required
 
-from creme_core.models.list_view_state import ListViewState
 from creme_core.models.header_filter import HeaderFilter, HeaderFilterList
 from creme_core.forms.header_filter import HeaderFilterForm
 from creme_core.views.generic import add_entity
+from creme_core.gui.listview import ListViewState
 from creme_core.utils import get_ct_or_404, get_from_POST_or_404, jsonify
 
 

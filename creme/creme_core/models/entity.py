@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2011  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -33,8 +33,8 @@ from django.forms.util import flatatt
 from django.template.loader import render_to_string
 from django.contrib.contenttypes.models import ContentType
 
+from creme_core.core.function_field import FunctionField
 from base import CremeAbstractEntity
-from function_field import FunctionField
 
 
 class EntityAction(object):
@@ -404,7 +404,7 @@ class CremeEntity(CremeAbstractEntity):
 
     def _copy_properties(self, source):
         creme_property_create = CremeProperty.objects.create
-        
+
         for type_id in source.properties.values_list('type', flat=True):
             creme_property_create(type_id=type_id, creme_entity=self)
 
@@ -429,4 +429,3 @@ class CremeEntity(CremeAbstractEntity):
 from relation import Relation
 from creme_property import CremeProperty
 from custom_field import CustomField, CustomFieldValue
-

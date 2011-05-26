@@ -27,9 +27,9 @@ from django.shortcuts import get_object_or_404
 from django.utils.encoding import smart_str
 from django.contrib.auth.decorators import login_required
 
-#from creme_core.models import Filter, ListViewState, EntityCredentials
-from creme_core.models import EntityFilter, ListViewState, EntityCredentials
+from creme_core.models import EntityFilter, EntityCredentials
 from creme_core.models.header_filter import HeaderFilter, HFI_FIELD, HFI_RELATION, HFI_FUNCTION, HFI_CUSTOM
+from creme_core.gui.listview import ListViewState
 from creme_core.utils import get_ct_or_404
 from creme_core.utils.meta import get_field_infos
 from creme_core.utils.chunktools import iter_as_slices

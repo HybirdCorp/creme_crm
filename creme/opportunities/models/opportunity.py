@@ -25,7 +25,8 @@ from django.db.models import CharField, TextField, ForeignKey, PositiveIntegerFi
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.contenttypes.models import ContentType
 
-from creme_core.models import CremeEntity, CremeModel, Relation, FunctionField
+from creme_core.core.function_field import FunctionField
+from creme_core.models import CremeEntity, CremeModel, Relation
 
 from creme_config.models import SettingValue
 

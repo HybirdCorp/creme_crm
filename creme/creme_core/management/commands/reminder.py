@@ -21,7 +21,7 @@
 from django.core.management.base import BaseCommand
 
 from creme_core import autodiscover
-from creme_core.reminder import reminder_registry
+from creme_core.core.reminder import reminder_registry
 
 
 class Command(BaseCommand):

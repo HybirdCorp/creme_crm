@@ -1,18 +1,14 @@
 # -*- coding: utf-8 -*-
 
-from creme_exceptions import NotGoodInstance #TODO: move from models ?
-
 from base import CremeModel, CremeAbstractEntity
 from entity import CremeEntity
 
 from relation import RelationType, Relation #RelationPredicate_i18n
 from creme_property import CremePropertyType, CremeProperty #CremePropertyText_i18n
 from custom_field import *
-from function_field import FunctionField, FunctionFieldsManager
 
 from header_filter import HeaderFilter, HeaderFilterItem
 from entity_filter import EntityFilter, EntityFilterCondition
-from list_view_state import ListViewState #TODO: move to gui ?
 
 from auth import EntityCredentials, UserRole, SetCredentials, UserProfile, TeamM2M
 
