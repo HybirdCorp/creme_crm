@@ -29,7 +29,7 @@ from tickets.models.status import OPEN_PK, CLOSED_PK
 class TicketCreateForm(CremeEntityForm):
     class Meta:
         model = Ticket
-        exclude = CremeEntityForm.Meta.exclude + ('status', 'closing_date')
+        exclude = CremeEntityForm.Meta.exclude + ('status', )
 
     def save(self):
         self.instance.status_id = OPEN_PK
@@ -39,7 +39,6 @@ class TicketCreateForm(CremeEntityForm):
 class TicketEditForm(CremeEntityForm):
     class Meta:
         model = Ticket
-        exclude = CremeEntityForm.Meta.exclude + ('closing_date', )
 
     def __init__(self, *args, **kwargs):
         super(TicketEditForm, self).__init__(*args, **kwargs)
