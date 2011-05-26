@@ -539,7 +539,7 @@ class CSVImportForm(CremeModelForm):
         model_class = self._meta.model
         get_cleaned = self.cleaned_data.get
 
-        exclude = frozenset(self._meta.exclude)
+        exclude = frozenset(self._meta.exclude or ())
         regular_fields   = []
         extractor_fields = []
 

@@ -42,7 +42,7 @@ class CremePropertyType(CremeModel):
         verbose_name_plural = _(u'Types of property')
 
     def delete(self):
-        self.property_i18n_set.all().delete()
+        #self.property_i18n_set.all().delete()
         CremeProperty.objects.filter(type=self).delete()
         super(CremePropertyType, self).delete()
 
@@ -60,8 +60,8 @@ class CremePropertyType(CremeModel):
             property_type = CremePropertyType(text=text, is_custom=is_custom)
             generate_string_id_and_save(CremePropertyType, [property_type], str_pk)
 
-        property_type.property_i18n_set.all().delete()
-        CremePropertyText_i18n.objects.create(property_type_id=property_type.id, language_code='FRA', i18n_text=text)
+        #property_type.property_i18n_set.all().delete()
+        #CremePropertyText_i18n.objects.create(property_type_id=property_type.id, language_code='FRA', i18n_text=text)
 
         get_ct = ContentType.objects.get_for_model
         property_type.subject_ctypes = [(model if isinstance(model, ContentType) else get_ct(model)) for model in subject_ctypes]
@@ -72,13 +72,13 @@ class CremePropertyType(CremeModel):
     def get_compatible_ones(ct):
         return CremePropertyType.objects.filter(Q(subject_ctypes=ct) | Q(subject_ctypes__isnull=True))
 
-class CremePropertyText_i18n(CremeModel):
-    property_type = ForeignKey(CremePropertyType, related_name='property_i18n_set')
-    language_code = CharField(max_length=5)
-    i18n_text     = CharField(max_length=100)
+#class CremePropertyText_i18n(CremeModel):
+    #property_type = ForeignKey(CremePropertyType, related_name='property_i18n_set')
+    #language_code = CharField(max_length=5)
+    #i18n_text     = CharField(max_length=100)
 
-    class Meta:
-        app_label = 'creme_core'
+    #class Meta:
+        #app_label = 'creme_core'
 
 
 class CremeProperty(CremeModel):
