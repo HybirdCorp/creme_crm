@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2011  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -32,8 +32,8 @@ from persons.constants import REL_OBJ_CUSTOMER_OF #REL_SUB_CUSTOMER_OF
 
 def portal(request):
     stats = [
-                (_('Number of contacts'),      Contact.objects.all().count()),
-                (_("Number of organisations"), Organisation.objects.all().count()),
+                (_('Number of contacts'),      Contact.objects.count()),
+                (_("Number of organisations"), Organisation.objects.count()),
             ]
 
     #relations_qs = Relation.objects.filter(type__id=REL_SUB_CUSTOMER_OF, is_deleted=False)

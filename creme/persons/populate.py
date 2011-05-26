@@ -27,7 +27,7 @@ from creme_core.models.header_filter import HeaderFilterItem, HeaderFilter, HFI_
 from creme_core.models import (RelationType, CremeProperty, CremePropertyType,
                                EntityFilter, EntityFilterCondition,
                                ButtonMenuItem, SearchConfigItem, RelationBlockItem, BlockConfigItem)
-from creme_core.constants import PROP_IS_MANAGED_BY_CREME, FILTER_TYPE_EQUALS
+from creme_core.constants import PROP_IS_MANAGED_BY_CREME
 from creme_core.utils import create_or_update as create
 from creme_core.utils.id_generator import generate_string_id_and_save
 from creme_core.gui.block import block_registry
