@@ -20,16 +20,18 @@
 
 from logging import debug
 
-from django.http import HttpResponseRedirect, HttpResponse, Http404
+from django.http import Http404
 from django.shortcuts import get_object_or_404
 from django.template import RequestContext
 from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required, permission_required
+from creme_core.utils import jsonify
 
 from creme_core.views.generic import add_to_entity, inner_popup
 
 from billing.models import Line, ProductLine, ServiceLine
 from billing.forms.line import ProductLineForm, ProductLineOnTheFlyForm, ServiceLineForm, ServiceLineOnTheFlyForm
+from creme_core.views.generic.listview import list_view
 
 
 @login_required
@@ -53,7 +55,7 @@ def add_service_line_on_the_fly(request, document_id):
 @permission_required('billing')
 def _edit_line(request, line_model, line_id):
     line     = get_object_or_404(line_model, pk=line_id)
-    document = line.document
+    document = line.related_document
     user = request.user
 
     document.can_change_or_die(user)
@@ -85,7 +87,7 @@ def edit_productline(request, line_id):
 def edit_serviceline(request, line_id):
     return _edit_line(request, ServiceLine, line_id)
 
-#TODO: use Ajax reloading
+@jsonify
 @login_required
 @permission_required('billing')
 def update(request, line_id):
@@ -93,11 +95,24 @@ def update(request, line_id):
         raise Http404('This view uses POST method')
 
     line     = get_object_or_404(Line, pk=line_id)
-    document = line.document
+    document = line.related_document
 
     document.can_change_or_die(request.user)
 
     line.is_paid = request.POST.has_key('paid')
     line.save()
 
-    return HttpResponseRedirect(document.get_absolute_url())
+@login_required
+@permission_required('billing')
+def listview(request):
+    return list_view(request, Line, show_actions=False)
+
+@login_required
+@permission_required('billing')
+def listview_product_line(request):
+    return list_view(request, ProductLine, show_actions=False)
+
+@login_required
+@permission_required('billing')
+def listview_service_line(request):
+    return list_view(request, ServiceLine, show_actions=False)

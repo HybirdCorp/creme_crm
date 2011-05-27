@@ -17,9 +17,10 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
-
+from django.utils.simplejson.encoder import JSONEncoder
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.contenttypes.models import ContentType
+
 from creme_config.models.setting import SettingValue
 
 from creme_core.gui.block import Block, PaginatedBlock, QuerysetBlock
@@ -28,8 +29,8 @@ from creme_core.constants import PROP_IS_MANAGED_BY_CREME
 
 from persons.models import Contact, Organisation
 
-from billing.models import ProductLine, ServiceLine, Invoice, SalesOrder, Quote, PaymentInformation, Base
-from billing.constants import REL_OBJ_BILL_RECEIVED, REL_SUB_BILL_RECEIVED, REL_SUB_BILL_ISSUED, REL_OBJ_BILL_ISSUED, DISPLAY_PAYMENT_INFO_ONLY_CREME_ORGA
+from billing.models import ProductLine, ServiceLine, Invoice, SalesOrder, Quote, PaymentInformation, Base, PRODUCT_LINE_TYPE, SERVICE_LINE_TYPE
+from billing.constants import REL_OBJ_BILL_RECEIVED, REL_SUB_BILL_RECEIVED, REL_SUB_BILL_ISSUED, REL_OBJ_BILL_ISSUED, DISPLAY_PAYMENT_INFO_ONLY_CREME_ORGA, REL_OBJ_HAS_LINE
 
 
 #NB PaginatedBlock and not QuerysetBlock to avoid the retrieving of a sliced
@@ -45,6 +46,7 @@ class ProductLinesBlock(PaginatedBlock):
         return self._render(self.get_block_template_context(context, document.product_lines,
                                                             update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, document.pk),
                                                             ct_id=ContentType.objects.get_for_model(ProductLine).id,
+                                                            q_filter=JSONEncoder().encode({'type':PRODUCT_LINE_TYPE, 'relations__type': REL_OBJ_HAS_LINE, 'relations__object_entity': document.id}),
                                                            ))
 
 
@@ -59,6 +61,7 @@ class  ServiceLinesBlock(PaginatedBlock):
         return self._render(self.get_block_template_context(context, document.service_lines,
                                                             update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, document.pk),
                                                             ct_id=ContentType.objects.get_for_model(ServiceLine).id,
+                                                            q_filter=JSONEncoder().encode({'type':SERVICE_LINE_TYPE, 'relations__type': REL_OBJ_HAS_LINE, 'relations__object_entity': document.id}),
                                                             ))
 
 
@@ -132,7 +135,7 @@ class PaymentInformationBlock(QuerysetBlock):
         if not has_to_be_displayed:
             return ""
 
-        
+
         btc= self.get_block_template_context(context,
                                              PaymentInformation.objects.filter(organisation=organisation),
                                              update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, organisation.pk),

@@ -21,7 +21,7 @@
 from decimal import Decimal
 
 from django.utils.translation import ugettext_lazy as _, ugettext
-from django.forms import  BooleanField, ModelChoiceField, ValidationError
+from django.forms import  BooleanField, ValidationError
 
 from creme_core.forms import CremeEntityForm, FieldBlockManager
 from creme_core.forms.fields import CremeEntityField
@@ -49,14 +49,14 @@ class LineForm(CremeEntityForm):
 
     def __init__(self, entity, *args, **kwargs):
         super(LineForm, self).__init__(*args, **kwargs)
-        self.document = entity
+        self._document = entity #NB: self.document is a related name
 
     def save(self):
         instance = self.instance
         created = not bool(instance.pk)
-        instance.document = self.document
         instance.is_paid = False
         super(LineForm, self).save()
+        instance.related_document = self._document
 
         form_post_save.send(sender=self.instance.__class__, instance=self.instance, created=created)
 
@@ -78,6 +78,14 @@ class ProductLineForm(LineForm):
     def __init__(self, entity, *args, **kwargs):
         super(ProductLineForm, self).__init__(entity, *args, **kwargs)
         self.instance.type = PRODUCT_LINE_TYPE
+        related_item = self.instance.related_item
+        if related_item is not None:
+            self.fields['related_item'].initial = related_item.id
+
+    def save(self):
+        instance = super(ProductLineForm, self).save()
+        instance.related_item = self.cleaned_data['related_item']
+        return instance
 
 
 class ProductLineOnTheFlyForm(LineForm):
@@ -149,7 +157,7 @@ class ProductLineOnTheFlyForm(LineForm):
                                              sub_category=sub_category,
                                             )
 
-            plcf = ProductLineForm(entity=self.document, user=self.user,
+            plcf = ProductLineForm(entity=self._document, user=self.user,
                                    data={
                                           'related_item':   '%s,' % product.pk,
                                           'quantity':       get_data('quantity', 0),
@@ -186,6 +194,14 @@ class ServiceLineForm(LineForm):
     def __init__(self, entity, *args, **kwargs):
         super(ServiceLineForm, self).__init__(entity, *args, **kwargs)
         self.instance.type = SERVICE_LINE_TYPE
+        related_item = self.instance.related_item
+        if related_item is not None:
+            self.fields['related_item'].initial = related_item.id
+
+    def save(self):
+        instance = super(ServiceLineForm, self).save()
+        instance.related_item = self.cleaned_data['related_item']
+        return instance
 
 
 class ServiceLineOnTheFlyForm(LineForm):
@@ -258,7 +274,7 @@ class ServiceLineOnTheFlyForm(LineForm):
                                              unit_price=get_data('unit_price', 0),
                                             )
 
-            slcf = ServiceLineForm(entity=self.document, user=self.user,
+            slcf = ServiceLineForm(entity=self._document, user=self.user,
                                    data={
                                           'related_item':   '%s,' % service.pk,
                                           'quantity':       get_data('quantity', 0),

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-05-25 14:34+0200\n"
+"POT-Creation-Date: 2011-05-27 17:49+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -809,7 +809,7 @@ msgstr "Fiche #%s (non visible)"
 msgid "You are not allowed to edit this entity: %s"
 msgstr "Vous n'êtes pas autorisé à modifier cette fiche: %s"
 
-#: models/entity.py:124
+#: models/entity.py:124 views/generic/delete.py:101
 #, python-format
 msgid "You are not allowed to delete this entity: %s"
 msgstr "Vous n'êtes pas autorisé à supprimer cette fiche: %s"
@@ -1675,7 +1675,7 @@ msgstr "Création rapide de <%s>"
 msgid "Relations for <%s>"
 msgstr "Relations pour <%s>"
 
-#: views/relation.py:363 views/generic/delete.py:57
+#: views/relation.py:363 views/generic/delete.py:58
 #, python-format
 msgid "%s entities doesn't exist / doesn't exist any more"
 msgstr "%s entité(s) n'existe(nt) pas ou plus"
@@ -1695,7 +1695,7 @@ msgstr "Il manque une propriété compatible pour l'entité objet avec l'id=%s"
 msgid "Permission denied to entity with id=%s"
 msgstr "Permission refusée pour l'entité avec l'id=%s"
 
-#: views/relation.py:394 views/generic/delete.py:80
+#: views/relation.py:394 views/generic/delete.py:81
 msgid "Operation successfully completed"
 msgstr "Opération déroulée avec succès"
 
@@ -1707,26 +1707,26 @@ msgstr "Recherche vide..."
 msgid "Please enter at least 3 characters"
 msgstr "Veuillez entrer au moins 3 caractères"
 
-#: views/generic/delete.py:47
+#: views/generic/delete.py:48
 msgid "No selected entities"
 msgstr "Aucune entitée séléctionnée"
 
-#: views/generic/delete.py:64
+#: views/generic/delete.py:65
 #, python-format
 msgid "%s : <b>Permission denied</b>,"
 msgstr "%s : <b>Permission refusée</b>,"
 
-#: views/generic/delete.py:70
+#: views/generic/delete.py:71
 #, python-format
 msgid "%s does not use the generic deletion view."
 msgstr "%s n'utilise pas la vue de suppresion générique."
 
-#: views/generic/delete.py:76
+#: views/generic/delete.py:77
 #, python-format
 msgid "\"%s\" can not be deleted because of its dependencies."
 msgstr "\"%s\" ne peut être effacé à cause de ses dépendances."
 
-#: views/generic/delete.py:95
+#: views/generic/delete.py:96
 msgid "This model does not use the generic deletion view."
 msgstr "Ce modèle n'utilise pas la vue de suppresion générique."
 

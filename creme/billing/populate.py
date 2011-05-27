@@ -22,7 +22,7 @@ from django.utils.translation import ugettext as _
 from creme_config.models.setting import SettingKey, SettingKey, SettingValue, SettingValue
 
 from creme_core.utils import create_or_update as create
-from creme_core.models.header_filter import HeaderFilterItem, HeaderFilter, HFI_FIELD
+from creme_core.models.header_filter import HeaderFilterItem, HeaderFilter, HFI_FIELD, HFI_FUNCTION
 from creme_core.models import RelationType, SearchConfigItem, ButtonMenuItem
 from creme_core.management.commands.creme_populate import BasePopulator
 
@@ -32,18 +32,28 @@ from billing.models import *
 from billing.constants import *
 from billing.buttons import generate_invoice_number_button
 
+from products.models import Product, Service
+
 
 class Populator(BasePopulator):
     dependencies = ['creme.creme_core', 'creme.persons']
 
     def populate(self, *args, **kwargs):
         billing_entities = [Invoice, Quote, SalesOrder, CreditNote, TemplateBase]
-
+        line_entities = [Line, ProductLine, ServiceLine]
         RelationType.create((REL_SUB_BILL_ISSUED,   _(u"issued by"),    billing_entities),
                             (REL_OBJ_BILL_ISSUED,   _(u"has issued"),   [Organisation])
                            )
         RelationType.create((REL_SUB_BILL_RECEIVED, _(u"received by"),  billing_entities),
                             (REL_OBJ_BILL_RECEIVED, _(u"has received"), [Organisation, Contact])
+                           )
+        RelationType.create((REL_SUB_HAS_LINE, _(u"had the line"),   billing_entities),
+                            (REL_OBJ_HAS_LINE, _(u"is the line of"), line_entities),
+                            is_internal=True
+                           )
+        RelationType.create((REL_SUB_LINE_RELATED_ITEM, _(u"has the related item"),   line_entities),
+                            (REL_OBJ_LINE_RELATED_ITEM, _(u"is the related item of"), [Product, Service]),
+                            is_internal=True
                            )
 
         #NB: pk=1 --> default status (used when a quote is converted in invoice for example)
@@ -93,6 +103,19 @@ class Populator(BasePopulator):
         create_hf('billing-hf_quote',      'billing-hfi_quote_',      _(u'Quote view'),       Quote)
         create_hf('billing-hf_salesorder', 'billing-hfi_salesorder_', _(u'Sales order view'), SalesOrder)
         create_hf('billing-hf_creditnote', 'billing-hfi_creditnote_', _(u'Credit note view'), CreditNote)
+
+        def create_hf_lines(hf_pk, hfi_pref, name, model, include_type=True):
+            hf_lines = HeaderFilter.create(pk=hf_pk, name=name, model=model)
+            create(HeaderFilterItem, hfi_pref + 'on_the_fly_item',  order=1, name='on_the_fly_item',  title=_(u'On the fly item'), type=HFI_FIELD,    header_filter=hf_lines, has_a_filter=True, editable=True, sortable=True, filter_string="on_the_fly_item__icontains")
+            create(HeaderFilterItem, hfi_pref + 'quantity',         order=2, name='quantity',         title=_(u'Quantity'),        type=HFI_FIELD,    header_filter=hf_lines, has_a_filter=True, editable=True, sortable=True, filter_string="quantity__icontains")
+            create(HeaderFilterItem, hfi_pref + 'unit_price',       order=3, name='unit_price',       title=_(u'Unit price'),      type=HFI_FIELD,    header_filter=hf_lines, has_a_filter=True, editable=True, sortable=True, filter_string="unit_price__icontains")
+            create(HeaderFilterItem, hfi_pref + 'is_paid',          order=4, name='is_paid',          title=_(u'Is paid'),         type=HFI_FIELD,    header_filter=hf_lines, has_a_filter=True, editable=True, sortable=True, filter_string="is_paid__icontains")
+            if include_type:
+                create(HeaderFilterItem, hfi_pref + 'get_verbose_type', order=5, name='get_verbose_type', title=_(u'Line type'),       type=HFI_FUNCTION, header_filter=hf_lines, has_a_filter=True, editable=True, sortable=False)
+
+        create_hf_lines('billing-hg_lines', 'billing-hfi_line_', _(u"Lines view"), Line)
+        create_hf_lines('billing-hg_product_lines', 'billing-hfi_product_line_', _(u"Product lines view"), ProductLine, include_type=False)
+        create_hf_lines('billing-hg_service_lines', 'billing-hfi_service_line_', _(u"Service lines view"), ServiceLine, include_type=False)
 
         for model in (Invoice, CreditNote, Quote, SalesOrder):
             SearchConfigItem.create(model, ['name', 'number', 'status__name'])

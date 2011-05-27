@@ -134,7 +134,11 @@ def get_listview_columns_header(context):
             elif item_value:
                 widget_ctx['value'] = item_value[0]
         elif item_type == HFI_FUNCTION:
-            if item_value:
+            function_field = model.function_fields.get(item.name)#can function_field be None ?
+            choices = function_field.choices
+            if choices is not None:
+                _build_select_search_widget(widget_ctx, item_value, choices)
+            elif item_value:
                 widget_ctx['value'] = item_value[0]
         elif item_type == HFI_RELATION:
             if item_value:
