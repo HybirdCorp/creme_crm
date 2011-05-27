@@ -239,12 +239,12 @@ class HeaderFilterItem(Model):  #CremeModel ???
 _hfi_action = HeaderFilterItem(order=0, name='entity_actions', title=_(u'Actions'), type=HFI_ACTIONS, has_a_filter=False, editable=False, is_hidden=False)
 
 
-def delete_relationtype_hfi(sender, instance, **kwargs):
+def _delete_relationtype_hfi(sender, instance, **kwargs):
     #NB: None: because with symmetric relation_type FK is cleaned
     HeaderFilterItem.objects.filter(type=HFI_RELATION, relation_predicat=None).delete()
 
-def delete_customfield_hfi(sender, instance, **kwargs):
+def _delete_customfield_hfi(sender, instance, **kwargs):
     HeaderFilterItem.objects.filter(type=HFI_CUSTOM, name=instance.id).delete()
 
-pre_delete.connect(delete_relationtype_hfi, sender=RelationType)
-pre_delete.connect(delete_customfield_hfi,  sender=CustomField)
+pre_delete.connect(_delete_relationtype_hfi, sender=RelationType)
+pre_delete.connect(_delete_customfield_hfi,  sender=CustomField)
