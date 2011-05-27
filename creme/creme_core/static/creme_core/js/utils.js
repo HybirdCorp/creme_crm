@@ -587,6 +587,16 @@ creme.utils.postNReload = function(url, reload_url) {
             });
 }
 
+creme.utils.submitNReload = function(form, reload_url, options) {
+    var defaults = {
+        'success': function(data, status) {
+          creme.utils.loadBlock(reload_url);
+        }
+    }
+    options = $.extend(defaults, options);
+    creme.ajax.submit(form, true, options);
+}
+
 creme.utils.handleResearch = function(url, target_node_id, scope) {
     var _data = {};
     $(scope.targets).each(function() {
