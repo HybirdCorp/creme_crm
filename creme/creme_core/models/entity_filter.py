@@ -24,13 +24,14 @@ from itertools import ifilter
 from django.db.models import Model, CharField, TextField, PositiveSmallIntegerField, BooleanField, ForeignKey, Q
 from django.db import models
 from django.db.models.fields import FieldDoesNotExist
+from django.db.models.signals import pre_delete
 from django.core.exceptions import ValidationError
 from django.utils.translation import ugettext_lazy as _, ugettext
 from django.utils.simplejson import loads as jsonloads, dumps as jsondumps
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.auth.models import User
 
-from creme_core.models import CustomField
+from creme_core.models import CustomField, RelationType
 from creme_core.utils.meta import is_date_field, get_model_field_infos
 from creme_core.utils.date_range import date_range_registry
 
@@ -645,3 +646,18 @@ class EntityFilterCondition(Model):
                 changed = True
 
         return changed
+
+
+def _delete_relationtype_efc(sender, instance, **kwargs):
+    EntityFilterCondition.objects.filter(type__in=(EntityFilterCondition.EFC_RELATION,
+                                                   EntityFilterCondition.EFC_RELATION_SUBFILTER
+                                                  ),
+                                         name=instance.id
+                                        )\
+                                 .delete()
+
+def _delete_customfield_efc(sender, instance, **kwargs):
+    EntityFilterCondition.objects.filter(type=EntityFilterCondition.EFC_CUSTOMFIELD, name=instance.id).delete()
+
+pre_delete.connect(_delete_relationtype_efc, sender=RelationType)
+pre_delete.connect(_delete_customfield_efc,  sender=CustomField)

@@ -1885,6 +1885,19 @@ class EntityFiltersTestCase(CremeTestCase):
 
         self.assertExpectedFiltered(efilter, Contact, [])
 
+    def test_relations05(self): #RelationType is deleted
+        loves = self._aux_test_relations()
+
+        efilter = EntityFilter.create(pk='test-filter01', name='Filter 01', model=Contact)
+        build = EntityFilterCondition.build_4_relation
+        efilter.set_conditions([build(rtype=loves,      has=True, entity=self.contacts[4]),
+                                build(rtype=self.loved, has=True, ct=self.contact_ct),
+                                build(rtype=self.hates, has=True),
+                               ])
+
+        loves.delete()
+        self.assertEqual([self.hates.id], [cond.name for cond in efilter.conditions.all()])
+
     def test_relations_subfilter01(self):
         loves = self._aux_test_relations()
         in_love = [self.contacts[7].id, self.contacts[9].id]
@@ -1934,6 +1947,25 @@ class EntityFiltersTestCase(CremeTestCase):
         efilter01 = EntityFilter.objects.get(pk=efilter01.pk) #refresh
         self.assertRaises(EntityFilter.CycleError, efilter01.check_cycle, conds)
         self.assertRaises(EntityFilter.CycleError, efilter01.set_conditions, conds)
+
+    def test_relations_subfilter04(self): #RelationType is deleted
+        loves = self._aux_test_relations()
+        build_4_field = EntityFilterCondition.build_4_field
+
+        sub_efilter01 = EntityFilter.create(pk='test-filter01', name='Filter Rei', model=Contact)
+        sub_efilter01.set_conditions([build_4_field(model=Contact, operator=EntityFilterCondition.STARTSWITH, name='last_name',  values=['Ayanami'])])
+
+        sub_efilter02 = EntityFilter.create(pk='test-filter02', name='Filter Rei', model=Contact)
+        sub_efilter02.set_conditions([build_4_field(model=Contact, operator=EntityFilterCondition.STARTSWITH, name='first_name',  values=['Misa'])])
+
+        efilter = EntityFilter.create(pk='test-filter03', name='Filter Rei lovers', model=Contact)
+        build = EntityFilterCondition.build_4_relation_subfilter
+        efilter.set_conditions([build(rtype=loves,      has=True, subfilter=sub_efilter01),
+                                build(rtype=self.hates, has=True, subfilter=sub_efilter02),
+                               ])
+
+        loves.delete()
+        self.assertEqual([self.hates.id], [cond.name for cond in efilter.conditions.all()])
 
     def test_date01(self): # GTE operator
         efilter = EntityFilter.create('test-filter01', 'After 2000-1-1', Contact)
@@ -2133,6 +2165,21 @@ class EntityFiltersTestCase(CremeTestCase):
                                                                          )
                                ])
         self.assertExpectedFiltered(efilter, Contact, [rei.id])
+
+    def test_customfield08(self): #CustomField is deleted
+        rei = self.contacts[4]
+
+        custom_field01 = CustomField.objects.create(name='Size (cm)', content_type=self.contact_ct, field_type=CustomField.INT)
+        custom_field02 = CustomField.objects.create(name='IQ',        content_type=self.contact_ct, field_type=CustomField.INT)
+
+        efilter = EntityFilter.create('test-filter01', name='Small', model=Contact)
+        build = EntityFilterCondition.build_4_customfield
+        efilter.set_conditions([build(custom_field=custom_field01, operator=EntityFilterCondition.LTE, value=155),
+                                build(custom_field=custom_field02, operator=EntityFilterCondition.LTE, value=155),
+                               ])
+
+        custom_field01.delete()
+        self.assertEqual([unicode(custom_field02.id)], [cond.name for cond in efilter.conditions.all()])
 
     def test_build_customfield(self): #errors
         custom_field = CustomField.objects.create(name='size (cm)', content_type=self.contact_ct, field_type=CustomField.INT)
