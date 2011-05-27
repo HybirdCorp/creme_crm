@@ -116,7 +116,7 @@ class Populator(BasePopulator):
         hf   = HeaderFilter.create(pk='persons-hf_organisation', name=_(u'Organisation view'), model=Organisation)
         pref = 'persons-hfi_organisation_'
         create(HeaderFilterItem, pref + 'name',  order=1, name='name',           title=_(u'Name'),            type=HFI_FIELD,    header_filter=hf, has_a_filter=True, editable=True, filter_string="name__icontains")
-        create(HeaderFilterItem, pref + 'phone', order=2, name='phone',          title=_(u'Phone'),        type=HFI_FIELD,    header_filter=hf, has_a_filter=True, editable=True, filter_string="phone__icontains")
+        create(HeaderFilterItem, pref + 'phone', order=2, name='phone',          title=_(u'Phone'),           type=HFI_FIELD,    header_filter=hf, has_a_filter=True, editable=True, filter_string="phone__icontains")
         create(HeaderFilterItem, pref + 'user',  order=3, name='user__username', title=_(u'User - Username'), type=HFI_FIELD,    header_filter=hf, has_a_filter=True, editable=True, filter_string="user__username__icontains")
         create(HeaderFilterItem, pref + 'resp',  order=4, name='managed_by',     title=_(u'Managed by'),      type=HFI_RELATION, header_filter=hf, has_a_filter=True, editable=False, filter_string="", relation_predicat_id=REL_OBJ_MANAGES)
 
