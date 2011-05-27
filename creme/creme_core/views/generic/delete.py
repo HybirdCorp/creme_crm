@@ -21,7 +21,8 @@
 from collections import defaultdict
 from logging import debug
 
-from django.utils.translation import ugettext as _
+from django.core.exceptions import PermissionDenied
+from django.utils.translation import ugettext as _, ugettext
 from django.utils.encoding import smart_unicode
 from django.http import Http404, HttpResponse, HttpResponseRedirect
 from django.template.context import RequestContext
@@ -94,7 +95,16 @@ def delete_entity(request, entity_id, callback_url=None):
     if entity.get_delete_absolute_url() != CremeEntity.get_delete_absolute_url(entity):
         raise Http404(_(u'This model does not use the generic deletion view.'))
 
-    entity.can_delete_or_die(request.user)
+    if hasattr(entity, 'get_related_entity'):
+        related = entity.get_related_entity()
+        if related is None:
+            raise PermissionDenied(ugettext(u'You are not allowed to delete this entity: %s') % entity.allowed_unicode(request.user))
+
+        related.can_delete_or_die(request.user)
+        entity.relations.all().delete()
+        entity.properties.all().delete()
+    else:
+        entity.can_delete_or_die(request.user)
 
     if callback_url is None: #TODO: useful ??
         callback_url = entity.get_lv_absolute_url()

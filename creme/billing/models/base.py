@@ -30,7 +30,7 @@ from persons.models import Address
 from product_line import ProductLine
 from service_line import ServiceLine
 from algo import ConfigBillingAlgo
-from billing.constants import REL_SUB_BILL_ISSUED, REL_SUB_BILL_RECEIVED
+from billing.constants import REL_SUB_BILL_ISSUED, REL_SUB_BILL_RECEIVED, REL_SUB_HAS_LINE
 from billing.models.other_models import AdditionalInformation, PaymentTerms, PaymentInformation
 from billing.utils import round_to_2
 
@@ -120,7 +120,7 @@ class Base(CremeEntity):
     def product_lines(self):
         if self._productlines_cache is None:
              #force the retrieving all all lines (no slice)
-            self._productlines_cache = list(ProductLine.objects.filter(document=self.id)) #NB: 'document=self.id' instead of 'document=self' avoids a weird query
+            self._productlines_cache = list(ProductLine.objects.filter(relations__object_entity=self.id))
         else:
             debug('Cache HIT for product lines in document pk=%s !!' % self.id)
 
@@ -129,7 +129,7 @@ class Base(CremeEntity):
     @property
     def service_lines(self):
         if self._servicelines_cache is None:
-            self._servicelines_cache = list(ServiceLine.objects.filter(document=self.id))
+            self._servicelines_cache = list(ServiceLine.objects.filter(relations__object_entity=self.id))
         else:
             debug('Cache HIT for service lines in document pk=%s !!' % self.id)
 
@@ -137,7 +137,7 @@ class Base(CremeEntity):
 
     # Could replace get_x_lines()
     def get_lines(self, klass):
-        return klass.objects.filter(document=self)
+        return klass.objects.filter(relations__object_entity=self.id)
 
     def get_product_lines_total_price_exclusive_of_tax(self):
         return round_to_2(sum(l.get_price_exclusive_of_tax() for l in self.product_lines))
@@ -171,7 +171,7 @@ class Base(CremeEntity):
         self._build_object(template)
         self._build_lines(template, ProductLine)
         self._build_lines(template, ServiceLine)
-        self._build_relations( template)
+        self._build_relations(template)
         self._build_properties(template)
 
     def _build_object(self, template):
@@ -191,12 +191,12 @@ class Base(CremeEntity):
         debug("=> Clone lines")
         for line in template.get_lines(klass):
             cloned_line = line.clone()
-            cloned_line.document = self
-            cloned_line.save()
+            cloned_line.related_document = self
+#            cloned_line.save()
 
     def _build_relations(self, template):
         debug("=> Clone relations")
-        # TODO : method clones only actors relations of the base object...should clone all others...
+        # TODO : method clones only actors relations of the base object...should clone all others... (use self._copy_relations ?)
         get_relation = Relation.objects.get
         source = get_relation(subject_entity=template, type=REL_SUB_BILL_ISSUED).object_entity
         target = get_relation(subject_entity=template, type=REL_SUB_BILL_RECEIVED).object_entity
@@ -207,4 +207,4 @@ class Base(CremeEntity):
 
     def _build_properties(self, template):
         debug("=> Clone properties")
-        # TODO...
+        self._copy_properties(template)

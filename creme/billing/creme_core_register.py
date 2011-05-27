@@ -45,6 +45,9 @@ reg_item('/billing/quote/add',       _(u'Add a quote'),       'billing.add_quote
 reg_item('/billing/quotes',          _(u'All quotes'),        'billing')
 reg_item('/billing/credit_note/add', _(u'Add a credit note'), 'billing.add_creditnote')
 reg_item('/billing/credit_note',     _(u'All credit notes'),  'billing')
+reg_item('/billing/lines',           _(u'All lines'),         'billing')
+reg_item('/billing/product_lines',  _(u'All product lines'), 'billing')
+reg_item('/billing/service_lines',  _(u'All service lines'), 'billing')
 
 block_registry.register(product_lines_block, service_lines_block, total_block, target_block, received_invoices_block,
                         payment_information_block, billing_payment_information_block)

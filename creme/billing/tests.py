@@ -2,6 +2,7 @@
 
 from datetime import date, datetime, timedelta
 from decimal import Decimal
+from django.db.models.query_utils import Q
 
 from django.utils.translation import ugettext as _
 from django.contrib.contenttypes.models import ContentType
@@ -30,6 +31,10 @@ class BillingTestCase(CremeTestCase):
         self.assertEqual(1, RelationType.objects.filter(pk=REL_OBJ_BILL_ISSUED).count())
         self.assertEqual(1, RelationType.objects.filter(pk=REL_SUB_BILL_RECEIVED).count())
         self.assertEqual(1, RelationType.objects.filter(pk=REL_OBJ_BILL_RECEIVED).count())
+        self.assertEqual(1, RelationType.objects.filter(pk=REL_SUB_HAS_LINE).count())
+        self.assertEqual(1, RelationType.objects.filter(pk=REL_OBJ_HAS_LINE).count())
+        self.assertEqual(1, RelationType.objects.filter(pk=REL_SUB_LINE_RELATED_ITEM).count())
+        self.assertEqual(1, RelationType.objects.filter(pk=REL_OBJ_LINE_RELATED_ITEM).count())
 
         self.assertEqual(1, SalesOrderStatus.objects.filter(pk=1).count())
         self.assertEqual(2, InvoiceStatus.objects.filter(pk__in=(1, 2)).count())
@@ -297,7 +302,7 @@ class BillingTestCase(CremeTestCase):
         self.assertEqual(1, len(lines))
 
         line = lines[0]
-        self.assertEqual(product.id, line.related_item_id)
+        self.assertEqual(product.id, line.related_item.id)
         self.assertEqual(unit_price, line.unit_price)
 
         self.assertEqual(unit_price, invoice.get_total())
@@ -375,7 +380,7 @@ class BillingTestCase(CremeTestCase):
 
         line = lines[0]
         self.failIf(line.on_the_fly_item)
-        self.assertEqual(product.id, line.related_item_id)
+        self.assertEqual(product.id, line.related_item.id)
 
     def test_invoice_add_product_lines04(self): #on-the-fly + product creation + no creation creds
         self.login(is_superuser=False)
@@ -417,6 +422,33 @@ class BillingTestCase(CremeTestCase):
         self.failIf(invoice.product_lines)
         self.failIf(Product.objects.count())
 
+    def test_invoice_delete_product_line01(self):
+        self.login()
+        invoice  = self.create_invoice_n_orgas('Invoice001')[0]
+
+        self.failIf(len(invoice.product_lines))
+
+        product_line = ProductLine.objects.create(user=self.user)
+        product_line.related_document = invoice
+
+        response = self.client.post('/creme_core/entity/delete/%s' % product_line.id, data={}, follow=True)
+
+        self.assertEqual(200, response.status_code)
+        self.failIf(len(invoice.product_lines))
+        self.failIf(ProductLine.objects.count())
+
+    def test_invoice_delete_product_line02(self):
+        self.login()
+        invoice  = self.create_invoice_n_orgas('Invoice001')[0]
+
+        self.failIf(len(invoice.product_lines))
+
+        product_line = ProductLine.objects.create(user=self.user)
+
+        response = self.client.post('/creme_core/entity/delete/%s' % product_line.id, data={}, follow=True)
+
+        self.assertEqual(403, response.status_code)
+
     def test_invoice_edit_product_lines01(self):
 #        self.populate('creme_core', 'persons')
         self.login()
@@ -425,9 +457,10 @@ class BillingTestCase(CremeTestCase):
         unit_price = Decimal('42.0')
         quantity = 1
         invoice  = self.create_invoice_n_orgas('Invoice001')[0]
-        line = ProductLine.objects.create(on_the_fly_item=name, document=invoice, quantity=quantity,
+        line = ProductLine.objects.create(on_the_fly_item=name, quantity=quantity,
                                           unit_price=unit_price, is_paid=False, user=self.user,
                                          )
+        line.related_document = invoice
 
         url = '/billing/productline/%s/edit' % line.id
         self.assertEqual(200, self.client.get(url).status_code)
@@ -562,7 +595,7 @@ class BillingTestCase(CremeTestCase):
 
         line = lines[0]
         self.failIf(line.on_the_fly_item)
-        self.assertEqual(service.id, line.related_item_id)
+        self.assertEqual(service.id, line.related_item.id)
 
     def test_invoice_add_service_lines04(self): #on-the-fly + service creation + no creation creds
         self.login(is_superuser=False)
@@ -610,9 +643,10 @@ class BillingTestCase(CremeTestCase):
         unit_price = Decimal('42.0')
         quantity = 1
         invoice  = self.create_invoice_n_orgas('Invoice001')[0]
-        line = ServiceLine.objects.create(on_the_fly_item=name, document=invoice, quantity=quantity,
+        line = ServiceLine.objects.create(on_the_fly_item=name, quantity=quantity,
                                           unit_price=unit_price, is_paid=False, user=self.user,
                                          )
+        line.related_document = invoice
 
         url = '/billing/serviceline/%s/edit' % line.id
         self.assertEqual(200, self.client.get(url).status_code)
@@ -750,8 +784,6 @@ class BillingTestCase(CremeTestCase):
         self.assertEqual(1, rel_filter(subject_entity=invoice, type=REL_SUB_BILL_ISSUED,   object_entity=source).count())
         self.assertEqual(1, rel_filter(subject_entity=invoice, type=REL_SUB_BILL_RECEIVED, object_entity=target).count())
 
-        #TODO: test with lines
-
     def test_convert02(self): #SalesOrder + not superuser
         self.login(is_superuser=False, allowed_apps=['billing', 'persons'])
 
@@ -808,6 +840,77 @@ class BillingTestCase(CremeTestCase):
 
         self.assertEqual(403, self.client.post('/billing/%s/convert/' % quote.id, data={'type': 'invoice'}).status_code)
         self.assertEqual(0, Invoice.objects.count())
+
+    def test_convert05(self):#Quote to Invoice with lines
+        self.login()
+        self.populate('products')
+
+        quote, source, target = self.create_quote_n_orgas('My Quote')
+
+        product_line_otf = ProductLine.objects.create(user=self.user, on_the_fly_item="otf1", unit_price=Decimal("1"))
+        product_line_otf.related_document = quote
+
+        product_line     = ProductLine.objects.create(user=self.user, unit_price=Decimal("2"))
+        product = Product.objects.create(user=self.user, code=1, unit_price=Decimal("3"), category=Category.objects.all()[0], sub_category=SubCategory.objects.all()[0], name=u"Product 1")
+        product_line.related_document = quote
+        product_line.related_item     = product
+
+        service_line_otf = ServiceLine.objects.create(user=self.user, on_the_fly_item="otf2", unit_price=Decimal("4"))
+        service_line_otf.related_document = quote
+
+        service_line = ServiceLine.objects.create(user=self.user, unit_price=Decimal("5"))
+        service = Service.objects.create(user=self.user, unit_price=Decimal("6"), category=Category.objects.all()[0], sub_category=SubCategory.objects.all()[0], name=u"Service 1")
+        service_line.related_document = quote
+        service_line.related_item     = service
+
+        quote.save()#To set total_vat...
+
+        quote_property = CremeProperty.objects.create(creme_entity=quote, type=CremePropertyType.objects.all()[0])
+
+        self.assertEqual(2, quote.get_lines(ServiceLine).count())
+        self.assertEqual(2, quote.get_lines(ProductLine).count())
+
+        self.failIf(Invoice.objects.count())
+
+        response = self.client.post('/billing/%s/convert/' % quote.id,
+                                    data={'type': 'invoice'}, follow=True
+                                   )
+        self.assertEqual(200, response.status_code)
+
+        invoices = Invoice.objects.all()
+        self.assertEqual(1, len(invoices))
+
+        invoice = invoices[0]
+
+        self.assertEqual(2, invoice.get_lines(ServiceLine).count())
+        self.assertEqual(2, invoice.get_lines(ProductLine).count())
+
+        q_otf_item = Q(on_the_fly_item=None)
+
+        invoice_service_line     = invoice.get_lines(ServiceLine).get(q_otf_item)#Should be with the related_item
+        invoice_service_line_otf = invoice.get_lines(ServiceLine).get(~q_otf_item)
+
+        self.assertEqual(service_line.related_item,     invoice_service_line.related_item)
+        self.assertEqual(service_line_otf.related_item, invoice_service_line_otf.related_item)
+
+        invoice_product_line     = invoice.get_lines(ProductLine).get(q_otf_item)#Should be with the related_item
+        invoice_product_line_otf = invoice.get_lines(ProductLine).get(~q_otf_item)
+
+        self.assertEqual(product_line.related_item,     invoice_product_line.related_item)
+        self.assertEqual(product_line_otf.related_item, invoice_product_line_otf.related_item)
+
+        self.assertEqual(quote.issuing_date,    invoice.issuing_date)
+        self.assertEqual(quote.expiration_date, invoice.expiration_date)
+        self.assertEqual(quote.discount,        invoice.discount)
+        self.assertEqual(quote.total_no_vat,    invoice.total_no_vat)
+        self.assertEqual(quote.total_vat,       invoice.total_vat)
+
+        rel_filter = Relation.objects.filter
+        self.assertEqual(1, rel_filter(subject_entity=invoice, type=REL_SUB_BILL_ISSUED,   object_entity=source).count())
+        self.assertEqual(1, rel_filter(subject_entity=invoice, type=REL_SUB_BILL_RECEIVED, object_entity=target).count())
+
+        self.assertEqual(1, invoice.properties.count())
+        self.assertEqual(quote_property.type, invoice.properties.all()[0].type)
 
 
     def test_add_payment_info01(self):
@@ -1028,7 +1131,241 @@ class BillingTestCase(CremeTestCase):
 
         self.assertEqual(target, invoice.get_target().get_real_entity())
 
+    def test_product_lines_property01(self):
+        self.login()
+        invoice, source, target = self.create_invoice_n_orgas('Invoice001')
+        self.assertEqual(None, invoice._productlines_cache)
+        self.assertEqual(0,    len(invoice.product_lines))
 
-#TODO: add tests for other billing document (Quote, SalesOrder, CreditNote)
+        product_line = ProductLine.objects.create(user=self.user)
+
+        relation=Relation.objects.create(subject_entity=invoice, object_entity=product_line, type_id=REL_SUB_HAS_LINE, user=self.user)
+
+        self.assertEqual(1,                          len(invoice.product_lines))
+        self.assertEqual(product_line,               invoice.product_lines[0])
+        self.assertEqual(set(invoice.product_lines), set(invoice._productlines_cache))
+
+        relation.delete()
+        product_line.delete() #NB: The right way should be to delete only the ProductLine but with CanNotBeDeleted...
+
+        self.assertEqual(None, invoice._productlines_cache)
+        self.assertEqual(0,    len(invoice.product_lines))
+
+    def test_product_lines_property02(self):
+        self.login()
+        invoice, source, target = self.create_invoice_n_orgas('Invoice001')
+        self.assertEqual(None, invoice._productlines_cache)
+        self.assertEqual(0,    len(invoice.product_lines))
+
+        product_line = ProductLine.objects.create(user=self.user)
+        service_line = ServiceLine.objects.create(user=self.user)
+
+        pl_rel=Relation.objects.create(subject_entity=invoice, object_entity=product_line, type_id=REL_SUB_HAS_LINE, user=self.user)
+        sl_rel=Relation.objects.create(subject_entity=invoice, object_entity=service_line, type_id=REL_SUB_HAS_LINE, user=self.user)
+
+        self.assertEqual(1,            len(invoice.product_lines))
+        self.assertEqual(product_line, invoice.product_lines[0])
+
+    def test_service_lines_property01(self):
+        self.login()
+        invoice, source, target = self.create_invoice_n_orgas('Invoice001')
+        self.assertEqual(None, invoice._servicelines_cache)
+        self.assertEqual(0,    len(invoice.service_lines))
+
+        service_line = ServiceLine.objects.create(user=self.user)
+
+        relation=Relation.objects.create(subject_entity=invoice, object_entity=service_line, type_id=REL_SUB_HAS_LINE, user=self.user)
+
+        self.assertEqual(1,                          len(invoice.service_lines))
+        self.assertEqual(service_line,               invoice.service_lines[0])
+        self.assertEqual(set(invoice.service_lines), set(invoice._servicelines_cache))
+
+        relation.delete()
+        service_line.delete() #NB: The right way should be to delete only the ProductLine but with CanNotBeDeleted...
+
+        self.assertEqual(None, invoice._servicelines_cache)
+        self.assertEqual(0,    len(invoice.service_lines))
+
+    def test_service_lines_property02(self):
+        self.login()
+        invoice, source, target = self.create_invoice_n_orgas('Invoice001')
+        self.assertEqual(None, invoice._servicelines_cache)
+        self.assertEqual(0,    len(invoice.service_lines))
+
+        product_line = ProductLine.objects.create(user=self.user)
+        service_line = ServiceLine.objects.create(user=self.user)
+
+        pl_rel=Relation.objects.create(subject_entity=invoice, object_entity=product_line, type_id=REL_SUB_HAS_LINE, user=self.user)
+        sl_rel=Relation.objects.create(subject_entity=invoice, object_entity=service_line, type_id=REL_SUB_HAS_LINE, user=self.user)
+
+        self.assertEqual(1,            len(invoice.service_lines))
+        self.assertEqual(service_line, invoice.service_lines[0])
+
+    def test_get_lines01(self):
+        self.login()
+        invoice, source, target = self.create_invoice_n_orgas('Invoice001')
+
+        self.assertEqual(0, len(invoice.get_lines(Line)))
+
+        product_line = ProductLine.objects.create(user=self.user)
+        service_line = ServiceLine.objects.create(user=self.user)
+
+        pl_rel=Relation.objects.create(subject_entity=invoice, object_entity=product_line, type_id=REL_SUB_HAS_LINE, user=self.user)
+        sl_rel=Relation.objects.create(subject_entity=invoice, object_entity=service_line, type_id=REL_SUB_HAS_LINE, user=self.user)
+
+        self.assertEqual(2, len(invoice.get_lines(Line)))
+        self.assertEqual(set([product_line.id, service_line.id]), set(invoice.get_lines(Line).values_list('pk', flat=True)))
+
+        self.assertEqual(1, len(invoice.get_lines(ProductLine)))
+        self.assertEqual(1, len(invoice.get_lines(ServiceLine)))
+
+    def test_total_vat01(self):
+        self.login()
+        invoice, source, target = self.create_invoice_n_orgas('Invoice001')
+
+        product_line = ProductLine.objects.create(user=self.user, quantity=3, unit_price=Decimal("5"))
+        service_line = ServiceLine.objects.create(user=self.user, quantity=9, unit_price=Decimal("10"))
+
+        self.assertEqual(0, invoice.get_total_with_tax())
+
+        pl_rel=Relation.objects.create(subject_entity=invoice, object_entity=product_line, type_id=REL_SUB_HAS_LINE, user=self.user)
+
+        self.assertEqual(product_line.get_price_inclusive_of_tax(), invoice.get_total_with_tax())
+
+        sl_rel=Relation.objects.create(subject_entity=invoice, object_entity=service_line, type_id=REL_SUB_HAS_LINE, user=self.user)
+
+        self.assertEqual(product_line.get_price_inclusive_of_tax() + service_line.get_price_inclusive_of_tax(), invoice.get_total_with_tax())
+
+    def test_line_related_document01(self):
+        self.login()
+        invoice, source, target = self.create_invoice_n_orgas('Invoice001')
+
+        product_line = ProductLine.objects.create(user=self.user)
+        pl_rel=Relation.objects.create(subject_entity=invoice, object_entity=product_line, type_id=REL_SUB_HAS_LINE, user=self.user)
+
+        self.assertEqual(invoice.pk, product_line.related_document.id)
+
+        #Tries for testing there is only one relation created between product_line and invoice
+        pl_rel2=Relation.objects.create(subject_entity=invoice, object_entity=product_line, type_id=REL_SUB_HAS_LINE, user=self.user)
+        pl_rel3=Relation.objects.create(subject_entity=invoice, object_entity=product_line, type_id=REL_SUB_HAS_LINE, user=self.user)
+
+        self.assertEqual(1, Relation.objects.filter(subject_entity=invoice, object_entity=product_line, type=REL_SUB_HAS_LINE).count())
+
+    def test_line_related_document02(self):
+        self.login()
+        invoice, source, target = self.create_invoice_n_orgas('Invoice001')
+
+        product_line = ProductLine.objects.create(user=self.user)
+
+        self.assertEqual(None, product_line.related_document)
+        self.assertEqual(0, Relation.objects.filter(subject_entity=invoice, object_entity=product_line, type=REL_SUB_HAS_LINE).count())
+
+        product_line.related_document = invoice
+
+        self.assertEqual(invoice, product_line.related_document)
+        self.assertEqual(1, Relation.objects.filter(subject_entity=invoice, object_entity=product_line, type=REL_SUB_HAS_LINE).count())
+
+    def test_line_related_item01(self):
+        self.login()
+        self.populate('products')
+
+        import creme_core
+        creme_core.autodiscover()#To connect signals
+
+        product = Product.objects.create(user=self.user, code=1, unit_price=Decimal("1"), category=Category.objects.all()[0], sub_category=SubCategory.objects.all()[0])
+
+        product_line = ProductLine.objects.create(user=self.user)
+
+        self.assertEqual(None, product_line.related_item)
+
+        pl_rel=Relation.objects.create(object_entity=product, subject_entity=product_line, type_id=REL_SUB_LINE_RELATED_ITEM, user=self.user)
+
+        self.assertEqual(product.pk, product_line.related_item.id)
+
+        #Tries for testing there is only one relation created between product_line and product
+        pl_rel2=Relation.objects.create(object_entity=product, subject_entity=product_line, type_id=REL_SUB_LINE_RELATED_ITEM, user=self.user)
+        pl_rel3=Relation.objects.create(object_entity=product, subject_entity=product_line, type_id=REL_SUB_LINE_RELATED_ITEM, user=self.user)
+
+        self.assertEqual(1, Relation.objects.filter(object_entity=product, subject_entity=product_line, type=REL_SUB_LINE_RELATED_ITEM).count())
+
+    def test_line_related_item02(self):
+        self.login()
+        self.populate('products')
+
+        import creme_core
+        creme_core.autodiscover()#To connect signals
+
+        product = Product.objects.create(user=self.user, code=1, unit_price=Decimal("1"), category=Category.objects.all()[0], sub_category=SubCategory.objects.all()[0])
+
+        product_line = ProductLine.objects.create(user=self.user)
+
+        self.assertEqual(None, product_line.related_item)
+        self.assertEqual(0, Relation.objects.filter(object_entity=product, subject_entity=product_line, type=REL_SUB_LINE_RELATED_ITEM).count())
+
+        product_line.related_item = product
+        self.assertEqual(product, product_line.related_item)
+        self.assertEqual(1, Relation.objects.filter(object_entity=product, subject_entity=product_line, type=REL_SUB_LINE_RELATED_ITEM).count())
+
+    def test_product_line_clone01(self):
+        self.login()
+        self.populate('products')
+
+        import creme_core
+        creme_core.autodiscover()#To connect signals
+
+        product = Product.objects.create(user=self.user, code=1, unit_price=Decimal("1"), category=Category.objects.all()[0], sub_category=SubCategory.objects.all()[0], name=u"Product 1")
+        invoice, source, target = self.create_invoice_n_orgas('Invoice001')
+
+        product2 = Product.objects.create(user=self.user, code=1, unit_price=Decimal("1"), category=Category.objects.all()[0], sub_category=SubCategory.objects.all()[0], name=u"Product 2")
+        invoice2, source2, target2 = self.create_invoice_n_orgas('Invoice002')
+
+        product_line = ProductLine.objects.create(user=self.user)
+        product_line.related_document = invoice
+        product_line.related_item     = product
+
+        product_line2 = product_line.clone()
+        product_line2.related_document = invoice2
+        product_line2.related_item     = product2
+
+        product_line2 = ProductLine.objects.get(pk=product_line2.id)#Refresh
+        self.assertEqual(invoice2, product_line2.related_document)
+        self.assertEqual(product2, product_line2.related_item)
+
+        self.assertEqual(set([product_line2.pk]), set(Relation.objects.filter(type=REL_SUB_HAS_LINE, subject_entity=invoice2).values_list('object_entity', flat=True)))
+        self.assertEqual(set([product_line2.pk]), set(Relation.objects.filter(type=REL_SUB_LINE_RELATED_ITEM, object_entity=product2).values_list('subject_entity', flat=True)))
+
+    def test_service_line_clone01(self):
+        self.login()
+        self.populate('products')
+
+        import creme_core
+        creme_core.autodiscover()#To connect signals
+
+        service = Service.objects.create(user=self.user, unit_price=Decimal("1"), category=Category.objects.all()[0], sub_category=SubCategory.objects.all()[0], name=u"Service 1")
+        invoice, source, target = self.create_invoice_n_orgas('Invoice001')
+
+        service2 = Service.objects.create(user=self.user, unit_price=Decimal("1"), category=Category.objects.all()[0], sub_category=SubCategory.objects.all()[0], name=u"Service 2")
+        invoice2, source2, target2 = self.create_invoice_n_orgas('Invoice002')
+
+        service_line = ServiceLine.objects.create(user=self.user)
+        service_line.related_document = invoice
+        service_line.related_item     = service
+
+        service_line2 = service_line.clone()
+        service_line2.related_document = invoice2
+        service_line2.related_item     = service2
+
+        service_line2 = ServiceLine.objects.get(pk=service_line2.id)#Refresh
+        self.assertEqual(invoice2, service_line2.related_document)
+        self.assertEqual(service2, service_line2.related_item)
+
+        self.assertEqual(set([service_line2.pk]), set(Relation.objects.filter(type=REL_SUB_HAS_LINE, subject_entity=invoice2).values_list('object_entity', flat=True)))
+        self.assertEqual(set([service_line2.pk]), set(Relation.objects.filter(type=REL_SUB_LINE_RELATED_ITEM, object_entity=service2).values_list('subject_entity', flat=True)))
+
+
+#        rel_filter = Relation.objects.filter
+#        self.assertEqual(1, rel_filter(subject_entity=invoice, type=REL_SUB_BILL_ISSUED,   object_entity=source).count())
+
+#TODO: add tests for other billing document (Quote, SalesOrder, CreditNote), clone on all of this (with Lines)
 
 
