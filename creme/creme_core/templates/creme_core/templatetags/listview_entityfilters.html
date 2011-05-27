@@ -6,9 +6,12 @@
         creme.utils.ajaxDelete('/creme_core/entity_filter/delete',
                                {'id': efilter_id},
                                {
+                                   //TODO: do not overload complete but error & success ???
                                    complete: function(req, status) {
                                        if(status != 'error') {
                                             $(a).parents('form').list_view('reload');
+                                       } else {
+                                            creme.utils.loading('loading', true); //hide reloading window
                                        }
                                    }
                                });
