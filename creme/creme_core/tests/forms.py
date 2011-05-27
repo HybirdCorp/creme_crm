@@ -4,6 +4,7 @@ from sys import exc_info
 from traceback import format_exception
 
 from django.forms.util import ValidationError
+from django.utils.simplejson import loads as jsonloads
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 
@@ -1211,6 +1212,50 @@ class RelationsConditionsFieldTestCase(FieldTestCase):
         self.assertEqual(self.rtype01.id,                     condition.name)
         self.assertEqual({'has': True, 'entity_id': naru.id}, condition.decoded_value)
 
+    def test_ok04(self): #wanted ct + wanted entity
+        self.login()
+
+        ct = ContentType.objects.get_for_model(Contact)
+        naru = Contact.objects.create(user=self.user, first_name='Naru', last_name='Narusegawa')
+        field = RelationsConditionsField(model=Contact)
+        conditions = field.clean('[{"rtype": "%(rtype01)s", "has": true,  "ctype": "%(ct)s", "entity": null},'
+                                 ' {"rtype": "%(rtype02)s", "has": false, "ctype": "%(ct)s", "entity":"%(entity)s"}]' % {
+                                        'rtype01': self.rtype01.id,
+                                        'rtype02': self.rtype02.id,
+                                        'ct':      ct.id,
+                                        'entity':  naru.id,
+                                    }
+                                )
+        self.assertEqual(2, len(conditions))
+
+        condition = conditions[0]
+        self.assertEqual(EntityFilterCondition.EFC_RELATION, condition.type)
+        self.assertEqual(self.rtype01.id,                    condition.name)
+        self.assertEqual({'has': True, 'ct_id': ct.id},      condition.decoded_value)
+
+        condition = conditions[1]
+        self.assertEqual(EntityFilterCondition.EFC_RELATION,   condition.type)
+        self.assertEqual(self.rtype02.id,                      condition.name)
+        self.assertEqual({'has': False, 'entity_id': naru.id}, condition.decoded_value)
+
+    def test_ok05(self): #wanted entity is deleted
+        self.login()
+
+        naru  = Contact.objects.create(user=self.user, first_name='Naru', last_name='Narusegawa')
+        efilter = EntityFilter.create(pk='test-filter01', name='Filter 01', model=Contact)
+        efilter.set_conditions([EntityFilterCondition.build_4_relation(rtype=self.rtype01, has=True, entity=naru)])
+        field = RelationsConditionsField(model=Contact)
+
+        jsondict = {"entity": naru.id, "has": "true", "ctype": 0, "rtype": self.rtype01.id}
+        self.assertEqual([jsondict], jsonloads(field.from_python(list(efilter.conditions.all()))))
+
+        try:
+            naru.delete()
+        except Exception, e:
+            self.fail('Problem with entity deletion:' + str(e))
+
+        jsondict["entity"] = None
+        self.assertEqual([jsondict], jsonloads(field.from_python(list(efilter.conditions.all()))))
 
 class RelationSubfiltersConditionsFieldTestCase(FieldTestCase):
     def setUp(self):
