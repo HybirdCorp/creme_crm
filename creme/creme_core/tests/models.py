@@ -9,6 +9,7 @@ from django.contrib.auth.models import User, Permission
 from django.contrib.contenttypes.models import ContentType
 
 from creme_core.models import *
+from creme_core.models.header_filter import *
 from creme_core.tests.base import CremeTestCase
 
 from persons.models import Contact, Organisation, Civility, Position, Sector, Address
@@ -1145,6 +1146,63 @@ class CredentialsTestCase(CremeTestCase):
     #TODO: don't write cred if equals to default creds ??????
 
 
+class HeaderFiltersTestCase(CremeTestCase):
+    def test_relation01(self): #delete RelationType
+        self.login()
+
+        loves, loved = RelationType.create(('test-subject_love', u'Is loving'), ('test-object_love',  u'Is loved by'))
+        hates, hated = RelationType.create(('test-subject_hate', u'Is hating'), ('test-object_hate',  u'Is hated by'))
+
+        #TODO: create helper methods like in EntityFilter/EntityFilterCondition
+        hf = HeaderFilter.create(pk='test-hf01', name=u'Contact view', model=Contact)
+        hfi01 = HeaderFilterItem.objects.create(pk='test-hfi_01', order=1, name='last_name',  title=u'Last name',
+                                                type=HFI_FIELD, header_filter=hf, filter_string="last_name__icontains"
+                                               )
+        hfi02 = HeaderFilterItem.objects.create(pk='test-hfi_02', order=2, name='is_loving', title=u'Loves',
+                                                type=HFI_RELATION, header_filter=hf, has_a_filter=True, editable=False,
+                                                filter_string="", relation_predicat_id=loves.id
+                                               )
+        hfi03 = HeaderFilterItem.objects.create(pk='test-hfi_03', order=2, name='is_loved_by', title=u'Loved',
+                                                type=HFI_RELATION, header_filter=hf, has_a_filter=True, editable=False,
+                                                filter_string="", relation_predicat_id=loved.id
+                                               )
+        hfi04 = HeaderFilterItem.objects.create(pk='test-hfi_04', order=3, name='is_hating', title=u'Hates',
+                                                type=HFI_RELATION, header_filter=hf, has_a_filter=True, editable=False,
+                                                filter_string="", relation_predicat_id=hates.id
+                                               )
+        self.assertEqual(4, hf.header_filter_items.count())
+
+        loves_id = loves.id
+        loves.delete()
+        self.assertEqual(0, RelationType.objects.filter(pk=loves_id).count())
+        self.assertEqual([hfi01.id, hfi04.id], [hfi.id for hfi in hf.header_filter_items.all()])
+
+    def test_customfield01(self): #delete CustomField
+        self.login()
+
+        contact_ct = ContentType.objects.get_for_model(Contact)
+        custom_field01 = CustomField.objects.create(name='Size (cm)', content_type=contact_ct, field_type=CustomField.INT)
+        custom_field02 = CustomField.objects.create(name='IQ',        content_type=contact_ct, field_type=CustomField.INT)
+
+        #TODO: create helper methods like in EntityFilter/EntityFilterCondition
+        hf = HeaderFilter.create(pk='test-hf01', name=u'Contact view', model=Contact)
+        hfi01 = HeaderFilterItem.objects.create(pk='test-hfi_01', order=1, name='last_name',  title=u'Last name',
+                                                type=HFI_FIELD, header_filter=hf, filter_string="last_name__icontains"
+                                               )
+        hfi02 = HeaderFilterItem.objects.create(pk='test-hfi_02', order=2, name=custom_field01.id, title=custom_field01.name,
+                                                type=HFI_CUSTOM, header_filter=hf,
+                                                filter_string="%s__value__icontains" % custom_field01.get_value_class().get_related_name()
+                                               )
+        hfi03 = HeaderFilterItem.objects.create(pk='test-hfi_03', order=3, name=custom_field02.id, title=custom_field02.name,
+                                                type=HFI_CUSTOM, header_filter=hf,
+                                                filter_string="%s__value__icontains" % custom_field02.get_value_class().get_related_name()
+                                               )
+        self.assertEqual(3, hf.header_filter_items.count())
+
+        custom_field01.delete()
+        self.assertEqual([hfi01.id, hfi03.id], [hfi.id for hfi in hf.header_filter_items.all()])
+
+
 class EntityFiltersTestCase(CremeTestCase):
     def setUp(self):
         self.login()
@@ -1762,8 +1820,8 @@ class EntityFiltersTestCase(CremeTestCase):
                                                      ('test-object_love',  u'Is loved by')
                                                     )
 
-        self.hates, self.hated = RelationType.create(('test-subject_love', u'Is hating'),
-                                                     ('test-object_love',  u'Is hated by')
+        self.hates, self.hated = RelationType.create(('test-subject_hate', u'Is hating'),
+                                                     ('test-object_hate',  u'Is hated by')
                                                     )
 
         bebop = Organisation.objects.create(user=self.user, name='Bebop')

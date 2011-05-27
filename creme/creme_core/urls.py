@@ -7,7 +7,7 @@ entity_patterns = patterns('creme_core.views', #TODO: move delete* to entity.py
     (r'^delete/(?P<entity_id>\d+)$',                        'generic.delete.delete_entity'),
     (r'^delete_related/(?P<ct_id>\d+)$',                    'generic.delete.delete_related_to_entity'),
 #    (r'^get_repr/(?P<entity_id>\d+)$',                      'entity.get_creme_entity_repr'),
-    (r'^get_repr/(?P<entities_ids>([\d]+[,]*)+)$',           'entity.get_creme_entities_repr'),
+    (r'^get_repr/(?P<entities_ids>([\d]+[,]*)+)$',          'entity.get_creme_entities_repr'),
     (r'^json$',                                             'entity.get_creme_entity_as_json'),
     (r'^search_n_view$',                                    'entity.search_and_view'),
     (r'^get_info_fields/(?P<ct_id>\d+)/json$',              'entity.get_info_fields'),
@@ -63,7 +63,6 @@ headerfilter_patterns = patterns('creme_core.views.header_filter',
     (r'^add/(?P<content_type_id>\d+)$',      'add'),
     (r'^delete',                             'delete'),
     (r'^edit/(?P<header_filter_id>[\w-]+)$', 'edit'),
-    #(r'^get_4_ct/(?P<content_type_id>\d+)$', 'get_hfs_4_ct'),
     (r'^get_for_ctype/(?P<ct_id>\d+)$',      'get_for_ctype'),
 )
 
@@ -74,7 +73,6 @@ creme_core_patterns = patterns('creme_core.views',
     (r'^blocks/reload/', include(blocks_patterns)),
     (r'^entity_filter/', include(entity_filter_patterns)),
     (r'^header_filter/', include(headerfilter_patterns)),
-
 
     (r'^clean/$', 'clean.clean'),
 
@@ -88,8 +86,6 @@ creme_core_patterns = patterns('creme_core.views',
     (r'^search$', 'search.search'),
 
     (r'^quickforms/(?P<ct_id>\d+)/(?P<count>\d)$', 'quick_forms.add'),
-
-
 )
 
 creme_core_patterns += patterns('creme_core.views.generic',

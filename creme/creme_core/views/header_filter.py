@@ -104,16 +104,6 @@ def delete(request):
 
     return HttpResponseRedirect(callback_url)
 
-#@login_required
-#def get_hfs_4_ct(request, content_type_id):
-    #"""@return A JSON list of the HeaderFilters for the given ContentType"""
-    #ct = get_ct_or_404(content_type_id)
-    #hfl = HeaderFilterList(ct)
-    #fields = request.GET.getlist('fields') or ('name', )
-
-    #data = serializers.serialize('json', hfl, fields=fields)
-    #return HttpResponse(data, mimetype="text/javascript")
-
 @login_required
 @jsonify
 def get_for_ctype(request, ct_id):
