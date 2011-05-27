@@ -544,10 +544,15 @@ class RelationsConditionsField(_ConditionsField):
     def _condition_to_dict(self, condition):
         value = condition.decoded_value
 
+        #TODO: regroup queries....
+        entity_id = value.get('entity_id')
+        if entity_id and not CremeEntity.objects.filter(pk=entity_id).exists():
+            entity_id = None
+
         return {'rtype':  condition.name,
                 'has':    boolean_str(value['has']),
                 'ctype':  value.get('ct_id', 0),
-                'entity': value.get('entity_id'),
+                'entity': entity_id,
                }
 
     #TODO: test with deleted entity ??
@@ -608,7 +613,9 @@ class RelationsConditionsField(_ConditionsField):
                 raise ValidationError(self.error_messages['invalidentity'])
 
             for kwargs in all_kwargs:
-                kwargs['entity'] = entities.get(kwargs['entity'])
+                entity_id = kwargs.get('entity')
+                if entity_id:
+                    kwargs['entity'] = entities.get(entity_id)
 
         build_condition = EntityFilterCondition.build_4_relation
 

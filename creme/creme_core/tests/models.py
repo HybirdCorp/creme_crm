@@ -1812,6 +1812,21 @@ class EntityFiltersTestCase(CremeTestCase):
         efilter.set_conditions([EntityFilterCondition.build_4_relation(rtype=loves, has=False, entity=rei)])
         self.assertExpectedFiltered(efilter, Contact, [c.id for c in self.contacts if c.id not in in_love])
 
+    def test_relations04(self): #wanted entity is deleted
+        loves = self._aux_test_relations()
+        rei = self.contacts[4]
+
+        efilter = EntityFilter.create(pk='test-filter01', name='Filter 01', model=Contact)
+        efilter.set_conditions([EntityFilterCondition.build_4_relation(rtype=loves, has=True, entity=rei)])
+
+        try:
+            Relation.objects.filter(object_entity=rei.id).delete()
+            rei.delete()
+        except Exception, e:
+            self.fail('Problem with entity deletion:' + str(e))
+
+        self.assertExpectedFiltered(efilter, Contact, [])
+
     def test_relations_subfilter01(self):
         loves = self._aux_test_relations()
         in_love = [self.contacts[7].id, self.contacts[9].id]

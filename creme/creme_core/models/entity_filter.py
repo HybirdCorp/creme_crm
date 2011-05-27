@@ -611,6 +611,7 @@ class EntityFilterCondition(Model):
 
     _GET_Q_FUNCS = {
             EFC_SUBFILTER:          (lambda self: EntityFilter.objects.get(id=self.name).get_q()),
+            EFC_FIELD:              _get_q_field,
             EFC_RELATION:           _get_q_relation,
             EFC_RELATION_SUBFILTER: _get_q_relation_subfilter,
             EFC_PROPERTY:           _get_q_property,
@@ -620,8 +621,7 @@ class EntityFilterCondition(Model):
         }
 
     def get_q(self):
-        func = EntityFilterCondition._GET_Q_FUNCS.get(self.type, EntityFilterCondition._get_q_field)
-        return func(self)
+        return EntityFilterCondition._GET_Q_FUNCS[self.type](self)
 
     def _get_subfilter_id(self):
         type = self.type
