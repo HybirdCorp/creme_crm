@@ -91,6 +91,9 @@ class EntityFilter(Model): #CremeModel ???
     class CycleError(Exception):
         pass
 
+    class DependenciesError(Exception):
+        pass
+
     def __unicode__(self):
         return self.name
 
@@ -137,6 +140,23 @@ class EntityFilter(Model): #CremeModel ???
         #TODO: use set_conditions() ???
 
         return ef
+
+    def delete(self):
+        pk = self.id
+        parents = set(unicode(cond.filter)
+                        for cond in EntityFilterCondition.objects.filter(type__in=(EntityFilterCondition.EFC_SUBFILTER,
+                                                                                   EntityFilterCondition.EFC_RELATION_SUBFILTER
+                                                                                  )
+                                                                        )
+                            if cond._get_subfilter_id() == pk
+                     )
+
+        if parents:
+            raise EntityFilter.DependenciesError(ugettext(u'You can not delete this filter, because it is used as subfilter by : %s') % \
+                                                    u', '.join(parents)
+                                                )
+
+        super(EntityFilter, self).delete()
 
     def filter(self, qs):
         #distinct is useful with condition on m2m that can retrieve several times the same Entity

@@ -90,15 +90,18 @@ def delete(request):
     efilter      = get_object_or_404(EntityFilter, pk=get_from_POST_or_404(request.POST, 'id'))
     callback_url = efilter.entity_type.model_class().get_lv_absolute_url()
     allowed, msg = efilter.can_edit_or_delete(request.user)
+    status = 400
 
     if allowed:
-        efilter.delete()
-
-        return_msg = _(u'Filter sucessfully deleted')
-        status = 200
+        try:
+            efilter.delete()
+        except EntityFilter.DependenciesError, e:
+            return_msg = unicode(e)
+        else:
+            return_msg = _(u'Filter sucessfully deleted')
+            status = 200
     else:
         return_msg = msg
-        status = 400
 
     if request.is_ajax():
         return HttpResponse(return_msg, mimetype="text/javascript", status=status)

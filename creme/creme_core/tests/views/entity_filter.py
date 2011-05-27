@@ -461,6 +461,30 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         self.client.post('/creme_core/entity_filter/delete', data={'id': efilter.id})
         self.failIf(EntityFilter.objects.filter(pk=efilter.id).count())
 
+    def test_delete07(self): #can not delete if used as subfilter
+        self.login()
+
+        efilter01 = EntityFilter.create('test-filter01', 'Filter01', Contact, is_custom=True)
+        efilter02 = EntityFilter.create('test-filter02', 'Filter02', Contact, is_custom=True)
+        efilter02.set_conditions([EntityFilterCondition.build_4_subfilter(efilter01)])
+
+        self.client.post('/creme_core/entity_filter/delete', data={'id': efilter01.id})
+        self.assert_(EntityFilter.objects.filter(pk=efilter01.id).exists())
+
+    def test_delete08(self): #can not delete if used as subfilter (for relations)
+        self.login()
+
+        rtype, srtype = RelationType.create(('test-subject_love', u'Is loving'),
+                                            ('test-object_love',  u'Is loved by')
+                                           )
+
+        efilter01 = EntityFilter.create('test-filter01', 'Filter01', Contact, is_custom=True)
+        efilter02 = EntityFilter.create('test-filter02', 'Filter02', Contact, is_custom=True)
+        efilter02.set_conditions([EntityFilterCondition.build_4_relation_subfilter(rtype=srtype, has=True, subfilter=efilter01)])
+
+        self.client.post('/creme_core/entity_filter/delete', data={'id': efilter01.id})
+        self.assert_(EntityFilter.objects.filter(pk=efilter01.id).exists())
+
     def test_get_content_types01(self):
         self.login()
 
