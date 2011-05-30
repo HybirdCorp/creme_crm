@@ -3,7 +3,7 @@ Carnet du développeur de modules Creme
 ======================================
 
 :Author: Guillaume Englert
-:Version: 11-04-2011 pour la version 0.11 de Creme
+:Version: 30-05-2011 pour la version 1.0 de Creme
 :Copyright: Hybird
 :License: GNU FREE DOCUMENTATION LICENSE version 1.3
 
@@ -68,7 +68,18 @@ Avant tout assurez vous d'avoir une instance de Creme fonctionnelle :
  - Configuration de votre SGBDR.
  - Configuration de votre serveur Web (le serveur de développement livré avec
    Django est un bon choix ici).
- - Configuration du fichier ``local_settings.py``.
+ - Configuration du fichier ``local_settings.py``. Pensez par exemple à ne pas
+   utiliser le système de cache des templates quand vous développez, afin de ne
+   pas avoir à relancer le serveur à chaque modification de template : ::
+
+    TEMPLATE_LOADERS = (
+        'django.template.loaders.filesystem.Loader',
+        'django.template.loaders.app_directories.Loader',
+    )
+
+Nous vous conseillons d'utiliser l'app `django extensions <https://github.com/django-extensions/django-extensions>`_
+qui apporte des commandes supplémentaires intéressantes (``runserver_plus``,
+``shell_plus``, ``clean_pyc``, ...)
 
 
 Création du répertoire parent
