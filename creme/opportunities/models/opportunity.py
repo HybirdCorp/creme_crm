@@ -121,17 +121,24 @@ class Opportunity(CremeEntity):
             self._use_lines = SettingValue.objects.get(key=SETTING_USE_LINES).value
         return self._use_lines
 
+    #TODO: factorise with billing ??
     @property
     def product_lines(self):
         if self._product_lines is None:
-            self._product_lines = ProductLine.objects.filter(document=self)
+            self._product_lines = list(ProductLine.objects.filter(relations__object_entity=self.id))
         return self._product_lines
 
+    #TODO: factorise with billing ??
     @property
     def service_lines(self):
         if self._service_lines is None:
-            self._service_lines = ServiceLine.objects.filter(document=self)
+            self._service_lines = list(ServiceLine.objects.filter(relations__object_entity=self.id))
         return self._service_lines
+
+    #TODO: factorise with billing ??
+    def invalidate_cache(self):
+        self._productlines_cache = None
+        self._servicelines_cache = None
 
     #TODO: factorise with billing ??
     def get_total(self):

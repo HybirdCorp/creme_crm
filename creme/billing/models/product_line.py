@@ -18,16 +18,15 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.db.models import ForeignKey
 from django.utils.translation import ugettext_lazy as _
 
-from products.models import Product
-
-from line import Line
+from line import Line, PRODUCT_LINE_TYPE
 
 
 class ProductLine(Line):
-    related_item = ForeignKey(Product, verbose_name=_(u'Related to product'), blank=True, null=True) #related_name='product_line_set'
+    def __init__(self, *args, **kwargs):
+        super(ProductLine, self).__init__(*args, **kwargs)
+        self.type = PRODUCT_LINE_TYPE
 
     class Meta:
         app_label = 'billing'
@@ -46,8 +45,3 @@ class ProductLine(Line):
             return ProductLineForm
         else:
             return ProductLineOnTheFlyForm
-
-    def clone(self):
-        pl = super(ProductLine, self).clone()
-        pl.related_item = self.related_item
-        return pl
