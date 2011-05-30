@@ -63,6 +63,6 @@ register_csv_form(Contact,      get_csv_form_builder)
 register_csv_form(Organisation, get_csv_form_builder)
 
 bulk_update_registry.register(
-    (Contact, ['is_user']),
-    (Organisation, ['siren']),
+    (Contact,      ['is_user', 'billing_address', 'shipping_address']),
+    (Organisation, ['siren', 'billing_address', 'shipping_address']),
 )
