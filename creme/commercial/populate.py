@@ -27,6 +27,8 @@ from creme_core.models.header_filter import HeaderFilterItem, HeaderFilter, HFI_
 from creme_core.utils import create_or_update as create
 from creme_core.management.commands.creme_populate import BasePopulator
 
+from persons.models import Contact
+
 from opportunities.models import Opportunity
 
 from commercial.models import *
@@ -36,7 +38,7 @@ from commercial.buttons import complete_goal_button
 
 
 class Populator(BasePopulator):
-    dependencies = ['creme.creme_core']
+    dependencies = ['creme.creme_core', 'creme.persons']
 
     def populate(self, *args, **kwargs):
         RelationType.create((REL_SUB_SOLD_BY,       _(u'has sold')),
@@ -46,7 +48,7 @@ class Populator(BasePopulator):
         RelationType.create((REL_SUB_COMPLETE_GOAL, _(u'completes a goal of the commercial action')),
                             (REL_OBJ_COMPLETE_GOAL, _(u'is completed thanks to'),              [Act]))
 
-        CremePropertyType.create(PROP_IS_A_SALESMAN, _(u'is a salesman'))
+        CremePropertyType.create(PROP_IS_A_SALESMAN, _(u'is a salesman'), [Contact])
 
         for i, title in enumerate((_('Phone calls'), _('Show'), _('Demo'))):
             create(ActType, i + 1, title=title, is_custom=False)

@@ -20,13 +20,17 @@ class CommercialTestCase(CremeTestCase):
     def setUp(self):
         self.populate('creme_core', 'persons', 'commercial')
 
-    def test_commercial01(self): #populate
-        try:
-            RelationType.objects.get(pk=REL_SUB_SOLD_BY)
-            RelationType.objects.get(pk=REL_OBJ_SOLD_BY)
-            CremePropertyType.objects.get(pk=PROP_IS_A_SALESMAN)
-        except Exception, e:
-            self.fail(str(e))
+    def test_populate(self):
+        self.populate('creme_core', 'persons', 'commercial')
+
+        self.get_relationtype_or_fail(REL_SUB_SOLD_BY)
+        self.get_relationtype_or_fail(REL_OBJ_SOLD_BY)
+        self.get_relationtype_or_fail(REL_SUB_OPPORT_LINKED, [Opportunity], [Act])
+        self.get_relationtype_or_fail(REL_SUB_COMPLETE_GOAL, [], [Act])
+
+        self.get_propertytype_or_fail(PROP_IS_A_SALESMAN, [Contact])
+
+        self.assertEqual(3, ActType.objects.count())
 
     def test_commapp01(self):
         self.login()
@@ -125,22 +129,6 @@ class CommercialTestCase(CremeTestCase):
         self.login()
         response = self.client.get('/commercial/')
         self.assertEqual(response.status_code, 200)
-
-    def test_populate(self):
-        self.populate('creme_core', 'persons', 'commercial')
-        self.assertEqual(3, ActType.objects.count())
-
-        rtypes = RelationType.objects.filter(pk=REL_SUB_OPPORT_LINKED)
-        self.assertEqual(1, len(rtypes))
-
-        rtype = rtypes[0]
-        get_ct = ContentType.objects.get_for_model
-        self.assertEqual([get_ct(Opportunity).id], [ct.id for ct in rtype.subject_ctypes.all()])
-        self.assertEqual([get_ct(Act).id],         [ct.id for ct in rtype.object_ctypes.all()])
-
-        rtypes = RelationType.objects.filter(pk=REL_SUB_COMPLETE_GOAL)
-        self.assertEqual(1, len(rtypes))
-        self.assertEqual([get_ct(Act).id], [ct.id for ct in rtypes[0].object_ctypes.all()])
 
 
 class LoggedTestCase(CremeTestCase):
