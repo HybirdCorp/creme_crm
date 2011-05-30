@@ -31,7 +31,7 @@ from media_managers.forms.widgets import ImageM2MWidget
 
 from products.models import Product, Category, SubCategory
 
-class ProductCategorySelector(ChainedInput):
+class ProductCategorySelector(ChainedInput):#TODO Rename to CategorySelector as its used for Service too
     def __init__(self, categories, attrs=None):
         super(ProductCategorySelector, self).__init__(attrs)
         attrs = {'auto': False}
@@ -40,7 +40,7 @@ class ProductCategorySelector(ChainedInput):
         self.add_dselect("subcategory", options='/products/sub_category/${category}/json', attrs=attrs)
 
 
-class ProductCategoryField(JSONField):
+class ProductCategoryField(JSONField):#TODO Rename to CategoryField as its used for Service too
     default_error_messages = {
         'doesnotexist' : _(u"This category doesn't exist."),
         'categorynotallowed' : _(u"This category cause constraint error."),

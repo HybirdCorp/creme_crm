@@ -18,16 +18,18 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.db.models import ForeignKey
+#from django.db.models import ForeignKey
 from django.utils.translation import ugettext_lazy as _
 
-from products.models import Service
+#from products.models import Service
 
-from line import Line
+from line import Line, SERVICE_LINE_TYPE
 
 
 class ServiceLine(Line):
-    related_item = ForeignKey(Service, verbose_name=_(u'Related to service'), blank=True, null=True)
+    def __init__(self, *args, **kwargs):
+        super(ServiceLine, self).__init__(*args, **kwargs)
+        self.type = SERVICE_LINE_TYPE
 
     class Meta:
         app_label = 'billing'
@@ -46,8 +48,3 @@ class ServiceLine(Line):
             return ServiceLineForm
         else:
             return ServiceLineOnTheFlyForm
-
-    def clone(self):
-        sl = super(ServiceLine, self).clone()
-        sl.related_item = self.related_item
-        return sl

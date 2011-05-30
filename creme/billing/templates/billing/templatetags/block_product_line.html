@@ -1,6 +1,7 @@
 {% extends 'billing/templatetags/line.html' %}
 {% load i18n %}
-{% load creme_core_tags %}{% load creme_block %}
+{% load media %}
+{% load creme_core_tags creme_block %}
 
 {% block header %}
     {% get_block_title _('%s related Product') _('%s related Products') 'product_48.png' _('Product') %}
@@ -10,6 +11,10 @@
     {% has_perm_to change object as has_perm %}
     {% get_line_adder at_url '/billing/{{object.id}}/product_line/add' with_label _("Add from an existing Product") with_perms has_perm %}
     {% get_line_adder at_url '/billing/{{object.id}}/product_line/add_on_the_fly' with_label _("Add a line on the fly") with_perms has_perm %}
+    <a class="list" onclick="creme.utils.showInnerPopup('/creme_core/lv_popup/{{ct_id}}/1?q_filter={{q_filter}}', {'send_button': false});">
+        <img src="{% media_url 'images/view_22.png' %}" border="0" title="{% trans "All related products" %}" alt="{% trans "All related products" %}" />
+        {% trans "List of related products" %}
+    </a>
 {% endblock %}
 
 {% block item_name %}{% trans "Product" %}{% endblock %}
