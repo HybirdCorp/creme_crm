@@ -11,9 +11,11 @@ from creme_core.tests.base import CremeTestCase
 
 from creme_config.models import SettingKey, SettingValue
 
-from persons.models import Organisation
+from persons.models import Organisation, Contact
 
-from billing.models import Quote
+from products.models import Product, Service
+
+from billing.models import Quote, SalesOrder, Invoice
 from billing.constants import REL_SUB_BILL_ISSUED, REL_SUB_BILL_RECEIVED
 
 from opportunities.models import *
@@ -29,35 +31,44 @@ class OpportunitiesTestCase(CremeTestCase):
         relation_types = dict((rtype.id, rtype) for rtype in RelationType.get_compatible_ones(ct))
 
         self.failIf(REL_SUB_TARGETS_ORGA in relation_types)
+        self.get_relationtype_or_fail(REL_SUB_TARGETS_ORGA, [Opportunity], [Contact, Organisation])
 
         self.assert_(REL_OBJ_LINKED_PRODUCT in relation_types)
         self.failIf(REL_SUB_LINKED_PRODUCT in relation_types)
+        self.get_relationtype_or_fail(REL_OBJ_LINKED_PRODUCT, [Opportunity], [Product])
 
         self.assert_(REL_OBJ_LINKED_SERVICE in relation_types)
         self.failIf(REL_SUB_LINKED_SERVICE in relation_types)
+        self.get_relationtype_or_fail(REL_OBJ_LINKED_SERVICE, [Opportunity], [Service])
 
         self.assert_(REL_OBJ_LINKED_CONTACT in relation_types)
         self.failIf(REL_SUB_LINKED_CONTACT in relation_types)
+        self.get_relationtype_or_fail(REL_OBJ_LINKED_CONTACT, [Opportunity], [Contact])
 
         self.assert_(REL_OBJ_LINKED_SALESORDER in relation_types)
         self.failIf(REL_SUB_LINKED_SALESORDER in relation_types)
+        self.get_relationtype_or_fail(REL_OBJ_LINKED_SALESORDER, [Opportunity], [SalesOrder])
 
         self.assert_(REL_OBJ_LINKED_INVOICE in relation_types)
         self.failIf(REL_SUB_LINKED_INVOICE in relation_types)
+        self.get_relationtype_or_fail(REL_OBJ_LINKED_INVOICE, [Opportunity], [Invoice])
 
         self.assert_(REL_OBJ_LINKED_QUOTE in relation_types)
         self.failIf(REL_SUB_LINKED_QUOTE in relation_types)
+        self.get_relationtype_or_fail(REL_OBJ_LINKED_QUOTE, [Opportunity], [Quote])
 
         self.assert_(REL_OBJ_RESPONSIBLE in relation_types)
         self.failIf(REL_SUB_RESPONSIBLE in relation_types)
+        self.get_relationtype_or_fail(REL_OBJ_RESPONSIBLE, [Opportunity], [Contact])
 
         self.assert_(REL_OBJ_EMIT_ORGA in relation_types)
         self.failIf(REL_SUB_EMIT_ORGA in relation_types)
+        self.get_relationtype_or_fail(REL_OBJ_EMIT_ORGA, [Opportunity], [Organisation])
 
         self.assert_(REL_SUB_RELATED_TO in relation_types)
         self.assert_(REL_OBJ_RELATED_TO in relation_types)
 
-        self.assert_(RelationType.objects.filter(pk=REL_SUB_CURRENT_DOC).exists())
+        self.get_relationtype_or_fail(REL_OBJ_CURRENT_DOC, [Opportunity], [Invoice, Quote, SalesOrder])
 
         self.assert_(SalesPhase.objects.exists())
         self.assert_(Origin.objects.exists())
