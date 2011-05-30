@@ -700,8 +700,8 @@ class BulkEditTestCase(ViewsTestCase):
         tmpfile.width = tmpfile.height = 0
         tmpfile._committed = True
 
-        unallowed = Image.objects.create(user=self.other_user, image=tmpfile)
-        allowed   = Image.objects.create(user=self.user, image=tmpfile)
+        unallowed = Image.objects.create(user=self.other_user, image=tmpfile, name='unallowed')
+        allowed   = Image.objects.create(user=self.user, image=tmpfile, name='allowed')
 
         url = self.url % (self.contact_ct.id, ",".join([str(mario.id), str(luigi.id)]))
         self.assertEqual(200, self.client.get(url).status_code)
