@@ -69,9 +69,9 @@ class Organisation(CremeEntity):
         verbose_name = _(u'Organisation')
         verbose_name_plural = _(u'Organisations')
 
-    def save(self, *args, **kwargs):
-        self.header_filter_search_field = self.name
-        super(Organisation, self).save(*args, **kwargs)
+    #def save(self, *args, **kwargs):
+        #self.header_filter_search_field = self.name
+        #super(Organisation, self).save(*args, **kwargs)
 
     def __unicode__(self):
         return self.name
