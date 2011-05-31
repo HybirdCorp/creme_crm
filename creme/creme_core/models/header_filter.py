@@ -39,6 +39,7 @@ HFI_FUNCTION   = 3
 HFI_CUSTOM     = 4
 HFI_CALCULATED = 5 #TODO: Used only in reports for the moment, integrate into HF?
 HFI_VOLATILE   = 6 #not saved in DB : added at runtime to implements tricky columnns ; see HeaderFilterItem.volatile_render
+HFI_RELATED    = 7 #Related entities (only allowed by the model) #TODO: Used only in reports for the moment, integrate into HF?
 
 
 class HeaderFilterList(list):

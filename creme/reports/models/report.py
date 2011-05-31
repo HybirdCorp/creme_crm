@@ -29,8 +29,8 @@ from django.utils.translation import ugettext_lazy as _
 from creme_core.models import CremeModel, CremeEntity, EntityFilter
 from creme_core.models.custom_field import CustomField, _TABLES
 from creme_core.utils.meta import (get_field_infos, get_model_field_infos,
-                                   filter_entities_on_ct, get_fk_entity, get_m2m_entities)
-from creme_core.models.header_filter import HFI_FUNCTION, HFI_RELATION, HFI_FIELD, HFI_CUSTOM, HFI_CALCULATED
+                                   filter_entities_on_ct, get_fk_entity, get_m2m_entities, get_related_field)
+from creme_core.models.header_filter import HFI_FUNCTION, HFI_RELATION, HFI_FIELD, HFI_CUSTOM, HFI_CALCULATED, HFI_RELATED
 
 from reports.report_aggregation_registry import field_aggregation_registry
 
@@ -60,7 +60,7 @@ class Field(CremeModel):
     name      = CharField(_(u'Name of the column'), max_length=100)
     title     = CharField(max_length=100)
     order     = PositiveIntegerField()
-    type      = PositiveSmallIntegerField() #==> {HFI_FIELD, HFI_RELATION, HFI_FUNCTION, HFI_CUSTOM, HFI_CALCULATED}#Add in choices ?
+    type      = PositiveSmallIntegerField() #==> {HFI_FIELD, HFI_RELATION, HFI_FUNCTION, HFI_CUSTOM, HFI_CALCULATED, HFI_RELATED}#Add in choices ?
     selected  = BooleanField(default=False) #use this field to expand
     report    = ForeignKey("Report", blank=True, null=True) #Sub report
 
@@ -271,6 +271,39 @@ class Field(CremeModel):
                 else:
                     return query.aggregate(aggregation.func(field_name)).get(column_name)
 
+        elif column_type == HFI_RELATED:
+            if entity is None and report and selected:
+                return FkClass([empty_value for c in report.columns.all()])#Only fk requires a multi-padding
+            if entity is None:
+                return empty_value
+
+            related_field    = get_related_field(entity.__class__, column_name)
+            accessor_name    = related_field.get_accessor_name()
+            related_entities = getattr(entity, accessor_name).all()
+
+            if report and selected:
+                res = []
+
+                for related_entity in related_entities:
+                    sub_res = []
+                    self._handle_report_values(sub_res, related_entity, user=user)
+                    res.append(sub_res)
+
+                if not related_entities:
+                    self._handle_report_values(res, user=user)
+                    res = [res]
+
+                return res
+
+            if selected:
+                if check_user:
+                    return [[related_entity.allowed_unicode(user)] for related_entity in related_entities]
+                return [[unicode(related_entity)] for related_entity in related_entities]
+
+            if check_user:
+                return ', '.join([related_entity.allowed_unicode(user) for related_entity in related_entities])
+            return ', '.join([unicode(related_entity) for related_entity in related_entities])
+
         return empty_value
 
     #TODO: why not this method return directly a _new_ list ??
@@ -452,3 +485,13 @@ class Report(CremeEntity):
             new_graph = graph.clone()
             new_graph.report = self
             new_graph.save()
+
+    @staticmethod
+    def get_related_fields_choices(model):
+        allowed_related_fields = model.allowed_related
+
+        related_fields = chain(model._meta.get_all_related_objects(), model._meta.get_all_related_many_to_many_objects())
+
+        return [(related_field.var_name, unicode(related_field.model._meta.verbose_name))
+                for related_field in related_fields
+                if related_field.var_name in allowed_related_fields]

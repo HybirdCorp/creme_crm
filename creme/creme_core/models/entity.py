@@ -62,6 +62,7 @@ class CremeEntity(CremeAbstractEntity):
     function_fields = CremeAbstractEntity.function_fields.new(_PrettyPropertiesField)
 
     _clone_excluded_fields = set(['created', 'modified'])
+    allowed_related        = set([]) #Currently used in reports (can be used elsewhere ?) to allow reporting on those related fields
 
     class Meta:
         app_label = 'creme_core'

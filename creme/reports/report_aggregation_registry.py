@@ -55,4 +55,3 @@ field_aggregation_registry.register('avg',   FieldAggregation('avg',   Avg,   '%
 field_aggregation_registry.register('min',   FieldAggregation('min',   Min,   '%s__min',   _(u'Minimum')))
 field_aggregation_registry.register('max',   FieldAggregation('max',   Max,   '%s__max',   _(u'Maximum')))
 field_aggregation_registry.register('sum',   FieldAggregation('sum',   Sum,   '%s__sum',   _(u'Sum')))
-#field_aggregation_registry.register('count', FieldAggregation('count', Count, '%s__count', _(u'Count')))#No sense !
