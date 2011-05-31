@@ -39,6 +39,7 @@ class Folder(CremeEntity):
     category      = ForeignKey(FolderCategory, verbose_name=_(u'Category'), blank=True, null=True, related_name='folder_category_set')
 
     research_fields = CremeEntity.research_fields + ['title', 'description', 'parent_folder__title', 'category__name']
+    allowed_related = CremeEntity.allowed_related | set(['document'])
 
     class Meta:
         app_label = 'documents'
