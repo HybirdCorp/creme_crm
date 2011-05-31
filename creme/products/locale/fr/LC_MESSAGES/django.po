@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-05-25 16:59+0200\n"
+"POT-Creation-Date: 2011-05-31 13:41+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -69,84 +69,140 @@ msgid "Reference"
 msgstr "Référence"
 
 #: populate.py:49
-msgid "Cooking"
-msgstr "Cuisine"
-
-#: populate.py:49
-msgid "Items for the kitchen"
-msgstr "Articles pour la cuisine"
+msgid "Jewelry"
+msgstr "Bijoux"
 
 #: populate.py:50
-msgid "Fruit/vegetables"
-msgstr "Primeurs"
-
-#: populate.py:50
-msgid "Early fruit and vegetables"
-msgstr "Fruits, légumes, ..."
+msgid "Ring"
+msgstr "Bague"
 
 #: populate.py:51
+msgid "Bracelet"
+msgstr "Bracelet"
+
+#: populate.py:52
+msgid "Necklace"
+msgstr "Collier"
+
+#: populate.py:53
+msgid "Earrings"
+msgstr "Boucles d'oreille"
+
+#: populate.py:55
+msgid "Mobile"
+msgstr "Mobile"
+
+#: populate.py:56
+msgid "Iphone"
+msgstr "Iphone"
+
+#: populate.py:57
+msgid "Blackberry"
+msgstr "Blackberry"
+
+#: populate.py:58
+msgid "Samsung"
+msgstr "Samsung"
+
+#: populate.py:59
+msgid "Android"
+msgstr "Android"
+
+#: populate.py:61
 msgid "Informatic"
 msgstr "Informatique"
 
-#: populate.py:51
-msgid "Geeks' sideline"
-msgstr "La gamme des geeks"
-
-#: populate.py:53
-msgid "Oven"
-msgstr "Four"
-
-#: populate.py:53
-msgid "Gas oven"
-msgstr "Four à gaz"
-
-#: populate.py:54
-msgid "Pans"
-msgstr "Casseroles"
-
-#: populate.py:54
-msgid "To cook"
-msgstr "Pour faire la cuisine"
-
-#: populate.py:55
+#: populate.py:62
 msgid "Laptops"
 msgstr "Portables"
 
-#: populate.py:55
-msgid "Laptops, netbooks"
-msgstr "Les PC portables"
-
-#: populate.py:56
+#: populate.py:63
 msgid "Desktops"
 msgstr "Bureau"
 
-#: populate.py:56
-msgid "Home computers"
-msgstr "Les PC de salon"
+#: populate.py:64
+msgid "Tablet"
+msgstr "Tablette"
 
-#: populate.py:57
-msgid "Accessories"
-msgstr "Accessoires"
+#: populate.py:65
+msgid "Notebook"
+msgstr "Netbook"
 
-#: populate.py:57
-msgid "Accessories for desktops/laptops"
-msgstr "Accessoires pour PC fixes/portables"
+#: populate.py:67
+msgid "Travels"
+msgstr "Voyages"
 
-#: populate.py:58
-msgid "Fruits"
-msgstr "Fruits"
+#: populate.py:68
+msgid "Fly"
+msgstr "Vol"
 
-#: populate.py:58
-msgid "Bananas, apples..."
-msgstr "Bananes, pommes..."
+#: populate.py:69
+msgid "Hotel"
+msgstr "Hôtel"
 
-#: populate.py:59
-msgid "Vegetables"
-msgstr "Légumes"
+#: populate.py:70
+msgid "Week-end"
+msgstr "Week-end"
 
-#: populate.py:59
-msgid "Carrots, potatoes..."
-msgstr "Carottes, patates..."
+#: populate.py:71
+msgid "Rent"
+msgstr "Location"
+
+#: populate.py:73
+msgid "Vehicle"
+msgstr "Véhicule"
+
+#: populate.py:74
+msgid "Car"
+msgstr "Voiture"
+
+#: populate.py:75
+msgid "Moto"
+msgstr "Moto"
+
+#: populate.py:76
+msgid "Boat"
+msgstr "Bateau"
+
+#: populate.py:77
+msgid "Plane"
+msgstr "Avion"
+
+#: populate.py:79
+msgid "Games & Toys"
+msgstr "Jeux & jouets"
+
+#: populate.py:80
+msgid "Boys"
+msgstr "Garçons"
+
+#: populate.py:81
+msgid "Girls"
+msgstr "Filles"
+
+#: populate.py:82
+msgid "Teens"
+msgstr "Adolescents"
+
+#: populate.py:83 populate.py:89
+msgid "Baybies"
+msgstr "Bébés"
+
+#: populate.py:85
+msgid "Clothes"
+msgstr "Vêtements"
+
+#: populate.py:86
+msgid "Men"
+msgstr "Hommes"
+
+#: populate.py:87
+msgid "Women"
+msgstr "Femmes"
+
+#: populate.py:88
+msgid "Kids"
+msgstr "Enfants"
 
 #: forms/product.py:45
 msgid "This category doesn't exist."
@@ -258,6 +314,57 @@ msgstr "Nombre de produit(s)"
 #: views/portal.py:36
 msgid "Number of services"
 msgstr "Nombre de service(s)"
+
+#~ msgid "Cooking"
+#~ msgstr "Cuisine"
+
+#~ msgid "Items for the kitchen"
+#~ msgstr "Articles pour la cuisine"
+
+#~ msgid "Fruit/vegetables"
+#~ msgstr "Primeurs"
+
+#~ msgid "Early fruit and vegetables"
+#~ msgstr "Fruits, légumes, ..."
+
+#~ msgid "Geeks' sideline"
+#~ msgstr "La gamme des geeks"
+
+#~ msgid "Oven"
+#~ msgstr "Four"
+
+#~ msgid "Gas oven"
+#~ msgstr "Four à gaz"
+
+#~ msgid "Pans"
+#~ msgstr "Casseroles"
+
+#~ msgid "To cook"
+#~ msgstr "Pour faire la cuisine"
+
+#~ msgid "Laptops, netbooks"
+#~ msgstr "Les PC portables"
+
+#~ msgid "Home computers"
+#~ msgstr "Les PC de salon"
+
+#~ msgid "Accessories"
+#~ msgstr "Accessoires"
+
+#~ msgid "Accessories for desktops/laptops"
+#~ msgstr "Accessoires pour PC fixes/portables"
+
+#~ msgid "Fruits"
+#~ msgstr "Fruits"
+
+#~ msgid "Bananas, apples..."
+#~ msgstr "Bananes, pommes..."
+
+#~ msgid "Vegetables"
+#~ msgstr "Légumes"
+
+#~ msgid "Carrots, potatoes..."
+#~ msgstr "Carottes, patates..."
 
 #~ msgid "Category 1"
 #~ msgstr "Catégorie 1"
