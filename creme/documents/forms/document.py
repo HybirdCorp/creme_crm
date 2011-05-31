@@ -64,26 +64,23 @@ class DocumentCreateViewForm(DocumentCreateForm):
         try:
             creme_folder = Folder.objects.get(title='Creme') #Unique title (created in populate.py)
             creme_folder_category = FolderCategory.objects.get(pk=DOCUMENTS_FROM_ENTITIES)
-            model_folder_kwargs = {'title': entity.entity_type, 'parent_folder': creme_folder, 'category': creme_folder_category}
+            model_folder_kwargs = {'title': unicode(entity.entity_type), 'parent_folder': creme_folder, 'category': creme_folder_category}
 
             try:
                 model_folder = Folder.objects.get(Q(**model_folder_kwargs))
             except Folder.DoesNotExist, e:
                 debug('Folder.DoesNotExist: %s', e)
-                model_folder = Folder(**model_folder_kwargs) #TODO: Folder.objects.create(user=user, **model_folder_kwargs)
-                model_folder.user = user
-                model_folder.save()
+                model_folder = Folder.objects.create(user=user, **model_folder_kwargs)
 
             try:
                 entity_folder = Folder.objects.get(title=u'%s_%s' % (entity.id, unicode(entity))) #beurkkk
             except Folder.DoesNotExist, e:
                 debug('Folder.DoesNotExist: %s', e)
-                entity_folder = Folder(title=u'%s_%s' % (entity.id, unicode(entity)),
-                                       parent_folder=model_folder,
-                                       category=creme_folder_category,
-                                       user=user
-                                      )
-                entity_folder.save() #TODO: use objects.create
+                entity_folder = Folder.objects.create(title=u'%s_%s' % (entity.id, unicode(entity)),
+                                                      parent_folder=model_folder,
+                                                      category=creme_folder_category,
+                                                      user=user
+                                                     )
         except (Folder.DoesNotExist, FolderCategory.DoesNotExist), e:
             debug("Populate.py had not been run ?! : %s", e)
             #TODO: continue !?

@@ -17,6 +17,7 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
+
 from random import randint
 import re
 
@@ -28,6 +29,7 @@ from creme_core.models.entity import EntityAction
 from creme_core.utils import truncate_str
 
 from other_models import FolderCategory
+
 
 MAXINT = 100000
 

@@ -20,7 +20,7 @@
 
 from django.db.models import CharField, TextField, FileField, ForeignKey
 from django.utils.translation import ugettext_lazy as _
-from django.utils.encoding import force_unicode
+#from django.utils.encoding import force_unicode
 from django.contrib.auth.models import User
 
 from creme_core.models import CremeEntity, Relation
@@ -43,7 +43,8 @@ class Document(CremeEntity):
         verbose_name_plural = _(u'Documents')
 
     def __unicode__(self):
-        return force_unicode(u'%s - %s' % (self.folder.title, self.title))
+        #return force_unicode(u'%s - %s' % (self.folder.title, self.title))
+        return u'%s - %s' % (self.folder, self.title)
 
     def get_absolute_url(self):
         return "/documents/document/%s" % self.id
