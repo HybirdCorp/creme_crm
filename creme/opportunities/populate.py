@@ -45,8 +45,8 @@ class Populator(BasePopulator):
     dependencies = ['creme.creme_core', 'creme.creme_config', 'creme.persons', 'creme.products', 'creme.billing']
 
     def populate(self, *args, **kwargs):
-        RelationType.create((REL_SUB_TARGETS_ORGA,      _(u'targets the organisation'),              [Opportunity]),
-                            (REL_OBJ_TARGETS_ORGA,      _(u"targeted by the opportunity")),
+        RelationType.create((REL_SUB_TARGETS_ORGA,      _(u'targets the organisation/contact'), [Opportunity]),
+                            (REL_OBJ_TARGETS_ORGA,      _(u"targeted by the opportunity"),      [Organisation, Contact]),
                             is_internal=True
                            )
         RelationType.create((REL_SUB_LINKED_PRODUCT,    _(u"is linked to the opportunity"),          [Product]),

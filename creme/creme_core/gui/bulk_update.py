@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2011  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -17,6 +17,7 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
+
 
 class BulkUpdateRegistry(object):
     def __init__(self):
@@ -37,7 +38,7 @@ class BulkUpdateRegistry(object):
 
     def _register(self, *fields_to_exclude):
         _excluded_fields_names = self._excluded_fields_names
-        
+
         for model, fields in fields_to_exclude:
             if _excluded_fields_names.has_key(model):
                 #warning("Fields of model <%s> registered twice", model)

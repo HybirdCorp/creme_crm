@@ -343,6 +343,7 @@ class CremeEntity(CremeAbstractEntity):
 
     def save(self, *args, **kwargs):
         created = bool(self.pk is None)
+        self.header_filter_search_field = self._search_field_value()
 
         super(CremeEntity, self).save(*args, **kwargs)
         debug('CremeEntity.save(%s, %s)', args, kwargs)
@@ -350,6 +351,10 @@ class CremeEntity(CremeAbstractEntity):
         #signal instead ??
         from auth import EntityCredentials
         EntityCredentials.create(self, created)
+
+    def _search_field_value(self):
+        """Overload this method if you want to customise the value to search on your CremeEntity type."""
+        return unicode(self)
 
     def _clone_custom_values(self, source):
         for custom_field in CustomField.objects.filter(content_type=source.entity_type_id):
@@ -364,7 +369,6 @@ class CremeEntity(CremeAbstractEntity):
                 elif hasattr(value, 'all'):
                     value = list(value.all())
                 CustomFieldValue.save_values_for_entities(custom_field, [self], value)
-
 
     def _pre_save_clone(self, source):
         """Called just before saving the entity which is already populated with source attributes (except m2m)"""
