@@ -19,6 +19,7 @@ from activities.models import *
 from activities.constants import *
 from activities.forms.activity import _check_activity_collisions
 
+from assistants.models import Alert
 
 class ActivitiesTestCase(CremeTestCase):
     def login(self, is_superuser=True):
@@ -205,6 +206,55 @@ class ActivitiesTestCase(CremeTestCase):
         self.assertEqual(1, count_relations(type_id=REL_SUB_PART_2_ACTIVITY,   subject_id=genma.id))
         self.assertEqual(1, count_relations(type_id=REL_SUB_ACTIVITY_SUBJECT,  subject_id=ranma.id))
         self.assertEqual(1, count_relations(type_id=REL_SUB_LINKED_2_ACTIVITY, subject_id=dojo.id))
+
+    def test_activity_createview04(self):#Alert generation
+        self.login()
+
+        user = self.user
+        self.assertEqual(200, self.client.get('/activities/activity/add/meeting').status_code)
+
+        title  = 'meeting01'
+        status = Status.objects.all()[0]
+        my_calendar = Calendar.get_user_default_calendar(self.user)
+        field_format = '[{"ctype":"%s", "entity":"%s"}]'
+        response = self.client.post('/activities/activity/add/meeting',
+                                    follow=True,
+                                    data={
+                                            'user':               user.pk,
+                                            'title':              title,
+                                            'status':             status.pk,
+                                            'start':              '2010-1-10',
+                                            'my_participation':   True,
+                                            'my_calendar':        my_calendar.pk,
+                                            'generate_alert':     True,
+                                            'alert_start_time':   '10:05',
+                                         }
+                                   )
+        self.assertNoFormError(response)
+        self.assertEqual(200, response.status_code)
+
+        try:
+            act  = Activity.objects.get(type=ACTIVITYTYPE_MEETING, title=title)
+            meeting = Meeting.objects.get(title=title)
+        except Exception, e:
+            self.fail(str(e))
+
+        self.assertEqual(act.id, meeting.id)
+        self.assertEqual(status.id, meeting.status_id)
+
+        start = meeting.start
+        self.assertEqual(2010, start.year)
+        self.assertEqual(1,    start.month)
+        self.assertEqual(10,   start.day)
+
+        try:
+            alert = Alert.objects.get(entity_id=meeting.id)
+        except Exception, e:
+            self.fail(str(e))
+
+        trigger_date = datetime(2010, 1, 10, 10, 05)
+        self.assertEqual(trigger_date, alert.trigger_date)
+
 
     def test_activity_createview_related01(self):
         self.login()
