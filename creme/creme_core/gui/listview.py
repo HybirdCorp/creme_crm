@@ -32,6 +32,9 @@ from django.shortcuts import get_object_or_404
 
 from creme_core.models import Relation, CustomField, CustomFieldEnumValue
 from creme_core.models.header_filter import HeaderFilterItem, HFI_FIELD, HFI_RELATION, HFI_CUSTOM, HFI_FUNCTION
+from creme_core.utils.date_range import CustomRange
+from creme_core.utils.dates import get_dt_from_str
+from creme_core.utils.meta import get_date_fields
 
 
 def simple_value(value):
@@ -42,25 +45,18 @@ def simple_value(value):
     return ''#TODO : Verify same semantic than "null" sql
 #    return value if value and not hasattr(value, '__iter__') else '' #TODO : Verify same semantic than "null" sql
 
-def range_value(value):
-    """
-        value have to be iterable
-        the iterable can contains :
-            - numbers
-            - datetime
-            - str values
-        In general iterable may have 2 values for use the sql's "BETWEEN" statement
-        works with more than 2 but the result won't be necessarily correct...
-    """
-    if hasattr(value, '__iter__'):
-        if len(value) == 1 or len(value) == 2:
-            for format in formats.get_format('DATETIME_INPUT_FORMATS'):
-                try:
-                    return (datetime(*time.strptime(value[0], format)[:6]), datetime(*time.strptime(value[-1], format)[:6]))
-                except ValueError:
-                    continue
-        return value
-    return []
+def get_range_q(name, value):
+    start = end = None
+    try:
+        start = get_dt_from_str(value[0]).date()
+    except (IndexError, AttributeError):
+        pass
+    try:
+        end = get_dt_from_str(value[1]).date()
+    except (IndexError, AttributeError):
+        pass
+
+    return Q(**CustomRange(start, end).get_q_dict(name, datetime.now()))
 
 def int_value(value):
     try:
@@ -92,7 +88,8 @@ QUERY_TERMS_FUNC = {
     'istartswith': simple_value,
     'endswith':    simple_value,
     'iendswith':   simple_value,
-    'range':       range_value,
+#    'range':       range_value,
+    'range':       simple_value,
     'year':        int_value,
     'month':       int_value,
     'day':         int_value,
@@ -211,9 +208,10 @@ class ListViewState(object):
                 if not REQUEST.has_key(name):
                     continue
 
-                filtered_attr = [smart_str(value.strip()) for value in REQUEST.getlist(name) or [REQUEST.get(name)] if value.strip()]
+#                filtered_attr = [smart_str(value.strip()) for value in REQUEST.getlist(name) or [REQUEST.get(name)] if value.strip()]
+                filtered_attr = [smart_str(value.strip()) for value in REQUEST.getlist(name)]
 
-                if filtered_attr:
+                if filtered_attr and any(filtered_attr):
                     list_session.append((name, hfi.pk, hfi.type, hfi.filter_string, filtered_attr)) #TODO: an object instead of a tuple ????
 
             self.research = list_session
@@ -222,15 +220,21 @@ class ListViewState(object):
 
     #TODO: move some parts of code to HeaderFilter ????
     #TODO: avoid query with a cache (HeaderFilterItem/CustomField/etc retrieved to build listview....)
+    #TODO: more object code
     def get_q_with_research(self, model):
         query = Q()
         cf_searches = defaultdict(list)
+
+        date_fields_names = [field.name for field in get_date_fields(model)]
 
         for item in self.research:
             name, pk_hf, type_, pattern, value = item
 
             if type_ == HFI_FIELD:
-                query &= Q(**{str(_map_patterns(pattern)): _get_value_for_query(pattern, value)})
+                if name in date_fields_names:#TODO: Hack for dates => refactor
+                    query &= get_range_q(name, value)
+                else:
+                    query &= Q(**{str(_map_patterns(pattern)): _get_value_for_query(pattern, value)})
             elif type_ == HFI_RELATION:
                 HF = get_object_or_404(HeaderFilterItem, pk=pk_hf)
                 rct = HF.relation_content_type #TODO: remove ?? (see header_filter)
