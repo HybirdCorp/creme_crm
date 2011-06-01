@@ -21,11 +21,14 @@
 from __future__ import division
 
 from logging import warning
-from datetime import datetime
+from datetime import datetime, timedelta
 from calendar import monthrange
 
 from django.utils.translation import ugettext_lazy as _
 
+
+_DAY_START = {'hour': 0,  'minute': 0,  'second': 0}
+_DAY_END   = {'hour': 23, 'minute': 59, 'second': 59}
 
 def get_month_last_day(year, month):
     return monthrange(year, month)[1]
@@ -37,8 +40,8 @@ def get_quarter_dates(year, quarter):
     """@param quarter 1 <= integer <= 4"""
     month = quarter * 3
 
-    return (datetime(year=year, month=month - 2, day=1,                               hour=0,  minute=0,  second=0),
-            datetime(year=year, month=month,     day=get_month_last_day(year, month), hour=23, minute=59, second=59)
+    return (datetime(year=year, month=month - 2, day=1,                               **_DAY_START),
+            datetime(year=year, month=month,     day=get_month_last_day(year, month), **_DAY_END)
            )
 
 
@@ -67,10 +70,10 @@ class DateRange(object):
 class CustomRange(DateRange):
     def __init__(self, start=None, end=None):
         if start and not isinstance(start, datetime):
-            start = datetime(year=start.year, month=start.month, day=start.day, hour=0, minute=0, second=0)
+            start = datetime(year=start.year, month=start.month, day=start.day, **_DAY_START)
 
         if end and not isinstance(end, datetime):
-            end = datetime(year=end.year, month=end.month, day=end.day, hour=23,  minute=59, second=59)
+            end = datetime(year=end.year, month=end.month, day=end.day, **_DAY_END)
 
         self._start = start
         self._end   = end
@@ -86,8 +89,8 @@ class PreviousYearRange(DateRange):
     @staticmethod
     def get_dates(now):
         year = now.year - 1
-        return (datetime(year=year, month=1,  day=1,  hour=0,  minute=0,   second=0),
-                datetime(year=year, month=12, day=31, hour=23, minute=59, second=59)
+        return (datetime(year=year, month=1,  day=1,  **_DAY_START),
+                datetime(year=year, month=12, day=31, **_DAY_END)
                )
 
 
@@ -98,8 +101,8 @@ class CurrentYearRange(DateRange):
     @staticmethod
     def get_dates(now):
         year = now.year
-        return (datetime(year=year, month=1,  day=1,  hour=0,  minute=0,   second=0),
-                datetime(year=year, month=12, day=31, hour=23, minute=59,  second=59)
+        return (datetime(year=year, month=1,  day=1,  **_DAY_START),
+                datetime(year=year, month=12, day=31, **_DAY_END)
                )
 
 
@@ -110,8 +113,8 @@ class NextYearRange(DateRange):
     @staticmethod
     def get_dates(now):
         year = now.year + 1
-        return (datetime(year=year, month=1,  day=1,  hour=0,  minute=0,  second=0),
-                datetime(year=year, month=12, day=31, hour=23, minute=59, second=59)
+        return (datetime(year=year, month=1,  day=1,  **_DAY_START),
+                datetime(year=year, month=12, day=31, **_DAY_END)
                )
 
 class PreviousMonthRange(DateRange):
@@ -122,12 +125,12 @@ class PreviousMonthRange(DateRange):
     def get_dates(now):
         if now.month == 1:
             year  = now.year - 1
-            start = now.replace(year=year, month=12, day=1,  hour=0,  minute=0,  second=0)
-            end   = now.replace(year=year, month=12, day=31, hour=23, minute=59, second=59)
+            start = now.replace(year=year, month=12, day=1,  **_DAY_START)
+            end   = now.replace(year=year, month=12, day=31, **_DAY_END)
         else:
             month = now.month - 1
-            start = now.replace(month=month, day=1,                                   hour=0,  minute=0,  second=0)
-            end   = now.replace(month=month, day=get_month_last_day(now.year, month), hour=23, minute=59, second=59)
+            start = now.replace(month=month, day=1,                                   **_DAY_START)
+            end   = now.replace(month=month, day=get_month_last_day(now.year, month), **_DAY_END)
 
         return (start, end)
 
@@ -138,8 +141,8 @@ class CurrentMonthRange(DateRange):
 
     @staticmethod
     def get_dates(now):
-        return (now.replace(day=1,                                       hour=0,  minute=0,  second=0),
-                now.replace(day=get_month_last_day(now.year, now.month), hour=23, minute=59, second=59)
+        return (now.replace(day=1,                                       **_DAY_START),
+                now.replace(day=get_month_last_day(now.year, now.month), **_DAY_END)
                )
 
 
@@ -151,12 +154,12 @@ class NextMonthRange(DateRange):
     def get_dates(now):
         if now.month == 12:
             year  = now.year + 1
-            start = now.replace(year=year, month=1, day=1,  hour=0,   minute=0,  second=0)
-            end   = now.replace(year=year, month=1, day=31, hour=23,  minute=59, second=59)
+            start = now.replace(year=year, month=1, day=1,  **_DAY_START)
+            end   = now.replace(year=year, month=1, day=31, **_DAY_END)
         else:
             month = now.month + 1
-            start = now.replace(month=month, day=1,                                   hour=0,  minute=0,   second=0)
-            end   = now.replace(month=month, day=get_month_last_day(now.year, month), hour=23, minute=59, second=59)
+            start = now.replace(month=month, day=1,                                   **_DAY_START)
+            end   = now.replace(month=month, day=get_month_last_day(now.year, month), **_DAY_END)
 
         return (start, end)
 
@@ -224,6 +227,41 @@ class PastRange(DateRange):
         return (None, now)
 
 
+class YesterdayRange(DateRange):
+    name = 'yesterday'
+    verbose_name = _(u'Yesterday')
+
+    @staticmethod
+    def get_dates(now):
+        yesterday = now - timedelta(days=1)
+        return (yesterday.replace(**_DAY_START),
+                yesterday.replace(**_DAY_END)
+               )
+
+
+class TodayRange(DateRange):
+    name = 'today'
+    verbose_name = _(u'Today')
+
+    @staticmethod
+    def get_dates(now):
+        return (now.replace(**_DAY_START),
+                now.replace(**_DAY_END)
+               )
+
+
+class TomorrowRange(DateRange):
+    name = 'tomorrow'
+    verbose_name = _(u'Tomorrow')
+
+    @staticmethod
+    def get_dates(now):
+        tomorrow = now + timedelta(days=1)
+        return (tomorrow.replace(**_DAY_START),
+                tomorrow.replace(**_DAY_END)
+               )
+
+
 class DateRangeRegistry(object):
     def __init__(self, *dranges):
         self._ranges = {}
@@ -263,4 +301,5 @@ date_range_registry = DateRangeRegistry(PreviousYearRange(), CurrentYearRange(),
                                         PreviousMonthRange(), CurrentMonthRange(), NextMonthRange(),
                                         PreviousQuarterRange(), CurrentQuarterRange(), NextQuarterRange(),
                                         FutureRange(), PastRange(),
+                                        YesterdayRange(), TodayRange(), TomorrowRange(),
                                        )

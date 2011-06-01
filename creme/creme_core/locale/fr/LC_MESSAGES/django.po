@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-05-27 17:51+0200\n"
+"POT-Creation-Date: 2011-06-01 15:01+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -476,6 +476,10 @@ msgstr "La date début doit être avant la date de fin."
 msgid "Customized"
 msgstr "Personnalisé"
 
+#: forms/fields.py:819
+msgid "Enter a whole number."
+msgstr ""
+
 #: forms/header_filter.py:47
 msgid "Functions"
 msgstr "Fonctions"
@@ -550,7 +554,7 @@ msgstr "Effacer"
 msgid "Now"
 msgstr "Maintenant"
 
-#: forms/widgets.py:502
+#: forms/widgets.py:502 utils/date_range.py:241
 msgid "Today"
 msgstr "Aujourd'hui"
 
@@ -611,7 +615,7 @@ msgstr "Voir"
 msgid "Change"
 msgstr "Modifier"
 
-#: models/auth.py:366 models/entity.py:270
+#: models/auth.py:366 models/entity.py:271
 #: templates/creme_core/templatetags/widgets/block_line_deletor.html:5
 #: templates/creme_core/templatetags/widgets/delete_button.html:5
 msgid "Delete"
@@ -785,42 +789,42 @@ msgstr "Liste de choix"
 msgid "List of choices (multi sélection)"
 msgstr "Liste de choix (multi sélection)"
 
-#: models/entity.py:85
+#: models/entity.py:86
 #, python-format
 msgid "Entity#%s can not be deleted because of its dependencies."
 msgstr "La fiche#%s ne peut être effacé à cause de ses dépendances."
 
-#: models/entity.py:110 views/entity.py:56
+#: models/entity.py:111 views/entity.py:56
 #, python-format
 msgid "Entity #%s (not viewable)"
 msgstr "Fiche #%s (non visible)"
 
-#: models/entity.py:117
+#: models/entity.py:118
 #, python-format
 msgid "You are not allowed to edit this entity: %s"
 msgstr "Vous n'êtes pas autorisé à modifier cette fiche: %s"
 
-#: models/entity.py:124 views/generic/delete.py:101
+#: models/entity.py:125 views/generic/delete.py:101
 #, python-format
 msgid "You are not allowed to delete this entity: %s"
 msgstr "Vous n'êtes pas autorisé à supprimer cette fiche: %s"
 
-#: models/entity.py:131
+#: models/entity.py:132
 #, python-format
 msgid "You are not allowed to link this entity: %s"
 msgstr "Vous n'êtes pas autorisé à relier cette fiche: %s"
 
-#: models/entity.py:138
+#: models/entity.py:139
 #, python-format
 msgid "You are not allowed to unlink this entity: %s"
 msgstr "Vous n'êtes pas autorisé à délier cette fiche: %s"
 
-#: models/entity.py:145
+#: models/entity.py:146
 #, python-format
 msgid "You are not allowed to view this entity: %s"
 msgstr "Vous n'êtes pas autorisé à voir cette fiche: %s"
 
-#: models/entity.py:263 templates/creme_core/detailview.html:59
+#: models/entity.py:264 templates/creme_core/detailview.html:59
 #: templates/creme_core/generics/blockform/edit.html:9
 #: templates/creme_core/generics/blockform/edit.html:16
 #: templates/creme_core/generics/form/edit.html:8
@@ -830,11 +834,11 @@ msgstr "Vous n'êtes pas autorisé à voir cette fiche: %s"
 msgid "Edit"
 msgstr "Éditer"
 
-#: models/entity.py:278
+#: models/entity.py:279
 msgid "See"
 msgstr "Voir"
 
-#: models/entity_filter.py:80 models/header_filter.py:76
+#: models/entity_filter.py:80 models/header_filter.py:77
 msgid "Owner"
 msgstr "Propriétaire"
 
@@ -854,7 +858,7 @@ msgstr "Filtres de fiche"
 msgid "This filter can't be edited/deleted"
 msgstr "Ce filtre ne peut être modifié/effacé"
 
-#: models/entity_filter.py:112 models/header_filter.py:108 views/entity.py:259
+#: models/entity_filter.py:112 models/header_filter.py:109 views/entity.py:259
 #: views/entity_filter.py:50 views/entity_filter.py:128
 #: views/header_filter.py:49 views/header_filter.py:113
 #: views/generic/listview.py:210
@@ -876,7 +880,9 @@ msgstr "Il y a un cycle avec un sous filtre."
 #: models/entity_filter.py:156
 #, python-format
 msgid "You can not delete this filter, because it is used as subfilter by : %s"
-msgstr "Vous ne pouvez pas supprimer ce filtre, car il est utilisé comme sous-filtre par : %s"
+msgstr ""
+"Vous ne pouvez pas supprimer ce filtre, car il est utilisé comme sous-filtre "
+"par : %s"
 
 #: models/entity_filter.py:347
 msgid "Equals"
@@ -966,19 +972,19 @@ msgstr "Est vide"
 msgid "Range"
 msgstr "Intervalle"
 
-#: models/header_filter.py:75
+#: models/header_filter.py:76
 msgid "Name of the view"
 msgstr "Nom de la vue"
 
-#: models/header_filter.py:99
+#: models/header_filter.py:100
 msgid "This view can't be edited/deleted"
 msgstr "Cette vue ne peut être modifiée/effacée"
 
-#: models/header_filter.py:116
+#: models/header_filter.py:117
 msgid "You are not allowed to edit/delete this view"
 msgstr "Vous n'êtes pas autorisé à modifier/supprimer cette vue"
 
-#: models/header_filter.py:239
+#: models/header_filter.py:240
 #: templates/creme_core/templatetags/listview_columns_header.html:57
 #: templates/creme_core/templatetags/widgets/entity_actions.html:18
 msgid "Actions"
@@ -1579,7 +1585,7 @@ msgstr "%s minute(s)"
 msgid "%s second(s)"
 msgstr "%s seconde(s)"
 
-#: tests/utils.py:276 utils/date_range.py:205
+#: tests/utils.py:276 utils/date_range.py:211
 msgid "In the future"
 msgstr "Dans le futur"
 
@@ -1595,45 +1601,53 @@ msgstr "Prénom"
 msgid "Last name"
 msgstr "Prénom"
 
-#: utils/date_range.py:78
+#: utils/date_range.py:84
 msgid "Previous year"
 msgstr "Année précédente"
 
-#: utils/date_range.py:90
+#: utils/date_range.py:96
 msgid "Current year"
 msgstr "Année courante"
 
-#: utils/date_range.py:102
+#: utils/date_range.py:108
 msgid "Next year"
 msgstr "Année suivante"
 
-#: utils/date_range.py:113
+#: utils/date_range.py:119
 msgid "Previous month"
 msgstr "Mois précédent"
 
-#: utils/date_range.py:131
+#: utils/date_range.py:137
 msgid "Current month"
 msgstr "Mois courant"
 
-#: utils/date_range.py:142
+#: utils/date_range.py:148
 msgid "Next month"
 msgstr "Mois suivant"
 
-#: utils/date_range.py:160
+#: utils/date_range.py:166
 msgid "Previous quarter"
 msgstr "Trimestre précédent"
 
-#: utils/date_range.py:178
+#: utils/date_range.py:184
 msgid "Current quarter"
 msgstr "Trimestre courant"
 
-#: utils/date_range.py:187
+#: utils/date_range.py:193
 msgid "Next quarter"
 msgstr "Trimestre suivant"
 
-#: utils/date_range.py:214
+#: utils/date_range.py:220
 msgid "In the past"
 msgstr "Dans le passé"
+
+#: utils/date_range.py:229
+msgid "Yesterday"
+msgstr "Hier"
+
+#: utils/date_range.py:252
+msgid "Tomorrow"
+msgstr "Demain"
 
 #: views/creme_property.py:67 views/relation.py:236
 msgid "Multiple adding of relations"
