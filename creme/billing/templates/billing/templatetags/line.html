@@ -48,7 +48,8 @@
                     <td class="{{row_color}}">
                         <form method="POST" action="/billing/line/{{line.id}}/update" id="updateStatus{{line.id}}">{% csrf_token %}
                             <input type="checkbox" name="paid" {% if line.is_paid %}checked{% endif %}>
-                            <a onclick="$('#updateStatus{{line.id}}').submit();">{# TODO: Ajax with block reload instead of the entire page ? #}
+{#                            <a onclick="$('#updateStatus{{line.id}}').submit();">{# TODO: Ajax with block reload instead of the entire page ? #}
+                            <a onclick="creme.utils.submitNReload($('#updateStatus{{line.id}}'), {% get_block_reload_uri %});">
                                 <img src="{% media_url 'images/refresh_16.png' %}" width="16" height="14" border="0">
                             </a>
                         </form>
@@ -56,7 +57,7 @@
                     <td class="{{row_color}}" align="center" valign="center" style="width:10%;">
                         {% block line_actions %}
                             {% has_perm_to change object as has_perm %}
-                            {% get_line_deletor at_url '/creme_core/entity/delete_related/{{ct_id}}' with_args "{'id': '{{line.id}}' }" with_perms has_perm %}
+                            {% get_line_deletor at_url '{{line.get_delete_absolute_url}}' with_args "{'id': '{{line.id}}' }" with_perms has_perm %}
                         {% endblock %}
                    </td>
                 </tr>

@@ -77,6 +77,22 @@
                                                     {% endif %}
                                             {% endif %}
                                         {% endif %}
+                                        {% if HFI_RELATED == column.type %}
+                                            {% if column.report %}
+                                                {% has_perm_to unlink column.report as unlink_sub_report_perm %}
+                                                {% if unlink_perm and unlink_sub_report_perm %}
+                                                    <a onclick="creme.reports.unlink_report('{{column.pk}}', '{{update_url}}');">{% trans 'Unlink the report' %}</a>
+                                                {% else %}
+                                                    <span class="forbidden">{% trans 'Unlink the report' %}</span>
+                                                {% endif %}
+                                            {% else %}
+                                                {% if link_perm %}
+                                                    <a onclick="creme.reports.link_related_report('{{object.id}}', '{{column.pk}}', {% get_block_reload_uri %});">{% trans 'Link a report' %}</a>
+                                                {% else %}
+                                                    <span class="forbidden">{% trans 'Link a report' %}</span>
+                                                {% endif %}
+                                            {% endif %}
+                                        {% endif %}
                                         {% if HFI_RELATION == column.type %}
                                             {% if column.report %}
                                                 {% has_perm_to unlink column.report as unlink_sub_report_perm %}
@@ -123,7 +139,7 @@
                             {% if column|is_field_is_linkable:object.ct and column.report %}
                                 <input {% if not has_perm %}disabled="true"{% endif %} type="checkbox" name="selected" onclick="creme.reports.setSelected(this, '{{object.id}}', '{{column.pk}}', '{{update_url}}?base_url={{base_url}}');" {% if column.selected %} checked {% endif %}/>
                             {% endif %}
-                        {% else %}{% if HFI_RELATION == column.type %}
+                        {% else %}{% if HFI_RELATION == column.type or HFI_RELATED == column.type %}
                             {# if column.report #}
                                 <input {% if not has_perm %}disabled="true"{% endif %} type="checkbox" name="selected" onclick="creme.reports.setSelected(this, '{{object.id}}', '{{column.pk}}', '{{update_url}}?base_url={{base_url}}');" {% if column.selected %} checked {% endif %}/>
                             {# endif #}

@@ -94,6 +94,17 @@ def get_function_field_verbose_name(model, function_name):
     if f_field:
         return unicode(f_field.verbose_name)
 
+def get_related_field_verbose_name(model, related_field_name):
+    """@returns the verbose name of the model of the related field or None"""
+    for related_field in model._meta.get_all_related_objects():
+        if related_field.var_name == related_field_name:
+            return unicode(related_field.model._meta.verbose_name)
+
+def get_related_field(model, related_field_name):
+    for related_field in model._meta.get_all_related_objects():
+        if related_field.var_name == related_field_name:
+            return related_field
+
 #TODO: rename......
 def get_flds_with_fk_flds(model_klass, deep=1):
     if not isinstance(model_klass, ModelBase):

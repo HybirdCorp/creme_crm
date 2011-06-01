@@ -21,16 +21,16 @@
 from decimal import Decimal
 
 from django.utils.translation import ugettext_lazy as _, ugettext
-from django.forms import  BooleanField, ModelChoiceField, ValidationError
+from django.forms import  BooleanField, ValidationError
 
-from creme_core.forms import CremeModelWithUserForm, FieldBlockManager
+from creme_core.forms import CremeEntityForm, FieldBlockManager
 from creme_core.forms.fields import CremeEntityField
 from creme_core.forms.widgets import ListViewWidget
 
-from products.models import Product, Service, ServiceCategory
+from products.models import Product, Service
 from products.forms.product import ProductCategoryField
 
-from billing.models import ProductLine, ServiceLine
+from billing.models import ProductLine, ServiceLine, PRODUCT_LINE_TYPE, SERVICE_LINE_TYPE
 from billing.constants import DEFAULT_VAT
 
 from creme import form_post_save #TODO: move in creme_core ??
@@ -39,7 +39,7 @@ from creme import form_post_save #TODO: move in creme_core ??
 default_decimal = Decimal()
 
 
-class LineForm(CremeModelWithUserForm):
+class LineForm(CremeEntityForm):
     blocks = FieldBlockManager(('general', _(u'Line information'), ['related_item', 'comment', 'quantity', 'unit_price',
                                                                     'discount', 'credit', 'total_discount', 'vat', 'user'])
                               )
@@ -49,14 +49,14 @@ class LineForm(CremeModelWithUserForm):
 
     def __init__(self, entity, *args, **kwargs):
         super(LineForm, self).__init__(*args, **kwargs)
-        self.document = entity
+        self._document = entity #NB: self.document is a related name
 
     def save(self):
         instance = self.instance
         created = not bool(instance.pk)
-        instance.document = self.document
         instance.is_paid = False
         super(LineForm, self).save()
+        instance.related_document = self._document
 
         form_post_save.send(sender=self.instance.__class__, instance=self.instance, created=created)
 
@@ -74,6 +74,18 @@ class ProductLineForm(LineForm):
     class Meta:
         model = ProductLine
         exclude = LineForm.Meta.exclude + ('on_the_fly_item',)
+
+    def __init__(self, entity, *args, **kwargs):
+        super(ProductLineForm, self).__init__(entity, *args, **kwargs)
+        self.instance.type = PRODUCT_LINE_TYPE
+        related_item = self.instance.related_item
+        if related_item is not None:
+            self.fields['related_item'].initial = related_item.id
+
+    def save(self):
+        instance = super(ProductLineForm, self).save()
+        instance.related_item = self.cleaned_data['related_item']
+        return instance
 
 
 class ProductLineOnTheFlyForm(LineForm):
@@ -94,6 +106,7 @@ class ProductLineOnTheFlyForm(LineForm):
 
     def __init__(self, *args, **kwargs):
         super(ProductLineOnTheFlyForm, self).__init__(*args, **kwargs)
+        self.instance.type = PRODUCT_LINE_TYPE
 
         if self.instance.pk is not None:
             self.blocks = FieldBlockManager(
@@ -144,7 +157,7 @@ class ProductLineOnTheFlyForm(LineForm):
                                              sub_category=sub_category,
                                             )
 
-            plcf = ProductLineForm(entity=self.document, user=self.user,
+            plcf = ProductLineForm(entity=self._document, user=self.user,
                                    data={
                                           'related_item':   '%s,' % product.pk,
                                           'quantity':       get_data('quantity', 0),
@@ -178,17 +191,29 @@ class ServiceLineForm(LineForm):
         model = ServiceLine
         exclude = LineForm.Meta.exclude + ('on_the_fly_item',)
 
+    def __init__(self, entity, *args, **kwargs):
+        super(ServiceLineForm, self).__init__(entity, *args, **kwargs)
+        self.instance.type = SERVICE_LINE_TYPE
+        related_item = self.instance.related_item
+        if related_item is not None:
+            self.fields['related_item'].initial = related_item.id
+
+    def save(self):
+        instance = super(ServiceLineForm, self).save()
+        instance.related_item = self.cleaned_data['related_item']
+        return instance
+
 
 class ServiceLineOnTheFlyForm(LineForm):
     has_to_register_as = BooleanField(label=_(u"Save as service ?"), required=False,
                                       help_text=_(u"Here you can save a on-the-fly Service as a true Service ; in this case, category is required."))
-    category           = ModelChoiceField(queryset=ServiceCategory.objects.all(), label=_(u'Service category'),
-                                          required=False)
+
+    sub_category = ProductCategoryField(label=_(u'Sub-category'), required=False)
 
     blocks = FieldBlockManager(
         ('general',     _(u'Line information'),    ['on_the_fly_item', 'comment', 'quantity', 'unit_price',
                                                     'discount', 'credit', 'total_discount', 'vat', 'user']),
-        ('additionnal', _(u'Additional features'), ['has_to_register_as','category'])
+        ('additionnal', _(u'Additional features'), ['has_to_register_as','sub_category'])
      )
 
     class Meta:
@@ -197,6 +222,7 @@ class ServiceLineOnTheFlyForm(LineForm):
 
     def __init__(self, *args, **kwargs):
         super(ServiceLineOnTheFlyForm, self).__init__(*args, **kwargs)
+        self.instance.type = SERVICE_LINE_TYPE
 
         if self.instance.pk is not None:
             #TODO: remove the block 'additionnal' instead ??
@@ -209,7 +235,7 @@ class ServiceLineOnTheFlyForm(LineForm):
             has_to_register_as = fields['has_to_register_as']
             has_to_register_as.help_text = ugettext(u'You are not allowed to create Services')
             has_to_register_as.widget.attrs = {'disabled': True}
-            fields['category'].widget.attrs = {'disabled': True}
+            fields['sub_category'].widget.attrs = {'disabled': True}
 
     def clean_has_to_register_as(self):
         create_service = self.cleaned_data.get('has_to_register_as', False)
@@ -221,10 +247,16 @@ class ServiceLineOnTheFlyForm(LineForm):
 
     def clean(self):
         cleaned_data = self.cleaned_data
-        get_data = cleaned_data.get
+        get_data     = cleaned_data.get
 
-        if get_data('has_to_register_as') and get_data('category') is None:
-            raise ValidationError(ugettext(u'Category is required if you want to save as a true service.'))
+        #TODO: use has_key() ??
+        if get_data('has_to_register_as'):
+            sub_category = get_data('sub_category')
+            if sub_category is None:
+                raise ValidationError(ugettext(u'Sub-category is required if you want to save as a true service.'))
+
+            if sub_category.category is None:
+                raise ValidationError(ugettext(u'Category is required if you want to save as a true service.'))
 
         return cleaned_data
 
@@ -232,14 +264,17 @@ class ServiceLineOnTheFlyForm(LineForm):
         get_data = self.cleaned_data.get
 
         if get_data('has_to_register_as'):
+            sub_category = get_data('sub_category')
+
             service = Service.objects.create(name=get_data('on_the_fly_item', ''),
                                              user=get_data('user'),
                                              reference='',
-                                             category=get_data('category'),
+                                             category=sub_category.category,
+                                             sub_category=sub_category,
                                              unit_price=get_data('unit_price', 0),
                                             )
 
-            slcf = ServiceLineForm(entity=self.document, user=self.user,
+            slcf = ServiceLineForm(entity=self._document, user=self.user,
                                    data={
                                           'related_item':   '%s,' % service.pk,
                                           'quantity':       get_data('quantity', 0),
