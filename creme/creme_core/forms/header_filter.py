@@ -138,6 +138,7 @@ class HeaderFilterForm(CremeModelForm):
                 field_infos = get_model_field_infos(model_klass, field)
                 field_obj   = field_infos[0]['field']
 
+                has_a_filter=True
                 pattern = "%s__icontains"
 
                 if isinstance(field_obj, models.ForeignKey) :
@@ -151,11 +152,14 @@ class HeaderFilterForm(CremeModelForm):
                     pattern = "%s__range"
                 elif isinstance(field_obj, models.BooleanField):
                     pattern = "%s__creme-boolean"
+                elif isinstance(field_obj, models.ManyToManyField) and field.find('__') == -1:
+#                    pattern = "%s__in"
+                    has_a_filter = False
 
                 items_2_save.append(HeaderFilterItem(name=field,
                                                      title=u" - ".join(unicode(field_info['field'].verbose_name) for field_info in field_infos),
                                                      type=HFI_FIELD,
-                                                     has_a_filter=True,
+                                                     has_a_filter=has_a_filter,
                                                      editable=True,
                                                      sortable=True,
                                                      filter_string=pattern % field))

@@ -288,7 +288,16 @@ if(!window.console) {
                     }
 
                     var $target = $(target);
-                    data[$target.attr('name')] = $target.val();
+//                    data[$target.attr('name')] = $target.val();
+
+                    if(typeof(data[$target.attr('name')]) == "undefined"){
+                        data[$target.attr('name')] = [$target.val()];
+                    }
+                    else if(data[$target.attr('name')].length > 0){
+                        var target_value = $target.val();
+                        if($.inArray(target_value, data[$target.attr('name')]) == -1)
+                            data[$target.attr('name')].push(target_value);
+                    }
 
                     if(typeof(data['page']) == "undefined") {
                         data['page'] = $(opts.user_page, self);
