@@ -22,7 +22,7 @@ from django.db.models.query_utils import Q
 from django.db.models.fields import FieldDoesNotExist
 from django.utils.translation import ugettext_lazy as _
 
-from creme_core.models.header_filter import HFI_FIELD, HFI_RELATION
+from creme_core.models.header_filter import HFI_FIELD, HFI_RELATION, HFI_RELATED
 from creme_core.gui.block import Block, QuerysetBlock, list4url
 from creme_core.models.block import InstanceBlockConfigItem
 from creme_core.models.relation import RelationType
@@ -43,7 +43,8 @@ class ReportFieldsBlock(Block):
         return self._render(self.get_block_template_context(context,
                                                             update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, object.pk),
                                                             HFI_FIELD=HFI_FIELD,
-                                                            HFI_RELATION=HFI_RELATION)
+                                                            HFI_RELATION=HFI_RELATION,
+                                                            HFI_RELATED=HFI_RELATED)
                             )
 
 class ReportGraphsBlock(QuerysetBlock):

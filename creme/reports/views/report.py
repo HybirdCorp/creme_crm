@@ -19,6 +19,7 @@
 ################################################################################
 
 from datetime import datetime
+from itertools import chain
 from logging import debug
 
 from django.http import Http404, HttpResponse
@@ -35,7 +36,7 @@ from creme_core.utils.date_range import date_range_registry
 
 from creme_core.views.generic import (add_entity, edit_entity, view_entity,
                                       list_view, inner_popup, add_to_entity)
-from creme_core.utils.meta import get_model_field_infos, get_flds_with_fk_flds, get_date_fields, is_date_field
+from creme_core.utils.meta import get_model_field_infos, get_flds_with_fk_flds, get_date_fields, is_date_field, get_related_field
 from creme_core.utils import get_ct_or_404, get_from_GET_or_404, get_from_POST_or_404, jsonify
 
 from reports.models import Report, Field
@@ -147,6 +148,21 @@ def link_relation_report(request, report_id, field_id, ct_id):
 
     return __link_report(request, report, field, ct)
 
+@login_required
+@permission_required('reports')
+def link_related_report(request, report_id, field_id):
+    field  = get_object_or_404(Field,  pk=field_id)
+    report = get_object_or_404(Report, pk=report_id)
+
+    if report.id not in field.report_columns_set.values_list('pk', flat=True):
+        return HttpResponse("", status=403, mimetype="text/javascript")
+
+    report_model = report.ct.model_class()
+    related_field = get_related_field(report_model, field.name)
+
+    ct = ContentType.objects.get_for_model(related_field.model)
+
+    return __link_report(request, report, field, ct)
 
 @login_required
 @permission_required('reports')
@@ -167,6 +183,9 @@ def change_field_order(request):
     report = get_object_or_404(Report, pk=get_from_POST_or_404(POST,'report_id'))
     field  = get_object_or_404(Field,  pk=get_from_POST_or_404(POST,'field_id'))
     direction = POST.get('direction', 'up')
+
+    if report.id not in field.report_columns_set.values_list('pk', flat=True):
+        return HttpResponse("", status=403, mimetype="text/javascript")
 
     report.can_change_or_die(request.user)
 
@@ -225,6 +244,9 @@ def set_selected(request):
     POST   = request.POST
     report = get_object_or_404(Report, pk=POST.get('report_id')) #TODO: use get_from_POST_or_404()
     field  = get_object_or_404(Field,  pk=POST.get('field_id'))
+
+    if report.id not in field.report_columns_set.values_list('pk', flat=True):
+        return HttpResponse("Forbidden", status=403, mimetype="text/javascript")
 
     report.can_change_or_die(request.user)
 
@@ -339,3 +361,11 @@ def get_predicates_choices_4_ct(request):
     ct = get_ct_or_404(get_from_POST_or_404(request.POST, 'ct_id'))
     predicates = [(rtype.id, rtype.predicate) for rtype in RelationType.get_compatible_ones(ct, include_internals=True).order_by('predicate')]
     return predicates
+
+@jsonify
+@login_required
+@permission_required('reports')
+def get_related_fields(request):
+    ct = get_ct_or_404(get_from_POST_or_404(request.POST, 'ct_id'))
+    return Report.get_related_fields_choices(ct.model_class())
+

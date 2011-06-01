@@ -46,7 +46,7 @@ $('html').ajaxSend(function(event, xhr, settings) {
 
 creme.ajax = {}
 
-creme.ajax.submit = function(form, data, options) {
+creme.ajax.submit = function(form, data, options) {//Tip: If data === true => data are taken from the form
         var $form = $(form);
 
         var defaults = {
@@ -66,6 +66,9 @@ creme.ajax.submit = function(form, data, options) {
         };
 
         var opts = $.extend(defaults, options);
+        if(data === true){
+            data = $form.serialize();
+        }
 
         $.ajax({
               url: opts.action,

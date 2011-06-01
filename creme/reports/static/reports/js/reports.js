@@ -48,6 +48,7 @@ creme.reports.load = function(options) {
     this.loadFilters(ct_id, $filter);
 
     this.loadColumns(ct_id, options);
+    this.loadRelatedFields(ct_id, options);
     this.loadCf(ct_id, options);
     this.loadRelations(ct_id,  options);
     this.loadFunctions(ct_id,  options);
@@ -167,6 +168,13 @@ creme.reports.loadColumns = function(ct_id, options) {
                                            options.columns.name);
 }
 
+creme.reports.loadRelatedFields = function(ct_id, options) {
+    creme.reports.__loadOrderedMultiSelect('/reports/get_related_fields',
+                                           {'ct_id': ct_id},
+                                           options.related_fields.table_id,
+                                           options.related_fields.name);
+}
+
 creme.reports.loadCf = function(ct_id, options) {
     creme.reports.__loadOrderedMultiSelect('/creme_core/entity/get_custom_fields',
                                        {'ct_id': ct_id},
@@ -219,6 +227,10 @@ creme.reports.link_report = function(report_id, field_id, block_url) {
     creme.utils.innerPopupNReload('/reports/report/'+report_id+'/field/'+field_id+'/link_report', block_url);
 }
 
+creme.reports.link_related_report = function(report_id, field_id, block_url) {
+    creme.utils.innerPopupNReload('/reports/report/'+report_id+'/field/'+field_id+'/link_related_report', block_url);
+}
+
 creme.reports.link_relation_report = function(report_id, field_id, predicate, block_url) {
     var success_cb = function(data, textStatus, req) {
         var $select = $('<select />');
@@ -254,7 +266,10 @@ creme.reports.changeOrder = function(report_id, field_id, direction, block_url) 
     };
 
     var error_cb = function(req, textStatus, err) {
-        //creme.utils.showDialog("Erreur, actualisez la page");
+        creme.utils.showDialog(req.responseText || gettext("Error"));
+        if(block_url && block_url != undefined) {
+            creme.utils.loadBlock(block_url);
+        }
     };
 
     var data = {'report_id': report_id, 'field_id': field_id, 'direction': direction};
@@ -270,7 +285,10 @@ creme.reports.setSelected = function(checkbox, report_id, field_id, block_url) {
     };
 
     var error_cb = function(req, textStatus, err) {
-        //creme.utils.showDialog("Erreur, actualisez la page");
+        creme.utils.showDialog(req.responseText || gettext("Error"));
+        if(block_url && block_url != undefined) {
+            creme.utils.loadBlock(block_url);
+        }
     };
 
     var data = {'report_id': report_id, 'field_id': field_id, 'checked': +$(checkbox).is(':checked')};
