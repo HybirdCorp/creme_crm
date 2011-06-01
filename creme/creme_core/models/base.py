@@ -22,6 +22,7 @@ from logging import debug
 from collections import defaultdict
 
 from django.core.exceptions  import ObjectDoesNotExist
+from django.db import transaction
 from django.db.models import Model, ForeignKey, CharField, BooleanField
 from django.db.models.fields.related import OneToOneRel
 from django.db.models.query_utils import CollectedObjects
@@ -163,6 +164,21 @@ class CremeModel(Model):
             # At this point, parent_obj is base class (no ancestor models). So
             # delete it and all its descendents.
             parent_obj._collect_sub_objects(seen_objs)
+
+    @transaction.commit_manually
+    def delete(self):
+        try:
+            for m2m_field in self._meta.many_to_many:
+                getattr(self, m2m_field.name).clear()
+
+            for related_m2m_field in self._meta.get_all_related_many_to_many_objects():
+                getattr(self, related_m2m_field.get_accessor_name()).clear()
+
+            super(CremeModel, self).delete()
+            transaction.commit()
+        except Exception, e:
+            transaction.rollback()
+            raise e
 
 
 class CremeAbstractEntity(CremeModel):

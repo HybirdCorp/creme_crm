@@ -245,15 +245,16 @@ class Relation(CremeAbstractEntity):
 
         seen_objs.add(self.__class__, pk_val, self, parent, nullable)
 
-    def delete(self):
-        sym_relation = self.symmetric_relation
-
-        if sym_relation is not None:
-            sym_relation = sym_relation.get_real_entity()
-            sym_relation.symmetric_relation = None
-            sym_relation.delete()
-
-        super(Relation, self).delete()
+#Commented 31/05/2011
+#    def delete(self):
+#        sym_relation = self.symmetric_relation
+#
+#        if sym_relation is not None:
+#            sym_relation = sym_relation.get_real_entity()
+#            sym_relation.symmetric_relation = None
+#            sym_relation.delete()
+#
+#        super(Relation, self).delete()
 
     def get_real_entity(self):
         return self._get_real_entity(Relation)
