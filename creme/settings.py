@@ -180,7 +180,7 @@ INSTALLED_APPS = (
     'creme.events',
     'creme.crudity',
     'creme.emails', #need 'creme.crudity'
-    'creme.sms',
+    #'creme.sms', #Work In Progress
     'creme.projects',
     'creme.tickets',
     #'creme.cti',
