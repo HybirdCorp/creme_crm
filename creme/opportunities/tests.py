@@ -110,7 +110,38 @@ class OpportunitiesTestCase(CremeTestCase):
         response = self.client.post('/opportunities/opportunity/add')
         self.assertEqual(200, response.status_code)
 
-        opportunity, target, emitter = self.create_opportunity('Opportunity01')
+        create_orga = Organisation.objects.create
+        target  = create_orga(user=self.user, name='Target renegade')
+        emitter = create_orga(user=self.user, name='My society')
+
+        CremeProperty.objects.create(type_id=PROP_IS_MANAGED_BY_CREME, creme_entity=emitter)
+
+        name  = 'Opportunity01'
+        phase = SalesPhase.objects.all()[0]
+        response = self.client.post('/opportunities/opportunity/add', follow=True,
+                                    data={
+                                            'user':                  self.user.pk,
+                                            'name':                  name,
+                                            'sales_phase':           phase.id,
+                                            'expected_closing_date': '2010-9-20',
+                                            'closing_date':          '2010-10-11',
+                                            'target_orga':           target.id,
+                                            'emit_orga':             emitter.id,
+                                            'first_action_date':     '2010-7-13',
+                                    }
+                                   )
+        self.assertNoFormError(response)
+        self.assertEqual(200, response.status_code)
+
+        try:
+            opportunity = Opportunity.objects.get(name=name)
+        except Exception, e:
+            self.fail(str(e))
+
+        self.assertEqual(phase, opportunity.sales_phase)
+        self.assertEqual(date(2010, 9,  20), opportunity.expected_closing_date)
+        self.assertEqual(date(2010, 10, 11), opportunity.closing_date)
+        self.assertEqual(date(2010, 7,  13), opportunity.first_action_date)
 
         filter_ = Relation.objects.filter
         self.assertEqual(1, filter_(subject_entity=target,  type=REL_OBJ_TARGETS_ORGA, object_entity=opportunity).count())

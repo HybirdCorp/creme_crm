@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-05-30 11:51+0200\n"
+"POT-Creation-Date: 2011-06-01 14:26+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -53,7 +53,7 @@ msgstr "Opportunités qui ciblent la société"
 msgid "Add an opportunity linked to an organisation"
 msgstr "Ajouter une opportunité liée à une société"
 
-#: creme_core_register.py:33 models/opportunity.py:94
+#: creme_core_register.py:33 models/opportunity.py:96
 msgid "Opportunities"
 msgstr "Opportunités"
 
@@ -229,7 +229,7 @@ msgstr "Référence"
 msgid "Sales phase - Name"
 msgstr "Phase de vente - Nom"
 
-#: populate.py:99 forms/opportunity.py:35 models/opportunity.py:81
+#: populate.py:99
 msgid "Closing date"
 msgstr "Date de signature"
 
@@ -251,11 +251,23 @@ msgstr "Somme %(estimated_sales)s / %(sales_phase)s"
 msgid "Sum %(estimated_sales)s / Quarter (90 days on %(closing_date)s)"
 msgstr "Somme %(estimated_sales)s / Trimestre (90 jours sur %(closing_date)s)"
 
-#: forms/opportunity.py:42 templates/opportunities/view_opportunity.html:54
+#: forms/opportunity.py:35 models/opportunity.py:81
+msgid "Expected closing date"
+msgstr "Date de signature prévue"
+
+#: forms/opportunity.py:36 models/opportunity.py:82
+msgid "Actual closing date"
+msgstr "Date de signature réelle"
+
+#: forms/opportunity.py:37 models/opportunity.py:85
+msgid "Date of the first action"
+msgstr "Date de la première action"
+
+#: forms/opportunity.py:44 templates/opportunities/view_opportunity.html:54
 msgid "Target organisation"
 msgstr "Société cible"
 
-#: forms/opportunity.py:43 templates/opportunities/view_opportunity.html:63
+#: forms/opportunity.py:45 templates/opportunities/view_opportunity.html:63
 msgid "Concerned organisation"
 msgstr "Société concernée"
 
@@ -263,7 +275,7 @@ msgstr "Société concernée"
 msgid "Weighted sales"
 msgstr "CA pondéré"
 
-#: models/opportunity.py:50 models/opportunity.py:63 models/opportunity.py:83
+#: models/opportunity.py:50 models/opportunity.py:63 models/opportunity.py:84
 msgid "Description"
 msgstr "Description"
 
@@ -275,7 +287,7 @@ msgstr "Phase de vente"
 msgid "Sale phases"
 msgstr "Phases de vente"
 
-#: models/opportunity.py:62 models/opportunity.py:82
+#: models/opportunity.py:62 models/opportunity.py:83
 msgid "Origin"
 msgstr "Origine"
 
@@ -311,7 +323,7 @@ msgstr "Phase de vente"
 msgid "% of chance to win"
 msgstr "% de chance d'obtention"
 
-#: models/opportunity.py:93 templates/opportunities/portal.html:4
+#: models/opportunity.py:95 templates/opportunities/portal.html:4
 #: templates/opportunities/templatetags/block_opportunities.html:6
 #: templates/opportunities/templatetags/button_linked_opp.html:5
 #: templates/opportunities/templatetags/button_linked_opp.html:10
