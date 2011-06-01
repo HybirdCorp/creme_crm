@@ -72,15 +72,17 @@ class Origin(CremeModel):
 
 
 class Opportunity(CremeEntity):
-    name            = CharField(_(u"Name of the opportunity"), max_length=100, blank=False, null=False)
-    reference       = CharField(_(u"Reference"), max_length=100, blank=True, null=True)
-    estimated_sales = PositiveIntegerField(_(u'Estimated sales'), blank=True, null=True)
-    made_sales      = PositiveIntegerField(_(u'Made sales'), blank=True, null=True)
-    sales_phase     = ForeignKey(SalesPhase, verbose_name=_(u'Sales phase'))
-    chance_to_win   = PositiveIntegerField(_(ur"% of chance to win"), blank=True, null=True)
-    closing_date    = DateField(_(u'Closing date'), blank=False, null=False)
-    origin          = ForeignKey(Origin, verbose_name=_(u'Origin'), blank=True, null=True)
-    description     = TextField(_(u'Description'), blank=True, null=True)
+    name                  = CharField(_(u"Name of the opportunity"), max_length=100)
+    reference             = CharField(_(u"Reference"), max_length=100, blank=True, null=True)
+    estimated_sales       = PositiveIntegerField(_(u'Estimated sales'), blank=True, null=True)
+    made_sales            = PositiveIntegerField(_(u'Made sales'), blank=True, null=True)
+    sales_phase           = ForeignKey(SalesPhase, verbose_name=_(u'Sales phase'))
+    chance_to_win         = PositiveIntegerField(_(ur"% of chance to win"), blank=True, null=True)
+    expected_closing_date = DateField(_(u'Expected closing date'), blank=True, null=True)
+    closing_date          = DateField(_(u'Actual closing date'), blank=True, null=True)
+    origin                = ForeignKey(Origin, verbose_name=_(u'Origin'), blank=True, null=True)
+    description           = TextField(_(u'Description'), blank=True, null=True)
+    first_action_date     = DateField(_(u'Date of the first action'), blank=True, null=True)
 
     function_fields = CremeEntity.function_fields.new(_TurnoverField)
 

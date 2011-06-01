@@ -89,6 +89,7 @@ class NeglectedOrganisationsBlock(PaginatedBlock):
                                 )
         neglected_orgas_qs = Organisation.objects.filter(relations__type__in=(REL_SUB_CUSTOMER_OF, REL_SUB_PROSPECT),
                                                          relations__object_entity__in=Organisation.get_all_managed_by_creme()) \
+                                                 .exclude(relations__type=REL_SUB_INACTIVE) \
                                                  .distinct()
 
         if not future_activities:
