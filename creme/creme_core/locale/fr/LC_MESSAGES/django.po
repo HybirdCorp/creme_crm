@@ -1581,7 +1581,7 @@ msgstr "%s seconde(s)"
 
 #: tests/utils.py:276 utils/date_range.py:205
 msgid "In the future"
-msgstr "Dans le future"
+msgstr "Dans le futur"
 
 #: tests/views/entity.py:35
 msgid "Username"
