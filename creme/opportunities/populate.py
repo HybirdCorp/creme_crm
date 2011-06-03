@@ -23,7 +23,7 @@ from logging import info
 from django.utils.translation import ugettext as _
 from django.conf import settings
 
-from creme_core.models.header_filter import HeaderFilterItem, HeaderFilter, HFI_FIELD
+from creme_core.models.header_filter import HeaderFilterItem, HeaderFilter, HFI_FIELD, HFI_RELATION
 from creme_core.models import RelationType, ButtonMenuItem, SearchConfigItem, SearchField
 from creme_core.utils import create_or_update as create
 from creme_core.management.commands.creme_populate import BasePopulator
@@ -97,6 +97,7 @@ class Populator(BasePopulator):
         create(HeaderFilterItem, pref + 'ref',     order=2, name='reference',         title=_(u'Reference'),          type=HFI_FIELD, header_filter=hf, has_a_filter=True, editable=True, sortable=True, filter_string="reference__icontains")
         create(HeaderFilterItem, pref + 'phase',   order=3, name='sales_phase__name', title=_(u'Sales phase - Name'), type=HFI_FIELD, header_filter=hf, has_a_filter=True, editable=True, sortable=True, filter_string="sales_phase__name__icontains")
         create(HeaderFilterItem, pref + 'expdate', order=4, name='closing_date',      title=_(u'Closing date'),       type=HFI_FIELD, header_filter=hf, has_a_filter=True, editable=True, sortable=True, filter_string="closing_date__range")
+        create(HeaderFilterItem, pref + 'targets', order=5, name='targets',  title=_(u'targets the organisation/contact'), type=HFI_RELATION, header_filter=hf, has_a_filter=True, editable=False, filter_string="", relation_predicat_id=REL_SUB_TARGETS_ORGA)
 
         ButtonMenuItem.create(pk='opportunities-linked_opp_button', model=Organisation, button=linked_opportunity_button, order=30)
 
