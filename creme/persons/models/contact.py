@@ -24,7 +24,8 @@ from django.db.models import ForeignKey, CharField, TextField, ManyToManyField, 
 from django.utils.translation import ugettext_lazy as _, ugettext
 from django.contrib.auth.models import User
 
-from creme_core.models import CremeEntity, Language
+from creme_core.models import CremeEntity#, Language
+from creme_core.models.i18n import Language
 from creme_core.models.fields import PhoneField
 
 from media_managers.models import Image
