@@ -1,12 +1,30 @@
 # -*- coding: utf-8 -*-
 
+################################################################################
+#    Creme is a free/open-source Customer Relationship Management software
+#    Copyright (C) 2009-2011  Hybird
+#
+#    This program is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU Affero General Public License as published by
+#    the Free Software Foundation, either version 3 of the License, or
+#    (at your option) any later version.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU Affero General Public License for more details.
+#
+#    You should have received a copy of the GNU Affero General Public License
+#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+################################################################################
+
 from logging import info
 
 from django.utils.translation import ugettext as _
 from django.conf import settings
 
-from creme_core.models import RelationType, SearchConfigItem, BlockConfigItem, RelationBlockItem, ButtonMenuItem
-from creme_core.models.header_filter import HeaderFilterItem, HeaderFilter, HFI_FIELD
+from creme_core.models import (RelationType, SearchConfigItem, HeaderFilterItem, HeaderFilter,
+                               BlockConfigItem, RelationBlockItem, ButtonMenuItem)
 from creme_core.utils import create_or_update as create
 from creme_core.management.commands.creme_populate import BasePopulator
 
@@ -33,19 +51,19 @@ class Populator(BasePopulator):
             create(Criticity, i + 1, name=name)
 
         hf = HeaderFilter.create(pk='tickets-hf_ticket', name=_(u'Ticket view'), model=Ticket)
-        pref = 'tickets-hfi_ticket_'
-        create(HeaderFilterItem, pref + 'title',     order=1, name='title',           title=_(u'Title'),            type=HFI_FIELD, header_filter=hf, has_a_filter=True, editable=True, sortable=True, filter_string="title__icontains")
-        create(HeaderFilterItem, pref + 'status',    order=2, name='status__name',    title=_(u'Status - Name'),    type=HFI_FIELD, header_filter=hf, has_a_filter=True, editable=True, sortable=True, filter_string="status__name__icontains")
-        create(HeaderFilterItem, pref + 'priority',  order=3, name='priority__name',  title=_(u'Priority - Name'),  type=HFI_FIELD, header_filter=hf, has_a_filter=True, editable=True, sortable=True, filter_string="priority__name__icontains")
-        create(HeaderFilterItem, pref + 'criticity', order=4, name='criticity__name', title=_(u'Criticity - Name'), type=HFI_FIELD, header_filter=hf, has_a_filter=True, editable=True, sortable=True, filter_string="criticity__name__icontains")
-        create(HeaderFilterItem, pref + 'cdate',     order=5, name='closing_date',    title=_(u'Closing date'),     type=HFI_FIELD, header_filter=hf, has_a_filter=True, editable=True, sortable=True, filter_string="closing_date__range")
+        hf.set_items([HeaderFilterItem.build_4_field(model=Ticket, name='title'),
+                      HeaderFilterItem.build_4_field(model=Ticket, name='status__name'),
+                      HeaderFilterItem.build_4_field(model=Ticket, name='priority__name'),
+                      HeaderFilterItem.build_4_field(model=Ticket, name='criticity__name'),
+                      HeaderFilterItem.build_4_field(model=Ticket, name='closing_date'),
+                     ])
 
         hf = HeaderFilter.create(pk='tickets-hf_template', name=_(u'Ticket template view'), model=TicketTemplate)
-        pref = 'tickets-hfi_template_'
-        create(HeaderFilterItem, pref + 'title',     order=1, name='title',           title=_(u'Title'),            type=HFI_FIELD, header_filter=hf, has_a_filter=True, editable=True, sortable=True, filter_string="title__icontains")
-        create(HeaderFilterItem, pref + 'status',    order=2, name='status__name',    title=_(u'Status - Name'),    type=HFI_FIELD, header_filter=hf, has_a_filter=True, editable=True, sortable=True, filter_string="status__name__icontains")
-        create(HeaderFilterItem, pref + 'priority',  order=3, name='priority__name',  title=_(u'Priority - Name'),  type=HFI_FIELD, header_filter=hf, has_a_filter=True, editable=True, sortable=True, filter_string="priority__name__icontains")
-        create(HeaderFilterItem, pref + 'criticity', order=4, name='criticity__name', title=_(u'Criticity - Name'), type=HFI_FIELD, header_filter=hf, has_a_filter=True, editable=True, sortable=True, filter_string="criticity__name__icontains")
+        hf.set_items([HeaderFilterItem.build_4_field(model=TicketTemplate, name='title'),
+                      HeaderFilterItem.build_4_field(model=TicketTemplate, name='status__name'),
+                      HeaderFilterItem.build_4_field(model=TicketTemplate, name='priority__name'),
+                      HeaderFilterItem.build_4_field(model=TicketTemplate, name='criticity__name'),
+                     ])
 
         SearchConfigItem.create(Ticket, ['title', 'description', 'status__name', 'priority__name', 'criticity__name'])
 

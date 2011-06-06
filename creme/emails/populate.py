@@ -20,8 +20,7 @@
 
 from django.utils.translation import ugettext as _
 
-from creme_core.models import RelationType, SearchConfigItem, ButtonMenuItem
-from creme_core.models.header_filter import HeaderFilterItem, HeaderFilter, HFI_FIELD
+from creme_core.models import RelationType, SearchConfigItem, ButtonMenuItem, HeaderFilterItem, HeaderFilter
 from creme_core.utils import create_or_update as create
 from creme_core.management.commands.creme_populate import BasePopulator
 
@@ -44,21 +43,21 @@ class Populator(BasePopulator):
                             (REL_OBJ_MAIL_SENDED, _(u"sended the email"), [Organisation, Contact]))
 
         hf = HeaderFilter.create(pk='emails-hf_mailinglist', name=_(u"Mailing list view"), model=MailingList)
-        create(HeaderFilterItem, 'emails-hfi_mailinglist_name', order=1, name='name', title=_(u'Name'), type=HFI_FIELD, header_filter=hf, has_a_filter=True, editable=True, filter_string="name__icontains")
+        hf.set_items([HeaderFilterItem.build_4_field(model=MailingList, name='name'])
 
         hf = HeaderFilter.create(pk='emails-hf_campaign', name=_(u"Campaign view"), model=EmailCampaign)
-        create(HeaderFilterItem, 'emails-hfi_campaign_name', order=1, name='name', title=_(u'Name'), type=HFI_FIELD, header_filter=hf, has_a_filter=True, editable=True, filter_string="name__icontains")
+        hf.set_items([HeaderFilterItem.build_4_field(model=EmailCampaign, name='name')])
 
         hf   = HeaderFilter.create(pk='emails-hf_template', name=_(u"Email template view"), model=EmailTemplate)
-        pref = 'emails-hfi_template'
-        create(HeaderFilterItem, pref + 'name',    order=1, name='name',    title=_(u'Name'),    type=HFI_FIELD, header_filter=hf, has_a_filter=True, editable=True, filter_string="name__icontains")
-        create(HeaderFilterItem, pref + 'subject', order=2, name='subject', title=_(u'Subject'), type=HFI_FIELD, header_filter=hf, has_a_filter=True, editable=True, filter_string="subject__icontains")
+        hf.set_items([HeaderFilterItem.build_4_field(model=EmailTemplate, name='name'),
+                      HeaderFilterItem.build_4_field(model=EmailTemplate, name='subject'),
+                     ])
 
         hf   = HeaderFilter.create(pk='emails-hf_email', name=_(u"Email view"), model=EntityEmail)
-        pref = 'emails-hfi_email_'
-        create(HeaderFilterItem, pref + 'sender',    order=1, name='sender',    title=_(u'Sender'),    type=HFI_FIELD, header_filter=hf, has_a_filter=True, editable=True, filter_string="sender__icontains")
-        create(HeaderFilterItem, pref + 'recipient', order=2, name='recipient', title=_(u'Recipient'), type=HFI_FIELD, header_filter=hf, has_a_filter=True, editable=True, filter_string="recipient__icontains")
-        create(HeaderFilterItem, pref + 'subject',   order=3, name='subject',   title=_(u'Subject'),   type=HFI_FIELD, header_filter=hf, has_a_filter=True, editable=True, filter_string="subject__icontains")
+        hf.set_items([HeaderFilterItem.build_4_field(model=EntityEmail, name='sender'),
+                      HeaderFilterItem.build_4_field(model=EntityEmail, name='recipient'),
+                      HeaderFilterItem.build_4_field(model=EntityEmail, name='subject'),
+                     ])
 
         ButtonMenuItem.create(pk='emails-entity_email_link_button', model=EntityEmail, button=entityemail_link_button, order=20)
 

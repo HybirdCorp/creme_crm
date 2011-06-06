@@ -20,8 +20,7 @@
 
 from django.utils.translation import ugettext as _
 
-from creme_core.models import SearchConfigItem
-from creme_core.models.header_filter import HeaderFilterItem, HeaderFilter, HFI_FIELD
+from creme_core.models import SearchConfigItem, HeaderFilterItem, HeaderFilter
 from creme_core.utils import create_or_update as create
 from creme_core.management.commands.creme_populate import BasePopulator
 
@@ -38,12 +37,12 @@ class Populator(BasePopulator):
         create(MediaCategory, pk=3, name=_(u"Contact photograph"), is_custom=False)
 
         hf = HeaderFilter.create(pk='media_managers-hf_image', name=_(u'Image view'), model=Image)
-        pref  = 'media_managers-hfi_image_'
-        create(HeaderFilterItem, pref + 'name',  order=1, name='name',           title=_(u'Name'),            type=HFI_FIELD, header_filter=hf, has_a_filter=True,  editable=True, filter_string="name__icontains" )
-        create(HeaderFilterItem, pref + 'image', order=2, name='image',          title=_(u'Image'),           type=HFI_FIELD, header_filter=hf, has_a_filter=False, editable=False)
-        create(HeaderFilterItem, pref + 'descr', order=3, name='description',    title=_(u'Description'),     type=HFI_FIELD, header_filter=hf, has_a_filter=True,  editable=True, filter_string="description__icontains")
-        create(HeaderFilterItem, pref + 'user',  order=4, name='user__username', title=_(u'User - Username'), type=HFI_FIELD, header_filter=hf, has_a_filter=True,  editable=True, filter_string="user__username__icontains" )
-        create(HeaderFilterItem, pref + 'cat',   order=5, name='categories',     title=_(u'Categories'),      type=HFI_FIELD, header_filter=hf, has_a_filter=False, editable=False)
+        hf.set_items([HeaderFilterItem.build_4_field(model=Image, name='name'),
+                      HeaderFilterItem.build_4_field(model=Image, name='image'),
+                      HeaderFilterItem.build_4_field(model=Image, name='description'),
+                      HeaderFilterItem.build_4_field(model=Image, name='user__username'),
+                      HeaderFilterItem.build_4_field(model=Image, name='categories'),
+                     ])
 
         SearchConfigItem.create(Image, ['name', 'description', 'categories__name'])
 

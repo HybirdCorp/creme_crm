@@ -21,15 +21,16 @@
 from collections import defaultdict
 from logging import debug
 
-from django.db.models import Model, CharField, ForeignKey, BooleanField, PositiveIntegerField, PositiveSmallIntegerField
+from django.db.models import (Model, CharField, ForeignKey, BooleanField, PositiveIntegerField,
+                              PositiveSmallIntegerField, DateField, DateTimeField)
 from django.db.models.signals import pre_delete
 from django.utils.translation import ugettext_lazy as _, ugettext
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.auth.models import User
 
-from relation import RelationType
-from entity import CremeEntity
-from custom_field import CustomField
+from creme_core.models import RelationType, CremeEntity, CustomField
+from creme_core.utils.meta import get_model_field_infos #get_flds_with_fk_flds_str
+from creme_core.utils.id_generator import generate_string_id_and_save
 
 
 HFI_ACTIONS    = 0
@@ -134,24 +135,6 @@ class HeaderFilter(Model): #CremeModel ???
             self.build_items()
         return self._items
 
-    #def improve_queryset(self, entities_qs):
-        #"""Add a select_related() call to the queryset in order to improve the
-        #queries of a listview that uses this HeaderFilter.
-        #"""
-        #assert entities_qs._result_cache is None #ensure optimisation of global level
-
-        #fnames = [hfi.name for hfi in self.items if hfi.type == HFI_FIELD]
-
-        #if fnames:
-            #get_field = entities_qs.model._meta.get_field_by_name
-            #fk_list   = [fname for fname in fnames if isinstance(get_field(fname.partition('__')[0])[0], ForeignKey)]
-
-            #if fk_list:
-                #debug("HeaderFilter.improve_queryset(): select_related() on %s", fk_list)
-                #entities_qs = entities_qs.select_related(*fk_list) #queryset has not been retrieved yet
-
-        #return entities_qs
-
     def populate_entities(self, entities, user):
         """Fill caches of CremeEntity objects, related to the columns that will
         be displayed with this HeaderFilter.
@@ -187,6 +170,13 @@ class HeaderFilter(Model): #CremeModel ???
             func_field = self.entity_type.model_class().function_fields.get(hfi.name)
             func_field.populate_entities(entities)
 
+    def set_items(self, items): #TODO: reuse old items' pk ?? fill cache ?
+        for i, hfi in enumerate(items, start=1):
+            hfi.order = i
+            hfi.header_filter = self
+
+        generate_string_id_and_save(HeaderFilterItem, items, self.id)
+
 
 class HeaderFilterItem(Model):  #CremeModel ???
     id                    = CharField(primary_key=True, max_length=100)
@@ -211,6 +201,80 @@ class HeaderFilterItem(Model):  #CremeModel ???
 
     class Meta:
         app_label = 'creme_core'
+
+    class ValueError(Exception):
+        pass
+
+    _CF_PATTERNS = {
+            CustomField.BOOL:       '%s__value__creme-boolean',
+            CustomField.DATE:       '%s__value__range',
+            CustomField.ENUM:       '%s__value__exact',
+            CustomField.MULTI_ENUM: '%s__value__exact',
+        }
+
+    @classmethod
+    def build_4_customfield(cls, customfield):
+        pattern = cls._CF_PATTERNS.get(customfield.field_type, '%s__value__icontains')
+
+        return HeaderFilterItem(name=unicode(customfield.id),
+                                title=customfield.name,
+                                type=HFI_CUSTOM,
+                                has_a_filter=True,
+                                editable=False, #TODO: make it editable
+                                sortable=False, #TODO: make it sortable
+                                filter_string=pattern % customfield.get_value_class().get_related_name(),
+                               )
+
+    @staticmethod
+    def build_4_field(model, name):
+        field_info = get_model_field_infos(model, name)
+        if not field_info:
+            raise HeaderFilterItem.ValueError(u'Invalid field: %s' % name)
+
+        field   = field_info[0]['field']
+        pattern = "%s__icontains"
+
+        if isinstance(field, ForeignKey) :
+            if len(field_info) == 1:
+                pattern = "%s"
+            else:
+                field = field_info[1]['field'] #The sub-field is considered as the main field
+
+        if isinstance(field, (DateField, DateTimeField)):
+            pattern = "%s__range"
+        elif isinstance(field, BooleanField):
+            pattern = "%s__creme-boolean"
+
+        return HeaderFilterItem(name=name,
+                                 title=u" - ".join(unicode(info['field'].verbose_name) for info in field_info),
+                                 type=HFI_FIELD,
+                                 has_a_filter=True,
+                                 editable=True,
+                                 sortable=True,
+                                 filter_string=pattern % name
+                                )
+
+    @staticmethod
+    def build_4_functionfield(func_field):
+        return HeaderFilterItem(name=func_field.name,
+                                title=unicode(func_field.verbose_name),
+                                type=HFI_FUNCTION,
+                                has_a_filter=func_field.has_filter,
+                                is_hidden=func_field.is_hidden,
+                                editable=False,
+                                filter_string=""
+                               )
+
+    @staticmethod
+    def build_4_relation(rtype):
+        return HeaderFilterItem(name=unicode(rtype.id),
+                                title=rtype.predicate,
+                                type=HFI_RELATION,
+                                has_a_filter=True,
+                                editable=False ,
+                                filter_string="",
+                                relation_predicat=rtype #TODO: rtype.id in 'name' attr...
+                               )
 
     def get_customfield(self):
         assert self.type == HFI_CUSTOM

@@ -23,8 +23,7 @@ from logging import info
 from django.utils.translation import ugettext as _
 from django.conf import settings
 
-from creme_core.models.header_filter import HeaderFilterItem, HeaderFilter, HFI_FIELD
-from creme_core.models import RelationType, ButtonMenuItem, SearchConfigItem, SearchField
+from creme_core.models import RelationType, ButtonMenuItem, SearchConfigItem, SearchField, HeaderFilterItem, HeaderFilter
 from creme_core.utils import create_or_update as create
 from creme_core.management.commands.creme_populate import BasePopulator
 
@@ -91,12 +90,12 @@ class Populator(BasePopulator):
         create(Origin, 8, name=_(u"Partner"),          description="...")
         create(Origin, 9, name=_(u"Other"),            description="...")
 
-        hf   = HeaderFilter.create(pk='opportunities-hf', name=_(u'Opportunity view'), model=Opportunity)
-        pref = 'opportunities-hfi_'
-        create(HeaderFilterItem, pref + 'name',    order=1, name='name',              title=_(u'Name'),               type=HFI_FIELD, header_filter=hf, has_a_filter=True, editable=True, sortable=True, filter_string="name__icontains")
-        create(HeaderFilterItem, pref + 'ref',     order=2, name='reference',         title=_(u'Reference'),          type=HFI_FIELD, header_filter=hf, has_a_filter=True, editable=True, sortable=True, filter_string="reference__icontains")
-        create(HeaderFilterItem, pref + 'phase',   order=3, name='sales_phase__name', title=_(u'Sales phase - Name'), type=HFI_FIELD, header_filter=hf, has_a_filter=True, editable=True, sortable=True, filter_string="sales_phase__name__icontains")
-        create(HeaderFilterItem, pref + 'expdate', order=4, name='closing_date',      title=_(u'Closing date'),       type=HFI_FIELD, header_filter=hf, has_a_filter=True, editable=True, sortable=True, filter_string="closing_date__range")
+        hf = HeaderFilter.create(pk='opportunities-hf', name=_(u'Opportunity view'), model=Opportunity)
+        hf.set_items([HeaderFilterItem.build_4_field(model=Opportunity, name='name'),
+                      HeaderFilterItem.build_4_field(model=Opportunity, name='reference'),
+                      HeaderFilterItem.build_4_field(model=Opportunity, name='sales_phase__name'),
+                      HeaderFilterItem.build_4_field(model=Opportunity, name='closing_date'),
+                     ])
 
         ButtonMenuItem.create(pk='opportunities-linked_opp_button', model=Organisation, button=linked_opportunity_button, order=30)
 
@@ -112,8 +111,7 @@ class Populator(BasePopulator):
 
         from creme_core import autodiscover as creme_core_autodiscover
         from creme_core.models import EntityFilter, EntityFilterCondition, BlockConfigItem, InstanceBlockConfigItem
-        #from creme_core.models.list_view_filter import Filter, FilterCondition, FilterValue
-        from creme_core.models.header_filter import HFI_RELATION
+        from creme_core.models.header_filter import HFI_FIELD, HFI_RELATION
         from creme_core.gui.block import block_registry
         from creme_core.utils.meta import get_verbose_field_name
         from creme_core.utils.id_generator import generate_string_id_and_save
