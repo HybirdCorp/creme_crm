@@ -57,7 +57,7 @@ class Alert(CremeModel):
 
     @staticmethod
     def get_alerts_for_ctypes(ct_ids, user):
-        return Alert.objects.filter(entity_content_type__in=ct_ids, user=user).select_related('user')
+        return Alert.objects.filter(entity_content_type__in=ct_ids, user=user, is_validated=False).select_related('user')
 
     def get_related_entity(self): #for generic views
         return self.creme_entity
