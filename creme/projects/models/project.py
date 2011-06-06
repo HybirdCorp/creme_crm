@@ -38,6 +38,8 @@ class Project(CremeEntity):
 
     tasks_list          = None
 
+    allowed_related = CremeEntity.allowed_related | set(['projecttask'])
+
     class Meta:
         app_label = 'projects'
         verbose_name = _(u'Project')

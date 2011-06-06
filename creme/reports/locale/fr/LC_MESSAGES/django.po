@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-05-17 08:27+0200\n"
+"POT-Creation-Date: 2011-05-31 11:06+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -20,11 +20,11 @@ msgstr ""
 msgid "Columns of the report"
 msgstr "Colonnes du rapport"
 
-#: blocks.py:52 blocks.py:78
+#: blocks.py:53 blocks.py:79
 msgid "Report's graphs"
 msgstr "Graphe de rapport"
 
-#: creme_core_register.py:32 models/report.py:291
+#: creme_core_register.py:32 models/report.py:329
 #: templates/reports/portal.html:4
 msgid "Reports"
 msgstr "Rapports"
@@ -91,7 +91,7 @@ msgstr "Colonne relatif"
 msgid "The instance block for %(graph)s with %(column)s already exists !"
 msgstr "Le bloc d'instance pour %(graph)s avec %(column)s existe déjà"
 
-#: forms/graph.py:43 models/report.py:290
+#: forms/graph.py:43 models/report.py:328
 #: templates/reports/preview_report.html:11
 #: templates/reports/view_report.html:6
 msgid "Report"
@@ -133,7 +133,7 @@ msgstr "Informations sur les ordonnées"
 msgid "Fields"
 msgstr "Champs"
 
-#: forms/graph.py:85 forms/report.py:160 forms/report.py:313
+#: forms/graph.py:85 forms/report.py:169 forms/report.py:331
 msgid "Relations"
 msgstr "Relations"
 
@@ -150,58 +150,62 @@ msgstr ""
 "Si vous ne choisissez aucun champ d'ordonée (ou qu'aucun n'est disponible) "
 "vous devez cocher 'Effectuer un comptage à la place des valeurs calculées ?'"
 
-#: forms/report.py:154
+#: forms/report.py:162
 msgid "Existing view"
 msgstr "Vue existante"
 
-#: forms/report.py:156 models/report.py:286
+#: forms/report.py:164 models/report.py:324
 msgid "Filter"
 msgstr "Filtre"
 
-#: forms/report.py:158 forms/report.py:311
+#: forms/report.py:166 forms/report.py:328
 msgid "Regular fields"
 msgstr "Champs normaux"
 
-#: forms/report.py:159 forms/report.py:312
+#: forms/report.py:167 forms/report.py:330
 msgid "Custom fields"
 msgstr "Champs personnalisés"
 
-#: forms/report.py:161 forms/report.py:314
+#: forms/report.py:168 forms/report.py:329
+msgid "Related fields"
+msgstr "Champs relatifs"
+
+#: forms/report.py:170 forms/report.py:332
 msgid "Functions"
 msgstr "Fonctions"
 
-#: forms/report.py:164
+#: forms/report.py:173
 msgid "Select from a existing view : "
 msgstr "Sélectionnez à partir d'une vue de liste existante : "
 
-#: forms/report.py:165
+#: forms/report.py:174
 msgid "Or"
 msgstr "Ou"
 
-#: forms/report.py:166 forms/report.py:317
+#: forms/report.py:175 forms/report.py:335
 msgid "Calculated values"
 msgstr "Valeurs calculées"
 
-#: forms/report.py:213
+#: forms/report.py:223
 #, python-format
 msgid "You must select an existing view, or at least one field from : %s"
 msgstr ""
 "Vous devez sélectionner soit une vue existante, soit au moins un champs "
 "parmi : %s"
 
-#: forms/report.py:288
+#: forms/report.py:305
 msgid "All"
 msgstr "Tout"
 
-#: forms/report.py:296
+#: forms/report.py:313
 msgid "Sub-report linked to the column"
 msgstr "Sous-rapport lié à la colonne"
 
-#: forms/report.py:391
+#: forms/report.py:417
 msgid "Date fields"
 msgstr "Champs date"
 
-#: forms/report.py:392
+#: forms/report.py:418
 msgid "Date filters"
 msgstr "Filtres temporels"
 
@@ -267,15 +271,15 @@ msgstr "Colonne de rapport"
 msgid "Columns of report"
 msgstr "Colonnes de rapport"
 
-#: models/report.py:282
+#: models/report.py:320
 msgid "Name of the report"
 msgstr "Nom du rapport"
 
-#: models/report.py:283
+#: models/report.py:321
 msgid "Entity type"
 msgstr "Type d'entité"
 
-#: models/report.py:284
+#: models/report.py:322
 msgid "Displayed columns"
 msgstr "Colonnes affichées"
 
@@ -395,7 +399,7 @@ msgstr "Créer un bloc à partir de ce graph"
 #: templates/reports/templatetags/block_report_fields.html:27
 #: templates/reports/templatetags/block_report_graphs.html:82
 msgid "Can't add"
-msgstr ""
+msgstr "Ajout interdit"
 
 #: templates/reports/view_report.html:22
 #, python-format
@@ -432,7 +436,7 @@ msgstr "Supprimer une colonne"
 
 #: templates/reports/templatetags/block_report_fields.html:29
 msgid "Can't delete"
-msgstr ""
+msgstr "Effacement interdit"
 
 #: templates/reports/templatetags/block_report_fields.html:37
 msgid "#"
@@ -466,6 +470,8 @@ msgstr "Valeur"
 #: templates/reports/templatetags/block_report_fields.html:68
 #: templates/reports/templatetags/block_report_fields.html:84
 #: templates/reports/templatetags/block_report_fields.html:86
+#: templates/reports/templatetags/block_report_fields.html:100
+#: templates/reports/templatetags/block_report_fields.html:102
 msgid "Unlink the report"
 msgstr "Délier le rapport"
 
@@ -473,20 +479,22 @@ msgstr "Délier le rapport"
 #: templates/reports/templatetags/block_report_fields.html:75
 #: templates/reports/templatetags/block_report_fields.html:90
 #: templates/reports/templatetags/block_report_fields.html:92
+#: templates/reports/templatetags/block_report_fields.html:106
+#: templates/reports/templatetags/block_report_fields.html:108
 msgid "Link a report"
 msgstr "Lier un rapport"
 
-#: templates/reports/templatetags/block_report_fields.html:101
-#: templates/reports/templatetags/block_report_fields.html:104
+#: templates/reports/templatetags/block_report_fields.html:117
+#: templates/reports/templatetags/block_report_fields.html:120
 msgid "Column up"
 msgstr "Monter la colonne"
 
-#: templates/reports/templatetags/block_report_fields.html:110
-#: templates/reports/templatetags/block_report_fields.html:113
+#: templates/reports/templatetags/block_report_fields.html:126
+#: templates/reports/templatetags/block_report_fields.html:129
 msgid "Column down"
 msgstr "Descendre la colonne"
 
-#: templates/reports/templatetags/block_report_fields.html:136
+#: templates/reports/templatetags/block_report_fields.html:152
 msgid "No column set for the moment"
 msgstr "Aucune colonne définie pour le moment"
 
@@ -549,7 +557,7 @@ msgstr "Éditer"
 
 #: templates/reports/templatetags/block_report_graphs.html:46
 msgid "Can't edit"
-msgstr ""
+msgstr "Edition interdite"
 
 #: templates/reports/templatetags/block_report_graphs.html:96
 msgid "No graphs registered for the moment"
@@ -584,6 +592,10 @@ msgstr "Champ personalisé"
 msgid "Calculated value"
 msgstr "Valeur calculée"
 
+#: templatetags/report_tags.py:36
+msgid "Related field"
+msgstr "Champ relatif"
+
 #: views/blocks.py:50
 #, python-format
 msgid "Add an instance block for <%s>"
@@ -607,17 +619,17 @@ msgstr "Choisir un champ d'abscisse"
 msgid "Number of reports"
 msgstr "Nombre de rapport(s)"
 
-#: views/report.py:111
+#: views/report.py:114
 #, python-format
 msgid "Link of the column <%s>"
 msgstr "Liaison de la colonne <%s>"
 
-#: views/report.py:153
+#: views/report.py:171
 #, python-format
 msgid "Adding column to <%s>"
 msgstr "Ajout de colonne à <%s>"
 
-#: views/report.py:319
+#: views/report.py:344
 #, python-format
 msgid "Temporal filters for <%s>"
 msgstr "Filtres temporels pour <%s>"

@@ -19,9 +19,11 @@
 ################################################################################
 import pytz
 
+import time
 from datetime import datetime
 
 from django.conf import settings
+from django.utils import formats
 
 creme_tz = pytz.timezone(settings.TIME_ZONE)
 utc_tz   = pytz.utc
@@ -57,3 +59,15 @@ def get_dt_from_iso8601_str(dt_str):
 def get_naive_dt_from_tzdate(dt):
     """Needed (among others) for db saves, in particular MySQL which doesn't support timezone-aware datetimes"""
     return datetime(*dt.timetuple()[:6])
+
+def get_dt_from_str(date_str):
+    """Returns a datetime from filled formats in settings or None
+        Doesn't handle microseconds
+    """
+    for format in formats.get_format('DATETIME_INPUT_FORMATS'):
+        try:
+            return datetime(*time.strptime(date_str, format)[:6])
+        except ValueError:
+            continue
+        except TypeError:
+            break

@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
 
-from models import Category, SubCategory, ServiceCategory
+from models import Category, SubCategory
 
 
 to_register = ((Category,        'product_category'),
-               (SubCategory,     'product_subcategory'),
-               (ServiceCategory, 'service_category'))
+               (SubCategory,     'product_subcategory'))

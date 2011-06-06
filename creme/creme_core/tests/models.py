@@ -1124,7 +1124,7 @@ class CredentialsTestCase(CremeTestCase):
 
         self.assert_(not entity3.can_view(self.user))
 
-        team.teammates = [self.user] #credentials should be updated automaticcaly
+        team.teammates = [self.user] #credentials should be updated automatically
         self.assert_(CremeEntity.objects.get(pk=entity3.id).can_view(self.user))
 
     def test_team_credentials_updating02(self):
@@ -1200,6 +1200,14 @@ class HeaderFiltersTestCase(CremeTestCase):
         hfi = HeaderFilterItem.build_4_field(model=Contact, name='image__created')
         self.assertEqual(_('Photograph') + u' - ' + _('Creation date'), hfi.title)
         self.assertEqual('image__created__range', hfi.filter_string)
+
+    def test_build_4_field07(self): #m2m
+        hfi = HeaderFilterItem.build_4_field(model=Contact, name='language')
+        self.assert_(hfi.has_a_filter is True)
+
+        hfi = HeaderFilterItem.build_4_field(model=Contact, name='language__name')
+        self.assert_(hfi.has_a_filter is False)
+
 
     def test_build_4_field_errors(self):
         self.assertRaises(HeaderFilterItem.ValueError, HeaderFilterItem.build_4_field, model=Contact, name='unknown_field')

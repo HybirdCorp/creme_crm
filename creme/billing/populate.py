@@ -19,13 +19,16 @@
 ################################################################################
 
 from django.utils.translation import ugettext as _
-from creme_config.models.setting import SettingKey, SettingKey, SettingValue, SettingValue
 
 from creme_core.utils import create_or_update as create
 from creme_core.models import RelationType, SearchConfigItem, ButtonMenuItem, HeaderFilterItem, HeaderFilter
 from creme_core.management.commands.creme_populate import BasePopulator
 
+from creme_config.models import SettingKey, SettingValue
+
 from persons.models import Organisation, Contact
+
+from products.models import Product, Service
 
 from billing.models import *
 from billing.constants import *
@@ -37,12 +40,20 @@ class Populator(BasePopulator):
 
     def populate(self, *args, **kwargs):
         billing_entities = [Invoice, Quote, SalesOrder, CreditNote, TemplateBase]
-
+        line_entities = [Line, ProductLine, ServiceLine]
         RelationType.create((REL_SUB_BILL_ISSUED,   _(u"issued by"),    billing_entities),
                             (REL_OBJ_BILL_ISSUED,   _(u"has issued"),   [Organisation])
                            )
         RelationType.create((REL_SUB_BILL_RECEIVED, _(u"received by"),  billing_entities),
                             (REL_OBJ_BILL_RECEIVED, _(u"has received"), [Organisation, Contact])
+                           )
+        RelationType.create((REL_SUB_HAS_LINE, _(u"had the line"),   billing_entities),
+                            (REL_OBJ_HAS_LINE, _(u"is the line of"), line_entities),
+                            is_internal=True
+                           )
+        RelationType.create((REL_SUB_LINE_RELATED_ITEM, _(u"has the related item"),   line_entities),
+                            (REL_OBJ_LINE_RELATED_ITEM, _(u"is the related item of"), [Product, Service]),
+                            is_internal=True
                            )
 
         #NB: pk=1 --> default status (used when a quote is converted in invoice for example)
@@ -94,6 +105,24 @@ class Populator(BasePopulator):
         create_hf('billing-hf_quote',      _(u'Quote view'),       Quote)
         create_hf('billing-hf_salesorder', _(u'Sales order view'), SalesOrder)
         create_hf('billing-hf_creditnote', _(u'Credit note view'), CreditNote)
+
+
+        def create_hf_lines(hf_pk, name, model, include_type=True):
+            hf = HeaderFilter.create(pk=hf_pk, name=name, model=model)
+            items = [HeaderFilterItem.build_4_field(model=model, name='on_the_fly_item'),
+                     HeaderFilterItem.build_4_field(model=model, name='quantity'),
+                     HeaderFilterItem.build_4_field(model=model, name='unit_price'),
+                     HeaderFilterItem.build_4_field(model=model, name='is_paid'),
+                    ]
+
+            if include_type:
+                items.append(HeaderFilterItem.build_4_functionfield(model.function_fields.get('get_verbose_type')))
+
+            hf.set_items(items)
+
+        create_hf_lines('billing-hg_lines',          _(u"Lines view"),         Line)
+        create_hf_lines('billing-hg_product_lines',  _(u"Product lines view"), ProductLine, include_type=False)
+        create_hf_lines('billing-hg_service_lines',  _(u"Service lines view"), ServiceLine, include_type=False)
 
         for model in (Invoice, CreditNote, Quote, SalesOrder):
             SearchConfigItem.create(model, ['name', 'number', 'status__name'])

@@ -95,6 +95,7 @@ class Populator(BasePopulator):
                       HeaderFilterItem.build_4_field(model=Opportunity, name='reference'),
                       HeaderFilterItem.build_4_field(model=Opportunity, name='sales_phase__name'),
                       HeaderFilterItem.build_4_field(model=Opportunity, name='closing_date'),
+                      HeaderFilterItem.build_4_relation(rtype=RelationType.objects.get(pk=REL_SUB_TARGETS_ORGA)), #TODO: use a variable ??
                      ])
 
         ButtonMenuItem.create(pk='opportunities-linked_opp_button', model=Organisation, button=linked_opportunity_button, order=30)

@@ -30,6 +30,7 @@ class FunctionField(object):
     verbose_name = "" #verbose name (used by HeaderFilter)
     has_filter   = False #see HeaderFilterItem.has_a_filter
     is_hidden    = False #see HeaderFilterItem.is_hidden
+    choices      = None #Choices for list_view filtering. Has to be like django choices (e.g: [(1, 'First choice', ...), ] )
 
     @classmethod
     def filter_in_result(cls, search_string):

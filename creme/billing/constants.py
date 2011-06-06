@@ -14,6 +14,12 @@ REL_OBJ_BILL_ISSUED = 'billing-object_bill_issued'
 REL_SUB_BILL_RECEIVED = 'billing-subject_bill_received'
 REL_OBJ_BILL_RECEIVED = 'billing-object_bill_received'
 
+REL_SUB_HAS_LINE = 'billing-subject_had_line'
+REL_OBJ_HAS_LINE = 'billing-object_had_line'
+
+REL_SUB_LINE_RELATED_ITEM = 'billing-subject_line_related_item'
+REL_OBJ_LINE_RELATED_ITEM = 'billing-object_line_related_item'
+
 DEFAULT_DRAFT_INVOICE_STATUS = 1
 DEFAULT_INVOICE_STATUS = 2
 

@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from datetime import date
+from datetime import datetime, date
 from itertools import ifilter
 
 from django.db.models import Model, CharField, TextField, PositiveSmallIntegerField, BooleanField, ForeignKey, Q
@@ -557,7 +557,7 @@ class EntityFilterCondition(Model):
         related_name = search_info['rname']
         fname = '%s__value' % related_name
 
-        q_dict = self._load_daterange(search_info).get_q_dict(field=fname, today=date.today())
+        q_dict = self._load_daterange(search_info).get_q_dict(field=fname, now=datetime.now())
         q_dict['%s__custom_field' % related_name] = int(self.name)
 
         return Q(pk__in=self.filter.entity_type.model_class().objects.filter(**q_dict).values_list('id', flat=True))
@@ -616,7 +616,7 @@ class EntityFilterCondition(Model):
             EFC_RELATION:           _get_q_relation,
             EFC_RELATION_SUBFILTER: _get_q_relation_subfilter,
             EFC_PROPERTY:           _get_q_property,
-            EFC_DATEFIELD:          (lambda self: Q(**self._load_daterange(self.decoded_value).get_q_dict(field=self.name, today=date.today()))),
+            EFC_DATEFIELD:          (lambda self: Q(**self._load_daterange(self.decoded_value).get_q_dict(field=self.name, now=datetime.now()))),
             EFC_CUSTOMFIELD:        _get_q_customfield,
             EFC_DATECUSTOMFIELD:    _get_q_datecustomfield,
         }

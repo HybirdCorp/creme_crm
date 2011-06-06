@@ -72,15 +72,17 @@ class Origin(CremeModel):
 
 
 class Opportunity(CremeEntity):
-    name            = CharField(_(u"Name of the opportunity"), max_length=100, blank=False, null=False)
-    reference       = CharField(_(u"Reference"), max_length=100, blank=True, null=True)
-    estimated_sales = PositiveIntegerField(_(u'Estimated sales'), blank=True, null=True)
-    made_sales      = PositiveIntegerField(_(u'Made sales'), blank=True, null=True)
-    sales_phase     = ForeignKey(SalesPhase, verbose_name=_(u'Sales phase'))
-    chance_to_win   = PositiveIntegerField(_(ur"% of chance to win"), blank=True, null=True)
-    closing_date    = DateField(_(u'Closing date'), blank=False, null=False)
-    origin          = ForeignKey(Origin, verbose_name=_(u'Origin'), blank=True, null=True)
-    description     = TextField(_(u'Description'), blank=True, null=True)
+    name                  = CharField(_(u"Name of the opportunity"), max_length=100)
+    reference             = CharField(_(u"Reference"), max_length=100, blank=True, null=True)
+    estimated_sales       = PositiveIntegerField(_(u'Estimated sales'), blank=True, null=True)
+    made_sales            = PositiveIntegerField(_(u'Made sales'), blank=True, null=True)
+    sales_phase           = ForeignKey(SalesPhase, verbose_name=_(u'Sales phase'))
+    chance_to_win         = PositiveIntegerField(_(ur"% of chance to win"), blank=True, null=True)
+    expected_closing_date = DateField(_(u'Expected closing date'), blank=True, null=True)
+    closing_date          = DateField(_(u'Actual closing date'), blank=True, null=True)
+    origin                = ForeignKey(Origin, verbose_name=_(u'Origin'), blank=True, null=True)
+    description           = TextField(_(u'Description'), blank=True, null=True)
+    first_action_date     = DateField(_(u'Date of the first action'), blank=True, null=True)
 
     function_fields = CremeEntity.function_fields.new(_TurnoverField)
 
@@ -121,17 +123,24 @@ class Opportunity(CremeEntity):
             self._use_lines = SettingValue.objects.get(key=SETTING_USE_LINES).value
         return self._use_lines
 
+    #TODO: factorise with billing ??
     @property
     def product_lines(self):
         if self._product_lines is None:
-            self._product_lines = ProductLine.objects.filter(document=self)
+            self._product_lines = list(ProductLine.objects.filter(relations__object_entity=self.id))
         return self._product_lines
 
+    #TODO: factorise with billing ??
     @property
     def service_lines(self):
         if self._service_lines is None:
-            self._service_lines = ServiceLine.objects.filter(document=self)
+            self._service_lines = list(ServiceLine.objects.filter(relations__object_entity=self.id))
         return self._service_lines
+
+    #TODO: factorise with billing ??
+    def invalidate_cache(self):
+        self._productlines_cache = None
+        self._servicelines_cache = None
 
     #TODO: factorise with billing ??
     def get_total(self):

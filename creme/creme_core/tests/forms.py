@@ -269,13 +269,11 @@ class MultiGenericEntityFieldTestCase(FieldTestCase):
 
         value = '[{"ctype":"%s","entity":"%s"}, {"ctype":"%s","entity":"%s"}]' % (contact_ctype.pk, contact.pk,
                                                                                   organisation_ctype.pk, organisation.pk)
-
         entities = field.clean(value)
-
         self.assertEquals(2, len(entities))
 
-        self.assertEquals(contact, entities[0])
-        self.assertEquals(organisation, entities[1])
+        self.assertEqual(set([contact, organisation]), set(entities))
+
 
 
 def populate_good_bad_property_entities(user):
