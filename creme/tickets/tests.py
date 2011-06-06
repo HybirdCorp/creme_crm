@@ -266,6 +266,7 @@ class TicketTestCase(CremeTestCase):
             self.assertNotEqual(stack[-1].title, clone.title)
             stack_append(clone)
 
+
 class TicketTemplateTestCase(CremeTestCase):
     def setUp(self):
         self.populate('tickets')

@@ -21,8 +21,7 @@
 from django.utils.translation import ugettext as _
 
 from creme_core.utils import create_or_update as create
-from creme_core.models.header_filter import HeaderFilterItem, HeaderFilter, HFI_FIELD
-from creme_core.models import RelationType, SearchConfigItem
+from creme_core.models import RelationType, SearchConfigItem, HeaderFilterItem, HeaderFilter
 from creme_core.management.commands.creme_populate import BasePopulator
 
 from persons.models import Contact
@@ -49,22 +48,22 @@ class Populator(BasePopulator):
         for pk, statusdesc in TASK_STATUS.iteritems():
             create(TaskStatus, pk, name=unicode(statusdesc.name), description=unicode(statusdesc.verbose_name), is_custom=False)
 
-        hf   = HeaderFilter.create(pk='projects-hf_project', name=_(u'Project view'), model=Project)
-        pref = 'projects-hfi_project_'
-        create(HeaderFilterItem, pref + 'name', order=1, name='name',        title=_(u'Name'),        type=HFI_FIELD, header_filter=hf, has_a_filter=True, editable=True, sortable=True, filter_string="name__icontains")
-        create(HeaderFilterItem, pref + 'desc', order=2, name='description', title=_(u'Description'), type=HFI_FIELD, header_filter=hf, has_a_filter=True, editable=True, sortable=True, filter_string="description__icontains")
+        hf = HeaderFilter.create(pk='projects-hf_project', name=_(u'Project view'), model=Project)
+        hf.set_items([HeaderFilterItem.build_4_field(model=Project, name='name'),
+                      HeaderFilterItem.build_4_field(model=Project, name='description'),
+                     ])
 
         #used in form
-        hf   = HeaderFilter.create(pk='projects-hf_task', name=_(u'Task view'), model=ProjectTask)
-        pref = 'projects-hfi_task_'
-        create(HeaderFilterItem, pref + 'title', order=1, name='title',       title=_(u'Name of the task'),        type=HFI_FIELD, header_filter=hf, has_a_filter=True, editable=True, sortable=True, filter_string="title__icontains")
-        create(HeaderFilterItem, pref + 'desc',  order=2, name='description', title=_(u'Description of the task'), type=HFI_FIELD, header_filter=hf, has_a_filter=True, editable=True, sortable=True, filter_string="description__icontains")
+        hf = HeaderFilter.create(pk='projects-hf_task', name=_(u'Task view'), model=ProjectTask)
+        hf.set_items([HeaderFilterItem.build_4_field(model=ProjectTask, name='title'),
+                      HeaderFilterItem.build_4_field(model=ProjectTask, name='description'),
+                     ])
 
         #used in form
-        hf   = HeaderFilter.create(pk='projects-hf_resource', name=_(u'Resource view'), model=Resource)
-        pref = 'projects-hfi_resource_'
-        create(HeaderFilterItem, pref + 'contact', order=1, name='linked_contact', title=_(u'Name of the resource'), type=HFI_FIELD, header_filter=hf, has_a_filter=True, editable=True, sortable=True, filter_string="linked_contact__icontains")
-        create(HeaderFilterItem, pref + 'cost',    order=2, name='hourly_cost',    title=_(u'Hourly cost'),          type=HFI_FIELD, header_filter=hf, has_a_filter=True, editable=True, sortable=True, filter_string="hourly_cost__icontains")
+        hf = HeaderFilter.create(pk='projects-hf_resource', name=_(u'Resource view'), model=Resource)
+        hf.set_items([HeaderFilterItem.build_4_field(model=Resource, name='linked_contact'),
+                      HeaderFilterItem.build_4_field(model=Resource, name='hourly_cost'),
+                     ])
 
         SearchConfigItem.create(Project,     ['name', 'description', 'status__name'])
         SearchConfigItem.create(Resource,    ['linked_contact__first_name', 'linked_contact__last_name', 'hourly_cost'])

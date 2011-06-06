@@ -19,20 +19,20 @@
 ################################################################################
 
 from django.utils.translation import ugettext as _
-from creme_config.models.setting import SettingKey, SettingKey, SettingValue, SettingValue
 
 from creme_core.utils import create_or_update as create
-from creme_core.models.header_filter import HeaderFilterItem, HeaderFilter, HFI_FIELD, HFI_FUNCTION
-from creme_core.models import RelationType, SearchConfigItem, ButtonMenuItem
+from creme_core.models import RelationType, SearchConfigItem, ButtonMenuItem, HeaderFilterItem, HeaderFilter
 from creme_core.management.commands.creme_populate import BasePopulator
 
+from creme_config.models import SettingKey, SettingValue
+
 from persons.models import Organisation, Contact
+
+from products.models import Product, Service
 
 from billing.models import *
 from billing.constants import *
 from billing.buttons import generate_invoice_number_button
-
-from products.models import Product, Service
 
 
 class Populator(BasePopulator):
@@ -91,31 +91,38 @@ class Populator(BasePopulator):
 
         ButtonMenuItem.create(pk='billing-generate_invoice_number', model=Invoice, button=generate_invoice_number_button, order=0)
 
-        def create_hf(hf_pk, hfi_pref, name, model):
+        #def create_hf(hf_pk, hfi_pref, name, model):
+        def create_hf(hf_pk, name, model):
             hf = HeaderFilter.create(pk=hf_pk, name=name, model=model)
-            create(HeaderFilterItem, hfi_pref + 'name',    order=1, name='name',            title=_(u'Name'),            type=HFI_FIELD, header_filter=hf, has_a_filter=True, editable=True, sortable=True, filter_string="name__icontains")
-            create(HeaderFilterItem, hfi_pref + 'number',  order=2, name='number',          title=_(u'Number'),          type=HFI_FIELD, header_filter=hf, has_a_filter=True, editable=True, sortable=True, filter_string="number__icontains")
-            create(HeaderFilterItem, hfi_pref + 'issdate', order=3, name='issuing_date',    title=_(u"Issuing date"),    type=HFI_FIELD, header_filter=hf, has_a_filter=True, editable=True, sortable=True, filter_string="issuing_date__range")
-            create(HeaderFilterItem, hfi_pref + 'expdate', order=4, name='expiration_date', title=_(u"Expiration date"), type=HFI_FIELD, header_filter=hf, has_a_filter=True, editable=True, sortable=True, filter_string="expiration_date__range")
-            create(HeaderFilterItem, hfi_pref + 'status',  order=5, name='status__name',    title=_(u'Status - Name'),   type=HFI_FIELD, header_filter=hf, has_a_filter=True, editable=True, sortable=True, filter_string="status__name__icontains")
+            hf.set_items([HeaderFilterItem.build_4_field(model=model, name='name'),
+                          HeaderFilterItem.build_4_field(model=model, name='number'),
+                          HeaderFilterItem.build_4_field(model=model, name='issuing_date'),
+                          HeaderFilterItem.build_4_field(model=model, name='expiration_date'),
+                          HeaderFilterItem.build_4_field(model=model, name='status__name'),
+                         ])
 
-        create_hf('billing-hf_invoice',    'billing-hfi_invoice_',    _(u'Invoice view'),     Invoice)
-        create_hf('billing-hf_quote',      'billing-hfi_quote_',      _(u'Quote view'),       Quote)
-        create_hf('billing-hf_salesorder', 'billing-hfi_salesorder_', _(u'Sales order view'), SalesOrder)
-        create_hf('billing-hf_creditnote', 'billing-hfi_creditnote_', _(u'Credit note view'), CreditNote)
+        create_hf('billing-hf_invoice',    _(u'Invoice view'),     Invoice)
+        create_hf('billing-hf_quote',      _(u'Quote view'),       Quote)
+        create_hf('billing-hf_salesorder', _(u'Sales order view'), SalesOrder)
+        create_hf('billing-hf_creditnote', _(u'Credit note view'), CreditNote)
 
-        def create_hf_lines(hf_pk, hfi_pref, name, model, include_type=True):
-            hf_lines = HeaderFilter.create(pk=hf_pk, name=name, model=model)
-            create(HeaderFilterItem, hfi_pref + 'on_the_fly_item',  order=1, name='on_the_fly_item',  title=_(u'On the fly item'), type=HFI_FIELD,    header_filter=hf_lines, has_a_filter=True, editable=True, sortable=True, filter_string="on_the_fly_item__icontains")
-            create(HeaderFilterItem, hfi_pref + 'quantity',         order=2, name='quantity',         title=_(u'Quantity'),        type=HFI_FIELD,    header_filter=hf_lines, has_a_filter=True, editable=True, sortable=True, filter_string="quantity__icontains")
-            create(HeaderFilterItem, hfi_pref + 'unit_price',       order=3, name='unit_price',       title=_(u'Unit price'),      type=HFI_FIELD,    header_filter=hf_lines, has_a_filter=True, editable=True, sortable=True, filter_string="unit_price__icontains")
-            create(HeaderFilterItem, hfi_pref + 'is_paid',          order=4, name='is_paid',          title=_(u'Is paid'),         type=HFI_FIELD,    header_filter=hf_lines, has_a_filter=True, editable=True, sortable=True, filter_string="is_paid__icontains")
+
+        def create_hf_lines(hf_pk, name, model, include_type=True):
+            hf = HeaderFilter.create(pk=hf_pk, name=name, model=model)
+            items = [HeaderFilterItem.build_4_field(model=model, name='on_the_fly_item'),
+                     HeaderFilterItem.build_4_field(model=model, name='quantity'),
+                     HeaderFilterItem.build_4_field(model=model, name='unit_price'),
+                     HeaderFilterItem.build_4_field(model=model, name='is_paid'),
+                    ]
+
             if include_type:
-                create(HeaderFilterItem, hfi_pref + 'get_verbose_type', order=5, name='get_verbose_type', title=_(u'Line type'),       type=HFI_FUNCTION, header_filter=hf_lines, has_a_filter=True, editable=True, sortable=False)
+                items.append(HeaderFilterItem.build_4_functionfield(model.function_fields.get('get_verbose_type')))
 
-        create_hf_lines('billing-hg_lines', 'billing-hfi_line_', _(u"Lines view"), Line)
-        create_hf_lines('billing-hg_product_lines', 'billing-hfi_product_line_', _(u"Product lines view"), ProductLine, include_type=False)
-        create_hf_lines('billing-hg_service_lines', 'billing-hfi_service_line_', _(u"Service lines view"), ServiceLine, include_type=False)
+            hf.set_items(items)
+
+        create_hf_lines('billing-hg_lines',          _(u"Lines view"),         Line)
+        create_hf_lines('billing-hg_product_lines',  _(u"Product lines view"), ProductLine, include_type=False)
+        create_hf_lines('billing-hg_service_lines',  _(u"Service lines view"), ServiceLine, include_type=False)
 
         for model in (Invoice, CreditNote, Quote, SalesOrder):
             SearchConfigItem.create(model, ['name', 'number', 'status__name'])

@@ -37,12 +37,17 @@ class ReportsTestCase(CremeTestCase):
     def create_report(self, name):
         ct_id = ContentType.objects.get_for_model(Contact).id
 
-        hf = HeaderFilter.objects.create(pk='test_hf', name='name', entity_type_id=ct_id)
+        hf = HeaderFilter.create(pk='test_hf', name='name', model=Contact)
         create_hfi = HeaderFilterItem.objects.create
         create_hfi(pk='hfi1', order=1, name='last_name',             title='Last name',  type=HFI_FIELD,    header_filter=hf, filter_string="last_name__icontains")
         create_hfi(pk='hfi2', order=2, name='user',                  title='User',       type=HFI_FIELD,    header_filter=hf, filter_string="user__username__icontains")
         create_hfi(pk='hfi3', order=3, name='related_to',            title='Related to', type=HFI_RELATION, header_filter=hf, filter_string="", relation_predicat_id=REL_SUB_RELATED_TO)
         create_hfi(pk='hfi4', order=4, name='get_pretty_properties', title='Properties', type=HFI_FUNCTION, header_filter=hf, filter_string="")
+        #hf.set_items([HeaderFilterItem.build_4_field(model=Contact, name='last_name'),
+                      #HeaderFilterItem.build_4_field(model=Contact, name='user'),
+                      #HeaderFilterItem.build_4_relation(RelationType.objects.get(pk=REL_SUB_RELATED_TO)),
+                      #HeaderFilterItem.build_4_functionfield(Contact.function_fields.get('get_pretty_properties')),
+                     #])
 
         response = self.client.post('/reports/report/add', follow=True,
                                     data={
@@ -70,7 +75,6 @@ class ReportsTestCase(CremeTestCase):
 
     def create_simple_contact(self):
         return Contact.objects.create(user=self.user)
-
 
     def get_field(self, report, field_name):
         try:

@@ -20,8 +20,7 @@
 
 from django.utils.translation import ugettext as _
 
-from creme_core.models import SearchConfigItem, RelationType
-from creme_core.models.header_filter import HeaderFilterItem, HeaderFilter, HFI_FIELD
+from creme_core.models import SearchConfigItem, RelationType, HeaderFilterItem, HeaderFilter
 from creme_core.utils import create_or_update as create
 from creme_core.management.commands.creme_populate import BasePopulator
 
@@ -68,10 +67,10 @@ class Populator(BasePopulator):
             create(EventType, i + 1, name=name)
 
         hf = HeaderFilter.create(pk='events-hf', name=_(u'Event view'), model=Event)
-        pref = 'events-hfi_'
-        create(HeaderFilterItem, pref + 'name',       order=1, name='name',       title=_(u'Name'),        type=HFI_FIELD, header_filter=hf, has_a_filter=True, editable=True, sortable=True, filter_string="name__icontains")
-        create(HeaderFilterItem, pref + 'type',       order=2, name='type__name', title=_(u'Type - Name'), type=HFI_FIELD, header_filter=hf, has_a_filter=True, editable=True, sortable=True, filter_string="type__name__icontains")
-        create(HeaderFilterItem, pref + 'start_date', order=3, name='start_date', title=_(u'Start date'),  type=HFI_FIELD, header_filter=hf, has_a_filter=True, editable=True, sortable=True, filter_string="start_date__range")
-        create(HeaderFilterItem, pref + 'end_date',   order=4, name='end_date',   title=_(u'End date'),    type=HFI_FIELD, header_filter=hf, has_a_filter=True, editable=True, sortable=True, filter_string="end_date__range")
+        hf.set_items([HeaderFilterItem.build_4_field(model=Event, name='name'),
+                      HeaderFilterItem.build_4_field(model=Event, name='type__name'),
+                      HeaderFilterItem.build_4_field(model=Event, name='start_date'),
+                      HeaderFilterItem.build_4_field(model=Event, name='end_date'),
+                     ])
 
         SearchConfigItem.create(Event, ['name', 'description', 'type__name'])

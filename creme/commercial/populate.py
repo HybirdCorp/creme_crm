@@ -22,8 +22,7 @@ from django.utils.translation import ugettext as _
 from creme_config.models.setting import SettingKey, SettingValue
 
 from creme_core.models import (RelationType, BlockConfigItem, CremePropertyType,
-                               SearchConfigItem, ButtonMenuItem)
-from creme_core.models.header_filter import HeaderFilterItem, HeaderFilter, HFI_FIELD
+                               SearchConfigItem, ButtonMenuItem, HeaderFilterItem, HeaderFilter)
 from creme_core.utils import create_or_update as create
 from creme_core.management.commands.creme_populate import BasePopulator
 
@@ -55,19 +54,20 @@ class Populator(BasePopulator):
 
         create(BlockConfigItem, 'commercial-approaches_block', content_type=None, block_id=approaches_block.id_, order=10,  on_portal=False)
 
-        hf   = HeaderFilter.create(pk='commercial-hf_act', name=_(u"Com Action view"), model=Act)
-        pref = 'commercial-hfi_act_'
-        create(HeaderFilterItem, pref + 'name',           order=1, name='name',           title=_(u'Name'),           type=HFI_FIELD, header_filter=hf, has_a_filter=True, editable=True, sortable=True, filter_string="name__icontains")
-        create(HeaderFilterItem, pref + 'expected_sales', order=2, name='expected_sales', title=_(u'Expected sales'), type=HFI_FIELD, header_filter=hf, has_a_filter=True, editable=True, sortable=True, filter_string="expected_sales__icontains")
-        create(HeaderFilterItem, pref + 'due_date',       order=3, name='due_date',       title=_(u'Due date'),       type=HFI_FIELD, header_filter=hf, has_a_filter=True, editable=True, sortable=True, filter_string="due_date__range")
+        hf = HeaderFilter.create(pk='commercial-hf_act', name=_(u"Com Action view"), model=Act)
+        hf.set_items([HeaderFilterItem.build_4_field(model=Act, name='name'),
+                      HeaderFilterItem.build_4_field(model=Act, name='expected_sales'),
+                      HeaderFilterItem.build_4_field(model=Act, name='due_date'),
+                     ])
 
         hf = HeaderFilter.create(pk='commercial-hf_strategy', name=_(u"Strategy view"), model=Strategy)
-        create(HeaderFilterItem, 'commercial-hfi_strategy_name', order=1, name='name', title=_(u'Name'), type=HFI_FIELD, header_filter=hf, has_a_filter=True, editable=True, sortable=True, filter_string="name__icontains")
+        hf.set_items([HeaderFilterItem.build_4_field(model=Strategy, name='name')])
 
         hf   = HeaderFilter.create(pk='commercial-hf_objpattern', name=_(u"Objective pattern view"), model=ActObjectivePattern)
         pref = 'commercial-hfi_objpattern_'
-        create(HeaderFilterItem, pref + 'name',    order=1, name='name',    title=_(u'Name'),    type=HFI_FIELD, header_filter=hf, has_a_filter=True, editable=True, sortable=True, filter_string="name__icontains")
-        create(HeaderFilterItem, pref + 'segment', order=2, name='segment', title=_(u'Segment'), type=HFI_FIELD, header_filter=hf, has_a_filter=True, editable=True, sortable=True, filter_string="segment__name__icontains")
+        hf.set_items([HeaderFilterItem.build_4_field(model=ActObjectivePattern, name='name'),
+                      HeaderFilterItem.build_4_field(model=ActObjectivePattern, name='segment'),
+                     ])
 
         ButtonMenuItem.create(pk='commercial-complete_goal_button', model=None, button=complete_goal_button, order=60)
 

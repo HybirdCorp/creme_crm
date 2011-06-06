@@ -23,8 +23,8 @@ from django.contrib.contenttypes.models import ContentType
 from django.contrib.auth.models import User
 
 from creme_core import autodiscover as creme_core_autodiscover
-from creme_core.models.header_filter import HeaderFilterItem, HeaderFilter, HFI_FIELD, HFI_RELATION
 from creme_core.models import (RelationType, CremeProperty, CremePropertyType,
+                               HeaderFilter, HeaderFilterItem,
                                EntityFilter, EntityFilterCondition,
                                ButtonMenuItem, SearchConfigItem, RelationBlockItem, BlockConfigItem)
 from creme_core.constants import PROP_IS_MANAGED_BY_CREME
@@ -93,32 +93,34 @@ class Populator(BasePopulator):
         create(StaffSize, 5, size="100 - 500")
         create(StaffSize, 6, size="> 500")
 
-        hf   = HeaderFilter.create(pk='persons-hf_contact', name=_(u'Contact view'), model=Contact)
-        pref = 'persons-hfi_contact_'
-        create(HeaderFilterItem, pref + 'lastname',  order=1, name='last_name',        title=_(u'Last name'),       type=HFI_FIELD,    header_filter=hf, has_a_filter=True, editable=True,  filter_string="last_name__icontains")
-        create(HeaderFilterItem, pref + 'firstname', order=2, name='first_name',       title=_(u'First name'),      type=HFI_FIELD,    header_filter=hf, has_a_filter=True, editable=True,  filter_string="first_name__icontains")
-        create(HeaderFilterItem, pref + 'phone',     order=3, name='phone',            title=_(u'Phone'),           type=HFI_FIELD,    header_filter=hf, has_a_filter=True, editable=True,  filter_string="phone__icontains")
-        create(HeaderFilterItem, pref + 'email',     order=4, name='email',            title=_(u'E-mail'),          type=HFI_FIELD,    header_filter=hf, has_a_filter=True, editable=True,  filter_string="email__icontains")
-        create(HeaderFilterItem, pref + 'user',      order=5, name='user__username',   title=_(u'User - Username'), type=HFI_FIELD,    header_filter=hf, has_a_filter=True, editable=True,  filter_string="user__username__icontains")
-        create(HeaderFilterItem, pref + 'employee',  order=6, name='est_salarie_chez', title=_(u'Employed by'),     type=HFI_RELATION, header_filter=hf, has_a_filter=True, editable=False, filter_string="", relation_predicat_id=REL_SUB_EMPLOYED_BY)
+        get_rtype = RelationType.objects.get
 
-        hf   = HeaderFilter.create(pk='persons-hf_leadcustomer', name=_(u'Prospect/Suspect view'), model=Organisation)
-        pref = 'persons-hfi_leadcustomer_'
-        create(HeaderFilterItem, pref + 'name',      order=1, name='name',           title=_(u'Name'),                 type=HFI_FIELD,    header_filter=hf, has_a_filter=True, editable=True,  filter_string="name__icontains")
-        create(HeaderFilterItem, pref + 'sector',    order=2, name='sector__title',  title=_(u'Sector - Sector name'), type=HFI_FIELD,    header_filter=hf, has_a_filter=True, editable=True,  filter_string="sector__title__icontains")
-        create(HeaderFilterItem, pref + 'phone',     order=3, name='phone',          title=_(u'Phone'),                type=HFI_FIELD,    header_filter=hf, has_a_filter=True, editable=True,  filter_string="phone__icontains")
-        create(HeaderFilterItem, pref + 'email',     order=4, name='email',          title=_(u'E-mail'),               type=HFI_FIELD,    header_filter=hf, has_a_filter=True, editable=True,  filter_string="email__icontains")
-        create(HeaderFilterItem, pref + 'user',      order=5, name='user__username', title=_(u'User - Username'),      type=HFI_FIELD,    header_filter=hf, has_a_filter=True, editable=True,  filter_string="user__username__icontains")
-        create(HeaderFilterItem, pref + 'customer',  order=6, name='is_cusomer_of',  title=_(u'Customer of'),          type=HFI_RELATION, header_filter=hf, has_a_filter=True, editable=False, filter_string="", relation_predicat_id=REL_SUB_CUSTOMER_OF)
-        create(HeaderFilterItem, pref + 'prospect',  order=7, name='is_prospect_of', title=_(u'Prospect of'),          type=HFI_RELATION, header_filter=hf, has_a_filter=True, editable=False, filter_string="", relation_predicat_id=REL_SUB_PROSPECT)
-        create(HeaderFilterItem, pref + 'suspect',   order=8, name='is_suspect_of',  title=_(u'Suspect of'),           type=HFI_RELATION, header_filter=hf, has_a_filter=True, editable=False, filter_string="", relation_predicat_id=REL_SUB_SUSPECT)
+        hf = HeaderFilter.create(pk='persons-hf_contact', name=_(u'Contact view'), model=Contact)
+        hf.set_items([HeaderFilterItem.build_4_field(model=Contact, name='last_name'),
+                      HeaderFilterItem.build_4_field(model=Contact, name='first_name'),
+                      HeaderFilterItem.build_4_field(model=Contact, name='phone'),
+                      HeaderFilterItem.build_4_field(model=Contact, name='email'),
+                      HeaderFilterItem.build_4_field(model=Contact, name='user__username'),
+                      HeaderFilterItem.build_4_relation(get_rtype(pk=REL_SUB_EMPLOYED_BY)),
+                     ])
 
-        hf   = HeaderFilter.create(pk='persons-hf_organisation', name=_(u'Organisation view'), model=Organisation)
-        pref = 'persons-hfi_organisation_'
-        create(HeaderFilterItem, pref + 'name',  order=1, name='name',           title=_(u'Name'),            type=HFI_FIELD,    header_filter=hf, has_a_filter=True, editable=True, filter_string="name__icontains")
-        create(HeaderFilterItem, pref + 'phone', order=2, name='phone',          title=_(u'Phone'),           type=HFI_FIELD,    header_filter=hf, has_a_filter=True, editable=True, filter_string="phone__icontains")
-        create(HeaderFilterItem, pref + 'user',  order=3, name='user__username', title=_(u'User - Username'), type=HFI_FIELD,    header_filter=hf, has_a_filter=True, editable=True, filter_string="user__username__icontains")
-        create(HeaderFilterItem, pref + 'resp',  order=4, name='managed_by',     title=_(u'Managed by'),      type=HFI_RELATION, header_filter=hf, has_a_filter=True, editable=False, filter_string="", relation_predicat_id=REL_OBJ_MANAGES)
+        hf = HeaderFilter.create(pk='persons-hf_leadcustomer', name=_(u'Prospect/Suspect view'), model=Organisation)
+        hf.set_items([HeaderFilterItem.build_4_field(model=Organisation, name='name'),
+                      HeaderFilterItem.build_4_field(model=Organisation, name='sector__title'),
+                      HeaderFilterItem.build_4_field(model=Organisation, name='phone'),
+                      HeaderFilterItem.build_4_field(model=Organisation, name='email'),
+                      HeaderFilterItem.build_4_field(model=Organisation, name='user__username'),
+                      HeaderFilterItem.build_4_relation(get_rtype(pk=REL_SUB_CUSTOMER_OF)),
+                      HeaderFilterItem.build_4_relation(get_rtype(pk=REL_SUB_PROSPECT)),
+                      HeaderFilterItem.build_4_relation(get_rtype(pk=REL_SUB_SUSPECT)),
+                     ])
+
+        hf = HeaderFilter.create(pk='persons-hf_organisation', name=_(u'Organisation view'), model=Organisation)
+        hf.set_items([HeaderFilterItem.build_4_field(model=Organisation, name='name'),
+                      HeaderFilterItem.build_4_field(model=Organisation, name='phone'),
+                      HeaderFilterItem.build_4_field(model=Organisation, name='user__username'),
+                      HeaderFilterItem.build_4_relation(get_rtype(pk=REL_OBJ_MANAGES)),
+                     ])
 
         ButtonMenuItem.create(pk='persons-customer_contact_button', model=Contact, button=become_customer_button, order=20)
         ButtonMenuItem.create(pk='persons-prospect_contact_button', model=Contact, button=become_prospect_button, order=21)
