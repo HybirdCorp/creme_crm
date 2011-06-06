@@ -59,6 +59,7 @@ class DocumentCreateViewForm(DocumentCreateForm):
     def save(self):
         entity = self.related_entity.get_real_entity()
         user   = self.cleaned_data['user']
+        entity_folder = None
 
         #TODO: reduce code depth
         try:

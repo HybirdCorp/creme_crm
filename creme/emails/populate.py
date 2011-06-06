@@ -43,7 +43,7 @@ class Populator(BasePopulator):
                             (REL_OBJ_MAIL_SENDED, _(u"sended the email"), [Organisation, Contact]))
 
         hf = HeaderFilter.create(pk='emails-hf_mailinglist', name=_(u"Mailing list view"), model=MailingList)
-        hf.set_items([HeaderFilterItem.build_4_field(model=MailingList, name='name'])
+        hf.set_items([HeaderFilterItem.build_4_field(model=MailingList, name='name')])
 
         hf = HeaderFilter.create(pk='emails-hf_campaign', name=_(u"Campaign view"), model=EmailCampaign)
         hf.set_items([HeaderFilterItem.build_4_field(model=EmailCampaign, name='name')])
@@ -64,5 +64,4 @@ class Populator(BasePopulator):
         SearchConfigItem.create(EmailCampaign, ['name', 'mailing_lists__name'])
         SearchConfigItem.create(MailingList,   ['name', 'children__name', 'contacts__first_name', 'contacts__last_name', 'organisations__name'])
         SearchConfigItem.create(EmailTemplate, ['name', 'subject', 'body', 'attachments__title'])
-        SearchConfigItem.create(EntityEmail,   ['sender', 'recipient', 'subject',])
-
+        SearchConfigItem.create(EntityEmail,   ['sender', 'recipient', 'subject'])

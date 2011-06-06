@@ -755,4 +755,13 @@ class PersonsTestCase(CremeTestCase):
         Relation.objects.create(user=user, subject_entity=competitor, object_entity=meeting, type_id=REL_SUB_ACTIVITY_SUBJECT)
         self.assertEqual(1, len(self._get_neglected_orgas()))
 
+    def test_neglected_block07(self): #inactive client are not counted
+        self.login()
+
+        mng_orga   = Organisation.objects.all()[0]
+        customer01 = self._build_customer_orga(mng_orga, 'Konoha')
+        customer02 = self._build_customer_orga(mng_orga, 'Suna')
+        Relation.objects.create(user=self.user, subject_entity=customer02, object_entity=mng_orga, type_id=REL_SUB_INACTIVE)
+        self.assertEqual([customer01.id], [orga.id for orga in self._get_neglected_orgas()])
+
 #TODO: tests for portal stats

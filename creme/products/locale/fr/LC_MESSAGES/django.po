@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-04-12 13:57+0200\n"
+"POT-Creation-Date: 2011-05-31 13:41+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -16,27 +16,27 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: creme_core_register.py:29
+#: creme_core_register.py:30
 msgid "Products and services"
 msgstr "Produits et services"
 
-#: creme_core_register.py:33
+#: creme_core_register.py:34
 msgid "Portal"
 msgstr "Portail"
 
-#: creme_core_register.py:34
+#: creme_core_register.py:35
 msgid "All products"
 msgstr "Lister les produits"
 
-#: creme_core_register.py:35
+#: creme_core_register.py:36
 msgid "Add a product"
 msgstr "Ajouter un produit"
 
-#: creme_core_register.py:36
+#: creme_core_register.py:37
 msgid "All services"
 msgstr "Lister les services"
 
-#: creme_core_register.py:37
+#: creme_core_register.py:38
 msgid "Add a service"
 msgstr "Ajouter un service"
 
@@ -68,131 +68,180 @@ msgstr "Vue de Service"
 msgid "Reference"
 msgstr "Référence"
 
-#: populate.py:51
-msgid "Category 1"
-msgstr "Catégorie 1"
+#: populate.py:49
+msgid "Jewelry"
+msgstr "Bijoux"
+
+#: populate.py:50
+msgid "Ring"
+msgstr "Bague"
 
 #: populate.py:51
-msgid "Description of 'category 1'"
-msgstr "Description de 'catégorie 1'"
+msgid "Bracelet"
+msgstr "Bracelet"
 
 #: populate.py:52
-msgid "Category 2"
-msgstr "Catégorie 2"
+msgid "Necklace"
+msgstr "Collier"
 
-#: populate.py:52
-msgid "Description of 'category 2'"
-msgstr "Description de 'catégorie 2'"
-
-#: populate.py:54
-msgid "Cooking"
-msgstr "Cuisine"
-
-#: populate.py:54
-msgid "Items for the kitchen"
-msgstr "Articles pour la cuisine"
+#: populate.py:53
+msgid "Earrings"
+msgstr "Boucles d'oreille"
 
 #: populate.py:55
-msgid "Fruit/vegetables"
-msgstr "Primeurs"
-
-#: populate.py:55
-msgid "Early fruit and vegetables"
-msgstr "Fruits, légumes, ..."
+msgid "Mobile"
+msgstr "Mobile"
 
 #: populate.py:56
+msgid "Iphone"
+msgstr "Iphone"
+
+#: populate.py:57
+msgid "Blackberry"
+msgstr "Blackberry"
+
+#: populate.py:58
+msgid "Samsung"
+msgstr "Samsung"
+
+#: populate.py:59
+msgid "Android"
+msgstr "Android"
+
+#: populate.py:61
 msgid "Informatic"
 msgstr "Informatique"
 
-#: populate.py:56
-msgid "Geeks' sideline"
-msgstr "La gamme des geeks"
-
-#: populate.py:58
-msgid "Oven"
-msgstr "Four"
-
-#: populate.py:58
-msgid "Gas oven"
-msgstr "Four à gaz"
-
-#: populate.py:59
-msgid "Pans"
-msgstr "Casseroles"
-
-#: populate.py:59
-msgid "To cook"
-msgstr "Pour faire la cuisine"
-
-#: populate.py:60
+#: populate.py:62
 msgid "Laptops"
 msgstr "Portables"
 
-#: populate.py:60
-msgid "Laptops, netbooks"
-msgstr "Les PC portables"
-
-#: populate.py:61
+#: populate.py:63
 msgid "Desktops"
 msgstr "Bureau"
 
-#: populate.py:61
-msgid "Home computers"
-msgstr "Les PC de salon"
-
-#: populate.py:62
-msgid "Accessories"
-msgstr "Accessoires"
-
-#: populate.py:62
-msgid "Accessories for desktops/laptops"
-msgstr "Accessoires pour PC fixes/portables"
-
-#: populate.py:63
-msgid "Fruits"
-msgstr "Fruits"
-
-#: populate.py:63
-msgid "Bananas, apples..."
-msgstr "Bananes, pommes..."
-
 #: populate.py:64
-msgid "Vegetables"
-msgstr "Légumes"
+msgid "Tablet"
+msgstr "Tablette"
 
-#: populate.py:64
-msgid "Carrots, potatoes..."
-msgstr "Carottes, patates..."
+#: populate.py:65
+msgid "Notebook"
+msgstr "Netbook"
 
-#: forms/product.py:35 models/product.py:43 models/service.py:37
-msgid "Category"
-msgstr "Catégorie"
+#: populate.py:67
+msgid "Travels"
+msgstr "Voyages"
 
-#: forms/product.py:37 models/product.py:44
+#: populate.py:68
+msgid "Fly"
+msgstr "Vol"
+
+#: populate.py:69
+msgid "Hotel"
+msgstr "Hôtel"
+
+#: populate.py:70
+msgid "Week-end"
+msgstr "Week-end"
+
+#: populate.py:71
+msgid "Rent"
+msgstr "Location"
+
+#: populate.py:73
+msgid "Vehicle"
+msgstr "Véhicule"
+
+#: populate.py:74
+msgid "Car"
+msgstr "Voiture"
+
+#: populate.py:75
+msgid "Moto"
+msgstr "Moto"
+
+#: populate.py:76
+msgid "Boat"
+msgstr "Bateau"
+
+#: populate.py:77
+msgid "Plane"
+msgstr "Avion"
+
+#: populate.py:79
+msgid "Games & Toys"
+msgstr "Jeux & jouets"
+
+#: populate.py:80
+msgid "Boys"
+msgstr "Garçons"
+
+#: populate.py:81
+msgid "Girls"
+msgstr "Filles"
+
+#: populate.py:82
+msgid "Teens"
+msgstr "Adolescents"
+
+#: populate.py:83 populate.py:89
+msgid "Baybies"
+msgstr "Bébés"
+
+#: populate.py:85
+msgid "Clothes"
+msgstr "Vêtements"
+
+#: populate.py:86
+msgid "Men"
+msgstr "Hommes"
+
+#: populate.py:87
+msgid "Women"
+msgstr "Femmes"
+
+#: populate.py:88
+msgid "Kids"
+msgstr "Enfants"
+
+#: forms/product.py:45
+msgid "This category doesn't exist."
+msgstr "Cette catégorie n'existe pas."
+
+#: forms/product.py:46
+msgid "This category cause constraint error."
+msgstr "Cette catégorie à causé une erreur de contrainte."
+
+#: forms/product.py:47
+msgid "This sub-category cause constraint error."
+msgstr "Cette sous-catégorie à causé une erreur de contrainte."
+
+#: forms/product.py:123 forms/service.py:33 models/other_models.py:53
+#: models/product.py:44 models/service.py:38
 msgid "Sub-category"
 msgstr "Sous-catégorie"
 
-#: forms/product.py:39 forms/service.py:33 models/product.py:45
-#: models/service.py:43
+#: forms/product.py:125 forms/service.py:35 models/product.py:45
+#: models/service.py:44
 msgid "Images"
 msgstr "Images"
 
-#: models/other_models.py:28 models/other_models.py:58
+#: models/other_models.py:28
 msgid "Name of the category"
 msgstr "Nom de la catégorie"
 
-#: models/other_models.py:29 models/other_models.py:45
-#: models/other_models.py:59 models/product.py:37 models/service.py:35
+#: models/other_models.py:29 models/other_models.py:45 models/product.py:37
+#: models/service.py:35
 msgid "Description"
 msgstr "Description"
 
-#: models/other_models.py:39
-msgid "Category of product"
-msgstr "Catégorie de produit"
+#: models/other_models.py:39 models/product.py:43 models/service.py:37
+msgid "Category"
+msgstr "Catégorie"
 
 #: models/other_models.py:40
-msgid "Categories of product"
-msgstr "Catégories de produit"
+msgid "Categories"
+msgstr "Catégories"
 
 #: models/other_models.py:44
 msgid "Name of the sub-category"
@@ -202,27 +251,15 @@ msgstr "Nom de la sous-catégorie"
 msgid "Parent category"
 msgstr "Catégorie parente"
 
-#: models/other_models.py:53
-msgid "Sub-category of product"
-msgstr "Sous-catégorie de produit"
-
 #: models/other_models.py:54
-msgid "Sub-categories of product"
-msgstr "Sous-catégories de produit"
+msgid "Sub-categories"
+msgstr "Sous-catégories"
 
-#: models/other_models.py:66
-msgid "Category of service"
-msgstr "Catégorie de service"
-
-#: models/other_models.py:67
-msgid "Categories of service"
-msgstr "Catégories de service"
-
-#: models/product.py:38 models/service.py:40
+#: models/product.py:38 models/service.py:41
 msgid "Quantity/Unit"
 msgstr "Quantité/Unité"
 
-#: models/product.py:39 models/service.py:41
+#: models/product.py:39 models/service.py:42
 msgid "Unit price"
 msgstr "Prix Unitaire"
 
@@ -234,31 +271,31 @@ msgstr "Poids"
 msgid "Quantity/Stock"
 msgstr "Quantité/Stock"
 
-#: models/product.py:42 models/service.py:42
+#: models/product.py:42 models/service.py:43
 msgid "Web Site"
 msgstr "Site Web"
 
-#: models/product.py:72 templates/products/view_product.html:5
+#: models/product.py:73 templates/products/view_product.html:5
 msgid "Product"
 msgstr "Produit"
 
-#: models/product.py:73
+#: models/product.py:74
 msgid "Products"
 msgstr "Produits"
 
-#: models/service.py:38
+#: models/service.py:39
 msgid "Countable"
 msgstr "Dénombrable"
 
-#: models/service.py:39
+#: models/service.py:40
 msgid "Unit"
 msgstr "Unité"
 
-#: models/service.py:62 templates/products/view_service.html:4
+#: models/service.py:63 templates/products/view_service.html:4
 msgid "Service"
 msgstr "Service"
 
-#: models/service.py:63
+#: models/service.py:64
 msgid "Services"
 msgstr "Services"
 
@@ -270,10 +307,6 @@ msgstr "Portail Produits & Services"
 msgid "List of products"
 msgstr "Liste des produits"
 
-#: views/ajax.py:47
-msgid "Choose a category"
-msgstr "Choisissez une catégorie"
-
 #: views/portal.py:35
 msgid "Number of products"
 msgstr "Nombre de produit(s)"
@@ -281,6 +314,90 @@ msgstr "Nombre de produit(s)"
 #: views/portal.py:36
 msgid "Number of services"
 msgstr "Nombre de service(s)"
+
+#~ msgid "Cooking"
+#~ msgstr "Cuisine"
+
+#~ msgid "Items for the kitchen"
+#~ msgstr "Articles pour la cuisine"
+
+#~ msgid "Fruit/vegetables"
+#~ msgstr "Primeurs"
+
+#~ msgid "Early fruit and vegetables"
+#~ msgstr "Fruits, légumes, ..."
+
+#~ msgid "Geeks' sideline"
+#~ msgstr "La gamme des geeks"
+
+#~ msgid "Oven"
+#~ msgstr "Four"
+
+#~ msgid "Gas oven"
+#~ msgstr "Four à gaz"
+
+#~ msgid "Pans"
+#~ msgstr "Casseroles"
+
+#~ msgid "To cook"
+#~ msgstr "Pour faire la cuisine"
+
+#~ msgid "Laptops, netbooks"
+#~ msgstr "Les PC portables"
+
+#~ msgid "Home computers"
+#~ msgstr "Les PC de salon"
+
+#~ msgid "Accessories"
+#~ msgstr "Accessoires"
+
+#~ msgid "Accessories for desktops/laptops"
+#~ msgstr "Accessoires pour PC fixes/portables"
+
+#~ msgid "Fruits"
+#~ msgstr "Fruits"
+
+#~ msgid "Bananas, apples..."
+#~ msgstr "Bananes, pommes..."
+
+#~ msgid "Vegetables"
+#~ msgstr "Légumes"
+
+#~ msgid "Carrots, potatoes..."
+#~ msgstr "Carottes, patates..."
+
+#~ msgid "Category 1"
+#~ msgstr "Catégorie 1"
+
+#~ msgid "Description of 'category 1'"
+#~ msgstr "Description de 'catégorie 1'"
+
+#~ msgid "Category 2"
+#~ msgstr "Catégorie 2"
+
+#~ msgid "Description of 'category 2'"
+#~ msgstr "Description de 'catégorie 2'"
+
+#~ msgid "Category of product"
+#~ msgstr "Catégorie de produit"
+
+#~ msgid "Categories of product"
+#~ msgstr "Catégories de produit"
+
+#~ msgid "Sub-category of product"
+#~ msgstr "Sous-catégorie de produit"
+
+#~ msgid "Sub-categories of product"
+#~ msgstr "Sous-catégories de produit"
+
+#~ msgid "Category of service"
+#~ msgstr "Catégorie de service"
+
+#~ msgid "Categories of service"
+#~ msgstr "Catégories de service"
+
+#~ msgid "Choose a category"
+#~ msgstr "Choisissez une catégorie"
 
 #~ msgid "User"
 #~ msgstr "Utilisateur"

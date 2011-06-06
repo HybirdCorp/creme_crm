@@ -22,7 +22,7 @@ from collections import defaultdict
 from logging import debug
 
 from django.db.models import (Model, CharField, ForeignKey, BooleanField, PositiveIntegerField,
-                              PositiveSmallIntegerField, DateField, DateTimeField)
+                              PositiveSmallIntegerField, DateField, DateTimeField, ManyToManyField)
 from django.db.models.signals import pre_delete
 from django.utils.translation import ugettext_lazy as _, ugettext
 from django.contrib.contenttypes.models import ContentType
@@ -40,6 +40,7 @@ HFI_FUNCTION   = 3
 HFI_CUSTOM     = 4
 HFI_CALCULATED = 5 #TODO: Used only in reports for the moment, integrate into HF?
 HFI_VOLATILE   = 6 #not saved in DB : added at runtime to implements tricky columnns ; see HeaderFilterItem.volatile_render
+HFI_RELATED    = 7 #Related entities (only allowed by the model) #TODO: Used only in reports for the moment, integrate into HF?
 
 
 class HeaderFilterList(list):
@@ -231,7 +232,8 @@ class HeaderFilterItem(Model):  #CremeModel ???
         if not field_info:
             raise HeaderFilterItem.ValueError(u'Invalid field: %s' % name)
 
-        field   = field_info[0]['field']
+        field = field_info[0]['field']
+        has_a_filter = True
         pattern = "%s__icontains"
 
         if isinstance(field, ForeignKey) :
@@ -244,11 +246,14 @@ class HeaderFilterItem(Model):  #CremeModel ???
             pattern = "%s__range"
         elif isinstance(field, BooleanField):
             pattern = "%s__creme-boolean"
+        elif isinstance(field, ManyToManyField) and len(field_info) > 1:
+            #pattern = "%s__in"
+            has_a_filter = False
 
         return HeaderFilterItem(name=name,
                                  title=u" - ".join(unicode(info['field'].verbose_name) for info in field_info),
                                  type=HFI_FIELD,
-                                 has_a_filter=True,
+                                 has_a_filter=has_a_filter,
                                  editable=True,
                                  sortable=True,
                                  filter_string=pattern % name

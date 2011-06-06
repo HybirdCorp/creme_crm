@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2011  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -32,7 +32,9 @@ from creme import form_post_save
 
 
 class OpportunityEditForm(CremeEntityForm):
-    closing_date = CremeDateTimeField(label=_(u'Closing date'))
+    expected_closing_date = CremeDateTimeField(label=_(u'Expected closing date'), required=False)
+    closing_date          = CremeDateTimeField(label=_(u'Actual closing date'), required=False)
+    first_action_date     = CremeDateTimeField(label=_(u'Date of the first action'), required=False)
 
     class Meta(CremeEntityForm.Meta):
         model = Opportunity
@@ -44,7 +46,7 @@ class OpportunityCreateForm(OpportunityEditForm):
 
     def __init__(self, *args, **kwargs):
         super(OpportunityCreateForm, self).__init__(*args, **kwargs)
-        self.fields['emit_orga'].queryset = Organisation.get_all_managed_by_creme() #TODO: can we move the quetyset in the field directly ??
+        self.fields['emit_orga'].queryset = Organisation.get_all_managed_by_creme() #TODO: can we move the queryset in the field directly ??
 
     def clean_target_orga(self):
         return validate_linkable_entity(self.cleaned_data['target_orga'], self.user)

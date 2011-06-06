@@ -12,7 +12,7 @@ class ProductAdmin(admin.ModelAdmin):
 
 
 class ServiceAdmin(admin.ModelAdmin):
-    list_display = ('name', 'description', 'reference', 'category', 'countable', 'unit', 'quantity_per_unit', 'unit_price', 'web_site')
+    list_display = ('name', 'description', 'reference', 'category', 'sub_category', 'countable', 'unit', 'quantity_per_unit', 'unit_price', 'web_site')
     list_filter = ['category']
     search_fields = ['name']
 
@@ -22,5 +22,4 @@ register(Category)
 register(SubCategory)
 register(Product, ProductAdmin)
 
-register(ServiceCategory)
 register(Service, ServiceAdmin)

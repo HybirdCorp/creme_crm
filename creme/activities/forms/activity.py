@@ -259,7 +259,7 @@ class ActivityCreateForm(CremeEntityForm):
             alert_start_time = cleaned_data.get('alert_start_time') or time()
             alert_day        = cleaned_data.get('alert_day') or activity.start
 
-            Alert.objects.create(for_user=activity.user,
+            Alert.objects.create(user=activity.user,
                                  trigger_date=alert_day.replace(hour=alert_start_time.hour, minute=alert_start_time.minute),
                                  creme_entity=activity,
                                  title=ugettext(u"Alert of activity"),
