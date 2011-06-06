@@ -370,8 +370,6 @@ CREME_OPT_JS = ( #OPTIONNAL APPS
                 ('creme.cti',     'cti/js/cti.js'),
                )
 
-MEDIA_BUNDLES = (CREME_CORE_CSS, CREME_I18N_JS, CREME_CORE_JS + tuple(js for app, js in CREME_OPT_JS if app in INSTALLED_APPS))
-
 ROOT_MEDIA_FILTERS = {
     'js':  'mediagenerator.filters.yuicompressor.YUICompressor',
     #'js':  'mediagenerator.filters.closure.Closure', #NB: Closure causes compilation errors...
@@ -460,3 +458,6 @@ try:
     from local_settings import *
 except ImportError:
     pass
+
+#MEDIA GENERATOR [FINAL SETTINGS]
+MEDIA_BUNDLES = (CREME_CORE_CSS, CREME_I18N_JS, CREME_CORE_JS + tuple(js for app, js in CREME_OPT_JS if app in INSTALLED_APPS))
