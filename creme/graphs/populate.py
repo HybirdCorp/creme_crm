@@ -20,9 +20,7 @@
 
 from django.utils.translation import ugettext as _
 
-from creme_core.models import SearchConfigItem
-from creme_core.models.header_filter import HeaderFilterItem, HeaderFilter, HFI_FIELD
-from creme_core.utils import create_or_update as create
+from creme_core.models import SearchConfigItem, HeaderFilterItem, HeaderFilter
 from creme_core.management.commands.creme_populate import BasePopulator
 
 from models import Graph
@@ -33,8 +31,6 @@ class Populator(BasePopulator):
 
     def populate(self, *args, **kwargs):
         hf = HeaderFilter.create(pk='graphs-hf', name=_(u'Graph view'), model=Graph)
-        pref  = 'graphs-hfi_graph_'
-        create(HeaderFilterItem, pref + 'name', order=1, name='name', title=_(u'Name'), type=HFI_FIELD, header_filter=hf, has_a_filter=True, editable=True, sortable=True, filter_string="name__icontains")
+        hf.set_items([HeaderFilterItem.build_4_field(model=Graph, name='name')])
 
         SearchConfigItem.create(Graph, ['name'])
-

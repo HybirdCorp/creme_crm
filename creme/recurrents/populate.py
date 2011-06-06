@@ -21,8 +21,7 @@
 from django.utils.translation import ugettext as _
 
 from creme_core.utils import create_or_update as create
-from creme_core.models import SearchConfigItem
-from creme_core.models.header_filter import HeaderFilterItem, HeaderFilter, HFI_FIELD
+from creme_core.models import SearchConfigItem, HeaderFilterItem, HeaderFilter
 from creme_core.management.commands.creme_populate import BasePopulator
 
 from recurrents.models import RecurrentGenerator, Periodicity
@@ -39,9 +38,8 @@ class Populator(BasePopulator):
         create(Periodicity, 5, name=_(u'Biannual'),  value_in_days=180, description=_(u'Every semester'))
         create(Periodicity, 6, name=_(u'Annual'),    value_in_days=365, description=_(u'Every year'))
 
-        hf   = HeaderFilter.create(pk='recurrents-hf', name=_(u'Generator view'), model=RecurrentGenerator)
-        pref = 'recurrents-hfi_'
-        create(HeaderFilterItem, pref + 'name', order=1, name='name', title=_(u'Name'), type=HFI_FIELD, header_filter=hf, has_a_filter=True, editable=True, sortable=True, filter_string="name__icontains")
+        hf = HeaderFilter.create(pk='recurrents-hf', name=_(u'Generator view'), model=RecurrentGenerator)
+        hf.set_items([HeaderFilterItem.build_4_field(model=RecurrentGenerator, name='name')])
 
         SearchConfigItem.create(RecurrentGenerator, ['name', 'description', 'periodicity__name', 'ct__name'])
 

@@ -22,8 +22,7 @@ from django.utils.translation import ugettext as _
 from creme_config.models.setting import SettingKey, SettingKey, SettingValue, SettingValue
 
 from creme_core.utils import create_or_update as create
-from creme_core.models.header_filter import HeaderFilterItem, HeaderFilter, HFI_FIELD
-from creme_core.models import RelationType, SearchConfigItem, ButtonMenuItem
+from creme_core.models import RelationType, SearchConfigItem, ButtonMenuItem, HeaderFilterItem, HeaderFilter
 from creme_core.management.commands.creme_populate import BasePopulator
 
 from persons.models import Organisation, Contact
@@ -81,18 +80,20 @@ class Populator(BasePopulator):
 
         ButtonMenuItem.create(pk='billing-generate_invoice_number', model=Invoice, button=generate_invoice_number_button, order=0)
 
-        def create_hf(hf_pk, hfi_pref, name, model):
+        #def create_hf(hf_pk, hfi_pref, name, model):
+        def create_hf(hf_pk, name, model):
             hf = HeaderFilter.create(pk=hf_pk, name=name, model=model)
-            create(HeaderFilterItem, hfi_pref + 'name',    order=1, name='name',            title=_(u'Name'),            type=HFI_FIELD, header_filter=hf, has_a_filter=True, editable=True, sortable=True, filter_string="name__icontains")
-            create(HeaderFilterItem, hfi_pref + 'number',  order=2, name='number',          title=_(u'Number'),          type=HFI_FIELD, header_filter=hf, has_a_filter=True, editable=True, sortable=True, filter_string="number__icontains")
-            create(HeaderFilterItem, hfi_pref + 'issdate', order=3, name='issuing_date',    title=_(u"Issuing date"),    type=HFI_FIELD, header_filter=hf, has_a_filter=True, editable=True, sortable=True, filter_string="issuing_date__range")
-            create(HeaderFilterItem, hfi_pref + 'expdate', order=4, name='expiration_date', title=_(u"Expiration date"), type=HFI_FIELD, header_filter=hf, has_a_filter=True, editable=True, sortable=True, filter_string="expiration_date__range")
-            create(HeaderFilterItem, hfi_pref + 'status',  order=5, name='status__name',    title=_(u'Status - Name'),   type=HFI_FIELD, header_filter=hf, has_a_filter=True, editable=True, sortable=True, filter_string="status__name__icontains")
+            hf.set_items([HeaderFilterItem.build_4_field(model=model, name='name'),
+                          HeaderFilterItem.build_4_field(model=model, name='number'),
+                          HeaderFilterItem.build_4_field(model=model, name='issuing_date'),
+                          HeaderFilterItem.build_4_field(model=model, name='expiration_date'),
+                          HeaderFilterItem.build_4_field(model=model, name='status__name'),
+                         ])
 
-        create_hf('billing-hf_invoice',    'billing-hfi_invoice_',    _(u'Invoice view'),     Invoice)
-        create_hf('billing-hf_quote',      'billing-hfi_quote_',      _(u'Quote view'),       Quote)
-        create_hf('billing-hf_salesorder', 'billing-hfi_salesorder_', _(u'Sales order view'), SalesOrder)
-        create_hf('billing-hf_creditnote', 'billing-hfi_creditnote_', _(u'Credit note view'), CreditNote)
+        create_hf('billing-hf_invoice',    _(u'Invoice view'),     Invoice)
+        create_hf('billing-hf_quote',      _(u'Quote view'),       Quote)
+        create_hf('billing-hf_salesorder', _(u'Sales order view'), SalesOrder)
+        create_hf('billing-hf_creditnote', _(u'Credit note view'), CreditNote)
 
         for model in (Invoice, CreditNote, Quote, SalesOrder):
             SearchConfigItem.create(model, ['name', 'number', 'status__name'])

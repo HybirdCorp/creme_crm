@@ -21,8 +21,7 @@
 from django.contrib.auth.models import User
 from django.utils.translation import ugettext as _
 
-from creme_core.models.header_filter import HeaderFilterItem, HeaderFilter, HFI_FIELD
-from creme_core.models import RelationType, BlockConfigItem, ButtonMenuItem, SearchConfigItem
+from creme_core.models import RelationType, BlockConfigItem, ButtonMenuItem, SearchConfigItem, HeaderFilterItem, HeaderFilter
 from creme_core.utils import create_or_update as create
 from creme_core.management.commands.creme_populate import BasePopulator
 
@@ -67,12 +66,12 @@ class Populator(BasePopulator):
         create(ActivityType, ACTIVITYTYPE_INDISPO,   name=_(u"Indisponibility"), color="CC0000", default_day_duration=1, default_hour_duration="00:00:00", is_custom=False)
 
         hf   = HeaderFilter.create(pk='activities-hf', name=_(u'Activity view'), model=Activity)
-        pref = 'activities-hfi_'
-        create(HeaderFilterItem, pref + 'title', order=1, name='title',        title=_(u'Name'),          type=HFI_FIELD, header_filter=hf, has_a_filter=True, editable=True, sortable=True, filter_string="title__icontains")
-        create(HeaderFilterItem, pref + 'start', order=2, name='start',        title=_(u'Start'),         type=HFI_FIELD, header_filter=hf, has_a_filter=True, editable=True, sortable=True, filter_string="start__range")
-        create(HeaderFilterItem, pref + 'end',   order=3, name='end',          title=_(u'End'),           type=HFI_FIELD, header_filter=hf, has_a_filter=True, editable=True, sortable=True, filter_string="end__range")
-        create(HeaderFilterItem, pref + 'type',  order=5, name='type__name',   title=_(u'Type - Name'),   type=HFI_FIELD, header_filter=hf, has_a_filter=True, editable=True, sortable=True, filter_string="type__name__icontains")
-        create(HeaderFilterItem, pref + 'type',  order=4, name='status__name', title=_(u'Status - Name'), type=HFI_FIELD, header_filter=hf, has_a_filter=True, editable=True, sortable=True, filter_string="status__name__icontains")
+        hf.set_items([HeaderFilterItem.build_4_field(model=Activity, name='title'),
+                      HeaderFilterItem.build_4_field(model=Activity, name='start'),
+                      HeaderFilterItem.build_4_field(model=Activity, name='end'),
+                      HeaderFilterItem.build_4_field(model=Activity, name='type__name'),
+                      HeaderFilterItem.build_4_field(model=Activity, name='status__name'),
+                     ])
 
         BlockConfigItem.create(pk='activities-future_activities_block', block_id=future_activities_block.id_, order=20, on_portal=False)
         BlockConfigItem.create(pk='activities-past_activities_block',   block_id=past_activities_block.id_,   order=21, on_portal=False)

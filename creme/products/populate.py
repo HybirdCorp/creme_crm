@@ -20,8 +20,7 @@
 
 from django.utils.translation import ugettext as _
 
-from creme_core.models import SearchConfigItem
-from creme_core.models.header_filter import HeaderFilterItem, HeaderFilter, HFI_FIELD
+from creme_core.models import SearchConfigItem, HeaderFilterItem, HeaderFilter
 from creme_core.utils import create_or_update as create
 from creme_core.management.commands.creme_populate import BasePopulator
 
@@ -32,20 +31,19 @@ class Populator(BasePopulator):
     dependencies = ['creme.creme_core']
 
     def populate(self, *args, **kwargs):
-        hf   = HeaderFilter.create(pk='products-hf_product', name=_(u'Product view'), model=Product)
-        pref = 'products-hfi_product_'
-        create(HeaderFilterItem, pref + 'images', order=1, name='images__name',   title=_(u'Images - Name'),   type=HFI_FIELD, header_filter=hf, has_a_filter=True, editable=False, sortable=False, filter_string="images__name__icontains")
-        create(HeaderFilterItem, pref + 'name',   order=2, name='name',           title=_(u'Name'),            type=HFI_FIELD, header_filter=hf, has_a_filter=True, editable=True,  sortable=True,  filter_string="name__icontains")
-        create(HeaderFilterItem, pref + 'code',   order=3, name='code',           title=_(u'Code'),            type=HFI_FIELD, header_filter=hf, has_a_filter=True, editable=True,  sortable=True,  filter_string="code__icontains")
-        create(HeaderFilterItem, pref + 'user',   order=4, name='user__username', title=_(u'User - Username'), type=HFI_FIELD, header_filter=hf, has_a_filter=True, editable=True,  sortable=True,  filter_string="user__username__icontains")
+        hf = HeaderFilter.create(pk='products-hf_product', name=_(u'Product view'), model=Product)
+        hf.set_items([HeaderFilterItem.build_4_field(model=Product, name='images__name'),
+                      HeaderFilterItem.build_4_field(model=Product, name='name'),
+                      HeaderFilterItem.build_4_field(model=Product, name='code'),
+                      HeaderFilterItem.build_4_field(model=Product, name='user__username'),
+                     ])
 
-        hf   = HeaderFilter.create(pk='products-hf_service', name=_(u'Service view'), model=Service)
-        pref = 'products-hfi_service_'
-        create(HeaderFilterItem, pref + 'images', order=1, name='images__name',   title=_(u'Images - Name'),   type=HFI_FIELD, header_filter=hf, has_a_filter=True, editable=False, sortable=False, filter_string="images__name__icontains")
-        create(HeaderFilterItem, pref + 'name',   order=2, name='name',           title=_(u'Name'),            type=HFI_FIELD, header_filter=hf, has_a_filter=True, editable=True,  sortable=True,  filter_string="name__icontains")
-        create(HeaderFilterItem, pref + 'ref',    order=3, name='reference',      title=_(u'Reference'),       type=HFI_FIELD, header_filter=hf, has_a_filter=True, editable=True,  sortable=True,  filter_string="reference__icontains")
-        create(HeaderFilterItem, pref + 'user',   order=4, name='user__username', title=_(u'User - Username'), type=HFI_FIELD, header_filter=hf, has_a_filter=True, editable=True,  sortable=True,  filter_string="user__username__icontains")
-
+        hf = HeaderFilter.create(pk='products-hf_service', name=_(u'Service view'), model=Service)
+        hf.set_items([HeaderFilterItem.build_4_field(model=Service, name='images__name'),
+                      HeaderFilterItem.build_4_field(model=Service, name='name'),
+                      HeaderFilterItem.build_4_field(model=Service, name='reference'),
+                      HeaderFilterItem.build_4_field(model=Service, name='user__username'),
+                     ])
 
         #TODO: move to customer's populate.py ??
         create(ServiceCategory, 1, name=_(u"Category 1"), description=_(u"Description of 'category 1'"))

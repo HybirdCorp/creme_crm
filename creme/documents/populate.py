@@ -23,8 +23,7 @@ from logging import info
 from django.utils.translation import ugettext as _
 from django.contrib.auth.models import User
 
-from creme_core.models.header_filter import HeaderFilterItem, HeaderFilter, HFI_FIELD
-from creme_core.models import RelationType, BlockConfigItem, SearchConfigItem
+from creme_core.models import RelationType, BlockConfigItem, SearchConfigItem, HeaderFilterItem, HeaderFilter
 from creme_core.utils import create_or_update as create
 from creme_core.management.commands.creme_populate import BasePopulator
 
@@ -49,17 +48,16 @@ class Populator(BasePopulator):
         else:
             info("A Folder with title 'Creme' already exists => no re-creation")
 
-        hf_doc   = HeaderFilter.create(pk='documents-hf_document', name=_(u"Document view"), model=Document)
-        pref = 'documents-hfi_document_'
-        create(HeaderFilterItem, pref + 'title',  order=1, name='title',         title=_(u'Title'),          type=HFI_FIELD, header_filter=hf_doc, has_a_filter=True, editable=True, sortable=True, filter_string="title__icontains")
-        create(HeaderFilterItem, pref + 'folder', order=2, name='folder__title', title=_(u'Folder - Title'), type=HFI_FIELD, header_filter=hf_doc, has_a_filter=True, editable=True, sortable=True, filter_string="folder__title__icontains")
+        hf = HeaderFilter.create(pk='documents-hf_document', name=_(u"Document view"), model=Document)
+        hf.set_items([HeaderFilterItem.build_4_field(model=Document, name='title'),
+                      HeaderFilterItem.build_4_field(model=Document, name='folder__title'),
+                     ])
 
-        hf_folder   = HeaderFilter.create(pk='documents-hf_folder', name=_(u"Folder view"), model=Folder)
-        pref = 'documents-hfi_folder_'
-        create(HeaderFilterItem, pref + 'title',       order=1, name='title',          title=_(u'Title'),           type=HFI_FIELD, header_filter=hf_folder, has_a_filter=True, editable=True, sortable=True, filter_string="title__icontains")
-        create(HeaderFilterItem, pref + 'description', order=2, name='description',    title=_(u'Description'),     type=HFI_FIELD, header_filter=hf_folder, has_a_filter=True, editable=True, sortable=True, filter_string="description__icontains")
-        create(HeaderFilterItem, pref + 'category',    order=3, name='category__name', title=_(u'Category - Name'), type=HFI_FIELD, header_filter=hf_folder, has_a_filter=True, editable=True, sortable=True, filter_string="category__name__icontains")
-
+        hf = HeaderFilter.create(pk='documents-hf_folder', name=_(u"Folder view"), model=Folder)
+        hf.set_items([HeaderFilterItem.build_4_field(model=Folder, name='title'),
+                      HeaderFilterItem.build_4_field(model=Folder, name='description'),
+                      HeaderFilterItem.build_4_field(model=Folder, name='category__name'),
+                     ])
 
         BlockConfigItem.create(pk='documents-linked_docs_block', block_id=linked_docs_block.id_, order=1000, on_portal=False)
 
