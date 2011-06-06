@@ -20,9 +20,7 @@
 
 from django.utils.translation import ugettext as _
 
-from creme_core.models import SearchConfigItem
-from creme_core.models.header_filter import HeaderFilterItem, HeaderFilter, HFI_FIELD
-from creme_core.utils import create_or_update as create
+from creme_core.models import SearchConfigItem, HeaderFilterItem, HeaderFilter
 from creme_core.management.commands.creme_populate import BasePopulator
 
 from reports.models import Report
@@ -32,9 +30,9 @@ class Populator(BasePopulator):
     dependencies = ['creme.creme_core']
 
     def populate(self, *args, **kwargs):
-        hf   = HeaderFilter.create(pk='reports-hf', name=_(u'Report view'), model=Report)
-        pref = 'reports-hfi_report_'
-        create(HeaderFilterItem, pref + 'name', order=1, name='name',     title=_(u'Name'),               type=HFI_FIELD, header_filter=hf, has_a_filter=True, editable=True, sortable=True, filter_string="name__icontains")
-        create(HeaderFilterItem, pref + 'ct',   order=2, name='ct__name', title=_(u"Entity type - Name"), type=HFI_FIELD, header_filter=hf, has_a_filter=True, editable=True, sortable=True, filter_string="ct__name__icontains")
+        hf = HeaderFilter.create(pk='reports-hf', name=_(u'Report view'), model=Report)
+        hf.set_items([HeaderFilterItem.build_4_field(model=Report, name='name'),
+                      HeaderFilterItem.build_4_field(model=Report, name='ct__name'),
+                     ])
 
         SearchConfigItem.create(Report, ['name', 'ct__name'])

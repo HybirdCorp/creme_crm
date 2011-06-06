@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2011  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -24,7 +24,6 @@ from logging import debug
 
 from django.db import models
 from django.db.models.query_utils import Q
-from django.db.models.fields import FieldDoesNotExist
 from django.forms import MultipleChoiceField, ValidationError
 from django.utils.translation import ugettext_lazy as _, ugettext
 from django.contrib.contenttypes.models import ContentType
@@ -34,7 +33,7 @@ from creme_core.models import RelationType, CustomField
 from creme_core.forms import CremeModelForm
 from creme_core.forms.widgets import OrderedMultipleChoiceWidget
 from creme_core.gui.listview import get_field_name_from_pattern
-from creme_core.utils.meta import get_flds_with_fk_flds_str, get_model_field_infos
+from creme_core.utils.meta import get_flds_with_fk_flds_str
 from creme_core.utils.id_generator import generate_string_id_and_save
 
 
@@ -57,16 +56,13 @@ class HeaderFilterForm(CremeModelForm):
 
         fields['user'].empty_label = ugettext(u'All users')
 
-        if instance.id:
-            ct = ContentType.objects.get_for_id(instance.entity_type_id)
-        else:
-            ct = self.initial.get('content_type')
-
+        ct = ContentType.objects.get_for_id(instance.entity_type_id) if instance.id else \
+             self.initial.get('content_type')
         self._entity_type = ct
         model = ct.model_class()
 
         #caches
-        self._relation_types = RelationType.objects.filter(Q(subject_ctypes=ct)|Q(subject_ctypes__isnull=True)).order_by('predicate').values_list('id', 'predicate')
+        self._relation_types = RelationType.objects.filter(Q(subject_ctypes=ct)|Q(subject_ctypes__isnull=True)).order_by('predicate')
         self._custom_fields  = CustomField.objects.filter(content_type=ct)
 
         fields_choices = set(chain(get_flds_with_fk_flds_str(model, 1), get_flds_with_fk_flds_str(model, 0)))
@@ -74,7 +70,7 @@ class HeaderFilterForm(CremeModelForm):
 
         fields['fields'].choices = fields_choices
         fields['custom_fields'].choices = [(cf.id, cf.name) for cf in self._custom_fields]
-        fields['relations'].choices = self._relation_types
+        fields['relations'].choices = [(rtype.id, rtype.predicate) for rtype in self._relation_types]
         fields['functions'].choices = [(f.name, f.verbose_name) for f in model.function_fields]
 
         if instance.id:
@@ -88,17 +84,17 @@ class HeaderFilterForm(CremeModelForm):
             fields['relations'].initial = [hfi.relation_predicat_id for hfi in initial_data[HFI_RELATION]]
             fields['functions'].initial = [hfi.name for hfi in initial_data[HFI_FUNCTION]]
 
-    #NB: _get_cfield_name() & _get_predicate() : we do linear searches because
+    #NB: _get_cfield_name() & _get_rtype() : we do linear searches because
     #   there are very few searches => build a dict wouldn't be faster
     def _get_cfield(self, cfield_id):
         for cfield in self._custom_fields:
             if cfield.id == cfield_id:
                 return cfield
 
-    def _get_predicate(self, relation_type_id):
-        for id_, predicate in self._relation_types:
-            if id_ == relation_type_id:
-                return predicate
+    def _get_rtype(self, rtype_id):
+        for rtype in self._relation_types:
+            if rtype.id == rtype_id:
+                return rtype
 
     def clean(self):
         cleaned_data = self.cleaned_data
@@ -129,91 +125,24 @@ class HeaderFilterForm(CremeModelForm):
             super(HeaderFilterForm, self).save(commit=False)
             generate_string_id_and_save(HeaderFilter, [instance], 'creme_core-userhf_%s-%s' % (ct.app_label, ct.model))
 
-        model_klass  = instance.entity_type.model_class()
-        items_2_save = []
+        model = instance.entity_type.model_class()
+        items = []
 
-        get_metafield = model_klass._meta.get_field
-        for field in cleaned_data['fields']:
-            try:
-                field_infos = get_model_field_infos(model_klass, field)
-                field_obj   = field_infos[0]['field']
+        build = HeaderFilterItem.build_4_field
+        items.extend(build(model=model, name=name) for name in cleaned_data['fields'])
 
-                has_a_filter=True
-                pattern = "%s__icontains"
+        build = HeaderFilterItem.build_4_customfield
+        get_cf = self._get_cfield
+        items.extend(build(get_cf(int(cfield_id))) for cfield_id in cleaned_data['custom_fields'])
 
-                if isinstance(field_obj, models.ForeignKey) :
-                    if field.find('__') == -1:
-                        pattern = "%s"
-#                        pattern = "%s__pk"
-                    else:
-                        field_obj = field_infos[1]['field'] #The sub-field is considered as the main field
+        build = HeaderFilterItem.build_4_relation
+        get_rtype = self._get_rtype
+        items.extend(build(get_rtype(rtype_id)) for rtype_id in cleaned_data['relations'])
 
-                if isinstance(field_obj, (models.DateField, models.DateTimeField)):
-                    pattern = "%s__range"
-                elif isinstance(field_obj, models.BooleanField):
-                    pattern = "%s__creme-boolean"
-                elif isinstance(field_obj, models.ManyToManyField) and field.find('__') == -1:
-#                    pattern = "%s__in"
-                    has_a_filter = False
+        get_function_field = model.function_fields.get
+        build = HeaderFilterItem.build_4_functionfield
+        items.extend(build(get_function_field(name)) for name in cleaned_data['functions'])
 
-                items_2_save.append(HeaderFilterItem(name=field,
-                                                     title=u" - ".join(unicode(field_info['field'].verbose_name) for field_info in field_infos),
-                                                     type=HFI_FIELD,
-                                                     has_a_filter=has_a_filter,
-                                                     editable=True,
-                                                     sortable=True,
-                                                     filter_string=pattern % field))
-            except (FieldDoesNotExist, AttributeError), e:
-                debug('Exception in HeaderFilterForm.save(): %s', e)
+        instance.set_items(items)
 
-        for cfield_id in cleaned_data['custom_fields']:
-            cfield = self._get_cfield(int(cfield_id))
-
-            if cfield.field_type == CustomField.DATE:
-                pattern = "%s__value__range"
-            elif cfield.field_type == CustomField.BOOL:
-                pattern = "%s__value__creme-boolean"
-            elif cfield.field_type in (CustomField.ENUM, CustomField.MULTI_ENUM):
-                pattern = "%s__value__exact"
-            else:
-                pattern = "%s__value__icontains"
-
-            items_2_save.append(HeaderFilterItem(name=cfield_id,
-                                                 title=cfield.name,
-                                                 type=HFI_CUSTOM,
-                                                 has_a_filter=True,
-                                                 editable=False, #TODO: make it editable
-                                                 sortable=False, #TODO: make it sortable
-                                                 filter_string=pattern % cfield.get_value_class().get_related_name()))
-
-        for relation_type_id in cleaned_data['relations']:
-            predicate = self._get_predicate(relation_type_id)
-
-            items_2_save.append(HeaderFilterItem(name=relation_type_id,
-                                                 title=predicate,#.replace("'", " "),
-                                                 type=HFI_RELATION,
-                                                 #has_a_filter=False,
-                                                 has_a_filter=True,
-                                                 editable=False ,
-                                                 filter_string="",
-                                                 relation_predicat_id=relation_type_id)) #TODO: relation_type_id in 'name' attr...
-
-        get_function_field = model_klass.function_fields.get
-        for func_name in cleaned_data['functions']:
-            func_field = get_function_field(func_name)
-            items_2_save.append(HeaderFilterItem(name=func_name,
-                                                 title=unicode(func_field.verbose_name),
-                                                 type=HFI_FUNCTION,
-                                                 has_a_filter=func_field.has_filter,
-                                                 is_hidden=func_field.is_hidden,
-                                                 editable=False,
-                                                 filter_string=""))
-
-        for i, hfi in enumerate(items_2_save):
-            hfi.order = i + 1
-            hfi.header_filter = instance
-
-        generate_string_id_and_save(HeaderFilterItem, items_2_save,
-                                    'creme_core-userhfi_%s-%s' % (ct.app_label, ct.model))
-
-        #TODO: return instance
+        return instance

@@ -3,7 +3,7 @@ Carnet du développeur de modules Creme
 ======================================
 
 :Author: Guillaume Englert
-:Version: 30-05-2011 pour la version 1.0 de Creme
+:Version: 3-06-2011 pour la version 1.1 de Creme
 :Copyright: Hybird
 :License: GNU FREE DOCUMENTATION LICENSE version 1.3
 
@@ -549,8 +549,7 @@ la vue de liste. Créons un nouveau fichier : ``beavers/populate.py``. ::
 
     from django.utils.translation import ugettext as _
 
-    from creme_core.models import SearchConfigItem
-    from creme_core.models.header_filter import HeaderFilterItem, HeaderFilter, HFI_FIELD
+    from creme_core.models import HeaderFilterItem, HeaderFilter, SearchConfigItem
     from creme_core.utils import create_or_update as create
     from creme_core.management.commands.creme_populate import BasePopulator
 
@@ -562,9 +561,9 @@ la vue de liste. Créons un nouveau fichier : ``beavers/populate.py``. ::
 
         def populate(self, *args, **kwargs):
             hf = HeaderFilter.create(pk='beavers-hf_beaver', name=_(u'Beaver view'), model=Beaver)
-            pref = 'beavers-hfi_beaver_'
-            create(HeaderFilterItem, pref + 'name',     order=1, name='name',     title=_(u'Name'),     type=HFI_FIELD, header_filter=hf, has_a_filter=True, editable=True, sortable=True, filter_string="name__icontains")
-            create(HeaderFilterItem, pref + 'birthday', order=2, name='birthday', title=_(u'Birthday'), type=HFI_FIELD, header_filter=hf, has_a_filter=True, editable=True, sortable=True, filter_string="birthday__range")
+            hf.set_items([HeaderFilterItem.build_4_field(model=Beaver, name='name'),
+                          HeaderFilterItem.build_4_field(model=Beaver, name='birthday'),
+                         ])
 
             SearchConfigItem.create(Beaver, ['name'])
 
@@ -572,10 +571,9 @@ Explications :
 
 - Nous créons une vue de liste (``HeaderFilter``) avec 2 colonnes, correspondant
   tout simplement au nom et la date de naissance de nos castors. Pour les
-  ``HeaderFilterItem``, le type ``HFI_FIELD`` correspond à des champs normaux de
-  nos castors (il y a d'autres types, comme les relations par exemple). Il faut
-  juste faire attention à l'attribut ``filter_string`` : l'opérateur '__icontains'
-  est utilisé pour la plupart des champs, mais les dates utilisent '__range'.
+  ``HeaderFilterItem``, la methode ``build_4_field`` correspond à des champs
+  normaux de nos castors (il y a d'autres methodes, comme ``build_4_relation``
+  par exemple).
 - La ligne avec ``SearchConfigItem`` sert à configurer la recherche globale :
   elle se fera sur le champ 'name' pour les castors.
 
