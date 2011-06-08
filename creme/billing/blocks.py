@@ -17,6 +17,7 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
+from django.db.models.query_utils import Q
 from django.utils.simplejson.encoder import JSONEncoder
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.contenttypes.models import ContentType
@@ -29,7 +30,9 @@ from creme_core.constants import PROP_IS_MANAGED_BY_CREME
 
 from persons.models import Contact, Organisation
 
-from billing.models import ProductLine, ServiceLine, Invoice, SalesOrder, Quote, PaymentInformation, Base, PRODUCT_LINE_TYPE, SERVICE_LINE_TYPE
+from billing.models import (ProductLine, ServiceLine, Invoice, SalesOrder, Quote, PaymentInformation, Base,
+                            PRODUCT_LINE_TYPE, SERVICE_LINE_TYPE, TemplateBase)
+
 from billing.constants import REL_OBJ_BILL_RECEIVED, REL_SUB_BILL_RECEIVED, REL_SUB_BILL_ISSUED, REL_OBJ_BILL_ISSUED, DISPLAY_PAYMENT_INFO_ONLY_CREME_ORGA, REL_OBJ_HAS_LINE
 
 
@@ -50,7 +53,7 @@ class ProductLinesBlock(PaginatedBlock):
                                                            ))
 
 
-class  ServiceLinesBlock(PaginatedBlock):
+class ServiceLinesBlock(PaginatedBlock):
     id_           = PaginatedBlock.generate_id('billing', 'service_lines')
     dependencies  = (ServiceLine,)
     verbose_name  = _(u'Service lines')
@@ -101,6 +104,34 @@ class ReceivedInvoicesBlock(QuerysetBlock):
 
         btc= self.get_block_template_context(context,
                                              Invoice.objects.filter(relations__object_entity=person.id, relations__type=REL_SUB_BILL_RECEIVED),
+                                             update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, person.pk),
+                                            )
+
+        CremeEntity.populate_credentials(btc['page'].object_list, context['user'])
+
+        return self._render(btc)
+
+
+class ReceivedBillingDocumentBlock(QuerysetBlock):#TODO: Check out and exclude TemplateBase if needed
+    id_           = QuerysetBlock.generate_id('billing', 'received_billing_document')
+    dependencies  = (Relation,) #billing.Base subclasses except Invoice
+    relation_type_deps = (REL_OBJ_BILL_RECEIVED, )
+    verbose_name  = _(u"Received billing documents")
+    template_name = 'billing/templatetags/block_received_billing_document.html'
+    configurable  = True
+    target_ctypes = (Contact, Organisation)
+    order_by      = 'name'
+
+    def detailview_display(self, context):
+        person = context['object']
+
+        qs = Base.objects.filter(relations__object_entity=person.id, relations__type=REL_SUB_BILL_RECEIVED)\
+                         .filter(~Q(entity_type=ContentType.objects.get_for_model(TemplateBase)))
+
+        CremeEntity.populate_real_entities(qs)
+
+        btc= self.get_block_template_context(context,
+                                             qs,
                                              update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, person.pk),
                                             )
 
@@ -181,3 +212,4 @@ target_block                       = TargetBlock()
 received_invoices_block            = ReceivedInvoicesBlock()
 payment_information_block          = PaymentInformationBlock()
 billing_payment_information_block  = BillingPaymentInformationBlock()
+received_billing_document_block    = ReceivedBillingDocumentBlock()
