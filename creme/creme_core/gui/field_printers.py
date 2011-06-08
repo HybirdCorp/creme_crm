@@ -28,9 +28,6 @@ from django.utils.translation import ungettext
 from creme_core.models import CremeEntity, fields
 from creme_core.utils.meta import get_field_infos, get_model_field_infos, get_m2m_entities
 
-from media_managers.models import Image #TODO: remove dependancy
-
-
 #TODO: in settings
 MAX_HEIGHT = 200
 MAX_WIDTH = 200
@@ -60,91 +57,81 @@ def image_size(image, max_h=MAX_HEIGHT, max_w=MAX_WIDTH):
 
     return "height=%s width=%s" % (h, w)
 
-#TODO: recode.. use/factorise with allowed unicode tag ???
-def get_foreign_key_popup_str(entity, fval):
-    #if hasattr(fval, 'get_absolute_url') and hasattr(fval, 'entity_type'):
-    if isinstance(fval, CremeEntity):
-        return '<a href="%s"><u>Entity#%s</u></a>' % (fval.get_absolute_url(), fval.id) #TODO creds
+def simple_print(entity, fval, user):
+    #return '%s' % escape(fval) if fval is not None else ""
+    return unicode(escape(fval)) if fval is not None else ""
 
-    #return '%s' % fval if fval else ''
-    return str(fval) if fval else '' #TODO: unicode ??
-
-def simple_print(entity, fval):
-    return '%s' % escape(fval) if fval is not None else ""
-
-def print_image(entity, fval):
+def print_image(entity, fval, user):
     return """<a href="javascript:creme.utils.openWindow('%(url)s','image_popup');"><img src="%(url)s" %(size)s alt="%(url)s"/></a>""" % {
                 'url':  fval.url,
                 'size': image_size(fval),
             }
 
-def print_urlfield(entity, fval):
+def print_urlfield(entity, fval, user):
     if not fval:
         return ""
 
     esc_fval = escape(fval)
     return '<a href="%s" target="_blank">%s</a>' % (esc_fval, esc_fval)
 
-def print_datetime(entity, fval):
+def print_datetime(entity, fval, user):
     return date_format(fval, 'DATETIME_FORMAT') if fval else ''
 
-def print_date(entity, fval):
+def print_date(entity, fval, user):
     return date_format(fval, 'DATE_FORMAT') if fval else ''
 
-IMAGES_ATTRIBUTES = {Image: 'image'}
+def print_foreignkey(entity, fval, user):
+    if isinstance(fval, CremeEntity):
+        return '<a href="%s"><u>%s</u></a>' % (fval.get_absolute_url(), fval) if fval.can_view(user) else \
+               fval.allowed_unicode(user)
 
-#TODO: clean (IMAGES_ATTRIBUTES really useful ???)
-#TODO: use string.join()
-def get_m2m_popup_str(entity, fval):
-    result   = '<ul>'
-    img_attr = IMAGES_ATTRIBUTES.get(fval.model)
+    return unicode(fval) if fval else u''
 
-    if img_attr is not None:
-        for a in fval.all():
-            esc_a = escape(a)
-            result += '<li><img src="%s" alt="%s" title="%s" %s class="magnify"/></li>' % \
-                      (a.__getattribute__(img_attr).url, esc_a, esc_a, image_size(a, 80, 80)) #TODO use dict, getattr too
+def print_many2many(entity, fval, user):
+    output = ['<ul>']
+
+    if issubclass(fval.model, CremeEntity):
+        entities = list(fval.all())
+        CremeEntity.populate_credentials(entities, user)
+        output.extend('<li>%s</li>' % e.get_entity_m2m_summary(user) if e.can_view(user) else e.allowed_unicode(user) for e in entities)
     else:
-        for a in fval.all():
-            if hasattr(a, 'get_absolute_url'):
-                result += '<li><a target="_blank" href="%s">%s</li></a>' % (a.get_absolute_url(), escape(a)) #TODO: creds
-            else:
-                result += '<li>%s</li>' % escape(a)
-    result += '</ul>'
+        output.extend('<li>%s</li>' % escape(a) for a in fval.all())
 
-    return result
+    output.append('</ul>')
 
-def print_duration(entity, fval):
+    return ''.join(output)
+
+def print_duration(entity, fval, user):
     try:
         h, m, s = fval.split(':')
     except ValueError:
         return ''
-    else:
-        h = int(h)
-        m = int(m)
-        s = int(s)
 
-        return '%(hour)s %(hour_label)s %(minute)s %(minute_label)s %(second)s %(second_label)s' % {
-            'hour': h,
-            'hour_label': ungettext('hour', 'hours', h),
-            'minute': m,
-            'minute_label': ungettext('minute', 'minutes', m),
-            'second': s,
-            'second_label': ungettext('second', 'seconds', s)
-        }
+    h = int(h)
+    m = int(m)
+    s = int(s)
+
+    return '%(hour)s %(hour_label)s %(minute)s %(minute_label)s %(second)s %(second_label)s' % {
+        'hour': h,
+        'hour_label': ungettext('hour', 'hours', h),
+        'minute': m,
+        'minute_label': ungettext('minute', 'minutes', m),
+        'second': s,
+        'second_label': ungettext('second', 'seconds', s)
+    }
 
 #TODO: Do more specific fields (i.e: currency field....) ?
 class _FieldPrintersRegistry(object):
     def __init__(self):
         self._printers = {
             models.AutoField:                  simple_print,
-            models.BooleanField:               lambda entity, fval: '<input type="checkbox" value="%s" %s disabled/>' % (escape(fval), 'checked' if fval else ''),
+            models.BooleanField:               lambda entity, fval, user: '<input type="checkbox" value="%s" %s disabled/>' % (escape(fval), 'checked' if fval else ''),
             models.CharField:                  simple_print,
             models.CommaSeparatedIntegerField: simple_print,
             models.DateField:                  print_date,
             models.DateTimeField:              print_datetime,
             models.DecimalField:               simple_print,
-            models.EmailField:                 lambda entity, fval: '<a href="mailto:%s">%s</a>' % (fval, fval) if fval else '',
+            models.EmailField:                 lambda entity, fval, user: '<a href="mailto:%s">%s</a>' % (fval, fval) if fval else '',
             models.FileField:                  simple_print,
             models.FilePathField:              simple_print,
             models.FloatField:                 simple_print,
@@ -156,13 +143,13 @@ class _FieldPrintersRegistry(object):
             models.PositiveSmallIntegerField:  simple_print,
             models.SlugField:                  simple_print,
             models.SmallIntegerField:          simple_print,
-            models.TextField:                  lambda entity, fval: linebreaks(fval) if fval else "",
+            models.TextField:                  lambda entity, fval, user: linebreaks(fval) if fval else "",
             models.TimeField:                  simple_print,
             models.URLField:                   print_urlfield,
             models.XMLField:                   simple_print,
-            models.ForeignKey:                 get_foreign_key_popup_str,
-            models.ManyToManyField:            get_m2m_popup_str,
-            models.OneToOneField:              get_foreign_key_popup_str,
+            models.ForeignKey:                 print_foreignkey,
+            models.ManyToManyField:            print_many2many,
+            models.OneToOneField:              print_foreignkey,
 
             fields.PhoneField:                 simple_print,
             fields.DurationField:              print_duration,
@@ -173,25 +160,26 @@ class _FieldPrintersRegistry(object):
     def register(self, field, printer):
         """Register a field printer.
         @param field A class inheriting django.models.Field
-        @param printer A callable with 2 parameter: 'entity' & 'fval'. See simple_print, print_urlfield etc...
+        @param printer A callable with 2 parameter: 'obj' & 'fval'. See simple_print, print_urlfield etc...
         """
         self._printers[field] = printer
 
-    def get_html_field_value(self, entity, field_name):
-        field_class, field_value = get_field_infos(entity, field_name)
+    def get_html_field_value(self, obj, field_name, user):
+        field_class, field_value = get_field_infos(obj, field_name)
 
         if field_class is None:
-            fields_through = [f['field'].__class__ for f in get_model_field_infos(entity.__class__, field_name)]
+            fields_through = [f['field'].__class__ for f in get_model_field_infos(obj.__class__, field_name)]
 
             if models.ManyToManyField in fields_through: #TODO: use any() instead
-                return get_m2m_entities(entity, field_name, get_value=True,
-                                        get_value_func=lambda values: ", ".join([val for val in values if val])  #TODO: use (i)filter
+                return get_m2m_entities(obj, field_name, get_value=True,
+                                        get_value_func=(lambda values: ", ".join([val for val in values if val])),  #TODO: use (i)filter
+                                        user=user
                                        )
 
         print_func = self._printers.get(field_class)
 
         if print_func:
-            return mark_safe(print_func(entity, field_value))
+            return mark_safe(print_func(obj, field_value, user))
 
         return field_value
 

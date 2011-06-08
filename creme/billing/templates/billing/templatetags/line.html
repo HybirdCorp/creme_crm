@@ -26,14 +26,13 @@
                 <th class="block_header_line_dark">{% trans "Paid ?" %}</th>
                 <th class="block_header_line_dark">{% trans "Actions" %}</th>
             </tr>
-            {% for line in page.object_list %}
-                <!-- {% cycle "block_line_dark" "block_line_light" as row_color %} -->
+            {% for line in page.object_list %}<!-- {% cycle "block_line_dark" "block_line_light" as row_color %} -->
                 <tr>
                     <td class="{{row_color}}">{{line.quantity}}</td>
-                    <td class="{{row_color}}">{{line|get_html_field_value:"total_discount"}}</td>
+                    <td class="{{row_color}}">{% print_field object=line field='total_discount' %}</td>
                     <td class="{{row_color}}">{{line.discount}}</td>
                     <td class="{{row_color}}">{{line.credit}}</td>
-                    <td class="{{row_color}}">{{line|get_html_field_value:"comment"}}</td>
+                    <td class="{{row_color}}">{% print_field object=line field='comment' %}</td>
                     <td class="{{row_color}}">{{line.unit_price}}</td>
                     <td class="{{row_color}}">
                         {% if line.related_item %}

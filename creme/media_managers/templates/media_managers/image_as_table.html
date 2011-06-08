@@ -31,7 +31,7 @@
         </tr>
         <tr>
             <th class="{% cycle header_row %}">{% trans "Categories" %}</th>
-            <td class="{% cycle row_color %}">{{object|get_html_field_value:"categories"}}</td>
+            <td class="{% cycle row_color %}">{% print_field object=object field='categories' %}</td>
         </tr>
         <tr>
             <th class="{% cycle header_row %}">&nbsp;</th>

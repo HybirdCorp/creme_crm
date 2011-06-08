@@ -32,6 +32,7 @@ from django.utils.safestring import mark_safe
 from django.utils.html import escape
 
 from creme_core.models.entity import CremeEntity
+from creme_core.gui.field_printers import image_size
 
 from other_models import MediaCategory
 
@@ -75,15 +76,26 @@ class Image(CremeEntity):
     def get_image_url(self):
         return "%s%s" % (MEDIA_URL, self.image)
 
-    def get_entity_summary(self):
-        from creme_core.gui.field_printers import image_size #TODO: move when cyclic dependency is removed
+    def get_entity_summary(self, user):
+        if not self.can_view(user):
+            return self.allowed_unicode(user)
 
-        url = self.get_image_url()
-        name = escape(self.get_image_name())
+        return mark_safe("""<a href="javascript:creme.utils.openWindow('%(url)s','image_popup');"><img src="%(url)s" %(size)s alt="%(name)s" title="%(name)s"/></a>""" % {
+                            'url':  self.get_image_url(),
+                            'size': image_size(self, 150, 150),
+                            'name': escape(self.get_image_name())
+                        }
+                      )
 
-        #TODO: factorise with creme_core.gui.field_printers.print_image
-        return mark_safe("""<a href="javascript:creme.utils.openWindow('%s','image_popup');"><img src="%s" %s alt="%s" title="%s"/></a>""" % \
-            (url, url, image_size(self, 150, 150), name, name))
+    def get_entity_m2m_summary(self, user):
+        if not self.can_view(user):
+            return self.allowed_unicode(user)
+
+        return '<img src="%(url)s" alt="%(title)s" title="%(title)s" %(size)s class="magnify"/>' % {
+                      'url':   self.image.url,
+                      'title': escape(self),
+                      'size':  image_size(self, 80, 80),
+                  }
 
     @staticmethod
     def get_lv_absolute_url():

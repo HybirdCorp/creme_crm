@@ -24,7 +24,7 @@ from django.utils.html import escape
 from django.utils.safestring import mark_safe
 
 from creme_core.models import CremeEntity
-from creme_core.gui.field_printers import image_size
+from creme_core.gui.field_printers import image_size, print_many2many
 
 from media_managers.models import Image
 
@@ -60,13 +60,14 @@ class Product(CremeEntity):
         """url for list_view """
         return "/products/products"
 
-    def get_entity_summary(self):
-        #TODO: factorise with field_printers
-        return_str = "%s<br />" % escape(self.name)
-        for image in self.images.all():
-#            get_html_field_value?
-            return_str += '<img src="%s" alt="%s" %s/>' % (image.image.url, image, image_size(image, 150, 150))
-        return mark_safe(return_str)
+    def get_entity_summary(self, user):
+        if not self.can_view(user):
+            return self.allowed_unicode(user)
+
+        summary = "%s<br />" % escape(self.name)
+        summary += print_many2many(self, self.images, user) #TODO: use a carroussel ?
+
+        return mark_safe(summary)
 
     class Meta:
         app_label    = 'products'
