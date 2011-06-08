@@ -126,7 +126,8 @@ class ReceivedBillingDocumentBlock(QuerysetBlock):#TODO: Check out and exclude T
         person = context['object']
 
         qs = Base.objects.filter(relations__object_entity=person.id, relations__type=REL_SUB_BILL_RECEIVED)\
-                         .filter(~Q(entity_type=ContentType.objects.get_for_model(TemplateBase)))
+                         .filter(~Q(entity_type=ContentType.objects.get_for_model(TemplateBase)))\
+                         .filter(~Q(entity_type=ContentType.objects.get_for_model(Invoice)))
 
         CremeEntity.populate_real_entities(qs)
 

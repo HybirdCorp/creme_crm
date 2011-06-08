@@ -15,6 +15,7 @@
                 {% get_column_header _('Expiration date') 'expiration_date' %}
                 <th class="block_header_line_dark">{% trans "Status" %}</th>
                 {% get_column_header _('Total with VAT') 'total_vat' %}
+                {% get_column_header _('Type') 'entity_type' %}{# TODO: Sort is not on translated string #}
             </tr>
             {% for document in page.object_list %}<!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
                 {% with document.get_real_entity as billing_document %}
@@ -25,8 +26,10 @@
                         <td class="{{row_color}}">{{billing_document.expiration_date|default:''}}</td>
                         <td class="{{row_color}}">{{billing_document.status}}</td>
                         <td class="{{row_color}}">{{billing_document.total_vat}}</td>
+                        <td class="{{row_color}}">{{billing_document.entity_type}}</td>
                     {% else %}
                         <td class="{{row_color}}">{{billing_document|allowed_unicode:user}}</td>
+                        <td class="{{row_color}}">??</td>
                         <td class="{{row_color}}">??</td>
                         <td class="{{row_color}}">??</td>
                         <td class="{{row_color}}">??</td>
