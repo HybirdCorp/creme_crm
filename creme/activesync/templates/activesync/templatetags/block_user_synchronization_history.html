@@ -18,11 +18,11 @@
                 <th class="block_header_line_dark">{% trans "Changes" %}</th>
                 {% get_column_header _('Where') 'where' %}
             </tr>
-            {% for history in page.object_list %}
-                <!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
+            {% for history in page.object_list %}<!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
                 <tr>
                     <td class="{{row_color}}">{{history_type_verbose|get_value:history.type}}</td>
-                    <td class="{{row_color}}">{{history|get_html_field_value:"created"}}</td>
+                    {% comment %}<td class="{{row_color}}">{{history|get_html_field_value:"created"}}</td>{% endcomment %}
+                    <td class="{{row_color}}">{% print_field object=history field='created' %}</td>
                     <td class="{{row_color}}">{{history.entity_ct}}</td>
                     {% if history.entity %}
                         <td class="{{row_color}}">{% widget_entity_hyperlink history.entity user %}</td>

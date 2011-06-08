@@ -35,14 +35,13 @@
                 <th class="block_header_line_dark">{% trans "Sending date" %}</th>
                 <th class="block_header_line_dark">{% trans "Detail" %}</th>
             </tr>
-            {% for mail in page.object_list %}
-                <!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
+            {% for mail in page.object_list %}<!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
                 <tr>
-                    <td class="{{row_color}}">{{mail|get_html_field_value:"sender"}}</td>
-                    <td class="{{row_color}}">{{mail|get_html_field_value:"recipient"}}</td>
+                    <td class="{{row_color}}">{% print_field object=mail field='sender' %}</td>
+                    <td class="{{row_color}}">{% print_field object=mail field='recipient' %}</td>
                     <td class="{{row_color}}">{{mail.subject}}</td>
                     <td class="{{row_color}}">{{mail.get_status_str}}</td>
-                    <td class="{{row_color}}">{{mail|get_html_field_value:"sending_date"}}</td>
+                    <td class="{{row_color}}">{% print_field object=mail field='sending_date' %}</td>
                     <td class="{{row_color}}">
                         <a class="button_link" onclick="creme.utils.showInnerPopup('/emails/mail/{{mail.pk}}/popup');">
                             <img src="{% media_url 'images/view_22.png' %}" border="0" title="{% trans "Details" %}" alt="{% trans "Details" %}" />

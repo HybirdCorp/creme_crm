@@ -21,10 +21,9 @@
 from re import compile as compile_re
 
 from django.db.models import Q
-from django.template import TemplateSyntaxError, Node as TemplateNode
+from django.template import Library, Template, TemplateSyntaxError, Node as TemplateNode
 from django.template.defaulttags import TemplateLiteral
 from django.template.loader import get_template
-from django.template import Library, Template
 from django.utils.translation import ugettext, ungettext
 
 from creme_core.models import BlockConfigItem

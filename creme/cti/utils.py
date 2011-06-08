@@ -26,7 +26,7 @@ from creme_core.gui.field_printers import simple_print
 from mediagenerator.utils import media_url
 
 
-def print_phone(entity, fval):
+def print_phone(entity, fval, user):
     if not fval:
         return simple_print(entity, fval)
 
