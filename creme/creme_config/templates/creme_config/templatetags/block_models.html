@@ -38,11 +38,11 @@
                     <tr>
                         {% for f in fields %}
                             {% if f.name != 'is_custom' %}
-                                <td class="{{row_color}}">{{object|get_html_field_value:f.name}}</td>
+                                <td class="{{row_color}}">{% print_field object=object field=f.name %}</td>
                             {% endif %}
                         {% endfor %}
                         {% for f in many_to_many %}
-                            <td class="{{row_color}}">{{object|get_html_field_value:f.name}}</td>
+                            <td class="{{row_color}}">{% print_field object=object field=f.name %}</td>
                         {% endfor %}
                         <td class="{{row_color}}">
                             {% get_line_editor at_url '/creme_config/{{app_name}}/{{model_name}}/edit/{{object.id}}' with_perms 1 %}

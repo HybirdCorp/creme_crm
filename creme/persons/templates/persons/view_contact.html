@@ -22,35 +22,35 @@
         <tbody class="collapsable">
             <tr>
                 <th class="{% cycle header_color %} th_info">{% trans "Creation date" %}</th>
-                <td class="{% cycle row_color %} td_info">{{object|get_html_field_value:"created"}}</td>
+                <td class="{% cycle row_color %} td_info">{% print_field object=object field='created' %}</td>
             </tr>
             <tr>
                 <th class="{% cycle header_color %} th_info">{% trans "Last modification" %}</th>
-                <td class="{% cycle row_color %} td_info">{{object|get_html_field_value:"modified"}}</td>
+                <td class="{% cycle row_color %} td_info">{% print_field object=object field='modified' %}</td>
             </tr>
             <tr>
                 <th class="{% cycle header_color %} th_info">{% trans "Civility" %}</th>
-                <td class="{% cycle row_color %} td_info">{{object|get_html_field_value:"civility"}}</td>
+                <td class="{% cycle row_color %} td_info">{% print_field object=object field='civility' %}</td>
             </tr>
             <tr>
                 <th class="{% cycle header_color %} th_info">{% trans "First name" %}</th>
-                <td class="{% cycle row_color %} td_info">{{object|get_html_field_value:"first_name"}}</td>
+                <td class="{% cycle row_color %} td_info">{% print_field object=object field='first_name' %}</td>
             </tr>
             <tr>
                 <th class="{% cycle header_color %} th_info">{% trans "Last name" %}</th>
-                <td class="{% cycle row_color %} td_info">{{object|get_html_field_value:"last_name"}}</td>
+                <td class="{% cycle row_color %} td_info">{% print_field object=object field='last_name' %}</td>
             </tr>
             <tr>
                 <th class="{% cycle header_color %} th_info">{% trans "Sector" %}</th>
-                <td class="{% cycle row_color %} td_info">{{object|get_html_field_value:"sector"}}</td>
+                <td class="{% cycle row_color %} td_info">{% print_field object=object field='sector' %}</td>
             </tr>
             <tr>
                 <th class="{% cycle header_color %} th_info">{% trans "Position" %}</th>
-                <td class="{% cycle row_color %} td_info">{{object|get_html_field_value:"position"}}</td>
+                <td class="{% cycle row_color %} td_info">{% print_field object=object field='position' %}</td>
             </tr>
             <tr>
                 <th class="{% cycle header_color %} th_info">{% trans "Assigned to" %}</th>
-                <td class="{% cycle row_color %} td_info">{{object|get_html_field_value:"user"}}</td>
+                <td class="{% cycle row_color %} td_info">{% print_field object=object field='user' %}</td>
             </tr>
             <tr>
                 <th class="{% cycle header_color %} th_info">{% trans "Linked Creme user" %}</th>
@@ -58,11 +58,11 @@
             </tr>
             <tr>
                 <th class="{% cycle header_color %} th_info">{% trans "Birthday" %}</th>
-                <td class="{% cycle row_color %} td_info">{{object|get_html_field_value:"birthday"}}</td>
+                <td class="{% cycle row_color %} td_info">{% print_field object=object field='birthday' %}</td>
             </tr>
             <tr>
                 <th class="{% cycle header_color %} th_info">{% trans "Photo" %}</th>
-                <td class="{% cycle row_color %} td_info">{{object.image.get_entity_summary}}</td>
+                <td class="{% cycle row_color %} td_info">{% if object.image %}{% get_entity_summary object.image user %}{% endif %}</td>
             </tr>
         </tbody>
     </table>
@@ -76,27 +76,27 @@
         <tbody class="collapsable">
             <tr>
                 <th class="{% cycle header_color %} th_info">{% trans "Phone" %}</th>
-                <td class="{% cycle row_color %} td_info">{{object|get_html_field_value:"phone"}}</td>
+                <td class="{% cycle row_color %} td_info">{% print_field object=object field='phone' %}</td>
             </tr>
             <tr>
                 <th class="{% cycle header_color %} th_info">{% trans "Mobile" %}</th>
-                <td class="{% cycle row_color %} td_info">{{object|get_html_field_value:"mobile"}}</td>
+                <td class="{% cycle row_color %} td_info">{% print_field object=object field='mobile' %}</td>
             </tr>
             <tr>
                 <th class="{% cycle header_color %} th_info">{% trans "Fax" %}</th>
-                <td class="{% cycle row_color %} td_info">{{object|get_html_field_value:"fax"}}</td>
+                <td class="{% cycle row_color %} td_info">{% print_field object=object field='fax' %}</td>
             </tr>
             <tr>
                 <th class="{% cycle header_color %} th_info">{% trans "E-mail" %}</th>
-                <td class="{% cycle row_color %} td_info">{{object|get_html_field_value:"email"}}</td>
+                <td class="{% cycle row_color %} td_info">{% print_field object=object field='email' %}</td>
             </tr>
             <tr>
                 <th class="{% cycle header_color %} th_info">{% trans "Web Site" %}</th>
-                <td class="{% cycle row_color %} td_info">{{object|get_html_field_value:"url_site"}}</td>
+                <td class="{% cycle row_color %} td_info">{% print_field object=object field='url_site' %}</td>
             </tr>
             <tr>
                 <th class="{% cycle header_color %} th_info">Skype</th>
-                <td class="{% cycle row_color %} td_info">{{object|get_html_field_value:"skype"}}</td>
+                <td class="{% cycle row_color %} td_info">{% print_field object=object field='skype' %}</td>
             </tr>
         </tbody>
     </table>
@@ -109,7 +109,7 @@
         <tbody class="collapsable">
             <tr>
                 <th class="{% cycle header_color %} th_info">{% trans "Description" %}</th>
-                <td class="{% cycle row_color %} td_info">{{object|get_html_field_value:"description"}}</td>
+                <td class="{% cycle row_color %} td_info">{% print_field object=object field='description' %}</td>
             </tr>
         </tbody>
     </table>

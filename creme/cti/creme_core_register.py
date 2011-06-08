@@ -11,5 +11,4 @@ from cti.utils import print_phone
 
 creme_registry.register_app('cti', _(u'Computer Telephony Integration'), '/cti')
 
-#field_printers_registry[PhoneField] = print_phone
 field_printers_registry.register(PhoneField, print_phone)
