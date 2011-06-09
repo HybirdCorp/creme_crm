@@ -461,3 +461,9 @@ except ImportError:
 
 #MEDIA GENERATOR [FINAL SETTINGS]
 MEDIA_BUNDLES = (CREME_CORE_CSS, CREME_I18N_JS, CREME_CORE_JS + tuple(js for app, js in CREME_OPT_JS if app in INSTALLED_APPS))
+
+LOCALE_PATHS = [join(CREME_ROOT, "locale")]
+for app_name in INSTALLED_APPS:
+    prefix, sep, app = app_name.rpartition('.')
+    if prefix == "creme":
+        LOCALE_PATHS.append(join(CREME_ROOT, app, "locale"))
