@@ -183,7 +183,7 @@ def do_line_viewer(parser, token):
     return _do_line_creator(parser, token, 'creme_core/templatetags/widgets/block_line_viewer.html')
 
 #-------------------------------------------------------------------------------
-_LINE_RELATOR_RE = compile_re(r'to_subject (.*?) with_rtype_id (.*?) with_ct_id (.*?) with_label (.*?) with_perms (.*?)$')
+_LINE_RELATOR_RE = compile_re(r'to_subject (.*?) with_rtype_id (.*?) with_ct_id (.*?) with_label (.*?) with_perms (.*?)(\ssimple|\smultiple)?$')
 
 @register.tag(name="get_line_relator")
 def do_line_relator(parser, token):
@@ -197,31 +197,39 @@ def do_line_relator(parser, token):
     if not match:
         raise TemplateSyntaxError, "%r tag had invalid arguments" % tag_name
 
-    subject_str, type_id_str, ctype_id_str, label_str, perm_str = match.groups()
+    subject_str, type_id_str, ctype_id_str, label_str, perm_str, is_multiple = match.groups()
     compile_filter = parser.compile_filter
+
+    if is_multiple is not None:
+        is_multiple = (is_multiple.strip() == "multiple")
+    else:
+        is_multiple = True
 
     return LineRelatorNode(subject_var=TemplateLiteral(compile_filter(subject_str), subject_str),
                            rtype_id_var=TemplateLiteral(compile_filter(type_id_str), type_id_str),
                            ctype_id_var=TemplateLiteral(compile_filter(ctype_id_str), ctype_id_str),
                            label_var=TemplateLiteral(compile_filter(label_str), label_str),
-                           perm_var=TemplateLiteral(compile_filter(perm_str), perm_str)
+                           perm_var=TemplateLiteral(compile_filter(perm_str), perm_str),
+                           is_multiple=is_multiple
                           )
 
 class LineRelatorNode(TemplateNode):
-    def __init__(self, subject_var, rtype_id_var, ctype_id_var, label_var, perm_var):
+    def __init__(self, subject_var, rtype_id_var, ctype_id_var, label_var, perm_var, is_multiple):
         self.template = get_template('creme_core/templatetags/widgets/block_line_relator.html')
         self.subject_var  = subject_var
         self.rtype_id_var = rtype_id_var
         self.ctype_id_var = ctype_id_var
         self.label_var    = label_var
         self.perm_var     = perm_var
+        self.is_multiple  = is_multiple
 
     def render(self, context):
-        context['subject_id'] = self.subject_var.eval(context).id
-        context['rtype_id']   = self.rtype_id_var.eval(context)
-        context['ct_id']      = self.ctype_id_var.eval(context)
-        context['label']      = self.label_var.eval(context)
-        context['line_perm']  = self.perm_var.eval(context)
+        context['subject_id']   = self.subject_var.eval(context).id
+        context['rtype_id']     = self.rtype_id_var.eval(context)
+        context['ct_id']        = self.ctype_id_var.eval(context)
+        context['label']        = self.label_var.eval(context)
+        context['line_perm']    = self.perm_var.eval(context)
+        context['is_multiple']  = self.is_multiple
 
         return self.template.render(context)
 
