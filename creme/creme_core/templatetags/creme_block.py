@@ -634,3 +634,40 @@ class BlocksDisplayerNode(TemplateNode):
 
     def render(self, context):
         return ''.join(op for op in self.block_outputs(context))
+
+#-------------------------------------------------------------------------------
+_LISTVIEW_BUTTON_RE = compile_re(r'with_ct_id (.*?) with_label (.*?) with_q_filter (.*?)$')
+
+@register.tag(name="get_listview_button")
+def do_line_relator(parser, token):
+    """Eg: {% get_listview_button with_ct_id ct_id with_label _("List of related products") with_q_filter q_filter %}"""
+    try:
+        tag_name, arg = token.contents.split(None, 1) # Splitting by None == splitting by spaces.
+    except ValueError:
+        raise TemplateSyntaxError, "%r tag requires arguments" % token.contents.split()[0]
+
+    match = _LISTVIEW_BUTTON_RE.search(arg)
+    if not match:
+        raise TemplateSyntaxError, "%r tag had invalid arguments" % tag_name
+
+    ctype_id_str, label_str, q_filter_str = match.groups()
+    compile_filter = parser.compile_filter
+
+    return ListViewButtonNode(ctype_id_var=TemplateLiteral(compile_filter(ctype_id_str), ctype_id_str),
+                              label_var=TemplateLiteral(compile_filter(label_str), label_str),
+                              q_filter_var=TemplateLiteral(compile_filter(q_filter_str), q_filter_str),
+                             )
+
+class ListViewButtonNode(TemplateNode):
+    def __init__(self, ctype_id_var, label_var, q_filter_var):
+        self.template = get_template('creme_core/templatetags/widgets/block_listview_button.html')
+        self.ctype_id_var = ctype_id_var
+        self.label_var    = label_var
+        self.q_filter_var = q_filter_var
+
+    def render(self, context):
+        context['ct_id']    = self.ctype_id_var.eval(context)
+        context['label']    = self.label_var.eval(context)
+        context['q_filter'] = self.q_filter_var.eval(context) or dict()
+
+        return self.template.render(context)

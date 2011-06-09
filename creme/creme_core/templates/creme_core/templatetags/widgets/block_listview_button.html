@@ -1,0 +1,5 @@
+{% load media %}
+<a class="list" onclick="creme.utils.showInnerPopup('/creme_core/lv_popup/{{ct_id}}/1?q_filter={{q_filter}}', {'send_button': false});">
+    <img src="{% media_url 'images/view_22.png' %}" border="0" title="{{ label }}" alt="{{ label }}" />
+    {{ label }}
+</a>

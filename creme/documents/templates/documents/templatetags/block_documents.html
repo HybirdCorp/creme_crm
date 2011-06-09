@@ -5,10 +5,7 @@
         <th style="width: 80%;" class="collapser" align="left">{% get_block_title _('%s Contained Document') _('%s Contained Documents') 'document_48.png' _('Document') %}</th>
         <th style="width: 20%;" align="right">
             <div class="buttons">
-                <a class="list" onclick="creme.utils.showInnerPopup('/creme_core/lv_popup/{{ct_id}}/1?q_filter={{q_filter}}', {'send_button': false});">
-                    <img src="{% media_url 'images/view_22.png' %}" border="0" title="{% trans "All documents" %}" alt="{% trans "All documents" %}" />
-                    {% trans "List of documents" %}
-                </a>
+                {% get_listview_button with_ct_id ct_id with_label _("List of documents") with_q_filter q_filter %}
             </div>
         </th>
     {% end_get_block_header %}
