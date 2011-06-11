@@ -18,22 +18,13 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.utils.translation import ugettext_lazy as _
+from creme_core.gui.block import Block
 
-from creme_core.registry import creme_registry
-from creme_core.gui.menu import creme_menu
-from creme_core.gui.block import block_registry
-
-from events.models import Event
-from events.blocks import resuts_block
+from tickets.models import Ticket
 
 
-creme_registry.register_entity_models(Event)
-creme_registry.register_app('events', _(u'Events'), '/events')
-
-reg_item = creme_menu.register_app('events', '/events/').register_item
-reg_item('/events/',          _(u'Portal'),       'events')
-reg_item('/events/events',    _(u'All events'),   'events')
-reg_item('/events/event/add', _(u'Add an event'), 'events.add_event')
-
-block_registry.register(resuts_block)
+class TicketBlock(Block):
+    id_           = Block.generate_id('tickets', 'ticket')
+    dependencies  = (Ticket,)
+    verbose_name  = u'Info on a ticket'
+    template_name = 'tickets/templatetags/block_ticket.html'

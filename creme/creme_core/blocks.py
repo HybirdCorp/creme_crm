@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2011  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -22,7 +22,7 @@ from django.utils.translation import ugettext_lazy as _
 from django.contrib.contenttypes.models import ContentType
 
 from creme_core.models import CremeEntity, Relation, CremeProperty #EntityCredentials
-from creme_core.gui.block import QuerysetBlock, BlocksManager
+from creme_core.gui.block import Block, QuerysetBlock, BlocksManager
 
 
 class PropertiesBlock(QuerysetBlock):
@@ -70,5 +70,13 @@ class RelationsBlock(QuerysetBlock):
         return self._render(btc)
 
 
-properties_block = PropertiesBlock()
-relations_block  = RelationsBlock()
+class CustomFieldsBlock(Block):
+    id_           = Block.generate_id('creme_core', 'customfields')
+    #dependencies  = ()
+    verbose_name  = u'Custom fields'
+    template_name = 'creme_core/templatetags/block_customfields.html'
+
+
+properties_block   = PropertiesBlock()
+relations_block    = RelationsBlock()
+customfields_block = CustomFieldsBlock()
