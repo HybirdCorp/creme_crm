@@ -1,0 +1,28 @@
+{% load i18n %}
+{% load creme_core_tags %}{% load creme_block %}{% load creme_widgets %}
+<table class="table_detail_view ui-corner-all">
+    {% get_block_header colspan=2 %}
+        <th style="width: 80%;" class="collapser">{% get_basic_block_header _("Opportunity information") 'infos_48.png' _('Information') %}</th>
+        <th style="width: 20%;" align="right"></th>
+    {% end_get_block_header %}
+    <tbody class="collapsable">
+        <!--{% cycle "block_header_line_dark" "block_header_line_light" as header_color %}
+            {% cycle "block_line_dark" "block_line_light" as row_color %}-->
+        {% for field in object|get_meta_value:"fields" %}
+            {% if not field.name in object.excluded_fields_in_html_output %}
+                <tr>
+                    <th class="{% cycle header_color %} th_info">{{field.verbose_name|title}}</th>
+                    <td class="{% cycle row_color %} td_info">{% print_field object=object field=field.name %}</td>
+                </tr>
+            {% endif %}
+        {% endfor %}
+        <tr>
+            <th class="{% cycle header_color %} th_info">{% trans "Target organisation" %}</th>
+            <td class="{% cycle row_color %} td_info">{% widget_entity_hyperlink object.get_target_orga user %}</td>
+        </tr>
+        <tr>
+            <th class="{% cycle header_color %} th_info">{% trans "Concerned organisation" %}</th>
+            <td class="{% cycle row_color %} td_info">{% widget_entity_hyperlink object.get_emit_orga user %}</td>
+        </tr>
+    </tbody>
+</table>

@@ -32,7 +32,7 @@ from creme_core.gui.bulk_update import bulk_update_registry
 from persons.models import Contact, Organisation
 from persons.buttons import (become_customer_button, become_prospect_button, become_suspect_button,
                              become_inactive_button, become_supplier_button, add_linked_contact_button)
-from persons.blocks import managers_block, employees_block, address_block, other_address_block, neglected_orgas_block
+from persons.blocks import block_list, ContactBlock, OrganisationBlock
 from persons.forms.quick import ContactQuickForm, OrganisationQuickForm
 from persons.forms.csv_import import get_csv_form_builder
 
@@ -52,7 +52,9 @@ reg_item('/persons/organisation/add', _(u'Add an organisation'),                
 button_registry.register(become_customer_button, become_prospect_button, become_suspect_button,
                          become_inactive_button, become_supplier_button, add_linked_contact_button)
 
-block_registry.register(managers_block, employees_block, neglected_orgas_block, address_block, other_address_block)
+block_registry.register_4_model(Contact,      ContactBlock())
+block_registry.register_4_model(Organisation, OrganisationBlock())
+block_registry.register(*block_list)
 
 reg_qform = quickforms_registry.register
 reg_qform(Contact,      ContactQuickForm)

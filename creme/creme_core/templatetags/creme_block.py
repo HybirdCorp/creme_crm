@@ -31,6 +31,12 @@ from creme_core.gui.block import Block, block_registry, BlocksManager
 
 register = Library()
 
+
+_HOME_BLOCKS       = 'home_blocks'
+_DETAILVIEW_BLOCKS = 'detailview_blocks'
+_PORTAL_BLOCKS     = 'portal_blocks'
+
+
 def _arg_in_quotes_or_die(arg, tag_name):
     first_char = arg[0]
     if not (first_char == arg[-1] and first_char in ('"', "'")):
@@ -393,6 +399,32 @@ class BlockDetailViewerNode(TemplateNode):
         return block.detailview_display(context)
 
 
+@register.tag(name="import_object_block")
+def do_object_block_importer(parser, token):
+    """Eg: {% import_object_block object=object as 'object_block' %}"""
+    split = token.contents.split()
+    tag_name = split[0]
+
+    if len(split) != 3:
+        raise TemplateSyntaxError, "%r tag requires 2 arguments" % tag_name
+
+    if split[1] != 'as':
+        raise TemplateSyntaxError, "%r tag had invalid arguments" % tag_name
+
+    alias = split[2]
+    _arg_in_quotes_or_die(alias, tag_name)
+
+    return ObjectBlockImporterNode(alias=alias[1:-1])
+
+class ObjectBlockImporterNode(TemplateNode):
+    def __init__(self, alias):
+        self.alias = alias
+
+    def render(self, context):
+        BlocksManager.get(context).add_group(self.alias, block_registry.get_block_4_object(context['object']))
+        return ''
+
+
 @register.tag(name="import_detailview_blocks")
 def do_detailview_blocks_importer(parser, token):
     return DetailviewBlocksImporterNode()
@@ -404,10 +436,10 @@ class DetailviewBlocksImporterNode(TemplateNode):
                                           .order_by('order')
         block_ids = [bc_item.block_id for bc_item in bc_items if bc_item.content_type_id is not None]
 
-        if not block_ids:
+        if not block_ids: #TODO: use a 'or' instead of 'if'
             block_ids = [bc_item.block_id for bc_item in bc_items] #we fallback to the default config.
 
-        blocks_manager.add_group('detailview_blocks', *block_registry.get_blocks([id_ for id_ in block_ids if id_])) #TODO: use CONSTANT
+        blocks_manager.add_group(_DETAILVIEW_BLOCKS , *block_registry.get_blocks([id_ for id_ in block_ids if id_]))
 
         return ''
 
@@ -420,7 +452,7 @@ class DetailviewBlocksDisplayerNode(TemplateNode):
     def block_outputs(self, context):
         model = context['object'].__class__
 
-        for block in BlocksManager.get(context).pop_group('detailview_blocks'):
+        for block in BlocksManager.get(context).pop_group(_DETAILVIEW_BLOCKS ):
             target_ctypes = block.target_ctypes
 
             if target_ctypes and not model in target_ctypes:
@@ -498,7 +530,7 @@ class PortalBlocksImporterNode(TemplateNode):
                 used_blocks.add(block_id)
                 block_ids.append(block_id)
 
-        blocks_manager.add_group('portal_blocks', *block_registry.get_blocks([id_ for id_ in block_ids if id_])) #TODO: use CONSTANT
+        blocks_manager.add_group(_PORTAL_BLOCKS, *block_registry.get_blocks([id_ for id_ in block_ids if id_]))
 
         return ''
 
@@ -513,7 +545,7 @@ class PortalBlocksDisplayerNode(TemplateNode):
         self.ct_ids_varname = ct_ids_varname
 
     def block_outputs(self, context):
-        blocks = BlocksManager.get(context).pop_group('portal_blocks')
+        blocks = BlocksManager.get(context).pop_group(_PORTAL_BLOCKS)
         ct_ids = context[self.ct_ids_varname]
 
         for block in blocks:
@@ -536,7 +568,7 @@ class HomeBlocksImporterNode(TemplateNode):
     def render(self, context):
         blocks_manager = BlocksManager.get(context)
         block_ids = BlockConfigItem.objects.filter(content_type=None, on_portal=True).order_by('order').values_list('block_id', flat=True)
-        blocks_manager.add_group('home_blocks', *block_registry.get_blocks([id_ for id_ in block_ids if id_])) #TODO: use CONSTANT
+        blocks_manager.add_group(_HOME_BLOCKS, *block_registry.get_blocks([id_ for id_ in block_ids if id_]))
 
         return ''
 
@@ -547,7 +579,7 @@ def do_home_blocks_displayer(parser, token):
 
 class HomeBlocksDisplayerNode(TemplateNode):
     def block_outputs(self, context):
-        for block in BlocksManager.get(context).pop_group('home_blocks'): #TODO: use CONSTANT
+        for block in BlocksManager.get(context).pop_group(_HOME_BLOCKS):
             home_display = getattr(block, 'home_display', None)
 
             if home_display is not None:

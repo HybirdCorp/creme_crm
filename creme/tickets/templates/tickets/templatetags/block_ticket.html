@@ -1,0 +1,26 @@
+{% load i18n %}
+{% load creme_core_tags %}{% load creme_block %}
+<table class="table_detail_view ui-corner-all" id={{block_name}}>
+    {% comment %}{% with object|get_meta_value:"verbose_name"|format:"Informations %s" as title %} DOESN'T WORK ?!{% endcomment %}
+    {% get_block_header colspan=2 %}
+        {% with object|get_meta_value:"verbose_name" as tmp %} {% with tmp|format:_("Information %s") as title %}
+            <th>{% get_basic_block_header title 'infos_48.png' _('Information') %}</th>
+        {% endwith %} {% endwith %}
+    {% end_get_block_header %}
+    <tbody class="collapsable">
+        <!--{% cycle "block_header_line_dark" "block_header_line_light" as header_color %}
+            {% cycle "block_line_dark" "block_line_light" as row_color %}-->
+        {% for field in object|get_meta_value:"fields" %}
+            {% if not field.name in object.excluded_fields_in_html_output %}
+                <tr>
+                    <th class="{% cycle header_color %} th_info">{{field.verbose_name|title}}</th>
+                    <td class="{% cycle row_color %} td_info">{% print_field object=object field=field.name %}</td>
+                </tr>
+            {% endif %}
+        {% endfor %}
+        <tr>
+            <th class="{% cycle header_color %} th_info"><h2>{% trans "Resolving duration" %}</h2></th>
+            <td class="{% cycle row_color %} td_info"><h2>{{object.get_resolving_duration}}</h2></td>
+        </tr>
+    </tbody>
+</table>

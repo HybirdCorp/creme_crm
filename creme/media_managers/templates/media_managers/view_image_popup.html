@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="{{ LANGUAGE_CODE }}" xml:lang="{{ LANGUAGE_CODE }}" {% if LANGUAGE_BIDI %}dir="rtl"{% endif %}>
-{% load media %}
-{% load creme_core_tags %}
+{% load media %}{% load i18n %}
+{% load creme_core_tags %}{% load creme_block %}
 <head>
     <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
     <title>Creme CRM - {{object}}</title>
@@ -26,15 +26,7 @@
             <td width="70%">
                 <h1>{{object|get_meta_value:"verbose_name"|title}} : {{object|title}}</h1>
             </td>
-            <td width="25%" align="right">
-                {% comment %}<span>
-                    {% if path %}
-                        <a href="{{path}}/edit/{{object.id}}">
-                            <img src="{% media_url 'images/edit_64.png' %}" title="Éditer '{{object}}'" alt="Éditer"/>
-                        </a>
-                    {% endif %}
-                </span>{% endcomment %}
-            </td>
+            <td width="25%" align="right"></td>
         </tr>
     </table>
 
@@ -43,10 +35,14 @@
     <a href="/download_file/{{ object.image }}" alt="{{ object.image }}"><img src="{{MEDIA_URL}}{{ object.image }}" /></a>
     {% comment %}<a href="/download_file/{{object.image}}" alt="{{object.image}}"><img src="{% media_url object.image %}" /></a>{% endcomment %}
 
-    {% include "media_managers/image_as_table.html" %}
+    {% import_object_block as 'object_block' %}
+    {% import_block from_app 'creme_core' named 'customfields' as 'customfields_block' %}
+
+    {% display_block_detailview 'object_block' %}
+    {% display_block_detailview 'customfields_block' %}
 
     <div id="footer">
-        <a href="http://hybird.org">À propos d'Hybird</a> -  2009 - 2010
+        <a href="http://hybird.org">{% trans "About Hybird" %}</a> -  2009 - 2011
     </div>
 </body>
 </html>

@@ -1,9 +1,7 @@
 {% load i18n %}
 {% load media %}
 {% load creme_core_tags %}
-<!--{% cycle "block_header_line_light" "block_header_line_dark" as header_row %}
-    {% cycle "block_line_light" "block_line_dark" as row_color %}-->
-<table class="table_detail_view ui-corner-all">
+<table class="table_detail_view ui-corner-all" id={{block_name}}>
     <thead>
         <tr>
             <th align="center" colspan="2">
@@ -13,6 +11,8 @@
         </tr>
     </thead>
     <tbody class="collapsable">
+        <!--{% cycle "block_header_line_light" "block_header_line_dark" as header_row %}
+            {% cycle "block_line_light" "block_line_dark" as row_color %}-->
         <tr>
             <th class="{% cycle header_row %}">{% trans "Name" %}</th>
             <td class="{% cycle row_color %}">{{object.name}}</td>
@@ -39,4 +39,3 @@
         </tr>
     </tbody>
 </table>
-{% include "creme_core/customfields_as_table.html" %}
