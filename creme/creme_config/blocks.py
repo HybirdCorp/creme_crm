@@ -183,7 +183,12 @@ class BlocksConfigBlock(_ConfigAdminBlock):
     template_name = 'creme_config/templatetags/block_blocksconfig.html'
 
     def detailview_display(self, context):
-        ct_ids = BlockConfigItem.objects.exclude(content_type=None).distinct().values_list('content_type_id', flat=True)
+        ct_user = ContentType.objects.get_for_model(User)
+        #Why .exclude(content_type__in=[...]) doesn't work ?...
+        ct_ids = BlockConfigItem.objects.exclude(content_type=None)\
+                                        .exclude(content_type=ct_user)\
+                                        .distinct()\
+                                        .values_list('content_type_id', flat=True)
 
         return self._render(self.get_block_template_context(context, ContentType.objects.filter(pk__in=ct_ids),
                                                             update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
