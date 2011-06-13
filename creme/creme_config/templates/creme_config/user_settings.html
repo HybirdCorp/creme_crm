@@ -1,7 +1,7 @@
 {% extends "creme_core/base.html" %}
 {% load i18n %}
 {% load media %}
-{% load creme_core_tags %}{% load creme_block %}
+{% load creme_core_tags creme_block creme_config_tags %}
 
 {% block page_title %} - {% trans "View your settings" %}{% endblock %}
 
@@ -26,14 +26,11 @@
     </table>
     <div class=zone_spacer_5px></div>
 
-    {# TODO: Made a registry ? #}
     {% import_block from_app 'creme_config' named 'user_prefered_menus' as 'prefered_menus_block' %}
-    {% import_block from_app 'activities' named 'user_calendars' as 'user_calendars_block' %}
-    {% import_block from_app 'activesync' named 'user_mobile_sync' as 'user_mobile_sync_block' %}
-    
+    {% import_usersettings_blocks %}
+
     {% display_block_detailview 'prefered_menus_block' %}
-    {% display_block_detailview 'user_calendars_block' %}
-    {% display_block_detailview 'user_mobile_sync_block' %}
+    {% display_usersettings_blocks %}
 
     {% get_blocks_dependencies %}
 {% endblock %}

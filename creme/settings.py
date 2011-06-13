@@ -167,7 +167,6 @@ INSTALLED_APPS = (
     'creme.assistants',
     'creme.activities',
     'creme.persons',
-    'creme.activesync',
 
     #CREME OPTIONNAL APPS (can be safely commented)
     'creme.graphs',
@@ -184,6 +183,7 @@ INSTALLED_APPS = (
     'creme.projects',
     'creme.tickets',
     #'creme.cti',
+    'creme.activesync',
 )
 
 from django.conf.global_settings import TEMPLATE_CONTEXT_PROCESSORS
