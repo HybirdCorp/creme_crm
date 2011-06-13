@@ -18,6 +18,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from django.contrib.auth.models import User
+from django.contrib.contenttypes.models import ContentType
 from django.db.models import Q
 from django.template import Library, Node as TemplateNode
 
@@ -42,7 +44,7 @@ def do_usersettings_blocks_importer(parser, token):
 class UserSettingsBlocksImporterNode(TemplateNode):
     def render(self, context):
         blocks_manager = BlocksManager.get(context)
-        bc_items = BlockConfigItem.objects.filter(Q(content_type=None) & Q(id__startswith=USER_SETTINGS_BLOCK_PREFIX)) \
+        bc_items = BlockConfigItem.objects.filter(Q(content_type=ContentType.objects.get_for_model(User)) & Q(id__startswith=USER_SETTINGS_BLOCK_PREFIX)) \
                                           .order_by('order')
         blocks_manager.add_group(_USER_SETTINGS_BLOCK , *block_registry.get_blocks([bc_item.block_id for bc_item in bc_items if bc_item.block_id]))
         return ''

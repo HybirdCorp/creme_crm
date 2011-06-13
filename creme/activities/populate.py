@@ -19,6 +19,7 @@
 ################################################################################
 
 from django.contrib.auth.models import User
+from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import ugettext as _
 
 from creme_core.models import RelationType, BlockConfigItem, ButtonMenuItem, SearchConfigItem, HeaderFilterItem, HeaderFilter
@@ -90,5 +91,5 @@ class Populator(BasePopulator):
 
         if not BlockConfigItem.objects.filter(block_id__in=[user_calendars_block.id_]).exists():
             generate_string_id_and_save(BlockConfigItem,
-                                        [BlockConfigItem(content_type=None, block_id=user_calendars_block.id_, order=1, on_portal=False)],
+                                        [BlockConfigItem(content_type=ContentType.objects.get_for_model(User), block_id=user_calendars_block.id_, order=1, on_portal=False)],
                                         USER_SETTINGS_BLOCK_PREFIX)
