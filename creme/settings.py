@@ -339,6 +339,7 @@ CREME_CORE_JS = ('main.js',
                     'creme_core/js/ajax.js',
                     'creme_core/js/creme.graphael.js',
                     'creme_core/js/menu.js',
+                    'creme_core/js/blocks.js',
 
                     'creme_core/js/widgets/base.js',
                     'creme_core/js/widgets/dinput.js',

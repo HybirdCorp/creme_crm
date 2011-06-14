@@ -1,11 +1,16 @@
 {% load i18n %}
 {% load creme_core_tags %}{% load creme_block %}
-<table class="table_detail_view ui-corner-all" id={{block_name}}>
+<table class="table_detail_view ui-corner-all {{ state.classes }}" id={{block_name}}>
     {% comment %}{% with object|get_meta_value:"verbose_name"|format:"Informations %s" as title %} DOESN'T WORK ?!{% endcomment %}
     {% get_block_header colspan=2 %}
         {% with object|get_meta_value:"verbose_name" as tmp %} {% with tmp|format:_("Information %s") as title %}
-            <th>{% get_basic_block_header title 'infos_48.png' _('Information') %}</th>
+            <th style="width: 80%;" class="collapser">{% get_basic_block_header title 'infos_48.png' _('Information') %}</th>
         {% endwith %} {% endwith %}
+            <th style="width: 20%;" align="right">
+                <div class="buttons">
+                    {% get_toggle_empty_field_button %}
+                </div>
+            </th>
     {% end_get_block_header %}
     <tbody class="collapsable">
         <!--{% cycle "block_header_line_dark" "block_header_line_light" as header_color %}

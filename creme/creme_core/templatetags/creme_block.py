@@ -132,6 +132,10 @@ def get_column_header(context, column_name, field_name):
     return context
 
 
+@register.inclusion_tag('creme_core/templatetags/widgets/block_empty_fields_button.html', takes_context=True)
+def get_toggle_empty_field_button(context):
+    return context
+
 #-------------------------------------------------------------------------------
 _LINE_CREATOR_RE = compile_re(r'at_url (.*?) with_label (.*?) with_perms (.*?)$')
 

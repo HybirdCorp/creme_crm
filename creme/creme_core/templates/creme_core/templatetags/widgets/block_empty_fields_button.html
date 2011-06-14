@@ -1,0 +1,4 @@
+{% load i18n %}
+<div class="buttons">
+    <a onclick="creme.blocks.toggleEmptyFields(this);" class="{% if state.show_empty_fields %}view_less{% else %}view_more{% endif %}" title="{% trans "Show/Hide empty fields" %}"></a>
+</div>

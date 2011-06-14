@@ -17,6 +17,7 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
+from itertools import chain
 
 from django.db import models
 from django.template.defaultfilters import linebreaks
@@ -88,7 +89,7 @@ def print_foreignkey(entity, fval, user):
     return unicode(fval) if fval else u''
 
 def print_many2many(entity, fval, user):
-    output = ['<ul>']
+    output = []
 
     if issubclass(fval.model, CremeEntity):
         entities = list(fval.all())
@@ -97,7 +98,8 @@ def print_many2many(entity, fval, user):
     else:
         output.extend('<li>%s</li>' % escape(a) for a in fval.all())
 
-    output.append('</ul>')
+    if output:
+        output = chain(['<ul>'], output, ['</ul>'])
 
     return ''.join(output)
 

@@ -1,11 +1,14 @@
 {% load i18n %}
-{% load creme_core_tags %}
-<table class="table_detail_view ui-corner-all">
-    <thead>
-        <tr>
-            <th align="left" colspan="2" class="collapser">{% trans "Coordinates" %}</th>
-        </tr>
-    </thead>
+{% load creme_core_tags creme_block %}
+<table class="table_detail_view ui-corner-all {{ state.classes }}" id={{block_name}}>
+    {% get_block_header colspan=2 %}
+        <th style="width: 80%;" align="left" class="collapser">{% get_basic_block_header _("Coordinates") %}</th>
+        <th style="width: 20%;" align="right">
+            <div class="buttons">
+                {% get_toggle_empty_field_button %}
+            </div>
+        </th>
+    {% end_get_block_header %}
     <tbody class="collapsable">
         <!--{% cycle "block_header_line_dark" "block_header_line_light" as header_color %}
             {% cycle "block_line_dark" "block_line_light" as row_color %} -->

@@ -16,7 +16,7 @@ from lock import Lock
 
 from i18n import Language
 
-from block import BlockConfigItem, RelationBlockItem, InstanceBlockConfigItem
+from block import BlockConfigItem, RelationBlockItem, InstanceBlockConfigItem, BlockState
 from prefered_menu import PreferedMenuItem
 from button_menu import ButtonMenuItem
 

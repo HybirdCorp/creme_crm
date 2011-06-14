@@ -1,7 +1,7 @@
 {% load i18n %}
 {% load media %}
 {% load creme_block %}{% load creme_core_tags %}
-<table  class="table_detail_view ui-corner-all" id={{block_name}}>
+<table class="table_detail_view ui-corner-all {{ state.classes }}" id={{block_name}}>
     {% get_block_header colspan=5 %}
         <th style="width: 80%;" class="collapser" align="left">
             {% get_block_title _('%s Calendar') _('%s Calendars') 'calendar_48.png' _('Calendars') %}
