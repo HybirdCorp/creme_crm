@@ -1,7 +1,7 @@
 {% load i18n %}
 {% load creme_core_tags %}
 {% load creme_block %}
-<table  class="table_detail_view ui-corner-all" id={{block_name}}>
+<table class="table_detail_view ui-corner-all {{ state.classes }}" id={{block_name}}>
     <thead>
         <tr><th colspan="2" align="left">{% trans "Target" %}</th></tr>
     </thead>

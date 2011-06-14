@@ -1,7 +1,7 @@
 {% load i18n %}{% load media %}
 {% load creme_core_tags %}{% load creme_block %}
 {% load graph_tags %}
-<table class="table_detail_view ui-corner-all" id={{block_name}}>
+<table class="table_detail_view ui-corner-all {{ state.classes }}" id={{block_name}}>
     <thead>
         <tr>
             <th colspan="2" class="collapser">
@@ -110,4 +110,9 @@
             creme.utils.loading(loading_id, true, {});
         });
     </script>
+    <script type="text/javascript">
+    {% if block_name %}
+        creme.blocks.register('#{{ block_name }}');
+    {% endif %}
+</script>
 {% endif %}

@@ -19,13 +19,19 @@
 ################################################################################
 
 from imp import find_module
+from functools import partial
+
+from django.contrib.auth.models import User
 
 from django.db.models import (CharField, ForeignKey, PositiveIntegerField,
                               BooleanField, TextField)
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.contenttypes.models import ContentType
 
+from creme_core.constants import SETTING_BLOCK_DEFAULT_STATE_IS_OPEN, SETTING_BLOCK_DEFAULT_STATE_SHOW_EMPTY_FIELDS
 from creme_core.models import CremeModel, RelationType, CremeEntity
+
+from creme_config.models.setting import SettingValue
 
 
 class BlockConfigItem(CremeModel):
@@ -130,3 +136,58 @@ class InstanceBlockConfigItem(CremeModel):
 
     class BadImportIdFormat(Exception):
         pass
+
+
+class BlockState(CremeModel):
+    user               = ForeignKey(User)
+    block_id           = CharField(_(u"Block ID"), max_length=100, unique=True)
+    is_open            = BooleanField(default=True)#Is block has to appear as opened or closed
+    show_empty_fields  = BooleanField(default=True)#Are empty fields in block have to be shown or not
+
+    class Meta:
+        app_label = 'creme_core'
+        verbose_name = _(u'Block state')
+        verbose_name_plural = _(u'Blocks states')
+
+    @staticmethod
+    def get_for_block_id(block_id):
+        """Returns current state of a block"""
+        try:
+            return BlockState.objects.get(block_id=block_id)
+        except BlockState.DoesNotExist:
+            is_default_open = SettingValue.objects.get(key=SETTING_BLOCK_DEFAULT_STATE_IS_OPEN).value
+            is_default_fields_displayed = SettingValue.objects.get(key=SETTING_BLOCK_DEFAULT_STATE_SHOW_EMPTY_FIELDS).value
+            return BlockState(block_id=block_id, is_open=is_default_open, show_empty_fields=is_default_fields_displayed)
+
+    @staticmethod
+    def get_for_block_ids(block_ids):
+        """Get current states of blocks
+
+            @params block_ids: a list of block ids
+            @returns: a dict with block_id as key and state as value
+        """
+        states = {}
+        is_default_open = SettingValue.objects.get(key=SETTING_BLOCK_DEFAULT_STATE_IS_OPEN).value
+        is_default_fields_displayed = SettingValue.objects.get(key=SETTING_BLOCK_DEFAULT_STATE_SHOW_EMPTY_FIELDS).value#TODO: Method for get_default_states?
+
+        for state in BlockState.objects.filter(block_id__in=block_ids):
+            states[state.block_id] = state
+
+        block_state = partial(BlockState, is_open=is_default_open, show_empty_fields=is_default_fields_displayed)
+        for block_id in set(block_ids) - set(states.keys()):#Blocks with unset state
+            states[block_id] = block_state(block_id=block_id)
+
+        return states
+
+
+    @property
+    def classes(self):
+        """Generate css classes for current state"""
+        classes = []
+        if not self.is_open:
+            classes.append('collapsed')
+
+        if not self.show_empty_fields:
+            classes.append('hide_empty_fields')
+
+        return ' '.join(classes)

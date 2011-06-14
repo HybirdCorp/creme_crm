@@ -27,7 +27,8 @@ from django.contrib.auth.decorators import login_required
 
 from creme_core.models import CremeEntity
 from creme_core.gui.block import block_registry, str2list, BlocksManager
-from creme_core.utils import jsonify, get_ct_or_404
+from creme_core.models.block import BlockState
+from creme_core.utils import jsonify, get_ct_or_404, get_from_POST_or_404
 from creme_core.blocks import relations_block
 
 
@@ -53,9 +54,12 @@ def _build_blocks_render(request, block_id, blocks_manager, block_render_functio
                 raise PermissionDenied('Error: you are not allowed to view this block: %s' % block.id_)
 
     for block in blocks:
-        block_id = block.id_
-        blocks_manager.add_group(block_id, block)
-        block_renders.append((block_id, block_render_function(block)))
+        blocks_manager.add_group(block.id_, block)
+
+    #Blocks are iterated twice for knowing all imported blocks when rendering
+    #Used for caching states notably...
+    for block in blocks:
+        block_renders.append((block.id_, block_render_function(block)))
 
     return block_renders
 
@@ -129,3 +133,24 @@ def reload_relations_block(request, entity_id, relation_type_ids=''):
 
     return _build_blocks_render(request, relations_block.id_, blocks_manager,
                                 lambda block: block.detailview_display(context))
+
+@login_required
+@jsonify
+def set_state(request, block_id):
+#    is_open = bool(get_from_POST_or_404(request.POST, 'is_open', int))
+    POST_get = request.POST.get
+    is_open           = POST_get('is_open')
+    show_empty_fields = POST_get('show_empty_fields')
+    state_changed = False
+
+    bs = BlockState.objects.get_or_create(block_id=block_id, user=request.user)[0]#TODO: Avoid the query if there is no post param?
+    if is_open is not None:
+        bs.is_open = bool(int(is_open))
+        state_changed = True
+
+    if show_empty_fields is not None:
+        bs.show_empty_fields = bool(int(show_empty_fields))
+        state_changed = True
+
+    if state_changed:
+        bs.save()

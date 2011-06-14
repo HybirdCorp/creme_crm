@@ -17,6 +17,7 @@ __all__ = ('CSVImportViewsTestCase', )
 
 class CSVImportViewsTestCase(ViewsTestCase):
     def setUp(self):
+        self.populate('creme_core')
         self.doc = None
 
     def tearDown(self):

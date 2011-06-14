@@ -1,7 +1,7 @@
 {% load i18n %}
 {% load media creme_block creme_core_tags %}
 <div class="help_box">{% trans 'Here you set the default configuration for mobile synchronization. Each user get this config until he override it in his own settings.' %}</div>
-<table class="table_detail_view ui-corner-all" id={{block_name}}>
+<table class="table_detail_view ui-corner-all {{ state.classes }}" id={{block_name}}>
     <thead>
         <tr>
             <th colspan="2"><img src="{% media_url 'images/phone_sync_48.png' %}" alt="{% trans 'Phone synchronization' %}" title="{% trans 'Phone synchronization' %}"/>{% trans "Default mobile synchronization configuration" %}</th>

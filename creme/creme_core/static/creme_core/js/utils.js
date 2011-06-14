@@ -137,15 +137,38 @@ creme.utils.build_q_input = function(field, value, is_or, is_negated, name) {
     return $('<input />').attr('name',name).attr('type','hidden').val(creme.utils.build_q_value(field, value, is_or, is_negated));
 }
 
+creme.utils.tableCollapse = function($self, trigger) {//TODO: Factorise with creme.utils.tableExpand
+    if(typeof(trigger) == "undefined"){
+        trigger = true;
+    }
+    var table = $self.parents('table[id!=]');
+    table.find('tbody.collapsable').hide();
+    table.find('tfoot.collapsable').hide();
+    if(trigger)//Sometimes triggering the event is not necessary.
+    {
+        table.trigger('creme-table-collapse', {action: 'hide'});
+    }
+}
+
+creme.utils.tableExpand = function($self, trigger) {
+    if(typeof(trigger) == "undefined"){
+        trigger = true;
+    }
+    var table = $self.parents('table[id!=]');
+    table.find('tbody.collapsable').show();
+    table.find('tfoot.collapsable').show();
+
+    if(trigger)//Sometimes triggering the event is not necessary.
+    {
+        table.trigger('creme-table-collapse', {action: 'show'});
+    }
+}
+
 creme.utils.bindToggle = function($self) {
         $self.toggle(function(e) {
-            var table = $self.parents('table');
-            table.find('tbody.collapsable').hide();
-            table.find('tfooter.collapsable').hide();
+            creme.utils.tableCollapse($self);
         },function(e) {
-            var table = $self.parents('table');
-            table.find('tbody.collapsable').show();
-            table.find('tfooter.collapsable').show();
+            creme.utils.tableExpand($self);
         });
     }
 
@@ -261,7 +284,7 @@ creme.utils.handleSort = function(sort_field, sort_order, new_sort_field, input,
     if(typeof(callback) == "function") callback(input);
 }
 
-creme.utils.loadBlock = function(url) {
+creme.utils.loadBlock = function(url) {//TODO: move to creme.blocks
     $.ajax({
         url:      url,
         async:    false,
@@ -276,6 +299,7 @@ creme.utils.loadBlock = function(url) {
 
                             $('#' + block_data[0]).replaceWith(block);
                             $(block).find('.collapser').each(function() {creme.utils.bindToggle($(this));});
+                            creme.blocks.applyState(block);
                         }
                   },
       complete: this.loading('loading',true)

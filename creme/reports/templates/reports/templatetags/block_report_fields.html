@@ -6,7 +6,7 @@
 {% has_perm_to change object as has_perm %}
 {% has_perm_to link object as link_perm %}
 {% has_perm_to unlink object as unlink_perm %}
-<table class="table_detail_view ui-corner-all" id={{block_name}}>
+<table class="table_detail_view ui-corner-all {{ state.classes }}" id={{block_name}}>
     <thead>
         <tr>
             <th valign="middle" colspan="{{colspan}}">{% trans 'Columns of the report' %}</th>

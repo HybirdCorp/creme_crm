@@ -30,7 +30,7 @@ from django.utils.translation import ugettext_lazy as _
 from django.utils.simplejson import JSONEncoder
 
 from creme_core.models import (CremeEntity, Relation, RelationType,
-                               RelationBlockItem, InstanceBlockConfigItem)
+                               RelationBlockItem, InstanceBlockConfigItem, BlockState)
 
 def list4url(list_):
     """Special url list-to-string function"""
@@ -103,7 +103,7 @@ class Block(object):
                 ...
             }
         Base url are opposite to ajax_url.
-        Eg: '/tickets/ticke/21' for base url, ajas url couild be '/creme_core/todo/reload/21/'.
+        Eg: '/tickets/ticket/21' for base url, ajax url could be '/creme_core/todo/reload/21/'.
         """
         modified = False
         session = request.session
@@ -127,6 +127,7 @@ class Block(object):
 
     def _build_template_context(self, context, block_name, block_context, **extra_kwargs):
         context['block_name'] = block_name
+        context['state']      = BlocksManager.get(context).get_state(self.id_)
         context.update(extra_kwargs)
 
         return context
@@ -321,6 +322,7 @@ class BlocksManager(object):
         self._blocks_groups = defaultdict(list)
         self._dep_solving_mode = False
         self._used_relationtypes = None
+        self._state_cache = None
 
     def add_group(self, group_name, *blocks):
         if self._dep_solving_mode:
@@ -385,6 +387,19 @@ class BlocksManager(object):
     @staticmethod
     def get(context):
         return context[BlocksManager.var_name] #will raise exception if not created: OK
+
+    def get_state(self, block_id):
+        """Get the state for a block and fill a cache to avoid multiple requests"""
+        _state_cache = self._state_cache
+        if not _state_cache:
+            _state_cache = self._state_cache = BlockState.get_for_block_ids([block.id_ for block in self._blocks])
+
+        state = _state_cache.get(block_id)
+        if state is None:
+            state = self._state_cache[block_id] = BlockState.get_for_block_id(block_id)
+            debug("State not set in cache for '%s'" % block_id)
+
+        return state
 
 
 class _BlockRegistry(object):

@@ -1,15 +1,15 @@
 {% load i18n %}
 {% load media %}
-{% load creme_core_tags %}
-<table class="table_detail_view ui-corner-all" id={{block_name}}>
-    <thead>
-        <tr>
-            <th align="center" colspan="2">
-                <img src="{% media_url 'images/infos_48.png' %}" alt="{% trans "Image information" %}" title="{% trans "Image information" %}">
-                {% trans "Image information" %}
-            </th>
-        </tr>
-    </thead>
+{% load creme_core_tags creme_block %}
+<table class="table_detail_view ui-corner-all {{ state.classes }}" id={{block_name}}>
+    {% get_block_header colspan=2 %}
+        <th style="width: 80%;" class="collapser">{% get_basic_block_header _("Image information") 'infos_48.png' _('Information') %}</th>
+        <th style="width: 20%;" align="right">
+            <div class="buttons">
+                {% get_toggle_empty_field_button %}
+            </div>
+        </th>
+    {% end_get_block_header %}
     <tbody class="collapsable">
         <!--{% cycle "block_header_line_light" "block_header_line_dark" as header_row %}
             {% cycle "block_line_light" "block_line_dark" as row_color %}-->

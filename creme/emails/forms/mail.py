@@ -70,6 +70,12 @@ class EntityEmailForm(CremeEntityForm):
         super(EntityEmailForm, self).__init__(*args, **kwargs)
         self.entity = entity
 
+        if isinstance(entity, Organisation):
+            self.fields['o_recipients'].initial = [entity.pk]
+
+        if isinstance(entity, Contact):
+            self.fields['c_recipients'].initial = [entity.pk]
+
         initial = kwargs.get('initial', {})
         current_user = initial.get('current_user')
         if current_user is not None:

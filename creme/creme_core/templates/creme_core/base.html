@@ -320,5 +320,10 @@
     <div id="footer">
         <a href="http://hybird.org">{% trans "About Hybird" %}</a> - 2009-2011 &nbsp;&nbsp;&nbsp;Creme v{{creme_version}} {% if django_version %}&nbsp;&nbsp;&nbsp;(Django {{django_version}}){% endif %}
     </div>
+    <script type="text/javascript">
+        $(document).ready(function(){
+            creme.blocks.bindEvents();
+        });
+    </script>
 </body>
 </html>

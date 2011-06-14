@@ -3,7 +3,7 @@
 {% load creme_block %}{% load creme_core_tags %}
 {% load crudity_tags %}
 {% with 3 as colspan %}
-    <table class="table_detail_view ui-corner-all" id={{block_name}}>
+    <table class="table_detail_view ui-corner-all {{ state.classes }}" id={{block_name}}>
         <thead>
             <tr>
                 <th colspan="{{colspan}}">
