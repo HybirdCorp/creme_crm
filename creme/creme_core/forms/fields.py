@@ -555,8 +555,11 @@ class _EntityField(Field):
         if not value:
             return None
 
-        if isinstance(value, basestring) and self.separator in value:#In case of the widget doesn't make a 'good clean'
-            value = [v for v in value.split(self.separator) if v]
+        if isinstance(value, basestring):
+            if self.separator in value:#In case of the widget doesn't make a 'good clean'
+                value = [v for v in value.split(self.separator) if v]
+            else:
+                value = [value]
 
         try:
             clean_ids = map(int, value)
