@@ -64,7 +64,7 @@ def add_properties_bulk(request, ct_id, ids):
     return inner_popup(request, 'creme_core/generics/blockform/add_popup2.html',
                        {
                         'form':  form,
-                        'title': _(u'Multiple adding of relations'),
+                        'title': _(u'Multiple adding of properties'),
                        },
                        is_valid=form.is_valid(),
                        reload=False,

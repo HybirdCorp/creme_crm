@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-06-14 14:43+0200\n"
+"POT-Creation-Date: 2011-06-15 09:57+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 
 #: blocks.py:31 forms/csv_import.py:597 models/creme_property.py:91
-#: models/entity.py:51 tests/views/entity.py:62
+#: models/entity.py:51 tests/views/entity.py:65
 msgid "Properties"
 msgstr "Propriétés"
 
@@ -72,8 +72,8 @@ msgid "General information"
 msgstr "Informations générales"
 
 #: forms/base.py:202 forms/csv_import.py:596 models/base.py:193
-#: models/prefered_menu.py:27 tests/views/entity.py:35
-#: tests/views/entity.py:36 tests/views/entity.py:37
+#: models/prefered_menu.py:27 tests/views/entity.py:38
+#: tests/views/entity.py:39 tests/views/entity.py:40
 msgid "User"
 msgstr "Utilisateur"
 
@@ -123,7 +123,7 @@ msgid "You can't view this value, so you can't set it."
 msgstr ""
 "Vous ne pouvez pas voir cette valeur, donc vous ne pouvez pas l'attribuer."
 
-#: forms/bulk.py:173 forms/bulk.py:176 tests/views/entity.py:600
+#: forms/bulk.py:173 forms/bulk.py:176 tests/views/entity.py:603
 msgid "This field is required."
 msgstr "Ce champ est obligatoire."
 
@@ -439,7 +439,7 @@ msgstr "Format invalide"
 msgid "This content type is not allowed."
 msgstr "Ce type de resource n'est pas autorisé'."
 
-#: forms/fields.py:119 forms/fields.py:269 forms/fields.py:575
+#: forms/fields.py:119 forms/fields.py:269 forms/fields.py:578
 msgid "This entity doesn't exist."
 msgstr "Cette entité n'existe pas."
 
@@ -469,26 +469,26 @@ msgid "Select a valid choice. %(value)s is not an available choice."
 msgstr ""
 "Sélectionnez un choix valide. %(value)s n'est pas un des choix disponibles."
 
-#: forms/fields.py:767
+#: forms/fields.py:770
 msgid ""
 "If you select customized you have to specify a start date and/or an end date."
 msgstr ""
 "Si vous sélectionnez 'Personnalisé' vous devez spécifier une date de début "
 "et/ou une date de fin."
 
-#: forms/fields.py:768
+#: forms/fields.py:771
 msgid "Start date has to be before end date."
 msgstr "La date début doit être avant la date de fin."
 
-#: forms/fields.py:772 forms/widgets.py:164 forms/widgets.py:869
+#: forms/fields.py:775 forms/widgets.py:164 forms/widgets.py:869
 msgid "Customized"
 msgstr "Personnalisé"
 
-#: forms/fields.py:819
+#: forms/fields.py:822
 msgid "Enter a whole number."
 msgstr ""
 
-#: forms/fields.py:820
+#: forms/fields.py:823
 #, python-format
 msgid "Ensure this value is greater than or equal to %(limit_value)s."
 msgstr ""
@@ -603,7 +603,7 @@ msgstr[1] "secondes"
 
 #: models/auth.py:216 models/entity_filter.py:79 models/i18n.py:27
 #: templates/creme_core/templatetags/block_specific_relations.html:18
-#: tests/views/entity.py:301
+#: tests/views/entity.py:304
 msgid "Name"
 msgstr "Nom"
 
@@ -673,73 +673,73 @@ msgid "You are not allowed to configure this app: %s"
 msgstr "Vous n'êtes pas autorisé à configurer cet app: %s"
 
 #: models/base.py:185 tests/models/header_filter.py:69
-#: tests/views/entity.py:33
+#: tests/views/entity.py:36
 msgid "Creation date"
 msgstr "Date de création"
 
-#: models/base.py:186 tests/views/entity.py:34
+#: models/base.py:186 tests/views/entity.py:37
 msgid "Last modification"
 msgstr "Dernière modification"
 
-#: models/block.py:37 models/button_menu.py:30 models/custom_field.py:50
+#: models/block.py:39 models/button_menu.py:30 models/custom_field.py:50
 #: models/search.py:32
 msgid "Related type"
 msgstr "Type associé"
 
-#: models/block.py:38 models/block.py:60 models/block.py:87
-#: models/block.py:141
+#: models/block.py:40 models/block.py:62 models/block.py:89
+#: models/block.py:143
 msgid "Block ID"
 msgstr "Identifiant de bloc"
 
-#: models/block.py:39 models/button_menu.py:32 models/search.py:91
+#: models/block.py:41 models/button_menu.py:32 models/search.py:91
 msgid "Priority"
 msgstr "Priorité"
 
-#: models/block.py:40
+#: models/block.py:42
 msgid "Displayed on portal ?"
 msgstr "Affiché sur la page d'accueil ?"
 
-#: models/block.py:44
+#: models/block.py:46
 msgid "Block to display"
 msgstr "Bloc à afficher"
 
-#: models/block.py:45
+#: models/block.py:47
 msgid "Blocks to display"
 msgstr "Blocs à afficher"
 
-#: models/block.py:61
+#: models/block.py:63
 msgid "Related type of relation"
 msgstr "Type de relation associé"
 
-#: models/block.py:65
+#: models/block.py:67
 msgid "Specific relation block"
 msgstr "Bloc de relation spécifique"
 
-#: models/block.py:66
+#: models/block.py:68
 msgid "Specific relation blocks"
 msgstr "Blocs de relation spécifique"
 
-#: models/block.py:88
+#: models/block.py:90
 msgid "Block related entity"
 msgstr "Entité associée au bloc"
 
-#: models/block.py:90
+#: models/block.py:92
 msgid "Verbose"
 msgstr "Verbeux"
 
-#: models/block.py:94
+#: models/block.py:96
 msgid "Instance's Block to display"
 msgstr "Bloc d'instance à afficher"
 
-#: models/block.py:95
+#: models/block.py:97
 msgid "Instance's Blocks to display"
 msgstr "Blocs d'instance à afficher"
 
-#: models/block.py:147
+#: models/block.py:149
 msgid "Block state"
 msgstr "Etat de bloc"
 
-#: models/block.py:148
+#: models/block.py:150
 msgid "Blocks states"
 msgstr "Etats de blocs"
 
@@ -1614,7 +1614,7 @@ msgstr "%s seconde(s)"
 msgid "In the future"
 msgstr "Dans le futur"
 
-#: tests/models/header_filter.py:44 tests/views/entity.py:36
+#: tests/models/header_filter.py:44 tests/views/entity.py:39
 msgid "First name"
 msgstr "Prénom"
 
@@ -1622,11 +1622,11 @@ msgstr "Prénom"
 msgid "Photograph"
 msgstr ""
 
-#: tests/views/entity.py:35
+#: tests/views/entity.py:38
 msgid "Username"
 msgstr "Nom d'utilisateur"
 
-#: tests/views/entity.py:37
+#: tests/views/entity.py:40
 msgid "Last name"
 msgstr "Prénom"
 
@@ -1678,9 +1678,9 @@ msgstr "Hier"
 msgid "Tomorrow"
 msgstr "Demain"
 
-#: views/creme_property.py:67 views/relation.py:236
-msgid "Multiple adding of relations"
-msgstr "Ajout multiple de relations"
+#: views/creme_property.py:67
+msgid "Multiple adding of properties"
+msgstr "Ajout multiple de propriétés"
 
 #: views/creme_property.py:124
 #, python-format
@@ -1713,6 +1713,10 @@ msgstr "Création rapide de <%s>"
 #, python-format
 msgid "Relations for <%s>"
 msgstr "Relations pour <%s>"
+
+#: views/relation.py:236
+msgid "Multiple adding of relations"
+msgstr "Ajout multiple de relations"
 
 #: views/relation.py:367 views/generic/delete.py:58
 #, python-format
