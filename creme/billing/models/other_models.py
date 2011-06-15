@@ -111,7 +111,7 @@ class PaymentTerms(CremeModel):
     name        = CharField(_(u'Payment terms'), max_length=100)
     description = TextField(verbose_name=_(u"Description"), blank=True, null=True)
     is_custom   = BooleanField(default=True) #used by creme_config
-    
+
     def __unicode__(self):
         return self.name
 
@@ -134,7 +134,7 @@ class PaymentInformation(CremeModel):
     iban                  = CharField(_(u'IBAN'), max_length=100, blank=True, null=True)
     bic                   = CharField(_(u'BIC'), max_length=100, blank=True, null=True)
 
-    is_default            = BooleanField(default=False)
+    is_default            = BooleanField(_(u'Is default?'), default=False)
     organisation          = ForeignKey(Organisation, verbose_name=_(u'Target organisation'), related_name='PaymentInformationOrganisation_set')
 
     def __unicode__(self):
@@ -155,11 +155,11 @@ class PaymentInformation(CremeModel):
 
         if not self.is_default and PaymentInformation.objects.filter(organisation=self.organisation, is_default=True).exclude(pk=self.id).count() == 0:
             self.is_default = True
-            
+
         super(PaymentInformation, self).save(*args, **kwargs)
 
     def delete(self, *args, **kwargs):
-        
+
         if self.is_default:
             existing_pi = PaymentInformation.objects.filter(organisation=self.organisation).exclude(id=self.id)
 
@@ -167,8 +167,8 @@ class PaymentInformation(CremeModel):
                 first_pi = existing_pi[0]
                 first_pi.is_default=True
                 first_pi.save()
-            
+
         super(PaymentInformation, self).delete(*args, **kwargs)
 
     def get_related_entity(self):
-        return self.organisation    
+        return self.organisation
