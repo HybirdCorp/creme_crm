@@ -278,7 +278,7 @@ class ActivitiesTestCase(CremeTestCase):
             other_participants = response.context['form'].fields['other_participants']
         except Exception, e:
             self.fail(str(e))
-        self.assertEqual(contact01.id, other_participants.initial)
+        self.assertEqual([contact01.id], other_participants.initial)
 
         title  = 'my_meeting'
         response = self.client.post(uri, follow=True,
