@@ -9,3 +9,8 @@
         {% get_delete_button object request.user %}
     {% endif %}
 {% endblock %}
+
+
+{% block add_new_button %}
+    <li>{% get_clone_button object request.user %}</li>
+{% endblock %}
