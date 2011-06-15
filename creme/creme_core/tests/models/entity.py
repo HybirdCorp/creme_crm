@@ -6,6 +6,7 @@ from tempfile import NamedTemporaryFile
 
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
+from django.db.models.deletion import ProtectedError
 
 from creme_core.models import *
 from creme_core.tests.base import CremeTestCase
@@ -270,3 +271,20 @@ class EntityTestCase(CremeTestCase):
         self.assertEqual(set(image.categories.values_list('pk', flat=True)),
                          set(image2.categories.values_list('pk', flat=True))
                         )
+
+    def test_delete01(self):
+        """Simple delete"""
+        ce = CremeEntity.objects.create(user=self.user)
+        ce.delete()
+        self.assertRaises(CremeEntity.DoesNotExist, CremeEntity.objects.get, id=ce.id)
+
+    def test_delete02(self):
+        """Can't delete entities linked by a relation"""
+        self._setUpClone()
+        ce1 = CremeEntity.objects.create(user=self.user)
+        ce2 = CremeEntity.objects.create(user=self.user)
+
+        Relation.objects.create(user=self.user, type=self.rtype1, subject_entity=ce1, object_entity=ce2)
+
+        self.assertRaises(ProtectedError, ce1.delete)
+        self.assertRaises(ProtectedError, ce2.delete)

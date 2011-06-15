@@ -20,7 +20,7 @@
 
 from logging import debug
 
-from django.db.models import ForeignKey, CharField, TextField, ManyToManyField, DateField, EmailField
+from django.db.models import ForeignKey, CharField, TextField, ManyToManyField, DateField, EmailField, ProtectedError
 from django.utils.translation import ugettext_lazy as _, ugettext
 from django.contrib.auth.models import User
 
@@ -91,9 +91,9 @@ class Contact(CremeEntity):
         return "/persons/contacts"
 
     def delete(self):
-        #TODO: Make a view to 'say' that can't be deleted  => use an Exception instead ??
-        if self.is_user is None:
-            super(Contact, self).delete()
+        if self.is_user is not None:
+            raise ProtectedError(ugettext(u"A user is associated with this contact."), [self])
+        super(Contact, self).delete()
 
     def _post_save_clone(self, source):
         if source.billing_address is not None:

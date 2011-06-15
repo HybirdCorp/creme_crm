@@ -36,11 +36,10 @@ from creme_core.core.function_field import FunctionFieldsManager
 from creme_core.models.fields import CreationDateTimeField, ModificationDateTimeField
 
 
-class CantBeDeleted(Exception):
-    pass
+#class CantBeDeleted(Exception):
+#    pass
 
-def _can_be_deleted(obj, seen_objs, parent=None, nullable=False):
-    pass
+#def _can_be_deleted(obj, seen_objs, parent=None, nullable=False):
 #    pk_val = obj._get_pk_val()
 #    if seen_objs.add(obj.__class__, pk_val, obj, parent, nullable):
 #        return
@@ -95,8 +94,7 @@ def _can_be_deleted(obj, seen_objs, parent=None, nullable=False):
 #        # delete it and all its descendents.
 #        parent_obj._can_be_deleted(seen_objs)
 
-def can_be_deleted(obj):
-    return True
+#def can_be_deleted(obj):
 #    try:
 #        seen_objs = CollectedObjects()
 #        obj._can_be_deleted(seen_objs)
@@ -105,8 +103,8 @@ def can_be_deleted(obj):
 #    else:
 #        return True
 
-Model._can_be_deleted = _can_be_deleted
-Model.can_be_deleted  = can_be_deleted
+#Model._can_be_deleted = _can_be_deleted
+#Model.can_be_deleted  = can_be_deleted
 
 class CremeModel(Model):
 
