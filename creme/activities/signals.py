@@ -27,11 +27,11 @@ from constants import REL_SUB_PART_2_ACTIVITY, REL_OBJ_PART_2_ACTIVITY
 
 def set_null_calendar_on_delete_participant(sender, instance, **kwargs):
     contact = None
-    if instance.type.id == REL_SUB_PART_2_ACTIVITY:
+    if instance.type_id == REL_SUB_PART_2_ACTIVITY:
         contact  = instance.subject_entity.get_real_entity()
         activity = instance.object_entity.get_real_entity()
 
-    if instance.type.id == REL_OBJ_PART_2_ACTIVITY:
+    if instance.type_id == REL_OBJ_PART_2_ACTIVITY:
         contact  = instance.object_entity.get_real_entity()
         activity = instance.subject_entity.get_real_entity()
 

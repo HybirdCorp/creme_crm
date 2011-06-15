@@ -78,7 +78,7 @@ class DocumentTestCase(CremeTestCase):
         filedata.open()
         self.assertEqual([content], filedata.readlines())
 
-        filedata.delete() #clean
+        filedata.delete(filedata) #clean
 
     def test_edit_document(self):
         self.login()
@@ -113,6 +113,8 @@ class DocumentTestCase(CremeTestCase):
                                             category=FolderCategory.objects.all()[0],
                                             user=self.user,
                                            )
+        file_to_delete = doc.filedata
+
         response = self.client.post(url, follow=True,
                                     data={
                                             'user':         self.user.pk,
@@ -131,7 +133,7 @@ class DocumentTestCase(CremeTestCase):
         self.assertEqual(description,  doc.description)
         self.assertEqual(folder.id,    doc.folder.id)
 
-        doc.filedata.delete() #clean
+        file_to_delete.delete(file_to_delete)#clean
 
     def test_add_related_document(self):
         self.login()
@@ -165,7 +167,7 @@ class DocumentTestCase(CremeTestCase):
                                             .count()
                         )
 
-        doc.filedata.delete() #clean
+        doc.filedata.delete(doc.filedata) #clean
 
     def test_add_folder(self):
         self.login()

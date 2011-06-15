@@ -21,6 +21,7 @@
 from collections import defaultdict
 from logging import debug
 
+from django.db.models import ProtectedError
 from django.core.exceptions import PermissionDenied
 from django.utils.translation import ugettext as _, ugettext
 from django.utils.encoding import smart_unicode
@@ -73,7 +74,7 @@ def delete_entities(request):
 
         try:
             entity.delete()
-        except CremeEntity.CanNotBeDeleted, e:
+        except ProtectedError:
             errors[400].append(_(u'"%s" can not be deleted because of its dependencies.') % entity.allowed_unicode(user))
 
     if not errors:
@@ -111,12 +112,13 @@ def delete_entity(request, entity_id, callback_url=None):
 
     try:
         entity.delete()
-    except CremeEntity.CanNotBeDeleted, e:
+    except ProtectedError, (e, entities):
+        msg = _(u'"%s" can not be deleted because of its dependencies.') % entity.allowed_unicode(request.user)
         if request.is_ajax():
-            return HttpResponse(smart_unicode(e), mimetype="text/javascript", status=400)
+            return HttpResponse(smart_unicode(msg), mimetype="text/javascript", status=400)
 
         return render_to_response("creme_core/forbidden.html",
-                                  {'error_message': unicode(e)},
+                                  {'error_message': unicode(msg)},
                                   context_instance=RequestContext(request)
                                  )
 
