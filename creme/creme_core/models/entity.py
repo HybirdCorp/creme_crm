@@ -269,10 +269,14 @@ class CremeEntity(CremeAbstractEntity):
         return '<a target="_blank" href="%s">%s</a></li>' % (self.get_absolute_url(), escape(unicode(self)))
 
     def get_actions(self, user): #TODO: improve icon/css class management....
-        actions = [EntityAction(self.get_edit_absolute_url(), ugettext(u"Edit"),
+        actions = []
+
+        edit_url = self.get_edit_absolute_url()
+        if edit_url:
+            actions.append(EntityAction(edit_url, ugettext(u"Edit"),
                                 self.can_change(user), icon="images/edit_16.png"
                                )
-                  ]
+                           )
 
         delete_url = self.get_delete_absolute_url()
         if delete_url:
