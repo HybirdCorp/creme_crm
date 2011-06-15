@@ -33,16 +33,17 @@ from persons.models import Contact, Organisation
 from billing.models import (ProductLine, ServiceLine, Invoice, SalesOrder, Quote, PaymentInformation, Base,
                             PRODUCT_LINE_TYPE, SERVICE_LINE_TYPE, TemplateBase)
 
-from billing.constants import REL_OBJ_BILL_RECEIVED, REL_SUB_BILL_RECEIVED, REL_SUB_BILL_ISSUED, REL_OBJ_BILL_ISSUED, DISPLAY_PAYMENT_INFO_ONLY_CREME_ORGA, REL_OBJ_HAS_LINE
+from billing.constants import REL_OBJ_BILL_RECEIVED, REL_SUB_BILL_RECEIVED, REL_SUB_BILL_ISSUED, REL_OBJ_BILL_ISSUED, DISPLAY_PAYMENT_INFO_ONLY_CREME_ORGA, REL_OBJ_HAS_LINE, REL_SUB_HAS_LINE
 
 
 #NB PaginatedBlock and not QuerysetBlock to avoid the retrieving of a sliced
 #   queryset of lines : we retrieve all the lines to compute the totals any way.
 class ProductLinesBlock(PaginatedBlock):
     id_           = PaginatedBlock.generate_id('billing', 'product_lines')
-    dependencies  = (ProductLine,)
+    dependencies  = (ProductLine, Relation)
     verbose_name  = _(u'Product lines')
     template_name = 'billing/templatetags/block_product_line.html'
+    relation_type_deps = (REL_SUB_HAS_LINE, )
 
     def detailview_display(self, context):
         document = context['object']
@@ -55,9 +56,10 @@ class ProductLinesBlock(PaginatedBlock):
 
 class ServiceLinesBlock(PaginatedBlock):
     id_           = PaginatedBlock.generate_id('billing', 'service_lines')
-    dependencies  = (ServiceLine,)
+    dependencies  = (ServiceLine, Relation)
     verbose_name  = _(u'Service lines')
     template_name = 'billing/templatetags/block_service_line.html'
+    relation_type_deps = (REL_SUB_HAS_LINE, )
 
     def detailview_display(self, context):
         document = context['object']
