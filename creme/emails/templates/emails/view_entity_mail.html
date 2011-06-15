@@ -1,4 +1,11 @@
 {% extends "creme_core/generics/view_entity.html" %}
 {% load media %}
+{% load creme_widgets %}
 
 {% block logo %}<img src="{% media_url 'images/email_64.png' %}" alt=""/>{% endblock %}
+
+{% block entity_buttons %}
+    {% if path %}
+        {% get_delete_button object request.user %}
+    {% endif %}
+{% endblock %}
