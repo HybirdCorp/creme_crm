@@ -26,6 +26,7 @@ from django.contrib.contenttypes.generic import GenericForeignKey
 from django.contrib.auth.models import User
 
 from creme_core.models import CremeEntity, CremeModel
+from creme_core.models.fields import CremeUserForeignKey
 
 
 class ToDo(CremeModel):
@@ -35,7 +36,7 @@ class ToDo(CremeModel):
     description   = TextField(_(u'Description'), blank=True, null=True)
     creation_date = DateTimeField(_(u'Creation date'), editable=False)
     deadline      = DateTimeField(_(u"Deadline"), blank=True, null=True)
-    user          = ForeignKey(User, verbose_name=_(u'Assigned to'))
+    user          = CremeUserForeignKey(verbose_name=_(u"Assigned to"))
 
     entity_content_type = ForeignKey(ContentType, related_name="todo_entity_set", editable=False)
     entity_id           = PositiveIntegerField(editable=False)

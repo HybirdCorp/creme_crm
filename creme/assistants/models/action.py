@@ -26,6 +26,7 @@ from django.contrib.contenttypes.generic import GenericForeignKey
 from django.contrib.auth.models import User
 
 from creme_core.models import CremeModel, CremeEntity
+from creme_core.models.fields import CremeUserForeignKey
 
 
 class Action(CremeModel):
@@ -41,7 +42,7 @@ class Action(CremeModel):
     entity_id           = PositiveIntegerField(editable=False)
     creme_entity        = GenericForeignKey(ct_field="entity_content_type", fk_field="entity_id")
 
-    user                = ForeignKey(User, verbose_name=_(u'Assigned to'))
+    user                = CremeUserForeignKey(verbose_name=_(u"Assigned to"))
 
     class Meta:
         app_label = 'assistants'

@@ -25,7 +25,9 @@
                     </td>
                     <td class="{{row_color}}">
                         {% get_line_editor at_url '/creme_config/team/edit/{{team.id}}' with_perms 1 %}
-                        {% get_line_deletor at_url '/creme_config/team/delete' with_args "{'id':'{{team.id}}'}" with_perms 1 %}
+                        <a onclick="creme.utils.innerPopupNReload('/creme_config/team/delete/{{ team.id }}', {% get_block_reload_uri %});">
+                            <img src="{% media_url 'images/delete_22.png' %}" border="0" title="{% trans "Delete" %}" alt="{% trans "Delete" %}">
+                        </a>
                     </td>
                 </tr>
             {% endfor %}
