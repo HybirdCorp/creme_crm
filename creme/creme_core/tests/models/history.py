@@ -15,9 +15,15 @@ __all__ = ('HistoryTestCase',)
 
 
 class HistoryTestCase(ViewsTestCase):
-    def _build_organisation(self, name, **kwargs):
+    def setUp(self):
+        self.populate('creme_core')
+
+    def _build_organisation(self, name, extra_args=None, **kwargs):
         data = {'name': name}
         data.update(kwargs)
+
+        if extra_args:
+            data.update(extra_args)
 
         response = self.client.post('/persons/organisation/add', follow=True, data=data)
         self.assertEqual(200, response.status_code)
@@ -30,11 +36,35 @@ class HistoryTestCase(ViewsTestCase):
 
         return orga
 
-    def test_creation(self):
+    def test_creation01(self):
         self.login()
 
         old_count = HistoryLine.objects.count()
         gainax = self._build_organisation(user=self.other_user.id, name='Gainax')
+        hlines = list(HistoryLine.objects.order_by('id'))
+        self.assertEqual(old_count + 1, len(hlines))
+
+        hline = hlines[-1]
+        self.assertEqual(gainax.id,                 hline.entity.id)
+        self.assertEqual(gainax.entity_type,        hline.entity_ctype)
+        self.assertEqual(self.other_user,           hline.entity_owner)
+        self.assertEqual('',                        hline.username) #TODO: self.user.username
+        self.assertEqual(HistoryLine.TYPE_CREATION, hline.type)
+        self.assertEqual([],                        hline.modifications)
+        self.assert_((datetime.now() - hline.date) < timedelta(seconds=1))
+
+    def test_creation02(self): #double save() beacuse of addresses caused problems
+        self.login()
+
+        old_count = HistoryLine.objects.count()
+
+        country = 'Japan'
+        gainax = self._build_organisation(user=self.other_user.id, name='Gainax',
+                                          extra_args={'billing_address-country': country}
+                                         )
+        self.assert_(gainax.billing_address is not None)
+        self.assertEqual(country, gainax.billing_address.country)
+
         hlines = list(HistoryLine.objects.order_by('id'))
         self.assertEqual(old_count + 1, len(hlines))
 
@@ -90,7 +120,10 @@ class HistoryTestCase(ViewsTestCase):
         description = """Oh this is an long description
 text that takes several lines
 about this fantastic animation studio."""
-        gainax = self._build_organisation(user=self.user.id, name=name, phone=old_phone, description=description, sector=sector01.id)
+        gainax = self._build_organisation(user=self.user.id, name=name, phone=old_phone,
+                                          description=description, sector=sector01.id,
+                                          subject_to_vat=False,
+                                         )
 
         self.assertEqual(old_count + 1, HistoryLine.objects.count())
 
@@ -99,12 +132,14 @@ about this fantastic animation studio."""
         description += 'In this studio were created lots of excellent animes like "Evangelion" or "Fushigi no umi no Nadia".'
         response = self.client.post('/persons/organisation/edit/%s' % gainax.id, follow=True,
                                     data={
-                                            'user':        self.user.id,
-                                            'name':        name,
-                                            'phone':       phone,
-                                            'email':       email,
-                                            'description': description,
-                                            'sector':      sector02.id,
+                                            'user':          self.user.id,
+                                            'name':          name,
+                                            'phone':         phone,
+                                            'email':         email,
+                                            'description':   description,
+                                            'sector':        sector02.id,
+                                            'creation_date': '1984-12-24',
+                                            'subject_to_vat': True,
                                          }
                                    )
         self.assertNoFormError(response)
@@ -112,11 +147,13 @@ about this fantastic animation studio."""
         hline = HistoryLine.objects.latest('date')
         modif = hline.modifications
         self.assert_(isinstance(modif, list))
-        self.assertEqual(4, len(modif))
+        self.assertEqual(6, len(modif))
         self.assert_(['phone', old_phone, phone] in modif)
         self.assert_(['email', email] in modif)
         self.assert_(['description'] in modif)
         self.assert_(['sector', sector01.id, sector02.id] in modif)
+        self.assert_(['creation_date'] in modif)
+        self.assert_(['subject_to_vat', True] in modif, modif)
 
     def test_edition03(self):
         self.login()
