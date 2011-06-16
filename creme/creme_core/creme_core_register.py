@@ -27,7 +27,7 @@ from creme_core.registry import creme_registry
 from creme_core.gui.menu import creme_menu
 from creme_core.gui.block import block_registry
 from creme_core.gui.bulk_update import bulk_update_registry
-from creme_core.blocks import relations_block, properties_block, customfields_block
+from creme_core.blocks import relations_block, properties_block, customfields_block, history_block
 
 
 User._meta.ordering = ('username',)
@@ -43,7 +43,7 @@ creme_registry.register_app('creme_core', _(u'Core'), '/')
 
 creme_menu.register_app('creme_core', '/', _(u'Home'), force_order=0)
 
-block_registry.register(relations_block, properties_block, customfields_block)
+block_registry.register(relations_block, properties_block, customfields_block, history_block)
 
 bulk_update_registry.register(
     (CremeEntity, ['created', 'modified']),
