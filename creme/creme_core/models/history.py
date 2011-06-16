@@ -19,8 +19,11 @@
 ################################################################################
 
 from datetime import datetime
+from logging import debug
 
 from django.db.models import Model, PositiveSmallIntegerField, CharField, TextField, DateTimeField, ForeignKey
+#from django.db.models import FileField
+#from django.db import models
 from django.db.models.signals import post_save, post_init, pre_delete
 from django.utils.translation import ugettext_lazy as _
 from django.utils.simplejson import loads as jsonloads, dumps as jsondumps
@@ -35,6 +38,34 @@ _EXCLUDED_FIELDS = frozenset(('id', 'entity_type', 'is_deleted', 'is_actived',
                               'cremeentity_ptr', 'header_filter_search_field',
                               'created', 'modified',
                             ))
+_SERIALISABLE_FIELDS = frozenset(('CharField',
+
+                                  'IntegerField', 'BigIntegerField', 'PositiveIntegerField',
+                                  'PositiveSmallIntegerField', 'SmallIntegerField',
+
+                                  'BooleanField', 'NullBooleanField',
+
+                                  'ForeignKey',
+
+    #Display has to be improved
+        #'DateField'
+
+    #To be tested
+        #'DateTimeField'
+        #'TimeField'
+
+        #'FilePathField'
+
+        #'DecimalField'
+        #'FloatField'
+        #'IPAddressField'
+        #'SlugField'
+
+    #Excluded
+        #'TextField' => too long
+        #'FileField' => not serialisable
+                                ))
+
 
 
 class HistoryLine(Model):
@@ -68,10 +99,18 @@ class HistoryLine(Model):
                 )
 
     @staticmethod
-    def _encode_value(value):
-        return jsondumps(value)
+    def _encode_attrs(instance, modifs=()):
+        value = [unicode(instance)]
 
-    def _build_attrs(self):
+        try:
+            attrs = jsondumps(value + list(modifs))
+        except TypeError, e:
+            debug('HistoryLine: ' + str(e))
+            attrs = jsondumps(value)
+
+        return attrs
+
+    def _read_attrs(self):
         value = jsonloads(self.value)
         self._entity_repr   = value.pop(0)
         self._modifications = value
@@ -79,7 +118,7 @@ class HistoryLine(Model):
     @property
     def entity_repr(self):
         if self._entity_repr is None:
-            self._build_attrs()
+            self._read_attrs()
 
         return self._entity_repr
 
@@ -89,23 +128,18 @@ class HistoryLine(Model):
     @property
     def modifications(self):
         if self._modifications is None:
-            self._build_attrs()
+            self._read_attrs()
 
         return self._modifications
 
     @staticmethod
-    def _create_line_4_instance(instance, ltype, extra_value=None):
-        value = [unicode(instance)]
-
-        if extra_value:
-            value.extend(extra_value)
-
+    def _create_line_4_instance(instance, ltype, modifs=()):
         HistoryLine.objects.create(entity=instance,
                                    entity_ctype=instance.entity_type,
                                    entity_owner=instance.user,
                                    date=instance.modified,
                                    type=ltype,
-                                   value=HistoryLine._encode_value(value),
+                                   value=HistoryLine._encode_attrs(instance, modifs=modifs)
                                   )
 
     @staticmethod
@@ -116,10 +150,13 @@ class HistoryLine(Model):
         if created:
             HistoryLine._create_line_4_instance(instance, HistoryLine.TYPE_CREATION)
         else:
-            modifs = []
+            backup = getattr(instance, '_instance_backup', None)
+            if backup is None:
+                return
 
+            modifs = []
             old_instance = instance.__class__()
-            old_instance.__dict__ = instance._instance_backup
+            old_instance.__dict__ = backup
 
             for field in instance._meta.fields:
                 fname = field.name
@@ -134,7 +171,7 @@ class HistoryLine(Model):
                     new_value = new_value and new_value.pk
 
                 if old_value != new_value:
-                    if isinstance(field, TextField):
+                    if field.get_internal_type() not in _SERIALISABLE_FIELDS:
                         modif = (fname,)
                     elif old_value:
                         modif = (fname, old_value, new_value)
@@ -144,7 +181,7 @@ class HistoryLine(Model):
                     modifs.append(modif)
 
             if modifs:
-                HistoryLine._create_line_4_instance(instance, HistoryLine.TYPE_EDITION, extra_value=modifs)
+                HistoryLine._create_line_4_instance(instance, HistoryLine.TYPE_EDITION, modifs=modifs)
 
     @staticmethod
     def _log_deletion(sender, instance, **kwargs):
@@ -154,7 +191,7 @@ class HistoryLine(Model):
                                        entity_owner=instance.user,
                                        date=datetime.now(),
                                        type=HistoryLine.TYPE_DELETION,
-                                       value=HistoryLine._encode_value([unicode(instance)]),
+                                       value=HistoryLine._encode_attrs(instance),
                                       )
 
     @staticmethod
@@ -163,6 +200,6 @@ class HistoryLine(Model):
             instance._instance_backup = instance.__dict__.copy()
 
 
-post_init.connect(HistoryLine._prepare_edition,      dispatch_uid="creme_core-historyline._prepare_edition")
-post_save.connect(HistoryLine._log_creation_edition, dispatch_uid="creme_core-historyline._log_creation_edition") # "sender=CremeEntity" does not work with classes that inherit CremeEntity
-pre_delete.connect(HistoryLine._log_deletion,        dispatch_uid="creme_core-historyline._log_deletion")
+post_init.connect(HistoryLine._prepare_edition,      dispatch_uid='creme_core-historyline._prepare_edition')
+post_save.connect(HistoryLine._log_creation_edition, dispatch_uid='creme_core-historyline._log_creation_edition') # "sender=CremeEntity" does not work with classes that inherit CremeEntity
+pre_delete.connect(HistoryLine._log_deletion,        dispatch_uid='creme_core-historyline._log_deletion')
