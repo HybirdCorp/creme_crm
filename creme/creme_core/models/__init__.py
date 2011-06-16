@@ -22,4 +22,5 @@ from button_menu import ButtonMenuItem
 
 from reminder import DateReminder
 
+from history import HistoryLine
 from search import SearchField, SearchConfigItem
