@@ -28,6 +28,7 @@ from django.contrib.contenttypes.generic import GenericForeignKey
 from django.contrib.auth.models import User
 
 from creme_core.models import CremeModel, CremeEntity
+from creme_core.models.fields import CremeUserForeignKey
 
 
 class UserMessagePriority(CremeModel):
@@ -48,8 +49,8 @@ class UserMessage(CremeModel):
     body          = TextField(_(u'Message body'))
     creation_date = DateTimeField(_(u"Creation date"))
     priority      = ForeignKey(UserMessagePriority, verbose_name=_(u'Priority'))
-    sender        = ForeignKey(User, verbose_name=_(u'Sender'), related_name='sent_assistants_messages_set')
-    recipient     = ForeignKey(User, verbose_name=_(u'Recipient'), related_name='received_assistants_messages_set') #, null=True
+    sender        = CremeUserForeignKey(verbose_name=_(u'Sender'), related_name='sent_assistants_messages_set')
+    recipient     = CremeUserForeignKey(verbose_name=_(u'Recipient'), related_name='received_assistants_messages_set') #, null=True
 
     email_sent = BooleanField()
 

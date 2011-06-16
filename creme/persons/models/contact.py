@@ -20,7 +20,7 @@
 
 from logging import debug
 
-from django.db.models import ForeignKey, CharField, TextField, ManyToManyField, DateField, EmailField, ProtectedError
+from django.db.models import ForeignKey, CharField, TextField, ManyToManyField, DateField, EmailField, ProtectedError, SET_NULL
 from django.utils.translation import ugettext_lazy as _, ugettext
 from django.contrib.auth.models import User
 
@@ -52,7 +52,7 @@ class Contact(CremeEntity):
     language        = ManyToManyField(Language, verbose_name=_(u'Spoken language(s)'), blank=True, null=True)
     billing_address  = ForeignKey(Address, verbose_name=_(u'Billing address'), blank=True, null=True, related_name='billing_address_contact_set')
     shipping_address = ForeignKey(Address, verbose_name=_(u'Shipping address'), blank=True, null=True, related_name='shipping_address_contact_set')
-    is_user         = ForeignKey(User, verbose_name=_(u'Is an user'), blank=True, null=True, related_name='related_contact')
+    is_user         = ForeignKey(User, verbose_name=_(u'Is an user'), blank=True, null=True, related_name='related_contact', on_delete=SET_NULL)
     birthday        = DateField(_(u"Birthday"), blank=True, null=True)
     image           = ForeignKey(Image, verbose_name=_(u'Photograph'), blank=True, null=True)
 

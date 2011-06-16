@@ -33,7 +33,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.contrib.auth.models import User
 
 from creme_core.core.function_field import FunctionFieldsManager
-from creme_core.models.fields import CreationDateTimeField, ModificationDateTimeField
+from creme_core.models.fields import CreationDateTimeField, ModificationDateTimeField, CremeUserForeignKey
 
 
 #class CantBeDeleted(Exception):
@@ -218,7 +218,7 @@ class CremeAbstractEntity(CremeModel):
 
     is_deleted = BooleanField(blank=True, default=False, editable=False)
     is_actived = BooleanField(blank=True, default=False, editable=False)
-    user       = ForeignKey(User, verbose_name=_(u'User'))
+    user        = CremeUserForeignKey(verbose_name=_(u"User"))
 
     _real_entity = None
 
