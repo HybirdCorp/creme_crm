@@ -777,4 +777,68 @@ class RelationViewsTestCase(ViewsTestCase):
         self.assertEqual(404, response.status_code)
         self.assertEqual(1,   Relation.objects.filter(pk=relation.pk).count())
 
+    def _aux_test_delete_all(self):
+        self.assertEqual(0, Relation.objects.count())
+        create_entity = CremeEntity.objects.create
+        subject01 = self.subject01 = create_entity(user=self.user)
+
+        object01  = create_entity(user=self.user)
+        object02  = create_entity(user=self.other_user)
+
+        rtype01, srtype01 = RelationType.create(('test-subject_foobar1', 'is loving'),
+                                                ('test-object_foobar1',  'is loved by')
+                                                )
+
+        rtype02, srtype02 = RelationType.create(('test-subject_foobar2', 'is loving'),
+                                                ('test-object_foobar2',  'is loved by')
+                                                )
+
+        rtype03, srtype03 = RelationType.create(('test-subject_foobar3', 'is loving'),
+                                                ('test-object_foobar3',  'is loved by'),
+                                                is_internal=True
+                                                )
+
+        Relation.objects.create(type=rtype01, subject_entity=subject01, object_entity=object01, user=self.user)
+        Relation.objects.create(type=rtype02, subject_entity=subject01, object_entity=object01, user=self.user)
+        Relation.objects.create(type=rtype03, subject_entity=subject01, object_entity=object01, user=self.user)#internal
+
+        Relation.objects.create(type=rtype01, subject_entity=subject01, object_entity=object02, user=self.other_user)
+        Relation.objects.create(type=rtype02, subject_entity=subject01, object_entity=object02, user=self.other_user)
+        Relation.objects.create(type=rtype03, subject_entity=subject01, object_entity=object02, user=self.other_user)#internal
+
+    def test_delete_all01(self):
+        self.login()
+        self._aux_test_delete_all()
+        subject01 = self.subject01
+
+        self.assertEqual(12, Relation.objects.count())
+
+        response = self.client.post('/creme_core/relation/delete/all',
+                            data={}
+                           )
+        self.assertEqual(404, response.status_code)
+
+        response = self.client.post('/creme_core/relation/delete/all',
+                            data={'subject_id': subject01.id},
+                           )
+        self.assertEqual(200, response.status_code)
+        self.assertEqual(4, Relation.objects.count())
+        self.assertEqual(0, Relation.objects.filter(type__is_internal=False).count())
+
+    def test_delete_all02(self):
+        self.login(is_superuser=False)
+        self._set_all_creds_except_one(excluded=SetCredentials.CRED_UNLINK)
+
+        self._aux_test_delete_all()
+        subject01 = self.subject01
+
+        self.assertEqual(12, Relation.objects.count())
+
+        response = self.client.post('/creme_core/relation/delete/all',
+                            data={'subject_id': subject01.id}
+                           )
+
+        self.assertEqual(403, response.status_code)
+        self.assertEqual(4 + 4, Relation.objects.count())#4 internals and 4 the user can't unlink because there are not his
+
     #TODO: test other relation views...
