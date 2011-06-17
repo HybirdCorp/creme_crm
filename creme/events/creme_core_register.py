@@ -21,8 +21,7 @@
 from django.utils.translation import ugettext_lazy as _
 
 from creme_core.registry import creme_registry
-from creme_core.gui.menu import creme_menu
-from creme_core.gui.block import block_registry
+from creme_core.gui import creme_menu, block_registry, icon_registry
 
 from events.models import Event
 from events.blocks import resuts_block
@@ -37,3 +36,5 @@ reg_item('/events/events',    _(u'All events'),   'events')
 reg_item('/events/event/add', _(u'Add an event'), 'events.add_event')
 
 block_registry.register(resuts_block)
+
+icon_registry.register(Event, 'images/event_%(size)s.png')

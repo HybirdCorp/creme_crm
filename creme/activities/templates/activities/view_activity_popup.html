@@ -1,20 +1,9 @@
 {% load i18n %}
-{% load media %}
-{% load creme_core_tags %}{% load creme_block %}
+{% load creme_core_tags %}{% load creme_widgets %}{% load creme_block %}
 {% load activities_tags %}
 <table class="table_header" cellpadding="0" cellspacing="0">
     <tr>
-        <td width="5%">
-            {% if object.type.id == "activities-activitytype_meeting" %}
-                <img src="{% media_url 'images/map_64.png' %}" alt=""/>
-            {% else %}{% if object.type.id == "activities-activitytype_phonecall" %}
-                <img src="{% media_url 'images/phone_64.png' %}" alt=""/>
-            {% else %}{% if object.type.id == "activities-activitytype_task" %}
-                <img src="{% media_url 'images/task_64.png' %}" alt=""/>
-            {% else %}
-                <img src="{% media_url 'images/calendar_64.png' %}" alt=""/>
-            {% endif %}{% endif %}{% endif %}
-        </td>
+        <td width="5%">{% get_image_for_model object 'big' %}</td>
         <td width="70%">
             <h1>
                 {% block title %}

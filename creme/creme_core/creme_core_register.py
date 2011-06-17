@@ -24,9 +24,7 @@ from django.contrib.contenttypes.models import ContentType
 
 from creme_core.models import CremeEntity
 from creme_core.registry import creme_registry
-from creme_core.gui.menu import creme_menu
-from creme_core.gui.block import block_registry
-from creme_core.gui.bulk_update import bulk_update_registry
+from creme_core.gui import creme_menu, block_registry, bulk_update_registry
 from creme_core.blocks import relations_block, properties_block, customfields_block, history_block
 
 

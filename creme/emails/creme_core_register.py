@@ -21,10 +21,7 @@
 from django.utils.translation import ugettext_lazy as _
 
 from creme_core.registry import creme_registry
-from creme_core.gui.menu import creme_menu
-from creme_core.gui.button_menu import button_registry
-from creme_core.gui.block import block_registry
-from creme_core.gui.bulk_update import bulk_update_registry
+from creme_core.gui import creme_menu, button_registry, block_registry, icon_registry, bulk_update_registry
 
 from emails.models import EmailCampaign, MailingList, EmailTemplate, EntityEmail, _Email
 from emails.blocks import blocks_list, EntityEmailBlock
@@ -49,6 +46,12 @@ button_registry.register(entityemail_link_button)
 
 block_registry.register_4_model(EntityEmail, EntityEmailBlock())
 block_registry.register(*blocks_list)
+
+reg_icon = icon_registry.register
+reg_icon(EntityEmail,   'images/email_%(size)s.png')
+reg_icon(MailingList,   'images/email_%(size)s.png')
+reg_icon(EmailCampaign, 'images/email_%(size)s.png')
+reg_icon(EmailTemplate, 'images/email_%(size)s.png')
 
 bulk_update_registry.register(
     (EmailTemplate, ['use_rte']),

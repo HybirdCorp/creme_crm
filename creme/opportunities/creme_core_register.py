@@ -21,9 +21,7 @@
 from django.utils.translation import ugettext_lazy as _
 
 from creme_core.registry import creme_registry
-from creme_core.gui.menu import creme_menu
-from creme_core.gui.button_menu import button_registry
-from creme_core.gui.block import block_registry
+from creme_core.gui import creme_menu, button_registry, block_registry, icon_registry
 
 from opportunities.models import Opportunity
 from opportunities.buttons import linked_opportunity_button
@@ -42,3 +40,5 @@ block_registry.register_4_model(Opportunity, OpportunityBlock())
 button_registry.register(linked_opportunity_button)
 
 block_registry.register(*blocks_list)
+
+icon_registry.register(Opportunity, 'images/opportunity_%(size)s.png')

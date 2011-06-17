@@ -241,7 +241,7 @@ class ChainedInput(TextInput):
         if attrs.pop('reset', True):
             output.append("""<li>
                                  <img class="reset" src="%s" alt="%s" title="%s"></img>
-                             </li>""" % (media_url('images/delete_22.png'), _(u'Reset'), _(u'Reset')))
+                             </li>""" % (media_url('images/delete_22.png'), _(u'Reset'), _(u'Reset'))) #TODO: call '_()' once...
 
         output.append('</ul>')
 

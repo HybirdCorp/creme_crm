@@ -21,9 +21,7 @@
 from django.utils.translation import ugettext_lazy as _
 
 from creme_core.registry import creme_registry
-from creme_core.gui.menu import creme_menu
-from creme_core.gui.block import block_registry
-from creme_core.gui.button_menu import button_registry
+from creme_core.gui import creme_menu, block_registry, button_registry, icon_registry
 
 from commercial.models import Act, ActObjectivePattern, Strategy
 from commercial.blocks import blocks_list
@@ -50,3 +48,8 @@ reg_item('/commercial/salesman/add', _(u'Add a salesman'), 'persons.add_contact'
 block_registry.register(*blocks_list)
 
 button_registry.register(complete_goal_button)
+
+reg_icon = icon_registry.register
+reg_icon(Act,                 'images/commercial_%(size)s.png')
+reg_icon(ActObjectivePattern, 'images/commercial_%(size)s.png')
+reg_icon(Strategy,            'images/commercial_%(size)s.png')

@@ -1,6 +1,4 @@
 {% extends "creme_core/generics/view_entity.html" %}
-{% load i18n %}
-{% load media %}
 {% load creme_block %}
 
 {% block creme_blocks_import %}
@@ -9,8 +7,6 @@
     {% import_block from_app 'persons' named 'address' as 'address_block' %}
     {% import_block from_app 'persons' named 'other_address' as 'other_address_block' %}
 {% endblock %}
-
-{% block logo %}<img src="{% media_url 'images/contacts_64.png' %}" alt=""/>{% endblock %}
 
 {% block detail_view_left_1 %}
     {% display_block_detailview 'object_block' %}

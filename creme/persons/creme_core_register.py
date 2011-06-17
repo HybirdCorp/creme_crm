@@ -21,13 +21,8 @@
 from django.utils.translation import ugettext_lazy as _
 
 from creme_core.registry import creme_registry
-from creme_core.gui.menu import creme_menu
-from creme_core.gui.button_menu import button_registry
-from creme_core.gui.block import block_registry
-from creme_core.gui.quick_forms import quickforms_registry
-from creme_core.gui.csv_import import csv_form_registry
-from creme_core.gui.bulk_update import bulk_update_registry
-
+from creme_core.gui import (creme_menu, button_registry, block_registry, icon_registry,
+                            quickforms_registry, csv_form_registry, bulk_update_registry)
 
 from persons.models import Contact, Organisation
 from persons.buttons import (become_customer_button, become_prospect_button, become_suspect_button,
@@ -55,6 +50,10 @@ button_registry.register(become_customer_button, become_prospect_button, become_
 block_registry.register_4_model(Contact,      ContactBlock())
 block_registry.register_4_model(Organisation, OrganisationBlock())
 block_registry.register(*block_list)
+
+reg_icon = icon_registry.register
+reg_icon(Contact,      'images/contacts_%(size)s.png')
+reg_icon(Organisation, 'images/organisation_%(size)s.png')
 
 reg_qform = quickforms_registry.register
 reg_qform(Contact,      ContactQuickForm)

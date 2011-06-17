@@ -1,9 +1,5 @@
 {% extends "creme_core/generics/view_entity.html" %}
-{% load i18n %}
-{% load media %}
 {% load creme_block %}
-
-{% block logo %}<img src="{% media_url 'images/email_64.png' %}" alt="{% trans "Email template" %}"/>{% endblock %}
 
 {% block creme_blocks_import %}
     {{block.super}}

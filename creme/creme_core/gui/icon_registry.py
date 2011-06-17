@@ -18,20 +18,18 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.utils.translation import ugettext_lazy as _
 
-from creme_core.registry import creme_registry
-from creme_core.gui import creme_menu, icon_registry
+class IconRegistry(object):
+    def __init__(self):
+        self._icons = {}
 
-from recurrents.models import RecurrentGenerator
+    def register(self, model, path):
+        """eg: icon_registry.register(Ticket, 'images/ticket_%(size)s.png')"""
+        self._icons[model] = path
+
+    def get(self, model, size):
+        path = self._icons.get(model)
+        return path and (path % {'size': size})
 
 
-creme_registry.register_app('recurrents', _(u'Recurrent documents'), '/recurrents')
-creme_registry.register_entity_models(RecurrentGenerator)
-
-reg_item = creme_menu.register_app('recurrents', '/recurrents/').register_item
-reg_item('/recurrents/',              _(u'Portal'),                   'recurrents')
-reg_item('/recurrents/generators',    _(u'All recurrent generators'), 'recurrents')
-reg_item('/recurrents/generator/add', _(u'Add a generator'),          'recurrents.add_recurrentgenerator')
-
-icon_registry.register(RecurrentGenerator, 'images/document_%(size)s.png')
+icon_registry = IconRegistry()

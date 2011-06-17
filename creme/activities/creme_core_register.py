@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2011  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -21,12 +21,9 @@
 from django.utils.translation import ugettext_lazy as _
 
 from creme_core.registry import creme_registry
-from creme_core.gui.menu import creme_menu
-from creme_core.gui.block import block_registry
-from creme_core.gui.button_menu import button_registry
-from creme_core.gui.bulk_update import bulk_update_registry
+from creme_core.gui import creme_menu, block_registry, button_registry, icon_registry, bulk_update_registry
 
-from activities.models import Activity, PhoneCall, Meeting
+from activities.models import Activity, PhoneCall, Meeting, Task
 from activities.blocks import participants_block, subjects_block, future_activities_block, past_activities_block, user_calendars_block
 from activities.buttons import add_meeting_button, add_phonecall_button, add_task_button
 from activities.signals import connect_to_signals
@@ -34,9 +31,7 @@ from activities.signals import connect_to_signals
 connect_to_signals()
 
 creme_registry.register_app('activities', _(u'Activities'), '/activities')
-creme_registry.register_entity_models(Activity)
-creme_registry.register_entity_models(PhoneCall)
-creme_registry.register_entity_models(Meeting)
+creme_registry.register_entity_models(Activity, PhoneCall, Meeting, Task)
 
 reg_item = creme_menu.register_app('activities', '/activities/').register_item
 reg_item('/activities/',                       _(u'Portal'),                 'activities')
@@ -51,6 +46,12 @@ reg_item('/activities/activities',             _(u'All activities'),         'ac
 block_registry.register(participants_block, subjects_block, future_activities_block, past_activities_block, user_calendars_block)
 
 button_registry.register(add_meeting_button, add_phonecall_button, add_task_button)
+
+reg_icon = icon_registry.register
+reg_icon(Activity,  'images/calendar_%(size)s.png')
+reg_icon(PhoneCall, 'images/phone_%(size)s.png')
+reg_icon(Meeting,   'images/map_%(size)s.png')
+reg_icon(Task,      'images/task_%(size)s.png')
 
 bulk_update_registry.register(
     (Activity, ['type', 'start_date', 'end_date', 'busy', 'is_all_day']),
