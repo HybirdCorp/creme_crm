@@ -1,6 +1,5 @@
 {% extends "creme_core/generics/view_entity.html" %}
 {% load i18n %}
-{% load media %}
 {% load creme_block %}
 
 {% block logo %}
@@ -9,7 +8,7 @@
     {% else %}{% if object.image.get_image_url %}
         <img src="{{object.image.get_image_url}}" alt="" title="{% trans "Please enter the web site address" %}" style="max-height:64px;max-width:200px;"/>
     {% else %}
-        <img src="{% media_url 'images/organisation_64.png' %}" alt="{% trans "Organisation" %}"/>
+        {{block.super}}
     {% endif %}{% endif %}
 {% endblock %}
 

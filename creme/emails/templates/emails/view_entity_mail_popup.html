@@ -1,6 +1,6 @@
 {% load i18n %}
 {% load media %}
-{% load creme_core_tags %}
+{% load creme_core_tags %}{% load creme_widgets %}
 {% load email_tags %}
 <table class="table_detail_view ui-corner-all">
     <thead>
@@ -10,7 +10,7 @@
                     <table class="block_header" cellspacing="0" cellpadding="0">
                         <tbody>
                             <tr>
-                                <td><img src="{% media_url 'images/email_48.png' %}" alt="" title="Email" /></td>
+                                <td>{% get_image_for_model object 'normal' %}</td>
                                 <td>&nbsp;{{object}}</td>
                             </tr>
                         </tbody>

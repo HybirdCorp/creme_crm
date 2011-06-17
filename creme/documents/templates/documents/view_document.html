@@ -2,8 +2,6 @@
 {% load i18n %}
 {% load media %}
 
-{% block logo %}<img src="{% media_url 'images/document_64.png' %}" alt=""/>{% endblock %}
-
 {% block entity_buttons %}
     <a href="/download_file/{{object.filedata}}">
         <img src="{% media_url 'images/download_64.png' %}" title="{% blocktrans %}Download '{{object}}'{% endblocktrans %}" alt="{% trans "Download" %}"/>

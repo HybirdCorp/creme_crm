@@ -1,25 +1,7 @@
 {% extends "creme_core/generics/view_entity.html" %}
-{% load i18n %}
-{% load media %}
 {% load creme_block creme_widgets %}{% load activities_tags %}
 
 {% block add_new_button %}<li>{% get_clone_button object request.user %}</li>{% endblock %}
-
-{% block logo %}
-    {% if object.type.id == "activities-activitytype_meeting" %}
-        <img src="{% media_url 'images/map_64.png' %}" alt=""/>
-    {% else %}
-        {% if object.type.id == "activities-activitytype_phonecall" %}
-            <img src="{% media_url 'images/phone_64.png' %}" alt=""/>
-       {% else %}
-              {% if object.type.id == "activities-activitytype_task" %}
-                  <img src="{% media_url 'images/task_64.png' %}" alt=""/>
-              {% else %}
-                  <img src="{% media_url 'images/calendar_64.png' %}" alt=""/>
-              {% endif %}
-        {% endif %}
-    {% endif %}
-{% endblock logo %}
 
 {% block creme_blocks_import %}
     {{block.super}}

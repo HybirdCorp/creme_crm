@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="{{ LANGUAGE_CODE }}" xml:lang="{{ LANGUAGE_CODE }}" {% if LANGUAGE_BIDI %}dir="rtl"{% endif %}>
 {% load media %}{% load i18n %}
-{% load creme_core_tags %}{% load creme_block %}
+{% load creme_core_tags %}{% load creme_block %}{% load creme_widgets %}
 <head>
     <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
     <title>Creme CRM - {{object}}</title>
@@ -22,7 +22,7 @@
 <body>
     <table class="table_header" cellpadding="0" cellspacing="0">
         <tr>
-            <td width="5%"><img src="{% media_url 'images/image_64.png' %}" alt=""/></td>
+            <td width="5%">{% get_image_for_model object 'big' %}</td>
             <td width="70%">
                 <h1>{{object|get_meta_value:"verbose_name"|title}} : {{object|title}}</h1>
             </td>
