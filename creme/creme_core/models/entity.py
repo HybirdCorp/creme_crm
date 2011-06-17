@@ -390,6 +390,10 @@ class CremeEntity(CremeAbstractEntity):
         """Called just after saving the entity (m2m and custom fields are not already cloned & saved)"""
         pass
 
+    def _post_clone(self, source):
+        """Called after all clone operations (object cloned with all his m2m, custom values, properties and relations"""
+        pass
+
     def _clone_m2m(self, source):
         """Handle the clone of all many to many fields"""
         for field in source._meta.many_to_many:
@@ -440,6 +444,7 @@ class CremeEntity(CremeAbstractEntity):
         new_entity._copy_properties(self)#TODO: Add which properties types to include ?
         new_entity._copy_relations(self)#TODO: Add which relations types to include ?
 
+        new_entity._post_clone(self)
         return new_entity
 
 

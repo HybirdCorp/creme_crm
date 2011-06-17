@@ -1362,6 +1362,47 @@ class BillingTestCase(CremeTestCase):
         self.assertEqual(set([service_line2.pk]), set(Relation.objects.filter(type=REL_SUB_HAS_LINE, subject_entity=invoice2).values_list('object_entity', flat=True)))
         self.assertEqual(set([service_line2.pk]), set(Relation.objects.filter(type=REL_SUB_LINE_RELATED_ITEM, object_entity=service2).values_list('subject_entity', flat=True)))
 
+    def test_invoice_clone_with_lines01(self):
+        self.login()
+        self.populate('products')
+        invoice, source, target = self.create_invoice_n_orgas('Invoice001')
+
+        service = Service.objects.create(user=self.user, unit_price=Decimal("1"), category=Category.objects.all()[0], sub_category=SubCategory.objects.all()[0], name=u"Service 1")
+
+        service_line = ServiceLine.objects.create(user=self.user)
+        service_line.related_document = invoice
+        service_line.related_item     = service
+
+        service_line_otf = ServiceLine.objects.create(user=self.user, on_the_fly_item="otf service")
+        service_line_otf.related_document = invoice
+
+        product = Product.objects.create(user=self.user, code=1, unit_price=Decimal("1"), category=Category.objects.all()[0], sub_category=SubCategory.objects.all()[0], name=u"Product 1")
+
+        product_line = ProductLine.objects.create(user=self.user)
+        product_line.related_document = invoice
+        product_line.related_item     = product
+
+        product_line_otf = ProductLine.objects.create(user=self.user, on_the_fly_item="otf product")
+        product_line_otf.related_document = invoice
+
+        cloned = invoice.clone()
+        cloned = Invoice.objects.get(pk=cloned.pk)
+
+        self.assertNotEqual(invoice, cloned)#Not the same pk
+        self.assertEqual(invoice.get_source(), cloned.get_source())
+        self.assertEqual(invoice.get_target(), cloned.get_target())
+
+        invoice.invalidate_cache()#just in case
+        cloned.invalidate_cache()#just in case
+
+        self.assert_(invoice.service_lines)
+        self.assert_(invoice.product_lines)
+
+        self.assertEqual(len(invoice.service_lines), len(cloned.service_lines))
+        self.assertEqual(len(invoice.product_lines), len(cloned.product_lines))
+
+        self.assertNotEqual(set([p.pk for p in invoice.service_lines]), set([p.pk for p in cloned.service_lines]))
+        self.assertNotEqual(set([p.pk for p in invoice.product_lines]), set([p.pk for p in cloned.product_lines]))
 
 #        rel_filter = Relation.objects.filter
 #        self.assertEqual(1, rel_filter(subject_entity=invoice, type=REL_SUB_BILL_ISSUED,   object_entity=source).count())
