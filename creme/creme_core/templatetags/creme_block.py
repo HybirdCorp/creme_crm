@@ -515,7 +515,7 @@ class PortalBlocksImporterNode(TemplateNode):
     def render(self, context):
         blocks_manager = BlocksManager.get(context)
         ct_ids = context[self.ct_ids_varname]
-        bc_items = BlockConfigItem.objects.filter(Q(content_type=None) | Q(content_type__in=ct_ids), on_portal=True) \
+        bc_items = BlockConfigItem.objects.filter(Q(content_type=None) | Q(content_type__in=ct_ids)) \
                                           .order_by('order')
 
         ctypes_filter     = set(ct_ids)
@@ -528,11 +528,12 @@ class PortalBlocksImporterNode(TemplateNode):
         used_blocks = set()
 
         for bc_item in bc_items:
-            block_id = bc_item.block_id
+            if bc_item.on_portal:
+                block_id = bc_item.block_id
 
-            if (block_id not in used_blocks) and (bc_item.content_type_id in ctypes_filter):
-                used_blocks.add(block_id)
-                block_ids.append(block_id)
+                if (block_id not in used_blocks) and (bc_item.content_type_id in ctypes_filter):
+                    used_blocks.add(block_id)
+                    block_ids.append(block_id)
 
         blocks_manager.add_group(_PORTAL_BLOCKS, *block_registry.get_blocks([id_ for id_ in block_ids if id_]))
 
