@@ -19,6 +19,7 @@ CREME_ROOT = dirname(abspath(__file__))
 MANAGERS = ADMINS
 
 # NB: it's recommended to use a database engine that supports transactions.
+#'OPTIONS': {'init_command': 'SET storage_engine=INNODB'}#Example to use a transaction engine in mysql
 DATABASES = {
     'default': {
         'ENGINE':   'django.db.backends.mysql', # 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
