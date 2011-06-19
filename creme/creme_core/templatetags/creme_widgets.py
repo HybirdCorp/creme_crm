@@ -84,16 +84,29 @@ _SIZE_MAP = {
         'tiny':   16,
     }
 
-@register.simple_tag
-def get_image_for_model(obj, size): #size='default' ??
-    """{% get_image_for_model object 'big' %}"""
-    model = obj.__class__
+def _get_image_for_model(model, size):
     path  = icon_registry.get(model, _SIZE_MAP[size])
 
-    if path:
-        return u'<img src="%(src)s" alt="%(title)s" title="%(title)s" />' % {
-                    'src':   media_url(path),
+    if not path:
+        return ''
+
+    try:
+        path = media_url(path)
+    except KeyError:
+        path = ''
+
+    return u'<img src="%(src)s" alt="%(title)s" title="%(title)s" />' % {
+                    #'src':   media_url(path),
+                    'src':   path,
                     'title': model._meta.verbose_name,
                 }
 
-    return ''
+@register.simple_tag
+def get_image_for_object(obj, size): #size='default' ??
+    """{% get_image_for_object object 'big' %}"""
+    return _get_image_for_model(obj.__class__, size)
+
+@register.simple_tag
+def get_image_for_ctype(ctype, size):
+    """{% get_image_for_ctype ctype 'small' %}"""
+    return _get_image_for_model(ctype.model_class(), size)

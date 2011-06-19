@@ -22,8 +22,6 @@ from datetime import datetime
 from logging import debug
 
 from django.db.models import Model, PositiveSmallIntegerField, CharField, TextField, DateTimeField, ForeignKey
-#from django.db.models import FileField
-#from django.db import models
 from django.db.models.signals import post_save, post_init, pre_delete
 from django.utils.translation import ugettext_lazy as _
 from django.utils.simplejson import loads as jsonloads, dumps as jsondumps
