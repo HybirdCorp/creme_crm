@@ -20,6 +20,7 @@
                     <td class="{{row_color}}">{% print_field object=line field='date' %}</td>
                     {% if not object %}
                         <td class="{{row_color}}">
+                            {% get_image_for_ctype line.entity_ctype 'small' %}
                             {% with line.entity as concerned_entity %}
                                 {% if concerned_entity %}
                                     {% widget_entity_hyperlink concerned_entity user %}

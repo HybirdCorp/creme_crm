@@ -34,4 +34,4 @@ reg_item('/recurrents/',              _(u'Portal'),                   'recurrent
 reg_item('/recurrents/generators',    _(u'All recurrent generators'), 'recurrents')
 reg_item('/recurrents/generator/add', _(u'Add a generator'),          'recurrents.add_recurrentgenerator')
 
-icon_registry.register(RecurrentGenerator, 'images/document_%(size)s.png')
+icon_registry.register(RecurrentGenerator, 'images/recurrent_doc_%(size)s.png')
