@@ -14,11 +14,11 @@
    height="128"
    id="svg2"
    version="1.1"
-   inkscape:version="0.47 r22583"
+   inkscape:version="0.48.1 r9760"
    sodipodi:docname="organisation.svg"
-   inkscape:export-filename="/home/guitouze/HG/creme_crm/creme/media/images/organisation_64.png"
-   inkscape:export-xdpi="45"
-   inkscape:export-ydpi="45">
+   inkscape:export-filename="organisation_22.png"
+   inkscape:export-xdpi="15.46875"
+   inkscape:export-ydpi="15.46875">
   <defs
      id="defs4">
     <linearGradient
@@ -440,7 +440,7 @@
      inkscape:current-layer="g2816"
      showgrid="false"
      inkscape:window-width="1440"
-     inkscape:window-height="825"
+     inkscape:window-height="826"
      inkscape:window-x="0"
      inkscape:window-y="25"
      inkscape:window-maximized="1"
@@ -710,7 +710,7 @@
          sodipodi:cy="3.4986985"
          sodipodi:rx="2.3991122"
          sodipodi:ry="0.37880722"
-         d="m 71.720829,3.4986985 a 2.3991122,0.37880722 0 1 1 -4.798225,0 2.3991122,0.37880722 0 1 1 4.798225,0 z"
+         d="m 71.720829,3.4986985 c 0,0.2092094 -1.07412,0.3788072 -2.399113,0.3788072 -1.324993,0 -2.399112,-0.1695978 -2.399112,-0.3788072 0,-0.2092095 1.074119,-0.3788072 2.399112,-0.3788072 1.324993,0 2.399113,0.1695977 2.399113,0.3788072 z"
          transform="matrix(0.72199706,0,0,1.9181302,15.12351,921.39976)" />
       <path
          sodipodi:nodetypes="ccccc"
