@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2011  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -26,10 +26,9 @@ from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth.models import User
 
 from creme_core.views.generic import add_model_with_popup, edit_model_with_popup
-from creme_core.utils import get_from_POST_or_404
 
 from creme_config.forms.user_settings import UserSettingsConfigForm
-from creme_config.forms.user import UserAddForm, UserChangePwForm, UserEditForm, TeamCreateForm, TeamEditForm
+from creme_config.forms.user import UserAddForm, UserChangePwForm, UserEditForm, TeamCreateForm, TeamEditForm, UserAssignationForm
 
 
 @login_required
@@ -52,18 +51,6 @@ def add_team(request):
 def portal(request):
     return render_to_response('creme_config/user_portal.html', {},
                               context_instance=RequestContext(request))
-
-@login_required
-@permission_required('creme_config.can_admin')
-def delete(request):
-    user = get_object_or_404(User, pk=get_from_POST_or_404(request.POST, 'id'))
-
-    if not user.can_be_deleted():
-        return HttpResponse(_(u'%s can not be deleted because of his dependencies.') % user, status=403)
-
-    user.delete()
-
-    return HttpResponse()
 
 @login_required
 @permission_required('creme_config.can_admin')
@@ -100,12 +87,15 @@ def view_own_settings(request):
 
 @login_required
 @permission_required('creme_config.can_admin')
-def delete_team(request):
-    team = get_object_or_404(User, pk=get_from_POST_or_404(request.POST, 'id'), is_team=True)
+def assign_user_n_delete(request, user_id, is_team):
+    user_to_delete = get_object_or_404(User, pk=user_id)
 
-    if not team.can_be_deleted():
-        return HttpResponse(_(u'%s can not be deleted because of his dependencies.') % team, status=403)
+    if User.objects.filter(is_team=False).count() == 1:
+        return HttpResponse(_(u"You can't delete the last user."), status=400)
 
-    team.delete() #no need to update credentials: team is deleted if there are teammates or entities owned
+    if is_team and not user_to_delete.is_team:
+        return HttpResponse(_(u"You have to select a team."), status=400)
 
-    return HttpResponse()
+    return add_model_with_popup(request, UserAssignationForm, _(u'Delete %s and assign his files to user') % user_to_delete,
+                                initial={'user_to_delete': user_to_delete, 'is_team': is_team})
+

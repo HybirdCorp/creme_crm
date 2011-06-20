@@ -68,8 +68,8 @@ class CremeEntity(CremeAbstractEntity):
         app_label = 'creme_core'
         ordering = ('id',)
 
-    class CanNotBeDeleted(Exception):
-        pass
+#    class CanNotBeDeleted(Exception):
+#        pass
 
     def __init__(self, *args, **kwargs):
         super(CremeEntity, self).__init__(*args, **kwargs)
@@ -82,17 +82,17 @@ class CremeEntity(CremeAbstractEntity):
         from auth import EntityCredentials
 
         if settings.TRUE_DELETE:
-            if not self.can_be_deleted():
-                raise CremeEntity.CanNotBeDeleted(ugettext(u'Entity#%s can not be deleted because of its dependencies.') % self.id)
+#            if not self.can_be_deleted():
+#                raise CremeEntity.CanNotBeDeleted(ugettext(u'Entity#%s can not be deleted because of its dependencies.') % self.id)
 
-            for relation in self.relations.all():
-                relation.delete()
+#            for relation in self.relations.all():
+#                relation.delete()
 
-            for prop in self.properties.all():
-                prop.delete()
+#            for prop in self.properties.all():
+#                prop.delete()
 
-            CustomFieldValue.delete_all(self)
-            EntityCredentials.objects.filter(entity=self).delete()
+#            CustomFieldValue.delete_all(self)
+#            EntityCredentials.objects.filter(entity=self).delete()
 
             super(CremeEntity, self).delete()
         else:

@@ -20,17 +20,34 @@
 
 from datetime import datetime
 
-from django.db.models import DateTimeField, CharField
+from django.contrib.auth.models import User
+from django.db.models import DateTimeField, CharField, SET
 
 
 #TODO: add a form field ?? (validation)
 #TODO: fix the max_lenght value ?,
+from django.db.models.fields.related import ForeignKey
+
 class PhoneField(CharField):
     pass
 
 #TODO: Make a real api for this
 class DurationField(CharField):
     pass
+
+def _transfer_assignation():
+    return CremeUserForeignKey._TRANSFER_TO_USER
+
+class CremeUserForeignKey(ForeignKey):
+
+    _TRANSFER_TO_USER = None
+
+    def __init__(self, **kwargs):
+        kwargs['on_delete'] = SET(_transfer_assignation)#Overide on_delete, even if it was already defined in kwargs
+        super(CremeUserForeignKey, self).__init__(User, **kwargs)
+
+    def get_internal_type(self):
+        return "ForeignKey"
 
 # Code copied/modified from django_extensions one:
 #    http://code.google.com/p/django-command-extensions/

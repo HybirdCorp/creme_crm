@@ -58,7 +58,7 @@ def post_save_relation_employed_by(sender, instance, **kwargs):
 
 #Catching the delete of the relation between a Contact and his employer
 def post_delete_relation_employed_by(sender, instance, **kwargs):
-    if instance.type.id == REL_SUB_EMPLOYED_BY:
+    if instance.type_id == REL_SUB_EMPLOYED_BY:
         contact = instance.subject_entity
         #We just say to the mapping that the contact was modified so we use the post_save_activesync_handler and not the delete one
         post_save_activesync_handler(Contact, contact, False)
