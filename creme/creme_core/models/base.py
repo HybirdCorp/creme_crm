@@ -38,6 +38,24 @@ class CremeModel(Model):
     class Meta:
         abstract = True
 
+    def _pre_delete(self):
+        """Called just before deleting the model.
+            Could be useful for cleaning, with transaction management, your inherited model as nested transactions
+            doesn't work.
+        """
+        pass
+
+    def _delete_without_transaction(self):
+        for m2m_field in self._meta.many_to_many:
+            getattr(self, m2m_field.name).clear()
+
+        for related_m2m_field in self._meta.get_all_related_many_to_many_objects():
+            getattr(self, related_m2m_field.get_accessor_name()).clear()
+
+        self._pre_delete()
+
+        super(CremeModel, self).delete()
+
     def delete(self):
         file_fields = []
         _delete_files = self._delete_files
@@ -49,13 +67,7 @@ class CremeModel(Model):
                                    for field in chain(self._meta.fields, self._meta.many_to_many) \
                                    if issubclass(field.__class__, FileField)]
 
-                for m2m_field in self._meta.many_to_many:
-                    getattr(self, m2m_field.name).clear()
-
-                for related_m2m_field in self._meta.get_all_related_many_to_many_objects():
-                    getattr(self, related_m2m_field.get_accessor_name()).clear()
-
-                super(CremeModel, self).delete()
+                self._delete_without_transaction()
                 transaction.commit()
             except Exception, e:
                 transaction.rollback()
@@ -68,7 +80,6 @@ class CremeModel(Model):
             for field_name, full_path, chrooted_path in file_fields:
                 if not obj_filter(Q(**{field_name: chrooted_path})).exists():
                     os_remove(full_path)#TODO: Catch OSError ?
-
 
 class CremeAbstractEntity(CremeModel):
     created  = CreationDateTimeField(_('Creation date'))
