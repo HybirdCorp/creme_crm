@@ -103,6 +103,11 @@ class Opportunity(CremeEntity):
     def __unicode__(self):
         return self.name
 
+    def _pre_delete(self):
+        for relation in Relation.objects.filter(type__in=[REL_SUB_TARGETS_ORGA],
+                                                subject_entity=self):
+            relation._delete_without_transaction()
+
     def get_absolute_url(self):
         return "/opportunities/opportunity/%s" % self.id
 

@@ -27,10 +27,11 @@ from creme_core.models import CremeEntity, Relation
 
 from persons.models import Address
 
+from line import Line
 from product_line import ProductLine
 from service_line import ServiceLine
 from algo import ConfigBillingAlgo
-from billing.constants import REL_SUB_BILL_ISSUED, REL_SUB_BILL_RECEIVED, REL_SUB_HAS_LINE
+from billing.constants import REL_SUB_BILL_ISSUED, REL_SUB_BILL_RECEIVED, REL_SUB_HAS_LINE, REL_OBJ_LINE_RELATED_ITEM
 from billing.models.other_models import AdditionalInformation, PaymentTerms, PaymentInformation
 from billing.utils import round_to_2
 
@@ -65,6 +66,14 @@ class Base(CremeEntity):
 
     def __unicode__(self):
         return self.name
+
+    def _pre_delete(self):
+        lines = list(Line.objects.filter(relations__object_entity=self.id))
+        for relation in Relation.objects.filter(type__in=[REL_SUB_BILL_ISSUED, REL_SUB_BILL_RECEIVED, REL_SUB_HAS_LINE, REL_OBJ_LINE_RELATED_ITEM], subject_entity=self):
+            relation._delete_without_transaction()
+
+        for line in lines:
+            line._delete_without_transaction()
 
     def invalidate_cache(self):
         self._productlines_cache = None
