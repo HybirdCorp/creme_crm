@@ -29,6 +29,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.contrib.auth.models import User
 
 from creme_core.models import RelationType, CremeEntity, CustomField
+from creme_core.models.fields import CremeUserForeignKey
 from creme_core.utils.meta import get_model_field_infos #get_flds_with_fk_flds_str
 from creme_core.utils.id_generator import generate_string_id_and_save
 
@@ -75,7 +76,7 @@ class HeaderFilterList(list):
 class HeaderFilter(Model): #CremeModel ???
     id          = CharField(primary_key=True, max_length=100)
     name        = CharField(max_length=100, verbose_name=_('Name of the view'))
-    user        = ForeignKey(User, verbose_name=_(u'Owner'), blank=True, null=True)
+    user        = CremeUserForeignKey(verbose_name=_(u'Owner'), blank=True, null=True)
     entity_type = ForeignKey(ContentType, editable=False)
     is_custom   = BooleanField(blank=False, default=True)
 

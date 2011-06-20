@@ -82,6 +82,13 @@ class RelationsTestCase(CremeTestCase):
         self.assertEqual(entity4.id, sym.subject_entity.id)
         self.assertEqual(entity3.id, sym.object_entity.id)
 
+    def test_relation04(self):
+        rtype1, rtype2 = RelationType.create(('test-subject_foobar', 'is loving'),
+                                             ('test-object_foobar',  'is loved by'))
+        rtype1.delete()
+        self.assertRaises(RelationType.DoesNotExist, RelationType.objects.get, id=rtype1.id)
+        self.assertRaises(RelationType.DoesNotExist, RelationType.objects.get, id=rtype2.id)
+
     def test_get_compatible_ones01(self):
         rtype, sym_rtype = RelationType.create(('test-subject_foobar', 'manages',       [Contact]),
                                                ('test-object_foobar',  'is managed by', [Organisation])

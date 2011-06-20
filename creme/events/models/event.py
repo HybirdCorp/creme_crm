@@ -59,6 +59,13 @@ class Event(CremeEntity):
     def __unicode__(self):
         return self.name
 
+    def _pre_delete(self):
+        for relation in Relation.objects.filter(type__in=[REL_OBJ_IS_INVITED_TO, REL_OBJ_ACCEPTED_INVITATION,
+                                                          REL_OBJ_REFUSED_INVITATION, REL_OBJ_CAME_EVENT,
+                                                          REL_OBJ_NOT_CAME_EVENT, REL_OBJ_GEN_BY_EVENT],
+                                                subject_entity=self):
+            relation._delete_without_transaction()
+
     def get_absolute_url(self):
         return "/events/event/%s" % self.id
 

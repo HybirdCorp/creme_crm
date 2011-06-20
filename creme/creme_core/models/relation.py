@@ -20,7 +20,7 @@
 
 from logging import debug
 
-from django.db.models import Q, CharField, ForeignKey, ManyToManyField, BooleanField
+from django.db.models import Q, CharField, ForeignKey, ManyToManyField, BooleanField, PROTECT
 from django.db import transaction
 from django.http import Http404
 from django.utils.encoding import force_unicode, smart_str
@@ -69,7 +69,7 @@ class RelationType(CremeModel):
 
         #RelationPredicate_i18n.objects.filter(relation_type__in=(self.pk, sym_type.pk)).delete()
 
-        super(RelationType, sym_type).delete()
+        super(RelationType, sym_type).delete()#TODO: Check comment this and test with postgresql
         super(RelationType, self).delete()
 
     def getCreateLang(self):
@@ -182,8 +182,8 @@ class RelationType(CremeModel):
 class Relation(CremeAbstractEntity):
     type               = ForeignKey(RelationType, blank=True, null=True)
     symmetric_relation = ForeignKey('self', blank=True, null=True)
-    subject_entity     = ForeignKey(CremeEntity, related_name='relations')
-    object_entity      = ForeignKey(CremeEntity, related_name='relations_where_is_object')
+    subject_entity     = ForeignKey(CremeEntity, related_name='relations', on_delete=PROTECT)
+    object_entity      = ForeignKey(CremeEntity, related_name='relations_where_is_object', on_delete=PROTECT)
 
     class Meta:
         app_label = 'creme_core'
