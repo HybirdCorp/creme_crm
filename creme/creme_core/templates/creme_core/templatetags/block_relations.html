@@ -10,7 +10,7 @@
             <div class="buttons">
                 {% get_line_linker at_url '/creme_core/relation/add/{{object.id}}' with_label _("New relations") with_perms subject_link_perm %}
                 {% if subject_unlink_perm %}
-                    <a class="negative" onclick="creme.utils.ajaxDelete('/creme_core/relation/delete/all', {'subject_id':{{object.pk}}}, {complete:function(req, st){creme.utils.loadBlock({% get_block_reload_uri %});creme.utils.loading('loading', true);}});">
+                    <a class="negative" onclick="creme.utils.ajaxDelete('/creme_core/relation/delete/all', {'subject_id':{{object.pk}}}, {complete:function(req, st){creme.utils.loadBlock({% get_block_relation_reload_uri %});creme.utils.loading('loading', true);}});">
                         <img src="{% media_url 'images/delete_22.png' %}" border="0" title="{% trans "Delete" %}" alt="{% trans "Delete" %}">{% trans "Delete all relations" %}
                     </a>
                 {% else %}
