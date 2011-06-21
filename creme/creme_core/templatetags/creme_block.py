@@ -28,6 +28,7 @@ from django.utils.translation import ugettext, ungettext
 
 from creme_core.models import BlockConfigItem
 from creme_core.gui.block import Block, block_registry, BlocksManager
+from creme_core.models.relation import Relation
 
 register = Library()
 
@@ -85,6 +86,12 @@ class HeaderNode(TemplateNode):
 
 @register.inclusion_tag('creme_core/templatetags/widgets/block_reload_uri.html', takes_context=True)
 def get_block_reload_uri(context): #{% include 'creme_core/templatetags/widgets/block_reload_uri.html' %} instead ??
+    return context
+
+@register.inclusion_tag('creme_core/templatetags/widgets/block_relation_reload_uri.html', takes_context=True)
+def get_block_relation_reload_uri(context):
+    """Specific to relation block, it aim to reload all relations blocks on the page at the same time."""
+    context['deps'] = ','.join([block.id_ for block in BlocksManager.get(context)._blocks if Relation in block.dependencies and block.id_ != context['block_name'] ])
     return context
 
 @register.inclusion_tag('creme_core/templatetags/widgets/block_title.html', takes_context=True)
