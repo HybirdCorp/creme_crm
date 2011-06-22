@@ -118,7 +118,7 @@ class CreateFromEmailBackend(object):
                 if is_date_field(model_get_field(field_name)):
                     for format in formats.get_format('DATETIME_INPUT_FORMATS'):#TODO: Extract this into a method?
                         try:
-                            data[field_name] = datetime.datetime(*time.strptime(field_value, format)[:6])
+                            data[field_name] = datetime.datetime(*time.strptime(field_value.strip(), format)[:6])
                             break
                         except ValueError:
                             continue
