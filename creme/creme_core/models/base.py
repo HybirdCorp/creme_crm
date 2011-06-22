@@ -251,7 +251,7 @@ class CremeAbstractEntity(CremeModel):
     @staticmethod
     def populate_real_entities(entities):
         """Faster than call get_real_entity() of each CremeAbstractEntity object,
-        because it groups quries by ContentType.
+        because it groups queries by ContentType.
         @param entities Iterable containing CremeAbstractEntity objects.
                         Beware it can be iterated twice (ie: can't be a generator)
         """

@@ -2,13 +2,13 @@
 
 from datetime import datetime, timedelta
 
+from django.utils.translation import ugettext as _
 from django.contrib.contenttypes.models import ContentType
 
-#from creme_core.models import CremePropertyType, CremeProperty, CremeEntity, SetCredentials
-from creme_core.models import HistoryLine
+from creme_core.models import HistoryLine, HistoryConfigItem, RelationType, Relation
 from creme_core.tests.views.base import ViewsTestCase
 
-from persons.models import Organisation, Sector
+from persons.models import Contact, Organisation, Sector
 
 
 __all__ = ('HistoryTestCase',)
@@ -35,6 +35,24 @@ class HistoryTestCase(ViewsTestCase):
             self.fail(str(e))
 
         return orga
+
+    def _build_contact(self, first_name, last_name, extra_args=None, **kwargs):
+        data = {'first_name': first_name, 'last_name': last_name}
+        data.update(kwargs)
+
+        if extra_args:
+            data.update(extra_args)
+
+        response = self.client.post('/persons/contact/add', follow=True, data=data)
+        self.assertEqual(200, response.status_code)
+        self.assertNoFormError(response)
+
+        try:
+            contact = Contact.objects.get(first_name=first_name, last_name=last_name)
+        except Organisation.DoesNotExist, e:
+            self.fail(str(e))
+
+        return contact
 
     def test_creation01(self):
         self.login()
@@ -145,17 +163,52 @@ about this fantastic animation studio."""
         self.assertNoFormError(response)
 
         hline = HistoryLine.objects.latest('date')
-        modif = hline.modifications
-        self.assert_(isinstance(modif, list))
-        self.assertEqual(6, len(modif))
-        self.assert_(['phone', old_phone, phone] in modif)
-        self.assert_(['email', email] in modif)
-        self.assert_(['description'] in modif)
-        self.assert_(['sector', sector01.id, sector02.id] in modif)
-        self.assert_(['creation_date'] in modif)
-        self.assert_(['subject_to_vat', True] in modif, modif)
+        modifs = hline.modifications
+        self.assert_(isinstance(modifs, list))
+        self.assertEqual(6, len(modifs))
+        self.assert_(['phone', old_phone, phone] in modifs)
+        self.assert_(['email', email] in modifs)
+        self.assert_(['description'] in modifs)
+        self.assert_(['sector', sector01.id, sector02.id] in modifs)
+        self.assert_(['creation_date'] in modifs)
+        self.assert_(['subject_to_vat', True] in modifs, modifs)
 
-    def test_edition03(self):
+        vmodifs = hline.verbose_modifications
+        self.assertEqual(6, len(vmodifs))
+        #print 'VMODIFS:', vmodifs
+
+        self.assert_(_(u'Set field "%(field)s" from "%(oldvalue)s" to "%(value)s"') % {
+                            'field':    'phone',
+                            'oldvalue': old_phone,
+                            'value':    phone,
+                        } in vmodifs
+                    )
+        self.assert_(_(u'Set field "%(field)s" to "%(value)s"') % {
+                            'field': 'email',
+                            'value': email,
+                        } in vmodifs
+                    )
+        self.assert_(_(u'Set field "%(field)s"') % {
+                            'field': 'description',
+                        } in vmodifs
+                    )
+        self.assert_(_(u'Set field "%(field)s" from "%(oldvalue)s" to "%(value)s"') % {
+                            'field':    'sector',
+                            'oldvalue': sector01.id, #TODO: improve
+                            'value':    sector02.id, #TODO: improve
+                        } in vmodifs
+                    )
+        self.assert_(_(u'Set field "%(field)s"') % {
+                            'field': 'creation_date',
+                        } in vmodifs
+                    )
+        self.assert_(_(u'Set field "%(field)s" to "%(value)s"') % {
+                            'field': 'subject_to_vat',
+                            'value': True, #TODO: improve
+                        } in vmodifs
+                    )
+
+    def test_edition03(self): #no change
         self.login()
 
         name = 'gainax'
@@ -200,3 +253,76 @@ about this fantastic animation studio."""
         creation_line = HistoryLine.objects.get(pk=creation_line.id) #refresh
         self.assert_(hline.entity is None)
         self.assertEqual(entity_repr, hline.entity_repr)
+
+    def test_related_edition01(self):
+        self.login()
+
+        ghibli = self._build_organisation(user=self.user.id, name='Ghibli')
+
+        first_name = 'Hayao'
+        last_name  = 'Miyazaki'
+        hayao  = self._build_contact(user=self.user.id, first_name=first_name, last_name=last_name)
+
+        rtype, srtype = RelationType.create(('test-subject_employed', 'is employed'), ('test-object_employed', 'employs'))
+        Relation.objects.create(user=self.user, subject_entity=hayao, object_entity=ghibli, type=rtype)
+
+        old_count = HistoryLine.objects.count()
+        response = self.client.post('/persons/contact/edit/%s' % hayao.id, follow=True,
+                                    data={
+                                            'user':        self.user.id,
+                                            'first_name':  first_name,
+                                            'last_name':   last_name,
+                                            'description': 'A great animation movie maker'
+                                         }
+                                   )
+        self.assertNoFormError(response)
+
+        hlines = list(HistoryLine.objects.order_by('id'))
+        self.assertEqual(old_count + 1, len(hlines))
+
+        hline = hlines[-1]
+        self.assertEqual(HistoryLine.TYPE_EDITION, hline.type)
+        self.assert_(hline.related_line is None)
+
+    def test_related_edition02(self):
+        self.login()
+
+        ghibli = self._build_organisation(user=self.user.id, name='Ghibli')
+
+        first_name = 'Hayao'
+        last_name  = 'Miyazaki'
+        hayao  = self._build_contact(user=self.user.id, first_name=first_name, last_name=last_name)
+
+        rtype, srtype = RelationType.create(('test-subject_employed', 'is employed'), ('test-object_employed', 'employs'))
+        Relation.objects.create(user=self.user, subject_entity=hayao, object_entity=ghibli, type=rtype)
+
+        HistoryConfigItem.objects.create(relation_type=rtype)
+
+        old_count = HistoryLine.objects.count()
+        response = self.client.post('/persons/contact/edit/%s' % hayao.id, follow=True,
+                                    data={
+                                            'user':        self.user.id,
+                                            'first_name':  first_name,
+                                            'last_name':   last_name,
+                                            'description': 'A great animation movie maker',
+                                         }
+                                   )
+        self.assertNoFormError(response)
+
+        hlines = list(HistoryLine.objects.order_by('id'))
+        self.assertEqual(old_count + 2, len(hlines))
+
+        edition_hline = hlines[-2]
+        self.assertEqual(HistoryLine.TYPE_EDITION, edition_hline.type)
+
+        hline = hlines[-1]
+        self.assertEqual(ghibli.id,                hline.entity.id)
+        self.assertEqual(ghibli.entity_type,       hline.entity_ctype)
+        self.assertEqual(self.user,                hline.entity_owner)
+        self.assertEqual(HistoryLine.TYPE_RELATED, hline.type)
+        self.assertEqual(unicode(ghibli),          hline.entity_repr)
+        self.assertEqual([],                       hline.modifications)
+        self.assertEqual(edition_hline.id,         hline.related_line.id)
+
+        self.assert_((datetime.now() - hline.date) < timedelta(seconds=1))
+        self.assert_(hline.date != ghibli.modified)

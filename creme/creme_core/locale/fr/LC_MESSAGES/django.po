@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-06-16 17:17+0200\n"
+"POT-Creation-Date: 2011-06-22 14:25+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -30,11 +30,11 @@ msgstr "Relations"
 msgid "History"
 msgstr "Historique"
 
-#: creme_core_register.py:42
+#: creme_core_register.py:40
 msgid "Core"
 msgstr "Cœur"
 
-#: creme_core_register.py:44 templates/creme_core/home.html:17
+#: creme_core_register.py:42 templates/creme_core/home.html:17
 #: templates/creme_core/home.html.py:18
 msgid "Home"
 msgstr "Accueil"
@@ -487,6 +487,15 @@ msgstr "La date début doit être avant la date de fin."
 #: forms/fields.py:775 forms/widgets.py:164 forms/widgets.py:869
 msgid "Customized"
 msgstr "Personnalisé"
+
+#: forms/fields.py:822
+msgid "Enter a whole number."
+msgstr ""
+
+#: forms/fields.py:823
+#, python-format
+msgid "Ensure this value is greater than or equal to %(limit_value)s."
+msgstr ""
 
 #: forms/header_filter.py:46
 msgid "Functions"
@@ -1008,17 +1017,39 @@ msgstr "Vous n'êtes pas autorisé à modifier/supprimer cette vue"
 msgid "Actions"
 msgstr "Actions"
 
-#: models/history.py:88
+#: models/history.py:89
 msgid "Creation"
 msgstr "Création"
 
-#: models/history.py:89
+#: models/history.py:90
 msgid "Edition"
 msgstr "Édition"
 
-#: models/history.py:90
+#: models/history.py:91
 msgid "Deletion"
 msgstr "Supression"
+
+#: models/history.py:92
+msgid "Related modification"
+msgstr "Modification liée"
+
+#: models/history.py:152 tests/models/history.py:191
+#: tests/models/history.py:201
+#, python-format
+msgid "Set field \"%(field)s\""
+msgstr "Changement de \"%(field)s\""
+
+#: models/history.py:156 tests/models/history.py:186
+#: tests/models/history.py:205
+#, python-format
+msgid "Set field \"%(field)s\" to \"%(value)s\""
+msgstr "Champ \"%(field)s\" mis à \"%(value)s\""
+
+#: models/history.py:161 tests/models/history.py:180
+#: tests/models/history.py:195
+#, python-format
+msgid "Set field \"%(field)s\" from \"%(oldvalue)s\" to \"%(value)s\""
+msgstr "Champ \"%(field)s\" passe de \"%(oldvalue)s\" à \"%(value)s\""
 
 #: models/i18n.py:28
 msgid "Code"
@@ -1321,7 +1352,6 @@ msgstr "Statistiques"
 
 #: templates/creme_core/generics/portal.html:59
 #: templates/creme_core/templatetags/block_customfields.html:7
-#: templates/creme_core/templatetags/block_history.html:5
 #: templates/creme_core/templatetags/block_object.html:7
 msgid "Information"
 msgstr "Informations"
@@ -1365,22 +1395,16 @@ msgstr "Type"
 msgid "Modifications"
 msgstr "Modifications"
 
-#: templates/creme_core/templatetags/block_history.html:37
-#, python-format
-msgid "Set field \"%(field)s\""
-msgstr "Changement de \"%(field)s\""
-
 #: templates/creme_core/templatetags/block_history.html:39
-#, python-format
-msgid "Set field \"%(field)s\" to \"%(value)s\""
-msgstr "Champ \"%(field)s\" mis à \"%(value)s\""
+msgid "Edition of :"
+msgstr "Édition de :"
 
 #: templates/creme_core/templatetags/block_history.html:41
 #, python-format
-msgid "Set field \"%(field)s\" from \"%(oldvalue)s\" to \"%(value)s\""
-msgstr "Champ \"%(field)s\" passe de \"%(oldvalue)s\" à \"%(value)s\""
+msgid "Edit \"%(entity)s\""
+msgstr "Éditer \"%(entity)s\""
 
-#: templates/creme_core/templatetags/block_history.html:50
+#: templates/creme_core/templatetags/block_history.html:52
 msgid "No history for the moment"
 msgstr "Aucun historique pour le moment"
 

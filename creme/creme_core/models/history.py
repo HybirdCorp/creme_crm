@@ -23,12 +23,12 @@ from logging import debug
 
 from django.db.models import Model, PositiveSmallIntegerField, CharField, TextField, DateTimeField, ForeignKey
 from django.db.models.signals import post_save, post_init, pre_delete
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import ugettext_lazy as _, ugettext
 from django.utils.simplejson import loads as jsonloads, dumps as jsondumps
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.auth.models import User
 
-from creme_core.models import CremeEntity
+from creme_core.models import CremeEntity, RelationType, Relation
 
 
 _get_ct = ContentType.objects.get_for_model
@@ -77,15 +77,19 @@ class HistoryLine(Model):
 
     _entity_repr = None
     _modifications = None
+    _related_line_id = None
+    _related_line = False
 
     TYPE_CREATION = 1
     TYPE_EDITION  = 2
     TYPE_DELETION = 3
+    TYPE_RELATED  = 4
 
     _TYPE_MAP = {
             TYPE_CREATION: _(u'Creation'),
             TYPE_EDITION:  _(u'Edition'),
             TYPE_DELETION: _(u'Deletion'),
+            TYPE_RELATED:  _(u'Related modification'),
         }
 
     class Meta:
@@ -97,8 +101,10 @@ class HistoryLine(Model):
                 )
 
     @staticmethod
-    def _encode_attrs(instance, modifs=()):
+    def _encode_attrs(instance, modifs=(), related_line_id=None):
         value = [unicode(instance)]
+        if related_line_id:
+            value.append(related_line_id)
 
         try:
             attrs = jsondumps(value + list(modifs))
@@ -111,10 +117,16 @@ class HistoryLine(Model):
     def _read_attrs(self):
         value = jsonloads(self.value)
         self._entity_repr   = value.pop(0)
-        self._modifications = value
+
+        if self.type == HistoryLine.TYPE_RELATED:
+            self._modifications = []
+            self._related_line_id = value[0]
+        else:
+            self._modifications = value
+            self._related_line_id = 0
 
     @property
-    def entity_repr(self):
+    def entity_repr(self): #TODO factorise ?
         if self._entity_repr is None:
             self._read_attrs()
 
@@ -130,15 +142,64 @@ class HistoryLine(Model):
 
         return self._modifications
 
+    @property
+    def verbose_modifications(self): #TODO: use a templatetag instead ??
+        #return self.modifications
+        vmodifs = []
+
+        for modif in self.modifications:
+            if len(modif) == 1:
+                vmodif = ugettext(u'Set field "%(field)s"') % {
+                                        'field': modif[0],
+                                    }
+            elif len(modif) == 2:
+                vmodif = ugettext(u'Set field "%(field)s" to "%(value)s"') % {
+                                        'field': modif[0],
+                                        'value': modif[1],
+                                    }
+            else:
+                vmodif = ugettext(u'Set field "%(field)s" from "%(oldvalue)s" to "%(value)s"') % {
+                                        'field':    modif[0],
+                                        'oldvalue': modif[1],
+                                        'value':    modif[2],
+                                    }
+
+            vmodifs.append(vmodif)
+
+        return vmodifs
+
+    def _get_related_line_id(self):
+        if self._related_line_id is None:
+            self._read_attrs()
+
+        return self._related_line_id
+
+    @property
+    def related_line(self):
+        if self._related_line is False:
+            self._related_line = None
+            line_id = self._get_related_line_id()
+
+            if line_id:
+                try:
+                    self._related_line = HistoryLine.objects.get(pk=line_id)
+                except HistoryLine.DoesNotExist:
+                    pass
+
+        return self._related_line
+
     @staticmethod
-    def _create_line_4_instance(instance, ltype, modifs=()):
-        HistoryLine.objects.create(entity=instance,
-                                   entity_ctype=instance.entity_type,
-                                   entity_owner=instance.user,
-                                   date=instance.modified,
-                                   type=ltype,
-                                   value=HistoryLine._encode_attrs(instance, modifs=modifs)
-                                  )
+    def _create_line_4_instance(instance, ltype, date=None, modifs=(), related_line_id=None):
+        return HistoryLine.objects.create(entity=instance,
+                                          entity_ctype=instance.entity_type,
+                                          entity_owner=instance.user,
+                                          date=date or instance.modified,
+                                          type=ltype,
+                                          value=HistoryLine._encode_attrs(instance,
+                                                                          modifs=modifs,
+                                                                          related_line_id=related_line_id,
+                                                                         )
+                                         )
 
     @staticmethod
     def _log_creation_edition(sender, instance, created, **kwargs):
@@ -179,7 +240,22 @@ class HistoryLine(Model):
                     modifs.append(modif)
 
             if modifs:
-                HistoryLine._create_line_4_instance(instance, HistoryLine.TYPE_EDITION, modifs=modifs)
+                create_line = HistoryLine._create_line_4_instance
+
+                hline = create_line(instance, HistoryLine.TYPE_EDITION, modifs=modifs)
+                relations = Relation.objects.filter(subject_entity=instance.id,
+                                                    type__in=HistoryConfigItem.objects.values_list('relation_type', flat=True)
+                                                   ) \
+                                            .select_related('object_entity')
+
+                if relations:
+                    object_entities = [r.object_entity for r in relations]
+                    now = datetime.now()
+
+                    CremeEntity.populate_real_entities(object_entities) #optimisation
+
+                    for entity in object_entities:
+                        create_line(entity.get_real_entity(), HistoryLine.TYPE_RELATED, date=now, related_line_id=hline.id)
 
     @staticmethod
     def _log_deletion(sender, instance, **kwargs):
@@ -201,3 +277,10 @@ class HistoryLine(Model):
 post_init.connect(HistoryLine._prepare_edition,      dispatch_uid='creme_core-historyline._prepare_edition')
 post_save.connect(HistoryLine._log_creation_edition, dispatch_uid='creme_core-historyline._log_creation_edition') # "sender=CremeEntity" does not work with classes that inherit CremeEntity
 pre_delete.connect(HistoryLine._log_deletion,        dispatch_uid='creme_core-historyline._log_deletion')
+
+
+class HistoryConfigItem(Model):
+    relation_type = ForeignKey(RelationType, unique=True)
+
+    class Meta:
+        app_label = 'creme_core'
