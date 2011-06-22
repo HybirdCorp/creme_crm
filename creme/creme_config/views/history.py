@@ -23,38 +23,27 @@ from django.template.context import RequestContext
 from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required, permission_required
 from django.shortcuts import get_object_or_404, render_to_response
-from django.conf import settings
 
-from creme_core.views.generic import add_model_with_popup, edit_model_with_popup
-from creme_core.models import SearchConfigItem, SearchField
+from creme_core.models import HistoryConfigItem
+from creme_core.views.generic import add_model_with_popup
 from creme_core.utils import get_from_POST_or_404
 
-from creme_config.forms.search import SearchEditForm, SearchAddForm
+from creme_config.forms.history import HistoryConfigForm
 
 
 @login_required
 @permission_required('creme_config.can_admin')
 def add(request):
-    return add_model_with_popup(request, SearchAddForm, _(u'New search configuration'))
+    return add_model_with_popup(request, HistoryConfigForm, _(u'New relation types'))
 
 @login_required
 @permission_required('creme_config')
 def portal(request):
-    return render_to_response('creme_config/search_portal.html',
-                              {'SHOW_HELP': settings.SHOW_HELP},#TODO:Context processor ?
-                              context_instance=RequestContext(request))
-
-@login_required
-@permission_required('creme_config.can_admin')
-def edit(request, search_config_id):
-    return edit_model_with_popup(request, {'pk': search_config_id}, SearchConfigItem, SearchEditForm)
+    return render_to_response('creme_config/history_portal.html', {}, context_instance=RequestContext(request))
 
 @login_required
 @permission_required('creme_config.can_admin')
 def delete(request):
-    search_cfg_id = get_from_POST_or_404(request.POST, 'id')
-
-    SearchConfigItem.objects.filter(id=search_cfg_id).delete()
-    SearchField.objects.filter(search_config_item=search_cfg_id).delete()
+    get_object_or_404(HistoryConfigItem, pk=get_from_POST_or_404(request.POST, 'id')).delete()
 
     return HttpResponse()

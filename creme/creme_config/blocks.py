@@ -254,6 +254,18 @@ class SearchConfigBlock(_ConfigAdminBlock):
         return self._render(btc)
 
 
+class HistoryConfigBlock(_ConfigAdminBlock):
+    id_           = QuerysetBlock.generate_id('creme_config', 'historyconfig')
+    dependencies  = (HistoryConfigItem,)
+    verbose_name  = u'History configuration'
+    template_name = 'creme_config/templatetags/block_historyconfig.html'
+
+    def detailview_display(self, context):
+        return self._render(self.get_block_template_context(context, HistoryConfigItem.objects.all(),
+                                                            update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
+                            ))
+
+
 class UserRolesBlock(_ConfigAdminBlock):
     id_           = QuerysetBlock.generate_id('creme_config', 'user_roles')
     dependencies  = (UserRole,)
@@ -317,6 +329,7 @@ blocks_list = (
         UsersBlock(),
         TeamsBlock(),
         SearchConfigBlock(),
+        HistoryConfigBlock(),
         InstanceBlocksConfigBlock(),
         UserRolesBlock(),
         DefaultCredentialsBlock(),

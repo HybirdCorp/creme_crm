@@ -32,17 +32,18 @@
                     {% endif %}
                     <td class="{{row_color}}">{{line.get_type_str}}</td>
                     <td class="{{row_color}}">
-                        {% for modif in line.modifications %}
-                            {% with modif|length as len %}
-                                {% if len == 1 %}
-                                    {% blocktrans with modif.0 as field %}Set field "{{field}}"{% endblocktrans %}
-                                {% else %}{% if len == 2 %}
-                                    {% blocktrans with modif.0 as field and modif.1 as value %}Set field "{{field}}" to "{{value}}"{% endblocktrans %}
+                        {% for modif in line.verbose_modifications %}{{modif}}<br/>{% endfor %}
+                        {% with line.related_line as related_line %}{% if related_line %}
+                            {% with related_line.entity as related_entity %}
+                                {% if related_entity %}
+                                    {% trans "Edition of :" %}&nbsp;{% widget_entity_hyperlink related_entity user %}
                                 {% else %}
-                                    {% blocktrans with modif.0 as field and modif.1 as oldvalue and modif.2 as value %}Set field "{{field}}" from "{{oldvalue}}" to "{{value}}"{% endblocktrans %}
-                                {% endif %}{% endif %}<br/>
+                                    {% blocktrans with related_line.entity_repr as entity %}Edit "{{entity}}"{% endblocktrans %}{% comment %}TODO: improve credentials here !! {% endcomment %}
+                                {% endif %}
                             {% endwith %}
-                        {% endfor %}
+                            <br/>
+                            {% for modif in related_line.verbose_modifications %} - {{modif}}<br/>{% endfor %}
+                        {% endif %}{% endwith %}
                     </td>
                 </tr>
             {% endfor %}

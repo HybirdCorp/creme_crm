@@ -37,6 +37,7 @@ reg_item('/creme_config/blocks/portal/',        _(u"Blocks settings"),          
 reg_item('/creme_config/prefered_menu/edit/',   _(u"Default prefered menu settings"), 'creme_config.can_admin')
 reg_item('/creme_config/button_menu/portal/',   _(u"Button menu settings"),           'creme_config.can_admin')
 reg_item('/creme_config/search/portal/',        _(u"Search settings"),                'creme_config.can_admin')
+reg_item('/creme_config/history/portal/',       _(u"History settings"),               'creme_config.can_admin')
 reg_item('/creme_config/user/portal/',          _(u'Users settings'),                 'creme_config.can_admin')
 reg_item('/creme_config/role/portal/',          _(u'Roles and credentials settings'), 'creme_config.can_admin')
 
