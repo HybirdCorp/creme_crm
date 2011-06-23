@@ -839,5 +839,8 @@ class DurationField(MultiValueField):
 
     def clean(self, value):
         hours, minutes, seconds = super(DurationField, self).clean(value)
+        hours   = hours   or 0
+        minutes = minutes or 0
+        seconds = seconds or 0
         return ':'.join([str(hours), str(minutes), str(seconds)])
 
