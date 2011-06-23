@@ -196,6 +196,9 @@ class EntitiesBulkUpdateForm(CremeForm):
         field_value = cleaned_data['field_value']
         field_name  = cleaned_data['field_name']
 
+        post_save_function = self.model.post_save_bulk if hasattr(self.model, 'post_save_bulk') else lambda x, y, z: None
+        already_saved = False
+
         if EntitiesBulkUpdateForm.is_custom_field(field_name):
             field = self._get_field(field_name)
             CustomFieldValue.save_values_for_entities(field, self.subjects, field_value)
@@ -207,6 +210,7 @@ class EntitiesBulkUpdateForm(CremeForm):
                 for subject in self.subjects:
                     subject.user = field_value
                     subject.save()
+                already_saved = True
             else:
                 model_field = self._get_field(field_name)#self.model._meta.get_field(field_name)
                 if not isinstance(model_field, models.ManyToManyField):
@@ -216,4 +220,6 @@ class EntitiesBulkUpdateForm(CremeForm):
                     for subject in self.subjects:
                         setattr(subject, field_name, field_value)
                         subject.save()
+                    already_saved = True
 
+        post_save_function(self.subjects, field_name, already_saved)
