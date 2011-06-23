@@ -177,36 +177,36 @@ about this fantastic animation studio."""
         self.assertEqual(6, len(vmodifs))
         #print 'VMODIFS:', vmodifs
 
-        self.assert_(_(u'Set field "%(field)s" from "%(oldvalue)s" to "%(value)s"') % {
-                            'field':    'phone',
+        msg = _(u'Set field "%(field)s" from "%(oldvalue)s" to "%(value)s"') % {
+                            'field':    _(u'Phone number'),
                             'oldvalue': old_phone,
                             'value':    phone,
-                        } in vmodifs
-                    )
-        self.assert_(_(u'Set field "%(field)s" to "%(value)s"') % {
-                            'field': 'email',
-                            'value': email,
-                        } in vmodifs
-                    )
-        self.assert_(_(u'Set field "%(field)s"') % {
-                            'field': 'description',
-                        } in vmodifs
-                    )
-        self.assert_(_(u'Set field "%(field)s" from "%(oldvalue)s" to "%(value)s"') % {
-                            'field':    'sector',
-                            'oldvalue': sector01.id, #TODO: improve
-                            'value':    sector02.id, #TODO: improve
-                        } in vmodifs
-                    )
-        self.assert_(_(u'Set field "%(field)s"') % {
-                            'field': 'creation_date',
-                        } in vmodifs
-                    )
-        self.assert_(_(u'Set field "%(field)s" to "%(value)s"') % {
-                            'field': 'subject_to_vat',
-                            'value': True, #TODO: improve
-                        } in vmodifs
-                    )
+                        }
+        self.assert_(msg in vmodifs, msg)
+
+        msg = _(u'Set field "%(field)s" to "%(value)s"') % { 'field': _(u'Email'),
+                                                             'value': email,
+                                                           }
+        self.assert_(msg in vmodifs, msg)
+
+        msg = _(u'Set field "%(field)s"') % {'field': _(u'Description')}
+        self.assert_(msg in vmodifs, msg)
+
+        msg = _(u'Set field "%(field)s" from "%(oldvalue)s" to "%(value)s"') % {
+                        'field':    _(u'Sector'),
+                        'oldvalue': sector01,
+                        'value':    sector02,
+                    }
+        self.assert_(msg in vmodifs, msg)
+
+        msg = _(u'Set field "%(field)s"') % {'field': _(u'Date of creation of the organisation')}
+        self.assert_(msg in vmodifs, msg)
+
+        msg = _(u'Set field "%(field)s" to "%(value)s"') % {
+                            'field': _(u'Subject to VAT'),
+                            'value': _('True'),
+                        }
+        self.assert_(msg in vmodifs, msg)
 
     def test_edition03(self): #no change
         self.login()
