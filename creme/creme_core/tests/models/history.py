@@ -66,7 +66,7 @@ class HistoryTestCase(ViewsTestCase):
         self.assertEqual(gainax.id,                 hline.entity.id)
         self.assertEqual(gainax.entity_type,        hline.entity_ctype)
         self.assertEqual(self.other_user,           hline.entity_owner)
-        self.assertEqual('',                        hline.username) #TODO: self.user.username
+        self.assertEqual(self.user.username,        hline.username)
         self.assertEqual(HistoryLine.TYPE_CREATION, hline.type)
         self.assertEqual([],                        hline.modifications)
         self.assert_((datetime.now() - hline.date) < timedelta(seconds=1))
@@ -90,7 +90,6 @@ class HistoryTestCase(ViewsTestCase):
         self.assertEqual(gainax.id,                 hline.entity.id)
         self.assertEqual(gainax.entity_type,        hline.entity_ctype)
         self.assertEqual(self.other_user,           hline.entity_owner)
-        self.assertEqual('',                        hline.username) #TODO: self.user.username
         self.assertEqual(HistoryLine.TYPE_CREATION, hline.type)
         self.assertEqual([],                        hline.modifications)
         self.assert_((datetime.now() - hline.date) < timedelta(seconds=1))
@@ -177,36 +176,36 @@ about this fantastic animation studio."""
         self.assertEqual(6, len(vmodifs))
         #print 'VMODIFS:', vmodifs
 
-        self.assert_(_(u'Set field "%(field)s" from "%(oldvalue)s" to "%(value)s"') % {
-                            'field':    'phone',
+        msg = _(u'Set field "%(field)s" from "%(oldvalue)s" to "%(value)s"') % {
+                            'field':    _(u'Phone number'),
                             'oldvalue': old_phone,
                             'value':    phone,
-                        } in vmodifs
-                    )
-        self.assert_(_(u'Set field "%(field)s" to "%(value)s"') % {
-                            'field': 'email',
-                            'value': email,
-                        } in vmodifs
-                    )
-        self.assert_(_(u'Set field "%(field)s"') % {
-                            'field': 'description',
-                        } in vmodifs
-                    )
-        self.assert_(_(u'Set field "%(field)s" from "%(oldvalue)s" to "%(value)s"') % {
-                            'field':    'sector',
-                            'oldvalue': sector01.id, #TODO: improve
-                            'value':    sector02.id, #TODO: improve
-                        } in vmodifs
-                    )
-        self.assert_(_(u'Set field "%(field)s"') % {
-                            'field': 'creation_date',
-                        } in vmodifs
-                    )
-        self.assert_(_(u'Set field "%(field)s" to "%(value)s"') % {
-                            'field': 'subject_to_vat',
-                            'value': True, #TODO: improve
-                        } in vmodifs
-                    )
+                        }
+        self.assert_(msg in vmodifs, msg)
+
+        msg = _(u'Set field "%(field)s" to "%(value)s"') % { 'field': _(u'Email'),
+                                                             'value': email,
+                                                           }
+        self.assert_(msg in vmodifs, msg)
+
+        msg = _(u'Set field "%(field)s"') % {'field': _(u'Description')}
+        self.assert_(msg in vmodifs, msg)
+
+        msg = _(u'Set field "%(field)s" from "%(oldvalue)s" to "%(value)s"') % {
+                        'field':    _(u'Sector'),
+                        'oldvalue': sector01,
+                        'value':    sector02,
+                    }
+        self.assert_(msg in vmodifs, msg)
+
+        msg = _(u'Set field "%(field)s"') % {'field': _(u'Date of creation of the organisation')}
+        self.assert_(msg in vmodifs, msg)
+
+        msg = _(u'Set field "%(field)s" to "%(value)s"') % {
+                            'field': _(u'Subject to VAT'),
+                            'value': _('True'),
+                        }
+        self.assert_(msg in vmodifs, msg)
 
     def test_edition03(self): #no change
         self.login()
@@ -246,6 +245,7 @@ about this fantastic animation studio."""
         self.assert_(hline.entity is None, hline.entity)
         self.assertEqual(entity_repr,               hline.entity_repr)
         self.assertEqual(self.other_user,           hline.entity_owner)
+        self.assertEqual(self.user.username,        hline.username)
         self.assertEqual(HistoryLine.TYPE_DELETION, hline.type)
         self.assert_((datetime.now() - hline.date) < timedelta(seconds=1))
         self.assertEqual([],                        hline.modifications)

@@ -19,7 +19,7 @@
 ################################################################################
 
 from datetime import datetime
-from logging import debug
+from logging import debug, info
 
 from django.db.models import Model, PositiveSmallIntegerField, CharField, TextField, DateTimeField, ForeignKey
 from django.db.models.signals import post_save, post_init, pre_delete
@@ -29,6 +29,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.contrib.auth.models import User
 
 from creme_core.models import CremeEntity, RelationType, Relation
+from creme_core.global_info import get_global_info
 
 
 _get_ct = ContentType.objects.get_for_model
@@ -64,7 +65,27 @@ _SERIALISABLE_FIELDS = frozenset(('CharField',
         #'FileField' => not serialisable
                                 ))
 
+#TODO: factorise with gui.field_printers ?? (html and text mode ??)
+_basic_printer = lambda field, val: val
 
+def _fk_printer(field, val):
+    model = field.rel.to
+
+    if issubclass(model, CremeEntity):
+        return ugettext(u'Entity #%s') % val
+
+    try:
+        out = model.objects.get(pk=val)
+    except model.DoesNotExist, e:
+        info(str(e))
+        out = val
+
+    return unicode(out)
+
+_PRINTERS = {
+        'BooleanField': (lambda field, val: ugettext(u'True') if val else ugettext(u'False')),
+        'ForeignKey':   _fk_printer,
+    }
 
 class HistoryLine(Model):
     entity       = ForeignKey(CremeEntity, null=True)
@@ -144,24 +165,29 @@ class HistoryLine(Model):
 
     @property
     def verbose_modifications(self): #TODO: use a templatetag instead ??
-        #return self.modifications
         vmodifs = []
 
+        get_field = self.entity_ctype.model_class()._meta.get_field
+
         for modif in self.modifications:
+            field = get_field(modif[0])
+            field_name = field.verbose_name
+
             if len(modif) == 1:
                 vmodif = ugettext(u'Set field "%(field)s"') % {
-                                        'field': modif[0],
+                                        'field': field_name,
                                     }
             elif len(modif) == 2:
                 vmodif = ugettext(u'Set field "%(field)s" to "%(value)s"') % {
-                                        'field': modif[0],
-                                        'value': modif[1],
+                                        'field': field_name,
+                                        'value': _PRINTERS.get(field.get_internal_type(), _basic_printer)(field, modif[1]),
                                     }
             else:
+                printer = _PRINTERS.get(field.get_internal_type(), _basic_printer)
                 vmodif = ugettext(u'Set field "%(field)s" from "%(oldvalue)s" to "%(value)s"') % {
-                                        'field':    modif[0],
-                                        'oldvalue': modif[1],
-                                        'value':    modif[2],
+                                        'field':    field_name,
+                                        'oldvalue': printer(field, modif[1]), #TODO: improve for fk ???
+                                        'value':    printer(field, modif[2]),
                                     }
 
             vmodifs.append(vmodif)
@@ -193,6 +219,7 @@ class HistoryLine(Model):
         return HistoryLine.objects.create(entity=instance,
                                           entity_ctype=instance.entity_type,
                                           entity_owner=instance.user,
+                                          username=get_global_info('username') or '',
                                           date=date or instance.modified,
                                           type=ltype,
                                           value=HistoryLine._encode_attrs(instance,
@@ -263,6 +290,7 @@ class HistoryLine(Model):
             HistoryLine.objects.filter(entity=instance.id).update(entity=None) #TODO: remove with Django 1.3
             HistoryLine.objects.create(entity_ctype=instance.entity_type,
                                        entity_owner=instance.user,
+                                       username=get_global_info('username') or '',
                                        date=datetime.now(),
                                        type=HistoryLine.TYPE_DELETION,
                                        value=HistoryLine._encode_attrs(instance),
