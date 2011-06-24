@@ -86,7 +86,10 @@ creme.blocks._applyOpenState = function(block)
 creme.blocks._applyShowFieldState = function(block)
 {
     if(block.find('.view_more, .view_less').size() > 0){//Apply state only when toggle button is present
-        var $lines = block.find('tbody td:empty').parent('tr');
+//        var $lines = block.find('tbody td:empty').parent('tr');
+        var $lines = block.find('tbody tr:has(td:empty)').filter(function(i){
+            return !($(this).find('td:not(:empty)').size() > 0);
+        })
 
         if(block.hasClass(this.hide_fields_class))
         {
