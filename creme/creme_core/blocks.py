@@ -92,9 +92,12 @@ class HistoryBlock(QuerysetBlock):
     def _populate_related_real_entities(hlines, user):
         hlines = [hline for hline in hlines if hline.entity_id]
         entities_ids_by_ct = defaultdict(set)
+        get_ct = ContentType.objects.get_for_id
 
         for hline in hlines:
-            entities_ids_by_ct[hline.entity_ctype_id].add(hline.entity_id)
+            ct_id = hline.entity_ctype_id
+            hline.entity_ctype = get_ct(ct_id)
+            entities_ids_by_ct[ct_id].add(hline.entity_id)
 
         entities_map = {}
         get_ct = ContentType.objects.get_for_id
