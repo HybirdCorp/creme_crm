@@ -26,13 +26,14 @@ from django.contrib.contenttypes.generic import GenericForeignKey
 from django.contrib.auth.models import User
 
 from creme_core.models import CremeModel, CremeEntity
+from creme_core.models.fields import CremeUserForeignKey
 
 
 class Memo(CremeModel):
     content       = TextField(_(u'Content'), blank=True, null=True)
     on_homepage   = BooleanField(_(u"Displayed on homepage"), blank=True, default=False)
     creation_date = DateTimeField(_(u'Creation date'), editable=False)
-    user          = ForeignKey(User, verbose_name=_(u'Assigned to'))
+    user          = CremeUserForeignKey(verbose_name=_(u"Assigned to"))
 
     entity_content_type = ForeignKey(ContentType, related_name="memo_entity_set", editable=False)
     entity_id           = PositiveIntegerField(editable=False)

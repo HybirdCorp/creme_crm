@@ -2,13 +2,15 @@
 
 from datetime import date, datetime, timedelta
 from decimal import Decimal
+from django.db.models.deletion import ProtectedError
 from django.db.models.query_utils import Q
 
 from django.utils.translation import ugettext as _
 from django.contrib.contenttypes.models import ContentType
 
 from creme_core.models import RelationType, Relation, CremePropertyType, CremeProperty, SetCredentials
-from creme_core.constants import PROP_IS_MANAGED_BY_CREME
+from creme_core.constants import PROP_IS_MANAGED_BY_CREME, REL_SUB_RELATED_TO
+from creme_core.models.entity import CremeEntity
 from creme_core.tests.base import CremeTestCase
 
 from persons.models import Contact, Organisation, Address
@@ -1358,6 +1360,7 @@ class BillingTestCase(CremeTestCase):
         service_line2 = ServiceLine.objects.get(pk=service_line2.id)#Refresh
         self.assertEqual(invoice2, service_line2.related_document)
         self.assertEqual(service2, service_line2.related_item)
+        self.assertNotEqual(service_line, service_line2)
 
         self.assertEqual(set([service_line2.pk]), set(Relation.objects.filter(type=REL_SUB_HAS_LINE, subject_entity=invoice2).values_list('object_entity', flat=True)))
         self.assertEqual(set([service_line2.pk]), set(Relation.objects.filter(type=REL_SUB_LINE_RELATED_ITEM, object_entity=service2).values_list('subject_entity', flat=True)))
@@ -1406,6 +1409,46 @@ class BillingTestCase(CremeTestCase):
 
 #        rel_filter = Relation.objects.filter
 #        self.assertEqual(1, rel_filter(subject_entity=invoice, type=REL_SUB_BILL_ISSUED,   object_entity=source).count())
+
+    def test_delete01(self):
+        self.login()
+        invoice, source, target = self.create_invoice_n_orgas('Invoice001')
+
+        service_line = ServiceLine.objects.create(user=self.user)
+        service_line.related_document = invoice
+
+        invoice.delete()
+        self.assertFalse(Invoice.objects.filter(pk=invoice.pk))
+        self.assertFalse(ServiceLine.objects.filter(pk=service_line.pk))
+
+        try:
+            Organisation.objects.get(pk=source.pk)
+            Organisation.objects.get(pk=target.pk)
+        except Organisation.DoesNotExist, e:
+            self.fail(e)
+
+    def test_delete02(self):#Can't be deleted
+        self.login()
+        invoice, source, target = self.create_invoice_n_orgas('Invoice001')
+
+        service_line = ServiceLine.objects.create(user=self.user)
+        service_line.related_document = invoice
+
+        ce = CremeEntity.objects.create(user=self.user)
+
+        Relation.objects.create(subject_entity=invoice, object_entity=ce, type_id=REL_SUB_RELATED_TO, user=self.user)
+
+        self.assertRaises(ProtectedError, invoice.delete)
+
+        try:
+            Invoice.objects.get(pk=invoice.pk)
+            Organisation.objects.get(pk=source.pk)
+            Organisation.objects.get(pk=target.pk)
+            ServiceLine.objects.get(pk=service_line.pk)
+            CremeEntity.objects.get(pk=ce.id)
+        except Exception, e:
+            #Works with Postgres with autocommit option enabled in settings
+            self.fail("Exception:%s. Maybe the db doesn't support transaction ?" % e)
 
 #TODO: add tests for other billing document (Quote, SalesOrder, CreditNote), clone on all of this (with Lines)
 

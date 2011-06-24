@@ -32,6 +32,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.contrib.auth.models import User
 
 from creme_core.models import CustomField, RelationType
+from creme_core.models.fields import CremeUserForeignKey
 from creme_core.utils.meta import is_date_field, get_model_field_infos
 from creme_core.utils.date_range import date_range_registry
 
@@ -77,7 +78,7 @@ class EntityFilter(Model): #CremeModel ???
     """
     id          = CharField(primary_key=True, max_length=100, editable=False)
     name        = CharField(max_length=100, verbose_name=_('Name'))
-    user        = ForeignKey(User, verbose_name=_(u'Owner'), blank=True, null=True)
+    user        = CremeUserForeignKey(verbose_name=_(u'Owner'), blank=True, null=True)
     entity_type = ForeignKey(ContentType, editable=False)
     is_custom   = BooleanField(editable=False, default=True)
     use_or      = BooleanField(verbose_name=_(u'Use "OR"'), default=False)

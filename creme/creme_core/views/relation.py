@@ -283,6 +283,31 @@ def delete_similar(request):
     return HttpResponseRedirect(subject.get_real_entity().get_absolute_url())
 
 @login_required
+def delete_all(request):
+    subject_id = get_from_POST_or_404(request.POST, 'subject_id')
+    user = request.user
+    subject = get_object_or_404(CremeEntity, pk=subject_id)
+    subject.can_unlink_or_die(user)
+
+    errors   = defaultdict(list)
+
+    for relation in Relation.objects.filter(type__is_internal=False, subject_entity=subject_id):
+        relation = relation.get_real_entity()
+        if relation.object_entity.can_unlink(user):
+            relation.delete()
+        else:
+            errors[403].append(_(u'%s : <b>Permission denied</b>,') % relation)
+
+    if not errors:
+        status = 200
+        message = _(u"Operation successfully completed")
+    else:
+        status = min(errors.iterkeys())
+        message = ",".join(msg for error_messages in errors.itervalues() for msg in error_messages)
+
+    return HttpResponse(message, mimetype="text/javascript", status=status)
+
+@login_required
 def objects_to_link_selection(request, rtype_id, subject_id, object_ct_id, o2m=False, *args, **kwargs):
     """Display an inner popup to select entities to link as relations' objects.
     @param rtype_id RelationType id of the future relations.

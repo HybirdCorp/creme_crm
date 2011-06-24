@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.db.models import CharField, TextField, ForeignKey, ManyToManyField, BooleanField
+from django.db.models import CharField, TextField, ForeignKey, ManyToManyField, BooleanField, SET_NULL
 from django.utils.translation import ugettext_lazy as _
 
 from creme_core.models import CremeEntity
@@ -33,7 +33,7 @@ class EmailTemplate(CremeEntity):
     subject     = CharField(_(u'Subject'), max_length=100)
     body        = TextField(_(u"Body"))
     use_rte     = BooleanField(_(u"Use rich text editor"))
-    signature   = ForeignKey(EmailSignature, verbose_name=_(u'Signature'), blank=True, null=True)
+    signature   = ForeignKey(EmailSignature, verbose_name=_(u'Signature'), blank=True, null=True, on_delete=SET_NULL)
     attachments = ManyToManyField(Document, verbose_name=_(u'Attachments'))
 
     excluded_fields_in_html_output = CremeEntity.excluded_fields_in_html_output + ['use_rte'] #body too ???

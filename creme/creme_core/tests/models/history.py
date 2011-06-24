@@ -233,10 +233,12 @@ about this fantastic animation studio."""
         gainax = Organisation.objects.create(user=self.other_user, name='Gainax')
         entity_repr = unicode(gainax)
 
+        self.assertEqual(old_count + 1, HistoryLine.objects.count())
+
         creation_line = HistoryLine.objects.get(entity=gainax)
 
         self.assertEqual(200, self.client.post('/creme_core/entity/delete/%s' % gainax.id, follow=True).status_code)
-        self.failIf(Organisation.objects.filter(pk=gainax.id).count())
+        self.assertFalse(Organisation.objects.filter(pk=gainax.id).count())
 
         hlines = list(HistoryLine.objects.order_by('id'))
         self.assertEqual(old_count + 2, len(hlines))

@@ -20,7 +20,11 @@
 
 #see  middleware.global_info.GlobalInfoMiddleware
 
-from django.utils.thread_support import currentThread
+try:
+    from threading import currentThread
+except ImportError:
+    from dummy_threading import currentThread
+
 
 _globals = {}
 
