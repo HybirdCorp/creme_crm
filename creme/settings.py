@@ -137,6 +137,7 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.middleware.locale.LocaleMiddleware',
 
+    'creme.creme_core.middleware.global_info.GlobalInfoMiddleware', #after AuthenticationMiddleware
     'creme.creme_core.middleware.exceptions.Beautiful403Middleware',
     #'creme.creme_core.middleware.sql_logger.SQLLogToConsoleMiddleware',       #debuging purpose
     #'creme.creme_core.middleware.module_logger.LogImportedModulesMiddleware', #debuging purpose
