@@ -20,9 +20,10 @@
 
 import re
 from logging import debug
+from collections import defaultdict
 
 from django.utils.safestring import mark_safe
-from django.forms import CharField, ModelChoiceField, ModelMultipleChoiceField, ValidationError
+from django.forms import CharField, ModelChoiceField, ModelMultipleChoiceField, ValidationError, ChoiceField
 from django.forms.widgets import PasswordInput
 from django.utils.translation import ugettext_lazy as _, ugettext
 from django.contrib.auth.models import User
@@ -32,6 +33,7 @@ from creme_core.models import CremeEntity, Relation, RelationType, UserRole
 from creme_core.forms import CremeForm, CremeModelForm
 from creme_core.forms.fields import CremeEntityField
 from creme_core.forms.widgets import UnorderedMultipleChoiceWidget
+from creme_core.models.fields import CremeUserForeignKey
 
 from persons.models import Contact, Organisation #TODO: can the 'persons' app hook this form instead of this 'bad' dependence ??
 
@@ -188,3 +190,52 @@ class TeamEditForm(TeamCreateForm):
     def __init__(self, *args, **kwargs):
         super(TeamEditForm, self).__init__(*args, **kwargs)
         self.fields['teammates'].initial = self.instance.teammates.iterkeys()
+
+
+class UserAssignationForm(CremeForm):
+#    to_user = ChoiceField(_(u"Choose a user to transfer to"), required=True)
+    to_user = ModelChoiceField(label=_(u"Choose a user to transfer to"), required=True, queryset=User.objects.all())
+
+    def __init__(self, user, *args, **kwargs):
+        super(UserAssignationForm, self).__init__(user, *args, **kwargs)
+
+        initial_get         = self.initial.get
+        self.user_to_delete = initial_get('user_to_delete')
+        self.is_team        = initial_get('is_team')
+
+        users_n_teams = User.objects.all()
+        users = defaultdict(list)
+        for user in users_n_teams:
+            users['t' if user.is_team else 'u'].append((user.id, unicode(user)))
+
+        self.fields['to_user'].choices =  [(_(u'Users'), users['u']), (_(u'Teams'), users['t'])]
+
+    def clean(self, *args, **kwargs):
+        if self._errors:
+            return self._errors
+
+        user_to_delete = self.user_to_delete
+
+        if user_to_delete is None:
+            raise ValidationError(_(u"No selected user."))
+
+        cleaned_data = self.cleaned_data
+
+        if user_to_delete == cleaned_data['to_user']:
+            raise ValidationError(_(u"You can't delete and assign to the same user."))
+
+        return cleaned_data
+
+    def save(self, *args, **kwargs):
+        target_user = self.cleaned_data['to_user']
+
+        Contact.objects.filter(is_user=self.user_to_delete).update(is_user=None)#TODO: Don't know why SET_NULL doesn't wok on Contact.is_user
+
+        #TODO: Add a lock (here or in the view)
+        CremeUserForeignKey._TRANSFER_TO_USER = target_user
+        self.user_to_delete.delete()
+        CremeUserForeignKey._TRANSFER_TO_USER = None
+
+        if not self.is_team:
+            target_user.update_credentials()
+

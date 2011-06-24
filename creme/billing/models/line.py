@@ -73,6 +73,10 @@ class Line(CremeEntity):
         verbose_name = _(u'Line')
         verbose_name_plural = _(u'Lines')
 
+    def _pre_delete(self):
+        for relation in Relation.objects.filter(type__in=[REL_OBJ_HAS_LINE, REL_SUB_LINE_RELATED_ITEM], subject_entity=self):
+            relation._delete_without_transaction()
+
     def get_price_inclusive_of_tax(self):
         if self.total_discount:
             total =  self.quantity * self.unit_price - self.discount

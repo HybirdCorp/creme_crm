@@ -21,7 +21,7 @@
 from datetime import datetime
 from logging import debug, info
 
-from django.db.models import Model, PositiveSmallIntegerField, CharField, TextField, DateTimeField, ForeignKey
+from django.db.models import Model, PositiveSmallIntegerField, CharField, TextField, DateTimeField, ForeignKey, SET_NULL
 from django.db.models.signals import post_save, post_init, pre_delete
 from django.utils.translation import ugettext_lazy as _, ugettext
 from django.utils.simplejson import loads as jsonloads, dumps as jsondumps
@@ -88,7 +88,7 @@ _PRINTERS = {
     }
 
 class HistoryLine(Model):
-    entity       = ForeignKey(CremeEntity, null=True)
+    entity       = ForeignKey(CremeEntity, null=True, on_delete=SET_NULL)
     entity_ctype = ForeignKey(ContentType)  #we do not use entity.entity_type because we keep history of the deleted entities
     entity_owner = ForeignKey(User)         #we do not use entity.user because we keep history of the deleted entities
     username     = CharField(max_length=30) #not a Fk to a User object because we want to keep the same line after the deletion of a User.
@@ -287,7 +287,6 @@ class HistoryLine(Model):
     @staticmethod
     def _log_deletion(sender, instance, **kwargs):
         if isinstance(instance, CremeEntity) and instance.entity_type_id == _get_ct(instance).id: #TODO: factorise ??
-            HistoryLine.objects.filter(entity=instance.id).update(entity=None) #TODO: remove with Django 1.3
             HistoryLine.objects.create(entity_ctype=instance.entity_type,
                                        entity_owner=instance.user,
                                        username=get_global_info('username') or '',

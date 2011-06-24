@@ -27,7 +27,7 @@ from django.db.models.fields.related import ManyToManyField
 from django.utils.translation import ugettext_lazy as _
 
 from creme_core.models import CremeEntity, CremeModel, Relation
-from creme_core.models.fields import DurationField
+from creme_core.models.fields import DurationField, CremeUserForeignKey
 
 from activities.constants import *
 from activities.utils import get_ical_date
@@ -38,7 +38,7 @@ class Calendar(CremeModel):
     is_default  = BooleanField(_(u'Default ?'), default=False)
     is_custom   = BooleanField(default=True) #used by creme_config
     is_public   = BooleanField(default=False, verbose_name=_(u"Is public ?"))
-    user        = ForeignKey(User, verbose_name=_(u"Calendar owner"))
+    user        = CremeUserForeignKey(verbose_name=_(u"Calendar owner"))
 
     class Meta:
         app_label = 'activities'
@@ -72,6 +72,13 @@ class Calendar(CremeModel):
                                                user=user,
                                                is_default=True,
                                                is_custom=False)
+        except Calendar.MultipleObjectsReturned:
+            calendars = Calendar.objects.filter(user=user)
+            calendars.update(is_default=False)
+            c = calendars[0]
+            c.is_default = True
+            c.save()
+            return c
 
 
 
