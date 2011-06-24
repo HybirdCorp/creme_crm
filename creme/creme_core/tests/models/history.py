@@ -66,7 +66,7 @@ class HistoryTestCase(ViewsTestCase):
         self.assertEqual(gainax.id,                 hline.entity.id)
         self.assertEqual(gainax.entity_type,        hline.entity_ctype)
         self.assertEqual(self.other_user,           hline.entity_owner)
-        self.assertEqual('',                        hline.username) #TODO: self.user.username
+        self.assertEqual(self.user.username,        hline.username)
         self.assertEqual(HistoryLine.TYPE_CREATION, hline.type)
         self.assertEqual([],                        hline.modifications)
         self.assert_((datetime.now() - hline.date) < timedelta(seconds=1))
@@ -90,7 +90,6 @@ class HistoryTestCase(ViewsTestCase):
         self.assertEqual(gainax.id,                 hline.entity.id)
         self.assertEqual(gainax.entity_type,        hline.entity_ctype)
         self.assertEqual(self.other_user,           hline.entity_owner)
-        self.assertEqual('',                        hline.username) #TODO: self.user.username
         self.assertEqual(HistoryLine.TYPE_CREATION, hline.type)
         self.assertEqual([],                        hline.modifications)
         self.assert_((datetime.now() - hline.date) < timedelta(seconds=1))
@@ -246,6 +245,7 @@ about this fantastic animation studio."""
         self.assert_(hline.entity is None, hline.entity)
         self.assertEqual(entity_repr,               hline.entity_repr)
         self.assertEqual(self.other_user,           hline.entity_owner)
+        self.assertEqual(self.user.username,        hline.username)
         self.assertEqual(HistoryLine.TYPE_DELETION, hline.type)
         self.assert_((datetime.now() - hline.date) < timedelta(seconds=1))
         self.assertEqual([],                        hline.modifications)

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-06-22 14:25+0200\n"
+"POT-Creation-Date: 2011-06-23 18:44+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -323,11 +323,11 @@ msgstr "A la relation"
 msgid "Does not have the relation"
 msgstr "N'a pas la relation"
 
-#: forms/entity_filter.py:56
+#: forms/entity_filter.py:56 models/history.py:86 tests/models/history.py:206
 msgid "True"
 msgstr "Vrai"
 
-#: forms/entity_filter.py:56
+#: forms/entity_filter.py:56 models/history.py:86
 msgid "False"
 msgstr "Faux"
 
@@ -487,15 +487,6 @@ msgstr "La date début doit être avant la date de fin."
 #: forms/fields.py:775 forms/widgets.py:164 forms/widgets.py:869
 msgid "Customized"
 msgstr "Personnalisé"
-
-#: forms/fields.py:822
-msgid "Enter a whole number."
-msgstr ""
-
-#: forms/fields.py:823
-#, python-format
-msgid "Ensure this value is greater than or equal to %(limit_value)s."
-msgstr ""
 
 #: forms/header_filter.py:46
 msgid "Functions"
@@ -1017,36 +1008,41 @@ msgstr "Vous n'êtes pas autorisé à modifier/supprimer cette vue"
 msgid "Actions"
 msgstr "Actions"
 
-#: models/history.py:89
+#: models/history.py:75
+#, python-format
+msgid "Entity #%s"
+msgstr "Fiche #%s"
+
+#: models/history.py:110
 msgid "Creation"
 msgstr "Création"
 
-#: models/history.py:90
+#: models/history.py:111
 msgid "Edition"
 msgstr "Édition"
 
-#: models/history.py:91
+#: models/history.py:112
 msgid "Deletion"
 msgstr "Supression"
 
-#: models/history.py:92
+#: models/history.py:113
 msgid "Related modification"
 msgstr "Modification liée"
 
-#: models/history.py:152 tests/models/history.py:191
+#: models/history.py:177 tests/models/history.py:191
 #: tests/models/history.py:201
 #, python-format
 msgid "Set field \"%(field)s\""
 msgstr "Changement de \"%(field)s\""
 
-#: models/history.py:156 tests/models/history.py:186
-#: tests/models/history.py:205
+#: models/history.py:181 tests/models/history.py:186
+#: tests/models/history.py:204
 #, python-format
 msgid "Set field \"%(field)s\" to \"%(value)s\""
 msgstr "Champ \"%(field)s\" mis à \"%(value)s\""
 
-#: models/history.py:161 tests/models/history.py:180
-#: tests/models/history.py:195
+#: models/history.py:187 tests/models/history.py:179
+#: tests/models/history.py:194
 #, python-format
 msgid "Set field \"%(field)s\" from \"%(oldvalue)s\" to \"%(value)s\""
 msgstr "Champ \"%(field)s\" passe de \"%(oldvalue)s\" à \"%(value)s\""
@@ -1395,16 +1391,20 @@ msgstr "Type"
 msgid "Modifications"
 msgstr "Modifications"
 
-#: templates/creme_core/templatetags/block_history.html:39
+#: templates/creme_core/templatetags/block_history.html:17
+msgid "By"
+msgstr "Par"
+
+#: templates/creme_core/templatetags/block_history.html:40
 msgid "Edition of :"
 msgstr "Édition de :"
 
-#: templates/creme_core/templatetags/block_history.html:41
+#: templates/creme_core/templatetags/block_history.html:42
 #, python-format
 msgid "Edit \"%(entity)s\""
 msgstr "Éditer \"%(entity)s\""
 
-#: templates/creme_core/templatetags/block_history.html:52
+#: templates/creme_core/templatetags/block_history.html:54
 msgid "No history for the moment"
 msgstr "Aucun historique pour le moment"
 
@@ -1677,18 +1677,6 @@ msgstr "%s seconde(s)"
 #: tests/utils.py:276 utils/date_range.py:214
 msgid "In the future"
 msgstr "Dans le futur"
-
-#: tests/models/header_filter.py:44 tests/views/entity.py:39
-msgid "First name"
-msgstr "Prénom"
-
-#: tests/views/entity.py:38
-msgid "Username"
-msgstr "Nom d'utilisateur"
-
-#: tests/views/entity.py:40
-msgid "Last name"
-msgstr "Prénom"
 
 #: utils/date_range.py:87
 msgid "Previous year"

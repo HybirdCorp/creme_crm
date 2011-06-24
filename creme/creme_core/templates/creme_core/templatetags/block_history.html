@@ -14,6 +14,7 @@
                 {% endif %}
                 <th class="block_header_line_dark">{% trans "Type" %}</th>
                 <th class="block_header_line_dark">{% trans "Modifications" %}</th>
+                <th class="block_header_line_dark">{% trans "By" %}</th>
             </tr>
             {% for line in page.object_list %}<!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
                 <tr>
@@ -45,6 +46,7 @@
                             {% for modif in related_line.verbose_modifications %} - {{modif}}<br/>{% endfor %}
                         {% endif %}{% endwith %}
                     </td>
+                    <td class="{{row_color}}">{{line.username}}</td>
                 </tr>
             {% endfor %}
         {% else %}

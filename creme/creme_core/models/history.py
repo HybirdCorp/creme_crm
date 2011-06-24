@@ -29,6 +29,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.contrib.auth.models import User
 
 from creme_core.models import CremeEntity, RelationType, Relation
+from creme_core.global_info import get_global_info
 
 
 _get_ct = ContentType.objects.get_for_model
@@ -218,6 +219,7 @@ class HistoryLine(Model):
         return HistoryLine.objects.create(entity=instance,
                                           entity_ctype=instance.entity_type,
                                           entity_owner=instance.user,
+                                          username=get_global_info('username') or '',
                                           date=date or instance.modified,
                                           type=ltype,
                                           value=HistoryLine._encode_attrs(instance,
@@ -288,6 +290,7 @@ class HistoryLine(Model):
             HistoryLine.objects.filter(entity=instance.id).update(entity=None) #TODO: remove with Django 1.3
             HistoryLine.objects.create(entity_ctype=instance.entity_type,
                                        entity_owner=instance.user,
+                                       username=get_global_info('username') or '',
                                        date=datetime.now(),
                                        type=HistoryLine.TYPE_DELETION,
                                        value=HistoryLine._encode_attrs(instance),
