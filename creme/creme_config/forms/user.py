@@ -34,6 +34,7 @@ from creme_core.forms import CremeForm, CremeModelForm
 from creme_core.forms.fields import CremeEntityField
 from creme_core.forms.widgets import UnorderedMultipleChoiceWidget
 from creme_core.models.fields import CremeUserForeignKey
+from creme_core.models.lock import Mutex
 
 from persons.models import Contact, Organisation #TODO: can the 'persons' app hook this form instead of this 'bad' dependence ??
 
@@ -231,10 +232,11 @@ class UserAssignationForm(CremeForm):
 
         Contact.objects.filter(is_user=self.user_to_delete).update(is_user=None)#TODO: Don't know why SET_NULL doesn't wok on Contact.is_user
 
-        #TODO: Add a lock (here or in the view)
+        mutex = Mutex.get_n_lock('creme_config-forms-user-transfer_user')
         CremeUserForeignKey._TRANSFER_TO_USER = target_user
         self.user_to_delete.delete()
         CremeUserForeignKey._TRANSFER_TO_USER = None
+        mutex.release()
 
         if not self.is_team:
             target_user.update_credentials()

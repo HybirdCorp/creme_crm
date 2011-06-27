@@ -22,9 +22,6 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.management.base import BaseCommand
 
-from creme_core.models import Lock
-from crudity.views.email import _fetch_emails
-
 
 LOCK_NAME = "synchronizing_emails"
 
@@ -34,21 +31,22 @@ class Command(BaseCommand):
     help = "Synchronize all externals mails sent to Creme into Creme."
 
     def handle(self, *args, **options):
-        lock = Lock.objects.filter(name=LOCK_NAME)
+        from creme_core.models.lock import Mutex, MutexLockedException
+        from crudity.views.email import _fetch_emails
 
-        if not lock:
-            try:
-                lock = Lock(name=LOCK_NAME)
-                lock.save()
+        try:
+            lock = Mutex.get_n_lock(LOCK_NAME)
 
-                try:
-                    user = User.objects.get(pk=settings.CREME_GET_EMAIL_JOB_USER_ID)
-                    print "There are %s new message(s)" % _fetch_emails(user)
-
-                except User.DoesNotExist:
-                    pass
-                
-            finally:
-                lock.delete()
-        else:
+        except MutexLockedException, e:
             print 'A process is already running'
+
+        else:
+            try:
+                user = User.objects.get(pk=settings.CREME_GET_EMAIL_JOB_USER_ID)
+                print "There are %s new message(s)" % _fetch_emails(user)
+
+            except User.DoesNotExist:
+                pass
+        finally:
+            Mutex.graceful_release(LOCK_NAME)
+

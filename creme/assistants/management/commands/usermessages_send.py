@@ -22,10 +22,6 @@ from django.core.management.base import BaseCommand
 from django.utils import translation
 from django.conf import settings
 
-from creme_core.models import Lock
-
-from assistants.models import UserMessage
-
 
 LOCK_NAME = "sending_usermessages"
 
@@ -35,16 +31,17 @@ class Command(BaseCommand):
     help = "Send all unsended mails related to user messages that have to be."
 
     def handle(self, *args, **options):
-        lock = Lock.objects.filter(name=LOCK_NAME)
+        from creme_core.models.lock import Mutex, MutexLockedException
+        from assistants.models import UserMessage
 
-        if not lock:
-            try:
-                lock = Lock(name=LOCK_NAME)
-                lock.save()
+        try:
+            lock = Mutex.get_n_lock(LOCK_NAME)
 
-                translation.activate(settings.LANGUAGE_CODE)
-                UserMessage.send_mails()
-            finally:
-                lock.delete()
-        else:
+        except MutexLockedException, e:
             print 'A process is already running'
+
+        else:
+            translation.activate(settings.LANGUAGE_CODE)
+            UserMessage.send_mails()
+        finally:
+            Mutex.graceful_release(LOCK_NAME)

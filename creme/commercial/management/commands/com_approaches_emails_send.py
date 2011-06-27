@@ -30,18 +30,8 @@ from django.utils.translation import ugettext_lazy as _, ugettext, activate
 from django.conf import settings
 
 from creme_core.constants import PROP_IS_MANAGED_BY_CREME
-from creme_core.models import Lock
-
-from creme_config.models.setting import SettingValue
-
-from commercial.constants import DISPLAY_ONLY_ORGA_COM_APPROACH_ON_ORGA_DETAILVIEW
-from commercial.models import CommercialApproach
-
-from opportunities.constants import REL_SUB_TARGETS_ORGA
-from opportunities.models import Opportunity
 
 from persons.constants import REL_SUB_CUSTOMER_OF
-from persons.models    import Organisation, Contact
 
 
 LOCK_NAME = "com_approaches_sending_emails"
@@ -63,61 +53,70 @@ class Command(BaseCommand):
 
 
     def handle(self, *args, **options):
-        lock = Lock.objects.filter(name=LOCK_NAME)
+        from creme_config.models.setting import SettingValue
+        from creme_core.models.lock import Mutex, MutexLockedException
 
-        if not lock:
-            try:
-                lock = Lock(name=LOCK_NAME)
-                lock.save()
+        from commercial.constants import DISPLAY_ONLY_ORGA_COM_APPROACH_ON_ORGA_DETAILVIEW
+        from commercial.models import CommercialApproach
 
-                if SettingValue.objects.get(key__id=DISPLAY_ONLY_ORGA_COM_APPROACH_ON_ORGA_DETAILVIEW).value:
-                    for extra_q, delay in self.list_target_orga:
+        from opportunities.constants import REL_SUB_TARGETS_ORGA
+        from opportunities.models import Opportunity
 
-                        now             = datetime.now()
-                        thirty_days_ago = now - timedelta(days=delay)
+        from persons.models    import Organisation, Contact
 
+        try:
+            lock = Mutex.get_n_lock(LOCK_NAME)
 
-                        com_apps         = CommercialApproach.objects.filter(entity_content_type__in=[ContentType.objects.get_for_model(model) for model in (Organisation, Contact, Opportunity)], creation_date__range=(thirty_days_ago, now))
-                        com_apps_filter  = com_apps.filter
-
-                        opportunities_targets_orga = Opportunity.objects.filter(relations__type=REL_SUB_TARGETS_ORGA)
-
-                        emails_to_send = []
-                        emails_append  = emails_to_send.append
-
-                        EMAIL_SENDER = settings.EMAIL_SENDER
-
-                        for organisation in Organisation.objects.filter(~Q(properties__type=PROP_IS_MANAGED_BY_CREME) & extra_q):
-                            have_to_send_mail = False
-
-                            is_any_com_app_in_orga = com_apps_filter(entity_id=organisation.id).exists()
-
-                            if not is_any_com_app_in_orga:
-                                is_any_com_app_in_managers = com_apps_filter(entity_id__in=organisation.get_managers().values_list('id',flat=True)).exists()
-
-                                if not is_any_com_app_in_managers:
-                                    is_any_com_app_in_employees = com_apps_filter(entity_id__in=organisation.get_employees().values_list('id',flat=True)).exists()
-
-                                    if not is_any_com_app_in_employees and \
-                                       not com_apps_filter(entity_id__in=opportunities_targets_orga.filter(relations__object_entity=organisation).values_list('id',flat=True)).exists():
-                                        have_to_send_mail = True
-
-                            if have_to_send_mail:
-                                activate(settings.LANGUAGE_CODE)#TODO: Activate in the user's language ?
-                                emails_append(EmailMessage(_(u"[CremeCRM] The organisation <%s> seems neglected") % organisation,
-                                                           _(u"It seems you haven't created a commercial approach for the organisation <%s> since 30 days.") % organisation,
-                                                           EMAIL_SENDER, [organisation.user.email]))
-
-                        try:
-                            connection = get_connection()
-                            connection.open()
-                            connection.send_messages(emails_to_send)
-                            connection.close()
-
-                            info(u"Emails sended")
-                        except Exception, e:
-                            error(u"An error has occurred during sending mails (%s)" % e)
-            finally:
-                lock.delete()
-        else:
+        except MutexLockedException, e:
             print 'A process is already running'
+
+        else:
+            if SettingValue.objects.get(key__id=DISPLAY_ONLY_ORGA_COM_APPROACH_ON_ORGA_DETAILVIEW).value:
+                for extra_q, delay in self.list_target_orga:
+
+                    now             = datetime.now()
+                    thirty_days_ago = now - timedelta(days=delay)
+
+
+                    com_apps         = CommercialApproach.objects.filter(entity_content_type__in=[ContentType.objects.get_for_model(model) for model in (Organisation, Contact, Opportunity)], creation_date__range=(thirty_days_ago, now))
+                    com_apps_filter  = com_apps.filter
+
+                    opportunities_targets_orga = Opportunity.objects.filter(relations__type=REL_SUB_TARGETS_ORGA)
+
+                    emails_to_send = []
+                    emails_append  = emails_to_send.append
+
+                    EMAIL_SENDER = settings.EMAIL_SENDER
+
+                    for organisation in Organisation.objects.filter(~Q(properties__type=PROP_IS_MANAGED_BY_CREME) & extra_q):
+                        have_to_send_mail = False
+
+                        is_any_com_app_in_orga = com_apps_filter(entity_id=organisation.id).exists()
+
+                        if not is_any_com_app_in_orga:
+                            is_any_com_app_in_managers = com_apps_filter(entity_id__in=organisation.get_managers().values_list('id',flat=True)).exists()
+
+                            if not is_any_com_app_in_managers:
+                                is_any_com_app_in_employees = com_apps_filter(entity_id__in=organisation.get_employees().values_list('id',flat=True)).exists()
+
+                                if not is_any_com_app_in_employees and \
+                                   not com_apps_filter(entity_id__in=opportunities_targets_orga.filter(relations__object_entity=organisation).values_list('id',flat=True)).exists():
+                                    have_to_send_mail = True
+
+                        if have_to_send_mail:
+                            activate(settings.LANGUAGE_CODE)#TODO: Activate in the user's language ?
+                            emails_append(EmailMessage(_(u"[CremeCRM] The organisation <%s> seems neglected") % organisation,
+                                                       _(u"It seems you haven't created a commercial approach for the organisation <%s> since 30 days.") % organisation,
+                                                       EMAIL_SENDER, [organisation.user.email]))
+
+                    try:
+                        connection = get_connection()
+                        connection.open()
+                        connection.send_messages(emails_to_send)
+                        connection.close()
+
+                        info(u"Emails sended")
+                    except Exception, e:
+                        error(u"An error has occurred during sending mails (%s)" % e)
+        finally:
+            Mutex.graceful_release(LOCK_NAME)

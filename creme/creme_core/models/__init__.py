@@ -12,7 +12,7 @@ from entity_filter import EntityFilter, EntityFilterCondition
 
 from auth import EntityCredentials, UserRole, SetCredentials, UserProfile, TeamM2M
 
-from lock import Lock
+from lock import Mutex
 
 from i18n import Language
 

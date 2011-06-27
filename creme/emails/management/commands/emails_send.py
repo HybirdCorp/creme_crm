@@ -24,11 +24,6 @@ from datetime import datetime
 from django.core.management.base import BaseCommand
 from django.conf import settings
 
-from creme_core.models import Lock
-
-from emails.models import EmailSending
-from emails.models.sending import SENDING_TYPE_IMMEDIATE, SENDING_STATE_DONE, SENDING_STATE_INPROGRESS, SENDING_STATE_PLANNED
-
 
 LOCK_NAME = "sending_emails"
 
@@ -38,28 +33,30 @@ class Command(BaseCommand):
     help = "Send all unsended mails that have to be."
 
     def handle(self, *args, **options):
-        lock = Lock.objects.filter(name=LOCK_NAME)
+        from creme_core.models.lock import Mutex, MutexLockedException
+        from emails.models import EmailSending
+        from emails.models.sending import SENDING_TYPE_IMMEDIATE, SENDING_STATE_DONE, SENDING_STATE_INPROGRESS, SENDING_STATE_PLANNED
 
-        if not lock:
-            try:
-                lock = Lock(name=LOCK_NAME)
-                lock.save()
+        try:
+            lock = Mutex.get_n_lock(LOCK_NAME)
 
-                #for sending in EmailSending.objects.filter(state=SENDING_STATE_PLANNED):
-                for sending in EmailSending.objects.exclude(state=SENDING_STATE_DONE):
-                    if SENDING_TYPE_IMMEDIATE == sending.type or sending.sending_date <= datetime.now():
-                        sending.state = SENDING_STATE_INPROGRESS
-                        sending.save()
+        except MutexLockedException, e:
+            print 'A process is already running'
+
+        else:
+            #for sending in EmailSending.objects.filter(state=SENDING_STATE_PLANNED):
+            for sending in EmailSending.objects.exclude(state=SENDING_STATE_DONE):
+                if SENDING_TYPE_IMMEDIATE == sending.type or sending.sending_date <= datetime.now():
+                    sending.state = SENDING_STATE_INPROGRESS
+                    sending.save()
 
 #                        if getattr(settings, 'REMOTE_STATS', False):
 #                            from emails.utils.remoteutils import populate_minicreme #broken
 #                            populate_minicreme(sending)
 
-                        status = sending.send_mails()
+                    status = sending.send_mails()
 
-                        sending.state = status or SENDING_STATE_DONE
-                        sending.save()
-            finally:
-                lock.delete()
-        else:
-            print 'A process is already running'
+                    sending.state = status or SENDING_STATE_DONE
+                    sending.save()
+        finally:
+            Mutex.graceful_release(LOCK_NAME)
