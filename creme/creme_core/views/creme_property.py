@@ -26,7 +26,7 @@ from django.contrib.auth.decorators import login_required
 from django.template.context import RequestContext
 
 from creme_core.models import CremeEntity, CremePropertyType, CremeProperty
-from creme.creme_core.views.generic import inner_popup, add_to_entity as generic_add_to_entity
+from creme_core.views.generic import inner_popup, add_to_entity as generic_add_to_entity
 from creme_core.forms.creme_property import AddPropertiesForm, AddPropertiesBulkForm
 from creme_core.utils import get_ct_or_404, get_from_POST_or_404
 

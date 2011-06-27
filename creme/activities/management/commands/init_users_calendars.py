@@ -23,16 +23,16 @@ from django.contrib.auth.models  import User
 from django.db.models import Q
 from django.db.utils import IntegrityError
 
-from creme.persons.models.contact import Contact
-
-from activities.models.activity import Calendar, Activity
-from activities.constants import REL_OBJ_ACTIVITY_SUBJECT, REL_OBJ_PART_2_ACTIVITY#, REL_OBJ_LINKED_2_ACTIVITY
-
 class Command(BaseCommand):
     help = 'Create user defaults calendars and link them to unlinked activities.'
     args = ''
 
     def handle(self, *args, **options):
+        from creme.persons.models.contact import Contact
+
+        from activities.models.activity import Calendar, Activity
+        from activities.constants import REL_OBJ_ACTIVITY_SUBJECT, REL_OBJ_PART_2_ACTIVITY#, REL_OBJ_LINKED_2_ACTIVITY
+
         contacts_get                  = Contact.objects.get
         activities_filter             = Activity.objects.filter
         calendar_get_default_calendar = Calendar.get_user_default_calendar
@@ -48,11 +48,11 @@ class Command(BaseCommand):
             q_filter  = Q(user=user)
             q_filter |= Q(relations__type=REL_OBJ_ACTIVITY_SUBJECT,  relations__object_entity=user_contact_file)
             q_filter |= Q(relations__type=REL_OBJ_PART_2_ACTIVITY,   relations__object_entity=user_contact_file)
-            
+
             #In the current actvity creation process it doesn't link activity to
             #an user calendar for the REL_OBJ_LINKED_2_ACTIVITY relation
 #            q_filter |= Q(relations__type=REL_OBJ_LINKED_2_ACTIVITY, relations__object_entity=user_contact_file)
-            
+
             for activity in activities_filter(q_filter).distinct():
                 try:
                     activity.calendars.add(user_calendar)

@@ -20,10 +20,52 @@
 
 from django.db.models import Model, CharField, IntegerField
 
+class MutexLockedException(Exception):
+    pass
 
-class Lock(Model):
-    name  = CharField(max_length=100)
-    value = IntegerField(null=True)
+class MutexNotLockedException(Exception):
+    pass
+
+class Mutex(Model):
+    id  = CharField(max_length=100, primary_key=True)
 
     class Meta:
         app_label = 'creme_core'
+
+    def is_locked(self):
+        return bool(self.id and not self._state.adding)
+
+    def lock(self):
+        if self.is_locked():
+            raise MutexLockedException(u"Mutex is already locked")
+        self.save()
+        return self
+
+    def release(self):
+        if not self.is_locked():
+            raise MutexNotLockedException(u"The mutex is not locked")
+        self.delete()
+
+    @staticmethod
+    def get_n_lock(id_):
+        if Mutex.objects.filter(id=id_).exists():
+            raise MutexLockedException(u"Mutex is already locked")
+        return Mutex(id=id_).lock()
+
+    @staticmethod
+    def graceful_release(id_):
+        Mutex.objects.filter(id=id_).delete()
+
+def mutexify(func, lock_name):
+    def _aux(*args, **kwargs):
+        try:
+            lock = Mutex.get_n_lock(lock_name)
+
+        except MutexLockedException, e:
+            print 'A process is already running'
+
+        else:
+            func(*args, **kwargs)
+        finally:
+            Mutex.graceful_release(lock_name)
+

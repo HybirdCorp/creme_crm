@@ -22,11 +22,6 @@ from datetime import datetime, timedelta
 
 from django.core.management.base import BaseCommand
 
-from creme_core.models import Lock
-
-from recurrents.models import RecurrentGenerator
-
-
 LOCK_NAME = "generate_recurrent_documents"
 
 #NB: python manage.py recurrents_gendocs
@@ -35,28 +30,29 @@ class Command(BaseCommand):
     help = "Generate all recurrent documents that have to be."
 
     def handle(self, *args, **options):
-        lock = Lock.objects.filter(name=LOCK_NAME)
+        from creme_core.models.lock import Mutex, MutexLockedException
+        from recurrents.models import RecurrentGenerator
 
-        if not lock:
-            lock = Lock(name=LOCK_NAME)
-            lock.save()
-
-            try:
-                for generator in RecurrentGenerator.objects.filter(is_working=True):
-                    recurrent_date = generator.last_generation + timedelta(days = generator.periodicity.value_in_days)
-
-                    last  = generator.last_generation
-                    first = generator.first_generation
-                    now   = datetime.now()
-
-                    if recurrent_date < now or (last == first and first < now):
-                        template = generator.template.get_real_entity()
-
-                        template.create_entity()
-
-                        generator.last_generation = datetime.now()
-                        generator.save()
-            finally:
-                lock.delete()
-        else:
+        try:
+            lock = Mutex.get_n_lock(LOCK_NAME)
+        except MutexLockedException, e:
             print 'A process is already running'
+
+        else:
+            for generator in RecurrentGenerator.objects.filter(is_working=True):
+                recurrent_date = generator.last_generation + timedelta(days = generator.periodicity.value_in_days)
+
+                last  = generator.last_generation
+                first = generator.first_generation
+                now   = datetime.now()
+
+                if recurrent_date < now or (last == first and first < now):
+                    template = generator.template.get_real_entity()
+
+                    template.create_entity()
+
+                    generator.last_generation = datetime.now()
+                    generator.save()
+        finally:
+            Mutex.graceful_release(LOCK_NAME)
+
