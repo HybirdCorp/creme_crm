@@ -1,8 +1,6 @@
 {% extends "creme_core/generics/view_entity.html" %}
-{% load media %}
+{% comment %} {% load media %} {% endcomment %}
 {% load creme_block %}
-
-{% block logo %}<img src="{% media_url 'images/image_64.png' %}" alt=""/>{% endblock %}
 
 {% block button_tab %}{% endblock %}
 
@@ -12,8 +10,8 @@
 {% endblock %}
 
 {% block detail_view_right_1 %}
-    {% include "media_managers/image_as_table.html" %}
-
+    {% display_block_detailview 'object_block' %}
+    {% display_block_detailview 'customfields_block' %}
     {% display_block_detailview 'properties_block' %}
     {% display_block_detailview 'relations_block' %}
 {% endblock %}

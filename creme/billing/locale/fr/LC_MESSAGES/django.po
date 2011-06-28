@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-05-27 17:38+0200\n"
+"POT-Creation-Date: 2011-06-08 16:11+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -16,33 +16,37 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: blocks.py:41 models/product_line.py:34
+#: blocks.py:44 models/product_line.py:34
 msgid "Product lines"
 msgstr "Lignes produit"
 
-#: blocks.py:56 models/service_line.py:37
+#: blocks.py:59 models/service_line.py:37
 msgid "Service lines"
 msgstr "Lignes service"
 
-#: blocks.py:71
+#: blocks.py:74
 msgid "Total"
 msgstr "Total"
 
-#: blocks.py:82
+#: blocks.py:85
 msgid "Target Organisation"
 msgstr "Société cible"
 
-#: blocks.py:94
+#: blocks.py:97
 msgid "Received invoices"
 msgstr "Factures reçues"
 
-#: blocks.py:114 models/base.py:51 models/other_models.py:145
+#: blocks.py:119
+msgid "Received billing documents"
+msgstr "Documents comptables reçus"
+
+#: blocks.py:145 models/base.py:51 models/other_models.py:145
 #: templates/billing/templatetags/block_billing_payment_information.html:5
 #: templates/billing/templatetags/block_payment_information.html:5
 msgid "Payment information"
 msgstr "Informations de paiement"
 
-#: blocks.py:150
+#: blocks.py:181
 msgid "Default payment information"
 msgstr "Information de paiement par défaut"
 
@@ -228,82 +232,35 @@ msgstr "Recouvrement soldé"
 msgid "Canceled"
 msgstr "Annulée"
 
-#: populate.py:96 models/base.py:39 models/other_models.py:97
-#: models/other_models.py:126
-#: templates/billing/templatetags/block_billing_payment_information.html:21
-#: templates/billing/templatetags/block_payment_information.html:16
-#: templates/billing/templatetags/block_received_invoices.html:16
-msgid "Name"
-msgstr "Nom"
-
-#: populate.py:97 models/base.py:40
-msgid "Number"
-msgstr "Numéro"
-
-#: populate.py:98 forms/base.py:41 models/base.py:41
-msgid "Issuing date"
-msgstr "Date d'émission"
-
-#: populate.py:99 forms/base.py:42 models/base.py:42
-#: templates/billing/templatetags/block_received_invoices.html:17
-msgid "Expiration date"
-msgstr "Échéance"
-
-#: populate.py:100
-msgid "Status - Name"
-msgstr "Statut - Nom"
-
-#: populate.py:102
+#: populate.py:104
 msgid "Invoice view"
 msgstr "Vue de Facture"
 
-#: populate.py:103
+#: populate.py:105
 msgid "Quote view"
 msgstr "Vue de Devis"
 
-#: populate.py:104
+#: populate.py:106
 msgid "Sales order view"
 msgstr "Vue de Bon de Commande"
 
-#: populate.py:105
+#: populate.py:107
 msgid "Credit note view"
 msgstr "Vue des Avoirs"
 
-#: populate.py:109
-msgid "On the fly item"
-msgstr "Ligne à la volée"
-
-#: populate.py:110 models/line.py:58
-#: templates/billing/templatetags/line.html:16
-msgid "Quantity"
-msgstr "Quantité"
-
-#: populate.py:111 models/line.py:59
-#: templates/billing/templatetags/line.html:21
-msgid "Unit price"
-msgstr "Prix Unitaire"
-
-#: populate.py:112
-msgid "Is paid"
-msgstr "Est payé"
-
-#: populate.py:113 models/line.py:46
-msgid "Line type"
-msgstr "Type de ligne"
-
-#: populate.py:115
+#: populate.py:123
 msgid "Lines view"
 msgstr "Vue des lignes"
 
-#: populate.py:116
+#: populate.py:124
 msgid "Product lines view"
 msgstr "Vue des lignes de produit"
 
-#: populate.py:117
+#: populate.py:125
 msgid "Service lines view"
 msgstr "Vue des lignes de service"
 
-#: populate.py:123
+#: populate.py:131
 msgid ""
 "Display payment information bloc only on creme managed organisations' "
 "detailview"
@@ -327,6 +284,16 @@ msgstr "Société émettrice"
 #: templates/billing/templatetags/block_target.html:10
 msgid "Target organisation"
 msgstr "Société réceptrice"
+
+#: forms/base.py:41 models/base.py:41
+msgid "Issuing date"
+msgstr "Date d'émission"
+
+#: forms/base.py:42 models/base.py:42
+#: templates/billing/templatetags/block_received_billing_document.html:15
+#: templates/billing/templatetags/block_received_invoices.html:17
+msgid "Expiration date"
+msgstr "Échéance"
 
 #: forms/base.py:45 models/algo.py:35 models/algo.py:44
 msgid "Organisation"
@@ -413,6 +380,7 @@ msgstr ""
 #: forms/templatebase.py:31 models/other_models.py:46
 #: models/other_models.py:59 models/other_models.py:72
 #: models/other_models.py:85
+#: templates/billing/templatetags/block_received_billing_document.html:16
 #: templates/billing/templatetags/block_received_invoices.html:18
 msgid "Status"
 msgstr "Statut"
@@ -430,6 +398,18 @@ msgstr "Nom de l'algo"
 msgid "Invoice prefix"
 msgstr "Préfixe de la facture"
 
+#: models/base.py:39 models/other_models.py:97 models/other_models.py:126
+#: templates/billing/templatetags/block_billing_payment_information.html:21
+#: templates/billing/templatetags/block_payment_information.html:16
+#: templates/billing/templatetags/block_received_billing_document.html:14
+#: templates/billing/templatetags/block_received_invoices.html:16
+msgid "Name"
+msgstr "Nom"
+
+#: models/base.py:40
+msgid "Number"
+msgstr "Numéro"
+
 #: models/base.py:43 models/line.py:60
 #: templates/billing/templatetags/line.html:18
 msgid "Discount"
@@ -441,6 +421,7 @@ msgid "Comment"
 msgstr "Remarques"
 
 #: models/base.py:47
+#: templates/billing/templatetags/block_received_billing_document.html:17
 #: templates/billing/templatetags/block_received_invoices.html:19
 msgid "Total with VAT"
 msgstr "Total avec TVA"
@@ -487,9 +468,21 @@ msgstr "Facture"
 msgid "Invoices"
 msgstr "Factures"
 
+#: models/line.py:46
+msgid "Line type"
+msgstr "Type de ligne"
+
 #: models/line.py:56
 msgid "On-the-fly line"
 msgstr "Ligne à la volée"
+
+#: models/line.py:58 templates/billing/templatetags/line.html:16
+msgid "Quantity"
+msgstr "Quantité"
+
+#: models/line.py:59 templates/billing/templatetags/line.html:21
+msgid "Unit price"
+msgstr "Prix Unitaire"
 
 #: models/line.py:61 templates/billing/templatetags/line.html:19
 msgid "Credit"
@@ -738,6 +731,24 @@ msgstr "Liste des Produits relatifs"
 msgid "No product in this document"
 msgstr "Aucun produit dans ce document"
 
+#: templates/billing/templatetags/block_received_billing_document.html:6
+#, python-format
+msgid "%s Received billing document"
+msgstr "%s Document comptable reçu"
+
+#: templates/billing/templatetags/block_received_billing_document.html:6
+#, python-format
+msgid "%s Received billing documents"
+msgstr "%s Documents comptables reçus"
+
+#: templates/billing/templatetags/block_received_billing_document.html:6
+msgid "Billing document"
+msgstr "Document comptable"
+
+#: templates/billing/templatetags/block_received_billing_document.html:39
+msgid "No received billing document for the moment"
+msgstr "Aucun document comptable reçu pour le moment"
+
 #: templates/billing/templatetags/block_received_invoices.html:5
 #, python-format
 msgid "%s Received invoice"
@@ -855,6 +866,15 @@ msgstr "Nombre de devis"
 #: views/portal.py:38
 msgid "Number of salesorders"
 msgstr "Nombre de bon(s) de commande"
+
+#~ msgid "Status - Name"
+#~ msgstr "Statut - Nom"
+
+#~ msgid "On the fly item"
+#~ msgstr "Ligne à la volée"
+
+#~ msgid "Is paid"
+#~ msgstr "Est payé"
 
 #~ msgid "Category"
 #~ msgstr "Catégorie"

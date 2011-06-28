@@ -27,6 +27,7 @@ class AssistantsAppTestCase(CremeTestCase):
 
 class AssistantsTestCase(CremeTestCase):
     def setUp(self):
+        self.populate('creme_core')
         self.login()
         self.entity = CremeEntity.objects.create(user=self.user)
 

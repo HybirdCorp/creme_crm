@@ -133,6 +133,7 @@ class CommercialTestCase(CremeTestCase):
 
 class LoggedTestCase(CremeTestCase):
     def setUp(self):
+        self.populate('creme_core')
         self.login()
 
     def _create_segment(self):

@@ -26,7 +26,7 @@ from django.contrib.contenttypes.models import ContentType
 
 from creme_core.constants import REL_SUB_RELATED_TO, REL_OBJ_RELATED_TO
 from creme_core.models import Relation, CremeEntity
-from creme_core.gui.block import QuerysetBlock, list4url
+from creme_core.gui.block import Block, QuerysetBlock, list4url
 from creme_core.utils import jsonify #
 
 from persons.models import Contact, Organisation
@@ -39,6 +39,14 @@ from emails.models.mail import (MAIL_STATUS_SYNCHRONIZED_SPAM, MAIL_STATUS_SYNCH
                                 MAIL_STATUS_SENT, MAIL_STATUS_SYNCHRONIZED)
 
 from crudity.blocks import CrudityQuerysetBlock
+
+
+class EntityEmailBlock(Block):
+    id_           = Block.generate_id('emails', 'entity_email')
+    dependencies  = (EntityEmail,)
+    verbose_name  = u'Info on a e-mail'
+    template_name = 'emails/templatetags/block_mail.html'
+
 
 #TODO: move populate_credentials() code to a Block class in creme_core ???
 class _RelatedEntitesBlock(QuerysetBlock):

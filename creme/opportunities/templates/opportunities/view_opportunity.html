@@ -1,9 +1,5 @@
 {% extends "creme_core/generics/view_entity.html" %}
-{% load i18n %}
-{% load media %}
-{% load creme_core_tags %}{% load creme_block %}
-
-{% block logo %}<img src="{% media_url 'images/opportunity_64.png' %}" alt=""/>{% endblock %}
+{% load creme_block %}
 
 {% block creme_blocks_import %}
     {{block.super}}
@@ -33,43 +29,8 @@
 {% endblock %}
 
 {% block detail_view_left_1 %}
-    <table class="table_detail_view ui-corner-all">
-        {% get_block_header colspan=2 %}
-            <th style="width: 80%;" class="collapser">{% get_basic_block_header _("Opportunity information") 'infos_48.png' _('Information') %}</th>
-            <th style="width: 20%;" align="right"></th>
-        {% end_get_block_header %}
-        <tbody class="collapsable">
-            <!--{% cycle "block_header_line_dark" "block_header_line_light" as header_color %}
-                {% cycle "block_line_dark" "block_line_light" as row_color %}-->
-
-            {% for field in object|get_meta_value:"fields" %}
-                {% if not field.name in object.excluded_fields_in_html_output %}
-                    <tr>
-                        <th class="{% cycle header_color %} th_info">{{ field.verbose_name|title }}</th>
-                        <td class="{% cycle row_color %}  td_info">{{ object|get_html_field_value:field.name }}</td>
-                    </tr>
-                {% endif %}
-            {% endfor %}
-            <tr>
-                <th class="{% cycle header_color %} th_info">{% trans "Target organisation" %}</th>
-                <td class="{% cycle row_color %}  td_info">
-                    {% with object.get_target_orga as orga %}
-                        <a href="{{orga.get_absolute_url}}">{{orga}}</a>
-                    {% endwith %}
-                </td>
-            </tr>
-
-            <tr>
-                <th class="{% cycle header_color %} th_info">{% trans "Concerned organisation" %}</th>
-                <td class="{% cycle row_color %}  td_info">
-                    {% with object.get_emit_orga as orga %}
-                        <a href="{{orga.get_absolute_url}}">{{orga}}</a>
-                    {% endwith %}
-                </td>
-            </tr>
-        </tbody>
-    </table>
-    {% include "creme_core/customfields_as_table.html" %}
+    {% display_block_detailview 'object_block' %}
+    {% display_block_detailview 'customfields_block' %}
 
     {% display_block_detailview 'contacts_block' %}
 

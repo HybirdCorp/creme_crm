@@ -30,7 +30,7 @@ from django.utils.translation import ugettext_lazy as _
 from django.utils.simplejson import JSONEncoder
 
 from creme_core.models import (CremeEntity, Relation, RelationType,
-                               RelationBlockItem, InstanceBlockConfigItem)
+                               RelationBlockItem, InstanceBlockConfigItem, BlockState)
 
 def list4url(list_):
     """Special url list-to-string function"""
@@ -87,8 +87,8 @@ class Block(object):
 
     def detailview_display(self, context):
         """Overload this method to display a specific block (like Todo etc...) """
-        return u'VOID BLOCK FOR DETAILVIEW: %s, %s' % (self.id_, self.verbose_name)
-        #return self._render(self.get_block_template_context(context))
+        #return u'VOID BLOCK FOR DETAILVIEW: %s, %s' % (self.id_, self.verbose_name)
+        return self._render(self.get_block_template_context(context))
 
     def __get_context(self, request, base_url, block_name):
         """Retrieve block's context stored in the session.
@@ -103,7 +103,7 @@ class Block(object):
                 ...
             }
         Base url are opposite to ajax_url.
-        Eg: '/tickets/ticke/21' for base url, ajas url couild be '/creme_core/todo/reload/21/'.
+        Eg: '/tickets/ticket/21' for base url, ajax url could be '/creme_core/todo/reload/21/'.
         """
         modified = False
         session = request.session
@@ -127,6 +127,7 @@ class Block(object):
 
     def _build_template_context(self, context, block_name, block_context, **extra_kwargs):
         context['block_name'] = block_name
+        context['state']      = BlocksManager.get(context).get_state(self.id_)
         context.update(extra_kwargs)
 
         return context
@@ -321,6 +322,7 @@ class BlocksManager(object):
         self._blocks_groups = defaultdict(list)
         self._dep_solving_mode = False
         self._used_relationtypes = None
+        self._state_cache = None
 
     def add_group(self, group_name, *blocks):
         if self._dep_solving_mode:
@@ -386,13 +388,30 @@ class BlocksManager(object):
     def get(context):
         return context[BlocksManager.var_name] #will raise exception if not created: OK
 
+    def get_state(self, block_id):
+        """Get the state for a block and fill a cache to avoid multiple requests"""
+        _state_cache = self._state_cache
+        if not _state_cache:
+            _state_cache = self._state_cache = BlockState.get_for_block_ids([block.id_ for block in self._blocks])
+
+        state = _state_cache.get(block_id)
+        if state is None:
+            state = self._state_cache[block_id] = BlockState.get_for_block_id(block_id)
+            debug("State not set in cache for '%s'" % block_id)
+
+        return state
+
 
 class _BlockRegistry(object):
     """Use to retrieve a Block by its id.
     All Blocks should be registered in.
     """
+    class RegistrationError(Exception):
+        pass
+
     def __init__(self):
         self._blocks = {}
+        self._object_blocks = {}
 
     def register(self, *blocks):
         _blocks = self._blocks
@@ -400,10 +419,15 @@ class _BlockRegistry(object):
         for block in blocks:
             block_id = block.id_
 
-            if _blocks.has_key(block_id):
-                warning("Duplicate block's id or block registered twice : %s", block_id) #exception instead ???
+            if _blocks.has_key(block_id): #TODO: use setdefault() (see register_4_model())
+                #warning("Duplicate block's id or block registered twice : %s", block_id) #exception instead ???
+                raise _BlockRegistry.RegistrationError("Duplicate block's id or block registered twice : %s", block_id)
 
             _blocks[block_id] = block
+
+    def register_4_model(self, model, block):
+        if self._object_blocks.setdefault(model, block) is not block:
+            raise _BlockRegistry.RegistrationError("Duplicate block's id or block registered twice : %s", block.id_)
 
     def get_block(self, block_id):
         block = self._blocks.get(block_id)
@@ -474,6 +498,21 @@ class _BlockRegistry(object):
                 blocks.append(self.get_block(id_))
 
         return blocks
+
+    def get_block_4_object(self, obj):
+        """Return the Block that display fields for a CremeEntity"""
+        model = obj.__class__
+        block = self._object_blocks.get(model)
+
+        if not block:
+            block = Block()
+            block.id_ = Block.generate_id(model._meta.app_label, model.__name__.upper() + '_AUTO')
+            block.dependencies = (model,)
+            block.template_name = 'creme_core/templatetags/block_object.html'
+
+            self._object_blocks[model] = block
+
+        return block
 
     def get_compatible_blocks(self, model=None):
         """Returns the list of registered blocks that are configurable and compatible with the given ContentType.

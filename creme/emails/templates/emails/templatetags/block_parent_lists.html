@@ -1,6 +1,6 @@
 {% load i18n %}
 {% load creme_block %}{% load creme_widgets %}
-<table class="table_detail_view ui-corner-all" id={{block_name}}>
+<table class="table_detail_view ui-corner-all {{ state.classes }}" id={{block_name}}>
     {% get_block_header colspan=1 %}
         <th style="width: 80%;" class="collapser" align="left">{% get_block_title _('%s Parent list') _('%s Parent lists') 'email_48.png' 'Email' %}</th>
         <th style="width: 20%;" align="right"></th>

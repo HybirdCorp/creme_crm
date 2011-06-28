@@ -21,16 +21,21 @@
 from re import compile as compile_re
 
 from django.db.models import Q
-from django.template import TemplateSyntaxError, Node as TemplateNode
+from django.template import Library, Template, TemplateSyntaxError, Node as TemplateNode
 from django.template.defaulttags import TemplateLiteral
 from django.template.loader import get_template
-from django.template import Library, Template
 from django.utils.translation import ugettext, ungettext
 
 from creme_core.models import BlockConfigItem
 from creme_core.gui.block import Block, block_registry, BlocksManager
 
 register = Library()
+
+
+_HOME_BLOCKS       = 'home_blocks'
+_DETAILVIEW_BLOCKS = 'detailview_blocks'
+_PORTAL_BLOCKS     = 'portal_blocks'
+
 
 def _arg_in_quotes_or_die(arg, tag_name):
     first_char = arg[0]
@@ -127,6 +132,10 @@ def get_column_header(context, column_name, field_name):
     return context
 
 
+@register.inclusion_tag('creme_core/templatetags/widgets/block_empty_fields_button.html', takes_context=True)
+def get_toggle_empty_field_button(context):
+    return context
+
 #-------------------------------------------------------------------------------
 _LINE_CREATOR_RE = compile_re(r'at_url (.*?) with_label (.*?) with_perms (.*?)$')
 
@@ -184,7 +193,7 @@ def do_line_viewer(parser, token):
     return _do_line_creator(parser, token, 'creme_core/templatetags/widgets/block_line_viewer.html')
 
 #-------------------------------------------------------------------------------
-_LINE_RELATOR_RE = compile_re(r'to_subject (.*?) with_rtype_id (.*?) with_ct_id (.*?) with_label (.*?) with_perms (.*?)$')
+_LINE_RELATOR_RE = compile_re(r'to_subject (.*?) with_rtype_id (.*?) with_ct_id (.*?) with_label (.*?) with_perms (.*?)(\ssimple|\smultiple)?$')
 
 @register.tag(name="get_line_relator")
 def do_line_relator(parser, token):
@@ -198,31 +207,39 @@ def do_line_relator(parser, token):
     if not match:
         raise TemplateSyntaxError, "%r tag had invalid arguments" % tag_name
 
-    subject_str, type_id_str, ctype_id_str, label_str, perm_str = match.groups()
+    subject_str, type_id_str, ctype_id_str, label_str, perm_str, is_multiple = match.groups()
     compile_filter = parser.compile_filter
+
+    if is_multiple is not None:
+        is_multiple = (is_multiple.strip() == "multiple")
+    else:
+        is_multiple = True
 
     return LineRelatorNode(subject_var=TemplateLiteral(compile_filter(subject_str), subject_str),
                            rtype_id_var=TemplateLiteral(compile_filter(type_id_str), type_id_str),
                            ctype_id_var=TemplateLiteral(compile_filter(ctype_id_str), ctype_id_str),
                            label_var=TemplateLiteral(compile_filter(label_str), label_str),
-                           perm_var=TemplateLiteral(compile_filter(perm_str), perm_str)
+                           perm_var=TemplateLiteral(compile_filter(perm_str), perm_str),
+                           is_multiple=is_multiple
                           )
 
 class LineRelatorNode(TemplateNode):
-    def __init__(self, subject_var, rtype_id_var, ctype_id_var, label_var, perm_var):
+    def __init__(self, subject_var, rtype_id_var, ctype_id_var, label_var, perm_var, is_multiple):
         self.template = get_template('creme_core/templatetags/widgets/block_line_relator.html')
         self.subject_var  = subject_var
         self.rtype_id_var = rtype_id_var
         self.ctype_id_var = ctype_id_var
         self.label_var    = label_var
         self.perm_var     = perm_var
+        self.is_multiple  = is_multiple
 
     def render(self, context):
-        context['subject_id'] = self.subject_var.eval(context).id
-        context['rtype_id']   = self.rtype_id_var.eval(context)
-        context['ct_id']      = self.ctype_id_var.eval(context)
-        context['label']      = self.label_var.eval(context)
-        context['line_perm']  = self.perm_var.eval(context)
+        context['subject_id']   = self.subject_var.eval(context).id
+        context['rtype_id']     = self.rtype_id_var.eval(context)
+        context['ct_id']        = self.ctype_id_var.eval(context)
+        context['label']        = self.label_var.eval(context)
+        context['line_perm']    = self.perm_var.eval(context)
+        context['is_multiple']  = self.is_multiple
 
         return self.template.render(context)
 
@@ -386,6 +403,32 @@ class BlockDetailViewerNode(TemplateNode):
         return block.detailview_display(context)
 
 
+@register.tag(name="import_object_block")
+def do_object_block_importer(parser, token):
+    """Eg: {% import_object_block object=object as 'object_block' %}"""
+    split = token.contents.split()
+    tag_name = split[0]
+
+    if len(split) != 3:
+        raise TemplateSyntaxError, "%r tag requires 2 arguments" % tag_name
+
+    if split[1] != 'as':
+        raise TemplateSyntaxError, "%r tag had invalid arguments" % tag_name
+
+    alias = split[2]
+    _arg_in_quotes_or_die(alias, tag_name)
+
+    return ObjectBlockImporterNode(alias=alias[1:-1])
+
+class ObjectBlockImporterNode(TemplateNode):
+    def __init__(self, alias):
+        self.alias = alias
+
+    def render(self, context):
+        BlocksManager.get(context).add_group(self.alias, block_registry.get_block_4_object(context['object']))
+        return ''
+
+
 @register.tag(name="import_detailview_blocks")
 def do_detailview_blocks_importer(parser, token):
     return DetailviewBlocksImporterNode()
@@ -397,10 +440,10 @@ class DetailviewBlocksImporterNode(TemplateNode):
                                           .order_by('order')
         block_ids = [bc_item.block_id for bc_item in bc_items if bc_item.content_type_id is not None]
 
-        if not block_ids:
+        if not block_ids: #TODO: use a 'or' instead of 'if'
             block_ids = [bc_item.block_id for bc_item in bc_items] #we fallback to the default config.
 
-        blocks_manager.add_group('detailview_blocks', *block_registry.get_blocks([id_ for id_ in block_ids if id_])) #TODO: use CONSTANT
+        blocks_manager.add_group(_DETAILVIEW_BLOCKS , *block_registry.get_blocks([id_ for id_ in block_ids if id_]))
 
         return ''
 
@@ -413,7 +456,7 @@ class DetailviewBlocksDisplayerNode(TemplateNode):
     def block_outputs(self, context):
         model = context['object'].__class__
 
-        for block in BlocksManager.get(context).pop_group('detailview_blocks'):
+        for block in BlocksManager.get(context).pop_group(_DETAILVIEW_BLOCKS ):
             target_ctypes = block.target_ctypes
 
             if target_ctypes and not model in target_ctypes:
@@ -472,7 +515,7 @@ class PortalBlocksImporterNode(TemplateNode):
     def render(self, context):
         blocks_manager = BlocksManager.get(context)
         ct_ids = context[self.ct_ids_varname]
-        bc_items = BlockConfigItem.objects.filter(Q(content_type=None) | Q(content_type__in=ct_ids), on_portal=True) \
+        bc_items = BlockConfigItem.objects.filter(Q(content_type=None) | Q(content_type__in=ct_ids)) \
                                           .order_by('order')
 
         ctypes_filter     = set(ct_ids)
@@ -485,13 +528,14 @@ class PortalBlocksImporterNode(TemplateNode):
         used_blocks = set()
 
         for bc_item in bc_items:
-            block_id = bc_item.block_id
+            if bc_item.on_portal:
+                block_id = bc_item.block_id
 
-            if (block_id not in used_blocks) and (bc_item.content_type_id in ctypes_filter):
-                used_blocks.add(block_id)
-                block_ids.append(block_id)
+                if (block_id not in used_blocks) and (bc_item.content_type_id in ctypes_filter):
+                    used_blocks.add(block_id)
+                    block_ids.append(block_id)
 
-        blocks_manager.add_group('portal_blocks', *block_registry.get_blocks([id_ for id_ in block_ids if id_])) #TODO: use CONSTANT
+        blocks_manager.add_group(_PORTAL_BLOCKS, *block_registry.get_blocks([id_ for id_ in block_ids if id_]))
 
         return ''
 
@@ -506,7 +550,7 @@ class PortalBlocksDisplayerNode(TemplateNode):
         self.ct_ids_varname = ct_ids_varname
 
     def block_outputs(self, context):
-        blocks = BlocksManager.get(context).pop_group('portal_blocks')
+        blocks = BlocksManager.get(context).pop_group(_PORTAL_BLOCKS)
         ct_ids = context[self.ct_ids_varname]
 
         for block in blocks:
@@ -529,7 +573,7 @@ class HomeBlocksImporterNode(TemplateNode):
     def render(self, context):
         blocks_manager = BlocksManager.get(context)
         block_ids = BlockConfigItem.objects.filter(content_type=None, on_portal=True).order_by('order').values_list('block_id', flat=True)
-        blocks_manager.add_group('home_blocks', *block_registry.get_blocks([id_ for id_ in block_ids if id_])) #TODO: use CONSTANT
+        blocks_manager.add_group(_HOME_BLOCKS, *block_registry.get_blocks([id_ for id_ in block_ids if id_]))
 
         return ''
 
@@ -540,7 +584,7 @@ def do_home_blocks_displayer(parser, token):
 
 class HomeBlocksDisplayerNode(TemplateNode):
     def block_outputs(self, context):
-        for block in BlocksManager.get(context).pop_group('home_blocks'): #TODO: use CONSTANT
+        for block in BlocksManager.get(context).pop_group(_HOME_BLOCKS):
             home_display = getattr(block, 'home_display', None)
 
             if home_display is not None:
@@ -627,3 +671,40 @@ class BlocksDisplayerNode(TemplateNode):
 
     def render(self, context):
         return ''.join(op for op in self.block_outputs(context))
+
+#-------------------------------------------------------------------------------
+_LISTVIEW_BUTTON_RE = compile_re(r'with_ct_id (.*?) with_label (.*?) with_q_filter (.*?)$')
+
+@register.tag(name="get_listview_button")
+def do_line_relator(parser, token):
+    """Eg: {% get_listview_button with_ct_id ct_id with_label _("List of related products") with_q_filter q_filter %}"""
+    try:
+        tag_name, arg = token.contents.split(None, 1) # Splitting by None == splitting by spaces.
+    except ValueError:
+        raise TemplateSyntaxError, "%r tag requires arguments" % token.contents.split()[0]
+
+    match = _LISTVIEW_BUTTON_RE.search(arg)
+    if not match:
+        raise TemplateSyntaxError, "%r tag had invalid arguments" % tag_name
+
+    ctype_id_str, label_str, q_filter_str = match.groups()
+    compile_filter = parser.compile_filter
+
+    return ListViewButtonNode(ctype_id_var=TemplateLiteral(compile_filter(ctype_id_str), ctype_id_str),
+                              label_var=TemplateLiteral(compile_filter(label_str), label_str),
+                              q_filter_var=TemplateLiteral(compile_filter(q_filter_str), q_filter_str),
+                             )
+
+class ListViewButtonNode(TemplateNode):
+    def __init__(self, ctype_id_var, label_var, q_filter_var):
+        self.template = get_template('creme_core/templatetags/widgets/block_listview_button.html')
+        self.ctype_id_var = ctype_id_var
+        self.label_var    = label_var
+        self.q_filter_var = q_filter_var
+
+    def render(self, context):
+        context['ct_id']    = self.ctype_id_var.eval(context)
+        context['label']    = self.label_var.eval(context)
+        context['q_filter'] = self.q_filter_var.eval(context) or dict()
+
+        return self.template.render(context)

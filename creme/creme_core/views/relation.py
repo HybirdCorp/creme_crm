@@ -283,7 +283,7 @@ def delete_similar(request):
     return HttpResponseRedirect(subject.get_real_entity().get_absolute_url())
 
 @login_required
-def objects_to_link_selection(request, rtype_id, subject_id, object_ct_id, o2m=False):
+def objects_to_link_selection(request, rtype_id, subject_id, object_ct_id, o2m=False, *args, **kwargs):
     """Display an inner popup to select entities to link as relations' objects.
     @param rtype_id RelationType id of the future relations.
     @param subject_id Id of the entity used as subject for relations.
@@ -311,6 +311,10 @@ def objects_to_link_selection(request, rtype_id, subject_id, object_ct_id, o2m=F
     prop_types = list(rtype.object_properties.all())
     if prop_types:
         extra_q &= Q(properties__type__in=prop_types)
+
+    extra_q_kw = kwargs.get('extra_q')
+    if extra_q_kw is not None:
+        extra_q &= extra_q_kw
 
     #return list_view_popup_from_widget(request, object_ct_id, o2m, extra_dict=template_dict, extra_q=extra_q)
     return list_view_popup_from_widget(request, object_ct_id, o2m, extra_q=extra_q)

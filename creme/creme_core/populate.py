@@ -22,6 +22,7 @@ from logging import info
 
 from django.utils.translation import ugettext as _
 from django.contrib.auth.models import User
+from creme_config.models.setting import SettingKey, SettingValue
 
 from creme_core.models import *
 from creme_core.utils import create_or_update as create
@@ -55,3 +56,15 @@ class Populator(BasePopulator):
                             'login':    login,
                             'password': password,
                         })
+
+        sk = SettingKey.create(pk=SETTING_BLOCK_DEFAULT_STATE_IS_OPEN,
+                       description=_(u"By default, is blocks are open?"),
+                       app_label='creme_core', type=SettingKey.BOOL
+                              )
+        SettingValue.objects.create(key=sk, user=None, value=True)
+
+        sk2 = SettingKey.create(pk=SETTING_BLOCK_DEFAULT_STATE_SHOW_EMPTY_FIELDS,
+                       description=_(u"By default, are empty fields are displayed?"),
+                       app_label='creme_core', type=SettingKey.BOOL
+                              )
+        SettingValue.objects.create(key=sk2, user=None, value=True)

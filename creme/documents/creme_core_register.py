@@ -21,9 +21,7 @@
 from django.utils.translation import ugettext_lazy as _
 
 from creme_core.registry import creme_registry
-from creme_core.gui.menu import creme_menu
-from creme_core.gui.block import block_registry
-from creme_core.gui.bulk_update import bulk_update_registry
+from creme_core.gui import creme_menu, block_registry, icon_registry, bulk_update_registry
 
 from documents.models import Document, Folder
 from documents.blocks import folder_docs_block, linked_docs_block
@@ -40,6 +38,10 @@ reg_item('/documents/folders',      _(u'All folders'),   'documents')
 reg_item('/documents/folder/add',   _('Add a folder'),   'documents.add_folder')
 
 block_registry.register(folder_docs_block, linked_docs_block)
+
+reg_icon = icon_registry.register
+reg_icon(Document, 'images/document_%(size)s.png')
+reg_icon(Folder,   'images/document_%(size)s.png')
 
 bulk_update_registry.register(
     (Document, ['filedata']),

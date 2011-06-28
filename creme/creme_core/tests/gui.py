@@ -21,6 +21,7 @@ __all__ = ('GuiTestCase', 'ListViewStateTestCase')
 
 class GuiTestCase(CremeTestCase):
     def setUp(self):
+        self.populate('creme_core')
         self.bulk_update_registry = BulkUpdateRegistry()
 
     def test_last_viewed_items(self):

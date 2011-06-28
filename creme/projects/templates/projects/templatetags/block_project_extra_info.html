@@ -1,18 +1,18 @@
 {% load i18n %}
 {% load creme_block %}
-<table  class="table_detail_view ui-corner-all" id={{block_name}}>
+<table class="table_detail_view ui-corner-all {{ state.classes }}" id={{block_name}}>
     {% get_block_header colspan=2 %}
         <th style="width: 80%;" class="collapser">{% get_basic_block_header _('Other information') 'infos_48.png' _('Information') %}</th>
         <th style="width: 20%;" align="right"></th>
     {% end_get_block_header %}
     <tbody class="collapsable">
         <tr>
-            <th class="block_header_line_dark">{% trans "Total cost of the projet (€)" %}</th>
-            <td class="block_line_dark" align="center"><strong>{{object.get_project_cost}} €</strong></td>
+            <th class="block_header_line_dark th_info">{% trans "Total cost of the projet (€)" %}</th>
+            <td class="block_line_dark td_info" align="center"><strong>{{object.get_project_cost}} €</strong></td>
         </tr>
         <tr>
-            <th class="block_header_line_dark">{% trans "Total overtime (in hours)" %}</th>
-            <td class="block_line_dark" align="center">
+            <th class="block_header_line_dark th_info">{% trans "Total overtime (in hours)" %}</th>
+            <td class="block_line_dark td_info" align="center">
             {% if object.get_delay %}
                 <strong>{{object.get_delay}} h</strong>
             {% else %}

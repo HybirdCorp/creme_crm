@@ -3,8 +3,6 @@
 {% load media %}
 {% load creme_block %}
 
-{% block logo %}<img src="{% media_url 'images/invoice_64.png' %}" alt=""/>{% endblock %}
-
 {% block creme_blocks_import %}
     {{block.super}}
 
@@ -31,8 +29,8 @@
 {% endblock %}
 
 {% block detail_view_left_1 %}
-    {% include "creme_core/object_as_table.html" %}
-
+    {% display_block_detailview 'object_block' %}
+    {% display_block_detailview 'customfields_block' %}
     {% display_block_detailview 'billing_payment_information_block' %}
     {% display_block_detailview 'address_block' %}
     {% display_block_detailview 'properties_block' %}

@@ -1,6 +1,6 @@
 {% load i18n %}
 {% load creme_core_tags %}{% load creme_block %}{% load creme_widgets %}
-<table class="table_detail_view ui-corner-all" id={{block_name}}>
+<table class="table_detail_view ui-corner-all {{ state.classes }}" id={{block_name}}>
     {% get_block_header colspan=5 %}
         <th style="width: 80%;" class="collapser" align="left">{% get_block_title _('%s Memo') _('%s Memos') 'memo_48.png' _('Memo') %}</th>
         <th style="width: 20%;" align="right">
@@ -28,9 +28,9 @@
                     {% if not object %}
                         <td class="{{row_color}}">{% widget_entity_hyperlink memo.creme_entity user %}</td>
                     {% endif %}
-                    <td class="{{row_color}}">{{memo|get_html_field_value:"user"}}</td>
+                    <td class="{{row_color}}">{% print_field object=memo field='user' %}</td>
                     <td class="{{row_color}}">{{memo.creation_date|date:"d/m/y"}}</td>
-                    <td class="{{row_color}}">{{memo|get_html_field_value:"content"|linebreaks}}</td>
+                    <td class="{{row_color}}">{% print_field object=memo field='content' %}</td>
                     <td class="{{row_color}}" align="center" valign="center" style="width:10%;">
                         {% has_perm_to change memo.creme_entity as has_perm %}
                         {% get_line_editor at_url '/assistants/memo/edit/{{memo.id}}/' with_perms has_perm %}

@@ -38,7 +38,7 @@ class UserMobileSyncConfigBlock(Block):
     verbose_name  = _(u'Mobile synchronization')
     template_name = 'activesync/templatetags/block_user_mobile_sync.html'
     permission    = None
-    
+
     def detailview_display(self, context):
         request = context.get('request')
 
@@ -50,7 +50,7 @@ class UserMobileSyncConfigBlock(Block):
         ssl      = undefined
         username = undefined
         password = ""
-        
+
         if request:
             user    = request.user
 
@@ -86,7 +86,7 @@ class UserMobileSyncConfigBlock(Block):
                 pass
 
             try:
-                password = sv_get(key__id=USER_MOBILE_SYNC_SERVER_PWD, user=user).value
+                password = sv_get(key__id=USER_MOBILE_SYNC_SERVER_PWD, user=user).value#TODO: It's the ciphered value but it's just for display. Is it a problem ?
             except SettingValue.DoesNotExist:
                 pass
 
@@ -138,7 +138,7 @@ class UserSynchronizationHistoryBlock(QuerysetBlock):
                                               contact_klass=Contact,
                                               update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, user.pk))
 
-        
+
         return self._render(btc)
 
 

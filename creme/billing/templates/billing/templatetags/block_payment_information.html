@@ -1,6 +1,6 @@
 {% load i18n %}{% load media %}
 {% load creme_core_tags creme_block %}
-<table  class="table_detail_view ui-corner-all" id={{block_name}}>
+<table class="table_detail_view ui-corner-all {{ state.classes }}" id={{block_name}}>
     {% get_block_header colspan=6 %}
         <th style="width: 80%;" class="collapser" align="left">{% get_block_title _('%s Payment information') _('%s Payments information') 'money_info_48.png' _('Payment information') %}</th>
         <th style="width: 20%;" align="right">
@@ -49,7 +49,7 @@
                     </td>
                     <td class="{{row_color}}">{{payment_info.iban}}</td>
                     <td class="{{row_color}}">{{payment_info.bic}}</td>
-                    <td class="{{row_color}}">{{payment_info|get_html_field_value:"is_default"}}</td>
+                    <td class="{{row_color}}">{% print_field object=payment_info field='is_default' %}</td>
                     <td class="{{row_color}}" align="center" valign="center" style="width:10%;">
                         {% get_line_editor at_url '/billing/payment_information/edit/{{payment_info.id}}' with_perms has_perm %}
                         {% get_line_deletor at_url '/creme_core/entity/delete_related/{{ct_id}}' with_args "{'id' : {{payment_info.id}} }" with_perms has_perm %}

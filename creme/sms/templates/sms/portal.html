@@ -8,6 +8,6 @@
 {% block before_statistics %}
     {{block.super}}
     {% with account as object %}
-        {% include "creme_core/object_as_table.html" %}
+        {% include "creme_core/templatetags/block_object.html" %}
     {% endwith %}
 {% endblock %}

@@ -1,14 +1,15 @@
 {% extends "creme_core/detailview.html" %}
 {% load i18n %}
 {% load media %}
-{% load creme_core_tags %}{% load creme_queryset %}{% load report_tags %}{% load graph_tags %}
+{% load creme_core_tags %}{% load creme_widgets %}{% load creme_queryset %}
+{% load report_tags %}{% load graph_tags %}
 
 {% block page_title %} - {% blocktrans %}Rendered {{object}}{% endblocktrans %}{% endblock %}
 
 {% block before_content_1 %}
     <table class="table_header" cellpadding="0" cellspacing="0">
         <tr>
-            <td width="5%"><img src="{% media_url 'images/graph_64.png' %}" alt="{% trans "Graph" %}"/></td>
+            <td width="5%">{% get_image_for_object object 'big' %}</td>
             <td width="70%">
                 <h1>
                     {% blocktrans with object|get_meta_value:"verbose_name"|title as verbose_name and object|title as title %}Rendered {{verbose_name}} : {{title}}{% endblocktrans %}

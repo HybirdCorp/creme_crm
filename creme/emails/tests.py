@@ -17,7 +17,8 @@ from emails.models.sending import SENDING_TYPE_IMMEDIATE, SENDING_TYPE_DEFERRED
 
 class CampaignTestCase(CremeTestCase):
     def setUp(self):
-        #self.populate('creme_core', 'emails')
+        self.populate('creme_core')
+#        self.populate('creme_core', 'emails')
         self.login()
 
     def test_create(self):
@@ -61,6 +62,7 @@ class CampaignTestCase(CremeTestCase):
 
 class MailingListsTestCase(CremeTestCase):
     def setUp(self):
+        self.populate('creme_core')
         self.login()
 
     def test_create01(self):
@@ -366,6 +368,7 @@ class MailingListsTestCase(CremeTestCase):
 
 class TemplatesTestCase(CremeTestCase):
     def setUp(self):
+        self.populate('creme_core')
         self.login()
 
     def test_createview01(self): #TODO: test attachments too
@@ -576,8 +579,9 @@ class SendingsTestCase(CremeTestCase):
 
 
 class SignaturesTestCase(CremeTestCase):
-    #def setUp(self):
-        #self.login()
+    def setUp(self):
+        self.populate('creme_core')
+#        self.login()
 
     def login(self, is_superuser=True):
         super(SignaturesTestCase, self).login(is_superuser, allowed_apps=['emails'])

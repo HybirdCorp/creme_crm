@@ -279,7 +279,7 @@ class RelatedActivityCreateForm(ActivityCreateForm):
             if entity_for_relation.is_user:
                 self.fields['participating_users'].initial = [entity_for_relation.is_user]
             else:
-                self.fields['other_participants'].initial = entity_for_relation.id
+                self.fields['other_participants'].initial = [entity_for_relation.id]
         elif rtype_id == REL_SUB_ACTIVITY_SUBJECT:
             self.fields['subjects'].initial = [entity_for_relation]
         else:

@@ -923,6 +923,25 @@ textarea:disabled, textarea[readonly] {
     color: #fff;
 }
 
+/* Toggle view */
+.buttons a.view_more{
+    min-width: 0;
+    background-image: url("images/view_more_22.png");
+    background-repeat: no-repeat;
+    background-position: center center;
+    height: 16px;
+    width: 16px;
+}
+
+.buttons a.view_less{
+    min-width: 0;
+    background-image: url("images/view_less_22.png");
+    background-repeat: no-repeat;
+    background-position: center center;
+    height: 16px;
+    width: 16px;
+}
+
 .collapser {
     cursor: pointer;
 }

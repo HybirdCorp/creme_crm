@@ -13,7 +13,7 @@ from activities.constants import *
 
 class CTITestCase(CremeTestCase):
     def setUp(self):
-        self.populate('activities')
+        self.populate('creme_core', 'activities')
 
     def login(self):
         super(CTITestCase, self).login()

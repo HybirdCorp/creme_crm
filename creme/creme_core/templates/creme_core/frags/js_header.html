@@ -1,6 +1,10 @@
 {% load media %}
 <script type='text/javascript'>
     var creme = {};
+    if(!window.console) {
+        window.console = {};
+        window.console.log = function(){};
+    }
 </script>
 {% include_media 'l10n.js' language=LANGUAGE_CODE %}
 {% include_media 'main.js' %}

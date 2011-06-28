@@ -1,0 +1,32 @@
+{% load i18n %}
+{% load creme_core_tags creme_block %}
+<table class="table_detail_view ui-corner-all {{ state.classes }}" id={{block_name}}>
+    {% get_block_header colspan=2 %}
+        <th style="width: 80%;" align="left" class="collapser">{% get_basic_block_header _("Coordinates") %}</th>
+        <th style="width: 20%;" align="right">
+            <div class="buttons">
+                {% get_toggle_empty_field_button %}
+            </div>
+        </th>
+    {% end_get_block_header %}
+    <tbody class="collapsable">
+        <!--{% cycle "block_header_line_dark" "block_header_line_light" as header_color %}
+            {% cycle "block_line_dark" "block_line_light" as row_color %} -->
+        <tr>
+            <th class="{% cycle header_color %} th_info">{% trans "Phone" %}</th>
+            <td class="{% cycle row_color %} td_info">{% print_field object=object field='phone' %}</td>
+        </tr>
+        <tr>
+            <th class="{% cycle header_color %} th_info">{% trans "Fax" %}</th>
+            <td class="{% cycle row_color %} td_info">{% print_field object=object field='fax' %}</td>
+        </tr>
+        <tr>
+            <th class="{% cycle header_color %} th_info">{% trans "E-mail" %}</th>
+            <td class="{% cycle row_color %} td_info">{% print_field object=object field='email' %}</td>
+        </tr>
+        <tr>
+            <th class="{% cycle header_color %} th_info">{% trans "Web Site" %}</th>
+            <td class="{% cycle row_color %} td_info">{% print_field object=object field='url_site' %}</td>
+        </tr>
+    </tbody>
+</table>

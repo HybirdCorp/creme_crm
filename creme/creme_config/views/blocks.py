@@ -25,7 +25,7 @@ from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.contenttypes.models import ContentType
 
-from creme_core.models import BlockConfigItem, RelationBlockItem, InstanceBlockConfigItem
+from creme_core.models import BlockConfigItem, RelationBlockItem, InstanceBlockConfigItem, BlockState
 from creme_core.views.generic import add_model_with_popup, inner_popup
 from creme_core.utils import get_from_POST_or_404
 
@@ -112,6 +112,8 @@ def delete_relation_block(request):
 @login_required
 @permission_required('creme_config.can_admin')
 def delete_instance_block(request):
-    get_object_or_404(InstanceBlockConfigItem, pk=get_from_POST_or_404(request.POST, 'id')).delete()
+    block_id = get_from_POST_or_404(request.POST, 'id')
+    get_object_or_404(InstanceBlockConfigItem, pk=block_id).delete()
+    BlockState.objects.filter(block_id=block_id).delete()
 
     return HttpResponse()

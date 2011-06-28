@@ -11,7 +11,7 @@ from tickets.models.status import BASE_STATUS, OPEN_PK, CLOSED_PK, INVALID_PK
 
 class TicketTestCase(CremeTestCase):
     def setUp(self):
-        self.populate('tickets')
+        self.populate('creme_core', 'tickets')
 
     def test_populate(self):
         for pk, name in BASE_STATUS:
@@ -269,7 +269,7 @@ class TicketTestCase(CremeTestCase):
 
 class TicketTemplateTestCase(CremeTestCase):
     def setUp(self):
-        self.populate('tickets')
+        self.populate('creme_core', 'tickets')
 
     def create_template(self, title, description='description', status=None):
         status = status or Status.objects.get(pk=OPEN_PK)

@@ -1,5 +1,5 @@
 # FR LOCALISATION OF 'PERSONS' APP
-# Copyright (C) 2010 Hybird
+# Copyright (C) 2011 Hybird
 # This file is distributed under the same license as the Creme package.
 #
 #, fuzzy
@@ -713,7 +713,7 @@ msgstr "Société délaissée"
 
 #: templates/persons/templatetags/block_neglected_orgas.html:21
 msgid "No neglected organisation for the moment"
-msgstr "Aucune société délaissée lié pour le moment"
+msgstr "Aucune société délaissée pour le moment"
 
 #: templates/persons/templatetags/block_other_address.html:6
 #, python-format
