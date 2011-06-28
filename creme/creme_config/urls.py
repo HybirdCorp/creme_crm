@@ -78,6 +78,11 @@ urlpatterns = patterns('creme_config.views',
     (r'^search/edit/(?P<search_config_id>\d+)$', 'search.edit'),
     (r'^search/delete$',                         'search.delete'),
 
+    #History
+    (r'^history/portal/$', 'history.portal'),
+    (r'^history/add/$',    'history.add'),
+    (r'^history/delete$',  'history.delete'),
+
     #Settings
     (r'^setting/edit/(?P<svalue_id>\d+)$',    'setting.edit'),
     (r'^settings/(?P<app_name>\w+)/reload/$', 'setting.reload_block'),

@@ -32,6 +32,34 @@ from persons.models import Contact, Organisation, Address
 from persons.constants import *
 
 
+class ContactBlock(Block):
+    id_           = Block.generate_id('persons', 'contact')
+    dependencies  = (Contact,)
+    verbose_name  = u'Info on a contact'
+    template_name = 'persons/templatetags/block_contact.html'
+
+
+class ContactCoordinatesBlock(Block):
+    id_           = Block.generate_id('persons', 'contact_coordinates')
+    dependencies  = (Contact,)
+    verbose_name  = u'Coordinates of a contact'
+    template_name = 'persons/templatetags/block_contact_coordinates.html'
+
+
+class OrganisationBlock(Block):
+    id_           = Block.generate_id('persons', 'organisation')
+    dependencies  = (Organisation,)
+    verbose_name  = u'Info on a organisation'
+    template_name = 'persons/templatetags/block_organisation.html'
+
+
+class OrgaCoordinatesBlock(Block):
+    id_           = Block.generate_id('persons', 'orga_coordinates')
+    dependencies  = (Organisation,)
+    verbose_name  = u'Coordinates of an organisation'
+    template_name = 'persons/templatetags/block_orga_coordinates.html'
+
+
 class ManagersBlock(QuerysetBlock):
     id_           = QuerysetBlock.generate_id('persons', 'managers')
     dependencies  = (Relation,) #Contact
@@ -161,9 +189,12 @@ class OtherAddressBlock(QuerysetBlock):
                                                             ct_id=ContentType.objects.get_for_model(Address).id,
                                                            ))
 
-
-address_block = AddressBlock()
-other_address_block = OtherAddressBlock()
-managers_block  = ManagersBlock()
-employees_block = EmployeesBlock()
-neglected_orgas_block = NeglectedOrganisationsBlock()
+block_list = (
+        ContactCoordinatesBlock(),
+        OrgaCoordinatesBlock(),
+        AddressBlock(),
+        OtherAddressBlock(),
+        ManagersBlock(),
+        EmployeesBlock(),
+        NeglectedOrganisationsBlock(),
+    )

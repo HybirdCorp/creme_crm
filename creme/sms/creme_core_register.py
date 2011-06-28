@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2011  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -21,8 +21,7 @@
 from django.utils.translation import ugettext_lazy as _
 
 from creme_core.registry import creme_registry
-from creme_core.gui.menu import creme_menu
-from creme_core.gui.block import block_registry
+from creme_core.gui import creme_menu, block_registry, icon_registry
 
 from sms.models import SMSCampaign, MessagingList, MessageTemplate
 from sms.blocks import messaging_lists_block, recipients_block, contacts_block, messages_block, sendings_block
@@ -41,3 +40,8 @@ reg_item('/sms/templates',          _(u'All message templates'),  'sms')
 reg_item('/sms/template/add',       _(u'Add a message template'), 'sms.add_messagetemplate')
 
 block_registry.register(messaging_lists_block, recipients_block, contacts_block, messages_block, sendings_block)
+
+reg_icon = icon_registry.register
+reg_icon(SMSCampaign,     'images/sms_%(size)s.png')
+reg_icon(MessagingList,   'images/sms_%(size)s.png')
+reg_icon(MessageTemplate, 'images/sms_%(size)s.png')

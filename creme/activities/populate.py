@@ -19,16 +19,20 @@
 ################################################################################
 
 from django.contrib.auth.models import User
+from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import ugettext as _
 
 from creme_core.models import RelationType, BlockConfigItem, ButtonMenuItem, SearchConfigItem, HeaderFilterItem, HeaderFilter
 from creme_core.utils import create_or_update as create
 from creme_core.management.commands.creme_populate import BasePopulator
+from creme_core.utils.id_generator import generate_string_id_and_save
+
+from creme_config.constants import USER_SETTINGS_BLOCK_PREFIX
 
 from persons.models import Contact
 
 from activities.models import *
-from activities.blocks import future_activities_block, past_activities_block
+from activities.blocks import future_activities_block, past_activities_block, user_calendars_block
 from activities.buttons import add_meeting_button, add_phonecall_button, add_task_button
 from activities.constants import *
 
@@ -84,3 +88,8 @@ class Populator(BasePopulator):
 
         for user in User.objects.all():
             Calendar.get_user_default_calendar(user)
+
+        if not BlockConfigItem.objects.filter(block_id__in=[user_calendars_block.id_]).exists():
+            generate_string_id_and_save(BlockConfigItem,
+                                        [BlockConfigItem(content_type=ContentType.objects.get_for_model(User), block_id=user_calendars_block.id_, order=1, on_portal=False)],
+                                        USER_SETTINGS_BLOCK_PREFIX)

@@ -20,6 +20,9 @@ from persons.models import Contact, Organisation, Position, Sector
 
 
 class EntityViewsTestCase(ViewsTestCase):
+    def setUp(self):
+        self.populate('creme_core')
+
     def test_get_fields(self):
         self.login()
 

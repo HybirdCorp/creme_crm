@@ -1,7 +1,7 @@
 {% load i18n %}
 {% load creme_block %}{% load creme_core_tags %}
 {% if page.paginator.num_pages != 1 %}
-    <tfooter class="collapsable">
+    <tfoot class="collapsable">
         <tr>
             <td colspan="100" class="block_header_line_dark">
                 {% if page.has_previous %}
@@ -23,5 +23,5 @@
                 </select>
             </td>
         </tr>
-    </tfooter>
+    </tfoot>
 {% endif %}

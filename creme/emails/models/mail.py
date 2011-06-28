@@ -208,3 +208,6 @@ class EntityEmail(_Email, CremeEntity):
 
     def _pre_save_clone(self, source):
         self.genid_n_save()
+
+    def get_edit_absolute_url(self):
+        return ""

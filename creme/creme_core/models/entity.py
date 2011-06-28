@@ -24,7 +24,7 @@ from logging import debug
 from django.db import models
 from django.db.models import ForeignKey
 from django.core.exceptions import PermissionDenied
-from django.utils.encoding import force_unicode
+#from django.utils.encoding import force_unicode
 from django.utils.html import escape
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _, ugettext
@@ -257,14 +257,26 @@ class CremeEntity(CremeAbstractEntity):
                 entity._cvalues_map[cf_id] = cvalues_map[entity_id].get(cf_id, u'')
                 debug(u'Fill custom value cache entity_id=%s cfield_id=%s', entity_id, cf_id)
 
-    def get_entity_summary(self):
-        return escape(unicode(self))
+    def get_entity_summary(self, user):
+        #return escape(unicode(self))
+        return escape(self.allowed_unicode(user))
+
+    def get_entity_m2m_summary(self, user):
+        """Return a string summary useful for list (ie: <ul><li>) representation."""
+        if not self.can_view(user):
+            return self.allowed_unicode(user)
+
+        return '<a target="_blank" href="%s">%s</a></li>' % (self.get_absolute_url(), escape(unicode(self)))
 
     def get_actions(self, user): #TODO: improve icon/css class management....
-        actions = [EntityAction(self.get_edit_absolute_url(), ugettext(u"Edit"),
+        actions = []
+
+        edit_url = self.get_edit_absolute_url()
+        if edit_url:
+            actions.append(EntityAction(edit_url, ugettext(u"Edit"),
                                 self.can_change(user), icon="images/edit_16.png"
                                )
-                  ]
+                           )
 
         delete_url = self.get_delete_absolute_url()
         if delete_url:
@@ -378,6 +390,10 @@ class CremeEntity(CremeAbstractEntity):
         """Called just after saving the entity (m2m and custom fields are not already cloned & saved)"""
         pass
 
+    def _post_clone(self, source):
+        """Called after all clone operations (object cloned with all his m2m, custom values, properties and relations"""
+        pass
+
     def _clone_m2m(self, source):
         """Handle the clone of all many to many fields"""
         for field in source._meta.many_to_many:
@@ -428,6 +444,7 @@ class CremeEntity(CremeAbstractEntity):
         new_entity._copy_properties(self)#TODO: Add which properties types to include ?
         new_entity._copy_relations(self)#TODO: Add which relations types to include ?
 
+        new_entity._post_clone(self)
         return new_entity
 
 

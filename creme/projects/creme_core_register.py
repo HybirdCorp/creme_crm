@@ -21,8 +21,7 @@
 from django.utils.translation import ugettext_lazy as _
 
 from creme_core.registry import creme_registry
-from creme_core.gui.menu import creme_menu
-from creme_core.gui.block import block_registry
+from creme_core.gui import creme_menu, block_registry, icon_registry
 
 from projects.models import Project, ProjectTask
 from projects.blocks import block_list
@@ -37,3 +36,7 @@ reg_item('/projects/projects',    _('All projects'),  'projects')
 reg_item('/projects/project/add', _('Add a project'), 'projects.add_project')
 
 block_registry.register(*block_list)
+
+reg_icon = icon_registry.register
+reg_icon(Project,     'images/project_%(size)s.png')
+reg_icon(ProjectTask, 'images/task_%(size)s.png')

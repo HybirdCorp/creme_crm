@@ -183,7 +183,12 @@ class BlocksConfigBlock(_ConfigAdminBlock):
     template_name = 'creme_config/templatetags/block_blocksconfig.html'
 
     def detailview_display(self, context):
-        ct_ids = BlockConfigItem.objects.exclude(content_type=None).distinct().values_list('content_type_id', flat=True)
+        ct_user = ContentType.objects.get_for_model(User)
+        #Why .exclude(content_type__in=[...]) doesn't work ?...
+        ct_ids = BlockConfigItem.objects.exclude(content_type=None)\
+                                        .exclude(content_type=ct_user)\
+                                        .distinct()\
+                                        .values_list('content_type_id', flat=True)
 
         return self._render(self.get_block_template_context(context, ContentType.objects.filter(pk__in=ct_ids),
                                                             update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
@@ -249,6 +254,18 @@ class SearchConfigBlock(_ConfigAdminBlock):
         return self._render(btc)
 
 
+class HistoryConfigBlock(_ConfigAdminBlock):
+    id_           = QuerysetBlock.generate_id('creme_config', 'historyconfig')
+    dependencies  = (HistoryConfigItem,)
+    verbose_name  = u'History configuration'
+    template_name = 'creme_config/templatetags/block_historyconfig.html'
+
+    def detailview_display(self, context):
+        return self._render(self.get_block_template_context(context, HistoryConfigItem.objects.all(),
+                                                            update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
+                            ))
+
+
 class UserRolesBlock(_ConfigAdminBlock):
     id_           = QuerysetBlock.generate_id('creme_config', 'user_roles')
     dependencies  = (UserRole,)
@@ -312,6 +329,7 @@ blocks_list = (
         UsersBlock(),
         TeamsBlock(),
         SearchConfigBlock(),
+        HistoryConfigBlock(),
         InstanceBlocksConfigBlock(),
         UserRolesBlock(),
         DefaultCredentialsBlock(),

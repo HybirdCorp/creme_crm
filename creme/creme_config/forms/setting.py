@@ -54,4 +54,4 @@ class SettingForm(CremeModelForm):
 
     def save(self, *args, **kwargs):
         self.instance.value = self.cleaned_data['value']
-        super(SettingForm, self).save(*args, **kwargs)
+        return super(SettingForm, self).save(*args, **kwargs)

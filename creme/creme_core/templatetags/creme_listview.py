@@ -179,7 +179,7 @@ def _render_relations(entity, hfi, user):
 _GET_HTML_FIELD_VALUE = field_printers_registry.get_html_field_value
 
 _RENDER_FUNCS = { #TODO: use a method in HeaderFilterItem ??
-    HFI_FIELD:    lambda entity, hfi, user: _GET_HTML_FIELD_VALUE(entity, hfi.name),
+    HFI_FIELD:    lambda entity, hfi, user: _GET_HTML_FIELD_VALUE(entity, hfi.name, user),
     HFI_FUNCTION: lambda entity, hfi, user: getattr(entity, hfi.name)(),
     HFI_RELATION: _render_relations,
     HFI_CUSTOM:   lambda entity, hfi, user: entity.get_custom_value(hfi.get_customfield()),

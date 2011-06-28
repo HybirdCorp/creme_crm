@@ -19,6 +19,7 @@ CREME_ROOT = dirname(abspath(__file__))
 MANAGERS = ADMINS
 
 # NB: it's recommended to use a database engine that supports transactions.
+#'OPTIONS': {'init_command': 'SET storage_engine=INNODB'}#Example to use a transaction engine in mysql
 DATABASES = {
     'default': {
         'ENGINE':   'django.db.backends.mysql', # 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
@@ -136,6 +137,7 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.middleware.locale.LocaleMiddleware',
 
+    'creme.creme_core.middleware.global_info.GlobalInfoMiddleware', #after AuthenticationMiddleware
     'creme.creme_core.middleware.exceptions.Beautiful403Middleware',
     #'creme.creme_core.middleware.sql_logger.SQLLogToConsoleMiddleware',       #debuging purpose
     #'creme.creme_core.middleware.module_logger.LogImportedModulesMiddleware', #debuging purpose
@@ -168,7 +170,6 @@ INSTALLED_APPS = (
     'creme.assistants',
     'creme.activities',
     'creme.persons',
-    'creme.activesync',
 
     #CREME OPTIONNAL APPS (can be safely commented)
     'creme.graphs',
@@ -185,6 +186,7 @@ INSTALLED_APPS = (
     'creme.projects',
     'creme.tickets',
     #'creme.cti',
+    'creme.activesync',
 )
 
 from django.conf.global_settings import TEMPLATE_CONTEXT_PROCESSORS
@@ -340,6 +342,7 @@ CREME_CORE_JS = ('main.js',
                     'creme_core/js/ajax.js',
                     'creme_core/js/creme.graphael.js',
                     'creme_core/js/menu.js',
+                    'creme_core/js/blocks.js',
 
                     'creme_core/js/widgets/base.js',
                     'creme_core/js/widgets/dinput.js',

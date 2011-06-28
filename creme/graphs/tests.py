@@ -10,6 +10,9 @@ from graphs.models import *
 
 
 class GraphsTestCase(CremeTestCase):
+    def setUp(self):
+        self.populate('creme_core')
+
     def login(self, is_superuser=True):
         super(GraphsTestCase, self).login(is_superuser, allowed_apps=['graphs'])
 

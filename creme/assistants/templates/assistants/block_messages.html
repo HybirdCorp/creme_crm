@@ -1,6 +1,6 @@
 {% load i18n %}{% load media %}
 {% load creme_core_tags %}{% load creme_block %}{% load creme_widgets %}
-<table class="table_detail_view ui-corner-all" id={{block_name}}>
+<table class="table_detail_view ui-corner-all {{ state.classes }}" id={{block_name}}>
     {% get_block_header colspan=6 %}
         <th style="width: 80%;" class="collapser">{% get_block_title _('%s User message') _('%s User messages') 'message_48.png' _('Message') %}</th>
         <th style="width: 20%;" align="right">
@@ -37,10 +37,10 @@
                             {% endwith %}
                         </td>
                     {% endif %}
-                    <td class="{{row_color}}">{{message|get_html_field_value:"sender"}}</td>
+                    <td class="{{row_color}}">{% print_field object=message field='sender' %}</td>
                     <td class="{{row_color}}">{{message.creation_date|date:"d/m/y"}}</td>
-                    <td class="{{row_color}}">{{message|get_html_field_value:"title"}}</td>
-                    <td class="{{row_color}}">{{message|get_html_field_value:"body"}}</td>
+                    <td class="{{row_color}}">{% print_field object=message field='title' %}</td>
+                    <td class="{{row_color}}">{% print_field object=message field='body' %}</td>
                     <td class="{{row_color}}" align="center" valign="center" style="width:10%;">
                         {% get_line_deletor at_url '/assistants/message/delete' with_args "{'id' : {{message.id}} }" with_perms 1 %}
                     </td>

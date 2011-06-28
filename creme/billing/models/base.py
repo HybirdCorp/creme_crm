@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2011  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,6 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from itertools import chain
 from logging import debug
 
 from django.db.models import CharField, ForeignKey, DateField, DecimalField
@@ -163,9 +164,14 @@ class Base(CremeEntity):
         else:
             self.number = None
 
-    def _post_save_clone(self, source):
-        self._build_lines(source, ProductLine)
-        self._build_lines(source, ServiceLine)
+    def _post_clone(self, source):
+        self.invalidate_cache()
+        source.invalidate_cache()#TODO: Remove?
+
+        for line in chain(self.get_lines(ProductLine), self.get_lines(ServiceLine)):
+            line.relations.filter(object_entity=self).delete()
+            new_line = line.clone()
+            new_line.related_document = self
 
     def build(self, template):
         self._build_object(template)

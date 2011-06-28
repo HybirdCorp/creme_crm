@@ -3,8 +3,6 @@
 {% load media %}
 {% load creme_block %}
 
-{% block logo %}<img src="{% media_url 'images/commercial_64.png' %}" alt="{% trans "Commercial objective pattern" %}"/>{% endblock %}
-
 {% block creme_blocks_import %}
     {{block.super}}
     {% import_block from_app 'commercial' named 'pattern_components' as 'components_block' %}

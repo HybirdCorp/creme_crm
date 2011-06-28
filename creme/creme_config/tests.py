@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+from django.utils.translation import ugettext as _
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 
@@ -17,6 +18,7 @@ from creme_config.models import *
 
 class UserRoleTestCase(CremeTestCase):
     def setUp(self):
+        self.populate('creme_core')
         self.login()
 
     def test_portal(self):
@@ -238,7 +240,7 @@ class UserRoleTestCase(CremeTestCase):
 
 class UserTestCase(CremeTestCase):
     def setUp(self):
-        self.populate('persons') #'creme_core'
+        self.populate('creme_core', 'persons') #'creme_core'
         self.login()
 
     def test_portal(self):
@@ -314,8 +316,8 @@ class UserTestCase(CremeTestCase):
         self.assertEqual(1, len(users))
 
         user = users[0]
-        self.assertEqual(2, CremeEntity.objects.count())
-        self.assertEqual(2, EntityCredentials.objects.filter(user=user).count())
+        self.assertEqual(2 + 2, CremeEntity.objects.count())#2 from creme_core populate + 2 from now
+        self.assertEqual(2 + 2, EntityCredentials.objects.filter(user=user).count())#2 from creme_core populate + 2 from now
 
         self.assert_(orga.can_view(user))
 
@@ -507,6 +509,7 @@ class UserTestCase(CremeTestCase):
 
 class PropertyTypeTestCase(CremeTestCase):
     def setUp(self):
+        self.populate('creme_core')
         self.login()
 
     def test_portal(self):
@@ -516,7 +519,7 @@ class PropertyTypeTestCase(CremeTestCase):
         url = '/creme_config/property_type/add/'
         self.assertEqual(200, self.client.get(url).status_code)
 
-        self.assertEqual(0, CremePropertyType.objects.count())
+        self.assertEqual(1, CremePropertyType.objects.count())#The one from creme_core populate
 
         text = 'is beautiful'
         response = self.client.post(url, data={'text': text})
@@ -524,9 +527,9 @@ class PropertyTypeTestCase(CremeTestCase):
         self.assertEqual(200, response.status_code)
 
         prop_types = CremePropertyType.objects.all()
-        self.assertEqual(1, len(prop_types))
+        self.assertEqual(2, len(prop_types))
 
-        prop_type = prop_types[0]
+        prop_type = prop_types[1]
         self.assertEqual(text, prop_type.text)
         self.assertEqual(0,    prop_type.subject_ctypes.count())
 
@@ -543,7 +546,7 @@ class PropertyTypeTestCase(CremeTestCase):
         self.assertNoFormError(response)
         self.assertEqual(200, response.status_code)
 
-        prop_type = CremePropertyType.objects.all()[0]
+        prop_type = CremePropertyType.objects.all()[1]
         self.assertEqual(text, prop_type.text)
 
         ctypes = prop_type.subject_ctypes.all()
@@ -589,6 +592,7 @@ class PropertyTypeTestCase(CremeTestCase):
 
 class RelationTypeTestCase(CremeTestCase):
     def setUp(self): #in CremeConfigTestCase ??
+        self.populate('creme_core')
         self.login()
 
     def test_portal(self):
@@ -597,8 +601,9 @@ class RelationTypeTestCase(CremeTestCase):
     def test_create01(self):
         url = '/creme_config/relation_type/add/'
         self.assertEqual(200, self.client.get(url).status_code)
+        rel_type_core_populate_count = 4
 
-        self.assertEqual(0, RelationType.objects.count())
+        self.assertEqual(rel_type_core_populate_count, RelationType.objects.count())#4 from creme_core populate
 
         subject_pred = 'loves'
         object_pred  = 'is loved by'
@@ -611,9 +616,9 @@ class RelationTypeTestCase(CremeTestCase):
         self.assertEqual(200, response.status_code)
 
         rel_types = RelationType.objects.all()
-        self.assertEqual(2, len(rel_types))
+        self.assertEqual(rel_type_core_populate_count + 2, len(rel_types))#4 from creme_core populate + 2freshly created
 
-        rel_type = rel_types[0]
+        rel_type = rel_types[rel_type_core_populate_count]
         self.assertEqual(subject_pred, rel_type.predicate)
         self.assert_(rel_type.is_custom)
         self.assertEqual(object_pred, rel_type.symmetric_type.predicate)
@@ -643,7 +648,7 @@ class RelationTypeTestCase(CremeTestCase):
         self.assertNoFormError(response)
         self.assertEqual(200, response.status_code)
 
-        rel_type = RelationType.objects.all()[0]
+        rel_type = RelationType.objects.all()[4]
         self.assertEqual([ct_orga.id],    [ct.id for ct in rel_type.subject_ctypes.all()])
         self.assertEqual([ct_contact.id], [ct.id for ct in rel_type.object_ctypes.all()])
         self.assertEqual([pt_sub.id],     [pt.id for pt in rel_type.subject_properties.all()])
@@ -690,6 +695,7 @@ class RelationTypeTestCase(CremeTestCase):
 
 class BlocksConfigTestCase(CremeTestCase):
     def setUp(self):
+        self.populate('creme_core')
         self.login()
 
     def test_portal(self):
@@ -909,10 +915,65 @@ class SettingsTestCase(CremeTestCase):
 
         self.assertEqual(404, self.client.get('/creme_config/setting/edit/%s' % sv.id).status_code)
 
+
 class UserSettingsTestCase(CremeTestCase):
+    def setUp(self):
+        self.populate('creme_core')
+
     def test_user_settings(self):
         self.login()
         response = self.client.get('/creme_config/user/view/settings/')
         self.assertEqual(200, response.status_code)
+
+
+class HistoryConfigTestCase(CremeTestCase):
+    def test_portal(self):
+        self.login()
+        self.populate('creme_core')
+        self.assertEqual(200, self.client.get('/creme_config/history/portal/').status_code)
+
+    def test_add01(self):
+        self.login()
+        self.failIf(HistoryConfigItem.objects.count())
+
+        rtype01, srtype01 = RelationType.create(('test-subject_foo', 'fooes'), ('test-object_foo', 'fooed'))
+        rtype02, srtype02 = RelationType.create(('test-subject_bar', 'bars'),  ('test-object_bar', 'bared'))
+
+        url = '/creme_config/history/add/'
+        self.assertEqual(200, self.client.get(url).status_code)
+
+        rtype_ids = [rtype01.id, rtype02.id]
+        response = self.client.post(url, data={'relation_types': rtype_ids})
+        self.assertNoFormError(response)
+        self.assertEqual(200, response.status_code)
+
+        hc_items = HistoryConfigItem.objects.all()
+        self.assertEqual(2, len(hc_items))
+        self.assertEqual(set(rtype_ids), set(hc_item.relation_type.id for hc_item in hc_items))
+
+    def test_add02(self): #no doublons
+        self.login()
+
+        rtype01, srtype01 = RelationType.create(('test-subject_foo', 'fooes'), ('test-object_foo', 'fooed'))
+        rtype02, srtype02 = RelationType.create(('test-subject_bar', 'bars'),  ('test-object_bar', 'bared'))
+
+        HistoryConfigItem.objects.create(relation_type=rtype01)
+
+        rtype_ids = [rtype01.id, rtype02.id]
+        response = self.client.post('/creme_config/history/add/', data={'relation_types': rtype_ids})
+        self.assertFormError(response, 'form', field='relation_types',
+                             errors=_(u'Select a valid choice. %s is not one of the available choices.') % rtype01.id
+                            )
+
+    def test_delete(self):
+        self.login()
+
+        rtype, srtype = RelationType.create(('test-subject_foo', 'fooes'), ('test-object_foo', 'fooed'))
+        hci = HistoryConfigItem.objects.create(relation_type=rtype)
+
+        response = self.client.post('/creme_config/history/delete', data={'id': hci.id})
+        self.assertEqual(200, response.status_code)
+        self.failIf(HistoryConfigItem.objects.filter(pk=hci.id).count())
+
 
 #TODO: complete test cases...

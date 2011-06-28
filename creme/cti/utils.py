@@ -26,9 +26,9 @@ from creme_core.gui.field_printers import simple_print
 from mediagenerator.utils import media_url
 
 
-def print_phone(entity, fval):
+def print_phone(entity, fval, user):
     if not fval:
-        return simple_print(entity, fval)
+        return simple_print(entity, fval, user)
 
     return """%(number)s&nbsp;<a onclick="creme.cti.phoneCall('%(url)s', '%(number)s', %(id)s);">%(label)s<img src="%(img)s" alt="%(label)s"/></a>""" % {
             'url':    settings.ABCTI_URL,

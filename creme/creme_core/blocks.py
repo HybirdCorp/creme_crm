@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2011  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,11 +18,13 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from collections import defaultdict
+
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.contenttypes.models import ContentType
 
-from creme_core.models import CremeEntity, Relation, CremeProperty #EntityCredentials
-from creme_core.gui.block import QuerysetBlock, BlocksManager
+from creme_core.models import CremeEntity, Relation, CremeProperty, HistoryLine #EntityCredentials
+from creme_core.gui.block import Block, QuerysetBlock, BlocksManager, list4url
 
 
 class PropertiesBlock(QuerysetBlock):
@@ -70,5 +72,70 @@ class RelationsBlock(QuerysetBlock):
         return self._render(btc)
 
 
-properties_block = PropertiesBlock()
-relations_block  = RelationsBlock()
+class CustomFieldsBlock(Block):
+    id_           = Block.generate_id('creme_core', 'customfields')
+    #dependencies  = ()
+    verbose_name  = u'Custom fields'
+    template_name = 'creme_core/templatetags/block_customfields.html'
+
+
+class HistoryBlock(QuerysetBlock):
+    id_           = QuerysetBlock.generate_id('creme_core', 'history')
+    dependencies  = (HistoryLine,) #model istself ???
+    order_by      = '-date'
+    verbose_name  = _(u'History')
+    template_name = 'creme_core/templatetags/block_history.html'
+    configurable  = True
+
+    #TODO: factorise (see assistants.block) ??
+    @staticmethod
+    def _populate_related_real_entities(hlines, user):
+        hlines = [hline for hline in hlines if hline.entity_id]
+        entities_ids_by_ct = defaultdict(set)
+        get_ct = ContentType.objects.get_for_id
+
+        for hline in hlines:
+            ct_id = hline.entity_ctype_id
+            hline.entity_ctype = get_ct(ct_id)
+            entities_ids_by_ct[ct_id].add(hline.entity_id)
+
+        entities_map = {}
+        get_ct = ContentType.objects.get_for_id
+
+        for ct_id, entities_ids in entities_ids_by_ct.iteritems():
+            entities_map.update(get_ct(ct_id).model_class().objects.in_bulk(entities_ids))
+
+        for hline in hlines:
+            hline.entity = entities_map[hline.entity_id]
+
+        CremeEntity.populate_credentials(entities_map.values(), user) #beware: values() and not itervalues()
+
+    def detailview_display(self, context):
+        pk = context['object'].pk
+        return self._render(self.get_block_template_context(context, HistoryLine.objects.filter(entity=pk),
+                                                            update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, pk),
+                                                           ))
+
+    def portal_display(self, context, ct_ids):
+        btc = self.get_block_template_context(context,
+                                              HistoryLine.objects.filter(entity_ctype__in=ct_ids),
+                                              update_url='/creme_core/blocks/reload/portal/%s/%s/' % (self.id_, list4url(ct_ids)),
+                                             )
+        self._populate_related_real_entities(btc['page'].object_list, context['request'].user)
+
+        return self._render(btc)
+
+    def home_display(self, context):
+        btc = self.get_block_template_context(context,
+                                              HistoryLine.objects.all(),
+                                              update_url='/creme_core/blocks/reload/home/%s/' % self.id_,
+                                             )
+        self._populate_related_real_entities(btc['page'].object_list, context['request'].user)
+
+        return self._render(btc)
+
+
+properties_block   = PropertiesBlock()
+relations_block    = RelationsBlock()
+customfields_block = CustomFieldsBlock()
+history_block      = HistoryBlock()

@@ -61,7 +61,7 @@
                                 <tr class="{% cycle "block_line_dark" "block_line_light" %}">
                                     <td><a href="{{res.get_absolute_url}}">{% trans 'Go to the page' %}</a></td>
                                     {% for field in fields %}
-                                        <td>{{res|get_html_field_value:field.field}}</td>
+                                        <td>{% print_field object=res field=field.field %}</td>
                                     {% endfor %}
                                 </tr>
                             {% endfor %}

@@ -1,7 +1,7 @@
 {% extends "creme_core/base.html" %}
 {% load i18n %}
 {% load media %}
-{% load creme_core_tags %}{% load creme_block %}{% load creme_menu %}
+{% load creme_core_tags %}{% load creme_block %}{% load creme_menu %}{% load creme_widgets %}
 
 {% block page_title %} - {{object}}{% endblock %}
 
@@ -42,7 +42,7 @@
     {% block view_title %}
         <table class="table_header" cellpadding="0" cellspacing="0">
             <tr>
-                <td width="5%">{% block logo %}{% endblock %}</td>
+                <td width="5%">{% block logo %}{% get_image_for_object object 'big' %}{% endblock %}</td>
                 <td width="70%">
                     <h1>
                         {% block title %}
@@ -51,16 +51,7 @@
                     </h1>
                 </td>
                 <td width="25%" align="right">
-                    <span>
-                        {% block entity_buttons %}
-                            {% if path %}
-                                {% comment %} COMMENTED on 19 january 2011 {% endcomment %}
-                                {% comment %}<a href="{{path}}/edit/{{object.id}}">
-                                    <img src="{% media_url 'images/edit_64.png' %}" title="{% blocktrans %}Edit '{{object}}'{% endblocktrans %}" alt="{% trans "Edit" %}"/>
-                                </a>{% endcomment %}
-                            {% endif %}
-                        {% endblock %}
-                    </span>
+                    <span>{% block entity_buttons %}{% endblock %}</span>
                 </td>
             </tr>
         </table>
@@ -80,14 +71,15 @@
     {% endblock %}
 
     {% block creme_blocks_import %}
-         {% import_detailview_blocks %}
+        {% import_detailview_blocks %}
+        {% import_object_block as 'object_block' %}
     {% endblock %}
 
     {% block before_detail_view_1 %}{% endblock %}
 
     <div style="float:left;width:49.9%;margin-left:0px;">
         {% block detail_view_left_1 %}
-            {% include "creme_core/object_as_table.html" %}
+            {% display_block_detailview 'object_block' %}
         {% endblock %}
         {% block detail_view_left_2 %}{% endblock %}
         {% block detail_view_left_3 %}{% endblock %}

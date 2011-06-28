@@ -21,14 +21,11 @@
 from django.utils.translation import ugettext_lazy as _
 
 from creme_core.registry import creme_registry
-from creme_core.gui.menu import creme_menu
-from creme_core.gui.button_menu import button_registry
-from creme_core.gui.block import block_registry
-from creme_core.gui.bulk_update import bulk_update_registry
+from creme_core.gui import creme_menu, button_registry, block_registry, icon_registry, bulk_update_registry
 
 from billing.models import Invoice, Quote, SalesOrder, CreditNote, Base, TemplateBase, Line, ServiceLine, ProductLine
 from billing.blocks import (product_lines_block, service_lines_block, total_block, target_block, received_invoices_block,
-                            payment_information_block, billing_payment_information_block)
+                            payment_information_block, billing_payment_information_block, received_billing_document_block)
 from billing.buttons import generate_invoice_number_button
 
 
@@ -46,23 +43,29 @@ reg_item('/billing/quotes',          _(u'All quotes'),        'billing')
 reg_item('/billing/credit_note/add', _(u'Add a credit note'), 'billing.add_creditnote')
 reg_item('/billing/credit_note',     _(u'All credit notes'),  'billing')
 reg_item('/billing/lines',           _(u'All lines'),         'billing')
-reg_item('/billing/product_lines',  _(u'All product lines'), 'billing')
-reg_item('/billing/service_lines',  _(u'All service lines'), 'billing')
+reg_item('/billing/product_lines',   _(u'All product lines'), 'billing')
+reg_item('/billing/service_lines',   _(u'All service lines'), 'billing')
 
 block_registry.register(product_lines_block, service_lines_block, total_block, target_block, received_invoices_block,
-                        payment_information_block, billing_payment_information_block)
+                        payment_information_block, billing_payment_information_block, received_billing_document_block)
 button_registry.register(generate_invoice_number_button)
+
+reg_icon = icon_registry.register
+reg_icon(Invoice,      'images/invoice_%(size)s.png')
+reg_icon(Quote,        'images/invoice_%(size)s.png')
+reg_icon(SalesOrder,   'images/invoice_%(size)s.png')
+reg_icon(CreditNote,   'images/invoice_%(size)s.png')
+reg_icon(TemplateBase, 'images/invoice_%(size)s.png')
 
 from signals import connect_to_signals
 
 connect_to_signals()
 
 bulk_update_registry.register(
-    (Base, ['number', 'total_vat', 'total_no_vat', 'payment_info']),
-    (CreditNote, ['status']),
-    (Invoice, ['status']),
-    (Quote, ['status']),
-    (SalesOrder, ['status']),
+    (Base,         ['number', 'total_vat', 'total_no_vat', 'payment_info']),
+    (CreditNote,   ['status']),
+    (Invoice,      ['status']),
+    (Quote,        ['status']),
+    (SalesOrder,   ['status']),
     (TemplateBase, ['status_id', 'ct', 'base_ptr']),
-
 )

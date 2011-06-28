@@ -49,6 +49,7 @@ blocks_patterns = patterns('creme_core.views.blocks',
     (r'^home/(?P<block_id>[\w-]+)/$',                                         'reload_home'),
     (r'^portal/(?P<block_id>[\w-]+)/(?P<ct_ids>[\d,]+)/$',                    'reload_portal'),
     (r'^basic/(?P<block_id>[\w-]+)/$',                                        'reload_basic'), #most of blocks in creme_config for example
+    (r'^set_state/(?P<block_id>[\w-]+)/$',                                    'set_state'),#TODO: change url (reload not fit here...)
 )
 
 entity_filter_patterns = patterns('creme_core.views.entity_filter',

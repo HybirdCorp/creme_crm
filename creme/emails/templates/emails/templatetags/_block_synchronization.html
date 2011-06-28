@@ -5,7 +5,7 @@
 {% load media %}
 
 {% with 7 as colspan %}
-    <table class="table_detail_view ui-corner-all" id={{block_name}}>
+    <table class="table_detail_view ui-corner-all {{ state.classes }}" id={{block_name}}>
         {% block top_header %}{% endblock %}
         <tbody class="collapsable">
             {% if page.paginator.count %}

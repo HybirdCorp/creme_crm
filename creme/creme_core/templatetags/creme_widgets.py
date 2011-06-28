@@ -20,6 +20,10 @@
 
 from django.template import Library
 
+from mediagenerator.utils import media_url
+
+from creme_core.gui.icon_registry import icon_registry
+
 
 register = Library()
 
@@ -71,3 +75,38 @@ def widget_entity_hyperlink(entity, user):
 @register.inclusion_tag('creme_core/templatetags/widgets/select_or_msg.html')
 def widget_select_or_msg(items, void_msg):
     return {'items': items, 'void_msg': void_msg}
+
+_SIZE_MAP = {
+        'big':    64,
+        'normal': 48,
+        'medium': 32,
+        'small':  22,
+        'tiny':   16,
+    }
+
+def _get_image_for_model(model, size):
+    path  = icon_registry.get(model, _SIZE_MAP[size])
+
+    if not path:
+        return ''
+
+    try:
+        path = media_url(path)
+    except KeyError:
+        path = ''
+
+    return u'<img src="%(src)s" alt="%(title)s" title="%(title)s" />' % {
+                    #'src':   media_url(path),
+                    'src':   path,
+                    'title': model._meta.verbose_name,
+                }
+
+@register.simple_tag
+def get_image_for_object(obj, size): #size='default' ??
+    """{% get_image_for_object object 'big' %}"""
+    return _get_image_for_model(obj.__class__, size)
+
+@register.simple_tag
+def get_image_for_ctype(ctype, size):
+    """{% get_image_for_ctype ctype 'small' %}"""
+    return _get_image_for_model(ctype.model_class(), size)

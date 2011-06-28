@@ -1,7 +1,7 @@
 {% extends "creme_core/base.html" %}
 {% load i18n %}
 {% load media %}
-{% load creme_block %}
+{% load creme_core_tags %}{% load creme_block %}
 
 {% block extrahead %}
     <script>
@@ -53,7 +53,7 @@
             <tr>
                 {% for object in objects_list %}
                     <td align="center" class="{% cycle "block_line_dark" "block_line_light" %}">
-                        {{object.get_entity_summary}}
+                        {% get_entity_summary object user %}
                         <br/>
                         <a href="{{object.get_absolute_url}}">{% trans "See" %}</a>
                     </td>
