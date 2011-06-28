@@ -1,4 +1,4 @@
-.forbidden {
+.forbidden, .faded {
     opacity: 0.5;
 }
 
@@ -809,7 +809,7 @@ textarea:disabled, textarea[readonly] {
     display: block;
 /*    float:left;*/
     float: right;
-    margin: 0 7px 0 0;
+    margin: 0 7px 1px 0;
 /*    margin:0 0 0 7px;*/
     background-color: #f5f5f5;
     border: 1px solid #dedede;
@@ -824,7 +824,7 @@ textarea:disabled, textarea[readonly] {
     color: #565656;
     cursor: pointer;
 /*    padding:5px 10px 6px 7px;  Links */
-    padding: 5px 7px 5px 7px; /* Links */
+    padding: 1px 7px; /* Links */
     -moz-border-radius: 4px;
     -webkit-border-radius: 4px;
     border-radius: 4px;
@@ -929,7 +929,7 @@ textarea:disabled, textarea[readonly] {
     background-image: url("images/view_more_22.png");
     background-repeat: no-repeat;
     background-position: center center;
-    height: 16px;
+    height: 22px;
     width: 16px;
 }
 
@@ -938,7 +938,7 @@ textarea:disabled, textarea[readonly] {
     background-image: url("images/view_less_22.png");
     background-repeat: no-repeat;
     background-position: center center;
-    height: 16px;
+    height: 22px;
     width: 16px;
 }
 
