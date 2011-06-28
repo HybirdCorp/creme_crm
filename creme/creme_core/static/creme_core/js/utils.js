@@ -138,12 +138,20 @@ creme.utils.build_q_input = function(field, value, is_or, is_negated, name) {
 }
 
 creme.utils.tableCollapse = function($self, trigger) {//TODO: Factorise with creme.utils.tableExpand
+    //TODO: Include trigger in options?
+    //TODO: Make constants with tbody.collapsable, .block_icon, ... ?
+
     if(typeof(trigger) == "undefined"){
         trigger = true;
     }
+
     var table = $self.parents('table[id!=]');
     table.find('tbody.collapsable').hide();
     table.find('tfoot.collapsable').hide();
+
+    table.addClass('faded');
+    table.find('.block_icon').css({'height': '22px'});
+
     if(trigger)//Sometimes triggering the event is not necessary.
     {
         table.trigger('creme-table-collapse', {action: 'hide'});
@@ -154,9 +162,13 @@ creme.utils.tableExpand = function($self, trigger) {
     if(typeof(trigger) == "undefined"){
         trigger = true;
     }
+
     var table = $self.parents('table[id!=]');
     table.find('tbody.collapsable').show();
     table.find('tfoot.collapsable').show();
+
+    table.removeClass('faded');
+    table.find('.block_icon').css({'height': 'auto'});
 
     if(trigger)//Sometimes triggering the event is not necessary.
     {
