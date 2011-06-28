@@ -6,3 +6,4 @@ from models import *
 from misc import *
 from commands import *
 from mapping import *
+from cipher import *
