@@ -158,6 +158,7 @@ INSTALLED_APPS = (
 
     #EXTERNAL APPS
     'mediagenerator', #It manages js/css/images
+    'south',          #It manages DB migrations
 
     #CREME CORE APPS
     'creme.creme_core',
