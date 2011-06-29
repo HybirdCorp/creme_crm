@@ -31,7 +31,7 @@ from django.utils.simplejson import loads as jsonloads, dumps as jsondumps
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.auth.models import User
 
-from creme_core.models import CustomField, RelationType
+from creme_core.models import CustomField, RelationType, Relation
 from creme_core.utils.meta import is_date_field, get_model_field_infos
 from creme_core.utils.date_range import date_range_registry
 
@@ -572,30 +572,40 @@ class EntityFilterCondition(Model):
 
         return query
 
+    #TODO: "relations__*" => old method that does not work with several conditions
+    #      on relations use it when there is only one condition on relations ??
     def _get_q_relation(self):
-        kwargs = {'relations__type': self.name}
+        #kwargs = {'relations__type': self.name}
+        kwargs = {'type': self.name}
         value = self.decoded_value
 
-        for key, query_key in (('entity_id', 'relations__object_entity'), ('ct_id', 'relations__object_entity__entity_type')):
+        #for key, query_key in (('entity_id', 'relations__object_entity'), ('ct_id', 'relations__object_entity__entity_type')):
+        for key, query_key in (('entity_id', 'object_entity'), ('ct_id', 'object_entity__entity_type')):
             arg = value.get(key)
 
             if arg:
                 kwargs[query_key] = arg
                 break
 
-        query = Q(**kwargs)
+        #query = Q(**kwargs)
+        query = Q(pk__in=Relation.objects.filter(**kwargs).values_list('subject_entity_id', flat=True))
 
         if not value['has']:
             query.negate()
 
         return query
 
+    #TODO: "relations__*" => old method that does not work with several conditions
+    #      on relations use it when there is only one condition on relations ??
     def _get_q_relation_subfilter(self):
-        #TODO: can the filter be deleted ???
         value = self.decoded_value
         subfilter = EntityFilter.objects.get(pk=value['filter_id'])
-        excluded = subfilter.filter(subfilter.entity_type.model_class().objects.all()).values_list('id', flat=True)
-        query = Q(relations__type=self.name, relations__object_entity__in=excluded)
+        filtered = subfilter.filter(subfilter.entity_type.model_class().objects.all()).values_list('id', flat=True)
+
+        #query = Q(relations__type=self.name, relations__object_entity__in=filtered)
+        query = Q(pk__in=Relation.objects.filter(type=self.name, object_entity__in=filtered) \
+                                         .values_list('subject_entity_id', flat=True)
+                 )
 
         if not value['has']:
             query.negate()
