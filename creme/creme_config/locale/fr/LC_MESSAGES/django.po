@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-06-21 17:14+0200\n"
+"POT-Creation-Date: 2011-06-30 17:23+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -124,6 +124,11 @@ msgstr "Gestion des utilisateurs"
 msgid "Roles and credentials settings"
 msgstr "Gestion des rôles et des droits"
 
+#: tests.py:965
+#, python-format
+msgid "Select a valid choice. %s is not one of the available choices."
+msgstr ""
+
 #: forms/blocks.py:71 forms/button_menu.py:40 forms/custom_fields.py:65
 #: forms/search.py:37
 msgid "Related resource"
@@ -234,8 +239,8 @@ msgid ""
 "the history of the others entities."
 msgstr ""
 "Si une fiche est liée à d'autres fiches par une relation de ce type,\n"
-" les lignes d'historique à propos des modifications de cette fiche apparaitront dans "
-"l'historique des autres fiches."
+" les lignes d'historique à propos des modifications de cette fiche "
+"apparaitront dans l'historique des autres fiches."
 
 #: forms/history.py:33
 #: templates/creme_config/templatetags/block_relation_types.html:7
@@ -578,7 +583,7 @@ msgstr "%s Type de ressource configuré"
 #: templates/creme_config/templatetags/block_searchconfig.html:5
 #, python-format
 msgid "%s Configured types of resource"
-msgstr "%s Types de resource configurés"
+msgstr "%s Types de ressource configurés"
 
 #: templates/creme_config/templatetags/block_blocksconfig.html:11
 #: views/blocks.py:38
