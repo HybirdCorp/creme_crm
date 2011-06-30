@@ -73,7 +73,7 @@ class Migration(SchemaMigration):
             ('position', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['persons.Position'], null=True, blank=True)),
             ('sector', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['persons.Sector'], null=True, blank=True)),
             ('email', self.gf('django.db.models.fields.EmailField')(max_length=100, null=True, blank=True)),
-            ('url_site', self.gf('django.db.models.fields.CharField')(max_length=100, null=True, blank=True)),
+            ('url_site', self.gf('django.db.models.fields.URLField')(max_length=100, null=True, blank=True)),
             ('billing_address', self.gf('django.db.models.fields.related.ForeignKey')(blank=True, related_name='billing_address_contact_set', null=True, to=orm['persons.Address'])),
             ('shipping_address', self.gf('django.db.models.fields.related.ForeignKey')(blank=True, related_name='shipping_address_contact_set', null=True, to=orm['persons.Address'])),
             ('is_user', self.gf('django.db.models.fields.related.ForeignKey')(blank=True, related_name='related_contact', null=True, to=orm['auth.User'])),
@@ -267,7 +267,7 @@ class Migration(SchemaMigration):
             'sector': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['persons.Sector']", 'null': 'True', 'blank': 'True'}),
             'shipping_address': ('django.db.models.fields.related.ForeignKey', [], {'blank': 'True', 'related_name': "'shipping_address_contact_set'", 'null': 'True', 'to': "orm['persons.Address']"}),
             'skype': ('django.db.models.fields.CharField', [], {'max_length': '100', 'null': 'True', 'blank': 'True'}),
-            'url_site': ('django.db.models.fields.CharField', [], {'max_length': '100', 'null': 'True', 'blank': 'True'})
+            'url_site': ('django.db.models.fields.URLField', [], {'max_length': '100', 'null': 'True', 'blank': 'True'})
         },
         'persons.legalform': {
             'Meta': {'object_name': 'LegalForm'},
