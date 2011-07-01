@@ -42,7 +42,7 @@ class RelationCreateForm(CremeForm):
         self.subject = subject
 
         if not relations_types:
-            relations_types = RelationType.get_compatible_ones(subject.entity_type).values_list('id', flat=True)
+            relations_types = RelationType.get_compatible_ones(subject.entity_type).order_by('predicate').values_list('id', flat=True)
 
         self.fields['relations'].allowed_rtypes = relations_types
 
