@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-06-30 17:27+0200\n"
+"POT-Creation-Date: 2011-07-01 17:44+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -61,8 +61,8 @@ msgid "Commercial strategy"
 msgstr "Plan commercial"
 
 #: creme_core_register.py:35
-msgid "Portal"
-msgstr "Portail"
+msgid "Portal of commercial strategy"
+msgstr "Portail de la stratégie commerciale"
 
 #: creme_core_register.py:36
 msgid "All market segments"
@@ -832,6 +832,9 @@ msgid ""
 msgstr ""
 "Cette société <%(orga)s> n'est pas (n'est plus ?) évaluée par le plan "
 "commercial %(strategy)s"
+
+#~ msgid "PortalPortal"
+#~ msgstr "Portail"
 
 #~ msgid "Segment"
 #~ msgstr "Segment"

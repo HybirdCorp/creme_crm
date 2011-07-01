@@ -7,92 +7,88 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-10-28 15:29+0200\n"
+"POT-Creation-Date: 2011-07-01 17:42+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: \n"
 
-#: creme_core_register.py:11
+#: creme_core_register.py:29
 msgid "Recurrent documents"
 msgstr "Documents récurrents"
 
-#: creme_core_register.py:15
-msgid "Portal"
-msgstr "Portail"
+#: creme_core_register.py:33
+msgid "Portal of recurrent documents"
+msgstr "Portail des documents récurrents"
 
-#: creme_core_register.py:16
+#: creme_core_register.py:34
 msgid "All recurrent generators"
 msgstr "Lister les générateurs récurrents"
 
-#: creme_core_register.py:17
+#: creme_core_register.py:35
 msgid "Add a generator"
 msgstr "Ajouter un générateur"
 
-#: populate.py:37
+#: populate.py:34
 msgid "Daily"
 msgstr "Quotidienne"
 
-#: populate.py:37
+#: populate.py:34
 msgid "Every day"
 msgstr "Tous les jours"
 
-#: populate.py:38
+#: populate.py:35
 msgid "Weekly"
 msgstr "Hebdomadaire"
 
-#: populate.py:38
+#: populate.py:35
 msgid "Every week"
 msgstr "Toutes les semaines"
 
-#: populate.py:39
+#: populate.py:36
 msgid "Monthly"
 msgstr "Mensuelle"
 
-#: populate.py:39
+#: populate.py:36
 msgid "Every month"
 msgstr "Tous les mois"
 
-#: populate.py:40
+#: populate.py:37
 msgid "Quarterly"
 msgstr "Trimestrielle"
 
-#: populate.py:40
+#: populate.py:37
 msgid "Every trimester"
 msgstr "Tous les trimestres"
 
-#: populate.py:41
+#: populate.py:38
 msgid "Biannual"
 msgstr "Semestrielle"
 
-#: populate.py:41
+#: populate.py:38
 msgid "Every semester"
 msgstr "Tous les semestres"
 
-#: populate.py:42
+#: populate.py:39
 msgid "Annual"
 msgstr "Annuelle"
 
-#: populate.py:42
+#: populate.py:39
 msgid "Every year"
 msgstr "Tous les ans"
 
-#: populate.py:44
+#: populate.py:41
 msgid "Generator view"
 msgstr "Vue des générateurs"
 
-#: populate.py:46
-msgid "Name"
-msgstr "Nom"
-
-#: forms/recurrentgenerator.py:34
+#: forms/recurrentgenerator.py:36
 msgid "Date of the first generation"
 msgstr "Date de la première récurrence"
 
-#: forms/recurrentgenerator.py:48
+#: forms/recurrentgenerator.py:50
 msgid "Type of resource used as template"
 msgstr "Type de ressource utilisé en tant que modèle"
 
@@ -156,16 +152,15 @@ msgstr "Générateur récurrent"
 msgid "Recurrent generators"
 msgstr "Générateurs récurrents"
 
-#: templates/recurrents/portal.html:3
-#: templates/recurrents/view_generator.html:3
+#: templates/recurrents/portal.html:4
 msgid "Recurrent doc"
 msgstr "Doc récurrent"
 
-#: templates/recurrents/portal.html:4
+#: templates/recurrents/portal.html:5
 msgid "Recurrent documents portal"
 msgstr "Portail Documents Récurrents"
 
-#: templates/recurrents/portal.html:6
+#: templates/recurrents/portal.html:7
 msgid "List of recurrent generators"
 msgstr "Liste des générateurs récurrents"
 
@@ -181,3 +176,9 @@ msgstr "Valider"
 #: views/portal.py:33
 msgid "Number of generators"
 msgstr "Nombre de générateur(s)"
+
+#~ msgid "Name"
+#~ msgstr "Nom"
+
+#~ msgid "Portal"
+#~ msgstr "Portail"

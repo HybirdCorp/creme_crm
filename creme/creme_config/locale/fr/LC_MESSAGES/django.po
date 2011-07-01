@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-07-01 16:33+0200\n"
+"POT-Creation-Date: 2011-07-01 17:48+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -81,8 +81,8 @@ msgid "General configuration"
 msgstr "Configuration générale"
 
 #: creme_core_register.py:32
-msgid "Portal"
-msgstr "Portail"
+msgid "Portal of general configuration"
+msgstr "Portail de la configuration générale"
 
 #: creme_core_register.py:33 templates/creme_config/portal.html:21
 msgid "Relation types settings"
@@ -1091,6 +1091,9 @@ msgstr "Ajouter des droits à <%s>"
 #: views/user_role.py:96
 msgid "Edit default credentials"
 msgstr "Éditer les droits par défaut"
+
+#~ msgid "Portal"
+#~ msgstr "Portail"
 
 #~ msgid "Default"
 #~ msgstr "Par défaut"

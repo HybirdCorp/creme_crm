@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-07-01 11:23+0200\n"
+"POT-Creation-Date: 2011-07-01 18:03+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -89,8 +89,8 @@ msgid "Emails"
 msgstr "Courriels"
 
 #: creme_core_register.py:35
-msgid "Portal"
-msgstr "Portail"
+msgid "Portal of emails"
+msgstr "Portail des courriels"
 
 #: creme_core_register.py:36
 msgid "All campaigns"
@@ -1044,6 +1044,9 @@ msgstr "Vous n'êtes pas authorisé à supprimer cette signature (pas la vôtre)
 #, python-format
 msgid "New attachments for <%s>"
 msgstr "Nouveaux fichiers joints pour <%s>"
+
+#~ msgid "Portal"
+#~ msgstr "Portail"
 
 #~ msgid "Campaign"
 #~ msgstr "Campagne"

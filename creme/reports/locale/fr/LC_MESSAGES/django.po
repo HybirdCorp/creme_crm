@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-05-31 11:06+0200\n"
+"POT-Creation-Date: 2011-07-01 17:42+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -24,34 +24,26 @@ msgstr "Colonnes du rapport"
 msgid "Report's graphs"
 msgstr "Graphe de rapport"
 
-#: creme_core_register.py:32 models/report.py:329
+#: creme_core_register.py:30 models/report.py:329
 #: templates/reports/portal.html:4
 msgid "Reports"
 msgstr "Rapports"
 
-#: creme_core_register.py:36
-msgid "Portal"
-msgstr "Portail"
+#: creme_core_register.py:34
+msgid "Portal of reports"
+msgstr "Portail des rapports"
 
-#: creme_core_register.py:37
+#: creme_core_register.py:35
 msgid "All reports"
 msgstr "Liste des rapports"
 
-#: creme_core_register.py:38
+#: creme_core_register.py:36
 msgid "Add a report"
 msgstr "Ajouter un rapport"
 
-#: populate.py:35
+#: populate.py:33
 msgid "Report view"
 msgstr "Vue de Rapport"
-
-#: populate.py:37 templates/reports/templatetags/block_report_graphs.html:21
-msgid "Name"
-msgstr "Nom"
-
-#: populate.py:38
-msgid "Entity type - Name"
-msgstr "Type d'entité - Nom"
 
 #: report_aggregation_registry.py:54
 msgid "Average"
@@ -93,7 +85,6 @@ msgstr "Le bloc d'instance pour %(graph)s avec %(column)s existe déjà"
 
 #: forms/graph.py:43 models/report.py:328
 #: templates/reports/preview_report.html:11
-#: templates/reports/view_report.html:6
 msgid "Report"
 msgstr "Rapport"
 
@@ -302,24 +293,24 @@ msgid "Preview %(verbose_name)s : %(title)s"
 msgstr "Aperçu %(verbose_name)s : %(title)s"
 
 #: templates/reports/preview_report.html:20
-#: templates/reports/view_graph.html:20
+#: templates/reports/view_graph.html:21
 #, python-format
 msgid "Back to the detailview : '%(object)s'"
 msgstr "Retour sur la fiche : '%(object)s'"
 
 #: templates/reports/preview_report.html:20
-#: templates/reports/view_graph.html:20
+#: templates/reports/view_graph.html:21
 msgid "Back"
 msgstr "Retour"
 
 #: templates/reports/preview_report.html:28
-#: templates/reports/view_report.html:25
+#: templates/reports/view_report.html:23
 #, python-format
 msgid "Download '%(object)s' as CSV file"
 msgstr "Télécharger '%(object)s' sous forme de fichier CSV"
 
 #: templates/reports/preview_report.html:28
-#: templates/reports/view_report.html:25
+#: templates/reports/view_report.html:23
 msgid "Download CSV"
 msgstr "Télécharger CSV"
 
@@ -328,85 +319,80 @@ msgstr "Télécharger CSV"
 msgid "Preview of %(limit_to)s first entities"
 msgstr "Aperçu des %(limit_to)s premières entités"
 
-#: templates/reports/view_graph.html:6
+#: templates/reports/view_graph.html:7
 #, python-format
 msgid "Rendered %(object)s"
 msgstr "Aperçu %(object)s"
 
-#: templates/reports/view_graph.html:11
-#: templates/reports/templatetags/block_report_graph.html:11
-msgid "Graph"
-msgstr "Graphique"
-
-#: templates/reports/view_graph.html:14
+#: templates/reports/view_graph.html:15
 #, python-format
 msgid "Rendered %(verbose_name)s : %(title)s"
 msgstr "Aperçu %(verbose_name)s : %(title)s"
 
-#: templates/reports/view_graph.html:39
+#: templates/reports/view_graph.html:40
 #: templates/reports/templatetags/block_report_graph.html:35
 #: templates/reports/templatetags/block_report_graphs.html:57
 msgid "Generation date"
 msgstr "Date de génération"
 
-#: templates/reports/view_graph.html:42
+#: templates/reports/view_graph.html:43
 #: templates/reports/templatetags/block_report_graph.html:42
 #: templates/reports/templatetags/block_report_graphs.html:60
 msgid "Histogram"
 msgstr "Histogramme"
 
-#: templates/reports/view_graph.html:43
+#: templates/reports/view_graph.html:44
 #: templates/reports/templatetags/block_report_graph.html:43
 #: templates/reports/templatetags/block_report_graphs.html:61
 msgid "Pie"
 msgstr "Camembert"
 
-#: templates/reports/view_graph.html:47
+#: templates/reports/view_graph.html:48
 #: templates/reports/templatetags/block_report_graph.html:47
 #: templates/reports/templatetags/block_report_graphs.html:65
 msgid "Sorting"
 msgstr "Tri"
 
-#: templates/reports/view_graph.html:49
+#: templates/reports/view_graph.html:50
 #: templates/reports/templatetags/block_report_graph.html:53
 #: templates/reports/templatetags/block_report_graphs.html:67
 msgid "Ascending"
 msgstr "Ascendant"
 
-#: templates/reports/view_graph.html:50
+#: templates/reports/view_graph.html:51
 #: templates/reports/templatetags/block_report_graph.html:54
 #: templates/reports/templatetags/block_report_graphs.html:68
 msgid "Descending"
 msgstr "Descendant"
 
-#: templates/reports/view_graph.html:55
+#: templates/reports/view_graph.html:56
 #: templates/reports/templatetags/block_report_graph.html:63
 #: templates/reports/templatetags/block_report_graphs.html:73
 msgid "Regenerate"
 msgstr "Générer à nouveau"
 
-#: templates/reports/view_graph.html:61
+#: templates/reports/view_graph.html:62
 #: templates/reports/templatetags/block_report_graphs.html:79
 msgid "Create a block"
 msgstr "Créer un bloc"
 
-#: templates/reports/view_graph.html:61
+#: templates/reports/view_graph.html:62
 #: templates/reports/templatetags/block_report_graphs.html:79
 msgid "Create a block with this graph"
 msgstr "Créer un bloc à partir de ce graph"
 
-#: templates/reports/view_graph.html:64
+#: templates/reports/view_graph.html:65
 #: templates/reports/templatetags/block_report_fields.html:27
 #: templates/reports/templatetags/block_report_graphs.html:82
 msgid "Can't add"
 msgstr "Ajout interdit"
 
-#: templates/reports/view_report.html:22
+#: templates/reports/view_report.html:20
 #, python-format
 msgid "Preview of the report : '%(object)s'"
 msgstr "Aperçu du rapport : '%(object)s'"
 
-#: templates/reports/view_report.html:22
+#: templates/reports/view_report.html:20
 msgid "Preview"
 msgstr "Aperçu"
 
@@ -498,6 +484,10 @@ msgstr "Descendre la colonne"
 msgid "No column set for the moment"
 msgstr "Aucune colonne définie pour le moment"
 
+#: templates/reports/templatetags/block_report_graph.html:11
+msgid "Graph"
+msgstr "Graphique"
+
 #: templates/reports/templatetags/block_report_graph.html:22
 #, python-format
 msgid "Go to %(graph)s's file"
@@ -530,6 +520,10 @@ msgstr "Ajouter un nouveau graphique"
 #: templates/reports/templatetags/block_report_graphs.html:11
 msgid "New"
 msgstr "Nouveau"
+
+#: templates/reports/templatetags/block_report_graphs.html:21
+msgid "Name"
+msgstr "Nom"
 
 #: templates/reports/templatetags/block_report_graphs.html:22
 msgid "Column abscissa"
@@ -633,6 +627,12 @@ msgstr "Ajout de colonne à <%s>"
 #, python-format
 msgid "Temporal filters for <%s>"
 msgstr "Filtres temporels pour <%s>"
+
+#~ msgid "Entity type - Name"
+#~ msgstr "Type d'entité - Nom"
+
+#~ msgid "Portal"
+#~ msgstr "Portail"
 
 #~ msgid "Begin date"
 #~ msgstr "Date de début"

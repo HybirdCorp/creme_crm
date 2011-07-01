@@ -31,7 +31,7 @@ creme_registry.register_entity_models(SMSCampaign, MessagingList, MessageTemplat
 creme_registry.register_app('sms', _(u'SMS'), '/sms')
 
 reg_item = creme_menu.register_app('sms', '/sms/').register_item
-reg_item('/sms/',                   _(u'Portal'),                 'sms')
+reg_item('/sms/',                   _(u'Portal of SMS'),          'sms')
 reg_item('/sms/campaigns' ,         _(u'All campaigns'),          'sms')
 reg_item('/sms/campaign/add',       _(u'Add a campaign'),         'sms.add_smscampaign')
 reg_item('/sms/messaging_lists',    _(u'All messaging lists'),    'sms')

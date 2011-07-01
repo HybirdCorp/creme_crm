@@ -31,9 +31,9 @@ creme_registry.register_app('media_managers', _(u'Media managers'), '/media')
 creme_registry.register_entity_models(Image)
 
 reg_item = creme_menu.register_app('media_managers', '/media_managers/').register_item
-reg_item('/media_managers/',          _(u'Portal'),       'media_managers')
-reg_item('/media_managers/image/add', _(u'Add an image'), 'media_managers.add_image')
-reg_item('/media_managers/images',    _(u'All images'),   'media_managers')
+reg_item('/media_managers/',          _(u'Portal of media managers'), 'media_managers')
+reg_item('/media_managers/image/add', _(u'Add an image'),             'media_managers.add_image')
+reg_item('/media_managers/images',    _(u'All images'),               'media_managers')
 
 block_registry.register_4_model(Image, ImageBlock())
 

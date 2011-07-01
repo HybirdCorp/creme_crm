@@ -34,7 +34,7 @@ creme_registry.register_app('activities', _(u'Activities'), '/activities')
 creme_registry.register_entity_models(Activity, PhoneCall, Meeting, Task)
 
 reg_item = creme_menu.register_app('activities', '/activities/').register_item
-reg_item('/activities/',                       _(u'Portal'),                 'activities')
+reg_item('/activities/',                       _(u"Portal of activities"),   'activities')
 reg_item('/activities/calendar/user',          _(u'Calendar'),               'activities')
 reg_item('/activities/indisponibility/add',    _(u'Add an indisponibility'), 'activities.add_activity')
 reg_item('/activities/activity/add/meeting',   _(u'Add a meeting'),          'activities.add_activity')
