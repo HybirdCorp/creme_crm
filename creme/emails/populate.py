@@ -29,7 +29,7 @@ from persons.models import Organisation, Contact
 from emails.models import MailingList, EmailCampaign, EmailTemplate, EntityEmail
 from emails.buttons import entityemail_link_button
 from emails.constants import (REL_SUB_MAIL_RECEIVED, REL_OBJ_MAIL_RECEIVED,
-                              REL_SUB_MAIL_SENDED, REL_OBJ_MAIL_SENDED)
+                              REL_SUB_MAIL_SENDED, REL_OBJ_MAIL_SENDED, REL_SUB_RELATED_TO, REL_OBJ_RELATED_TO)
 
 
 class Populator(BasePopulator):
@@ -41,6 +41,9 @@ class Populator(BasePopulator):
 
         RelationType.create((REL_SUB_MAIL_SENDED, _(u"(email) sended"),   [EntityEmail]),
                             (REL_OBJ_MAIL_SENDED, _(u"sended the email"), [Organisation, Contact]))
+
+        RelationType.create((REL_SUB_RELATED_TO, _(u'(email) related to'), [EntityEmail]),
+                            (REL_OBJ_RELATED_TO, _(u'related to the email'),         []))
 
         hf = HeaderFilter.create(pk='emails-hf_mailinglist', name=_(u"Mailing list view"), model=MailingList)
         hf.set_items([HeaderFilterItem.build_4_field(model=MailingList, name='name')])

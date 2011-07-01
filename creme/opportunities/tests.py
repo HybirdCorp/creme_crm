@@ -6,7 +6,7 @@ from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 
 from creme_core.models import RelationType, Relation, CremeProperty, SetCredentials
-from creme_core.constants import REL_SUB_RELATED_TO, REL_OBJ_RELATED_TO, PROP_IS_MANAGED_BY_CREME
+from creme_core.constants import PROP_IS_MANAGED_BY_CREME
 from creme_core.tests.base import CremeTestCase
 
 from creme_config.models import SettingKey, SettingValue
@@ -64,9 +64,6 @@ class OpportunitiesTestCase(CremeTestCase):
         self.assert_(REL_OBJ_EMIT_ORGA in relation_types)
         self.failIf(REL_SUB_EMIT_ORGA in relation_types)
         self.get_relationtype_or_fail(REL_OBJ_EMIT_ORGA, [Opportunity], [Organisation])
-
-        self.assert_(REL_SUB_RELATED_TO in relation_types)
-        self.assert_(REL_OBJ_RELATED_TO in relation_types)
 
         self.get_relationtype_or_fail(REL_OBJ_CURRENT_DOC, [Opportunity], [Invoice, Quote, SalesOrder])
 

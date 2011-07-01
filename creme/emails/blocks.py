@@ -24,7 +24,6 @@ from django.template.context import RequestContext #
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.contenttypes.models import ContentType
 
-from creme_core.constants import REL_SUB_RELATED_TO, REL_OBJ_RELATED_TO
 from creme_core.models import Relation, CremeEntity
 from creme_core.gui.block import Block, QuerysetBlock, list4url
 from creme_core.utils import jsonify #
@@ -186,6 +185,7 @@ class MailsHistoryBlock(QuerysetBlock):
     verbose_name  = _(u"Emails history")
     template_name = 'emails/templatetags/block_mails_history.html'
     configurable  = True
+    relation_type_deps = (REL_SUB_MAIL_SENDED, REL_SUB_MAIL_RECEIVED, REL_SUB_RELATED_TO)
 
     def detailview_display(self, context):
         entity = context['object']
