@@ -17,7 +17,7 @@ from creme_core.constants import REL_SUB_HAS
 from creme_core.tests.base import CremeTestCase
 
 from persons.models import Organisation, Contact, Address
-from persons.constants import REL_OBJ_CUSTOMER_OF, REL_OBJ_EMPLOYED_BY, REL_SUB_EMPLOYED_BY
+from persons.constants import REL_OBJ_CUSTOMER_SUPPLIER, REL_OBJ_EMPLOYED_BY, REL_SUB_EMPLOYED_BY
 
 
 def format_stack():
@@ -297,10 +297,10 @@ class RelationEntityFieldTestCase(FieldTestCase):
         autodiscover()
         self.populate('creme_core', 'persons')
 
-        field = RelationEntityField(allowed_rtypes=[REL_OBJ_CUSTOMER_OF, REL_OBJ_EMPLOYED_BY])
+        field = RelationEntityField(allowed_rtypes=[REL_OBJ_CUSTOMER_SUPPLIER, REL_OBJ_EMPLOYED_BY])
         self.assertEquals(2, len(field._get_allowed_rtypes_objects()))
 
-        self.assertEquals(RelationType.objects.get(pk=REL_OBJ_CUSTOMER_OF), field._get_allowed_rtypes_objects().get(pk=REL_OBJ_CUSTOMER_OF))
+        self.assertEquals(RelationType.objects.get(pk=REL_OBJ_CUSTOMER_SUPPLIER), field._get_allowed_rtypes_objects().get(pk=REL_OBJ_CUSTOMER_SUPPLIER))
         self.assertEquals(RelationType.objects.get(pk=REL_OBJ_EMPLOYED_BY), field._get_allowed_rtypes_objects().get(pk=REL_OBJ_EMPLOYED_BY))
 
     def test_default_rtypes(self):
@@ -319,9 +319,9 @@ class RelationEntityFieldTestCase(FieldTestCase):
 
         self.assertEquals(RelationType.objects.get(pk=REL_SUB_HAS), field._get_allowed_rtypes_objects().get(pk=REL_SUB_HAS))
 
-        field.allowed_rtypes = [REL_OBJ_CUSTOMER_OF, REL_OBJ_EMPLOYED_BY]
+        field.allowed_rtypes = [REL_OBJ_CUSTOMER_SUPPLIER, REL_OBJ_EMPLOYED_BY]
 
-        self.assertEquals(RelationType.objects.get(pk=REL_OBJ_CUSTOMER_OF), field._get_allowed_rtypes_objects().get(pk=REL_OBJ_CUSTOMER_OF))
+        self.assertEquals(RelationType.objects.get(pk=REL_OBJ_CUSTOMER_SUPPLIER), field._get_allowed_rtypes_objects().get(pk=REL_OBJ_CUSTOMER_SUPPLIER))
         self.assertEquals(RelationType.objects.get(pk=REL_OBJ_EMPLOYED_BY), field._get_allowed_rtypes_objects().get(pk=REL_OBJ_EMPLOYED_BY))
 
     def test_clean_empty_required(self):
@@ -356,16 +356,16 @@ class RelationEntityFieldTestCase(FieldTestCase):
         self.login()
         Contact.objects.create(user=self.user, first_name='Casca', last_name='Miura')
 
-        field = RelationEntityField(allowed_rtypes=[REL_OBJ_CUSTOMER_OF, REL_OBJ_EMPLOYED_BY])
+        field = RelationEntityField(allowed_rtypes=[REL_OBJ_CUSTOMER_SUPPLIER, REL_OBJ_EMPLOYED_BY])
         contact_ctype, contact = get_field_entry_pair(Contact, Contact)
-        value = '{"rtype":"%s", "ctype":"%s","entity":"%s"}' % (REL_OBJ_CUSTOMER_OF, contact_ctype.pk, contact.pk)
+        value = '{"rtype":"%s", "ctype":"%s","entity":"%s"}' % (REL_OBJ_CUSTOMER_SUPPLIER, contact_ctype.pk, contact.pk)
         self.assertFieldValidationError(RelationEntityField, 'rtypedoesnotexist', field.clean, value)
 
     # data injection : use a correct content entry (content type and id), but content type not in field list...
     def test_clean_not_allowed_rtype(self):
         self.populate('creme_core', 'persons')
 
-        field = RelationEntityField(allowed_rtypes=[REL_OBJ_CUSTOMER_OF, REL_OBJ_EMPLOYED_BY])
+        field = RelationEntityField(allowed_rtypes=[REL_OBJ_CUSTOMER_SUPPLIER, REL_OBJ_EMPLOYED_BY])
         contact_ctype, contact = get_field_entry_pair(Contact, Contact)
         value = '{"rtype":"%s", "ctype":"%s","entity":"%s"}' % (REL_SUB_HAS, contact_ctype.pk, contact.pk)
         self.assertFieldValidationError(RelationEntityField, 'rtypenotallowed', field.clean, value)
@@ -374,7 +374,7 @@ class RelationEntityFieldTestCase(FieldTestCase):
     def test_clean_ctype_constraint_error(self):
         self.populate('creme_core', 'persons')
 
-        field = RelationEntityField(allowed_rtypes=[REL_OBJ_CUSTOMER_OF, REL_OBJ_EMPLOYED_BY])
+        field = RelationEntityField(allowed_rtypes=[REL_OBJ_CUSTOMER_SUPPLIER, REL_OBJ_EMPLOYED_BY])
         orga_ctype, orga = get_field_entry_pair(Organisation, Organisation)
         value = '{"rtype":"%s", "ctype":"%s","entity":"%s"}' % (REL_OBJ_EMPLOYED_BY, orga_ctype.pk, orga.pk)
         self.assertFieldValidationError(RelationEntityField, 'ctypenotallowed', field.clean, value)
@@ -383,7 +383,7 @@ class RelationEntityFieldTestCase(FieldTestCase):
     def test_clean_unknown_entity(self):
         self.populate('creme_core', 'persons')
 
-        field = RelationEntityField(allowed_rtypes=[REL_OBJ_CUSTOMER_OF, REL_OBJ_EMPLOYED_BY])
+        field = RelationEntityField(allowed_rtypes=[REL_OBJ_CUSTOMER_SUPPLIER, REL_OBJ_EMPLOYED_BY])
         contact_ctype, orga = get_field_entry_pair(Contact, Organisation)
         value = '{"rtype":"%s", "ctype":"%s","entity":"%s"}' % (REL_OBJ_EMPLOYED_BY, contact_ctype.pk, orga.pk)
         self.assertFieldValidationError(RelationEntityField, 'doesnotexist', field.clean, value)
@@ -391,7 +391,7 @@ class RelationEntityFieldTestCase(FieldTestCase):
     def test_clean_relation(self):
         self.populate('creme_core', 'persons')
 
-        field = RelationEntityField(allowed_rtypes=[REL_OBJ_CUSTOMER_OF, REL_OBJ_EMPLOYED_BY])
+        field = RelationEntityField(allowed_rtypes=[REL_OBJ_CUSTOMER_SUPPLIER, REL_OBJ_EMPLOYED_BY])
         contact_ctype, contact = get_field_entry_pair(Contact, Contact)
         value = '{"rtype":"%s", "ctype":"%s","entity":"%s"}' % (REL_OBJ_EMPLOYED_BY, contact_ctype.pk, contact.pk)
         self.assertEquals((RelationType.objects.get(pk=REL_OBJ_EMPLOYED_BY), contact), field.clean(value))
@@ -455,10 +455,10 @@ class MultiRelationEntityFieldTestCase(FieldTestCase):
         autodiscover()
         self.populate('creme_core', 'persons')
 
-        field = MultiRelationEntityField(allowed_rtypes=[REL_OBJ_CUSTOMER_OF, REL_OBJ_EMPLOYED_BY])
+        field = MultiRelationEntityField(allowed_rtypes=[REL_OBJ_CUSTOMER_SUPPLIER, REL_OBJ_EMPLOYED_BY])
         self.assertEquals(2, len(field._get_allowed_rtypes_objects()))
 
-        self.assertEquals(RelationType.objects.get(pk=REL_OBJ_CUSTOMER_OF), field._get_allowed_rtypes_objects().get(pk=REL_OBJ_CUSTOMER_OF))
+        self.assertEquals(RelationType.objects.get(pk=REL_OBJ_CUSTOMER_SUPPLIER), field._get_allowed_rtypes_objects().get(pk=REL_OBJ_CUSTOMER_SUPPLIER))
         self.assertEquals(RelationType.objects.get(pk=REL_OBJ_EMPLOYED_BY), field._get_allowed_rtypes_objects().get(pk=REL_OBJ_EMPLOYED_BY))
 
     def test_default_rtypes(self):
@@ -501,16 +501,16 @@ class MultiRelationEntityFieldTestCase(FieldTestCase):
         self.login()
         Contact.objects.create(user=self.user, first_name='Casca', last_name='Miura')
 
-        field = MultiRelationEntityField(allowed_rtypes=[REL_OBJ_CUSTOMER_OF, REL_OBJ_EMPLOYED_BY])
+        field = MultiRelationEntityField(allowed_rtypes=[REL_OBJ_CUSTOMER_SUPPLIER, REL_OBJ_EMPLOYED_BY])
         contact_ctype, contact = get_field_entry_pair(Contact, Contact)
-        value = '[{"rtype":"%s", "ctype":"%s","entity":"%s"}]' % (REL_OBJ_CUSTOMER_OF, contact_ctype.pk, contact.pk)
+        value = '[{"rtype":"%s", "ctype":"%s","entity":"%s"}]' % (REL_OBJ_CUSTOMER_SUPPLIER, contact_ctype.pk, contact.pk)
         self.assertFieldValidationError(RelationEntityField, 'rtypedoesnotexist', field.clean, value)
 
     # data injection : use a correct content entry (content type and id), but content type not in field list...
     def test_clean_not_allowed_rtype(self):
         self.populate('creme_core', 'persons')
 
-        field = MultiRelationEntityField(allowed_rtypes=[REL_OBJ_CUSTOMER_OF, REL_OBJ_EMPLOYED_BY])
+        field = MultiRelationEntityField(allowed_rtypes=[REL_OBJ_CUSTOMER_SUPPLIER, REL_OBJ_EMPLOYED_BY])
 
         contact_ctype, contact = get_field_entry_pair(Contact, Contact)
         orga_ctype, orga = get_field_entry_pair(Organisation, Organisation)
@@ -525,14 +525,14 @@ class MultiRelationEntityFieldTestCase(FieldTestCase):
     def test_clean_ctype_constraint_error(self):
         self.populate('creme_core', 'persons')
 
-        field = MultiRelationEntityField(allowed_rtypes=[REL_OBJ_CUSTOMER_OF, REL_OBJ_EMPLOYED_BY])
+        field = MultiRelationEntityField(allowed_rtypes=[REL_OBJ_CUSTOMER_SUPPLIER, REL_OBJ_EMPLOYED_BY])
 
         contact_ctype, contact = get_field_entry_pair(Contact, Contact)
         orga_ctype, orga = get_field_entry_pair(Organisation, Organisation)
 
         value = '[{"rtype":"%s", "ctype":"%s","entity":"%s"},{"rtype":"%s", "ctype":"%s","entity":"%s"}]' % (
                         REL_OBJ_EMPLOYED_BY, orga_ctype.pk, orga.pk,
-                        REL_OBJ_CUSTOMER_OF, contact_ctype.pk, contact.pk,
+                        REL_OBJ_CUSTOMER_SUPPLIER, contact_ctype.pk, contact.pk,
                     )
         self.assertFieldValidationError(MultiRelationEntityField, 'ctypenotallowed', field.clean, value)
 
@@ -540,21 +540,21 @@ class MultiRelationEntityFieldTestCase(FieldTestCase):
     def test_clean_unknown_entity(self):
         self.populate('creme_core', 'persons')
 
-        field = MultiRelationEntityField(allowed_rtypes=[REL_OBJ_CUSTOMER_OF, REL_OBJ_EMPLOYED_BY])
+        field = MultiRelationEntityField(allowed_rtypes=[REL_OBJ_CUSTOMER_SUPPLIER, REL_OBJ_EMPLOYED_BY])
 
         contact_ctype, contact = get_field_entry_pair(Contact, Contact)
         orga_ctype, orga = get_field_entry_pair(Organisation, Organisation)
 
         value = '[{"rtype":"%s", "ctype":"%s","entity":"%s"},{"rtype":"%s", "ctype":"%s","entity":"%s"}]' % (
                         REL_OBJ_EMPLOYED_BY, contact_ctype.pk, orga.pk,
-                        REL_OBJ_CUSTOMER_OF, contact_ctype.pk, contact.pk,
+                        REL_OBJ_CUSTOMER_SUPPLIER, contact_ctype.pk, contact.pk,
                     )
         self.assertFieldValidationError(MultiRelationEntityField, 'doesnotexist', field.clean, value)
 
     def test_clean_relations(self):
         self.populate('creme_core', 'persons')
 
-        field = MultiRelationEntityField(allowed_rtypes=[REL_OBJ_CUSTOMER_OF, REL_OBJ_EMPLOYED_BY, REL_SUB_EMPLOYED_BY])
+        field = MultiRelationEntityField(allowed_rtypes=[REL_OBJ_CUSTOMER_SUPPLIER, REL_OBJ_EMPLOYED_BY, REL_SUB_EMPLOYED_BY])
 
         contact_ctype, contact = get_field_entry_pair(Contact, Contact)
         orga_ctype, orga = get_field_entry_pair(Organisation, Organisation)
@@ -562,14 +562,14 @@ class MultiRelationEntityFieldTestCase(FieldTestCase):
         value = """[{"rtype":"%s", "ctype":"%s","entity":"%s"},
                     {"rtype":"%s", "ctype":"%s","entity":"%s"},
                     {"rtype":"%s", "ctype":"%s","entity":"%s"}]""" % (REL_OBJ_EMPLOYED_BY, contact_ctype.pk, contact.pk,
-                                                                      REL_OBJ_CUSTOMER_OF, contact_ctype.pk, contact.pk,
+                                                                      REL_OBJ_CUSTOMER_SUPPLIER, contact_ctype.pk, contact.pk,
                                                                       REL_SUB_EMPLOYED_BY, orga_ctype.pk, orga.pk)
 
         relations = field.clean(value)
         self.assertEquals(3, len(relations))
 
         self.assertEquals((RelationType.objects.get(pk=REL_OBJ_EMPLOYED_BY), contact), relations[0])
-        self.assertEquals((RelationType.objects.get(pk=REL_OBJ_CUSTOMER_OF), contact), relations[1])
+        self.assertEquals((RelationType.objects.get(pk=REL_OBJ_CUSTOMER_SUPPLIER), contact), relations[1])
         self.assertEquals((RelationType.objects.get(pk=REL_SUB_EMPLOYED_BY), orga), relations[2])
 
     def test_clean_ctype_without_constraint(self):

@@ -25,7 +25,7 @@ from django.contrib.auth.decorators import login_required, permission_required
 from creme_core.models import CremeEntity, Relation, RelationType
 from creme_core.utils import get_from_POST_or_404
 
-from persons.constants import REL_SUB_CUSTOMER_OF, REL_SUB_PROSPECT, REL_SUB_SUSPECT, REL_SUB_INACTIVE, REL_SUB_SUPPLIER
+from persons.constants import REL_SUB_CUSTOMER_SUPPLIER, REL_SUB_PROSPECT, REL_SUB_SUSPECT, REL_SUB_INACTIVE, REL_OBJ_CUSTOMER_SUPPLIER
 from persons.models import Organisation
 
 
@@ -55,7 +55,7 @@ def _link(request, entity_id, relation_type_id):
     return HttpResponseRedirect(entity.get_absolute_url())
 
 def become_customer(request, entity_id):
-    return _link(request, entity_id, REL_SUB_CUSTOMER_OF)
+    return _link(request, entity_id, REL_SUB_CUSTOMER_SUPPLIER)
 
 def become_prospect(request, entity_id):
     return _link(request, entity_id, REL_SUB_PROSPECT)
@@ -67,4 +67,4 @@ def become_inactive(request, entity_id):
     return _link(request, entity_id, REL_SUB_INACTIVE)
 
 def become_supplier(request, entity_id):
-    return _link(request, entity_id, REL_SUB_SUPPLIER)
+    return _link(request, entity_id, REL_OBJ_CUSTOMER_SUPPLIER)

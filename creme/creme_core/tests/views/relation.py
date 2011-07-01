@@ -8,7 +8,7 @@ from creme_core.models import RelationType, Relation, CremeEntity, CremeProperty
 from creme_core.tests.views.base import ViewsTestCase
 
 from persons.models import Contact, Organisation
-from persons.constants import REL_OBJ_CUSTOMER_OF
+from persons.constants import REL_OBJ_CUSTOMER_SUPPLIER
 
 
 __all__ = ('RelationViewsTestCase', )
@@ -19,7 +19,7 @@ class RelationViewsTestCase(ViewsTestCase):
         self.login()
         self.populate('creme_core', 'persons')
 
-        response = self.client.get('/creme_core/relation/predicate/%s/content_types/json' % REL_OBJ_CUSTOMER_OF,
+        response = self.client.get('/creme_core/relation/predicate/%s/content_types/json' % REL_OBJ_CUSTOMER_SUPPLIER,
                                    data={'fields': ['id', 'unicode']}
                                   )
         self.assertEqual(200,               response.status_code)
