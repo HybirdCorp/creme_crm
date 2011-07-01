@@ -23,3 +23,6 @@ REL_OBJ_MAIL_RECEIVED = 'email-object_mail_received'
 
 REL_SUB_MAIL_SENDED = 'email-subject_mail_sended'
 REL_OBJ_MAIL_SENDED = 'email-object_mail_sended'
+
+REL_SUB_RELATED_TO = 'email-subject_related_to'
+REL_OBJ_RELATED_TO = 'email-object_related_to'
