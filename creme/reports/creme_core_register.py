@@ -31,7 +31,7 @@ creme_registry.register_app('reports', _(u'Reports'), '/reports')
 creme_registry.register_entity_models(Report)
 
 reg_item = creme_menu.register_app('reports', '/reports/').register_item
-reg_item('/reports/',           _(u'Portal'),       'reports')
+reg_item('/reports/',           _(u'Portal of reports'),       'reports')
 reg_item('/reports/reports',    _(u'All reports'),  'reports')
 reg_item('/reports/report/add', _(u'Add a report'), 'reports.add_report')
 

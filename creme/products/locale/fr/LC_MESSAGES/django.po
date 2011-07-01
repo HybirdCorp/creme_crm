@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-05-31 13:41+0200\n"
+"POT-Creation-Date: 2011-07-01 18:04+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -16,191 +16,171 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: creme_core_register.py:30
+#: creme_core_register.py:29
 msgid "Products and services"
 msgstr "Produits et services"
 
-#: creme_core_register.py:34
-msgid "Portal"
-msgstr "Portail"
+#: creme_core_register.py:33
+msgid "Portal of products and services"
+msgstr "Portail des produits et services"
 
-#: creme_core_register.py:35
+#: creme_core_register.py:34
 msgid "All products"
 msgstr "Lister les produits"
 
-#: creme_core_register.py:36
+#: creme_core_register.py:35
 msgid "Add a product"
 msgstr "Ajouter un produit"
 
-#: creme_core_register.py:37
+#: creme_core_register.py:36
 msgid "All services"
 msgstr "Lister les services"
 
-#: creme_core_register.py:38
+#: creme_core_register.py:37
 msgid "Add a service"
 msgstr "Ajouter un service"
 
-#: populate.py:35
+#: populate.py:34
 msgid "Product view"
 msgstr "Vue de Produit"
 
-#: populate.py:37 populate.py:44
-msgid "Images - Name"
-msgstr "Images - Nom"
-
-#: populate.py:38 populate.py:45 models/product.py:35 models/service.py:34
-msgid "Name"
-msgstr "Nom"
-
-#: populate.py:39 models/product.py:36
-msgid "Code"
-msgstr "Code"
-
-#: populate.py:40 populate.py:47
-msgid "User - Username"
-msgstr "Utilisateur - Nom d'utilisateur"
-
-#: populate.py:42
+#: populate.py:41
 msgid "Service view"
 msgstr "Vue de Service"
 
-#: populate.py:46 models/service.py:36
-msgid "Reference"
-msgstr "Référence"
-
-#: populate.py:49
+#: populate.py:48
 msgid "Jewelry"
 msgstr "Bijoux"
 
-#: populate.py:50
+#: populate.py:49
 msgid "Ring"
 msgstr "Bague"
 
-#: populate.py:51
+#: populate.py:50
 msgid "Bracelet"
 msgstr "Bracelet"
 
-#: populate.py:52
+#: populate.py:51
 msgid "Necklace"
 msgstr "Collier"
 
-#: populate.py:53
+#: populate.py:52
 msgid "Earrings"
 msgstr "Boucles d'oreille"
 
-#: populate.py:55
+#: populate.py:54
 msgid "Mobile"
 msgstr "Mobile"
 
-#: populate.py:56
+#: populate.py:55
 msgid "Iphone"
 msgstr "Iphone"
 
-#: populate.py:57
+#: populate.py:56
 msgid "Blackberry"
 msgstr "Blackberry"
 
-#: populate.py:58
+#: populate.py:57
 msgid "Samsung"
 msgstr "Samsung"
 
-#: populate.py:59
+#: populate.py:58
 msgid "Android"
 msgstr "Android"
 
-#: populate.py:61
+#: populate.py:60
 msgid "Informatic"
 msgstr "Informatique"
 
-#: populate.py:62
+#: populate.py:61
 msgid "Laptops"
 msgstr "Portables"
 
-#: populate.py:63
+#: populate.py:62
 msgid "Desktops"
 msgstr "Bureau"
 
-#: populate.py:64
+#: populate.py:63
 msgid "Tablet"
 msgstr "Tablette"
 
-#: populate.py:65
+#: populate.py:64
 msgid "Notebook"
 msgstr "Netbook"
 
-#: populate.py:67
+#: populate.py:66
 msgid "Travels"
 msgstr "Voyages"
 
-#: populate.py:68
+#: populate.py:67
 msgid "Fly"
 msgstr "Vol"
 
-#: populate.py:69
+#: populate.py:68
 msgid "Hotel"
 msgstr "Hôtel"
 
-#: populate.py:70
+#: populate.py:69
 msgid "Week-end"
 msgstr "Week-end"
 
-#: populate.py:71
+#: populate.py:70
 msgid "Rent"
 msgstr "Location"
 
-#: populate.py:73
+#: populate.py:72
 msgid "Vehicle"
 msgstr "Véhicule"
 
-#: populate.py:74
+#: populate.py:73
 msgid "Car"
 msgstr "Voiture"
 
-#: populate.py:75
+#: populate.py:74
 msgid "Moto"
 msgstr "Moto"
 
-#: populate.py:76
+#: populate.py:75
 msgid "Boat"
 msgstr "Bateau"
 
-#: populate.py:77
+#: populate.py:76
 msgid "Plane"
 msgstr "Avion"
 
-#: populate.py:79
+#: populate.py:78
 msgid "Games & Toys"
 msgstr "Jeux & jouets"
 
-#: populate.py:80
+#: populate.py:79
 msgid "Boys"
 msgstr "Garçons"
 
-#: populate.py:81
+#: populate.py:80
 msgid "Girls"
 msgstr "Filles"
 
-#: populate.py:82
+#: populate.py:81
 msgid "Teens"
 msgstr "Adolescents"
 
-#: populate.py:83 populate.py:89
+#: populate.py:82 populate.py:88
 msgid "Baybies"
 msgstr "Bébés"
 
-#: populate.py:85
+#: populate.py:84
 msgid "Clothes"
 msgstr "Vêtements"
 
-#: populate.py:86
+#: populate.py:85
 msgid "Men"
 msgstr "Hommes"
 
-#: populate.py:87
+#: populate.py:86
 msgid "Women"
 msgstr "Femmes"
 
-#: populate.py:88
+#: populate.py:87
 msgid "Kids"
 msgstr "Enfants"
 
@@ -255,6 +235,14 @@ msgstr "Catégorie parente"
 msgid "Sub-categories"
 msgstr "Sous-catégories"
 
+#: models/product.py:35 models/service.py:34
+msgid "Name"
+msgstr "Nom"
+
+#: models/product.py:36
+msgid "Code"
+msgstr "Code"
+
 #: models/product.py:38 models/service.py:41
 msgid "Quantity/Unit"
 msgstr "Quantité/Unité"
@@ -275,13 +263,17 @@ msgstr "Quantité/Stock"
 msgid "Web Site"
 msgstr "Site Web"
 
-#: models/product.py:73 templates/products/view_product.html:5
+#: models/product.py:74
 msgid "Product"
 msgstr "Produit"
 
-#: models/product.py:74
+#: models/product.py:75
 msgid "Products"
 msgstr "Produits"
+
+#: models/service.py:36
+msgid "Reference"
+msgstr "Référence"
 
 #: models/service.py:39
 msgid "Countable"
@@ -291,7 +283,7 @@ msgstr "Dénombrable"
 msgid "Unit"
 msgstr "Unité"
 
-#: models/service.py:63 templates/products/view_service.html:4
+#: models/service.py:63
 msgid "Service"
 msgstr "Service"
 
@@ -314,6 +306,18 @@ msgstr "Nombre de produit(s)"
 #: views/portal.py:36
 msgid "Number of services"
 msgstr "Nombre de service(s)"
+
+#~ msgid "Portal"
+#~ msgstr "Portail"
+
+#~ msgid "Portal of products"
+#~ msgstr "Portail des produits et services"
+
+#~ msgid "Images - Name"
+#~ msgstr "Images - Nom"
+
+#~ msgid "User - Username"
+#~ msgstr "Utilisateur - Nom d'utilisateur"
 
 #~ msgid "Cooking"
 #~ msgstr "Cuisine"

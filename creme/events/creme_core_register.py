@@ -31,9 +31,9 @@ creme_registry.register_entity_models(Event)
 creme_registry.register_app('events', _(u'Events'), '/events')
 
 reg_item = creme_menu.register_app('events', '/events/').register_item
-reg_item('/events/',          _(u'Portal'),       'events')
-reg_item('/events/events',    _(u'All events'),   'events')
-reg_item('/events/event/add', _(u'Add an event'), 'events.add_event')
+reg_item('/events/',          _(u'Portal of events'), 'events')
+reg_item('/events/events',    _(u'All events'),       'events')
+reg_item('/events/event/add', _(u'Add an event'),     'events.add_event')
 
 block_registry.register(resuts_block)
 

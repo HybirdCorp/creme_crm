@@ -32,7 +32,7 @@ creme_registry.register_entity_models(EmailCampaign, MailingList, EmailTemplate,
 creme_registry.register_app('emails', _(u'Emails'), '/emails')
 
 reg_item = creme_menu.register_app ('emails', '/emails/').register_item
-reg_item('/emails/',                 _(u'Portal'),                             'emails')
+reg_item('/emails/',                 _(u'Portal of emails'),                   'emails')
 reg_item('/emails/campaigns' ,       _(u'All campaigns'),                      'emails')
 reg_item('/emails/campaign/add',     _(u'Add a campaign'),                     'emails.add_emailcampaign')
 reg_item('/emails/mailing_lists',    _(u'All mailing lists'),                  'emails')

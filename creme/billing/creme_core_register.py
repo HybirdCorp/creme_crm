@@ -33,7 +33,7 @@ creme_registry.register_app('billing', _(u'Billing'), '/billing')
 creme_registry.register_entity_models(Invoice, Quote, SalesOrder, CreditNote, Line, ServiceLine, ProductLine)
 
 reg_item = creme_menu.register_app('billing', '/billing/').register_item
-reg_item('/billing/',                _(u'Portal'),            'billing')
+reg_item('/billing/',                _(u'Portal of billing'),            'billing')
 reg_item('/billing/invoice/add',     _(u'Add an invoice'),    'billing.add_invoice')
 reg_item('/billing/invoices',        _(u'All invoices'),      'billing')
 reg_item('/billing/sales_order/add', _(u'Add a sales order'), 'billing.add_salesorder')

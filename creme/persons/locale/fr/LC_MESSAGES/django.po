@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-07-01 15:57+0200\n"
+"POT-Creation-Date: 2011-07-01 17:45+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -72,8 +72,8 @@ msgid "Accounts and Contacts"
 msgstr "Comptes et contacts"
 
 #: creme_core_register.py:39
-msgid "Portal"
-msgstr "Portail"
+msgid "Portal of accounts and contacts"
+msgstr "Portail des comptes et contacts"
 
 #: creme_core_register.py:40
 msgid "All contacts"
@@ -741,6 +741,9 @@ msgstr "Nombre de société(s)"
 #, python-format
 msgid "Number of customers of %s"
 msgstr "Nombre de client(s) de %s"
+
+#~ msgid "Portal"
+#~ msgstr "Portail"
 
 #~ msgid "User - Username"
 #~ msgstr "Utilisateur - Nom d'utilisateur"

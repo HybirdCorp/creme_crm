@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-04-12 13:56+0200\n"
+"POT-Creation-Date: 2011-07-01 18:07+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -16,75 +16,68 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: creme_core_register.py:29
+#: creme_core_register.py:30
 msgid "Media managers"
-msgstr "Gestionnaires des média"
-
-#: creme_core_register.py:33
-msgid "Portal"
-msgstr "Portail"
+msgstr "Gestionnaires des médias"
 
 #: creme_core_register.py:34
+msgid "Portal of media managers"
+msgstr "Portail des gestionnaires des médias"
+
+#: creme_core_register.py:35
 msgid "Add an image"
 msgstr "Ajouter une image"
 
-#: creme_core_register.py:35
+#: creme_core_register.py:36
 msgid "All images"
 msgstr "Lister les images"
 
-#: populate.py:36
+#: populate.py:35
 msgid "Product image"
 msgstr "Image de produit"
 
-#: populate.py:37
+#: populate.py:36
 msgid "Organisation logo"
 msgstr "Logo de société"
 
-#: populate.py:38
+#: populate.py:37
 msgid "Contact photograph"
 msgstr "Photo de contact"
 
-#: populate.py:40
+#: populate.py:39
 msgid "Image view"
 msgstr "Vue d'Image"
 
-#: populate.py:42 models/image.py:42
-#: templates/media_managers/image_as_table.html:17
+#: forms/widgets.py:33
+msgid "Add image"
+msgstr "Ajouter image"
+
+#: models/image.py:43 templates/media_managers/block_image.html:17
 msgid "Name"
 msgstr "Nom"
 
-#: populate.py:43 models/image.py:46 models/image.py:59
+#: models/image.py:44 templates/media_managers/block_image.html:21
+msgid "Description"
+msgstr "Description"
+
+#: models/image.py:45 templates/media_managers/block_image.html:25
+msgid "Height"
+msgstr "Hauteur"
+
+#: models/image.py:46 templates/media_managers/block_image.html:29
+msgid "Width"
+msgstr "Largueur"
+
+#: models/image.py:47 models/image.py:60
 #: templates/media_managers/portal.html:49
 msgid "Image"
 msgstr "Image"
 
-#: populate.py:44 models/image.py:43
-#: templates/media_managers/image_as_table.html:21
-msgid "Description"
-msgstr "Description"
-
-#: populate.py:45
-msgid "User - Username"
-msgstr "Utilisateur - Nom d'utilisateur"
-
-#: populate.py:46 models/image.py:48
-#: templates/media_managers/image_as_table.html:33
+#: models/image.py:49 templates/media_managers/block_image.html:33
 msgid "Categories"
 msgstr "Catégories"
 
-#: forms/widgets.py:32
-msgid "Add image"
-msgstr "Ajouter image"
-
-#: models/image.py:44 templates/media_managers/image_as_table.html:25
-msgid "Height"
-msgstr "Hauteur"
-
-#: models/image.py:45 templates/media_managers/image_as_table.html:29
-msgid "Width"
-msgstr "Largueur"
-
-#: models/image.py:60
+#: models/image.py:61
 msgid "Images"
 msgstr "Images"
 
@@ -100,12 +93,16 @@ msgstr "Catégorie de média"
 msgid "Media categories"
 msgstr "Catégories de média"
 
-#: templates/media_managers/image_as_table.html:10
-#: templates/media_managers/image_as_table.html:11
+#: templates/media_managers/block_image.html:6
 msgid "Image information"
 msgstr "Informations sur l'image"
 
-#: templates/media_managers/image_as_table.html:38
+#: templates/media_managers/block_image.html:6
+#, fuzzy
+msgid "Information"
+msgstr "Informations sur l'image"
+
+#: templates/media_managers/block_image.html:38
 msgid "Download image"
 msgstr "Télécharger l'image"
 
@@ -133,9 +130,19 @@ msgstr "Dernières images ajoutées"
 msgid "See"
 msgstr "Voir"
 
+#: templates/media_managers/view_image_popup.html:45
+msgid "About Hybird"
+msgstr ""
+
 #: views/portal.py:33
 msgid "Number of images"
 msgstr "Nombre d'image(s)"
+
+#~ msgid "Portal"
+#~ msgstr "Portail"
+
+#~ msgid "User - Username"
+#~ msgstr "Utilisateur - Nom d'utilisateur"
 
 #~ msgid "User"
 #~ msgstr "Utilisateur"
