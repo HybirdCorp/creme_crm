@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-06-30 17:23+0200\n"
+"POT-Creation-Date: 2011-07-01 16:33+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -718,12 +718,12 @@ msgstr "Aucun type de relation pour le moment"
 #: templates/creme_config/templatetags/block_instanceblocksconfig.html:5
 #, python-format
 msgid "%s Instance's block created"
-msgstr "%s Blocs d'instance crée"
+msgstr "%s Bloc d'instance créé"
 
 #: templates/creme_config/templatetags/block_instanceblocksconfig.html:5
 #, python-format
 msgid "%s Instances' blocks created"
-msgstr "%s Blocs d'instance crées"
+msgstr "%s Blocs d'instance créés"
 
 #: templates/creme_config/templatetags/block_instanceblocksconfig.html:11
 msgid "Related entity"
@@ -839,12 +839,12 @@ msgstr "Aucun type de relation personnalisé n'existe pour le moment"
 #: templates/creme_config/templatetags/block_relationblocksconfig.html:5
 #, python-format
 msgid "%s Type of relation block created"
-msgstr "%s Type de bloc de relation crée"
+msgstr "%s Type de bloc de relation créé"
 
 #: templates/creme_config/templatetags/block_relationblocksconfig.html:5
 #, python-format
 msgid "%s Types of relation block created"
-msgstr "%s Types de bloc de relation crées"
+msgstr "%s Types de bloc de relation créés"
 
 #: templates/creme_config/templatetags/block_relationblocksconfig.html:11
 #: views/blocks.py:43
